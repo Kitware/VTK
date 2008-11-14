@@ -21,16 +21,19 @@
 /// \file vtkQtChartMouseZoom.cxx
 /// \date March 11, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartMouseZoom.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartMouseBox.h"
 
 #include <QCursor>
-#include <QGraphicsScene>
-#include <QGraphicsView>
 #include <QMouseEvent>
-#include <QList>
 #include <QPixmap>
 #include <QPointF>
 #include <QRectF>
@@ -86,16 +89,14 @@ void vtkQtChartMouseZoom::setMouseOwner(bool owns)
     }
 }
 
-bool vtkQtChartMouseZoom::mousePressEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *)
+bool vtkQtChartMouseZoom::mousePressEvent(QMouseEvent *e, vtkQtChartArea *)
 {
   this->Internal->Last = e->globalPos();
   this->Internal->LastSet = true;
   return false;
 }
 
-bool vtkQtChartMouseZoom::mouseMoveEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+bool vtkQtChartMouseZoom::mouseMoveEvent(QMouseEvent *e, vtkQtChartArea *chart)
 {
   if(!this->isMouseOwner())
     {
@@ -106,9 +107,11 @@ bool vtkQtChartMouseZoom::mouseMoveEvent(QMouseEvent *e,
     {
     if(this->Internal->LastSet)
       {
+      vtkQtChartContentsSpace *contents = chart->getContentsSpace();
       if(!contents->isInInteraction())
         {
         contents->startInteraction();
+        chart->startInteractiveResize();
         }
 
       // Zoom in or out based on the mouse movement up or down.
@@ -143,11 +146,12 @@ bool vtkQtChartMouseZoom::mouseMoveEvent(QMouseEvent *e,
 }
 
 bool vtkQtChartMouseZoom::mouseReleaseEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *contents)
+    vtkQtChartArea *chart)
 {
   if(this->isMouseOwner())
     {
-    contents->finishInteraction();
+    chart->getContentsSpace()->finishInteraction();
+    chart->finishInteractiveResize();
     emit this->interactionFinished(this);
     }
 
@@ -155,17 +159,18 @@ bool vtkQtChartMouseZoom::mouseReleaseEvent(QMouseEvent *,
 }
 
 bool vtkQtChartMouseZoom::mouseDoubleClickEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *contents)
+    vtkQtChartArea *chart)
 {
-  contents->resetZoom();
+  chart->getContentsSpace()->resetZoom();
   return true;
 }
 
 bool vtkQtChartMouseZoom::wheelEvent(QWheelEvent *e,
-    vtkQtChartContentsSpace *contents)
+    vtkQtChartArea *chart)
 {
   // If the wheel event delta is positive, zoom in. Otherwise, zoom
   // out.
+  vtkQtChartContentsSpace *contents = chart->getContentsSpace();
   float factorChange = vtkQtChartContentsSpace::getZoomFactorStep();
   if(e->delta() < 0)
     {
@@ -246,7 +251,6 @@ vtkQtChartMouseZoomY::vtkQtChartMouseZoomY(QObject *parentObject)
 vtkQtChartMouseZoomBox::vtkQtChartMouseZoomBox(QObject *parentObject)
   : vtkQtChartMouseFunction(parentObject)
 {
-  this->MouseBox = 0;
   this->ZoomCursor = new QCursor(QPixmap(zoom_xpm), 11, 11);
 }
 
@@ -268,43 +272,45 @@ void vtkQtChartMouseZoomBox::setMouseOwner(bool owns)
     }
 }
 
-bool vtkQtChartMouseZoomBox::mousePressEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *)
+bool vtkQtChartMouseZoomBox::mousePressEvent(QMouseEvent *, vtkQtChartArea *)
 {
   return false;
 }
 
 bool vtkQtChartMouseZoomBox::mouseMoveEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *)
+    vtkQtChartArea *chart)
 {
-  if(!this->isMouseOwner() && this->MouseBox)
+  vtkQtChartMouseBox *mouseBox = chart->getMouseBox();
+  if(!this->isMouseOwner() && mouseBox)
     {
     emit this->interactionStarted(this);
-    this->MouseBox->setVisible(true);
+    mouseBox->setVisible(true);
     }
 
   if(this->isMouseOwner())
     {
-    this->MouseBox->adjustRectangle(e->pos());
+    mouseBox->adjustRectangle(e->pos());
     }
 
   return true;
 }
 
 bool vtkQtChartMouseZoomBox::mouseReleaseEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+    vtkQtChartArea *chart)
 {
   if(this->isMouseOwner())
     {
     // Adjust the mouse box before using it.
-    this->MouseBox->adjustRectangle(e->pos());
-    this->MouseBox->setVisible(false);
+    vtkQtChartMouseBox *mouseBox = chart->getMouseBox();
+    mouseBox->adjustRectangle(e->pos());
+    mouseBox->setVisible(false);
 
     // Get the mouse box rectangle in scene coordinates.
-    QRectF area = this->MouseBox->getRectangle();
+    QRectF area = mouseBox->getRectangle();
 
     // Make sure the area and contents are valid.
     QRectF bounds;
+    vtkQtChartContentsSpace *contents = chart->getContentsSpace();
     contents->getChartLayerBounds(bounds);
     float width = contents->getChartWidth();
     float height = contents->getChartHeight();
@@ -331,6 +337,7 @@ bool vtkQtChartMouseZoomBox::mouseReleaseEvent(QMouseEvent *e,
       yFactor = (yFactor / height) + 1;
 
       // Set the new zoom factors.
+      contents->startInteraction();
       contents->zoomToFactor(xFactor, yFactor);
 
       // Re-calculate the second zoom factors.
@@ -342,6 +349,7 @@ bool vtkQtChartMouseZoomBox::mouseReleaseEvent(QMouseEvent *e,
       // Set the offset to match the original zoom area.
       contents->setXOffset((xZoom2 * x) / xZoom1);
       contents->setYOffset((yZoom2 * y) / yZoom1);
+      contents->finishInteraction();
       }
 
     // Notify the interactor that the interaction state is finished.
@@ -352,7 +360,7 @@ bool vtkQtChartMouseZoomBox::mouseReleaseEvent(QMouseEvent *e,
 }
 
 bool vtkQtChartMouseZoomBox::mouseDoubleClickEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *)
+    vtkQtChartArea *)
 {
   return false;
 }

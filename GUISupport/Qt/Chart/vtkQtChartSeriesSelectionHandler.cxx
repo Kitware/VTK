@@ -21,8 +21,14 @@
 /// \file vtkQtChartSeriesSelectionHandler.cxx
 /// \date March 19, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesSelectionHandler.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartMouseBox.h"
 #include "vtkQtChartSeriesLayer.h"
 #include "vtkQtChartSeriesSelection.h"
@@ -190,7 +196,7 @@ void vtkQtChartSeriesSelectionHandler::getModeList(QStringList &list) const
 }
 
 bool vtkQtChartSeriesSelectionHandler::mousePressEvent(const QString &mode,
-    QMouseEvent *e, vtkQtChartContentsSpace *)
+    QMouseEvent *e, vtkQtChartArea *chart)
 {
   bool handled = false;
   if(this->Layer && (mode == this->Internal->SeriesMode ||
@@ -199,7 +205,7 @@ bool vtkQtChartSeriesSelectionHandler::mousePressEvent(const QString &mode,
     // Get the mouse position to scene coordinates. Use the point to
     // find the selection.
     vtkQtChartSeriesSelection selection;
-    QPointF point = this->MouseBox->getStartingPosition();
+    QPointF point = chart->getMouseBox()->getStartingPosition();
     Qt::KeyboardModifiers modifiers = e->modifiers();
     if(mode == this->Internal->SeriesMode)
       {
@@ -263,33 +269,35 @@ bool vtkQtChartSeriesSelectionHandler::isMouseMoveAvailable(
 {
   if(mode == this->Internal->SeriesMode || mode == this->Internal->PointMode)
     {
-    return this->MouseBox != 0 && this->Layer != 0;
+    return this->Layer != 0;
     }
 
   return false;
 }
 
-void vtkQtChartSeriesSelectionHandler::startMouseMove(const QString &mode)
+void vtkQtChartSeriesSelectionHandler::startMouseMove(const QString &mode,
+    vtkQtChartArea *chart)
 {
   if(mode == this->Internal->SeriesMode || mode == this->Internal->PointMode)
     {
     this->Internal->DelaySelection = false;
     this->Layer->getSelectionModel()->beginInteractiveChange();
-    this->MouseBox->setVisible(true);
+    chart->getMouseBox()->setVisible(true);
     }
 }
 
 void vtkQtChartSeriesSelectionHandler::mouseMoveEvent(const QString &mode,
-    QMouseEvent *e, vtkQtChartContentsSpace *)
+    QMouseEvent *e, vtkQtChartArea *chart)
 {
-  if(this->Layer && this->MouseBox && (mode == this->Internal->SeriesMode ||
+  if(this->Layer && (mode == this->Internal->SeriesMode ||
       mode == this->Internal->PointMode))
     {
     // Adjust the mouse box with the current position.
-    this->MouseBox->adjustRectangle(e->pos());
+    vtkQtChartMouseBox *mouseBox = chart->getMouseBox();
+    mouseBox->adjustRectangle(e->pos());
 
     // Get the mouse box rectangle in scene coordinates.
-    QRectF area = this->MouseBox->getRectangle();
+    QRectF area = mouseBox->getRectangle();
 
     // Use the area to find the selection.
     vtkQtChartSeriesSelection selection;
@@ -349,18 +357,19 @@ void vtkQtChartSeriesSelectionHandler::mouseMoveEvent(const QString &mode,
     }
 }
 
-void vtkQtChartSeriesSelectionHandler::finishMouseMove(const QString &mode)
+void vtkQtChartSeriesSelectionHandler::finishMouseMove(const QString &mode,
+    vtkQtChartArea *chart)
 {
   if(mode == this->Internal->SeriesMode || mode == this->Internal->PointMode)
     {
     this->Internal->Selection.clear();
-    this->MouseBox->setVisible(false);
+    chart->getMouseBox()->setVisible(false);
     this->Layer->getSelectionModel()->endInteractiveChange();
     }
 }
 
 bool vtkQtChartSeriesSelectionHandler::mouseReleaseEvent(const QString &,
-    QMouseEvent *, vtkQtChartContentsSpace *)
+    QMouseEvent *, vtkQtChartArea *)
 {
   if(this->Internal->DelaySelection)
     {
@@ -371,7 +380,7 @@ bool vtkQtChartSeriesSelectionHandler::mouseReleaseEvent(const QString &,
 }
 
 bool vtkQtChartSeriesSelectionHandler::mouseDoubleClickEvent(
-    const QString &, QMouseEvent *, vtkQtChartContentsSpace *)
+    const QString &, QMouseEvent *, vtkQtChartArea *)
 {
   return false;
 }

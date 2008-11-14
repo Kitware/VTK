@@ -21,8 +21,14 @@
 /// \file vtkQtChartMousePan.cxx
 /// \date March 11, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartMousePan.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include <QCursor>
 #include <QMouseEvent>
@@ -73,17 +79,16 @@ void vtkQtChartMousePan::setMouseOwner(bool owns)
     }
 }
 
-bool vtkQtChartMousePan::mousePressEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *)
+bool vtkQtChartMousePan::mousePressEvent(QMouseEvent *e, vtkQtChartArea *)
 {
   this->Internal->Last = e->globalPos();
   this->Internal->LastSet = true;
   return false;
 }
 
-bool vtkQtChartMousePan::mouseMoveEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+bool vtkQtChartMousePan::mouseMoveEvent(QMouseEvent *e, vtkQtChartArea *chart)
 {
+  vtkQtChartContentsSpace *contents = chart->getContentsSpace();
   if(!this->isMouseOwner())
     {
     emit this->interactionStarted(this);
@@ -116,8 +121,9 @@ bool vtkQtChartMousePan::mouseMoveEvent(QMouseEvent *e,
 }
 
 bool vtkQtChartMousePan::mouseReleaseEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *contents)
+    vtkQtChartArea *chart)
 {
+  vtkQtChartContentsSpace *contents = chart->getContentsSpace();
   if(this->isMouseOwner())
     {
     contents->finishInteraction();
@@ -129,7 +135,7 @@ bool vtkQtChartMousePan::mouseReleaseEvent(QMouseEvent *,
 }
 
 bool vtkQtChartMousePan::mouseDoubleClickEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *)
+    vtkQtChartArea *)
 {
   return false;
 }

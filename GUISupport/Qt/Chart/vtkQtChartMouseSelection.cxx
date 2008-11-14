@@ -21,11 +21,15 @@
 /// \file vtkQtChartMouseSelection.cxx
 /// \date March 11, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartMouseSelection.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
-#include "vtkQtChartContentsSpace.h"
-#include "vtkQtChartMouseBox.h"
 #include "vtkQtChartMouseSelectionHandler.h"
 
 #include <QMouseEvent>
@@ -63,7 +67,6 @@ vtkQtChartMouseSelection::vtkQtChartMouseSelection(QObject *parentObject)
   : vtkQtChartMouseFunction(parentObject)
 {
   this->Internal = new vtkQtChartMouseSelectionInternal();
-  this->MouseBox = 0;
 }
 
 vtkQtChartMouseSelection::~vtkQtChartMouseSelection()
@@ -96,7 +99,6 @@ void vtkQtChartMouseSelection::insertHandler(int index,
     }
 
   // Add the handler to the list and rebuild the mode name list.
-  handler->setMouseBox(this->MouseBox);
   this->Internal->Handlers.insert(index, handler);
   this->Internal->Modes.clear();
   QList<vtkQtChartMouseSelectionHandler *>::Iterator iter =
@@ -118,7 +120,6 @@ void vtkQtChartMouseSelection::removeHandler(
   if(index != -1)
     {
     // Remove the handler and rebuild the model list.
-    handler->setMouseBox(0);
     this->Internal->Handlers.removeAt(index);
     this->Internal->Modes.clear();
     QList<vtkQtChartMouseSelectionHandler *>::Iterator iter =
@@ -142,20 +143,20 @@ void vtkQtChartMouseSelection::removeHandler(
 }
 
 bool vtkQtChartMouseSelection::mousePressEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+     vtkQtChartArea *chart)
 {
   bool handled = false;
   if(this->Internal->Handler)
     {
     handled = this->Internal->Handler->mousePressEvent(
-        this->Internal->Current, e, contents);
+        this->Internal->Current, e, chart);
     }
 
   return handled;
 }
 
 bool vtkQtChartMouseSelection::mouseMoveEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+     vtkQtChartArea *chart)
 {
   if(this->Internal->Handler)
     {
@@ -167,7 +168,8 @@ bool vtkQtChartMouseSelection::mouseMoveEvent(QMouseEvent *e,
         emit this->interactionStarted(this);
         if(this->isMouseOwner())
           {
-          this->Internal->Handler->startMouseMove(this->Internal->Current);
+          this->Internal->Handler->startMouseMove(
+              this->Internal->Current, chart);
           }
         }
       }
@@ -175,7 +177,7 @@ bool vtkQtChartMouseSelection::mouseMoveEvent(QMouseEvent *e,
     if(this->isMouseOwner())
       {
       this->Internal->Handler->mouseMoveEvent(
-          this->Internal->Current, e, contents);
+          this->Internal->Current, e, chart);
       }
     }
 
@@ -183,13 +185,13 @@ bool vtkQtChartMouseSelection::mouseMoveEvent(QMouseEvent *e,
 }
 
 bool vtkQtChartMouseSelection::mouseReleaseEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+     vtkQtChartArea *chart)
 {
   bool handled = false;
   if(this->Internal->Handler)
     {
     this->Internal->Handler->mouseReleaseEvent(
-        this->Internal->Current, e, contents);
+        this->Internal->Current, e, chart);
     }
 
   if(this->isMouseOwner())
@@ -197,7 +199,7 @@ bool vtkQtChartMouseSelection::mouseReleaseEvent(QMouseEvent *e,
     handled = true;
     if(this->Internal->Handler)
       {
-      this->Internal->Handler->finishMouseMove(this->Internal->Current);
+      this->Internal->Handler->finishMouseMove(this->Internal->Current, chart);
       }
 
     emit this->interactionFinished(this);
@@ -207,13 +209,13 @@ bool vtkQtChartMouseSelection::mouseReleaseEvent(QMouseEvent *e,
 }
 
 bool vtkQtChartMouseSelection::mouseDoubleClickEvent(QMouseEvent *e,
-    vtkQtChartContentsSpace *contents)
+     vtkQtChartArea *chart)
 {
   bool handled = false;
   if(this->Internal->Handler)
     {
     handled = this->Internal->Handler->mouseDoubleClickEvent(
-        this->Internal->Current, e, contents);
+        this->Internal->Current, e, chart);
     }
 
   return handled;

@@ -21,10 +21,14 @@
 /// \file vtkQtChartMouseFunction.cxx
 /// \date March 11, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartMouseFunction.h"
 
-#include "vtkQtChartContentsSpace.h"
-#include "vtkQtChartMouseBox.h"
+#include "vtkQtChartArea.h"
 
 #include <QCursor>
 #include <QMouseEvent>
@@ -38,12 +42,7 @@ vtkQtChartMouseFunction::vtkQtChartMouseFunction(QObject *parentObject)
   this->OwnsMouse = false;
 }
 
-void vtkQtChartMouseFunction::setMouseBox(vtkQtChartMouseBox *)
-{
-}
-
-bool vtkQtChartMouseFunction::wheelEvent(QWheelEvent *,
-    vtkQtChartContentsSpace *)
+bool vtkQtChartMouseFunction::wheelEvent(QWheelEvent *, vtkQtChartArea *)
 {
   return false;
 }

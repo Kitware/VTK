@@ -21,6 +21,11 @@
 /// \file vtkQtChartSeriesSelection.cxx
 /// \date March 14, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesSelection.h"
 
 
@@ -509,6 +514,11 @@ bool vtkQtChartSeriesSelection::addRanges(
           jter->first = range.first;
           doAdd = false;
           changed = true;
+          break;
+          }
+        else
+          {
+          doAdd = false;
           break;
           }
         }

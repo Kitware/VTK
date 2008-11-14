@@ -78,6 +78,10 @@ private:
 private:
   vtkQtChartAxis *Axis[4]; ///< Stores the axis objects.
   QSizeF *Bounds;          ///< Stores the bounds.
+
+private:
+  vtkQtChartGridLayer(const vtkQtChartGridLayer &);
+  vtkQtChartGridLayer &operator=(const vtkQtChartGridLayer &);
 };
 
 #endif

@@ -24,7 +24,6 @@
 #ifdef _MSC_VER
 // Disable warnings that Qt headers give.
 #pragma warning(disable:4127)
-#pragma warning(disable:4512)
 #endif
 
 #include "vtkQtBarChart.h"
@@ -36,6 +35,8 @@
 #include "vtkQtChartAxisDomain.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartBar.h"
+#include "vtkQtChartBarLocator.h"
 #include "vtkQtChartColors.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
@@ -51,28 +52,39 @@
 #include <QBrush>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
+#include <QStyleOptionGraphicsItem>
 #include <QList>
 #include <QPen>
 
 
-class vtkQtBarChartItem : public QGraphicsItem
+class vtkQtBarChartSeries
 {
 public:
-  enum {Type = vtkQtChart_BarChartItemType};
+  vtkQtBarChartSeries();
+  ~vtkQtBarChartSeries();
 
 public:
-  vtkQtBarChartItem(QGraphicsItem *parent=0);
-  virtual ~vtkQtBarChartItem() {}
-
-  virtual int type() const {return vtkQtBarChartItem::Type;}
-
-  virtual QRectF boundingRect() const;
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
-
-  QList<QGraphicsRectItem *> Bars;
+  QList<QRectF *> Bars;
+  QList<vtkQtChartBar *> Bounds;
   QList<int> Highlights;
   bool IsHighlighted;
+};
+
+
+class vtkQtBarChartDomainGroup : public vtkQtChartSeriesDomainGroup
+{
+public:
+  vtkQtBarChartDomainGroup();
+  virtual ~vtkQtBarChartDomainGroup() {}
+
+  virtual void clear();
+
+protected:
+  virtual void insertGroup(int group);
+  virtual void removeGroup(int group);
+
+public:
+  QList<QList<vtkQtChartBar *> > Lists;
 };
 
 
@@ -80,65 +92,93 @@ class vtkQtBarChartInternal
 {
 public:
   vtkQtBarChartInternal();
-  ~vtkQtBarChartInternal() {}
+  ~vtkQtBarChartInternal();
 
-  int getSeries(QGraphicsRectItem *bar) const;
-
-  QList<vtkQtBarChartItem *> Series;
+  QList<vtkQtBarChartSeries *> Series;
   vtkQtChartAxisCornerDomain Domain;
-  vtkQtChartSeriesDomainGroup Groups;
+  vtkQtBarChartDomainGroup Groups;
+  vtkQtChartBarLocator BarTree;
+  QRectF Bounds;
+  int CurrentGroup;
 };
 
 
 //-----------------------------------------------------------------------------
-vtkQtBarChartItem::vtkQtBarChartItem(QGraphicsItem *item)
-  : QGraphicsItem(item, item ? item->scene() : 0), Bars(), Highlights()
+vtkQtBarChartSeries::vtkQtBarChartSeries()
+  : Bars(), Bounds(), Highlights()
 {
   this->IsHighlighted = false;
 }
 
-QRectF vtkQtBarChartItem::boundingRect() const
+vtkQtBarChartSeries::~vtkQtBarChartSeries()
 {
-  return QRect(0, 0, 0, 0);
+  QList<QRectF *>::Iterator iter = this->Bars.begin();
+  for( ; iter != this->Bars.end(); ++iter)
+    {
+    delete *iter;
+    }
+
+  QList<vtkQtChartBar *>::Iterator jter = this->Bounds.begin();
+  for( ; jter != this->Bounds.end(); ++jter)
+    {
+    delete *jter;
+    }
 }
 
-void vtkQtBarChartItem::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
+
+//-----------------------------------------------------------------------------
+vtkQtBarChartDomainGroup::vtkQtBarChartDomainGroup()
+  : vtkQtChartSeriesDomainGroup(true), Lists()
 {
+}
+
+void vtkQtBarChartDomainGroup::clear()
+{
+  vtkQtChartSeriesDomainGroup::clear();
+  this->Lists.clear();
+}
+
+void vtkQtBarChartDomainGroup::insertGroup(int group)
+{
+  vtkQtChartSeriesDomainGroup::insertGroup(group);
+  this->Lists.insert(group, QList<vtkQtChartBar *>());
+}
+
+void vtkQtBarChartDomainGroup::removeGroup(int group)
+{
+  vtkQtChartSeriesDomainGroup::removeGroup(group);
+  this->Lists.removeAt(group);
 }
 
 
 //-----------------------------------------------------------------------------
 vtkQtBarChartInternal::vtkQtBarChartInternal()
-  : Series(), Domain(), Groups()
+  : Series(), Domain(), Groups(), BarTree(), Bounds()
 {
+  this->CurrentGroup = -1;
+
   this->Domain.setHorizontalPreferences(false, false, true);
   this->Domain.setVerticalPreferences(true, true, false);
 }
 
-int vtkQtBarChartInternal::getSeries(QGraphicsRectItem *bar) const
+vtkQtBarChartInternal::~vtkQtBarChartInternal()
 {
-  if(bar)
+  QList<vtkQtBarChartSeries *>::Iterator iter = this->Series.begin();
+  for( ; iter != this->Series.end(); ++iter)
     {
-    vtkQtBarChartItem *series = qgraphicsitem_cast<vtkQtBarChartItem *>(
-        bar->parentItem());
-    if(series)
-      {
-      return this->Series.indexOf(series);
-      }
+    delete *iter;
     }
-
-  return -1;
 }
 
 
 //-----------------------------------------------------------------------------
 vtkQtBarChart::vtkQtBarChart()
-  : vtkQtChartSeriesLayer()
+  : vtkQtChartSeriesLayer(false)
 {
   this->Internal = new vtkQtBarChartInternal();
   this->Options = new vtkQtBarChartOptions(this);
   this->InModelChange = false;
+  this->BuildNeeded = false;
 
   // Listen for option changes.
   this->connect(this->Options, SIGNAL(axesCornerChanged()),
@@ -217,7 +257,9 @@ void vtkQtBarChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
 
 void vtkQtBarChart::layoutChart(const QRectF &area)
 {
-  // Update the position.
+  // Update the position and bounds.
+  this->prepareGeometryChange();
+  this->Internal->Bounds.setSize(area.size());
   this->setPos(area.topLeft());
   if(this->Internal->Series.size() == 0)
     {
@@ -226,8 +268,9 @@ void vtkQtBarChart::layoutChart(const QRectF &area)
 
   // Get the axis layer to get the axes and domain priority.
   vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
-  vtkQtChartAxis *xAxis = layer->getHorizontalAxis(this->Options->getAxesCorner());
-  vtkQtChartAxis *yAxis = layer->getVerticalAxis(this->Options->getAxesCorner());
+  vtkQtChartLayer::AxesCorner corner = this->Options->getAxesCorner();
+  vtkQtChartAxis *xAxis = layer->getHorizontalAxis(corner);
+  vtkQtChartAxis *yAxis = layer->getVerticalAxis(corner);
 
   // Use the domain to find the minimum space between bars.
   int i = 0;
@@ -276,52 +319,51 @@ void vtkQtBarChart::layoutChart(const QRectF &area)
 
   // Position and size the bar series. Skip the series if it is
   // invisible or invalid for the domain.
+  int index = 0;
+  QRectF *bar = 0;
   float halfDistance = minDistance * 0.5;
   float base = yAxis->getZeroPixel();
   for(i = 0; i < this->Model->getNumberOfSeries(); i++)
     {
-    vtkQtBarChartItem *series = this->Internal->Series[i];
-    series->setVisible(seriesList.contains(i));
-    if(!series->isVisible())
+    if(!seriesList.contains(i))
       {
       continue;
       }
 
-    float xOffset = ((float)i *
+    vtkQtBarChartSeries *series = this->Internal->Series[i];
+    float xOffset = ((float)index *
         (barWidth / this->Options->getBarWidthFraction())) - halfDistance;
+    index++;
     for(int j = 0; j < this->Model->getNumberOfSeriesValues(i); j++)
       {
       float px = xAxis->getPixel(this->Model->getSeriesValue(i, j, 0));
       float py = yAxis->getPixel(this->Model->getSeriesValue(i, j, 1));
+      bar = series->Bars[j];
       if(py < base)
         {
-        series->Bars[j]->setPos(px + xOffset, py);
-        series->Bars[j]->setRect(0, 0, barWidth, base - py);
+        bar->setRect(px + xOffset, py, barWidth, base - py);
         }
       else
         {
-        series->Bars[j]->setPos(px + xOffset, base);
-        series->Bars[j]->setRect(0, 0, barWidth, py - base);
+        bar->setRect(px + xOffset, base, barWidth, py - base);
         }
+
+      series->Bounds[j]->setBar(bar->adjusted(-0.5, -0.5, 0.5, 0.5));
       }
     }
 
-  // Layout the highlights.
-  this->layoutHighlights();
-}
-
-bool vtkQtBarChart::drawItemFilter(QGraphicsItem *item, QPainter *painter)
-{
-  // If the item is a series bar, clip it to the chart layer bounds.
-  QGraphicsRectItem *bar = qgraphicsitem_cast<QGraphicsRectItem *>(item);
-  if(bar && this->ChartArea)
+  // Update the bar tree.
+  if(seriesDomain)
     {
-    QRectF bounds;
-    this->ChartArea->getContentsSpace()->getChartLayerBounds(bounds);
-    painter->setClipRect(bounds, Qt::IntersectClip);
+    if(this->ChartArea->isInteractivelyResizing())
+      {
+      this->BuildNeeded = true;
+      }
+    else
+      {
+      this->buildBarTree(domainIndex);
+      }
     }
-
-  return false;
 }
 
 bool vtkQtBarChart::getHelpText(const QPointF &point, QString &text)
@@ -369,24 +411,41 @@ bool vtkQtBarChart::getHelpText(const QPointF &point, QString &text)
   return false;
 }
 
+void vtkQtBarChart::finishInteractiveResize()
+{
+  if(this->BuildNeeded)
+    {
+    // Get the axis layer to get the axes and domain priority.
+    vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
+    vtkQtChartLayer::AxesCorner corner = this->Options->getAxesCorner();
+    vtkQtChartAxis *xAxis = layer->getHorizontalAxis(corner);
+    vtkQtChartAxis *yAxis = layer->getVerticalAxis(corner);
+
+    int seriesGroup = -1;
+    const vtkQtChartSeriesDomain *seriesDomain =
+        this->Internal->Domain.getDomain(xAxis->getAxisDomain(),
+        yAxis->getAxisDomain(), &seriesGroup);
+    if(seriesDomain)
+      {
+      this->buildBarTree(seriesGroup);
+      }
+    }
+}
+
 void vtkQtBarChart::getSeriesAt(const QPointF &point,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // rectangles.
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the bar index from the search tree.
   vtkQtChartIndexRangeList indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(point);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
+  vtkQtChartBar *bar = this->Internal->BarTree.getItemAt(local);
+  if(bar)
     {
-    // Make sure the rectangle is in a bar series.
-    QGraphicsRectItem *bar = qgraphicsitem_cast<QGraphicsRectItem *>(*iter);
-    int series = this->Internal->getSeries(bar);
-    if(series != -1)
-      {
-      // Add the series to the selection.
-      indexes.append(vtkQtChartIndexRange(series, series));
-      }
+    // Add the series to the selection.
+    indexes.append(vtkQtChartIndexRange(bar->getSeries(), bar->getSeries()));
     }
 
   selection.setSeries(indexes);
@@ -395,24 +454,20 @@ void vtkQtBarChart::getSeriesAt(const QPointF &point,
 void vtkQtBarChart::getPointsAt(const QPointF &point,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // rectangles.
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the bar index from the search tree.
   QList<vtkQtChartSeriesSelectionItem> indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(point);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
+  vtkQtChartBar *bar = this->Internal->BarTree.getItemAt(local);
+  if(bar)
     {
-    // Make sure the rectangle is in a bar series.
-    QGraphicsRectItem *bar = qgraphicsitem_cast<QGraphicsRectItem *>(*iter);
-    int series = this->Internal->getSeries(bar);
-    if(series != -1)
-      {
-      // Add the bar to the selection.
-      vtkQtChartSeriesSelectionItem item(series);
-      int index = this->Internal->Series[series]->Bars.indexOf(bar);
-      item.Points.append(vtkQtChartIndexRange(index, index));
-      indexes.append(item);
-      }
+    // Add the bar to the selection.
+    vtkQtChartSeriesSelectionItem item(bar->getSeries());
+    item.Points.append(
+        vtkQtChartIndexRange(bar->getIndex(), bar->getIndex()));
+    indexes.append(item);
     }
 
   selection.setPoints(indexes);
@@ -421,21 +476,19 @@ void vtkQtBarChart::getPointsAt(const QPointF &point,
 void vtkQtBarChart::getSeriesIn(const QRectF &area,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // rectangles.
+  // Translate the rectangle to contents coordinates.
+  QRectF local = area;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the list of bar indexes from the bar tree.
   vtkQtChartIndexRangeList indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(area);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
+  QList<vtkQtChartBar *> list = this->Internal->BarTree.getItemsIn(local);
+  QList<vtkQtChartBar *>::Iterator iter = list.begin();
   for( ; iter != list.end(); ++iter)
     {
-    // Make sure the rectangle is in a bar series.
-    QGraphicsRectItem *bar = qgraphicsitem_cast<QGraphicsRectItem *>(*iter);
-    int series = this->Internal->getSeries(bar);
-    if(series != -1)
-      {
-      // Add the series to the selection.
-      indexes.append(vtkQtChartIndexRange(series, series));
-      }
+    // Add the series to the selection.
+    indexes.append(vtkQtChartIndexRange((*iter)->getSeries(),
+        (*iter)->getSeries()));
     }
 
   selection.setSeries(indexes);
@@ -444,24 +497,21 @@ void vtkQtBarChart::getSeriesIn(const QRectF &area,
 void vtkQtBarChart::getPointsIn(const QRectF &area,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // rectangles.
+  // Translate the rectangle to contents coordinates.
+  QRectF local = area;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the list of bar indexes from the bar tree.
   QList<vtkQtChartSeriesSelectionItem> indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(area);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
+  QList<vtkQtChartBar *> list = this->Internal->BarTree.getItemsIn(local);
+  QList<vtkQtChartBar *>::Iterator iter = list.begin();
   for( ; iter != list.end(); ++iter)
     {
-    // Make sure the rectangle is in a bar series.
-    QGraphicsRectItem *bar = qgraphicsitem_cast<QGraphicsRectItem *>(*iter);
-    int series = this->Internal->getSeries(bar);
-    if(series != -1)
-      {
-      // Add the bar to the selection.
-      vtkQtChartSeriesSelectionItem item(series);
-      int index = this->Internal->Series[series]->Bars.indexOf(bar);
-      item.Points.append(vtkQtChartIndexRange(index, index));
-      indexes.append(item);
-      }
+    // Add the bar to the selection.
+    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
+    item.Points.append(
+        vtkQtChartIndexRange((*iter)->getIndex(), (*iter)->getIndex()));
+    indexes.append(item);
     }
 
   selection.setPoints(indexes);
@@ -469,12 +519,88 @@ void vtkQtBarChart::getPointsIn(const QRectF &area,
 
 QRectF vtkQtBarChart::boundingRect() const
 {
-  return QRectF(0, 0, 0, 0);
+  return this->Internal->Bounds;
 }
 
-void vtkQtBarChart::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
+void vtkQtBarChart::paint(QPainter *painter,
+    const QStyleOptionGraphicsItem *option, QWidget *)
 {
+  if(!this->ChartArea)
+    {
+    return;
+    }
+
+  // Use the exposed rectangle from the option object to determine
+  // which series to draw.
+  vtkQtChartContentsSpace *space = this->ChartArea->getContentsSpace();
+  QRectF area = option->exposedRect.translated(space->getXOffset(),
+      space->getYOffset());
+
+  // Get the axis layer to get the axes and domain priority.
+  vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
+  vtkQtChartLayer::AxesCorner corner = this->Options->getAxesCorner();
+  vtkQtChartAxis *xAxis = layer->getHorizontalAxis(corner);
+  vtkQtChartAxis *yAxis = layer->getVerticalAxis(corner);
+
+  int domainIndex = -1;
+  const vtkQtChartSeriesDomain *seriesDomain =
+      this->Internal->Domain.getDomain(xAxis->getAxisDomain(),
+      yAxis->getAxisDomain(), &domainIndex);
+  if(seriesDomain)
+    {
+    // Set up the painter clipping and offset for panning.
+    painter->setClipRect(this->Internal->Bounds);
+    painter->translate(-space->getXOffset(), -space->getYOffset());
+
+    // Get the list of series in the selected domain.
+    QList<int> seriesList = this->Internal->Groups.getGroup(domainIndex);
+    QList<int>::Iterator iter = seriesList.begin();
+    for( ; iter != seriesList.end(); ++iter)
+      {
+      // Set up the painter for the series.
+      vtkQtBarChartSeries *series = this->Internal->Series[*iter];
+      vtkQtBarChartSeriesOptions *options = this->getBarSeriesOptions(*iter);
+      QColor light = vtkQtChartColors::lighter(options->getBrush().color());
+      painter->setPen(options->getPen());
+      if(series->IsHighlighted)
+        {
+        painter->setBrush(light);
+        }
+      else
+        {
+        painter->setBrush(options->getBrush());
+        }
+
+      // Draw each of the series bars that are in the paint area.
+      int total = series->Bars.size();
+      for(int index = 0; index < total; index++)
+        {
+        const QRectF *bar = series->Bars[index];
+        if(bar->right() + 0.5 < area.left())
+          {
+          continue;
+          }
+        else if(bar->left() - 0.5 > area.right())
+          {
+          break;
+          }
+
+        bool highlighted = !series->IsHighlighted &&
+            series->Highlights.contains(index);
+        if(highlighted)
+          {
+          painter->save();
+          painter->setBrush(light);
+          }
+
+        painter->drawRect(*bar);
+        if(highlighted)
+          {
+          painter->restore();
+          }
+        }
+      }
+    }
 }
 
 void vtkQtBarChart::reset()
@@ -485,7 +611,7 @@ void vtkQtBarChart::reset()
 
   // Clean up the old view items.
   bool needsLayout = this->Internal->Series.size() > 0;
-  QList<vtkQtBarChartItem *>::Iterator iter = this->Internal->Series.begin();
+  QList<vtkQtBarChartSeries *>::Iterator iter = this->Internal->Series.begin();
   for( ; iter != this->Internal->Series.end(); ++iter)
     {
     delete *iter;
@@ -573,45 +699,47 @@ void vtkQtBarChart::insertSeries(int first, int last)
     // Update the series indexes stored in the domain groups.
     this->Internal->Groups.prepareInsert(first, last);
 
-    int i = first;
+    QList<int> groups;
+    QList<int>::Iterator iter;
     bool signalDomain = false;
-    for( ; first <= last; first++)
+    for(int i = first; i <= last; i++)
       {
       // Add an item for each series.
-      vtkQtBarChartItem *series = new vtkQtBarChartItem(this->Contents);
-      this->Internal->Series.insert(first, series);
+      vtkQtBarChartSeries *series = new vtkQtBarChartSeries();
+      this->Internal->Series.insert(i, series);
 
       // Get the series options.
-      vtkQtBarChartSeriesOptions *options = this->getBarSeriesOptions(first);
+      vtkQtBarChartSeriesOptions *options = this->getBarSeriesOptions(i);
 
-      // Add bars to the series for each series point. Get the x-axis
-      // values at the same time for the x-axis domain.
-      QGraphicsRectItem *bar = 0;
-      int total = this->Model->getNumberOfSeriesValues(first);
+      // Add bars to the series for each series point.
+      int total = this->Model->getNumberOfSeriesValues(i);
       for(int j = 0; j < total; j++)
         {
-        bar = new QGraphicsRectItem(series, series->scene());
-        series->Bars.append(bar);
-
-        // Set the drawing options for the series.
-        bar->setPen(options->getPen());
-        bar->setBrush(options->getBrush());
+        series->Bars.append(new QRectF());
+        series->Bounds.append(new vtkQtChartBar(i, j));
         }
 
       // Add the series domains to the chart domains.
       if(options->isVisible())
         {
-        if(this->addSeriesDomain(first))
+        int seriesGroup = -1;
+        if(this->addSeriesDomain(i, seriesGroup))
           {
           signalDomain = true;
+          }
+
+        // Keep track of the series groups that need new bar lists.
+        if(!groups.contains(seriesGroup))
+          {
+          groups.append(seriesGroup);
           }
         }
       }
 
-    // Fix up the z-order for the new items and any subsequent items.
-    for( ; i < this->Internal->Series.size(); i++)
+    // Create the bar lists for the modified domains.
+    for(iter = groups.begin(); iter != groups.end(); ++iter)
       {
-      this->Internal->Series[i]->setZValue(i);
+      this->createBarList(*iter);
       }
 
     if(signalDomain)
@@ -642,12 +770,6 @@ void vtkQtBarChart::startSeriesRemoval(int first, int last)
     for( ; last >= first; last--)
       {
       delete this->Internal->Series.takeAt(last);
-      }
-
-    // Fix the z-order for any subsequent items.
-    for( ; first < this->Internal->Series.size(); first++)
-      {
-      this->Internal->Series[first]->setZValue(first);
       }
     }
 }
@@ -699,6 +821,7 @@ void vtkQtBarChart::finishSeriesRemoval(int first, int last)
         {
         // Re-calculate the chart domain.
         this->calculateDomain(*iter);
+        this->createBarList(*iter);
         }
       }
 
@@ -760,11 +883,13 @@ void vtkQtBarChart::handleSeriesVisibilityChange(bool visible)
     if(visible)
       {
       // If the series is going to be visible, add to the domain.
-      if(this->addSeriesDomain(series))
+      int seriesGroup = -1;
+      if(this->addSeriesDomain(series, seriesGroup))
         {
         emit this->rangeChanged();
         }
 
+      this->createBarList(seriesGroup);
       emit this->layoutNeeded();
       }
     else
@@ -781,6 +906,7 @@ void vtkQtBarChart::handleSeriesVisibilityChange(bool visible)
           {
           // Re-calculate the domain.
           this->calculateDomain(seriesGroup);
+          this->createBarList(seriesGroup);
           }
 
         this->Internal->Groups.finishRemoval();
@@ -791,7 +917,7 @@ void vtkQtBarChart::handleSeriesVisibilityChange(bool visible)
     }
 }
 
-void vtkQtBarChart::handleSeriesPenChange(const QPen &pen)
+void vtkQtBarChart::handleSeriesPenChange(const QPen &)
 {
   // Get the series index from the options index.
   vtkQtBarChartSeriesOptions *options =
@@ -799,16 +925,12 @@ void vtkQtBarChart::handleSeriesPenChange(const QPen &pen)
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    vtkQtBarChartItem *item = this->Internal->Series[series];
-    QList<QGraphicsRectItem *>::Iterator iter = item->Bars.begin();
-    for( ; iter != item->Bars.end(); ++iter)
-      {
-      (*iter)->setPen(pen);
-      }
+    // TODO: Update the series rectangle.
+    this->update();
     }
 }
 
-void vtkQtBarChart::handleSeriesBrushChange(const QBrush &brush)
+void vtkQtBarChart::handleSeriesBrushChange(const QBrush &)
 {
   // Get the series index from the options index.
   vtkQtBarChartSeriesOptions *options =
@@ -816,20 +938,8 @@ void vtkQtBarChart::handleSeriesBrushChange(const QBrush &brush)
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    QColor color = vtkQtChartColors::lighter(brush.color());
-    vtkQtBarChartItem *item = this->Internal->Series[series];
-    QList<QGraphicsRectItem *>::Iterator iter = item->Bars.begin();
-    for(int i = 0; iter != item->Bars.end(); ++iter, ++i)
-      {
-      if(item->IsHighlighted || item->Highlights.contains(i))
-        {
-        (*iter)->setBrush(color);
-        }
-      else
-        {
-        (*iter)->setBrush(brush);
-        }
-      }
+    // TODO: Update the series rectangle.
+    this->update();
     }
 }
 
@@ -837,47 +947,18 @@ void vtkQtBarChart::updateHighlights()
 {
   if(!this->InModelChange && this->ChartArea)
     {
-    this->layoutHighlights();
-    }
-}
-
-void vtkQtBarChart::layoutHighlights()
-{
-  if(this->Internal->Series.size() > 0)
-    {
-    // Restore the bar color for currently highlighted items.
-    int i = 0;
-    vtkQtBarChartSeriesOptions *options = 0;
-    QList<vtkQtBarChartItem *>::Iterator iter = this->Internal->Series.begin();
-    for( ; iter != this->Internal->Series.end(); ++iter, ++i)
+    // Remove the current selection.
+    QList<vtkQtBarChartSeries *>::Iterator iter =
+        this->Internal->Series.begin();
+    for( ; iter != this->Internal->Series.end(); ++iter)
       {
-      if((*iter)->IsHighlighted)
-        {
-        (*iter)->IsHighlighted = false;
-        options = this->getBarSeriesOptions(i);
-        QList<QGraphicsRectItem *>::Iterator jter = (*iter)->Bars.begin();
-        for( ; jter != (*iter)->Bars.end(); ++jter)
-          {
-          (*jter)->setBrush(options->getBrush());
-          }
-        }
-      else if((*iter)->Highlights.size() > 0)
-        {
-        options = this->getBarSeriesOptions(i);
-        QList<int>::Iterator jter = (*iter)->Highlights.begin();
-        for( ; jter != (*iter)->Highlights.end(); ++jter)
-          {
-          (*iter)->Bars[*jter]->setBrush(options->getBrush());
-          }
-
-        (*iter)->Highlights.clear();
-        }
+      (*iter)->IsHighlighted = false;
+      (*iter)->Highlights.clear();
       }
 
     // Get the current selection from the selection model.
     if(!this->Selection->isSelectionEmpty())
       {
-      vtkQtBarChartItem *item = 0;
       const vtkQtChartSeriesSelection &current =
           this->Selection->getSelection();
       if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
@@ -886,18 +967,9 @@ void vtkQtBarChart::layoutHighlights()
         vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
         for( ; jter != series.end(); ++jter)
           {
-          for(i = jter->first; i <= jter->second; i++)
+          for(int i = jter->first; i <= jter->second; i++)
             {
-            options = this->getBarSeriesOptions(i);
-            item = this->Internal->Series[i];
-            item->IsHighlighted = true;
-            QColor color = vtkQtChartColors::lighter(
-                options->getBrush().color());
-            QList<QGraphicsRectItem *>::Iterator kter = item->Bars.begin();
-            for( ; kter != item->Bars.end(); ++kter)
-              {
-              (*kter)->setBrush(color);
-              }
+            this->Internal->Series[i]->IsHighlighted = true;
             }
           }
         }
@@ -908,26 +980,25 @@ void vtkQtBarChart::layoutHighlights()
         QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
         for(jter = points.begin(); jter != points.end(); ++jter)
           {
-          options = this->getBarSeriesOptions(jter->Series);
-          item = this->Internal->Series[jter->Series];
-          QColor color = vtkQtChartColors::lighter(
-              options->getBrush().color());
+          vtkQtBarChartSeries *series = this->Internal->Series[jter->Series];
           vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
           for( ; kter != jter->Points.end(); ++kter)
             {
-            for(i = kter->first; i <= kter->second; i++)
+            for(int i = kter->first; i <= kter->second; i++)
               {
-              item->Highlights.append(i);
-              item->Bars[i]->setBrush(color);
+              series->Highlights.append(i);
               }
             }
           }
         }
       }
+
+    // TODO: Repaint the modified area.
+    this->update();
     }
 }
 
-bool vtkQtBarChart::addSeriesDomain(int series)
+bool vtkQtBarChart::addSeriesDomain(int series, int &seriesGroup)
 {
   QList<QVariant> xDomain;
   QList<QVariant> yDomain = this->Model->getSeriesRange(series, 1);
@@ -953,7 +1024,6 @@ bool vtkQtBarChart::addSeriesDomain(int series)
     seriesDomain.getYDomain().setRange(yDomain);
     }
 
-  int seriesGroup = -1;
   bool changed = this->Internal->Domain.mergeDomain(seriesDomain, &seriesGroup);
 
   // Add the series index to the domain group.
@@ -1001,6 +1071,82 @@ void vtkQtBarChart::calculateDomain(int seriesGroup)
       {
       domain->getYDomain().mergeRange(yDomain);
       }
+    }
+}
+
+void vtkQtBarChart::createBarList(int seriesGroup)
+{
+  // Clear the current bar list.
+  this->Internal->Groups.Lists[seriesGroup].clear();
+
+  // Get the x-axis domain.
+  bool isRange = false;
+  vtkQtChartSeriesDomain *seriesDomain =
+      this->Internal->Domain.getDomain(seriesGroup);
+  QList<QVariant> xDomain = seriesDomain->getXDomain().getDomain(isRange);
+  if(xDomain.size() > 0)
+    {
+    // Use a temporary list to organize the series bars. Make a list
+    // for each domain entry.
+    int k = 0;
+    QList<QList<vtkQtChartBar *> > temp;
+    for( ; k < xDomain.size(); k++)
+      {
+      temp.append(QList<vtkQtChartBar *>());
+      }
+
+    // Get the list of series for the group.
+    QList<int> seriesList = this->Internal->Groups.getGroup(seriesGroup);
+    QList<int>::Iterator iter = seriesList.begin();
+    for( ; iter != seriesList.end(); ++iter)
+      {
+      int k = 0;
+      vtkQtBarChartSeries *series = this->Internal->Series[*iter];
+      QVariant xValue, yValue;
+      int points = this->Model->getNumberOfSeriesValues(*iter);
+      for(int j = 0; j < points; j++, k++)
+        {
+        // Find the matching x-axis value in the domain.
+        xValue = this->Model->getSeriesValue(*iter, j, 0);
+        while(k < xDomain.size() && xValue != xDomain[k])
+          {
+          k++;
+          }
+
+        if(k >= xDomain.size())
+          {
+          break;
+          }
+
+        // Add the bar to the appropriate column.
+        temp[k].append(series->Bounds[j]);
+        }
+      }
+
+    // Flatten the bar list.
+    QList<QList<vtkQtChartBar *> >::Iterator jter = temp.begin();
+    QList<vtkQtChartBar *>::Iterator kter;
+    for( ; jter != temp.end(); ++jter)
+      {
+      for(kter = jter->begin(); kter != jter->end(); ++kter)
+        {
+        this->Internal->Groups.Lists[seriesGroup].append(*kter);
+        }
+      }
+    }
+}
+
+void vtkQtBarChart::buildBarTree(int seriesGroup)
+{
+  this->BuildNeeded = false;
+  if(seriesGroup == this->Internal->CurrentGroup)
+    {
+    this->Internal->BarTree.update();
+    }
+  else
+    {
+    this->Internal->CurrentGroup = seriesGroup;
+    this->Internal->BarTree.build(this->Internal->Groups.Lists[seriesGroup]);
     }
 }
 

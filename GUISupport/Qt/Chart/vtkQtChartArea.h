@@ -32,6 +32,7 @@ class vtkQtChartAxisLayer;
 class vtkQtChartContentsSpace;
 class vtkQtChartInteractor;
 class vtkQtChartLayer;
+class vtkQtChartMouseBox;
 class vtkQtChartStyleManager;
 class QCursor;
 class QString;
@@ -145,6 +146,28 @@ public:
   /// \return
   ///   A pointer to the contents space object.
   vtkQtChartContentsSpace *getContentsSpace() const;
+
+  /// \brief
+  ///   Gets the mouse box object.
+  /// \return
+  ///   A pointer to the mouse box object.
+  vtkQtChartMouseBox *getMouseBox() const;
+
+  /// \brief
+  ///   Notifies the chart layers that a resize interaction has started.
+  ///
+  /// Chart layers can use this method to reduce the processing load
+  /// during an interaction.
+  void startInteractiveResize();
+
+  /// \brief
+  ///   Gets whether or no the chart is interactively resizing.
+  /// \return
+  ///   True if the chart is interactively resizing.
+  bool isInteractivelyResizing() const;
+
+  /// Notifies the chart layers that a resize interaction has finished.
+  void finishInteractiveResize();
   //@}
   
   /// \brief
@@ -225,6 +248,10 @@ private slots:
 
 private:
   vtkQtChartAreaInternal *Internal; ///< Stores the list of chart layers.
+
+private:
+  vtkQtChartArea(const vtkQtChartArea &);
+  vtkQtChartArea &operator=(const vtkQtChartArea &);
 };
 
 #endif

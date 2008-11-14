@@ -128,6 +128,12 @@ public:
   ///   True if help text is found for the given location.
   virtual bool getHelpText(const QPointF &point, QString &text);
 
+  /// Notifies the chart layer that a resize interaction has started.
+  virtual void startInteractiveResize() {}
+
+  /// Notifies the chart layer that a resize interaction has finished.
+  virtual void finishInteractiveResize() {}
+
 signals:
   /// Emitted when the layer layout needs to be calculated.
   void layoutNeeded();

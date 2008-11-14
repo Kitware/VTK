@@ -28,8 +28,7 @@
 #include "vtkQtChartExport.h"
 #include "vtkQtChartMouseFunction.h"
 
-class vtkQtChartContentsSpace;
-class vtkQtChartMouseBox;
+class vtkQtChartArea;
 class vtkQtChartMouseSelectionHandler;
 class vtkQtChartMouseSelectionInternal;
 class QMouseEvent;
@@ -53,27 +52,10 @@ public:
   vtkQtChartMouseSelection(QObject *parent=0);
   virtual ~vtkQtChartMouseSelection();
 
-  /// \name Setup Methods
-  //@{
-  /// \brief
-  ///   Gets the chart mouse box object.
-  /// \return
-  ///   A pointer to the chart mouse box object.
-  vtkQtChartMouseBox *getMouseBox() const {return this->MouseBox;}
-
-  /// \brief
-  ///   Sets the chart mouse box object.
-  ///
-  /// The mouse box can be used to create a selection box.
-  ///
-  /// \param box The chart mouse box object to use.
-  virtual void setMouseBox(vtkQtChartMouseBox *box) {this->MouseBox = box;}
-
-  virtual bool isCombinable() const {return false;}
-  //@}
-
   /// \name Configuration Methods
   //@{
+  virtual bool isCombinable() const {return false;}
+
   /// \brief
   ///   Gets the name of current selection mode.
   /// \return
@@ -108,14 +90,10 @@ public:
 
   /// \name Interaction Methods
   //@{
-  virtual bool mousePressEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseMoveEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseReleaseEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseDoubleClickEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
+  virtual bool mousePressEvent(QMouseEvent *e,  vtkQtChartArea *chart);
+  virtual bool mouseMoveEvent(QMouseEvent *e,  vtkQtChartArea *chart);
+  virtual bool mouseReleaseEvent(QMouseEvent *e,  vtkQtChartArea *chart);
+  virtual bool mouseDoubleClickEvent(QMouseEvent *e,  vtkQtChartArea *chart);
   //@}
 
 public slots:
@@ -136,7 +114,10 @@ signals:
 private:
   /// Stores the mode data and selection handlers.
   vtkQtChartMouseSelectionInternal *Internal;
-  vtkQtChartMouseBox *MouseBox; ///< Stores the mouse box.
+
+private:
+  vtkQtChartMouseSelection(const vtkQtChartMouseSelection &);
+  vtkQtChartMouseSelection &operator=(const vtkQtChartMouseSelection &);
 };
 
 #endif

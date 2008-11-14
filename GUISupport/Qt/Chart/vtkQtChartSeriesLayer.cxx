@@ -21,6 +21,11 @@
 /// \file vtkQtChartSeriesLayer.cxx
 /// \date February 14, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesLayer.h"
 
 #include "vtkQtChartContentsArea.h"
@@ -33,12 +38,16 @@
 #include "vtkQtChartArea.h"
 
 
-vtkQtChartSeriesLayer::vtkQtChartSeriesLayer()
+vtkQtChartSeriesLayer::vtkQtChartSeriesLayer(bool useContents)
   : vtkQtChartLayer(), Options()
 {
   this->Selection = new vtkQtChartSeriesSelectionModel(this);
   this->Model = 0;
-  this->Contents = new vtkQtChartContentsArea(this, this->scene());
+  this->Contents = 0;
+  if(useContents)
+    {
+    this->Contents = new vtkQtChartContentsArea(this, this->scene());
+    }
 }
 
 void vtkQtChartSeriesLayer::setChartArea(vtkQtChartArea *area)
@@ -142,12 +151,18 @@ void vtkQtChartSeriesLayer::getPointsIn(const QRectF &,
 
 void vtkQtChartSeriesLayer::setXOffset(float offset)
 {
-  this->Contents->setPos(-offset, this->Contents->pos().y());
+  if(this->Contents)
+    {
+    this->Contents->setPos(-offset, this->Contents->pos().y());
+    }
 }
 
 void vtkQtChartSeriesLayer::setYOffset(float offset)
 {
-  this->Contents->setPos(this->Contents->pos().x(), -offset);
+  if(this->Contents)
+    {
+    this->Contents->setPos(this->Contents->pos().x(), -offset);
+    }
 }
 
 void vtkQtChartSeriesLayer::resetSeriesOptions()

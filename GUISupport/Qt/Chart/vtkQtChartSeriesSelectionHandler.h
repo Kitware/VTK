@@ -87,16 +87,16 @@ public:
   virtual void getModeList(QStringList &list) const;
 
   virtual bool mousePressEvent(const QString &mode, QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
+      vtkQtChartArea *chart);
   virtual bool isMouseMoveAvailable(const QString &mode) const;
-  virtual void startMouseMove(const QString &mode);
+  virtual void startMouseMove(const QString &mode, vtkQtChartArea *chart);
   virtual void mouseMoveEvent(const QString &mode, QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual void finishMouseMove(const QString &mode);
+      vtkQtChartArea *chart);
+  virtual void finishMouseMove(const QString &mode, vtkQtChartArea *chart);
   virtual bool mouseReleaseEvent(const QString &mode, QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
+      vtkQtChartArea *chart);
   virtual bool mouseDoubleClickEvent(const QString &mode, QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
+      vtkQtChartArea *chart);
   //@}
 
 protected:
@@ -105,6 +105,11 @@ protected:
 private:
   /// Stores the selection information.
   vtkQtChartSeriesSelectionHandlerInternal *Internal;
+
+private:
+  vtkQtChartSeriesSelectionHandler(const vtkQtChartSeriesSelectionHandler &);
+  vtkQtChartSeriesSelectionHandler &operator=(
+      const vtkQtChartSeriesSelectionHandler &);
 };
 
 #endif

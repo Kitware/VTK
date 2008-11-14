@@ -40,9 +40,6 @@ class VTKQTCHART_EXPORT vtkQtStackedChart : public vtkQtChartSeriesLayer
   Q_OBJECT
 
 public:
-  enum {Type = vtkQtChart_StackedChartType};
-
-public:
   vtkQtStackedChart();
   virtual ~vtkQtStackedChart();
 
@@ -84,9 +81,14 @@ public:
 
   virtual void layoutChart(const QRectF &area);
 
-  virtual bool drawItemFilter(QGraphicsItem *item, QPainter *painter);
-
   virtual bool getHelpText(const QPointF &point, QString &text);
+
+  /// \brief
+  ///   Notifies the chart layer that a resize interaction has finished.
+  ///
+  /// The chart quad tree is not updated while the chart is in an
+  /// interactive state. It is updated in this method if needed.
+  virtual void finishInteractiveResize();
   //@}
 
   /// \name Selection Methods
@@ -192,50 +194,54 @@ private slots:
 
 private:
   /// Called to layout the highlights.
-  virtual void layoutHighlights();
+  void layoutHighlights();
 
   /// \brief
   ///   Adds the domain for the given series to the current domain.
   /// \param series The series index
   /// \param seriesGroup Used to return the domain group.
-  virtual void addSeriesDomain(int series, int *seriesGroup);
+  void addSeriesDomain(int series, int *seriesGroup);
 
   /// \brief
   ///   Updates the series table index map.
   /// \param seriesGroup The domain group to update.
-  virtual void updateItemMap(int seriesGroup);
+  void updateItemMap(int seriesGroup);
 
   /// \brief
   ///   Creates the table for the given series domain group.
   /// \param seriesGroup The domain group index.
-  virtual void createTable(int seriesGroup);
+  void createTable(int seriesGroup);
 
   /// \brief
   ///   Normalizes the table for the given series domain group.
   /// \param seriesGroup The domain group index.
-  virtual void normalizeTable(int seriesGroup);
+  void normalizeTable(int seriesGroup);
 
   /// \brief
   ///   Calculates the x-axis domain for the given domain group.
   /// \param seriesGroup The domain group index.
-  virtual void calculateXDomain(int seriesGroup);
+  void calculateXDomain(int seriesGroup);
 
   /// \brief
   ///   Calculates the y-axis domain for the given domain group.
   /// \param seriesGroup The domain group index.
-  virtual void calculateYDomain(int seriesGroup);
+  void calculateYDomain(int seriesGroup);
 
   /// \brief
-  ///   Finds the closest point index to the given location.
-  /// \param polygon The stacked series polygon.
-  /// \param point The location to search.
-  virtual int findClosestIndex(const QPolygonF &polygon,
-      const QPointF &point) const;
+  ///   Creates an ordered table of series quadrilaterals.
+  /// \param seriesGroup The domain group index.
+  void createQuadTable(int seriesGroup);
+
+  /// \brief
+  ///   Builds the quad tree for the given domain group.
+  /// \param seriesGroup The domain group index.
+  void buildQuadTree(int seriesGroup);
 
 private:
   vtkQtStackedChartInternal *Internal; ///< Stores the series.
   vtkQtStackedChartOptions *Options;   ///< Stores the drawing options.
   bool InModelChange;                  ///< Used for selection changes.
+  bool BuildNeeded;                    ///< Used when resizing interactively.
 };
 
 #endif

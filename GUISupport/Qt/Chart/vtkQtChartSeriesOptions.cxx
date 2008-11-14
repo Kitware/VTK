@@ -21,6 +21,11 @@
 /// \file vtkQtChartSeriesOptions.cxx
 /// \date February 15, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesOptions.h"
 
 #include "vtkQtChartStyleGenerator.h"
@@ -37,10 +42,30 @@ vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(QObject *parentObject)
   this->Visible = true;
 }
 
+vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(
+    const vtkQtChartSeriesOptions &other)
+  : QObject()
+{
+  this->Pen = new QPen(*other.Pen);
+  this->Brush = new QBrush(*other.Brush);
+  this->Style = other.Style;
+  this->Visible = other.Visible;
+}
+
 vtkQtChartSeriesOptions::~vtkQtChartSeriesOptions()
 {
   delete this->Pen;
   delete this->Brush;
+}
+
+vtkQtChartSeriesOptions &vtkQtChartSeriesOptions::operator=(
+    const vtkQtChartSeriesOptions &other)
+{
+  *this->Pen = *other.Pen;
+  *this->Brush = *other.Brush;
+  this->Style = other.Style;
+  this->Visible = other.Visible;
+  return *this;
 }
 
 void vtkQtChartSeriesOptions::setStyle(int style, vtkQtChartStyleGenerator *)

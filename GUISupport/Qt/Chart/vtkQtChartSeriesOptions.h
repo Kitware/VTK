@@ -45,7 +45,10 @@ public:
   ///   Creates a series options object.
   /// \param parent The parent object.
   vtkQtChartSeriesOptions(QObject *parent=0);
+  vtkQtChartSeriesOptions(const vtkQtChartSeriesOptions &other);
   virtual ~vtkQtChartSeriesOptions();
+
+  vtkQtChartSeriesOptions &operator=(const vtkQtChartSeriesOptions &other);
 
   /// \brief
   ///   Gets the style generator index for the series.

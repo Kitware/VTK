@@ -188,6 +188,10 @@ private:
   vtkQtChartAxis *Axis[4];            ///< Stores the axis objects.
   vtkQtChartAxisLayerItem *Option[4]; ///< Stores the axis behaviors.
   bool RangeChanged;                  ///< True if the range has changed.
+
+private:
+  vtkQtChartAxisLayer(const vtkQtChartAxisLayer &);
+  vtkQtChartAxisLayer &operator=(const vtkQtChartAxisLayer &);
 };
 
 #endif

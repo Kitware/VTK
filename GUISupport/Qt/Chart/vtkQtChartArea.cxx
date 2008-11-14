@@ -21,6 +21,11 @@
 /// \file vtkQtChartArea.cxx
 /// \date February 1, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartArea.h"
 
 #include "vtkQtChartAxisLayer.h"
@@ -70,6 +75,7 @@ public:
   bool DelayContextMenu;   ///< Used for context menu interaction.
   bool ContextMenuBlocked; ///< Used for context menu interaction.
   bool LayoutPending;      ///< Used to delay chart layout.
+  bool InteractiveResize;  ///< True when in a resize interaction.
 };
 
 
@@ -89,6 +95,7 @@ vtkQtChartAreaInternal::vtkQtChartAreaInternal()
   this->DelayContextMenu = false;
   this->ContextMenuBlocked = false;
   this->LayoutPending = false;
+  this->InteractiveResize = false;
 }
 
 
@@ -293,16 +300,14 @@ void vtkQtChartArea::setInteractor(vtkQtChartInteractor *interactor)
 {
   if(this->Internal->Interactor)
     {
-    this->Internal->Interactor->setContentsSpace(0);
-    this->Internal->Interactor->setMouseBox(0);
+    this->Internal->Interactor->setChartArea(0);
     this->disconnect(this->Internal->Interactor, 0, this, 0);
     }
 
   this->Internal->Interactor = interactor;
   if(this->Internal->Interactor)
     {
-    this->Internal->Interactor->setContentsSpace(this->Internal->Contents);
-    this->Internal->Interactor->setMouseBox(this->Internal->MouseBox);
+    this->Internal->Interactor->setChartArea(this);
     this->connect(this->Internal->Interactor,
         SIGNAL(cursorChangeRequested(const QCursor &)),
         this, SLOT(changeCursor(const QCursor &)));
@@ -312,6 +317,42 @@ void vtkQtChartArea::setInteractor(vtkQtChartInteractor *interactor)
 vtkQtChartContentsSpace *vtkQtChartArea::getContentsSpace() const
 {
   return this->Internal->Contents;
+}
+
+vtkQtChartMouseBox *vtkQtChartArea::getMouseBox() const
+{
+  return this->Internal->MouseBox;
+}
+
+void vtkQtChartArea::startInteractiveResize()
+{
+  if(!this->Internal->InteractiveResize)
+    {
+    this->Internal->InteractiveResize = true;
+    QList<vtkQtChartLayer *>::Iterator layer = this->Internal->Layers.begin();
+    for( ; layer != this->Internal->Layers.end(); ++layer)
+      {
+      (*layer)->startInteractiveResize();
+      }
+    }
+}
+
+bool vtkQtChartArea::isInteractivelyResizing() const
+{
+  return this->Internal->InteractiveResize;
+}
+
+void vtkQtChartArea::finishInteractiveResize()
+{
+  if(this->Internal->InteractiveResize)
+    {
+    this->Internal->InteractiveResize = false;
+    QList<vtkQtChartLayer *>::Iterator layer = this->Internal->Layers.begin();
+    for( ; layer != this->Internal->Layers.end(); ++layer)
+      {
+      (*layer)->finishInteractiveResize();
+      }
+    }
 }
 
 vtkQtChartStyleManager *vtkQtChartArea::getStyleManager() const

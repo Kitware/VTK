@@ -28,8 +28,7 @@
 #include "vtkQtChartExport.h"
 #include "vtkQtChartMouseFunction.h"
 
-class vtkQtChartContentsSpace;
-class vtkQtChartMouseBox;
+class vtkQtChartArea;
 class vtkQtChartMouseZoomInternal;
 class QCursor;
 class QMouseEvent;
@@ -60,15 +59,11 @@ public:
   //@{
   virtual void setMouseOwner(bool owns);
 
-  virtual bool mousePressEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseMoveEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseReleaseEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseDoubleClickEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool wheelEvent(QWheelEvent *e, vtkQtChartContentsSpace *contents);
+  virtual bool mousePressEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseMoveEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseReleaseEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseDoubleClickEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool wheelEvent(QWheelEvent *e, vtkQtChartArea *chart);
   //@}
 
   /// \brief
@@ -86,6 +81,10 @@ protected:
 private:
   vtkQtChartMouseZoomInternal *Internal; ///< Stores the last position.
   ZoomFlags Flags;                       ///< Stores the zoom flags.
+
+private:
+  vtkQtChartMouseZoom(const vtkQtChartMouseZoom &);
+  vtkQtChartMouseZoom &operator=(const vtkQtChartMouseZoom &);
 };
 
 
@@ -100,6 +99,10 @@ public:
   /// \param parent The parent object.
   vtkQtChartMouseZoomX(QObject *parent=0);
   virtual ~vtkQtChartMouseZoomX() {}
+
+private:
+  vtkQtChartMouseZoomX(const vtkQtChartMouseZoomX &);
+  vtkQtChartMouseZoomX &operator=(const vtkQtChartMouseZoomX &);
 };
 
 
@@ -114,6 +117,10 @@ public:
   /// \param parent The parent object.
   vtkQtChartMouseZoomY(QObject *parent=0);
   virtual ~vtkQtChartMouseZoomY() {}
+
+private:
+  vtkQtChartMouseZoomY(const vtkQtChartMouseZoomY &);
+  vtkQtChartMouseZoomY &operator=(const vtkQtChartMouseZoomY &);
 };
 
 
@@ -133,21 +140,18 @@ public:
   //@{
   virtual void setMouseOwner(bool owns);
 
-  virtual void setMouseBox(vtkQtChartMouseBox *box) {this->MouseBox = box;}
-
-  virtual bool mousePressEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseMoveEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseReleaseEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseDoubleClickEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
+  virtual bool mousePressEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseMoveEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseReleaseEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseDoubleClickEvent(QMouseEvent *e, vtkQtChartArea *chart);
   //@}
 
 private:
-  vtkQtChartMouseBox *MouseBox; ///< Stores the mouse box.
-  QCursor *ZoomCursor;          ///< Stores the zoom cursor.
+  QCursor *ZoomCursor; ///< Stores the zoom cursor.
+
+private:
+  vtkQtChartMouseZoomBox(const vtkQtChartMouseZoomBox &);
+  vtkQtChartMouseZoomBox &operator=(const vtkQtChartMouseZoomBox &);
 };
 
 #endif

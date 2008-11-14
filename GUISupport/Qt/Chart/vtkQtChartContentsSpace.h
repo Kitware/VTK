@@ -30,6 +30,7 @@
 
 class vtkQtChartContentsSpaceInternal;
 class QPoint;
+class QPointF;
 class QRectF;
 
 
@@ -93,6 +94,25 @@ public:
   /// \return
   ///   The contents height.
   float getContentsHeight() const;
+
+  /// \brief
+  ///   Translates a point to layer contents coordinates.
+  ///
+  /// The point is adjusted from widget origin to layer bounds origin.
+  /// The point is also translated to account for panning offset.
+  ///
+  /// \param point The point to translate.
+  void translateToLayerContents(QPointF &point) const;
+
+  /// \brief
+  ///   Translates a point to layer contents coordinates.
+  ///
+  /// The rectangle is adjusted from widget origin to layer bounds
+  /// origin. The rectangle is also translated to account for panning
+  /// offset.
+  ///
+  /// \param area The rectangle to translate.
+  void translateToLayerContents(QRectF &area) const;
   //@}
 
   /// \name Size Methods

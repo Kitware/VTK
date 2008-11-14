@@ -21,6 +21,11 @@
 /// \file vtkQtChartContentsSpace.cxx
 /// \date 2/7/2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartContentsSpace.h"
 
 #include "vtkQtChartZoomHistory.h"
@@ -90,6 +95,18 @@ float vtkQtChartContentsSpace::getContentsWidth() const
 float vtkQtChartContentsSpace::getContentsHeight() const
 {
   return this->Internal->Layer.height() + this->MaximumY;
+}
+
+void vtkQtChartContentsSpace::translateToLayerContents(QPointF &point) const
+{
+  point.setX(point.x() + this->OffsetX - this->Internal->Layer.left());
+  point.setY(point.y() + this->OffsetY - this->Internal->Layer.top());
+}
+
+void vtkQtChartContentsSpace::translateToLayerContents(QRectF &area) const
+{
+  area.translate(this->OffsetX - this->Internal->Layer.left(),
+      this->OffsetY - this->Internal->Layer.top());
 }
 
 void vtkQtChartContentsSpace::setChartSize(float width, float height)

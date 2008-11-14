@@ -40,9 +40,6 @@ class VTKQTCHART_EXPORT vtkQtBarChart : public vtkQtChartSeriesLayer
   Q_OBJECT
 
 public:
-  enum {Type = vtkQtChart_BarChartType};
-
-public:
   vtkQtBarChart();
   virtual ~vtkQtBarChart();
 
@@ -84,9 +81,14 @@ public:
 
   virtual void layoutChart(const QRectF &area);
 
-  virtual bool drawItemFilter(QGraphicsItem *item, QPainter *painter);
-
   virtual bool getHelpText(const QPointF &point, QString &text);
+
+  /// \brief
+  ///   Notifies the chart layer that a resize interaction has finished.
+  ///
+  /// The chart bar tree is not updated while the chart is in an
+  /// interactive state. It is updated in this method if needed.
+  virtual void finishInteractiveResize();
   //@}
 
   /// \name Selection Methods
@@ -183,31 +185,44 @@ private slots:
   void handleSeriesBrushChange(const QBrush &brush);
 
   /// \brief
-  ///   Called to layout the highlights.
+  ///   Called to set up the highlights.
   ///
-  /// The layout request is ignored if the model is being changed.
+  /// The set up request is ignored if the model is being changed.
   void updateHighlights();
 
 private:
-  /// Called to layout the highlights.
-  void layoutHighlights();
-
   /// \brief
   ///   Adds the domain for the given series to the current domain.
   /// \param series The series index.
+  /// \param seriesGroup Used to return the series group index.
   /// \return
   ///   True if the domain was modified.
-  bool addSeriesDomain(int series);
+  bool addSeriesDomain(int series, int &seriesGroup);
 
   /// \brief
   ///   Calculates the domain for the given series group.
   /// \param seriesGroup The series group index.
   void calculateDomain(int seriesGroup);
 
+  /// \brief
+  ///   Creates an ordered list of series bars.
+  /// \param seriesGroup The series group index.
+  void createBarList(int seriesGroup);
+
+  /// \brief
+  ///   Builds the bar tree for the given series group.
+  /// \param seriesGroup The series group index.
+  void buildBarTree(int seriesGroup);
+
 private:
   vtkQtBarChartInternal *Internal; ///< Stores the bar series.
   vtkQtBarChartOptions *Options;   ///< Stores the drawing options.
   bool InModelChange;              ///< Used for selection changes.
+  bool BuildNeeded;                ///< Used when resizing interactively.
+
+private:
+  vtkQtBarChart(const vtkQtBarChart &);
+  vtkQtBarChart &operator=(const vtkQtBarChart &);
 };
 
 #endif

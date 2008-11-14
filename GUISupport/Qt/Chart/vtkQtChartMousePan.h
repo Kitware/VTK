@@ -50,18 +50,18 @@ public:
   //@{
   virtual void setMouseOwner(bool owns);
 
-  virtual bool mousePressEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseMoveEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseReleaseEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
-  virtual bool mouseDoubleClickEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents);
+  virtual bool mousePressEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseMoveEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseReleaseEvent(QMouseEvent *e, vtkQtChartArea *chart);
+  virtual bool mouseDoubleClickEvent(QMouseEvent *e, vtkQtChartArea *chart);
   //@}
 
 private:
   vtkQtChartMousePanInternal *Internal; ///< Stores the last mouse position.
+
+private:
+  vtkQtChartMousePan(const vtkQtChartMousePan &);
+  vtkQtChartMousePan &operator=(const vtkQtChartMousePan &);
 };
 
 #endif

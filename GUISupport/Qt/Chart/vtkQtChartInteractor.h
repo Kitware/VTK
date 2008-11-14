@@ -28,6 +28,7 @@
 #include "vtkQtChartExport.h"
 #include <QObject>
 
+class vtkQtChartArea;
 class vtkQtChartContentsSpace;
 class vtkQtChartInteractorInternal;
 class vtkQtChartInteractorModeList;
@@ -82,26 +83,15 @@ public:
   /// \name Setup Methods
   //@{
   /// \brief
-  ///   Gets the chart's contents space object.
+  ///   Gets the chart area.
   /// \return
-  ///   A pointer to the chart's contents space object.
-  vtkQtChartContentsSpace *getContentsSpace() const {return this->Contents;}
+  ///   A pointer to the chart area.
+  vtkQtChartArea *getChartArea() const {return this->ChartArea;}
 
   /// \brief
-  ///   Sets the contents space object used by the chart.
-  /// \param space The chart's contents space object.
-  void setContentsSpace(vtkQtChartContentsSpace *space);
-
-  /// \brief
-  ///   Gets the chart's mouse box object.
-  /// \return
-  ///   A pointer to the chart's mouse box object.
-  vtkQtChartMouseBox *getMouseBox() const {return this->MouseBox;}
-
-  /// \brief
-  ///   Sets the mouse box object used by the chart.
-  /// \param box The chart's mouse box object.
-  void setMouseBox(vtkQtChartMouseBox *box);
+  ///   Sets the chart area.
+  /// \param area The new chart area.
+  void setChartArea(vtkQtChartArea *area) {this->ChartArea = area;}
   //@}
 
   /// \name Configuration Methods
@@ -282,8 +272,7 @@ private:
 private:
   /// Stores the mouse function configuration.
   vtkQtChartInteractorInternal *Internal;
-  vtkQtChartContentsSpace *Contents; ///< Stores the contents space.
-  vtkQtChartMouseBox *MouseBox;      ///< Stores the mouse box.
+  vtkQtChartArea *ChartArea;         ///< Stores the chart area.
   Qt::KeyboardModifier XModifier;    ///< Stores the zoom x-only modifier.
   Qt::KeyboardModifier YModifier;    ///< Stores the zoom y-only modifier.
 };

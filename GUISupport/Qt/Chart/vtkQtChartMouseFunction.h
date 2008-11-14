@@ -28,8 +28,7 @@
 #include "vtkQtChartExport.h"
 #include <QObject>
 
-class vtkQtChartContentsSpace;
-class vtkQtChartMouseBox;
+class vtkQtChartArea;
 class QCursor;
 class QMouseEvent;
 class QRectF;
@@ -50,16 +49,6 @@ public:
   /// \param parent The parent object.
   vtkQtChartMouseFunction(QObject *parent=0);
   virtual ~vtkQtChartMouseFunction() {}
-
-  /// \brief
-  ///   Sets the mouse box used by the chart.
-  ///
-  /// The mouse box is not stored in the base class since it is not
-  /// needed by most functions. Subclasses should store the mouse box
-  /// if they need it.
-  ///
-  /// \param box The chart's mouse box.
-  virtual void setMouseBox(vtkQtChartMouseBox *box);
 
   /// \brief
   ///   Gets whether or not the function is combinable.
@@ -89,46 +78,42 @@ public:
   /// \brief
   ///   Called to handle the mouse press event.
   /// \param e Event specific information.
-  /// \param contents The chart's contents space object.
+  /// \param chart The chart area.
   /// \return
   ///   True if the event was used.
-  virtual bool mousePressEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents)=0;
+  virtual bool mousePressEvent(QMouseEvent *e, vtkQtChartArea *chart)=0;
 
   /// \brief
   ///   Called to handle the mouse move event.
   /// \param e Event specific information.
-  /// \param contents The chart's contents space object.
+  /// \param chart The chart area.
   /// \return
   ///   True if the event was used.
-  virtual bool mouseMoveEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents)=0;
+  virtual bool mouseMoveEvent(QMouseEvent *e, vtkQtChartArea *chart)=0;
 
   /// \brief
   ///   Called to handle the mouse release event.
   /// \param e Event specific information.
-  /// \param contents The chart's contents space object.
+  /// \param chart The chart area.
   /// \return
   ///   True if the event was used.
-  virtual bool mouseReleaseEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents)=0;
+  virtual bool mouseReleaseEvent(QMouseEvent *e, vtkQtChartArea *chart)=0;
 
   /// \brief
   ///   Called to handle the double click event.
   /// \param e Event specific information.
-  /// \param contents The chart's contents space object.
+  /// \param chart The chart area.
   /// \return
   ///   True if the event was used.
-  virtual bool mouseDoubleClickEvent(QMouseEvent *e,
-      vtkQtChartContentsSpace *contents)=0;
+  virtual bool mouseDoubleClickEvent(QMouseEvent *e, vtkQtChartArea *chart)=0;
 
   /// \brief
   ///   Called to handle the wheel event.
   /// \param e Event specific information.
-  /// \param contents The chart's contents space object.
+  /// \param chart The chart area.
   /// \return
   ///   True if the event was used.
-  virtual bool wheelEvent(QWheelEvent *e, vtkQtChartContentsSpace *contents);
+  virtual bool wheelEvent(QWheelEvent *e, vtkQtChartArea *chart);
 
 signals:
   /// \brief

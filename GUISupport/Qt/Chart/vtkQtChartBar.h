@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtChartMouseSelectionHandler.cxx
+  Module:    vtkQtChartBar.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,21 +18,36 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-/// \file vtkQtChartMouseSelectionHandler.cxx
-/// \date March 19, 2008
+/// \file vtkQtChartBar.h
+/// \date November 13, 2008
 
-#ifdef _MSC_VER
-// Disable warnings that Qt headers give.
-#pragma warning(disable:4127)
-#endif
+#ifndef _vtkQtChartBar_h
+#define _vtkQtChartBar_h
 
-#include "vtkQtChartMouseSelectionHandler.h"
+#include "vtkQtChartExport.h"
+#include "vtkQtChartShape.h"
 
 
-vtkQtChartMouseSelectionHandler::vtkQtChartMouseSelectionHandler(
-    QObject *parentObject)
-  : QObject(parentObject)
+class VTKQTCHART_EXPORT vtkQtChartBar : public vtkQtChartShape
 {
-}
+public:
+  vtkQtChartBar();
+  vtkQtChartBar(int series, int index);
+  vtkQtChartBar(const vtkQtChartBar &other);
+  virtual ~vtkQtChartBar();
 
+  vtkQtChartBar &operator=(const vtkQtChartBar &other);
 
+  virtual void getBounds(QRectF &bounds) const;
+  virtual bool contains(const QPointF &point) const;
+  virtual bool intersects(const QRectF &area) const;
+
+  QRectF &getBar() {return *this->Bar;}
+  const QRectF &getBar() const {return *this->Bar;}
+  void setBar(const QRectF &bar);
+
+private:
+  QRectF *Bar; ///< Stores the rectangle.
+};
+
+#endif

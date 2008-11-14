@@ -21,8 +21,14 @@
 /// \file vtkQtChartInteractor.cxx
 /// \date 5/2/2007
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartInteractor.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartMouseBox.h"
 #include "vtkQtChartMouseFunction.h"
@@ -217,8 +223,7 @@ vtkQtChartInteractor::vtkQtChartInteractor(QObject *parentObject)
   : QObject(parentObject)
 {
   this->Internal = new vtkQtChartInteractorInternal();
-  this->Contents = 0;
-  this->MouseBox = 0;
+  this->ChartArea = 0;
   this->XModifier = Qt::ControlModifier;
   this->YModifier = Qt::AltModifier;
 }
@@ -226,33 +231,6 @@ vtkQtChartInteractor::vtkQtChartInteractor(QObject *parentObject)
 vtkQtChartInteractor::~vtkQtChartInteractor()
 {
   delete this->Internal;
-}
-
-void vtkQtChartInteractor::setContentsSpace(vtkQtChartContentsSpace *space)
-{
-  this->Contents = space;
-}
-
-void vtkQtChartInteractor::setMouseBox(vtkQtChartMouseBox *box)
-{
-  this->MouseBox = box;
-
-  // Update the mouse box in all the functions.
-  QVector<vtkQtChartInteractorModeList>::Iterator iter =
-      this->Internal->Buttons.begin();
-  for( ; iter != this->Internal->Buttons.end(); ++iter)
-    {
-    QList<vtkQtChartInteractorMode>::Iterator jter = iter->Modes.begin();
-    for(int index = 0; jter != iter->Modes.end(); ++jter, ++index)
-      {
-      QList<vtkQtChartInteractorModeItem>::Iterator kter =
-          jter->Functions.begin();
-      for( ; kter != jter->Functions.end(); ++kter)
-        {
-        kter->Function->setMouseBox(this->MouseBox);
-        }
-      }
-    }
 }
 
 void vtkQtChartInteractor::setFunction(Qt::MouseButton button,
@@ -340,7 +318,6 @@ void vtkQtChartInteractor::removeFunction(vtkQtChartMouseFunction *function)
 
   // Disconnect from the function signals.
   this->disconnect(function, 0, this, 0);
-  function->setMouseBox(0);
 }
 
 void vtkQtChartInteractor::removeFunctions(Qt::MouseButton button)
@@ -425,12 +402,13 @@ void vtkQtChartInteractor::setWheelMode(int index)
 
 bool vtkQtChartInteractor::keyPressEvent(QKeyEvent *e)
 {
-  if(!this->Contents)
+  if(!this->ChartArea)
     {
     return false;
     }
 
   bool handled = true;
+  vtkQtChartContentsSpace *contents = this->ChartArea->getContentsSpace();
   if(e->key() == Qt::Key_Plus || e->key() == Qt::Key_Minus ||
       e->key() == Qt::Key_Equal)
     {
@@ -454,41 +432,41 @@ bool vtkQtChartInteractor::keyPressEvent(QKeyEvent *e)
     // Zoom in for the plus/equal key and out for the minus key.
     if(e->key() == Qt::Key_Minus)
       {
-      this->Contents->zoomOut(flags);
+      contents->zoomOut(flags);
       }
     else
       {
-      this->Contents->zoomIn(flags);
+      contents->zoomIn(flags);
       }
     }
   else if(e->key() == Qt::Key_Up)
     {
-    this->Contents->panUp();
+    contents->panUp();
     }
   else if(e->key() == Qt::Key_Down)
     {
-    this->Contents->panDown();
+    contents->panDown();
     }
   else if(e->key() == Qt::Key_Left)
     {
     if(e->modifiers() & Qt::AltModifier)
       {
-      this->Contents->historyPrevious();
+      contents->historyPrevious();
       }
     else
       {
-      this->Contents->panLeft();
+      contents->panLeft();
       }
     }
   else if(e->key() == Qt::Key_Right)
     {
     if(e->modifiers() & Qt::AltModifier)
       {
-      this->Contents->historyNext();
+      contents->historyNext();
       }
     else
       {
-      this->Contents->panRight();
+      contents->panRight();
       }
     }
   else
@@ -523,7 +501,7 @@ void vtkQtChartInteractor::mousePressEvent(QMouseEvent *e)
 
     if(function)
       {
-      handled = function->mousePressEvent(e, this->Contents);
+      handled = function->mousePressEvent(e, this->ChartArea);
       }
     }
 
@@ -599,7 +577,7 @@ void vtkQtChartInteractor::mouseMoveEvent(QMouseEvent *e)
 
     if(function)
       {
-      handled = function->mouseMoveEvent(e, this->Contents);
+      handled = function->mouseMoveEvent(e, this->ChartArea);
       }
     }
 
@@ -643,7 +621,7 @@ void vtkQtChartInteractor::mouseReleaseEvent(QMouseEvent *e)
 
     if(function)
       {
-      handled = function->mouseReleaseEvent(e, this->Contents);
+      handled = function->mouseReleaseEvent(e, this->ChartArea);
       }
     }
 
@@ -681,7 +659,7 @@ void vtkQtChartInteractor::mouseDoubleClickEvent(QMouseEvent *e)
 
     if(function)
       {
-      handled = function->mouseDoubleClickEvent(e, this->Contents);
+      handled = function->mouseDoubleClickEvent(e, this->ChartArea);
       }
     }
 
@@ -718,7 +696,7 @@ void vtkQtChartInteractor::wheelEvent(QWheelEvent *e)
 
     if(function)
       {
-      handled = function->wheelEvent(e, this->Contents);
+      handled = function->wheelEvent(e, this->ChartArea);
       }
     }
 
@@ -819,7 +797,6 @@ void vtkQtChartInteractor::addFunction(vtkQtChartInteractorModeList *list,
 
     // Finally, add the function to the mode.
     mode->Functions.append(vtkQtChartInteractorModeItem(function, modifiers));
-    function->setMouseBox(this->MouseBox);
     this->connect(function, SIGNAL(cursorChangeRequested(const QCursor &)),
         this, SIGNAL(cursorChangeRequested(const QCursor &)));
     this->connect(
@@ -853,7 +830,6 @@ void vtkQtChartInteractor::removeFunctions(vtkQtChartInteractorModeList *list)
       for( ; jter != iter->Functions.end(); ++jter)
         {
         this->disconnect(jter->Function, 0, this, 0);
-        jter->Function->setMouseBox(0);
         }
       }
 

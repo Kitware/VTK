@@ -44,6 +44,10 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartAxisModel.h
     vtkQtChartAxisOptions.cxx
     vtkQtChartAxisOptions.h
+    vtkQtChartBar.cxx
+    vtkQtChartBar.h
+    vtkQtChartBarLocator.cxx
+    vtkQtChartBarLocator.h
     vtkQtChartColors.cxx
     vtkQtChartColors.h
     vtkQtChartColorStyleGenerator.cxx
@@ -84,6 +88,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartPenBrushGenerator.h
     vtkQtChartPointLocator.cxx
     vtkQtChartPointLocator.h
+    vtkQtChartQuad.cxx
+    vtkQtChartQuad.h
     vtkQtChartScene.cxx
     vtkQtChartScene.h
     vtkQtChartSeriesDomain.cxx
@@ -106,6 +112,10 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartSeriesSelectionHandler.h
     vtkQtChartSeriesSelectionModel.cxx
     vtkQtChartSeriesSelectionModel.h
+    vtkQtChartShape.cxx
+    vtkQtChartShape.h
+    vtkQtChartShapeLocator.cxx
+    vtkQtChartShapeLocator.h
     vtkQtChartStyleGenerator.cxx
     vtkQtChartStyleGenerator.h
     vtkQtChartStyleManager.cxx

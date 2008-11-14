@@ -53,7 +53,7 @@ public:
   enum {Type = vtkQtChart_SeriesLayerType};
 
 public:
-  vtkQtChartSeriesLayer();
+  vtkQtChartSeriesLayer(bool useContents=true);
   virtual ~vtkQtChartSeriesLayer() {}
 
   /// \brief
@@ -189,6 +189,10 @@ protected:
 private:
   /// Stores the series options.
   QList<vtkQtChartSeriesOptions *> Options;
+
+private:
+  vtkQtChartSeriesLayer(const vtkQtChartSeriesLayer &);
+  vtkQtChartSeriesLayer &operator=(const vtkQtChartSeriesLayer &);
 };
 
 #endif
