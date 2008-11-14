@@ -31,29 +31,29 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-char shaders[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \
-<Material name=\"GenericAttributes1\"> \
-  <Shader scope=\"Vertex\" name=\"VertexShader\" location=\"Inline\"\
-    language=\"GLSL\" entry=\"main\"> attribute vec3 genAttrVector; \
-    varying vec4 color; \
-    void main(void) \
-    { \
-      gl_Position = gl_ModelViewProjectionMatrix *gl_Vertex; \
-      color = vec4(normalize(genAttrVector), 1.0); \
-    } \
-  </Shader> \
-  <Shader scope=\"Fragment\" name=\"FragmentShader\" location=\"Inline\" \
-    language=\"GLSL\" entry=\"main\"> \
-    varying vec4 color; \
-    void main(void) \
-    { \
-      gl_FragColor = color; \
-    } \
-  </Shader> \
-</Material>";
-
 int TestGenericVertexAttributesGLSLCxx(int argc, char *argv[])
 {
+  char shaders[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \
+  <Material name=\"GenericAttributes1\"> \
+    <Shader scope=\"Vertex\" name=\"VertexShader\" location=\"Inline\"\
+      language=\"GLSL\" entry=\"main\"> attribute vec3 genAttrVector; \
+      varying vec4 color; \
+      void main(void) \
+      { \
+        gl_Position = gl_ModelViewProjectionMatrix *gl_Vertex; \
+        color = vec4(normalize(genAttrVector), 1.0); \
+      } \
+    </Shader> \
+    <Shader scope=\"Fragment\" name=\"FragmentShader\" location=\"Inline\" \
+      language=\"GLSL\" entry=\"main\"> \
+      varying vec4 color; \
+      void main(void) \
+      { \
+        gl_FragColor = color; \
+      } \
+    </Shader> \
+  </Material>";
+
   vtkSphereSource * sphere = vtkSphereSource::New();
   sphere->SetRadius(5);
   sphere->SetPhiResolution(20);
@@ -71,7 +71,8 @@ int TestGenericVertexAttributesGLSLCxx(int argc, char *argv[])
   actor->SetMapper(mapper);
   actor->GetProperty()->LoadMaterialFromString(shaders);
   actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
-  //actor->GetProperty()->ShadingOn();
+  actor->GetProperty()->GetShading();
+  actor->GetProperty()->ShadingOn();
 
   mapper->MapDataArrayToVertexAttribute("genAttrVector", "BrownianVectors", 0, -1);
 
@@ -96,6 +97,8 @@ int TestGenericVertexAttributesGLSLCxx(int argc, char *argv[])
     interactor->Start();
     }
 
+  sphere->Delete();
+  randomVector->Delete();
   mapper->Delete();
   actor->Delete();
   renderer->Delete();
