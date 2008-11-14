@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAMRBox.cxx"
+#include "vtkAMRBox.h"
 
 int TestAMRBox(int , char *[])
 {
