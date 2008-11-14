@@ -1100,7 +1100,7 @@ void vtkQtBarChart::createBarList(int seriesGroup)
     QList<int>::Iterator iter = seriesList.begin();
     for( ; iter != seriesList.end(); ++iter)
       {
-      int k = 0;
+      k = 0;
       vtkQtBarChartSeries *series = this->Internal->Series[*iter];
       QVariant xValue, yValue;
       int points = this->Model->getNumberOfSeriesValues(*iter);

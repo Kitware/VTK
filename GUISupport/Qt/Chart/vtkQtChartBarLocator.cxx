@@ -320,7 +320,7 @@ QList<vtkQtChartBar *> vtkQtChartBarLocator::getItemsIn(
       float bottom = area.bottom();
       for(int i = leftId; i <= rightId; i++)
         {
-        vtkQtChartBarLocatorNode *node = this->Items[i];
+        node = this->Items[i];
         if(node->getBounds().top() <= bottom &&
             node->getBounds().bottom() >= top)
           {
