@@ -20,6 +20,7 @@ IF(VTK_USE_DISPLAY)
     SurfacePlusEdges.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
+    TestGenericVertexAttributesGLSLCxx.cxx
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
