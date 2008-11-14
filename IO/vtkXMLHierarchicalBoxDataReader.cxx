@@ -26,7 +26,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.10");
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
 //----------------------------------------------------------------------------
@@ -107,7 +107,8 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
       childXML->GetScalarAttribute("dataset", index) &&
       childXML->GetVectorAttribute("amr_box", 6, box))
       {
-      vtkAMRBox amrBox(box);
+      vtkIdType ext[6]={box[0],box[1],box[2],box[3],box[4],box[5]};
+      vtkAMRBox amrBox(ext);
 
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
