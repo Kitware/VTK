@@ -71,7 +71,7 @@ int TestGenericVertexAttributesGLSLCxx(int argc, char *argv[])
   actor->SetMapper(mapper);
   actor->GetProperty()->LoadMaterialFromString(shaders);
   actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
-  actor->GetProperty()->ShadingOn();
+  //actor->GetProperty()->ShadingOn();
 
   mapper->MapDataArrayToVertexAttribute("genAttrVector", "BrownianVectors", 0, -1);
 
