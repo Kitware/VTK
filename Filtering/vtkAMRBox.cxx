@@ -457,31 +457,31 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
     {
     return false;
     }
-
+  
   switch (this->Dimension)
     {
     case 2:
-    if (this->Empty() && other.Empty()
-      ||(this->LoCorner[0]==other.LoCorner[0]
-      && this->LoCorner[1]==other.LoCorner[1]
-      && this->HiCorner[0]==other.HiCorner[0]
-      && this->HiCorner[1]==other.HiCorner[1]))
-      {
-      return true;
-      }
-    break;
+      if ((this->Empty() && other.Empty())
+          ||(this->LoCorner[0]==other.LoCorner[0]
+             && this->LoCorner[1]==other.LoCorner[1]
+             && this->HiCorner[0]==other.HiCorner[0]
+             && this->HiCorner[1]==other.HiCorner[1]))
+        {
+        return true;
+        }
+      break;
     case 3:
-    if (this->Empty() && other.Empty()
-      ||(this->LoCorner[0]==other.LoCorner[0]
-      && this->LoCorner[1]==other.LoCorner[1]
-      && this->LoCorner[2]==other.LoCorner[2]
-      && this->HiCorner[0]==other.HiCorner[0]
-      && this->HiCorner[1]==other.HiCorner[1]
-      && this->HiCorner[2]==other.HiCorner[2]))
-      {
-      return true;
-      }
-    break;
+      if ((this->Empty() && other.Empty())
+          ||(this->LoCorner[0]==other.LoCorner[0]
+             && this->LoCorner[1]==other.LoCorner[1]
+             && this->LoCorner[2]==other.LoCorner[2]
+             && this->HiCorner[0]==other.HiCorner[0]
+             && this->HiCorner[1]==other.HiCorner[1]
+             && this->HiCorner[2]==other.HiCorner[2]))
+        {
+        return true;
+        }
+      break;
     }
   return false;
 }
