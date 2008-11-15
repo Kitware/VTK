@@ -45,7 +45,7 @@ class vtkX3DExporterXMLNodeInfoStack: public vtkX3DExporterXMLNodeInfoStackBase
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterXMLWriter);
-vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.5");
+vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.6");
 //-----------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
 {
@@ -144,11 +144,20 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, const double* 
     {
     case(SFVEC3F):
     case(SFCOLOR):
-      this->OutputStream << d[0] << " " << d[1] << " " << d[2];
+      this->OutputStream << d[0] 
+                         << " " 
+                         << d[1] 
+                         << " " 
+                         << d[2];
       break;
     case(SFROTATION):
-      this->OutputStream << d[1] << " " << d[2] << " " << d[3] 
-      << " " << (-d[0] * vtkMath::DoubleDegreesToRadians());
+      this->OutputStream << d[1] 
+                         << " " 
+                         << d[2] 
+                         << " " 
+                         << d[3] 
+                         << " " 
+                         << vtkMath::RadiansFromDegrees( -d[0] );
       break;
     default:
       this->OutputStream << "UNKNOWN DATATYPE";

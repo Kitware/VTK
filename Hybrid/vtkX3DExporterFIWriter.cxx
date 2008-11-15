@@ -200,7 +200,7 @@ void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
 
 /* ------------------------------------------------------------------------- */
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.7");
+vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.8");
 //----------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
 {
@@ -389,44 +389,53 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
   vtksys_ios::ostringstream ss;
 
   this->StartAttribute(attributeID, true, false);
-
+  
 #ifdef ENCODEASSTRING
   const double* loc = NULL;
   size_t size = 0;
   double temp[4];
   switch (type)
     {
-  case(SFVEC3F):
-  case(SFCOLOR):
-    size = 3; loc = d;
-    break;
-  case(SFROTATION):
-    size = 4;
-    temp[0] = d[1];
-    temp[1] = d[2];
-    temp[2] = d[3];
-    temp[3] = -d[0] * vtkMath::DoubleDegreesToRadians();
-    loc = temp;
-    break;
-  default:
-    cerr << "UNKNOWN DATATYPE";
-    assert(false);
+    case(SFVEC3F):
+    case(SFCOLOR):
+      size = 3; loc = d;
+      break;
+    case(SFROTATION):
+      size = 4;
+      temp[0] = d[1];
+      temp[1] = d[2];
+      temp[2] = d[3];
+      temp[3] = vtkMath::RadiansFromDegrees( -d[0] );
+      loc = temp;
+      break;
+    default:
+      cerr << "UNKNOWN DATATYPE";
+      assert(false);
     }
   vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer, loc, size);
 #else
   switch (type)
     {
-  case(SFVEC3F):
-  case(SFCOLOR):
-    ss << (float)d[0] << " " << (float)d[1] << " " << (float)d[2];
-    break;
-  case(SFROTATION):
-    ss << (float)d[1] << " " << (float)d[2] << " " << (float)d[3] << 
-      " " << (float)(-d[0] * vtkMath::DoubleDegreesToRadians());
-    break;
-  default:
-    cout << "UNKNOWN DATATYPE";
-    assert(false);
+    case(SFVEC3F):
+    case(SFCOLOR):
+      ss << static_cast<float>( d[0] ) 
+         << " " 
+         << static_cast<float>( d[1] ) 
+         << " " 
+         << static_cast<float>( d[2] );
+      break;
+    case(SFROTATION):
+      ss << static_cast<float>( d[1] ) 
+         << " " 
+         << static_cast<float>( d[2] ) 
+         << " " 
+         << static_cast<float>( d[3] ) 
+         << " " 
+         << static_cast<float>( vtkMath::RadiansFromDegrees( -d[0] ) );
+      break;
+    default:
+      cout << "UNKNOWN DATATYPE";
+      assert(false);
     }
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
 #endif
