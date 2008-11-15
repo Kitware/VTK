@@ -45,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.10");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.11");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
@@ -353,7 +353,7 @@ int vtkGeoInteractorStyle::ViewportToWorld(double xMouse,
   dy = yMouse - size[1]*0.5;
 
   double angle = camera->GetViewAngle();
-  double tmp = tan(angle*0.5*vtkMath::DegreesToRadians());
+  double tmp = tan( vtkMath::RadiansFromDegrees( angle ) * 0.5 );
   vtkMath::Normalize(direction);
   // note the duplication of size[1] is intentional in the lines below
   direction[0] = direction[0] + tmp*2.0*dx*right[0]/size[1] 
@@ -378,8 +378,8 @@ void vtkGeoInteractorStyle::WorldToLongLat(double wx, double wy,
                                            double &lon, double &lat)
 {
   double r = sqrt(wx*wx + wy*wy + wz*wz);
-  lat = double(asin(wz/r) * vtkMath::RadiansToDegrees());
-  lon = double(atan2(wy,wx) * vtkMath::RadiansToDegrees() - 90);
+  lat = double( vtkMath::DegreesFromRadians( asin(wz/r) ) );
+  lon = double( vtkMath::DegreesFromRadians( atan2(wy,wx) ) - 90. );
 }
 
 void vtkGeoInteractorStyle::ViewportToLongLat(double x, double y, 
@@ -619,7 +619,7 @@ void vtkGeoInteractorStyle::GetPanCenter(double &px, double &py)
   vtkMath::Normalize(up);
   double dx, dy;
   double angle = camera->GetViewAngle();
-  double tmp = tan(angle*0.5*vtkMath::DegreesToRadians());
+  double tmp = tan( vtkMath::RadiansFromDegrees( angle ) * 0.5 );
   int* size = renderer->GetSize();
   tmp = tmp*2.0/size[1];
   vtkMath::Normalize(direction);

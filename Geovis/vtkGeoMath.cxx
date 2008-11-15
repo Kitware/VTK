@@ -23,7 +23,7 @@
 #include "vtkGeoMath.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGeoMath, "1.3");
+vtkCxxRevisionMacro(vtkGeoMath, "1.4");
 vtkStandardNewMacro(vtkGeoMath);
 
 
@@ -63,8 +63,8 @@ double vtkGeoMath::DistanceSquared(double pt0[3], double pt1[3])
 //-----------------------------------------------------------------------------
 void vtkGeoMath::LongLatAltToRect(double longLatAlt[3], double rect[3])
 {
-  double theta = longLatAlt[0] * vtkMath::DegreesToRadians();
-  double phi = longLatAlt[1] * vtkMath::DegreesToRadians();
+  double theta = vtkMath::RadiansFromDegrees( longLatAlt[0] );
+  double phi   = vtkMath::RadiansFromDegrees( longLatAlt[1] );
   double cosPhi = cos(phi);
   double radius = vtkGeoMath::EarthRadiusMeters()+ longLatAlt[2];
 

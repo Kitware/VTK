@@ -44,7 +44,7 @@
 
 #include <sstream>
 
-vtkCxxRevisionMacro(vtkCompassRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkCompassRepresentation, "1.2");
 vtkStandardNewMacro(vtkCompassRepresentation);
 
 //----------------------------------------------------------------------
@@ -232,13 +232,13 @@ void vtkCompassRepresentation::BuildRing()
     {
     this->Points->SetPoint
       (i, 
-       this->OuterRadius*cos((i+10)*10*vtkMath::DegreesToRadians()),
-       this->OuterRadius*sin((i+10)*10*vtkMath::DegreesToRadians()),
+       this->OuterRadius * cos( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
+       this->OuterRadius * sin( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
        0.0);
     this->Points->SetPoint
       (i+35, 
-       this->InnerRadius*cos((i+10)*10*vtkMath::DegreesToRadians()),
-       this->InnerRadius*sin((i+10)*10*vtkMath::DegreesToRadians()),
+       this->InnerRadius * cos( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
+       this->InnerRadius * sin( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
        0.0);
     }
   // add the WSE points
@@ -370,37 +370,37 @@ void vtkCompassRepresentation::BuildRepresentation()
   
   int center[2];
   double rsize;
-  this->GetCenterAndUnitRadius(center, rsize);
+  this->GetCenterAndUnitRadius( center, rsize );
 
-  while(this->Heading < 0)
+  while( this->Heading < 0 )
     {
     this->Heading += 1;
     }
-  while(this->Heading > 1)
+  while( this->Heading > 1 )
     {
     this->Heading -= 1;
     }
 
-  double angle = this->Heading*2.0*vtkMath::Pi();
+  double angle = this->Heading * 2.0 * vtkMath::Pi();
   
-  this->XForm->Translate(center[0], center[1], 0.0);
-  this->XForm->Scale(rsize,rsize,1.0);
-  this->XForm->RotateZ(angle*vtkMath::RadiansToDegrees());
+  this->XForm->Translate( center[0], center[1], 0.0 ) ;
+  this->XForm->Scale( rsize, rsize, 1.0 );
+  this->XForm->RotateZ( vtkMath::DegreesFromRadians( angle ) );
 
 
   this->LabelActor->SetPosition
-    (center[0] + rsize*cos(angle+vtkMath::Pi()/2.0)*this->InnerRadius,
-     center[1] + rsize*sin(angle+vtkMath::Pi()/2.0)*this->InnerRadius);
+    ( center[0] + rsize * cos( angle + vtkMath::Pi() / 2.0 ) * this->InnerRadius,
+      center[1] + rsize * sin( angle + vtkMath::Pi() / 2.0 ) * this->InnerRadius );
 
-  double fsize = 1.4*rsize*this->InnerRadius*
-    sin(18*vtkMath::DegreesToRadians());
-  this->LabelActor->SetOrientation(angle*vtkMath::RadiansToDegrees());
-  this->LabelProperty->SetFontSize(static_cast<int>(fsize));
+  double fsize = 1.4 * rsize * this->InnerRadius * sin( vtkMath::RadiansFromDegrees( 18. ) );
+
+  this->LabelActor->SetOrientation( vtkMath::DegreesFromRadians( angle ) );
+  this->LabelProperty->SetFontSize( static_cast<int>( fsize ) );
 
   if (rsize > 40)
     {
     vtkstd::ostringstream out;
-    out.setf(ios::fixed);
+    out.setf( ios::fixed );
     out.precision(0);
 
     out << "Distance: ";
@@ -415,14 +415,14 @@ void vtkCompassRepresentation::BuildRepresentation()
     
     out << "\nTilt: " << this->Tilt;
 
-    out << "\nHeading: " << angle*vtkMath::RadiansToDegrees();
+    out << "\nHeading: " << vtkMath::DegreesFromRadians( angle );
     
-    this->LabelProperty->SetFontSize(static_cast<int>(fsize*0.8));
-    this->StatusProperty->SetFontSize(static_cast<int>(fsize*0.9));
-    this->StatusActor->SetInput(out.str().c_str());
+    this->LabelProperty->SetFontSize(  static_cast<int>( fsize*0.8 ) );
+    this->StatusProperty->SetFontSize( static_cast<int>( fsize*0.9 ) );
+    this->StatusActor->SetInput( out.str().c_str() );
 
     this->StatusActor->SetPosition
-      (center[0] - rsize*2.0,center[1] + rsize);
+      ( center[0] - rsize * 2.0, center[1] + rsize );
     }
   else
     {
@@ -431,26 +431,26 @@ void vtkCompassRepresentation::BuildRepresentation()
 
   // adjust the slider as well
   this->TiltRepresentation->GetPoint1Coordinate()->
-    SetValue(center[0] - rsize*1.5, 
-             center[1] - rsize, 0.0);
+    SetValue( center[0] - rsize * 1.5, 
+              center[1] - rsize, 0.0 );
   this->TiltRepresentation->GetPoint2Coordinate()->
-    SetValue(center[0] - rsize*1.2, center[1] + rsize, 0.0);
+    SetValue( center[0] - rsize * 1.2, center[1] + rsize, 0.0 );
   this->TiltRepresentation->Modified();
   this->TiltRepresentation->BuildRepresentation();
 
   // adjust the slider as well
   this->DistanceRepresentation->GetPoint1Coordinate()->
-    SetValue(center[0] - rsize*1.9, 
-             center[1] - rsize, 0.0);
+    SetValue( center[0] - rsize * 1.9, 
+              center[1] - rsize, 0.0 );
   this->DistanceRepresentation->GetPoint2Coordinate()->
-    SetValue(center[0] - rsize*1.6, center[1] + rsize, 0.0);
+    SetValue( center[0] - rsize * 1.6, center[1] + rsize, 0.0 );
   this->DistanceRepresentation->Modified();
   this->DistanceRepresentation->BuildRepresentation();
 
   int *renSize = this->Renderer->GetSize();
   vtkUnsignedCharArray* colors = 
     vtkUnsignedCharArray::SafeDownCast
-    (this->BackdropMapper->GetInput()->GetPointData()->GetScalars());
+    ( this->BackdropMapper->GetInput()->GetPointData()->GetScalars() );
   unsigned char color[4];
   color[0] = 0;
   color[1] = 0;
@@ -458,21 +458,21 @@ void vtkCompassRepresentation::BuildRepresentation()
 
   vtkPoints *pts = 
     this->BackdropMapper->GetInput()->GetPoints();
-  pts->SetPoint(1, renSize[0], center[1] - rsize*1.1, 0);
-  pts->SetPoint(2, renSize[0], renSize[1], 0);
+  pts->SetPoint( 1, renSize[0], center[1] - rsize * 1.1, 0 );
+  pts->SetPoint( 2, renSize[0], renSize[1], 0 );
   if (this->HighlightState)
     {
-    pts->SetPoint(0, center[0] - rsize*5.0, center[1] - rsize*1.1, 0);
-    pts->SetPoint(3, center[0] - rsize*5.0, renSize[1], 0);
+    pts->SetPoint( 0, center[0] - rsize * 5.0, center[1] - rsize * 1.1, 0 );
+    pts->SetPoint( 3, center[0] - rsize * 5.0, renSize[1], 0 );
     color[3] = 80;
     colors->SetTupleValue(1,color);
     }
   else
     {
-    pts->SetPoint(0, center[0] - rsize*3.0, center[1] - rsize*1.1, 0);
-    pts->SetPoint(3, center[0] - rsize*3.0, renSize[1], 0);
+    pts->SetPoint( 0, center[0] - rsize * 3.0, center[1] - rsize * 1.1, 0 );
+    pts->SetPoint( 3, center[0] - rsize * 3.0, renSize[1], 0 );
     color[3] = 0;
-    colors->SetTupleValue(1,color);
+    colors->SetTupleValue( 1, color );
     }
   pts->Modified();
   colors->Modified();

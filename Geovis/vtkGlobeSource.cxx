@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGlobeSource, "1.7");
+vtkCxxRevisionMacro(vtkGlobeSource, "1.8");
 vtkStandardNewMacro(vtkGlobeSource);
 
   // 0=NE, 1=SE, 2=SW, 3=NW
@@ -70,14 +70,14 @@ void vtkGlobeSource::ComputeGlobePoint(
   
   // Lets keep this conversion code in a single place.
   double tmp;
-  tmp = cos(phi*vtkMath::DegreesToRadians());
-  n[0] = -tmp * sin(theta*vtkMath::DegreesToRadians());
-  n[1] = tmp * cos(theta*vtkMath::DegreesToRadians());
-  n[2] = sin(phi*vtkMath::DegreesToRadians());
+  tmp =    cos( vtkMath::RadiansFromDegrees( phi ) );
+  n[0] = - tmp * sin( vtkMath::RadiansFromDegrees( theta ) );
+  n[1] =   tmp * cos( vtkMath::RadiansFromDegrees( theta ) );
+  n[2] =   sin( vtkMath::RadiansFromDegrees( phi ) );
   
-  x[0] = n[0]*radius;
-  x[1] = n[1]*radius;
-  x[2] = n[2]*radius;
+  x[0] = n[0] * radius;
+  x[1] = n[1] * radius;
+  x[2] = n[2] * radius;
 }
 
 //----------------------------------------------------------------------------
@@ -95,8 +95,8 @@ void vtkGlobeSource::ComputeLatitudeLongitude(
     {
     theta = vtkMath::Pi() - asin(x[1] / S);
     }
-  phi = (vtkMath::Pi()/2.0 - phi)*vtkMath::RadiansToDegrees();
-  theta = (theta - vtkMath::Pi()/2.0)*vtkMath::RadiansToDegrees();
+  phi =   vtkMath::DegreesFromRadians( vtkMath::Pi() / 2.0 - phi );
+  theta = vtkMath::DegreesFromRadians( theta - vtkMath::Pi()/2.0 );
 }
 
 //----------------------------------------------------------------------------

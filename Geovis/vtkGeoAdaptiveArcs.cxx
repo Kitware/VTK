@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.6");
+vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.7");
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 
 //-------------------------------------------------------------------------
@@ -201,11 +201,11 @@ int vtkGeoAdaptiveArcs::RequestData(
       lastPointTooClose = false;
 
       // Don't draw lines off the current screen.
-      double distFromCenterApprox = acos(curVec[0]*cameraDir[0]+
-                                         curVec[1]*cameraDir[1]+
-                                         curVec[2]*cameraDir[2])
-                        * vtkMath::RadiansToDegrees()
-                        / viewAngle * renSize[1];
+      double distFromCenterApprox = 
+        vtkMath::DegreesFromRadians( acos( curVec[0] * cameraDir[0] +
+                                           curVec[1] * cameraDir[1] +
+                                           curVec[2] * cameraDir[2] ) )
+        / viewAngle * renSize[1];
       if (distFromCenterApprox > maxDist)
         {
         // If both last point and this point are offscreen, skip
@@ -229,11 +229,11 @@ int vtkGeoAdaptiveArcs::RequestData(
         continue;
         }
       
-      double distApprox = acos(lastVec[0]*curVec[0]+
-                               lastVec[1]*curVec[1]+
-                               lastVec[2]*curVec[2])
-                        * vtkMath::RadiansToDegrees()
-                        / viewAngle * renSize[1];
+      double distApprox = 
+        vtkMath::DegreesFromRadians( acos( lastVec[0] * curVec[0] +
+                                           lastVec[1] * curVec[1] +
+                                           lastVec[2] * curVec[2] ) )
+        / viewAngle * renSize[1];
 
       // If the points are too close, skip over it to the next point.
       if (distApprox < this->MinimumPixelSeparation)
