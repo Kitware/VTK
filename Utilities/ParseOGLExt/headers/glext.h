@@ -46,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated 2008/10/09 */
+/* glext.h last updated 2008/11/14 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 43
+#define GL_GLEXT_VERSION 44
 
 #ifndef GL_VERSION_1_2
 #define GL_UNSIGNED_BYTE_3_3_2            0x8032
@@ -3832,6 +3832,34 @@ extern "C" {
 
 #ifndef GL_EXT_vertex_array_bgra
 /* reuse GL_BGRA */
+#endif
+
+#ifndef GL_EXT_texture_swizzle
+#define GL_TEXTURE_SWIZZLE_R_EXT          0x8E42
+#define GL_TEXTURE_SWIZZLE_G_EXT          0x8E43
+#define GL_TEXTURE_SWIZZLE_B_EXT          0x8E44
+#define GL_TEXTURE_SWIZZLE_A_EXT          0x8E45
+#define GL_TEXTURE_SWIZZLE_RGBA_EXT       0x8E46
+#endif
+
+#ifndef GL_NV_explicit_multisample
+#define GL_SAMPLE_POSITION_NV             0x8E50
+#define GL_SAMPLE_MASK_NV                 0x8E51
+#define GL_SAMPLE_MASK_VALUE_NV           0x8E52
+#define GL_TEXTURE_BINDING_RENDERBUFFER_NV 0x8E53
+#define GL_TEXTURE_RENDERBUFFER_DATA_STORE_BINDING_NV 0x8E54
+#define GL_MAX_SAMPLE_MASK_WORDS_NV       0x8E59
+#define GL_TEXTURE_RENDERBUFFER_NV        0x8E55
+#define GL_SAMPLER_RENDERBUFFER_NV        0x8E56
+#define GL_INT_SAMPLER_RENDERBUFFER_NV    0x8E57
+#define GL_UNSIGNED_INT_SAMPLER_RENDERBUFFER_NV 0x8E58
+#endif
+
+#ifndef GL_NV_transform_feedback2
+#define GL_TRANSFORM_FEEDBACK_NV          0x8E22
+#define GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED_NV 0x8E23
+#define GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE_NV 0x8E24
+#define GL_TRANSFORM_FEEDBACK_BINDING_NV  0x8E25
 #endif
 
 
@@ -8385,6 +8413,42 @@ typedef void (APIENTRYP PFNGLMULTITEXRENDERBUFFEREXTPROC) (GLenum texunit, GLenu
 
 #ifndef GL_EXT_vertex_array_bgra
 #define GL_EXT_vertex_array_bgra 1
+#endif
+
+#ifndef GL_EXT_texture_swizzle
+#define GL_EXT_texture_swizzle 1
+#endif
+
+#ifndef GL_NV_explicit_multisample
+#define GL_NV_explicit_multisample 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glGetMultisamplefvNV (GLenum, GLuint, GLfloat *);
+GLAPI void APIENTRY glSampleMaskIndexedNV (GLuint, GLbitfield);
+GLAPI void APIENTRY glTexRenderbufferNV (GLenum, GLuint);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLGETMULTISAMPLEFVNVPROC) (GLenum pname, GLuint index, GLfloat *val);
+typedef void (APIENTRYP PFNGLSAMPLEMASKINDEXEDNVPROC) (GLuint index, GLbitfield mask);
+typedef void (APIENTRYP PFNGLTEXRENDERBUFFERNVPROC) (GLenum target, GLuint renderbuffer);
+#endif
+
+#ifndef GL_NV_transform_feedback2
+#define GL_NV_transform_feedback2 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glBindTransformFeedbackNV (GLenum, GLuint);
+GLAPI void APIENTRY glDeleteTransformFeedbacksNV (GLsizei, const GLuint *);
+GLAPI void APIENTRY glGenTransformFeedbacksNV (GLsizei, GLuint *);
+GLAPI GLboolean APIENTRY glIsTransformFeedbackNV (GLuint);
+GLAPI void APIENTRY glPauseTransformFeedbackNV (void);
+GLAPI void APIENTRY glResumeTransformFeedbackNV (void);
+GLAPI void APIENTRY glDrawTransformFeedbackNV (GLenum, GLuint);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLBINDTRANSFORMFEEDBACKNVPROC) (GLenum target, GLuint id);
+typedef void (APIENTRYP PFNGLDELETETRANSFORMFEEDBACKSNVPROC) (GLsizei n, const GLuint *ids);
+typedef void (APIENTRYP PFNGLGENTRANSFORMFEEDBACKSNVPROC) (GLsizei n, GLuint *ids);
+typedef GLboolean (APIENTRYP PFNGLISTRANSFORMFEEDBACKNVPROC) (GLuint id);
+typedef void (APIENTRYP PFNGLPAUSETRANSFORMFEEDBACKNVPROC) (void);
+typedef void (APIENTRYP PFNGLRESUMETRANSFORMFEEDBACKNVPROC) (void);
+typedef void (APIENTRYP PFNGLDRAWTRANSFORMFEEDBACKNVPROC) (GLenum mode, GLuint id);
 #endif
 
 
