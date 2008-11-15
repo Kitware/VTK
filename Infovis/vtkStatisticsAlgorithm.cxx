@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.24");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.25");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -179,7 +179,7 @@ int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation*
 {
   if ( port >= 0 )
     {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
     }
 
