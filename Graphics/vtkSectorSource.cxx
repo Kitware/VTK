@@ -27,7 +27,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkSectorSource, "1.2");
+vtkCxxRevisionMacro(vtkSectorSource, "1.3");
 vtkStandardNewMacro(vtkSectorSource);
 
 vtkSectorSource::vtkSectorSource()
@@ -87,12 +87,12 @@ int vtkSectorSource::RequestData(
       //set vertex 1, adjust for start angle
       //set vertex 2, adjust for start angle
     double x1[3], x2[3];
-    x1[0] = this->InnerRadius * cos(vtkMath::DegreesToRadians()*this->StartAngle);
-    x1[1] = this->InnerRadius * sin(vtkMath::DegreesToRadians()*this->StartAngle);
+    x1[0] = this->InnerRadius * cos( vtkMath::RadiansFromDegrees( this->StartAngle ) );
+    x1[1] = this->InnerRadius * sin( vtkMath::RadiansFromDegrees( this->StartAngle ) );
     x1[2] = this->ZCoord;
     
-    x2[0] = this->OuterRadius * cos(vtkMath::DegreesToRadians()*this->StartAngle);
-    x2[1] = this->OuterRadius * sin(vtkMath::DegreesToRadians()*this->StartAngle);
+    x2[0] = this->OuterRadius * cos( vtkMath::RadiansFromDegrees( this->StartAngle ) );
+    x2[1] = this->OuterRadius * sin( vtkMath::RadiansFromDegrees( this->StartAngle ) );
     x2[2] = this->ZCoord;
     
     lineSource->SetPoint1(x1);

@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.80");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.81");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -180,8 +180,7 @@ int vtkDecimatePro::RequestData(
                    VTK_DOUBLE_MAX : this->AbsoluteError);
     }
   this->Tolerance = VTK_TOLERANCE * input->GetLength();
-  this->CosAngle = 
-    cos (vtkMath::DegreesToRadians() * this->FeatureAngle);
+  this->CosAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle) );
   this->Split = ( this->Splitting && !this->PreserveTopology );
   this->VertexDegree = this->Degree;
   this->TheSplitAngle = this->SplitAngle;
@@ -461,7 +460,7 @@ void vtkDecimatePro::SplitMesh()
   vtkIdType *cells;
   unsigned short int ncells;
 
-  this->CosAngle = cos (vtkMath::DegreesToRadians() * this->SplitAngle);
+  this->CosAngle = cos( vtkMath::RadiansFromDegrees(  this->SplitAngle) );
   for ( ptId=0; ptId < this->Mesh->GetNumberOfPoints(); ptId++ )
     {
     this->Mesh->GetPoint(ptId,this->X);
@@ -1513,7 +1512,7 @@ int vtkDecimatePro::Pop(double &error)
 
     this->SplitState = VTK_STATE_SPLIT;
     this->SplitMesh();
-    this->CosAngle = cos (vtkMath::DegreesToRadians() * this->SplitAngle);
+    this->CosAngle = cos( vtkMath::RadiansFromDegrees( this->SplitAngle ) );
 
     // Now that things are split, insert the vertices. (Have to do this
     // otherwise error calculation is incorrect.)

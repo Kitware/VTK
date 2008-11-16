@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.74");
+vtkCxxRevisionMacro(vtkConeSource, "1.75");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -305,13 +305,13 @@ int vtkConeSource::RequestInformation(
 //----------------------------------------------------------------------------
 void vtkConeSource::SetAngle(double angle)
 {
-  this->SetRadius (this->Height * tan (angle*vtkMath::DegreesToRadians()));
+  this->SetRadius( this->Height * tan( vtkMath::RadiansFromDegrees( angle ) ) );
 }
 
 //----------------------------------------------------------------------------
 double vtkConeSource::GetAngle()
 {
-  return atan2 (this->Radius, this->Height) / vtkMath::DegreesToRadians();
+  return  vtkMath::DegreesFromRadians( atan2( this->Radius, this->Height ) );
 }
 
 //----------------------------------------------------------------------------

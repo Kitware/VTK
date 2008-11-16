@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyphSource2D, "1.18");
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.19");
 vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
     }
   else
     {
-    double angle = this->RotationAngle * vtkMath::DegreesToRadians();
+    double angle = vtkMath::RadiansFromDegrees( this->RotationAngle );
     double xt;
     for (i=0; i<numPts; i++)
       {

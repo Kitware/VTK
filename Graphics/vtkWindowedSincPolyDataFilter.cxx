@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.40");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.41");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -114,9 +114,8 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     return 1;
     }
 
-  CosFeatureAngle = 
-    cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-  CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  CosFeatureAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle) );
+  CosEdgeAngle    = cos( vtkMath::RadiansFromDegrees( this->EdgeAngle) );
 
   vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells 
                << " cells with:\n"

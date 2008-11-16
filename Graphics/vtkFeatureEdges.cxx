@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.74");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.75");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -200,7 +200,7 @@ int vtkFeatureEdges::RequestData(
       polyNormals->InsertTuple(cellId,n);
       }
 
-    cosAngle = cos (vtkMath::DegreesToRadians() * this->FeatureAngle);
+    cosAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle ) );
     }
 
   neighbors = vtkIdList::New();

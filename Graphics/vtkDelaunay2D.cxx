@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.72");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.73");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -412,11 +412,11 @@ int vtkDelaunay2D::RequestData(
   for (ptId=0; ptId<8; ptId++)
     {
     x[0] = center[0]
-      + radius*cos(45.0*ptId*vtkMath::DegreesToRadians());
+      + radius*cos( ptId * vtkMath::RadiansFromDegrees( 45.0 ) );
     x[1] = center[1]
-      + radius*sin(45.0*ptId*vtkMath::DegreesToRadians());
+      + radius*sin( ptId * vtkMath::RadiansFromDegrees( 45.0 ) );
     x[2] = center[2];
-    points->InsertPoint(numPoints+ptId,x);
+    points->InsertPoint( numPoints + ptId, x );
     }
   // We do this for speed accessing points
   this->Points =

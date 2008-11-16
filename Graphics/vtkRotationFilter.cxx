@@ -25,7 +25,7 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.9");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.10");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
@@ -132,7 +132,7 @@ int vtkRotationFilter::RequestData(
     }
   vtkTransform *localTransform = vtkTransform::New();
   // Rotate points.
-  // double angle = this->GetAngle()*vtkMath::DegreesToRadians();
+  // double angle = vtkMath::RadiansFromDegrees( this->GetAngle() );
   this->GetCenter(center);
   negativCenter[0] = -center[0];
   negativCenter[1] = -center[1];

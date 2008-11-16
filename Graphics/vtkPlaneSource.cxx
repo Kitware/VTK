@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.63");
+vtkCxxRevisionMacro(vtkPlaneSource, "1.64");
 vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height
@@ -206,7 +206,7 @@ void vtkPlaneSource::SetNormal(double N[3])
   else
     {
     vtkMath::Cross(this->Normal,n,rotVector);
-    theta = acos((double)dp) / vtkMath::DoubleDegreesToRadians();
+    theta = vtkMath::DegreesFromRadians( acos( dp ) );
     }
 
   // create rotation matrix

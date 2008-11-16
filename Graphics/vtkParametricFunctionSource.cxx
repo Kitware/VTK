@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.15");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.16");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 vtkCxxSetObjectMacro(vtkParametricFunctionSource,ParametricFunction,vtkParametricFunction);
 
@@ -413,7 +413,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
             }
             else
             {
-            scalar = vtkMath::RadiansToDegrees() * atan2(rel_v,rel_u);
+            scalar = vtkMath::DegreesFromRadians( atan2( rel_v, rel_u ) );
             if ( scalar < 0 ) scalar += 360;
             }
             break;
