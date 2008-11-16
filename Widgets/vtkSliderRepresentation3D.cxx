@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.9");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.10");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -579,7 +579,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     double theta, axisLen = vtkMath::Norm(axis);
     if ( axisLen != 0.0 )
       {
-      theta = asin(axisLen) * vtkMath::DoubleRadiansToDegrees();
+      theta = vtkMath::DegreesFromRadians( asin( axisLen ) );
       }
     else
       {

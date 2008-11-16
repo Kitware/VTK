@@ -36,7 +36,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.8");
+vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.9");
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D,Property,vtkProperty2D);
@@ -250,7 +250,7 @@ void vtkAffineRepresentation2D::GetTransform(vtkTransform *t)
     }
 
   this->ApplyShear();
-  this->CurrentTransform->RotateZ(this->CurrentAngle*vtkMath::RadiansToDegrees());
+  this->CurrentTransform->RotateZ( vtkMath::DegreesFromRadians( this->CurrentAngle ) );
   this->CurrentTransform->Scale(this->CurrentScale[0], this->CurrentScale[1], 1.0);
   this->CurrentTransform->Translate(-this->Origin[0],-this->Origin[1],-this->Origin[2]);
 
@@ -676,7 +676,7 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
     {
     double delX = this->StartEventPosition[0] - this->DisplayOrigin[0];
     double delY = this->StartEventPosition[1] - this->DisplayOrigin[1];
-    this->StartAngle = atan2(delY,delX);
+    this->StartAngle = atan2( delY, delX );
     deltaAngle = 0.0;
     }
   else
@@ -728,7 +728,7 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   if ( this->DisplayText )
     {
     char str[256];
-    double angle = deltaAngle * vtkMath::RadiansToDegrees();
+    double angle = vtkMath::DegreesFromRadians( deltaAngle );
     sprintf(str,"(%1.1f)", angle);
     this->UpdateText(str,eventPos);
     }
@@ -800,7 +800,7 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
   // Update the current shear
   double sx = (x2[1] - x1[1]) / 2.0;
   double sy = ((p0[0]-x0[0]) + (p0[1]-x0[1]));
-  double angle = atan2(sy,sx) * vtkMath::RadiansToDegrees();
+  double angle = vtkMath::DegreesFromRadians( atan2(sy,sx) );
   if ( this->InteractionState == vtkAffineRepresentation::ShearNEdge ||
        this->InteractionState == vtkAffineRepresentation::ShearSEdge )
     {

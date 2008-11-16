@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.4");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.5");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -1147,8 +1147,7 @@ void vtkPlaneWidget::Spin(double *p1, double *p2)
   vtkMath::Cross(axis,rv,ax_cross_rv);
 
   // Spin angle
-  double theta = 
-    vtkMath::RadiansToDegrees() * vtkMath::Dot(v,ax_cross_rv)  / rs;
+  double theta = vtkMath::DegreesFromRadians( vtkMath::Dot( v, ax_cross_rv ) / rs );
 
   // Manipulate the transform to reflect the rotation
   this->Transform->Identity();

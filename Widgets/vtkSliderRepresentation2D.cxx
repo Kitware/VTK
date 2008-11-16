@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.9");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.10");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -464,7 +464,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     this->XForm->Identity();
     this->XForm->Translate(tx,ty,0.0);
     this->XForm->Scale(sx,sy,1.0);
-    this->XForm->RotateZ(theta*vtkMath::RadiansToDegrees());
+    this->XForm->RotateZ( vtkMath::DegreesFromRadians( theta ) );
 
     // The transform has done the work of finding the center point for the text.
     // Put the title and label at these points.

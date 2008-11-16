@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.18");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.19");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -2600,7 +2600,7 @@ void vtkImagePlaneWidget::Spin(double *p1, double *p2)
 
   // Spin angle
   //
-  double dw = vtkMath::RadiansToDegrees() * vtkMath::Dot(v,wn_cross_rv) / rs;
+  double dw = vtkMath::DegreesFromRadians( vtkMath::Dot( v, wn_cross_rv) / rs );
 
   this->Transform->Identity();
   this->Transform->Translate(wc[0],wc[1],wc[2]);
@@ -2652,7 +2652,7 @@ void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
   // 'push' plane edge when mouse moves away from plane center
   // 'pull' plane edge when mouse moves toward plane center
   //
-  double dw = vtkMath::RadiansToDegrees() * (vtkMath::Dot(this->RadiusVector,v))/radius * (-rd_dot_vpn);
+  double dw = vtkMath::DegreesFromRadians( vtkMath::Dot( this->RadiusVector, v ) / radius ) * -rd_dot_vpn;
 
   this->Transform->Identity();
   this->Transform->Translate(wc[0],wc[1],wc[2]);
