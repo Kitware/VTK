@@ -71,7 +71,7 @@ public:
   vtksys_stl::vector<int> ThreadIds;
 };
 
-vtkCxxRevisionMacro(vtkGeoSource, "1.2");
+vtkCxxRevisionMacro(vtkGeoSource, "1.3");
 vtkGeoSource::vtkGeoSource()
 {
   this->InputSet = vtkCollection::New();
@@ -116,8 +116,6 @@ void vtkGeoSource::ShutDown()
     this->Condition->Broadcast();
     this->Lock->Unlock();
 
-    cout << "Signal Exit" << endl;
-
     vtkstd::vector<int>::iterator iter;
     for(iter = this->Implementation->ThreadIds.begin();
         iter != this->Implementation->ThreadIds.end();
@@ -130,37 +128,23 @@ void vtkGeoSource::ShutDown()
 
 vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 {
-  //vtkTimerLog * timer = vtkTimerLog::New();
-  //timer->StartTimer();
   vtkCollection* c = 0;
-  //this->Lock->Lock();
   this->OutputSetLock->Lock();
   if (this->Implementation->OutputMap.count(node) > 0)
     {
     c = this->Implementation->OutputMap[node];
     }
-  //this->Lock->Unlock();
   this->OutputSetLock->Unlock();
 
-  //timer->StopTimer();
-  //cout << "GetRequestedNodes: " << timer->GetElapsedTime() << endl;
-  //timer->Delete();
   return c;
 }
 
 void vtkGeoSource::RequestChildren(vtkGeoTreeNode* node)
 {
-  //vtkTimerLog * timer = vtkTimerLog::New();
-  //timer->StartTimer();
-  //this->Lock->Lock();
   this->InputSetLock->Lock();
   this->InputSet->AddItem(node);
   this->Condition->Broadcast();
-  //this->Lock->Unlock();
   this->InputSetLock->Unlock();
-  //timer->StopTimer();
-  //cout << "RequestChildrenTime: " << timer->GetElapsedTime() << endl;
-  //timer->Delete();
 }
 
 void vtkGeoSource::WorkerThread()
@@ -171,8 +155,7 @@ void vtkGeoSource::WorkerThread()
 
     if (this->StopThread)
       {
-      //cout << "Thread Exit" << endl;
-      //cout.flush();
+
       this->Lock->Unlock();
       return;
       }
@@ -184,25 +167,10 @@ void vtkGeoSource::WorkerThread()
     // Try to find something to work on.
     if (this->InputSet->GetNumberOfItems() > 0)
       {
-
-      //cout << "Found Work" << endl;
-      //cout.flush();
       // Move from input set to processing set
-      //this->ProcessingSetLock->Lock();
       vtkGeoTreeNode* node = vtkGeoTreeNode::SafeDownCast(this->InputSet->GetItemAsObject(0));
       this->InputSet->RemoveItem(0);
-      //this->ProcessingSet->AddItem(node);
-      //this->ProcessingSetLock->Unlock();
-      //this->Condition->Broadcast();
       this->InputSetLock->Unlock();
-      //this->Lock->Unlock();
-
-      // if there is more than 1 item send a signal incase
-      // we have other threads waiting.
-      //if(this->InputSet->GetNumberOfItems() > 1)
-      //  {
-      //  this->Condition->Broadcast();
-      //  }
 
       // Create appropriate child instances
       vtkGeoTreeNode* child[4];
@@ -233,10 +201,7 @@ void vtkGeoSource::WorkerThread()
         }
 
       // Move from processing set to output
-      //this->Lock->Lock();
       this->OutputSetLock->Lock();
-      //this->ProcessingSetLock->Lock();
-      //this->ProcessingSet->RemoveItem(node);
       this->Implementation->OutputMap[node] =
         vtkSmartPointer<vtkCollection>::New();
       if (success)
@@ -246,24 +211,16 @@ void vtkGeoSource::WorkerThread()
           this->Implementation->OutputMap[node]->AddItem(child[i]);
           }
         }
-      //this->ProcessingSetLock->Unlock();
       this->OutputSetLock->Unlock();
-      //this->Lock->Unlock();
 
       // Clean up
       for (int i = 0; i < 4; ++i)
         {
         child[i]->Delete();
         }
-
-      //cout << "Work Complete" << endl;
-      //cout.flush();
       }
     else
       {
-      //cout << "No Work" << endl;
-      //cout.flush();
-      //this->Lock->Unlock();
 
       this->InputSetLock->Unlock();
 
@@ -273,9 +230,6 @@ void vtkGeoSource::WorkerThread()
       this->Condition->Wait( this->Lock );
 
       this->Lock->Unlock();
-
-      //cout << "Stop Waiting" << endl;
-      //cout.flush();
       }
     }
 }
