@@ -22,7 +22,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.3");
 vtkStandardNewMacro(vtkOpenGLHardwareSupport);
 
 vtkCxxSetObjectMacro(vtkOpenGLHardwareSupport, ExtensionManager, vtkOpenGLExtensionManager);
@@ -111,6 +111,7 @@ bool vtkOpenGLHardwareSupport::GetSupportsMultiTexturing()
 //-----------------------------------------------------------------------------
 void vtkOpenGLHardwareSupport::PrintSelf(ostream& os, vtkIndent indent)
 {
+  os << indent << this->ExtensionManager << endl;
   this->Superclass::PrintSelf(os,indent);
 }
 

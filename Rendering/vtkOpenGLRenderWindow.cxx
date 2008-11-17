@@ -31,7 +31,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.102");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.103");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -87,6 +87,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   if (this->HardwareSupport)
     {
     this->HardwareSupport->SetExtensionManager(0);
+    //this->HardwareSupport->Delete();
     }
   this->SetExtensionManager(0);
   this->SetHardwareSupport(0);
