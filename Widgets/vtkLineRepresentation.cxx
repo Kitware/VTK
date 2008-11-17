@@ -34,7 +34,7 @@
 #include "vtkFollower.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.15");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.16");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -803,7 +803,10 @@ int vtkLineRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   count += this->LineActor->RenderOpaqueGeometry(v);
   count += this->Handle[0]->RenderOpaqueGeometry(v);
   count += this->Handle[1]->RenderOpaqueGeometry(v);
-  count += this->TextActor->RenderOpaqueGeometry(v);
+  if (this->DistanceAnnotationVisibility)
+    {
+    count += this->TextActor->RenderOpaqueGeometry(v);
+    }
   
   return count;
 }
@@ -816,7 +819,10 @@ int vtkLineRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
   count += this->Handle[0]->RenderTranslucentPolygonalGeometry(v);
   count += this->Handle[1]->RenderTranslucentPolygonalGeometry(v);
-  count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
+  if (this->DistanceAnnotationVisibility)
+    {
+    count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
+    }
   
   return count;
 }
@@ -829,7 +835,10 @@ int vtkLineRepresentation::HasTranslucentPolygonalGeometry()
   result |= this->LineActor->HasTranslucentPolygonalGeometry();
   result |= this->Handle[0]->HasTranslucentPolygonalGeometry();
   result |= this->Handle[1]->HasTranslucentPolygonalGeometry();
-  result |= this->TextActor->HasTranslucentPolygonalGeometry();
+  if (this->DistanceAnnotationVisibility)
+    {
+    result |= this->TextActor->HasTranslucentPolygonalGeometry();
+    }
   
   return result;
 }
