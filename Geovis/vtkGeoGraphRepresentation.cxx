@@ -65,7 +65,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.16");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.17");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -161,8 +161,7 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
   this->SelectionActor->PickableOff();
 
-  this->LabelArrayName = new char[10];
-  strcpy(this->LabelArrayName,"LabelText");
+  this->LabelArrayName = 0;
 
   // Variable to keep track of whether we are in a 3D geo view.
   this->In3DGeoView = false;
@@ -188,15 +187,15 @@ void vtkGeoGraphRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
 void vtkGeoGraphRepresentation::SetVertexLabelArrayName(const char* name)
 {
   // Currently use the same array for priorities and labels.
-  if(strcmp(this->LabelArrayName, name))
+  this->SetLabelArrayName(name);
+  if (name)
     {
-    this->SetLabelArrayName(name);
-    this->LabelSize->
-      SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
-    this->LabelHierarchy->
-      SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
-    this->LabelHierarchy->
-      SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+    this->LabelSize->SetInputArrayToProcess(0, 0, 0,
+      vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+    this->LabelHierarchy->SetInputArrayToProcess(0, 0, 0,
+      vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+    this->LabelHierarchy->SetInputArrayToProcess(2, 0, 0,
+      vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
     }
 }
 
