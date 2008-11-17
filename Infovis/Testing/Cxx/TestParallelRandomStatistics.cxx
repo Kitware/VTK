@@ -187,7 +187,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
         vtkStdString colName = outputMeta->GetColumnName( c );
 
         // Do not report M aggregates
-        if ( colName[0] == 'M' && colName[1] != 'e' )
+        if ( colName.at(0) == 'M' && colName.at(1) != 'e' )
           {
           continue;
           }
@@ -314,7 +314,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
         vtkStdString colName = outputMeta->GetColumnName( c );
 
         // Do not report M aggregates
-        if ( colName[0] == 'M' && colName[1] != 'e' )
+        if ( colName.at(0) == 'M' && colName.at(1) != 'e' )
           {
           continue;
           }
