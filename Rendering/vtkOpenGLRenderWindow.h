@@ -28,6 +28,7 @@
 
 class vtkIdList;
 class vtkOpenGLExtensionManager;
+class vtkOpenGLHardwareSupport;
 
 class VTK_RENDERING_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -184,6 +185,11 @@ public:
   // already been set up.
   vtkOpenGLExtensionManager* GetExtensionManager();
 
+  // Description:
+  // Returns the Hardware Support class. A new one will be created if one hasn't
+  // already been set up.
+  vtkOpenGLHardwareSupport* GetHardwareSupport();
+ 
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -246,7 +252,10 @@ private:
   void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
 
   void SetExtensionManager(vtkOpenGLExtensionManager*);
+  void SetHardwareSupport(vtkOpenGLHardwareSupport * renderWindow);
+
   vtkOpenGLExtensionManager* ExtensionManager;
+  vtkOpenGLHardwareSupport* HardwareSupport;
 };
 
 #endif

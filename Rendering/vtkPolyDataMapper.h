@@ -104,13 +104,6 @@ public:
   // Remove all vertex attributes.
   virtual void RemoveAllVertexAttributeMappings();
 
-  // Description:
-  // Test if MultiTexturing is supported. By default this is false.
-  virtual bool GetSupportsMultiTexturing(vtkRenderWindow *vtkNotUsed(ren))
-    {
-      return false;
-    }
-
 protected:  
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};

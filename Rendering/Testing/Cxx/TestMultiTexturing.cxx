@@ -21,6 +21,8 @@
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
+#include <vtkOpenGLHardwareSupport.h>
+#include <vtkOpenGLRenderWindow.h>
 #include <vtkImageData.h>
 #include <vtkPlaneSource.h>
 #include <vtkProperty.h>
@@ -119,7 +121,10 @@ int TestMultiTexturing(int argc, char *argv[])
 
   vtkActor * actor = vtkActor::New();
 
-  if(mapper->GetSupportsMultiTexturing(renWin))
+  vtkOpenGLHardwareSupport * hardware = 
+    vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
+
+  if(hardware->GetSupportsMultiTexturing() && hardware->GetNumberOfTextureUnits() > 2)
     {
     mapper->MapDataArrayToMultiTextureAttribute(
       vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
