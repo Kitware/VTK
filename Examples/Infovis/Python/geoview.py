@@ -20,7 +20,10 @@ window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 
 # Create the background image
-view.AddDefaultImageRepresentation(data_dir + "NE2_ps_bath.jpg")
+reader = vtkJPEGReader()
+reader.SetFileName(data_dir + "NE2_ps_bath.jpg")
+reader.Update()
+view.AddDefaultImageRepresentation(reader.GetOutput())
 
 # Create graph
 graph_rep = vtkGeoGraphRepresentation()
