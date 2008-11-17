@@ -27,8 +27,8 @@
 #define __vtkXMLDataParser_h
 
 #include "vtkXMLParser.h"
+#include "vtkXMLDataElement.h"//For inline definition.
 
-class vtkXMLDataElement;
 class vtkInputStream;
 class vtkDataCompressor;
 
@@ -252,5 +252,14 @@ private:
   vtkXMLDataParser(const vtkXMLDataParser&);  // Not implemented.
   void operator=(const vtkXMLDataParser&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline
+void vtkXMLDataParser::CharacterDataHandler(const char* data, int length )
+{
+  const unsigned int eid=this->NumberOfOpenElements-1;
+  this->OpenElements[eid]->AddCharacterData(data, length);
+}
+
 
 #endif

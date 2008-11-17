@@ -27,7 +27,7 @@
 #include "vtkXMLUtilities.h"
 
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.37");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.38");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -1107,15 +1107,4 @@ void vtkXMLDataParser::UpdateProgress(float progress)
   this->Progress = progress;
   double dProgress=progress;
   this->InvokeEvent(vtkCommand::ProgressEvent, &dProgress);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLDataParser::CharacterDataHandler( 
-  const char* data, int length )
-{  
-  unsigned int numOpen = this->NumberOfOpenElements;
-  if(numOpen > 0)
-    {
-    this->OpenElements[numOpen-1]->AddCharacterData(data, length);
-    }
 }

@@ -35,17 +35,17 @@ public:
   vtkTypeRevisionMacro(vtkXMLDataElement,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataElement* New();
-  
+
   // Description:
   // Set/Get the name of the element.  This is its XML tag.
   vtkGetStringMacro(Name);
-  vtkSetStringMacro(Name);
-  
+  virtual void SetName (const char* _arg);
+
   // Description:
   // Set/Get the value of the id attribute of the element, if any.
   vtkGetStringMacro(Id);
   vtkSetStringMacro(Id);
-  
+
   // Description:
   // Get the attribute with the given name.  If it doesn't exist,
   // returns 0.
@@ -59,7 +59,7 @@ public:
   // Description:
   // Set/Get the character data between XML start/end tags.
   void SetCharacterData(const char* c, int length);
-  void AddCharacterData(const char* c, int length);
+  void AddCharacterData(const char* c, size_t length);
   vtkGetStringMacro(CharacterData);
 
   // Description:
@@ -79,7 +79,7 @@ public:
   void SetFloatAttribute(const char* name, float value);
   void SetDoubleAttribute(const char* name, double value);
   void SetUnsignedLongAttribute(const char* name, unsigned long value);
-  
+
   // Description:
   // Get the attribute with the given name and converted to a scalar
   // value.  Returns length of vector read.
@@ -87,7 +87,7 @@ public:
   int GetVectorAttribute(const char* name, int length, float* value);
   int GetVectorAttribute(const char* name, int length, double* value);
   int GetVectorAttribute(const char* name, int length, unsigned long* value);
-  
+
   // Description:
   // Set the attribute with the given name.
   void SetVectorAttribute(const char* name, int length, const int* value);
@@ -222,7 +222,7 @@ public:
   // width number of fields. See PrintXML.
   vtkGetMacro(CharacterDataWidth,int);
   vtkSetMacro(CharacterDataWidth,int);
-    
+
 protected:
   vtkXMLDataElement();
   ~vtkXMLDataElement();
@@ -231,9 +231,18 @@ protected:
   char* Name;
   // The value of the "id" attribute, if any was given.
   char* Id;
-  // Data inside of the tag's open and close. ie <X> character data </X>
-  char* CharacterData;
+
   int CharacterDataWidth;
+
+  // Data inside of the tag's open and close. ie <X> character data </X>
+  char* CharacterData;            // Null terminated buffer.
+  size_t CharacterDataBlockSize;  // Allocation size if buffer needs expand
+  size_t CharacterDataBufferSize; // Allocated size.
+  size_t EndOfCharacterData;      // Number of bytes used.
+
+  // Tags that have specialized character data handlers
+  // can set this flag to improve performance. The default is unset.
+  int IgnoreCharacterData;
 
   // Get/Set the stream position of the elements inline data.
   vtkGetMacro(InlineDataPosition,unsigned long);
@@ -272,5 +281,31 @@ private:
   vtkXMLDataElement(const vtkXMLDataElement&);  // Not implemented.
   void operator=(const vtkXMLDataElement&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline
+void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
+{
+  if (this->IgnoreCharacterData){ return; }
+  // This is the index where we start to put the new data at.
+  size_t eod=this->EndOfCharacterData-1;
+  // Check if the new data will write off the end. If it does
+  // resize the character data buffer.
+  this->EndOfCharacterData+=length;
+  if (this->EndOfCharacterData>=this->CharacterDataBufferSize)
+    {
+    while(this->EndOfCharacterData>=this->CharacterDataBufferSize)
+      {
+      this->CharacterDataBufferSize+=this->CharacterDataBlockSize;
+      }
+    this->CharacterData 
+      = static_cast<char *>(realloc(this->CharacterData,this->CharacterDataBufferSize));
+    }
+  // put the new data at the end of the buffer, and null terminate.
+  char *pCD=this->CharacterData+eod;
+  memmove(pCD,data,length);
+  pCD[length]='\0';
+  return;
+}
 
 #endif

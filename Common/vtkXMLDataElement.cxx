@@ -25,7 +25,7 @@ using vtksys_ios::istringstream;
 #include <vtkstd/string>
 using vtkstd::string;
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.2");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.3");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -48,8 +48,16 @@ vtkXMLDataElement::vtkXMLDataElement()
   this->XMLByteIndex = 0; 
   this->AttributeEncoding = VTK_ENCODING_UTF_8;
 
-  this->CharacterData = 0;
   this->CharacterDataWidth = -1;
+
+  this->CharacterDataBlockSize = 2048;
+  this->CharacterDataBufferSize = 2048;
+  this->EndOfCharacterData=1;
+  this->CharacterData
+    = static_cast<char *>(malloc(this->CharacterDataBlockSize));
+  this->CharacterData[0]='\0';
+
+  this->IgnoreCharacterData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -120,49 +128,57 @@ void vtkXMLDataElement::RemoveAllNestedElements()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SetCharacterData(const char* c, int length)
+void vtkXMLDataElement::SetName(const char* _arg)
 {
-  if (this->CharacterData)
+  vtkDebugMacro(
+      << this->GetClassName() << " ("
+      << this << "): setting Name to "
+      << (_arg?_arg:"(null)") );
+
+  if ( this->Name == NULL && _arg == NULL) { return;}
+  if ( this->Name && _arg && (!strcmp(this->Name,_arg))) { return;}
+  if (this->Name) { delete [] this->Name; }
+  this->IgnoreCharacterData=0;
+  if (_arg)
     {
-    delete [] this->CharacterData;
-    this->CharacterData = 0;
+    // NOTE: Tags that have specialized character data
+    // handlers can set this flag to improve performance.
+    if (strstr(_arg,"DataArray"))
+      {
+      this->IgnoreCharacterData=1;
+      }
+    size_t n = strlen(_arg) + 1;
+    char *cp1 =  new char[n];
+    const char *cp2 = (_arg);
+    this->Name = cp1;
+    do { *cp1++ = *cp2++; } while ( --n );
     }
-  if (c && length > 0)
+   else
     {
-    this->CharacterData = new char[length + 1];
-    strncpy(this->CharacterData, c, length);
-    this->CharacterData[length] = 0;
+    this->Name = NULL;
     }
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::AddCharacterData(const char* c, int length)
+void vtkXMLDataElement::SetCharacterData(const char* c, int length)
 {
-  if (!c || length <= 0)
+  if (this->CharacterData)
     {
-    return;
+    free(this->CharacterData);
     }
 
-  char* old_data = this->CharacterData;
-  int old_length = (old_data) ? static_cast<int>(strlen(old_data)) : 0;
-  int total_length = old_length + length;
-  
-  this->CharacterData = new char[total_length + 1];
-  this->CharacterData[0] = 0;
+  this->CharacterData
+      = static_cast<char *>(malloc(this->CharacterDataBlockSize));
+    this->CharacterData[0]='\0';
 
-  if (old_length > 0)
+  if (c && length > 0)
     {
-    strncpy(this->CharacterData, old_data, old_length);
-    this->CharacterData[old_length] = 0;
+    strncpy(this->CharacterData, c, length);
+    this->CharacterData[length] = 0;
     }
-  strncat(this->CharacterData, c, length);
-  this->CharacterData[total_length] = 0;
-  
-  if (old_data)
-    {
-    delete [] old_data;
-    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------

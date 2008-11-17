@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.29");
+vtkCxxRevisionMacro(vtkXMLParser, "1.30");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -530,14 +530,4 @@ void vtkXMLParserEndElement(void* parser, const char *name)
   // End element handler that is registered with the XML_Parser.  This
   // just casts the user data to a vtkXMLParser and calls EndElement.
   static_cast<vtkXMLParser*>(parser)->EndElement(name);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLParserCharacterDataHandler(void* parser, const char* data,
-                                      int length)
-{
-  // Character data handler that is registered with the XML_Parser.
-  // This just casts the user data to a vtkXMLParser and calls
-  // CharacterDataHandler.
-  static_cast<vtkXMLParser*>(parser)->CharacterDataHandler(data, length);
 }
