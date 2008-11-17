@@ -38,6 +38,8 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLHardwareSupport.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPainter.h"
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPlane.h"
@@ -59,7 +61,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.15");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.16");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
@@ -191,8 +193,10 @@ void vtkGeoTerrain::AddActors(
   this->InitializeNodeAnalysis(ren);
 
   // See if we have multiTexturing
-  vtkSmartPointer<vtkPolyDataMapper> textureTest = vtkSmartPointer<vtkPolyDataMapper>::New();
-  bool multiTexturing = textureTest->GetSupportsMultiTexturing(ren->GetRenderWindow());
+  vtkOpenGLHardwareSupport * hardware = 
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow())->GetHardwareSupport();
+
+  bool multiTexturing = hardware->GetSupportsMultiTexturing();
 
   // Extract the image representations from the collection.
   vtkGeoAlignedImageRepresentation* textureTree1 = 0;
