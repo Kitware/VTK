@@ -49,6 +49,8 @@ vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
 vtkMultiCorrelativeStatistics.cxx
+vtkMutableGraphHelper.cxx
+vtkNetworkHierarchy.cxx
 vtkOrderStatistics.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx
@@ -57,6 +59,7 @@ vtkPruneTreeFilter.cxx
 vtkRISReader.cxx
 vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
+vtkRemoveIsolatedVertices.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
