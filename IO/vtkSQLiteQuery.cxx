@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.8");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.9");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -142,9 +142,14 @@ bool vtkSQLiteQuery::Execute()
     return false;
     }
 
-  for(int i = 0; i != this->Implementation->BlobData.size(); ++i)
+  for(vtkstd::vector<unsigned char*>::size_type i = 0; i != this->Implementation->BlobData.size(); ++i)
     {
-    vtk_sqlite3_bind_blob(this->Statement, i+1, this->Implementation->BlobData[i], this->Implementation->BlobSize[i], VTK_SQLITE_STATIC);
+    vtk_sqlite3_bind_blob(
+      this->Statement,
+      i+1,
+      this->Implementation->BlobData[i],
+      this->Implementation->BlobSize[i],
+      VTK_SQLITE_STATIC);
     }
 
   vtkDebugMacro(<<"Execute(): Query ready to execute.");
