@@ -124,7 +124,9 @@ int TestMultiTexturingTransform(int argc, char *argv[])
 
   vtkRenderer * renderer = vtkRenderer::New();
   vtkRenderWindow * renWin = vtkRenderWindow::New();
-
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
+  
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
   mapper->SetInput(polyData);
   vtkActor * actor = vtkActor::New();
@@ -156,9 +158,6 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   renWin->SetSize(300, 300);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(1.0, 0.5, 1.0);
-
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
 
   renderer->AddActor(actor);
   renWin->Render();

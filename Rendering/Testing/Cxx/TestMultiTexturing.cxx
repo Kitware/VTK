@@ -116,6 +116,9 @@ int TestMultiTexturing(int argc, char *argv[])
   vtkRenderer * renderer = vtkRenderer::New();
   vtkRenderWindow * renWin = vtkRenderWindow::New();
 
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
+  
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
   mapper->SetInput(polyData);
 
@@ -148,19 +151,17 @@ int TestMultiTexturing(int argc, char *argv[])
   renWin->SetSize(300, 300);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(1.0, 0.5, 1.0);
-  
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
 
   renderer->AddActor(actor);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
+  
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
-
+  
   polyData->Delete();
   mapper->Delete();
   actor->Delete();
