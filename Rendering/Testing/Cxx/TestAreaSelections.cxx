@@ -211,6 +211,11 @@ int TestAreaSelections(int argc, char* argv[])
     iren->Start();
     }
 
+  renderer = 0;
+  SS1 = 0;
+  sMap = 0;
+  emptyPD = 0;
+
   // Cleanup
   return !retVal;
 }
