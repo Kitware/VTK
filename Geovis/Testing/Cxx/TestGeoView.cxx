@@ -175,6 +175,7 @@ int TestGeoView(int argc, char* argv[])
   // Load databases
   if (terrainReadPath.length() > 0)
     {
+    terrainSource->ShutDown();
     vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
     source->SetPath(terrainReadPath.c_str());
     terrainSource.TakeReference(source);
@@ -182,6 +183,7 @@ int TestGeoView(int argc, char* argv[])
   terrain->SetSource(terrainSource);
   if (imageReadPath.length() > 0)
     {
+    imageSource->ShutDown();
     vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
     source->SetPath(imageReadPath.c_str());
     imageSource.TakeReference(source);
@@ -193,93 +195,17 @@ int TestGeoView(int argc, char* argv[])
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-#if 0
-    // If we are interactive, make some other views to link with.
-
-    // Create a 2D geo view.
-    int projIndex = 40;
-    vtkSmartPointer<vtkRenderWindow> win2D =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    vtkSmartPointer<vtkGeoView2D> view2D =
-      vtkSmartPointer<vtkGeoView2D>::New();
-    view2D->SetupRenderWindow(win2D);
-    win2D->SetSize(400,400);
-
-    vtkSmartPointer<vtkGeoAlignedImageSource> imageSource2D =
-      vtkSmartPointer<vtkGeoAlignedImageSource>::New();
-    imageSource2D->SetImage(reader2->GetOutput());
-    vtkSmartPointer<vtkGeoAlignedImageRepresentation> rep2D =
-      vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
-    rep2D->SetSource(imageSource2D);
-    view2D->AddRepresentation(rep2D);
-
-    vtkSmartPointer<vtkGeoProjectionSource> grat =
-      vtkSmartPointer<vtkGeoProjectionSource>::New();
-    grat->SetProjection(projIndex);
-
-    // Set up the viewport
-    vtkSmartPointer<vtkGeoTerrainNode> root = vtkSmartPointer<vtkGeoTerrainNode>::New();
-    grat->FetchRoot(root);
-    double bounds[4];
-    root->GetProjectionBounds(bounds);
-    view2D->GetRenderer()->GetActiveCamera()->SetParallelScale((bounds[3] - bounds[2]) / 2.0);
-
-    vtkSmartPointer<vtkGeoTerrain2D> surf = vtkSmartPointer<vtkGeoTerrain2D>::New();
-    surf->SetSource(grat);
-    view2D->SetSurface(surf);
-
-    vtkSmartPointer<vtkGeoGraphRepresentation2D> graphRep2D =
-      vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();
-    graphRep2D->SetInputConnection(source->GetOutputPort());
-    vtkSmartPointer<vtkGeoProjection> projection =
-      vtkSmartPointer<vtkGeoProjection>::New();
-    projection->SetName(projection->GetProjectionName(projIndex));
-    vtkSmartPointer<vtkGeoTransform> transform =
-      vtkSmartPointer<vtkGeoTransform>::New();
-    transform->SetDestinationProjection(projection);
-    graphRep2D->SetTransform(transform);
-    view2D->AddRepresentation(graphRep2D);
-
-    // Set up a graph layout view
-    vtkSmartPointer<vtkGraphLayoutView> graphView =
-      vtkSmartPointer<vtkGraphLayoutView>::New();
-    vtkSmartPointer<vtkDataRepresentation> graphRep2 =
-      vtkSmartPointer<vtkDataRepresentation>::New();
-    graphRep2->SetInputConnection(source->GetOutputPort());
-    graphView->AddRepresentation(graphRep2);
-    vtkSmartPointer<vtkRenderWindow> graphWin =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    graphWin->SetSize(400, 400);
-    graphView->SetupRenderWindow(graphWin);
-
-    graphRep2->SetSelectionLink(graphRep->GetSelectionLink());
-    graphRep2D->SetSelectionLink(graphRep->GetSelectionLink());
-    vtkSmartPointer<vtkViewUpdater> updater =
-      vtkSmartPointer<vtkViewUpdater>::New();
-    updater->AddView(view);
-    updater->AddView(view2D);
-    updater->AddView(graphView);
-
-    graphView->GetRenderer()->ResetCamera();
-    graphView->Update();
-
-    // Make all the themes the same.
-    vtkSmartPointer<vtkViewTheme> theme;
-    theme.TakeReference(vtkViewTheme::CreateMellowTheme());
-    theme->SetSelectedCellColor(1.0, 0.0, 1.0);
-    theme->SetSelectedPointColor(1.0, 0.0, 1.0);
-    graphView->ApplyViewTheme(theme);
-    view->ApplyViewTheme(theme);
-    graphRep->ApplyViewTheme(theme);
-    graphRep2D->ApplyViewTheme(theme);
-#endif
-
     // Interact with data.
     win->GetInteractor()->Initialize();
     win->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }
+
+  // Shut down sources
+  terrainSource->ShutDown();
+  imageSource->ShutDown();
+  imageSource2->ShutDown();
 
   delete [] image;
   delete [] image2;
