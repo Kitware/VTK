@@ -105,6 +105,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   ENDIF(VTK_HAS_UINT64_ARRAY)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
+  #ADD_EXECUTABLE(${KIT}CxxTests MACOSX_BUNDLE ${Tests})
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkInfovis vtkRendering vtkIO vtkCommon)
   SET (TestsToRun ${Tests})
