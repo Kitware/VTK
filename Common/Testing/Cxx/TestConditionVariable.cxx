@@ -30,10 +30,6 @@ typedef struct {
   int NumberOfWorkers;
 } vtkThreadUserData;
 
-static void vtkDoNothingButEliminateCompilerWarnings()
-{
-}
-
 VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
 {
   int threadId = static_cast<vtkMultiThreader::ThreadInfo*>(arg)->ThreadID;
@@ -54,7 +50,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       for ( i = 0; i < 2 * threadCount; ++ i )
         {
         td->Lock->Lock();
-        cout << "Signaling (count " << i << ")...";
+        cout << "Signaling (count " << i << ")...\n";
         cout.flush();
         td->Lock->Unlock();
         td->Condition->Signal();
@@ -83,7 +79,9 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       {
       // Wait for thread 0 to initialize... Ugly but effective
       while ( td->Done < 0 )
-        vtkDoNothingButEliminateCompilerWarnings();
+        {
+        vtkSleep( 0.2 ); // 0.2 s between checking
+        }
 
       // Wait for the condition and then note we were signaled.
       while ( td->Done <= 0 )
