@@ -29,7 +29,8 @@
 #define __vtkNetworkHierarchy_h
 
 #include "vtkTreeAlgorithm.h"
-#include "vtkStdString.h"
+
+class vtkStdString;
 
 class VTK_INFOVIS_EXPORT vtkNetworkHierarchy : public vtkTreeAlgorithm
 {
