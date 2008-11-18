@@ -25,10 +25,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.25");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.26");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -43,6 +44,7 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->Assess = false;
   this->AssessNames = vtkStringArray::New();
   this->AssessParameters = 0;
+  this->Internals = new vtkStatisticsAlgorithmPrivate;
 }
 
 // ----------------------------------------------------------------------
@@ -52,6 +54,7 @@ vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
     {
     this->AssessNames->Delete();
     }
+  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
@@ -72,6 +75,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
     {
     this->AssessNames->PrintSelf( os, indent.GetNextIndent() );
     }
+  os << indent << "Internals: " << this->Internals << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -114,6 +118,14 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   vtkDataObject* outMeta2 = 0; // Unused for now
 
   outData->ShallowCopy( inData );
+
+  // If there are any columns selected in the buffer which have not been
+  // turned into a request by RequestSelectedColumns(), add them now.
+  // There should be no effect if vtkStatisticsAlgorithmPrivate::Buffer is empty.
+  // This is here to accommodate the simpler user interfaces in OverView for
+  // univariate and bivariate algorithms which will not call RequestSelectedColumns()
+  // on their own.
+  this->RequestSelectedColumns();
 
   vtkDataObject* inMeta;
   if ( this->Learn )
@@ -191,3 +203,20 @@ void vtkStatisticsAlgorithm::SetInputStatisticsConnection( vtkAlgorithmOutput* i
 { 
   this->SetInputConnection( 1, in );
 }
+
+//---------------------------------------------------------------------------
+void vtkStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
+{
+  this->Internals->SetBufferColumnStatus( namCol, status );
+}
+
+int vtkStatisticsAlgorithm::RequestSelectedColumns()
+{
+  return this->Internals->AddBufferToRequests();
+}
+
+void vtkStatisticsAlgorithm::ResetRequests()
+{
+  this->Internals->ResetRequests();
+}
+

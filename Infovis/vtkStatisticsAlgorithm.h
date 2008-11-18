@@ -50,6 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkStdString;
 class vtkStringArray;
 class vtkVariantArray;
+class vtkStatisticsAlgorithmPrivate;
 
 class VTK_INFOVIS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
 {
@@ -145,6 +146,29 @@ public:
                                     AssessFunctor*& dfunc ) = 0;
 //ETX
 
+  // Description:
+  // Add or remove a column from the current analysis request.
+  // Once all the column status values are set, call RequestSelectedColumns()
+  // before selecting another set of columns for a different analysis request.
+  // The way that columns selections are used varies from algorithm to algorithm.
+  //
+  // Note: the set of selected columns is maintained in vtkStatisticsAlgorithmPrivate::Buffer
+  // until RequestSelectedColumns() is called, at which point the set is appended
+  // to vtkStatisticsAlgorithmPrivate::Requests.
+  // If there are any columns in vtkStatisticsAlgorithmPrivate::Buffer at the time
+  // RequestData() is called, RequestSelectedColumns() will be called and the
+  // selection added to the list of requests.
+  virtual void SetColumnStatus( const char* namCol, int status );
+
+  // Description:
+  // Use the current column status values to produce a new request for statistics
+  // to be produced when RequestData() is called. See SetColumnStatus() for more information.
+  virtual int RequestSelectedColumns();
+
+  // Description:
+  // Empty the list of current requests.
+  virtual void ResetRequests();
+
 protected:
   vtkStatisticsAlgorithm();
   ~vtkStatisticsAlgorithm();
@@ -175,6 +199,7 @@ protected:
   bool FullWasDerived;
   vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;
+  vtkStatisticsAlgorithmPrivate* Internals;
 
 private:
   vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&); // Not implemented

@@ -48,6 +48,7 @@ vtkInteractorStyleTreeRingHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
+vtkMultiCorrelativeStatistics.cxx
 vtkOrderStatistics.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx

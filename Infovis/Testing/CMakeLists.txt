@@ -18,6 +18,7 @@ IF(PYTHON_EXECUTABLE)
     vtkBoostRandomSparseArraySource.h
     vtkSQLDatabaseGraphSource.h
     vtkSQLDatabaseTableSource.h
+    vtkStatisticsAlgorithmPrivate.h 
     vtkUnivariateStatisticsAlgorithmPrivate.h
     )
 ENDIF(PYTHON_EXECUTABLE)
