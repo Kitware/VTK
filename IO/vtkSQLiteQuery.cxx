@@ -30,16 +30,26 @@
 #include <assert.h>
 
 #include <vtksys/ios/sstream>
+#include <vtksys/stl/vector>
 
 #define BEGIN_TRANSACTION "BEGIN TRANSACTION"
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.7");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.8");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
-vtkSQLiteQuery::vtkSQLiteQuery() 
+class vtkSQLiteQuery::implementation
+{
+public:
+  vtkstd::vector<const unsigned char*> BlobData;
+  vtkstd::vector<unsigned long> BlobSize;
+};
+
+// ----------------------------------------------------------------------
+vtkSQLiteQuery::vtkSQLiteQuery() :
+  Implementation(new implementation())
 {
   this->Statement = NULL;
   this->InitialFetch = true;
@@ -50,6 +60,8 @@ vtkSQLiteQuery::vtkSQLiteQuery()
 // ----------------------------------------------------------------------
 vtkSQLiteQuery::~vtkSQLiteQuery()
 {
+  delete this->Implementation;
+
   this->SetLastErrorText(NULL);
   if (this->TransactionInProgress)
     {
@@ -130,11 +142,19 @@ bool vtkSQLiteQuery::Execute()
     return false;
     }
 
+  for(int i = 0; i != this->Implementation->BlobData.size(); ++i)
+    {
+    vtk_sqlite3_bind_blob(this->Statement, i+1, this->Implementation->BlobData[i], this->Implementation->BlobSize[i], VTK_SQLITE_STATIC);
+    }
+
   vtkDebugMacro(<<"Execute(): Query ready to execute.");
 
   this->InitialFetch = true;
   int result = vtk_sqlite3_step(this->Statement);
   this->InitialFetchResult = result;
+
+  this->Implementation->BlobData.clear();
+  this->Implementation->BlobSize.clear();
 
   if (result == VTK_SQLITE_DONE)
     {
@@ -445,3 +465,10 @@ bool vtkSQLiteQuery::RollbackTransaction()
     return false;
     }
 }
+
+void vtkSQLiteQuery::AddParameterBinding(const unsigned char* data, unsigned long size)
+{
+  this->Implementation->BlobData.push_back(data);
+  this->Implementation->BlobSize.push_back(size);
+}
+
