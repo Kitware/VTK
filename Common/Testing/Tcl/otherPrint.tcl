@@ -28,6 +28,7 @@ proc rtOtherTest { fileid } {
         }
   catch {
            $a b
+           puts "calling [b GetClassName]::Print"
            b Print
            if {[b IsA $a] == 0} {puts stderr "$a failed IsA test!!!"}
            if {[b IsA "vtkObject"] == 0} {puts stdout "$a is not a sub-class of vtkObject"}
