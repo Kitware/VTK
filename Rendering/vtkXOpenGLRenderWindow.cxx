@@ -111,7 +111,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.97");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.98");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -936,9 +936,9 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
           XFree(v);
           }
         }
+      this->Mapped = 0;
       } // if not hardware offscreen
     }
-  this->Mapped = 0;
   this->Size[0] = width;
   this->Size[1] = height;
   
