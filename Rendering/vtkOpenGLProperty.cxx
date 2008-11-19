@@ -38,7 +38,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.48");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.49");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -73,7 +73,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
   
-  if(prog!=0)
+  if(prog!=0 && prog->HasFragmentShaders() )
     {
     if(this->Shader==0)
       {
@@ -262,7 +262,7 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
 {
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
-  if(prog!=0)
+  if(prog!=0 && prog->HasFragmentShaders())
     {
     prog->Restore();
     prog->GetShaders()->RemoveItem(this->Shader);

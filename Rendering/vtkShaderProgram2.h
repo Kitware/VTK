@@ -79,6 +79,23 @@ public:
   vtkGetObjectMacro(Shaders,vtkShader2Collection);
 
   // Description:
+  // Tells if at least one of the shaders is a vertex shader.
+  // If yes, it means the vertex processing of the fixed-pipeline is bypassed.
+  // If no, it means the vertex processing of the fixed-pipeline is used.
+  bool HasVertexShaders();
+  
+  // Description:
+  // Tells if at least one of the shaders is a fragment shader.
+  // If yes, it means the fragment processing of the fixed-pipeline is
+  // bypassed.
+  // If no, it means the fragment processing of the fixed-pipeline is used.
+  bool HasFragmentShaders();
+  
+  // Description:
+  // Tells if at least one of the shaders is a geometry shader.
+  bool HasGeometryShaders();
+  
+  // Description:
   // Tell if the shader program is valid with the current OpenGL state.
   bool IsValid();
   

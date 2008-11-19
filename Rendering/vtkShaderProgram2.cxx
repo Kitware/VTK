@@ -28,7 +28,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.5");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.6");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -168,6 +168,74 @@ void vtkShaderProgram2::SetContext(vtkOpenGLRenderWindow *context)
       }
     this->Modified();
     }
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if at least one of the shaders is a vertex shader.
+// If yes, it means the vertex processing of the fixed-pipeline is bypassed.
+// If no, it means the vertex processing of the fixed-pipeline is used.
+bool vtkShaderProgram2::HasVertexShaders()
+{
+  bool result=false;
+  
+  if(this->Shaders!=0)
+    {
+    this->Shaders->InitTraversal();
+    vtkShader2 *s=this->Shaders->GetNextShader();
+    while(!result && s!=0)
+      {
+      result=s->GetType()==VTK_SHADER_TYPE_VERTEX;
+      s=this->Shaders->GetNextShader();
+      }
+    }
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if at least one of the shaders is a fragment shader.
+// If yes, it means the fragment processing of the fixed-pipeline is
+// bypassed.
+// If no, it means the fragment processing of the fixed-pipeline is used.
+bool vtkShaderProgram2::HasFragmentShaders()
+{
+  bool result=false;
+  
+  if(this->Shaders!=0)
+    {
+    this->Shaders->InitTraversal();
+    vtkShader2 *s=this->Shaders->GetNextShader();
+    while(!result && s!=0)
+      {
+      result=s->GetType()==VTK_SHADER_TYPE_FRAGMENT;
+      s=this->Shaders->GetNextShader();
+      }
+    }
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if at least one of the shaders is a geometry shader.
+bool vtkShaderProgram2::HasGeometryShaders()
+{
+  bool result=false;
+  
+  if(this->Shaders!=0)
+    {
+    this->Shaders->InitTraversal();
+    vtkShader2 *s=this->Shaders->GetNextShader();
+    while(!result && s!=0)
+      {
+      result=s->GetType()==VTK_SHADER_TYPE_GEOMETRY;
+      s=this->Shaders->GetNextShader();
+      }
+    }
+  
+  return result;
 }
 
 // ----------------------------------------------------------------------------
