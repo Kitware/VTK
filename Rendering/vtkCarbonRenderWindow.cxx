@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.72");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.73");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -400,7 +400,7 @@ bool vtkCarbonRenderWindow::IsCurrent()
     }
   else
     {
-    result=this->ContextId==aglGetCurrentContext();
+    result=this->ContextId!=0 && this->ContextId==aglGetCurrentContext();
     }
   return result;
 }

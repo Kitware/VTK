@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.160");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.161");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -255,7 +255,7 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkWin32OpenGLRenderWindow::IsCurrent()
 {
-  return this->ContextId==wglGetCurrentContext();
+  return this->ContextId!=0 && this->ContextId==wglGetCurrentContext();
 }
 
 // ----------------------------------------------------------------------------
