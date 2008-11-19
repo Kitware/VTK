@@ -162,8 +162,6 @@ public:
   virtual vtkDataRepresentation* GetTreeRepresentation()
     { return this->GetRepresentation(0, 0); }
 
-  void SetLayoutStrategy();
-  
   // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);

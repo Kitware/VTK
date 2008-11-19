@@ -57,7 +57,6 @@ int TestHierarchicalTreeRingView(int argc, char* argv[])
   
   VTK_CREATE(vtkHierarchicalTreeRingView, dummy);
   VTK_CREATE(vtkHierarchicalTreeRingView, view);
-  view->SetLayoutStrategy();
   view->SetHierarchyFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
 
@@ -79,7 +78,7 @@ int TestHierarchicalTreeRingView(int argc, char* argv[])
   view->SetupRenderWindow(win);
   
   int retVal = vtkRegressionTestImage(win);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+//  if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     win->GetInteractor()->Initialize();
     win->GetInteractor()->Start();

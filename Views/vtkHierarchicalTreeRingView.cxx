@@ -68,7 +68,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.6");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.7");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -178,9 +178,10 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
 
   // Set filter attributes
   this->TreeAggregation->LeafVertexUnitSizeOn();
-  this->TreeAggregation->SetField("leaf_count");
-//  this->GraphLayout->SetLayoutStrategy(this->TreeStrategy);
-//  this->TreeRingLayout->SetLayoutStrategy(this->TreeRingLayoutStrategy);
+//  this->TreeAggregation->SetField("leaf_count");
+  this->TreeAggregation->SetField("size");
+  this->TreeRingLayout->SetLayoutStrategy(this->TreeRingLayoutStrategy);
+  this->TreeRingLayoutStrategy->SetSizeFieldName("size");
   this->HBundle->SetBundlingStrength(this->BundlingStrength);
   this->SelectedGraphHBundle->SetBundlingStrength(this->BundlingStrength);
   this->Spline->SetMaximumNumberOfSubdivisions(16);
@@ -239,7 +240,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
   this->SelectedGraphActor->GetProperty()->SetLineWidth(5.0);
 
-  this->TreeRingLayout->SetLayoutStrategy(0);
+//  this->TreeRingLayout->SetLayoutStrategy(0);
   this->TreeRingMapper->SetInputConnection(this->TreeRingLayout->GetOutputPort());
   this->TreeRingLayoutStrategy->SetRingThickness(1.);
   this->TreeRingPointLayout->SetExteriorRadius( this->TreeRingLayoutStrategy->GetInteriorRadius() );
@@ -471,13 +472,6 @@ void vtkHierarchicalTreeRingView::ColorEdgesOn()
 void vtkHierarchicalTreeRingView::ColorEdgesOff()
 {
   this->GraphEdgeMapper->SetScalarVisibility(false);
-}
-
-void vtkHierarchicalTreeRingView::SetLayoutStrategy()
-{
-  this->TreeAggregation->SetField("size");
-  this->TreeRingLayout->SetLayoutStrategy(this->TreeRingLayoutStrategy);
-  this->TreeRingLayoutStrategy->SetSizeFieldName("size");
 }
 
 //----------------------------------------------------------------------------
