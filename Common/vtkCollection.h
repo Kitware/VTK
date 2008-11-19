@@ -85,9 +85,10 @@ public:
   void RemoveAllItems();
 
   // Description:
-  // Search for an object and return location in list. If location == 0,
-  // object was not found.
-  int  IsItemPresent(vtkObject *);
+  // Search for an object and return location in list. If the return value is
+  // 0, the object was not found. If the object was found, the location is
+  // the return value-1.
+  int IsItemPresent(vtkObject *a);
 
   // Description:
   // Return the number of objects in the list.
