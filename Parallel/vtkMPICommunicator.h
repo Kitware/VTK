@@ -46,7 +46,25 @@ class vtkMPICommunicatorReceiveDataInfo;
 class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 public:
+//BTX
+
+  class VTK_PARALLEL_EXPORT Request
+  {
+  public:
+    Request();
+    Request( const Request& );
+    ~Request();
+    Request& operator = ( const Request& );
+    int Test();
+    void Cancel();
+    void Wait();
+    vtkMPICommunicatorOpaqueRequest* Req;
+  };
+
+//ETX
+
   vtkTypeRevisionMacro( vtkMPICommunicator,vtkCommunicator);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Creates an empty communicator.
@@ -57,7 +75,6 @@ public:
   // communicator (MPI_COMM_WORLD)
   static vtkMPICommunicator* GetWorldCommunicator();
   
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Used to initialize the communicator (i.e. create the underlying MPI_Comm).
@@ -75,23 +92,6 @@ public:
                             int remoteProcessId, int tag);
   virtual int ReceiveVoidArray(void *data, vtkIdType length, int type,
                                int remoteProcessId, int tag);
-
-//BTX
-
-  class VTK_PARALLEL_EXPORT Request
-  {
-  public:
-    Request();
-    Request( const Request& );
-    ~Request();
-    Request& operator = ( const Request& );
-    int Test();
-    void Cancel();
-    void Wait();
-    vtkMPICommunicatorOpaqueRequest* Req;
-  };
-
-//ETX
 
   // Description:
   // This method sends data to another process (non-blocking).  
