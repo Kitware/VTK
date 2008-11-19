@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.6");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.7");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -116,8 +116,17 @@ int vtkTreeRingToPolyData::RequestData(
     
     sector->SetInnerRadius(coords[2] + (0.5*(radial_length*this->ShrinkPercentage)));
     sector->SetOuterRadius(coords[3] - (0.5*(radial_length*this->ShrinkPercentage)));
-    sector->SetStartAngle(coords[0] + delta_change_each);
-    sector->SetEndAngle(coords[1] - delta_change_each);
+
+    if( coords[1] - coords[0] == 360. )
+    {
+      sector->SetStartAngle( coords[0] );
+      sector->SetEndAngle( coords[1] );
+    }
+    else
+    {
+      sector->SetStartAngle(coords[0] + delta_change_each);
+      sector->SetEndAngle(coords[1] - delta_change_each);
+    }
 
     int resolution = (int)((coords[1] - coords[0])/1);
     if( resolution < 1 )
