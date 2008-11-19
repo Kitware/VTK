@@ -1076,6 +1076,13 @@ void vtkQtBarChart::calculateDomain(int seriesGroup)
 
 void vtkQtBarChart::createBarList(int seriesGroup)
 {
+  // Clear the bar tree if this is the displayed group.
+  if(seriesGroup == this->Internal->CurrentGroup)
+    {
+    this->Internal->BarTree.clear();
+    this->Internal->CurrentGroup = -1;
+    }
+
   // Clear the current bar list.
   this->Internal->Groups.Lists[seriesGroup].clear();
 

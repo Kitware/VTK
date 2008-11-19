@@ -1444,6 +1444,13 @@ void vtkQtStackedChart::calculateYDomain(int seriesGroup)
 
 void vtkQtStackedChart::createQuadTable(int seriesGroup)
 {
+  // Clear the quad tree if this is the displayed group.
+  if(seriesGroup == this->Internal->CurrentGroup)
+    {
+    this->Internal->QuadTree.clear();
+    this->Internal->CurrentGroup = -1;
+    }
+
   // Clear the current quad table.
   vtkQtStackedChartSeriesGroup *group =
       this->Internal->Groups.Tables[seriesGroup];
