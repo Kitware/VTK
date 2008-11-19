@@ -73,22 +73,49 @@ public:
   {
     vtkLabelHierarchy* Hierarchy;
 
-    PriorityComparator() { this->Hierarchy = 0; }
+    PriorityComparator()
+      {
+      // See comment near declaration of Current for more info:
+      this->Hierarchy = vtkLabelHierarchy::implementation::Current;
+      }
+
     PriorityComparator( vtkLabelHierarchy* h )
       {
       this->Hierarchy = h;
       }
+
     PriorityComparator( const PriorityComparator& src )
       {
       this->Hierarchy = src.Hierarchy;
       }
-    ~PriorityComparator() { }
-    void SetHierarchy( vtkLabelHierarchy* h )
+
+    PriorityComparator& operator=(const PriorityComparator& rhs)
       {
-      this->Hierarchy = h;
+      if (this != &rhs)
+        {
+        this->Hierarchy = rhs.Hierarchy;
+        }
+      return *this;
       }
+
+    ~PriorityComparator()
+      {
+      }
+
     bool operator () ( const vtkIdType& a, const vtkIdType& b )
       {
+      if (0 == this->Hierarchy)
+        {
+        vtkGenericWarningMacro( "error: NULL this->Hierarchy in PriorityComparator" );
+        return a < b;
+        }
+
+      if (0 == this->Hierarchy->GetImplementation())
+        {
+        vtkGenericWarningMacro( "error: NULL this->Hierarchy->GetImplementation() in PriorityComparator" );
+        return a < b;
+        }
+
       return this->Hierarchy->GetImplementation()->ComparePriorities( a, b );
       }
   };
@@ -96,17 +123,34 @@ public:
   class LabelSet : public vtkstd::multiset<vtkIdType,PriorityComparator>
   {
   public:
-    LabelSet( const PriorityComparator& comp )
-      : vtkstd::multiset<vtkIdType,PriorityComparator>( comp )
+    LabelSet( vtkLabelHierarchy* hierarchy )
+      : vtkstd::multiset<vtkIdType,PriorityComparator>( PriorityComparator(hierarchy) )
       {
       this->TotalArea = 0;
       }
+
     LabelSet( const LabelSet& src )
       : vtkstd::multiset<vtkIdType,PriorityComparator>( src )
       {
       this->TotalArea = src.TotalArea;
       }
-    LabelSet() { this->TotalArea = 0; }
+
+    LabelSet()
+      : vtkstd::multiset<vtkIdType,PriorityComparator>()
+      {
+      this->TotalArea = 0;
+      }
+
+    LabelSet& operator=(const LabelSet& rhs)
+      {
+      if (this != &rhs)
+        {
+        vtkstd::multiset<vtkIdType,PriorityComparator>::operator=(rhs);
+        this->TotalArea = rhs.TotalArea;
+        }
+      return *this;
+      }
+
     double TotalArea;
   };
 
@@ -136,7 +180,35 @@ public:
   vtkTimeStamp HierarchyTime;
   int ActualDepth;
   vtkLabelHierarchy* Self;
+
+  static vtkLabelHierarchy* Current;
 };
+
+
+// WORKAROUND:
+//
+// This is the "comment near declaration of Current"
+//
+// Workaround for the lack of proper assignment of multiset-derived objects
+// in the Borland 5.5 compiler's STL implementation. This must be set prior
+// to any possible calls to the PriorityComparator's default constructor so
+// that it can have access to a vtkLabelHierarchy object in order to do proper
+// comparisons. (Even though assignments are done after the default construction,
+// with the Borland 5.5 multiset, the comparators for the multiset do not get
+// set properly during those assignments.) So... we use this ha-ha-ha ckish
+// workaround to get it to work.
+//
+// In practical terms, this means if a method in this file calls add_children,
+// it should set vtkLabelHierarchy::implementation::Current to a non-NULL
+// vtkLabelHierarchy prior to calling add_children.
+//
+// Be warned: there is some global/static state here that may bite somebody
+// in the future. But, for now, while we are still supporting Borland 5.5
+// in the VTK code base, this is one way to do it. Feel free to change it
+// if you have a better solution. But make sure it works on Borland 5.5...
+//
+vtkLabelHierarchy* vtkLabelHierarchy::implementation::Current;
+
 
 //----------------------------------------------------------------------------
 // vtkLabelHierarchyFrustumIterator - an iterator with no-initial processing
@@ -190,7 +262,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.12");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.13");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -678,7 +750,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.12");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.13");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -913,7 +985,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.12");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.13");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -984,12 +1056,12 @@ void vtkLabelHierarchy::ComputeHierarchy()
     if ( delta > maxDim )
       maxDim = delta;
     }
-  implementation::PriorityComparator comparator( this );
-  implementation::LabelSet allAnchors( comparator );
+  implementation::LabelSet allAnchors( this );
   this->Implementation->Hierarchy = new implementation::HierarchyType( center, maxDim, allAnchors /* currently empty */ );
 
   this->Implementation->PrepareSortedAnchors( allAnchors );
   this->Implementation->FillHierarchyRoot( allAnchors );
+
   for ( implementation::LabelSet::iterator it = allAnchors.begin(); it != allAnchors.end(); ++ it )
     {
     this->Implementation->DropAnchor( *it ); // Ha!!!
@@ -1151,8 +1223,10 @@ int vtkLabelHierarchy::GetMaxCellSize()
 
 void vtkLabelHierarchy::implementation::BinAnchorsToLevel( int level )
 {
-  PriorityComparator comparator( this->Self );
-  LabelSet emptyNode( comparator );
+  // See comment near declaration of Current for more info:
+  vtkLabelHierarchy::implementation::Current = this->Self;
+
+  LabelSet emptyNode( this->Self );
   HierarchyCursor cursor;
   HierarchyCursor root = HierarchyCursor( this->Hierarchy );
   const double* ctr = root->center();
@@ -1236,6 +1310,10 @@ void vtkLabelHierarchy::implementation::PromoteAnchors()
     //          This is o(TargetLabelCount/(2^d - 1)), which is O(1)
     for ( size_t i = 0; i < promotionCount; ++i )
       {
+      if (cit == cursor->value().end())
+        {
+        vtkErrorWithObjectMacro( this->Self, "error: dereferencing iterator at end()" );
+        }
       promotionList.push_back( *cit );
       vtkDebugWithObjectMacro( this->Self, "Promoting " << *cit << " ( " << cursor->value().key_comp().Hierarchy->GetPriorities()->GetTuple1( *cit ) << ")" );
       eit = cit;
@@ -1315,9 +1393,11 @@ void vtkLabelHierarchy::implementation::FillHierarchyRoot( LabelSet& anchors )
 
 void vtkLabelHierarchy::implementation::DropAnchor( vtkIdType anchor )
 {
+  // See comment near declaration of Current for more info:
+  vtkLabelHierarchy::implementation::Current = this->Self;
+
+  LabelSet emptyNode( this->Self );
   HierarchyCursor curs( this->Hierarchy );
-  PriorityComparator comparator( this->Self );
-  LabelSet emptyNode( comparator );
   const double* ctr = curs->center();
   double x[3];
   double sz = curs->size();
@@ -1366,4 +1446,3 @@ void vtkLabelHierarchy::implementation::SmudgeAnchor( HierarchyCursor& cursor, v
   (void)anchor;
   (void)x;
 }
-
