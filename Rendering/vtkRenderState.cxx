@@ -19,6 +19,7 @@
 // Description:
 // Constructor. All values are initialized to 0 or NULL.
 // \pre renderer_exists: renderer!=0
+// \post renderer_is_set: GetRenderer()==renderer.
 // \post valid_state: IsValid()
 vtkRenderState::vtkRenderState(vtkRenderer *renderer)
 {
@@ -29,6 +30,7 @@ vtkRenderState::vtkRenderState(vtkRenderer *renderer)
   this->PropArrayCount=0;
   this->RequiredKeys=0;
 
+  assert("post: renderer_is_set" && this->GetRenderer()==renderer);
   assert("post: is_valid" && this->IsValid());
 }
 
