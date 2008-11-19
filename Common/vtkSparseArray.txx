@@ -200,7 +200,25 @@ void vtkSparseArray<T>::ResizeToContents()
 }
 
 template<typename T>
-void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T& Value)
+void vtkSparseArray<T>::AddValue(vtkIdType i, const T& value)
+{
+  this->AddValue(vtkArrayCoordinates(i), value);
+}
+
+template<typename T>
+void vtkSparseArray<T>::AddValue(vtkIdType i, vtkIdType j, const T& value)
+{
+  this->AddValue(vtkArrayCoordinates(i, j), value);
+}
+
+template<typename T>
+void vtkSparseArray<T>::AddValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
+{
+  this->AddValue(vtkArrayCoordinates(i, j, k), value);
+}
+
+template<typename T>
+void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T& value)
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
     {
@@ -208,7 +226,7 @@ void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T
     return;
     }
  
-  this->Values.push_back(Value);
+  this->Values.push_back(value);
 
   for(vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
     this->Coordinates.push_back(coordinates[i]);

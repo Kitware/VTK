@@ -106,7 +106,10 @@ public:
   // matching coordinates already exists.  Useful for providing fast initialization of the
   // array as long as the caller is prepared to guarantee that no duplicate coordinates are
   // ever used.
-  void AddValue(const vtkArrayCoordinates& coordinates, const T& Value);
+  inline void AddValue(vtkIdType i, const T& value);
+  inline void AddValue(vtkIdType i, vtkIdType j, const T& value);
+  inline void AddValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
+  void AddValue(const vtkArrayCoordinates& coordinates, const T& value);
 
 protected:
   vtkSparseArray();
