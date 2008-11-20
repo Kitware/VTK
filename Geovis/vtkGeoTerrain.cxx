@@ -61,7 +61,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.16");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.17");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
@@ -74,6 +74,7 @@ vtkGeoTerrain::vtkGeoTerrain()
   this->Origin[2] = 0.0;
   this->Extractor = vtkExtractSelectedFrustum::New();
   this->GeoCamera = 0;
+  this->MaxLevel = 20;
 }
 
 //----------------------------------------------------------------------------
@@ -260,7 +261,7 @@ void vtkGeoTerrain::AddActors(
     int refine = this->EvaluateNode(cur);
 
     child = cur->GetChild(0);
-    if ((!child && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
+    if ((!child && cur->GetLevel() < this->MaxLevel && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
       {
       coll = this->GeoSource->GetRequestedNodes(cur);
       // Load children
@@ -394,6 +395,7 @@ void vtkGeoTerrain::PrintSelf(ostream & os, vtkIndent indent)
   os << indent << "GeoSource: " << this->GeoSource << "\n";
   os << indent << "Origin: (" << this->Origin[0] << ", "
      << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+  os << indent << "MaxLevel: " << this->MaxLevel << "\n";
   this->PrintTree(os, indent, this->Root); // Root
 }
 
@@ -443,7 +445,8 @@ void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
 void vtkGeoTerrain::PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode* parent)
 {
   os << indent << "Error: " << parent->GetError() << endl;
-  os << indent << "Level: " << parent->GetLevel() << endl;
+  os << indent << "Level: " << parent->GetLevel() << "  "
+               << "Id: " << parent->GetId() << endl;
   os << indent << "LatitudeRange: " << parent->GetLatitudeRange()[0]
     << "," << parent->GetLatitudeRange()[1] << endl;
   os << indent << "LongitudeRange: " << parent->GetLongitudeRange()[0]

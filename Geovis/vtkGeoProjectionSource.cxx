@@ -49,7 +49,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.2");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.3");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkTransformFilter);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
@@ -122,8 +122,8 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
     refined->ShallowCopy(this->Transform->GetOutput());
     this->TransformLock->Unlock();
     ++level;
-    }
-  while (geom->GetNumberOfCells() < this->MinCellsPerNode);
+    } while (geom->GetNumberOfCells() < this->MinCellsPerNode &&
+        level < vtkGeoGraticule::NUMBER_OF_LEVELS);
   node->SetGraticuleLevel(level);
 
   // Compute grid size
@@ -314,8 +314,11 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   child->SetProjectionBounds(bounds);
 
   // Set the id
-  int id = parent->GetId() | (index << (level*2 - 2));
-  child->SetId(id);
+  if (level <= 15)
+    {
+    int id = parent->GetId() | (index << (level*2 - 2));
+    child->SetId(id);
+    }
 
   double* latRange = 0;
   double* lonRange = 0;

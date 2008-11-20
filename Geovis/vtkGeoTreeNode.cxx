@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoTreeNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTreeNode, "1.4");
+vtkCxxRevisionMacro(vtkGeoTreeNode, "1.5");
 vtkStandardNewMacro(vtkGeoTreeNode);
 
 
@@ -116,23 +116,25 @@ int vtkGeoTreeNode::CreateChildren()
     }
   int childLevel = this->GetLevel()+1;
   
-  //if (childLevel > ((sizeof(unsigned long)*8) - 1) / 2)
-  if (childLevel > 15)
+  // Where the child index get coded in the node id.
+  unsigned long idBit0 = 0;
+  unsigned long idBit1 = 0;
+  if (childLevel <= 15)
     {
+    idBit0 = 1 << (2*childLevel - 1);
+    idBit1 = 1 << (2*childLevel);
+    }
+  else
+    {
+    // if (childLevel > ((sizeof(unsigned long)*8) - 1) / 2)
     // this particular message gets printed too much and clutters the console...
     static bool msg_printed = false;
     if (!msg_printed) 
       {
-      vtkErrorMacro("Level too high to be encoded in node id. (this warning only emitted once)");
+      vtkWarningMacro("Level too high to be encoded in node id. (this warning only emitted once)");
       msg_printed = true;
       }
-      
-    return VTK_ERROR;
     }
-  
-  // Where the child index get coded in the node id.
-  unsigned long idBit0 = 1 << (2*childLevel - 1);
-  unsigned long idBit1 = 1 << (2*childLevel);
   unsigned long id = this->GetId();
   double longitudeRange[2];
   double latitudeRange[2];

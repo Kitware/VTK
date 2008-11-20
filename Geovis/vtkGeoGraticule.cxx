@@ -34,7 +34,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkGeoGraticule);
-vtkCxxRevisionMacro(vtkGeoGraticule,"1.2");
+vtkCxxRevisionMacro(vtkGeoGraticule,"1.3");
 
 double vtkGeoGraticule::LatitudeLevelTics[12] =
 {
@@ -204,7 +204,7 @@ void vtkGeoGraticule::GenerateGraticule( vtkPolyData* output, double latbds[2], 
   vtkIdType m = 0;
   vtkIdType n = -1;
   vtkIdType p = 0;
-  for ( lat = latbds[0]; lat <= latbds[1]; lat += latTicIncrement, ++ p )
+  for ( lat = latbds[0]; lat < latbds[1] + latTicIncrement; lat += latTicIncrement, ++ p )
     {
     offsets.push_back( n + 1 );
     if ( this->GeometryType & vtkGeoGraticule::POLYLINES )
@@ -213,7 +213,7 @@ void vtkGeoGraticule::GenerateGraticule( vtkPolyData* output, double latbds[2], 
       }
     pt[1] = lat;
     m = 0;
-    for ( lng = lngbds[0]; lng <= lngbds[1]; lng += lngTicIncrement, ++m )
+    for ( lng = lngbds[0]; lng < lngbds[1] + lngTicIncrement; lng += lngTicIncrement, ++m )
       {
       pt[0] = lng;
       n = pts->InsertNextPoint( pt );

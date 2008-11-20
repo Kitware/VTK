@@ -67,8 +67,16 @@ public:
     vtkAssembly* assembly,
     vtkCollection* imageReps);
 
+  // Description:
+  // The world-coordinate origin offset used to eliminate precision errors
+  // when zoomed in to a particular region of the globe.
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
+
+  // Description:
+  // The maximum level of the terrain tree.
+  vtkSetClampMacro(MaxLevel, int, 0, VTK_INT_MAX);
+  vtkGetMacro(MaxLevel, int);
 
 protected:
   vtkGeoTerrain();
@@ -104,6 +112,7 @@ protected:
   vtkExtractSelectedFrustum* Extractor;
   virtual void SetGeoCamera(vtkGeoCamera* camera);
   vtkGeoCamera* GeoCamera;
+  int MaxLevel;
 
 private:
   vtkGeoTerrain(const vtkGeoTerrain&); // Not implemented
