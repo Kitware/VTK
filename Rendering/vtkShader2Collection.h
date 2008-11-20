@@ -54,6 +54,21 @@ class VTK_RENDERING_EXPORT vtkShader2Collection : public vtkCollection
   vtkShader2 *GetNextShader(vtkCollectionSimpleIterator &cookie);
   //ETX
 
+  // Description:
+  // Add the elements of `other' to the end of `this'.
+  // \pre other_exists: other!=0
+  // \pre not_self: other!=this
+  // \post added: this->GetNumberOfItems()=old this->GetNumberOfItems()+other->GetNumberOfItems()
+  void AddCollection(vtkShader2Collection *other);
+  
+  // Description:
+  // Remove the elements of `other' from `this'. It assumes that `this' already
+  // has all the elements of `other' added contiguously.
+  // \pre other_exists: other!=0
+  // \pre not_self: other!=this
+  // \post removed: this->GetNumberOfItems()=old this->GetNumberOfItems()-other->GetNumberOfItems()
+  void RemoveCollection(vtkShader2Collection *other);
+  
 protected:
   vtkShader2Collection();
   ~vtkShader2Collection();

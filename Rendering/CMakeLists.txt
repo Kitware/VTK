@@ -285,7 +285,9 @@ ENDIF(VTK_USE_X)
 # The set of source files to be encoded.
 SET(glsl_files
   vtkOpenGLRenderer_PeelingFS
-  vtkOpenGLProperty_fs
+  vtkOpenGLPropertyDefaultPropFunc_fs
+  vtkOpenGLPropertyDefaultMain_fs
+  vtkOpenGLPropertyDefaultMain_vs
   )
 
 # Create custom commands to encode each assembly file into a C string
