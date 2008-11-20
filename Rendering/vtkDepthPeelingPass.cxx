@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 
-vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.1");
+vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.2");
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 
@@ -146,7 +146,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   while(!hasTranslucentPolygonalGeometry && i<s->GetPropArrayCount())
     {
       hasTranslucentPolygonalGeometry=
-        s->GetPropArray()[i]->HasTranslucentPolygonalGeometry();
+        s->GetPropArray()[i]->HasTranslucentPolygonalGeometry()==1;
       ++i;
     }
   if(!hasTranslucentPolygonalGeometry)
@@ -443,10 +443,10 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
       this->CheckTime.Modified();
       vtkOpenGLExtensionManager *extensions=w->GetExtensionManager();
       
-      bool supports_GL_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
-      bool supports_GL_1_4=extensions->ExtensionSupported("GL_VERSION_1_4");
-      bool supports_GL_1_5=extensions->ExtensionSupported("GL_VERSION_1_5");
-      bool supports_GL_2_0=extensions->ExtensionSupported("GL_VERSION_2_0");
+      bool supports_GL_1_3=extensions->ExtensionSupported("GL_VERSION_1_3")==1;
+      bool supports_GL_1_4=extensions->ExtensionSupported("GL_VERSION_1_4")==1;
+      bool supports_GL_1_5=extensions->ExtensionSupported("GL_VERSION_1_5")==1;
+      bool supports_GL_2_0=extensions->ExtensionSupported("GL_VERSION_2_0")==1;
       
       bool supports_vertex_shader;
       bool supports_fragment_shader;
@@ -459,9 +459,9 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         }
       else
         {
-        supports_vertex_shader=extensions->ExtensionSupported("GL_ARB_vertex_shader");
-        supports_fragment_shader=extensions->ExtensionSupported("GL_ARB_fragment_shader");
-        supports_shader_objects=extensions->ExtensionSupported("GL_ARB_shader_objects");
+        supports_vertex_shader=extensions->ExtensionSupported("GL_ARB_vertex_shader")==1;
+        supports_fragment_shader=extensions->ExtensionSupported("GL_ARB_fragment_shader")==1;
+        supports_shader_objects=extensions->ExtensionSupported("GL_ARB_shader_objects")==1;
         }
       bool supports_multitexture=supports_GL_1_3 || extensions->ExtensionSupported("GL_ARB_multitexture");
       bool supports_occlusion_query;
@@ -473,8 +473,8 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         }
       else
         {
-        supports_occlusion_query=extensions->ExtensionSupported("GL_ARB_occlusion_query");
-        supports_shadow_funcs=extensions->ExtensionSupported("GL_EXT_shadow_funcs");
+        supports_occlusion_query=extensions->ExtensionSupported("GL_ARB_occlusion_query")==1;
+        supports_shadow_funcs=extensions->ExtensionSupported("GL_EXT_shadow_funcs")==1;
         }
       
       bool supports_depth_texture;
@@ -488,26 +488,26 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         }
       else
         {
-        supports_depth_texture=extensions->ExtensionSupported("GL_ARB_depth_texture");
-        supports_shadow=extensions->ExtensionSupported("GL_ARB_shadow");
-        supports_blend_func_separate=extensions->ExtensionSupported("GL_EXT_blend_func_separate");
+        supports_depth_texture=extensions->ExtensionSupported("GL_ARB_depth_texture")==1;
+        supports_shadow=extensions->ExtensionSupported("GL_ARB_shadow")==1;
+        supports_blend_func_separate=extensions->ExtensionSupported("GL_EXT_blend_func_separate")==1;
         }
       
-      bool supports_GL_ARB_texture_rectangle=extensions->ExtensionSupported("GL_ARB_texture_rectangle");
+      bool supports_GL_ARB_texture_rectangle=extensions->ExtensionSupported("GL_ARB_texture_rectangle")==1;
       
       // spec claims it is GL_SGIS_texture_edge_clamp, reality shows it is
       // GL_EXT_texture_edge_clamp on Nvidia.
       // part of OpenGL 1.2 core
       // there is no new function with this extension, we don't need to load
       // it.
-      bool supports_edge_clamp=extensions->ExtensionSupported("GL_VERSION_1_2");
+      bool supports_edge_clamp=extensions->ExtensionSupported("GL_VERSION_1_2")==1;
       if(!supports_edge_clamp)
         {
-        supports_edge_clamp=extensions->ExtensionSupported("GL_SGIS_texture_edge_clamp");
+        supports_edge_clamp=extensions->ExtensionSupported("GL_SGIS_texture_edge_clamp")==1;
         if(!supports_edge_clamp)
           {
           // nvidia cards.
-          supports_edge_clamp=extensions->ExtensionSupported("GL_EXT_texture_edge_clamp");
+          supports_edge_clamp=extensions->ExtensionSupported("GL_EXT_texture_edge_clamp")==1;
           }
         }
       
