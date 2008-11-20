@@ -25,7 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArrayCollection.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.88");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.89");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -1394,7 +1394,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
     v = m[1] * rr;        
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
-    velocityMag->SetValue(i, sqrt((double)v2));
+    velocityMag->SetValue(i, sqrt(v2));
   }
   velocityMag->SetName("VelocityMagnitude");
   outputPD->AddArray(velocityMag);
@@ -1440,7 +1440,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.)*(e - 0.5*d*v2);
-    s = VTK_CV * log((p/VTK_PINF)/pow((double)d/VTK_RHOINF,(double)this->Gamma));
+    s = VTK_CV * log((p/VTK_PINF)/pow(d/VTK_RHOINF,this->Gamma));
     entropy->SetValue(i,s);
   }
   entropy->SetName("Entropy");
