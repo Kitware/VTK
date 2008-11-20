@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.58");
+vtkCxxRevisionMacro(vtkTexture, "1.59");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -35,6 +35,7 @@ vtkTexture::vtkTexture()
 {
   this->Repeat = 1;
   this->Interpolate = 0;
+  this->EdgeClamp = 0;
   this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
 
   this->LookupTable = NULL;
@@ -121,6 +122,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
+  os << indent << "EdgeClamp:   " << (this->EdgeClamp ? "On\n" : "Off\n");
   os << indent << "Quality:     ";
   switch (this->Quality)
     {

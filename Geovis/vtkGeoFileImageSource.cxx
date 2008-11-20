@@ -37,7 +37,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoFileImageSource);
-vtkCxxRevisionMacro(vtkGeoFileImageSource, "1.2");
+vtkCxxRevisionMacro(vtkGeoFileImageSource, "1.3");
 //----------------------------------------------------------------------------
 vtkGeoFileImageSource::vtkGeoFileImageSource()
 {
@@ -180,6 +180,7 @@ bool vtkGeoFileImageSource::ReadImage(int level, int id, vtkGeoImageNode* node)
   texture->SetTransform(texTrans);
   texture->RepeatOff();
   texture->InterpolateOn();
+  texture->EdgeClampOn();
   node->SetTexture(texture);
   return true;
 }

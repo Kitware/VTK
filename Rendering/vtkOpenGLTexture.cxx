@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.73");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.74");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -351,8 +351,19 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
     else
       {
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP );
-      glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP );
+      vtkOpenGLExtensionManager* manager = renWin->GetExtensionManager();
+      if (this->EdgeClamp &&
+           (manager->ExtensionSupported("GL_VERSION_1_2") ||
+            manager->ExtensionSupported("GL_EXT_texture_edge_clamp")))
+        {
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE );
+        }
+      else
+        {
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP );
+        }
       }
     int internalFormat = bytesPerPixel;
     switch (bytesPerPixel)
