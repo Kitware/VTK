@@ -78,7 +78,7 @@ int TestHierarchicalTreeRingView(int argc, char* argv[])
   view->SetupRenderWindow(win);
   
   int retVal = vtkRegressionTestImage(win);
-//  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     win->GetInteractor()->Initialize();
     win->GetInteractor()->Start();
