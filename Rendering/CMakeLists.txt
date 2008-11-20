@@ -188,6 +188,11 @@ ENDIF(VTK_USE_CG_SHADERS)
 
 
 SET( KitOpenGL_SRCS
+  vtkCameraPass.cxx
+  vtkDefaultPass.cxx
+  vtkDepthPeelingPass.cxx
+  vtkLightsPass.cxx
+  vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
   vtkOpenGLClipPlanesPainter.cxx
@@ -208,10 +213,15 @@ SET( KitOpenGL_SRCS
   vtkOpenGLRepresentationPainter.cxx
   vtkOpenGLScalarsToColorsPainter.cxx
   vtkOpenGLTexture.cxx
+  vtkOverlayPass.cxx
+  vtkRenderPassCollection.cxx
+  vtkSequencePass.cxx
   vtkShader2.cxx
   vtkShader2Collection.cxx
   vtkShaderProgram2.cxx
+  vtkTranslucentPass.cxx
   vtkUniformVariables.cxx
+  vtkVolumetricPass.cxx
   )
 
 IF(VTK_USE_GLSL_SHADERS)
@@ -248,11 +258,21 @@ SET_SOURCE_FILES_PROPERTIES(
   )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkCameraPass
+  vtkDefaultPass
+  vtkDepthPeelingPass
+  vtkLightsPass
+  vtkOpaquePass
   vtkRenderPass
   vtkRenderState
+  vtkOverlayPass
+  vtkRenderPassCollection
+  vtkSequencePass
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
+  vtkTranslucentPass
+  vtkVolumetricPass
   WRAP_EXCLUDE
   )
 
@@ -284,6 +304,7 @@ ENDIF(VTK_USE_X)
 
 # The set of source files to be encoded.
 SET(glsl_files
+  vtkDepthPeeling_fs
   vtkOpenGLRenderer_PeelingFS
   vtkOpenGLPropertyDefaultPropFunc_fs
   vtkOpenGLPropertyDefaultMain_fs
