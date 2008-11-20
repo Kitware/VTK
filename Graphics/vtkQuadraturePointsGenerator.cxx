@@ -41,7 +41,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.8");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.9");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -304,5 +304,6 @@ void vtkQuadraturePointsGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "SourceArrayName:" << this->SourceArrayName << endl;
+  os << indent << "SourceArrayName:" 
+     << (this->SourceArrayName?this->SourceArrayName:"\"\"") << endl;
 }
