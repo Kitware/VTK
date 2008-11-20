@@ -24,11 +24,11 @@
 // to some other vtkRenderPass objects ("delegates").
 // - The subclass has to define ivar to set/get its delegates.
 // - The documentation of the subclass has to describe:
-// -- what each delegate is supposed to perform
-// -- if a delegate is supposed to be used once or multiple times 
-// -- what it expects to have in the framebuffer before starting (status
+//  - what each delegate is supposed to perform
+//  - if a delegate is supposed to be used once or multiple times 
+//  - what it expects to have in the framebuffer before starting (status
 // of colorbuffers, depth buffer, stencil buffer)
-// -- what it will change in the framebuffer.
+//  - what it will change in the framebuffer.
 // - A pass cannot modify the vtkRenderState where it will perform but
 // it can build a new vtkRenderState (it can change the FrameBuffer, change the
 // prop array, changed the required prop properties keys (usually adding some
