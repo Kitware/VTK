@@ -25,7 +25,7 @@ using vtksys_ios::istringstream;
 #include <vtkstd/string>
 using vtkstd::string;
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.3");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.4");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -72,7 +72,8 @@ vtkXMLDataElement::~vtkXMLDataElement()
 
   this->RemoveAllNestedElements();
   delete [] this->NestedElements;
-  this->SetCharacterData(0, 0);
+
+  free(this->CharacterData);
 }
 
 //----------------------------------------------------------------------------
@@ -161,23 +162,32 @@ void vtkXMLDataElement::SetName(const char* _arg)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SetCharacterData(const char* c, int length)
+void vtkXMLDataElement::SetCharacterData(const char* data, int length)
 {
-  if (this->CharacterData)
+  // Sanity check.
+  if (length<0)
     {
-    free(this->CharacterData);
+    vtkWarningMacro("Negative values for length are not allowed, setting to 0!");
+    length=0;
     }
-
+  // Mark end of buffer.
+  this->EndOfCharacterData=length+1;
+  // Size buffer in units of blocks.
+  this->CharacterDataBufferSize=this->CharacterDataBlockSize;
+  while (this->CharacterDataBufferSize<this->EndOfCharacterData)
+    {
+    this->CharacterDataBufferSize+=this->CharacterDataBlockSize;
+    }
+  // Allocate the buffer.
   this->CharacterData
-      = static_cast<char *>(malloc(this->CharacterDataBlockSize));
-    this->CharacterData[0]='\0';
-
-  if (c && length > 0)
+    = static_cast<char *>(realloc(this->CharacterData,this->CharacterDataBufferSize));
+  // Copy the data passed in.
+  if (data && length>0)
     {
-    strncpy(this->CharacterData, c, length);
-    this->CharacterData[length] = 0;
+    memmove(this->CharacterData, data, length);
     }
-
+  this->CharacterData[length]=0;
+  // Mark us changed.
   this->Modified();
 }
 
