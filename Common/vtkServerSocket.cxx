@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkServerSocket);
-vtkCxxRevisionMacro(vtkServerSocket, "1.1");
+vtkCxxRevisionMacro(vtkServerSocket, "1.2");
 //-----------------------------------------------------------------------------
 vtkServerSocket::vtkServerSocket()
 {
@@ -94,6 +94,7 @@ vtkClientSocket* vtkServerSocket::WaitForConnection(unsigned long msec /*=0*/)
   // Create a new vtkClientSocket and return it.
   vtkClientSocket* cs = vtkClientSocket::New();
   cs->SocketDescriptor = clientsock;
+  cs->SetConnectingSide(false);
   return cs;
 }
 

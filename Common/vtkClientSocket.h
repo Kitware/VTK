@@ -30,17 +30,26 @@ public:
   // Description:
   // Connects to host. Returns 0 on success, -1 on error.
   int ConnectToServer(const char* hostname, int port); 
-  
+ 
+  // Description:
+  // Returns if the socket is on the connecting side (the side that requests a
+  // ConnectToServer() or on the connected side (the side that was waiting for
+  // the client to connect). This is used to disambiguate the two ends of a socket
+  // connection.
+  vtkGetMacro(ConnectingSide, bool);
+
+//BTX
 protected:
   vtkClientSocket();
   ~vtkClientSocket();
 
-//BTX
+  vtkSetMacro(ConnectingSide, bool);
+  bool ConnectingSide;
   friend class vtkServerSocket;
-//ETX
 private:
   vtkClientSocket(const vtkClientSocket&); // Not implemented.
   void operator=(const vtkClientSocket&); // Not implemented.
+//ETX
 };
 
 

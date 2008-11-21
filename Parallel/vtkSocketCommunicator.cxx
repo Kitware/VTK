@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.74");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.75");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -308,6 +308,25 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
     }
 
   return ret;
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::Handshake()
+{
+  if (!this->Socket)
+    {
+    vtkErrorMacro("No socket set. Cannot perform handshake.");
+    return 0;
+    }
+
+  if (this->Socket->GetConnectingSide())
+    {
+    this->ClientSideHandshake();
+    }
+  else
+    {
+    this->ServerSideHandshake();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1038,7 +1057,7 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.74 $";
+  const char revision[] = "$Revision: 1.75 $";
   int version=0;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;

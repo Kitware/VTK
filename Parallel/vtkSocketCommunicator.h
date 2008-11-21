@@ -169,11 +169,20 @@ public:
   void SetSocket(vtkClientSocket*);
 
   // Description:
+  // Performs handshake. This uses vtkClientSocket::ConnectingSide to decide
+  // whether to perform ServerSideHandshake or ClientSideHandshake. 
+  int Handshake();
+
+  // Description:
   // Performs ServerSide handshake.
+  // One should preferably use Handshake() which calls ServerSideHandshake or
+  // ClientSideHandshake as required.
   int ServerSideHandshake();
 
   // Description:
   // Performs ClientSide handshake.
+  // One should preferably use Handshake() which calls ServerSideHandshake or
+  // ClientSideHandshake as required.
   int ClientSideHandshake();
 
   // Description:

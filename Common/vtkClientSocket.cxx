@@ -17,10 +17,11 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkClientSocket);
-vtkCxxRevisionMacro(vtkClientSocket, "1.1");
+vtkCxxRevisionMacro(vtkClientSocket, "1.2");
 //-----------------------------------------------------------------------------
 vtkClientSocket::vtkClientSocket()
 {
+  this->ConnectingSide = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -53,6 +54,8 @@ int vtkClientSocket::ConnectToServer(const char* hostName, int port)
     vtkErrorMacro("Failed to connect to server " << hostName << ":" << port);
     return -1;
     }
+
+  this->ConnectingSide = true;
   return 0;
 }
 
@@ -60,4 +63,5 @@ int vtkClientSocket::ConnectToServer(const char* hostName, int port)
 void vtkClientSocket::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "ConnectingSide: " << this->ConnectingSide << endl;
 }
