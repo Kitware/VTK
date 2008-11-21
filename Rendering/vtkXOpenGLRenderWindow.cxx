@@ -111,7 +111,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.99");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.100");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -429,7 +429,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCHand   =  0;
 
   this->Capabilities = 0;
-  this->WindowIdReferenceCount=0;
+
 }
 
 // free up memory & close the window
@@ -504,312 +504,299 @@ extern "C"
 
 void vtkXOpenGLRenderWindow::CreateAWindow()
 {
-  if(this->WindowIdReferenceCount == 0)
+  XVisualInfo  *v, matcher;
+  XSetWindowAttributes  attr;
+  int x, y, width, height, nItems;
+  XWindowAttributes winattr;
+  XSizeHints xsh;
+
+  xsh.flags = USSize;
+  if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
     {
-    XVisualInfo  *v, matcher;
-    XSetWindowAttributes  attr;
-    int x, y, width, height, nItems;
-    XWindowAttributes winattr;
-    XSizeHints xsh;
-    
-    xsh.flags = USSize;
-    if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
+    xsh.flags |= USPosition;
+    xsh.x =  static_cast<int>(this->Position[0]);
+    xsh.y =  static_cast<int>(this->Position[1]);
+    }
+  
+  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
+  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+
+  xsh.width  = width;
+  xsh.height = height;
+
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
+    if (this->DisplayId == NULL) 
       {
-      xsh.flags |= USPosition;
-      xsh.x =  static_cast<int>(this->Position[0]);
-      xsh.y =  static_cast<int>(this->Position[1]);
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
       }
+    this->OwnDisplay = 1;
+    }
+
+  attr.override_redirect = False;
+  if (this->Borders == 0.0)
+    {
+    attr.override_redirect = True;
+    }
+
+  // create our own window ? 
+  this->OwnWindow = 0;
+  if (!this->WindowId)
+    {
+    v = this->GetDesiredVisualInfo();
+    this->ColorMap = XCreateColormap(this->DisplayId,
+                                     RootWindow( this->DisplayId, v->screen),
+                                     v->visual, AllocNone );
     
-    x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-    y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
-    width = ((this->Size[0] > 0) ? this->Size[0] : 300);
-    height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+    attr.background_pixel = 0;
+    attr.border_pixel = 0;
+    attr.colormap = this->ColorMap;
+    attr.event_mask = StructureNotifyMask | ExposureMask;
     
-    xsh.width  = width;
-    xsh.height = height;
-    
-    // get the default display connection 
-    if (!this->DisplayId)
+    // get a default parent if one has not been set.
+    if (! this->ParentId)
       {
-      this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-      if (this->DisplayId == NULL) 
-        {
-        vtkErrorMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
-        }
-      this->OwnDisplay = 1;
+      this->ParentId = RootWindow(this->DisplayId, v->screen);
       }
-    
-    attr.override_redirect = False;
-    if (this->Borders == 0.0)
-      {
-      attr.override_redirect = True;
-      }
-    
-    // create our own window ? 
-    this->OwnWindow = 0;
-    if (!this->WindowId)
-      {
-      v = this->GetDesiredVisualInfo();
-      this->ColorMap = XCreateColormap(this->DisplayId,
-                                       RootWindow( this->DisplayId, v->screen),
-                                       v->visual, AllocNone );
-      
-      attr.background_pixel = 0;
-      attr.border_pixel = 0;
-      attr.colormap = this->ColorMap;
-      attr.event_mask = StructureNotifyMask | ExposureMask;
-      
-      // get a default parent if one has not been set.
-      if (! this->ParentId)
-        {
-        this->ParentId = RootWindow(this->DisplayId, v->screen);
-        }
-      this->WindowId = 
-        XCreateWindow(this->DisplayId,
-                      this->ParentId,
-                      x, y, width, height, 0, v->depth, InputOutput, v->visual,
-                      CWBackPixel | CWBorderPixel | CWColormap | 
-                      CWOverrideRedirect | CWEventMask, 
-                      &attr);
-      XStoreName(this->DisplayId, this->WindowId, this->WindowName);
-      XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
-      this->OwnWindow = 1;
-      }
-    else
-      {
-      XChangeWindowAttributes(this->DisplayId,this->WindowId,
-                              CWOverrideRedirect, &attr);
-      XGetWindowAttributes(this->DisplayId,
-                           this->WindowId,&winattr);
-      matcher.visualid = XVisualIDFromVisual(winattr.visual);
-      matcher.screen = DefaultScreen(DisplayId);
-      v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
-                         &matcher, &nItems);
-      }
-    
-    if (this->OwnWindow)
-      {
-      // RESIZE THE WINDOW TO THE DESIRED SIZE
-      vtkDebugMacro(<< "Resizing the xwindow\n");
-      XResizeWindow(this->DisplayId,this->WindowId,
-                    ((this->Size[0] > 0) ? 
-                     static_cast<int>(this->Size[0]) : 300),
-                    ((this->Size[1] > 0) ? 
-                     static_cast<int>(this->Size[1]) : 300));
-      XSync(this->DisplayId,False);
-      }
-    
-    // is GLX extension is supported?
-    if(!glXQueryExtension(this->DisplayId, NULL, NULL)) 
-      {
-      vtkErrorMacro("GLX not found.  Aborting.");
-      if (this->HasObserver(vtkCommand::ExitEvent))
-        {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-        return;
-        }
-      else
-        {
-        abort();
-        }
-      }
-    
-    if (!this->Internal->ContextId)
-      {
-      this->Internal->ContextId = 
-        glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
-      }
-    
-    if(!this->Internal->ContextId)
-      {
-      vtkErrorMacro("Cannot create GLX context.  Aborting.");
-      if (this->HasObserver(vtkCommand::ExitEvent))
-        {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-        return;
-        }
-      else
-        {
-        abort();
-        }
-      }
-    
-    if(this->OwnWindow)
-      {
-      vtkDebugMacro(" Mapping the xwindow\n");
-      XMapWindow(this->DisplayId, this->WindowId);
-      XSync(this->DisplayId,False);
-      XGetWindowAttributes(this->DisplayId,
-                           this->WindowId,&winattr);
-      // guarantee that the window is mapped before the program continues 
-      // on to do the OpenGL rendering.
-      while (winattr.map_state == IsUnmapped)
-        {
-        XGetWindowAttributes(this->DisplayId,
-                             this->WindowId,&winattr);
-        }
-      }
-    // free the visual info
-    if (v)
-      {
-      XFree(v);
-      }
-    this->Mapped = 1;
-    this->Size[0] = width;
-    this->Size[1] = height;
-    this->WindowIdReferenceCount = 1;
+    this->WindowId = 
+      XCreateWindow(this->DisplayId,
+                    this->ParentId,
+                    x, y, width, height, 0, v->depth, InputOutput, v->visual,
+                    CWBackPixel | CWBorderPixel | CWColormap | 
+                    CWOverrideRedirect | CWEventMask, 
+                    &attr);
+    XStoreName(this->DisplayId, this->WindowId, this->WindowName);
+    XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
+    this->OwnWindow = 1;
     }
   else
     {
-    ++this->WindowIdReferenceCount;
+    XChangeWindowAttributes(this->DisplayId,this->WindowId,
+                            CWOverrideRedirect, &attr);
+    XGetWindowAttributes(this->DisplayId,
+                         this->WindowId,&winattr);
+    matcher.visualid = XVisualIDFromVisual(winattr.visual);
+    matcher.screen = DefaultScreen(DisplayId);
+    v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
+                       &matcher, &nItems);
     }
+  
+  if (this->OwnWindow)
+    {
+    // RESIZE THE WINDOW TO THE DESIRED SIZE
+    vtkDebugMacro(<< "Resizing the xwindow\n");
+    XResizeWindow(this->DisplayId,this->WindowId,
+                  ((this->Size[0] > 0) ? 
+                   static_cast<int>(this->Size[0]) : 300),
+                  ((this->Size[1] > 0) ? 
+                   static_cast<int>(this->Size[1]) : 300));
+    XSync(this->DisplayId,False);
+    }
+
+  // is GLX extension is supported?
+  if(!glXQueryExtension(this->DisplayId, NULL, NULL)) 
+    {
+    vtkErrorMacro("GLX not found.  Aborting.");
+    if (this->HasObserver(vtkCommand::ExitEvent))
+      {
+      this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+      return;
+      }
+    else
+      {
+      abort();
+      }
+    }
+
+  if (!this->Internal->ContextId)
+    {
+    this->Internal->ContextId = 
+      glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+    }
+
+  if(!this->Internal->ContextId)
+    {
+    vtkErrorMacro("Cannot create GLX context.  Aborting.");
+    if (this->HasObserver(vtkCommand::ExitEvent))
+      {
+      this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+      return;
+      }
+    else
+      {
+      abort();
+      }
+    }
+
+  if(this->OwnWindow)
+    {
+    vtkDebugMacro(" Mapping the xwindow\n");
+    XMapWindow(this->DisplayId, this->WindowId);
+    XSync(this->DisplayId,False);
+    XGetWindowAttributes(this->DisplayId,
+                         this->WindowId,&winattr);
+    // guarantee that the window is mapped before the program continues 
+    // on to do the OpenGL rendering.
+    while (winattr.map_state == IsUnmapped)
+      {
+      XGetWindowAttributes(this->DisplayId,
+                           this->WindowId,&winattr);
+      }
+    }
+  // free the visual info
+  if (v)
+    {
+    XFree(v);
+    }
+  this->Mapped = 1;
+  this->Size[0] = width;
+  this->Size[1] = height;
+
 }
 
 void vtkXOpenGLRenderWindow::DestroyWindow()
 {
-  if(this->WindowIdReferenceCount > 0)
+  // free the cursors
+  if (this->DisplayId)
     {
-    --this->WindowIdReferenceCount;
-    if(this->WindowIdReferenceCount == 0)
+    if (this->WindowId)
       {
-      // free the cursors
-      if (this->DisplayId)
+      // we will only have a cursor defined if a CurrentCursor has been
+      // set > 0 or if the cursor has been hidden... if we undefine without
+      // checking, bad things can happen (BadWindow)
+      if (this->GetCurrentCursor() || this->CursorHidden)
         {
-        if (this->WindowId)
-          {
-          // we will only have a cursor defined if a CurrentCursor has been
-          // set > 0 or if the cursor has been hidden... if we undefine without
-          // checking, bad things can happen (BadWindow)
-          if (this->GetCurrentCursor() || this->CursorHidden)
-            {
-            XUndefineCursor(this->DisplayId,this->WindowId);
-            }
-          }
-        if (this->XCArrow)
-          {
-          XFreeCursor(this->DisplayId,this->XCArrow);
-          }
-        if (this->XCSizeAll)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeAll);
-          }
-        if (this->XCSizeNS)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeNS);
-          }
-        if (this->XCSizeWE)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeWE);
-          }
-        if (this->XCSizeNE)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeNE);
-          }
-        if (this->XCSizeNW)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeNW);
-          }
-        if (this->XCSizeSE)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeSE);
-          }
-        if (this->XCSizeSW)
-          {
-          XFreeCursor(this->DisplayId,this->XCSizeSW);
-          }
-        if (this->XCHand)
-          {
-          XFreeCursor(this->DisplayId,this->XCHand);
-          }
+        XUndefineCursor(this->DisplayId,this->WindowId);
         }
-      
-      this->XCArrow =   0;
-      this->XCSizeAll = 0;
-      this->XCSizeNS =  0;
-      this->XCSizeWE =  0;
-      this->XCSizeNE =  0;
-      this->XCSizeNW =  0;
-      this->XCSizeSE =  0;
-      this->XCSizeSW =  0;
-      this->XCHand   =  0;
-      
-      this->MakeCurrent();
-      
-      // tell each of the renderers that this render window/graphics context
-      // is being removed (the RendererCollection is removed by vtkRenderWindow's
-      // destructor)
-      vtkRenderer* ren;
-      this->Renderers->InitTraversal();
-      for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-            ren != NULL;
-            ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-        {
-        ren->SetRenderWindow(NULL);
-        ren->SetRenderWindow(this);
-        }
-      
-      
-      if(this->Internal->ContextId)
-        {
-        
-        
-        /* first delete all the old lights */
-        for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
-          {
-          glDisable(static_cast<GLenum>(cur_light));
-          }
-        
-        /* now delete all textures */
-        glDisable(GL_TEXTURE_2D);
-        for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
-          {
-          GLuint txId = static_cast<GLuint>(this->TextureResourceIds->GetId(i));
-#ifdef GL_VERSION_1_1
-          if (glIsTexture(txId))
-            {
-            glDeleteTextures(1, &txId);
-            }
-#else
-          if (glIsList(txId))
-            {
-            glDeleteLists(txId,1);
-            }
-#endif
-          }
-        
-        glFinish();
-        
-        
-        glXDestroyContext(this->DisplayId, this->Internal->ContextId);
-        this->Internal->ContextId = NULL;
-        
-        }
-      
-      // then close the old window if we own it
-      if (this->OwnWindow && this->DisplayId && this->WindowId)
-        {
-        XDestroyWindow(this->DisplayId,this->WindowId);
-        this->WindowId = static_cast<Window>(NULL);
-        }
-      
-      // if we create the display, we'll delete it
-      if (this->OwnDisplay && this->DisplayId)
-        {
-        XCloseDisplay(this->DisplayId);
-        this->DisplayId = NULL;
-        }
-      
-      if (this->Capabilities)
-        {
-        delete[] this->Capabilities;
-        this->Capabilities = 0;
-        }
-      
-      // make sure all other code knows we're not mapped anymore
-      this->Mapped = 0;
+      }
+    if (this->XCArrow)
+      {
+      XFreeCursor(this->DisplayId,this->XCArrow);
+      }
+    if (this->XCSizeAll)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeAll);
+      }
+    if (this->XCSizeNS)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNS);
+      }
+    if (this->XCSizeWE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeWE);
+      }
+    if (this->XCSizeNE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNE);
+      }
+    if (this->XCSizeNW)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNW);
+      }
+    if (this->XCSizeSE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeSE);
+      }
+    if (this->XCSizeSW)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeSW);
+      }
+    if (this->XCHand)
+      {
+      XFreeCursor(this->DisplayId,this->XCHand);
       }
     }
+
+  this->XCArrow =   0;
+  this->XCSizeAll = 0;
+  this->XCSizeNS =  0;
+  this->XCSizeWE =  0;
+  this->XCSizeNE =  0;
+  this->XCSizeNW =  0;
+  this->XCSizeSE =  0;
+  this->XCSizeSW =  0;
+  this->XCHand   =  0;
+
+  this->MakeCurrent();
+  
+  // tell each of the renderers that this render window/graphics context
+  // is being removed (the RendererCollection is removed by vtkRenderWindow's
+  // destructor)
+  vtkRenderer* ren;
+  this->Renderers->InitTraversal();
+  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
+        ren != NULL;
+        ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+    {
+    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
+    }
+
+
+  if(this->Internal->ContextId)
+    {
+    
+        
+    /* first delete all the old lights */
+    for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+      {
+      glDisable(static_cast<GLenum>(cur_light));
+      }
+
+    /* now delete all textures */
+    glDisable(GL_TEXTURE_2D);
+    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
+      {
+      GLuint txId = static_cast<GLuint>(this->TextureResourceIds->GetId(i));
+#ifdef GL_VERSION_1_1
+      if (glIsTexture(txId))
+        {
+        glDeleteTextures(1, &txId);
+        }
+#else
+      if (glIsList(txId))
+        {
+        glDeleteLists(txId,1);
+        }
+#endif
+      }
+
+    glFinish();
+
+
+    glXDestroyContext(this->DisplayId, this->Internal->ContextId);
+    this->Internal->ContextId = NULL;
+    
+    }
+  
+  // then close the old window if we own it
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    this->WindowId = static_cast<Window>(NULL);
+    }
+
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
+    {
+    XCloseDisplay(this->DisplayId);
+    this->DisplayId = NULL;
+    }
+
+  if (this->Capabilities)
+    {
+    delete[] this->Capabilities;
+    this->Capabilities = 0;
+    }
+    
+  // make sure all other code knows we're not mapped anymore
+  this->Mapped = 0;
+
 }
 
 void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
