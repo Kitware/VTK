@@ -145,10 +145,9 @@ public:
       {
       if (this != &rhs)
         {
-        #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
-          {
-          vtkstd::multiset<vtkIdType,PriorityComparator>::operator=(rhs);
-          }
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
+        vtkstd::multiset<vtkIdType,PriorityComparator>::operator=(rhs);
+#endif
         this->TotalArea = rhs.TotalArea;
         }
       return *this;
@@ -265,7 +264,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.14");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.15");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -753,7 +752,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.14");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.15");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -988,7 +987,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.14");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.15");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
