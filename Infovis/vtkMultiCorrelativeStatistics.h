@@ -23,8 +23,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Given a selection of sets of columns of interest, this class provides the
 // following functionalities, depending on the execution mode it is executed in:
 // * Learn: calculates means, unbiased variance and covariance estimators of
-//   column pairs, and corresponding linear regressions and linear correlation 
-//   coefficient. More precisely, ExecuteLearn calculates the averages and centered
+//   column pairs coefficient.
+//   More precisely, ExecuteLearn calculates the averages and centered
 //   variance/covariance sums; if \p finalize is set to true (default),
 //   the final statistics are calculated.
 //   The output metadata on port 1 is a multiblock dataset containing at a minimum
@@ -36,13 +36,22 @@ PURPOSE.  See the above copyright notice for more information.
 //   (in the lower portion of the table beneath the covariance triangle).
 //   The leftmost column will be a vector of column averages.
 //   The last entry in the column averages vector is the number of samples.
-// * Assess: given a set of finalized covariance matrices on input port 1 and
+//   As an example, consider a request for a 3-column correlation with columns
+//   named ColA, ColB, and ColC.
+//   The resulting table will look like this:
+//   <pre>
+//      Column  |Column Averages|ColA     |ColB     |ColC
+//      --------+---------------+---------+---------+---------
+//      ColA    |avg(A)         |cov(A,A) |cov(A,B) |cov(A,C)
+//      ColB    |avg(B)         |chol(1,1)|cov(B,B) |cov(B,C)
+//      ColC    |avg(C)         |chol(2,1)|chol(2,2)|cov(C,C)
+//      Cholesky|length(A)      |chol(3,1)|chol(3,2)|chol(3,3)
+//   </pre>
+// * Assess: given a set of results matrices as specified above in input port 1 and
 //   tabular data on input port 0 that contains column names matching those
 //   of the tables on input port 1, the assess mode computes the relative
-//   probability of each observation in port 0's table according to the
-//   likelihood implied by the covariance matrix (a Gaussian centered at the
-//   column averages whose ellipsoidal axis directions and magnitudes are
-//   determined by the covariance matrix).
+//   deviation of each observation in port 0's table according to the linear
+//   correlations implied by each table in port 1.
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay, Jackson Mayo, and David Thompson of
@@ -84,7 +93,7 @@ protected:
   // Execute the calculations required by the Derive option.
   virtual void ExecuteAssess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
 
-//BTX  
+  //BTX  
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData, 
@@ -92,7 +101,7 @@ protected:
                                     vtkStringArray* rowNames,
                                     vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc );
-//ETX
+  //ETX
 
 private:
   vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ); // Not implemented

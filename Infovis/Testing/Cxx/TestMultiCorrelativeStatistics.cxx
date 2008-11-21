@@ -24,70 +24,38 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   /* */
   double mingledData[] = 
     {
-    46,
-    45,
-    47,
-    49,
-    46,
-    47,
-    46,
-    46,
-    47,
-    46,
-    47,
-    49,
-    49,
-    49,
-    47,
-    45,
-    50,
-    50,
-    46,
-    46,
-    51,
-    50,
-    48,
-    48,
-    52,
-    54,
-    48,
-    47,
-    52,
-    52,
-    49,
-    49,
-    53,
-    54,
-    50,
-    50,
-    53,
-    54,
-    50,
-    52,
-    53,
-    53,
-    50,
-    51,
-    54,
-    54,
-    49,
-    49,
-    52,
-    52,
-    50,
-    51,
-    52,
-    52,
-    49,
-    47,
-    48,
-    48,
-    48,
-    50,
-    46,
-    48,
-    47,
-    47
+    46, 45,
+    47, 49,
+    46, 47,
+    46, 46,
+    47, 46,
+    47, 49,
+    49, 49,
+    47, 45,
+    50, 50,
+    46, 46,
+    51, 50,
+    48, 48,
+    52, 54,
+    48, 47,
+    52, 52,
+    49, 49,
+    53, 54,
+    50, 50,
+    53, 54,
+    50, 52,
+    53, 53,
+    50, 51,
+    54, 54,
+    49, 49,
+    52, 52,
+    50, 51,
+    52, 52,
+    49, 47,
+    48, 48,
+    48, 50,
+    46, 48,
+    47, 47
     };
   int nVals = 32;
   /*
@@ -106,17 +74,17 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   */
 
 
-  const char m0Name[] = "Metric 0";
+  const char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
   dataset1Arr->SetName( m0Name );
 
-  const char m1Name[] = "Metric 1";
+  const char m1Name[] = "M1";
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
   dataset2Arr->SetName( m1Name );
 
-  const char m2Name[] = "Metric 2";
+  const char m2Name[] = "M2";
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents( 1 );
   dataset3Arr->SetName( m2Name );
@@ -126,7 +94,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset3Arr->InsertNextValue( -1. );
+    dataset3Arr->InsertNextValue( i != 12 ? -1. : -1.001 );
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -153,6 +121,10 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   // -- Select Column Pairs of Interest ( Learn Mode ) -- 
   haruspex->SetColumnStatus( m0Name, 1 );
   haruspex->SetColumnStatus( m1Name, 1 );
+  haruspex->RequestSelectedColumns();
+  haruspex->ResetAllColumnStates();
+  haruspex->SetColumnStatus( m0Name, 1 );
+  haruspex->SetColumnStatus( m1Name, 1 );
   haruspex->SetColumnStatus( m2Name, 1 );
   haruspex->SetColumnStatus( m2Name, 0 );
   haruspex->SetColumnStatus( m2Name, 1 );
@@ -174,7 +146,14 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     //vtkIdType n = haruspex->GetSampleSize();
-    cout << "Request " << b << "\n";
+    if ( b == 0 )
+      {
+      cout << "Raw sums\n";
+      }
+    else
+      {
+      cout << "Request " << ( b - 1 ) << "\n";
+      }
 
   /*
   cout << "## Calculated the following statistics ( "
@@ -225,43 +204,22 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   // -- Select Column Pairs of Interest ( Assess Mode ) -- 
   haruspex->ResetColumnPairs(); // Clear existing pairs
   haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
+#endif // 0
 
   // -- Test Assess Mode -- 
-  cout << "## Searching for outliers with respect to this bivariate Gaussian distribution:\n"
-       << "   (X, Y) = ("
-       << columnPairs[0]
-       << ", "
-       << columnPairs[1]
-       << "), mean=("
-       << centers[0]
-       << ", "
-       << centers[1]
-       << "), covariance=["
-       << covariance[0]
-       << ", "
-       << covariance[2]
-       << " ; "
-       << covariance[2]
-       << ", "
-       << covariance[1]
-       << "], Squared Mahalanobis > "
-       << threshold
-       << "\n";
+  vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
+  paramsTables->ShallowCopy( outputMetaDS );
 
-  vtkTable* paramsTable = vtkTable::New();
-  paramsTable->ShallowCopy( outputMeta );
-  paramsTable->SetValueByName( 0, "Mean X", centers[0] );
-  paramsTable->SetValueByName( 0, "Mean Y", centers[1] );
-  paramsTable->SetValueByName( 0, "Variance X", covariance[0] );
-  paramsTable->SetValueByName( 0, "Variance Y", covariance[1] );
-  paramsTable->SetValueByName( 0, "Covariance", covariance[2] );
-  
-  haruspex->SetInput( 1, paramsTable );
+  haruspex->SetInput( 1, paramsTables );
+  paramsTables->Delete();
   haruspex->SetLearn( false );
   haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
   haruspex->SetAssess( true );
   haruspex->Update();
 
+  vtkTable* outputData = haruspex->GetOutput();
+  outputData->Dump();
+#if 0
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
   cout << "   Found the following outliers:\n";

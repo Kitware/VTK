@@ -161,6 +161,10 @@ public:
   virtual void SetColumnStatus( const char* namCol, int status );
 
   // Description:
+  // Set the the status of each and every column in the current request to OFF (0).
+  virtual void ResetAllColumnStates();
+
+  // Description:
   // Use the current column status values to produce a new request for statistics
   // to be produced when RequestData() is called. See SetColumnStatus() for more information.
   virtual int RequestSelectedColumns();

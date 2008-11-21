@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.26");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.27");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -208,6 +208,11 @@ void vtkStatisticsAlgorithm::SetInputStatisticsConnection( vtkAlgorithmOutput* i
 void vtkStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
 {
   this->Internals->SetBufferColumnStatus( namCol, status );
+}
+
+void vtkStatisticsAlgorithm::ResetAllColumnStates()
+{
+  this->Internals->ResetBuffer();
 }
 
 int vtkStatisticsAlgorithm::RequestSelectedColumns()
