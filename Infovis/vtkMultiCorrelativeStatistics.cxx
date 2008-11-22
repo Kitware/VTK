@@ -20,7 +20,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Column Averages"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.3");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.4");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 void vtkMultiCorrelativeInvertCholesky( vtkstd::vector<double*>& chol, vtkstd::vector<double>& inv )
@@ -355,7 +355,7 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn(
   for ( i = 0; i < n; ++ i )
     {
     // First fetch column values
-    for ( vtkIdType j = 0; j < m; ++ j, ++ x )
+    for ( vtkIdType j = 0; j < m; ++ j )
       {
       v[j] = colPtrs[j]->GetTuple(i)[0];
       //cout << colPtrs[j]->GetName() << ": " << v[j] << " j=" << j << "\n";
