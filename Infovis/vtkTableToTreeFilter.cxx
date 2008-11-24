@@ -36,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.6");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.7");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -84,20 +84,23 @@ int vtkTableToTreeFilter::RequestData(
   vtkTree* tree = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkSmartPointer<vtkTable> new_table = vtkSmartPointer<vtkTable>::New();
+  new_table->ShallowCopy( table );
+  
   // Create a mutable graph for building the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // The tree will have one more vertex than the number of rows
   // in the table (the extra vertex is the new root.
-  for (vtkIdType v = 0; v <= table->GetNumberOfRows(); ++v)
+  for (vtkIdType v = 0; v <= new_table->GetNumberOfRows(); ++v)
     {
     builder->AddVertex();
     }
 
   // Make a star, originating at the new root (the last vertex).
-  vtkIdType root = table->GetNumberOfRows();
-  for (vtkIdType v = 0; v < table->GetNumberOfRows(); ++v)
+  vtkIdType root = new_table->GetNumberOfRows();
+  for (vtkIdType v = 0; v < new_table->GetNumberOfRows(); ++v)
     {
     builder->AddEdge(root, v);
     }
@@ -105,7 +108,7 @@ int vtkTableToTreeFilter::RequestData(
   // Insert a row in the table for the new root.
   // This modifies the input, but it might be ok because we are 
   // just extending the arrays.
-  table->InsertNextBlankRow();
+  new_table->InsertNextBlankRow();
 
   // Move the structure of the mutable graph into the tree.
   if (!tree->CheckedShallowCopy(builder))
@@ -115,7 +118,7 @@ int vtkTableToTreeFilter::RequestData(
     }
 
   // Copy the table data into the tree vertex data
-  tree->GetVertexData()->PassData(table->GetRowData());
+  tree->GetVertexData()->PassData(new_table->GetRowData());
 
   // The edge data should at least have a pedigree id array.
   vtkSmartPointer<vtkIdTypeArray> edgeIds =
