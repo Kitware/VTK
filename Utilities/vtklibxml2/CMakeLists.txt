@@ -39,8 +39,13 @@ ENDMACRO(CHECK_LIBRARY_EXISTS_CONCAT)
 
 CHECK_LIBRARY_EXISTS_CONCAT("dl"       dlopen         HAVE_LIBDL)
 CHECK_LIBRARY_EXISTS_CONCAT("dld"      shl_load       HAVE_SHLLOAD)
-CHECK_LIBRARY_EXISTS_CONCAT("history"  append_history HAVE_LIBHISTORY)
-CHECK_LIBRARY_EXISTS_CONCAT("readline" readline       HAVE_LIBREADLINE)
+# VTK does not use the read line functionality of libxml2, so don't
+# try and find these libraries.  It creates extra dependencies on 
+# executables and libraries.  This might cause trouble when creating
+# packages or rpm's.
+
+#CHECK_LIBRARY_EXISTS_CONCAT("history"  append_history HAVE_LIBHISTORY)
+#CHECK_LIBRARY_EXISTS_CONCAT("readline" readline       HAVE_LIBREADLINE)
 IF(NOT VTK_ZLIB_LIBRARIES)
   CHECK_LIBRARY_EXISTS_CONCAT("z"      inflateEnd     HAVE_LIBZ)
 ENDIF(NOT VTK_ZLIB_LIBRARIES)
