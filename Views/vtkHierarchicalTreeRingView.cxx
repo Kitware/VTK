@@ -68,7 +68,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.8");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.9");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -411,17 +411,23 @@ void vtkHierarchicalTreeRingView::SetEdgeColorArrayName(const char* name)
   // Try to find the range the user-specified color array.
   double range[2];
   this->Spline->Update();
+  cout << "stop1" << endl;
   vtkDataArray* arr = this->Spline->GetOutput()->GetCellData()->GetArray(name);
+  cout << "stop2" << endl;
   if (arr)
     {
+      cout << "stop5" << endl;
     this->GraphEdgeMapper->SetScalarModeToUseCellFieldData();
     this->GraphEdgeMapper->SelectColorArray(name); 
     arr->GetRange(range);  
     this->GraphEdgeMapper->SetScalarRange(range[0], range[1]);
+    cout << "stop6" << endl;
     }
   else
     {
+      cout << "stop3" << endl;
     vtkErrorMacro("Could not find array named: " << name);
+    cout << "stop4" << endl;
     }
 }
 
