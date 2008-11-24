@@ -46,6 +46,9 @@ include/ft2build.h:
 include/freetype/config/ftoption.h:
   -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW
 
+src/base/ftmac.c
+  - applied several changes from freetype CVS to fix compilation issues
+  
 other files have changes too, search for "VTK_FREETYPE_CHANGE"
 
 Renamed Files
