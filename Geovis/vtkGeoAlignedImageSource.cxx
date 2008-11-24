@@ -33,7 +33,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.9");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.10");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 vtkCxxSetObjectMacro(vtkGeoAlignedImageSource, Image, vtkImageData);
 
@@ -86,6 +86,8 @@ vtkGeoAlignedImageSource::vtkGeoAlignedImageSource()
   this->LongitudeRange[1] = 180;
   this->ProgressObserver = vtkProgressObserver::New();
   this->ProgressObserver->SetTarget(this);
+  this->PowerOfTwoSize = true;
+  this->Overlap = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -110,6 +112,8 @@ void vtkGeoAlignedImageSource::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "LatitudeRange: " << this->LatitudeRange[0] << "," << this->LatitudeRange[1] << endl;
   os << indent << "LongitudeRange: " << this->LongitudeRange[0] << "," << this->LongitudeRange[1] << endl;
+  os << indent << "PowerOfTwoSize: " << (this->PowerOfTwoSize ? "On" : "Off") << endl;
+  os << indent << "Overlap: " << this->Overlap << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -325,16 +329,28 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
   origin[1] = this->LatitudeRange[0] - ext[2]*spacing[1];
 
   // Compute the minimum extent that covers the terrain patch.
-  ext[0] = static_cast<int>(floor((node->GetLongitudeRange()[0]-origin[0])/spacing[0]));
-  ext[1] = static_cast<int>(ceil((node->GetLongitudeRange()[1]-origin[0])/spacing[0]));
-  ext[2] = static_cast<int>(floor((node->GetLatitudeRange()[0]-origin[1])/spacing[1]));
-  ext[3] = static_cast<int>(ceil((node->GetLatitudeRange()[1]-origin[1])/spacing[1]));
+  double overlapDist[2];
+  overlapDist[0] = this->Overlap*(node->GetLongitudeRange()[1]-node->GetLongitudeRange()[0]);
+  overlapDist[1] = this->Overlap*(node->GetLatitudeRange()[1]-node->GetLatitudeRange()[0]);
+  ext[0] = static_cast<int>(floor((node->GetLongitudeRange()[0]-overlapDist[0]-origin[0])/spacing[0]));
+  ext[1] = static_cast<int>(ceil((node->GetLongitudeRange()[1]+overlapDist[0]-origin[0])/spacing[0]));
+  ext[2] = static_cast<int>(floor((node->GetLatitudeRange()[0]-overlapDist[1]-origin[1])/spacing[1]));
+  ext[3] = static_cast<int>(ceil((node->GetLatitudeRange()[1]+overlapDist[1]-origin[1])/spacing[1]));
 
   int dims[2];
-  dims[0] = this->PowerOfTwo(ext[1]-ext[0]+1);
-  dims[1] = this->PowerOfTwo(ext[3]-ext[2]+1);
-  ext[1] = ext[0] + dims[0] - 1;
-  ext[3] = ext[2] + dims[1] - 1;
+  if (this->PowerOfTwoSize)
+    {
+    dims[0] = this->PowerOfTwo(ext[1]-ext[0]+1);
+    dims[1] = this->PowerOfTwo(ext[3]-ext[2]+1);
+    ext[1] = ext[0] + dims[0] - 1;
+    ext[3] = ext[2] + dims[1] - 1;
+    }
+  else
+    {
+    dims[0] = ext[1]-ext[0]+1;
+    dims[1] = ext[3]-ext[2]+1;
+    }
+
   if (ext[1] > wholeExt[1])
     {
     ext[1] = wholeExt[1];

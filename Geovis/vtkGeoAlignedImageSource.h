@@ -63,6 +63,17 @@ public:
   vtkSetVector2Macro(LongitudeRange, double);
   vtkGetVector2Macro(LongitudeRange, double);
 
+  // Description:
+  // The overlap of adjacent tiles.
+  vtkSetClampMacro(Overlap, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Overlap, double);
+
+  // Description:
+  // Whether to force image sizes to a power of two.
+  vtkSetMacro(PowerOfTwoSize, bool);
+  vtkGetMacro(PowerOfTwoSize, bool);
+  vtkBooleanMacro(PowerOfTwoSize, bool);
+
 protected:
   vtkGeoAlignedImageSource();
   ~vtkGeoAlignedImageSource();
@@ -74,6 +85,8 @@ protected:
   vtkMultiBlockDataSet* LevelImages;
   double LatitudeRange[2];
   double LongitudeRange[2];
+  double Overlap;
+  bool PowerOfTwoSize;
 
   //BTX
   class vtkProgressObserver;
