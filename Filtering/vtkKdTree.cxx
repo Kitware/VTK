@@ -51,7 +51,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.4");
+vtkCxxRevisionMacro(vtkKdTree, "1.5");
 
 // Timing data ---------------------------------------------
 
@@ -2263,7 +2263,7 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
 
     newCloseId = 
       this->FindClosestPointInSphere(x, y, z,
-                                     minDistance2,    // radius
+                                     sqrt(minDistance2),    // radius
                                      regionId,        // skip this region
                                      newDistance2);   // distance to closest point
     
@@ -2283,9 +2283,9 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
         // The closest point may be in a neighboring region
 
         newCloseId = this->FindClosestPointInSphere(x, y, z,
-                                     minDistance2,   // radius
-                                     regionId,       // skip this region
-                                     newDistance2);
+                                                    sqrt(minDistance2),   // radius
+                                                    regionId,       // skip this region
+                                                    newDistance2);
         }
       }
     }
