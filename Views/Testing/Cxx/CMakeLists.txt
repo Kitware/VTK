@@ -16,6 +16,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestTreeRingView.cxx
       TestHierarchicalTreeRingView.cxx
       TestIcicleView.cxx
+      TestNetworkViews.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
