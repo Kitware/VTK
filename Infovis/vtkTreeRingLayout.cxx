@@ -34,7 +34,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkTreeRingLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeRingLayout, "1.6");
+vtkCxxRevisionMacro(vtkTreeRingLayout, "1.7");
 vtkStandardNewMacro(vtkTreeRingLayout);
 
 vtkTreeRingLayout::vtkTreeRingLayout()
@@ -146,7 +146,6 @@ vtkIdType vtkTreeRingLayout::FindVertexRectangular(float pnt[2])
   // Now traverse the children to try and find 
   // the vertex that contains the point  
   vtkIdType child;
-//FIXME-jfsheph Is there a faster way to iterate through the tree?
   vtkTreeDFSIterator *it = vtkTreeDFSIterator::New();
   it->SetTree( otree );
   it->SetStartVertex( vertex );
@@ -217,7 +216,6 @@ vtkIdType vtkTreeRingLayout::FindVertex(float pnt[2])
   // Now traverse the children to try and find 
   // the vertex that contains the point  
   vtkIdType child;
-//FIXME-jfsheph Is there a faster way to iterate through the tree?
   vtkTreeDFSIterator *it = vtkTreeDFSIterator::New();
   it->SetTree( otree );
   it->SetStartVertex( vertex );
