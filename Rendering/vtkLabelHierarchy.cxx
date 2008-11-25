@@ -41,6 +41,7 @@
 #include <vtkstd/deque>
 #include <vtkstd/set>
 #include <vtkstd/vector>
+#include <vtkstd/map>
 
 //----------------------------------------------------------------------------
 // vtkLabelHierarchy::implementation
@@ -120,9 +121,41 @@ public:
       }
   };
 
+  struct Coord
+  {
+    double coord[3];
+
+    Coord()
+      { 
+      this->coord[0] = -1.0; 
+      this->coord[1] = -1.0; 
+      this->coord[2] = -1.0; 
+      }
+    Coord( const Coord & src )
+      {
+      this->coord[0] = src.coord[0];
+      this->coord[1] = src.coord[1];
+      this->coord[2] = src.coord[2];
+      }
+    Coord( const double src[3] )
+      {
+      this->coord[0] = src[0];
+      this->coord[1] = src[1];
+      this->coord[2] = src[2];
+      }
+    ~Coord() {}
+
+    inline bool operator < (const Coord & other) const
+      {
+      return this->coord[0] < other.coord[0] || 
+        (this->coord[0] == other.coord[0] && this->coord[0] < other.coord[1]) || 
+        (this->coord[0] == other.coord[0] && this->coord[1] == other.coord[1] && this->coord[2] < other.coord[2]);
+      }
+  };
+
   class LabelSet : public vtkstd::multiset<vtkIdType,PriorityComparator>
   {
-  public:
+  public: 
     LabelSet( vtkLabelHierarchy* hierarchy )
       : vtkstd::multiset<vtkIdType,PriorityComparator>( PriorityComparator(hierarchy) )
       {
@@ -159,6 +192,7 @@ public:
   typedef octree<LabelSet> HierarchyType;
   typedef octree<LabelSet>::cursor HierarchyCursor;
   typedef octree<LabelSet>::iterator HierarchyIterator;
+  typedef vtkstd::map<Coord,vtkstd::pair<int,vtkstd::set<vtkIdType> > >::iterator MapCoordIter;
 
   // Description:
   // Computes the depth of the generated hierarchy.
@@ -182,8 +216,9 @@ public:
   vtkTimeStamp HierarchyTime;
   int ActualDepth;
   vtkLabelHierarchy* Self;
-
   static vtkLabelHierarchy* Current;
+
+  vtkstd::map<Coord,vtkstd::pair<int,vtkstd::set<vtkIdType> > > coordMap;
 };
 
 
@@ -264,7 +299,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.15");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.16");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -752,7 +787,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.15");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.16");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -987,7 +1022,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.15");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.16");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1028,7 +1063,7 @@ void vtkLabelHierarchy::SetPoints( vtkPoints* src )
 
   if ( src )
     {
-    this->ComputeHierarchy();
+    this->ComputeHierarchy( NULL, NULL );
     }
 }
 
@@ -1039,7 +1074,7 @@ void vtkLabelHierarchy::SetPoints( vtkPoints* src )
 // The exact procedure involves sorting all labels in descending priority, filling the root of
 // the label octree with the highest priority labels, and then inserting the remaining labels
 // in the highest possible level of octree which is not already full.
-void vtkLabelHierarchy::ComputeHierarchy()
+void vtkLabelHierarchy::ComputeHierarchy( vtkPoints* coincidentPts, vtkIdTypeArray* coincidenceMap )
 {
   if ( this->Implementation->Hierarchy )
     {
@@ -1068,6 +1103,9 @@ void vtkLabelHierarchy::ComputeHierarchy()
     {
     this->Implementation->DropAnchor( *it ); // Ha!!!
     }
+
+  coincidenceMap;
+  coincidentPts;
 
   this->Implementation->HierarchyTime.Modified();
 
@@ -1437,6 +1475,30 @@ void vtkLabelHierarchy::implementation::DropAnchor( vtkIdType anchor )
     curs.down( child );
     }
   curs->value().insert( anchor );
+
+  //vtkstd::map<Coord,vtkstd::pair<int,vtkstd::set<vtkIdType> > > coordMap;
+
+  Coord coord(x);
+
+  //anchor->Get
+  MapCoordIter mapIter = this->coordMap.find(coord);
+  if(mapIter == this->coordMap.end())
+    {
+    vtkstd::pair<int, vtkstd::set<vtkIdType> > Pair;
+    Pair.first = curs.level();
+    Pair.second.insert(anchor);
+    this->coordMap[coord] = Pair;
+    }
+  else
+    {
+    (*mapIter).second.first = 
+      (*mapIter).second.first < static_cast<int>(curs.level()) ? 
+        static_cast<int>(curs.level()) : (*mapIter).second.first;
+    (*mapIter).second.second.insert(anchor);
+    }
+
+
+
   this->SmudgeAnchor( curs, anchor, x );
 }
 

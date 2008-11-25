@@ -20,7 +20,6 @@ IF(VTK_USE_DISPLAY)
     SurfacePlusEdges.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
-    TestGenericVertexAttributesGLSLCxx.cxx
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
@@ -46,6 +45,7 @@ IF(VTK_USE_DISPLAY)
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
       TestMultiTexturing.cxx
+      TestMultiTexturingGLSL.cxx
       TestMultiTexturingTransform.cxx
       TestScenePicker.cxx
       TestTextureRGBA.cxx
@@ -58,6 +58,14 @@ IF(VTK_USE_DISPLAY)
       TestTStripsTCoords.cxx
       )
   ENDIF(VTK_DATA_ROOT)
+
+  IF (VTK_USE_GLSL_SHADERS)
+    # Tests testing GLSL Shaders.
+    SET(RenderingTestsWithArguments
+      ${RenderingTestsWithArguments}
+      TestGenericVertexAttributesGLSLCxx.cxx
+      )
+  ENDIF (VTK_USE_GLSL_SHADERS)
 
 ENDIF(VTK_USE_DISPLAY)
 
