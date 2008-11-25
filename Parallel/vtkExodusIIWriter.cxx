@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.30");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.31");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -2517,12 +2517,10 @@ double vtkExodusIIWriterGetComponent (iterT* it, vtkIdType ind)
 }
 
 //----------------------------------------------------------------------------
-template<typename T>
-T *vtkExodusIIWriter::ExtractCellData (const char *name, int comp, 
-                T* vtkNotUsed(typeval))
+void vtkExodusIIWriter::ExtractCellData (const char *name, int comp, 
+                                         vtkDataArray *buffer)
 {
-  /// TODO Need to understand where idx went... what?!
-  T *val = new T [this->NumCells];
+  buffer->SetNumberOfTuples (this->NumCells);
   for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
     {
     vtkDataArray *da = this->FlattenedInput[i]->GetCellData ()->GetArray (name);
@@ -2545,9 +2543,10 @@ T *vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
         switch (da->GetDataType ())
           {
           vtkArrayIteratorTemplateMacro(
-            val[index] = 
-              vtkExodusIIWriterGetComponent (
-                      static_cast<VTK_TT*>(arrayIter), j * ncomp + comp));
+            buffer->SetTuple1 (index,
+                               vtkExodusIIWriterGetComponent (
+                                    static_cast<VTK_TT*>(arrayIter), 
+                                    j * ncomp + comp)));
           }
         }
       arrayIter->Delete ();
@@ -2565,19 +2564,17 @@ T *vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
           }
         int index = blockIter->second.ElementStartIndex + 
                 CellToElementOffset[i][j];
-        val[index] = 0;
+        buffer->SetTuple1 (index, 0);
         }
       }
     }
-  return val;
 }
 
 //----------------------------------------------------------------------------
-template<typename T>
-T *vtkExodusIIWriter::ExtractPointData (const char *name, int comp, 
-                T* vtkNotUsed (typeval))
+void vtkExodusIIWriter::ExtractPointData (const char *name, int comp, 
+                                          vtkDataArray* buffer)
 {
-  T *val = new T[this->NumPoints];
+  buffer->SetNumberOfTuples (this->NumPoints);
   int index = 0;
   for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
     {
@@ -2592,9 +2589,9 @@ T *vtkExodusIIWriter::ExtractPointData (const char *name, int comp,
         switch (da->GetDataType ())
           {
           vtkArrayIteratorTemplateMacro(
-            val[index++] = 
-              vtkExodusIIWriterGetComponent (
-                      static_cast<VTK_TT*>(iter), j));
+            buffer->SetTuple1 (index++, 
+                               vtkExodusIIWriterGetComponent (
+                                        static_cast<VTK_TT*>(iter), j)));
           }
         }
       iter->Delete ();
@@ -2604,16 +2601,14 @@ T *vtkExodusIIWriter::ExtractPointData (const char *name, int comp,
       vtkIdType nvals = this->FlattenedInput[i]->GetNumberOfPoints ();
       for (vtkIdType j = 0; j < nvals; j ++)
         {
-        val[index++] = 0;
+        buffer->SetTuple1 (index ++, 0);
         }
       }
     }
-  return val;
 }
 
 //----------------------------------------------------------------------------
-template<typename T>
-int vtkExodusIIWriter::WriteCellData (int timestep, T* typeval)
+int vtkExodusIIWriter::WriteCellData (int timestep, vtkDataArray *buffer)
 {
   vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->BlockVariableMap.begin ();
@@ -2625,7 +2620,8 @@ int vtkExodusIIWriter::WriteCellData (int timestep, T* typeval)
 
     for (int component = 0; component < numComp; component ++)
       {
-      T *vars = this->ExtractCellData(nameIn, component, typeval);
+      buffer->Initialize ();
+      this->ExtractCellData(nameIn, component, buffer);
       int varOutIndex = varIter->second.ScalarOutOffset + component;
 
       vtkstd::map<int, Block>::const_iterator blockIter;
@@ -2643,25 +2639,33 @@ int vtkExodusIIWriter::WriteCellData (int timestep, T* typeval)
         int id = blockIter->first;
         int start = blockIter->second.ElementStartIndex;
 
-        int rc = ex_put_elem_var(this->fid, 
-                        timestep + 1, varOutIndex + 1, id, numElts, vars + start);
+        int rc;
+        if (buffer->IsA ("vtkDoubleArray"))
+          {
+          vtkDoubleArray *da = vtkDoubleArray::SafeDownCast (buffer);
+          rc = ex_put_elem_var(this->fid, timestep + 1, varOutIndex + 1, id,
+                                   numElts, da->GetPointer(start));
+          }
+        else /* (buffer->IsA ("vtkFloatArray")) */
+          {
+          vtkFloatArray *fa = vtkFloatArray::SafeDownCast (buffer);
+          rc = ex_put_elem_var(this->fid, timestep + 1, varOutIndex + 1, id,
+                                   numElts, fa->GetPointer(start));
+          }
 
         if (rc < 0)
           {
           vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
-          delete [] vars;
           return 0;
           }
         }
-      delete [] vars;
       }
     }
   return 1;
 }
 
 //----------------------------------------------------------------------------
-template<typename T>
-int vtkExodusIIWriter::WritePointData (int timestep, T* typeval)
+int vtkExodusIIWriter::WritePointData (int timestep, vtkDataArray *buffer)
 {
   vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->NodeVariableMap.begin ();
@@ -2672,11 +2676,22 @@ int vtkExodusIIWriter::WritePointData (int timestep, T* typeval)
     int numComp = varIter->second.NumComponents;
     for (int component = 0; component < numComp; component ++)
       {
-      T *vars = this->ExtractPointData(nameIn, component, typeval);
+      buffer->Initialize ();
+      this->ExtractPointData(nameIn, component, buffer);
       int varOutIndex = varIter->second.ScalarOutOffset + component;
-      int rc = ex_put_nodal_var(this->fid, 
-                      timestep + 1, varOutIndex + 1, this->NumPoints, vars);
-      delete [] vars;
+      int rc;
+      if (buffer->IsA ("vtkDoubleArray")) 
+        {
+        vtkDoubleArray *da = vtkDoubleArray::SafeDownCast (buffer);
+        rc = ex_put_nodal_var(this->fid, timestep + 1, varOutIndex + 1, 
+                                  this->NumPoints, da->GetPointer (0));
+        }
+      else /* (buffer->IsA ("vtkFloatArray")) */
+        {
+        vtkFloatArray *fa = vtkFloatArray::SafeDownCast (buffer);
+        rc = ex_put_nodal_var(this->fid, timestep + 1, varOutIndex + 1, 
+                                  this->NumPoints, fa->GetPointer (0));
+        }
 
       if (rc < 0)
         {
@@ -2698,6 +2713,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
                this->TimeValues->GetValue(this->CurrentTimeIndex):
                0.0);
 
+  vtkDataArray *buffer;
   if (this->PassDoubles)
     {
     double dtsv = (double)tsv;
@@ -2707,15 +2723,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep time step values");
       return 0;
       }
-
-    if (!this->WriteCellData (ts, &dtsv))
-      {
-      return 0;
-      }
-    if (!this->WritePointData (ts, &dtsv))
-      {
-      return 0;
-      }
+    buffer = vtkDoubleArray::New ();
     }
   else
     {
@@ -2725,15 +2733,17 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep time step values");
       return 0;
       }
+    buffer = vtkFloatArray::New ();
+    }
 
-    if (!this->WriteCellData (ts, &tsv))
-      {
-      return 0;
-      }
-    if (!this->WritePointData (ts, &tsv))
-      {
-      return 0;
-      }
+  // Buffer is used to help these determine the type of the data to write out
+  if (!this->WriteCellData (ts, buffer))
+    {
+    return 0;
+    }
+  if (!this->WritePointData (ts, buffer))
+    {
+    return 0;
     }
 
   // GLOBAL VARIABLES
