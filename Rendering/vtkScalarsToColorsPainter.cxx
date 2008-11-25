@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.16");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.17");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -443,7 +443,8 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
   if (this->ColorTextureMap == 0 || 
     this->GetMTime() > this->ColorTextureMap->GetMTime() ||
     this->LookupTable->GetMTime() > this->ColorTextureMap->GetMTime() ||
-    this->LookupTable->GetAlpha() != alpha)
+    this->LookupTable->GetAlpha() != alpha ||
+    this->LastUsedAlpha != alpha)
     {
     this->LookupTable->SetAlpha(alpha);
     this->ColorTextureMap = 0;
