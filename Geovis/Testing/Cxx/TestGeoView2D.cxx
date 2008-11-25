@@ -47,10 +47,10 @@ int TestGeoView2D(int argc, char* argv[])
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/NE2_ps_bath_small.jpg");
   vtkStdString imageFile = fname;
-  vtkStdString imageReadPath = "";
-  vtkStdString imageSavePath = "";
-  vtkStdString terrainReadPath = "";
-  vtkStdString terrainSavePath = "";
+  vtkStdString imageReadPath = ".";
+  vtkStdString imageSavePath = ".";
+  vtkStdString terrainReadPath = ".";
+  vtkStdString terrainSavePath = ".";
   double locationTol = 5.0;
   double textureTol = 1.0;
   for (int a = 1; a < argc; a++)
@@ -184,6 +184,7 @@ int TestGeoView2D(int argc, char* argv[])
   // Reload databases
   if (terrainReadPath.length() > 0)
     {
+    terrainSource->ShutDown();
     vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
     source->SetPath(terrainReadPath.c_str());
     terrainSource.TakeReference(source);
@@ -191,6 +192,7 @@ int TestGeoView2D(int argc, char* argv[])
   terrain->SetSource(terrainSource);
   if (imageReadPath.length() > 0)
     {
+    imageSource->ShutDown();
     vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
     source->SetPath(imageReadPath.c_str());
     imageSource.TakeReference(source);
