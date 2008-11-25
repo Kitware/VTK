@@ -291,6 +291,9 @@ int TestKdTreePointLocator()
       rval++;
       }
     }
+
+  kd->Delete();
+  A->Delete();
   
   return rval;
 }
