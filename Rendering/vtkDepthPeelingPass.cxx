@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
 
-vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.2");
+vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.3");
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 
@@ -623,34 +623,12 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
 
       if(this->IsSupported)
         {
-        // Some OpenGL implementations such as Mesa or ATI
-        // claim to support both GLSL and GL_ARB_texture_rectangle but
-        // don't actually support sampler2DRectShadow in a GLSL code.
-        // To test that, we compile the shader, if it fails, we don't use
-        // deph peeling
-        GLuint shader =
-          vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-        vtkgl::ShaderSource(
-          shader, 1,
-          const_cast<const char **>(&vtkDepthPeeling_fs), 0);
-        vtkgl::CompileShader(shader);
-        GLint params;
-        vtkgl::GetShaderiv(shader,vtkgl::COMPILE_STATUS,
-                           &params);
-        this->IsSupported = params==GL_TRUE;
-        vtkgl::DeleteShader(shader);
-        if(!this->IsSupported)
-          {
-          vtkDebugMacro("this OpenGL implementation does not support "
-                        "GL_ARB_texture_rectangle in GLSL code");
-          }
-        }
-      if(this->IsSupported)
-        {
-        // Some OpenGL implementations are buggy so depth peeling does not work:
+        // Some OpenGL implementations are buggy so depth peeling does not
+        // work:
         //  - ATI on iMac, Mac Pro, Power Mac G5, etc.  Bug <rdar://4975997>.
         //  - ATI on some PCs
-        //  - Mesa 6.5.2 and lower
+        //  - Mesa git does not support true linking of shaders (VTK bug 8135)
+        //    and Mesa 7.2 just crashes during the try-compile.
         // Do alpha blending always.
         const char* gl_renderer =
           reinterpret_cast<const char *>(glGetString(GL_RENDERER));
@@ -665,28 +643,14 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         bool isATIRadeonX300X550 =
           strstr(gl_renderer, "RADEON X300/X550 Series x86/SSE2") != 0;
         
-        const char* gl_version =
-          reinterpret_cast<const char *>(glGetString(GL_VERSION));
-        if(const char* mesa_version = strstr(gl_version, "Mesa"))
+        bool isMesa=strstr(gl_renderer, "Mesa") != 0;
+        
+        const char *gl_version=reinterpret_cast<const char *>(
+          glGetString(GL_VERSION));
+        
+        if(isMesa)
           {
-          // Mesa versions 6.5.3 and higher work.  Versions much lower
-          // than 6.5.2 do not report support for the extensions to
-          // get this far.  Therefore if parsing of the version fails
-          // just assume it is a higher version that changed the
-          // format of the version string.
-          int mesa_major = 0;
-          int mesa_minor = 0;
-          int mesa_patch = 0;
-          if(sscanf(mesa_version, "Mesa %d.%d.%d",
-                    &mesa_major, &mesa_minor, &mesa_patch) >= 2)
-            {
-            if(mesa_major  < 6 ||
-               (mesa_major == 6 && mesa_major  < 5) ||
-               (mesa_major == 6 && mesa_minor == 5 && mesa_patch < 3))
-              {
-              this->IsSupported = false;
-              }
-            }
+          this->IsSupported = false;
           }
         else if(isATIRadeon9600XT)
           {
@@ -716,6 +680,34 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
             {
             this->IsSupported = false;
             }
+          }
+        }
+      
+      if(this->IsSupported)
+        {
+        // Some OpenGL implementations such as ATI
+        // claim to support both GLSL and GL_ARB_texture_rectangle but
+        // don't actually support sampler2DRectShadow in a GLSL code.
+        // Others (like Mesa) claim to support shaders but don't actually
+        // support true linking of shaders (and declaration of functions).
+        // To test that, we compile the shader, if it fails, we don't use
+        // deph peeling
+        GLuint shader =
+          vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
+        vtkgl::ShaderSource(
+          shader, 1,
+          const_cast<const char **>(&vtkDepthPeeling_fs), 0);
+        vtkgl::CompileShader(shader);
+        GLint params;
+        vtkgl::GetShaderiv(shader,vtkgl::COMPILE_STATUS,
+                           &params);
+        this->IsSupported = params==GL_TRUE;
+        vtkgl::DeleteShader(shader);
+        if(!this->IsSupported)
+          {
+          vtkDebugMacro("this OpenGL implementation does not support "
+                        "GL_ARB_texture_rectangle in GLSL code or does"
+                        "not support true linking of shaders.");
           }
         }
     }
