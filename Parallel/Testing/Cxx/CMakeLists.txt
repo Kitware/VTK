@@ -12,12 +12,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       PrmMagnify.cxx
       #TestExodusTime.cxx
       TestTemporalFractal.cxx
+      TestMultiBlockExodusWrite.cxx
       )
-    IF (NOT WIN32)
-      SET(MyTests ${MyTests}
-        TestMultiBlockExodusWrite.cxx
-        )
-    ENDIF (NOT WIN32)
   ENDIF (VTK_DATA_ROOT)    
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
