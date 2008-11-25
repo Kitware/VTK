@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.31");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.32");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -112,7 +112,7 @@ vtkExodusIIWriter::~vtkExodusIIWriter ()
 
 void vtkExodusIIWriter::PrintSelf (ostream& os, vtkIndent indent)
 {
-  vtkWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "FileName " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "StoreDoubles " << this->StoreDoubles << endl;
   os << indent << "GhostLevel " << this->GhostLevel << endl;
@@ -120,7 +120,7 @@ void vtkExodusIIWriter::PrintSelf (ostream& os, vtkIndent indent)
   os << indent << "WriteOutGlobalNodeIdArray " << this->WriteOutGlobalNodeIdArray << endl;
   os << indent << "WriteOutGlobalElementIdArray " << this->WriteOutGlobalElementIdArray << endl;
   os << indent << "WriteAllTimeSteps " << this->WriteAllTimeSteps << endl;
-  os << indent << "BlockIdArrayName " << this->BlockIdArrayName << endl;
+  os << indent << "BlockIdArrayName " << (this->BlockIdArrayName ? this->BlockIdArrayName : "(none)") << endl;
   os << indent << "ModelMetadata " << (this->ModelMetadata ? "" : "(none)") << endl;
   if (this->ModelMetadata) 
     {
