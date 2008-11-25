@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkIdList.h"
+#include "vtkKdTree.h"
 #include "vtkKdTreePointLocator.h"
 #include "vtkMath.h"
 #include "vtkPointLocator.h"
@@ -87,10 +88,12 @@ bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList,
   return 1;
   
 }
-int TestPointLocators(int , char *[])
+
+// This test compares results for different point locators since they should 
+// all return the same results (within a tolerance)
+int ComparePointLocators()  
 {
   int rval = 0;
-  
   int i, j, k, kOffset, jOffset, offset;
   float x[3];
   static int dims[3]={39,31,31};
@@ -221,4 +224,81 @@ int TestPointLocators(int , char *[])
   return rval; // returns 0 if all tests passes
 }
 
+// This test does a brute force test on the KdTree point locator
+// to make sure that at least one of the point locators used
+// above gives a correct result for FindClosestPoint().
+int TestKdTreePointLocator()
+{
+  int rval = 0;
+  vtkIdType num_points = 1000;
+  vtkIdType num_test_points = 100;
 
+  vtkIdType idA;
+  vtkIdType closest_id;
+  vtkIdType point;
+  vtkIdType test_point;
+
+  double pointA[3];
+  double pointB[3];
+
+  vtkPoints * A = vtkPoints::New();
+  A->SetDataTypeToDouble();
+  A->SetNumberOfPoints( num_points );
+  for ( point = 0; point < num_points; ++point )
+    {
+    pointA[0] = ((double) rand()) / RAND_MAX;
+    pointA[1] = ((double) rand()) / RAND_MAX;
+    pointA[2] = ((double) rand()) / RAND_MAX;
+    A->SetPoint( point, pointA );
+    }
+ 
+  vtkKdTree * kd = vtkKdTree::New();
+  kd->BuildLocatorFromPoints( A );
+
+  for ( test_point = 0; test_point < num_test_points; ++test_point )
+    {
+    double min_dist2 = 10.0;
+    pointB[0] = ((double) rand()) / RAND_MAX;
+    pointB[1] = ((double) rand()) / RAND_MAX;
+    pointB[2] = ((double) rand()) / RAND_MAX;
+    for ( point = 0; point < num_points; ++point )
+      {
+      double dist2;
+      double dx, dy, dz;
+      A->GetPoint( point, pointA );
+      dx = pointA[0] - pointB[0];
+      dy = pointA[1] - pointB[1];
+      dz = pointA[2] - pointB[2];
+      dist2 = dx * dx + dy * dy + dz * dz;
+      if ( dist2 < min_dist2 )
+        {
+        closest_id = point;
+        min_dist2 = dist2;
+        }
+      }
+    double ld2;
+    idA = kd->FindClosestPoint( pointB, ld2 );
+    double diff = ld2 - min_dist2;
+    if(diff < 0)
+      {
+      diff = -diff;
+      }
+    if ( (idA != closest_id ) && ( diff/ld2 > .000001 ))
+      {
+      cerr << "KdTree found the closest point to be " << ld2 
+           << " away but a brute force method returned a closer distance of " 
+                << min_dist2 << endl;
+      rval++;
+      }
+    }
+  
+  return rval;
+}
+
+int TestPointLocators(int , char *[])
+{
+  int rval = ComparePointLocators();
+  rval += TestKdTreePointLocator();
+
+  return rval;
+}
