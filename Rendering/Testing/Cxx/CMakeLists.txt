@@ -45,7 +45,6 @@ IF(VTK_USE_DISPLAY)
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
       TestMultiTexturing.cxx
-      TestMultiTexturingGLSL.cxx
       TestMultiTexturingTransform.cxx
       TestScenePicker.cxx
       TestTextureRGBA.cxx
