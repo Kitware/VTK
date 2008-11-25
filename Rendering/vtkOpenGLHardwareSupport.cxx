@@ -22,7 +22,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.4");
 vtkStandardNewMacro(vtkOpenGLHardwareSupport);
 
 vtkCxxSetObjectMacro(vtkOpenGLHardwareSupport, ExtensionManager, vtkOpenGLExtensionManager);
@@ -41,12 +41,13 @@ vtkOpenGLHardwareSupport::~vtkOpenGLHardwareSupport()
 }
 
 // ----------------------------------------------------------------------------
-int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
+int vtkOpenGLHardwareSupport::GetNumberOfFixedTextureUnits()
 {
   if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
     {
-    if(!ExtensionManagerSet())
+    if(!this->ExtensionManagerSet())
       {
+      vtkWarningMacro(<<"extension manager not set. Return 1.");
       return 1;
       }
 
@@ -79,8 +80,56 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
 }
 
 // ----------------------------------------------------------------------------
+// Description:
+// Return the total number of texture image units accessible by a shader
+// program.
+int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
+{
+  int result=1;
+  // vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB is defined in
+  // GL_ARB_vertex_shader
+  // vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS is defined in OpenGL 2.0
+  
+  // test for a function defined both by GL_ARB_vertex_shader and OpenGL 2.0
+  if(vtkgl::GetActiveAttrib==0)
+    {
+    if(!this->ExtensionManagerSet())
+      {
+      vtkWarningMacro(<<"extension manager not set. Return 1.");
+      }
+    else
+      {
+      bool supports_shaders=false;
+      if(this->ExtensionManager->ExtensionSupported("GL_VERSION_2_0"))
+        {
+        this->ExtensionManager->LoadExtension("GL_VERSION_2_0");
+        supports_shaders=true;
+        }
+      else
+        {
+        supports_shaders=
+          this->ExtensionManager->ExtensionSupported("GL_ARB_vertex_shader");
+        if(supports_shaders)
+          {
+          this->ExtensionManager->LoadCorePromotedExtension(
+            "GL_ARB_vertex_shader");
+          }
+        }
+      if(supports_shaders)
+        {
+        GLint value;
+        glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS,&value);
+        result=static_cast<int>(value);
+        }
+      }
+    }
+  return result;
+}
+
+
+// ----------------------------------------------------------------------------
 bool vtkOpenGLHardwareSupport::GetSupportsMultiTexturing()
-{ 
+{
   if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
     {
     if(!ExtensionManagerSet())

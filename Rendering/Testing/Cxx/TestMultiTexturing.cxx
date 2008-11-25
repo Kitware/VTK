@@ -127,7 +127,7 @@ int TestMultiTexturing(int argc, char *argv[])
   vtkOpenGLHardwareSupport * hardware = 
     vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
 
-  if(hardware->GetSupportsMultiTexturing() && hardware->GetNumberOfTextureUnits() > 2)
+  if(hardware->GetSupportsMultiTexturing() && hardware->GetNumberOfFixedTextureUnits() > 2)
     {
     mapper->MapDataArrayToMultiTextureAttribute(
       vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
