@@ -47,7 +47,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.6");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.7");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -258,29 +258,71 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
       }
       else
       {
-        VTK_CREATE(vtkSectorSource, sector);
-        sector->SetInnerRadius(sinfo[2]);
-        sector->SetOuterRadius(sinfo[3]);
-        sector->SetZCoord(z);
-        sector->SetStartAngle(sinfo[0]);
-        sector->SetEndAngle(sinfo[1]);
-        
-        int resolution = (int)((sinfo[1]-sinfo[0])/1);
-        if( resolution < 1 )
-            resolution = 1;
-        sector->SetCircumferentialResolution(resolution);
-        sector->Update();
-        
-        VTK_CREATE(vtkExtractEdges, extract);
-        extract->SetInput(sector->GetOutput());
-        
-        VTK_CREATE(vtkAppendPolyData, append);
-        append->AddInput(extract->GetOutput());
-        append->Update();
-      
-        this->HighlightData->ShallowCopy(append->GetOutput());
-        this->HighlightActor->VisibilityOn();
-      }  
+        if( sinfo[1] - sinfo[0] != 360. )
+        {
+          VTK_CREATE(vtkSectorSource, sector);
+          sector->SetInnerRadius(sinfo[2]);
+          sector->SetOuterRadius(sinfo[3]);
+          sector->SetZCoord(z);
+          sector->SetStartAngle(sinfo[0]);
+          sector->SetEndAngle(sinfo[1]);
+          
+          int resolution = (int)((sinfo[1]-sinfo[0])/1);
+          if( resolution < 1 )
+              resolution = 1;
+          sector->SetCircumferentialResolution(resolution);
+          sector->Update();
+          
+          VTK_CREATE(vtkExtractEdges, extract);
+          extract->SetInput(sector->GetOutput());
+          
+          VTK_CREATE(vtkAppendPolyData, append);
+          append->AddInput(extract->GetOutput());
+          append->Update();
+          
+          this->HighlightData->ShallowCopy(append->GetOutput());
+          this->HighlightActor->VisibilityOn();
+        }
+        else
+        {
+          VTK_CREATE(vtkPoints, highlightPoints);
+          highlightPoints->SetNumberOfPoints(240);
+
+          double conversion = vtkMath::Pi()/180.;
+          double current_angle = 0.;
+          
+          VTK_CREATE(vtkCellArray, highA);
+          for( int i = 0; i < 120; ++i)
+          {
+            highA->InsertNextCell(2);
+            double current_x = sinfo[2]*cos(conversion*current_angle);
+            double current_y = sinfo[2]*sin(conversion*current_angle);
+            highlightPoints->SetPoint( i, current_x, current_y, z );
+
+            current_angle += 3.;
+
+            highA->InsertCellPoint(i);
+            highA->InsertCellPoint((i+1)%120);
+          }
+          
+          current_angle = 0.;
+          for( int i = 0; i < 120; ++i)
+          {
+            highA->InsertNextCell(2);
+            double current_x = sinfo[3]*cos(conversion*current_angle);
+            double current_y = sinfo[3]*sin(conversion*current_angle);
+            highlightPoints->SetPoint( 120+i, current_x, current_y, z );
+
+            current_angle += 3.;
+
+            highA->InsertCellPoint(120+i);
+            highA->InsertCellPoint(120+((i+1)%120));
+          }
+          this->HighlightData->SetPoints(highlightPoints);
+          this->HighlightData->SetLines(highA);
+          this->HighlightActor->VisibilityOn();
+        }  
+      }
     }
     else
     {
@@ -397,29 +439,71 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
     }
     else
     {
-      VTK_CREATE(vtkSectorSource, sector);
-      sector->SetInnerRadius(sinfo[2]);
-      sector->SetOuterRadius(sinfo[3]);
-      sector->SetZCoord(z);
-      sector->SetStartAngle(sinfo[0]);
-      sector->SetEndAngle(sinfo[1]);
-      int resolution = (int)((sinfo[1]-sinfo[0])/1);
-      if( resolution < 1 )
-          resolution = 1;
-      sector->SetCircumferentialResolution(resolution);
-      sector->Update();
-      
-      VTK_CREATE(vtkExtractEdges, extract);
-      extract->SetInput(sector->GetOutput());
-      
-      VTK_CREATE(vtkAppendPolyData, append);
-      append->AddInput(extract->GetOutput());
-      append->Update();
-      
-      this->SelectionData->ShallowCopy(append->GetOutput());
-      
-      this->SelectionActor->VisibilityOn();
-    }  
+      if( sinfo[1] - sinfo[0] != 360. )
+      {
+        VTK_CREATE(vtkSectorSource, sector);
+        sector->SetInnerRadius(sinfo[2]);
+        sector->SetOuterRadius(sinfo[3]);
+        sector->SetZCoord(z);
+        sector->SetStartAngle(sinfo[0]);
+        sector->SetEndAngle(sinfo[1]);
+        int resolution = (int)((sinfo[1]-sinfo[0])/1);
+        if( resolution < 1 )
+            resolution = 1;
+        sector->SetCircumferentialResolution(resolution);
+        sector->Update();
+        
+        VTK_CREATE(vtkExtractEdges, extract);
+        extract->SetInput(sector->GetOutput());
+        
+        VTK_CREATE(vtkAppendPolyData, append);
+        append->AddInput(extract->GetOutput());
+        append->Update();
+        
+        this->SelectionData->ShallowCopy(append->GetOutput());
+        
+        this->SelectionActor->VisibilityOn();
+      }
+      else
+      {
+        VTK_CREATE(vtkPoints, selectionPoints);
+        selectionPoints->SetNumberOfPoints(240);
+        
+        double conversion = vtkMath::Pi()/180.;
+        double current_angle = 0.;
+        
+        VTK_CREATE(vtkCellArray, selectionA);
+        for( int i = 0; i < 120; ++i)
+        {
+          selectionA->InsertNextCell(2);
+          double current_x = sinfo[2]*cos(conversion*current_angle);
+          double current_y = sinfo[2]*sin(conversion*current_angle);
+          selectionPoints->SetPoint( i, current_x, current_y, z );
+          
+          current_angle += 3.;
+          
+          selectionA->InsertCellPoint(i);
+          selectionA->InsertCellPoint((i+1)%120);
+        }
+        
+        current_angle = 0.;
+        for( int i = 0; i < 120; ++i)
+        {
+          selectionA->InsertNextCell(2);
+          double current_x = sinfo[3]*cos(conversion*current_angle);
+          double current_y = sinfo[3]*sin(conversion*current_angle);
+          selectionPoints->SetPoint( 120+i, current_x, current_y, z );
+          
+          current_angle += 3.;
+          
+          selectionA->InsertCellPoint(120+i);
+          selectionA->InsertCellPoint(120+((i+1)%120));
+        }
+        this->SelectionData->SetPoints(selectionPoints);
+        this->SelectionData->SetLines(selectionA);
+        this->SelectionActor->VisibilityOn();
+      }  
+    }
   }
   else
   {
