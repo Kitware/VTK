@@ -68,7 +68,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.11");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.12");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -148,7 +148,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->TreeRingLabelMapper->GetLabelTextProperty()->SetVerticalJustificationToCentered();
   this->TreeRingLabelMapper->GetLabelTextProperty()->SetFontSize(12);
   this->TreeRingLabelMapper->GetLabelTextProperty()->SetItalic(0);
-  this->TreeRingLabelMapper->GetLabelTextProperty()->SetLineOffset(-10);
+  this->TreeRingLabelMapper->GetLabelTextProperty()->SetLineOffset(0);
 //  this->TreeRingLabelMapper->SetPriorityArrayName("leaf_count");
   this->TreeRingLabelMapper->SetPriorityArrayName("GraphVertexDegree");
   this->TreeRingLabelActor->PickableOff();
