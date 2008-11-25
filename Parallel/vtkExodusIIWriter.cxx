@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.32");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.33");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -2745,6 +2745,8 @@ int vtkExodusIIWriter::WriteNextTimeStep()
     {
     return 0;
     }
+
+  buffer->Delete ();
 
   // GLOBAL VARIABLES
 /*
