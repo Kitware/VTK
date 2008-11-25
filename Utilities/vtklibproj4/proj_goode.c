@@ -32,6 +32,10 @@ LIBPROJ_ID[] = "Id";
   struct PROJconsts  *polar;
 #define PROJ_LIB__
 #include  <lib_proj.h>
+#if defined ( _MSC_VER )
+#pragma warning ( disable : 4210 )
+  // nonstandard extension used: function given file scope
+#endif
 PROJ_HEAD(goode, "Goode Homolosine") "\n\tPCyl, Sph.";
 PROJ_HEAD(mb_Q3, "McBryde Q3") "\n\tPCyl, Sph.";
 PROJ_HEAD(mb_S2, "McBryde S2") "\n\tPCyl, Sph.";
@@ -120,6 +124,16 @@ ENTRY0(mb_P3)
 ENDENTRY(setup(P, 3))
 /*
 ** Log: proj_goode.c
+** Revision 1.1  2008-11-07 16:41:14  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

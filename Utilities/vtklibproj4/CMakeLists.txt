@@ -112,7 +112,7 @@ endif ( PROJ_HAVE_ATANH )
 
 set( MISC_SRCS
   proj_airy.c proj_apian2.c proj_armadillo.c
-  proj_august.c proj_bacon.c proj_dummy.c
+  proj_august.c proj_bacon.c
   proj_eisen.c proj_four1.c proj_guyou.c
   proj_lagrng.c proj_larr.c proj_lask.c
   proj_nocol.c proj_ob_tran.c proj_oea.c
