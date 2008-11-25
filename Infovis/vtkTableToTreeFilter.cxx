@@ -36,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.7");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.8");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -85,7 +85,7 @@ int vtkTableToTreeFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkSmartPointer<vtkTable> new_table = vtkSmartPointer<vtkTable>::New();
-  new_table->ShallowCopy( table );
+  new_table->DeepCopy( table );
   
   // Create a mutable graph for building the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
