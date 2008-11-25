@@ -22,7 +22,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.5");
 vtkStandardNewMacro(vtkOpenGLHardwareSupport);
 
 vtkCxxSetObjectMacro(vtkOpenGLHardwareSupport, ExtensionManager, vtkOpenGLExtensionManager);
@@ -108,7 +108,7 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
       else
         {
         supports_shaders=
-          this->ExtensionManager->ExtensionSupported("GL_ARB_vertex_shader");
+          this->ExtensionManager->ExtensionSupported("GL_ARB_vertex_shader")==1;
         if(supports_shaders)
           {
           this->ExtensionManager->LoadCorePromotedExtension(
