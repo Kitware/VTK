@@ -61,6 +61,7 @@
 #include "vtkPointSet.h"
 
 class vtkCamera;
+class vtkIdTypeArray;
 class vtkLabelHierarchyIterator;
 class vtkPoints;
 class vtkPolyData;
@@ -174,6 +175,9 @@ private:
   int TargetLabelCount;
   int MaximumDepth;
   vtkDataArray* Priorities;
+
+  vtkPoints * CoincidentPts;
+  vtkIdTypeArray * CoincidenceMap;
 
   //BTX
   implementation* Implementation;

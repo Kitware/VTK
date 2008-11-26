@@ -25,6 +25,8 @@
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
 #include "vtkExtractSelectedFrustum.h"
+//#include "vtkGSpaceLayoutStrategy.h"
+//#include "vtkGSpaceLayoutStrategyPackVertices.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLabelHierarchyIterator.h"
@@ -299,7 +301,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.17");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.18");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -787,7 +789,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.17");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.18");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -1019,10 +1021,43 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 }
 
 //----------------------------------------------------------------------------
+// vtkSpiralkVertices - used to calculate points along a spiral
+
+void vtkSpiralkVertices(vtkIdType num, vtkstd::vector<vtkstd::pair<double,double> >& offsets)
+{
+  int maxIter = 10;
+  double pi = vtkMath::Pi();
+  double a = 1/(4*pi*pi);
+  offsets.clear();
+  for (vtkIdType i = offsets.size(); i < num; i++)
+    {
+    double d = 2.0*i/sqrt(3.0);
+    // We are looking for points at regular intervals along the parametric spiral
+    // x = t*cos(2*pi*t)
+    // y = t*sin(2*pi*t)
+    // We cannot solve this equation exactly, so we use newton's method.
+    // Using an Excel trendline, we find that 
+    // t = 0.553*d^0.502
+    // is an excellent starting point.
+    double t = 0.553*pow(d, 0.502);
+    for (int iter = 0; iter < maxIter; iter++)
+      {
+      double r = sqrt(t*t+a*a);
+      double f = pi*(t*r+a*a*log(t+r)) - d;
+      double df = 2*pi*r;
+      t = t - f/df;
+      }
+    double x = t*cos(2*pi*t);
+    double y = t*sin(2*pi*t);
+    offsets.push_back(vtkstd::pair<double,double>(x, y));
+    }
+}
+
+//----------------------------------------------------------------------------
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.17");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.18");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1031,6 +1066,8 @@ vtkLabelHierarchy::vtkLabelHierarchy()
   this->Priorities = 0;
   this->TargetLabelCount = 16;
   this->MaximumDepth = 5;
+  this->CoincidentPts = vtkPoints::New();
+  this->CoincidenceMap = vtkIdTypeArray::New();
 }
 
 vtkLabelHierarchy::~vtkLabelHierarchy()
@@ -1040,6 +1077,8 @@ vtkLabelHierarchy::~vtkLabelHierarchy()
     {
     this->Priorities->Delete();
     }
+  this->CoincidentPts->Delete();
+  this->CoincidenceMap->Delete();
 }
 
 void vtkLabelHierarchy::PrintSelf( ostream& os, vtkIndent indent )
@@ -1063,7 +1102,7 @@ void vtkLabelHierarchy::SetPoints( vtkPoints* src )
 
   if ( src )
     {
-    this->ComputeHierarchy( NULL, NULL );
+    //this->ComputeHierarchy( this->CoincidentPts, this->CoincidenceMap );
     }
 }
 
@@ -1094,7 +1133,8 @@ void vtkLabelHierarchy::ComputeHierarchy( vtkPoints* coincidentPts, vtkIdTypeArr
       maxDim = delta;
     }
   implementation::LabelSet allAnchors( this );
-  this->Implementation->Hierarchy = new implementation::HierarchyType( center, maxDim, allAnchors /* currently empty */ );
+  this->Implementation->Hierarchy = 
+    new implementation::HierarchyType( center, maxDim, allAnchors /* currently empty */ );
 
   this->Implementation->PrepareSortedAnchors( allAnchors );
   this->Implementation->FillHierarchyRoot( allAnchors );
@@ -1104,12 +1144,45 @@ void vtkLabelHierarchy::ComputeHierarchy( vtkPoints* coincidentPts, vtkIdTypeArr
     this->Implementation->DropAnchor( *it ); // Ha!!!
     }
 
-  if(coincidenceMap)
-    {
-    }
-  if(coincidentPts)
-    {
-    }
+  //coincidenceMap->SetNumberOfTuples( this->Points->GetNumberOfPoints() );
+  //coincidenceMap->FillComponent( 0, -1 );
+  //int cc = 0;
+  //int setCount = 0;
+
+  //double point[3];
+  //vtkstd::vector<vtkstd::pair<double,double> > offsets;
+
+
+  //// vtkstd::map<Coord,vtkstd::pair<int,vtkstd::set<vtkIdType> > > coordMap;
+
+  //implementation::MapCoordIter mapIter = this->Implementation->coordMap.begin();
+  //for( ; mapIter != this->Implementation->coordMap.end(); ++mapIter )
+  //  {
+  //  if( (*mapIter).second.second.size() > 1 )
+  //    {
+  //    point[0] = (*mapIter).first.coord[0];
+  //    point[1] = (*mapIter).first.coord[1];
+  //    point[2] = (*mapIter).first.coord[2];
+
+  //    coincidentPts->InsertNextPoint( point );
+  //    
+  //    vtkSpiralkVertices( (*mapIter).second.second.size(), offsets );
+  //    vtkstd::set<vtkIdType>::iterator setIter = (*mapIter).second.second.begin();
+  //    setCount = 0;
+  //    for( ; setIter != (*mapIter).second.second.end(); ++setIter )
+  //      {
+  //      this->Points->SetPoint( (*setIter),
+  //                              point[0] + offsets[setCount].first,
+  //                              point[1] + offsets[setCount].second,
+  //                              point[2] );
+  //      coincidenceMap->SetValue( setCount, cc );
+  //      ++setCount;
+  //      }
+  //    ++cc;
+  //    }
+  //  }
+
+  // cleanup coordMap
 
   this->Implementation->HierarchyTime.Modified();
 
@@ -1484,7 +1557,6 @@ void vtkLabelHierarchy::implementation::DropAnchor( vtkIdType anchor )
 
   Coord coord(x);
 
-  //anchor->Get
   MapCoordIter mapIter = this->coordMap.find(coord);
   if(mapIter == this->coordMap.end())
     {
