@@ -33,22 +33,23 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+using vtkstd::string;
+
 int TestHierarchicalGraphView(int argc, char* argv[]) 
 {
-  char* treeFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                 "Data/Infovis/XML/vtkclasses.xml");
-  char* graphFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                 "Data/Infovis/XML/vtklibrary.xml");
+  VTK_CREATE(vtkTesting, testHelper);
+  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  string dataRoot = testHelper->GetDataRoot();
+  string treeFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
+  string graphFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
 
   // We need to put the graph and tree edges in different domains.
   VTK_CREATE(vtkXMLTreeReader, reader1);
-  reader1->SetFileName(treeFileName);
-  delete[] treeFileName;
+  reader1->SetFileName(treeFileName.c_str());
   reader1->SetEdgePedigreeIdArrayName("tree edge");
   
   VTK_CREATE(vtkXMLTreeReader, reader2);
-  reader2->SetFileName(graphFileName);
-  delete[] graphFileName;
+  reader2->SetFileName(graphFileName.c_str());
   reader2->SetEdgePedigreeIdArrayName("graph edge");
 
   reader1->Update();
