@@ -234,7 +234,7 @@ int TestKdTreePointLocator()
   vtkIdType num_test_points = 100;
 
   vtkIdType idA;
-  vtkIdType closest_id;
+  vtkIdType closest_id = -1;
   vtkIdType point;
   vtkIdType test_point;
 
@@ -278,12 +278,12 @@ int TestKdTreePointLocator()
       }
     double ld2;
     idA = kd->FindClosestPoint( pointB, ld2 );
-    double diff = ld2 - min_dist2;
-    if(diff < 0)
+    float diff = static_cast<float>(ld2) - static_cast<float>(min_dist2);
+    if(ld2 == 0)
       {
-      diff = -diff;
+      ld2 = 1; // avoid divide by zero error below
       }
-    if ( (idA != closest_id ) && ( diff/ld2 > .000001 ))
+    if ( (idA != closest_id ) && ( diff/ld2 > .00001 ))
       {
       cerr << "KdTree found the closest point to be " << ld2 
            << " away but a brute force method returned a closer distance of " 
