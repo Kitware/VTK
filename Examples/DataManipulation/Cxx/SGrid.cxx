@@ -66,7 +66,7 @@ int main()
       jOffset = j * dims[0];
       for (i=0; i<dims[0]; i++) 
         {
-        theta = i * 15.0 * vtkMath::DegreesToRadians();
+        theta = i * vtkMath::RadiansFromDegrees(15.0);
         x[0] = radius * cos(theta);
         x[1] = radius * sin(theta);
         v[0] = -x[1];
