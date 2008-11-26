@@ -45,6 +45,7 @@ vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
 vtkInteractorStyleTreeMapHover.cxx
 vtkInteractorStyleTreeRingHover.cxx
+vtkInteractorStyleTreeRingSelectHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
