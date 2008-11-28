@@ -1,3 +1,58 @@
+SET(CTEST_CUSTOM_MEMCHECK_IGNORE
+  ${CTEST_CUSTOM_MEMCHECK_IGNORE}
+  Example-vtkLocal
+  Example-vtkMy
+
+  # These tests do not actually run any VTK code
+  HeaderTesting-Common
+  HeaderTesting-Filtering
+  HeaderTesting-Graphics
+  HeaderTesting-GenericFiltering
+  HeaderTesting-Imaging
+  HeaderTesting-IO
+  HeaderTesting-Rendering
+  HeaderTesting-VolumeRendering
+  HeaderTesting-Hybrid
+  HeaderTesting-Parallel
+  HeaderTesting-Widgets
+  HeaderTesting-Infovis
+  HeaderTesting-Geovis
+  HeaderTesting-Views
+  
+  PrintSelf-Common
+  PrintSelf-Filtering
+  PrintSelf-Graphics
+  PrintSelf-GenericFiltering
+  PrintSelf-Imaging
+  PrintSelf-IO
+  PrintSelf-Rendering
+  PrintSelf-VolumeRendering
+  PrintSelf-Hybrid
+  PrintSelf-Parallel
+  PrintSelf-Widgets
+  PrintSelf-Infovis
+  PrintSelf-Geovis
+  PrintSelf-Views
+
+  TestSetObjectMacro-Common
+  TestSetObjectMacro-Filtering
+  TestSetObjectMacro-Graphics
+  TestSetObjectMacro-GenericFiltering
+  TestSetObjectMacro-Imaging
+  TestSetObjectMacro-IO
+  TestSetObjectMacro-Rendering
+  TestSetObjectMacro-VolumeRendering
+  TestSetObjectMacro-Hybrid
+  TestSetObjectMacro-Parallel
+  TestSetObjectMacro-Widgets
+  TestSetObjectMacro-Infovis
+  TestSetObjectMacro-Geovis
+  TestSetObjectMacro-Views
+  
+  # this one runs python which then runs two program so no memory checking there
+  Sockets-image
+  )
+
 SET(CTEST_CUSTOM_WARNING_MATCH
   ${CTEST_CUSTOM_WARNING_MATCH}
   "{standard input}:[0-9][0-9]*: Warning: "
