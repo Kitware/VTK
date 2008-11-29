@@ -20,9 +20,28 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Column Averages"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.4");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.5");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
+// ----------------------------------------------------------------------
+vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
+{
+  this->AssessNames->SetNumberOfValues( 1 );
+  this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
+}
+
+// ----------------------------------------------------------------------
+vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics()
+{
+}
+
+// ----------------------------------------------------------------------
+void vtkMultiCorrelativeStatistics::PrintSelf( ostream& os, vtkIndent indent )
+{
+  this->Superclass::PrintSelf( os, indent );
+}
+
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeInvertCholesky( vtkstd::vector<double*>& chol, vtkstd::vector<double>& inv )
 {
   vtkIdType m = static_cast<vtkIdType>( chol.size() );
@@ -51,6 +70,7 @@ void vtkMultiCorrelativeInvertCholesky( vtkstd::vector<double*>& chol, vtkstd::v
   // don't reference them.
 }
 
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeTransposeTriangular( vtkstd::vector<double>& a, vtkIdType m )
 {
   vtkstd::vector<double> b( a.begin(), a.end() );
@@ -104,6 +124,7 @@ public:
 
 vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::Create( vtkTable* inData, vtkTable* reqModel )
 {
+// ----------------------------------------------------------------------
   vtkMultiCorrelativeAssessFunctor* inst = 0;
 
   vtkDoubleArray* avgs = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
@@ -171,6 +192,7 @@ vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::Create( vtkT
   return inst;
 }
 
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
   vtkIdType m = static_cast<vtkIdType>( this->Columns.size() );
@@ -202,15 +224,7 @@ void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vt
   result->SetValue( 0, r );
 }
 
-// ======================================================== vtkMultiCorrelativeStatistics
-vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
-{
-}
-
-vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics()
-{
-}
-
+// ----------------------------------------------------------------------
 int vtkMultiCorrelativeStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
   // Override the parent class for port 1 (Learn)
@@ -228,6 +242,7 @@ int vtkMultiCorrelativeStatistics::FillInputPortInformation( int port, vtkInform
   return stat;
 }
 
+// ----------------------------------------------------------------------
 int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInformation* info )
 {
   // Override the parent class for port 1 (Learn)
@@ -239,11 +254,7 @@ int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInfor
   return stat;
 }
 
-void vtkMultiCorrelativeStatistics::PrintSelf( ostream& os, vtkIndent indent )
-{
-  this->Superclass::PrintSelf( os, indent );
-}
-
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::ExecuteLearn(
   vtkTable* inData, vtkDataObject* outMetaDO )
 {
@@ -395,6 +406,7 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn(
   this->SetSampleSize( n );
 }
 
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeCholesky( vtkstd::vector<double*>& a, vtkIdType m )
 {
   // Some macros to make the Cholevsky decomposition algorithm legible:
@@ -429,6 +441,7 @@ void vtkMultiCorrelativeCholesky( vtkstd::vector<double*>& a, vtkIdType m )
     }
 }
 
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
@@ -557,6 +570,7 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
     }
 }
 
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::ExecuteAssess(
   vtkTable* inData, vtkDataObject* inMetaDO, vtkTable* outData, vtkDataObject* vtkNotUsed(outMetaDO) )
 {
@@ -579,7 +593,7 @@ void vtkMultiCorrelativeStatistics::ExecuteAssess(
 
   // For each request, add a column to the output data related to the likelihood of each input datum wrt the model in the request.
   // Column names of the metadata and input data are assumed to match (no mapping using AssessNames or AssessParameters is done).
-  // The output columns will be named "RelDevSq(A,B,C)" where "A", "B", and "C" are the column names specified in the
+  // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)" where "A", "B", and "C" are the column names specified in the
   // per-request metadata tables.
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
   AssessFunctor* dfunc = 0;
@@ -591,11 +605,17 @@ void vtkMultiCorrelativeStatistics::ExecuteAssess(
       continue;
       }
 
-    this->SelectAssessFunctor( inData, reqModel, 0, this->AssessParameters, dfunc );
+    this->SelectAssessFunctor( inData, 
+                               reqModel, 
+                               0, 
+                               this->AssessParameters, 
+                               dfunc );
     vtkMultiCorrelativeAssessFunctor* mcfunc = static_cast<vtkMultiCorrelativeAssessFunctor*>( dfunc );
     if ( ! mcfunc )
       {
-      vtkWarningMacro( "Request " << req - 1 << " could not be accommodated. Skipping." );
+      vtkWarningMacro( "Request " 
+                       << req - 1 
+                       << " could not be accommodated. Skipping." );
       if ( dfunc )
         {
         delete dfunc;
@@ -603,37 +623,51 @@ void vtkMultiCorrelativeStatistics::ExecuteAssess(
       continue;
       }
 
-    // Create an array to hold the assess values for all the input data
-    vtksys_ios::ostringstream reqNameStr;
-    reqNameStr << "RelDevSq(";
-    for ( int i = 0; i < mcfunc->GetNumberOfColumns(); ++ i )
+    // Create the outData columns
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
       {
-      if ( i > 0 )
+      vtksys_ios::ostringstream assessColName;
+      assessColName << this->AssessNames->GetValue( v )
+                    << "(";
+      for ( int i = 0; i < mcfunc->GetNumberOfColumns(); ++ i )
         {
-        reqNameStr << ",";
+        if ( i > 0 )
+          {
+          assessColName << ",";
+          }
+        assessColName << mcfunc->GetColumn( i )->GetName();
         }
-      reqNameStr << mcfunc->GetColumn(i)->GetName();
-      }
-    reqNameStr << ")";
-    vtkDoubleArray* assessValues = vtkDoubleArray::New();
-    assessValues->SetName( reqNameStr.str().c_str() );
-    assessValues->SetNumberOfTuples( nsamples );
-    outData->AddColumn( assessValues );
-    assessValues->Delete();
+      assessColName << ")";
 
-    // Something to hold assessed values for a single input datum
-    vtkVariantArray* singleResult = vtkVariantArray::New();
-    // Loop over all the input data and assess each datum:
-    for ( vtkIdType row = 0; row < nsamples; ++ row )
-      {
-      (*dfunc)( singleResult, row );
-      assessValues->SetValue( row, singleResult->GetValue( 0 ).ToDouble() );
+      vtkVariantArray* assessValues = vtkVariantArray::New();
+      names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
+      assessValues->SetName( names[v] );
+      assessValues->SetNumberOfTuples( nsamples );
+      outData->AddColumn( assessValues );
+      assessValues->Delete();
       }
+
+    // Assess each entry of the column
+    vtkVariantArray* assessResult = vtkVariantArray::New();
+    for ( vtkIdType r = 0; r < nsamples; ++ r )
+      {
+      (*dfunc)( assessResult, r );
+      for ( int v = 0; v < nv; ++ v )
+        {
+        outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+        }
+      }
+    
+    assessResult->Delete();
+
     delete dfunc;
-    singleResult->Delete();
+    delete [] names;
     }
 }
 
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::SelectAssessFunctor(
   vtkTable* inData, vtkDataObject* inMetaDO,
   vtkStringArray* vtkNotUsed(rowNames), vtkStringArray* vtkNotUsed(columnNames),
