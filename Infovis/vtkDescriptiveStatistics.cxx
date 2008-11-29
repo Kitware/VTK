@@ -34,14 +34,14 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.57");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.58");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
   this->AssessNames->SetNumberOfValues( 1 );
-  this->AssessNames->SetValue( 0, "Relative Deviation" );
+  this->AssessNames->SetValue( 0, "d" ); // relative deviation, i.e., Mahlanobis distance in 1D
 
   this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 2 );

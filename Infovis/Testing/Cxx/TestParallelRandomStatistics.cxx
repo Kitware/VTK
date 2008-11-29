@@ -209,9 +209,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   
   vtkVariantArray* relDev[2];
   relDev[0] = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation(Standard Normal 0)" ) );
+    outputData->GetColumnByName( "d(Standard Normal 0)" ) );
   relDev[1] = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation(Standard Normal 1)" ) );
+    outputData->GetColumnByName( "d(Standard Normal 1)" ) );
 
   if ( !relDev[0] || ! relDev[1] )
     {

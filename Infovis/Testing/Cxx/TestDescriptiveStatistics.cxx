@@ -181,9 +181,9 @@ int TestDescriptiveStatistics( int, char *[] )
   int m1outliers = 0;
   cout << "Outliers:\n";
   vtkVariantArray* m0reld = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation(Metric 0)" ) );
+    outputData->GetColumnByName( "d(Metric 0)" ) );
   vtkVariantArray* m1reld = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation(Metric 1)" ) );
+    outputData->GetColumnByName( "d(Metric 1)" ) );
   vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 0" ) );
   vtkDoubleArray* m1vals = vtkDoubleArray::SafeDownCast(
@@ -207,10 +207,11 @@ int TestDescriptiveStatistics( int, char *[] )
       {
       ++ m0outliers;
       cout << "   " 
-           << m0reld->GetName() 
            << " row " 
-           << r 
-           << " deviation " 
+           << r
+           << ", "
+           << m0reld->GetName() 
+           << " = " 
            << dev 
            << " > " 
            << maxdev
@@ -226,10 +227,11 @@ int TestDescriptiveStatistics( int, char *[] )
       {
       ++ m1outliers;
       cout << "   " 
-           << m1reld->GetName() 
            << " row " 
            << r 
-           << " deviation " 
+           << ", "
+           << m1reld->GetName() 
+           << " = " 
            << dev 
            << " > " 
            << maxdev
@@ -267,7 +269,7 @@ int TestDescriptiveStatistics( int, char *[] )
   m1vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 1" ) );
   m1reld = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation(Metric 1)" ) );
+    outputData->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! m1reld || ! m1vals )
     {
@@ -287,14 +289,15 @@ int TestDescriptiveStatistics( int, char *[] )
       {
       ++ m1outliers;
       cout << "   " 
-           << m1reld->GetName() 
            << " row " 
            << r 
-           << ": " 
+           << ", "
+           << m1reld->GetName() 
+           << " = " 
            << dev
-           << " value " 
+           << " (value: " 
            << m1vals->GetValue( r ) 
-           << "\n";
+           << ")\n";
       }
     }
   if ( m1outliers != 28 )
