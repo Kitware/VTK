@@ -37,14 +37,14 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.42");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.43");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues( 1 );
-  this->AssessNames->SetValue( 0, "Squared Mahalanobis" );
+  this->AssessNames->SetValue( 0, "d^2" );
 
   this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 5 );
