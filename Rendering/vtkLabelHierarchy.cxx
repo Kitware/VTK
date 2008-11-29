@@ -301,7 +301,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.19");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.20");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -789,7 +789,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.19");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.20");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -1057,7 +1057,7 @@ void vtkSpiralkVertices(vtkIdType num, vtkstd::vector<vtkstd::pair<double,double
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.19");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.20");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1565,7 +1565,7 @@ void vtkLabelHierarchy::implementation::DropAnchor( vtkIdType anchor )
   if(mapIter == this->coordMap.end())
     {
     vtkstd::pair<int, vtkstd::set<vtkIdType> > Pair;
-    Pair.first = curs.level();
+    Pair.first = static_cast<int>(curs.level());
     Pair.second.insert(anchor);
     this->coordMap[coord] = Pair;
     }
