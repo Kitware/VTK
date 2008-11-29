@@ -1,41 +1,50 @@
 from vtk import *
 
+# Open database
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "ports_protocols.db"
+database = vtkSQLDatabase.CreateFromURL("sqlite://" + sqlite_file)
+database.Open("")
 
-# Pull the table (that represents relationships/edges) from the database
-databaseToEdgeTable = vtkSQLDatabaseTableSource()
-databaseToEdgeTable.SetURL("sqlite://" + sqlite_file)
-databaseToEdgeTable.SetQuery("select src, dst, dport, protocol, port_protocol from tcp")
+# Query database for edges
+edge_query = database.GetQueryInstance()
+edge_query.SetQuery("select src, dst, dport, protocol, port_protocol from tcp")
+edge_table = vtkRowQueryToTable()
+edge_table.SetQuery(edge_query)
 
-# Pull the table (that represents entities/vertices) from the database
-databaseToVertexTable = vtkSQLDatabaseTableSource()
-databaseToVertexTable.SetURL("sqlite://" + sqlite_file)
-databaseToVertexTable.SetQuery("select ip, hostname from dnsnames")
-
+# Calculate contingency statistics on (src,dst)
 cs = vtkContingencyStatistics()
-cs.AddInputConnection(databaseToEdgeTable.GetOutputPort())
+cs.AddInputConnection(edge_table.GetOutputPort())
 cs.AddColumnPair("dport","protocol")
 cs.SetAssess(1)
+cs.Update()
+cStats = cs.GetOutput(0)
+cStats.Dump( 10 )
+
+# Query database for vertices
+vertex_query = database.GetQueryInstance()
+vertex_query.SetQuery("select ip, hostname from dnsnames")
+vertex_table = vtkRowQueryToTable()
+vertex_table.SetQuery(vertex_query)
 
 graph = vtkTableToGraph()
 graph.AddInputConnection(cs.GetOutputPort())
-graph.SetVertexTableConnection(databaseToVertexTable.GetOutputPort())
+graph.SetVertexTableConnection(vertex_table.GetOutputPort())
 graph.AddLinkVertex("src", "ip", False)
 graph.AddLinkVertex("dst", "ip", False)
 graph.AddLinkEdge("src", "dst")
 graph.Update()
-print graph.GetOutput()
 
+print graph.GetOutput()
 
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(graph.GetOutputPort())
-view.SetVertexLabelArrayName("ip")
+view.SetVertexLabelArrayName("hostname")
 view.SetVertexLabelVisibility(True)
 view.SetEdgeLabelArrayName("port_protocol")
 view.SetEdgeLabelVisibility(True)
-view.SetEdgeColorArrayName("p(dport | protocol)")
 view.SetColorEdges(True)
+view.SetEdgeColorArrayName("Px|y(dport,protocol)")
 view.SetLayoutStrategyToSimple2D()
 
 theme = vtkViewTheme.CreateMellowTheme()
