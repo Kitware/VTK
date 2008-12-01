@@ -21,12 +21,16 @@
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
+#include "vtkFloatArray.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkLabelHierarchy.h"
 #include "vtkLabelPlacer.h"
 #include "vtkLabelSizeCalculator.h"
+#include "vtkMath.h"
 #include "vtkPointSetToLabelHierarchy.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPointSet.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
@@ -34,6 +38,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPolyDataWriter.h"
@@ -53,11 +58,10 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   int maxLevels = 5;
   int targetLabels = 32;
   double labelRatio = 0.05;
+  int i = 0;
   //char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uniform-001371-5x5x5.vtp");
   int iteratorType = vtkLabelHierarchy::FULL_SORT;
   bool showBounds = false;
-
-  cout << "TestLabelPlacer" << endl;
 
   vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
     vtkSmartPointer<vtkLabelSizeCalculator>::New();
@@ -85,11 +89,6 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     vtkSmartPointer<vtkLabeledDataMapper>::New();
   vtkSmartPointer<vtkActor2D> textActor = vtkSmartPointer<vtkActor2D>::New();
 
-  cout << "Done Instantiating" << endl;
-
-  //xmlPolyDataReader->SetFileName( fname );
-  //delete [] fname;
-
   vtkSmartPointer<vtkPoints> points = vtkPoints::New();
 
   points->InsertNextPoint(5.0, 5.0, 5.0);
@@ -106,7 +105,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   vtkSmartPointer<vtkCellArray> cells = vtkCellArray::New();
 
   cells->InsertNextCell(10);
-  for(int i = 0; i < 10; i++)
+  for(i = 0; i < 10; i++)
     {
     cells->InsertCellPoint(i);
     }
@@ -114,6 +113,50 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   vtkSmartPointer<vtkPolyData> polyData = vtkPolyData::New();
   polyData->SetPoints(points);
   polyData->SetVerts(cells);
+
+  vtkSmartPointer<vtkStringArray> stringData = vtkStringArray::New();
+  stringData->SetNumberOfComponents(1);
+  stringData->SetNumberOfTuples(10);
+  stringData->SetName("PlaceNames");
+  stringData->InsertNextValue("Amsterdam");
+  stringData->InsertNextValue("Berlin");
+  stringData->InsertNextValue("Cairo");
+  stringData->InsertNextValue("New Dehli");
+  stringData->InsertNextValue("Hanoi");
+  stringData->InsertNextValue("Jakarta");
+  stringData->InsertNextValue("London");
+  stringData->InsertNextValue("Ottawa");
+  stringData->InsertNextValue("Tokyo");
+  stringData->InsertNextValue("Washington");
+
+  polyData->GetPointData()->AddArray(stringData);
+
+  vtkMath::RandomSeed(1234);
+  vtkSmartPointer<vtkFloatArray> priority = vtkFloatArray::New();
+  priority->SetNumberOfComponents(1);
+  priority->SetNumberOfTuples(10);
+  priority->SetName("Priority");
+
+  for(i = 0; i < 10; i++)
+    {
+    priority->InsertNextValue(vtkMath::Random(0.0, 10.0));
+    }
+
+  polyData->GetPointData()->AddArray(priority);
+
+  vtkSmartPointer<vtkFloatArray> labelSize = vtkFloatArray::New();
+  labelSize->SetNumberOfComponents(3);
+  labelSize->SetNumberOfTuples(10);
+  labelSize->SetName("LabelSize");
+
+  for(i = 0; i < 10; i++)
+    {
+    labelSize->InsertNextTuple3( vtkMath::Random(8.0, 10.0),
+                                 vtkMath::Random(12.0, 16.0),
+                                 0.0 );
+    }
+
+  polyData->GetPointData()->AddArray(labelSize);
   
   labelSizeCalculator->SetInput(polyData);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
@@ -134,16 +177,11 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labelPlacer->SetRenderer( renderer );
   labelPlacer->SetMaximumLabelFraction( labelRatio );
 
-  cout << "Done Setting up LabelPlacer" << endl;
-
-
   polyDataMapper->SetInputConnection(labelPlacer->GetOutputPort());
 
   actor->SetMapper(polyDataMapper);
 
   labelPlacer->Update();
-
-  cout << "Done Updating Label Placer" << endl;
 
   labeledMapper->SetInputConnection(labelPlacer->GetOutputPort());
   labeledMapper->SetLabelTextProperty(labelSizeCalculator->GetFontProperty());
@@ -159,8 +197,6 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   renWin->AddRenderer(renderer);
   renderer->SetBackground(0.0, 0.0, 0.0);
     iren->SetRenderWindow(renWin);
-
-  cout << "Calling Render" << endl;
 
   renWin->Render();
   renderer->ResetCamera();
