@@ -10,8 +10,6 @@ source.SetUseEdgeProbability(True)
 source.AllowParallelEdgesOn()
 source.AllowSelfLoopsOn() 
 source.SetStartWithTree(True)
-source.Update()
-print source.GetOutput()
 
 # Create a 3D geospatial view
 view = vtkGeoView()
