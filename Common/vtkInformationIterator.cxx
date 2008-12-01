@@ -19,7 +19,7 @@
 #include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInformationIterator, "1.1");
+vtkCxxRevisionMacro(vtkInformationIterator, "1.2");
 vtkStandardNewMacro(vtkInformationIterator);
 
 vtkCxxSetObjectMacro(vtkInformationIterator, Information, vtkInformation);
@@ -56,7 +56,7 @@ void vtkInformationIterator::GoToFirstItem()
     return;
     }
 
-  while(!keys[this->Index] && this->Index < tableSize)
+  while(this->Index < tableSize && !keys[this->Index])
     {
     this->Index++;
     }
