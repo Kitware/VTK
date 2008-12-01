@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.1");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.2");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -288,6 +288,21 @@ class vtkUniformVariablesMap
 public:
   UniformMap Map;
   UniformMapIt It; // used for external iteration.
+  
+  ~vtkUniformVariablesMap()
+    {
+      UniformMapIt i=this->Map.begin();
+      UniformMapIt e=this->Map.end();
+      while(i!=e)
+        {
+        vtkUniform *u=(*i).second;
+        if(u!=0)
+          {
+          delete u;
+          }
+        ++i;
+        }
+    }
 };
 
 // ----------------------------------------------------------------------------
