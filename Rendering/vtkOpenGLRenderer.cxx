@@ -45,7 +45,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.93");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.94");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -468,22 +468,12 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       if(this->DepthPeelingIsSupported)
         {
         // Some OpenGL implementations are buggy so depth peeling does not work:
-        //  - ATI on iMac, Mac Pro, Power Mac G5, etc.  Bug <rdar://4975997>.
-        //  - ATI on some PCs
+        //  - ATI
         //  - Mesa 6.5.2 and lower
         // Do alpha blending always.
         const char* gl_renderer =
           reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-        int isATIRadeonX1600 =
-          strstr(gl_renderer, "ATI Radeon X1600 OpenGL Engine") != 0;
-        int isATIRadeonX1900 =
-          strstr(gl_renderer, "ATI Radeon X1900 OpenGL Engine") != 0;
-        int isATIFireGLV3300 =
-          strstr(gl_renderer, "ATI FireGL V3300 Pentium 4 (SSE2)") != 0;
-        int isATIRadeon9600XT =
-          strstr(gl_renderer, "ATI Radeon 9600 XT OpenGL Engine") != 0;
-        int isATIRadeonX300X550 =
-          strstr(gl_renderer, "RADEON X300/X550 Series x86/SSE2") != 0;
+        int isATI = strstr(gl_renderer, "ATI") != 0;
         
         const char* gl_version =
           reinterpret_cast<const char *>(glGetString(GL_VERSION));
@@ -508,34 +498,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
               }
             }
           }
-        else if(isATIRadeon9600XT)
+        else if(isATI)
           {
-          // The Mac OS X 10.4.9->10.4.10, 10.5.0->10.5.1
-          // versions of the ATI driver, known not to work
-          // 1.5 ATI-1.4.18, 2.0 ATI-1.5.16, 2.0 ATI-1.5.18
           this->DepthPeelingIsSupported = 0;
-          }
-        else if(isATIFireGLV3300)
-          {
-            // so far, 2.0.6237 and 2.0.6672 don't work
-            this->DepthPeelingIsSupported = 0;
-          }
-        else if(isATIRadeonX1600 || isATIRadeonX1900)
-          {
-          // The Mac OS X 10.4.8->10.4.11, 10.5.0->10.5.1
-          // versions of the ATI driver, known not to work
-          // 2.0 ATI-1.4.40, 2.0 ATI-1.4.52, 2.0 ATI-1.4.56,
-          // 2.0 ATI-1.4.58
-          // 2.0 ATI-1.5.16, 2.0 ATI-1.5.18,
-          this->DepthPeelingIsSupported = 0;
-          }
-        else if(isATIRadeonX300X550)
-          {
-          // Windows XP 2.0.6479 version of the ATI driver, known not to work
-          if(strstr(gl_version, "2.0.6479 WinXP Release")==0)
-            {
-            this->DepthPeelingIsSupported = 0;
-            }
           }
         }
       }
