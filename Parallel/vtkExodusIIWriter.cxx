@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.33");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.34");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -1055,7 +1055,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     }
   
   // BLOCK/ELEMENT TRUTH TABLE
-  int ttsize = this->BlockInfoMap.size () * this->NumberOfScalarElementArrays;
+  size_t ttsize = this->BlockInfoMap.size () * this->NumberOfScalarElementArrays;
   if (ttsize > 0)
     {
     this->BlockElementVariableTruthTable = new int [ttsize];
@@ -1241,7 +1241,7 @@ char *vtkExodusIIWriter::GetCellTypeName(int t)
 int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
 {
   // vtkModelMetadata frees the memory when its done so we need to create a copy
-  int nblocks = this->BlockInfoMap.size ();
+  size_t nblocks = this->BlockInfoMap.size ();
   if (nblocks < 1) return 1;
   em->SetNumberOfBlocks(nblocks);
 
@@ -1830,7 +1830,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       }
 
     rc = ex_put_elem_var_tab(this->fid, 
-                             this->BlockInfoMap.size (), 
+                             static_cast<int>(this->BlockInfoMap.size ()), 
                              this->NumberOfScalarElementArrays, 
                              this->BlockElementVariableTruthTable);
     if (rc < 0)
@@ -2398,7 +2398,7 @@ int vtkExodusIIWriter::BlockVariableTruthValue(int blockIdx, int varIdx)
 {
   int tt=0;
   int nvars = this->NumberOfScalarElementArrays;
-  int nblocks = this->BlockInfoMap.size ();
+  size_t nblocks = this->BlockInfoMap.size ();
 
   if ( (blockIdx >= 0) && (blockIdx < nblocks) &&
        (varIdx >= 0) && (varIdx < nvars))
