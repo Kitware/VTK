@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.46");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.47");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -139,6 +139,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->EdgeLabelMapper->GetLabelTextProperty()->SetVerticalJustificationToCentered();
   this->EdgeLabelMapper->GetLabelTextProperty()->SetFontSize(10);
   this->EdgeLabelMapper->GetLabelTextProperty()->SetItalic(0);
+  this->EdgeLabelMapper->GetLabelTextProperty()->SetLineOffset(-10);
   this->EdgeLabelActor->PickableOff();
   this->SelectedGraphActor->PickableOff();
   this->SelectedGraphActor->SetPosition(0, 0, -0.01);
