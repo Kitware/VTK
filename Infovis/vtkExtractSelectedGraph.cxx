@@ -48,7 +48,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.30");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.31");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -177,7 +177,7 @@ int vtkExtractSelectedGraph::RequestData(
           vtkIdType num =
             (node->GetFieldType() == vtkSelectionNode::VERTEX) ?
             input->GetNumberOfVertices() : input->GetNumberOfEdges();
-          for (vtkIdType j = 0; i < num; ++j)
+          for (vtkIdType j = 0; j < num; ++j)
             {
             if (curList->LookupValue(j) < 0 && list->LookupValue(j) < 0)
               {
