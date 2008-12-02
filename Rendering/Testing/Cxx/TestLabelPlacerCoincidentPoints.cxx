@@ -40,8 +40,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkXMLPolyDataWriter.h"
 #include "vtkPolyData.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
@@ -71,8 +69,6 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     vtkSmartPointer<vtkLabelPlacer>::New();
   vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy = 
     vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-  vtkSmartPointer<vtkXMLPolyDataReader> xmlPolyDataReader =
-    vtkSmartPointer<vtkXMLPolyDataReader>::New();
 
   vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = 
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -87,22 +83,25 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 
   vtkSmartPointer<vtkLabeledDataMapper> labeledMapper = 
     vtkSmartPointer<vtkLabeledDataMapper>::New();
-  vtkSmartPointer<vtkActor2D> textActor = vtkSmartPointer<vtkActor2D>::New();
+  vtkSmartPointer<vtkActor2D> textActor = 
+    vtkSmartPointer<vtkActor2D>::New();
 
-  vtkSmartPointer<vtkPoints> points = vtkPoints::New();
+  vtkSmartPointer<vtkPoints> points = 
+    vtkSmartPointer<vtkPoints>::New();
 
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
-  points->InsertNextPoint(5.0, 5.0, 5.0);
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  points->InsertNextPoint(0.0, 150.0, 0.0);
+  points->InsertNextPoint(150.0, 150.0, 0.0);
+  points->InsertNextPoint(150.0, 0.0, 0.0);
+  points->InsertNextPoint(25.0, 25.0, 0.0);
+  points->InsertNextPoint(25.0, 25.0, 0.0);
+  points->InsertNextPoint(25.0, 25.0, 0.0);
+  points->InsertNextPoint(25.0, 25.0, 0.0);
+  points->InsertNextPoint(25.0, 25.0, 0.0);
+  points->InsertNextPoint(25.0, 25.0, 0.0);
 
-  vtkSmartPointer<vtkCellArray> cells = vtkCellArray::New();
+  vtkSmartPointer<vtkCellArray> cells = 
+    vtkSmartPointer<vtkCellArray>::New();
 
   cells->InsertNextCell(10);
   for(i = 0; i < 10; i++)
@@ -110,13 +109,13 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     cells->InsertCellPoint(i);
     }
 
-  vtkSmartPointer<vtkPolyData> polyData = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData> polyData = 
+    vtkSmartPointer<vtkPolyData>::New();
   polyData->SetPoints(points);
   polyData->SetVerts(cells);
 
-  vtkSmartPointer<vtkStringArray> stringData = vtkStringArray::New();
-  stringData->SetNumberOfComponents(1);
-  stringData->SetNumberOfTuples(10);
+  vtkSmartPointer<vtkStringArray> stringData = 
+    vtkSmartPointer<vtkStringArray>::New();
   stringData->SetName("PlaceNames");
   stringData->InsertNextValue("Amsterdam");
   stringData->InsertNextValue("Berlin");
@@ -132,28 +131,30 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   polyData->GetPointData()->AddArray(stringData);
 
   vtkMath::RandomSeed(1234);
-  vtkSmartPointer<vtkFloatArray> priority = vtkFloatArray::New();
+  vtkSmartPointer<vtkFloatArray> priority = 
+    vtkSmartPointer<vtkFloatArray>::New();
   priority->SetNumberOfComponents(1);
   priority->SetNumberOfTuples(10);
   priority->SetName("Priority");
 
   for(i = 0; i < 10; i++)
     {
-    priority->InsertNextValue(vtkMath::Random(0.0, 10.0));
+    priority->InsertValue(i, vtkMath::Random(9.0, 10.0));
     }
 
   polyData->GetPointData()->AddArray(priority);
 
-  vtkSmartPointer<vtkFloatArray> labelSize = vtkFloatArray::New();
+  vtkSmartPointer<vtkFloatArray> labelSize = 
+    vtkSmartPointer<vtkFloatArray>::New();
   labelSize->SetNumberOfComponents(3);
   labelSize->SetNumberOfTuples(10);
   labelSize->SetName("LabelSize");
 
   for(i = 0; i < 10; i++)
     {
-    labelSize->InsertNextTuple3( vtkMath::Random(8.0, 10.0),
-                                 vtkMath::Random(12.0, 16.0),
-                                 0.0 );
+    labelSize->InsertTuple3(i, vtkMath::Random(8.0, 10.0),
+                               vtkMath::Random(12.0, 16.0),
+                               0.0 );
     }
 
   polyData->GetPointData()->AddArray(labelSize);
