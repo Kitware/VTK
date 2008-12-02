@@ -1137,6 +1137,7 @@ int TestExtraction(int argc, char *argv[])
     }
 
   //cleanup
+  selection->Delete();
   sel->Delete();
   ext->Delete();
 
