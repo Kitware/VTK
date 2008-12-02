@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkTemporalSnapToTimeStep.h"
 
-#include "vtkTemporalDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataObjectTypes.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTemporalSnapToTimeStep, "1.2");
+vtkCxxRevisionMacro(vtkTemporalSnapToTimeStep, "1.3");
 vtkStandardNewMacro(vtkTemporalSnapToTimeStep);
 
 //----------------------------------------------------------------------------
@@ -30,12 +30,44 @@ vtkTemporalSnapToTimeStep::vtkTemporalSnapToTimeStep()
   this->HasDiscrete = 0;
   this->SnapMode = 0;
 }
-
 //----------------------------------------------------------------------------
 vtkTemporalSnapToTimeStep::~vtkTemporalSnapToTimeStep()
 {
 }
-
+//----------------------------------------------------------------------------
+int vtkTemporalSnapToTimeStep::RequestDataObject(
+  vtkInformation* vtkNotUsed(reqInfo), 
+  vtkInformationVector** inputVector , 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (input)
+    {
+    // for each output
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* outInfo = outputVector->GetInformationObject(i);
+      vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    
+      if (!output || !output->IsA(input->GetClassName())) 
+        {
+        vtkDataObject* newOutput = input->NewInstance();
+        newOutput->SetPipelineInformation(outInfo);
+        newOutput->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+        }
+      }
+    return 1;
+    }
+  return 0;
+}
 //----------------------------------------------------------------------------
 // Change the information
 int vtkTemporalSnapToTimeStep::RequestInformation (
@@ -87,9 +119,9 @@ int vtkTemporalSnapToTimeStep::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
-  vtkTemporalDataSet *inData = vtkTemporalDataSet::SafeDownCast
+  vtkDataObject *inData = vtkDataObject::SafeDownCast
     (inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
+  vtkDataObject *outData = vtkDataObject::SafeDownCast
     (outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   // shallow copy the data

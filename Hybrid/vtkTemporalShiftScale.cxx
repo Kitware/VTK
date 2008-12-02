@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkTemporalShiftScale.h"
 
-#include "vtkTemporalDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataObjectTypes.h"
 
-vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.7");
+vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.8");
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
 //----------------------------------------------------------------------------
@@ -32,13 +32,48 @@ vtkTemporalShiftScale::vtkTemporalShiftScale()
   this->Periodic               = 0;
   this->PeriodicEndCorrection  = 1;
   this->MaximumNumberOfPeriods = 1;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
 vtkTemporalShiftScale::~vtkTemporalShiftScale()
 {
 }
-
+//----------------------------------------------------------------------------
+int vtkTemporalShiftScale::RequestDataObject(
+  vtkInformation* vtkNotUsed(reqInfo), 
+  vtkInformationVector** inputVector , 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (input)
+    {
+    // for each output
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* outInfo = outputVector->GetInformationObject(i);
+      vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    
+      if (!output || !output->IsA(input->GetClassName())) 
+        {
+        vtkDataObject* newOutput = input->NewInstance();
+        newOutput->SetPipelineInformation(outInfo);
+        newOutput->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+        }
+      }
+    return 1;
+    }
+  return 0;
+}
 //----------------------------------------------------------------------------
 void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -146,9 +181,9 @@ int vtkTemporalShiftScale::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
-  vtkTemporalDataSet *inData = vtkTemporalDataSet::SafeDownCast
+  vtkDataObject *inData = vtkDataObject::SafeDownCast
     (inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
+  vtkDataObject *outData = vtkDataObject::SafeDownCast
     (outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   // shallow copy the data
