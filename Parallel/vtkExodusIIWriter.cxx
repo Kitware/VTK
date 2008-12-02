@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.35");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.36");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -1243,7 +1243,7 @@ int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
   // vtkModelMetadata frees the memory when its done so we need to create a copy
   size_t nblocks = this->BlockInfoMap.size ();
   if (nblocks < 1) return 1;
-  em->SetNumberOfBlocks(nblocks);
+  em->SetNumberOfBlocks(static_cast<int>(nblocks));
 
   int *blockIds = new int [nblocks];
   char **blockNames = new char * [nblocks];
@@ -1274,7 +1274,7 @@ int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
 {
-  int narrays = this->BlockVariableMap.size ();
+  size_t narrays = this->BlockVariableMap.size ();
   char **nms = NULL;
   char **flattenedNames = NULL;
   if (narrays > 0)
@@ -1301,7 +1301,8 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
 
     // these variables are now owned by em.  No deletion
     em->SetElementVariableInfo(this->NumberOfScalarElementArrays, 
-                  flattenedNames, narrays, nms, numComponents, scalarIndex);
+                  flattenedNames, static_cast<int>(narrays), nms, 
+                  numComponents, scalarIndex);
     }
 
   narrays = this->NodeVariableMap.size ();
