@@ -31,6 +31,7 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -348,7 +349,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForLocations(
 void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
   unsigned int composite_index, double time, vtkDataSet* input)
 {
-  if (this->ContentType == vtkSelection::LOCATIONS)
+  if (this->ContentType == vtkSelectionNode::LOCATIONS)
     {
     this->AddTimeStepInternalForLocations(composite_index, time, input);
     return;
@@ -356,7 +357,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
 
   vtkDataSetAttributes* inDSA = 0;
   const char* idarrayname = 0;
-  if (this->FieldType == vtkSelection::CELL)
+  if (this->FieldType == vtkSelectionNode::CELL)
     {
     inDSA = input->GetCellData();
     idarrayname = "vtkOriginalCellIds";
@@ -371,7 +372,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
   vtkIdTypeArray* idsArray = 
     vtkIdTypeArray::SafeDownCast(inDSA->GetArray(idarrayname));
 
-  if (this->ContentType == vtkSelection::GLOBALIDS)
+  if (this->ContentType == vtkSelectionNode::GLOBALIDS)
     {
     idsArray = vtkIdTypeArray::SafeDownCast(inDSA->GetGlobalIds());
     }
@@ -415,7 +416,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
     if (value->Label.empty())
       {
       vtksys_ios::ostringstream stream;
-      if (this->ContentType == vtkSelection::GLOBALIDS)
+      if (this->ContentType == vtkSelectionNode::GLOBALIDS)
         {
         vtkIdTypeArray* gidsArray = vtkIdTypeArray::SafeDownCast(
           inDSA->GetGlobalIds());
@@ -431,7 +432,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
           {
           stream << "Block: " << composite_index << " ; ";
           }
-        stream << (this->FieldType == vtkSelection::CELL?
+        stream << (this->FieldType == vtkSelectionNode::CELL?
           "Cell : " : "Point : ") << curid;
         value->Label = stream.str();
         }
@@ -456,7 +457,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
     output->SetDimensions(this->NumberOfTimeSteps, 1, 1); 
     
     vtkPointData *opd = output->GetPointData();
-    if (this->ContentType == vtkSelection::LOCATIONS)
+    if (this->ContentType == vtkSelectionNode::LOCATIONS)
       {
       opd->InterpolateAllocate(inDSA, this->NumberOfTimeSteps);
       }
@@ -494,8 +495,8 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
     output->SetZCoordinates(zCoords);
     zCoords->Delete();
 
-    if (this->FieldType == vtkSelection::POINT || 
-      this->ContentType == vtkSelection::LOCATIONS)
+    if (this->FieldType == vtkSelectionNode::POINT || 
+      this->ContentType == vtkSelectionNode::LOCATIONS)
       {
       // These are the point coordinates of the original data
       vtkDoubleArray* coordsArray = vtkDoubleArray::New();
@@ -509,7 +510,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
         {
         coordsArray->SetName("Point Coordinates");
         }
-      if (this->ContentType == vtkSelection::LOCATIONS)
+      if (this->ContentType == vtkSelectionNode::LOCATIONS)
         {
         coordsArray->SetName("Probe Coordinates");
         }
@@ -534,7 +535,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.23");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.24");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
@@ -545,7 +546,7 @@ vtkExtractArraysOverTime::vtkExtractArraysOverTime()
   this->SetNumberOfInputPorts(2);
 
   this->ContentType = -1;
-  this->FieldType = vtkSelection::CELL;
+  this->FieldType = vtkSelectionNode::CELL;
 
   this->Error = vtkExtractArraysOverTime::NoError;
 
@@ -664,19 +665,19 @@ int vtkExtractArraysOverTime::RequestUpdateExtent(
                   this->Internal->FastPathIDs[this->Internal->FastPathIDIndex]);
 
     // Create a key for the data type
-    if (this->FieldType == vtkSelection::CELL)
+    if (this->FieldType == vtkSelectionNode::CELL)
       {
       inInfo1->Set(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE(),
                    "CELL");
       }
-    else if(this->FieldType == vtkSelection::POINT)
+    else if(this->FieldType == vtkSelectionNode::POINT)
       {
       inInfo1->Set(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE(),
                    "POINT");
       }
 
     // Create a key for the type of id
-    assert(this->ContentType == vtkSelection::GLOBALIDS);
+    assert(this->ContentType == vtkSelectionNode::GLOBALIDS);
     inInfo1->Set(vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE(),
       "GLOBAL");
     this->WaitingForFastPathData = true;
@@ -721,7 +722,7 @@ int vtkExtractArraysOverTime::RequestData(
       }
 
     // Only GLOBALIDS based selection support fast path.
-    if (this->ContentType != vtkSelection::GLOBALIDS)
+    if (this->ContentType != vtkSelectionNode::GLOBALIDS)
       {
       this->UseFastPath = false;
       }
@@ -911,11 +912,11 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
   // Get the right attribute and number of elements
   switch (this->FieldType)
     {
-    case vtkSelection::CELL:
+    case vtkSelectionNode::CELL:
       inputAttributes = input->GetCellData();
       break;
 
-    case vtkSelection::POINT:
+    case vtkSelectionNode::POINT:
       inputAttributes = input->GetPointData();
       break;
     default:
@@ -1005,51 +1006,41 @@ static bool vtkUpdateFastPathIDsInternal(
     return true;
     }
 
-  vtkInformation* selProperties = selection->GetProperties();
-
-  if (selProperties->Has(vtkSelection::PROCESS_ID()) &&
-    piece != selProperties->Get(vtkSelection::PROCESS_ID()) &&
-    selProperties->Get(vtkSelection::PROCESS_ID()) != -1)
+  for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
     {
-    // Not the piece we are concerned with. Ignore.
-    return true;
-    }
+    vtkSelectionNode* node = selection->GetNode(n);
+    vtkInformation* selProperties = node->GetProperties();
 
-  if (selection->GetContentType() == vtkSelection::SELECTIONS)
-    {
-    unsigned int numChildren = selection->GetNumberOfChildren();
-    for (unsigned int cc=0; cc < numChildren; cc++)
+    if (selProperties->Has(vtkSelectionNode::PROCESS_ID()) &&
+      piece != selProperties->Get(vtkSelectionNode::PROCESS_ID()) &&
+      selProperties->Get(vtkSelectionNode::PROCESS_ID()) != -1)
       {
-      vtkSelection* child = selection->GetChild(cc);
-      if (!vtkUpdateFastPathIDsInternal(child, piece, ids, cids))
-        {
-        return false;
-        }
+      // Not the piece we are concerned with. Ignore.
+      continue;
       }
-    return true;
-    }
 
-  unsigned int composite_index = 0;
-  if (selProperties->Has(vtkSelection::COMPOSITE_INDEX()))
-    {
-    composite_index = static_cast<unsigned int>(
-      selProperties->Get(vtkSelection::COMPOSITE_INDEX()));
-    }
+    unsigned int composite_index = 0;
+    if (selProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()))
+      {
+      composite_index = static_cast<unsigned int>(
+        selProperties->Get(vtkSelectionNode::COMPOSITE_INDEX()));
+      }
 
-  vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(
-    selection->GetSelectionList());
-  if (!idArray || idArray->GetNumberOfTuples() == 0)
-    {
-    // "Empty selection";
-    return false;
-    }
+    vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(
+      node->GetSelectionList());
+    if (!idArray || idArray->GetNumberOfTuples() == 0)
+      {
+      // "Empty selection";
+      continue;
+      }
 
-  vtkIdType numValues = idArray->GetNumberOfTuples();
-  for (vtkIdType cc=0; cc < numValues; cc++)
-    {
-    vtkIdType selectedId = idArray->GetValue(cc);
-    ids.push_back(selectedId);
-    cids.push_back(composite_index);
+    vtkIdType numValues = idArray->GetNumberOfTuples();
+    for (vtkIdType cc=0; cc < numValues; cc++)
+      {
+      vtkIdType selectedId = idArray->GetValue(cc);
+      ids.push_back(selectedId);
+      cids.push_back(composite_index);
+      }
     }
 
   return true;
@@ -1074,13 +1065,13 @@ bool vtkExtractArraysOverTime::UpdateFastPathIDs(vtkInformationVector** inputV,
   vtkInformation* inInfo2 = inputV[1]->GetInformationObject(0);
   vtkSelection* selection = vtkSelection::GetData(inInfo2);
 
-  if ((this->ContentType == vtkSelection::INDICES) ||        
-    (this->ContentType == vtkSelection::GLOBALIDS))
+  if ((this->ContentType == vtkSelectionNode::INDICES) ||        
+    (this->ContentType == vtkSelectionNode::GLOBALIDS))
     {
     bool status = ::vtkUpdateFastPathIDsInternal(selection, piece, 
       this->Internal->FastPathIDs,
       this->Internal->FastPathCompositeIDs);
-    if (this->ContentType == vtkSelection::GLOBALIDS)
+    if (this->ContentType == vtkSelectionNode::GLOBALIDS)
       {
       // composite ids are not needed for global ids.
       this->Internal->FastPathCompositeIDs.clear();
@@ -1094,41 +1085,28 @@ bool vtkExtractArraysOverTime::UpdateFastPathIDs(vtkInformationVector** inputV,
 //----------------------------------------------------------------------------
 int vtkExtractArraysOverTime::DetermineSelectionType(vtkSelection* sel)
 {
-  int selContentType = sel->GetContentType();
-  if (selContentType == vtkSelection::SELECTIONS)
+  int contentType = -1;
+  int fieldType = -1;
+  unsigned int numNodes = sel->GetNumberOfNodes();
+  for (unsigned int cc = 0; cc < numNodes; cc++)
     {
-    int contentType = -1;
-    int fieldType = -1;
-
-    unsigned int numChildren = sel->GetNumberOfChildren();
-    for (unsigned int cc=0; cc < numChildren; cc++)
+    vtkSelectionNode* node = sel->GetNode(cc);
+    if (node)
       {
-      vtkSelection* child = sel->GetChild(cc);
-      if (child)
+      int nodeFieldType = node->GetFieldType();
+      int nodeContentType = node->GetContentType();
+      if ((fieldType != -1 && fieldType != nodeFieldType) ||
+        (contentType != -1 && contentType != nodeContentType))
         {
-        int childFieldType = child->GetFieldType();
-        int childContentType = child->GetContentType();
-
-        if ((fieldType != -1 && fieldType != childFieldType) ||
-          (contentType != -1 && contentType != childContentType))
-          {
-          vtkErrorMacro("All vtkSelection instances within a composite vtkSelection"
-            " must have the same ContentType and FieldType.");
-          return 0;
-          }
-        fieldType = childFieldType;
-        contentType = childContentType;
+        vtkErrorMacro("All vtkSelectionNode instances within a vtkSelection"
+          " must have the same ContentType and FieldType.");
+        return 0;
         }
+      fieldType = nodeFieldType;
+      contentType = nodeContentType;
       }
-
-    this->ContentType = contentType;
-    this->FieldType = fieldType;
     }
-  else
-    {
-    this->ContentType = selContentType;
-    this->FieldType = sel->GetFieldType();
-    }
-
+  this->ContentType = contentType;
+  this->FieldType = fieldType;
   return 1;
 }

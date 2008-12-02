@@ -25,44 +25,26 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.27");
-vtkStandardNewMacro(vtkSelection);
-
-vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
-vtkInformationKeyMacro(vtkSelection,SOURCE,ObjectBase);
-vtkInformationKeyMacro(vtkSelection,SOURCE_ID,Integer);
-vtkInformationKeyMacro(vtkSelection,PROP,ObjectBase);
-vtkInformationKeyMacro(vtkSelection,PROP_ID,Integer);
-vtkInformationKeyMacro(vtkSelection,PROCESS_ID,Integer);
-vtkInformationKeyMacro(vtkSelection,COMPOSITE_INDEX,Integer);
-vtkInformationKeyMacro(vtkSelection,HIERARCHICAL_LEVEL,Integer);
-vtkInformationKeyMacro(vtkSelection,HIERARCHICAL_INDEX,Integer);
-vtkInformationKeyMacro(vtkSelection,FIELD_TYPE,Integer);
-vtkInformationKeyMacro(vtkSelection,EPSILON,Double);
-vtkInformationKeyMacro(vtkSelection,CONTAINING_CELLS,Integer);
-vtkInformationKeyMacro(vtkSelection,PIXEL_COUNT,Integer);
-vtkInformationKeyMacro(vtkSelection,INVERSE,Integer);
-vtkInformationKeyMacro(vtkSelection,INDEXED_VERTICES,Integer);
-
+//----------------------------------------------------------------------------
 struct vtkSelectionInternals
 {
-  vtkstd::vector<vtkSmartPointer<vtkSelection> > Children;
+  vtkstd::vector<vtkSmartPointer<vtkSelectionNode> > Nodes;
 };
 
+//----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkSelection, "1.28");
+vtkStandardNewMacro(vtkSelection);
 
 //----------------------------------------------------------------------------
 vtkSelection::vtkSelection()
 {
   this->Internal = new vtkSelectionInternals;
-  this->ParentNode = 0;
-  this->Properties = vtkInformation::New();
-
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
@@ -73,282 +55,102 @@ vtkSelection::vtkSelection()
 vtkSelection::~vtkSelection()
 {
   delete this->Internal;
-  this->ParentNode = 0;
-  this->Properties->Delete();
 }
 
 //----------------------------------------------------------------------------
-// Restore object to initial state. Release memory back to system.
 void vtkSelection::Initialize()
 {
   this->Superclass::Initialize();
-  this->Clear();
-  this->ParentNode = 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::Clear()
-{
   delete this->Internal;
   this->Internal = new vtkSelectionInternals;
-  this->Properties->Clear();
-  if (this->FieldData)
-    {
-    this->FieldData->Initialize();
-    }
-
-  this->Modified();
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractArray* vtkSelection::GetSelectionList()
+unsigned int vtkSelection::GetNumberOfNodes()
 {
-  if (this->FieldData && this->FieldData->GetNumberOfArrays() > 0)
-    {
-    return this->FieldData->GetAbstractArray(0);
-    }
-  return 0;
+  return static_cast<unsigned int>(this->Internal->Nodes.size());
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::SetSelectionList(vtkAbstractArray* arr)
+vtkSelectionNode* vtkSelection::GetNode(unsigned int idx)
 {
-  if (!this->FieldData)
-    {
-    this->FieldData = vtkFieldData::New();
-    }
-  this->FieldData->Initialize();
-  this->FieldData->AddArray(arr);  
-}
-
-//----------------------------------------------------------------------------
-unsigned int vtkSelection::GetNumberOfChildren()
-{
-  return static_cast<unsigned int>(this->Internal->Children.size());
-}
-
-//----------------------------------------------------------------------------
-vtkSelection* vtkSelection::GetChild(unsigned int idx)
-{
-  if (idx >= this->GetNumberOfChildren())
+  if (idx >= this->GetNumberOfNodes())
     {
     return 0;
     }
-  return this->Internal->Children[idx];
+  return this->Internal->Nodes[idx];
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::AddChild(vtkSelection* child)
+void vtkSelection::AddNode(vtkSelectionNode* node)
 {
-  if (!child)
+  if (!node)
     {
     return;
     }
-
-  // Make sure that child is not already added
-  unsigned int numChildren = this->GetNumberOfChildren();
-  for (unsigned int i=0; i<numChildren; i++)
+  // Make sure that node is not already added
+  unsigned int numNodes = this->GetNumberOfNodes();
+  for (unsigned int i = 0; i < numNodes; i++)
     {
-    if (this->GetChild(i) == child)
+    if (this->GetNode(i) == node)
       {
       return;
       }
     }
-  this->Internal->Children.push_back(child);
-  child->ParentNode = this;
-
+  this->Internal->Nodes.push_back(node);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::RemoveChild(unsigned int idx)
+void vtkSelection::RemoveNode(unsigned int idx)
 {
-  if (idx >= this->GetNumberOfChildren())
+  if (idx >= this->GetNumberOfNodes())
     {
     return;
     }
-  vtkstd::vector<vtkSmartPointer<vtkSelection> >::iterator iter =
-    this->Internal->Children.begin();
-  iter->GetPointer()->ParentNode = 0;
-  this->Internal->Children.erase(iter+idx);
-
+  vtkstd::vector<vtkSmartPointer<vtkSelectionNode> >::iterator iter =
+    this->Internal->Nodes.begin();
+  this->Internal->Nodes.erase(iter+idx);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::RemoveChild(vtkSelection* child)
+void vtkSelection::RemoveNode(vtkSelectionNode* node)
 {
-  if (!child)
+  if (!node)
     {
     return;
     }
-
-  unsigned int numChildren = this->GetNumberOfChildren();
-  for (unsigned int i=0; i<numChildren; i++)
+  unsigned int numNodes = this->GetNumberOfNodes();
+  for (unsigned int i = 0; i < numNodes; i++)
     {
-    if (this->GetChild(i) == child)
+    if (this->GetNode(i) == node)
       {
-      child->ParentNode = 0;
-      this->RemoveChild(i);
+      this->RemoveNode(i);
       return;
       }
     }
-
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::RemoveAllChildren()
+void vtkSelection::RemoveAllNodes()
 {
-  vtkstd::vector<vtkSmartPointer<vtkSelection> >::iterator iter =
-    this->Internal->Children.begin();
-  for (; iter != this->Internal->Children.end(); ++iter)
-    {
-    iter->GetPointer()->ParentNode = 0;
-    }
-  this->Internal->Children.clear();
+  this->Internal->Nodes.clear();
   this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::PrintTree(ostream& os, vtkIndent indent)
-{
-  os << indent << "ContentType: ";
-  switch (this->GetContentType())
-    {
-    case SELECTIONS:
-      os << "SELECTIONS";
-      break;
-    case GLOBALIDS:
-      os << "GLOBALIDS";
-      break;
-    case PEDIGREEIDS:
-      os << "PEDIGREEIDS";
-      break;
-    case VALUES:
-      os << "VALUES";
-      break;
-    case INDICES:
-      os << "INDICES";
-      break;
-    case FRUSTUM:
-      os << "FRUSTUM";
-      break;
-    case LOCATIONS:
-      os << "LOCATIONS";
-      break;
-    case THRESHOLDS:
-      os << "THRESHOLDS";
-      break;
-    case BLOCKS:
-      os << "BLOCKS";
-      break;
-    default:
-      os << "UNKNOWN";
-      break;
-    }
-  os << endl;
-  os << indent << "FieldType: ";
-  switch (this->GetFieldType())
-    {
-    case CELL:
-      os << "CELL";
-      break;
-    case POINT:
-      os << "POINT";
-      break;
-    case FIELD:
-      os << "FIELD";
-      break;
-    case VERTEX:
-      os << "VERTEX";
-      break;
-    case EDGE:
-      os << "EDGE";
-      break;
-    case ROW:
-      os << "ROW";
-      break;
-    default:
-      os << "UNKNOWN";
-      break;
-    }
-  os << endl;
-  os << indent << "SelectionList: ";
-  vtkAbstractArray* list = this->GetSelectionList();
-  if (list)
-    {
-    int numComps = list->GetNumberOfComponents();
-    vtkIdType numTuples = list->GetNumberOfTuples();
-    for (vtkIdType i = 0; i < numTuples; ++i)
-      {
-      if (i > 0)
-        {
-        os << ", ";
-        }
-      if (numComps > 1)
-        {
-        os << "(";
-        }
-      for (vtkIdType j = 0; j < numComps; ++j)
-        {
-        if (j > 0)
-          {
-          os << ", ";
-          }
-        os << list->GetVariantValue(numComps*i + j).ToString();
-        }
-      if (numComps > 1)
-        {
-        os << ")";
-        }
-      }
-    os << endl;
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-  unsigned int numChildren = this->GetNumberOfChildren();
-  for (unsigned int i = 0; i < numChildren; i++)
-    {
-    this->GetChild(i)->PrintTree(os, indent.GetNextIndent());
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Properties:";
-  if (this->Properties)
+  unsigned int numNodes = this->GetNumberOfNodes();
+  os << indent << "Number of nodes: " << numNodes << endl;
+  os << indent << "Nodes: " << endl;
+  for (unsigned int i = 0; i < numNodes; i++)
     {
-    this->Properties->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-
-  os << indent << "ParentNode: ";
-  if (this->ParentNode)
-    {
-    os << this->ParentNode;
-    }
-  else
-    {
-    os << "(none)";
-    }
-  os << endl;
-
-  unsigned int numChildren = this->GetNumberOfChildren();
-  os << indent << "Number of children: " << numChildren << endl;
-  os << indent << "Children: " << endl;
-  for (unsigned int i=0; i<numChildren; i++)
-    {
-    os << indent << "Child #" << i << endl;
-    this->GetChild(i)->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "Node #" << i << endl;
+    this->GetNode(i)->PrintSelf(os, indent.GetNextIndent());
     }
 }
 
@@ -360,22 +162,16 @@ void vtkSelection::ShallowCopy(vtkDataObject* src)
     {
     return;
     }
-  
   this->Initialize();
-  
   this->Superclass::ShallowCopy(src);
-  
-  this->Properties->Copy(input->Properties, 0);
-
-  unsigned int numChildren = input->GetNumberOfChildren();
-  for (unsigned int i=0; i<numChildren; i++)
+  unsigned int numNodes = input->GetNumberOfNodes();
+  for (unsigned int i=0; i<numNodes; i++)
     {
-    vtkSelection* newChild = vtkSelection::New();
-    newChild->ShallowCopy(input->GetChild(i));
-    this->AddChild(newChild);
-    newChild->Delete();
+    vtkSmartPointer<vtkSelectionNode> newNode =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    newNode->ShallowCopy(input->GetNode(i));
+    this->AddNode(newNode);
     }
-
   this->Modified();
 }
 
@@ -387,303 +183,62 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
     {
     return;
     }
-
   this->Initialize();
-
   this->Superclass::DeepCopy(src);
-  
-  this->Properties->Copy(input->Properties, 1);
-
-  unsigned int numChildren = input->GetNumberOfChildren();
-  for (unsigned int i=0; i<numChildren; i++)
+  unsigned int numNodes = input->GetNumberOfNodes();
+  for (unsigned int i=0; i<numNodes; i++)
     {
-    vtkSelection* newChild = vtkSelection::New();
-    newChild->DeepCopy(input->GetChild(i));
-    this->AddChild(newChild);
-    newChild->Delete();
+    vtkSmartPointer<vtkSelectionNode> newNode =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    newNode->DeepCopy(input->GetNode(i));
+    this->AddNode(newNode);
     }
-
   this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::CopyChildren(vtkSelection* input)
-{
-  if (!this->Properties->Has(CONTENT_TYPE()) ||
-      this->Properties->Get(CONTENT_TYPE()) != SELECTIONS)
-    {
-    return;
-    }
-  if (!input->Properties->Has(CONTENT_TYPE()) ||
-      input->Properties->Get(CONTENT_TYPE()) != SELECTIONS)
-    {
-    return;
-    }
-
-  unsigned int numChildren = input->GetNumberOfChildren();
-  for (unsigned int i=0; i<numChildren; i++)
-    {
-    vtkSelection* child = input->GetChild(i);
-    if (child->Properties->Has(CONTENT_TYPE()) && 
-        child->Properties->Get(CONTENT_TYPE()) == SELECTIONS)
-      {
-      // TODO: Handle trees
-      }
-    else
-      {
-      vtkSelection* newChild = vtkSelection::New();
-      newChild->DeepCopy(child);
-      this->AddChild(newChild);
-      newChild->Delete();
-      }
-    }
-
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::SetContentType(int type)
-{
-  this->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), type);
-}
-
-//----------------------------------------------------------------------------
-int vtkSelection::GetContentType()
-{
-  if (this->GetProperties()->Has(vtkSelection::CONTENT_TYPE()))
-    {
-    return this->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
-    }
-  return -1;
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::SetFieldType(int type)
-{
-  this->GetProperties()->Set(vtkSelection::FIELD_TYPE(), type);
-}
-
-//----------------------------------------------------------------------------
-int vtkSelection::GetFieldType()
-{
-  if (this->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
-    {
-    return this->GetProperties()->Get(vtkSelection::FIELD_TYPE());
-    }
-  return -1;
-}
-
-//----------------------------------------------------------------------------
-bool vtkSelection::EqualProperties(vtkSelection* other, 
-  bool fullcompare/*=true*/)
-{
-  if (!other)
-    {
-    return false;
-    }
-
-  vtkSmartPointer<vtkInformationIterator> iterSelf = 
-    vtkSmartPointer<vtkInformationIterator>::New();
-  
-  iterSelf->SetInformation(this->Properties);
-
-  vtkInformation* otherProperties = other->GetProperties();
-  for (iterSelf->InitTraversal(); !iterSelf->IsDoneWithTraversal();
-    iterSelf->GoToNextItem())
-    {
-    vtkInformationKey* key = iterSelf->GetCurrentKey();
-    vtkInformationIntegerKey* ikey = 
-      vtkInformationIntegerKey::SafeDownCast(key);
-    vtkInformationObjectBaseKey* okey = 
-      vtkInformationObjectBaseKey::SafeDownCast(key);
-    if (ikey)
-      {
-      if (!otherProperties->Has(ikey) || 
-        this->Properties->Get(ikey) != otherProperties->Get(ikey))
-        {
-        return false;
-        }
-      }
-    if (okey)
-      {
-      if (!otherProperties->Has(okey) || 
-        this->Properties->Get(okey) != otherProperties->Get(okey))
-        {
-        return false;
-        }
-      }
-    }
-
-  if (fullcompare)
-    {
-    return other->EqualProperties(this, false);
-    }
-
-  return true;
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::UnionSelectionList(vtkSelection* other)
-{
-  int type = this->Properties->Get(CONTENT_TYPE());
-  switch (type)
-    {
-  case GLOBALIDS:
-  case PEDIGREEIDS:
-  case VALUES:
-  case INDICES:
-  case LOCATIONS:
-  case THRESHOLDS:
-  case BLOCKS:
-      {
-      vtkFieldData* fd1 = this->GetFieldData();
-      vtkFieldData* fd2 = other->GetFieldData();
-      if (fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
-        {
-        vtkErrorMacro(<< "Cannot take the union where the number of arrays do not match.");
-        }
-      for (int i = 0; i < fd1->GetNumberOfArrays(); i++)
-        {
-        vtkAbstractArray* aa1 = fd1->GetAbstractArray(i);
-        vtkAbstractArray* aa2 = 0;
-        if (i == 0 && type != VALUES && type != THRESHOLDS)
-          {
-          aa2 = fd2->GetAbstractArray(i);
-          }
-        else
-          {
-          aa2 = fd2->GetAbstractArray(aa1->GetName());
-          }
-        if (!aa2)
-          {
-          vtkErrorMacro(<< "Could not find array with name " 
-                        << aa1->GetName() << " in other selection.");
-          }
-        if (aa1->GetDataType() != aa2->GetDataType())
-          {
-          vtkErrorMacro(<< "Cannot take the union where selection list types "
-            << "do not match.");
-          return;
-          }
-        if (aa1->GetNumberOfComponents() != aa2->GetNumberOfComponents())
-          {
-          vtkErrorMacro(<< "Cannot take the union where selection list number "
-            << "of components do not match.");
-          return;
-          }
-        // If it is the same array, we are done.
-        if (aa1 == aa2)
-          {
-          return;
-          }
-        int numComps = aa2->GetNumberOfComponents();
-        vtkIdType numTuples = aa2->GetNumberOfTuples();
-        for (vtkIdType j = 0; j < numTuples; j++)
-          {
-          // Avoid duplicates on single-component arrays.
-          if (numComps != 1 || aa1->LookupValue(aa2->GetVariantValue(j)) == -1)
-            {
-            aa1->InsertNextTuple(j, aa2);
-            }
-          }
-        }
-      break;
-      }
-  case SELECTIONS:
-  case FRUSTUM:
-  default:
-      {
-      vtkErrorMacro(<< "Do not know how to take the union of content type "
-        << type << ".");
-      return;
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkSelection::Union(vtkSelection* s)
 {
-  if (s->GetContentType() == SELECTIONS)
+  for (unsigned int n = 0; n < s->GetNumberOfNodes(); ++n)
     {
-    // Merge the selection with any of our children.
-    for (unsigned int cc=0; cc < s->GetNumberOfChildren(); cc++)
-      {
-      this->Union(s->GetChild(cc));
-      }
-    return;
-    }
-
-  // Now we are assured "s" is a leaf node.
-  if (this->GetContentType() == SELECTIONS)
-    {
-    // Attempt to merge "s" with any of our children, if possible.
-    // If not, a clone of "s" gets added as a new child.
-    bool merged = false;
-    for (unsigned int cc=0; cc < this->GetNumberOfChildren(); cc++)
-      {
-      vtkSelection* child = this->GetChild(cc);
-      if (child->GetContentType() == SELECTIONS)
-        {
-        vtkErrorMacro("Selection trees deeper than 1 level are not handled.");
-        return;
-        }
-      if (child->EqualProperties(s))
-        {
-        child->UnionSelectionList(s);
-        merged = true;
-        break;
-        }
-      }
-    if (!merged)
-      {
-      vtkSelection* clone = vtkSelection::New();
-      clone->ShallowCopy(s);
-      this->AddChild(clone);
-      clone->Delete();
-      }
-
-    }
-  else if (this->EqualProperties(s))
-    {
-    this->UnionSelectionList(s);
-    }
-  else
-    {
-    if (this->GetParentNode())
-      {
-      // sanity check to ensure we don't create trees deeper than 1 level.
-      vtkErrorMacro("Cannot merge. Sanity check for depth of tree failed.");
-      return;
-      }
-    
-    vtkSelection* clone = vtkSelection::New();
-    clone->ShallowCopy(this);
-    this->Initialize();
-    this->SetContentType(vtkSelection::SELECTIONS);
-    this->AddChild(clone);
-    clone->Delete();
-
-    clone = vtkSelection::New();
-    clone->ShallowCopy(s);
-    this->AddChild(clone);
-    clone->Delete();
+    this->Union(s->GetNode(n));
     }
 }
 
 //----------------------------------------------------------------------------
-// Overload standard modified time function. If properties is modified,
-// then this object is modified as well.
+void vtkSelection::Union(vtkSelectionNode* node)
+{
+  bool merged = false;
+  for (unsigned int tn = 0; tn < this->GetNumberOfNodes(); ++tn)
+    {
+    vtkSelectionNode* tnode = this->GetNode(tn);
+    if (tnode->EqualProperties(node))
+      {
+      tnode->UnionSelectionList(node);
+      merged = true;
+      break;
+      }
+    }
+  if (!merged)
+    {
+    vtkSmartPointer<vtkSelectionNode> clone =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    clone->ShallowCopy(node);
+    this->AddNode(clone);
+    }
+}
+
+//----------------------------------------------------------------------------
 unsigned long vtkSelection::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
-  unsigned long propMTime;
-
-  if ( this->Properties != NULL )
+  unsigned long mTime = this->MTime.GetMTime();
+  unsigned long nodeMTime;
+  for (unsigned int n = 0; n < this->GetNumberOfNodes(); ++n)
     {
-    propMTime = this->Properties->GetMTime();
-    mTime = ( propMTime > mTime ? propMTime : mTime );
+    vtkSelectionNode* node = this->GetNode(n);
+    nodeMTime = node->GetMTime();
+    mTime = ( nodeMTime > mTime ? nodeMTime : mTime );
     }
-
   return mTime;
 }
 

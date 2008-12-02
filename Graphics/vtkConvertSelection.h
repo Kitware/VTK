@@ -30,10 +30,13 @@
 
 #include "vtkSelectionAlgorithm.h"
 
+class vtkCompositeDataSet;
+class vtkGraph;
 class vtkIdTypeArray;
 class vtkSelection;
+class vtkSelectionNode;
 class vtkStringArray;
-class vtkCompositeDataSet;
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkConvertSelection : public vtkSelectionAlgorithm 
 {
@@ -48,7 +51,7 @@ public:
 
   // Description:
   // The output selection type.
-  // This should be one of the constants defined in vtkSelection.h.
+  // This should be one of the constants defined in vtkSelectionNode.h.
   vtkSetMacro(OutputType, int);
   vtkGetMacro(OutputType, int);
   
@@ -83,10 +86,43 @@ public:
     vtkSelection* input, 
     vtkDataObject* data, 
     vtkStringArray* arrayNames);
+
+  // Description:
+  // Static generic method for obtaining selected items from a data object.
+  // Other static methods (e.g. GetSelectedVertices) call this one.
+  static void GetSelectedItems(
+    vtkSelection* input,
+    vtkDataObject* data,
+    int fieldType,
+    vtkIdTypeArray* indices);
+
+  // Description:
+  // Static methods for easily obtaining selected items from a data object.
+  // The array argument will be filled with the selected items.
+  static void GetSelectedVertices(
+    vtkSelection* input,
+    vtkGraph* data,
+    vtkIdTypeArray* indices);
+  static void GetSelectedEdges(
+    vtkSelection* input,
+    vtkGraph* data,
+    vtkIdTypeArray* indices);
+  static void GetSelectedPoints(
+    vtkSelection* input,
+    vtkDataSet* data,
+    vtkIdTypeArray* indices);
+  static void GetSelectedCells(
+    vtkSelection* input,
+    vtkDataSet* data,
+    vtkIdTypeArray* indices);
+  static void GetSelectedRows(
+    vtkSelection* input,
+    vtkTable* data,
+    vtkIdTypeArray* indices);
   
   // Description:
   // A generic static method for converting selection types.
-  // The type should be an integer constant defined in vtkSelection.h.
+  // The type should be an integer constant defined in vtkSelectionNode.h.
   static vtkSelection* ToSelectionType(
     vtkSelection* input, 
     vtkDataObject* data, 
@@ -112,9 +148,9 @@ protected:
     vtkSelection* output);
 
   int ConvertToIndexSelection(
-    vtkSelection* input, 
+    vtkSelectionNode* input, 
     vtkDataSet* data,
-    vtkSelection* output);
+    vtkSelectionNode* output);
   
   int SelectTableFromTable(
     vtkTable* selTable,

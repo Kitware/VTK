@@ -21,11 +21,12 @@
 #include "vtkPoints.h"
 #include "vtkProbeFilter.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkProbeSelectedLocations);
-vtkCxxRevisionMacro(vtkProbeSelectedLocations, "1.1");
+vtkCxxRevisionMacro(vtkProbeSelectedLocations, "1.2");
 //----------------------------------------------------------------------------
 vtkProbeSelectedLocations::vtkProbeSelectedLocations()
 {
@@ -69,7 +70,18 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataSet* dataInput = vtkDataSet::GetData(inInfo);
   vtkDataSet* output = vtkDataSet::GetData(outInfo);
 
-  if (selInput->GetContentType() != vtkSelection::LOCATIONS)
+  vtkSelectionNode* node = 0;
+  if (selInput->GetNumberOfNodes() == 1)
+    {
+    node = selInput->GetNode(0);
+    }
+  if (!node)
+    {
+    vtkErrorMacro("Selection must have a single node.");
+    return 0;
+    }
+
+  if (node->GetContentType() != vtkSelectionNode::LOCATIONS)
     {
     vtkErrorMacro("Missing or incompatible CONTENT_TYPE. "
       "vtkSelection::LOCATIONS required.");
@@ -85,7 +97,7 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   points->Delete();
 
   vtkDataArray* dA = vtkDataArray::SafeDownCast(
-    selInput->GetSelectionList());
+    node->GetSelectionList());
   if (!dA)
     {
     // no locations to probe, quietly quit.

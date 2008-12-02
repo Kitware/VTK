@@ -57,6 +57,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSplineFilter.h"
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
@@ -73,7 +74,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.9");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.10");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -182,9 +183,11 @@ vtkHierarchicalGraphView::vtkHierarchicalGraphView()
 
   // Make empty seleciton for default highlight
   this->EmptySelection = vtkSmartPointer<vtkSelection>::New();
-  this->EmptySelection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+  node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
   vtkSmartPointer<vtkIdTypeArray> arr = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->EmptySelection->SetSelectionList(arr);
+  node->SetSelectionList(arr);
+  this->EmptySelection->AddNode(node);
 
   // Set filter attributes
   this->TreeAggregation->LeafVertexUnitSizeOn();
@@ -824,14 +827,13 @@ void vtkHierarchicalGraphView::ProcessEvents(
     this->GraphLayout->Update();
     vtkSmartPointer<vtkSelection> vertexSelection;
     vertexSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-      kdSelection, this->GraphLayout->GetOutput(), vtkSelection::PEDIGREEIDS));
+      kdSelection, this->GraphLayout->GetOutput(), vtkSelectionNode::PEDIGREEIDS));
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
-    selection->SetContentType(vtkSelection::SELECTIONS);
 
-    if (vertexSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+    if (kdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() > 0)
       {
-      selection->AddChild(vertexSelection);
+      selection->ShallowCopy(vertexSelection);
       }
     else
       {
@@ -858,8 +860,8 @@ void vtkHierarchicalGraphView::ProcessEvents(
       vtkSmartPointer<vtkIdTypeArray> ids;
       if (sel)
         {
-        sel = sel->GetChild(0);
-        ids = sel? vtkIdTypeArray::SafeDownCast(sel->GetSelectionList()) : 0;
+        vtkSelectionNode* node = sel->GetNode(0);
+        ids = node ? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : 0;
         }
 
       // Set the speciale dge actor back to normal.
@@ -881,22 +883,24 @@ void vtkHierarchicalGraphView::ProcessEvents(
       
       // Start with polydata cell selection of lines.
       vtkSmartPointer<vtkSelection> cellIndexSelection = vtkSmartPointer<vtkSelection>::New();
-      cellIndexSelection->SetContentType(vtkSelection::INDICES);
-      cellIndexSelection->SetFieldType(vtkSelection::CELL);
-      cellIndexSelection->SetSelectionList(selectedIds);
+      vtkSmartPointer<vtkSelectionNode> cellIndexSelectionNode = vtkSmartPointer<vtkSelectionNode>::New();
+      cellIndexSelection->AddNode(cellIndexSelectionNode);
+      cellIndexSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+      cellIndexSelectionNode->SetFieldType(vtkSelectionNode::CELL);
+      cellIndexSelectionNode->SetSelectionList(selectedIds);
 
       // Convert to pedigree ids.
       this->HBundle->Update();
       vtkSmartPointer<vtkSelection> edgeSelection;
       edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-        cellIndexSelection, this->HBundle->GetOutput(), vtkSelection::PEDIGREEIDS));
+        cellIndexSelection, this->HBundle->GetOutput(), vtkSelectionNode::PEDIGREEIDS));
 
       // Make it an edge selection.
-      edgeSelection->SetFieldType(vtkSelection::EDGE);
+      edgeSelection->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
 
-      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+      if (cellIndexSelectionNode->GetSelectionList()->GetNumberOfTuples() > 0)
         {
-        selection->AddChild(edgeSelection);
+        selection->ShallowCopy(edgeSelection);
         }
       }
 

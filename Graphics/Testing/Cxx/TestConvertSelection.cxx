@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
@@ -54,28 +55,28 @@ const char* SelectionTypeToString(int type)
 {
   switch (type)
   {
-  case vtkSelection::SELECTIONS:
+  case vtkSelectionNode::SELECTIONS:
   return "Selections";
-  case vtkSelection::GLOBALIDS:
+  case vtkSelectionNode::GLOBALIDS:
   return "Global IDs";
-  case vtkSelection::PEDIGREEIDS:
+  case vtkSelectionNode::PEDIGREEIDS:
   return "Pedigree IDs";
-  case vtkSelection::VALUES:
+  case vtkSelectionNode::VALUES:
   return "Values";
-  case vtkSelection::INDICES:
+  case vtkSelectionNode::INDICES:
   return "Indices";
-  case vtkSelection::FRUSTUM:
+  case vtkSelectionNode::FRUSTUM:
   return "Frustum";
-  case vtkSelection::THRESHOLDS:
+  case vtkSelectionNode::THRESHOLDS:
   return "Thresholds";
-  case vtkSelection::LOCATIONS:
+  case vtkSelectionNode::LOCATIONS:
   return "Locations";
   default:
   return "Unknown";
   }
 }
 
-int CompareSelections(vtkSelection* a, vtkSelection* b)
+int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
 {
   int errors = 0;
   if (a->GetContentType() != b->GetContentType())
@@ -136,7 +137,7 @@ int TestConvertSelectionType(
 {
   cerr << "Testing conversion from type " << SelectionTypeToString(inputType) << " to " << SelectionTypeToString(outputType) << "..." << endl;
   vtkSelection* s = vtkConvertSelection::ToSelectionType(selMap[inputType], data, outputType, arr);
-  int errors = CompareSelections(selMap[outputType], s);
+  int errors = CompareSelections(selMap[outputType]->GetNode(0), s->GetNode(0));
   s->Delete();
   cerr << "...done." << endl;
   return errors;
@@ -186,55 +187,65 @@ void GraphConvertSelections(int & errors, int size)
   vtksys_stl::map<int, vtkSmartPointer<vtkSelection> > selMap;
   
   VTK_CREATE(vtkSelection, globalIdsSelection);
-  globalIdsSelection->SetContentType(vtkSelection::GLOBALIDS);
-  globalIdsSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, globalIdsSelectionNode);
+  globalIdsSelection->AddNode(globalIdsSelectionNode);
+  globalIdsSelectionNode->SetContentType(vtkSelectionNode::GLOBALIDS);
+  globalIdsSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkIdTypeArray, globalIdsArr);
   globalIdsArr->SetName("GlobalId");
-  globalIdsSelection->SetSelectionList(globalIdsArr);
+  globalIdsSelectionNode->SetSelectionList(globalIdsArr);
   for (int i = 0; i < size; i += 2)
     {
     globalIdsArr->InsertNextValue(i);
     }
-  selMap[vtkSelection::GLOBALIDS] = globalIdsSelection;
+  selMap[vtkSelectionNode::GLOBALIDS] = globalIdsSelection;
   
   VTK_CREATE(vtkSelection, pedigreeIdsSelection);
-  pedigreeIdsSelection->SetContentType(vtkSelection::PEDIGREEIDS);
-  pedigreeIdsSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, pedigreeIdsSelectionNode);
+  pedigreeIdsSelection->AddNode(pedigreeIdsSelectionNode);
+  pedigreeIdsSelectionNode->SetContentType(vtkSelectionNode::PEDIGREEIDS);
+  pedigreeIdsSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkIdTypeArray, pedigreeIdsArr);
   pedigreeIdsArr->SetName("PedId");
-  pedigreeIdsSelection->SetSelectionList(pedigreeIdsArr);
+  pedigreeIdsSelectionNode->SetSelectionList(pedigreeIdsArr);
   for (int i = 0; i < size; i += 2)
     {
     pedigreeIdsArr->InsertNextValue(i);
     }
-  selMap[vtkSelection::PEDIGREEIDS] = pedigreeIdsSelection;
+  selMap[vtkSelectionNode::PEDIGREEIDS] = pedigreeIdsSelection;
   
   VTK_CREATE(vtkSelection, valuesSelection);
-  valuesSelection->SetContentType(vtkSelection::VALUES);
-  valuesSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, valuesSelectionNode);
+  valuesSelection->AddNode(valuesSelectionNode);
+  valuesSelectionNode->SetContentType(vtkSelectionNode::VALUES);
+  valuesSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkStringArray, valuesArr);
   valuesArr->SetName("String");
-  valuesSelection->SetSelectionList(valuesArr);
+  valuesSelectionNode->SetSelectionList(valuesArr);
   for (int i = 0; i < size; i += 2)
     {
     valuesArr->InsertNextValue(vtkVariant(i).ToString());
     }
-  selMap[vtkSelection::VALUES] = valuesSelection;
+  selMap[vtkSelectionNode::VALUES] = valuesSelection;
   
   VTK_CREATE(vtkSelection, indicesSelection);
-  indicesSelection->SetContentType(vtkSelection::INDICES);
-  indicesSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, indicesSelectionNode);
+  indicesSelection->AddNode(indicesSelectionNode);
+  indicesSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+  indicesSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkIdTypeArray, indicesArr);
-  indicesSelection->SetSelectionList(indicesArr);
+  indicesSelectionNode->SetSelectionList(indicesArr);
   for (int i = 0; i < size; i += 2)
     {
     indicesArr->InsertNextValue(i);
     }
-  selMap[vtkSelection::INDICES] = indicesSelection;
+  selMap[vtkSelectionNode::INDICES] = indicesSelection;
   
   VTK_CREATE(vtkSelection, frustumSelection);
-  frustumSelection->SetContentType(vtkSelection::FRUSTUM);
-  frustumSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, frustumSelectionNode);
+  frustumSelection->AddNode(frustumSelectionNode);
+  frustumSelectionNode->SetContentType(vtkSelectionNode::FRUSTUM);
+  frustumSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   // near lower left, 
   // far lower left,
   // near upper left, 
@@ -258,71 +269,75 @@ void GraphConvertSelections(int & errors, int size)
     {
     frustumArr->InsertNextValue(corners[i]);
     }
-  frustumSelection->SetSelectionList(frustumArr);
-  selMap[vtkSelection::FRUSTUM] = frustumSelection;
+  frustumSelectionNode->SetSelectionList(frustumArr);
+  selMap[vtkSelectionNode::FRUSTUM] = frustumSelection;
   
   VTK_CREATE(vtkSelection, locationsSelection);
-  locationsSelection->SetContentType(vtkSelection::INDICES);
-  locationsSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, locationsSelectionNode);
+  locationsSelection->AddNode(locationsSelectionNode);
+  locationsSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+  locationsSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkFloatArray, locationsArr);
   locationsArr->SetNumberOfComponents(3);
-  locationsSelection->SetSelectionList(locationsArr);
+  locationsSelectionNode->SetSelectionList(locationsArr);
   for (int i = 0; i < size; i += 2)
     {
     locationsArr->InsertNextTuple3(i, 0, 0);
     }
-  selMap[vtkSelection::LOCATIONS] = locationsSelection;
+  selMap[vtkSelectionNode::LOCATIONS] = locationsSelection;
   
   VTK_CREATE(vtkSelection, thresholdsSelection);
-  thresholdsSelection->SetContentType(vtkSelection::THRESHOLDS);
-  thresholdsSelection->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, thresholdsSelectionNode);
+  thresholdsSelection->AddNode(thresholdsSelectionNode);
+  thresholdsSelectionNode->SetContentType(vtkSelectionNode::THRESHOLDS);
+  thresholdsSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkDoubleArray, thresholdsArr);
   thresholdsArr->SetName("Double");
   thresholdsArr->InsertNextValue(-0.5);
   thresholdsArr->InsertNextValue(0.5);
-  thresholdsSelection->SetSelectionList(thresholdsArr);
-  selMap[vtkSelection::THRESHOLDS] = thresholdsSelection;
+  thresholdsSelectionNode->SetSelectionList(thresholdsArr);
+  selMap[vtkSelectionNode::THRESHOLDS] = thresholdsSelection;
   
   VTK_CREATE(vtkStringArray, arrNames);
   arrNames->InsertNextValue("String");
 
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::VALUES, arrNames);
   
   //
   // Test cell selections
   //
   
-  selMap[vtkSelection::GLOBALIDS]->SetFieldType(vtkSelection::EDGE);
-  selMap[vtkSelection::PEDIGREEIDS]->SetFieldType(vtkSelection::EDGE);
-  selMap[vtkSelection::VALUES]->SetFieldType(vtkSelection::EDGE);
-  selMap[vtkSelection::INDICES]->SetFieldType(vtkSelection::EDGE);
-  selMap[vtkSelection::THRESHOLDS]->SetFieldType(vtkSelection::EDGE);
-  selMap[vtkSelection::FRUSTUM]->SetFieldType(vtkSelection::EDGE);
-  selMap[vtkSelection::LOCATIONS]->SetFieldType(vtkSelection::EDGE);
+  selMap[vtkSelectionNode::GLOBALIDS]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+  selMap[vtkSelectionNode::PEDIGREEIDS]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+  selMap[vtkSelectionNode::VALUES]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+  selMap[vtkSelectionNode::INDICES]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+  selMap[vtkSelectionNode::THRESHOLDS]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+  selMap[vtkSelectionNode::FRUSTUM]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+  selMap[vtkSelectionNode::LOCATIONS]->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
   
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::VALUES, arrNames);
 }  
 
 void PolyDataConvertSelections(int & errors, int size)
@@ -375,55 +390,65 @@ void PolyDataConvertSelections(int & errors, int size)
   vtksys_stl::map<int, vtkSmartPointer<vtkSelection> > selMap;
   
   VTK_CREATE(vtkSelection, globalIdsSelection);
-  globalIdsSelection->SetContentType(vtkSelection::GLOBALIDS);
-  globalIdsSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, globalIdsSelectionNode);
+  globalIdsSelection->AddNode(globalIdsSelectionNode);
+  globalIdsSelectionNode->SetContentType(vtkSelectionNode::GLOBALIDS);
+  globalIdsSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   VTK_CREATE(vtkIdTypeArray, globalIdsArr);
   globalIdsArr->SetName("GlobalId");
-  globalIdsSelection->SetSelectionList(globalIdsArr);
+  globalIdsSelectionNode->SetSelectionList(globalIdsArr);
   for (int i = 0; i < size; i += 2)
     {
     globalIdsArr->InsertNextValue(i);
     }
-  selMap[vtkSelection::GLOBALIDS] = globalIdsSelection;
+  selMap[vtkSelectionNode::GLOBALIDS] = globalIdsSelection;
   
   VTK_CREATE(vtkSelection, pedigreeIdsSelection);
-  pedigreeIdsSelection->SetContentType(vtkSelection::PEDIGREEIDS);
-  pedigreeIdsSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, pedigreeIdsSelectionNode);
+  pedigreeIdsSelection->AddNode(pedigreeIdsSelectionNode);
+  pedigreeIdsSelectionNode->SetContentType(vtkSelectionNode::PEDIGREEIDS);
+  pedigreeIdsSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   VTK_CREATE(vtkIdTypeArray, pedigreeIdsArr);
   pedigreeIdsArr->SetName("PedId");
-  pedigreeIdsSelection->SetSelectionList(pedigreeIdsArr);
+  pedigreeIdsSelectionNode->SetSelectionList(pedigreeIdsArr);
   for (int i = 0; i < size; i += 2)
     {
     pedigreeIdsArr->InsertNextValue(i);
     }
-  selMap[vtkSelection::PEDIGREEIDS] = pedigreeIdsSelection;
+  selMap[vtkSelectionNode::PEDIGREEIDS] = pedigreeIdsSelection;
   
   VTK_CREATE(vtkSelection, valuesSelection);
-  valuesSelection->SetContentType(vtkSelection::VALUES);
-  valuesSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, valuesSelectionNode);
+  valuesSelection->AddNode(valuesSelectionNode);
+  valuesSelectionNode->SetContentType(vtkSelectionNode::VALUES);
+  valuesSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   VTK_CREATE(vtkStringArray, valuesArr);
   valuesArr->SetName("String");
-  valuesSelection->SetSelectionList(valuesArr);
+  valuesSelectionNode->SetSelectionList(valuesArr);
   for (int i = 0; i < size; i += 2)
     {
     valuesArr->InsertNextValue(vtkVariant(i).ToString());
     }
-  selMap[vtkSelection::VALUES] = valuesSelection;
+  selMap[vtkSelectionNode::VALUES] = valuesSelection;
   
   VTK_CREATE(vtkSelection, indicesSelection);
-  indicesSelection->SetContentType(vtkSelection::INDICES);
-  indicesSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, indicesSelectionNode);
+  indicesSelection->AddNode(indicesSelectionNode);
+  indicesSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+  indicesSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   VTK_CREATE(vtkIdTypeArray, indicesArr);
-  indicesSelection->SetSelectionList(indicesArr);
+  indicesSelectionNode->SetSelectionList(indicesArr);
   for (int i = 0; i < size; i += 2)
     {
     indicesArr->InsertNextValue(i);
     }
-  selMap[vtkSelection::INDICES] = indicesSelection;
+  selMap[vtkSelectionNode::INDICES] = indicesSelection;
   
   VTK_CREATE(vtkSelection, frustumSelection);
-  frustumSelection->SetContentType(vtkSelection::FRUSTUM);
-  frustumSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, frustumSelectionNode);
+  frustumSelection->AddNode(frustumSelectionNode);
+  frustumSelectionNode->SetContentType(vtkSelectionNode::FRUSTUM);
+  frustumSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   // near lower left, far lower left
   // near upper left, far upper left
   // near lower right, far lower right
@@ -443,95 +468,99 @@ void PolyDataConvertSelections(int & errors, int size)
     {
     frustumArr->InsertNextValue(corners[i]);
     }
-  frustumSelection->SetSelectionList(frustumArr);
-  selMap[vtkSelection::FRUSTUM] = frustumSelection;
+  frustumSelectionNode->SetSelectionList(frustumArr);
+  selMap[vtkSelectionNode::FRUSTUM] = frustumSelection;
   
   VTK_CREATE(vtkSelection, locationsSelection);
-  locationsSelection->SetContentType(vtkSelection::INDICES);
-  locationsSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, locationsSelectionNode);
+  locationsSelection->AddNode(locationsSelectionNode);
+  locationsSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+  locationsSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   VTK_CREATE(vtkFloatArray, locationsArr);
   locationsArr->SetNumberOfComponents(3);
-  locationsSelection->SetSelectionList(locationsArr);
+  locationsSelectionNode->SetSelectionList(locationsArr);
   for (int i = 0; i < size; i += 2)
     {
     locationsArr->InsertNextTuple3(i, 0, 0);
     }
-  selMap[vtkSelection::LOCATIONS] = locationsSelection;
+  selMap[vtkSelectionNode::LOCATIONS] = locationsSelection;
   
   VTK_CREATE(vtkSelection, thresholdsSelection);
-  thresholdsSelection->SetContentType(vtkSelection::THRESHOLDS);
-  thresholdsSelection->SetFieldType(vtkSelection::POINT);
+  VTK_CREATE(vtkSelectionNode, thresholdsSelectionNode);
+  thresholdsSelection->AddNode(thresholdsSelectionNode);
+  thresholdsSelectionNode->SetContentType(vtkSelectionNode::THRESHOLDS);
+  thresholdsSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   VTK_CREATE(vtkDoubleArray, thresholdsArr);
   thresholdsArr->SetName("Double");
   thresholdsArr->InsertNextValue(-0.5);
   thresholdsArr->InsertNextValue(0.5);
-  thresholdsSelection->SetSelectionList(thresholdsArr);
-  selMap[vtkSelection::THRESHOLDS] = thresholdsSelection;
+  thresholdsSelectionNode->SetSelectionList(thresholdsArr);
+  selMap[vtkSelectionNode::THRESHOLDS] = thresholdsSelection;
   
   VTK_CREATE(vtkStringArray, arrNames);
   arrNames->InsertNextValue("String");
 
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::INDICES);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::GLOBALIDS);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::PEDIGREEIDS);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::VALUES, arrNames);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::INDICES);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::GLOBALIDS);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::PEDIGREEIDS);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::VALUES, arrNames);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::INDICES);
   
   //
   // Test cell selections
   //
   
-  selMap[vtkSelection::GLOBALIDS]->SetFieldType(vtkSelection::CELL);
-  selMap[vtkSelection::PEDIGREEIDS]->SetFieldType(vtkSelection::CELL);
-  selMap[vtkSelection::VALUES]->SetFieldType(vtkSelection::CELL);
-  selMap[vtkSelection::INDICES]->SetFieldType(vtkSelection::CELL);
-  selMap[vtkSelection::THRESHOLDS]->SetFieldType(vtkSelection::CELL);
-  selMap[vtkSelection::FRUSTUM]->SetFieldType(vtkSelection::CELL);
-  selMap[vtkSelection::LOCATIONS]->SetFieldType(vtkSelection::CELL);
+  selMap[vtkSelectionNode::GLOBALIDS]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
+  selMap[vtkSelectionNode::PEDIGREEIDS]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
+  selMap[vtkSelectionNode::VALUES]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
+  selMap[vtkSelectionNode::INDICES]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
+  selMap[vtkSelectionNode::THRESHOLDS]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
+  selMap[vtkSelectionNode::FRUSTUM]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
+  selMap[vtkSelectionNode::LOCATIONS]->GetNode(0)->SetFieldType(vtkSelectionNode::CELL);
   
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::GLOBALIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::PEDIGREEIDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::VALUES, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::INDICES, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::THRESHOLDS, vtkSelection::INDICES);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::GLOBALIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::PEDIGREEIDS);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::VALUES, arrNames);
-  errors += TestConvertSelectionType(selMap, g, vtkSelection::FRUSTUM, vtkSelection::INDICES);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::GLOBALIDS);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::PEDIGREEIDS);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::VALUES, arrNames);
-  //errors += TestConvertSelectionType(selMap, g, vtkSelection::LOCATIONS, vtkSelection::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::GLOBALIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::PEDIGREEIDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::VALUES, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::INDICES, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::INDICES);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::GLOBALIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::PEDIGREEIDS);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::VALUES, arrNames);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::FRUSTUM, vtkSelectionNode::INDICES);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::GLOBALIDS);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::PEDIGREEIDS);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::VALUES, arrNames);
+  //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::INDICES);
 }  
 
 int TestConvertSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])

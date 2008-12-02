@@ -28,8 +28,10 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.10");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.11");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -237,13 +239,16 @@ int vtkKdTreeSelector::RequestData(
 
   // Fill the selection with the found ids
   vtkSelection* output = vtkSelection::GetData(outputVector);
+  vtkSmartPointer<vtkSelectionNode> node =
+    vtkSmartPointer<vtkSelectionNode>::New();
+  output->AddNode(node);
   if (graph)
     {
-    output->GetProperties()->Set(output->FIELD_TYPE(), vtkSelection::VERTEX);
+    node->SetFieldType(vtkSelectionNode::VERTEX);
     }
   else
     {
-    output->GetProperties()->Set(output->FIELD_TYPE(), vtkSelection::POINT);
+    node->SetFieldType(vtkSelectionNode::POINT);
     }
   if (field)
     {
@@ -258,24 +263,24 @@ int vtkKdTreeSelector::RequestData(
       {
       if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS)
         {
-        output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::GLOBALIDS);
+        node->SetContentType(vtkSelectionNode::GLOBALIDS);
         }
       else if (this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
         {
-        output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::PEDIGREEIDS);
+        node->SetContentType(vtkSelectionNode::PEDIGREEIDS);
         }
       }
     else
       {
-      output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::VALUES);
+      node->SetContentType(vtkSelectionNode::VALUES);
       }
-    output->SetSelectionList(arr);
+    node->SetSelectionList(arr);
     arr->Delete();
     }
   else
     {
-    output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::INDICES);
-    output->SetSelectionList(ids);
+    node->SetContentType(vtkSelectionNode::INDICES);
+    node->SetSelectionList(ids);
     }
 
   // Clean up

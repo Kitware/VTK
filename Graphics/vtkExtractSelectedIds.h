@@ -31,6 +31,7 @@
 #include "vtkExtractSelectionBase.h"
 
 class vtkSelection;
+class vtkSelectionNode;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelectedIds : public vtkExtractSelectionBase
 {
@@ -49,9 +50,9 @@ protected:
                           vtkInformationVector *);
 
 
-  int ExtractCells(vtkSelection *sel, vtkDataSet *input, 
+  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input, 
                    vtkDataSet *output);
-  int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
+  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input, 
                     vtkDataSet *output);
 
 private:

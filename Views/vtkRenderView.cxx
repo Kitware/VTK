@@ -32,12 +32,14 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.9");
+vtkCxxRevisionMacro(vtkRenderView, "1.10");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -203,9 +205,11 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
         worldP[index*4+2], worldP[index*4+3]);
 
       selection = vtkSelection::New();
-      selection->SetContentType(vtkSelection::FRUSTUM);
-      selection->SetFieldType(vtkSelection::CELL);
-      selection->SetSelectionList(frustcorners);
+      vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+      node->SetContentType(vtkSelectionNode::FRUSTUM);
+      node->SetFieldType(vtkSelectionNode::CELL);
+      node->SetSelectionList(frustcorners);
+      selection->AddNode(node);
       frustcorners->Delete();
       }
     

@@ -34,6 +34,7 @@
 
 class QTableView;
 class vtkQtTableModelAdapter;
+class vtkTable;
 
 class QVTK_EXPORT vtkQtTableView : public vtkQtItemView
 {

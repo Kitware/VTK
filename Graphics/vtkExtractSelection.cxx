@@ -28,10 +28,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkProbeSelectedLocations.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.26");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.27");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -109,19 +111,18 @@ int vtkExtractSelection::RequestData(
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()))
-    {
-    vtkErrorMacro("Selection missing CONTENT_TYPE.");
-    return 0;
-    }
 
   vtkDataObject *output = vtkDataObject::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int selType = sel->GetContentType();
-  // if selType == vtkSelection::BLOCKS, we don;t need to iterate over nodes in
+  int selType = -1;
+  if (sel->GetNumberOfNodes() > 0)
+    {
+    selType = sel->GetNode(0)->GetContentType();
+    }
+  // if selType == vtkSelectionNode::BLOCKS, we don;t need to iterate over nodes in
   // the composite dataset, the extract block filter can handle composite datasets.
-  if (input->IsA("vtkCompositeDataSet") && selType != vtkSelection::BLOCKS)
+  if (input->IsA("vtkCompositeDataSet") && selType != vtkSelectionNode::BLOCKS)
     {
     vtkCompositeDataSet* cdInput = vtkCompositeDataSet::SafeDownCast(input);
     vtkCompositeDataSet* cdOutput = vtkCompositeDataSet::SafeDownCast(output);
@@ -164,8 +165,18 @@ int vtkExtractSelection::RequestData(
     }
   else
     {
+    vtkSelectionNode* node = 0;
+    if (sel->GetNumberOfNodes() > 0)
+      {
+      node = sel->GetNode(0);
+      }
+    if (!node)
+      {
+      vtkErrorMacro("Selection must have a single node.");
+      return 0;
+      }
     vtkDataObject* ecOutput =
-      this->RequestDataFromBlock(input, sel, outInfo);
+      this->RequestDataFromBlock(input, node, outInfo);
     if (ecOutput)
       {
       output->ShallowCopy(ecOutput);
@@ -218,36 +229,24 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
     {
     return NULL;
     }
-
-  vtkInformation* selProperties = sel->GetProperties();
-  if (sel->GetContentType() == vtkSelection::SELECTIONS)
+  for (unsigned int n = 0; n < sel->GetNumberOfNodes(); ++n)
     {
-    for (unsigned int cc=0; cc < sel->GetNumberOfChildren(); cc++)
+    vtkSelectionNode* node = sel->GetNode(n);
+    vtkInformation* nodeProperties = node->GetProperties();
+    if (nodeProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()))
       {
-      vtkSelection* childSel = sel->GetChild(cc);
-      vtkInformation* childProperties = childSel->GetProperties();
-      if (childProperties->Has(vtkSelection::COMPOSITE_INDEX()))
+      unsigned int cur_index = static_cast<unsigned int>(
+          nodeProperties->Get(vtkSelectionNode::COMPOSITE_INDEX()));
+      if (cur_index == composite_index)
         {
-        unsigned int cur_index = static_cast<unsigned int>(
-          childProperties->Get(vtkSelection::COMPOSITE_INDEX()));
-        if (cur_index == composite_index)
-          {
-          return this->RequestDataFromBlock(input, childSel, outInfo);
-          }
-        }
-      else
-        {
-        return this->RequestDataFromBlock(input, childSel, outInfo);
+        return this->RequestDataFromBlock(input, node, outInfo);
         }
       }
+    else
+      {
+      return this->RequestDataFromBlock(input, node, outInfo);
+      }
     }
-  else if (!selProperties->Has(vtkSelection::COMPOSITE_INDEX()) ||
-    (static_cast<unsigned int>(selProperties->Get(vtkSelection::COMPOSITE_INDEX()))
-     == composite_index))
-    {
-    return this->RequestDataFromBlock(input, sel, outInfo);
-    }
-
   return NULL;
 }
 
@@ -267,107 +266,70 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
     return NULL;
     }
 
-  vtkInformation* selProperties = sel->GetProperties();
-  if (sel->GetContentType() == vtkSelection::SELECTIONS)
+  for (unsigned int n = 0; n < sel->GetNumberOfNodes(); n++)
     {
-    for (unsigned int cc=0; cc < sel->GetNumberOfChildren(); cc++)
+    vtkSelectionNode* node = sel->GetNode(n);
+    vtkInformation* nodeProperties = node->GetProperties();
+    if (nodeProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()))
       {
-      vtkSelection* childSel = sel->GetChild(cc);
-      vtkInformation* childProperties = childSel->GetProperties();
-      if (childProperties->Has(vtkSelection::COMPOSITE_INDEX()))
+      unsigned int cur_index = static_cast<unsigned int>(
+          nodeProperties->Get(vtkSelectionNode::COMPOSITE_INDEX()));
+      if (cur_index == composite_index)
         {
-        unsigned int cur_index = static_cast<unsigned int>(
-          childProperties->Get(vtkSelection::COMPOSITE_INDEX()));
-        if (cur_index == composite_index)
-          {
-          return this->RequestDataFromBlock(input, childSel, outInfo);
-          }
-        }
-      else if (childProperties->Has(vtkSelection::HIERARCHICAL_LEVEL()) &&
-        childProperties->Has(vtkSelection::HIERARCHICAL_INDEX()))
-        {
-        unsigned int cur_level = static_cast<unsigned int>(
-          childProperties->Get(vtkSelection::HIERARCHICAL_LEVEL()));
-        unsigned int cur_index = static_cast<unsigned int>(
-          childProperties->Get(vtkSelection::HIERARCHICAL_INDEX()));
-        if (cur_level == level && cur_index == index)
-          {
-          return this->RequestDataFromBlock(input, childSel, outInfo);
-          }
-        }
-      else
-        {
-        return this->RequestDataFromBlock(input, childSel, outInfo);
+        return this->RequestDataFromBlock(input, node, outInfo);
         }
       }
+    else if (nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) &&
+        nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_INDEX()))
+      {
+      unsigned int cur_level = static_cast<unsigned int>(
+          nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL()));
+      unsigned int cur_index = static_cast<unsigned int>(
+          nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()));
+      if (cur_level == level && cur_index == index)
+        {
+        return this->RequestDataFromBlock(input, node, outInfo);
+        }
+      }
+    else
+      {
+      return this->RequestDataFromBlock(input, node, outInfo);
+      }
     }
-  else if (selProperties->Has(vtkSelection::COMPOSITE_INDEX()) &&
-    static_cast<unsigned int>(selProperties->Get(vtkSelection::COMPOSITE_INDEX()))
-    == composite_index)
-    {
-    return this->RequestDataFromBlock(input, sel, outInfo);
-    }
-  else if (selProperties->Has(vtkSelection::HIERARCHICAL_LEVEL()) &&
-    selProperties->Has(vtkSelection::HIERARCHICAL_INDEX()) &&
-    static_cast<unsigned int>(selProperties->Get(vtkSelection::HIERARCHICAL_LEVEL()))
-    == level &&
-    static_cast<unsigned int>(selProperties->Get(vtkSelection::HIERARCHICAL_INDEX()))
-    == index)
-    {
-    return this->RequestDataFromBlock(input, sel, outInfo);
-    }
-  else if (!selProperties->Has(vtkSelection::COMPOSITE_INDEX()) &&
-    !selProperties->Has(vtkSelection::HIERARCHICAL_LEVEL()) &&
-    !selProperties->Has(vtkSelection::HIERARCHICAL_INDEX()))
-    {
-    return this->RequestDataFromBlock(input, sel, outInfo);
-    }
-
   return NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
-  vtkDataObject* input, vtkSelection* sel, vtkInformation* outInfo)
+  vtkDataObject* input, vtkSelectionNode* sel, vtkInformation* outInfo)
 {
-  if (sel->GetContentType() == vtkSelection::SELECTIONS)
-    {
-    if (sel->GetNumberOfChildren() > 0)
-      {
-      vtkSelection* childSel = sel->GetChild(0);
-      return this->RequestDataFromBlock(input, childSel, outInfo);
-      }
-    return 0;
-    }
-
-
   vtkExtractSelectionBase *subFilter = NULL;
   int seltype = sel->GetContentType();
   switch (seltype)
     {
-  case vtkSelection::GLOBALIDS:
-  case vtkSelection::PEDIGREEIDS:
-  case vtkSelection::VALUES:
-  case vtkSelection::INDICES:
+  case vtkSelectionNode::GLOBALIDS:
+  case vtkSelectionNode::PEDIGREEIDS:
+  case vtkSelectionNode::VALUES:
+  case vtkSelectionNode::INDICES:
     subFilter = this->IdsFilter;
     break;
 
-  case vtkSelection::FRUSTUM:
+  case vtkSelectionNode::FRUSTUM:
     subFilter = this->FrustumFilter;
     this->FrustumFilter->SetShowBounds(this->ShowBounds);
     break;
 
-  case vtkSelection::LOCATIONS:
+  case vtkSelectionNode::LOCATIONS:
     subFilter = this->UseProbeForLocations?
       static_cast<vtkExtractSelectionBase*>(this->ProbeFilter) :
       static_cast<vtkExtractSelectionBase*>(this->LocationsFilter);
     break;
 
-  case vtkSelection::THRESHOLDS:
+  case vtkSelectionNode::THRESHOLDS:
     subFilter = this->ThresholdsFilter;
     break;
 
-  case vtkSelection::BLOCKS:
+  case vtkSelectionNode::BLOCKS:
     subFilter = this->BlockFilter;
     break;
 
@@ -378,7 +340,10 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
 
   // Pass flags to the subFilter.
   subFilter->SetPreserveTopology(this->PreserveTopology);
-  subFilter->SetInput(1, sel);
+  vtkSmartPointer<vtkSelection> tempSel =
+    vtkSmartPointer<vtkSelection>::New();
+  tempSel->AddNode(sel);
+  subFilter->SetInput(1, tempSel);
 
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(

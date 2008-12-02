@@ -52,6 +52,7 @@
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSelectVisiblePoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
@@ -60,7 +61,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.1");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.2");
 vtkStandardNewMacro(vtkGeoGraphRepresentation2D);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
@@ -424,7 +425,7 @@ vtkSelection* vtkGeoGraphRepresentation2D::ConvertSelection(
   // Convert from a frustum selection to a vertex index selection
   vtkSmartPointer<vtkSelection> pointSel = vtkSmartPointer<vtkSelection>::New();
   pointSel->ShallowCopy(selection);
-  pointSel->SetFieldType(vtkSelection::POINT);
+  pointSel->GetNode(0)->SetFieldType(vtkSelectionNode::POINT);
   vtkSmartPointer<vtkGraphToPolyData> poly =
     vtkSmartPointer<vtkGraphToPolyData>::New();
   poly->SetInputConnection(this->AssignCoordinates->GetOutputPort());
@@ -478,21 +479,20 @@ vtkSelection* vtkGeoGraphRepresentation2D::ConvertSelection(
         }
       }
     }
-  vtkSmartPointer<vtkSelection> vertSel = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> vertSel = vtkSmartPointer<vtkSelectionNode>::New();
   vertSel->SetSelectionList(facingIds);
-  vertSel->SetContentType(vtkSelection::INDICES);
-  vertSel->SetFieldType(vtkSelection::VERTEX);
+  vertSel->SetContentType(vtkSelectionNode::INDICES);
+  vertSel->SetFieldType(vtkSelectionNode::VERTEX);
 
-  vtkSmartPointer<vtkSelection> edgeSel = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> edgeSel = vtkSmartPointer<vtkSelectionNode>::New();
   edgeSel->SetSelectionList(edgeIds);
-  edgeSel->SetContentType(vtkSelection::INDICES);
-  edgeSel->SetFieldType(vtkSelection::EDGE);
+  edgeSel->SetContentType(vtkSelectionNode::INDICES);
+  edgeSel->SetFieldType(vtkSelectionNode::EDGE);
 
   vtkSmartPointer<vtkSelection> parentSel =
     vtkSmartPointer<vtkSelection>::New();
-  parentSel->SetContentType(vtkSelection::SELECTIONS);
-  parentSel->AddChild(vertSel);
-  parentSel->AddChild(edgeSel);
+  parentSel->AddNode(vertSel);
+  parentSel->AddNode(edgeSel);
 
   // Convert to the selection type needed for this view
   vtkSmartPointer<vtkSelection> conv;

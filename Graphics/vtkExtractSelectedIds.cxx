@@ -29,10 +29,11 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.28");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.29");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -73,17 +74,23 @@ int vtkExtractSelectedIds::RequestData(
     }
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE())
-      || 
-      (
-        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::GLOBALIDS &&
-        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::PEDIGREEIDS &&
-        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::VALUES &&  
-        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES
-        )
-    )
+  vtkSelectionNode *node = 0;
+  if (sel->GetNumberOfNodes() == 1)
     {
-    vtkErrorMacro("Missing or incompatible CONTENT_TYPE.");
+    node = sel->GetNode(0);
+    }
+  if (!node)
+    {
+    vtkErrorMacro("Selection must have a single node.");
+    return 0;
+    }
+  if (node->GetContentType() != vtkSelectionNode::GLOBALIDS &&
+      node->GetContentType() != vtkSelectionNode::PEDIGREEIDS &&
+      node->GetContentType() != vtkSelectionNode::VALUES &&  
+      node->GetContentType() != vtkSelectionNode::INDICES
+      )
+    {
+    vtkErrorMacro("Incompatible CONTENT_TYPE.");
     return 0;
     }
 
@@ -92,18 +99,18 @@ int vtkExtractSelectedIds::RequestData(
 
   vtkDebugMacro(<< "Extracting from dataset");
   
-  int fieldType = vtkSelection::CELL;
-  if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
+  int fieldType = vtkSelectionNode::CELL;
+  if (node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()))
     {
-    fieldType = sel->GetProperties()->Get(vtkSelection::FIELD_TYPE());
+    fieldType = node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
     }
   switch (fieldType)
     {
-    case vtkSelection::CELL:
-      return this->ExtractCells(sel, input, output);
+    case vtkSelectionNode::CELL:
+      return this->ExtractCells(node, input, output);
       break;
-    case vtkSelection::POINT:
-      return this->ExtractPoints(sel, input, output);
+    case vtkSelectionNode::POINT:
+      return this->ExtractPoints(node, input, output);
     }
   return 1;
 }
@@ -188,7 +195,7 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedIds::ExtractCells(
-  vtkSelection *sel,  vtkDataSet *input,
+  vtkSelectionNode *sel,  vtkDataSet *input,
   vtkDataSet *output)
 {
   int passThrough = 0;
@@ -198,9 +205,9 @@ int vtkExtractSelectedIds::ExtractCells(
     }
 
   int invert = 0;
-  if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
     {
-    invert = sel->GetProperties()->Get(vtkSelection::INVERSE());
+    invert = sel->GetProperties()->Get(vtkSelectionNode::INVERSE());
     }
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
@@ -237,17 +244,17 @@ int vtkExtractSelectedIds::ExtractCells(
 
   //decide what the IDS mean
   vtkAbstractArray *labelArray = NULL;
-  int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
-  if (selType == vtkSelection::GLOBALIDS)
+  int selType = sel->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE());
+  if (selType == vtkSelectionNode::GLOBALIDS)
     {
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetCellData()->GetGlobalIds());
     }
-  else if (selType == vtkSelection::PEDIGREEIDS)
+  else if (selType == vtkSelectionNode::PEDIGREEIDS)
     {
     labelArray = input->GetCellData()->GetPedigreeIds();
     }
-  else if (selType == vtkSelection::VALUES &&
+  else if (selType == vtkSelectionNode::VALUES &&
            sel->GetSelectionList()->GetName())
     {
     //user chose a specific label array
@@ -255,7 +262,7 @@ int vtkExtractSelectedIds::ExtractCells(
         sel->GetSelectionList()->GetName());
     }    
   
-  if (labelArray == NULL && selType != vtkSelection::INDICES)
+  if (labelArray == NULL && selType != vtkSelectionNode::INDICES)
     {
     return 1;
     }
@@ -516,7 +523,7 @@ int vtkExtractSelectedIds::ExtractCells(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedIds::ExtractPoints(
-  vtkSelection *sel,  vtkDataSet *input,
+  vtkSelectionNode *sel,  vtkDataSet *input,
   vtkDataSet *output)
 {
   int passThrough = 0;
@@ -526,15 +533,15 @@ int vtkExtractSelectedIds::ExtractPoints(
     }
 
   int containingCells = 0;
-  if (sel->GetProperties()->Has(vtkSelection::CONTAINING_CELLS()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::CONTAINING_CELLS()))
     {
-    containingCells = sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS());
+    containingCells = sel->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS());
     }
 
   int invert = 0;
-  if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
     {
-    invert = sel->GetProperties()->Get(vtkSelection::INVERSE());
+    invert = sel->GetProperties()->Get(vtkSelectionNode::INVERSE());
     }
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
@@ -578,24 +585,24 @@ int vtkExtractSelectedIds::ExtractPoints(
 
   //decide what the IDS mean
   vtkAbstractArray *labelArray = NULL;
-  int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
-  if (selType == vtkSelection::GLOBALIDS)
+  int selType = sel->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE());
+  if (selType == vtkSelectionNode::GLOBALIDS)
     {
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetPointData()->GetGlobalIds());
     }
-  else if (selType == vtkSelection::PEDIGREEIDS)
+  else if (selType == vtkSelectionNode::PEDIGREEIDS)
     {
     labelArray = input->GetPointData()->GetPedigreeIds();
     }
-  else if (selType == vtkSelection::VALUES &&
+  else if (selType == vtkSelectionNode::VALUES &&
            sel->GetSelectionList()->GetName())
     {
     //user chose a specific label array
     labelArray = input->GetPointData()->GetAbstractArray(
       sel->GetSelectionList()->GetName());
     }
-  if (labelArray == NULL && selType != vtkSelection::INDICES)
+  if (labelArray == NULL && selType != vtkSelectionNode::INDICES)
     {
     return 1;
     }

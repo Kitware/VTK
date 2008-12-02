@@ -31,13 +31,15 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.4");
+vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.5");
 vtkStandardNewMacro(vtkConvertSelectionDomain);
 //----------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
@@ -110,21 +112,21 @@ int vtkConvertSelectionDomain::RequestData(
   if (vtkDataSet::SafeDownCast(data))
     {
     dsa1 = vtkDataSet::SafeDownCast(data)->GetPointData();
-    fieldType1 = vtkSelection::POINT;
+    fieldType1 = vtkSelectionNode::POINT;
     dsa2 = vtkDataSet::SafeDownCast(data)->GetCellData();
-    fieldType2 = vtkSelection::CELL;
+    fieldType2 = vtkSelectionNode::CELL;
     }
   else if (vtkGraph::SafeDownCast(data))
     {
     dsa1 = vtkGraph::SafeDownCast(data)->GetVertexData();
-    fieldType1 = vtkSelection::VERTEX;
+    fieldType1 = vtkSelectionNode::VERTEX;
     dsa2 = vtkGraph::SafeDownCast(data)->GetEdgeData();
-    fieldType2 = vtkSelection::EDGE;
+    fieldType2 = vtkSelectionNode::EDGE;
     }
   else if (vtkTable::SafeDownCast(data))
     {
     dsa1 = vtkDataSetAttributes::SafeDownCast(vtkTable::SafeDownCast(data)->GetRowData());
-    fieldType1 = vtkSelection::ROW;
+    fieldType1 = vtkSelectionNode::ROW;
     }
 
   vtksys_stl::set<vtkStdString> domains1;
@@ -138,22 +140,12 @@ int vtkConvertSelectionDomain::RequestData(
     vtkConvertSelectionDomainFindDomains(dsa2, domains2);
     }
 
-  vtkSmartPointer<vtkSelection> dummyParent =
-    vtkSmartPointer<vtkSelection>::New();
-  if (input->GetContentType() != vtkSelection::SELECTIONS)
-    {
-    dummyParent->SetContentType(vtkSelection::SELECTIONS);
-    dummyParent->AddChild(input);
-    input = dummyParent;
-    }
-  output->SetContentType(vtkSelection::SELECTIONS);
-
   // Iterate over all input selections
-  for (unsigned int c = 0; c < input->GetNumberOfChildren(); ++c)
+  for (unsigned int c = 0; c < input->GetNumberOfNodes(); ++c)
     {
-    vtkSelection* curInput = input->GetChild(c);
-    vtkSmartPointer<vtkSelection> curOutput =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSelectionNode* curInput = input->GetNode(c);
+    vtkSmartPointer<vtkSelectionNode> curOutput =
+      vtkSmartPointer<vtkSelectionNode>::New();
     vtkAbstractArray* inArr = curInput->GetSelectionList();
 
     // Start with a shallow copy of the input selection.
@@ -162,9 +154,9 @@ int vtkConvertSelectionDomain::RequestData(
     // I don't know how to handle this type of selection,
     // so pass it through.
     if (!inArr || !inArr->GetName() ||
-        curInput->GetContentType() != vtkSelection::PEDIGREEIDS)
+        curInput->GetContentType() != vtkSelectionNode::PEDIGREEIDS)
       {
-      output->AddChild(curOutput);
+      output->AddNode(curOutput);
       continue;
       }
 
@@ -172,13 +164,13 @@ int vtkConvertSelectionDomain::RequestData(
     if (domains1.count(inArr->GetName()) > 0)
       {
       curOutput->SetFieldType(fieldType1);
-      output->AddChild(curOutput);
+      output->AddNode(curOutput);
       continue;
       }
     if (domains2.count(inArr->GetName()) > 0)
       {
       curOutput->SetFieldType(fieldType2);
-      output->AddChild(curOutput);
+      output->AddNode(curOutput);
       continue;
       }
 
@@ -254,27 +246,18 @@ int vtkConvertSelectionDomain::RequestData(
         }
       }
     curOutput->SetSelectionList(outArr);
-    output->AddChild(curOutput);
+    output->AddNode(curOutput);
     }
 
-  // If the output only has one child, we don't need a parent selection.
-  if (output->GetNumberOfChildren() <= 1)
+  // Make sure there is at least something in the output selection.
+  if (output->GetNumberOfNodes() == 0)
     {
-    if (output->GetNumberOfChildren() == 1)
-      {
-      vtkSelection* child = output->GetChild(0);
-      child->Register(0);
-      output->RemoveChild(child);
-      output->ShallowCopy(child);
-      child->Delete();
-      }
-    else
-      {
-      output->SetContentType(vtkSelection::INDICES);
-      vtkSmartPointer<vtkIdTypeArray> inds =
-        vtkSmartPointer<vtkIdTypeArray>::New();
-      output->SetSelectionList(inds);
-      }
+    vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+    node->SetContentType(vtkSelectionNode::INDICES);
+    vtkSmartPointer<vtkIdTypeArray> inds =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    node->SetSelectionList(inds);
+    output->AddNode(node);
     }
 
   return 1;

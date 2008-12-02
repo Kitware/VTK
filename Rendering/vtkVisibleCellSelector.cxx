@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkVisibleCellSelector.h"
 
-#include "vtkFieldData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -22,6 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkInformation.h"
 #include "vtkIdentColoredPainter.h"
 
@@ -199,7 +200,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.26");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.27");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -620,10 +621,7 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
     {
     return;
     }
-  dest->Clear();
-  //parent node in the tree
-  dest->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::SELECTIONS);
+  dest->Initialize();
 
   vtkIdType numTup = this->SelectedIds->GetNumberOfTuples();
   vtkIdType aTuple[4];
@@ -634,7 +632,7 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
   vtkIdTypeArray *cellvertptrs = NULL;
   vtkIdTypeArray *cellvertlist = NULL;
 
-  vtkSelection* selection = NULL;
+  vtkSelectionNode* selection = NULL;
 
   int pixelCount = 0;
   for (vtkIdType i = 0; i < numTup; i++)
@@ -647,9 +645,9 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
       if (selection != NULL)
         {
         selection->GetProperties()->Set(
-          vtkSelection::PIXEL_COUNT(), pixelCount);
+          vtkSelectionNode::PIXEL_COUNT(), pixelCount);
         //save whatever node we might have been filling before
-        dest->AddChild(selection);
+        dest->AddNode(selection);
         selection->Delete();
         selection = NULL;
 
@@ -680,9 +678,9 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
       if (selection != NULL)
         {
         selection->GetProperties()->Set(
-          vtkSelection::PIXEL_COUNT(), pixelCount);
+          vtkSelectionNode::PIXEL_COUNT(), pixelCount);
         //save whatever node we might have been filling before
-        dest->AddChild(selection);
+        dest->AddNode(selection);
         selection->Delete();
         selection = NULL;
         
@@ -700,18 +698,18 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 
       pixelCount = 0;
       //start a new node
-      selection = vtkSelection::New();
+      selection = vtkSelectionNode::New();
       //record that we are storing cell ids in the node
       selection->GetProperties()->Set(
-        vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+        vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
       selection->GetProperties()->Set(
-        vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
+        vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
       //record the processor we are recording hits on
       selection->GetProperties()->Set(
-        vtkSelection::PROCESS_ID(), lProcId);
+        vtkSelectionNode::PROCESS_ID(), lProcId);
       //record the prop we have hits from
       selection->GetProperties()->Set(
-        vtkSelection::PROP_ID(), aTuple[1]);
+        vtkSelectionNode::PROP_ID(), aTuple[1]);
       //start a new holder for cell ids
       cellids = vtkIdTypeArray::New();
       cellids->SetNumberOfComponents(1);      
@@ -730,7 +728,7 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
         cellvertlist->SetNumberOfComponents(1);
         selection->GetSelectionData()->AddArray(cellvertlist);
         selection->GetProperties()->Set(
-          vtkSelection::INDEXED_VERTICES(), 1);
+          vtkSelectionNode::INDEXED_VERTICES(), 1);
         }
       }
 
@@ -767,9 +765,9 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
   if (selection != NULL)
     {
     selection->GetProperties()->Set(
-      vtkSelection::PIXEL_COUNT(), pixelCount);
+      vtkSelectionNode::PIXEL_COUNT(), pixelCount);
     //save whatever node we might have filled before
-    dest->AddChild(selection);
+    dest->AddNode(selection);
     selection->Delete();
     selection = NULL;
 

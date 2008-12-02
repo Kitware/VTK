@@ -28,11 +28,12 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.15");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.16");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -74,10 +75,19 @@ int vtkExtractSelectedLocations::RequestData(
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::LOCATIONS)
+  vtkSelectionNode *node = 0;
+  if (sel->GetNumberOfNodes() == 1)
     {
-    vtkErrorMacro("Missing or incompatible CONTENT_TYPE.");
+    node = sel->GetNode(0);
+    }
+  if (!node)
+    {
+    vtkErrorMacro("Selection must have a single node.");
+    return 0;
+    }
+  if (node->GetContentType() != vtkSelectionNode::LOCATIONS)
+    {
+    vtkErrorMacro("Incompatible CONTENT_TYPE.");
     return 0;
     }
 
@@ -86,17 +96,17 @@ int vtkExtractSelectedLocations::RequestData(
   
   vtkDebugMacro(<< "Extracting from dataset");
   
-  int fieldType = vtkSelection::CELL;
-  if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
+  int fieldType = vtkSelectionNode::CELL;
+  if (node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()))
     {
-    fieldType = sel->GetProperties()->Get(vtkSelection::FIELD_TYPE());
+    fieldType = node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
     }
   switch (fieldType)
     {
-    case vtkSelection::CELL:
-      return this->ExtractCells(sel, input, output);
-    case vtkSelection::POINT:
-      return this->ExtractPoints(sel, input, output);
+    case vtkSelectionNode::CELL:
+      return this->ExtractCells(node, input, output);
+    case vtkSelectionNode::POINT:
+      return this->ExtractPoints(node, input, output);
     }
   return 1;
 }
@@ -179,7 +189,7 @@ void vtkExtractSelectedLocationsCopyCells(vtkDataSet* input, T* output, signed c
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedLocations::ExtractCells(
-  vtkSelection *sel,
+  vtkSelectionNode *sel,
   vtkDataSet* input,
   vtkDataSet *output)
 {
@@ -199,9 +209,9 @@ int vtkExtractSelectedLocations::ExtractCells(
     }
 
   int invert = 0;
-  if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
     {
-    invert = sel->GetProperties()->Get(vtkSelection::INVERSE());
+    invert = sel->GetProperties()->Get(vtkSelectionNode::INVERSE());
     }
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
@@ -331,7 +341,7 @@ int vtkExtractSelectedLocations::ExtractCells(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedLocations::ExtractPoints(
-  vtkSelection *sel,
+  vtkSelectionNode *sel,
   vtkDataSet* input,
   vtkDataSet *output)
 {
@@ -350,21 +360,21 @@ int vtkExtractSelectedLocations::ExtractPoints(
     }
 
   int invert = 0;
-  if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
     {
-    invert = sel->GetProperties()->Get(vtkSelection::INVERSE());
+    invert = sel->GetProperties()->Get(vtkSelectionNode::INVERSE());
     }
 
   int containingCells = 0;
-  if (sel->GetProperties()->Has(vtkSelection::CONTAINING_CELLS()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::CONTAINING_CELLS()))
     {
-    containingCells = sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS());
+    containingCells = sel->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS());
     }
 
   double epsilon = 0.1;
-  if (sel->GetProperties()->Has(vtkSelection::EPSILON()))
+  if (sel->GetProperties()->Has(vtkSelectionNode::EPSILON()))
     {
-    epsilon = sel->GetProperties()->Get(vtkSelection::EPSILON());
+    epsilon = sel->GetProperties()->Get(vtkSelectionNode::EPSILON());
     }
 
   vtkIdType i, numPts = input->GetNumberOfPoints();

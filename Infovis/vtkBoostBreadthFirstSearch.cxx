@@ -26,6 +26,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkConvertSelection.h"
 #include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -34,6 +35,8 @@
 #include "vtkFloatArray.h"
 #include "vtkDataArray.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -51,7 +54,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.13");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.14");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -215,27 +218,12 @@ int vtkBoostBreadthFirstSearch::RequestData(
       vtkErrorMacro("OriginFromSelection set but selection input undefined.");
       return 0;
       }
-    if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES ||
-        selection->GetProperties()->Get(vtkSelection::FIELD_TYPE()) != vtkSelection::POINT)
-      {
-      vtkErrorMacro("Selection must be point ids.");
-      return 0;
-      }
-    vtkAbstractArray* arr = selection->GetSelectionList();
-    if (arr == NULL)
-      {
-      vtkErrorMacro("Selection array is null");
-      return 0;
-      }
-    vtkIdTypeArray* idArr = vtkIdTypeArray::SafeDownCast(arr);
-    if (idArr == NULL)
-      {
-      vtkErrorMacro("Selection array is not a vtkIdTypeArray");
-      return 0;
-      }
+    vtkSmartPointer<vtkIdTypeArray> idArr =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkConvertSelection::GetSelectedVertices(selection, input, idArr);
     if (idArr->GetNumberOfTuples() == 0)
       {
-      vtkErrorMacro("Selection array has no elements");
+      vtkErrorMacro("Origin selection is empty.");
       return 0;
       }
     this->OriginVertexIndex = idArr->GetValue(0);
@@ -317,9 +305,11 @@ int vtkBoostBreadthFirstSearch::RequestData(
       ids->InsertNextValue(maxFromRootVertex);
       }
     
-    sel->SetSelectionList(ids);
-    sel->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-    sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
+    vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+    sel->AddNode(node);
+    node->SetSelectionList(ids);
+    node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
+    node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
     ids->Delete();
     }
 

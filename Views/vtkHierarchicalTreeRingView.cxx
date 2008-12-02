@@ -50,6 +50,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSplineFilter.h"
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
@@ -68,7 +69,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.13");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.14");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -169,9 +170,11 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
 
   // Make empty seleciton for default highlight
   this->EmptySelection = vtkSmartPointer<vtkSelection>::New();
-  this->EmptySelection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+  node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
   vtkSmartPointer<vtkIdTypeArray> arr = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->EmptySelection->SetSelectionList(arr);
+  node->SetSelectionList(arr);
+  this->EmptySelection->AddNode(node);
 
   // Set filter attributes
   this->TreeAggregation->LeafVertexUnitSizeOn();
@@ -586,171 +589,120 @@ void vtkHierarchicalTreeRingView::ProcessEvents( vtkObject* caller,
   vtkDataRepresentation* graphRep = this->GetRepresentation(1, 0);
   
   if (!treeRep || !graphRep)
-  {
+    {
     return;
-  }
-
-//   if(caller == this->InteractorStyle && eventId == vtkCommand::UserEvent&& 
-//      this->TreeRingLayout->GetNumberOfInputConnections(0) > 0)
-//   {
-//     // Create the selection
-//     vtkSelection* selection = vtkSelection::New();
-//     vtkIdTypeArray* list = vtkIdTypeArray::New();
-//     vtkIdType* id = reinterpret_cast<vtkIdType*>(callData);
-//     if (*id >= 0)
-//       {
-//       list->InsertNextValue(*id);
-//       }
-//     selection->SetSelectionList(list);
-//     list->Delete();
-//     // TODO: This should really be pedigree ids.
-//     selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-    
-//     // Call select on the representation(s)
-//     this->GetRepresentation()->Select(this, selection);
-    
-//     selection->Delete();
-//     }
-
-    //This is for rubber band selection...
-   if (caller == this->InteractorStyle && eventId == vtkCommand::SelectionChangedEvent && 
-           this->TreeRingLayout->GetNumberOfInputConnections(0) > 0)
-    {
-    // Create the selection
-    unsigned int* rect = reinterpret_cast<unsigned int*>(callData);
-    bool singleSelectMode = false;
-    unsigned int pos1X = rect[0];
-    unsigned int pos1Y = rect[1];
-    unsigned int pos2X = rect[2];
-    unsigned int pos2Y = rect[3];
-    int stretch = 2;
-    if (pos1X == pos2X && pos1Y == pos2Y)
-      {
-      singleSelectMode = true;
-      pos1X = pos1X - stretch > 0 ? pos1X - stretch : 0;
-      pos1Y = pos1Y - stretch > 0 ? pos1Y - stretch : 0;
-      pos2X = pos2X + stretch;
-      pos2Y = pos2Y + stretch;
-      }
-//     double pt1[2];
-//     double pt2[2];
-//     this->MapToXYPlane(pos1X, pos1Y, pt1[0], pt1[1]);
-//     this->MapToXYPlane(pos2X, pos2Y, pt2[0], pt2[1]);
-//     double minX = pt1[0] < pt2[0] ? pt1[0] : pt2[0];
-//     double maxX = pt1[0] < pt2[0] ? pt2[0] : pt1[0];
-//     double minY = pt1[1] < pt2[1] ? pt1[1] : pt2[1];
-//     double maxY = pt1[1] < pt2[1] ? pt2[1] : pt1[1];
-//     this->KdTreeSelector->SetSelectionBounds(
-//       minX, maxX, minY, maxY, -1, 1);
-//     this->KdTreeSelector->SetSingleSelection(singleSelectMode);
-//     double radiusX = 2*(maxX-minX);
-//     double radiusY = 2*(maxY-minY);
-//     double dist2 = radiusX*radiusX + radiusY*radiusY;
-//     this->KdTreeSelector->SetSingleSelectionThreshold(dist2);
-//     this->KdTreeSelector->Update();
-//     vtkSelection* kdSelection = this->KdTreeSelector->GetOutput();
-
-    // Convert to the proper selection type. Must be pedigree ids for this view.
-//     this->TreeRingLayout->Update();
-//     vtkSmartPointer<vtkSelection> vertexSelection;
-//     vertexSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-//       kdSelection, this->TreeRingLayout->GetOutput(), vtkSelection::PEDIGREEIDS));
-
-    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
-    selection->SetContentType(vtkSelection::SELECTIONS);
-
-//     if (vertexSelection->GetSelectionList()->GetNumberOfTuples() > 0)
-//       {
-//       selection->AddChild(vertexSelection);
-//       }
-//     else
-//      {
-      // If we didn't find any vertices, perform edge selection.
-      // The edge actor must be opaque for visible cell selection.
-      int scalarVis = this->GraphEdgeMapper->GetScalarVisibility();
-      this->GraphEdgeMapper->ScalarVisibilityOff();
-      vtkScalarsToColors* lookup = this->GraphEdgeMapper->GetLookupTable();
-      lookup->Register(0);
-      this->GraphEdgeMapper->SetLookupTable(0);
-      double opacity = this->GraphEdgeActor->GetProperty()->GetOpacity();
-      this->GraphEdgeActor->GetProperty()->SetOpacity(1.0);
-      
-      unsigned int screenMinX = pos1X < pos2X ? pos1X : pos2X;
-      unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
-      unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
-      unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
-      this->HardwareSelector->SetRenderer(this->Renderer);
-      this->HardwareSelector->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
-      this->HardwareSelector->SetFieldAssociation(
-        vtkDataObject::FIELD_ASSOCIATION_CELLS);
-      vtkSmartPointer<vtkSelection> sel;
-      sel.TakeReference(this->HardwareSelector->Select());
-      vtkSmartPointer<vtkIdTypeArray> ids;
-      if (sel)
-        {
-        sel = sel->GetChild(0);
-        ids = sel? vtkIdTypeArray::SafeDownCast(sel->GetSelectionList()) : 0;
-        }
-
-      // Set the special edge actor back to normal.
-      this->GraphEdgeMapper->SetScalarVisibility(scalarVis);
-      this->GraphEdgeMapper->SetLookupTable(lookup);
-      lookup->Delete();
-      this->GraphEdgeActor->GetProperty()->SetOpacity(opacity);
-      
-      vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
-      for (vtkIdType i = 0; ids && (i < ids->GetNumberOfTuples()); i++)
-        {
-        vtkIdType edge = ids->GetValue(i);
-        selectedIds->InsertNextValue(edge);
-        if (singleSelectMode)
-          {
-          break;
-          }
-        }
-      
-      // Start with polydata cell selection of lines.
-      vtkSmartPointer<vtkSelection> cellIndexSelection = vtkSmartPointer<vtkSelection>::New();
-      cellIndexSelection->SetContentType(vtkSelection::INDICES);
-      cellIndexSelection->SetFieldType(vtkSelection::CELL);
-      cellIndexSelection->SetSelectionList(selectedIds);
-
-      // Convert to pedigree ids.
-      this->HBundle->Update();
-      vtkSmartPointer<vtkSelection> edgeSelection;
-      edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-        cellIndexSelection, this->HBundle->GetOutput(), vtkSelection::PEDIGREEIDS));
-
-      // Make it an edge selection.
-      edgeSelection->SetFieldType(vtkSelection::EDGE);
-
-      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
-        {
-        selection->AddChild(edgeSelection);
-        }
-//      }
-
-    // If this is a union selection, append the selection
-    if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
-      {
-      vtkSelection* oldSelection =
-        this->GetRepresentation()->GetSelectionLink()->GetSelection();
-      selection->Union(oldSelection);
-      }
-    
-    // Call select on the representation(s)
-    for (int i = 0; i < 2; ++i)
-      {
-      for (int j = 0; j < this->GetNumberOfRepresentations(i); ++j)
-        {
-        this->GetRepresentation(i, j)->Select(this, selection);
-        }
-      }
     }
-  else
-    {
-    Superclass::ProcessEvents(caller, eventId, callData);
-    }
+
+ //This is for rubber band selection...
+ if (caller == this->InteractorStyle && eventId == vtkCommand::SelectionChangedEvent && 
+     this->TreeRingLayout->GetNumberOfInputConnections(0) > 0)
+   {
+   // Create the selection
+   unsigned int* rect = reinterpret_cast<unsigned int*>(callData);
+   bool singleSelectMode = false;
+   unsigned int pos1X = rect[0];
+   unsigned int pos1Y = rect[1];
+   unsigned int pos2X = rect[2];
+   unsigned int pos2Y = rect[3];
+   int stretch = 2;
+   if (pos1X == pos2X && pos1Y == pos2Y)
+     {
+     singleSelectMode = true;
+     pos1X = pos1X - stretch > 0 ? pos1X - stretch : 0;
+     pos1Y = pos1Y - stretch > 0 ? pos1Y - stretch : 0;
+     pos2X = pos2X + stretch;
+     pos2Y = pos2Y + stretch;
+     }
+
+   vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
+
+   // If we didn't find any vertices, perform edge selection.
+   // The edge actor must be opaque for visible cell selection.
+   int scalarVis = this->GraphEdgeMapper->GetScalarVisibility();
+   this->GraphEdgeMapper->ScalarVisibilityOff();
+   vtkScalarsToColors* lookup = this->GraphEdgeMapper->GetLookupTable();
+   lookup->Register(0);
+   this->GraphEdgeMapper->SetLookupTable(0);
+   double opacity = this->GraphEdgeActor->GetProperty()->GetOpacity();
+   this->GraphEdgeActor->GetProperty()->SetOpacity(1.0);
+
+   unsigned int screenMinX = pos1X < pos2X ? pos1X : pos2X;
+   unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
+   unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
+   unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
+   this->HardwareSelector->SetRenderer(this->Renderer);
+   this->HardwareSelector->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
+   this->HardwareSelector->SetFieldAssociation(
+       vtkDataObject::FIELD_ASSOCIATION_CELLS);
+   vtkSmartPointer<vtkSelection> sel;
+   sel.TakeReference(this->HardwareSelector->Select());
+   vtkSmartPointer<vtkIdTypeArray> ids;
+   if (sel)
+     {
+     vtkSelectionNode* node = sel->GetNode(0);
+     ids = node? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : 0;
+     }
+
+   // Set the special edge actor back to normal.
+   this->GraphEdgeMapper->SetScalarVisibility(scalarVis);
+   this->GraphEdgeMapper->SetLookupTable(lookup);
+   lookup->Delete();
+   this->GraphEdgeActor->GetProperty()->SetOpacity(opacity);
+
+   vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
+   for (vtkIdType i = 0; ids && (i < ids->GetNumberOfTuples()); i++)
+     {
+     vtkIdType edge = ids->GetValue(i);
+     selectedIds->InsertNextValue(edge);
+     if (singleSelectMode)
+       {
+       break;
+       }
+     }
+
+   // Start with polydata cell selection of lines.
+   vtkSmartPointer<vtkSelection> cellIndexSelection = vtkSmartPointer<vtkSelection>::New();
+   vtkSmartPointer<vtkSelectionNode> cellIndexNode = vtkSmartPointer<vtkSelectionNode>::New();
+   cellIndexNode->SetContentType(vtkSelectionNode::INDICES);
+   cellIndexNode->SetFieldType(vtkSelectionNode::CELL);
+   cellIndexNode->SetSelectionList(selectedIds);
+   cellIndexSelection->AddNode(cellIndexNode);
+
+   // Convert to pedigree ids.
+   this->HBundle->Update();
+   vtkSmartPointer<vtkSelection> edgeSelection;
+   edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
+         cellIndexSelection, this->HBundle->GetOutput(), vtkSelectionNode::PEDIGREEIDS));
+
+   // Make it an edge selection.
+   edgeSelection->GetNode(0)->SetFieldType(vtkSelectionNode::EDGE);
+
+   if (edgeSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() > 0)
+     {
+     selection->AddNode(edgeSelection->GetNode(0));
+     }
+
+   // If this is a union selection, append the selection
+   if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
+     {
+     vtkSelection* oldSelection =
+       this->GetRepresentation()->GetSelectionLink()->GetSelection();
+     selection->Union(oldSelection);
+     }
+
+   // Call select on the representation(s)
+   for (int i = 0; i < 2; ++i)
+     {
+     for (int j = 0; j < this->GetNumberOfRepresentations(i); ++j)
+       {
+       this->GetRepresentation(i, j)->Select(this, selection);
+       }
+     }
+}
+else
+{
+  Superclass::ProcessEvents(caller, eventId, callData);
+}
 }
 
 //----------------------------------------------------------------------------

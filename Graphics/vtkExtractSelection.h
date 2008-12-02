@@ -37,6 +37,7 @@ class vtkExtractSelectedLocations;
 class vtkExtractSelectedThresholds;
 class vtkProbeSelectedLocations;
 class vtkSelection;
+class vtkSelectionNode;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkExtractSelectionBase
 {
@@ -93,7 +94,7 @@ protected:
 
   // called for non-composite input or for a block in a composite dataset.
   vtkDataObject* RequestDataFromBlock(vtkDataObject* input, 
-    vtkSelection* sel, vtkInformation* outInfo);
+    vtkSelectionNode* sel, vtkInformation* outInfo);
 
   vtkExtractSelectedBlock* BlockFilter;
   vtkExtractSelectedIds* IdsFilter;

@@ -21,10 +21,11 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 
 #include <vtkstd/set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
-vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.3");
 //----------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock()
 {
@@ -113,21 +114,21 @@ int vtkExtractSelectedBlock::RequestData(
     return 1;
     }
 
-  vtkSelection* sel = vtkSelection::GetData(selInfo);
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
-
-  if (sel->GetContentType() != vtkSelection::BLOCKS)
+  vtkSelection* input = vtkSelection::GetData(selInfo);
+  vtkSelectionNode* node = input->GetNode(0);
+  if (input->GetNumberOfNodes() != 1 || node->GetContentType() != vtkSelectionNode::BLOCKS)
     {
-    vtkErrorMacro("Missing or incompatible CONTENT_TYPE.");
+    vtkErrorMacro("This filter expects a single-node selection of type BLOCKS.");
     return 0;
     }
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
 
-  bool inverse = (sel->GetProperties()->Has(vtkSelection::INVERSE()) &&
-    sel->GetProperties()->Get(vtkSelection::INVERSE()) == 1);
+  bool inverse = (node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
+    node->GetProperties()->Get(vtkSelectionNode::INVERSE()) == 1);
 
   output->CopyStructure(cd);
   vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::SafeDownCast(
-    sel->GetSelectionList());
+    node->GetSelectionList());
   if (selectionList)
     {
     vtkstd::set<unsigned int> blocks;

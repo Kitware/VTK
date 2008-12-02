@@ -36,10 +36,11 @@
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSelectionLink.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.7");
 vtkStandardNewMacro(vtkSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkSurfaceRepresentation::vtkSurfaceRepresentation()
@@ -123,16 +124,16 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
     vtkSmartPointer<vtkSelection>::New();
 
   // Extract the selection for the right prop
-  if (selection->GetContentType() == vtkSelection::SELECTIONS)
+  if (selection->GetNumberOfNodes() > 1)
     {
-    for (unsigned int i = 0; i < selection->GetNumberOfChildren(); i++)
+    for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
       {
-      vtkSelection* child = selection->GetChild(i);
+      vtkSelectionNode* node = selection->GetNode(i);
       vtkProp* prop = vtkProp::SafeDownCast(
-        child->GetProperties()->Get(vtkSelection::PROP()));
+        node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (prop == this->Actor)
         {
-        propSelection->ShallowCopy(child);
+        propSelection->AddNode(node);
         }
       }
     }
@@ -143,11 +144,13 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
 
   // Start with an empty selection
   vtkSelection* converted = vtkSelection::New();
-  converted->SetContentType(view->GetSelectionType());
-  converted->SetFieldType(vtkSelection::CELL);
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(view->GetSelectionType());
+  node->SetFieldType(vtkSelectionNode::CELL);
   vtkSmartPointer<vtkIdTypeArray> empty =
     vtkSmartPointer<vtkIdTypeArray>::New();
-  converted->SetSelectionList(empty);
+  node->SetSelectionList(empty);
+  converted->AddNode(node);
   // Convert to the correct type of selection
   if (this->GetInputConnection())
     {

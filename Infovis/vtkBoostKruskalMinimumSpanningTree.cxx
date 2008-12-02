@@ -32,6 +32,7 @@
 #include "vtkFloatArray.h"
 #include "vtkDataArray.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkMutableDirectedGraph.h"
@@ -44,7 +45,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostKruskalMinimumSpanningTree, "1.2");
+vtkCxxRevisionMacro(vtkBoostKruskalMinimumSpanningTree, "1.3");
 vtkStandardNewMacro(vtkBoostKruskalMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -112,7 +113,7 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
   
   // Run the algorithm
   vtkstd::vector<vtkEdgeType> mstEdges;
-  if (vtkDirectedGraph::SafeDownCast(output))
+  if (vtkDirectedGraph::SafeDownCast(input))
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     kruskal_minimum_spanning_tree(g, vtkstd::back_inserter(mstEdges), weight_map(weight_helper));
@@ -135,11 +136,12 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
       ids->InsertNextValue(i->Id);
     }
     
-    output->SetSelectionList(ids);
-    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                              vtkSelection::INDICES);
-    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(), 
-                              vtkSelection::EDGE);
+    vtkSmartPointer<vtkSelectionNode> node =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    output->AddNode(node);
+    node->SetSelectionList(ids);
+    node->SetContentType(vtkSelectionNode::INDICES);
+    node->SetFieldType(vtkSelectionNode::EDGE);
     ids->Delete();
   }
   

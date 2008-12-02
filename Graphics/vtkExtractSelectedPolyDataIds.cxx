@@ -24,8 +24,9 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.6");
 vtkStandardNewMacro(vtkExtractSelectedPolyDataIds);
 
 //----------------------------------------------------------------------------
@@ -72,16 +73,25 @@ int vtkExtractSelectedPolyDataIds::RequestData(
 
   vtkDebugMacro(<< "Extracting poly data geometry");
 
-  if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES ||
-      !sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::FIELD_TYPE()) != vtkSelection::CELL)
+  vtkSelectionNode* node = 0;
+  if (sel->GetNumberOfNodes() == 1)
+    {
+    node = sel->GetNode(0);
+    }
+  if (!node)
+    {
+    return 1;
+    }
+  if (!node->GetProperties()->Has(vtkSelectionNode::CONTENT_TYPE()) ||
+      node->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE()) != vtkSelectionNode::INDICES ||
+      !node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()) ||
+      node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE()) != vtkSelectionNode::CELL)
     {
     return 1;
     }
 
   vtkIdTypeArray* idArray = 
-    vtkIdTypeArray::SafeDownCast(sel->GetSelectionList());
+    vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
 
   if (!idArray)
     {

@@ -32,6 +32,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkHardwareSelector.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkRenderedAreaPicker.h"
@@ -84,12 +85,15 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   a->Delete();
   */
 
-  vtkSelection *cellids = res->GetChild(0);
+  vtkSelectionNode *cellids = res->GetNode(0);
   MY_CREATE_NEW(vtkExtractSelectedPolyDataIds, extr);
   if (cellids)
     {
     extr->SetInput(0, SS1->GetOutput());
-    extr->SetInput(1, cellids);
+    vtkSmartPointer<vtkSelection> temp=
+      vtkSmartPointer<vtkSelection>::New();
+    temp->AddNode(cellids);
+    extr->SetInput(1, temp);
     extr->Update();
     sMap->SetInput(extr->GetOutput());
     }

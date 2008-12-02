@@ -38,10 +38,11 @@
 #include "vtkPointData.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkQtItemView, "1.6");
+vtkCxxRevisionMacro(vtkQtItemView, "1.7");
 vtkStandardNewMacro(vtkQtItemView);
 
 
@@ -211,11 +212,14 @@ void vtkQtItemView::QtSelectionChanged(const QItemSelection&, const QItemSelecti
   // Create index selection
   vtkSmartPointer<vtkSelection> selection =
     vtkSmartPointer<vtkSelection>::New();
-  selection->SetContentType(vtkSelection::INDICES);
-  selection->SetFieldType(vtkSelection::VERTEX);
-  vtkIdTypeArray* idarr = vtkIdTypeArray::New();
-  selection->SetSelectionList(idarr);
-  idarr->Delete();
+  vtkSmartPointer<vtkSelectionNode> node =
+    vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(vtkSelectionNode::INDICES);
+  node->SetFieldType(vtkSelectionNode::VERTEX);
+  vtkSmartPointer<vtkIdTypeArray> idarr =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  node->SetSelectionList(idarr);
+  selection->AddNode(node);
   const QModelIndexList list = this->GetSelectionModel()->selectedRows();
   
   // For index selection do this odd little dance with two maps :)
@@ -276,16 +280,20 @@ void vtkQtItemView::Update()
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
   QItemSelection list;
-  vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(selection->GetSelectionList());
-  if (arr)
+  vtkSelectionNode* node = selection->GetNode(0);
+  if (node)
     {
-    for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
+    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    if (arr)
       {
-      vtkIdType id = arr->GetValue(i);
-      QModelIndex index = 
-        this->ModelAdapterPtr->PedigreeToQModelIndex(
-        this->ModelAdapterPtr->IdToPedigree(id));
-      list.select(index, index);
+      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
+        {
+        vtkIdType id = arr->GetValue(i);
+        QModelIndex index = 
+          this->ModelAdapterPtr->PedigreeToQModelIndex(
+          this->ModelAdapterPtr->IdToPedigree(id));
+        list.select(index, index);
+        }
       }
     }
   this->GetSelectionModel()->select(list, 

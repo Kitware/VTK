@@ -35,6 +35,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkSmartPointer.h"
@@ -101,13 +102,15 @@ int TestExtractSelectedGraph(int argc, char* argv[])
     
   cerr << "Testing threshold selection..." << endl;
   VTK_CREATE(vtkSelection, threshold);
-  threshold->SetContentType(vtkSelection::THRESHOLDS);
-  threshold->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, thresholdNode);
+  threshold->AddNode(thresholdNode);
+  thresholdNode->SetContentType(vtkSelectionNode::THRESHOLDS);
+  thresholdNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkDoubleArray, thresholdArr);
   thresholdArr->SetName("value");
   thresholdArr->InsertNextValue(0.0);
   thresholdArr->InsertNextValue(1.0);
-  threshold->SetSelectionList(thresholdArr); 
+  thresholdNode->SetSelectionList(thresholdArr); 
   
   VTK_CREATE(vtkExtractSelectedGraph, extractThreshold);
   extractThreshold->SetInputConnection(0, layout->GetOutputPort());
@@ -117,13 +120,15 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   
   cerr << "Testing indices selection..." << endl;
   VTK_CREATE(vtkSelection, indices);
-  indices->SetContentType(vtkSelection::INDICES);
-  indices->SetFieldType(vtkSelection::VERTEX);
+  VTK_CREATE(vtkSelectionNode, indicesNode);
+  indices->AddNode(indicesNode);
+  indicesNode->SetContentType(vtkSelectionNode::INDICES);
+  indicesNode->SetFieldType(vtkSelectionNode::VERTEX);
   VTK_CREATE(vtkIdTypeArray, indicesArr);
   indicesArr->InsertNextValue(0);
   indicesArr->InsertNextValue(2);
   indicesArr->InsertNextValue(4);
-  indices->SetSelectionList(indicesArr);
+  indicesNode->SetSelectionList(indicesArr);
   
   VTK_CREATE(vtkExtractSelectedGraph, extractIndices);
   extractIndices->SetInputConnection(0, layout->GetOutputPort());

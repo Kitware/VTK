@@ -21,14 +21,15 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int SelectionCompare(
-  vtkSelection* a,
-  vtkSelection* b)
+  vtkSelectionNode* a,
+  vtkSelectionNode* b)
 {
   int errors = 0;
   vtkIdTypeArray* alist = vtkIdTypeArray::SafeDownCast(
@@ -40,7 +41,7 @@ int SelectionCompare(
     cerr << "ERROR: Content type does not match." << endl;
     errors++;
     }
-  if (a->GetContentType() == vtkSelection::VALUES)
+  if (a->GetContentType() == vtkSelectionNode::VALUES)
     {
     if (!alist->GetName() || 
         !blist->GetName() || 
@@ -65,9 +66,16 @@ int SelectionCompare(
     vtkIdType numTuples = alist->GetNumberOfTuples();
     int bnumComps = blist->GetNumberOfComponents();
     vtkIdType bnumTuples = blist->GetNumberOfTuples();
-    if (numComps != bnumComps || numTuples != bnumTuples)
+    if (numTuples != bnumTuples)
       {
-      cerr << "ERROR: The number of components and/or tuples in the selection list do not match." << endl;
+      cerr << "ERROR: The number of tuples in the selection list do not match ("
+           << numTuples << "!=" << bnumTuples << ")." << endl;
+      errors++;
+      }
+    else if (numComps != bnumComps)
+      {
+      cerr << "ERROR: The number of components in the selection list do not match ("
+           << numComps << "!=" << bnumComps << ")." << endl;
       errors++;
       }
     else
@@ -90,19 +98,24 @@ int SelectionCompare(
         }
       }
     }
-  if (a->GetContentType() == vtkSelection::SELECTIONS)
+  return errors;
+}
+
+int SelectionCompare(
+  vtkSelection* a,
+  vtkSelection* b)
+{
+  int errors = 0;
+  if (a->GetNumberOfNodes() != b->GetNumberOfNodes())
     {
-    if (a->GetNumberOfChildren() != b->GetNumberOfChildren())
+    cerr << "ERROR: Number of nodes do not match." << endl;
+    errors++;
+    }
+  else
+    {
+    for (unsigned int cc=0; cc < a->GetNumberOfNodes(); cc++)
       {
-      cerr << "ERROR: Number of children does not match." << endl;
-      errors++;
-      }
-    else
-      {
-      for (unsigned int cc=0; cc < a->GetNumberOfChildren(); cc++)
-        {
-        errors += SelectionCompare(a->GetChild(cc), b->GetChild(cc));
-        }
+      errors += SelectionCompare(a->GetNode(cc), b->GetNode(cc));
       }
     }
   return errors;
@@ -128,26 +141,32 @@ int TestAppendSelection(int, char*[])
   {
   cerr << "Testing appending sel selections ..." << endl;
   VTK_CREATE(vtkSelection, sel1);
+  VTK_CREATE(vtkSelectionNode, sel1Node);
   VTK_CREATE(vtkIdTypeArray, sel1Arr);
-  sel1->SetContentType(vtkSelection::INDICES);
-  sel1->SetFieldType(vtkSelection::CELL);
-  sel1->SetSelectionList(sel1Arr);
+  sel1->AddNode(sel1Node);
+  sel1Node->SetContentType(vtkSelectionNode::INDICES);
+  sel1Node->SetFieldType(vtkSelectionNode::CELL);
+  sel1Node->SetSelectionList(sel1Arr);
   sel1Arr->InsertNextValue(0);
   sel1Arr->InsertNextValue(1);
   sel1Arr->InsertNextValue(2);
   VTK_CREATE(vtkSelection, sel2);
+  VTK_CREATE(vtkSelectionNode, sel2Node);
   VTK_CREATE(vtkIdTypeArray, sel2Arr);
-  sel2->SetContentType(vtkSelection::INDICES);
-  sel2->SetFieldType(vtkSelection::CELL);
-  sel2->SetSelectionList(sel2Arr);
+  sel2->AddNode(sel2Node);
+  sel2Node->SetContentType(vtkSelectionNode::INDICES);
+  sel2Node->SetFieldType(vtkSelectionNode::CELL);
+  sel2Node->SetSelectionList(sel2Arr);
   sel2Arr->InsertNextValue(3);
   sel2Arr->InsertNextValue(4);
   sel2Arr->InsertNextValue(5);
   VTK_CREATE(vtkSelection, selAppend);
+  VTK_CREATE(vtkSelectionNode, selAppendNode);
   VTK_CREATE(vtkIdTypeArray, selAppendArr);
-  selAppend->SetContentType(vtkSelection::INDICES);
-  selAppend->SetFieldType(vtkSelection::CELL);
-  selAppend->SetSelectionList(selAppendArr);
+  selAppend->AddNode(selAppendNode);
+  selAppendNode->SetContentType(vtkSelectionNode::INDICES);
+  selAppendNode->SetFieldType(vtkSelectionNode::CELL);
+  selAppendNode->SetSelectionList(selAppendArr);
   selAppendArr->InsertNextValue(0);
   selAppendArr->InsertNextValue(1);
   selAppendArr->InsertNextValue(2);
@@ -161,29 +180,35 @@ int TestAppendSelection(int, char*[])
   {
   cerr << "Testing appending value selections ..." << endl;
   VTK_CREATE(vtkSelection, sel1);
+  VTK_CREATE(vtkSelectionNode, sel1Node);
   VTK_CREATE(vtkIdTypeArray, sel1Arr);
+  sel1->AddNode(sel1Node);
   sel1Arr->SetName("arrayname");
-  sel1->SetContentType(vtkSelection::VALUES);
-  sel1->SetFieldType(vtkSelection::CELL);
-  sel1->SetSelectionList(sel1Arr);
+  sel1Node->SetContentType(vtkSelectionNode::VALUES);
+  sel1Node->SetFieldType(vtkSelectionNode::CELL);
+  sel1Node->SetSelectionList(sel1Arr);
   sel1Arr->InsertNextValue(0);
   sel1Arr->InsertNextValue(1);
   sel1Arr->InsertNextValue(2);
   VTK_CREATE(vtkSelection, sel2);
+  VTK_CREATE(vtkSelectionNode, sel2Node);
   VTK_CREATE(vtkIdTypeArray, sel2Arr);
+  sel2->AddNode(sel2Node);
   sel2Arr->SetName("arrayname");
-  sel2->SetContentType(vtkSelection::VALUES);
-  sel2->SetFieldType(vtkSelection::CELL);
-  sel2->SetSelectionList(sel2Arr);
+  sel2Node->SetContentType(vtkSelectionNode::VALUES);
+  sel2Node->SetFieldType(vtkSelectionNode::CELL);
+  sel2Node->SetSelectionList(sel2Arr);
   sel2Arr->InsertNextValue(3);
   sel2Arr->InsertNextValue(4);
   sel2Arr->InsertNextValue(5);
   VTK_CREATE(vtkSelection, selAppend);
+  VTK_CREATE(vtkSelectionNode, selAppendNode);
   VTK_CREATE(vtkIdTypeArray, selAppendArr);
+  selAppend->AddNode(selAppendNode);
   selAppendArr->SetName("arrayname");
-  selAppend->SetContentType(vtkSelection::VALUES);
-  selAppend->SetFieldType(vtkSelection::CELL);
-  selAppend->SetSelectionList(selAppendArr);
+  selAppendNode->SetContentType(vtkSelectionNode::VALUES);
+  selAppendNode->SetFieldType(vtkSelectionNode::CELL);
+  selAppendNode->SetSelectionList(selAppendArr);
   selAppendArr->InsertNextValue(0);
   selAppendArr->InsertNextValue(1);
   selAppendArr->InsertNextValue(2);
@@ -197,31 +222,30 @@ int TestAppendSelection(int, char*[])
   {
   cerr << "Testing appending cell selections with different process ids..." << endl;
   VTK_CREATE(vtkSelection, sel1);
+  VTK_CREATE(vtkSelectionNode, sel1Node);
   VTK_CREATE(vtkIdTypeArray, sel1Arr);
-  sel1->SetContentType(vtkSelection::INDICES);
-  sel1->SetFieldType(vtkSelection::CELL);
-  sel1->SetSelectionList(sel1Arr);
-  sel1->GetProperties()->Set(vtkSelection::PROCESS_ID(), 0);
+  sel1->AddNode(sel1Node);
+  sel1Node->SetContentType(vtkSelectionNode::INDICES);
+  sel1Node->SetFieldType(vtkSelectionNode::CELL);
+  sel1Node->SetSelectionList(sel1Arr);
+  sel1Node->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(), 0);
   sel1Arr->InsertNextValue(0);
   sel1Arr->InsertNextValue(1);
   sel1Arr->InsertNextValue(2);
   VTK_CREATE(vtkSelection, sel2);
+  VTK_CREATE(vtkSelectionNode, sel2Node);
   VTK_CREATE(vtkIdTypeArray, sel2Arr);
-  sel2->SetContentType(vtkSelection::INDICES);
-  sel2->SetFieldType(vtkSelection::CELL);
-  sel2->SetSelectionList(sel2Arr);
-  sel2->GetProperties()->Set(vtkSelection::PROCESS_ID(), 1);
+  sel2->AddNode(sel2Node);
+  sel2Node->SetContentType(vtkSelectionNode::INDICES);
+  sel2Node->SetFieldType(vtkSelectionNode::CELL);
+  sel2Node->SetSelectionList(sel2Arr);
+  sel2Node->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(), 1);
   sel2Arr->InsertNextValue(3);
   sel2Arr->InsertNextValue(4);
   sel2Arr->InsertNextValue(5);
   VTK_CREATE(vtkSelection, selAppend);
-  VTK_CREATE(vtkSelection, sel1Clone);
-  VTK_CREATE(vtkSelection, sel2Clone);
-  selAppend->SetContentType(vtkSelection::SELECTIONS);
-  sel1Clone->DeepCopy(sel1);
-  sel2Clone->DeepCopy(sel2);
-  selAppend->AddChild(sel1Clone);
-  selAppend->AddChild(sel2Clone);
+  selAppend->AddNode(sel1Node);
+  selAppend->AddNode(sel2Node);
   errors += TestAppendSelectionCase(sel1, sel2, selAppend);
   cerr << "... done." << endl;
   }

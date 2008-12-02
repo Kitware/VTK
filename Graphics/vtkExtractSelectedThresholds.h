@@ -33,9 +33,10 @@
 
 #include "vtkExtractSelectionBase.h"
 
-class vtkSelection;
 class vtkDataArray;
 class vtkDoubleArray;
+class vtkSelection;
+class vtkSelectionNode;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
 {
@@ -70,10 +71,10 @@ protected:
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
-  int ExtractCells(vtkSelection *sel, vtkDataSet *input, 
+  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input, 
                    vtkDataSet *output,
                    int usePointScalars);
-  int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
+  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input, 
                     vtkDataSet *output);
 
 private:

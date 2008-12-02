@@ -29,6 +29,7 @@ class vtkDataObjectCollection;
 class vtkInformation;
 class vtkInformationVector;
 class vtkSelection;
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkSelectionLink : public vtkSelectionAlgorithm
 {

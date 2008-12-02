@@ -73,7 +73,7 @@ static void BuildGraph(vtkGraph* input_graph, const vtkstd::vector<vtkIdType>& v
 ///////////////////////////////////////////////////////////////////////////////////
 // vtkCollapseGraph
 
-vtkCxxRevisionMacro(vtkCollapseGraph, "1.1");
+vtkCxxRevisionMacro(vtkCollapseGraph, "1.2");
 vtkStandardNewMacro(vtkCollapseGraph);
 
 vtkCollapseGraph::vtkCollapseGraph()
@@ -126,30 +126,21 @@ int vtkCollapseGraph::RequestData(
   // Ensure we have valid inputs ...
   vtkGraph* const input_graph = vtkGraph::GetData(inputVector[0]);
   vtkGraph* const output_graph = vtkGraph::GetData(outputVector);
-  
-  vtkSelection* const input_selection = vtkConvertSelection::ToIndexSelection(
-    vtkSelection::GetData(inputVector[1]),
-    input_graph);
-  if(!input_selection)
-    {
-    vtkErrorMacro(<< "vtkCollapseGraph requires an index-compatible selection as input");
-    return 0;
-    }
-  if(input_selection->GetFieldType() != vtkSelection::VERTEX)
-    {
-    vtkErrorMacro(<< "vtkCollapseGraph requires a vertex selection as input");
-    return 0;
-    }
 
+  vtkSmartPointer<vtkIdTypeArray> input_indices =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkConvertSelection::GetSelectedVertices(
+    vtkSelection::GetData(inputVector[1]),
+    input_graph,
+    input_indices);
+  
   // Convert the input selection into an "expanding" array that contains "true" for each
   // vertex that is expanding (i.e. its neighbors are collapsing into it)
   vtkstd::vector<bool> expanding(input_graph->GetNumberOfVertices(), false);
 
-  // Note: if GetSelectionList() returns NULL, it's an empty selection, not an error ...
-  if(vtkIdTypeArray* const input_indices = vtkIdTypeArray::SafeDownCast(input_selection->GetSelectionList()))
+  for(vtkIdType i = 0; i != input_indices->GetNumberOfTuples(); ++i)
     {
-    for(vtkIdType i = 0; i != input_indices->GetNumberOfTuples(); ++i)
-      expanding[input_indices->GetValue(i)] = true;
+    expanding[input_indices->GetValue(i)] = true;
     }
 
   // Create a mapping from each child vertex to its expanding neighbor (if any)

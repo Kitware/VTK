@@ -23,9 +23,11 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendSelection, "1.6");
+vtkCxxRevisionMacro(vtkAppendSelection, "1.7");
 vtkStandardNewMacro(vtkAppendSelection);
 
 //----------------------------------------------------------------------------
@@ -115,7 +117,7 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
   // Get the output
   vtkSelection *output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  output->Clear();
+  output->Initialize();
   
   // If there are no inputs, we are done.
   int numInputs = this->GetNumberOfInputConnections(0);
@@ -126,18 +128,20 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
 
   if (!this->AppendByUnion)
     {
-    output->SetContentType(vtkSelection::SELECTIONS);
     for (int idx=0; idx < numInputs; ++idx)
       {
       vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
       vtkSelection *sel = vtkSelection::GetData(inInfo);
       if (sel != NULL)
         {
-        vtkSelection* clone = sel->NewInstance();
-        clone->ShallowCopy(sel);
-
-        output->AddChild(clone);
-        clone->Delete();
+        for (unsigned int j = 0; j < sel->GetNumberOfNodes(); ++j)
+          {
+          vtkSelectionNode* inputNode = sel->GetNode(j);
+          vtkSmartPointer<vtkSelectionNode> outputNode =
+            vtkSmartPointer<vtkSelectionNode>::New();
+          outputNode->ShallowCopy(inputNode);
+          output->AddNode(outputNode);
+          }
         } 
       } // for each input
     return 1;

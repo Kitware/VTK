@@ -37,6 +37,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -51,7 +52,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.17");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.18");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -407,12 +408,14 @@ int vtkTableToGraph::RequestData(
     {
     // Extract only the active link graph.
     vtkSelection* activeSel = vtkSelection::New();
-    activeSel->SetContentType(vtkSelection::VALUES);
-    activeSel->SetFieldType(vtkSelection::VERTEX);
+    vtkSelectionNode* activeSelNode = vtkSelectionNode::New();
+    activeSel->AddNode(activeSelNode);
+    activeSelNode->SetContentType(vtkSelectionNode::VALUES);
+    activeSelNode->SetFieldType(vtkSelectionNode::VERTEX);
     vtkIntArray* list = vtkIntArray::New();
     list->SetName("active");
     list->InsertNextValue(1);
-    activeSel->SetSelectionList(list);
+    activeSelNode->SetSelectionList(list);
     vtkExtractSelectedGraph* extract = vtkExtractSelectedGraph::New();
     extract->SetInput(0, this->LinkGraph);
     extract->SetInput(1, activeSel);
@@ -421,6 +424,7 @@ int vtkTableToGraph::RequestData(
     this->LinkGraph->ShallowCopy(g);
     list->Delete();
     activeSel->Delete();
+    activeSelNode->Delete();
     extract->Delete();
     }
 

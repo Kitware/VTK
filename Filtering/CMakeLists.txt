@@ -175,6 +175,7 @@ vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
 vtkSelectionAlgorithm.cxx
 vtkSelection.cxx
+vtkSelectionNode.cxx
 vtkSimpleCellTessellator.cxx
 vtkSimpleImageToImageFilter.cxx
 vtkSimpleScalarTree.cxx

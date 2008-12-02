@@ -42,11 +42,12 @@
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.6");
 vtkStandardNewMacro(vtkGeoLineRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoLineRepresentation::vtkGeoLineRepresentation()
@@ -271,28 +272,25 @@ vtkSelection* vtkGeoLineRepresentation::ConvertSelection(
   vtkView* vtkNotUsed(view), 
   vtkSelection* selection)
 {
-  // Make an empty selection
+  // Start with an empty selection
   vtkSelection* converted = vtkSelection::New();
-  converted->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  converted->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
-  vtkIdTypeArray* empty = vtkIdTypeArray::New();
-  converted->SetSelectionList(empty);
-  empty->Delete();
-
-  if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) == vtkSelection::SELECTIONS)
+  vtkSmartPointer<vtkSelectionNode> convertedNode = vtkSmartPointer<vtkSelectionNode>::New();
+  convertedNode->SetContentType(vtkSelectionNode::INDICES);
+  convertedNode->SetFieldType(vtkSelectionNode::CELL);
+  vtkSmartPointer<vtkIdTypeArray> empty = vtkSmartPointer<vtkIdTypeArray>::New();
+  convertedNode->SetSelectionList(empty);
+  converted->AddNode(convertedNode);
+  for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
     {
-    for (unsigned int i = 0; i < selection->GetNumberOfChildren(); i++)
+    vtkSelectionNode* node = selection->GetNode(i);
+    vtkProp* prop = vtkProp::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
+    if (prop == this->Actor.GetPointer())
       {
-      vtkSelection* child = selection->GetChild(i);
-      vtkProp* prop = vtkProp::SafeDownCast(child->GetProperties()->Get(vtkSelection::PROP()));
-      if (prop == this->Actor.GetPointer())
-        {
-        // TODO: Should convert this to a pedigree id selection.
-        converted->ShallowCopy(child);
-        }
+      // TODO: Should convert this to a pedigree id selection.
+      converted->Initialize();
+      converted->AddNode(node);
       }
     }
-  
   return converted;
 }
 

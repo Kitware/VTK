@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/set>
@@ -46,7 +47,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
-vtkCxxRevisionMacro(vtkHardwareSelector, "1.5");
+vtkCxxRevisionMacro(vtkHardwareSelector, "1.6");
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
@@ -445,7 +446,6 @@ vtkSelection* vtkHardwareSelector::GenerateSelection()
     }
 
   vtkSelection* sel = vtkSelection::New();
-  sel->SetContentType(vtkSelection::SELECTIONS);
 
   MapType::iterator procIter;
   for (procIter = dataMap.begin(); procIter != dataMap.end(); ++procIter)
@@ -454,26 +454,26 @@ vtkSelection* vtkHardwareSelector::GenerateSelection()
     vtkstd::map<int, vtkstd::set<vtkIdType> >::iterator iter;
     for (iter = procIter->second.begin(); iter != procIter->second.end(); ++iter)
       {
-      vtkSelection* child = vtkSelection::New();
-      child->SetContentType(vtkSelection::INDICES);
+      vtkSelectionNode* child = vtkSelectionNode::New();
+      child->SetContentType(vtkSelectionNode::INDICES);
       switch (this->FieldAssociation)
         {
       case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-        child->SetFieldType(vtkSelection::CELL);
+        child->SetFieldType(vtkSelectionNode::CELL);
         break;
 
       case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-        child->SetFieldType(vtkSelection::POINT);
+        child->SetFieldType(vtkSelectionNode::POINT);
         break;
         }
-      child->GetProperties()->Set(vtkSelection::PROP_ID(), iter->first);
-      child->GetProperties()->Set(vtkSelection::PROP(),
+      child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), iter->first);
+      child->GetProperties()->Set(vtkSelectionNode::PROP(),
         this->Internals->Props[iter->first]);
-      child->GetProperties()->Set(vtkSelection::PIXEL_COUNT(),
+      child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(),
         pixelCounts[processid][iter->first]);
       if (processid >= 0)
         {
-        child->GetProperties()->Set(vtkSelection::PROCESS_ID(), processid);
+        child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(), processid);
         }
 
       vtkIdTypeArray* ids = vtkIdTypeArray::New();
@@ -489,7 +489,7 @@ vtkSelection* vtkHardwareSelector::GenerateSelection()
         }
       child->SetSelectionList(ids);
       ids->Delete();
-      sel->AddChild(child);
+      sel->AddNode(child);
       child->Delete();
       }
     }

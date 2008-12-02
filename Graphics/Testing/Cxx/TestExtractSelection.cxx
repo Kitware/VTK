@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkSphereSource.h"
@@ -29,10 +30,12 @@
 int TestExtractSelection( int argc, char* argv[] )
 {
   vtkSelection* sel = vtkSelection::New();
-  sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  sel->GetProperties()->Set(
-    vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
+  vtkSelectionNode* node = vtkSelectionNode::New();
+  sel->AddNode(node);
+  node->GetProperties()->Set(
+    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
+  node->GetProperties()->Set(
+    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
   
   // list of cells to be selected
   vtkIdTypeArray* arr = vtkIdTypeArray::New();
@@ -42,7 +45,7 @@ int TestExtractSelection( int argc, char* argv[] )
   arr->SetTuple1(2, 5);
   arr->SetTuple1(3, 8);
 
-  sel->SetSelectionList(arr);
+  node->SetSelectionList(arr);
   arr->Delete();
 
   vtkSphereSource* sphere = vtkSphereSource::New();
@@ -52,6 +55,7 @@ int TestExtractSelection( int argc, char* argv[] )
   selFilter->SetInput(1, sel);
   selFilter->SetInputConnection(0,sphere->GetOutputPort());
   sel->Delete();
+  node->Delete();
 
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(selFilter->GetOutputPort());

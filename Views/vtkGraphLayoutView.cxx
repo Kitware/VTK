@@ -62,6 +62,7 @@
 #include "vtkScalarBarWidget.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 #include "vtkVertexDegree.h"
@@ -71,7 +72,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.47");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.48");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -186,13 +187,13 @@ vtkGraphLayoutView::vtkGraphLayoutView()
 
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());
   this->ExtractSelectedGraph->SetInputConnection(0, this->EdgeLayout->GetOutputPort());
-  vtkSelection* empty = vtkSelection::New();
-  empty->SetContentType(vtkSelection::INDICES);
-  vtkIdTypeArray* arr = vtkIdTypeArray::New();
-  empty->SetSelectionList(arr);
-  arr->Delete();
+  vtkSmartPointer<vtkSelection> empty = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> emptyNode = vtkSmartPointer<vtkSelectionNode>::New();
+  emptyNode->SetContentType(vtkSelectionNode::INDICES);
+  vtkSmartPointer<vtkIdTypeArray> arr = vtkSmartPointer<vtkIdTypeArray>::New();
+  emptyNode->SetSelectionList(arr);
+  empty->AddNode(emptyNode);
   this->ExtractSelectedGraph->SetInput(1, empty);
-  empty->Delete();
   
   this->SelectedGraphMapper->SetInputConnection(this->ExtractSelectedGraph->GetOutputPort());
   this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
@@ -880,7 +881,7 @@ void vtkGraphLayoutView::ProcessEvents(
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     selection = vertexSelection;
-    if (selection->GetSelectionList()->GetNumberOfTuples() == 0)
+    if (kdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
       {
       // If we didn't find any vertices, perform edge selection.
       // The edge actor must be opaque for visible cell selection
@@ -899,8 +900,8 @@ void vtkGraphLayoutView::ProcessEvents(
       vtkSmartPointer<vtkIdTypeArray> ids;
       if (sel)
         {
-        sel = sel->GetChild(0);
-        ids = sel? vtkIdTypeArray::SafeDownCast(sel->GetSelectionList()) : 0;
+        vtkSelectionNode* node = sel->GetNode(0);
+        ids = node ? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : 0;
         }
 
       // Turn off the special edge actor
@@ -918,16 +919,18 @@ void vtkGraphLayoutView::ProcessEvents(
         }
       
       vtkSmartPointer<vtkSelection> edgeIndexSelection = vtkSmartPointer<vtkSelection>::New();
-      edgeIndexSelection->SetContentType(vtkSelection::INDICES);
-      edgeIndexSelection->SetFieldType(vtkSelection::EDGE);
-      edgeIndexSelection->SetSelectionList(selectedIds);
+      vtkSmartPointer<vtkSelectionNode> edgeIndexSelectionNode = vtkSmartPointer<vtkSelectionNode>::New();
+      edgeIndexSelection->AddNode(edgeIndexSelectionNode);
+      edgeIndexSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+      edgeIndexSelectionNode->SetFieldType(vtkSelectionNode::EDGE);
+      edgeIndexSelectionNode->SetSelectionList(selectedIds);
 
       // Convert to the proper selection type.
       vtkSmartPointer<vtkSelection> edgeSelection;
       edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
         edgeIndexSelection, data, this->SelectionType, this->SelectionArrayNames));
 
-      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+      if (edgeIndexSelectionNode->GetSelectionList()->GetNumberOfTuples() > 0)
         {
         selection = edgeSelection;
         }

@@ -34,8 +34,9 @@
 #include "vtkVoxel.h"
 #include "vtkLine.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.16");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.17");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -215,32 +216,32 @@ int vtkExtractSelectedFrustum::RequestData(
     vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
     vtkSelection *sel = vtkSelection::SafeDownCast(
       selInfo->Get(vtkDataObject::DATA_OBJECT()));
-    if (sel && 
-        sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) &&
-        (sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) 
-         == 
-         vtkSelection::FRUSTUM))
-
+    vtkSelectionNode *node = 0;
+    if (sel->GetNumberOfNodes() == 1)
+      {
+      node = sel->GetNode(0);
+      }
+    if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)
       {
       vtkDoubleArray *corners = vtkDoubleArray::SafeDownCast(
-        sel->GetSelectionList());
+        node->GetSelectionList());
       this->CreateFrustum(corners->GetPointer(0));
-      if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+      if (node->GetProperties()->Has(vtkSelectionNode::INVERSE()))
         {
         this->SetInsideOut(
-          sel->GetProperties()->Get(vtkSelection::INVERSE())
+          node->GetProperties()->Get(vtkSelectionNode::INVERSE())
           );
         }
-      if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
+      if (node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()))
         {
         this->SetFieldType(
-          sel->GetProperties()->Get(vtkSelection::FIELD_TYPE())
+          node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE())
           );
         }
-      if (sel->GetProperties()->Has(vtkSelection::CONTAINING_CELLS()))
+      if (node->GetProperties()->Has(vtkSelectionNode::CONTAINING_CELLS()))
         {
         this->SetContainingCells(
-          sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS())
+          node->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS())
           );
         }
       }    
@@ -413,7 +414,7 @@ int vtkExtractSelectedFrustum::RequestData(
     outputPD->CopyFieldOff("vtkOriginalPointIds");
     outputPD->CopyAllocate(pd);
 
-    if ((this->FieldType == vtkSelection::CELL)
+    if ((this->FieldType == vtkSelectionNode::CELL)
         ||
         this->PreserveTopology 
         ||
@@ -442,7 +443,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
   vtkIdType updateInterval;
 
-  if (this->FieldType == vtkSelection::CELL)
+  if (this->FieldType == vtkSelectionNode::CELL)
     {
     //cell based isect test, a cell is inside if any part of it is inside the
     //frustum, a point is inside if it belongs to an inside cell, or is not 
@@ -566,7 +567,7 @@ int vtkExtractSelectedFrustum::RequestData(
       }
     }
 
-  else //this->FieldType == vtkSelection::POINT
+  else //this->FieldType == vtkSelectionNode::POINT
     {
     //point based isect test
 

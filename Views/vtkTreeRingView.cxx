@@ -39,6 +39,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTreeFieldAggregator.h"
 #include "vtkTreeLevelsFilter.h"
@@ -48,7 +50,7 @@
 #include "vtkTreeRingToPolyData.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkTreeRingView, "1.4");
+vtkCxxRevisionMacro(vtkTreeRingView, "1.5");
 vtkStandardNewMacro(vtkTreeRingView);
 //----------------------------------------------------------------------------
 vtkTreeRingView::vtkTreeRingView()
@@ -276,22 +278,21 @@ void vtkTreeRingView::ProcessEvents(
   if (caller == this->InteractorStyle && eventId == vtkCommand::UserEvent)
     {
     // Create the selection
-    vtkSelection* selection = vtkSelection::New();
-    vtkIdTypeArray* list = vtkIdTypeArray::New();
+    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+    vtkSmartPointer<vtkIdTypeArray> list = vtkSmartPointer<vtkIdTypeArray>::New();
     vtkIdType* id = reinterpret_cast<vtkIdType*>(callData);
     if (*id >= 0)
       {
       list->InsertNextValue(*id);
       }
-    selection->SetSelectionList(list);
-    list->Delete();
+    node->SetSelectionList(list);
     // TODO: This should really be pedigree ids.
-    selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+    node->SetContentType(vtkSelectionNode::INDICES);
+    selection->AddNode(node);
     
     // Call select on the representation(s)
     this->GetRepresentation()->Select(this, selection);
-    
-    selection->Delete();
     }
   else
     {
@@ -322,14 +323,20 @@ void vtkTreeRingView::PrepareForRendering()
   vtkSelection* selection = vtkSelection::SafeDownCast(
     alg->GetOutputDataObject(rep->GetSelectionConnection()->GetIndex()));
   // TODO: Should be pedigree ids.
-  if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES)
+  vtkSelectionNode* node = selection->GetNode(0);
+  if (!node)
+    {
+    vtkErrorMacro("Selection should have a single node.");
+    return;
+    }
+  if (node->GetContentType() != vtkSelectionNode::INDICES)
     {
     vtkErrorMacro("Can only handle INDICES selections.");
     return;
     }
-  vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(selection->GetSelectionList());
+  vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
   vtkIdType id = -1;
-  if (arr->GetNumberOfTuples() > 0)
+  if (arr && arr->GetNumberOfTuples() > 0)
     {
     id = arr->GetValue(0);
     }

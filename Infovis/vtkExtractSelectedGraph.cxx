@@ -38,6 +38,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
@@ -47,7 +48,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.29");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.30");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -144,29 +145,21 @@ int vtkExtractSelectedGraph::RequestData(
     return 0;
     }
 
-  // Make selection into one-level tree if not already.
-  if (converted->GetContentType() != vtkSelection::SELECTIONS)
-    {
-    vtkSmartPointer<vtkSelection> parent = vtkSmartPointer<vtkSelection>::New();
-    parent->AddChild(converted);
-    converted = parent;
-    }
-
   // Collect vertex and edge selections.
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasEdges = false;
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasVertices = false;
-  for (unsigned int i = 0; i < converted->GetNumberOfChildren(); ++i)
+  for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
     {
-    vtkSelection* child = converted->GetChild(i);
+    vtkSelectionNode* node = converted->GetNode(i);
     vtkIdTypeArray* list = 0;
-    if (child->GetFieldType() == vtkSelection::VERTEX)
+    if (node->GetFieldType() == vtkSelectionNode::VERTEX)
       {
       list = vertexList;
       hasVertices = true;
       }
-    else if (child->GetFieldType() == vtkSelection::EDGE)
+    else if (node->GetFieldType() == vtkSelectionNode::EDGE)
       {
       list = edgeList;
       hasEdges = true;
@@ -175,13 +168,34 @@ int vtkExtractSelectedGraph::RequestData(
     if (list)
       {
       // Append the selection list to the selection
-      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(child->GetSelectionList());
+      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
       if (curList)
         {
-        vtkIdType numTuples = curList->GetNumberOfTuples();
-        for (vtkIdType j = 0; j < numTuples; ++j)
+        int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
+        if (inverse)
           {
-          list->InsertNextValue(curList->GetValue(j));
+          vtkIdType num =
+            (node->GetFieldType() == vtkSelectionNode::VERTEX) ?
+            input->GetNumberOfVertices() : input->GetNumberOfEdges();
+          for (vtkIdType j = 0; i < num; ++j)
+            {
+            if (curList->LookupValue(j) < 0 && list->LookupValue(j) < 0)
+              {
+              list->InsertNextValue(j);
+              }
+            }
+          }
+        else
+          {
+          vtkIdType numTuples = curList->GetNumberOfTuples();
+          for (vtkIdType j = 0; j < numTuples; ++j)
+            {
+            vtkIdType curValue = curList->GetValue(j);
+            if (list->LookupValue(curValue) < 0)
+              {
+              list->InsertNextValue(curValue);
+              }
+            }
           }
         } // end if (curList)
       } // end if (list)
@@ -193,35 +207,6 @@ int vtkExtractSelectedGraph::RequestData(
     return 1;
     }
 
-  // Invert the selection if necessary
-  int inverse = selection->GetProperties()->Get(vtkSelection::INVERSE());
-  if (inverse && hasVertices)
-    {
-    vtkIdType numVert = input->GetNumberOfVertices();
-    vtkSmartPointer<vtkIdTypeArray> inverted = vtkSmartPointer<vtkIdTypeArray>::New();
-    for (vtkIdType i = 0; i < numVert; ++i)
-      {
-      if (vertexList->LookupValue(i) < 0)
-        {
-        inverted->InsertNextValue(i);
-        }
-      }
-    vertexList = inverted;
-    }
-  if (inverse && hasEdges)
-    {
-    vtkIdType numEdges = input->GetNumberOfEdges();
-    vtkSmartPointer<vtkIdTypeArray> inverted = vtkSmartPointer<vtkIdTypeArray>::New();
-    for (vtkIdType i = 0; i < numEdges; ++i)
-      {
-      if (edgeList->LookupValue(i) < 0)
-        {
-        inverted->InsertNextValue(i);
-        }
-      }
-    edgeList = inverted;
-    }
-  
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder = 
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder = 

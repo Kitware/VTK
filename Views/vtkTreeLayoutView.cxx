@@ -46,6 +46,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTreeLayoutStrategy.h"
@@ -57,7 +58,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.13");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.14");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -156,13 +157,13 @@ vtkTreeLayoutView::vtkTreeLayoutView()
 
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());
   this->ExtractSelectedGraph->SetInputConnection(0, this->GraphLayout->GetOutputPort());
-  vtkSelection *empty = vtkSelection::New();
-  empty->SetContentType(vtkSelection::INDICES);
-  vtkIdTypeArray *arr = vtkIdTypeArray::New();
-  empty->SetSelectionList(arr);
-  arr->Delete();
+  vtkSmartPointer<vtkSelection> empty = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(vtkSelectionNode::INDICES);
+  vtkSmartPointer<vtkIdTypeArray> arr = vtkSmartPointer<vtkIdTypeArray>::New();
+  node->SetSelectionList(arr);
   this->ExtractSelectedGraph->SetInput(1, empty);
-  empty->Delete();
+  empty->AddNode(node);
   
   this->SelectionToPolyData->SetInputConnection(this->ExtractSelectedGraph->GetOutputPort());
   this->SelectionVertexGlyph->SetInputConnection(this->SelectionToPolyData->GetOutputPort());
