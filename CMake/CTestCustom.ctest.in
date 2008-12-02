@@ -128,12 +128,16 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.y.*passing argument 1 of 'postSig' discards qualifiers from pointer target type"
   "vtkParse.l.*warning: ignoring return value of 'fwrite', declared with attribute warn_unused_result"
 
-  # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,vtklibproj4
+  # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,vtklibproj4,
+  # vtkzlib
   "Utilities.vtkexpat.xmlparse.c.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtklibproj4.*warning.*defined but not used"
   "Utilities.vtklibproj4.*warning.*initialization discards qualifiers from pointer target type"
+  "Utilities.vtkzlib.*warning: conversion to .* from .* may change the sign of the result"
+  "Utilities.vtkzlib.*warning: conversion to .* from .* may alter its value"
+  "Utilities.vtkzlib.*warning: passing argument .* of .* as unsigned due to prototype"
   )
 
 IF(APPLE)
