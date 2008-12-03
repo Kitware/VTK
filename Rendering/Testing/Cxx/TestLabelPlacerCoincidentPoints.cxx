@@ -54,10 +54,9 @@
 int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 {
   int maxLevels = 5;
-  int targetLabels = 32;
+  int targetLabels = 4;
   double labelRatio = 0.05;
   int i = 0;
-  //char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uniform-001371-5x5x5.vtp");
   int iteratorType = vtkLabelHierarchy::FULL_SORT;
   bool showBounds = false;
 
@@ -131,7 +130,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   polyData->GetPointData()->AddArray(stringData);
 
   vtkMath::RandomSeed(1234);
-  vtkSmartPointer<vtkFloatArray> priority = 
+  /*vtkSmartPointer<vtkFloatArray> priority = 
     vtkSmartPointer<vtkFloatArray>::New();
   priority->SetNumberOfComponents(1);
   priority->SetNumberOfTuples(10);
@@ -142,7 +141,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     priority->InsertValue(i, vtkMath::Random(9.0, 10.0));
     }
 
-  polyData->GetPointData()->AddArray(priority);
+  polyData->GetPointData()->AddArray(priority);*/
 
   vtkSmartPointer<vtkFloatArray> labelSize = 
     vtkSmartPointer<vtkFloatArray>::New();
@@ -200,9 +199,15 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     iren->SetRenderWindow(renWin);
 
   renWin->Render();
-  renderer->ResetCamera();
-  renderer->ResetCamera();
-  renderer->ResetCamera();
+  //renderer->ResetCamera();
+  //renderer->ResetCamera();
+  //renderer->ResetCamera();
+
+ /* labelSizeCalculator->GetOutput()->Print(cout);
+  cout << "------------------------------------------------------" << endl;
+  pointSetToLabelHierarchy->GetOutput()->Print(cout);
+  cout << "------------------------------------------------------" << endl;
+  labelPlacer->GetOutput()->Print(cout);*/
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
