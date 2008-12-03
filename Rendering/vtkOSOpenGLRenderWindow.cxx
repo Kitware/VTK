@@ -76,7 +76,7 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.5");
+vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.6");
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 #endif
 
@@ -362,6 +362,20 @@ void vtkOSOpenGLRenderWindow::MakeCurrent()
       }
     }
 }
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if this window is the current OpenGL context for the calling thread.
+bool vtkOSOpenGLRenderWindow::IsCurrent()
+{
+  bool result=false;
+  if(this->Internal->OffScreenContextId)
+    {
+    result=this->Internal->OffScreenContextId==OSMesaGetCurrentContext();
+    }
+  return result;
+}
+
 
 void vtkOSOpenGLRenderWindow::SetForceMakeCurrent()
 {
