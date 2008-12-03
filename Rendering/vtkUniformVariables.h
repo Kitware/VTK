@@ -57,10 +57,10 @@ public:
   // \pre name_exists: name!=0
   // \pre value_exists: value!=0
   // \pre valid_rows:  rows>=2 && rows<=4
-  // \pre valid_colums: colums>=2 && colums<=4
+  // \pre valid_columns: columns>=2 && columns<=4
   void SetUniformMatrix(const char *name,
                         int rows,
-                        int colums,
+                        int columns,
                         float *value);
   
   // Description:

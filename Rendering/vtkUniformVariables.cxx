@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.2");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.3");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -36,8 +36,23 @@ public:
 class vtkUniform
 {
 public:
+  
+  // just because dynamic__cast is forbidden in VTK. Sucks.
+  enum
+  {
+    ClassTypeVectorInt=0,
+    ClassTypeVectorFloat=1,
+    ClassTypeMatrix=2
+  };
+  
+  int GetClassType() const
+    {
+      return this->ClassType;
+    }
+  
   vtkUniform()
     {
+      this->ClassType=-1;
       this->Name=0;
     }
   
@@ -84,6 +99,8 @@ public:
   
 protected:
   char *Name;
+  
+  int ClassType; // just because dynamic__cast is forbidden in VTK. Sucks.
 };
 
 class vtkUniformVectorInt : public vtkUniform
@@ -92,6 +109,7 @@ public:
   vtkUniformVectorInt(int size,
                       int *values)
     {
+      this->ClassType=ClassTypeVectorInt;
       this->Size=size;
       this->Values=new int[size];
       int i=0;
@@ -111,6 +129,16 @@ public:
       return this->Size;
     }
   
+  void SetValues(int *values)
+    {
+      int i=0;
+      while(i<this->Size)
+        {
+        this->Values[i]=values[i];
+        ++i;
+        }
+    }
+  
    virtual void Send(int location)
     {
       switch(this->Size)
@@ -126,8 +154,8 @@ public:
                            this->Values[2]);
           break;
         case 4:
-           vtkgl::Uniform4i(location,this->Values[0],this->Values[1],
-                            this->Values[2],this->Values[3]);
+          vtkgl::Uniform4i(location,this->Values[0],this->Values[1],
+                           this->Values[2],this->Values[3]);
           break;
         }
     }
@@ -141,8 +169,9 @@ class vtkUniformVectorFloat : public vtkUniform
 {
 public:
   vtkUniformVectorFloat(int size,
-                      float *values)
+                        float *values)
     {
+      this->ClassType=ClassTypeVectorFloat;
       this->Size=size;
       this->Values=new float[size];
       int i=0;
@@ -162,6 +191,16 @@ public:
       return this->Size;
     }
   
+  void SetValues(float *values)
+    {
+      int i=0;
+      while(i<this->Size)
+        {
+        this->Values[i]=values[i];
+        ++i;
+        }
+    }
+  
    virtual void Send(int location)
     {
       switch(this->Size)
@@ -177,8 +216,8 @@ public:
                            this->Values[2]);
           break;
         case 4:
-           vtkgl::Uniform4f(location,this->Values[0],this->Values[1],
-                            this->Values[2],this->Values[3]);
+          vtkgl::Uniform4f(location,this->Values[0],this->Values[1],
+                           this->Values[2],this->Values[3]);
           break;
         }
     }
@@ -198,6 +237,7 @@ public:
                    int columns,
                    float *values)
     {
+      this->ClassType=ClassTypeMatrix;
       this->Rows=rows;
       this->Columns=columns;
       this->Values=new float[rows*columns];
@@ -223,6 +263,22 @@ public:
   int GetColumns()
     {
       return this->Columns;
+    }
+  
+  void SetValues(float *values)
+    {
+      int i=0;
+      while(i<this->Rows)
+        {
+        int j=0;
+        while(j<this->Columns)
+          {
+          int index=i*this->Columns+j;
+          this->Values[index]=values[index];
+          ++j;
+          }
+        ++i;
+        }
     }
   
   virtual void Send(int location)
@@ -327,16 +383,43 @@ void vtkUniformVariables::SetUniformi(const char *name,
   assert("pre: valid_numberOfComponents" && numberOfComponents>=1 && numberOfComponents<=4);
 
   UniformMapIt cur=this->Map->Map.find(name);
-  vtkUniform *u=0;
-  u=new vtkUniformVectorInt(numberOfComponents,value);
-  u->SetName(name);
   
-  vtksys_stl::pair<const char *, vtkUniform *> p;
-  p.first=name;
-  p.second=u;
+  if(cur!=this->Map->Map.end())
+    {
+    vtkUniform *u=(*cur).second;
+    vtkUniformVectorInt *ui=0;
+    if(u->GetClassType()==vtkUniform::ClassTypeVectorInt)
+      {
+      ui=static_cast<vtkUniformVectorInt *>(u);
+      }
+    if(ui==0)
+      {
+      vtkErrorMacro(<<"try to overwrite a value with different type.");
+      }
+    else
+      {
+      if(ui->GetSize()!=numberOfComponents)
+        {
+        vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
+        }
+      else
+        {
+        ui->SetValues(value);
+        }
+      }
+    }
+  else
+    {
+    vtkUniform *u=0;
+    u=new vtkUniformVectorInt(numberOfComponents,value);
+    u->SetName(name);
   
-  this->Map->Map.insert(p);
-  
+    vtksys_stl::pair<const char *, vtkUniform *> p;
+    p.first=name;
+    p.second=u;
+    
+    this->Map->Map.insert(p);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -350,40 +433,90 @@ void vtkUniformVariables::SetUniformf(const char *name,
 
   UniformMapIt cur=this->Map->Map.find(name);
   
-  vtkUniform *u=0;
-  u=new vtkUniformVectorFloat(numberOfComponents,value);
-  u->SetName(name);
-  
-  vtksys_stl::pair<const char *, vtkUniform *> p;
-  p.first=name;
-  p.second=u;
-  
-  this->Map->Map.insert(p);
+  if(cur!=this->Map->Map.end())
+    {
+    vtkUniform *u=(*cur).second;
+    vtkUniformVectorFloat *uf=0;
+    if(u->GetClassType()==vtkUniform::ClassTypeVectorFloat)
+      {
+      uf=static_cast<vtkUniformVectorFloat *>(u);
+      }
+    if(uf==0)
+      {
+      vtkErrorMacro(<<"try to overwrite a value with different type.");
+      }
+    else
+      {
+      if(uf->GetSize()!=numberOfComponents)
+        {
+        vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
+        }
+      else
+        {
+        uf->SetValues(value);
+        }
+      }
+    }
+  else
+    {
+    vtkUniform *u=0;
+    u=new vtkUniformVectorFloat(numberOfComponents,value);
+    u->SetName(name);
+    
+    vtksys_stl::pair<const char *, vtkUniform *> p;
+    p.first=name;
+    p.second=u;
+    
+    this->Map->Map.insert(p);
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkUniformVariables::SetUniformMatrix(const char *name,
                                            int rows,
-                                           int colums,
+                                           int columns,
                                            float *value)
 {
   assert("pre: name_exists" && name!=0);
   assert("pre: value_exists" && value!=0);
   assert("pre: valid_rows" && rows>=2 && rows<=4);
-  assert("pre: valid_colums" && colums>=2 && colums<=4);
+  assert("pre: valid_columns" && columns>=2 && columns<=4);
 
   UniformMapIt cur=this->Map->Map.find(name);
   
-  vtkUniform *u=0;
-  
-  
-  
-  u=new vtkUniformMatrix(rows,colums,value);
-  u->SetName(name);
-  vtksys_stl::pair<const char *, vtkUniform *> p;
-  p.first=name;
-  p.second=u;
-  this->Map->Map.insert(p);
+  if(cur!=this->Map->Map.end())
+    {
+    vtkUniform *u=(*cur).second;
+    vtkUniformMatrix *um=0;
+    if(u->GetClassType()==vtkUniform::ClassTypeMatrix)
+      {
+      um=static_cast<vtkUniformMatrix *>(u);
+      }
+    if(um==0)
+      {
+      vtkErrorMacro(<<"try to overwrite a value with different type.");
+      }
+    else
+      {
+      if(um->GetRows()!=rows || um->GetColumns()!=columns)
+        {
+        vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
+        }
+      else
+        {
+        um->SetValues(value);
+        }
+      }
+    }
+  else
+    {
+    vtkUniform *u=new vtkUniformMatrix(rows,columns,value);
+    u->SetName(name);
+    vtksys_stl::pair<const char *, vtkUniform *> p;
+    p.first=name;
+    p.second=u;
+    this->Map->Map.insert(p);
+    }
 }
 
 // ----------------------------------------------------------------------------
