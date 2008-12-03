@@ -25,6 +25,13 @@ renWin SetSize 256 256
 # render first image
 renWin Render
 
+if {0 == [renWin GetAlphaBitPlanes]} {
+  puts "Failed to find a visual with alpha bit planes."
+  exit 0
+} {
+  puts [concat "GetAlphaBitPlanes: " [renWin GetAlphaBitPlanes]]
+}
+
 # create window to image filter, grabbing RGB and alpha
 vtkWindowToImageFilter w2i
    w2i SetInput renWin
