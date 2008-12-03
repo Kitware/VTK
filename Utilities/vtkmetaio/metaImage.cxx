@@ -3092,6 +3092,12 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
 
         readStreamTemp->close();
         }
+     
+      for(i=0; i<nWrds; i++)
+        {
+        delete [] wrds[i++];
+        }
+          
       delete readStreamTemp;
       }
     else
