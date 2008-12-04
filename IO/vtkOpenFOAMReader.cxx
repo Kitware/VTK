@@ -108,7 +108,7 @@ uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
 { return 0; }
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.14");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.15");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 //-----------------------------------------------------------------------------
@@ -159,8 +159,8 @@ private:
       }
     };
 
-  typedef struct vtkFoamArrayVector<vtkIntArray> vtkFoamIntArrayVector;
-  typedef struct vtkFoamArrayVector<vtkFloatArray> vtkFoamFloatArrayVector;
+  typedef vtkFoamArrayVector<vtkIntArray> vtkFoamIntArrayVector;
+  typedef vtkFoamArrayVector<vtkFloatArray> vtkFoamFloatArrayVector;
   struct vtkFoamIntVectorVector;
 
   struct vtkFoamError;
@@ -339,7 +339,7 @@ private:
       const vtkFoamIntVectorVector *, vtkPoints *);
 };
 
-vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.14");
+vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.15");
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 
 //-----------------------------------------------------------------------------
@@ -464,7 +464,7 @@ public:
     // original list types
     LABELLISTLIST, ENTRYVALUELIST, EMPTYLIST, DICTIONARY,
     // error state
-    ERROR
+    TOKEN_ERROR
     };
 
 protected:
@@ -553,7 +553,7 @@ public:
   void SetBad()
   {
     this->Clear();
-    this->Type = ERROR;
+    this->Type = TOKEN_ERROR;
   }
   void SetIdentifier(const vtkStdString& idString)
   {
@@ -623,7 +623,7 @@ public:
   {
     switch (value.GetType())
       {
-      case ERROR:
+      case TOKEN_ERROR:
         str << "badToken (an unexpected EOF?)";
         break;
       case PUNCTUATION:
@@ -664,17 +664,17 @@ const
   return this->Type == SCALAR;
   }
 
-template<> inline int vtkOpenFOAMReaderPrivate::vtkFoamToken::To() const
+template<> inline int vtkOpenFOAMReaderPrivate::vtkFoamToken::To<int>() const
 {
   return this->Int;
 }
 
-template<> inline float vtkOpenFOAMReaderPrivate::vtkFoamToken::To() const
+template<> inline float vtkOpenFOAMReaderPrivate::vtkFoamToken::To<float>() const
 {
   return this->Type == LABEL ? this->Int : this->Double;
 }
 
-template<> inline double vtkOpenFOAMReaderPrivate::vtkFoamToken::To() const
+template<> inline double vtkOpenFOAMReaderPrivate::vtkFoamToken::To<double>() const
 {
   return this->Type == LABEL ? this->Int : this->Double;
 }
@@ -1447,7 +1447,7 @@ int vtkOpenFOAMReaderPrivate::vtkFoamFile::ReadNext()
 
 // specialized for reading an integer value.
 // not using the standard strtol() for speed reason.
-template<> int vtkOpenFOAMReaderPrivate::vtkFoamFile::ReadValue()
+template<> int vtkOpenFOAMReaderPrivate::vtkFoamFile::ReadValue<int>()
 {
   // skip prepending invalid chars
   // expanded the outermost loop in nextTokenHead() for performance
@@ -1511,7 +1511,7 @@ template<> int vtkOpenFOAMReaderPrivate::vtkFoamFile::ReadValue()
 // extreamely simplified high-performing string to floating point
 // conversion code based on
 // ParaView3/VTK/Utilities/vtksqlite/vtk_sqlite3.c
-template<> float vtkOpenFOAMReaderPrivate::vtkFoamFile::ReadValue()
+template<> float vtkOpenFOAMReaderPrivate::vtkFoamFile::ReadValue<float>()
 {
   // skip prepending invalid chars
   // expanded the outermost loop in nextTokenHead() for performance
@@ -2826,7 +2826,7 @@ public:
                 || currToken.GetType() == vtkFoamToken::IDENTIFIER
                 || currToken == ';'));
 
-        if(currToken.GetType() == vtkFoamToken::ERROR || currToken == '}'
+        if(currToken.GetType() == vtkFoamToken::TOKEN_ERROR || currToken == '}'
             || currToken == ')')
           {
           return true;
@@ -4312,8 +4312,8 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(
     // empty if not found
     const vtkFoamEntry *adjustTimeStepEntry = dict.Lookup("adjustTimeStep");
     const vtkStdString
-        adjustTimeStep(adjustTimeStepEntry == NULL ? vtkStdString()
-            : adjustTimeStepEntry->ToString());
+        adjustTimeStep = adjustTimeStepEntry == NULL ? vtkStdString()
+            : adjustTimeStepEntry->ToString();
 
     // list time directories according to controlDict if (adjustTimeStep
     // writeControl) == (off, timeStep) or (on, adjustableRunTime); list
@@ -5368,7 +5368,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               dotProduct += v1 * v2;
               }
             // compare in squared representation to avoid using sqrt()
-            if (dotProduct * fabsf(dotProduct) / (vsizeSqr1 * vsizeSqr2)
+            if (dotProduct * (float) fabs(dotProduct) / (vsizeSqr1 * vsizeSqr2)
                 < -1.0F + 1.0e-3F)
               {
               vertI = 1;
@@ -6344,8 +6344,8 @@ vtkFloatArray *vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry *entryPtr,
       else
         {
         vtkErrorMacro(<< "Number of components and field class doesn't match "
-            << "for " << ioPtr->GetFileName() << ". class = " << className
-            << ", nComponents = " << nComponents);
+                      << "for " << ioPtr->GetFileName().c_str() << ". class = " << className.c_str()
+                      << ", nComponents = " << nComponents);
         return NULL;
         }
       }
