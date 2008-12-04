@@ -139,6 +139,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* discards qualifiers from pointer target type"
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*ignoring return value of .*, declared with attribute warn_unused_result"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
@@ -146,7 +147,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtklibproj4.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtklibproj4.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtklibproj4.*warning.*passing argument .* of .* discards qualifiers from pointer target type"
-  
+  "Utilities.vtklibproj4.*warning.*ignoring return value of .*, declared with attribute warn_unused_result"
   "Utilities.vtkzlib.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities.vtkzlib.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkzlib.*warning: passing argument .* of .* as unsigned due to prototype"
