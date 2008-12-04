@@ -108,7 +108,7 @@ uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
 { return 0; }
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.15");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.16");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 //-----------------------------------------------------------------------------
@@ -339,7 +339,7 @@ private:
       const vtkFoamIntVectorVector *, vtkPoints *);
 };
 
-vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.15");
+vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.16");
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 
 //-----------------------------------------------------------------------------
@@ -925,8 +925,8 @@ public:
             const vtkStdString::size_type len = expandedPath.length();
             if (len > 0)
               {
-              const char c = expandedPath[len - 1];
-              wasPathSeparator = (c == '/' || c == '\\');
+              const char c2 = expandedPath[len - 1];
+              wasPathSeparator = (c2 == '/' || c2 == '\\');
               }
             else
               {
@@ -3381,7 +3381,7 @@ void vtkOpenFOAMReaderPrivate::vtkFoamEntry::Read(vtkFoamIOobject& io)
           {
           if (lastValue.Dictionary().GetType() == vtkFoamToken::LABEL)
             {
-            const int size = secondLastValue.To<int>();
+            const int asize = secondLastValue.To<int>();
             const int value = lastValue.Dictionary().GetToken().To<int>();
             // delete last two values
             delete this->Superclass::back();
@@ -3390,11 +3390,11 @@ void vtkOpenFOAMReaderPrivate::vtkFoamEntry::Read(vtkFoamIOobject& io)
             this->Superclass::pop_back();
             // make new labelList
             this->Superclass::push_back(new vtkFoamEntryValue(this));
-            this->Superclass::back()->MakeLabelList(value, size);
+            this->Superclass::back()->MakeLabelList(value, asize);
             }
           else if (lastValue.Dictionary().GetType() == vtkFoamToken::SCALAR)
             {
-            const int size = secondLastValue.To<int>();
+            const int asize = secondLastValue.To<int>();
             const float value = lastValue.Dictionary().GetToken().To<float>();
             // delete last two values
             delete this->Superclass::back();
@@ -3403,7 +3403,7 @@ void vtkOpenFOAMReaderPrivate::vtkFoamEntry::Read(vtkFoamIOobject& io)
             this->Superclass::pop_back();
             // make new labelList
             this->Superclass::push_back(new vtkFoamEntryValue(this));
-            this->Superclass::back()->MakeScalarList(value, size);
+            this->Superclass::back()->MakeScalarList(value, asize);
             }
           }
         }
@@ -3961,13 +3961,13 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(
   if (listNextTimeStep && this->TimeValues->GetNumberOfTuples() >= 2
       && this->TimeStep == 0)
     {
-    const vtkStdString timePath(this->TimePath(1));
-    this->GetFieldNames(timePath + this->RegionPath(), false, cellObjectNames,
+    const vtkStdString timePath2(this->TimePath(1));
+    this->GetFieldNames(timePath2 + this->RegionPath(), false, cellObjectNames,
         pointObjectNames);
     // if lagrangian clouds were not found at timestep 0
     if (this->Parent->LagrangianPaths->GetNumberOfTuples() == 0)
       {
-      this->LocateLagrangianClouds(lagrangianObjectNames, timePath);
+      this->LocateLagrangianClouds(lagrangianObjectNames, timePath2);
       }
     }
 
@@ -7074,8 +7074,8 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       const vtkStdString varPath(cloudPath
           + this->LagrangianFieldFiles->GetValue(fieldI));
 
-      vtkFoamIOobject io(this->CasePath);
-      if (!io.Open(varPath))
+      vtkFoamIOobject io2(this->CasePath);
+      if (!io2.Open(varPath))
         {
         // if the field file doesn't exist we simply return without
         // issuing an error as a simple way of supporting multi-region
@@ -7084,7 +7084,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
         }
 
       // if the variable is disabled on selection panel then skip it
-      const vtkStdString selectionName(io.GetObjectName());
+      const vtkStdString selectionName(io2.GetObjectName());
       if (this->Parent->LagrangianDataArraySelection->ArrayExists(selectionName.c_str())
           && !this->Parent->GetLagrangianArrayStatus(selectionName.c_str()))
         {
@@ -7093,11 +7093,11 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 
       // read the field file into dictionary
       vtkFoamEntryValue dict(NULL);
-      if (!dict.ReadField(io))
+      if (!dict.ReadField(io2))
         {
-        vtkErrorMacro(<<"Error reading line " << io.GetLineNumber()
-            << " of " << io.GetFileName().c_str() << ": "
-            << io.GetError().c_str());
+        vtkErrorMacro(<<"Error reading line " << io2.GetLineNumber()
+            << " of " << io2.GetFileName().c_str() << ": "
+            << io2.GetError().c_str());
         continue;
         }
 
@@ -7106,21 +7106,21 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
           != vtkFoamToken::VECTORLIST && dict.GetType()
           != vtkFoamToken::LABELLIST)
         {
-        vtkErrorMacro(<< io.GetFileName().c_str()
+        vtkErrorMacro(<< io2.GetFileName().c_str()
             << ": Unsupported lagrangian field type "
-            << io.GetClassName().c_str());
+            << io2.GetClassName().c_str());
         continue;
         }
 
       vtkDataArray* lData = static_cast<vtkDataArray *>(dict.Ptr());
 
       // GetNumberOfTuples() works for both scalar and vector
-      const int nParticles = lData->GetNumberOfTuples();
-      if (nParticles != meshI->GetNumberOfCells())
+      const int nParticles2 = lData->GetNumberOfTuples();
+      if (nParticles2 != meshI->GetNumberOfCells())
         {
-        vtkErrorMacro(<< io.GetFileName().c_str()
+        vtkErrorMacro(<< io2.GetFileName().c_str()
             <<": Sizes of lagrangian mesh and field don't match: mesh = "
-            << meshI->GetNumberOfCells() << ", field = " << nParticles);
+            << meshI->GetNumberOfCells() << ", field = " << nParticles2);
         lData->Delete();
         continue;
         }
