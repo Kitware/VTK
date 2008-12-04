@@ -1,0 +1,210 @@
+<html>
+<head>
+
+<title>ALGLIB FAQ</title>
+<style type="text/css">
+<!--
+h1 { font-family: Tahoma,sans-serif; font-size : larger; }
+h2 { font-family: Arial,sans-serif; font-size : 11pt; }
+h3 { font-family: Arial,sans-serif; font-size : 9pt; }
+.cond  { color:blue; }
+.const { color:#222222; }
+.func  { color:#111111; }
+.smalltext { font-size : 10pt; }
+-->
+</style>
+</head>
+<body>
+
+<p align=justify>
+<b>C++</b><br>
+<span class=smalltext>
+<a href="#stdafx">What is the blank file <code>stdafx.h</code> here for?</a><br>
+<a href="#cpparrays">How is the array operations organized in C++?</a><br>
+<a href="#cpparrays2">Why are round brackets used when addressing arrays, not square brackets?</a><br>
+<a href="#cpp64">Will the ALGLIB package work in 64-bit environment?</a><br>
+</span><br>
+
+<b>Delphi</b><br>
+
+<span class=smalltext>
+<a href="#forwhile">Why is <i>while</i> cycle used instead of the <i>for</i> cycle?</a><br>
+<a href="#dac">What is the purpose of the <code>DynamicArrayCopy</code> function?</a><br>
+</span><br>
+
+<b>Visual Basic</b><br>
+
+<span class=smalltext>
+<a href="#vbver">What version of Visual Basic are the algorithms translated into?</a><br>
+<a href="#vbnet">Will the programs from the site work in VB.NET?</a><br>
+<a href="#vbgoto">Why is the <i>goto</i> operator used in some programs?</a><br>
+</span><br>
+
+<b>General Questions on source codes</b><br>
+
+<span class=smalltext>
+<a href="#ap">What is the AP library?</a><br>
+<a href="#ablas">What is the ABLAS library?</a><br>
+<a href="#arr1">Some algorithms begin numeration of array elements from 1. Nobody does it like that!</a><br>
+<a href="#arrnz">A certain programming language doesn't support arrays unless they begin with zero. What do I do in this case?</a><br>
+</span><br>
+
+<b>General questions</b><br>
+
+<span class=smalltext>
+<a href="#project">What is ALGLIB aimed at?</a><br>
+<a href="#diff">What is the difference between ALGLIB and other similar projects?</a><br>
+<a href="#authors">Who are the authors of the ALGLIB?</a><br>
+<a href="#rus">What relation does the website have to Russia?</a><br>
+<a href="#algopascal">What is AlgoPascal?</a><br>
+<a href="#other">Where can I find the algorithms for the work with files, drawing pictures in OpenGL, etc?</a><br>
+</span><br>
+</p>
+
+<hr width=80% size=1>
+
+<h1>C++</h1>
+<a name=stdafx><h2>What is the blank file <code>stdafx.h</code> here for?</h2></a>
+
+<p align=justify>
+MSVC and some other compilers require the <code>#include &lt;stdafx.h&gt;</code> directive in the program code to manage precompiled headers, and create the stfafx.h file when generating a new project. However, some compilers (e.g. BCB) use other tools to manage precompiled headers. In this case the <code>#include &lt;stdafx.h&gt;</code> directive as such doesn't hinder their operation, however if the file with this name is absent, a compilation error occurs. The blank file called <code>stfafx.h</code> is created to avoid this error. If your development environment already created the file, leave it unchanged.
+</p>
+
+<a name=cpparrays><h2>How is the array operations organized in C++?</h2></a>
+
+<p align=justify>
+As there is no dynamic array support in C++ (<b>update:</b> <i>I know about pointers and dynamic memory allocation, but this is not exactly the thing we need here</i>), template classes were developed to work with one- and two-dimensional arrays. The necessary source code and description can be found in the standard AP library, which is supplied with ALGLIB sources. Please note that the array numeration in this library begins from any number the programmer chooses rather than from 0.
+</p>
+
+<a name=cpparrays2><h2>Why are round brackets used when addressing arrays, not square brackets?</h2></a>
+
+<p align=justify>
+Imagine you are addressing the a matrix element in the common notation: <code>a[x][y]</code> instead of <code>a(x,y)</code>. Actually there are two index operators called here instead of one. The first is indexing of a matrix by <code>x</code>, that returns a reference to a temporary structure that describes the matrix row. The second is indexing that temporary structure by <code>y</code>, which returns the reference to the needed element. Addressing through overloading the round brackets is much more effective, as no temporary structures are required.
+</p>
+
+<a name=cpp64><h2>Will the ALGLIB package work in 64-bit environment?</h2></a>
+
+<p align=justify>
+The ALGLIB package was not tested in 64-bit environment.
+</p>
+
+<p align=justify>
+However, the package itself and the AP/C++ library it uses don't contain any code that explicitly points out the environment it should work in. Thus, in theory compiling and usage of ALGLIB package in a 64-bit environment should not cause any trouble when not using additional libraries (like ABLAS, which is at the moment intended to work only in 32-bit environments).
+</p>
+
+<h1>Delphi</h1>
+
+<a name=forwhile><h2>Why is <i>while</i> cycle used instead of the <i>for</i> cycle?</h2></a>
+
+<p align=justify>
+The reason for that is some peculiarities of the <b>for</b> cycle in Delphi. If the cycle has not been executed yet, in many programming languages the control variable of the cycle contains the initial value. In Delphi, if the cycle has not been executed, the control variable of the cycle doesn't change. Once I have seen a source code, in which this difference played a major role. That's why decided to replace the <b>for</b> cycle in Delphi with <b>while</b> cycle, whose behavior is the same as in any other language.
+</p>
+
+<a name=dac><h2>What is the purpose of the <code>DynamicArrayCopy</code> function?</h2></a>
+
+<p align=justify>
+In Delphi dynamic arrays are reference types, i.e. if the array parameter is passed by value, no copying of the array occurs. To emulate the transfer of the array parameter by value we use the <code>DynamicArrayCopy</code> function. It requires a dynamic array as an argument and returns a copy of this array. Assignment of the type <code>A:=DynamicArrayCopy(A)</code> replaces the reference to the original array with a reference to its copy.
+</p>
+
+<h1>Visual Basic</h1>
+
+<a name=vbver><h2>What version of Visual Basic are the algorithms translated into?</h2></a>
+
+<p align=justify>
+The algorithms are translated into VBA, but in general are compatible with VB6. 
+</p>
+
+<a name=vbnet><h2>Will the programs from the site work in VB.NET?</h2></a>
+
+<p align=justify>
+Not unless they are manually ported.
+</p>
+
+<a name=vbgoto><h2>Why is the <i>goto</i> operator used in some programs?</h2></a>
+
+<p align=justify>
+In many programming languages there is control operator <b>continue</b>, but it is absent in VB. In AlgoPascal, this operator appears from time to time. The <b>goto</b> operator is used to replace it and go to the next iteration of the cycle.
+</p>
+
+<h1>General Questions on source codes</h1>
+
+<a name=ap><h2>What is the AP library?</h2></a>
+
+<p align=justify>
+AP library is a generic name for a set of libraries in several programming languages performing low-level tasks depending on specific programming languages. The AP library carries out tasks such as working with dynamic one- and multidimensional arrays in languages which do not support this data type, contains implementation of basic linear algebra algorithms, etc. The library is distributed as source codes under BSD license. The library is attached to each algorithm package available for downloading from the web-site. The latest library version is available for downloading from <a href="http://alglib.sources.ru/translator/aplib.zip">http://alglib.sources.ru/translator/aplib.zip</a>
+</p>
+
+<a name=ablas><h2>What is the ABLAS library?</h2></a>
+
+<p align=justify>
+ABLAS is an optimized implementation of basic linear algebra subroutines written in assembler. To use ABLAS it is necessary to copy the DLL file to one of the system folders or in the program folder and turn on ABLAS support (as described in ABLAS manual). When launching a program that is using the ALGLIB package, the ABLAS library is automatically detected and loaded. If ABLAS is absent, the program uses the standard implementation of linear algebra operations, written in a high-level language. At <a href="http://www,alglib.net/projects/ablas/">http://www,alglib.net/projects/ablas/</a> (or <a href="http://alglib.sources.ru/projects/ablas/">http://alglib.sources.ru/projects/ablas/</a> in Russian) there is library description, the list of the supported platforms and programming languages as well as source code and precompiled binary files.
+</p>
+
+<a name=arr1><h2>Some algorithms begin numeration of array elements from 1. Nobody does it like that!</h2></a>
+
+<p align=justify>
+Yes, they do. For instance, netlib.org library contains megabytes of code written in Fortran, in which numeration begins with 1. Today numeration is commonly begun with 0, but many unique algorithms are very widespread in the old edition. At the moment most algorithms are aligned with the modern, 0-based numeration. However a small number of very useful algorithms still uses the old one. In future all of them will be aligned to the modern system, but for now they need to be used as is.
+</p>
+
+<a name=arrnz><h2>A certain programming language doesn't support arrays unless they begin with zero. What do I do in this case?</h2></a>
+
+<p align=justify>
+In this case the elements containing zero in one of the indexes, will not be used. For instance, if a subroutine expects to get a 2x2-size array, where numeration begins with 1 (which means that the element indexes look like <code>[1..2,1..2]</code>), it is necessary to transfer an array with a numeration looking like <code>[0..2,0..2]</code>). This is not the nicest looking solution, but it works.
+</p>
+
+<h1>General questions</h1>
+
+<a name=project><h2>What is ALGLIB aimed at?</h2></a>
+
+<p align=justify>
+It is mostly aimed at creating a convenient and efficient multilingual scientific software library.
+</p>
+
+<a name=diff><h2>What is the difference between ALGLIB and other similar projects?</h2></a>
+
+<p align=justify>
+The ALGLIB package:
+</p>
+
+<ul>
+<li>is a multilingual project. The main feature of the project is that each algorithm is represented by programs in several languages and the language list is the same for every algorithm. This is the main advantage of the site before other similar collections - one algorithm, several languages, identical functionality in each language.</li>
+<li>is a collection of programs. Sometimes visitors complain that there are practically no algorithm descriptions at the site. Yes, that's true - just because ALGLIB is a collection of programs, not the used algorithm descriptions. Unfortunately we cannot do everything.</li>
+<li>is focused on numerical analysis. There are some other directions in the project (for instance, there are algorithms for sorting and graphics) but numerical analysis is a priority.</li>
+<li>is easy to use. To use the ALGLIB package you don't need to learn an unknown programming language, attach additional external libraries or work with an extensive and inconvenient interface to a code written in another programming language.</li>
+</ul>
+
+<p align=justify>
+Now on what ALGLIB is not and is not going to be. ALGLIB doesn't:
+</p>
+
+<ul>
+<li>compete with specialized projects. This is not the goal. And, however hard I try, the project won't get as fast as MKL or have as wide a functionality as LAPACK.</li>
+<li>go out of the boundaries of the project. For instance, parallel calculations are very interesting, but the solution of this problem is usually tightly connected to a certain platform, programming environment or language, which doesn't align with the main idea of the project.</li>
+</ul>
+
+<a name=authors><h2>Who are the authors of the ALGLIB?</h2></a>
+
+<p align=justify>
+The first version of ALGLIB was made by Vladimir Bystritsky. He spent a number of years on the maintenance of the website by himself. Eventually, he lost his interest in the website, so I (Sergey Bochkanov) took over the work on its maintenance, by common agreement.
+</p>
+
+<a name=rus><h2>What relation does the website have to Russia?</h2></a>
+
+<p align=justify>
+Originally, ALGLIB was a Russian-language website. Later on, a part of the website was translated into English. At present, there are two versions of the site - Russian and English.
+</p>
+
+<a name=algopascal><h2>What is AlgoPascal?</h2></a>
+
+<p align=justify>
+AlgoPascal is a programming language, designed particularly for this project. The programs, written in this language, are processed by a server-side automatic translator and translated into other programming languages by the computer. More detailed information is provided in section <a href="http://www.alglib.net/aboutsite.php">"About the site"</a>.
+</p>
+
+<a name=other><h2>Where can I find the algorithms for the work with files, drawing pictures in OpenGL, etc?</h2></a>
+
+<p align=justify>
+As we noted before, the main goal of ALGLIB is to create a multilingual library of algorithms in the area of numerical analysis. The problems, related to those enumerated in the question, do not fall into this category. Exceptions are made for a number of problems, though the project can be characterized by a clear-cut specialization.
+</p>
+
+</body>
+</html>

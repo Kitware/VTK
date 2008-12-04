@@ -7,7 +7,7 @@ SET(UKIT INFOVIS)
 SET(KIT_TCL_LIBS vtkWidgetsTCL)
 SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
 SET(KIT_JAVA_LIBS vtkWidgetsJava)
-SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES})
+SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES} vtkalglib)
 
 SET( Kit_SRCS
 vtkArcParallelEdgeStrategy.cxx
@@ -56,6 +56,7 @@ vtkOrderStatistics.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx
 vtkPassThroughLayoutStrategy.cxx
+vtkPCAStatistics.cxx
 vtkPruneTreeFilter.cxx
 vtkRISReader.cxx
 vtkRandomGraphSource.cxx

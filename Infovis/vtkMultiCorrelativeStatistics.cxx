@@ -1,4 +1,5 @@
 #include "vtkMultiCorrelativeStatistics.h"
+#include "vtkMultiCorrelativeStatisticsAssessFunctor.h"
 
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
@@ -20,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Column Averages"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.5");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.6");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -101,48 +102,29 @@ void vtkMultiCorrelativeTransposeTriangular( vtkstd::vector<double>& a, vtkIdTyp
 }
 
 // ======================================================== vtkMultiCorrelativeAssessFunctor
-class vtkMultiCorrelativeAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor
+vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::New()
 {
-public:
-  static vtkMultiCorrelativeAssessFunctor* Create( vtkTable* inData, vtkTable* reqModel );
+  return new vtkMultiCorrelativeAssessFunctor;
+}
 
-  vtkMultiCorrelativeAssessFunctor() { }
-  virtual ~vtkMultiCorrelativeAssessFunctor() { }
-
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
-
-  vtkIdType GetNumberOfColumns() { return static_cast<vtkIdType>( this->Columns.size() ); }
-  vtkDataArray* GetColumn( vtkIdType colIdx ) { return this->Columns[colIdx]; }
-
-  vtkstd::vector<vtkDataArray*> Columns; // Source of data
-  double* Center; // Offset per column (usu. to re-center the data about the mean)
-  vtkstd::vector<double> Factor; // Weights per column
-  double Normalization; // Scale factor for the volume under a multivariate Gaussian used to normalize the CDF
-  vtkstd::vector<double> Tuple; // Place to store product of detrended input tuple and Cholesky inverse
-  vtkstd::vector<double> EmptyTuple; // Used to quickly initialize Tuple for each datum
-};
-
-vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::Create( vtkTable* inData, vtkTable* reqModel )
+bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData, vtkTable* reqModel, bool cholesky )
 {
-// ----------------------------------------------------------------------
-  vtkMultiCorrelativeAssessFunctor* inst = 0;
-
   vtkDoubleArray* avgs = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
   if ( ! avgs )
     {
     vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column" );
-    return inst;
+    return false;
     }
   vtkStringArray* name = vtkStringArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_COLUMNAMES ) );
   if ( ! name )
     {
     vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_COLUMNAMES "\" column" );
-    return inst;
+    return false;
     }
 
   vtkstd::vector<vtkDataArray*> cols; // input data columns
   vtkstd::vector<double*> chol; // Cholesky matrix columns. Only the lower triangle is significant.
-  vtkIdType m = reqModel->GetNumberOfRows() - 1;
+  vtkIdType m = reqModel->GetNumberOfColumns() - 2;
   vtkIdType i;
   for ( i = 0; i < m ; ++ i )
     {
@@ -151,45 +133,49 @@ vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::Create( vtkT
     if ( ! arr )
       {
       vtkGenericWarningMacro( "Multicorrelative input data needs a \"" << colname.c_str() << "\" column" );
-      return inst;
+      return false;
       }
     cols.push_back( arr );
     vtkDoubleArray* dar = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( colname.c_str() ) );
     if ( ! dar )
       {
       vtkGenericWarningMacro( "Multicorrelative request needs a \"" << colname.c_str() << "\" column" );
-      return inst;
+      return false;
       }
     chol.push_back( dar->GetPointer( 1 ) );
     }
 
-  // OK, if we made it this far, it's safe to create an instance...
-  inst = new vtkMultiCorrelativeAssessFunctor;
-  inst->Columns = cols;
-  inst->Center = avgs->GetPointer( 0 );
-  inst->Tuple.resize( m );
-  inst->EmptyTuple = vtkstd::vector<double>( m, 0. );
-  vtkMultiCorrelativeInvertCholesky( chol, inst->Factor ); // store the inverse of chol in inst->Factor, F
-  vtkMultiCorrelativeTransposeTriangular( inst->Factor, m ); // transposing F makes it easier to use in the () operator.
+  // OK, if we made it this far, we will succeed
+  this->Columns = cols;
+  this->Center = avgs->GetPointer( 0 );
+  this->Tuple.resize( m );
+  this->EmptyTuple = vtkstd::vector<double>( m, 0. );
+  if ( cholesky )
+    {
+    vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); // store the inverse of chol in this->Factor, F
+    vtkMultiCorrelativeTransposeTriangular( this->Factor, m ); // transposing F makes it easier to use in the () operator.
+    }
+#if 0
   // Compute the normalization factor to turn X * F * F' * X' into a cumulance.
   if ( m % 2 == 0 )
     {
-    inst->Normalization = 1.0;
+    this->Normalization = 1.0;
     for ( i = m / 2 - 1; i > 1; -- i )
       {
-      inst->Normalization *= i;
+      this->Normalization *= i;
       }
     }
   else
     {
-    inst->Normalization = sqrt( 3.141592653589793 ) / ( 1 << ( m / 2 ) );
+    this->Normalization = sqrt( 3.141592653589793 ) / ( 1 << ( m / 2 ) );
     for ( i = m - 2; i > 1; i -= 2 )
       {
-      inst->Normalization *= i;
+      this->Normalization *= i;
       }
     }
+#endif // 0
 
-  return inst;
+  return true;
 }
 
 // ----------------------------------------------------------------------
@@ -682,6 +668,11 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor(
     return;
     }
 
-  dfunc = vtkMultiCorrelativeAssessFunctor::Create( inData, reqModel );
+  vtkMultiCorrelativeAssessFunctor* mcfunc = vtkMultiCorrelativeAssessFunctor::New();
+  if ( ! mcfunc->Initialize( inData, reqModel ) )
+    {
+    delete mcfunc;
+    }
+  dfunc = mcfunc;
 }
 

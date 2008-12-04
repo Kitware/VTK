@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestMultiCorrelativeStatistics
     TestOrderStatistics
     TestPassThrough
+    TestPCAStatistics
     TestPruneTreeFilter
     TestRandomGraphSource
     TestStringToCategory

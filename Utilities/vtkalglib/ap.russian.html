@@ -1,0 +1,442 @@
+<html>
+<head>
+<title>Библиотека AP для C++</title>
+<style type="text/css">
+<!--
+h1 { font-family: Tahoma,sans-serif; font-size : larger; }
+h2 { font-family: Arial,sans-serif; font-size : 11pt; }
+h3 { font-family: Arial,sans-serif; font-size : 9pt; }
+.cond  { color:blue; }
+.const { color:#222222; }
+.func  { color:#111111; }
+-->
+</style>
+</head>
+<body>
+
+<h1>Библиотека AP для C++</h1>
+
+<p align=justify>
+Этот документ описывает библиотеку AP, адаптированную для языка C++. Библиотека AP для С++ содержит базовый набор математических функций и классы-коллекции, которые требуются для работы программ с сайта <a href="http://alglib.manual.ru/">"Библиотека алгоритмов"</a>.
+</p>
+
+<h1>Совместимость</h1>
+
+<p align=justify>
+Данная библиотека должна быть совместима с любым компилятором С++.
+</p>
+
+<h1>Состав и использование</h1>
+
+<p align=justify>
+В состав библиотеки входят файлы <code>ap.h</code> и <code>ap.cpp</code>. Для начала работы достаточно подключить файл <code>ap.cpp</code> к проекту.
+</p>
+
+<h1>Описание библиотеки AP</h1>
+
+<font size=-1>
+<a href="#intro">Введение</a><br>
+<a href="#conditionals">Настройки условной компиляции</a><br>
+<a href="#constants">Константы</a><br>
+<a href="#functions">Функции</a><br>
+<a href="#aperror">Класс ap_error</a><br>
+<a href="#arrays">Классы массивов</a><br>
+<a href="#blas">Базовые подпрограммы линейной алгебры</a><br>
+<a href="#complex">Класс комплексных чисел</a><br>
+</font>
+
+<a name="intro"><h1>Введение</h1></a>
+
+<p align=justify>
+В заголовочном файле <code>ap.h</code> определяется пространство имен <code>ap</code>. Следует учитывать, что имена функций, констант и классов, приведенные дальше, следует предварять префиксом <i>ap::</i>
+</p>
+
+<a name="conditionals"><h1>Настройки условной компиляции</h1></a>
+
+<p align=justify>
+<span class=cond>AP_WIN32</span><br>
+Этот символ, <b>если он определен пользователем</b>, сообщает библиотеке, что она компилируется в Win32. Определение этого символа позволяет использовать библиотеку ABLAS (базовые алгоритмы линейной алгебры с поддержкой SSE2), если она установлена в системе.
+</p>
+
+<p align=justify>
+<span class=cond>AP_ASSERT</span><br>
+Этот символ включает проверку границ массива. Если он определен директивой define, то при каждом обращении к элементам динамического массива проверяется правильность переданного индекса. В случае ошибки генерируется исключение <code>ap_error</code>. Проверка границ массива делает программу более надежной, но замедляет работу.
+</p>
+
+<p align=justify>
+<span class=cond>NO_AP_ASSERT</span><br>
+Этот символ отключает проверку границ массива. Если он определен директивой define, то при обращении к элементу динамического массива выход индекса за границы массива не проверяется.
+</p>
+
+<p align=justify>
+<span class=cond>UNSAFE_MEM_COPY</span><br>
+Директива define, определяющая этот символ, отключена. Не включайте её. Библиотека не содержит никакой документации по поводу этого символа.
+</p>
+
+<a name="constants"><h1>Константы</h1></a>
+
+<p align=justify>
+<span class=const>machineepsilon</span><br>
+Эта константа определяет точность машинных операций, т.е. минимальное число, такое, что <code>1+machineepsilon&ne;1</code> на данной разрядной сетке. Константа может быть взята "с запасом", т.е. реальная точность может быть ещё выше.
+</p>
+
+<p align=justify>
+<span class=const>maxrealnumber</span><br>
+Эта константа определяет максимальное положительное вещественное число, представимое на данной машине. Константа может быть взята "с запасом", т.е. реальная граница может быть ещё выше.
+</p>
+
+<p align=justify>
+<span class=const>minrealnumber</span><br>
+Эта константа определяет минимальное положительное вещественное число, представимое на данной машине. Константа может быть взята "с запасом", т.е. реальная граница может быть ещё ниже.
+</p>
+
+<a name="functions"><h1>Функции</h1></a>
+
+<p align=justify>
+<span class=func><b>int</b> sign(<b>double</b> x)</span><br>
+Возвращает:<br>
++1, если X&gt;0<br>
+-1, если X&lt;0<br>
+ 0, если X=0
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> randomreal()</span><br>
+Возвращает случайное вещественное число в полуинтервале [0,1).
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> randominteger(<b>int</b> maxv) </span><br>
+Возвращает случайное целое число в полуинтервале [0, maxv).
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> round(<b>double</b> x)</span><br>
+Округление к ближайшему целому. Если X находится точно посередине между двумя целыми, то результат функции зависит от реализации.
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> trunc(<b>double</b> x)</span><br>
+Отбрасывание дробной части X.<br>
+trunc(1.3) =  1<br>
+trunc(-1.3)= -1
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> pi()</span><br>
+Возвращает константу &pi;
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> sqr(<b>double</b> x)</span><br>
+Возвращает x<sup>2</sup>
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> maxreal(<b>double</b> m1, <b>double</b> m2)</span><br>
+Возвращает максимум из двух вещественных чисел.
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> minreal(<b>double</b> m1, <b>double</b> m2)</span><br>
+Возвращает минимум из двух вещественных чисел.
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> maxint(<b>int</b> m1, <b>int</b> m2)</span><br>
+Возвращает максимум из двух целых чисел.
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> minint(<b>int</b> m1, <b>int</b> m2)</span><br>
+Возвращает минимум из двух целых чисел.
+</p>
+
+<a name="aperror"><h1>Класс ap_error</h1></a>
+
+<p align=justify>
+Это класс исключения, которое выбрасывается при различных ошибках библиотеки AP, в частности - при неверном указании индекса массива, если включена проверка границ массива. Текущая версия класса не содержит никаких полей и не позволяет определить причину, по которой исключение было сгенерировано.
+</p>
+
+<a name="arrays"><h1>Классы массивов</h1></a>
+
+<h2>Работа с массивами</h2>
+
+<p align=justify>
+Здесь мы рассмотрим общие принципы работы с классами-массивами, после чего будут рассмотрены сами классы и их методы.
+</p>
+
+<p align=justify>
+Классы, входящие в состав стандартной библиотеки, позволяют оперировать с матрицами и векторами (одномерными и двухмерными массивами) переменного размера, с переменной нумерацией элементов, т.е. нумерация может начинаться с любого числа, заканчиваться любым числом и динамически меняться. Так как классы массивов являются шаблонами, то массивы одной размерности обладают одинаковым набором функций-членов. А поскольку функции-члены массивов разных размерностей отличаются только количеством аргументов, то двумерные и одномерные массивы мало чем отличаются друг от друга.
+</p>
+
+<p align=justify>
+Работа с массивом начинается с создания массива. Следует различать создание экземпляра класса-массива и выделение памяти под массив. При создании экземпляра класса может использоваться конструктор без параметров, создающий массив без элементов, а могут использоваться конструкторы копий и присваивания, копирующие один массив в другой. В случае создания массива конструктором по умолчанию он не содержит элементов и попытка обратиться к ним может привести к краху программы. Если при копировании массив-источник не имеет выделенной памяти под элементы, то массив-копия тоже не будет содержать элементов. Если массив-источник имеет выделенную под элементы память, то массив-копия выделяет тот же объем памяти и копирует в неё элементы. Т.е. при копировании получаются два полностью независимых массива с одинаковым содержимым.
+</p>
+
+<p align=justify>
+После создания пустого массива следует выделить память под элементы при помощи метода <code:>setbounds</code:>. Параметры метода задают верхние и нижние границы индексов массива. Верхняя граница должна быть не меньше нижней. В результате вызова в памяти выделяется место для элементов. Содержимое созданных элементов массива не определено и не стоит делать какие либо предположения по этому поводу. Если метод <code:>setbounds</code:> вызывается для массива с уже выделенной памятью, то после изменения его размеров вновь выделенные элементы также становится неопределенными, а старое содержимое исчезает.
+</p>
+
+<p align=justify>
+Для обращения к элементам массива используется перегруженный <code:>operator()</code:>. Т.е. код, обращающийся к элементу массива <code:>a</code:> с индексами <code:>i, j, k</code:> будет выглядеть как <code:>a(i,j,k)</code:>. Ниже приведен пример вычисления массива факториалов, иллюстрирующий работу с массивами. 
+</p>
+
+<pre>
+integer_1d_array factarr(<b>int</b> n)
+{
+    integer_1d_array result;
+    result.setbounds(1,n);
+    result(1) = 1;
+    <b>for</b>(<b>int</b> i=2; i&lt;=n; i++)
+        result(i) = result(i-1)*i;
+    <b>return</b> result;
+}
+</pre>
+
+<h2>Класс template_1d_array</h2>
+
+<p align=justify>
+Это класс-шаблон динамического одномерного массива с переменными верхней и нижней границами. На основе этого класса получены следующие классы:
+</p>
+
+<pre>
+<b>typedef</b> template_1d_array&lt;<b>int</b>&gt;     integer_1d_array;
+<b>typedef</b> template_1d_array&lt;<b>double</b>&gt;  real_1d_array;
+<b>typedef</b> template_1d_array&lt;<b>bool</b>&gt;    boolean_1d_array;
+<b>typedef</b> template_1d_array&lt;complex&gt; complex_1d_array;
+</pre>
+
+<h2>Функции-члены класса</h2>
+
+<p align=justify>
+<span class=func>template_1d_array()</span><br>
+Конструктор. Создание пустого массива.
+</p>
+
+<p align=justify>
+<span class=func>~template_1d_array()</span><br>
+Деструктор. При вызове освобождается выделенная под массив память
+</p>
+
+<p align=justify>
+<span class=func>template_1d_array(<b>const</b> template_1d_array &amp;rhs)</span><br>
+Конструктор копий массива. При этом выделяется отдельная область памяти, в которую копируется содержимое массива-источника.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> template_1d_array&amp; <b>operator=</b>(<b>const</b> template_1d_array &amp;rhs)</span><br>
+Присваивание массива. При этом содержимое массива-приемника удаляется и освобождается  выделенная под него память,  затем заново выделяется отдельная область памяти, в которую копируется содержимое массива-источника.
+</p>
+
+<p align=justify>
+<span class=func>T&amp; operator()(<b>int</b> i)</span><br>
+Обращение к элементу массива с номером i
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setbounds(<b>int</b> iLow, <b>int</b> iHigh)</span><br>
+Выделение памяти  под  массив.  При  этом  старое  содержимое массива удаляется  и освобождается  выделенная под него память,  затем заново выделяется отдельная область памяти размера iHigh-iLow+1 элементов.<br>
+Нумерация элементов в новом массива начинается с iLow и заканчивается iHigh. Содержимое нового массива не определено.
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setcontent(<b>int</b> iLow, <b>int</b> iHigh, <b>const</b> T *pContent)</span><br>
+Метод  аналогичен  методу  setbounds()  за тем исключением, что после выделения памяти в неё копируется содержимое массива pContent[].
+</p>
+
+<p align=justify>
+<span class=func>T* getcontent()</span><br>
+Метод позволяет получить указатель на содержимое массива. Данные,  на которые указывает возвращенный указатель, можно изменять, и при  этом изменится содержимое массива.
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> getlowbound()<br><b>int</b> gethighbound()</span><br>
+Методы используются для  получения  информации  о  нижней  и  верхней границах массива.
+</p>
+
+<p align=justify>
+<span class=func>raw_vector&lt;T&gt; getvector(<b>int</b> iStart, <b>int</b> iEnd)</span><br>
+Метод используется базовыми подпрограммами линейной алгебры для получения доступа к внутренней памяти массива. Метод возвращает объект, содержащий в себе указатель на часть вектора (начиная с элемента с индексом iStart и заканчивая индексом iEnd). Если iEnd&lt;iStart, то считается, что задан пустой вектор.
+</p>
+
+<p align=justify>
+<span class=func>const_raw_vector&lt;T&gt; getvector(<b>int</b> iStart, <b>int</b> iEnd) <b>const</b></span><br>
+Метод используется базовыми подпрограммами линейной алгебры для получения доступа к внутренней памяти массива. Метод возвращает объект, содержащий в себе указатель на часть вектора (начиная с элемента с индексом iStart и заканчивая индексом iEnd). Если iEnd&lt;iStart, то считается, что задан пустой вектор. Возвращенный объект позволяет получать доступ только для чтения.
+</p>
+
+
+<h2>Класс template_2d_array</h2>
+
+<p align=justify>
+Это класс-шаблон динамического двухмерного массива с переменными верхней и нижней границами. На основе этого класса получены следующие классы:
+</p>
+
+<pre>
+<b>typedef</b> template_2d_array&lt;<b>int</b>&gt;     integer_2d_array;
+<b>typedef</b> template_2d_array&lt;<b>double</b>&gt;  real_2d_array;
+<b>typedef</b> template_2d_array&lt;<b>bool</b>&gt;    boolean_2d_array;
+<b>typedef</b> template_2d_array&lt;complex&gt; complex_2d_array;
+</pre>
+
+<h2>Функции-члены класса</h2>
+
+<p align=justify>
+<span class=func>template_2d_array()</span><br>
+Конструктор. Создание пустого массива.
+</p>
+
+<p align=justify>
+<span class=func>~template_2d_array()</span><br>
+Деструктор. При вызове освобождается выделенная под массив память
+</p>
+
+<p align=justify>
+<span class=func>template_2d_array(<b>const</b> template_2d_array &amp;rhs)</span><br>
+Конструктор копий массива. При этом выделяется отдельная область памяти, в которую копируется содержимое массива-источника
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> template_2d_array&amp; <b>operator=</b>(<b>const</b> template_2d_array &amp;rhs)</span><br>
+Присваивание массива. При этом содержимое массива-приемника удаляется и освобождается  выделенная под него память, затем заново выделяется отдельная область памяти, в которую копируется содержимое источника.
+</p>
+
+<p align=justify>
+<span class=func>T&amp; operator()(<b>int</b> i1, <b>int</b> i2)</span><br>
+Обращение к элементу массива с индексом [i1,i2]
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setbounds(<b>int</b> iLow1, <b>int</b> iHigh1, <b>int</b> iLow2, <b>int</b> iHigh2)</span><br>
+Выделение  памяти   под   массив.    При   этом   старое   содержимое массива   удаляется   и  освобождается  выделенная  под  него  память, затем   заново   выделяется   отдельная область   памяти   размером (iHigh1-iLow1+1)*(iHigh2-iLow2+1) элементов.<br>
+Нумерация  элементов в новом массива по первой размерности начинается с iLow1 и заканчивается iHigh1, аналогично для второй размерности.<br>
+Содержимое нового массива не определено.
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setcontent(<b>int</b> iLow1, <b>int</b> iHigh1, <b>int</b> iLow2, <b>int</b> iHigh2, <b>const</b> T *pContent)</span><br>
+Метод  аналогичен  методу  setbounds()  за тем исключением, что после выделения памяти в неё копируется содержимое массива pContent[].<br>
+Массив pContent содержит двухмерный массив, записанный построчно, т.е. первым идет элемент [iLow1, iLow2], затем [iLow1, iLow2+1] и т.д.<br>
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> getlowbound(<b>int</b> iBoundNum)<br><b>int</b> gethighbound(<b>int</b> iBoundNum)</span><br>
+Методы используются для  получения  информации  о  нижней  и  верхней границах массива по размерности с переданным номером.
+</p>
+
+<p align=justify>
+<span class=func>
+raw_vector<T> getcolumn(<b>int</b> iColumn, <b>int</b> iRowStart, <b>int</b> iRowEnd)<br>
+const_raw_vector<T> getcolumn(<b>int</b> iColumn, <b>int</b> iRowStart, <b>int</b> iRowEnd) <b>const</b><br>
+</span>
+Методы используются базовыми подпрограммами линейной алгебры для получения доступа к внутренней памяти массива. Методы возвращают объект, содержащий в себе указатель на часть столбца iColumn (начиная со строки iRowStart и заканчивая строкой iRowEnd).
+<br>
+Параметр iColumn должен быть допустимым номером столбца (т.е. находиться в пределах выделенной под массив памяти). Если iRowEnd&lt;iRowStart, то считается, что задан пустой столбец.
+</p>
+
+<p align=justify>
+<span class=func>
+raw_vector<T> getrow(<b>int</b> iRow, <b>int</b> iColumnStart, <b>int</b> iColumnEnd)<br>
+const_raw_vector<T> getrow(<b>int</b> iRow, <b>int</b> iColumnStart, <b>int</b> iColumnEnd) <b>const</b><br>
+</span>
+Методы используются базовыми подпрограммами линейной алгебры для получения доступа к внутренней памяти массива. Методы возвращают объект, содержащий в себе указатель на часть строки iRow (начиная со столбца iColumnStart и заканчивая столбцом iColumnEnd).
+<br>
+Параметр iRow должен быть допустимым номером строки (т.е. находиться в пределах выделенной под массив памяти). Если iColumnEnd&lt;iColumnStart, то считается, что задана пустая строка.
+</p>
+
+<a name="blas"><h1>Базовые подпрограммы линейной алгебры</h1></a>
+
+<p align=justify>
+Базовые подпрограммы линейной алгебры библиотеки AP по своей функциональности близки к Level 1 BLAS, позволяя осуществлять простейшие операции с векторами, а также со строками и столбцами матриц.
+</p>
+
+<p align=justify>
+Работа с подпрограммами осуществляется следующим образом. Сначала необходимо получить объект типа <code>raw_vector</code> или <code>const_raw_vector</code>, указывающий на обрабатываемую часть матрицы или массива при помощи методов <code>getcolumn</code>/<code>getrow</code> (для матрицы) или <code>getvector</code> (для массива). Объект содержит в себе указатель на начало строки (или столбца), число элементов в обрабатываемой строке и интервал между двумя соседними элементами. При использовании стандартной схемы хранения матриц в памяти (т.е. при хранении по строкам) интервал между элементами одной строки равен 1, а интервал между элементами одного столбца равен числу столбцов. Полученный объект передается в качестве аргумента в соответсвующую подпрограмму, которая осуществляет операции над частью матрицы, на которую указывает внутренний указатель объекта.
+</p>
+
+<p align=justify>
+Ниже приведен список базовых подпрограмм линейной алгебры, доступных в составе библиотеки AP.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T&gt; T vdotproduct(const_raw_vector&lt;T&gt; v1, const_raw_vector&lt;T&gt; v2)
+</span><br>
+Подпрограмма вычисляет скалярное произведение переданных векторов.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T&gt; <b>void</b> vmove(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vmoveneg(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vmove(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc, T2 alpha)<br>
+</span>
+Это семейство подпрограмм служит для различных видов копирования содержимого одного вектора на место другого вектора: простого копирования, копирования с умножением на -1, копирования с умножением на число.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T&gt; <b>void</b> vadd(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vadd(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc, T2 alpha)<br>
+</span>
+Это семейство подпрограмм служит для различных видов добавления одного вектора к другому: простого добавления или добавления с умножением на число.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T&gt; <b>void</b> vsub(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vsub(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc, T2 alpha)<br>
+</span>
+Это семейство подпрограмм служит для различных видов вычитания одного вектора из другого: простого вычитания или вычитания с умножением на число.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T, <b>class</b> T2> <b>void</b> vmul(raw_vector&lt;T&gt; vdst, T2 alpha)
+</span><br>
+Эта подпрограмма служит для умножения вектора на число с сохранением результата в том же месте.
+</p>
+
+<h2>Альтернативный синтаксис</h2>
+
+<p align=justify>
+В случае если оба операнда являются векторами с интервалом между элементами, равным 1, и длиной N, можно использовать альтернативный синтаксис.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T&gt; T vdotproduct(<b>const</b> T *v1, <b>const</b> T *v2, <b>int</b> N)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vmove(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vmoveneg(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vmove(T *vdst, <b>const</b> T *vsrc, <b>int</b> N, T2 alpha)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vadd(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vadd(T *vdst, <b>const</b> T *vsrc, <b>int</b> N, T2 alpha)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vsub(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vsub(T *vdst, <b>const</b> T *vsrc, <b>int</b> N, T2 alpha)<br>
+template&lt;<b>class</b> T, <b>class</b> T2> <b>void</b> vmul(T *vdst, <b>int</b> N, T2 alpha)
+</span>
+</p>
+
+<a name="complex"><h1>Класс комплексных чисел</h1></a>
+
+<p align=justify>
+Библиотека AP содержит класс <code>ap::complex</code>, который позволяет осуществлять операции с комплексными числами. Доступ к действительной и мнимой частям комплексного числа осуществляется через открытые (public) поля <code>x</code> и <code>y</code>. Поддерживаются арифметические операции, как со встроенными типами данных, путем перегрузки операций сложения, вычитания, умножения и деления. Сложение, вычитание и умножение осуществляются обычным способом (т.е. по определению, которое можно найти в любом учебнике алгебры), операция деления осуществляется с использованием т.н. "безопасного" алгоритма, который никогда не приводит к переполнению при вычислении промежуточных результатов. Также библиотека включает в себя несколько функций, осуществляющих элементарные операции с комплексными числами.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> double abscomplex(<b>const</b> complex &amp;z)</span><br>
+Функция возвращает модуль комплексного числа. Следует отметить, что вычисление модуля осуществляется с использованием т.н. "безопасного" алгоритма, который никогда не приводит к переполнению при вычислении промежуточных результатов.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> complex conj(<b>const</b> complex &amp;z)</span><br>
+Функция возвращает комплексное число, сопряженное своему аргументу.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> complex csqr(<b>const</b> complex &amp;z)</span><br>
+Функция возвращает квадрат аргумента.
+</p>
+
+</body>
+</html>

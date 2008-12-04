@@ -1,0 +1,364 @@
+<html>
+<head>
+
+<title>AP Library adapted for C++</title>
+<style type="text/css">
+<!--
+h1 { font-family: Tahoma,sans-serif; font-size : larger; }
+h2 { font-family: Arial,sans-serif; font-size : 11pt; }
+h3 { font-family: Arial,sans-serif; font-size : 9pt; }
+.cond  { color:blue; }
+.const { color:#222222; }
+.func  { color:#111111; }
+-->
+</style>
+</head>
+<body>
+
+<h1>AP Library adapted for C++</h1>
+
+<p align=justify>
+The document describes an AP library adapted for C++. The AP library for C++ contains a basic set of mathematical functions and collection classes needed to run the programs from the <a href="http://www.alglib.net/">ALGLIB</a> website.
+</p>
+
+<h1>Compatibility</h1>
+
+<p align=justify>
+This library must be compatible with any C++ compiler.
+</p>
+
+<h1>Structure and Use</h1>
+
+<p align=justify>
+The library includes the only module <code>ap.cpp</code> (with header file <code>ap.h</code>). Just add it to your project.
+</p>
+
+<h1>AP Library Description</h1>
+
+<font size=-1>
+<a href="#intro">Introduction</a><br>
+<a href="#conditionals">Conditional compilation settings</a><br>
+<a href="#constants">Constants</a><br>
+<a href="#functions">Functions</a><br>
+<a href="#aperror">Class ap_error</a><br>
+<a href="#arrays">Array classes</a><br>
+<a href="#blas">Basic subroutines of linear algebra</a><br>
+<a href="#complex">Class of complex numbers</a><br>
+</font>
+
+<a name="intro"><h1>Introduction</h1></a>
+
+<p align=justify>
+In the header file <code>ap.h</code> the namespace <code>ap</code> is defined. It must be taken into account that the names of functions, constants and classes listed further should be prefixed by <i>ap::</i>.
+</p>
+
+<a name="conditionals"><h1>Conditional Compilation Settings</h1></a>
+
+<p align=justify>
+<span class=cond>AP_WIN32</span><br>
+This symbol (<b>if defined by user</b>) indicates that AP library is compiled under Win32. It allows library to use ABLAS (lightweight BLAS-like library with SSE2 support) if ABLAS is present on your system.
+</p>
+
+<p align=justify>
+<span class=cond>AP_ASSERT</span><br> This symbol enables checking of the array boundaries. If it is set by the &quot;define&quot; directive, then at each addressing to the dynamic array elements, the transferred index is verified for its correctness. In case of error the <code>ap_error</code> exception is thrown. Checking the array boundaries makes the program more reliable, but slows down the program operation.
+</p>
+
+<p align=justify>
+<span class=cond>NO_AP_ASSERT</span><br> This symbol disables checking of the array boundaries. If it is set by the &quot;define&quot; directive, then the index being outside the array boundaries is not checked when the dynamic array elements are addressed.
+</p>
+
+<p align=justify>
+<span class=cond>UNSAFE_MEM_COPY</span><br> The &quot;define&quot; directive that sets this symbol is disabled. Do not activate it. The library contains no documentation concerning this symbol.
+</p>
+
+<a name="constants"><h1>Constants</h1></a>
+
+<p align=justify>
+<span class=const>machineepsilon</span><br> The constant represents the accuracy of machine operations, that is the minimum number for <code>1+machineepsilon&ne;1</code> in the given bit grid. The constant may be taken &quot;oversized&quot;, that is real accuracy can be even higher.
+</p>
+
+<p align=justify>
+<span class=const>maxrealnumber</span><br> The constant represents the highest value of the positive real number, which could be represented on this machine. The constant may be taken &quot;oversized&quot;, that is real boundary can be even higher.
+</p>
+
+<p align=justify>
+<span class=const>minrealnumber</span><br> The constant represents the lowest value of positive real number, which could be represented on this machine. The constant may be taken &quot;oversized&quot;, that is real boundary can be even lower.
+</p>
+
+<a name="functions"><h1>Functions</h1></a>
+
+<p align=justify>
+<span class=func><b>int</b> sign(<b>double</b> x)</span><br> Returns:<br> +1, if X&gt;0<br> -1, if X&lt;0<br> 0, if X=0
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> randomreal()</span><br> Returns a random real number from half-interval [0,1).
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> randominteger(<b>int</b> maxv) </span><br> Returns a random integer between 0 and maxv-1.
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> round(<b>double</b> x)</span><br> Returns the nearest integer to x. If x is right in the middle between two integers, then the function result depends on the implementation.
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> trunc(<b>double</b> x)</span><br> Truncates the fractional part of x.<br> trunc(1.3) =  1<br> trunc(-1.3)= -1
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> pi()</span><br> Returns the constant  &pi;
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> sqr(<b>double</b> x)</span><br> Returns x<sup>2</sup>.
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> maxreal(<b>double</b> m1, <b>double</b> m2)</span><br> Returns the maximum of two real numbers.
+</p>
+
+<p align=justify>
+<span class=func><b>double</b> minreal(<b>double</b> m1, <b>double</b> m2)</span><br> Returns the minimum of two real numbers.
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> maxint(<b>int</b> m1, <b>int</b> m2)</span><br> Returns the maximum of two integers.
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> minint(<b>int</b> m1, <b>int</b> m2)</span><br> Returns the minimum of two integers.
+</p>
+
+<a name="aperror"><h1>Class &quot;ap_error&quot;</h1></a>
+
+<p align=justify>
+This is a class of exception which is thrown when different errors occur in the AP library, for example - if the array index is found incorrect when the array boundaries check is enabled. The current version of the class contains no fields and doesn't allow to find the cause for the exception generated.
+</p>
+
+<a name="arrays"><h1>Array classes</h1></a>
+
+<h2>Working with arrays</h2>
+
+<p align=justify>
+First we will discuss general principles of working with array classes, then describe the classes and their methods.
+</p>
+
+<p align=justify>
+Classes of the standard library allow operations with matrixes and vectors (one-dimensional and two-dimensional arrays) of variable size and with variable numeration of elements, that is, the array numeration can start at any number, end at any number and change dynamically. Because the array classes are templates, the arrays of the same dimension have the same set of member functions. And as the member functions of arrays with different dimensions differ only by the number of arguments, there is little difference between two-dimensional and one-dimenstional arrays. 
+</p>
+
+<p align=justify>
+Working with an array starts with the array creation. You should distinguish the creation of array class instance and the memory allocation for the array.  When creating the class instance, you can use constructor without any parameters, that creates an empty array without any elements, or you can use copy and assignment constructors that copy one array into another.  In case the array is created by the default constructor, it contains no elements and an attempt to address them may cause the program failure. If, during the copy operation, the source array has no memory allocated for the array elements, destination array will contain no elements either. If the source array has memory allocated for its elements, destination array will allocate the same amount of memory and copy the elements there. That is, the copy operation yields into two independent arrays with indentical contents.
+</p>
+
+<p align=justify>
+After an empty array has been created, you should allocate the memory for its elements, using the <code:>setbounds</code:> method The method parameters set upper and lower boundaries of the array indexes. The upper boundary should be not less than the lower one. When called, memory for corresponding number of elements is allocated. The content of the created array elements is not defined and no suppositions should be made about it. If the <code:>setbounds</code:> method is called for the array with already allocated memory, then, after changing its parameters, the newly allocated elements also become undefined and the old content is deleted.
+</p>
+
+<p align=justify>
+To address the array elements, an overloaded <code:>operator()</code:> is used. That is, the code addressing the element of array <code:>a</code:> with indexes <code:>a(i,j,k)</code:> will look like <code:>a(i,j,k)</code:>. Below is given an example of factorial array calculation, illustrating the work with arrays. 
+</p>
+
+<pre>
+integer_1d_array factarr(<b>int</b> n)
+{
+    integer_1d_array result;
+    result.setbounds(1,n);
+    result(1) = 1;
+    <b>for</b>(<b>int</b> i=2; i&lt;=n; i++)
+        result(i) = result(i-1)*i;
+    <b>return</b> result;
+}
+</pre>
+
+<h2>Class &quot;template_1d_array&quot;</h2>
+
+<p align=justify>
+This class is a template of dynamical one-dimensional array with variable upper and lower boundaries. Based on this class, the following classes are constructed:
+</p>
+
+<pre>
+<b>typedef</b> template_1d_array&lt;<b>int</b>&gt;     integer_1d_array;
+<b>typedef</b> template_1d_array&lt;<b>double</b>&gt;  real_1d_array;
+<b>typedef</b> template_1d_array&lt;<b>bool</b>&gt;    boolean_1d_array;
+<b>typedef</b> template_1d_array&lt;complex&gt; complex_1d_array;
+</pre>
+
+<h2>Class member functions</h2>
+
+<p align=justify>
+<span class=func>template_1d_array()</span><br> Constructor. Creates an empty array.
+</p>
+
+<p align=justify>
+<span class=func>~template_1d_array()</span><br> Destructor. Frees memory, which had been allocated for the array.
+</p>
+
+<p align=justify>
+<span class=func>template_1d_array(<b>const</b> template_1d_array &amp;rhs)</span><br> Copy constructor. Allocates the separate storage and copies source array content there.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> template_1d_array&amp; <b>operator=</b>(<b>const</b> template_1d_array &amp;rhs)</span><br> Assignment constructor. Deletes destination array content, frees allocated memory, then allocates a separate storage and copies source array content there.
+</p>
+
+<p align=justify>
+<span class=func>T&amp; operator()(<b>int</b> i)</span><br> Addressing the array element number i 
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setbounds(<b>int</b> iLow, <b>int</b> iHigh)</span><br> Memory allocation for the array .  Deletes the array content, frees allocated memory, then allocates a separate storage for iHigh-iLow+1 elements.<br> The elements numeration in the new array starts with iLow and ends with iHigh The content of the new array is not defined.
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setcontent(<b>int</b> iLow, <b>int</b> iHigh, <b>const</b> T *pContent)</span><br> The method is similar to the setbounds() method, but after allocating a memory for a destination array it copies the content of pContent[] there.
+</p>
+
+<p align=justify>
+<span class=func>T* getcontent()</span><br> Gets pointer to the array. The data pointed by the returned pointer can be changed, and the array content will be changed as well. 
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> getlowbound()<br><b>int</b> gethighbound()</span><br> Get lower and upper boundaries.
+</p>
+
+<p align=justify>
+<span class=func>raw_vector&lt;T&gt; getvector(<b>int</b> iStart, <b>int</b> iEnd)</span><br> The method is used by the basic subroutines of linear algebra to get access to the internal memory of the array. The method returns an object, holding the pointer to a vector part (starting from the element with iStart index value and finishing with iEnd index value). If iEnd&lt;iStart, then an empty vector is considered to be set.
+</p>
+
+<p align=justify>
+<span class=func>const_raw_vector&lt;T&gt; getvector(<b>int</b> iStart, <b>int</b> iEnd) <b>const</b></span><br> The method is used by the basic subroutines of linear algebra to get access to the internal memory of the array. The method returns an object, holding the pointer to a vector part (starting from the element with iStart index value and finishing with iEnd index value). If iEnd&lt;iStart, then an empty vector is considered to be set. The returned object is for read only. 
+</p>
+
+
+<h2>Class &quot;template_2d_array&quot;</h2>
+
+<p align=justify>
+This class is a template of dynamical two-dimensional array with variable upper and lower boundaries. Based on this class, the following classes are constructed:
+</p>
+
+<pre>
+<b>typedef</b> template_2d_array&lt;<b>int</b>&gt;     integer_2d_array;
+<b>typedef</b> template_2d_array&lt;<b>double</b>&gt;  real_2d_array;
+<b>typedef</b> template_2d_array&lt;<b>bool</b>&gt;    boolean_2d_array;
+<b>typedef</b> template_2d_array&lt;complex&gt; complex_2d_array;
+</pre>
+
+<h2>Class member functions</h2>
+
+<p align=justify>
+<span class=func>template_2d_array()</span><br> Constructor. Creates an empty array.
+</p>
+
+<p align=justify>
+<span class=func>~template_2d_array()</span><br> Destructor. Frees memory, which had been allocated for the array.
+</p>
+
+<p align=justify>
+<span class=func>template_2d_array(<b>const</b> template_2d_array &amp;rhs)</span><br> Copy constructor. Allocates the separate storage and copies source array content there.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> template_2d_array&amp; <b>operator=</b>(<b>const</b> template_2d_array &amp;rhs)</span><br> Assignment constructor. Deletes destination array content, frees allocated memory, then allocates a separate storage and copies source array content there.
+</p>
+
+<p align=justify>
+<span class=func>T&amp; operator()(<b>int</b> i1, <b>int</b> i2)</span><br> Addressing the array element with [i1,i2] index value.
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setbounds(<b>int</b> iLow1, <b>int</b> iHigh1, <b>int</b> iLow2, <b>int</b> iHigh2)</span><br> Memory allocation for the array .    Deletes the array content, frees allocated memory, then allocates a separate storage for (iHigh1-iLow1+1)*(iHigh2-iLow2+1) elements.<br> The elements numeration in the new array starts with iLow1 and finishes with iHigh1 for the first dimension, and similarly for the second dimension.<br> The content of the new array is not defined.
+</p>
+
+<p align=justify>
+<span class=func><b>void</b> setcontent(<b>int</b> iLow1, <b>int</b> iHigh1, <b>int</b> iLow2, <b>int</b> iHigh2, <b>const</b> T *pContent)</span><br> The method is similar to the setbounds() method, but after allocating a memory for a destination array it copies the content of pContent[] there.<br> The pContent array contains two-dimensional array, written in line, that is, the first element is [iLow1, iLow2], then goes [iLow1, iLow2+1], and so on.<br>
+</p>
+
+<p align=justify>
+<span class=func><b>int</b> getlowbound(<b>int</b> iBoundNum)<br><b>int</b> gethighbound(<b>int</b> iBoundNum)</span><br> Get lower and upper boundaries of one-dimensional array with number iBoundNum.
+</p>
+
+<p align=justify>
+<span class=func>raw_vector<T> getcolumn(<b>int</b> iColumn, <b>int</b> iRowStart, <b>int</b> iRowEnd)<br> const_raw_vector<T> getcolumn(<b>int</b> iColumn, <b>int</b> iRowStart, <b>int</b> iRowEnd) <b>const</b><br></span> The methods are used by the basic subroutines of linear algebra to get access to the internal memory of the array. The methods return the object holding the pointer to the part of column iColumn (starting from the line iRowStart and finishing with the line iRowEnd). <br> The iColumn parameter must be the valid column number (that is be within the boundaries of the array). If iRowEnd&lt;iRowStart, then an empty column is considered to be set.
+</p>
+
+<p align=justify>
+<span class=func>raw_vector<T> getrow(<b>int</b> iRow, <b>int</b> iColumnStart, <b>int</b> iColumnEnd)<br> const_raw_vector<T> getrow(<b>int</b> iRow, <b>int</b> iColumnStart, <b>int</b> iColumnEnd) <b>const</b><br></span> The methods are used by the basic subroutines of linear algebra to get access to the internal memory of the array. The methods return the object holding the pointer to the part of line iRow (starting from the column iColumnStart and finishing with the column iColumnEnd). <br> The iRow parameter must be the valid line number (that is be within the boundaries of the array). If iColumnEnd&lt;iColumnStart, then an empty line is considered to be set.
+</p>
+
+<a name="blas"><h1>Basic subroutines of linear algebra</h1></a>
+
+<p align=justify>
+Basic subroutines of linear algebra included into the AP library are close by their functions to the Level 1 BLAS, allowing to perform the simplest operations with vectors and with the matrix lines and columns.
+</p>
+
+<p align=justify>
+Subroutines should be used in the following way. First you need to get an object of the  <code>raw_vector</code> type or  <code>const_raw_vector</code> type, pointing to the part of the matrix or array being processed using the methods <code>getcolumn</code>/<code>getrow</code> (for the matrix), or  <code>getvector</code> (for the array). The object holds the pointer for the line (or column) start, the number of elements in the processed line (column), and the interval between the two adjacent elements. When using a standard scheme for matrixes storage in the memory (that is, by lines), the interval between the elements of one line equals 1, and the interval between the adjacent elements of one column equals the number of columns. The received object is transferred as argument to the corresponding subroutine, which performs operations on the matrix part pointed by the internal object pointer.
+</p>
+
+<p align=justify>
+Below is given the list of basic subroutines of linear algebra, available in the AP library.
+</p>
+
+<p align=justify>
+<span class=func>template&lt;<b>class</b> T&gt; T vdotproduct(const_raw_vector&lt;T&gt; v1, const_raw_vector&lt;T&gt; v2)</span><br> The subroutine calculates the scalar product of transferred vectors.
+</p>
+
+<p align=justify>
+<span class=func>template&lt;<b>class</b> T&gt; <b>void</b> vmove(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br> template&lt;<b>class</b> T&gt; <b>void</b> vmoveneg(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br> template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vmove(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc, T2 alpha)<br></span> This subroutine set is used to copy one vector content to another vector using different methods: simple copy, copy multiplied by -1, copy multiplied by a number.
+</p>
+
+<p align=justify>
+<span class=func>template&lt;<b>class</b> T&gt; <b>void</b> vadd(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br> template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vadd(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc, T2 alpha)<br></span> This subroutine set is used to add one vector to another using different methods: simple addition or addition multiplied by a number.
+</p>
+
+<p align=justify>
+<span class=func>template&lt;<b>class</b> T&gt; <b>void</b> vsub(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc)<br> template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vsub(raw_vector&lt;T&gt; vdst, const_raw_vector&lt;T&gt; vsrc, T2 alpha)<br></span> This subroutine set is used to subtract one vector from another using different methods: simple subtraction or subtraction multiplied by a number.
+</p>
+
+<p align=justify>
+<span class=func>template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vmul(raw_vector&lt;T&gt; vdst, T2 alpha)</span><br> Multiplies vector by a number and stores the result in the same place.
+</p>
+
+<h2>Alternative syntax</h2>
+
+<p align=justify>
+If both operands are vectors/rows with interval between the elements equals 1 and length equals N, alternative syntax can be used.
+</p>
+
+<p align=justify>
+<span class=func>
+template&lt;<b>class</b> T&gt; T vdotproduct(<b>const</b> T *v1, <b>const</b> T *v2, <b>int</b> N)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vmove(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vmoveneg(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vmove(T *vdst, <b>const</b> T *vsrc, <b>int</b> N, T2 alpha)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vadd(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vadd(T *vdst, <b>const</b> T *vsrc, <b>int</b> N, T2 alpha)<br>
+template&lt;<b>class</b> T&gt; <b>void</b> vsub(T *vdst, <b>const</b> T *vsrc, <b>int</b> N)<br>
+template&lt;<b>class</b> T, <b>class</b> T2&gt; <b>void</b> vsub(T *vdst, <b>const</b> T *vsrc, <b>int</b> N, T2 alpha)<br>
+template&lt;<b>class</b> T, <b>class</b> T2> <b>void</b> vmul(T *vdst, <b>int</b> N, T2 alpha)
+</span>
+</p>
+
+<a name="complex"><h1>Class of complex numbers</h1></a>
+
+<p align=justify>
+AP library includes the <code>ap::complex</code> class that allows operations with compex numbers. Access to real and imaginary parts of complex number is implemented through the public fields <code>x</code> and <code>y</code>. Arithmetical operations are supported, the same as with embedded data types, by overloading of operations: addition, subtraction, multiplication and division. Addition, subtraction and multiplication are performed by a usual way (i.e., according to their definition which can be found in any textdook in algebra), division is performed using so called &quot;safe&quot; algorithm that could never cause overflow when calculating intermediate results. The library also includes several functions performing elementary operations with complex numbers.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> double abscomplex(<b>const</b> complex &amp;z)</span><br> Returns the modulus of complex number z. It should be noted that the modulus calculation is performed using so called &quot;safe&quot; algorithm, that could never cause overflow when calculating intermediate results.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> complex conj(<b>const</b> complex &amp;z)</span><br> Returns complex conjugate to z.
+</p>
+
+<p align=justify>
+<span class=func><b>const</b> complex csqr(<b>const</b> complex &amp;z)</span><br> Returns the square of z.
+</p>
+
+</body>
+</html>
