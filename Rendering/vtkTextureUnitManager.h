@@ -61,15 +61,15 @@ public:
   virtual int Allocate();
   
   // Description:
-  // Tell if texture unit `id' is already allocated.
-  // \pre valid_id_range : id>=0 && id<this->GetNumberOfTextureUnits()
-  bool IsAllocated(int id);
+  // Tell if texture unit `textureUnitId' is already allocated.
+  // \pre valid_textureUnitId_range : textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
+  bool IsAllocated(int textureUnitId);
   
   // Description:
   // Release a texture unit.
-  // \pre valid_id: id>=0 || id<this->GetNumberOfTextureUnits()
-  // \pre allocated_id: this->IsAllocated(id)
-  virtual void Free(int id);
+  // \pre valid_textureUnitId: textureUnitId>=0 || textureUnitId<this->GetNumberOfTextureUnits()
+  // \pre allocated_textureUnitId: this->IsAllocated(textureUnitId)
+  virtual void Free(int textureUnitId);
   
 protected:
   // Description:

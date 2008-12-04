@@ -22,7 +22,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkTextureUnitManager);
-vtkCxxRevisionMacro(vtkTextureUnitManager, "1.1");
+vtkCxxRevisionMacro(vtkTextureUnitManager, "1.2");
 
 // ----------------------------------------------------------------------------
 vtkTextureUnitManager::vtkTextureUnitManager()
@@ -139,25 +139,25 @@ int vtkTextureUnitManager::Allocate()
   
 // ----------------------------------------------------------------------------
 // Description:
-// Tell if texture unit `id' is already allocated.
-// \pre valid_id_range : id>=0 && id<this->GetNumberOfTextureUnits()
-bool vtkTextureUnitManager::IsAllocated(int id)
+// Tell if texture unit `textureUnitId' is already allocated.
+// \pre valid_id_range : textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
+bool vtkTextureUnitManager::IsAllocated(int textureUnitId)
 {
-  assert("pre: valid_id_range" && id>=0 && id<this->GetNumberOfTextureUnits());
-  return this->TextureUnits[id];
+  assert("pre: valid_textureUnitId_range" && textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits());
+  return this->TextureUnits[textureUnitId];
 }
   
 // ----------------------------------------------------------------------------
 // Description:
 // Release a texture unit.
-// \pre valid_id: id>=0 || id<this->GetNumberOfTextureUnits()
-// \pre allocated_id: this->IsAllocated(id)
-void vtkTextureUnitManager::Free(int id)
+// \pre valid_id: textureUnitId>=0 || textureUnitId<this->GetNumberOfTextureUnits()
+// \pre allocated_id: this->IsAllocated(textureUnitId)
+void vtkTextureUnitManager::Free(int textureUnitId)
 {
-  assert("pre: valid_id" && (id>=0 || id<this->GetNumberOfTextureUnits()));
-  assert("pre: allocated_id" && this->IsAllocated(id));
+  assert("pre: valid_textureUnitId" && (textureUnitId>=0 || textureUnitId<this->GetNumberOfTextureUnits()));
+  assert("pre: allocated_textureUnitId" && this->IsAllocated(textureUnitId));
   
-  this->TextureUnits[id]=false;
+  this->TextureUnits[textureUnitId]=false;
 }
   
 // ----------------------------------------------------------------------------
