@@ -70,6 +70,7 @@
 
 #include <vtkstd/vector> // For vector
 #include <vtkstd/map> // For map
+#include <vtkstd/string> // For string
 
 class vtkModelMetadata;
 class vtkDoubleArray;
