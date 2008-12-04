@@ -40,6 +40,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <math.h>
 
+#if defined(_MSC_VER)
+  // Enable MSVC compiler warning messages that are useful but off by default.
+# pragma warning ( default : 4263 ) /* no override, call convention differs */
+  // Disable MSVC compiler warning messages that often occur in valid code.
+# if !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#  pragma warning ( disable : 4127 ) /* conditional expression is constant */
+# endif
+#endif
+
+// MSVC 6.0 in release mode will warn about code it produces with its
+// optimizer.  Disable the warnings specifically for this
+// configuration.  Real warnings will be revealed by a debug build or
+// by other compilers.
+#if defined(_MSC_VER) && (_MSC_VER < 1300) && defined(NDEBUG)
+# pragma warning ( disable : 4701 ) /* Variable may be used uninitialized.  */
+# pragma warning ( disable : 4702 ) /* Unreachable code.  */
+#endif
+
 #if defined(__BORLANDC__)
   // Disable Borland compiler warning messages that often occur in valid code.
 # if !defined(VTK_DISPLAY_WIN32_WARNINGS)
