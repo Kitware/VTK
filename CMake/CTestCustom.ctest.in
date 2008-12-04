@@ -151,6 +151,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkzlib.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkzlib.*warning: passing argument .* of .* as unsigned due to prototype"
   "Utilities.vtkpng.*warning: passing argument .* of .* as unsigned due to prototype"
+  "Utilities/vtkjpeg.*warning: conversion to .* from .* may change the sign of the result"
+  "Utilities/vtkjpeg.*warning: conversion to .* from .* may alter its value"
   )
 
 IF(APPLE)
