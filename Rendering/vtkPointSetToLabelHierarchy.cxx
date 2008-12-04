@@ -37,7 +37,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.4");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.5");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
@@ -235,7 +235,7 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->GetPointData()->AddArray( type );
   ouData->GetPointData()->AddArray( iconIndex );
   ouData->GetPointData()->AddArray( labelString );
-  ouData->ComputeHierarchy( NULL, NULL );
+  ouData->ComputeHierarchy();
 
   return 1;
 }

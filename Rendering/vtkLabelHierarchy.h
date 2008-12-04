@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Fill the hierarchy with the input labels.
-  virtual void ComputeHierarchy( vtkPoints* coincidentPts, vtkIdTypeArray* coincidenceMap );
+  virtual void ComputeHierarchy();
 
   // Description:
   // The number of labels that is ideally present at any octree node.
@@ -176,8 +176,7 @@ private:
   int MaximumDepth;
   vtkDataArray* Priorities;
 
-  vtkPoints * CoincidentPts;
-  vtkIdTypeArray * CoincidenceMap;
+  vtkPoints * CenterPts;
 
   //BTX
   implementation* Implementation;

@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.7");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.8");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -350,6 +350,7 @@ int vtkLabelPlacer::RequestData(
   vtkInformation* outInfo0 = outputVector->GetInformationObject( 0 );
   vtkInformation* outInfo1 = outputVector->GetInformationObject( 1 );
   vtkInformation* outInfo2 = outputVector->GetInformationObject( 2 );
+  //vtkInformation* outInfo3 = outputVector->GetInformationObject( 3 );
 
   vtkLabelHierarchy* inData = vtkLabelHierarchy::SafeDownCast(
     inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
@@ -359,6 +360,8 @@ int vtkLabelPlacer::RequestData(
     outInfo1->Get( vtkDataObject::DATA_OBJECT() ) );
   vtkPolyData* ouData2 = vtkPolyData::SafeDownCast(
     outInfo2->Get( vtkDataObject::DATA_OBJECT() ) );
+  /*vtkPolyData* ouData3 = vtkPolyData::SafeDownCast(
+    outInfo3->Get( vtkDataObject::DATA_OBJECT() ) );*/
 
   vtkStringArray* nameArr0 = vtkStringArray::New();
   nameArr0->SetName( "LabelText" );
@@ -431,6 +434,15 @@ int vtkLabelPlacer::RequestData(
     opts2->FastDelete();
     }
   ouData2->Allocate();
+
+  /*vtkPoints* opts3 = ouData3->GetPoints();
+  if ( ! opts3 )
+    {
+    opts3 = vtkPoints::New();
+    ouData3->SetPoints( opts3 );
+    opts3->FastDelete();
+    }
+  ouData3->Allocate();*/
 
   int tvpsz[4]; // tiled viewport size (and origin)
   // kd-tree bounds on screenspace (as floats... eventually we

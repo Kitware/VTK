@@ -28,7 +28,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.52");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.53");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -523,6 +523,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         if (this->LabelFormat == NULL)
           {
           ResultString = stringData->GetValue(i);
+          cout << "ResulString: " << ResultString << endl;
           }
         else // the user specified a label format
           {

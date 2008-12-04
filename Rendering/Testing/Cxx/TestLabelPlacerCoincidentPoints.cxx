@@ -47,6 +47,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
+#include "vtkSphereSource.h"
+
 
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
@@ -55,7 +57,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 {
   int maxLevels = 5;
   int targetLabels = 4;
-  double labelRatio = 0.05;
+  double labelRatio = 1.0;
   int i = 0;
   int iteratorType = vtkLabelHierarchy::FULL_SORT;
   bool showBounds = false;
@@ -68,6 +70,13 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     vtkSmartPointer<vtkLabelPlacer>::New();
   vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy = 
     vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
+
+  vtkSphereSource * sphereSource = vtkSphereSource::New();
+
+  vtkSmartPointer<vtkPolyDataMapper> spolyDataMapper = 
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkActor> sactor = 
+    vtkSmartPointer<vtkActor>::New();
 
   vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = 
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -89,7 +98,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     vtkSmartPointer<vtkPoints>::New();
 
   points->InsertNextPoint(0.0, 0.0, 0.0);
-  points->InsertNextPoint(0.0, 150.0, 0.0);
+  points->InsertNextPoint(0.0, 150.0, -100.0);
   points->InsertNextPoint(150.0, 150.0, 0.0);
   points->InsertNextPoint(150.0, 0.0, 0.0);
   points->InsertNextPoint(25.0, 25.0, 0.0);
@@ -143,7 +152,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 
   polyData->GetPointData()->AddArray(priority);*/
 
-  vtkSmartPointer<vtkFloatArray> labelSize = 
+  /*vtkSmartPointer<vtkFloatArray> labelSize = 
     vtkSmartPointer<vtkFloatArray>::New();
   labelSize->SetNumberOfComponents(3);
   labelSize->SetNumberOfTuples(10);
@@ -156,7 +165,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
                                0.0 );
     }
 
-  polyData->GetPointData()->AddArray(labelSize);
+  polyData->GetPointData()->AddArray(labelSize);*/
   
   labelSizeCalculator->SetInput(polyData);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
@@ -176,6 +185,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labelPlacer->SetOutputTraversedBounds( showBounds );
   labelPlacer->SetRenderer( renderer );
   labelPlacer->SetMaximumLabelFraction( labelRatio );
+  labelPlacer->SetIteratorType(1);
 
   polyDataMapper->SetInputConnection(labelPlacer->GetOutputPort());
 
@@ -189,7 +199,11 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labeledMapper->SetLabelModeToLabelFieldData();
   labeledMapper->GetLabelTextProperty()->SetColor(0.0, 0.8, 0.2);
   textActor->SetMapper(labeledMapper);
-  
+
+  spolyDataMapper->SetInputConnection(sphereSource->GetOutputPort());
+  sactor->SetMapper(spolyDataMapper);
+
+  renderer->AddActor(sactor);
   renderer->AddActor(actor);
   renderer->AddActor(textActor);
 
