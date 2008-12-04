@@ -22,7 +22,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.6");
 vtkStandardNewMacro(vtkOpenGLHardwareSupport);
 
 vtkCxxSetObjectMacro(vtkOpenGLHardwareSupport, ExtensionManager, vtkOpenGLExtensionManager);
@@ -91,7 +91,10 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
   // vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS is defined in OpenGL 2.0
   
   // test for a function defined both by GL_ARB_vertex_shader and OpenGL 2.0
-  if(vtkgl::GetActiveAttrib==0)
+  
+  bool supports_shaders=vtkgl::GetActiveAttrib!=0;
+  
+  if(!supports_shaders)
     {
     if(!this->ExtensionManagerSet())
       {
@@ -99,7 +102,6 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
       }
     else
       {
-      bool supports_shaders=false;
       if(this->ExtensionManager->ExtensionSupported("GL_VERSION_2_0"))
         {
         this->ExtensionManager->LoadExtension("GL_VERSION_2_0");
@@ -115,13 +117,14 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
             "GL_ARB_vertex_shader");
           }
         }
-      if(supports_shaders)
-        {
-        GLint value;
-        glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS,&value);
-        result=static_cast<int>(value);
-        }
       }
+    }
+  
+  if(supports_shaders)
+    {
+    GLint value;
+    glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS,&value);
+    result=static_cast<int>(value);
     }
   return result;
 }
