@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.1");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.2");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -51,7 +51,7 @@ public:
 
   vtkPCAAssessFunctor() { }
   virtual ~vtkPCAAssessFunctor() { }
-  virtual bool Initialize(
+  virtual bool InitializePCA(
     vtkTable* inData, vtkTable* reqModel,
     int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
@@ -67,7 +67,7 @@ vtkPCAAssessFunctor* vtkPCAAssessFunctor::New()
   return new vtkPCAAssessFunctor;
 }
 
-bool vtkPCAAssessFunctor::Initialize(
+bool vtkPCAAssessFunctor::InitializePCA(
   vtkTable* inData, vtkTable* reqModel,
   int normScheme, int basisScheme, int fixedBasisSize, double fixedBasisEnergy )
 {
@@ -657,7 +657,7 @@ void vtkPCAStatistics::SelectAssessFunctor(
     }
 
   vtkPCAAssessFunctor* pcafunc = vtkPCAAssessFunctor::New();
-  if ( ! pcafunc->Initialize(
+  if ( ! pcafunc->InitializePCA(
       inData, reqModel, this->NormalizationScheme,
       this->BasisScheme, this->FixedBasisSize, this->FixedBasisEnergy ) )
     {
