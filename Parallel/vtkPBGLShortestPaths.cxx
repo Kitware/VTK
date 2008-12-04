@@ -26,6 +26,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkConvertSelection.h"
 #include "vtkDataArray.h"
 #include "vtkDirectedGraph.h"
 #include "vtkDistributedGraphHelper.h"
@@ -38,6 +39,7 @@
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
@@ -54,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.1");
+vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.2");
 vtkStandardNewMacro(vtkPBGLShortestPaths);
 
 // Function object used to reduce (vertex, distance) pairs to find
@@ -223,27 +225,12 @@ int vtkPBGLShortestPaths::RequestData(
       vtkErrorMacro("OriginFromSelection set but selection input undefined.");
       return 0;
       }
-    if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES ||
-        selection->GetProperties()->Get(vtkSelection::FIELD_TYPE()) != vtkSelection::POINT)
-      {
-      vtkErrorMacro("Selection must be point ids.");
-      return 0;
-      }
-    vtkAbstractArray* arr = selection->GetSelectionList();
-    if (arr == NULL)
-      {
-      vtkErrorMacro("Selection array is null");
-      return 0;
-      }
-    vtkIdTypeArray* idArr = vtkIdTypeArray::SafeDownCast(arr);
-    if (idArr == NULL)
-      {
-      vtkErrorMacro("Selection array is not a vtkIdTypeArray");
-      return 0;
-      }
+    vtkSmartPointer<vtkIdTypeArray> idArr =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkConvertSelection::GetSelectedVertices(selection, input, idArr);
     if (idArr->GetNumberOfTuples() == 0)
       {
-      vtkErrorMacro("Selection array has no elements");
+      vtkErrorMacro("Origin selection is empty.");
       return 0;
       }
     this->OriginVertexIndex = idArr->GetValue(0);
@@ -428,7 +415,10 @@ int vtkPBGLShortestPaths::RequestData(
   if (this->OutputSelection)
     {
     vtkSelection* sel = vtkSelection::GetData(outputVector, 1);
-    vtkIdTypeArray* ids = vtkIdTypeArray::New();
+    vtkSmartPointer<vtkIdTypeArray> ids =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkSmartPointer<vtkSelectionNode> node =
+      vtkSmartPointer<vtkSelectionNode>::New();
     
     // Set the output based on the output selection type
     if (!strcmp(OutputSelectionType,"MAX_DIST_FROM_ROOT"))
@@ -462,10 +452,10 @@ int vtkPBGLShortestPaths::RequestData(
       ids->InsertNextValue(maxFromRootVertex);
       }
 
-    sel->SetSelectionList(ids);
-    sel->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-    sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
-    ids->Delete();
+    node->SetSelectionList(ids);
+    node->SetContentType(vtkSelectionNode::INDICES);
+    node->SetFieldType(vtkSelectionNode::POINT);
+    sel->AddNode(node);
     }
 
   return 1;

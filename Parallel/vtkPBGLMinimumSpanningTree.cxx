@@ -39,6 +39,8 @@
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUndirectedGraph.h"
@@ -55,7 +57,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLMinimumSpanningTree, "1.1");
+vtkCxxRevisionMacro(vtkPBGLMinimumSpanningTree, "1.2");
 vtkStandardNewMacro(vtkPBGLMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -197,7 +199,10 @@ int vtkPBGLMinimumSpanningTree::RequestData(
     if (!strcmp(OutputSelectionType,"MINIMUM_SPANNING_TREE_EDGES"))
       {
       vtkSelection* sel = vtkSelection::GetData(outputVector, 1);
-      vtkIdTypeArray* ids = vtkIdTypeArray::New();
+      vtkSmartPointer<vtkIdTypeArray> ids =
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      vtkSmartPointer<vtkSelectionNode> node =
+        vtkSmartPointer<vtkSelectionNode>::New();
     
       // Add the ids of each MST edge.
       for (vtkstd::vector<vtkEdgeType>::iterator i = mstEdges.begin();
@@ -206,12 +211,12 @@ int vtkPBGLMinimumSpanningTree::RequestData(
         ids->InsertNextValue(i->Id);
         }
     
-      sel->SetSelectionList(ids);
-      sel->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                                vtkSelection::INDICES);
-      sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), 
-                                vtkSelection::EDGE);
-      ids->Delete();
+      node->SetSelectionList(ids);
+      node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), 
+                                 vtkSelectionNode::INDICES);
+      node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), 
+                                 vtkSelectionNode::EDGE);
+      sel->AddNode(node);
       }
     }
   else
