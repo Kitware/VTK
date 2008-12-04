@@ -219,6 +219,7 @@ SET( KitOpenGL_SRCS
   vtkShader2.cxx
   vtkShader2Collection.cxx
   vtkShaderProgram2.cxx
+  vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
   vtkUniformVariables.cxx
   vtkVolumetricPass.cxx
@@ -271,6 +272,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
+  vtkTextureUnitManager
   vtkTranslucentPass
   vtkVolumetricPass
   WRAP_EXCLUDE

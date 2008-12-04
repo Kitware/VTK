@@ -29,6 +29,7 @@
 class vtkIdList;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLHardwareSupport;
+class vtkTextureUnitManager;
 
 class VTK_RENDERING_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -186,10 +187,17 @@ public:
   vtkOpenGLExtensionManager* GetExtensionManager();
 
   // Description:
-  // Returns the Hardware Support class. A new one will be created if one hasn't
-  // already been set up.
+  // Returns an Hardware Support object. A new one will be created if one
+  // hasn't already been set up.
   vtkOpenGLHardwareSupport* GetHardwareSupport();
  
+  //BTX
+  // Description:
+  // Returns its texture unit manager object. A new one will be created if one
+  // hasn't already been set up.
+  vtkTextureUnitManager *GetTextureUnitManager();
+  //ETX
+  
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -236,6 +244,10 @@ protected:
   // Destroy a not-off-screen window.
   virtual void DestroyWindow()=0;
   
+  // Description:
+  // Set the texture unit manager.
+  void SetTextureUnitManager(vtkTextureUnitManager *textureUnitManager);
+  
   unsigned int BackLeftBuffer;
   unsigned int BackRightBuffer;
   unsigned int FrontLeftBuffer;
@@ -247,6 +259,9 @@ protected:
   unsigned int LastGraphicError;
  
   vtkTimeStamp ContextCreationTime;
+  
+  vtkTextureUnitManager *TextureUnitManager;
+  
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
