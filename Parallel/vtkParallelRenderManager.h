@@ -402,10 +402,24 @@ public:
   vtkSetMacro(SynchronizeTileProperties, int);
   vtkGetMacro(SynchronizeTileProperties, int);
   vtkBooleanMacro(SynchronizeTileProperties, int);
+
+  // Description:
+  // INTERNAL METHODS (DON NOT USE).
+  // There are internal methods made public so that they can be called from
+  // callback functions.
+  void GenericStartRenderCallback();
+  void GenericEndRenderCallback();
+
 //BTX
 protected:
   vtkParallelRenderManager();
   ~vtkParallelRenderManager();
+
+
+  // Description:
+  // Add/Remove event handlers for the render window.
+  void AddRenderWindowEventHandlers();
+  void RemoveRenderWindowEventHandlers();
 
   vtkRenderWindow *RenderWindow;
   vtkMultiProcessController *Controller;
