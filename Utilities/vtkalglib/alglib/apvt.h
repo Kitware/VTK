@@ -385,7 +385,7 @@ void vmove(raw_vector<T> vdst, const_raw_vector<T> vsrc, T2 alpha)
 vmove, another form
 ********************************************************************/
 template<class T, class T2>
-void _vmove(T *vdst, const T *vsrc, int N, T2 alpha)
+void _vmove2(T *vdst, const T *vsrc, int N, T2 alpha)
 {
     T *p1 = vdst;
     const T *p2 = vsrc;
@@ -553,7 +553,7 @@ void vadd(raw_vector<T> vdst, const_raw_vector<T> vsrc, T2 alpha)
 vadd, another form
 ********************************************************************/
 template<class T, class T2>
-void _vadd(T *vdst, const T *vsrc, int N, T2 alpha)
+void _vadd2(T *vdst, const T *vsrc, int N, T2 alpha)
 {
     T *p1 = vdst;
     const T *p2 = vsrc;
@@ -671,9 +671,9 @@ void vsub(raw_vector<T> vdst, const_raw_vector<T> vsrc, T2 alpha)
 vsub, another form
 ********************************************************************/
 template<class T, class T2>
-void _vsub(T *vdst, const T *vsrc, int N, T2 alpha)
+void _vsub2(T *vdst, const T *vsrc, int N, T2 alpha)
 {
-    _vadd(vdst, vsrc, N, -alpha);
+    _vadd2(vdst, vsrc, N, -alpha);
 }
 
 

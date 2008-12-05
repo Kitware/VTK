@@ -242,17 +242,17 @@ void ap::vmove(double *vdst, const double *vsrc, int N, double alpha)
         return;
     }
 #endif
-    ap::_vmove<double,double>(vdst, vsrc, N, alpha);
+    ap::_vmove2<double,double>(vdst, vsrc, N, alpha);
 }
 
 void ap::vmove(ap::complex *vdst, const ap::complex *vsrc, int N, double alpha)
 {
-    ap::_vmove<ap::complex,double>(vdst, vsrc, N, alpha);
+    ap::_vmove2<ap::complex,double>(vdst, vsrc, N, alpha);
 }
 
 void ap::vmove(ap::complex *vdst, const ap::complex *vsrc, int N, ap::complex alpha)
 {
-    ap::_vmove<ap::complex,ap::complex>(vdst, vsrc, N, alpha);
+    ap::_vmove2<ap::complex,ap::complex>(vdst, vsrc, N, alpha);
 }
 
 void ap::vadd(double *vdst, const double *vsrc, int N)
@@ -281,17 +281,17 @@ void ap::vadd(double *vdst, const double *vsrc, int N, double alpha)
         return;
     }
 #endif
-    ap::_vadd<double,double>(vdst, vsrc, N, alpha);
+    ap::_vadd2<double,double>(vdst, vsrc, N, alpha);
 }
 
 void ap::vadd(ap::complex *vdst, const ap::complex *vsrc, int N, double alpha)
 {
-    ap::_vadd<ap::complex,double>(vdst, vsrc, N, alpha);
+    ap::_vadd2<ap::complex,double>(vdst, vsrc, N, alpha);
 }
 
 void ap::vadd(ap::complex *vdst, const ap::complex *vsrc, int N, ap::complex alpha)
 {
-    ap::_vadd<ap::complex,ap::complex>(vdst, vsrc, N, alpha);
+    ap::_vadd2<ap::complex,ap::complex>(vdst, vsrc, N, alpha);
 }
 
 void ap::vsub(double *vdst, const double *vsrc, int N)
@@ -320,17 +320,17 @@ void ap::vsub(double *vdst, const double *vsrc, int N, double alpha)
         return;
     }
 #endif
-    ap::_vsub<double,double>(vdst, vsrc, N, alpha);
+    ap::_vsub2<double,double>(vdst, vsrc, N, alpha);
 }
 
 void ap::vsub(ap::complex *vdst, const ap::complex *vsrc, int N, double alpha)
 {
-    ap::_vsub<ap::complex,double>(vdst, vsrc, N, alpha);
+    ap::_vsub2<ap::complex,double>(vdst, vsrc, N, alpha);
 }
 
 void ap::vsub(ap::complex *vdst, const ap::complex *vsrc, int N, ap::complex alpha)
 {
-    ap::_vsub<ap::complex,ap::complex>(vdst, vsrc, N, alpha);
+    ap::_vsub2<ap::complex,ap::complex>(vdst, vsrc, N, alpha);
 }
 
 void ap::vmul(double *vdst, int N, double alpha)
