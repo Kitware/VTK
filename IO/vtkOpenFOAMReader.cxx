@@ -30,7 +30,7 @@
 // * Minor performance enhancements
 // by Philippose Rajan (sarith@rocketmail.com)
 
-// version 2008-09-29
+// version 2008-12-05
 
 // Hijack the CRC routine of zlib to omit CRC check for gzipped files
 // (on OSes other than Windows where the mechanism doesn't work due
@@ -108,7 +108,7 @@ uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
 { return 0; }
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.16");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.17");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 //-----------------------------------------------------------------------------
@@ -339,7 +339,7 @@ private:
       const vtkFoamIntVectorVector *, vtkPoints *);
 };
 
-vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.16");
+vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.17");
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 
 //-----------------------------------------------------------------------------
@@ -5685,13 +5685,12 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       }
     previousEndFace = startFace + nFaces;
     }
-  if (previousEndFace != facesPoints->GetNumberOfElements())
+  if (previousEndFace > facesPoints->GetNumberOfElements())
     {
     vtkErrorMacro(<<"The end face number " << previousEndFace - 1
         << " of the last patch "
         << this->BoundaryDict[nBoundaries - 1].BoundaryName.c_str()
-        << " is not consistent with the number of faces "
-        << facesPoints->GetNumberOfElements());
+        << " exceeds the number of faces " << facesPoints->GetNumberOfElements());
     return NULL;
     }
 
@@ -7092,8 +7091,8 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
         }
 
       // read the field file into dictionary
-      vtkFoamEntryValue dict(NULL);
-      if (!dict.ReadField(io2))
+      vtkFoamEntryValue dict2(NULL);
+      if (!dict2.ReadField(io2))
         {
         vtkErrorMacro(<<"Error reading line " << io2.GetLineNumber()
             << " of " << io2.GetFileName().c_str() << ": "
@@ -7102,8 +7101,8 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
         }
 
       // set lagrangian values
-      if (dict.GetType() != vtkFoamToken::SCALARLIST && dict.GetType()
-          != vtkFoamToken::VECTORLIST && dict.GetType()
+      if (dict2.GetType() != vtkFoamToken::SCALARLIST && dict2.GetType()
+          != vtkFoamToken::VECTORLIST && dict2.GetType()
           != vtkFoamToken::LABELLIST)
         {
         vtkErrorMacro(<< io2.GetFileName().c_str()
@@ -7112,7 +7111,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
         continue;
         }
 
-      vtkDataArray* lData = static_cast<vtkDataArray *>(dict.Ptr());
+      vtkDataArray* lData = static_cast<vtkDataArray *>(dict2.Ptr());
 
       // GetNumberOfTuples() works for both scalar and vector
       const int nParticles2 = lData->GetNumberOfTuples();
@@ -8068,7 +8067,7 @@ int vtkOpenFOAMReader::RequestInformation(vtkInformation *vtkNotUsed(request), v
           != this->ListTimeStepsByControlDictOld || this->Refresh))
     {
     // retain selection status when just refreshing a case
-    if (*this->FileNameOld != this->FileName)
+    if (*this->FileNameOld != "" && *this->FileNameOld != this->FileName)
       {
       // clear selections
       this->CellDataArraySelection->RemoveAllArrays();
