@@ -407,8 +407,8 @@ public:
   // INTERNAL METHODS (DON NOT USE).
   // There are internal methods made public so that they can be called from
   // callback functions.
-  void GenericStartRenderCallback();
-  void GenericEndRenderCallback();
+  virtual void GenericStartRenderCallback();
+  virtual void GenericEndRenderCallback();
 
 //BTX
 protected:
