@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.25");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.25.6.1");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);
@@ -83,7 +83,7 @@ int vtkExtractPolyDataGeometry::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *inPts=input->GetPoints();
-  vtkIdType numPts, i, cellId = -1, newId;
+  vtkIdType numPts, i, cellId = 0, newId;
   float multiplier;
   vtkCellArray *inVerts=NULL, *inLines=NULL, *inPolys=NULL, *inStrips=NULL;
   vtkCellArray *newVerts=NULL, *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
