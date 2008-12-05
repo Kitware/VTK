@@ -314,7 +314,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.23");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.24");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -802,7 +802,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.23");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.24");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -1064,7 +1064,6 @@ void vtkSpiralkVertices(vtkIdType num, vtkstd::vector<vtkstd::pair<double,double
     double x = t*cos(2*pi*t);
     double y = t*sin(2*pi*t);
     offsets.push_back(vtkstd::pair<double,double>(x, y));
-    cout << "Offsets: " << x << " " << y << endl;
     }
 }
 
@@ -1072,7 +1071,7 @@ void vtkSpiralkVertices(vtkIdType num, vtkstd::vector<vtkstd::pair<double,double
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.23");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.24");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
