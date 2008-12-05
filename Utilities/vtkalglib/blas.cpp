@@ -399,7 +399,7 @@ void matrixmatrixmultiply(const ap::real_2d_array& a,
     int ccols;
     int i;
     int j;
-    int k;
+    int k = 0; // Eliminate compiler warning.
     int l;
     int r;
     double v;

@@ -226,7 +226,7 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
     int isub;
     int iter;
     int j;
-    int ll;
+    int ll = 0; // Eliminate compiler warning.
     int lll;
     int m;
     int maxit;
@@ -243,7 +243,7 @@ bool bidiagonalsvddecompositioninternal(ap::real_1d_array& d,
     double h;
     double mu;
     double oldcs;
-    double oldsn;
+    double oldsn = 0.; // Eliminate compiler warning.
     double r;
     double shift;
     double sigmn;
@@ -1144,8 +1144,8 @@ void svdv2x2(double f,
     bool swp;
     int pmax;
     double a;
-    double clt;
-    double crt;
+    double clt = 0.; // Eliminate compiler warning.
+    double crt = 0.; // Eliminate compiler warning.
     double d;
     double fa;
     double ft;
@@ -1158,11 +1158,11 @@ void svdv2x2(double f,
     double mm;
     double r;
     double s;
-    double slt;
-    double srt;
+    double slt = 0.; // Eliminate compiler warning.
+    double srt = 0.; // Eliminate compiler warning.
     double t;
     double temp;
-    double tsign;
+    double tsign = 0.; // Eliminate compiler warning.
     double tt;
     double v;
 
