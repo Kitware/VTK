@@ -101,15 +101,15 @@ void PointMarkerWidget::paintEvent(QPaintEvent *)
 
   // Draw all the points using the point marker.
   QPolygonF::Iterator point = this->Points.begin();
-  QList<vtkQtPointMarker::MarkerStyle>::Iterator style = this->Styles.begin();
+  QList<vtkQtPointMarker::MarkerStyle>::Iterator iter = this->Styles.begin();
   QList<QPen>::Iterator pen = this->Pens.begin();
   for( ; point != this->Points.end(); ++point)
     {
     // Set the style.
-    if(style != this->Styles.end())
+    if(iter != this->Styles.end())
       {
-      this->Marker.setStyle(*style);
-      ++style;
+      this->Marker.setStyle(*iter);
+      ++iter;
       }
 
     // Set the pen.
