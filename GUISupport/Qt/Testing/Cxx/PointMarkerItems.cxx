@@ -18,72 +18,123 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "QTestApp.h"
 
-#include <QGraphicsScene>
-#include <QGraphicsView>
-#include <QGraphicsRectItem>
 #include "vtkQtPointMarker.h"
+#include <QPainter>
+#include <QPolygonF>
 #include <QSizeF>
+#include <QWidget>
+
+
+class PointMarkerWidget : public QWidget
+{
+public:
+  PointMarkerWidget(QWidget *parent=0);
+  virtual ~PointMarkerWidget() {}
+
+  virtual QSize sizeHint() const;
+
+protected:
+  virtual void paintEvent(QPaintEvent *e);
+
+private:
+  QPolygonF Points;
+  vtkQtPointMarker Marker;
+  QList<vtkQtPointMarker::MarkerStyle> Styles;
+  QList<QPen> Pens;
+};
+
+
+PointMarkerWidget::PointMarkerWidget(QWidget *widgetParent)
+  : QWidget(widgetParent), Points(), Marker(QSizeF(10.0, 10.0)), Styles(),
+    Pens()
+{
+  this->Points.append(QPointF(0.0, 0.0));
+  this->Styles.append(vtkQtPointMarker::Cross);
+  this->Pens.append(QPen(QBrush(QColor("red")), 1));
+
+  this->Points.append(QPointF(50.0, 50.0));
+  this->Styles.append(vtkQtPointMarker::Plus);
+  this->Pens.append(QPen(QBrush(QColor("green")), 2));
+
+  this->Points.append(QPointF(100.0, 0.0));
+  this->Styles.append(vtkQtPointMarker::Square);
+  this->Pens.append(QPen(QBrush(QColor("blue")), 3));
+
+  this->Points.append(QPointF(100.0, 100.0));
+  this->Styles.append(vtkQtPointMarker::Circle);
+  this->Pens.append(QPen(QBrush(QColor("orange")), 4));
+
+  this->Points.append(QPointF(0.0, 100.0));
+  this->Styles.append(vtkQtPointMarker::Diamond);
+  this->Pens.append(QPen(QBrush(QColor("purple")), 5));
+
+  // Set the background color to white.
+  this->setBackgroundRole(QPalette::Base);
+  this->setAutoFillBackground(true);
+}
+
+QSize PointMarkerWidget::sizeHint() const
+{
+  QSizeF hint = this->Points.boundingRect().size();
+  hint.setWidth(hint.width() + this->Marker.getSize().width() + 10.0);
+  hint.setHeight(hint.height() + this->Marker.getSize().height() + 10.0);
+  return hint.toSize();
+}
+
+void PointMarkerWidget::paintEvent(QPaintEvent *)
+{
+  // Set up the painter. Offset the painter for the margin and the
+  // marker size.
+  QPainter painter(this);
+  painter.translate((this->Marker.getSize().width() * 0.5) + 5.0,
+    (this->Marker.getSize().height() * 0.5) + 5.0);
+
+  // Draw in a border.
+  painter.drawRect(this->Points.boundingRect());
+
+  // Draw all the points using the point marker.
+  QPolygonF::Iterator point = this->Points.begin();
+  QList<vtkQtPointMarker::MarkerStyle>::Iterator style = this->Styles.begin();
+  QList<QPen>::Iterator pen = this->Pens.begin();
+  for( ; point != this->Points.end(); ++point)
+    {
+    // Set the style.
+    if(style != this->Styles.end())
+      {
+      this->Marker.setStyle(*style);
+      ++style;
+      }
+
+    // Set the pen.
+    if(pen != this->Pens.end())
+      {
+      painter.setPen(*pen);
+      ++pen;
+      }
+
+    // Draw the point.
+    painter.save();
+    painter.translate(*point);
+    this->Marker.paint(&painter);
+    painter.restore();
+    }
+}
+
 
 int PointMarkerItems(int argc, char* argv[])
 {
   QTestApp app(argc, argv);
 
-  QGraphicsScene scene;
-  scene.setSceneRect(0,0,400,400);
-
-  QGraphicsRectItem* boundary = new QGraphicsRectItem(0,0,100,100);
-  scene.addItem(boundary);
-
-
-  QSizeF size(10,10);
-  QPolygonF points;
-  points.append(QPointF(0.0, 0.0));
-  vtkQtPointMarker* cross = new vtkQtPointMarker(size,
-    vtkQtPointMarker::Cross);
-  cross->setPen(QPen(QBrush(QColor("red")), 1));
-  cross->setPoints(points);
-  scene.addItem(cross);
-
-
-  vtkQtPointMarker* plus = new vtkQtPointMarker(size, vtkQtPointMarker::Plus);
-  plus->moveBy(50,50);
-  plus->setPen(QPen(QBrush(QColor("green")), 2));
-  plus->setPoints(points);
-  scene.addItem(plus);
-
-
-  vtkQtPointMarker* square = new vtkQtPointMarker(size,
-    vtkQtPointMarker::Square);
-  square->moveBy(100,0);
-  square->setPen(QPen(QBrush(QColor("blue")), 3));
-  square->setPoints(points);
-  scene.addItem(square);
-
-
-  vtkQtPointMarker* circle = new vtkQtPointMarker(size,
-    vtkQtPointMarker::Circle);
-  circle->moveBy(100,100);
-  circle->setPen(QPen(QBrush(QColor("yellow")), 4));
-  circle->setPoints(points);
-  scene.addItem(circle);
-
-
-  vtkQtPointMarker* diamond = new vtkQtPointMarker(size,
-    vtkQtPointMarker::Diamond);
-  diamond->moveBy(0,100);
-  diamond->setPen(QPen(QBrush(QColor("purple")), 5));
-  diamond->setPoints(points);
-  scene.addItem(diamond);
-
-
-  QGraphicsView view(&scene);
-  view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-  view.resize(400,400);
-  view.show();
+  PointMarkerWidget widget;
+  widget.resize(widget.sizeHint());
+  widget.show();
 
   int status = app.exec();
 
