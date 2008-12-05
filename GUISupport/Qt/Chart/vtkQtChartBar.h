@@ -42,6 +42,8 @@ public:
   virtual bool contains(const QPointF &point) const;
   virtual bool intersects(const QRectF &area) const;
 
+  virtual void setRectangle(const QRectF &rectangle) {this->setBar(rectangle);}
+
   QRectF &getBar() {return *this->Bar;}
   const QRectF &getBar() const {return *this->Bar;}
   void setBar(const QRectF &bar);

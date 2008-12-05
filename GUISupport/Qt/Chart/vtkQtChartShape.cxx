@@ -57,6 +57,14 @@ vtkQtChartShape &vtkQtChartShape::operator=(const vtkQtChartShape &other)
   return *this;
 }
 
+void vtkQtChartShape::setRectangle(const QRectF &)
+{
+}
+
+void vtkQtChartShape::setPolygon(const QPolygonF &)
+{
+}
+
 int vtkQtChartShape::getBoundingBoxCode(const QPointF &point,
     const QRectF &bounds)
 {

@@ -26,20 +26,16 @@
 
 
 #include "vtkQtChartExport.h"
-#include <QGraphicsItem>
+#include <QSizeF>
+#include <QRectF>
 
-#include "vtkQtChartGraphicsItemTypes.h" // needed for enum
-
-class QBrush;
-class QPen;
-class QPolygonF;
-class QSizeF;
+class QPainter;
 
 
 /// \class vtkQtPointMarker
 /// \brief
 ///   The vtkQtPointMarker class is used to draw a shape at a point.
-class VTKQTCHART_EXPORT vtkQtPointMarker : public QGraphicsItem
+class VTKQTCHART_EXPORT vtkQtPointMarker
 {
 public:
   enum MarkerStyle
@@ -54,20 +50,11 @@ public:
     UserStyle = 32
     };
 
-  enum {Type = vtkQtChart_PointMarkerType};
-
 public:
-  vtkQtPointMarker(const QSizeF &size, MarkerStyle style=Circle,
-      QGraphicsItem *parent=0, QGraphicsScene *scene=0);
+  vtkQtPointMarker(const QSizeF &size, MarkerStyle style=Circle);
   virtual ~vtkQtPointMarker();
 
-  virtual int type() const {return vtkQtPointMarker::Type;}
-  virtual QRectF boundingRect() const;
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
-
-  const QPolygonF &getPoints() const;
-  void setPoints(const QPolygonF &points);
+  virtual void paint(QPainter *painter);
 
   QSizeF getSize() const;
   void setSize(const QSizeF &size);
@@ -75,28 +62,11 @@ public:
   MarkerStyle getStyle() const {return this->Style;}
   void setStyle(MarkerStyle style);
 
-  const QPen &pen() const;
-  void setPen(const QPen &newPen);
-
-  const QBrush &brush() const;
-  void setBrush(const QBrush &newBrush);
-
-  const QRectF &getClipRect() const {return this->Bounds;}
-  void setClipRect(const QRectF &bounds) {this->Bounds = bounds;}
-
-protected:
-  virtual void paintMarker(QPainter *painter,
-      const QStyleOptionGraphicsItem *option, QWidget *widget);
-
 protected:
   QRectF Rect;
 
 private:
-  QRectF Bounds;
   MarkerStyle Style;
-  QPolygonF *Points;
-  QPen *Pen;
-  QBrush *Brush;
 };
 
 #endif

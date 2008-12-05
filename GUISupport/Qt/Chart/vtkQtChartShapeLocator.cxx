@@ -31,9 +31,11 @@
 #include "vtkQtChartShape.h"
 
 #include <QMutableLinkedListIterator>
+#include <QPair>
 #include <QPointF>
-#include <QPolygonF>
 #include <QRectF>
+
+#include "math.h"
 
 
 //-----------------------------------------------------------------------------
@@ -176,6 +178,33 @@ void vtkQtChartShapeLocator::build(
     }
 
   this->build(nodeTable);
+}
+
+void vtkQtChartShapeLocator::build(const QList<vtkQtChartShape *> &list)
+{
+  // The list should already be sorted in x. Divide the list into
+  // equal portions.
+  QList<QList<vtkQtChartShape *> > table;
+  int length = (int)(sqrt((double)(list.size() * list.size())) + 0.5);
+  QList<vtkQtChartShape *>::ConstIterator iter = list.begin();
+  while(iter != list.end())
+    {
+    table.append(QList<vtkQtChartShape *>());
+    for(int i = 0; i < length && iter != list.end(); ++iter, ++i)
+      {
+      table.last().append(*iter);
+      }
+    }
+  
+  // Then, sort each portion in y.
+  QList<QList<vtkQtChartShape *> >::Iterator jter = table.begin();
+  for( ; jter != table.end(); ++jter)
+    {
+    this->sort(*jter);
+    }
+
+  // Finally, build the tree from the table.
+  this->build(table);
 }
 
 void vtkQtChartShapeLocator::update()
@@ -501,6 +530,114 @@ void vtkQtChartShapeLocator::build(
   if(table.size() > 0 && table.first().size() > 0)
     {
     this->Root = table.first().first();
+    }
+}
+
+void vtkQtChartShapeLocator::sort(QList<vtkQtChartShape *> &list) const
+{
+  if(list.size() < 2)
+    {
+    return;
+    }
+
+  // Create a list of center points to use for comparison.
+  QList<float> points;
+  QList<vtkQtChartShape *>::Iterator iter = list.begin();
+  for( ; iter != list.end(); ++iter)
+    {
+    QRectF area;
+    (*iter)->getBounds(area);
+    points.append(area.center().y());
+    }
+
+  // Use a boundary list to avoid recursive calls.
+  vtkQtChartShape *temp = 0;
+  QLinkedList<QPair<int, int> > bounds;
+  bounds.append(QPair<int, int>(0, list.size() - 1));
+  while(bounds.size() > 0)
+    {
+    QMutableLinkedListIterator<QPair<int, int> > jter(bounds);
+    while(jter.hasNext())
+      {
+      QPair<int, int> range = jter.next();
+      jter.remove();
+      int length = range.second - range.first + 1;
+      if(length == 2)
+        {
+        // Swap the shapes if necessary.
+        if(points[range.second] < points[range.first])
+          {
+          temp = list[range.second];
+          list[range.second] = list[range.first];
+          list[range.first] = temp;
+          }
+        }
+      else
+        {
+        // Find the pivot point from the first, last and middle point.
+        int pivot = range.first + length / 2;
+        if(points[range.first] > points[pivot])
+          {
+          if(!(points[pivot] > points[range.second]))
+            {
+            pivot = points[range.first] > points[range.second] ?
+                range.second : range.first;
+            }
+          }
+        else if(points[pivot] > points[range.second])
+          {
+          pivot = points[range.first] > points[range.second] ?
+              range.first : range.second;
+          }
+
+        // Swap the pivot and last point.
+        if(pivot != range.second)
+          {
+          temp = list[range.second];
+          list[range.second] = list[pivot];
+          list[pivot] = temp;
+          }
+
+        // Partition the remaining points.
+        pivot = range.first;
+        for(int i = range.first; i < range.second; i++)
+          {
+          if(points[i] <= points[range.second])
+            {
+            // Swap the points if necessary.
+            if(pivot != i)
+              {
+              temp = list[i];
+              list[i] = list[pivot];
+              list[pivot] = temp;
+              }
+
+            pivot++;
+            }
+          }
+
+        // Move the last point to the partition.
+        if(pivot != range.second)
+          {
+          temp = list[range.second];
+          list[range.second] = list[pivot];
+          list[pivot] = temp;
+          }
+
+        // Add ranges to the bounds list for the two partitions.
+        length = pivot - range.first;
+        if(length > 1)
+          {
+          jter.insert(QPair<int, int>(range.first, pivot - 1));
+          }
+
+        length = range.second - pivot;
+        if(length > 1)
+          {
+          jter.insert(QPair<int, int>(pivot + 1, range.second));
+          }
+        }
+      }
     }
 }
 

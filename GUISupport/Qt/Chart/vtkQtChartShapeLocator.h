@@ -30,7 +30,6 @@
 
 class vtkQtChartShape;
 class QPointF;
-class QPolygonF;
 class QRectF;
 
 
@@ -72,11 +71,11 @@ private:
 
 /// \class vtkQtChartShapeLocator
 /// \brief
-///   The vtkQtChartShapeLocator class is used to locate quads using a
-///   tree.
+///   The vtkQtChartShapeLocator class is used to locate shapes using
+///   a tree.
 ///
-/// The tree is built from a table of quads. The leaf nodes store the
-/// quads and use them for searches. The parent nodes in the tree use
+/// The tree is built from a table of shapes. The leaf nodes store the
+/// shapes and use them for searches. The parent nodes in the tree use
 /// the bounding rectangle for searches. The bounding rectangles can
 /// be updated if the layout remains unchanged.
 class VTKQTCHART_EXPORT vtkQtChartShapeLocator
@@ -89,16 +88,28 @@ public:
   void clear();
 
   /// \brief
-  ///   Builds a quad tree from the ordered table of shapes.
+  ///   Builds a shape tree from the ordered table of shapes.
   ///
-  /// The quad pointers are stored by the tree and should not be
+  /// The shape pointers are stored by the tree and should not be
   /// deleted until the tree has been cleared.
   ///
-  /// \param table the ordered table of shapes.
+  /// \param table The ordered table of shapes.
   void build(const QList<QList<vtkQtChartShape *> > &table);
 
   /// \brief
-  ///   Updates the bounding rectangles in the quad tree.
+  ///   Builds a shape tree from the list of shapes.
+  ///
+  /// The list of shapes should be sorted in the x-axis direction
+  /// before calling this method. The list will be divided into a
+  /// table and sorted in the y-axis direction before building the
+  /// tree. The shape pointers are stored by the tree and should not
+  /// be deleted until the tree has been cleared.
+  ///
+  /// \param list The list of shapes.
+  void build(const QList<vtkQtChartShape *> &list);
+
+  /// \brief
+  ///   Updates the bounding rectangles in the shape tree.
   ///
   /// The nodes are traversed from last to first. The bounding
   /// rectangle of each node is updated using the shape if it is a
@@ -134,9 +145,18 @@ public:
 
 private:
   /// \brief
-  ///   Builds a quad tree from the ordered table of items.
+  ///   Builds a shape tree from the ordered table of items.
   /// \param table the ordered table of items.
   void build(QLinkedList<QLinkedList<vtkQtChartShapeLocatorNode *> > &table);
+
+  /// \brief
+  ///   Sorts the list of shapes according to the y value.
+  ///
+  /// The list of shapes is sorted by the y-axis value using a quick
+  /// sort algorithm. The list is sorted in place.
+  ///
+  /// \param list The list of shapes to be sorted.
+  void sort(QList<vtkQtChartShape *> &list) const;
 
 private:
   vtkQtChartShapeLocatorNode *Root; ///< Stores the root node.

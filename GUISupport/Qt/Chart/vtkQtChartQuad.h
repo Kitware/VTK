@@ -49,6 +49,8 @@ public:
   virtual bool contains(const QPointF &point) const;
   virtual bool intersects(const QRectF &area) const;
 
+  virtual void setPolygon(const QPolygonF &polygon) {this->setPoints(polygon);}
+
   const QPolygonF &getPoints() const;
   void setPoints(const QPolygonF &points);
   void setPoint(int index, const QPointF &point);

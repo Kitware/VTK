@@ -644,7 +644,7 @@ void vtkQtStackedChart::getPointsAt(const QPointF &point,
   QPointF local = point;
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
-  // Get the bar index from the search tree.
+  // Get the quad index from the search tree.
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsAt(local);
   if(shapes.size() > 0)
@@ -665,7 +665,7 @@ void vtkQtStackedChart::getSeriesIn(const QRectF &area,
   QRectF local = area;
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
-  // Get the list of bar indexes from the bar tree.
+  // Get the list of quads from the search tree.
   vtkQtChartIndexRangeList indexes;
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsIn(local);
   QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
@@ -686,7 +686,7 @@ void vtkQtStackedChart::getPointsIn(const QRectF &area,
   QRectF local = area;
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
-  // Get the list of bar indexes from the bar tree.
+  // Get the list of quads from the search tree.
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsIn(local);
   QList<vtkQtChartShape *>::Iterator shape = shapes.begin();

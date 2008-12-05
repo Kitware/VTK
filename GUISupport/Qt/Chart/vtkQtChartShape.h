@@ -27,6 +27,7 @@
 #include "vtkQtChartExport.h"
 
 class QPointF;
+class QPolygonF;
 class QRectF;
 
 
@@ -52,6 +53,9 @@ public:
   virtual void getBounds(QRectF &bounds) const = 0;
   virtual bool contains(const QPointF &point) const = 0;
   virtual bool intersects(const QRectF &area) const = 0;
+
+  virtual void setRectangle(const QRectF &rectangle);
+  virtual void setPolygon(const QPolygonF &polygon);
 
   int getSeries() const {return this->Series;}
   void setSeries(int series) {this->Series = series;}

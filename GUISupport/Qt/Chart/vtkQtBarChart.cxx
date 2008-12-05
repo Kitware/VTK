@@ -63,6 +63,8 @@ public:
   vtkQtBarChartSeries();
   ~vtkQtBarChartSeries();
 
+  void updateSeries(int series);
+
 public:
   QList<QRectF *> Bars;
   QList<vtkQtChartBar *> Bounds;
@@ -122,6 +124,15 @@ vtkQtBarChartSeries::~vtkQtBarChartSeries()
   for( ; jter != this->Bounds.end(); ++jter)
     {
     delete *jter;
+    }
+}
+
+void vtkQtBarChartSeries::updateSeries(int series)
+{
+  QList<vtkQtChartBar *>::Iterator iter = this->Bounds.begin();
+  for( ; iter != this->Bounds.end(); ++iter)
+    {
+    (*iter)->setSeries(series);
     }
 }
 
@@ -702,7 +713,8 @@ void vtkQtBarChart::insertSeries(int first, int last)
     QList<int> groups;
     QList<int>::Iterator iter;
     bool signalDomain = false;
-    for(int i = first; i <= last; i++)
+    int i = first;
+    for( ; i <= last; i++)
       {
       // Add an item for each series.
       vtkQtBarChartSeries *series = new vtkQtBarChartSeries();
@@ -734,6 +746,12 @@ void vtkQtBarChart::insertSeries(int first, int last)
           groups.append(seriesGroup);
           }
         }
+      }
+
+    // Fix the series indexes in the search lists.
+    for(i = last + 1; i < this->Internal->Series.size(); i++)
+      {
+      this->Internal->Series[i]->updateSeries(i);
       }
 
     // Create the bar lists for the modified domains.
@@ -770,6 +788,12 @@ void vtkQtBarChart::startSeriesRemoval(int first, int last)
     for( ; last >= first; last--)
       {
       delete this->Internal->Series.takeAt(last);
+      }
+
+    // Fix the series indexes in the search lists.
+    for( ; first < this->Internal->Series.size(); first++)
+      {
+      this->Internal->Series[first]->updateSeries(first);
       }
     }
 }

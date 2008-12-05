@@ -21,11 +21,14 @@
 /// \file vtkQtPointMarker.cxx
 /// \date February 12, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtPointMarker.h"
 
-#include <QBrush>
 #include <QPainter>
-#include <QPen>
 #include <QPolygonF>
 #include <QRectF>
 #include <QSizeF>
@@ -33,129 +36,18 @@
 
 //----------------------------------------------------------------------------
 vtkQtPointMarker::vtkQtPointMarker(const QSizeF &size,
-    vtkQtPointMarker::MarkerStyle style, QGraphicsItem *item,
-    QGraphicsScene *graphicsScene)
-  : QGraphicsItem(item, graphicsScene), Rect(-size.width() * 0.5,
-    -size.height() * 0.5, size.width(), size.height()), Bounds()
+    vtkQtPointMarker::MarkerStyle style)
+  : Rect(-size.width() * 0.5, -size.height() * 0.5,
+    size.width(), size.height())
 {
   this->Style = style;
-  this->Points = new QPolygonF();
-  this->Pen = new QPen(Qt::black);
-  this->Brush = new QBrush(Qt::white);
 }
 
 vtkQtPointMarker::~vtkQtPointMarker()
 {
-  delete this->Points;
-  delete this->Pen;
-  delete this->Brush;
 }
 
-QRectF vtkQtPointMarker::boundingRect() const
-{
-  if(this->Points->isEmpty())
-    {
-    return QRectF();
-    }
-
-  QRectF bounds = this->Points->boundingRect();
-  float width = (this->Rect.width() + this->Pen->widthF()) * 0.5;
-  float height = (this->Rect.height() + this->Pen->widthF()) * 0.5;
-  bounds.adjust(-width, -height, width, height);
-  return bounds;
-}
-
-void vtkQtPointMarker::paint(QPainter *painter,
-    const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-  // Set up the painter pen and brush.
-  painter->setPen(this->pen());
-  painter->setBrush(this->brush());
-
-  QPolygonF::Iterator iter = this->Points->begin();
-  for( ; iter != this->Points->end(); ++iter)
-    {
-    if(this->Bounds.isValid() && !this->Bounds.contains(*iter))
-      {
-      continue;
-      }
-
-    // Transform the painter to the next point.
-    painter->save();
-    painter->translate(*iter);
-
-    // Draw the appropriate marker shape.
-    this->paintMarker(painter, option, widget);
-    painter->restore();
-    }
-}
-
-const QPolygonF &vtkQtPointMarker::getPoints() const
-{
-  return *this->Points;
-}
-
-void vtkQtPointMarker::setPoints(const QPolygonF &points)
-{
-  this->prepareGeometryChange();
-  *this->Points = points;
-  this->update();
-}
-
-QSizeF vtkQtPointMarker::getSize() const
-{
-  return this->Rect.size();
-}
-
-void vtkQtPointMarker::setSize(const QSizeF &size)
-{
-  if(size != this->Rect.size())
-    {
-    this->prepareGeometryChange();
-    this->Rect.setRect(-size.width() * 0.5, -size.height() * 0.5,
-        size.width(), size.height());
-    this->update();
-    }
-}
-
-void vtkQtPointMarker::setStyle(vtkQtPointMarker::MarkerStyle style)
-{
-  if(this->Style != style)
-    {
-    this->Style = style;
-    this->update();
-    }
-}
-
-const QPen &vtkQtPointMarker::pen() const
-{
-  return *this->Pen;
-}
-
-void vtkQtPointMarker::setPen(const QPen &newPen)
-{
-  if(newPen.widthF() != this->Pen->widthF())
-    {
-    this->prepareGeometryChange();
-    }
-
-  *this->Pen = newPen;
-  this->update();
-}
-
-const QBrush &vtkQtPointMarker::brush() const
-{
-  return *this->Brush;
-}
-
-void vtkQtPointMarker::setBrush(const QBrush &newBrush)
-{
-  *this->Brush = newBrush;
-  this->update();
-}
-
-void vtkQtPointMarker::paintMarker(QPainter *painter,
-    const QStyleOptionGraphicsItem *, QWidget *)
+void vtkQtPointMarker::paint(QPainter *painter)
 {
   // Draw the appropriate marker shape.
   switch(this->Style)
@@ -203,6 +95,25 @@ void vtkQtPointMarker::paintMarker(QPainter *painter,
       break;
       }
     }
+}
+
+QSizeF vtkQtPointMarker::getSize() const
+{
+  return this->Rect.size();
+}
+
+void vtkQtPointMarker::setSize(const QSizeF &size)
+{
+  if(size != this->Rect.size())
+    {
+    this->Rect.setRect(-size.width() * 0.5, -size.height() * 0.5,
+        size.width(), size.height());
+    }
+}
+
+void vtkQtPointMarker::setStyle(vtkQtPointMarker::MarkerStyle style)
+{
+  this->Style = style;
 }
 
 

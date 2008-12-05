@@ -28,51 +28,74 @@
 
 #include "vtkQtLineChart.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartBar.h"
 #include "vtkQtChartColors.h"
-#include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartLayerDomain.h"
-#include "vtkQtChartPointLocator.h"
+#include "vtkQtChartQuad.h"
 #include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesDomainGroup.h"
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
-#include "vtkQtChartArea.h"
+#include "vtkQtChartShapeLocator.h"
 #include "vtkQtLineChartOptions.h"
 #include "vtkQtLineChartSeriesOptions.h"
-#include "vtkQtPolylineItem.h"
 #include "vtkQtPointMarker.h"
-#include "vtkQtSimplePointLocator.h"
 
 #include <QGraphicsScene>
 #include <QList>
 #include <QPair>
+#include <QPolygonF>
+#include <QStyleOptionGraphicsItem>
+
+#include <math.h>
 
 
-class vtkQtLineChartItem : public QGraphicsItem
+class vtkQtLineChartSeries
 {
 public:
-  enum {Type = vtkQtChart_LineChartItemType};
+  vtkQtLineChartSeries();
+  ~vtkQtLineChartSeries();
+
+  void buildLists(int series, int points, vtkQtPointMarker::MarkerStyle style);
+  bool rebuildPoints(vtkQtPointMarker::MarkerStyle oldStyle,
+      vtkQtPointMarker::MarkerStyle newStyle);
+  void updateSeries(int series);
 
 public:
-  vtkQtLineChartItem(QGraphicsItem *parent=0);
-  virtual ~vtkQtLineChartItem();
+  QPolygonF Polyline;
+  vtkQtPointMarker *Marker;
+  QList<vtkQtChartShape *> Points;
+  QList<vtkQtChartShape *> Lines;
+  QList<int> Highlights;
+  bool Highlighted;
+  bool AddNeeded;
+};
 
-  virtual int type() const {return vtkQtLineChartItem::Type;}
-  virtual QRectF boundingRect() const;
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
 
-  vtkQtPolylineItem *Polyline;
-  vtkQtPointMarker *Points;
-  vtkQtChartPointLocator *Locator;
+class vtkQtLineChartDomainGroup : public vtkQtChartSeriesDomainGroup
+{
+public:
+  vtkQtLineChartDomainGroup();
+  virtual ~vtkQtLineChartDomainGroup() {}
+
+  virtual void clear();
+
+protected:
+  virtual void insertGroup(int group);
+  virtual void removeGroup(int group);
+
+public:
+  QList<QList<vtkQtChartShape *> > Points;
+  QList<QList<vtkQtChartShape *> > Lines;
 };
 
 
@@ -80,105 +103,364 @@ class vtkQtLineChartInternal
 {
 public:
   vtkQtLineChartInternal();
-  ~vtkQtLineChartInternal() {}
+  ~vtkQtLineChartInternal();
 
-  int getSeries(vtkQtPolylineItem *polyline) const;
-  int getSeries(vtkQtPointMarker *marker) const;
+  void mergeLists(QList<vtkQtChartShape *> &target,
+      const QList<vtkQtChartShape *> &source) const;
+  void removeList(QList<vtkQtChartShape *> &list,
+      const QList<vtkQtChartShape *> &toRemove) const;
+  void setPointQuad(vtkQtChartShape *quad, const QPointF &point,
+      const QSizeF &size, float width);
+  void setPointBar(vtkQtChartShape *bar, const QPointF &point,
+      const QSizeF &size, float width);
+  void setLineSegment(vtkQtChartShape *quad, const QPointF &last,
+      const QPointF &point, float width);
 
-  QList<vtkQtLineChartItem *> Series;
-  QList<QPair<int, vtkQtLineChartItem *> > Highlights;
-  QList<vtkQtPointMarker *> LightPoints;
+public:
+  QList<vtkQtLineChartSeries *> Series;
   vtkQtChartAxisCornerDomain Domains[4];
-  vtkQtChartSeriesDomainGroup Groups[4];
-  vtkQtChartPointLocator *Locator;
-  vtkQtChartPointLocator *DefaultLocator;
+  vtkQtLineChartDomainGroup Groups[4];
+  vtkQtChartShapeLocator PointTree;
+  vtkQtChartShapeLocator LineTree;
+  int CurrentGroup[4];
+  QRectF Bounds;
 };
 
 
 //-----------------------------------------------------------------------------
-vtkQtLineChartItem::vtkQtLineChartItem(QGraphicsItem *item)
-  : QGraphicsItem(item, item ? item->scene() : 0)
+vtkQtLineChartSeries::vtkQtLineChartSeries()
+  : Polyline(), Points(), Lines(), Highlights()
 {
-  this->Polyline = new vtkQtPolylineItem(this, this->scene());
-  this->Points = new vtkQtPointMarker(QSizeF(5.0, 5.0),
-      vtkQtPointMarker::Circle, this, this->scene());
-  this->Locator = 0;
-
-  this->Polyline->setZValue(1);
-  this->Points->setZValue(2);
+  this->Marker = new vtkQtPointMarker(QSizeF(5.0, 5.0),
+      vtkQtPointMarker::Circle);
+  this->Highlighted = false;
+  this->AddNeeded = true;
 }
 
-vtkQtLineChartItem::~vtkQtLineChartItem()
+vtkQtLineChartSeries::~vtkQtLineChartSeries()
 {
-  if(this->Locator)
+  delete this->Marker;
+  QList<vtkQtChartShape *>::Iterator iter = this->Points.begin();
+  for( ; iter != this->Points.end(); ++iter)
     {
-    delete this->Locator;
+    delete *iter;
+    }
+
+  for(iter = this->Lines.begin(); iter != this->Lines.end(); ++iter)
+    {
+    delete *iter;
     }
 }
 
-QRectF vtkQtLineChartItem::boundingRect() const
+void vtkQtLineChartSeries::buildLists(int series, int points,
+    vtkQtPointMarker::MarkerStyle style)
 {
-  return QRect(0, 0, 0, 0);
+  // Add shapes for the points. Use a quad for diamonds and crosses.
+  int i = 0;
+  for( ; i < points; i++)
+    {
+    if(style == vtkQtPointMarker::Diamond || style == vtkQtPointMarker::Cross)
+      {
+      this->Points.append(new vtkQtChartQuad(series, i));
+      }
+    else
+      {
+      this->Points.append(new vtkQtChartBar(series, i));
+      }
+    }
+
+  // Add in shapes for the lines.
+  points--;
+  for(i = 0; i < points; i++)
+    {
+    this->Lines.append(new vtkQtChartQuad(series, i));
+    }
 }
 
-void vtkQtLineChartItem::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
+bool vtkQtLineChartSeries::rebuildPoints(
+    vtkQtPointMarker::MarkerStyle oldStyle,
+    vtkQtPointMarker::MarkerStyle newStyle)
 {
+  // No need to change if the shape is the same.
+  bool useQuads = newStyle == vtkQtPointMarker::Diamond ||
+      newStyle == vtkQtPointMarker::Cross;
+  bool hasQuads = oldStyle == vtkQtPointMarker::Diamond ||
+      oldStyle == vtkQtPointMarker::Cross;
+  if(useQuads == hasQuads)
+    {
+    return false;
+    }
+
+  // No need to change if the list is empty.
+  int points = this->Points.size();
+  if(points == 0)
+    {
+    return false;
+    }
+
+  // Get the series index from the current points.
+  int series = this->Points.first()->getSeries();
+
+  // Clean up the previous shapes.
+  QList<vtkQtChartShape *>::Iterator iter = this->Points.begin();
+  for( ; iter != this->Points.end(); ++iter)
+    {
+    delete *iter;
+    }
+
+  this->Points.clear();
+
+  // Create the new shape objects.
+  for(int i = 0; i < points; i++)
+    {
+    if(useQuads)
+      {
+      this->Points.append(new vtkQtChartQuad(series, i));
+      }
+    else
+      {
+      this->Points.append(new vtkQtChartBar(series, i));
+      }
+    }
+
+  return true;
+}
+
+void vtkQtLineChartSeries::updateSeries(int series)
+{
+  QList<vtkQtChartShape *>::Iterator iter = this->Points.begin();
+  for( ; iter != this->Points.end(); ++iter)
+    {
+    (*iter)->setSeries(series);
+    }
+
+  for(iter = this->Lines.begin(); iter != this->Lines.end(); ++iter)
+    {
+    (*iter)->setSeries(series);
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+vtkQtLineChartDomainGroup::vtkQtLineChartDomainGroup()
+  : vtkQtChartSeriesDomainGroup(), Points(), Lines()
+{
+}
+
+void vtkQtLineChartDomainGroup::clear()
+{
+  vtkQtChartSeriesDomainGroup::clear();
+  this->Points.clear();
+  this->Lines.clear();
+}
+
+void vtkQtLineChartDomainGroup::insertGroup(int group)
+{
+  vtkQtChartSeriesDomainGroup::insertGroup(group);
+  this->Points.insert(group, QList<vtkQtChartShape *>());
+  this->Lines.insert(group, QList<vtkQtChartShape *>());
+}
+
+void vtkQtLineChartDomainGroup::removeGroup(int group)
+{
+  vtkQtChartSeriesDomainGroup::removeGroup(group);
+  this->Points.removeAt(group);
+  this->Lines.removeAt(group);
 }
 
 
 //-----------------------------------------------------------------------------
 vtkQtLineChartInternal::vtkQtLineChartInternal()
-  : Series(), Highlights(), LightPoints()
+  : Series(), PointTree(), LineTree(), Bounds()
 {
-  this->Locator = 0;
-  this->DefaultLocator = 0;
+  for(int i = 0; i < 4; i++)
+    {
+    this->CurrentGroup[i] = -1;
+    }
 }
 
-int vtkQtLineChartInternal::getSeries(vtkQtPolylineItem *polyline) const
+vtkQtLineChartInternal::~vtkQtLineChartInternal()
 {
-  if(polyline)
+  QList<vtkQtLineChartSeries *>::Iterator iter = this->Series.begin();
+  for( ; iter != this->Series.end(); ++iter)
     {
-    QGraphicsItem *item = polyline->parentItem();
-    vtkQtLineChartItem *series =
-        qgraphicsitem_cast<vtkQtLineChartItem *>(item);
-    if(series)
+    delete *iter;
+    }
+}
+
+void vtkQtLineChartInternal::mergeLists(QList<vtkQtChartShape *> &target,
+    const QList<vtkQtChartShape *> &source) const
+{
+  if(target.size() == 0)
+    {
+    target = source;
+    return;
+    }
+
+  QRectF bounds;
+  float xTarget = 0.0;
+  float xSource = 0.0;
+  bool newTarget = true;
+  bool newSource = true;
+  QList<vtkQtChartShape *>::Iterator iter = target.begin();
+  QList<vtkQtChartShape *>::ConstIterator jter = source.begin();
+  while(iter != target.end() && jter != source.end())
+    {
+    if(newTarget)
       {
-      return this->Series.indexOf(series);
+      newTarget = false;
+      (*iter)->getBounds(bounds);
+      xTarget = bounds.center().x();
+      }
+
+    if(newSource)
+      {
+      newSource = false;
+      (*jter)->getBounds(bounds);
+      xSource = bounds.center().x();
+      }
+
+    if(xSource < xTarget)
+      {
+      iter = target.insert(iter, *jter);
+      ++iter;
+      ++jter;
+      newSource = true;
+      }
+    else
+      {
+      ++iter;
+      newTarget = true;
       }
     }
 
-  return -1;
+  // Add the remaining source items to the target list.
+  for( ; jter != source.end(); ++jter)
+    {
+    target.append(*jter);
+    }
 }
 
-int vtkQtLineChartInternal::getSeries(vtkQtPointMarker *marker) const
+void vtkQtLineChartInternal::removeList(QList<vtkQtChartShape *> &list,
+    const QList<vtkQtChartShape *> &toRemove) const
 {
-  if(marker)
+  // The list of items to remove should be in order in the larger list.
+  // Iterate through the list removing items when found.
+  QList<vtkQtChartShape *>::Iterator iter = list.begin();
+  QList<vtkQtChartShape *>::ConstIterator jter = toRemove.begin();
+  while(iter != list.end() && jter != toRemove.end())
     {
-    QGraphicsItem *item = marker->parentItem();
-    vtkQtLineChartItem *series =
-        qgraphicsitem_cast<vtkQtLineChartItem *>(item);
-    if(series)
+    if(*iter == *jter)
       {
-      return this->Series.indexOf(series);
+      iter = list.erase(iter);
+      ++jter;
+      }
+    else
+      {
+      ++iter;
+      }
+    }
+}
+
+void vtkQtLineChartInternal::setPointQuad(vtkQtChartShape *quad,
+    const QPointF &point, const QSizeF &size, float width)
+{
+  float halfPen = width * 0.5;
+  float halfWidth = size.width() * 0.5;
+  float halfHeight = size.height() * 0.5;
+  QPolygonF polygon;
+  polygon.append(QPointF(point.x() - halfWidth - halfPen, point.y()));
+  polygon.append(QPointF(point.x(), point.y() - halfHeight - halfPen));
+  polygon.append(QPointF(point.x() + halfWidth + halfPen, point.y()));
+  polygon.append(QPointF(point.x(), point.y() + halfHeight + halfPen));
+  quad->setPolygon(polygon);
+}
+
+void vtkQtLineChartInternal::setPointBar(vtkQtChartShape *bar,
+    const QPointF &point, const QSizeF &size, float width)
+{
+  bar->setRectangle(QRectF(point.x() - ((size.width() + width) * 0.5),
+      point.y() - ((size.height() + width) * 0.5), size.width() + width,
+      size.height() + width));
+}
+
+void vtkQtLineChartInternal::setLineSegment(vtkQtChartShape *quad,
+    const QPointF &last, const QPointF &point, float width)
+{
+  QPolygonF polygon;
+  float halfPen = width * 0.5;
+  if(last.x() == point.x())
+    {
+    if(point.y() < last.y())
+      {
+      polygon.append(QPointF(last.x() - halfPen, last.y()));
+      polygon.append(QPointF(point.x() - halfPen, point.y()));
+      polygon.append(QPointF(point.x() + halfPen, point.y()));
+      polygon.append(QPointF(last.x() + halfPen, last.y()));
+      }
+    else
+      {
+      polygon.append(QPointF(last.x() + halfPen, last.y()));
+      polygon.append(QPointF(point.x() + halfPen, point.y()));
+      polygon.append(QPointF(point.x() - halfPen, point.y()));
+      polygon.append(QPointF(last.x() - halfPen, last.y()));
+      }
+    }
+  else if(last.y() == point.y())
+    {
+    if(point.x() < last.x())
+      {
+      polygon.append(QPointF(last.x(), last.y() + halfPen));
+      polygon.append(QPointF(point.x(), point.y() + halfPen));
+      polygon.append(QPointF(point.x(), point.y() - halfPen));
+      polygon.append(QPointF(last.x(), last.y() - halfPen));
+      }
+    else
+      {
+      polygon.append(QPointF(last.x(), last.y() - halfPen));
+      polygon.append(QPointF(point.x(), point.y() - halfPen));
+      polygon.append(QPointF(point.x(), point.y() + halfPen));
+      polygon.append(QPointF(last.x(), last.y() + halfPen));
+      }
+    }
+  else
+    {
+    // Calculate the vector to the edge of the pen width.
+    float yDiff = last.y() - point.y();
+    float xDiff = point.x() - last.x();
+    float wy = ((yDiff * yDiff) / (xDiff * xDiff)) + 1.0;
+    wy = halfPen / sqrt(wy);
+    float wx = (yDiff * wy) / xDiff;
+
+    // Set up the quad for the line segment.
+    if(last.x() < point.x()) // - - + +
+      {
+      polygon.append(QPointF(last.x() - wx, last.y() - wy));
+      polygon.append(QPointF(point.x() - wx, point.y() - wy));
+      polygon.append(QPointF(point.x() + wx, point.y() + wy));
+      polygon.append(QPointF(last.x() + wx, last.y() + wy));
+      }
+    else // + + - -
+      {
+      polygon.append(QPointF(last.x() + wx, last.y() + wy));
+      polygon.append(QPointF(point.x() + wx, point.y() + wy));
+      polygon.append(QPointF(point.x() - wx, point.y() - wy));
+      polygon.append(QPointF(last.x() - wx, last.y() - wy));
       }
     }
 
-  return -1;
+  quad->setPolygon(polygon);
 }
 
 
 //-----------------------------------------------------------------------------
 vtkQtLineChart::vtkQtLineChart()
-  : vtkQtChartSeriesLayer()
+  : vtkQtChartSeriesLayer(false)
 {
   this->Internal = new vtkQtLineChartInternal();
   this->Options = new vtkQtLineChartOptions(this);
   this->InModelChange = false;
-
-  // Set up the series point locator.
-  this->Internal->DefaultLocator = new vtkQtSimplePointLocator(this);
-  this->Internal->Locator = this->Internal->DefaultLocator;
+  this->BuildNeeded = false;
 
   // Listen for selection changes.
   this->connect(this->Selection,
@@ -229,41 +511,6 @@ void vtkQtLineChart::setModel(vtkQtChartSeriesModel *model)
   this->reset();
 }
 
-void vtkQtLineChart::setPointLocator(vtkQtChartPointLocator *locator)
-{
-  if(this->Internal->Locator != locator)
-    {
-    // Remove all the current locator instances.
-    QList<vtkQtLineChartItem *>::Iterator iter =
-        this->Internal->Series.begin();
-    for( ; iter != this->Internal->Series.begin(); ++iter)
-      {
-      if((*iter)->Locator)
-        {
-        delete (*iter)->Locator;
-        (*iter)->Locator = 0;
-        }
-      }
-
-    this->Internal->Locator = locator;
-    if(!this->Internal->Locator)
-      {
-      this->Internal->Locator = this->Internal->DefaultLocator;
-      }
-
-    // Add a new locator to each series item.
-    iter = this->Internal->Series.begin();
-    for( ; iter != this->Internal->Series.begin(); ++iter)
-      {
-      (*iter)->Locator = this->Internal->Locator->getNewInstance();
-      if((*iter)->Locator)
-        {
-        (*iter)->Locator->setPoints((*iter)->Polyline->polyline());
-        }
-      }
-    }
-}
-
 void vtkQtLineChart::setOptions(const vtkQtLineChartOptions &options)
 {
   this->Options->getHelpFormat()->setFormat(
@@ -291,6 +538,9 @@ void vtkQtLineChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
 
 void vtkQtLineChart::layoutChart(const QRectF &area)
 {
+  // Update the position and bounds.
+  this->prepareGeometryChange();
+  this->Internal->Bounds.setSize(area.size());
   this->setPos(area.topLeft());
   if(this->Internal->Series.size() == 0)
     {
@@ -298,90 +548,99 @@ void vtkQtLineChart::layoutChart(const QRectF &area)
     }
 
   int i = 0;
-  int domainIndex = -1;
+  int seriesGroup[4] = {-1, -1, -1, -1};
   QList<int> seriesList[4];
-  vtkQtChartAxis* xaxis = 0;
-  vtkQtChartAxis* yaxis = 0;
-  vtkQtChartAxisLayer* axisLayer = this->ChartArea->getAxisLayer();
+  vtkQtChartAxis *xAxis = 0;
+  vtkQtChartAxis *yAxis = 0;
+  vtkQtChartAxisLayer *axisLayer = this->ChartArea->getAxisLayer();
   for(i = 0; i < 4; i++)
     {
-    xaxis = axisLayer->getHorizontalAxis((vtkQtChartLayer::AxesCorner)i);
-    yaxis = axisLayer->getVerticalAxis((vtkQtChartLayer::AxesCorner)i);
-    this->Internal->Domains[i].getDomain(xaxis->getAxisDomain(),
-        yaxis->getAxisDomain(), &domainIndex);
-    seriesList[i] = this->Internal->Groups[i].getGroup(domainIndex);
+    xAxis = axisLayer->getHorizontalAxis((vtkQtChartLayer::AxesCorner)i);
+    yAxis = axisLayer->getVerticalAxis((vtkQtChartLayer::AxesCorner)i);
+    this->Internal->Domains[i].getDomain(xAxis->getAxisDomain(),
+        yAxis->getAxisDomain(), &seriesGroup[i]);
+    seriesList[i] = this->Internal->Groups[i].getGroup(seriesGroup[i]);
     }
 
   int num = this->Internal->Series.count();
   for(i = 0; i < num; i++)
     {
-    vtkQtLineChartItem *series = this->Internal->Series[i];
     vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(i);
     vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
-    series->setVisible(seriesList[corner].contains(i));
-
-    if(!series->isVisible())
+    if(!seriesList[corner].contains(i))
       {
       continue;
       }
 
-    xaxis = axisLayer->getHorizontalAxis(corner);
-    yaxis = axisLayer->getVerticalAxis(corner);
+    vtkQtLineChartSeries *series = this->Internal->Series[i];
+    xAxis = axisLayer->getHorizontalAxis(corner);
+    yAxis = axisLayer->getVerticalAxis(corner);
+
+    QPointF last;
+    QVariant xValue, yValue;
+    bool useQuad = options->getMarkerStyle() == vtkQtPointMarker::Diamond ||
+        options->getMarkerStyle() == vtkQtPointMarker::Cross;
+    float penWidth = options->getPen().widthF();
+    if(penWidth == 0.0)
+      {
+      penWidth = 1.0;
+      }
 
     int total = this->Model->getNumberOfSeriesValues(i);
-    QPolygonF points(total);
-    QVariant xValue, yValue;
+    series->Polyline.clear();
     for(int j = 0; j < total; j++)
       {
       xValue = this->Model->getSeriesValue(i, j, 0);
       yValue = this->Model->getSeriesValue(i, j, 1);
-      points[j] = QPointF(xaxis->getPixel(xValue), yaxis->getPixel(yValue));
-      }
+      QPointF point = QPointF(xAxis->getPixel(xValue),
+          yAxis->getPixel(yValue));
+      series->Polyline.append(point);
 
-    series->Polyline->setPolyline(points);
-    if(series->Points->isVisible())
-      {
-      series->Points->setPoints(points);
-      }
-
-    if(series->Locator)
-      {
-      series->Locator->setPoints(points);
-      }
-    }
-
-  // Layout the highlights.
-  this->layoutHighlights();
-}
-
-bool vtkQtLineChart::drawItemFilter(QGraphicsItem *item, QPainter *painter)
-{
-  if(this->ChartArea)
-    {
-    // If the item is a series polyline, clip it to the chart layer bounds.
-    QRectF bounds;
-    this->ChartArea->getContentsSpace()->getChartLayerBounds(bounds);
-    vtkQtPolylineItem *polyline =
-        qgraphicsitem_cast<vtkQtPolylineItem *>(item);
-    if(polyline)
-      {
-      painter->setClipRect(bounds, Qt::IntersectClip);
-      }
-    else
-      {
-      // If the item is a point marker, set the clipping rectangle.
-      vtkQtPointMarker *marker = qgraphicsitem_cast<vtkQtPointMarker *>(item);
-      if(marker)
+      // Update the search shape for the point.
+      if(useQuad)
         {
-        bounds = QRectF(this->Contents->mapFromScene(bounds.topLeft()),
-            bounds.size());
-        bounds.adjust(-0.5, -0.5, 0.5, 0.5);
-        marker->setClipRect(bounds);
+        this->Internal->setPointQuad(series->Points[j], point,
+            options->getMarkerSize(), penWidth);
         }
+      else
+        {
+        this->Internal->setPointBar(series->Points[j], point,
+            options->getMarkerSize(), penWidth);
+        }
+
+      if(j > 0)
+        {
+        // Update the quad for the line segment.
+        this->Internal->setLineSegment(series->Lines[j - 1], last, point,
+            penWidth + 1.0);
+        }
+
+      last = point;
+      }
+
+    // If the series is new, merge the shapes into the search list.
+    if(series->AddNeeded)
+      {
+      series->AddNeeded = false;
+      this->Internal->mergeLists(
+          this->Internal->Groups[corner].Points[seriesGroup[corner]],
+          series->Points);
+      this->Internal->mergeLists(
+          this->Internal->Groups[corner].Lines[seriesGroup[corner]],
+          series->Lines);
+      this->Internal->CurrentGroup[corner] = -1;
       }
     }
 
-  return false;
+  // Build or update the search trees.
+  if(this->ChartArea->isInteractivelyResizing())
+    {
+    this->BuildNeeded = true;
+    }
+  else
+    {
+    this->buildTree();
+    }
 }
 
 bool vtkQtLineChart::getHelpText(const QPointF &point, QString &text)
@@ -432,25 +691,38 @@ bool vtkQtLineChart::getHelpText(const QPointF &point, QString &text)
   return false;
 }
 
+void vtkQtLineChart::finishInteractiveResize()
+{
+  if(this->BuildNeeded)
+    {
+    this->buildTree();
+    }
+}
+
 void vtkQtLineChart::getSeriesAt(const QPointF &point,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // polylines.
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the selected shapes from the tree. First, check for line
+  // segments. Then, check for points.
   vtkQtChartIndexRangeList indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(point);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->LineTree.getItemsAt(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
     {
-    // Make sure the polyline is a line series.
-    vtkQtPolylineItem *polyline =
-        qgraphicsitem_cast<vtkQtPolylineItem *>(*iter);
-    int series = this->Internal->getSeries(polyline);
-    if(series != -1)
-      {
-      // Add the series to the selection.
-      indexes.append(vtkQtChartIndexRange(series, series));
-      }
+    int series = (*shape)->getSeries();
+    indexes.append(vtkQtChartIndexRange(series, series));
+    }
+
+  shapes = this->Internal->PointTree.getItemsAt(local);
+  for(shape = shapes.begin(); shape != shapes.end(); ++shape)
+    {
+    int series = (*shape)->getSeries();
+    indexes.append(vtkQtChartIndexRange(series, series));
     }
 
   selection.setSeries(indexes);
@@ -459,46 +731,21 @@ void vtkQtLineChart::getSeriesAt(const QPointF &point,
 void vtkQtLineChart::getPointsAt(const QPointF &point,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // points.
-  QList<int> visited;
-  QList<vtkQtChartSeriesSelectionItem> indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(point);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
-    {
-    // Make sure the polyline is a line series.
-    vtkQtPolylineItem *polyline =
-        qgraphicsitem_cast<vtkQtPolylineItem *>(*iter);
-    int series = this->Internal->getSeries(polyline);
-    if(series == -1)
-      {
-      vtkQtPointMarker *marker = qgraphicsitem_cast<vtkQtPointMarker *>(*iter);
-      series = this->Internal->getSeries(marker);
-      }
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
-    if(series != -1 && !visited.contains(series))
-      {
-      // Use the locator to find the list of points. Create a pick area
-      // from the mouse location and the point marker size.
-      if(this->Internal->Series[series]->Locator)
-        {
-        visited.append(series);
-        vtkQtLineChartSeriesOptions *options =
-            this->getLineSeriesOptions(series);
-        QRectF area(point, options->getMarkerSize());
-        area.translate(-area.width() * 0.5, -area.height() * 0.5);
-        area.translate(-this->pos().x() - this->Contents->pos().x(),
-            -this->pos().y() - this->Contents->pos().y());
-        vtkQtChartSeriesSelectionItem item(series);
-        this->Internal->Series[series]->Locator->findPointsIn(
-            area, item.Points);
-        if(item.Points.size() > 0)
-          {
-          indexes.append(item);
-          }
-        }
-      }
+  // Get the selected shapes from the search tree.
+  QList<vtkQtChartSeriesSelectionItem> indexes;
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->PointTree.getItemsAt(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
+    {
+    vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
+    int index = (*shape)->getIndex();
+    item.Points.append(vtkQtChartIndexRange(index, index));
+    indexes.append(item);
     }
 
   selection.setPoints(indexes);
@@ -507,25 +754,26 @@ void vtkQtLineChart::getPointsAt(const QPointF &point,
 void vtkQtLineChart::getSeriesIn(const QRectF &area,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // polylines.
+  // Translate the rectangle to contents coordinates.
+  QRectF local = area;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the list of shapes from the search trees.
   vtkQtChartIndexRangeList indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(area);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->LineTree.getItemsIn(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
     {
-    vtkQtPolylineItem *polyline =
-        qgraphicsitem_cast<vtkQtPolylineItem *>(*iter);
-    if(polyline)
-      {
-      // Make sure the polyline is a line series.
-      int series = this->Internal->getSeries(polyline);
-      if(series != -1)
-        {
-        // Add the series to the selection.
-        indexes.append(vtkQtChartIndexRange(series, series));
-        }
-      }
+    int series = (*shape)->getSeries();
+    indexes.append(vtkQtChartIndexRange(series, series));
+    }
+
+  shapes = this->Internal->PointTree.getItemsIn(local);
+  for(shape = shapes.begin(); shape != shapes.end(); ++shape)
+    {
+    int series = (*shape)->getSeries();
+    indexes.append(vtkQtChartIndexRange(series, series));
     }
 
   selection.setSeries(indexes);
@@ -534,42 +782,20 @@ void vtkQtLineChart::getSeriesIn(const QRectF &area,
 void vtkQtLineChart::getPointsIn(const QRectF &area,
     vtkQtChartSeriesSelection &selection) const
 {
-  // Get the list of items from the scene. Search the list for series
-  // points.
-  QList<int> visited;
-  QRectF contentsArea = area.translated(
-      -this->pos().x() - this->Contents->pos().x(),
-      -this->pos().y() - this->Contents->pos().y());
-  QList<vtkQtChartSeriesSelectionItem> indexes;
-  QList<QGraphicsItem *> list = this->scene()->items(area);
-  QList<QGraphicsItem *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
-    {
-    // Make sure the polyline is a line series.
-    vtkQtPolylineItem *polyline =
-        qgraphicsitem_cast<vtkQtPolylineItem *>(*iter);
-    int series = this->Internal->getSeries(polyline);
-    if(series == -1)
-      {
-      vtkQtPointMarker *marker = qgraphicsitem_cast<vtkQtPointMarker *>(*iter);
-      series = this->Internal->getSeries(marker);
-      }
+  // Translate the rectangle to contents coordinates.
+  QRectF local = area;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
-    if(series != -1 && !visited.contains(series))
-      {
-      // Use the locator to find the list of points.
-      if(this->Internal->Series[series]->Locator)
-        {
-        visited.append(series);
-        vtkQtChartSeriesSelectionItem item(series);
-        this->Internal->Series[series]->Locator->findPointsIn(
-            contentsArea, item.Points);
-        if(item.Points.size() > 0)
-          {
-          indexes.append(item);
-          }
-        }
-      }
+  // Get the list of shapes from the search tree.
+  QList<vtkQtChartSeriesSelectionItem> indexes;
+  QList<vtkQtChartShape *> shapes = this->Internal->PointTree.getItemsIn(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
+    {
+    vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
+    int index = (*shape)->getIndex();
+    item.Points.append(vtkQtChartIndexRange(index, index));
+    indexes.append(item);
     }
 
   selection.setPoints(indexes);
@@ -577,31 +803,125 @@ void vtkQtLineChart::getPointsIn(const QRectF &area,
 
 QRectF vtkQtLineChart::boundingRect() const
 {
-  return QRectF(0,0,0,0);
+  return this->Internal->Bounds;
 }
 
-void vtkQtLineChart::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*)
+void vtkQtLineChart::paint(QPainter *painter,
+    const QStyleOptionGraphicsItem *option, QWidget *)
 {
+  if(!this->ChartArea)
+    {
+    return;
+    }
+
+  // Use the exposed rectangle from the option object to determine
+  // which series to draw.
+  vtkQtChartContentsSpace *space = this->ChartArea->getContentsSpace();
+  QRectF area = option->exposedRect.translated(space->getXOffset(),
+      space->getYOffset());
+
+  int i = 0;
+  int seriesGroup = -1;
+  QList<int> seriesList[4];
+  vtkQtChartAxis *xaxis = 0;
+  vtkQtChartAxis *yaxis = 0;
+  vtkQtChartAxisLayer *axisLayer = this->ChartArea->getAxisLayer();
+  for(i = 0; i < 4; i++)
+    {
+    xaxis = axisLayer->getHorizontalAxis((vtkQtChartLayer::AxesCorner)i);
+    yaxis = axisLayer->getVerticalAxis((vtkQtChartLayer::AxesCorner)i);
+    this->Internal->Domains[i].getDomain(xaxis->getAxisDomain(),
+        yaxis->getAxisDomain(), &seriesGroup);
+    seriesList[i] = this->Internal->Groups[i].getGroup(seriesGroup);
+    }
+
+  // Set up the painter clipping and offset for panning.
+  painter->setClipRect(this->Internal->Bounds);
+  painter->translate(-space->getXOffset(), -space->getYOffset());
+
+  QList<vtkQtLineChartSeries *>::Iterator series =
+      this->Internal->Series.begin();
+  for(i = 0; series != this->Internal->Series.end(); ++series, ++i)
+    {
+    vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(i);
+    vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
+    if(!seriesList[corner].contains(i))
+      {
+      continue;
+      }
+
+    // Set up the painter for the polyline.
+    QPen widePen;
+    QPen lightPen;
+    if((*series)->Highlighted || !(*series)->Highlights.isEmpty())
+      {
+      widePen = options->getPen();
+      widePen.setWidthF(widePen.widthF() + 4.0);
+      lightPen = options->getPen();
+      lightPen.setColor(vtkQtChartColors::lighter(lightPen.color()));
+      }
+
+    if((*series)->Highlighted)
+      {
+      // If the series is highlighted, draw in a wider line behind it.
+      painter->setPen(widePen);
+      painter->drawPolyline((*series)->Polyline);
+
+      painter->setPen(lightPen);
+      }
+    else
+      {
+      painter->setPen(options->getPen());
+      }
+
+    // Draw the polyline.
+    painter->drawPolyline((*series)->Polyline);
+
+    // Skip the points if none are visible.
+    if(!options->arePointsVisible() && (*series)->Highlights.isEmpty())
+      {
+      continue;
+      }
+
+    // Draw each of the points.
+    painter->setBrush(options->getBrush());
+    QPolygonF::Iterator point = (*series)->Polyline.begin();
+    for(int j = 0; point != (*series)->Polyline.end(); ++point, ++j)
+      {
+      // Transform the painter to the next point.
+      painter->save();
+      painter->translate(*point);
+
+      if((*series)->Highlighted || (*series)->Highlights.contains(j))
+        {
+        // Draw a wider point behind the point.
+        painter->setPen(widePen);
+        (*series)->Marker->paint(painter);
+
+        painter->setPen(lightPen);
+        (*series)->Marker->paint(painter);
+        }
+      else if(options->arePointsVisible())
+        {
+        (*series)->Marker->paint(painter);
+        }
+
+      // Restore the painter for the next point.
+      painter->restore();
+      }
+    }
 }
 
 void vtkQtLineChart::reset()
 {
-  // Clean up the current highlights. Make sure the selection model
-  // is notified of the change.
+  // Make sure the selection model is notified of the change.
   this->InModelChange = true;
   this->Selection->beginModelReset();
-  QList<QPair<int, vtkQtLineChartItem *> >::Iterator iter =
-      this->Internal->Highlights.begin();
-  for( ; iter != this->Internal->Highlights.end(); ++iter)
-    {
-    delete iter->second;
-    }
-
-  this->Internal->Highlights.clear();
 
   // Clean up the current polyline items.
   bool needsLayout = this->Internal->Series.size() > 0;
-  QList<vtkQtLineChartItem *>::Iterator jter = this->Internal->Series.begin();
+  QList<vtkQtLineChartSeries *>::Iterator jter =
+      this->Internal->Series.begin();
   for( ; jter != this->Internal->Series.end(); ++jter)
     {
     delete *jter;
@@ -690,42 +1010,38 @@ void vtkQtLineChart::insertSeries(int first, int last)
       this->Internal->Groups[j].prepareInsert(first, last);
       }
 
-    int i = first;
     bool signalDomain = false;
-    for( ; first <= last; first++)
+    int i = first;
+    for( ; i <= last; i++)
       {
-      vtkQtLineChartItem *item = new vtkQtLineChartItem(this->Contents);
-      this->Internal->Series.insert(first, item);
+      vtkQtLineChartSeries *item = new vtkQtLineChartSeries();
+      this->Internal->Series.insert(i, item);
 
       // Set the series drawing options.
-      vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(first);
-      item->Polyline->setPen(options->getPen());
-      item->Points->setVisible(options->arePointsVisible());
-      item->Points->setStyle(options->getMarkerStyle());
-      item->Points->setSize(options->getMarkerSize());
-      item->Points->setPen(options->getPen());
-      item->Points->setBrush(options->getBrush());
+      vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(i);
+      item->Marker->setStyle(options->getMarkerStyle());
+      item->Marker->setSize(options->getMarkerSize());
 
-      // Add the point locator to the series.
-      if(this->Internal->Locator)
-        {
-        item->Locator = this->Internal->Locator->getNewInstance();
-        }
+      // Build the shape list for the series.
+      item->buildLists(i, this->Model->getNumberOfSeriesValues(i),
+          options->getMarkerStyle());
 
       // Add the series domains to the chart domains.
       if(options->isVisible())
         {
-        if(this->addSeriesDomain(first, options->getAxesCorner()))
+        int seriesGroup = -1;
+        vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
+        if(this->addSeriesDomain(i, corner, &seriesGroup))
           {
           signalDomain = true;
           }
         }
       }
 
-    // Fix up the z-order for the new items and any subsequent items.
-    for( ; i < this->Internal->Series.size(); i++)
+    // Fix the series indexes in the search lists.
+    for(i = last + 1; i < this->Internal->Series.size(); i++)
       {
-      this->Internal->Series[i]->setZValue(i);
+      this->Internal->Series[i]->updateSeries(i);
       }
 
     if(signalDomain)
@@ -785,6 +1101,18 @@ void vtkQtLineChart::startSeriesRemoval(int first, int last)
           {
           groups[corner].append(index);
           }
+
+        // Remove the series shapes from the search lists.
+        this->Internal->removeList(
+            this->Internal->Groups[corner].Points[index],
+            this->Internal->Series[i]->Points);
+        this->Internal->removeList(
+            this->Internal->Groups[corner].Lines[index],
+            this->Internal->Series[i]->Lines);
+        if(this->Internal->CurrentGroup[corner] == index)
+          {
+          this->Internal->CurrentGroup[corner] = -1;
+          }
         }
       }
 
@@ -813,10 +1141,10 @@ void vtkQtLineChart::startSeriesRemoval(int first, int last)
       delete this->Internal->Series.takeAt(last);
       }
 
-    // Fix the z-order for any subsequent items.
+    // Fix the series indexes in the search lists.
     for( ; first < this->Internal->Series.size(); first++)
       {
-      this->Internal->Series[first]->setZValue(first);
+      this->Internal->Series[first]->updateSeries(first);
       }
     }
 }
@@ -847,7 +1175,9 @@ void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
     if(visible)
       {
       // If the series is going to be visible, add to the domain.
-      if(this->addSeriesDomain(series, corner))
+      int seriesGroup = -1;
+      this->Internal->Series[series]->AddNeeded = true;
+      if(this->addSeriesDomain(series, corner, &seriesGroup))
         {
         emit this->rangeChanged();
         }
@@ -868,6 +1198,18 @@ void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
           {
           // Re-calculate the domain.
           this->calculateDomain(seriesGroup, corner);
+
+          // Remove the series shapes from the search lists.
+          this->Internal->removeList(
+              this->Internal->Groups[corner].Points[seriesGroup],
+              this->Internal->Series[series]->Points);
+          this->Internal->removeList(
+              this->Internal->Groups[corner].Lines[seriesGroup],
+              this->Internal->Series[series]->Lines);
+          if(this->Internal->CurrentGroup[corner] == seriesGroup)
+            {
+            this->Internal->CurrentGroup[corner] = -1;
+            }
           }
 
         this->Internal->Groups[corner].finishRemoval();
@@ -896,26 +1238,42 @@ void vtkQtLineChart::handleSeriesAxesCornerChange(int corner, int previous)
       {
       // Re-calculate the domain.
       this->calculateDomain(seriesGroup, (vtkQtChartLayer::AxesCorner)previous);
+
+      // Remove the series shapes from the domain group lists.
+      this->Internal->removeList(
+          this->Internal->Groups[previous].Points[seriesGroup],
+          this->Internal->Series[series]->Points);
+      this->Internal->removeList(
+          this->Internal->Groups[previous].Lines[seriesGroup],
+          this->Internal->Series[series]->Lines);
+      if(this->Internal->CurrentGroup[previous] == seriesGroup)
+        {
+        this->Internal->CurrentGroup[previous] = -1;
+        }
       }
 
     this->Internal->Groups[previous].finishRemoval();
 
     // Add the series to the new group.
-    this->addSeriesDomain(series, (vtkQtChartLayer::AxesCorner)corner);
+    this->addSeriesDomain(series, (vtkQtChartLayer::AxesCorner)corner,
+        &seriesGroup);
+
+    // Merge the series shapes into the new domain group.
+    this->Internal->Series[series]->AddNeeded = true;
 
     emit this->rangeChanged();
     emit this->layoutNeeded();
     }
 }
 
-void vtkQtLineChart::handleSeriesPointVisibilityChange(bool visible)
+void vtkQtLineChart::handleSeriesPointVisibilityChange(bool)
 {
   vtkQtLineChartSeriesOptions *options =
       qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    this->Internal->Series[series]->Points->setVisible(visible);
+    this->update();
     }
 }
 
@@ -926,33 +1284,85 @@ void vtkQtLineChart::handleSeriesPointMarkerChange()
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    this->Internal->Series[series]->Points->setStyle(
-        options->getMarkerStyle());
-    this->Internal->Series[series]->Points->setSize(options->getMarkerSize());
+    vtkQtLineChartSeries *item = this->Internal->Series[series];
+    vtkQtPointMarker::MarkerStyle oldStyle = item->Marker->getStyle();
+    vtkQtPointMarker::MarkerStyle newStyle = options->getMarkerStyle();
+    item->Marker->setStyle(newStyle);
+    item->Marker->setSize(options->getMarkerSize());
+
+    // See if the search points need to be changed. If the shapes are
+    // the same or there are no points, no change is needed.
+    bool useQuads = newStyle == vtkQtPointMarker::Diamond ||
+        newStyle == vtkQtPointMarker::Cross;
+    bool hasQuads = oldStyle == vtkQtPointMarker::Diamond ||
+        oldStyle == vtkQtPointMarker::Cross;
+    int points = item->Points.size();
+    if(useQuads != hasQuads && points > 0)
+      {
+      if(!item->AddNeeded)
+        {
+        // Remove the series shapes from the search trees.
+        vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
+        int seriesGroup = this->Internal->Groups[corner].findGroup(series);
+        this->Internal->removeList(
+            this->Internal->Groups[corner].Points[seriesGroup],
+            this->Internal->Series[series]->Points);
+        this->Internal->removeList(
+            this->Internal->Groups[corner].Lines[seriesGroup],
+            this->Internal->Series[series]->Lines);
+        if(this->Internal->CurrentGroup[corner] == seriesGroup)
+          {
+          this->Internal->CurrentGroup[corner] = -1;
+          }
+        }
+
+      // Clean up the previous shapes.
+      item->AddNeeded = true;
+      QList<vtkQtChartShape *>::Iterator iter = item->Points.begin();
+      for( ; iter != item->Points.end(); ++iter)
+        {
+        delete *iter;
+        }
+
+      item->Points.clear();
+
+      // Create the new shape objects.
+      for(int i = 0; i < points; i++)
+        {
+        if(useQuads)
+          {
+          item->Points.append(new vtkQtChartQuad(series, i));
+          }
+        else
+          {
+          item->Points.append(new vtkQtChartBar(series, i));
+          }
+        }
+      }
+
+    emit this->layoutNeeded();
     }
 }
 
-void vtkQtLineChart::handleSeriesPenChange(const QPen &pen)
+void vtkQtLineChart::handleSeriesPenChange(const QPen &)
 {
   vtkQtLineChartSeriesOptions *options =
       qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    vtkQtLineChartItem *item = this->Internal->Series[series];
-    item->Polyline->setPen(pen);
-    item->Points->setPen(pen);
+    this->update();
     }
 }
 
-void vtkQtLineChart::handleSeriesBrushChange(const QBrush &brush)
+void vtkQtLineChart::handleSeriesBrushChange(const QBrush &)
 {
   vtkQtLineChartSeriesOptions *options =
       qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    this->Internal->Series[series]->Points->setBrush(brush);
+    this->update();
     }
 }
 
@@ -960,49 +1370,18 @@ void vtkQtLineChart::updateHighlights()
 {
   if(!this->InModelChange && this->ChartArea)
     {
-    this->layoutHighlights();
-    }
-}
-
-void vtkQtLineChart::layoutHighlights()
-{
-  if(this->Internal->Series.size() > 0)
-    {
-    // Clear the current set of highlights. Restore the series pen at
-    // the same time.
-    vtkQtLineChartItem *item = 0;
-    vtkQtLineChartSeriesOptions *options = 0;
-    QList<QPair<int, vtkQtLineChartItem *> >::Iterator iter =
-        this->Internal->Highlights.begin();
-    for( ; iter != this->Internal->Highlights.end(); ++iter)
+    // Remove the current selection.
+    QList<vtkQtLineChartSeries *>::Iterator iter =
+        this->Internal->Series.begin();
+    for( ; iter != this->Internal->Series.end(); ++iter)
       {
-      item = this->Internal->Series[iter->first];
-      options = this->getLineSeriesOptions(iter->first);
-      if(iter->second->Polyline->isVisible())
-        {
-        item->Polyline->setPen(options->getPen());
-        item->Points->setPen(options->getPen());
-        }
-
-      delete iter->second;
+      (*iter)->Highlighted = false;
+      (*iter)->Highlights.clear();
       }
-
-    this->Internal->Highlights.clear();
-
-    QList<vtkQtPointMarker *>::Iterator lightPoint =
-        this->Internal->LightPoints.begin();
-    for( ; lightPoint != this->Internal->LightPoints.end(); ++lightPoint)
-      {
-      delete *lightPoint;
-      }
-
-    this->Internal->LightPoints.clear();
 
     // Get the current selection from the selection model.
     if(!this->Selection->isSelectionEmpty())
       {
-      int i = 0;
-      vtkQtLineChartItem *highlight = 0;
       const vtkQtChartSeriesSelection &current =
           this->Selection->getSelection();
       if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
@@ -1011,34 +1390,9 @@ void vtkQtLineChart::layoutHighlights()
         vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
         for( ; jter != series.end(); ++jter)
           {
-          for(i = jter->first; i <= jter->second; i++)
+          for(int i = jter->first; i <= jter->second; i++)
             {
-            // Lighten the series pen color.
-            item = this->Internal->Series[i];
-            options = this->getLineSeriesOptions(i);
-            QPen linePen = options->getPen();
-            linePen.setColor(vtkQtChartColors::lighter(linePen.color()));
-            item->Polyline->setPen(linePen);
-            item->Points->setPen(linePen);
-
-            // Create a highlight item to place behind the series.
-            highlight = new vtkQtLineChartItem(this->Contents);
-            this->Internal->Highlights.append(
-                QPair<int, vtkQtLineChartItem *>(i, highlight));
-            highlight->setZValue(item->zValue() - 0.5);
-            linePen = options->getPen();
-            linePen.setWidthF(linePen.widthF() + 4.0);
-            highlight->Polyline->setPen(linePen);
-            highlight->Polyline->setPolyline(item->Polyline->polyline());
-            highlight->Points->setVisible(item->Points->isVisible());
-            if(highlight->Points->isVisible())
-              {
-              highlight->Points->setPen(linePen);
-              highlight->Points->setBrush(linePen.color());
-              highlight->Points->setStyle(item->Points->getStyle());
-              highlight->Points->setSize(item->Points->getSize());
-              highlight->Points->setPoints(item->Points->getPoints());
-              }
+            this->Internal->Series[i]->Highlighted = true;
             }
           }
         }
@@ -1049,51 +1403,26 @@ void vtkQtLineChart::layoutHighlights()
         QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
         for(jter = points.begin(); jter != points.end(); ++jter)
           {
-          // Lighten the series points. Get the list of selected points.
-          item = this->Internal->Series[jter->Series];
-          options = this->getLineSeriesOptions(jter->Series);
-          QPolygonF selectedPoints;
-          QPolygonF seriesPoints = item->Polyline->polyline();
+          vtkQtLineChartSeries *series = this->Internal->Series[jter->Series];
           vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
           for( ; kter != jter->Points.end(); ++kter)
             {
-            selectedPoints << seriesPoints.mid(kter->first,
-                kter->second - kter->first + 1);
+            for(int i = kter->first; i <= kter->second; i++)
+              {
+              series->Highlights.append(i);
+              }
             }
-
-          // Add lightened points in front of the series.
-          vtkQtPointMarker *lightPoints = new vtkQtPointMarker(
-              item->Points->getSize(), item->Points->getStyle(),
-              this->Contents, this->Contents->scene());
-          this->Internal->LightPoints.append(lightPoints);
-          lightPoints->setZValue(item->zValue() + 0.25);
-          QPen linePen = options->getPen();
-          linePen.setColor(vtkQtChartColors::lighter(linePen.color()));
-          lightPoints->setPen(linePen);
-          lightPoints->setBrush(item->Points->brush());
-          lightPoints->setPoints(selectedPoints);
-
-          // Create a highlight item to place behind the series.
-          highlight = new vtkQtLineChartItem(this->Contents);
-          this->Internal->Highlights.append(
-              QPair<int, vtkQtLineChartItem *>(jter->Series, highlight));
-          highlight->setZValue(item->zValue() - 0.5);
-          linePen = options->getPen();
-          linePen.setWidthF(linePen.widthF() + 4.0);
-          highlight->Polyline->setVisible(false);
-          highlight->Points->setPen(linePen);
-          highlight->Points->setBrush(linePen.color());
-          highlight->Points->setStyle(item->Points->getStyle());
-          highlight->Points->setSize(item->Points->getSize());
-          highlight->Points->setPoints(selectedPoints);
           }
         }
       }
+
+    // TODO: Repaint the modified area.
+    this->update();
     }
 }
 
 bool vtkQtLineChart::addSeriesDomain(int series,
-    vtkQtChartLayer::AxesCorner corner)
+    vtkQtChartLayer::AxesCorner corner, int *seriesGroup)
 {
   QList<QVariant> xDomain = this->Model->getSeriesRange(series, 0);
   QList<QVariant> yDomain = this->Model->getSeriesRange(series, 1);
@@ -1135,12 +1464,11 @@ bool vtkQtLineChart::addSeriesDomain(int series,
     domain.getYDomain().setRange(yDomain);
     }
 
-  int seriesGroup = -1;
   bool changed = this->Internal->Domains[corner].mergeDomain(domain,
-      &seriesGroup);
+      seriesGroup);
 
   // Add the series index to the domain group.
-  this->Internal->Groups[corner].insertSeries(series, seriesGroup);
+  this->Internal->Groups[corner].insertSeries(series, *seriesGroup);
   return changed;
 }
 
@@ -1201,6 +1529,57 @@ void vtkQtLineChart::calculateDomain(int seriesGroup,
       {
       domain->getYDomain().mergeRange(yDomain);
       }
+    }
+}
+
+void vtkQtLineChart::buildTree()
+{
+  // Get the current series domain groups.
+  int i = 0;
+  bool rebuild = false;
+  vtkQtChartAxis *xAxis = 0;
+  vtkQtChartAxis *yAxis = 0;
+  vtkQtChartAxisLayer *axisLayer = this->ChartArea->getAxisLayer();
+  for( ; i < 4; i++)
+    {
+    int seriesGroup = -1;
+    xAxis = axisLayer->getHorizontalAxis((vtkQtChartLayer::AxesCorner)i);
+    yAxis = axisLayer->getVerticalAxis((vtkQtChartLayer::AxesCorner)i);
+    this->Internal->Domains[i].getDomain(xAxis->getAxisDomain(),
+        yAxis->getAxisDomain(), &seriesGroup);
+    if(seriesGroup != this->Internal->CurrentGroup[i])
+      {
+      rebuild = true;
+      this->Internal->CurrentGroup[i] = seriesGroup;
+      }
+    }
+
+  this->BuildNeeded = false;
+  if(rebuild)
+    {
+    // Merge the series group selection lists to build the trees.
+    QList<vtkQtChartShape *> allPoints;
+    QList<vtkQtChartShape *> allLines;
+    for(i = 0; i < 4; i++)
+      {
+      int group = this->Internal->CurrentGroup[i];
+      if(group != -1)
+        {
+        this->Internal->mergeLists(allPoints,
+            this->Internal->Groups[i].Points[group]);
+        this->Internal->mergeLists(allLines,
+            this->Internal->Groups[i].Lines[group]);
+        }
+      }
+
+    // Build the trees from the combined lists.
+    this->Internal->PointTree.build(allPoints);
+    this->Internal->LineTree.build(allLines);
+    }
+  else
+    {
+    this->Internal->PointTree.update();
+    this->Internal->LineTree.update();
     }
 }
 

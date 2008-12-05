@@ -27,7 +27,6 @@
 #include "vtkQtChartExport.h"
 #include "vtkQtChartSeriesLayer.h"
 
-class vtkQtChartPointLocator;
 class vtkQtLineChartInternal;
 class vtkQtLineChartOptions;
 class vtkQtLineChartSeriesOptions;
@@ -52,11 +51,6 @@ public:
   virtual void setChartArea(vtkQtChartArea *area);
 
   virtual void setModel(vtkQtChartSeriesModel *model);
-
-  /// \brief
-  ///   Sets the point locator for the line chart.
-  /// \param locator The new point locator.
-  void setPointLocator(vtkQtChartPointLocator *locator);
   //@}
 
   /// \name Drawing Parameters
@@ -90,9 +84,14 @@ public:
 
   virtual void layoutChart(const QRectF &area);
 
-  virtual bool drawItemFilter(QGraphicsItem *item, QPainter *painter);
-
   virtual bool getHelpText(const QPointF &point, QString &text);
+
+  /// \brief
+  ///   Notifies the chart layer that a resize interaction has finished.
+  ///
+  /// The chart search trees are not updated while the chart is in an
+  /// interactive state. It is updated in this method if needed.
+  virtual void finishInteractiveResize();
   //@}
 
   /// \name Selection Methods
@@ -199,22 +198,21 @@ private slots:
   void handleSeriesBrushChange(const QBrush &brush);
 
   /// \brief
-  ///   Called to layout the highlights.
+  ///   Called to update the highlights.
   ///
-  /// The layout request is ignored if the model is being changed.
+  /// The update request is ignored if the model is being changed.
   void updateHighlights();
 
 private:
-  /// Called to layout the highlights.
-  void layoutHighlights();
-
   /// \brief
   ///   Adds the domain for the given series to the given domain.
   /// \param series The series index.
   /// \param corner Which domain set to update.
+  /// \param seriesGroup Used to return the domain group.
   /// \return
   ///   True if the domain was modified.
-  bool addSeriesDomain(int series, vtkQtChartLayer::AxesCorner corner);
+  bool addSeriesDomain(int series, vtkQtChartLayer::AxesCorner corner,
+      int *seriesGroup);
 
   /// \brief
   ///   Calculates the domain for the given series group.
@@ -222,10 +220,14 @@ private:
   /// \param corner Which domain set to update.
   void calculateDomain(int seriesGroup, vtkQtChartLayer::AxesCorner corner);
 
+  /// Builds the search trees for the line chart.
+  void buildTree();
+
 private:
   vtkQtLineChartInternal *Internal; ///< Stores the view data.
   vtkQtLineChartOptions *Options;   ///< Stores the drawing options.
   bool InModelChange;               ///< Used for selection changes.
+  bool BuildNeeded;                 ///< Used when resizing interactively.
 };
 
 #endif
