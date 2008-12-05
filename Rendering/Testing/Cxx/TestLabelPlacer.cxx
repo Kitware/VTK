@@ -56,8 +56,6 @@ int TestLabelPlacer(int argc, char *argv[])
   int iteratorType = vtkLabelHierarchy::FULL_SORT;
   bool showBounds = false;
 
-  cout << "TestLabelPlacer" << endl;
-
   vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
     vtkSmartPointer<vtkLabelSizeCalculator>::New();
   vtkSmartPointer<vtkLabelHierarchy> labelHierarchy = 
@@ -84,8 +82,6 @@ int TestLabelPlacer(int argc, char *argv[])
     vtkSmartPointer<vtkLabeledDataMapper>::New();
   vtkSmartPointer<vtkActor2D> textActor = vtkSmartPointer<vtkActor2D>::New();
 
-  cout << "Done Instantiating" << endl;
-
   xmlPolyDataReader->SetFileName( fname );
   delete [] fname;
   
@@ -108,16 +104,11 @@ int TestLabelPlacer(int argc, char *argv[])
   labelPlacer->SetRenderer( renderer );
   labelPlacer->SetMaximumLabelFraction( labelRatio );
 
-  cout << "Done Setting up LabelPlacer" << endl;
-
-
   polyDataMapper->SetInputConnection(labelPlacer->GetOutputPort());
 
   actor->SetMapper(polyDataMapper);
 
   labelPlacer->Update();
-
-  cout << "Done Updating Label Placer" << endl;
 
   labeledMapper->SetInputConnection(labelPlacer->GetOutputPort());
   labeledMapper->SetLabelTextProperty(labelSizeCalculator->GetFontProperty());
@@ -133,8 +124,6 @@ int TestLabelPlacer(int argc, char *argv[])
   renWin->AddRenderer(renderer);
   renderer->SetBackground(0.0, 0.0, 0.0);
     iren->SetRenderWindow(renWin);
-
-  cout << "Calling Render" << endl;
 
   renWin->Render();
   renderer->ResetCamera();

@@ -23,7 +23,7 @@ IF(VTK_USE_DISPLAY)
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
-    #TestLabelPlacerCoincidentPoints.cxx
+    TestLabelPlacerCoincidentPoints.cxx
     TestLODActor.cxx
     TestManyActors.cxx
     TestOrderedTriangulator.cxx

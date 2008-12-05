@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.8");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.9");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -210,7 +210,7 @@ vtkLabelPlacer::vtkLabelPlacer()
 
   this->OutputTraversedBounds = false;
 
-  this->SetNumberOfOutputPorts( 3 );
+  this->SetNumberOfOutputPorts( 4 );
 }
 
 vtkLabelPlacer::~vtkLabelPlacer()
@@ -350,7 +350,7 @@ int vtkLabelPlacer::RequestData(
   vtkInformation* outInfo0 = outputVector->GetInformationObject( 0 );
   vtkInformation* outInfo1 = outputVector->GetInformationObject( 1 );
   vtkInformation* outInfo2 = outputVector->GetInformationObject( 2 );
-  //vtkInformation* outInfo3 = outputVector->GetInformationObject( 3 );
+  vtkInformation* outInfo3 = outputVector->GetInformationObject( 3 );
 
   vtkLabelHierarchy* inData = vtkLabelHierarchy::SafeDownCast(
     inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
@@ -360,8 +360,8 @@ int vtkLabelPlacer::RequestData(
     outInfo1->Get( vtkDataObject::DATA_OBJECT() ) );
   vtkPolyData* ouData2 = vtkPolyData::SafeDownCast(
     outInfo2->Get( vtkDataObject::DATA_OBJECT() ) );
-  /*vtkPolyData* ouData3 = vtkPolyData::SafeDownCast(
-    outInfo3->Get( vtkDataObject::DATA_OBJECT() ) );*/
+  vtkPolyData* ouData3 = vtkPolyData::SafeDownCast(
+    outInfo3->Get( vtkDataObject::DATA_OBJECT() ) );
 
   vtkStringArray* nameArr0 = vtkStringArray::New();
   nameArr0->SetName( "LabelText" );
@@ -435,14 +435,21 @@ int vtkLabelPlacer::RequestData(
     }
   ouData2->Allocate();
 
-  /*vtkPoints* opts3 = ouData3->GetPoints();
+  vtkPoints* opts3 = ouData3->GetPoints();
+  vtkCellArray* ocells3 = ouData3->GetLines();
   if ( ! opts3 )
     {
     opts3 = vtkPoints::New();
     ouData3->SetPoints( opts3 );
     opts3->FastDelete();
     }
-  ouData3->Allocate();*/
+  if( ! ocells3 )
+    {
+    ocells3 = vtkCellArray::New();
+    ouData3->SetLines( ocells3 );
+    ocells3->FastDelete();
+    }
+  ouData3->Allocate();
 
   int tvpsz[4]; // tiled viewport size (and origin)
   // kd-tree bounds on screenspace (as floats... eventually we
@@ -614,7 +621,9 @@ int vtkLabelPlacer::RequestData(
       break;
       }
     if ( ll[1] > kdbounds[3] || lr[1] < kdbounds[2] )
+      {
       continue; // cull label not in frame
+      }
 
     if ( this->Debug )
       {

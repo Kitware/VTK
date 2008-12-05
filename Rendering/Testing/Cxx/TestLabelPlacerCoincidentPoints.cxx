@@ -20,6 +20,7 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkLabeledDataMapper.h"
@@ -56,7 +57,7 @@
 int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 {
   int maxLevels = 5;
-  int targetLabels = 4;
+  int targetLabels = 7;
   double labelRatio = 1.0;
   int i = 0;
   int iteratorType = vtkLabelHierarchy::FULL_SORT;
@@ -70,13 +71,6 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     vtkSmartPointer<vtkLabelPlacer>::New();
   vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy = 
     vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-
-  vtkSphereSource * sphereSource = vtkSphereSource::New();
-
-  vtkSmartPointer<vtkPolyDataMapper> spolyDataMapper = 
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  vtkSmartPointer<vtkActor> sactor = 
-    vtkSmartPointer<vtkActor>::New();
 
   vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = 
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -97,22 +91,29 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   vtkSmartPointer<vtkPoints> points = 
     vtkSmartPointer<vtkPoints>::New();
 
-  points->InsertNextPoint(0.0, 0.0, 0.0);
-  points->InsertNextPoint(0.0, 150.0, -100.0);
-  points->InsertNextPoint(150.0, 150.0, 0.0);
-  points->InsertNextPoint(150.0, 0.0, 0.0);
-  points->InsertNextPoint(25.0, 25.0, 0.0);
-  points->InsertNextPoint(25.0, 25.0, 0.0);
-  points->InsertNextPoint(25.0, 25.0, 0.0);
-  points->InsertNextPoint(25.0, 25.0, 0.0);
-  points->InsertNextPoint(25.0, 25.0, 0.0);
-  points->InsertNextPoint(25.0, 25.0, 0.0);
+  vtkMath::RandomSeed(5678);
+
+ for(i = 0; i < 29; i++)
+   {
+   /*points->InsertPoint(i, vtkMath::Random(-1.0, 1.0),
+                          vtkMath::Random(-1.0, 1.0),
+                          vtkMath::Random(-1.0, 1.0));*/
+
+   points->InsertPoint(i, 0.0, 0.0, 0.0);
+   }
+
+   points->InsertPoint(29, 5.0, 0.0, 0.0);
+
+ //for(; i < 30; i++)
+ //  {
+ //  points->InsertPoint(i, 0.0, 0.0, 0.0);
+ //  }
 
   vtkSmartPointer<vtkCellArray> cells = 
     vtkSmartPointer<vtkCellArray>::New();
 
-  cells->InsertNextCell(10);
-  for(i = 0; i < 10; i++)
+  cells->InsertNextCell(30);
+  for(i = 0; i < 30; i++)
     {
     cells->InsertCellPoint(i);
     }
@@ -125,47 +126,38 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   vtkSmartPointer<vtkStringArray> stringData = 
     vtkSmartPointer<vtkStringArray>::New();
   stringData->SetName("PlaceNames");
+  stringData->InsertNextValue("Abu Dhabi");
   stringData->InsertNextValue("Amsterdam");
+  stringData->InsertNextValue("Beijing");
   stringData->InsertNextValue("Berlin");
   stringData->InsertNextValue("Cairo");
-  stringData->InsertNextValue("New Dehli");
+  stringData->InsertNextValue("Caracas");
+  stringData->InsertNextValue("Dublin");
+  stringData->InsertNextValue("Georgetown");
+  stringData->InsertNextValue("The Hague");
   stringData->InsertNextValue("Hanoi");
+  stringData->InsertNextValue("Islamabad");
   stringData->InsertNextValue("Jakarta");
+  stringData->InsertNextValue("Kiev");
+  stringData->InsertNextValue("Kingston");
+  stringData->InsertNextValue("Lima");
   stringData->InsertNextValue("London");
+  stringData->InsertNextValue("Luxembourg City");
+  stringData->InsertNextValue("Madrid");
+  stringData->InsertNextValue("Moscow");
+  stringData->InsertNextValue("Nairobi");
+  stringData->InsertNextValue("New Delhi");
   stringData->InsertNextValue("Ottawa");
+  stringData->InsertNextValue("Paris");
+  stringData->InsertNextValue("Prague");
+  stringData->InsertNextValue("Rome");
+  stringData->InsertNextValue("Seoul");
+  stringData->InsertNextValue("Tehran");
   stringData->InsertNextValue("Tokyo");
+  stringData->InsertNextValue("Warsaw");
   stringData->InsertNextValue("Washington");
-
+  
   polyData->GetPointData()->AddArray(stringData);
-
-  vtkMath::RandomSeed(1234);
-  /*vtkSmartPointer<vtkFloatArray> priority = 
-    vtkSmartPointer<vtkFloatArray>::New();
-  priority->SetNumberOfComponents(1);
-  priority->SetNumberOfTuples(10);
-  priority->SetName("Priority");
-
-  for(i = 0; i < 10; i++)
-    {
-    priority->InsertValue(i, vtkMath::Random(9.0, 10.0));
-    }
-
-  polyData->GetPointData()->AddArray(priority);*/
-
-  /*vtkSmartPointer<vtkFloatArray> labelSize = 
-    vtkSmartPointer<vtkFloatArray>::New();
-  labelSize->SetNumberOfComponents(3);
-  labelSize->SetNumberOfTuples(10);
-  labelSize->SetName("LabelSize");
-
-  for(i = 0; i < 10; i++)
-    {
-    labelSize->InsertTuple3(i, vtkMath::Random(8.0, 10.0),
-                               vtkMath::Random(12.0, 16.0),
-                               0.0 );
-    }
-
-  polyData->GetPointData()->AddArray(labelSize);*/
   
   labelSizeCalculator->SetInput(polyData);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
@@ -200,28 +192,18 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labeledMapper->GetLabelTextProperty()->SetColor(0.0, 0.8, 0.2);
   textActor->SetMapper(labeledMapper);
 
-  spolyDataMapper->SetInputConnection(sphereSource->GetOutputPort());
-  sactor->SetMapper(spolyDataMapper);
-
-  renderer->AddActor(sactor);
   renderer->AddActor(actor);
   renderer->AddActor(textActor);
 
-  renWin->SetSize(300, 300);
+  renWin->SetSize(600, 600);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(0.0, 0.0, 0.0);
     iren->SetRenderWindow(renWin);
 
   renWin->Render();
-  //renderer->ResetCamera();
-  //renderer->ResetCamera();
-  //renderer->ResetCamera();
-
- /* labelSizeCalculator->GetOutput()->Print(cout);
-  cout << "------------------------------------------------------" << endl;
-  pointSetToLabelHierarchy->GetOutput()->Print(cout);
-  cout << "------------------------------------------------------" << endl;
-  labelPlacer->GetOutput()->Print(cout);*/
+  renderer->ResetCamera();
+  renderer->ResetCamera();
+  renderer->ResetCamera();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
