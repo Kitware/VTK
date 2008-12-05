@@ -91,15 +91,9 @@ IF(VTK_HAS_EXODUS)
       vtkPExodusIIReader.cxx
       vtkPExodusReader.cxx
       )
+    SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
   ENDIF(VTK_USE_PARALLEL)
 ENDIF(VTK_HAS_EXODUS)
-
-IF(VTK_USE_PARALLEL)
-  SET(Kit_SRCS ${Kit_SRCS}
-    vtkPOpenFOAMReader.cxx
-    )
-  SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
-ENDIF(VTK_USE_PARALLEL)
 
 IF (WIN32)
   IF (VTK_VFW_SUPPORTS_CAPTURE)
