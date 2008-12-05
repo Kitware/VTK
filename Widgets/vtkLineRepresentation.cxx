@@ -34,7 +34,7 @@
 #include "vtkFollower.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.16");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.17");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -784,6 +784,15 @@ int vtkLineRepresentation::InBounds(double x[3])
       }
     }
   return 1;
+}
+
+//----------------------------------------------------------------------
+void vtkLineRepresentation::GetActors(vtkPropCollection *pc)
+{
+  this->LineActor->GetActors(pc);
+  this->Handle[0]->GetActors(pc);
+  this->Handle[1]->GetActors(pc);
+  this->TextActor->GetActors(pc);
 }
 
 //----------------------------------------------------------------------------

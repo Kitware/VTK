@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.15");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.16");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -444,6 +444,19 @@ double *vtkImplicitPlaneRepresentation::GetBounds()
   this->BoundingBox->AddBounds(this->SphereActor->GetBounds());
 
   return this->BoundingBox->GetBounds();
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::GetActors(vtkPropCollection *pc)
+{
+  this->OutlineActor->GetActors(pc);
+  this->CutActor->GetActors(pc);
+  this->EdgesActor->GetActors(pc);
+  this->ConeActor->GetActors(pc);
+  this->LineActor->GetActors(pc);
+  this->ConeActor2->GetActors(pc);
+  this->LineActor2->GetActors(pc);
+  this->SphereActor->GetActors(pc);
 }
 
 //----------------------------------------------------------------------------

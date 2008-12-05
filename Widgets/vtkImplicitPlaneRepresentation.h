@@ -189,6 +189,7 @@ public:
   // Decsription:
   // Methods supporting the rendering process.
   virtual double *GetBounds();
+  virtual void GetActors(vtkPropCollection *pc);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
