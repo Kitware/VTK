@@ -94,7 +94,9 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         cout.flush();
         td->Lock->Unlock();
         }
+      td->Lock->Lock();
       -- td->NumberOfWorkers;
+      td->Lock->Unlock();
       }
 
     td->Lock->Lock();
