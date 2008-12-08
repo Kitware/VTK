@@ -53,6 +53,17 @@ public:
   int GetLocation();
 
   // Description:
+  // Returns the style of the shader as optionaly defined in the XML
+  // description. If not present, default style is 1. "style=2" means it is
+  // a shader without a main(). In style 2, the "main" function for the vertex
+  // shader part is void propFuncVS(void), the main function for the fragment
+  // shader part is void propFuncFS(). This is useful when combining a shader
+  // at the actor level and a shader defines at the renderer level, like
+  // the depth peeling pass.
+  // \post valid_result: result==1 || result==2
+  int GetStyle();
+  
+  // Description:
   // Get the name of the Shader.
   const char* GetName();
 

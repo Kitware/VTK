@@ -23,6 +23,8 @@
 #include "vtkXMLShader.h"
 
 #include <vtkstd/vector>
+#include <assert.h>
+
 class vtkXMLMaterialInternals
 {
 public:
@@ -42,7 +44,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
-vtkCxxRevisionMacro(vtkXMLMaterial, "1.7");
+vtkCxxRevisionMacro(vtkXMLMaterial, "1.8");
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -247,6 +249,46 @@ int vtkXMLMaterial::GetShaderLanguage()
     return this->GetFragmentShader()->GetLanguage();
     }
   return vtkXMLShader::LANGUAGE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Get the style the shaders.
+// \post valid_result: result==1 || result==2
+int vtkXMLMaterial::GetShaderStyle()
+{
+  int result=1;
+  if(this->GetShaderLanguage()==vtkXMLShader::LANGUAGE_GLSL)
+    {
+    int vStyle=0;
+    if(this->GetVertexShader())
+      {
+      vStyle=this->GetVertexShader()->GetStyle();
+      }
+    int fStyle=0;
+    if(this->GetFragmentShader())
+      {
+      fStyle=this->GetFragmentShader()->GetStyle();
+      }
+    if(vStyle!=0 && fStyle!=0 && vStyle!=fStyle)
+      {
+      vtkErrorMacro(<<"vertex shader and fragment shader style differ.");
+      }
+    else
+      {
+      if(vStyle!=0)
+        {
+        result=vStyle;
+        }
+      else
+        {
+        result=fStyle;
+        }
+      }
+    }
+  
+  assert("post: valid_result" && (result==1 || result==2) );
+  return result;
 }
 
 //-----------------------------------------------------------------------------

@@ -20,9 +20,10 @@
 #include "vtkXMLDataElement.h"
 
 #include <vtksys/SystemTools.hxx>
+#include <assert.h>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.9");
+vtkCxxRevisionMacro(vtkXMLShader, "1.10");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -240,6 +241,42 @@ int vtkXMLShader::GetLocation()
   return vtkXMLShader::LOCATION_NONE;
 }
 
+// ----------------------------------------------------------------------------
+// \post valid_result: result==1 || result==2
+int vtkXMLShader::GetStyle()
+{
+  int result=1;
+  if(this->RootElement)
+    {
+    const char *loc=this->RootElement->GetAttribute("style");
+    if(loc==0)
+      {
+      // fine. this attribute is optional.
+      }
+    else
+      {
+      if(strcmp(loc,"1")==0)
+        {
+        // fine. default value.
+        }
+      else
+        {
+        if(strcmp(loc,"2")==0)
+          {
+          result=2; // new style
+          }
+        else
+          {
+          vtkErrorMacro(<<"style number not supported. Expect 1 or 2. We force it to be 1.");
+          }
+        }
+      }
+    }
+  
+  assert("post valid_result" && (result==1 || result==2) );
+  return result;
+}
+
 //-----------------------------------------------------------------------------
 const char* vtkXMLShader::GetName()
 {
@@ -276,7 +313,7 @@ const char** vtkXMLShader::GetArgs()
     this->Args[i] = vtksys::SystemTools::DuplicateString(args[i].c_str());
     }
   this->Args[size] = 0;
-  return (const char**)this->Args;
+  return const_cast<const char**>(this->Args);
 }
 
 //-----------------------------------------------------------------------------

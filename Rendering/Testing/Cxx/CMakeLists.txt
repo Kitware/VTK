@@ -64,6 +64,8 @@ IF(VTK_USE_DISPLAY)
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
       TestGenericVertexAttributesGLSLCxx.cxx
+      TestGenericVertexAttributesGLSLAlphaBlending.cxx
+      TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
       )
   ENDIF (VTK_USE_GLSL_SHADERS)
 

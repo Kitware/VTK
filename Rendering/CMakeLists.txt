@@ -192,6 +192,7 @@ SET( KitOpenGL_SRCS
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
   vtkLightsPass.cxx
+  vtkGLSLShaderDeviceAdapter2.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
@@ -309,6 +310,7 @@ SET(glsl_files
   vtkDepthPeeling_fs
   vtkOpenGLRenderer_PeelingFS
   vtkOpenGLPropertyDefaultPropFunc_fs
+  vtkOpenGLPropertyDefaultPropFunc_vs
   vtkOpenGLPropertyDefaultMain_fs
   vtkOpenGLPropertyDefaultMain_vs
   )

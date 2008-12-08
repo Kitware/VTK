@@ -419,6 +419,11 @@ protected:
 
   vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
 
+  // Description:
+  // Read this->Material from new style shaders.
+  // Default implementation is empty.
+  virtual void ReadFrameworkMaterial();
+  
 //BTX
   // These friends are provided only for the time being
   // till we device a graceful way of loading texturing for GLSL.

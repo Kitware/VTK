@@ -28,8 +28,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkShader2.h"
 #include "vtkShader2Collection.h"
 #include "vtkUniformVariables.h"
+#include "vtkTextureUnitManager.h"
 
-vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.4");
+vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.5");
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 
@@ -60,6 +61,10 @@ vtkDepthPeelingPass::vtkDepthPeelingPass()
   this->Shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
   
   vtkUniformVariables *v=this->Shader->GetUniformVariables();
+  
+  this->ShadowTexUnit=-1; // not allocated
+  this->OpaqueShadowTexUnit=-1; // not allocated
+  
   
   int value;
   value=1;
@@ -192,7 +197,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     
     glGenTextures(1,&opaqueLayerRgba);
     // opaque z format
-    vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
+//    vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,opaqueLayerZ);
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,
                     GL_NEAREST);
@@ -299,9 +304,11 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     value=this->ViewportY;
     v->SetUniformf("offsetY",1,&value);
     
+    
     this->Prog->SetContext(static_cast<vtkOpenGLRenderWindow *>(
                              s->GetRenderer()->GetRenderWindow()));
     this->Shader->SetContext(this->Prog->GetContext());
+      
     GLuint nbPixels=0;
     GLuint previousNbPixels=0;
     int l=0;
@@ -326,6 +333,17 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
           }
         }
       }
+    
+    if(l>0) // some higher layer, we allocated some tex unit in RenderPeel()
+      {
+      vtkTextureUnitManager *m=
+        this->Prog->GetContext()->GetTextureUnitManager();
+      m->Free(this->ShadowTexUnit);
+      m->Free(this->OpaqueShadowTexUnit);
+      this->ShadowTexUnit=-1;
+      this->OpaqueShadowTexUnit=-1;
+      }
+    
     if(multiSampleStatus)
       {
       glEnable(vtkgl::MULTISAMPLE);
@@ -716,6 +734,9 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
   assert("pre: s_exists" && s!=0);
   assert("pre: positive_layer" && layer>=0);
          
+//  cout << "layer="<<layer<<" glFinish().1" << endl;
+//  glFinish();
+  
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
     {
@@ -725,19 +746,48 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(mask);
   
-  vtkgl::ActiveTexture(vtkgl::TEXTURE2);
-  glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
-  vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
+//  vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->OpaqueShadowTexUnit);
+//  glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
+//  vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->ShadowTexUnit);
   
   vtkOpenGLRenderer *oRenderer=
     static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
   
   if(layer>0)
     {
+    if(layer==1)
+      {
+    // allocate texture units.
+      vtkTextureUnitManager *m=
+        this->Prog->GetContext()->GetTextureUnitManager();
+      this->ShadowTexUnit=m->Allocate();
+      if(this->ShadowTexUnit==-1)
+        {
+        vtkErrorMacro(<<"Ought. No texture unit left!");
+        return 0;
+        }
+      this->OpaqueShadowTexUnit=m->Allocate();
+      if(this->OpaqueShadowTexUnit==-1)
+        {
+        vtkErrorMacro(<<"Ought. No texture unit left!");
+        return 0;
+        }
+      vtkUniformVariables *v=this->Shader->GetUniformVariables();
+      int ivalue;
+      ivalue=this->ShadowTexUnit; // 1
+      v->SetUniformi("shadowTex",1,&ivalue);
+      ivalue=this->OpaqueShadowTexUnit; //2
+      v->SetUniformi("opaqueShadowTex",1,&ivalue);
+      }
+    
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->OpaqueShadowTexUnit);
+    glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->ShadowTexUnit);
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
     oRenderer->SetShaderProgram(this->Prog);
 //    this->Prog->Use();
     }
+  
   vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   this->DepthPeelingHigherLayer=layer>0;
@@ -750,7 +800,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     }
   
   GLint width;
-  vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
+//  vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->ShadowTexUnit);
   if(layer==0)
     {
     if(numberOfRenderedProps>0)
@@ -837,10 +887,13 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
                         this->ViewportHeight);
     this->LayerList->List.push_back(rgba);
 
+//    cout << "layer="<<layer<<" glFinish().end" << endl;
+//    glFinish();
     return 1;
     }
   else
     {
+//    cout << "layer="<<layer<<" return 0"<<endl;
     return 0;
     }
 }

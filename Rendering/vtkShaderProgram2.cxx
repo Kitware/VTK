@@ -28,7 +28,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.6");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.7");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -72,13 +72,7 @@ void vtkShaderProgram2::ReleaseGraphicsResources()
       this->Id=0;
       }
     this->LastBuildStatus=VTK_SHADER_PROGRAM2_COMPILE_FAILED;
-    this->Shaders->InitTraversal();
-    vtkShader2 *s=this->Shaders->GetNextShader();
-    while(s!=0)
-      {
-      s->ReleaseGraphicsResources();
-      s=this->Shaders->GetNextShader();
-      }
+    this->Shaders->ReleaseGraphicsResources();
     }
   else
     {
@@ -181,13 +175,7 @@ bool vtkShaderProgram2::HasVertexShaders()
   
   if(this->Shaders!=0)
     {
-    this->Shaders->InitTraversal();
-    vtkShader2 *s=this->Shaders->GetNextShader();
-    while(!result && s!=0)
-      {
-      result=s->GetType()==VTK_SHADER_TYPE_VERTEX;
-      s=this->Shaders->GetNextShader();
-      }
+    result=this->Shaders->HasVertexShaders();
     }
   
   return result;
@@ -205,13 +193,7 @@ bool vtkShaderProgram2::HasFragmentShaders()
   
   if(this->Shaders!=0)
     {
-    this->Shaders->InitTraversal();
-    vtkShader2 *s=this->Shaders->GetNextShader();
-    while(!result && s!=0)
-      {
-      result=s->GetType()==VTK_SHADER_TYPE_FRAGMENT;
-      s=this->Shaders->GetNextShader();
-      }
+    result=this->Shaders->HasFragmentShaders();
     }
   
   return result;
@@ -226,13 +208,7 @@ bool vtkShaderProgram2::HasGeometryShaders()
   
   if(this->Shaders!=0)
     {
-    this->Shaders->InitTraversal();
-    vtkShader2 *s=this->Shaders->GetNextShader();
-    while(!result && s!=0)
-      {
-      result=s->GetType()==VTK_SHADER_TYPE_GEOMETRY;
-      s=this->Shaders->GetNextShader();
-      }
+    result=this->Shaders->HasGeometryShaders();
     }
   
   return result;
@@ -281,7 +257,7 @@ bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
 }
 
 // ----------------------------------------------------------------------------
- // Description:
+// Description:
 // Use the shader program.
 // It saves the current shader program or fixed-pipeline in use.
 // It also set the uniform variables.
@@ -355,7 +331,7 @@ void vtkShaderProgram2::RestoreFixedPipeline()
 // ----------------------------------------------------------------------------
 void vtkShaderProgram2::Build()
 {
-  if(this->LastLinkTime<this->MTime ||
+  if(this->Id==0 || this->LastLinkTime<this->MTime ||
      (this->Shaders!=0 && this->LastLinkTime<this->Shaders->GetMTime()))
     {
     this->LastBuildStatus=VTK_SHADER_PROGRAM2_COMPILE_FAILED;
@@ -396,6 +372,8 @@ void vtkShaderProgram2::Build()
     vtkShader2 *s=this->Shaders->GetNextShader();
     while(s!=0)
       {
+      // Propagate the context to the shader.
+      s->SetContext(this->Context);
       s->Compile();
       if(s->GetLastCompileStatus())
         {
@@ -445,12 +423,15 @@ void vtkShaderProgram2::Build()
          if(this->PrintErrors)
           {
           vtkErrorMacro(<<" the shader program failed to link. Its log is:\n" << this->GetLastLinkLog() << "the shaders are: ");
+          size_t i=0;
+          size_t c=this->Shaders->GetNumberOfItems();
           this->Shaders->InitTraversal();
           s=this->Shaders->GetNextShader();
           while(s!=0)
             {
-            vtkErrorMacro(<<"shader log is:\n" << s->GetLastCompileLog() << "\n. Its source code is:\n" << s->GetSourceCode());
+            vtkErrorMacro(<<"shader #"<<i<<"/"<<c<<" log is:\n" << s->GetLastCompileLog() << "\n. Its source code is:\n" << s->GetSourceCode());
             s=this->Shaders->GetNextShader();
+            ++i;
             }
           
           }

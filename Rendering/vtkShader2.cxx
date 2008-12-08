@@ -27,7 +27,7 @@ GLenum vtkShaderTypeVTKToGL[3]={
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader2, "1.3");
+vtkCxxRevisionMacro(vtkShader2, "1.4");
 vtkStandardNewMacro(vtkShader2);
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 
@@ -179,7 +179,7 @@ void vtkShader2::Compile()
 {
   assert("pre: SourceCode_exists" && this->SourceCode!=0);
   
-  if(this->LastCompileTime<this->MTime)
+  if(this->Id==0 || this->LastCompileTime<this->MTime)
     {
     if(this->Type==VTK_SHADER_TYPE_GEOMETRY && !this->SupportGeometryShader)
       {

@@ -24,6 +24,9 @@
 
 class vtkOpenGLRenderer;
 class vtkShader2;
+class vtkShader2Collection;
+class vtkShaderProgram2;
+class vtkGLSLShaderDeviceAdapter2;
 
 class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
 {
@@ -55,6 +58,20 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *win);
   
+  // Description:
+  // Get the collection of property shaders. If Material is not set/or not
+  // loaded properly, this will return null.
+  vtkGetObjectMacro(Shader2Collection,vtkShader2Collection);
+  void SetShader2Collection(vtkShader2Collection *);
+  
+  // Description:
+  // Get the object that can pass vertex attribute to a vtkShaderProgram2.
+  vtkGetObjectMacro(ShaderDeviceAdapter2,vtkGLSLShaderDeviceAdapter2);
+  
+  // Description:
+  // Get the vtkShaderProgram2 object in use.
+  vtkGetObjectMacro(CurrentShaderProgram2,vtkShaderProgram2);
+  
 protected:
   vtkOpenGLProperty();
   ~vtkOpenGLProperty();
@@ -63,7 +80,24 @@ protected:
   // Load OpenGL extensions for multi texturing.
   void LoadMultiTexturingExtensions(vtkRenderer* ren);
   
-  vtkShader2 *Shader;
+  // Description:
+  // Read this->Material from new style shaders.
+  virtual void ReadFrameworkMaterial();
+  
+  vtkShader2Collection *Shader2Collection;
+  
+  vtkShaderProgram2 *PropProgram;
+  vtkShader2 *DefaultMainVS;
+  vtkShader2 *DefaultMainFS;
+  vtkShader2 *DefaultPropVS;
+  vtkShader2 *DefaultPropFS;
+  bool UseDefaultMainVS;
+  bool UseDefaultMainFS;
+  bool UseDefaultPropVS;
+  bool UseDefaultPropFS;
+  vtkGLSLShaderDeviceAdapter2 *ShaderDeviceAdapter2;
+  vtkShaderProgram2 *CurrentShaderProgram2;
+  
 private:
   vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
   void operator=(const vtkOpenGLProperty&);  // Not implemented.

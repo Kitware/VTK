@@ -35,27 +35,70 @@
 #include "vtkShaderProgram2.h"
 #include "vtkUniformVariables.h"
 #include "vtkShader2Collection.h"
+#include "vtkTextureUnitManager.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkXMLMaterial.h"
+#include "vtkXMLShader.h"
+#include "vtkGLSLShaderDeviceAdapter2.h"
+
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.50");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.51");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
 extern const char *vtkOpenGLPropertyDefaultMain_vs;
 extern const char *vtkOpenGLPropertyDefaultMain_fs;
+extern const char *vtkOpenGLPropertyDefaultPropFunc_vs;
 extern const char *vtkOpenGLPropertyDefaultPropFunc_fs;
+
+vtkCxxSetObjectMacro(vtkOpenGLProperty,Shader2Collection,vtkShader2Collection);
 
 vtkOpenGLProperty::vtkOpenGLProperty()
 {
-  this->Shader=0;
+  this->Shader2Collection=0;
+  
+  this->PropProgram=0;
+  this->DefaultMainVS=0;
+  this->DefaultMainFS=0;
+  this->DefaultPropVS=0;
+  this->DefaultPropFS=0;
+  this->UseDefaultMainVS=false;
+  this->UseDefaultMainFS=false;
+  this->UseDefaultPropVS=false;
+  this->UseDefaultPropFS=false;
+  this->ShaderDeviceAdapter2=0;
+  this->CurrentShaderProgram2=0;
 }
 
 vtkOpenGLProperty::~vtkOpenGLProperty()
 {
-  if(this->Shader!=0)
+  this->SetShader2Collection(0);
+  
+  if(this->PropProgram!=0)
     {
-    this->Shader->Delete();
+    this->PropProgram->Delete();
+    }
+  if(this->DefaultMainVS!=0)
+    {
+    this->DefaultMainVS->Delete();
+    }
+  if(this->DefaultMainFS!=0)
+    {
+    this->DefaultMainFS->Delete();
+    }
+   if(this->DefaultPropVS!=0)
+    {
+    this->DefaultPropVS->Delete();
+    }
+  if(this->DefaultPropFS!=0)
+    {
+    this->DefaultPropFS->Delete();
+    }
+  if(this->ShaderDeviceAdapter2!=0)
+    {
+    this->ShaderDeviceAdapter2->Delete();
     }
 }
 
@@ -74,37 +117,185 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
   
-  if(prog!=0 && prog->HasFragmentShaders() )
+  if(prog!=0)
     {
-    if(this->Shader==0)
+    bool progHasVertex=prog->HasVertexShaders();
+    bool progHasFragment=prog->HasFragmentShaders();
+    bool needDefaultPropFuncVS=progHasVertex;
+    bool needDefaultPropFuncFS=progHasFragment;
+    bool needDefaultMainVS=false;
+    bool needDefaultMainFS=false;
+    if(this->Shader2Collection!=0)
       {
-      this->Shader=vtkShader2::New();
-      this->Shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
-      this->Shader->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_fs);
-      vtkUniformVariables *v=this->Shader->GetUniformVariables();
+      needDefaultPropFuncVS=needDefaultPropFuncVS &&
+        !this->Shader2Collection->HasVertexShaders();
+      needDefaultPropFuncFS=needDefaultPropFuncFS &&
+        !this->Shader2Collection->HasFragmentShaders();
+      prog->GetShaders()->AddCollection(this->Shader2Collection);
+      
+      needDefaultMainVS=!progHasVertex && this->Shader2Collection->HasVertexShaders();
+      needDefaultMainFS=!progHasFragment && this->Shader2Collection->HasFragmentShaders();
+      }
+    if(needDefaultPropFuncVS)
+      {
+      if(this->DefaultPropVS==0)
+        {
+        this->DefaultPropVS=vtkShader2::New();
+        this->DefaultPropVS->SetType(VTK_SHADER_TYPE_VERTEX);
+        this->DefaultPropVS->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_vs);
+        // so far, no uniform on the default prop vs.
+        }
+      prog->GetShaders()->AddItem(this->DefaultPropVS);
+      this->UseDefaultPropVS=true;
+      assert("check: prog is initialized" && prog->GetContext()!=0);
+      this->DefaultPropVS->SetContext(prog->GetContext());
+      }
+    if(needDefaultPropFuncFS)
+      {
+      if(this->DefaultPropFS==0)
+        {
+        this->DefaultPropFS=vtkShader2::New();
+        this->DefaultPropFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
+        this->DefaultPropFS->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_fs);
+        }
+      vtkUniformVariables *v=this->DefaultPropFS->GetUniformVariables();
       int value;
       value=0;
       v->SetUniformi("useTexture",1,&value);
-      value=0;
+      value=0; // allocate texture unit?
       v->SetUniformi("uTexture",1,&value);
+      
+      prog->GetShaders()->AddItem(this->DefaultPropFS);
+      this->UseDefaultPropFS=true;
+      assert("check: prog is initialized" && prog->GetContext()!=0);
+      this->DefaultPropFS->SetContext(prog->GetContext());
       }
-    prog->GetShaders()->AddItem(this->Shader);
-    assert("check: prog is initialized" && prog->GetContext()!=0);
-    this->Shader->SetContext(prog->GetContext());
+    if(needDefaultMainVS)
+      {
+      if(this->DefaultMainVS==0)
+        {
+        this->DefaultMainVS=vtkShader2::New();
+        this->DefaultMainVS->SetType(VTK_SHADER_TYPE_VERTEX);
+        this->DefaultMainVS->SetSourceCode(vtkOpenGLPropertyDefaultMain_vs);
+        // so far, no uniform on the default main() vs.
+        }
+      prog->GetShaders()->AddItem(this->DefaultMainVS);
+      this->UseDefaultMainVS=true;
+      assert("check: prog is initialized" && prog->GetContext()!=0);
+      this->DefaultMainVS->SetContext(prog->GetContext());
+      }
+    if(needDefaultMainFS)
+      {
+      if(this->DefaultMainFS==0)
+        {
+        this->DefaultMainFS=vtkShader2::New();
+        this->DefaultMainFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
+        this->DefaultMainFS->SetSourceCode(vtkOpenGLPropertyDefaultMain_fs);
+        // so far, no uniform on the default main() fs.
+        }
+      prog->GetShaders()->AddItem(this->DefaultMainFS);
+      this->UseDefaultMainFS=true;
+      assert("check: prog is initialized" && prog->GetContext()!=0);
+      this->DefaultMainFS->SetContext(prog->GetContext());
+      }
+    }
+  else
+    {
+    if(this->Shader2Collection!=0)
+      {
+      bool needDefaultMainVS=this->Shader2Collection->HasVertexShaders();
+      bool needDefaultMainFS=this->Shader2Collection->HasFragmentShaders();
+      
+      if(this->PropProgram==0)
+        {
+        this->PropProgram=vtkShaderProgram2::New();
+        this->PropProgram->SetContext(static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow()));
+        }
+      this->PropProgram->GetShaders()->AddCollection(this->Shader2Collection);
+      
+      if(needDefaultMainVS)
+        {
+        if(this->DefaultMainVS==0)
+          {
+          this->DefaultMainVS=vtkShader2::New();
+          this->DefaultMainVS->SetType(VTK_SHADER_TYPE_VERTEX);
+          this->DefaultMainVS->SetSourceCode(vtkOpenGLPropertyDefaultMain_vs);
+          // so far, no uniform on the default main() vs.
+          }
+        this->PropProgram->GetShaders()->AddItem(this->DefaultMainVS);
+        this->UseDefaultMainVS=true;
+        assert("check: prog is initialized" && this->PropProgram->GetContext()!=0);
+        this->DefaultMainVS->SetContext(this->PropProgram->GetContext());
+        }
+      if(needDefaultMainFS)
+        {
+        if(this->DefaultMainFS==0)
+          {
+          this->DefaultMainFS=vtkShader2::New();
+          this->DefaultMainFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
+          this->DefaultMainFS->SetSourceCode(vtkOpenGLPropertyDefaultMain_fs);
+          // so far, no uniform on the default main() fs.
+          }
+        this->PropProgram->GetShaders()->AddItem(this->DefaultMainFS);
+        this->UseDefaultMainFS=true;
+        assert("check: prog is initialized" && this->PropProgram->GetContext()!=0);
+        this->DefaultMainFS->SetContext(this->PropProgram->GetContext());
+        }
+      }
+    else
+      {
+      // fixed-pipeline
+      }
+    }
+  
+  if(prog!=0 || this->PropProgram!=0)
+    {
+    if(this->ShaderDeviceAdapter2==0)
+      {
+      this->ShaderDeviceAdapter2=vtkGLSLShaderDeviceAdapter2::New();
+      }
+    if(prog!=0)
+      {
+      this->ShaderDeviceAdapter2->SetShaderProgram(prog);
+      this->CurrentShaderProgram2=prog;
+      }
+    else
+      {
+      this->ShaderDeviceAdapter2->SetShaderProgram(this->PropProgram);
+      this->CurrentShaderProgram2=this->PropProgram;
+      }
+    }
+  
+  if(prog!=0)
+    {
     prog->Use();
     if(!prog->IsValid())
       {
       vtkErrorMacro(<<prog->GetLastValidateLog());
       }
     }
+  else
+    {
+    if(this->PropProgram!=0)
+      {
+      this->PropProgram->Use();
+      if(!this->PropProgram->IsValid())
+        {
+        vtkErrorMacro(<<this->PropProgram->GetLastValidateLog());
+        }
+      }
+    }
  
-  glDisable(GL_TEXTURE_2D);
+//  cout << "opengl property after prog initialization." << endl;
+//  glFinish();
+  
+  glDisable(GL_TEXTURE_2D); // fixed-pipeline
 
   // disable alpha testing (this may have been enabled
   // by another actor in OpenGLTexture)
   glDisable (GL_ALPHA_TEST);
 
-  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_COLOR_MATERIAL); // fixed-pipeline
 
   Face = GL_FRONT_AND_BACK;
   // turn on/off backface culling
@@ -229,28 +420,55 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   vtkIdType numTextures = this->GetNumberOfTextures();
   if (numTextures > 0)
     {
-    this->LoadMultiTexturingExtensions(ren);
-    if (vtkgl::ActiveTexture)
+    if(prog==0) // fixed-pipeline multitexturing
       {
-      GLint numSupportedTextures;
-      glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-      for (vtkIdType t = 0; t < numTextures; t++)
+      this->LoadMultiTexturingExtensions(ren);
+      if (vtkgl::ActiveTexture)
         {
-        int texture_unit = this->GetTextureUnitAtIndex(t);
-        if (texture_unit >= numSupportedTextures || texture_unit < 0)
+        GLint numSupportedTextures;
+        glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+        for (vtkIdType t = 0; t < numTextures; t++)
           {
-          vtkErrorMacro("Hardware does not support the number of textures defined.");
-          continue;
+          int texture_unit = this->GetTextureUnitAtIndex(t);
+          if (texture_unit >= numSupportedTextures || texture_unit < 0)
+            {
+            vtkErrorMacro("Hardware does not support the number of textures defined.");
+            continue;
+            }
+          
+          vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+          this->GetTextureAtIndex(t)->Render(ren);
           }
-
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
-        this->GetTextureAtIndex(t)->Render(ren);
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0);
         }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      else
+        {
+        this->GetTextureAtIndex(0)->Render(ren); // one-texture fixed-pipeline
+        }
       }
     else
       {
-      this->GetTextureAtIndex(0)->Render(ren);
+      // texture unit are assigned at each call to render, as render can
+      // happen in different/multiple passes.
+      
+      vtkTextureUnitManager *m=
+        static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow())->GetTextureUnitManager();
+      
+      for (vtkIdType t = 0; t < numTextures; t++)
+        {
+        vtkTexture *tex=this->GetTextureAtIndex(t);
+        int unit=m->Allocate();
+        if(unit==-1)
+          {
+          vtkErrorMacro(<<" not enough texture units.");
+          return;
+          }
+        this->SetTexture(unit,tex);
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + unit);
+        // bind (and load if not yet loaded)
+        tex->Render(ren);
+        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
     }
 
@@ -261,39 +479,91 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 void vtkOpenGLProperty::PostRender(vtkActor *actor,
                                    vtkRenderer *renderer)
 {
+//  cout << "opengl property PostRender." << endl;
+//  glFinish();
+  
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
-  if(prog!=0 && prog->HasFragmentShaders())
+  if(prog!=0)
     {
     prog->Restore();
-    prog->GetShaders()->RemoveItem(this->Shader);
+    if(this->Shader2Collection!=0)
+      {
+      prog->GetShaders()->RemoveCollection(this->Shader2Collection);
+      }
+    if(this->UseDefaultMainVS)
+      {
+      prog->GetShaders()->RemoveItem(this->DefaultMainVS);
+      this->UseDefaultMainVS=false;
+      }
+     if(this->UseDefaultMainFS)
+      {
+      prog->GetShaders()->RemoveItem(this->DefaultMainFS);
+      this->UseDefaultMainFS=false;
+      }
+     if(this->UseDefaultPropVS)
+      {
+      prog->GetShaders()->RemoveItem(this->DefaultPropVS);
+      this->UseDefaultPropVS=false;
+      }
+     if(this->UseDefaultPropFS)
+      {
+      prog->GetShaders()->RemoveItem(this->DefaultPropFS);
+      this->UseDefaultPropFS=false;
+      }
     }
+   if(this->PropProgram!=0)
+    {
+    this->PropProgram->Restore();
+    this->PropProgram->ReleaseGraphicsResources();
+    this->UseDefaultMainVS=false;
+    this->UseDefaultMainFS=false;
+    this->PropProgram->Delete();
+    this->PropProgram=0;
+    }
+   this->CurrentShaderProgram2=0;
+   
   this->Superclass::PostRender(actor, renderer);
 
   // render any textures.
   vtkIdType numTextures = this->GetNumberOfTextures();
   if (numTextures > 0 && vtkgl::ActiveTexture)
     {
-    GLint numSupportedTextures;
-    glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-    for (vtkIdType i = 0; i < numTextures; i++)
+    if(prog==0) // fixed-pipeline multitexturing
       {
-      int texture_unit = this->GetTextureUnitAtIndex(i);
-      if (texture_unit >= numSupportedTextures || texture_unit < 0)
+      GLint numSupportedTextures;
+      glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+      for (vtkIdType i = 0; i < numTextures; i++)
         {
-        vtkErrorMacro("Hardware does not support the number of textures defined.");
-        continue;
+        int texture_unit = this->GetTextureUnitAtIndex(i);
+        if (texture_unit >= numSupportedTextures || texture_unit < 0)
+          {
+          vtkErrorMacro("Hardware does not support the number of textures defined.");
+          continue;
+          }
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+        // Disable any possible texture.  Wouldn't having a PostRender on
+        // vtkTexture be better?
+        glDisable(GL_TEXTURE_1D);
+        glDisable(GL_TEXTURE_2D);
+        glDisable(vtkgl::TEXTURE_3D);
+        glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
+        glDisable(vtkgl::TEXTURE_CUBE_MAP);
         }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
-      // Disable any possible texture.  Wouldn't having a PostRender on
-      // vtkTexture be better?
-      glDisable(GL_TEXTURE_1D);
-      glDisable(GL_TEXTURE_2D);
-      glDisable(vtkgl::TEXTURE_3D);
-      glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
-      glDisable(vtkgl::TEXTURE_CUBE_MAP);
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+    else
+      {
+      vtkTextureUnitManager *m=
+        static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetTextureUnitManager();
+      
+      for (vtkIdType t = 0; t < numTextures; t++)
+        {
+        int textureUnit=this->GetTextureUnitAtIndex(t);
+        m->Free(textureUnit);
+        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      }
     }
 }
 
@@ -378,6 +648,57 @@ void vtkOpenGLProperty::LoadMultiTexturingExtensions(vtkRenderer* ren)
     }
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Read this->Material from new style shaders.
+void vtkOpenGLProperty::ReadFrameworkMaterial()
+{
+  vtkShader2Collection *shaders=vtkShader2Collection::New();
+  this->SetShader2Collection(shaders);
+  shaders->Delete();
+  
+  
+  if (!this->Material)
+    {
+    vtkErrorMacro("No Material set to read.");
+    return;
+    }
+ 
+  int cc;
+  int max = this->Material->GetNumberOfVertexShaders();
+  for (cc=0; cc < max; cc++)
+    {
+    vtkShader2 *shader=vtkShader2::New();
+    vtkXMLShader *XMLshader=this->Material->GetVertexShader(cc);
+    
+    shader->SetType(VTK_SHADER_TYPE_VERTEX);
+    shader->SetSourceCode(XMLshader->GetCode());
+    
+    // there is no uniform in the example
+//    vtkUniformVariables *var=shader->GetUniformVariables();
+//    var->
+    
+    shaders->AddItem(shader);
+    shader->Delete();
+    }
+  vtkDebugMacro(<< max << " Vertex shaders added.");
+ 
+  max = this->Material->GetNumberOfFragmentShaders();
+  for (cc=0; cc < max; cc++)
+    {
+    vtkShader2 *shader=vtkShader2::New();
+    vtkXMLShader *XMLshader=this->Material->GetFragmentShader(cc);
+    
+    shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    shader->SetSourceCode(XMLshader->GetCode());
+    
+    shaders->AddItem(shader);
+    shader->Delete();
+    }
+  vtkDebugMacro(<< max << " Fragment shaders added.");
+  
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
 {
@@ -413,14 +734,66 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
     }
 
   this->Superclass::ReleaseGraphicsResources(win);
-  if(this->Shader!=0)
+  
+  if(this->Shader2Collection!=0)
     {
-    this->Shader->ReleaseGraphicsResources();
+    this->Shader2Collection->ReleaseGraphicsResources();
     }
+  if(this->PropProgram!=0)
+    {
+    this->PropProgram->ReleaseGraphicsResources();
+    }
+  if(this->DefaultMainVS!=0)
+    {
+    this->DefaultMainVS->ReleaseGraphicsResources();
+    }
+   if(this->DefaultMainFS!=0)
+    {
+    this->DefaultMainFS->ReleaseGraphicsResources();
+    }
+   if(this->DefaultPropVS!=0)
+     {
+     this->DefaultPropVS->ReleaseGraphicsResources();
+     }
+   if(this->DefaultPropFS!=0)
+     {
+     this->DefaultPropFS->ReleaseGraphicsResources();
+     }
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Shader2Collection: ";
+  if(this->Shader2Collection!=0)
+    {
+    os << endl;
+    this->Shader2Collection->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  
+  if(this->CurrentShaderProgram2!=0)
+    {
+    os << endl;
+    this->CurrentShaderProgram2->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  
+  if(this->ShaderDeviceAdapter2!=0)
+    {
+    os << endl;
+    this->ShaderDeviceAdapter2->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }

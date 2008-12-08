@@ -87,6 +87,12 @@ public:
   // The Language of a vtkXMLMaterial is based on the Language of it's
   // shaders. 
   int GetShaderLanguage();
+  
+  // Description:
+  // Get the style the shaders.
+  // \post valid_result: result==1 || result==2
+  int GetShaderStyle();
+  
 protected:
   vtkXMLMaterial();
   ~vtkXMLMaterial();

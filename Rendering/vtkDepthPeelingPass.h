@@ -178,6 +178,9 @@ public:
   vtkShaderProgram2 *Prog;
   vtkShader2 *Shader;
   
+  int ShadowTexUnit; // texture unit allocated for the shadow texture
+  int OpaqueShadowTexUnit; // texture unit allocated for the opaque shadow tex.
+  
  private:
   vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
   void operator=(const vtkDepthPeelingPass&);  // Not implemented.

@@ -69,6 +69,27 @@ class VTK_RENDERING_EXPORT vtkShader2Collection : public vtkCollection
   // \post removed: this->GetNumberOfItems()=old this->GetNumberOfItems()-other->GetNumberOfItems()
   void RemoveCollection(vtkShader2Collection *other);
   
+  // Description:
+  // Tells if at least one of the shaders is a vertex shader.
+  // If yes, it means the vertex processing of the fixed-pipeline is bypassed.
+  // If no, it means the vertex processing of the fixed-pipeline is used.
+  bool HasVertexShaders();
+  
+  // Description:
+  // Tells if at least one of the shaders is a fragment shader.
+  // If yes, it means the fragment processing of the fixed-pipeline is
+  // bypassed.
+  // If no, it means the fragment processing of the fixed-pipeline is used.
+  bool HasFragmentShaders();
+  
+  // Description:
+  // Tells if at least one of the shaders is a geometry shader.
+  bool HasGeometryShaders();
+  
+  // Description:
+  // Release OpenGL resources (shader id of each item).
+  void ReleaseGraphicsResources();
+  
 protected:
   vtkShader2Collection();
   ~vtkShader2Collection();

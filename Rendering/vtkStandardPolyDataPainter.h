@@ -45,6 +45,8 @@ class vtkDataArray;
 class vtkPointData;
 class vtkPoints;
 class vtkShaderDeviceAdapter;
+class vtkGLSLShaderDeviceAdapter2;
+
 class VTK_RENDERING_EXPORT vtkStandardPolyDataPainter : public vtkPolyDataPainter
 {
 public:
@@ -65,17 +67,19 @@ protected:
                               unsigned long typeflags, bool forceCompileOnly);
 
   void DrawCells(int mode, vtkCellArray *connectivity,
-    vtkIdType startCellId, 
-    vtkShaderDeviceAdapter* shaderDevice,
-    vtkRenderer *renderer, 
-    int buildnormals, int interpolation);
+                 vtkIdType startCellId, 
+                 vtkShaderDeviceAdapter *shaderDevice,
+                 vtkGLSLShaderDeviceAdapter2 *shaderDevice2,
+                 vtkRenderer *renderer, 
+                 int buildnormals, int interpolation);
 
   // Description:
   // Called before RenderInternal() if the Information has been changed
   // since the last time this method was called.
   virtual void ProcessInformation(vtkInformation*);
 
-  void UpdateGenericAttributesCache(vtkShaderDeviceAdapter*);
+  void UpdateGenericAttributesCache(vtkShaderDeviceAdapter *shaderDevice,
+                                    vtkGLSLShaderDeviceAdapter2 *shaderDevice2);
 
   vtkIdType TotalCells;
 private:

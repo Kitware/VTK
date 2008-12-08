@@ -52,7 +52,7 @@ public:
   MapOfTextureNames TextureNames;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.75");
+vtkCxxRevisionMacro(vtkProperty, "1.76");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -526,6 +526,15 @@ void vtkProperty::LoadMaterialFromString(const char* materialxml)
   material->Delete();
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Read this->Material from new style shaders.
+// Default implementation is empty.
+void vtkProperty::ReadFrameworkMaterial()
+{
+  // empty. See vtkOpenGLProperty.
+}
+
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
 {
@@ -537,20 +546,41 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
     this->LoadProperty();
     this->LoadTextures();
     int lang = this->Material->GetShaderLanguage();
-    vtkShaderProgram* shader = vtkShaderProgram::CreateShaderProgram(lang);
-    if (shader)
+    int style=this->Material->GetShaderStyle();
+    
+    if(style==2)
       {
-      this->SetShaderProgram(shader);
-      shader->Delete();
-      this->ShaderProgram->SetMaterial(this->Material);
-      this->ShaderProgram->ReadMaterial();
+      if(lang==vtkXMLShader::LANGUAGE_GLSL)
+        {
+        // ready-for-multipass
+        this->ReadFrameworkMaterial();
+//        vtkShader2Collection *shaders=vtkShader2Collection::New();
+//        this->SetShaderCollection(shaders);
+//        shaders->Delete();
+        }
+      else
+        {
+        vtkErrorMacro(<<"style 2 is only supported with GLSL. Failed to setup the shader.");
+        this->SetShaderProgram(0); // failed to create shaders.
+        }
       }
-    // Some materials may have no shaders and only set ivars for vtkProperty.
-    else if( (material->GetNumberOfVertexShaders() != 0) ||
-             (material->GetNumberOfFragmentShaders() != 0) )
+    else
       {
-      vtkErrorMacro("Failed to setup the shader.");
-      this->SetShaderProgram(0); // failed to create shaders.
+      vtkShaderProgram* shader = vtkShaderProgram::CreateShaderProgram(lang);
+      if (shader)
+        {
+        this->SetShaderProgram(shader);
+        shader->Delete();
+        this->ShaderProgram->SetMaterial(this->Material);
+        this->ShaderProgram->ReadMaterial();
+        }
+      // Some materials may have no shaders and only set ivars for vtkProperty.
+      else if( (material->GetNumberOfVertexShaders() != 0) ||
+               (material->GetNumberOfFragmentShaders() != 0) )
+        {
+        vtkErrorMacro("Failed to setup the shader.");
+        this->SetShaderProgram(0); // failed to create shaders.
+        }
       }
     }
   else
