@@ -33,7 +33,7 @@
 #include "vtkEdgeListIterator.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkGraphHierarchicalBundle.h"
-#include "vtkGraphTransferDataToTree.h"
+#include "vtkTransferAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInteractorStyleRubberBand2D.h"
@@ -69,7 +69,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.14");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.15");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -87,7 +87,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->GraphEdgeMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->GraphEdgeActor         = vtkSmartPointer<vtkActor>::New();
   this->TreeVisibilityRepresentation = vtkSmartPointer<vtkDataRepresentation>::New();
-  this->TransferAttributes     = vtkSmartPointer<vtkGraphTransferDataToTree>::New();
+  this->TransferAttributes     = vtkSmartPointer<vtkTransferAttributes>::New();
 
   //TreeRing objects
   this->TreeRingLayout         = vtkSmartPointer<vtkTreeRingLayout>::New();
@@ -138,6 +138,8 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
 
   this->TransferAttributes->SetSourceArrayName("VertexDegree");
   this->TransferAttributes->SetTargetArrayName("GraphVertexDegree");  
+  this->TransferAttributes->SetSourceFieldType(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
+  this->TransferAttributes->SetTargetFieldType(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->TransferAttributes->SetDefaultValue(1);
 
   this->TreeRingLabelMapper->SetLabelModeToLabelFieldData();
@@ -220,8 +222,8 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   // -  - Data connection
   //
   this->VertexDegree->SetInputConnection(this->TreeAggregation->GetOutputPort());
-  this->TransferAttributes->SetInputConnection(1, this->VertexDegree->GetOutputPort());
-  this->TransferAttributes->SetInputConnection(0, this->GraphVertexDegree->GetOutputPort());
+  this->TransferAttributes->SetInputConnection(0, this->VertexDegree->GetOutputPort());
+  this->TransferAttributes->SetInputConnection(1, this->GraphVertexDegree->GetOutputPort());
   
   this->TreeRingLayout->SetInputConnection(this->TransferAttributes->GetOutputPort());
   this->TreeRingPointLayout->SetInputConnection(this->TreeRingLayout->GetOutputPort());
@@ -240,7 +242,6 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
   this->SelectedGraphActor->GetProperty()->SetLineWidth(5.0);
 
-//  this->TreeRingLayout->SetLayoutStrategy(0);
   this->TreeRingMapper->SetInputConnection(this->TreeRingLayout->GetOutputPort());
   this->TreeRingLayoutStrategy->SetRingThickness(1.);
   this->TreeRingPointLayout->SetExteriorRadius( this->TreeRingLayoutStrategy->GetInteriorRadius() );

@@ -51,7 +51,7 @@ class vtkExtractSelectedGraph;
 class vtkGraph;
 class vtkGraphHierarchicalBundle;
 class vtkGraphMapper;
-class vtkGraphTransferDataToTree;
+class vtkTransferAttributes;
 class vtkKdTreeSelector;
 class vtkLookupTable;
 class vtkPolyDataMapper;
@@ -216,7 +216,7 @@ protected:
   vtkSmartPointer<vtkVertexDegree>                 GraphVertexDegree;
   vtkSmartPointer<vtkEdgeCenters>                  EdgeCenters;
   vtkSmartPointer<vtkTreeFieldAggregator>          TreeAggregation;
-  vtkSmartPointer<vtkGraphTransferDataToTree>      TransferAttributes;
+  vtkSmartPointer<vtkTransferAttributes>           TransferAttributes;
   
   // Representation objects
   vtkSmartPointer<vtkDynamic2DLabelMapper>         EdgeLabelMapper;
