@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.43");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.44");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -364,10 +364,9 @@ public:
 };
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
+void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkDataObject* inMetaDO,
                                                     vtkStringArray* rowNames,
-                                                    vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
@@ -379,6 +378,26 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
   vtkStdString varNameX = rowNames->GetValue( 0 );
   vtkStdString varNameY = rowNames->GetValue( 1 );
 
+  // Create the outData columns
+  int nv = this->AssessNames->GetNumberOfValues();
+  for ( int v = 0; v < nv; ++ v )
+    {
+    vtksys_ios::ostringstream assessColName;
+    assessColName << this->AssessNames->GetValue( v )
+                  << "("
+                  << varNameX
+                  << ","
+                  << varNameY
+                  << ")";
+    
+    vtkDoubleArray* assessValues = vtkDoubleArray::New();
+    assessValues->SetName( assessColName.str().c_str() );
+    assessValues->SetNumberOfTuples( outData->GetNumberOfRows() );
+    outData->AddColumn( assessValues );
+    assessValues->Delete();
+    }
+
+  // Loop over parameters table until the requested variables are found 
   vtkIdType nRowP = inMeta->GetNumberOfRows();
   for ( int i = 0; i < nRowP; ++ i )
     {
@@ -386,8 +405,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
          && inMeta->GetValueByName( i, "Variable Y" ).ToString() == varNameY )
       { 
       // Grab the data for the requested variables
-      vtkAbstractArray* arrX = inData->GetColumnByName( varNameX );
-      vtkAbstractArray* arrY = inData->GetColumnByName( varNameY );
+      vtkAbstractArray* arrX = outData->GetColumnByName( varNameX );
+      vtkAbstractArray* arrY = outData->GetColumnByName( varNameY );
       if ( ! arrX || ! arrY )
         {
         dfunc = 0;
@@ -403,11 +422,11 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
         return;
         }
 
-      double meanX = inMeta->GetValueByName( i, columnNames->GetValue( 0 ) ).ToDouble();
-      double meanY = inMeta->GetValueByName( i, columnNames->GetValue( 1 ) ).ToDouble();
-      double varX  = inMeta->GetValueByName( i, columnNames->GetValue( 2 ) ).ToDouble();
-      double varY  = inMeta->GetValueByName( i, columnNames->GetValue( 3 ) ).ToDouble();
-      double covXY = inMeta->GetValueByName( i, columnNames->GetValue( 4 ) ).ToDouble();
+      double meanX = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 0 ) ).ToDouble();
+      double meanY = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 1 ) ).ToDouble();
+      double varX  = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 2 ) ).ToDouble();
+      double varY  = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 3 ) ).ToDouble();
+      double covXY = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 4 ) ).ToDouble();
 
       double d = varX * varY - covXY * covXY;
       if ( d <= 0. )

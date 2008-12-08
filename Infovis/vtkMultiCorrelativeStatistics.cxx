@@ -18,10 +18,10 @@
 #define VTK_MULTICORRELATIVE_KEYCOLUMN1 "Column1"
 #define VTK_MULTICORRELATIVE_KEYCOLUMN2 "Column2"
 #define VTK_MULTICORRELATIVE_ENTRIESCOL "Entries"
-#define VTK_MULTICORRELATIVE_AVERAGECOL "Column Averages"
+#define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.6");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.7");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -241,8 +241,8 @@ int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInfor
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::ExecuteLearn(
-  vtkTable* inData, vtkDataObject* outMetaDO )
+void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData, 
+                                                  vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
@@ -594,7 +594,6 @@ void vtkMultiCorrelativeStatistics::ExecuteAssess(
     this->SelectAssessFunctor( inData, 
                                reqModel, 
                                0, 
-                               this->AssessParameters, 
                                dfunc );
     vtkMultiCorrelativeAssessFunctor* mcfunc = static_cast<vtkMultiCorrelativeAssessFunctor*>( dfunc );
     if ( ! mcfunc )
@@ -654,10 +653,10 @@ void vtkMultiCorrelativeStatistics::ExecuteAssess(
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::SelectAssessFunctor(
-  vtkTable* inData, vtkDataObject* inMetaDO,
-  vtkStringArray* vtkNotUsed(rowNames), vtkStringArray* vtkNotUsed(columnNames),
-  AssessFunctor*& dfunc )
+void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData, 
+                                                         vtkDataObject* inMetaDO,
+                                                         vtkStringArray* vtkNotUsed(rowNames), 
+                                                         AssessFunctor*& dfunc )
 {
   (void)inData;
 

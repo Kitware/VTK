@@ -90,10 +90,9 @@ protected:
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* inData, 
+  virtual void SelectAssessFunctor( vtkTable* outData, 
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
-                                    vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc );
 //ETX
 

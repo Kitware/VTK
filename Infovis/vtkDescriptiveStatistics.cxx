@@ -33,8 +33,9 @@
 #include "vtkVariantArray.h"
 
 #include <vtkstd/set>
+#include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.58");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.59");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -378,20 +379,36 @@ public:
 };
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* inData,
+void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkDataObject* inMetaDO,
                                                     vtkStringArray* rowNames,
-                                                    vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 
     { 
     return; 
-    } 
+    }
 
   vtkStdString varName = rowNames->GetValue( 0 );
 
+  // Create the outData columns 
+  int nv = this->AssessNames->GetNumberOfValues(); 
+  for ( int v = 0; v < nv; ++ v ) 
+    { 
+    vtksys_ios::ostringstream assessColName; 
+    assessColName << this->AssessNames->GetValue( v ) 
+                  << "(" 
+                  << varName 
+                  << ")";
+ 
+    vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
+    assessValues->SetName( assessColName.str().c_str() ); 
+    assessValues->SetNumberOfTuples( outData->GetNumberOfRows() ); 
+    outData->AddColumn( assessValues ); 
+    assessValues->Delete(); 
+    } 
+ 
   // Loop over parameters table until the requested variable is found
   vtkIdType nRowP = inMeta->GetNumberOfRows();
   for ( int i = 0; i < nRowP; ++ i )
@@ -399,7 +416,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* inData,
     if ( inMeta->GetValueByName( i, "Variable" ).ToString() == varName )
       {
       // Grab the data for the requested variable
-      vtkAbstractArray* arr = inData->GetColumnByName( varName );
+      vtkAbstractArray* arr = outData->GetColumnByName( varName );
       if ( ! arr )
         {
         dfunc = 0;
@@ -414,8 +431,8 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* inData,
         return;
         }
 
-      double nominal   = inMeta->GetValueByName( i, columnNames->GetValue( 0 ) ).ToDouble();
-      double deviation = inMeta->GetValueByName( i, columnNames->GetValue( 1 ) ).ToDouble();
+      double nominal   = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 0 ) ).ToDouble();
+      double deviation = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 1 ) ).ToDouble();
 
       if ( deviation == 0. )
         {

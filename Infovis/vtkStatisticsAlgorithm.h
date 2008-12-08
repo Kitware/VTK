@@ -139,10 +139,9 @@ public:
 
   // Description:
   // A pure virtual method to select the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* inData, 
+  virtual void SelectAssessFunctor( vtkTable* outData, 
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
-                                    vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc ) = 0;
 //ETX
 

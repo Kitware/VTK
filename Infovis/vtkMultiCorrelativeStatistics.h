@@ -40,12 +40,12 @@ PURPOSE.  See the above copyright notice for more information.
 //   named ColA, ColB, and ColC.
 //   The resulting table will look like this:
 //   <pre>
-//      Column  |Column Averages|ColA     |ColB     |ColC
-//      --------+---------------+---------+---------+---------
-//      ColA    |avg(A)         |cov(A,A) |cov(A,B) |cov(A,C)
-//      ColB    |avg(B)         |chol(1,1)|cov(B,B) |cov(B,C)
-//      ColC    |avg(C)         |chol(2,1)|chol(2,2)|cov(C,C)
-//      Cholesky|length(A)      |chol(3,1)|chol(3,2)|chol(3,3)
+//      Column  |Mean     |ColA     |ColB     |ColC
+//      --------+---------+---------+---------+---------
+//      ColA    |avg(A)   |cov(A,A) |cov(A,B) |cov(A,C)
+//      ColB    |avg(B)   |chol(1,1)|cov(B,B) |cov(B,C)
+//      ColC    |avg(C)   |chol(2,1)|chol(2,2)|cov(C,C)
+//      Cholesky|length(A)|chol(3,1)|chol(3,2)|chol(3,3)
 //   </pre>
 // * Assess: given a set of results matrices as specified above in input port 1 and
 //   tabular data on input port 0 that contains column names matching those
@@ -99,7 +99,6 @@ protected:
   virtual void SelectAssessFunctor( vtkTable* inData, 
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
-                                    vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc );
   //ETX
 

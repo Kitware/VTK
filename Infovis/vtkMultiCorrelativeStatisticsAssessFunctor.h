@@ -11,7 +11,7 @@ class vtkTable;
 #define VTK_MULTICORRELATIVE_KEYCOLUMN1 "Column1"
 #define VTK_MULTICORRELATIVE_KEYCOLUMN2 "Column2"
 #define VTK_MULTICORRELATIVE_ENTRIESCOL "Entries"
-#define VTK_MULTICORRELATIVE_AVERAGECOL "Column Averages"
+#define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
 class vtkMultiCorrelativeAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor

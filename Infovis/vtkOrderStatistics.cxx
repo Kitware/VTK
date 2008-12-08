@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -33,8 +34,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtkstd/map>
 #include <vtkstd/set>
+#include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.38");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.39");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -268,19 +270,35 @@ public:
 };
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::SelectAssessFunctor( vtkTable* inData,
+void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
                                               vtkDataObject* inMetaDO,
                                               vtkStringArray* rowNames,
-                                              vtkStringArray* vtkNotUsed(columnNames),
                                               AssessFunctor*& dfunc )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 
     { 
     return; 
-    } 
+    }
 
   vtkStdString varName = rowNames->GetValue( 0 );
+
+  // Create the outData columns  
+  int nv = this->AssessNames->GetNumberOfValues();  
+  for ( int v = 0; v < nv; ++ v )  
+    {  
+      vtksys_ios::ostringstream assessColName;  
+      assessColName << this->AssessNames->GetValue( v )  
+                    << "("  
+                    << varName  
+                    << ")"; 
+  
+      vtkIntArray* assessValues = vtkIntArray::New();  
+      assessValues->SetName( assessColName.str().c_str() );  
+      assessValues->SetNumberOfTuples( outData->GetNumberOfRows() );  
+      outData->AddColumn( assessValues );  
+      assessValues->Delete();  
+    }  
 
   // Loop over parameters table until the requested variable is found
   vtkIdType nRowP = inMeta->GetNumberOfRows();
@@ -289,7 +307,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* inData,
     if ( inMeta->GetValueByName( i, "Variable" ).ToString() == varName )
       {
       // Grab the data for the requested variable
-      vtkAbstractArray* vals = inData->GetColumnByName( varName );
+      vtkAbstractArray* vals = outData->GetColumnByName( varName );
       if ( ! vals )
         {
         dfunc = 0;

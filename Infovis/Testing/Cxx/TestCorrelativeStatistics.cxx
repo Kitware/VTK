@@ -245,7 +245,7 @@ int TestCorrelativeStatistics( int, char *[] )
       for ( int i = 0; i < 3; ++ i )
         {
         cout << "     "
-             << outputData->GetValue( r,  tableIdx[i] ).ToString()
+             << outputData->GetValue( r,  tableIdx[i] ).ToDouble()
              << "    ";
         }
       cout << "\n";

@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.21");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.22");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -155,7 +155,7 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     varNames->SetNumberOfValues( this->NumberOfVariables );
     varNames->SetValue( 0, varName );
 
-    // Create the outData columns
+    // Store names to be able to use SetValueByName which is faster than SetValue    
     int nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
     for ( int v = 0; v < nv; ++ v )
@@ -166,20 +166,14 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                     << varName
                     << ")";
 
-      vtkVariantArray* assessValues = vtkVariantArray::New();
-      names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
-      assessValues->SetName( names[v] );
-      assessValues->SetNumberOfTuples( nRowD );
-      outData->AddColumn( assessValues );
-      assessValues->Delete();
+      names[v] = assessColName.str().c_str(); 
       }
 
     // Select assess functor
     AssessFunctor* dfunc;
-    this->SelectAssessFunctor( inData,
+    this->SelectAssessFunctor( outData,
                                inMeta,
                                varNames,
-                               this->AssessParameters,
                                dfunc );
 
     if ( ! dfunc )

@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.2");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.3");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -592,7 +592,11 @@ void vtkPCAStatistics::ExecuteAssess(
       continue;
       }
 
-    this->SelectAssessFunctor( inData, reqModel, 0, this->AssessParameters, dfunc );
+    this->SelectAssessFunctor( inData, 
+                               reqModel, 
+                               0, 
+                               dfunc );
+
     vtkPCAAssessFunctor* pcafunc = static_cast<vtkPCAAssessFunctor*>( dfunc );
     if ( ! pcafunc )
       {
@@ -644,10 +648,10 @@ void vtkPCAStatistics::ExecuteAssess(
     }
 }
 
-void vtkPCAStatistics::SelectAssessFunctor(
-  vtkTable* inData, vtkDataObject* inMetaDO,
-  vtkStringArray* vtkNotUsed(rowNames), vtkStringArray* vtkNotUsed(columnNames),
-  AssessFunctor*& dfunc )
+void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData, 
+                                            vtkDataObject* inMetaDO,
+                                            vtkStringArray* vtkNotUsed(rowNames), 
+                                            AssessFunctor*& dfunc )
 {
   dfunc = 0;
   vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );

@@ -40,7 +40,7 @@
 typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.33");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.34");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -391,10 +391,9 @@ public:
 };
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
+void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkDataObject* inMetaDO,
                                                     vtkStringArray* rowNames,
-                                                    vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
@@ -406,9 +405,28 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
   vtkStdString varNameX = rowNames->GetValue( 0 );
   vtkStdString varNameY = rowNames->GetValue( 1 );
 
+  // Create the outData columns
+  int nv = this->AssessNames->GetNumberOfValues();
+  for ( int v = 0; v < nv; ++ v )
+    {
+    vtksys_ios::ostringstream assessColName;
+    assessColName << this->AssessNames->GetValue( v )
+                  << "("
+                  << varNameX
+                  << ","
+                  << varNameY
+                  << ")";
+    
+    vtkDoubleArray* assessValues = vtkDoubleArray::New();
+    assessValues->SetName( assessColName.str().c_str() );
+    assessValues->SetNumberOfTuples( outData->GetNumberOfRows() );
+    outData->AddColumn( assessValues );
+    assessValues->Delete();
+    }
+
   // Grab the data for the requested variables
-  vtkAbstractArray* valsX = inData->GetColumnByName( varNameX );
-  vtkAbstractArray* valsY = inData->GetColumnByName( varNameY );
+  vtkAbstractArray* valsX = outData->GetColumnByName( varNameX );
+  vtkAbstractArray* valsY = outData->GetColumnByName( varNameY );
   if ( ! valsX || ! valsY )
     {
     dfunc = 0;
@@ -424,6 +442,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
   // Joint CDF 
   double cdf = 0.;
 
+  // Loop over parameters table until the requested variables are found 
   vtkIdType nRowP = inMeta->GetNumberOfRows();
   for ( int i = 0; i < nRowP; ++ i )
     {
@@ -444,7 +463,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
         {
         for ( int j = 0; j < 3; ++ j )
           {
-          pdf[j][x][y] = inMeta->GetValueByName( i, columnNames->GetValue( j ) ).ToDouble();
+          pdf[j][x][y] = inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ) ).ToDouble();
 
           if ( ! j )
             {

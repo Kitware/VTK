@@ -12,7 +12,6 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
-#include "vtkVariantArray.h"
 #include "vtkTable.h"
 #include "vtkDescriptiveStatistics.h"
 
@@ -180,9 +179,9 @@ int TestDescriptiveStatistics( int, char *[] )
   int m0outliers = 0;
   int m1outliers = 0;
   cout << "Outliers:\n";
-  vtkVariantArray* m0reld = vtkVariantArray::SafeDownCast(
+  vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "d(Metric 0)" ) );
-  vtkVariantArray* m1reld = vtkVariantArray::SafeDownCast(
+  vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "d(Metric 1)" ) );
   vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 0" ) );
@@ -202,7 +201,7 @@ int TestDescriptiveStatistics( int, char *[] )
   double maxdev = 1.5;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    dev = m0reld->GetValue( r ).ToDouble();
+    dev = m0reld->GetValue( r );
     if ( dev > maxdev )
       {
       ++ m0outliers;
@@ -222,7 +221,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    dev = m1reld->GetValue( r ).ToDouble();
+    dev = m1reld->GetValue( r );
     if ( dev > maxdev )
       {
       ++ m1outliers;
@@ -268,7 +267,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   m1vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 1" ) );
-  m1reld = vtkVariantArray::SafeDownCast(
+  m1reld = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! m1reld || ! m1vals )
@@ -284,7 +283,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    dev = m1reld->GetValue( r ).ToDouble();
+    dev = m1reld->GetValue( r );
     if ( dev )
       {
       ++ m1outliers;

@@ -192,7 +192,6 @@ protected:
   virtual void SelectAssessFunctor( vtkTable* inData, 
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
-                                    vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc );
   //ETX
 
