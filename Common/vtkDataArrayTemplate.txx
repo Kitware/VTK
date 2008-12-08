@@ -1100,8 +1100,8 @@ vtkIdType vtkDataArrayTemplate<T>::LookupValue(T value)
     return -1;
     }
 
-  int numComps = this->GetNumberOfComponents();
-  vtkIdType numTuples = this->GetNumberOfTuples();
+  int numComps = this->Lookup->SortedArray->GetNumberOfComponents();
+  vtkIdType numTuples = this->Lookup->SortedArray->GetNumberOfTuples();
   T* ptr = static_cast<T*>(this->Lookup->SortedArray->GetVoidPointer(0));
   T* ptrEnd = ptr + numComps*numTuples;
   T* found = vtkstd::lower_bound(ptr, ptrEnd, value);

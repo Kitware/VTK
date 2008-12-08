@@ -76,7 +76,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.15");
+vtkCxxRevisionMacro(vtkVariantArray, "1.16");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -730,8 +730,8 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
     }
 
   // Perform a binary search of the sorted array using STL equal_range.
-  int numComps = this->GetNumberOfComponents();
-  vtkIdType numTuples = this->GetNumberOfTuples();
+  int numComps = this->Lookup->SortedArray->GetNumberOfComponents();
+  vtkIdType numTuples = this->Lookup->SortedArray->GetNumberOfTuples();
   vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
   vtkVariant* ptrEnd = ptr + numComps*numTuples;
   vtkVariant* found = vtkstd::lower_bound(
