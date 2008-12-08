@@ -19,25 +19,25 @@
 -------------------------------------------------------------------------*/
 #include "vtkTransferAttributes.h"
 
-#include "vtkDataObject.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataObject.h"
+#include "vtkDataSet.h" 
 #include "vtkEdgeListIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtkTable.h"
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
-#include "vtkIntArray.h"
-#include "vtkDataSet.h" 
-#include "vtkTable.h"
 
 #include <vtksys/stl/map>
 using vtksys_stl::map;
@@ -61,7 +61,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
   return val;
 }
 
-vtkCxxRevisionMacro(vtkTransferAttributes, "1.4");
+vtkCxxRevisionMacro(vtkTransferAttributes, "1.5");
 vtkStandardNewMacro(vtkTransferAttributes);
 
 vtkTransferAttributes::vtkTransferAttributes()
