@@ -181,6 +181,7 @@ IF(VTK_USE_PARALLEL)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkPCorrelativeStatistics.cxx
     vtkPDescriptiveStatistics.cxx
+    vtkPMultiCorrelativeStatistics.cxx
     )
   SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
 ENDIF(VTK_USE_PARALLEL)
