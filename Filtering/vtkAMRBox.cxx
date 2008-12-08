@@ -656,24 +656,18 @@ ostream &vtkAMRBox::Print(ostream &os) const
   return os;
 }
 
-
-// TODO delete these
-// These are legacy methods going away, do not use!
+#ifndef VTK_LEGACY_REMOVE
 int vtkAMRBox::DoesContainCell(int i, int j, int k)
 {
-  vtkGenericWarningMacro(
-      "DoesContainCell is a deprecated method "
-      "and will be removed. Use Contains instead.");
+  VTK_LEGACY_REPLACED_BODY(vtkAMRBox::DoesContainCell, "VTK 5.4",
+                           vtkAMRBox::Contains);
   return this->Contains(i,j,k);
 }
 
 int vtkAMRBox::DoesContainBox(vtkAMRBox const & box) const
 {
-  vtkGenericWarningMacro(
-      "DoesContainBox is a deprecated method "
-      "and will be removed. Use Contains instead.");
+  VTK_LEGACY_REPLACED_BODY(vtkAMRBox::DoesContainBox, "VTK 5.4",
+                           vtkAMRBox::Contains);
   return this->Contains(box);
 }
-
-
-
+#endif // #ifndef VTK_LEGACY_REMOVE
