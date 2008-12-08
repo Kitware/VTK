@@ -102,6 +102,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # 64-bit compiles... for now, mask them out of dashboard results:
   "vtkfreetype.*warning C4"
   "vtkfreetype.*warning: dereferencing type-punned pointer"
+  "vtkfreetype.*warning: conversion to .* from .* may change the sign of the result"
+  "vtkfreetype.*warning: passing argument .* of .* as .*signed due to prototype"
+  "vtkfreetype.*warning: passing argument .* of .* with different width due to prototype"
 
   # vtknetcdf occasionally has warnings for things that are not a problem.
   "vtknetcdf.*warning: dereferencing type-punned pointer"
