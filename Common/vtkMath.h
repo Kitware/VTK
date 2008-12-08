@@ -772,6 +772,7 @@ private:
   void operator=(const vtkMath&);  // Not implemented.
 };
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 inline float vtkMath::DegreesToRadians()
 {
@@ -808,6 +809,7 @@ inline double vtkMath::DoubleRadiansToDegrees()
 
   return vtkMath::DegreesFromRadians( 1. );
 }
+#endif // #ifndef VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
 inline float vtkMath::RadiansFromDegrees( float x )
