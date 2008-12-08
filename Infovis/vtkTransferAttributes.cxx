@@ -18,6 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 #include "vtkTransferAttributes.h"
+
 #include "vtkDataObject.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -60,7 +61,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
   return val;
 }
 
-vtkCxxRevisionMacro(vtkTransferAttributes, "1.3");
+vtkCxxRevisionMacro(vtkTransferAttributes, "1.4");
 vtkStandardNewMacro(vtkTransferAttributes);
 
 vtkTransferAttributes::vtkTransferAttributes()
