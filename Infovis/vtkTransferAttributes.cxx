@@ -61,7 +61,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
   return val;
 }
 
-vtkCxxRevisionMacro(vtkTransferAttributes, "1.1");
+vtkCxxRevisionMacro(vtkTransferAttributes, "1.2");
 vtkStandardNewMacro(vtkTransferAttributes);
 
 vtkTransferAttributes::vtkTransferAttributes()
@@ -111,31 +111,37 @@ int vtkTransferAttributes::RequestData(
   output->ShallowCopy(targetInput);
   
   // get the input and ouptut
+  int item_count_source = 0;
   vtkDataSetAttributes* dsa_source = 0;
   if (vtkDataSet::SafeDownCast(sourceInput) && 
       this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     dsa_source = vtkDataSet::SafeDownCast(sourceInput)->GetPointData();
+    item_count_source = vtkDataSet::SafeDownCast(sourceInput)->GetNumberOfPoints();
   }
   else if (vtkDataSet::SafeDownCast(sourceInput) &&
            this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
     dsa_source = vtkDataSet::SafeDownCast(sourceInput)->GetCellData();
+    item_count_source = vtkDataSet::SafeDownCast(sourceInput)->GetNumberOfCells();
   }
   else if (vtkGraph::SafeDownCast(sourceInput) &&
            this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_VERTICES)
   {
     dsa_source = vtkGraph::SafeDownCast(sourceInput)->GetVertexData();
+    item_count_source = vtkGraph::SafeDownCast(sourceInput)->GetNumberOfVertices();
   }
   else if (vtkGraph::SafeDownCast(sourceInput) && 
            this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_EDGES)
   {
     dsa_source = vtkGraph::SafeDownCast(sourceInput)->GetEdgeData();
+    item_count_source = vtkGraph::SafeDownCast(sourceInput)->GetNumberOfEdges();
   }
   else if (vtkTable::SafeDownCast(sourceInput) &&
            this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_ROWS)
   {
     dsa_source = vtkTable::SafeDownCast(sourceInput)->GetRowData();
+    item_count_source = vtkTable::SafeDownCast(sourceInput)->GetNumberOfRows();
   }
   else
   {
@@ -146,35 +152,41 @@ int vtkTransferAttributes::RequestData(
 
   vtkDataSetAttributes* dsa_target = 0;
   vtkDataSetAttributes* dsa_out = 0;
+  int item_count_target = 0;
   if (vtkDataSet::SafeDownCast(targetInput) && 
       this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     dsa_target = vtkDataSet::SafeDownCast(targetInput)->GetPointData();
     dsa_out = vtkDataSet::SafeDownCast(output)->GetPointData();
+    item_count_target = vtkDataSet::SafeDownCast(targetInput)->GetNumberOfPoints();
   }
   else if (vtkDataSet::SafeDownCast(targetInput) &&
            this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
     dsa_target = vtkDataSet::SafeDownCast(targetInput)->GetCellData();
     dsa_out = vtkDataSet::SafeDownCast(output)->GetCellData();
+    item_count_target = vtkDataSet::SafeDownCast(targetInput)->GetNumberOfCells();
   }
   else if (vtkGraph::SafeDownCast(targetInput) &&
            this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_VERTICES)
   {
     dsa_target = vtkGraph::SafeDownCast(targetInput)->GetVertexData();
     dsa_out = vtkGraph::SafeDownCast(output)->GetVertexData();
+    item_count_target = vtkGraph::SafeDownCast(targetInput)->GetNumberOfVertices();
   }
   else if (vtkGraph::SafeDownCast(targetInput) && 
            this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_EDGES)
   {
     dsa_target = vtkGraph::SafeDownCast(targetInput)->GetEdgeData();
     dsa_out = vtkGraph::SafeDownCast(output)->GetEdgeData();
+    item_count_target = vtkGraph::SafeDownCast(targetInput)->GetNumberOfEdges();
   }
   else if (vtkTable::SafeDownCast(targetInput) &&
            this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_ROWS)
   {
     dsa_target = vtkTable::SafeDownCast(targetInput)->GetRowData();
     dsa_out = vtkTable::SafeDownCast(output)->GetRowData();
+    item_count_target = vtkTable::SafeDownCast(targetInput)->GetNumberOfRows();
   }
   else
   {
@@ -204,6 +216,17 @@ int vtkTransferAttributes::RequestData(
     return 0;
   }
   
+  if( item_count_source != sourceIdArray->GetNumberOfTuples() )
+  {
+    vtkErrorMacro( "The number of pedigree ids must be equal to the number of items in the source data object." );
+    return 0;
+  }
+  if( item_count_target != targetIdArray->GetNumberOfTuples() )
+  {
+    vtkErrorMacro( "The number of pedigree ids must be equal to the number of items in the target data object." );
+    return 0;
+  }
+
   // Create a map from sourceInput indices to targetInput indices
   // If we are using DirectMapping this is trivial
   // we just create an identity map
