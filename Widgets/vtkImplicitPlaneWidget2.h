@@ -130,6 +130,11 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
 
+  // Description:
+  // Update the cursor shape based on the interaction state. Returns 1
+  // if the cursor shape requested is different from the existing one.
+  int UpdateCursorShape( int interactionState );
+
 private:
   vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&);  //Not implemented
   void operator=(const vtkImplicitPlaneWidget2&);  //Not implemented

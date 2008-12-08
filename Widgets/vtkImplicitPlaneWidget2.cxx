@@ -22,16 +22,16 @@
 #include "vtkWidgetCallbackMapper.h" 
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
+#include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget2, "1.2");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget2, "1.3");
 vtkStandardNewMacro(vtkImplicitPlaneWidget2);
 
 //----------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
 {
   this->WidgetState = vtkImplicitPlaneWidget2::Start;
-  this->ManagesCursor = 0;
 
   // Define widget events
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -74,7 +74,8 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget *w)
   // We want to compute an orthogonal vector to the plane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
-  self->WidgetRep->ComputeInteractionState(X, Y);
+  int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
+  self->UpdateCursorShape(interactionState);
   
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
     {
@@ -107,7 +108,8 @@ void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget *w)
   // We want to compute an orthogonal vector to the pane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
-  self->WidgetRep->ComputeInteractionState(X, Y);
+  int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
+  self->UpdateCursorShape(interactionState);
   
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
     {
@@ -140,7 +142,8 @@ void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget *w)
   // We want to compute an orthogonal vector to the pane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Scaling);
-  self->WidgetRep->ComputeInteractionState(X, Y);
+  int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
+  self->UpdateCursorShape(interactionState);
   
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
     {
@@ -166,16 +169,37 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
 {
   vtkImplicitPlaneWidget2 *self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
 
+  // So as to change the cursor shape when the mouse is poised over
+  // the widget. Unfortunately, this results in a few extra picks
+  // due to the cell picker. However given that its picking planes
+  // and the handles/arrows, this should be very quick
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  int changed = 0;
+
+  if (self->ManagesCursor)
+    {
+    int oldInteractionState = reinterpret_cast<vtkImplicitPlaneRepresentation*>(
+        self->WidgetRep)->GetInteractionState();
+
+    reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
+      SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
+    int state = self->WidgetRep->ComputeInteractionState( X, Y );
+    changed = self->UpdateCursorShape(state);
+    reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
+      SetInteractionState(oldInteractionState);
+    }
+
   // See whether we're active
   if ( self->WidgetState == vtkImplicitPlaneWidget2::Start )
     {
+    if (changed && self->ManagesCursor)
+      {
+      self->Render();
+      }
     return;
     }
   
-  // compute some info we need for all cases
-  int X = self->Interactor->GetEventPosition()[0];
-  int Y = self->Interactor->GetEventPosition()[1];
-
   // Okay, adjust the representation
   double e[2];
   e[0] = static_cast<double>(X);
@@ -220,6 +244,29 @@ void vtkImplicitPlaneWidget2::CreateDefaultRepresentation()
     }
 }
 
+//----------------------------------------------------------------------
+int vtkImplicitPlaneWidget2::UpdateCursorShape( int state )
+{
+  // So as to change the cursor shape when the mouse is poised over
+  // the widget.
+  if (this->ManagesCursor)
+    {
+    if (state == vtkImplicitPlaneRepresentation::Outside)
+      {
+      return this->RequestCursorShape(VTK_CURSOR_DEFAULT);
+      }
+    else if (state == vtkImplicitPlaneRepresentation::MovingOutline)
+      {
+      return this->RequestCursorShape(VTK_CURSOR_SIZEALL);
+      }
+    else
+      {
+      return this->RequestCursorShape(VTK_CURSOR_HAND);
+      }  
+    }
+
+  return 0;
+}
 
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::PrintSelf(ostream& os, vtkIndent indent)
