@@ -32,6 +32,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+#include "vtkgl.h"
+
 int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
 {
   char shaders1[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \
@@ -78,7 +80,6 @@ int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
   mapper->MapDataArrayToVertexAttribute("genAttrVector", "BrownianVectors", 0, -1);
 
   vtkRenderer *renderer = vtkRenderer::New();
-  renderer->AddActor(actor);
   renderer->SetBackground(0.5, 0.5, 0.5);
 
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -89,13 +90,50 @@ int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
 
   renWin->SetSize(400,400);
   renWin->Render();
-  interactor->Initialize();
-  renWin->Render();
-
-  int retVal = vtkRegressionTestImageThreshold(renWin,18);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  
+   // Mesa will crash if version<7.3
+  bool mesaWillCrash=false;
+  const char* gl_renderer =
+    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+  if(strstr(gl_renderer, "Mesa") != 0)
     {
-    interactor->Start();
+    const char* gl_version =
+          reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    
+    const char* mesa_version = strstr(gl_version, "Mesa");
+    
+    int mesa_major = 0;
+    int mesa_minor = 0;
+    if(sscanf(mesa_version, "Mesa %d.%d",
+              &mesa_major, &mesa_minor) >= 2)
+      {
+      if(mesa_major < 7 || (mesa_major==7 && mesa_minor < 3))
+        {
+        mesaWillCrash=true;
+        }
+      }
+    }
+  
+  int retVal;
+  if(mesaWillCrash)
+    {
+    cout<<"This version of Mesa would crash. Skip the test."<<endl;
+    retVal=vtkRegressionTester::PASSED;
+    }
+  else
+    {
+    renderer->AddActor(actor);
+    renderer->ResetCamera();
+    renWin->Render();
+  
+    interactor->Initialize();
+    renWin->Render();
+
+    retVal = vtkRegressionTestImageThreshold(renWin,18);
+    if( retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      interactor->Start();
+      }
     }
 
   sphere->Delete();
