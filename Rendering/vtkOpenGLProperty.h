@@ -50,7 +50,6 @@ public:
   // any shaders allocated.
   virtual void PostRender(vtkActor *a,
                           vtkRenderer *r);
-  //ETX
   
   // Description:
   // Release any graphics resources that are being consumed by this
@@ -71,6 +70,7 @@ public:
   // Description:
   // Get the vtkShaderProgram2 object in use.
   vtkGetObjectMacro(CurrentShaderProgram2,vtkShaderProgram2);
+  //ETX
   
 protected:
   vtkOpenGLProperty();

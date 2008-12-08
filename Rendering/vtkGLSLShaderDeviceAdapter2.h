@@ -57,13 +57,13 @@ public:
                              const void *attribute,
                              unsigned long offset=0);
    
+//BTX  
   // Description:
   // Set the shader program which is being updated by this device adapter.
   // The shader program is not reference counted to avoid reference loops.
   void SetShaderProgram(vtkShaderProgram2 *program);
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2);
   
-//BTX
 protected:
   vtkGLSLShaderDeviceAdapter2();
   ~vtkGLSLShaderDeviceAdapter2();
