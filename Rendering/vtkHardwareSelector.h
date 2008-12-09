@@ -153,9 +153,9 @@ protected:
 
   static void Convert(int id, float tcoord[3])
     {
-    tcoord[0] = (id & 0xff)/255.0;
-    tcoord[1] = ((id & 0xff00) >> 8)/255.0;
-    tcoord[2] = ((id & 0xff0000) >> 16)/255.0;
+      tcoord[0] = static_cast<float>((id & 0xff)/255.0);
+      tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);
+      tcoord[2] = static_cast<float>(((id & 0xff0000) >> 16)/255.0);
     }
 
   int Convert(unsigned long offset, unsigned char* pb)
