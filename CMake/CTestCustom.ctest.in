@@ -108,6 +108,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # vtknetcdf occasionally has warnings for things that are not a problem.
   "vtknetcdf.*warning: dereferencing type-punned pointer"
+  "vtknetcdf.*warning: passing argument .* of .* as .*signed due to prototype"
 
   # Some VTK dashboards include building bits of Qt which produce lots of
   # the following warnings when built with the MS compilers. Qt guys should
@@ -131,7 +132,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.y.*passing argument 1 of 'postSig' discards qualifiers from pointer target type"
   "vtkParse.l.*warning: ignoring return value of 'fwrite', declared with attribute warn_unused_result"
   "vtkParse.l.*warning: passing argument .* of .* as .* due to prototype"
-  "ley.yy.c.*warning: passing argument .* of .* as .* due to prototype"
+  "lex.yy.c.*warning: passing argument .* of .* as .* due to prototype"
 
 
   # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,vtklibproj4,
@@ -146,6 +147,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*ignoring return value of .*, declared with attribute warn_unused_result"
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* with different width due to prototype"
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* as .*signed due to prototype"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
@@ -154,6 +157,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtklibproj4.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtklibproj4.*warning.*passing argument .* of .* discards qualifiers from pointer target type"
   "Utilities.vtklibproj4.*warning.*ignoring return value of .*, declared with attribute warn_unused_result"
+  "Utilities.vtklibproj4.*warning.*passing argument .* of .* as .*signed due to prototype"
   "Utilities.vtkzlib.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities.vtkzlib.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkzlib.*warning: passing argument .* of .* as unsigned due to prototype"
