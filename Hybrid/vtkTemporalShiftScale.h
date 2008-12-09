@@ -30,13 +30,13 @@
 #ifndef __vtkTemporalShiftScale_h
 #define __vtkTemporalShiftScale_h
 
-#include "vtkDataObjectAlgorithm.h"
+#include "vtkTemporalDataSetAlgorithm.h"
 
-class VTK_HYBRID_EXPORT vtkTemporalShiftScale : public vtkDataObjectAlgorithm
+class VTK_HYBRID_EXPORT vtkTemporalShiftScale : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalShiftScale *New();
-  vtkTypeRevisionMacro(vtkTemporalShiftScale, vtkDataObjectAlgorithm);
+  vtkTypeRevisionMacro(vtkTemporalShiftScale, vtkTemporalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -108,14 +108,9 @@ protected:
   int    PeriodicN;
   double TempMultiplier;
   
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector);
-
-  virtual int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
-
+  virtual int RequestUpdateExtent (vtkInformation *,
+                                   vtkInformationVector **,
+                                   vtkInformationVector *);
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);

@@ -29,17 +29,17 @@
 #ifndef __vtkTemporalSnapToTimeStep_h
 #define __vtkTemporalSnapToTimeStep_h
 
-#include "vtkDataObjectAlgorithm.h"
+#include "vtkTemporalDataSetAlgorithm.h"
 
 //BTX
 #include <vtkstd/vector> // used because I am a bad boy. So there.
 //ETX
 
-class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkDataObjectAlgorithm
+class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalSnapToTimeStep *New();
-  vtkTypeRevisionMacro(vtkTemporalSnapToTimeStep, vtkDataObjectAlgorithm);
+  vtkTypeRevisionMacro(vtkTemporalSnapToTimeStep, vtkTemporalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
@@ -59,17 +59,12 @@ protected:
   vtkTemporalSnapToTimeStep();
   ~vtkTemporalSnapToTimeStep();
 
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector);
-
-  virtual int RequestUpdateExtent(vtkInformation *,
+  virtual int RequestUpdateExtent (vtkInformation *,
+                                   vtkInformationVector **,
+                                   vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-
-  virtual int RequestInformation(vtkInformation *,
-                                 vtkInformationVector **,
-                                 vtkInformationVector *);
   
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
