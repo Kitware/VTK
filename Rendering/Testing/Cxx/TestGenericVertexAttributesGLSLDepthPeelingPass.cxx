@@ -91,7 +91,6 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
   mapper->MapDataArrayToVertexAttribute("genAttrVector", "BrownianVectors", 0, -1);
 
   vtkRenderer *renderer = vtkRenderer::New();
-  renderer->AddActor(actor);
   renderer->SetBackground(0.5, 0.5, 0.5);
 
   vtkRenderWindow *renWin = vtkRenderWindow::New();
