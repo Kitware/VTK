@@ -18,7 +18,7 @@
 #include "vtkRenderer.h"
 #include "vtkOpenGLRenderer.h"
 
-vtkCxxRevisionMacro(vtkRenderPass, "1.1");
+vtkCxxRevisionMacro(vtkRenderPass, "1.2");
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -87,6 +87,19 @@ void vtkRenderPass::UpdateLights(vtkRenderer *renderer)
 {
   assert("pre: renderer_exists" && renderer!=0);
   renderer->UpdateLights();
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Modify protected member LastRenderingUsedDepthPeeling on Renderer.
+// See note about UpdateCamera().
+// \pre renderer_exists: renderer!=0
+void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
+                                                     bool value)
+{
+  assert("pre: renderer_exists" && renderer!=0);
+  
+  renderer->LastRenderingUsedDepthPeeling=value;
 }
 
 // ----------------------------------------------------------------------------

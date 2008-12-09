@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUniformVariables.h"
 #include "vtkTextureUnitManager.h"
 
-vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.5");
+vtkCxxRevisionMacro(vtkDepthPeelingPass, "1.6");
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 
@@ -268,7 +268,8 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     // Have to be set before a call to UpdateTranslucentPolygonalGeometry()
     // because UpdateTranslucentPolygonalGeometry() will eventually call
     // vtkOpenGLActor::Render() that uses this flag.
-    this->LastRenderingUsedDepthPeeling=1;
+    this->LastRenderingUsedDepthPeeling=true;
+    this->SetLastRenderingUsedDepthPeeling(s->GetRenderer(),true);
     
     glTexImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8,
                  this->ViewportWidth,this->ViewportHeight, 0, GL_RGBA,
@@ -733,9 +734,6 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
 {
   assert("pre: s_exists" && s!=0);
   assert("pre: positive_layer" && layer>=0);
-         
-//  cout << "layer="<<layer<<" glFinish().1" << endl;
-//  glFinish();
   
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
@@ -886,14 +884,10 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
                         this->ViewportY,this->ViewportWidth,
                         this->ViewportHeight);
     this->LayerList->List.push_back(rgba);
-
-//    cout << "layer="<<layer<<" glFinish().end" << endl;
-//    glFinish();
     return 1;
     }
   else
     {
-//    cout << "layer="<<layer<<" return 0"<<endl;
     return 0;
     }
 }

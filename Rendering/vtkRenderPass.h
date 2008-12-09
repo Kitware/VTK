@@ -100,6 +100,13 @@ class VTK_RENDERING_EXPORT vtkRenderPass : public vtkObject
   // \pre renderer_exists: renderer!=0
   void UpdateLights(vtkRenderer *renderer);
   
+  // Description:
+  // Modify protected member LastRenderingUsedDepthPeeling on Renderer.
+  // See note about UpdateCamera().
+  // \pre renderer_exists: renderer!=0
+  void SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
+                                        bool value);
+  
   int NumberOfRenderedProps;
   
  private:
