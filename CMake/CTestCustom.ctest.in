@@ -105,6 +105,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkfreetype.*warning: conversion to .* from .* may change the sign of the result"
   "vtkfreetype.*warning: passing argument .* of .* as .*signed due to prototype"
   "vtkfreetype.*warning: passing argument .* of .* with different width due to prototype"
+  "vtkfreetype.*warning: conversion to .* from .* may alter its value"
+  "vtkfreetype.*warning: conversion of unsigned constant value to negative integer"
 
   # vtknetcdf occasionally has warnings for things that are not a problem.
   "vtknetcdf.*warning: dereferencing type-punned pointer"
