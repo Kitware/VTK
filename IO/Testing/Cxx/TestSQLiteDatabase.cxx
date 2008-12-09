@@ -53,12 +53,13 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
       cerr << "Create query failed" << endl;
       return 1;
     }
-
-  for ( int i = 0; i < 40; i++)
+  
+  int i;
+  for ( i = 0; i < 20; i++)
     {
       char insertQuery[200];
-      sprintf( insertQuery, "INSERT INTO people VALUES('John Doe %d', %d, %d)",
-        i, i, 10*i );
+      sprintf( insertQuery, "INSERT INTO people (name, age, weight) VALUES('John Doe %d', %d, %f)",
+        i, i, 10.1*i );
       cout << insertQuery << endl;
       query->SetQuery( insertQuery );
       if (!query->Execute())
@@ -66,6 +67,30 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
         cerr << "Insert query " << i << " failed" << endl;
         return 1;
         }
+    }
+
+  
+  char *placeholders = "INSERT INTO people (name, age, weight) VALUES (?, ?, ?)";
+  query->SetQuery(placeholders);
+  for ( i = 21; i < 40; i++ )
+    {
+    char name[20];
+    sprintf(name, "John Doe %d", i);
+    bool bind1 = query->BindParameter(0, name);
+    bool bind2 = query->BindParameter(1, i);
+    bool bind3 = query->BindParameter(2, 10.1*i);
+    if (!(bind1 && bind2 && bind3))
+      {
+      cerr << "Parameter binding failed on query " << i
+           << ": " << bind1 << " " << bind2 << " " << bind3 << endl;
+      return 1;
+      }
+    cout << query->GetQuery() << endl;
+    if (!query->Execute())
+      {
+      cerr << "Insert query " << i << " failed" << endl;
+      return 1;
+      }
     }
 
   const char *queryText = "SELECT name, age, weight FROM people WHERE age <= 20";

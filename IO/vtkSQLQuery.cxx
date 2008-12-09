@@ -25,7 +25,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
-vtkCxxRevisionMacro(vtkSQLQuery, "1.5");
+vtkCxxRevisionMacro(vtkSQLQuery, "1.6");
 
 vtkSQLQuery::vtkSQLQuery()
 {
@@ -86,3 +86,106 @@ char* vtkSQLQuery::EscapeString( const char* src, bool addSurroundingQuotes )
   return vtksys::SystemTools::DuplicateString( dstr.c_str() );
 }
 
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), unsigned char vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), signed char vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), unsigned short vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), signed short vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), unsigned int vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), signed int vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), unsigned long vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), signed long vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), vtkTypeUInt64 vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), vtkTypeInt64 vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), float vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), double vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), const char *vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), const char *vtkNotUsed(value), size_t vtkNotUsed(length))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), const vtkStdString &vtkNotUsed(value))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), void *vtkNotUsed(value), size_t vtkNotUsed(length))
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}
+
+bool vtkSQLQuery::ClearParameterBindings()
+{
+  vtkErrorMacro(<<"This database driver does not support bound parameters.");
+  return false;
+}

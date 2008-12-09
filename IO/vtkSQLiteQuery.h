@@ -60,6 +60,11 @@ public:
   static vtkSQLiteQuery *New();
 
   // Description:
+  // Set the SQL query string.  This must be performed before
+  // Execute() or BindParameter() can be called.
+  void SetQuery(const char *query);
+
+  // Description:
   // Execute the query.  This must be performed
   // before any field name or data access functions
   // are used.
@@ -117,6 +122,38 @@ public:
   // Why are you still reading this?
   void AddParameterBinding(const unsigned char* data, unsigned long size);
 
+  // Description:
+  // The following methods bind a parameter value to a placeholder in
+  // the SQL string.  See the documentation for vtkSQLQuery for
+  // further explanation.  The driver makes internal copies of string
+  // and BLOB parameters so you don't need to worry about keeping them
+  // in scope until the query finishes executing.
+  bool BindParameter(int index, unsigned char value);
+  bool BindParameter(int index, signed char value);
+  bool BindParameter(int index, unsigned short value);
+  bool BindParameter(int index, signed short value);
+  bool BindParameter(int index, unsigned int value);
+  bool BindParameter(int index, signed int value);
+  bool BindParameter(int index, unsigned long value);
+  bool BindParameter(int index, signed long value);
+  bool BindParameter(int index, vtkTypeUInt64 value);
+  bool BindParameter(int index, vtkTypeInt64 value);
+  bool BindParameter(int index, float value);
+  bool BindParameter(int index, double value);
+  // Description:
+  // Bind a string value -- string must be null-terminated
+  bool BindParameter(int index, const char *stringValue);
+  // Description:
+  // Bind a string value by specifying an array and a size
+  bool BindParameter(int index, const char *stringValue, size_t length);
+  bool BindParameter(int index, const vtkStdString &string);
+  // Description:
+  // Bind a blob value.  Not all databases support blobs as a data
+  // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
+  // make sure.
+  bool BindParameter(int index, void *data, size_t length);
+  bool ClearParameterBindings();
+
 protected:
   vtkSQLiteQuery();
   ~vtkSQLiteQuery();
@@ -137,6 +174,16 @@ private:
   int InitialFetchResult;
   char *LastErrorText;
   bool TransactionInProgress;
+
+  // Description:
+  // All of the BindParameter calls fall through to these methods
+  // where we actually talk to sqlite.  You don't need to call them directly.
+  bool BindIntegerParameter(int index, int value);
+  bool BindDoubleParameter(int index, double value);
+  bool BindInt64Parameter(int index, vtkTypeInt64 value);
+  bool BindStringParameter(int index, const char *data, size_t length);
+  bool BindBlobParameter(int index, void *data, size_t length);
+
 };
 
 #endif // __vtkSQLiteQuery_h

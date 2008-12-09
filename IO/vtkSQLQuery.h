@@ -96,6 +96,52 @@ public:
   // Return the database associated with the query.
   vtkGetObjectMacro(Database, vtkSQLDatabase);
 
+  // Description:
+  // Bind a parameter to a placeholder in a query.  A full discussion
+  // of this feature is beyond the scope of this header file, but in
+  // short, here's how it works:
+  //
+  // Instead of saying "SELECT foo FROM mytable WHERE myfield = 12345"
+  // you can say "SELECT foo FROM mytable WHERE myfield = ?".  The ?
+  // character is a placeholder for a parameter that must then be
+  // bound.  Call BindParameter(0, 12345) to bind the integer value
+  // 12345 to that field.  Placeholders are indexed starting at 0.
+  //
+  // You are responsible for making sure that the types match when you
+  // call BindParameter.  You don't have to get it precisely correct:
+  // in general, the SQL driver is smart enough to do things like cast
+  // a short to a long or a float to a double.  
+  //
+  // Bound parameters were introduced in ANSI SQL 92.  Please see that
+  // standard for more information.
+  virtual bool BindParameter(int index, unsigned char value);
+  virtual bool BindParameter(int index, signed char value);
+  virtual bool BindParameter(int index, unsigned short value);
+  virtual bool BindParameter(int index, signed short value);
+  virtual bool BindParameter(int index, unsigned int value);
+  virtual bool BindParameter(int index, signed int value);
+  virtual bool BindParameter(int index, unsigned long value);
+  virtual bool BindParameter(int index, signed long value);
+  virtual bool BindParameter(int index, vtkTypeUInt64 value);
+  virtual bool BindParameter(int index, vtkTypeInt64 value);
+  virtual bool BindParameter(int index, float value);
+  virtual bool BindParameter(int index, double value);
+  // Description:
+  // Bind a string value -- string must be null-terminated
+  virtual bool BindParameter(int index, const char *stringValue);
+  // Description:
+  // Bind a string value by specifying an array and a size
+  virtual bool BindParameter(int index, const char *stringValue, size_t length);
+  virtual bool BindParameter(int index, const vtkStdString &string);
+  // Description:
+  // Bind a blob value.  Not all databases support blobs as a data
+  // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
+  // make sure.
+  virtual bool BindParameter(int index, void *data, size_t length);
+  // Description:
+  // Reset all parameter bindings to NULL.
+  virtual bool ClearParameterBindings();
+
   //BTX
   // Description:
   // Escape a string for inclusion into an SQL query.
