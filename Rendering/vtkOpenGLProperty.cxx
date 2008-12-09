@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.51");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.52");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -285,9 +285,6 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
         }
       }
     }
- 
-//  cout << "opengl property after prog initialization." << endl;
-//  glFinish();
   
   glDisable(GL_TEXTURE_2D); // fixed-pipeline
 
@@ -479,9 +476,6 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 void vtkOpenGLProperty::PostRender(vtkActor *actor,
                                    vtkRenderer *renderer)
 {
-//  cout << "opengl property PostRender." << endl;
-//  glFinish();
-  
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
   if(prog!=0)
