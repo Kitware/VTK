@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.11");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.12");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -563,7 +563,7 @@ bool vtkSQLiteQuery::BindParameter(int index, unsigned short value)
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindParameter(int index, signed short value)
+bool vtkSQLiteQuery::BindParameter(int index, short value)
 {
   return this->BindIntegerParameter(index, value);
 }
@@ -577,7 +577,7 @@ bool vtkSQLiteQuery::BindParameter(int index, unsigned int value)
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindParameter(int index, signed int value)
+bool vtkSQLiteQuery::BindParameter(int index, int value)
 {
   return this->BindIntegerParameter(index, value);
 }
@@ -591,7 +591,7 @@ bool vtkSQLiteQuery::BindParameter(int index, unsigned long value)
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindParameter(int index, signed long value)
+bool vtkSQLiteQuery::BindParameter(int index, long value)
 {
   return this->BindIntegerParameter(index, value);
 }

@@ -114,16 +114,29 @@ public:
   //
   // Bound parameters were introduced in ANSI SQL 92.  Please see that
   // standard for more information.
+
+  // Most of these methods are excluded from wrapping because the Java
+  // wrapper treats all integer types from char up through 64-bit long
+  // as 'int'.  This is incorrect behavior but what else am I going to
+  // do?
+
+//BTX
   virtual bool BindParameter(int index, unsigned char value);
-  virtual bool BindParameter(int index, signed char value);
   virtual bool BindParameter(int index, unsigned short value);
-  virtual bool BindParameter(int index, signed short value);
   virtual bool BindParameter(int index, unsigned int value);
-  virtual bool BindParameter(int index, signed int value);
   virtual bool BindParameter(int index, unsigned long value);
-  virtual bool BindParameter(int index, signed long value);
+  // The C and C++ standards leave it up to each compiler to decide
+  // whether chars are signed or unsigned by default.  All the other
+  // types are signed unless otherwise specified.
+  virtual bool BindParameter(int index, signed char value);
+  virtual bool BindParameter(int index, short value);
+//ETX
+  virtual bool BindParameter(int index, int value);
+//BTX
+  virtual bool BindParameter(int index, long value);
   virtual bool BindParameter(int index, vtkTypeUInt64 value);
   virtual bool BindParameter(int index, vtkTypeInt64 value);
+//ETX
   virtual bool BindParameter(int index, float value);
   virtual bool BindParameter(int index, double value);
   // Description:
