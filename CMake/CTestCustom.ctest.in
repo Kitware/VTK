@@ -138,7 +138,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
 
   # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,vtklibproj4,
-  # vtkzlib
+  # vtkzlib, DICOMParser
   "Utilities.vtkexpat.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexpat.*warning: passing argument .* of .* as unsigned due to prototype"
   "Utilities.vtkexpat.*warning: passing argument .* of .* with different width due to prototype"
@@ -168,6 +168,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkpng.*warning: conversion to .* from .* may alter its value"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may alter its value"
+  "Utilities/DICOMParser.*warning: conversion to .* from .* may alter its value"
+  "Utilities/DICOMParser.*warning: conversion to .* from .* may change the sign of the result"
   )
 
 IF(APPLE)
