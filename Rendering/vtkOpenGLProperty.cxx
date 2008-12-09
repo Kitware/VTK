@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.52");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.53");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -117,7 +117,29 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
   
-  if(prog!=0)
+  bool supportShaders=false;
+  
+  if(prog!=0 || this->Shader2Collection!=0)
+    {
+    supportShaders=vtkShaderProgram2::IsSupported(
+      static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow()));
+    if(supportShaders)
+      {
+      const char*gl_renderer=
+        reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+      if(strstr(gl_renderer, "Mesa") != 0)
+        {
+        supportShaders=false;
+        vtkErrorMacro(<<"Mesa does not support separate compilation units.");
+        }
+      }
+    else
+      {
+      vtkErrorMacro(<<"Shaders are not supported by this context.");
+      }
+    }
+  
+  if(supportShaders && prog!=0)
     {
     bool progHasVertex=prog->HasVertexShaders();
     bool progHasFragment=prog->HasFragmentShaders();
@@ -201,7 +223,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     }
   else
     {
-    if(this->Shader2Collection!=0)
+    if(supportShaders && this->Shader2Collection!=0)
       {
       bool needDefaultMainVS=this->Shader2Collection->HasVertexShaders();
       bool needDefaultMainFS=this->Shader2Collection->HasFragmentShaders();
@@ -248,7 +270,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       }
     }
   
-  if(prog!=0 || this->PropProgram!=0)
+  if((supportShaders && prog!=0) || this->PropProgram!=0)
     {
     if(this->ShaderDeviceAdapter2==0)
       {
@@ -266,8 +288,9 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       }
     }
   
-  if(prog!=0)
+  if(supportShaders && prog!=0)
     {
+    prog->Build();
     prog->Use();
     if(!prog->IsValid())
       {
@@ -478,44 +501,48 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
 {
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
-  if(prog!=0)
+  
+  if(this->CurrentShaderProgram2!=0) // ie if shaders are supported
     {
-    prog->Restore();
-    if(this->Shader2Collection!=0)
+    if(prog!=0)
       {
-      prog->GetShaders()->RemoveCollection(this->Shader2Collection);
+      prog->Restore();
+      if(this->Shader2Collection!=0)
+        {
+        prog->GetShaders()->RemoveCollection(this->Shader2Collection);
+        }
+      if(this->UseDefaultMainVS)
+        {
+        prog->GetShaders()->RemoveItem(this->DefaultMainVS);
+        this->UseDefaultMainVS=false;
+        }
+      if(this->UseDefaultMainFS)
+        {
+        prog->GetShaders()->RemoveItem(this->DefaultMainFS);
+        this->UseDefaultMainFS=false;
+        }
+      if(this->UseDefaultPropVS)
+        {
+        prog->GetShaders()->RemoveItem(this->DefaultPropVS);
+        this->UseDefaultPropVS=false;
+        }
+      if(this->UseDefaultPropFS)
+        {
+        prog->GetShaders()->RemoveItem(this->DefaultPropFS);
+        this->UseDefaultPropFS=false;
+        }
       }
-    if(this->UseDefaultMainVS)
+    if(this->PropProgram!=0)
       {
-      prog->GetShaders()->RemoveItem(this->DefaultMainVS);
+      this->PropProgram->Restore();
+      this->PropProgram->ReleaseGraphicsResources();
       this->UseDefaultMainVS=false;
-      }
-     if(this->UseDefaultMainFS)
-      {
-      prog->GetShaders()->RemoveItem(this->DefaultMainFS);
       this->UseDefaultMainFS=false;
+      this->PropProgram->Delete();
+      this->PropProgram=0;
       }
-     if(this->UseDefaultPropVS)
-      {
-      prog->GetShaders()->RemoveItem(this->DefaultPropVS);
-      this->UseDefaultPropVS=false;
-      }
-     if(this->UseDefaultPropFS)
-      {
-      prog->GetShaders()->RemoveItem(this->DefaultPropFS);
-      this->UseDefaultPropFS=false;
-      }
+    this->CurrentShaderProgram2=0;
     }
-   if(this->PropProgram!=0)
-    {
-    this->PropProgram->Restore();
-    this->PropProgram->ReleaseGraphicsResources();
-    this->UseDefaultMainVS=false;
-    this->UseDefaultMainFS=false;
-    this->PropProgram->Delete();
-    this->PropProgram=0;
-    }
-   this->CurrentShaderProgram2=0;
    
   this->Superclass::PostRender(actor, renderer);
 
