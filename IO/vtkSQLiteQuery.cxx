@@ -36,20 +36,11 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.12");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.13");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
-class vtkSQLiteQuery::implementation
-{
-public:
-  vtkstd::vector<const unsigned char*> BlobData;
-  vtkstd::vector<unsigned long> BlobSize;
-};
-
-// ----------------------------------------------------------------------
-vtkSQLiteQuery::vtkSQLiteQuery() :
-  Implementation(new implementation())
+vtkSQLiteQuery::vtkSQLiteQuery()
 {
   this->Statement = NULL;
   this->InitialFetch = true;
@@ -60,8 +51,6 @@ vtkSQLiteQuery::vtkSQLiteQuery() :
 // ----------------------------------------------------------------------
 vtkSQLiteQuery::~vtkSQLiteQuery()
 {
-  delete this->Implementation;
-
   this->SetLastErrorText(NULL);
   if (this->TransactionInProgress)
     {
@@ -198,24 +187,11 @@ bool vtkSQLiteQuery::Execute()
     vtk_sqlite3_reset(this->Statement);
     }
 
-  for(vtkstd::vector<unsigned char*>::size_type i = 0; i != this->Implementation->BlobData.size(); ++i)
-    {
-    vtk_sqlite3_bind_blob(
-      this->Statement,
-      static_cast<int>(i+1),
-      this->Implementation->BlobData[i],
-      this->Implementation->BlobSize[i],
-      VTK_SQLITE_STATIC);
-    }
-
   vtkDebugMacro(<<"Execute(): Query ready to execute.");
 
   this->InitialFetch = true;
   int result = vtk_sqlite3_step(this->Statement);
   this->InitialFetchResult = result;
-
-  this->Implementation->BlobData.clear();
-  this->Implementation->BlobSize.clear();
 
   if (result == VTK_SQLITE_DONE)
     {
@@ -532,13 +508,6 @@ bool vtkSQLiteQuery::RollbackTransaction()
     return false;
     }
 }
-
-void vtkSQLiteQuery::AddParameterBinding(const unsigned char* data, unsigned long size)
-{
-  this->Implementation->BlobData.push_back(data);
-  this->Implementation->BlobSize.push_back(size);
-}
-
 
 // ----------------------------------------------------------------------
 

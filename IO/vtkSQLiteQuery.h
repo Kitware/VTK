@@ -107,22 +107,6 @@ public:
   const char* GetLastErrorText();
 
   // Description:
-  // Don't use this method!  It may be removed at any time.
-  // Experimental API for binding parameters to an SQL statement, primarily
-  // so I can write arbitrary-length BLOB data to the database.  Ideally, this
-  // functionality will be generalized for use with vtkSQLQuery instead.
-  // Call AddParameterBinding() once for each "?" contained in your SQL,
-  // and the given data will be used when the query is executed.
-  // Parameters will be bound to "?" in order from left-to-right.
-  // Once the query has executed, all parameter bindings are cleared - so if
-  // you want to execute a new query, you'll have to repeat calls to
-  // AddParameterBinding().
-  // Note that memory referenced via AddParameterBinding() must not go out-of-scope
-  // until after the query has executed.
-  // Why are you still reading this?
-  void AddParameterBinding(const unsigned char* data, unsigned long size);
-
-  // Description:
   // The following methods bind a parameter value to a placeholder in
   // the SQL string.  See the documentation for vtkSQLQuery for
   // further explanation.  The driver makes internal copies of string
@@ -169,11 +153,6 @@ protected:
 private:
   vtkSQLiteQuery(const vtkSQLiteQuery &); // Not implemented.
   void operator=(const vtkSQLiteQuery &); // Not implemented.
-
-//BTX
-  class implementation;
-  implementation* const Implementation;
-//ETX
 
   vtk_sqlite3_stmt *Statement;
   bool InitialFetch;
