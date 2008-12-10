@@ -32,7 +32,7 @@
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.2");
+vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.3");
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPolygonalHandleRepresentation3D,Property,vtkProperty);
@@ -502,8 +502,6 @@ void vtkPolygonalHandleRepresentation3D::Highlight(int highlight)
 void vtkPolygonalHandleRepresentation3D::CreateDefaultProperties()
 {
   this->Property = vtkProperty::New();
-  this->Property->SetAmbient(1.0);
-  this->Property->SetAmbientColor(1.0,1.0,1.0);
   this->Property->SetLineWidth(0.5);
 
   this->SelectedProperty = vtkProperty::New();
