@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.14");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.15");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -604,7 +604,7 @@ bool vtkSQLiteQuery::BindParameter(int index, const char *value)
 
 bool vtkSQLiteQuery::BindParameter(int index, const char *data, size_t length)
 {
-  return this->BindStringParameter(index, data, length);
+  return this->BindStringParameter(index, data, static_cast<int>(length));
 }
 
 // ----------------------------------------------------------------------
@@ -618,7 +618,7 @@ bool vtkSQLiteQuery::BindParameter(int index, const vtkStdString &value)
 
 bool vtkSQLiteQuery::BindParameter(int index, const void *data, size_t length)
 {
-  return this->BindBlobParameter(index, data, length);
+  return this->BindBlobParameter(index, data, static_cast<int>(length));
 }
 
 // ----------------------------------------------------------------------
@@ -710,7 +710,7 @@ bool vtkSQLiteQuery::BindDoubleParameter(int index, double value)
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindStringParameter(int index, const char *value, size_t length)
+bool vtkSQLiteQuery::BindStringParameter(int index, const char *value, int length)
 {
   if (!this->Statement)
     {
@@ -739,7 +739,7 @@ bool vtkSQLiteQuery::BindStringParameter(int index, const char *value, size_t le
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindBlobParameter(int index, const void *data, size_t length)
+bool vtkSQLiteQuery::BindBlobParameter(int index, const void *data, int length)
 {
   if (!this->Statement)
     {
@@ -753,7 +753,12 @@ bool vtkSQLiteQuery::BindBlobParameter(int index, const void *data, size_t lengt
     vtk_sqlite3_reset(this->Statement);
     }
   
-  int status = vtk_sqlite3_bind_blob(this->Statement, index+1, data, length, VTK_SQLITE_TRANSIENT);
+  int status = 
+    vtk_sqlite3_bind_blob(this->Statement, 
+                          index+1, 
+                          data, 
+                          length, 
+                          VTK_SQLITE_TRANSIENT);
 
   if (status != VTK_SQLITE_OK)
     {

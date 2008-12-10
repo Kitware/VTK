@@ -166,8 +166,8 @@ private:
   bool BindIntegerParameter(int index, int value);
   bool BindDoubleParameter(int index, double value);
   bool BindInt64Parameter(int index, vtkTypeInt64 value);
-  bool BindStringParameter(int index, const char *data, size_t length);
-  bool BindBlobParameter(int index, const void *data, size_t length);
+  bool BindStringParameter(int index, const char *data, int length);
+  bool BindBlobParameter(int index, const void *data, int length);
 
 };
 
