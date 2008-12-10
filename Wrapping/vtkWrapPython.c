@@ -710,7 +710,8 @@ void get_python_signature()
     add_to_sig(result,currentFunction->Signature,&currPos);
     }
 
-  currentFunction->Signature = realloc(currentFunction->Signature,currPos+1);
+  currentFunction->Signature = realloc(currentFunction->Signature,
+                                       (size_t)(currPos+1));
   strcpy(currentFunction->Signature,result);
   /* fprintf(stderr,"%s\n",currentFunction->Signature); */
 }
@@ -730,7 +731,7 @@ static const char *quote_string(const char *comment, int maxlen)
       {
       free(result);
       }
-    result = (char *)malloc(maxlen);
+    result = (char *)malloc((size_t)(maxlen+1));
     oldmaxlen = maxlen;
     }
 
