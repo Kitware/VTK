@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.53");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.54");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -288,23 +288,58 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       }
     }
   
-  if(supportShaders && prog!=0)
+  if(this->CurrentShaderProgram2!=0)
     {
-    prog->Build();
-    prog->Use();
-    if(!prog->IsValid())
+    this->CurrentShaderProgram2->Build();
+    if(this->CurrentShaderProgram2->GetLastBuildStatus()
+       !=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
       {
-      vtkErrorMacro(<<prog->GetLastValidateLog());
-      }
-    }
-  else
-    {
-    if(this->PropProgram!=0)
-      {
-      this->PropProgram->Use();
-      if(!this->PropProgram->IsValid())
+      vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
+      this->CurrentShaderProgram2=0;
+      
+      if(this->PropProgram!=0)
         {
-        vtkErrorMacro(<<this->PropProgram->GetLastValidateLog());
+        this->PropProgram->ReleaseGraphicsResources();
+        this->UseDefaultMainVS=false;
+        this->UseDefaultMainFS=false;
+        this->PropProgram->Delete();
+        this->PropProgram=0;
+        }
+      else
+        {
+        prog->ReleaseGraphicsResources();
+        if(this->Shader2Collection!=0)
+          {
+          prog->GetShaders()->RemoveCollection(this->Shader2Collection);
+          }
+        if(this->UseDefaultMainVS)
+          {
+          prog->GetShaders()->RemoveItem(this->DefaultMainVS);
+          this->UseDefaultMainVS=false;
+          }
+        if(this->UseDefaultMainFS)
+          {
+          prog->GetShaders()->RemoveItem(this->DefaultMainFS);
+          this->UseDefaultMainFS=false;
+          }
+        if(this->UseDefaultPropVS)
+          {
+          prog->GetShaders()->RemoveItem(this->DefaultPropVS);
+          this->UseDefaultPropVS=false;
+          }
+        if(this->UseDefaultPropFS)
+          {
+          prog->GetShaders()->RemoveItem(this->DefaultPropFS);
+          this->UseDefaultPropFS=false;
+          }
+        }
+      }
+    else
+      {
+      this->CurrentShaderProgram2->Use();
+      if(!this->CurrentShaderProgram2->IsValid())
+        {
+        vtkErrorMacro(<<this->CurrentShaderProgram2->GetLastValidateLog());
         }
       }
     }

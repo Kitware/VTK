@@ -134,3 +134,7 @@ FOREACH (exe
     TARGET_LINK_LIBRARIES(${exe} "-framework GLUT")
   ENDIF (APPLE)
 ENDFOREACH (exe)
+
+IF(VTK_USE_GLSL_SHADERS AND VTK_USE_DISPLAY)
+  set_tests_properties(TestGenericVertexAttributesGLSLDepthPeelingPass PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:.*vtkOpenGLProperty.*Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.")
+ENDIF(VTK_USE_GLSL_SHADERS AND VTK_USE_DISPLAY)
