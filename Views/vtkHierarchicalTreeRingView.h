@@ -1,21 +1,21 @@
 /*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkHierarchicalTreeRingView.h
   
+Program:   Visualization Toolkit
+Module:    vtkHierarchicalTreeRingView.h
+
 -------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
+Copyright 2008 Sandia Corporation.
+Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
@@ -87,23 +87,23 @@ public:
   // The array to use for vertex labeling.  Default is "label".
   void SetVertexLabelArrayName(const char* name);
   const char* GetVertexLabelArrayName();
-
+  
   // Description:
   // The array to use for vertex labeling priority.  Default is "VertexDegree".
   void SetLabelPriorityArrayName(const char* name);
-
+  
   // Description:
   // The array to use for edge labeling.  Default is "label".
   void SetEdgeLabelArrayName(const char* name);
   const char* GetEdgeLabelArrayName();
-
+  
   // Description:
   // The name of the array whose value appears when the mouse hovers
   // over a rectangle in the treemap.
   // This must be a string array.
   void SetHoverArrayName(const char* name);
   const char* GetHoverArrayName();
-
+  
   // Description:
   // Whether to show vertex labels.  Default is off.
   void SetVertexLabelVisibility(bool vis);
@@ -122,11 +122,11 @@ public:
   // The array to use for coloring vertices.  Default is "color".
   void SetVertexColorArrayName(const char* name);
 //  const char* GetVertexColorArrayName();
-
+  
   // Description:
   // Set the log spacing for the interior point layout.
   void SetInteriorLogSpacingFactor(double spacing);
-
+  
   // Description:
   // The array to use for coloring edges.  Default is "color".
   void SetEdgeColorArrayName(const char* name);
@@ -135,11 +135,11 @@ public:
   // Description:
   // Set the color to be the spline fraction
   void SetEdgeColorToSplineFraction();
-
+  
   // Description:
   // Set the shrink percentage on each of the sectors
   void SetSectorShrinkFactor(double value);
-
+  
   // Description:
   // Whether to color edges.  Default is off.
   void SetColorEdges(bool vis);
@@ -150,18 +150,18 @@ public:
   // Description:
   // Set the bundling strength.
   void SetBundlingStrength(double strength);
-
+  
   // Description:
   // Set the root angles for laying out the hierarchy
   void SetRootAngles( double start, double end );
- 
+  
   // Description:
   // Retrieve the graph and tree representations.
   virtual vtkDataRepresentation* GetGraphRepresentation()
     { return this->GetRepresentation(1, 0); }
   virtual vtkDataRepresentation* GetTreeRepresentation()
     { return this->GetRepresentation(0, 0); }
-
+  
   // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);
@@ -179,30 +179,30 @@ public:
   // The size of the font used for edge labeling
   virtual void SetEdgeLabelFontSize(const int size);
   virtual int GetEdgeLabelFontSize();
-
+  
 protected:
   vtkHierarchicalTreeRingView();
   ~vtkHierarchicalTreeRingView();
-
+  
   // Description:
   // Called to process the user event from the interactor style.
   virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
-    void* callData);
+                             void* callData);
   
   // Description:
   // Connects the algorithm output to the internal pipelines.
   virtual void AddInputConnection( int port, int item,
-    vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectConn);
-
+                                   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectConn);
+  
   // Description:
   // Removes the algorithm output from the internal pipeline.
   virtual void RemoveInputConnection( int port, int item,
-    vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectConn);
+                                      vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectConn);
   
   // Decsription:
   // Prepares the view for rendering.
   virtual void PrepareForRendering();
-
+  
   // Description:
   // May a display coordinate to a world coordinate on the x-y plane.  
   void MapToXYPlane(double displayX, double displayY, double &x, double &y);
@@ -245,14 +245,14 @@ protected:
   vtkSmartPointer<vtkActor>                        SelectedGraphActor;
   vtkSmartPointer<vtkPolyDataMapper>               SelectedGraphMapper;
   //ETX
-
+  
 private:
-
+  
   // Description:
   // The bundling strength.
   float BundlingStrength;
   double InteriorLogSpacing;
-
+  
   // Description:
   // The indices of the graph and tree representations.
   int GraphRepresentationIndex;

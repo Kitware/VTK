@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkTreeRingToPolyData.h
 
-  Program:   Visualization Toolkit
-  Module:    vtkTreeRingToPolyData.h
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 // .NAME vtkTreeRingToPolyData - converts a tree to a polygonal data
 // representing radial space filling tree.
 //
@@ -35,10 +35,10 @@ class VTK_INFOVIS_EXPORT vtkTreeRingToPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTreeRingToPolyData *New();
-
+  
   vtkTypeRevisionMacro(vtkTreeRingToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // The field containing quadruples of the form (start angle, end angle, 
   // inner radius, outer radius)
   // representing the bounds of the rectangles for each vertex.
@@ -48,18 +48,18 @@ public:
   //  from vtkAlgorithm.
   vtkGetStringMacro(SectorsFieldName);
   vtkSetStringMacro(SectorsFieldName);
-
+  
   // Description:
   // Define a shrink percentage for each of the sectors.
   vtkSetMacro(ShrinkPercentage, double);
   vtkGetMacro(ShrinkPercentage, double);
-
+  
   int FillInputPortInformation(int port, vtkInformation* info);
-
+  
 protected:
   vtkTreeRingToPolyData();
   ~vtkTreeRingToPolyData();
-
+  
   char * SectorsFieldName;
   double ShrinkPercentage;
   

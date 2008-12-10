@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkInteractorStyleTreeRingHover.cxx
 
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleTreeRingHover.cxx
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 
 #include "vtkInteractorStyleTreeRingHover.h"
 
@@ -44,10 +44,10 @@
 #include "vtkAppendPolyData.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
+#define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.7");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.8");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -72,7 +72,7 @@ vtkInteractorStyleTreeRingHover::vtkInteractorStyleTreeRingHover()
   this->SelectionActor->VisibilityOff();
   this->SelectionActor->PickableOff();
   this->SelectionActor->GetProperty()->SetLineWidth(4.0);
-
+  
   this->HighlightData = vtkPolyData::New();
   vtkPolyDataMapper *highMap = vtkPolyDataMapper::New();
   highMap->SetInput(this->HighlightData);
@@ -153,30 +153,30 @@ vtkIdType vtkInteractorStyleTreeRingHover::GetTreeRingIdAtPos(int x, int y)
     {
     return id;
     }
-
+  
   // Use the hardware picker to find a point in world coordinates.
   this->Picker->Pick(x, y, 0, r);
   double pos[3];
   this->Picker->GetPickPosition(pos);
   
   if (this->Layout != NULL)
-  {
+    {
     float posFloat[3];
     for (int i = 0; i < 3; i++)
-    {
+      {
       posFloat[i] = pos[i];
-    }
+      }
     
     if( this->UseRectangularCoordinates )
-    {
+      {
       id = Layout->FindVertexRectangular(posFloat);
-    }
+      }
     else
-    {
+      {
       id = Layout->FindVertex(posFloat);
+      }
     }
-  }
-    
+  
   return id;
 }
 
@@ -198,33 +198,33 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
     {
     return;
     }
-
+  
   if (!r->HasViewProp(this->Balloon))
     {
     r->AddActor(this->Balloon);
     this->Balloon->SetRenderer(r);
     }
-
+  
   // Use the hardware picker to find a point in world coordinates.
   float sinfo[4];
   vtkIdType id = this->GetTreeRingIdAtPos(x,y);
   
   if( id != -1 )
-  {
+    {
     this->GetBoundingSectorForTreeRingItem(id,sinfo);
-  }
-
+    }
+  
   double loc[2] = {x, y};
   this->Balloon->EndWidgetInteraction(loc);
   
   if ((this->Layout!=NULL) && (this->Layout->GetOutput()!=NULL))
-  {
+    {
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
-      //find the information for the correct sector,
-      //  unless there isn't a sector or it is the root node
+    //find the information for the correct sector,
+    //  unless there isn't a sector or it is the root node
 //    if (absArray != NULL && id > 0 )  
     if (absArray != NULL && id > -1 )
-    {
+      {
       vtkStdString str;
       if (vtkStringArray::SafeDownCast(absArray))
         {
@@ -237,16 +237,16 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
       this->Balloon->SetBalloonText(str);
       double z = 0.02;
       if( this->UseRectangularCoordinates )
-      {
+        {
         VTK_CREATE(vtkPoints, highlightPoints);
         highlightPoints->SetNumberOfPoints(5);
-
+        
         VTK_CREATE(vtkCellArray, highA);
         highA->InsertNextCell(5);
         for( int i = 0; i < 5; ++i)
-        {
+          {
           highA->InsertCellPoint(i);
-        }
+          }
         highlightPoints->SetPoint(0, sinfo[0], sinfo[2], z);
         highlightPoints->SetPoint(1, sinfo[1], sinfo[2], z);
         highlightPoints->SetPoint(2, sinfo[1], sinfo[3], z);
@@ -255,11 +255,11 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
         this->HighlightData->SetPoints(highlightPoints);
         this->HighlightData->SetLines(highA);
         this->HighlightActor->VisibilityOn();
-      }
+        }
       else
-      {
-        if( sinfo[1] - sinfo[0] != 360. )
         {
+        if( sinfo[1] - sinfo[0] != 360. )
+          {
           VTK_CREATE(vtkSectorSource, sector);
           sector->SetInnerRadius(sinfo[2]);
           sector->SetOuterRadius(sinfo[3]);
@@ -269,7 +269,7 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
           
           int resolution = (int)((sinfo[1]-sinfo[0])/1);
           if( resolution < 1 )
-              resolution = 1;
+            resolution = 1;
           sector->SetCircumferentialResolution(resolution);
           sector->Update();
           
@@ -282,60 +282,60 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
           
           this->HighlightData->ShallowCopy(append->GetOutput());
           this->HighlightActor->VisibilityOn();
-        }
+          }
         else
-        {
+          {
           VTK_CREATE(vtkPoints, highlightPoints);
           highlightPoints->SetNumberOfPoints(240);
-
+          
           double conversion = vtkMath::Pi()/180.;
           double current_angle = 0.;
           
           VTK_CREATE(vtkCellArray, highA);
           for( int i = 0; i < 120; ++i)
-          {
+            {
             highA->InsertNextCell(2);
             double current_x = sinfo[2]*cos(conversion*current_angle);
             double current_y = sinfo[2]*sin(conversion*current_angle);
             highlightPoints->SetPoint( i, current_x, current_y, z );
-
+            
             current_angle += 3.;
-
+            
             highA->InsertCellPoint(i);
             highA->InsertCellPoint((i+1)%120);
-          }
+            }
           
           current_angle = 0.;
           for( int i = 0; i < 120; ++i)
-          {
+            {
             highA->InsertNextCell(2);
             double current_x = sinfo[3]*cos(conversion*current_angle);
             double current_y = sinfo[3]*sin(conversion*current_angle);
             highlightPoints->SetPoint( 120+i, current_x, current_y, z );
-
+            
             current_angle += 3.;
-
+            
             highA->InsertCellPoint(120+i);
             highA->InsertCellPoint(120+((i+1)%120));
-          }
+            }
           this->HighlightData->SetPoints(highlightPoints);
           this->HighlightData->SetLines(highA);
           this->HighlightActor->VisibilityOn();
-        }  
+          }  
+        }
       }
-    }
     else
-    {
+      {
       this->Balloon->SetBalloonText("");
       HighlightActor->VisibilityOff();
-    }
-
+      }
+    
     this->Balloon->StartWidgetInteraction(loc);
-
+    
     this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
     this->Superclass::OnMouseMove();
     this->GetInteractor()->Render();
-  }
+    }
 }
 
 void vtkInteractorStyleTreeRingHover::SetHighLightColor(double r, double g, double b)
@@ -375,9 +375,9 @@ void vtkInteractorStyleTreeRingHover::OnLeftButtonUp()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
-
+  
   this->CurrentSelectedId = GetTreeRingIdAtPos(x,y);
-
+  
   // Get the pedigree id of this object and
   // send out an event with that id as data
   vtkIdType id = this->CurrentSelectedId;
@@ -393,7 +393,7 @@ void vtkInteractorStyleTreeRingHover::OnLeftButtonUp()
       }
     }
   this->InvokeEvent(vtkCommand::UserEvent, &id);
-
+  
   this->HighLightCurrentSelectedItem();
   Superclass::OnLeftButtonUp();
 }
@@ -407,27 +407,27 @@ void vtkInteractorStyleTreeRingHover::HighLightItem(vtkIdType id)
 void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
 {
   float sinfo[4];
-
-    //don't worry about selections in non-drawn regions or 
-    // in the root nodes sector region...
+  
+  //don't worry about selections in non-drawn regions or 
+  // in the root nodes sector region...
 //  if (this->CurrentSelectedId > 0)
   if (this->CurrentSelectedId > -1)
-  {
+    {
     this->GetBoundingSectorForTreeRingItem(this->CurrentSelectedId,sinfo);
-
+    
     double z = 0.01;
     
     if( this->UseRectangularCoordinates )
-    {
+      {
       VTK_CREATE(vtkPoints, selectionPoints);
       selectionPoints->SetNumberOfPoints(5);
       
       VTK_CREATE(vtkCellArray, highA);
       highA->InsertNextCell(5);
       for( int i = 0; i < 5; ++i)
-      {
+        {
         highA->InsertCellPoint(i);
-      }
+        }
       selectionPoints->SetPoint(0, sinfo[0], sinfo[2], z);
       selectionPoints->SetPoint(1, sinfo[1], sinfo[2], z);
       selectionPoints->SetPoint(2, sinfo[1], sinfo[3], z);
@@ -436,11 +436,11 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
       this->SelectionData->SetPoints(selectionPoints);
       this->SelectionData->SetLines(highA);
       this->SelectionActor->VisibilityOn();
-    }
+      }
     else
-    {
-      if( sinfo[1] - sinfo[0] != 360. )
       {
+      if( sinfo[1] - sinfo[0] != 360. )
+        {
         VTK_CREATE(vtkSectorSource, sector);
         sector->SetInnerRadius(sinfo[2]);
         sector->SetOuterRadius(sinfo[3]);
@@ -449,7 +449,7 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
         sector->SetEndAngle(sinfo[1]);
         int resolution = (int)((sinfo[1]-sinfo[0])/1);
         if( resolution < 1 )
-            resolution = 1;
+          resolution = 1;
         sector->SetCircumferentialResolution(resolution);
         sector->Update();
         
@@ -463,9 +463,9 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
         this->SelectionData->ShallowCopy(append->GetOutput());
         
         this->SelectionActor->VisibilityOn();
-      }
+        }
       else
-      {
+        {
         VTK_CREATE(vtkPoints, selectionPoints);
         selectionPoints->SetNumberOfPoints(240);
         
@@ -474,7 +474,7 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
         
         VTK_CREATE(vtkCellArray, selectionA);
         for( int i = 0; i < 120; ++i)
-        {
+          {
           selectionA->InsertNextCell(2);
           double current_x = sinfo[2]*cos(conversion*current_angle);
           double current_y = sinfo[2]*sin(conversion*current_angle);
@@ -484,11 +484,11 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
           
           selectionA->InsertCellPoint(i);
           selectionA->InsertCellPoint((i+1)%120);
-        }
+          }
         
         current_angle = 0.;
         for( int i = 0; i < 120; ++i)
-        {
+          {
           selectionA->InsertNextCell(2);
           double current_x = sinfo[3]*cos(conversion*current_angle);
           double current_y = sinfo[3]*sin(conversion*current_angle);
@@ -498,7 +498,7 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
           
           selectionA->InsertCellPoint(120+i);
           selectionA->InsertCellPoint(120+((i+1)%120));
-        }
+          }
         this->SelectionData->SetPoints(selectionPoints);
         this->SelectionData->SetLines(selectionA);
         this->SelectionActor->VisibilityOn();

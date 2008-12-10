@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkTransferAttributes.h
 
-  Program:   Visualization Toolkit
-  Module:    vtkTransferAttributes.h
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 // .NAME vtkTransferAttributes - transfer data from a graph representation
 // to a tree representation using direct mapping or pedigree ids.
 //
@@ -43,10 +43,10 @@ class VTK_INFOVIS_EXPORT vtkTransferAttributes : public vtkPassInputTypeAlgorith
 {
 public:
   static vtkTransferAttributes *New();
-
+  
   vtkTypeRevisionMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // If on, uses direct mapping from tree to graph vertices.
   // If off, both the graph and tree must contain PedigreeId arrays
@@ -55,42 +55,42 @@ public:
   vtkSetMacro(DirectMapping, bool);
   vtkGetMacro(DirectMapping, bool);
   vtkBooleanMacro(DirectMapping, bool);
-
+  
   // Description:
   // The field name to use for storing the source array.
   vtkGetStringMacro(SourceArrayName);
   vtkSetStringMacro(SourceArrayName);
-
+  
   // Description:
   // The field name to use for storing the source array.
   vtkGetStringMacro(TargetArrayName);
   vtkSetStringMacro(TargetArrayName);
-
+  
   // Description:
   // The source field type for accessing the source array.
   vtkGetMacro(SourceFieldType, int);
   vtkSetMacro(SourceFieldType, int);
-
+  
   // Description:
   // The target field type for accessing the target array.
   vtkGetMacro(TargetFieldType, int);
   vtkSetMacro(TargetFieldType, int);
-
+  
   // Description:
   // Method to get/set the default value.
   //BTX
   vtkVariant GetDefaultValue();
   void SetDefaultValue(vtkVariant value);
   //ETX
-
+  
   // Description:
   // Set the input type of the algorithm to vtkGraph.
   int FillInputPortInformation(int port, vtkInformation* info);
-
+  
 protected:
   vtkTransferAttributes();
   ~vtkTransferAttributes();
-
+  
   bool DirectMapping;
   char* SourceArrayName;
   char* TargetArrayName;
@@ -100,7 +100,7 @@ protected:
   //BTX
   vtkVariant DefaultValue;
   //ETX
-
+  
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

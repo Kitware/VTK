@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkIcicleView.cxx
 
-  Program:   Visualization Toolkit
-  Module:    vtkIcicleView.cxx
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 
 #include "vtkIcicleView.h"
 
@@ -50,7 +50,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkIcicleView, "1.3");
+vtkCxxRevisionMacro(vtkIcicleView, "1.4");
 vtkStandardNewMacro(vtkIcicleView);
 //----------------------------------------------------------------------------
 vtkIcicleView::vtkIcicleView()
@@ -108,7 +108,7 @@ vtkIcicleView::vtkIcicleView()
   this->LabelMapper->GetLabelTextProperty()->SetLineOffset(0);
   this->LabelMapper->SetPriorityArrayName("leaf_count");
   this->LabelActor->PickableOff();
-
+  
   // Set default properties
   this->SetSizeArrayName("size");
   this->SetHoverArrayName("name");
@@ -128,7 +128,7 @@ vtkIcicleView::vtkIcicleView()
     this->TreeMapToPolyData->GetOutputPort());
   this->TreeRingActor->SetMapper(this->TreeRingMapper);
   this->LabelMapper->SetInputConnection(
-      this->TreeRingLayout->GetOutputPort());
+    this->TreeRingLayout->GetOutputPort());
   this->LabelActor->SetMapper(this->LabelMapper);
 }
 
@@ -239,8 +239,8 @@ void vtkIcicleView::SetupRenderWindow(vtkRenderWindow* win)
 
 //----------------------------------------------------------------------------
 void vtkIcicleView::AddInputConnection( int port, int item,
-  vtkAlgorithmOutput* conn,
-  vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+                                        vtkAlgorithmOutput* conn,
+                                        vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   if( port != 0 || item != 0 )
     {
@@ -262,19 +262,19 @@ void vtkIcicleView::AddInputConnection( int port, int item,
 
 //----------------------------------------------------------------------------
 void vtkIcicleView::RemoveInputConnection( int port, int item,
-  vtkAlgorithmOutput* conn,
-  vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+                                           vtkAlgorithmOutput* conn,
+                                           vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   if( port != 0 || item != 0 )
     {
     vtkErrorMacro("This view only supports one representation.");
     }
-
+  
   if (this->TreeLevelsFilter->GetNumberOfInputConnections(0) > 0 &&
       this->TreeLevelsFilter->GetInputConnection(0, 0) == conn)
     {
     this->TreeLevelsFilter->RemoveInputConnection(0, conn);
-  
+    
     this->Renderer->RemoveActor(this->TreeRingActor);
     this->Renderer->RemoveActor(this->LabelActor);
     }  
@@ -322,7 +322,7 @@ void vtkIcicleView::PrepareForRendering()
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
   if (this->TreeLevelsFilter->GetInputConnection(0, 0) != conn)
     {
-      this->RemoveInputConnection(0, 0, this->TreeLevelsFilter->GetInputConnection(0, 0), 0);
+    this->RemoveInputConnection(0, 0, this->TreeLevelsFilter->GetInputConnection(0, 0), 0);
     this->AddInputConnection(0, 0, conn, rep->GetSelectionConnection());
     }
   

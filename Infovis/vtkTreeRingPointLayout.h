@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkTreeRingPointLayout.h
 
-  Program:   Visualization Toolkit
-  Module:    vtkTreeRingPointLayout.h
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 // .NAME vtkTreeRingPointLayout - layout a vtkTree into a tree map
 //
 // .SECTION Description
@@ -39,23 +39,23 @@ class VTK_INFOVIS_EXPORT vtkTreeRingPointLayout : public vtkTreeAlgorithm
 {
 public:
   static vtkTreeRingPointLayout *New();
-
+  
   vtkTypeRevisionMacro(vtkTreeRingPointLayout,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // The field name to use for storing the sector for each vertex.
   // The rectangles are stored in a quadruple float array 
   // (innerRadius, outerRadius, startAngle, endAngle).
   vtkGetStringMacro(SectorsFieldName);
   vtkSetStringMacro(SectorsFieldName);
-
+  
   // Description:
   // Define the tree ring's exterior radius (to be used to align
   //  hierarchical edges with existing tree ring sectors.)
   vtkSetMacro(ExteriorRadius, double);
   vtkGetMacro(ExteriorRadius, double);
-
+  
   // Description:
   // The spacing of tree levels. Levels near zero give more space
   // to levels near the leaves, while levels near one (the default)
@@ -63,11 +63,11 @@ public:
   // to levels near the root.
   vtkSetMacro(LogSpacingValue, double);
   vtkGetMacro(LogSpacingValue, double);
-
+  
 protected:
   vtkTreeRingPointLayout();
   ~vtkTreeRingPointLayout();
-
+  
   char* SectorsFieldName;
   double ExteriorRadius;
   double LogSpacingValue;

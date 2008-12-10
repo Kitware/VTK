@@ -66,10 +66,10 @@
 
 #include <ctype.h> // for tolower()
 
-#define VTK_CREATE(type, name) \
+#define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.15");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.16");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -88,7 +88,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->GraphEdgeActor         = vtkSmartPointer<vtkActor>::New();
   this->TreeVisibilityRepresentation = vtkSmartPointer<vtkDataRepresentation>::New();
   this->TransferAttributes     = vtkSmartPointer<vtkTransferAttributes>::New();
-
+  
   //TreeRing objects
   this->TreeRingLayout         = vtkSmartPointer<vtkTreeRingLayout>::New();
   this->TreeRingLayoutStrategy = vtkSmartPointer<vtkTreeRingReversedLayoutStrategy>::New();
@@ -119,7 +119,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
 //  this->InteractorStyle->AddObserver(vtkCommand::UserEvent, this->GetObserver());
 //FIXME - jfsheph - this observer goes with rubber band selection
   this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-
+  
   this->Coordinate->SetCoordinateSystemToDisplay();
   
   // Setup parameters on the various mappers and actors
@@ -135,13 +135,13 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->SelectedGraphActor->PickableOff();
   this->SelectedGraphActor->SetPosition(0, 0, -0.01);
   this->SelectedGraphMapper->SetScalarVisibility(false);
-
+  
   this->TransferAttributes->SetSourceArrayName("VertexDegree");
   this->TransferAttributes->SetTargetArrayName("GraphVertexDegree");  
   this->TransferAttributes->SetSourceFieldType(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->TransferAttributes->SetTargetFieldType(vtkDataObject::FIELD_ASSOCIATION_VERTICES);
   this->TransferAttributes->SetDefaultValue(1);
-
+  
   this->TreeRingLabelMapper->SetLabelModeToLabelFieldData();
   this->TreeRingLabelMapper->GetLabelTextProperty()->SetColor(1,1,1);
   this->TreeRingLabelMapper->GetLabelTextProperty()->SetJustificationToCentered();
@@ -152,24 +152,24 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
 //  this->TreeRingLabelMapper->SetPriorityArrayName("leaf_count");
   this->TreeRingLabelMapper->SetPriorityArrayName("GraphVertexDegree");
   this->TreeRingLabelActor->PickableOff();
-
+  
   // Set default parameters
   this->SetVertexLabelArrayName("id");
   this->VertexLabelVisibilityOff();
   this->SetEdgeLabelArrayName("id");
   this->EdgeLabelVisibilityOff();
   this->ColorEdgesOff();
-
+  
   // Misc variables
   this->BundlingStrength = .5;  
   this->InteriorLogSpacing = 1.;
   this->TreeRingPointLayout->SetLogSpacingValue( this->InteriorLogSpacing );
-
+  
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
   this->ApplyViewTheme(theme);
   theme->Delete();
-
+  
   // Make empty seleciton for default highlight
   this->EmptySelection = vtkSmartPointer<vtkSelection>::New();
   vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
@@ -177,7 +177,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   vtkSmartPointer<vtkIdTypeArray> arr = vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(arr);
   this->EmptySelection->AddNode(node);
-
+  
   // Set filter attributes
   this->TreeAggregation->LeafVertexUnitSizeOn();
 //  this->TreeAggregation->SetField("leaf_count");
@@ -241,14 +241,14 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   this->SelectedGraphMapper->SetInputConnection(this->SelectedGraphSpline->GetOutputPort());
   this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
   this->SelectedGraphActor->GetProperty()->SetLineWidth(5.0);
-
+  
   this->TreeRingMapper->SetInputConnection(this->TreeRingLayout->GetOutputPort());
   this->TreeRingLayoutStrategy->SetRingThickness(1.);
   this->TreeRingPointLayout->SetExteriorRadius( this->TreeRingLayoutStrategy->GetInteriorRadius() );
   this->TreeRingMapper->SetShrinkPercentage(0.05);
   this->TreeRingLabelMapper->SetInputConnection(this->TreeRingLayout->GetOutputPort());
   this->TreeRingLabelActor->SetMapper(this->TreeRingLabelMapper);
-
+  
   VTK_CREATE(vtkLookupTable, ColorLUT);
   ColorLUT->SetHueRange( 0.667, 0 );
   ColorLUT->Build();
@@ -258,7 +258,7 @@ vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
   
   this->TreeVisibilityRepresentation->AddObserver(
     vtkCommand::SelectionChangedEvent, this->GetObserver());
-
+  
   // Register any algorithm that can fire progress events with the superclass.
   this->RegisterProgress(this->TreeAggregation, "TreeAggregation");
   this->RegisterProgress(this->VertexDegree, "VertexDegree");
@@ -400,10 +400,10 @@ void vtkHierarchicalTreeRingView::SetVertexColorArrayName(const char* name)
   this->TreeRingMapper->Update();
   vtkDataArray *array = this->TreeRingMapper->GetOutput()->GetCellData()->GetArray(name);
   if(array)
-  {
+    {
     array->GetRange(range);
     this->TreeRingMapper2->SetScalarRange( range[0], range[1] );
-  }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -412,20 +412,20 @@ void vtkHierarchicalTreeRingView::SetEdgeColorArrayName(const char* name)
   // Try to find the range the user-specified color array.
   double range[2];
   if( this->Spline->GetOutput() != NULL )
-  {
+    {
     vtkDataArray* arr = this->Spline->GetOutput()->GetCellData()->GetArray(name);
     if (arr)
-    {
-    this->GraphEdgeMapper->SetScalarModeToUseCellFieldData();
-    this->GraphEdgeMapper->SelectColorArray(name); 
-    arr->GetRange(range);  
-    this->GraphEdgeMapper->SetScalarRange(range[0], range[1]);
+      {
+      this->GraphEdgeMapper->SetScalarModeToUseCellFieldData();
+      this->GraphEdgeMapper->SelectColorArray(name); 
+      arr->GetRange(range);  
+      this->GraphEdgeMapper->SetScalarRange(range[0], range[1]);
+      }
+    else
+      {
+      vtkErrorMacro("Could not find array named: " << name);
+      }
     }
-  else
-    {
-    vtkErrorMacro("Could not find array named: " << name);
-    }
-  }
 }
 
 void vtkHierarchicalTreeRingView::SetEdgeColorToSplineFraction()
@@ -487,14 +487,14 @@ void vtkHierarchicalTreeRingView::SetupRenderWindow(vtkRenderWindow* win)
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalTreeRingView::AddInputConnection( int port, int vtkNotUsed(index),
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
+                                                      vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
   vtkAlgorithm* alg = conn->GetProducer();
   alg->Update();
-
+  
   bool haveGraph = false;
   bool haveTree = false;
-
+  
   //Port 0 is designated as the tree and port 1 is the graph
   if( port == 0 )
     {
@@ -510,13 +510,13 @@ void vtkHierarchicalTreeRingView::AddInputConnection( int port, int vtkNotUsed(i
     this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
     haveGraph = true;
     }
-
+  
   haveGraph = haveGraph || this->GetGraphRepresentation();
   haveTree = haveTree || this->GetTreeRepresentation();
-
+  
   // If we have a graph and a tree, we are ready to go.
   if (haveGraph && haveTree)
-  { 
+    { 
     this->Renderer->AddActor( this->TreeRingActor );
     this->Renderer->AddActor( this->TreeRingLabelActor );
     this->Renderer->AddActor(this->SelectedGraphActor);

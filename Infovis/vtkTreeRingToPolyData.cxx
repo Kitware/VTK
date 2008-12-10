@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkTreeRingToPolyData.cxx
 
-  Program:   Visualization Toolkit
-  Module:    vtkTreeRingToPolyData.cxx
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 #include "vtkTreeRingToPolyData.h"
 
 #include "vtkCellArray.h"
@@ -34,10 +34,10 @@
 #include "vtkAppendPolyData.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
+#define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.7");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.8");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -66,71 +66,71 @@ int vtkTreeRingToPolyData::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
+  
   // get the input and output
   vtkTree *inputTree = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
+  
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->SectorsFieldName);
   VTK_CREATE(vtkAppendPolyData, append);
-
+  
   int i;
   vtkIdType rootId = inputTree->GetRoot();
   for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
-  {
-    if( i == rootId )
     {
-        //don't draw the root node...
+    if( i == rootId )
+      {
+      //don't draw the root node...
       continue;
-    }
+      }
     
     // Grab coords from the input
     double coords[4];
     coordArray->GetTuple(i,coords);
-
+    
     VTK_CREATE(vtkSectorSource, sector);
     double radial_length = coords[3] - coords[2];
     
-      //calculate the amount of change in the arcs based on the shrink 
-      // percentage of the arc_length
+    //calculate the amount of change in the arcs based on the shrink 
+    // percentage of the arc_length
     double conversion = vtkMath::Pi()/180.;
     double arc_length = (conversion*(coords[1] - coords[0])*coords[3]);
     double radial_shrink = radial_length*this->ShrinkPercentage;
 //    double arc_length_shrink = ((radial_length*this->ShrinkPercentage) < (arc_length*this->ShrinkPercentage)) ? (radial_length*this->ShrinkPercentage) : (arc_length*this->ShrinkPercentage);
     double arc_length_shrink;
     if( radial_shrink > 0.25*arc_length )
-    {
+      {
       arc_length_shrink = 0.25*arc_length;
-    }
+      }
     else
-    {
+      {
       arc_length_shrink = radial_shrink;
-    }
-
+      }
+    
     double arc_length_new = arc_length - arc_length_shrink;
     double angle_change = ((arc_length_new/coords[3])/conversion);
     double delta_change_each = 0.5*((coords[1]-coords[0]) - angle_change);
     
     sector->SetInnerRadius(coords[2] + (0.5*(radial_length*this->ShrinkPercentage)));
     sector->SetOuterRadius(coords[3] - (0.5*(radial_length*this->ShrinkPercentage)));
-
+    
     if( coords[1] - coords[0] == 360. )
-    {
+      {
       sector->SetStartAngle( coords[0] );
       sector->SetEndAngle( coords[1] );
-    }
+      }
     else
-    {
+      {
       sector->SetStartAngle(coords[0] + delta_change_each);
       sector->SetEndAngle(coords[1] - delta_change_each);
-    }
-
+      }
+    
     int resolution = (int)((coords[1] - coords[0])/1);
     if( resolution < 1 )
-        resolution = 1;
+      resolution = 1;
     sector->SetCircumferentialResolution(resolution);
     sector->Update();
     
@@ -138,27 +138,27 @@ int vtkTreeRingToPolyData::RequestData(
     strip->SetInput(sector->GetOutput());
     
     append->AddInput(strip->GetOutput());
-  }
+    }
   
   append->Update();
   outputPoly->ShallowCopy(append->GetOutput());
   
-    // Pass the input point data to the output cell data :)
+  // Pass the input point data to the output cell data :)
   int copy_counter = 0;
   vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
   vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();
   output_cell_data->CopyAllocate(input_vertex_data);
   for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
-  {
-    if( i == rootId )
     {
-        //No cell data for the root node, so don't copy it...
+    if( i == rootId )
+      {
+      //No cell data for the root node, so don't copy it...
       continue;
-    }
-
-      //copy data from -> to
+      }
+    
+    //copy data from -> to
     output_cell_data->CopyData(input_vertex_data, i, copy_counter++);
-  }
+    }
   
   return 1;
 }

@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkInteractorStyleTreeRingHover.h
 
-  Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleTreeRingHover.h
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 // .NAME vtkInteractorStyleTreeRingHover - An interactor style for an RSF tree view
 //
 // .SECTION Description
@@ -46,18 +46,18 @@ public:
   static vtkInteractorStyleTreeRingHover* New();
   vtkTypeRevisionMacro(vtkInteractorStyleTreeRingHover,vtkInteractorStyleImage);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Must be set to the vtkTreeRingLayout used to compute the bounds of each vertex
   // for the tree map.
   void SetLayout(vtkTreeRingLayout* layout);
   vtkGetObjectMacro(Layout, vtkTreeRingLayout);
-
+  
   // Description:
   // The name of the field to use when displaying text in the hover balloon.
   vtkSetStringMacro(LabelField);
   vtkGetStringMacro(LabelField);
-
+  
   // Description:
   // Determine whether or not to use rectangular coordinates instead of 
   // polar coordinates.
@@ -74,35 +74,35 @@ public:
   // Highlights a specific vertex.
   void HighLightItem(vtkIdType id);
   void HighLightCurrentSelectedItem();
-
+  
   virtual void SetInteractor(vtkRenderWindowInteractor *rwi);
-
+  
   // Description:
   // Set the color used to highlight the hovered vertex.
   void SetHighLightColor(double r, double g, double b);
-
+  
   // Description:
   // Set the color used to highlight the selected vertex.
   void SetSelectionLightColor(double r, double g, double b);
-
+  
   // Description:
   // The width of the line around the hovered vertex.
   void SetHighLightWidth(double lw);
   double GetHighLightWidth();
-
+  
   // Description:
   // The width of the line around the selected vertex.
   void SetSelectionWidth(double lw);
   double GetSelectionWidth();
-
+  
 protected:
   vtkInteractorStyleTreeRingHover();
   ~vtkInteractorStyleTreeRingHover();
-
+  
 private:
   vtkInteractorStyleTreeRingHover(const vtkInteractorStyleTreeRingHover&); // Not implemented
   void operator=(const vtkInteractorStyleTreeRingHover&); // Not implemented
-
+  
   // These methods are used internally
   vtkIdType GetTreeRingIdAtPos(int x, int y);
   void GetBoundingSectorForTreeRingItem(vtkIdType id, float *sinfo);

@@ -1,22 +1,22 @@
 /*=========================================================================
+  
+Program:   Visualization Toolkit
+Module:    vtkIcicleView.h
 
-  Program:   Visualization Toolkit
-  Module:    vtkIcicleView.h
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 // .NAME vtkIcicleView - Displays a tree as a radial space filling tree.
 //
 // .SECTION Description
@@ -79,24 +79,24 @@ public:
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToDefault();
   void SetLayoutStrategyToReversed();
-
+  
   // Description:
   // Set the width of the root node
   void SetRootWidth(double width);
-
+  
   // Description:
   // Set the thickness of each layer
   void SetLayerThickness( double thickness );
-
+  
   // Description:
   // Turn on/off gradient coloring.
   void UseGradientColoring( bool value );
-    
+  
 //   // Description:
 //   // Get/Set the shrinkage percentage for drawing each of the sectors
 //   void SetSectorShrinkPercentage( double shrinkFactor );
 //   double GetSectorShrinkPercentage();
-
+  
   // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);
@@ -104,7 +104,7 @@ public:
   // Description:
   // Apply the theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
-
+  
 protected:
   vtkIcicleView();
   ~vtkIcicleView();
@@ -112,29 +112,29 @@ protected:
   // Description:
   // Connects the algorithm output to the internal pipeline.
   virtual void AddInputConnection( int port, int item,
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
+                                   vtkAlgorithmOutput* conn,
+                                   vtkAlgorithmOutput* selectionConn);
   
   // Description:
   // Disconnects the algorithm output from the internal pipeline.
   virtual void RemoveInputConnection( int port, int item,
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
+                                      vtkAlgorithmOutput* conn,
+                                      vtkAlgorithmOutput* selectionConn);
   
   // Description:
   // Called to process the user event from the interactor style.
   virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
-    void* callData);
+                             void* callData);
   
   // Decsription:
   // Prepares the view for rendering.
   virtual void PrepareForRendering();
-
+  
   // Description:
   // Gets the internal color array name.
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);
-
+  
   // Representation objects
   char* ColorArrayNameInternal;
   vtkTreeLevelsFilter*                      TreeLevelsFilter;
@@ -148,7 +148,7 @@ protected:
   vtkDynamic2DLabelMapper*                  LabelMapper;
   vtkActor2D*                               LabelActor;
   vtkLookupTable*                           ColorLUT;
-
+  
 private:
   vtkIcicleView(const vtkIcicleView&);  // Not implemented.
   void operator=(const vtkIcicleView&);  // Not implemented.

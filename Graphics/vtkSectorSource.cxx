@@ -11,7 +11,7 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+     =========================================================================*/
 #include "vtkSectorSource.h"
 
 #include "vtkInformation.h"
@@ -24,10 +24,10 @@
 #include "vtkMath.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
+#define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkSectorSource, "1.4");
+vtkCxxRevisionMacro(vtkSectorSource, "1.5");
 vtkStandardNewMacro(vtkSectorSource);
 
 vtkSectorSource::vtkSectorSource()
@@ -50,16 +50,16 @@ int vtkSectorSource::RequestData(
 {
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
+  
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
+  
   int piece, numPieces, ghostLevel;
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
   ghostLevel = output->GetUpdateGhostLevel();
-
+  
 //   if( (this->StartAngle == 0. && this->EndAngle == 360.) ||
 //       (this->StartAngle == 360. && this->EndAngle == 0. ) )
 //   {
@@ -69,7 +69,7 @@ int vtkSectorSource::RequestData(
 //     diskSource->SetRadialResolution( this->RadialResolution );
 //     diskSource->SetInnerRadius( this->InnerRadius );
 //     diskSource->SetOuterRadius( this->OuterRadius );
-   
+  
 //     if (output->GetUpdatePiece() == 0 && numPieces > 0)
 //     {
 //       diskSource->Update();
@@ -84,8 +84,8 @@ int vtkSectorSource::RequestData(
   VTK_CREATE(vtkLineSource, lineSource);
   lineSource->SetResolution( this->RadialResolution );
   
-    //set vertex 1, adjust for start angle
-    //set vertex 2, adjust for start angle
+  //set vertex 1, adjust for start angle
+  //set vertex 2, adjust for start angle
   double x1[3], x2[3];
   x1[0] = this->InnerRadius * cos( vtkMath::RadiansFromDegrees( this->StartAngle ) );
   x1[1] = this->InnerRadius * sin( vtkMath::RadiansFromDegrees( this->StartAngle ) );
@@ -105,10 +105,10 @@ int vtkSectorSource::RequestData(
   rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
   
   if (output->GetUpdatePiece() == 0 && numPieces > 0)
-  {
+    {
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
-  }
+    }
   output->SetUpdatePiece(piece);
   output->SetUpdateNumberOfPieces(numPieces);
   output->SetUpdateGhostLevel(ghostLevel);
@@ -120,7 +120,7 @@ int vtkSectorSource::RequestData(
 void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
+  
   os << indent << "InnerRadius: " << this->InnerRadius << "\n";
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";
   os << indent << "ZCoord: " << this->ZCoord << "\n";
