@@ -39,7 +39,7 @@ static const char *quote_string(const char *comment, int maxlen)
       {
       free(result);
       }
-    result = (char *)malloc(maxlen+1);
+    result = (char *)malloc((size_t)(maxlen+1));
     oldmaxlen = maxlen;
     }
 
