@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.15");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.16");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -143,7 +143,12 @@ void vtkSQLiteQuery::SetQuery(const char *newQuery)
     {
     vtkSQLiteDatabase *dbContainer = 
       vtkSQLiteDatabase::SafeDownCast(this->Database);
-    assert(dbContainer != NULL);
+
+    if (dbContainer == NULL)
+      {
+      vtkErrorMacro(<<"This should never happen: SetQuery() called when there is no underlying database.  You probably instantiated vtkSQLiteQuery directly instead of calling vtkSQLDatabase::GetInstance().  This also happens during TestSetGet in the CDash testing.");
+      return;
+      }
     
     vtk_sqlite3 *db = dbContainer->SQLiteInstance;
     const char *unused_statement;
