@@ -70,7 +70,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     }
 
   
-  char *placeholders = "INSERT INTO people (name, age, weight) VALUES (?, ?, ?)";
+  const char *placeholders = "INSERT INTO people (name, age, weight) VALUES (?, ?, ?)";
   query->SetQuery(placeholders);
   for ( i = 21; i < 40; i++ )
     {
