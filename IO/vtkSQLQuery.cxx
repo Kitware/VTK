@@ -25,7 +25,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
-vtkCxxRevisionMacro(vtkSQLQuery, "1.7");
+vtkCxxRevisionMacro(vtkSQLQuery, "1.8");
 
 vtkSQLQuery::vtkSQLQuery()
 {
@@ -178,7 +178,7 @@ bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), const vtkStdString &vtkNo
   return false;
 }
 
-bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), void *vtkNotUsed(value), size_t vtkNotUsed(length))
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), const void *vtkNotUsed(value), size_t vtkNotUsed(length))
 {
   vtkErrorMacro(<<"This database driver does not support bound parameters.");
   return false;

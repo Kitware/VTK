@@ -141,7 +141,7 @@ public:
   // Bind a blob value.  Not all databases support blobs as a data
   // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
   // make sure.
-  bool BindParameter(int index, void *data, size_t length);
+  bool BindParameter(int index, const void *data, size_t length);
   bool ClearParameterBindings();
 
 protected:
@@ -167,7 +167,7 @@ private:
   bool BindDoubleParameter(int index, double value);
   bool BindInt64Parameter(int index, vtkTypeInt64 value);
   bool BindStringParameter(int index, const char *data, size_t length);
-  bool BindBlobParameter(int index, void *data, size_t length);
+  bool BindBlobParameter(int index, const void *data, size_t length);
 
 };
 

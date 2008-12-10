@@ -152,7 +152,7 @@ public:
   // Bind a blob value.  Not all databases support blobs as a data
   // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
   // make sure.
-  virtual bool BindParameter(int index, void *data, size_t length);
+  virtual bool BindParameter(int index, const void *data, size_t length);
   // Description:
   // Reset all parameter bindings to NULL.
   virtual bool ClearParameterBindings();
