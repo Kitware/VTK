@@ -252,11 +252,13 @@ inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {
   if (value)
     {
-    this->Array[id/8] |= static_cast<unsigned char>(0x80 >> id%8);
+    this->Array[id/8] = static_cast<unsigned char>(
+      this->Array[id/8] | (0x80 >> id%8));
     }
   else
     {
-    this->Array[id/8] &= static_cast<unsigned char>(~(0x80 >> id%8));
+    this->Array[id/8] = static_cast<unsigned char>(
+      this->Array[id/8] & (~(0x80 >> id%8)));
     }
   this->DataChanged();
 }
@@ -269,11 +271,13 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
     }
   if (i)
     {
-    this->Array[id/8] |= static_cast<unsigned char>(0x80 >> id%8);
+    this->Array[id/8] = static_cast<unsigned char>(
+      this->Array[id/8] | (0x80 >> id%8));
     }
   else
     {
-    this->Array[id/8] &= static_cast<unsigned char>(~(0x80 >> id%8));
+    this->Array[id/8] = static_cast<unsigned char>(
+      this->Array[id/8] & (~(0x80 >> id%8)));
     }
   if ( id > this->MaxId )
     {
