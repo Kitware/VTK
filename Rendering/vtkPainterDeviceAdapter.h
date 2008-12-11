@@ -78,7 +78,7 @@ public:
   // Description:
   // Calls glMultiTex
   virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute, 
-                                      int idx, unsigned long offset) = 0;
+                                      int idx, vtkIdType offset) = 0;
 
   // Description:
   // Sends a single attribute to the graphics card.  The index parameter
@@ -93,7 +93,7 @@ public:
   // If offset is specified, it is added to attribute pointer after
   // it has been casted to the proper type.
   virtual void SendAttribute(int index, int components, int type,
-                             const void *attribute, unsigned long offset=0) = 0;
+                             const void *attribute, vtkIdType offset=0) = 0;
 
   // Description:
   // Sets an array of attributes.  This allows you to send all the data for

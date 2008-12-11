@@ -66,12 +66,12 @@ public:
   // Description:
   // Calls one of glVertex*, glNormal*, glColor*, or glTexCoord*.
   virtual void SendAttribute(int index, int components, int type,
-                             const void *attribute, unsigned long offset=0);
+                             const void *attribute, vtkIdType offset=0);
 
   // Description:
   // Calls glMultiTex
   virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute, 
-                                      int idx, unsigned long offset);
+                                      int idx, vtkIdType offset);
 
   // Description:
   // Calls one of glVertexPointer, glNormalPointer, glColorPointer, or

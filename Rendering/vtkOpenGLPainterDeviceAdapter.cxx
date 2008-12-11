@@ -37,7 +37,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.25");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.26");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -266,7 +266,7 @@ int vtkOpenGLPainterDeviceAdapter::IsAttributesSupported(int attribute)
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
-  int type, const void *attribute, unsigned long offset/*=0*/)
+  int type, const void *attribute, vtkIdType offset/*=0*/)
 {
   switch (index)
     {
@@ -542,7 +542,7 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
-  int type, const void *attribute, int idx, unsigned long offset)
+  int type, const void *attribute, int idx, vtkIdType offset)
 {
   if(! vtkgl::MultiTexCoord2d)
     {
