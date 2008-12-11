@@ -682,17 +682,17 @@ inline void vtkFixedPointVolumeRayCastMapper::LookupAndCombineIndependentColorsU
   
   for ( int i = 0; i < components; i++ )
     {
-    unsigned short alpha = static_cast<unsigned short>(scalarOpacityTable[i][index[i]]*weights[i]);
+    unsigned short alpha = static_cast<unsigned short>(static_cast<float>(scalarOpacityTable[i][index[i]])*weights[i]);
     tmp[0] += static_cast<unsigned char>(((colorTable[i][3*index[i]  ])*alpha + 0x7fff)>>(2*VTKKW_FP_SHIFT - 8));
     tmp[1] += static_cast<unsigned char>(((colorTable[i][3*index[i]+1])*alpha + 0x7fff)>>(2*VTKKW_FP_SHIFT - 8));
     tmp[2] += static_cast<unsigned char>(((colorTable[i][3*index[i]+2])*alpha + 0x7fff)>>(2*VTKKW_FP_SHIFT - 8));
     tmp[3] += static_cast<unsigned char>(alpha>>(VTKKW_FP_SHIFT - 8));
     }
 
-  color[0] = (tmp[0]>255)?(255):(tmp[0]);
-  color[1] = (tmp[1]>255)?(255):(tmp[1]);
-  color[2] = (tmp[2]>255)?(255):(tmp[2]);
-  color[3] = (tmp[3]>255)?(255):(tmp[3]);
+  color[0] = static_cast<unsigned char>((tmp[0]>255)?(255):(tmp[0]));
+  color[1] = static_cast<unsigned char>((tmp[1]>255)?(255):(tmp[1]));
+  color[2] = static_cast<unsigned char>((tmp[2]>255)?(255):(tmp[2]));
+  color[3] = static_cast<unsigned char>((tmp[3]>255)?(255):(tmp[3]));
   
 }
 
