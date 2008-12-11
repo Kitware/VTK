@@ -39,7 +39,7 @@ public:
   
   // Description:
   // Return the id at location i.
-  vtkIdType GetId(const int i) {return this->Ids[i];};
+  vtkIdType GetId(const vtkIdType i) {return this->Ids[i];};
   
   // Description:
   // Specify the number of ids for this object to hold. Does an

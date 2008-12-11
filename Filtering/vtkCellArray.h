@@ -291,7 +291,7 @@ inline void vtkCellArray::UpdateCellCount(int npts)
 //----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::InsertNextCell(vtkCell *cell)
 {
-  int npts = cell->GetNumberOfPoints();
+  vtkIdType npts = cell->GetNumberOfPoints();
   vtkIdType i = this->Ia->GetMaxId() + 1;
   vtkIdType *ptr = this->Ia->WritePointer(i,npts+1);
   

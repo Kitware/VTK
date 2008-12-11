@@ -68,7 +68,7 @@ public:
 
   // Description:
   // Delete cell by setting to NULL cell type.
-  void DeleteCell(int cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
+  void DeleteCell(vtkIdType cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
 
   // Description:
   // Return the number of types in the list.

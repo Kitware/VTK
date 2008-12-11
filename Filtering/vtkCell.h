@@ -103,7 +103,7 @@ public:
 
   // Description:
   // Return the number of points in the cell.
-  int GetNumberOfPoints() {return this->PointIds->GetNumberOfIds();}
+  vtkIdType GetNumberOfPoints() {return this->PointIds->GetNumberOfIds();}
 
   // Description:
   // Return the number of edges in the cell.
