@@ -31,10 +31,13 @@
 #include "vtkPDescriptiveStatistics.h"
 #include "vtkCorrelativeStatistics.h"
 #include "vtkPCorrelativeStatistics.h"
+#include "vtkMultiCorrelativeStatistics.h"
+#include "vtkPMultiCorrelativeStatistics.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -42,7 +45,7 @@
 // For debugging purposes, serial engines can be run on each slice of the distributed data set
 #define DEBUG_WITH_SERIAL_STATS 0 
 
-int nVals = 1000000;
+int nVals = 100000;
 
 // This will be called by all processes
 void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNotUsed(arg) )
@@ -100,6 +103,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     inputData->AddColumn( doubleArray[c] );
     doubleArray[c]->Delete();
     }
+
+  // ************************** Descriptive Statistics ************************** 
 
 #if DEBUG_WITH_SERIAL_STATS
   // Instantiate a (serial) descriptive statistics engine and set its ports
@@ -207,10 +212,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
     }
   
-  vtkVariantArray* relDev[2];
-  relDev[0] = vtkVariantArray::SafeDownCast(
+  vtkDoubleArray* relDev[2];
+  relDev[0] = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "d(Standard Normal 0)" ) );
-  relDev[1] = vtkVariantArray::SafeDownCast(
+  relDev[1] = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "d(Standard Normal 1)" ) );
 
   if ( !relDev[0] || ! relDev[1] )
@@ -228,7 +233,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     int n = outputData->GetNumberOfRows();
     for ( vtkIdType r = 0; r < n; ++ r )
       {
-      dev = relDev[c]->GetValue( r ).ToDouble();
+      dev = relDev[c]->GetValue( r );
       if ( dev >= 1. )
         {
         ++ outsideStdv_l[0];
@@ -269,6 +274,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
 
   // Clean up
   pds->Delete();
+
+  // ************************** Correlative Statistics ************************** 
 
   // Synchronize and start clock
   controller->Barrier();
@@ -330,6 +337,68 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
 
   // Clean up
   pcs->Delete();
+
+  // ************************** Multi-Correlative Statistics ************************** 
+
+  // Synchronize and start clock
+  controller->Barrier();
+  time_t t4;
+  time ( &t4 );
+
+  // Instantiate a parallel correlative statistics engine and set its ports
+  vtkPMultiCorrelativeStatistics* pmcs = vtkPMultiCorrelativeStatistics::New();
+  pmcs->SetInput( 0, inputData );
+  outputData = pmcs->GetOutput( 0 );
+
+  // Select column pairs (uniform vs. uniform, normal vs. normal)
+  pmcs->SetColumnStatus( columnNames[0], true );
+  pmcs->SetColumnStatus( columnNames[1], true );
+  pmcs->RequestSelectedColumns();
+
+  pmcs->ResetAllColumnStates();
+  pmcs->SetColumnStatus( columnNames[2], true );
+  pmcs->SetColumnStatus( columnNames[3], true );
+  pmcs->RequestSelectedColumns();
+
+  pmcs->ResetAllColumnStates();
+  pmcs->SetColumnStatus( columnNames[0], true );
+  pmcs->SetColumnStatus( columnNames[1], true );
+  pmcs->SetColumnStatus( columnNames[2], true );
+  pmcs->SetColumnStatus( columnNames[3], true );
+  pmcs->RequestSelectedColumns();
+
+  // Test (in parallel) with Learn, Derive, and Assess options turned on
+  pmcs->SetLearn( true );
+  pmcs->SetDerive( true );
+  pmcs->SetAssess( true );
+  pmcs->Update();
+
+    // Synchronize and stop clock
+  controller->Barrier();
+  time_t t5;
+  time ( &t5 );
+
+  if ( ! controller->GetLocalProcessId() )
+    {
+    cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
+         << "   Total sample size: "
+         << pmcs->GetSampleSize()
+         << " \n"
+         << "   Wall time: "
+         << difftime( t5, t4 )
+         << " sec.\n";
+
+    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pmcs->GetOutputDataObject( 1 ) ); 
+    for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+      {
+      outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+      outputMeta->Dump();
+      }
+    }
+
+  // Clean up
+  pmcs->Delete();
+
   inputData->Delete();
 }
 
