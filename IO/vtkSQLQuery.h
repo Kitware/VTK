@@ -114,11 +114,15 @@ public:
   //
   // Bound parameters were introduced in ANSI SQL 92.  Please see that
   // standard for more information.
-
+  //
   // Most of these methods are excluded from wrapping because the Java
   // wrapper treats all integer types from char up through 64-bit long
   // as 'int'.  This is incorrect behavior but what else am I going to
   // do?
+  //
+  // Finally, the default implementation for BindParameter(int,
+  // vtkVariant) dispatches to one of the more type-specific versions.  It
+  // should be OK to use in database drivers without modification.
 
 //BTX
   virtual bool BindParameter(int index, unsigned char value);
@@ -147,6 +151,7 @@ public:
   virtual bool BindParameter(int index, const char *stringValue, size_t length);
 //BTX
   virtual bool BindParameter(int index, const vtkStdString &string);
+  virtual bool BindParameter(int index, vtkVariant var);
 //ETX
   // Description:
   // Bind a blob value.  Not all databases support blobs as a data

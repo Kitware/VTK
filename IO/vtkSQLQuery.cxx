@@ -25,7 +25,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
-vtkCxxRevisionMacro(vtkSQLQuery, "1.8");
+vtkCxxRevisionMacro(vtkSQLQuery, "1.9");
 
 vtkSQLQuery::vtkSQLQuery()
 {
@@ -188,4 +188,42 @@ bool vtkSQLQuery::ClearParameterBindings()
 {
   vtkErrorMacro(<<"This database driver does not support bound parameters.");
   return false;
+}
+
+bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
+{
+  if (!data.IsValid())
+    {
+    return true; // binding nulls is a no-op
+    }
+
+#define VTK_VARIANT_BIND_PARAMETER(Type,Function) \
+  case Type: return this->BindParameter(index, data.Function())
+
+  switch (data.GetType())
+    {
+    VTK_VARIANT_BIND_PARAMETER(VTK_STRING,ToString);
+    VTK_VARIANT_BIND_PARAMETER(VTK_FLOAT,ToFloat);
+    VTK_VARIANT_BIND_PARAMETER(VTK_DOUBLE,ToDouble);
+    VTK_VARIANT_BIND_PARAMETER(VTK_CHAR,ToChar);
+    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_CHAR,ToUnsignedChar);
+    VTK_VARIANT_BIND_PARAMETER(VTK_SIGNED_CHAR,ToSignedChar);
+    VTK_VARIANT_BIND_PARAMETER(VTK_SHORT,ToShort);
+    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_SHORT,ToUnsignedShort);
+    VTK_VARIANT_BIND_PARAMETER(VTK_INT,ToInt);
+    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_INT,ToUnsignedInt);
+    VTK_VARIANT_BIND_PARAMETER(VTK_LONG,ToLong);
+    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_LONG,ToUnsignedLong);
+#if defined(VTK_TYPE_USE___INT64)
+    VTK_VARIANT_BIND_PARAMETER(VTK___INT64,To__Int64);
+    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED___INT64,ToUnsigned__Int64);
+#endif
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    VTK_VARIANT_BIND_PARAMETER(VTK_LONG_LONG,ToLongLong);
+    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_LONG_LONG,ToUnsignedLongLong);
+#endif
+    case VTK_OBJECT:
+      vtkErrorMacro(<<"Variants of type VTK_OBJECT cannot be inserted into a database.");
+      return false;
+    }
 }
