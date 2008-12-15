@@ -150,7 +150,7 @@ vtkVariant::operator==(const vtkVariant &other) const
   bool thisSigned = IsSigned(this->Type);
   bool otherSigned = IsSigned(other.Type);
 
-  if (!(thisSigned ^ otherSigned))
+  if (thisSigned ^ otherSigned)
     {
     if (thisSigned)
       {
