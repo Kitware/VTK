@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.84");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.85");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -749,6 +749,25 @@ int vtkGenericEnSightReader::RequestInformation(
   this->Reader->SetReadAllVariables(this->ReadAllVariables);
   this->Reader->SetCaseFileName(this->GetCaseFileName());
   this->Reader->SetFilePath(this->GetFilePath());
+  
+  // The following line, explicitly initializing this->ByteOrder to
+  // FILE_UNKNOWN_ENDIAN,  MUST !!NOT!! be removed as it is used to
+  // force vtkEnSightGoldBinaryReader::ReadPartId(...) to determine
+  // the actual endian type. Otherwise the endian type, the default
+  // value from combobox 'Byte Order' of the user interface -------
+  // FILE_BIG_ENDIAN unless the user manually toggles the combobox,
+  // would be forwarded to  this->Reader->ByteOrder through the next
+  // line and therefore would prevent vtkEnSightGoldBinaryReader::
+  // ReadPartId(...) from automatically checking the endian type. As
+  // a consequence, little-endian files such as the one mentioned in
+  // bug #0008237 would not be loadable. The following line might be
+  // removed ONLY WHEN the combobox is removed through
+  // ParaViews\Servers\ServerManager\Resources\readers.xml.
+  // Thus it is highly suggested that the following line be retained
+  // to guarantee the fix to bug #0007424 -- automatic determination
+  // of the endian type.
+  this->ByteOrder = FILE_UNKNOWN_ENDIAN;
+  
   this->Reader->SetByteOrder(this->ByteOrder);
   this->Reader->RequestInformation(request, inputVector, outputVector);
   this->Reader->SetParticleCoordinatesByIndex(this->ParticleCoordinatesByIndex);
