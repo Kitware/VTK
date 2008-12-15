@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.82");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.83");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1072,8 +1072,10 @@ int vtkEnSightReader::ReadCaseFile()
     int firstTimeStep = 1;
     
     this->UseTimeSetsOn();
-    while(this->ReadNextDataLine(line) != 0 &&
-          strncmp(line, "FILE", 4) != 0)
+    
+    // fix to bug #0007091
+    int lineReadStatus = this->ReadNextDataLine(line);
+    while (  lineReadStatus != 0  &&  strncmp(line, "FILE", 4) != 0  )
       {
       sscanf(line, "%*s %*s %d", &timeSet);
       this->TimeSetIds->InsertNextId(timeSet);
@@ -1159,6 +1161,20 @@ int vtkEnSightReader::ReadCaseFile()
         }
       this->TimeSets->AddItem(timeValues);
       timeValues->Delete();
+      
+      // The follwing line MUST *NOT* be removed as it enables the loop
+      // "while ( lineReadStatus != 0 && strncmp(line, "FILE", 4) != 0 )".
+      // It also supports the check of redundant time-step values.
+      lineReadStatus = this->ReadNextDataLine(line);
+      
+      // To ignore redundant time-step values, if any, to fix bug #0007091
+      while ( lineReadStatus != 0 &&
+        strncmp(line, "time set", 8) != 0 &&
+        strncmp(line, "FILE", 4) != 0 )
+        {
+        lineReadStatus = this->ReadNextDataLine(line);
+        }
+      
       }
     }
   
