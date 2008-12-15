@@ -36,3 +36,57 @@ add_library( vtkalglib
   ${ALGLIB_SRCS}
 )
 
+# Apply user-defined properties to the library target.
+if ( VTK_LIBRARY_PROPERTIES )
+  set_target_properties( vtkalglib PROPERTIES ${VTK_LIBRARY_PROPERTIES} )
+endif ( VTK_LIBRARY_PROPERTIES )
+
+#
+# Install rules
+#
+
+# Grab install locations from VTK if we are building as part of VTK
+if ( VTK_INSTALL_BIN_DIR_CM24 )
+  set( alglib_install_bin_dir ${VTK_INSTALL_BIN_DIR_CM24} )
+else ( VTK_INSTALL_BIN_DIR_CM24 )
+  set( alglib_install_bin_dir ${CMAKE_INSTALL_PREFIX}/bin )
+endif ( VTK_INSTALL_BIN_DIR_CM24 )
+
+if ( VTK_INSTALL_LIB_DIR_CM24 )
+  set( alglib_install_lib_dir ${VTK_INSTALL_LIB_DIR_CM24} )
+else ( VTK_INSTALL_LIB_DIR_CM24 )
+  set( alglib_install_lib_dir ${CMAKE_INSTALL_PREFIX}/lib )
+endif ( VTK_INSTALL_LIB_DIR_CM24 )
+
+if ( VTK_INSTALL_INCLUDE_DIR_CM24 )
+  set( alglib_install_inc_dir ${VTK_INSTALL_INCLUDE_DIR_CM24} )
+else ( VTK_INSTALL_INCLUDE_DIR_CM24 )
+  set( alglib_install_inc_dir ${CMAKE_INSTALL_PREFIX}/include )
+endif ( VTK_INSTALL_INCLUDE_DIR_CM24 )
+
+# Library:
+if ( NOT VTK_INSTALL_NO_LIBRARIES )
+  install( TARGETS vtkalglib
+    RUNTIME DESTINATION ${alglib_install_bin_dir} COMPONENT RuntimeLibraries
+    LIBRARY DESTINATION ${alglib_install_lib_dir} COMPONENT RuntimeLibraries
+    ARCHIVE DESTINATION ${alglib_install_lib_dir} COMPONENT Development
+  )
+endif ( NOT VTK_INSTALL_NO_LIBRARIES )
+
+# Header files:
+if ( NOT VTK_INSTALL_NO_DEVELOPMENT )
+  install( FILES
+    ${alglib_SOURCE_DIR}/alglib/apvt.h
+    ${alglib_SOURCE_DIR}/alglib/bdsvd.h
+    ${alglib_SOURCE_DIR}/alglib/bidiagonal.h
+    ${alglib_SOURCE_DIR}/alglib/blas.h
+    ${alglib_SOURCE_DIR}/alglib/lq.h
+    ${alglib_SOURCE_DIR}/alglib/qr.h
+    ${alglib_SOURCE_DIR}/alglib/reflections.h
+    ${alglib_SOURCE_DIR}/alglib/rotations.h
+    ${alglib_SOURCE_DIR}/alglib/svd.h
+    ${alglib_BINARY_DIR}/alglib/ap.h
+    DESTINATION ${alglib_install_inc_dir}/alglib
+    COMPONENT Development
+  )
+endif ( NOT VTK_INSTALL_NO_DEVELOPMENT )
