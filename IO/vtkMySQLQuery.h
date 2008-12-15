@@ -19,6 +19,13 @@
 // This is an implementation of vtkSQLQuery for MySQL databases.  See
 // the documentation for vtkSQLQuery for information about what the
 // methods do.
+// 
+// .SECTION Bugs
+//
+// Since MySQL requires that all bound parameters be passed in a
+// single mysql_stmt_bind_param call, there is no way to determine
+// which one is causing an error when one occurs.
+//
 //
 // .SECTION See Also
 // vtkSQLDatabase vtkSQLQuery vtkMySQLDatabase
@@ -43,6 +50,11 @@ public:
   vtkTypeRevisionMacro(vtkMySQLQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkMySQLQuery *New();
+
+  // Description:
+  // Set the SQL query string.  This must be performed before
+  // Execute() or BindParameter() can be called.
+  void SetQuery(const char *query);
 
   // Description:
   // Execute the query.  This must be performed
@@ -79,6 +91,38 @@ public:
   // Description:
   // Get the last error text from the query
   const char* GetLastErrorText();
+
+  // Description:
+  // The following methods bind a parameter value to a placeholder in
+  // the SQL string.  See the documentation for vtkSQLQuery for
+  // further explanation.  The driver makes internal copies of string
+  // and BLOB parameters so you don't need to worry about keeping them
+  // in scope until the query finishes executing.
+  bool BindParameter(int index, unsigned char value);
+  bool BindParameter(int index, signed char value);
+  bool BindParameter(int index, unsigned short value);
+  bool BindParameter(int index, signed short value);
+  bool BindParameter(int index, unsigned int value);
+  bool BindParameter(int index, signed int value);
+  bool BindParameter(int index, unsigned long value);
+  bool BindParameter(int index, signed long value);
+  bool BindParameter(int index, vtkTypeUInt64 value);
+  bool BindParameter(int index, vtkTypeInt64 value);
+  bool BindParameter(int index, float value);
+  bool BindParameter(int index, double value);
+  // Description:
+  // Bind a string value -- string must be null-terminated
+  bool BindParameter(int index, const char *stringValue);
+  // Description:
+  // Bind a string value by specifying an array and a size
+  bool BindParameter(int index, const char *stringValue, size_t length);
+  bool BindParameter(int index, const vtkStdString &string);
+  // Description:
+  // Bind a blob value.  Not all databases support blobs as a data
+  // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
+  // make sure.
+  bool BindParameter(int index, const void *data, size_t length);
+  bool ClearParameterBindings();
 
   //BTX
   // Description:
