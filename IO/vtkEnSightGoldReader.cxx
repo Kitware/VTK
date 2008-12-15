@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.63");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.64");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -327,8 +327,8 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
     vtkPolyData* pd = vtkPolyData::New();
     pd->Allocate(this->NumberOfMeasuredPoints);
     this->AddToBlock(output, this->NumberOfGeometryParts, pd);
+    ds = pd;
     pd->Delete();
-    ds = ds;
     }
 
   geom = vtkPolyData::SafeDownCast(ds);
@@ -341,7 +341,15 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
     this->ReadLine(line);
     sscanf(line, " %8d %12e %12e %12e", &tempId, &coords[0], &coords[1],
            &coords[2]);
-    id = this->ParticleCoordinatesByIndex ? i : tempId;
+    
+    // It seems EnSight always enumerate point indices from 1 to N
+    // (not from 0 to N-1) and therefore there is no need to determine
+    // flag 'ParticleCoordinatesByIndex'. Instead let's just use 'i',
+    // or probably more safely (tempId - 1), as the point index. In this
+    // way the geometry that is defined by the datasets mentioned in
+    // bug #0008236 can be properly constructed. Fix to bug #0008236.
+    id = i;
+    
     newPoints->InsertNextPoint(coords);
     geom->InsertNextCell(VTK_VERTEX, 1, &id);
     }
