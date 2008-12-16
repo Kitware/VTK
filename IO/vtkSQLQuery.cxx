@@ -25,7 +25,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
-vtkCxxRevisionMacro(vtkSQLQuery, "1.9");
+vtkCxxRevisionMacro(vtkSQLQuery, "1.10");
 
 vtkSQLQuery::vtkSQLQuery()
 {
@@ -224,6 +224,10 @@ bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
 #endif
     case VTK_OBJECT:
       vtkErrorMacro(<<"Variants of type VTK_OBJECT cannot be inserted into a database.");
+      return false;
+    default:
+      vtkErrorMacro(<<"Variants of type "
+                    << data.GetType() << " are not currently supported by BindParameter.");
       return false;
     }
 }
