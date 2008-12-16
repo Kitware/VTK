@@ -67,9 +67,12 @@ public:
   vtkSetStringMacro(EdgePedigreeIdArrayName);
   vtkGetStringMacro(EdgePedigreeIdArrayName);
 
-//  vtkSetMacro(Directed, bool);
-//  vtkGetMacro(Directed, bool);
-//  vtkBooleanMacro(Directed, bool);
+  // Description:
+  // If on (default), generate a directed output graph.
+  // If off, generate an undirected output graph.
+  vtkSetMacro(Directed, bool);
+  vtkGetMacro(Directed, bool);
+  vtkBooleanMacro(Directed, bool);
  
 protected:
   vtkSQLDatabaseGraphSource();

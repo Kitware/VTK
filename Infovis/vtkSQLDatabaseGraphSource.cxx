@@ -21,6 +21,7 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkDirectedGraph.h"
+#include "vtkUndirectedGraph.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExecutive.h"
 #include "vtkIdTypeArray.h"
@@ -77,7 +78,7 @@ public:
   vtkTableToGraph* TableToGraph;
 };
 
-vtkCxxRevisionMacro(vtkSQLDatabaseGraphSource, "1.1");
+vtkCxxRevisionMacro(vtkSQLDatabaseGraphSource, "1.2");
 vtkStandardNewMacro(vtkSQLDatabaseGraphSource);
 
 //---------------------------------------------------------------------------
@@ -233,6 +234,8 @@ void vtkSQLDatabaseGraphSource::ClearLinkEdges()
   this->Modified();
 }
 
+
+//---------------------------------------------------------------------------
 int vtkSQLDatabaseGraphSource::RequestDataObject(
   vtkInformation*, 
   vtkInformationVector**, 
