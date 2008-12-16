@@ -69,7 +69,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.16");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.17");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -617,8 +617,8 @@ void vtkHierarchicalTreeRingView::ProcessEvents( vtkObject* caller,
 
    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
 
-   // If we didn't find any vertices, perform edge selection.
-   // The edge actor must be opaque for visible cell selection.
+   // The ring and edge actor must be opaque for visible cell selection.
+   this->TreeRingActor->VisibilityOff();
    int scalarVis = this->GraphEdgeMapper->GetScalarVisibility();
    this->GraphEdgeMapper->ScalarVisibilityOff();
    vtkScalarsToColors* lookup = this->GraphEdgeMapper->GetLookupTable();
@@ -644,7 +644,8 @@ void vtkHierarchicalTreeRingView::ProcessEvents( vtkObject* caller,
      ids = node? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : 0;
      }
 
-   // Set the special edge actor back to normal.
+   // Set the ring and edge actors back to normal.
+   this->TreeRingActor->VisibilityOn();
    this->GraphEdgeMapper->SetScalarVisibility(scalarVis);
    this->GraphEdgeMapper->SetLookupTable(lookup);
    lookup->Delete();
