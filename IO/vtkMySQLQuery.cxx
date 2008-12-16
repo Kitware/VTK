@@ -23,7 +23,16 @@
 
 #include <mysql.h>
 #include <errmsg.h>
-#include <strings.h>
+
+
+#if defined(WIN32)
+# include <string.h>
+# include <locale.h>
+# define LOWERCASE_COMPARE _stricmp
+#else
+# include <strings.h>
+# define LOWERCASE_COMPARE strcasecmp
+#endif
 
 #include <assert.h>
 
@@ -432,39 +441,39 @@ bool vtkMySQLQueryInternals::BindParametersToStatement()
 
 bool vtkMySQLQueryInternals::ValidPreparedStatementSQL(const char *query)
 {
-  if (!strcasecmp("call", query))
+  if (!LOWERCASE_COMPARE("call", query))
     {
     return true;
     }
-  else if (!strcasecmp("create table", query))
+  else if (!LOWERCASE_COMPARE("create table", query))
     {
     return true;
     }
-  else if (!strcasecmp("delete", query))
+  else if (!LOWERCASE_COMPARE("delete", query))
     {
     return true;
     }
-  else if (!strcasecmp("do", query))
+  else if (!LOWERCASE_COMPARE("do", query))
     {
     return true;
     }
-  else if (!strcasecmp("insert", query))
+  else if (!LOWERCASE_COMPARE("insert", query))
     {
     return true;
     }
-  else if (!strcasecmp("replace", query))
+  else if (!LOWERCASE_COMPARE("replace", query))
     {
     return true;
     }
-  else if (!strcasecmp("select", query))
+  else if (!LOWERCASE_COMPARE("select", query))
     {
     return true;
     }
-  else if (!strcasecmp("set", query))
+  else if (!LOWERCASE_COMPARE("set", query))
     {
     return true;
     }
-  else if (!strcasecmp("update", query))
+  else if (!LOWERCASE_COMPARE("update", query))
     {
     return true;
     }
@@ -473,7 +482,7 @@ bool vtkMySQLQueryInternals::ValidPreparedStatementSQL(const char *query)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.9");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.10");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
