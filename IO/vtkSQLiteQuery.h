@@ -113,6 +113,7 @@ public:
   // and BLOB parameters so you don't need to worry about keeping them
   // in scope until the query finishes executing.
 //BTX
+  using vtkSQLQuery::BindParameter;
   bool BindParameter(int index, unsigned char value);
   bool BindParameter(int index, signed char value);
   bool BindParameter(int index, unsigned short value);
