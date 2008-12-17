@@ -61,16 +61,6 @@ public:
   static double DoublePi() { return 3.1415926535897932384626; };
 
   // Description:
-  // @deprecated Replaced by vtkMath::RadiansFromDegrees() as of VTK 5.4.
-  VTK_LEGACY(static float DegreesToRadians());
-  VTK_LEGACY(static double DoubleDegreesToRadians());
-
-  // Description:
-  // @deprecated Replaced by vtkMath::DegreesFromRadians() as of VTK 5.4.
-  VTK_LEGACY(static float RadiansToDegrees());
-  VTK_LEGACY(static double DoubleRadiansToDegrees());
-
-  // Description:
   // Convert degrees into radians
   static float RadiansFromDegrees( float );
   static double RadiansFromDegrees( double );
@@ -79,6 +69,16 @@ public:
   // Convert radians into degrees
   static float DegreesFromRadians( float );
   static double DegreesFromRadians( double );
+
+  // Description:
+  // @deprecated Replaced by vtkMath::RadiansFromDegrees() as of VTK 5.4.
+  VTK_LEGACY(static float DegreesToRadians());
+  VTK_LEGACY(static double DoubleDegreesToRadians());
+
+  // Description:
+  // @deprecated Replaced by vtkMath::DegreesFromRadians() as of VTK 5.4.
+  VTK_LEGACY(static float RadiansToDegrees());
+  VTK_LEGACY(static double DoubleRadiansToDegrees());
 
   // Description:
   // Rounds a float to the nearest integer.
@@ -774,6 +774,30 @@ private:
 
 #ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
+inline float vtkMath::RadiansFromDegrees( float x )
+{
+  return x * 0.017453292f;
+}
+
+//----------------------------------------------------------------------------
+inline double vtkMath::RadiansFromDegrees( double x )
+{
+  return x * 0.017453292519943295;
+}
+
+//----------------------------------------------------------------------------
+inline float vtkMath::DegreesFromRadians( float x )
+{
+  return x * 57.2957795131f;
+}
+
+//----------------------------------------------------------------------------
+inline double vtkMath::DegreesFromRadians( double x )
+{
+  return x * 57.29577951308232;
+}
+
+//----------------------------------------------------------------------------
 inline float vtkMath::DegreesToRadians()
 {
   VTK_LEGACY_REPLACED_BODY(vtkMath::DegreesToRadians, "VTK 5.4",
@@ -810,30 +834,6 @@ inline double vtkMath::DoubleRadiansToDegrees()
   return vtkMath::DegreesFromRadians( 1. );
 }
 #endif // #ifndef VTK_LEGACY_REMOVE
-
-//----------------------------------------------------------------------------
-inline float vtkMath::RadiansFromDegrees( float x )
-{
-  return x * 0.017453292f;
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::RadiansFromDegrees( double x )
-{
-  return x * 0.017453292519943295;
-}
-
-//----------------------------------------------------------------------------
-inline float vtkMath::DegreesFromRadians( float x )
-{
-  return x * 57.2957795131f;
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::DegreesFromRadians( double x )
-{
-  return x * 57.29577951308232;
-}
 
 //----------------------------------------------------------------------------
 inline vtkTypeInt64 vtkMath::Factorial( int N )
