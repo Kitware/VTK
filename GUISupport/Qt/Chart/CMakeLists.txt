@@ -138,6 +138,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtPointMarker.h
     vtkQtPolylineItem.cxx
     vtkQtPolylineItem.h
+    vtkQtSeriesFilterLineEdit.cxx
+    vtkQtSeriesFilterLineEdit.h
     vtkQtSimplePointLocator.cxx
     vtkQtSimplePointLocator.h
     vtkQtStackedChart.cxx
@@ -187,6 +189,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtLineChart.h
     vtkQtLineChartOptions.h
     vtkQtLineChartSeriesOptions.h
+    vtkQtSeriesFilterLineEdit.h
     vtkQtStackedChart.h
     vtkQtStackedChartOptions.h
     vtkQtStackedChartSeriesOptions.h

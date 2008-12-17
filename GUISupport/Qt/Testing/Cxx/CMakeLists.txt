@@ -39,6 +39,7 @@ SET(Tests
   TestLineSeries.cxx
   TestBarChart.cxx
   TestStackedChart.cxx
+  TestStackedChartAnimate.cxx
   TestStatisticalBoxChart.cxx
   PolylineItem.cxx
   PointMarkerItems.cxx

@@ -56,8 +56,10 @@
 #include <QPointF>
 #include <QPolygonF>
 #include <QStyleOptionGraphicsItem>
+#include <QTimeLine>
 #include <QVector>
 
+#include <iostream>
 
 class vtkQtStackedChartSeries
 {
@@ -84,6 +86,9 @@ public:
   int Group;
   int Index;
   bool IsHighlighted;
+  double CurrentVisibility;
+  double InitialVisibility;
+  double TargetVisibility;
 };
 
 
@@ -132,6 +137,7 @@ public:
   QPointF getMidPoint(const QPointF &point1, const QPointF &point2) const;
 
   QList<vtkQtStackedChartSeries *> Series;
+  QTimeLine ShowHideTimer;
   vtkQtChartAxisCornerDomain Domain;
   vtkQtStackedChartDomainGroup Groups;
   vtkQtChartShapeLocator QuadTree;
@@ -148,6 +154,9 @@ vtkQtStackedChartSeries::vtkQtStackedChartSeries(QPolygonF *polygon)
   this->Group = -1;
   this->Index = -1;
   this->IsHighlighted = false;
+  this->CurrentVisibility = 0.0;
+  this->InitialVisibility = 0.0;
+  this->TargetVisibility = 0.0;
 }
 
 vtkQtStackedChartSeries::vtkQtStackedChartSeries(
@@ -310,7 +319,7 @@ void vtkQtStackedChartDomainGroup::cleanUp()
 
 //-----------------------------------------------------------------------------
 vtkQtStackedChartInternal::vtkQtStackedChartInternal()
-  : Series(), Domain(), Groups(), QuadTree(), Bounds()
+  : Series(), Domain(), Groups(), QuadTree(), Bounds(), ShowHideTimer(1000)
 {
   this->CurrentGroup = -1;
 
@@ -356,6 +365,12 @@ vtkQtStackedChart::vtkQtStackedChart()
   this->connect(this->Selection,
       SIGNAL(selectionChanged(const vtkQtChartSeriesSelection &)),
       this, SLOT(updateHighlights()));
+
+  // Listen for animation timer events.
+  connect(&this->Internal->ShowHideTimer, SIGNAL(valueChanged(qreal)),
+      this, SLOT(seriesVisibilityAnimate(qreal)));
+  connect(&this->Internal->ShowHideTimer, SIGNAL(finished()),
+      this, SLOT(seriesVisibilityAnimateFinished()));
 }
 
 vtkQtStackedChart::~vtkQtStackedChart()
@@ -890,6 +905,9 @@ void vtkQtStackedChart::insertSeries(int first, int last)
       options = this->getStackedSeriesOptions(i);
       if(polygon && options->isVisible())
         {
+        this->Internal->Series[i]->CurrentVisibility = 1.0;
+        this->Internal->Series[i]->InitialVisibility = 1.0;
+        this->Internal->Series[i]->TargetVisibility = 1.0;
         // Add the series to the domain if it is visible.
         int seriesGroup = -1;
         this->addSeriesDomain(i, &seriesGroup);
@@ -1069,9 +1087,31 @@ void vtkQtStackedChart::handleSeriesVisibilityChange(bool visible)
   vtkQtStackedChartSeriesOptions *options =
       qobject_cast<vtkQtStackedChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
+
   if(series >= 0 && series < this->Internal->Series.size() &&
       this->Internal->Series[series]->Polygon)
     {
+    if(visible)
+      {
+      this->Internal->Series[series]->TargetVisibility = 1.0;
+      }
+    else
+      {
+      this->Internal->Series[series]->TargetVisibility = 0.0;
+      }
+
+    // If we're in the process of animating visibility, stop and reset
+    // so we can account for the new visibility results.
+    if (this->Internal->ShowHideTimer.state() == QTimeLine::Running)
+      {
+      this->Internal->ShowHideTimer.stop();
+      }
+    this->Internal->ShowHideTimer.setCurrentTime(0);
+    this->Internal->ShowHideTimer.start();
+    }
+
+#if 0
+  // Cannot yet determine where to put this logic.
     if(visible)
       {
       int seriesGroup = -1;
@@ -1111,6 +1151,7 @@ void vtkQtStackedChart::handleSeriesVisibilityChange(bool visible)
         }
       }
     }
+#endif
 }
 
 void vtkQtStackedChart::handleSeriesPenChange(const QPen &)
@@ -1320,7 +1361,7 @@ void vtkQtStackedChart::createTable(int seriesGroup)
 
         // Get the y-axis value.
         yValue = this->Model->getSeriesValue(*iter, j, 1);
-        group->Data[i][k] = yValue.toDouble();
+        group->Data[i][k] = this->Internal->Series[i]->CurrentVisibility * yValue.toDouble();
 
         // Stack the series by adding the previous series value.
         if(i > 0)
@@ -1519,4 +1560,44 @@ void vtkQtStackedChart::buildQuadTree(int seriesGroup)
     }
 }
 
+void vtkQtStackedChart::seriesVisibilityAnimate(qreal a)
+{
+  bool anythingChanged = false;
+  QList<vtkQtStackedChartSeries *>::Iterator iter =
+      this->Internal->Series.begin();
+  for( ; iter != this->Internal->Series.end(); ++iter)
+    {
+    if((*iter)->CurrentVisibility != (*iter)->TargetVisibility)
+      {
+      anythingChanged = true;
+      double visibilityChange =
+        (*iter)->TargetVisibility - (*iter)->InitialVisibility;
+      (*iter)->CurrentVisibility =
+        (*iter)->InitialVisibility + a * visibilityChange;
+      }
+    }
+
+  if (anythingChanged)
+    {
+    for(int g = 0; g < this->Internal->Groups.getNumberOfGroups(); ++g)
+      {
+      this->updateItemMap(g);
+      this->createTable(g);
+      this->createQuadTable(g);
+      }
+
+    emit this->rangeChanged();
+    emit this->layoutNeeded();
+    }
+}
+
+void vtkQtStackedChart::seriesVisibilityAnimateFinished()
+{
+  QList<vtkQtStackedChartSeries *>::Iterator iter =
+      this->Internal->Series.begin();
+  for(int series = 0; iter != this->Internal->Series.end(); ++iter, ++series)
+    {
+    (*iter)->InitialVisibility = (*iter)->CurrentVisibility;
+    }
+}
 

@@ -192,6 +192,12 @@ private slots:
   /// The layout request is ignored if the model is being changed.
   void updateHighlights();
 
+  /// Called by the animation timeline to animate hiding a series.
+  void seriesVisibilityAnimate(qreal time);
+
+  /// Called by the animation timeline when animation is finished.
+  void seriesVisibilityAnimateFinished();
+
 private:
   /// Called to layout the highlights.
   void layoutHighlights();
