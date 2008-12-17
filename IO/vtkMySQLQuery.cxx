@@ -482,7 +482,7 @@ bool vtkMySQLQueryInternals::ValidPreparedStatementSQL(const char *query)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.10");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.11");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -966,7 +966,11 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
 
   vtkMySQLDatabase *dbContainer = 
     static_cast<vtkMySQLDatabase *>(this->Database);
-  assert(dbContainer != NULL);
+  if (!dbContainer)
+    {
+    vtkErrorMacro(<< "SetQuery: No database connection set!  This usually happens if you have instantiated vtkMySQLQuery directly.  Don't do that.  Call vtkSQLDatabase::GetQueryInstance instead.");
+    return;
+    }
 
   MYSQL *db = dbContainer->Private->Connection;
   assert(db != NULL);
