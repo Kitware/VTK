@@ -45,11 +45,22 @@
 // For debugging purposes, serial engines can be run on each slice of the distributed data set
 #define DEBUG_WITH_SERIAL_STATS 0 
 
+struct RandomSampleStatisticsArgs
+{
+  int nVals;
+  int* retVal;
+  int argc;
+  char** argv;
+};
+
 int nVals = 100000;
 
 // This will be called by all processes
-void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNotUsed(arg) )
+void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 {
+  // Get test parameters
+  RandomSampleStatisticsArgs* args = reinterpret_cast<RandomSampleStatisticsArgs*>( arg );
+
   // Get local rank
   int myRank = controller->GetLocalProcessId();
 
@@ -76,7 +87,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     doubleArray[c]->SetName( columnNames[c] );
 
     double x;
-    for ( int r = 0; r < nVals; ++ r )
+    for ( int r = 0; r < args->nVals; ++ r )
       {
       x = vtkMath::Random();
       doubleArray[c]->InsertNextValue( x );
@@ -94,7 +105,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     doubleArray[c]->SetName( columnNames[c] );
 
     double x;
-    for ( int r = 0; r < nVals; ++ r )
+    for ( int r = 0; r < args->nVals; ++ r )
       {
       x = vtkMath::Gaussian();
       doubleArray[c]->InsertNextValue( x );
@@ -398,7 +409,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
 
   // Clean up
   pmcs->Delete();
-
   inputData->Delete();
 }
 
@@ -430,8 +440,16 @@ int main( int argc, char** argv )
          << " processes...\n";
     }
 
+  // Parameters for regression test.
+  testValue = 1;
+  RandomSampleStatisticsArgs args;
+  args.nVals = 100000;
+  args.retVal = &testValue;
+  args.argc = argc;
+  args.argv = argv;
+
   // Execute the function named "process" on both processes
-  controller->SetSingleMethod( RandomSampleStatistics, 0 );
+  controller->SetSingleMethod( RandomSampleStatistics, &args );
   controller->SingleMethodExecute();
   
   // Clean up and exit
