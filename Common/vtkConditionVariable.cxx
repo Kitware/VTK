@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.16");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.17");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -42,11 +42,13 @@ int pthread_cond_destroy( vtkConditionType* cv )
 int pthread_cond_signal( vtkConditionType* cv )
 {
   *cv = 1;
+  return 0;
 }
 
 int pthread_cond_broadcast( vtkConditionType* cv )
 {
   *cv = 1;
+  return 0;
 }
 
 int pthread_cond_wait( vtkConditionType* cv, vtkMutexType* lock )
