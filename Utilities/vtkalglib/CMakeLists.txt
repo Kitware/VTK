@@ -1,6 +1,7 @@
 project( alglib )
 
-cmake_minimum_required( VERSION 2.6 )
+cmake_minimum_required( VERSION 2.4 )
+
 if ( NOT LIBRARY_OUTPUT_PATH )
   set( LIBRARY_OUTPUT_PATH ${alglib_BINARY_DIR}/bin CACHE INTERNAL "" FORCE )
 endif ( NOT LIBRARY_OUTPUT_PATH )
