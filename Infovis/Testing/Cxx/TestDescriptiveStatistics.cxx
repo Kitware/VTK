@@ -162,13 +162,13 @@ int TestDescriptiveStatistics( int, char *[] )
     
     if ( fabs ( outputMeta->GetValueByName( r, "Mean" ).ToDouble() - means[r] ) > 1.e6 )
       {
-      cout << "** Incorrect mean ** ";
+      vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
       }
 
     if ( fabs ( outputMeta->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs[r] ) > 1.e6 )
       {
-      cout << "** Incorrect standard deviation **";
+      vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
       }
     cout << "\n";
@@ -190,8 +190,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   if ( ! m0reld || ! m1reld || ! m0vals || ! m1vals )
     {
-    cout << "Error: "
-         << "Empty output column(s).\n";
+    vtkGenericWarningMacro("Empty output column(s).\n");
     testStatus = 1;
 
     return testStatus;
@@ -244,10 +243,7 @@ int TestDescriptiveStatistics( int, char *[] )
     << " and " << m1outliers << " outliers for Metric 1.\n";
   if ( m0outliers != 4 || m1outliers != 6 )
     {
-    cout
-      << "Error: "
-      << "Expected 4 outliers for Metric 0"
-      << " and 6 outliers for Metric 1.\n";
+    vtkGenericWarningMacro("Expected 4 outliers for Metric 0 and 6 outliers for Metric 1.");
     testStatus = 1;
     }
 
@@ -272,8 +268,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   if ( ! m1reld || ! m1vals )
     {
-    cout << "Error: "
-         << "Empty output column(s).\n";
+    vtkGenericWarningMacro("Empty output column(s).\n");
     testStatus = 1;
 
     return testStatus;
@@ -289,7 +284,7 @@ int TestDescriptiveStatistics( int, char *[] )
       ++ m1outliers;
       cout << "   " 
            << " row " 
-           << r 
+           << r
            << ", "
            << m1reld->GetName() 
            << " = " 
@@ -301,7 +296,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   if ( m1outliers != 28 )
     {
-    cout << "Error: Expected 28 outliers for Metric 1, found " << m1outliers << ".\n";
+    vtkGenericWarningMacro("Expected 28 outliers for Metric 1, found " << m1outliers << ".");
     testStatus = 1;
     }
 
