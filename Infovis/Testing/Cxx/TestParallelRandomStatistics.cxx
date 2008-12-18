@@ -53,13 +53,12 @@ struct RandomSampleStatisticsArgs
   char** argv;
 };
 
-int nVals = 100000;
-
 // This will be called by all processes
 void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 {
   // Get test parameters
   RandomSampleStatisticsArgs* args = reinterpret_cast<RandomSampleStatisticsArgs*>( arg );
+  *(args->retVal) = 0;
 
   // Get local rank
   int myRank = controller->GetLocalProcessId();
@@ -115,6 +114,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     doubleArray[c]->Delete();
     }
 
+  // Reference values
+  double sigmaRuleVal[] = { 68., 95., 99.7 };     // "68-95-99.7 rule"
+  double sigmaRuleTol[] = { 1., .5, .1 };
+
   // ************************** Descriptive Statistics ************************** 
 
 #if DEBUG_WITH_SERIAL_STATS
@@ -130,7 +133,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Test (serially) with Learn and Derive options only
   ds->SetLearn( true );
-  ds->SetDerive( true );
+  ds->SetDer ive( true );
   ds->SetAssess( true );
   ds->Update();
 
@@ -274,11 +277,19 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
            << ":\n";
       for ( int i = 0; i < 3; ++ i )
         {
+        double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( pds->GetSampleSize() ) ) * 100.;
+
         cout << "      " 
-             << ( 1. - outsideStdv_g[i] / static_cast<double>( pds->GetSampleSize() ) ) * 100.
+             << testVal
              << "\% within "
              << i + 1
              << " standard deviation(s) from the mean.\n";
+
+        if ( fabs ( testVal - sigmaRuleVal[i] ) > sigmaRuleTol[i] )
+          {
+          vtkGenericWarningMacro("Incorrect value.");
+          *(args->retVal) = 1;
+          }
         }
       }
     }
@@ -415,20 +426,17 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 //----------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-  int testValue = 0;
-
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
 
-  // When using MPI, the number of processes is determined
-  // by the external program which launches this application.
-  // However, when using threads, we need to set it ourselves.
-  if ( controller->IsA( "vtkThreadedController" ) )
+  // If an MPI controller was not created, terminate in error.
+  if ( ! controller->IsA( "vtkMPIController" ) )
     {
-    // Set the number of processes to 2 for this example.
-    controller->SetNumberOfProcesses( 2 );
+    vtkGenericWarningMacro("Failed to initialize a MPI controller.");
+    controller->Delete();
+    return 1;
     } 
 
   // Check how many processes have been made available
@@ -441,7 +449,7 @@ int main( int argc, char** argv )
     }
 
   // Parameters for regression test.
-  testValue = 1;
+  int testValue = 0;
   RandomSampleStatisticsArgs args;
   args.nVals = 100000;
   args.retVal = &testValue;
@@ -451,7 +459,7 @@ int main( int argc, char** argv )
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomSampleStatistics, &args );
   controller->SingleMethodExecute();
-  
+
   // Clean up and exit
   if ( ! controller->GetLocalProcessId() )
     {

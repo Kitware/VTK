@@ -83,6 +83,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_MPI_POSTFLAGS})
     ENDIF (VTK_USE_PARALLEL_BGL)   
   ENDIF (VTK_USE_BOOST)
+  IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
+    # Add parallel tests only if PARALLEL and MPI are turned ON
+    # These tests are kept separate, because they must be run with mpirun or mpiexec
+    ADD_EXECUTABLE(TestParallelRandomStatistics TestParallelRandomStatistics.cxx)
+    TARGET_LINK_LIBRARIES(TestParallelRandomStatistics vtkInfovis vtkParallel)
+  ENDIF (VTK_USE_PARALLEL AND VTK_USE_MPI)
   SET(VTK_HAS_UINT64_ARRAY 0)
   IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
     SET(VTK_HAS_UINT64_ARRAY 1)
@@ -125,13 +131,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test) 
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
-
-
-IF (VTK_USE_MPI)
-  ADD_EXECUTABLE(TestParallelRandomStatistics TestParallelRandomStatistics.cxx)
-  TARGET_LINK_LIBRARIES(TestParallelRandomStatistics vtkInfovis vtkParallel)
-ENDIF (VTK_USE_MPI)
-
 IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayTests ArrayCxxTests.cxx
