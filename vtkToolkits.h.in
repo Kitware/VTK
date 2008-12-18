@@ -86,6 +86,9 @@
 /* Should VTK use MySQL?  */
 #cmakedefine VTK_USE_MYSQL
 
+/* Should VTK use ODBC?  */
+#cmakedefine VTK_USE_ODBC
+
 /* Is a test PostgreSQL database URL defined? */
 #cmakedefine VTK_PSQL_TEST_URL
 #ifdef VTK_PSQL_TEST_URL
