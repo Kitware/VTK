@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.12");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.13");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 // This compile-time switch determines whether the update extent is
@@ -103,8 +103,9 @@ int vtkTrivialProducer::FillInputPortInformation(int, vtkInformation*)
 }
 
 //----------------------------------------------------------------------------
-int vtkTrivialProducer::FillOutputPortInformation(int, vtkInformation*)
+int vtkTrivialProducer::FillOutputPortInformation(int, vtkInformation* info)
 {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
