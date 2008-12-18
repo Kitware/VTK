@@ -34,7 +34,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.21");
+vtkCxxRevisionMacro(vtkTable, "1.22");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -558,9 +558,10 @@ void vtkTable::ShallowCopy(vtkDataObject* src)
   if (vtkTable* const table = vtkTable::SafeDownCast(src))
     {
     this->RowData->ShallowCopy(table->RowData);
+    this->Modified();
     }
 
-  Superclass::ShallowCopy(src);
+  this->Superclass::ShallowCopy(src);
 }
 
 //----------------------------------------------------------------------------
@@ -569,6 +570,7 @@ void vtkTable::DeepCopy(vtkDataObject* src)
   if (vtkTable* const table = vtkTable::SafeDownCast(src))
     {
     this->RowData->DeepCopy(table->RowData);
+    this->Modified();
     }
 
   Superclass::DeepCopy(src);
