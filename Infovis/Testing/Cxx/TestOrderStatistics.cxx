@@ -163,10 +163,7 @@ int TestOrderStatistics( int, char *[] )
       if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest1[r * 5 + i] )
         {
         testStatus = 1;
-        cout << "Error: "
-             << "Incorrect 5-points statistics: "
-             << valsTest1[r * 5 + i]
-             << ".\n";
+        vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest1[r * 5 + i] << ".");
         }
       }
     cout << "\n";
@@ -200,10 +197,7 @@ int TestOrderStatistics( int, char *[] )
       if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest2[r * 5 + i] )
         {
         testStatus = 1;
-        cout << "Error: "
-             << "Incorrect 5-points statistics: "
-             << valsTest2[r * 5 + i]
-             << ".\n";
+        vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest2[r * 5 + i] << ".");
         }
       }
     cout << "\n";
@@ -237,12 +231,7 @@ int TestOrderStatistics( int, char *[] )
 
     if ( cpt[i] != outputData->GetNumberOfRows() )
       {
-      cout << "Error: "
-           << "Histogram count is "
-           << cpt[i]
-           << " != "
-           << outputData->GetNumberOfRows()
-           << ".\n";
+      vtkGenericWarningMacro("Incorrect histogram count: " << cpt[i] << " != " << outputData->GetNumberOfRows() << ".");
       testStatus = 1;
       }
     }
@@ -336,12 +325,7 @@ int TestOrderStatistics( int, char *[] )
   
   if ( sum != outputData->GetNumberOfRows() )
     {
-    cout << "Error: "
-         << "Histogram count is "
-         << sum
-         << " != "
-         << outputData->GetNumberOfRows()
-         << ".\n";
+    vtkGenericWarningMacro("Incorrect histogram count: " << sum << " != " << outputData->GetNumberOfRows() << ".");
     testStatus = 1;
     }
 
