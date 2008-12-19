@@ -160,11 +160,7 @@ int TestContingencyStatistics( int, char *[] )
 
   if ( testIntValue != n * nMetricPairs )
     {
-    cerr << "Reported an incorrect number of doublets: "
-         << testIntValue
-         << " != "
-         << n * nMetricPairs
-         << ".\n";
+    vtkGenericWarningMacro("Reported an incorrect number of doubles: " << testIntValue << " != " << n * nMetricPairs << ".");
     testStatus = 1;
     }
 
