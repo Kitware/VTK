@@ -92,6 +92,8 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
+  virtual double *GetBounds();
+
   
 protected:
   vtkPolygonalHandleRepresentation3D();
