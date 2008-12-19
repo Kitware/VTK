@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkTableToPolyData);
-vtkCxxRevisionMacro(vtkTableToPolyData, "1.1");
+vtkCxxRevisionMacro(vtkTableToPolyData, "1.2");
 //----------------------------------------------------------------------------
 vtkTableToPolyData::vtkTableToPolyData()
 {
@@ -53,7 +53,7 @@ int vtkTableToPolyData::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkTableToPolyData::RequestData(vtkInformation* request,
+int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkTable* input = vtkTable::GetData(inputVector[0], 0);
