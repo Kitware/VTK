@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkPExtractArraysOverTime.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkRectilinearGrid.h"
+#include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.7");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.8");
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
 
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
@@ -53,7 +53,7 @@ void vtkPExtractArraysOverTime::PostExecute(
   vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
+  vtkTable *output = vtkTable::GetData(outInfo);
 
   int procid = 0;
   int numProcs = 1;
@@ -69,7 +69,7 @@ void vtkPExtractArraysOverTime::PostExecute(
       {
       for (int i = 1; i < numProcs; i++)
         {
-        vtkRectilinearGrid* remoteOutput = vtkRectilinearGrid::New();
+        vtkTable* remoteOutput = vtkTable::New();
         this->Controller->Receive(remoteOutput, i, EXCHANGE_DATA);
         this->AddRemoteData(remoteOutput, output);
         remoteOutput->Delete();
@@ -78,20 +78,20 @@ void vtkPExtractArraysOverTime::PostExecute(
       // Zero out invalid time steps and report error if necessary.
       bool error = false;
       vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
-        output->GetPointData()->GetArray("vtkValidPointMask"));
+        output->GetRowData()->GetArray("vtkValidPointMask"));
       if (validPts)
         {
-        int* dims = output->GetDimensions();
-        for (int i=0; i<dims[0]; i++)
+        vtkIdType numRows = output->GetNumberOfRows();
+        for (vtkIdType i=0; i<numRows; i++)
           {
           if (!validPts->GetValue(i))
             {
             error = true;
-            vtkDataSetAttributes* outPointData = output->GetPointData();
-            int numArrays = outPointData->GetNumberOfArrays();
+            vtkDataSetAttributes* outRowData = output->GetRowData();
+            int numArrays = outRowData->GetNumberOfArrays();
             for (int aidx=0; aidx<numArrays; aidx++)
               {
-              vtkDataArray* array = outPointData->GetArray(aidx);
+              vtkDataArray* array = outRowData->GetArray(aidx);
               // If array is not null and it is not the time array
               if (array &&
                   (!array->GetName() ||
@@ -128,12 +128,12 @@ void vtkPExtractArraysOverTime::PostExecute(
 }
 
 //----------------------------------------------------------------------------
-void vtkPExtractArraysOverTime::AddRemoteData(vtkRectilinearGrid* routput,
-                                              vtkRectilinearGrid* output)
+void vtkPExtractArraysOverTime::AddRemoteData(vtkTable* routput,
+                                              vtkTable* output)
 {
-  int* rDims = routput->GetDimensions();
-  int* dims = output->GetDimensions();
-  if (dims[0] != rDims[0])
+  vtkIdType rDims = routput->GetNumberOfRows();
+  vtkIdType dims = output->GetNumberOfRows();
+  if (dims != rDims)
     {
     vtkWarningMacro("Tried to add remote dataset of different length. "
                     "Skipping");
@@ -141,37 +141,37 @@ void vtkPExtractArraysOverTime::AddRemoteData(vtkRectilinearGrid* routput,
     }
   
   vtkUnsignedCharArray* rValidPts = vtkUnsignedCharArray::SafeDownCast(
-    routput->GetPointData()->GetArray("vtkValidPointMask"));
+    routput->GetRowData()->GetArray("vtkValidPointMask"));
 
   // Copy the valid values
   if (rValidPts)
     {
-    for (int i=0; i<dims[0]; i++)
+    for (vtkIdType i=0; i<dims; i++)
       {
       if (rValidPts->GetValue(i))
         {
-        vtkDataSetAttributes* outPointData = output->GetPointData();
-        vtkDataSetAttributes* remotePointData = routput->GetPointData();
+        vtkDataSetAttributes* outRowData = output->GetRowData();
+        vtkDataSetAttributes* remoteRowData = routput->GetRowData();
         // Copy arrays from remote to current
-        int numRArrays = remotePointData->GetNumberOfArrays();
+        int numRArrays = remoteRowData->GetNumberOfArrays();
         for (int aidx=0; aidx<numRArrays; aidx++)
           {
           const char* name = 0;
-          vtkAbstractArray* raa = remotePointData->GetAbstractArray(aidx);
+          vtkAbstractArray* raa = remoteRowData->GetAbstractArray(aidx);
           if (raa)
             {
             name = raa->GetName();
             }
           if (name)
             {
-            vtkAbstractArray* aa = outPointData->GetAbstractArray(name);
+            vtkAbstractArray* aa = outRowData->GetAbstractArray(name);
             // Create the output array if necessary
             if (!aa)
               {
               aa = raa->NewInstance();
               aa->DeepCopy(raa);
               aa->SetName(name);
-              outPointData->AddArray(aa);
+              outRowData->AddArray(aa);
               aa->UnRegister(0);
               }
             if (raa->GetNumberOfTuples() > i)

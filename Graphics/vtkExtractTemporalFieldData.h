@@ -35,7 +35,7 @@
 #include "vtkRectilinearGridAlgorithm.h"
 
 class vtkDataSet;
-class vtkRectilinearGrid;
+class vtkTable;
 class vtkDataSetAttributes;
 
 class VTK_GRAPHICS_EXPORT vtkExtractTemporalFieldData : public vtkRectilinearGridAlgorithm
@@ -73,7 +73,7 @@ protected:
   // Description:
   // This looks at the arrays in the vtkFieldData of input and copies them 
   // to the output point data.
-  void CopyDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output);
+  void CopyDataToOutput(vtkDataSet *input, vtkTable *output);
 
   int NumberOfTimeSteps;
 

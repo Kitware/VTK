@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOnePieceExtentTranslator.h"
 #include "vtkPointData.h"
-#include "vtkRectilinearGrid.h"
+#include "vtkTable.h"
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
@@ -34,7 +34,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.3");
+vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.4");
 vtkStandardNewMacro(vtkExtractTemporalFieldData);
 
 //----------------------------------------------------------------------------
@@ -161,7 +161,7 @@ int vtkExtractTemporalFieldData::RequestData(
 
   // get the output data object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
+  vtkTable *output = vtkTable::GetData(outInfo);
 
   // get the input data object
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -207,9 +207,9 @@ int vtkExtractTemporalFieldData::RequestUpdateExtent(
 
 //----------------------------------------------------------------------------
 void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input, 
-                                                 vtkRectilinearGrid *output)
+                                                 vtkTable *output)
 {
-  vtkPointData *opd = output->GetPointData();
+  vtkDataSetAttributes *opd = output->GetRowData();
   vtkFieldData *ifd = input->GetFieldData();
   int numArrays = 0;
     
@@ -218,8 +218,6 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input,
     vtkErrorMacro("Unsupported field type.");
     return;
     }
-
-  output->SetDimensions(this->NumberOfTimeSteps, 1, 1);
 
   for (vtkIdType j=0; j<ifd->GetNumberOfArrays(); j++)
     {  
@@ -264,24 +262,6 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input,
     timeArray->SetTuple1(m,m);
     }
   opd->AddArray(timeArray);
-  // Assign this array as the x-coords
-  output->SetXCoordinates(timeArray);
-  timeArray->Delete();
-
-  // Assign dummy y and z coordinates
-  vtkDoubleArray* yCoords = vtkDoubleArray::New();
-  yCoords->SetNumberOfComponents(1);
-  yCoords->SetNumberOfTuples(1);
-  yCoords->SetTuple1(0, 0.0);
-  output->SetYCoordinates(yCoords);
-  yCoords->Delete();
-
-  vtkDoubleArray* zCoords = vtkDoubleArray::New();
-  zCoords->SetNumberOfComponents(1);
-  zCoords->SetNumberOfTuples(1);
-  zCoords->SetTuple1(0, 0.0);
-  output->SetZCoordinates(zCoords);
-  zCoords->Delete();
 
   // This array is used to make particular samples as invalid.
   // This happens when we are looking at a location which is not contained

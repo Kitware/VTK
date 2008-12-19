@@ -56,8 +56,8 @@ protected:
   virtual void PostExecute(vtkInformation* request,
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector);
-  void AddRemoteData(vtkRectilinearGrid* routput,
-                     vtkRectilinearGrid* output);
+  void AddRemoteData(vtkTable* routput,
+                     vtkTable* output);
 
   vtkMultiProcessController* Controller;
 

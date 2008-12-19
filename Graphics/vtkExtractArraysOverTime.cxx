@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOnePieceExtentTranslator.h"
 #include "vtkPointData.h"
-#include "vtkRectilinearGrid.h"
+#include "vtkTable.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -78,7 +78,7 @@ public: // vtkValue is made public due to a bug in VS 6.0
     {
   public:
     vtkstd::string Label;
-    vtkSmartPointer<vtkRectilinearGrid> Output;
+    vtkSmartPointer<vtkTable> Output;
     vtkSmartPointer<vtkUnsignedCharArray> ValidMaskArray;
     vtkSmartPointer<vtkDoubleArray> PointCoordinatesArray;
     };
@@ -189,23 +189,23 @@ public:
         // TODO; To add information about where which cell/pt this grid came
         // from.
 
-        value.Output->GetPointData()->RemoveArray(
+        value.Output->GetRowData()->RemoveArray(
           value.ValidMaskArray->GetName());
-        value.Output->GetPointData()->AddArray(value.ValidMaskArray);
+        value.Output->GetRowData()->AddArray(value.ValidMaskArray);
 
-        value.Output->GetPointData()->RemoveArray(
+        value.Output->GetRowData()->RemoveArray(
           this->TimeArray->GetName());
-        value.Output->GetPointData()->AddArray(this->TimeArray);
+        value.Output->GetRowData()->AddArray(this->TimeArray);
  
         if (value.PointCoordinatesArray)
           {
-          value.Output->GetPointData()->RemoveArray(
+          value.Output->GetRowData()->RemoveArray(
             value.PointCoordinatesArray->GetName());
-          value.Output->GetPointData()->AddArray(value.PointCoordinatesArray);
+          value.Output->GetRowData()->AddArray(value.PointCoordinatesArray);
           }
 
         this->RemoveInvalidPoints(value.ValidMaskArray,
-          value.Output->GetPointData());
+          value.Output->GetRowData());
         output->SetBlock(cc, value.Output.GetPointer());
         output->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(),
           value.Label.c_str());
@@ -234,7 +234,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddFastPathTimeline(
   stream << "GlobalID: " << gid;
   value->Label = stream.str();
 
-  vtkDataSetAttributes* outputAttributes = value->Output->GetPointData();
+  vtkDataSetAttributes* outputAttributes = value->Output->GetRowData();
 
   for (int j=0; j<numFieldArrays; j++)
     {  
@@ -323,11 +323,11 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForLocations(
     // not the selected cell/point id.
     vtkKey key(0, cc);
 
-    // This will allocate a new vtkRectilinearGrid is none is present
+    // This will allocate a new vtkTable is none is present
     vtkValue* value = this->GetOutput(key, inDSA);
 
-    vtkRectilinearGrid* output = value->Output;
-    output->GetPointData()->CopyData(inDSA, cc, this->CurrentTimeIndex);
+    vtkTable* output = value->Output;
+    output->GetRowData()->CopyData(inDSA, cc, this->CurrentTimeIndex);
 
     // Mark the entry valid.
     value->ValidMaskArray->SetValue(this->CurrentTimeIndex, 1);
@@ -396,10 +396,10 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
     vtkIdType curid = idsArray->GetValue(cc);
     vtkKey key(composite_index, curid);
 
-    // This will allocate a new vtkRectilinearGrid is none is present
+    // This will allocate a new vtkTable is none is present
     vtkValue* value= this->GetOutput(key, inDSA);
-    vtkRectilinearGrid* output = value->Output;
-    output->GetPointData()->CopyData(inDSA, cc, this->CurrentTimeIndex);
+    vtkTable* output = value->Output;
+    output->GetRowData()->CopyData(inDSA, cc, this->CurrentTimeIndex);
 
     // Mark the entry valid.
     value->ValidMaskArray->SetValue(this->CurrentTimeIndex, 1);
@@ -451,19 +451,17 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
   if (iter == this->OutputGrids.end())
     {
     vtkValue value;
-    vtkRectilinearGrid *output = vtkRectilinearGrid::New();
+    vtkTable *output = vtkTable::New();
     value.Output.TakeReference(output);
 
-    output->SetDimensions(this->NumberOfTimeSteps, 1, 1); 
-    
-    vtkPointData *opd = output->GetPointData();
+    vtkDataSetAttributes *rowData = output->GetRowData();
     if (this->ContentType == vtkSelectionNode::LOCATIONS)
       {
-      opd->InterpolateAllocate(inDSA, this->NumberOfTimeSteps);
+      rowData->InterpolateAllocate(inDSA, this->NumberOfTimeSteps);
       }
     else
       {
-      opd->CopyAllocate(inDSA, this->NumberOfTimeSteps);
+      rowData->CopyAllocate(inDSA, this->NumberOfTimeSteps);
       }
 
     // Add an array to hold the time at each step
@@ -477,24 +475,6 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
       timeArray->SetName("Time");
       }
     
-    // Assign this array as the x-coords
-    output->SetXCoordinates(timeArray);
-
-    // Assign dummy y and z coordinates
-    vtkDoubleArray* yCoords = vtkDoubleArray::New();
-    yCoords->SetNumberOfComponents(1);
-    yCoords->SetNumberOfTuples(1);
-    yCoords->SetTuple1(0, 0.0);
-    output->SetYCoordinates(yCoords);
-    yCoords->Delete();
-
-    vtkDoubleArray* zCoords = vtkDoubleArray::New();
-    zCoords->SetNumberOfComponents(1);
-    zCoords->SetNumberOfTuples(1);
-    zCoords->SetTuple1(0, 0.0);
-    output->SetZCoordinates(zCoords);
-    zCoords->Delete();
-
     if (this->FieldType == vtkSelectionNode::POINT || 
       this->ContentType == vtkSelectionNode::LOCATIONS)
       {
@@ -535,7 +515,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.24");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.25");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
@@ -932,7 +912,7 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
 
     }
 
-  vtkRectilinearGrid* output = vtkRectilinearGrid::New();
+  vtkTable* output = vtkTable::New();
   
   outputAttributes = output->GetPointData();
     
