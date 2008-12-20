@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.16");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.17");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -89,7 +89,7 @@ void vtkSQLiteQuery::PrintSelf(ostream  &os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-void vtkSQLiteQuery::SetQuery(const char *newQuery)
+bool vtkSQLiteQuery::SetQuery(const char *newQuery)
 {
   vtkDebugMacro(<< this->GetClassName() 
                 << " (" << this << "): setting Query to "  
@@ -97,12 +97,12 @@ void vtkSQLiteQuery::SetQuery(const char *newQuery)
   
   if (this->Query == NULL && newQuery == NULL)
     {
-    return;
+    return true;
     }
 
   if (this->Query && newQuery && (!strcmp(this->Query, newQuery)))
     {
-    return; // we've already got that query
+    return true; // we've already got that query
     }
 
   if (this->Query)
@@ -147,7 +147,7 @@ void vtkSQLiteQuery::SetQuery(const char *newQuery)
     if (dbContainer == NULL)
       {
       vtkErrorMacro(<<"This should never happen: SetQuery() called when there is no underlying database.  You probably instantiated vtkSQLiteQuery directly instead of calling vtkSQLDatabase::GetInstance().  This also happens during TestSetGet in the CDash testing.");
-      return;
+      return false;
       }
     
     vtk_sqlite3 *db = dbContainer->SQLiteInstance;
@@ -162,13 +162,17 @@ void vtkSQLiteQuery::SetQuery(const char *newQuery)
     if (prepareStatus != VTK_SQLITE_OK)
       {
       this->SetLastErrorText(vtk_sqlite3_errmsg(db));
-      vtkDebugMacro(<<"SetQuery(): vtk_sqlite3_prepare_v2() failed with error message "
-                    << this->GetLastErrorText());
+      vtkWarningMacro(<<"SetQuery(): vtk_sqlite3_prepare_v2() failed with error message "
+                    << this->GetLastErrorText()
+                    << " on statement: '"
+                    << this->Query << "'");
       this->Active = false;
+      return false;
       }
     } // Done preparing new statement
   
   this->Modified(); 
+  return true;
 }
 
 // ----------------------------------------------------------------------

@@ -54,7 +54,7 @@ public:
   // Description:
   // Set the SQL query string.  This must be performed before
   // Execute() or BindParameter() can be called.
-  void SetQuery(const char *query);
+  bool SetQuery(const char *query);
 
   // Description:
   // Execute the query.  This must be performed

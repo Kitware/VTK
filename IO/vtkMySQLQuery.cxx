@@ -482,7 +482,7 @@ bool vtkMySQLQueryInternals::ValidPreparedStatementSQL(const char *query)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.11");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.12");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -923,7 +923,7 @@ vtkStdString vtkMySQLQuery::EscapeString( vtkStdString src, bool addSurroundingQ
 
 // ----------------------------------------------------------------------
 
-void
+bool
 vtkMySQLQuery::SetQuery(const char *newQuery)
 {
   vtkDebugMacro(<< this->GetClassName() 
@@ -932,12 +932,12 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
   
   if (this->Query == NULL && newQuery == NULL)
     {
-    return;
+    return true;
     }
 
   if (this->Query && newQuery && (!strcmp(this->Query, newQuery)))
     {
-    return; // we've already got that query
+    return true; // we've already got that query
     }
 
   if (this->Query)
@@ -969,7 +969,7 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
   if (!dbContainer)
     {
     vtkErrorMacro(<< "SetQuery: No database connection set!  This usually happens if you have instantiated vtkMySQLQuery directly.  Don't do that.  Call vtkSQLDatabase::GetQueryInstance instead.");
-    return;
+    return false;
     }
 
   MYSQL *db = dbContainer->Private->Connection;
@@ -983,6 +983,7 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
     vtkErrorMacro(<<"SetQuery: Error while preparing statement: "
                   <<errorMessage.c_str());
     }
+  return success;
 }
 
 // ----------------------------------------------------------------------

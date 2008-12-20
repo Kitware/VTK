@@ -68,9 +68,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The query string to be executed.
-  vtkGetStringMacro(Query);
-  vtkSetStringMacro(Query);
+  // The query string to be executed.  Since some databases will
+  // process the query string as soon as it's set, this method returns
+  // a boolean to indicate success or failure.
+  virtual bool SetQuery(const char *query);
+  virtual const char *GetQuery();
 
   // Description:
   // Return true if the query is active (i.e. execution was successful
