@@ -49,7 +49,7 @@
 
 
 // ----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkODBCDatabase, "1.5");
+vtkCxxRevisionMacro(vtkODBCDatabase, "1.6");
 vtkStandardNewMacro(vtkODBCDatabase);
 // ----------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ bool vtkODBCDatabase::Open(const char *password)
     connectionString += this->DataSourceName;
     }
 
-  if (this->UserName != NULL)
+  if (this->UserName != NULL && strlen(this->UserName) > 0)
     {
     connectionString += ";UID=";
     connectionString += this->UserName;
@@ -341,7 +341,7 @@ bool vtkODBCDatabase::Open(const char *password)
     connectionString += ";PWD=";
     connectionString += password;
     }
-  if (this->DatabaseName != NULL)
+  if (this->DatabaseName != NULL && strlen(this->DatabaseName) > 0)
     {
     connectionString += ";DATABASE=";
     connectionString += this->DatabaseName;
@@ -384,11 +384,6 @@ bool vtkODBCDatabase::Open(const char *password)
     vtkDebugMacro(<<"Successfully set driver name on connect string.");
     }
 #endif
-
-
-  // XXX Remove this once it's working; it prints passwords!
-  vtkDebugMacro(<<"vtkODBCDatabase::Open: Connection string is "
-                << connectionString.c_str());
 
   SQLSMALLINT cb;
   SQLTCHAR connectionOut[1024];
