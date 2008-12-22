@@ -100,6 +100,14 @@ public:
   vtkGetMacro(MaxRecords, int);
   vtkSetMacro(MaxRecords, int);
 
+  // Description:
+  // When set to true, the reader will detect numeric columns and create
+  // vtkDoubleArray or vtkIntArray for those instead of vtkStringArray. Default
+  // is off.
+  vtkSetMacro(DetectNumericColumns, bool);
+  vtkGetMacro(DetectNumericColumns, bool);
+  vtkBooleanMacro(DetectNumericColumns, bool);
+
  protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader();
@@ -121,6 +129,7 @@ public:
   bool MergeConsecutiveDelimiters;
   char *ReadBuffer;
   int MaxRecords;
+  bool DetectNumericColumns;
 
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented

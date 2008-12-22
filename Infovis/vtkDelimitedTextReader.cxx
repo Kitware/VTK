@@ -23,20 +23,23 @@
 #include "vtkCommand.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
-#include "vtkTable.h"
-#include "vtkVariantArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkInformation.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
+#include "vtkStringToNumeric.h"
+#include "vtkTable.h"
+#include "vtkVariantArray.h"
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.22");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.23");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -77,6 +80,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->UseStringDelimiter = true;
   this->MaxRecords = 0;
   this->MergeConsecutiveDelimiters = false;
+  this->DetectNumericColumns = false;
 }
 
 // ----------------------------------------------------------------------
@@ -115,6 +119,8 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->MergeConsecutiveDelimiters ? "true" : "false") << endl;
   os << indent << "MaxRecords: " << this->MaxRecords
      << endl;
+  os << indent << "DetectNumericColumns: "
+    << (this->DetectNumericColumns? "true" : "false") << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -149,6 +155,15 @@ int vtkDelimitedTextReader::RequestData(
                                         vtkInformationVector**, 
                                         vtkInformationVector* outputVector)
 {
+  // Check piece request. If requested anything but the 0-th piece, nothing to
+  // read.
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
+    {
+    return 1;
+    }
+
   int line_count = 0;
 
   // Check that the filename has been specified
@@ -301,6 +316,18 @@ int vtkDelimitedTextReader::RequestData(
   if (pedIds)
     {
     table->GetRowData()->SetPedigreeIds(pedIds);
+    }
+
+  if (this->DetectNumericColumns)
+    {
+    vtkStringToNumeric* convertor = vtkStringToNumeric::New();
+    vtkTable* clone = table->NewInstance();
+    clone->ShallowCopy(table);
+    convertor->SetInput(clone);
+    convertor->Update();
+    clone->Delete();
+    table->ShallowCopy(convertor->GetOutputDataObject(0));
+    convertor->Delete();
     }
  
   return 1;
