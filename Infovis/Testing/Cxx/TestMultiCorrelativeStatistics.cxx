@@ -248,7 +248,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
   if ( nOutliers != 3 )
     {
-    cout << "Error: Expected 3 outliers, found " << nOutliers << ".\n";
+    vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
     testStatus = 1;
     }
 
