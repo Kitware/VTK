@@ -66,7 +66,7 @@ static void CopyStructuredData(vtkDataSetAttributes* out, int outExtent[6],
 
 
 vtkStandardNewMacro(vtkPTableToStructuredGrid);
-vtkCxxRevisionMacro(vtkPTableToStructuredGrid, "1.1");
+vtkCxxRevisionMacro(vtkPTableToStructuredGrid, "1.2");
 vtkCxxSetObjectMacro(vtkPTableToStructuredGrid, Controller,
   vtkMultiProcessController);
 //----------------------------------------------------------------------------
@@ -173,5 +173,6 @@ int vtkPTableToStructuredGrid::RequestData(vtkInformation* request,
 void vtkPTableToStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Controller: " << this->Controller << endl;
 }
 
