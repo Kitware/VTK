@@ -24,7 +24,7 @@
 #include "vtkTable.h"
 
 vtkStandardNewMacro(vtkTableToStructuredGrid);
-vtkCxxRevisionMacro(vtkTableToStructuredGrid, "1.1");
+vtkCxxRevisionMacro(vtkTableToStructuredGrid, "1.2");
 //----------------------------------------------------------------------------
 vtkTableToStructuredGrid::vtkTableToStructuredGrid()
 {
@@ -70,7 +70,7 @@ int vtkTableToStructuredGrid::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkTableToStructuredGrid::RequestData(
-  vtkInformation* request, vtkInformationVector** inputVector,
+  vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkStructuredGrid* output = vtkStructuredGrid::GetData(outputVector, 0);
@@ -81,14 +81,6 @@ int vtkTableToStructuredGrid::RequestData(
   int extent[6];
   sddp->GetOutputInformation(0)->Get(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
-  cout << "UpdateExtent: " << 
-    extent[0] << ", " << 
-    extent[1] << ", " << 
-    extent[2] << ", " << 
-    extent[3] << ", " << 
-    extent[4] << ", " << 
-    extent[5] << endl;
-
   return this->Convert(input, output, extent);
 }
 
