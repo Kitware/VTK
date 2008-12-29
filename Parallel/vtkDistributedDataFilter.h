@@ -99,7 +99,6 @@ class vtkModelMetadata;
 class vtkMultiProcessController;
 class vtkPKdTree;
 class vtkUnstructuredGrid;
-class vtkUnstructuredGrid;
 
 class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
 {
