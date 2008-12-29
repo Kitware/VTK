@@ -22,7 +22,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPointData.h"
 #include "vtkTable.h"
 #include "vtkSelection.h"
@@ -34,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.4");
+vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.5");
 vtkStandardNewMacro(vtkExtractTemporalFieldData);
 
 //----------------------------------------------------------------------------
@@ -74,13 +73,6 @@ int vtkExtractTemporalFieldData::ProcessRequest(
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
-  else if(
-    request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    return this->RequestUpdateExtent(request,
-                                     inputVector,
-                                     outputVector);
     }
   else if(
     request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
@@ -130,19 +122,6 @@ int vtkExtractTemporalFieldData::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                wholeExtent, 6);
 
-  // Setup ExtentTranslator so that all downstream piece requests are
-  // converted to whole extent update requests, as need by this filter.
-  vtkStreamingDemandDrivenPipeline* sddp = 
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-  if (strcmp(
-      sddp->GetExtentTranslator(outInfo)->GetClassName(), 
-      "vtkOnePieceExtentTranslator") != 0)
-    {
-    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    sddp->SetExtentTranslator(outInfo, et);
-    et->Delete();
-    }
-
   return 1;
 }
 
@@ -168,39 +147,6 @@ int vtkExtractTemporalFieldData::RequestData(
   vtkDataSet *input = vtkDataSet::GetData(inInfo);
 
   this->CopyDataToOutput(input, output);
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkExtractTemporalFieldData::RequestUpdateExtent(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation* inInfo1 = inputVector[0]->GetInformationObject(0);
-
-  // This filter changes the ExtentTranslator on the output
-  // to always update whole extent on this filter, irrespective of
-  // what piece the downstream filter is requesting. Hence, we need to
-  // propagate the actual extents upstream. If upstream is structured
-  // data we need to use the ExtentTranslator of the input, otherwise
-  // we just set the piece information. All this is taken care of
-  // by SetUpdateExtent().
-
-  vtkStreamingDemandDrivenPipeline* sddp =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-  if (outInfo->Has(sddp->UPDATE_NUMBER_OF_PIECES()) &&
-      outInfo->Has(sddp->UPDATE_PIECE_NUMBER()) &&
-      outInfo->Has(sddp->UPDATE_NUMBER_OF_GHOST_LEVELS()))
-    {
-    int piece = outInfo->Get(sddp->UPDATE_PIECE_NUMBER());
-    int numPieces = outInfo->Get(sddp->UPDATE_NUMBER_OF_PIECES());
-    int ghostLevel = outInfo->Get(sddp->UPDATE_NUMBER_OF_GHOST_LEVELS());
-
-    sddp->SetUpdateExtent(inInfo1, piece, numPieces, ghostLevel);
-    }
 
   return 1;
 }
@@ -262,6 +208,7 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input,
     timeArray->SetTuple1(m,m);
     }
   opd->AddArray(timeArray);
+  timeArray->Delete();
 
   // This array is used to make particular samples as invalid.
   // This happens when we are looking at a location which is not contained

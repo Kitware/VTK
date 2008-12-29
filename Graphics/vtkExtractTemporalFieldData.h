@@ -32,17 +32,17 @@
 #ifndef __vtkExtractTemporalFieldData_h
 #define __vtkExtractTemporalFieldData_h
 
-#include "vtkRectilinearGridAlgorithm.h"
+#include "vtkTableAlgorithm.h"
 
 class vtkDataSet;
 class vtkTable;
 class vtkDataSetAttributes;
 
-class VTK_GRAPHICS_EXPORT vtkExtractTemporalFieldData : public vtkRectilinearGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractTemporalFieldData : public vtkTableAlgorithm
 {
 public:
   static vtkExtractTemporalFieldData *New();
-  vtkTypeRevisionMacro(vtkExtractTemporalFieldData,vtkRectilinearGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractTemporalFieldData,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -60,9 +60,6 @@ protected:
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector, 
                                  vtkInformationVector* outputVector);
-  virtual int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
