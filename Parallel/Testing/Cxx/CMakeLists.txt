@@ -252,10 +252,22 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   # For now this test is only available on Unix because
   # on Windows, python does not support forking/killing processes
   IF (UNIX  AND  PYTHON_EXECUTABLE  AND  VTK_DATA_ROOT  AND  HAVE_SOCKETS)
+    SET(dir "${EXECUTABLE_OUTPUT_PATH}")
+
+    # Allow this test to work from Xcode dashboards driven with ctest -C:
+    #
+    IF(CMAKE_CONFIGURATION_TYPES)
+      IF(NOT "$ENV{CMAKE_CONFIG_TYPE}" STREQUAL "")
+        SET(dir "${dir}/$ENV{CMAKE_CONFIG_TYPE}")
+      ELSE(NOT "$ENV{CMAKE_CONFIG_TYPE}" STREQUAL "")
+        SET(dir "${dir}/Release")
+      ENDIF(NOT "$ENV{CMAKE_CONFIG_TYPE}" STREQUAL "")
+    ENDIF(CMAKE_CONFIGURATION_TYPES)
+
     ADD_TEST(Sockets-image ${PYTHON_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Parallel/Testing/Cxx/TestSockets.py 
-      ${VTK_EXECUTABLE_DIR}/SocketServer
-      ${VTK_EXECUTABLE_DIR}/SocketClient
+      ${dir}/SocketServer
+      ${dir}/SocketClient
       ${VTK_DATA_ROOT}
       Baseline/Parallel/SocketClient.cxx.png
       ${VTK_BINARY_DIR}/Testing/Temporary)
