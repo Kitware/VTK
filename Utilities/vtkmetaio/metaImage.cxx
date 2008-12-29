@@ -3223,7 +3223,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
       // Optimize the size of the buffer to read depending on the
       // region shape
       METAIO_STL::streamsize readLine = _indexMax[0] - _indexMin[0] + 1;
-      unsigned int movingDirection = 1;
+      int movingDirection = 1;
       while(movingDirection < m_NDims 
             && _indexMin[movingDirection] == 0
             && _indexMax[movingDirection] == m_DimSize[movingDirection]-1)
@@ -3336,7 +3336,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
     // Optimize the size of the buffer to read depending on the
     // region shape
     METAIO_STL::streamsize readLine = _indexMax[0] - _indexMin[0] + 1;
-    unsigned int movingDirection = 1;
+    int movingDirection = 1;
     while(movingDirection < m_NDims 
           && subSamplingFactor == 1 && _indexMin[movingDirection] == 0
           && _indexMax[movingDirection] == m_DimSize[movingDirection]-1)
