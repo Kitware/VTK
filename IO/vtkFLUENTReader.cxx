@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.22");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.23");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -737,6 +737,11 @@ int vtkFLUENTReader::GetDataChunk ()
   //
   if (index.size() > 3)
     {  // Binary Chunk
+    //it may be in our best interest to do away with the index portion of the
+    //"end" string - we have found a dataset, that although errant, does work
+    //fine in ensight and the index does not match - maybe just an end string
+    //that contains "End of Binary Section" and and a search to relocate the
+    //file pointer to the "))" entry.
     char end[120];
     strcpy(end, "End of Binary Section   ");
     strcat(end, index.c_str());
@@ -3741,7 +3746,8 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int w01[4];
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
     {
-    if (this->Cells->value[i].faces[j] != base)
+    if (this->Cells->value[i].faces[j] != base && 
+      this->Cells->value[i].faces[j] != top)
       {
       int wf0 = 0;
       int wf1 = 0;
@@ -3772,7 +3778,8 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int w02[4];
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
     {
-    if (this->Cells->value[i].faces[j] != base)
+    if (this->Cells->value[i].faces[j] != base && 
+      this->Cells->value[i].faces[j] != top)
       {
       int wf0 = 0;
       int wf2 = 0;
