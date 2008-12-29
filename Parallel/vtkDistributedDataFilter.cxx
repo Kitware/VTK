@@ -60,7 +60,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.51")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.52")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -839,13 +839,12 @@ vtkUnstructuredGrid *
       }
     }
 
-  vtkDistributedDataFilterSTLCloak *globalToLocalMap 
-    = new vtkDistributedDataFilterSTLCloak;
+  vtkDistributedDataFilterSTLCloak globalToLocalMap;
 
   for (int localPtId = 0; localPtId < numPoints; localPtId++)
     {
     const int id = gnids[localPtId];
-    globalToLocalMap->IntMap.insert(vtkstd::pair<const int, int>(id, localPtId));
+    globalToLocalMap.IntMap.insert(vtkstd::pair<const int, int>(id, localPtId));
     }
 
   vtkUnstructuredGrid *expandedGrid= NULL;
@@ -853,12 +852,12 @@ vtkUnstructuredGrid *
   if (this->IncludeAllIntersectingCells)
     {
     expandedGrid =
-      this->AddGhostCellsDuplicateCellAssignment(grid, globalToLocalMap);
+      this->AddGhostCellsDuplicateCellAssignment(grid, &globalToLocalMap);
     }
   else
     {
     expandedGrid =
-      this->AddGhostCellsUniqueCellAssignment(grid, globalToLocalMap);
+      this->AddGhostCellsUniqueCellAssignment(grid, &globalToLocalMap);
     }
 
   return expandedGrid;
