@@ -2378,7 +2378,7 @@ bool MetaCommand::LoadArgumentsFromXML(const char* filename,
       }
     cur = cur->next;
     }
-
+  xmlFreeDoc(doc);
 #else 
   METAIO_STREAM::cout << "LoadArguments(" << filename << ") requires libxml2" << METAIO_STREAM::endl; 
   if(createMissingArguments)
@@ -2386,7 +2386,6 @@ bool MetaCommand::LoadArgumentsFromXML(const char* filename,
     }
    
 #endif
-  xmlFreeDoc(doc);
   return true;
 }
 
