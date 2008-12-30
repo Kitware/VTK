@@ -2386,6 +2386,7 @@ bool MetaCommand::LoadArgumentsFromXML(const char* filename,
     }
    
 #endif
+  xmlFreeDoc(doc);
   return true;
 }
 
