@@ -20,6 +20,10 @@
 // .SECTION Caveats
 // This file will change frequently to update the VTKSourceVersion which
 // timestamps a particular source release.
+//
+// VTK-5-2 is a bug fix branch under development and it will change from time
+// to time. Please use the latest stable release tag VTK-5-2-1 if you need a
+// source tree that will not change.
 
 #ifndef __vtkVersion_h
 #define __vtkVersion_h
@@ -27,7 +31,7 @@
 
 #include "vtkObject.h"
 
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.3093.2.5 $, $Date: 2008-12-27 16:16:54 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.3093.2.6 $, $Date: 2008-12-30 16:12:13 $ (GMT)"
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
