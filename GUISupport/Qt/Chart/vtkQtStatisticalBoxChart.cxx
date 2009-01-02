@@ -28,124 +28,255 @@
 
 #include "vtkQtStatisticalBoxChart.h"
 
-#include "vtkQtStatisticalBoxChartOptions.h"
-#include "vtkQtStatisticalBoxChartSeriesOptions.h"
+#include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartBar.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
+#include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartLayerDomain.h"
+#include "vtkQtChartQuad.h"
 #include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesDomainGroup.h"
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
-#include "vtkQtChartArea.h"
+#include "vtkQtChartShapeLocator.h"
+#include "vtkQtPointMarker.h"
+#include "vtkQtStatisticalBoxChartOptions.h"
+#include "vtkQtStatisticalBoxChartSeriesOptions.h"
 
 #include <QBrush>
-#include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QList>
 #include <QPen>
+#include <QPointF>
+#include <QPolygonF>
+#include <QRectF>
+#include <QStyleOptionGraphicsItem>
 
-class vtkQtStatisticalBoxChartItem : public QGraphicsItem
+
+class vtkQtStatisticalBoxChartSeries
 {
 public:
-  enum {Type = vtkQtChart_StatisticalBoxChartItemType};
+  vtkQtStatisticalBoxChartSeries();
+  ~vtkQtStatisticalBoxChartSeries();
+
+  void updateSeries(int series);
 
 public:
-  vtkQtStatisticalBoxChartItem(QGraphicsItem *parent=0);
-  virtual ~vtkQtStatisticalBoxChartItem() {}
-
-  virtual int type() const {return vtkQtStatisticalBoxChartItem::Type;}
-  virtual QRectF boundingRect() const;
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
-
-  QGraphicsRectItem* Box;
-  QGraphicsLineItem* WhiskerLowPoint;
-  QGraphicsLineItem* WhiskerLowLine;
-  QGraphicsLineItem* WhiskerHighPoint;
-  QGraphicsLineItem* WhiskerHighLine;
-  QGraphicsLineItem* MedianPoint;
-
-  QList<QGraphicsEllipseItem *> Outliers;
-
+  QRectF Box;
+  QPointF LowPoint;
+  QPointF MedianPoint;
+  QPointF HighPoint;
+  QPolygonF Outliers;
+  vtkQtPointMarker Marker;
+  QList<vtkQtChartShape *> Shapes;
   QList<int> Highlights;
-  bool IsHighlighted;
+  bool Highlighted;
 };
+
+
+class vtkQtStatisticalBoxChartSeriesGroup
+{
+public:
+  vtkQtStatisticalBoxChartSeriesGroup();
+  ~vtkQtStatisticalBoxChartSeriesGroup() {}
+
+  void sortSeries();
+
+public:
+  QList<QList<vtkQtChartShape *> > Shapes;
+};
+
+
+class vtkQtStatisticalBoxChartDomainGroup : public vtkQtChartSeriesDomainGroup
+{
+public:
+  vtkQtStatisticalBoxChartDomainGroup();
+  virtual ~vtkQtStatisticalBoxChartDomainGroup();
+
+  virtual void clear();
+
+protected:
+  virtual void insertGroup(int group);
+  virtual void removeGroup(int group);
+
+public:
+  QList<vtkQtStatisticalBoxChartSeriesGroup *> Tables;
+};
+
 
 class vtkQtStatisticalBoxChartInternal
 {
 public:
   vtkQtStatisticalBoxChartInternal();
+  ~vtkQtStatisticalBoxChartInternal();
 
-  ~vtkQtStatisticalBoxChartInternal() {};
+  void setPointQuad(vtkQtChartShape *quad, const QPointF &point,
+      const QSizeF &size, float width);
+  void setPointBar(vtkQtChartShape *bar, const QPointF &point,
+      const QSizeF &size, float width);
 
-  int getSeries(QGraphicsRectItem *bar) const;
+  void clearSearchTree(int seriesGroup);
 
-  QList<vtkQtStatisticalBoxChartItem *> Series;
+public:
+  QList<vtkQtStatisticalBoxChartSeries *> Series;
   vtkQtChartAxisCornerDomain Domain;
-  vtkQtChartSeriesDomainGroup Groups;
+  vtkQtStatisticalBoxChartDomainGroup Groups;
+  vtkQtChartShapeLocator ShapeTree;
+  QRectF Bounds;
+  int CurrentGroup;
 };
 
-//-----------------------------------------------------------------------------
-vtkQtStatisticalBoxChartItem::vtkQtStatisticalBoxChartItem(QGraphicsItem *item) :
-  QGraphicsItem(item, item ? item->scene() : 0), Outliers(),
-      Highlights()
-{
-  this->IsHighlighted = false;
-  this->Box = 0;
-  this->WhiskerLowPoint = 0;
-  this->WhiskerLowLine = 0;
-  this->WhiskerHighPoint = 0;
-  this->WhiskerHighLine = 0;
-  this->MedianPoint = 0;
-}
-
-QRectF vtkQtStatisticalBoxChartItem::boundingRect() const
-{
-  return QRect(0, 0, 0, 0);
-}
-
-void vtkQtStatisticalBoxChartItem::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
-{
-}
 
 //-----------------------------------------------------------------------------
-vtkQtStatisticalBoxChartInternal::vtkQtStatisticalBoxChartInternal() :
-  Series(), Domain(), Groups()
+vtkQtStatisticalBoxChartSeries::vtkQtStatisticalBoxChartSeries()
+  : Box(), LowPoint(), MedianPoint(), HighPoint(), Outliers(),
+    Marker(QSizeF(5.0, 5.0)), Shapes(), Highlights()
 {
+  this->Highlighted = false;
+}
+
+vtkQtStatisticalBoxChartSeries::~vtkQtStatisticalBoxChartSeries()
+{
+  QList<vtkQtChartShape *>::Iterator iter = this->Shapes.begin();
+  for( ; iter != this->Shapes.end(); ++iter)
+    {
+    delete *iter;
+    }
+}
+
+void vtkQtStatisticalBoxChartSeries::updateSeries(int series)
+{
+  QList<vtkQtChartShape *>::Iterator iter = this->Shapes.begin();
+  for( ; iter != this->Shapes.end(); ++iter)
+    {
+    (*iter)->setSeries(series);
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+vtkQtStatisticalBoxChartSeriesGroup::vtkQtStatisticalBoxChartSeriesGroup()
+  : Shapes()
+{
+}
+
+void vtkQtStatisticalBoxChartSeriesGroup::sortSeries()
+{
+  QList<QList<vtkQtChartShape *> >::Iterator iter = this->Shapes.begin();
+  for(int i = 0; iter != this->Shapes.end(); ++iter, ++i)
+    {
+    vtkQtChartShapeLocator::sort(*iter);
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+vtkQtStatisticalBoxChartDomainGroup::vtkQtStatisticalBoxChartDomainGroup()
+  : vtkQtChartSeriesDomainGroup(), Tables()
+{
+}
+
+vtkQtStatisticalBoxChartDomainGroup::~vtkQtStatisticalBoxChartDomainGroup()
+{
+  QList<vtkQtStatisticalBoxChartSeriesGroup *>::Iterator iter;
+  for(iter = this->Tables.begin(); iter != this->Tables.end(); ++iter)
+    {
+    delete *iter;
+    }
+}
+
+void vtkQtStatisticalBoxChartDomainGroup::clear()
+{
+  vtkQtChartSeriesDomainGroup::clear();
+  QList<vtkQtStatisticalBoxChartSeriesGroup *>::Iterator iter;
+  for(iter = this->Tables.begin(); iter != this->Tables.end(); ++iter)
+    {
+    delete *iter;
+    }
+
+  this->Tables.clear();
+}
+
+void vtkQtStatisticalBoxChartDomainGroup::insertGroup(int group)
+{
+  vtkQtChartSeriesDomainGroup::insertGroup(group);
+  this->Tables.insert(group, new vtkQtStatisticalBoxChartSeriesGroup());
+}
+
+void vtkQtStatisticalBoxChartDomainGroup::removeGroup(int group)
+{
+  vtkQtChartSeriesDomainGroup::removeGroup(group);
+  delete this->Tables.takeAt(group);
+}
+
+
+//-----------------------------------------------------------------------------
+vtkQtStatisticalBoxChartInternal::vtkQtStatisticalBoxChartInternal()
+  : Series(), Domain(), Groups(), ShapeTree(), Bounds()
+{
+  this->CurrentGroup = -1;
   this->Domain.setHorizontalPreferences(false, false, true);
   this->Domain.setVerticalPreferences(true, false, false);
 }
 
-int vtkQtStatisticalBoxChartInternal::getSeries(QGraphicsRectItem *bar) const
+vtkQtStatisticalBoxChartInternal::~vtkQtStatisticalBoxChartInternal()
 {
-  if (bar)
+  QList<vtkQtStatisticalBoxChartSeries *>::Iterator iter;
+  for(iter = this->Series.begin(); iter != this->Series.end(); ++iter)
     {
-    vtkQtStatisticalBoxChartItem *series =
-        qgraphicsitem_cast<vtkQtStatisticalBoxChartItem *>(bar->parentItem());
-    if (series)
-      {
-      return this->Series.indexOf(series);
-      }
+    delete *iter;
     }
-
-  return -1;
 }
 
+void vtkQtStatisticalBoxChartInternal::setPointQuad(vtkQtChartShape *quad,
+    const QPointF &point, const QSizeF &size, float width)
+{
+  float halfPen = width * 0.5;
+  float halfWidth = size.width() * 0.5;
+  float halfHeight = size.height() * 0.5;
+  QPolygonF polygon;
+  polygon.append(QPointF(point.x() - halfWidth - halfPen, point.y()));
+  polygon.append(QPointF(point.x(), point.y() - halfHeight - halfPen));
+  polygon.append(QPointF(point.x() + halfWidth + halfPen, point.y()));
+  polygon.append(QPointF(point.x(), point.y() + halfHeight + halfPen));
+  quad->setPolygon(polygon);
+}
+
+void vtkQtStatisticalBoxChartInternal::setPointBar(vtkQtChartShape *bar,
+    const QPointF &point, const QSizeF &size, float width)
+{
+  bar->setRectangle(QRectF(point.x() - ((size.width() + width) * 0.5),
+      point.y() - ((size.height() + width) * 0.5), size.width() + width,
+      size.height() + width));
+}
+
+void vtkQtStatisticalBoxChartInternal::clearSearchTree(int seriesGroup)
+{
+  // Clear the shape tree if this is the displayed group.
+  if(seriesGroup == this->CurrentGroup)
+    {
+    this->ShapeTree.clear();
+    this->CurrentGroup = -1;
+    }
+}
+
+
 //-----------------------------------------------------------------------------
-vtkQtStatisticalBoxChart::vtkQtStatisticalBoxChart() :
-  vtkQtChartSeriesLayer()
+vtkQtStatisticalBoxChart::vtkQtStatisticalBoxChart()
+  : vtkQtChartSeriesLayer(false)
 {
   this->Internal = new vtkQtStatisticalBoxChartInternal();
   this->Options = new vtkQtStatisticalBoxChartOptions(this);
   this->InModelChange = false;
+  this->BuildNeeded = false;
 
   // Listen for option changes.
   this->connect(this->Options, SIGNAL(axesCornerChanged()), this,
@@ -208,10 +339,11 @@ void vtkQtStatisticalBoxChart::setOptions(
   this->Options->setOutlineStyle(options.getOutlineStyle());
 }
 
-vtkQtStatisticalBoxChartSeriesOptions *vtkQtStatisticalBoxChart::getBarSeriesOptions(
-    int series) const
+vtkQtStatisticalBoxChartSeriesOptions *
+    vtkQtStatisticalBoxChart::getBoxSeriesOptions(int series) const
 {
-  return qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->getSeriesOptions(series));
+  return qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(
+      this->getSeriesOptions(series));
 }
 
 void vtkQtStatisticalBoxChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
@@ -221,7 +353,9 @@ void vtkQtStatisticalBoxChart::getLayerDomain(vtkQtChartLayerDomain &domain) con
 
 void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
 {
-  // Update the position.
+  // Update the position and bounds.
+  this->prepareGeometryChange();
+  this->Internal->Bounds.setSize(area.size());
   this->setPos(area.topLeft());
   if(this->Internal->Series.size() == 0)
     {
@@ -277,95 +411,362 @@ void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
   // Position and size the box series. Skip the series if it is
   // invisible or invalid for the domain.
   float halfWidth = boxWidth * 0.5;
-  for (i = 0; i < this->Model->getNumberOfSeries(); i++)
+  vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+  QList<int>::Iterator iter = seriesList.begin();
+  for( ; iter != seriesList.end(); ++iter)
     {
-    vtkQtStatisticalBoxChartItem *series = this->Internal->Series[i];
-    series->setVisible(seriesList.contains(i));
-    if (!series->isVisible())
+    vtkQtStatisticalBoxChartSeries *series = this->Internal->Series[*iter];
+    int total = this->Model->getNumberOfSeriesValues(*iter);
+    if(total >= 5)
       {
-      continue;
-      }
-
-    if (this->Model->getNumberOfSeriesValues(i) >= 5)
-      {
-      float px = xAxis->getPixel(this->Model->getSeriesName(i));
+      float px = xAxis->getPixel(this->Model->getSeriesName(*iter));
       float left = px - halfWidth;
-      float right = left + boxWidth;
 
       // Minimum: 0
       // Lower Quartile: 1
       // Median: 2
       // Upper Quartile: 3
       // Maximum: 4
-      float min = yAxis->getPixel(this->Model->getSeriesValue(i, 0, 1));
-      float lower = yAxis->getPixel(this->Model->getSeriesValue(i, 1, 1));
-      float median = yAxis->getPixel(this->Model->getSeriesValue(i, 2, 1));
-      float upper = yAxis->getPixel(this->Model->getSeriesValue(i, 3, 1));
-      float max = yAxis->getPixel(this->Model->getSeriesValue(i, 4, 1));
+      float min = yAxis->getPixel(this->Model->getSeriesValue(*iter, 0, 1));
+      float lower = yAxis->getPixel(this->Model->getSeriesValue(*iter, 1, 1));
+      float median = yAxis->getPixel(this->Model->getSeriesValue(*iter, 2, 1));
+      float upper = yAxis->getPixel(this->Model->getSeriesValue(*iter, 3, 1));
+      float max = yAxis->getPixel(this->Model->getSeriesValue(*iter, 4, 1));
 
       // Set the box size.
-      series->Box->setPos(left, upper);
-      series->Box->setRect(0.0, 0.0, boxWidth, lower - upper);
+      series->Box.setRect(left, upper, boxWidth, lower - upper);
 
-      // Add in median
-      series->MedianPoint->setLine(left, median, right, median);
-
-      // Add in lower whisker point
-      series->WhiskerLowPoint->setLine(left, min, right, min);
-
-      // Add in lower whisker line
-      series->WhiskerLowLine->setLine(px, min, px, lower);
-
-      // Add in high whisker point
-      series->WhiskerHighPoint->setLine(left, max, right, max);
-
-      // Add in lower whisker line
-      series->WhiskerHighLine->setLine(px, upper, px, max);
-
-      // Add in outliers
-      for(int j = 5; j < this->Model->getNumberOfSeriesValues(i); j++)
+      // Set up the box for the search tree.
+      options = this->getBoxSeriesOptions(*iter);
+      float penWidth = options->getPen().widthF();
+      if(penWidth == 0.0)
         {
-        float py = yAxis->getPixel(this->Model->getSeriesValue(i, j, 1));
-        series->Outliers[j - 5]->setPos(px - 5.0, py - 5.0);
-        series->Outliers[j - 5]->setRect(0.0, 0.0, 10.0, 10.0);
+        penWidth = 1.0;
         }
+
+      float halfPen = penWidth * 0.5;
+      series->Shapes[0]->setRectangle(series->Box.adjusted(
+          -halfPen, -halfPen, halfPen, halfPen));
+
+      // Set the median point.
+      series->MedianPoint.setX(px);
+      series->MedianPoint.setY(median);
+
+      // Set the low whisker point.
+      series->LowPoint.setX(px);
+      series->LowPoint.setY(min);
+
+      // Set the high whisker point.
+      series->HighPoint.setX(px);
+      series->HighPoint.setY(max);
+
+      // Add in the outliers.
+      QPointF point;
+      series->Outliers.clear();
+      bool useQuad = options->getMarkerStyle() == vtkQtPointMarker::Diamond ||
+          options->getMarkerStyle() == vtkQtPointMarker::Plus;
+      for(int j = 5; j < total; j++)
+        {
+        float py = yAxis->getPixel(this->Model->getSeriesValue(*iter, j, 1));
+        point = QPointF(px, py);
+        series->Outliers.append(point);
+        if(useQuad)
+          {
+          this->Internal->setPointQuad(series->Shapes[j - 4], point,
+              options->getMarkerSize(), penWidth);
+          }
+        else
+          {
+          this->Internal->setPointBar(series->Shapes[j - 4], point,
+              options->getMarkerSize(), penWidth);
+          }
+        }
+      }
+    }
+
+  // Update the search tree.
+  if(seriesDomain)
+    {
+    if(this->ChartArea->isInteractivelyResizing())
+      {
+      this->BuildNeeded = true;
       }
     else
       {
+      this->buildShapeTree(domainIndex);
+      }
+    }
+}
+
+bool vtkQtStatisticalBoxChart::getHelpText(const QPointF &point, QString &text)
+{
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the selected shapes from the tree.
+  vtkQtChartIndexRangeList indexes;
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->ShapeTree.getItemsAt(local);
+  if(shapes.size() > 0)
+    {
+    // Use the axis options to format the data.
+    vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
+    vtkQtChartAxisOptions *xAxis = layer->getHorizontalAxis(
+        this->Options->getAxesCorner())->getOptions();
+    vtkQtChartAxisOptions *yAxis = layer->getVerticalAxis(
+        this->Options->getAxesCorner())->getOptions();
+
+    // Get the data from the model. If the index is -1, the shape is
+    // for the series box.
+    QStringList args;
+    int series = shapes.first()->getSeries();
+    int index = shapes.first()->getIndex();
+    if(index == -1)
+      {
+      args.append(yAxis->formatValue(
+          this->Model->getSeriesValue(series, 1, 1)));
+      args.append(yAxis->formatValue(
+          this->Model->getSeriesValue(series, 2, 1)));
+      args.append(yAxis->formatValue(
+          this->Model->getSeriesValue(series, 3, 1)));
+      text = this->Options->getHelpFormat()->getHelpText(
+          this->Model->getSeriesName(series).toString(), args);
+      }
+    else
+      {
+      args.append(yAxis->formatValue(
+          this->Model->getSeriesValue(series, index + 5, 1)));
+      text = this->Options->getOutlierFormat()->getHelpText(
+          this->Model->getSeriesName(series).toString(), args);
+      }
+
+    return true;
+    }
+
+  return false;
+}
+
+void vtkQtStatisticalBoxChart::finishInteractiveResize()
+{
+  if(this->BuildNeeded)
+    {
+    // Get the axis layer to get the axes and domains.
+    vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
+    vtkQtChartAxis *xAxis = layer->getHorizontalAxis(
+        this->Options->getAxesCorner());
+    vtkQtChartAxis *yAxis = layer->getVerticalAxis(
+        this->Options->getAxesCorner());
+
+    int seriesGroup;
+    const vtkQtChartSeriesDomain *seriesDomain =
+        this->Internal->Domain.getDomain(xAxis->getAxisDomain(),
+        yAxis->getAxisDomain(), &seriesGroup);
+    if(seriesDomain)
+      {
+      this->buildShapeTree(seriesGroup);
+      }
+    }
+}
+
+void vtkQtStatisticalBoxChart::getSeriesAt(const QPointF &point,
+    vtkQtChartSeriesSelection &selection) const
+{
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the selected series from the tree.
+  vtkQtChartIndexRangeList indexes;
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->ShapeTree.getItemsAt(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
+    {
+    // Add the series to the selection.
+    int series = (*shape)->getSeries();
+    indexes.append(vtkQtChartIndexRange(series, series));
+    }
+
+  selection.setSeries(indexes);
+}
+
+void vtkQtStatisticalBoxChart::getPointsAt(const QPointF &point,
+    vtkQtChartSeriesSelection &selection) const
+{
+  // Translate the point to contents coordinates.
+  QPointF local = point;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the selected outliers from the tree.
+  QList<vtkQtChartSeriesSelectionItem> indexes;
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->ShapeTree.getItemsAt(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
+    {
+    int index = (*shape)->getIndex();
+    if(index != -1)
+      {
+      vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
+      item.Points.append(vtkQtChartIndexRange(index, index));
+      indexes.append(item);
       }
     }
 
-  // Layout the highlights.
-  this->layoutHighlights();
+  selection.setPoints(indexes);
 }
 
-bool vtkQtStatisticalBoxChart::drawItemFilter(QGraphicsItem *,
-    QPainter *painter)
+void vtkQtStatisticalBoxChart::getSeriesIn(const QRectF &area,
+    vtkQtChartSeriesSelection &selection) const
 {
-  if (this->ChartArea)
+  // Translate the rectangle to contents coordinates.
+  QRectF local = area;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the selected series from the tree.
+  vtkQtChartIndexRangeList indexes;
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->ShapeTree.getItemsIn(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
     {
-    QRectF bounds;
-    this->ChartArea->getContentsSpace()->getChartLayerBounds(bounds);
-    painter->setClipRect(bounds, Qt::IntersectClip);
+    // Add the series to the selection.
+    int series = (*shape)->getSeries();
+    indexes.append(vtkQtChartIndexRange(series, series));
     }
 
-  return false;
+  selection.setSeries(indexes);
 }
 
-bool vtkQtStatisticalBoxChart::getHelpText(const QPointF &, QString &)
+void vtkQtStatisticalBoxChart::getPointsIn(const QRectF &area,
+    vtkQtChartSeriesSelection &selection) const
 {
-  // TODO
-  return false;
+  // Translate the rectangle to contents coordinates.
+  QRectF local = area;
+  this->ChartArea->getContentsSpace()->translateToLayerContents(local);
+
+  // Get the selected outliers from the tree.
+  QList<vtkQtChartSeriesSelectionItem> indexes;
+  QList<vtkQtChartShape *> shapes =
+      this->Internal->ShapeTree.getItemsIn(local);
+  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
+  for( ; shape != shapes.end(); ++shape)
+    {
+    int index = (*shape)->getIndex();
+    if(index != -1)
+      {
+      vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
+      item.Points.append(vtkQtChartIndexRange(index, index));
+      indexes.append(item);
+      }
+    }
+
+  selection.setPoints(indexes);
 }
 
 QRectF vtkQtStatisticalBoxChart::boundingRect() const
 {
-  return QRectF(0, 0, 0, 0);
+  return this->Internal->Bounds;
 }
 
-void vtkQtStatisticalBoxChart::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
+void vtkQtStatisticalBoxChart::paint(QPainter *painter,
+    const QStyleOptionGraphicsItem *option, QWidget *)
 {
+  if(!this->ChartArea)
+    {
+    return;
+    }
+
+  // Use the exposed rectangle from the option object to determine
+  // which series to draw.
+  vtkQtChartContentsSpace *space = this->ChartArea->getContentsSpace();
+  QRectF area = option->exposedRect.translated(space->getXOffset(),
+      space->getYOffset());
+
+  // Get the axis layer to get the axes and domain priority.
+  vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
+  vtkQtChartLayer::AxesCorner corner = this->Options->getAxesCorner();
+  vtkQtChartAxis *xAxis = layer->getHorizontalAxis(corner);
+  vtkQtChartAxis *yAxis = layer->getVerticalAxis(corner);
+
+  int domainIndex = -1;
+  const vtkQtChartSeriesDomain *seriesDomain =
+      this->Internal->Domain.getDomain(xAxis->getAxisDomain(),
+      yAxis->getAxisDomain(), &domainIndex);
+  if(seriesDomain)
+    {
+    // Set up the painter clipping and offset for panning.
+    painter->setClipRect(this->Internal->Bounds);
+    painter->translate(-space->getXOffset(), -space->getYOffset());
+
+    // Get the list of series in the selected domain.
+    vtkQtStatisticalBoxChartSeries *series = 0;
+    vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+    QList<int> seriesList = this->Internal->Groups.getGroup(domainIndex);
+    QList<int>::Iterator iter = seriesList.begin();
+    for( ; iter != seriesList.end(); ++iter)
+      {
+      // Set up the painter for the series.
+      series = this->Internal->Series[*iter];
+      options = this->getBoxSeriesOptions(*iter);
+      QColor light = vtkQtChartColors::lighter(options->getBrush().color());
+      QPen seriesPen = options->getPen();
+      painter->setPen(seriesPen);
+      if(series->Highlighted)
+        {
+        painter->setBrush(light);
+        }
+      else
+        {
+        painter->setBrush(options->getBrush());
+        }
+
+      QPen widePen;
+      if(series->Highlighted || !series->Highlights.isEmpty())
+        {
+        widePen = options->getPen();
+        widePen.setWidthF(widePen.widthF() + 3.0);
+        }
+
+      // First, draw the wisker lines.
+      painter->drawLine(series->HighPoint, series->LowPoint);
+      painter->drawLine(QPointF(series->Box.left(), series->HighPoint.y()),
+          QPointF(series->Box.right(), series->HighPoint.y()));
+      painter->drawLine(QPointF(series->Box.left(), series->LowPoint.y()),
+          QPointF(series->Box.right(), series->LowPoint.y()));
+
+      // Next, draw the box on top of the wiskers.
+      painter->drawRect(series->Box);
+
+      // Then, draw the median line.
+      painter->drawLine(QPointF(series->Box.left(), series->MedianPoint.y()),
+          QPointF(series->Box.right(), series->MedianPoint.y()));
+
+      // Finally, draw the outlier points.
+      QPolygonF::Iterator point = series->Outliers.begin();
+      for(int j = 0; point != series->Outliers.end(); ++point, ++j)
+        {
+        // Translate the painter to the point.
+        painter->save();
+        painter->translate(*point);
+
+        if(!series->Highlighted && series->Highlights.contains(j))
+          {
+          painter->setPen(widePen);
+          series->Marker.paint(painter);
+
+          painter->setPen(seriesPen);
+          painter->setBrush(light);
+          }
+
+        series->Marker.paint(painter);
+
+        // Restore the painter for the next point.
+        painter->restore();
+        }
+      }
+    }
 }
 
 void vtkQtStatisticalBoxChart::reset()
@@ -376,9 +777,9 @@ void vtkQtStatisticalBoxChart::reset()
 
   // Clean up the old view items.
   bool needsLayout = this->Internal->Series.size() > 0;
-  QList<vtkQtStatisticalBoxChartItem *>::Iterator iter =
+  QList<vtkQtStatisticalBoxChartSeries *>::Iterator iter =
       this->Internal->Series.begin();
-  for (; iter != this->Internal->Series.end(); ++iter)
+  for( ; iter != this->Internal->Series.end(); ++iter)
     {
     delete *iter;
     }
@@ -388,12 +789,12 @@ void vtkQtStatisticalBoxChart::reset()
   this->Internal->Groups.clear();
 
   // Add items for the new model.
-  if (this->Model && this->ChartArea)
+  if(this->Model && this->ChartArea)
     {
     int total = this->Model->getNumberOfSeries();
-    if (total > 0)
+    if(total > 0)
       {
-      if (needsLayout)
+      if(needsLayout)
         {
         needsLayout = false;
         emit this->rangeChanged();
@@ -403,7 +804,7 @@ void vtkQtStatisticalBoxChart::reset()
       }
     }
 
-  if (needsLayout)
+  if(needsLayout)
     {
     emit this->rangeChanged();
     emit this->layoutNeeded();
@@ -425,7 +826,7 @@ void vtkQtStatisticalBoxChart::setupOptions(vtkQtChartSeriesOptions *options)
 {
   vtkQtStatisticalBoxChartSeriesOptions *seriesOptions = qobject_cast<
       vtkQtStatisticalBoxChartSeriesOptions *>(options);
-  if (seriesOptions)
+  if(seriesOptions)
     {
     // Finish setting up the series options.
     if(this->Options->getOutlineStyle() ==
@@ -441,12 +842,18 @@ void vtkQtStatisticalBoxChart::setupOptions(vtkQtChartSeriesOptions *options)
     // Listen for series options changes.
     this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
         this, SLOT(handleSeriesVisibilityChange(bool)));
+    this->connect(seriesOptions, SIGNAL(penChanged(const QPen &)),
+        this, SLOT(handleSeriesPenChange(const QPen &)));
+    this->connect(seriesOptions, SIGNAL(brushChanged(const QBrush &)),
+        this, SLOT(handleSeriesBrushChange(const QBrush &)));
+    this->connect(seriesOptions, SIGNAL(pointMarkerChanged()),
+        this, SLOT(handleSeriesPointMarkerChanged()));
    }
 }
 
 void vtkQtStatisticalBoxChart::prepareSeriesInsert(int first, int last)
 {
-  if (this->ChartArea)
+  if(this->ChartArea)
     {
     // Notify the selection model of the change. The selection will be
     // adjusted for the changes in this call so it can be layed out
@@ -458,70 +865,79 @@ void vtkQtStatisticalBoxChart::prepareSeriesInsert(int first, int last)
 
 void vtkQtStatisticalBoxChart::insertSeries(int first, int last)
 {
-  if (this->ChartArea)
+  if(this->ChartArea)
     {
     // Update the series indexes stored in the domain groups.
     this->Internal->Groups.prepareInsert(first, last);
 
     int i = first;
+    QList<int> groups;
     bool signalDomain = false;
-    for (; first <= last; first++)
+    vtkQtStatisticalBoxChartSeries *series = 0;
+    vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+    for( ; i <= last; i++)
       {
       // Add an item for each series.
-      vtkQtStatisticalBoxChartItem *series = new vtkQtStatisticalBoxChartItem(this->Contents);
-      this->Internal->Series.insert(first, series);
+      series = new vtkQtStatisticalBoxChartSeries();
+      this->Internal->Series.insert(i, series);
 
       // Get the series options.
-      vtkQtStatisticalBoxChartSeriesOptions *options =
-          this->getBarSeriesOptions(first);
+      options = this->getBoxSeriesOptions(first);
 
-      // Create box
-      series->Box = new QGraphicsRectItem(series, series->scene());
-      // Set the drawing options for the series.
-      series->Box->setPen(options->getPen());
-      series->Box->setBrush(options->getBrush());
+      // Set the drawing options for the point marker.
+      series->Marker.setSize(options->getMarkerSize());
+      series->Marker.setStyle(options->getMarkerStyle());
 
-      // Create median point, and whisker points and lines
-      series->WhiskerLowPoint = new QGraphicsLineItem(series, series->scene());
-      series->WhiskerLowLine = new QGraphicsLineItem(series, series->scene());
-      series->WhiskerHighPoint = new QGraphicsLineItem(series, series->scene());
-      series->WhiskerHighLine = new QGraphicsLineItem(series, series->scene());
-      series->MedianPoint = new QGraphicsLineItem(series, series->scene());
-
-      // Set the drawing options for the whiskers
-      series->WhiskerLowPoint->setPen(options->getPen());
-      series->WhiskerLowLine->setPen(options->getPen());
-      series->WhiskerHighPoint->setPen(options->getPen());
-      series->WhiskerHighLine->setPen(options->getPen());
-      series->MedianPoint->setPen(options->getPen());
-
-      QGraphicsEllipseItem* outlier = 0;
-      int numOutliers = this->Model->getNumberOfSeriesValues(first) - 5;
-      for (int j=0; j<numOutliers; j++)
+      // Add shape items for the series.
+      series->Shapes.append(new vtkQtChartBar(i, -1));
+      bool useQuad = options->getMarkerStyle() == vtkQtPointMarker::Diamond ||
+          options->getMarkerStyle() == vtkQtPointMarker::Plus;
+      int outliers = this->Model->getNumberOfSeriesValues(i) - 5;
+      for(int j = 0; j < outliers; j++)
         {
-        outlier = new QGraphicsEllipseItem(series, series->scene());
-        series->Outliers.append(outlier);
-        outlier->setPen(options->getPen());
-        outlier->setBrush(options->getBrush());
+        if(useQuad)
+          {
+          series->Shapes.append(new vtkQtChartQuad(i, j));
+          }
+        else
+          {
+          series->Shapes.append(new vtkQtChartBar(i, j));
+          }
         }
 
       // Add the series domains to the chart domains.
-      if (options->isVisible())
+      if(options->isVisible())
         {
-        if (this->addSeriesDomain(first))
+        int seriesGroup = -1;
+        if(this->addSeriesDomain(i, seriesGroup))
           {
           signalDomain = true;
+          }
+
+        // Keep track of the series groups that need new shape tables.
+        if(!groups.contains(seriesGroup))
+          {
+          groups.append(seriesGroup);
           }
         }
       }
 
-    // Fix up the z-order for the new items and any subsequent items.
-    for (; i < this->Internal->Series.size(); i++)
+    this->Internal->Groups.finishInsert();
+
+    // Fix the series indexes in the search lists.
+    for(i = last + 1; i < this->Internal->Series.size(); i++)
       {
-      this->Internal->Series[i]->setZValue(i);
+      this->Internal->Series[i]->updateSeries(i);
       }
 
-    if (signalDomain)
+    // Create the search table for the modified domains.
+    QList<int>::Iterator iter = groups.begin();
+    for( ; iter != groups.end(); ++iter)
+      {
+      this->createShapeTable(*iter);
+      }
+
+    if(signalDomain)
       {
       emit this->rangeChanged();
       }
@@ -537,7 +953,7 @@ void vtkQtStatisticalBoxChart::insertSeries(int first, int last)
 
 void vtkQtStatisticalBoxChart::startSeriesRemoval(int first, int last)
 {
-  if (this->ChartArea)
+  if(this->ChartArea)
     {
     // Notify the selection model of the change. The selection will be
     // adjusted for the changes in this call so it can be layed out
@@ -546,58 +962,58 @@ void vtkQtStatisticalBoxChart::startSeriesRemoval(int first, int last)
     this->Selection->beginRemoveSeries(first, last);
 
     // Remove each of the series items.
-    for (; last >= first; last--)
+    for( ; last >= first; last--)
       {
       delete this->Internal->Series.takeAt(last);
       }
 
-    // Fix the z-order for any subsequent items.
-    for (; first < this->Internal->Series.size(); first++)
+    // Fix the series indexes in the search lists.
+    for( ; first < this->Internal->Series.size(); first++)
       {
-      this->Internal->Series[first]->setZValue(first);
+      this->Internal->Series[first]->updateSeries(first);
       }
     }
 }
 
 void vtkQtStatisticalBoxChart::finishSeriesRemoval(int first, int last)
 {
-  if (this->ChartArea)
+  if(this->ChartArea)
     {
     // Find which groups need to be re-calculated
     QList<int> groups;
     QList<int>::Iterator iter;
-    for (int i = first; i <= last; i++)
+    for(int i = first; i <= last; i++)
       {
       int index = this->Internal->Groups.removeSeries(i);
-      if (index != -1)
+      if(index != -1)
         {
         // Add the group indexes in reverse order.
         bool doAdd = true;
-        for (iter = groups.begin(); iter != groups.end(); ++iter)
+        for(iter = groups.begin(); iter != groups.end(); ++iter)
           {
-          if (index > *iter)
+          if(index > *iter)
             {
             doAdd = false;
             groups.insert(iter, index);
             break;
             }
-          else if (index == *iter)
+          else if(index == *iter)
             {
             doAdd = false;
             break;
             }
           }
 
-        if (doAdd)
+        if(doAdd)
           {
           groups.append(index);
           }
         }
       }
 
-    for (iter = groups.begin(); iter != groups.end(); ++iter)
+    for(iter = groups.begin(); iter != groups.end(); ++iter)
       {
-      if (this->Internal->Groups.getNumberOfSeries(*iter) == 0)
+      if(this->Internal->Groups.getNumberOfSeries(*iter) == 0)
         {
         // Remove the empty domain.
         this->Internal->Domain.removeDomain(*iter);
@@ -606,12 +1022,13 @@ void vtkQtStatisticalBoxChart::finishSeriesRemoval(int first, int last)
         {
         // Re-calculate the chart domain.
         this->calculateDomain(*iter);
+        this->createShapeTable(*iter);
         }
       }
 
     // Fix the stored indexes in the domain groups.
     this->Internal->Groups.finishRemoval(first, last);
-    if (groups.size() > 0)
+    if(groups.size() > 0)
       {
       emit this->rangeChanged();
       emit this->layoutNeeded();
@@ -626,7 +1043,7 @@ void vtkQtStatisticalBoxChart::finishSeriesRemoval(int first, int last)
 
 void vtkQtStatisticalBoxChart::handleAxesCornerChange()
 {
-  if (this->Model && this->ChartArea)
+  if(this->Model && this->ChartArea)
     {
     emit this->rangeChanged();
     emit this->layoutNeeded();
@@ -636,16 +1053,16 @@ void vtkQtStatisticalBoxChart::handleAxesCornerChange()
 void vtkQtStatisticalBoxChart::handleOutlineChange()
 {
   // Change the bar outline.
-  if (this->Model && this->ChartArea)
+  if(this->Model && this->ChartArea)
     {
     QPen blackPen(Qt::black);
     vtkQtStatisticalBoxChartSeriesOptions *options = 0;
     int total = this->Model->getNumberOfSeries();
-    for (int i = 0; i < total; i++)
+    for(int i = 0; i < total; i++)
       {
-      options = this->getBarSeriesOptions(i);
-      if (this->Options->getOutlineStyle()
-          == vtkQtStatisticalBoxChartOptions::Darker)
+      options = this->getBoxSeriesOptions(i);
+      if(this->Options->getOutlineStyle() ==
+          vtkQtStatisticalBoxChartOptions::Darker)
         {
         options->setPen(options->getBrush().color().dark());
         }
@@ -663,12 +1080,16 @@ void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
   vtkQtStatisticalBoxChartSeriesOptions *options = qobject_cast<
       vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
-  if (series >= 0 && series < this->Internal->Series.size())
+  if(series >= 0 && series < this->Internal->Series.size())
     {
-    if (visible)
+    if(visible)
       {
       // If the series is going to be visible, add to the domain.
-      if (this->addSeriesDomain(series))
+      int seriesGroup = -1;
+      bool signalDomain = this->addSeriesDomain(series, seriesGroup);
+      this->Internal->Groups.finishInsert();
+      this->createShapeTable(seriesGroup);
+      if(signalDomain)
         {
         emit this->rangeChanged();
         }
@@ -678,10 +1099,10 @@ void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
     else
       {
       int seriesGroup = this->Internal->Groups.removeSeries(series);
-      if (seriesGroup != -1)
+      if(seriesGroup != -1)
         {
         // If the group is empty, remove the domain.
-        if (this->Internal->Groups.getNumberOfSeries(seriesGroup) == 0)
+        if(this->Internal->Groups.getNumberOfSeries(seriesGroup) == 0)
           {
           this->Internal->Domain.removeDomain(seriesGroup);
           }
@@ -689,6 +1110,7 @@ void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
           {
           // Re-calculate the domain.
           this->calculateDomain(seriesGroup);
+          this->createShapeTable(seriesGroup);
           }
 
         this->Internal->Groups.finishRemoval();
@@ -699,19 +1121,143 @@ void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
     }
 }
 
-void vtkQtStatisticalBoxChart::updateHighlights()
+void vtkQtStatisticalBoxChart::handleSeriesPenChange(const QPen &)
 {
-  if (!this->InModelChange && this->ChartArea)
+  // Get the series index from the options index.
+  vtkQtStatisticalBoxChartSeriesOptions *options =
+      qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
+  int series = this->getSeriesOptionsIndex(options);
+  if(series >= 0 && series < this->Internal->Series.size())
     {
-    this->layoutHighlights();
+    this->update();
     }
 }
 
-void vtkQtStatisticalBoxChart::layoutHighlights()
+void vtkQtStatisticalBoxChart::handleSeriesBrushChange(const QBrush &)
 {
+  // Get the series index from the options index.
+  vtkQtStatisticalBoxChartSeriesOptions *options =
+      qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
+  int series = this->getSeriesOptionsIndex(options);
+  if(series >= 0 && series < this->Internal->Series.size())
+    {
+    this->update();
+    }
 }
 
-bool vtkQtStatisticalBoxChart::addSeriesDomain(int series)
+void vtkQtStatisticalBoxChart::handleSeriesPointMarkerChanged()
+{
+  // Get the series index from the options index.
+  vtkQtStatisticalBoxChartSeriesOptions *options =
+      qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
+  int series = this->getSeriesOptionsIndex(options);
+  if(series >= 0 && series < this->Internal->Series.size())
+    {
+    vtkQtStatisticalBoxChartSeries *item = this->Internal->Series[series];
+    vtkQtPointMarker::MarkerStyle oldStyle = item->Marker.getStyle();
+    vtkQtPointMarker::MarkerStyle newStyle = options->getMarkerStyle();
+    item->Marker.setStyle(newStyle);
+    item->Marker.setSize(options->getMarkerSize());
+
+    // See if the search points need to be changed. If the shapes are
+    // the same or there are no points, no change is needed.
+    bool useQuads = newStyle == vtkQtPointMarker::Diamond ||
+        newStyle == vtkQtPointMarker::Plus;
+    bool hasQuads = oldStyle == vtkQtPointMarker::Diamond ||
+        oldStyle == vtkQtPointMarker::Plus;
+    if(useQuads != hasQuads && item->Shapes.size() > 1)
+      {
+      // Clear the search tree and table before deleting shapes.
+      int seriesGroup = this->Internal->Groups.findGroup(series);
+      if(seriesGroup == this->Internal->CurrentGroup)
+        {
+        this->Internal->ShapeTree.clear();
+        this->Internal->CurrentGroup = -1;
+        }
+
+      this->Internal->Groups.Tables[seriesGroup]->Shapes.clear();
+
+      // Replace the old shapes with the new ones.
+      QList<vtkQtChartShape *>::Iterator iter = item->Shapes.begin();
+      ++iter;
+      for(int i = 0; iter != item->Shapes.end(); ++iter, ++i)
+        {
+        delete *iter;
+        if(useQuads)
+          {
+          *iter = new vtkQtChartQuad(series, i);
+          }
+        else
+          {
+          *iter = new vtkQtChartBar(series, i);
+          }
+        }
+
+      // Build a new table for the series group.
+      this->createShapeTable(seriesGroup);
+      }
+
+    emit this->layoutNeeded();
+    }
+}
+
+void vtkQtStatisticalBoxChart::updateHighlights()
+{
+  if(!this->InModelChange && this->ChartArea)
+    {
+    // Remove the current selection.
+    QList<vtkQtStatisticalBoxChartSeries *>::Iterator iter =
+        this->Internal->Series.begin();
+    for( ; iter != this->Internal->Series.end(); ++iter)
+      {
+      (*iter)->Highlighted = false;
+      (*iter)->Highlights.clear();
+      }
+
+    // Get the current selection from the selection model.
+    if(!this->Selection->isSelectionEmpty())
+      {
+      const vtkQtChartSeriesSelection &current =
+          this->Selection->getSelection();
+      if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
+        {
+        const vtkQtChartIndexRangeList &series = current.getSeries();
+        vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
+        for( ; jter != series.end(); ++jter)
+          {
+          for(int i = jter->first; i <= jter->second; i++)
+            {
+            this->Internal->Series[i]->Highlighted = true;
+            }
+          }
+        }
+      else if(current.getType() == vtkQtChartSeriesSelection::PointSelection)
+        {
+        const QList<vtkQtChartSeriesSelectionItem> &points =
+            current.getPoints();
+        vtkQtStatisticalBoxChartSeries *series = 0;
+        QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
+        for(jter = points.begin(); jter != points.end(); ++jter)
+          {
+          series = this->Internal->Series[jter->Series];
+          vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
+          for( ; kter != jter->Points.end(); ++kter)
+            {
+            for(int i = kter->first; i <= kter->second; i++)
+              {
+              series->Highlights.append(i);
+              }
+            }
+          }
+        }
+      }
+
+    // TODO: Repaint the modified area.
+    this->update();
+    }
+}
+
+bool vtkQtStatisticalBoxChart::addSeriesDomain(int series, int &seriesGroup)
 {
   QList<QVariant> xDomain;
   xDomain.append(this->Model->getSeriesName(series));
@@ -727,6 +1273,7 @@ bool vtkQtStatisticalBoxChart::addSeriesDomain(int series)
       yDomain.append(this->Model->getSeriesValue(series, j, 1));
       }
 
+    vtkQtChartAxisDomain::sort(yDomain);
     seriesDomain.getYDomain().setDomain(yDomain);
     }
   else
@@ -734,7 +1281,6 @@ bool vtkQtStatisticalBoxChart::addSeriesDomain(int series)
     seriesDomain.getYDomain().setRange(yDomain);
     }
 
-  int seriesGroup = -1;
   bool changed = this->Internal->Domain.mergeDomain(seriesDomain, &seriesGroup);
 
   // Add the series index to the domain group.
@@ -751,12 +1297,12 @@ void vtkQtStatisticalBoxChart::calculateDomain(int seriesGroup)
   domain->getYDomain().clear();
 
   // Get the list of series in the group.
+  vtkQtStatisticalBoxChartSeriesOptions *options = 0;
   QList<int> list = this->Internal->Groups.getGroup(seriesGroup);
-  for (QList<int>::Iterator iter = list.begin(); iter != list.end(); ++iter)
+  for(QList<int>::Iterator iter = list.begin(); iter != list.end(); ++iter)
     {
-    vtkQtStatisticalBoxChartSeriesOptions *options =
-        this->getBarSeriesOptions(*iter);
-    if (options && !options->isVisible())
+    options = this->getBoxSeriesOptions(*iter);
+    if(options && !options->isVisible())
       { 
       continue;
       }
@@ -769,11 +1315,12 @@ void vtkQtStatisticalBoxChart::calculateDomain(int seriesGroup)
     if(yDomain.isEmpty())
       {
       int points = this->Model->getNumberOfSeriesValues(*iter);
-      for (int j = 0; j < points; j++)
+      for(int j = 0; j < points; j++)
         {
         yDomain.append(this->Model->getSeriesValue(*iter, j, 1));
         }
 
+      vtkQtChartAxisDomain::sort(yDomain);
       domain->getYDomain().mergeDomain(yDomain);
       }
     else
@@ -782,4 +1329,49 @@ void vtkQtStatisticalBoxChart::calculateDomain(int seriesGroup)
       }
     }
 }
+
+void vtkQtStatisticalBoxChart::createShapeTable(int seriesGroup)
+{
+  // Clear the shape tree if this is the displayed group.
+  if(seriesGroup == this->Internal->CurrentGroup)
+    {
+    this->Internal->ShapeTree.clear();
+    this->Internal->CurrentGroup = -1;
+    }
+
+  // Clear the current table.
+  vtkQtStatisticalBoxChartSeriesGroup *group =
+      this->Internal->Groups.Tables[seriesGroup];
+  group->Shapes.clear();
+
+  // Add the shapes to the table for the series in the group.
+  QList<int> seriesList = this->Internal->Groups.getGroup(seriesGroup);
+  QList<int>::Iterator iter = seriesList.begin();
+  for( ; iter != seriesList.end(); ++iter)
+    {
+    group->Shapes.append(this->Internal->Series[*iter]->Shapes);
+    }
+}
+
+void vtkQtStatisticalBoxChart::buildShapeTree(int seriesGroup)
+{
+  this->BuildNeeded = false;
+  if(seriesGroup == this->Internal->CurrentGroup)
+    {
+    this->Internal->ShapeTree.update();
+    }
+  else
+    {
+    this->Internal->CurrentGroup = seriesGroup;
+    vtkQtStatisticalBoxChartSeriesGroup *group =
+        this->Internal->Groups.Tables[seriesGroup];
+
+    // Sort the modified series lists.
+    group->sortSeries();
+
+    // Build the search tree from the table.
+    this->Internal->ShapeTree.build(group->Shapes);
+    }
+}
+
 

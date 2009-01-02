@@ -200,7 +200,7 @@ void vtkQtChartShapeLocator::build(const QList<vtkQtChartShape *> &list)
   QList<QList<vtkQtChartShape *> >::Iterator jter = table.begin();
   for( ; jter != table.end(); ++jter)
     {
-    this->sort(*jter);
+    vtkQtChartShapeLocator::sort(*jter);
     }
 
   // Finally, build the tree from the table.
@@ -533,24 +533,16 @@ void vtkQtChartShapeLocator::build(
     }
 }
 
-void vtkQtChartShapeLocator::sort(QList<vtkQtChartShape *> &list) const
+void vtkQtChartShapeLocator::sort(QList<vtkQtChartShape *> &list)
 {
   if(list.size() < 2)
     {
     return;
     }
 
-  // Create a list of center points to use for comparison.
-  QList<float> points;
-  QList<vtkQtChartShape *>::Iterator iter = list.begin();
-  for( ; iter != list.end(); ++iter)
-    {
-    QRectF area;
-    (*iter)->getBounds(area);
-    points.append(area.center().y());
-    }
-
   // Use a boundary list to avoid recursive calls.
+  QRectF area;
+  float first = 0.0, last = 0.0;
   vtkQtChartShape *temp = 0;
   QLinkedList<QPair<int, int> > bounds;
   bounds.append(QPair<int, int>(0, list.size() - 1));
@@ -565,7 +557,11 @@ void vtkQtChartShapeLocator::sort(QList<vtkQtChartShape *> &list) const
       if(length == 2)
         {
         // Swap the shapes if necessary.
-        if(points[range.second] < points[range.first])
+        list[range.first]->getBounds(area);
+        first = area.center().y();
+        list[range.second]->getBounds(area);
+        last = area.center().y();
+        if(last < first)
           {
           temp = list[range.second];
           list[range.second] = list[range.first];
@@ -576,18 +572,40 @@ void vtkQtChartShapeLocator::sort(QList<vtkQtChartShape *> &list) const
         {
         // Find the pivot point from the first, last and middle point.
         int pivot = range.first + length / 2;
-        if(points[range.first] > points[pivot])
+        list[range.first]->getBounds(area);
+        first = area.center().y();
+        list[pivot]->getBounds(area);
+        float middle = area.center().y();
+        list[range.second]->getBounds(area);
+        last = area.center().y();
+        if(first > middle)
           {
-          if(!(points[pivot] > points[range.second]))
+          if(!(middle > last))
             {
-            pivot = points[range.first] > points[range.second] ?
-                range.second : range.first;
+            if(first > last)
+              {
+              pivot = range.second;
+              middle = last;
+              }
+            else
+              {
+              pivot = range.first;
+              middle = first;
+              }
             }
           }
-        else if(points[pivot] > points[range.second])
+        else if(middle > last)
           {
-          pivot = points[range.first] > points[range.second] ?
-              range.first : range.second;
+          if(first > last)
+            {
+            pivot = range.first;
+            middle = first;
+            }
+          else
+            {
+            pivot = range.second;
+            middle = last;
+            }
           }
 
         // Swap the pivot and last point.
@@ -602,7 +620,8 @@ void vtkQtChartShapeLocator::sort(QList<vtkQtChartShape *> &list) const
         pivot = range.first;
         for(int i = range.first; i < range.second; i++)
           {
-          if(points[i] <= points[range.second])
+          list[i]->getBounds(area);
+          if(area.center().y() <= middle)
             {
             // Swap the points if necessary.
             if(pivot != i)

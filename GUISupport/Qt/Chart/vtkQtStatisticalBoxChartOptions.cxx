@@ -23,12 +23,17 @@
 
 #include "vtkQtStatisticalBoxChartOptions.h"
 
+#include "vtkQtChartHelpFormatter.h"
+
 
 vtkQtStatisticalBoxChartOptions::vtkQtStatisticalBoxChartOptions(QObject *parentObject)
   : QObject(parentObject)
 {
   this->AxesCorner = vtkQtChartLayer::BottomLeft;
   this->OutlineType = vtkQtStatisticalBoxChartOptions::Darker;
+  this->Help = new vtkQtChartHelpFormatter(
+    "%s\nLower Quartile: %1\nMedian: %2\nUpper Quartile: %3");
+  this->Outlier = new vtkQtChartHelpFormatter("%s, %1");
   this->BoxFraction = (float)0.8;
   //this->BoxFraction = (float)0.4;
 }
@@ -38,6 +43,8 @@ vtkQtStatisticalBoxChartOptions::vtkQtStatisticalBoxChartOptions(const vtkQtStat
 {
   this->AxesCorner = other.AxesCorner;
   this->OutlineType = other.OutlineType;
+  this->Help = new vtkQtChartHelpFormatter(other.Help->getFormat());
+  this->Outlier = new vtkQtChartHelpFormatter(other.Outlier->getFormat());
   this->BoxFraction = other.BoxFraction;
 }
 
@@ -74,6 +81,8 @@ vtkQtStatisticalBoxChartOptions &vtkQtStatisticalBoxChartOptions::operator=(
 {
   this->AxesCorner = other.AxesCorner;
   this->OutlineType = other.OutlineType;
+  this->Help->setFormat(other.Help->getFormat());
+  this->Outlier->setFormat(other.Outlier->getFormat());
   this->BoxFraction = other.BoxFraction;
   return *this;
 }

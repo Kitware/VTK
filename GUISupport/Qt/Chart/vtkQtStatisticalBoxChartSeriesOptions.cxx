@@ -21,6 +21,11 @@
 /// \file vtkQtStatisticalBoxChartSeriesOptions.cxx
 /// \date May 15, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtStatisticalBoxChartSeriesOptions.h"
 
 #include "vtkQtChartStyleGenerator.h"
@@ -31,7 +36,15 @@ vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(
     QObject *parentObject)
   : vtkQtChartSeriesOptions(parentObject)
 {
+  this->PointStyle = vtkQtPointMarker::Circle;
+  this->PointSize = new QSizeF(5.0, 5.0);
+
   this->setBrush(Qt::red);
+}
+
+vtkQtStatisticalBoxChartSeriesOptions::~vtkQtStatisticalBoxChartSeriesOptions()
+{
+  delete this->PointSize;
 }
 
 void vtkQtStatisticalBoxChartSeriesOptions::setStyle(int style,
@@ -41,6 +54,36 @@ void vtkQtStatisticalBoxChartSeriesOptions::setStyle(int style,
   if(generator)
     {
     this->setBrush(generator->getSeriesBrush(style));
+    }
+}
+
+vtkQtPointMarker::MarkerStyle
+vtkQtStatisticalBoxChartSeriesOptions::getMarkerStyle() const
+{
+  return this->PointStyle;
+}
+
+void vtkQtStatisticalBoxChartSeriesOptions::setMarkerStyle(
+    vtkQtPointMarker::MarkerStyle style)
+{
+  if(style != this->PointStyle)
+    {
+    this->PointStyle = style;
+    emit this->pointMarkerChanged();
+    }
+}
+
+const QSizeF &vtkQtStatisticalBoxChartSeriesOptions::getMarkerSize() const
+{
+  return *this->PointSize;
+}
+
+void vtkQtStatisticalBoxChartSeriesOptions::setMarkerSize(const QSizeF &size)
+{
+  if(size != *this->PointSize)
+    {
+    *this->PointSize = size;
+    emit this->pointMarkerChanged();
     }
 }
 

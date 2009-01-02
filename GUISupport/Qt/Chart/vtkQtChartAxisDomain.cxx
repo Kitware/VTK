@@ -25,6 +25,8 @@
 
 #include <QDate>
 #include <QDateTime>
+#include <QLinkedList>
+#include <QPair>
 #include <QTime>
 #include <QString>
 
@@ -231,7 +233,7 @@ bool vtkQtChartAxisDomain::mergeDomain(const QList<QVariant> &domain)
       }
 
     // Use the appropriate method to merge the domain.
-    if(domain[0].type() == QVariant::String)
+    if(domainType == QVariant::String)
       {
       return this->mergeStringDomain(domain);
       }
@@ -313,6 +315,162 @@ vtkQtChartAxis::AxisDomain vtkQtChartAxisDomain::getAxisDomain(
   return vtkQtChartAxis::UnsupportedDomain;
 }
 
+void vtkQtChartAxisDomain::sort(QList<QVariant> &list)
+{
+  if(list.size() < 2)
+    {
+    return;
+    }
+
+  // Only certain domains will be sorted.
+  QVariant::Type domain = list[0].type();
+  if(domain != QVariant::Int && domain != QVariant::Double &&
+      domain != QVariant::Date && domain != QVariant::DateTime &&
+      domain != QVariant::Time)
+    {
+    return;
+    }
+
+  // Use a boundary list to avoid recursive calls.
+  QVariant temp;
+  QLinkedList<QPair<int, int> > bounds;
+  bounds.append(QPair<int, int>(0, list.size() - 1));
+  while(bounds.size() > 0)
+    {
+    QMutableLinkedListIterator<QPair<int, int> > jter(bounds);
+    while(jter.hasNext())
+      {
+      QPair<int, int> range = jter.next();
+      jter.remove();
+      int length = range.second - range.first + 1;
+      if(length == 2)
+        {
+        // Swap the values if necessary.
+        bool lessThan = false;
+        if(domain == QVariant::Int)
+          {
+          lessThan = list[range.second].toInt() < list[range.first].toInt();
+          }
+        else if(domain == QVariant::Double)
+          {
+          lessThan =
+              list[range.second].toDouble() < list[range.first].toDouble();
+          }
+        else if(domain == QVariant::Date)
+          {
+          lessThan = list[range.second].toDate() < list[range.first].toDate();
+          }
+        else if(domain == QVariant::DateTime)
+          {
+          lessThan =
+              list[range.second].toDateTime() < list[range.first].toDateTime();
+          }
+        else if(domain == QVariant::Time)
+          {
+          lessThan = list[range.second].toTime() < list[range.first].toTime();
+          }
+
+        if(lessThan)
+          {
+          temp = list[range.second];
+          list[range.second] = list[range.first];
+          list[range.first] = temp;
+          }
+        }
+      else
+        {
+        // Use the middle value as the pivot.
+        int pivot = range.first + length / 2;
+
+        // Swap the pivot and last value.
+        temp = list[range.second];
+        list[range.second] = list[pivot];
+        list[pivot] = temp;
+
+        // Partition the remaining values.
+        pivot = range.first;
+        for(int i = range.first; i < range.second; i++)
+          {
+          bool lessThanEqual = false;
+          if(domain == QVariant::Int)
+            {
+            lessThanEqual = list[i].toInt() <= list[range.second].toInt();
+            }
+          else if(domain == QVariant::Double)
+            {
+            lessThanEqual =
+                list[i].toDouble() <= list[range.second].toDouble();
+            }
+          else if(domain == QVariant::Date)
+            {
+            lessThanEqual = list[i].toDate() <= list[range.second].toDate();
+            }
+          else if(domain == QVariant::DateTime)
+            {
+            lessThanEqual =
+                list[i].toDateTime() <= list[range.second].toDateTime();
+            }
+          else if(domain == QVariant::Time)
+            {
+            lessThanEqual = list[i].toTime() <= list[range.second].toTime();
+            }
+
+          if(lessThanEqual)
+            {
+            // Swap the values if necessary.
+            if(pivot != i)
+              {
+              temp = list[i];
+              list[i] = list[pivot];
+              list[pivot] = temp;
+              }
+
+            pivot++;
+            }
+          }
+
+        // Move the last point to the partition.
+        if(pivot != range.second)
+          {
+          temp = list[range.second];
+          list[range.second] = list[pivot];
+          list[pivot] = temp;
+          }
+
+        // Add ranges to the bounds list for the two partitions.
+        length = pivot - range.first;
+        if(length > 1)
+          {
+          jter.insert(QPair<int, int>(range.first, pivot - 1));
+          }
+
+        length = range.second - pivot;
+        if(length > 1)
+          {
+          jter.insert(QPair<int, int>(pivot + 1, range.second));
+          }
+        }
+      }
+    }
+
+  // Remove any duplicate values from the list.
+  QList<QVariant>::Iterator iter = list.begin();
+  temp = *iter;
+  ++iter;
+  while(iter != list.end())
+    {
+    if(temp == *iter)
+      {
+      iter = list.erase(iter);
+      }
+    else
+      {
+      temp = *iter;
+      ++iter;
+      }
+    }
+}
+
 bool vtkQtChartAxisDomain::mergeNumberRange(const QList<QVariant> &range)
 {
   if(this->Range.size() == 0)
@@ -375,39 +533,50 @@ bool vtkQtChartAxisDomain::mergeNumberDomain(const QList<QVariant> &domain)
 {
   // If the new list is using doubles, upgrade the current list.
   bool changed = false;
-  QList<QVariant>::Iterator jter;
+  QList<QVariant>::Iterator iter;
   if(domain[0].type() == QVariant::Double && this->List.size() > 0 &&
       this->List[0].type() == QVariant::Int)
     {
     changed = true;
-    for(jter = this->List.begin(); jter != this->List.end(); ++jter)
+    for(iter = this->List.begin(); iter != this->List.end(); ++iter)
       {
-      jter->convert(QVariant::Double);
+      iter->convert(QVariant::Double);
       }
     }
 
-  QList<QVariant>::ConstIterator iter = domain.begin();
-  for( ; iter != domain.end(); ++iter)
+  // The two lists should be sorted and unique.
+  if(this->List.size() == 0)
     {
-    for(jter = this->List.begin(); jter != this->List.end(); ++jter)
-      {
-      if(iter->toDouble() < jter->toDouble())
-        {
-        jter = this->List.insert(jter, *iter);
-        changed = true;
-        break;
-        }
-      else if(iter->toDouble() == jter->toDouble())
-        {
-        break;
-        }
-      }
+    this->List = domain;
+    return true;
+    }
 
-    if(jter == this->List.end())
+  iter = this->List.begin();
+  QList<QVariant>::ConstIterator jter = domain.begin();
+  while(iter != this->List.end() && jter != domain.end())
+    {
+    if(jter->toDouble() < iter->toDouble())
       {
+      iter = this->List.insert(iter, *jter);
+      ++iter;
+      ++jter;
       changed = true;
-      this->List.append(*iter);
       }
+    else if(jter->toDouble() == iter->toDouble())
+      {
+      ++jter;
+      }
+    else
+      {
+      ++iter;
+      }
+    }
+
+  // Add the remaining domain items to the list.
+  for( ; jter != domain.end(); ++jter)
+    {
+    this->List.append(*jter);
+    changed = true;
     }
 
   return changed;
@@ -500,52 +669,63 @@ bool vtkQtChartAxisDomain::mergeDateDomain(const QList<QVariant> &domain)
 {
   // If the new list is using date-time, upgrade the current list.
   bool changed = false;
-  QList<QVariant>::Iterator jter;
+  QList<QVariant>::Iterator iter;
   if(domain[0].type() == QVariant::DateTime && this->List.size() > 0 &&
       this->List[0].type() == QVariant::Date)
     {
     changed = true;
-    for(jter = this->List.begin(); jter != this->List.end(); ++jter)
+    for(iter = this->List.begin(); iter != this->List.end(); ++iter)
       {
-      jter->convert(QVariant::DateTime);
+      iter->convert(QVariant::DateTime);
       }
     }
 
-  QList<QVariant>::ConstIterator iter = domain.begin();
-  for( ; iter != domain.end(); ++iter)
+  // The two lists should be sorted and unique.
+  if(this->List.size() == 0)
     {
-    for(jter = this->List.begin(); jter != this->List.end(); ++jter)
-      {
-      bool lessThan = false;
-      bool equal = false;
-      if(iter->type() == QVariant::DateTime)
-        {
-        lessThan = iter->toDateTime() < jter->toDateTime();
-        equal = iter->toDateTime() == jter->toDateTime();
-        }
-      else
-        {
-        lessThan = iter->toDate() < jter->toDate();
-        equal = iter->toDate() == jter->toDate();
-        }
+    this->List = domain;
+    return true;
+    }
 
-      if(lessThan)
-        {
-        jter = this->List.insert(jter, *iter);
-        changed = true;
-        break;
-        }
-      else if(equal)
-        {
-        break;
-        }
+  iter = this->List.begin();
+  QList<QVariant>::ConstIterator jter = domain.begin();
+  while(iter != this->List.end() && jter != domain.end())
+    {
+    bool lessThan = false;
+    bool equal = false;
+    if(iter->type() == QVariant::DateTime)
+      {
+      lessThan = jter->toDateTime() < iter->toDateTime();
+      equal = jter->toDateTime() == iter->toDateTime();
+      }
+    else
+      {
+      lessThan = jter->toDate() < iter->toDate();
+      equal = jter->toDate() == iter->toDate();
       }
 
-    if(jter == this->List.end())
+    if(lessThan)
       {
+      iter = this->List.insert(iter, *jter);
+      ++iter;
+      ++jter;
       changed = true;
-      this->List.append(*iter);
       }
+    else if(equal)
+      {
+      ++jter;
+      }
+    else
+      {
+      ++iter;
+      }
+    }
+
+  // Add the remaining domain items to the list.
+  for( ; jter != domain.end(); ++jter)
+    {
+    this->List.append(*jter);
+    changed = true;
     }
 
   return changed;
@@ -581,30 +761,40 @@ bool vtkQtChartAxisDomain::mergeTimeRange(const QList<QVariant> &range)
 
 bool vtkQtChartAxisDomain::mergeTimeDomain(const QList<QVariant> &domain)
 {
-  bool changed = false;
-  QList<QVariant>::Iterator jter;
-  QList<QVariant>::ConstIterator iter = domain.begin();
-  for( ; iter != domain.end(); ++iter)
+  // The two lists should be sorted and unique.
+  if(this->List.size() == 0)
     {
-    for(jter = this->List.begin(); jter != this->List.end(); ++jter)
-      {
-      if(iter->toTime() < jter->toTime())
-        {
-        jter = this->List.insert(jter, *iter);
-        changed = true;
-        break;
-        }
-      else if(iter->toTime() == jter->toTime())
-        {
-        break;
-        }
-      }
+    this->List = domain;
+    return true;
+    }
 
-    if(jter == this->List.end())
+  bool changed = false;
+  QList<QVariant>::Iterator iter = this->List.begin();
+  QList<QVariant>::ConstIterator jter = domain.begin();
+  while(iter != this->List.end() && jter != domain.end())
+    {
+    if(jter->toTime() < iter->toTime())
       {
+      iter = this->List.insert(iter, *jter);
+      ++iter;
+      ++jter;
       changed = true;
-      this->List.append(*iter);
       }
+    else if(jter->toTime() == iter->toTime())
+      {
+      ++jter;
+      }
+    else
+      {
+      ++iter;
+      }
+    }
+
+  // Add the remaining domain items to the list.
+  for( ; jter != domain.end(); ++jter)
+    {
+    this->List.append(*jter);
+    changed = true;
     }
 
   return changed;

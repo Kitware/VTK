@@ -21,11 +21,16 @@
 /// \file vtkQtChartSeriesDomainGroup.cxx
 /// \date March 6, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesDomainGroup.h"
 
 
 vtkQtChartSeriesDomainGroup::vtkQtChartSeriesDomainGroup(bool sortSeries)
-  : Groups()
+  : Groups(), ToSort()
 {
   this->SortSeries = sortSeries;
 }
@@ -60,9 +65,13 @@ int vtkQtChartSeriesDomainGroup::findGroup(int series) const
   QList<QList<int> >::ConstIterator iter = this->Groups.begin();
   for(int i = 0; iter != this->Groups.end(); ++iter, ++i)
     {
-    if(iter->contains(series))
+    QList<int>::ConstIterator jter = iter->begin();
+    for( ; jter != iter->end(); ++jter)
       {
-      return i;
+      if(series == *jter)
+        {
+        return i;
+        }
       }
     }
 
@@ -104,26 +113,30 @@ void vtkQtChartSeriesDomainGroup::insertSeries(int series, int group)
 
   if(this->SortSeries)
     {
-    bool doAdd = true;
-    QList<int>::Iterator iter = this->Groups[group].begin();
-    for( ; iter != this->Groups[group].end(); ++iter)
-      {
-      if(series < *iter)
-        {
-        this->Groups[group].insert(iter, series);
-        doAdd = false;
-        break;
-        }
-      }
-
-    if(doAdd)
-      {
-      this->Groups[group].append(series);
-      }
+    this->ToSort[group].append(series);
     }
   else
     {
     this->Groups[group].append(series);
+    }
+}
+
+void vtkQtChartSeriesDomainGroup::finishInsert()
+{
+  if(this->SortSeries)
+    {
+    QList<QList<int> >::Iterator iter = this->Groups.begin();
+    QList<QList<int> >::Iterator jter = this->ToSort.begin();
+    for( ; iter != this->Groups.end(); ++iter, ++jter)
+      {
+      // First, get the list to be sorted in order.
+      // TODO: Use a non-recursive quick sort.
+      qSort(jter->begin(), jter->end());
+
+      // Merge the newly added series to the group list.
+      vtkQtChartSeriesDomainGroup::mergeSeriesLists(*iter, *jter);
+      jter->clear();
+      }
     }
 }
 
@@ -132,10 +145,14 @@ int vtkQtChartSeriesDomainGroup::removeSeries(int series)
   QList<QList<int> >::Iterator iter = this->Groups.begin();
   for(int i = 0; iter != this->Groups.end(); ++iter, ++i)
     {
-    if(iter->contains(series))
+    QList<int>::Iterator jter = iter->begin();
+    for( ; jter != iter->end(); ++jter)
       {
-      iter->removeAll(series);
-      return i;
+      if(series == *jter)
+        {
+        iter->erase(jter);
+        return i;
+        }
       }
     }
 
@@ -183,15 +200,53 @@ void vtkQtChartSeriesDomainGroup::finishRemoval(int seriesFirst,
 void vtkQtChartSeriesDomainGroup::clear()
 {
   this->Groups.clear();
+  this->ToSort.clear();
+}
+
+void vtkQtChartSeriesDomainGroup::mergeSeriesLists(QList<int> &target,
+    const QList<int> &source)
+{
+  if(target.size() == 0)
+    {
+    target = source;
+    return;
+    }
+
+  QList<int>::Iterator iter = target.begin();
+  QList<int>::ConstIterator jter = source.begin();
+  while(iter != target.end() && jter != source.end())
+    {
+    if(*jter < *iter)
+      {
+      iter = target.insert(iter, *jter);
+      ++jter;
+      }
+
+    ++iter;
+    }
+
+  // Add the remaining source items to the target list.
+  for( ; jter != source.end(); ++jter)
+    {
+    target.append(*jter);
+    }
 }
 
 void vtkQtChartSeriesDomainGroup::insertGroup(int group)
 {
   this->Groups.insert(group, QList<int>());
+  if(this->SortSeries)
+    {
+    this->ToSort.insert(group, QList<int>());
+    }
 }
 
-void vtkQtChartSeriesDomainGroup::removeGroup(int)
+void vtkQtChartSeriesDomainGroup::removeGroup(int group)
 {
+  if(this->SortSeries)
+    {
+    this->ToSort.removeAt(group);
+    }
 }
 
 

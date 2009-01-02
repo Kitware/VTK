@@ -92,6 +92,8 @@ public:
 
   /// \brief
   ///   Sets the domain to the given list of values.
+  /// \note
+  ///   The list should be sorted before calling this method.
   /// \param domain The list of domain values.
   void setDomain(const QList<QVariant> &domain);
 
@@ -104,6 +106,8 @@ public:
 
   /// \brief
   ///   Merges the given list with the current domain.
+  /// \note
+  ///   The list should be sorted before calling this method.
   /// \param domain The list of domain values.
   /// \return
   ///   True if the merge was successful.
@@ -176,6 +180,15 @@ public:
   /// \return
   ///   The axis domain type.
   static vtkQtChartAxis::AxisDomain getAxisDomain(QVariant::Type domain);
+
+  /// \brief
+  ///   Sorts the list of variants according to value.
+  ///
+  /// The list of variants is sorted according to value using a quick
+  /// sort algorithm. The list is sorted in place and non-recursively.
+  ///
+  /// \param list The list of shapes to be sorted.
+  static void sort(QList<QVariant> &list);
 
 private:
   /// \brief

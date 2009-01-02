@@ -81,6 +81,9 @@ public:
   /// \param group The group index.
   virtual void insertSeries(int series, int group);
 
+  /// Sorts the newly inserted series if sorting is enabled.
+  void finishInsert();
+
   /// \brief
   ///   Removes a series from its group.
   /// \param series The series to remove.
@@ -96,6 +99,13 @@ public:
 
   /// Removes all the series groups.
   virtual void clear();
+
+public:
+  /// \brief
+  ///   Merges two sorted lists of series indexes.
+  /// \param target The list where the result will be stored.
+  /// \param source The list of seires to merge.
+  static void mergeSeriesLists(QList<int> &target, const QList<int> &source);
 
 protected:
   /// \brief
@@ -118,6 +128,7 @@ protected:
 
 private:
   QList<QList<int> > Groups; ///< Stores the series groups.
+  QList<QList<int> > ToSort; ///< Stores the new series groups.
   bool SortSeries;           ///< True if series are sorted.
 };
 

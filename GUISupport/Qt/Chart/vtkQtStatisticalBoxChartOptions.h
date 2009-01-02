@@ -29,6 +29,8 @@
 
 #include "vtkQtChartLayer.h" // needed for enum
 
+class vtkQtChartHelpFormatter;
+
 
 /// \class vtkQtStatisticalBoxChartOptions
 /// \brief
@@ -104,6 +106,38 @@ public:
   void setOutlineStyle(OutlineStyle style);
 
   /// \brief
+  ///   Gets the chart help text formatter.
+  ///
+  /// The help text formatter stores the format string. It is also
+  /// used to generate the help text.
+  ///
+  /// \return
+  ///   A pointer to the chart help text formatter.
+  vtkQtChartHelpFormatter *getHelpFormat() {return this->Help;}
+
+  /// \brief
+  ///   Gets the chart help text formatter.
+  /// \return
+  ///   A pointer to the chart help text formatter.
+  const vtkQtChartHelpFormatter *getHelpFormat() const {return this->Help;}
+
+  /// \brief
+  ///   Gets the outlier help text formatter.
+  ///
+  /// The help text formatter stores the format string. It is also
+  /// used to generate the help text.
+  ///
+  /// \return
+  ///   A pointer to the outlier help text formatter.
+  vtkQtChartHelpFormatter *getOutlierFormat() {return this->Outlier;}
+
+  /// \brief
+  ///   Gets the outlier help text formatter.
+  /// \return
+  ///   A pointer to the outlier help text formatter.
+  const vtkQtChartHelpFormatter *getOutlierFormat() const {return this->Outlier;}
+
+  /// \brief
   ///   Makes a copy of another box chart options instance.
   /// \param other The box chart options to copy.
   /// \return
@@ -124,6 +158,8 @@ signals:
 private:
   vtkQtChartLayer::AxesCorner AxesCorner; ///< Stores the chart axes.
   OutlineStyle OutlineType;               ///< Stores the outline style.
+  vtkQtChartHelpFormatter *Help;          ///< Stores the help text format.
+  vtkQtChartHelpFormatter *Outlier;       ///< Stores the outlier text format.
   float BoxFraction;                      ///< Stores the box width fraction.
 };
 

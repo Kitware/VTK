@@ -334,21 +334,18 @@ void vtkQtBarChart::layoutChart(const QRectF &area)
   QRectF *bar = 0;
   float halfDistance = minDistance * 0.5;
   float base = yAxis->getZeroPixel();
-  for(i = 0; i < this->Model->getNumberOfSeries(); i++)
+  QList<int>::Iterator iter = seriesList.begin();
+  for( ; iter != seriesList.end(); ++iter)
     {
-    if(!seriesList.contains(i))
-      {
-      continue;
-      }
-
-    vtkQtBarChartSeries *series = this->Internal->Series[i];
+    vtkQtBarChartSeries *series = this->Internal->Series[*iter];
     float xOffset = ((float)index *
         (barWidth / this->Options->getBarWidthFraction())) - halfDistance;
     index++;
-    for(int j = 0; j < this->Model->getNumberOfSeriesValues(i); j++)
+    int total = this->Model->getNumberOfSeriesValues(*iter);
+    for(int j = 0; j < total; j++)
       {
-      float px = xAxis->getPixel(this->Model->getSeriesValue(i, j, 0));
-      float py = yAxis->getPixel(this->Model->getSeriesValue(i, j, 1));
+      float px = xAxis->getPixel(this->Model->getSeriesValue(*iter, j, 0));
+      float py = yAxis->getPixel(this->Model->getSeriesValue(*iter, j, 1));
       bar = series->Bars[j];
       if(py < base)
         {
@@ -711,7 +708,6 @@ void vtkQtBarChart::insertSeries(int first, int last)
     this->Internal->Groups.prepareInsert(first, last);
 
     QList<int> groups;
-    QList<int>::Iterator iter;
     bool signalDomain = false;
     int i = first;
     for( ; i <= last; i++)
@@ -749,13 +745,15 @@ void vtkQtBarChart::insertSeries(int first, int last)
       }
 
     // Fix the series indexes in the search lists.
+    this->Internal->Groups.finishInsert();
     for(i = last + 1; i < this->Internal->Series.size(); i++)
       {
       this->Internal->Series[i]->updateSeries(i);
       }
 
     // Create the bar lists for the modified domains.
-    for(iter = groups.begin(); iter != groups.end(); ++iter)
+    QList<int>::Iterator iter = groups.begin();
+    for( ; iter != groups.end(); ++iter)
       {
       this->createBarList(*iter);
       }
@@ -908,12 +906,14 @@ void vtkQtBarChart::handleSeriesVisibilityChange(bool visible)
       {
       // If the series is going to be visible, add to the domain.
       int seriesGroup = -1;
-      if(this->addSeriesDomain(series, seriesGroup))
+      bool signalDomain = this->addSeriesDomain(series, seriesGroup);
+      this->Internal->Groups.finishInsert();
+      this->createBarList(seriesGroup);
+      if(signalDomain)
         {
         emit this->rangeChanged();
         }
 
-      this->createBarList(seriesGroup);
       emit this->layoutNeeded();
       }
     else
@@ -1038,9 +1038,11 @@ bool vtkQtBarChart::addSeriesDomain(int series, int &seriesGroup)
     }
 
   vtkQtChartSeriesDomain seriesDomain;
+  vtkQtChartAxisDomain::sort(xDomain);
   seriesDomain.getXDomain().setDomain(xDomain);
   if(yIsList)
     {
+    vtkQtChartAxisDomain::sort(yDomain);
     seriesDomain.getYDomain().setDomain(yDomain);
     }
   else
@@ -1086,9 +1088,11 @@ void vtkQtBarChart::calculateDomain(int seriesGroup)
         }
       }
 
+    vtkQtChartAxisDomain::sort(xDomain);
     domain->getXDomain().mergeDomain(xDomain);
     if(yIsList)
       {
+      vtkQtChartAxisDomain::sort(yDomain);
       domain->getYDomain().mergeDomain(yDomain);
       }
     else

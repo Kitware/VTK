@@ -86,8 +86,6 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartMouseZoom.h
     vtkQtChartPenBrushGenerator.cxx
     vtkQtChartPenBrushGenerator.h
-    vtkQtChartPointLocator.cxx
-    vtkQtChartPointLocator.h
     vtkQtChartQuad.cxx
     vtkQtChartQuad.h
     vtkQtChartScene.cxx
@@ -140,8 +138,6 @@ ELSE(NOT QT4_FOUND)
     vtkQtPolylineItem.h
     vtkQtSeriesFilterLineEdit.cxx
     vtkQtSeriesFilterLineEdit.h
-    vtkQtSimplePointLocator.cxx
-    vtkQtSimplePointLocator.h
     vtkQtStackedChart.cxx
     vtkQtStackedChart.h
     vtkQtStackedChartOptions.cxx

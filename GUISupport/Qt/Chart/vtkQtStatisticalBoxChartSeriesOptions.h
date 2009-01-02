@@ -26,6 +26,9 @@
 
 #include "vtkQtChartExport.h"
 #include "vtkQtChartSeriesOptions.h"
+#include "vtkQtPointMarker.h" // needed for enum
+
+class QSizeF;
 
 
 /// \class vtkQtStatisticalBoxChartSeriesOptions
@@ -42,7 +45,7 @@ public:
   ///   Creates a statistical box chart series options object.
   /// \param parent The parent object.
   vtkQtStatisticalBoxChartSeriesOptions(QObject *parent=0);
-  virtual ~vtkQtStatisticalBoxChartSeriesOptions() {}
+  virtual ~vtkQtStatisticalBoxChartSeriesOptions();
 
   /// \brief
   ///   Sets the style generator index for the series.
@@ -53,6 +56,37 @@ public:
   /// \param style The style index for the generator.
   /// \param generator The style generator to use.
   virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
+
+  /// \brief
+  ///   Gets the series marker style.
+  /// \return
+  ///   The series marker style.
+  vtkQtPointMarker::MarkerStyle getMarkerStyle() const;
+
+  /// \brief
+  ///   Sets the series marker style.
+  /// \param style The new series marker style.
+  void setMarkerStyle(vtkQtPointMarker::MarkerStyle style);
+
+  /// \brief
+  ///   Gets the marker size for the series.
+  /// \return
+  ///   A reference to the series marker size.
+  const QSizeF &getMarkerSize() const;
+
+  /// \brief
+  ///   Sets the marker size for the series.
+  /// \param size The new series marker size.
+  void setMarkerSize(const QSizeF &size);
+
+signals:
+
+  /// Emitted when the point marker style or size has changed.
+  void pointMarkerChanged();
+
+protected:
+  vtkQtPointMarker::MarkerStyle PointStyle; ///< Stores the marker style.
+  QSizeF *PointSize;                        ///< Stores the marker size.
 };
 
 #endif

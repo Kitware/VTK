@@ -143,20 +143,21 @@ public:
   ///   A pointer to the previous node in the tree.
   vtkQtChartShapeLocatorNode *getPrevious(vtkQtChartShapeLocatorNode *node);
 
+public:
+  /// \brief
+  ///   Sorts the list of shapes according to the y value.
+  ///
+  /// The list of shapes is sorted by the y-axis value using a quick
+  /// sort algorithm. The list is sorted in place and non-recursively.
+  ///
+  /// \param list The list of shapes to be sorted.
+  static void sort(QList<vtkQtChartShape *> &list);
+
 private:
   /// \brief
   ///   Builds a shape tree from the ordered table of items.
   /// \param table the ordered table of items.
   void build(QLinkedList<QLinkedList<vtkQtChartShapeLocatorNode *> > &table);
-
-  /// \brief
-  ///   Sorts the list of shapes according to the y value.
-  ///
-  /// The list of shapes is sorted by the y-axis value using a quick
-  /// sort algorithm. The list is sorted in place.
-  ///
-  /// \param list The list of shapes to be sorted.
-  void sort(QList<vtkQtChartShape *> &list) const;
 
 private:
   vtkQtChartShapeLocatorNode *Root; ///< Stores the root node.
