@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.73");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.74");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -1102,6 +1102,9 @@ void vtkCarbonRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
+  os << indent << "WindowId: " << this->WindowId << "\n";
+  os << indent << "ParentId: " << this->ParentId << "\n";
+  os << indent << "RootWindow: " << this->RootWindow << "\n";
 }
 
 //--------------------------------------------------------------------------

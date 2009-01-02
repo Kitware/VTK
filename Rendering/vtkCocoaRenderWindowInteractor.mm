@@ -21,7 +21,7 @@
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.24");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.25");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -71,13 +71,13 @@ class vtkEarlyCocoaSetup
       this->DestroyPoolOfLastResort();
     }
     
+    protected:
     void DestroyPoolOfLastResort()
     {
       [Pool release];
       Pool = nil;
     }
     
-    protected:
     void CreatePoolOfLastResort()
     {
       Pool = [[NSAutoreleasePool alloc] init];
@@ -88,7 +88,8 @@ class vtkEarlyCocoaSetup
   };
 
 // We create a global/static instance of this class to ensure that we have an
-// autorelease pool before main() starts.
+// autorelease pool before main() starts (the C++ constructor for a global
+// object runs before main).
 vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 #endif
 
@@ -112,6 +113,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 //----------------------------------------------------------------------------
 @implementation vtkCocoaTimer
 
+//----------------------------------------------------------------------------
 - (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor timerId:(int)myTimerId
 {
   self = [super init]; 
@@ -123,12 +125,14 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   return self;
 }
 
+//----------------------------------------------------------------------------
 - (void)timerFired:(NSTimer *)myTimer
 {
   (void)myTimer;
   interactor->InvokeEvent(vtkCommand::TimerEvent, &timerId);
 }
 
+//----------------------------------------------------------------------------
 - (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating
 {
   timer = [[NSTimer timerWithTimeInterval:interval
@@ -140,6 +144,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
 }
 
+//----------------------------------------------------------------------------
 - (void)stopTimer
 {
   [timer invalidate];
@@ -168,6 +173,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 //----------------------------------------------------------------------------
 @implementation vtkCocoaServer
 
+//----------------------------------------------------------------------------
 - (id)initWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow
 {
   self = [super init];
@@ -178,6 +184,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   return self;
 }
 
+//----------------------------------------------------------------------------
 + (id)cocoaServerWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow
 {
   vtkCocoaServer *server = [[[vtkCocoaServer alloc] 
@@ -186,6 +193,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   return server;
 }
 
+//----------------------------------------------------------------------------
 - (void)start
 {
   // Retrieve the NSWindow.
@@ -193,14 +201,18 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   if (renWin != NULL)
     {
     win = reinterpret_cast<NSWindow *>(renWin->GetWindowId());
-    }
   
-  // Register for the windowWillClose notification in order to stop
-  // the run loop if the window closes.
-  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  [nc addObserver:self selector:@selector(windowWillClose:) 
-                           name:@"NSWindowWillCloseNotification" 
-                         object:win];
+  // We don't want to be informed of every window closing, so check for nil.
+    if (win != nil)
+    {
+      // Register for the windowWillClose notification in order to stop
+      // the run loop if the window closes.
+      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+      [nc addObserver:self selector:@selector(windowWillClose:) 
+                               name:@"NSWindowWillCloseNotification" 
+                             object:win];
+    }
+    }
 
   // Now that we are about to begin the standard Cocoa event loop, we can get
   // rid of the 'pool of last resort' because [NSApp run] will create a new
@@ -214,6 +226,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   [NSApp run];
 }
 
+//----------------------------------------------------------------------------
 - (void)stop
 {
   // Retrieve the NSWindow.
@@ -227,6 +240,7 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   [win close];
 }
 
+//----------------------------------------------------------------------------
 - (void)windowWillClose:(NSNotification*)aNotification
 {
   (void)aNotification;
@@ -268,8 +282,12 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 {
   this->InstallMessageProc = 1;
   
-  // Create the cocoa objects manager. They are all NULL by default.
-  this->SetCocoaManager(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
+  // First, create the cocoa objects manager. The dictionary is empty so
+  // essentially all objects are initialized to NULL.
+  NSMutableDictionary * cocoaManager = [NSMutableDictionary dictionary];
+
+  this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
+  
   this->SetTimerDictionary(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
 }
 

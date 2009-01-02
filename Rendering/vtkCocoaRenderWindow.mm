@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.61");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.62");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -222,7 +222,7 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
 
   // Obtain the OpenGL context in order to keep track of the current screen.
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  int currentScreen = [context currentVirtualScreen];
+  GLint currentScreen = [context currentVirtualScreen];
 
   // The NSOpenGLPixelFormat can only be queried for one particular
   // attribute at a time. Just make repeated queries to get the
@@ -246,16 +246,16 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   strm  << "  accumSize:  " << pfd << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFADoubleBuffer forVirtualScreen: currentScreen];
-  strm  << "  double buffer:  " << (pfd == YES ? "Yes" : "No") << endl;
+  strm  << "  double buffer:  " << (pfd == 0 ? "No" : "Yes") << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStereo forVirtualScreen: currentScreen];
-  strm  << "  stereo:  " << (pfd == YES ? "Yes" : "No") << endl;
+  strm  << "  stereo:  " << (pfd == 0 ? "No" : "Yes") << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStencilSize forVirtualScreen: currentScreen];
   strm  << "  stencil:  " << pfd << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: currentScreen];
-  strm  << "  hardware acceleration::  " << (pfd == YES ? "Yes" : "No") << endl;
+  strm  << "  hardware acceleration::  " << (pfd == 0 ? "No" : "Yes") << endl;
 
   delete[] this->Capabilities;
   
@@ -276,13 +276,14 @@ int vtkCocoaRenderWindow::SupportsOpenGL()
     }
 
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  int currentScreen = [context currentVirtualScreen];
+  GLint currentScreen = [context currentVirtualScreen];
 
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
   GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFACompliant forVirtualScreen: currentScreen];
 
-  return (pfd == YES ? 1 : 0);
+  int supportsOpenGL = (pfd == 0) ? 0 : 1;
+  return supportsOpenGL;
 }
 
 //----------------------------------------------------------------------------
@@ -295,13 +296,14 @@ int vtkCocoaRenderWindow::IsDirect()
     }
 
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  int currentScreen = [context currentVirtualScreen];
+  GLint currentScreen = [context currentVirtualScreen];
 
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
   GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAFullScreen forVirtualScreen: currentScreen];
 
-  return (pfd == YES ? 1 : 0);
+  int isDirect = (pfd == 0) ? 0 : 1;
+  return isDirect;
 }
 
 //----------------------------------------------------------------------------
@@ -463,7 +465,7 @@ void vtkCocoaRenderWindow::SetupPalette(void*)
 // Initialize the window for rendering.
 void vtkCocoaRenderWindow::CreateAWindow()
 {
-  static int count = 1;
+  static unsigned count = 1;
   
   // Get the screen's scale factor.
   // It will be used to create the window if not created yet.
@@ -566,7 +568,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // Additionally, only change the window title if it was created by vtk
   if (this->WindowCreated)
     {
-    NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
+    NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%u", count++];
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
     this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
 #else
@@ -718,7 +720,7 @@ int *vtkCocoaRenderWindow::GetSize()
 int *vtkCocoaRenderWindow::GetScreenSize()
 {
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  int currentScreen = [context currentVirtualScreen];
+  GLint currentScreen = [context currentVirtualScreen];
 
   NSScreen* screen = [[NSScreen screens] objectAtIndex: currentScreen];
   NSRect screenRect = [screen frame];
@@ -844,9 +846,15 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "ContextId: " << this->GetContextId() << "\n";
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
   os << indent << "ScaleFactor: " << this->GetScaleFactor() << "\n";
+  os << indent << "CocoaManager: " << this->GetCocoaManager() << "\n";
+  os << indent << "WindowId: " << this->GetWindowId() << "\n";
+  os << indent << "DisplayId: " << this->GetDisplayId() << "\n";
+  os << indent << "ContextId: " << this->GetContextId() << "\n";
+  os << indent << "PixelFormat: " << this->GetPixelFormat() << "\n";
+  os << indent << "WindowCreated: " << (this->WindowCreated ? "Yes" : "No") << "\n";
+  os << indent << "ViewCreated: " << (this->ViewCreated ? "Yes" : "No") << "\n";
 }
 
 //----------------------------------------------------------------------------

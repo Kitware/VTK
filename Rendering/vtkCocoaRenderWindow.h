@@ -295,7 +295,7 @@ private:
   // Important: this class cannot contain Objective-C instance
   // variables for 2 reasons:
   // 1) C++ files include this header
-  // 2) because of garbage collection
+  // 2) because of garbage collection (the GC scanner does not scan objects create by C++'s new)
   // Instead, use the CocoaManager dictionary to keep a collection
   // of what would otherwise be Objective-C instance variables.
   void     *CocoaManager; // Really an NSMutableDictionary*

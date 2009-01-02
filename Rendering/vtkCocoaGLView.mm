@@ -118,8 +118,8 @@
   NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
   mouseLoc = [self convertPoint:mouseLoc fromView:nil];
 
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // Get the characters associated with the key event as a utf8 string.
   // This pointer is only valid for the duration of the current autorelease context!
@@ -162,8 +162,8 @@
   NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
   mouseLoc = [self convertPoint:mouseLoc fromView:nil];
 
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // Get the characters associated with the key event as a utf8 string.
   // This pointer is only valid for the duration of the current autorelease context!
@@ -202,8 +202,8 @@
   // Since this is a mouseevent, we can use locationInWindow
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
   
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the scaling factor.
   interactor->SetEventInformation(
@@ -228,8 +228,8 @@
   // Get the location of the mouse event relative to this NSView's bottom left corner
   // Since this is a mouseevent, we can use locationInWindow
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the scaling factor.
   interactor->SetEventInformation(
@@ -265,8 +265,8 @@
   // Since this is a mouseevent, we can use locationInWindow
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
   
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the scaling factor.
   interactor->SetEventInformation(
@@ -329,8 +329,8 @@
   // Since this is a mouseevent, we can use locationInWindow
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
   
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the scaling factor.
   interactor->SetEventInformation(
@@ -393,8 +393,8 @@
   // Since this is a mouseevent, we can use locationInWindow
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
   
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
 
   // The mouse location is in points, we must convert to pixels using the scaling factor.
   interactor->SetEventInformation(
