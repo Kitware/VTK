@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.12");
+vtkCxxRevisionMacro(vtkView, "1.13");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -113,15 +113,15 @@ bool vtkView::IsItemPresent(vtkDataRepresentation* rep)
 {
   unsigned int i, j;
   for( i = 0; i < this->Implementation->Ports.size(); i++ )
-  {
-    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
     {
-      if( this->Implementation->Ports[i][j] == rep )
+    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
       {
+      if( this->Implementation->Ports[i][j] == rep )
+        {
         return true;
+        }
       }
     }
-  }
       
   return false;
 }
@@ -131,17 +131,19 @@ bool vtkView::IsItemPresent(int i, vtkDataRepresentation* rep)
 {
   unsigned int j;
   if( !this->CheckPort(i, 0) )
-      return false;
-  else
-  {
-    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
     {
-      if( this->Implementation->Ports[i][j] == rep )
+    return false;
+    }
+  else
+    {
+    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
       {
+      if( this->Implementation->Ports[i][j] == rep )
+        {
         return true;
+        }
       }
     }
-  }
       
   return false;
 }
@@ -150,33 +152,33 @@ bool vtkView::IsItemPresent(int i, vtkDataRepresentation* rep)
 void vtkView::SizePort(int port, int index)
 {
   if( this->Implementation->Ports.size() < static_cast<size_t>(port+1) )
-  {
+    {
     this->Implementation->Ports.resize(port+1);
-  }
+    }
   
   if( this->Implementation->Ports[port].size() < static_cast<size_t>(index+1) )
-  {
+    {
     int old_size = static_cast<int>(this->Implementation->Ports[port].size());
     this->Implementation->Ports[port].resize(index+1);
     for( int k = old_size; k < index+1; k++ )
-    {
+      {
       this->Implementation->Ports[port][k] = NULL;
+      }
     }
-  }
 }
 
 //----------------------------------------------------------------------------
 bool vtkView::CheckPort(int port, int index )
 {
   if( this->Implementation->Ports.size() < static_cast<size_t>(port+1) )
-  {
+    {
     return false;
-  }
+    }
   
   if( this->Implementation->Ports[port].size() < static_cast<size_t>(index+1) )
-  {
+    {
     return false;
-  }
+    }
   return true;
 }
 
@@ -271,15 +273,15 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
 void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
 {
   if( !this->CheckPort( port, 0 ) )
-  {
-    this->SetRepresentation(port, 0, rep);
-  }
-  else
-  {
-    if( !this->IsItemPresent(port, rep) )
     {
-      if( rep->AddToView( this ) )
+    this->SetRepresentation(port, 0, rep);
+    }
+  else
+    {
+    if( !this->IsItemPresent(port, rep) )
       {
+      if( rep->AddToView( this ) )
+        {
         rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
         this->AddInputConnection(port, 0, rep->GetInputConnection(), rep->GetSelectionConnection());
 
@@ -287,9 +289,9 @@ void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
           static_cast<int>(this->Implementation->Ports[port].size());
         this->SizePort( port, port_length );
         this->Implementation->Ports[port][port_length] = rep;
+        }
       }
     }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -311,27 +313,29 @@ void vtkView::SetRepresentation(int port, int index, vtkDataRepresentation* rep)
 { 
   vtkDataRepresentation* old_rep = NULL;
   if( this->CheckPort( port, index ) )
-  {
+    {
     old_rep = this->Implementation->Ports[port][index];
-  }
+    }
 
   if( old_rep != rep )
-  {
-    if( rep->AddToView( this ) )
     {
-      if( old_rep != NULL )
+    if( rep->AddToView( this ) )
       {
+      if( old_rep != NULL )
+        {
         old_rep->RemoveFromView( this );
         old_rep->RemoveObserver(this->GetObserver());
-        this->RemoveInputConnection(port, index, old_rep->GetInputConnection(), old_rep->GetSelectionConnection());
-      }
+        this->RemoveInputConnection(port, index, old_rep->GetInputConnection(),
+                                      old_rep->GetSelectionConnection());
+        }
       
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-      this->AddInputConnection(port, index, rep->GetInputConnection(), rep->GetSelectionConnection());
+      this->AddInputConnection(port, index, rep->GetInputConnection(),
+                                                rep->GetSelectionConnection());
       this->SizePort(port, index);
       this->Implementation->Ports[port][index] = rep;
+      }
     }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -341,7 +345,8 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     {
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());
-    this->RemoveInputConnection(0, 0, rep->GetInputConnection(), rep->GetSelectionConnection());
+    this->RemoveInputConnection(0, 0, rep->GetInputConnection(),
+                                  rep->GetSelectionConnection());
     this->RemoveItem(rep);
     }
 }
@@ -351,18 +356,19 @@ void vtkView::RemoveItem(vtkDataRepresentation* rep)
 {
   unsigned int i;
   for( i = 0; i < this->Implementation->Ports.size(); i++ )
-  {
-    vtkstd::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator port_iter = this->Implementation->Ports[i].begin();
-    while( port_iter != this->Implementation->Ports[i].end() )
     {
-      if( *port_iter == rep )
+    vtkstd::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator port_iter =
+      this->Implementation->Ports[i].begin();
+    while( port_iter != this->Implementation->Ports[i].end() )
       {
+      if( *port_iter == rep )
+        {
         this->Implementation->Ports[i].erase( port_iter );
         break;
-      }
+        }
       ++port_iter;
+      }
     }
-  }
 }      
   
 //----------------------------------------------------------------------------
@@ -370,60 +376,44 @@ void vtkView::RemoveRepresentation(vtkAlgorithmOutput* conn)
 {
   unsigned int i, j;
   for( i = 0; i < this->Implementation->Ports.size(); i++ )
-  {
-    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
     {
+    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
+      {
       vtkDataRepresentation* rep = this->Implementation->Ports[i][j];
       
       if (rep->GetInputConnection() == conn)
-      {
+        {
         this->RemoveRepresentation(rep);
+        }
       }
     }
-  }
 }
 
 //----------------------------------------------------------------------------
 void vtkView::RemoveAllRepresentations()
 {
-  unsigned int i, j;
-  for( i = 0; i < this->Implementation->Ports.size(); i++ )
-  {
-    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
+  size_t nPorts = this->Implementation->Ports.size();
+  for (unsigned int port = 0; port < nPorts; ++port)
     {
-      vtkDataRepresentation* rep = this->Implementation->Ports[i][j];
-      this->RemoveRepresentation(rep);
+    this->RemoveAllRepresentations(port);
     }
     
-    while( this->Implementation->Ports[i].size() > 0 )
-    {
-      this->Implementation->Ports[i].pop_back();
-    }
-  }
-  
-  while( this->Implementation->Ports.size() > 0 )
-  {
-    this->Implementation->Ports.pop_back();
-  }
+  this->Implementation->Ports.clear();
 }
 
 //----------------------------------------------------------------------------
 void vtkView::RemoveAllRepresentations(int port)
 {
-  if( !this->CheckPort(port, 0) )
-      return;
+  if (!this->CheckPort(port, 0))
+    {
+    return;
+    }
   
-  unsigned int j;
-  for( j = 0; j < this->Implementation->Ports[port].size(); j++ )
-  {
-    vtkDataRepresentation* rep = this->Implementation->Ports[port][j];
+  while (this->Implementation->Ports[port].size())
+    {
+    vtkDataRepresentation* rep = this->Implementation->Ports[port].back();
     this->RemoveRepresentation(rep);
-  }
-    
-  while( this->Implementation->Ports[port].size() > 0 )
-  {
-    this->Implementation->Ports[port].pop_back();
-  }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -431,9 +421,9 @@ int vtkView::GetNumberOfRepresentations()
 {
   int counter = 0;
   if( this->CheckPort(0,0) )
-  {
+    {
     counter = static_cast<int>(this->Implementation->Ports[0].size());
-  }
+    }
   return counter;
 }
 
@@ -441,9 +431,9 @@ int vtkView::GetNumberOfRepresentations()
 int vtkView::GetNumberOfRepresentations(int port)
 {
   if( this->Implementation->Ports.size() > static_cast<size_t>(port) )
-  {
+    {
     return static_cast<int>(this->Implementation->Ports[port].size());
-  }
+    }
   return 0;
 }
 
@@ -451,9 +441,9 @@ int vtkView::GetNumberOfRepresentations(int port)
 vtkDataRepresentation* vtkView::GetRepresentation(int index)
 {
   if( this->CheckPort( 0, index ) )
-  {
+    {
     return this->Implementation->Ports[0][index];
-  }
+    }
   return NULL;
 }
 
@@ -461,9 +451,9 @@ vtkDataRepresentation* vtkView::GetRepresentation(int index)
 vtkDataRepresentation* vtkView::GetRepresentation(int port, int index)
 {
   if( this->CheckPort( port, index ) )
-  {
+    {
     return this->Implementation->Ports[port][index];
-  }
+    }
   return NULL;
 }
 
