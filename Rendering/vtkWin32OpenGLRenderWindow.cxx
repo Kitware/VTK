@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.161");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.162");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1479,7 +1479,7 @@ void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y)
     {
     SetCursorPos(point.x, point.y);
     }
-};
+}
 
 //----------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
