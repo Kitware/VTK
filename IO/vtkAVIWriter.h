@@ -14,8 +14,9 @@
 =========================================================================*/
 // .NAME vtkAVIWriter - Writes Windows AVI files.
 // .SECTION Description
-// vtkAVIWriter writes AVI files. The data type
-// of the file is unsigned char regardless of the input type.
+// vtkAVIWriter writes AVI files. Note that this class in only available
+// on the Microsoft Windows platform. The data type of the file is
+// unsigned char regardless of the input type.
 // .SECTION See Also
 // vtkGenericMovieWriter vtkMPEG2Writer
 
