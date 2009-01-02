@@ -64,11 +64,11 @@ int TestStatisticalBoxChart(int argc, char* argv[])
       vtkQtChartInteractorSetup::createDefault(area);
   vtkQtChartSeriesSelectionHandler *handler =
       new vtkQtChartSeriesSelectionHandler(selector);
-  handler->setModeNames("Box Chart - Series", "Box Chart - Boxes");
+  handler->setModeNames("Box Chart - Series", "Box Chart - Outliers");
   handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
   handler->setLayer(boxes);
   selector->addHandler(handler);
-  selector->setSelectionMode("Box Chart - Boxes");
+  selector->setSelectionMode("Box Chart - Series");
 
   // Hide the x-axis grid.
   vtkQtChartAxisLayer *axisLayer = area->getAxisLayer();
