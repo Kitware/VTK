@@ -648,17 +648,17 @@ void vtkQtLineChart::getSeriesAt(const QPointF &point,
   vtkQtChartIndexRangeList indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->LineTree.getItemsAt(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
   shapes = this->Internal->PointTree.getItemsAt(local);
-  for(shape = shapes.begin(); shape != shapes.end(); ++shape)
+  for(iter = shapes.begin(); iter != shapes.end(); ++iter)
     {
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
@@ -676,11 +676,11 @@ void vtkQtLineChart::getPointsAt(const QPointF &point,
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->PointTree.getItemsAt(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
-    int index = (*shape)->getIndex();
+    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
+    int index = (*iter)->getIndex();
     item.Points.append(vtkQtChartIndexRange(index, index));
     indexes.append(item);
     }
@@ -699,17 +699,17 @@ void vtkQtLineChart::getSeriesIn(const QRectF &area,
   vtkQtChartIndexRangeList indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->LineTree.getItemsIn(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
   shapes = this->Internal->PointTree.getItemsIn(local);
-  for(shape = shapes.begin(); shape != shapes.end(); ++shape)
+  for(iter = shapes.begin(); iter != shapes.end(); ++iter)
     {
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
@@ -727,11 +727,11 @@ void vtkQtLineChart::getPointsIn(const QRectF &area,
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->PointTree.getItemsIn(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
-    int index = (*shape)->getIndex();
+    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
+    int index = (*iter)->getIndex();
     item.Points.append(vtkQtChartIndexRange(index, index));
     indexes.append(item);
     }
@@ -1492,13 +1492,13 @@ void vtkQtLineChart::buildTree()
     QList<vtkQtChartShape *> allLines;
     for(i = 0; i < 4; i++)
       {
-      int group = this->Internal->CurrentGroup[i];
-      if(group != -1)
+      int cornerGroup = this->Internal->CurrentGroup[i];
+      if(cornerGroup != -1)
         {
         this->Internal->mergeLists(allPoints,
-            this->Internal->Groups[i].Points[group]);
+            this->Internal->Groups[i].Points[cornerGroup]);
         this->Internal->mergeLists(allLines,
-            this->Internal->Groups[i].Lines[group]);
+            this->Internal->Groups[i].Lines[cornerGroup]);
         }
       }
 

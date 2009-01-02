@@ -512,8 +512,6 @@ bool vtkQtStatisticalBoxChart::getHelpText(const QPointF &point, QString &text)
     {
     // Use the axis options to format the data.
     vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
-    vtkQtChartAxisOptions *xAxis = layer->getHorizontalAxis(
-        this->Options->getAxesCorner())->getOptions();
     vtkQtChartAxisOptions *yAxis = layer->getVerticalAxis(
         this->Options->getAxesCorner())->getOptions();
 
@@ -580,11 +578,11 @@ void vtkQtStatisticalBoxChart::getSeriesAt(const QPointF &point,
   vtkQtChartIndexRangeList indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->ShapeTree.getItemsAt(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
     // Add the series to the selection.
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
@@ -602,13 +600,13 @@ void vtkQtStatisticalBoxChart::getPointsAt(const QPointF &point,
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->ShapeTree.getItemsAt(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    int index = (*shape)->getIndex();
+    int index = (*iter)->getIndex();
     if(index != -1)
       {
-      vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
+      vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
       item.Points.append(vtkQtChartIndexRange(index, index));
       indexes.append(item);
       }
@@ -628,11 +626,11 @@ void vtkQtStatisticalBoxChart::getSeriesIn(const QRectF &area,
   vtkQtChartIndexRangeList indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->ShapeTree.getItemsIn(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
     // Add the series to the selection.
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
@@ -650,13 +648,13 @@ void vtkQtStatisticalBoxChart::getPointsIn(const QRectF &area,
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes =
       this->Internal->ShapeTree.getItemsIn(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    int index = (*shape)->getIndex();
+    int index = (*iter)->getIndex();
     if(index != -1)
       {
-      vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
+      vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
       item.Points.append(vtkQtChartIndexRange(index, index));
       indexes.append(item);
       }
