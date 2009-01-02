@@ -125,10 +125,13 @@ public:
       vtkWarningMacro("Method not implemented.");
       return 0;
     }
-  virtual void SetWindowInfo(char*)
-    {
-      vtkWarningMacro("Method not implemented.");
-    }
+
+  // Description:
+  // Set this RenderWindow's window id to a pre-existing window.
+  // The paramater is an ASCII string of a decimal number representing
+  // a pointer to the window.
+  virtual void SetWindowInfo(char*);
+
   virtual void SetParentInfo(char*)
     {
       vtkWarningMacro("Method not implemented.");

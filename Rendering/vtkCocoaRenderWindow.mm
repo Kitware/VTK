@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.62");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.63");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -1011,6 +1011,20 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
     [cocoaManager retain];
     }
   this->CocoaManager = manager;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetWindowInfo(char *info)
+{
+  // The paramater is an ASCII string of a decimal number representing
+  // a pointer to the window. Convert it back to a pointer.
+  ptrdiff_t tmp = 0;
+  if (info)
+    {
+    (void)sscanf(info, "%tu", &tmp);
+    }
+
+  this->SetDisplayId (reinterpret_cast<void *>(tmp));
 }
   
 //----------------------------------------------------------------------------
