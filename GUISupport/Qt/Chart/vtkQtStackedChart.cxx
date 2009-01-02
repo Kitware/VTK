@@ -461,12 +461,12 @@ void vtkQtStackedChart::layoutChart(const QRectF &area)
   bool isRange = false;
   QList<QVariant> xDomain;
   QList<int> seriesList;
-  vtkQtStackedChartSeriesGroup *group = 0;
+  vtkQtStackedChartSeriesGroup *stackGroup = 0;
   if(seriesDomain)
     {
     seriesList = this->Internal->Groups.getGroup(seriesGroup);
     xDomain = seriesDomain->getXDomain().getDomain(isRange);
-    group = this->Internal->Groups.Tables[seriesGroup];
+    stackGroup = this->Internal->Groups.Tables[seriesGroup];
     }
 
   int i = 0;
@@ -478,11 +478,11 @@ void vtkQtStackedChart::layoutChart(const QRectF &area)
       {
       series->Polygon->clear();
       int j = 0;
-      int half = group->Data[i].size();
+      int half = stackGroup->Data[i].size();
       for( ; j < half; j++)
         {
         series->Polygon->append(QPointF(xAxis->getPixel(xDomain[j]),
-            yAxis->getPixel(QVariant(group->Data[i][j]))));
+            yAxis->getPixel(QVariant(stackGroup->Data[i][j]))));
         }
 
       j = half - 1;
@@ -499,7 +499,7 @@ void vtkQtStackedChart::layoutChart(const QRectF &area)
         for( ; j >= 0; j--)
           {
           series->Polygon->append(QPointF(xAxis->getPixel(xDomain[j]),
-              yAxis->getPixel(QVariant(group->Data[k][j]))));
+              yAxis->getPixel(QVariant(stackGroup->Data[k][j]))));
           }
         }
 
@@ -681,11 +681,11 @@ void vtkQtStackedChart::getSeriesIn(const QRectF &area,
   // Get the list of quads from the search tree.
   vtkQtChartIndexRangeList indexes;
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsIn(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
     // Add the series to the selection.
-    int series = (*shape)->getSeries();
+    int series = (*iter)->getSeries();
     indexes.append(vtkQtChartIndexRange(series, series));
     }
 
@@ -702,11 +702,11 @@ void vtkQtStackedChart::getPointsIn(const QRectF &area,
   // Get the list of quads from the search tree.
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsIn(local);
-  QList<vtkQtChartShape *>::Iterator shape = shapes.begin();
-  for( ; shape != shapes.end(); ++shape)
+  QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
+  for( ; iter != shapes.end(); ++iter)
     {
-    vtkQtChartSeriesSelectionItem item((*shape)->getSeries());
-    int index = (*shape)->getIndex();
+    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
+    int index = (*iter)->getIndex();
     item.Points.append(vtkQtChartIndexRange(index, index));
     indexes.append(item);
     }
