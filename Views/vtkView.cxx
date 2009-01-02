@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.13");
+vtkCxxRevisionMacro(vtkView, "1.14");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -213,11 +213,23 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInput(int port, int index, 
 }
 
 //----------------------------------------------------------------------------
+vtkDataRepresentation* vtkView::CreateDefaultRepresentation(vtkAlgorithmOutput* conn)
+{
+  return vtkDataRepresentation::New();
+}
+
+//----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorithmOutput* conn)
 {
-  vtkDataRepresentation* rep = vtkDataRepresentation::New();
-  rep->SetInputConnection(conn);
+  vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
+  if (!rep)
+    {
+    vtkErrorMacro("Could not add representation from input connection because "
+      "no default representation was created for the given input connection.");
+    return 0;
+    }
 
+  rep->SetInputConnection(conn);
   this->AddRepresentation(rep);
   rep->Delete();
   return rep;
@@ -226,7 +238,14 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorith
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(int port, vtkAlgorithmOutput* conn)
 {
-  vtkDataRepresentation* rep = vtkDataRepresentation::New();
+  vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
+  if (!rep)
+    {
+    vtkErrorMacro("Could not add representation from input connection because "
+      "no default representation was created for the given input connection.");
+    return 0;
+    }
+
   rep->SetInputConnection(conn);
   this->AddRepresentation(port, rep);
   rep->Delete();
@@ -236,7 +255,14 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(int port, v
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorithmOutput* conn)
 {
-  vtkDataRepresentation* rep = vtkDataRepresentation::New();
+  vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
+  if (!rep)
+    {
+    vtkErrorMacro("Could not add representation from input connection because "
+      "no default representation was created for the given input connection.");
+    return 0;
+    }
+
   rep->SetInputConnection(conn);
   this->SetRepresentation(rep);
   rep->Delete();
@@ -246,7 +272,14 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorith
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(int port, vtkAlgorithmOutput* conn)
 {
-  vtkDataRepresentation* rep = vtkDataRepresentation::New();
+  vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
+  if (!rep)
+    {
+    vtkErrorMacro("Could not set representation from input connection because "
+      "no default representation was created for the given input connection.");
+    return 0;
+    }
+
   rep->SetInputConnection(conn);
   this->SetRepresentation(port, rep);
   rep->Delete();
@@ -256,7 +289,14 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(int port, v
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(int port, int index, vtkAlgorithmOutput* conn)
 {
-  vtkDataRepresentation* rep = vtkDataRepresentation::New();
+  vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
+  if (!rep)
+    {
+    vtkErrorMacro("Could not set representation from input connection because "
+      "no default representation was created for the given input connection.");
+    return 0;
+    }
+
   rep->SetInputConnection(conn);
   this->SetRepresentation(port, index, rep);
   rep->Delete();

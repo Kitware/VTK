@@ -341,6 +341,13 @@ protected:
   // Description:
   // Check to see if the port specified exists given current Ports sizes.  
   bool CheckPort(int i, int j);
+
+  // Description:
+  // Create a default vtkDataRepresentation for the given vtkAlgorithmOutput.
+  // View subclasses may override this method to create custom representations.
+  // This method is called by Add/SetRepresentationFromInputConnection.
+  // NOTE, the caller must delete the returned vtkDataRepresentation.
+  virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
   
 private:
   vtkView(const vtkView&);  // Not implemented.
