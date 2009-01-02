@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.14");
+vtkCxxRevisionMacro(vtkView, "1.15");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -215,7 +215,9 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInput(int port, int index, 
 //----------------------------------------------------------------------------
 vtkDataRepresentation* vtkView::CreateDefaultRepresentation(vtkAlgorithmOutput* conn)
 {
-  return vtkDataRepresentation::New();
+  vtkDataRepresentation* rep = vtkDataRepresentation::New();
+  rep->SetInputConnection(conn);
+  return rep;
 }
 
 //----------------------------------------------------------------------------
@@ -229,7 +231,6 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorith
     return 0;
     }
 
-  rep->SetInputConnection(conn);
   this->AddRepresentation(rep);
   rep->Delete();
   return rep;
@@ -246,7 +247,6 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(int port, v
     return 0;
     }
 
-  rep->SetInputConnection(conn);
   this->AddRepresentation(port, rep);
   rep->Delete();
   return rep;
@@ -263,7 +263,6 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorith
     return 0;
     }
 
-  rep->SetInputConnection(conn);
   this->SetRepresentation(rep);
   rep->Delete();
   return rep;
@@ -280,7 +279,6 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(int port, v
     return 0;
     }
 
-  rep->SetInputConnection(conn);
   this->SetRepresentation(port, rep);
   rep->Delete();
   return rep;
@@ -297,7 +295,6 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(int port, i
     return 0;
     }
 
-  rep->SetInputConnection(conn);
   this->SetRepresentation(port, index, rep);
   rep->Delete();
   return rep;
