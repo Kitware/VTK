@@ -21,6 +21,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 using vtkstd::vector;
+using vtkstd::copy;
 
 
 //-----------------------------------------------------------------------------
