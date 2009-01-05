@@ -137,6 +137,7 @@ public:
   bool BindParameter(int index, const char *stringValue, size_t length);
 //BTX
   bool BindParameter(int index, const vtkStdString &string);
+  bool BindParameter(int index, vtkVariant value);
 //ETX
   // Description:
   // Bind a blob value.  Not all databases support blobs as a data
