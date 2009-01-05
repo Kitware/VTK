@@ -13,11 +13,14 @@
 
 =========================================================================*/
 #include "vtkAMRBox.h"
-#include "vtkAMRBoxUtilities.hxx"
 
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellData.h"
 #include "vtkType.h"
+
+#include <vtkstd/vector>
+#include <vtkstd/algorithm>
+using vtkstd::vector;
 
 
 //-----------------------------------------------------------------------------
@@ -429,11 +432,11 @@ void vtkAMRBox::Shift(const int *I)
   switch (this->Dimension)
     {
     case 2:
-    this->Shift(I[0],I[1]);
-    break;
+      this->Shift(I[0],I[1]);
+      break;
     case 3:
-    this->Shift(I[0],I[1],I[2]);
-    break;
+      this->Shift(I[0],I[1],I[2]);
+      break;
     }
 }
 
@@ -656,6 +659,163 @@ ostream &vtkAMRBox::Print(ostream &os) const
   return os;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//*****************************************************************************
+void Split(
+      const int N[3],
+      const int minSide[3],
+      vtkstd::vector<vtkAMRBox> &decomp)
+{
+  vector<vtkAMRBox> tDecomp; // Working array for resulting splits
+  vector<vtkAMRBox> aDecomp; // and for atomic boxes.
+
+  // For each coordinate direction attempt N splits.
+  for (int cdir=0; cdir<3; ++cdir)
+    {
+    int n=N[cdir];
+    while(n>0 && decomp.size())
+      {
+      size_t nBoxes=decomp.size();
+      for (size_t bid=0; bid<nBoxes; ++bid)
+        {
+        vtkAMRBox original=decomp[bid];
+        if (original.Empty())
+          {
+          // skip empty boxes.
+          continue;
+          }
+        int lo[3];
+        int hi[3];
+        original.GetDimensions(lo,hi);
+        // Don't split atomic boxes,do pass through.
+        if (lo[cdir]==hi[cdir]
+          || hi[cdir]-lo[cdir]<minSide[cdir] )
+          {
+          aDecomp.push_back(original);
+          continue;
+          }
+        // Split evenly in the given direction.
+        int mid=(lo[cdir]+hi[cdir])/2;
+        //
+        int sHi[3]={hi[0],hi[1],hi[2]};
+        sHi[cdir]=mid;
+        vtkAMRBox first(lo,sHi);
+        tDecomp.push_back(first);
+        //
+        int sLo[3]={lo[0],lo[1],lo[2]};
+        sLo[cdir]=mid+1;
+        vtkAMRBox second(sLo,hi);
+        tDecomp.push_back(second);
+        }
+      // Update the list we operate on, so the these splits
+      // are subsequently split in the next pass.
+      decomp.clear();
+      decomp=tDecomp;
+      tDecomp.clear();
+      --n;
+      }
+    // Merge the atomic boxes back into the list.
+    size_t nRemain=decomp.size();
+    size_t nAtomic=aDecomp.size();
+    decomp.resize(nRemain+nAtomic);
+    copy(aDecomp.begin(),aDecomp.end(),decomp.begin()+nRemain);
+    aDecomp.clear();
+    }
+}
+
+//*****************************************************************************
+void Split(
+      const int minSide[3],
+      vtkstd::vector<vtkAMRBox> &decomp)
+{
+  vector<vtkAMRBox> tDecomp; // Working array for resulting splits
+  vector<vtkAMRBox> aDecomp; // and for atomic boxes.
+  for (int cdir=0; cdir<3; ++cdir)
+    {
+    while(decomp.size())
+      {
+      size_t nBoxes=decomp.size();
+      for (size_t bid=0; bid<nBoxes; ++bid)
+        {
+        vtkAMRBox original=decomp[bid];
+        if (original.Empty())
+          {
+          // skip empty boxes.
+          continue;
+          }
+        int lo[3];
+        int hi[3];
+        original.GetDimensions(lo,hi);
+        // Don't split atomic boxes,do pass through.
+        if (lo[cdir]==hi[cdir]
+          || hi[cdir]-lo[cdir]<minSide[cdir] )
+          {
+          aDecomp.push_back(original);
+          continue;
+          }
+        // Split evenly in the given direction.
+        int mid=(lo[cdir]+hi[cdir])/2;
+        //
+        int sHi[3]={hi[0],hi[1],hi[2]};
+        sHi[cdir]=mid;
+        vtkAMRBox first(lo,sHi);
+        tDecomp.push_back(first);
+        //
+        int sLo[3]={lo[0],lo[1],lo[2]};
+        sLo[cdir]=mid+1;
+        vtkAMRBox second(sLo,hi);
+        tDecomp.push_back(second);
+        }
+      // Update the list we operate on, so the these splits
+      // are subsequently split in the next pass.
+      decomp.clear();
+      decomp=tDecomp;
+      tDecomp.clear();
+      }
+    // Merge the atomic boxes back into the list.
+    size_t nRemain=decomp.size();
+    size_t nAtomic=aDecomp.size();
+    decomp.resize(nRemain+nAtomic);
+    copy(aDecomp.begin(),aDecomp.end(),decomp.begin()+nRemain);
+    aDecomp.clear();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO delete these
+// These are legacy methods going away, do not use!
 #ifndef VTK_LEGACY_REMOVE
 int vtkAMRBox::DoesContainCell(int i, int j, int k)
 {

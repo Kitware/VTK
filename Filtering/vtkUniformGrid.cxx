@@ -15,7 +15,6 @@
 #include "vtkUniformGrid.h"
 
 #include "vtkAMRBox.h"
-#include "vtkAMRBoxUtilities.hxx"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkEmptyCell.h"
@@ -33,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.19");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.20");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid, PointVisibility,

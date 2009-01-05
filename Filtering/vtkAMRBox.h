@@ -188,22 +188,93 @@ private:
   double DX[3];          // grid spacing.
 };
 
+#include "vtkType.h"//For utility functions.
+#include <vtkstd/vector>//For utility functions.
+
+//*****************************************************************************
+// Description:
+// Fill the region of "pArray" enclosed by "destRegion" with "fillValue"
+// "pArray" is defined on "arrayRegion".
+template <typename T>
+void FillRegion(
+        T *pArray,
+        const vtkAMRBox &arrayRegion,
+        const vtkAMRBox &destRegion,
+        T fillValue)
+{
+  // Convert regions to array index space. VTK arrays
+  // always start with 0,0,0.
+  int ofs[3];
+  arrayRegion.GetLoCorner(ofs);
+  ofs[0]=-ofs[0];
+  ofs[1]=-ofs[1];
+  ofs[2]=-ofs[2];
+  vtkAMRBox arrayDims(arrayRegion);
+  arrayDims.Shift(ofs);
+  vtkAMRBox destDims(destRegion);
+  destDims.Shift(ofs);
+  // Quick sanity check.
+  if (!arrayRegion.Contains(destRegion))
+    {
+    vtkGenericWarningMacro(
+         << "ERROR: Array must enclose the destination region. "
+         << "Aborting the fill.");
+    }
+  // Get the bounds of the indices we fill.
+  int destLo[3];
+  destDims.GetLoCorner(destLo);
+  int destHi[3];
+  destDims.GetHiCorner(destHi);
+  // Get the array dimensions.
+  int arrayHi[3];
+  arrayDims.GetNumberOfCells(arrayHi);
+  // Fill.
+  for (int k=destLo[2]; k<=destHi[2]; ++k)
+    {
+    vtkIdType kOfs=k*arrayHi[0]*arrayHi[1];
+    for (int j=destLo[1]; j<=destHi[1]; ++j) 
+      {
+      vtkIdType idx=kOfs+j*arrayHi[0]+destLo[0];
+      for (int i=destLo[0]; i<=destHi[0]; ++i)
+        {
+        pArray[idx]=fillValue;
+        ++idx;
+        }
+      }
+    }
+}
+
+// Description:
+// Split the boxes passed in N times in the i,j and k directions.
+// Once a box is split down to a single cell, or the given minimum side length
+// it won't be split anymore, but it will propagate through the operation.
+void Split(const int N[3], const int minSide[3], vtkstd::vector<vtkAMRBox> &decomp);
+
+// Description:
+// Split the boxes passed in in the i,j and k directions, until splitting
+// operation would result boxes with side lengths less than the specified
+// minimum or the box is split down to a single cell..
+void Split(const int minSide[3], vtkstd::vector<vtkAMRBox> &decomp);
+
+
+
 
 
 
 // NOTE 2008-11-10
-// If you are using this to set public member variables, DONT.
-// It is here for now for the sake of backward compatibility.
-// Use the Set'ers.
+// Favor the set'ers above to this helper, where ever possible.
 
 // Helper to unroll the loop
 template<int dimension>
 struct vtkAMRBoxInitializeHelp;
 
 template<int dimension>
-void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
-                         const int *loCorner, const int *hiCorner, // local
-                         vtkAMRBoxInitializeHelp<dimension>* = 0) // dummy parameter for vs6
+void vtkAMRBoxInitialize(
+        int *LoCorner,
+        int *HiCorner, // member
+        const int *loCorner,
+        const int *hiCorner, // local
+        vtkAMRBoxInitializeHelp<dimension>* = 0) // dummy parameter for vs6
   {
   for(int i=0; i<dimension; ++i)
     {
@@ -216,7 +287,5 @@ void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
     HiCorner[i] = 0;
     }
   }
-
-
 
 #endif
