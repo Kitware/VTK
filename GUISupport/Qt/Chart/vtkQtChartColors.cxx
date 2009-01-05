@@ -21,6 +21,11 @@
 /// \file vtkQtChartColors.cxx
 /// \date September 22, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartColors.h"
 
 #include <QVector>

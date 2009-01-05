@@ -21,6 +21,11 @@
 /// \file vtkQtChartTitle.cxx
 /// \date 11/17/2006
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartTitle.h"
 
 #include <QEvent>

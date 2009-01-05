@@ -21,6 +21,11 @@
 /// \file vtkQtChartAxisDomainPriority.cxx
 /// \date February 14, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartAxisDomainPriority.h"
 
 

@@ -21,6 +21,11 @@
 /// \file vtkQtStackedChartOptions.cxx
 /// \date February 27, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtStackedChartOptions.h"
 
 #include "vtkQtChartHelpFormatter.h"

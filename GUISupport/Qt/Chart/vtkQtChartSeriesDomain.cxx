@@ -21,6 +21,11 @@
 /// \file vtkQtChartSeriesDomain.cxx
 /// \date March 3, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesDomain.h"
 
 #include "vtkQtChartAxisDomain.h"

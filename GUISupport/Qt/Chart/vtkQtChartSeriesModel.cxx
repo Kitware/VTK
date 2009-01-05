@@ -21,6 +21,11 @@
 /// \file vtkQtChartSeriesModel.cxx
 /// \date February 8, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartSeriesModel.h"
 
 

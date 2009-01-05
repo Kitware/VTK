@@ -21,6 +21,11 @@
 /// \file vtkQtChartZoomHistory.cxx
 /// \date 2/7/2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtChartZoomHistory.h"
 
 #include <QVector>
