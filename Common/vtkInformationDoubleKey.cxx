@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationDoubleKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationDoubleKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location):
@@ -58,7 +58,7 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of 
       // vtkInformation::SetAsObjectBase()
-      info->Modified();
+      info->Modified(this);
       }
     }
   else

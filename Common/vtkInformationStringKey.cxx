@@ -18,7 +18,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkInformationStringKey, "1.8");
+vtkCxxRevisionMacro(vtkInformationStringKey, "1.9");
 
 //----------------------------------------------------------------------------
 vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location):
@@ -62,7 +62,7 @@ void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
         // Since this sets a value without call SetAsObjectBase(),
         // the info has to be modified here (instead of 
         // vtkInformation::SetAsObjectBase()
-        info->Modified();
+        info->Modified(this);
         }
       }
     else

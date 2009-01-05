@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, const char* location):
@@ -59,7 +59,7 @@ void vtkInformationUnsignedLongKey::Set(vtkInformation* info,
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of 
       // vtkInformation::SetAsObjectBase()
-      info->Modified();
+      info->Modified(this);
       }
     }
   else

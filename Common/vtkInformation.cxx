@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkInformation.h"
 
+#include "vtkCommand.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
@@ -39,7 +40,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.28");
+vtkCxxRevisionMacro(vtkInformation, "1.29");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -85,6 +86,22 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
       os << "\n";
       }
     }
+}
+
+//----------------------------------------------------------------------------
+// call modified on superclass
+void vtkInformation::Modified()
+{
+  this->Superclass::Modified();
+}
+
+//----------------------------------------------------------------------------
+// Update MTime and invoke a modified event with
+// the information key as call data
+void vtkInformation::Modified(vtkInformationKey* key)
+{
+  this->MTime.Modified();
+  this->InvokeEvent(vtkCommand::ModifiedEvent, key);
 }
 
 //----------------------------------------------------------------------------
@@ -199,7 +216,7 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
     this->Internal->Values[hash] = newvalue;
     }
   
-  this->Modified();
+  this->Modified(key);
 }
 
 //----------------------------------------------------------------------------

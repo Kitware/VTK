@@ -68,6 +68,17 @@ public:
   VTK_COMMON_EXPORT void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Modified signature with no arguments that calls Modified
+  // on vtkObject superclass.
+  VTK_COMMON_EXPORT void Modified();
+
+  // Description:
+  // Modified signature that takes an information key as an argument.
+  // Sets the new MTime and invokes a modified event with the
+  // information key as call data.
+  VTK_COMMON_EXPORT void Modified(vtkInformationKey* key);
+
+  // Description:
   // Clear all information entries.
   VTK_COMMON_EXPORT void Clear();
 

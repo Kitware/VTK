@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationRequestKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationRequestKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationRequestKey::vtkInformationRequestKey(const char* name, const char* location):
@@ -46,7 +46,7 @@ void vtkInformationRequestKey::Set(vtkInformation* info)
       vtkGenericWarningMacro("Setting request key when one is already set. Current request is " << info->GetRequest()->GetName() << " while setting " << this->GetName() << "\n");
       }
     info->SetRequest(this);
-    info->Modified();
+    info->Modified(this);
    }
 }
 

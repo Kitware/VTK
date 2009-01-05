@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationIdTypeKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationIdTypeKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location):
@@ -58,7 +58,7 @@ void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of 
       // vtkInformation::SetAsObjectBase()
-      info->Modified();
+      info->Modified(this);
       }
    }
   else
