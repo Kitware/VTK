@@ -36,6 +36,7 @@ class vtkTransformPolyDataFilter;
 class vtkMatrixToLinearTransform;
 class vtkMatrix4x4;
 class vtkPolyData;
+class vtkAbstractTransform;
 
 class VTK_WIDGETS_EXPORT vtkPolygonalHandleRepresentation3D 
                            : public vtkHandleRepresentation
@@ -76,7 +77,12 @@ public:
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  
+
+  // Description:
+  // Get the transform used to place the generic handle polydata in the 
+  // render window
+  virtual vtkAbstractTransform * GetTransform();
+
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
   virtual void BuildRepresentation();
@@ -93,7 +99,6 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
   virtual double *GetBounds();
-
   
 protected:
   vtkPolygonalHandleRepresentation3D();

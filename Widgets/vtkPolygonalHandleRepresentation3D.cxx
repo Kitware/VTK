@@ -32,7 +32,7 @@
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.4");
+vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.5");
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPolygonalHandleRepresentation3D,Property,vtkProperty);
@@ -574,6 +574,12 @@ int vtkPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry()
 double* vtkPolygonalHandleRepresentation3D::GetBounds()
 {
   return this->Actor ? this->Actor->GetBounds() : NULL;
+}
+
+//-----------------------------------------------------------------------------
+vtkAbstractTransform* vtkPolygonalHandleRepresentation3D::GetTransform()
+{
+  return this->HandleTransform;
 }
 
 //----------------------------------------------------------------------
