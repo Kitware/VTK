@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.4");
+vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.5");
 vtkStandardNewMacro(vtkBoostPrimMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -96,7 +96,12 @@ void vtkBoostPrimMinimumSpanningTree::SetNegateEdgeWeights(bool value)
 {
   this->NegateEdgeWeights = value;
   if (this->NegateEdgeWeights)
-    this->EdgeWeightMultiplier = -1.0;
+    {  
+    vtkWarningMacro("The Boost implementation of Prim's minimum spanning tree algorithm does not allow negation of edge weights.");
+    return;
+    
+    //this->EdgeWeightMultiplier = -1.0;
+    }
   else
     this->EdgeWeightMultiplier = 1.0;
   
@@ -144,8 +149,6 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  vtkErrorMacro("The Prim minimal spanning tree filter is still under development...  Use at your own risk.");
-  
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -192,7 +195,8 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   // Initialize copying data into tree
   temp->GetFieldData()->PassData(input->GetFieldData());
   temp->GetVertexData()->CopyAllocate(input->GetVertexData());
-  temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
+  //FIXME - We're not copying the edge data, see FIXME note below.
+  //  temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
   
   // Send the property map through both the multiplier and the
   // helper (for edge_descriptor indexing)
@@ -214,12 +218,36 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     prim_minimum_spanning_tree(g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex) );
     }
-  
-//FIXME
-  //Need to construct the tree from the predecessorMap... 
-  
-//FIXME
-  // If the user wants it, store the predecessor mapping back to graph vertices
+
+  vtkIdType i;
+  for( i = 0; i < input->GetNumberOfVertices(); i++ )
+    {
+    vtkIdType tree_v = temp->AddVertex();
+    temp->GetVertexData()->CopyData( input->GetVertexData(), i, tree_v );
+    }
+  for( i = 0; i < temp->GetNumberOfVertices(); i++ )
+    {
+    if( predecessorMap->GetValue(i) == i )
+      {
+      if( i == this->OriginVertexIndex )
+        {
+        continue;
+        }
+      else
+        {
+        vtkErrorMacro("Unexpected result: MST is a forest (collection of trees).");
+        return 0;
+        }
+      }
+
+    vtkEdgeType tree_e = temp->AddEdge( predecessorMap->GetValue(i), i );
+    
+    //FIXME - We're not copying the edge data from the graph to the MST because
+    //  of the ambiguity associated with copying data when parallel edges between
+    //  vertices in the original graph exist.
+    //    temp->GetEdgeData()->CopyData(input->GetEdgeData(), e.Id, tree_e.Id); 
+    }
+
   if (this->CreateGraphVertexIdArray)
     {
     predecessorMap->SetName("predecessorMap");

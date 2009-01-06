@@ -26,6 +26,16 @@ PURPOSE.  See the above copyright notice for more information.
 // generic algorithm to perform a minimum spanning tree creation given
 // a weighting value for each of the edges in the input graph and a 
 // a starting node for the tree.
+// A couple of caveats to be noted with the Prim implementation versus the 
+// Kruskal implementation: 
+//   1. The negate edge weights function cannot be utilized to obtain a 
+// 'maximal' spanning tree (an exception is thrown when negated edge weights
+// exist), and 
+//   2. the Boost implementation of the Prim algorithm returns a vertex 
+// predecessor map which results in some ambiguity about which edge from 
+// the original graph should be utilized if parallel edges between nodes
+// exist; therefore, the current VTK implementation does not copy the edge
+// data from the graph to the new tree.
 //
 // .SECTION See Also
 // vtkGraph vtkBoostGraphAdapter
