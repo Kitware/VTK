@@ -31,6 +31,8 @@
 #define __vtkAMRBox_h
 
 #include "vtkObject.h"
+#include "vtkType.h"//For utility functions.
+#include <vtkstd/vector>//For utility functions.
 
 class VTK_FILTERING_EXPORT vtkAMRBox
 {
@@ -188,8 +190,30 @@ private:
   double DX[3];          // grid spacing.
 };
 
-#include "vtkType.h"//For utility functions.
-#include <vtkstd/vector>//For utility functions.
+// NOTE 2008-11-10
+// Favor the set'ers above to this helper, where ever possible.
+// Helper to unroll the loop
+template<int dimension>
+struct vtkAMRBoxInitializeHelp;
+template<int dimension>
+void vtkAMRBoxInitialize(
+        int *LoCorner,
+        int *HiCorner, // member
+        const int *loCorner,
+        const int *hiCorner, // local
+        vtkAMRBoxInitializeHelp<dimension>* = 0) // dummy parameter for vs6
+  {
+  for(int i=0; i<dimension; ++i)
+    {
+    LoCorner[i] = loCorner[i];
+    HiCorner[i] = hiCorner[i];
+    }
+  for(int i=dimension; i<(3-dimension); ++i)
+    {
+    LoCorner[i] = 0;
+    HiCorner[i] = 0;
+    }
+  }
 
 //*****************************************************************************
 // Description:
@@ -255,37 +279,5 @@ void Split(const int N[3], const int minSide[3], vtkstd::vector<vtkAMRBox> &deco
 // operation would result boxes with side lengths less than the specified
 // minimum or the box is split down to a single cell..
 void Split(const int minSide[3], vtkstd::vector<vtkAMRBox> &decomp);
-
-
-
-
-
-
-// NOTE 2008-11-10
-// Favor the set'ers above to this helper, where ever possible.
-
-// Helper to unroll the loop
-template<int dimension>
-struct vtkAMRBoxInitializeHelp;
-
-template<int dimension>
-void vtkAMRBoxInitialize(
-        int *LoCorner,
-        int *HiCorner, // member
-        const int *loCorner,
-        const int *hiCorner, // local
-        vtkAMRBoxInitializeHelp<dimension>* = 0) // dummy parameter for vs6
-  {
-  for(int i=0; i<dimension; ++i)
-    {
-    LoCorner[i] = loCorner[i];
-    HiCorner[i] = hiCorner[i];
-    }
-  for(int i=dimension; i<(3-dimension); ++i)
-    {
-    LoCorner[i] = 0;
-    HiCorner[i] = 0;
-    }
-  }
 
 #endif
