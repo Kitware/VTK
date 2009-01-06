@@ -129,7 +129,7 @@ public:
   // Description:
   // @deprecated
   VTK_LEGACY(virtual void MakeVertexEmphasisWithStencilCheck(int mode));
-
+  
   // Description:
   // Control use of the stencil buffer (for vertex selection).
   virtual void Stencil(int on);
@@ -148,6 +148,16 @@ protected:
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
   void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
-};
 
+  // To switch off deprecated warning about
+  // vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck
+#if defined(_MSC_VER) && _MSC_VER >= 1300
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+};
+#if defined(_MSC_VER) && _MSC_VER >= 1300
+#pragma warning(pop)
+#endif
+ 
 #endif //_vtkOpenGLPainterDeviceAdapter_h
