@@ -63,6 +63,7 @@
 class vtkCamera;
 class vtkIdTypeArray;
 class vtkLabelHierarchyIterator;
+class vtkCoincidentPoints;
 class vtkPoints;
 class vtkPolyData;
 class vtkDataArray;
@@ -160,10 +161,6 @@ public:
   implementation * GetImplementation() { return this->Implementation; }
   //ETX
 
-
-
-
-
 protected:
   vtkLabelHierarchy();
   virtual ~vtkLabelHierarchy();
@@ -176,6 +173,7 @@ private:
   int MaximumDepth;
   vtkDataArray* Priorities;
 
+  vtkCoincidentPoints * CoincidentPoints;
   vtkPoints * CenterPts;
 
   //BTX

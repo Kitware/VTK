@@ -35,6 +35,7 @@ SET( Kit_SRCS
   vtkCellPicker.cxx
   vtkChooserPainter.cxx
   vtkClipPlanesPainter.cxx
+  vtkCoincidentPoints.cxx
   vtkCoincidentTopologyResolutionPainter.cxx
   vtkCompositePainter.cxx
   vtkCompositePolyDataMapper2.cxx
