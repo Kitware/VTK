@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.64");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.65");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -183,10 +183,10 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
 
     this->ReadNextDataLine(line); // part description line
     char *name = strdup(line);
-    if (strncmp(line, "interface", 9) == 0)
-      {
-      return 1; // ignore it and move on
-      }
+    
+    // fix to bug #0008305 --- The original "return 1" operation
+    // upon "strncmp(line, "interface", 9) == 0"
+    // was removed here as 'interface' is NOT a keyword of an EnSight Gold file.
 
     this->ReadNextDataLine(line);
     
