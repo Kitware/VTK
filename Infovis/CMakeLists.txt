@@ -55,6 +55,7 @@ vtkOrderStatistics.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx
 vtkPassThroughLayoutStrategy.cxx
+vtkPerturbCoincidentVertices.cxx
 vtkPCAStatistics.cxx
 vtkPruneTreeFilter.cxx
 vtkRISReader.cxx

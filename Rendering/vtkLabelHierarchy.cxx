@@ -267,7 +267,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.25");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.26");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -755,7 +755,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.25");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.26");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -987,44 +987,10 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 }
 
 //----------------------------------------------------------------------------
-// vtkSpiralkVertices - used to calculate points along a spiral using a circle with
-// radius = 1.0? centered about the origin.
-
-void vtkSpiralkVertices(vtkIdType num, vtkstd::vector<vtkstd::pair<double,double> >& offsets)
-{
-  int maxIter = 10;
-  double pi = vtkMath::Pi();
-  double a = 1/(4*pi*pi);
-  offsets.clear();
-  for (vtkIdType i = offsets.size(); i < num; i++)
-    {
-    double d = 2.0*i/sqrt(3.0);
-    // We are looking for points at regular intervals along the parametric spiral
-    // x = t*cos(2*pi*t)
-    // y = t*sin(2*pi*t)
-    // We cannot solve this equation exactly, so we use newton's method.
-    // Using an Excel trendline, we find that 
-    // t = 0.553*d^0.502
-    // is an excellent starting point./g 
-    double t = 0.553*pow(d, 0.502);
-    for (int iter = 0; iter < maxIter; iter++)
-      {
-      double r = sqrt(t*t+a*a);
-      double f = pi*(t*r+a*a*log(t+r)) - d;
-      double df = 2*pi*r;
-      t = t - f/df;
-      }
-    double x = t*cos(2*pi*t);
-    double y = t*sin(2*pi*t);
-    offsets.push_back(vtkstd::pair<double,double>(x, y));
-    }
-}
-
-//----------------------------------------------------------------------------
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.25");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.26");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1118,7 +1084,8 @@ void vtkLabelHierarchy::ComputeHierarchy()
   double scale = curs->size()/(1 << this->MaximumDepth);
 
   double point[3];
-  vtkstd::vector<vtkstd::pair<double,double> > offsets;
+  double spiralPoint[3];
+  vtkSmartPointer<vtkPoints> offsets = vtkSmartPointer<vtkPoints>::New();
   int numCoincidentPoints = 0;
 
   this->CoincidentPoints->RemoveNonCoincidentPoints();
@@ -1129,17 +1096,18 @@ void vtkLabelHierarchy::ComputeHierarchy()
     {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
-    vtkSpiralkVertices( numCoincidentPoints + 1, offsets );
+    vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
     for(int i = 0; i < numCoincidentPoints; ++i)
       {
       Id = coincidentPoints->GetId(i);
       this->Points->GetPoint(Id, point);
       // save center points for drawing spokes.
       /*this->Implementation->CoincidenceMap[i] = 
-      this->CenterPts->InsertNextPoint(point);*/
+        this->CenterPts->InsertNextPoint(point);*/
+      offsets->GetPoint(i + 1, spiralPoint);
       this->Points->SetPoint(Id,
-        point[0] + offsets[i + 1].first * scale,
-        point[1] + offsets[i + 1].second * scale,
+        point[0] + spiralPoint[0] * scale,
+        point[1] + spiralPoint[1] * scale,
         point[2] );
       }
 

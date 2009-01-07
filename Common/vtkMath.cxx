@@ -25,6 +25,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include "vtkPoints.h"
 #include <assert.h>
 
 #ifndef isnan
@@ -35,7 +36,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.130");
+vtkCxxRevisionMacro(vtkMath, "1.131");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -3143,7 +3144,42 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
     }
   return 1;
   
-} 
+}
+
+//----------------------------------------------------------------------------
+// vtkSpiralkVertices - used to calculate points along a spiral using a circle with
+// radius = 1.0? centered about the origin.
+void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets)
+{
+  int maxIter = 10;
+  double pi = vtkMath::Pi();
+  double a = 1/(4*pi*pi);
+  offsets->Initialize();
+  offsets->SetNumberOfPoints(num);
+  
+  for (vtkIdType i = 0; i < num; i++)
+    {
+    double d = 2.0*i/sqrt(3.0);
+    // We are looking for points at regular intervals along the parametric spiral
+    // x = t*cos(2*pi*t)
+    // y = t*sin(2*pi*t)
+    // We cannot solve this equation exactly, so we use newton's method.
+    // Using an Excel trendline, we find that 
+    // t = 0.553*d^0.502
+    // is an excellent starting point./g 
+    double t = 0.553*pow(d, 0.502);
+    for (int iter = 0; iter < maxIter; iter++)
+      {
+      double r = sqrt(t*t+a*a);
+      double f = pi*(t*r+a*a*log(t+r)) - d;
+      double df = 2*pi*r;
+      t = t - f/df;
+      }
+    double x = t*cos(2*pi*t);
+    double y = t*sin(2*pi*t);
+    offsets->SetPoint(i, x, y, 0);
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkMath::PrintSelf(ostream& os, vtkIndent indent)

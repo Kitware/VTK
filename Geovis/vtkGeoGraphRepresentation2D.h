@@ -45,6 +45,7 @@ class vtkExtractSelectedGraph;
 class vtkGeoAssignCoordinates;
 class vtkGraphMapper;
 class vtkGraphToPolyData;
+class vtkPerturbCoincidentVertices;
 class vtkPolyDataMapper;
 class vtkSelection;
 class vtkAbstractTransform;
@@ -171,19 +172,20 @@ protected:
   //BTX
   // Description:
   // Internal pipeline objects.
-  vtkSmartPointer<vtkGeoAssignCoordinates>    AssignCoordinates;
-  vtkSmartPointer<vtkDynamic2DLabelMapper>    LabelMapper;
-  vtkSmartPointer<vtkActor2D>                 LabelActor;
-  vtkSmartPointer<vtkEdgeLayout>              EdgeLayout;
-  vtkSmartPointer<vtkGraphMapper>             GraphMapper;
-  vtkSmartPointer<vtkActor>                   GraphActor;
-  vtkSmartPointer<vtkGraphToPolyData>         GraphToPolyData;
-  vtkSmartPointer<vtkEdgeCenters>             EdgeCenters;
-  vtkSmartPointer<vtkDynamic2DLabelMapper>    EdgeLabelMapper;
-  vtkSmartPointer<vtkActor2D>                 EdgeLabelActor;
-  vtkSmartPointer<vtkExtractSelectedGraph>    ExtractSelection;
-  vtkSmartPointer<vtkGraphMapper>             SelectionMapper;
-  vtkSmartPointer<vtkActor>                   SelectionActor;
+  vtkSmartPointer<vtkGeoAssignCoordinates>       AssignCoordinates;
+  vtkSmartPointer<vtkPerturbCoincidentVertices>  PerturbCoincidentVertices;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>       LabelMapper;
+  vtkSmartPointer<vtkActor2D>                    LabelActor;
+  vtkSmartPointer<vtkEdgeLayout>                 EdgeLayout;
+  vtkSmartPointer<vtkGraphMapper>                GraphMapper;
+  vtkSmartPointer<vtkActor>                      GraphActor;
+  vtkSmartPointer<vtkGraphToPolyData>            GraphToPolyData;
+  vtkSmartPointer<vtkEdgeCenters>                EdgeCenters;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>       EdgeLabelMapper;
+  vtkSmartPointer<vtkActor2D>                    EdgeLabelActor;
+  vtkSmartPointer<vtkExtractSelectedGraph>       ExtractSelection;
+  vtkSmartPointer<vtkGraphMapper>                SelectionMapper;
+  vtkSmartPointer<vtkActor>                      SelectionActor;
   //ETX
 
 private:

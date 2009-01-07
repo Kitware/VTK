@@ -45,6 +45,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPassThroughEdgeStrategy.h"
+#include "vtkPerturbCoincidentVertices.h"
 #include "vtkPointData.h"
 #include "vtkPointSetToLabelHierarchy.h"
 #include "vtkProperty.h"
@@ -61,12 +62,13 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.2");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.3");
 vtkStandardNewMacro(vtkGeoGraphRepresentation2D);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
 {
   this->AssignCoordinates = vtkSmartPointer<vtkGeoAssignCoordinates>::New();
+  this->PerturbCoincidentVertices = vtkSmartPointer<vtkPerturbCoincidentVertices>::New();
   this->EdgeLayout = vtkSmartPointer<vtkEdgeLayout>::New();
   this->GraphMapper = vtkSmartPointer<vtkGraphMapper>::New();
   this->GraphActor = vtkSmartPointer<vtkActor>::New();
@@ -81,8 +83,10 @@ vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
   this->SelectionActor = vtkSmartPointer<vtkActor>::New();
 
   // Connect pipeline
-  this->EdgeLayout->SetInputConnection(
+  this->PerturbCoincidentVertices->SetInputConnection(
     this->AssignCoordinates->GetOutputPort());
+  this->EdgeLayout->SetInputConnection(
+    this->PerturbCoincidentVertices->GetOutputPort());
   this->GraphMapper->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->GraphActor->SetMapper(this->GraphMapper);
   this->ExtractSelection->SetInputConnection(0,

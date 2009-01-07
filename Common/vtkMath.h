@@ -43,6 +43,7 @@
 #endif  // DBL_EPSILON
 
 class vtkDataArray;
+class vtkPoints;
 
 class VTK_COMMON_EXPORT vtkMath : public vtkObject
 {
@@ -755,6 +756,12 @@ public:
   // Bounds is x-min, x-max, y-min, y-max, z-min, z-max
   // Delta is the error margin along each axis (usually a small number)
   static int PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
+
+  // Description:
+  // Calculat a spiral with \a num point in it and put the points in
+  // offsets. Note this spiral is only in two dimensions having a constant
+  // z value.
+  static void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets);
   
   // Description:
   // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).

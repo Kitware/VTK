@@ -107,6 +107,13 @@ public:
   vtkBooleanMacro(PositionsAsNormals,bool);
 
   // Description:
+  // Enable drawing spokes (lines) to anchor point coordinates that were perturbed
+  // for being coincident with other anchor point coordinates.
+  vtkGetMacro(GeneratePerturbedLabelSpokes,bool);
+  vtkSetMacro(GeneratePerturbedLabelSpokes,bool);
+  vtkBooleanMacro(GeneratePerturbedLabelSpokes,bool);
+
+  // Description:
   // In the second output, output the geometry of the traversed octree nodes.
   vtkGetMacro(OutputTraversedBounds,bool);
   vtkSetMacro(OutputTraversedBounds,bool);
@@ -133,6 +140,7 @@ protected:
   double MaximumLabelFraction;
   bool PositionsAsNormals;
   bool OutputTraversedBounds;
+  bool GeneratePerturbedLabelSpokes;
 
   int LastRendererSize[2];
   double LastCameraPosition[3];

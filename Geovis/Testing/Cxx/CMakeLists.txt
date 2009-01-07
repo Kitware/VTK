@@ -8,6 +8,7 @@ IF (VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
+      TestCoincidentGeoGraphRepresentation2D.cxx
       TestGeoGraticule.cxx
       TestGeoProjection.cxx
       TestGeoView2D.cxx

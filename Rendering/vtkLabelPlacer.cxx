@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.9");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.10");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -209,6 +209,7 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->LastCameraViewUp[2] = 0.0;
 
   this->OutputTraversedBounds = false;
+  this->GeneratePerturbedLabelSpokes = false;
 
   this->SetNumberOfOutputPorts( 4 );
 }
@@ -682,6 +683,15 @@ int vtkLabelPlacer::RequestData(
         vtkDebugMacro("     Point: " << conn[0] << " (" << x[0] << "," << x[1] << "," << x[2] << ") Vertex: " << cid);
         iconIndexArr1->InsertNextValue( iconIndexArr->GetValue( inIter->GetLabelId() ) );
         }
+
+      // Handle Spokes for perterbed points
+      if(this->GeneratePerturbedLabelSpokes)
+        {
+        //inData->CenterPts
+        //inData->
+        }
+
+
       // Uncomment to actually store the previous labels.
       // Currently starting with a clean slate each time.
       //this->Buckets->NewLabelsPlaced->InsertNextValue( inIter->GetLabelId() );
