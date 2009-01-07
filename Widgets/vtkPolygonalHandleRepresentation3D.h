@@ -37,6 +37,8 @@ class vtkMatrixToLinearTransform;
 class vtkMatrix4x4;
 class vtkPolyData;
 class vtkAbstractTransform;
+class vtkFollower;
+class vtkVectorText;
 
 class VTK_WIDGETS_EXPORT vtkPolygonalHandleRepresentation3D 
                            : public vtkHandleRepresentation
@@ -100,6 +102,19 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
   virtual double *GetBounds();
   
+  // Description:
+  // A label may be associated with the seed. The string can be set via
+  // SetLabelText. The visibility of the label can be turned on / off.
+  vtkSetMacro( LabelVisibility, int );
+  vtkGetMacro( LabelVisibility, int );
+  vtkBooleanMacro( LabelVisibility, int );
+  virtual void SetLabelText( const char * label );
+  
+  // Description:
+  // Scale text (font size along each dimension).
+  virtual void SetLabelTextScale( double scale[3] );
+  virtual double * GetLabelTextScale();
+  
 protected:
   vtkPolygonalHandleRepresentation3D();
   ~vtkPolygonalHandleRepresentation3D();
@@ -139,6 +154,13 @@ protected:
 
   int DetermineConstraintAxis(int constraint, double *x, double *startPickPos);
   
+  // Handle the label.
+  int                LabelVisibility;
+  vtkFollower       *LabelTextActor;
+  vtkPolyDataMapper *LabelTextMapper;
+  vtkVectorText     *LabelTextInput;  
+  bool               LabelAnnotationTextScaleInitialized;
+
 private:
   vtkPolygonalHandleRepresentation3D(const vtkPolygonalHandleRepresentation3D&);  //Not implemented
   void operator=(const vtkPolygonalHandleRepresentation3D&);  //Not implemented

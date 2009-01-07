@@ -31,8 +31,10 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkMatrix4x4.h"
+#include "vtkVectorText.h"
+#include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.5");
+vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.6");
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPolygonalHandleRepresentation3D,Property,vtkProperty);
@@ -52,6 +54,7 @@ vtkPolygonalHandleRepresentation3D::vtkPolygonalHandleRepresentation3D()
   this->Offset[0] = this->Offset[1] = this->Offset[2] = 0.0;
 
   this->Mapper = vtkPolyDataMapper::New();
+  this->Mapper->ScalarVisibilityOff();
   this->Mapper->SetInput(this->HandleTransformFilter->GetOutput());
 
   // Set up the initial properties
@@ -75,6 +78,17 @@ vtkPolygonalHandleRepresentation3D::vtkPolygonalHandleRepresentation3D()
   vtkFocalPlanePointPlacer *pointPlacer = vtkFocalPlanePointPlacer::New();
   this->SetPointPlacer( pointPlacer );
   pointPlacer->Delete();
+
+  // Label stuff.
+  this->LabelAnnotationTextScaleInitialized = false;
+  this->LabelVisibility = 0;
+  this->LabelTextInput = vtkVectorText::New();
+  this->LabelTextInput->SetText( "0" );
+  this->LabelTextMapper = vtkPolyDataMapper::New();
+  this->LabelTextMapper->SetInput( this->LabelTextInput->GetOutput() );
+  this->LabelTextActor = vtkFollower::New();
+  this->LabelTextActor->SetMapper(this->LabelTextMapper);
+  this->LabelTextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );  
 }
 
 //----------------------------------------------------------------------
@@ -88,6 +102,9 @@ vtkPolygonalHandleRepresentation3D::~vtkPolygonalHandleRepresentation3D()
   this->Actor->Delete();
   this->Property->Delete();
   this->SelectedProperty->Delete();
+  this->LabelTextInput->Delete();
+  this->LabelTextMapper->Delete();
+  this->LabelTextActor->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -519,6 +536,43 @@ void vtkPolygonalHandleRepresentation3D::BuildRepresentation()
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
     this->HandleTransformFilter->Update();
+
+    // Display the label if needed.
+    if (this->LabelVisibility)
+      {
+      if (this->Renderer)
+        {
+        this->LabelTextActor->SetCamera( this->Renderer->GetActiveCamera() );
+        }
+
+      // Place the label on the North east of the handle. We need to take into
+      // account the viewup vector and the direction of the camera, so that we 
+      // can bring it on the closest plane of the widget facing the camera.
+      double labelPosition[3], vup[3], directionOfProjection[3], xAxis[3], bounds[6];
+      this->Renderer->GetActiveCamera()->GetViewUp(vup);
+      this->Renderer->GetActiveCamera()->GetDirectionOfProjection(directionOfProjection);
+      vtkMath::Cross( directionOfProjection, vup, xAxis );
+      this->Mapper->GetBounds(bounds);
+      double width = sqrt( (bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+                           (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+                           (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]) );
+      this->GetWorldPosition(labelPosition);
+      labelPosition[0] += width * xAxis[0];
+      labelPosition[1] += width * xAxis[1];
+      labelPosition[2] += width * xAxis[2];
+      
+      this->LabelTextActor->SetPosition(labelPosition);
+
+      if (!this->LabelAnnotationTextScaleInitialized)
+        {
+        // If a font size hasn't been specified by the user, scale the text 
+        // (font size) according to the size of the handle .
+        this->LabelTextActor->SetScale( 
+            width/3.0, width/3.0, width/3.0 );
+        }
+      }
+    
+
     this->BuildTime.Modified();
     }
 }
@@ -540,34 +594,53 @@ void vtkPolygonalHandleRepresentation3D::ShallowCopy(vtkProp *prop)
 void vtkPolygonalHandleRepresentation3D::GetActors(vtkPropCollection *pc)
 {
   this->Actor->GetActors(pc);
+  this->LabelTextActor->GetActors(pc);
 }
 
 //----------------------------------------------------------------------
 void vtkPolygonalHandleRepresentation3D::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->Actor->ReleaseGraphicsResources(win);
+  this->LabelTextActor->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------
 int vtkPolygonalHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
+  int count=0;
   this->BuildRepresentation();
-  return this->Actor->RenderOpaqueGeometry(viewport);
+  count += this->Actor->RenderOpaqueGeometry(viewport);
+  if (this->LabelVisibility)
+    {
+    count += this->LabelTextActor->RenderOpaqueGeometry(viewport);
+    }
+  return count;
 }
 
 //-----------------------------------------------------------------------------
 int vtkPolygonalHandleRepresentation3D::RenderTranslucentPolygonalGeometry(
   vtkViewport *viewport)
 {
-  this->BuildRepresentation();
-  return this->Actor->RenderTranslucentPolygonalGeometry(viewport);
+  int count=0;
+  count += this->Actor->RenderTranslucentPolygonalGeometry(viewport);
+  if (this->LabelVisibility)
+    {
+    count += this->LabelTextActor->RenderTranslucentPolygonalGeometry(viewport);
+    }
+  return count;
 }
 
 //-----------------------------------------------------------------------------
 int vtkPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
+  int result=0;
   this->BuildRepresentation();
-  return this->Actor->HasTranslucentPolygonalGeometry();
+  result |= this->Actor->HasTranslucentPolygonalGeometry();
+  if (this->LabelVisibility)
+    {
+    result |= this->LabelTextActor->HasTranslucentPolygonalGeometry();
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -580,6 +653,25 @@ double* vtkPolygonalHandleRepresentation3D::GetBounds()
 vtkAbstractTransform* vtkPolygonalHandleRepresentation3D::GetTransform()
 {
   return this->HandleTransform;
+}
+
+//----------------------------------------------------------------------
+void vtkPolygonalHandleRepresentation3D::SetLabelText( const char *s )
+{
+  this->LabelTextInput->SetText(s);
+}
+
+//----------------------------------------------------------------------
+void vtkPolygonalHandleRepresentation3D::SetLabelTextScale( double scale[3] )
+{
+  this->LabelTextActor->SetScale( scale );
+  this->LabelAnnotationTextScaleInitialized = true;
+}
+
+//----------------------------------------------------------------------
+double * vtkPolygonalHandleRepresentation3D::GetLabelTextScale()
+{
+  return this->LabelTextActor->GetScale();
 }
 
 //----------------------------------------------------------------------
