@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.6");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.7");
 vtkStandardNewMacro(vtkGradientFilter);
 
 template<class data_type>
@@ -351,15 +351,16 @@ int vtkGradientFilterAddCellContribution(vtkIdType pointId,
 
   // Watch out for degenerate cells.  They make the derivative calculation
   // fail.
-  int numedges = cell->GetNumberOfEdges();
-  for (i = 0; i < numedges; i++)
+  vtkIdList *pointIds = cell->GetPointIds();
+  int timesPointRegistered = 0;
+  for (i = 0; i < pointIds->GetNumberOfIds(); i++)
     {
-    vtkCell *edge = cell->GetEdge(i);
-    if ((pointId == edge->GetPointId(0)) && (pointId == edge->GetPointId(1)))
-      {
-      // Found a collapsed edge associated with this point.  Not good.
-      return 0;
-      }
+    if (pointId == pointIds->GetId(i)) timesPointRegistered++;
+    }
+  if (timesPointRegistered != 1)
+    {
+    // The cell should have the point exactly once.  Not good.
+    return 0;
     }
 
   // Get parametric position of point.
