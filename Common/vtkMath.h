@@ -761,7 +761,7 @@ public:
   // Calculat a spiral with \a num point in it and put the points in
   // offsets. Note this spiral is only in two dimensions having a constant
   // z value.
-  static void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets);
+  static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
   
   // Description:
   // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).
