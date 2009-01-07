@@ -38,6 +38,7 @@ public:
   vtkTypeRevisionMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
 protected:
   vtkPerturbCoincidentVertices();
   ~vtkPerturbCoincidentVertices();
@@ -52,6 +53,7 @@ protected:
 private:
   vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&); // Not implemented
   void operator=(const vtkPerturbCoincidentVertices&);   // Not implemented
+//ETX
 };
 
 #endif
