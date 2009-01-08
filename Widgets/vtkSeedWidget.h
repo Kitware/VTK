@@ -91,6 +91,16 @@ public:
   virtual void SetEnabled(int);
 
   // Description:
+  // Set the current renderer. This method also propagates to all the child
+  // handle widgets, if any exist
+  virtual void SetCurrentRenderer( vtkRenderer * );
+
+  // Description:
+  // Set the interactor. This method also propagates to all the child
+  // handle widgets, if any exist
+  virtual void SetInteractor( vtkRenderWindowInteractor * );
+
+  // Description:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
@@ -111,7 +121,9 @@ public:
 
   // Description:
   // Method to be called when the seed widget should stop responding to
-  // the interaction. 
+  // the interaction. The seed widget, when defined allows you place seeds
+  // by clicking on the render window. Use this method to indicate that
+  // you would like to stop placing seeds interactively. 
   virtual void CompleteInteraction();
 
   // Description:
@@ -119,6 +131,21 @@ public:
   // to the interaction.  
   virtual void RestartInteraction();
 
+  // Description:
+  // Use this method to programmatically create a new handle. In interactive 
+  // mode, (when the widget is in the PlacingSeeds state) this method is 
+  // automatically invoked. The method returns the handle created.
+  // A valid seed representation must exist for the widget to create a new
+  // handle.
+  virtual vtkHandleWidget * CreateNewHandle();
+
+  // Description:
+  // Delete the nth seed.
+  void DeleteSeed(int n);
+
+  // Description:
+  // Get the nth seed
+  vtkHandleWidget * GetSeed( int n );
 
 protected:
   vtkSeedWidget();
@@ -146,12 +173,7 @@ protected:
   
   // The positioning handle widgets
   vtkSeedList *Seeds;
-  void DeleteSeed(int);
   
-  // Helper method for creating widgets
-  static vtkHandleWidget *CreateHandleWidget( vtkSeedWidget *self,
-                                              vtkSeedRepresentation *rep );
-
 private:
   vtkSeedWidget(const vtkSeedWidget&);  //Not implemented
   void operator=(const vtkSeedWidget&);  //Not implemented

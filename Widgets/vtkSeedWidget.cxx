@@ -30,7 +30,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.17");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.18");
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -66,23 +66,21 @@ vtkSeedWidget::vtkSeedWidget()
 }
 
 //----------------------------------------------------------------------
-inline void vtkSeedWidget::DeleteSeed(int i)
+void vtkSeedWidget::DeleteSeed(int i)
 {
-   if( this->Seeds->size() < 1 )
+   if( this->Seeds->size() <= i )
      {
      return;
      }
   vtkSeedListIterator iter = this->Seeds->begin();
   vtkstd::advance(iter,i);
-  if( (*iter)->GetEnabled() )
-  {
-    (*iter)->SetEnabled(0);
-  }
+  (*iter)->SetEnabled(0);
   (*iter)->RemoveObservers(vtkCommand::StartInteractionEvent);
   (*iter)->RemoveObservers(vtkCommand::InteractionEvent);
   (*iter)->RemoveObservers(vtkCommand::EndInteractionEvent);
+  vtkHandleWidget * w = (*iter);
   this->Seeds->erase( iter );
-  (*iter)->Delete();
+  w->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -94,6 +92,18 @@ vtkSeedWidget::~vtkSeedWidget()
     this->DeleteSeed(static_cast<int>(this->Seeds->size())-1);
     }
   delete this->Seeds;
+}
+
+//----------------------------------------------------------------------
+vtkHandleWidget * vtkSeedWidget::GetSeed(int i)
+{
+ if( this->Seeds->size() <= i )
+   {
+   return NULL;
+   }
+  vtkSeedListIterator iter = this->Seeds->begin();
+  vtkstd::advance(iter,i);
+  return *iter;
 }
 
 //----------------------------------------------------------------------
@@ -123,26 +133,6 @@ void vtkSeedWidget::SetEnabled(int enabling)
     }
 
   this->Render();
-}
-
-//-------------------------------------------------------------------------
-vtkHandleWidget *vtkSeedWidget::CreateHandleWidget(vtkSeedWidget *self,
-                                                    vtkSeedRepresentation *rep)
-{
-  // Create the handle widget or reuse an old one
-  int currentHandleNumber = static_cast<int>(self->Seeds->size());
-  vtkHandleWidget *widget = vtkHandleWidget::New();
-  
-  // Configure the handle widget
-  widget->SetParent(self);
-  widget->SetInteractor(self->Interactor);
-  vtkHandleRepresentation *handleRep = rep->GetHandleRepresentation(currentHandleNumber);
-  handleRep->SetRenderer(self->CurrentRenderer);
-  widget->SetRepresentation(handleRep);
-
-  // Now place the widget into the list of handle widgets (if not already there)
-  self->Seeds->push_back( widget );
-  return widget;
 }
 
 // The following methods are the callbacks that the seed widget responds to. 
@@ -190,7 +180,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
       return ;
       }
     int currentHandleNumber = rep->CreateHandle(e);
-    vtkHandleWidget *currentHandle = self->CreateHandleWidget(self,rep);
+    vtkHandleWidget *currentHandle = self->CreateNewHandle();
     rep->SetSeedDisplayPosition(currentHandleNumber,e);
     currentHandle->SetEnabled(1);
     self->InvokeEvent(vtkCommand::PlacePointEvent,&(currentHandleNumber));
@@ -310,6 +300,62 @@ void vtkSeedWidget::SetProcessEvents(int pe)
     {
     (*iter)->SetProcessEvents(pe);
     }
+}
+
+//----------------------------------------------------------------------
+void vtkSeedWidget::SetInteractor( vtkRenderWindowInteractor *rwi )
+{
+  this->Superclass::SetInteractor(rwi);
+  vtkSeedListIterator iter = this->Seeds->begin();
+  for (; iter != this->Seeds->end(); ++iter )
+    {
+    (*iter)->SetInteractor(rwi);
+    }
+}
+
+//----------------------------------------------------------------------
+void vtkSeedWidget::SetCurrentRenderer( vtkRenderer *ren )
+{
+  this->Superclass::SetCurrentRenderer(ren);
+  vtkSeedListIterator iter = this->Seeds->begin();
+  for (; iter != this->Seeds->end(); ++iter )
+    {
+    if (!ren)
+      {
+      // Disable widget if its being removed from the the renderer
+      (*iter)->EnabledOff();
+      }
+    (*iter)->SetCurrentRenderer(ren);
+    }
+}
+
+//----------------------------------------------------------------------
+// Programmatically create a new handle.
+vtkHandleWidget * vtkSeedWidget::CreateNewHandle()
+{
+  vtkSeedRepresentation *rep = 
+    vtkSeedRepresentation::SafeDownCast(this->WidgetRep);
+  if (!rep)
+    {
+    vtkErrorMacro( << "Please set, or create a default seed representation "
+        << "before adding requesting creation of a new handle." );
+    return NULL;
+    }
+
+  // Create the handle widget or reuse an old one
+  int currentHandleNumber = static_cast<int>(this->Seeds->size());
+  vtkHandleWidget *widget = vtkHandleWidget::New();
+  
+  // Configure the handle widget
+  widget->SetParent(this);
+  widget->SetInteractor(this->Interactor);
+  vtkHandleRepresentation *handleRep = rep->GetHandleRepresentation(currentHandleNumber);
+  handleRep->SetRenderer(this->CurrentRenderer);
+  widget->SetRepresentation(handleRep);
+
+  // Now place the widget into the list of handle widgets (if not already there)
+  this->Seeds->push_back( widget );
+  return widget;
 }
 
 //----------------------------------------------------------------------
