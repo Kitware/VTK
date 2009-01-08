@@ -15,7 +15,7 @@
 // .NAME vtkCenteredSliderWidget - set a value by manipulating a slider
 // .SECTION Description
 // The vtkCenteredSliderWidget is used to adjust a scalar value in an application.
-// This class measures deviaitons form the center point on the slider.
+// This class measures deviations form the center point on the slider.
 // Moving the slider
 // modifies the value of the widget, which can be used to set parameters on
 // other objects. Note that the actual appearance of the widget depends on
@@ -29,7 +29,7 @@
 // as various properties.
 //
 // Note that the value should be obtain from the widget, not from the
-// represenaiton. Also note that Minimum and Maximum values are in terms of
+// representation. Also note that Minimum and Maximum values are in terms of
 // value per second. The value you get from this widget's GetValue method is
 // multiplied by time.
 //
