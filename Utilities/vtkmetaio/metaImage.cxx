@@ -2135,7 +2135,7 @@ bool MetaImage::WriteROI( int * _indexMin, int * _indexMax,
           } 
         
         // Write the line
-        long bytesToWrite = _indexMax[0]-_indexMin[0];
+        long bytesToWrite = _indexMax[0] - _indexMin[0] + 1;
         MetaImage::M_WriteElementData(m_WriteStream, elementData, bytesToWrite);
         elementData += bytesToWrite*elementNumberOfBytes;
         currentPos += bytesToWrite*elementNumberOfBytes;
@@ -2152,7 +2152,7 @@ bool MetaImage::WriteROI( int * _indexMin, int * _indexMax,
         // Check if we are still in the region
         for(i=1;i<m_NDims;i++)
           {
-          if(currentIndex[i]>=_indexMax[i])
+          if(currentIndex[i]>_indexMax[i])
             {
             if(i==m_NDims-1)
               {
