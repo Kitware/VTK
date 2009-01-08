@@ -18,7 +18,7 @@
 // overlay plane. The text is defined by an instance of vtkTextActor. It uses
 // the event bindings of its superclass (vtkBorderWidget). In addition, when
 // the text is selected, the widget emits a WidgetActivateEvent that
-// observers can watch for. This is useful for opening GUI dialogoues to
+// observers can watch for. This is useful for opening GUI dialogues to
 // adjust font characteristics, etc. (Please see the superclass for a
 // description of event bindings.)
 
