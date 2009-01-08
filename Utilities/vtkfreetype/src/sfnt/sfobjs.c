@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    SFNT object management (base).                                       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -285,7 +285,7 @@
   sfnt_find_encoding( int  platform_id,
                       int  encoding_id )
   {
-    typedef struct  TEncoding
+    typedef struct  TEncoding_
     {
       int          platform_id;
       int          encoding_id;
@@ -696,22 +696,60 @@
 
     face->root.num_glyphs = face->max_profile.numGlyphs;
 
-    face->root.family_name = tt_face_get_name( face,
-                                               TT_NAME_ID_PREFERRED_FAMILY );
-    if ( !face->root.family_name )
-      face->root.family_name = tt_face_get_name( face,
-                                                 TT_NAME_ID_FONT_FAMILY );
+#if 0
+    /* Bit 8 of the `fsSelection' field in the `OS/2' table denotes  */
+    /* a WWS-only font face.  `WWS' stands for `weight', width', and */
+    /* `slope', a term used by Microsoft's Windows Presentation      */
+    /* Foundation (WPF).  This flag will be introduced in version    */
+    /* 1.5 of the OpenType specification (but is already in use).    */
 
-    face->root.style_name = tt_face_get_name( face,
-                                              TT_NAME_ID_PREFERRED_SUBFAMILY );
-    if ( !face->root.style_name )
-      face->root.style_name  = tt_face_get_name( face,
-                                                 TT_NAME_ID_FONT_SUBFAMILY );
+    if ( face->os2.version != 0xFFFFU && face->os2.fsSelection & 256 )
+#endif
+    {
+      face->root.family_name =
+        tt_face_get_name( face, TT_NAME_ID_PREFERRED_FAMILY );
+      if ( !face->root.family_name )
+        face->root.family_name =
+          tt_face_get_name( face, TT_NAME_ID_FONT_FAMILY );
+
+      face->root.style_name =
+        tt_face_get_name( face, TT_NAME_ID_PREFERRED_SUBFAMILY );
+      if ( !face->root.style_name )
+        face->root.style_name =
+          tt_face_get_name( face, TT_NAME_ID_FONT_SUBFAMILY );
+    }
+#if 0
+    else
+    {
+      /* Support for `name' table ID 21 (WWS family) and 22 (WWS  */
+      /* subfamily) is still under consideration by Microsoft and */
+      /* not implemented in the current version of WPF.           */
+
+      face->root.family_name =
+        tt_face_get_name( face, TT_NAME_ID_WWS_FAMILY );
+      if ( !face->root.family_name )
+        face->root.family_name =
+          tt_face_get_name( face, TT_NAME_ID_PREFERRED_FAMILY );
+      if ( !face->root.family_name )
+        face->root.family_name =
+          tt_face_get_name( face, TT_NAME_ID_FONT_FAMILY );
+
+      face->root.style_name =
+        tt_face_get_name( face, TT_NAME_ID_WWS_SUBFAMILY );
+      if ( !face->root.style_name )
+        face->root.style_name =
+          tt_face_get_name( face, TT_NAME_ID_PREFERRED_SUBFAMILY );
+      if ( !face->root.style_name )
+        face->root.style_name =
+          tt_face_get_name( face, TT_NAME_ID_FONT_SUBFAMILY );
+    }
+#endif
+
 
     /* now set up root fields */
     {
-      FT_Face    root = &face->root;
-      FT_Int32   flags = root->face_flags;
+      FT_Face   root  = &face->root;
+      FT_Int32  flags = root->face_flags;
 
 
       /*********************************************************************/
@@ -727,7 +765,7 @@
                FT_FACE_FLAG_HORIZONTAL;   /* horizontal data   */
 
 #ifdef TT_CONFIG_OPTION_POSTSCRIPT_NAMES
-      if ( psnames_error == SFNT_Err_Ok &&
+      if ( psnames_error == SFNT_Err_Ok               &&
            face->postscript.FormatType != 0x00030000L )
         flags |= FT_FACE_FLAG_GLYPH_NAMES;
 #endif
@@ -759,14 +797,21 @@
       /*                                                                   */
       /* Compute style flags.                                              */
       /*                                                                   */
+
       flags = 0;
       if ( has_outline == TRUE && face->os2.version != 0xFFFFU )
       {
-        /* we have an OS/2 table; use the `fsSelection' field */
-        if ( face->os2.fsSelection & 1 )
+        /* We have an OS/2 table; use the `fsSelection' field.  Bit 9   */
+        /* indicates an oblique font face.  This flag will be           */
+        /* introduced in version 1.5 of the OpenType specification (but */
+        /* is already in use).                                          */
+
+        if ( face->os2.fsSelection & 512 )       /* bit 9 */
+          flags |= FT_STYLE_FLAG_ITALIC;
+        else if ( face->os2.fsSelection & 1 )    /* bit 0 */
           flags |= FT_STYLE_FLAG_ITALIC;
 
-        if ( face->os2.fsSelection & 32 )
+        if ( face->os2.fsSelection & 32 )        /* bit 5 */
           flags |= FT_STYLE_FLAG_BOLD;
       }
       else
@@ -1051,7 +1096,8 @@
     face->gasp.numRanges = 0;
 
     /* freeing the name table */
-    sfnt->free_name( face );
+    if ( sfnt )
+      sfnt->free_name( face );
 
     /* freeing family and style name */
     FT_FREE( face->root.family_name );

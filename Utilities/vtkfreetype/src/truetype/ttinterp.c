@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType bytecode interpreter (body).                                */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -693,7 +693,7 @@
   /*    exec  :: A handle to the target execution context.                 */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    TrueTyoe error code.  0 means success.                             */
+  /*    TrueType error code.  0 means success.                             */
   /*                                                                       */
   /* <Note>                                                                */
   /*    Only the glyph loader and debugger should call this function.      */
@@ -4821,7 +4821,28 @@
       if ( CUR.opcode & 1 )
         D = CUR_Func_project( CUR.zp0.cur + L, CUR.zp1.cur + K );
       else
-        D = CUR_Func_dualproj( CUR.zp0.org + L, CUR.zp1.org + K );
+      {
+        FT_Vector*  vec1 = CUR.zp0.orus + L;
+        FT_Vector*  vec2 = CUR.zp1.orus + K;
+
+
+        if ( CUR.metrics.x_scale == CUR.metrics.y_scale )
+        {
+          /* this should be faster */
+          D = CUR_Func_dualproj( vec1, vec2 );
+          D = TT_MULFIX( D, CUR.metrics.x_scale );
+        }
+        else
+        {
+          FT_Vector  vec;
+
+
+          vec.x = TT_MULFIX( vec1->x - vec2->x, CUR.metrics.x_scale );
+          vec.y = TT_MULFIX( vec1->y - vec2->y, CUR.metrics.y_scale );
+
+          D = CUR_fast_dualproj( &vec );
+        }
+      }
     }
 
     args[0] = D;
@@ -5071,12 +5092,8 @@
       return;
     }
 
-    A *= 64;
-
-#if 0
-    if ( ( args[0] & 0x100 ) != 0 && CUR.metrics.pointSize <= A )
+    if ( ( args[0] & 0x100 ) != 0 && CUR.tt_metrics.ppem < A )
       CUR.GS.scan_control = TRUE;
-#endif
 
     if ( ( args[0] & 0x200 ) != 0 && CUR.tt_metrics.rotated )
       CUR.GS.scan_control = TRUE;
@@ -5084,10 +5101,8 @@
     if ( ( args[0] & 0x400 ) != 0 && CUR.tt_metrics.stretched )
       CUR.GS.scan_control = TRUE;
 
-#if 0
-    if ( ( args[0] & 0x800 ) != 0 && CUR.metrics.pointSize > A )
+    if ( ( args[0] & 0x800 ) != 0 && CUR.tt_metrics.ppem >= A )
       CUR.GS.scan_control = FALSE;
-#endif
 
     if ( ( args[0] & 0x1000 ) != 0 && CUR.tt_metrics.rotated )
       CUR.GS.scan_control = FALSE;
@@ -5106,16 +5121,8 @@
   static void
   Ins_SCANTYPE( INS_ARG )
   {
-    /* for compatibility with future enhancements, */
-    /* we must ignore new modes                    */
-
-    if ( args[0] >= 0 && args[0] <= 5 )
-    {
-      if ( args[0] == 3 )
-        args[0] = 2;
-
+    if ( args[0] >= 0 )
       CUR.GS.scan_type = (FT_Int)args[0];
-    }
   }
 
 
@@ -5428,7 +5435,7 @@
 
     /* XXX: this is probably wrong... at least it prevents memory */
     /*      corruption when zp2 is the twilight zone              */
-    if ( last_point > CUR.zp2.n_points )
+    if ( BOUNDS( last_point, CUR.zp2.n_points ) )
     {
       if ( CUR.zp2.n_points > 0 )
         last_point = (FT_UShort)(CUR.zp2.n_points - 1);
@@ -6211,9 +6218,13 @@
         org_dist = CUR_Func_dualproj( &CUR.zp2.orus[point], orus_base );
 
       cur_dist = CUR_Func_project ( &CUR.zp2.cur[point], cur_base );
-      new_dist = ( old_range != 0 )
-                   ? TT_MULDIV( org_dist, cur_range, old_range )
-                   : cur_dist;
+
+      if ( org_dist )
+        new_dist = ( old_range != 0 )
+                     ? TT_MULDIV( org_dist, cur_range, old_range )
+                     : cur_dist;
+      else
+        new_dist = 0;
 
       CUR_Func_move( &CUR.zp2, (FT_UShort)point, new_dist - cur_dist );
     }
@@ -6257,7 +6268,7 @@
 
 
   /* Local variables for Ins_IUP: */
-  typedef struct
+  typedef struct  IUP_WorkerRec_
   {
     FT_Vector*  orgs;   /* original and current coordinate */
     FT_Vector*  curs;   /* arrays                          */
@@ -6433,6 +6444,9 @@
     {
       end_point   = CUR.pts.contours[contour] - CUR.pts.first_point;
       first_point = point;
+
+      if ( CUR.pts.n_points <= end_point )
+        end_point = CUR.pts.n_points;
 
       while ( point <= end_point && ( CUR.pts.tags[point] & mask ) == 0 )
         point++;

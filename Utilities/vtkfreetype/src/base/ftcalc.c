@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Arithmetic computations (body).                                      */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006 by                   */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2008 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -33,6 +33,7 @@
 
 
 #include <ft2build.h>
+#include FT_GLYPH_H
 #include FT_INTERNAL_CALC_H
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_OBJECTS_H
@@ -430,8 +431,8 @@
       "shll  $16, %%edx\n"
       "addl  %%edx, %%eax\n"
       "mov   %%eax, %0\n"
-      : "=r"(result)
-      : "a"(a), "d"(b)
+      : "=a"(result), "+d"(b)
+      : "a"(a)
       : "%ecx"
     );
     return result;
@@ -512,8 +513,8 @@
     FT_UInt32  q;
 
 
-    s  = a; a = FT_ABS(a);
-    s ^= b; b = FT_ABS(b);
+    s  = a; a = FT_ABS( a );
+    s ^= b; b = FT_ABS( b );
 
     if ( b == 0 )
     {
@@ -664,6 +665,110 @@
 
 
 #endif /* FT_LONG64 */
+
+
+  /* documentation is in ftglyph.h */
+
+  FT_EXPORT_DEF( void )
+  FT_Matrix_Multiply( const FT_Matrix*  a,
+                      FT_Matrix        *b )
+  {
+    FT_Fixed  xx, xy, yx, yy;
+
+
+    if ( !a || !b )
+      return;
+
+    xx = FT_MulFix( a->xx, b->xx ) + FT_MulFix( a->xy, b->yx );
+    xy = FT_MulFix( a->xx, b->xy ) + FT_MulFix( a->xy, b->yy );
+    yx = FT_MulFix( a->yx, b->xx ) + FT_MulFix( a->yy, b->yx );
+    yy = FT_MulFix( a->yx, b->xy ) + FT_MulFix( a->yy, b->yy );
+
+    b->xx = xx;  b->xy = xy;
+    b->yx = yx;  b->yy = yy;
+  }
+
+
+  /* documentation is in ftglyph.h */
+
+  FT_EXPORT_DEF( FT_Error )
+  FT_Matrix_Invert( FT_Matrix*  matrix )
+  {
+    FT_Pos  delta, xx, yy;
+
+
+    if ( !matrix )
+      return FT_Err_Invalid_Argument;
+
+    /* compute discriminant */
+    delta = FT_MulFix( matrix->xx, matrix->yy ) -
+            FT_MulFix( matrix->xy, matrix->yx );
+
+    if ( !delta )
+      return FT_Err_Invalid_Argument;  /* matrix can't be inverted */
+
+    matrix->xy = - FT_DivFix( matrix->xy, delta );
+    matrix->yx = - FT_DivFix( matrix->yx, delta );
+
+    xx = matrix->xx;
+    yy = matrix->yy;
+
+    matrix->xx = FT_DivFix( yy, delta );
+    matrix->yy = FT_DivFix( xx, delta );
+
+    return FT_Err_Ok;
+  }
+
+
+  /* documentation is in ftcalc.h */
+
+  FT_BASE_DEF( void )
+  FT_Matrix_Multiply_Scaled( const FT_Matrix*  a,
+                             FT_Matrix        *b,
+                             FT_Long           scaling )
+  {
+    FT_Fixed  xx, xy, yx, yy;
+
+    FT_Long   val = 0x10000L * scaling;
+
+
+    if ( !a || !b )
+      return;
+
+    xx = FT_MulDiv( a->xx, b->xx, val ) + FT_MulDiv( a->xy, b->yx, val );
+    xy = FT_MulDiv( a->xx, b->xy, val ) + FT_MulDiv( a->xy, b->yy, val );
+    yx = FT_MulDiv( a->yx, b->xx, val ) + FT_MulDiv( a->yy, b->yx, val );
+    yy = FT_MulDiv( a->yx, b->xy, val ) + FT_MulDiv( a->yy, b->yy, val );
+
+    b->xx = xx;  b->xy = xy;
+    b->yx = yx;  b->yy = yy;
+  }
+
+
+  /* documentation is in ftcalc.h */
+
+  FT_BASE_DEF( void )
+  FT_Vector_Transform_Scaled( FT_Vector*        vector,
+                              const FT_Matrix*  matrix,
+                              FT_Long           scaling )
+  {
+    FT_Pos   xz, yz;
+
+    FT_Long  val = 0x10000L * scaling;
+
+
+    if ( !vector || !matrix )
+      return;
+
+    xz = FT_MulDiv( vector->x, matrix->xx, val ) +
+         FT_MulDiv( vector->y, matrix->xy, val );
+
+    yz = FT_MulDiv( vector->x, matrix->yx, val ) +
+         FT_MulDiv( vector->y, matrix->yy, val );
+
+    vector->x = xz;
+    vector->y = yz;
+  }
 
 
   /* documentation is in ftcalc.h */

@@ -89,7 +89,7 @@ FT_BEGIN_HEADER
   /*    asize :: A handle to a new size object.                            */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   /* <Note>                                                                */
   /*    You need to call @FT_Activate_Size in order to select the new size */
@@ -115,7 +115,7 @@ FT_BEGIN_HEADER
   /*    size :: A handle to a target size object.                          */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Done_Size( FT_Size  size );
@@ -139,7 +139,7 @@ FT_BEGIN_HEADER
   /*    size :: A handle to a target size object.                          */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   /* <Note>                                                                */
   /*    If `face' is the size's parent face object, this function changes  */

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    PostScript hinting algorithm (body).                                 */
 /*                                                                         */
-/*  Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by                  */
+/*  Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by            */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used        */
@@ -2223,8 +2223,17 @@
       FT_Fixed  x_scale = dim_x->scale_mult;
       FT_Fixed  y_scale = dim_y->scale_mult;
 
+  /* VTK_FREETYPE_CHANGE commented out line */
+  /* Workaround for kitware bug 7199, freetype bug 19976. */
+#if 0
+      FT_Fixed  old_x_scale = x_scale;
+      FT_Fixed  old_y_scale = y_scale;
+#endif
+
       FT_Fixed  scaled;
       FT_Fixed  fitted;
+
+      FT_Bool  rescale = FALSE;
 
 
       scaled = FT_MulFix( globals->blues.normal_top.zones->org_ref, y_scale );
@@ -2232,6 +2241,8 @@
 
       if ( fitted != 0 && scaled != fitted )
       {
+        rescale = TRUE;
+
         y_scale = FT_MulDiv( y_scale, fitted, scaled );
 
         if ( fitted < scaled )
@@ -2239,43 +2250,51 @@
 
         psh_globals_set_scale( glyph->globals, x_scale, y_scale, 0, 0 );
       }
-    }
 
-    glyph->do_horz_hints = 1;
-    glyph->do_vert_hints = 1;
+      glyph->do_horz_hints = 1;
+      glyph->do_vert_hints = 1;
 
-    glyph->do_horz_snapping = FT_BOOL( hint_mode == FT_RENDER_MODE_MONO ||
-                                       hint_mode == FT_RENDER_MODE_LCD  );
+      glyph->do_horz_snapping = FT_BOOL( hint_mode == FT_RENDER_MODE_MONO ||
+                                         hint_mode == FT_RENDER_MODE_LCD  );
 
-    glyph->do_vert_snapping = FT_BOOL( hint_mode == FT_RENDER_MODE_MONO  ||
-                                       hint_mode == FT_RENDER_MODE_LCD_V );
+      glyph->do_vert_snapping = FT_BOOL( hint_mode == FT_RENDER_MODE_MONO  ||
+                                         hint_mode == FT_RENDER_MODE_LCD_V );
 
-    glyph->do_stem_adjust   = FT_BOOL( hint_mode != FT_RENDER_MODE_LIGHT );
+      glyph->do_stem_adjust   = FT_BOOL( hint_mode != FT_RENDER_MODE_LIGHT );
 
-    for ( dimension = 0; dimension < 2; dimension++ )
-    {
-      /* load outline coordinates into glyph */
-      psh_glyph_load_points( glyph, dimension );
+      for ( dimension = 0; dimension < 2; dimension++ )
+      {
+        /* load outline coordinates into glyph */
+        psh_glyph_load_points( glyph, dimension );
 
-      /* compute local extrema */
-      psh_glyph_compute_extrema( glyph );
+        /* compute local extrema */
+        psh_glyph_compute_extrema( glyph );
 
-      /* compute aligned stem/hints positions */
-      psh_hint_table_align_hints( &glyph->hint_tables[dimension],
-                                  glyph->globals,
-                                  dimension,
-                                  glyph );
+        /* compute aligned stem/hints positions */
+        psh_hint_table_align_hints( &glyph->hint_tables[dimension],
+                                    glyph->globals,
+                                    dimension,
+                                    glyph );
 
-      /* find strong points, align them, then interpolate others */
-      psh_glyph_find_strong_points( glyph, dimension );
-      if ( dimension == 1 )
-        psh_glyph_find_blue_points( &globals->blues, glyph );
-      psh_glyph_interpolate_strong_points( glyph, dimension );
-      psh_glyph_interpolate_normal_points( glyph, dimension );
-      psh_glyph_interpolate_other_points( glyph, dimension );
+        /* find strong points, align them, then interpolate others */
+        psh_glyph_find_strong_points( glyph, dimension );
+        if ( dimension == 1 )
+          psh_glyph_find_blue_points( &globals->blues, glyph );
+        psh_glyph_interpolate_strong_points( glyph, dimension );
+        psh_glyph_interpolate_normal_points( glyph, dimension );
+        psh_glyph_interpolate_other_points( glyph, dimension );
 
-      /* save hinted coordinates back to outline */
-      psh_glyph_save_points( glyph, dimension );
+        /* save hinted coordinates back to outline */
+        psh_glyph_save_points( glyph, dimension );
+
+  /* VTK_FREETYPE_CHANGE commented out line */
+  /* Workaround for kitware bug 7199, freetype bug 19976. */
+#if 0
+        if ( rescale )
+          psh_globals_set_scale( glyph->globals,
+                                 old_x_scale, old_y_scale, 0, 0 );
+#endif
+      }
     }
 
   Exit:

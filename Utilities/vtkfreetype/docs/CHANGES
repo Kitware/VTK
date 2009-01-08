@@ -1,3 +1,102 @@
+CHANGES BETWEEN 2.3.7 and 2.3.6
+
+  I. IMPORTANT BUG FIXES
+
+    - If the library  was compiled on an i386  platform using gcc, and
+      compiler  option -O3 was  given, `FT_MulFix'  sometimes returned
+      incorrect  results   which  could  have   caused  problems  with
+      `FT_Request_Metrics'   and  `FT_Select_Metrics',   returning  an
+      incorrect descender size.
+
+    - Pure CFFs without  subfonts were scaled incorrectly  if the font
+      matrix  was  non-standard.  This  bug  has  been  introduced  in
+      version 2.3.6.
+
+    - The  `style_name'  field  in  the  `FT_FaceRec'  structure often
+      contained  a wrong  value for  Type 1  fonts.  This misbehaviour
+      has been  introduced  in  version  2.3.6  while  trying  to  fix
+      another   problem.   [Note,  however,   that   this   value   is
+      informative only  since  the  used  algorithm to  extract  it is
+      very simplistic.]
+
+
+  II. IMPORTANT CHANGES
+
+    - Two      new      macros,      FT_OUTLINE_SMART_DROPOUTS     and
+      FT_OUTLINE_EXCLUDE_STUBS,  have been introduced.   Together with
+      FT_OUTLINE_IGNORE_DROPOUTS (which  was ignored previously) it is
+      now possible to control the dropout mode  of the `raster' module
+      (for B&W rasterization),   using  the   `flags'  field   in  the
+      `FT_Outline' structure.
+
+    - The TrueType bytecode interpreter now passes the dropout mode to
+      the B&W rasterizer.  This greatly increases the output for small
+      ppem values of many fonts like `pala.ttf'.
+
+
+======================================================================
+
+CHANGES BETWEEN 2.3.6 and 2.3.5
+
+  I. IMPORTANT BUG FIXES
+
+    - A  bunch of  potential security  problems have  been found.  All
+      users should update.
+
+    - Microsoft  Unicode  cmaps  in  TrueType  fonts  are  now  always
+      preferred over Apple cmaps.  This is not a bug per se, but there
+      exist some buggy  fonts created for MS which  have broken  Apple
+      cmaps.  This affects  only the automatic  selection of FreeType;
+      it's always possible to manually select an Apple Unicode cmap if
+      desired.
+
+    - Many bug fixes to the TrueType bytecode interpreter.
+
+    - Improved Mac support.
+
+    - Subsetted CID-keyed CFFs are now supported correctly.
+
+    - CID-keyed CFFs with subfonts which are scaled in a  non-standard
+      way are now handled correctly.
+
+    - A call to FT_Open_Face with `face_index' < 0 crashed FreeType if
+      the font was a Windows (bitmap) FNT/FON.
+
+
+  II. IMPORTANT CHANGES
+
+    - The new function `FT_Get_CID_Registry_Ordering_Supplement' gives
+      access to  those fields in a CID-keyed font.  The code  has been
+      contributed by Derek Clegg.
+
+    - George Williams  contributed  code  to validate  the new  `MATH'
+      OpenType  table (within  the `otvalid'  module).  The  `ftvalid'
+      demo program has been extended accordingly.
+
+    - An API for cmap 14 support  (for Unicode Variant Selectors, UVS)
+      has been contributed by George Williams.
+
+    - A new face flag FT_FACE_FLAG_CID_KEYED has been added,  together
+      with a macro FT_IS_CID_KEYED which evaluates to 1 if the font is
+      CID-keyed.
+
+
+  III. MISCELLANEOUS
+
+    - Build support for symbian has been contributed.
+
+    - Better WGL4 glyph name support, contributed by Sergey Tolstov.
+
+    - Debugging output of the  various FT_TRACEX macros is now sent to
+      stderr.
+
+    - The `ftview' demo program now provides artificial slanting too.
+
+    - The `ftvalid' demo  program has a new  option `-f' to select the
+      font index.
+
+
+======================================================================
 
 CHANGES BETWEEN 2.3.5 and 2.3.4
 
@@ -3068,7 +3167,7 @@ Extensions support:
 
 ------------------------------------------------------------------------
 
-Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 by
+Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by
 David Turner, Robert Wilhelm, and Werner Lemberg.
 
 This  file  is  part  of the  FreeType  project, and may  only be  used,

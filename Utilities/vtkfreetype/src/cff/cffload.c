@@ -31,6 +31,7 @@
 
 
 #if 1
+
   static const FT_UShort  cff_isoadobe_charset[229] =
   {
       0,   1,   2,   3,   4,   5,   6,   7,
@@ -175,13 +176,15 @@
     363, 364, 365, 366, 367, 368, 369, 370,
     371, 372, 373, 374, 375, 376, 377, 378
   };
-#endif
+
+#endif /* 1 */
 
 
   FT_LOCAL_DEF( FT_UShort )
   cff_get_standard_encoding( FT_UInt  charcode )
   {
-    return  (FT_UShort)(charcode < 256 ? cff_standard_encoding[charcode] : 0);
+    return (FT_UShort)( charcode < 256 ? cff_standard_encoding[charcode]
+                                       : 0 );
   }
 
 
@@ -1272,8 +1275,9 @@
     top->cid_ordering        = 0xFFFFU;
     top->cid_font_name       = 0xFFFFU;
 
-    error = cff_index_access_element( idx, font_index, &dict, &dict_len ) ||
-            cff_parser_run( &parser, dict, dict + dict_len );
+    error = cff_index_access_element( idx, font_index, &dict, &dict_len );
+    if ( !error )
+      error = cff_parser_run( &parser, dict, dict + dict_len );
 
     cff_index_forget_element( idx, &dict );
 
@@ -1589,6 +1593,9 @@
       FT_FREE( font->font_info->weight );
       FT_FREE( font->font_info );
     }
+
+    FT_FREE( font->registry );
+    FT_FREE( font->ordering );
 
     FT_FREE( font->global_subrs );
     FT_FREE( font->font_name );

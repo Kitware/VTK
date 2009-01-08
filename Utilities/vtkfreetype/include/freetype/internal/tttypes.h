@@ -5,7 +5,7 @@
 /*    Basic SFNT/TrueType type definitions and interface (specification    */
 /*    only).                                                               */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2004, 2005, 2006, 2007 by                   */
+/*  Copyright 1996-2001, 2002, 2004, 2005, 2006, 2007, 2008 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -586,7 +586,7 @@ FT_BEGIN_HEADER
   /*    table_offset  :: The offset of the index table in the `EBLC'       */
   /*                     table.  Only used during strike loading.          */
   /*                                                                       */
-  typedef struct  TT_SBit_RangeRec
+  typedef struct  TT_SBit_RangeRec_
   {
     FT_UShort           first_glyph;
     FT_UShort           last_glyph;

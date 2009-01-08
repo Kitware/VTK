@@ -5,7 +5,7 @@
 /*    Load the basic TrueType tables, i.e., tables that can be either in   */
 /*    TTF or OTF fonts (body).                                             */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -618,6 +618,15 @@
 
       if ( maxProfile->maxFunctionDefs == 0 )
         maxProfile->maxFunctionDefs = 64;
+
+      /* we add 4 phantom points later */
+      if ( maxProfile->maxTwilightPoints > ( 0xFFFFU - 4 ) )
+      {
+        FT_ERROR(( "Too much twilight points in `maxp' table;\n" ));
+        FT_ERROR(( "  some glyphs might be rendered incorrectly.\n" ));
+
+        maxProfile->maxTwilightPoints = 0xFFFFU - 4;
+      }
     }
 
     FT_TRACE3(( "numGlyphs: %u\n", maxProfile->numGlyphs ));

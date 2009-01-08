@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    OpenType Glyph Loader (body).                                        */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -110,6 +110,9 @@
     cff_op_callgsubr,
     cff_op_return,
 
+    cff_op_hsbw,        /* Type 1 opcode: invalid but seen in real life */
+    cff_op_closepath,   /* ditto */
+
     /* do not remove */
     cff_op_max
 
@@ -187,6 +190,9 @@
 
     1, /* callsubr */
     1,
+    0,
+
+    2, /* hsbw */
     0
   };
 
@@ -222,6 +228,8 @@
   /*                                                                       */
   /*    glyph   :: The current glyph object.                               */
   /*                                                                       */
+  /*    hinting :: Whether hinting is active.                              */
+  /*                                                                       */
   static void
   cff_builder_init( CFF_Builder*   builder,
                     TT_Face        face,
@@ -251,15 +259,12 @@
 
       if ( hinting && size )
       {
-        builder->hints_globals = size->root.internal;
+        CFF_Internal  internal = (CFF_Internal)size->root.internal;
+
+
+        builder->hints_globals = (void *)internal->topfont;
         builder->hints_funcs   = glyph->root.internal->glyph_hints;
       }
-    }
-
-    if ( size )
-    {
-      builder->scale_x = size->root.metrics.x_scale;
-      builder->scale_y = size->root.metrics.y_scale;
     }
 
     builder->pos_x = 0;
@@ -339,11 +344,15 @@
   /*    decoder :: A pointer to the glyph builder to initialize.           */
   /*                                                                       */
   /* <Input>                                                               */
-  /*    face    :: The current face object.                                */
+  /*    face      :: The current face object.                              */
   /*                                                                       */
-  /*    size    :: The current size object.                                */
+  /*    size      :: The current size object.                              */
   /*                                                                       */
-  /*    slot    :: The current glyph object.                               */
+  /*    slot      :: The current glyph object.                             */
+  /*                                                                       */
+  /*    hinting   :: Whether hinting is active.                            */
+  /*                                                                       */
+  /*    hint_mode :: The hinting mode.                                     */
   /*                                                                       */
   FT_LOCAL_DEF( void )
   cff_decoder_init( CFF_Decoder*    decoder,
@@ -371,18 +380,21 @@
   }
 
 
-  /* this function is used to select the locals subrs array */
+  /* this function is used to select the subfont */
+  /* and the locals subrs array                  */
   FT_LOCAL_DEF( FT_Error )
   cff_decoder_prepare( CFF_Decoder*  decoder,
+                       CFF_Size      size,
                        FT_UInt       glyph_index )
   {
-    CFF_Font     cff   = (CFF_Font)decoder->builder.face->extra.data;
-    CFF_SubFont  sub   = &cff->top_font;
-    FT_Error     error = CFF_Err_Ok;
+    CFF_Builder  *builder = &decoder->builder;
+    CFF_Font      cff     = (CFF_Font)builder->face->extra.data;
+    CFF_SubFont   sub     = &cff->top_font;
+    FT_Error      error   = CFF_Err_Ok;
 
 
     /* manage CID fonts */
-    if ( cff->num_subfonts >= 1 )
+    if ( cff->num_subfonts )
     {
       FT_Byte  fd_index = cff_fd_select_get( &cff->fd_select, glyph_index );
 
@@ -393,8 +405,17 @@
         error = CFF_Err_Invalid_File_Format;
         goto Exit;
       }
-        
+
       sub = cff->subfonts[fd_index];
+
+      if ( builder->hints_funcs )
+      {
+        CFF_Internal  internal = (CFF_Internal)size->root.internal;
+
+
+        /* for CFFs without subfonts, this value has already been set */
+        builder->hints_globals = (void *)internal->subfonts[fd_index];
+      }
     }
 
     decoder->num_locals    = sub->num_local_subrs;
@@ -954,6 +975,9 @@
         case 8:
           op = cff_op_rrcurveto;
           break;
+        case 9:
+          op = cff_op_closepath;
+          break;
         case 10:
           op = cff_op_callsubr;
           break;
@@ -1054,6 +1078,9 @@
               ip--;
             }
           }
+          break;
+        case 13:
+          op = cff_op_hsbw;
           break;
         case 14:
           op = cff_op_endchar;
@@ -1168,7 +1195,7 @@
           req_args            = 0;
         }
 
-        req_args &= 15;
+        req_args &= 0x000F;
         if ( num_args < req_args )
           goto Stack_Underflow;
         args     -= req_args;
@@ -2022,6 +2049,30 @@
           FT_TRACE4(( " dotsection" ));
           break;
 
+        case cff_op_closepath:
+          /* this is an invalid Type 2 operator; however, there        */
+          /* exist fonts which are incorrectly converted from probably */
+          /* Type 1 to CFF, and some parsers seem to accept it         */
+
+          FT_TRACE4(( " closepath (invalid op)" ));
+
+          args = stack;
+          break;
+
+        case cff_op_hsbw:
+          /* this is an invalid Type 2 operator; however, there        */
+          /* exist fonts which are incorrectly converted from probably */
+          /* Type 1 to CFF, and some parsers seem to accept it         */
+
+          FT_TRACE4(( " hsbw (invalid op)" ));
+
+          decoder->glyph_width = decoder->nominal_width +
+                                   (args[1] >> 16);
+          x    = args[0];
+          y    = 0;
+          args = stack;
+          break;
+
         case cff_op_and:
           {
             FT_Fixed  cond = args[0] && args[1];
@@ -2260,7 +2311,7 @@
                                   &charstring, &charstring_len );
       if ( !error )
       {
-        error = cff_decoder_prepare( &decoder, glyph_index );
+        error = cff_decoder_prepare( &decoder, size, glyph_index );
         if ( !error )
           error = cff_decoder_parse_charstrings( &decoder,
                                                  charstring,
@@ -2291,18 +2342,20 @@
     FT_Error     error;
     CFF_Decoder  decoder;
     TT_Face      face     = (TT_Face)glyph->root.face;
-    FT_Bool      hinting;
+    FT_Bool      hinting, force_scaling;
     CFF_Font     cff      = (CFF_Font)face->extra.data;
 
     FT_Matrix    font_matrix;
     FT_Vector    font_offset;
 
 
+    force_scaling = FALSE;
+
     /* in a CID-keyed font, consider `glyph_index' as a CID and map */
     /* it immediately to the real glyph_index -- if it isn't a      */
     /* subsetted font, glyph_indices and CIDs are identical, though */
     if ( cff->top_font.font_dict.cid_registry != 0xFFFFU &&
-         cff->charset.cids )
+         cff->charset.cids                               )
     {
       glyph_index = cff_charset_cid_to_gindex( &cff->charset, glyph_index );
       if ( glyph_index == 0 )
@@ -2389,6 +2442,36 @@
     if ( load_flags & FT_LOAD_SBITS_ONLY )
       return CFF_Err_Invalid_Argument;
 
+    /* if we have a CID subfont, use its matrix (which has already */
+    /* been multiplied with the root matrix)                       */
+
+    /* this scaling is only relevant if the PS hinter isn't active */
+    if ( cff->num_subfonts )
+    {
+      FT_Byte  fd_index = cff_fd_select_get( &cff->fd_select,
+                                             glyph_index );
+
+      FT_Int  top_upm = cff->top_font.font_dict.units_per_em;
+      FT_Int  sub_upm = cff->subfonts[fd_index]->font_dict.units_per_em;
+
+
+      font_matrix = cff->subfonts[fd_index]->font_dict.font_matrix;
+      font_offset = cff->subfonts[fd_index]->font_dict.font_offset;
+
+      if ( top_upm != sub_upm )
+      {
+        glyph->x_scale = FT_MulDiv( glyph->x_scale, top_upm, sub_upm );
+        glyph->y_scale = FT_MulDiv( glyph->y_scale, top_upm, sub_upm );
+
+        force_scaling = TRUE;
+      }
+    }
+    else
+    {
+      font_matrix = cff->top_font.font_dict.font_matrix;
+      font_offset = cff->top_font.font_dict.font_offset;
+    }
+
     glyph->root.outline.n_points   = 0;
     glyph->root.outline.n_contours = 0;
 
@@ -2413,7 +2496,7 @@
                                   &charstring, &charstring_len );
       if ( !error )
       {
-        error = cff_decoder_prepare( &decoder, glyph_index );
+        error = cff_decoder_prepare( &decoder, size, glyph_index );
         if ( !error )
         {
           error = cff_decoder_parse_charstrings( &decoder,
@@ -2481,21 +2564,6 @@
 
     if ( !error )
     {
-      if ( cff->num_subfonts >= 1 )
-      {
-        FT_Byte  fd_index = cff_fd_select_get( &cff->fd_select,
-                                               glyph_index );
-
-
-        font_matrix = cff->subfonts[fd_index]->font_dict.font_matrix;
-        font_offset = cff->subfonts[fd_index]->font_dict.font_offset;
-      }
-      else
-      {
-        font_matrix = cff->top_font.font_dict.font_matrix;
-        font_offset = cff->top_font.font_dict.font_offset;
-      }
-
       /* Now, set the metrics -- this is rather simple, as   */
       /* the left side bearing is the xMin, and the top side */
       /* bearing the yMax.                                   */
@@ -2565,9 +2633,8 @@
 
         glyph->root.outline.flags |= FT_OUTLINE_REVERSE_FILL;
 
-        /* apply the font matrix */
-        if ( !( font_matrix.xx == 0x10000L &&
-                font_matrix.yy == 0x10000L &&
+        /* apply the font matrix -- `xx' has already been normalized */
+        if ( !( font_matrix.yy == 0x10000L &&
                 font_matrix.xy == 0        &&
                 font_matrix.yx == 0        ) )
           FT_Outline_Transform( &glyph->root.outline, &font_matrix );
@@ -2587,7 +2654,7 @@
         FT_Vector_Transform( &advance, &font_matrix );
         metrics->vertAdvance = advance.y + font_offset.y;
 
-        if ( ( load_flags & FT_LOAD_NO_SCALE ) == 0 )
+        if ( ( load_flags & FT_LOAD_NO_SCALE ) == 0 || force_scaling )
         {
           /* scale the outline and the metrics */
           FT_Int       n;

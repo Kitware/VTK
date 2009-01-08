@@ -20,6 +20,8 @@
 #include "pfrobjs.h"
 #include FT_INTERNAL_DEBUG_H
 
+#include "pfrerror.h"
+
 
   FT_CALLBACK_DEF( FT_Error )
   pfr_cmap_init( PFR_CMap  cmap )
@@ -156,7 +158,9 @@
     (FT_CMap_InitFunc)     pfr_cmap_init,
     (FT_CMap_DoneFunc)     pfr_cmap_done,
     (FT_CMap_CharIndexFunc)pfr_cmap_char_index,
-    (FT_CMap_CharNextFunc) pfr_cmap_char_next
+    (FT_CMap_CharNextFunc) pfr_cmap_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
 

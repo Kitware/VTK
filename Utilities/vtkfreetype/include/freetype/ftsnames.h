@@ -48,7 +48,7 @@ FT_BEGIN_HEADER
   /*    Access the names embedded in TrueType and OpenType files.          */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    The TrueType and OpenType specification allow the inclusion of     */
+  /*    The TrueType and OpenType specifications allow the inclusion of    */
   /*    a special `names table' in font files.  This table contains        */
   /*    textual (and internationalized) information regarding the font,    */
   /*    like family name, copyright, version, etc.                         */
@@ -114,7 +114,7 @@ FT_BEGIN_HEADER
   /*    FT_Get_Sfnt_Name_Count                                             */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Retrieves the number of name strings in the SFNT `name' table.     */
+  /*    Retrieve the number of name strings in the SFNT `name' table.      */
   /*                                                                       */
   /* <Input>                                                               */
   /*    face :: A handle to the source face.                               */
@@ -132,7 +132,7 @@ FT_BEGIN_HEADER
   /*    FT_Get_Sfnt_Name                                                   */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Retrieves a string of the SFNT `name' table for a given index.     */
+  /*    Retrieve a string of the SFNT `name' table for a given index.      */
   /*                                                                       */
   /* <Input>                                                               */
   /*    face  :: A handle to the source face.                              */
@@ -143,7 +143,7 @@ FT_BEGIN_HEADER
   /*    aname :: The indexed @FT_SfntName structure.                       */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   /* <Note>                                                                */
   /*    The `string' array returned in the `aname' structure is not        */

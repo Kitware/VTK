@@ -39,11 +39,13 @@
 
 #define TT_PEEK_SHORT   FT_PEEK_SHORT
 #define TT_PEEK_USHORT  FT_PEEK_USHORT
+#define TT_PEEK_UINT24  FT_PEEK_UOFF3
 #define TT_PEEK_LONG    FT_PEEK_LONG
 #define TT_PEEK_ULONG   FT_PEEK_ULONG
 
 #define TT_NEXT_SHORT   FT_NEXT_SHORT
 #define TT_NEXT_USHORT  FT_NEXT_USHORT
+#define TT_NEXT_UINT24  FT_NEXT_UOFF3
 #define TT_NEXT_LONG    FT_NEXT_LONG
 #define TT_NEXT_ULONG   FT_NEXT_ULONG
 
@@ -171,7 +173,9 @@
       (FT_CMap_InitFunc)     tt_cmap_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap0_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap0_char_next
+      (FT_CMap_CharNextFunc) tt_cmap0_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     0,
     (TT_CMap_ValidateFunc)   tt_cmap0_validate,
@@ -544,7 +548,9 @@
       (FT_CMap_InitFunc)     tt_cmap_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap2_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap2_char_next
+      (FT_CMap_CharNextFunc) tt_cmap2_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     2,
     (TT_CMap_ValidateFunc)   tt_cmap2_validate,
@@ -1320,7 +1326,9 @@
       (FT_CMap_InitFunc)     tt_cmap4_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap4_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap4_char_next
+      (FT_CMap_CharNextFunc) tt_cmap4_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     4,
     (TT_CMap_ValidateFunc)   tt_cmap4_validate,
@@ -1481,7 +1489,9 @@
       (FT_CMap_InitFunc)     tt_cmap_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap6_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap6_char_next
+      (FT_CMap_CharNextFunc) tt_cmap6_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     6,
     (TT_CMap_ValidateFunc)   tt_cmap6_validate,
@@ -1735,7 +1745,9 @@
       (FT_CMap_InitFunc)     tt_cmap_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap8_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap8_char_next
+      (FT_CMap_CharNextFunc) tt_cmap8_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     8,
     (TT_CMap_ValidateFunc)   tt_cmap8_validate,
@@ -1884,7 +1896,9 @@
       (FT_CMap_InitFunc)     tt_cmap_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap10_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap10_char_next
+      (FT_CMap_CharNextFunc) tt_cmap10_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     10,
     (TT_CMap_ValidateFunc)   tt_cmap10_validate,
@@ -2201,15 +2215,754 @@
       (FT_CMap_InitFunc)     tt_cmap12_init,
       (FT_CMap_DoneFunc)     NULL,
       (FT_CMap_CharIndexFunc)tt_cmap12_char_index,
-      (FT_CMap_CharNextFunc) tt_cmap12_char_next
+      (FT_CMap_CharNextFunc) tt_cmap12_char_next,
+
+      NULL, NULL, NULL, NULL, NULL
     },
     12,
     (TT_CMap_ValidateFunc)   tt_cmap12_validate,
     (TT_CMap_Info_GetFunc)   tt_cmap12_get_info
   };
 
-
 #endif /* TT_CONFIG_CMAP_FORMAT_12 */
+
+
+  /*************************************************************************/
+  /*************************************************************************/
+  /*****                                                               *****/
+  /*****                           FORMAT 14                           *****/
+  /*****                                                               *****/
+  /*************************************************************************/
+  /*************************************************************************/
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* TABLE OVERVIEW                                                        */
+  /* --------------                                                        */
+  /*                                                                       */
+  /*   NAME         OFFSET  TYPE    DESCRIPTION                            */
+  /*                                                                       */
+  /*   format         0     USHORT  must be 14                             */
+  /*   length         2     ULONG   table length in bytes                  */
+  /*   numSelector    6     ULONG   number of variation sel. records       */
+  /*                                                                       */
+  /* Followed by numSelector records, each of which looks like             */
+  /*                                                                       */
+  /*   varSelector    0     UINT24  Unicode codepoint of sel.              */
+  /*   defaultOff     3     ULONG   offset to a default UVS table          */
+  /*                                describing any variants to be found in */
+  /*                                the normal Unicode subtable.           */
+  /*   nonDefOff      7     ULONG   offset to a non-default UVS table      */
+  /*                                describing any variants not in the     */
+  /*                                standard cmap, with GIDs here          */
+  /* (either offset may be 0 NULL)                                         */
+  /*                                                                       */
+  /* Selectors are sorted by code point.                                   */
+  /*                                                                       */
+  /* A default Unicode Variation Selector (UVS) subtable is just a list of */
+  /* ranges of code points which are to be found in the standard cmap.  No */
+  /* glyph IDs (GIDs) here.                                                */
+  /*                                                                       */
+  /*   numRanges      0     ULONG   number of ranges following             */
+  /*                                                                       */
+  /* A range looks like                                                    */
+  /*                                                                       */
+  /*   uniStart       0     UINT24  code point of the first character in   */
+  /*                                this range                             */
+  /*   additionalCnt  3     UBYTE   count of additional characters in this */
+  /*                                range (zero means a range of a single  */
+  /*                                character)                             */
+  /*                                                                       */
+  /* Ranges are sorted by `uniStart'.                                      */
+  /*                                                                       */
+  /* A non-default Unicode Variation Selector (UVS) subtable is a list of  */
+  /* mappings from codepoint to GID.                                       */
+  /*                                                                       */
+  /*   numMappings    0     ULONG   number of mappings                     */
+  /*                                                                       */
+  /* A range looks like                                                    */
+  /*                                                                       */
+  /*   uniStart       0     UINT24  code point of the first character in   */
+  /*                                this range                             */
+  /*   GID            3     USHORT  and its GID                            */
+  /*                                                                       */
+  /* Ranges are sorted by `uniStart'.                                      */
+
+#ifdef TT_CONFIG_CMAP_FORMAT_14
+
+  typedef struct  TT_CMap14Rec_
+  {
+    TT_CMapRec  cmap;
+    FT_ULong    num_selectors;
+
+    /* This array is used to store the results of various
+     * cmap 14 query functions.  The data is overwritten
+     * on each call to these functions.
+     */
+    FT_UInt     max_results;
+    FT_UInt32*  results;
+    FT_Memory   memory;
+
+  } TT_CMap14Rec, *TT_CMap14;
+
+
+  FT_CALLBACK_DEF( void )
+  tt_cmap14_done( TT_CMap14  cmap )
+  {
+    FT_Memory  memory = cmap->memory;
+
+
+    cmap->max_results = 0;
+    if ( memory != NULL && cmap->results != NULL )
+      FT_FREE( cmap->results );
+  }
+
+
+  static FT_Error
+  tt_cmap14_ensure( TT_CMap14  cmap,
+                    FT_UInt    num_results,
+                    FT_Memory  memory )
+  {
+    FT_UInt   old_max = cmap->max_results;
+    FT_Error  error   = 0;
+
+
+    if ( num_results > cmap->max_results )
+    {
+       cmap->memory = memory;
+
+       if ( FT_QRENEW_ARRAY( cmap->results, old_max, num_results ) )
+         return error;
+
+       cmap->max_results = num_results;
+    }
+
+    return error;
+  }
+
+
+  FT_CALLBACK_DEF( FT_Error )
+  tt_cmap14_init( TT_CMap14  cmap,
+                  FT_Byte*   table )
+  {
+    cmap->cmap.data = table;
+
+    table               += 6;
+    cmap->num_selectors = FT_PEEK_ULONG( table );
+    cmap->max_results   = 0;
+    cmap->results       = NULL;
+
+    return SFNT_Err_Ok;
+  }
+
+
+  FT_CALLBACK_DEF( FT_Error )
+  tt_cmap14_validate( FT_Byte*      table,
+                      FT_Validator  valid )
+  {
+    FT_Byte*  p             = table + 2;
+    FT_ULong  length        = TT_NEXT_ULONG( p );
+    FT_ULong  num_selectors = TT_NEXT_ULONG( p );
+
+
+    if ( table + length > valid->limit || length < 10 + 11 * num_selectors )
+      FT_INVALID_TOO_SHORT;
+
+    /* check selectors, they must be in increasing order */
+    {
+      /* we start lastVarSel at 1 because a variant selector value of 0
+       * isn't valid.
+       */
+      FT_ULong  n, lastVarSel = 1;
+
+
+      for ( n = 0; n < num_selectors; n++ )
+      {
+        FT_ULong  varSel    = TT_NEXT_UINT24( p );
+        FT_ULong  defOff    = TT_NEXT_ULONG( p );
+        FT_ULong  nondefOff = TT_NEXT_ULONG( p );
+
+
+        if ( defOff >= length || nondefOff >= length )
+          FT_INVALID_TOO_SHORT;
+
+        if ( varSel < lastVarSel )
+          FT_INVALID_DATA;
+
+        lastVarSel = varSel + 1;
+
+        /* check the default table (these glyphs should be reached     */
+        /* through the normal Unicode cmap, no GIDs, just check order) */
+        if ( defOff != 0 )
+        {
+          FT_Byte*  defp      = table + defOff;
+          FT_ULong  numRanges = TT_NEXT_ULONG( defp );
+          FT_ULong  i;
+          FT_ULong  lastBase  = 0;
+
+
+          if ( defp + numRanges * 4 > valid->limit )
+            FT_INVALID_TOO_SHORT;
+
+          for ( i = 0; i < numRanges; ++i )
+          {
+            FT_ULong  base = TT_NEXT_UINT24( defp );
+            FT_ULong  cnt  = FT_NEXT_BYTE( defp );
+
+
+            if ( base + cnt >= 0x110000UL )              /* end of Unicode */
+              FT_INVALID_DATA;
+
+            if ( base < lastBase )
+              FT_INVALID_DATA;
+
+            lastBase = base + cnt + 1U;
+          }
+        }
+
+        /* and the non-default table (these glyphs are specified here) */
+        if ( nondefOff != 0 ) {
+          FT_Byte*  ndp         = table + nondefOff;
+          FT_ULong  numMappings = TT_NEXT_ULONG( ndp );
+          FT_ULong  i, lastUni = 0;
+
+
+          if ( ndp + numMappings * 4 > valid->limit )
+            FT_INVALID_TOO_SHORT;
+
+          for ( i = 0; i < numMappings; ++i )
+          {
+            FT_ULong  uni = TT_NEXT_UINT24( ndp );
+            FT_ULong  gid = TT_NEXT_USHORT( ndp );
+
+
+            if ( uni >= 0x110000UL )                     /* end of Unicode */
+              FT_INVALID_DATA;
+
+            if ( uni < lastUni )
+              FT_INVALID_DATA;
+
+            lastUni = uni + 1U;
+
+            if ( valid->level >= FT_VALIDATE_TIGHT    &&
+                 gid >= TT_VALID_GLYPH_COUNT( valid ) )
+              FT_INVALID_GLYPH_ID;
+          }
+        }
+      }
+    }
+
+    return SFNT_Err_Ok;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt )
+  tt_cmap14_char_index( TT_CMap    cmap,
+                        FT_UInt32  char_code )
+  {
+    FT_UNUSED( cmap );
+    FT_UNUSED( char_code );
+
+    /* This can't happen */
+    return 0;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt )
+  tt_cmap14_char_next( TT_CMap     cmap,
+                       FT_UInt32  *pchar_code )
+  {
+    FT_UNUSED( cmap );
+
+    /* This can't happen */
+    *pchar_code = 0;
+    return 0;
+  }
+
+
+  FT_CALLBACK_DEF( FT_Error )
+  tt_cmap14_get_info( TT_CMap       cmap,
+                      TT_CMapInfo  *cmap_info )
+  {
+    FT_UNUSED( cmap );
+
+    cmap_info->format = 14;
+    /* subtable 14 does not define a language field */
+    cmap_info->language = 0xFFFFFFFFUL;
+
+    return SFNT_Err_Ok;
+  }
+
+
+  static FT_UInt
+  tt_cmap14_char_map_def_binary( FT_Byte    *base,
+                                 FT_UInt32   char_code )
+  {
+    FT_UInt32  numRanges = TT_PEEK_ULONG( base );
+    FT_UInt32  max, min;
+
+
+    min = 0;
+    max = numRanges;
+
+    base += 4;
+
+    /* binary search */
+    while ( min < max )
+    {
+      FT_UInt32  mid   = ( min + max ) >> 1;
+      FT_Byte*   p     = base + 4 * mid;
+      FT_ULong   start = TT_NEXT_UINT24( p );
+      FT_UInt    cnt   = FT_NEXT_BYTE( p );
+
+
+      if ( char_code < start )
+        max = mid;
+      else if ( char_code > start+cnt )
+        min = mid + 1;
+      else
+        return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  static FT_UInt
+  tt_cmap14_char_map_nondef_binary( FT_Byte    *base,
+                                    FT_UInt32   char_code )
+  {
+    FT_UInt32  numMappings = TT_PEEK_ULONG( base );
+    FT_UInt32  max, min;
+
+
+    min = 0;
+    max = numMappings;
+
+    base += 4;
+
+    /* binary search */
+    while ( min < max )
+    {
+      FT_UInt32  mid = ( min + max ) >> 1;
+      FT_Byte*   p   = base + 5 * mid;
+      FT_UInt32  uni = TT_NEXT_UINT24( p );
+
+
+      if ( char_code < uni )
+        max = mid;
+      else if ( char_code > uni )
+        min = mid + 1;
+      else
+        return TT_PEEK_USHORT( p );
+    }
+
+    return 0;
+  }
+
+
+  static FT_Byte*
+  tt_cmap14_find_variant( FT_Byte    *base,
+                          FT_UInt32   variantCode )
+  {
+    FT_UInt32  numVar = TT_PEEK_ULONG( base );
+    FT_UInt32  max, min;
+
+
+    min = 0;
+    max = numVar;
+
+    base += 4;
+
+    /* binary search */
+    while ( min < max )
+    {
+      FT_UInt32  mid    = ( min + max ) >> 1;
+      FT_Byte*   p      = base + 11 * mid;
+      FT_ULong   varSel = TT_NEXT_UINT24( p );
+
+
+      if ( variantCode < varSel )
+        max = mid;
+      else if ( variantCode > varSel )
+        min = mid + 1;
+      else
+        return p;
+    }
+
+    return NULL;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt )
+  tt_cmap14_char_var_index( TT_CMap   cmap,
+                            TT_CMap   ucmap,
+                            FT_ULong  charcode,
+                            FT_ULong  variantSelector)
+  {
+    FT_Byte*  p = tt_cmap14_find_variant( cmap->data + 6, variantSelector );
+    FT_ULong  defOff;
+    FT_ULong  nondefOff;
+
+
+    if ( !p )
+      return 0;
+
+    defOff    = TT_NEXT_ULONG( p );
+    nondefOff = TT_PEEK_ULONG( p );
+
+    if ( defOff != 0                                                    &&
+         tt_cmap14_char_map_def_binary( cmap->data + defOff, charcode ) )
+    {
+      /* This is the default variant of this charcode.  GID not stored */
+      /* here; stored in the normal Unicode charmap instead.           */
+      return ucmap->cmap.clazz->char_index( &ucmap->cmap, charcode );
+    }
+
+    if ( nondefOff != 0 )
+      return tt_cmap14_char_map_nondef_binary( cmap->data + nondefOff,
+                                               charcode );
+
+    return 0;
+  }
+
+
+  FT_CALLBACK_DEF( FT_Int )
+  tt_cmap14_char_var_isdefault( TT_CMap   cmap,
+                                FT_ULong  charcode,
+                                FT_ULong  variantSelector )
+  {
+    FT_Byte*  p = tt_cmap14_find_variant( cmap->data + 6, variantSelector );
+    FT_ULong  defOff;
+    FT_ULong  nondefOff;
+
+
+    if ( !p )
+      return -1;
+
+    defOff    = TT_NEXT_ULONG( p );
+    nondefOff = TT_NEXT_ULONG( p );
+
+    if ( defOff != 0                                                    &&
+         tt_cmap14_char_map_def_binary( cmap->data + defOff, charcode ) )
+      return 1;
+
+    if ( nondefOff != 0                                            &&
+         tt_cmap14_char_map_nondef_binary( cmap->data + nondefOff,
+                                           charcode ) != 0         )
+      return 0;
+
+    return -1;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt32* )
+  tt_cmap14_variants( TT_CMap    cmap,
+                      FT_Memory  memory )
+  {
+    TT_CMap14   cmap14 = (TT_CMap14)cmap;
+    FT_UInt     count  = cmap14->num_selectors;
+    FT_Byte*    p      = cmap->data + 10;
+    FT_UInt32*  result;
+    FT_UInt     i;
+
+
+    if ( tt_cmap14_ensure( cmap14, ( count + 1 ), memory ) )
+      return NULL;
+
+    result = cmap14->results;
+    for ( i = 0; i < count; ++i )
+    {
+      result[i] = TT_NEXT_UINT24( p );
+      p        += 8;
+    }
+    result[i] = 0;
+
+    return result;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt32 * )
+  tt_cmap14_char_variants( TT_CMap    cmap,
+                           FT_Memory  memory,
+                           FT_ULong   charCode )
+  {
+    TT_CMap14   cmap14 = (TT_CMap14)  cmap;
+    FT_UInt     count  = cmap14->num_selectors;
+    FT_Byte*    p      = cmap->data + 10;
+    FT_UInt32*  q;
+
+
+    if ( tt_cmap14_ensure( cmap14, ( count + 1 ), memory ) )
+      return NULL;
+
+    for ( q = cmap14->results; count > 0; --count )
+    {
+      FT_UInt32  varSel    = TT_NEXT_UINT24( p );
+      FT_ULong   defOff    = TT_NEXT_ULONG( p );
+      FT_ULong   nondefOff = TT_NEXT_ULONG( p );
+
+
+      if ( ( defOff != 0                                               &&
+             tt_cmap14_char_map_def_binary( cmap->data + defOff,
+                                            charCode )                 ) ||
+           ( nondefOff != 0                                            &&
+             tt_cmap14_char_map_nondef_binary( cmap->data + nondefOff,
+                                               charCode ) != 0         ) )
+      {
+        q[0] = varSel;
+        q++;
+      }
+    }
+    q[0] = 0;
+
+    return cmap14->results;
+  }
+
+
+  static FT_UInt
+  tt_cmap14_def_char_count( FT_Byte  *p )
+  {
+    FT_UInt32  numRanges = TT_NEXT_ULONG( p );
+    FT_UInt    tot       = 0;
+
+
+    p += 3;  /* point to the first 'cnt' field */
+    for ( ; numRanges > 0; numRanges-- )
+    {
+      tot += 1 + p[0];
+      p   += 4;
+    }
+
+    return tot;
+  }
+
+
+  static FT_UInt32*
+  tt_cmap14_get_def_chars( TT_CMap     cmap,
+                           FT_Byte*    p,
+                           FT_Memory   memory )
+  {
+    TT_CMap14   cmap14 = (TT_CMap14) cmap;
+    FT_UInt32   numRanges;
+    FT_UInt     cnt;
+    FT_UInt32*  q;
+
+
+    cnt       = tt_cmap14_def_char_count( p );
+    numRanges = TT_NEXT_ULONG( p );
+
+    if ( tt_cmap14_ensure( cmap14, ( cnt + 1 ), memory ) )
+      return NULL;
+
+    for ( q = cmap14->results; numRanges > 0; --numRanges )
+    {
+      FT_UInt  uni = TT_NEXT_UINT24( p );
+
+
+      cnt = FT_NEXT_BYTE( p ) + 1;
+      do
+      {
+        q[0]  = uni;
+        uni  += 1;
+        q    += 1;
+      } while ( --cnt != 0 );
+    }
+    q[0] = 0;
+
+    return cmap14->results;
+  }
+
+
+  static FT_UInt*
+  tt_cmap14_get_nondef_chars( TT_CMap     cmap,
+                              FT_Byte    *p,
+                              FT_Memory   memory )
+  {
+    TT_CMap14   cmap14 = (TT_CMap14) cmap;
+    FT_UInt32   numMappings;
+    FT_UInt     i;
+    FT_UInt32  *ret;
+
+
+    numMappings = TT_NEXT_ULONG( p );
+
+    if ( tt_cmap14_ensure( cmap14, ( numMappings + 1 ), memory ) )
+      return NULL;
+
+    ret = cmap14->results;
+    for ( i = 0; i < numMappings; ++i )
+    {
+      ret[i] = TT_NEXT_UINT24( p );
+      p += 2;
+    }
+    ret[i] = 0;
+
+    return ret;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt32 * )
+  tt_cmap14_variant_chars( TT_CMap    cmap,
+                           FT_Memory  memory,
+                           FT_ULong   variantSelector )
+  {
+    FT_Byte    *p  = tt_cmap14_find_variant( cmap->data + 6,
+                                             variantSelector );
+    FT_UInt32  *ret;
+    FT_Int      i;
+    FT_ULong    defOff;
+    FT_ULong    nondefOff;
+
+
+    if ( !p )
+      return NULL;
+
+    defOff    = TT_NEXT_ULONG( p );
+    nondefOff = TT_NEXT_ULONG( p );
+
+    if ( defOff == 0 && nondefOff == 0 )
+      return NULL;
+
+    if ( defOff == 0 )
+      return tt_cmap14_get_nondef_chars( cmap, cmap->data + nondefOff,
+                                         memory );
+    else if ( nondefOff == 0 )
+      return tt_cmap14_get_def_chars( cmap, cmap->data + defOff,
+                                      memory );
+    else
+    {
+      /* Both a default and a non-default glyph set?  That's probably not */
+      /* good font design, but the spec allows for it...                  */
+      TT_CMap14  cmap14 = (TT_CMap14) cmap;
+      FT_UInt32  numRanges;
+      FT_UInt32  numMappings;
+      FT_UInt32  duni;
+      FT_UInt32  dcnt;
+      FT_UInt32  nuni;
+      FT_Byte*   dp;
+      FT_UInt    di, ni, k;
+
+
+      p  = cmap->data + nondefOff;
+      dp = cmap->data + defOff;
+
+      numMappings = TT_NEXT_ULONG( p );
+      dcnt        = tt_cmap14_def_char_count( dp );
+      numRanges   = TT_NEXT_ULONG( dp );
+
+      if ( numMappings == 0 )
+        return tt_cmap14_get_def_chars( cmap, cmap->data + defOff,
+                                        memory );
+      if ( dcnt == 0 )
+        return tt_cmap14_get_nondef_chars( cmap, cmap->data + nondefOff,
+                                           memory );
+
+      if ( tt_cmap14_ensure( cmap14, ( dcnt + numMappings + 1 ), memory ) )
+        return NULL;
+
+      ret  = cmap14->results;
+      duni = TT_NEXT_UINT24( dp );
+      dcnt = FT_NEXT_BYTE( dp );
+      di   = 1;
+      nuni = TT_NEXT_UINT24( p );
+      p   += 2;
+      ni   = 1;
+      i    = 0;
+
+      for ( ;; )
+      {
+        if ( nuni > duni + dcnt )
+        {
+          for ( k = 0; k <= dcnt; ++k )
+            ret[i++] = duni + k;
+
+          ++di;
+
+          if ( di > numRanges )
+            break;
+
+          duni = TT_NEXT_UINT24( dp );
+          dcnt = FT_NEXT_BYTE( dp );
+        }
+        else
+        {
+          if ( nuni < duni )
+            ret[i++] = nuni;
+          /* If it is within the default range then ignore it -- */
+          /* that should not have happened                       */
+          ++ni;
+          if ( ni > numMappings )
+            break;
+
+          nuni = TT_NEXT_UINT24( p );
+          p += 2;
+        }
+      }
+
+      if ( ni <= numMappings )
+      {
+        /* If we get here then we have run out of all default ranges.   */
+        /* We have read one non-default mapping which we haven't stored */
+        /* and there may be others that need to be read.                */
+        ret[i++] = nuni;
+        while ( ni < numMappings )
+        {
+          ret[i++] = TT_NEXT_UINT24( p );
+          p += 2;
+          ++ni;
+        }
+      }
+      else if ( di <= numRanges )
+      {
+        /* If we get here then we have run out of all non-default     */
+        /* mappings.  We have read one default range which we haven't */
+        /* stored and there may be others that need to be read.       */
+        for ( k = 0; k <= dcnt; ++k )
+          ret[i++] = duni + k;
+
+        while ( di < numRanges )
+        {
+          duni = TT_NEXT_UINT24( dp );
+          dcnt = FT_NEXT_BYTE( dp );
+
+          for ( k = 0; k <= dcnt; ++k )
+            ret[i++] = duni + k;
+          ++di;
+        }
+      }
+
+      ret[i] = 0;
+
+      return ret;
+    }
+  }
+
+
+  FT_CALLBACK_TABLE_DEF
+  const TT_CMap_ClassRec  tt_cmap14_class_rec =
+  {
+    {
+      sizeof ( TT_CMap14Rec ),
+
+      (FT_CMap_InitFunc)     tt_cmap14_init,
+      (FT_CMap_DoneFunc)     tt_cmap14_done,
+      (FT_CMap_CharIndexFunc)tt_cmap14_char_index,
+      (FT_CMap_CharNextFunc) tt_cmap14_char_next,
+
+      /* Format 14 extension functions */
+      (FT_CMap_CharVarIndexFunc)    tt_cmap14_char_var_index,
+      (FT_CMap_CharVarIsDefaultFunc)tt_cmap14_char_var_isdefault,
+      (FT_CMap_VariantListFunc)     tt_cmap14_variants,
+      (FT_CMap_CharVariantListFunc) tt_cmap14_char_variants,
+      (FT_CMap_VariantCharListFunc) tt_cmap14_variant_chars
+    },
+    14,
+    (TT_CMap_ValidateFunc)tt_cmap14_validate,
+    (TT_CMap_Info_GetFunc)tt_cmap14_get_info
+  };
+
+#endif /* TT_CONFIG_CMAP_FORMAT_0 */
 
 
   static const TT_CMap_Class  tt_cmap_classes[] =
@@ -2240,6 +2993,10 @@
 
 #ifdef TT_CONFIG_CMAP_FORMAT_12
     &tt_cmap12_class_rec,
+#endif
+
+#ifdef TT_CONFIG_CMAP_FORMAT_14
+    &tt_cmap14_class_rec,
 #endif
 
     NULL,
@@ -2318,6 +3075,10 @@
               FT_CMap  ttcmap;
 
 
+              /* It might make sense to store the single variation selector */
+              /* cmap somewhere special.  But it would have to be in the    */
+              /* public FT_FaceRec, and we can't change that.               */
+
               if ( !FT_CMap_New( (FT_CMap_Class)clazz,
                                  cmap, &charmap, &ttcmap ) )
               {
@@ -2333,6 +3094,12 @@
             }
             break;
           }
+        }
+
+        if ( *pclazz == NULL )
+        {
+          FT_ERROR(( "tt_face_build_cmaps:" ));
+          FT_ERROR(( " unsupported cmap sub-table ignored!\n" ));
         }
       }
     }

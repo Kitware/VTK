@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType Glyph Loader (body).                                        */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -267,7 +267,11 @@
     if ( n_contours >= 0xFFF || p + ( n_contours + 1 ) * 2 > limit )
       goto Invalid_Outline;
 
-    cont[0] = prev_cont = FT_NEXT_USHORT( p );
+    prev_cont = FT_NEXT_USHORT( p );
+
+    if ( n_contours > 0 )
+      cont[0] = prev_cont;
+
     for ( cont++; cont < cont_limit; cont++ )
     {
       cont[0] = FT_NEXT_USHORT( p );
@@ -553,10 +557,10 @@
       FT_Stream  stream = loader->stream;
 
 
-      /* we must undo the FT_FRAME_ENTER in order to point to the */
-      /* composite instructions, if we find some.               */
-      /* we will process them later...                          */
-      /*                                                        */
+      /* we must undo the FT_FRAME_ENTER in order to point */
+      /* to the composite instructions, if we find some.   */
+      /* We will process them later.                       */
+      /*                                                   */
       loader->ins_pos = (FT_ULong)( FT_STREAM_POS() +
                                     p - limit );
     }
@@ -639,6 +643,26 @@
     /* save original point position in org */
     if ( n_ins > 0 )
       FT_ARRAY_COPY( zone->org, zone->cur, zone->n_points );
+
+    /* Reset graphics state. */
+    loader->exec->GS = ((TT_Size)loader->size)->GS;
+
+    /* XXX: UNDOCUMENTED! Hinting instructions of a composite glyph */
+    /*      completely refer to the (already) hinted subglyphs.     */
+    if ( is_composite )
+    {
+      loader->exec->metrics.x_scale = 1 << 16;
+      loader->exec->metrics.y_scale = 1 << 16;
+
+      FT_ARRAY_COPY( zone->orus, zone->cur, zone->n_points );
+    }
+    else
+    {
+      loader->exec->metrics.x_scale =
+        ((TT_Size)loader->size)->metrics.x_scale;
+      loader->exec->metrics.y_scale =
+        ((TT_Size)loader->size)->metrics.y_scale;
+    }
 #endif
 
     /* round pp2 and pp4 */
@@ -702,7 +726,7 @@
     FT_GlyphLoader  gloader = loader->gloader;
     FT_Error        error   = TT_Err_Ok;
     FT_Outline*     outline;
-    FT_UInt         n_points;
+    FT_Int          n_points;
 
 
     outline  = &gloader->current.outline;
@@ -729,7 +753,7 @@
       /* Deltas apply to the unscaled data. */
       FT_Vector*  deltas;
       FT_Memory   memory = loader->face->memory;
-      FT_UInt     i;
+      FT_Int      i;
 
 
       error = TT_Vary_Get_Glyph_Deltas( (TT_Face)(loader->face),
@@ -1084,7 +1108,10 @@
 #endif
 
 
-    if ( recurse_count > face->max_profile.maxComponentDepth )
+    /* some fonts have an incorrect value of `maxComponentDepth', */
+    /* thus we allow depth 1 to catch the majority of them        */
+    if ( recurse_count > 1                                   &&
+         recurse_count > face->max_profile.maxComponentDepth )
     {
       error = TT_Err_Invalid_Composite;
       goto Exit;
@@ -1214,10 +1241,24 @@
       offset = tt_face_get_location( face, glyph_index,
                                      (FT_UInt*)&loader->byte_len );
 
-    if ( loader->byte_len == 0 )
+    if ( loader->byte_len > 0 )
     {
-      /* as described by Frederic Loyer, these are spaces or */
-      /* the unknown glyph.                                  */
+      error = face->access_glyph_frame( loader, glyph_index,
+                                        loader->glyf_offset + offset,
+                                        loader->byte_len );
+      if ( error )
+        goto Exit;
+
+      opened_frame = 1;
+
+      /* read first glyph header */
+      error = face->read_glyph_header( loader );
+      if ( error )
+        goto Exit;
+    }
+
+    if ( loader->byte_len == 0 || loader->n_contours == 0 )
+    {
       loader->bbox.xMin = 0;
       loader->bbox.xMax = 0;
       loader->bbox.yMin = 0;
@@ -1260,19 +1301,6 @@
       goto Exit;
     }
 
-    error = face->access_glyph_frame( loader, glyph_index,
-                                      loader->glyf_offset + offset,
-                                      loader->byte_len );
-    if ( error )
-      goto Exit;
-
-    opened_frame = 1;
-
-    /* read first glyph header */
-    error = face->read_glyph_header( loader );
-    if ( error )
-      goto Exit;
-
     TT_LOADER_SET_PP( loader );
 
     /***********************************************************************/
@@ -1281,7 +1309,7 @@
 
     /* if it is a simple glyph, load it */
 
-    if ( loader->n_contours >= 0 )
+    if ( loader->n_contours > 0 )
     {
       error = face->read_simple_glyph( loader );
       if ( error )
@@ -1390,20 +1418,15 @@
       /*********************************************************************/
 
       {
-        FT_UInt           n, num_base_points;
-        FT_SubGlyph       subglyph       = 0;
+        FT_UInt      n, num_base_points;
+        FT_SubGlyph  subglyph       = 0;
 
-        FT_UInt           num_points     = start_point;
-        FT_UInt           num_subglyphs  = gloader->current.num_subglyphs;
-        FT_UInt           num_base_subgs = gloader->base.num_subglyphs;
+        FT_UInt      num_points     = start_point;
+        FT_UInt      num_subglyphs  = gloader->current.num_subglyphs;
+        FT_UInt      num_base_subgs = gloader->base.num_subglyphs;
 
-        FT_Stream         old_stream     = loader->stream;
+        FT_Stream    old_stream     = loader->stream;
 
-        TT_GraphicsState  saved_GS;
-
-
-        if ( loader->exec )
-          saved_GS = loader->exec->GS;
 
         FT_GlyphLoader_Add( gloader );
 
@@ -1412,10 +1435,6 @@
         {
           FT_Vector  pp[4];
 
-
-          /* reinitialize graphics state */
-          if ( loader->exec )
-            loader->exec->GS = saved_GS;
 
           /* Each time we call load_truetype_glyph in this loop, the   */
           /* value of `gloader.base.subglyphs' can change due to table */
@@ -1649,8 +1668,8 @@
     }
 
     /* adjust advance width to the value contained in the hdmx table */
-    if ( !face->postscript.isFixedPitch &&
-         IS_HINTED( loader->load_flags )        )
+    if ( !face->postscript.isFixedPitch  &&
+         IS_HINTED( loader->load_flags ) )
     {
       FT_Byte*  widthp;
 
@@ -1938,6 +1957,40 @@
         if ( ( face->header.Flags & 2 ) == 0 && loader.pp1.x )
           FT_Outline_Translate( &glyph->outline, -loader.pp1.x, 0 );
       }
+
+#ifdef TT_USE_BYTECODE_INTERPRETER
+
+      if ( IS_HINTED( load_flags ) )
+      {
+        if ( loader.exec->GS.scan_control )
+        {
+          /* convert scan conversion mode to FT_OUTLINE_XXX flags */
+          switch ( loader.exec->GS.scan_type )
+          {
+          case 0: /* simple drop-outs including stubs */
+            glyph->outline.flags |= FT_OUTLINE_INCLUDE_STUBS;
+            break;
+          case 1: /* simple drop-outs excluding stubs */
+            /* nothing; it's the default rendering mode */
+            break;
+          case 4: /* smart drop-outs including stubs */
+            glyph->outline.flags |= FT_OUTLINE_SMART_DROPOUTS |
+                                    FT_OUTLINE_INCLUDE_STUBS;
+            break;
+          case 5: /* smart drop-outs excluding stubs  */
+            glyph->outline.flags |= FT_OUTLINE_SMART_DROPOUTS;
+            break;
+
+          default: /* no drop-out control */
+            glyph->outline.flags |= FT_OUTLINE_IGNORE_DROPOUTS;
+            break;
+          }
+        }
+        else 
+          glyph->outline.flags |= FT_OUTLINE_IGNORE_DROPOUTS;
+      }
+
+#endif /* TT_USE_BYTECODE_INTERPRETER */
 
       compute_glyph_metrics( &loader, glyph_index );
     }

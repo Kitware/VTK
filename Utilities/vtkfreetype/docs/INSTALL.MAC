@@ -1,6 +1,12 @@
 Please follow the instructions  in INSTALL.UNIX to install FreeType on
 Mac OS X.
 
+Currently FreeType2 functions based on some deprecated Carbon APIs
+return FT_Err_Unimplemented_Feature always, even if FreeType2 is
+configured and built on the system that deprecated Carbon APIs are
+available. To enable deprecated FreeType2 functions as far as possible,
+replace src/base/ftmac.c by builds/mac/ftmac.c.
+
 Starting with Mac OS X 10.5, gcc defaults the deployment target
 to 10.5. In previous versions of Mac OS X, this defaulted to 10.1.
 If you want your built binaries to run only on 10.5, this change

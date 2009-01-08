@@ -80,7 +80,7 @@ FT_BEGIN_HEADER
   *      optional (parameter can be NULL)
   *
   * @return:
-  *    FreeType error code.  0 means success.
+  *    FreeType error code.  0~means success.
   *
   * @note:
   *   If the input face is not a PFR, this function will return an error.
@@ -115,7 +115,7 @@ FT_BEGIN_HEADER
   *    avector :: A kerning vector.
   *
   * @return:
-  *    FreeType error code.  0 means success.
+  *    FreeType error code.  0~means success.
   *
   * @note:
   *    This function always return distances in original PFR metrics
@@ -150,7 +150,7 @@ FT_BEGIN_HEADER
   *    aadvance :: The glyph advance in metrics units.
   *
   * @return:
-  *    FreeType error code.  0 means success.
+  *    FreeType error code.  0~means success.
   *
   * @note:
   *    You can use the `x_scale' or `y_scale' results of @FT_Get_PFR_Metrics

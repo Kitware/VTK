@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType API for color filtering of subpixel bitmap glyphs (body).   */
 /*                                                                         */
-/*  Copyright 2006 by                                                      */
+/*  Copyright 2006, 2008 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -161,7 +161,7 @@
 
 #ifdef USE_LEGACY
 
-  /* FIR filter used by the default and light filters */
+  /* intra-pixel filter used by the legacy filter */
   static void
   _ft_lcd_filter_legacy( FT_Bitmap*      bitmap,
                          FT_Render_Mode  mode,
@@ -181,7 +181,7 @@
     FT_UNUSED( library );
 
 
-    /* horizontal in-place FIR filter */
+    /* horizontal in-place intra-pixel filter */
     if ( mode == FT_RENDER_MODE_LCD && width >= 3 )
     {
       FT_Byte*  line = bitmap->buffer;

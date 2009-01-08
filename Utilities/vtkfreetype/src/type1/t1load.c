@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 1 font loader (body).                                           */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -674,7 +674,7 @@
 
       for ( n = 0; n < num_designs; n++ )
       {
-        T1_TokenRec  axis_tokens[T1_MAX_MM_DESIGNS];
+        T1_TokenRec  axis_tokens[T1_MAX_MM_AXIS];
         T1_Token     token;
         FT_Int       axis, n_axis;
 
@@ -687,6 +687,15 @@
 
         if ( n == 0 )
         {
+          if ( n_axis <= 0 || n_axis > T1_MAX_MM_AXIS )
+          {
+            FT_ERROR(( "parse_blend_design_positions:" ));
+            FT_ERROR(( "  invalid number of axes: %d\n",
+                       n_axis ));
+            error = T1_Err_Invalid_File_Format;
+            goto Exit;
+          }
+
           num_axis = n_axis;
           error = t1_allocate_blend( face, num_designs, num_axis );
           if ( error )
@@ -1397,7 +1406,10 @@
         FT_Byte*  temp;
 
 
-        if ( size <= face->type1.private_dict.lenIV )
+        /* some fonts define empty subr records -- this is not totally */
+        /* compliant to the specification (which says they should at   */
+        /* least contain a `return'), but we support them anyway       */
+        if ( size < face->type1.private_dict.lenIV )
         {
           error = T1_Err_Invalid_File_Format;
           goto Fail;

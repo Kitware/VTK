@@ -1,11 +1,10 @@
 /***************************************************************************/
 /*                                                                         */
-/*  ftbase.c                                                               */
+/*  svcid.h                                                                */
 /*                                                                         */
-/*    Single object library component (body only).                         */
+/*    The FreeType CID font services (specification).                      */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2007 by                   */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+/*  Copyright 2007 by Derek Clegg.                                         */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
 /*  modified, and distributed under the terms of the FreeType project      */
@@ -16,23 +15,35 @@
 /***************************************************************************/
 
 
-#include <ft2build.h>
+#ifndef __SVCID_H__
+#define __SVCID_H__
 
-#define  FT_MAKE_OPTION_SINGLE_OBJECT
+#include FT_INTERNAL_SERVICE_H
 
-#include "ftcalc.c"
-#include "ftdbgmem.c"
-#include "ftgloadr.c"
-#include "ftnames.c"
-#include "ftobjs.c"
-#include "ftoutln.c"
-#include "ftrfork.c"
-#include "ftstream.c"
-#include "fttrigon.c"
-#include "ftutil.c"
 
-#if defined( __APPLE__ ) && !defined ( DARWIN_NO_CARBON )
-#include "ftmac.c"
-#endif
+FT_BEGIN_HEADER
+
+
+#define FT_SERVICE_ID_CID  "CID"
+
+  typedef FT_Error
+  (*FT_CID_GetRegistryOrderingSupplementFunc)( FT_Face       face,
+                                               const char*  *registry,
+                                               const char*  *ordering,
+                                               FT_Int       *supplement );
+
+  FT_DEFINE_SERVICE( CID )
+  {
+    FT_CID_GetRegistryOrderingSupplementFunc  get_ros;
+  };
+
+  /* */
+
+
+FT_END_HEADER
+
+
+#endif /* __SVCID_H__ */
+
 
 /* END */

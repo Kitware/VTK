@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType private base classes (body).                            */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -634,12 +634,24 @@
           goto Load_Ok;
       }
 
-      /* load auto-hinted outline */
-      hinting = (FT_AutoHinter_Service)hinter->clazz->module_interface;
+      {
+        FT_Face_Internal  internal        = face->internal;
+        FT_Int            transform_flags = internal->transform_flags;
 
-      error   = hinting->load_glyph( (FT_AutoHinter)hinter,
-                                     slot, face->size,
-                                     glyph_index, load_flags );
+
+        /* since the auto-hinter calls FT_Load_Glyph by itself, */
+        /* make sure that glyphs aren't transformed             */
+        internal->transform_flags = 0;
+
+        /* load auto-hinted outline */
+        hinting = (FT_AutoHinter_Service)hinter->clazz->module_interface;
+
+        error   = hinting->load_glyph( (FT_AutoHinter)hinter,
+                                       slot, face->size,
+                                       glyph_index, load_flags );
+
+        internal->transform_flags = transform_flags;
+      }
     }
     else
     {
@@ -883,14 +895,13 @@
   /*    are limited to the BMP (said UCS-2 encoding.)                      */
   /*                                                                       */
   /*    This function is called from open_face() (just below), and also    */
-  /*    from FT_Select_Charmap( ..., FT_ENCODING_UNICODE).                 */
+  /*    from FT_Select_Charmap( ..., FT_ENCODING_UNICODE ).                */
   /*                                                                       */
   static FT_Error
   find_unicode_charmap( FT_Face  face )
   {
     FT_CharMap*  first;
     FT_CharMap*  cur;
-    FT_CharMap*  unicmap = NULL;  /* some UCS-2 map, if we found it */
 
 
     /* caller should have already checked that `face' is valid */
@@ -935,33 +946,72 @@
     {
       if ( cur[0]->encoding == FT_ENCODING_UNICODE )
       {
-        unicmap = cur;  /* record we found a Unicode charmap */
-
-        /* XXX If some new encodings to represent UCS-4 are added,  */
-        /*     they should be added here.                           */
+        /* XXX If some new encodings to represent UCS-4 are added, */
+        /*     they should be added here.                          */
         if ( ( cur[0]->platform_id == TT_PLATFORM_MICROSOFT &&
-               cur[0]->encoding_id == TT_MS_ID_UCS_4        )          ||
+               cur[0]->encoding_id == TT_MS_ID_UCS_4        )     ||
              ( cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE &&
-               cur[0]->encoding_id == TT_APPLE_ID_UNICODE_32    )      )
-
-        /* Hurray!  We found a UCS-4 charmap.  We can stop the scan! */
+               cur[0]->encoding_id == TT_APPLE_ID_UNICODE_32    ) )
         {
           face->charmap = cur[0];
-          return 0;
+          return FT_Err_Ok;
         }
       }
     }
 
-    /* We do not have any UCS-4 charmap.  Sigh.                         */
-    /* Let's see if we have some other kind of Unicode charmap, though. */
-    if ( unicmap != NULL )
+    /* We do not have any UCS-4 charmap.                */
+    /* Do the loop again and search for UCS-2 charmaps. */
+    cur = first + face->num_charmaps;
+
+    for ( ; --cur >= first; )
     {
-      face->charmap = unicmap[0];
-      return 0;
+      if ( cur[0]->encoding == FT_ENCODING_UNICODE )
+      {
+        face->charmap = cur[0];
+        return FT_Err_Ok;
+      }
     }
 
-    /* Chou blanc! */
     return FT_Err_Invalid_CharMap_Handle;
+  }
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Function>                                                            */
+  /*    find_variant_selector_charmap                                      */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    This function finds the variant selector charmap, if there is one. */
+  /*    There can only be one (platform=0, specific=5, format=14).         */
+  /*                                                                       */
+  static FT_CharMap
+  find_variant_selector_charmap( FT_Face  face )
+  {
+    FT_CharMap*  first;
+    FT_CharMap*  end;
+    FT_CharMap*  cur;
+
+
+    /* caller should have already checked that `face' is valid */
+    FT_ASSERT( face );
+
+    first = face->charmaps;
+
+    if ( !first )
+      return NULL;
+
+    end = first + face->num_charmaps;  /* points after the last one */
+
+    for ( cur = first; cur < end; ++cur )
+    {
+      if ( cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE    &&
+           cur[0]->encoding_id == TT_APPLE_ID_VARIANT_SELECTOR &&
+           FT_Get_CMap_Format( cur[0] ) == 14                  )
+        return cur[0];
+    }
+
+    return NULL;
   }
 
 
@@ -1013,15 +1063,17 @@
       for ( i = 0; i < num_params && !face->internal->incremental_interface;
             i++ )
         if ( params[i].tag == FT_PARAM_TAG_INCREMENTAL )
-          face->internal->incremental_interface = params[i].data;
+          face->internal->incremental_interface =
+            (FT_Incremental_Interface)params[i].data;
     }
 #endif
 
-    error = clazz->init_face( stream,
-                              face,
-                              (FT_Int)face_index,
-                              num_params,
-                              params );
+    if ( clazz->init_face )
+      error = clazz->init_face( stream,
+                                face,
+                                (FT_Int)face_index,
+                                num_params,
+                                params );
     if ( error )
       goto Fail;
 
@@ -1044,7 +1096,8 @@
     if ( error )
     {
       destroy_charmaps( face, memory );
-      clazz->done_face( face );
+      if ( clazz->done_face )
+        clazz->done_face( face );
       FT_FREE( internal );
       FT_FREE( face );
       *aface = 0;
@@ -1488,6 +1541,9 @@
     FT_Long        dlen, offset;
 
 
+    if ( NULL == stream )
+      return FT_Err_Invalid_Stream_Operation;
+
     error = FT_Stream_Seek( stream, 0 );
     if ( error )
       goto Exit;
@@ -1661,6 +1717,8 @@
     FT_Face      face = 0;
     FT_ListNode  node = 0;
     FT_Bool      external_stream;
+    FT_Module*   cur;
+    FT_Module*   limit;
 
 
     /* test for valid `library' delayed to */
@@ -1675,7 +1733,7 @@
     /* create input stream */
     error = FT_Stream_New( library, args, &stream );
     if ( error )
-      goto Exit;
+      goto Fail3;
 
     memory = library->memory;
 
@@ -1712,8 +1770,8 @@
     else
     {
       /* check each font driver for an appropriate format */
-      FT_Module*  cur   = library->modules;
-      FT_Module*  limit = cur + library->num_modules;
+      cur   = library->modules;
+      limit = cur + library->num_modules;
 
 
       for ( ; cur < limit; cur++ )
@@ -1747,7 +1805,8 @@
     /* If we are on the mac, and we get an FT_Err_Invalid_Stream_Operation */
     /* it may be because we have an empty data fork, so we need to check   */
     /* the resource fork.                                                  */
-    if ( FT_ERROR_BASE( error ) != FT_Err_Unknown_File_Format      &&
+    if ( FT_ERROR_BASE( error ) != FT_Err_Cannot_Open_Stream       &&
+         FT_ERROR_BASE( error ) != FT_Err_Unknown_File_Format      &&
          FT_ERROR_BASE( error ) != FT_Err_Invalid_Stream_Operation )
       goto Fail2;
 
@@ -2631,6 +2690,8 @@
     cur = face->charmaps;
     if ( !cur )
       return FT_Err_Invalid_CharMap_Handle;
+    if ( FT_Get_CMap_Format( charmap ) == 14 )
+      return FT_Err_Invalid_Argument;
 
     limit = cur + face->num_charmaps;
 
@@ -2844,6 +2905,149 @@
 
     if ( agindex )
       *agindex = gindex;
+
+    return result;
+  }
+
+
+  /* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_UInt )
+  FT_Face_GetCharVariantIndex( FT_Face   face,
+                               FT_ULong  charcode,
+                               FT_ULong  variantSelector )
+  {
+    FT_UInt  result = 0;
+
+
+    if ( face && face->charmap &&
+        face->charmap->encoding == FT_ENCODING_UNICODE )
+    {
+      FT_CharMap  charmap = find_variant_selector_charmap( face );
+      FT_CMap     ucmap = FT_CMAP( face->charmap );
+
+
+      if ( charmap != NULL )
+      {
+        FT_CMap  vcmap = FT_CMAP( charmap );
+
+
+        result = vcmap->clazz->char_var_index( vcmap, ucmap, charcode,
+                                               variantSelector );
+      }
+    }
+
+    return result;
+  }
+
+
+  /* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_Int )
+  FT_Face_GetCharVariantIsDefault( FT_Face   face,
+                                   FT_ULong  charcode,
+                                   FT_ULong  variantSelector )
+  {
+    FT_Int  result = -1;
+
+
+    if ( face )
+    {
+      FT_CharMap  charmap = find_variant_selector_charmap( face );
+
+
+      if ( charmap != NULL )
+      {
+        FT_CMap  vcmap = FT_CMAP( charmap );
+
+
+        result = vcmap->clazz->char_var_default( vcmap, charcode,
+                                                 variantSelector );
+      }
+    }
+
+    return result;
+  }
+
+
+  /* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_UInt32* )
+  FT_Face_GetVariantSelectors( FT_Face  face )
+  {
+    FT_UInt32  *result = NULL;
+
+
+    if ( face )
+    {
+      FT_CharMap  charmap = find_variant_selector_charmap( face );
+
+
+      if ( charmap != NULL )
+      {
+        FT_CMap    vcmap  = FT_CMAP( charmap );
+        FT_Memory  memory = FT_FACE_MEMORY( face );
+
+
+        result = vcmap->clazz->variant_list( vcmap, memory );
+      }
+    }
+
+    return result;
+  }
+
+
+  /* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_UInt32* )
+  FT_Face_GetVariantsOfChar( FT_Face   face,
+                             FT_ULong  charcode )
+  {
+    FT_UInt32  *result = NULL;
+
+
+    if ( face )
+    {
+      FT_CharMap  charmap = find_variant_selector_charmap( face );
+
+
+      if ( charmap != NULL )
+      {
+        FT_CMap    vcmap  = FT_CMAP( charmap );
+        FT_Memory  memory = FT_FACE_MEMORY( face );
+
+
+        result = vcmap->clazz->charvariant_list( vcmap, memory, charcode );
+      }
+    }
+    return result;
+  }
+
+
+  /* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_UInt32* )
+  FT_Face_GetCharsOfVariant( FT_Face   face,
+                             FT_ULong  variantSelector )
+  {
+    FT_UInt32  *result = NULL;
+
+
+    if ( face )
+    {
+      FT_CharMap  charmap = find_variant_selector_charmap( face );
+
+
+      if ( charmap != NULL )
+      {
+        FT_CMap    vcmap  = FT_CMAP( charmap );
+        FT_Memory  memory = FT_FACE_MEMORY( face );
+
+
+        result = vcmap->clazz->variantchar_list( vcmap, memory,
+                                                 variantSelector );
+      }
+    }
 
     return result;
   }
@@ -3726,8 +3930,8 @@
     /* allocate the render pool */
     library->raster_pool_size = FT_RENDER_POOL_SIZE;
 #if FT_RENDER_POOL_SIZE > 0
-      if ( FT_ALLOC( library->raster_pool, FT_RENDER_POOL_SIZE ) )
-        goto Fail;
+    if ( FT_ALLOC( library->raster_pool, FT_RENDER_POOL_SIZE ) )
+      goto Fail;
 #endif
 
     /* That's ok now */

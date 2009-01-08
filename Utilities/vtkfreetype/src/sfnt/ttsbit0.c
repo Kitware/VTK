@@ -5,7 +5,7 @@
 /*    TrueType and OpenType embedded bitmap support (body).                */
 /*    This is a heap-optimized version.                                    */
 /*                                                                         */
-/*  Copyright 2005, 2006, 2007 by                                          */
+/*  Copyright 2005, 2006, 2007, 2008 by                                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -207,7 +207,7 @@
   }
 
 
-  typedef struct
+  typedef struct  TT_SBitDecoderRec_
   {
     TT_Face          face;
     FT_Stream        stream;

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Access of TrueType's `gasp' table (specification).                   */
 /*                                                                         */
-/*  Copyright 2007 by                                                      */
+/*  Copyright 2007, 2008 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -31,11 +31,11 @@
    *   Gasp Table
    *
    * @abstract:
-   *   Retrieving TrueType `gasp' table entries
+   *   Retrieving TrueType `gasp' table entries.
    *
    * @description:
    *   The function @FT_Get_Gasp can be used to query a TrueType or OpenType
-   *   font for specific entries in their `gasp' table, if any.  This is
+   *   font for specific entries in its `gasp' table, if any.  This is
    *   mainly useful when implementing native TrueType hinting with the
    *   bytecode interpreter to duplicate the Windows text rendering results.
    */
@@ -95,7 +95,7 @@
    *   ppem :: The vertical character pixel size.
    *
    * @return:
-   *   Bit flags (see @FT_GASP_XXX), or @FT_GASP_NO_TABLE is there is no
+   *   Bit flags (see @FT_GASP_XXX), or @FT_GASP_NO_TABLE if there is no
    *   `gasp' table in the face.
    *
    * @since:

@@ -301,6 +301,7 @@ FT_BEGIN_HEADER
    */
 
 #define FT_SERVICE_BDF_H                <freetype/internal/services/svbdf.h>
+#define FT_SERVICE_CID_H                <freetype/internal/services/svcid.h>
 #define FT_SERVICE_GLYPH_DICT_H         <freetype/internal/services/svgldict.h>
 #define FT_SERVICE_GX_VALIDATE_H        <freetype/internal/services/svgxval.h>
 #define FT_SERVICE_KERNING_H            <freetype/internal/services/svkern.h>

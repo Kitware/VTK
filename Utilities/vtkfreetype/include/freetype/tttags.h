@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Tags for TrueType and OpenType tables (specification only).          */
 /*                                                                         */
-/*  Copyright 1996-2001, 2004, 2005 by                                     */
+/*  Copyright 1996-2001, 2004, 2005, 2007 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -67,6 +67,7 @@ FT_BEGIN_HEADER
 #define TTAG_lcar  FT_MAKE_TAG( 'l', 'c', 'a', 'r' )
 #define TTAG_loca  FT_MAKE_TAG( 'l', 'o', 'c', 'a' )
 #define TTAG_LTSH  FT_MAKE_TAG( 'L', 'T', 'S', 'H' )
+#define TTAG_MATH  FT_MAKE_TAG( 'M', 'A', 'T', 'H' )
 #define TTAG_maxp  FT_MAKE_TAG( 'm', 'a', 'x', 'p' )
 #define TTAG_META  FT_MAKE_TAG( 'M', 'E', 'T', 'A' )
 #define TTAG_MMFX  FT_MAKE_TAG( 'M', 'M', 'F', 'X' )

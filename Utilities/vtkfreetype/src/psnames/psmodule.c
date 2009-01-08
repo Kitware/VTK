@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    PSNames module implementation (body).                                */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2005, 2006, 2007 by                   */
+/*  Copyright 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -26,7 +26,7 @@
 #include "psnamerr.h"
 
 
-#ifndef FT_CONFIG_OPTION_NO_POSTSCRIPT_NAMES
+#ifdef FT_CONFIG_OPTION_POSTSCRIPT_NAMES
 
 
 #ifdef FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
@@ -180,6 +180,95 @@
   }
 
 
+  /* support for old WGL4 fonts */
+
+#define WGL_EXTRA_LIST_SIZE  8
+
+  static const FT_UInt32  ft_wgl_extra_unicodes[WGL_EXTRA_LIST_SIZE] =
+  {
+    0x0394,
+    0x03A9,
+    0x2215,
+    0x00AD,
+    0x02C9,
+    0x03BC,
+    0x2219,
+    0x00A0
+  };
+
+  static const char  ft_wgl_extra_glyph_names[] =
+  {
+    'D','e','l','t','a',0,
+    'O','m','e','g','a',0,
+    'f','r','a','c','t','i','o','n',0,
+    'h','y','p','h','e','n',0,
+    'm','a','c','r','o','n',0,
+    'm','u',0,
+    'p','e','r','i','o','d','c','e','n','t','e','r','e','d',0,
+    's','p','a','c','e',0
+  };
+
+  static const FT_Int
+  ft_wgl_extra_glyph_name_offsets[WGL_EXTRA_LIST_SIZE] =
+  {
+     0,
+     6,
+    12,
+    21,
+    28,
+    35,
+    38,
+    53
+  };
+
+
+  static void
+  ps_check_wgl_name( const char*  gname,
+                     FT_UInt      glyph,
+                     FT_UInt*     wgl_glyphs,
+                     FT_UInt     *states )
+  {
+    FT_UInt  n;
+
+
+    for ( n = 0; n < WGL_EXTRA_LIST_SIZE; n++ )
+    {
+      if ( ft_strcmp( ft_wgl_extra_glyph_names +
+                        ft_wgl_extra_glyph_name_offsets[n], gname ) == 0 )
+      {
+        if ( states[n] == 0 )
+        {
+          /* mark this WGL extra glyph as a candidate for the cmap */
+          states[n]     = 1;
+          wgl_glyphs[n] = glyph;
+        }
+
+        return;
+      }
+    }
+  }
+
+
+  static void
+  ps_check_wgl_unicode( FT_UInt32  uni_char,
+                        FT_UInt   *states )
+  {
+    FT_UInt  n;
+
+
+    for ( n = 0; n < WGL_EXTRA_LIST_SIZE; n++ )
+    {
+      if ( uni_char == ft_wgl_extra_unicodes[n] )
+      {
+        /* disable this WGL extra glyph from being added to the cmap */
+        states[n] = 2;
+
+        return;
+      }
+    }
+  }
+
+
   /* Build a table that maps Unicode values to glyph indices. */
   static FT_Error
   ps_unicodes_init( FT_Memory             memory,
@@ -191,12 +280,15 @@
   {
     FT_Error  error;
 
+    FT_UInt  wgl_list_states[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    FT_UInt  wgl_glyphs[WGL_EXTRA_LIST_SIZE];
+
 
     /* we first allocate the table */
     table->num_maps = 0;
     table->maps     = 0;
 
-    if ( !FT_NEW_ARRAY( table->maps, num_glyphs ) )
+    if ( !FT_NEW_ARRAY( table->maps, num_glyphs + WGL_EXTRA_LIST_SIZE ) )
     {
       FT_UInt     n;
       FT_UInt     count;
@@ -213,10 +305,12 @@
 
         if ( gname )
         {
+          ps_check_wgl_name( gname, n, wgl_glyphs, wgl_list_states );
           uni_char = ps_unicode_value( gname );
 
           if ( BASE_GLYPH( uni_char ) != 0 )
           {
+            ps_check_wgl_unicode( uni_char, wgl_list_states );
             map->unicode     = uni_char;
             map->glyph_index = n;
             map++;
@@ -224,6 +318,19 @@
 
           if ( free_glyph_name )
             free_glyph_name( glyph_data, gname );
+        }
+      }
+
+      for ( n = 0; n < WGL_EXTRA_LIST_SIZE; n++ )
+      {
+        if ( wgl_list_states[n] == 1 )
+        {
+          /* This glyph name has an additional WGL4 representation. */
+          /* Add it to the cmap.                                    */
+
+          map->unicode     = ft_wgl_extra_unicodes[n];
+          map->glyph_index = wgl_glyphs[n];
+          map++;
         }
       }
 
@@ -427,7 +534,7 @@
     return ft_service_list_lookup( pscmaps_services, service_id );
   }
 
-#endif /* !FT_CONFIG_OPTION_NO_POSTSCRIPT_NAMES */
+#endif /* FT_CONFIG_OPTION_POSTSCRIPT_NAMES */
 
 
 
@@ -441,7 +548,7 @@
     0x10000L,   /* driver version                      */
     0x20000L,   /* driver requires FreeType 2 or above */
 
-#ifdef FT_CONFIG_OPTION_NO_POSTSCRIPT_NAMES
+#ifndef FT_CONFIG_OPTION_POSTSCRIPT_NAMES
     0,
     (FT_Module_Constructor)0,
     (FT_Module_Destructor) 0,

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType font driver for Windows FNT/FON files                       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2007 by                   */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2007, 2008 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*  Copyright 2003 Huw D M Davies for Codeweavers                          */
 /*  Copyright 2007 Dmitry Timoshkov for Codeweavers                        */
@@ -363,6 +363,8 @@
           error = FNT_Err_Bad_Argument;
           goto Exit;
         }
+        else if ( face_index < 0 )
+          goto Exit;
 
         if ( FT_NEW( face->font ) )
           goto Exit;
@@ -652,7 +654,9 @@
     (FT_CMap_InitFunc)     fnt_cmap_init,
     (FT_CMap_DoneFunc)     NULL,
     (FT_CMap_CharIndexFunc)fnt_cmap_char_index,
-    (FT_CMap_CharNextFunc) fnt_cmap_char_next
+    (FT_CMap_CharNextFunc) fnt_cmap_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
   static FT_CMap_Class const  fnt_cmap_class = &fnt_cmap_class_rec;
@@ -690,17 +694,13 @@
 
     /* try to load font from a DLL */
     error = fnt_face_get_dll_font( face, face_index );
+    if ( !error && face_index < 0 )
+      goto Exit;
+
     if ( error == FNT_Err_Unknown_File_Format )
     {
       /* this didn't work; try to load a single FNT font */
       FNT_Font  font;
-
-
-      if ( face_index > 0 )
-      {
-        error = FNT_Err_Bad_Argument;
-        goto Exit;
-      }
 
       if ( FT_NEW( face->font ) )
         goto Exit;
@@ -712,6 +712,14 @@
       font->fnt_size = stream->size;
 
       error = fnt_font_load( font, stream );
+
+      if ( !error )
+      {
+        if ( face_index > 0 )
+          error = FNT_Err_Bad_Argument;
+        else if ( face_index < 0 )
+          goto Exit;
+      }
     }
 
     if ( error )

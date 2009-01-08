@@ -145,7 +145,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    top    :: The top-side bearing, i.e., the vertical distance from   */
   /*              the current pen position to the top border of the glyph  */
-  /*              bitmap.  This distance is positive for upwards-y!        */
+  /*              bitmap.  This distance is positive for upwards~y!        */
   /*                                                                       */
   /*    bitmap :: A descriptor for the bitmap.                             */
   /*                                                                       */
@@ -228,7 +228,7 @@ FT_BEGIN_HEADER
   /*    aglyph :: A handle to the glyph object.                            */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Get_Glyph( FT_GlyphSlot  slot,
@@ -248,11 +248,11 @@ FT_BEGIN_HEADER
   /*    source :: A handle to the source glyph object.                     */
   /*                                                                       */
   /* <Output>                                                              */
-  /*    target :: A handle to the target glyph object.  0 in case of       */
+  /*    target :: A handle to the target glyph object.  0~in case of       */
   /*              error.                                                   */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Glyph_Copy( FT_Glyph   source,
@@ -265,7 +265,7 @@ FT_BEGIN_HEADER
   /*    FT_Glyph_Transform                                                 */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Transforms a glyph image if its format is scalable.                */
+  /*    Transform a glyph image if its format is scalable.                 */
   /*                                                                       */
   /* <InOut>                                                               */
   /*    glyph  :: A handle to the target glyph object.                     */
@@ -375,7 +375,7 @@ FT_BEGIN_HEADER
   /*             expressed in 1/64th of pixels if it is grid-fitted.       */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    Coordinates are relative to the glyph origin, using the Y-upwards  */
+  /*    Coordinates are relative to the glyph origin, using the y~upwards  */
   /*    convention.                                                        */
   /*                                                                       */
   /*    If the glyph has been loaded with @FT_LOAD_NO_SCALE, `bbox_mode'   */
@@ -421,7 +421,7 @@ FT_BEGIN_HEADER
   /*    FT_Glyph_To_Bitmap                                                 */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Converts a given glyph object to a bitmap glyph object.            */
+  /*    Convert a given glyph object to a bitmap glyph object.             */
   /*                                                                       */
   /* <InOut>                                                               */
   /*    the_glyph   :: A pointer to a handle to the target glyph.          */
@@ -431,7 +431,7 @@ FT_BEGIN_HEADER
   /*                   rendered.                                           */
   /*                                                                       */
   /*    origin      :: A pointer to a vector used to translate the glyph   */
-  /*                   image before rendering.  Can be 0 (if no            */
+  /*                   image before rendering.  Can be~0 (if no            */
   /*                   translation).  The origin is expressed in           */
   /*                   26.6 pixels.                                        */
   /*                                                                       */
@@ -440,7 +440,7 @@ FT_BEGIN_HEADER
   /*                   never destroyed in case of error.                   */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   /* <Note>                                                                */
   /*    The glyph image is translated with the `origin' vector before      */
@@ -497,7 +497,7 @@ FT_BEGIN_HEADER
   /*    FT_Done_Glyph                                                      */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Destroys a given glyph.                                            */
+  /*    Destroy a given glyph.                                             */
   /*                                                                       */
   /* <Input>                                                               */
   /*    glyph :: A handle to the target glyph object.                      */
@@ -524,7 +524,7 @@ FT_BEGIN_HEADER
   /*    FT_Matrix_Multiply                                                 */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Performs the matrix operation `b = a*b'.                           */
+  /*    Perform the matrix operation `b = a*b'.                            */
   /*                                                                       */
   /* <Input>                                                               */
   /*    a :: A pointer to matrix `a'.                                      */
@@ -537,7 +537,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   FT_EXPORT( void )
   FT_Matrix_Multiply( const FT_Matrix*  a,
-                      FT_Matrix*  b );
+                      FT_Matrix*        b );
 
 
   /*************************************************************************/
@@ -546,14 +546,14 @@ FT_BEGIN_HEADER
   /*    FT_Matrix_Invert                                                   */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Inverts a 2x2 matrix.  Returns an error if it can't be inverted.   */
+  /*    Invert a 2x2 matrix.  Return an error if it can't be inverted.     */
   /*                                                                       */
   /* <InOut>                                                               */
   /*    matrix :: A pointer to the target matrix.  Remains untouched in    */
   /*              case of error.                                           */
   /*                                                                       */
   /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
+  /*    FreeType error code.  0~means success.                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Matrix_Invert( FT_Matrix*  matrix );

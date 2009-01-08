@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType path stroker (body).                                        */
 /*                                                                         */
-/*  Copyright 2002, 2003, 2004, 2005, 2006 by                              */
+/*  Copyright 2002, 2003, 2004, 2005, 2006, 2008 by                        */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -230,7 +230,7 @@
  /***************************************************************************/
  /***************************************************************************/
 
-  typedef enum
+  typedef enum  FT_StrokeTags_
   {
     FT_STROKE_TAG_ON    = 1,   /* on-curve point  */
     FT_STROKE_TAG_CUBIC = 2,   /* cubic off-point */

@@ -139,12 +139,64 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* IntN types                                                            */
+  /* <Section>                                                             */
+  /*    basic_types                                                        */
   /*                                                                       */
-  /*   Used to guarantee the size of some specific integers.               */
+  /*************************************************************************/
+
+
+  /*************************************************************************/
   /*                                                                       */
-  typedef signed short    FT_Int16;
+  /* <Type>                                                                */
+  /*    FT_Int16                                                           */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    A typedef for a 16bit signed integer type.                         */
+  /*                                                                       */
+  typedef signed short  FT_Int16;
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Type>                                                                */
+  /*    FT_UInt16                                                          */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    A typedef for a 16bit unsigned integer type.                       */
+  /*                                                                       */
   typedef unsigned short  FT_UInt16;
+
+  /* */
+
+
+  /* this #if 0 ... #endif clause is for documentation purposes */
+#if 0
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Type>                                                                */
+  /*    FT_Int32                                                           */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    A typedef for a 32bit signed integer type.  The size depends on    */
+  /*    the configuration.                                                 */
+  /*                                                                       */
+  typedef signed XXX  FT_Int32;
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Type>                                                                */
+  /*    FT_UInt32                                                          */
+  /*                                                                       */
+  /*    A typedef for a 32bit unsigned integer type.  The size depends on  */
+  /*    the configuration.                                                 */
+  /*                                                                       */
+  typedef unsigned XXX  FT_UInt32;
+
+  /* */
+
+#endif
 
 #if FT_SIZEOF_INT == (32 / FT_CHAR_BIT)
 

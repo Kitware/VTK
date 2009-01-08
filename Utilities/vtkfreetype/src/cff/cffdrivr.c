@@ -22,8 +22,10 @@
 #include FT_INTERNAL_STREAM_H
 #include FT_INTERNAL_SFNT_H
 #include FT_TRUETYPE_IDS_H
+#include FT_SERVICE_CID_H
 #include FT_SERVICE_POSTSCRIPT_CMAPS_H
 #include FT_SERVICE_POSTSCRIPT_INFO_H
+#include FT_SERVICE_POSTSCRIPT_NAME_H
 #include FT_SERVICE_TT_CMAP_H
 
 #include "cffdrivr.h"
@@ -35,6 +37,7 @@
 
 #include FT_SERVICE_XFREE86_NAME_H
 #include FT_SERVICE_GLYPH_DICT_H
+
 
   /*************************************************************************/
   /*                                                                       */
@@ -151,7 +154,7 @@
               FT_UInt       glyph_index,
               FT_Int32      load_flags )
   {
-    FT_Error  error;
+    FT_Error       error;
     CFF_GlyphSlot  slot = (CFF_GlyphSlot)cffslot;
     CFF_Size       size = (CFF_Size)cffsize;
 
@@ -163,10 +166,10 @@
     if ( !size )
       load_flags |= FT_LOAD_NO_SCALE | FT_LOAD_NO_HINTING;
 
+    /* reset the size object if necessary */
     if ( load_flags & FT_LOAD_NO_SCALE )
       size = NULL;
 
-    /* reset the size object if necessary */
     if ( size )
     {
       /* these two objects must have the same parent */
@@ -184,10 +187,10 @@
   }
 
 
- /*
-  *  GLYPH DICT SERVICE
-  *
-  */
+  /*
+   *  GLYPH DICT SERVICE
+   *
+   */
 
   static FT_Error
   cff_get_glyph_name( CFF_Face    face,
@@ -226,8 +229,8 @@
     FT_FREE( gname );
     error = CFF_Err_Ok;
 
-    Exit:
-      return error;
+  Exit:
+    return error;
   }
 
 
@@ -284,10 +287,10 @@
   };
 
 
- /*
-  *  POSTSCRIPT INFO SERVICE
-  *
-  */
+  /*
+   *  POSTSCRIPT INFO SERVICE
+   *
+   */
 
   static FT_Int
   cff_ps_has_glyph_names( FT_Face  face )
@@ -306,9 +309,10 @@
 
     if ( cff && cff->font_info == NULL )
     {
-      CFF_FontRecDict  dict = &cff->top_font.font_dict;
-      PS_FontInfoRec  *font_info;
-      FT_Memory        memory = face->root.memory;
+      CFF_FontRecDict     dict    = &cff->top_font.font_dict;
+      PS_FontInfoRec     *font_info;
+      FT_Memory           memory  = face->root.memory;
+      FT_Service_PsCMaps  psnames = (FT_Service_PsCMaps)cff->psnames;
 
 
       if ( FT_ALLOC( font_info, sizeof ( *font_info ) ) )
@@ -316,19 +320,19 @@
 
       font_info->version     = cff_index_get_sid_string( &cff->string_index,
                                                          dict->version,
-                                                         cff->psnames );
+                                                         psnames );
       font_info->notice      = cff_index_get_sid_string( &cff->string_index,
                                                          dict->notice,
-                                                         cff->psnames );
+                                                         psnames );
       font_info->full_name   = cff_index_get_sid_string( &cff->string_index,
                                                          dict->full_name,
-                                                         cff->psnames );
+                                                         psnames );
       font_info->family_name = cff_index_get_sid_string( &cff->string_index,
                                                          dict->family_name,
-                                                         cff->psnames );
+                                                         psnames );
       font_info->weight      = cff_index_get_sid_string( &cff->string_index,
                                                          dict->weight,
-                                                         cff->psnames );
+                                                         psnames );
       font_info->italic_angle        = dict->italic_angle;
       font_info->is_fixed_pitch      = dict->is_fixed_pitch;
       font_info->underline_position  = (FT_Short)dict->underline_position;
@@ -349,6 +353,27 @@
     (PS_GetFontInfoFunc)   cff_ps_get_font_info,
     (PS_HasGlyphNamesFunc) cff_ps_has_glyph_names,
     (PS_GetFontPrivateFunc)NULL         /* unsupported with CFF fonts */
+  };
+
+
+  /*
+   *  POSTSCRIPT NAME SERVICE
+   *
+   */
+
+  static const char*
+  cff_get_ps_name( CFF_Face  face )
+  {
+    CFF_Font  cff = (CFF_Font)face->extra.data;
+
+
+    return (const char*)cff->font_name;
+  }
+
+
+  static const FT_Service_PsFontNameRec  cff_service_ps_name =
+  {
+    (FT_PsName_GetFunc)cff_get_ps_name
   };
 
 
@@ -397,6 +422,65 @@
   };
 
 
+  /*
+   *  CID INFO SERVICE
+   *
+   */
+  static FT_Error
+  cff_get_ros( CFF_Face      face,
+               const char*  *registry,
+               const char*  *ordering,
+               FT_Int       *supplement )
+  {
+    FT_Error  error = CFF_Err_Ok;
+    CFF_Font  cff   = (CFF_Font)face->extra.data;
+
+
+    if ( cff )
+    {
+      CFF_FontRecDict     dict    = &cff->top_font.font_dict;
+      FT_Service_PsCMaps  psnames = (FT_Service_PsCMaps)cff->psnames;
+
+
+      if ( dict->cid_registry == 0xFFFFU )
+      {
+        error = CFF_Err_Invalid_Argument;
+        goto Fail;
+      }
+
+      if ( registry )
+      {
+        if ( cff->registry == NULL )
+          cff->registry = cff_index_get_sid_string( &cff->string_index,
+                                                    dict->cid_registry,
+                                                    psnames );
+        *registry = cff->registry;
+      }
+      
+      if ( ordering )
+      {
+        if ( cff->ordering == NULL )
+          cff->ordering = cff_index_get_sid_string( &cff->string_index,
+                                                    dict->cid_ordering,
+                                                    psnames );
+        *ordering = cff->ordering;
+      }
+
+      if ( supplement )
+        *supplement = dict->cid_supplement;
+    }
+      
+  Fail:
+    return error;
+  }
+
+
+  static const FT_Service_CIDRec  cff_service_cid_info =
+  {
+    (FT_CID_GetRegistryOrderingSupplementFunc)cff_get_ros
+  };
+
+
   /*************************************************************************/
   /*************************************************************************/
   /*************************************************************************/
@@ -411,12 +495,14 @@
 
   static const FT_ServiceDescRec  cff_services[] =
   {
-    { FT_SERVICE_ID_XF86_NAME,       FT_XF86_FORMAT_CFF },
-    { FT_SERVICE_ID_POSTSCRIPT_INFO, &cff_service_ps_info },
+    { FT_SERVICE_ID_XF86_NAME,            FT_XF86_FORMAT_CFF },
+    { FT_SERVICE_ID_POSTSCRIPT_INFO,      &cff_service_ps_info },
+    { FT_SERVICE_ID_POSTSCRIPT_FONT_NAME, &cff_service_ps_name },
 #ifndef FT_CONFIG_OPTION_NO_GLYPH_NAMES
-    { FT_SERVICE_ID_GLYPH_DICT,      &cff_service_glyph_dict },
+    { FT_SERVICE_ID_GLYPH_DICT,           &cff_service_glyph_dict },
 #endif
-    { FT_SERVICE_ID_TT_CMAP,         &cff_service_get_cmap_info },
+    { FT_SERVICE_ID_TT_CMAP,              &cff_service_get_cmap_info },
+    { FT_SERVICE_ID_CID,                  &cff_service_cid_info },
     { NULL, NULL }
   };
 

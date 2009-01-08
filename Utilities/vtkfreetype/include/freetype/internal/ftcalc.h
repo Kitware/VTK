@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Arithmetic computations (specification).                             */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006 by                   */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2008 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -109,6 +109,31 @@ FT_BEGIN_HEADER
                       FT_Long  c );
 
 #endif /* TT_USE_BYTECODE_INTERPRETER */
+
+
+  /*
+   *  A variant of FT_Matrix_Multiply which scales its result afterwards.
+   *  The idea is that both `a' and `b' are scaled by factors of 10 so that
+   *  the values are as precise as possible to get a correct result during
+   *  the 64bit multiplication.  Let `sa' and `sb' be the scaling factors of
+   *  `a' and `b', respectively, then the scaling factor of the result is
+   *  `sa*sb'.
+   */
+  FT_BASE( void )
+  FT_Matrix_Multiply_Scaled( const FT_Matrix*  a,
+                             FT_Matrix        *b,
+                             FT_Long           scaling );
+
+
+  /*
+   *  A variant of FT_Vector_Transform.  See comments for
+   *  FT_Matrix_Multiply_Scaled.
+   */
+
+  FT_BASE( void )
+  FT_Vector_Transform_Scaled( FT_Vector*        vector,
+                              const FT_Matrix*  matrix,
+                              FT_Long           scaling );
 
 
   /*

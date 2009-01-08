@@ -3,7 +3,8 @@
  *
  *  This is used to override the default module headers.
  *
- *  This file is based on freetype's ftmodule.h.
+ *  This file is based on freetype's include/freetype/config/ftmodule.h.
+ *  Be sure to keep it in sync with the original file when updating freetype
  *
  *  Please read `docs/CUSTOMIZE' section IV-3 for more information.
  *

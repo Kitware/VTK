@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType name ID definitions (specification only).                   */
 /*                                                                         */
-/*  Copyright 1996-2002, 2003, 2004, 2006, 2007 by                         */
+/*  Copyright 1996-2002, 2003, 2004, 2006, 2007, 2008 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -24,6 +24,13 @@
 
 
 FT_BEGIN_HEADER
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Section>                                                             */
+  /*    truetype_tables                                                    */
+  /*                                                                       */
 
 
   /*************************************************************************/
@@ -108,13 +115,18 @@ FT_BEGIN_HEADER
    *
    *   TT_APPLE_ID_UNICODE_32 ::
    *     Unicode 3.1 and beyond, using UTF-32.
+   *
+   *   TT_APPLE_ID_VARIANT_SELECTOR ::
+   *     From Adobe, not Apple.  Not a normal cmap.  Specifies variations
+   *     on a real cmap.
    */
 
-#define TT_APPLE_ID_DEFAULT      0 /* Unicode 1.0 */
-#define TT_APPLE_ID_UNICODE_1_1  1 /* specify Hangul at U+34xx */
-#define TT_APPLE_ID_ISO_10646    2 /* deprecated */
-#define TT_APPLE_ID_UNICODE_2_0  3 /* or later */
-#define TT_APPLE_ID_UNICODE_32   4 /* 2.0 or later, full repertoire */
+#define TT_APPLE_ID_DEFAULT           0 /* Unicode 1.0 */
+#define TT_APPLE_ID_UNICODE_1_1       1 /* specify Hangul at U+34xx */
+#define TT_APPLE_ID_ISO_10646         2 /* deprecated */
+#define TT_APPLE_ID_UNICODE_2_0       3 /* or later */
+#define TT_APPLE_ID_UNICODE_32        4 /* 2.0 or later, full repertoire */
+#define TT_APPLE_ID_VARIANT_SELECTOR  5 /* variation selector data */
 
 
   /***********************************************************************
@@ -290,6 +302,8 @@ FT_BEGIN_HEADER
    *     Adobe expert encoding.
    *   TT_ADOBE_ID_CUSTOM ::
    *     Adobe custom encoding.
+   *   TT_ADOBE_ID_LATIN_1 ::
+   *     Adobe Latin~1 encoding.
    */
 
 #define TT_ADOBE_ID_STANDARD  0
@@ -1103,7 +1117,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* Here some alias #defines in order to be clearer.                      */
   /*                                                                       */
-  /* These are not always #defined to stay within the 31 character limit   */
+  /* These are not always #defined to stay within the 31~character limit   */
   /* which some compilers have.                                            */
   /*                                                                       */
   /* Credits go to Dave Hoo <dhoo@flash.net> for pointing out that modern  */

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Some convenience conversions (body).                                 */
 /*                                                                         */
-/*  Copyright 2006 by                                                      */
+/*  Copyright 2006, 2008 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -187,10 +187,18 @@
         if ( c < 0 || c >= 10 )
           break;
 
-        if ( divider < 10000000L )
+        if ( !integral && power_ten > 0 )
         {
+          power_ten--;
           decimal = decimal * 10 + c;
-          divider *= 10;
+        }
+        else
+        {
+          if ( divider < 10000000L )
+          {
+            decimal = decimal * 10 + c;
+            divider *= 10;
+          }
         }
       }
     }

@@ -230,17 +230,22 @@
       if ( !face->root.internal->incremental_interface )
         error = tt_face_load_loca( face, stream );
       if ( !error )
-        error = tt_face_load_cvt( face, stream )  ||
-                tt_face_load_fpgm( face, stream ) ||
-                tt_face_load_prep( face, stream );
+        error = tt_face_load_cvt( face, stream );
+      if ( !error )
+        error = tt_face_load_fpgm( face, stream );
+      if ( !error )
+        error = tt_face_load_prep( face, stream );
 
 #else
 
       if ( !error )
-        error = tt_face_load_loca( face, stream ) ||
-                tt_face_load_cvt( face, stream )  ||
-                tt_face_load_fpgm( face, stream ) ||
-                tt_face_load_prep( face, stream );
+        error = tt_face_load_loca( face, stream );
+      if ( !error )
+        error = tt_face_load_cvt( face, stream );
+      if ( !error )
+        error = tt_face_load_fpgm( face, stream );
+      if ( !error )
+        error = tt_face_load_prep( face, stream );
 
 #endif
 
@@ -694,8 +699,9 @@
 
       error = tt_size_run_prep( size );
       if ( !error )
-          size->cvt_ready = 1;
+        size->cvt_ready = 1;
     }
+
   Exit:
     return error;
   }

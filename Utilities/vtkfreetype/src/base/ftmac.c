@@ -77,20 +77,8 @@
 #define OS_INLINE  static __inline__
 #endif
 
-  /* `configure' checks the availability of `ResourceIndex' strictly */
-  /* and sets HAVE_TYPE_RESOURCE_INDEX 1 or 0 always.  If it is      */
-  /* not set (e.g., a build without `configure'), the availability   */
-  /* is guessed from the SDK version.                                */
+  /* The ResourceIndex type was available SDKs on 10.5 */
 #ifndef HAVE_TYPE_RESOURCE_INDEX
-#if !defined( MAC_OS_X_VERSION_10_5 ) || \
-    ( MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5 )
-#define HAVE_TYPE_RESOURCE_INDEX 0
-#else
-#define HAVE_TYPE_RESOURCE_INDEX 1
-#endif
-#endif /* !HAVE_TYPE_RESOURCE_INDEX */
-
-#if ( HAVE_TYPE_RESOURCE_INDEX == 0 )
 typedef short ResourceIndex;
 #endif
 
@@ -101,13 +89,6 @@ typedef short ResourceIndex;
 #define FT_DEPRECATED_ATTRIBUTE
 
 #include FT_MAC_H
-
-  /* undefine blocking-macros in ftmac.h */
-#undef FT_GetFile_From_Mac_Name( a, b, c )
-#undef FT_GetFile_From_Mac_ATS_Name( a, b, c )
-#undef FT_New_Face_From_FOND( a, b, c, d )
-#undef FT_New_Face_From_FSSpec( a, b, c, d )
-#undef FT_New_Face_From_FSRef( a, b, c, d )
 
 #ifndef kATSOptionFlagsUnRestrictedScope /* since Mac OS X 10.1 */
 #define kATSOptionFlagsUnRestrictedScope kATSOptionFlagsDefault
@@ -407,6 +388,10 @@ typedef short ResourceIndex;
     assoc      = (AsscEntry*)( fond_data + sizeof ( FamRec ) + 2 );
     base_assoc = assoc;
 
+    /* the maximum faces in a FOND is 48, size of StyleTable.indexes[] */
+    if ( 47 < face_index )
+      return;
+
     /* Let's do a little range checking before we get too excited here */
     if ( face_index < count_faces_sfnt( fond_data ) )
     {
@@ -458,9 +443,10 @@ typedef short ResourceIndex;
           ft_memcpy(ps_name, names[0] + 1, ps_name_len);
           ps_name[ps_name_len] = 0;
         }
-        if ( style->indexes[0] > 1 )
+        if ( style->indexes[face_index] > 1 &&
+             style->indexes[face_index] <= FT_MIN( string_count, 64 ) )
         {
-          unsigned char*  suffixes = names[style->indexes[0] - 1];
+          unsigned char*  suffixes = names[style->indexes[face_index] - 1];
 
 
           for ( i = 1; i <= suffixes[0]; i++ )
@@ -840,7 +826,7 @@ typedef short ResourceIndex;
 
 
     sfnt = GetResource( FT_MAKE_TAG( 's', 'f', 'n', 't' ), sfnt_id );
-    if ( ResError() )
+    if ( sfnt == NULL )
       return FT_Err_Invalid_Handle;
 
     sfnt_size = (FT_ULong)GetHandleSize( sfnt );
@@ -906,7 +892,7 @@ typedef short ResourceIndex;
     }
 
     CloseResFile( res_ref );
-    if ( FT_Err_Ok == error && NULL != aface )
+    if ( FT_Err_Ok == error && NULL != aface && NULL != *aface )
       (*aface)->num_faces = num_faces_in_res;
     return error;
   }

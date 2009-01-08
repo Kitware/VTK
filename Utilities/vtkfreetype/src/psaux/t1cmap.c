@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 1 character map support (body).                                 */
 /*                                                                         */
-/*  Copyright 2002, 2003, 2006 by                                          */
+/*  Copyright 2002, 2003, 2006, 2007 by                                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -135,7 +135,9 @@
     (FT_CMap_InitFunc)     t1_cmap_standard_init,
     (FT_CMap_DoneFunc)     t1_cmap_std_done,
     (FT_CMap_CharIndexFunc)t1_cmap_std_char_index,
-    (FT_CMap_CharNextFunc) t1_cmap_std_char_next
+    (FT_CMap_CharNextFunc) t1_cmap_std_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
 
@@ -154,7 +156,9 @@
     (FT_CMap_InitFunc)     t1_cmap_expert_init,
     (FT_CMap_DoneFunc)     t1_cmap_std_done,
     (FT_CMap_CharIndexFunc)t1_cmap_std_char_index,
-    (FT_CMap_CharNextFunc) t1_cmap_std_char_next
+    (FT_CMap_CharNextFunc) t1_cmap_std_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
 
@@ -245,7 +249,9 @@
     (FT_CMap_InitFunc)     t1_cmap_custom_init,
     (FT_CMap_DoneFunc)     t1_cmap_custom_done,
     (FT_CMap_CharIndexFunc)t1_cmap_custom_char_index,
-    (FT_CMap_CharNextFunc) t1_cmap_custom_char_next
+    (FT_CMap_CharNextFunc) t1_cmap_custom_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
 
@@ -326,7 +332,9 @@
     (FT_CMap_InitFunc)     t1_cmap_unicode_init,
     (FT_CMap_DoneFunc)     t1_cmap_unicode_done,
     (FT_CMap_CharIndexFunc)t1_cmap_unicode_char_index,
-    (FT_CMap_CharNextFunc) t1_cmap_unicode_char_next
+    (FT_CMap_CharNextFunc) t1_cmap_unicode_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
 

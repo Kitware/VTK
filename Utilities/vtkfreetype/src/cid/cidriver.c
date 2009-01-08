@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CID driver interface (body).                                         */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2006 by                         */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2008 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -27,6 +27,8 @@
 #include FT_SERVICE_POSTSCRIPT_NAME_H
 #include FT_SERVICE_XFREE86_NAME_H
 #include FT_SERVICE_POSTSCRIPT_INFO_H
+#include FT_SERVICE_CID_H
+
 
   /*************************************************************************/
   /*                                                                       */
@@ -38,10 +40,10 @@
 #define FT_COMPONENT  trace_ciddriver
 
 
- /*
-  *  POSTSCRIPT NAME SERVICE
-  *
-  */
+  /*
+   *  POSTSCRIPT NAME SERVICE
+   *
+   */
 
   static const char*
   cid_get_postscript_name( CID_Face  face )
@@ -62,10 +64,10 @@
   };
 
 
- /*
-  *  POSTSCRIPT INFO SERVICE
-  *
-  */
+  /*
+   *  POSTSCRIPT INFO SERVICE
+   *
+   */
 
   static FT_Error
   cid_ps_get_font_info( FT_Face          face,
@@ -84,16 +86,49 @@
   };
 
 
- /*
-  *  SERVICE LIST
-  *
-  */
+  /*
+   *  CID INFO SERVICE
+   *
+   */
+  static FT_Error
+  cid_get_ros( CID_Face      face,
+               const char*  *registry,
+               const char*  *ordering,
+               FT_Int       *supplement )
+  {
+    CID_FaceInfo  cid = &face->cid;
+
+
+    if ( registry )
+      *registry = cid->registry;
+      
+    if ( ordering )
+      *ordering = cid->ordering;
+
+    if ( supplement )
+      *supplement = cid->supplement;
+      
+    return CID_Err_Ok;
+  }
+
+
+  static const FT_Service_CIDRec  cid_service_cid_info =
+  {
+    (FT_CID_GetRegistryOrderingSupplementFunc)cid_get_ros
+  };
+
+
+  /*
+   *  SERVICE LIST
+   *
+   */
 
   static const FT_ServiceDescRec  cid_services[] =
   {
-    { FT_SERVICE_ID_POSTSCRIPT_FONT_NAME, &cid_service_ps_name },
     { FT_SERVICE_ID_XF86_NAME,            FT_XF86_FORMAT_CID },
+    { FT_SERVICE_ID_POSTSCRIPT_FONT_NAME, &cid_service_ps_name },
     { FT_SERVICE_ID_POSTSCRIPT_INFO,      &cid_service_ps_info },
+    { FT_SERVICE_ID_CID,                  &cid_service_cid_info },
     { NULL, NULL }
   };
 

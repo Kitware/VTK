@@ -181,7 +181,9 @@ THE SOFTWARE.
     bdf_cmap_init,
     bdf_cmap_done,
     bdf_cmap_char_index,
-    bdf_cmap_char_next
+    bdf_cmap_char_next,
+
+    NULL, NULL, NULL, NULL, NULL
   };
 
 
