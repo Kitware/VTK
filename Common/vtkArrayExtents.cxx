@@ -68,6 +68,9 @@ vtkIdType vtkArrayExtents::GetDimensions() const
 
 vtkIdType vtkArrayExtents::GetSize() const
 {
+  if(this->Storage.empty())
+    return 0;
+
   return vtkstd::accumulate(this->Storage.begin(), this->Storage.end(), 1, vtkstd::multiplies<vtkIdType>());
 }
 
