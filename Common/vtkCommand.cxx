@@ -95,6 +95,7 @@ static const char *vtkCommandEventStrings[] = {
   "UpdatePropertyEvent",
   "ViewProgressEvent",
   "UpdateDataEvent",
+  "CurrentChangedEvent",
   NULL
 };
 

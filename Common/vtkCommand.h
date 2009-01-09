@@ -335,6 +335,7 @@ public:
     UpdatePropertyEvent,
     ViewProgressEvent,
     UpdateDataEvent,
+    CurrentChangedEvent,
     UserEvent = 1000
   };
 //ETX
