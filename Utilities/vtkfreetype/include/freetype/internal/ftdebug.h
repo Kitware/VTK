@@ -178,7 +178,7 @@ FT_BEGIN_HEADER
 
 #else  /* !FT_DEBUG_LEVEL_ERROR */
 
-#define FT_ERROR( varformat )  do ; while ( 0 )      /* nothing */
+#define FT_ERROR( varformat )  do {} ; while ( 0 )   /* nothing */
 
 #endif /* !FT_DEBUG_LEVEL_ERROR */
 

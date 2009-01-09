@@ -50,8 +50,3 @@ src/base/ftmac.c
   -removed code to fix a warning (change from freetype CVS)
 
 other files have changes too, search for "VTK_FREETYPE_CHANGE"
-
-Renamed Files
--------------
-docs/FTL.TXT -> FTL.txt
-docs/LICENSE.TXT -> license.txt
