@@ -56,6 +56,9 @@
 #define VTK_VARIANT 20
 #define VTK_OBJECT 21
 
+/* Storage for Unicode strings */
+#define VTK_UNICODE_STRING 22
+
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each vtkDataObject type.          */
 /* When adding a new data type here, make sure to update                    */
