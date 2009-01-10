@@ -14,9 +14,8 @@ template< typename T_, int d_, typename A_ > class octree;
   * The value 5 corresponds to a bit vector of 101, which indicates that node 5 is on the +x, -y, and +z sides
   * of the x, y, and z (respectively) planes bisecting the parent.
   *
-  * Octree nodes store application data, a list of pointers to child nodes (or NULL), and a pointer to the octree containing them.
-  * Octree nodes do not store a pointer to their direct parent, their bounding box, or any information describing the path up
-  * to the root node; this information is all available in the iterator.
+  * Octree nodes store application data, a list of pointers to child nodes (or NULL) and
+  * a pointer to their direct octree node parent.
   */
 template< typename T_, int d_ = 3, typename A_ = vtkstd::allocator<T_> >
 struct octree_node
@@ -32,16 +31,12 @@ struct octree_node
   typedef const T_* const_pointer;
   typedef const T_& const_reference;
 
-  octree_pointer _M_parent;
+  octree_node_pointer _M_parent;
   octree_node_pointer _M_children;
-  double _M_center[d_];
-  double _M_size;
   value_type _M_data;
 
   octree_node();
-  octree_node( octree_pointer parent, const double* center, double size );
-  octree_node( octree_pointer parent, const double* center, double size, const value_type& data );
-  octree_node( octree_node_pointer parent, int which, const value_type& data );
+  octree_node( octree_node_pointer parent, const value_type& data );
   ~octree_node();
 
   bool is_leaf_node() { return this->_M_children == 0; }
@@ -49,9 +44,6 @@ struct octree_node
   bool add_children();
   bool add_children( const T_& child_initializer );
   bool remove_children();
-
-  const double* center() const { return this->_M_center; }
-  double size() const { return this->_M_size; }
 
   reference value() { return this->_M_data; }
   const reference value() const { return this->_M_data; }

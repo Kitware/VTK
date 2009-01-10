@@ -89,13 +89,16 @@
   *
   * Because this version does not properly initialize application-specific data at the root node, it is deprecated.
   *
-  * @param[in] center An array of coordinates specifying the center of the octree
+  * @param[in] x_center An array of coordinates specifying the center of the octree
   * @param[in] length The length (size) of each side of the octree
   */
 template< typename T_, int d_, typename A_ >
-octree<T_,d_,A_>::octree( const double* center, double length )
+octree<T_,d_,A_>::octree( const double* x_center, double length )
 {
-  this->_M_root = new octree_node<T_,d_,A_>( this, center, length );
+  for ( int i = 0; i < d_; ++ i )
+    this->_M_center[i] = x_center[i];
+  this->_M_size = length;
+  this->_M_root = new octree_node<T_,d_,A_>( 0 );
 }
 
 /**\brief Octree constructor.
@@ -108,14 +111,17 @@ octree<T_,d_,A_>::octree( const double* center, double length )
   * This version takes a reference to application-specific data which is used to properly initialize
   * the root node's value. This is the preferred constructor.
   *
-  * @param[in] center An array of coordinates specifying the center of the octree
+  * @param[in] x_center An array of coordinates specifying the center of the octree
   * @param[in] length The length (size) of each side of the octree
   * @param[in] value  Application-specific data to store at the root node
   */
 template< typename T_, int d_, typename A_ >
-octree<T_,d_,A_>::octree( const double* center, double length, const value_type& value )
+octree<T_,d_,A_>::octree( const double* x_center, double length, const value_type& value )
 {
-  this->_M_root = new octree_node<T_,d_,A_>( this, center, length, value );
+  for ( int i = 0; i < d_; ++ i )
+    this->_M_center[i] = x_center[i];
+  this->_M_size = length;
+  this->_M_root = new octree_node<T_,d_,A_>( 0, value );
 }
 
 /**\brief Octree destructor.
@@ -151,8 +157,36 @@ size_t octree<T_,d_,A_>::size( bool only_leaves )
   return number;
 }
 
+/**\fn template< typename T_, int d_, typename A_ > const double* octree<T_,d_,A_>::center() const
+  *\brief Retrieve the geometric center of a node.
+  *
+  * Note that this, along with size() provide a way to compute the bounds of the node.
+  * @retval A pointer to an array of _d coordinates.
+  */
+
+/**\fn template< typename T_, int d_, typename A_ > reference octree_node<T_,d_,A_>::size() const
+  *\brief Retrieve the size (i.e., the length of any side) of a node.
+  *
+  * Note that this, along with center() provide a way to compute the bounds of the octree.
+  *
+  * \warning Some people refer to the diagonal length as the octree size; this is <b>not</b> how we use size.
+  *          If you would like the diagonal length, multiply size() by \f$\sqrt{3}\f$.
+  *
+  * @retval The length of a side of the octree.
+  */
+
 /**\var template< typename T_, int d_, typename A_ > \
   *     octree_node_pointer octree<T_,d_,A_>::_M_root
   *\brief The root (top-level) node of the octree.
+  */
+
+/**\var template< typename T_, int d_, typename A_ > \
+  *     double octree<T_,d_,A_>::_M_center[d_]
+  *\brief The geometric center point of the octree.
+  */
+
+/**\var template< typename T_, int d_, typename A_ > \
+  *     double octree<T_,d_,A_>::_M_size
+  *\brief The geometric length of each side of the hypercube defining the octree. Also called the size of the node.
   */
 

@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.11");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.12");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -484,8 +484,6 @@ int vtkLabelPlacer::RequestData(
   double frustumPlanes[24];
   double aspect = this->Renderer->GetTiledAspectRatio();
   cam->GetFrustumPlanes( aspect, frustumPlanes );
-  double* planeHither = frustumPlanes + 4 * 4;
-  double* planeYon = frustumPlanes + 5 * 4;
   unsigned long allowableLabelArea = static_cast<unsigned long>
     ( ( ( kdbounds[1] - kdbounds[0] ) * ( kdbounds[3] - kdbounds[2] ) ) * this->MaximumLabelFraction );
   unsigned long renderedLabelArea = 0;
@@ -497,7 +495,7 @@ int vtkLabelPlacer::RequestData(
     }
 
   vtkLabelHierarchyIterator* inIter = inData->NewIterator(
-    this->IteratorType, cam, frustumPlanes, this->PositionsAsNormals );
+    this->IteratorType, this->Renderer, cam, frustumPlanes, this->PositionsAsNormals, tileSize );
 
   if (this->OutputTraversedBounds)
     {
@@ -528,10 +526,13 @@ int vtkLabelPlacer::RequestData(
       }
 
     inIter->GetPoint( x );
+    // Cull points behind the camera. Cannot rely on hither-yon planes because the camera
+    // position gets changed during vtkInteractorStyle::Dolly() and RequestData() called from
+    // within ResetCameraClippingRange() before the frustum planes are updated.
     // Cull points outside hither-yon planes (other planes get tested below)
-    double ihfunc = planeHither[0] * x[0] + planeHither[1] * x[1] + planeHither[2] * x[2] + planeHither[3];
-    double iyfunc = planeYon[0]    * x[0] + planeYon[1]    * x[1] + planeYon[2]    * x[2] + planeYon[3];
-    if ( ihfunc < 0. || iyfunc < 0. )
+    double* eye = cam->GetPosition();
+    double* dir = cam->GetViewPlaneNormal();
+    if ( ( x[0] - eye[0] ) * dir[0] + ( x[1] - eye[1] ) * dir[1] + ( x[2] - eye[2] ) * dir[2] > 0 )
       {
       continue;
       }
@@ -686,7 +687,7 @@ int vtkLabelPlacer::RequestData(
         iconIndexArr1->InsertNextValue( iconIndexArr->GetValue( inIter->GetLabelId() ) );
         }
 
-      // Handle Spokes for perterbed points
+      // Handle Spokes for perturbed points
       if(this->GeneratePerturbedLabelSpokes)
         {
         //inData->CenterPts

@@ -59,7 +59,16 @@ octree_cursor<T_,R_,P_,O_,OP_,d_>::octree_cursor()
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 octree_cursor<T_,R_,P_,O_,OP_,d_>::octree_cursor( octree_pointer otree )
-  : octree_path<T_,R_,P_,O_,OP_,d_>( otree )
+  : octree_path<T_,R_,P_,O_,OP_,d_>( otree->root() )
+{
+}
+
+/**\brief Constructor you should generally use.
+  *
+  */
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_cursor<T_,R_,P_,O_,OP_,d_>::octree_cursor( octree_node_pointer oroot )
+  : octree_path<T_,R_,P_,O_,OP_,d_>( oroot )
 {
 }
 
@@ -74,7 +83,7 @@ octree_cursor<T_,R_,P_,O_,OP_,d_>::octree_cursor( octree_pointer otree )
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 octree_cursor<T_,R_,P_,O_,OP_,d_>::octree_cursor( const const_path& src )
 {
-  this->_M_octree = src._M_octree;
+  this->_M_root = src._M_root;
   this->_M_indices = src._M_indices;
   this->_M_parents = src._M_parents;
   this->_M_current_node = src._M_current_node;
@@ -230,7 +239,7 @@ bool octree_cursor<T_,R_,P_,O_,OP_,d_>::visit( const vtkstd::vector<int>& pathSp
 {
   vtkstd::vector<int>::const_iterator it;
   vtkstd::vector<octree_node_pointer> parents;
-  octree_node_pointer head = this->_M_octree->root();
+  octree_node_pointer head = this->_M_root;
   for ( it = pathSpec.begin(); it != pathSpec.end(); ++ it )
     {
     parents.push_back( head );

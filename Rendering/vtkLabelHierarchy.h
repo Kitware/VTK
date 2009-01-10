@@ -61,12 +61,12 @@
 #include "vtkPointSet.h"
 
 class vtkCamera;
-class vtkIdTypeArray;
-class vtkLabelHierarchyIterator;
 class vtkCoincidentPoints;
+class vtkDataArray;
+class vtkLabelHierarchyIterator;
 class vtkPoints;
 class vtkPolyData;
-class vtkDataArray;
+class vtkRenderer;
 
 class VTK_RENDERING_EXPORT vtkLabelHierarchy : public vtkPointSet
 {
@@ -99,6 +99,7 @@ public:
   // Enumeration of iterator types.
   enum IteratorType {
     FULL_SORT,
+    DEPTH_FIRST,
     FRUSTUM
   };
   //ETX
@@ -113,12 +114,14 @@ public:
   // Returns an iterator for this data object.
   // positionsAsNormals should only be true when labels are on a sphere centered at the origin
   // (3D world).
-  // @param type - the type should be one of FULL_SORT, FRUSTUM.
+  // @param type - the type should be one of FULL_SORT, DEPTH_FIRST, or FRUSTUM.
+  // @param ren - the current renderer (used for viewport information)
   // @param camera - the current camera.
   // @param frustumPlanes - should be the output of the camera's frustum planes.
   // @param positionsAsNormals - throws out octree nodes on the opposite side of the origin.
+  // @param bucketSize - an array of 2 integers describing the width and height of label placer buckets.
   vtkLabelHierarchyIterator* NewIterator(
-    int type, vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals );
+    int type, vtkRenderer* ren, vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals, float bucketSize[2] );
   //ETX
 
   // Description:
@@ -156,33 +159,35 @@ public:
   virtual int GetMaxCellSize();
 
   //BTX
-  class implementation;
-
-  implementation * GetImplementation() { return this->Implementation; }
+  class Implementation;
+  Implementation* GetImplementation() { return this->Impl; }
   //ETX
+
+  // Description:
+  // Provide access to original coordinates of sets of coincident points
+  vtkGetObjectMacro(CenterPts,vtkPoints);
 
 protected:
   vtkLabelHierarchy();
   virtual ~vtkLabelHierarchy();
 
-private:
-  vtkLabelHierarchy( const vtkLabelHierarchy& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchy& ); // Not implemented.
-
   int TargetLabelCount;
   int MaximumDepth;
   vtkDataArray* Priorities;
-
-  vtkCoincidentPoints * CoincidentPoints;
-  vtkPoints * CenterPts;
+  vtkCoincidentPoints* CoincidentPoints;
+  vtkPoints* CenterPts;
 
   //BTX
-  implementation* Implementation;
+  Implementation* Impl;
 
   friend class vtkLabelHierarchyFrustumIterator;
   friend class vtkLabelHierarchyFullSortIterator;
   friend class implementation;
   //ETX
+
+private:
+  vtkLabelHierarchy( const vtkLabelHierarchy& ); // Not implemented.
+  void operator = ( const vtkLabelHierarchy& ); // Not implemented.
 };
 
 #endif // __vtkLabelHierarchy_h

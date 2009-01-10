@@ -39,9 +39,11 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Initializes the iterator. lastLabels is an array holding the previous
-  // list of labels.
-  virtual void Begin( vtkIdTypeArray * ) { }
+  // Initializes the iterator. lastLabels is an array holding labels
+  // which should be traversed before any other labels in the hierarchy.
+  // This could include labels placed during a previous rendering or
+  // a label located under the mouse pointer. You may pass a null pointer.
+  virtual void Begin( vtkIdTypeArray* ) { }
 
   // Description:
   // Advance the iterator.
@@ -70,16 +72,51 @@ public:
   // Description:
   // Sets a polydata to fill with geometry representing
   // the bounding boxes of the traversed octree nodes.
-  virtual void SetTraversedBounds( vtkPolyData* ) { }
+  virtual void SetTraversedBounds( vtkPolyData* );
+
+  // Description:
+  // Retrieve the coordinates of the center of the current hierarchy node
+  // and the size of the node.
+  // Nodes are n-cubes, so the size is the length of any edge of the cube.
+  // This is used by BoxNode().
+  virtual void GetNodeGeometry( double ctr[3], double& size ) = 0;
+
+  // Description:
+  // Add a representation to TraversedBounds for the current octree node.
+  // This should be called by subclasses inside Next().
+  // Does nothing if TraversedBounds is NULL.
+  virtual void BoxNode();
+
+  // Description:
+  // Add a representation for all existing octree nodes to the specified polydata.
+  // This is equivalent to setting TraversedBounds, iterating over the entire hierarchy,
+  // and then resetting TraversedBounds to its original value.
+  virtual void BoxAllNodes( vtkPolyData* );
+
+  // Description:
+  // Set/get whether all nodes in the hierarchy should be added to the TraversedBounds
+  // polydata or only those traversed.
+  // When non-zero, all nodes will be added.
+  // By default, AllBounds is 0.
+  vtkSetMacro(AllBounds,int);
+  vtkGetMacro(AllBounds,int);
 
 protected:
   vtkLabelHierarchyIterator();
   virtual ~vtkLabelHierarchyIterator();
 
+  void BoxNodeInternal3( const double* ctr, double sz );
+  void BoxNodeInternal2( const double* ctr, double sz );
+
   // Description:
   // The hierarchy being traversed by this iterator.
   virtual void SetHierarchy( vtkLabelHierarchy* h );
+
   vtkLabelHierarchy* Hierarchy;
+  vtkPolyData* TraversedBounds;
+  double BoundsFactor;
+  int AllBounds;
+  int AllBoundsRecorded;
 
 private:
   vtkLabelHierarchyIterator( const vtkLabelHierarchyIterator& ); // Not implemented.

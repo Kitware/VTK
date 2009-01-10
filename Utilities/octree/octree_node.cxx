@@ -40,20 +40,12 @@
   *\brief Shorthand for a reference to immutable application data.
   */
 
-/**\var  template<typename T_, int d_=3, class A_> octree_pointer octree_node<T_,d_,A_>::_M_parent
-  *\brief The octree that owns this node.
+/**\var  template<typename T_, int d_=3, class A_> octree_node_pointer octree_node<T_,d_,A_>::_M_parent
+  *\brief The parent octree node that owns this node.
   */
 
 /**\var  template<typename T_, int d_=3, class A_> octree_node_pointer octree_node<T_,d_,A_>::_M_children
   *\brief A pointer to an array of \f$2^{\mathrm{\texttt{\d_}}}\f$ children, or NULL if the node is a leaf node.
-  */
-
-/**\var  template<typename T_, int d_=3, class A_> double octree_node<T_,d_,A_>::_M_center[d_]
-  *\brief The geometric center point of the octree node.
-  */
-
-/**\var  template<typename T_, int d_=3, class A_> double octree_node<T_,d_,A_>::_M_size
-  *\brief The length of each side of the hypercube defining the octree node. Also called the size of the node.
   */
 
 /**\var  template<typename T_, int d_=3, class A_> value_type octree_node<T_,d_,A_>::_M_data
@@ -72,33 +64,6 @@ octree_node<T_,d_,A_>::octree_node()
 {
   this->_M_parent = 0;
   this->_M_children = 0;
-  for ( int i = 0; i < d_; ++i )
-    {
-    this->_M_center[i] = 0.;
-    }
-  this->_M_size = 1.;
-}
-
-/**\brief Nearly-default constructor.
-  *
-  * The node will be a leaf node (i.e. have no children).
-  * The node's application-specific data will not be initialized by this constructor.
-  * This form of the constructor is used by the octree to create the root node of the tree.
-  *
-  * @param[in] parent The octree owning this node
-  * @param[in] nodeCenter A pointer to the center point coordinates of this node.
-  * @param[in] length The length of a side of this octree hypercube/voxel/what-have-you.
-  */
-template< typename T_, int d_, typename A_ >
-octree_node<T_,d_,A_>::octree_node( octree_pointer parent, const double* nodeCenter, double length )
-  : _M_parent( parent )
-{
-  this->_M_children = 0;
-  this->_M_size = length;
-  for ( int i = 0; i < d_; ++i )
-    {
-    this->_M_center[i] = nodeCenter[i];
-    }
 }
 
 /**\brief Root node constructor.
@@ -107,40 +72,14 @@ octree_node<T_,d_,A_>::octree_node( octree_pointer parent, const double* nodeCen
   * The node's application-specific data will be initialized to the value you pass.
   * This form of the constructor is used by the octree to create the root node of the tree.
   *
-  * @param[in] parent The octree owning this node
-  * @param[in] nodeCenter A pointer to the center point coordinates of this node.
-  * @param[in] length The length of a side of this octree hypercube/voxel/what-have-you.
+  * @param[in] parent The octree node owning this node
   * @param[in] data   Application-specific data to copy and store at this node.
   */
 template< typename T_, int d_, typename A_ >
-octree_node<T_,d_,A_>::octree_node( octree_pointer parent, const double* nodeCenter, double length, const value_type& data )
+octree_node<T_,d_,A_>::octree_node( octree_node_pointer parent, const value_type& data )
   : _M_parent( parent ), _M_data( data )
 {
   this->_M_children = 0;
-  this->_M_size = length;
-  for ( int i = 0; i < d_; ++i )
-    {
-    this->_M_center[i] = nodeCenter[i];
-    }
-}
-
-/**\brief Finally, a useful constructor (you may specify application data to be stored with the node).
-  *
-  * The node will be a leaf node (i.e. have no children).
-  * @param[in] parent A reference to the octree node owning this node
-  * @param[in] which An integer specifying which child of the \a parent this node is.
-  * @param[in] data Application-specific information to be stored at this node.
-  */
-template< typename T_, int d_, typename A_ >
-octree_node<T_,d_,A_>::octree_node( octree_node_pointer parent, int which, const value_type& data )
-  : _M_parent( parent->_M_parent ), _M_data( data )
-{
-  this->_M_children = 0;
-  this->_M_size = parent->_M_size * 0.5;
-  for ( int i = 0; i < d_; ++i )
-    {
-    this->_M_center[i] = parent->_M_center[i] + ( ( which & (1<<i) ) ? 0.5 : -0.5 ) * this->_M_size;
-    }
 }
 
 /**\brief Destructor.
@@ -149,7 +88,7 @@ template< typename T_, int d_, typename A_ >
 octree_node<T_,d_,A_>::~octree_node()
 {
   if ( this->_M_children )
-    delete [] this->_M_children;
+    this->remove_children();
 }
 
 /**\fn template< typename T_, int d_, typename A_ > bool octree_node<T_,d_,A_>::is_leaf_node()
@@ -183,10 +122,7 @@ bool octree_node<T_,d_,A_>::add_children()
   for ( int i = 0; i < (1<<d_); ++i )
     {
     octree_node_pointer child = this->_M_children + i;
-    child->_M_parent = this->_M_parent;
-    child->_M_size = this->_M_size * 0.5;
-    for ( int j = 0; j < d_; ++j )
-      child->_M_center[j] = this->_M_center[j] + ( ( i & (1<<j) ) ? 0.5 : -0.5 ) * child->_M_size;
+    child->_M_parent = this;
     }
   return true;
 }
@@ -212,9 +148,6 @@ bool octree_node<T_,d_,A_>::add_children( const T_& child_initializer )
     octree_node_pointer child = this->_M_children + i;
     child->_M_parent = this->_M_parent;
     child->_M_data = child_initializer;
-    child->_M_size = this->_M_size * 0.5;
-    for ( int j = 0; j < d_; ++j )
-      child->_M_center[j] = this->_M_center[j] + ( ( i & (1<<j) ) ? 0.5 : -0.5 ) * child->_M_size;
     }
   return true;
 }
@@ -228,30 +161,18 @@ bool octree_node<T_,d_,A_>::remove_children()
 {
   if ( this->_M_children )
     {
+    int i;
+    for ( i = 0; i < ( 1 << d_ ); ++ i )
+      {
+      this->_M_children[i]._M_parent = 0; // prevent updates from propagating up the portion of the tree being deleted.
+      this->_M_children[i].remove_children();
+      }
     delete [] this->_M_children;
     this->_M_children = 0;
     return true;
     }
   return false;
 }
-
-/**\fn template< typename T_, int d_, typename A_ > const double* octree_node<T_,d_,A_>::center() const
-  *\brief Retrieve the geometric center of a node.
-  *
-  * Note that this, along with size() provide a way to compute the bounds of the node.
-  * @retval A pointer to the node center coordinate array.
-  */
-
-/**\fn template< typename T_, int d_, typename A_ > reference octree_node<T_,d_,A_>::size() const
-  *\brief Retrieve the size (i.e., the length of any side) of a node.
-  *
-  * Note that this, along with center() provide a way to compute the bounds of the node.
-  *
-  * \warning Some people refer to the diagonal length as the octree node size; this is <b>not</b> how we use size.
-  *          If you would like the diagonal length, multiply size() by \f$\sqrt{3}\f$.
-  *
-  * @retval The length of a side of the node.
-  */
 
 /**\fn template< typename T_, int d_, typename A_ > reference octree_node<T_,d_,A_>::value()
   *\brief Retrieve the application-specific data stored at a node.

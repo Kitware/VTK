@@ -35,7 +35,7 @@ public:
   bool _M_only_leaf_nodes;                  // Should the iterator visit all nodes or only leaf nodes?
 
   octree_iterator();
-  octree_iterator( octree_pointer otree, octree_node_pointer onode, bool only_leaves = true );
+  octree_iterator( octree_node_pointer oroot, octree_node_pointer onode, bool only_leaves = true );
   octree_iterator( const const_iterator& it );
   ~octree_iterator();
 

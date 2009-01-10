@@ -27,6 +27,7 @@
 #include "vtkExtractSelectedFrustum.h"
 #include "vtkIntArray.h"
 #include "vtkLabelHierarchy.h"
+#include "vtkLabelHierarchyPrivate.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
@@ -34,19 +35,28 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro( vtkLabelHierarchyIterator, "1.3" );
-vtkCxxSetObjectMacro( vtkLabelHierarchyIterator, Hierarchy, vtkLabelHierarchy );
+vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.4");
+vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,Hierarchy,vtkLabelHierarchy);
+vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,TraversedBounds,vtkPolyData);
 
 vtkLabelHierarchyIterator::vtkLabelHierarchyIterator()
 {
   this->Hierarchy = 0;
+  this->TraversedBounds = 0;
+  this->BoundsFactor = 1.0;
+  this->AllBounds = 0;
+  this->AllBoundsRecorded = 0;
 }
 
 vtkLabelHierarchyIterator::~vtkLabelHierarchyIterator()
 {
-  if (this->Hierarchy)
+  if ( this->Hierarchy )
     {
     this->Hierarchy->Delete();
+    }
+  if ( this->TraversedBounds )
+    {
+    this->TraversedBounds->Delete();
     }
 }
 
@@ -54,6 +64,10 @@ void vtkLabelHierarchyIterator::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Hierarchy: " << this->Hierarchy << "\n";
+  os << indent << "BoundsFactor: " << this->BoundsFactor << "\n";
+  os << indent << "TraversedBounds: " << this->TraversedBounds << "\n";
+  os << indent << "AllBounds: " << this->AllBounds << "\n";
+  os << indent << "AllBoundsRecorded: " << this->AllBoundsRecorded << "\n";
 }
 
 void vtkLabelHierarchyIterator::GetPoint( double x[3] )
@@ -89,5 +103,136 @@ int vtkLabelHierarchyIterator::GetType()
     }
   vtkIdType lid = this->GetLabelId();
   return labelTypeIArr->GetValue( lid );
+}
+
+void vtkLabelHierarchyIterator::BoxNode()
+{
+  if ( ! this->TraversedBounds || this->IsAtEnd() )
+    {
+    return;
+    }
+
+  if ( this->AllBounds )
+    {
+    if ( ! this->AllBoundsRecorded )
+      {
+      this->AllBoundsRecorded = 1;
+      this->BoxAllNodes( this->TraversedBounds );
+      }
+    return;
+    }
+
+  double ctr[3];
+  double sz;
+  this->GetNodeGeometry( ctr, sz );
+  double tf = this->BoundsFactor;
+
+  if ( this->Hierarchy->GetImplementation()->Hierarchy3 )
+    {
+    this->BoxNodeInternal3( ctr, tf * sz );
+    }
+  else if ( this->Hierarchy->GetImplementation()->Hierarchy2 )
+    {
+    this->BoxNodeInternal2( ctr, tf * sz );
+    }
+}
+
+void vtkLabelHierarchyIterator::BoxAllNodes( vtkPolyData* boxes )
+{
+  if ( ! boxes )
+    {
+    return;
+    }
+
+  vtkPolyData* tmp = this->TraversedBounds;
+  this->TraversedBounds = boxes;
+  double tf = this->BoundsFactor;
+
+  if ( this->Hierarchy->GetImplementation()->Hierarchy3 )
+    {
+    vtkLabelHierarchy::Implementation::HierarchyIterator3 iter;
+    for (
+      iter = this->Hierarchy->GetImplementation()->Hierarchy3->begin( true );
+      iter != this->Hierarchy->GetImplementation()->Hierarchy3->end( true );
+      ++ iter )
+      {
+      this->BoxNodeInternal3( iter->value().GetCenter(), iter->value().GetSize() / 2. * tf );
+      }
+    }
+  else if ( this->Hierarchy->GetImplementation()->Hierarchy2 )
+    {
+    vtkLabelHierarchy::Implementation::HierarchyIterator2 iter;
+    double ctr[3];
+    double hz = this->Hierarchy->GetImplementation()->Z2;
+    for (
+      iter = this->Hierarchy->GetImplementation()->Hierarchy2->begin( true );
+      iter != this->Hierarchy->GetImplementation()->Hierarchy2->end( true );
+      ++ iter )
+      {
+      ctr[0] = iter->value().GetCenter()[0];
+      ctr[1] = iter->value().GetCenter()[1];
+      ctr[2] = hz;
+      this->BoxNodeInternal2( ctr, iter->value().GetSize() / 2. * tf );
+      }
+    }
+
+  this->TraversedBounds = tmp;
+}
+
+static const int vtkLabelHierarchyIteratorEdgeIds[12][2] =
+{
+  {  0,  1 },
+  {  1,  2 },
+  {  2,  3 },
+  {  3,  0 },
+
+  {  4,  5 },
+  {  5,  6 },
+  {  6,  7 },
+  {  7,  4 },
+
+  {  0,  4 },
+  {  1,  5 },
+  {  2,  6 },
+  {  3,  7 },
+};
+
+
+void vtkLabelHierarchyIterator::BoxNodeInternal3( const double* ctr, double sz )
+{
+  vtkIdType conn[8];
+  vtkPoints* pts = this->TraversedBounds->GetPoints();
+  conn[0] = pts->InsertNextPoint( ctr[0] - sz, ctr[1] - sz, ctr[2] - sz );
+  conn[1] = pts->InsertNextPoint( ctr[0] + sz, ctr[1] - sz, ctr[2] - sz );
+  conn[2] = pts->InsertNextPoint( ctr[0] + sz, ctr[1] + sz, ctr[2] - sz );
+  conn[3] = pts->InsertNextPoint( ctr[0] - sz, ctr[1] + sz, ctr[2] - sz );
+  conn[4] = pts->InsertNextPoint( ctr[0] - sz, ctr[1] - sz, ctr[2] + sz );
+  conn[5] = pts->InsertNextPoint( ctr[0] + sz, ctr[1] - sz, ctr[2] + sz );
+  conn[6] = pts->InsertNextPoint( ctr[0] + sz, ctr[1] + sz, ctr[2] + sz );
+  conn[7] = pts->InsertNextPoint( ctr[0] - sz, ctr[1] + sz, ctr[2] + sz );
+  vtkIdType econn[2];
+  for ( int i = 0; i < 12; ++ i )
+    {
+    econn[0] = conn[vtkLabelHierarchyIteratorEdgeIds[i][0]];
+    econn[1] = conn[vtkLabelHierarchyIteratorEdgeIds[i][1]];
+    this->TraversedBounds->InsertNextCell( VTK_LINE, 2, econn );
+    }
+}
+
+void vtkLabelHierarchyIterator::BoxNodeInternal2( const double* ctr, double sz )
+{
+  vtkIdType conn[4];
+  vtkPoints* pts = this->TraversedBounds->GetPoints();
+  conn[0] = pts->InsertNextPoint( ctr[0] - sz, ctr[1] - sz, ctr[2] );
+  conn[1] = pts->InsertNextPoint( ctr[0] + sz, ctr[1] - sz, ctr[2] );
+  conn[2] = pts->InsertNextPoint( ctr[0] + sz, ctr[1] + sz, ctr[2] );
+  conn[3] = pts->InsertNextPoint( ctr[0] - sz, ctr[1] + sz, ctr[2] );
+  vtkIdType econn[2];
+  for ( int i = 0; i < 4; ++ i )
+    {
+    econn[0] = conn[vtkLabelHierarchyIteratorEdgeIds[i][0]];
+    econn[1] = conn[vtkLabelHierarchyIteratorEdgeIds[i][1]];
+    this->TraversedBounds->InsertNextCell( VTK_LINE, 2, econn );
+    }
 }
 

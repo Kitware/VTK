@@ -19,6 +19,7 @@ IF(PYTHON_EXECUTABLE)
     vtkCocoaGLView.h
     vtkFreeTypeUtilities.h
     vtkgluPickMatrix.h
+    vtkLabelHierarchyPrivate.h
     vtkOpenGL.h
     vtkOpenGLStateCache.h
     vtkgl.h

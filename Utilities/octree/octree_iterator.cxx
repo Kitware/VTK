@@ -59,8 +59,8 @@ octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator()
   *
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( octree_pointer otree, octree_node_pointer onode, bool only_leaves )
-  : octree_path<T_,R_,P_,O_,OP_,d_>( otree )
+octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( octree_node_pointer oroot, octree_node_pointer onode, bool only_leaves )
+  : octree_path<T_,R_,P_,O_,OP_,d_>( oroot )
 {
   // WARNING: This method assumes onode is either the root node of the tree or the "tail" of the sequence.
   // In order to be completely general, this method would have to search the entire octree for onode and
@@ -85,7 +85,7 @@ octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( octree_pointer otree, octr
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( const const_iterator& it )
 {
-  this->_M_octree = it._M_octree;
+  this->_M_root = it._M_root;
   this->_M_immediate_family = it._M_immediate_family;
   this->_M_only_leaf_nodes = it._M_only_leaf_nodes;
   this->_M_indices = it._M_indices;
@@ -107,7 +107,7 @@ octree_iterator<T_,R_,P_,O_,OP_,d_>::~octree_iterator()
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterator<T_,R_,P_,O_,OP_,d_>::check_incr()
 {
-  if ( ! this->_M_octree )
+  if ( ! this->_M_root )
     {
     throw vtkstd::logic_error( "Can't increment iterator with null octree pointer." );
     }
@@ -171,14 +171,14 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterator<T_,R_,P_,O_,OP_,d_>::check_decr()
 {
-  if ( ! this->_M_octree )
+  if ( ! this->_M_root )
     {
     throw vtkstd::logic_error( "Can't decrement iterator with null octree pointer." );
     }
   // Oldtown. (We're at the end)
   if ( ! this->_M_current_node )
     { // Descend to last leaf
-    this->_M_current_node = this->_M_octree->root();
+    this->_M_current_node = this->_M_root;
     while ( this->_M_current_node && this->_M_current_node->_M_children )
       {
       int child = (1<<d_) - 1;
@@ -188,7 +188,7 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
       }
     return this->_M_current_node;
     }
-  else if ( this->_M_current_node == this->_M_octree->root() )
+  else if ( this->_M_current_node == this->_M_root )
     { // We're at the beginning node... can't go back any more
     // FIXME: What do we do when traversing only leaf nodes? The root isn't the beginning any more...
     octree_node_pointer tmp = this->_M_current_node;

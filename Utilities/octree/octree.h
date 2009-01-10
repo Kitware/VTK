@@ -55,19 +55,33 @@ public:
     * decremented safely.
     */
   //@{
-  iterator begin( bool only_leaves = true ) { return iterator( this, _M_root, only_leaves ); }
-  iterator end( bool only_leaves = true ) { return iterator( this, 0, only_leaves ); }
+  iterator begin( bool only_leaves = true ) { return iterator( _M_root, _M_root, only_leaves ); }
+  iterator end( bool only_leaves = true ) { return iterator( _M_root, 0, only_leaves ); }
 
-  const_iterator begin( bool only_leaves = true ) const { return const_iterator( this, _M_root, only_leaves ); }
-  const_iterator end( bool only_leaves = true ) const { return const_iterator( this, 0, only_leaves ); }
+  const_iterator begin( bool only_leaves = true ) const { return const_iterator( _M_root, _M_root, only_leaves ); }
+  const_iterator end( bool only_leaves = true ) const { return const_iterator( _M_root, 0, only_leaves ); }
   //@}
   
   octree_node_pointer root() { return this->_M_root; }
 
   size_t size( bool only_leaves = false );
 
+  /** \brief Geometric information
+    * Binary trees of dimension 2 or higher are often used to partition geometric objects into subsets.
+    * In order to do this, the tree must have some geometric center and size.
+    * These are set by the constructor but may be queried at any time.
+    * They may not be modified as that would require a re-partitioning of the objects (typically stored
+    * at nodes or leaf-nodes).
+    */
+  //@{
+  const double* center() const { return this->_M_center; }
+  double size() const { return this->_M_size; }
+  //@}
+
 protected:
   octree_node_pointer _M_root;
+  double _M_center[d_];
+  double _M_size;
 };
 
 #endif // __octree_h
