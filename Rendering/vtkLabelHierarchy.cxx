@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.28");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.29");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.28");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.29");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -781,7 +781,7 @@ protected:
   vtkLabelHierarchy::Implementation::HierarchyCursor2 Cursor;
   vtkstd::vector<int> Path;
   vtkstd::vector<vtkstd::vector<int> > Order; // visibility sorted order of children at each level of the tree.
-  int BucketSize[2]; // size of label placer buckets in pixels
+  float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
 
   bool AtEnd;
@@ -789,7 +789,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.28");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.29");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -1113,7 +1113,7 @@ protected:
   vtkLabelHierarchy::Implementation::HierarchyCursor3 Cursor;
   vtkstd::vector<int> Path;
   vtkstd::vector<vtkstd::vector<int> > Order; // visibility sorted order of children at each level of the tree.
-  int BucketSize[2]; // size of label placer buckets in pixels
+  float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
 
   bool AtEnd;
@@ -1121,7 +1121,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.28");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.29");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1398,7 +1398,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.28");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.29");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
