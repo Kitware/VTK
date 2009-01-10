@@ -34,7 +34,7 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.7");
+vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.8");
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPolygonalHandleRepresentation3D,Property,vtkProperty);
@@ -586,6 +586,11 @@ void vtkPolygonalHandleRepresentation3D::ShallowCopy(vtkProp *prop)
     {
     this->SetProperty(rep->GetProperty());
     this->SetSelectedProperty(rep->GetSelectedProperty());
+    this->Actor->SetProperty(this->Property);
+
+    // copy the handle shape
+    this->HandleTransformFilter->SetInput(
+        rep->HandleTransformFilter->GetInput());
     }
   this->Superclass::ShallowCopy(prop);
 }
