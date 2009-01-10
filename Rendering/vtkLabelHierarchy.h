@@ -167,6 +167,12 @@ public:
   // Provide access to original coordinates of sets of coincident points
   vtkGetObjectMacro(CenterPts,vtkPoints);
 
+  // Description:
+  // Provide access to the set of coincident points that have been
+  // perturbed by the hierarchy in order to render labels for each
+  // without overlap.
+  vtkGetObjectMacro(CoincidentPoints,vtkCoincidentPoints);
+
 protected:
   vtkLabelHierarchy();
   virtual ~vtkLabelHierarchy();

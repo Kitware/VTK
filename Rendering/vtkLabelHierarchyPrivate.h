@@ -35,8 +35,9 @@ public:
 
   bool ComparePriorities( vtkIdType a, vtkIdType b )
     {
-    return this->Husk->Priorities ?
-      this->Husk->Priorities->GetTuple1( a ) > this->Husk->Priorities->GetTuple1( b ) :
+    vtkDataArray* priorities = this->Husk->GetPriorities();
+    return priorities ?
+      priorities->GetTuple1( a ) > priorities->GetTuple1( b ) :
       a < b;
     }
 

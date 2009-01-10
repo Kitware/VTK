@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.27");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.28");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.27");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.28");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -789,7 +789,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.27");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.28");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -1121,7 +1121,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.27");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.28");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1398,7 +1398,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.27");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.28");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1790,14 +1790,14 @@ void vtkLabelHierarchy::Implementation::BinAnchorsToLevel( int level )
   double sz = root->value().GetSize();
   double x[3];
   vtkIdType i;
-  vtkIdType npts = this->Husk->Points->GetNumberOfPoints();
+  vtkIdType npts = this->Husk->GetPoints()->GetNumberOfPoints();
   int m[3]; // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
   int child; // Always set to m0 + 2 * ( m1 + 2 * m2 ), offset into array of node children
   int j;
   for ( i = 0; i < npts; ++ i )
     {
     // Retrieve the point coordinates and node center
-    this->Husk->Points->GetPoint( i, x );
+    this->Husk->GetPoints()->GetPoint( i, x );
     for ( j = 0; j < 3; ++ j )
       {
       x[j] = ( x[j] - ctr[j] ) / sz + 0.5;
@@ -1861,7 +1861,7 @@ void vtkLabelHierarchy::Implementation::PromoteAnchors()
     {
     vtkDebugWithObjectMacro( this->Husk, "o " << it.level() << "(" << it->value().GetLocalAnchorCount() << ")" );
     cursor = it;
-    size_t promotionCount = compute_number_to_promote( this->Husk->TargetLabelCount, cursor.level(), 3, cursor->value().GetLocalAnchorCount() );
+    size_t promotionCount = compute_number_to_promote( this->Husk->GetTargetLabelCount(), cursor.level(), 3, cursor->value().GetLocalAnchorCount() );
     LabelSet::iterator cit = cursor->value().begin();
     LabelSet::iterator eit;
     // Step 1a. Remove all the label anchors from the leaf that we're going to promote to *all* nodes above.
@@ -1889,7 +1889,7 @@ void vtkLabelHierarchy::Implementation::PromoteAnchors()
       cursor.up();
       // How many of our available anchors do we leave at this tree level?
       if ( cursor.level() )
-        promotionCount = compute_number_to_promote( this->Husk->TargetLabelCount, cursor.level(), 3, psize - start );
+        promotionCount = compute_number_to_promote( this->Husk->GetTargetLabelCount(), cursor.level(), 3, psize - start );
       else
         promotionCount = psize - start;
       vtkDebugWithObjectMacro( this->Husk, " " << cursor.level() << "(" << promotionCount << ")" );
@@ -1921,7 +1921,7 @@ void vtkLabelHierarchy::Implementation::RecursiveNodeDivide( HierarchyCursor2& c
 void vtkLabelHierarchy::Implementation::PrepareSortedAnchors( LabelSet& anchors )
 {
   anchors.clear();
-  vtkIdType npts = this->Husk->Points->GetNumberOfPoints();
+  vtkIdType npts = this->Husk->GetPoints()->GetNumberOfPoints();
   for ( vtkIdType i = 0; i < npts; ++ i )
     {
     anchors.insert( i );
@@ -1931,14 +1931,14 @@ void vtkLabelHierarchy::Implementation::PrepareSortedAnchors( LabelSet& anchors 
 void vtkLabelHierarchy::Implementation::FillHierarchyRoot( LabelSet& anchors )
 {
   LabelSet::iterator endRootAnchors;
-  if ( static_cast<int>( anchors.size() ) < this->Husk->TargetLabelCount )
+  if ( static_cast<int>( anchors.size() ) < this->Husk->GetTargetLabelCount() )
     {
     endRootAnchors = anchors.end();
     }
   else
     {
     endRootAnchors = anchors.begin();
-    for ( int i = 0; i < this->Husk->TargetLabelCount; ++ i )
+    for ( int i = 0; i < this->Husk->GetTargetLabelCount(); ++ i )
       {
       ++ endRootAnchors;
       }
@@ -1971,10 +1971,10 @@ void vtkLabelHierarchy::Implementation::DropAnchor2( vtkIdType anchor )
   int child; // Always set to m0 + 2 * ( m1 + 2 * m2 ), offset into array of node children
   int j;
   // Retrieve the point coordinates
-  this->Husk->Points->GetPoint( anchor, x );
+  this->Husk->GetPoints()->GetPoint( anchor, x );
 
   //Coord coord( x );
-  this->Husk->CoincidentPoints->AddPoint( anchor, x );
+  this->Husk->GetCoincidentPoints()->AddPoint( anchor, x );
 
   // Convert into "octree" coordinates (x[i] in [0,1[ for easy descent).
   for ( j = 0; j < 2; ++ j )
@@ -1982,7 +1982,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor2( vtkIdType anchor )
     x[j] = ( x[j] - ctr[j] ) / sz + 0.5;
     }
   double thresh = 1.;
-  while ( static_cast<int>( curs->value().GetLocalAnchorCount() ) >= this->Husk->TargetLabelCount )
+  while ( static_cast<int>( curs->value().GetLocalAnchorCount() ) >= this->Husk->GetTargetLabelCount() )
     { // descend the tree or make children as required.
     thresh *= 0.5;
     for ( j = 0; j < 2; ++ j )
@@ -2031,10 +2031,10 @@ void vtkLabelHierarchy::Implementation::DropAnchor3( vtkIdType anchor )
   int child; // Always set to m0 + 2 * ( m1 + 2 * m2 ), offset into array of node children
   int j;
   // Retrieve the point coordinates
-  this->Husk->Points->GetPoint( anchor, x );
+  this->Husk->GetPoints()->GetPoint( anchor, x );
 
   //Coord coord(x);
-  this->Husk->CoincidentPoints->AddPoint( anchor, x );
+  this->Husk->GetCoincidentPoints()->AddPoint( anchor, x );
 
   // Convert into "octree" coordinates (x[i] in [0,1[ for easy descent).
   for ( j = 0; j < 3; ++ j )
@@ -2042,7 +2042,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor3( vtkIdType anchor )
     x[j] = ( x[j] - ctr[j] ) / sz + 0.5;
     }
   double thresh = 1.;
-  while ( static_cast<int>( curs->value().GetLocalAnchorCount() ) >= this->Husk->TargetLabelCount )
+  while ( static_cast<int>( curs->value().GetLocalAnchorCount() ) >= this->Husk->GetTargetLabelCount() )
     { // descend the tree or make children as required.
     thresh *= 0.5;
     for ( j = 0; j < 3; ++ j )
