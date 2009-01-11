@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.31");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.32");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.31");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.32");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -789,7 +789,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.31");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.32");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -1121,7 +1121,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.31");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.32");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1398,7 +1398,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.31");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.32");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1609,6 +1609,7 @@ void vtkLabelHierarchy::ComputeHierarchy()
 
 // FIXME: Currently this is unused but we might like to collect statistics
 //        on the actual distribution of label anchors...
+#if 0
 void vtkLabelHierarchy::Implementation::ComputeActualDepth()
 {
   // Find the number of levels in the hierarchy
@@ -1647,6 +1648,7 @@ void vtkLabelHierarchy::Implementation::ComputeActualDepth()
   vtkDebugWithObjectMacro( this->Husk, "num nodes " << numNodes );
   vtkDebugWithObjectMacro( this->Husk, "avg leaf depth " << static_cast<double>(totalLeafDepth) / numLeaf );
 }
+#endif // 0
 
 vtkLabelHierarchyIterator* vtkLabelHierarchy::NewIterator(
   int type,

@@ -16,6 +16,7 @@ public:
   typedef typename O_::allocator_type octree_allocator_type;
   typedef typename O_::octree_node_reference octree_node_reference;
   typedef typename O_::octree_node_pointer octree_node_pointer;
+  typedef typename vtkstd::vector<octree_node_pointer>::size_type size_type;
 
   typedef octree_path< T_, T_&, T_*, O_, O_*, d_ > path;
   typedef octree_path< T_, const T_&, const T_*, O_, const O_*, d_ > const_path;
@@ -35,7 +36,7 @@ public:
   octree_node_reference operator * () const { return *_M_current_node; }
   octree_node_pointer operator -> () const { return &(operator*()); }
 
-  size_t level() const { return this->_M_parents.size(); }
+  size_type level() const { return this->_M_parents.size(); }
 
   self_path& operator = ( const path& it );
 #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
