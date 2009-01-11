@@ -35,7 +35,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.4");
+vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.5");
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,Hierarchy,vtkLabelHierarchy);
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,TraversedBounds,vtkPolyData);
 
@@ -163,6 +163,9 @@ void vtkLabelHierarchyIterator::BoxAllNodes( vtkPolyData* boxes )
     {
     vtkLabelHierarchy::Implementation::HierarchyIterator2 iter;
     double ctr[3];
+#ifdef Z2
+#  undef Z2
+#endif // see if this fixes AIX
     double hz = this->Hierarchy->GetImplementation()->Z2;
     for (
       iter = this->Hierarchy->GetImplementation()->Hierarchy2->begin( true );
