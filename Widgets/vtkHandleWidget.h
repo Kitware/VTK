@@ -103,6 +103,14 @@ public:
   vtkGetMacro( AllowHandleResize, int );
   vtkBooleanMacro( AllowHandleResize, int );
 
+  // Description:
+  // Get the widget state.
+  vtkGetMacro( WidgetState, int );
+
+  //BTX - manage the state of the widget
+  enum _WidgetState {Start=0,Active};
+  //ETX
+  
 protected:
   vtkHandleWidget();
   ~vtkHandleWidget();
@@ -118,11 +126,7 @@ protected:
   // helper methods for cursor management
   void SetCursor(int state);
 
-//BTX - manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
-//ETX
-
   int EnableAxisConstraint;
 
   // Allow resizing of handles.
