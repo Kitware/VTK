@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.32");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.33");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.32");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.33");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -789,7 +789,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.32");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.33");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -1121,7 +1121,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.32");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.33");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1398,7 +1398,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.32");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.33");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1864,7 +1864,10 @@ void vtkLabelHierarchy::Implementation::PromoteAnchors()
     {
     vtkDebugWithObjectMacro( this->Husk, "o " << it.level() << "(" << it->value().GetLocalAnchorCount() << ")" );
     cursor = it;
-    size_t promotionCount = compute_number_to_promote( this->Husk->GetTargetLabelCount(), cursor.level(), 3, cursor->value().GetLocalAnchorCount() );
+    size_t promotionCount = compute_number_to_promote(
+      this->Husk->GetTargetLabelCount(),
+      static_cast<size_t>( cursor.level() ),
+      3, cursor->value().GetLocalAnchorCount() );
     LabelSet::iterator cit = cursor->value().begin();
     LabelSet::iterator eit;
     // Step 1a. Remove all the label anchors from the leaf that we're going to promote to *all* nodes above.
@@ -1892,9 +1895,16 @@ void vtkLabelHierarchy::Implementation::PromoteAnchors()
       cursor.up();
       // How many of our available anchors do we leave at this tree level?
       if ( cursor.level() )
-        promotionCount = compute_number_to_promote( this->Husk->GetTargetLabelCount(), cursor.level(), 3, psize - start );
+        {
+        promotionCount = compute_number_to_promote(
+          this->Husk->GetTargetLabelCount(),
+          static_cast<size_t>( cursor.level() ),
+          3, psize - start );
+        }
       else
+        {
         promotionCount = psize - start;
+        }
       vtkDebugWithObjectMacro( this->Husk, " " << cursor.level() << "(" << promotionCount << ")" );
       // Insert them. This is O(1) since the list is O(1) in length at maximum
       cursor->value().insert( promotionList.begin() + start, promotionList.begin() + start + promotionCount );
