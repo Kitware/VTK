@@ -177,7 +177,7 @@ public:
 
   // Description:
   // Computes the depth of the generated hierarchy.
-  void ComputeActualDepth();
+  //void ComputeActualDepth();
 
   // Description:
   // Routines called by ComputeHierarchy()
@@ -200,7 +200,7 @@ public:
   HierarchyType2* Hierarchy2; // 2-D quadtree of label anchors (all input points have same z coord)
   HierarchyType3* Hierarchy3; // 3-D octree of label anchors (input point bounds have non-zero z range)
   vtkTimeStamp HierarchyTime;
-  size_t ActualDepth;
+  HierarchyType3::size_type ActualDepth;
   vtkLabelHierarchy* Husk;
 
   static vtkLabelHierarchy* Current;

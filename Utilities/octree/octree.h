@@ -25,6 +25,8 @@ public:
   typedef const octree_node<T_,d_,A_>* const_octree_node_pointer;
   typedef const octree_node<T_,d_,A_>& const_octree_node_reference;
 
+  typedef typename vtkstd::vector<octree_node_pointer>::size_type size_type;
+
   typedef A_ allocator_type;
 
   // Ugly. But neccessary according to young me. Old me says so.
