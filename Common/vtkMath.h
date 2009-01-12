@@ -758,8 +758,8 @@ public:
   static int PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
 
   // Description:
-  // Calculat a spiral with \a num point in it and put the points in
-  // offsets. Note this spiral is only in two dimensions having a constant
+  // Calculate \a num points, at a regular interval, along a parametric 
+  // spiral. Note this spiral is only in two dimensions having a constant
   // z value.
   static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
   

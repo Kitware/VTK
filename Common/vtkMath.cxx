@@ -36,7 +36,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.131");
+vtkCxxRevisionMacro(vtkMath, "1.132");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -3147,8 +3147,8 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
 }
 
 //----------------------------------------------------------------------------
-// vtkSpiralkVertices - used to calculate points along a spiral using a circle with
-// radius = 1.0? centered about the origin.
+// vtkSpiralkVertices - calculate points at a regular interval along a parametric
+// spiral.
 void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets)
 {
   int maxIter = 10;
