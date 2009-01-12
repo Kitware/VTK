@@ -35,7 +35,9 @@
 #include "vtkGeoTerrainNode.h"
 #include "vtkGeoView2D.h"
 #include "vtkGraphLayoutView.h"
+#include "vtkIdTypeArray.h"
 #include "vtkJPEGReader.h"
+#include "vtkMath.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPolyData.h"
 #include "vtkRegressionTestImage.h"
@@ -196,6 +198,11 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   lonArr->SetNumberOfTuples(128);
   latArr->SetName("latitude");
   lonArr->SetName("longitude");
+
+  vtkSmartPointer<vtkIdTypeArray> colorScalars = 
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  colorScalars->SetName("stuff");
+
   vtkIdType v;
 
   for (v = 0; v < 20; ++v)
@@ -328,10 +335,21 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   graph->AddEdge(126, 127);
   graph->AddEdge(127, 66);
 
+  vtkMath::RandomSeed(123456);
+  for(int i = 0; i < 128; i++)
+    {
+    colorScalars->InsertNextValue(
+      static_cast<vtkIdType>(vtkMath::Random(0, 1024)));
+    }
+  graph->GetVertexData()->AddArray(colorScalars);
+
   vtkSmartPointer<vtkGeoGraphRepresentation2D> graphRep =
     vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();
   graphRep->SetTransform(transform);
   graphRep->SetInput(graph);
+  graphRep->SetVertexColorArrayName("stuff");
+  graphRep->ColorVerticesOn();
+  
   view->AddRepresentation(graphRep);
 
   // Serialize databases

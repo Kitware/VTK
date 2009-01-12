@@ -34,7 +34,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.2");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.3");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -56,8 +56,8 @@ int vtkPerturbCoincidentVertices::RequestData(
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
   vtkGraph* output = vtkGraph::GetData(outputVector);
 
-  output->ShallowCopy(input);
-  output->GetFieldData()->PassData(input->GetFieldData());
+  output->DeepCopy(input);
+  output->GetFieldData()->DeepCopy(input->GetFieldData());
   
   vtkPoints* points = output->GetPoints();
   int numPoints = points->GetNumberOfPoints();
@@ -84,6 +84,7 @@ int vtkPerturbCoincidentVertices::RequestData(
   int numCoincidentPoints = 0;
   vtkIdList * coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
   vtkIdType Id = 0;
+  // Iterate over each coordinate that may have a set of coincident point ids.
   while(coincidentPoints != NULL)
     {
     // Iterate over all coincident point ids and perturb them
@@ -104,7 +105,6 @@ int vtkPerturbCoincidentVertices::RequestData(
 
     coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
     }
-
   return 1;
 }
 
