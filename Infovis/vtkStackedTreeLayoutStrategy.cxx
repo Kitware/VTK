@@ -39,7 +39,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
@@ -177,8 +177,6 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(
 
   vtkIntArray* levelArray = vtkIntArray::SafeDownCast(
       levelTree->GetVertexData()->GetAbstractArray("level"));
-  vtkIntArray* leafArray = vtkIntArray::SafeDownCast(
-      levelTree->GetVertexData()->GetAbstractArray("leaf"));
 
   double exteriorRadius = VTK_DOUBLE_MAX;
   double sector_coords[4];
@@ -233,7 +231,6 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(
       continue;
       }
 
-    double sector_coords[4];
     sectorsArray->GetTuple( i, sector_coords );
 
     double x = 0.0;
