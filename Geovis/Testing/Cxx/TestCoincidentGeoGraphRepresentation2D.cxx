@@ -186,23 +186,18 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   view->AddRepresentation(imageRep2);*/
 
   // Add a graph representation
-  /*vtkSmartPointer<vtkGeoRandomGraphSource> graphSource =
-    vtkSmartPointer<vtkGeoRandomGraphSource>::New();
-  graphSource->SetNumberOfVertices(100);
-  graphSource->StartWithTreeOn();
-  graphSource->SetNumberOfEdges(0);*/
-
   vtkSmartPointer<vtkMutableUndirectedGraph> graph = 
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
   vtkSmartPointer<vtkDoubleArray> latArr = 
     vtkSmartPointer<vtkDoubleArray>::New();
   vtkSmartPointer<vtkDoubleArray> lonArr = 
     vtkSmartPointer<vtkDoubleArray>::New();
-  latArr->SetNumberOfTuples(80);
-  lonArr->SetNumberOfTuples(80);
+  latArr->SetNumberOfTuples(128);
+  lonArr->SetNumberOfTuples(128);
   latArr->SetName("latitude");
   lonArr->SetName("longitude");
   vtkIdType v;
+
   for (v = 0; v < 20; ++v)
     {
     latArr->SetValue(v, 0.0);
@@ -238,6 +233,50 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
     graph->AddVertex();
     }
 
+  for (v = 80; v < 105; ++v)
+    {
+    latArr->SetValue(v, 48.87);
+    lonArr->SetValue(v, 2.29);
+    graph->AddVertex();
+    }
+
+  for (v = 105; v < 122; ++v)
+    {
+    latArr->SetValue(v, -34.44);
+    lonArr->SetValue(v, -59.20);
+    graph->AddVertex();
+    }
+
+  // SANTAREM
+  latArr->SetValue(122, -2.26);
+  lonArr->SetValue(122, -54.41);
+  graph->AddVertex();
+
+  // CAIRO
+  latArr->SetValue(123, 30.03);
+  lonArr->SetValue(123, 31.15);
+  graph->AddVertex();
+
+  // TEHRAN
+  latArr->SetValue(124, 35.40);
+  lonArr->SetValue(124, 51.26);
+  graph->AddVertex();
+
+  // MOSCOW
+  latArr->SetValue(125, 55.45);
+  lonArr->SetValue(125, 37.42);
+  graph->AddVertex();
+
+  // CALCUTTA
+  latArr->SetValue(126, 22.30);
+  lonArr->SetValue(126, 88.20);
+  graph->AddVertex();
+
+  // JAKARTA
+  latArr->SetValue(127, -6.08);
+  lonArr->SetValue(127, 106.45);
+  graph->AddVertex();
+
   graph->GetVertexData()->AddArray(latArr);
   graph->GetVertexData()->AddArray(lonArr);
 
@@ -265,6 +304,29 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
     {
     graph->AddEdge(v, v - 1);
     }
+
+  for (v = 81; v < 105; ++v)
+    {
+    graph->AddEdge(80, v);
+    }
+
+  for (v = 106; v < 122; ++v)
+    {
+    graph->AddEdge(105, v);
+    }
+
+  graph->AddEdge(122, 123);
+  graph->AddEdge(122, 20);
+  graph->AddEdge(20, 40);
+  graph->AddEdge(122, 105);
+  graph->AddEdge(123, 124);
+  graph->AddEdge(123, 0);
+  graph->AddEdge(124, 125);
+  graph->AddEdge(125, 80);
+  graph->AddEdge(124, 126);
+  graph->AddEdge(126, 49);
+  graph->AddEdge(126, 127);
+  graph->AddEdge(127, 66);
 
   vtkSmartPointer<vtkGeoGraphRepresentation2D> graphRep =
     vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();

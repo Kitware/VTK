@@ -34,7 +34,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.1");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.2");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -78,7 +78,8 @@ int vtkPerturbCoincidentVertices::RequestData(
 
   double spiralPoint[3];
   double point[3];
-  double scale = sqrt(vtkMath::Distance2BetweenPoints(point1, point2))/points->GetNumberOfPoints();
+  double distance = sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
+  double scale = 1.0;
   vtkSmartPointer<vtkPoints> offsets = vtkSmartPointer<vtkPoints>::New();
   int numCoincidentPoints = 0;
   vtkIdList * coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
@@ -88,6 +89,7 @@ int vtkPerturbCoincidentVertices::RequestData(
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
     vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
+    scale = distance/(numCoincidentPoints * 3);
     for(int i = 0; i < numCoincidentPoints; ++i)
       {
       Id = coincidentPoints->GetId(i);
