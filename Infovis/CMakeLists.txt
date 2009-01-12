@@ -203,7 +203,6 @@ vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
-vtkTreeRingLayoutStrategy.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 ABSTRACT
 )
