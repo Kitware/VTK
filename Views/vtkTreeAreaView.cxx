@@ -70,7 +70,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.1");
+vtkCxxRevisionMacro(vtkTreeAreaView, "1.2");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
@@ -986,6 +986,8 @@ void vtkTreeAreaView::PrintSelf(ostream& os, vtkIndent indent)
   this->SelectedGraphHBundle->PrintSelf(os, indent.GetNextIndent());
   os << indent << "AreaLabelMapper: " << endl;
   this->AreaLabelMapper->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "AreaToPolyData: " << endl;
+  this->AreaToPolyData->PrintSelf(os, indent.GetNextIndent());
 
   if (this->GetGraphRepresentation() && this->GetTreeRepresentation())
     {
