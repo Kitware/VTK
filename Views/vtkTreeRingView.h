@@ -1,146 +1,82 @@
 /*=========================================================================
-  
-Program:   Visualization Toolkit
-Module:    vtkTreeRingView.h
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Program:   Visualization Toolkit
+  Module:    vtkTreeRingView.h
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-/*-------------------------------------------------------------------------
+  -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
-// .NAME vtkTreeRingView - Displays a tree as a radial space filling tree.
+  -------------------------------------------------------------------------
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+// .NAME vtkTreeRingView - Displays a tree in concentric rings.
 //
 // .SECTION Description
-// vtkTreeRingView shows a vtkTree in a radial space filling (RSF) tree,
-// where each vertex in the tree is represented by a sector of a set of
-// circles.  Child sectors are connected to parent sectors, and may be
-// colored and sized by various parameters.
+// Accepts a graph and a hierarchy - currently
+// a tree - and provides a hierarchy-aware display.  Currently, this means
+// displaying the hierarchy using a tree ring layout, then rendering the graph
+// vertices as leaves of the tree with curved graph edges between leaves.
+//
+// .SEE ALSO
+// vtkTreeLayoutView
+// vtkGraphLayoutView
+//
+// .SECTION Thanks
+// Thanks to Jason Shepherd for implementing this class
 
 #ifndef __vtkTreeRingView_h
 #define __vtkTreeRingView_h
 
-#include "vtkRenderView.h"
+#include "vtkTreeAreaView.h"
 
-class vtkActor;
-class vtkActor2D;
-class vtkAlgorithmOutput;
-class vtkDynamic2DLabelMapper;
-class vtkLookupTable;
-class vtkPolyDataMapper;
-class vtkRenderWindow;
-class vtkTreeFieldAggregator;
-class vtkTreeLevelsFilter;
-class vtkTreeRingLayout;
-class vtkTreeRingDefaultLayoutStrategy;
-class vtkTreeRingReversedLayoutStrategy;
-class vtkTreeRingToPolyData;
-
-class VTK_VIEWS_EXPORT vtkTreeRingView : public vtkRenderView
+class VTK_VIEWS_EXPORT vtkTreeRingView : public vtkTreeAreaView
 {
 public:
   static vtkTreeRingView *New();
-  vtkTypeRevisionMacro(vtkTreeRingView, vtkRenderView);
+  vtkTypeRevisionMacro(vtkTreeRingView, vtkTreeAreaView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // The name of the array used to color the treemap.
-  void SetColorArrayName(const char* name);
-  const char* GetColorArrayName();
-  
+  // Set the root angles for laying out the hierarchy.
+  void SetRootAngles(double start, double end);
+
   // Description:
-  // The name of the array used to size the treemap rectangles.
-  void SetSizeArrayName(const char* name);
-  const char* GetSizeArrayName();
-  
+  // Sets whether the root is at the center or around the outside.
+  virtual void SetRootAtCenter(bool value);
+  virtual bool GetRootAtCenter();
+  vtkBooleanMacro(RootAtCenter, bool);
+
   // Description:
-  // The name of the array used to label the treemap.
-  // This must be a string array.
-  void SetLabelArrayName(const char* name);
-  const char* GetLabelArrayName();
-  
+  // Set the thickness of each layer.
+  virtual void SetLayerThickness(double thickness);
+  virtual double GetLayerThickness();
+
   // Description:
-  // The name of the array whose value appears when the mouse hovers
-  // over a rectangle in the treemap.
-  // This must be a string array.
-  void SetHoverArrayName(const char* name);
-  const char* GetHoverArrayName();
-  
+  // Set the interior radius of the tree
+  // (i.e. the size of the "hole" in the center).
+  virtual void SetInteriorRadius(double thickness);
+  virtual double GetInteriorRadius();
+
   // Description:
-  // Sets the treemap layout strategy
-  void SetLayoutStrategy(const char* name);
-  void SetLayoutStrategyToDefault();
-  void SetLayoutStrategyToReversed();
-  
-  // Description:
-  // Get/Set the shrinkage percentage for drawing each of the sectors
-  void SetSectorShrinkPercentage( double shrinkFactor );
-  double GetSectorShrinkPercentage();
-  
-  // Description:
-  // Set the root angles for laying out the hierarchy
-  void SetRootAngles( double start, double end );
-  
-  // Description:
-  // Sets up interactor style.
-  virtual void SetupRenderWindow(vtkRenderWindow* win);
-  
-  // Description:
-  // Apply the theme to this view.
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
-  
+  // Set the log spacing factor for the invisible interior tree
+  // used for routing edges of the overlaid graph.
+  virtual void SetInteriorLogSpacingValue(double thickness);
+  virtual double GetInteriorLogSpacingValue();
+
 protected:
   vtkTreeRingView();
   ~vtkTreeRingView();
-  
-  // Description:
-  // Connects the algorithm output to the internal pipeline.
-  virtual void AddInputConnection( int port, int item,
-                                   vtkAlgorithmOutput* conn,
-                                   vtkAlgorithmOutput* selectionConn);
-  
-  // Description:
-  // Disconnects the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection( int port, int item,
-                                      vtkAlgorithmOutput* conn,
-                                      vtkAlgorithmOutput* selectionConn);
-  
-  // Description:
-  // Called to process the user event from the interactor style.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
-                             void* callData);
-  
-  // Decsription:
-  // Prepares the view for rendering.
-  virtual void PrepareForRendering();
-  
-  // Description:
-  // Gets the internal color array name.
-  vtkSetStringMacro(ColorArrayNameInternal);
-  vtkGetStringMacro(ColorArrayNameInternal);
-  
-  // Representation objects
-  char* ColorArrayNameInternal;
-  vtkTreeLevelsFilter*                      TreeLevelsFilter;
-  vtkTreeFieldAggregator*                   TreeFieldAggregator;
-  vtkTreeRingLayout*                        TreeRingLayout;
-  vtkTreeRingDefaultLayoutStrategy*         TreeRingDefaultLayout;
-  vtkTreeRingReversedLayoutStrategy*        TreeRingReversedLayout;
-  vtkTreeRingToPolyData*                    TreeRingToPolyData;
-  vtkPolyDataMapper*                        TreeRingMapper;
-  vtkActor*                                 TreeRingActor;
-  vtkDynamic2DLabelMapper*                  LabelMapper;
-  vtkActor2D*                               LabelActor;
-  vtkLookupTable*                           ColorLUT;
-  
+
 private:
   vtkTreeRingView(const vtkTreeRingView&);  // Not implemented.
   void operator=(const vtkTreeRingView&);  // Not implemented.

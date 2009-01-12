@@ -41,7 +41,8 @@
 #ifndef __vtkLabeledTreeMapDataMapper_h
 #define __vtkLabeledTreeMapDataMapper_h
 
-#include <vtkLabeledDataMapper.h>
+#include "vtkLabeledDataMapper.h"
+
 class vtkTree;
 class vtkPoints;
 class vtkCoordinate;
@@ -52,14 +53,10 @@ class vtkIdList;
 class VTK_INFOVIS_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
 {
 public:
-  // Description:
-  // Instantiate object with %%-#6.3g label format. By default, point ids
-  // are labeled.
   static vtkLabeledTreeMapDataMapper *New();
-
   vtkTypeRevisionMacro(vtkLabeledTreeMapDataMapper,vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Draw the text to the screen at each input point.
   virtual void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
@@ -70,9 +67,8 @@ public:
   virtual vtkTree *GetInputTree();
 
   // Description:
-  // The name of the 4-tuple array used for 
-  vtkGetStringMacro(RectanglesFieldName);
-  vtkSetStringMacro(RectanglesFieldName);
+  // The name of the 4-tuple array used for
+  virtual void SetRectanglesArrayName(const char* name);
 
   // Description:
   // Indicates if the label can be displayed clipped by the Window
@@ -127,7 +123,6 @@ protected:
                    float *textPosWC,
                    vtkTextProperty **tprop);
   int ApplyMasks(int level, float flimits[4], float blimits[4]);
-  char * RectanglesFieldName;
   vtkViewport *CurrentViewPort;
   int *FontHeights;
   int **FontWidths;
@@ -149,7 +144,7 @@ protected:
   int DynamicLevel;
   vtkTextProperty *VerticalLabelProperty;
   vtkTextProperty **HLabelProperties;
-  
+
 private:
   vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&);  // Not implemented.
   void operator=(const vtkLabeledTreeMapDataMapper&);  // Not implemented.

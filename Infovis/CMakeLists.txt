@@ -11,6 +11,8 @@ SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES} vtkalglib)
 
 SET( Kit_SRCS
 vtkArcParallelEdgeStrategy.cxx
+vtkAreaLayout.cxx
+vtkAreaLayoutStrategy.cxx
 vtkArrayMap.cxx
 vtkAssignCoordinates.cxx
 vtkBivariateStatisticsAlgorithm.cxx
@@ -42,9 +44,8 @@ vtkGraphMapper.cxx
 vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
+vtkInteractorStyleAreaSelectHover.cxx
 vtkInteractorStyleTreeMapHover.cxx
-vtkInteractorStyleTreeRingHover.cxx
-vtkInteractorStyleTreeRingSelectHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
@@ -65,6 +66,7 @@ vtkRemoveIsolatedVertices.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
+vtkStackedTreeLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
@@ -81,11 +83,6 @@ vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
-vtkTreeRingLayout.cxx
-vtkTreeRingDefaultLayoutStrategy.cxx
-vtkTreeRingPointLayout.cxx
-vtkTreeRingReversedLayoutStrategy.cxx
-vtkTreeRingLayoutStrategy.cxx
 vtkTreeRingToPolyData.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
@@ -200,6 +197,7 @@ IF(VTK_HAS_UINT64_ARRAY)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkAreaLayoutStrategy.cxx
 vtkBivariateStatisticsAlgorithm.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx

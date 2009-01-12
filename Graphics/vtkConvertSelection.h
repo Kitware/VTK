@@ -16,14 +16,16 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkConvertSelection - 
+// .NAME vtkConvertSelection - Convert a selection from one type to another
 //
 // .SECTION Description
-// vtkConvertSelection
-//
-// .SECTION Thanks
+// vtkConvertSelection converts an input selection from one type to another
+// in the context of a data object being selected. The first input is the
+// selection, while the second input is the data object that the selection
+// relates to.
 //
 // .SECTION See Also
+// vtkSelection vtkSelectionNode vtkExtractSelection vtkExtractSelectedGraph
 
 #ifndef __vtkConvertSelection_h
 #define __vtkConvertSelection_h
@@ -50,7 +52,17 @@ public:
   void SetDataObjectConnection(vtkAlgorithmOutput* in);
 
   // Description:
-  // The output selection type.
+  // The input field type.
+  // If this is set to a number other than -1, ignores the input selection
+  // field type and instead assumes that all selection nodes have the
+  // field type specified.
+  // This should be one of the constants defined in vtkSelectionNode.h.
+  // Default is -1.
+  vtkSetMacro(InputFieldType, int);
+  vtkGetMacro(InputFieldType, int);
+  
+  // Description:
+  // The output selection content type.
   // This should be one of the constants defined in vtkSelectionNode.h.
   vtkSetMacro(OutputType, int);
   vtkGetMacro(OutputType, int);
@@ -164,6 +176,7 @@ protected:
     int port, vtkInformation* info);
   
   int OutputType;
+  int InputFieldType;
   vtkStringArray* ArrayNames;
 
 private:

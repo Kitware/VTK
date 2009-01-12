@@ -621,7 +621,7 @@ int TestInteractorStyleTreeMapHover(int argc, char* argv[])
 
   VTK_CREATE(vtkTreeMapLayout, layout);
   VTK_CREATE(vtkSquarifyLayoutStrategy, box);
-  box->SetBorderPercentage(0.1);
+  box->SetShrinkPercentage(0.1);
   layout->SetInputConnection(agg->GetOutputPort());
   layout->SetLayoutStrategy(box);
 

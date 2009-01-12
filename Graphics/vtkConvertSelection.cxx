@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.22");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.23");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -63,6 +63,7 @@ vtkConvertSelection::vtkConvertSelection()
   this->SetNumberOfInputPorts(2);
   this->OutputType = vtkSelectionNode::INDICES;
   this->ArrayNames = 0;
+  this->InputFieldType = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -844,8 +845,18 @@ int vtkConvertSelection::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkSelection* input = vtkSelection::SafeDownCast(
+  vtkSelection* origInput = vtkSelection::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkSmartPointer<vtkSelection> input = vtkSmartPointer<vtkSelection>::New();
+  input->ShallowCopy(origInput);
+  if (this->InputFieldType != -1)
+    {
+    for (unsigned int i = 0; i < input->GetNumberOfNodes(); ++i)
+      {
+      input->GetNode(i)->SetFieldType(this->InputFieldType);
+      }
+    }
   
   vtkInformation* dataInfo = inputVector[1]->GetInformationObject(0);
   vtkDataObject* data = dataInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -1026,6 +1037,7 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
 void vtkConvertSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "InputFieldType: " << this->InputFieldType << endl;
   os << indent << "OutputType: " << this->OutputType << endl;
   os << indent << "ArrayNames: " << (this->ArrayNames ? "" : "(null)") << endl;
   if (this->ArrayNames)

@@ -34,7 +34,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
 vtkBoxLayoutStrategy::vtkBoxLayoutStrategy()
@@ -45,10 +45,21 @@ vtkBoxLayoutStrategy::~vtkBoxLayoutStrategy()
 {
 }
 
-void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree, 
-  vtkDataArray *coordsArray)
+void vtkBoxLayoutStrategy::Layout(
+    vtkTree* inputTree,
+    vtkDataArray* coordsArray,
+    vtkDataArray* vtkNotUsed(sizeArray))
 {
-  vtkSmartPointer<vtkTreeDFSIterator> dfs = 
+  if (!inputTree)
+    {
+    return;
+    }
+  if (!coordsArray)
+    {
+    vtkErrorMacro("Area array not defined.");
+    return;
+    }
+  vtkSmartPointer<vtkTreeDFSIterator> dfs =
     vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
   float coords[4];
@@ -83,13 +94,13 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
       int xDivisions =
         static_cast<int>(sqrt(static_cast<double>(nchildren))+1); // Ceiling
       int yDivisions = xDivisions;
-       
+
       // Okay try shrinking the bounds
       if ((xDivisions-1)*yDivisions >= nchildren)
         --xDivisions;
       if (xDivisions*(yDivisions-1) >= nchildren)
         --yDivisions;
-      
+
       // Get the children
       inputTree->GetChildren(vertex, children);
 
@@ -106,18 +117,18 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
             break;
             }
           vtkIdType child = children->Next();
-          
+
           // Give children their positions
-          coords[0] = 
+          coords[0] =
             parentMinX + xDelta * j;// minX
-          coords[1] = 
+          coords[1] =
             parentMinX + xDelta * (j + 1.0);// maxX
-          coords[2] = 
+          coords[2] =
             parentMinY + ySpace - yDelta * (i + 1.0);// minY
-          coords[3] = 
+          coords[3] =
             parentMinY + ySpace - yDelta*i;// maxY
-          
-          coordsArray->SetTuple(child, coords);        
+
+          coordsArray->SetTuple(child, coords);
           }
         }
       }

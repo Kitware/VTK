@@ -33,14 +33,15 @@
 #include "vtkTree.h"
 #include "vtkTreeMapLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeMapLayout, "1.9");
+vtkCxxRevisionMacro(vtkTreeMapLayout, "1.10");
 vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
 {
   this->RectanglesFieldName = 0;
   this->LayoutStrategy = 0;
-  this->SetRectanglesFieldName("rectangles");
+  this->SetRectanglesFieldName("area");
+  this->SetSizeArrayName("size");
 }
 
 vtkTreeMapLayout::~vtkTreeMapLayout()
@@ -72,7 +73,7 @@ int vtkTreeMapLayout::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    
+
   // Storing the inputTree and outputTree handles
   vtkTree *inputTree = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -81,19 +82,27 @@ int vtkTreeMapLayout::RequestData(
 
   // Copy the input into the output
   outputTree->ShallowCopy(inputTree);
-  
+
   // Add the 4-tuple array that will store the min,max xy coords
   vtkFloatArray *coordsArray = vtkFloatArray::New();
   coordsArray->SetName(this->RectanglesFieldName);
   coordsArray->SetNumberOfComponents(4);
   coordsArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
-  vtkDataSetAttributes *data = outputTree->GetVertexData(); 
+  vtkDataSetAttributes *data = outputTree->GetVertexData();
   data->AddArray(coordsArray);
   coordsArray->Delete();
-  
+
+  // Add the 4-tuple array that will store the min,max xy coords
+  vtkDataArray *sizeArray = this->GetInputArrayToProcess(0, inputTree);
+  if (!sizeArray)
+    {
+    vtkErrorMacro("Size array not found.");
+    return 0;
+    }
+
   // Okay now layout the tree :)
-  this->LayoutStrategy->Layout(inputTree, coordsArray);
-   
+  this->LayoutStrategy->Layout(inputTree, coordsArray, sizeArray);
+
   return 1;
 }
 

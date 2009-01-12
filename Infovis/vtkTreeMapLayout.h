@@ -39,12 +39,11 @@
 #ifndef __vtkTreeMapLayout_h
 #define __vtkTreeMapLayout_h
 
-
 #include "vtkTreeAlgorithm.h"
 
 class vtkTreeMapLayoutStrategy;
 
-class VTK_INFOVIS_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm 
+class VTK_INFOVIS_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm
 {
 public:
   static vtkTreeMapLayout *New();
@@ -54,10 +53,15 @@ public:
 
   // Description:
   // The field name to use for storing the rectangles for each vertex.
-  // The rectangles are stored in a quadruple float array 
+  // The rectangles are stored in a quadruple float array
   // (minX, maxX, minY, maxY).
   vtkGetStringMacro(RectanglesFieldName);
   vtkSetStringMacro(RectanglesFieldName);
+
+  // Description:
+  // The array to use for the size of each vertex.
+  virtual void SetSizeArrayName(const char* name)
+    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
 
   // Description:
   // The strategy to use when laying out the tree map.
@@ -67,9 +71,9 @@ public:
   // Description:
   // Returns the vertex id that contains pnt (or -1 if no one contains it)
   vtkIdType FindVertex(float pnt[2], float *binfo=0);
-  
+
   // Description:
-  // Return the min and max 2D points of the 
+  // Return the min and max 2D points of the
   // vertex's bounding box
   void GetBoundingBox(vtkIdType id, float *binfo);
 
@@ -85,7 +89,7 @@ protected:
   vtkTreeMapLayoutStrategy* LayoutStrategy;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
 private:
 
   vtkTreeMapLayout(const vtkTreeMapLayout&);  // Not implemented.

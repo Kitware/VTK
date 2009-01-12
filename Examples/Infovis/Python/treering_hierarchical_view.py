@@ -3,38 +3,42 @@ from vtk import *
 
 reader1 = vtkXMLTreeReader()
 reader1.SetFileName("vtkclasses.xml")
+reader1.SetEdgePedigreeIdArrayName("tree edge")
+reader1.GenerateVertexPedigreeIdsOff();
+reader1.SetVertexPedigreeIdArrayName("id");
+
 reader2 = vtkXMLTreeReader()
 reader2.SetFileName("vtklibrary.xml")
-reader1.SetEdgePedigreeIdArrayName("tree edge")
 reader2.SetEdgePedigreeIdArrayName("graph edge")
+reader2.GenerateVertexPedigreeIdsOff();
+reader2.SetVertexPedigreeIdArrayName("id");
 
 reader1.Update()
 reader2.Update()
 
-dummy = vtkHierarchicalTreeRingView()
-view = vtkHierarchicalTreeRingView()
-view.SetHierarchyFromInputConnection(reader2.GetOutputPort())
+view = vtkTreeRingView()
+view.SetTreeFromInputConnection(reader2.GetOutputPort())
 view.SetGraphFromInputConnection(reader1.GetOutputPort())
-view.SetVertexColorArrayName("VertexDegree")
+view.SetAreaColorArrayName("VertexDegree")
 view.SetEdgeColorArrayName("tree edge")
-view.SetHoverArrayName("id")
+view.SetAreaHoverArrayName("id")
 view.SetColorEdges(True)
-view.SetVertexLabelArrayName("id")
-view.SetVertexLabelVisibility(True)
-view.SetSectorShrinkFactor(0.02)
+view.SetAreaLabelArrayName("id")
+view.SetAreaLabelVisibility(True)
+view.SetShrinkPercentage(0.02)
 view.SetBundlingStrength(.5)
 
-view2 = vtkHierarchicalTreeRingView()
-view2.SetHierarchyFromInputConnection(reader1.GetOutputPort())
+view2 = vtkTreeRingView()
+view2.SetTreeFromInputConnection(reader1.GetOutputPort())
 view2.SetGraphFromInputConnection(reader2.GetOutputPort())
 view2.SetRootAngles(180.,360.)
-view2.SetVertexColorArrayName("vertex id")
+view2.SetAreaColorArrayName("VertexDegree")
 view2.SetEdgeColorArrayName("graph edge")
 view2.SetColorEdges(True)
-view2.SetHoverArrayName("id")
-view2.SetVertexLabelArrayName("id")
-view2.SetSectorShrinkFactor(0.01)
-view2.SetVertexLabelVisibility(True)
+view2.SetAreaHoverArrayName("id")
+view2.SetAreaLabelArrayName("id")
+view2.SetAreaLabelVisibility(True)
+view2.SetShrinkPercentage(0.01)
 
 # Apply a theme to the views
 theme = vtkViewTheme.CreateMellowTheme()
@@ -43,12 +47,14 @@ view2.ApplyViewTheme(theme)
 theme.FastDelete()
 
 win = vtkRenderWindow()
-dummy.SetupRenderWindow(win)
 view.SetupRenderWindow(win)
+view.Update()
 view.GetRenderer().ResetCamera()
 
 win2 = vtkRenderWindow()
 view2.SetupRenderWindow(win2)
+view2.Update()
+view2.GetRenderer().ResetCamera()
 
 win.GetInteractor().Initialize()
 win2.GetInteractor().Initialize()

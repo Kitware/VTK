@@ -38,7 +38,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.15");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.16");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -46,8 +46,6 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
     MaxTreeLevels(100), ClipTextMode(0), ChildMotion(0), 
     StartLevel(0), EndLevel(-1), DynamicLevel(0)
 {
-  this->RectanglesFieldName = 0;
-  this->SetRectanglesFieldName("rectangles");
   this->BoxTrans[0][0] = this->BoxTrans[1][0] = 0.0;
   this->BoxTrans[0][1] = this->BoxTrans[1][1] = 1.0;
   this->WindowLimits[0][0] = this->WindowLimits[1][0] = 0.0;
@@ -74,6 +72,8 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   this->SetFontSizeRange(24, 10);
   this->ChildrenCount = new int[this->MaxTreeLevels+1];
   this->LabelMasks = new float[this->MaxTreeLevels+1][4];
+  this->SetRectanglesArrayName("area");
+  this->SetLabelFormat("%s");
 
   // Take control of the TextMappers array.
   // The superclass just created new TextMapper instances
@@ -117,7 +117,12 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
     delete [] this->TextMappers;
     this->TextMappers = NULL;
     }
-  this->SetRectanglesFieldName(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkLabeledTreeMapDataMapper::SetRectanglesArrayName(const char* name)
+{
+  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
 }
 
 //----------------------------------------------------------------------------
@@ -173,9 +178,6 @@ void vtkLabeledTreeMapDataMapper::UpdateFontSizes()
 void vtkLabeledTreeMapDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RectanglesFieldName: "
-     << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
-
   os << indent << "ClipTextMode: " << this->ClipTextMode << endl;
   os << indent << "ChildMotion: " << this->ChildMotion << endl;
   os << indent << "DynamicLevel: " << this->DynamicLevel << endl;
@@ -339,7 +341,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   input = this->GetInputTree();
   vtkDataSetAttributes *pd = input->GetVertexData();
   // Get the treeMap info
-  tempData = pd->GetArray(this->RectanglesFieldName, i);
+  tempData = this->GetInputArrayToProcess(0, input);
   if (!tempData)
     {
     vtkErrorMacro(<< "Input Tree does not have box information.");

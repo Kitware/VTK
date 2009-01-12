@@ -34,34 +34,39 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy()
 {
-  this->SizeFieldName = 0;
-  this->SetSizeFieldName("size");
 }
 
 vtkSliceAndDiceLayoutStrategy::~vtkSliceAndDiceLayoutStrategy()
 {
-  this->SetSizeFieldName(0);
 }
 
 void vtkSliceAndDiceLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "SizeFieldName: " << (this->SizeFieldName ? this->SizeFieldName : "(none)") << endl;
 }
 
 // Alternating tree layout method
-void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree, 
-  vtkDataArray *coordsArray)
+void vtkSliceAndDiceLayoutStrategy::Layout(
+    vtkTree* inputTree,
+    vtkDataArray* coordsArray,
+    vtkDataArray* sizeArray)
 {
-  // Get the size array
-  vtkDataArray* sizeArray = inputTree->GetVertexData()->GetArray(this->SizeFieldName);
+  if (!inputTree)
+    {
+    return;
+    }
+  if (!coordsArray)
+    {
+    vtkErrorMacro("Area array undefined.");
+    return;
+    }
 
-  vtkSmartPointer<vtkTreeDFSIterator> dfs = 
+  vtkSmartPointer<vtkTreeDFSIterator> dfs =
     vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
   float coords[4];
@@ -96,9 +101,16 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
     float total = 0;
     while (it->HasNext())
       {
-      total += static_cast<float>(sizeArray->GetTuple1(it->Next()));
+      if (sizeArray)
+        {
+        total += static_cast<float>(sizeArray->GetTuple1(it->Next()));
+        }
+      else
+        {
+        total += 1.0f;
+        }
       }
-    
+
     inputTree->GetChildren(vertex, it);
     // Give children their positions
     float part = 0;
@@ -107,7 +119,14 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
     while (it->HasNext())
       {
       vtkIdType child = it->Next();
-      part += static_cast<float>(sizeArray->GetTuple1(child));
+      if (sizeArray)
+        {
+        part += static_cast<float>(sizeArray->GetTuple1(child));
+        }
+      else
+        {
+        part += 1.0f;
+        }
       oldDelta = delta;
       if (vertical)
         {

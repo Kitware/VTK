@@ -38,23 +38,20 @@
 
 class vtkIdList;
 
-class VTK_INFOVIS_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayoutStrategy 
+class VTK_INFOVIS_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayoutStrategy
 {
 public:
   static vtkSquarifyLayoutStrategy *New();
-
   vtkTypeRevisionMacro(vtkSquarifyLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The field name associated with the size of the vertex.
-  vtkGetStringMacro(SizeFieldName);
-  vtkSetStringMacro(SizeFieldName);
-
-  // Description:
   // Perform the layout of a tree and place the results as 4-tuples in
   // coordsArray (Xmin, Xmax, Ymin, Ymax).
-  void Layout(vtkTree *inputTree, vtkDataArray *coordsArray);
+  void Layout(
+      vtkTree* inputTree,
+      vtkDataArray* coordsArray,
+      vtkDataArray* sizeArray);
 
 protected:
   vtkSquarifyLayoutStrategy();
@@ -62,16 +59,14 @@ protected:
 
 private:
 
-  char * SizeFieldName;
-
   void LayoutChildren(
-    vtkTree *tree, 
+    vtkTree *tree,
     vtkDataArray *coordsArray,
     vtkDataArray *sizeArray,
     vtkIdType nchildren,
     vtkIdType parent,
-    vtkIdType begin, 
-    float minX, float maxX, 
+    vtkIdType begin,
+    float minX, float maxX,
     float minY, float maxY);
 
   vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&);  // Not implemented.

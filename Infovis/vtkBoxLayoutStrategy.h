@@ -42,7 +42,11 @@ public:
   // Description:
   // Perform the layout of a tree and place the results as 4-tuples in
   // coordsArray (Xmin, Xmax, Ymin, Ymax).
-  void Layout(vtkTree *inputTree, vtkDataArray *coordsArray);
+  virtual void Layout(
+      vtkTree* inputTree,
+      vtkDataArray* coordsArray,
+      vtkDataArray* sizeArray);
+
 protected:
   vtkBoxLayoutStrategy();
   ~vtkBoxLayoutStrategy();
@@ -50,8 +54,8 @@ protected:
 private:
 
   void LayoutChildren(vtkTree *inputTree, vtkDataArray *coordsArray,
-    vtkIdType parentId, 
-    float parentMinX, float parentMaxX, 
+    vtkIdType parentId,
+    float parentMinX, float parentMaxX,
     float parentMinY, float parentMaxY);
 
   vtkBoxLayoutStrategy(const vtkBoxLayoutStrategy&);  // Not implemented.

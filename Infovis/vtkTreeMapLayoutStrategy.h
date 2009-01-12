@@ -36,33 +36,25 @@
 #define __vtkTreeMapLayoutStrategy_h
 
 
-#include "vtkObject.h"
+#include "vtkAreaLayoutStrategy.h"
 
 class vtkTree;
 class vtkDataArray;
 
-class VTK_INFOVIS_EXPORT vtkTreeMapLayoutStrategy : public vtkObject 
+class VTK_INFOVIS_EXPORT vtkTreeMapLayoutStrategy : public vtkAreaLayoutStrategy
 {
 public:
-  vtkTypeRevisionMacro(vtkTreeMapLayoutStrategy,vtkObject);
+  vtkTypeRevisionMacro(vtkTreeMapLayoutStrategy, vtkAreaLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Perform the layout of the input tree, and store the rectangular
-  // bounds of each vertex as a tuple (Xmin, Xmax, Ymin, Ymax) in a
-  // data array.
-  virtual void Layout(vtkTree *inputTree, vtkDataArray *rectArray) = 0;
-
-  // Description:
-  // Define the percentage that children vertex regions are inset from
-  // the parent vertex region.
-  vtkSetMacro(BorderPercentage, double);
-  vtkGetMacro(BorderPercentage, double);
+  // Find the vertex at a certain location, or -1 if none found.
+  virtual vtkIdType FindVertex(
+      vtkTree* tree, vtkDataArray* areaArray, float pnt[2]);
 
 protected:
   vtkTreeMapLayoutStrategy();
   ~vtkTreeMapLayoutStrategy();
-  double BorderPercentage;
   void AddBorder( float *boxInfo);
 private:
   vtkTreeMapLayoutStrategy(const vtkTreeMapLayoutStrategy&);  // Not implemented.

@@ -14,7 +14,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestTreeLayoutView.cxx
       TestTreeMapView.cxx
       TestTreeRingView.cxx
-      TestHierarchicalTreeRingView.cxx
       TestIcicleView.cxx
       )
   ENDIF (VTK_DATA_ROOT)

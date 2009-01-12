@@ -43,7 +43,7 @@
 
 void TestStrategy(vtkTreeMapLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX, double posY, vtkRenderer* ren)
 {
-  strategy->SetBorderPercentage(0.1);
+  strategy->SetShrinkPercentage(0.1);
   VTK_CREATE(vtkTreeMapLayout, layout);
   layout->SetLayoutStrategy(strategy);
   layout->SetInputConnection(input->GetOutputPort());

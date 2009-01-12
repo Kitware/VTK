@@ -30,22 +30,19 @@
 #include "vtkPointData.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.9");
+vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.10");
 vtkStandardNewMacro(vtkTreeMapToPolyData);
 
 vtkTreeMapToPolyData::vtkTreeMapToPolyData()
 {
-  this->RectanglesFieldName = 0;
-  this->SetRectanglesFieldName("rectangles");
-  this->LevelsFieldName = 0;
+  this->SetRectanglesArrayName("area");
+  this->SetLevelArrayName("level");
   this->LevelDeltaZ = 0.001;
   this->AddNormals = true;
 }
 
 vtkTreeMapToPolyData::~vtkTreeMapToPolyData()
 {
-  this->SetRectanglesFieldName(0);
-  this->SetLevelsFieldName(0);
 }
 
 int vtkTreeMapToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -80,14 +77,15 @@ int vtkTreeMapToPolyData::RequestData(
   normals->SetNumberOfTuples(inputTree->GetNumberOfVertices()*4);
   normals->SetName("normals");
 
-  vtkDataArray* levelArray = NULL;
-  if (this->LevelsFieldName)
+  vtkDataArray* coordArray = this->GetInputArrayToProcess(0, inputTree);
+  if (!coordArray)
     {
-    levelArray = inputTree->GetVertexData()->GetArray(this->LevelsFieldName);
+    vtkErrorMacro("Area array not found.");
+    return 0;
     }
-  
+  vtkDataArray* levelArray = this->GetInputArrayToProcess(1, inputTree);
+
   // Now set the point coordinates, normals, and insert the cell
-  vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->RectanglesFieldName);
   for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
     {
     // Grab coords from the input
@@ -161,8 +159,6 @@ int vtkTreeMapToPolyData::RequestData(
 void vtkTreeMapToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "LevelsFieldName: " << (this->LevelsFieldName ? this->LevelsFieldName : "(none)") << endl;
-  os << indent << "RectanglesFieldName: " << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
   os << indent << "LevelDeltaZ: " << this->LevelDeltaZ << endl;
   os << indent << "AddNormals: " << this->AddNormals << endl;
 }

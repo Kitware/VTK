@@ -33,28 +33,24 @@ class VTK_INFOVIS_EXPORT vtkTreeMapToPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTreeMapToPolyData *New();
-
   vtkTypeRevisionMacro(vtkTreeMapToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
   // The field containing quadruples of the form (min x, max x, min y, max y)
   // representing the bounds of the rectangles for each vertex.
-  // This field may be added to the tree using vtkTreeMapLayout.
-  // This array must be set.
-  // TODO: This should be removed, and instead use ArrayToProcess from vtkAlgorithm.
-  vtkGetStringMacro(RectanglesFieldName);
-  vtkSetStringMacro(RectanglesFieldName);
+  // This array may be added to the tree using vtkTreeMapLayout.
+  virtual void SetRectanglesArrayName(const char* name)
+    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
 
-  // The field containing the levels of each vertex in the tree
-  // This array may be added to the tree using vtkTreeLevelsFilter.
-  // The z-coordinate for vertex i is computed by 0.001 * level[i].
-  // If this array is not set, the GetLevel() method of vtkTree is used
-  // to determine the level.
-  // TODO: This should be removed, and instead use ArrayToProcess from vtkAlgorithm.
-  // TODO: Since we have access to the tree structure, this requirement could be
-  // removed altogether.
-  vtkGetStringMacro(LevelsFieldName);
-  vtkSetStringMacro(LevelsFieldName);
+  // Description:
+  // The field containing the level of each tree node.
+  // This can be added using vtkTreeLevelsFilter before this filter.
+  // If this is not present, the filter simply calls tree->GetLevel(v) for
+  // each vertex, which will produce the same result, but
+  // may not be as efficient.
+  virtual void SetLevelArrayName(const char* name)
+    { this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
 
   // Description:
   // The spacing along the z-axis between tree map levels.
@@ -72,11 +68,9 @@ protected:
   vtkTreeMapToPolyData();
   ~vtkTreeMapToPolyData();
 
-  char * LevelsFieldName;
-  char * RectanglesFieldName;
   double LevelDeltaZ;
   bool AddNormals;
-  
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkTreeMapToPolyData(const vtkTreeMapToPolyData&);  // Not implemented.

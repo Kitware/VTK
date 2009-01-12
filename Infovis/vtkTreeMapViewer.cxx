@@ -51,7 +51,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTreeMapViewer, "1.6");
+vtkCxxRevisionMacro(vtkTreeMapViewer, "1.7");
 vtkStandardNewMacro(vtkTreeMapViewer);
 
 //----------------------------------------------------------------------------
@@ -203,8 +203,9 @@ void vtkTreeMapViewer::SetupPipeline()
   this->TreeFieldAggregator->SetLeafVertexUnitSize(false);
   this->TreeFieldAggregator->SetMinValue(1.0); // Treat a size of 0 to be a size of 1
   this->TreeFieldAggregator->SetLogScale(true);
-   this->SetLayoutStrategy("Box Layout");
-  this->TreeMapToPolyData->SetLevelsFieldName("level");
+  this->SetLayoutStrategy("Box Layout");
+  this->TreeMapLayout->SetSizeArrayName("size");
+  this->TreeMapToPolyData->SetLevelArrayName("level");
   this->Renderer->SetBackground(.3,.3,.3);
   this->Renderer->GetActiveCamera()->ParallelProjectionOn();
   this->ColorLUT->SetHueRange( 0.667, 0 );
@@ -309,28 +310,26 @@ void vtkTreeMapViewer::SetLayoutStrategy(int strategy_enum)
       break;
     case SLICE_AND_DICE_LAYOUT:
       strategy = vtkSliceAndDiceLayoutStrategy::New();
-      vtkSliceAndDiceLayoutStrategy::SafeDownCast(strategy)->SetSizeFieldName("size");
       break;
     case SQUARIFY_LAYOUT:
       strategy = vtkSquarifyLayoutStrategy::New();
-      vtkSquarifyLayoutStrategy::SafeDownCast(strategy)->SetSizeFieldName("size");
       break;
     default:
       // Just use the default of box
       vtkWarningMacro(<<"Unknown layout strategy enum: " << strategy_enum);
       strategy = vtkBoxLayoutStrategy::New();
     }
-    
+
   // Have the strategy add a border
-  strategy->SetBorderPercentage(0.02);
-  
+  strategy->SetShrinkPercentage(0.02);
+
   // Actually set strategy
   this->TreeMapLayout->SetLayoutStrategy(strategy);
   strategy->Delete();
-    
+
   // Reset camera
   this->Renderer->ResetCamera();
-        
+
   // Tell render window to explicitly update
   if (this->RenderWindow)
     {
@@ -507,10 +506,10 @@ int vtkTreeMapViewer::GetLabelClipMode()
 
 void vtkTreeMapViewer::SetBorderPercentage(double pcent)
 {
-  this->TreeMapLayout->GetLayoutStrategy()->SetBorderPercentage(pcent);
+  this->TreeMapLayout->GetLayoutStrategy()->SetShrinkPercentage(pcent);
 }
 
 double vtkTreeMapViewer::GetBorderPercentage()
 {
-  return this->TreeMapLayout->GetLayoutStrategy()->GetBorderPercentage();
+  return this->TreeMapLayout->GetLayoutStrategy()->GetShrinkPercentage();
 }

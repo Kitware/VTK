@@ -8,10 +8,11 @@ numeric = vtkStringToNumeric()
 numeric.SetInputConnection(reader1.GetOutputPort())
 
 view = vtkTreeMapView()
-view.SetSizeArrayName("size");
-view.SetColorArrayName("level");
-view.SetLabelArrayName("name");
-view.SetHoverArrayName("name");
+view.SetAreaSizeArrayName("size");
+view.SetAreaColorArrayName("level");
+view.SetAreaLabelArrayName("name");
+view.SetAreaLabelVisibility(True);
+view.SetAreaHoverArrayName("name");
 view.SetLayoutStrategyToSquarify();
 view.SetRepresentationFromInputConnection(numeric.GetOutputPort());
 
@@ -22,6 +23,7 @@ theme.FastDelete()
 
 win = vtkRenderWindow()
 view.SetupRenderWindow(win)
+view.Update()
 view.GetRenderer().ResetCamera()
 
 win.GetInteractor().Initialize()

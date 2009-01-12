@@ -3,6 +3,12 @@
   Program:   Visualization Toolkit
   Module:    TestTreeRingView.cxx
 
+-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------
+
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -12,30 +18,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
 
-#include "vtkCollection.h"
-#include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkSelectionLink.h"
-#include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkTreeRingView.h"
-#include "vtkXMLTreeReader.h"
 #include "vtkViewTheme.h"
+#include "vtkXMLTreeReader.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 using vtkstd::string;
 
 int TestTreeRingView(int argc, char* argv[])
@@ -43,41 +38,57 @@ int TestTreeRingView(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
-  string file = dataRoot+"/Data/treetest.xml";
-  
-  VTK_CREATE(vtkXMLTreeReader, reader);
-  reader->SetFileName(file.c_str());
+  string treeFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
+  string graphFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
 
-  // Tree ring view
-  VTK_CREATE(vtkRenderWindow, win);
-  VTK_CREATE(vtkRenderWindowInteractor, iren);
-  iren->SetRenderWindow(win);
+  // We need to put the graph and tree edges in different domains.
+  VTK_CREATE(vtkXMLTreeReader, reader1);
+  reader1->SetFileName(treeFileName.c_str());
+  reader1->SetEdgePedigreeIdArrayName("tree edge");
+  reader1->GenerateVertexPedigreeIdsOff();
+  reader1->SetVertexPedigreeIdArrayName("id");
+
+  VTK_CREATE(vtkXMLTreeReader, reader2);
+  reader2->SetFileName(graphFileName.c_str());
+  reader2->SetEdgePedigreeIdArrayName("graph edge");
+  reader2->GenerateVertexPedigreeIdsOff();
+  reader2->SetVertexPedigreeIdArrayName("id");
+
+  reader1->Update();
+  reader2->Update();
+
   VTK_CREATE(vtkTreeRingView, view);
-  view->SetRepresentationFromInput(reader->GetOutput());
-  view->SetSizeArrayName("size");
-  view->SetColorArrayName("level");
-  view->SetLabelArrayName("name");
-  view->SetHoverArrayName("name");
-  view->SetSectorShrinkPercentage( 0.05 );
-  view->SetLayoutStrategyToDefault();
-  view->Update();
-  view->SetupRenderWindow(win);
+  view->SetTreeFromInputConnection(reader2->GetOutputPort());
+  view->SetGraphFromInputConnection(reader1->GetOutputPort());
 
-    // Apply a theme to the views
+  view->SetAreaColorArrayName("GraphVertexDegree");
+  //view->SetEdgeColorArrayName("tree edge");
+  view->SetEdgeColorToSplineFraction();
+  view->SetColorEdges(true);
+  view->SetAreaLabelArrayName("id");
+  view->SetAreaHoverArrayName("id");
+  view->SetAreaLabelVisibility(true);
+  view->SetAreaSizeArrayName("GraphVertexDegree");
+
+  // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   theme->Delete();
- 
-  win->Render();
+
+  VTK_CREATE(vtkRenderWindow, win);
+  view->SetupRenderWindow(win);
+  view->Update();
 
   int retVal = vtkRegressionTestImage(win);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
-    iren->Initialize();
-    iren->Start();
-    
+    win->GetInteractor()->Initialize();
+    win->GetInteractor()->Start();
+
     retVal = vtkRegressionTester::PASSED;
     }
-  
-  return !retVal;
+
+ return !retVal;
 }
+
+

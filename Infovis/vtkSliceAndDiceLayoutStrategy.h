@@ -42,14 +42,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The field name associated with the size of the vertex.
-  vtkGetStringMacro(SizeFieldName);
-  vtkSetStringMacro(SizeFieldName);
-
-  // Description:
   // Perform the layout of a tree and place the results as 4-tuples in
   // coordsArray (Xmin, Xmax, Ymin, Ymax).
-  void Layout(vtkTree *inputTree, vtkDataArray *coordsArray);
+  void Layout(
+      vtkTree* inputTree,
+      vtkDataArray* coordsArray,
+      vtkDataArray* sizeArray);
 
 protected:
   vtkSliceAndDiceLayoutStrategy();
@@ -58,8 +56,6 @@ protected:
 private:
   vtkSliceAndDiceLayoutStrategy(const vtkSliceAndDiceLayoutStrategy&);  // Not implemented.
   void operator=(const vtkSliceAndDiceLayoutStrategy&);  // Not implemented.
-
-  char * SizeFieldName;
 };
 
 #endif

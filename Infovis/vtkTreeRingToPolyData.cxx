@@ -1,22 +1,22 @@
 /*=========================================================================
   
-Program:   Visualization Toolkit
-Module:    vtkTreeRingToPolyData.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkTreeRingToPolyData.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
+-------------------------------------------------------------------------*/
 #include "vtkTreeRingToPolyData.h"
 
 #include "vtkCellArray.h"
@@ -37,19 +37,17 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.8");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.9");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
 {
-  this->SectorsFieldName = 0;
-  this->SetSectorsFieldName("sectors");
+  this->SetSectorsArrayName("sectors");
   this->ShrinkPercentage = 0.0;
 }
 
 vtkTreeRingToPolyData::~vtkTreeRingToPolyData()
 {
-  this->SetSectorsFieldName(0);
 }
 
 int vtkTreeRingToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -74,22 +72,32 @@ int vtkTreeRingToPolyData::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   // Now set the point coordinates, normals, and insert the cell
-  vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->SectorsFieldName);
+  vtkDataArray* coordArray = this->GetInputArrayToProcess(0, inputTree);
+  if (!coordArray)
+    {
+    vtkErrorMacro("Sectors array not found.");
+    return 0;
+    }
   VTK_CREATE(vtkAppendPolyData, append);
   
   int i;
   vtkIdType rootId = inputTree->GetRoot();
   for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
     {
+    // Grab coords from the input
+    double coords[4];
     if( i == rootId )
       {
       //don't draw the root node...
-      continue;
+      coords[0] = 0.0;
+      coords[1] = 0.0;
+      coords[2] = 1.0;
+      coords[3] = 1.0;
       }
-    
-    // Grab coords from the input
-    double coords[4];
-    coordArray->GetTuple(i,coords);
+    else
+      {
+      coordArray->GetTuple(i,coords);
+      }
     
     VTK_CREATE(vtkSectorSource, sector);
     double radial_length = coords[3] - coords[2];
@@ -143,10 +151,12 @@ int vtkTreeRingToPolyData::RequestData(
   append->Update();
   outputPoly->ShallowCopy(append->GetOutput());
   
-  // Pass the input point data to the output cell data :)
-  int copy_counter = 0;
+  // Pass the input vertex data to the output cell data :)
   vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
   vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();
+  output_cell_data->PassData(input_vertex_data);
+#if 0
+  int copy_counter = 0;
   output_cell_data->CopyAllocate(input_vertex_data);
   for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
     {
@@ -159,6 +169,7 @@ int vtkTreeRingToPolyData::RequestData(
     //copy data from -> to
     output_cell_data->CopyData(input_vertex_data, i, copy_counter++);
     }
+#endif
   
   return 1;
 }
@@ -166,6 +177,5 @@ int vtkTreeRingToPolyData::RequestData(
 void vtkTreeRingToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "SectorsFieldName: " << (this->SectorsFieldName ? this->SectorsFieldName : "(none)") << endl;
   os << indent << "ShrinkPercentage: " << this->ShrinkPercentage << endl;
 }
