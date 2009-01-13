@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.31");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.32");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -453,7 +453,6 @@ void vtkImageStencilData::Fill( void )
   int extent[6];
   this->GetExtent(extent);
 
-  int zExt = extent[5] - extent[4] + 1;
   int yExt = extent[3] - extent[2] + 1;
   for (int idz=extent[4]; idz<=extent[5]; idz++)
     {
