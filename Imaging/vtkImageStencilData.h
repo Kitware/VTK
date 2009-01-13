@@ -110,6 +110,10 @@ public:
   void AllocateExtents();
 
   // Description:
+  // Fill the sub-extents.
+  void Fill();
+
+  // Description:
   // Override these to handle origin, spacing, scalar type, and scalar
   // number of components.  See vtkDataObject for details.
   virtual void CopyInformationToPipeline(vtkInformation* request,

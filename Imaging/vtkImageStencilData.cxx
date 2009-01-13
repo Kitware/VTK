@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.30");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.31");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -445,6 +445,37 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
     }
 
   return 1;
+}
+//----------------------------------------------------------------------------
+//  Fills the stencil.  Extents must be set.
+void vtkImageStencilData::Fill( void )
+{
+  int extent[6];
+  this->GetExtent(extent);
+
+  int zExt = extent[5] - extent[4] + 1;
+  int yExt = extent[3] - extent[2] + 1;
+  for (int idz=extent[4]; idz<=extent[5]; idz++)
+    {
+    int zIdx = idz - extent[4];
+    for (int idy = extent[2]; idy <= extent[3]; idy++)
+      {
+      int yIdx = idy - extent[2];
+
+      // get the ExtentList and ExtentListLength for this yIdx,zIdx
+      int incr = zIdx*yExt + yIdx;
+      this->ExtentListLengths[incr] = 0;
+      delete [] this->ExtentLists[incr];
+      this->ExtentLists[incr] = NULL;
+
+      int &clistlen = this->ExtentListLengths[incr];
+      int *&clist = this->ExtentLists[incr];
+    
+      clist = new int[2];
+      clist[clistlen++] = extent[0];
+      clist[clistlen++] = extent[1] + 1;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
