@@ -72,8 +72,8 @@ int TestVtkLineChartView(int argc, char* argv[])
 
 
   // Here is another way to add the table to the view.
-  // With this method the view creates a representation for you.
-  vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(table);
+  // With this method the view creates a representation for you:
+  //vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(table);
 
   // You can downcast to get the chart representation:
   //vtkQtChartTableRepresentation* chartRep =
