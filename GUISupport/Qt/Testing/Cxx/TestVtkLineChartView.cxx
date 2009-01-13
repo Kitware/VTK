@@ -75,9 +75,9 @@ int TestVtkLineChartView(int argc, char* argv[])
   // With this method the view creates a representation for you.
   vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(table);
 
-  // You can downcast to get the chart representation.
-  vtkQtChartTableRepresentation* chartRep =
-    vtkQtChartTableRepresentation::SafeDownCast(dataRep);
+  // You can downcast to get the chart representation:
+  //vtkQtChartTableRepresentation* chartRep =
+  //  vtkQtChartTableRepresentation::SafeDownCast(dataRep);
 
   // TODO-
   // The user shouldn't be required to call Update().
