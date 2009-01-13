@@ -53,6 +53,16 @@ public:
   vtkGetStringMacro(ResultArrayName);
   vtkSetStringMacro(ResultArrayName);
 
+  // Description:
+  // When this flag is on (default is off), the gradient filter will provide a
+  // less accurate (but close) algorithm that performs fewer derivative
+  // calculations (and is therefore faster).  The error contains some smoothing
+  // of the output data and some possible errors on the boundary.  This
+  // parameter has no effect when performing the gradient of cell data.
+  vtkGetMacro(FasterApproximation, int);
+  vtkSetMacro(FasterApproximation, int);
+  vtkBooleanMacro(FasterApproximation, int);
+
 protected:
   vtkGradientFilter();
   ~vtkGradientFilter();
@@ -64,6 +74,8 @@ protected:
                           vtkInformationVector *);
 
   char *ResultArrayName;
+
+  int FasterApproximation;
 
 private:
   vtkGradientFilter(const vtkGradientFilter &); // Not implemented

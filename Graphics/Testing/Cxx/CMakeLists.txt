@@ -42,6 +42,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestUnstructuredGridGeometryFilter.cxx
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx
+      UnstructuredGridFastGradients.cxx
       )
     IF (VTK_USE_VERDICT)
       SET(MyTests ${MyTests}
