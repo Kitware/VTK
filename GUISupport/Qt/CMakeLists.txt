@@ -60,7 +60,11 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   IF(VTK_USE_VIEWS)
     SET( QVTKLibSrcs ${QVTKLibSrcs}
       vtkQtChartRepresentation.cxx
+      vtkQtChartTableRepresentation.cxx
       vtkQtChartView.cxx
+      vtkQtChartViewBase.cxx
+      vtkQtBarChartView.cxx
+      vtkQtLineChartView.cxx
       vtkQtItemView.cxx
       vtkQtListView.cxx
       vtkQtTableDataRepresentation.cxx

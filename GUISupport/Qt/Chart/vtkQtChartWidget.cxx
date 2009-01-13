@@ -292,7 +292,7 @@ void vtkQtChartWidget::printChart(QPrinter &printer)
     {
     painter.save();
     painter.translate(this->Legend->mapToParent(QPoint(0, 0)));
-    this->Legend->render(&painter, this->Charts->rect());
+    this->Legend->drawLegend(painter);
     painter.restore();
     }
 

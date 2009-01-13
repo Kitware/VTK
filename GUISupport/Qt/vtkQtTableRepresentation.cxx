@@ -34,11 +34,13 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.1");
+// ----------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.2");
+
+// ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
 
 // ----------------------------------------------------------------------
-
 vtkQtTableRepresentation::vtkQtTableRepresentation()
 {
   this->ModelAdapter = new vtkQtTableModelAdapter; 
@@ -132,6 +134,17 @@ vtkQtTableRepresentation::Update()
     {
     vtkErrorMacro(<<"vtkQtTableRepresentation: I need a vtkTable as input.  You supplied a " << obj->GetClassName() << ".");
     return;
+    }
+
+  // Set first/last data column names if they
+  // have not already been set.
+  if (!this->FirstDataColumn)
+    {
+    this->SetFirstDataColumn(table->GetColumnName(0));
+    }
+  if (!this->LastDataColumn)
+    {
+    this->SetLastDataColumn(table->GetColumnName(table->GetNumberOfColumns()-1));
     }
 
   // Now that we're sure of having data, put it into a Qt model

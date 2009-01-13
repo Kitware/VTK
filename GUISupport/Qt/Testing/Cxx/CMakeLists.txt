@@ -54,12 +54,20 @@ IF(VTK_USE_INFOVIS)
   
 ENDIF(VTK_USE_INFOVIS)
 
+## Optionally add tests for vtkView subclasses
+IF(VTK_USE_VIEWS)
+  SET(Tests
+    ${Tests}
+  TestVtkBarChartView.cxx
+  TestVtkLineChartView.cxx)
+ENDIF(VTK_USE_VIEWS)
+
 INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
 
 CREATE_TEST_SOURCELIST(TestSrcs QtChartCxxTests.cxx ${Tests} )
 
 ADD_EXECUTABLE(QtChartCxxTests ${TestSrcs} QTestApp.cxx)
-TARGET_LINK_LIBRARIES(QtChartCxxTests 
+TARGET_LINK_LIBRARIES(QtChartCxxTests
   vtkQtChart 
   vtkFiltering 
   vtkCommon)
@@ -69,6 +77,11 @@ TARGET_LINK_LIBRARIES(QtChartCxxTests
   vtkInfovis
 )
 ENDIF(VTK_USE_INFOVIS)
+
+## Optionally link against vtkViews
+IF(VTK_USE_VIEWS)
+  TARGET_LINK_LIBRARIES(QtChartCxxTests QVTK vtkViews)
+ENDIF(VTK_USE_VIEWS)
 
 FOREACH(test ${Tests})
   GET_FILENAME_COMPONENT(testname ${test} NAME_WE)

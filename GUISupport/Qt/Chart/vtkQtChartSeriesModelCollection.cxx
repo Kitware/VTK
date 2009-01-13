@@ -95,6 +95,9 @@ QList<QVariant> vtkQtChartSeriesModelCollection::getSeriesRange(int series,
 void vtkQtChartSeriesModelCollection::addSeriesModel(
     vtkQtChartSeriesModel *model)
 {
+  this->connect(model, SIGNAL(modelReset()), SIGNAL(modelReset()));
+  this->connect(model, SIGNAL(modelAboutToBeReset()), SIGNAL(modelAboutToBeReset()));
+
   this->Models.append(model);
 }
 

@@ -61,7 +61,7 @@ vtkQtChartLegendInternal::vtkQtChartLegendInternal()
 
 //----------------------------------------------------------------------------
 vtkQtChartLegend::vtkQtChartLegend(QWidget *widgetParent)
-  : QGraphicsView(widgetParent)
+  : QWidget(widgetParent)
 {
   this->Internal = new vtkQtChartLegendInternal();
   this->Model = 0;
@@ -310,6 +310,7 @@ void vtkQtChartLegend::paintEvent(QPaintEvent *e)
 
   QPainter painter(this);
   this->drawLegend(painter);
+  e->accept();
 }
 
 void vtkQtChartLegend::calculateSize()

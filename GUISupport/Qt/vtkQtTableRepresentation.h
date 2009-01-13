@@ -80,7 +80,9 @@ public:
   // must be called BEFORE the representation is added to a view.
   //vtkSetStringMacro(KeyColumn);
   void SetKeyColumn(const char* col);
-  char* GetKeyColumn();
+  // This wasn't actually implemented anywhere so
+  // I commented out the declaration:
+  // char* GetKeyColumn();
 
   // Description:
   // Set/get the name of the first data column.  This must be called

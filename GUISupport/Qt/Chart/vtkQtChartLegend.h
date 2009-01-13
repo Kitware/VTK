@@ -44,7 +44,7 @@ class QRect;
 /// can have an icon and a label. The icon is used to visually
 /// identify the series on the chart. For a line chart series, the
 /// image should be drawn in the same color and line style.
-class VTKQTCHART_EXPORT vtkQtChartLegend : public QGraphicsView
+class VTKQTCHART_EXPORT vtkQtChartLegend : public QWidget
 {
   Q_OBJECT
 
