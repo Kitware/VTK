@@ -92,8 +92,11 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     vtkSmartPointer<vtkActor>::New();
   vtkSmartPointer<vtkRenderer> renderer = 
     vtkSmartPointer<vtkRenderer>::New();
+  
   vtkSmartPointer<vtkRenderWindow> renWin = 
     vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->SetMultiSamples(0); // ensure to have the same test image everywhere
+  
   vtkSmartPointer<vtkRenderWindowInteractor> iren = 
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 

@@ -139,6 +139,8 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   // Create the view
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
+  win->SetMultiSamples(0); // ensure to have the same test image everywhere
+  
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
   view->SetupRenderWindow(win);
 
