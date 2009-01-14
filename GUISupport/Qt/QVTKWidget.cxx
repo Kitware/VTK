@@ -53,11 +53,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkCallbackCommand.h"
 #include "vtkConfigure.h"
-#include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
-
 
 // function to get VTK keysyms from ascii characters
 static const char* ascii_to_key_sym(int);

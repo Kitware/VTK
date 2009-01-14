@@ -39,12 +39,19 @@ class QVTKInteractor;
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCommand.h>
 #include <vtkConfigure.h>
+#include <vtkToolkits.h>
 class vtkImageData;
 
-#if defined(Q_WS_MAC) && defined(QT_MAC_USE_COCOA)
-# define QVTK_USE_COCOA
-#elif defined(Q_WS_MAC)
-# define QVTK_USE_CARBON
+#if defined(Q_WS_MAC)
+# if defined(QT_MAC_USE_COCOA) && defined(VTK_USE_COCOA)
+#  define QVTK_USE_COCOA
+# elif !defined(QT_MAC_USE_COCOA) && defined(VTK_USE_CARBON)
+#  define QVTK_USE_CARBON
+# elif defined(VTK_USE_COCOA)
+#  error "VTK configured to use Cocoa, but Qt configured to use Carbon"
+# elif defined(VTK_USE_CARBON)
+#  error "VTK configured to use Carbon, but Qt configured to use Cocoa"
+# endif
 #endif
 
 
