@@ -220,10 +220,10 @@ void vtkQtChartLegendManager::removeLayer(int index, vtkQtChartLayer *)
       int last = model->getNumberOfSeries() - 1;
       if(this->Legend && last >= 0)
         {
-        int index = this->getLegendIndex(seriesLayer);
+        int start = this->getLegendIndex(seriesLayer);
         vtkQtChartLegendModel *legend = this->Legend->getModel();
         legend->startModifyingData();
-        this->removeLegendEntries(legend, index, 0, last);
+        this->removeLegendEntries(legend, start, 0, last);
         legend->finishModifyingData();
         }
       }
