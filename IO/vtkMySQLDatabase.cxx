@@ -33,7 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.36");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.37");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 
@@ -70,6 +70,7 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
   this->SetUser( 0 );
   this->SetDatabaseName( 0 );
   this->SetConnectOptions( 0 );
+  this->SetPassword( 0 );
 
   this->Tables->UnRegister(this);
 
