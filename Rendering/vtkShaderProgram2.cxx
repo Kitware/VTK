@@ -26,9 +26,10 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 #include <assert.h>
+#include "vtkStdString.h"
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.7");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.8");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -668,38 +669,93 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
         os<<"sampler2Dshadow";
         break;
       }
-    os<<" "<<name<<"=";
-    if(elementSize>1)
+    os<<" "<<name;
+    if(size>1)
       {
-      os << "{";
+      os<<"["<<size<<"]";
+      }
+    os<<"=";
+    if(size>1)
+      {
+      os<<"{";
+      }
+    GLint *ivalues=0;
+    GLfloat *fvalues=0;
+    
+    if(isInt)
+      {
+      ivalues=new GLint[elementSize];
+      }
+    else
+      {
+      fvalues=new GLfloat[elementSize];
+      }
+    
+    int element=0;
+    while(element<size)
+      {
+      vtksys_ios::ostringstream ost2;
+      ost2<<name;
+      if(size>1)
+        {
+        ost2<<"["<<element<<"]";
+        }
+      vtkStdString arrayElementName;
+      arrayElementName=ost2.str();
+      GLint loc=vtkgl::GetUniformLocation(progId,arrayElementName);
+      if(elementSize>1)
+        {
+        os << "{";
+        }
+      if(isInt)
+        {
+        vtkgl::GetUniformiv(progId,loc,ivalues);
+        int j=0;
+        while(j<elementSize)
+          {
+          os << ivalues[j];
+          if(j<(elementSize-1))
+            {
+            os << " ";
+            }
+          ++j;
+          }
+        }
+      else
+        {
+        vtkgl::GetUniformfv(progId,loc,fvalues);
+        int j=0;
+        while(j<elementSize)
+          {
+          os << fvalues[j];
+          if(j<(elementSize-1))
+            {
+            os << " ";
+            }
+          ++j;
+          }
+        }
+      if(elementSize>1)
+        {
+        os << "}";
+        }
+      if(element<(size-1))
+        {
+        os << " ";
+        }
+      ++element;
       }
     if(isInt)
       {
-      GLint *ivalues=new GLint[elementSize];
-      vtkgl::GetUniformiv(progId,i,ivalues);
-      int j=0;
-      while(j<elementSize)
-        {
-        os << ivalues[j] << " ";
-        ++j;
-        }
       delete[] ivalues;
       }
     else
       {
-      float *fvalues=new float[elementSize];
-      vtkgl::GetUniformfv(progId,i,fvalues);
-      int j=0;
-      while(j<elementSize)
-        {
-        os << fvalues[j] << " ";
-        ++j;
-        }
       delete[] fvalues;
       }
-    if(elementSize>1)
+    if(size>1)
       {
-      os << "}";
+      os<<"}";
       }
     os<<endl;
     ++i;
