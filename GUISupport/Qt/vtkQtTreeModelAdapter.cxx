@@ -143,11 +143,16 @@ void vtkQtTreeModelAdapter::treeModified()
 
 void vtkQtTreeModelAdapter::GenerateHashMap(vtkIdType & row, vtkIdType id, QModelIndex idx)
 {
-  vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(this->Tree->GetVertexData()->GetArray("PedigreeVertexId"));
+  vtkAbstractArray *pedigreeIds = this->Tree->GetVertexData()->GetPedigreeIds();
   vtkIdType pedigree = -1;
-  if (arr != NULL)
+  if (pedigreeIds != NULL)
     {
-    pedigree = arr->GetValue(id);
+      vtkVariant v(0);
+      switch (pedigreeIds->GetDataType())
+        {
+        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(pedigreeIds->GetVoidPointer(id)));
+        }
+      pedigree = v.ToInt();
     }
   else
     {

@@ -19,6 +19,7 @@
 -------------------------------------------------------------------------*/
 #include "vtkQtTableModelAdapter.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkTable.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -74,7 +75,8 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
 
 void vtkQtTableModelAdapter::GenerateHashMap()
 {
-  vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(this->Table->GetColumnByName("PedigreeVertexId"));
+  vtkAbstractArray *pedigreeIds = this->Table->GetRowData()->GetPedigreeIds();
+
   this->IdToPedigreeHash.clear();
   this->PedigreeToIndexHash.clear();
   this->IndexToIdHash.clear();
@@ -82,9 +84,14 @@ void vtkQtTableModelAdapter::GenerateHashMap()
     {
     QModelIndex idx = this->createIndex(i, 0, static_cast<int>(i));
     vtkIdType pedigree = -1;
-    if (arr != NULL)
+    if (pedigreeIds != NULL)
       {
-      pedigree = arr->GetValue(i);
+      vtkVariant v(0);
+      switch (pedigreeIds->GetDataType())
+        {
+        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(pedigreeIds->GetVoidPointer(i)));
+        }
+      pedigree = v.ToInt();
       }
     else
       {
