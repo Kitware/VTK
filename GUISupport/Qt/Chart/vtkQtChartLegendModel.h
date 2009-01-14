@@ -136,23 +136,6 @@ public:
   /// \param text The new series label.
   void setText(int index, const QString &text);
 
-  /// \brief
-  ///   Generates an icon for a line chart series.
-  /// \param pen The pen to draw the line with.
-  /// \param marker The point marker to use.
-  /// \param pointPen The pen to draw the point with.
-  /// \return
-  ///   An icon for a line chart series.
-  static QPixmap generateLineIcon(const QPen &pen, vtkQtPointMarker *marker=0,
-      const QPen *pointPen=0);
-
-  /// \brief
-  ///   Generates an icon for a solid color.
-  /// \param color The color to use.
-  /// \return
-  ///   An icon for a solid color.
-  static QPixmap generateColorIcon(const QColor &color);
-
 signals:
   /// \brief
   ///   Emitted when a new entry is added.

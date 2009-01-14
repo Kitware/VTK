@@ -80,7 +80,6 @@ public:
   void setMarkerSize(const QSizeF &size);
 
 signals:
-
   /// Emitted when the point marker style or size has changed.
   void pointMarkerChanged();
 

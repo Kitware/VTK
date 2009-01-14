@@ -26,7 +26,7 @@
 
 
 #include "vtkQtChartExport.h"
-#include <QGraphicsView>
+#include <QWidget>
 
 class vtkQtChartLegendInternal;
 class vtkQtChartLegendModel;
@@ -77,11 +77,6 @@ public:
   /// \return
   ///   A pointer to the legend model.
   vtkQtChartLegendModel *getModel() const {return this->Model;}
-
-  /// \brief
-  ///   Sets the legend model.
-  /// \param model The new legend model.
-  void setModel(vtkQtChartLegendModel *model);
 
   /// \brief
   ///   Gets the legend location.
@@ -135,6 +130,19 @@ public slots:
   /// Resets the chart legend.
   void reset();
 
+  /// \brief
+  ///   Sets the visibility for the given entry.
+  /// \param index The legend index of the entry.
+  /// \param visible True if the entry should be visible.
+  void setEntryVisible(int index, bool visible);
+
+  /// \brief
+  ///   Sets the visibility for the given set of entries.
+  /// \param first The first index of the entry range.
+  /// \param last The last index of the entry range.
+  /// \param visible True if the entry should be visible.
+  void setEntriesVisible(int first, int last, bool visible);
+
 protected slots:
   /// \brief
   ///   Inserts a new entry in the legend.
@@ -182,6 +190,10 @@ private:
   int IconSize;                    ///< Stores the icon size.
   int TextSpacing;                 ///< The space between icon and text.
   int Margin;                      ///< The margin around the entries.
+
+private:
+  vtkQtChartLegend(const vtkQtChartLegend &);
+  vtkQtChartLegend &operator=(const vtkQtChartLegend &);
 };
 
 #endif

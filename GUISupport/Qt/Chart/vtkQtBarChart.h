@@ -73,6 +73,8 @@ public:
   /// \return
   ///   A pointer to the bar chart series options.
   vtkQtBarChartSeriesOptions *getBarSeriesOptions(int series) const;
+
+  virtual QPixmap getSeriesIcon(int series) const;
   //@}
 
   /// \name Layout Methods

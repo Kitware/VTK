@@ -17,6 +17,11 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
 #include "vtkQtLineChart.h"
 #include "vtkQtLineChartView.h"
 #include "vtkQtChartLegendModel.h"
@@ -27,7 +32,7 @@
 #include <QPen>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtLineChartView, "1.1");
+vtkCxxRevisionMacro(vtkQtLineChartView, "1.2");
 vtkStandardNewMacro(vtkQtLineChartView);
 
 //----------------------------------------------------------------------------
@@ -67,10 +72,8 @@ void vtkQtLineChartView::UpdateLegend()
   unsigned int nSeries = this->GetChartSeriesModel()->getNumberOfSeries();
   for (unsigned int i = 0; i < nSeries; ++i)
     {
-    vtkQtChartSeriesOptions* seriesOptions = chartLayer->getSeriesOptions(i);
-    QColor seriesColor = seriesOptions->getPen().color();
     QString seriesName = this->GetChartSeriesModel()->getSeriesName(i).toString();
-    QPixmap seriesIcon = vtkQtChartLegendModel::generateColorIcon(seriesColor);
+    QPixmap seriesIcon = chartLayer->getSeriesIcon(i);
     legendModel->addEntry(seriesIcon, seriesName);
     }
   legendModel->finishModifyingData();

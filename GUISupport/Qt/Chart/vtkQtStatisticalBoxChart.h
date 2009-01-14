@@ -73,6 +73,8 @@ public:
   /// \return
   ///   A pointer to the statistical box chart series options.
   vtkQtStatisticalBoxChartSeriesOptions *getBoxSeriesOptions(int series) const;
+
+  virtual QPixmap getSeriesIcon(int series) const;
   //@}
 
   /// \name Layout Methods

@@ -18,19 +18,28 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
+#include "vtkQtChartArea.h"
+#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkQtChartInteractorSetup.h"
+#include "vtkQtChartLegend.h"
+#include "vtkQtChartLegendManager.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
-#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTableSeriesModel.h"
-#include "vtkQtChartArea.h"
 #include "vtkQtChartWidget.h"
 #include "vtkQtStackedChart.h"
 #include "vtkQtStackedChartOptions.h"
 
-#include <QVariant>
 #include <QStandardItemModel>
+#include <QVariant>
+
+#include <QFile>
 
 #include "QTestApp.h"
 
@@ -57,6 +66,13 @@ int TestStackedChart(int argc, char* argv[])
   vtkQtStackedChart *stacked = new vtkQtStackedChart();
   area->insertLayer(area->getAxisLayerIndex(), stacked);
 
+  // Set up the legend.
+  vtkQtChartLegend *legend = new vtkQtChartLegend();
+  vtkQtChartLegendManager *manager = new vtkQtChartLegendManager(legend);
+  manager->setChartLegend(legend);
+  manager->setChartArea(area);
+  chart->setLegend(legend);
+
   // Set up the default interactor.
   vtkQtChartMouseSelection *selector =
       vtkQtChartInteractorSetup::createDefault(area);
@@ -69,7 +85,7 @@ int TestStackedChart(int argc, char* argv[])
   selector->setSelectionMode("Stacked Chart - Series");
 
   //stacked->getOptions()->setSumNormalized(true);
-  stacked->getOptions()->setGradientDisplayed(true);
+  //stacked->getOptions()->setGradientDisplayed(true);
 
   // Set up the model for the bar chart.
   QStandardItemModel *model = new QStandardItemModel(9, 3, stacked);

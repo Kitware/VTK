@@ -428,6 +428,37 @@ vtkQtStackedChartSeriesOptions *vtkQtStackedChart::getStackedSeriesOptions(
       this->getSeriesOptions(series));
 }
 
+QPixmap vtkQtStackedChart::getSeriesIcon(int series) const
+{
+  // Fill in the pixmap background.
+  QPixmap icon(16, 16);
+  icon.fill(QColor(255, 255, 255, 0));
+
+  // Get the options for the series.
+  vtkQtStackedChartSeriesOptions *options =
+      this->getStackedSeriesOptions(series);
+  if(options)
+    {
+    // Fill a box with the series color.
+    QPainter painter(&icon);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(options->getPen());
+    painter.setBrush(options->getBrush());
+    //painter.drawRect(3, 3, 10, 10);
+    QPolygon polygon;
+    polygon.append(QPoint(1, 14));
+    polygon.append(QPoint(1, 5));
+    polygon.append(QPoint(5, 7));
+    polygon.append(QPoint(9, 2));
+    polygon.append(QPoint(14, 9));
+    polygon.append(QPoint(14, 14));
+    polygon.append(QPoint(1, 14));
+    painter.drawPolygon(polygon);
+    }
+
+  return icon;
+}
+
 void vtkQtStackedChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
 {
   domain.mergeDomain(this->Internal->Domain, this->Options->getAxesCorner());
@@ -1105,8 +1136,11 @@ void vtkQtStackedChart::handleSeriesVisibilityChange(bool visible)
       {
       this->Internal->ShowHideTimer.stop();
       }
+
     this->Internal->ShowHideTimer.setCurrentTime(0);
     this->Internal->ShowHideTimer.start();
+
+    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 
 #if 0
@@ -1163,6 +1197,7 @@ void vtkQtStackedChart::handleSeriesPenChange(const QPen &)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 
@@ -1175,6 +1210,7 @@ void vtkQtStackedChart::handleSeriesBrushChange(const QBrush &)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 

@@ -61,7 +61,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.1");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.2");
 vtkStandardNewMacro(vtkQtChartViewBase);
 
 //----------------------------------------------------------------------------
@@ -71,8 +71,7 @@ vtkQtChartViewBase::vtkQtChartViewBase()
 
   // Setup the legend
   this->Internal->Legend = new vtkQtChartLegend;
-  this->Internal->LegendModel = new vtkQtChartLegendModel;
-  this->Internal->Legend->setModel(this->Internal->LegendModel);
+  this->Internal->LegendModel = this->Internal->Legend->getModel();
   this->GetChartWidget()->setLegend(this->Internal->Legend);
 }
 
@@ -215,9 +214,8 @@ void vtkQtChartViewBase::UpdateLegend()
       {
       continue;
       }
-    QColor seriesColor = seriesOptions->getBrush().color();
     QString seriesName = this->GetChartSeriesModel()->getSeriesName(i).toString();
-    QPixmap seriesIcon = vtkQtChartLegendModel::generateColorIcon(seriesColor);
+    QPixmap seriesIcon = chartLayer->getSeriesIcon(i);
     legendModel->addEntry(seriesIcon, seriesName);
     }
   legendModel->finishModifyingData();

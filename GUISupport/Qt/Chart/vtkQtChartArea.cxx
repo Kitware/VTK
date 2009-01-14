@@ -215,6 +215,8 @@ void vtkQtChartArea::insertLayer(int index, vtkQtChartLayer *chart)
 
   // Set the layer's reference to the chart area.
   chart->setChartArea(this);
+
+  emit this->layerInserted(index, chart);
 }
 
 void vtkQtChartArea::removeLayer(vtkQtChartLayer *chart)
@@ -228,6 +230,7 @@ void vtkQtChartArea::removeLayer(vtkQtChartLayer *chart)
     }
 
   // Remove the chart layer from the list.
+  emit this->removingLayer(index, chart);
   this->Internal->Layers.removeAt(index);
 
   // Remove the chart from the scene.
@@ -245,6 +248,8 @@ void vtkQtChartArea::removeLayer(vtkQtChartLayer *chart)
 
   // Remove the layer's reference to the chart area.
   chart->setChartArea(0);
+
+  emit this->layerRemoved(index, chart);
 }
 
 int vtkQtChartArea::getNumberOfLayers() const

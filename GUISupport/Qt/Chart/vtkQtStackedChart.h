@@ -73,6 +73,8 @@ public:
   /// \return
   ///   A pointer to the stacked chart series options.
   vtkQtStackedChartSeriesOptions *getStackedSeriesOptions(int series) const;
+
+  virtual QPixmap getSeriesIcon(int series) const;
   //@}
 
   /// \name Layout Methods

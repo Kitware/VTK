@@ -473,6 +473,34 @@ vtkQtLineChartSeriesOptions *vtkQtLineChart::getLineSeriesOptions(
       this->getSeriesOptions(series));
 }
 
+QPixmap vtkQtLineChart::getSeriesIcon(int series) const
+{
+  // Fill in the pixmap background.
+  QPixmap icon(16, 16);
+  icon.fill(QColor(255, 255, 255, 0));
+
+  // Get the options for the series.
+  vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(series);
+  if(options)
+    {
+    // Draw a line on the pixmap.
+    QPainter painter(&icon);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(options->getPen());
+    painter.drawLine(1, 15, 14, 0);
+
+    if(options->arePointsVisible())
+      {
+      // Draw a point on the line.
+      painter.setBrush(options->getBrush());
+      painter.translate(QPoint(7, 7));
+      this->Internal->Series[series]->Marker->paint(&painter);
+      }
+    }
+
+  return icon;
+}
+
 void vtkQtLineChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
 {
   domain.mergeDomain(this->Internal->Domains[vtkQtChartLayer::BottomLeft],
@@ -763,8 +791,6 @@ void vtkQtLineChart::paint(QPainter *painter,
   painter->translate(-space->getXOffset(), -space->getYOffset());
 
   // Use the cached series list to draw the series.
-  QList<vtkQtLineChartSeries *>::Iterator series =
-      this->Internal->Series.begin();
   QList<int>::Iterator iter = this->Internal->CurrentSeries.begin();
   for( ; iter != this->Internal->CurrentSeries.end(); ++iter)
     {
@@ -1149,6 +1175,8 @@ void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
         emit this->layoutNeeded();
         }
       }
+
+    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 }
 
@@ -1207,6 +1235,7 @@ void vtkQtLineChart::handleSeriesPointVisibilityChange(bool)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 
@@ -1267,6 +1296,7 @@ void vtkQtLineChart::handleSeriesPointMarkerChange()
       }
 
     emit this->layoutNeeded();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 
@@ -1278,6 +1308,7 @@ void vtkQtLineChart::handleSeriesPenChange(const QPen &)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 
@@ -1289,6 +1320,7 @@ void vtkQtLineChart::handleSeriesBrushChange(const QBrush &)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 

@@ -30,8 +30,6 @@
 
 #include "vtkQtPointMarker.h"
 #include <QList>
-#include <QPainter>
-#include <QPen>
 
 
 class vtkQtChartLegendModelItem
@@ -233,47 +231,6 @@ void vtkQtChartLegendModel::setText(int index, const QString &text)
     this->Internal->Entries[index]->Text = text;
     emit this->textChanged(index);
     }
-}
-
-QPixmap vtkQtChartLegendModel::generateLineIcon(const QPen &pen,
-    vtkQtPointMarker *, const QPen *)
-{
-  // Create a blank pixmap of the appropriate size.
-  QPixmap icon(16, 16);
-  icon.fill(QColor(255, 255, 255, 0));
-
-  // Draw a line on the pixmap.
-  QPainter painter(&icon);
-  painter.setRenderHint(QPainter::Antialiasing, true);
-  painter.setPen(pen);
-  painter.drawLine(1, 15, 14, 0);
-
-  // Draw a point in the middle of the line.
- /* if(marker)
-    {
-    if(pointPen)
-      {
-      painter.setPen(*pointPen);
-      }
-
-    painter.translate(QPoint(7, 7));
-    marker->paint(painter);
-    }
-*/
-  return icon;
-}
-
-QPixmap vtkQtChartLegendModel::generateColorIcon(const QColor &color)
-{
-  // Create a blank pixmap of the appropriate size.
-  QPixmap icon(16, 16);
-  icon.fill(QColor(255, 255, 255, 0));
-
-  // Fill a small rectangle using the color given.
-  QPainter painter(&icon);
-  painter.fillRect(3, 3, 10, 10, QBrush(color));
-
-  return icon;
 }
 
 

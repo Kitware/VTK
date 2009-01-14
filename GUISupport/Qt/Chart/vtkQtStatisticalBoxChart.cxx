@@ -346,6 +346,27 @@ vtkQtStatisticalBoxChartSeriesOptions *
       this->getSeriesOptions(series));
 }
 
+QPixmap vtkQtStatisticalBoxChart::getSeriesIcon(int series) const
+{
+  // Fill in the pixmap background.
+  QPixmap icon(16, 16);
+  icon.fill(QColor(255, 255, 255, 0));
+
+  // Get the options for the series.
+  vtkQtStatisticalBoxChartSeriesOptions *options =
+      this->getBoxSeriesOptions(series);
+  if(options)
+    {
+    // Fill a box with the series color.
+    QPainter painter(&icon);
+    painter.setPen(options->getPen());
+    painter.setBrush(options->getBrush());
+    painter.drawRect(3, 3, 10, 10);
+    }
+
+  return icon;
+}
+
 void vtkQtStatisticalBoxChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
 {
   domain.mergeDomain(this->Internal->Domain, this->Options->getAxesCorner());
@@ -1116,6 +1137,8 @@ void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
         emit this->layoutNeeded();
         }
       }
+
+    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 }
 
@@ -1128,6 +1151,7 @@ void vtkQtStatisticalBoxChart::handleSeriesPenChange(const QPen &)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 
@@ -1140,6 +1164,7 @@ void vtkQtStatisticalBoxChart::handleSeriesBrushChange(const QBrush &)
   if(series >= 0 && series < this->Internal->Series.size())
     {
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 

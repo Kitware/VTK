@@ -26,6 +26,7 @@
 
 #include "vtkQtChartExport.h"
 #include "vtkQtChartLayer.h"
+#include <QPixmap> // needed for return type
 
 class vtkQtChartContentsArea;
 class vtkQtChartSeriesModel;
@@ -93,6 +94,16 @@ public:
   int getSeriesOptionsIndex(vtkQtChartSeriesOptions *options) const;
 
   /// \brief
+  ///   Gets the icon for a given series.
+  ///
+  /// The icon is used by the chart legend.
+  ///
+  /// \param series The index of the series.
+  /// \return
+  ///   A pixmap representation of the series.
+  virtual QPixmap getSeriesIcon(int series) const;
+
+  /// \brief
   ///   Gets the chart series selection model.
   /// \return
   ///   A pointer to the chart series selection model.
@@ -139,6 +150,26 @@ public slots:
 
   /// Resets the series options for the model.
   void resetSeriesOptions();
+
+signals:
+  /// \brief
+  ///   Emitted when the series model is changed.
+  /// \param previous The previous series model.
+  /// \param current The current series model.
+  void modelChanged(vtkQtChartSeriesModel *previous,
+      vtkQtChartSeriesModel *current);
+
+  /// \brief
+  ///   Emitted when the name or icon changes for a set of series.
+  /// \param first The first series index of the range.
+  /// \param last The last series index of the range.
+  void modelSeriesChanged(int first, int last);
+
+  /// \brief
+  ///   Emitted when the visibility for a series has changed.
+  /// \param series The index of the series.
+  /// \param visible True if the series is visible.
+  void modelSeriesVisibilityChanged(int series, bool visible);
 
 protected:
   /// \brief

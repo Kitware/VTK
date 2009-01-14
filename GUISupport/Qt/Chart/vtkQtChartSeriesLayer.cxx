@@ -85,6 +85,7 @@ void vtkQtChartSeriesLayer::setModel(vtkQtChartSeriesModel *model)
     this->disconnect(this->Model, 0, this, 0);
     }
 
+  vtkQtChartSeriesModel *previous = this->Model;
   this->Model = model;
   this->Selection->setModel(model);
   if(this->Model)
@@ -99,6 +100,8 @@ void vtkQtChartSeriesLayer::setModel(vtkQtChartSeriesModel *model)
     }
 
   this->resetSeriesOptions();
+
+  emit this->modelChanged(previous, this->Model);
 }
 
 vtkQtChartSeriesOptions *vtkQtChartSeriesLayer::getSeriesOptions(
@@ -123,8 +126,15 @@ int vtkQtChartSeriesLayer::getSeriesOptionsIndex(
   return -1;
 }
 
+QPixmap vtkQtChartSeriesLayer::getSeriesIcon(int) const
+{
+  QPixmap icon(16, 16);
+  icon.fill(QColor(255, 255, 255, 0));
+  return icon;
+}
+
 vtkQtChartSeriesSelectionModel *
-vtkQtChartSeriesLayer::getSelectionModel() const
+    vtkQtChartSeriesLayer::getSelectionModel() const
 {
   return this->Selection;
 }

@@ -18,21 +18,30 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
+#include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisModel.h"
 #include "vtkQtChartInteractorSetup.h"
+#include "vtkQtChartLegend.h"
+#include "vtkQtChartLegendManager.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesModelCollection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartTableSeriesModel.h"
-#include "vtkQtChartArea.h"
 #include "vtkQtChartWidget.h"
 #include "vtkQtLineChart.h"
 #include "vtkQtLineChartSeriesOptions.h"
 
-#include <QVariant>
 #include <QStandardItemModel>
+#include <QVariant>
+
+#include <QFile>
 
 #include "QTestApp.h"
 
@@ -46,6 +55,13 @@ int TestLineSeries(int argc, char* argv[])
 
   vtkQtLineChart* line = new vtkQtLineChart();
   area->addLayer(line);
+
+  // Set up the legend.
+  vtkQtChartLegend *legend = new vtkQtChartLegend();
+  vtkQtChartLegendManager *manager = new vtkQtChartLegendManager(legend);
+  manager->setChartLegend(legend);
+  manager->setChartArea(area);
+  chart->setLegend(legend);
 
   // Set up the default interactor.
   vtkQtChartMouseSelection *selector =

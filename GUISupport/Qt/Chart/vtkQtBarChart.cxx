@@ -261,6 +261,29 @@ vtkQtBarChartSeriesOptions *vtkQtBarChart::getBarSeriesOptions(
       this->getSeriesOptions(series));
 }
 
+QPixmap vtkQtBarChart::getSeriesIcon(int series) const
+{
+  // Fill in the pixmap background.
+  QPixmap icon(16, 16);
+  icon.fill(QColor(255, 255, 255, 0));
+
+  // Get the options for the series.
+  vtkQtBarChartSeriesOptions *options = this->getBarSeriesOptions(series);
+  if(options)
+    {
+    // Fill some bars with the series color.
+    QPainter painter(&icon);
+    painter.setPen(options->getPen());
+    painter.setBrush(options->getBrush());
+    //painter.drawRect(3, 3, 10, 10);
+    painter.drawRect(1, 4, 3, 10);
+    painter.drawRect(6, 1, 3, 13);
+    painter.drawRect(11, 6, 3, 8);
+    }
+
+  return icon;
+}
+
 void vtkQtBarChart::getLayerDomain(vtkQtChartLayerDomain &domain) const
 {
   domain.mergeDomain(this->Internal->Domain, this->Options->getAxesCorner());
@@ -938,6 +961,8 @@ void vtkQtBarChart::handleSeriesVisibilityChange(bool visible)
         emit this->layoutNeeded();
         }
       }
+
+    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 }
 
@@ -951,6 +976,7 @@ void vtkQtBarChart::handleSeriesPenChange(const QPen &)
     {
     // TODO: Update the series rectangle.
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 
@@ -964,6 +990,7 @@ void vtkQtBarChart::handleSeriesBrushChange(const QBrush &)
     {
     // TODO: Update the series rectangle.
     this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 

@@ -70,6 +70,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartLayerDomain.h
     vtkQtChartLegend.cxx
     vtkQtChartLegend.h
+    vtkQtChartLegendManager.cxx
+    vtkQtChartLegendManager.h
     vtkQtChartLegendModel.cxx
     vtkQtChartLegendModel.h
     vtkQtChartMouseBox.cxx
@@ -168,6 +170,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartInteractor.h
     vtkQtChartLayer.h
     vtkQtChartLegend.h
+    vtkQtChartLegendManager.h
     vtkQtChartLegendModel.h
     vtkQtChartMouseBox.h
     vtkQtChartMouseFunction.h

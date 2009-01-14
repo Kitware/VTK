@@ -187,6 +187,24 @@ signals:
   /// Emitted when a delayed chart layout is needed.
   void delayedLayoutNeeded();
 
+  /// \brief
+  ///   Emitted when a chart layer has been inserted.
+  /// \param index The index of the layer.
+  /// \param chart The chart layer that was inserted.
+  void layerInserted(int index, vtkQtChartLayer *chart);
+
+  /// \brief
+  ///   Emitted before a chart layer is removed.
+  /// \param index The index of the layer.
+  /// \param chart The chart layer that will be removed.
+  void removingLayer(int index, vtkQtChartLayer *chart);
+
+  /// \brief
+  ///   Emitted when a chart layer has been removed.
+  /// \param index The index of the layer.
+  /// \param chart The chart layer that was removed.
+  void layerRemoved(int index, vtkQtChartLayer *chart);
+
 protected:
   /// \brief
   ///   Updates the layout when the font changes.

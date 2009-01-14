@@ -76,6 +76,8 @@ public:
   /// \return
   ///   A pointer to the line chart series options.
   vtkQtLineChartSeriesOptions *getLineSeriesOptions(int series) const;
+
+  virtual QPixmap getSeriesIcon(int series) const;
   //@}
 
   /// \name Layout Methods

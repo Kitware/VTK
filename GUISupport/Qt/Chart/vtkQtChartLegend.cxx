@@ -38,16 +38,36 @@
 #include <QRect>
 
 
+class vtkQtChartLegendEntry
+{
+public:
+  vtkQtChartLegendEntry();
+  ~vtkQtChartLegendEntry() {}
+
+public:
+  int Width;
+  bool Visible;
+};
+
+
 class vtkQtChartLegendInternal
 {
 public:
   vtkQtChartLegendInternal();
-  ~vtkQtChartLegendInternal() {}
+  ~vtkQtChartLegendInternal();
 
-  QList<int> Entries;
+  QList<vtkQtChartLegendEntry *> Entries;
   int EntryHeight;
   bool FontChanged;
 };
+
+
+//----------------------------------------------------------------------------
+vtkQtChartLegendEntry::vtkQtChartLegendEntry()
+{
+  this->Width = 0;
+  this->Visible = true;
+}
 
 
 //----------------------------------------------------------------------------
@@ -58,13 +78,22 @@ vtkQtChartLegendInternal::vtkQtChartLegendInternal()
   this->FontChanged = false;
 }
 
+vtkQtChartLegendInternal::~vtkQtChartLegendInternal()
+{
+  QList<vtkQtChartLegendEntry *>::Iterator iter = this->Entries.begin();
+  for( ; iter != this->Entries.end(); ++iter)
+    {
+    delete *iter;
+    }
+}
+
 
 //----------------------------------------------------------------------------
 vtkQtChartLegend::vtkQtChartLegend(QWidget *widgetParent)
   : QWidget(widgetParent)
 {
   this->Internal = new vtkQtChartLegendInternal();
-  this->Model = 0;
+  this->Model = new vtkQtChartLegendModel(this);
   this->Location = vtkQtChartLegend::Right;
   this->Flow = vtkQtChartLegend::TopToBottom;
   this->IconSize = 16;
@@ -73,37 +102,24 @@ vtkQtChartLegend::vtkQtChartLegend(QWidget *widgetParent)
 
   // Set the size policy to go with the default location.
   this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+
+  // Listen for model changes.
+  this->connect(this->Model, SIGNAL(entriesReset()), this, SLOT(reset()));
+  this->connect(this->Model, SIGNAL(entryInserted(int)),
+      this, SLOT(insertEntry(int)));
+  this->connect(this->Model, SIGNAL(removingEntry(int)),
+      this, SLOT(startEntryRemoval(int)));
+  this->connect(this->Model, SIGNAL(entryRemoved(int)),
+      this, SLOT(finishEntryRemoval(int)));
+  this->connect(this->Model, SIGNAL(iconChanged(int)),
+      this, SLOT(update()));
+  this->connect(this->Model, SIGNAL(textChanged(int)),
+      this, SLOT(updateEntryText(int)));
 }
 
 vtkQtChartLegend::~vtkQtChartLegend()
 {
   delete this->Internal;
-}
-
-void vtkQtChartLegend::setModel(vtkQtChartLegendModel *model)
-{
-  if(this->Model)
-    {
-    this->disconnect(this->Model, 0, this, 0);
-    }
-
-  this->Model = model;
-  if(this->Model)
-    {
-    this->connect(this->Model, SIGNAL(entriesReset()), this, SLOT(reset()));
-    this->connect(this->Model, SIGNAL(entryInserted(int)),
-        this, SLOT(insertEntry(int)));
-    this->connect(this->Model, SIGNAL(removingEntry(int)),
-        this, SLOT(startEntryRemoval(int)));
-    this->connect(this->Model, SIGNAL(entryRemoved(int)),
-        this, SLOT(finishEntryRemoval(int)));
-    this->connect(this->Model, SIGNAL(iconChanged(int)),
-        this, SLOT(update()));
-    this->connect(this->Model, SIGNAL(textChanged(int)),
-        this, SLOT(updateEntryText(int)));
-    }
-
-  this->reset();
 }
 
 void vtkQtChartLegend::setLocation(vtkQtChartLegend::LegendLocation location)
@@ -162,6 +178,7 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
   int index = 0;
   QFontMetrics fm = this->fontMetrics();
   painter.setPen(QColor(Qt::black));
+  QList<vtkQtChartLegendEntry *>::Iterator iter;
   if(this->Flow == vtkQtChartLegend::LeftToRight)
     {
     // Determine the offset. Then, draw the outline.
@@ -186,22 +203,25 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
 
     // Draw all the entries.
     offset += this->Margin;
-    QList<int>::Iterator iter = this->Internal->Entries.begin();
+    iter = this->Internal->Entries.begin();
     for( ; iter != this->Internal->Entries.end(); ++iter, ++index)
       {
-      int px = offset;
-      QPixmap icon = this->Model->getIcon(index);
-      if(!icon.isNull())
+      if((*iter)->Visible)
         {
-        // Make sure the pixmap is sized properly.
-        icon = icon.scaled(QSize(this->IconSize, this->IconSize),
-            Qt::KeepAspectRatio);
-        painter.drawPixmap(px, iconY, icon);
-        px += this->IconSize + this->TextSpacing;
-        }
+        int px = offset;
+        QPixmap icon = this->Model->getIcon(index);
+        if(!icon.isNull())
+          {
+          // Make sure the pixmap is sized properly.
+          icon = icon.scaled(QSize(this->IconSize, this->IconSize),
+              Qt::KeepAspectRatio);
+          painter.drawPixmap(px, iconY, icon);
+          px += this->IconSize + this->TextSpacing;
+          }
 
-      painter.drawText(px, textY, this->Model->getText(index));
-      offset += *iter + this->TextSpacing;
+        painter.drawText(px, textY, this->Model->getText(index));
+        offset += (*iter)->Width + this->TextSpacing;
+        }
       }
     }
   else
@@ -228,33 +248,44 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
 
     // Draw all the entries.
     offset += this->Margin;
-    for( ; index < this->Internal->Entries.size(); ++index)
+    iter = this->Internal->Entries.begin();
+    for( ; iter != this->Internal->Entries.end(); ++iter, ++index)
       {
-      int px = this->Margin;
-      QPixmap icon = this->Model->getIcon(index);
-      if(!icon.isNull())
+      if((*iter)->Visible)
         {
-        // Make sure the pixmap is sized properly.
-        icon = icon.scaled(QSize(this->IconSize, this->IconSize),
-            Qt::KeepAspectRatio);
-        painter.drawPixmap(px, offset + iconY, icon);
-        px += this->IconSize + this->TextSpacing;
-        }
+        int px = this->Margin;
+        QPixmap icon = this->Model->getIcon(index);
+        if(!icon.isNull())
+          {
+          // Make sure the pixmap is sized properly.
+          icon = icon.scaled(QSize(this->IconSize, this->IconSize),
+              Qt::KeepAspectRatio);
+          painter.drawPixmap(px, offset + iconY, icon);
+          px += this->IconSize + this->TextSpacing;
+          }
 
-      painter.drawText(px, offset + textY, this->Model->getText(index));
-      offset += this->Internal->EntryHeight + this->TextSpacing;
+        painter.drawText(px, offset + textY, this->Model->getText(index));
+        offset += this->Internal->EntryHeight + this->TextSpacing;
+        }
       }
     }
 }
 
 void vtkQtChartLegend::reset()
 {
+  QList<vtkQtChartLegendEntry *>::Iterator iter =
+      this->Internal->Entries.begin();
+  for( ; iter != this->Internal->Entries.end(); ++iter)
+    {
+    delete *iter;
+    }
+
   this->Internal->Entries.clear();
   if(this->Model)
     {
     for(int i = this->Model->getNumberOfEntries(); i > 0; i--)
       {
-      this->Internal->Entries.append(0);
+      this->Internal->Entries.append(new vtkQtChartLegendEntry());
       }
     }
 
@@ -262,16 +293,36 @@ void vtkQtChartLegend::reset()
   this->update();
 }
 
+void vtkQtChartLegend::setEntryVisible(int index, bool visible)
+{
+  this->setEntriesVisible(index, index, visible);
+}
+
+void vtkQtChartLegend::setEntriesVisible(int first, int last, bool visible)
+{
+  if(first >= 0 && first < this->Internal->Entries.size() &&
+      last >= 0 && last < this->Internal->Entries.size())
+    {
+    for(int i = first; i <= last; i++)
+      {
+      this->Internal->Entries[i]->Visible = visible;
+      }
+
+    this->calculateSize();
+    this->update();
+    }
+}
+
 void vtkQtChartLegend::insertEntry(int index)
 {
-  this->Internal->Entries.insert(index, 0);
+  this->Internal->Entries.insert(index, new vtkQtChartLegendEntry());
   this->calculateSize();
   this->update();
 }
 
 void vtkQtChartLegend::startEntryRemoval(int index)
 {
-  this->Internal->Entries.removeAt(index);
+  delete this->Internal->Entries.takeAt(index);
 }
 
 void vtkQtChartLegend::finishEntryRemoval(int)
@@ -282,7 +333,7 @@ void vtkQtChartLegend::finishEntryRemoval(int)
 
 void vtkQtChartLegend::updateEntryText(int index)
 {
-  this->Internal->Entries[index] = 0;
+  this->Internal->Entries[index]->Width = 0;
   this->calculateSize();
   this->update();
 }
@@ -302,7 +353,7 @@ bool vtkQtChartLegend::event(QEvent *e)
 
 void vtkQtChartLegend::paintEvent(QPaintEvent *e)
 {
-  if(!this->Model || !this->Bounds.isValid() || !e->rect().isValid() ||
+  if(!this->Bounds.isValid() || !e->rect().isValid() ||
       this->Internal->Entries.size() == 0)
     {
     return;
@@ -331,63 +382,72 @@ void vtkQtChartLegend::calculateSize()
     // the necessary space.
     int total = 0;
     int maxWidth = 0;
-    QList<int>::Iterator iter = this->Internal->Entries.begin();
+    int visibleCount = 0;
+    QList<vtkQtChartLegendEntry *>::Iterator iter =
+        this->Internal->Entries.begin();
     for(int i = 0; iter != this->Internal->Entries.end(); ++iter, ++i)
       {
-      if(this->Model && (this->Internal->FontChanged || *iter == 0))
+      if(this->Model && (this->Internal->FontChanged || (*iter)->Width == 0))
         {
         QString text = this->Model->getText(i);
-        *iter = fm.width(text);
+        (*iter)->Width = fm.width(text);
         QPixmap icon = this->Model->getIcon(i);
         if(!icon.isNull())
           {
-          *iter += this->IconSize + this->TextSpacing;
+          (*iter)->Width += this->IconSize + this->TextSpacing;
           }
         }
 
       // Sum up the entry widths for left-to-right. In top-to-bottom
       // mode, find the max width.
-      if(this->Flow == vtkQtChartLegend::LeftToRight)
+      if((*iter)->Visible)
         {
-        total += *iter;
-        if(i > 0)
+        visibleCount++;
+        if(this->Flow == vtkQtChartLegend::LeftToRight)
           {
-          total += this->TextSpacing;
+          total += (*iter)->Width;
+          if(i > 0)
+            {
+            total += this->TextSpacing;
+            }
+          }
+        else if((*iter)->Width > maxWidth)
+          {
+          maxWidth = (*iter)->Width;
           }
         }
-      else if(*iter > maxWidth)
-        {
-        maxWidth = *iter;
-        }
       }
 
-    // Add space around the entries for the outline.
-    int padding = 2 * this->Margin;
-    if(this->Flow == vtkQtChartLegend::LeftToRight)
+    if(visibleCount > 0)
       {
-      bounds.setHeight(total + padding);
-      bounds.setWidth(this->Internal->EntryHeight + padding);
-      if(this->Location == vtkQtChartLegend::Top ||
-          this->Location == vtkQtChartLegend::Bottom)
+      // Add space around the entries for the outline.
+      int padding = 2 * this->Margin;
+      if(this->Flow == vtkQtChartLegend::LeftToRight)
         {
-        bounds.transpose();
+        bounds.setHeight(total + padding);
+        bounds.setWidth(this->Internal->EntryHeight + padding);
+        if(this->Location == vtkQtChartLegend::Top ||
+            this->Location == vtkQtChartLegend::Bottom)
+          {
+          bounds.transpose();
+          }
         }
-      }
-    else
-      {
-      total = this->Internal->EntryHeight * this->Internal->Entries.size();
-      total += padding;
-      if(this->Internal->Entries.size() > 1)
+      else
         {
-        total += (this->Internal->Entries.size() - 1) * this->TextSpacing;
-        }
+        total = this->Internal->EntryHeight * visibleCount;
+        total += padding;
+        if(visibleCount > 1)
+          {
+          total += (visibleCount - 1) * this->TextSpacing;
+          }
 
-      bounds.setWidth(maxWidth + padding);
-      bounds.setHeight(total);
-      if(this->Location == vtkQtChartLegend::Top ||
-          this->Location == vtkQtChartLegend::Bottom)
-        {
-        bounds.transpose();
+        bounds.setWidth(maxWidth + padding);
+        bounds.setHeight(total);
+        if(this->Location == vtkQtChartLegend::Top ||
+            this->Location == vtkQtChartLegend::Bottom)
+          {
+          bounds.transpose();
+          }
         }
       }
     }
