@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.32");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.33");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -945,6 +945,52 @@ void vtkImageStencilData::Subtract( vtkImageStencilData * stencil1 )
         if (r1 <= r2 ) // sanity check 
           { 
           this->RemoveExtent(r1, r2, idy, idz); 
+          }
+        }
+      }
+    }
+
+  this->Modified();
+} 
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::Replace( vtkImageStencilData * stencil1 )
+{
+  int extent[6], extent1[6], extent2[6], r1, r2, idy, idz, iter=0;
+  stencil1->GetExtent(extent1);
+  this->GetExtent(extent2);
+
+  if ((extent1[0] > extent2[1]) || (extent1[1] < extent2[0]) || 
+      (extent1[2] > extent2[3]) || (extent1[3] < extent2[2]) || 
+      (extent1[4] > extent2[5]) || (extent1[5] < extent2[4]))
+    {
+    // The extents don't intersect.. No subraction needed
+    return;
+    }
+
+  // Find the smallest box intersection of the extents
+  extent[0] = (extent1[0] < extent2[0]) ? extent2[0] : extent1[0];
+  extent[1] = (extent1[1] > extent2[1]) ? extent2[1] : extent1[1];
+  extent[2] = (extent1[2] < extent2[2]) ? extent2[2] : extent1[2];
+  extent[3] = (extent1[3] > extent2[3]) ? extent2[3] : extent1[3];
+  extent[4] = (extent1[4] < extent2[4]) ? extent2[4] : extent1[4];
+  extent[5] = (extent1[5] > extent2[5]) ? extent2[5] : extent1[5];
+
+  for (idz=extent[4]; idz<=extent[5]; idz++, iter=0)
+    {
+    for (idy = extent[2]; idy <= extent[3]; idy++, iter=0)
+      {
+      this->RemoveExtent(extent[0], extent[1], idy, idz); 
+
+      int moreSubExtents = 1;
+      while( moreSubExtents )
+        {
+        moreSubExtents = stencil1->GetNextExtent( 
+          r1, r2, extent[0], extent[1], idy, idz, iter);
+
+        if (r1 <= r2 ) // sanity check 
+          { 
+          this->InsertAndMergeExtent(r1, r2, idy, idz);
           }
         }
       }

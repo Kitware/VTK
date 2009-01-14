@@ -139,6 +139,11 @@ public:
   virtual void Subtract( vtkImageStencilData * ); 
 
   // Description:
+  // Replaces the portion of the stencil, supplied as argument, 
+  // that lies within Self from Self.   
+  virtual void Replace( vtkImageStencilData * ); 
+
+  // Description:
   // Clip the stencil with the supplied extents. In other words, discard data
   // outside the specified extents. Return 1 if something changed.
   virtual int Clip( int extent[6] );
