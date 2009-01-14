@@ -197,13 +197,13 @@ public:
   // association and name or attribute type (such as SCALARS). The
   // fieldAssociation refers to which field in the data object the array is
   // stored. See vtkDataObject::FieldAssociations for detail.
-  void SetInputArrayToProcess(int idx, int port, int connection, 
+  virtual void SetInputArrayToProcess(int idx, int port, int connection, 
                               int fieldAssociation, 
                               const char *name);
-  void SetInputArrayToProcess(int idx, int port, int connection, 
+  virtual void SetInputArrayToProcess(int idx, int port, int connection, 
                               int fieldAssociation, 
                               int fieldAttributeType);
-  void SetInputArrayToProcess(int idx, vtkInformation *info);
+  virtual void SetInputArrayToProcess(int idx, vtkInformation *info);
 
   // Description:
   // String based versions of SetInputArrayToProcess(). Because
@@ -227,7 +227,7 @@ public:
   // @endverbatim
   // If the last argument is not an attribute type, it is assumed to
   // be an array name.
-  void SetInputArrayToProcess(int idx, int port, int connection, 
+  virtual void SetInputArrayToProcess(int idx, int port, int connection, 
                               const char* fieldAssociation, 
                               const char* attributeTypeorName);
 
