@@ -40,6 +40,13 @@
 #ifndef __vtkOpenGLPainterDeviceAdapter_h
 #define __vtkOpenGLPainterDeviceAdapter_h
 
+// To switch off deprecated warning about
+// vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck
+#if defined(_MSC_VER) && _MSC_VER >= 1300
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
 #include "vtkPainterDeviceAdapter.h"
 
 class VTK_RENDERING_EXPORT vtkOpenGLPainterDeviceAdapter : 
@@ -148,14 +155,8 @@ protected:
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
   void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
-
-  // To switch off deprecated warning about
-  // vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck
-#if defined(_MSC_VER) && _MSC_VER >= 1300
-#pragma warning(push)
-#pragma warning(disable:4996)
-#endif
 };
+
 #if defined(_MSC_VER) && _MSC_VER >= 1300
 #pragma warning(pop)
 #endif
