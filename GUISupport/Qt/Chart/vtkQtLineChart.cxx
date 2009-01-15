@@ -787,7 +787,9 @@ void vtkQtLineChart::paint(QPainter *painter,
       space->getYOffset());
 
   // Set up the painter clipping and offset for panning.
-  painter->setClipRect(this->Internal->Bounds);
+  //painter->setClipRect(this->Internal->Bounds);
+  QRectF clipArea = this->Internal->Bounds.translated(space->getXOffset(),
+      space->getYOffset());
   painter->translate(-space->getXOffset(), -space->getYOffset());
 
   // Use the cached series list to draw the series.
@@ -808,6 +810,8 @@ void vtkQtLineChart::paint(QPainter *painter,
       lightPen.setColor(vtkQtChartColors::lighter(lightPen.color()));
       }
 
+    painter->save();
+    painter->setClipRect(clipArea);
     if(series->Highlighted)
       {
       // If the series is highlighted, draw in a wider line behind it.
@@ -823,6 +827,7 @@ void vtkQtLineChart::paint(QPainter *painter,
 
     // Draw the polyline.
     painter->drawPolyline(series->Polyline);
+    painter->restore();
 
     // Skip the points if none are visible.
     if(!options->arePointsVisible() && series->Highlights.isEmpty())
@@ -835,6 +840,12 @@ void vtkQtLineChart::paint(QPainter *painter,
     QPolygonF::Iterator point = series->Polyline.begin();
     for(int j = 0; point != series->Polyline.end(); ++point, ++j)
       {
+      // Make sure the point is in the clip area.
+      if(!clipArea.contains((int)point->x(), (int)point->y()))
+        {
+        continue;
+        }
+
       // Transform the painter to the next point.
       painter->save();
       painter->translate(*point);
@@ -850,6 +861,7 @@ void vtkQtLineChart::paint(QPainter *painter,
         }
       else if(options->arePointsVisible())
         {
+        painter->setPen(options->getPen());
         series->Marker->paint(painter);
         }
 
