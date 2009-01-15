@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.8");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.9");
 vtkStandardNewMacro(vtkGradientFilter);
 
 template<class data_type>
@@ -60,7 +60,7 @@ void vtkGradientFilterDoComputeCellGradients(vtkDataSet *structure,
 vtkGradientFilter::vtkGradientFilter()
 {
   this->ResultArrayName = NULL;
-  this->FasterApproximation = NULL;
+  this->FasterApproximation = 0;
   this->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
                         vtkDataSetAttributes::SCALARS);
 }
