@@ -37,7 +37,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.26");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.27");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -906,7 +906,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
     }
   else
     {
-    glPointSize(this->PointSize);
+    glPointSize(static_cast<GLfloat>(this->PointSize));
     glDepthRange(this->RangeNear, this->RangeFar);
     glDepthMask(GL_TRUE);
     }
@@ -947,7 +947,7 @@ void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)
       {
       glClearStencil(0); //start over so don't write into some previous area
       }
-    glStencilFunc(GL_ALWAYS, value, this->MaxStencil);
+    glStencilFunc(GL_ALWAYS, static_cast<GLint>(value), this->MaxStencil);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     }
 }
@@ -958,7 +958,7 @@ void vtkOpenGLPainterDeviceAdapter::TestStencil(vtkIdType value)
   if (this->MaxStencil)
     {
     value = value % this->MaxStencil + 1;
-    glStencilFunc(GL_EQUAL, value, this->MaxStencil);
+    glStencilFunc(GL_EQUAL, static_cast<GLint>(value), this->MaxStencil);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     }
 }
