@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.75");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.76");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -446,7 +446,7 @@ void vtkCarbonRenderWindow::UpdateGLRegion()
       }
     
     // Associate the OpenGL context with the control's window, and establish the buffer rect.
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+#if 0
     aglSetWindowRef(this->ContextId, this->GetRootWindow());
 #else
     aglSetDrawable(this->ContextId, GetWindowPort(this->GetRootWindow()));
@@ -756,7 +756,7 @@ void vtkCarbonRenderWindow::CreateAWindow()
     return;
     }
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+#if 0
   // attach the WindowRef to the context
   if (!aglSetWindowRef (this->ContextId, this->GetRootWindow()))
 #else
