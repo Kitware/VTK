@@ -55,8 +55,20 @@
 #include "exodusII_int.h"
 
 /*!
- * reads the coordinates of the nodes
- * Only fills in the 'non-null' arrays.
+ * reads the coordinates of the nodes.
+ * Memory must be allocated for the coordinate arrays (x_coor, y_coor,
+ * and z_coor) before this call is made. The length of each of these
+ * arrays is the number of nodes in the mesh.  Because the coordinates
+ * are floating point values, the application code must declare the
+ * arrays passed to be the appropriate type "float" or "double"
+ * to match the compute word size passed in ex_create() or ex_open()
+ * \param      exoid  exodus file id
+ * \param[out] x_coor Returned X coordinates of the nodes. These are
+ *                    returned only if x_coor is non-NULL.
+ * \param[out] y_coor Returned Y coordinates of the nodes. These are
+ *                    returned only if y_coor is non-NULL.
+ * \param[out] z_coor Returned Z coordinates of the nodes. These are
+ *                    returned only if z_coor is non-NULL.
  */
 
 int ex_get_coord (int exoid,
@@ -64,27 +76,28 @@ int ex_get_coord (int exoid,
                   void *y_coor,
                   void *z_coor)
 {
+  int status;
   int coordid;
   int coordidx, coordidy, coordidz;
 
-  int numnoddim, ndimdim, i;
-  long num_nod, num_dim, start[2], count[2];
+  int numnoddim, ndimdim;
+  size_t i, num_nod, num_dim, start[2], count[2];
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0;
 
   /* inquire id's of previously defined dimensions  */
 
-  if ((numnoddim = ncdimid (exoid, DIM_NUM_NODES)) == -1)
+  if (nc_inq_dimid (exoid, DIM_NUM_NODES, &numnoddim) != NC_NOERR)
     {
       /* If not found, then this file is storing 0 nodes.
          Return immediately */
       return (EX_NOERR);
     }
 
-  if (ncdiminq (exoid, numnoddim, (char *) 0, &num_nod) == -1)
+  if ((status = nc_inq_dimlen(exoid, numnoddim, &num_nod)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to get number of nodes in file id %d",
               exoid);
@@ -92,123 +105,92 @@ int ex_get_coord (int exoid,
       return (EX_FATAL);
     }
 
-
-  if ((ndimdim = ncdimid (exoid, DIM_NUM_DIM)) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to locate number of dimensions in file id %d",
-              exoid);
-      ex_err("ex_get_coord",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-
-  if (ncdiminq (exoid, ndimdim, (char *) 0, &num_dim) == -1)
-    {
-      sprintf(errmsg,
-              "Error: failed to get number of dimensions in file id %d",
-              exoid);
-      ex_err("ex_get_coord",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-
+  if (ex_get_dimension(exoid, DIM_NUM_DIM, "dimensions",
+		       &num_dim, &ndimdim, "ex_get_coord") != NC_NOERR) {
+    return(EX_FATAL);
+  }
+      
   /* read in the coordinates  */
   if (ex_large_model(exoid) == 0) {
-    if ((coordid = ncvarid (exoid, VAR_COORD)) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid (exoid, VAR_COORD, &coordid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to locate nodal coordinates in file id %d", exoid);
       ex_err("ex_get_coord",errmsg,exerrval);
       return (EX_FATAL);
     } 
 
-    for (i=0; i<num_dim; i++)
-      {
-        start[0] = i;
-        start[1] = 0;
+    for (i=0; i<num_dim; i++) {
+      char *which;
+      start[0] = i;
+      start[1] = 0;
 
-        count[0] = 1;
-        count[1] = num_nod;
+      count[0] = 1;
+      count[1] = num_nod;
 
-        if (i == 0 && x_coor != NULL)
-          {
-            if (ncvarget (exoid, coordid, start, count, 
-                          ex_conv_array(exoid,RTN_ADDRESS,x_coor,(int)num_nod)) == -1)
-              {
-                exerrval = ncerr;
-                sprintf(errmsg,
-                        "Error: failed to get X coord array in file id %d", exoid);
-                ex_err("ex_get_coord",errmsg,exerrval);
-                return (EX_FATAL);
-              }
-
-
-            ex_conv_array( exoid, READ_CONVERT, x_coor, (int)num_nod );
-          }
-        else if (i == 1 && y_coor != NULL)
-          {
-            if (ncvarget (exoid, coordid, start, count,
-                          ex_conv_array(exoid,RTN_ADDRESS,y_coor,(int)num_nod)) == -1)
-              {
-                exerrval = ncerr;
-                sprintf(errmsg,
-                        "Error: failed to get Y coord array in file id %d", exoid);
-                ex_err("ex_get_coord",errmsg,exerrval);
-                return (EX_FATAL);
-              }
-
-
-            ex_conv_array( exoid, READ_CONVERT, y_coor, (int)num_nod );
-          }
-
-        else if (i == 2 && z_coor != NULL) 
-          {
-            if (ncvarget (exoid, coordid, start, count,
-                          ex_conv_array(exoid,RTN_ADDRESS,z_coor,(int)num_nod)) == -1)
-              {
-                exerrval = ncerr;
-                sprintf(errmsg,
-                        "Error: failed to get Z coord array in file id %d", exoid);
-                ex_err("ex_get_coord",errmsg,exerrval);
-                return (EX_FATAL);
-              }
-
-
-            ex_conv_array( exoid, READ_CONVERT, z_coor, (int)num_nod );
-          }
+      if (i == 0 && x_coor != NULL) {
+	which = "X";
+	if (ex_comp_ws(exoid) == 4) {
+	  status = nc_get_vara_float(exoid, coordid, start, count, x_coor);
+	} else {
+	  status = nc_get_vara_double(exoid, coordid, start, count, x_coor);
+	}
+      } 
+      else if (i == 1 && y_coor != NULL) {
+	which = "Y";
+	if (ex_comp_ws(exoid) == 4) {
+	  status = nc_get_vara_float(exoid, coordid, start, count, y_coor);
+	} else {
+	  status = nc_get_vara_double(exoid, coordid, start, count, y_coor);
+	}
+      } 
+      else if (i == 2 && z_coor != NULL) {
+	which = "Z";
+	if (ex_comp_ws(exoid) == 4) {
+	  status = nc_get_vara_float(exoid, coordid, start, count, z_coor);
+	} else {
+	  status = nc_get_vara_double(exoid, coordid, start, count, z_coor);
+	}
       }
+
+      if (status != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to get %s coord array in file id %d", which, exoid);
+	ex_err("ex_get_coord",errmsg,exerrval);
+	return (EX_FATAL);
+      }
+    }
+
   } else {
-    if ((coordidx = ncvarid (exoid, VAR_COORD_X)) == -1)
-      {
-        exerrval = ncerr;
-        sprintf(errmsg,
-                "Error: failed to locate x nodal coordinates in file id %d", exoid);
-        ex_err("ex_get_coord",errmsg,exerrval);
-        return (EX_FATAL);
-      }
+    if ((status = nc_inq_varid (exoid, VAR_COORD_X, &coordidx)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to locate x nodal coordinates in file id %d", exoid);
+      ex_err("ex_get_coord",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
     if (num_dim > 1) {
-      if ((coordidy = ncvarid (exoid, VAR_COORD_Y)) == -1)
-        {
-          exerrval = ncerr;
-          sprintf(errmsg,
-                  "Error: failed to locate y nodal coordinates in file id %d", exoid);
-          ex_err("ex_get_coord",errmsg,exerrval);
-          return (EX_FATAL);
-        }
+      if ((status = nc_inq_varid (exoid, VAR_COORD_Y, &coordidy)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to locate y nodal coordinates in file id %d", exoid);
+	ex_err("ex_get_coord",errmsg,exerrval);
+	return (EX_FATAL);
+      }
     } else {
       coordidy = 0;
     }
 
     if (num_dim > 2) {
-      if ((coordidz = ncvarid (exoid, VAR_COORD_Z)) == -1)
-        {
-          exerrval = ncerr;
-          sprintf(errmsg,
-                  "Error: failed to locate z nodal coordinates in file id %d", exoid);
-          ex_err("ex_get_coord",errmsg,exerrval);
-          return (EX_FATAL);
-        }
+      if ((status = nc_inq_varid (exoid, VAR_COORD_Z, &coordidz)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to locate z nodal coordinates in file id %d", exoid);
+	ex_err("ex_get_coord",errmsg,exerrval);
+	return (EX_FATAL);
+      }
     } else {
       coordidz = 0;
     }
@@ -216,8 +198,8 @@ int ex_get_coord (int exoid,
     /* write out the coordinates  */
     for (i=0; i<num_dim; i++)
       {
-        const void *coor = 0;
-        char *which = "BOGUS";
+        void *coor;
+        char *which;
         int status;
        
         if (i == 0) {
@@ -234,26 +216,20 @@ int ex_get_coord (int exoid,
           coordid = coordidz;
         }
 
-        if (coor != NULL) {
-          if (nc_flt_code(exoid) == NC_FLOAT) {
-            status = nc_get_var_float(exoid, coordid, 
-                                      ex_conv_array(exoid,RTN_ADDRESS,
-                                                    coor,(int)num_nod));
+        if (coor != NULL && coordid != 0) {
+          if (ex_comp_ws(exoid) == 4) {
+            status = nc_get_var_float(exoid, coordid, coor); 
           } else {
-            status = nc_get_var_double(exoid, coordid, 
-                                       ex_conv_array(exoid,RTN_ADDRESS,
-                                                     coor,(int)num_nod));
+            status = nc_get_var_double(exoid, coordid, coor);
           }
           
-          if (status == -1)
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: failed to get %s coord array in file id %d", which, exoid);
-              ex_err("ex_put_coord",errmsg,exerrval);
-              return (EX_FATAL);
-            }
-          ex_conv_array( exoid, READ_CONVERT, coor, (int)num_nod );
+          if (status != NC_NOERR) {
+	    exerrval = status;
+	    sprintf(errmsg,
+		    "Error: failed to get %s coord array in file id %d", which, exoid);
+	    ex_err("ex_put_coord",errmsg,exerrval);
+	    return (EX_FATAL);
+	  }
         }
       }
   }

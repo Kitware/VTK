@@ -36,14 +36,6 @@
 *
 * exgvart - ex_get_var_time
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -76,7 +68,7 @@
  */
 
 int ex_get_var_time( int   exoid,
-                     int   var_type,
+                     ex_entity_type var_type,
                      int   var_index,
                      int   id,
                      int   beg_time_step, 
@@ -84,13 +76,14 @@ int ex_get_var_time( int   exoid,
                      void* var_vals )
 {
   int i, dimid, varid, numel = 0, offset;
-  nclong *obj_ids, *stat_vals;
-  long num_obj, num_entries_this_obj = 0, start[2], count[2];
+  int status;
+  int *obj_ids, *stat_vals;
+  size_t num_obj;
+  size_t num_entries_this_obj = 0;
+  size_t start[2], count[2];
   float fdum;
   char *cdum;
   char errmsg[MAX_ERR_LENGTH];
-  const char* tname;
-  const char* dimnumobj;
   const char* varobjids;
   const char* varobstat;
 
@@ -100,50 +93,34 @@ int ex_get_var_time( int   exoid,
   case EX_NODAL:
     return ex_get_nodal_var_time( exoid, var_index, id, beg_time_step, end_time_step, var_vals );
   case EX_EDGE_BLOCK:
-    tname = "edge block";
-    dimnumobj =  DIM_NUM_ED_BLK;
     varobjids =   VAR_ID_ED_BLK; 
     varobstat = VAR_STAT_ED_BLK;
     break;
   case EX_FACE_BLOCK:
-    tname = "face block";
-    dimnumobj =  DIM_NUM_FA_BLK;
     varobjids =   VAR_ID_FA_BLK; 
     varobstat = VAR_STAT_FA_BLK;
     break;
   case EX_ELEM_BLOCK:
-    tname = "element block";
-    dimnumobj =  DIM_NUM_EL_BLK;
     varobjids =   VAR_ID_EL_BLK; 
     varobstat = VAR_STAT_EL_BLK;
     break;
   case EX_NODE_SET:
-    tname = "node set";
-    dimnumobj =  DIM_NUM_NSET_VAR;
     varobjids =      VAR_NS_IDS; 
     varobstat =      VAR_NS_STAT;
     break;
   case EX_EDGE_SET:
-    tname = "edge set";
-    dimnumobj =  DIM_NUM_ESET_VAR;
     varobjids =      VAR_ES_IDS;
     varobstat =      VAR_ES_STAT;
     break;
   case EX_FACE_SET:
-    tname = "face set";
-    dimnumobj =  DIM_NUM_FSET_VAR;
     varobjids =      VAR_FS_IDS; 
     varobstat =      VAR_FS_STAT;
     break;
   case EX_SIDE_SET:
-    tname = "side set";
-    dimnumobj =  DIM_NUM_SSET_VAR;
     varobjids =      VAR_SS_IDS; 
     varobstat =      VAR_SS_STAT;
     break;
   case EX_ELEM_SET:
-    tname = "element set";
-    dimnumobj =  DIM_NUM_ELSET_VAR;
     varobjids =      VAR_ELS_IDS; 
     varobstat =      VAR_ELS_STAT;
     break;
@@ -166,103 +143,73 @@ int ex_get_var_time( int   exoid,
   /* find what object the entry is in */
 
   /* first, find out how many objects there are */
-
-  if ((dimid = ncdimid (exoid, dimnumobj)) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to locate number of %ss in file id %d", 
-              tname,exoid);
-      ex_err("ex_get_var_time",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-
-  if (ncdiminq (exoid, dimid, (char *) 0, &num_obj) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to get number of %ss in file id %d",
-              tname,exoid);
-      ex_err("ex_get_var_time",errmsg,exerrval);
-      return (EX_FATAL);
-    }
+  status = ex_get_dimension(exoid, ex_dim_num_objects(var_type), ex_name_of_object(var_type),
+			    &num_obj, &dimid, "ex_get_var_time");
+  if (status != NC_NOERR) return status;
 
   /* get the array of object ids */
   /* don't think we need this anymore since the netcdf variable names 
      associated with objects don't contain the object ids */
 
-  if (!(obj_ids = malloc(num_obj*sizeof(nclong))))
-    {
-      exerrval = EX_MEMFAIL;
-      sprintf(errmsg,
-              "Error: failed to allocate memory for %s ids for file id %d",
-              tname,exoid);
-      ex_err("ex_get_var_time",errmsg,exerrval);
-      return (EX_FATAL);
-    }
+  if (!(obj_ids = malloc(num_obj*sizeof(int)))) {
+    exerrval = EX_MEMFAIL;
+    sprintf(errmsg,
+	    "Error: failed to allocate memory for %s ids for file id %d",
+	    ex_name_of_object(var_type),exoid);
+    ex_err("ex_get_var_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
+  if ((status = nc_inq_varid (exoid, varobjids, &varid )) != NC_NOERR) {
+    exerrval = status;
+    free(obj_ids);
+    sprintf(errmsg,
+	    "Error: failed to locate %s ids in file id %d",
+	    ex_name_of_object(var_type),exoid);
+    ex_err("ex_get_var_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-  if ((varid = ncvarid (exoid, varobjids)) == -1)
-    {
-      exerrval = ncerr;
-      free(obj_ids);
-      sprintf(errmsg,
-              "Error: failed to locate %s ids in file id %d", tname,exoid);
-      ex_err("ex_get_var_time",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-
-
-  start[0] = 0;
-  count[0] = num_obj;
-  if (ncvarget (exoid, varid, start, count, obj_ids) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to get %s ids from file id %d", tname,exoid);
-      ex_err("ex_get_var_time",errmsg,exerrval);
-      return (EX_FATAL);
-    }
+  if ((status = nc_get_var_int(exoid, varid, obj_ids)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to get %s ids from file id %d",
+	    ex_name_of_object(var_type),exoid);
+    ex_err("ex_get_var_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
   /* allocate space for stat array */
-  if (!(stat_vals = malloc((int)num_obj*sizeof(nclong))))
-    {
-      exerrval = EX_MEMFAIL;
+  if (!(stat_vals = malloc((int)num_obj*sizeof(int)))) {
+    exerrval = EX_MEMFAIL;
+    free (obj_ids);
+    sprintf(errmsg,
+	    "Error: failed to allocate memory for %s status array for file id %d",
+	    ex_name_of_object(var_type),exoid);
+    ex_err("ex_get_var_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
+
+  /* get variable id of status array */
+  if (nc_inq_varid (exoid, varobstat, &varid) == NC_NOERR) {
+    /* if status array exists, use it, otherwise assume, object exists
+       to be backward compatible */
+
+    if ((status = nc_get_var_int(exoid, varid, stat_vals)) != NC_NOERR) {
+      exerrval = status;
       free (obj_ids);
+      free(stat_vals);
       sprintf(errmsg,
-              "Error: failed to allocate memory for %s status array for file id %d",
-              tname,exoid);
+	      "Error: failed to get %s status array from file id %d",
+	      ex_name_of_object(var_type),exoid);
       ex_err("ex_get_var_time",errmsg,exerrval);
       return (EX_FATAL);
     }
-
-  /* get variable id of status array */
-  if ((varid = ncvarid (exoid, varobstat)) != -1)
-    {
-      /* if status array exists, use it, otherwise assume, object exists
-         to be backward compatible */
-
-      start[0] = 0;
-      start[1] = 0;
-      count[0] = num_obj;
-      count[1] = 0;
-
-      if (ncvarget (exoid, varid, start, count, (void *)stat_vals) == -1)
-        {
-          exerrval = ncerr;
-          free (obj_ids);
-          free(stat_vals);
-          sprintf(errmsg,
-                  "Error: failed to get %s status array from file id %d",
-                  tname,exoid);
-          ex_err("ex_get_var_time",errmsg,exerrval);
-          return (EX_FATAL);
-        }
-    }
-  else /* default: status is true */
+  }
+  else { /* default: status is true */
     for(i=0;i<num_obj;i++)
       stat_vals[i]=1;
-
+  }
 
   /* loop through each object until id is found;  since entry
    * numbers are sequential (beginning with 1) id is in obj_i
@@ -274,69 +221,66 @@ int ex_get_var_time( int   exoid,
 
   i = 0;
   if (stat_vals[i] != 0)  {
-    if ((dimid = ncdimid (exoid, ex_dim_num_entries_in_object(var_type,i+1))) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_dimid(exoid, ex_dim_num_entries_in_object(var_type,i+1), &dimid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
-              "Error: failed to locate number of entries in %s %d in file id %d",
-              tname, obj_ids[i], exoid);
+	      "Error: failed to locate number of entries in %s %d in file id %d",
+	      ex_name_of_object(var_type), obj_ids[i], exoid);
       ex_err("ex_get_var_time",errmsg,exerrval);
       free(stat_vals);
       free(obj_ids);
       return (EX_FATAL);
     }
 
-    if (ncdiminq (exoid, dimid, (char *) 0, &num_entries_this_obj) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_dimlen(exoid, dimid, &num_entries_this_obj)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get number of entries in %s %d in file id %d",
-              tname, obj_ids[i], exoid);
+	      "Error: failed to get number of entries in %s %d in file id %d",
+	      ex_name_of_object(var_type), obj_ids[i], exoid);
       ex_err("ex_get_var_time",errmsg,exerrval);
       free(stat_vals);
       free(obj_ids);
       return (EX_FATAL);
     }
-
   } /* End NULL object check */
 
   numel = num_entries_this_obj;
 
   while (numel <= id) {
     if (stat_vals[++i] != 0) {
-      if ((dimid = ncdimid(exoid,ex_dim_num_entries_in_object(var_type,i+1))) == -1) {
-        exerrval = ncerr;
-        sprintf(errmsg,
-                "Error: failed to locate number of entries in %s %d in file id %d",
-                tname, obj_ids[i], exoid);
-        ex_err("ex_get_var_time",errmsg,exerrval);
-        free(stat_vals);
-        free(obj_ids);
-        return (EX_FATAL);
+      if ((status = nc_inq_dimid(exoid,ex_dim_num_entries_in_object(var_type,i+1), &dimid)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to locate number of entries in %s %d in file id %d",
+		ex_name_of_object(var_type), obj_ids[i], exoid);
+	ex_err("ex_get_var_time",errmsg,exerrval);
+	free(stat_vals);
+	free(obj_ids);
+	return (EX_FATAL);
       }
 
-      if (ncdiminq (exoid, dimid, (char *) 0, &num_entries_this_obj) == -1) {
-        exerrval = ncerr;
-        sprintf(errmsg,
-                "Error: failed to get number of entries in %s %d in file id %d",
-                tname, obj_ids[i], exoid);
-        ex_err("ex_get_var_time",errmsg,exerrval);
-        free(stat_vals);
-        free(obj_ids);
-        return (EX_FATAL);
+      if ((status = nc_inq_dimlen(exoid, dimid, &num_entries_this_obj)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to get number of entries in %s %d in file id %d",
+		ex_name_of_object(var_type), obj_ids[i], exoid);
+	ex_err("ex_get_var_time",errmsg,exerrval);
+	free(stat_vals);
+	free(obj_ids);
+	return (EX_FATAL);
       }
-
       numel += num_entries_this_obj;
     }
   }
-
   offset = id - (numel - num_entries_this_obj);
 
   /* inquire previously defined variable */
 
-  if((varid=ncvarid(exoid,ex_name_var_of_object(var_type,var_index,i+1))) == -1) {
-    exerrval = ncerr;
+  if ((status = nc_inq_varid(exoid,ex_name_var_of_object(var_type,var_index,i+1), &varid)) != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate variable %d for %s %d in file id %d",
-            var_index,tname,obj_ids[i],exoid);
+	    "Error: failed to locate variable %d for %s %d in file id %d",
+	    var_index,ex_name_of_object(var_type),obj_ids[i],exoid);
     ex_err("ex_get_var_time",errmsg,exerrval);
     free(stat_vals);
     free(obj_ids);
@@ -347,21 +291,19 @@ int ex_get_var_time( int   exoid,
   free(obj_ids);
 
   /* read values of object variable */
-
   start[0] = --beg_time_step;
   start[1] = offset;
 
   if (end_time_step < 0) {
-
     /* user is requesting the maximum time step;  we find this out using the
      * database inquire function to get the number of time steps;  the ending
      * time step number is 1 less due to 0 based array indexing in C
      */
-    if (ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum) == -1) {
-      exerrval = ncerr;
+    if ((status = ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
-              "Error: failed to get maximum time step in file id %d",
-              exoid);
+	      "Error: failed to get maximum time step in file id %d",
+	      exoid);
       ex_err("ex_get_var_time",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -372,16 +314,19 @@ int ex_get_var_time( int   exoid,
   count[0] = end_time_step - beg_time_step + 1;
   count[1] = 1;
 
-  if (ncvarget (exoid, varid, start, count,
-                ex_conv_array(exoid,RTN_ADDRESS,var_vals,count[0])) == -1) {
-    exerrval = ncerr;
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_vara_float(exoid, varid, start, count, var_vals);
+  } else {
+    status = nc_get_vara_double(exoid, varid, start, count, var_vals);
+  }
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-            "Error: failed to get %s variable values in file id %d", tname,exoid);
+	    "Error: failed to get %s variable values in file id %d",
+	    ex_name_of_object(var_type),exoid);
     ex_err("ex_get_var_time",errmsg,exerrval);
     return (EX_FATAL);
   }
-
-  ex_conv_array( exoid, READ_CONVERT, var_vals, count[0] );
-
   return (EX_NOERR);
 }

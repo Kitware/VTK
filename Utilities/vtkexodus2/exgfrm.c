@@ -36,11 +36,6 @@
 *
 * exgfrm - ex_get_coordinate_frames: read coordinate frames
 *
-* author - Sandia National Laboratories
-*          Garth Reese  - created this function. Nov 2002
-*
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int         exoid               exodus file id
@@ -81,69 +76,113 @@
 /* -------------------- local defines --------------------------- */
 #define PROCNAME "ex_get_coordinate_frames"
 /* -------------------- end of local defines -------------------- */
-int ex_get_coordinate_frames( int exoid, int *nframes, int *cf_ids,
-                              void* pt_coordinates, char* tags)
+/*!
+ * Coordinate frames are stored in the database as a series of three
+ * points (defined in the basic cartesian coordinate system). The
+ * first of these points describes the origin of the new system.  The
+ * second point lies on the 3 axis (or Z axis) of the frame. The third
+ * point is in the 1-3 (xz) plane. Each coordinate frame is identified
+ * by a unique, integer coordinate ID, and by a character tag
+ * indicating whether the frame is rectangular cartesian
+ * "R", cylindrical "C, or spherical "S".
+ * Because the coordinates are floating point values,
+ * the application code must declare the arrays passed to be the
+ * appropriate type "float" or "double" to match the
+ * compute word size passed in ex_create() or
+ * ex_open().
+ * \param        exoid    exodus file id
+ * \param[in,out] nframes  if 'cf_ids' is NULL, then nframes is returned with the number
+ *                        of defined coordinate frames. Else it is the number of coordinate
+ *                        frames to read.
+ * \param[out] cf_ids The (nframes) coordinate frame Ids. If cf_ids is
+ *                    NULL, no data will be returned in this or any other array. Only
+ *                    nframes will be modified. Otherwise, space must be allocated to
+ *                    store 'nframes' integers before making this call.
+ * \param[out] pt_coordinates The (9*nframes) coordinates of the three
+ *                            points defining each coordinate axis. The first three values are
+ *                            the origin of the first frame. The next three values are the
+ *                            coordinates of a point on the 3rd axis of the first frame. The next
+ *                            three values are the coordinates of a point in the plane of the 1-3
+ *                            axis. The pattern is repeated for each frame. If 'cf_ids'
+ *                            is null, no data will be returned in this array. Otherwise, space
+ *                            must be allocated for 9*nframes floating point values. The size of
+ *                            the allocation depends upon the compute word size.
+ * \param[out] tags The (nframes) character tags associated with each
+ *                  coordinate frame. If 'cf_ids' is NULL, no data will be
+ *                  returned in this array. Otherwise, space must be allocated for
+ *                  'nframes' characters.
+ */
+
+ int ex_get_coordinate_frames( int exoid, int *nframes, int *cf_ids, void* pt_coordinates,
+			       char* tags)
+
 {
-  int dimid;                       /* ID of the dimension of # frames */
+  int status;
+  int dimid; /* ID of the dimension of # frames */
   char errmsg[MAX_ERR_LENGTH];
-  int exerrval2;                    /* returned error value           */
   int varids;                      /* variable id for the frame ids  */
-  long int start=0;                /* start value for varputs        */
-  long int count;                  /* number vars to put in varput   */
-  long int count9;                 /* ditto, but for coordinates     */
-  void* pt_c=0;                    /* pointer to converted array     */
+  size_t start=0;                /* start value for varputs        */
+  size_t count;                  /* number vars to put in varput   */
 
   /* get the dimensions */
   assert( nframes !=NULL );
-  dimid = ncdimid(exoid,NUM_CFRAMES);
-  if ( dimid<0 ){
+  status = nc_inq_dimid(exoid, NUM_CFRAMES, &dimid);
+  if (status != NC_NOERR){
     *nframes=0;
     return EX_NOERR;
   }
-  ncdiminq(exoid,dimid,(char*)0,&count);
+
+  nc_inq_dimlen(exoid,dimid,&count);
   *nframes=(int)count;
-  count9=count*9;
 
   if ( count==0 )
     return (EX_NOERR);
 
   if ( cf_ids )
-    if ( (varids=ncvarid(exoid,FRAME_IDS))==-1  ||
-         ncvarget(exoid,varids,&start,&count,cf_ids)== -1 ) {
-      exerrval2 = ncerr;
+    if ((status = nc_inq_varid(exoid,FRAME_IDS, &varids))!= NC_NOERR  ||
+	(nc_get_var_int(exoid,varids,cf_ids)!= NC_NOERR)) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to read number coordinate ids from file id %d",
               exoid);
-      ex_err((char*)PROCNAME,errmsg,exerrval2);
+      ex_err(PROCNAME,errmsg,exerrval);
       return (EX_FATAL);
     }
 
   if ( tags )
-    if ( (varids=ncvarid(exoid,FRAME_TAGS))==-1  ||
-         ncvarget(exoid,varids,&start,&count,tags)== -1 ) {
-      exerrval2 = ncerr;
+    if ( (status = nc_inq_varid(exoid,FRAME_TAGS,&varids))!= NC_NOERR  ||
+         (nc_get_vara_text(exoid,varids,&start,&count,tags) != NC_NOERR)) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to read number coordinate tags from file id %d",
               exoid);
-      ex_err((char*)PROCNAME,errmsg,exerrval2);
+      ex_err(PROCNAME,errmsg,exerrval);
       return (EX_FATAL);
     }
 
   if (pt_coordinates ){
-    pt_c=ex_conv_array(exoid,RTN_ADDRESS,pt_coordinates,count9);
-    assert(pt_c!=0);
-    if ( (varids=ncvarid(exoid,FRAME_COORDS))==-1  ||
-         ncvarget(exoid,varids,&start,&count9,pt_c)== -1 ) {
-      exerrval2 = ncerr;
+    if ( (status = nc_inq_varid(exoid,FRAME_COORDS,&varids))!= NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to read number coordinate tags from file id %d",
               exoid);
-      ex_err((char*)PROCNAME,errmsg,exerrval2);
+      ex_err(PROCNAME,errmsg,exerrval);
       return (EX_FATAL);
     }
-    else {
-      pt_c=ex_conv_array( exoid, READ_CONVERT,pt_coordinates,count9);
-      assert(pt_c==0);
+
+    if (ex_comp_ws(exoid) == 4) {
+      status = nc_get_var_float(exoid,varids,pt_coordinates);
+    } else {
+      status = nc_get_var_double(exoid,varids,pt_coordinates);
+    }
+
+    if (status != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+              "Error: failed to read number coordinate tags from file id %d",
+              exoid);
+      ex_err(PROCNAME,errmsg,exerrval);
+      return (EX_FATAL);
     }
   }
 

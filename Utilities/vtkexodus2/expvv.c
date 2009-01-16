@@ -74,7 +74,8 @@ int ex_put_varid_var(int   exoid,
                      int   num_entity,
                      const void *var_vals)
 {
-  long start[3], count[3];
+  size_t start[2], count[2];
+  int status;
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */
@@ -85,9 +86,14 @@ int ex_put_varid_var(int   exoid,
   count[0] = 1;
   count[1] = num_entity;
 
-  if (ncvarput (exoid, varid, start, count,
-                ex_conv_array(exoid,WRITE_CONVERT,var_vals,num_entity)) == -1) {
-    exerrval = ncerr;
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_put_vara_float(exoid, varid, start, count, var_vals);
+  } else {
+    status = nc_put_vara_double(exoid, varid, start, count, var_vals);
+  }
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
             "Error: failed to store variables with varid %d in file id %d",
             varid, exoid);

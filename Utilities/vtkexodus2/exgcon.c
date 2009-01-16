@@ -36,14 +36,6 @@
 *
 * exgcon - ex_get_coord_names
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -60,93 +52,90 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
- * reads the names of the coordinate arrays from the database
+/*!
+ * reads the names (#MAX_STR_LENGTH characters in length) of the
+ * coordinate arrays from the database. Memory must be allocated for
+ * the character strings before this function is invoked.
+ * \param      exoid  exodus file id
+ * \param[out] coord_names Returned pointer to a vector containing
+ *             'num_dim' names of the nodal coordinate arrays.
  */
 
 int ex_get_coord_names (int    exoid,
                         char **coord_names)
 {
-   int i, j, ndimdim, varid;
-   long num_dim, start[2];
-   char *ptr;
-   char errmsg[MAX_ERR_LENGTH];
+  int status;
+  size_t i;
+  int j, ndimdim, varid;
+  size_t num_dim, start[2];
+  char *ptr;
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0;
+  exerrval = 0;
 
-/* inquire previously defined dimensions and variables  */
+  /* inquire previously defined dimensions and variables  */
 
-   if ((ndimdim = ncdimid (exoid, DIM_NUM_DIM)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Error: failed to locate number of dimensions in file id %d",
-             exoid);
-     ex_err("ex_get_coord_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  if ((status = nc_inq_dimid(exoid, DIM_NUM_DIM, &ndimdim)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to locate number of dimensions in file id %d",
+	    exoid);
+    ex_err("ex_get_coord_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-   if (ncdiminq (exoid, ndimdim, (char *) 0, &num_dim) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if ((status = nc_inq_dimlen(exoid, ndimdim, &num_dim)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to get number of dimensions in file id %d",
-             exoid);
-     ex_err("ex_get_coord_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+	    exoid);
+    ex_err("ex_get_coord_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-   if ((varid = ncvarid (exoid, VAR_NAME_COOR)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Warning: failed to locate coordinate names in file id %d",
-             exoid);
-     ex_err("ex_get_coord_names",errmsg,exerrval);
-     return (EX_WARN);
-   }
+  if ((status = nc_inq_varid(exoid, VAR_NAME_COOR, &varid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Warning: failed to locate coordinate names in file id %d",
+	    exoid);
+    ex_err("ex_get_coord_names",errmsg,exerrval);
+    return (EX_WARN);
+  }
 
 
-/* read the coordinate names */
+  /* read the coordinate names */
+  for (i=0; i<num_dim; i++) {
+    start[0] = i;
+    start[1] = 0;
 
-   for (i=0; i<num_dim; i++)
-   {
-     start[0] = i;
-     start[1] = 0;
+    j = 0;
+    ptr = coord_names[i];
 
-     j = 0;
-     ptr = coord_names[i];
-
-     if (ncvarget1 (exoid, varid, start, ptr) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-               "Error: failed to get coordinate names in file id %d", exoid);
-       ex_err("ex_get_coord_names",errmsg,exerrval);
-       return (EX_FATAL);
-     }
+    if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to get coordinate names in file id %d", exoid);
+      ex_err("ex_get_coord_names",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
  
-      while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH))
-      {
-        start[1] = ++j;
-        if (ncvarget1 (exoid, varid, start, ptr) == -1)
-        {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                 "Error: failed to get coordinate names in file id %d", exoid);
-         ex_err("ex_get_coord_names",errmsg,exerrval);
-         return (EX_FATAL);
-       }
+    while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
+      start[1] = ++j;
+      if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to get coordinate names in file id %d", exoid);
+	ex_err("ex_get_coord_names",errmsg,exerrval);
+	return (EX_FATAL);
       }
-      --ptr;
-      if (ptr > coord_names[i]) {
-        /*    get rid of trailing blanks */
-        while (*(--ptr) == ' ');
-      }
-      *(++ptr) = '\0';
-   }
-
-   return (EX_NOERR);
-
+    }
+    --ptr;
+    if (ptr > coord_names[i]) {
+      /*    get rid of trailing blanks */
+      while (*(--ptr) == ' ');
+    }
+    *(++ptr) = '\0';
+  }
+  return (EX_NOERR);
 }

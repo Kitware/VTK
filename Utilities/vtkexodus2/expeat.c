@@ -55,6 +55,10 @@
 
 /*!
  * writes the attributes for an element block
+ * \param  exoid                   exodus file id
+ * \param  elem_blk_id             element block id
+ * \param  attrib                  array of attributes
+ * \deprecated Use ex_put_attr()(exoid, EX_ELEM_BLOCK, elem_blk_id, attrib)
  */
 
 int ex_put_elem_attr (int   exoid,

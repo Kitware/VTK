@@ -36,13 +36,6 @@
 *
 * exgatm - get all time values
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -60,72 +53,47 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
- * reads all the time values for history or whole time steps
+/*!
+ * reads the time values for all time steps. Memory must be allocated
+ * for the time values array before this function is invoked. The
+ * storage requirements (equal to the number of time steps) can be
+ * determined by using the ex_inquire() routine.
+ * \param       exoid        exodus file id
+ * \param[out]  time_values  Returned array of time values at all time steps. 
  */
 
 int ex_get_all_times (int   exoid,
                       void *time_values)
-
 {
-   int dimid, varid;
-   long start[1], count[1];
-   char var_name[MAX_VAR_NAME_LENGTH+1];
+   int varid;
+   int status;
    char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0;
 
-/* inquire previously defined dimensions  */
+  if ((status = nc_inq_varid(exoid, VAR_WHOLE_TIME, &varid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,"Error: failed to locate time variable %s in file id %d",
+            VAR_WHOLE_TIME, exoid);
+    ex_err("ex_get_all_times",errmsg,exerrval);
+    return(EX_FATAL);
+  }
 
-  strcpy (var_name, VAR_WHOLE_TIME);
-  if (((dimid = ncdimid (exoid, DIM_TIME))) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg, 
-           "Error: failed to locate whole time step dimension in file id %d",
+  /*read time values */
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_var_float(exoid, varid, time_values);
+  } else {
+    status = nc_get_var_double(exoid, varid, time_values);
+  }
+    
+  if (status != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+           "Error: failed to get time values from file id %d",
             exoid);
     ex_err("ex_get_all_times",errmsg,exerrval);
     return(EX_FATAL);
   }
-
-/* inquire previously defined variable */
-
-  if ((varid = ncvarid (exoid, var_name)) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,"Error: failed to locate time variable %s in file id %d",
-            var_name,exoid);
-    ex_err("ex_get_all_times",errmsg,exerrval);
-    return(EX_FATAL);
-  }
-
-
-/*read time values */
-
-  start[0] = 0;
-
-  if (ncdiminq (exoid, dimid, (char *) 0, count) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-           "Error: failed to get number of %s time values in file id %d",
-            var_name,exoid);
-    ex_err("ex_get_all_times",errmsg,exerrval);
-    return(EX_FATAL);
-  }
-
-  if (ncvarget (exoid, varid, start, count,
-             ex_conv_array(exoid,RTN_ADDRESS,time_values,(int)count[0])) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-           "Error: failed to get %s time values from file id %d",
-            var_name,exoid);
-    ex_err("ex_get_all_times",errmsg,exerrval);
-    return(EX_FATAL);
-  }
-
-  ex_conv_array( exoid, READ_CONVERT, time_values, count[0] );
 
   return (EX_NOERR);
 }

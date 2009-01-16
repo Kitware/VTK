@@ -36,10 +36,6 @@
 *
 * exgelb - read element block parameters
 *
-* author - Victor R. Yarberry, Sandia National Laboratories
-*
-* environment - UNIX
-*
 * entry conditions -
 *   input parameters:
 *       int     idexo                   exodus file id
@@ -62,8 +58,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/**
  * reads the parameters used to describe an element block
+ * \deprecated Use ex_get_block()(exoid, EX_ELEM_BLOCK, elem_blk_id, elem_type, num_elem_this_blk, num_nodes_per_elem, num_attr) instead
  */
 
 int ex_get_elem_block (int   exoid,

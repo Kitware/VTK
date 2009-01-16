@@ -53,8 +53,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the EXODUS II nodeset variable truth table from the database
+ * \deprecated Use ex_get_truth_table()(exoid, EX_NODE_SET, num_nodesets, num_nset_var, nset_var_tab)
  */
 
 int ex_get_nset_var_tab (int  exoid,
@@ -62,5 +63,5 @@ int ex_get_nset_var_tab (int  exoid,
                          int  num_nset_var,
                          int *nset_var_tab)
 {
-  return ex_get_var_tab(exoid, "M", num_nodesets, num_nset_var, nset_var_tab);
+  return ex_get_truth_table(exoid, EX_NODE_SET, num_nodesets, num_nset_var, nset_var_tab);
 }

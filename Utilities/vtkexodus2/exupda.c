@@ -36,21 +36,11 @@
 *
 * exupda - ex_update
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
 *
 * exit conditions - 
-*
-* revision history - 
 *
 *  Id
 *
@@ -61,24 +51,23 @@
 
 /*!
  * updates an opened EXODUS II file (or EXODUS II history file)
+ * \param  exoid                   exodus file id
  */
 
 int ex_update (int exoid)
 {
-   char errmsg[MAX_ERR_LENGTH];
+  char errmsg[MAX_ERR_LENGTH];
+  int status;
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-   if (ncsync(exoid) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if ((status = nc_sync(exoid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to update file id %d",
-             exoid);
-     ex_err("ex_update",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   return(EX_NOERR);
-
+	    exoid);
+    ex_err("ex_update",errmsg,exerrval);
+    return (EX_FATAL);
+  }
+  return(EX_NOERR);
 }

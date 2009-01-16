@@ -36,11 +36,6 @@
 *
 * exgmp - ex_get_map_param
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,46 +59,42 @@ int ex_get_map_param (int   exoid,
                       int  *num_node_maps,
                       int  *num_elem_maps)
 {
-   int dimid;
-   long lnum_node_maps, lnum_elem_maps;
-   char errmsg[MAX_ERR_LENGTH];
+  int status;
+  int dimid;
+  size_t lnum_node_maps, lnum_elem_maps;
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
 
-   /* node maps are optional */
-   if ((dimid = ncdimid (exoid, DIM_NUM_NM)) == -1)
-     *num_node_maps = 0;
-   else
-   {
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_node_maps) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get number of node maps in file id %d",
-               exoid);
-       ex_err("ex_get_map_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_node_maps = lnum_node_maps;
-   }
+  /* node maps are optional */
+  if (nc_inq_dimid(exoid, DIM_NUM_NM, &dimid) != NC_NOERR) {
+    *num_node_maps = 0;
+  } else {
+    if ((status = nc_inq_dimlen(exoid, dimid, &lnum_node_maps)) != NC_NOERR) {
+	  exerrval = status;
+	  sprintf(errmsg,
+		  "Error: failed to get number of node maps in file id %d",
+		  exoid);
+	  ex_err("ex_get_map_param",errmsg,exerrval);
+	  return (EX_FATAL);
+	}
+	*num_node_maps = lnum_node_maps;
+	}
 
-   /* element maps are optional */
-   if ((dimid = ncdimid (exoid, DIM_NUM_EM)) == -1)
-     *num_elem_maps = 0;
-   else
-   {
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_elem_maps) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
+    /* element maps are optional */
+    if (nc_inq_dimid(exoid, DIM_NUM_EM, &dimid) != NC_NOERR) {
+    *num_elem_maps = 0;
+  } else {
+    if ((status = nc_inq_dimlen(exoid, dimid, &lnum_elem_maps)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
               "Error: failed to get number of element maps in file id %d",
-               exoid);
-       ex_err("ex_get_map_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_elem_maps = lnum_elem_maps;
-   }
-
-   return (EX_NOERR);
+	      exoid);
+      ex_err("ex_get_map_param",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+    *num_elem_maps = lnum_elem_maps;
+  }
+  return (EX_NOERR);
 }

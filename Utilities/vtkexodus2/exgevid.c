@@ -51,12 +51,13 @@
 
 #include "exodusII.h"
 
-/*
+/*!
  * reads the EXODUS II variable varids from the database
+ * \deprecated Use ex_get_varid()(exoid, EX_ELEM_BLOCK, varid)
  */
 
 int ex_get_elem_varid (int  exoid,
                        int *varid)
 {
-  return ex_get_varid(exoid, "e", varid);
+  return ex_get_varid(exoid, EX_ELEM_BLOCK, varid);
 }

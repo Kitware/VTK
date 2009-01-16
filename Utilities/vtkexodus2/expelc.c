@@ -40,127 +40,15 @@
 
 /*!
  * writes the connectivity array for an element block
+ * \param exoid exodus file id
+ * \param elem_blk_id  element block id
+ * \param *connect     connectivity array
+ * \deprecated Use ex_put_conn()(exoid, EX_ELEM_BLOCK, elem_blk_id, connect, 0, 0)
  */
 
 int ex_put_elem_conn (int   exoid,
                       int   elem_blk_id,
                       const int  *connect)
 {
-   int numelbdim, nelnoddim, connid, elem_blk_id_ndx, iresult;
-   long num_elem_this_blk, num_nod_per_elem, start[2], count[2]; 
-   nclong *lptr;
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-  /* Determine index of elem_blk_id in VAR_ID_EL_BLK array */
-  elem_blk_id_ndx = ex_id_lkup(exoid,VAR_ID_EL_BLK,elem_blk_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-     {
-       sprintf(errmsg,
-"Warning: connectivity array not allowed for NULL element block %d in file id %d",
-               elem_blk_id,exoid);
-       ex_err("ex_put_elem_conn",errmsg,EX_MSG);
-       return (EX_WARN);
-     }
-     else
-     {
-
-      sprintf(errmsg,
-        "Error: failed to locate element block id %d in %s array in file id %d",
-              elem_blk_id,VAR_ID_EL_BLK, exoid);
-      ex_err("ex_put_elem_conn",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-/* inquire id's of previously defined dimensions  */
-
-   if ((numelbdim = ncdimid (exoid, DIM_NUM_EL_IN_BLK(elem_blk_id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-     "Error: failed to locate number of elements in block %d in file id %d",
-              elem_blk_id,exoid);
-     ex_err("ex_put_elem_conn",errmsg, exerrval);
-     return(EX_FATAL);
-   }
-
-   if (ncdiminq(exoid, numelbdim, NULL, &num_elem_this_blk) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get number of elements in block %d in file id %d",
-             elem_blk_id,exoid);
-     ex_err("ex_put_elem_conn",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-
-   if ((nelnoddim = ncdimid (exoid, DIM_NUM_NOD_PER_EL(elem_blk_id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to locate number of nodes/elem in block %d in file id %d",
-             elem_blk_id,exoid);
-     ex_err("ex_put_elem_conn",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-   if (ncdiminq (exoid, nelnoddim, NULL, &num_nod_per_elem) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to get number of nodes/elem in block %d in file id %d",
-             elem_blk_id,exoid);
-     ex_err("ex_put_elem_conn",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-
-   if ((connid = ncvarid (exoid, VAR_CONN(elem_blk_id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-"Error: failed to locate connectivity array for element block %d in file id %d",
-             elem_blk_id,exoid);
-     ex_err("ex_put_elem_conn",errmsg, exerrval);
-     return(EX_FATAL);
-   }
-
-
-/* write out the connectivity array */
-
-/* this contortion is necessary because netCDF is expecting nclongs; fortunately
-   it's necessary only when ints and nclongs aren't the same size */
-
-   start[0] = 0;
-   start[1] = 0;
-
-   count[0] = num_elem_this_blk;
-   count[1] = num_nod_per_elem;
-
-   if (sizeof(int) == sizeof(nclong)) {
-      iresult = ncvarput (exoid, connid, start, count, connect);
-   } else {
-      lptr = itol (connect, (int)(num_elem_this_blk*num_nod_per_elem));
-      iresult = ncvarput (exoid, connid, start, count, lptr);
-      free(lptr);
-   }
-
-   if (iresult == -1)
-   {
-      exerrval = ncerr;
-      sprintf(errmsg,
-         "Error: failed to write connectivity array for block %d in file id %d",
-                elem_blk_id,exoid);
-      ex_err("ex_put_elem_conn",errmsg, exerrval);
-      return(EX_FATAL);
-   }
-
-
-   return (EX_NOERR);
-
+  return ex_put_conn(exoid, EX_ELEM_BLOCK, elem_blk_id, connect, 0, 0);
 }

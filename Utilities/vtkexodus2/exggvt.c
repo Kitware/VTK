@@ -36,14 +36,6 @@
 *
 * exggvt - get_glob_var_time
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -75,22 +67,18 @@ int ex_get_glob_var_time (int   exoid,
                           int   end_time_step,
                           void *glob_var_vals)
 {
+   int status;
    int varid;
-   long start[2], count[2];
+   size_t start[2], count[2];
    float fdum;
-   char *cdum;
+   char *cdum = 0;
    char  errmsg[MAX_ERR_LENGTH];
 
    exerrval = 0; /* clear error code */
 
-   cdum = 0; /* initialize even though it is not used */
-
-
-/* inquire previously defined variable */
-
-   if ((varid = ncvarid (exoid, VAR_GLO_VAR)) == -1)
-   {
-     exerrval = ncerr;
+   /* inquire previously defined variable */
+   if ((status = nc_inq_varid (exoid, VAR_GLO_VAR, &varid)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to locate global variables in file id %d",
              exoid);
@@ -98,20 +86,16 @@ int ex_get_glob_var_time (int   exoid,
      return (EX_WARN);
    }
 
-/* read values of global variables */
-
+   /* read values of global variables */
    start[0] = --beg_time_step;
    start[1] = --glob_var_index;
 
-   if (end_time_step < 0)
-   {
-
-/* user is requesting the maximum time step;  we find this out using the
- * database inquire function to get the number of time steps
- */
-     if (ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum) == -1)
-     {
-       exerrval = ncerr;
+   if (end_time_step < 0) {
+     /* user is requesting the maximum time step;  we find this out using the
+      * database inquire function to get the number of time steps
+      */
+     if ((status = ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum)) != NC_NOERR) {
+       exerrval = status;
        sprintf(errmsg,
              "Error: failed to get number of time steps in file id %d",
                exoid);
@@ -125,18 +109,19 @@ int ex_get_glob_var_time (int   exoid,
    count[0] = end_time_step - beg_time_step + 1;
    count[1] = 1;
 
-   if (ncvarget (exoid, varid, start, count,
-             ex_conv_array(exoid,RTN_ADDRESS,glob_var_vals,count[0])) == -1)
-   {
-     exerrval = ncerr;
+   if (ex_comp_ws(exoid) == 4) {
+     status = nc_get_vara_float(exoid, varid, start, count, glob_var_vals);
+   } else {
+     status = nc_get_vara_double(exoid, varid, start, count, glob_var_vals);
+   }
+
+   if (status != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to get global variable %d values from file id %d",
             glob_var_index, exoid);
      ex_err("ex_get_glob_var_time",errmsg,exerrval);
      return (EX_FATAL);
    }
-
-   ex_conv_array( exoid, READ_CONVERT, glob_var_vals, count[0] );
-
    return (EX_NOERR);
 }

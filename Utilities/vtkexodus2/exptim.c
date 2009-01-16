@@ -36,14 +36,6 @@
 *
 * exptim - ex_put_time
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -65,48 +57,48 @@
 /*!
  * writes the time value for a whole time step;
  * assume the first time step is 1
+ * \param       exoid                   exodus file id
+ * \param       time_step               time step number (1...)
+ * \param       time_value              simulation time at specified step
  */
 
 int ex_put_time (int   exoid,
                  int   time_step,
                  const void *time_value)
 {
-   int varid; 
-   long start[1];
-   char var_name[MAX_VAR_NAME_LENGTH+1];
-   char errmsg[MAX_ERR_LENGTH];
+  int status;
+  int varid; 
+  size_t start[1];
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* inquire previously defined dimensions  */
-
-   strcpy (var_name, VAR_WHOLE_TIME);
-
-/* inquire previously defined variable */
-
-   if ((varid = ncvarid (exoid, var_name)) < 0)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  /* inquire previously defined variable */
+  if ((status = nc_inq_varid(exoid, VAR_WHOLE_TIME, &varid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to locate time variable in file id %d", exoid);
-     ex_err("ex_put_time",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+    ex_err("ex_put_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-/* store time value */
+  /* store time value */
+  start[0] = --time_step;
 
-   start[0] = --time_step;
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_put_var1_float(exoid, varid, start, time_value);
+  } else {
+    status = nc_put_var1_double(exoid, varid, start, time_value);
+  }
 
-   if (ncvarput1 (exoid, varid, start,
-                    ex_conv_array(exoid,WRITE_CONVERT,time_value,1)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if (status != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to store time value in file id %d", exoid);
-     ex_err("ex_put_time",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+    ex_err("ex_put_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
 
-   return (EX_NOERR);
+  return (EX_NOERR);
 }

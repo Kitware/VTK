@@ -58,8 +58,17 @@
 #include "exodusII_int.h"
 
 /*!
- * writes the number of global, nodal, element, nodeset, and sideset variables 
+ * defines the number of global, nodal, element, nodeset, and sideset variables 
  * that will be written to the database
+*  \param     exoid           exodus file id
+*  \param     num_g           global variable count
+*  \param     num_n           nodal variable count
+*  \param     num_e           element variable count
+*  \param    *elem_var_tab    element variable truth table array
+*  \param     num_m           nodeset variable count
+*  \param    *nset_var_tab    nodeset variable truth table array
+*  \param     num_s           sideset variable count
+*  \param    *sset_var_tab    sideset variable truth table array
  */
 
 int ex_put_all_var_param (int   exoid,

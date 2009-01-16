@@ -58,191 +58,108 @@
 
 /*!
  * writes the names of the results variables to the database
+ * \param exoid       exodus file id
+ * \param obj_type    object type
+ * \param names       ptr array of entity names
  */
 
 int ex_put_names (int   exoid,
-      int   obj_type,
-      char* names[])
+		  ex_entity_type obj_type,
+		  char* names[])
 {
-   int i, varid; 
-   long num_entity;
-   long  start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-   const char *routine = "ex_put_names";
+  int status;
+  int i, varid; 
+  size_t num_entity;
+  size_t start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
+  const char *vname = NULL;
    
-   exerrval = 0; /* clear error code */
-
-   switch (obj_type) {
-     /*  ======== BLOCKS ========= */
-   case EX_EDGE_BLOCK:
-     ex_get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_ED_BLK)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate edge block names in file id %d",
-         exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_FACE_BLOCK:
-     ex_get_dimension(exoid, DIM_NUM_FA_BLK, "face block", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_FA_BLK)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate face block names in file id %d",
-         exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_ELEM_BLOCK:
-     ex_get_dimension(exoid, DIM_NUM_EL_BLK, "element block", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_EL_BLK)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate element block names in file id %d",
-         exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-
-     /*  ======== SETS ========= */
-   case EX_NODE_SET:
-     ex_get_dimension(exoid, DIM_NUM_NS, "nodeset", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_NS)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate nodeset names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_EDGE_SET:
-     ex_get_dimension(exoid, DIM_NUM_ES, "edgeset", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_ES)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate edgeset names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_FACE_SET:
-     ex_get_dimension(exoid, DIM_NUM_FS, "faceset", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_FS)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate faceset names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_SIDE_SET:
-     ex_get_dimension(exoid, DIM_NUM_SS, "sideset", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_SS)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate sideset names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_ELEM_SET:
-     ex_get_dimension(exoid, DIM_NUM_ELS, "elemset", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_ELS)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate elemset names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-
-     /*  ======== MAPS ========= */
-   case EX_NODE_MAP:
-     ex_get_dimension(exoid, DIM_NUM_NM, "node map", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_NM)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate node map names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_EDGE_MAP:
-     ex_get_dimension(exoid, DIM_NUM_EDM, "edge map", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_EDM)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate edge map names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_FACE_MAP:
-     ex_get_dimension(exoid, DIM_NUM_FAM, "face map", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_FAM)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate face map names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-   case EX_ELEM_MAP:
-     ex_get_dimension(exoid, DIM_NUM_EM, "element map", &num_entity, routine);
-
-     if ((varid = ncvarid (exoid, VAR_NAME_EM)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate element map names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     break;
-
-     /*  ======== ERROR (Invalid type) ========= */
-   default:
-     exerrval = EX_BADPARAM;
-     sprintf(errmsg,
-       "Error: Invalid type specified in file id %d", exoid);
-     ex_err(routine,errmsg,exerrval);
-     return(EX_FATAL);
-   }
+  const char *routine = "ex_put_names";
    
+  exerrval = 0; /* clear error code */
 
-   /* write EXODUS entity names */
+  switch (obj_type) {
+    /*  ======== BLOCKS ========= */
+  case EX_EDGE_BLOCK:
+    vname = VAR_NAME_ED_BLK;
+    break;
+  case EX_FACE_BLOCK:
+    vname = VAR_NAME_FA_BLK;
+    break;
+  case EX_ELEM_BLOCK:
+    vname = VAR_NAME_EL_BLK;
+    break;
 
-   for ( i = 0; (long)i < num_entity; i++)
-     {
-     if ( names[i] != (char)'\0' ) {
-       start[0] = i;
-       start[1] = 0;
+    /*  ======== SETS ========= */
+  case EX_NODE_SET:
+    vname = VAR_NAME_NS;
+    break;
+  case EX_EDGE_SET:
+    vname = VAR_NAME_ES;
+    break;
+  case EX_FACE_SET:
+    vname = VAR_NAME_FS;
+    break;
+  case EX_SIDE_SET:
+    vname = VAR_NAME_SS;
+    break;
+  case EX_ELEM_SET:
+    vname = VAR_NAME_ELS;
+    break;
 
-       count[0] = 1;
-       count[1] = (long)strlen(names[i]) + 1;
+    /*  ======== MAPS ========= */
+  case EX_NODE_MAP:
+    vname = VAR_NAME_NM;
+    break;
+  case EX_EDGE_MAP:
+    vname = VAR_NAME_EDM;
+    break;
+  case EX_FACE_MAP:
+    vname = VAR_NAME_FAM;
+    break;
+  case EX_ELEM_MAP:
+    vname = VAR_NAME_EM;
+    break;
 
-       if (ncvarput (exoid, varid, start, count, (void*) names[i]) == -1) {
-         exerrval = ncerr;
-         sprintf(errmsg,
-           "Error: failed to store entity names in file id %d", exoid);
-         ex_err(routine,errmsg,exerrval);
-         return (EX_FATAL);
-       }
-     }
-   }
-   return(EX_NOERR);
+    /*  ======== ERROR (Invalid type) ========= */
+  default:
+    exerrval = EX_BADPARAM;
+    sprintf(errmsg,
+	    "Error: Invalid type specified in file id %d", exoid);
+    ex_err(routine,errmsg,exerrval);
+    return(EX_FATAL);
+  }
+   
+  ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type),
+		   &num_entity, &varid, routine);
+
+  if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to locate %s names in file id %d",
+	    ex_name_of_object(obj_type), exoid);
+    ex_err(routine,errmsg,exerrval);
+    return (EX_FATAL);
+  }
+
+  /* write EXODUS entitynames */
+  for (i=0; i<num_entity; i++) {
+    if (names[i] != '\0') {
+      start[0] = i;
+      start[1] = 0;
+       
+      count[0] = 1;
+      count[1] = strlen(names[i]) + 1;
+       
+      if ((status = nc_put_vara_text(exoid, varid, start, count, names[i])) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to store %s names in file id %d",
+		ex_name_of_object(obj_type), exoid);
+	ex_err(routine,errmsg,exerrval);
+	return (EX_FATAL);
+      }
+    }
+  }
+  return(EX_NOERR);
 }

@@ -53,17 +53,135 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 #include <string.h>
+#include <assert.h>
+
+#define EX_WRITE_OBJECT_PARAMS(TNAME,DNAME,SNAME,INAME,NUM_BLK,DIMVAR) \
+  /* Can have nonzero model->num_elem_blk even if model->num_elem == 0 */ \
+  if ((NUM_BLK) > 0) { \
+    if ((status = nc_def_dim(exoid, DNAME, (size_t)(NUM_BLK), &DIMVAR)) != NC_NOERR) { \
+        exerrval = status; \
+        sprintf(errmsg, \
+                "Error: failed to define number of " TNAME "s in file id %d", \
+                exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        goto error_ret;         /* exit define mode and return */ \
+      } \
+    /* ...and some variables */ \
+    /* element block id status array */ \
+    dim[0] = DIMVAR; \
+    if ((status = nc_def_var (exoid, SNAME, NC_INT, 1, dim, &varid)) != NC_NOERR) {	\
+        exerrval = status; \
+        sprintf(errmsg, \
+                "Error: failed to define " TNAME " status array in file id %d",exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        goto error_ret;         /* exit define mode and return */ \
+      } \
+    \
+    /* TNAME id array */ \
+    if ((status = nc_def_var (exoid, INAME, NC_INT, 1, dim, &varid)) != NC_NOERR) {	\
+        exerrval = status; \
+        sprintf(errmsg, \
+                "Error: failed to define " TNAME " id array in file id %d",exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        goto error_ret;         /* exit define mode and return */ \
+      } \
+    \
+    /*   store property name as attribute of property array variable */ \
+    if ((status=nc_put_att_text(exoid, varid, ATT_PROP_NAME, 3, "ID")) != NC_NOERR) { \
+        exerrval = status;							\
+        sprintf(errmsg, \
+                "Error: failed to store " TNAME " property name %s in file id %d", \
+                "ID",exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        return (EX_FATAL); \
+      } \
+  }
+
+#define EX_WRITE_MAP_PARAMS(TNAME,DNUMMAP,VMAPIDS,NUMMAPS,MAPDIM) \
+  /* Can have nonzero model->num_XXXX_map even if model->num_XXXX == 0 */ \
+  if ((NUMMAPS) > 0) { \
+    if ((status = nc_def_dim(exoid, DNUMMAP, (size_t)(NUMMAPS), &MAPDIM)) != NC_NOERR) { \
+        exerrval = status; \
+        sprintf(errmsg, \
+                "Error: failed to define number of " TNAME "s in file id %d", \
+                exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        goto error_ret;         /* exit define mode and return */ \
+      } \
+    \
+    dim[0] = MAPDIM; \
+    \
+    /* TNAME id array */ \
+    if ((status = nc_def_var(exoid, VMAPIDS, NC_INT, 1, dim, &varid)) != NC_NOERR) {	\
+        exerrval = status; \
+        sprintf(errmsg, \
+                "Error: failed to define " TNAME " id array in file id %d",exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        goto error_ret;         /* exit define mode and return */ \
+      } \
+    \
+    /*   store property name as attribute of property array variable */ \
+    if ((status=nc_put_att_text(exoid, varid, ATT_PROP_NAME, 3, "ID")) != NC_NOERR) { \
+        exerrval = status; \
+        sprintf(errmsg, \
+                "Error: failed to store " TNAME " property name %s in file id %d", \
+                "ID",exoid); \
+        ex_err("ex_put_init_ext",errmsg,exerrval); \
+        return (EX_FATAL); \
+      } \
+  }
+
+#define EX_WRITE_OBJECT_NAMES(TNAME,DNAME,DIMVAR,DIMVAL) \
+  /* Element block names... */ \
+  if ((DIMVAL) > 0) { \
+    dim[0] = (DIMVAR); \
+    dim[1] = strdim; \
+     \
+    if ((status = nc_def_var (exoid, DNAME, NC_CHAR, 2, dim, &varid)) != NC_NOERR) { \
+      exerrval = status; \
+      sprintf(errmsg, \
+	      "Error: failed to define %s name array in file id %d",TNAME,exoid); \
+      ex_err("ex_put_init_ext",errmsg,exerrval); \
+      goto error_ret;         /* exit define mode and return */ \
+    } \
+  }
+
+static void zero_id_status(int exoid, const char *var_stat, const char *var_id,
+			   int count, int *ids)
+{
+  int status;
+  int i;
+  int id_var, stat_var;
+  
+  if (count > 0) {
+    for (i=0; i < count; i++) {
+      ids[i] = 0;
+    }
+
+    status = nc_inq_varid(exoid, var_id,   &id_var);
+    assert(status == NC_NOERR);
+    status = nc_inq_varid(exoid, var_stat, &stat_var);
+    assert(status == NC_NOERR);
+
+    status = nc_put_var_int(exoid, id_var,   ids);
+    assert(status == NC_NOERR);
+    status = nc_put_var_int(exoid, stat_var, ids);
+    assert(status == NC_NOERR);
+  }
+}
 
 /*!
  * writes the initialization parameters to the EXODUS II file
+ * \param     exoid     exodus file id
+ * \param     model     finite element model parameters
  */
 
 int ex_put_init_ext (int   exoid,
                      const ex_init_params *model)
 {
-  int numdimdim, numnoddim = -1, elblkdim = -1, edblkdim = -1, fablkdim = -1;
-  int esetdim = -1, fsetdim = -1, elsetdim = -1, nsetdim = -1, ssetdim = -1, strdim, dim[2], varid;
-  int nmapdim = -1, edmapdim = -1, famapdim = -1, emapdim = -1;
+  int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim, nsetdim, ssetdim, strdim, dim[2], varid, temp;
+  int status;
+  int nmapdim,edmapdim,famapdim,emapdim;
 #if 0
   /* used for header size calculations which are turned off for now */
   int header_size, fixed_var_size, iows;
@@ -72,7 +190,7 @@ int ex_put_init_ext (int   exoid,
 
   exerrval = 0; /* clear error code */
 
-  if ((ncdimid (exoid, DIM_NUM_DIM)) != -1)
+  if (nc_inq_dimid (exoid, DIM_NUM_DIM, &temp) == NC_NOERR)
     {
       exerrval = EX_MSG;
       sprintf(errmsg,
@@ -84,22 +202,21 @@ int ex_put_init_ext (int   exoid,
 
   /* put file into define mode */
 
-  if (ncredef (exoid) == -1)
+  if ((status = nc_redef (exoid)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to put file id %d into define mode", exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
       return (EX_FATAL);
     }
 
-
   /* define some attributes... */
 
-  if (ncattput (exoid, NC_GLOBAL, (const char*) ATT_TITLE, 
-                NC_CHAR, (int)strlen(model->title)+1, (void *)model->title) == -1)
+  if ((status = nc_put_att_text(exoid, NC_GLOBAL, (const char*)ATT_TITLE, 
+				strlen(model->title)+1, model->title)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to define model->title attribute to file id %d", exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -108,9 +225,9 @@ int ex_put_init_ext (int   exoid,
 
   /* ...and some dimensions... */
 
-  if ((numdimdim = ncdimdef (exoid, DIM_NUM_DIM, (long)model->num_dim)) == -1)
+  if ((status = nc_def_dim(exoid, DIM_NUM_DIM, model->num_dim, &numdimdim)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to define number of dimensions in file id %d",exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -126,9 +243,9 @@ int ex_put_init_ext (int   exoid,
    */
      
   if (model->num_nodes > 0) {
-    if ((numnoddim = ncdimdef (exoid, DIM_NUM_NODES, (long)model->num_nodes)) == -1)
+    if ((status = nc_def_dim(exoid, DIM_NUM_NODES, model->num_nodes, &numnoddim)) != NC_NOERR)
       {
-        exerrval = ncerr;
+        exerrval = status;
         sprintf(errmsg,
                 "Error: failed to define number of nodes in file id %d",exoid);
         ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -145,9 +262,9 @@ int ex_put_init_ext (int   exoid,
       goto error_ret;         /* exit define mode and return */
     }
     
-    if ((ncdimdef (exoid, DIM_NUM_ELEM, (long)model->num_elem)) == -1)
+    if ((status = nc_def_dim(exoid, DIM_NUM_ELEM, model->num_elem, &temp)) != NC_NOERR)
       {
-        exerrval = ncerr;
+        exerrval = status;
         sprintf(errmsg,
                 "Error: failed to define number of elements in file id %d",exoid);
         ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -164,9 +281,9 @@ int ex_put_init_ext (int   exoid,
       goto error_ret;         /* exit define mode and return */
     }
     
-    if ((ncdimdef (exoid, DIM_NUM_EDGE, (long)model->num_edge)) == -1)
+    if ((status = nc_def_dim(exoid, DIM_NUM_EDGE, model->num_edge, &temp)) != NC_NOERR)
       {
-        exerrval = ncerr;
+        exerrval = status;
         sprintf(errmsg,
                 "Error: failed to define number of edges in file id %d",exoid);
         ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -183,9 +300,9 @@ int ex_put_init_ext (int   exoid,
       goto error_ret;         /* exit define mode and return */
     }
     
-    if ((ncdimdef (exoid, DIM_NUM_FACE, (long)model->num_face)) == -1)
+    if ((status = nc_def_dim(exoid, DIM_NUM_FACE, model->num_face, &temp)) != NC_NOERR)
       {
-        exerrval = ncerr;
+        exerrval = status;
         sprintf(errmsg,
                 "Error: failed to define number of faces in file id %d",exoid);
         ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -193,123 +310,20 @@ int ex_put_init_ext (int   exoid,
       }
   }
 
-#define EX_WRITE_OBJECT_PARAMS(TNAME,DNAME,SNAME,INAME,NUM_BLK,DIMVAR) \
-  /* Can have nonzero model->num_elem_blk even if model->num_elem == 0 */ \
-  if ((NUM_BLK) > 0) { \
-    if ((DIMVAR = ncdimdef (exoid, DNAME, (long)(NUM_BLK))) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to define number of " TNAME "s in file id %d", \
-                exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        goto error_ret;         /* exit define mode and return */ \
-      } \
-    \
-    /* ...and some variables */ \
-    \
-    /* element block id status array */ \
-    \
-    dim[0] = DIMVAR; \
-    if ((varid = ncvardef (exoid, SNAME, NC_LONG, 1, dim)) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to define " TNAME " status array in file id %d",exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        goto error_ret;         /* exit define mode and return */ \
-      } \
-    \
-    /*   store property name as attribute of property array variable */ \
-    /* \
-    if ((ncattput (exoid, varid, ATT_PROP_NAME, NC_CHAR, 7, "STATUS")) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to store " TNAME " property name %s in file id %d", \
-                "STATUS",exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        return (EX_FATAL); \
-      } \
-    */ \
-    \
-    /* TNAME id array */ \
-    \
-    if ((varid = ncvardef (exoid, INAME, NC_LONG, 1, dim)) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to define " TNAME " id array in file id %d",exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        goto error_ret;         /* exit define mode and return */ \
-      } \
-    \
-    /*   store property name as attribute of property array variable */ \
-    if ((ncattput (exoid, varid, ATT_PROP_NAME, NC_CHAR, 3, "ID")) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to store " TNAME " property name %s in file id %d", \
-                "ID",exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        return (EX_FATAL); \
-      } \
-  }
+  EX_WRITE_OBJECT_PARAMS("element block", DIM_NUM_EL_BLK, VAR_STAT_EL_BLK, VAR_ID_EL_BLK, model->num_elem_blk, elblkdim);
+  EX_WRITE_OBJECT_PARAMS("edge block",    DIM_NUM_ED_BLK, VAR_STAT_ED_BLK, VAR_ID_ED_BLK, model->num_edge_blk, edblkdim);
+  EX_WRITE_OBJECT_PARAMS("face block",    DIM_NUM_FA_BLK, VAR_STAT_FA_BLK, VAR_ID_FA_BLK, model->num_face_blk, fablkdim);
 
-  EX_WRITE_OBJECT_PARAMS( "element block", DIM_NUM_EL_BLK, VAR_STAT_EL_BLK, VAR_ID_EL_BLK, model->num_elem_blk, elblkdim );
-  EX_WRITE_OBJECT_PARAMS( "edge block",    DIM_NUM_ED_BLK, VAR_STAT_ED_BLK, VAR_ID_ED_BLK, model->num_edge_blk, edblkdim );
-  EX_WRITE_OBJECT_PARAMS( "face block",    DIM_NUM_FA_BLK, VAR_STAT_FA_BLK, VAR_ID_FA_BLK, model->num_face_blk, fablkdim );
+  EX_WRITE_OBJECT_PARAMS("node set", DIM_NUM_NS,  VAR_NS_STAT,  VAR_NS_IDS, model->num_node_sets,  nsetdim);
+  EX_WRITE_OBJECT_PARAMS("edge set", DIM_NUM_ES,  VAR_ES_STAT,  VAR_ES_IDS, model->num_edge_sets,  esetdim);
+  EX_WRITE_OBJECT_PARAMS("face set", DIM_NUM_FS,  VAR_FS_STAT,  VAR_FS_IDS, model->num_face_sets,  fsetdim);
+  EX_WRITE_OBJECT_PARAMS("side set", DIM_NUM_SS,  VAR_SS_STAT,  VAR_SS_IDS, model->num_side_sets,  ssetdim);
+  EX_WRITE_OBJECT_PARAMS("elem set", DIM_NUM_ELS, VAR_ELS_STAT, VAR_ELS_IDS, model->num_elem_sets, elsetdim);
 
-  EX_WRITE_OBJECT_PARAMS( "node set",  DIM_NUM_NS,  VAR_NS_STAT,  VAR_NS_IDS, model->num_node_sets,  nsetdim );
-  EX_WRITE_OBJECT_PARAMS( "edge set",  DIM_NUM_ES,  VAR_ES_STAT,  VAR_ES_IDS, model->num_edge_sets,  esetdim );
-  EX_WRITE_OBJECT_PARAMS( "face set",  DIM_NUM_FS,  VAR_FS_STAT,  VAR_FS_IDS, model->num_face_sets,  fsetdim );
-  EX_WRITE_OBJECT_PARAMS( "side set",  DIM_NUM_SS,  VAR_SS_STAT,  VAR_SS_IDS, model->num_side_sets,  ssetdim );
-  EX_WRITE_OBJECT_PARAMS( "elem set", DIM_NUM_ELS, VAR_ELS_STAT, VAR_ELS_IDS, model->num_elem_sets, elsetdim );
-
-#define EX_WRITE_MAP_PARAMS(TNAME,DNUMMAP,VMAPIDS,NUMMAPS,MAPDIM) \
-  /* Can have nonzero model->num_XXXX_map even if model->num_XXXX == 0 */ \
-  if ((NUMMAPS) > 0) { \
-    if ((MAPDIM = ncdimdef (exoid, DNUMMAP, (long)(NUMMAPS))) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to define number of " TNAME "s in file id %d", \
-                exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        goto error_ret;         /* exit define mode and return */ \
-      } \
-    \
-    /* ...and some variables */ \
-    \
-    dim[0] = MAPDIM; \
-    \
-    /* TNAME id array */ \
-    \
-    if ((varid = ncvardef (exoid, VMAPIDS, NC_LONG, 1, dim)) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to define " TNAME " id array in file id %d",exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        goto error_ret;         /* exit define mode and return */ \
-      } \
-    \
-    /*   store property name as attribute of property array variable */ \
-    if ((ncattput (exoid, varid, ATT_PROP_NAME, NC_CHAR, 3, "ID")) == -1) \
-      { \
-        exerrval = ncerr; \
-        sprintf(errmsg, \
-                "Error: failed to store " TNAME " property name %s in file id %d", \
-                "ID",exoid); \
-        ex_err("ex_put_init_ext",errmsg,exerrval); \
-        return (EX_FATAL); \
-      } \
-  }
-
-  EX_WRITE_MAP_PARAMS(    "node map",  DIM_NUM_NM,  VAR_NM_PROP(1), model->num_node_maps, nmapdim );
-  EX_WRITE_MAP_PARAMS(    "edge map", DIM_NUM_EDM, VAR_EDM_PROP(1), model->num_edge_maps, edmapdim );
-  EX_WRITE_MAP_PARAMS(    "face map", DIM_NUM_FAM, VAR_FAM_PROP(1), model->num_face_maps, famapdim );
-  EX_WRITE_MAP_PARAMS( "element map",  DIM_NUM_EM,  VAR_EM_PROP(1), model->num_elem_maps, emapdim );
+  EX_WRITE_MAP_PARAMS(   "node map", DIM_NUM_NM,  VAR_NM_PROP(1), model->num_node_maps, nmapdim);
+  EX_WRITE_MAP_PARAMS(   "edge map", DIM_NUM_EDM, VAR_EDM_PROP(1), model->num_edge_maps, edmapdim);
+  EX_WRITE_MAP_PARAMS(   "face map", DIM_NUM_FAM, VAR_FAM_PROP(1), model->num_face_maps, famapdim);
+  EX_WRITE_MAP_PARAMS("element map", DIM_NUM_EM,  VAR_EM_PROP(1), model->num_elem_maps, emapdim);
 
   /*
    * To reduce the maximum dataset sizes, the storage of the nodal
@@ -330,26 +344,11 @@ int ex_put_init_ext (int   exoid,
     if (ex_large_model(exoid) == 1) {
       /* node coordinate arrays -- separate storage... */
 
-      /*
-       * Check that storage required for coordinates  is less
-       * than 2GB which is maximum size permitted by netcdf
-       * (in large file mode). 1<<29 == max number of integer items.
-       */
-      int shift = nc_flt_code(exoid) == NC_DOUBLE ? 28 : 29; 
-      if (model->num_nodes  > (1<<shift)) {
-        exerrval = EX_BADPARAM;
-        sprintf(errmsg,
-                "Error: Size to store nodal coordinates exceeds 2GB in file id %d",
-                exoid);
-        ex_err("ex_put_init_ext",errmsg,exerrval);
-        return (EX_FATAL);
-      }
-    
       dim[0] = numnoddim;
       if (model->num_dim > 0) {
-        if (ncvardef (exoid, VAR_COORD_X, nc_flt_code(exoid), 1, dim) == -1)
+        if ((status = nc_def_var (exoid, VAR_COORD_X, nc_flt_code(exoid), 1, dim, &temp)) != NC_NOERR)
           {
-            exerrval = ncerr;
+            exerrval = status;
             sprintf(errmsg,
                     "Error: failed to define node x coordinate array in file id %d",exoid);
             ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -358,9 +357,9 @@ int ex_put_init_ext (int   exoid,
       }
     
       if (model->num_dim > 1) {
-        if (ncvardef (exoid, VAR_COORD_Y, nc_flt_code(exoid), 1, dim) == -1)
+        if ((status = nc_def_var(exoid, VAR_COORD_Y, nc_flt_code(exoid), 1, dim, &temp)) != NC_NOERR)
           {
-            exerrval = ncerr;
+            exerrval = status;
             sprintf(errmsg,
                     "Error: failed to define node y coordinate array in file id %d",exoid);
             ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -369,9 +368,9 @@ int ex_put_init_ext (int   exoid,
       }
 
       if (model->num_dim > 2) {
-        if (ncvardef (exoid, VAR_COORD_Z, nc_flt_code(exoid), 1, dim) == -1)
+        if ((status = nc_def_var(exoid, VAR_COORD_Z, nc_flt_code(exoid), 1, dim, &temp)) != NC_NOERR)
           {
-            exerrval = ncerr;
+            exerrval = status;
             sprintf(errmsg,
                     "Error: failed to define node z coordinate array in file id %d",exoid);
             ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -383,9 +382,9 @@ int ex_put_init_ext (int   exoid,
 
       dim[0] = numdimdim;
       dim[1] = numnoddim;
-      if (ncvardef (exoid, VAR_COORD, nc_flt_code(exoid), 2, dim) == -1)
+      if ((status = nc_def_var(exoid, VAR_COORD, nc_flt_code(exoid), 2, dim, &temp)) != NC_NOERR)
         {
-          exerrval = ncerr;
+          exerrval = status;
           sprintf(errmsg,
                   "Error: failed to define node coordinate array in file id %d",exoid);
           ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -395,9 +394,8 @@ int ex_put_init_ext (int   exoid,
   }
   
   /* inquire previously defined dimensions  */
-  if ((strdim = ncdimid (exoid, DIM_STR)) < 0)
-    {
-      exerrval = ncerr;
+  if ((status = nc_inq_dimid (exoid, DIM_STR, &strdim)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to get string length in file id %d",exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -409,31 +407,14 @@ int ex_put_init_ext (int   exoid,
   dim[0] = numdimdim;
   dim[1] = strdim;
 
-  if (ncvardef (exoid, VAR_NAME_COOR, NC_CHAR, 2, dim) == -1)
-    {
-      exerrval = ncerr;
+  if ((status=nc_def_var(exoid, VAR_NAME_COOR, NC_CHAR, 2, dim, &temp)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to define coordinate name array in file id %d",exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
   
-
-#define EX_WRITE_OBJECT_NAMES(TNAME,DNAME,DIMVAR,DIMVAL) \
-  /* Element block names... */ \
-  if ((DIMVAL) > 0) { \
-    dim[0] = (DIMVAR); \
-    dim[1] = strdim; \
-     \
-    if (ncvardef (exoid, DNAME, NC_CHAR, 2, dim) == -1) { \
-      exerrval = ncerr; \
-      sprintf(errmsg, \
-        "Error: failed to define %s name array in file id %d",TNAME,exoid); \
-      ex_err("ex_put_init_ext",errmsg,exerrval); \
-      goto error_ret;         /* exit define mode and return */ \
-    } \
-  }
-
   EX_WRITE_OBJECT_NAMES("element block",VAR_NAME_EL_BLK,elblkdim,model->num_elem_blk);
   EX_WRITE_OBJECT_NAMES("edge block",   VAR_NAME_ED_BLK,edblkdim,model->num_edge_blk);
   EX_WRITE_OBJECT_NAMES("face block",   VAR_NAME_FA_BLK,fablkdim,model->num_face_blk);
@@ -449,9 +430,9 @@ int ex_put_init_ext (int   exoid,
   
   /* leave define mode */
 #if 1
-  if (ncendef (exoid) == -1)
+  if ((status = nc_enddef (exoid)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to complete variable definitions in file id %d",exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -485,19 +466,17 @@ int ex_put_init_ext (int   exoid,
     model->num_side_sets * model->num_elem/100 * iows +
     model->num_side_sets * sizeof(int);
 
-
-
   /* With netcdf-3.4, this produces very large files on the
    * SGI.  Also with netcdf-3.5beta3
    */
   /*
    * This is also causing other problems on other systems .. disable for now
    */
-  if (nc__enddef (exoid, 
+  if ((status = nc__enddef (exoid, 
                   header_size, NC_ALIGN_CHUNK, 
-                  fixed_var_size, NC_ALIGN_CHUNK) == -1)
+			    fixed_var_size, NC_ALIGN_CHUNK)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to complete variable definitions in file id %d",exoid);
       ex_err("ex_put_init_ext",errmsg,exerrval);
@@ -505,11 +484,47 @@ int ex_put_init_ext (int   exoid,
     }
 
 #endif
-  return (EX_NOERR);
+  /* Fill the id and status arrays with zeros */
+  {
+    int *zeros = NULL;
+    int maxset = model->num_elem_blk;
+    if (maxset < model->num_elem_blk)  maxset = model->num_elem_blk;
+    if (maxset < model->num_edge_blk)  maxset = model->num_edge_blk;
+    if (maxset < model->num_face_blk)  maxset = model->num_face_blk;
+    if (maxset < model->num_node_sets) maxset = model->num_node_sets;
+    if (maxset < model->num_edge_sets) maxset = model->num_edge_sets;
+    if (maxset < model->num_face_sets) maxset = model->num_face_sets;
+    if (maxset < model->num_side_sets) maxset = model->num_side_sets;
+    if (maxset < model->num_elem_sets) maxset = model->num_elem_sets;
 
+    /* allocate space for id/status array */
+    if (!(zeros = malloc(maxset*sizeof(int)))) {
+      exerrval = EX_MEMFAIL;
+      sprintf(errmsg,
+             "Error: failed to allocate memory for id/status array for file id %d", exoid);
+      ex_err("ex_put_init_ext",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+    
+    zero_id_status(exoid, VAR_STAT_EL_BLK, VAR_ID_EL_BLK, model->num_elem_blk, zeros);
+    zero_id_status(exoid, VAR_STAT_ED_BLK, VAR_ID_ED_BLK, model->num_edge_blk, zeros);
+    zero_id_status(exoid, VAR_STAT_FA_BLK, VAR_ID_FA_BLK, model->num_face_blk, zeros);
+    
+    zero_id_status(exoid, VAR_NS_STAT,  VAR_NS_IDS,  model->num_node_sets, zeros);
+    zero_id_status(exoid, VAR_ES_STAT,  VAR_ES_IDS,  model->num_edge_sets, zeros);
+    zero_id_status(exoid, VAR_FS_STAT,  VAR_FS_IDS,  model->num_face_sets, zeros);
+    zero_id_status(exoid, VAR_SS_STAT,  VAR_SS_IDS,  model->num_side_sets, zeros);
+    zero_id_status(exoid, VAR_ELS_STAT, VAR_ELS_IDS, model->num_elem_sets, zeros);
+    if (zeros != NULL) {
+      free(zeros);
+      zeros = NULL;
+    }
+  }  
+  return (EX_NOERR);
+  
   /* Fatal error: exit definition mode and return */
  error_ret:
-  if (ncendef (exoid) == -1)     /* exit define mode */
+  if (nc_enddef (exoid) != NC_NOERR)     /* exit define mode */
     {
       sprintf(errmsg,
               "Error: failed to complete definition for file id %d",
@@ -518,3 +533,4 @@ int ex_put_init_ext (int   exoid,
     }
   return (EX_FATAL);
 }
+

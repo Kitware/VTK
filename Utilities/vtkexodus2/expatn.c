@@ -58,57 +58,38 @@
 
 /*!
  * writes the attribute names for a block
+ * \param   exoid                   exodus file id
+ * \param   blk_type                block type (edge, face, elem)
+ * \param   blk_id                  block id
+ * \param   names                   ptr to array of attribute names
  */
 int ex_put_attr_names(int   exoid,
-         int   blk_type,
-         int   blk_id,
-         char* names[])
+		      ex_entity_type blk_type,
+		      int   blk_id,
+		      char* names[])
 {
-   int varid = -1, numattrdim = -1, blk_id_ndx;
-   long num_attr, start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-   int i;
-   const char* tname;
+  int status;
+  int varid, numattrdim, blk_id_ndx;
+  size_t num_attr, start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
+  size_t i;
    
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-   switch (blk_type) {
-   case EX_EDGE_BLOCK:
-     tname = "edge";
-     blk_id_ndx = ex_id_lkup(exoid,VAR_ID_ED_BLK,blk_id);
-     break;
-   case EX_FACE_BLOCK:
-     tname = "face";
-     blk_id_ndx = ex_id_lkup(exoid,VAR_ID_FA_BLK,blk_id);
-     break;
-   case EX_ELEM_BLOCK:
-     tname = "element";
-     blk_id_ndx = ex_id_lkup(exoid,VAR_ID_EL_BLK,blk_id);
-     break;
-   default:
-     sprintf(errmsg, "Error: Bad block type (%d) specified for file id %d",
-       blk_type,exoid);
-     ex_err("ex_put_attr_names",errmsg,EX_FATAL);
-     return (EX_FATAL);
-     break;
-   }
+  blk_id_ndx = ex_id_lkup(exoid, blk_type, blk_id);
 
-  /* Determine index of blk_id in VAR_ID_EL_BLK array */
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
+  /* Determine index of blk_id in blk_id_ndx array */
+  if (exerrval != 0) {
+    if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
-              "Warning: no attributes allowed for NULL %s block %d in file id %d",
-              tname,blk_id,exoid);
+	      "Warning: no attributes allowed for NULL %s %d in file id %d",
+	      ex_name_of_object(blk_type),blk_id,exoid);
       ex_err("ex_put_attr_names",errmsg,EX_MSG);
       return (EX_WARN);              /* no attributes for this block */
-    }
-    else
-    {
+    } else {
       sprintf(errmsg,
-             "Error: no %s block id %d in %s array in file id %d",
-              tname, blk_id, VAR_ID_EL_BLK, exoid);
+	      "Error: no %s id %d in %s array in file id %d",
+	      ex_name_of_object(blk_type), blk_id, VAR_ID_EL_BLK, exoid);
       ex_err("ex_put_attr_names",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -116,55 +97,100 @@ int ex_put_attr_names(int   exoid,
 
   /* inquire id's of previously defined dimensions  */
   switch (blk_type) {
+  case EX_SIDE_SET:
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_SS(blk_id_ndx), &numattrdim);
+    break;
+  case EX_NODE_SET:
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_NS(blk_id_ndx), &numattrdim);
+    break;
+  case EX_EDGE_SET:
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_ES(blk_id_ndx), &numattrdim);
+    break;
+  case EX_FACE_SET:
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_FS(blk_id_ndx), &numattrdim);
+    break;
+  case EX_ELEM_SET:
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_ELS(blk_id_ndx), &numattrdim);
+    break;
+  case EX_NODAL:
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_NBLK, &numattrdim);
+    break;
   case EX_EDGE_BLOCK:
-    numattrdim = ncdimid(exoid, DIM_NUM_ATT_IN_EBLK(blk_id_ndx));
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_EBLK(blk_id_ndx), &numattrdim);
     break;
   case EX_FACE_BLOCK:
-    numattrdim = ncdimid(exoid, DIM_NUM_ATT_IN_FBLK(blk_id_ndx));
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_FBLK(blk_id_ndx), &numattrdim);
     break;
   case EX_ELEM_BLOCK:
-    numattrdim = ncdimid(exoid, DIM_NUM_ATT_IN_BLK(blk_id_ndx));
+    status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_BLK(blk_id_ndx), &numattrdim);
+    break;
+  default:
+    sprintf(errmsg,
+      "Error: called with invalid blk_type %d", blk_type);
+    ex_err("ex_put_attr_names",errmsg,exerrval);
+    return (EX_FATAL);
     break;
   }
-  if (numattrdim == -1)
-  {
-    exerrval = ncerr;
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-           "Error: number of attributes not defined for %s block %d in file id %d",
-            tname,blk_id,exoid);
+	    "Error: number of attributes not defined for %s %d in file id %d",
+	    ex_name_of_object(blk_type),blk_id,exoid);
     ex_err("ex_put_attr_names",errmsg,EX_MSG);
     return (EX_FATAL);              /* number of attributes not defined */
   }
 
-  if (ncdiminq (exoid, numattrdim, (char *) 0, &num_attr) == -1)
-  {
-    exerrval = ncerr;
+  if ((status = nc_inq_dimlen(exoid, numattrdim, &num_attr)) != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-         "Error: failed to get number of attributes for block %d in file id %d",
-            blk_id,exoid);
+	    "Error: failed to get number of attributes for %s %d in file id %d",
+	    ex_name_of_object(blk_type),blk_id,exoid);
     ex_err("ex_put_attr_names",errmsg,exerrval);
     return (EX_FATAL);
   }
 
   switch (blk_type) {
+  case EX_SIDE_SET:
+    status = nc_inq_varid (exoid, VAR_NAME_SSATTRIB(blk_id_ndx), &varid);
+    break;
+  case EX_NODE_SET:
+    status = nc_inq_varid (exoid, VAR_NAME_NSATTRIB(blk_id_ndx), &varid);
+    break;
+  case EX_EDGE_SET:
+    status = nc_inq_varid (exoid, VAR_NAME_ESATTRIB(blk_id_ndx), &varid);
+    break;
+  case EX_FACE_SET:
+    status = nc_inq_varid (exoid, VAR_NAME_FSATTRIB(blk_id_ndx), &varid);
+    break;
+  case EX_ELEM_SET:
+    status = nc_inq_varid (exoid, VAR_NAME_ELSATTRIB(blk_id_ndx), &varid);
+    break;
+  case EX_NODAL:
+    status = nc_inq_varid (exoid, VAR_NAME_NATTRIB, &varid);
+    break;
   case EX_EDGE_BLOCK:
-    varid = ncvarid (exoid, VAR_NAME_EATTRIB(blk_id_ndx));
+    status = nc_inq_varid (exoid, VAR_NAME_EATTRIB(blk_id_ndx), &varid);
     break;
   case EX_FACE_BLOCK:
-    varid = ncvarid (exoid, VAR_NAME_FATTRIB(blk_id_ndx));
+    status = nc_inq_varid (exoid, VAR_NAME_FATTRIB(blk_id_ndx), &varid);
     break;
   case EX_ELEM_BLOCK:
-    varid = ncvarid (exoid, VAR_NAME_ATTRIB(blk_id_ndx));
+    status = nc_inq_varid (exoid, VAR_NAME_ATTRIB(blk_id_ndx), &varid);
+    break;
+  default:
+    /* handled above */
     break;
   }
-  if (varid == -1) {
-    exerrval = ncerr;
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-      "Error: failed to locate %s attribute names for block %d in file id %d",
-      tname,blk_id, exoid);
+	    "Error: failed to locate %s attribute names for %s %d in file id %d",
+	    ex_name_of_object(blk_type),ex_name_of_object(blk_type),blk_id, exoid);
     ex_err("ex_put_attr_names",errmsg,exerrval);
     return (EX_FATAL);
-     }
+  }
 
   /* write out the attributes  */
   for (i = 0; i < num_attr; i++) {
@@ -172,13 +198,13 @@ int ex_put_attr_names(int   exoid,
     start[1] = 0;
 
     count[0] = 1;
-    count[1] = (long)strlen(names[i])+1;
+    count[1] = strlen(names[i])+1;
 
-    if (ncvarput (exoid, varid, start, count, (void*) names[i]) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_put_vara_text(exoid, varid, start, count, (void*) names[i])) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
-        "Error: failed to put attribute namess for block %d in file id %d",
-        blk_id,exoid);
+	      "Error: failed to put attribute namess for %s %d in file id %d",
+	      ex_name_of_object(blk_type),blk_id,exoid);
       ex_err("ex_put_attr_names",errmsg,exerrval);
       return (EX_FATAL);
     }

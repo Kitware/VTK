@@ -36,14 +36,6 @@
 *
 * exgns - ex_get_node_set
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -62,8 +54,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the node list for a single node set
+ * \deprecated Use ex_get_set()(exoid, EX_NODE_SET, node_set_id, node_set_node_list, NULL)
  */
 
 int ex_get_node_set (int   exoid,
@@ -71,5 +64,5 @@ int ex_get_node_set (int   exoid,
                      int  *node_set_node_list)
 {
   return ex_get_set(exoid, EX_NODE_SET, node_set_id, node_set_node_list,
-        NULL);
+		    NULL);
 }

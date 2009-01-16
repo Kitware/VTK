@@ -36,13 +36,6 @@
 *
 * exgpn - ex_get_prop_names
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -67,69 +60,84 @@
  */
 
 int ex_get_prop_names (int    exoid,
-                       int    obj_type,
+                       ex_entity_type obj_type,
                        char **prop_names)
 {
-   int i, num_props, propid;
-   char var_name[12];
+  int status;
+  int i, num_props, propid;
+  char var_name[12];
 
-   char errmsg[MAX_ERR_LENGTH];
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0;
+  exerrval = 0;
 
-/* determine which type of object property names are desired for */
+  /* determine which type of object property names are desired for */
 
-   num_props = ex_get_num_props (exoid, obj_type);
+  num_props = ex_get_num_props (exoid, obj_type);
 
-   for (i=0; i<num_props; i++)
-   {
-     switch (obj_type)
-     {
-       case EX_ELEM_BLOCK:
-         strcpy (var_name, VAR_EB_PROP(i+1));
-         break;
-       case EX_NODE_SET:
-         strcpy (var_name, VAR_NS_PROP(i+1));
-         break;
-       case EX_SIDE_SET:
-         strcpy (var_name, VAR_SS_PROP(i+1));
-         break;
-       case EX_ELEM_MAP:
-         strcpy (var_name, VAR_EM_PROP(i+1));
-         break;
-       case EX_NODE_MAP:
-         strcpy (var_name, VAR_NM_PROP(i+1));
-         break;
-       default:
-         exerrval = EX_BADPARAM;
-         sprintf(errmsg, "Error: object type %d not supported; file id %d",
-           obj_type, exoid);
-         ex_err("ex_get_prop_names",errmsg,EX_BADPARAM);
-         return(EX_FATAL);
-     }
+  for (i=0; i<num_props; i++) {
+    switch (obj_type) {
+    case EX_ELEM_BLOCK:
+      strcpy (var_name, VAR_EB_PROP(i+1));
+      break;
+    case EX_FACE_BLOCK:
+      strcpy (var_name, VAR_FA_PROP(i+1));
+      break;
+    case EX_EDGE_BLOCK:
+      strcpy (var_name, VAR_ED_PROP(i+1));
+      break;
+    case EX_NODE_SET:
+      strcpy (var_name, VAR_NS_PROP(i+1));
+      break;
+    case EX_SIDE_SET:
+      strcpy (var_name, VAR_SS_PROP(i+1));
+      break;
+    case EX_EDGE_SET:
+      strcpy (var_name, VAR_ES_PROP(i+1));
+      break;
+    case EX_FACE_SET:
+      strcpy (var_name, VAR_FS_PROP(i+1));
+      break;
+    case EX_ELEM_SET:
+      strcpy (var_name, VAR_ELS_PROP(i+1));
+      break;
+    case EX_ELEM_MAP:
+      strcpy (var_name, VAR_EM_PROP(i+1));
+      break;
+    case EX_FACE_MAP:
+      strcpy (var_name, VAR_FAM_PROP(i+1));
+      break;
+    case EX_EDGE_MAP:
+      strcpy (var_name, VAR_EDM_PROP(i+1));
+      break;
+    case EX_NODE_MAP:
+      strcpy (var_name, VAR_NM_PROP(i+1));
+      break;
+    default:
+      exerrval = EX_BADPARAM;
+      sprintf(errmsg, "Error: object type %d not supported; file id %d",
+	      obj_type, exoid);
+      ex_err("ex_get_prop_names",errmsg,EX_BADPARAM);
+      return(EX_FATAL);
+    }
 
-     if ((propid = ncvarid (exoid, var_name)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-          "Error: failed to locate property array %s in file id %d",
-               var_name, exoid);
-       ex_err("ex_get_prop_names",errmsg,exerrval);
-       return (EX_FATAL);
-     }
+    if ((status = nc_inq_varid(exoid, var_name, &propid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to locate property array %s in file id %d",
+	      var_name, exoid);
+      ex_err("ex_get_prop_names",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
-/*   for each property, read the "name" attribute of property array variable */
-
-     if ((ncattget (exoid, propid, ATT_PROP_NAME, prop_names[i])) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get property name in file id %d", exoid);
-       ex_err("ex_get_prop_names",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
-
-   return (EX_NOERR);
-
+    /*   for each property, read the "name" attribute of property array variable */
+    if ((status = nc_get_att_text(exoid, propid, ATT_PROP_NAME, prop_names[i])) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to get property name in file id %d", exoid);
+      ex_err("ex_get_prop_names",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  }
+  return (EX_NOERR);
 }

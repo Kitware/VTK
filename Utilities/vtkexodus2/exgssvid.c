@@ -55,10 +55,11 @@
 
 /*!
  * reads the EXODUS II variable varids from the database
+ * \deprecated Use ex_get_varid()(exoid, EX_SIDE_SET, varid)
  */
 
 int ex_get_sset_varid (int  exoid,
                        int *varid)
 {
-  return ex_get_varid(exoid, "s", varid);
+  return ex_get_varid(exoid, EX_SIDE_SET, varid);
 }

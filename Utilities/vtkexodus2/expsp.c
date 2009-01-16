@@ -36,14 +36,6 @@
 *
 * expsp - ex_put_side_set_param
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -66,6 +58,11 @@
 /*!
  * writes the side set id and the number of sides (edges or faces) 
  * which describe a single side set
+ * \param  exoid                   exodus file id
+ * \param  side_set_id             side set id
+ * \param  num_side_in_set         number of sides in the side set
+ * \param  num_dist_fact_in_set    number of distribution factors in the side set
+ * \deprecated Use ex_put_set_param()(exoid, EX_SIDE_SET, side_set_id, num_side_in_set, num_dist_fact_in_set)
  */
 
 int ex_put_side_set_param (int exoid,
@@ -74,5 +71,5 @@ int ex_put_side_set_param (int exoid,
                            int num_dist_fact_in_set)
 {
   return ex_put_set_param(exoid, EX_SIDE_SET, side_set_id,
-        num_side_in_set, num_dist_fact_in_set);
+			  num_side_in_set, num_dist_fact_in_set);
 }

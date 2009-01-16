@@ -36,14 +36,6 @@
 *
 * exgss - ex_get_side_set
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -65,6 +57,7 @@
 
 /*!
  * reads the side set element list and side set side list for a single side set
+ * \deprecated Use ex_get_set()(exoid, EX_SIDE_SET, side_set_id, side_set_elem_list, side_set_side_list)
  */
 
 int ex_get_side_set (int   exoid,
@@ -73,5 +66,5 @@ int ex_get_side_set (int   exoid,
                      int  *side_set_side_list)
 {
   return ex_get_set(exoid, EX_SIDE_SET, side_set_id,
-        side_set_elem_list, side_set_side_list);
+		    side_set_elem_list, side_set_side_list);
 }

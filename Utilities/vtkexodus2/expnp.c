@@ -36,14 +36,6 @@
 *
 * expnp - ex_put_node_set_param
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,6 +56,11 @@
 
 /*!
  * writes the information which describes a single node set
+ * \param    exoid                   exodus file id
+ * \param    node_set_id             node set id
+ * \param    num_nodes_in_set        number of nodes in set
+ * \param    num_dist_in_set         number of distribution factors in set
+ * \deprecated Use ex_put_set_param()(exoid, EX_NODE_SET, node_set_id, num_nodes_in_set, num_dist_in_set)
  */
 
 int ex_put_node_set_param (int exoid,
@@ -71,6 +68,5 @@ int ex_put_node_set_param (int exoid,
                            int num_nodes_in_set,
                            int num_dist_in_set)
 {
-  return ex_put_set_param(exoid, EX_NODE_SET, node_set_id, num_nodes_in_set,
-        num_dist_in_set);
+  return ex_put_set_param(exoid, EX_NODE_SET, node_set_id, num_nodes_in_set, num_dist_in_set);
 }

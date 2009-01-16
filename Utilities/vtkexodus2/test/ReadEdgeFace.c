@@ -1,9 +1,6 @@
 #include "exodusII.h"
 #include <stdio.h>
-#include <stdlib.h> /* for free() */
-#ifdef EXODUSII_HAVE_MALLOC_H
-#  include <malloc.h>
-#endif /* EXODUSII_HAVE_MALLOC_H */
+#include <stdlib.h> /* for malloc(), free() */
 
 #define EX_TEST_FILENAME "edgeFace.exo"
 

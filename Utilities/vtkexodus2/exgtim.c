@@ -36,14 +36,6 @@
 *
 * exgtim - ex_get_time
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -71,44 +63,37 @@ int ex_get_time (int   exoid,
                  int   time_step,
                  void *time_value)
 {
+   int status;
    int varid;
-   long start[1];
-   char var_name[MAX_VAR_NAME_LENGTH+1];
+   size_t start[1];
    char errmsg[MAX_ERR_LENGTH];
 
    exerrval = 0;        /* clear error code */
 
-/* inquire previously defined dimensions  */
-
-   strcpy (var_name, VAR_WHOLE_TIME);
-
-/* inquire previously defined variable */
-
-   if ((varid = ncvarid (exoid, var_name)) < 0)
-   {
-     exerrval = ncerr;
+   /* inquire previously defined variable */
+   if ((status = nc_inq_varid(exoid, VAR_WHOLE_TIME, &varid)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to locate time variable in file id %d", exoid);
      ex_err("ex_get_time",errmsg,exerrval);
      return (EX_FATAL);
    }
 
-/* read time value */
-
+   /* read time value */
    start[0] = --time_step;
 
-   if (ncvarget1 (exoid, varid, start,
-              ex_conv_array(exoid,RTN_ADDRESS,time_value,1)) == -1)
-   {
-     exerrval = ncerr;
+   if (ex_comp_ws(exoid) == 4) {
+     status = nc_get_var1_float(exoid, varid, start, time_value);
+   } else {
+     status = nc_get_var1_double(exoid, varid, start, time_value);
+   }
+
+   if (status != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to get time value in file id %d", exoid);
      ex_err("ex_get_time",errmsg,exerrval);
      return (EX_FATAL);
    }
-
-
-   ex_conv_array( exoid, READ_CONVERT, time_value, 1 );
-
    return (EX_NOERR);
 }

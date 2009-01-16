@@ -36,12 +36,6 @@
 *
 * exgssc - ex_get_side_set_node_count
 *
-* author - Sandia National Laboratories
-*          Greg Sjaardema;  modified from exgssn.c
-*
-*
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -85,18 +79,7 @@ int ex_get_side_set_node_count(int exoid,
   float fdum;
   char *cdum, elem_type[MAX_STR_LENGTH+1];
 
-  struct elem_blk_parm
-  {
-    char elem_type[MAX_STR_LENGTH+1];
-    int elem_blk_id;
-    int num_elem_in_blk;
-    int num_nodes_per_elem;
-    int num_sides;
-    int num_nodes_per_side[6];
-    int num_attr;
-    int elem_ctr;
-    int elem_type_val;
-  } *elem_blk_parms;
+  struct elem_blk_parm  *elem_blk_parms;
 
   char errmsg[MAX_ERR_LENGTH];
 
@@ -123,7 +106,7 @@ int ex_get_side_set_node_count(int exoid,
   }
 
   /* Lookup index of side set id in VAR_SS_IDS array */
-  ex_id_lkup(exoid,VAR_SS_IDS,side_set_id);
+  ex_id_lkup(exoid,EX_SIDE_SET,side_set_id);
   if (exerrval != 0) 
   {
      if (exerrval == EX_NULLENTITY)
@@ -301,7 +284,7 @@ int ex_get_side_set_node_count(int exoid,
     elem_blk_parms[i].num_attr = num_attr;
 
     for (m=0; m < (int)strlen(elem_type); m++) {
-      elem_blk_parms[i].elem_type[m] = (char) toupper((int)elem_type[m]);
+      elem_blk_parms[i].elem_type[m] = toupper(elem_type[m]);
     }
     elem_blk_parms[i].elem_type[m] = '\0';
 
@@ -547,7 +530,7 @@ int ex_get_side_set_node_count(int exoid,
     }
     /* Used for an empty block in a parallel decomposition */
     else if (strncmp(elem_blk_parms[i].elem_type,"NULL",3) == 0) {
-      elem_blk_parms[i].elem_type_val = '\0';
+      elem_blk_parms[i].elem_type_val = NULL_ELEMENT;
       elem_blk_parms[i].num_sides = 0;  
       elem_blk_parms[i].num_nodes_per_side[0] = 0;
       elem_blk_parms[i].num_elem_in_blk = 0;

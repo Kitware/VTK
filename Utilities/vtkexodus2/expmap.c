@@ -36,14 +36,6 @@
 *
 * expmap - ex_put_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -62,127 +54,103 @@
 #include <stdlib.h> /* for free() */
 
 /*!
- * writes out the element order map to the database
+ * writes out the element order map to the database.
+ * \param  exoid                   exodus file id
+ * \param  elem_map                element order map array
+ * \deprecated Use ex_put_num_map() instead.
  */
 
 int ex_put_map (int  exoid,
                 const int *elem_map)
 {
-   int numelemdim, dims[1], mapid, iresult;
-   long num_elem, start[1], count[1]; 
-   nclong *lptr;
-   char errmsg[MAX_ERR_LENGTH];
+  int numelemdim, dims[1], mapid, status;
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* inquire id's of previously defined dimensions  */
+  /* inquire id's of previously defined dimensions  */
 
   /* determine number of elements. Return if zero... */
-   if ((numelemdim = ncdimid (exoid, DIM_NUM_ELEM)) == -1)
-   {
-     return (EX_NOERR);
-   }
+  if (nc_inq_dimid(exoid, DIM_NUM_ELEM, &numelemdim) != NC_NOERR)
+    {
+      return (EX_NOERR);
+    }
 
-   if (ncdiminq (exoid, numelemdim, (char *) 0, &num_elem) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get number of elements in file id %d",
-             exoid);
-     ex_err("ex_put_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  /* put netcdf file into define mode  */
 
-
-/* put netcdf file into define mode  */
-
-   if (ncredef (exoid) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to put file id %d into define mode",
-             exoid);
-     ex_err("ex_put_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  if ((status = nc_redef (exoid)) != NC_NOERR)
+    {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to put file id %d into define mode",
+	      exoid);
+      ex_err("ex_put_map",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
 
-/* create a variable array in which to store the element map  */
+  /* create a variable array in which to store the element map  */
 
-   dims[0] = numelemdim;
+  dims[0] = numelemdim;
 
-   if ((mapid = ncvardef (exoid, VAR_MAP, NC_LONG, 1, dims)) == -1)
-   {
-   if (ncerr == NC_ENAMEINUSE)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: element map already exists in file id %d",
-               exoid);
-       ex_err("ex_put_map",errmsg,exerrval);
-     }
-     else
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to create element map array in file id %d",
-               exoid);
-       ex_err("ex_put_map",errmsg,exerrval);
-     }
-     goto error_ret;         /* exit define mode and return */
-   }
-
-
-/* leave define mode  */
-
-   if (ncendef (exoid) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to complete definition in file id %d",
-             exoid);
-     ex_err("ex_put_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  if ((status = nc_def_var(exoid, VAR_MAP, NC_INT, 1, dims, &mapid)) != NC_NOERR)
+    {
+      if (status == NC_ENAMEINUSE)
+	{
+	  exerrval = status;
+	  sprintf(errmsg,
+		  "Error: element map already exists in file id %d",
+		  exoid);
+	  ex_err("ex_put_map",errmsg,exerrval);
+	}
+      else
+	{
+	  exerrval = status;
+	  sprintf(errmsg,
+		  "Error: failed to create element map array in file id %d",
+		  exoid);
+	  ex_err("ex_put_map",errmsg,exerrval);
+	}
+      goto error_ret;         /* exit define mode and return */
+    }
 
 
-/* write out the element order map  */
+  /* leave define mode  */
+  if ((status = nc_enddef (exoid)) != NC_NOERR)
+    {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to complete definition in file id %d",
+	      exoid);
+      ex_err("ex_put_map",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
-/* this contortion is necessary because netCDF is expecting nclongs; fortunately
-   it's necessary only when ints and nclongs aren't the same size */
 
-   start[0] = 0;
-   count[0] = num_elem;
+  /* write out the element order map  */
+  status = nc_put_var_int(exoid, mapid, elem_map);
 
-   if (sizeof(int) == sizeof(nclong)) {
-      iresult = ncvarput (exoid, mapid, start, count, elem_map);
-   } else {
-      lptr = itol (elem_map, (int)num_elem);
-      iresult = ncvarput (exoid, mapid, start, count, lptr);
-      free(lptr);
-   }
+  if (status != NC_NOERR)
+    {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to store element map in file id %d",
+	      exoid);
+      ex_err("ex_put_map",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to store element map in file id %d",
-             exoid);
-     ex_err("ex_put_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  return (EX_NOERR);
 
-   return (EX_NOERR);
-
-/* Fatal error: exit definition mode and return */
-error_ret:
-       if (ncendef (exoid) == -1)     /* exit define mode */
-       {
-         sprintf(errmsg,
-                "Error: failed to complete definition for file id %d",
-                 exoid);
-         ex_err("ex_put_map",errmsg,exerrval);
-       }
-       return (EX_FATAL);
+  /* Fatal error: exit definition mode and return */
+ error_ret:
+  if (nc_enddef (exoid) != NC_NOERR)     /* exit define mode */
+    {
+      sprintf(errmsg,
+	      "Error: failed to complete definition for file id %d",
+	      exoid);
+      ex_err("ex_put_map",errmsg,exerrval);
+    }
+  return (EX_FATAL);
 }
 

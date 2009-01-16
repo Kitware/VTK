@@ -36,8 +36,6 @@
 *
 * exgnam - ex_get_names
 *
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid          exodus file id
@@ -60,125 +58,128 @@
  */
 
 int ex_get_names (int exoid,
-                  int obj_type,
+                  ex_entity_type obj_type,
                   char **names)
 {
-   int i, j, varid;
-   long num_entity, start[2];
-   char *ptr;
-   char errmsg[MAX_ERR_LENGTH];
-   const char *routine = "ex_get_names";
+  int status;
+  size_t i;
+  int j, varid, temp;
+  size_t num_entity;
+  size_t start[2];
+  char *ptr;
+  char errmsg[MAX_ERR_LENGTH];
+  const char *routine = "ex_get_names";
    
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* inquire previously defined dimensions and variables  */
+  /* inquire previously defined dimensions and variables  */
 
-   switch (obj_type) {
-     /*  ======== BLOCKS ========= */
-   case EX_EDGE_BLOCK:
-     ex_get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_ED_BLK);
-     break;
-   case EX_FACE_BLOCK:
-     ex_get_dimension(exoid, DIM_NUM_FA_BLK, "face block", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_FA_BLK);
-     break;
-   case EX_ELEM_BLOCK:
-     ex_get_dimension(exoid, DIM_NUM_EL_BLK, "element block", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_EL_BLK);
-     break;
+  switch (obj_type) {
+    /*  ======== BLOCKS ========= */
+  case EX_EDGE_BLOCK:
+    ex_get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_ED_BLK, &varid);
+    break;
+  case EX_FACE_BLOCK:
+    ex_get_dimension(exoid, DIM_NUM_FA_BLK, "face block", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_FA_BLK, &varid);
+    break;
+  case EX_ELEM_BLOCK:
+    ex_get_dimension(exoid, DIM_NUM_EL_BLK, "element block", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_EL_BLK, &varid);
+    break;
 
-     /*  ======== SETS ========= */
-   case EX_NODE_SET:
-     ex_get_dimension(exoid, DIM_NUM_NS, "nodeset", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_NS);
-     break;
-   case EX_EDGE_SET:
-     ex_get_dimension(exoid, DIM_NUM_ES, "edgeset", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_ES);
-     break;
-   case EX_FACE_SET:
-     ex_get_dimension(exoid, DIM_NUM_FS, "faceset", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_FS);
-     break;
-   case EX_SIDE_SET:
-     ex_get_dimension(exoid, DIM_NUM_SS, "sideset", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_SS);
-     break;
-   case EX_ELEM_SET:
-     ex_get_dimension(exoid, DIM_NUM_ELS, "elemset", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_ELS);
-     break;
+    /*  ======== SETS ========= */
+  case EX_NODE_SET:
+    ex_get_dimension(exoid, DIM_NUM_NS, "nodeset", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_NS, &varid);
+    break;
+  case EX_EDGE_SET:
+    ex_get_dimension(exoid, DIM_NUM_ES, "edgeset", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_ES, &varid);
+    break;
+  case EX_FACE_SET:
+    ex_get_dimension(exoid, DIM_NUM_FS, "faceset", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_FS, &varid);
+    break;
+  case EX_SIDE_SET:
+    ex_get_dimension(exoid, DIM_NUM_SS, "sideset", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_SS, &varid);
+    break;
+  case EX_ELEM_SET:
+    ex_get_dimension(exoid, DIM_NUM_ELS, "elemset", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_ELS, &varid);
+    break;
 
-     /*  ======== MAPS ========= */
-   case EX_NODE_MAP:
-     ex_get_dimension(exoid, DIM_NUM_NM, "node map", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_NM);
-     break;
-   case EX_EDGE_MAP:
-     ex_get_dimension(exoid, DIM_NUM_EDM, "edge map", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_EDM);
-     break;
-   case EX_FACE_MAP:
-     ex_get_dimension(exoid, DIM_NUM_FAM, "face map", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_FAM);
-     break;
-   case EX_ELEM_MAP:
-     ex_get_dimension(exoid, DIM_NUM_EM, "element map", &num_entity, routine);
-     varid = ncvarid (exoid, VAR_NAME_EM);
-     break;
+    /*  ======== MAPS ========= */
+  case EX_NODE_MAP:
+    ex_get_dimension(exoid, DIM_NUM_NM, "node map", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_NM, &varid);
+    break;
+  case EX_EDGE_MAP:
+    ex_get_dimension(exoid, DIM_NUM_EDM, "edge map", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_EDM, &varid);
+    break;
+  case EX_FACE_MAP:
+    ex_get_dimension(exoid, DIM_NUM_FAM, "face map", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_FAM, &varid);
+    break;
+  case EX_ELEM_MAP:
+    ex_get_dimension(exoid, DIM_NUM_EM, "element map", &num_entity, &temp, routine);
+    status = nc_inq_varid(exoid, VAR_NAME_EM, &varid);
+    break;
 
-     /* invalid variable type */
-   default:
-     exerrval = EX_BADPARAM;
-     sprintf(errmsg, "Error: Invalid type specified in file id %d",
-             exoid);
-     ex_err(routine,errmsg,exerrval);
-     return(EX_FATAL);
-   }
+    /* invalid variable type */
+  default:
+    exerrval = EX_BADPARAM;
+    sprintf(errmsg, "Error: Invalid type specified in file id %d",
+	    exoid);
+    ex_err(routine,errmsg,exerrval);
+    return(EX_FATAL);
+  }
    
-   if (varid != -1) {
-     /* read the names */
-     for (i=0; i<num_entity; i++) {
-       start[0] = i;
-       start[1] = 0;
+  if (status == NC_NOERR) {
+    /* read the names */
+    for (i=0; i<num_entity; i++) {
+      start[0] = i;
+      start[1] = 0;
        
-       j = 0;
-       ptr = names[i];
+      j = 0;
+      ptr = names[i];
        
-       if (ncvarget1 (exoid, varid, start, ptr) == -1) {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                 "Error: failed to get names in file id %d", exoid);
-         ex_err("ex_get_names",errmsg,exerrval);
-         return (EX_FATAL);
-       }
+      if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to get names in file id %d", exoid);
+	ex_err("ex_get_names",errmsg,exerrval);
+	return (EX_FATAL);
+      }
        
        
-       while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
-         start[1] = ++j;
-         if (ncvarget1 (exoid, varid, start, ptr) == -1) {
-           exerrval = ncerr;
-           sprintf(errmsg,
-                   "Error: failed to get names in file id %d", exoid);
-           ex_err("ex_get_names",errmsg,exerrval);
-           return (EX_FATAL);
-         }
-       }
-       --ptr;
-       if (ptr > names[i]) {
-         /*    get rid of trailing blanks */
-         while (*(--ptr) == ' ');
-       }
-       *(++ptr) = '\0';
-     }
-   } else {
-     /* Names variable does not exist on the database; probably since this is an
-      * older version of the database.  Return an empty array...
-      */
-     for (i=0; i<num_entity; i++) {
-       names[i][0] = '\0';
-     }
-   }
-   return (EX_NOERR);
+      while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
+	start[1] = ++j;
+	if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	  exerrval = status;
+	  sprintf(errmsg,
+		  "Error: failed to get names in file id %d", exoid);
+	  ex_err("ex_get_names",errmsg,exerrval);
+	  return (EX_FATAL);
+	}
+      }
+      --ptr;
+      if (ptr > names[i]) {
+	/*    get rid of trailing blanks */
+	while (*(--ptr) == ' ');
+      }
+      *(++ptr) = '\0';
+    }
+  } else {
+    /* Names variable does not exist on the database; probably since this is an
+     * older version of the database.  Return an empty array...
+     */
+    for (i=0; i<num_entity; i++) {
+      names[i][0] = '\0';
+    }
+  }
+  return (EX_NOERR);
 }

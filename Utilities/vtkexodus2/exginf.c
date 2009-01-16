@@ -36,14 +36,6 @@
 *
 * exginf - ex_get_info
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -67,91 +59,77 @@
 int ex_get_info (int    exoid,
                  char **info)
 {
-   int i, j, dimid, varid;
-   long num_info, start[2];
-   char *ptr;
-   char  errmsg[MAX_ERR_LENGTH];
+  int status;
+  size_t i;
+  int j, dimid, varid;
+  size_t num_info, start[2];
+  char *ptr;
+  char  errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* inquire previously defined dimensions and variables  */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_INFO)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  /* inquire previously defined dimensions and variables  */
+  if ((status = nc_inq_dimid (exoid, DIM_NUM_INFO, &dimid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Warning: failed to locate number of info records in file id %d",
-             exoid);
-     ex_err("ex_get_info",errmsg,exerrval);
-     return (EX_WARN);
-   }
+	    exoid);
+    ex_err("ex_get_info",errmsg,exerrval);
+    return (EX_WARN);
+  }
 
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_info) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if ((status = nc_inq_dimlen(exoid, dimid, &num_info)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to get number of info records in file id %d",
-             exoid);
-     ex_err("ex_get_info",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+	    exoid);
+    ex_err("ex_get_info",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
 
-/* do this only if there are any information records */
-
-   if (num_info > 0)
-   {
-     if ((varid = ncvarid (exoid, VAR_INFO)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
+  /* do this only if there are any information records */
+  if (num_info > 0) {
+    if ((status = nc_inq_varid(exoid, VAR_INFO, &varid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
               "Error: failed to locate info record data in file id %d", exoid);
-       ex_err("ex_get_info",errmsg,exerrval);
-       return (EX_FATAL);
-     }
+      ex_err("ex_get_info",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
+    /* read the information records */
+    for (i=0; i<num_info; i++) {
+      start[0] = i;
+      start[1] = 0;
 
-/* read the information records */
+      j = 0;
+      ptr = info[i];
 
-      for (i=0; i<num_info; i++)
-      {
-        start[0] = i;
-        start[1] = 0;
-
-        j = 0;
-        ptr = info[i];
-
-        if (ncvarget1 (exoid, varid, start, ptr) == -1)
-        {
-          exerrval = ncerr;
-          sprintf(errmsg,
-              "Error: failed to get info record data in file id %d", exoid);
-          ex_err("ex_get_info",errmsg,exerrval);
-          return (EX_FATAL);
-        }
-
-
-        while ((*ptr++ != '\0') && (j < MAX_LINE_LENGTH))
-        {
-          start[1] = ++j;
-          if (ncvarget1 (exoid, varid, start, ptr) == -1)
-          {
-            exerrval = ncerr;
-            sprintf(errmsg,
-                "Error: failed to get info record data in file id %d", exoid);
-            ex_err("ex_get_info",errmsg,exerrval);
-            return (EX_FATAL);
-          }
-
-        }
-/* delete trailing blanks */
-        --ptr;
-        while ( --ptr >= info[i] && *ptr == ' ' );
-        *(++ptr) = '\0';
+      if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to get info record data in file id %d", exoid);
+	ex_err("ex_get_info",errmsg,exerrval);
+	return (EX_FATAL);
       }
 
-   }
 
-   return (EX_NOERR);
-
+      while ((*ptr++ != '\0') && (j < MAX_LINE_LENGTH)) {
+	start[1] = ++j;
+	if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	  exerrval = status;
+	  sprintf(errmsg,
+		  "Error: failed to get info record data in file id %d", exoid);
+	  ex_err("ex_get_info",errmsg,exerrval);
+	  return (EX_FATAL);
+	}
+      }
+      /* delete trailing blanks */
+      --ptr;
+      while ( --ptr >= info[i] && *ptr == ' ' );
+      *(++ptr) = '\0';
+    }
+  }
+  return (EX_NOERR);
 }

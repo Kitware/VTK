@@ -36,14 +36,6 @@
 *
 * exgvnm - ex_get_var_name
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,6 +56,7 @@
 
 /*!
  * reads the name of a particular results variable from the database
+ * \deprecated use ex_get_variable_name()(exoid, obj_type, var_num, *var_name)
  */
 
 int ex_get_var_name (int   exoid,
@@ -71,132 +64,7 @@ int ex_get_var_name (int   exoid,
                      int   var_num,
                      char *var_name)
 {
-   int j, varid;
-   long  start[2];
-   char *ptr;
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-/* inquire previously defined variables  */
-
-   if (*var_type == 'g' || *var_type == 'G')
-   {
-     if ((varid = ncvarid (exoid, VAR_NAME_GLO_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no global variables names stored in file id %d", exoid);
-       ex_err("ex_get_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-   }
-
-   else if (*var_type == 'n' || *var_type == 'N')
-   {
-     if ((varid = ncvarid (exoid, VAR_NAME_NOD_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no nodal variable names stored in file id %d",
-               exoid);
-       ex_err("ex_get_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-
-   }
-
-   else if (*var_type == 'e' || *var_type == 'E')
-   {
-
-     if ((varid = ncvarid (exoid, VAR_NAME_ELE_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no element variable names stored in file id %d",
-               exoid);
-       ex_err("ex_get_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-   }
-
-   else if (*var_type == 'm' || *var_type == 'M')
-   {
-
-     if ((varid = ncvarid (exoid, VAR_NAME_NSET_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no nodeset variable names stored in file id %d",
-               exoid);
-       ex_err("ex_get_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-   }
-
-   else if (*var_type == 's' || *var_type == 'S')
-   {
-
-     if ((varid = ncvarid (exoid, VAR_NAME_SSET_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no sideset variable names stored in file id %d",
-               exoid);
-       ex_err("ex_get_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-   }
-
-   else       /* invalid variable type */
-   {
-     exerrval = EX_BADPARAM;
-      sprintf(errmsg,
-             "Error: Invalid variable type %c specified in file id %d",
-              *var_type, exoid);
-      ex_err("ex_get_var_name",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-
-/* read the variable name */
-
-   start[0] = var_num-1;
-   start[1] = 0;
-
-   j = 0;
-   ptr=var_name;
-
-   if (ncvarget1 (exoid, varid, start, ptr) == -1) /* get first character */
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
- "Error: failed to get results variable name type %c, index %d from file id %d",
-             *var_type, var_num, exoid);
-     ex_err("ex_get_var_name",errmsg,exerrval);
-     return (EX_FATAL);
-
-   }
-   
-   while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) /* get remaining chars */
-   {
-     start[1] = ++j;
-     if (ncvarget1 (exoid, varid, start, ptr) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-          "Error: failed to get results variable names from file id %d", exoid);
-               ex_err("ex_get_var_names",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
-
-   if (*(--ptr) != '\0')
-   {
-     --ptr;
-     while (*(--ptr) == ' '); /* strip right trailing blanks */
-       *(++ptr) = '\0';
-   }
-
-   return (EX_NOERR);
+  ex_entity_type obj_type;
+  obj_type = ex_var_type_to_ex_entity_type(*var_type);
+  return ex_get_variable_name(exoid, obj_type, var_num, var_name);
 }

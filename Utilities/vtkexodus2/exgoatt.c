@@ -46,7 +46,6 @@
 *       float*  attrib                  array of attributes
 *
 * revision history - 
-*   20061003 - David Thompson - adapted from ex_get_one_attr
 *
 *  Id
 *
@@ -59,70 +58,76 @@
  * reads the attributes for an edge, face, or element block
  */
 int ex_get_one_attr( int   exoid,
-                     int   obj_type,
+                     ex_entity_type obj_type,
                      int   obj_id,
                      int   attrib_index,
                      void* attrib )
 
 {
-  int numobjentdim, numattrdim, attrid, obj_id_ndx;
-  long num_entries_this_obj, num_attr;
+  int status;
+  int attrid, obj_id_ndx;
+  int temp;
+  size_t num_entries_this_obj, num_attr;
   size_t start[2], count[2];
   ptrdiff_t stride[2];
-  int error;
   char errmsg[MAX_ERR_LENGTH];
-  const char* tname;
-  const char* vobjids;
-  const char* dnumobjent = 0;
-  const char* dnumobjatt = 0;
-  const char* vattrbname = 0;
-
-  switch (obj_type) {
-  case EX_EDGE_BLOCK:
-    tname = "edge block";
-    vobjids = VAR_ID_ED_BLK;
-    break;
-  case EX_FACE_BLOCK:
-    tname = "face block";
-    vobjids = VAR_ID_FA_BLK;
-    break;
-  case EX_ELEM_BLOCK:
-    tname = "element block";
-    vobjids = VAR_ID_EL_BLK;
-    break;
-  default:
-    exerrval = EX_BADPARAM;
-    sprintf(errmsg, "Error: Bad block type (%d) specified for file id %d",
-      obj_type, exoid );
-    ex_err("ex_put_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
+  const char* dnumobjent;
+  const char* dnumobjatt;
+  const char* vattrbname;
 
   exerrval = 0; /* clear error code */
 
   /* Determine index of obj_id in vobjids array */
-  obj_id_ndx = ex_id_lkup(exoid,vobjids,obj_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
-      sprintf(errmsg,
-              "Warning: no attributes found for NULL %s %d in file id %d",
-              tname,obj_id,exoid);
-      ex_err("ex_get_one_attr",errmsg,EX_MSG);
-      return (EX_WARN);              /* no attributes for this object */
-    }
-    else
-    {
-      sprintf(errmsg,
-      "Warning: failed to locate %s id %d in %s array in file id %d",
-              tname,obj_id,vobjids, exoid);
-      ex_err("ex_get_one_attr",errmsg,exerrval);
-      return (EX_WARN);
+  if (obj_type != EX_NODAL) {
+    obj_id_ndx = ex_id_lkup(exoid,obj_type,obj_id);
+    if (exerrval != 0) {
+      if (exerrval == EX_NULLENTITY) {
+	sprintf(errmsg,
+		"Warning: no attributes found for NULL %s %d in file id %d",
+		ex_name_of_object(obj_type),obj_id,exoid);
+	ex_err("ex_get_one_attr",errmsg,EX_MSG);
+	return (EX_WARN);              /* no attributes for this object */
+      } else {
+	sprintf(errmsg,
+		"Warning: failed to locate %s id %d in id array in file id %d",
+		ex_name_of_object(obj_type),obj_id, exoid);
+	ex_err("ex_get_one_attr",errmsg,exerrval);
+	return (EX_WARN);
+      }
     }
   }
 
   switch (obj_type) {
+  case EX_SIDE_SET:
+    dnumobjent = DIM_NUM_SIDE_SS(obj_id_ndx);
+    dnumobjatt = DIM_NUM_ATT_IN_SS(obj_id_ndx);
+    vattrbname = VAR_SSATTRIB(obj_id_ndx);
+    break;
+  case EX_NODE_SET:
+    dnumobjent = DIM_NUM_NOD_NS(obj_id_ndx);
+    dnumobjatt = DIM_NUM_ATT_IN_NS(obj_id_ndx);
+    vattrbname = VAR_NSATTRIB(obj_id_ndx);
+    break;
+  case EX_EDGE_SET:
+    dnumobjent = DIM_NUM_EDGE_ES(obj_id_ndx);
+    dnumobjatt = DIM_NUM_ATT_IN_ES(obj_id_ndx);
+    vattrbname = VAR_ESATTRIB(obj_id_ndx);
+    break;
+  case EX_FACE_SET:
+    dnumobjent = DIM_NUM_FACE_FS(obj_id_ndx);
+    dnumobjatt = DIM_NUM_ATT_IN_FS(obj_id_ndx);
+    vattrbname = VAR_FSATTRIB(obj_id_ndx);
+    break;
+  case EX_ELEM_SET:
+    dnumobjent = DIM_NUM_ELE_ELS(obj_id_ndx);
+    dnumobjatt = DIM_NUM_ATT_IN_ELS(obj_id_ndx);
+    vattrbname = VAR_ELSATTRIB(obj_id_ndx);
+    break;
+  case EX_NODAL:
+    dnumobjent = DIM_NUM_NODES;
+    dnumobjatt = DIM_NUM_ATT_IN_NBLK;
+    vattrbname = VAR_NATTRIB;
+    break;
   case EX_EDGE_BLOCK:
     dnumobjent = DIM_NUM_ED_IN_EBLK(obj_id_ndx);
     dnumobjatt = DIM_NUM_ATT_IN_EBLK(obj_id_ndx);
@@ -138,65 +143,34 @@ int ex_get_one_attr( int   exoid,
     dnumobjatt = DIM_NUM_ATT_IN_BLK(obj_id_ndx);
     vattrbname = VAR_ATTRIB(obj_id_ndx);
     break;
+  default:
+    sprintf(errmsg,
+      "Error: Called with invalid obj_type %d", obj_type);
+	ex_err("ex_get_one_attr",errmsg,exerrval);
+	return (EX_FATAL);
   }
 
   /* inquire id's of previously defined dimensions  */
-  if ((numobjentdim = ncdimid (exoid, dnumobjent)) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-        "Error: failed to locate number of entries for %s %d in file id %d",
-            tname, obj_id, exoid);
-    ex_err("ex_get_one_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
+  if (ex_get_dimension(exoid, dnumobjent,"entries", &num_entries_this_obj, &temp, "ex_get_one_attr") != NC_NOERR)
+    return EX_FATAL;
+  
+  if (ex_get_dimension(exoid, dnumobjatt,"attributes", &num_attr, &temp, "ex_get_one_attr") != NC_NOERR)
+    return EX_FATAL;
 
-  if (ncdiminq (exoid, numobjentdim, (char *) 0, &num_entries_this_obj) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-           "Error: failed to get number of entries for %s %d in file id %d",
-            tname,obj_id,exoid);
-    ex_err("ex_get_one_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-  if ((numattrdim = ncdimid(exoid, dnumobjatt)) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-            "Warning: no attributes found for %s %d in file id %d",
-            tname,obj_id,exoid);
-    ex_err("ex_get_one_attr",errmsg,EX_MSG);
-    return (EX_WARN);              /* no attributes for this object */
-  }
-
-  if (ncdiminq (exoid, numattrdim, (char *) 0, &num_attr) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-         "Error: failed to get number of attributes for %s %d in file id %d",
-            tname,obj_id,exoid);
-    ex_err("ex_get_one_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-  if (attrib_index < 1 || attrib_index > num_attr) {
+  if (attrib_index < 1 || attrib_index > (int)num_attr) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-            "Error: Invalid attribute index specified: %d.  Valid range is 1 to %ld for %s %d in file id %d",
-            attrib_index, num_attr, tname, obj_id, exoid);
+            "Error: Invalid attribute index specified: %d.  Valid range is 1 to %d for %s %d in file id %d",
+            attrib_index, (int)num_attr, ex_name_of_object(obj_type), obj_id, exoid);
     ex_err("ex_get_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }
 
-  if ((attrid = ncvarid (exoid, vattrbname)) == -1)
-  {
-    exerrval = ncerr;
+  if ((status = nc_inq_varid(exoid, vattrbname, &attrid)) != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-            "Error: failed to locate attributes for %s %d in file id %d",
-            tname,obj_id,exoid);
+	    "Error: failed to locate attributes for %s %d in file id %d",
+	    ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_get_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -212,25 +186,19 @@ int ex_get_one_attr( int   exoid,
   stride[0] = 1;
   stride[1] = num_attr;
   
-  if (nc_flt_code(exoid) == NC_FLOAT) {
-    error = nc_get_vars_float(exoid, attrid, start, count, stride,
-                              ex_conv_array(exoid,RTN_ADDRESS,attrib,
-                                            (int)num_attr*num_entries_this_obj));
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_vars_float(exoid, attrid, start, count, stride, attrib);
   } else {
-    error = nc_get_vars_double(exoid, attrid, start, count, stride,
-                               ex_conv_array(exoid,RTN_ADDRESS,attrib,
-                                             (int)num_attr*num_entries_this_obj));
+    status = nc_get_vars_double(exoid, attrid, start, count, stride, attrib);
   }
-  if (error == -1) {
-    exerrval = ncerr;
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
             "Error: failed to get attribute %d for %s %d in file id %d",
-            attrib_index, tname, obj_id,exoid);
+            attrib_index, ex_name_of_object(obj_type), obj_id,exoid);
     ex_err("ex_get_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }
-
-  ex_conv_array( exoid, READ_CONVERT, attrib, num_attr*num_entries_this_obj );
-
   return(EX_NOERR);
 }

@@ -36,11 +36,6 @@
 *
 * expnm - ex_put_node_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -56,6 +51,10 @@
 /*!
  * writes an node map; this is a vector of integers of length number
  * of nodes
+ * \param    exoid                   exodus file id
+ * \param    map_id                  node map id
+ * \param    node_map                node map
+ * \deprecated Use ex_put_num_map()(exoid, EX_NODE_MAP, map_id, node_map)
  */
 
 int ex_put_node_map (int exoid,

@@ -36,8 +36,6 @@
 *
 * exgnam - ex_get_name
 *
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid          exodus file id
@@ -61,63 +59,73 @@
  */
 
 int ex_get_name (int   exoid,
-     int   obj_type,
-     int   entity_id, 
-     char *name)
+		 ex_entity_type obj_type,
+		 int   entity_id, 
+		 char *name)
 {
+  int status;
   int j, varid, ent_ndx;
-  long num_entity, start[2];
+  size_t num_entity;
+  size_t start[2];
   char *ptr;
   char errmsg[MAX_ERR_LENGTH];
+  char *vobj = NULL;
   const char *routine = "ex_get_name";
    
   exerrval = 0;
 
   /* inquire previously defined dimensions and variables  */
 
-  if (obj_type == EX_ELEM_BLOCK) {
-    ex_get_dimension(exoid, DIM_NUM_EL_BLK, "element block", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_EL_BLK);
-    ent_ndx = ex_id_lkup(exoid, VAR_ID_EL_BLK, entity_id);
-  }
-  else if (obj_type == EX_EDGE_BLOCK) {
-    ex_get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_ED_BLK);
-    ent_ndx = ex_id_lkup(exoid, VAR_ID_ED_BLK, entity_id);
-  }
-  else if (obj_type == EX_FACE_BLOCK) {
-    ex_get_dimension(exoid, DIM_NUM_FA_BLK, "face block", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_FA_BLK);
-    ent_ndx = ex_id_lkup(exoid, VAR_ID_FA_BLK, entity_id);
-  }
-  else if (obj_type == EX_NODE_SET) {
-    ex_get_dimension(exoid, DIM_NUM_NS, "nodeset", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_NS);
-    ent_ndx = ex_id_lkup(exoid, VAR_NS_IDS, entity_id);
-  }
-  else if (obj_type == EX_SIDE_SET) {
-    ex_get_dimension(exoid, DIM_NUM_SS, "sideset", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_SS);
-    ent_ndx = ex_id_lkup(exoid, VAR_SS_IDS, entity_id);
-  }
-  else if (obj_type == EX_NODE_MAP) {
-    ex_get_dimension(exoid, DIM_NUM_NM, "node map", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_NM);
-    ent_ndx = ex_id_lkup(exoid, VAR_NM_PROP(1), entity_id);
-  }
-  else if (obj_type == EX_ELEM_MAP) {
-    ex_get_dimension(exoid, DIM_NUM_EM, "element map", &num_entity, routine);
-    varid = ncvarid (exoid, VAR_NAME_EM);
-    ent_ndx = ex_id_lkup(exoid, VAR_EM_PROP(1), entity_id);
-  }
-  else {/* invalid variable type */
+  ent_ndx = ex_id_lkup(exoid, obj_type, entity_id);
+  ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type),
+		   &num_entity, &varid, routine);
+
+  switch(obj_type) {
+  case EX_ELEM_BLOCK:
+    vobj = VAR_NAME_EL_BLK;
+    break;
+  case EX_EDGE_BLOCK:
+    vobj = VAR_NAME_ED_BLK;
+    break;
+  case EX_FACE_BLOCK:
+    vobj = VAR_NAME_FA_BLK;
+    break;
+  case EX_NODE_SET:
+    vobj = VAR_NAME_NS;
+    break;
+  case EX_SIDE_SET:
+    vobj = VAR_NAME_SS;
+    break;
+  case EX_EDGE_SET:
+    vobj = VAR_NAME_ES;
+    break;
+  case EX_FACE_SET:
+    vobj = VAR_NAME_FS;
+    break;
+  case EX_ELEM_SET:
+    vobj = VAR_NAME_ELS;
+    break;
+  case EX_NODE_MAP:
+    vobj = VAR_NAME_NM;
+    break;
+  case EX_EDGE_MAP:
+    vobj = VAR_NAME_EDM;
+    break;
+  case EX_FACE_MAP:
+    vobj = VAR_NAME_FAM;
+    break;
+  case EX_ELEM_MAP:
+    vobj = VAR_NAME_EM;
+    break;
+  default:
+    /* invalid variable type */
     exerrval = EX_BADPARAM;
     sprintf(errmsg, "Error: Invalid type specified in file id %d", exoid);
     ex_err(routine,errmsg,exerrval);
     return(EX_FATAL);
   }
    
-  if (varid != -1) {
+  if ((status = nc_inq_varid(exoid, vobj, &varid)) == NC_NOERR) {
     /* If this is a null entity, then 'ent_ndx' will be negative.
      * We don't care in this routine, so make it positive and continue...
      */
@@ -130,24 +138,23 @@ int ex_get_name (int   exoid,
     j = 0;
     ptr = name;
        
-    if (ncvarget1 (exoid, varid, start, ptr) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
-        "Error: failed to get entity name for id %d in file id %d",
-        ent_ndx, exoid);
+	      "Error: failed to get entity name for id %d in file id %d",
+	      ent_ndx, exoid);
       ex_err(routine,errmsg,exerrval);
       return (EX_FATAL);
     }
        
-       
     while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
       start[1] = ++j;
-      if (ncvarget1 (exoid, varid, start, ptr) == -1) {
-  exerrval = ncerr;
-  sprintf(errmsg,
-    "Error: failed to get name in file id %d", exoid);
-  ex_err(routine,errmsg,exerrval);
-  return (EX_FATAL);
+      if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to get name in file id %d", exoid);
+	ex_err(routine,errmsg,exerrval);
+	return (EX_FATAL);
       }
     }
     --ptr;

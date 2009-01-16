@@ -36,12 +36,6 @@
 *
 * exgem - ex_get_elem_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -50,23 +44,20 @@
 * exit conditions - 
 *       int*    elem_map                element map
 *
-* revision history - 
-*   20061127 - David Thompson - moved functionality to ex_get_num_map
-*
-*
 *****************************************************************************/
 
 #include <stdlib.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the element map with specified ID
+ * \deprecated Use ex_get_num_map()(exoid, EX_ELEM_MAP, map_id, elem_map) instead
  */
 
 int ex_get_elem_map (int   exoid,
                      int   map_id,
-                     int*  elem_map)
+                     int  *elem_map)
 {
   return ex_get_num_map( exoid, EX_ELEM_MAP, map_id, elem_map );
 }

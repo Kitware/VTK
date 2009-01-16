@@ -36,17 +36,6 @@
 *
 * exgvtt - ex_get_object_truth_vector
 *
-* environment - UNIX
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid              exodus file id
-*       int     num_blk            number of blocks
-*       int     num_var            number of variables
-*
-* exit conditions - 
-*       int*    var_tab            element variable truth vector array
-*
 * revision history - 
 *
 *  Id
@@ -62,137 +51,153 @@
  */
 
 int ex_get_object_truth_vector (int  exoid,
-        const char *obj_type,
-        int  entity_id,
-        int  num_var,
-        int *var_vec)
+				ex_entity_type obj_type,
+				int  entity_id,
+				int  num_var,
+				int *var_vec)
 {
-   int varid, tabid, i, iresult, ent_ndx;
-   long num_var_db = -1;
-   long start[2], count[2]; 
-   nclong *longs;
-   char errmsg[MAX_ERR_LENGTH];
-   const char* routine = "ex_get_object_truth_vector";
+  int statust;
+  int varid, tabid, i, status, ent_ndx;
+  size_t num_var_db = 0;
+  size_t start[2], count[2]; 
+  char errmsg[MAX_ERR_LENGTH];
+  const char* routine = "ex_get_object_truth_vector";
 
-   /*
-    * The ent_type and the var_name are used to build the netcdf
-    * variables name.  Normally this is done via a macro defined in
-    * exodusII_int.h
-    */
-   const char* ent_type = NULL;
-   const char* var_name = NULL;
+  /*
+   * The ent_type and the var_name are used to build the netcdf
+   * variables name.  Normally this is done via a macro defined in
+   * exodusII_int.h
+   */
+  const char* ent_type = NULL;
+  const char* var_name = NULL;
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
    
-   if (*obj_type == 'e' || *obj_type == 'E') {
-     varid = ex_get_dimension(exoid, DIM_NUM_ELE_VAR,  "element variables", &num_var_db, routine);
-     tabid = ncvarid (exoid, VAR_ELEM_TAB);
-     var_name = "vals_elem_var";
-     ent_ndx = ex_id_lkup(exoid, VAR_ID_EL_BLK, entity_id);
-     ent_type = "eb";
-   }
-   else if (*obj_type == 'm' || *obj_type == 'M') {
-     varid = ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var_db, routine);
-     tabid = ncvarid (exoid, VAR_NSET_TAB);
-     var_name = "vals_nset_var";
-     ent_ndx = ex_id_lkup(exoid, VAR_NS_IDS, entity_id);
-     ent_type = "ns";
-   }
-   else if (*obj_type == 's' || *obj_type == 'S') {
-     varid = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, routine);
-     tabid = ncvarid (exoid, VAR_SSET_TAB);
-     var_name = "vals_sset_var";
-     ent_ndx = ex_id_lkup(exoid, VAR_SS_IDS, entity_id);
-     ent_type = "ss";
-   }
-   else {       /* invalid variable type */
-     exerrval = EX_BADPARAM;
-     sprintf(errmsg,
-       "Error: Invalid variable type %c specified in file id %d",
-       *obj_type, exoid);
-     ex_err("ex_get_varid",errmsg,exerrval);
-     return (EX_WARN);
-   }
-   
-   if (varid == -1) {
-     exerrval = ncerr;
-     return (EX_WARN);
-   }
+  switch (obj_type) {
+  case EX_EDGE_BLOCK:
+    status = ex_get_dimension(exoid, DIM_NUM_EDG_VAR,  "edge variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid(exoid, VAR_EBLK_TAB, &tabid);
+    var_name = "vals_edge_var";
+    ent_type = "eb";
+    break;
+  case EX_FACE_BLOCK:
+    status = ex_get_dimension(exoid, DIM_NUM_FAC_VAR,  "face variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_FBLK_TAB, &tabid);
+    var_name = "vals_face_var";
+    ent_type = "eb";
+    break;
+  case EX_ELEM_BLOCK:
+    status = ex_get_dimension(exoid, DIM_NUM_ELE_VAR,  "element variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_ELEM_TAB, &tabid);
+    var_name = "vals_elem_var";
+    ent_type = "eb";
+    break;
+  case EX_NODE_SET:
+    status = ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_NSET_TAB, &tabid);
+    var_name = "vals_nset_var";
+    ent_type = "ns";
+    break;
+  case EX_EDGE_SET:
+    status = ex_get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_ESET_TAB, &tabid);
+    var_name = "vals_eset_var";
+    ent_type = "ns";
+    break;
+  case EX_FACE_SET:
+    status = ex_get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_FSET_TAB, &tabid);
+    var_name = "vals_fset_var";
+    ent_type = "ns";
+    break;
+  case EX_SIDE_SET:
+    status = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_SSET_TAB, &tabid);
+    var_name = "vals_sset_var";
+    ent_type = "ss";
+    break;
+  case EX_ELEM_SET:
+    status = ex_get_dimension(exoid, DIM_NUM_ELSET_VAR, "elemset variables", &num_var_db, &varid, routine);
+    statust = nc_inq_varid (exoid, VAR_ELSET_TAB, &tabid);
+    var_name = "vals_elset_var";
+    ent_type = "els";
+    break;
+  default:
+    exerrval = EX_BADPARAM;
+    sprintf(errmsg,
+	    "Error: Invalid variable type %d specified in file id %d",
+	    obj_type, exoid);
+    ex_err(routine,errmsg,exerrval);
+    return (EX_WARN);
+  }
 
+  if (status != NC_NOERR) {
+    exerrval = status;
+    return (EX_WARN);
+  }
 
-   if (num_var_db != num_var) {
-     exerrval = EX_FATAL;
-     sprintf(errmsg,
-       "Error: # of variables doesn't match those defined in file id %d", exoid);
-     ex_err("ex_get_object_truth_vector",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  /* Determine index of entity_id in id array */
+  ent_ndx = ex_id_lkup(exoid,obj_type,entity_id);
+  if (exerrval != 0) {
+    if (exerrval == EX_NULLENTITY) {
+      sprintf(errmsg,
+              "Warning: no %s variables for NULL block %d in file id %d",
+              ex_name_of_object(obj_type), entity_id,exoid);
+      ex_err(routine,errmsg,exerrval);
+      return (EX_WARN);
+    } else {
+      sprintf(errmsg,
+	      "Error: failed to locate %s id %d in id variable in file id %d",
+	      ex_name_of_object(obj_type), entity_id, exoid);
+      ex_err(routine,errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  }
 
-   if (tabid == -1) {
-     /* since truth vector isn't stored in the data file, derive it dynamically */
-     for (i=0; i<num_var; i++) {
-       /* NOTE: names are 1-based */
-       if ((tabid = ncvarid (exoid, ex_catstr2(var_name, i+1, ent_type, ent_ndx))) == -1) {
-   
-   /* variable doesn't exist; put a 0 in the truth vector */
-   var_vec[i] = 0;
-       } else {
-   /* variable exists; put a 1 in the truth vector */
-   var_vec[i] = 1;
-       }
-     }
-   } else {
+  /* If this is a null entity, then 'ent_ndx' will be negative.
+   * We don't care in this routine, so make it positive and continue...
+   */
+  if (ent_ndx < 0) ent_ndx = -ent_ndx;
+  
+  if ((int)num_var_db != num_var) {
+    exerrval = EX_FATAL;
+    sprintf(errmsg,
+	    "Error: # of variables doesn't match those defined in file id %d", exoid);
+    ex_err("ex_get_object_truth_vector",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-     /* read in the truth vector */
+  if (statust != NC_NOERR) {
+    /* since truth vector isn't stored in the data file, derive it dynamically */
+    for (i=0; i<num_var; i++) {
+      /* NOTE: names are 1-based */
+      if (nc_inq_varid(exoid, ex_catstr2(var_name, i+1, ent_type, ent_ndx), &tabid) != NC_NOERR) {
+	/* variable doesn't exist; put a 0 in the truth vector */
+	var_vec[i] = 0;
+      } else {
+	/* variable exists; put a 1 in the truth vector */
+	var_vec[i] = 1;
+      }
+    }
+  } else {
 
-     /*
-      * application code has allocated an array of ints but netcdf is
-      * expecting a pointer to nclongs; if ints are different sizes
-      * than nclongs, we must allocate an array of nclongs then
-      * convert them to ints with ltoi
-      */
+    /* read in the truth vector */
 
-     /* If this is a null entity, then 'ent_ndx' will be negative.
-      * We don't care in this routine, so make it positive and continue...
-      */
-     if (ent_ndx < 0) ent_ndx = -ent_ndx;
+    start[0] = ent_ndx-1;
+    start[1] = 0;
+
+    count[0] = 1;
+    count[1] = num_var;
+
+    status = nc_get_vara_int(exoid, tabid, start, count, var_vec);
      
-     start[0] = ent_ndx-1;
-     start[1] = 0;
-
-     count[0] = 1;
-     count[1] = num_var;
-
-     if (sizeof(int) == sizeof(nclong)) {
-        iresult = ncvarget (exoid, tabid, start, count, var_vec);
-     } else {
-       if (!(longs = malloc (num_var * sizeof(nclong)))) {
-         exerrval = EX_MEMFAIL;
-         sprintf(errmsg,
-                 "Error: failed to allocate memory for truth vector for file id %d",
-                 exoid);
-         ex_err("ex_get_object_truth_vector",errmsg,exerrval);
-         return (EX_FATAL);
-       }
-       iresult = ncvarget (exoid, tabid, start, count, longs);
-     }
-     
-     if (iresult == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-               "Error: failed to get truth vector from file id %d", exoid);
-       ex_err("ex_get_object_truth_vector",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-
-     if (sizeof(int) != sizeof(nclong)) {
-       ltoi (longs, var_vec, num_var);
-       free (longs);
-     }
-
-   } 
-
-
-   return (EX_NOERR);
-
+    if (status != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to get truth vector from file id %d", exoid);
+      ex_err("ex_get_object_truth_vector",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  } 
+  return (EX_NOERR);
 }

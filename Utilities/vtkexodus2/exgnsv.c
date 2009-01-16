@@ -36,14 +36,6 @@
 *
 * exgssv - ex_get_nset_var
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -66,10 +58,11 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the values of a single nodeset variable for one nodeset at 
  * one time step in the database; assume the first time step and
  * nodeset variable index is 1
+ * \deprecated Use ex_get_var()(exoid, time_step, EX_NODE_SET, nset_var_index, nset_id, num_node_this_nset, nset_var_vals) instead
  */
 
 int ex_get_nset_var (int   exoid,
@@ -79,68 +72,6 @@ int ex_get_nset_var (int   exoid,
                      int   num_node_this_nset,
                      void *nset_var_vals)
 {
-   int varid, nset_id_ndx;
-   long start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-  /* Determine index of nset_id in VAR_NS_IDS array */
-  nset_id_ndx = ex_id_lkup(exoid,VAR_NS_IDS,nset_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
-      sprintf(errmsg,
-              "Warning: no nodeset variables for NULL nodeset %d in file id %d",
-              nset_id,exoid);
-      ex_err("ex_get_nset_var",errmsg,EX_MSG);
-      return (EX_WARN);
-    }
-    else
-    {
-      sprintf(errmsg,
-     "Error: failed to locate nodeset id %d in %s variable in file id %d",
-              nset_id, VAR_ID_EL_BLK, exoid);
-      ex_err("ex_get_nset_var",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-
-/* inquire previously defined variable */
-
-   if((varid=ncvarid(exoid,VAR_NS_VAR(nset_var_index,nset_id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Error: failed to locate nodeset variable %d for nodeset %d in file id %d",
-          nset_var_index,nset_id,exoid); /* this msg needs to be improved */
-     ex_err("ex_get_nset_var",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* read values of nodeset variable */
-
-   start[0] = --time_step;
-   start[1] = 0;
-
-   count[0] = 1;
-   count[1] = num_node_this_nset;
-
-   if (ncvarget (exoid, varid, start, count,
-        ex_conv_array(exoid,RTN_ADDRESS,nset_var_vals,num_node_this_nset)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-        "Error: failed to get nodeset variable %d for nodeset %d in file id %d",
-             nset_var_index,nset_id,exoid);/*this msg needs to be improved*/
-     ex_err("ex_get_nset_var",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-   ex_conv_array( exoid, READ_CONVERT, nset_var_vals, num_node_this_nset );
-
-   return (EX_NOERR);
+  return ex_get_var(exoid, time_step, EX_NODE_SET, nset_var_index,
+		    nset_id, num_node_this_nset, nset_var_vals);
 }

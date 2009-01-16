@@ -62,6 +62,11 @@
  * of define mode (causing the entire file to be copied over and over)
  * which is what occurs when the nodeset variable values variables are
  * defined in ex_put_nset_var
+ * \param      exoid                   exodus file id
+ * \param      num_nset                number of nodesets
+ * \param      num_nset_var            number of nodeset variables
+ * \param      nset_var_tab            nodeset variable truth table array
+ * \deprecated Use ex_put_truth_table()(exoid, EX_NODE_SET, num_nset, num_nset_var, nset_var_tab)
  */
 
 int ex_put_nset_var_tab (int  exoid,
@@ -69,5 +74,5 @@ int ex_put_nset_var_tab (int  exoid,
                          int  num_nset_var,
                          int *nset_var_tab)
 {
-  return ex_put_var_tab(exoid, "M", num_nset, num_nset_var, nset_var_tab);
+  return ex_put_truth_table(exoid, EX_NODE_SET, num_nset, num_nset_var, nset_var_tab);
 }

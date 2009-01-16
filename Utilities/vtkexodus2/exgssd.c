@@ -36,12 +36,6 @@
 *
 * exgssd - ex_get_side_set_dist_fact
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -61,6 +55,7 @@
 
 /*!
  * reads the distribution factors for a single side set
+ * \deprecated Use ex_get_set_dist_fact()(exoid, EX_SIDE_SET, side_set_id, side_set_dist_fact)
  */
 
 int ex_get_side_set_dist_fact (int   exoid,
@@ -68,5 +63,5 @@ int ex_get_side_set_dist_fact (int   exoid,
                                void *side_set_dist_fact)
 {
   return ex_get_set_dist_fact(exoid, EX_SIDE_SET, side_set_id, 
-            side_set_dist_fact);
+			      side_set_dist_fact);
 }

@@ -36,14 +36,6 @@
 *
 * exgnvt - ex_get_nodal_var_time
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -77,34 +69,29 @@ int ex_get_nodal_var_time (int   exoid,
                            int   end_time_step,
                            void *nodal_var_vals)
 {
+  int status;
   int varid;
-  long start[3], count[3];
+  size_t start[3], count[3];
   float fdum;
-  char *cdum; 
+  char *cdum = 0; 
   char errmsg[MAX_ERR_LENGTH];
 
   /* inquire previously defined variable */
+  if (end_time_step < 0) {
 
-  cdum = 0; /* initialize even though it is not used */
-
-  if (end_time_step < 0)
-    {
-
-      /* user is requesting the maximum time step;  we find this out using the
-       * database inquire function to get the number of time steps;  the ending
-       * time step number is 1 less due to 0 based array indexing in C
-       */
-      if (ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum) == -1)
-        {
-  
-          exerrval = ncerr;
-          sprintf(errmsg,
-                  "Error: failed to get number of time steps in file id %d",
-                  exoid);
-          ex_err("ex_get_nodal_var_time",errmsg,exerrval);
-          return (EX_FATAL);
-        }
+    /* user is requesting the maximum time step;  we find this out using the
+     * database inquire function to get the number of time steps;  the ending
+     * time step number is 1 less due to 0 based array indexing in C
+     */
+    if ((status = ex_inquire (exoid, EX_INQ_TIME, &end_time_step, &fdum, cdum)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to get number of time steps in file id %d",
+	      exoid);
+      ex_err("ex_get_nodal_var_time",errmsg,exerrval);
+      return (EX_FATAL);
     }
+  }
 
   end_time_step--;
 
@@ -113,14 +100,15 @@ int ex_get_nodal_var_time (int   exoid,
      * assume node number is 1-based (first node is numbered 1);  adjust
      * so it is 0-based
      */
-    if ((varid = ncvarid (exoid, VAR_NOD_VAR)) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid(exoid, VAR_NOD_VAR, &varid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Warning: could not find nodal variable %d in file id %d",
               nodal_var_index, exoid);
       ex_err("ex_get_nodal_var",errmsg,exerrval);
       return (EX_WARN);
     }
+
     start[0] = --beg_time_step;
     start[1] = --nodal_var_index;
     start[2] = --node_number;
@@ -128,10 +116,9 @@ int ex_get_nodal_var_time (int   exoid,
     count[0] = end_time_step - beg_time_step + 1;
     count[1] = 1;
     count[2] = 1;
-
   } else {
-    if ((varid = ncvarid (exoid, VAR_NOD_VAR_NEW(nodal_var_index))) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid(exoid, VAR_NOD_VAR_NEW(nodal_var_index), &varid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Warning: could not find nodal variable %d in file id %d",
               nodal_var_index, exoid);
@@ -149,20 +136,21 @@ int ex_get_nodal_var_time (int   exoid,
 
     count[0] = end_time_step - beg_time_step + 1;
     count[1] = 1;
-
   }
-  if (ncvarget (exoid, varid, start, count,
-                ex_conv_array(exoid,RTN_ADDRESS,nodal_var_vals,count[0])) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to get nodal variables in file id %d",
-              exoid);
-      ex_err("ex_get_nodal_var_time",errmsg,exerrval);
-      return (EX_FATAL);
-    }
 
-  ex_conv_array( exoid, READ_CONVERT, nodal_var_vals, count[0] );
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_vara_float(exoid, varid, start, count, nodal_var_vals);
+  } else {
+    status = nc_get_vara_double(exoid, varid, start, count, nodal_var_vals);
+  }
 
+  if (status != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to get nodal variables in file id %d",
+	    exoid);
+    ex_err("ex_get_nodal_var_time",errmsg,exerrval);
+    return (EX_FATAL);
+  }
   return (EX_NOERR);
 }

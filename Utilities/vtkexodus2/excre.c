@@ -54,19 +54,35 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * creates a new EXODUS II file and returns an id that can subsequently 
- * be used to refer to the file 
+ * be used to refer to the file. This in an internal function; the external
+ * name of this function ix ex_create()
+ * \param      path         filename of file to create.
+ * \param      cmode        access mode.  Any of the defines in the \ref FileVars group or'd together.
+ * \param comp_ws The word size in bytes (0, 4 or 8) of the floating
+ *                point variables used in the application program. If 0 (zero) is
+ *                passed, the default sizeof(float) will be used and returned in this
+ *                variable. WARNING: all EXODUS II functions requiring floats must be
+ *                passed floats declared with this passed in or returned compute word
+ *                size (4 or 8).
+ * \param io_ws   The word size in bytes (4 or 8) of the floating point data as they
+ *                are to be stored in the EXODUS II file. 
+ * \param run_version (internally generated) used to verify compatability of libary and include files.
  */
 
-int ex_create (const char *path,
-               int   cmode,
-               int  *comp_ws,
-               int  *io_ws)
+int ex_create_int (const char *path,
+		   int   cmode,
+		   int  *comp_ws,
+		   int  *io_ws,
+		   int   run_version)
 {
    int exoid, time_dim, dims[1];
-   nclong lio_ws;
-   nclong filesiz;
+   int status;
+   int dimid;
+   int old_fill;
+   int lio_ws;
+   int filesiz;
    float vers;
    char errmsg[MAX_ERR_LENGTH];
    char *mode_name;
@@ -78,6 +94,14 @@ int ex_create (const char *path,
    
    exerrval = 0; /* clear error code */
 
+   if (run_version != EX_API_VERS_NODOT) {
+     int run_version_major = run_version / 100;
+     int run_version_minor = run_version % 100;
+     int lib_version_major = EX_API_VERS_NODOT / 100;
+     int lib_version_minor = EX_API_VERS_NODOT % 100;
+     fprintf(stderr, "EXODUSII: Warning: This code was compiled with exodusII version %d.%02d,\n          but was linked with exodusII library version %d.%02d\n          This is probably an error in the build process of this code.\n",
+	     run_version_major, run_version_minor, lib_version_major, lib_version_minor);
+   }
 #if defined(NC_NETCDF4)
    if (cmode & EX_NETCDF4) {
      mode |= NC_NETCDF4;
@@ -85,10 +109,10 @@ int ex_create (const char *path,
      if (netcdf4_mode == -1) {
        option = getenv("EXODUS_NETCDF4");
        if (option != NULL) {
-   fprintf(stderr, "EXODUSII: Using netcdf version 4 selected via EXODUS_NETCDF4 environment variable\n");
-   netcdf4_mode = NC_NETCDF4;
+	 fprintf(stderr, "EXODUSII: Using netcdf version 4 selected via EXODUS_NETCDF4 environment variable\n");
+	 netcdf4_mode = NC_NETCDF4;
        } else {
-   netcdf4_mode = 0;
+	 netcdf4_mode = 0;
        }
      }
      mode |= netcdf4_mode;
@@ -109,8 +133,12 @@ int ex_create (const char *path,
    }
    if ((cmode & EX_NORMAL_MODEL) != 0)
      filesiz = 0;
+#if defined(NC_NETCDF4)
+   else if ((mode & NC_NETCDF4) != 0)
+     filesiz = 1;
+#endif
    else 
-     filesiz = (nclong)(((cmode & EX_LARGE_MODEL) != 0) || (ex_large_model(-1) == 1));
+     filesiz = (int)(((cmode & EX_LARGE_MODEL) != 0) || (ex_large_model(-1) == 1));
 
    if (
 #if defined(NC_NETCDF4)
@@ -137,8 +165,8 @@ int ex_create (const char *path,
      mode_name = "NOCLOBBER";
    }
 
-   if ((exoid = nccreate (path, mode)) == -1) {
-     exerrval = ncerr;
+   if ((status = nc_create (path, mode, &exoid)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
              "Error: file create failed for %s, mode: %s",
              path, mode_name);
@@ -149,9 +177,9 @@ int ex_create (const char *path,
 /* turn off automatic filling of netCDF variables
  */
 
-  if (ncsetfill (exoid, NC_NOFILL) == -1)
-  {
-    exerrval = ncerr;
+   if ((status = nc_set_fill (exoid, NC_NOFILL, &old_fill)) != NC_NOERR)
+   {
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to set nofill mode in file id %d",
             exoid);
@@ -177,10 +205,11 @@ int ex_create (const char *path,
  */
 
 /* store Exodus API version # as an attribute */
-  vers = (float)EX_API_VERS;
-  if (ncattput (exoid, NC_GLOBAL, ATT_API_VERSION, NC_FLOAT, 1, &vers) == -1)
+  vers = EX_API_VERS;
+  if ((status=nc_put_att_float(exoid, NC_GLOBAL, ATT_API_VERSION,
+			       NC_FLOAT, 1, &vers)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
          "Error: failed to store Exodus II API version attribute in file id %d",
             exoid);
@@ -189,10 +218,10 @@ int ex_create (const char *path,
   }
 
 /* store Exodus file version # as an attribute */
-  vers = (float)EX_VERS;
-  if (ncattput (exoid, NC_GLOBAL, ATT_VERSION, NC_FLOAT, 1, &vers) == -1)
+  vers = EX_VERS;
+  if ((status=nc_put_att_float(exoid, NC_GLOBAL, ATT_VERSION, NC_FLOAT, 1, &vers)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
         "Error: failed to store Exodus II file version attribute in file id %d",
             exoid);
@@ -201,10 +230,10 @@ int ex_create (const char *path,
   }
 
 /* store Exodus file float word size  as an attribute */
-  lio_ws = (nclong)(*io_ws);
-  if (ncattput (exoid, NC_GLOBAL, ATT_FLT_WORDSIZE, NC_LONG, 1, &lio_ws) == -1)
+  lio_ws = (int)(*io_ws);
+  if ((status=nc_put_att_int (exoid, NC_GLOBAL, ATT_FLT_WORDSIZE, NC_INT, 1, &lio_ws)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
  "Error: failed to store Exodus II file float word size attribute in file id %d",
            exoid);
@@ -213,11 +242,11 @@ int ex_create (const char *path,
   }
 
   /* store Exodus file size (1=large, 0=normal) as an attribute */
-  if (ncattput (exoid, NC_GLOBAL, ATT_FILESIZE, NC_LONG, 1, &filesiz) == -1) {
-    exerrval = ncerr;
+  if ((status = nc_put_att_int (exoid, NC_GLOBAL, ATT_FILESIZE, NC_INT, 1, &filesiz)) != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
-      "Error: failed to store Exodus II file size attribute in file id %d",
-      exoid);
+	    "Error: failed to store Exodus II file size attribute in file id %d",
+	    exoid);
     ex_err("ex_create",errmsg, exerrval);
     return (EX_FATAL);
   }
@@ -226,9 +255,8 @@ int ex_create (const char *path,
    */
   
   /* create string length dimension */
-  if (ncdimdef (exoid, DIM_STR, (MAX_STR_LENGTH+1)) == -1)
-  {
-    exerrval = ncerr;
+  if ((status=nc_def_dim (exoid, DIM_STR, (MAX_STR_LENGTH+1), &dimid)) != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to define string length in file id %d",exoid);
     ex_err("ex_create",errmsg,exerrval);
@@ -237,9 +265,9 @@ int ex_create (const char *path,
 
 
   /* create line length dimension */
-  if (ncdimdef (exoid, DIM_LIN, (MAX_LINE_LENGTH+1)) == -1)
+  if ((status = nc_def_dim(exoid, DIM_LIN, (MAX_LINE_LENGTH+1), &dimid)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to define line length in file id %d",exoid);
     ex_err("ex_create",errmsg,exerrval);
@@ -247,9 +275,9 @@ int ex_create (const char *path,
   }
 
   /* create number "4" dimension; must be of type long */
-  if (ncdimdef (exoid, DIM_N4, 4L) == -1)
+  if ((status = nc_def_dim(exoid, DIM_N4, 4L, &dimid)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to define number \"4\" dimension in file id %d",exoid);
     ex_err("ex_create",errmsg,exerrval);
@@ -257,9 +285,9 @@ int ex_create (const char *path,
   }
 
 
-  if ((time_dim = ncdimdef (exoid, DIM_TIME, NC_UNLIMITED)) == -1)
+  if ((status = nc_def_dim(exoid, DIM_TIME, NC_UNLIMITED, &time_dim)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to define time dimension in file id %d", exoid);
     ex_err("ex_create",errmsg,exerrval);
@@ -267,9 +295,9 @@ int ex_create (const char *path,
   }
 
   dims[0] = time_dim;
-  if ((ncvardef (exoid, VAR_WHOLE_TIME, nc_flt_code(exoid), 1, dims)) == -1)
+  if ((status = nc_def_var(exoid, VAR_WHOLE_TIME, nc_flt_code(exoid), 1, dims, &dimid)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to define whole time step variable in file id %d",
             exoid);
@@ -277,9 +305,9 @@ int ex_create (const char *path,
     return (EX_FATAL);
   }
 
-  if (ncendef (exoid) == -1)
+  if ((status = nc_enddef (exoid)) != NC_NOERR)
   {
-    exerrval = ncerr;
+    exerrval = status;
     sprintf(errmsg,
            "Error: failed to complete definition for file id %d", exoid);
     ex_err("ex_create",errmsg,exerrval);

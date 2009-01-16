@@ -36,11 +36,6 @@
 *
 * exgpa - ex_get_prop_array: read object property array
 *
-* author - Larry A. Schoof, Sandia National Laboratories
-*          Victor R. Yarberry, Sandia National Laboratories
-*
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -68,18 +63,14 @@
  */
 
 int ex_get_prop_array (int   exoid,
-                       int   obj_type,
+                       ex_entity_type obj_type,
                        const char *prop_name,
                        int  *values)
 {
-   int num_props, i, propid, dimid, iresult;
+   int num_props, i, propid, status;
    int found = FALSE;
-   long start[1], count[1], num_obj; 
-   nclong *longs;
    char name[MAX_VAR_NAME_LENGTH+1];
    char tmpstr[MAX_STR_LENGTH+1];
-   char obj_stype[MAX_VAR_NAME_LENGTH+1];
-   char dim_name[MAX_VAR_NAME_LENGTH+1];
 
    char errmsg[MAX_ERR_LENGTH];
 
@@ -89,51 +80,41 @@ int ex_get_prop_array (int   exoid,
 
    num_props = ex_get_num_props(exoid, obj_type);
 
-   switch (obj_type)
-   {
-     case EX_ELEM_BLOCK:
-       strcpy (obj_stype, VAR_ID_EL_BLK);
-       strcpy (dim_name, DIM_NUM_EL_BLK);
-       break;
-     case EX_NODE_SET:
-       strcpy (obj_stype, VAR_NS_IDS);
-       strcpy (dim_name, DIM_NUM_NS);
-       break;
-     case EX_SIDE_SET:
-       strcpy (obj_stype, VAR_SS_IDS);
-       strcpy (dim_name, DIM_NUM_SS);
-       break;
-     case EX_ELEM_MAP:
-       strcpy (obj_stype, VAR_EM_PROP(1));
-       strcpy (dim_name, DIM_NUM_EM);
-       break;
-     case EX_NODE_MAP:
-       strcpy (obj_stype, VAR_NM_PROP(1));
-       strcpy (dim_name, DIM_NUM_NM);
-       break;
-     default:
-       exerrval = EX_BADPARAM;
-       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-               obj_type, exoid);
-       ex_err("ex_get_prop_array",errmsg,exerrval);
-       return (EX_FATAL);
-   }
-
-
    for (i=1; i<=num_props; i++)
    {
      switch (obj_type){
        case EX_ELEM_BLOCK:
          strcpy (name, VAR_EB_PROP(i));
          break;
+       case EX_EDGE_BLOCK:
+         strcpy (name, VAR_ED_PROP(i));
+         break;
+       case EX_FACE_BLOCK:
+         strcpy (name, VAR_FA_PROP(i));
+         break;
        case EX_NODE_SET:
          strcpy (name, VAR_NS_PROP(i));
+         break;
+       case EX_EDGE_SET:
+         strcpy (name, VAR_ES_PROP(i));
+         break;
+       case EX_FACE_SET:
+         strcpy (name, VAR_FS_PROP(i));
+         break;
+       case EX_ELEM_SET:
+         strcpy (name, VAR_ELS_PROP(i));
          break;
        case EX_SIDE_SET:
          strcpy (name, VAR_SS_PROP(i));
          break;
        case EX_ELEM_MAP:
          strcpy (name, VAR_EM_PROP(i));
+         break;
+       case EX_FACE_MAP:
+         strcpy (name, VAR_FAM_PROP(i));
+         break;
+       case EX_EDGE_MAP:
+         strcpy (name, VAR_EDM_PROP(i));
          break;
        case EX_NODE_MAP:
          strcpy (name, VAR_NM_PROP(i));
@@ -146,9 +127,8 @@ int ex_get_prop_array (int   exoid,
          return(EX_FATAL);
      }
 
-     if ((propid = ncvarid (exoid, name)) == -1)
-     {
-       exerrval = ncerr;
+     if ((status = nc_inq_varid(exoid, name, &propid)) != NC_NOERR) {
+       exerrval = status;
        sprintf(errmsg,
           "Error: failed to locate property array %s in file id %d",
                name, exoid);
@@ -156,29 +136,24 @@ int ex_get_prop_array (int   exoid,
        return (EX_FATAL);
      }
 
-/*   compare stored attribute name with passed property name   */
-
+     /*   compare stored attribute name with passed property name   */
      memset(tmpstr, 0, MAX_STR_LENGTH+1);
-     if ((ncattget (exoid, propid, ATT_PROP_NAME, tmpstr)) == -1)
-     {
-       exerrval = ncerr;
+     if ((status = nc_get_att_text(exoid, propid, ATT_PROP_NAME, tmpstr)) != NC_NOERR) {
+       exerrval = status;
        sprintf(errmsg,
               "Error: failed to get property name in file id %d", exoid);
        ex_err("ex_get_prop_array",errmsg,exerrval);
        return (EX_FATAL);
      }
 
-     if (strcmp(tmpstr, prop_name) == 0) 
-     {
+     if (strcmp(tmpstr, prop_name) == 0) {
        found = TRUE;
        break;
      }
    }
 
-/* if property is not found, return warning */
-
-   if (!found)
-   {
+   /* if property is not found, return warning */
+   if (!found) {
      exerrval = EX_BADPARAM;
      sprintf(errmsg,
        "Warning: object type %d, property %s not defined in file id %d",
@@ -187,64 +162,16 @@ int ex_get_prop_array (int   exoid,
      return (EX_WARN);
    }
 
-   if ((dimid = ncdimid (exoid, dim_name)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-     "Error: failed to locate number of objects in file id %d",
-              exoid);
-     ex_err("ex_get_prop_array",errmsg, exerrval);
-     return(EX_FATAL);
-   }
+   /* read num_obj values from property variable */
+   status = nc_get_var_int(exoid, propid, values);
 
-/*   get number of objects */
-
-   if (ncdiminq (exoid, dimid, dim_name, &num_obj) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get number of %s objects in file id %d",
-             obj_stype, exoid);
-     ex_err("ex_get_prop_array",errmsg, exerrval);
-     return (EX_FATAL);
-   }
-
-/* read num_obj values from property variable */
-
-/* application code has allocated an array of ints but netcdf is expecting
-   a pointer to nclongs;  if ints are different sizes than nclongs,
-   we must allocate an array of nclongs then convert them to ints with ltoi */
-
-   start[0] = 0;
-   count[0] = num_obj;
-
-   if (sizeof(int) == sizeof(nclong)) {
-      iresult = ncvarget (exoid, propid, start, count, values);
-   } else {
-     if (!(longs = malloc(num_obj * sizeof(nclong)))) {
-       exerrval = EX_MEMFAIL;
-       sprintf(errmsg,
-               "Error: failed to allocate memory for %s property array for file id %d",
-               obj_stype, exoid);
-       ex_err("ex_get_prop_array",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     iresult = ncvarget (exoid, propid, start, count, longs);
-   }
-
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
+   if (status != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to read values in %s property array in file id %d",
-             obj_stype, exoid);
+             ex_name_of_object(obj_type), exoid);
      ex_err("ex_get_prop_array",errmsg,exerrval);
      return (EX_FATAL);
-   }
-
-   if (sizeof(int) != sizeof(nclong)) {
-      ltoi (longs, values, num_obj);
-      free (longs);
    }
 
    return (EX_NOERR);

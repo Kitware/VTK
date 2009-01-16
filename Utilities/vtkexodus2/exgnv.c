@@ -36,14 +36,6 @@
 *
 * exgnv - ex_get_nodal_var
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -75,7 +67,8 @@ int ex_get_nodal_var (int   exoid,
                       void *nodal_var_vals)
 {
   int varid;
-  long start[3], count[3];
+  int status;
+  size_t start[3], count[3];
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */
@@ -84,8 +77,8 @@ int ex_get_nodal_var (int   exoid,
 
   if (ex_large_model(exoid) == 0) {
     /* read values of the nodal variable */
-    if ((varid = ncvarid (exoid, VAR_NOD_VAR)) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid(exoid, VAR_NOD_VAR, &varid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Warning: could not find nodal variables in file id %d",
               exoid);
@@ -104,8 +97,8 @@ int ex_get_nodal_var (int   exoid,
   } else {
     /* read values of the nodal variable  -- stored as separate variables... */
     /* Get the varid.... */
-    if ((varid = ncvarid (exoid, VAR_NOD_VAR_NEW(nodal_var_index))) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid(exoid, VAR_NOD_VAR_NEW(nodal_var_index), &varid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Warning: could not find nodal variable %d in file id %d",
               nodal_var_index, exoid);
@@ -118,20 +111,21 @@ int ex_get_nodal_var (int   exoid,
 
     count[0] = 1;
     count[1] = num_nodes;
-
   }
-  if (ncvarget (exoid, varid, start, count,
-                ex_conv_array(exoid,RTN_ADDRESS,nodal_var_vals,num_nodes)) == -1)
-    {
-      exerrval = ncerr;
+
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_vara_float(exoid, varid, start, count, nodal_var_vals);
+  } else {
+    status = nc_get_vara_double(exoid, varid, start, count, nodal_var_vals);
+  }
+
+  if (status != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Error: failed to get nodal variables in file id %d",
               exoid);
       ex_err("ex_get_nodal_var",errmsg,exerrval);
       return (EX_FATAL);
     }
-
-  ex_conv_array( exoid, READ_CONVERT,nodal_var_vals, num_nodes );
-
   return (EX_NOERR);
 }

@@ -62,6 +62,7 @@
  * reads the values of a single sideset variable for one sideset at 
  * one time step in the database; assume the first time step and
  * sideset variable index is 1
+ * \deprecated Use ex_get_var()(exoid, time_step, EX_SIDE_SET, sset_var_index, sset_id, num_side_this_sset, sset_var_vals) instead
  */
 
 int ex_get_sset_var (int   exoid,
@@ -71,68 +72,6 @@ int ex_get_sset_var (int   exoid,
                      int   num_side_this_sset,
                      void *sset_var_vals)
 {
-   int varid, sset_id_ndx;
-   long start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-  /* Determine index of sset_id in VAR_SS_IDS array */
-  sset_id_ndx = ex_id_lkup(exoid,VAR_SS_IDS,sset_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
-      sprintf(errmsg,
-              "Warning: no sideset variables for NULL sideset %d in file id %d",
-              sset_id,exoid);
-      ex_err("ex_get_sset_var",errmsg,EX_MSG);
-      return (EX_WARN);
-    }
-    else
-    {
-      sprintf(errmsg,
-     "Error: failed to locate sideset id %d in %s variable in file id %d",
-              sset_id, VAR_ID_EL_BLK, exoid);
-      ex_err("ex_get_sset_var",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-
-/* inquire previously defined variable */
-
-   if((varid=ncvarid(exoid,VAR_SS_VAR(sset_var_index,sset_id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Error: failed to locate sideset variable %d for sideset %d in file id %d",
-          sset_var_index,sset_id,exoid); /* this msg needs to be improved */
-     ex_err("ex_get_sset_var",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* read values of sideset variable */
-
-   start[0] = --time_step;
-   start[1] = 0;
-
-   count[0] = 1;
-   count[1] = num_side_this_sset;
-
-   if (ncvarget (exoid, varid, start, count,
-        ex_conv_array(exoid,RTN_ADDRESS,sset_var_vals,num_side_this_sset)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-        "Error: failed to get sset var %d for block %d in file id %d",
-             sset_var_index,sset_id,exoid);/*this msg needs to be improved*/
-     ex_err("ex_get_sset_var",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-   ex_conv_array( exoid, READ_CONVERT, sset_var_vals, num_side_this_sset );
-
-   return (EX_NOERR);
+  return ex_get_var(exoid, time_step, EX_SIDE_SET, sset_var_index,
+		    sset_id, num_side_this_sset, sset_var_vals);
 }

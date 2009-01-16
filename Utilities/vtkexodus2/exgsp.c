@@ -32,17 +32,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
+
 /*****************************************************************************
 *
 * exgsp - ex_get_side_set_param
-*
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
 *
 * entry conditions - 
 *   input parameters:
@@ -61,11 +54,15 @@
 *****************************************************************************/
 
 #include "exodusII.h"
-#include "exodusII_int.h"
 
-/*
+/*!
  * reads the number of sides and the number of distribution factors which 
  * describe a single side set
+ * \param      exoid                   exodus file id
+ * \param      side_set_id             side set id
+ * \param[out] num_side_in_set         number of sides in the side set
+ * \param[out] num_dist_fact_in_set    number of distribution factors in the 
+ * \deprecated Use ex_get_set_param()(exoid, EX_SIDE_SET, side_set_id, num_side_in_set, num_dist_fact_in_set)
  */
 
 int ex_get_side_set_param (int  exoid,
@@ -74,5 +71,5 @@ int ex_get_side_set_param (int  exoid,
                            int *num_dist_fact_in_set)
 {
   return ex_get_set_param(exoid, EX_SIDE_SET, side_set_id, 
-        num_side_in_set, num_dist_fact_in_set);
+			  num_side_in_set, num_dist_fact_in_set);
 }

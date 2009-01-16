@@ -36,12 +36,6 @@
 *
 * exgnm - ex_get_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -65,43 +59,31 @@
  */
 
 int ex_get_num_map ( int   exoid,
-                     int   map_type,
+                     ex_entity_type map_type,
                      int   map_id,
                      int*  map )
 {
-   int dimid, var_id, id_ndx, iresult;
-   long num_entries, start[1], count[1]; 
-   nclong *longs;
+   int dimid, var_id, id_ndx, status;
    char errmsg[MAX_ERR_LENGTH];
    const char* dim_map_size;
    const char* dim_num_maps;
-   const char* prop_map_id;
-   const char* tname;
 
    switch (map_type) {
    case EX_NODE_MAP:
-     tname = "node";
      dim_map_size = DIM_NUM_NODES;
      dim_num_maps = DIM_NUM_NM;
-     prop_map_id = VAR_NM_PROP(1);
      break;
    case EX_EDGE_MAP:
-     tname = "edge";
      dim_map_size = DIM_NUM_EDGE;
      dim_num_maps = DIM_NUM_EDM;
-     prop_map_id = VAR_EDM_PROP(1);
      break;
    case EX_FACE_MAP:
-     tname = "face";
      dim_map_size = DIM_NUM_FACE;
      dim_num_maps = DIM_NUM_FAM;
-     prop_map_id = VAR_FAM_PROP(1);
      break;
    case EX_ELEM_MAP:
-     tname = "elem";
      dim_map_size = DIM_NUM_ELEM;
      dim_num_maps = DIM_NUM_EM;
-     prop_map_id = VAR_EM_PROP(1);
      break;
    default:
      exerrval = EX_BADPARAM;
@@ -113,96 +95,51 @@ int ex_get_num_map ( int   exoid,
    exerrval = 0; /* clear error code */
 
    /* See if any entries are stored in this file */
-   if ((dimid = ncdimid (exoid, dim_map_size)) == -1)
-   {
+   if (nc_inq_dimid (exoid, dim_map_size, &dimid) != NC_NOERR) {
      return (EX_NOERR);
    }
 
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_entries) == -1)
-   {
-     exerrval = ncerr;
+   /* first check if any maps have been defined */
+   if ((status = nc_inq_dimid(exoid, dim_num_maps, &dimid)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
-            "Error: failed to get number of entries in file id %d", exoid);
-     ex_err("ex_get_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* first check if any maps have been defined */
-
-   if ((dimid = ncdimid (exoid, dim_num_maps))  == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Warning: no %s maps defined in file id %d",
-             tname,exoid);
+            "Warning: no %ss defined in file id %d",
+             ex_name_of_object(map_type),exoid);
      ex_err("ex_get_map",errmsg,exerrval);
      return (EX_WARN);
    }
 
-/* Lookup index of map id property array */
-
-   id_ndx = ex_id_lkup(exoid,prop_map_id,map_id);
-   if (exerrval != 0) 
-   {
-
+   /* Lookup index of map id property array */
+   id_ndx = ex_id_lkup(exoid,map_type,map_id);
+   if (exerrval != 0) {
       sprintf(errmsg,
-              "Error: failed to locate %s map id %d in %s in file id %d",
-               tname,map_id,prop_map_id,exoid);
+              "Error: failed to locate %s id %d in id variable in file id %d",
+               ex_name_of_object(map_type),map_id,exoid);
       ex_err("ex_get_map",errmsg,exerrval);
       return (EX_FATAL);
    }
 
-/* inquire id's of previously defined dimensions and variables */
-
-   if ((var_id = ncvarid (exoid, ex_name_of_map(map_type,id_ndx))) == -1)
-   {
-     exerrval = ncerr;
+   /* inquire id's of previously defined dimensions and variables */
+   if ((status = nc_inq_varid(exoid, ex_name_of_map(map_type,id_ndx), &var_id)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
-            "Error: failed to locate %s map %d in file id %d",
-             tname,map_id,exoid);
+            "Error: failed to locate %s %d in file id %d",
+             ex_name_of_object(map_type),map_id,exoid);
      ex_err("ex_get_map",errmsg,exerrval);
      return (EX_FATAL);
    }
 
-
-/* read in the map */
-
-/* application code has allocated an array of ints but netcdf is expecting
-   a pointer to nclongs;  if ints are different sizes than nclongs,
-   we must allocate an array of nclongs then convert them to ints with ltoi */
-
-   start[0] = 0;
-   count[0] = num_entries;
-
-   if (sizeof(int) == sizeof(nclong)) {
-     iresult = ncvarget (exoid, var_id, start, count, map);
-   } else {
-     if (!(longs = malloc(num_entries * sizeof(nclong)))) {
-       exerrval = EX_MEMFAIL;
-       sprintf(errmsg,
-               "Error: failed to allocate memory for %s map for file id %d",
-               tname,exoid);
-       ex_err("ex_get_map",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     iresult = ncvarget (exoid, var_id, start, count, longs);
-   }
+   /* read in the map */
+   status = nc_get_var_int(exoid, var_id, map);
    
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
+   if (status != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
-            "Error: failed to get %s map in file id %d",
-             tname,exoid);
+            "Error: failed to get %s in file id %d",
+             ex_name_of_object(map_type),exoid);
      ex_err("ex_get_map",errmsg,exerrval);
      return (EX_FATAL);
-   }
-
-   if (sizeof(int) != sizeof(nclong)) {
-      ltoi (longs, map, num_entries);
-      free (longs);
    }
 
    return (EX_NOERR);
-
 }

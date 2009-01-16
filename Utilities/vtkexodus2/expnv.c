@@ -59,6 +59,11 @@
  * writes the values of a single nodal variable for a single time step to 
  * the database; assume the first time step and nodal variable index
  * is 1
+ * \param   exoid                   exodus file id
+ * \param   time_step               whole time step number
+ * \param   nodal_var_index         index of desired nodal variable
+ * \param   num_nodes               number of nodal points
+ * \param   nodal_var_vals          array of nodal variable values
  */
 
 int ex_put_nodal_var (int   exoid,
@@ -68,16 +73,17 @@ int ex_put_nodal_var (int   exoid,
                       const void *nodal_var_vals)
 
 {
+  int status;
   int varid;
-  long start[3], count[3];
+  size_t start[3], count[3];
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */
 
   if (ex_large_model(exoid) == 0) {
     /* write values of the nodal variable */
-    if ((varid = ncvarid (exoid, VAR_NOD_VAR)) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid(exoid, VAR_NOD_VAR, &varid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Warning: could not find nodal variables in file id %d",
               exoid);
@@ -94,8 +100,8 @@ int ex_put_nodal_var (int   exoid,
   } else {
     /* nodal variables stored separately, find variable for this variable
        index */
-    if ((varid = ncvarid (exoid, VAR_NOD_VAR_NEW(nodal_var_index))) == -1) {
-      exerrval = ncerr;
+    if ((status = nc_inq_varid(exoid, VAR_NOD_VAR_NEW(nodal_var_index), &varid)) != NC_NOERR) {
+      exerrval = status;
       sprintf(errmsg,
               "Warning: could not find nodal variable %d in file id %d",
               nodal_var_index, exoid);
@@ -110,16 +116,19 @@ int ex_put_nodal_var (int   exoid,
     count[1] = num_nodes;
   }
 
-  if (ncvarput (exoid, varid, start, count,
-                ex_conv_array(exoid,WRITE_CONVERT,nodal_var_vals,num_nodes)) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to store nodal variables in file id %d",
-              exoid);
-      ex_err("ex_put_nodal_var",errmsg,exerrval);
-      return (EX_FATAL);
-    }
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_put_vara_float(exoid, varid, start, count, nodal_var_vals);
+  } else {
+    status = nc_put_vara_double(exoid, varid, start, count, nodal_var_vals);
+  }
 
+  if (status != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to store nodal variables in file id %d",
+	    exoid);
+    ex_err("ex_put_nodal_var",errmsg,exerrval);
+    return (EX_FATAL);
+  }
   return (EX_NOERR);
 }

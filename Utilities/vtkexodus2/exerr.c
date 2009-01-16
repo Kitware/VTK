@@ -36,12 +36,6 @@
 *
 * exerr - ex_err
 *
-* author - Sandia National Laboratories
-*          Vic Yarberry    - Original
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       char*   pname                   procedure name
@@ -56,16 +50,12 @@
 *
 *****************************************************************************/
 
-/* Generalized error reporting function
- * global integer used for suppressing error messages and determining
- * the fatality of errors.
- */
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "netcdf.h"
 #include "exodusII.h"
+#include "exodusII_int.h"
 
 int exerrval = 0;               /* clear initial global error code value */
 
@@ -73,9 +63,28 @@ static char last_pname[MAX_ERR_LENGTH];
 static char last_errmsg[MAX_ERR_LENGTH];
 static int last_errcode;
 
-void ex_err( const char *pname, /* procedure name */
-             const char *err_string,    /* error message string */
-             int errcode)       /* error code */
+/**
+ * Generalized error reporting function.
+ * global integer used for
+ * suppressing error messages and determining the fatality of errors.
+ * \param pname      string containing the name of the calling function.
+ * \param err_string string containing a message explaining the error or problem.
+ *                   If EX_VERBOSE (see ex_opts()) is true, this message will be
+ *                   printed to stderr. Otherwise, nothing will be printed.
+ *                   Maximum length is #MAX_ERR_LENGTH.
+
+ * \param errcode code identifying the error. EXODUS II C functions
+ *                place an error code value in exerrval, an external int. Negative
+ *                values are considered fatal errors while positive values are
+ *                warnings. There is a set of predefined values defined in
+ *                exodusII.h, see group \ref ErrorReturnCodes. 
+ *                The predefined constant #EX_PRTLASTMSG will cause the
+ *                last error message to be output, regardless of the setting of the
+ *                error reporting level (see ex_opts()).
+ */
+void ex_err(const char *pname,      
+            const char *err_string, 
+            int errcode)            
 {
   if (errcode == 0)             /* zero is no error, ignore and return */
     return;
@@ -97,8 +106,8 @@ void ex_err( const char *pname, /* procedure name */
       case NC_ESTS:
         fprintf (stderr," In FORTRAN interface, string too small\n");
         break;
-      case NC_ENTOOL:
-        fprintf (stderr," length of name exceeds MAX_NC_NAME\n");
+      case NC_EMAXNAME:
+        fprintf (stderr," length of name exceeds NC_MAX_NAME\n");
         break;
       case EX_MSG:
         break;
@@ -116,3 +125,11 @@ void ex_err( const char *pname, /* procedure name */
   if ((errcode > 0) && (exoptval & EX_ABORT))
     exit (errcode);
 }
+
+void ex_get_err( const char** msg, const char** func, int* errcode )
+ {
+   (*msg) = last_errmsg;
+   (*func) = last_pname;
+   (*errcode) = last_errcode;
+ }
+

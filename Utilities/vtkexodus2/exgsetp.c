@@ -36,14 +36,6 @@
 *
 * exgsetp - ex_get_set_param
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -70,192 +62,125 @@
  */
 
 int ex_get_set_param (int  exoid,
-          int  set_type, 
-          int  set_id,
-          int *num_entry_in_set, 
-          int *num_dist_fact_in_set)
+		      ex_entity_type set_type, 
+		      int  set_id,
+		      int *num_entry_in_set, 
+		      int *num_dist_fact_in_set)
 {
-   int dimid, set_id_ndx;
-   long lnum_entry_in_set, lnum_dist_fact_in_set;
-   char errmsg[MAX_ERR_LENGTH];
-   char* typeName;
-   char* dimptr;
-   char* idsptr;
-   char* numentryptr = 0;
-   char* numdfptr = 0;
+  int status;
+  int varid, dimid, set_id_ndx;
+  size_t lnum_entry_in_set;
+  size_t lnum_dist_fact_in_set;
+  char errmsg[MAX_ERR_LENGTH];
+  char* numentryptr;
+  char* numdfptr;
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-   /* setup pointers based on set_type 
-    NOTE: there is another block that sets more stuff later ... */
-   if (set_type == EX_NODE_SET) {
-     typeName = "node";
-     dimptr = DIM_NUM_NS;
-     idsptr = VAR_NS_IDS;
-   }
-   else if (set_type == EX_EDGE_SET) {
-     typeName = "edge";
-     dimptr = DIM_NUM_ES;
-     idsptr = VAR_ES_IDS;
-   }
-   else if (set_type == EX_FACE_SET) {
-     typeName = "face";
-     dimptr = DIM_NUM_FS;
-     idsptr = VAR_FS_IDS;
-   }
-   else if (set_type == EX_SIDE_SET) {
-     typeName = "side";
-     dimptr = DIM_NUM_SS;
-     idsptr = VAR_SS_IDS;
-   }
-   else if (set_type == EX_ELEM_SET) {
-     typeName = "elem";
-     dimptr = DIM_NUM_ELS;
-     idsptr = VAR_ELS_IDS;
-   }
-   else {
-     exerrval = EX_FATAL;
-     sprintf(errmsg,
-             "Error: invalid set type (%d)", set_type);
-     ex_err("ex_put_set_param",errmsg,exerrval);
-     return (EX_FATAL);
-   }
 
-/* first check if any sets are specified */
+  /* first check if any sets are specified */
+  if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Warning: no %ss stored in file id %d",
+	    ex_name_of_object(set_type), exoid);
+    ex_err("ex_get_set_param",errmsg,exerrval);
+    return (EX_WARN);
+  }
 
-   if ((dimid = ncdimid (exoid, dimptr)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Warning: no %s sets stored in file id %d",
-             typeName, exoid);
-     ex_err("ex_get_set_param",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-/* Lookup index of set id in VAR_*S_IDS array */
-
-   set_id_ndx = ex_id_lkup(exoid,idsptr,set_id);
-   if (exerrval != 0) 
-   {
-     if (exerrval == EX_NULLENTITY)     /* NULL set? */
-     {
-       *num_entry_in_set = 0;
-       *num_dist_fact_in_set = 0;
-       return (EX_NOERR);
-     }
-     else
-     {
-       sprintf(errmsg,
-              "Error: failed to locate %s set id %d in %s in file id %d",
-               typeName, set_id,idsptr,exoid);
-       ex_err("ex_get_set_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
+  /* Lookup index of set id in VAR_*S_IDS array */
+  set_id_ndx = ex_id_lkup(exoid,set_type,set_id);
+  if (exerrval != 0) {
+    if (exerrval == EX_NULLENTITY)     /* NULL set? */
+      {
+	*num_entry_in_set = 0;
+	*num_dist_fact_in_set = 0;
+	return (EX_NOERR);
+      } else {
+      sprintf(errmsg,
+	      "Error: failed to locate %s id %d in id array in file id %d",
+	      ex_name_of_object(set_type), set_id,exoid);
+      ex_err("ex_get_set_param",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  }
 
   /* setup more pointers based on set_type */
+  if (set_type == EX_NODE_SET) {
+    numentryptr = DIM_NUM_NOD_NS(set_id_ndx);
+    /* note we are using DIM_NUM_NODE_NS instead of DIM_NUM_DF_NS */
+    numdfptr = DIM_NUM_NOD_NS(set_id_ndx);
+  }
+  else if (set_type == EX_EDGE_SET) {
+    numentryptr = DIM_NUM_EDGE_ES(set_id_ndx);
+    numdfptr = DIM_NUM_DF_ES(set_id_ndx);
+  }
+  else if (set_type == EX_FACE_SET) {
+    numentryptr = DIM_NUM_FACE_FS(set_id_ndx);
+    numdfptr = DIM_NUM_DF_FS(set_id_ndx);
+  }
+  else if (set_type == EX_SIDE_SET) {
+    numentryptr = DIM_NUM_SIDE_SS(set_id_ndx);
+    numdfptr = DIM_NUM_DF_SS(set_id_ndx);
+  }
+  if (set_type == EX_ELEM_SET) {
+    numentryptr = DIM_NUM_ELE_ELS(set_id_ndx);
+    numdfptr = DIM_NUM_DF_ELS(set_id_ndx);
+  }
 
-   if (set_type == EX_NODE_SET) {
-     numentryptr = DIM_NUM_NOD_NS(set_id_ndx);
-     /* note we are using DIM_NUM_NODE_NS instead of DIM_NUM_DF_NS */
-     numdfptr = DIM_NUM_NOD_NS(set_id_ndx);
-   }
-   else if (set_type == EX_EDGE_SET) {
-     numentryptr = DIM_NUM_EDGE_ES(set_id_ndx);
-     numdfptr = DIM_NUM_DF_ES(set_id_ndx);
-   }
-   else if (set_type == EX_FACE_SET) {
-     numentryptr = DIM_NUM_FACE_FS(set_id_ndx);
-     numdfptr = DIM_NUM_DF_FS(set_id_ndx);
-   }
-   else if (set_type == EX_SIDE_SET) {
-     numentryptr = DIM_NUM_SIDE_SS(set_id_ndx);
-     numdfptr = DIM_NUM_DF_SS(set_id_ndx);
-   }
-   if (set_type == EX_ELEM_SET) {
-     numentryptr = DIM_NUM_ELE_ELS(set_id_ndx);
-     numdfptr = DIM_NUM_DF_ELS(set_id_ndx);
-   }
+  /* inquire values of dimension for number of entities in set */
+  if (ex_get_dimension(exoid, numentryptr,"entries", &lnum_entry_in_set,
+		       &dimid, "ex_get_set_param") != NC_NOERR)
+    return EX_FATAL;
+  *num_entry_in_set = lnum_entry_in_set;
 
-/* inquire values of dimension for number of entities in set */
+  /* Inquire value of dimension of number of dist factors for this set. 
+     NOTE: For node sets, because DIM_NUM_DF_NS is not used, we check to see
+     if the dist factor variable for a node set index exits. If it does not,
+     the dist factor count is assumed to be zero, otherwise the dist factor 
+     count will be the same as the number of nodes in the set. */
 
-   if ((dimid = ncdimid (exoid, numentryptr)) == -1)
-   {
-     *num_entry_in_set = 0;
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to locate number of entities in %s set %d in file id %d",
-             typeName, set_id, exoid);
-     ex_err("ex_get_set_param",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  if (set_type == EX_NODE_SET) {
+    if ((status = nc_inq_varid(exoid, VAR_FACT_NS(set_id_ndx), &varid)) != NC_NOERR) {
+      *num_dist_fact_in_set = 0;        /* signal dist factor doesn't exist */
+      if (status == NC_ENOTVAR)
+	return (EX_NOERR);
+      else {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to locate the dist factors for %s %d in file id %d",
+		ex_name_of_object(set_type), set_id,exoid);
+	ex_err("ex_get_set_param",errmsg,exerrval);
+	return (EX_FATAL);
+      }
+    }
+    *num_dist_fact_in_set = lnum_entry_in_set;   /* # of df = # of nodes */
+  }
+  else {/* all other set types */
+    if ((status = nc_inq_dimid(exoid, numdfptr, &dimid)) != NC_NOERR) {
+      *num_dist_fact_in_set = 0; /* no distribution factors for this set*/
+      if (status == NC_EBADDIM)
+	return (EX_NOERR);
+      else {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to locate number of dist factors in %s %d in file id %d",
+		ex_name_of_object(set_type), set_id, exoid);
+	ex_err("ex_get_set_param",errmsg,exerrval);
+	return (EX_FATAL);
+      }
+    }
 
-   if (ncdiminq (exoid, dimid, (char *) 0, &lnum_entry_in_set) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to get number of entities in %s set %d in file id %d",
-       typeName, set_id, exoid);
-     ex_err("ex_get_set_param",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-   *num_entry_in_set = lnum_entry_in_set;
+    if ((status = nc_inq_dimlen(exoid, dimid, &lnum_dist_fact_in_set)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to get number of dist factors in %s %d in file id %d",
+	      ex_name_of_object(set_type), set_id, exoid);
+      ex_err("ex_get_set_param",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+    *num_dist_fact_in_set = lnum_dist_fact_in_set;
+  }
 
-   /* Inquire value of dimension of number of dist factors for this set. 
-      NOTE: For node sets, because DIM_NUM_DF_NS is not used, we check to see
-      if the dist factor variable for a node set index exits. If it does not,
-      the dist factor count is assumed to be zero, otherwise the dist factor 
-      count will be the same as the number of nodes in the set. */
-
-   if (set_type == EX_NODE_SET) 
-   {
-     if ((ncvarid (exoid, VAR_FACT_NS(set_id_ndx))) == -1)
-     {
-       *num_dist_fact_in_set = 0;        /* signal dist factor doesn't exist */
-       if (ncerr == NC_ENOTVAR)
-   return (EX_NOERR);
-       else
-       {
-   exerrval = ncerr;
-   sprintf(errmsg,
-     "Error: failed to locate the dist factors for %s set %d in file id %d",
-     typeName, set_id,exoid);
-   ex_err("ex_get_set_param",errmsg,exerrval);
-   return (EX_FATAL);
-       }
-     }
-     *num_dist_fact_in_set = lnum_entry_in_set;   /* # of df = # of nodes */
-   }
-   else /* all other set types */
-   {
-     if ((dimid = ncdimid (exoid, numdfptr)) == -1)
-     {
-       *num_dist_fact_in_set = 0; /* no distribution factors for this set*/
-       if (ncerr == NC_EBADDIM)
-   return (EX_NOERR);
-       else
-       {
-   exerrval = ncerr;
-   sprintf(errmsg,
-     "Error: failed to locate number of dist factors in %s set %d in file id %d",
-     typeName, set_id, exoid);
-   ex_err("ex_get_set_param",errmsg,exerrval);
-   return (EX_FATAL);
-       }
-     }
-
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_dist_fact_in_set) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to get number of dist factors in %s set %d in file id %d",
-         typeName, set_id, exoid);
-       ex_err("ex_get_set_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_dist_fact_in_set = lnum_dist_fact_in_set;
-   }
-
-   return (EX_NOERR);
+  return (EX_NOERR);
 }

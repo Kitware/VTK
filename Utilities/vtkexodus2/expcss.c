@@ -65,6 +65,16 @@
  * writes the side set ID's, side set element count array,
  * side set element pointers array, side set element list,
  * side set side list, and distribution factors list.
+ * \param   exoid                   exodus file id
+ * \param   side_set_ids           array of side set ids
+ * \param   num_elem_per_set       number of elements/sides/faces per set
+ * \param   num_dist_per_set       number of distribution factors per set
+ * \param   side_sets_elem_index   index array of elements into elem list
+ * \param   side_sets_dist_index   index array of df into df list
+ * \param   side_sets_elem_list    array of elements
+ * \param   side_sets_side_list    array of sides/faces
+ * \param   side_sets_dist_fact    array of distribution factors
+ * \deprecated Use ex_put_concat_sets()(exoid, EX_SIDE_SET, set_specs)
  */
 
 int ex_put_concat_side_sets (int   exoid,

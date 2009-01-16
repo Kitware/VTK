@@ -36,14 +36,6 @@
 *
 * expss - ex_put_side_set
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,6 +56,11 @@
 
 /*!
  * writes the side set element list and side set side list for a single side set
+ * \param   exoid                   exodus file id
+ * \param   side_set_id             side set id
+ * \param  *side_set_elem_list      array of elements in side set
+ * \param  *side_set_side_list      array of sides in side set
+ * \deprecated  Use ex_put_set()(exoid, EX_SIDE_SET, side_set_id, side_set_elem_list, side_set_side_list)
  */
 
 int ex_put_side_set (int   exoid,
@@ -72,5 +69,5 @@ int ex_put_side_set (int   exoid,
                      const int  *side_set_side_list)
 {
   return ex_put_set(exoid, EX_SIDE_SET, side_set_id,
-        side_set_elem_list, side_set_side_list);
+		    side_set_elem_list, side_set_side_list);
 }

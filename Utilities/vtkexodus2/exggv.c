@@ -36,14 +36,6 @@
 *
 * exggv - ex_get_glob_vars
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -73,16 +65,15 @@ int ex_get_glob_vars (int   exoid,
                       void *glob_var_vals)
 {
    int varid;
-   long start[2], count[2];
+   int status;
+   size_t start[2], count[2];
    char errmsg[MAX_ERR_LENGTH];
 
    exerrval = 0; /* clear error code */
 
-/* inquire previously defined variable */
-
-   if ((varid = ncvarid (exoid, VAR_GLO_VAR)) == -1)
-   {
-     exerrval = ncerr;
+   /* inquire previously defined variable */
+   if ((status = nc_inq_varid (exoid, VAR_GLO_VAR, &varid)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Warning: failed to locate global variables in file id %d",
             exoid);
@@ -90,28 +81,26 @@ int ex_get_glob_vars (int   exoid,
      return (EX_WARN);
    }
 
-
-/* read values of global variables */
-
+   /* read values of global variables */
    start[0] = --time_step;
    start[1] = 0;
 
    count[0] = 1;
    count[1] = num_glob_vars;
 
-   if (ncvarget (exoid, varid, start, count,
-           ex_conv_array(exoid,RTN_ADDRESS,glob_var_vals,num_glob_vars)) == -1)
-   {
-     exerrval = ncerr;
+   if (ex_comp_ws(exoid) == 4) {
+     status = nc_get_vara_float(exoid, varid, start, count, glob_var_vals);
+   } else {
+     status = nc_get_vara_double(exoid, varid, start, count, glob_var_vals);
+   }
+
+   if (status != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to get global variable values from file id %d",
             exoid);
      ex_err("ex_get_glob_vars",errmsg,exerrval);
      return (EX_FATAL);
    }
-
-
-   ex_conv_array( exoid, READ_CONVERT, glob_var_vals, num_glob_vars );
-
    return (EX_NOERR);
 }

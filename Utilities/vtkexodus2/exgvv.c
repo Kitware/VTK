@@ -36,8 +36,6 @@
 *
 * exgev - ex_get_varid_var
 *
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid           exodus file id
@@ -73,13 +71,13 @@ int ex_get_varid_var(int   exoid,
                      int   num_entity,
                      void *var_vals)
 {
-  long start[2], count[2];
+  int status;
+  size_t start[2], count[2];
   char errmsg[MAX_ERR_LENGTH];
-  void *array;
   
   exerrval = 0; /* clear error code */
 
-  /* read values of element variable */
+  /* read values of variable */
 
   start[0] = --time_step;
   start[1] = 0;
@@ -87,18 +85,19 @@ int ex_get_varid_var(int   exoid,
   count[0] = 1;
   count[1] = num_entity;
 
-  array = ex_conv_array(exoid,RTN_ADDRESS,var_vals,num_entity);
-  if (ncvarget (exoid, varid, start, count, array) == -1) {
-    exerrval = ncerr;
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_vara_float(exoid, varid, start, count, var_vals);
+  } else {
+    status = nc_get_vara_double(exoid, varid, start, count, var_vals);
+  }
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
             "Error: failed to get variable with variable id %d in file id %d",
             varid,exoid);/*this msg needs to be improved*/
     ex_err("ex_get_varid_var",errmsg,exerrval);
     return (EX_FATAL);
-  }
-
-  if (array != var_vals) {
-    ex_conv_array(exoid, READ_CONVERT, var_vals, num_entity);
   }
   return (EX_NOERR);
 }

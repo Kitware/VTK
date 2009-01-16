@@ -36,14 +36,6 @@
 *
 * expgv - ex_put_glo_vars
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -65,6 +57,11 @@
 /*!
  * writes the values of all the global variables for a single time step to 
  * the database; time step numbers are assumed to start at 1
+ * \param  exoid                   exodus file id
+ * \param  time_step               time step number
+ * \param  num_glob_vars           number of global vars in file
+ * \param  glob_var_vals           array of global variable values
+ * \deprecated Use ex_put_var()(exoid, time_step, EX_GLOBAL, 1, 0, num_glob_vars, glob_var_vals)
  */
 
 int ex_put_glob_vars (int   exoid,

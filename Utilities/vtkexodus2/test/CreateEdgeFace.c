@@ -30,6 +30,8 @@ int conn1[] = {
    9, 10, 11, 12,  1,  2,  3,  4
 };
 
+int conn2[] = { 1, 2, 3, 5 };
+
 int econn1[] = {
    1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
   13, 14, 15, 16,  1,  2,  3,  4, 17, 18, 19, 20
@@ -99,7 +101,10 @@ int emap1[] = {
   1, 2
 };
 
-char* eblk_names[] = { "Eli WALLACH" };
+char* eblk_names[] = {
+  "Eli WALLACH",
+  "Angelo NOVI"
+};
 char* edblk_names[] = { "Aldo GIUFFRE" };
 char* fablk_names[] = { 
   "Livio LORENZON",
@@ -273,7 +278,7 @@ int cCreateEdgeFace( int argc, char* argv[] )
     11, /* num_face */
     3,  /* num_face_blk */
     2,  /* num_elem */
-    1,  /* num_elem_blk */
+    2,  /* num_elem_blk */
     1,  /* num_node_sets */
     1,  /* num_edge_sets */
     1,  /* num_face_sets */
@@ -296,13 +301,13 @@ int cCreateEdgeFace( int argc, char* argv[] )
         (int[]){ 2, 1, 8 },                   /* num_face_this_blk */
         (int[]){ 4, 4, 4 },                   /* num_nodes_per_face */
         (int[]){ 1, 1, 1 },                   /* num_attr_face */
-        (int[]){ 200 },                       /* elem_blk_id */
-      (char*[]){ "HEX8" },                    /* elem_type */
-        (int[]){ 2 },                         /* num_elem_this_blk */
-        (int[]){ 8 },                         /* num_nodes_per_elem  */
-        (int[]){ 12 },                        /* num_edges_per_elem */
-        (int[]){ 6 },                         /* num_faces_per_elem */
-        (int[]){ 2 },                         /* num_attr_elem */
+        (int[]){ 200, 201 },                  /* elem_blk_id */
+      (char*[]){ "HEX8", "TET4" },            /* elem_type */
+        (int[]){ 2, 1 },                      /* num_elem_this_blk */
+        (int[]){ 8, 4 },                      /* num_nodes_per_elem  */
+        (int[]){ 12, 0 },                     /* num_edges_per_elem */
+        (int[]){ 6, 0 },                      /* num_faces_per_elem */
+        (int[]){ 2, 0 },                      /* num_attr_elem */
                  0                            /* define_maps */
   };
 
@@ -314,7 +319,7 @@ int cCreateEdgeFace( int argc, char* argv[] )
     (int)   1,                                /* num_face */
     (int[]) { 1, 0, 1 },                      /* face_var_tab */
     (int)   1,                                /* num_elem */
-    (int[]) { 1 },                            /* elem_var_tab */
+    (int[]) { 1, 0 },                         /* elem_var_tab */
     (int)   0,                                /* num_nset */
     (int[]) {},                               /* nset_var_tab */
     (int)   0,                                /* num_eset */
@@ -386,6 +391,10 @@ int cCreateEdgeFace( int argc, char* argv[] )
     "Unable to write elem block 1 connectivity.\n" );
 
   /* *** NEW API *** */
+  EXCHECK( ex_put_conn( exoid, EX_ELEM_BLOCK, blockParams.elem_blk_id[1], conn2, 0, 0 ),
+    "Unable to write elem block 2 connectivity.\n" );
+
+  /* *** NEW API *** */
   EXCHECK( ex_put_names( exoid, EX_EDGE_BLOCK, edblk_names ), "Unable to write edge block names.\n" );
   EXCHECK( ex_put_names( exoid, EX_FACE_BLOCK, fablk_names ), "Unable to write face block names.\n" );
   EXCHECK( ex_put_names( exoid, EX_ELEM_BLOCK,  eblk_names ), "Unable to write element block names.\n" );
@@ -438,7 +447,7 @@ int cCreateEdgeFace( int argc, char* argv[] )
     "Unable to write elem block 1 attribute values.\n" );
 
   /*                  =============== Set parameters ================= */
-  // *** NEW API ***
+  /* *** NEW API *** */
   EXCHECK( ex_put_names( exoid, EX_NODE_SET,  nset_names ), "Unable to write node set names.\n" );
   EXCHECK( ex_put_names( exoid, EX_EDGE_SET,  eset_names ), "Unable to write edge set names.\n" );
   EXCHECK( ex_put_names( exoid, EX_FACE_SET,  fset_names ), "Unable to write face set names.\n" );

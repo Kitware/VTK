@@ -36,12 +36,6 @@
 *
 * expssd - ex_put_set_dist_fact
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -62,199 +56,110 @@
 
 /*!
  * writes the distribution factors for a single set
+ * \param  exoid                   exodus file id
+ * \param  set_type                set type
+ * \param  set_id                  set id
+ * \param *set_dist_fact           array of dist factors for set
  */
 
 int ex_put_set_dist_fact (int   exoid,
-        int   set_type,
-        int   set_id,
-        const void *set_dist_fact)
+			  ex_entity_type set_type,
+			  int   set_id,
+			  const void *set_dist_fact)
 {
-   int dimid, set_id_ndx;
-   int dist_id;
-   long num_df_in_set,  start[1], count[1];
-   char errmsg[MAX_ERR_LENGTH];
-   char* typeName;
-   char* dimptr;
-   char* idsptr;
-   char* numdfptr = 0;
-   char* factptr = 0;
+  int status;
+  int dimid, set_id_ndx;
+  int dist_id;
+  char errmsg[MAX_ERR_LENGTH];
+  char* factptr;
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-   /* setup pointers based on set_type 
-    NOTE: there is another block that sets more stuff later ... */
-   if (set_type == EX_NODE_SET) {
-     typeName = "node";
-     dimptr = DIM_NUM_NS;
-     idsptr = VAR_NS_IDS;
-   }
-   else if (set_type == EX_EDGE_SET) {
-     typeName = "edge";
-     dimptr = DIM_NUM_ES;
-     idsptr = VAR_ES_IDS;
-   }
-   else if (set_type == EX_FACE_SET) {
-     typeName = "face";
-     dimptr = DIM_NUM_FS;
-     idsptr = VAR_FS_IDS;
-   }
-   else if (set_type == EX_SIDE_SET) {
-     typeName = "side";
-     dimptr = DIM_NUM_SS;
-     idsptr = VAR_SS_IDS;
-   }
-   else if (set_type == EX_ELEM_SET) {
-     typeName = "elem";
-     dimptr = DIM_NUM_ELS;
-     idsptr = VAR_ELS_IDS;
-   }
-   else {
-     exerrval = EX_FATAL;
-     sprintf(errmsg,
-       "Error: invalid set type (%d)", set_type);
-     ex_err("ex_put_set_param",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  /* first check if any sets are specified */
+  if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+            "Error: no %ss specified in file id %d",
+	    ex_name_of_object(set_type), exoid);
+    ex_err("ex_put_set_dist_fact",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-/* first check if any sets are specified */
-
-   if ((dimid = ncdimid (exoid, dimptr)) < 0)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: no %s sets specified in file id %d",
-             typeName, exoid);
-     ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* Lookup index of set id in VAR_*S_IDS array */
-
-   set_id_ndx = ex_id_lkup(exoid,idsptr,set_id);
-   if (exerrval != 0) 
-   {
-     if (exerrval == EX_NULLENTITY)
-     {
-       sprintf(errmsg,
-              "Warning: no data allowed for NULL %s set %d in file id %d",
-               typeName, set_id,exoid);
-       ex_err("ex_put_set_fact",errmsg,EX_MSG);
-       return (EX_WARN);
-     }
-     else
-     {
+  /* Lookup index of set id in VAR_*S_IDS array */
+  set_id_ndx = ex_id_lkup(exoid,set_type,set_id);
+  if (exerrval != 0) {
+    if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
-     "Error: failed to locate %s set id %d in VAR_*S_IDS array in file id %d",
-        typeName, set_id,exoid);
-       ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
+              "Warning: no data allowed for NULL %s %d in file id %d",
+	      ex_name_of_object(set_type), set_id,exoid);
+      ex_err("ex_put_set_fact",errmsg,EX_MSG);
+      return (EX_WARN);
+    } else {
+      sprintf(errmsg,
+	      "Error: failed to locate %s id %d in VAR_*S_IDS array in file id %d",
+	      ex_name_of_object(set_type), set_id,exoid);
+      ex_err("ex_put_set_dist_fact",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  }
 
   /* setup more pointers based on set_type */
-   if (set_type == EX_NODE_SET) {
-     /* note we are using DIM_NUM_NODE_NS instead of DIM_NUM_DF_NS */
-     numdfptr = DIM_NUM_NOD_NS(set_id_ndx);
-     factptr = VAR_FACT_NS(set_id_ndx);
-   }
-   else if (set_type == EX_EDGE_SET) {
-     numdfptr = DIM_NUM_DF_ES(set_id_ndx);
-     factptr = VAR_FACT_ES(set_id_ndx);
-   }
-   else if (set_type == EX_FACE_SET) {
-     numdfptr = DIM_NUM_DF_FS(set_id_ndx);
-     factptr = VAR_FACT_FS(set_id_ndx);
-   }
-   else if (set_type == EX_SIDE_SET) {
-     numdfptr = DIM_NUM_DF_SS(set_id_ndx);
-     factptr = VAR_FACT_SS(set_id_ndx);
-   }
-   if (set_type == EX_ELEM_SET) {
-     numdfptr = DIM_NUM_DF_ELS(set_id_ndx);
-     factptr = VAR_FACT_ELS(set_id_ndx);
-   }
+  if (set_type == EX_NODE_SET) {
+    /* note we are using DIM_NUM_NODE_NS instead of DIM_NUM_DF_NS */
+    factptr = VAR_FACT_NS(set_id_ndx);
+  }
+  else if (set_type == EX_EDGE_SET) {
+    factptr = VAR_FACT_ES(set_id_ndx);
+  }
+  else if (set_type == EX_FACE_SET) {
+    factptr = VAR_FACT_FS(set_id_ndx);
+  }
+  else if (set_type == EX_SIDE_SET) {
+    factptr = VAR_FACT_SS(set_id_ndx);
+  }
+  if (set_type == EX_ELEM_SET) {
+    factptr = VAR_FACT_ELS(set_id_ndx);
+  }
 
-/* inquire id's of previously defined dimension and variable */
+  /* find id of distribution factors variable
+   */
 
-   if ((dimid = ncdimid (exoid, numdfptr)) == -1)
-   {
-     if (ncerr == NC_EBADDIM)
-     {
-       exerrval = EX_BADPARAM;
-       sprintf(errmsg,
-              "Warning: no dist factors defined for %s set %d in file id %d",
-               typeName, set_id,exoid);
-       ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-       return (EX_WARN);
+  if ((status = nc_inq_varid(exoid, factptr, &dist_id)) != NC_NOERR) {
+    /* this test is only needed for node set because we're using
+       DIM_NUM_NOD_NS instead of  DIM_NUM_DF_NS*/
+    if (status == NC_ENOTVAR) {
+      exerrval = EX_BADPARAM;
+      sprintf(errmsg,
+	      "Warning: no dist factors defined for %s %d in file id %d",
+	      ex_name_of_object(set_type), set_id, exoid);
+      ex_err("ex_put_set_dist_fact",errmsg,exerrval);
+      return (EX_WARN);
+    } else  {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to locate dist factors list for %s %d in file id %d",
+	      ex_name_of_object(set_type), set_id,exoid);
+      ex_err("ex_put_set_dist_fact",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  }
 
-     }
-     else
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-  "Error: failed to locate number of dist factors in %s set %d in file id %d",
-               typeName, set_id,exoid);
-       ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
+  /* write out the distribution factors array */
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_put_var_float(exoid, dist_id, set_dist_fact);
+  } else {
+    status = nc_put_var_double(exoid, dist_id, set_dist_fact);
+  }
 
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_df_in_set) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-     "Error: failed to get number of dist factors in %s set %d in file id %d",
-             typeName, set_id,exoid);
-     ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+  if (status != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to store dist factors for %s %d in file id %d",
+	    ex_name_of_object(set_type), set_id,exoid);
+    ex_err("ex_put_set_dist_fact",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-/* find id of distribution factors variable
- */
-
-   if ((dist_id = ncvarid (exoid, factptr)) == -1)
-   {
-     /* this test is only needed for node set because we're using
-  DIM_NUM_NOD_NS instead of  DIM_NUM_DF_NS*/
-     if (ncerr == NC_ENOTVAR)
-       {
-   exerrval = EX_BADPARAM;
-   sprintf(errmsg,
-     "Warning: no dist factors defined for %s set %d in file id %d",
-     typeName, set_id, exoid);
-   ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-   return (EX_WARN);
-       }
-     else 
-       {
-   exerrval = ncerr;
-   sprintf(errmsg,
-     "Error: failed to locate dist factors list for %s set %d in file id %d",
-     typeName, set_id,exoid);
-   ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-   return (EX_FATAL);
-       }
-   }
-
-
-/* write out the distribution factors array */
-
-   start[0] = 0;
-
-   count[0] = num_df_in_set;
-
-   if (ncvarput (exoid, dist_id, start, count,
-             ex_conv_array(exoid,WRITE_CONVERT,set_dist_fact,
-                           (int)num_df_in_set)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to store dist factors for %s set %d in file id %d",
-             typeName, set_id,exoid);
-     ex_err("ex_put_set_dist_fact",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   return (EX_NOERR);
+  return (EX_NOERR);
 
 }

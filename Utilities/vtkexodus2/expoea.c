@@ -57,12 +57,18 @@
 
 /*!
  * writes the specified attribute for an element block
+ * \param      exoid                   exodus file id
+ * \param      elem_blk_id             element block id
+ * \param      attrib_index            index of attribute to write
+ * \param      attrib                  array of attributes
+ * \deprecated Use ex_put_one_attr()(exoid, EX_ELEM_BLOCK, elem_blk_id, attrib_index, attrib)
+
  */
 
 int ex_put_one_elem_attr (int   exoid,
-        int   elem_blk_id,
-        int   attrib_index,
-        const void *attrib)
+			  int   elem_blk_id,
+			  int   attrib_index,
+			  const void *attrib)
 {
   return ex_put_one_attr( exoid, EX_ELEM_BLOCK, elem_blk_id, attrib_index, attrib );
 }

@@ -36,14 +36,6 @@
 *
 * exgebi - ex_get_elem_blk_ids
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*          David Thompson  - Moved to ex_get_ids.
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -61,8 +53,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  *  reads the element block ids from the database
+ * \deprecated Use ex_get_ids()(exoid, EX_ELEM_BLOCK, ids) instead
  */
 
 int ex_get_elem_blk_ids (int  exoid,

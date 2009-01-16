@@ -36,14 +36,6 @@
 *
 * expvan - ex_put_var_names
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,51 +56,13 @@
 #include <string.h>
 #include <ctype.h>
 
-#define EX_PUT_NAMES(TNAME,DNUMVAR,VNAMES) \
-     if ((ncdimid (exoid, DNUMVAR)) == -1) \
-     { \
-       if (ncerr == NC_EBADDIM) \
-       { \
-         exerrval = ncerr; \
-         sprintf(errmsg, \
-                "Error: no " TNAME " variables defined in file id %d", \
-                 exoid); \
-         ex_err("ex_put_var_names",errmsg,exerrval); \
-       } \
-       else \
-       { \
-         exerrval = ncerr; \
-         sprintf(errmsg, \
-             "Error: failed to locate number of " TNAME " variables in file id %d", \
-                 exoid); \
-         ex_err("ex_put_var_names",errmsg,exerrval); \
-       } \
-       return(EX_FATAL);  \
-     } \
- \
-     if ((varid = ncvarid (exoid, VNAMES)) == -1) \
-     { \
-       if (ncerr == NC_ENOTVAR) \
-       { \
-         exerrval = ncerr; \
-         sprintf(errmsg, \
-                "Error: no " TNAME " variable names defined in file id %d", \
-                 exoid); \
-         ex_err("ex_put_var_names",errmsg,exerrval); \
-       } \
-       else \
-       { \
-         exerrval = ncerr; \
-         sprintf(errmsg, \
-                "Error: " TNAME " name variable names not found in file id %d", \
-                 exoid); \
-         ex_err("ex_put_var_names",errmsg,exerrval); \
-       } \
-       return(EX_FATAL); \
-     }
-
 /*!
  * writes the names of the results variables to the database
+ * \param     exoid                   exodus file id
+ * \param    *var_type                variable type: G,N, or E
+ * \param     num_vars                # of variables to read
+ * \param    *var_names               ptr array of variable names
+ * \deprecated Use ex_put_variable_names()(exoid, obj_type, num_vars, var_names)
  */
 
 int ex_put_var_names (int   exoid,
@@ -116,77 +70,7 @@ int ex_put_var_names (int   exoid,
                       int   num_vars,
                       char* var_names[])
 {
-   int i, varid; 
-   long  start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-   int vartyp;
-
-   exerrval = 0; /* clear error code */
-
-   vartyp = tolower( *var_type );
-   switch (vartyp) {
-   case 'g':
-     EX_PUT_NAMES(     "global",DIM_NUM_GLO_VAR,  VAR_NAME_GLO_VAR);
-     break;
-   case 'n':
-     EX_PUT_NAMES(      "nodal",DIM_NUM_NOD_VAR,  VAR_NAME_NOD_VAR);
-     break;
-   case 'l':
-     EX_PUT_NAMES(       "edge",DIM_NUM_EDG_VAR,  VAR_NAME_EDG_VAR);
-     break;
-   case 'f':
-     EX_PUT_NAMES(       "face",DIM_NUM_FAC_VAR,  VAR_NAME_FAC_VAR);
-     break;
-   case 'e':
-     EX_PUT_NAMES(    "element",DIM_NUM_ELE_VAR,  VAR_NAME_ELE_VAR);
-     break;
-   case 'm':
-     EX_PUT_NAMES(   "node set",DIM_NUM_NSET_VAR, VAR_NAME_NSET_VAR);
-     break;
-   case 'd':
-     EX_PUT_NAMES(   "edge set",DIM_NUM_ESET_VAR, VAR_NAME_ESET_VAR);
-     break;
-   case 'a':
-     EX_PUT_NAMES(   "face set",DIM_NUM_FSET_VAR, VAR_NAME_FSET_VAR);
-     break;
-   case 's':
-     EX_PUT_NAMES(   "side set",DIM_NUM_SSET_VAR, VAR_NAME_SSET_VAR);
-     break;
-   case 't':
-     EX_PUT_NAMES("element set",DIM_NUM_ELSET_VAR,VAR_NAME_ELSET_VAR);
-     break;
-   default:
-     exerrval = EX_BADPARAM;
-     sprintf(errmsg,
-            "Error: Invalid variable type %c specified in file id %d",
-             *var_type, exoid);
-     ex_err("ex_put_var_names",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-
-
-/* write EXODUS variable names */
-
-   for (i=0; i<num_vars; i++)
-   {
-     start[0] = i;
-     start[1] = 0;
-
-     count[0] = 1;
-     count[1] = (long)strlen(var_names[i]) + 1;
-
-     if (ncvarput (exoid, varid, start, count, (void*) var_names[i]) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-               "Error: failed to store variable names in file id %d",
-                exoid);
-       ex_err("ex_put_var_names",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
-
-   return(EX_NOERR);
-
+  ex_entity_type obj_type;
+  obj_type = ex_var_type_to_ex_entity_type(*var_type);
+  return ex_put_variable_names(exoid, obj_type, num_vars, var_names);
 }

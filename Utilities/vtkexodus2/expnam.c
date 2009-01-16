@@ -59,103 +59,101 @@
 
 /*!
  * writes the name of the specified entity to the database.
+ * \param  exoid          exodus file id
+ * \param  obj_type       object type
+ * \param  entity_id      id of entity name to write
+ * \param  name           ptr to entity name
  */
 
 int ex_put_name (int   exoid,
-     int   obj_type,
-     int   entity_id,
-     const char *name)
+		 ex_entity_type obj_type,
+		 int   entity_id,
+		 const char *name)
 {
-   int varid, ent_ndx; 
-   long  start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-   const char *routine = "ex_put_name";
+  int status;
+  int varid, ent_ndx; 
+  size_t  start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
+  const char *routine = "ex_put_name";
+  const char *vobj;
    
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-   if (obj_type == EX_ELEM_BLOCK) {
-     if ((varid = ncvarid (exoid, VAR_NAME_EL_BLK)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate element block names in file id %d",
-         exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     ent_ndx = ex_id_lkup(exoid, VAR_ID_EL_BLK, entity_id);
-   }
-   else if (obj_type == EX_NODE_SET) {
-     if ((varid = ncvarid (exoid, VAR_NAME_NS)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate nodeset names in file id %d",
-         exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-    ent_ndx = ex_id_lkup(exoid, VAR_NS_IDS, entity_id);
-   }
-   else if (obj_type == EX_SIDE_SET) {
-     if ((varid = ncvarid (exoid, VAR_NAME_SS)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate sideset names in file id %d",
-         exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-    ent_ndx = ex_id_lkup(exoid, VAR_SS_IDS, entity_id);
-   }
+  switch(obj_type) {
+  case EX_EDGE_BLOCK:
+    vobj = VAR_NAME_ED_BLK;
+    break;
+  case EX_FACE_BLOCK:
+    vobj = VAR_NAME_FA_BLK;
+    break;
+  case EX_ELEM_BLOCK:
+    vobj = VAR_NAME_EL_BLK;
+    break;
+  case EX_NODE_SET:
+    vobj = VAR_NAME_NS;
+    break;
+  case EX_SIDE_SET:
+    vobj = VAR_NAME_SS;
+    break;
+  case EX_EDGE_SET:
+    vobj = VAR_NAME_ES;
+    break;
+  case EX_FACE_SET:
+    vobj = VAR_NAME_FS;
+    break;
+  case EX_ELEM_SET:
+    vobj = VAR_NAME_ELS;
+    break;
+  case EX_NODE_MAP:
+    vobj = VAR_NAME_NM;
+    break;
+  case EX_EDGE_MAP:
+    vobj = VAR_NAME_EDM;
+    break;
+  case EX_FACE_MAP:
+    vobj = VAR_NAME_FAM;
+    break;
+  case EX_ELEM_MAP:
+    vobj = VAR_NAME_EM;
+    break;
+  default:
+    exerrval = EX_BADPARAM;
+    sprintf(errmsg,
+	    "Error: Invalid type specified in file id %d", exoid);
+    ex_err(routine,errmsg,exerrval);
+    return(EX_FATAL);
+  }
+   
+  if ((status = nc_inq_varid(exoid, vobj, &varid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to locate %s names in file id %d",
+	    ex_name_of_object(obj_type), exoid);
+    ex_err(routine,errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-   else if (obj_type == EX_NODE_MAP) {
-     if ((varid = ncvarid (exoid, VAR_NAME_NM)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate node map names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     ent_ndx = ex_id_lkup(exoid, VAR_NM_PROP(1), entity_id);
-   }
+  ent_ndx = ex_id_lkup(exoid, obj_type, entity_id);
 
-   else if (obj_type == EX_ELEM_MAP) {
-     if ((varid = ncvarid (exoid, VAR_NAME_EM)) == -1) {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to locate element map names in file id %d", exoid);
-       ex_err(routine,errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     ent_ndx = ex_id_lkup(exoid, VAR_EM_PROP(1), entity_id);
-   }
-
-   else {/* invalid type */
-     exerrval = EX_BADPARAM;
-     sprintf(errmsg,
-       "Error: Invalid type specified in file id %d", exoid);
-     ex_err(routine,errmsg,exerrval);
-     return(EX_FATAL);
-   }
+  /* If this is a null entity, then 'ent_ndx' will be negative.
+   * We don't care in this routine, so make it positive and continue...
+   */
+  if (ent_ndx < 0) ent_ndx = -ent_ndx;
    
-   /* If this is a null entity, then 'ent_ndx' will be negative.
-    * We don't care in this routine, so make it positive and continue...
-    */
-   if (ent_ndx < 0) ent_ndx = -ent_ndx;
+  /* write EXODUS entityname */
+  start[0] = ent_ndx-1;
+  start[1] = 0;
    
-   /* write EXODUS entityname */
-   start[0] = ent_ndx-1;
-   start[1] = 0;
+  count[0] = 1;
+  count[1] = strlen(name) + 1;
    
-   count[0] = 1;
-   count[1] = (long)strlen(name) + 1;
-   
-   if (ncvarput (exoid, varid, start, count, (void*)name) == -1) {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to store entity name for id %d in file id %d",
-       ent_ndx, exoid);
-     ex_err(routine,errmsg,exerrval);
-     return (EX_FATAL);
-   }
-   return(EX_NOERR);
+  if ((status = nc_put_vara_text(exoid, varid, start, count, name)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to store %s name for id %d in file id %d",
+	    ex_name_of_object(obj_type), entity_id, exoid);
+    ex_err(routine,errmsg,exerrval);
+    return (EX_FATAL);
+  }
+  return(EX_NOERR);
 }

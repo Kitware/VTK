@@ -36,15 +36,6 @@
 *
 * expvnm - ex_put_var_name
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*          David Thompson  - Support for edge/face elements and element sets
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -67,6 +58,11 @@
 
 /*!
  * writes the name of a particular results variable to the database
+ * \param       exoid                   exodus file id
+ * \param      *var_type                variable type: G,N, or E
+ * \param       var_num                 variable number name to write 1..num_var
+ * \param      *var_name                ptr of variable name
+ * \deprecated use ex_put_variable_name()(exoid, obj_type, var_num, *var_name)
  */
 
 int ex_put_var_name (int   exoid,
@@ -74,104 +70,7 @@ int ex_put_var_name (int   exoid,
                      int   var_num,
                      const char *var_name)
 {
-   int varid; 
-   long  start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-   int otype;
-   const char* vname;
-   const char* tname;
-
-   exerrval = 0; /* clear error code */
-
-/* inquire previously defined dimensions  */
-
-   if ((ncdimid (exoid, DIM_STR)) < 0)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get string length in file id %d",exoid);
-     ex_err("ex_put_var_name",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* inquire previously defined variables  */
-
-   otype = tolower( *var_type );
-   switch (otype) {
-   case 'g': /* global var */
-     vname = VAR_NAME_GLO_VAR;
-     tname = "global";
-     break;
-   case 'n': /* node var */
-     vname = VAR_NAME_NOD_VAR;
-     tname = "nodal";
-     break;
-   case 'e': /* elem var */
-     vname = VAR_NAME_ELE_VAR;
-     tname = "element";
-     break;
-   case 'l': /* edge var */
-     vname = VAR_NAME_EDG_VAR;
-     tname = "edge";
-     break;
-   case 'f': /* face var */
-     vname = VAR_NAME_FAC_VAR;
-     tname = "face";
-     break;
-   case 'm': /* node set var */
-     vname = VAR_NAME_NSET_VAR;
-     tname = "node set";
-     break;
-   case 'd': /* edge set var */
-     vname = VAR_NAME_ESET_VAR;
-     tname = "edge set";
-     break;
-   case 'a': /* face set var */
-     vname = VAR_NAME_FSET_VAR;
-     tname = "face set";
-     break;
-   case 's': /* side set var */
-     vname = VAR_NAME_SSET_VAR;
-     tname = "side set";
-     break;
-   case 't': /* elem set var */
-     vname = VAR_NAME_ELSET_VAR;
-     tname = "element set";
-     break;
-   default:
-     exerrval = EX_BADPARAM;
-     sprintf(errmsg,
-       "Error: Invalid variable type %c specified in file id %d",
-       *var_type, exoid);
-     ex_err("ex_put_var_name",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-   if ((varid = ncvarid (exoid, vname)) == -1) {
-     exerrval = ncerr;
-     sprintf( errmsg,
-       "Warning: no %s variables names stored in file id %d", tname, exoid );
-     ex_err("ex_put_var_name",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-/* write EXODUS variable name */
-
-   start[0] = var_num-1;
-   start[1] = 0;
-
-   count[0] = 1;
-   count[1] = (long)strlen(var_name) + 1;
-
-   if (ncvarput (exoid, varid, start, count, (void*)var_name) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to store %c variable name %d in file id %d",
-             *var_type, var_num, exoid);
-     ex_err("ex_put_var_name",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   return(EX_NOERR);
+  ex_entity_type obj_type;
+  obj_type = ex_var_type_to_ex_entity_type(*var_type);
+  return ex_put_variable_name(exoid, obj_type, var_num, var_name);
 }

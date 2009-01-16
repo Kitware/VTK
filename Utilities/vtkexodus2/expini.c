@@ -49,9 +49,6 @@
 *
 * exit conditions - 
 *
-* revision history - 
-*          David Thompson  - Moved to expinix.c (expini.c now a special case)
-*
 *  Id
 *
 *****************************************************************************/
@@ -62,6 +59,14 @@
 
 /*!
  * writes the initialization parameters to the EXODUS II file
+ * \param   exoid                   exodus file id
+ * \param   title                   title of file
+ * \param   num_dim                 number of dimensions (per node)
+ * \param   num_nodes               number of nodes
+ * \param   num_elem                number of elements
+ * \param   num_elem_blk            number of element blocks
+ * \param   num_node_sets           number of node sets
+ * \param   num_side_sets           number of side sets
  */
 
 int ex_put_init (int   exoid,

@@ -57,14 +57,17 @@
  * reads the EXODUS II variable varids from the database
  */
 
-int ex_get_varid (int  exoid, const char *var_type,
-                       int *varid_arr)
+int ex_get_varid (int  exoid,
+		  ex_entity_type obj_type,
+		  int *varid_arr)
 {
-  int  varid, dimid, i, j;
-  long num_entity = -1;
-  long num_var = -1;
+  int  status1, status2;
+  size_t i, j;
+  int varid;
+  size_t num_entity = 0;
+  size_t num_var = 0;
   char errmsg[MAX_ERR_LENGTH];
-  const char* routine = "ex_get_elem_varid";
+  const char* routine = "ex_get_varid";
 
   /*
    * The ent_type and the var_name are used to build the netcdf
@@ -76,53 +79,76 @@ int ex_get_varid (int  exoid, const char *var_type,
 
   exerrval = 0; /* clear error code */
  
-  if (*var_type == 'n' || *var_type == 'N') {
+  if (obj_type == EX_NODAL){
     /* Handle nodal variables in a node-specific manner */
     return ex_get_nodal_varid(exoid, varid_arr);
   }
-  else if (*var_type == 'e' || *var_type == 'E') {
-    dimid = ex_get_dimension(exoid, DIM_NUM_EL_BLK,   "element", &num_entity, routine);
-    varid = ex_get_dimension(exoid, DIM_NUM_ELE_VAR,  "element variables", &num_var,    routine);
+  else if (obj_type == EX_ELEM_BLOCK) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_ELE_VAR,  "element variables", &num_var, &varid, routine);
     var_name = "vals_elem_var";
     ent_type = "eb";
   }
-  else if (*var_type == 'm' || *var_type == 'M') {
-    dimid = ex_get_dimension(exoid, DIM_NUM_NS,       "nodeset", &num_entity, routine);
-    varid = ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var,    routine);
+  else if (obj_type == EX_NODE_SET) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var, &varid, routine);
     var_name = "vals_nset_var";
     ent_type = "ns";
   }
-  else if (*var_type == 's' || *var_type == 'S') {
-    dimid = ex_get_dimension(exoid, DIM_NUM_SS,       "sideset", &num_entity, routine);
-    varid = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var,    routine);
+  else if (obj_type == EX_SIDE_SET) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var, &varid, routine);
     var_name = "vals_sset_var";
     ent_type = "ss";
+  }
+  else if (obj_type == EX_EDGE_BLOCK) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_EDG_VAR,  "edge variables", &num_var,    &varid, routine);
+    var_name = "vals_edge_var";
+    ent_type = "ed";
+  }
+  else if (obj_type == EX_EDGE_SET) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var, &varid, routine);
+    var_name = "vals_eset_var";
+    ent_type = "es";
+  }
+  else if (obj_type == EX_FACE_BLOCK) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_FAC_VAR,  "face variables", &num_var,    &varid, routine);
+    var_name = "vals_face_var";
+    ent_type = "fa";
+  }
+  else if (obj_type == EX_FACE_SET) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var, &varid, routine);
+    var_name = "vals_fset_var";
+    ent_type = "fs";
+  }
+  else if (obj_type == EX_ELEM_SET) {
+    status1 = ex_get_dimension(exoid, DIM_NUM_ELSET_VAR, "elementset variables", &num_var, &varid, routine);
+    var_name = "vals_elset_var";
+    ent_type = "es";
   }
   else {       /* invalid variable type */
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-      "Error: Invalid variable type %c specified in file id %d",
-      *var_type, exoid);
+	    "Error: Invalid object type %d specified in file id %d",
+	    obj_type, exoid);
     ex_err("ex_get_varid",errmsg,exerrval);
     return (EX_WARN);
   }
   
-  if (dimid < 0 || varid < 0)
+  status2 = ex_get_dimension(exoid, ex_dim_num_objects(obj_type),
+			     ex_name_of_object(obj_type), &num_entity, &varid, routine);
+  if (status2 != NC_NOERR || status1 != NC_NOERR)
     return(EX_FATAL);
   
   if (num_entity == 0 || num_var == 0)
     return(EX_WARN);
   
-  /* since truth table isn't stored in the data file, derive it dynamically */
   for (j=0; j<num_entity; j++) {
     for (i=0; i<num_var; i++) {
       /* NOTE: names are 1-based */
-      if ((varid = ncvarid (exoid, ex_catstr2(var_name, i+1, ent_type, j+1))) == -1)
-        /* variable doesn't exist; put a 0 in the varid_arr table */
-        varid_arr[j*num_var+i] = 0;
-      else
-        /* variable exists; put varid in the table */
+      if (nc_inq_varid(exoid, ex_catstr2(var_name, i+1, ent_type, j+1), &varid) == NC_NOERR)
+        /* variable exists; put varid in the varid_arr table */
         varid_arr[j*num_var+i] = varid;
+      else
+        /* variable doesn't exist; put 0 in the table */
+        varid_arr[j*num_var+i] = 0;
     }
   }
   return (EX_NOERR);

@@ -36,14 +36,6 @@
 *
 * exopen - ex_open
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       char*   path                    exodus filename path
@@ -68,17 +60,27 @@
 /*!
  * opens an existing EXODUS II file (or EXODUS II history file) and returns 
  * an id that can subsequently be used to refer to the file.  Multiple files 
- * may be open simultaneously
+ * may be open simultaneously. 
+ * \param  path                    exodus filename path
+ * \param  mode                    access mode w/r
+ * \param[out]  comp_ws            computer word size
+ * \param[out]  io_ws              storage word size
+ * \param[out]  version            EXODUSII interface version number 
+ * \param       run_version        EXODUSII version number of linked library
+ * \return      exoid              exodus file id
  */
 
-int ex_open (const char  *path,
-             int    mode,
-             int   *comp_ws,
-             int   *io_ws,
-             float *version)
+int ex_open_int (const char  *path,
+		 int    mode,
+		 int   *comp_ws,
+		 int   *io_ws,
+		 float *version,
+		 int    run_version)
 {
    int exoid;
-   nclong file_wordsize;
+   int status;
+   int old_fill;
+   int file_wordsize;
    char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */
@@ -86,20 +88,27 @@ int ex_open (const char  *path,
 /* set error handling mode to no messages, non-fatal errors */
   ex_opts(exoptval);    /* call required to set ncopts first time through */
 
-
-  if (mode == EX_READ)  /* READ ONLY */
-  {
+  if (run_version != EX_API_VERS_NODOT) {
+    int run_version_major = run_version / 100;
+    int run_version_minor = run_version % 100;
+    int lib_version_major = EX_API_VERS_NODOT / 100;
+    int lib_version_minor = EX_API_VERS_NODOT % 100;
+    fprintf(stderr, "EXODUSII: Warning: This code was compiled with exodusII version %d.%02d,\n          but was linked with exodusII library version %d.%02d\n          This is probably an error in the build process of this code.\n",
+	    run_version_major, run_version_minor, lib_version_major, lib_version_minor);
+  }
+  
+  if (mode == EX_READ) { /* READ ONLY */
 #if defined(__LIBCATAMOUNT__)
-    if ((exoid = ncopen (path, NC_NOWRITE)) < 0)
+    if ((status = nc_open (path, NC_NOWRITE, &exoid)) != NC_NOERR)
 #else
-    if ((exoid = ncopen (path, NC_NOWRITE|NC_SHARE)) < 0)
+    if ((status = nc_open (path, NC_NOWRITE|NC_SHARE, &exoid)) != NC_NOERR)
 #endif
     {
       /* NOTE: netCDF returns an id of -1 on an error - but no error code! */
-      if (ncerr == 0)
+      if (status == 0)
         exerrval = EX_FATAL;
       else
-        exerrval = ncerr;
+        exerrval = status;
       sprintf(errmsg,"Error: failed to open %s read only",path);
       ex_err("ex_open",errmsg,exerrval); 
       return(EX_FATAL);
@@ -109,16 +118,16 @@ int ex_open (const char  *path,
   else if (mode == EX_WRITE) /* READ/WRITE */
   {
 #if defined(__LIBCATAMOUNT__)
-    if ((exoid = ncopen (path, NC_WRITE)) < 0)
+    if ((status = nc_open (path, NC_WRITE, &exoid)) != NC_NOERR)
 #else
-    if ((exoid = ncopen (path, NC_WRITE|NC_SHARE)) < 0)
+    if ((status = nc_open (path, NC_WRITE|NC_SHARE, &exoid)) != NC_NOERR)
 #endif
     {
       /* NOTE: netCDF returns an id of -1 on an error - but no error code! */
-      if (ncerr == 0)
+      if (status == 0)
         exerrval = EX_FATAL;
       else
-        exerrval = ncerr;
+        exerrval = status;
       sprintf(errmsg,"Error: failed to open %s write only",path);
       ex_err("ex_open",errmsg,exerrval); 
       return(EX_FATAL);
@@ -126,9 +135,9 @@ int ex_open (const char  *path,
 
     /* turn off automatic filling of netCDF variables */
 
-    if (ncsetfill (exoid, NC_NOFILL) == -1)
+    if ((status = nc_set_fill (exoid, NC_NOFILL, &old_fill)) != NC_NOERR)
     {
-      exerrval = ncerr;
+      exerrval = status;
       sprintf(errmsg,
              "Error: failed to set nofill mode in file id %d",
               exoid);
@@ -148,9 +157,8 @@ int ex_open (const char  *path,
  * floating point values stored in the file
  */
 
-   if (ncattget (exoid, NC_GLOBAL, ATT_VERSION, version) == -1)
-   {
-     exerrval  = ncerr;
+  if ((status = nc_get_att_float(exoid, NC_GLOBAL, ATT_VERSION, version)) != NC_NOERR) {
+     exerrval  = status;
      sprintf(errmsg,"Error: failed to get database version for file id: %d",
              exoid);
      ex_err("ex_open",errmsg,exerrval);
@@ -167,9 +175,9 @@ int ex_open (const char  *path,
      return(EX_FATAL);
    }
    
-   if (ncattget (exoid, NC_GLOBAL, ATT_FLT_WORDSIZE, &file_wordsize) == -1)
+   if (nc_get_att_int (exoid, NC_GLOBAL, ATT_FLT_WORDSIZE, &file_wordsize) != NC_NOERR)
    {  /* try old (prior to db version 2.02) attribute name */
-     if (ncattget (exoid,NC_GLOBAL,ATT_FLT_WORDSIZE_BLANK,&file_wordsize) == -1)
+     if (nc_get_att_int (exoid,NC_GLOBAL,ATT_FLT_WORDSIZE_BLANK,&file_wordsize) != NC_NOERR)
      {
        exerrval  = EX_FATAL;
        sprintf(errmsg,"Error: failed to get file wordsize from file id: %d",

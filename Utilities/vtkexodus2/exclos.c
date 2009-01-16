@@ -51,22 +51,6 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/* structures to hold number of blocks of that type for each file id */ 
-struct list_item*  ed_ctr_list = 0; /* edge blocks */
-struct list_item*  fa_ctr_list = 0; /* face blocks */
-struct list_item*  eb_ctr_list = 0; /* element blocks */
-/* structures to hold number of sets of that type for each file id */ 
-struct list_item*  ns_ctr_list = 0; /* node sets */
-struct list_item*  es_ctr_list = 0; /* edge sets */
-struct list_item*  fs_ctr_list = 0; /* face sets */
-struct list_item*  ss_ctr_list = 0; /* side sets */
-struct list_item* els_ctr_list = 0; /* element sets */
-/* structures to hold number of maps of that type for each file id */ 
-struct list_item*  nm_ctr_list = 0; /* node maps */
-struct list_item* edm_ctr_list = 0; /* edge maps */
-struct list_item* fam_ctr_list = 0; /* face maps */
-struct list_item*  em_ctr_list = 0; /* element maps */
-
 extern char *ret_string;      /* cf ex_utils.c */
 
 /*!
@@ -75,11 +59,12 @@ extern char *ret_string;      /* cf ex_utils.c */
 int ex_close (int exoid)
 {
    char errmsg[MAX_ERR_LENGTH];
-
+   int status;
+   
    exerrval = 0; /* clear error code */
 
-   if (ncsync (exoid) == -1) {
-     exerrval = ncerr;
+   if ((status = nc_sync(exoid)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,"Error: failed to update file id %d",exoid);
      ex_err("ex_close",errmsg,exerrval);
      return(EX_FATAL);
@@ -87,38 +72,39 @@ int ex_close (int exoid)
    /* Check header size.  Will print message if too big... */
    ex_header_size(exoid);
 
-   if (ncclose (exoid) >= 0 ) {
+   if ((status = nc_close (exoid)) == NC_NOERR) {
      ex_conv_exit(exoid);
-     ex_rm_file_item(exoid, &ed_ctr_list);
-     ex_rm_file_item(exoid, &fa_ctr_list);
-     ex_rm_file_item(exoid, &eb_ctr_list);
-     ex_rm_file_item(exoid, &ns_ctr_list);
-     ex_rm_file_item(exoid, &es_ctr_list);
-     ex_rm_file_item(exoid, &fs_ctr_list);
-     ex_rm_file_item(exoid, &ss_ctr_list);
-     ex_rm_file_item(exoid, &els_ctr_list);
-     ex_rm_file_item(exoid, &nm_ctr_list);
-     ex_rm_file_item(exoid, &edm_ctr_list);
-     ex_rm_file_item(exoid, &fam_ctr_list);
-     ex_rm_file_item(exoid, &em_ctr_list);
 
-     rm_stat_ptr (exoid, &ed);
-     rm_stat_ptr (exoid, &fa);
-     rm_stat_ptr (exoid, &eb);
-     rm_stat_ptr (exoid, &ns);
-     rm_stat_ptr (exoid, &es);
-     rm_stat_ptr (exoid, &fs);
-     rm_stat_ptr (exoid, &ss);
-     rm_stat_ptr (exoid, &els);
-     rm_stat_ptr (exoid, &nm);
-     rm_stat_ptr (exoid, &edm);
-     rm_stat_ptr (exoid, &fam);
-     rm_stat_ptr (exoid, &em);
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_ELEM_BLOCK));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_FACE_BLOCK));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_EDGE_BLOCK));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_NODE_SET));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_EDGE_SET));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_FACE_SET));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_SIDE_SET));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_ELEM_SET));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_NODE_MAP));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_EDGE_MAP));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_FACE_MAP));
+     ex_rm_file_item(exoid, ex_get_counter_list(EX_ELEM_MAP));
+
+     ex_rm_stat_ptr (exoid, &exoII_ed);
+     ex_rm_stat_ptr (exoid, &exoII_fa);
+     ex_rm_stat_ptr (exoid, &exoII_eb);
+     ex_rm_stat_ptr (exoid, &exoII_ns);
+     ex_rm_stat_ptr (exoid, &exoII_es);
+     ex_rm_stat_ptr (exoid, &exoII_fs);
+     ex_rm_stat_ptr (exoid, &exoII_ss);
+     ex_rm_stat_ptr (exoid, &exoII_els);
+     ex_rm_stat_ptr (exoid, &exoII_nm);
+     ex_rm_stat_ptr (exoid, &exoII_edm);
+     ex_rm_stat_ptr (exoid, &exoII_fam);
+     ex_rm_stat_ptr (exoid, &exoII_em);
    }
    else {
-     exerrval = ncerr;
+     exerrval = status;
      sprintf(errmsg, "Error: failed to close file id %d",exoid);
-     ex_err("ex_close",errmsg,ncerr);
+     ex_err("ex_close",errmsg, status);
      return(EX_FATAL);
    }
    return(EX_NOERR);

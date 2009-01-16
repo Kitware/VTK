@@ -176,7 +176,20 @@ SET(cbind_SRCS
   expvv.c
   exupda.c
   ex_utils.c
+  exgattp.c
+  exgidm.c
+  exgvarnam.c
+  exgvarnams.c
+  exgvarparam.c
+  exgvartab.c
+  expattp.c
+  expidm.c
+  expvarnam.c
+  expvarnams.c
+  expvarparam.c
+  expvartab.c
 )
+
 
 IF(APPLE)
   SET_SOURCE_FILES_PROPERTIES(

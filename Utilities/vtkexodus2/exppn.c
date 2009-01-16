@@ -56,163 +56,152 @@
 #include "exodusII_int.h"
 #include <string.h>
 
-/*
+/*!
  * writes the parameters to set up property name arrays
+ * \param    exoid                   exodus file id
+ * \param    obj_type                type of object
+ * \param    num_props               number of properties to be assigned
+ * \param  **prop_names              array of num_props names
  */
 
 int ex_put_prop_names (int   exoid,
-                       int   obj_type,
+                       ex_entity_type obj_type,
                        int   num_props,
                        char **prop_names)
 {
-   int i, propid, dimid, dims[1];
-   char name[MAX_VAR_NAME_LENGTH+1];
-   long vals[1];
+  int status;
+  int oldfill, temp;
+  int i, propid, dimid, dims[1];
+  char name[MAX_VAR_NAME_LENGTH+1];
+  int vals[1];
 
-   char errmsg[MAX_ERR_LENGTH];
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval  = 0; /* clear error code */
+  exerrval  = 0; /* clear error code */
 
-/* determine what type of object (element block, node set, or side set) */
+  /* inquire id of previously defined dimension (number of objects) */
+  if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(obj_type), &dimid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to locate number of %s in file id %d",
+	    ex_name_of_object(obj_type), exoid);
+    ex_err("ex_put_prop_names",errmsg, exerrval);
+    return(EX_FATAL);
+  }
 
-   switch (obj_type){
-     case EX_ELEM_BLOCK:
-       strcpy (name, DIM_NUM_EL_BLK);
-       break;
-     case EX_NODE_SET:
-       strcpy (name, DIM_NUM_NS);
-       break;
-     case EX_SIDE_SET:
-       strcpy (name, DIM_NUM_SS);
-       break;
-     case EX_ELEM_MAP:
-       strcpy (name, DIM_NUM_EM);
-       break;
-     case EX_NODE_MAP:
-       strcpy (name, DIM_NUM_NM);
-       break;
-     default:
-       exerrval = EX_BADPARAM;
-       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-         obj_type, exoid);
-       ex_err("ex_put_prop_names",errmsg,exerrval);
-       return(EX_FATAL);
-   }
+  nc_set_fill(exoid, NC_FILL, &oldfill); /* fill with zeros per routine spec */
 
-/* inquire id of previously defined dimension (number of objects) */
+  /* put netcdf file into define mode  */
+  if ((status = nc_redef (exoid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,"Error: failed to place file id %d into define mode",exoid);
+    ex_err("ex_put_prop_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-   if ((dimid = ncdimid (exoid, name)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-     "Error: failed to locate number of objects in file id %d",
-              exoid);
-     ex_err("ex_put_prop_names",errmsg, exerrval);
-     return(EX_FATAL);
-   }
+  /* define num_props variables; we postpend the netcdf variable name with  */
+  /* a counter starting at 2 because "xx_prop1" is reserved for the id array*/
+  dims[0] = dimid;
 
-   ncsetfill(exoid, NC_FILL); /* fill with zeros per routine spec */
-/* put netcdf file into define mode  */
+  for (i=0; i<num_props; i++) {
+    switch (obj_type) {
+    case EX_ELEM_BLOCK:
+      strcpy (name, VAR_EB_PROP(i+2));
+      break;
+    case EX_FACE_BLOCK:
+      strcpy (name, VAR_FA_PROP(i+2));
+      break;
+    case EX_EDGE_BLOCK:
+      strcpy (name, VAR_ED_PROP(i+2));
+      break;
+    case EX_NODE_SET:
+      strcpy (name, VAR_NS_PROP(i+2));
+      break;
+    case EX_SIDE_SET:
+      strcpy (name, VAR_SS_PROP(i+2));
+      break;
+    case EX_EDGE_SET:
+      strcpy (name, VAR_ES_PROP(i+2));
+      break;
+    case EX_FACE_SET:
+      strcpy (name, VAR_FS_PROP(i+2));
+      break;
+    case EX_ELEM_SET:
+      strcpy (name, VAR_ELS_PROP(i+2));
+      break;
+    case EX_ELEM_MAP:
+      strcpy (name, VAR_EM_PROP(i+2));
+      break;
+    case EX_FACE_MAP:
+      strcpy (name, VAR_FAM_PROP(i+2));
+      break;
+    case EX_EDGE_MAP:
+      strcpy (name, VAR_EDM_PROP(i+2));
+      break;
+    case EX_NODE_MAP:
+      strcpy (name, VAR_NM_PROP(i+2));
+      break;
+    default:
+      exerrval = EX_BADPARAM;
+      sprintf(errmsg, "Error: object type %d not supported; file id %d",
+	      obj_type, exoid);
+      ex_err("ex_put_prop_names",errmsg,exerrval);
+      goto error_ret;        /* Exit define mode and return */
+    }
 
-   if (ncredef (exoid) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,"Error: failed to place file id %d into define mode",exoid);
-     ex_err("ex_put_prop_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+    if ((status = nc_def_var(exoid, name, NC_INT, 1, dims, &propid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to create property array variable in file id %d",
+	      exoid);
+      ex_err("ex_put_prop_names",errmsg,exerrval);
+      goto error_ret;  /* Exit define mode and return */
+    }
 
-/* define num_props variables; we postpend the netcdf variable name with  */
-/* a counter starting at 2 because "xx_prop1" is reserved for the id array*/
+    vals[0] = 0; /* fill value */
 
-   dims[0] = dimid;
+    /*   create attribute to cause variable to fill with zeros per routine spec */
+    if ((status = nc_put_att_int(exoid, propid, _FillValue, NC_INT, 1, vals)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to create property name fill attribute in file id %d",
+	      exoid);
+      ex_err("ex_put_prop_names",errmsg,exerrval);
+      goto error_ret;  /* Exit define mode and return */
+    }
 
-   for (i=0; i<num_props; i++)
-   {
-     switch (obj_type){
-       case EX_ELEM_BLOCK:
-         strcpy (name, VAR_EB_PROP(i+2));
-         break;
-       case EX_NODE_SET:
-         strcpy (name, VAR_NS_PROP(i+2));
-         break;
-       case EX_SIDE_SET:
-         strcpy (name, VAR_SS_PROP(i+2));
-         break;
-       case EX_ELEM_MAP:
-         strcpy (name, VAR_EM_PROP(i+2));
-         break;
-       case EX_NODE_MAP:
-         strcpy (name, VAR_NM_PROP(i+2));
-         break;
-       default:
-         exerrval = EX_BADPARAM;
-         sprintf(errmsg, "Error: object type %d not supported; file id %d",
-           obj_type, exoid);
-         ex_err("ex_put_prop_names",errmsg,exerrval);
-         goto error_ret;        /* Exit define mode and return */
-     }
-
-     if ((propid = ncvardef (exoid, name, NC_LONG, 1, dims)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-          "Error: failed to create property array variable in file id %d",
-               exoid);
-       ex_err("ex_put_prop_names",errmsg,exerrval);
-       goto error_ret;  /* Exit define mode and return */
-     }
-
-     vals[0] = 0; /* fill value */
-     /*   create attribute to cause variable to fill with zeros per routine spec */
-     if ((ncattput (exoid, propid, _FillValue, NC_LONG, 1, vals)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-           "Error: failed to create property name fill attribute in file id %d",
-               exoid);
-       ex_err("ex_put_prop_names",errmsg,exerrval);
-       goto error_ret;  /* Exit define mode and return */
-     }
-
-/*   store property name as attribute of property array variable */
-
-     if ((ncattput (exoid, propid, ATT_PROP_NAME, NC_CHAR, 
-                    (int)strlen(prop_names[i])+1, prop_names[i])) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
+    /*   store property name as attribute of property array variable */
+    if ((status = nc_put_att_text(exoid, propid, ATT_PROP_NAME,
+				  strlen(prop_names[i])+1, prop_names[i])) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
               "Error: failed to store property name %s in file id %d",
-               prop_names[i],exoid);
-       ex_err("ex_put_prop_names",errmsg,exerrval);
-       goto error_ret;  /* Exit define mode and return */
-     }
+	      prop_names[i],exoid);
+      ex_err("ex_put_prop_names",errmsg,exerrval);
+      goto error_ret;  /* Exit define mode and return */
+    }
+  }
 
-   }
+  /* leave define mode  */
+  if ((status = nc_enddef(exoid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to leave define mode in file id %d", 
+	    exoid);
+    ex_err("ex_put_prop_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-/* leave define mode  */
+  nc_set_fill(exoid, oldfill, &temp); /* default: turn off fill */
+  return (EX_NOERR);
 
-   if (ncendef (exoid) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to leave define mode in file id %d", 
-        exoid);
-     ex_err("ex_put_prop_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   ncsetfill(exoid, NC_NOFILL); /* default: turn off fill */
-   return (EX_NOERR);
-
-/* Fatal error: exit definition mode and return */
-error_ret:
-       if (ncendef (exoid) == -1)     /* exit define mode */
-       {
-         sprintf(errmsg,
-                "Error: failed to complete definition for file id %d",
-                 exoid);
-         ex_err("ex_put_prop_names",errmsg,exerrval);
-       }
-       return (EX_FATAL);
+  /* Fatal error: exit definition mode and return */
+ error_ret:
+  if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
+    sprintf(errmsg,
+	    "Error: failed to complete definition for file id %d",
+	    exoid);
+    ex_err("ex_put_prop_names",errmsg,exerrval);
+  }
+  return (EX_FATAL);
 }

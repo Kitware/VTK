@@ -36,11 +36,6 @@
 *
 * expem - ex_put_elem_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -60,6 +55,10 @@
 /*!
  * writes an element map; this is a vector of integers of length number
  * of elements
+ * \param  exoid                   exodus file id
+ * \param  map_id                  element map id
+ * \param  elem_map                element map
+ * \deprecated Use ex_put_num_map()(exoid, EX_ELEM_MAP, map_id, elem_map)
  */
 
 int ex_put_elem_map (int exoid,

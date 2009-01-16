@@ -36,14 +36,6 @@
 *
 * exgnv - ex_get_nodal_varid_var
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -76,9 +68,9 @@ int ex_get_nodal_varid_var(int   exoid,
                            int   varid,
                            void *nodal_var_vals)
 {
-  long start[3], count[3];
+  int status;
+  size_t start[3], count[3];
   char errmsg[MAX_ERR_LENGTH];
-  void *array;
   
   exerrval = 0; /* clear error code */
 
@@ -100,18 +92,21 @@ int ex_get_nodal_varid_var(int   exoid,
     count[0] = 1;
     count[1] = num_nodes;
   }
-  array = ex_conv_array(exoid,RTN_ADDRESS,nodal_var_vals,num_nodes);
-  if (ncvarget (exoid, varid, start, count, array) == -1) {
-    exerrval = ncerr;
+
+  if (ex_comp_ws(exoid) == 4) {
+    status = nc_get_vara_float(exoid, varid, start, count, nodal_var_vals);
+  } else {
+    status = nc_get_vara_double(exoid, varid, start, count, nodal_var_vals);
+  }
+
+  if (status != NC_NOERR) {
+    exerrval = status;
     sprintf(errmsg,
             "Error: failed to get nodal variables in file id %d",
             exoid);
     ex_err("ex_get_nodal_varid_var",errmsg,exerrval);
     return (EX_FATAL);
   }
-
-  if (array != nodal_var_vals)
-    ex_conv_array( exoid, READ_CONVERT,nodal_var_vals, num_nodes );
 
   return (EX_NOERR);
 }

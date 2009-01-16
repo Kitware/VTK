@@ -36,14 +36,6 @@
 *
 * exgmap - ex_get_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -61,16 +53,16 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  *  reads the element order map from the database
+ * \deprecated Use ex_get_num_map() instead.
  */
 
 int ex_get_map (int  exoid,
                 int *elem_map)
 {
-   int numelemdim, mapid, i, iresult;
-   long num_elem,  start[1], count[1]; 
-   nclong *longs;
+   int numelemdim, mapid, status;
+   size_t i, num_elem;
    char errmsg[MAX_ERR_LENGTH];
 
    exerrval = 0; /* clear error code */
@@ -78,14 +70,12 @@ int ex_get_map (int  exoid,
 /* inquire id's of previously defined dimensions and variables  */
 
    /* See if file contains any elements...*/
-   if ((numelemdim = ncdimid (exoid, DIM_NUM_ELEM)) == -1)
-   {
+   if ((status = nc_inq_dimid (exoid, DIM_NUM_ELEM, &numelemdim)) != NC_NOERR) {
      return (EX_NOERR);
    }
 
-   if (ncdiminq (exoid, numelemdim, (char *) 0, &num_elem) == -1)
-   {
-     exerrval = ncerr;
+   if ((status = nc_inq_dimlen(exoid, numelemdim, &num_elem)) != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to get number of elements in file id %d",
              exoid);
@@ -94,58 +84,24 @@ int ex_get_map (int  exoid,
    }
 
 
-   if ((mapid = ncvarid (exoid, VAR_MAP)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-   "Warning: element order map not stored in file id %d; returning default map",
-             exoid);
-     ex_err("ex_get_map",errmsg,exerrval);
-
-/* generate default map of 1..n, where n is num_elem */
+   if (nc_inq_varid(exoid, VAR_MAP, &mapid) != NC_NOERR) {
+     /* generate default map of 1..n, where n is num_elem */
      for (i=0; i<num_elem; i++)
-        elem_map[i] = i+1;
-
-     return (EX_WARN);
+       elem_map[i] = i+1;
+     
+     return (EX_NOERR);
    }
 
+   /* read in the element order map  */
+   status = nc_get_var_int(exoid, mapid, elem_map);
 
-/* read in the element order map  */
-
-/* application code has allocated an array of ints but netcdf is expecting
-   a pointer to nclongs;  if ints are different sizes than nclongs,
-   we must allocate an array of nclongs then convert them to ints with ltoi */
-
-   start[0] = 0;
-   count[0] = num_elem;
-
-   if (sizeof(int) == sizeof(nclong)) {
-      iresult = ncvarget (exoid, mapid, start, count, elem_map);
-   } else {
-     if (!(longs = malloc(num_elem * sizeof(nclong)))) {
-       exerrval = EX_MEMFAIL;
-       sprintf(errmsg,
-               "Error: failed to allocate memory for element order map for file id %d",
-               exoid);
-       ex_err("ex_get_map",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     iresult = ncvarget (exoid, mapid, start, count, longs);
-   }
-
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
+   if (status != NC_NOERR) {
+     exerrval = status;
      sprintf(errmsg,
             "Error: failed to get element order map in file id %d",
              exoid);
      ex_err("ex_get_map",errmsg,exerrval);
      return (EX_FATAL);
-   }
-
-   if (sizeof(int) != sizeof(nclong)) {
-      ltoi (longs, elem_map, num_elem);
-      free (longs);
    }
 
    return(EX_NOERR);

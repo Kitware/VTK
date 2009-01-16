@@ -36,12 +36,6 @@
 *
 * exgnm - ex_get_node_map
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -59,8 +53,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the node map with specified ID
+ * \deprecated Use ex_get_num_map()(exoid, EX_NODE_MAP, map_id, node_map
  */
 
 int ex_get_node_map( int   exoid,

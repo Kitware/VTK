@@ -36,14 +36,6 @@
 *
 * exgcns - read concatenated side sets
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -66,10 +58,11 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the node set ID's, node set count array, node set pointers array, 
  * node set node list, and node set distribution factors for all of the 
  * node sets
+ * \deprecated Use ex_get_concat_sets()(exoid, EX_NODE_SET, set_specs) instead
  */
 
 int ex_get_concat_node_sets (int   exoid,

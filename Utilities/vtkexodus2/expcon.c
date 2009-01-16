@@ -36,14 +36,6 @@
 *
 * expcon - ex_put_coord_names
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -62,71 +54,66 @@
 #include <string.h>
 /*!
  * writes the names of the coordinate arrays to the database
+ * \param  exoid                   exodus file id
+ * \param  coord_names             ptr array of coordinate names
  */
 
 int ex_put_coord_names (int   exoid,
                         char *coord_names[])
 {
-   int i, ndimdim, varid;
-   long num_dim, start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
+  int status;
+  int i, ndimdim, varid;
+  size_t num_dim, start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* inquire previously defined dimensions  */
+  /* inquire previously defined dimensions  */
+  if ((status = nc_inq_dimid(exoid, DIM_NUM_DIM, &ndimdim)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
+	    "Error: failed to locate number of dimensions in file id %d",
+	    exoid);
+    ex_err("ex_put_coord_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-   if ((ndimdim = ncdimid (exoid, DIM_NUM_DIM)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Error: failed to locate number of dimensions in file id %d",
-             exoid);
-     ex_err("ex_put_coord_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   if (ncdiminq (exoid, ndimdim, (char *) 0, &num_dim) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if ((status = nc_inq_dimlen(exoid, ndimdim, &num_dim)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: inquire failed to get number of dimensions in file id %d",
-             exoid);
-     ex_err("ex_put_coord_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+	    exoid);
+    ex_err("ex_put_coord_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
-   if ((varid = ncvarid (exoid, VAR_NAME_COOR)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if ((status = nc_inq_varid(exoid, VAR_NAME_COOR, &varid)) == -1) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to locate coordinate names in file id %d",
-             exoid);
-     ex_err("ex_put_coord_names",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+	    exoid);
+    ex_err("ex_put_coord_names",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
 
-/* write out coordinate names */
+  /* write out coordinate names */
 
-   for (i=0; i<num_dim; i++)
-   {
-     start[0] = i;
-     start[1] = 0;
+  for (i=0; i<num_dim; i++) {
+    start[0] = i;
+    start[1] = 0;
 
-     count[0] = 1;
-     count[1] = (long)strlen(coord_names[i]) + 1;
+    count[0] = 1;
+    count[1] = strlen(coord_names[i]) + 1;
 
-     if (ncvarput (exoid, varid, start, count, (void*) coord_names[i]) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to store coordinate name %d in file id %d",
-               i,exoid);
-       ex_err("ex_put_coord_names",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
-
-   return (EX_NOERR);
-
+    if ((status = nc_put_vara_text(exoid, varid, start, count, coord_names[i])) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to store coordinate name %d in file id %d",
+	      i,exoid);
+      ex_err("ex_put_coord_names",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+  }
+  return (EX_NOERR);
 }

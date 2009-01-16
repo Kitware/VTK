@@ -63,6 +63,11 @@
  * of define mode (causing the entire file to be copied over and over)
  * which is what occurs when the sideset variable values variables are
  * defined in ex_put_sset_var
+ * \param      exoid                   exodus file id
+ * \param      num_sset                number of sidesets
+ * \param      num_sset_var            number of sideset variables
+ * \param     *sset_var_tab            sideset variable truth table array
+ * \deprecated Use ex_put_truth_table()(exoid, EX_SIDE_SET, num_sset, num_sset_var, sset_var_tab)
  */
 
 int ex_put_sset_var_tab (int  exoid,
@@ -70,6 +75,6 @@ int ex_put_sset_var_tab (int  exoid,
                          int  num_sset_var,
                          int *sset_var_tab)
 {
-  return ex_put_var_tab(exoid, "S", num_sset, num_sset_var, sset_var_tab);
+  return ex_put_truth_table(exoid, EX_SIDE_SET, num_sset, num_sset_var, sset_var_tab);
 }
 

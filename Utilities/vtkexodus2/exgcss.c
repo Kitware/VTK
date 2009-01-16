@@ -33,44 +33,37 @@
  * 
  */
 /*****************************************************************************
-*
-* exgcss - ex_get_concat_side_sets
-*
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*
-* exit conditions -
-*       int     *side_set_ids           array of side set ids
-*       int     *num_elem_per_set       number of elements/sides/faces  per set
-*       int     *num_dist_per_set       number of distribution factors per set
-*       int     *side_sets_elem_index   index array of elements into elem list
-*       int     *side_sets_dist_index   index array of df into df list
-*       int     *side_sets_elem_list    array of elements
-*       int     *side_sets_side_list    array of sides
-*       void    *side_sets_dist_fact    array of distribution factors
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
+ *
+ * exgcss - ex_get_concat_side_sets
+ *
+ * entry conditions - 
+ *   input parameters:
+ *       int     exoid                   exodus file id
+ *
+ * exit conditions -
+ *       int     *side_set_ids           array of side set ids
+ *       int     *num_elem_per_set       number of elements/sides/faces  per set
+ *       int     *num_dist_per_set       number of distribution factors per set
+ *       int     *side_sets_elem_index   index array of elements into elem list
+ *       int     *side_sets_dist_index   index array of df into df list
+ *       int     *side_sets_elem_list    array of elements
+ *       int     *side_sets_side_list    array of sides
+ *       void    *side_sets_dist_fact    array of distribution factors
+ *
+ * revision history - 
+ *
+ *  Id
+ *
+ *****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the side set ID's, side set element count array, side set node count 
  * array, side set element pointers array, side set node pointers array, side 
  * set element list, side set node list, and side set distribution factors
+ * \deprecated Use ex_get_concat_sets()(exoid, EX_SIDE_SET, set_specs) instead
  */
 
 int ex_get_concat_side_sets (int   exoid,

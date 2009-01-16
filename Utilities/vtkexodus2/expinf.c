@@ -36,14 +36,6 @@
 *
 * expinf - ex_put_info
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -63,132 +55,114 @@
 
 /*!
  * writes information records to the database
+ *  \param  exoid                   exodus file id
+ *  \param  num_info                count of info records to be written.
+ *  \param  info[]                  ptr array of info records
  */
 
 int ex_put_info (int   exoid, 
                  int   num_info,
                  char *info[])
 {
-   int i, lindim, num_info_dim, dims[2], varid;
-   long start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
+  int status;
+  int i, lindim, num_info_dim, dims[2], varid;
+  size_t start[2], count[2];
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* only do this if there are records */
+  /* only do this if there are records */
+  if (num_info > 0) {
 
-   if (num_info > 0)
-   {
-/*   inquire previously defined dimensions  */
-
-     if ((lindim = ncdimid (exoid, DIM_LIN)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
+    /*   inquire previously defined dimensions  */
+    if ((status = nc_inq_dimid(exoid, DIM_LIN, &lindim)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
               "Error: failed to get line string length in file id %d", exoid);
-       ex_err("ex_put_info",errmsg,exerrval);
-       return (EX_FATAL);
-     }
+      ex_err("ex_put_info",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
-
-/*   put file into define mode  */
-
-     if (ncredef (exoid) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
+    /* put file into define mode  */
+    if ((status = nc_redef (exoid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
               "Error: failed put file id %d into define mode", exoid);
-       ex_err("ex_put_info",errmsg,exerrval);
-       return (EX_FATAL);
-     }
+      ex_err("ex_put_info",errmsg,exerrval);
+      return (EX_FATAL);
+    }
+
+    /* define dimensions */
+    if ((status = nc_def_dim(exoid, DIM_NUM_INFO, num_info, &num_info_dim)) != NC_NOERR) {
+      if (status == NC_ENAMEINUSE) {     /* duplicate entry? */
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: info records already exist in file id %d", 
+		exoid);
+	ex_err("ex_put_info",errmsg,exerrval);
+      } else {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to define number of info records in file id %d",
+		exoid);
+	ex_err("ex_put_info",errmsg,exerrval);
+      }
+
+      goto error_ret;         /* exit define mode and return */
+    }
+
+    /* define variable  */
+    dims[0] = num_info_dim;
+    dims[1] = lindim;
+
+    if ((status = nc_def_var(exoid, VAR_INFO, NC_CHAR, 2, dims, &varid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to define info record in file id %d",
+	      exoid);
+      ex_err("ex_put_info",errmsg,exerrval);
+      goto error_ret;         /* exit define mode and return */
+    }
+
+    /*   leave define mode  */
+    if ((status = nc_enddef (exoid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to complete info record definition in file id %d",
+	      exoid);
+      ex_err("ex_put_info",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
 
-/*   define dimensions */
+    /* write out information records */
+    for (i=0; i<num_info; i++) {
+      start[0] = i;
+      start[1] = 0;
 
-     if ((num_info_dim = ncdimdef (exoid, DIM_NUM_INFO, (long)num_info)) == -1)
-     {
-       if (ncerr == NC_ENAMEINUSE)      /* duplicate entry? */
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-              "Error: info records already exist in file id %d", 
-               exoid);
-         ex_err("ex_put_info",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-              "Error: failed to define number of info records in file id %d",
-               exoid);
-         ex_err("ex_put_info",errmsg,exerrval);
-       }
+      count[0] = 1;
+      count[1] = strlen(info[i]) + 1;
 
-     goto error_ret;         /* exit define mode and return */
-     }
+      if ((status = nc_put_vara_text(exoid, varid, start, count, info[i])) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to store info record in file id %d",
+		exoid);
+	ex_err("ex_put_info",errmsg,exerrval);
+	return (EX_FATAL);
+      }
+    }
+  }
 
+  return (EX_NOERR);
 
-/* define variable  */
-
-     dims[0] = num_info_dim;
-     dims[1] = lindim;
-
-     if ((varid = ncvardef (exoid, VAR_INFO, NC_CHAR, 2, dims)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to define info record in file id %d",
-               exoid);
-       ex_err("ex_put_info",errmsg,exerrval);
-       goto error_ret;         /* exit define mode and return */
-     }
-
-
-/*   leave define mode  */
-
-     if (ncendef (exoid) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to complete info record definition in file id %d",
-               exoid);
-       ex_err("ex_put_info",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-
-
-/* write out information records */
-
-     for (i=0; i<num_info; i++)
-     {
-       start[0] = i;
-       start[1] = 0;
-
-       count[0] = 1;
-       count[1] = (long)strlen(info[i]) + 1;
-
-       if (ncvarput (exoid, varid, start, count, (void*) info[i]) == -1)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: failed to store info record in file id %d",
-                 exoid);
-         ex_err("ex_put_info",errmsg,exerrval);
-         return (EX_FATAL);
-       }
-     }
-   }
-
-   return (EX_NOERR);
-
-/* Fatal error: exit definition mode and return */
-error_ret:
-       if (ncendef (exoid) == -1)     /* exit define mode */
-       {
-         sprintf(errmsg,
-                "Error: failed to complete definition for file id %d",
-                 exoid);
-         ex_err("ex_put_info",errmsg,exerrval);
-       }
-       return (EX_FATAL);
+  /* Fatal error: exit definition mode and return */
+ error_ret:
+  if (nc_enddef (exoid) != NC_NOERR) {     /* exit define mode */
+    sprintf(errmsg,
+	    "Error: failed to complete definition for file id %d",
+	    exoid);
+    ex_err("ex_put_info",errmsg,exerrval);
+  }
+  return (EX_FATAL);
 }

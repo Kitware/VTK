@@ -47,9 +47,6 @@
 *
 * exit conditions - 
 *
-* revision history - 
-*   20061001 - David Thompson - moved functionality to ex_put_block
-*
 *  Id
 *
 *****************************************************************************/
@@ -60,6 +57,13 @@
 
 /*!
  * writes the parameters used to describe an element block
+ * \param exoid                   exodus file id
+ * \param elem_blk_id             block identifier
+ * \param elem_type               element type string
+ * \param num_elem_this_blk       number of elements in the element blk
+ * \param num_nodes_per_elem      number of nodes per element block
+ * \param num_attr_per_elem       number of attributes per element
+ * \deprecated Use ex_put_block()(exoid, EX_ELEM_BLOCK, elem_blk_id, elem_type, num_elem_this_blk, num_nodes_per_elem, 0, 0, num_attr_per_elem)
  */
 
 int ex_put_elem_block (int   exoid,

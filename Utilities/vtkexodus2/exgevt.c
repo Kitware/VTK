@@ -36,14 +36,6 @@
 *
 * exgevt - ex_get_elem_var_time
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,10 +56,11 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the values of an element variable for a single element through a 
  * specified number of time steps in the database; assume the first element
  * variable index, element number, and time step are 1
+ * \deprecated Use ex_get_var_time()(exoid, EX_ELEM_BLOCK, elem_var_index, elem_number, beg_time_step, end_time_step, elem_var_vals)
  */
 
 int ex_get_elem_var_time (int   exoid,

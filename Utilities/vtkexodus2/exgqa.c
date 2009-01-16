@@ -36,14 +36,6 @@
 *
 * exgqa - ex_get_qa
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -67,101 +59,85 @@
 int ex_get_qa (int exoid,
                char *qa_record[][4])
 {
-   int i, j, k, dimid, varid;
-   long num_qa_records, start[3];
+  int status;
+  int i, j, k, dimid, varid;
+  size_t num_qa_records, start[3];
 
-   char *ptr;
-   char errmsg[MAX_ERR_LENGTH];
+  char *ptr;
+  char errmsg[MAX_ERR_LENGTH];
 
-   exerrval = 0; /* clear error code */
+  exerrval = 0; /* clear error code */
 
-/* inquire previously defined dimensions and variables  */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_QA)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  /* inquire previously defined dimensions and variables  */
+  if ((status = nc_inq_dimid(exoid, DIM_NUM_QA, &dimid)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Warning: no qa records stored in file id %d", 
             exoid);
-     ex_err("ex_get_qa",errmsg,exerrval);
-     return (EX_WARN);
-   }
+    ex_err("ex_get_qa",errmsg,exerrval);
+    return (EX_WARN);
+  }
 
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_qa_records) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
+  if ((status = nc_inq_dimlen(exoid, dimid, &num_qa_records)) != NC_NOERR) {
+    exerrval = status;
+    sprintf(errmsg,
             "Error: failed to get number of qa records in file id %d",
-             exoid);
-     ex_err("ex_get_qa",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+	    exoid);
+    ex_err("ex_get_qa",errmsg,exerrval);
+    return (EX_FATAL);
+  }
 
 
-/* do this only if there are any QA records */
-
-   if (num_qa_records > 0)
-   {
-     if ((varid = ncvarid (exoid, VAR_QA_TITLE)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to locate qa record data in file id %d", exoid);
-       ex_err("ex_get_qa",errmsg,exerrval);
-       return (EX_FATAL);
-     }
+  /* do this only if there are any QA records */
+  if (num_qa_records > 0) {
+    if ((status = nc_inq_varid(exoid, VAR_QA_TITLE, &varid)) != NC_NOERR) {
+      exerrval = status;
+      sprintf(errmsg,
+	      "Error: failed to locate qa record data in file id %d", exoid);
+      ex_err("ex_get_qa",errmsg,exerrval);
+      return (EX_FATAL);
+    }
 
 
-/* read the QA records */
+    /* read the QA records */
+    for (i=0; i<num_qa_records; i++) {
+      for (j=0; j<4; j++) {
+	start[0] = i;
+	start[1] = j;
+	start[2] = 0;
 
-      for (i=0; i<num_qa_records; i++)
-      {
-         for (j=0; j<4; j++)
-         {
-            start[0] = i;
-            start[1] = j;
-            start[2] = 0;
+	k = 0;
+	ptr = qa_record[i][j];
 
-            k = 0;
-            ptr = qa_record[i][j];
-
-            if (ncvarget1 (exoid, varid, start, ptr) == -1)
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-              "Error: failed to get qa record data in file id %d", exoid);
-              ex_err("ex_get_qa",errmsg,exerrval);
-               return (EX_FATAL);
-            }
+	if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	  exerrval = status;
+	  sprintf(errmsg,
+		  "Error: failed to get qa record data in file id %d", exoid);
+	  ex_err("ex_get_qa",errmsg,exerrval);
+	  return (EX_FATAL);
+	}
 
 
-            while ((*(ptr++) != '\0') && (k < MAX_STR_LENGTH))
-            {
-              start[2] = ++k;
-              if (ncvarget1 (exoid, varid, start, ptr) == -1)
-              {
-                exerrval = ncerr;
-                sprintf(errmsg,
-                   "Error: failed to get qa record data in file id %d", exoid);
-               ex_err("ex_get_qa",errmsg,exerrval);
-               return (EX_FATAL);
-              }
+	while ((*(ptr++) != '\0') && (k < MAX_STR_LENGTH)) {
+	  start[2] = ++k;
+	  if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+	    exerrval = status;
+	    sprintf(errmsg,
+		    "Error: failed to get qa record data in file id %d", exoid);
+	    ex_err("ex_get_qa",errmsg,exerrval);
+	    return (EX_FATAL);
+	  }
+	}
 
-            }
+	/* remove trailing blanks */
 
-/* remove trailing blanks */
-
-            if(start[2] != 0)
-            {
-              --ptr;
-              while ( --ptr >= qa_record[i][j] && *ptr == ' ' );
-              *(++ptr) = '\0';
-            }
-         }
+	if(start[2] != 0) {
+	  --ptr;
+	  while ( --ptr >= qa_record[i][j] && *ptr == ' ' );
+	  *(++ptr) = '\0';
+	}
       }
-
-   }
-
-   return (EX_NOERR);
- 
+    }
+  }
+  return (EX_NOERR);
 }
