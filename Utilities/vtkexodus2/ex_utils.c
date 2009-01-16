@@ -308,8 +308,8 @@ int ex_id_lkup( int exoid,
   char id_table[MAX_VAR_NAME_LENGTH+1];
   char id_dim[MAX_VAR_NAME_LENGTH+1];
   char stat_table[MAX_VAR_NAME_LENGTH+1];
-  int varid, dimid, i;
-  size_t dim_len;
+  int varid, dimid;
+  size_t dim_len, i;
   int *id_vals=NULL, *stat_vals=NULL;
 
   static int filled=FALSE;
@@ -1197,7 +1197,7 @@ size_t ex_header_size(int exoid)
   if (num_eblk > 0) {
     /* Allocate storage for element block parameters... */
     int *ids = malloc(num_eblk * sizeof(int));
-    int i;
+    size_t i;
 
     size += 2*num_eblk; /* status + ids */
     
@@ -1220,7 +1220,7 @@ size_t ex_header_size(int exoid)
   if (num_nset > 0) {
     /* Allocate storage for nodeset parameters... */
     int *ids = malloc(num_nset * sizeof(int));
-    int i;
+    size_t i;
 
     size += 2*num_nset; /* Status + ids */
     ex_get_ids(exoid, EX_NODE_SET, ids);
@@ -1239,7 +1239,7 @@ size_t ex_header_size(int exoid)
   if (num_sset > 0) {
     /* Allocate storage for sideset parameters... */
     int *ids = malloc(num_sset * sizeof(int));
-    int i;
+    size_t i;
 
     size += 2*num_sset; /* Status + ids */
     ex_get_ids(exoid, EX_SIDE_SET, ids);

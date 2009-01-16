@@ -207,7 +207,7 @@ int ex_get_var_time( int   exoid,
     }
   }
   else { /* default: status is true */
-    for(i=0;i<num_obj;i++)
+    for(i=0;i<(int)num_obj;i++)
       stat_vals[i]=1;
   }
 

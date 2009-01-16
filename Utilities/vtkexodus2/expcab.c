@@ -57,11 +57,11 @@
 int ex_put_concat_all_blocks (int    exoid,
                               const ex_block_params *param)
 {
-  int i, varid, dimid, dims[2], strdim, *eb_stat, *ed_stat, *fa_stat;
+  int varid, dimid, dims[2], strdim, *eb_stat, *ed_stat, *fa_stat;
   int temp;
-  int iblk;
+  size_t iblk;
   int status;
-  size_t num_elem_blk, num_edge_blk, num_face_blk;
+  size_t i, num_elem_blk, num_edge_blk, num_face_blk;
   int cur_num_elem_blk, nelnoddim, numelbdim, numattrdim, connid=-1;
   int cur_num_edge_blk, numedbdim, nednoddim, cur_num_face_blk, numfabdim, nfanoddim;
   int neledgdim=-1, nelfacdim=-1;
@@ -90,7 +90,7 @@ int ex_put_concat_all_blocks (int    exoid,
   /* If param->define_maps is true, we must fill these with values from ex_put_init_ext
      before entering define mode */
   size_t num_maps[sizeof(dim_num_maps)/sizeof(dim_num_maps[0])];
-  int num_map_dims = sizeof(dim_num_maps)/sizeof(dim_num_maps[0]);
+  size_t num_map_dims = sizeof(dim_num_maps)/sizeof(dim_num_maps[0]);
 
   exerrval  = 0; /* clear error code */
 
@@ -511,7 +511,7 @@ int ex_put_concat_all_blocks (int    exoid,
 
   /* Define the element map here to avoid a later redefine call */
   if ( param->define_maps != 0 ) {
-    int map_type;
+    size_t map_type;
     for ( map_type = 0; map_type < num_map_dims; ++map_type ) {
       if ((status = nc_inq_dimid(exoid, dim_size_maps[map_type], &dims[0])) != NC_NOERR) {
 	exerrval = status;

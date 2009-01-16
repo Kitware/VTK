@@ -121,6 +121,11 @@ int ex_put_attr (int   exoid,
   case EX_ELEM_BLOCK:
     status = nc_inq_varid (exoid, VAR_ATTRIB(blk_id_ndx), &attrid);
     break;
+  default:
+    sprintf(errmsg,
+      "Error: Called with invalid blk_type %d", blk_type );
+    ex_err("ex_put_attr",errmsg,exerrval);
+    return (EX_FATAL);
   }
 
   if (status != NC_NOERR) {

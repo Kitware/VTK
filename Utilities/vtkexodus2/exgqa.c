@@ -100,7 +100,7 @@ int ex_get_qa (int exoid,
 
 
     /* read the QA records */
-    for (i=0; i<num_qa_records; i++) {
+    for (i=0; i<(int)num_qa_records; i++) {
       for (j=0; j<4; j++) {
 	start[0] = i;
 	start[1] = j;

@@ -72,8 +72,8 @@ int ex_put_coord (int   exoid,
   int coordid;
   int coordidx, coordidy, coordidz;
 
-  int numnoddim, ndimdim, i;
-  size_t num_nod, num_dim, start[2], count[2];
+  int numnoddim, ndimdim;
+  size_t i, num_nod, num_dim, start[2], count[2];
   char errmsg[MAX_ERR_LENGTH];
 
   exerrval = 0; /* clear error code */

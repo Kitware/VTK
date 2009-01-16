@@ -191,10 +191,10 @@ int ex_put_truth_table (int  exoid,
     return (EX_WARN);
   }
    
-  if (num_entity == -1 || num_var_db == -1)
+  if (num_entity == (size_t)-1 || num_var_db == (size_t)-1)
     return (EX_FATAL);
 
-  if (num_entity != num_blk) {
+  if (num_entity != (size_t)num_blk) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
 	    "Error: # of %s doesn't match those defined in file id %d",
@@ -203,7 +203,7 @@ int ex_put_truth_table (int  exoid,
     return (EX_FATAL);
   }
 
-  if (num_var_db != num_var) {
+  if (num_var_db != (size_t)num_var) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
 	    "Error: # of %s variables doesn't match those defined in file id %d",

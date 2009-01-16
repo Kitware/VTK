@@ -104,6 +104,11 @@ int ex_put_conn (int   exoid,
    case EX_EDGE_BLOCK:
      status = nc_inq_varid (exoid, VAR_EBCONN(blk_id_ndx), &connid);
      break;
+   default:
+     sprintf(errmsg,
+       "Error: Called with invalid blk_type %d", blk_type );
+     ex_err("ex_put_conn",errmsg,exerrval);
+     return (EX_FATAL);
    }
    if (status != NC_NOERR)
    {

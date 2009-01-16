@@ -215,6 +215,11 @@ int ex_put_num_map ( int exoid,
    case EX_ELEM_MAP:
      vmap = VAR_ELEM_MAP(cur_num_maps+1);
      break;
+   default:
+     sprintf(errmsg,
+       "Error: Called with invalid map_type %d", map_type);
+     ex_err("ex_put_num_map",errmsg,exerrval);
+     return (EX_FATAL);
    }
 
    /* locate variable array in which to store the map */

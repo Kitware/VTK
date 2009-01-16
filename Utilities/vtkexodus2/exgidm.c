@@ -58,7 +58,7 @@ int ex_get_id_map ( int   exoid,
 		    ex_entity_type map_type,
 		    int*  map )
 {
-  int i;
+  size_t i;
   int dimid, mapid, status;
   size_t num_entries;
   char errmsg[MAX_ERR_LENGTH];

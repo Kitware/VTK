@@ -151,7 +151,7 @@ int ex_get_truth_table (int  exoid,
     return (EX_FATAL);
   }
 
-  if (num_entity != num_blk) {
+  if (num_entity != (size_t)num_blk) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
       "Error: # of %s doesn't match those defined in file id %d",
@@ -160,7 +160,7 @@ int ex_get_truth_table (int  exoid,
     return (EX_FATAL);
   }
 
-  if (num_var_db != num_var) {
+  if (num_var_db != (size_t)num_var) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
       "Error: # of %s variables doesn't match those defined in file id %d",

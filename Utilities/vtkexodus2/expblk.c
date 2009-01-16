@@ -271,6 +271,11 @@ int ex_put_block( int         exoid,
     vedgcon = VAR_ECONN(blk_id_ndx);
     vfaccon = VAR_FCONN(blk_id_ndx);
     break;
+  default:
+    sprintf(errmsg,
+      "Error: Called with invalid blk_type %d", blk_type );
+    ex_err("ex_put_block",errmsg,exerrval);
+    return (EX_FATAL);
   }
   /* define some dimensions and variables*/
 

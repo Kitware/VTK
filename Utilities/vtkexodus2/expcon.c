@@ -99,7 +99,7 @@ int ex_put_coord_names (int   exoid,
 
   /* write out coordinate names */
 
-  for (i=0; i<num_dim; i++) {
+  for (i=0; i<(int)num_dim; i++) {
     start[0] = i;
     start[1] = 0;
 
