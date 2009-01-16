@@ -60,7 +60,6 @@
 //
 //     We use the terms "point" and "node" interchangeably.
 //     Also, we use the terms "element" and "cell" interchangeably.
-//
 
 #ifndef __vtkExodusIIWriter_h
 #define __vtkExodusIIWriter_h
