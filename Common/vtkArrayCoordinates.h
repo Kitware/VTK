@@ -19,12 +19,19 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayCoordinates - Used to store N-way array coordinates.
+// .NAME vtkArrayCoordinates - Stores coordinate into an N-way array.
 //
 // .SECTION Description
-// Provides a collection of coordinates for accessing values in an N-way array.
-// Convenience constructors are provided for working with 1, 2, and 3-way data.
-// For higher dimensions, use SetDimensions() and operator[].
+// vtkArrayCoordinates stores a collection of coordinates that can be used to
+// access values in a vtkArray containing an arbitrary number of dimensions.
+//
+// Convenience constructors are provided for working with one, two, and three
+// dimensions.  For higher dimensions, use the default constructor, 
+// SetDimensions() and operator[] to assign a coordinate value along each
+// dimension.
+//
+// .SECTION See Also
+// vtkArray, vtkArrayExtents
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

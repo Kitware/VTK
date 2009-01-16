@@ -22,10 +22,24 @@
 // .NAME vtkArrayExtents - Stores the dimensions and size of an N-way array.
 //
 // .SECTION Description
-// Describes the dimensions and size along each dimension of an N-way collection
-// of values. Convenience constructors are provided for working with 1, 2, and
-// 3-way data.  For higher dimensions, use the static Uniform() factory method,
-// the Append() method, or use SetDimensions() and operator[] to assign values.
+// vtkArrayExtents describes the dimensions and size along each dimension of
+// an N-way collection of values.  It is used to retrieve and update the
+// extents of a vtkArray object.
+//
+// Convenience constructors are provided for creating extents along one, two,
+// and three dimensions.  For higher dimensions, you can:
+//
+// Use the static Uniform() factory method to create extents that have the same
+// size along an arbitrary number of dimensions.
+//
+// Use the default constructor and the Append() method to "grow" your extents
+// to the correct number of dimensions.
+// 
+// Use the default constructuor, SetDimensions() and operator[] to assign a
+// size along each dimension.
+//
+// .SECTION See Also
+// vtkArray, vtkArrayCoordinates
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

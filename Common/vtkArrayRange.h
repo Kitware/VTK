@@ -19,8 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayRange - Stores a half-open range of coordinates for a
-// single dimension of a vtkArraySlice.
+// .NAME vtkArrayRange - Stores a half-open range of array coordinates.
+//
+// .SECTION Description
+// vtkArrayRange stores a half-open range of array coordinates along a single
+// dimension of a vtkArraySlice object.
+//
+// .SECTION See Also
+// vtkArray, vtkArrayRange
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

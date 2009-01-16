@@ -21,6 +21,23 @@
 
 // .NAME vtkTypedArray - Provides a type-specific interface to N-way arrays
 //
+// .SECTION Description
+// vtkTypedArray provides an interface for retrieving and updating data in an
+// arbitrary-dimension array.  It derives from vtkArray and is templated on the
+// type of value stored in the array.
+//
+// Methods are provided for retrieving and updating array values based either
+// on their array coordinates, or on a 1-dimensional integer index.  The latter
+// approach can be used to iterate over the values in an array in arbitrary order,
+// which is useful when writing filters that operate efficiently on sparse arrays
+// and arrays that can have any number of dimensions.
+//
+// Special overloaded methods provide simple access for arrays with one, two, or
+// three dimensions.
+//
+// .SECTION See Also
+// vtkArray, vtkDenseArray, vtkSparseArray
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

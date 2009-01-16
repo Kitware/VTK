@@ -22,10 +22,19 @@
 // .NAME vtkArraySlice - Describes a subset of an N-way array.
 //
 // .SECTION Description
-// Describes a subset of an N-way collection of values as a set of half-open
-// ranges along each dimension.  Convenience constructors are provided for
-// specifying 1, 2, and 3-way slices.  For higher dimensions, use the 
-// SetDimensions() method and operator[] to assign values.
+// vtkArraySlice describes a subset of a vtkArray as a set of half-open
+// ranges along each dimension.
+//
+// Convenience constructors are provided for specifying one, two, and three
+// dimension slices.  For higher dimensions, use the default constructor, the
+// SetDimensions() method and operator[] to assign a range along each dimension
+// of a slice.
+//
+// vtkArraySlice is most commonly used with the vtkInterpolate() function, which
+// is used to compute weighted sums of vtkArray slices.
+//
+// .SECTION See Also
+// vtkArray, vtkRange
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

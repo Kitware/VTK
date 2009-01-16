@@ -19,8 +19,26 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayCoordinateIterator - Provides efficient iteration over every
-// unique set of coordinates within an N-way array.
+// .NAME vtkArrayCoordinateIterator - Iterates over array coordinates.
+//
+// .SECTION Description
+// vtkArrayCoordinateIterator iterates over every unique set of coordinates
+// that are contained defined by a set of vtkArrayExtents.  The order in which
+// coordinates are visited is undefined.
+//
+// Note that vtkArrayCoordinateIterator visits every permutation of
+// coordinates defined by a set of array extents, *not* the array itself - if
+// you are working with a sparse array, any of the coordinates that are visited
+// by the iterator could be NULL within the array.
+//
+// vtkArrayCoordinateIterator is mainly useful if you are writing a source that
+// generates arbitrary-dimension arrays from scratch.  Algorithms that process
+// existing arrays can almost always be written more efficiently using
+// vtkArray::GetCoordinatesN() and vtkTypedArray::GetValueN(), which only visit
+// non-NULL values within an array.
+//
+// .SECTION See Also
+// vtkArray, vtkArrayExtents, vtkArrayCoordinates
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

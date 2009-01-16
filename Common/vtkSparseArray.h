@@ -19,8 +19,31 @@
 
 =========================================================================*/
 
-// .NAME vtkSparseArray - vtkArray implementation that stores an N-way
-// array using sparse storage.
+// .NAME vtkSparseArray - Sparse storage for N-way arrays.
+//
+// .SECTION Description
+// vtkSparseArray is a concrete vtkArray implementation that stores values using
+// sparse coordinate storage.  This means that the array stores the complete set of
+// coordinates and the value for each non-null value in the array, an approach that
+// generalizes well for arbitrary numbers of dimensions.
+//
+// In addition to the value retrieval and update methods provided by vtkTypedArray,
+// vtkSparseArray provides methods to:
+//
+// Get and set a special 'null' value that will be returned when retrieving values
+// for undefined coordinates.
+//
+// Clear the contents of the array so that every set of coordinates is undefined.
+//
+// Add values to the array in amortized-constant time.
+//
+// Resize the array extents so that they bound the largest set of non-NULL values
+// along each dimension.
+//
+// Retrieve pointers to the value- and coordinate-storage memory blocks.
+//
+// .SECTION See Also
+// vtkArray, vtkTypedArray, vtkDenseArray
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

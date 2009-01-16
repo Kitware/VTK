@@ -22,10 +22,17 @@
 // .NAME vtkArrayWeights - Stores a collection of weighting factors.
 //
 // .SECTION Description
-// Provides storage for a collection of weights to be used when merging /
-// interpolating N-way arrays.  Convenience constructors are provided for
-// working with 1, 2, 3, and 4-way merges.  For arbitrary collections of
-// weights, use SetCount() and operator[] to assign values.
+// vtkArrayWeights provides storage for a collection of weights to be used
+// when merging / interpolating N-way arrays.  Convenience constructors are
+// provided for working with one, two, three, and four weighting factors.
+// For arbitrary collections of weights, use SetCount() and operator[] to
+// assign values.
+//
+// vtkArrayWeights is most commonly used with the vtkInterpolate() function
+// to compute weighted sums of vtkArray objects.
+//
+// .SECTION See Also
+// vtkArray, vtkArraySlices
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

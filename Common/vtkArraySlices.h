@@ -22,10 +22,16 @@
 // .NAME vtkArraySlices - Stores a collection of vtkArraySlice objects.
 //
 // .SECTION Description
-// Provides storage for a collection of vtkArraySlice objects.  Typically this
-// is used by methods that require multiple slices as arguments, such as
-// InterpolateSlices().  Constructors are provided for creating collections
-// with 1, 2, 3, or 4 slices.
+// vtkArraySlices provides storage for a collection of vtkArraySlice instances.
+// Constructors are provided for creating collections containing one, two, three,
+// or four slices.  To work with larger numbers of slices, use the default
+// constructor, the SetCount() method, and operator[].
+//
+// vtkArraySlices is most commonly used with the vtkInterpolate() function, which
+// is used to computed weighted sums of vtkArray slices.
+//
+// .SECTION See Also
+// vtkArray, vtkSlice
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

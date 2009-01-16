@@ -19,8 +19,23 @@
 
 =========================================================================*/
 
-// .NAME vtkDenseArray - vtkArray implementation that stores an N-way
-// array using contiguous storage.
+// .NAME vtkDenseArray - Contiguous storage for N-way arrays.
+//
+// .SECTION Description
+// vtkDenseArray is a concrete vtkArray implementation that stores values
+// using a contiguous block of memory.  Values are stored with fortran ordering,
+// meaning that if you iterated over the memory block, the left-most coordinates
+// would vary the fastest.
+//
+// In addition to the retrieval and update methods provided by vtkTypedArray,
+// vtkDenseArray provides methods to:
+//
+// Fill the entire array with a specific value.
+//
+// Retrieve a pointer to the storage memory block.
+//
+// .SECTION See Also
+// vtkArray, vtkTypedArray, vtkSparseArray
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
