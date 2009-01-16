@@ -54,6 +54,7 @@ public:
   vtkGetObjectMacro(AnchorTransform,vtkCoordinate);
 
   //BTX
+  /// Specifications for the placement of the label relative to an anchor point.
   enum LabelGravity
     {
     VerticalBottomBit   = 1,
@@ -81,6 +82,13 @@ public:
     UpperLeft=24,      //!< The anchor is at the upper left corner of the label's bounding box.
     UpperCenter=40,    //!< The anchor is centered left-to-right at the top edge of the bounding box.
     UpperRight=72      //!< The anchor is at the upper right corner of the label's bounding box.
+    };
+
+  /// Coordinate systems that output dataset may use.
+  enum OutputCoordinates
+    {
+    WORLD=0,           //!< Output 3-D world-space coordinates for each label anchor.
+    DISPLAY=1          //!< Output 2-D display coordinates for each label anchor (3 components but only 2 are significant).
     };
   //ETX
 
@@ -119,6 +127,14 @@ public:
   vtkSetMacro(OutputTraversedBounds,bool);
   vtkBooleanMacro(OutputTraversedBounds,bool);
 
+  // Description:
+  // Set/get the coordinate system used for output labels.
+  // The output datasets may have point coordinates reported in the world space or display space.
+  vtkGetMacro(OutputCoordinateSystem,int);
+  vtkSetClampMacro(OutputCoordinateSystem,int,WORLD,DISPLAY);
+  void OutputCoordinateSystemWorld() { this->SetOutputCoordinateSystem( vtkLabelPlacer::WORLD ); }
+  void OutputCoordinateSystemDisplay() { this->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY ); }
+
 protected:
   vtkLabelPlacer();
   virtual ~vtkLabelPlacer();
@@ -147,6 +163,7 @@ protected:
   double LastCameraFocalPoint[3];
   double LastCameraViewUp[3];
   int IteratorType;
+  int OutputCoordinateSystem;
 
 private:
   vtkLabelPlacer( const vtkLabelPlacer& ); // Not implemented.

@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.12");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.13");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -194,6 +194,7 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->MaximumLabelFraction = 0.05; // Take up no more than 5% of screen real estate with labels.
   this->Buckets = 0;
   this->PositionsAsNormals = false;
+  //this->IteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   this->IteratorType = vtkLabelHierarchy::FULL_SORT;
 
   this->LastRendererSize[0] = 0;
@@ -207,6 +208,8 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->LastCameraViewUp[0] = 0.0;
   this->LastCameraViewUp[1] = 0.0;
   this->LastCameraViewUp[2] = 0.0;
+
+  this->OutputCoordinateSystem = vtkLabelPlacer::WORLD;
 
   this->OutputTraversedBounds = false;
   this->GeneratePerturbedLabelSpokes = false;
@@ -245,6 +248,7 @@ void vtkLabelPlacer::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "OutputTraversedBounds: " << (this->OutputTraversedBounds ? "ON" : "OFF" ) << "\n";
   os << indent << "GeneratePerturbedLabelSpokes: " 
     << (this->GeneratePerturbedLabelSpokes ? "ON" : "OFF" ) << "\n";
+  os << indent << "OutputCoordinateSystem: " << this->OutputCoordinateSystem << "\n";
 }
 
 /**\brief Set the default label gravity.
@@ -663,14 +667,24 @@ int vtkLabelPlacer::RequestData(
         break;
         }
       vtkIdType conn[4];
+      OutputCoordinates coordSys = static_cast<OutputCoordinates>( this->OutputCoordinateSystem );
       if ( labelType == 0 )
         { // label is text
         if ( this->Buckets->DumpPlaced )
           {
           vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": " << nameArr->GetValue( inIter->GetLabelId() ).c_str());
           }
+        switch ( coordSys )
+          {
+        default:
+        case WORLD:
+          conn[0] = opts0->InsertNextPoint( x );
+          break;
+        case DISPLAY:
+          conn[0] = opts0->InsertNextPoint( dispx[0], dispx[1], 0. );
+          break;
+          }
         // Store the anchor point in world coordinates
-        conn[0] = opts0->InsertNextPoint( x );
         ouData0->InsertNextCell( VTK_VERTEX, 1, conn );
         nameArr0->InsertNextValue( nameArr->GetValue( inIter->GetLabelId() ) );
         opArr0->InsertNextValue( opacity );
@@ -681,7 +695,16 @@ int vtkLabelPlacer::RequestData(
           {
           vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": Icon " << iconIndexArr->GetValue( inIter->GetLabelId() ));
           }
-        conn[0] = opts1->InsertNextPoint( x );
+        switch ( coordSys )
+          {
+        default:
+        case WORLD:
+          conn[0] = opts1->InsertNextPoint( x );
+          break;
+        case DISPLAY:
+          conn[0] = opts1->InsertNextPoint( dispx[0], dispx[1], 0. );
+          break;
+          }
         vtkIdType cid = ouData1->InsertNextCell( VTK_VERTEX, 1, conn );
         vtkDebugMacro("     Point: " << conn[0] << " (" << x[0] << "," << x[1] << "," << x[2] << ") Vertex: " << cid);
         iconIndexArr1->InsertNextValue( iconIndexArr->GetValue( inIter->GetLabelId() ) );
