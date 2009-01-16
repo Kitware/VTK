@@ -43,11 +43,6 @@ public:
   virtual void Update();
   
 protected:
-
-  // Description:
-  // Called to update the chart's legend
-  virtual void UpdateLegend();
-
   vtkQtLineChartView();
   ~vtkQtLineChartView();
   

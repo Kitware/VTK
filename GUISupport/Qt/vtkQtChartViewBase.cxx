@@ -33,6 +33,7 @@
 #include "vtkQtChartSeriesModelCollection.h"
 #include "vtkQtChartLegendModel.h"
 #include "vtkQtChartLegend.h"
+#include "vtkQtChartLegendManager.h"
 #include "vtkQtChartSeriesOptions.h"
 #include "vtkTable.h"
 
@@ -57,11 +58,11 @@ public:
   vtkQtChartSeriesModelCollection* ModelCollection;
   vtkQtChartWidget                 ChartWidget;
   vtkQtChartLegend*                Legend;
-  vtkQtChartLegendModel*           LegendModel;
+  vtkQtChartLegendManager*         LegendManager;
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.2");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.3");
 vtkStandardNewMacro(vtkQtChartViewBase);
 
 //----------------------------------------------------------------------------
@@ -70,9 +71,13 @@ vtkQtChartViewBase::vtkQtChartViewBase()
   this->Internal = new vtkInternal;
 
   // Setup the legend
+  vtkQtChartWidget *chart = this->GetChartWidget();
   this->Internal->Legend = new vtkQtChartLegend;
-  this->Internal->LegendModel = this->Internal->Legend->getModel();
-  this->GetChartWidget()->setLegend(this->Internal->Legend);
+  this->Internal->LegendManager = new vtkQtChartLegendManager(
+    this->Internal->Legend);
+  this->Internal->LegendManager->setChartLegend(this->Internal->Legend);
+  this->Internal->LegendManager->setChartArea(chart->getChartArea());
+  chart->setLegend(this->Internal->Legend);
 }
 
 //----------------------------------------------------------------------------
@@ -155,7 +160,7 @@ vtkQtChartSeriesModelCollection* vtkQtChartViewBase::GetChartSeriesModel()
 //----------------------------------------------------------------------------
 vtkQtChartLegendModel* vtkQtChartViewBase::GetLegendModel()
 {
-  return this->Internal->LegendModel;
+  return this->Internal->Legend->getModel();
 }
 
 //----------------------------------------------------------------------------
@@ -181,44 +186,12 @@ void vtkQtChartViewBase::Update()
     {
     this->GetChartLayer()->update();
     }
-
-
-  // Update the legend
-  // TODO - instead of handling this here and reseting the whole legend
-  // model, update the legend model whenever the series model is modified.
-  this->UpdateLegend();
 }
 
 //----------------------------------------------------------------------------
 void vtkQtChartViewBase::Render()
 {
 
-}
-
-//----------------------------------------------------------------------------
-void vtkQtChartViewBase::UpdateLegend()
-{
-  // Update the legend model
-  // TODO - instead of handling this here and reseting the whole legend
-  // model, update the legend model whenever the series model is modified.
-  vtkQtChartSeriesLayer* chartLayer = this->GetChartLayer();
-  vtkQtChartLegendModel* legendModel = this->GetLegendModel();
-
-  legendModel->startModifyingData();
-  legendModel->removeAllEntries();
-  unsigned int nSeries = this->GetChartSeriesModel()->getNumberOfSeries();
-  for (unsigned int i = 0; i < nSeries; ++i)
-    {
-    vtkQtChartSeriesOptions* seriesOptions = chartLayer->getSeriesOptions(i);
-    if (!seriesOptions->isVisible())
-      {
-      continue;
-      }
-    QString seriesName = this->GetChartSeriesModel()->getSeriesName(i).toString();
-    QPixmap seriesIcon = chartLayer->getSeriesIcon(i);
-    legendModel->addEntry(seriesIcon, seriesName);
-    }
-  legendModel->finishModifyingData();
 }
 
 //----------------------------------------------------------------------------

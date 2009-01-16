@@ -117,10 +117,6 @@ protected:
   virtual void SetupDefaultInteractor();
 
   // Description:
-  // Called to update the chart's legend
-  virtual void UpdateLegend();
-
-  // Description:
   // Create a vtkQtChartRepresentation for the given input connection.
   virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
 
