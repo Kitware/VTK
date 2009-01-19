@@ -63,7 +63,7 @@ int ex_get_attr_names( int   exoid,
                        char **names)
 {
   int status;
-  int varid, numattrdim, obj_id_ndx;
+  int varid, numattrdim, obj_id_ndx = 0;
   size_t i, num_attr, start[2];
   char *ptr;
   char errmsg[MAX_ERR_LENGTH];

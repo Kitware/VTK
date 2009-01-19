@@ -85,10 +85,10 @@ int ex_put_concat_sets (int   exoid,
   char errmsg[MAX_ERR_LENGTH];
   char* idsptr;
   char* statptr;
-  char* numdfptr;
-  char* factptr;
-  char* elemptr;
-  char* extraptr;
+  char* numdfptr = NULL;
+  char* factptr = NULL;
+  char* elemptr = NULL;
+  char* extraptr = NULL;
   ex_inquiry ex_inq_val;
   const int *extra_list;   
 

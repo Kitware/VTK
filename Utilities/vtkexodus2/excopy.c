@@ -557,7 +557,7 @@ cpy_var_val(int in_id,int out_id,char *var_nm)
   size_t var_sz=1L;
   nc_type var_type_in, var_type_out;
 
-  void *void_ptr;
+  void *void_ptr = NULL;
 
   /* Get the var_id for the requested variable from both files. */
   nc_inq_varid(in_id, var_nm, &var_in_id);

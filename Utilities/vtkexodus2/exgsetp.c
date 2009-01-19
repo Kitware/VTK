@@ -73,7 +73,7 @@ int ex_get_set_param (int  exoid,
   size_t lnum_dist_fact_in_set;
   char errmsg[MAX_ERR_LENGTH];
   char* numentryptr;
-  char* numdfptr;
+  char* numdfptr = 0;
 
   exerrval = 0; /* clear error code */
 

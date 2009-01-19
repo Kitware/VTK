@@ -54,6 +54,7 @@
 #include "exodusII_int.h"
 #include <string.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #define EX_WRITE_OBJECT_PARAMS(TNAME,DNAME,SNAME,INAME,NUM_BLK,DIMVAR) \
   /* Can have nonzero model->num_elem_blk even if model->num_elem == 0 */ \

@@ -65,7 +65,7 @@ int ex_get_one_attr( int   exoid,
 
 {
   int status;
-  int attrid, obj_id_ndx;
+  int attrid, obj_id_ndx = 0;
   int temp;
   size_t num_entries_this_obj, num_attr;
   size_t start[2], count[2];
