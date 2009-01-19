@@ -112,6 +112,12 @@ public:
   //@}
 
   /// \brief
+  ///   Gets the panning offset.
+  /// \return
+  ///   The current panning offset.
+  int getOffset() const;
+
+  /// \brief
   ///   Gets the preferred size of the chart legend.
   /// \return
   ///   The preferred size of the chart legend.
@@ -142,6 +148,15 @@ public slots:
   /// \param last The last index of the entry range.
   /// \param visible True if the entry should be visible.
   void setEntriesVisible(int first, int last, bool visible);
+
+  /// \brief
+  ///   Sets the panning offset.
+  ///
+  /// The offset is applied to the x or y axis depending on the
+  /// legend's location.
+  ///
+  /// \param offset The new panning offset.
+  void setOffset(int offset);
 
 protected slots:
   /// \brief
@@ -177,19 +192,51 @@ protected:
   /// \param e Event specific information.
   virtual void paintEvent(QPaintEvent *e);
 
+  /// \brief
+  ///   Updates the maximum offset when the size changes.
+  /// \param e Event specific information.
+  virtual void resizeEvent(QResizeEvent *e);
+
+  /// \brief
+  ///   Used for panning the contents of the legend.
+  ///
+  /// The widget cursor is set for panning.
+  ///
+  /// \param e Event specific information.
+  virtual void mousePressEvent(QMouseEvent *e);
+
+  /// \brief
+  ///   Used for panning the contents of the legend.
+  ///
+  /// The conents are moved by changing the offset.
+  ///
+  /// \param e Event specific information.
+  virtual void mouseMoveEvent(QMouseEvent *e);
+
+  /// \brief
+  ///   Used for panning the contents of the legend.
+  ///
+  /// The widget cursor is reset after panning.
+  ///
+  /// \param e Event specific information.
+  virtual void mouseReleaseEvent(QMouseEvent *e);
+
 private:
   /// Calculates the preferred size of the chart legend.
   void calculateSize();
 
+  /// Sets the maximum offset using the contents size.
+  void updateMaximum();
+
 private:
   vtkQtChartLegendInternal *Internal; ///< Stores the graphical items.
   vtkQtChartLegendModel *Model;       ///< A pointer to the model.
-  LegendLocation Location;         ///< Stores the legend location.
-  ItemFlow Flow;                   ///< Stores the order of the items.
-  QSize Bounds;                    ///< Stores the prefered size.
-  int IconSize;                    ///< Stores the icon size.
-  int TextSpacing;                 ///< The space between icon and text.
-  int Margin;                      ///< The margin around the entries.
+  LegendLocation Location;            ///< Stores the legend location.
+  ItemFlow Flow;                      ///< Stores the order of the items.
+  QSize Bounds;                       ///< Stores the prefered size.
+  int IconSize;                       ///< Stores the icon size.
+  int TextSpacing;                    ///< The space between icon and text.
+  int Margin;                         ///< The margin around the entries.
 
 private:
   vtkQtChartLegend(const vtkQtChartLegend &);

@@ -58,6 +58,10 @@ public:
 
   QList<vtkQtChartLegendEntry *> Entries;
   int EntryHeight;
+  int MaximumOffset;
+  int Offset;
+  int Last;
+  bool LastSet;
   bool FontChanged;
 };
 
@@ -75,6 +79,10 @@ vtkQtChartLegendInternal::vtkQtChartLegendInternal()
   : Entries()
 {
   this->EntryHeight = 0;
+  this->MaximumOffset = 0;
+  this->Offset = 0;
+  this->Last = 0;
+  this->LastSet = false;
   this->FontChanged = false;
 }
 
@@ -90,7 +98,7 @@ vtkQtChartLegendInternal::~vtkQtChartLegendInternal()
 
 //----------------------------------------------------------------------------
 vtkQtChartLegend::vtkQtChartLegend(QWidget *widgetParent)
-  : QWidget(widgetParent)
+  : QWidget(widgetParent), Bounds()
 {
   this->Internal = new vtkQtChartLegendInternal();
   this->Model = new vtkQtChartLegendModel(this);
@@ -152,6 +160,11 @@ void vtkQtChartLegend::setFlow(vtkQtChartLegend::ItemFlow flow)
     }
 }
 
+int vtkQtChartLegend::getOffset() const
+{
+  return this->Internal->Offset;
+}
+
 void vtkQtChartLegend::drawLegend(QPainter &painter)
 {
   // Set up the painter for the location and flow. Some combinations
@@ -171,9 +184,6 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
     bounds.transpose();
     }
 
-  // TODO: Allow the user to pan the contents when they are too big
-  // to be seen in the viewport.
-
   int offset = 0;
   int index = 0;
   QFontMetrics fm = this->fontMetrics();
@@ -184,6 +194,7 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
     // Determine the offset. Then, draw the outline.
     offset = area.width() - bounds.width();
     offset = offset > 0 ? offset / 2 : 0;
+    offset -= this->Internal->Offset;
     painter.drawRect(offset, 0, bounds.width() - 1, bounds.height() - 1);
 
     // Determine the icon and text y-position.
@@ -229,6 +240,7 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
     // Determine the offset. Then, draw the outline.
     offset = area.height() - bounds.height();
     offset = offset > 0 ? offset / 2 : 0;
+    offset -= this->Internal->Offset;
     painter.drawRect(0, offset, bounds.width() - 1, bounds.height() - 1);
 
     // find the lengths needed to center the icon and text.
@@ -313,6 +325,24 @@ void vtkQtChartLegend::setEntriesVisible(int first, int last, bool visible)
     }
 }
 
+void vtkQtChartLegend::setOffset(int offset)
+{
+  if(offset < 0)
+    {
+    offset = 0;
+    }
+  else if(offset > this->Internal->MaximumOffset)
+    {
+    offset = this->Internal->MaximumOffset;
+    }
+
+  if(offset != this->Internal->Offset)
+    {
+    this->Internal->Offset = offset;
+    this->update();
+    }
+}
+
 void vtkQtChartLegend::insertEntry(int index)
 {
   this->Internal->Entries.insert(index, new vtkQtChartLegendEntry());
@@ -362,6 +392,75 @@ void vtkQtChartLegend::paintEvent(QPaintEvent *e)
   QPainter painter(this);
   this->drawLegend(painter);
   e->accept();
+}
+
+void vtkQtChartLegend::resizeEvent(QResizeEvent *)
+{
+  // Update the maximum offset for the new widget size.
+  this->updateMaximum();
+}
+
+void vtkQtChartLegend::mousePressEvent(QMouseEvent *e)
+{
+  if(e->button() == Qt::LeftButton)
+    {
+    if(this->Internal->MaximumOffset > 0)
+      {
+      // Change the mouse cursor to a closed hand.
+      this->setCursor(Qt::ClosedHandCursor);
+      }
+
+    // Save the mouse position.
+    this->Internal->LastSet = true;
+    if(this->Location == vtkQtChartLegend::Top ||
+        this->Location == vtkQtChartLegend::Bottom)
+      {
+      this->Internal->Last = e->globalX();
+      }
+    else
+      {
+      this->Internal->Last = e->globalY();
+      }
+    }
+}
+
+void vtkQtChartLegend::mouseMoveEvent(QMouseEvent *e)
+{
+  if(e->buttons() & Qt::LeftButton && this->Internal->LastSet)
+    {
+    // Pan the contents according to the legend location.
+    int current = 0;
+    if(this->Location == vtkQtChartLegend::Top ||
+        this->Location == vtkQtChartLegend::Bottom)
+      {
+      current = e->globalX();
+      }
+    else
+      {
+      current = e->globalY();
+      }
+
+    int diff = this->Internal->Last - current;
+    if(diff != 0)
+      {
+      this->Internal->Last = current;
+      this->setOffset(diff + this->getOffset());
+      }
+    }
+}
+
+void vtkQtChartLegend::mouseReleaseEvent(QMouseEvent *e)
+{
+  if(e->button() == Qt::LeftButton)
+    {
+    if(this->Internal->MaximumOffset > 0)
+      {
+      // Change the mouse cursor back to an open hand.
+      this->setCursor(Qt::OpenHandCursor);
+      }
+
+    this->Internal->LastSet = false;
+    }
 }
 
 void vtkQtChartLegend::calculateSize()
@@ -455,7 +554,43 @@ void vtkQtChartLegend::calculateSize()
   if(bounds != this->Bounds)
     {
     this->Bounds = bounds;
+    this->updateMaximum();
     this->updateGeometry();
+    }
+}
+
+void vtkQtChartLegend::updateMaximum()
+{
+  if(this->Location == vtkQtChartLegend::Top ||
+      this->Location == vtkQtChartLegend::Bottom)
+    {
+    this->Internal->MaximumOffset = this->Bounds.width() - this->width();
+    }
+  else
+    {
+    this->Internal->MaximumOffset = this->Bounds.height() - this->height();
+    }
+
+  // Make sure the maximum is not less than zero.
+  if(this->Internal->MaximumOffset < 0)
+    {
+    this->Internal->MaximumOffset = 0;
+    }
+
+  // Make sure the offset is inside the new maximum.
+  if(this->Internal->Offset > this->Internal->MaximumOffset)
+    {
+    this->Internal->Offset = this->Internal->MaximumOffset;
+    }
+
+  // Update the widget cursor.
+  if(this->Internal->MaximumOffset > 0)
+    {
+    this->setCursor(Qt::OpenHandCursor);
+    }
+  else
+    {
+    this->setCursor(Qt::ArrowCursor);
     }
 }
 
