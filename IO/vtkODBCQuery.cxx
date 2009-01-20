@@ -44,7 +44,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkODBCQuery, "1.2");
+vtkCxxRevisionMacro(vtkODBCQuery, "1.3");
 vtkStandardNewMacro(vtkODBCQuery);
 
 
@@ -65,6 +65,10 @@ public:
 
   ~vtkODBCQueryInternals()
     {
+      if (this->Statement != NULL)
+        {
+        SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
+        }
       this->CurrentRow->Delete();
       this->ColumnNames->Delete();
       this->ColumnIsSigned->Delete();
