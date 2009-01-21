@@ -45,7 +45,11 @@ class vtkExtractSelectedGraph;
 class vtkGeoAssignCoordinates;
 class vtkGraphMapper;
 class vtkGraphToPolyData;
+class vtkLabeledDataMapper;
+class vtkLabelPlacer;
+class vtkLabelSizeCalculator;
 class vtkPerturbCoincidentVertices;
+class vtkPointSetToLabelHierarchy;
 class vtkPolyDataMapper;
 class vtkSelection;
 class vtkAbstractTransform;
@@ -149,6 +153,13 @@ public:
   // Called by the view when the renderer is about to render.
   virtual void PrepareForRendering();
 
+  // Description:
+  // When on uses vtkLabelPlacer otherwise use older vtkDynamic2DLabelMapper, 
+  // which has O(n^2) preprocessing time.
+  void SetUseLabelHierarchy(bool b);
+  vtkGetMacro(UseLabelHierarchy, bool);
+  vtkBooleanMacro(UseLabelHierarchy, bool);
+  
 protected:
   vtkGeoGraphRepresentation2D();
   ~vtkGeoGraphRepresentation2D();
@@ -174,8 +185,13 @@ protected:
   // Internal pipeline objects.
   vtkSmartPointer<vtkGeoAssignCoordinates>       AssignCoordinates;
   vtkSmartPointer<vtkPerturbCoincidentVertices>  PerturbCoincidentVertices;
-  vtkSmartPointer<vtkDynamic2DLabelMapper>       LabelMapper;
+  vtkSmartPointer<vtkLabelSizeCalculator>        LabelSize;
+  vtkSmartPointer<vtkPointSetToLabelHierarchy>   LabelHierarchy;
+  vtkSmartPointer<vtkLabelPlacer>                LabelPlacer;
+  vtkSmartPointer<vtkLabeledDataMapper>          LabelMapper;
   vtkSmartPointer<vtkActor2D>                    LabelActor;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>       DynamicLabelMapper;
+  vtkSmartPointer<vtkActor2D>                    DynamicLabelActor;
   vtkSmartPointer<vtkEdgeLayout>                 EdgeLayout;
   vtkSmartPointer<vtkGraphMapper>                GraphMapper;
   vtkSmartPointer<vtkActor>                      GraphActor;
@@ -187,6 +203,8 @@ protected:
   vtkSmartPointer<vtkGraphMapper>                SelectionMapper;
   vtkSmartPointer<vtkActor>                      SelectionActor;
   //ETX
+
+  bool UseLabelHierarchy;
 
 private:
   vtkGeoGraphRepresentation2D(const vtkGeoGraphRepresentation2D&);  // Not implemented.

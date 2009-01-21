@@ -23,6 +23,7 @@
 #include "vtkCamera.h"
 #include "vtkCollection.h"
 #include "vtkGeoAlignedImageRepresentation.h"
+#include "vtkGeoGraphRepresentation2D.h"
 #include "vtkGeoTerrain2D.h"
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkObjectFactory.h"
@@ -30,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView2D, "1.2");
+vtkCxxRevisionMacro(vtkGeoView2D, "1.3");
 vtkStandardNewMacro(vtkGeoView2D);
 vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 
@@ -89,6 +90,16 @@ void vtkGeoView2D::PrepareForRendering()
   if (collection->GetNumberOfItems() > 0)
     {
     this->Surface->AddActors(this->Renderer, this->Assembly, collection);
+    }
+}
+
+void vtkGeoView2D::AddRepresentationInternal(vtkDataRepresentation* rep)
+{
+  vtkGeoGraphRepresentation2D* graphRep = vtkGeoGraphRepresentation2D::SafeDownCast(rep);
+  // Make sure the transform of the graph representation matches that of the view.
+  if (graphRep && this->Surface && this->Surface->GetTransform())
+    {
+    graphRep->SetTransform(this->Surface->GetTransform());
     }
 }
 

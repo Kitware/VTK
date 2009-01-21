@@ -41,6 +41,9 @@
 #include "vtkGraphToPolyData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkLabeledDataMapper.h"
+#include "vtkLabelPlacer.h"
+#include "vtkLabelSizeCalculator.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -62,7 +65,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.3");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.4");
 vtkStandardNewMacro(vtkGeoGraphRepresentation2D);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
@@ -73,8 +76,16 @@ vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
   this->GraphMapper = vtkSmartPointer<vtkGraphMapper>::New();
   this->GraphActor = vtkSmartPointer<vtkActor>::New();
   this->GraphToPolyData = vtkSmartPointer<vtkGraphToPolyData>::New();
-  this->LabelMapper = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
-  this->LabelActor = vtkSmartPointer<vtkActor2D>::New();
+
+  this->LabelSize                 = vtkSmartPointer<vtkLabelSizeCalculator>::New();
+  this->LabelHierarchy            = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
+  this->LabelPlacer               = vtkSmartPointer<vtkLabelPlacer>::New();
+  this->LabelMapper               = vtkSmartPointer<vtkLabeledDataMapper>::New();
+  this->LabelActor                = vtkSmartPointer<vtkActor2D>::New();
+
+  this->DynamicLabelMapper = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
+  this->DynamicLabelActor = vtkSmartPointer<vtkActor2D>::New();
+
   this->EdgeCenters = vtkSmartPointer<vtkEdgeCenters>::New();
   this->EdgeLabelMapper = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
   this->EdgeLabelActor = vtkSmartPointer<vtkActor2D>::New();
@@ -97,9 +108,15 @@ vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
     this->ExtractSelection->GetOutputPort());
   this->SelectionActor->SetMapper(this->SelectionMapper);
 
-  this->LabelMapper->SetInputConnection(
-    this->AssignCoordinates->GetOutputPort());
+  this->LabelSize->SetInputConnection(this->AssignCoordinates->GetOutputPort());
+  this->LabelHierarchy->SetInputConnection(this->LabelSize->GetOutputPort());
+  this->LabelPlacer->SetInputConnection(this->LabelHierarchy->GetOutputPort());
+  this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort());
   this->LabelActor->SetMapper(this->LabelMapper);
+
+  this->DynamicLabelMapper->SetInputConnection(
+    this->AssignCoordinates->GetOutputPort());
+  this->DynamicLabelActor->SetMapper(this->DynamicLabelMapper);
 
   this->EdgeCenters->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->EdgeLabelMapper->SetInputConnection(
@@ -117,11 +134,24 @@ vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
   tp->SetBold(1);
   tp->SetShadow(1);
   tp->SetLineOffset(-10);
-  this->LabelMapper->SetFieldDataName("label");
+
+  this->LabelHierarchy->SetMaximumDepth(3);
+  this->LabelHierarchy->
+    SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "LabelSize");
+  this->SetVertexLabelArrayName("Label");
+
+  // Turn off labels on the other side of the world
+  this->LabelPlacer->PositionsAsNormalsOn();
+  this->LabelMapper->SetFieldDataName("LabelText");
   this->LabelMapper->SetLabelModeToLabelFieldData();
+  this->DynamicLabelMapper->SetLabelModeToLabelFieldData();
+  this->LabelSize->SetFontProperty(tp);
   this->LabelMapper->SetLabelTextProperty(tp);
+  this->DynamicLabelMapper->SetLabelTextProperty(tp);
   this->LabelActor->PickableOff();
+  this->DynamicLabelActor->PickableOff();
   this->LabelActor->VisibilityOff();
+  this->DynamicLabelActor->VisibilityOff();
   this->SetEdgeLayoutStrategyToArcParallel();
   this->AssignCoordinates->SetLatitudeArrayName("latitude");
   this->AssignCoordinates->SetLongitudeArrayName("longitude");
@@ -144,6 +174,7 @@ vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
   this->SelectionActor->GetProperty()->SetColor(1, 0, 1);
   this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
   this->SelectionActor->PickableOff();
+  this->UseLabelHierarchy = true;
 }
 
 //----------------------------------------------------------------------------
@@ -161,19 +192,45 @@ void vtkGeoGraphRepresentation2D::SetInputConnection(vtkAlgorithmOutput* conn)
 //----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation2D::SetVertexLabelArrayName(const char* name)
 {
-  this->LabelMapper->SetFieldDataName(name);
+  this->DynamicLabelMapper->SetFieldDataName(name);
+
+  if (name)
+    {
+    this->LabelSize->SetInputArrayToProcess(0, 0, 0,
+      vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+    this->LabelHierarchy->SetInputArrayToProcess(0, 0, 0,
+      vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+    this->LabelHierarchy->SetInputArrayToProcess(2, 0, 0,
+      vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+    }
 }
 
 //----------------------------------------------------------------------------
 const char* vtkGeoGraphRepresentation2D::GetVertexLabelArrayName()
 {
-  return this->LabelMapper->GetFieldDataName();
+  return this->DynamicLabelMapper->GetFieldDataName();
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation2D::SetVertexLabelVisibility(bool b)
 {
-  this->LabelActor->SetVisibility(b);
+  if(!b)
+    {
+    this->LabelActor->SetVisibility(false);
+    this->DynamicLabelActor->SetVisibility(false);
+    return;
+    }
+
+  if(UseLabelHierarchy)
+    {
+    this->LabelActor->SetVisibility(true);
+    this->DynamicLabelActor->SetVisibility(false);
+    }
+  else
+    {
+    this->LabelActor->SetVisibility(false);
+    this->DynamicLabelActor->SetVisibility(true);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -362,14 +419,20 @@ bool vtkGeoGraphRepresentation2D::AddToView(vtkView* view)
     vtkErrorMacro("Can only add to a subclass of vtkRenderView.");
     return false;
     }
+  this->LabelPlacer->SetRenderer(rv->GetRenderer());
   rv->GetRenderer()->AddActor(this->SelectionActor);
   rv->GetRenderer()->AddActor(this->GraphActor);
   rv->GetRenderer()->AddActor(this->EdgeLabelActor);
   rv->GetRenderer()->AddActor(this->LabelActor);
+  rv->GetRenderer()->AddActor(this->DynamicLabelActor);
 
   // Register progress.
   view->RegisterProgress(AssignCoordinates);
+  view->RegisterProgress(LabelSize);
+  view->RegisterProgress(LabelHierarchy);
+  view->RegisterProgress(LabelPlacer);
   view->RegisterProgress(LabelMapper);
+  view->RegisterProgress(DynamicLabelMapper);
   view->RegisterProgress(EdgeLayout);
   view->RegisterProgress(GraphMapper);
   view->RegisterProgress(GraphToPolyData);
@@ -391,10 +454,15 @@ bool vtkGeoGraphRepresentation2D::RemoveFromView(vtkView* view)
   rv->GetRenderer()->RemoveActor(this->GraphActor);
   rv->GetRenderer()->RemoveActor(this->EdgeLabelActor);
   rv->GetRenderer()->RemoveActor(this->LabelActor);
+  rv->GetRenderer()->RemoveActor(this->DynamicLabelActor);
 
   // UnRegister Progress
   view->UnRegisterProgress(AssignCoordinates);
+  view->UnRegisterProgress(LabelSize);
+  view->UnRegisterProgress(LabelHierarchy);
+  view->UnRegisterProgress(LabelPlacer);
   view->UnRegisterProgress(LabelMapper);
+  view->UnRegisterProgress(DynamicLabelMapper);
   view->UnRegisterProgress(EdgeLayout);
   view->UnRegisterProgress(GraphMapper);
   view->UnRegisterProgress(GraphToPolyData);
@@ -407,6 +475,17 @@ bool vtkGeoGraphRepresentation2D::RemoveFromView(vtkView* view)
 //----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation2D::PrepareForRendering()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoGraphRepresentation2D::SetUseLabelHierarchy(bool b)
+{
+  this->UseLabelHierarchy = b;
+  if(this->LabelActor->GetVisibility() || this->DynamicLabelActor->GetVisibility())
+    {
+    this->LabelActor->SetVisibility(b);
+    this->DynamicLabelActor->SetVisibility(!b);
+    }
 }
 
 //----------------------------------------------------------------------------

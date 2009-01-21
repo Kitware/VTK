@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.13");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.14");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -208,6 +208,7 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->LastCameraViewUp[0] = 0.0;
   this->LastCameraViewUp[1] = 0.0;
   this->LastCameraViewUp[2] = 0.0;
+  this->LastCameraParallelScale = 0.0;
 
   this->OutputCoordinateSystem = vtkLabelPlacer::WORLD;
 
@@ -322,6 +323,12 @@ unsigned long vtkLabelPlacer::GetMTime()
         this->LastCameraViewUp[0] = up[0];
         this->LastCameraViewUp[1] = up[1];
         this->LastCameraViewUp[2] = up[2];
+        this->Modified();
+        }
+      double scale = cam->GetParallelScale();
+      if( this->LastCameraParallelScale != scale)
+        {
+        this->LastCameraParallelScale = scale;
         this->Modified();
         }
       }

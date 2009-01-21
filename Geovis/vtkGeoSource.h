@@ -40,6 +40,7 @@
 
 #include "vtkObject.h"
 
+class vtkAbstractTransform;
 class vtkCollection;
 class vtkConditionVariable;
 class vtkGeoTreeNode;
@@ -69,6 +70,10 @@ public:
   void ShutDown();
 
   void WorkerThread();
+
+  // Description:
+  // Return the projection transformation used by this source.
+  virtual vtkAbstractTransform* GetTransform() { return NULL; }
 
 protected:
 

@@ -22,11 +22,12 @@
 
 #include "vtkCamera.h"
 #include "vtkGeoTerrainNode.h"
+#include "vtkGeoSource.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkGeoTerrain2D);
-vtkCxxRevisionMacro(vtkGeoTerrain2D, "1.3");
+vtkCxxRevisionMacro(vtkGeoTerrain2D, "1.4");
 //----------------------------------------------------------------------------
 vtkGeoTerrain2D::vtkGeoTerrain2D()
 {
@@ -98,5 +99,11 @@ void vtkGeoTerrain2D::PrintSelf(ostream & os, vtkIndent indent)
   this->Superclass::PrintSelf( os, indent );
   os << indent << "LocationTolerance: " << this->LocationTolerance << "\n";
   os << indent << "TextureTolerance: " << this->TextureTolerance << "\n";
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractTransform* vtkGeoTerrain2D::GetTransform()
+{ 
+  return this->GeoSource->GetTransform(); 
 }
 

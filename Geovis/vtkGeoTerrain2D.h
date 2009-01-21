@@ -29,6 +29,7 @@
 
 #include "vtkGeoTerrain.h"
 
+class vtkAbstractTransform;
 class vtkAssembly;
 class vtkCollection;
 class vtkGeoImageRepresentation;
@@ -54,6 +55,10 @@ public:
   // Geometry will be refined if the deviation is larger than the tolerance.
   vtkSetMacro(LocationTolerance, double);
   vtkGetMacro(LocationTolerance, double);
+
+  // Description:
+  // Return the projection transformation used by this 2D terrain.
+  virtual vtkAbstractTransform* GetTransform();
 
 protected:
   vtkGeoTerrain2D();

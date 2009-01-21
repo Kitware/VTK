@@ -66,6 +66,10 @@ protected:
 
   virtual void PrepareForRendering();
 
+  // Description:
+  // Make the tranform the same as the terrain.
+  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
+
 private:
   vtkGeoView2D(const vtkGeoView2D&); // Not implemented
   void operator=(const vtkGeoView2D&); // Not implemented

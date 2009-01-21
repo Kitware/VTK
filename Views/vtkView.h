@@ -348,6 +348,12 @@ protected:
   // This method is called by Add/SetRepresentationFromInputConnection.
   // NOTE, the caller must delete the returned vtkDataRepresentation.
   virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
+
+  // Description:
+  // Subclass "hooks" for notifying subclasses of vtkView when representations are added
+  // or removed. Override these methods to perform custom actions.
+  virtual void AddRepresentationInternal(vtkDataRepresentation* vtkNotUsed(rep)) {}
+  virtual void RemoveRepresentationInternal(vtkDataRepresentation* vtkNotUsed(rep)) {}
   
 private:
   vtkView(const vtkView&);  // Not implemented.

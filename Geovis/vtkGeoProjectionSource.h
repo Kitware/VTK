@@ -27,6 +27,7 @@
 
 #include "vtkGeoSource.h"
 
+class vtkAbstractTransform;
 class vtkGeoTerrainNode;
 class vtkTransformFilter;
 class vtkMutexLock;
@@ -56,13 +57,17 @@ public:
   vtkGetMacro(MinCellsPerNode, int);
   vtkSetMacro(MinCellsPerNode, int);
 
+  // Description:
+  // Return the projection transformation used by this 2D terrain.
+  virtual vtkAbstractTransform* GetTransform();
+
 protected:
   void RefineAndComputeError(vtkGeoTerrainNode* node);
 
   int Projection;
   int MinCellsPerNode;
-  virtual void SetTransform(vtkTransformFilter* transform);
-  vtkTransformFilter* Transform;
+  virtual void SetTransformFilter(vtkTransformFilter* transform);
+  vtkTransformFilter* TransformFilter;
 
   vtkMutexLock* TransformLock;
 

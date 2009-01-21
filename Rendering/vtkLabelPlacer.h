@@ -162,6 +162,7 @@ protected:
   double LastCameraPosition[3];
   double LastCameraFocalPoint[3];
   double LastCameraViewUp[3];
+  double LastCameraParallelScale;
   int IteratorType;
   int OutputCoordinateSystem;
 

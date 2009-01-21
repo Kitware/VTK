@@ -13,6 +13,7 @@ IF (VTK_USE_DISPLAY)
       TestGeoProjection.cxx
       TestGeoView2D.cxx
       TestGeoView.cxx
+      #TestLabeledGeoView2D.cxx
       )
   ENDIF (VTK_DATA_ROOT)
 

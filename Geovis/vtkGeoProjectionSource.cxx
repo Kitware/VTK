@@ -49,12 +49,12 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.3");
-vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkTransformFilter);
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.4");
+vtkCxxSetObjectMacro(vtkGeoProjectionSource, TransformFilter, vtkTransformFilter);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
 {
-  this->Transform = 0;
+  this->TransformFilter = 0;
   this->MinCellsPerNode = 20;
 
   this->TransformLock = vtkMutexLock::New();
@@ -64,14 +64,14 @@ vtkGeoProjectionSource::vtkGeoProjectionSource()
 vtkGeoProjectionSource::~vtkGeoProjectionSource()
 {
   this->TransformLock->Delete();
-  this->SetTransform(0);
+  this->SetTransformFilter(0);
 }
 
 void vtkGeoProjectionSource::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Projection: " << this->Projection << "\n";
-  os << indent << "Transform: " << this->Transform << "\n";
+  os << indent << "TransformFilter: " << this->TransformFilter << "\n";
   os << indent << "TransformLock: " << this->TransformLock << "\n";
   os << indent << "MinCellsPerNode: " << this->MinCellsPerNode << "\n";
 }
@@ -106,9 +106,9 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
     grat->SetLatitudeLevel(level);
     grat->SetLongitudeLevel(level);
     this->TransformLock->Lock();
-    this->Transform->SetInputConnection(grat->GetOutputPort());
-    this->Transform->Update();
-    geom->ShallowCopy(this->Transform->GetOutput());
+    this->TransformFilter->SetInputConnection(grat->GetOutputPort());
+    this->TransformFilter->Update();
+    geom->ShallowCopy(this->TransformFilter->GetOutput());
     this->TransformLock->Unlock();
     refinedGrat->SetLatitudeLevel(level+1);
     refinedGrat->SetLongitudeLevel(level+1);
@@ -117,9 +117,9 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
     double* curLonRange = geom->GetPointData()->GetArray("LatLong")->GetRange(1);
     refinedGrat->SetLongitudeBounds(curLonRange);
     this->TransformLock->Lock();
-    this->Transform->SetInputConnection(refinedGrat->GetOutputPort());
-    this->Transform->Update();
-    refined->ShallowCopy(this->Transform->GetOutput());
+    this->TransformFilter->SetInputConnection(refinedGrat->GetOutputPort());
+    this->TransformFilter->Update();
+    refined->ShallowCopy(this->TransformFilter->GetOutput());
     this->TransformLock->Unlock();
     ++level;
     } while (geom->GetNumberOfCells() < this->MinCellsPerNode &&
@@ -212,9 +212,9 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
   grat->SetLongitudeBounds(-180.0, 180.0);
   grat->SetLatitudeBounds(-90.0, 90.0);
   grat->SetGeometryType(vtkGeoGraticule::QUADRILATERALS);
-  this->Transform->SetInputConnection(grat->GetOutputPort());
-  this->Transform->Update();
-  double* realBounds = this->Transform->GetOutput()->GetBounds();
+  this->TransformFilter->SetInputConnection(grat->GetOutputPort());
+  this->TransformFilter->Update();
+  double* realBounds = this->TransformFilter->GetOutput()->GetBounds();
 
   // Extend the bounds just a tad to be safe
   double bounds[4];
@@ -239,7 +239,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
     bounds[1] = center + size/2.0;
     }
 
-  root->GetModel()->ShallowCopy(this->Transform->GetOutput());
+  root->GetModel()->ShallowCopy(this->TransformFilter->GetOutput());
   root->SetLatitudeRange(-90.0, 90.0);
   root->SetLongitudeRange(-180.0, 180.0);
   root->SetProjectionBounds(bounds);
@@ -407,6 +407,12 @@ void vtkGeoProjectionSource::SetProjection(int projection)
   proj->SetName(vtkGeoProjection::GetProjectionName(projection));
   trans->SetDestinationProjection(proj);
   filter->SetTransform(trans);
-  this->SetTransform(filter);
+  this->SetTransformFilter(filter);
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractTransform* vtkGeoProjectionSource::GetTransform()
+{
+  return this->TransformFilter->GetTransform();
 }
 
