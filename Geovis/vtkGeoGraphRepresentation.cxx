@@ -66,7 +66,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.19");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.20");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -90,6 +90,8 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->ExtractSelection          = vtkSmartPointer<vtkExtractSelectedGraph>::New();
   this->SelectionMapper           = vtkSmartPointer<vtkGraphMapper>::New();
   this->SelectionActor            = vtkSmartPointer<vtkActor>::New();
+
+  this->LabelArrayName = NULL;
 
   // Connect pipeline
   this->EdgeLayout->SetInputConnection(this->AssignCoordinates->GetOutputPort());
@@ -158,8 +160,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->SelectionActor->GetProperty()->SetColor(1, 0, 1);
   this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
   this->SelectionActor->PickableOff();
-
-  this->LabelArrayName = 0;
 
   // Variable to keep track of whether we are in a 3D geo view.
   this->In3DGeoView = false;
