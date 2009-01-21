@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.85");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.86");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -359,10 +359,15 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
               }
             if (strrchr(fileName, '*') != NULL)
               {
-              // reopen case file; find right time set and fill in
+              // RE-open case file; find right time set and fill in
               // wildcards from there if possible; if not, then find right
               // file set and fill in wildcards from there.
-              this->ReplaceWildcards(fileName, timeSet, fileSet);
+              if ( this->ReplaceWildcards(fileName, timeSet, fileSet) == 0 )
+                {
+                vtkErrorMacro(
+                  "upon DetermineEnSightVersion()'s call to ReplaceWildCards()");
+                return -1;
+                }
               }
             sfilename = "";
             if (this->FilePath)
@@ -1042,99 +1047,200 @@ int vtkGenericEnSightReader::GetComplexVariableType(int n)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
-                                               int fileSet)
+int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
+                                              int fileSet)
 {
-  char line[256], subLine[256];
-  int cmpTimeSet, cmpFileSet, fileNameNum;
+  char line[256],  subLine[256];
+  int  cmpTimeSet, cmpFileSet, fileNameNum, lineReadResult, lineScanResult;
   
   vtkstd::string sfilename;
-  if (this->FilePath)
+  if ( this->FilePath )
     {
     sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length()-1) != '/')
+    if (  sfilename.at( sfilename.length() - 1 ) != '/'  )
       {
       sfilename += "/";
       }
     sfilename += this->CaseFileName;
-    vtkDebugMacro("full path to case file: " 
-                  << sfilename.c_str());
+    vtkDebugMacro( "full path to case file: " << sfilename.c_str() );
     }
   else
     {
     sfilename = this->CaseFileName;
     }
   
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  // We have got a valid CASE file name
+  this->IS = new ifstream( sfilename.c_str(), ios::in );
+  
+  // Below is a revamped version of the code in support of inline & non-inline
+  // file name numbers, in a CASE file, of which the first one is obtained to
+  // make a geometry file name, through wildcards replacement, used to determine
+  // the specific EnSight version.
 
-  // We already know we have a valid case file if we've gotten to this point.
-  
-  this->ReadLine(line);
-  while (strncmp(line, "TIME", 4) != 0)
+  // Locate the 'TIME' section
+  do
     {
-    this->ReadLine(line);
+    if ( this->ReadNextDataLine(line) == 0 )
+      {
+      vtkErrorMacro(
+        "ReplaceWildCards() failed to find the 'TIME' section!" );
+      delete this->IS;
+      this->IS = NULL;
+      return 0;
+      }
+    } while ( strncmp(line, "TIME", 4) != 0 );
+  
+    
+  // Locate the very 'time set' entry by the index
+  cmpTimeSet = -10000;
+  do
+    {
+    if ( this->ReadNextDataLine(line) == 0 )
+      {
+      vtkErrorMacro(
+        "ReplaceWildCards() failed to find the target 'time set' entry!" );
+      delete this->IS;
+      this->IS = NULL;
+      return 0;
+      }
+      
+      // 'time set: <int>' --- where to obtain cmpTimeSet, a time set index
+      lineScanResult = sscanf(line, "%*s %s %d", subLine, &cmpTimeSet); 
+    } while ( lineScanResult != 2 || strncmp(line, "time", 4) != 0 ||
+              strncmp(subLine, "set", 3) != 0 || cmpTimeSet != timeSet );
+               
+  // Skip 'time set: <int>' and 'number of steps: <int>' to go to
+  // 'filename xxx: ...' --- where to obtain the actual file name number(s)
+  for ( int  i = 0;  i < 2;  i ++ )
+    {
+    lineReadResult = this->ReadNextDataLine(line);
+    if ( lineReadResult == 0 ||
+         // check 'filename xxx: ...' upon the second line (i = 1)
+         ( i == 1 && 
+           ( strncmp(line, "filename", 8)    != 0 ||
+             sscanf(line, "%*s %s", subLine) != 1
+           )
+         )
+       )
+      {
+      vtkErrorMacro(
+        "ReplaceWildCards() failed to find the target 'filename ...: ...' entry!" );
+      delete this->IS;
+      this->IS = NULL;
+      return 0;
+      }
     }
   
-  this->ReadNextDataLine(line);
-  sscanf(line, " %*s %*s %d", &cmpTimeSet);
-  while (cmpTimeSet != timeSet)
-    {
-    this->ReadNextDataLine(line);
-    this->ReadNextDataLine(line);
-    sscanf(line, " %s", subLine);
-    if (strncmp(subLine, "filename", 8) == 0)
-      {
-      this->ReadNextDataLine(line);
-      }
-    if (strncmp(subLine, "filename", 8) == 0)
-      {
-      this->ReadNextDataLine(line);
-      }
-    sscanf(line, " %*s %*s %d", &cmpTimeSet);
-    }
+  fileNameNum = -10000;
   
-  this->ReadNextDataLine(line); // number of timesteps
-  this->ReadNextDataLine(line);
-  sscanf(line, " %s", subLine);
-  if (strncmp(subLine, "filename", 8) == 0)
+  // 'filename numbers: ...'
+  if ( strncmp(subLine, "numbers", 7) == 0 )
     {
-    sscanf(line, " %*s %s", subLine);
-    if (strncmp(subLine, "start", 5) == 0)
+    // The filename number(s) may be provided on the line(s) following
+    // 'filename numbers:', as is usually the case --- not "inline". Thus we
+    // need to go to the FIRST line that indeed contains the filename number(s).
+    // Note that we only need to obtain the FIRST file name number since a
+    // single geometry file allows us to determine the EnSight version. This is
+    // based on the reasonable assumption that all geometry files referenced by
+    // a CASE file have the same EnSight version.
+    
+    // not "inline"
+    if ( sscanf(line, "%*s %*s %d", &fileNameNum) != 1 )
       {
-      sscanf(line, " %*s %*s %*s %d", &fileNameNum);
+      // let's go to the next VALID line that might be several empty lines apart
+      if ( this->ReadNextDataLine(line) == 0 )
+        {
+        vtkErrorMacro(
+          "ReplaceWildCards() failed to obtain any non-inline file name number!" );
+        delete this->IS;
+        this->IS = NULL;
+        return 0;
+        }
+      
+      // obtain the first file name number from the next valid line  
+      sscanf(line, "%d", &fileNameNum);
       }
-    else
-      {
-      sscanf(line, " %*s %*s %d", &fileNameNum);
-      }
-    this->ReplaceWildcardsHelper(fileName, fileNameNum);
     }
+  // 'filename start number: ...' --- followed by 'filename increment: ...'
   else
     {
-    while (strncmp(line, "FILE", 4) != 0)
+    char  subSubLine[256];
+    lineScanResult = sscanf( line, "%*s %s %s %d", 
+                             subLine, subSubLine, &fileNameNum );
+    if ( lineScanResult != 3 ||
+         strncmp(subLine,    "start",  5) != 0 ||
+         strncmp(subSubLine, "number", 6) != 0
+       )
       {
-      this->ReadLine(line);
+      vtkErrorMacro(
+        "ReplaceWildCards() failed to find 'filename start number: <int>'!" );
+      delete this->IS;
+      this->IS = NULL;
+      return 0;
       }
-    this->ReadNextDataLine(line);
-    sscanf(line, " %*s %*s %d", &cmpFileSet);
-    while (cmpFileSet != fileSet)
-      {
-      this->ReadNextDataLine(line);
-      this->ReadNextDataLine(line);
-      sscanf(line, " %s", subLine);
-      if (strncmp(subLine, "filename", 8) == 0)
-        {
-        this->ReadNextDataLine(line);
-        }
-      sscanf(line, " %*s %*s %d", &cmpFileSet);
-      }
-    this->ReadNextDataLine(line);
-    sscanf(line, " %*s %*s %d", &fileNameNum);
-    this->ReplaceWildcardsHelper(fileName, fileNameNum);
     }
   
+  // Let's resort to the 'FILE' section, just in case of a failure so far
+  if ( fileNameNum == -10000 )
+    {
+    // Locate the 'FILE' section
+    do
+      {
+      if ( this->ReadNextDataLine(line) == 0 )
+        {
+        vtkErrorMacro(
+          "ReplaceWildCards() failed to find the optional 'FILE' section!" );
+        delete this->IS;
+        this->IS = NULL;
+        return 0;
+        }
+      } while ( strncmp(line, "FILE", 4) != 0 );
+      
+    // Locate the very 'file set' entry by the index
+    cmpFileSet = -10000;
+    do
+      {
+      if ( this->ReadNextDataLine(line) == 0 )
+        {
+        vtkErrorMacro(
+          "ReplaceWildCards() failed to find the target 'file set' entry!" );
+        delete this->IS;
+        this->IS = NULL;
+        return 0;
+        }
+    
+      // 'file set: <int>' --- to obtain cmpFileSet, a file set index
+      lineScanResult = sscanf(line, "%*s %s %d", subLine, &cmpFileSet); 
+      } while ( lineScanResult != 2 || strncmp(line, "file", 4) != 0 ||
+                strncmp(subLine, "set", 3) != 0 || cmpFileSet != fileSet );
+        
+    // Skip 'file set: <int>' to go to
+    // 'filename index: <int>' --- where to obtain ONE actual file name
+    // Note that we here do NOT allow any non-'inline' scenarios since
+    // there is ONE AND ONLY ONE integer value, within a 'filename index: <int>'
+    // entry, that is used to specify a file name index. Thus any violation
+    // of this reasonable assumption is considered to use an invalid EnSight
+    // format that needs to be corrected by the EnSight CASE file user.
+    lineReadResult = this->ReadNextDataLine(line);
+    lineScanResult = sscanf( line, "%*s %s %d", subLine, &fileNameNum );
+    if ( lineReadResult == 0               || lineScanResult != 2 ||
+         strncmp(line, "filename", 8) != 0 || strncmp(subLine, "index", 5) != 0
+       )
+      {
+      vtkErrorMacro(
+        "ReplaceWildCards() failed to find 'filename index: <int>'!" );
+      delete this->IS;
+      this->IS = NULL;
+      return 0;
+      }   
+    }
+  
+  // So far we have got a file name index
+  this->ReplaceWildcardsHelper(fileName, fileNameNum);
   delete this->IS;
   this->IS = NULL;
+  
+  return  1;
 }
 
 //----------------------------------------------------------------------------

@@ -232,13 +232,13 @@ protected:
 
   // Description:
   // Add a variable type to the appropriate array.
-  void AddVariableType(int variableType);
+  void AddVariableType(int variableType); 
   void AddComplexVariableType(int variableType);
 
   // Description:
   // Replace the wildcards in the geometry file name with appropriate filename
   // numbers as specified in the time set or file set.
-  void ReplaceWildcards(char* fileName, int timeSet, int fileSet);
+  int  ReplaceWildcards(char* fileName, int timeSet, int fileSet);    
   void ReplaceWildcardsHelper(char* fileName, int num);
   
   // Callback registered with the SelectionObserver.
