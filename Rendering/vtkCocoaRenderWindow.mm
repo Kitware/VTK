@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.64");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.65");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -1085,8 +1085,10 @@ void vtkCocoaRenderWindow::SetCursorPosition(int x, int y)
     {
     NSPoint screenPoint = [view convertPoint:newViewPoint toView:nil];
 
+    // Convert NSPoint->CGPoint (NSPointToCGPoint() would require the 10.5 SDK).
+    CGPoint newCursorPosition = {screenPoint.x, screenPoint.y};
+    
     // Move the cursor there.
-    CGPoint newCursorPosition = NSPointToCGPoint (screenPoint);
     (void)CGWarpMouseCursorPosition (newCursorPosition);
     }
 }
