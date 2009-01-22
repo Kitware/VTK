@@ -51,7 +51,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.3");
+vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.4");
 vtkStandardNewMacro(vtkPBGLCollectGraph);
 
 // Constructor/Destructor
@@ -109,8 +109,6 @@ int vtkPBGLCollectGraph::RequestData(
   int myRank = input->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
   int numProcs 
     = input->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-
-  cerr << myRank << " in vtkPBGLCollectGraph" << endl;
 
   // Get the Boost.MPI communicator from the input graph.
   boost::mpi::communicator comm = communicator(pbglHelper->GetProcessGroup());
@@ -245,7 +243,6 @@ int vtkPBGLCollectGraph::RequestData(
   vtkDataSetAttributes *distribEdgeData = input->GetEdgeData();
   if (distribEdgeData->GetNumberOfArrays() > 0 && this->CopyEdgeData)
     {
-    cerr << myRank << " creating edge data pack" << endl;
     typedef boost::mpi::packed_iarchive::buffer_type mpi_buffer_type;
     int numArrays = distribEdgeData->GetNumberOfArrays();
 
@@ -335,7 +332,6 @@ int vtkPBGLCollectGraph::RequestData(
       propArray->SetNumberOfTuples(numArrays);
       for (int origin = 0; origin < numProcs; ++origin)
         {
-        cerr << myRank << " extract the edges and properties" << endl;
         // Extract the edges and properties
         boost::mpi::packed_iarchive in(comm, allEdgesBuffers[origin]);
         vtkIdType numEdges;

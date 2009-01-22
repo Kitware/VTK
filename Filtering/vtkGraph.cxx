@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.32");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.33");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.32");
+vtkCxxRevisionMacro(vtkGraph, "1.33");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1169,7 +1169,7 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
         }
 
       vtkIdType existingVertex = this->FindVertex(pedigreeId);
-      if (existingVertex != -1)
+      if (existingVertex != -1 && existingVertex < this->GetNumberOfVertices())
         {
         vtkIdType idx = existingVertex;
         if (helper)
@@ -1256,7 +1256,7 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
     }
 
   vtkIdType existingVertex = this->FindVertex(pedigreeId);
-  if (existingVertex != -1)
+  if (existingVertex != -1 && existingVertex < this->GetNumberOfVertices())
     {
     // We found this vertex; nothing more to do.
     if (vertex)
