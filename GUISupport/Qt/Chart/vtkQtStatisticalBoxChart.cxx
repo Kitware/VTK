@@ -1363,16 +1363,16 @@ void vtkQtStatisticalBoxChart::createShapeTable(int seriesGroup)
     }
 
   // Clear the current table.
-  vtkQtStatisticalBoxChartSeriesGroup *group =
+  vtkQtStatisticalBoxChartSeriesGroup *agroup =
       this->Internal->Groups.Tables[seriesGroup];
-  group->Shapes.clear();
+  agroup->Shapes.clear();
 
   // Add the shapes to the table for the series in the group.
   QList<int> seriesList = this->Internal->Groups.getGroup(seriesGroup);
   QList<int>::Iterator iter = seriesList.begin();
   for( ; iter != seriesList.end(); ++iter)
     {
-    group->Shapes.append(this->Internal->Series[*iter]->Shapes);
+    agroup->Shapes.append(this->Internal->Series[*iter]->Shapes);
     }
 }
 
@@ -1386,14 +1386,14 @@ void vtkQtStatisticalBoxChart::buildShapeTree(int seriesGroup)
   else
     {
     this->Internal->CurrentGroup = seriesGroup;
-    vtkQtStatisticalBoxChartSeriesGroup *group =
+    vtkQtStatisticalBoxChartSeriesGroup *agroup =
         this->Internal->Groups.Tables[seriesGroup];
 
     // Sort the modified series lists.
-    group->sortSeries();
+    agroup->sortSeries();
 
     // Build the search tree from the table.
-    this->Internal->ShapeTree.build(group->Shapes);
+    this->Internal->ShapeTree.build(agroup->Shapes);
     }
 }
 

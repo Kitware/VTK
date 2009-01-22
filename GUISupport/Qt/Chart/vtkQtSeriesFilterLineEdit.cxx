@@ -33,8 +33,8 @@
 #include "vtkQtChartSeriesOptions.h"
 
 //----------------------------------------------------------------------------
-vtkQtSeriesFilterLineEdit::vtkQtSeriesFilterLineEdit(QWidget* parent)
-  : QLineEdit(parent)
+vtkQtSeriesFilterLineEdit::vtkQtSeriesFilterLineEdit(QWidget* lparent)
+  : QLineEdit(lparent)
 {
   this->Layer = 0;
 }
@@ -63,14 +63,14 @@ vtkQtChartSeriesLayer* vtkQtSeriesFilterLineEdit::getLayer()
   return this->Layer;
 }
 
-void vtkQtSeriesFilterLineEdit::filterSeries(const QString& text)
+void vtkQtSeriesFilterLineEdit::filterSeries(const QString& ltext)
 {
   if(this->Layer)
     {
     vtkQtChartSeriesModel* model = this->Layer->getModel();
     for(int i = 0; i < model->getNumberOfSeries(); ++i)
       {
-      if(model->getSeriesName(i).toString().startsWith(text, Qt::CaseInsensitive))
+      if(model->getSeriesName(i).toString().startsWith(ltext, Qt::CaseInsensitive))
         {
         this->Layer->getSeriesOptions(i)->setVisible(true);
         }

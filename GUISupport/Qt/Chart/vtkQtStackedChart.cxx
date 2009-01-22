@@ -617,13 +617,13 @@ bool vtkQtStackedChart::getHelpText(const QPointF &point, QString &text)
     QStringList args;
     args.append(xAxis->formatValue(
         seriesDomain->getXDomain().getDomain(isRange)[index]));
-    vtkQtStackedChartSeriesGroup *group =
+    vtkQtStackedChartSeriesGroup *agroup =
         this->Internal->Groups.Tables[item->Group];
-    args.append(yAxis->formatValue(QVariant(group->Data[item->Index][index])));
+    args.append(yAxis->formatValue(QVariant(agroup->Data[item->Index][index])));
     if(item->Index > 0)
       {
-      double value = group->Data[item->Index][index] -
-          group->Data[item->Index - 1][index];
+      double value = agroup->Data[item->Index][index] -
+          agroup->Data[item->Index - 1][index];
       args.append(yAxis->formatValue(QVariant(value)));
       }
     else
@@ -1355,9 +1355,9 @@ void vtkQtStackedChart::updateItemMap(int seriesGroup)
 void vtkQtStackedChart::createTable(int seriesGroup)
 {
   // Clear the group table and the associated y-axis domain.
-  vtkQtStackedChartSeriesGroup *group =
+  vtkQtStackedChartSeriesGroup *agroup =
       this->Internal->Groups.Tables[seriesGroup];
-  group->Data.clear();
+  agroup->Data.clear();
   vtkQtChartSeriesDomain *seriesDomain =
       this->Internal->Domain.getDomain(seriesGroup);
   seriesDomain->getYDomain().clear();
@@ -1375,7 +1375,7 @@ void vtkQtStackedChart::createTable(int seriesGroup)
       // Add a table row for each of the series.
       int k = 0;
       QVariant xValue, yValue;
-      group->Data.append(QVector<double>(xDomain.size(), 0.0));
+      agroup->Data.append(QVector<double>(xDomain.size(), 0.0));
       int points = this->Model->getNumberOfSeriesValues(*iter);
       for(int j = 0; j < points; j++, k++)
         {
@@ -1385,7 +1385,7 @@ void vtkQtStackedChart::createTable(int seriesGroup)
           {
           if(i > 0)
             {
-            group->Data[i][k] = group->Data[i - 1][k];
+            agroup->Data[i][k] = agroup->Data[i - 1][k];
             }
 
           k++;
@@ -1398,12 +1398,12 @@ void vtkQtStackedChart::createTable(int seriesGroup)
 
         // Get the y-axis value.
         yValue = this->Model->getSeriesValue(*iter, j, 1);
-        group->Data[i][k] = this->Internal->Series[i]->CurrentVisibility * yValue.toDouble();
+        agroup->Data[i][k] = this->Internal->Series[i]->CurrentVisibility * yValue.toDouble();
 
         // Stack the series by adding the previous series value.
         if(i > 0)
           {
-          group->Data[i][k] += group->Data[i - 1][k];
+          agroup->Data[i][k] += agroup->Data[i - 1][k];
           }
         }
 
@@ -1412,7 +1412,7 @@ void vtkQtStackedChart::createTable(int seriesGroup)
         {
         for( ; k < xDomain.size(); k++)
           {
-          group->Data[i][k] = group->Data[i - 1][k];
+          agroup->Data[i][k] = agroup->Data[i - 1][k];
           }
         }
       }
@@ -1429,25 +1429,25 @@ void vtkQtStackedChart::createTable(int seriesGroup)
 
 void vtkQtStackedChart::normalizeTable(int seriesGroup)
 {
-  vtkQtStackedChartSeriesGroup *group =
+  vtkQtStackedChartSeriesGroup *agroup =
       this->Internal->Groups.Tables[seriesGroup];
-  if(group->Data.size() == 0)
+  if(agroup->Data.size() == 0)
     {
     return;
     }
 
-  int last = group->Data.size() - 1;
-  int count = group->Data[0].size();
+  int last = agroup->Data.size() - 1;
+  int count = agroup->Data[0].size();
   for(int j = 0; j < count; j++)
     {
-    double total = group->Data[last][j];
+    double total = agroup->Data[last][j];
     if(total > 0)
       {
       int i = 0;
-      for( ; i < group->Data.size(); i++)
+      for( ; i < agroup->Data.size(); i++)
         {
-        double fraction = group->Data[i][j] / total;
-        group->Data[i][j] = 100.0 * fraction;
+        double fraction = agroup->Data[i][j] / total;
+        agroup->Data[i][j] = 100.0 * fraction;
         }
       }
     }
@@ -1478,7 +1478,7 @@ void vtkQtStackedChart::calculateXDomain(int seriesGroup)
 
 void vtkQtStackedChart::calculateYDomain(int seriesGroup)
 {
-  vtkQtStackedChartSeriesGroup *group =
+  vtkQtStackedChartSeriesGroup *agroup =
       this->Internal->Groups.Tables[seriesGroup];
   vtkQtChartSeriesDomain *seriesDomain =
       this->Internal->Domain.getDomain(seriesGroup);
@@ -1486,13 +1486,13 @@ void vtkQtStackedChart::calculateYDomain(int seriesGroup)
 
   // Use the first and last rows of the table to determine the minimum
   // and maximum respectively.
-  if(group->Data.size() > 0)
+  if(agroup->Data.size() > 0)
     {
     double minimum = 0;
     double maximum = 0;
-    QVector<double>::Iterator iter = group->Data[0].begin();
-    QVector<double>::Iterator rowEnd = group->Data[0].end();
-    QVector<double>::Iterator jter = group->Data.last().begin();
+    QVector<double>::Iterator iter = agroup->Data[0].begin();
+    QVector<double>::Iterator rowEnd = agroup->Data[0].end();
+    QVector<double>::Iterator jter = agroup->Data.last().begin();
     if(iter != rowEnd)
       {
       minimum = *iter;
@@ -1531,15 +1531,15 @@ void vtkQtStackedChart::createQuadTable(int seriesGroup)
     }
 
   // Clear the current quad table.
-  vtkQtStackedChartSeriesGroup *group =
+  vtkQtStackedChartSeriesGroup *agroup =
       this->Internal->Groups.Tables[seriesGroup];
-  group->Shapes.clear();
+  agroup->Shapes.clear();
 
   // Build the quad table from the value table sizes.
-  int numSeries = group->Data.size();
+  int numSeries = agroup->Data.size();
   if(numSeries > 0)
     {
-    int points = (group->Data[0].size() - 1) * 2;
+    int points = (agroup->Data[0].size() - 1) * 2;
     if(points > 0)
       {
       // Get the series list for the domain group.
@@ -1570,12 +1570,12 @@ void vtkQtStackedChart::createQuadTable(int seriesGroup)
       for(j = 0; j < points; j++)
         {
         // Add a list for the y-direction quads.
-        group->Shapes.append(QList<vtkQtChartShape *>());
+        agroup->Shapes.append(QList<vtkQtChartShape *>());
         for(int i = numSeries - 1; i >= 0; i--)
           {
           // Add a quad for each of the series at this x-interval.
           series = this->Internal->Series[seriesList[i]];
-          group->Shapes.last().append(series->Quads[j]);
+          agroup->Shapes.last().append(series->Quads[j]);
           }
         }
       }
@@ -1592,9 +1592,9 @@ void vtkQtStackedChart::buildQuadTree(int seriesGroup)
   else
     {
     this->Internal->CurrentGroup = seriesGroup;
-    vtkQtStackedChartSeriesGroup *group =
+    vtkQtStackedChartSeriesGroup *agroup =
         this->Internal->Groups.Tables[seriesGroup];
-    this->Internal->QuadTree.build(group->Shapes);
+    this->Internal->QuadTree.build(agroup->Shapes);
     }
 }
 

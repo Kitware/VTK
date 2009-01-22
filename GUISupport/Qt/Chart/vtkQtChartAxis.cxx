@@ -1173,33 +1173,33 @@ void vtkQtChartAxis::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
     }
 
   // Set up the constant values based on the axis location.
-  float x = 0;
-  float y = 0;
+  float paintsX = 0;
+  float paintsY = 0;
   float tick = 0;
   float tickSmall = 0;
   if(this->Location == vtkQtChartAxis::Left)
     {
-    x = this->Internal->Bounds.width();
-    tick = x - this->Internal->TickLength;
-    tickSmall = x - this->Internal->SmallTickLength;
+    paintsX = this->Internal->Bounds.width();
+    tick = paintsX - this->Internal->TickLength;
+    tickSmall = paintsX - this->Internal->SmallTickLength;
     }
   else if(this->Location == vtkQtChartAxis::Top)
     {
-    y = this->Internal->Bounds.height();
-    tick = y - this->Internal->TickLength;
-    tickSmall = y - this->Internal->SmallTickLength;
+    paintsY = this->Internal->Bounds.height();
+    tick = paintsY - this->Internal->TickLength;
+    tickSmall = paintsY - this->Internal->SmallTickLength;
     }
   else if(this->Location == vtkQtChartAxis::Right)
     {
-    x = 0.0;
-    tick = x + this->Internal->TickLength;
-    tickSmall = x + this->Internal->SmallTickLength;
+    paintsX = 0.0;
+    tick = paintsX + this->Internal->TickLength;
+    tickSmall = paintsX + this->Internal->SmallTickLength;
     }
   else
     {
-    y = 0.0;
-    tick = y + this->Internal->TickLength;
-    tickSmall = y + this->Internal->SmallTickLength;
+    paintsY = 0.0;
+    tick = paintsY + this->Internal->TickLength;
+    tickSmall = paintsY + this->Internal->SmallTickLength;
     }
 
   QFontMetricsF fm(this->Options->getLabelFont());
@@ -1218,18 +1218,18 @@ void vtkQtChartAxis::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
     if(vertical)
       {
       // Transform the contents coordinate to bounds space.
-      y = (*iter)->getLocation();
+      paintsY = (*iter)->getLocation();
       if(this->Zoom)
         {
-        y -= this->Zoom->getYOffset();
+        paintsY -= this->Zoom->getYOffset();
         }
 
       // Make sure the label is inside the axis bounds.
-      if(y > this->Internal->Bounds.height() + 0.5)
+      if(paintsY > this->Internal->Bounds.height() + 0.5)
         {
         continue;
         }
-      else if(y < -0.5)
+      else if(paintsY < -0.5)
         {
         break;
         }
@@ -1241,42 +1241,42 @@ void vtkQtChartAxis::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
         painter->setPen(this->Options->getAxisColor());
         if((*iter)->isLabelVisible())
           {
-          painter->drawLine(QPointF(tick, y), QPointF(x, y));
+          painter->drawLine(QPointF(tick, paintsY), QPointF(paintsX, paintsY));
           painter->setPen(this->Options->getLabelColor());
-          y += halfAscent;
+          paintsY += halfAscent;
           if(this->Location == vtkQtChartAxis::Left)
             {
             painter->drawText(QPointF(tick - (*iter)->getLabelWidth() -
-                this->Internal->TickLabelSpacing, y), (*iter)->Label);
+                this->Internal->TickLabelSpacing, paintsY), (*iter)->Label);
             }
           else
             {
             painter->drawText(
-                QPointF(tick + this->Internal->TickLabelSpacing, y),
+                QPointF(tick + this->Internal->TickLabelSpacing, paintsY),
                 (*iter)->Label);
             }
           }
         else
           {
-          painter->drawLine(QPointF(tickSmall, y), QPointF(x, y));
+          painter->drawLine(QPointF(tickSmall, paintsY), QPointF(paintsX, paintsY));
           }
         }
       }
     else
       {
       // Transform the contents coordinate to bounds space.
-      x = (*iter)->getLocation();
+      paintsX = (*iter)->getLocation();
       if(this->Zoom)
         {
-        x -= this->Zoom->getXOffset();
+        paintsX -= this->Zoom->getXOffset();
         }
 
       // Make sure the label is inside the axis bounds.
-      if(x < -0.5)
+      if(paintsX < -0.5)
         {
         continue;
         }
-      else if(x > this->Internal->Bounds.width() + 0.5)
+      else if(paintsX > this->Internal->Bounds.width() + 0.5)
         {
         break;
         }
@@ -1288,25 +1288,25 @@ void vtkQtChartAxis::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
         painter->setPen(this->Options->getAxisColor());
         if((*iter)->isLabelVisible())
           {
-          painter->drawLine(QPointF(x, tick), QPointF(x, y));
+          painter->drawLine(QPointF(paintsX, tick), QPointF(paintsX, paintsY));
           painter->setPen(this->Options->getLabelColor());
-          x -= (*iter)->getLabelWidth() * 0.5;
+          paintsX -= (*iter)->getLabelWidth() * 0.5;
           if(this->Location == vtkQtChartAxis::Top)
             {
-            painter->drawText(QPointF(x,
+            painter->drawText(QPointF(paintsX,
                 tick - this->Internal->TickLabelSpacing - fontDescent),
                 (*iter)->Label);
             }
           else
             {
-            painter->drawText(QPointF(x,
+            painter->drawText(QPointF(paintsX,
                 tick + this->Internal->TickLabelSpacing + fontAscent),
                 (*iter)->Label);
             }
           }
         else
           {
-          painter->drawLine(QPointF(x, tickSmall), QPointF(x, y));
+          painter->drawLine(QPointF(paintsX, tickSmall), QPointF(paintsX, paintsY));
           }
         }
       }
