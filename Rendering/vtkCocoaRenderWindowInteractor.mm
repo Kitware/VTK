@@ -21,7 +21,7 @@
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.25");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.26");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -55,9 +55,11 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 // that we know a pool is always in place.
 // See: <http://lists.apple.com/archives/cocoa-dev/2006/Sep/msg00222.html>
 //
-// However, with garbage collection, autorelease pools are a thing of the
-// past, and so this hack is not needed.
-#ifndef __OBJC_GC__
+// With garbage collection (GC), autorelease pools are a thing of the past,
+// and this hack is not needed.  However, Obj-C code can be compiled in
+// 1 of 3 memory management modes: GC unsupported (classic retain/release),
+// GC supported, or GC required.  Library code like VTK should work with all 3.
+// Until VTK can require 'GC required' this hack is still needed.
 class vtkEarlyCocoaSetup
   {
     public:
@@ -74,7 +76,12 @@ class vtkEarlyCocoaSetup
     protected:
     void DestroyPoolOfLastResort()
     {
+    // See Apple docs for drain vs release.  Alas, to support 10.3, we need this #if.
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
+      [Pool drain];
+#else
       [Pool release];
+#endif
       Pool = nil;
     }
     
@@ -89,9 +96,9 @@ class vtkEarlyCocoaSetup
 
 // We create a global/static instance of this class to ensure that we have an
 // autorelease pool before main() starts (the C++ constructor for a global
-// object runs before main).
-vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
-#endif
+// object runs before main).  Note: I am unable to find a place to delete this
+// object safely.
+static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 //----------------------------------------------------------------------------
 // This is a private class and an implementation detail, do not use it.
@@ -286,6 +293,9 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
   // essentially all objects are initialized to NULL.
   NSMutableDictionary * cocoaManager = [NSMutableDictionary dictionary];
 
+  // SetCocoaManager works like an Obj-C setter, so do like Obj-C and 
+  // init the ivar to null first.
+  this->CocoaManager = NULL;
   this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
   
   this->SetTimerDictionary(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
@@ -580,27 +590,32 @@ void *vtkCocoaRenderWindowInteractor::GetCocoaServer()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
 {
-  if (manager == NULL)
+  NSMutableDictionary* currentCocoaManager = 
+    reinterpret_cast<NSMutableDictionary *>(this->CocoaManager);
+  NSMutableDictionary* newCocoaManager = 
+    reinterpret_cast<NSMutableDictionary *>(manager);
+
+  if (currentCocoaManager != newCocoaManager)
     {
-    NSMutableDictionary* cocoaManager = 
-      reinterpret_cast<NSMutableDictionary *>(manager);
-    #ifdef __OBJC_GC__
-      [[NSGarbageCollector defaultCollector] enableCollectorForPointer:cocoaManager];
-    #else
-      [cocoaManager release];
-    #endif
+    // Why not use Cocoa's retain and release?  Without garbage collection
+    // (GC), the two are equivalent anyway because of 'toll free bridging',
+    // so no problem there.  With GC, retain and release do nothing, but
+    // CFRetain and CFRelease still manipulate the internal reference count.
+    // We need that, since we are not using strong references (we don't want
+    // it collected out from under us!).
+    if (currentCocoaManager)
+      {
+      CFRelease(currentCocoaManager);
+      }
+    if (newCocoaManager)
+      {
+      this->CocoaManager = const_cast<void*>(CFRetain (newCocoaManager));
+      }
+    else
+      {
+      this->CocoaManager = NULL;
+      }
     }
-  else
-    {
-    NSMutableDictionary* cocoaManager = 
-      reinterpret_cast<NSMutableDictionary *>(manager);
-    #ifdef __OBJC_GC__
-      [[NSGarbageCollector defaultCollector] disableCollectorForPointer:cocoaManager];
-    #else
-      [cocoaManager retain];
-    #endif
-    }
-  this->CocoaManager = manager;
 }
   
 //----------------------------------------------------------------------------

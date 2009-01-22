@@ -209,8 +209,15 @@ public:
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
+  // Set cursor position in window (note that (0,0) is the lower left 
+  // corner).
   virtual void HideCursor();
   virtual void ShowCursor();
+  virtual void SetCursorPosition(int x, int y);
+
+  // Description:
+  // Change the shape of the cursor.
+  virtual void SetCurrentCursor(int);
   
   // Description:
   // Get the WindowCreated flag. It is 1 if this object created an instance

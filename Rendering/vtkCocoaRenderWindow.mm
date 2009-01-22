@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #import "vtkCocoaRenderWindow.h"
+#import "vtkCommand.h"
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
 #import "vtkRendererCollection.h"
@@ -22,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.63");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.64");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -32,6 +33,10 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   // First, create the cocoa objects manager. The dictionary is empty so
   // essentially all objects are initialized to NULL.
   NSMutableDictionary * cocoaManager = [NSMutableDictionary dictionary];
+
+  // SetCocoaManager works like an Obj-C setter, so do like Obj-C and 
+  // init the ivar to null first.
+  this->CocoaManager = NULL;
   this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
   
   this->WindowCreated = 0;
@@ -990,27 +995,32 @@ void *vtkCocoaRenderWindow::GetPixelFormat()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
 {
-  if (manager == NULL)
+  NSMutableDictionary* currentCocoaManager = 
+    reinterpret_cast<NSMutableDictionary *>(this->CocoaManager);
+  NSMutableDictionary* newCocoaManager = 
+    reinterpret_cast<NSMutableDictionary *>(manager);
+
+  if (currentCocoaManager != newCocoaManager)
     {
-    NSMutableDictionary* cocoaManager = 
-      reinterpret_cast<NSMutableDictionary *>(manager);
-    #ifdef __OBJC_GC__
-      [[NSGarbageCollector defaultCollector]
-        enableCollectorForPointer:cocoaManager];
-    #endif
-    [cocoaManager release];
+    // Why not use Cocoa's retain and release?  Without garbage collection
+    // (GC), the two are equivalent anyway because of 'toll free bridging',
+    // so no problem there.  With GC, retain and release do nothing, but
+    // CFRetain and CFRelease still manipulate the internal reference count.
+    // We need that, since we are not using strong references (we don't want
+    // it collected out from under us!).
+    if (currentCocoaManager)
+      {
+      CFRelease(currentCocoaManager);
+      }
+    if (newCocoaManager)
+      {
+      this->CocoaManager = const_cast<void *>(CFRetain (newCocoaManager));
+      }
+    else
+      {
+      this->CocoaManager = NULL;
+      }
     }
-  else
-    {
-    NSMutableDictionary* cocoaManager = 
-      reinterpret_cast<NSMutableDictionary *>(manager);
-    #ifdef __OBJC_GC__
-      [[NSGarbageCollector defaultCollector]
-        disableCollectorForPointer:cocoaManager];
-    #endif
-    [cocoaManager retain];
-    }
-  this->CocoaManager = manager;
 }
 
 //----------------------------------------------------------------------------
@@ -1061,4 +1071,63 @@ void vtkCocoaRenderWindow::ShowCursor()
 int vtkCocoaRenderWindow::GetWindowCreated()
 {
   return this->WindowCreated;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetCursorPosition(int x, int y) 
+{
+  // The given coordinates are from the bottom left of the view.
+  NSPoint newViewPoint = NSMakePoint (x, y);
+
+  // Convert to screen coordinates.
+  NSView* view = (NSView*)this->GetDisplayId();
+  if (view)
+    {
+    NSPoint screenPoint = [view convertPoint:newViewPoint toView:nil];
+
+    // Move the cursor there.
+    CGPoint newCursorPosition = NSPointToCGPoint (screenPoint);
+    (void)CGWarpMouseCursorPosition (newCursorPosition);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetCurrentCursor(int shape)
+{
+  if ( this->InvokeEvent(vtkCommand::CursorChangedEvent,&shape) )
+    {
+    return;
+    }
+  this->Superclass::SetCurrentCursor(shape);
+  NSCursor* cursor = nil;
+  switch (shape)
+    {
+    case VTK_CURSOR_DEFAULT:
+    case VTK_CURSOR_ARROW:
+      cursor = [NSCursor arrowCursor];
+      break;
+    case VTK_CURSOR_SIZENS:
+      cursor = [NSCursor resizeUpDownCursor];
+      break;
+    case VTK_CURSOR_SIZEWE:
+      cursor = [NSCursor resizeLeftRightCursor];
+      break;
+    case VTK_CURSOR_HAND:
+      cursor = [NSCursor pointingHandCursor];
+      break;
+    case VTK_CURSOR_CROSSHAIR:
+      cursor = [NSCursor crosshairCursor];
+      break;
+
+    // NSCursor does not have cursors for these.
+  case VTK_CURSOR_SIZENE:
+    case VTK_CURSOR_SIZESW:
+    case VTK_CURSOR_SIZENW:
+    case VTK_CURSOR_SIZESE:
+    case VTK_CURSOR_SIZEALL:
+      cursor = [NSCursor arrowCursor];
+      break;
+    }
+  
+  [cursor set];
 }
