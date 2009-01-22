@@ -25,6 +25,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationIterator.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
@@ -40,7 +41,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.29");
+vtkCxxRevisionMacro(vtkInformation, "1.30");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -102,6 +103,23 @@ void vtkInformation::Modified(vtkInformationKey* key)
 {
   this->MTime.Modified();
   this->InvokeEvent(vtkCommand::ModifiedEvent, key);
+}
+
+//----------------------------------------------------------------------------
+// Return the number of keys as a result of iteration.
+int vtkInformation::GetNumberOfKeys()
+{
+  vtkSmartPointer<vtkInformationIterator> infoIterator = 
+    vtkSmartPointer<vtkInformationIterator>::New();
+  infoIterator->SetInformation( this );
+
+  int numberOfKeys = 0;
+  for (infoIterator->InitTraversal(); !infoIterator->IsDoneWithTraversal();
+    infoIterator->GoToNextItem())
+    {
+    numberOfKeys++;
+    }
+  return numberOfKeys;
 }
 
 //----------------------------------------------------------------------------

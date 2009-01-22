@@ -83,6 +83,11 @@ public:
   VTK_COMMON_EXPORT void Clear();
 
   // Description:
+  // Return the number of keys in this information object (as would be returned
+  // by iterating over the keys).
+  VTK_COMMON_EXPORT int GetNumberOfKeys();
+
+  // Description:
   // Copy all information entries from the given vtkInformation
   // instance.  Any previously existing entries are removed.  If 
   // deep==1, a deep copy of the information structure is performed (new 
