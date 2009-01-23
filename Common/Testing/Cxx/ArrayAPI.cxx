@@ -62,14 +62,33 @@ int ArrayAPI(int argc, char* argv[])
     value_types.push_back(VTK_STRING);
     value_types.push_back(VTK_VARIANT);
 
+    vtkstd::vector<vtkVariant> sample_values;
+    sample_values.push_back(static_cast<char>(1));
+    sample_values.push_back(static_cast<unsigned char>(2));
+    sample_values.push_back(static_cast<short>(3));
+    sample_values.push_back(static_cast<unsigned short>(4));
+    sample_values.push_back(static_cast<int>(5));
+    sample_values.push_back(static_cast<unsigned int>(6));
+    sample_values.push_back(static_cast<long>(7));
+    sample_values.push_back(static_cast<unsigned long>(8));
+    sample_values.push_back(static_cast<double>(9.0));
+    sample_values.push_back(static_cast<vtkIdType>(10));
+    sample_values.push_back(vtkStdString("11"));
+    sample_values.push_back(vtkVariant(12.0));
+
     for(vtkstd::vector<int>::const_iterator storage_type = storage_types.begin(); storage_type != storage_types.end(); ++storage_type)
       {
-      for(vtkstd::vector<int>::const_iterator value_type = value_types.begin(); value_type != value_types.end(); ++value_type)
+      for(int value_type = 0; value_type != value_types.size(); ++value_type)
         {
-        cerr << "creating array with storage type " << *storage_type << " and value type " << vtkImageScalarTypeNameMacro(*value_type) << endl;
+        cerr << "creating array with storage type " << *storage_type << " and value type " << vtkImageScalarTypeNameMacro(value_types[value_type]) << endl;
 
-        array.TakeReference(vtkArray::CreateArray(*storage_type, *value_type));
+        array.TakeReference(vtkArray::CreateArray(*storage_type, value_types[value_type]));
         test_expression(array);
+
+        array->Resize(10);
+        array->SetVariantValue(5, sample_values[value_type]);
+        test_expression(array->GetVariantValue(5).IsValid());
+        test_expression(array->GetVariantValue(5) == sample_values[value_type]);
         }
       }
    

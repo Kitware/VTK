@@ -47,11 +47,11 @@
 #ifndef __vtkArray_h
 #define __vtkArray_h
 
+#include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
 #include "vtkObject.h"
 #include "vtkStdString.h"
-
-class vtkArrayCoordinates;
+#include "vtkVariant.h"
 
 class VTK_COMMON_EXPORT vtkArray : public vtkObject
 {
@@ -130,6 +130,40 @@ public:
   // is undefined, but is guaranteed to match the order in which values are visited using
   // vtkTypedArray::GetValueN() and vtkTypedArray::SetValueN().
   virtual void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates) = 0;
+
+  // Description:
+  // Returns the value stored in the array at the given coordinates.
+  // Note that the number of dimensions in the supplied coordinates must
+  // match the number of dimensions in the array.
+  inline vtkVariant GetVariantValue(vtkIdType i);
+  inline vtkVariant GetVariantValue(vtkIdType i, vtkIdType j);
+  inline vtkVariant GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k);
+  virtual vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) = 0;
+  
+  // Description:
+  // Returns the n-th value stored in the array, where n is in the
+  // range [0, GetNonNullSize()).  This is useful for efficiently
+  // visiting every value in the array.  Note that the order in which
+  // values are visited is undefined, but is guaranteed to match the
+  // order used by vtkArray::GetCoordinatesN().
+  virtual vtkVariant GetVariantValueN(const vtkIdType n) = 0;
+  
+  // Description:
+  // Overwrites the value stored in the array at the given coordinates.
+  // Note that the number of dimensions in the supplied coordinates must
+  // match the number of dimensions in the array.
+  inline void SetVariantValue(vtkIdType i, const vtkVariant& value);
+  inline void SetVariantValue(vtkIdType i, vtkIdType j, const vtkVariant& value);
+  inline void SetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k, const vtkVariant& value);
+  virtual void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value) = 0;
+  
+  // Description:
+  // Overwrites the n-th value stored in the array, where n is in the
+  // range [0, GetNonNullSize()).  This is useful for efficiently
+  // visiting every value in the array.  Note that the order in which
+  // values are visited is undefined, but is guaranteed to match the
+  // order used by vtkArray::GetCoordinatesN().
+  virtual void SetVariantValueN(const vtkIdType n, const vtkVariant& value) = 0;
   //ETX
 
   // Description:
@@ -157,6 +191,36 @@ private:
   // Implemented in concrete derivatives to get dimension labels.
   virtual vtkStdString InternalGetDimensionLabel(vtkIdType i) = 0;
 };
+
+vtkVariant vtkArray::GetVariantValue(vtkIdType i)
+{
+  return this->GetVariantValue(vtkArrayCoordinates(i));
+}
+
+vtkVariant vtkArray::GetVariantValue(vtkIdType i, vtkIdType j)
+{
+  return this->GetVariantValue(vtkArrayCoordinates(i, j));
+}
+
+vtkVariant vtkArray::GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k)
+{
+  return this->GetVariantValue(vtkArrayCoordinates(i, j, k));
+}
+
+void vtkArray::SetVariantValue(vtkIdType i, const vtkVariant& value)
+{
+  this->SetVariantValue(vtkArrayCoordinates(i), value);
+}
+
+void vtkArray::SetVariantValue(vtkIdType i, vtkIdType j, const vtkVariant& value)
+{
+  this->SetVariantValue(vtkArrayCoordinates(i, j), value);
+}
+
+void vtkArray::SetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k, const vtkVariant& value)
+{
+  this->SetVariantValue(vtkArrayCoordinates(i, j, k), value);
+}
 
 #endif
 

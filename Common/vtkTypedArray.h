@@ -53,7 +53,16 @@ template<typename T>
 class vtkTypedArray : public vtkTypeTemplate<vtkTypedArray<T>, vtkArray>
 {
 public:
+  using vtkArray::GetVariantValue;
+  using vtkArray::SetVariantValue;
+
   void PrintSelf(ostream &os, vtkIndent indent);
+
+  // vtkArray API
+  virtual vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates);
+  virtual vtkVariant GetVariantValueN(const vtkIdType n);
+  virtual void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value);
+  virtual void SetVariantValueN(const vtkIdType n, const vtkVariant& value);
 
   // Description:
   // Returns the value stored in the array at the given coordinates.

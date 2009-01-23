@@ -19,10 +19,36 @@
 
 =========================================================================*/
 
+#include "vtkVariantCast.h"
+
 template<typename T>
 void vtkTypedArray<T>::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->vtkTypedArray<T>::Superclass::PrintSelf(os, indent);
+}
+
+template<typename T>
+vtkVariant vtkTypedArray<T>::GetVariantValue(const vtkArrayCoordinates& coordinates)
+{
+  return this->GetValue(coordinates);
+}
+
+template<typename T>
+vtkVariant vtkTypedArray<T>::GetVariantValueN(const vtkIdType n)
+{
+  return this->GetValueN(n);
+}
+
+template<typename T>
+void vtkTypedArray<T>::SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value)
+{
+  this->SetValue(coordinates, vtkVariantCast<T>(value));
+}
+
+template<typename T>
+void vtkTypedArray<T>::SetVariantValueN(const vtkIdType n, const vtkVariant& value)
+{
+  this->SetValueN(n, vtkVariantCast<T>(value));
 }
 
 template<typename T>
