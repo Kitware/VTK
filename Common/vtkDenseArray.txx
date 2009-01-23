@@ -67,11 +67,23 @@ void vtkDenseArray<T>::GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& c
 template<typename T>
 vtkArray* vtkDenseArray<T>::DeepCopy()
 {
-  vtkDenseArray<T>* const copy = vtkDenseArray<T>::New();
+  // Provide the strong exception guarantee when allocating memory
+  vtkArrayExtents new_extents = this->Extents;
+  vtkstd::vector<vtkStdString> new_dimension_labels = this->DimensionLabels;
+  T* new_value_begin = new T[new_extents.GetSize()];
+  T* new_value_end = new_value_begin + new_extents.GetSize();
+  vtkstd::vector<vtkIdType> new_strides = this->Strides;
 
-  copy->Resize(this->Extents);
-  copy->DimensionLabels = this->DimensionLabels;
-  vtkstd::copy(this->Storage.begin(), this->Storage.end(), copy->Storage.begin());    
+  vtkstd::copy(this->ValueBegin, this->ValueEnd, new_value_begin);
+  
+  vtkDenseArray<T>* const copy = vtkDenseArray<T>::New();
+  vtkstd::swap(copy->Extents, new_extents);
+  vtkstd::swap(copy->DimensionLabels, new_dimension_labels);
+  vtkstd::swap(copy->ValueBegin, new_value_begin);
+  vtkstd::swap(copy->ValueEnd, new_value_end);
+  vtkstd::swap(copy->Strides, new_strides);
+
+  // We don't need to delete[] new_value_begin here, since it is NULL
 
   return copy;
 }
@@ -86,13 +98,13 @@ const T& vtkDenseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
     return temp;
     }
 
-  return this->Storage[this->MapCoordinates(coordinates)];
+  return this->ValueBegin[this->MapCoordinates(coordinates)];
 }
 
 template<typename T>
 const T& vtkDenseArray<T>::GetValueN(const vtkIdType n)
 {
-  return this->Storage[n];
+  return this->ValueBegin[n];
 }
 
 template<typename T>
@@ -104,19 +116,19 @@ void vtkDenseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T&
     return;
     }
  
-  this->Storage[this->MapCoordinates(coordinates)] = value;
+  this->ValueBegin[this->MapCoordinates(coordinates)] = value;
 }
 
 template<typename T>
 void vtkDenseArray<T>::SetValueN(const vtkIdType n, const T& value)
 {
-  this->Storage[n] = value;
+  this->ValueBegin[n] = value;
 }
 
 template<typename T>
 void vtkDenseArray<T>::Fill(const T& value)
 {
-  vtkstd::fill(this->Storage.begin(), this->Storage.end(), value);
+  vtkstd::fill(this->ValueBegin, this->ValueEnd, value);
 }
 
 template<typename T>
@@ -129,46 +141,58 @@ T& vtkDenseArray<T>::operator[](const vtkArrayCoordinates& coordinates)
     return temp;
     }
  
-  return this->Storage[this->MapCoordinates(coordinates)];
+  return this->ValueBegin[this->MapCoordinates(coordinates)];
 }
 
 template<typename T>
 const T* vtkDenseArray<T>::GetStorage() const
 {
-  return &this->Storage[0];
+  return this->ValueBegin;
 }
 
 template<typename T>
 T* vtkDenseArray<T>::GetStorage()
 {
-  return &this->Storage[0];
+  return this->ValueBegin;
 }
 
 template<typename T>
-vtkDenseArray<T>::vtkDenseArray()
+vtkDenseArray<T>::vtkDenseArray() :
+  ValueBegin(0),
+  ValueEnd(0)
 {
 }
 
 template<typename T>
 vtkDenseArray<T>::~vtkDenseArray()
 {
+  delete[] this->ValueBegin;
 }
 
 template<typename T>
 void vtkDenseArray<T>::InternalResize(const vtkArrayExtents& extents)
 {
-  this->Extents = extents;
-  this->DimensionLabels.resize(extents.GetDimensions(), vtkStdString());
-  this->Storage.resize(this->Extents.GetSize());
-
-  this->Strides.resize(this->GetDimensions());
-  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+  // Provide the strong exception guarantee when allocating memory
+  vtkArrayExtents new_extents = extents;
+  vtkstd::vector<vtkStdString> new_dimension_labels(new_extents.GetDimensions(), vtkStdString());
+  T* new_value_begin = new T[new_extents.GetSize()];
+  T* new_value_end = new_value_begin + new_extents.GetSize();
+  vtkstd::vector<vtkIdType> new_strides(new_extents.GetDimensions());
+  for(vtkIdType i = 0; i != new_extents.GetDimensions(); ++i)
     {
     if(i == 0)
-      this->Strides[i] = 1;
+      new_strides[i] = 1;
     else
-      this->Strides[i] = this->Strides[i-1] * this->Extents[i-1];
+      new_strides[i] = new_strides[i-1] * new_extents[i-1];
     }
+
+  vtkstd::swap(this->Extents, new_extents);
+  vtkstd::swap(this->DimensionLabels, new_dimension_labels);
+  vtkstd::swap(this->ValueBegin, new_value_begin);
+  vtkstd::swap(this->ValueEnd, new_value_end);
+  vtkstd::swap(this->Strides, new_strides);
+
+  delete[] new_value_begin;
 }
 
 template<typename T>

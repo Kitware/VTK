@@ -74,6 +74,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayAPIConvenience.cxx
     ArrayAPIDense.cxx
     ArrayAPISparse.cxx
+    ArrayBool.cxx
     ArrayInterpolationDense.cxx
     ArrayNullValues.cxx
     ArraySlice.cxx
