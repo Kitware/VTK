@@ -41,7 +41,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.8");
+vtkCxxRevisionMacro(vtkMergeCells, "1.9");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -253,7 +253,11 @@ int vtkMergeCells::MergeDataSet(vtkDataSet *set)
     newCellId = this->AddNewCellsDataSet(set, idMap);
     }
 
-  if (idMap) delete [] idMap;
+  if (idMap) 
+    {
+    delete [] idMap;
+    idMap = 0;
+    }
 
   this->NumberOfPoints = nextPt;
   this->NumberOfCells = newCellId;
