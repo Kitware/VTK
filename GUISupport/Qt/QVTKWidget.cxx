@@ -189,7 +189,6 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       this->mRenWin->Finalize();
       }
     this->mRenWin->SetDisplayId(NULL);
-    this->mRenWin->SetParentId(NULL);
     this->mRenWin->SetWindowId(NULL);
     this->mRenWin->UnRegister(NULL);
     }
@@ -1041,6 +1040,13 @@ QVTKInteractor::QVTKInteractor()
   this->Internal = new QVTKInteractorInternal(this);
   QObject::connect(this->Internal->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)) );
 }
+  
+void QVTKInteractor::Initialize()
+{
+  this->Initialized = 1;
+  this->Enable();
+}
+
 
 /*! start method for interactor
  */

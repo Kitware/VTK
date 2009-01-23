@@ -275,6 +275,7 @@ public:
   // Overloaded start method does nothing.
   // Use qApp->exec() instead.
   virtual void Start();
+  virtual void Initialize();
  
 public @Q_SLOTS@:
 // timer event slot
