@@ -245,7 +245,7 @@ void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T
   if(this->ValueEnd == this->ValueReserve)
     {
     const vtkIdType current_size = this->ValueEnd - this->ValueBegin;
-    const vtkIdType new_size = vtkstd::max(16, current_size * 2);
+    const vtkIdType new_size = vtkstd::max(static_cast<vtkIdType>(16), current_size * 2);
     T* new_value_begin = new T[new_size];
     T* new_value_end = new_value_begin + current_size;
     T* new_value_reserve = new_value_begin + new_size;
