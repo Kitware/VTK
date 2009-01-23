@@ -96,9 +96,9 @@ def create_vtk_array(vtk_arr_type):
     VTK array given the VTK array type.
     """
     tmp = vtk.vtkDataArray.CreateDataArray(vtk_arr_type)
-    # CreateDataArray sets the refcount to 3 and this causes a severe
-    # memory leak.
-    tmp.SetReferenceCount(2)
+    # We need to manually dereference objects created with anything
+    # but the constructor.
+    tmp.UnRegister(None)
     return tmp
 
 
