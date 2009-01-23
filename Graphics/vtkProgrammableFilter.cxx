@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkProgrammableFilter.h"
 
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkGraph.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
@@ -24,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.24");
+vtkCxxRevisionMacro(vtkProgrammableFilter, "1.25");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.
@@ -33,6 +35,7 @@ vtkProgrammableFilter::vtkProgrammableFilter()
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
   this->ExecuteMethodArgDelete = NULL;
+  this->CopyArrays = false;
 }
 
 vtkProgrammableFilter::~vtkProgrammableFilter()
@@ -137,7 +140,14 @@ int vtkProgrammableFilter::RequestData(
       // First, copy the input to the output as a starting point
       if (dsInput && dsOutput && dsInput->GetDataObjectType() == dsOutput->GetDataObjectType())
         {
-        dsOutput->CopyStructure( dsInput );
+        if (this->CopyArrays)
+          {
+          dsOutput->ShallowCopy( dsInput );
+          }
+        else
+          {
+          dsOutput->CopyStructure( dsInput );
+          }
         }
       }
     if (vtkGraph::SafeDownCast(objInput))
@@ -148,7 +158,46 @@ int vtkProgrammableFilter::RequestData(
       // First, copy the input to the output as a starting point
       if (graphInput && graphOutput && graphInput->GetDataObjectType() == graphOutput->GetDataObjectType())
         {
-        graphOutput->CopyStructure( graphInput );
+        if (this->CopyArrays)
+          {
+          graphOutput->ShallowCopy( graphInput );
+          }
+        else
+          {
+          graphOutput->CopyStructure( graphInput );
+          }
+        }
+      }
+    if (vtkCompositeDataSet::SafeDownCast(objInput))
+      {
+      vtkCompositeDataSet *cdsInput = vtkCompositeDataSet::SafeDownCast(objInput);
+      vtkCompositeDataSet *cdsOutput = vtkCompositeDataSet::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      // First, copy the input to the output as a starting point
+      if (cdsInput && cdsOutput && cdsInput->GetDataObjectType() == cdsOutput->GetDataObjectType())
+        {
+        cdsOutput->CopyStructure(cdsInput);
+        vtkCompositeDataIterator* iter = cdsInput->NewIterator();
+        iter->VisitOnlyLeavesOn();
+        for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+          {
+          vtkDataSet* iblock = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+          vtkDataSet* oblock = iblock->NewInstance();          
+          if (iblock)
+            {
+            if (this->CopyArrays)
+              {
+              oblock->ShallowCopy(iblock);
+              }
+            else
+              {
+              oblock->CopyStructure( iblock );
+              }
+            }
+          cdsOutput->SetDataSet(iter, oblock);
+          oblock->Delete();
+          }
+        iter->Delete();
         }
       }
     }
