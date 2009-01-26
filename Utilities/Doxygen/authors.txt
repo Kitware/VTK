@@ -53,7 +53,7 @@ slack: Slack, Christopher (Christopher.Slack@amermsx.med.ge.com)
 starreveld: Starreveld, Yves (ystarrev@julian.uwo.ca)
 timh: Hutton, Tim (T.Hutton@eastman.ucl.ac.uk)
 tpan: Pan, Tony (tpan@crd.ge.com)
-tshead:JNPPDq8jQJOxw:cvsuser:Timothy M. Shead:tshead@sandia.gov
+tshead: Shead, Timothy M.  (tshead@sandia.gov)
 turek: Turek, Matt (turek@crd.ge.com)
 turner: Turner, Wes (turner@crd.ge.com)
 utkarsh: Ayachit, Utkarsh (utkarsh.ayachit@kitware.com)
