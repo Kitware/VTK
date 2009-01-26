@@ -93,6 +93,7 @@ IF(PYTHON_EXECUTABLE)
     vtkTypeTraits.h
     vtkTypedArray.h
     vtkVariantBoostSerialization.h
+    vtkVariantCast.h
     vtkVariantInlineOperators.h
     vtkVector.h
     vtkVectorIterator.h
