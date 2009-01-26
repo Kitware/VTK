@@ -46,6 +46,7 @@ class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorit
 public:
   static vtkProgrammableFilter *New();
   vtkTypeRevisionMacro(vtkProgrammableFilter,vtkPassInputTypeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note

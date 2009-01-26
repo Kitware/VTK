@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.25");
+vtkCxxRevisionMacro(vtkProgrammableFilter, "1.26");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.
@@ -221,5 +221,13 @@ int vtkProgrammableFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInf
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;  
 }
+
+void vtkProgrammableFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "CopyArrays: " << this->CopyArrays << endl;
+}
+
 
 
