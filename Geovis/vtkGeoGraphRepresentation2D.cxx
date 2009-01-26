@@ -65,7 +65,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkGeoGraphRepresentation2D);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation2D::vtkGeoGraphRepresentation2D()
@@ -618,4 +618,5 @@ void vtkGeoGraphRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "SelectionActor:" << endl;
     this->SelectionActor->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "UseLabelHierarchy: " << (this->UseLabelHierarchy ? "On" : "Off") << endl;
 }

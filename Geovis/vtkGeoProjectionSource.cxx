@@ -49,7 +49,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.4");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.5");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, TransformFilter, vtkTransformFilter);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
@@ -413,6 +413,10 @@ void vtkGeoProjectionSource::SetProjection(int projection)
 //----------------------------------------------------------------------------
 vtkAbstractTransform* vtkGeoProjectionSource::GetTransform()
 {
-  return this->TransformFilter->GetTransform();
+  if(this->TransformFilter)
+    {
+    return this->TransformFilter->GetTransform();
+    }
+  return NULL;
 }
 
