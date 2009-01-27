@@ -18,94 +18,122 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkQtChartViewBase.h"
+
 #include "vtkQtChartTableRepresentation.h"
 #include "vtkQtChartArea.h"
-#include "vtkQtChartWidget.h"
-#include "vtkQtChartSeriesLayer.h"
-#include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxis.h"
-#include "vtkQtChartTitle.h"
-#include "vtkQtChartStyleManager.h"
-#include "vtkQtChartColorStyleGenerator.h"
-#include "vtkQtChartMouseSelection.h"
+#include "vtkQtChartAxisLayer.h"
+#include "vtkQtChartAxisOptions.h"
 #include "vtkQtChartInteractorSetup.h"
-#include "vtkQtChartSeriesSelectionHandler.h"
-#include "vtkQtChartSeriesModelCollection.h"
-#include "vtkQtChartLegendModel.h"
 #include "vtkQtChartLegend.h"
 #include "vtkQtChartLegendManager.h"
-#include "vtkQtChartSeriesOptions.h"
+#include "vtkQtChartLegendModel.h"
+#include "vtkQtChartMouseSelection.h"
+#include "vtkQtChartTitle.h"
+#include "vtkQtChartWidget.h"
 #include "vtkTable.h"
 
 #include "vtkObjectFactory.h"
+
+#include <QPointer>
+#include <QVector>
 
 class vtkQtChartViewBase::vtkInternal
 {
 public:
 
-  vtkInternal()
+  vtkInternal() :
+    Chart(0),
+    Legend(0),
+    Title(0),
+    AxisTitles()
     {
-    this->ChartLayer = 0;
-    this->ModelCollection = new vtkQtChartSeriesModelCollection;
+    this->LegendManager = 0;
+    this->ShowLegend = true;
+
+    // Set up space for the axis title widgets.
+    this->AxisTitles.reserve(4);
+    this->AxisTitles.append(0);
+    this->AxisTitles.append(0);
+    this->AxisTitles.append(0);
+    this->AxisTitles.append(0);
     }
 
   ~vtkInternal()
     {
-    delete this->ModelCollection;
+    // Clean up the leftover widgets.
+    if(!this->Chart.isNull())
+      {
+      delete this->Chart;
+      }
+
+    if(!this->Legend.isNull())
+      {
+      delete this->Legend;
+      }
+
+    if(!this->Title.isNull())
+      {
+      delete this->Title;
+      }
+
+    QVector<QPointer<vtkQtChartTitle> >::Iterator iter =
+      this->AxisTitles.begin();
+    for( ; iter != this->AxisTitles.end(); ++iter)
+      {
+      if(!iter->isNull())
+        {
+        delete *iter;
+        }
+      }
     }
 
-  vtkQtChartSeriesLayer*           ChartLayer;
-  vtkQtChartSeriesModelCollection* ModelCollection;
-  vtkQtChartWidget                 ChartWidget;
-  vtkQtChartLegend*                Legend;
-  vtkQtChartLegendManager*         LegendManager;
+  QPointer<vtkQtChartWidget>          Chart;
+  QPointer<vtkQtChartLegend>          Legend;
+  QPointer<vtkQtChartTitle>           Title;
+  QVector<QPointer<vtkQtChartTitle> > AxisTitles;
+  vtkQtChartLegendManager*            LegendManager;
+  bool                                ShowLegend;
+  
+private:
+  vtkInternal(const vtkInternal&);  // Not implemented.
+  vtkInternal& operator=(const vtkInternal&);  // Not implemented.
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.3");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.4");
 vtkStandardNewMacro(vtkQtChartViewBase);
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::vtkQtChartViewBase()
 {
-  this->Internal = new vtkInternal;
+  this->Internal = new vtkInternal();
 
-  // Setup the legend
-  vtkQtChartWidget *chart = this->GetChartWidget();
-  this->Internal->Legend = new vtkQtChartLegend;
+  // Create the chart widget.
+  this->Internal->Chart = new vtkQtChartWidget();
+  vtkQtChartArea *area = this->Internal->Chart->getChartArea();
+
+  // Setup the chart legend.
+  this->Internal->Legend = new vtkQtChartLegend();
   this->Internal->LegendManager = new vtkQtChartLegendManager(
     this->Internal->Legend);
   this->Internal->LegendManager->setChartLegend(this->Internal->Legend);
-  this->Internal->LegendManager->setChartArea(chart->getChartArea());
-  chart->setLegend(this->Internal->Legend);
+  this->Internal->LegendManager->setChartArea(area);
+  this->Internal->Chart->setLegend(this->Internal->Legend);
+
+  // Set up the chart titles. The axis titles should be in the same
+  // order as the properties: left, bottom, right, top.
+  this->Internal->Title = new vtkQtChartTitle();
+  this->Internal->AxisTitles[0] = new vtkQtChartTitle(Qt::Vertical);
+  this->Internal->AxisTitles[1] = new vtkQtChartTitle();
+  this->Internal->AxisTitles[2] = new vtkQtChartTitle(Qt::Vertical);
+  this->Internal->AxisTitles[3] = new vtkQtChartTitle();
 }
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::~vtkQtChartViewBase()
 {
   delete this->Internal;
-}
-
-//----------------------------------------------------------------------------
-// TODO-
-// SetChartLayer should properly remove and destroy the previous chart layer.
-// For now we assume that this method is only called once (from the
-// subclass's constructor)
-void vtkQtChartViewBase::SetChartLayer(vtkQtChartSeriesLayer* chartLayer)
-{
-  if (!chartLayer)
-    {
-    return;
-    }
-
-  
-  this->Internal->ChartLayer = chartLayer;
-  this->Internal->ChartLayer->setModel(this->Internal->ModelCollection);
-
-  // The chart area takes ownership of the chart layer and will delete it
-  // when the area is destroyed.  (The area is destroyed when the chart
-  // widget is destroyed during this classes destructor.)
-  this->GetChartArea()->addLayer(chartLayer);
 }
 
 //----------------------------------------------------------------------------
@@ -123,26 +151,351 @@ void vtkQtChartViewBase::AddTableToView(vtkTable* table)
 //----------------------------------------------------------------------------
 void vtkQtChartViewBase::SetTitle(const char* title)
 {
-  vtkQtChartWidget* cw = this->GetChartWidget();
-  vtkQtChartTitle* titleObj = cw->getTitle();
-  if (!titleObj)
+  QString titleText(title);
+  if(titleText.isEmpty() && this->Internal->Chart->getTitle() != 0)
     {
-    titleObj = new vtkQtChartTitle;
-    cw->setTitle(titleObj);
+    // Remove the chart title.
+    this->Internal->Chart->setTitle(0);
     }
-  titleObj->setText(title);
+  else if(!titleText.isEmpty() && this->Internal->Chart->getTitle() == 0)
+    {
+    // Add the title to the chart.
+    this->Internal->Chart->setTitle(this->Internal->Title);
+    }
+
+  this->Internal->Title->setText(titleText);
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartSeriesLayer* vtkQtChartViewBase::GetChartLayer()
+void vtkQtChartViewBase::SetTitleFont(const char *family, int pointSize,
+  bool bold, bool italic)
 {
-  return this->Internal->ChartLayer;
+  this->Internal->Title->setFont(QFont(family, pointSize,
+    bold ? QFont::Bold : -1, italic));
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetTitleColor(double red, double green, double blue)
+{
+  QPalette palette = this->Internal->Title->palette();
+  palette.setColor(QPalette::Text, QColor::fromRgbF(red, green, blue));
+  this->Internal->Title->setPalette(palette);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetTitleAlignment(int alignment)
+{
+  if(alignment == 0)
+    {
+    alignment = Qt::AlignLeft;
+    }
+  else if(alignment == 2)
+    {
+    alignment = Qt::AlignRight;
+    }
+  else
+    {
+    alignment = Qt::AlignCenter;
+    }
+
+  this->Internal->Title->setTextAlignment(alignment);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisTitle(int index, const char* title)
+{
+  if(index < 0 || index >= 4)
+    {
+    return;
+    }
+
+  vtkQtChartAxis::AxisLocation axes[] =
+    {
+    vtkQtChartAxis::Left,
+    vtkQtChartAxis::Bottom,
+    vtkQtChartAxis::Right,
+    vtkQtChartAxis::Top
+    };
+
+  QString titleText(title);
+  if(titleText.isEmpty() &&
+    this->Internal->Chart->getAxisTitle(axes[index]) != 0)
+    {
+    // Remove the chart title.
+    this->Internal->Chart->setAxisTitle(axes[index], 0);
+    }
+  else if(!titleText.isEmpty() &&
+    this->Internal->Chart->getAxisTitle(axes[index]) == 0)
+    {
+    // Add the title to the chart.
+    this->Internal->Chart->setAxisTitle(axes[index],
+      this->Internal->AxisTitles[index]);
+    }
+
+  this->Internal->AxisTitles[index]->setText(titleText);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisTitleFont(int index, const char* family,
+  int pointSize, bool bold, bool italic)
+{
+  if(index >= 0 && index < 4)
+    {
+    this->Internal->AxisTitles[index]->setFont(QFont(family, pointSize,
+      bold ? QFont::Bold : -1, italic));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisTitleColor(int index, double red, double green,
+  double blue)
+{
+  if(index >= 0 && index < 4)
+    {
+    QPalette palette = this->Internal->AxisTitles[index]->palette();
+    palette.setColor(QPalette::Text, QColor::fromRgbF(red, green, blue));
+    this->Internal->AxisTitles[index]->setPalette(palette);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisTitleAlignment(int index, int alignment)
+{
+  if(index < 0 || index >= 4)
+    {
+    return;
+    }
+
+  if(alignment == 0)
+    {
+    alignment = Qt::AlignLeft;
+    }
+  else if(alignment == 2)
+    {
+    alignment = Qt::AlignRight;
+    }
+  else
+    {
+    alignment = Qt::AlignCenter;
+    }
+
+  this->Internal->AxisTitles[index]->setTextAlignment(alignment);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetLegendVisibility(bool visible)
+{
+  this->Internal->ShowLegend = visible;
+  int total = this->Internal->Legend->getModel()->getNumberOfEntries();
+  if((total == 0 || !this->Internal->ShowLegend) &&
+      this->Internal->Chart->getLegend() != 0)
+    {
+    // Remove the legend from the chart since it is not needed.
+    this->Internal->Chart->setLegend(0);
+    }
+  else if(total > 0 && this->Internal->ShowLegend &&
+      this->Internal->Chart->getLegend() == 0)
+    {
+    // Add the legend to the chart since it is needed.
+    this->Internal->Chart->setLegend(this->Internal->Legend);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetLegendLocation(int location)
+{
+  this->Internal->Legend->setLocation(
+    (vtkQtChartLegend::LegendLocation)location);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetLegendFlow(int flow)
+{
+  this->Internal->Legend->setFlow((vtkQtChartLegend::ItemFlow)flow);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisVisibility(int index, bool visible)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setVisible(visible);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisColor(int index, double red, double green,
+  double blue)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setAxisColor(QColor::fromRgbF(red, green, blue));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetGridVisibility(int index, bool visible)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setGridVisible(visible);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetGridColorType(int index, int gridColorType)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setGridColorType(
+      (vtkQtChartAxisOptions::AxisGridColor)gridColorType);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetGridColor(int index, double red, double green,
+  double blue)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setGridColor(QColor::fromRgbF(red, green, blue));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisLabelVisibility(int index, bool visible)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setLabelsVisible(visible);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisLabelFont(int index, const char* family,
+  int pointSize, bool bold, bool italic)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setLabelFont(QFont(family, pointSize,
+      bold ? QFont::Bold : -1, italic));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisLabelColor(int index, double red, double green,
+  double blue)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setLabelColor(QColor::fromRgbF(red, green, blue));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisLabelNotation(int index, int notation)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setPrecision((vtkQtChartAxisOptions::NotationType)notation);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisLabelPrecision(int index, int precision)
+{
+  vtkQtChartAxis *axis = this->GetAxis(index);
+  vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setPrecision(precision);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisScale(int index, int scale)
+{
+  vtkQtChartAxis* axis = this->GetAxis(index);
+  vtkQtChartAxisOptions* options = axis ? axis->getOptions() : 0;
+  if(options)
+    {
+    options->setAxisScale((vtkQtChartAxisOptions::AxisScale)scale);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisBehavior(int index, int behavior)
+{
+  vtkQtChartAxis* axis = this->GetAxis(index);
+  if(axis)
+    {
+    vtkQtChartArea* area = this->Internal->Chart->getChartArea();
+    area->getAxisLayer()->setAxisBehavior(axis->getLocation(),
+      (vtkQtChartAxisLayer::AxisBehavior)behavior);
+    area->updateLayout();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisRange(int index, double minimum,
+  double maximum)
+{
+  vtkQtChartAxis* axis = this->GetAxis(index);
+  if(axis)
+    {
+    axis->setBestFitRange(QVariant(minimum), QVariant(maximum));
+    vtkQtChartArea* area = this->Internal->Chart->getChartArea();
+    if(area->getAxisLayer()->getAxisBehavior(axis->getLocation()) ==
+      vtkQtChartAxisLayer::BestFit)
+      {
+      area->updateLayout();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::SetAxisRange(int index, int minimum, int maximum)
+{
+  vtkQtChartAxis* axis = this->GetAxis(index);
+  if(axis)
+    {
+    axis->setBestFitRange(QVariant(minimum), QVariant(maximum));
+    vtkQtChartArea* area = this->Internal->Chart->getChartArea();
+    if(area->getAxisLayer()->getAxisBehavior(axis->getLocation()) ==
+      vtkQtChartAxisLayer::BestFit)
+      {
+      area->updateLayout();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartViewBase::AddChartSelectionHandlers(vtkQtChartMouseSelection*)
+{
 }
 
 //----------------------------------------------------------------------------
 vtkQtChartWidget* vtkQtChartViewBase::GetChartWidget()
 {
-  return &this->Internal->ChartWidget;
+  return this->Internal->Chart;
 }
 
 //----------------------------------------------------------------------------
@@ -152,15 +505,29 @@ vtkQtChartArea* vtkQtChartViewBase::GetChartArea()
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartSeriesModelCollection* vtkQtChartViewBase::GetChartSeriesModel()
+vtkQtChartAxis* vtkQtChartViewBase::GetAxis(int index)
 {
-  return this->Internal->ModelCollection;
+  if(index >= 0 && index < 4)
+    {
+    vtkQtChartArea *area = this->Internal->Chart->getChartArea();
+    vtkQtChartAxis::AxisLocation axes[] =
+      {
+      vtkQtChartAxis::Left,
+      vtkQtChartAxis::Bottom,
+      vtkQtChartAxis::Right,
+      vtkQtChartAxis::Top
+      };
+
+    return area->getAxisLayer()->getAxis(axes[index]);
+    }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartLegendModel* vtkQtChartViewBase::GetLegendModel()
+vtkQtChartSeriesModelCollection* vtkQtChartViewBase::GetChartSeriesModel()
 {
-  return this->Internal->Legend->getModel();
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -172,7 +539,8 @@ vtkQtChartLegend* vtkQtChartViewBase::GetLegend()
 //----------------------------------------------------------------------------
 void vtkQtChartViewBase::Update()
 {
-  for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
+  int i = 0;
+  for ( ; i < this->GetNumberOfRepresentations(); ++i)
     {
     vtkQtChartTableRepresentation* rep =
       vtkQtChartTableRepresentation::SafeDownCast(this->GetRepresentation(i));
@@ -181,61 +549,12 @@ void vtkQtChartViewBase::Update()
       rep->Update();
       }
     }
-  
-  if (this->GetChartLayer())
-    {
-    this->GetChartLayer()->update();
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkQtChartViewBase::Render()
 {
-
-}
-
-//----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetupDefaultAxes()
-{
-  /* Don't do anything, for now.
-
-  // Get the axes layer
-  vtkQtChartAxisLayer *axesLayer = this->GetChartArea()->getAxisLayer();
-
-  // Set the left axis behavior to best fit
-  axesLayer->setAxisBehavior(vtkQtChartAxis::Left,
-                                vtkQtChartAxisLayer::BestFit);
-
-  // Set the bottom axis behavior to best fit
-  axesLayer->setAxisBehavior(vtkQtChartAxis::Bottom,
-                                vtkQtChartAxisLayer::BestFit);
-
-  // Set the left axis best fit range
-  vtkQtChartAxis* leftAxis = axesLayer->getAxis(vtkQtChartAxis::Left);
-  leftAxis->setBestFitRange(QVariant((float)0.0), QVariant((float)10));
-
-  // Set the bottom axis best fit range
-  vtkQtChartAxis* bottomAxis = axesLayer->getAxis(vtkQtChartAxis::Bottom);
-  bottomAxis->setBestFitRange(QVariant((float)0.0), QVariant((float)10));
-  */
-}
-
-//----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetupDefaultColorScheme()
-{
-
-  vtkQtChartStyleManager* style = this->GetChartArea()->getStyleManager();
-  vtkQtChartColorStyleGenerator* generator =
-      qobject_cast<vtkQtChartColorStyleGenerator*>(style->getGenerator());
-  if(generator)
-    {
-    generator->getColors()->setColorScheme(vtkQtChartColors::Blues);
-    }
-  else
-    {
-    style->setGenerator(new vtkQtChartColorStyleGenerator(
-              this->GetChartArea(), vtkQtChartColors::Blues));
-    }
+  this->Internal->Chart->update();
 }
 
 //----------------------------------------------------------------------------
@@ -243,21 +562,7 @@ void vtkQtChartViewBase::SetupDefaultInteractor()
 {
   vtkQtChartMouseSelection *selector =
       vtkQtChartInteractorSetup::createDefault(this->GetChartArea());
-  vtkQtChartSeriesSelectionHandler *handler =
-      new vtkQtChartSeriesSelectionHandler(selector);
-  handler->setModeNames("Series", "Single");
-  handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
-  handler->setLayer(this->GetChartLayer());
-  selector->addHandler(handler);
-  selector->setSelectionMode("Single");
-}
-
-//----------------------------------------------------------------------------
-void vtkQtChartViewBase::Initialize()
-{
-  this->SetupDefaultAxes();
-  this->SetupDefaultColorScheme();
-  this->SetupDefaultInteractor();
+  this->AddChartSelectionHandlers(selector);
 }
 
 //----------------------------------------------------------------------------

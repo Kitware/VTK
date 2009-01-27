@@ -31,12 +31,12 @@
 #include "QVTKWin32Header.h"
 #include "vtkView.h"
 
-class vtkQtChartWidget;
 class vtkQtChartArea;
-class vtkQtChartSeriesLayer;
-class vtkQtChartSeriesModelCollection;
-class vtkQtChartLegendModel;
+class vtkQtChartAxis;
 class vtkQtChartLegend;
+class vtkQtChartMouseSelection;
+class vtkQtChartSeriesModelCollection;
+class vtkQtChartWidget;
 class vtkTable;
 
 class QVTK_EXPORT vtkQtChartViewBase : public vtkView
@@ -64,10 +64,108 @@ public:
   void AddTableToView(vtkTable* table);
 
   // Description:
-  // Set the chart's title
+  // Set the chart's title.
   void SetTitle(const char* title);
 
+  // Description:
+  // Set the chart title's font.
+  void SetTitleFont(const char* family, int pointSize, bool bold, bool italic);
+
+  // Description:
+  // Set the chart title's color.
+  void SetTitleColor(double red, double green, double blue);
+
+  // Description:
+  // Set the chart title's alignment.
+  void SetTitleAlignment(int alignment);
+
+  // Description:
+  // Set the chart axis title for the given index.
+  void SetAxisTitle(int index, const char* title);
+
+  // Description:
+  // Set the chart axis title's font for the given index.
+  void SetAxisTitleFont(int index, const char* family, int pointSize,
+    bool bold, bool italic);
+
+  // Description:
+  // Set the chart axis title's color for the given index.
+  void SetAxisTitleColor(int index, double red, double green, double blue);
+
+  // Description:
+  // Set the chart axis title's alignment for the given index.
+  void SetAxisTitleAlignment(int index, int alignment);
+
+  // Description:
+  // Sets whether or not the chart legend is visible.
+  void SetLegendVisibility(bool visible);
+
+  // Description:
+  // Sets the legend location.
+  void SetLegendLocation(int location);
+
+  // Description:
+  // Sets the legend flow.
+  void SetLegendFlow(int flow);
+
+  // Description:
+  // Sets whether or not the given axis is visible.
+  void SetAxisVisibility(int index, bool visible);
+
+  // Description:
+  // Sets the color for the given axis.
+  void SetAxisColor(int index, double red, double green, double blue);
+
+  // Description:
+  // Sets whether or not the grid for the given axis is visible.
+  void SetGridVisibility(int index, bool visible);
+
+  // Description:
+  // Sets the grid color type for the given axis.
+  void SetGridColorType(int index, int gridColorType);
+
+  // Description:
+  // Sets the grid color for the given axis.
+  void SetGridColor(int index, double red, double green, double blue);
+
+  // Description:
+  // Sets whether or not the labels for the given axis are visible.
+  void SetAxisLabelVisibility(int index, bool visible);
+
+  // Description:
+  // Set the axis label font for the given axis.
+  void SetAxisLabelFont(int index, const char* family, int pointSize,
+    bool bold, bool italic);
+
+  // Description:
+  // Sets the axis label color for the given axis.
+  void SetAxisLabelColor(int index, double red, double green, double blue);
+
+  // Description:
+  // Sets the axis label notation for the given axis.
+  void SetAxisLabelNotation(int index, int notation);
+
+  // Description:
+  // Sets the axis label precision for the given axis.
+  void SetAxisLabelPrecision(int index, int precision);
+
+  // Description:
+  // Sets the scale for the given axis (Linear or Logarithmic).
+  void SetAxisScale(int index, int scale);
+
+  // Description:
+  // Sets the behavior for the given axis.
+  void SetAxisBehavior(int index, int behavior);
+
+  void SetAxisRange(int index, double minimum, double maximum);
+
+  void SetAxisRange(int index, int minimum, int maximum);
+
   //BTX
+  // Description:
+  // Adds chart layer selection handlers to the mouse selection.
+  virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
+
   // Description:
   // Gets the chart widget, this is the main widget to display.
   vtkQtChartWidget* GetChartWidget();
@@ -78,40 +176,19 @@ public:
   vtkQtChartArea* GetChartArea();
 
   // Description:
-  // Gets the chart series layer
-  vtkQtChartSeriesLayer* GetChartLayer();
+  // Gets the chart axis for the given index.
+  vtkQtChartAxis* GetAxis(int index);
 
   // Description:
-  // Gets the chart series model
-  vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+  // Gets the chart series model.
+  virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
 
   // Description:
-  // Gets the chart legend model
-  vtkQtChartLegendModel* GetLegendModel();
-
-  // Description:
-  // Gets the chart legend widget
+  // Gets the chart legend widget.
   vtkQtChartLegend* GetLegend();
   //ETX
   
 protected:
-
-  // Description:
-  // Sets the chart series layer.
-  void SetChartLayer(vtkQtChartSeriesLayer* chartLayer);
-
-  // Description:
-  // Initializes the chart by setting defaults.
-  virtual void Initialize();
-
-  // Description:
-  // Called from Initialize() to setup the default axes
-  virtual void SetupDefaultAxes();
-
-  // Description:
-  // Called from Initialize() to setup the default color scheme
-  virtual void SetupDefaultColorScheme();
-
   // Description:
   // Called from Initialize() to setup the default interactor
   virtual void SetupDefaultInteractor();
@@ -123,6 +200,7 @@ protected:
   vtkQtChartViewBase();
   ~vtkQtChartViewBase();
 
+private:
   //BTX
   class vtkInternal;
   vtkInternal* Internal;

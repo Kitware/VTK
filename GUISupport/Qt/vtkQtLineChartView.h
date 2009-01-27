@@ -29,7 +29,8 @@
 
 #include "vtkQtChartViewBase.h"
 
-class vtkQtChartArea;
+class vtkQtLineChart;
+class vtkQtChartSeriesModelCollection;
 
 class QVTK_EXPORT vtkQtLineChartView : public vtkQtChartViewBase
 {
@@ -37,15 +38,27 @@ public:
   static vtkQtLineChartView *New();
   vtkTypeRevisionMacro(vtkQtLineChartView, vtkQtChartViewBase);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Updates the view.
   virtual void Update();
-  
+
+  // Description:
+  // Adds line chart selection handlers to the mouse selection.
+  virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
+
+  // Description:
+  // Gets the line chart series model.
+  virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+
 protected:
   vtkQtLineChartView();
   ~vtkQtLineChartView();
-  
+
+protected:
+  vtkQtLineChart *LineChart;
+  vtkQtChartSeriesModelCollection *LineModel;
+
 private:
   vtkQtLineChartView(const vtkQtLineChartView&);  // Not implemented.
   void operator=(const vtkQtLineChartView&);  // Not implemented.

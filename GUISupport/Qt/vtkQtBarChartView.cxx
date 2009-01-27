@@ -17,23 +17,36 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkQtBarChart.h"
 #include "vtkQtBarChartView.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkQtBarChart.h"
+#include "vtkQtChartArea.h"
+#include "vtkQtChartMouseSelection.h"
+#include "vtkQtChartSeriesModelCollection.h"
+#include "vtkQtChartSeriesSelectionHandler.h"
+#include "vtkQtChartWidget.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtBarChartView, "1.1");
+vtkCxxRevisionMacro(vtkQtBarChartView, "1.2");
 vtkStandardNewMacro(vtkQtBarChartView);
 
 //----------------------------------------------------------------------------
 vtkQtBarChartView::vtkQtBarChartView()
 {
-  // Set the chart layer to a bar chart layer.
-  // Note, after this call the ownership of the chart layer
-  // is transferred to the chart widget's vtkQtChartArea.
-  vtkQtChartSeriesLayer* barChartLayer = new vtkQtBarChart;
-  this->SetChartLayer(barChartLayer);
-  this->Initialize();
+  // Get the chart widget from the base class.
+  vtkQtChartWidget* chart = this->GetChartWidget();
+  vtkQtChartArea* area = chart->getChartArea();
+
+  // Create the bar chart and model. Add them to the chart between the
+  // grid and axis layers.
+  this->BarChart = new vtkQtBarChart();
+  this->BarModel = new vtkQtChartSeriesModelCollection(this->BarChart);
+  this->BarChart->setModel(this->BarModel);
+  area->insertLayer(area->getAxisLayerIndex(), this->BarChart);
+
+  // TEMP
+  this->SetupDefaultInteractor();
 }
 
 //----------------------------------------------------------------------------
@@ -46,6 +59,25 @@ vtkQtBarChartView::~vtkQtBarChartView()
 void vtkQtBarChartView::Update()
 {
   this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+void vtkQtBarChartView::AddChartSelectionHandlers(
+  vtkQtChartMouseSelection* selector)
+{
+  vtkQtChartSeriesSelectionHandler *handler =
+      new vtkQtChartSeriesSelectionHandler(selector);
+  handler->setModeNames("Bar Chart - Series", "Bar Chart - Bars");
+  handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
+  handler->setLayer(this->BarChart);
+  selector->addHandler(handler);
+  selector->setSelectionMode("Bar Chart - Bars");
+}
+
+//----------------------------------------------------------------------------
+vtkQtChartSeriesModelCollection* vtkQtBarChartView::GetChartSeriesModel()
+{
+  return this->BarModel;
 }
 
 //----------------------------------------------------------------------------
