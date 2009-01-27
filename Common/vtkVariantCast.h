@@ -27,9 +27,10 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 // Description:
-// Performs an explicit conversion from a vtkVariant to the type that it contains.  Implicit
-// conversions are *not* performed, so casting a vtkVariant containing one type (e.g. double)
-// to a different type (e.g. string) will not convert between types.
+// Converts a vtkVariant to some other type.  Wherever possible, implicit conversions are
+// performed, so this method can be used to convert from nearly any type to a string, or
+// from a string to nearly any type.  Note that some conversions may fail at runtime, such
+// as a conversion from the string "abc" to a numeric type.
 //
 // The optional 'valid' flag can be used by callers to verify whether conversion succeeded.
 template<typename T>
@@ -47,73 +48,49 @@ T vtkVariantCast(const vtkVariant& value, bool* valid = 0)
 template<>
 inline char vtkVariantCast<char>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsChar();
-
-  return value.IsChar() ? value.ToChar() : 0;
+  return value.ToChar(valid);
 }
 
 template<>
 inline unsigned char vtkVariantCast<unsigned char>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsUnsignedChar();
-
-  return value.IsUnsignedChar() ? value.ToUnsignedChar() : 0;
+  return value.ToUnsignedChar(valid);
 }
 
 template<>
 inline short vtkVariantCast<short>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsShort();
-
-  return value.IsShort() ? value.ToShort() : 0;
+  return value.ToShort(valid);
 }
 
 template<>
 inline unsigned short vtkVariantCast<unsigned short>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsUnsignedShort();
-
-  return value.IsUnsignedShort() ? value.ToUnsignedShort() : 0;
+  return value.ToUnsignedShort(valid);
 }
 
 template<>
 inline int vtkVariantCast<int>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsInt();
-
-  return value.IsInt() ? value.ToInt() : 0;
+  return value.ToInt(valid);
 }
 
 template<>
 inline unsigned int vtkVariantCast<unsigned int>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsUnsignedInt();
-
-  return value.IsUnsignedInt() ? value.ToUnsignedInt() : 0;
+  return value.ToUnsignedInt(valid);
 }
 
 template<>
 inline long vtkVariantCast<long>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsLong();
-
-  return value.IsLong() ? value.ToLong() : 0;
+  return value.ToLong(valid);
 }
 
 template<>
 inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsUnsignedLong();
-
-  return value.IsUnsignedLong() ? value.ToUnsignedLong() : 0;
+  return value.ToUnsignedLong(valid);
 }
 
 #ifdef VTK_TYPE_USE___INT64
@@ -121,19 +98,13 @@ inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool
 template<>
 inline __int64 vtkVariantCast<__int64>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.Is__Int64();
-
-  return value.Is__Int64() ? value.To__Int64() : 0;
+  return value.To__Int64(valid);
 }
 
 template<>
 inline unsigned __int64 vtkVariantCast<unsigned __int64>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsUnsigned__Int64();
-
-  return value.IsUnsigned__Int64() ? value.ToUnsigned__Int64() : 0;
+  return value.ToUnsigned__Int64(valid);
 }
 
 #endif
@@ -144,19 +115,13 @@ inline unsigned __int64 vtkVariantCast<unsigned __int64>(const vtkVariant& value
 template<>
 inline long long vtkVariantCast<long long>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsLongLong();
-    
-  return value.IsLongLong() ? value.ToLongLong() : 0;
+  return value.ToLongLong(valid);
 }
 
 template<>
 inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsUnsignedLongLong();
-
-  return value.IsUnsignedLongLong() ? value.ToUnsignedLongLong() : 0;
+  return value.ToUnsignedLongLong(valid);
 }
 
 #endif
@@ -164,28 +129,22 @@ inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& v
 template<>
 inline float vtkVariantCast<float>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsFloat();
-
-  return value.IsFloat() ? value.ToFloat() : 0.0f;
+  return value.ToFloat(valid);
 }
 
 template<>
 inline double vtkVariantCast<double>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
-    *valid = value.IsDouble();
-
-  return value.IsDouble() ? value.ToDouble() : 0.0;
+  return value.ToDouble(valid);
 }
 
 template<>
 inline vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* valid)
 {
   if(valid)
-    *valid = value.IsString();
+    *valid = true;
 
-  return value.IsString() ? value.ToString() : vtkStdString();
+  return value.ToString();
 }
 
 template<>
