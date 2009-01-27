@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.27");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.28");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -346,6 +346,9 @@ void vtkSimple2DLayoutStrategy::Layout()
     // I'm done
     this->LayoutComplete = 1;
     }
+
+  // Mark the points as modified
+  this->Graph->GetPoints()->Modified();
 }
 
 void vtkSimple2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

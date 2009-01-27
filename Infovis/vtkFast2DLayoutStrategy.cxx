@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.21");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.22");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -463,6 +463,9 @@ void vtkFast2DLayoutStrategy::Layout()
     // I'm done
     this->LayoutComplete = 1;
     }
+
+  // Mark points as modified
+  this->Graph->GetPoints()->Modified();
 }
 
 void vtkFast2DLayoutStrategy::ResolveCoincidentVertices()
