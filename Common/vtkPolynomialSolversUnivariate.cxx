@@ -39,7 +39,7 @@
 # define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.9");
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.10");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -791,8 +791,8 @@ int vtkHabichtOrSturmBisectionSolve(
 
     delete [] R;
     // The Habicht sequence will occasionally get infinite coeffs and cause
-    // weird things to happen with the sequence. In that case Q[0] == 0, thus if
-    // Q[0] is zero we don't actually use the division that we got.
+    // unpleasant events to happen with the sequence. In that case Q[0] == 0, thus
+    // the division is not used.
     if ( ! IsZero( Q[0] ) )
       {
       delete [] SSS;
