@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkGeoTerrain2D);
-vtkCxxRevisionMacro(vtkGeoTerrain2D, "1.4");
+vtkCxxRevisionMacro(vtkGeoTerrain2D, "1.5");
 //----------------------------------------------------------------------------
 vtkGeoTerrain2D::vtkGeoTerrain2D()
 {
@@ -104,6 +104,10 @@ void vtkGeoTerrain2D::PrintSelf(ostream & os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkAbstractTransform* vtkGeoTerrain2D::GetTransform()
 { 
-  return this->GeoSource->GetTransform(); 
+  if(this->GeoSource != NULL)
+    {
+    return this->GeoSource->GetTransform(); 
+    }
+  return NULL;
 }
 
