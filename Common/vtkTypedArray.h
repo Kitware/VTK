@@ -63,6 +63,9 @@ public:
   virtual vtkVariant GetVariantValueN(const vtkIdType n);
   virtual void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value);
   virtual void SetVariantValueN(const vtkIdType n, const vtkVariant& value);
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates);
+  virtual void CopyValue(vtkArray* source, const vtkIdType source_index, const vtkArrayCoordinates& target_coordinates);
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkIdType target_index);
 
   // Description:
   // Returns the value stored in the array at the given coordinates.

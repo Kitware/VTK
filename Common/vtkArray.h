@@ -164,6 +164,13 @@ public:
   // values are visited is undefined, but is guaranteed to match the
   // order used by vtkArray::GetCoordinatesN().
   virtual void SetVariantValueN(const vtkIdType n, const vtkVariant& value) = 0;
+
+  // Description:
+  // Overwrites a value with a value retrieved from another array.  Both
+  // arrays must store the same data types.
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(vtkArray* source, const vtkIdType source_index, const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkIdType target_index) = 0;
   //ETX
 
   // Description:
