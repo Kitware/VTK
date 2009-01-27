@@ -17,7 +17,7 @@
 #include "vtkTextProperty.h"
 
 vtkStandardNewMacro(vtkLabelSizeCalculator);
-vtkCxxRevisionMacro(vtkLabelSizeCalculator,"1.1");
+vtkCxxRevisionMacro(vtkLabelSizeCalculator,"1.2");
 vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkFreeTypeUtilities);
 
@@ -196,11 +196,14 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray( vtkAbstractArray* label
     bds[1] = bbox[3] - bbox[2];
     bds[2] = bbox[0];
     bds[3] = bbox[2];
-#if 0
-    cout
-      << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3]
-      << " \"" << labels->GetValue( i ).c_str() << "\"\n";
-#endif // 0
+
+    if( this->GetDebug() )
+      {
+      cout << "LSC: "
+           << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3]
+           << " \"" << labels->GetVariantValue( i ).ToString().c_str() << "\"\n";
+      }
+    
     bds += 4;
     }
 
