@@ -56,6 +56,7 @@ int TestVtkLineChartView(int argc, char* argv[])
   // Create a bar chart view
   vtkSmartPointer<vtkQtLineChartView> chartView = 
     vtkSmartPointer<vtkQtLineChartView>::New();
+  chartView->SetupDefaultInteractor();
 
   // Set the chart title
   chartView->SetTitle("My Line Chart");

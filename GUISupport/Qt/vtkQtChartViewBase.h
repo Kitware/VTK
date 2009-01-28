@@ -157,8 +157,12 @@ public:
   // Sets the behavior for the given axis.
   void SetAxisBehavior(int index, int behavior);
 
+  // Description:
+  // Sets the best fir range for the given axis.
   void SetAxisRange(int index, double minimum, double maximum);
 
+  // Description:
+  // Sets the best fir range for the given axis.
   void SetAxisRange(int index, int minimum, int maximum);
 
   //BTX
@@ -187,12 +191,12 @@ public:
   // Gets the chart legend widget.
   vtkQtChartLegend* GetLegend();
   //ETX
-  
-protected:
+
   // Description:
-  // Called from Initialize() to setup the default interactor
+  // Sets up the default interactor.
   virtual void SetupDefaultInteractor();
 
+protected:
   // Description:
   // Create a vtkQtChartRepresentation for the given input connection.
   virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
@@ -205,7 +209,7 @@ private:
   class vtkInternal;
   vtkInternal* Internal;
   //ETX
-  
+
 private:
   vtkQtChartViewBase(const vtkQtChartViewBase&);  // Not implemented.
   void operator=(const vtkQtChartViewBase&);  // Not implemented.

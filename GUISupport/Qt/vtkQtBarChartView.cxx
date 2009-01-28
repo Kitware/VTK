@@ -28,7 +28,7 @@
 #include "vtkQtChartWidget.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtBarChartView, "1.2");
+vtkCxxRevisionMacro(vtkQtBarChartView, "1.3");
 vtkStandardNewMacro(vtkQtBarChartView);
 
 //----------------------------------------------------------------------------
@@ -44,9 +44,6 @@ vtkQtBarChartView::vtkQtBarChartView()
   this->BarModel = new vtkQtChartSeriesModelCollection(this->BarChart);
   this->BarChart->setModel(this->BarModel);
   area->insertLayer(area->getAxisLayerIndex(), this->BarChart);
-
-  // TEMP
-  this->SetupDefaultInteractor();
 }
 
 //----------------------------------------------------------------------------
