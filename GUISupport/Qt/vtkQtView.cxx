@@ -20,7 +20,9 @@
 
 #include "vtkQtView.h"
 
-vtkCxxRevisionMacro(vtkQtView, "1.1");
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkQtView, "1.2");
 vtkStandardNewMacro(vtkQtView);
 
 
