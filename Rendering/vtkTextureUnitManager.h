@@ -67,7 +67,7 @@ public:
   
   // Description:
   // Release a texture unit.
-  // \pre valid_textureUnitId: textureUnitId>=0 || textureUnitId<this->GetNumberOfTextureUnits()
+  // \pre valid_textureUnitId: textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
   // \pre allocated_textureUnitId: this->IsAllocated(textureUnitId)
   virtual void Free(int textureUnitId);
   
