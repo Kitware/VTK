@@ -43,7 +43,6 @@
 #include "vtkVariantArray.h"
 
 // For debugging purposes, serial engines can be run on each slice of the distributed data set
-#define DEBUG_WITH_SERIAL_STATS 0 
 
 struct RandomSampleStatisticsArgs
 {
@@ -119,45 +118,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   double sigmaRuleTol[] = { 1., .5, .1 };
 
   // ************************** Descriptive Statistics ************************** 
-
-#if DEBUG_WITH_SERIAL_STATS
-  // Instantiate a (serial) descriptive statistics engine and set its ports
-  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
-  ds->SetInput( 0, inputData );
-
-  // Select all columns
-  for ( int c = 0; c < nVariables; ++ c )
-    {
-    ds->AddColumn( columnNames[c] );
-    }
-
-  // Test (serially) with Learn and Derive options only
-  ds->SetLearn( true );
-  ds->SetDer ive( true );
-  ds->SetAssess( true );
-  ds->Update();
-
-  cout << "\n## Proc "
-       << myRank
-       << " calculated the following statistics ( "
-       << ds->GetSampleSize()
-       << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < ds->GetOutput( 1 )->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < ds->GetOutput( 1 )->GetNumberOfColumns(); ++ i )
-      {
-      cout << ds->GetOutput( 1 )->GetColumnName( i )
-           << "="
-           << ds->GetOutput( 1 )->GetValue( r, i ).ToString()
-           << "  ";
-      }
-    cout << "\n";
-    }
-  
-  // Clean up
-  ds->Delete();
-#endif //DEBUG_WITH_SERIAL_STATS
 
   // Synchronize and start clock
   controller->Barrier();
@@ -451,7 +411,7 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 100000;
+  args.nVals = 1000000;
   args.retVal = &testValue;
   args.argc = argc;
   args.argv = argv;
