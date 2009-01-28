@@ -25,7 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkFrameBufferObject.h"
 
-vtkCxxRevisionMacro(vtkCameraPass, "1.2");
+vtkCxxRevisionMacro(vtkCameraPass, "1.3");
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
 
@@ -101,7 +101,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
     
     // find out if we should stereo render
-    bool stereo = win->GetStereoRender();
+    bool stereo = win->GetStereoRender()==1;
     ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
     
     // if were on a stereo renderer draw to special parts of screen
