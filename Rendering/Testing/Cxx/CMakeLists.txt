@@ -18,8 +18,10 @@ IF(VTK_USE_DISPLAY)
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
     SurfacePlusEdges.cxx
+    TestBlurAndSobelPasses.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
+    TestGaussianBlurPass.cxx
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
@@ -30,6 +32,7 @@ IF(VTK_USE_DISPLAY)
     TestOpacity.cxx
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
+    TestSobelGradientMagnitudePass.cxx
     TestTextActorAlphaBlending.cxx
     TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
