@@ -157,12 +157,26 @@ protected:
   // Description:
   // Display the status of the current framebuffer on the standard output.
   void CheckFrameBufferStatus();
+  
   // Description:
   // Display all the attachments of the current framebuffer object.
   void DisplayFrameBufferAttachments();
+  
   // Description:
   // Display a given attachment for the current framebuffer object.
   void DisplayFrameBufferAttachment(unsigned int uattachment);
+  
+  // Description:
+  // Display the draw buffers.
+  void DisplayDrawBuffers();
+  
+  // Description:
+  // Display the read buffer.
+  void DisplayReadBuffer();
+  
+  // Description:
+  // Display any buffer (convert value into string).
+  void DisplayBuffer(int value);
   
   vtkFrameBufferObject();
   ~vtkFrameBufferObject();

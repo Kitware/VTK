@@ -25,7 +25,7 @@
 // #define VTK_FBO_DEBUG // display info on RenderQuad()
 
 vtkStandardNewMacro(vtkFrameBufferObject);
-vtkCxxRevisionMacro(vtkFrameBufferObject, "1.1");
+vtkCxxRevisionMacro(vtkFrameBufferObject, "1.2");
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::vtkFrameBufferObject()
 {
@@ -154,6 +154,14 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
   this->LastSize[0] = width;
   this->LastSize[1] = height;
 
+  this->ActivateBuffers();
+  // we cannot check the FBO status before calling this->ActivateBuffers()
+  // because the draw buffer status is part of
+  // the FBO status.
+  // Note this is because we are using FBO through the EXT extension.
+  // This is not true with the ARB extension (which we are not using here
+  // as it exists only on OpenGL 3.0 drivers)
+  
   GLenum status = vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
   if (status != vtkgl::FRAMEBUFFER_COMPLETE_EXT)
     {
@@ -161,8 +169,7 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
     this->CheckFrameBufferStatus();
     return false;
     }
-
-  this->ActivateBuffers();
+  
   return true;
 }
 
@@ -395,6 +402,15 @@ void vtkFrameBufferObject::CreateColorBuffers(
       }
     this->ColorBuffers[cc] = colorBuffer;
     }
+  
+  unsigned int attachments=this->GetMaximumNumberOfRenderTargets();
+  while(cc<attachments)
+    {
+    vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                                      vtkgl::COLOR_ATTACHMENT0_EXT+cc,
+                                      vtkgl::RENDERBUFFER_EXT,0);
+    ++cc;
+    }
   this->ColorBuffersDirty = false;
 }
 
@@ -542,8 +558,10 @@ void vtkFrameBufferObject::CheckFrameBufferStatus()
     default:
       cout << "Unknown framebuffer status=0x" << hex<< status << dec << endl;
     }
-  // DO NOT REMOVE THE FOLLOWING COMMENTED LINE. FOR DEBUGGING PURPOSE.
+  // DO NOT REMOVE THE FOLLOWING COMMENTED LINES. FOR DEBUGGING PURPOSE.
   this->DisplayFrameBufferAttachments();
+  this->DisplayDrawBuffers();
+  this->DisplayReadBuffer();
 }
 
 // ----------------------------------------------------------------------------
@@ -710,7 +728,125 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
     }
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// Description:
+// Display the draw buffers.
+void vtkFrameBufferObject::DisplayDrawBuffers()
+{
+  GLint ivalue;
+  glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS,&ivalue);
+  
+  cout<<"there ";
+  if(ivalue<=1)
+    {
+    cout << "is ";
+    }
+  else
+    {
+    cout << "are ";
+    }
+  cout << ivalue << " draw buffer";
+  if(ivalue>1)
+    {
+    cout<<"s";
+    }
+  cout<<". "<<endl;
+  GLint i=0;
+  int c=ivalue;
+  while(i<c)
+    {
+    glGetIntegerv(vtkgl::DRAW_BUFFER0+i,&ivalue);
+    
+    cout << "draw buffer["<<i<<"]=";
+    this->DisplayBuffer(ivalue);
+    cout << endl;
+    ++i;
+    }
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Display the read buffer.
+void vtkFrameBufferObject::DisplayReadBuffer()
+{
+  GLint ivalue;
+  glGetIntegerv(GL_READ_BUFFER,&ivalue);
+  cout << "read buffer=";
+  this->DisplayBuffer(ivalue);
+  cout<<endl;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Display any buffer (convert value into string).
+void vtkFrameBufferObject::DisplayBuffer(int value)
+{
+  if(value>=static_cast<int>(vtkgl::COLOR_ATTACHMENT0_EXT) &&
+     value<=static_cast<int>(vtkgl::COLOR_ATTACHMENT15_EXT))
+    {
+    cout << "GL_COLOR_ATTACHMENT" << (value-vtkgl::COLOR_ATTACHMENT0_EXT);
+    }
+  else
+    {
+    if(value>=GL_AUX0)
+      {
+      int b=value-GL_AUX0;
+      GLint ivalue;
+      glGetIntegerv(GL_AUX_BUFFERS,&ivalue);
+      if(b<ivalue)
+        {
+        cout << "GL_AUX" << b;
+        }
+      else
+        {
+        cout << "invalid aux buffer: " << b << ", upper limit is "
+             << (ivalue-1) << ", raw value is 0x" << hex << (GL_AUX0+b)
+             << dec;
+        }
+      }
+    else
+      {
+      switch(value)
+        {
+        case GL_NONE:
+          cout << "GL_NONE";
+          break;
+        case GL_FRONT_LEFT:
+          cout << "GL_FRONT_LEFT";
+          break;
+        case GL_FRONT_RIGHT:
+          cout << "GL_FRONT_RIGHT";
+          break;
+        case GL_BACK_LEFT:
+          cout << "GL_BACK_LEFT";
+          break;
+        case GL_BACK_RIGHT:
+          cout << "GL_BACK_RIGHT";
+          break;
+        case GL_FRONT:
+          cout << "GL_FRONT";
+          break;
+        case GL_BACK:
+          cout << "GL_BACK";
+          break;
+        case GL_LEFT:
+          cout << "GL_LEFT";
+          break;
+        case GL_RIGHT:
+          cout << "GL_RIGHT";
+          break;
+        case GL_FRONT_AND_BACK:
+          cout << "GL_FRONT_AND_BACK";
+          break;
+        default:
+          cout << "unknown 0x" << hex << value << dec;
+          break;
+        }
+      }
+    }
+}
+
+// ---------------------------------------------------------------------------
 void vtkFrameBufferObject::RenderQuad(int minX,
                                          int maxX,
                                          int minY,
