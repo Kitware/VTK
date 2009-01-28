@@ -25,7 +25,7 @@
 // #define VTK_FBO_DEBUG // display info on RenderQuad()
 
 vtkStandardNewMacro(vtkFrameBufferObject);
-vtkCxxRevisionMacro(vtkFrameBufferObject, "1.2");
+vtkCxxRevisionMacro(vtkFrameBufferObject, "1.3");
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::vtkFrameBufferObject()
 {
@@ -894,12 +894,13 @@ void vtkFrameBufferObject::RenderQuad(int minX,
 #endif
 }
 
-// ------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkFrameBufferObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "LastSize : " << this->LastSize[0] << this->LastSize[1] <<endl;
+  os << indent << "LastSize : " << this->LastSize[0] << this->LastSize[1]
+     << endl;
   os << indent << "DepthBufferNeeded:";
   if(this->DepthBufferNeeded)
     {
