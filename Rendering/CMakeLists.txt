@@ -192,6 +192,7 @@ SET( KitOpenGL_SRCS
   vtkCameraPass.cxx
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
+  vtkGaussianBlurPass.cxx
   vtkLightsPass.cxx
   vtkGLSLShaderDeviceAdapter2.cxx
   vtkOpaquePass.cxx
@@ -221,6 +222,7 @@ SET( KitOpenGL_SRCS
   vtkShader2.cxx
   vtkShader2Collection.cxx
   vtkShaderProgram2.cxx
+  vtkSobelGradientMagnitudePass.cxx
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
   vtkUniformVariables.cxx
@@ -264,6 +266,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCameraPass
   vtkDefaultPass
   vtkDepthPeelingPass
+  vtkGaussianBlurPass
   vtkLightsPass
   vtkOpaquePass
   vtkRenderPass
@@ -274,6 +277,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
+  vtkSobelGradientMagnitudePass
   vtkTextureUnitManager
   vtkTranslucentPass
   vtkVolumetricPass
@@ -309,11 +313,14 @@ ENDIF(VTK_USE_X)
 # The set of source files to be encoded.
 SET(glsl_files
   vtkDepthPeeling_fs
+  vtkGaussianBlurPassShader_fs
   vtkOpenGLRenderer_PeelingFS
   vtkOpenGLPropertyDefaultPropFunc_fs
   vtkOpenGLPropertyDefaultPropFunc_vs
   vtkOpenGLPropertyDefaultMain_fs
   vtkOpenGLPropertyDefaultMain_vs
+  vtkSobelGradientMagnitudePassShader1_fs
+  vtkSobelGradientMagnitudePassShader2_fs
   )
 
 # Create custom commands to encode each assembly file into a C string
