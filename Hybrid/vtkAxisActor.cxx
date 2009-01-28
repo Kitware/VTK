@@ -33,7 +33,7 @@
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxRevisionMacro(vtkAxisActor, "1.6");
+vtkCxxRevisionMacro(vtkAxisActor, "1.7");
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
 
 // ****************************************************************
@@ -1110,7 +1110,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
 
   y = this->MajorStart;
   numTicks = 0;
-  while (y < p2[1] && numTicks < VTK_MAX_TICKS)
+  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
     {
     yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
     // yx portion
@@ -1151,7 +1151,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
   y = this->MajorStart;
   numTicks = 0;
-  while (y < p2[1] && numTicks < VTK_MAX_TICKS)
+  while (y <= p2[1] && numTicks < VTK_MAX_TICKS)
     {
     yPoint1[1] = xPoint[1] = yPoint2[1] = zPoint[1] = y;
     // yx portion
@@ -1266,7 +1266,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
 
   z = this->MajorStart;
   numTicks = 0;
-  while (z < p2[2] && numTicks < VTK_MAX_TICKS)
+  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
     zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
     // zx-portion
@@ -1308,7 +1308,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
     }
   z = this->MajorStart;
   numTicks = 0;
-  while (z < p2[2] && numTicks < VTK_MAX_TICKS)
+  while (z <= p2[2] && numTicks < VTK_MAX_TICKS)
     {
     zPoint1[2] = zPoint2[2] = xPoint[2] = yPoint[2] = z;
     // zx-portion
