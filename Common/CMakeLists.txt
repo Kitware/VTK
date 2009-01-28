@@ -169,6 +169,7 @@ vtkStructuredVisibilityConstraint.cxx
 vtkTableExtentTranslator.cxx
 vtkTensor.cxx
 vtkThreadMessager.cxx
+vtkTimePointUtility.cxx
 vtkTimeStamp.cxx
 vtkTimerLog.cxx
 vtkTransform.cxx

@@ -16,10 +16,10 @@
 #include "vtkMySQLQuery.h"
 #include "vtkMySQLDatabase.h"
 #include "vtkMySQLDatabasePrivate.h"
-#include <vtkObjectFactory.h>
-#include <vtkStringArray.h>
-#include <vtkVariant.h>
-#include <vtkVariantArray.h>
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+#include "vtkVariant.h"
+#include "vtkVariantArray.h"
 
 #include <mysql.h>
 #include <errmsg.h>
@@ -482,7 +482,7 @@ bool vtkMySQLQueryInternals::ValidPreparedStatementSQL(const char *query)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.12");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.13");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -685,22 +685,22 @@ vtkMySQLQuery::GetFieldType(int column)
       case MYSQL_TYPE_ENUM:
       case MYSQL_TYPE_TINY:
       case MYSQL_TYPE_INT24:
+      case MYSQL_TYPE_YEAR:
         return VTK_INT;
 
       case MYSQL_TYPE_SHORT:
         return VTK_SHORT;
 
       case MYSQL_TYPE_LONG:
+      case MYSQL_TYPE_LONGLONG:
         return VTK_LONG;
 
       case MYSQL_TYPE_TIMESTAMP:
-      case MYSQL_TYPE_LONGLONG:
       case MYSQL_TYPE_DATE:
       case MYSQL_TYPE_TIME:
       case MYSQL_TYPE_DATETIME:
-      case MYSQL_TYPE_YEAR:
       case MYSQL_TYPE_NEWDATE:
-        return VTK_UNSIGNED_LONG;  // vtkTimePoint uses longs
+        return VTK_STRING;  // Just return the raw string.
 
 #if MYSQL_VERSION_ID >= 50000
       case MYSQL_TYPE_BIT:

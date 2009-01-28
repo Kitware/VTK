@@ -27,6 +27,7 @@
 #include "vtkSQLDatabaseSchema.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
+#include "vtkTimePointUtility.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkToolkits.h"
@@ -500,10 +501,78 @@ int TestMySQLDatabase( int, char ** const )
 
   cerr << " done." << endl;
 
+  // ----------------------------------------------------------------------
+  // Testing time values in database
+  cerr << "@@ Testing time values" << endl;
+  query->SetQuery("create table if not exists time (_date DATE, _time TIME, _timestamp TIMESTAMP, _datetime DATETIME, _year YEAR);");
+  cerr << query->GetQuery() << endl;
+  if ( ! query->Execute() )
+    {
+    cerr << "Time table creation failed" << endl;
+    return 1;
+    }
+  query->SetQuery("insert into time values ('2008-01-01', '01:23:45', '2008-01-01 01:23:45', '2008-01-01 01:23:45', 2008);");
+  cerr << query->GetQuery() << endl;
+  if ( ! query->Execute() )
+    {
+    cerr << "Time table insert failed" << endl;
+    return 1;
+    }
+  query->SetQuery("select * from time");
+  cerr << query->GetQuery() << endl;
+  if ( ! query->Execute() )
+    {
+    cerr << "Time table select failed" << endl;
+    return 1;
+    }
+  query->NextRow();
+  vtkTypeUInt64 date = vtkTimePointUtility::ISO8601ToTimePoint( query->DataValue( 0 ).ToString() );
+  vtkTypeUInt64 time = vtkTimePointUtility::ISO8601ToTimePoint( query->DataValue( 1 ).ToString() );
+  vtkTypeUInt64 timestamp = vtkTimePointUtility::ISO8601ToTimePoint( query->DataValue( 2 ).ToString() );
+  vtkTypeUInt64 datetime = vtkTimePointUtility::ISO8601ToTimePoint( query->DataValue( 3 ).ToString() );
+  int month, day, year, hour, minute, second, msec;
+  vtkTimePointUtility::GetDate(date, year, month, day);
+  if ( year != 2008 || month != 1 || day != 1 )
+    {
+    cerr << "Date read incorrectly" << endl;
+    return 1;
+    }
+  vtkTimePointUtility::GetTime(time, hour, minute, second, msec);
+  if ( hour != 1 || minute != 23 || second != 45 )
+    {
+    cerr << "Time read incorrectly" << endl;
+    return 1;
+    }
+  vtkTimePointUtility::GetDateTime(timestamp, year, month, day, hour, minute, second, msec);
+  if ( year != 2008 || month != 1 || day != 1 || hour != 1 || minute != 23 || second != 45 )
+    {
+    cerr << "Timestamp read incorrectly" << endl;
+    return 1;
+    }
+  vtkTimePointUtility::GetDateTime(datetime, year, month, day, hour, minute, second, msec);
+  if ( year != 2008 || month != 1 || day != 1 || hour != 1 || minute != 23 || second != 45 )
+    {
+    cerr << "Datetime read incorrectly" << endl;
+    return 1;
+    }
+  year = query->DataValue( 4 ).ToInt();
+  if ( year != 2008 )
+    {
+    cerr << "Year read incorrectly" << endl;
+    return 1;
+    }
+  query->SetQuery("drop table time;");
+  cerr << query->GetQuery() << endl;
+  if ( ! query->Execute() )
+    {
+    cerr << "Time table drop failed" << endl;
+    return 1;
+    }
+  
   // Clean up
   db->Delete();
   schema->Delete();
   query->Delete();
-
+  
   return 0;
 }

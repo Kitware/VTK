@@ -73,7 +73,6 @@ vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
 vtkTableToTreeFilter.cxx
 vtkThresholdTable.cxx
-vtkTimePointUtility.cxx
 vtkTransferAttributes.cxx
 vtkTreeFieldAggregator.cxx
 vtkTreeLayoutStrategy.cxx

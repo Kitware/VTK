@@ -27,7 +27,7 @@
 
 #include "vtkObject.h"
 
-class VTK_INFOVIS_EXPORT vtkTimePointUtility : public vtkObject
+class VTK_COMMON_EXPORT vtkTimePointUtility : public vtkObject
 {
 public:
   static vtkTimePointUtility *New();
