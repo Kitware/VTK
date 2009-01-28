@@ -83,12 +83,24 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_MPI_POSTFLAGS})
     ENDIF (VTK_USE_PARALLEL_BGL)   
   ENDIF (VTK_USE_BOOST)
+
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
     # Add parallel tests only if PARALLEL and MPI are turned ON
     # These tests are kept separate, because they must be run with mpirun or mpiexec
     ADD_EXECUTABLE(TestParallelRandomStatistics TestParallelRandomStatistics.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRandomStatistics vtkInfovis vtkParallel)
+
+    IF (VTK_MPIRUN_EXE)
+      ADD_TEST(TestParallelRandomStatistics
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/TestParallelRandomStatistics
+        ${VTK_MPI_POSTFLAGS}
+        )
+    ENDIF (VTK_MPIRUN_EXE)
+
   ENDIF (VTK_USE_PARALLEL AND VTK_USE_MPI)
+
   SET(VTK_HAS_UINT64_ARRAY 0)
   IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
     SET(VTK_HAS_UINT64_ARRAY 1)
