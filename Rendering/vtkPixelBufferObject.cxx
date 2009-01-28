@@ -29,7 +29,7 @@
 #endif
 
 vtkStandardNewMacro(vtkPixelBufferObject);
-vtkCxxRevisionMacro(vtkPixelBufferObject, "1.3");
+vtkCxxRevisionMacro(vtkPixelBufferObject, "1.4");
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
@@ -490,7 +490,7 @@ bool vtkPixelBufferObject::Download3D(
 
   if (this->Size < dims[0]*dims[1]*dims[2]*numcomps)
     {
-    vtkErrorMacro("Size to small.");
+    vtkErrorMacro("Size too small.");
     return false;
     }
 
