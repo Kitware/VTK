@@ -72,6 +72,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtTableRepresentation.cxx
       vtkQtTableView.cxx
       vtkQtTreeView.cxx
+      vtkQtView.cxx
       ) 
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
       vtkQtItemView.h
