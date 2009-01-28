@@ -38,7 +38,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 
-vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.2");
+vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.3");
 vtkStandardNewMacro(vtkGaussianBlurPass);
 vtkCxxSetObjectMacro(vtkGaussianBlurPass,DelegatePass,vtkRenderPass);
 
@@ -107,13 +107,49 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
   this->NumberOfRenderedProps=0;
   
+  vtkRenderer *r=s->GetRenderer();
+  
   if(this->DelegatePass!=0)
     {
+    // Test for Hardware support. If not supported, just render the delegate.
+    bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
+    
+    if(!supported)
+      {
+      vtkErrorMacro("FBOs are not supported by the context. Cannot blur the image.");
+      }
+    if(supported)
+      {
+      supported=vtkTextureObject::IsSupported(r->GetRenderWindow());
+      if(!supported)
+        {
+        vtkErrorMacro("Texture Objects are not supported by the context. Cannot blur the image.");
+        }
+      }
+    
+    if(supported)
+      {
+      supported=
+        vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
+                                         r->GetRenderWindow()));
+      if(!supported)
+        {
+        vtkErrorMacro("GLSL is not supported by the context. Cannot blur the image.");
+        }
+      }
+    
+    if(!supported)
+      {
+      this->DelegatePass->Render(s);
+      this->NumberOfRenderedProps+=
+        this->DelegatePass->GetNumberOfRenderedProps();
+      return;
+      }
+    
     GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
     
     // 1. Create a new render state with an FBO.
-    vtkRenderer *r=s->GetRenderer();
     
     int width=0;
     int height=0;

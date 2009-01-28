@@ -27,6 +27,10 @@
 //
 // Its delegate is usually set to a vtkCameraPass or to a post-processing pass.
 // 
+// This pass requires a OpenGL context that supports texture objects (TO),
+// framebuffer objects (FBO) and GLSL. If not, it will emit an error message
+// and will render its delegate and return.
+//
 // .SECTION Implementation
 // As the filter is separable, it first blurs the image horizontally and then
 // vertically. This reduces the number of texture sampling to 5 per pass.
