@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderPass.h"
 
-vtkCxxRevisionMacro(vtkRenderPassCollection, "1.1");
+vtkCxxRevisionMacro(vtkRenderPassCollection, "1.2");
 vtkStandardNewMacro(vtkRenderPassCollection);
 
 // ----------------------------------------------------------------------------
@@ -69,4 +69,10 @@ vtkRenderPass *vtkRenderPassCollection::GetLastRenderPass()
     {
     return static_cast<vtkRenderPass *>(this->Bottom->Item);
     }
+}
+
+// ----------------------------------------------------------------------------
+void vtkRenderPassCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

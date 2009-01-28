@@ -33,7 +33,8 @@ class VTK_RENDERING_EXPORT vtkRenderPassCollection : public vtkCollection
  public:
   static vtkRenderPassCollection *New();
   vtkTypeRevisionMacro(vtkRenderPassCollection,vtkCollection);
-
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   // Description:
   // Add an RenderPass to the list.
   void AddItem(vtkRenderPass *pass);
