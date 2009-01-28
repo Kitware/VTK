@@ -38,7 +38,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 
-vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.1");
+vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.2");
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 vtkCxxSetObjectMacro(vtkSobelGradientMagnitudePass,DelegatePass,vtkRenderPass);
 
@@ -120,7 +120,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
   
   if(this->DelegatePass!=0)
     {
-    int savedDrawBuffer;
+    GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
     
     // 1. Create a new render state with an FBO.

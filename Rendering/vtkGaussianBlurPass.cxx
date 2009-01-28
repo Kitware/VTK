@@ -38,7 +38,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 
-vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.1");
+vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.2");
 vtkStandardNewMacro(vtkGaussianBlurPass);
 vtkCxxSetObjectMacro(vtkGaussianBlurPass,DelegatePass,vtkRenderPass);
 
@@ -109,7 +109,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
   
   if(this->DelegatePass!=0)
     {
-    int savedDrawBuffer;
+    GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
     
     // 1. Create a new render state with an FBO.
