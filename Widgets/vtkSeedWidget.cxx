@@ -30,7 +30,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.18");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.19");
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -68,7 +68,7 @@ vtkSeedWidget::vtkSeedWidget()
 //----------------------------------------------------------------------
 void vtkSeedWidget::DeleteSeed(int i)
 {
-   if( this->Seeds->size() <= i )
+   if( this->Seeds->size() <= static_cast< size_t >(i) )
      {
      return;
      }
@@ -97,7 +97,7 @@ vtkSeedWidget::~vtkSeedWidget()
 //----------------------------------------------------------------------
 vtkHandleWidget * vtkSeedWidget::GetSeed(int i)
 {
- if( this->Seeds->size() <= i )
+ if( this->Seeds->size() <= static_cast< size_t >(i) )
    {
    return NULL;
    }

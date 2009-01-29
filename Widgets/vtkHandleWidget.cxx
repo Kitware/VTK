@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkHandleWidget, "1.8");
+vtkCxxRevisionMacro(vtkHandleWidget, "1.9");
 vtkStandardNewMacro(vtkHandleWidget);
 
 //----------------------------------------------------------------------------------
@@ -274,5 +274,6 @@ void vtkHandleWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Enable Axis Constraint: " 
      << (this->EnableAxisConstraint ? "On\n" : "Off\n");
-  
+
+  os << indent << "WidgetState: " << this->WidgetState << endl;  
 }
