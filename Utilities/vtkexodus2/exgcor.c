@@ -200,7 +200,6 @@ int ex_get_coord (int exoid,
       {
         void *coor = NULL;
         char *which = NULL;
-        int status;
        
         if (i == 0) {
           coor = x_coor;

@@ -275,7 +275,7 @@ int ex_get_block( int exoid,
       len = MAX_STR_LENGTH;
       sprintf (errmsg,
 	       "Warning: %s %d type will be truncated to %ld chars", 
-	       ex_name_of_object(blk_type), blk_id,len);
+	       ex_name_of_object(blk_type), blk_id, (long)(len));
       ex_err("ex_get_block",errmsg,EX_MSG);
     }
 

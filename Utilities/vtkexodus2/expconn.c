@@ -185,7 +185,7 @@ int ex_put_conn (int   exoid,
        sprintf(errmsg,
          "Error: number of edges per element (%ld) doesn't "
          "agree with elem_edge_conn (0x%p)",
-	       num_ed_per_elem, (void*)elem_edge_conn );
+	       (long)num_ed_per_elem, (void*)elem_edge_conn );
        ex_err("ex_put_conn",errmsg,exerrval);
        return (EX_FATAL);
        }
@@ -197,7 +197,7 @@ int ex_put_conn (int   exoid,
        sprintf(errmsg,
          "Error: number of faces per element (%ld) doesn't "
          "agree with elem_face_conn (0x%p)",
-	       num_fa_per_elem, (void*)elem_face_conn );
+	       (long)num_fa_per_elem, (void*)elem_face_conn );
        ex_err("ex_put_conn",errmsg,exerrval);
        return (EX_FATAL);
        }

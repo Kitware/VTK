@@ -123,7 +123,7 @@ int ex_put_partial_elem_map (int exoid,
       exerrval = EX_FATAL;
       sprintf(errmsg,
 	      "Error: exceeded number of element maps (%ld) specified in file id %d",
-	      num_elem_maps,exoid);
+	      (long)num_elem_maps,exoid);
       ex_err("ex_put_partial_elem_map",errmsg,exerrval);
       return (EX_FATAL);
     }
