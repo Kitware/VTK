@@ -1223,6 +1223,11 @@ CanRead(const char *_headerName) const
         dimSize[i] = atoi(pntVal[i]);
         }
 
+      for(i=0; i<nDims; i++)
+        {
+        delete [] pntVal[i++];
+        }
+        
       int nWrds;
       char **wrds;
       int minV = 1;
@@ -3455,6 +3460,8 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
         }
       }
 
+    delete [] currentIndex;
+    
     if(gc != readSize)
       {
       METAIO_STREAM::cerr
@@ -3464,8 +3471,6 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
                 << METAIO_STREAM::endl;
       return false;
       }
-
-    delete [] currentIndex;
     }
 
   return true;
