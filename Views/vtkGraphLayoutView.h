@@ -65,6 +65,7 @@ class vtkKdTreeSelector;
 class vtkLookupTable;
 class vtkPassThroughEdgeStrategy;
 class vtkPassThroughLayoutStrategy;
+class vtkPerturbCoincidentVertices;
 class vtkPolyDataMapper;
 class vtkRandomLayoutStrategy;
 class vtkScalarBarWidget;
@@ -393,6 +394,7 @@ protected:
   vtkSmartPointer<vtkEdgeLayout>                   EdgeLayout;
   vtkSmartPointer<vtkArcParallelEdgeStrategy>      ArcParallelStrategy;
   vtkSmartPointer<vtkPassThroughEdgeStrategy>      PassThroughEdgeStrategy;
+  vtkSmartPointer<vtkPerturbCoincidentVertices>    PerturbCoincidentVertices;
   vtkSmartPointer<vtkVertexDegree>                 VertexDegree;
   vtkSmartPointer<vtkEdgeCenters>                  EdgeCenters;
   vtkSmartPointer<vtkActor>                        GraphActor;

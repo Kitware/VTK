@@ -1,0 +1,165 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestCoincidentGraphLayoutView.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
+#include "vtkCellData.h"
+#include "vtkCommand.h"
+#include "vtkDataRepresentation.h"
+#include "vtkDoubleArray.h"
+#include "vtkGraphLayoutView.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkMutableUndirectedGraph.h"
+#include "vtkPoints.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkStringArray.h"
+#include "vtkStringToNumeric.h"
+#include "vtkTestUtilities.h"
+#include "vtkXMLTreeReader.h"
+
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+#include <vtksys/ios/sstream>
+
+template<typename T> vtkstd::string ToString(const T& x)
+{
+  vtkstd::ostringstream oss;
+  oss << x;
+  return oss.str();
+}
+
+int TestCoincidentGraphLayoutView(int argc, char* argv[])
+{
+  vtkMutableUndirectedGraph * graph = vtkMutableUndirectedGraph::New();
+  vtkPoints * points = vtkPoints::New();
+  vtkDoubleArray * pointData = vtkDoubleArray::New();
+  pointData->SetNumberOfComponents(3);
+  points->SetData(static_cast<vtkDataArray *>(pointData));
+  graph->SetPoints(points);
+
+  for(int i = 0; i < 10; i++)
+    {
+    graph->AddVertex();
+    points->InsertNextPoint(0.0, 0.0, 0.0);
+    }
+
+  graph->AddVertex();
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(2.0, 0.0, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(3.0, 0.0, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(2.0, 2.5, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(0.0, -2.0, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(2.0, -1.5, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(-1.0, 2.0, 0.0);
+  graph->AddVertex();
+  points->InsertNextPoint(3.0, 0.0, 0.0);
+
+  //graph->AddEdge(0, 1);
+  //graph->AddEdge(1, 2);
+  //graph->AddEdge(2, 3);
+  //graph->AddEdge(3, 4);
+  //graph->AddEdge(4, 5);
+  //graph->AddEdge(5, 6);
+  //graph->AddEdge(6, 7);
+  //graph->AddEdge(7, 0);
+
+  for(int i = 10; i < 18; i++)
+    {
+    graph->AddEdge(i, i + 1);
+    }
+
+  VTK_CREATE(vtkStringArray, name);
+  name->SetName("name");
+
+  for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
+    {
+    name->InsertNextValue("Vert" + ToString(i));
+    }
+  graph->GetVertexData()->AddArray(name);
+
+  VTK_CREATE(vtkStringArray, label);
+  label->SetName("edge label");
+  VTK_CREATE(vtkIdTypeArray, dist);
+  dist->SetName("distance");
+  for (vtkIdType i = 0; i < graph->GetNumberOfEdges(); i++)
+    {
+    dist->InsertNextValue(i);
+    switch (i % 4)
+      {
+      case 0:
+        label->InsertNextValue("a");
+        break;
+      case 1:
+        label->InsertNextValue("b");
+        break;
+      case 2:
+        label->InsertNextValue("c");
+        break;
+      case 3:
+        label->InsertNextValue("d");
+        break;
+      }
+    }
+  graph->GetEdgeData()->AddArray(dist);
+  graph->GetEdgeData()->AddArray(label);
+  
+  // Graph layout view
+  VTK_CREATE(vtkRenderWindow, win);
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
+  iren->SetRenderWindow(win);
+  VTK_CREATE(vtkGraphLayoutView, view);
+  view->SetLayoutStrategyToPassThrough();
+  view->SetVertexLabelArrayName("name");
+  view->VertexLabelVisibilityOn();
+  view->SetVertexColorArrayName("size");
+  view->ColorVerticesOn();
+  view->SetEdgeColorArrayName("distance");
+  view->ColorEdgesOn();
+  view->SetEdgeLabelArrayName("edge label");
+  view->EdgeLabelVisibilityOn();
+  view->SetupRenderWindow(win);
+  view->SetRepresentationFromInput(graph);
+
+  view->GetRenderer()->ResetCamera();
+  view->Update();
+
+  iren->Initialize();
+  win->Render();
+  
+  int retVal = vtkRegressionTestImage(win);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Initialize();
+    iren->Start();
+    
+    retVal = vtkRegressionTester::PASSED;
+    }
+
+  return !retVal;
+}
