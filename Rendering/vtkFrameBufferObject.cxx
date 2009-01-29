@@ -25,7 +25,7 @@
 // #define VTK_FBO_DEBUG // display info on RenderQuad()
 
 vtkStandardNewMacro(vtkFrameBufferObject);
-vtkCxxRevisionMacro(vtkFrameBufferObject, "1.4");
+vtkCxxRevisionMacro(vtkFrameBufferObject, "1.5");
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::vtkFrameBufferObject()
 {
@@ -60,10 +60,10 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
     {
       vtkOpenGLExtensionManager *mgr=renWin->GetExtensionManager();
       
-      bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
-      bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4");
-      bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5");
-      bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+      bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+      bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4")==1;
+      bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5")==1;
+      bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
       
       bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
       
@@ -75,7 +75,7 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
       
       bool drawbuffers=gl20 || mgr->ExtensionSupported("GL_ARB_draw_buffers");
       
-      bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object");
+      bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object")==1;
       
       return tex3D && depthTexture24 && occlusion && drawbuffers && fbo;
     }
@@ -88,10 +88,10 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
 {
   // Load extensions using vtkOpenGLExtensionManager
   
-  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
-  bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4");
-  bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5");
-  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+  bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4")==1;
+  bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5")==1;
+  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
   
   bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
   
@@ -103,7 +103,7 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
   
   bool drawbuffers=gl20 || mgr->ExtensionSupported("GL_ARB_draw_buffers");
   
-  bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object");
+  bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object")==1;
   
   bool supported=tex3D && depthTexture24 && occlusion && drawbuffers && fbo;
   

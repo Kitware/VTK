@@ -30,7 +30,7 @@
 #define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.3");
+vtkCxxRevisionMacro(vtkTextureObject, "1.4");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -59,15 +59,15 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
     {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
     
-    bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
-    bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+    bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+    bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
     
     bool npot=gl20 ||
       mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
     
     bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
     
-    bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float");
+    bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float")==1;
     
     return npot && tex3D && floatTextures;
     }
@@ -81,15 +81,15 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr)
   this->SupportsTextureInteger =
     mgr->LoadSupportedExtension("GL_EXT_texture_integer") != 0;
   
-  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
-  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
   
   bool npot=gl20 ||
     mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   
   bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
   
-  bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float");
+  bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float")==1;
   
   bool supported=npot && tex3D && floatTextures;
   
