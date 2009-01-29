@@ -56,15 +56,11 @@ if ( UNIX )
   set( LINK_LIBRARIES m )
 endif ( UNIX )
 
-try_compile( PROJ_HAVE_COMPLEX
-  ${libproj4_BINARY_DIR}
-  ${libproj4_SOURCE_DIR}/proj_check_complex.c
-)
-
-try_compile( PROJ_HAVE_ATANH
-  ${libproj4_BINARY_DIR}
-  ${libproj4_SOURCE_DIR}/proj_check_atanh.c
-)
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_LIBRARIES m)
+check_symbol_exists(csin complex.h PROJ_HAVE_COMPLEX)
+check_symbol_exists(atanh math.h PROJ_HAVE_ATANH)
+set(CMAKE_REQUIRED_LIBRARIES)
 
 #------------------------------------------------------------------------------
 # Source
