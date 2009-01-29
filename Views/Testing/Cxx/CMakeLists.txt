@@ -11,7 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       #TestCoincidentGraphLayoutView.cxx
       TestGraphLayoutView.cxx
       TestHierarchicalGraphView.cxx
-      TestIconGlyphFilter.cxx
+      #TestIconGlyphFilter.cxx
       TestTreeLayoutView.cxx
       TestTreeMapView.cxx
       TestTreeRingView.cxx

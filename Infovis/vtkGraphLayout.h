@@ -32,9 +32,10 @@
 #define __vtkGraphLayout_h
 
 #include "vtkGraphAlgorithm.h"
+#include "vtkSmartPointer.h" // for ivars
 
-class vtkGraphLayoutStrategy;
 class vtkEventForwarderCommand;
+class vtkGraphLayoutStrategy;
 
 class VTK_INFOVIS_EXPORT vtkGraphLayout : public vtkGraphAlgorithm 
 {
@@ -72,9 +73,9 @@ protected:
   
 private:
 
-  vtkGraph *LastInput;
+  vtkSmartPointer<vtkGraph> LastInput;
+  vtkSmartPointer<vtkGraph> InternalGraph;
   unsigned long LastInputMTime;
-  vtkGraph *InternalGraph;
   bool StrategyChanged;
 
   vtkGraphLayout(const vtkGraphLayout&);  // Not implemented.
