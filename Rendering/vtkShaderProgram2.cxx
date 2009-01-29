@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.8");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.9");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -113,11 +113,17 @@ bool vtkShaderProgram2::IsSupported(vtkOpenGLRenderWindow *context)
   assert("pre: context_exists" && context!=0);
   
   vtkOpenGLExtensionManager *e=context->GetExtensionManager();
-  return e->ExtensionSupported("GL_VERSION_2_0") ||
+  
+  bool multiTexture=e->ExtensionSupported("GL_VERSION_1_3") ||
+    e->ExtensionSupported("GL_ARB_multitexture");
+  
+  bool glsl=e->ExtensionSupported("GL_VERSION_2_0") ||
     (e->ExtensionSupported("GL_ARB_shading_language_100") &&
      e->ExtensionSupported("GL_ARB_shader_objects") &&
      e->ExtensionSupported("GL_ARB_vertex_shader") &&
      e->ExtensionSupported("GL_ARB_fragment_shader"));
+  
+  return multiTexture && glsl;
 }
 
 //----------------------------------------------------------------------------
@@ -127,26 +133,40 @@ bool vtkShaderProgram2::LoadExtensions(vtkOpenGLRenderWindow *context)
   
   vtkOpenGLExtensionManager *e=context->GetExtensionManager();
   
-  bool result=false;
-  if(e->ExtensionSupported("GL_VERSION_2_0"))
+  bool gl13=e->ExtensionSupported("GL_VERSION_1_3");
+  bool gl20=e->ExtensionSupported("GL_VERSION_2_0");
+  
+  bool multiTexture=gl13 || e->ExtensionSupported("GL_ARB_multitexture");
+  bool glsl=gl20 || (e->ExtensionSupported("GL_ARB_shading_language_100") &&
+                     e->ExtensionSupported("GL_ARB_shader_objects") &&
+                     e->ExtensionSupported("GL_ARB_vertex_shader") &&
+                     e->ExtensionSupported("GL_ARB_fragment_shader"));
+  
+  bool result=multiTexture && glsl;
+  
+  if(result)
     {
-    e->LoadExtension("GL_VERSION_2_0");
-    result=true;
-    }
-  else
-    {
-    if(e->ExtensionSupported("GL_ARB_shading_language_100") &&
-       e->ExtensionSupported("GL_ARB_shader_objects") &&
-       e->ExtensionSupported("GL_ARB_vertex_shader") &&
-       e->ExtensionSupported("GL_ARB_fragment_shader"))
+    if(gl13)
+      {
+      e->LoadExtension("GL_VERSION_1_3");
+      }
+    else
+      {
+      e->LoadCorePromotedExtension("GL_ARB_multitexture");
+      }
+    if(gl20)
+      {
+      e->LoadExtension("GL_VERSION_2_0");
+      }
+    else
       {
       e->LoadCorePromotedExtension("GL_ARB_shading_language_100");
       e->LoadCorePromotedExtension("GL_ARB_shader_objects");
       e->LoadCorePromotedExtension("GL_ARB_vertex_shader");
       e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
-      result=true;
       }
     }
+  
   return result;
 }
 

@@ -25,7 +25,7 @@
 // #define VTK_FBO_DEBUG // display info on RenderQuad()
 
 vtkStandardNewMacro(vtkFrameBufferObject);
-vtkCxxRevisionMacro(vtkFrameBufferObject, "1.3");
+vtkCxxRevisionMacro(vtkFrameBufferObject, "1.4");
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::vtkFrameBufferObject()
 {
@@ -59,12 +59,25 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
   if(renWin!=0)
     {
       vtkOpenGLExtensionManager *mgr=renWin->GetExtensionManager();
-      return (mgr->ExtensionSupported("GL_VERSION_2_0")
-              && mgr->ExtensionSupported("GL_VERSION_1_3") 
-              && mgr->ExtensionSupported("GL_ARB_draw_buffers") 
-              && mgr->ExtensionSupported("GL_EXT_framebuffer_object")
-              && mgr->ExtensionSupported("GL_VERSION_1_5") // occlusion query
-              );
+      
+      bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
+      bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4");
+      bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5");
+      bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+      
+      bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
+      
+      bool depthTexture24=gl14 ||
+        mgr->ExtensionSupported("GL_ARB_depth_texture");
+      
+      bool occlusion=gl15 ||
+        mgr->ExtensionSupported("GL_ARB_occlusion_query");
+      
+      bool drawbuffers=gl20 || mgr->ExtensionSupported("GL_ARB_draw_buffers");
+      
+      bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object");
+      
+      return tex3D && depthTexture24 && occlusion && drawbuffers && fbo;
     }
   return false;
 }
@@ -74,12 +87,68 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
                                               vtkOpenGLExtensionManager*mgr)
 {
   // Load extensions using vtkOpenGLExtensionManager
-  return (mgr->LoadSupportedExtension("GL_VERSION_2_0")
-          && mgr->LoadSupportedExtension("GL_VERSION_1_3") 
-          && mgr->LoadSupportedExtension("GL_ARB_draw_buffers") 
-          && mgr->LoadSupportedExtension("GL_EXT_framebuffer_object")
-          && mgr->LoadSupportedExtension("GL_VERSION_1_5") // occlusion query
-          );
+  
+  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
+  bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4");
+  bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5");
+  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+  
+  bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
+  
+  bool depthTexture24=gl14 ||
+    mgr->ExtensionSupported("GL_ARB_depth_texture");
+  
+  bool occlusion=gl15 ||
+    mgr->ExtensionSupported("GL_ARB_occlusion_query");
+  
+  bool drawbuffers=gl20 || mgr->ExtensionSupported("GL_ARB_draw_buffers");
+  
+  bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object");
+  
+  bool supported=tex3D && depthTexture24 && occlusion && drawbuffers && fbo;
+  
+  if(supported)
+    {
+    if(gl12)
+      {
+      mgr->LoadSupportedExtension("GL_VERSION_1_2");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_EXT_texture3D");
+      }
+    
+    if(gl14)
+      {
+      mgr->LoadSupportedExtension("GL_VERSION_1_4");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_ARB_depth_texture");
+      }
+    
+    if(gl15)
+      {
+      mgr->LoadSupportedExtension("GL_VERSION_1_5");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_ARB_occlusion_query");
+      }
+    
+    if(gl20)
+      {
+      mgr->LoadSupportedExtension("GL_VERSION_2_0");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_ARB_draw_buffers");
+      }
+    
+    mgr->LoadSupportedExtension("GL_EXT_framebuffer_object");
+    }
+  
+  return supported;
 }
 
 //----------------------------------------------------------------------------

@@ -29,7 +29,7 @@
 #endif
 
 vtkStandardNewMacro(vtkPixelBufferObject);
-vtkCxxRevisionMacro(vtkPixelBufferObject, "1.4");
+vtkCxxRevisionMacro(vtkPixelBufferObject, "1.5");
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
@@ -53,9 +53,16 @@ bool vtkPixelBufferObject::IsSupported(vtkRenderWindow* win)
   if (renWin)
     {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
-    return (mgr->ExtensionSupported("GL_VERSION_2_0") &&
-      mgr->ExtensionSupported("GL_VERSION_1_5") &&
-      mgr->ExtensionSupported("GL_ARB_pixel_buffer_object"));
+    
+    bool vbo=mgr->ExtensionSupported("GL_VERSION_1_5") ||
+      mgr->ExtensionSupported("GL_ARB_vertex_buffer_object");
+    
+    // pbo extension does not define new functions but uses functions defined
+    // by vbo extension.
+    bool pbo=mgr->ExtensionSupported("GL_VERSION_2_1") ||
+      mgr->ExtensionSupported("GL_ARB_pixel_buffer_object");
+      
+    return vbo && pbo;
     }
   return false;
 }
@@ -63,9 +70,30 @@ bool vtkPixelBufferObject::IsSupported(vtkRenderWindow* win)
 //----------------------------------------------------------------------------
 bool vtkPixelBufferObject::LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr)
 {
-  return (mgr->LoadSupportedExtension("GL_VERSION_2_0") &&
-    mgr->LoadSupportedExtension("GL_VERSION_1_5") &&
-    mgr->LoadSupportedExtension("GL_ARB_pixel_buffer_object"));
+  bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5");
+  bool gl21=mgr->ExtensionSupported("GL_VERSION_2_1");
+  
+  bool vbo=gl15 || mgr->ExtensionSupported("GL_ARB_vertex_buffer_object");
+  
+  // pbo extension does not define new functions but uses functions defined
+  // by vbo extension.
+  bool pbo=gl21 || mgr->ExtensionSupported("GL_ARB_pixel_buffer_object");
+  
+  bool result=vbo && pbo;
+  
+  if(result)
+    {
+    if(gl15)
+      {
+      mgr->LoadExtension("GL_VERSION_1_5");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_ARB_vertex_buffer_object");
+      }
+    // pbo does not define new functions, nothing to do here.
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------

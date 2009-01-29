@@ -30,7 +30,7 @@
 #define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.2");
+vtkCxxRevisionMacro(vtkTextureObject, "1.3");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -58,10 +58,18 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
   if (renWin)
     {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
-    return (mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two") &&
-      mgr->ExtensionSupported("GL_VERSION_1_2") &&
-      mgr->ExtensionSupported("GL_VERSION_2_0") &&
-      mgr->ExtensionSupported("GL_ARB_texture_float"));
+    
+    bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
+    bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
+    
+    bool npot=gl20 ||
+      mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+    
+    bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
+    
+    bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float");
+    
+    return npot && tex3D && floatTextures;
     }
   return false;
 }
@@ -71,15 +79,35 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr)
 {
   // Optional extension, requires GeForce8
   this->SupportsTextureInteger =
-    (mgr->LoadSupportedExtension("GL_EXT_texture_integer") != 0);
+    mgr->LoadSupportedExtension("GL_EXT_texture_integer") != 0;
   
-  return mgr->LoadSupportedExtension("GL_ARB_texture_non_power_of_two") &&
-    mgr->LoadSupportedExtension("GL_VERSION_1_2") &&
-    mgr->LoadSupportedExtension("GL_VERSION_2_0") &&
-    mgr->LoadSupportedExtension("GL_ARB_texture_float");
-    //&& mgr->LoadSupportedExtension("GL_ARB_color_buffer_float");
+  bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2");
+  bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0");
   
-  // color_buffer_float is for color clamping (true by default, as it is in std opengl)
+  bool npot=gl20 ||
+    mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+  
+  bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
+  
+  bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float");
+  
+  bool supported=npot && tex3D && floatTextures;
+  
+  if(supported)
+    {
+    // tex3D
+    if(gl12)
+      {
+      mgr->LoadSupportedExtension("GL_VERSION_1_2");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_EXT_texture3D");
+      }
+    // npot does not provide new functions, nothing to do.
+    // texture_float does not provide new functions, nothing to do.
+    }
+  return supported;
 }
 
 //----------------------------------------------------------------------------
