@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.18");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.19");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -382,10 +382,13 @@ vtkVariant vtkSQLiteQuery::DataValue(vtkIdType column)
 
       case VTK_SQLITE_BLOB:
       {
-      // XXX BLOB support has not been properly exercised yet.
-      const char *blobData = reinterpret_cast<const char *>(vtk_sqlite3_column_text(this->Statement, column));
+      // This is a hack ... by passing the BLOB to vtkStdString with an explicit
+      // byte count, we ensure that the string will store all of the BLOB's bytes,
+      // even if there are NULL values.
 
-      return vtkVariant(vtkStdString(blobData));
+      return vtkVariant(vtkStdString(
+        static_cast<const char*>(vtk_sqlite3_column_blob(this->Statement, column)),
+        vtk_sqlite3_column_bytes(this->Statement, column)));
       }
       
       case VTK_SQLITE_NULL:
