@@ -120,6 +120,15 @@ public:
   T* GetValueStorage();
   
   // Description:
+  // Reserve storage for a specific number of values.  This is useful for reading external
+  // data using GetCoordinateStorage() and GetValueStorage(), when the total
+  // number of non-NULL values in the array can be determined in advance.  Note that after
+  // calling ReserveStorage(), all coordinates and values will be undefined, so you must
+  // ensure that every set of coordinates and values is overwritten.  It is the caller's
+  // responsibility to ensure that duplicate coordinates are not inserted into the array.
+  void ReserveStorage(const vtkIdType value_count);
+
+  // Description:
   // Update the array extents to match its contents, so that the extent along each dimension
   // matches the maximum index value along that dimension.
   void ResizeToContents();
