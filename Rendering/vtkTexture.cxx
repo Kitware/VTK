@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.60");
+vtkCxxRevisionMacro(vtkTexture, "1.61");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -201,6 +201,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       os << "Subtract\n";
       break;
     }
+  os << indent << "RestrictPowerOf2ImageSmaller:   " << (this->RestrictPowerOf2ImageSmaller ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
