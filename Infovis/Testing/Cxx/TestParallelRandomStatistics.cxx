@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories 
 // for implementing this test.
 
 #include <mpi.h>
@@ -33,6 +33,7 @@
 #include "vtkPCorrelativeStatistics.h"
 #include "vtkMultiCorrelativeStatistics.h"
 #include "vtkPMultiCorrelativeStatistics.h"
+#include "vtkPPCAStatistics.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
@@ -43,6 +44,7 @@
 #include "vtkVariantArray.h"
 
 // For debugging purposes, serial engines can be run on each slice of the distributed data set
+#define DEBUG_WITH_SERIAL_STATS 0 
 
 struct RandomSampleStatisticsArgs
 {
@@ -118,6 +120,45 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   double sigmaRuleTol[] = { 1., .5, .1 };
 
   // ************************** Descriptive Statistics ************************** 
+
+#if DEBUG_WITH_SERIAL_STATS
+  // Instantiate a (serial) descriptive statistics engine and set its ports
+  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
+  ds->SetInput( 0, inputData );
+
+  // Select all columns
+  for ( int c = 0; c < nVariables; ++ c )
+    {
+    ds->AddColumn( columnNames[c] );
+    }
+
+  // Test (serially) with Learn and Derive options only
+  ds->SetLearn( true );
+  ds->SetDer ive( true );
+  ds->SetAssess( true );
+  ds->Update();
+
+  cout << "\n## Proc "
+       << myRank
+       << " calculated the following statistics ( "
+       << ds->GetSampleSize()
+       << " entries per column ):\n";
+  for ( vtkIdType r = 0; r < ds->GetOutput( 1 )->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < ds->GetOutput( 1 )->GetNumberOfColumns(); ++ i )
+      {
+      cout << ds->GetOutput( 1 )->GetColumnName( i )
+           << "="
+           << ds->GetOutput( 1 )->GetValue( r, i ).ToString()
+           << "  ";
+      }
+    cout << "\n";
+    }
+  
+  // Clean up
+  ds->Delete();
+#endif //DEBUG_WITH_SERIAL_STATS
 
   // Synchronize and start clock
   controller->Barrier();
@@ -380,6 +421,68 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Clean up
   pmcs->Delete();
+
+  // ************************** PCA Statistics ************************** 
+
+  // Synchronize and start clock
+  controller->Barrier();
+  time_t t6;
+  time ( &t6 );
+
+  // Instantiate a parallel pca statistics engine and set its ports
+  vtkPPCAStatistics* pcas = vtkPPCAStatistics::New();
+  pcas->SetInput( 0, inputData );
+  outputData = pcas->GetOutput( 0 );
+
+  // Select column pairs (uniform vs. uniform, normal vs. normal)
+  pcas->SetColumnStatus( columnNames[0], true );
+  pcas->SetColumnStatus( columnNames[1], true );
+  pcas->RequestSelectedColumns();
+
+  pcas->ResetAllColumnStates();
+  pcas->SetColumnStatus( columnNames[2], true );
+  pcas->SetColumnStatus( columnNames[3], true );
+  pcas->RequestSelectedColumns();
+
+  pcas->ResetAllColumnStates();
+  pcas->SetColumnStatus( columnNames[0], true );
+  pcas->SetColumnStatus( columnNames[1], true );
+  pcas->SetColumnStatus( columnNames[2], true );
+  pcas->SetColumnStatus( columnNames[3], true );
+  pcas->RequestSelectedColumns();
+
+  // Test (in parallel) with Learn, Derive, and Assess options turned on
+  pcas->SetLearn( true );
+  pcas->SetDerive( true );
+  pcas->SetAssess( true );
+  pcas->Update();
+
+    // Synchronize and stop clock
+  controller->Barrier();
+  time_t t7;
+  time ( &t7 );
+
+  if ( ! controller->GetLocalProcessId() )
+    {
+    cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
+         << "   Total sample size: "
+         << pcas->GetSampleSize()
+         << " \n"
+         << "   Wall time: "
+         << difftime( t7, t6 )
+         << " sec.\n";
+
+    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( 1 ) ); 
+    for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+      {
+      outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+      outputMeta->Dump();
+      }
+    }
+
+  // Clean up
+  pcas->Delete();
+
   inputData->Delete();
 }
 
@@ -411,7 +514,7 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 1000000;
+  args.nVals = 100000;
   args.retVal = &testValue;
   args.argc = argc;
   args.argv = argv;

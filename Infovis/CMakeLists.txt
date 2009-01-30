@@ -179,6 +179,7 @@ IF(VTK_USE_PARALLEL)
     vtkPCorrelativeStatistics.cxx
     vtkPDescriptiveStatistics.cxx
     vtkPMultiCorrelativeStatistics.cxx
+    vtkPPCAStatistics.cxx
     )
   SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
 ENDIF(VTK_USE_PARALLEL)
