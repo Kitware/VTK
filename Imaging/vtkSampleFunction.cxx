@@ -26,12 +26,10 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.74");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.75");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
-// Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
-// Capping turned off, and normal generation on.
 vtkSampleFunction::vtkSampleFunction()
 {
   this->ModelBounds[0] = -1.0;
@@ -46,7 +44,7 @@ vtkSampleFunction::vtkSampleFunction()
   this->SampleDimensions[2] = 50;
 
   this->Capping = 0;
-  this->CapValue = VTK_LARGE_FLOAT;
+  this->CapValue = VTK_DOUBLE_MAX;
 
   this->ImplicitFunction = NULL;
 
