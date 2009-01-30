@@ -108,11 +108,21 @@ public:
   vtkGetMacro(CapValue,double);
 
   // Description:
-  // Turn on/off the computation of normals.
+  // Turn on/off the computation of normals (normals are float values).
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
 
+  // Description:
+  // Set/get the scalar array name for this data set. Initial value is "".
+  vtkSetStringMacro(ScalarArrayName);
+  vtkGetStringMacro(ScalarArrayName);
+  
+  // Description:
+  // Set/get the normal array name for this data set. Initial value is "".
+  vtkSetStringMacro(NormalArrayName);
+  vtkGetStringMacro(NormalArrayName);
+  
   // Description:
   // Return the MTime also considering the implicit function.
   unsigned long GetMTime();
@@ -122,7 +132,8 @@ protected:
   // Default constructor.
   // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
   // Capping turned off, CapValue=VTK_DOUBLE_MAX, normal generation on,
-  // OutputScalarType set to VTK_DOUBLE and ImplicitFunction set to NULL.
+  // OutputScalarType set to VTK_DOUBLE, ImplicitFunction set to NULL,
+  // ScalarArrayName is "" and NormalArrayName is "".
   vtkSampleFunction();
   
   ~vtkSampleFunction();
@@ -142,6 +153,9 @@ protected:
   double CapValue;
   vtkImplicitFunction *ImplicitFunction;
   int ComputeNormals;
+  char *ScalarArrayName;
+  char *NormalArrayName;
+  
 private:
   vtkSampleFunction(const vtkSampleFunction&);  // Not implemented.
   void operator=(const vtkSampleFunction&);  // Not implemented.

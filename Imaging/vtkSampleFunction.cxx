@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.75");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.76");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -51,14 +51,22 @@ vtkSampleFunction::vtkSampleFunction()
   this->ComputeNormals = 1;
   this->OutputScalarType = VTK_DOUBLE;
 
+  this->ScalarArrayName=0;
+  this->SetScalarArrayName("");
+  
+  this->NormalArrayName=0;
+  this->SetNormalArrayName("");
+
+  
   this->SetNumberOfInputPorts(0);
 }
 
 vtkSampleFunction::~vtkSampleFunction() 
 {
   this->SetImplicitFunction(NULL);
+  this->SetScalarArrayName(NULL);
+  this->SetNormalArrayName(NULL);
 }
-
 
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
@@ -124,7 +132,7 @@ int vtkSampleFunction::RequestInformation (
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
 
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, 1);
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, 1);
   return 1;
 }
 
@@ -139,8 +147,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
 
   output->SetExtent(output->GetUpdateExtent());
   output = this->AllocateOutputData(outp);
-  vtkDoubleArray *newScalars = 
-    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());
+  vtkDataArray *newScalars =output->GetPointData()->GetScalars();
 
   vtkDebugMacro(<< "Sampling implicit function");
 
@@ -203,7 +210,10 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
         }
       }
     }
-
+  
+  newScalars->SetName(this->ScalarArrayName);
+  
+  
   // If capping is turned on, set the distances of the outside of the volume
   // to the CapValue.
   //
@@ -216,6 +226,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   //
   if (newNormals)
     {
+    newNormals->SetName(this->NormalArrayName);
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
@@ -342,6 +353,27 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cap Value: " << this->CapValue << "\n";
 
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
+  
+  os << indent << "ScalarArrayName: ";
+  if(this->ScalarArrayName!=0)
+    {
+    os  << this->ScalarArrayName << endl;
+    }
+  else
+    {
+    os  << "(none)" << endl;
+    }
+  
+  os << indent << "NormalArrayName: ";
+  if(this->NormalArrayName!=0)
+    {
+    os  << this->NormalArrayName << endl;
+    }
+  else
+    {
+    os  << "(none)" << endl;
+    }
+  
 }
 
 //----------------------------------------------------------------------------
