@@ -20,6 +20,8 @@ int TestDescriptiveStatistics( int, char *[] )
 {
   int testStatus = 0;
 
+  // ************** More complex example comprising three columns ************** 
+
   double mingledData[] = 
     {
     46,
@@ -101,12 +103,22 @@ int TestDescriptiveStatistics( int, char *[] )
   dataset3Arr->SetNumberOfComponents( 1 );
   dataset3Arr->SetName( "Metric 2" );
 
+  cout << "## Input data set:\n";
+
   for ( int i = 0; i < nVals; ++ i )
     {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( -1. );
+
+    cout << "   "
+         << mingledData[ti]
+         << "\t"
+         << mingledData[ti + 1]
+         << "\t"
+         << -1.
+         << "\n";
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -302,6 +314,103 @@ int TestDescriptiveStatistics( int, char *[] )
 
   paramsTable->Delete();
   haruspex->Delete();
+
+  // ************** Very simple example, for baseline comparison vs. R ********* 
+  double simpleData[] = 
+    {
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    };
+  int nSimpleVals = 10;
+
+  vtkDoubleArray* datasetArr = vtkDoubleArray::New();
+  datasetArr->SetNumberOfComponents( 1 );
+  datasetArr->SetName( "Metric" );
+
+  cout << "## Input data set:\n";
+
+  for ( int i = 0; i < nSimpleVals; ++ i )
+    {
+    datasetArr->InsertNextValue( simpleData[i] );
+
+    cout << "   "
+         << simpleData[i]
+         << "\n";
+    }
+
+  vtkTable* simpleTable = vtkTable::New();
+  simpleTable->AddColumn( datasetArr );
+  datasetArr->Delete();
+
+  double mean = 4.5;
+  double variance = 9.16666666666667;
+  double g1 = 0.;
+  double g2 = -1.56163636363636;
+
+  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
+  ds->SetInput( 0, simpleTable );
+  vtkTable* outputSimpleMeta = ds->GetOutput( 1 );
+
+  simpleTable->Delete();
+
+  // -- Select Column of Interest -- 
+  ds->AddColumn( "Metric" );
+
+  // -- Test Learn and Derive only -- 
+  ds->SetLearn( true );
+  ds->SetDerive( true );
+  ds->SetAssess( false );
+  ds->Update();
+
+  cout << "## Calculated the following statistics ( "
+       <<   ds->GetSampleSize()
+       << " entries in a single column ):\n"
+       << "   ";
+
+  for ( int i = 0; i < outputSimpleMeta->GetNumberOfColumns(); ++ i )
+    {
+    cout << outputSimpleMeta->GetColumnName( i )
+         << "="
+         << outputSimpleMeta->GetValue( 0, i ).ToString()
+         << "  ";
+    }
+    
+  if ( fabs ( outputSimpleMeta->GetValueByName( r, "Mean" ).ToDouble() - mean ) > 1.e6 )
+    {
+    vtkGenericWarningMacro("Incorrect mean");
+    testStatus = 1;
+    }
+  
+  if ( fabs ( outputSimpleMeta->GetValueByName( r, "Variance" ).ToDouble() - variance ) > 1.e6 )
+    {
+    vtkGenericWarningMacro("Incorrect variance");
+    testStatus = 1;
+    }
+  cout << "\n";
+  
+  if ( fabs ( outputSimpleMeta->GetValueByName( r, "G1 Skewness" ).ToDouble() - g1 ) > 1.e6 )
+    {
+    vtkGenericWarningMacro("Incorrect G1 skewness");
+    testStatus = 1;
+    }
+  cout << "\n";
+  
+  if ( fabs ( outputSimpleMeta->GetValueByName( r, "G2 Kurtosis" ).ToDouble() - g2 ) > 1.e6 )
+    {
+    vtkGenericWarningMacro("Incorrect G2 kurtosis");
+    testStatus = 1;
+    }
+  cout << "\n";
+
+  ds->Delete();
 
   return testStatus;
 }
