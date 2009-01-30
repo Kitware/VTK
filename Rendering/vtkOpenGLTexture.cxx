@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.74");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.75");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -507,7 +507,17 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
 
   xsize = FindPowerOfTwo(xs);
   ysize = FindPowerOfTwo(ys);
-  
+  if (this->RestrictPowerOf2ImageSmaller)
+    {
+    if (xsize > xs)
+      {
+      xsize /= 2;
+      }
+    if (ysize > ys)
+      {
+      ysize /= 2;
+      }
+    }
   hx = static_cast<float>(xs - 1.0) / (xsize - 1.0);
   hy = static_cast<float>(ys - 1.0) / (ysize - 1.0);
 
