@@ -23,7 +23,7 @@
 //
 // .SECTION Description
 // vtkArrayCoordinateIterator iterates over every unique set of coordinates
-// that are contained defined by a set of vtkArrayExtents.  The order in which
+// that are defined by a set of vtkArrayExtents.  The order in which
 // coordinates are visited is undefined.
 //
 // Note that vtkArrayCoordinateIterator visits every permutation of
