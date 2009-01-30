@@ -80,10 +80,6 @@ protected:
   virtual int FillInputPortInformation( int port, vtkInformation* info );
   virtual int FillOutputPortInformation( int port, vtkInformation* info );
 
-  // Description:
-  // Execute the calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
-                             vtkDataObject* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
@@ -93,6 +89,10 @@ protected:
   // Execute the calculations required by the Derive option.
   virtual void ExecuteAssess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
 
+  // Description:
+  // Execute the calculations required by the Learn option.
+  virtual void ExecuteLearn( vtkTable* inData,
+                             vtkDataObject* outMeta );
   //BTX  
   // Description:
   // Provide the appropriate assessment functor.
