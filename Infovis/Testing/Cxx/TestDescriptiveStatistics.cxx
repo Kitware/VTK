@@ -383,27 +383,27 @@ int TestDescriptiveStatistics( int, char *[] )
          << "  ";
     }
     
-  if ( fabs ( outputSimpleMeta->GetValueByName( r, "Mean" ).ToDouble() - mean ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e6 )
     {
     vtkGenericWarningMacro("Incorrect mean");
     testStatus = 1;
     }
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( r, "Variance" ).ToDouble() - variance ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e6 )
     {
     vtkGenericWarningMacro("Incorrect variance");
     testStatus = 1;
     }
   cout << "\n";
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( r, "G1 Skewness" ).ToDouble() - g1 ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "G1 Skewness" ).ToDouble() - g1 ) > 1.e6 )
     {
     vtkGenericWarningMacro("Incorrect G1 skewness");
     testStatus = 1;
     }
   cout << "\n";
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( r, "G2 Kurtosis" ).ToDouble() - g2 ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "G2 Kurtosis" ).ToDouble() - g2 ) > 1.e6 )
     {
     vtkGenericWarningMacro("Incorrect G2 kurtosis");
     testStatus = 1;
