@@ -118,7 +118,13 @@ public:
   unsigned long GetMTime();
 
 protected:
+  // Description:
+  // Default constructor.
+  // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+  // Capping turned off, CapValue=VTK_DOUBLE_MAX, normal generation on,
+  // OutputScalarType set to VTK_DOUBLE and ImplicitFunction set to NULL.
   vtkSampleFunction();
+  
   ~vtkSampleFunction();
 
   virtual void ReportReferences(vtkGarbageCollector*);
