@@ -42,15 +42,21 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:
-  // Execute the parallel calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
-                             vtkDataObject* outMeta );
+  // Performs Reduction
+  static void GatherStatistics( vtkMultiProcessController *curController,
+                                vtkTable *sparseCov );
 
 protected:
   vtkPMultiCorrelativeStatistics();
   ~vtkPMultiCorrelativeStatistics();
 
   vtkMultiProcessController* Controller;
+
+  // Execute the parallel calculations required by the Learn option.
+  virtual void ExecuteLearn( vtkTable* inData,
+                             vtkDataObject* outMeta );
+
+
 private:
   vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&); // Not implemented.
   void operator=(const vtkPMultiCorrelativeStatistics&); // Not implemented.

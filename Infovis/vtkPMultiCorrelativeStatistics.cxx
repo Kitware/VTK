@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.2");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.3");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -51,6 +51,7 @@ void vtkPMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
+
 void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
                                                    vtkDataObject* outMetaDO )
 {
@@ -70,6 +71,17 @@ void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
   
+  vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
+
+  // Set global statistics
+  int ns = sparseCov->GetValueByName( 0, "Entries" ).ToInt();
+  this->SampleSize = ns;
+}
+
+// ----------------------------------------------------------------------
+void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController *curController,
+                                                       vtkTable* sparseCov )
+{
   vtkIdType nRow = sparseCov->GetNumberOfRows();
   if ( ! nRow )
     {
@@ -78,14 +90,14 @@ void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   // Make sure that parallel updates are needed, otherwise leave it at that.
-  int np = this->Controller->GetNumberOfProcesses();
+  int np = curController->GetNumberOfProcesses();
   if ( np < 2 )
     {
     return;
     }
 
   // Now get ready for parallel calculations
-  vtkCommunicator* com = this->Controller->GetCommunicator();
+  vtkCommunicator* com = curController->GetCommunicator();
   
   // (All) gather all sample sizes
   int n_l = sparseCov->GetValueByName( 0, "Entries" ).ToInt(); // Sample Size
@@ -183,10 +195,8 @@ void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     sparseCov->SetValueByName( i + 1, "Entries", M_l[i] );
     }
 
-  // Set global statistics
   sparseCov->SetValueByName( 0, "Entries", ns );
-  this->SampleSize = ns;
-
+  
   // Clean-up
   delete [] M_l;
   delete [] M_g;
