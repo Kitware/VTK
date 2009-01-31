@@ -116,7 +116,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Reference values
-  double sigmaRuleVal[] = { 68., 95., 99.7 };     // "68-95-99.7 rule"
+  double sigmaRuleVal[] = { 68.27 , 95.45, 99.73 };     // "68-95-99.7 rule"
   double sigmaRuleTol[] = { 1., .5, .1 };
 
   // ************************** Descriptive Statistics ************************** 
