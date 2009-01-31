@@ -32,7 +32,7 @@ class VTK_INFOVIS_EXPORT vtkPPCAStatistics : public vtkPCAStatistics
 {
 public:
   static vtkPPCAStatistics* New();
-  vtkTypeRevisionMacro(vtkPPCAStatistics, vtkMultiCorrelativeStatistics);
+  vtkTypeRevisionMacro(vtkPPCAStatistics, vtkPCAStatistics)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
