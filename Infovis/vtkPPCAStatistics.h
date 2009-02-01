@@ -31,9 +31,9 @@ class vtkMultiProcessController;
 class VTK_INFOVIS_EXPORT vtkPPCAStatistics : public vtkPCAStatistics
 {
 public:
-  static vtkPPCAStatistics* New();
-  vtkTypeRevisionMacro(vtkPPCAStatistics, vtkPCAStatistics)
+  vtkTypeRevisionMacro(vtkPPCAStatistics, vtkPCAStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkPPCAStatistics* New();
 
   // Description:
   // Get/Set the multiprocess controller. If no controller is set,
