@@ -23,25 +23,25 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.3");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.4");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
-  {
+{
   "None",
   "TriangleSpecified",
   "DiagonalSpecified",
   "DiagonalVariance",
   "InvalidNormalizationScheme"
-  };
+};
 
 const char* vtkPCAStatistics::BasisSchemeEnumNames[NUM_BASIS_SCHEMES + 1] =
-  {
+{
   "FullBasis",
   "FixedBasisSize",
   "FixedBasisEnergy",
   "InvalidBasisScheme"
-  };
+};
 
 // ======================================================== vtkPCAAssessFunctor
 class vtkPCAAssessFunctor : public vtkMultiCorrelativeAssessFunctor
@@ -52,8 +52,8 @@ public:
   vtkPCAAssessFunctor() { }
   virtual ~vtkPCAAssessFunctor() { }
   virtual bool InitializePCA(
-    vtkTable* inData, vtkTable* reqModel,
-    int normScheme, int basisScheme, int basisSize, double basisEnergy );
+                             vtkTable* inData, vtkTable* reqModel,
+                             int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
   virtual void operator () ( vtkVariantArray* result, vtkIdType row );
 
@@ -68,11 +68,11 @@ vtkPCAAssessFunctor* vtkPCAAssessFunctor::New()
 }
 
 bool vtkPCAAssessFunctor::InitializePCA(
-  vtkTable* inData, vtkTable* reqModel,
-  int normScheme, int basisScheme, int fixedBasisSize, double fixedBasisEnergy )
+                                        vtkTable* inData, vtkTable* reqModel,
+                                        int normScheme, int basisScheme, int fixedBasisSize, double fixedBasisEnergy )
 {
   if ( ! this->vtkMultiCorrelativeAssessFunctor::Initialize(
-      inData, reqModel, false /* no Cholesky decomp */ ) )
+                                                            inData, reqModel, false /* no Cholesky decomp */ ) )
     {
     return false;
     }
@@ -89,26 +89,26 @@ bool vtkPCAAssessFunctor::InitializePCA(
   vtkIdType ermr;
   switch ( normScheme )
     {
-  case vtkPCAStatistics::NONE:
-    ermr = 2 * m + 1;
-    break;
-  case vtkPCAStatistics::DIAGONAL_SPECIFIED:
-  case vtkPCAStatistics::DIAGONAL_VARIANCE:
-    ermr = 2 * m + 2;
-    break;
-  case vtkPCAStatistics::TRIANGLE_SPECIFIED:
-    ermr = 3 * m + 1;
-    break;
-  case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
-  default:
-    ermr = 5 * m; // sure to fail
-    break;
+    case vtkPCAStatistics::NONE:
+      ermr = 2 * m + 1;
+      break;
+    case vtkPCAStatistics::DIAGONAL_SPECIFIED:
+    case vtkPCAStatistics::DIAGONAL_VARIANCE:
+      ermr = 2 * m + 2;
+      break;
+    case vtkPCAStatistics::TRIANGLE_SPECIFIED:
+      ermr = 3 * m + 1;
+      break;
+    case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
+    default:
+      ermr = 5 * m; // sure to fail
+      break;
     }
   if ( mrmr < ermr )
     {
     vtkGenericWarningMacro(
-      "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
-      << reqModel->GetNumberOfRows() << "." );
+                           "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
+                           << reqModel->GetNumberOfRows() << "." );
     return false;
     }
 
@@ -124,17 +124,17 @@ bool vtkPCAAssessFunctor::InitializePCA(
   this->BasisSize = -1;
   switch ( basisScheme )
     {
-  case vtkPCAStatistics::NUM_BASIS_SCHEMES:
-  default:
-    vtkGenericWarningMacro( "Unknown basis scheme " << basisScheme << ". Using FULL_BASIS." );
-    // fall through
-  case vtkPCAStatistics::FULL_BASIS:
-    this->BasisSize = m;
-    break;
-  case vtkPCAStatistics::FIXED_BASIS_SIZE:
-    this->BasisSize = fixedBasisSize;
-    break;
-  case vtkPCAStatistics::FIXED_BASIS_ENERGY:
+    case vtkPCAStatistics::NUM_BASIS_SCHEMES:
+    default:
+      vtkGenericWarningMacro( "Unknown basis scheme " << basisScheme << ". Using FULL_BASIS." );
+      // fall through
+    case vtkPCAStatistics::FULL_BASIS:
+      this->BasisSize = m;
+      break;
+    case vtkPCAStatistics::FIXED_BASIS_SIZE:
+      this->BasisSize = fixedBasisSize;
+      break;
+    case vtkPCAStatistics::FIXED_BASIS_ENERGY:
       {
       double frac = 0.;
       for ( i = 0; i < m; ++ i )
@@ -151,7 +151,7 @@ bool vtkPCAAssessFunctor::InitializePCA(
         this->BasisSize = m;
         }
       }
-    break;
+      break;
     }
   // FIXME: Offer mode to include normalization factors (none,diag,triang)?
   // Could be done here by pre-multiplying this->EigenVectors by factors.
@@ -281,8 +281,8 @@ int vtkPCAStatistics::FillInputPortInformation( int port, vtkInformation* info )
 }
 
 static void vtkPCAStatisticsNormalizeSpec(
-  vtkVariantArray* normData, ap::real_2d_array& cov,
-  vtkTable* normSpec, vtkTable* reqModel, bool triangle )
+                                          vtkVariantArray* normData, ap::real_2d_array& cov,
+                                          vtkTable* normSpec, vtkTable* reqModel, bool triangle )
 {
   vtkIdType i, j;
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
@@ -390,13 +390,13 @@ static void vtkPCAStatisticsNormalizeSpec(
   if ( gotMissing )
     {
     vtkGenericWarningMacro(
-      "The following normalization factors were expected but not provided: "
-      << missing.str().c_str() );
+                           "The following normalization factors were expected but not provided: "
+                           << missing.str().c_str() );
     }
 }
 
 static void vtkPCAStatisticsNormalizeVariance(
-  vtkVariantArray* normData, ap::real_2d_array& cov )
+                                              vtkVariantArray* normData, ap::real_2d_array& cov )
 {
   vtkIdType i, j;
   vtkIdType m = cov.gethighbound( 0 ) - cov.getlowbound( 0 ) + 1;
@@ -426,9 +426,9 @@ void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   if ( ! inMeta )
     {
     vtkWarningMacro(
-      "Expected a vtkMultiBlockDataSet but was given "
-      << ( inMetaDO ? inMetaDO->GetClassName() : "null pointer" )
-      << "instead" );
+                    "Expected a vtkMultiBlockDataSet but was given "
+                    << ( inMetaDO ? inMetaDO->GetClassName() : "null pointer" )
+                    << "instead" );
     return;
     }
 
@@ -468,20 +468,20 @@ void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     vtkVariantArray* normData = vtkVariantArray::New();
     switch ( this->NormalizationScheme )
       {
-    case TRIANGLE_SPECIFIED:
-    case DIAGONAL_SPECIFIED:
-      vtkPCAStatisticsNormalizeSpec(
-        normData, cov, this->GetSpecifiedNormalization(), reqModel,
-        this->NormalizationScheme == TRIANGLE_SPECIFIED );
-      break;
-    case DIAGONAL_VARIANCE:
-      vtkPCAStatisticsNormalizeVariance( normData, cov );
-      break;
-    case NONE:
-    case NUM_NORMALIZATION_SCHEMES:
-    default:
-      // do nothing
-      break;
+      case TRIANGLE_SPECIFIED:
+      case DIAGONAL_SPECIFIED:
+        vtkPCAStatisticsNormalizeSpec(
+                                      normData, cov, this->GetSpecifiedNormalization(), reqModel,
+                                      this->NormalizationScheme == TRIANGLE_SPECIFIED );
+        break;
+      case DIAGONAL_VARIANCE:
+        vtkPCAStatisticsNormalizeVariance( normData, cov );
+        break;
+      case NONE:
+      case NUM_NORMALIZATION_SCHEMES:
+      default:
+        // do nothing
+        break;
       }
     ap::real_2d_array u;
     ap::real_1d_array s;
@@ -517,26 +517,26 @@ void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     // process this request at the bottom of the results.
     switch ( this->NormalizationScheme )
       {
-    case TRIANGLE_SPECIFIED:
-      for ( i = 0; i < m; ++ i )
-        {
-        vtksys_ios::ostringstream normCompName;
-        normCompName << VTK_PCA_NORMCOLUMN << " " << i;
-        row->SetValue( 0, normCompName.str().c_str() );
-        row->SetValue( 1, 0. );
-        for ( j = 0; j < i; ++ j )
+      case TRIANGLE_SPECIFIED:
+        for ( i = 0; i < m; ++ i )
           {
-          row->SetValue( j + 2, 0. );
+          vtksys_ios::ostringstream normCompName;
+          normCompName << VTK_PCA_NORMCOLUMN << " " << i;
+          row->SetValue( 0, normCompName.str().c_str() );
+          row->SetValue( 1, 0. );
+          for ( j = 0; j < i; ++ j )
+            {
+            row->SetValue( j + 2, 0. );
+            }
+          for ( ; j < m; ++ j )
+            {
+            row->SetValue( j + 2, normData->GetValue( j ) );
+            }
+          reqModel->InsertNextRow( row );
           }
-        for ( ; j < m; ++ j )
-          {
-          row->SetValue( j + 2, normData->GetValue( j ) );
-          }
-        reqModel->InsertNextRow( row );
-        }
-      break;
-    case DIAGONAL_SPECIFIED:
-    case DIAGONAL_VARIANCE:
+        break;
+      case DIAGONAL_SPECIFIED:
+      case DIAGONAL_VARIANCE:
         {
         row->SetValue( 0, VTK_PCA_NORMCOLUMN );
         row->SetValue( 1, 0. );
@@ -546,12 +546,12 @@ void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
           }
         reqModel->InsertNextRow( row );
         }
-      break;
-    case NONE:
-    case NUM_NORMALIZATION_SCHEMES:
-    default:
-      // do nothing
-      break;
+        break;
+      case NONE:
+      case NUM_NORMALIZATION_SCHEMES:
+      default:
+        // do nothing
+        break;
       }
     normData->Delete();
     row->Delete();
@@ -559,7 +559,7 @@ void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 }
 
 void vtkPCAStatistics::ExecuteAssess(
-  vtkTable* inData, vtkDataObject* inMetaDO, vtkTable* outData, vtkDataObject* vtkNotUsed(outMetaDO) )
+                                     vtkTable* inData, vtkDataObject* inMetaDO, vtkTable* outData, vtkDataObject* vtkNotUsed(outMetaDO) )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || ! outData )
@@ -662,8 +662,8 @@ void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData,
 
   vtkPCAAssessFunctor* pcafunc = vtkPCAAssessFunctor::New();
   if ( ! pcafunc->InitializePCA(
-      inData, reqModel, this->NormalizationScheme,
-      this->BasisScheme, this->FixedBasisSize, this->FixedBasisEnergy ) )
+                                inData, reqModel, this->NormalizationScheme,
+                                this->BasisScheme, this->FixedBasisSize, this->FixedBasisEnergy ) )
     {
     delete pcafunc;
     return;
