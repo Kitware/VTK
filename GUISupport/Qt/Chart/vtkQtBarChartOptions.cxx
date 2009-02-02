@@ -85,7 +85,7 @@ void vtkQtBarChartOptions::setBarWidthFraction(float fraction)
     }
 }
 
-void vtkQtBarChartOptions::setBinOutlineStyle(
+void vtkQtBarChartOptions::setOutlineStyle(
     vtkQtBarChartOptions::OutlineStyle style)
 {
   if(this->OutlineType != style)

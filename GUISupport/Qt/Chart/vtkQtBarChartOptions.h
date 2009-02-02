@@ -51,8 +51,8 @@ class VTKQTCHART_EXPORT vtkQtBarChartOptions : public QObject
 public:
   enum OutlineStyle
     {
-    Darker, ///< Draws the bar outline in a darker color.
-    Black   ///< Draws a black bar outline.
+    Darker = 0, ///< Draws the bar outline in a darker color.
+    Black       ///< Draws a black bar outline.
     };
 
 public:
@@ -121,7 +121,7 @@ public:
   /// The default style is \c Darker.
   ///
   /// \param style The outline style to use.
-  void setBinOutlineStyle(OutlineStyle style);
+  void setOutlineStyle(OutlineStyle style);
 
   /// \brief
   ///   Gets the highlight background color.

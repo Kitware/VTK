@@ -249,7 +249,7 @@ void vtkQtBarChart::setOptions(const vtkQtBarChartOptions &options)
   this->Options->setAxesCorner(options.getAxesCorner());
   this->Options->setBarGroupFraction(options.getBarGroupFraction());
   this->Options->setBarWidthFraction(options.getBarWidthFraction());
-  this->Options->setBinOutlineStyle(options.getOutlineStyle());
+  this->Options->setOutlineStyle(options.getOutlineStyle());
   this->Options->getHelpFormat()->setFormat(
       options.getHelpFormat()->getFormat());
 }
