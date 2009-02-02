@@ -645,7 +645,7 @@ int TestSetLocale()
   if (oldLocale)
     {
     setlocale(LC_NUMERIC,oldLocale);
-    delete [] oldLocale;
+    free(oldLocale);
     return 1;
     }
   return 0;
