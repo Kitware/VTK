@@ -114,12 +114,14 @@ public:
   vtkBooleanMacro(ComputeNormals,int);
 
   // Description:
-  // Set/get the scalar array name for this data set. Initial value is "".
+  // Set/get the scalar array name for this data set. Initial value is
+  // "scalars".
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
   
   // Description:
-  // Set/get the normal array name for this data set. Initial value is "".
+  // Set/get the normal array name for this data set. Initial value is
+  // "normals".
   vtkSetStringMacro(NormalArrayName);
   vtkGetStringMacro(NormalArrayName);
   

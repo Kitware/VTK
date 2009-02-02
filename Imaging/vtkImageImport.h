@@ -118,7 +118,8 @@ public:
                                     vtkInformationVector* outputVector);
 
   // Description:
-  // Set/get the scalar array name for this data set. Initial value is "".
+  // Set/get the scalar array name for this data set. Initial value is
+  // "scalars".
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
 

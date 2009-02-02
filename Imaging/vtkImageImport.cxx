@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.53");
+vtkCxxRevisionMacro(vtkImageImport, "1.54");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -86,7 +86,7 @@ vtkImageImport::vtkImageImport()
   exec->Delete();
 
   this->ScalarArrayName=0;
-  this->SetScalarArrayName("");
+  this->SetScalarArrayName("scalars");
 }
 
 //----------------------------------------------------------------------------
