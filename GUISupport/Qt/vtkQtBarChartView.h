@@ -44,12 +44,30 @@ public:
   virtual void Update();
 
   // Description:
+  // Sets the bar chart help format.
+  void SetHelpFormat(const char* format);
+
+  // Description:
+  // Sets the bar outline style.
+  void SetOutlineStyle(int outline);
+
+  // Description:
+  // Sets the bar group width fraction.
+  void SetBarGroupFraction(float fraction);
+
+  // Description:
+  // Sets the bar width fraction.
+  void SetBarWidthFraction(float fraction);
+
+  //BTX
+  // Description:
   // Adds bar chart selection handlers to the mouse selection.
   virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
 
   // Description:
   // Gets the bar chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+  //ETX
 
 protected:
   vtkQtBarChartView();

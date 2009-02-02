@@ -21,14 +21,16 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkQtBarChart.h"
+#include "vtkQtBarChartOptions.h"
 #include "vtkQtChartArea.h"
+#include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesModelCollection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartWidget.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtBarChartView, "1.3");
+vtkCxxRevisionMacro(vtkQtBarChartView, "1.4");
 vtkStandardNewMacro(vtkQtBarChartView);
 
 //----------------------------------------------------------------------------
@@ -56,6 +58,31 @@ vtkQtBarChartView::~vtkQtBarChartView()
 void vtkQtBarChartView::Update()
 {
   this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+void vtkQtBarChartView::SetHelpFormat(const char* format)
+{
+  this->BarChart->getOptions()->getHelpFormat()->setFormat(QString(format));
+}
+
+//----------------------------------------------------------------------------
+void vtkQtBarChartView::SetOutlineStyle(int outline)
+{
+  this->BarChart->getOptions()->setOutlineStyle(
+    (vtkQtBarChartOptions::OutlineStyle)outline);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtBarChartView::SetBarGroupFraction(float fraction)
+{
+  this->BarChart->getOptions()->setBarGroupFraction(fraction);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtBarChartView::SetBarWidthFraction(float fraction)
+{
+  this->BarChart->getOptions()->setBarWidthFraction(fraction);
 }
 
 //----------------------------------------------------------------------------
