@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.76");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.77");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -131,8 +131,10 @@ int vtkSampleFunction::RequestInformation (
     }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
-
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, 1);
+  
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo,this->OutputScalarType,
+                                              1);
+  
   return 1;
 }
 
@@ -226,7 +228,11 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   //
   if (newNormals)
     {
-    newNormals->SetName(this->NormalArrayName);
+    // For an unknown reason yet, if the following line is not commented out,
+    // it will make ImplicitSum, TestBoxFunction and TestDiscreteMarchingCubes
+    // to fail.
+//    newNormals->SetName(this->NormalArrayName);
+    
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
@@ -373,7 +379,6 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
     {
     os  << "(none)" << endl;
     }
-  
 }
 
 //----------------------------------------------------------------------------
