@@ -29,6 +29,8 @@
 #include "vtkCellArray.h"
 #include "vtkPoints.h"
 #include "vtkMath.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 int TestContourWidget2( int argc, char *argv[] )
 {
@@ -49,6 +51,27 @@ int TestContourWidget2( int argc, char *argv[] )
   contourWidget->SetInteractor(iren);
   contourWidget->SetRepresentation(contourRep);
   contourWidget->On();
+
+  for (int i = 0; i < argc; i++)
+    {
+    if (strcmp("-Shift", argv[i]) == 0)
+      {
+      contourWidget->GetEventTranslator()->RemoveTranslation( 
+                          vtkCommand::LeftButtonPressEvent );
+      contourWidget->GetEventTranslator()->SetTranslation( 
+                        vtkCommand::LeftButtonPressEvent,
+                        vtkWidgetEvent::Translate );
+      }
+    else if (strcmp("-Scale", argv[i]) == 0)
+      {
+      contourWidget->GetEventTranslator()->RemoveTranslation( 
+                          vtkCommand::LeftButtonPressEvent );
+      contourWidget->GetEventTranslator()->SetTranslation( 
+                        vtkCommand::LeftButtonPressEvent,
+                        vtkWidgetEvent::Scale );
+      }
+    }
+
 
   vtkPolyData * pd = vtkPolyData::New();
 
