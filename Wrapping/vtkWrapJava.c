@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
@@ -715,6 +716,9 @@ void outputFunction(FILE *fp, FileInfo *data)
 {
   int i;
   int args_ok = 1;
+  char *jniFunction = 0;
+  char *begPtr = 0;
+  char *endPtr = 0;
   CurrentData = data;
 
   /* some functions will not get wrapped no matter what else */
@@ -833,6 +837,26 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (!DoneOne())
     {
       fprintf(fp,"\n");
+
+      /* Underscores are escaped in method names, see
+           http://java.sun.com/javase/6/docs/technotes/guides/jni/spec/design.html#wp133
+         VTK class names contain no underscore and do not need to be escaped.  */
+      jniFunction = currentFunction->Name;
+      begPtr = currentFunction->Name;
+      endPtr = strchr(begPtr, '_');
+      if(endPtr)
+        {
+        jniFunction = (char *)malloc(2*strlen(currentFunction->Name) + 1);
+        jniFunction[0] = '\0';
+        while (endPtr)
+          {
+          strncat(jniFunction, begPtr, endPtr - begPtr + 1);
+          strcat(jniFunction, "1");
+          begPtr = endPtr + 1;
+          endPtr = strchr(begPtr, '_');
+          }
+        strcat(jniFunction, begPtr);
+        }
       
       if(currentFunction->IsLegacy)
         {
@@ -841,7 +865,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       fprintf(fp,"extern \"C\" JNIEXPORT ");
       return_result(fp);
       fprintf(fp," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
-              data->ClassName,currentFunction->Name, numberOfWrappedFunctions);
+              data->ClassName, jniFunction, numberOfWrappedFunctions);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
           {
@@ -906,7 +930,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       if (currentFunction->NumberOfArguments == 1 && currentFunction->ArgTypes[0] == 0x5000)
         {
         fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
-                currentFunction->Name);
+                jniFunction);
         }
       
       /* now copy and release any arrays */
@@ -923,6 +947,10 @@ void outputFunction(FILE *fp, FileInfo *data)
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
+      if (jniFunction != currentFunction->Name)
+        {
+        free(jniFunction);
+        }
     } /* isDone() */
   } /* isAbstract */
 }
