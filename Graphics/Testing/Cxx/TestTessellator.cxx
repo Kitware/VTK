@@ -2562,7 +2562,7 @@ class vtkTestTessellatorSubdivision
 
 };
 
-vtkCxxRevisionMacro(vtkTestTessellatorSubdivision,"1.6");
+vtkCxxRevisionMacro(vtkTestTessellatorSubdivision,"1.7");
 vtkStandardNewMacro(vtkTestTessellatorSubdivision);
 
 static int test_list[] =
@@ -3641,7 +3641,7 @@ int TestTessellator( int argc, char* argv[] )
 
 #ifdef VTK_DATA_ROOT
   // Test vtkTessellatorFilter and vtkDataSetEdgeSubdivisionCriterion if we have a dataset to use
-  char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "quadraticTetra01.vtu" );
+  char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/quadraticTetra01.vtu" );
   if ( fname )
     {
     vtkXMLUnstructuredGridReader* rdr = vtkXMLUnstructuredGridReader::New();
