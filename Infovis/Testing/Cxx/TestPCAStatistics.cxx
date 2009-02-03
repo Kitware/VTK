@@ -153,7 +153,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
-    //vtkIdType n = haruspex->GetSampleSize();
+
     if ( b == 0 )
       {
       cout << "Raw sums\n";
@@ -163,48 +163,6 @@ int TestPCAStatistics( int argc, char* argv[] )
       cout << "Request " << ( b - 1 ) << "\n";
       }
 
-  /*
-  cout << "## Calculated the following statistics ( "
-       << n
-       << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
-    {
-    cout << "   (X, Y) = ("
-         << outputMeta->GetValue( r, 0 ).ToString().c_str()
-         << ", "
-         << outputMeta->GetValue( r, 1 ).ToString().c_str()
-         << ")";
-
-    for ( int i = 2; i < 3; ++ i )
-      {
-      cout << ", "
-           << outputMeta->GetColumnName( i )
-           << "="
-           << outputMeta->GetValue( r, i ).ToDouble();
-      }
-    cout << "\n";
-    / * * /
-    if ( outputMeta->GetValueByName( r,  "Linear Correlation" ).ToString() == vtkStdString( "valid" ) )
-      {
-      cout << "\n   Y = "
-           << outputMeta->GetValueByName( r, "Slope Y/X" ).ToDouble()
-           << " * X + "
-           << outputMeta->GetValueByName( r, "Intersect Y/X" ).ToDouble()
-           << ", X = "
-           << outputMeta->GetValueByName( r, "Slope X/Y" ).ToDouble()
-           << " * Y + "
-           << outputMeta->GetValueByName( r, "Intersect X/Y" ).ToDouble()
-           << ", corr. coeff.: "
-           << outputMeta->GetValueByName( r, "Pearson r" ).ToDouble()
-           << "\n";
-      }
-    else
-      {
-      cout << "\n   Degenerate input, linear correlation was not calculated.\n";
-      }
-      / * * /
-    }
-*/
     outputMeta->Dump();
     }
 
