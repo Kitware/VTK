@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.8");
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -354,6 +354,14 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::WidgetInteraction(double e
     {
     this->Translate(eventPos);
     }
+  if ( this->CurrentOperation == vtkContourRepresentation::Shift )
+    {
+    this->ShiftContour(eventPos);
+    }
+  if ( this->CurrentOperation == vtkContourRepresentation::Scale )
+    {
+    this->ScaleContour(eventPos);
+    }
 
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
@@ -394,6 +402,120 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Translate(double eventPos[
     }
 }
 
+//----------------------------------------------------------------------
+void vtkOrientedGlyphFocalPlaneContourRepresentation::ShiftContour(double
+eventPos[2])
+{
+  double ref[3];
+
+  if ( !this->GetActiveNodeWorldPosition( ref ) )
+    {
+    return;
+    }
+
+  double displayPos[2];
+  displayPos[0] = eventPos[0] + this->InteractionOffset[0];
+  displayPos[1] = eventPos[1] + this->InteractionOffset[1];
+
+  double worldPos[3];
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+  if ( this->PointPlacer->ComputeWorldPosition(this->Renderer,
+                                               displayPos, ref, worldPos,
+                                               worldOrient ) )
+    {
+
+    this->SetActiveNodeToWorldPosition(worldPos, worldOrient);
+
+    double vector[3];
+    vector[0] = worldPos[0] - ref[0];
+    vector[1] = worldPos[1] - ref[1];
+    vector[2] = worldPos[2] - ref[2];
+
+    for ( int i = 0; i < this->GetNumberOfNodes(); i++ )
+      {
+      if( i != this->ActiveNode )
+        {
+        this->GetNthNodeWorldPosition( i, ref );
+        worldPos[0] = ref[0] + vector[0];
+        worldPos[1] = ref[1] + vector[1];
+        worldPos[2] = ref[2] + vector[2];
+        this->SetNthNodeWorldPosition( i, worldPos, worldOrient );
+        }
+      }
+    }
+}
+//----------------------------------------------------------------------
+void vtkOrientedGlyphFocalPlaneContourRepresentation::ScaleContour(double
+eventPos[2])
+{
+  double ref[3];
+
+  if ( !this->GetActiveNodeWorldPosition( ref ) )
+    {
+    return;
+    }
+
+  double centroid[3];
+  ComputeCentroid( centroid );
+
+  double r2 = vtkMath::Distance2BetweenPoints( ref, centroid );
+
+  double displayPos[2];
+  displayPos[0] = eventPos[0] + this->InteractionOffset[0];
+  displayPos[1] = eventPos[1] + this->InteractionOffset[1];
+
+  double worldPos[3];
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+  if ( this->PointPlacer->ComputeWorldPosition(this->Renderer,
+                                               displayPos, ref, worldPos,
+                                               worldOrient ) )
+    {
+    double d2 = vtkMath::Distance2BetweenPoints( worldPos, centroid );
+    if( d2 != 0. )
+      {
+      double ratio = sqrt( d2 / r2 );
+//       this->SetActiveNodeToWorldPosition(worldPos, worldOrient);
+
+      for ( int i = 0; i < this->GetNumberOfNodes(); i++ )
+        {
+//         if( i != this->ActiveNode )
+          {
+          this->GetNthNodeWorldPosition( i, ref );
+          worldPos[0] = centroid[0] + ratio * ( ref[0] - centroid[0] );
+          worldPos[1] = centroid[0] + ratio * ( ref[1] - centroid[1] );
+          worldPos[2] = centroid[0] + ratio * ( ref[2] - centroid[2] );
+          this->SetNthNodeWorldPosition( i, worldPos, worldOrient );
+          }
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------
+void vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeCentroid(
+  double* ioCentroid )
+{
+  double p[3];
+  ioCentroid[0] = 0.;
+  ioCentroid[1] = 0.;
+  ioCentroid[2] = 0.;
+
+  for ( int i = 0; i < this->GetNumberOfNodes(); i++ )
+    {
+    this->GetNthNodeWorldPosition( i, p );
+    ioCentroid[0] += p[0];
+    ioCentroid[1] += p[1];
+    ioCentroid[2] += p[2];
+    }
+  double inv_N = 1. / static_cast< double >( this->GetNumberOfNodes() );
+  ioCentroid[0] *= inv_N;
+  ioCentroid[1] *= inv_N;
+  ioCentroid[2] *= inv_N;
+}
 
 //----------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::Scale(double eventPos[2])

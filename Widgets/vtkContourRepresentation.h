@@ -268,7 +268,9 @@ public:
   
   enum {
     Inactive = 0,
-    Translate
+    Translate,
+    Shift,
+    Scale
   };
 //ETX
 
@@ -278,11 +280,15 @@ public:
   vtkGetMacro( CurrentOperation, int );
   vtkSetClampMacro( CurrentOperation, int, 
                     vtkContourRepresentation::Inactive,
-                    vtkContourRepresentation::Translate );
+                    vtkContourRepresentation::Scale );
   void SetCurrentOperationToInactive()
     { this->SetCurrentOperation( vtkContourRepresentation::Inactive ); }
   void SetCurrentOperationToTranslate()
     { this->SetCurrentOperation( vtkContourRepresentation::Translate ); }
+  void SetCurrentOperationToShift()
+    {this->SetCurrentOperation( vtkContourRepresentation::Shift ); }
+  void SetCurrentOperationToScale()
+    {this->SetCurrentOperation( vtkContourRepresentation::Scale ); }
 
   // Descirption:
   // Set / get the Point Placer. The point placer is

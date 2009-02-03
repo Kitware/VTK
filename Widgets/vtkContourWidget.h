@@ -168,7 +168,9 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void DeleteAction(vtkAbstractWidget*);
-  
+  static void TranslateContourAction(vtkAbstractWidget*);
+  static void ScaleContourAction(vtkAbstractWidget*);
+
   // Internal helper methods
   void SelectNode();
   void AddNode();

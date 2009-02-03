@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.25");
+vtkCxxRevisionMacro(vtkContourWidget, "1.26");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -239,6 +239,104 @@ void vtkContourWidget::AddNode()
     this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 }
+//-------------------------------------------------------------------------
+void vtkContourWidget::TranslateContourAction(vtkAbstractWidget *w )
+{
+  vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
+
+  if ( self->WidgetState != vtkContourWidget::Manipulate )
+    return;
+
+  vtkContourRepresentation *rep =
+    reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
+
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  double pos[2];
+  pos[0] = X;
+  pos[1] = Y;
+
+  if ( rep->ActivateNode(X,Y) )
+    {
+    self->Superclass::StartInteraction();
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->StartInteraction();
+    rep->SetCurrentOperationToShift(); // Here
+    rep->StartWidgetInteraction(pos);
+    self->EventCallbackCommand->SetAbortFlag(1);
+    }
+  else
+    {
+    double p[3];
+    int idx;
+    if( rep->FindClosestPointOnContour( X, Y, p, &idx ) )
+      {
+      rep->GetNthNodeDisplayPosition( idx, pos );
+      rep->ActivateNode( pos );
+      self->Superclass::StartInteraction();
+      self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+      self->StartInteraction();
+      rep->SetCurrentOperationToShift(); // Here
+      rep->StartWidgetInteraction(pos);
+      self->EventCallbackCommand->SetAbortFlag(1);
+      }
+    }
+
+  if ( rep->GetNeedToRender() )
+    {
+    self->Render();
+    rep->NeedToRenderOff();
+    }
+}
+//-------------------------------------------------------------------------
+void vtkContourWidget::ScaleContourAction(vtkAbstractWidget *w )
+{
+  vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
+
+  if ( self->WidgetState != vtkContourWidget::Manipulate )
+    return;
+
+  vtkContourRepresentation *rep =
+    reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
+
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  double pos[2];
+  pos[0] = X;
+  pos[1] = Y;
+
+  if ( rep->ActivateNode(X,Y) )
+    {
+    self->Superclass::StartInteraction();
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->StartInteraction();
+    rep->SetCurrentOperationToScale(); // Here
+    rep->StartWidgetInteraction(pos);
+    self->EventCallbackCommand->SetAbortFlag(1);
+    }
+  else
+    {
+    double p[3];
+    int idx;
+    if( rep->FindClosestPointOnContour( X, Y, p, &idx ) )
+      {
+      rep->GetNthNodeDisplayPosition( idx, pos );
+      rep->ActivateNode( pos );
+      self->Superclass::StartInteraction();
+      self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+      self->StartInteraction();
+      rep->SetCurrentOperationToScale(); // Here
+      rep->StartWidgetInteraction(pos);
+      self->EventCallbackCommand->SetAbortFlag(1);
+      }
+    }
+
+  if ( rep->GetNeedToRender() )
+    {
+    self->Render();
+    rep->NeedToRenderOff();
+    }
+}
 
 //-------------------------------------------------------------------------
 void vtkContourWidget::DeleteAction(vtkAbstractWidget *w)
@@ -307,10 +405,8 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget *w)
 
   if ( rep->GetCurrentOperation() == vtkContourRepresentation::Inactive )
     {
-    reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep)->
-      ComputeInteractionState( X, Y );
-    reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep)->
-      ActivateNode( X, Y );
+    rep->ComputeInteractionState( X, Y );
+    rep->ActivateNode( X, Y );
     }
   else
     {

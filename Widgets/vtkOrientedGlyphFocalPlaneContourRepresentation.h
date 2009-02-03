@@ -146,6 +146,10 @@ protected:
   // Methods to manipulate the cursor
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
+  void ShiftContour(double eventPos[2]);
+  void ScaleContour(double eventPos[2]);
+
+  void ComputeCentroid(double* ioCentroid);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
