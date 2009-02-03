@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.64");
+vtkCxxRevisionMacro(vtkPlaneSource, "1.65");
 vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height
@@ -123,10 +123,10 @@ int vtkPlaneSource::RequestData(
   //
   for (numPts=0, i=0; i<(this->YResolution+1); i++)
     {
-    tc[1] = (double) i / this->YResolution;
+    tc[1] = static_cast<double>(i)/ this->YResolution;
     for (j=0; j<(this->XResolution+1); j++)
       {
-      tc[0] = (double) j / this->XResolution;
+      tc[0] = static_cast<double>(j) / this->XResolution;
 
       for ( ii=0; ii < 3; ii++)
         {
