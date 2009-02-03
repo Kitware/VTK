@@ -60,14 +60,15 @@ public:
   vtkGetMacro(Resolution,int);
 
   // Description:
-  // Set the center of the cone. The default is 0,0,0.
+  // Set the center of the cone. The center of the cone is the center of the
+  // base of the cone. The default is 0,0,0.
   vtkSetVector3Macro(Center,double);
   vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the orientation vector of the cone. The vector does not have
-  // to be normalized. The cone will point in the Direction specified.
-  // The default is (1,0,0).
+  // to be normalized. The direction goes from the center of the base toward
+  // the apex. The default is (1,0,0).
   vtkSetVector3Macro(Direction,double);
   vtkGetVectorMacro(Direction,double,3);
 
