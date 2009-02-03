@@ -28,7 +28,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.54");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.55");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -68,7 +68,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
 
   this->LabelPositions = 0;
   this->TextMappers = 0;
-  this->AllocateLables(50);
+  this->AllocateLabels(50);
 
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
@@ -104,9 +104,9 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkLabeledDataMapper::AllocateLables(int numLables)
+void vtkLabeledDataMapper::AllocateLabels(int numLabels)
 {
-  if (numLables > this->NumberOfLabelsAllocated)
+  if (numLabels > this->NumberOfLabelsAllocated)
     {
     int i;
     // delete old stuff
@@ -119,7 +119,7 @@ void vtkLabeledDataMapper::AllocateLables(int numLables)
     delete [] this->TextMappers;
     this->TextMappers = 0;
 
-    this->NumberOfLabelsAllocated = numLables;
+    this->NumberOfLabelsAllocated = numLabels;
 
     // Allocate and initialize new stuff
     this->LabelPositions = new double[this->NumberOfLabelsAllocated*3];
@@ -242,13 +242,13 @@ void vtkLabeledDataMapper::BuildLabels()
   vtkDataSet* ds = vtkDataSet::SafeDownCast(inputDO);
   if (ds)
     {
-    this->AllocateLables(ds->GetNumberOfPoints());
+    this->AllocateLabels(ds->GetNumberOfPoints());
     this->NumberOfLabels = 0;
     this->BuildLabelsInternal(ds);
     }
   else if (cd)
     {
-    this->AllocateLables(cd->GetNumberOfPoints());
+    this->AllocateLabels(cd->GetNumberOfPoints());
     this->NumberOfLabels = 0;
     vtkCompositeDataIterator* iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
@@ -447,10 +447,10 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 
     } // Done building default format string
  
-  int numCurLables = input->GetNumberOfPoints(); 
+  int numCurLabels = input->GetNumberOfPoints(); 
   // We are assured that 
-  // this->NumberOfLabelsAllocated >= (this->NumberOfLabels + numCurLables)
-  if (this->NumberOfLabelsAllocated < (this->NumberOfLabels + numCurLables))
+  // this->NumberOfLabelsAllocated >= (this->NumberOfLabels + numCurLabels)
+  if (this->NumberOfLabelsAllocated < (this->NumberOfLabels + numCurLabels))
     {
     vtkErrorMacro(
       "Number of labels must be allocated before this method is called.");
@@ -464,7 +464,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   const char *LiveFormatString = FormatString.c_str();
   char TempString[1024];
 
-  for (i=0; i < numCurLables; i++)
+  for (i=0; i < numCurLabels; i++)
     {
     vtkStdString ResultString; 
 
@@ -543,7 +543,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     this->LabelPositions[3*(i+this->NumberOfLabels)+2] = x[2];
     }
 
-  this->NumberOfLabels += numCurLables;
+  this->NumberOfLabels += numCurLabels;
 }
 
 //----------------------------------------------------------------------------

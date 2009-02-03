@@ -173,7 +173,7 @@ protected:
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 
-  void AllocateLables(int numLables);
+  void AllocateLabels(int numLabels);
   void BuildLabels();
   void BuildLabelsInternal(vtkDataSet*);
 private:
