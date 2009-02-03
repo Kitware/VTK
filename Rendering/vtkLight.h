@@ -56,8 +56,11 @@ public:
 
   // Description:
   // Create a light with the focal point at the origin and its position
-  // set to (0,0,1). The light is a SceneLight, its color is white, 
-  // intensity=1, and the light is turned on. 
+  // set to (0,0,1). The light is a SceneLight, its color is white
+  // (black ambient, white diffuse, white specular), 
+  // intensity=1, the light is turned on, positional lighting is off,
+  // ConeAngle=30, AttenuationValues=(1,0,0), Exponent=1 and the
+  // TransformMatrix is NULL.
   static vtkLight *New();
 
   // Description:
