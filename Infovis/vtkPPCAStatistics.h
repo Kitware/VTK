@@ -19,7 +19,8 @@
 // individual data points on the node that owns it.
 
 // .SECTION Thanks
-// Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories for implementing this class.
+// Thanks to Philippe Pebay, David Thompson and Janine Bennett from 
+// Sandia National Laboratories for implementing this class.
 
 #ifndef __vtkPPCAStatistics_h
 #define __vtkPPCAStatistics_h

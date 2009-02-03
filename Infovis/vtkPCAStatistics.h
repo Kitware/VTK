@@ -34,11 +34,9 @@ PURPOSE.  See the above copyright notice for more information.
 // projection into a lower-dimensional state while minimizing (in a 
 // least squares sense) the projection error.
 //
-// .SECTION Caveats
-// The assess mode is not yet implemented.
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay, Jackson Mayo, and David Thompson of
+// Thanks to David Thompson, Philippe Pebay and Jackson Mayo from
 // Sandia National Laboratories for implementing this class.
 
 #ifndef __vtkPCAStatistics_h
@@ -91,7 +89,7 @@ public:
   //
   // When set to DIAGONAL_VARIANCE, each entry cov(i,j) is divided by sqrt(cov(i,i)*cov(j,j)).
   // <b>Warning</b>: Although this is accepted practice in some fields,
-  // smart people think you should not turn this option on unless there
+  // some people think you should not turn this option on unless there
   // is a good physically-based reason for doing so. Much better instead
   // to determine how component magnitudes should be compared using
   // physical reasoning and use DIAGONAL_SPECIFIED, TRIANGLE_SPECIFIED, or
