@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Set the angle of the cone. As a side effect, the angle plus height sets 
-  // the base radius of the cone.
+  // the base radius of the cone. Angle is expressed in degrees.
   void SetAngle (double angle);
   double GetAngle ();
 
