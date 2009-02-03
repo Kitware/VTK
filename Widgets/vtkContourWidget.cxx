@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.27");
+vtkCxxRevisionMacro(vtkContourWidget, "1.28");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -251,7 +251,14 @@ void vtkContourWidget::AddNode()
     this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 }
+
 //-------------------------------------------------------------------------
+// Note that if you select the contour at a location that is not moused over
+// a control point, the translate action makes the closest contour node 
+// jump to the current mouse location. Perhaps we should either 
+// (a) Disable translations when not moused over a control point
+// (b) Fix the jumping behaviour by calculating motion vectors from the start
+//     of the interaction.
 void vtkContourWidget::TranslateContourAction(vtkAbstractWidget *w )
 {
   vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
@@ -301,6 +308,12 @@ void vtkContourWidget::TranslateContourAction(vtkAbstractWidget *w )
     }
 }
 //-------------------------------------------------------------------------
+// Note that if you select the contour at a location that is not moused over
+// a control point, the scale action makes the closest contour node 
+// jump to the current mouse location. Perhaps we should either 
+// (a) Disable scaling when not moused over a control point
+// (b) Fix the jumping behaviour by calculating motion vectors from the start
+//     of the interaction.
 void vtkContourWidget::ScaleContourAction(vtkAbstractWidget *w )
 {
   vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
