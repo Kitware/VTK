@@ -29,7 +29,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.16");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.17");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -665,6 +665,15 @@ void vtkPointHandleRepresentation3D::ReleaseGraphicsResources(vtkWindow *win)
 int vtkPointHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   this->BuildRepresentation();
+
+  // Sanity check
+  double worldPos[3];
+  this->GetWorldPosition( worldPos );
+  if (worldPos[0] == VTK_DOUBLE_MAX)
+    {
+    return 0;
+    }
+
   return this->Actor->RenderOpaqueGeometry(viewport);
 }
 
@@ -673,6 +682,15 @@ int vtkPointHandleRepresentation3D::RenderTranslucentPolygonalGeometry(
   vtkViewport *viewport)
 {
   this->BuildRepresentation();
+
+  // Sanity check
+  double worldPos[3];
+  this->GetWorldPosition( worldPos );
+  if (worldPos[0] == VTK_DOUBLE_MAX)
+    {
+    return 0;
+    }
+  
   return this->Actor->RenderTranslucentPolygonalGeometry(viewport);
 }
 //-----------------------------------------------------------------------------
