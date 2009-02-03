@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.72");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.73");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -1836,7 +1836,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize( N );
-        if ( ex_get_var_time( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::GLOBAL ),
+        if ( ex_get_var_time( exoid, EX_GLOBAL,
             ainfop->OriginalIndices[c], key.ObjectId, 
             1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
           {
@@ -1860,7 +1860,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         arr->SetTuple( t, &tmpTuple[0] );
         }
       }
-    else if ( ex_get_var_time( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::GLOBAL ),
+    else if ( ex_get_var_time( exoid, EX_GLOBAL,
         ainfop->OriginalIndices[0], key.ObjectId, 
         1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
       {
@@ -1882,7 +1882,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     arr->SetNumberOfTuples( this->GetNumberOfTimeSteps() );
     if ( ainfop->Components == 1 )
       {
-      if ( ex_get_var_time( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::NODAL ),
+      if ( ex_get_var_time( exoid, EX_NODAL,
           ainfop->OriginalIndices[0], key.ObjectId, 
           1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
         {
@@ -1901,7 +1901,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize( N );
-        if ( ex_get_var_time( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::NODAL ),
+        if ( ex_get_var_time( exoid, EX_NODAL,
             ainfop->OriginalIndices[c], key.ObjectId, 
             1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
           {
@@ -1935,7 +1935,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     arr->SetNumberOfTuples( this->GetNumberOfTimeSteps() );
     if ( ainfop->Components == 1 )
       {
-      if ( ex_get_var_time( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::ELEM_BLOCK ),
+      if ( ex_get_var_time( exoid, EX_ELEM_BLOCK,
           ainfop->OriginalIndices[0], key.ObjectId, 
           1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
         {
@@ -1954,7 +1954,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize( N );
-        if ( ex_get_var_time( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::ELEM_BLOCK ),
+        if ( ex_get_var_time( exoid, EX_ELEM_BLOCK,
             ainfop->OriginalIndices[c], key.ObjectId, 
             1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
           {
@@ -5297,7 +5297,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.72");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.73");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
