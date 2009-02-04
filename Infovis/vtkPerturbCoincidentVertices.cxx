@@ -34,7 +34,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.4");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.5");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -65,8 +65,8 @@ int vtkPerturbCoincidentVertices::RequestData(
   double bounds[6]; // xmin, xmax, ymin, ymax, zmin, zmax
   points->ComputeBounds();
   points->GetBounds(bounds);
-  double point1[3] = { bounds[0], bounds[2], bounds[4] };
-  double point2[3] = { bounds[1], bounds[3], bounds[5] };
+  //double point1[3] = { bounds[0], bounds[2], bounds[4] };
+  //double point2[3] = { bounds[1], bounds[3], bounds[5] };
   double vertEdge1[3], vertEdge2[3], boundingDims[3];
   int numCoincidentPoints = 0, i = 0, j = 0;
 
