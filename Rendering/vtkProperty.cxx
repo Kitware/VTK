@@ -52,7 +52,7 @@ public:
   MapOfTextureNames TextureNames;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.76");
+vtkCxxRevisionMacro(vtkProperty, "1.77");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -208,6 +208,7 @@ vtkProperty::vtkProperty()
   this->LineWidth = 1.0;
   this->LineStipplePattern = 0xFFFF;
   this->LineStippleRepeatFactor = 1;
+  this->Lighting=true;
 
   this->Shading = 0;
   this->ShaderProgram = 0;
@@ -1036,6 +1037,15 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line width: " << this->LineWidth << "\n";
   os << indent << "Line stipple pattern: " << this->LineStipplePattern << "\n";
   os << indent << "Line stipple repeat factor: " << this->LineStippleRepeatFactor << "\n";
+  os << indent << "Lighting: ";
+  if(this->Lighting)
+    {
+    os << "On" << endl;
+    }
+  else
+    {
+    os << "Off" << endl;
+    }
 
   os << indent << "Shading: " 
     << (this->Shading? "On" : "Off") << endl;

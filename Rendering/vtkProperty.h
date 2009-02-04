@@ -91,6 +91,12 @@ public:
   //ETX
 
   // Description:
+  // Set/Get lighting flag for an object. Initial value is true.
+  vtkGetMacro(Lighting,bool);
+  vtkSetMacro(Lighting,bool);
+  vtkBooleanMacro(Lighting,bool);
+  
+  // Description:
   // Set the shading interpolation method for an object.
   vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
   vtkGetMacro(Interpolation,int);
@@ -408,6 +414,7 @@ protected:
   int   EdgeVisibility;
   int   BackfaceCulling;
   int   FrontfaceCulling;
+  bool Lighting;
 
   int Shading;
 

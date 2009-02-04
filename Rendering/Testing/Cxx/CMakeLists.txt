@@ -18,6 +18,7 @@ IF(VTK_USE_DISPLAY)
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
     SurfacePlusEdges.cxx
+    TestActorLightingFlag.cxx
     TestBlurAndSobelPasses.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx

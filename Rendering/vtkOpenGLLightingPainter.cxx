@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLLightingPainter);
-vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.6");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -136,6 +136,15 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer *renderer,
       enable_flags);
     this->ProgressScaleFactor = 
       static_cast<double>(enabled_cells) / total_cells;
+    
+    if(actor->GetProperty()->GetLighting()) // fixed-pipeline
+      {
+      glEnable(GL_LIGHTING);
+      }
+    else
+      {
+      glDisable(GL_LIGHTING);
+      }
     this->Superclass::RenderInternal(renderer, actor, enable_flags,
                                       forceCompileOnly);
 
