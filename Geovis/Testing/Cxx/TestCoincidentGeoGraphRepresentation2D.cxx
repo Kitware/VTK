@@ -57,85 +57,8 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/NE2_ps_bath_small.jpg");
   vtkStdString imageFile = fname;
-  vtkStdString imageReadPath = ".";
-  vtkStdString imageSavePath = ".";
-  vtkStdString terrainReadPath = ".";
-  vtkStdString terrainSavePath = ".";
   double locationTol = 5.0;
   double textureTol = 1.0;
-  for (int a = 1; a < argc; a++)
-    {
-    if (!strcmp(argv[a], "-P"))
-      {
-      ++a;
-      projNum = atoi(argv[a]);
-      continue;
-      }
-    if (!strcmp(argv[a], "-IF"))
-      {
-      ++a;
-      imageFile = argv[a];
-      continue;
-      }
-    if (!strcmp(argv[a], "-IR"))
-      {
-      ++a;
-      imageReadPath = argv[a];
-      continue;
-      }
-    if (!strcmp(argv[a], "-IS"))
-      {
-      ++a;
-      imageSavePath = argv[a];
-      continue;
-      }
-    if (!strcmp(argv[a], "-TR"))
-      {
-      ++a;
-      terrainReadPath = argv[a];
-      continue;
-      }
-    if (!strcmp(argv[a], "-TS"))
-      {
-      ++a;
-      terrainSavePath = argv[a];
-      continue;
-      }
-    if (!strcmp(argv[a], "-LT"))
-      {
-      ++a;
-      locationTol = atof(argv[a]);
-      continue;
-      }
-    if (!strcmp(argv[a], "-TT"))
-      {
-      ++a;
-      textureTol = atof(argv[a]);
-      continue;
-      }
-    if (!strcmp(argv[a], "-I"))
-      {
-      continue;
-      }
-    if (!strcmp(argv[a], "-D") ||
-        !strcmp(argv[a], "-T") ||
-        !strcmp(argv[a], "-V"))
-      {
-      ++a;
-      continue;
-      }
-    cerr
-      << "\nUsage:\n"
-      << "  -P  proj - Projection ID (default 40)\n"
-      << "  -IF file - Image file\n"
-      << "  -IR path - Image database read path\n"
-      << "  -IS path - Image database save path\n"
-      << "  -TR file - Terrain databse read path\n"
-      << "  -TS file - Terrain databse save path\n"
-      << "  -LT tol  - Set geometry tolerance in pixels (default 5.0)\n"
-      << "  -TT tol  - Set texture tolerance in pixels (default 1.0)\n";
-    return 0;
-    }
 
   // Create the view
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
@@ -173,21 +96,6 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   imageSource.TakeReference(alignedSource);
   imageRep->SetSource(imageSource);
   view->AddRepresentation(imageRep);
-
-  // Create second image
-  /*char* fname2 = vtkTestUtilities::ExpandDataFileName(
-      argc, argv, "Data/masonry-wide.jpg");
-  vtkSmartPointer<vtkJPEGReader> reader2 =
-    vtkSmartPointer<vtkJPEGReader>::New();
-  reader2->SetFileName(fname2);
-  reader2->Update();
-  vtkSmartPointer<vtkGeoAlignedImageSource> imageSource2 =
-    vtkSmartPointer<vtkGeoAlignedImageSource>::New();
-  imageSource2->SetImage(reader2->GetOutput());
-  vtkSmartPointer<vtkGeoAlignedImageRepresentation> imageRep2 =
-    vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
-  imageRep2->SetSource(imageSource2);
-  view->AddRepresentation(imageRep2);*/
 
   // Add a graph representation
   vtkSmartPointer<vtkMutableUndirectedGraph> graph = 
@@ -296,22 +204,22 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   for (v = 21; v < 40; ++v)
     {
-    graph->AddEdge(v, v - 1);
+    graph->AddEdge(20, v);
     }
 
   for (v = 41; v < 49; ++v)
     {
-    graph->AddEdge(v, v - 1);
+    graph->AddEdge(40, v);
     }
 
   for (v = 50; v < 66; ++v)
     {
-    graph->AddEdge(v, v - 1);
+    graph->AddEdge(49, v);
     }
 
   for (v = 67; v < 80; ++v)
     {
-    graph->AddEdge(v, v - 1);
+    graph->AddEdge(66, v);
     }
 
   for (v = 81; v < 105; ++v)
@@ -354,32 +262,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   
   view->AddRepresentation(graphRep);
 
-  // Serialize databases
-  if (imageSavePath.length() > 0)
-    {
-    imageRep->SaveDatabase(imageSavePath);
-    }
-  if (terrainSavePath.length() > 0)
-    {
-    terrain->SaveDatabase(terrainSavePath, 4);
-    }
-
-  // Reload databases
-  if (terrainReadPath.length() > 0)
-    {
-    terrainSource->ShutDown();
-    vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
-    source->SetPath(terrainReadPath.c_str());
-    terrainSource.TakeReference(source);
-    }
   terrain->SetSource(terrainSource);
-  if (imageReadPath.length() > 0)
-    {
-    imageSource->ShutDown();
-    vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
-    source->SetPath(imageReadPath.c_str());
-    imageSource.TakeReference(source);
-    }
   imageRep->SetSource(imageSource);
 
   // Set up the viewport
@@ -410,10 +293,8 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   terrainSource->ShutDown();
   imageSource->ShutDown();
-  //imageSource2->ShutDown();
 
   delete [] fname;
-  //delete [] fname2;
   return !retVal;
 }
 

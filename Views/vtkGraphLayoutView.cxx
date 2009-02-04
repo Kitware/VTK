@@ -73,7 +73,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.51");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.52");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -175,7 +175,8 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   theme->Delete();
   
   // Connect pipeline
-  this->EdgeLayout->SetInputConnection(this->GraphLayout->GetOutputPort());
+  this->PerturbCoincidentVertices->SetInputConnection(this->GraphLayout->GetOutputPort());
+  this->EdgeLayout->SetInputConnection(this->PerturbCoincidentVertices->GetOutputPort());
   this->VertexDegree->SetInputConnection(this->EdgeLayout->GetOutputPort());
   
   //this->PerturbCoincidentVertices->SetInputConnection(this->VertexDegree->GetOutputPort());

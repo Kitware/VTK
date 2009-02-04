@@ -56,8 +56,9 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   pointData->SetNumberOfComponents(3);
   points->SetData(static_cast<vtkDataArray *>(pointData));
   graph->SetPoints(points);
+  int i = 0;
 
-  for(int i = 0; i < 10; i++)
+  for(i = 0; i < 10; i++)
     {
     graph->AddVertex();
     points->InsertNextPoint(0.0, 0.0, 0.0);
@@ -80,19 +81,17 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   graph->AddVertex();
   points->InsertNextPoint(3.0, 0.0, 0.0);
 
-  //graph->AddEdge(0, 1);
-  //graph->AddEdge(1, 2);
-  //graph->AddEdge(2, 3);
-  //graph->AddEdge(3, 4);
-  //graph->AddEdge(4, 5);
-  //graph->AddEdge(5, 6);
-  //graph->AddEdge(6, 7);
-  //graph->AddEdge(7, 0);
+  for(i = 1; i < 10; i++)
+    {
+    graph->AddEdge(0, i);
+    }
 
-  for(int i = 10; i < 18; i++)
+  for(i = 10; i < 17; i++)
     {
     graph->AddEdge(i, i + 1);
     }
+  graph->AddEdge(0, 10);
+
 
   VTK_CREATE(vtkStringArray, name);
   name->SetName("name");
