@@ -57,8 +57,6 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/NE2_ps_bath_small.jpg");
   vtkStdString imageFile = fname;
-  double locationTol = 5.0;
-  double textureTol = 1.0;
 
   // Create the view
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();

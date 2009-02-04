@@ -50,9 +50,9 @@ template<typename T> vtkstd::string ToString(const T& x)
 
 int TestCoincidentGraphLayoutView(int argc, char* argv[])
 {
-  vtkMutableUndirectedGraph * graph = vtkMutableUndirectedGraph::New();
-  vtkPoints * points = vtkPoints::New();
-  vtkDoubleArray * pointData = vtkDoubleArray::New();
+  VTK_CREATE(vtkMutableUndirectedGraph, graph);
+  VTK_CREATE(vtkPoints, points);
+  VTK_CREATE(vtkDoubleArray, pointData);
   pointData->SetNumberOfComponents(3);
   points->SetData(static_cast<vtkDataArray *>(pointData));
   graph->SetPoints(points);
