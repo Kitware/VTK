@@ -40,6 +40,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtksys/ios/sstream>
+//#include <sstream>
 
 template<typename T> vtkstd::string ToString(const T& x)
 {

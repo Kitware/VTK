@@ -8,7 +8,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
-      TestCoincidentGraphLayoutView.cxx
+      #TestCoincidentGraphLayoutView.cxx
       TestGraphLayoutView.cxx
       TestHierarchicalGraphView.cxx
       TestIconGlyphFilter.cxx
