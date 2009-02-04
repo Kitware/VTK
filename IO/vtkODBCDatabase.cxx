@@ -49,7 +49,7 @@
 
 
 // ----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkODBCDatabase, "1.7");
+vtkCxxRevisionMacro(vtkODBCDatabase, "1.8");
 vtkStandardNewMacro(vtkODBCDatabase);
 // ----------------------------------------------------------------------------
 
@@ -593,12 +593,14 @@ vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
                                          &messageLengthReturned);
 
     vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLColumns): table "
-                  << table 
+                  << table
                   << ", sizeof(SQLCHAR) " << sizeof(SQLCHAR)
                   << ", error "
                   << status
+                  << ", diagStatus"
+                  << diagStatus
                   << ", state "
-                  << reinterpret_cast<char*>(state) 
+                  << reinterpret_cast<char*>(state)
                   << ", message "
                   << reinterpret_cast<char*>(messageText));
     }
@@ -622,10 +624,12 @@ vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
                                          &messageLengthReturned);
 
     vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLFetchScroll): table "
-                  << table 
+                  << table
                   << ", error "
-                  << status 
-                  << ", state " 
+                  << status
+                  << ", diagStatus"
+                  << diagStatus
+                  << ", state "
                   << reinterpret_cast<char *>(state)
                   << ", message "
                   << reinterpret_cast<char *>(messageText));
