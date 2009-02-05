@@ -153,7 +153,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // This method has no effect in parallel projection mode.
   // The formula for setting the angle up for perfect perspective viewing
   // is: angle = 2*atan((h/2)/d) where h is the height of the RenderWindow
-  // (measured in mm by holding a ruler up to your screen) and d is the
+  // (measured by holding a ruler up to your screen) and d is the
   // distance from your eyes to the screen.
   void SetViewAngle(double angle);
   vtkGetMacro(ViewAngle,double);
