@@ -316,6 +316,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // The plane normals point inward. The planes array contains six
   // plane equations of the form (Ax+By+Cz+D=0), the first four
   // values are (A,B,C,D) which repeats for each of the planes.
+  // The planes are given in the following order: -x,+x,-y,+y,-z,+z.
+  // Warning: it means left,right,bottom,top,far,near (NOT near,far)
   // The aspect of the viewport is needed to correctly compute the planes
   virtual void GetFrustumPlanes(double aspect, double planes[24]);
 
