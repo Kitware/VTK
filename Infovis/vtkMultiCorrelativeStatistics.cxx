@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.7");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.8");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -515,6 +515,7 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
     reqNameStr << ")";
     covCols.push_back( colAvgs );
     colNames->InsertNextValue( "Cholesky" ); // Need extra row for lower-triangular Cholesky decomposition
+
     // We now have the total number of columns in the output.
     // Allocate memory for the correct number of rows and fill in values.
     vtkIdType reqCovSize = colNames->GetNumberOfTuples();
@@ -527,6 +528,7 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
     covariance->AddColumn( colAvgs );
     colNames->Delete();
     colAvgs->Delete();
+
     vtkIdType j = 0;
     for ( vtkstd::vector<vtkDoubleArray*>::iterator arrIt = covCols.begin(); arrIt != covCols.end(); ++ arrIt, ++ j )
       {
@@ -557,8 +559,10 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::ExecuteAssess(
-  vtkTable* inData, vtkDataObject* inMetaDO, vtkTable* outData, vtkDataObject* vtkNotUsed(outMetaDO) )
+void vtkMultiCorrelativeStatistics::ExecuteAssess( vtkTable* inData, 
+                                                   vtkDataObject* inMetaDO, 
+                                                   vtkTable* outData, 
+                                                   vtkDataObject* vtkNotUsed(outMetaDO) )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || ! outData )
