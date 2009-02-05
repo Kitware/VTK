@@ -106,7 +106,7 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   label->SetName("edge label");
   VTK_CREATE(vtkIdTypeArray, dist);
   dist->SetName("distance");
-  for (vtkIdType i = 0; i < graph->GetNumberOfEdges(); i++)
+  for (i = 0; i < graph->GetNumberOfEdges(); i++)
     {
     dist->InsertNextValue(i);
     switch (i % 4)
