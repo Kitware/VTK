@@ -56,7 +56,7 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   pointData->SetNumberOfComponents(3);
   points->SetData(static_cast<vtkDataArray *>(pointData));
   graph->SetPoints(points);
-  int i = 0;
+  vtkIdType i = 0;
 
   for(i = 0; i < 10; i++)
     {
