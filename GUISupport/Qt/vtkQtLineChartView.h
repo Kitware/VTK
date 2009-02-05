@@ -44,12 +44,18 @@ public:
   virtual void Update();
 
   // Description:
+  // Sets the bar chart help format.
+  void SetHelpFormat(const char* format);
+
+  //BTX
+  // Description:
   // Adds line chart selection handlers to the mouse selection.
   virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
 
   // Description:
   // Gets the line chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+  //ETX
 
 protected:
   vtkQtLineChartView();
