@@ -34,7 +34,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.5");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.6");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -169,7 +169,7 @@ int vtkPerturbCoincidentVertices::RequestData(
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
     vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
-    for(int i = 0; i < numCoincidentPoints; ++i)
+    for(i = 0; i < numCoincidentPoints; ++i)
       {
       Id = coincidentPoints->GetId(i);
       points->GetPoint(Id, point);
