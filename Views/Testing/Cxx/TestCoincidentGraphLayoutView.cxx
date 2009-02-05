@@ -96,7 +96,7 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkStringArray, name);
   name->SetName("name");
 
-  for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
+  for (i = 0; i < graph->GetNumberOfVertices(); i++)
     {
     name->InsertNextValue("Vert" + ToString(i));
     }
