@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.49");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.50");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -95,8 +95,6 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   area = self->GetAreaThreshold();
   islandValue = static_cast<T>(self->GetIslandValue());
   replaceValue = static_cast<T>(self->GetReplaceValue());
-  // In case all 8 neighbors get added before we test the number.
-  pixels = new vtkImage2DIslandPixel [area + 8]; 
   
   outData->GetIncrements(outInc0, outInc1, outInc2);
   inData->GetIncrements(inInc0, inInc1, inInc2);
@@ -129,7 +127,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     {
     return;
     }
-                       
+  
+  // In case all 8 neighbors get added before we test the number.
+  pixels = new vtkImage2DIslandPixel [area + 8]; 
+  
   target = static_cast<unsigned long>(maxC*(outExt[5]-outExt[4]+1)*
                                       (outExt[3]-outExt[2]+1)/50.0);
   target++;

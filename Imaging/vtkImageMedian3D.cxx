@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.48");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.49");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -211,7 +211,6 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   int UpMax = 0;
   int DownMax = 0;
   double *Median;
-  double *Sort = new double[(self->GetNumberOfElements() + 8)];
   int *inExt;
   unsigned long count = 0;
   unsigned long target;
@@ -220,6 +219,8 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     {
     return;
     }
+  
+  double *Sort = new double[(self->GetNumberOfElements() + 8)];
   
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 

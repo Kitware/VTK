@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.9");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.10");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -214,6 +214,7 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                        << ","
                        << varNameY.c_str()
                        << "). Ignoring it." );
+      delete [] names;
       continue;
       }
     else
