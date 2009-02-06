@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include <vtkstd/set> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.87");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.88");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -1393,7 +1393,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
       {
       if (tmp)
         {
-        delete tmp;
+        delete[] tmp;
         }
       tmp = new vtkIdType[numPts];
       tmpLength = numPts;
