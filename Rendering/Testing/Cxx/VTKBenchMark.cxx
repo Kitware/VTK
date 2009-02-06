@@ -74,6 +74,7 @@ VTKBenchmark::VTKBenchmark()
   this->ImmediateMode = 1;
   this->ScalarColoring = 0;
   this->UseNormals = 0;
+  this->DataBuildTime=0.0;
 }
 
 double VTKBenchmark::BuildTheFractal()
