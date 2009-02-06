@@ -210,6 +210,7 @@ int main(int argc,char *argv[])
   fout = fopen(argv[2],"w");
   if (!fout)
     {
+    fclose(file);
     return 1;
     }
 
