@@ -140,6 +140,13 @@ void vtkQtConnection::SetConnection(
 #else
     );
 #endif
+  QObject::connect(qt_obj, SIGNAL(destroyed(QObject*)), this,
+    SLOT(deleteConnection()));
+}
+
+void vtkQtConnection::deleteConnection()
+{
+  this->Owner->RemoveConnection(this);
 }
 
 void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)

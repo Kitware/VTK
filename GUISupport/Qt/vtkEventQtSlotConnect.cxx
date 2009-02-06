@@ -136,4 +136,17 @@ void vtkEventQtSlotConnect::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+void vtkEventQtSlotConnect::RemoveConnection(vtkQtConnection* conn)
+{
+  vtkQtConnections::iterator iter;
+  for(iter=this->Connections->begin(); iter!=this->Connections->end(); ++iter)
+    {
+    if(conn == *iter)
+      {
+      delete (*iter);
+      Connections->erase(iter);
+      return;
+      }
+    }
+}
 

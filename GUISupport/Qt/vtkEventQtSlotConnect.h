@@ -47,6 +47,7 @@
 
 class QObject;
 class vtkQtConnections;
+class vtkQtConnection;
 
 // manage connections between VTK object events and Qt slots
 class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
@@ -84,6 +85,8 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
 
   protected:
     vtkQtConnections* Connections;
+    friend class vtkQtConnection;
+    void RemoveConnection(vtkQtConnection*);
   
     vtkEventQtSlotConnect();
     ~vtkEventQtSlotConnect();

@@ -82,6 +82,9 @@ class vtkQtConnection : public QObject
     // the qt signal for moc to take care of
     void EmitExecute(vtkObject*, unsigned long, void* client_data, void* call_data, vtkCommand*);
 
+  protected slots:
+    void deleteConnection();
+
   protected:
     
     // the connection information
