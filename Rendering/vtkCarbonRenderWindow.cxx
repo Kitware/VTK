@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.76");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.77");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -254,6 +254,7 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->WindowId = 0;
   this->ParentId = 0;
   this->RootWindow = 0;
+  this->OwnWindow = 0; // Keep before SetWindowName.
   this->SetWindowName("Visualization Toolkit - Carbon");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
