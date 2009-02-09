@@ -154,6 +154,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayMatrixColumnNorm.cxx
     ArrayNormalizeMatrixVectors.cxx
     ArrayTableToSparseArray.cxx
+    ArrayToTable.cxx
     ArrayTransposeMatrix.cxx
     )
 

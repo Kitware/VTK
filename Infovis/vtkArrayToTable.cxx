@@ -28,13 +28,76 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 
 #include <vtksys/ios/sstream>
+#include <vtksys/stl/stdexcept>
+
+/// Convert a 1D array to a table with one column ...
+template<typename ValueT, typename ColumnT>
+static bool ConvertVector(vtkArray* Array, vtkTable* Output)
+{
+  if(Array->GetDimensions() != 1)
+    return false;
+
+  vtkTypedArray<ValueT>* const array = vtkTypedArray<ValueT>::SafeDownCast(Array);
+  if(!array)
+    return false;
+
+  const vtkArrayExtents extents = array->GetExtents();
+
+  ColumnT* const column = ColumnT::New();
+  column->SetNumberOfTuples(extents[0]);
+  column->SetName("0");
+  for(vtkIdType i = 0; i != extents[0]; ++i)
+    {
+    column->SetValue(i, array->GetValue(i));
+    }
+
+  Output->AddColumn(column);
+  column->Delete();
+
+  return true;
+}
+
+/// Convert a 2D array to a table with 1-or-more columns ...
+template<typename ValueT, typename ColumnT>
+static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
+{
+  if(Array->GetDimensions() != 2)
+    return false;
+
+  vtkTypedArray<ValueT>* const array = vtkTypedArray<ValueT>::SafeDownCast(Array);
+  if(!array)
+    return false;
+
+  const vtkArrayExtents extents = array->GetExtents();
+
+  for(vtkIdType j = 0; j != extents[1]; ++j)
+    {
+    vtkstd::ostringstream column_name;
+    column_name << j;
+      
+    ColumnT* const column = ColumnT::New();
+    column->SetNumberOfTuples(extents[0]);
+    column->SetName(column_name.str().c_str());
+
+    for(vtkIdType i = 0; i != extents[0]; ++i)
+      {
+      column->SetValue(i, array->GetValue(i, j));
+      }
+
+    Output->AddColumn(column);
+    column->Delete();
+    }
+
+  return true;
+}
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkArrayToTable, "1.1");
+vtkCxxRevisionMacro(vtkArrayToTable, "1.2");
 vtkStandardNewMacro(vtkArrayToTable);
 
 // ----------------------------------------------------------------------
@@ -77,59 +140,28 @@ int vtkArrayToTable::RequestData(
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkTable* const output = vtkTable::GetData(outputVector);
-
-  vtkTypedArray<double>* const array = vtkTypedArray<double>::SafeDownCast(input->GetArray());
-  if(!array)
+  try
     {
-    vtkErrorMacro(<< "vtkArrayToTable requires vtkTypedArray<double> as input");
-    return 0;
+    vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
+    vtkArray* const input_array = input_array_data->GetArray();
+    if(!input_array)
+      throw vtkstd::runtime_error("vtkArrayToTable missing input array.");
+    if(input_array->GetDimensions() > 2)
+      throw vtkstd::runtime_error("vtkArrayToTable input array must have 1 or 2 dimensions.");
+    
+    vtkTable* const output_table = vtkTable::GetData(outputVector);
+
+    if(ConvertVector<double, vtkDoubleArray>(input_array, output_table)) return 1;
+    if(ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
+    
+    if(ConvertMatrix<double, vtkDoubleArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
+    }
+  catch(vtkstd::exception& e)
+    {
+    vtkErrorMacro(<< e.what());
     }
 
-  if(array->GetExtents().GetDimensions() == 1)
-    {
-    const vtkArrayExtents extents = array->GetExtents();
-
-    vtkDoubleArray* const column = vtkDoubleArray::New();
-    column->SetNumberOfTuples(extents[0]);
-    column->SetName("0");
-    output->AddColumn(column);
-    column->Delete();
-
-    for(vtkIdType i = 0; i != extents[0]; ++i)
-      {
-      column->SetValue(i, array->GetValue(vtkArrayCoordinates(i)));
-      }
-    }
-  else if(array->GetExtents().GetDimensions() == 2)
-    {
-    const vtkArrayExtents extents = array->GetExtents();
-
-    for(vtkIdType j = 0; j != extents[1]; ++j)
-      {
-      vtkstd::ostringstream column_name;
-      column_name << j;
-        
-      vtkDoubleArray* const column = vtkDoubleArray::New();
-      column->SetNumberOfTuples(extents[0]);
-      column->SetName(column_name.str().c_str());
-
-      for(vtkIdType i = 0; i != extents[0]; ++i)
-        {
-        column->SetValue(i, array->GetValue(vtkArrayCoordinates(i, j)));
-        }
-
-      output->AddColumn(column);
-      column->Delete();
-      }
-    }
-  else
-    {
-    vtkErrorMacro(<< "vtkArrayToTable require an input array with 1 or 2 dimensions.");
-    return 0;
-    }
-
-  return 1;
+  return 0;
 }
 
