@@ -88,6 +88,11 @@
 
 /* Should VTK use ODBC?  */
 #cmakedefine VTK_USE_ODBC
+#cmakedefine VTK_ODBC_TEST_DSN
+#ifdef VTK_ODBC_TEST_DSN
+#  undef VTK_ODBC_TEST_DSN
+#  define VTK_ODBC_TEST_DSN "@VTK_ODBC_TEST_DSN@"
+#endif
 
 /* Is a test PostgreSQL database URL defined? */
 #cmakedefine VTK_PSQL_TEST_URL
