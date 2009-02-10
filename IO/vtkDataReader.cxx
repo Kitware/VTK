@@ -61,7 +61,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.158");
+vtkCxxRevisionMacro(vtkDataReader, "1.159");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1378,7 +1378,8 @@ int vtkReadASCIIData(vtkDataReader *self, T *data, int numTuples, int numComp)
       {
       if ( !self->Read(data++) )
         {
-        vtkGenericWarningMacro(<<"Error reading ascii data!");
+        vtkGenericWarningMacro(<<"Error reading ascii data. Possible mismatch of "
+          "datasize with declaration.");
         return 0;
         }
       }
