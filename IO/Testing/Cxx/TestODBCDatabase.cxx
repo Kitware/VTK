@@ -58,8 +58,9 @@ int TestODBCDatabase( int, char ** const )
          << query->GetLastErrorText() << endl;
     return 1;
     }
-
-  for ( int i = 0; i < 40; ++ i )
+  
+  int i;
+  for ( i = 0; i < 20; ++ i )
     {
     vtksys_ios::ostringstream queryBuf;
 
@@ -76,14 +77,38 @@ int TestODBCDatabase( int, char ** const )
       }
     }
 
-  const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 20";
+
+  const char *placeholders = "INSERT INTO people (name, age, weight) VALUES (?, ?, ?)";
+  query->SetQuery(placeholders);
+  for ( i = 21; i < 40; i++ )
+    {
+    char name[20];
+    sprintf(name, "John Doe %d", i);
+    bool bind1 = query->BindParameter(0, name);
+    bool bind2 = query->BindParameter(1, i);
+    bool bind3 = query->BindParameter(2, 10.1*i);
+    if (!(bind1 && bind2 && bind3))
+      {
+      cerr << "Parameter binding failed on query " << i
+           << ": " << bind1 << " " << bind2 << " " << bind3 << endl;
+      return 1;
+      }
+    cout << query->GetQuery() << endl;
+    if (!query->Execute())
+      {
+      cerr << "Insert query " << i << " failed" << endl;
+      return 1;
+      }
+    }
+
+  const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 30";
   query->SetQuery( queryText );
   cerr << endl << "Running query: " << query->GetQuery() << endl;
 
   cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
   if ( !query->Execute() )
     {
-    cerr << "Query failed" << endl;
+    cerr << "Query failed with error message " << query->GetLastErrorText() << endl;
     return 1;
     }
 
@@ -116,7 +141,7 @@ int TestODBCDatabase( int, char ** const )
   cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if ( !query->Execute() )
     {
-    cerr << "Query failed" << endl;
+    cerr << "Query failed with error message " << query->GetLastErrorText() << endl;
     return 1;
     }
   for ( int col = 0; col < query->GetNumberOfFields(); ++ col )

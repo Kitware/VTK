@@ -49,7 +49,7 @@
 
 
 // ----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkODBCDatabase, "1.8");
+vtkCxxRevisionMacro(vtkODBCDatabase, "1.9");
 vtkStandardNewMacro(vtkODBCDatabase);
 // ----------------------------------------------------------------------------
 
@@ -577,62 +577,22 @@ vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
   
   if (status != SQL_SUCCESS && status != 0)
     {
-    SQLCHAR state[6];
-    state[5] = 0;
-    SQLINTEGER nativeErrorCode[10];
-    SQLCHAR messageText[128];
-    SQLSMALLINT messageLengthReturned;
+    vtkStdString error = GetErrorMessage(SQL_HANDLE_STMT, statement);
 
-    SQLRETURN diagStatus = SQLGetDiagRec(SQL_HANDLE_STMT,
-                                         statement,
-                                         1, // record number -- starts at 1
-                                         state,
-                                         nativeErrorCode,
-                                         messageText,
-                                         128,
-                                         &messageLengthReturned);
-
-    vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLColumns): table "
-                  << table
-                  << ", sizeof(SQLCHAR) " << sizeof(SQLCHAR)
-                  << ", error "
-                  << status
-                  << ", diagStatus"
-                  << diagStatus
-                  << ", state "
-                  << reinterpret_cast<char*>(state)
-                  << ", message "
-                  << reinterpret_cast<char*>(messageText));
+    vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLColumns): error " << error.c_str());
+    this->SetLastErrorText(error.c_str());
+    SQLFreeHandle(SQL_HANDLE_STMT, statement);
+    return this->Record;
+ 
     }
   
   status = SQLFetchScroll(statement, SQL_FETCH_NEXT, 0);
   if (status != SQL_SUCCESS)
     {
-    SQLCHAR state[6];
-    state[5] = 0;
-    SQLINTEGER nativeErrorCode[10];
-    SQLCHAR messageText[128];
-    SQLSMALLINT messageLengthReturned;
-
-    SQLRETURN diagStatus = SQLGetDiagRec(SQL_HANDLE_STMT,
-                                         statement,
-                                         1, // record number -- starts at 1
-                                         state,
-                                         nativeErrorCode,
-                                         messageText,
-                                         128,
-                                         &messageLengthReturned);
-
-    vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLFetchScroll): table "
-                  << table
-                  << ", error "
-                  << status
-                  << ", diagStatus"
-                  << diagStatus
-                  << ", state "
-                  << reinterpret_cast<char *>(state)
-                  << ", message "
-                  << reinterpret_cast<char *>(messageText));
+    vtkStdString error = GetErrorMessage(SQL_HANDLE_STMT, statement);
+    vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to retrieve column list (SQLFetchScroll): error " << error.c_str());
+    this->SetLastErrorText(error.c_str());
+    SQLFreeHandle(SQL_HANDLE_STMT, statement);
     return this->Record;
     }
   while (status == SQL_SUCCESS)

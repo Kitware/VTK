@@ -38,15 +38,77 @@
 #include <assert.h>
 
 #include <vtksys/ios/sstream>
+#include <vtksys/stl/vector>
 
 #include <sql.h>
 #include <sqlext.h>
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkODBCQuery, "1.3");
+vtkCxxRevisionMacro(vtkODBCQuery, "1.4");
 vtkStandardNewMacro(vtkODBCQuery);
 
+static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code=0);
+
+
+/*
+ * Bound Parameters and ODBC
+ *
+ * ODBC handles bound parameters by requiring that the user pass in
+ * buffers containing data for each parameter to be bound.  These are
+ * bound to the statement using SQLBindParam.  The statement must have
+ * been prepared using SQLPrepare.  Those buffers need to be freed
+ * when they're no longer needed.
+ * 
+ * I'm going to handle this by using my own class
+ * (vtkODBCBoundParameter) to hold all the information the user passes
+ * in.  This is the same sort of trick I use for the MySQL bound
+ * parameter support.  At execution time I'll take the parameters and
+ * attach them all to the statement.  The vtkODBCBoundParameter
+ * instances will each own the buffesr for their data.
+ *
+ * This is slightly inefficient in that it will generate
+ * a few tiny little new[] requests.  If this ever becomes a problem,
+ * we can allocate a fixed-size buffer (8 or 16 bytes) inside
+ * vtkODBCBoundParameter and use that for the data storage by
+ * default.  That will still require special-case handling for blobs
+ * and strings.
+ *
+ * The vtkODBCQueryInternals class will handle the bookkeeping for
+ * which parameters are and aren't bound at any given time.
+ */
+
+// ----------------------------------------------------------------------
+
+class vtkODBCBoundParameter
+{
+public:
+  vtkODBCBoundParameter() :
+    Data(NULL), DataLength(0), BufferSize(0), DataTypeC(0), DataTypeSQL(0)
+    {
+    }
+
+  ~vtkODBCBoundParameter()
+    {
+      delete [] this->Data;
+    }
+
+  void SetData(const char *data, unsigned long size)
+    {
+      delete [] this->Data;
+      this->BufferSize = size;
+      this->DataLength = size;
+      this->Data = new char[size];
+      memcpy(this->Data, data, size);
+    }
+
+public:
+  char             *Data;        // Buffer holding actual data
+  unsigned long     DataLength; 
+  SQLLEN            BufferSize; // will be at least as large as DataLength
+  SQLSMALLINT       DataTypeC;
+  SQLSMALLINT       DataTypeSQL;
+};
 
 // ----------------------------------------------------------------------
 
@@ -65,6 +127,7 @@ public:
 
   ~vtkODBCQueryInternals()
     {
+      this->FreeUserParameterList();
       if (this->Statement != NULL)
         {
         SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
@@ -79,6 +142,13 @@ public:
         }
     }
 
+  void FreeStatement();
+  void FreeUserParameterList();
+  void ClearBoundParameters();
+  bool PrepareQuery(const char *queryString, SQLHANDLE connection, vtkStdString &error_message);
+  bool SetBoundParameter(int index, vtkODBCBoundParameter *param);
+  bool BindParametersToStatement();
+
 public:
   SQLHANDLE Statement;
   vtkStdString Name;
@@ -87,15 +157,316 @@ public:
   vtkStringArray *ColumnNames;
   vtkBitArray *ColumnIsSigned;
   vtkBitArray *NullPermitted;
-
   SQLSMALLINT *ColumnTypes;
+
+  typedef vtksys_stl::vector<vtkODBCBoundParameter *> ParameterList;
+  ParameterList UserParameterList;
+
 };
 
+// ----------------------------------------------------------------------
+
+void
+vtkODBCQueryInternals::FreeStatement()
+{
+  if (this->Statement)
+    {
+    SQLRETURN status;
+    status = SQLCloseCursor(this->Statement);
+    if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
+      {
+      vtksys_ios::ostringstream errorBuf;
+      errorBuf << "vtkODBCQuery: Unable to close SQL cursor.  Error: "
+               << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
+      cerr << errorBuf.str() << "\n";
+      }
+    
+    status = SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
+    if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
+      {
+      vtksys_ios::ostringstream errorBuf;
+      errorBuf << "Unable to free statement handle.  Memory leak will occur. Error: "
+               << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
+      cerr << errorBuf.str() << "\n";
+      }
+    this->Statement = 0;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+#define VTK_ODBC_C_TYPENAME_MACRO(type,return_type) \
+  SQLSMALLINT vtkODBCTypeNameC(type) \
+  { return return_type; }
+
+VTK_ODBC_C_TYPENAME_MACRO(signed char, SQL_C_STINYINT);
+VTK_ODBC_C_TYPENAME_MACRO(unsigned char, SQL_C_UTINYINT);
+VTK_ODBC_C_TYPENAME_MACRO(signed short, SQL_C_SSHORT);
+VTK_ODBC_C_TYPENAME_MACRO(unsigned short, SQL_C_USHORT);
+VTK_ODBC_C_TYPENAME_MACRO(signed int, SQL_C_SLONG);
+VTK_ODBC_C_TYPENAME_MACRO(unsigned int, SQL_C_ULONG);
+VTK_ODBC_C_TYPENAME_MACRO(signed long, SQL_C_SLONG);
+VTK_ODBC_C_TYPENAME_MACRO(unsigned long, SQL_C_ULONG);
+VTK_ODBC_C_TYPENAME_MACRO(float, SQL_C_FLOAT);
+VTK_ODBC_C_TYPENAME_MACRO(double, SQL_C_DOUBLE);
+VTK_ODBC_C_TYPENAME_MACRO(vtkTypeInt64, SQL_C_SBIGINT);
+VTK_ODBC_C_TYPENAME_MACRO(vtkTypeUInt64, SQL_C_UBIGINT);
+VTK_ODBC_C_TYPENAME_MACRO(const char *, SQL_C_CHAR);
+VTK_ODBC_C_TYPENAME_MACRO(char *, SQL_C_CHAR);
+VTK_ODBC_C_TYPENAME_MACRO(unsigned char *, SQL_C_CHAR);
+VTK_ODBC_C_TYPENAME_MACRO(void *, SQL_C_BINARY);
+
+
+#define VTK_ODBC_SQL_TYPENAME_MACRO(type,return_type) \
+  SQLSMALLINT vtkODBCTypeNameSQL(type) \
+  { return return_type; }
+
+VTK_ODBC_SQL_TYPENAME_MACRO(signed char, SQL_TINYINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(unsigned char, SQL_TINYINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(signed short, SQL_SMALLINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(unsigned short, SQL_SMALLINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(signed int, SQL_INTEGER);
+VTK_ODBC_SQL_TYPENAME_MACRO(unsigned int, SQL_INTEGER);
+VTK_ODBC_SQL_TYPENAME_MACRO(signed long, SQL_INTEGER);
+VTK_ODBC_SQL_TYPENAME_MACRO(unsigned long, SQL_INTEGER);
+VTK_ODBC_SQL_TYPENAME_MACRO(float, SQL_REAL);
+VTK_ODBC_SQL_TYPENAME_MACRO(double, SQL_DOUBLE);
+VTK_ODBC_SQL_TYPENAME_MACRO(vtkTypeInt64, SQL_BIGINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(vtkTypeUInt64, SQL_BIGINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(const char *, SQL_VARCHAR);
+VTK_ODBC_SQL_TYPENAME_MACRO(char *, SQL_VARCHAR);
+VTK_ODBC_SQL_TYPENAME_MACRO(unsigned char *, SQL_VARCHAR);
+VTK_ODBC_SQL_TYPENAME_MACRO(void *, SQL_VARBINARY);
+
+// ----------------------------------------------------------------------
+
+// Description:
+// This function will build and populate a vtkODBCBoundParameter
+// struct.  The default implementation works for POD data types (char,
+// int, long, etc).  I'll need to special-case strings and blobs.
+
+template<typename T>
+vtkODBCBoundParameter *vtkBuildODBCBoundParameter(T data_value)
+{
+  vtkODBCBoundParameter *param = new vtkODBCBoundParameter;
+
+  param->DataTypeC =   vtkODBCTypeNameC(data_value);
+  param->DataTypeSQL = vtkODBCTypeNameSQL(data_value);
+  param->BufferSize = sizeof(T);
+  param->DataLength = sizeof(T);
+  param->SetData(reinterpret_cast<const char *>(&data_value),
+                 sizeof(T));
+  
+  return param;
+}
+
+// Description:
+// Specialization of vtkBuildBoundParameter for NULL-terminated
+// strings (i.e. CHAR and VARCHAR fields)
+
+template<>
+vtkODBCBoundParameter *vtkBuildODBCBoundParameter<const char *>(const char *data_value)
+{
+  vtkODBCBoundParameter *param = new vtkODBCBoundParameter;
+
+  param->DataTypeC = SQL_C_CHAR;
+  param->DataTypeSQL = SQL_VARCHAR;
+  param->BufferSize = strlen(data_value);
+  param->DataLength = strlen(data_value);
+  param->SetData(data_value, strlen(data_value));
+
+  return param;
+}
+
+// Description:
+// Alternate signature for vtkBuildBoundParameter to handle blobs
+
+vtkODBCBoundParameter *vtkBuildODBCBoundParameter(const char *data,
+                                                  unsigned long length,
+                                                  bool is_blob)
+{
+  vtkODBCBoundParameter *param = new vtkODBCBoundParameter;
+
+  param->DataTypeC = SQL_C_CHAR;
+  if (is_blob)
+    {
+    param->DataTypeSQL = SQL_VARBINARY;
+    }
+  else
+    {
+    param->DataTypeSQL = SQL_VARCHAR;
+    }
+  param->BufferSize = length; 
+  param->DataLength = length; 
+  param->SetData(data, length);
+
+  return param;
+}
+
+// ----------------------------------------------------------------------
+
+bool vtkODBCQueryInternals::PrepareQuery(const char *queryString, 
+                                         SQLHANDLE dbConnection,
+                                         vtkStdString &error_message)
+{
+  this->FreeStatement();
+  this->FreeUserParameterList();
+
+  // ODBC requires that drivers either support query preparation or
+  // emulate it to the greatest extent possible.  It says nothing
+  // about what queries may or may not be prepared.  I'm going to
+  // close my eyes and pretend that all SQL is valid for preparation
+  // even if bound parameters don't make sense.  If I'm wrong the
+  // error messages will certainly tell me so.
+
+  SQLRETURN status;
+  status = SQLAllocHandle(SQL_HANDLE_STMT, 
+                          dbConnection,
+                          &(this->Statement));
+  if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
+    {
+    vtksys_ios::ostringstream errorBuf;
+    errorBuf << "Unable to allocate new statement handle.  Error: "
+             << GetErrorMessage(SQL_HANDLE_DBC, dbConnection);
+    error_message = errorBuf.str();
+    return false;
+    }
+
+  // Queries in VTK currently only support scrolling forward through
+  // the results, not forward/backward/randomly.
+  status = SQLSetStmtAttr(this->Statement,
+                          SQL_ATTR_CURSOR_TYPE,
+                          static_cast<SQLPOINTER>(SQL_CURSOR_FORWARD_ONLY),
+                          SQL_IS_UINTEGER);
+
+  if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
+    {
+    error_message = vtkStdString(GetErrorMessage(SQL_HANDLE_STMT,
+                                                 this->Statement));
+    return false;
+    }
+
+  // ugh, I hate having to use const_cast
+  status = SQLPrepare(this->Statement,
+                      reinterpret_cast<SQLCHAR *>(const_cast<char *>(queryString)),
+                      strlen(queryString));
+
+  if (status != SQL_SUCCESS)
+    {
+    vtksys_ios::ostringstream errorBuf;
+    errorBuf << "Unable to prepare query for execution: "
+             << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
+    error_message = errorBuf.str();
+    return false;
+    }
+  else
+    {
+    error_message = vtkStdString();
+    SQLSMALLINT paramCount;
+    status = SQLNumParams(this->Statement, &paramCount);
+    if (status != SQL_SUCCESS)
+      {
+      error_message = vtkStdString(GetErrorMessage(SQL_HANDLE_STMT,
+                                                   this->Statement));
+      return false;
+      }
+    else
+      {
+      this->UserParameterList.resize(paramCount, NULL);
+      return true;
+      }
+    }
+}
+
+// ----------------------------------------------------------------------
+
+void vtkODBCQueryInternals::FreeUserParameterList()
+{
+  for (unsigned int i = 0; i < this->UserParameterList.size(); ++i)
+    {
+    if (this->UserParameterList[i] != NULL)
+      {
+      delete this->UserParameterList[i];
+      this->UserParameterList[i] = NULL;
+      }
+    }
+  this->UserParameterList.clear();
+}
+
+// ----------------------------------------------------------------------
+
+bool vtkODBCQueryInternals::SetBoundParameter(int index, vtkODBCBoundParameter *param)
+{
+  if (index >= static_cast<int>(this->UserParameterList.size()))
+    {
+    vtkGenericWarningMacro(<<"ERROR: Illegal parameter index "
+                           <<index << ".  Did you forget to set the query?");
+    return false;
+    }
+  else
+    {
+    if (this->UserParameterList[index] != NULL)
+      {
+      delete this->UserParameterList[index];
+      }
+    this->UserParameterList[index] = param;
+    return true;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+void vtkODBCQueryInternals::ClearBoundParameters()
+{
+  if (this->Statement)
+    {
+    SQLFreeStmt(this->Statement, SQL_RESET_PARAMS);
+    }
+}
+
+// ----------------------------------------------------------------------
+
+bool vtkODBCQueryInternals::BindParametersToStatement()
+{
+  if (this->Statement == NULL)
+    {
+    vtkGenericWarningMacro(<<"BindParametersToStatement: No prepared statement available");
+    return false;
+    }
+  
+  this->ClearBoundParameters();
+  unsigned long numParams = this->UserParameterList.size();
+  for (SQLUSMALLINT i = 0; i < numParams; ++i)
+    {
+    if (this->UserParameterList[i])
+      {
+      SQLRETURN status = SQLBindParameter(this->Statement,
+                                          i+1, // parameter indexing starts at 1
+                                          SQL_PARAM_INPUT,
+                                          this->UserParameterList[i]->DataTypeC,
+                                          this->UserParameterList[i]->DataTypeSQL,
+                                          0, // column size is irrelevant
+                                          0, // decimal digits are irrelevant
+                                          reinterpret_cast<SQLPOINTER>(this->UserParameterList[i]->Data),
+                                          this->UserParameterList[i]->DataLength,
+                                          &(this->UserParameterList[i]->BufferSize));
+
+      if (status != SQL_SUCCESS)
+        {
+        vtkGenericWarningMacro(<<"Unable to bind parameter "
+                               << i << " to SQL statement!  Return code: "
+                               << status);
+        return false;
+        }
+      }
+    }
+  return true;
+}
 
 // ----------------------------------------------------------------------
 
 static vtkStdString
-GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code=0)
+GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code)
 {
   SQLINTEGER sqlNativeCode = 0;
   SQLSMALLINT messageLength = 0;
@@ -149,6 +520,7 @@ vtkODBCQuery::vtkODBCQuery()
   this->Internals = new vtkODBCQueryInternals;
   this->InitialFetch = true;
   this->LastErrorText = NULL;
+  this->QueryText = NULL;
 }
 
 // ----------------------------------------------------------------------
@@ -156,6 +528,7 @@ vtkODBCQuery::vtkODBCQuery()
 vtkODBCQuery::~vtkODBCQuery()
 {
   this->SetLastErrorText(NULL);
+  this->SetQueryText(NULL);
   delete this->Internals;
 }
 
@@ -170,88 +543,55 @@ vtkODBCQuery::PrintSelf(ostream  &os, vtkIndent indent)
 // ----------------------------------------------------------------------
 
 bool
-vtkODBCQuery::Execute()
+vtkODBCQuery::SetQuery(const char *newQuery)
 {
   this->Active = false;
-  SQLRETURN status;
-
-  if (this->Internals->Statement)
-    {
-    vtkDebugMacro(<<"Freeing previous statement handle before executing new query\n");
-    status = SQLCloseCursor(this->Internals->Statement);
-    if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
-      {
-      vtksys_ios::ostringstream errorBuf;
-      errorBuf << "Unable to close SQL cursor.  Error: "
-               << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
-      this->SetLastErrorText(errorBuf.str().c_str());
-      }
-
-    status = SQLFreeHandle(SQL_HANDLE_STMT, this->Internals->Statement);
-    if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
-      {
-      vtksys_ios::ostringstream errorBuf;
-      errorBuf << "Unable to free statement handle.  Memory leak will occur. Error: "
-               << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
-      this->SetLastErrorText(errorBuf.str().c_str());
-      }
-    }
+  this->SetQueryText(newQuery);
 
   vtkODBCDatabase *db = vtkODBCDatabase::SafeDownCast(this->Database);
-  assert(db != NULL);
-  status = SQLAllocHandle(SQL_HANDLE_STMT, 
-                          db->Internals->Connection,
-                          &(this->Internals->Statement));
-  if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
+  if (db == NULL)
     {
-    vtksys_ios::ostringstream errorBuf;
-    errorBuf << "Unable to allocate new statement handle.  Error: "
-             << GetErrorMessage(SQL_HANDLE_DBC, 
-                                db->Internals->Connection);
-    this->SetLastErrorText(errorBuf.str().c_str());
+    vtkErrorMacro(<<"SHOULDN'T HAPPEN: SetQuery called with null database.  This can only happen when you instantiate vtkODBCQuery directly.  You should always call vtkODBCDatabase::GetQueryInstance to make a query object.");
     return false;
+    }
+
+  vtkStdString error;
+  bool prepareStatus = this->Internals->PrepareQuery(newQuery, db->Internals->Connection, error);
+  if (prepareStatus)
+    {
+    this->SetLastErrorText(NULL);
+    return true;
     }
   else
     {
-    vtkDebugMacro(<<"Statement handle successfully allocated\n");
-    }
-
-  // Queries in VTK currently only support scrolling forward through
-  // the results, not forward/backward/randomly.
-  status = SQLSetStmtAttr(this->Internals->Statement,
-                          SQL_ATTR_CURSOR_TYPE,
-                          static_cast<SQLPOINTER>(SQL_CURSOR_FORWARD_ONLY),
-                          SQL_IS_UINTEGER);
-
-  if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
-    {
-    this->SetLastErrorText(GetErrorMessage(SQL_HANDLE_STMT,
-                                           this->Internals->Statement));
+    vtkErrorMacro(<< error.c_str());
+    this->SetLastErrorText(error.c_str());
     return false;
     }
-  else
-    {
-    vtkDebugMacro(<<"Forward-only cursor attribute set.");
-    }
+}
 
-  status = SQLPrepare(this->Internals->Statement,
-                      reinterpret_cast<SQLCHAR *>(this->Query),
-                      strlen(this->Query));
+// ----------------------------------------------------------------------
 
-  if (status != SQL_SUCCESS)
-    {
-    vtksys_ios::ostringstream errorBuf;
-    errorBuf << "Unable to prepare query for execution: "
-             << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
-    this->SetLastErrorText(errorBuf.str().c_str());
-    return false;
-    }
-  else
-    {
-    vtkDebugMacro(<<"SQL statement bound to query with SQLPrepare.");
-    }
+const char *
+vtkODBCQuery::GetQuery()
+{
+  return this->GetQueryText();
+}
 
-  status = SQLExecute(this->Internals->Statement);
+// ----------------------------------------------------------------------
+
+bool
+vtkODBCQuery::Execute()
+{
+  // It's possible to call this function while a cursor is still open.
+  // This is not an error, but we do need to close out the previous
+  // cursor before opening up a new one.
+  this->Active = false;
+  SQLFreeStmt(this->Internals->Statement, SQL_CLOSE);
+
+  this->Internals->BindParametersToStatement();
+  
+  SQLRETURN status = SQLExecute(this->Internals->Statement);
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
     {
@@ -350,7 +690,6 @@ vtkODBCQuery::Execute()
     this->SetLastErrorText(NULL);
     return true;
     }
-  
 }
 
 // ----------------------------------------------------------------------
@@ -1391,4 +1730,174 @@ vtkODBCQuery::CacheIntervalColumn(int column)
   this->SetLastErrorText(NULL);
   return true;
 }
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, unsigned char value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, signed char value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, unsigned short value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, signed short value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, unsigned int value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, signed int value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, unsigned long value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, signed long value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, vtkTypeUInt64 value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, vtkTypeInt64 value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, float value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, double value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, const char *value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, const vtkStdString &value)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, const char *data, size_t length)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(data,
+                                                                       length,
+                                                                       false));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCQuery::BindParameter(int index, const void *data, size_t length)
+{
+  this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(reinterpret_cast<const char *>(data),
+                                                                       length,
+                                                                       true));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool
+vtkODBCQuery::ClearParameterBindings()
+{
+  this->Internals->ClearBoundParameters();
+  return true;
+}
+
+
 
