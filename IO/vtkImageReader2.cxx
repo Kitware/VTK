@@ -26,7 +26,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.42");
+vtkCxxRevisionMacro(vtkImageReader2, "1.43");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -699,6 +699,12 @@ void vtkImageReader2::SeekFile(int i, int j, int k)
   streamStart += this->GetHeaderSize(k);
   
   // error checking
+  if (!this->File)
+    {
+    vtkWarningMacro(<<"File must be specified.");
+    return;
+    }
+
   this->File->seekg((long)streamStart, ios::beg);
   if (this->File->fail())
     {
