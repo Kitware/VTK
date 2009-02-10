@@ -65,6 +65,8 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtChartViewBase.cxx
       vtkQtBarChartView.cxx
       vtkQtLineChartView.cxx
+      vtkQtStackedChartView.cxx
+      vtkQtStatisticalBoxChartView.cxx
       vtkQtItemView.cxx
       vtkQtListView.cxx
       vtkQtTableDataRepresentation.cxx

@@ -59,7 +59,9 @@ IF(VTK_USE_VIEWS)
   SET(Tests
     ${Tests}
   TestVtkBarChartView.cxx
-  TestVtkLineChartView.cxx)
+  TestVtkLineChartView.cxx
+  TestVtkStackedChartView.cxx
+  TestVtkStatisticalBoxChartView.cxx)
 ENDIF(VTK_USE_VIEWS)
 
 INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
