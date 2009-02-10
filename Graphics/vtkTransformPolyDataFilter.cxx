@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.33");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.34");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
                      Transform,vtkAbstractTransform);
@@ -96,12 +96,14 @@ int vtkTransformPolyDataFilter::RequestData(
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3*numPts);
+    newVectors->SetName(inVectors->GetName());
     }
   if ( inNormals ) 
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(3*numPts);
+    newNormals->SetName(inNormals->GetName());
     }
 
   this->UpdateProgress (.2);
@@ -131,6 +133,7 @@ int vtkTransformPolyDataFilter::RequestData(
       newCellVectors = vtkFloatArray::New();
       newCellVectors->SetNumberOfComponents(3);
       newCellVectors->Allocate(3*numCells);
+      newCellVectors->SetName( inCellVectors->GetName() );
       lt->TransformVectors(inCellVectors,newCellVectors);
       }
     if ( inCellNormals ) 
@@ -138,6 +141,7 @@ int vtkTransformPolyDataFilter::RequestData(
       newCellNormals = vtkFloatArray::New();
       newCellNormals->SetNumberOfComponents(3);
       newCellNormals->Allocate(3*numCells);
+      newCellNormals->SetName( inCellNormals->GetName() );
       lt->TransformNormals(inCellNormals,newCellNormals);
       }
     }
