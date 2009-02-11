@@ -127,6 +127,11 @@ private:
 
 private:
   QList<vtkQtChartSeriesModel *> Models; ///< Stores the models.
+
+private:
+  vtkQtChartSeriesModelCollection(const vtkQtChartSeriesModelCollection &);
+  vtkQtChartSeriesModelCollection &operator=(
+      const vtkQtChartSeriesModelCollection &);
 };
 
 #endif

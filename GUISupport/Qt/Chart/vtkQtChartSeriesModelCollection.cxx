@@ -31,19 +31,20 @@
 
 vtkQtChartSeriesModelCollection::vtkQtChartSeriesModelCollection(
     QObject *parentObject)
-  : vtkQtChartSeriesModel(parentObject)
+  : vtkQtChartSeriesModel(parentObject), Models()
 {
 }
 
 int vtkQtChartSeriesModelCollection::getNumberOfSeries() const
 {
-  int num = 0;
-  foreach(vtkQtChartSeriesModel *model, this->Models)
+  int series = 0;
+  QList<vtkQtChartSeriesModel *>::ConstIterator model = this->Models.begin();
+  for( ; model != this->Models.end(); ++model)
     {
-    num += model->getNumberOfSeries();
+    series += (*model)->getNumberOfSeries();
     }
 
-  return num;
+  return series;
 }
 
 int vtkQtChartSeriesModelCollection::getNumberOfSeriesValues(int series) const
@@ -81,7 +82,7 @@ QVariant vtkQtChartSeriesModelCollection::getSeriesValue(int series,
 }
 
 QList<QVariant> vtkQtChartSeriesModelCollection::getSeriesRange(int series,
-      int component) const
+    int component) const
 {
   vtkQtChartSeriesModel *model = this->modelForSeries(series);
   if(model)
@@ -95,10 +96,22 @@ QList<QVariant> vtkQtChartSeriesModelCollection::getSeriesRange(int series,
 void vtkQtChartSeriesModelCollection::addSeriesModel(
     vtkQtChartSeriesModel *model)
 {
-  this->connect(model, SIGNAL(modelReset()), SIGNAL(modelReset()));
-  this->connect(model, SIGNAL(modelAboutToBeReset()), SIGNAL(modelAboutToBeReset()));
+  if(model)
+    {
+    this->connect(model, SIGNAL(modelAboutToBeReset()),
+        this, SIGNAL(modelAboutToBeReset()));
+    this->connect(model, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
+    this->connect(model, SIGNAL(seriesAboutToBeInserted(int, int)),
+        this, SLOT(onSeriesAboutToBeInserted(int, int)));
+    this->connect(model, SIGNAL(seriesInserted(int, int)),
+        this, SLOT(onSeriesInserted(int, int)));
+    this->connect(model, SIGNAL(seriesAboutToBeRemoved(int, int)),
+        this, SLOT(onSeriesAboutToBeRemoved(int, int)));
+    this->connect(model, SIGNAL(seriesRemoved(int, int)),
+        this, SLOT(onSeriesRemoved(int, int)));
 
-  this->Models.append(model);
+    this->Models.append(model);
+    }
 }
 
 void vtkQtChartSeriesModelCollection::removeSeriesModel(
@@ -107,6 +120,7 @@ void vtkQtChartSeriesModelCollection::removeSeriesModel(
   int index = this->Models.indexOf(model);
   if(index != -1)
     {
+    this->disconnect(model, 0, this, 0);
     this->Models.removeAt(index);
     }
 }
@@ -170,34 +184,38 @@ void vtkQtChartSeriesModelCollection::onSeriesRemoved(
     }
 }
 
-vtkQtChartSeriesModel* vtkQtChartSeriesModelCollection::modelForSeries(
+vtkQtChartSeriesModel *vtkQtChartSeriesModelCollection::modelForSeries(
     int &series) const
 {
-  foreach(vtkQtChartSeriesModel* model, this->Models)
+  QList<vtkQtChartSeriesModel *>::ConstIterator model = this->Models.begin();
+  for( ; model != this->Models.end(); ++model)
     {
-    if(series < model->getNumberOfSeries())
+    if(series < (*model)->getNumberOfSeries())
       {
-      return model;
+      return (*model);
       }
 
-    series -= model->getNumberOfSeries();
+    series -= (*model)->getNumberOfSeries();
     }
 
   return 0;
 }
   
-int vtkQtChartSeriesModelCollection::seriesForModel(vtkQtChartSeriesModel* m) const
+int vtkQtChartSeriesModelCollection::seriesForModel(
+    vtkQtChartSeriesModel *model) const
 {
-  int num = 0;
-  foreach(vtkQtChartSeriesModel* _m, this->Models)
+  int series = 0;
+  QList<vtkQtChartSeriesModel *>::ConstIterator iter = this->Models.begin();
+  for( ; iter != this->Models.end(); ++iter)
     {
-    if(m == _m)
+    if(model == *iter)
       {
-      return num;
+      return series;
       }
-    num += m->getNumberOfSeries();
+
+    series += (*iter)->getNumberOfSeries();
     }
-  qFatal("Go fix your code.  Model not found.\n");
+
   return -1;
 }
 

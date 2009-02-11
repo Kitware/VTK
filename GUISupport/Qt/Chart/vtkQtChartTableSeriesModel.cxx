@@ -71,12 +71,12 @@ bool vtkQtChartTableSeriesModel::getColumnsAsSeries() const
   return this->ColumnsAsSeries;
 }
 
-void vtkQtChartTableSeriesModel::setColumnsAsSeries(bool f)
+void vtkQtChartTableSeriesModel::setColumnsAsSeries(bool columnsAsSeries)
 {
-  if(f != this->ColumnsAsSeries)
+  if(columnsAsSeries != this->ColumnsAsSeries)
     {
     emit this->modelAboutToBeReset();
-    this->ColumnsAsSeries = f;
+    this->ColumnsAsSeries = columnsAsSeries;
     emit this->modelReset();
     }
 }
@@ -93,7 +93,7 @@ int vtkQtChartTableSeriesModel::getNumberOfSeries() const
     this->Model->rowCount();
 }
 
-int vtkQtChartTableSeriesModel::getNumberOfSeriesValues(int /*series*/) const
+int vtkQtChartTableSeriesModel::getNumberOfSeriesValues(int) const
 {
   if(!this->Model)
     {
@@ -144,8 +144,8 @@ QList<QVariant> vtkQtChartTableSeriesModel::getSeriesRange(int series,
   return this->Range->getSeriesRange(series, component);
 }
 
-void vtkQtChartTableSeriesModel::rowsAboutToBeInserted(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::rowsAboutToBeInserted(const QModelIndex& idx,
+    int start, int end)
 {
   if(!this->ColumnsAsSeries && !idx.isValid())
     {
@@ -153,8 +153,8 @@ void vtkQtChartTableSeriesModel::rowsAboutToBeInserted(const QModelIndex& idx,
     }
 }
 
-void vtkQtChartTableSeriesModel::rowsInserted(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::rowsInserted(const QModelIndex& idx,
+    int start, int end)
 {
   if(!this->ColumnsAsSeries && !idx.isValid())
     {
@@ -162,8 +162,8 @@ void vtkQtChartTableSeriesModel::rowsInserted(const QModelIndex& idx,
     }
 }
 
-void vtkQtChartTableSeriesModel::columnsAboutToBeInserted(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::columnsAboutToBeInserted(
+    const QModelIndex& idx, int start, int end)
 {
   if(this->ColumnsAsSeries && !idx.isValid())
     {
@@ -171,8 +171,8 @@ void vtkQtChartTableSeriesModel::columnsAboutToBeInserted(const QModelIndex& idx
     }
 }
 
-void vtkQtChartTableSeriesModel::columnsInserted(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::columnsInserted(const QModelIndex& idx,
+    int start, int end)
 {
   if(this->ColumnsAsSeries && !idx.isValid())
     {
@@ -180,8 +180,8 @@ void vtkQtChartTableSeriesModel::columnsInserted(const QModelIndex& idx,
     }
 }
 
-void vtkQtChartTableSeriesModel::rowsAboutToBeRemoved(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::rowsAboutToBeRemoved(const QModelIndex& idx,
+    int start, int end)
 {
   if(!this->ColumnsAsSeries && !idx.isValid())
     {
@@ -189,8 +189,8 @@ void vtkQtChartTableSeriesModel::rowsAboutToBeRemoved(const QModelIndex& idx,
     }
 }
 
-void vtkQtChartTableSeriesModel::rowsRemoved(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::rowsRemoved(const QModelIndex& idx,
+    int start, int end)
 {
   if(!this->ColumnsAsSeries && !idx.isValid())
     {
@@ -198,8 +198,8 @@ void vtkQtChartTableSeriesModel::rowsRemoved(const QModelIndex& idx,
     }
 }
 
-void vtkQtChartTableSeriesModel::columnsAboutToBeRemoved(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::columnsAboutToBeRemoved(
+    const QModelIndex& idx, int start, int end)
 {
   if(this->ColumnsAsSeries && !idx.isValid())
     {
@@ -207,8 +207,8 @@ void vtkQtChartTableSeriesModel::columnsAboutToBeRemoved(const QModelIndex& idx,
     }
 }
 
-void vtkQtChartTableSeriesModel::columnsRemoved(const QModelIndex& idx, 
-  int start, int end)
+void vtkQtChartTableSeriesModel::columnsRemoved(const QModelIndex& idx,
+    int start, int end)
 {
   if(this->ColumnsAsSeries && !idx.isValid())
     {

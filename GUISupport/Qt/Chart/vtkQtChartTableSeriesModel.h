@@ -130,6 +130,10 @@ protected:
   QAbstractItemModel *Model;         ///< Stores the item model.
   vtkQtChartSeriesModelRange *Range; ///< Stores the series ranges.
   bool ColumnsAsSeries;              ///< True if columns are series.
+
+private:
+  vtkQtChartTableSeriesModel(const vtkQtChartTableSeriesModel &);
+  vtkQtChartTableSeriesModel &operator=(const vtkQtChartTableSeriesModel &);
 };
 
 #endif
