@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.5");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.6");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -85,30 +85,39 @@ bool vtkPCAAssessFunctor::InitializePCA(
     vtkGenericWarningMacro( "No \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column in request." );
     return false;
     }
-  vtkIdType mrmr = reqModel->GetNumberOfRows();
-  vtkIdType ermr;
+  // Check that the derived model includes additional rows specifying the
+  // normalization as required.
+  vtkIdType mrmr = reqModel->GetNumberOfRows(); // actual number of rows
+  vtkIdType ermr; // expected number of rows
   switch ( normScheme )
     {
-    case vtkPCAStatistics::NONE:
-      ermr = 2 * m + 1;
-      break;
-    case vtkPCAStatistics::DIAGONAL_SPECIFIED:
-    case vtkPCAStatistics::DIAGONAL_VARIANCE:
-      ermr = 2 * m + 2;
-      break;
-    case vtkPCAStatistics::TRIANGLE_SPECIFIED:
-      ermr = 3 * m + 1;
-      break;
-    case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
-    default:
-      ermr = 5 * m; // sure to fail
-      break;
+  case vtkPCAStatistics::NONE:
+    // m+1 covariance/Cholesky rows, m eigenvector rows, no normalization factors
+    ermr = 2 * m + 1;
+    break;
+  case vtkPCAStatistics::DIAGONAL_SPECIFIED:
+  case vtkPCAStatistics::DIAGONAL_VARIANCE:
+    // m+1 covariance/Cholesky rows, m eigenvector rows, 1 normalization factor row
+    ermr = 2 * m + 2;
+    break;
+  case vtkPCAStatistics::TRIANGLE_SPECIFIED:
+    // m+1 covariance/Cholesky rows, m eigenvector rows, m normalization factor rows
+    ermr = 3 * m + 1;
+    break;
+  case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
+  default:
+      {
+      vtkGenericWarningMacro( "The normalization scheme specified (" << normScheme << ") is invalid." );
+      return false;
+      }
+    break;
     }
+  // Allow derived classes to add rows, but never allow fewer than required.
   if ( mrmr < ermr )
     {
     vtkGenericWarningMacro(
-                           "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
-                           << reqModel->GetNumberOfRows() << "." );
+      "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
+      << reqModel->GetNumberOfRows() << "." );
     return false;
     }
 
