@@ -26,6 +26,7 @@ IF(VTK_USE_DISPLAY)
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
+    TestLabelPlacer2D.cxx
     TestLabelPlacerCoincidentPoints.cxx
     TestLODActor.cxx
     TestManyActors.cxx
@@ -94,7 +95,7 @@ ADD_EXECUTABLE(TestFBOImplementation
 TARGET_LINK_LIBRARIES(TestFBOImplementation
   vtkRendering)
 
-ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
+ADD_EXECUTABLE(${KIT}CxxTests MACOSX_BUNDLE ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
 
 

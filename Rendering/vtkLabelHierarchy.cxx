@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.35");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.36");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.35");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.36");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -745,10 +745,23 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 }
 
 //----------------------------------------------------------------------------
-// vtkLabelHierarchyQuadtreeIterator - a simple up-front-sorting iterator
+// vtkLabelHierarchyQuadtreeIterator - a simple breadth-first iterator
 //
-// An iterator that first sorts the octree nodes based on level and
-// distance to the camera.
+// This iterator maintains a queue of nodes to be visited. When a node is
+// popped off the front, any of its children that are in the view frustum
+// are sorted by distance to the camera and then pushed onto the back.
+// This forces the iterator to perform a breadth-first traversal of nodes
+// that are roughly ordered by their distance to the camera.
+// Unlike the FULL_SORT iterator, it does not traverse and sort all the nodes
+// up front; instead nodes are added as their parents are removed.
+//
+// The total number of nodes to be processed is limited by the
+// MAXIMUM_NODES_TRAVERSED constant.
+// The number of nodes processed is roughly proportional to the amount of work
+// required to place labels, so this is a good way to maintain interactive
+// framerates.
+// In the future, it might be useful to weight the number of nodes
+// queued by the number of label anchors stored at the node.
 
 class vtkLabelHierarchyQuadtreeIterator : public vtkLabelHierarchyIterator
 {
@@ -756,16 +769,21 @@ public:
   vtkTypeRevisionMacro(vtkLabelHierarchyQuadtreeIterator,vtkLabelHierarchyIterator);
   static vtkLabelHierarchyQuadtreeIterator* New();
 
+  typedef vtkLabelHierarchy::Implementation::HierarchyType2::octree_node_pointer NodePointer;
+
   void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
   virtual void Begin( vtkIdTypeArray* lastPlaced );
   virtual void Next();
   virtual bool IsAtEnd();
   virtual vtkIdType GetLabelId();
   virtual void GetNodeGeometry( double center[3], double& sz );
-  bool IsNodeInFrustum();
-  void ReorderChildrenForView( int order[4] );
+  bool IsNodeInFrustum( NodePointer node );
   vtkGetObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Renderer,vtkRenderer);
+  enum Constants
+    {
+    MAXIMUM_NODES_QUEUED = 128  // See notes at QueueChildren() before changing.
+    };
 
 protected:
   vtkLabelHierarchyQuadtreeIterator();
@@ -773,23 +791,22 @@ protected:
 
   virtual void SetCamera( vtkCamera* camera );
   virtual void SetRenderer( vtkRenderer* renderer );
+  void QueueChildren();
 
   vtkCamera* Camera;
   vtkRenderer* Renderer;
   vtkExtractSelectedFrustum* FrustumExtractor;
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
-  vtkLabelHierarchy::Implementation::HierarchyCursor2 Cursor;
-  vtkstd::vector<int> Path;
-  vtkstd::vector<vtkstd::vector<int> > Order; // visibility sorted order of children at each level of the tree.
+  NodePointer Node;
+  vtkstd::deque<NodePointer> Queue; // Queue of nodes to be traversed.
   float BucketSize[2]; // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
 
   bool AtEnd;
-  int NodesTraversed;
-  int DidRoot;
+  int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.35");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.36");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -797,11 +814,11 @@ vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
 vtkLabelHierarchyQuadtreeIterator::vtkLabelHierarchyQuadtreeIterator()
 {
   this->AtEnd = true;
-  this->DidRoot = 0;
   this->Camera = 0;
   this->Renderer = 0;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
+  this->NodesQueued = 0;
 }
 
 vtkLabelHierarchyQuadtreeIterator::~vtkLabelHierarchyQuadtreeIterator()
@@ -824,6 +841,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
   vtkRenderer* ren,
   float bucketSize[2] )
 {
+  this->NodesQueued = 0;
   this->SetHierarchy( hier );
   this->SetCamera( cam );
   vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
@@ -837,7 +855,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
   if ( cam->GetParallelProjection() )
     { // Compute threshold for quadtree nodes too small to visit using parallel projection
     //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
-    this->SizeLimit = 0.0001; // FIXME: Should be set using cam->ParallelScale
+    this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
@@ -862,18 +880,17 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
 
 void vtkLabelHierarchyQuadtreeIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPlaced) )
 {
-  this->Path.clear();
-  this->Order.clear();
-  this->Cursor = vtkLabelHierarchy::Implementation::HierarchyCursor2( this->Hierarchy->GetImplementation()->Hierarchy2 );
-  this->DidRoot = false;
-  if ( &(this->Cursor->value()) )
+  this->Node = this->Hierarchy->GetImplementation()->Hierarchy2->root();
+  if ( &(this->Node->value()) )
     {
-    if ( this->IsNodeInFrustum() )
+    if ( this->IsNodeInFrustum( this->Node ) )
       {
+      this->QueueChildren();
       this->BoxNode();
+      ++ this->NodesQueued;
       this->AtEnd = false;
-      this->LabelIterator = this->Cursor->value().begin();
-      if ( this->LabelIterator == this->Cursor->value().end() )
+      this->LabelIterator = this->Node->value().begin();
+      if ( this->LabelIterator == this->Node->value().end() )
         {
         this->Next();
         }
@@ -889,88 +906,57 @@ void vtkLabelHierarchyQuadtreeIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
     }
 }
 
+struct vtkQuadtreeNodeDistCompare
+{
+  double Eye[3];
+  void SetEye( const double* eye )
+    {
+    for ( int i = 0; i < 3; ++ i )
+      {
+      this->Eye[i] = eye[i];
+      }
+    }
+  bool operator () (
+    const vtkLabelHierarchyQuadtreeIterator::NodePointer& a,
+    const vtkLabelHierarchyQuadtreeIterator::NodePointer& b ) const
+    {
+    const double* xa = a->value().GetCenter();
+    const double* xb = b->value().GetCenter();
+    double da = 0., db = 0.;
+    for ( int i = 0; i < 3; ++ i )
+      {
+      double va, vb;
+      va = Eye[i] - xa[i];
+      vb = Eye[i] - xb[i];
+      da += va * va;
+      db += vb * vb;
+      }
+    return ( da < db ? true : ( da == db ? ( a < b ? true : false ) : false ) );
+    }
+};
+
+typedef vtkstd::set<vtkLabelHierarchyQuadtreeIterator::NodePointer,vtkQuadtreeNodeDistCompare> vtkQuadtreeOrderedChildren;
+
 void vtkLabelHierarchyQuadtreeIterator::Next()
 {
   //const int maxNumChildren = ( 1 << 2 );
   ++ this->LabelIterator;
-  if ( this->LabelIterator == this->Cursor->value().end() )
+  if ( this->LabelIterator == this->Node->value().end() )
     {
     this->BoxNode();
-    while ( ! this->Path.empty() || ! this->DidRoot )
+    while ( this->Queue.size() )
       {
-      this->DidRoot = true;
-      // I. Try children of this node.
-      if ( this->Cursor->num_children() )
+      this->Node = this->Queue.front();
+      this->Queue.pop_front();
+      this->QueueChildren();
+      this->LabelIterator = this->Node->value().begin();
+      if ( this->LabelIterator != this->Node->value().end() )
         {
-        vtkstd::vector<int> emptyVec;
-        this->Order.push_back( emptyVec );
-        for ( int i = 0; i < this->Cursor->num_children(); ++ i )
-          {
-          this->Order.back().push_back( i );
-          }
-        this->ReorderChildrenForView( &(this->Order.back()[0]) );
-        this->Cursor.down( this->Order.back()[0] );
-        this->Path.push_back( 0 );
-        if ( this->IsNodeInFrustum() )
-          {
-          this->LabelIterator = this->Cursor->value().begin();
-          if ( this->LabelIterator != this->Cursor->value().end() )
-            { // We found a non-empty node.
-            /* *
-            cout << "Path:";
-            for ( unsigned p = 0; p < this->Path.size(); ++ p )
-              cout << " " << this->Path[p];
-            cout << "\n";
-            cout << "Label: " << *this->LabelIterator << "\n";
-            * */
-            return;
-            }
-          }
-        }
-      // If the root node has no children, the path might be empty here... check it.
-      if ( this->Path.empty() )
-        {
-        this->AtEnd = true;
+        // We have some labels, stop looking for more nodes
         return;
         }
-      // II. Try siblings of this node.
-      while ( this->Path.back() < static_cast<int>( this->Order.back().size() ) )
-        {
-        if ( ++ this->Path.back() < static_cast<int>( this->Order.back().size() ) )
-          {
-          this->Cursor.over( this->Order.back()[this->Path.back()] );
-          }
-        else
-          {
-          // III. Move up and over to the sibling of our parent.
-          this->Path.pop_back();
-          this->Order.pop_back();
-          this->Cursor.up();
-          if ( this->Path.empty() )
-            {
-            this->AtEnd = true;
-            return;
-            }
-          continue;
-          }
-        if ( this->IsNodeInFrustum() )
-          {
-          this->LabelIterator = this->Cursor->value().begin();
-          if ( this->LabelIterator != this->Cursor->value().end() )
-            { // We found a non-empty node.
-            /* *
-            cout << "Path:";
-            for ( unsigned p = 0; p < this->Path.size(); ++ p )
-              cout << " " << this->Path[p];
-            cout << "\n";
-            cout << "Label: " << *this->LabelIterator << "\n";
-            * */
-            return;
-            }
-          }
-        }
       }
-    // We are done traversing the tree...
+    // We must be done traversing the tree.
     this->AtEnd = true;
     }
   else
@@ -993,17 +979,17 @@ vtkIdType vtkLabelHierarchyQuadtreeIterator::GetLabelId()
 
 void vtkLabelHierarchyQuadtreeIterator::GetNodeGeometry( double center[3], double& sz )
 {
-  const double* x = this->Cursor->value().GetCenter();
+  const double* x = this->Node->value().GetCenter();
   for ( int i = 0; i < 2; ++ i )
     center[i] = x[i];
   center[2] = this->Hierarchy->GetImplementation()->Z2;
-  sz = this->Cursor->value().GetSize() / 2.;
+  sz = this->Node->value().GetSize() / 2.;
 }
 
-bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum()
+bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
 {
-  double nodeSize = this->Cursor->value().GetSize() / 2.;
-  const double* x = this->Cursor->value().GetCenter();
+  double nodeSize = node->value().GetSize() / 2.;
+  const double* x = node->value().GetCenter();
   double bbox[6] = {
     x[0] - nodeSize, x[0] + nodeSize,
     x[1] - nodeSize, x[1] + nodeSize,
@@ -1031,52 +1017,50 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum()
   return true;
 }
 
-struct vtkDistNodeStruct
+/**\brief Queue octree children for traversal after the current level has been traversed.
+  *
+  * In order to perform a breadth-first traversal, we must either save state
+  * or traverse the octree many times. Since traversal can be hard on the
+  * CPU cache, we will save state. That state is a list of octree nodes that
+  * are the visible (i.e., in the view frustum) children of nodes in the
+  * current level. If the entire octree is in the frustum and all the children
+  * of nodes at level M exist, this means the list of children will be
+  * (2**D)**(M+1) long.
+  * For a quadtree, D = 2.
+  * 
+  * Instead of limiting the Queue size, we limit the total number of nodes queued.
+  * Since nodes are popped off the front of the queue as they are pushed onto the
+  * back, this is a stricter limit. It is also more closely related to the actual
+  * amount of time spent processing labels.
+  */
+void vtkLabelHierarchyQuadtreeIterator::QueueChildren()
 {
-  double Distance;
-  vtkIdType NodeNum;
-};
-
-extern "C"
-{
-static int vtkCompareDist( const void* av, const void* bv )
-{
-  const struct vtkDistNodeStruct* a = reinterpret_cast<const struct vtkDistNodeStruct*>( av );
-  const struct vtkDistNodeStruct* b = reinterpret_cast<const struct vtkDistNodeStruct*>( bv );
-  return a->Distance < b->Distance ? -1 : ( a->Distance > b->Distance ? 1 : 0 );
-}
-} // extern "C"
-
-void vtkLabelHierarchyQuadtreeIterator::ReorderChildrenForView( int* order )
-{
-  vtkIdType nc = this->Cursor->num_children();
-  if ( nc <= 0 )
+  int nc = this->Node->num_children();
+  if ( nc <= 0 || this->NodesQueued >= MAXIMUM_NODES_QUEUED )
     {
     return;
     }
 
-  struct vtkDistNodeStruct* nodeDistances = new struct vtkDistNodeStruct[nc];
-  const double* eye = this->Camera->GetPosition();
-  const double* x;
-  for ( vtkIdType i = 0; i < nc; ++ i )
+  // Sort children of this node by distance to eye ...
+  int i;
+  vtkQuadtreeNodeDistCompare dcomp;
+  dcomp.SetEye( this->Camera->GetFocalPoint() );
+  vtkQuadtreeOrderedChildren children( dcomp );
+  for ( i = 0; i < nc; ++ i )
     {
-    this->Cursor.down( i );
-    x = this->Cursor->value().GetCenter();
-    nodeDistances[i].NodeNum = i;
-    nodeDistances[i].Distance = 0;
-    for ( int j = 0; j < 3; ++ j )
-      {
-      double dx = eye[j] - x[j];
-      nodeDistances[i].Distance += dx * dx;
+    NodePointer child = &((*this->Node)[i]);
+    if ( this->IsNodeInFrustum( child ) )
+      { // only add visible children
+      children.insert( child );
       }
-    this->Cursor.up();
     }
-  qsort( nodeDistances, nc, sizeof(vtkDistNodeStruct), vtkCompareDist );
-  for ( vtkIdType i = 0; i < nc; ++ i )
+  // ... and add those in the frustum to the back of the queue.
+  vtkQuadtreeOrderedChildren::iterator cit;
+  for ( cit = children.begin(); cit != children.end() && this->NodesQueued < MAXIMUM_NODES_QUEUED; ++ cit )
     {
-    order[i] = nodeDistances[i].NodeNum;
+    this->Queue.push_back( *cit );
+    ++ this->NodesQueued;
     }
-  delete [] nodeDistances;
 }
 
 //----------------------------------------------------------------------------
@@ -1124,7 +1108,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.35");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.36");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1365,6 +1349,23 @@ bool vtkLabelHierarchy3DepthFirstIterator::IsNodeInFrustum()
   return true;
 }
 
+struct vtkDistNodeStruct
+{
+  int NodeNum;
+  double Distance;
+};
+
+extern "C" {
+static int vtkCompareDist( const void* va, const void* vb )
+{
+  const vtkDistNodeStruct* da = static_cast<const vtkDistNodeStruct*>( va );
+  const vtkDistNodeStruct* db = static_cast<const vtkDistNodeStruct*>( vb );
+  return
+    ( da->Distance < db->Distance ? -1 :
+      ( da->Distance > db->Distance ? 1 : 0 ) );
+}
+}
+
 void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 {
   vtkIdType nc = this->Cursor->num_children();
@@ -1401,7 +1402,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.35");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.36");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
