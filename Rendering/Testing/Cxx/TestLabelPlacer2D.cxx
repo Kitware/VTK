@@ -2715,6 +2715,8 @@ int TestLabelPlacer2D( int argc, char* argv[] )
 
   test->SetRenderWindow( rw );
   int retval = test->RegressionTest( 10. );
+  vtkIndent indent;
+  cam->PrintSelf( cout, indent );
   if ( test->IsInteractiveModeSpecified() )
     {
     ri->Start();
