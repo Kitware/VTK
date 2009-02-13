@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.14");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.15");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -179,7 +179,10 @@ public:
       this->Tiles[i].resize( this->NumTiles[1] );
 
     // Save labels from the last frame for use later...
+    vtkSmartPointer<vtkIdTypeArray> tmp = this->LastLabelsPlaced;
     this->LastLabelsPlaced = this->NewLabelsPlaced;
+    this->NewLabelsPlaced = tmp;
+    this->NewLabelsPlaced->Reset();
     }
 };
 
@@ -668,11 +671,13 @@ int vtkLabelPlacer::RequestData(
     if ( this->Buckets->PlaceLabel( opacity, ll[0], ur[0], ll[1], ur[1] ) )
       {
       renderedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
+#if 0 
       if ( renderedLabelArea > allowableLabelArea )
         {
         vtkDebugMacro("Early exit due to large rendered label area");
         break;
         }
+#endif // 0
       vtkIdType conn[4];
       OutputCoordinates coordSys = static_cast<OutputCoordinates>( this->OutputCoordinateSystem );
       if ( labelType == 0 )
@@ -727,7 +732,7 @@ int vtkLabelPlacer::RequestData(
 
       // Uncomment to actually store the previous labels.
       // Currently starting with a clean slate each time.
-      //this->Buckets->NewLabelsPlaced->InsertNextValue( inIter->GetLabelId() );
+      this->Buckets->NewLabelsPlaced->InsertNextValue( inIter->GetLabelId() );
       vtkDebugMacro("Placed: " << inIter->GetLabelId() << " (" << ll[0] << ", " << ll[1] << "  " << ur[0] << "," << ur[1] << ") " << labelType);
       }
     }
