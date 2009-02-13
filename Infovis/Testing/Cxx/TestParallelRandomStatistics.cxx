@@ -50,6 +50,7 @@ struct RandomSampleStatisticsArgs
 {
   int nVals;
   int* retVal;
+  int ioRank;
   int argc;
   char** argv;
 };
@@ -189,7 +190,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   time_t t1;
   time ( &t1 );
 
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
          << "   Total sample size: "
@@ -222,7 +223,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
   
   // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
     }
@@ -271,7 +272,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                            vtkCommunicator::SUM_OP );
 
     // Print out percentages of sample points within 1, 2, and 3 standard deviations of the mean.
-    if ( ! controller->GetLocalProcessId() )
+    if ( controller->GetLocalProcessId() == args->ioRank )
       {
       cout << "   "
            << outputData->GetColumnName( nUniform + c )
@@ -326,7 +327,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   time_t t3;
   time ( &t3 );
 
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
          << "   Total sample size: "
@@ -401,7 +402,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   time_t t5;
   time ( &t5 );
 
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
          << "   Total sample size: "
@@ -462,7 +463,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   time_t t7;
   time ( &t7 );
 
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
          << "   Total sample size: "
@@ -502,11 +503,59 @@ int main( int argc, char** argv )
     return 1;
     } 
 
+  // ************************** Find an I/O node ******************************** 
+  int* ioPtr;
+  int ioRank;
+  int flag;
+
+  MPI_Attr_get( MPI_COMM_WORLD, 
+                MPI_IO,
+                &ioPtr,
+                &flag );
+
+  if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
+    {
+    // Houston, we'we had a problem: no I/O node found.
+    ioRank = MPI_PROC_NULL;
+    vtkGenericWarningMacro("No MPI I/O nodes found.");
+
+    // As no I/O node was found, we need an unambiguous way to report the problem.
+    // This is the only case when a testValue of -1 will be returned
+    controller->Finalize();
+    controller->Delete();
+    
+    return -1;
+    }
+  else 
+    {
+    if ( *ioPtr = MPI_ANY_SOURCE )
+      {
+      // Anyone can do the I/O trick--just pick node 0.
+      ioRank = 0;
+      }
+    else
+      {
+      // Only some nodes can do I/O. Make sure everyone agrees on the choice (min).
+      controller->AllReduce( ioPtr,
+                             &ioRank,
+                             1,
+                             vtkCommunicator::MIN_OP );
+      }
+    }
+
+  // ************************** Initialize test ********************************* 
+  if ( controller->GetLocalProcessId() == ioRank )
+    {
+    cout << "\n# Houston, this is process "
+         << ioRank
+         << " speaking. I'll be the I/O node.\n";
+    }
+      
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == ioRank )
     {
-    cout << "# Running test with "
+    cout << "\n# Running test with "
          << numProcs
          << " processes...\n";
     }
@@ -516,6 +565,7 @@ int main( int argc, char** argv )
   RandomSampleStatisticsArgs args;
   args.nVals = 100000;
   args.retVal = &testValue;
+  args.ioRank = ioRank;
   args.argc = argc;
   args.argv = argv;
 
@@ -524,7 +574,7 @@ int main( int argc, char** argv )
   controller->SingleMethodExecute();
 
   // Clean up and exit
-  if ( ! controller->GetLocalProcessId() )
+  if ( controller->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Test completed.\n\n";
     }
