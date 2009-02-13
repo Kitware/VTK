@@ -21,7 +21,7 @@
 // and communication. Please note that the communication is done using
 // the communicator which is accessible to the user. Therefore it is
 // possible to get the communicator with GetCommunicator() and use
-// it to send and receive data. This is the encoured communication method.
+// it to send and receive data. This is the encouraged communication method.
 // The internal (RMI) communications are done using a second internal
 // communicator (called RMICommunicator).
 //
