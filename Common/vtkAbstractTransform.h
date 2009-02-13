@@ -307,6 +307,8 @@ public:
     this->InverseTransform = tmp; };
 };
 
+// .NAME vtkTransformConcatenation - store a series of transformations.
+// .SECTION Description
 // A helper class (not derived from vtkObject) to store a series of
 // transformations in a pipelined concatenation.
 class VTK_COMMON_EXPORT vtkTransformConcatenation
@@ -316,48 +318,60 @@ public:
     return new vtkTransformConcatenation(); };
   void Delete() { delete this; };
 
+  // Description:
   // add a transform to the list according to Pre/PostMultiply semantics
   void Concatenate(vtkAbstractTransform *transform); 
     
+  // Description:
   // concatenate with a matrix according to Pre/PostMultiply semantics
   void Concatenate(const double elements[16]);
 
-  // set the PreMultiply flag
+  // Description:
+  // set/get the PreMultiply flag
   void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; };
   int GetPreMultiplyFlag() { return this->PreMultiplyFlag; };
   
+  // Description:
   // the three basic linear transformations
   void Translate(double x, double y, double z);
   void Rotate(double angle, double x, double y, double z);
   void Scale(double x, double y, double z);
-
+  
+  // Description:
   // invert the concatenation
   void Inverse();
   
+  // Description:
   // get the inverse flag
   int GetInverseFlag() { return this->InverseFlag; };
   
+  // Description:
   // identity simply clears the transform list
   void Identity();
     
   // copy the list
   void DeepCopy(vtkTransformConcatenation *transform);
     
+  // Description:
   // the number of stored transforms
   int GetNumberOfTransforms() { return this->NumberOfTransforms; };
-    
+  
+  // Description:
   // the number of transforms that were pre-concatenated (note that
   // whenever Iverse() is called, the pre-concatenated and
   // post-concatenated transforms are switched)
   int GetNumberOfPreTransforms() { return this->NumberOfPreTransforms; };
-
+  
+  // Description:
   // the number of transforms that were post-concatenated.
   int GetNumberOfPostTransforms() { 
     return this->NumberOfTransforms-this->NumberOfPreTransforms; };
 
+  // Description:
   // get one of the transforms
   vtkAbstractTransform *GetTransform(int i);
-    
+  
+  // Description:
   // get maximum MTime of all transforms
   unsigned long GetMaxMTime();
     
@@ -381,19 +395,28 @@ protected:
   vtkTransformPair *TransformList;
 };
 
+// .NAME vtkTransformConcatenationStack - Store a stack of concatenations.
+// .SECTION Description
 // A helper class (not derived from vtkObject) to store a stack of
 // concatenations.
 class VTK_COMMON_EXPORT vtkTransformConcatenationStack
 {
 public:
-  static vtkTransformConcatenationStack *New() {
-    return new vtkTransformConcatenationStack(); };
-  void Delete() { delete this; };
+  static vtkTransformConcatenationStack *New()
+    {
+      return new vtkTransformConcatenationStack();
+    }
+  void Delete()
+    {
+      delete this;
+    }
 
+  // Description:
   // pop will pop delete 'concat', then pop the
   // top item on the stack onto 'concat'.
   void Pop(vtkTransformConcatenation **concat);
 
+  // Description:
   // push will move 'concat' onto the stack, and
   // make 'concat' a copy of its previous self
   void Push(vtkTransformConcatenation **concat);
