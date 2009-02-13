@@ -33,21 +33,21 @@
  * 
  */
 /*****************************************************************************
- *
- * exodusII_int.h - ExodusII header file for internal Exodus call use only
- *
- * author - Sandia National Laboratories
- *          Vic Yarberry    - Added headers and error logging
- *
- *          
- * environment - UNIX
- *
- * revision history - 
- *
- *  Id
- *
- ****************************************************************************
- */
+*
+* exodusII_int.h - ExodusII header file for internal Exodus call use only
+*
+* author - Sandia National Laboratories
+*          Vic Yarberry    - Added headers and error logging
+*
+*          
+* environment - UNIX
+*
+* revision history - 
+*
+*  Id
+*
+****************************************************************************
+*/
 
 #ifndef EXODUS_II_INT_HDR
 #define EXODUS_II_INT_HDR
@@ -78,9 +78,9 @@
 
 #define MAX_VAR_NAME_LENGTH     20   /**< Internal use only */
 
-/*   for netCDF 3.4, we estimate the size of the header; 
- *   if estimate is larger than this max, set the estimate to this max;
- */
+  /*   for netCDF 3.4, we estimate the size of the header; 
+   *   if estimate is larger than this max, set the estimate to this max;
+   */
 #define MAX_HEADER_SIZE         30000
 
 
@@ -125,13 +125,13 @@
 #define ATT_VERSION             "version"       /* the EXODUS II file vers # */
 #define ATT_FILESIZE            "file_size"     /* 1=large, 0=normal */
 #define ATT_FLT_WORDSIZE        "floating_point_word_size"
-/* word size of floating     */
-/* point numbers in file     */
+                                                /* word size of floating     */
+                                                /* point numbers in file     */
 #define ATT_FLT_WORDSIZE_BLANK  "floating point word size"
-/* word size of floating     */
-/* point numbers in file     */
-/* used for db version 2.01  */
-/* and earlier               */
+                                                /* word size of floating     */
+                                                /* point numbers in file     */
+                                                /* used for db version 2.01  */
+                                                /* and earlier               */
 #define DIM_NUM_NODES           "num_nodes"     /* # of nodes                */
 #define DIM_NUM_DIM             "num_dim"       /* # of dimensions; 2- or 3-d*/
 #define DIM_NUM_EDGE            "num_edge"      /* # of edges (over all blks)*/
@@ -168,64 +168,64 @@
 #define ATT_NAME_ELB            "elem_type"     /* element type names for    */
                                                 /*   each element block      */
 #define DIM_NUM_EL_IN_BLK(num)  ex_catstr("num_el_in_blk",num)
-/* # of elements in element  */
-/*   block num               */
+                                                /* # of elements in element  */
+                                                /*   block num               */
 #define DIM_NUM_NOD_PER_EL(num) ex_catstr("num_nod_per_el",num)
-/* # of nodes per element in */
-/*   element block num       */
+                                                /* # of nodes per element in */
+                                                /*   element block num       */
 #define DIM_NUM_ATT_IN_BLK(num) ex_catstr("num_att_in_blk",num)
-/* # of attributes in element*/
-/*   block num               */
+                                                /* # of attributes in element*/
+                                                /*   block num               */
 #define DIM_NUM_ED_IN_EBLK(num) ex_catstr("num_ed_in_blk",num)
-/* # of edges in edge        */
-/*   block num               */
+                                                /* # of edges in edge        */
+                                                /*   block num               */
 #define DIM_NUM_NOD_PER_ED(num)  ex_catstr("num_nod_per_ed",num)
-/* # of nodes per edge in    */
-/*   edge block num          */
+                                                /* # of nodes per edge in    */
+                                                /*   edge block num          */
 #define DIM_NUM_EDG_PER_EL(num)  ex_catstr("num_edg_per_el",num)
-/* # of edges per element in */
-/*   element block num       */
+                                                /* # of edges per element in */
+                                                /*   element block num       */
 #define DIM_NUM_ATT_IN_EBLK(num) ex_catstr("num_att_in_eblk",num)
-/* # of attributes in edge   */
-/*   block num               */
+                                                /* # of attributes in edge   */
+                                                /*   block num               */
 #define DIM_NUM_FA_IN_FBLK(num)  ex_catstr("num_fa_in_blk",num)
-/* # of faces in face        */
-/*   block num               */
+                                                /* # of faces in face        */
+                                                /*   block num               */
 #define DIM_NUM_NOD_PER_FA(num)  ex_catstr("num_nod_per_fa",num)
-/* # of nodes per face in    */
-/*   face block num          */
+                                                /* # of nodes per face in    */
+                                                /*   face block num          */
 #define DIM_NUM_FAC_PER_EL(num)  ex_catstr("num_fac_per_el",num)
-/* # of faces per element in */
-/*   element block num       */
+                                                /* # of faces per element in */
+                                                /*   element block num       */
 #define DIM_NUM_ATT_IN_FBLK(num) ex_catstr("num_att_in_fblk",num)
-/* # of attributes in face   */
-/*   block num               */
+                                                /* # of attributes in face   */
+                                                /*   block num               */
 #define DIM_NUM_ATT_IN_NBLK      "num_att_in_nblk"
 
 #define VAR_CONN(num)            ex_catstr("connect",num)
-/* element connectivity for  */
-/*   element block num       */
+                                                /* element connectivity for  */
+                                                /*   element block num       */
 #define VAR_ATTRIB(num)         ex_catstr("attrib",num)
-/* list of attributes for    */
-/*   element block num       */
+                                                /* list of attributes for    */
+                                                /*   element block num       */
 #define VAR_NAME_ATTRIB(num)    ex_catstr("attrib_name",num)
-/* list of attribute names   */
-/* for element block num     */
+                                                /* list of attribute names   */
+                                                /* for element block num     */
 #define VAR_EB_PROP(num)        ex_catstr("eb_prop",num)
-/* list of the numth property*/
-/*   for all element blocks  */
+                                                /* list of the numth property*/
+                                                /*   for all element blocks  */
 #define VAR_ECONN(num)            ex_catstr("edgconn",num)
-/* edge connectivity for     */
-/*   element block num       */
+                                                /* edge connectivity for     */
+                                                /*   element block num       */
 #define VAR_EBCONN(num)           ex_catstr("ebconn",num)
-/* edge connectivity for     */
-/*   edge block num          */
+                                                /* edge connectivity for     */
+                                                /*   edge block num          */
 #define VAR_EATTRIB(num)          ex_catstr("eattrb",num)
-/* list of attributes for    */
-/*   edge block num          */
+                                                /* list of attributes for    */
+                                                /*   edge block num          */
 #define VAR_NAME_EATTRIB(num)    ex_catstr("eattrib_name",num)
-/* list of attribute names   */
-/* for edge block num        */
+                                                /* list of attribute names   */
+                                                /* for edge block num        */
 #define VAR_NATTRIB              "nattrb"
 #define VAR_NAME_NATTRIB         "nattrib_name"
 #define DIM_NUM_ATT_IN_NBLK      "num_att_in_nblk"
@@ -251,23 +251,23 @@
 #define DIM_NUM_ATT_IN_ELS(num)  ex_catstr("num_att_in_els",num)
 
 #define VAR_ED_PROP(num)         ex_catstr("ed_prop",num)
-/* list of the numth property*/
-/*   for all edge blocks     */
+                                                /* list of the numth property*/
+                                                /*   for all edge blocks     */
 #define VAR_FCONN(num)            ex_catstr("facconn",num)
-/* face connectivity for     */
-/*   element block num       */
+                                                /* face connectivity for     */
+                                                /*   element block num       */
 #define VAR_FBCONN(num)           ex_catstr("fbconn",num)
-/* face connectivity for     */
-/*   face block num          */
+                                                /* face connectivity for     */
+                                                /*   face block num          */
 #define VAR_FATTRIB(num)          ex_catstr("fattrb",num)
-/* list of attributes for    */
-/*   face block num          */
+                                                /* list of attributes for    */
+                                                /*   face block num          */
 #define VAR_NAME_FATTRIB(num)    ex_catstr("fattrib_name",num)
-/* list of attribute names   */
-/* for face block num        */
+                                                /* list of attribute names   */
+                                                /* for face block num        */
 #define VAR_FA_PROP(num)         ex_catstr("fa_prop",num)
-/* list of the numth property*/
-/*   for all face blocks     */
+                                                /* list of the numth property*/
+                                                /*   for all face blocks     */
 #define ATT_PROP_NAME           "name"          /* name attached to element  */
                                                 /*   block, node set, side   */
                                                 /*   set, element map, or    */
@@ -279,105 +279,105 @@
 #define VAR_SS_STAT             "ss_status"     /* side set status           */
 #define VAR_SS_IDS              "ss_prop1"      /* side set id properties    */
 #define DIM_NUM_SIDE_SS(num)    ex_catstr("num_side_ss",num)
-/* # of sides in side set num*/
+                                                /* # of sides in side set num*/
 #define DIM_NUM_DF_SS(num)      ex_catstr("num_df_ss",num)
-/* # of distribution factors */
-/* in side set num           */
+                                               /* # of distribution factors */
+                                               /* in side set num           */
 /*#define DIM_NUM_NOD_SS(num)   ex_catstr("num_nod_ss",num) *** obsolete *** */
-/* # of nodes in side set num*/
+                                                /* # of nodes in side set num*/
 #define VAR_FACT_SS(num)        ex_catstr("dist_fact_ss",num)
-/* the distribution factors  */
-/*   for each node in side   */
-/*   set num                 */
+                                                /* the distribution factors  */
+                                                /*   for each node in side   */
+                                                /*   set num                 */
 #define VAR_ELEM_SS(num)        ex_catstr("elem_ss",num)
-/* list of elements in side  */
-/*   set num                 */
+                                                /* list of elements in side  */
+                                                /*   set num                 */
 #define VAR_SIDE_SS(num)        ex_catstr("side_ss",num)
-/* list of sides in side set */
+                                                /* list of sides in side set */
 #define VAR_SS_PROP(num)        ex_catstr("ss_prop",num)
-/* list of the numth property*/
-/*   for all side sets       */
+                                                /* list of the numth property*/
+                                                /*   for all side sets       */
 #define DIM_NUM_ES               "num_edge_sets"/* # of edge sets            */
 #define VAR_ES_STAT              "es_status"    /* edge set status           */
 #define VAR_ES_IDS               "es_prop1"     /* edge set id properties    */
 #define DIM_NUM_EDGE_ES(num)     ex_catstr("num_edge_es",num)
-/* # of edges in edge set num*/
+                                                /* # of edges in edge set num*/
 #define DIM_NUM_DF_ES(num)       ex_catstr("num_df_es",num)
-/* # of distribution factors */
-/* in edge set num           */
+                                                /* # of distribution factors */
+                                                /* in edge set num           */
 /*#define DIM_NUM_NOD_ES(num)    ex_catstr("num_nod_es",num) *** obsolete *** */
-/* # of nodes in edge set num*/
+                                                /* # of nodes in edge set num*/
 #define VAR_FACT_ES(num)         ex_catstr("dist_fact_es",num)
-/* the distribution factors  */
-/*   for each node in edge   */
-/*   set num                 */
+                                                /* the distribution factors  */
+                                                /*   for each node in edge   */
+                                                /*   set num                 */
 #define VAR_EDGE_ES(num)         ex_catstr("edge_es",num)
-/* list of edges in edge     */
-/*   set num                 */
+                                                /* list of edges in edge     */
+                                                /*   set num                 */
 #define VAR_ORNT_ES(num)         ex_catstr("ornt_es",num)
-/* list of orientations in   */
-/*  the edge set.            */
+                                                /* list of orientations in   */
+                                                /*  the edge set.            */
 #define VAR_ES_PROP(num)         ex_catstr("es_prop",num)
-/* list of the numth property*/
-/*   for all edge sets       */
+                                                /* list of the numth property*/
+                                                /*   for all edge sets       */
 #define DIM_NUM_FS               "num_face_sets"/* # of face sets            */
 #define VAR_FS_STAT              "fs_status"    /* face set status           */
 #define VAR_FS_IDS               "fs_prop1"     /* face set id properties    */
 #define DIM_NUM_FACE_FS(num)     ex_catstr("num_face_fs",num)
-/* # of faces in side set num*/
+                                                /* # of faces in side set num*/
 #define DIM_NUM_DF_FS(num)       ex_catstr("num_df_fs",num)
-/* # of distribution factors */
-/* in face set num           */
+                                                /* # of distribution factors */
+                                                /* in face set num           */
 /*#define DIM_NUM_NOD_FS(num)    ex_catstr("num_nod_ss",num) *** obsolete *** */
-/* # of nodes in face set num*/
+                                                /* # of nodes in face set num*/
 #define VAR_FACT_FS(num)         ex_catstr("dist_fact_fs",num)
-/* the distribution factors  */
-/*   for each node in face   */
-/*   set num                 */
+                                                /* the distribution factors  */
+                                                /*   for each node in face   */
+                                                /*   set num                 */
 #define VAR_FACE_FS(num)         ex_catstr("face_fs",num)
-/* list of elements in face  */
-/*   set num                 */
+                                                /* list of elements in face  */
+                                                /*   set num                 */
 #define VAR_ORNT_FS(num)         ex_catstr("ornt_fs",num)
-/* list of sides in side set */
+                                                /* list of sides in side set */
 #define VAR_FS_PROP(num)         ex_catstr("fs_prop",num)
-/* list of the numth property*/
-/*   for all face sets       */
+                                                /* list of the numth property*/
+                                                /*   for all face sets       */
 #define DIM_NUM_ELS              "num_elem_sets"/* # of elem sets            */
 #define DIM_NUM_ELE_ELS(num)     ex_catstr("num_ele_els",num)
-/* # of elements in elem set */
-/*   num                     */
+                                                /* # of elements in elem set */
+                                                /*   num                     */
 #define DIM_NUM_DF_ELS(num)     ex_catstr("num_df_els",num)
-/* # of distribution factors */
-/* in element set num        */
+                                               /* # of distribution factors */
+                                               /* in element set num        */
 #define VAR_ELS_STAT            "els_status"    /* elem set status           */
 #define VAR_ELS_IDS             "els_prop1"     /* elem set id properties    */
 #define VAR_ELEM_ELS(num)        ex_catstr("elem_els",num)
-/* list of elements in elem  */
-/*   set num                 */
+                                                /* list of elements in elem  */
+                                                /*   set num                 */
 #define VAR_FACT_ELS(num)       ex_catstr("dist_fact_els",num)
-/* list of distribution      */
-/*   factors in elem set num */
+                                                /* list of distribution      */
+                                                /*   factors in elem set num */
 #define VAR_ELS_PROP(num)       ex_catstr("els_prop",num)
-/* list of the numth property*/
-/*   for all elem sets       */
+                                                /* list of the numth property*/
+                                                /*   for all elem sets       */
 #define DIM_NUM_NS               "num_node_sets"/* # of node sets            */
 #define DIM_NUM_NOD_NS(num)      ex_catstr("num_nod_ns",num)
-/* # of nodes in node set    */
-/*   num                     */
+                                                /* # of nodes in node set    */
+                                                /*   num                     */
 #define DIM_NUM_DF_NS(num)      ex_catstr("num_df_ns",num)
-/* # of distribution factors */
-/* in node set num           */
+                                               /* # of distribution factors */
+                                               /* in node set num           */
 #define VAR_NS_STAT             "ns_status"     /* node set status           */
 #define VAR_NS_IDS              "ns_prop1"      /* node set id properties    */
 #define VAR_NODE_NS(num)        ex_catstr("node_ns",num)
-/* list of nodes in node set */
-/*   num                     */
+                                                /* list of nodes in node set */
+                                                /*   num                     */
 #define VAR_FACT_NS(num)        ex_catstr("dist_fact_ns",num)
-/* list of distribution      */
-/*   factors in node set num */
+                                                /* list of distribution      */
+                                                /*   factors in node set num */
 #define VAR_NS_PROP(num)        ex_catstr("ns_prop",num)
-/* list of the numth property*/
-/*   for all node sets       */
+                                                /* list of the numth property*/
+                                                /*   for all node sets       */
 #define DIM_NUM_QA              "num_qa_rec"    /* # of QA records           */
 #define VAR_QA_TITLE            "qa_records"    /* QA records                */
 #define DIM_NUM_INFO            "num_info"      /* # of information records  */
@@ -406,49 +406,49 @@
 #define VAR_NAME_NOD_VAR        "name_nod_var"  /* names of nodal variables  */
 #define VAR_NOD_VAR             "vals_nod_var"  /* values of nodal variables */
 #define VAR_NOD_VAR_NEW(num)    ex_catstr("vals_nod_var",num)
-/* values of nodal variables */
+                                                /* values of nodal variables */
 #define DIM_NUM_ELE_VAR         "num_elem_var"  /* # of element variables    */
 #define VAR_NAME_ELE_VAR        "name_elem_var" /* names of element variables*/
 #define VAR_ELEM_VAR(num1,num2) ex_catstr2("vals_elem_var",num1,"eb",num2)
-/* values of element variable*/
-/*   num1 in element block   */
-/*   num2                    */
+                                                /* values of element variable*/
+                                                /*   num1 in element block   */
+                                                /*   num2                    */
 #define DIM_NUM_EDG_VAR         "num_edge_var"  /* # of edge variables       */
 #define VAR_NAME_EDG_VAR        "name_edge_var" /* names of edge variables   */
 #define VAR_EDGE_VAR(num1,num2) ex_catstr2("vals_edge_var",num1,"eb",num2)
-/* values of edge variable   */
-/*   num1 in edge block num2 */
+                                                /* values of edge variable   */
+                                                /*   num1 in edge block num2 */
 #define DIM_NUM_FAC_VAR         "num_face_var"  /* # of face variables       */
 #define VAR_NAME_FAC_VAR        "name_face_var" /* names of face variables   */
 #define VAR_FACE_VAR(num1,num2) ex_catstr2("vals_face_var",num1,"fb",num2)
-/* values of face variable   */
-/*   num1 in face block num2 */
+                                                /* values of face variable   */
+                                                /*   num1 in face block num2 */
 
 #define DIM_NUM_NSET_VAR        "num_nset_var"  /* # of nodeset variables    */
 #define VAR_NAME_NSET_VAR       "name_nset_var" /* names of nodeset variables*/
 #define VAR_NS_VAR(num1,num2) ex_catstr2("vals_nset_var",num1,"ns",num2)
-/* values of nodeset variable*/
-/*   num1 in nodeset num2    */
+                                                /* values of nodeset variable*/
+                                                /*   num1 in nodeset num2    */
 #define DIM_NUM_ESET_VAR        "num_eset_var"  /* # of edgeset variables    */
 #define VAR_NAME_ESET_VAR       "name_eset_var" /* names of edgeset variables*/
 #define VAR_ES_VAR(num1,num2) ex_catstr2("vals_eset_var",num1,"es",num2)
-/* values of edgeset variable*/
-/*   num1 in edgeset num2    */
+                                                /* values of edgeset variable*/
+                                                /*   num1 in edgeset num2    */
 #define DIM_NUM_FSET_VAR        "num_fset_var"  /* # of faceset variables    */
 #define VAR_NAME_FSET_VAR       "name_fset_var" /* names of faceset variables*/
 #define VAR_FS_VAR(num1,num2) ex_catstr2("vals_fset_var",num1,"fs",num2)
-/* values of faceset variable*/
-/*   num1 in faceset num2    */
+                                                /* values of faceset variable*/
+                                                /*   num1 in faceset num2    */
 #define DIM_NUM_SSET_VAR        "num_sset_var"  /* # of sideset variables    */
 #define VAR_NAME_SSET_VAR       "name_sset_var" /* names of sideset variables*/
 #define VAR_SS_VAR(num1,num2) ex_catstr2("vals_sset_var",num1,"ss",num2)
-/* values of sideset variable*/
-/*   num1 in sideset num2    */
+                                                /* values of sideset variable*/
+                                                /*   num1 in sideset num2    */
 #define DIM_NUM_ELSET_VAR       "num_elset_var" /* # of element set variables*/
 #define VAR_NAME_ELSET_VAR      "name_elset_var"/* names of elemset variables*/
 #define VAR_ELS_VAR(num1,num2) ex_catstr2("vals_elset_var",num1,"es",num2)
-/* values of elemset variable*/
-/*   num1 in elemset num2    */
+                                                /* values of elemset variable*/
+                                                /*   num1 in elemset num2    */
 
 #define DIM_NUM_HIS_VAR         "num_his_var"   /* obsolete                  */
 #define VAR_NAME_HIS_VAR        "name_his_var"  /* obsolete                  */
@@ -478,28 +478,28 @@
                                                 /* VAR_NODE_MAP(num)         */
 #define DIM_NUM_EM              "num_elem_maps" /* # of element maps         */
 #define VAR_ELEM_MAP(num)       ex_catstr("elem_map",num)
-/* the numth element map     */
+                                                /* the numth element map     */
 #define VAR_EM_PROP(num)        ex_catstr("em_prop",num)
-/* list of the numth property*/
-/*   for all element maps    */
+                                                /* list of the numth property*/
+                                                /*   for all element maps    */
 #define DIM_NUM_EDM             "num_edge_maps" /* # of edge maps            */
 #define VAR_EDGE_MAP(num)       ex_catstr("edge_map",num)
-/* the numth edge map        */
+                                                /* the numth edge map        */
 #define VAR_EDM_PROP(num)       ex_catstr("edm_prop",num)
-/* list of the numth property*/
-/*   for all edge maps       */
+                                                /* list of the numth property*/
+                                                /*   for all edge maps       */
 #define DIM_NUM_FAM             "num_face_maps" /* # of face maps            */
 #define VAR_FACE_MAP(num)       ex_catstr("face_map",num)
-/* the numth face map        */
+                                                /* the numth face map        */
 #define VAR_FAM_PROP(num)       ex_catstr("fam_prop",num)
-/* list of the numth property*/
-/*   for all face maps       */
+                                                /* list of the numth property*/
+                                                /*   for all face maps       */
 #define DIM_NUM_NM              "num_node_maps" /* # of node maps            */
 #define VAR_NODE_MAP(num)       ex_catstr("node_map",num)
-/* the numth node map        */
+                                                /* the numth node map        */
 #define VAR_NM_PROP(num)        ex_catstr("nm_prop",num)
-/* list of the numth property*/
-/*   for all node maps       */
+                                                /* list of the numth property*/
+                                                /*   for all node maps       */
 
 #define NUM_CFRAMES  "num_cframes"
 #define NUM_CFRAME9  "num_cframes_9"
@@ -604,5 +604,5 @@ void ex_rm_stat_ptr  (int, struct obj_stats**);
 
 int ex_id_lkup  (int exoid, ex_entity_type id_type, int num);
 int ex_get_dimension(int exoid, const char *dimtype, const char *label,
-                     size_t *count, int *dimid, const char *routine);
+		     size_t *count, int *dimid, const char *routine);
 #endif
