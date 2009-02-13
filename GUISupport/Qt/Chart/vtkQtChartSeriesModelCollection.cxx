@@ -98,6 +98,7 @@ void vtkQtChartSeriesModelCollection::addSeriesModel(
 {
   if(model)
     {
+    // Listen for model changes.
     this->connect(model, SIGNAL(modelAboutToBeReset()),
         this, SIGNAL(modelAboutToBeReset()));
     this->connect(model, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
@@ -110,7 +111,20 @@ void vtkQtChartSeriesModelCollection::addSeriesModel(
     this->connect(model, SIGNAL(seriesRemoved(int, int)),
         this, SLOT(onSeriesRemoved(int, int)));
 
+    // Add the model to the list of models. If the model has series,
+    // the view needs to be notified.
+    int x = this->getNumberOfSeries();
+    int total = model->getNumberOfSeries();
+    if(total > 0)
+      {
+      emit this->seriesAboutToBeInserted(x, x + total - 1);
+      }
+
     this->Models.append(model);
+    if(total > 0)
+      {
+      emit this->seriesInserted(x, x + total - 1);
+      }
     }
 }
 
@@ -120,8 +134,23 @@ void vtkQtChartSeriesModelCollection::removeSeriesModel(
   int index = this->Models.indexOf(model);
   if(index != -1)
     {
+    // Disconnect from the model change signals.
     this->disconnect(model, 0, this, 0);
+
+    // Remove the model from the list. If the model has series, the
+    // view needs to be notified.
+    int x = this->seriesForModel(model);
+    int total = model->getNumberOfSeries();
+    if(total > 0)
+      {
+      emit this->seriesAboutToBeRemoved(x, x + total - 1);
+      }
+
     this->Models.removeAt(index);
+    if(total > 0)
+      {
+      emit this->seriesRemoved(x, x + total - 1);
+      }
     }
 }
 
