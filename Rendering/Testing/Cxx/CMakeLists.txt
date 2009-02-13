@@ -95,7 +95,7 @@ ADD_EXECUTABLE(TestFBOImplementation
 TARGET_LINK_LIBRARIES(TestFBOImplementation
   vtkRendering)
 
-ADD_EXECUTABLE(${KIT}CxxTests MACOSX_BUNDLE ${Tests})
+ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
 
 
