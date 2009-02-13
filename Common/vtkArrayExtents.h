@@ -19,12 +19,13 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayExtents - Stores the dimensions and size of an N-way array.
+// .NAME vtkArrayExtents - Stores the number of dimensions and size of an
+// N-way array.
 //
 // .SECTION Description
-// vtkArrayExtents describes the dimensions and size along each dimension of
-// an N-way collection of values.  It is used to retrieve and update the
-// extents of a vtkArray object.
+// vtkArrayExtents describes the number of dimensions and size along each
+// dimension of an N-way collection of values.  It is used to retrieve and
+// update the extents of a vtkArray object.
 //
 // Convenience constructors are provided for creating extents along one, two,
 // and three dimensions.  For higher dimensions, you can:
@@ -49,6 +50,8 @@
 
 #include "vtkSystemIncludes.h"
 #include <vtksys/stl/vector>
+
+class vtkArrayCoordinates;
 
 class VTK_COMMON_EXPORT vtkArrayExtents
 {
@@ -110,6 +113,13 @@ public:
   // Description:
   // Inequality comparison
   bool operator!=(const vtkArrayExtents& rhs) const;
+
+  // Description:
+  // Returns true if the given array coordinates are completely contained
+  // by the current extents (i.e. that 0 <= coordinate and coordinate < extent
+  // along every dimension).  Returns false if the array coordinates are outside
+  // the current extents, or contain a different number of dimensions.
+  bool Contains(const vtkArrayCoordinates& coordinates) const;
 
   VTK_COMMON_EXPORT friend ostream& operator<<(
     ostream& stream, const vtkArrayExtents& rhs);

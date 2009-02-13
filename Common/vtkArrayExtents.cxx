@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
 
 #include <vtksys/stl/functional>
@@ -97,6 +98,22 @@ bool vtkArrayExtents::operator==(const vtkArrayExtents& rhs) const
 bool vtkArrayExtents::operator!=(const vtkArrayExtents& rhs) const
 {
   return !(*this == rhs);
+}
+
+bool vtkArrayExtents::Contains(const vtkArrayCoordinates& coordinates) const
+{
+  if(coordinates.GetDimensions() != this->GetDimensions())
+    return false;
+
+  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+    {
+    if(coordinates[i] < 0)
+      return false;
+    if(coordinates[i] >= this->Storage[i])
+      return false;
+    }
+
+  return true;
 }
 
 ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs)
