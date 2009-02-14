@@ -62,8 +62,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   RandomSampleStatisticsArgs* args = reinterpret_cast<RandomSampleStatisticsArgs*>( arg );
   *(args->retVal) = 0;
 
+  // Get MPI communicator
+  vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
+
   // Get local rank
-  int myRank = controller->GetLocalProcessId();
+  int myRank = com->GetLocalProcessId();
 
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) * ( myRank + 1 ) );
@@ -162,7 +165,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 #endif //DEBUG_WITH_SERIAL_STATS
 
   // Synchronize and start clock
-  controller->Barrier();
+  com->Barrier();
   time_t t0;
   time ( &t0 );
   
@@ -186,11 +189,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pds->Update();
 
   // Synchronize and stop clock
-  controller->Barrier();
+  com->Barrier();
   time_t t1;
   time ( &t1 );
 
-  if ( controller->GetLocalProcessId() == args->ioRank )
+  if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
          << "   Total sample size: "
@@ -223,7 +226,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
   
   // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
-  if ( controller->GetLocalProcessId() == args->ioRank )
+  if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
     }
@@ -238,7 +241,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "*** Error: "
          << "Empty output column(s) on process "
-         << controller->GetLocalProcessId()
+         << com->GetLocalProcessId()
          << ".\n";
     }
 
@@ -266,13 +269,13 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Sum all local counters
     int outsideStdv_g[3];
-    controller->AllReduce( outsideStdv_l, 
+    com->AllReduce( outsideStdv_l, 
                            outsideStdv_g, 
                            3, 
                            vtkCommunicator::SUM_OP );
 
     // Print out percentages of sample points within 1, 2, and 3 standard deviations of the mean.
-    if ( controller->GetLocalProcessId() == args->ioRank )
+    if ( com->GetLocalProcessId() == args->ioRank )
       {
       cout << "   "
            << outputData->GetColumnName( nUniform + c )
@@ -302,7 +305,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // ************************** Correlative Statistics ************************** 
 
   // Synchronize and start clock
-  controller->Barrier();
+  com->Barrier();
   time_t t2;
   time ( &t2 );
 
@@ -323,11 +326,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcs->Update();
 
     // Synchronize and stop clock
-  controller->Barrier();
+  com->Barrier();
   time_t t3;
   time ( &t3 );
 
-  if ( controller->GetLocalProcessId() == args->ioRank )
+  if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
          << "   Total sample size: "
@@ -365,7 +368,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // ************************** Multi-Correlative Statistics ************************** 
 
   // Synchronize and start clock
-  controller->Barrier();
+  com->Barrier();
   time_t t4;
   time ( &t4 );
 
@@ -398,11 +401,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pmcs->Update();
 
     // Synchronize and stop clock
-  controller->Barrier();
+  com->Barrier();
   time_t t5;
   time ( &t5 );
 
-  if ( controller->GetLocalProcessId() == args->ioRank )
+  if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
          << "   Total sample size: "
@@ -426,7 +429,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // ************************** PCA Statistics ************************** 
 
   // Synchronize and start clock
-  controller->Barrier();
+  com->Barrier();
   time_t t6;
   time ( &t6 );
 
@@ -459,11 +462,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcas->Update();
 
     // Synchronize and stop clock
-  controller->Barrier();
+  com->Barrier();
   time_t t7;
   time ( &t7 );
 
-  if ( controller->GetLocalProcessId() == args->ioRank )
+  if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
          << "   Total sample size: "
@@ -507,7 +510,6 @@ int main( int argc, char** argv )
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
-
   // ************************** Find an I/O node ******************************** 
   int* ioPtr;
   int ioRank;
@@ -549,7 +551,7 @@ int main( int argc, char** argv )
     }
 
   // ************************** Initialize test ********************************* 
-  if ( controller->GetLocalProcessId() == ioRank )
+  if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Houston, this is process "
          << ioRank
@@ -579,7 +581,7 @@ int main( int argc, char** argv )
   controller->SingleMethodExecute();
 
   // Clean up and exit
-  if ( controller->GetLocalProcessId() == ioRank )
+  if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Test completed.\n\n";
     }
