@@ -79,7 +79,11 @@ int TestVtkBarChartView(int argc, char* argv[])
   // You can downcast to get the chart representation:
   vtkQtChartTableRepresentation* chartRep =
     vtkQtChartTableRepresentation::SafeDownCast(dataRep);
-  vtkNotUsed(chartRep);
+  if (!chartRep)
+    {
+    cerr << "Failed to get chart table representation." << endl;
+    return 1;
+    }
 
   // TODO-
   // The user shouldn't be required to call Update().
