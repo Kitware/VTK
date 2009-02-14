@@ -490,6 +490,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 //----------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
+  // **************************** MPI Initialization *************************** 
+
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
   vtkMPIController* controller = vtkMPIController::New();
@@ -502,6 +504,9 @@ int main( int argc, char** argv )
     controller->Delete();
     return 1;
     } 
+
+  vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
+
 
   // ************************** Find an I/O node ******************************** 
   int* ioPtr;
@@ -528,7 +533,7 @@ int main( int argc, char** argv )
     }
   else 
     {
-    if ( *ioPtr = MPI_ANY_SOURCE )
+    if ( *ioPtr == MPI_ANY_SOURCE )
       {
       // Anyone can do the I/O trick--just pick node 0.
       ioRank = 0;
@@ -536,10 +541,10 @@ int main( int argc, char** argv )
     else
       {
       // Only some nodes can do I/O. Make sure everyone agrees on the choice (min).
-      controller->AllReduce( ioPtr,
-                             &ioRank,
-                             1,
-                             vtkCommunicator::MIN_OP );
+      com->AllReduce( ioPtr,
+                      &ioRank,
+                      1,
+                      vtkCommunicator::MIN_OP );
       }
     }
 
