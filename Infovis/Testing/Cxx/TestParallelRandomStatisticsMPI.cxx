@@ -494,9 +494,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 int main( int argc, char** argv )
 {
   // **************************** MPI Initialization *************************** 
-
-  // Note that this will create a vtkMPIController if MPI
-  // is configured, vtkThreadedController otherwise.
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
 
