@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPDescriptiveStatistics);
-vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.3");
+vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.4");
 vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
@@ -85,23 +85,19 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   // Iterate over all parameter rows
   for ( int r = 0; r < nRow; ++ r )
     {
-    // Reduce to global minimum
-    double min_l = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
-    double min_g[1];
-    com->AllReduce( &min_l, 
-                    min_g, 
-                    1, 
-                    vtkCommunicator::MIN_OP );
-    outMeta->SetValueByName( r, "Minimum", min_g[0] );
+    // Reduce to global extrema
+    double extrema_l[2];
+    extrema_l[0] = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
+    // Collect -max instead of max so a single reduce op. (minimum) can process both extrema at a time
+    extrema_l[1] = - outMeta->GetValueByName( r, "Maximum" ).ToDouble();
 
-    // Reduce to global maximum
-    double max_l = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
-    double max_g[1];
-    com->AllReduce( &max_l, 
-                    max_g, 
-                    1, 
-                    vtkCommunicator::MAX_OP );
-    outMeta->SetValueByName( r, "Maximum", max_g[0] );
+    double extrema_g[2];
+    com->AllReduce( extrema_l, 
+                    extrema_g, 
+                    2, 
+                    vtkCommunicator::MIN_OP );
+    outMeta->SetValueByName( r, "Minimum", extrema_g[0] );
+    outMeta->SetValueByName( r, "Maximum", - extrema_g[1] );
 
     // (All) gather all local M statistics
     double M_l[4];
