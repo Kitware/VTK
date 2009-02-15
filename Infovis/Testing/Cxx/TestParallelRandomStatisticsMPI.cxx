@@ -43,8 +43,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-// For debugging purposes, serial engines can be run on each slice of the distributed data set
-#define DEBUG_WITH_SERIAL_STATS 0 
+// For debugging purposes, output results of serial engines ran on each slice of the distributed data set
+#define PRINT_ALL_SERIAL_STATS 0 
 
 struct RandomSampleStatisticsArgs
 {
@@ -125,8 +125,12 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // ************************** Descriptive Statistics ************************** 
 
-#if DEBUG_WITH_SERIAL_STATS
-  // Instantiate a (serial) descriptive statistics engine and set its ports
+  // Synchronize and start clock
+  com->Barrier();
+  time_t ta;
+  time ( &ta );
+
+  // For verification, instantiate a serial descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   ds->SetInput( 0, inputData );
 
@@ -138,10 +142,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Test (serially) with Learn and Derive options only
   ds->SetLearn( true );
-  ds->SetDer ive( true );
+  ds->SetDerive( true );
   ds->SetAssess( true );
   ds->Update();
 
+#if PRINT_ALL_SERIAL_STATS
   cout << "\n## Proc "
        << myRank
        << " calculated the following statistics ( "
@@ -159,10 +164,141 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
     cout << "\n";
     }
+#endif //PRINT_ALL_SERIAL_STATS
+  
+  // Collect (local) cardinalities, extrema, and means
+  int nRows = ds->GetOutput( 1 )->GetNumberOfRows();
+  int np = com->GetNumberOfProcesses();
+  int n2Rows = 2 * nRows;
+
+  double* extrema_l = new double[n2Rows];
+  double* extrema_g = new double[n2Rows];
+
+  double* cardsAndMeans_l = new double[n2Rows];
+  double* cardsAndMeans_g = new double[n2Rows];
+
+  double dn;
+  for ( vtkIdType r = 0; r < nRows; ++ r )
+    {
+    dn = static_cast<double>( ds->GetSampleSize() );
+    cardsAndMeans_l[2 * r] = dn;
+    cardsAndMeans_l[2 * r + 1] = dn * ds->GetOutput( 1 )->GetValueByName( r, "Mean" ).ToDouble();
+
+    extrema_l[2 * r] = ds->GetOutput( 1 )->GetValueByName( r, "Minimum" ).ToDouble();
+    // Collect -max instead of max so a single reduce op. (minimum) can process both extrema at a time
+    extrema_l[2 * r + 1] = - ds->GetOutput( 1 )->GetValueByName( r, "Maximum" ).ToDouble();
+    }
+  
+  // Reduce all extremal values, and gather all cardinalities and means, on process calcProc
+  int calcProc = np - 1;
+
+  com->Reduce( extrema_l,
+               extrema_g,
+               n2Rows,
+               vtkCommunicator::MIN_OP,
+               calcProc );
+
+  com->Reduce( cardsAndMeans_l,
+               cardsAndMeans_g,
+               n2Rows,
+               vtkCommunicator::SUM_OP,
+               calcProc );
+
+  // Have process calcProc calculate global cardinality and mean, and send all results to I/O process
+  if ( myRank == calcProc )
+    {
+    if ( ! com->Send( extrema_g, 
+                      n2Rows, 
+                      args->ioRank, 
+                      65 ) )
+      {
+      vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
+      *(args->retVal) = 1;
+      }
+
+    if ( ! com->Send( cardsAndMeans_g, 
+                      n2Rows, 
+                      args->ioRank, 
+                      66 ) )
+      {
+      vtkGenericWarningMacro("MPI error: process "<<myRank<< "could not send global results. Serial/parallel sanity check will be meaningless.");
+      *(args->retVal) = 1;
+      }
+    }
+
+  // Have I/O process receive results from process calcProc
+  if ( myRank == args->ioRank )
+    {
+    if ( ! com->Receive( extrema_g, 
+                         n2Rows, 
+                         calcProc, 
+                         65 ) )
+      {
+      vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
+      *(args->retVal) = 1;
+      }
+
+    if ( ! com->Receive( cardsAndMeans_g, 
+                         n2Rows, 
+                         calcProc, 
+                         66 ) )
+      {
+      vtkGenericWarningMacro("MPI error: I/O process "<<args->ioRank<<" could not receive global results. Serial/parallel sanity check will be meaningless.");
+      *(args->retVal) = 1;
+      }
+    }
+
+  // Synchronize and stop clock
+  com->Barrier();
+  time_t tb;
+  time ( &tb );
+
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Completed serial calculations of descriptive statistics (with assessment):\n"
+         << "   With partial aggregation calculated on process "
+         << calcProc
+         << "\n"
+         << "   Wall time: "
+         << difftime( tb, ta )
+         << " sec.\n";
+
+    for ( vtkIdType r = 0; r < nRows; ++ r )
+      {
+      cout << "   "
+           << ds->GetOutput( 1 )->GetColumnName( 0 )
+           << "="
+           << ds->GetOutput( 1 )->GetValue( r, 0 ).ToString()
+           << "  "
+           << "Cardinality"
+           << "="
+           << cardsAndMeans_g[2 * r]
+           << "  "
+           << "Minimum"
+           << "="
+           << extrema_g[2 * r]
+           << "  "
+           << "Maximum"
+           << "="
+           << - extrema_g[2 * r + 1]
+           << "  "
+           << "Mean"
+           << "="
+           << cardsAndMeans_g[2 * r + 1] / cardsAndMeans_g[2 * r]
+           << "\n";
+      }
+    }
   
   // Clean up
+  delete [] cardsAndMeans_l;
+  delete [] cardsAndMeans_g;
+
+  delete [] extrema_l;
+  delete [] extrema_g;
+
   ds->Delete();
-#endif //DEBUG_WITH_SERIAL_STATS
+
+  // Now on to the actual parallel descriptive engine
 
   // Synchronize and start clock
   com->Barrier();
@@ -211,7 +347,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
         vtkStdString colName = outputMeta->GetColumnName( c );
 
         // Do not report M aggregates
-        if ( colName.at(0) == 'M' && colName.at(1) != 'e' )
+        if ( colName.at(0) == 'M' && colName.at(1) != 'a' && colName.at(1) != 'e' && colName.at(1) != 'i' )
           {
           continue;
           }
