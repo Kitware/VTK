@@ -1104,8 +1104,6 @@ CanRead(const char *_headerName) const
     return false;
     }
 
-  int i=0;
-
   // Now check the file content
   METAIO_STREAM::ifstream inputStream;
 
