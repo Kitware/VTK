@@ -1639,8 +1639,6 @@ bool MetaImage::WriteROI( int * _indexMin, int * _indexMax,
                           bool _append
                           )
 {   
-  int i=0;
-      
   if( _headName != NULL ) 
     {
     FileName( _headName );
