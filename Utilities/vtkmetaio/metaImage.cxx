@@ -1814,7 +1814,7 @@ bool MetaImage::WriteROI( int * _indexMin, int * _indexMax,
       ElementDataFileName(_dataName);
       }
 
-    if( m_ElementDataFileName == "LIST" 
+    if( !strcmp(m_ElementDataFileName, "LIST")
         || strstr(m_ElementDataFileName, "%") )
       {
       METAIO_STREAM::cerr 
