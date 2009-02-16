@@ -280,6 +280,7 @@ class METAIO_EXPORT MetaImage : public MetaObject
     virtual bool WriteStream(METAIO_STREAM::ofstream * _stream,
                              bool _writeElements=true,
                              const void * _constElementData=NULL);
+    
 
     virtual bool Append(const char *_headName=NULL);
 
@@ -350,6 +351,12 @@ class METAIO_EXPORT MetaImage : public MetaObject
     bool  M_WriteElements(METAIO_STREAM::ofstream * _fstream,
                           const void * _data,
                           METAIO_STL::streamsize _dataQuantity);
+
+    bool  M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
+                             const void * _data,
+                             unsigned long _dataPos,
+                             int * _indexMin,
+                             int* _indexMax);
 
     bool  M_WriteElementData(METAIO_STREAM::ofstream * _fstream,
                              const void * _data,
