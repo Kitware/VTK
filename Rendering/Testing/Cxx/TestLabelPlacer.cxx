@@ -53,7 +53,8 @@ int TestLabelPlacer(int argc, char *argv[])
   int targetLabels = 32;
   double labelRatio = 0.05;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uniform-001371-5x5x5.vtp");
-  int iteratorType = vtkLabelHierarchy::FULL_SORT;
+  //int iteratorType = vtkLabelHierarchy::FULL_SORT;
+  int iteratorType = vtkLabelHierarchy::QUEUE;
   //int iteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   bool showBounds = false;
 

@@ -99,6 +99,7 @@ public:
   // Enumeration of iterator types.
   enum IteratorType {
     FULL_SORT,
+    QUEUE,
     DEPTH_FIRST,
     FRUSTUM
   };
@@ -114,7 +115,7 @@ public:
   // Returns an iterator for this data object.
   // positionsAsNormals should only be true when labels are on a sphere centered at the origin
   // (3D world).
-  // @param type - the type should be one of FULL_SORT, DEPTH_FIRST, or FRUSTUM.
+  // @param type - the type should be one of FULL_SORT, QUEUE, DEPTH_FIRST, or FRUSTUM.
   // @param ren - the current renderer (used for viewport information)
   // @param camera - the current camera.
   // @param frustumPlanes - should be the output of the camera's frustum planes.

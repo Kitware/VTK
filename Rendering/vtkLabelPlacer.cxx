@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.15");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.16");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -198,7 +198,8 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->Buckets = 0;
   this->PositionsAsNormals = false;
   //this->IteratorType = vtkLabelHierarchy::DEPTH_FIRST;
-  this->IteratorType = vtkLabelHierarchy::FULL_SORT;
+  //this->IteratorType = vtkLabelHierarchy::FULL_SORT;
+  this->IteratorType = vtkLabelHierarchy::QUEUE;
 
   this->LastRendererSize[0] = 0;
   this->LastRendererSize[1] = 0;
