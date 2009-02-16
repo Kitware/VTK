@@ -90,17 +90,21 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.3");
 vtkStandardNewMacro(vtkQtChartTableRepresentation);
 
 //----------------------------------------------------------------------------
 vtkQtChartTableRepresentation::vtkQtChartTableRepresentation()
 {
   this->Internal = new vtkInternal;
-  this->ChartLayer = 0;
   this->ColumnsAsSeries = true;
   //this->Handler = new vtkQtChartTableRepresentationSignalHandler();
   //this->Handler->setTarget(this);
+
+  // Set up the chart table series model. It will be deleted when the
+  // model adapter is deleted in the parent destructor.
+  this->Internal->SeriesModel =
+    new vtkQtChartTableSeriesModel(this->ModelAdapter, this->ModelAdapter);
 }
 
 //----------------------------------------------------------------------------
@@ -181,10 +185,6 @@ vtkQtChartTableRepresentation::AddToView(vtkView* view)
       "view has an invalid model collection.");
     return false;
     }
-
-  // Create a new series model to wrap our model adapter
-  this->Internal->SeriesModel =
-    new vtkQtChartTableSeriesModel(this->ModelAdapter);
 
   // Add the new series model to the chart view's model collection.
   modelCollection->addSeriesModel(this->Internal->SeriesModel);

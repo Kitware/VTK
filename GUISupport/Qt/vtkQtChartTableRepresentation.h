@@ -32,7 +32,6 @@
 
 #include "vtkQtChartSeriesSelection.h"
 
-class vtkQtChartSeriesLayer;
 class vtkQtAbstractModelAdapter;
 class vtkAlgorithmOutput;
 class vtkDataArray;
@@ -105,10 +104,6 @@ protected:
   // Removes the representation to the view.  This is called from
   // vtkView::RemoveRepresentation().
   bool RemoveFromView(vtkView* view);
-
-  // Description:
-  // The underlying chart layer.
-  vtkQtChartSeriesLayer* ChartLayer;
 
   // Description:
   // Listens for selection changed events from the chart layer.
