@@ -231,6 +231,7 @@ void DICOMAppHelper::RegisterCallbacks(DICOMParser* parser)
   parser->AddDICOMTagCallback(0x0028, 0x0100, DICOMParser::VR_US, BitsAllocatedCB);
 
   PixelSpacingCB->SetCallbackFunction(this, &DICOMAppHelper::PixelSpacingCallback);
+  // Why is 0028,0030 VR:FL, it is VR::DS as per PS 3.6-2008 ...
   parser->AddDICOMTagCallback(0x0028, 0x0030, DICOMParser::VR_FL, PixelSpacingCB);
   parser->AddDICOMTagCallback(0x0018, 0x0050, DICOMParser::VR_FL, PixelSpacingCB);
 
@@ -794,6 +795,10 @@ void DICOMAppHelper::ToggleSwapBytesCallback(DICOMParser *parser,
 }
 
 
+// 
+// 0028,0030 is Pixel Spacing, which is NOT the pixel spacing for modality such as US, or X-ray
+// see Imager Pixel Spacing and Pixel Ratio instead
+// 
 void DICOMAppHelper::PixelSpacingCallback(DICOMParser *parser,
                                           doublebyte group,
                                           doublebyte element,
