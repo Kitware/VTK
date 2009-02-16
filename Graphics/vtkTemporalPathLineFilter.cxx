@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.5");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.6");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -42,9 +42,10 @@ typedef vtkstd::vector<Position>  CoordList;
 typedef vtkstd::vector<vtkIdType> IdList;
 typedef vtkstd::vector<float>     ScalarList;
 
-class ParticleTrail : public vtkObjectBase {
+class ParticleTrail : public vtkObject {
   public:
-    static ParticleTrail *New() { return new ParticleTrail(); }
+    static ParticleTrail *New();
+    vtkTypeMacro(ParticleTrail, vtkObject);
     //
     unsigned int  firstpoint;
     unsigned int  lastpoint;
@@ -63,15 +64,17 @@ class ParticleTrail : public vtkObjectBase {
 
     static long int UniqueId;
 };
+vtkStandardNewMacro(ParticleTrail);
 
 long int ParticleTrail::UniqueId=0;
 
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
 typedef vtkstd::pair<vtkIdType, TrailPointer> TrailMapType;
 
-class vtkTemporalPathLineFilterInternals : public vtkObjectBase {
+class vtkTemporalPathLineFilterInternals : public vtkObject {
   public:
-    static vtkTemporalPathLineFilterInternals *New() { return new vtkTemporalPathLineFilterInternals(); }
+    static vtkTemporalPathLineFilterInternals *New();
+    vtkTypeMacro(vtkTemporalPathLineFilterInternals, vtkObject);
     //
     typedef vtkstd::map<vtkIdType, TrailPointer>::iterator TrailIterator;
     vtkstd::map<vtkIdType, TrailPointer> Trails;
@@ -79,6 +82,7 @@ class vtkTemporalPathLineFilterInternals : public vtkObjectBase {
     vtkstd::string                  LastIdArrayName;
     vtkstd::map<int, double>        TimeStepSequence;
 };
+vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef vtkstd::map<int, double>::iterator TimeStepIterator;
 //----------------------------------------------------------------------------
