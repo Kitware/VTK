@@ -39,7 +39,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTestUtilities.h"
-#include "vtkTIFFReader.h"
 
 #include <vtksys/ios/sstream>
 
@@ -86,7 +85,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
     vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();
   graphRep->SetInputConnection(graphSource->GetOutputPort());
   graphRep->SetVertexLabelArrayName("latitude");
-  graphRep->SetUseLabelHierarchy(true);
+  graphRep->SetUseLabelHierarchy(false);
   graphRep->SetVertexLabelVisibility(true);
   
   view->AddRepresentation(graphRep);
