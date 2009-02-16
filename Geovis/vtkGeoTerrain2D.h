@@ -27,6 +27,9 @@
 // method which updates the set of actors representing the globe given the
 // current camera position.
 
+#ifndef __vtkGeoTerrain2D_h
+#define __vtkGeoTerrain2D_h
+
 #include "vtkGeoTerrain.h"
 
 class vtkAbstractTransform;
@@ -89,3 +92,4 @@ private:
   void operator=(const vtkGeoTerrain2D&); // Not implemented
 };
 
+#endif
