@@ -127,12 +127,13 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   virtual vtkDistributedGraphHelper *Clone() = 0;
 
   // Description:
-  // Information Key that distributed graphs can append to attribute array keys
+  // Information Keys that distributed graphs can append to attribute arrays
   // to flag them as containing distributed IDs.  These can be used to let
   // routines that migrate vertices (either repartitioning or collecting graphs
   // to single nodes) to also modify the ids contained in the attribute arrays
   // to maintain consistency.
-  static vtkInformationIntegerKey * DISTRIBUTEDIDS();
+  static vtkInformationIntegerKey * DISTRIBUTEDVERTEXIDS();
+  static vtkInformationIntegerKey * DISTRIBUTEDEDGEIDS();
 
  protected:
   vtkDistributedGraphHelper();

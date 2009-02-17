@@ -56,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.3");
+vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.4");
 vtkStandardNewMacro(vtkPBGLShortestPaths);
 
 // Function object used to reduce (vertex, distance) pairs to find
@@ -424,7 +424,7 @@ int vtkPBGLShortestPaths::RequestData(
   // to recalculate the values when collecting to 1 node.
   // This might also be used for repartitioning as well.
   PredecessorArray->GetInformation()->Set(
-        vtkDistributedGraphHelper::DISTRIBUTEDIDS(), 1);
+        vtkDistributedGraphHelper::DISTRIBUTEDVERTEXIDS(), 1);
 
   // Add output arrays to the output
   output->GetVertexData()->AddArray(PredecessorArray);
