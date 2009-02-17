@@ -80,12 +80,13 @@ int TestLabeledGeoView2D(int argc, char* argv[])
 
   vtkSmartPointer<vtkGeoRandomGraphSource> graphSource = 
     vtkSmartPointer<vtkGeoRandomGraphSource>::New();
-  graphSource->SetNumberOfVertices(1000);
+  graphSource->SetNumberOfVertices(500);
   vtkSmartPointer<vtkGeoGraphRepresentation2D> graphRep = 
     vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();
+
   graphRep->SetInputConnection(graphSource->GetOutputPort());
   graphRep->SetVertexLabelArrayName("latitude");
-  graphRep->SetUseLabelHierarchy(false);
+  graphRep->SetUseLabelHierarchy(true);
   graphRep->SetVertexLabelVisibility(true);
   
   view->AddRepresentation(graphRep);
