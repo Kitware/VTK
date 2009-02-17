@@ -26,7 +26,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.69");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.70");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -127,7 +127,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {
-    matrix->DeepCopy(this->GetPerspectiveTransformMatrix(
+    matrix->DeepCopy(this->GetProjectionTransformMatrix(
                        aspectModification*usize/vsize, -1,1));
     matrix->Transpose();
     }

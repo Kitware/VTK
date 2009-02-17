@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.59");
+vtkCxxRevisionMacro(vtkAssembly, "1.60");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -371,7 +371,7 @@ double *vtkAssembly::GetBounds()
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
     prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
-    if ( prop3D->GetVisibility() )
+    if ( prop3D->GetVisibility() && prop3D->GetUseBounds() )
       {
       propVisible = 1;
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());

@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.47");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.48");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -2704,7 +2704,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( double inputOrigin[3],
   // because that turns off stereo rendering!!!
   this->PerspectiveTransform->Identity();
   this->PerspectiveTransform->
-    Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 
+    Concatenate(cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 
                                                    0.0, 1.0 ));
   this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());

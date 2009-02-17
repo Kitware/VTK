@@ -85,10 +85,19 @@ public:
   virtual unsigned long GetRedrawMTime() {return this->GetMTime();}
   
   // Description:
+  // In case the Visibility flag is true, tell if the bounds of this prop
+  // should be taken into account or ignored during the computation of other
+  // bounding boxes, like in vtkRenderer::ResetCamera().
+  // Initial value is true.
+  vtkSetMacro(UseBounds,bool);
+  vtkGetMacro(UseBounds,bool);
+  vtkBooleanMacro(UseBounds,bool);
+
+  // Description:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
   virtual double *GetBounds() {return NULL;}
-
+  
   // Description:
   // Shallow copy of this vtkProp.
   virtual void ShallowCopy(vtkProp *prop);
@@ -331,7 +340,8 @@ protected:
   int Visibility;
   int Pickable;
   int Dragable;
-
+  bool UseBounds;
+  
   double AllocatedRenderTime;
   double EstimatedRenderTime;
   double SavedEstimatedRenderTime;

@@ -20,6 +20,7 @@
 #include "vtkOpenGLRenderWindow.h"
 
 #include "vtkgl.h"
+#include <assert.h>
 
 //#define VTK_TO_TIMING
 
@@ -29,8 +30,53 @@
 
 #define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
 
+// Mapping from DepthTextureCompareFunction values to OpenGL values.
+
+GLenum OpenGLDepthTextureCompareFunction[8]=
+{
+  GL_LEQUAL,
+  GL_GEQUAL,
+  GL_LESS,
+  GL_GREATER,
+  GL_EQUAL,
+  GL_NOTEQUAL,
+  GL_ALWAYS,
+  GL_NEVER
+};
+
+// Mapping from DepthTextureMode values to OpenGL values.
+
+GLenum OpenGLDepthTextureMode[3]=
+{
+  GL_LUMINANCE,
+  GL_INTENSITY,
+  GL_ALPHA
+};
+
+// Mapping from Wrap values to OpenGL values.
+GLenum OpenGLWrap[5]=
+{
+  GL_CLAMP,
+  GL_CLAMP_TO_EDGE,
+  GL_REPEAT,
+  GL_CLAMP_TO_BORDER,
+  GL_MIRRORED_REPEAT
+};
+  
+// Mapping MinificationFilter values to OpenGL values.
+GLenum OpenGLMinFilter[6]=
+{
+  GL_NEAREST,
+  GL_LINEAR,
+  GL_NEAREST_MIPMAP_NEAREST,
+  GL_NEAREST_MIPMAP_LINEAR,
+  GL_LINEAR_MIPMAP_NEAREST,
+  GL_LINEAR_MIPMAP_LINEAR
+};
+
+
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.4");
+vtkCxxRevisionMacro(vtkTextureObject, "1.5");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -43,6 +89,27 @@ vtkTextureObject::vtkTextureObject()
   this->Components = 0;
   this->Width=this->Height=this->Depth=0;
   this->SupportsTextureInteger=false;
+  
+  this->WrapS=Repeat;
+  this->WrapT=Repeat;
+  this->WrapR=Repeat;
+  this->MinificationFilter=Nearest;
+  this->LinearMagnification=false;
+  this->BorderColor[0]=0.0f;
+  this->BorderColor[1]=0.0f;
+  this->BorderColor[2]=0.0f;
+  this->BorderColor[3]=0.0f;
+  this->Priority=1.0f;
+  this->MinLOD=-1000.0f;
+  this->MaxLOD=1000.0f;
+  this->BaseLevel=0;
+  this->MaxLevel=1000;
+  
+  this->DepthTextureCompare=false;
+  this->DepthTextureCompareFunction=Lequal;
+  this->DepthTextureMode=Luminance;
+  
+  this->GenerateMipmap=false;
 }
 
 //----------------------------------------------------------------------------
@@ -196,6 +263,7 @@ void vtkTextureObject::Bind()
   if (this->Context && this->Handle)
     {
     glBindTexture(this->Target, this->Handle);
+    this->SendParameters();
     vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
     }
 }
@@ -208,6 +276,98 @@ void vtkTextureObject::UnBind()
     {
     glBindTexture(this->Target, 0);
     vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Tells if the texture object is bound.
+bool vtkTextureObject::IsBound()
+{
+  bool result=false;
+  if(this->Context && this->Handle)
+    {
+    GLenum target=0; // to avoid warnings.
+    switch(this->Target)
+      {
+      case GL_TEXTURE_1D:
+        target=GL_TEXTURE_BINDING_1D;
+        break;
+      case GL_TEXTURE_2D:
+        target=GL_TEXTURE_BINDING_2D;
+        break;
+      case GL_TEXTURE_3D:
+        target=GL_TEXTURE_BINDING_3D;
+        break;
+      default:
+        assert("check: impossible case" && 0);
+        break;
+      }
+    GLint objectId;
+    glGetIntegerv(target,&objectId);
+    result=static_cast<GLuint>(objectId)==this->Handle;
+    }
+  return result;
+}
+  
+//----------------------------------------------------------------------------
+// Description:
+// Send all the texture object parameters to the hardware if not done yet.
+// \pre is_bound: IsBound()
+void vtkTextureObject::SendParameters()
+{
+  assert("pre: is_bound" && this->IsBound());
+  
+  if(this->GetMTime()>this->SendParametersTime)
+    {
+    glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
+//if(this->Target==GL_TEXTURE_2D || this->Target==GL_TEXTURE_3D)
+//  {
+    glTexParameteri(this->Target,GL_TEXTURE_WRAP_T,OpenGLWrap[this->WrapT]);
+//  }
+//if(this->Target==GL_TEXTURE_3D)
+//  {
+    glTexParameteri(this->Target,GL_TEXTURE_WRAP_R,OpenGLWrap[this->WrapR]);
+//  }
+    
+    glTexParameteri(this->Target,GL_TEXTURE_MIN_FILTER,
+                    OpenGLMinFilter[this->MinificationFilter]);
+    if(this->LinearMagnification)
+      {
+      glTexParameteri(this->Target,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+      }
+    else
+      {
+      glTexParameteri(this->Target,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+      }
+    
+    glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
+    
+    glTexParameterf(this->Target,GL_TEXTURE_PRIORITY,this->Priority);
+    glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
+    glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
+    glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
+    glTexParameteri(this->Target,GL_TEXTURE_MAX_LEVEL,this->MaxLevel);
+    
+    glTexParameteri(this->Target,GL_DEPTH_TEXTURE_MODE,
+                    OpenGLDepthTextureMode[this->DepthTextureMode]);
+    
+    if(DepthTextureCompare)
+      {
+      glTexParameteri(this->Target,GL_TEXTURE_COMPARE_MODE,
+                      GL_COMPARE_R_TO_TEXTURE);
+      }
+    else
+      {
+      glTexParameteri(this->Target,GL_TEXTURE_COMPARE_MODE,
+                      GL_NONE);
+      }
+    
+    glTexParameteri(this->Target,GL_TEXTURE_COMPARE_FUNC,
+                    OpenGLDepthTextureCompareFunction[this->DepthTextureCompareFunction]
+      );
+    
+    this->SendParametersTime.Modified();
     }
 }
 

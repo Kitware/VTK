@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.37");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.38");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -117,7 +117,7 @@ int vtkSelectVisiblePoints::RequestData(
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   double view[4];
   matrix->DeepCopy(this->Renderer->GetActiveCamera()->
-                   GetCompositePerspectiveTransformMatrix(
+                   GetCompositeProjectionTransformMatrix(
                      this->Renderer->GetTiledAspectRatio(),0,1));
 
   // If we have more than a few query points, we grab the z-buffer for the

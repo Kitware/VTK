@@ -25,7 +25,7 @@
 // #define VTK_FBO_DEBUG // display info on RenderQuad()
 
 vtkStandardNewMacro(vtkFrameBufferObject);
-vtkCxxRevisionMacro(vtkFrameBufferObject, "1.5");
+vtkCxxRevisionMacro(vtkFrameBufferObject, "1.6");
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::vtkFrameBufferObject()
 {
@@ -441,6 +441,10 @@ void vtkFrameBufferObject::CreateColorBuffers(
       {
       colorBuffer = vtkSmartPointer<vtkTextureObject>::New();
       colorBuffer->SetContext(this->Context);
+      colorBuffer->SetMinificationFilter(vtkTextureObject::Nearest);
+      colorBuffer->SetLinearMagnification(false);
+      colorBuffer->SetWrapS(vtkTextureObject::Clamp);
+      colorBuffer->SetWrapT(vtkTextureObject::Clamp);
       if (!colorBuffer->Create2D(width, height, 4, VTK_UNSIGNED_CHAR,
             shaderSupportsTextureInt))
         {

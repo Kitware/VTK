@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -685,7 +685,7 @@ GetMinimumBoundsDepth( vtkRenderer *ren, vtkVolume   *vol )
   vtkCamera *cam = ren->GetActiveCamera();
   perspectiveTransform->Identity();
   perspectiveTransform->Concatenate(
-    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
+    cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   perspectiveMatrix->DeepCopy(perspectiveTransform->GetMatrix());
   

@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.245");
+vtkCxxRevisionMacro(vtkRenderer, "1.246");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -887,8 +887,9 @@ void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
   for (this->Props->InitTraversal(pit); 
        (prop = this->Props->GetNextProp(pit)); )
     {
-    // if it's invisible, or has no geometry, we can skip the rest 
-    if ( prop->GetVisibility() )
+    // if it's invisible, or if its bounds should be ignored,
+    // or has no geometry, we can skip the rest 
+    if ( prop->GetVisibility() && prop->GetUseBounds())
       {
       bounds = prop->GetBounds();
       // make sure we haven't got bogus bounds
@@ -1256,7 +1257,7 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
 
   // get the perspective transformation from the active camera 
   mat->DeepCopy(this->ActiveCamera->
-                GetCompositePerspectiveTransformMatrix(
+                GetCompositeProjectionTransformMatrix(
                   this->GetTiledAspectRatio(),0,1));
   
   // use the inverse matrix 
@@ -1300,7 +1301,7 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
 
   // get the perspective transformation from the active camera 
   matrix->DeepCopy(this->ActiveCamera->
-                GetCompositePerspectiveTransformMatrix(
+                GetCompositeProjectionTransformMatrix(
                   this->GetTiledAspectRatio(),0,1));
 
   view[0] = x*matrix->Element[0][0] + y*matrix->Element[0][1] +

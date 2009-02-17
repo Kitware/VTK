@@ -25,7 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkFrameBufferObject.h"
 
-vtkCxxRevisionMacro(vtkCameraPass, "1.3");
+vtkCxxRevisionMacro(vtkCameraPass, "1.4");
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
 
@@ -190,7 +190,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {
-    matrix->DeepCopy(camera->GetPerspectiveTransformMatrix(
+    matrix->DeepCopy(camera->GetProjectionTransformMatrix(
                        aspectModification*usize/vsize, -1,1));
     matrix->Transpose();
     }

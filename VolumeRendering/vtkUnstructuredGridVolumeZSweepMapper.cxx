@@ -2368,7 +2368,7 @@ using namespace vtkUnstructuredGridVolumeZSweepMapperNamespace;
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.11");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.12");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
@@ -3135,7 +3135,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   vtkCamera *cam = ren->GetActiveCamera();
   this->PerspectiveTransform->Identity();
   this->PerspectiveTransform->Concatenate(
-    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
+    cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
   this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   this->PerspectiveTransform->Concatenate(vol->GetMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
@@ -4449,7 +4449,7 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
   vtkCamera *cam = ren->GetActiveCamera();
   this->PerspectiveTransform->Identity();
   this->PerspectiveTransform->Concatenate(
-    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
+    cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
   this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
   

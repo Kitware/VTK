@@ -29,7 +29,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.6");
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 #endif
 
@@ -137,8 +137,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   vtkTransform *perspectiveTransform = vtkTransform::New();
   perspectiveTransform->Identity();
   perspectiveTransform->Concatenate(
-    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 
-                                       0.0, 1.0 ));
+    cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 
+                                      0.0, 1.0 ));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   
   // get the perspective transformation from the active camera 

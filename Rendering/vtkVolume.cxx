@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.87");
+vtkCxxRevisionMacro(vtkVolume, "1.88");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -202,7 +202,7 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
     vtkCamera *cam = ren->GetActiveCamera();
     ren->ComputeAspect();
     double *aspect = ren->GetAspect();
-    vtkMatrix4x4 *mat = cam->GetCompositePerspectiveTransformMatrix( 
+    vtkMatrix4x4 *mat = cam->GetCompositeProjectionTransformMatrix( 
       aspect[0]/aspect[1], 0.0, 1.0 );
     double *bounds = this->GetBounds();
     float minX =  1.0;
