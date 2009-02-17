@@ -44,6 +44,18 @@ GLenum OpenGLDepthTextureCompareFunction[8]=
   GL_NEVER
 };
 
+const char *DepthTextureCompareFunctionAsString[8]=
+{
+  "Lequal",
+  "Gequal",
+  "Less",
+  "Greater",
+  "Equal",
+  "NotEqual",
+  "AlwaysTrue",
+  "Never"
+};
+
 // Mapping from DepthTextureMode values to OpenGL values.
 
 GLenum OpenGLDepthTextureMode[3]=
@@ -51,6 +63,13 @@ GLenum OpenGLDepthTextureMode[3]=
   GL_LUMINANCE,
   GL_INTENSITY,
   GL_ALPHA
+};
+
+const char *DepthTextureModeAsString[3]=
+{
+  "Luminance",
+  "Intensity",
+  "Alpha"
 };
 
 // Mapping from Wrap values to OpenGL values.
@@ -63,6 +82,15 @@ GLenum OpenGLWrap[5]=
   vtkgl::MIRRORED_REPEAT
 };
   
+const char *WrapAsString[5]=
+{
+  "Clamp",
+  "ClampToEdge",
+  "Repeat",
+  "ClampToBorder",
+  "MirroredRepeat"
+};
+
 // Mapping MinificationFilter values to OpenGL values.
 GLenum OpenGLMinFilter[6]=
 {
@@ -74,9 +102,19 @@ GLenum OpenGLMinFilter[6]=
   GL_LINEAR_MIPMAP_LINEAR
 };
 
+const char *MinFilterAsString[6]=
+{
+  "Nearest=0",
+  "Linear",
+  "NearestMipmapNearest",
+  "NearestMipmapLinear",
+  "LinearMipmapNearest",
+  "LinearMipmapLinear"
+};
+
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.6");
+vtkCxxRevisionMacro(vtkTextureObject, "1.7");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -1154,5 +1192,31 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "NumberOfDimensions: " << this->NumberOfDimensions << endl;
+  
+  os << indent << "WrapS: " << WrapAsString[this->WrapS] << endl;
+  os << indent << "WrapT: " << WrapAsString[this->WrapT] << endl;
+  os << indent << "WrapR: " << WrapAsString[this->WrapR] << endl;
+  
+  os << indent << "MinificationFilter: "
+     << MinFilterAsString[this->MinificationFilter] << endl;
+  
+  os << indent << "LinearMagnification: " << this->LinearMagnification << endl;
+  
+  os << indent << "BorderColor: (" << this->BorderColor[0] << ","
+     << this->BorderColor[1] << "," << this->BorderColor[2] << ","
+     << this->BorderColor[3] << endl;
+  
+  os << indent << "Priority: " << this->Priority <<  endl;
+  os << indent << "MinLOD: " << this->MinLOD << endl;
+  os << indent << "MaxLOD: " << this->MaxLOD << endl;
+  os << indent << "BaseLevel: " << this->BaseLevel << endl;
+  os << indent << "MaxLevel: " << this->MaxLevel << endl;
+  os << indent << "DepthTextureCompare: " << this->DepthTextureCompare
+     << endl;
+  os << indent << "DepthTextureCompareFunction: "
+     << DepthTextureCompareFunctionAsString[this->DepthTextureCompareFunction]
+     << endl;
+  os << indent << "DepthTextureMode: "
+     << DepthTextureModeAsString[this->DepthTextureMode] << endl;
+  os << indent << "GenerateMipmap: " << this->GenerateMipmap << endl;
 }
-

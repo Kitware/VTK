@@ -21,7 +21,7 @@
 #include "vtkInformationKey.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkProp, "1.28");
+vtkCxxRevisionMacro(vtkProp, "1.29");
 vtkCxxSetObjectMacro(vtkProp,PropertyKeys,vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -148,6 +148,8 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "none." << endl;
     }
+  
+  os << indent << "useBounds: " << this->UseBounds <<endl;
 }
 
 
