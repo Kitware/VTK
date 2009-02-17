@@ -57,10 +57,10 @@ GLenum OpenGLDepthTextureMode[3]=
 GLenum OpenGLWrap[5]=
 {
   GL_CLAMP,
-  GL_CLAMP_TO_EDGE,
+  vtkgl::CLAMP_TO_EDGE,
   GL_REPEAT,
-  GL_CLAMP_TO_BORDER,
-  GL_MIRRORED_REPEAT
+  vtkgl::CLAMP_TO_BORDER,
+  vtkgl::MIRRORED_REPEAT
 };
   
 // Mapping MinificationFilter values to OpenGL values.
@@ -76,7 +76,7 @@ GLenum OpenGLMinFilter[6]=
 
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.5");
+vtkCxxRevisionMacro(vtkTextureObject, "1.6");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -296,8 +296,8 @@ bool vtkTextureObject::IsBound()
       case GL_TEXTURE_2D:
         target=GL_TEXTURE_BINDING_2D;
         break;
-      case GL_TEXTURE_3D:
-        target=GL_TEXTURE_BINDING_3D;
+      case vtkgl::TEXTURE_3D:
+        target=vtkgl::TEXTURE_BINDING_3D;
         break;
       default:
         assert("check: impossible case" && 0);
@@ -321,14 +321,9 @@ void vtkTextureObject::SendParameters()
   if(this->GetMTime()>this->SendParametersTime)
     {
     glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
-//if(this->Target==GL_TEXTURE_2D || this->Target==GL_TEXTURE_3D)
-//  {
     glTexParameteri(this->Target,GL_TEXTURE_WRAP_T,OpenGLWrap[this->WrapT]);
-//  }
-//if(this->Target==GL_TEXTURE_3D)
-//  {
-    glTexParameteri(this->Target,GL_TEXTURE_WRAP_R,OpenGLWrap[this->WrapR]);
-//  }
+    glTexParameteri(this->Target,vtkgl::TEXTURE_WRAP_R,
+                    OpenGLWrap[this->WrapR]);
     
     glTexParameteri(this->Target,GL_TEXTURE_MIN_FILTER,
                     OpenGLMinFilter[this->MinificationFilter]);
@@ -344,26 +339,26 @@ void vtkTextureObject::SendParameters()
     glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
     
     glTexParameterf(this->Target,GL_TEXTURE_PRIORITY,this->Priority);
-    glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
-    glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
-    glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
-    glTexParameteri(this->Target,GL_TEXTURE_MAX_LEVEL,this->MaxLevel);
+    glTexParameterf(this->Target,vtkgl::TEXTURE_MIN_LOD,this->MinLOD);
+    glTexParameterf(this->Target,vtkgl::TEXTURE_MAX_LOD,this->MaxLOD);
+    glTexParameteri(this->Target,vtkgl::TEXTURE_BASE_LEVEL,this->BaseLevel);
+    glTexParameteri(this->Target,vtkgl::TEXTURE_MAX_LEVEL,this->MaxLevel);
     
-    glTexParameteri(this->Target,GL_DEPTH_TEXTURE_MODE,
+    glTexParameteri(this->Target,vtkgl::DEPTH_TEXTURE_MODE,
                     OpenGLDepthTextureMode[this->DepthTextureMode]);
     
     if(DepthTextureCompare)
       {
-      glTexParameteri(this->Target,GL_TEXTURE_COMPARE_MODE,
-                      GL_COMPARE_R_TO_TEXTURE);
+      glTexParameteri(this->Target,vtkgl::TEXTURE_COMPARE_MODE,
+                      vtkgl::COMPARE_R_TO_TEXTURE);
       }
     else
       {
-      glTexParameteri(this->Target,GL_TEXTURE_COMPARE_MODE,
+      glTexParameteri(this->Target,vtkgl::TEXTURE_COMPARE_MODE,
                       GL_NONE);
       }
     
-    glTexParameteri(this->Target,GL_TEXTURE_COMPARE_FUNC,
+    glTexParameteri(this->Target,vtkgl::TEXTURE_COMPARE_FUNC,
                     OpenGLDepthTextureCompareFunction[this->DepthTextureCompareFunction]
       );
     
