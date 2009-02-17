@@ -1748,11 +1748,11 @@ bool MetaImage::WriteROI( int * _indexMin, int * _indexMax,
 
     // seek to the end and write one byte to allocate the entire file size
     unsigned long seekpos = m_Quantity*elementNumberOfBytes;
-    tmpWriteStream->seekp(0, METAIO_STREAM::ios_base::end);
+    tmpWriteStream->seekp(0, METAIO_STREAM::ios::end);
     if ((unsigned long)(tmpWriteStream->tellp()) != dataPos+seekpos) 
       {      
       seekpos = seekpos - 1;    
-      tmpWriteStream->seekp(dataPos+seekpos, METAIO_STREAM::ios_base::beg);    
+      tmpWriteStream->seekp(dataPos+seekpos, METAIO_STREAM::ios::beg);    
       const char zerobyte = 0;
       tmpWriteStream->write(&zerobyte, 1);
       }
@@ -1960,7 +1960,7 @@ bool MetaImage::WriteROI( int * _indexMin, int * _indexMax,
     // write the last byte in the file to allocate it
     unsigned long seekpos = m_Quantity * elementNumberOfBytes;
     seekpos -= 1;
-    m_WriteStream->seekp(seekpos, METAIO_STREAM::ios_base::cur);
+    m_WriteStream->seekp(seekpos, METAIO_STREAM::ios::cur);
     const char zerobyte = 0;
     m_WriteStream->write(&zerobyte, 1);
 
@@ -2012,7 +2012,7 @@ M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
       {
       seekpos += m_SubQuantity[i] * currentIndex[i] * elementNumberOfBytes;
       }
-    _fstream->seekp( seekpos, METAIO_STREAM::ios_base::beg );
+    _fstream->seekp( seekpos, METAIO_STREAM::ios::beg );
     
     // Write the line
     _fstream->write( data, elementsToWrite*elementNumberOfBytes );
