@@ -37,8 +37,13 @@
 typedef pthread_cond_t vtkConditionType;
 #endif
 
+
+// Typically a top level windows application set _WIN32_WINNT. If it is not set we set it to
+// 0x0500 (Windows 2000) because visual studio 6...
 #ifdef VTK_USE_WIN32_THREADS
-#  define _WIN32_WINNT 0x0500 // Minimum windows version supported is Windows 2000.
+#  ifndef _WIN32_WINNT
+#    define _WIN32_WINNT 0x0500 // Minimum windows version supported is Windows 2000.
+#  endif
 #  include "vtkWindows.h" // Needed for win32 CRITICAL_SECTION, HANDLE, etc.
 #endif
 
