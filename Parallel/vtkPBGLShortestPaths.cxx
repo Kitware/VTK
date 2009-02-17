@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -56,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.2");
+vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.3");
 vtkStandardNewMacro(vtkPBGLShortestPaths);
 
 // Function object used to reduce (vertex, distance) pairs to find
@@ -69,15 +69,15 @@ public:
 
   furthest_vertex_double(vtkGraph *g) : graph(g) { }
 
-  vtkstd::pair<vtkIdType, double> 
-  operator()(vtkstd::pair<vtkIdType, double> x, 
+  vtkstd::pair<vtkIdType, double>
+  operator()(vtkstd::pair<vtkIdType, double> x,
              vtkstd::pair<vtkIdType, double> y) const
   {
     vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
-    if (x.second > y.second 
-        || (x.second == y.second 
+    if (x.second > y.second
+        || (x.second == y.second
             && helper->GetVertexOwner(x.first) < helper->GetVertexOwner(y.first))
-        || (x.second == y.second 
+        || (x.second == y.second
             && helper->GetVertexOwner(x.first) == helper->GetVertexOwner(y.first)
             && helper->GetVertexIndex(x.first) < helper->GetVertexIndex(y.first)))
       {
@@ -108,6 +108,7 @@ vtkPBGLShortestPaths::vtkPBGLShortestPaths()
   this->OriginValue = -1;
   this->OutputSelection = false;
   this->OriginFromSelection = false;
+  this->UseUniformEdgeWeights = false;
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
 }
@@ -126,7 +127,7 @@ void vtkPBGLShortestPaths::SetOriginSelection(vtkSelection* s)
 }
 
 // Description:
-// Set the index (into the vertex array) of the 
+// Set the index (into the vertex array) of the
 // breadth first search 'origin' vertex.
 void vtkPBGLShortestPaths::SetOriginVertex(vtkIdType index)
 {
@@ -134,11 +135,11 @@ void vtkPBGLShortestPaths::SetOriginVertex(vtkIdType index)
   this->InputArrayName = NULL; // Reset any origin set by another method
   this->Modified();
 }
-  
+
 // Description:
 // Set the breadth first search 'origin' vertex.
 // This method is basically the same as above
-// but allows the application to simply specify 
+// but allows the application to simply specify
 // an array name and value, instead of having to
 // know the specific index of the vertex.
 void vtkPBGLShortestPaths::SetOriginVertex(
@@ -183,13 +184,13 @@ vtkIdType vtkPBGLShortestPaths::GetVertexIndex(
         return i;
         }
       }
-    } 
-    
+    }
+
   // Failed
   vtkErrorMacro("Did not find a valid vertex index...");
   return 0;
-} 
-  
+}
+
 
 int vtkPBGLShortestPaths::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -202,9 +203,9 @@ int vtkPBGLShortestPaths::RequestData(
 
   // get the input and ouptut
   vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+      inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkGraph *output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Send the data to output.
   output->ShallowCopy(input);
@@ -237,55 +238,58 @@ int vtkPBGLShortestPaths::RequestData(
     }
   else
     {
-    // Now figure out the origin vertex of the 
+    // Now figure out the origin vertex of the
     // breadth first search
     if (this->InputArrayName)
       {
       vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->InputArrayName);
-    
-      // Does the array exist at all?  
+
+      // Does the array exist at all?
       if (abstract == NULL)
         {
         vtkErrorMacro("Could not find array named " << this->InputArrayName);
         return 0;
         }
-        
-      this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue); 
-      }   
-    }
-  
-  // Retrieve the edge-weight array.
-  if (!this->EdgeWeightArrayName)
-    {
-    vtkErrorMacro("Edge-weight array name is required");
-    return 1;
-    }
-  vtkAbstractArray* abstractEdgeWeightArray 
-    = input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName);
-    
-  // Does the edge-weight array exist at all?  
-  if (abstractEdgeWeightArray == NULL)
-    {
-    vtkErrorMacro("Could not find edge-weight array named " 
-                  << this->EdgeWeightArrayName);
-    return 1;
+
+      this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
+      }
     }
 
-  // Does the edge-weight array have enough values in it?
-  if (abstractEdgeWeightArray->GetNumberOfTuples() < output->GetNumberOfEdges())
-    {
-    vtkErrorMacro("Edge-weight array named " << this->EdgeWeightArrayName
-                  << " has too few values in it.");
-    return 1;
-    }
-
+  vtkAbstractArray * abstractEdgeWeightArray = NULL;
+  vtkDoubleArray   * edgeWeightArray = NULL;
   bool edgeWeightArrayIsTemporary = false;
-  vtkDoubleArray *edgeWeightArray 
-    = vtkDoubleArray::SafeDownCast(abstractEdgeWeightArray);
-  if (edgeWeightArray == 0)
+
+  if(!this->UseUniformEdgeWeights)
     {
-    // Edge-weight array does not contain "double" values. We will
-    // need to build a temporary array, or fail.
+    // Retrieve the edge-weight array.
+    if (!this->EdgeWeightArrayName)
+      {
+      vtkErrorMacro("Edge-weight array name is required");
+      return 1;
+      }
+    abstractEdgeWeightArray = input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName);
+
+    // Does the edge-weight array exist at all?
+    if (abstractEdgeWeightArray == NULL)
+      {
+      vtkErrorMacro("Could not find edge-weight array named "
+                    << this->EdgeWeightArrayName);
+      return 1;
+      }
+
+    // Does the edge-weight array have enough values in it?
+    if (abstractEdgeWeightArray->GetNumberOfTuples() < output->GetNumberOfEdges())
+      {
+      vtkErrorMacro("Edge-weight array named " << this->EdgeWeightArrayName
+                  << " has too few values in it.");
+      return 1;
+      }
+
+    edgeWeightArray = vtkDoubleArray::SafeDownCast(abstractEdgeWeightArray);
+    if (edgeWeightArray == 0)
+      {
+      // Edge-weight array does not contain "double" values. We will
+      // need to build a temporary array, or fail.
       if (abstractEdgeWeightArray->IsNumeric())
         {
         // Allocate a new edge-weight array.
@@ -306,7 +310,21 @@ int vtkPBGLShortestPaths::RequestData(
                       << " does not contain numeric values.")
         return 1;
         }
+      }
     }
+  else
+    {
+    // Create a default edge weight array with uniform edge weights.
+    edgeWeightArray = vtkDoubleArray::New();
+    edgeWeightArray->SetNumberOfTuples(output->GetNumberOfEdges());
+    edgeWeightArrayIsTemporary = true;
+
+    for(vtkIdType i=0; i<output->GetNumberOfEdges(); ++i)
+      {
+      edgeWeightArray->SetTuple1(i, 1.0);
+      }
+    }
+
 
   // Create the predecessor array
   vtkIdTypeArray* PredecessorArray = vtkIdTypeArray::New();
@@ -331,7 +349,7 @@ int vtkPBGLShortestPaths::RequestData(
     PathLengthArray->SetName("PathLength");
     }
   PathLengthArray->SetNumberOfTuples(output->GetNumberOfVertices());
-  
+
   vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
   if (!helper)
     {
@@ -355,7 +373,7 @@ int vtkPBGLShortestPaths::RequestData(
     DistributedPredecessorMap;
   DistributedPredecessorMap predecessorMap
     = MakeDistributedVertexPropertyMap(output, PredecessorArray);
-  
+
   // Distributed path-length map
   typedef vtkDistributedVertexPropertyMapType<vtkDoubleArray>::type
     DistributedPathLengthMap;
@@ -401,12 +419,19 @@ int vtkPBGLShortestPaths::RequestData(
       }
     }
 
+  // Since we know PredecessorArray will contain DistributedIds, we can flag
+  // it by adding the key, DISTRIBUTEDIDS(), so that CollectGraph will know
+  // to recalculate the values when collecting to 1 node.
+  // This might also be used for repartitioning as well.
+  PredecessorArray->GetInformation()->Set(
+        vtkDistributedGraphHelper::DISTRIBUTEDIDS(), 1);
+
   // Add output arrays to the output
   output->GetVertexData()->AddArray(PredecessorArray);
   PredecessorArray->Delete();
   output->GetVertexData()->AddArray(PathLengthArray);
   PathLengthArray->Delete();
-  
+
   if (edgeWeightArrayIsTemporary)
     {
     edgeWeightArray->Delete();
@@ -419,7 +444,7 @@ int vtkPBGLShortestPaths::RequestData(
       vtkSmartPointer<vtkIdTypeArray>::New();
     vtkSmartPointer<vtkSelectionNode> node =
       vtkSmartPointer<vtkSelectionNode>::New();
-    
+
     // Set the output based on the output selection type
     if (!strcmp(OutputSelectionType,"MAX_DIST_FROM_ROOT"))
       {
@@ -437,7 +462,7 @@ int vtkPBGLShortestPaths::RequestData(
         if (dist != VTK_DOUBLE_MAX && dist > maxDistance)
           {
           maxFromRootVertex = v;
-          maxDistance = dist;  
+          maxDistance = dist;
           }
         }
 
@@ -464,27 +489,27 @@ int vtkPBGLShortestPaths::RequestData(
 void vtkPBGLShortestPaths::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
-  
-  os << indent << "InputArrayName: " 
+
+  os << indent << "InputArrayName: "
      << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
 
-  os << indent << "EdgeWeightArrayName: " 
+  os << indent << "EdgeWeightArrayName: "
      << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)")
      << endl;
 
   os << indent << "Delta: " << this->Delta << endl;
-     
-  os << indent << "PredecessorArrayName: " 
-     << (this->PredecessorArrayName ? this->PredecessorArrayName : "(none)") 
+
+  os << indent << "PredecessorArrayName: "
+     << (this->PredecessorArrayName ? this->PredecessorArrayName : "(none)")
      << endl;
 
-  os << indent << "PathLengthArrayName: " 
-     << (this->PathLengthArrayName ? this->PathLengthArrayName : "(none)") 
+  os << indent << "PathLengthArrayName: "
+     << (this->PathLengthArrayName ? this->PathLengthArrayName : "(none)")
      << endl;
-     
-  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;  
+
+  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
 
   os << indent << "OutputSelection: "
      << (this->OutputSelection ? "on" : "off") << endl;
