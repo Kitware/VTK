@@ -29,7 +29,7 @@
 #include "vtkCellType.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeLimiter, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeLimiter, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeLimiter);
 
 //----------------------------------------------------------------------------
@@ -425,7 +425,7 @@ int vtkHyperOctreeLimiter::FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 int vtkHyperOctreeLimiter::FillOutputPortInformation(int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperOctree");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperOctree");
   return 1;
 }
 
