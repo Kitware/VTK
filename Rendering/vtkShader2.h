@@ -80,6 +80,10 @@ public:
   vtkSetMacro(Type,int);
   
   // Description:
+  // Return the shader type as a string.
+  const char *GetTypeAsString();
+  
+  // Description:
   // Compile the shader code.
   // The result of compilation can be query with GetLastCompileStatus()
   // The log of compilation can be query with GetLastCompileLog()

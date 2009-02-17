@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.10");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.11");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -443,14 +443,18 @@ void vtkShaderProgram2::Build()
         {
          if(this->PrintErrors)
           {
-          vtkErrorMacro(<<" the shader program failed to link. Its log is:\n" << this->GetLastLinkLog() << "the shaders are: ");
+          vtkErrorMacro(<<" the shader program failed to link. Its log is:\n"
+                        << this->GetLastLinkLog() << "the shaders are: ");
           size_t i=0;
           size_t c=this->Shaders->GetNumberOfItems();
           this->Shaders->InitTraversal();
           s=this->Shaders->GetNextShader();
           while(s!=0)
             {
-            vtkErrorMacro(<<"shader #"<<i<<"/"<<c<<" log is:\n" << s->GetLastCompileLog() << "\n. Its source code is:\n" << s->GetSourceCode());
+            vtkErrorMacro(<<"shader #"<<i<<"/"<<c<<" ("<<s->GetTypeAsString()
+                          <<") log is:\n" << s->GetLastCompileLog()
+                          << "\n. Its source code is:\n" <<
+                          s->GetSourceCode());
             s=this->Shaders->GetNextShader();
             ++i;
             }

@@ -26,8 +26,14 @@ GLenum vtkShaderTypeVTKToGL[3]={
   vtkgl::FRAGMENT_SHADER // VTK_SHADER_TYPE_FRAGMENT=2
 };
 
+const char *TypeAsStringArray[3]={
+  "vertex shader",
+  "geometry shader",
+  "fragment shader"
+};
+
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader2, "1.4");
+vtkCxxRevisionMacro(vtkShader2, "1.5");
 vtkStandardNewMacro(vtkShader2);
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 
@@ -220,6 +226,14 @@ void vtkShader2::Compile()
     vtkgl::GetShaderInfoLog(shaderId,value,0,this->LastCompileLog);
     this->LastCompileTime.Modified();
     }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the shader type as a string.
+const char *vtkShader2::GetTypeAsString()
+{
+  return TypeAsStringArray[this->Type];
 }
 
 //-----------------------------------------------------------------------------
