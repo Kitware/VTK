@@ -28,10 +28,19 @@
 #include "vtkQtChartShape.h"
 
 
+/// \class vtkQtChartBar
+/// \brief
+///   The vtkQtChartBar class defines a bar used by the chart bar
+///   locator.
 class VTKQTCHART_EXPORT vtkQtChartBar : public vtkQtChartShape
 {
 public:
   vtkQtChartBar();
+
+  /// \brief
+  ///   Constructs a chart bar shape.
+  /// \param series The series index.
+  /// \param index The index in the given series.
   vtkQtChartBar(int series, int index);
   vtkQtChartBar(const vtkQtChartBar &other);
   virtual ~vtkQtChartBar();
@@ -42,10 +51,26 @@ public:
   virtual bool contains(const QPointF &point) const;
   virtual bool intersects(const QRectF &area) const;
 
+  /// \brief
+  ///   Sets the bar shape.
+  /// \param rectangle The new bar shape.
   virtual void setRectangle(const QRectF &rectangle) {this->setBar(rectangle);}
 
+  /// \brief
+  ///   Gets the bar shape.
+  /// \return
+  ///   The bar rectangle.
   QRectF &getBar() {return *this->Bar;}
+
+  /// \brief
+  ///   Gets the bar shape.
+  /// \return
+  ///   The bar rectangle.
   const QRectF &getBar() const {return *this->Bar;}
+
+  /// \brief
+  ///   Sets the bar shape.
+  /// \param bar The new bar rectangle.
   void setBar(const QRectF &bar);
 
 private:

@@ -33,33 +33,94 @@ class QPointF;
 class QRectF;
 
 
+/// \class vtkQtChartShapeLocatorNode
+/// \brief
+///   The vtkQtChartShapeLocatorNode class is used to build a tree of
+///   chart shapes.
 class VTKQTCHART_EXPORT vtkQtChartShapeLocatorNode
 {
 public:
+  /// \brief
+  ///   Constructs a chart shape locator node.
+  /// \param element The chart shape element to wrap.
   vtkQtChartShapeLocatorNode(vtkQtChartShape *element=0);
   ~vtkQtChartShapeLocatorNode();
 
+  /// \brief
+  ///   Gets whether or not the bounding area contains the given point.
+  /// \param point The position to evaluate.
+  /// \return
+  ///   True if the bounding area contains the given point.
   bool contains(const QPointF &point) const;
+
+  /// \brief
+  ///   Gets whether or not the bounding area intersects the given area.
+  /// \param area The rectangle to evaluate.
+  /// \return
+  ///   True if the bounding area intersects the given area.
   bool intersects(const QRectF &area) const;
 
+  /// \brief
+  ///   Gets the bounding rectangle.
+  /// \return
+  ///   The bounding rectangle.
   const QRectF &getBounds() const {return *this->Bounds;}
+
+  /// \brief
+  ///   Sets the bounding rectangle.
+  /// \param bounds The new bounding rectangle.
   void setBounds(const QRectF &bounds);
 
+  /// \brief
+  ///   Gets the chart shape element.
+  /// \return
+  ///   A pointer to the chart shape element.
   vtkQtChartShape *getElement() const {return this->Element;}
+
+  /// \brief
+  ///   Sets the chart shape element.
+  /// \param element The new chart shape element.
   void setElement(vtkQtChartShape *element);
 
+  /// \brief
+  ///   Gets the parent node.
+  /// \return
+  ///   A pointer to the parent node.
   vtkQtChartShapeLocatorNode *getParent() const {return this->Parent;}
+
+  /// \brief
+  ///   Sets the parent node.
+  /// \param parent The new parent node.
   void setParent(vtkQtChartShapeLocatorNode *parent) {this->Parent = parent;}
 
+  /// \brief
+  ///   Gets whether or not the node has children.
+  /// \return
+  ///   True if the node has children.
   bool hasChildren() const {return this->Nodes.size() > 0;}
+
+  /// \brief
+  ///   Gets the list of child nodes.
+  /// \return
+  ///   The list of child nodes.
   const QList<vtkQtChartShapeLocatorNode *> &getNodes() const {return this->Nodes;}
+
+  /// \brief
+  ///   Gets the list of child nodes.
+  /// \return
+  ///   The list of child nodes.
   QList<vtkQtChartShapeLocatorNode *> &getNodes() {return this->Nodes;}
 
+  /// \brief
+  ///   Updates the bounding rectangle.
+  ///
+  /// The bounding rectangle is the bounds of the element or the
+  /// bounds of the child nodes.
   void updateBounds();
 
 private:
-  QRectF *Bounds;                           ///< Stores the bounds.
-  vtkQtChartShape *Element;                 ///< Stores the shape.
+  QRectF *Bounds;                            ///< Stores the bounds.
+  vtkQtChartShape *Element;                  ///< Stores the shape.
   vtkQtChartShapeLocatorNode *Parent;        ///< Stores the parent node.
   QList<vtkQtChartShapeLocatorNode *> Nodes; ///< Stores the child nodes.
 
@@ -71,8 +132,8 @@ private:
 
 /// \class vtkQtChartShapeLocator
 /// \brief
-///   The vtkQtChartShapeLocator class is used to locate shapes using
-///   a tree.
+///   The vtkQtChartShapeLocator class is used to locate shapes in a
+///   tree structure.
 ///
 /// The tree is built from a table of shapes. The leaf nodes store the
 /// shapes and use them for searches. The parent nodes in the tree use

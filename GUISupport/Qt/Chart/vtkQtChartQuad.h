@@ -30,6 +30,10 @@
 class QPolygonF;
 
 
+/// \class vtkQtChartQuad
+/// \brief
+///   The vtkQtChartQuad class defines a quad used by the chart shape
+///   locator.
 class VTKQTCHART_EXPORT vtkQtChartQuad : public vtkQtChartShape
 {
 public:
@@ -49,10 +53,30 @@ public:
   virtual bool contains(const QPointF &point) const;
   virtual bool intersects(const QRectF &area) const;
 
+  /// \brief
+  ///   Sets the quad shape.
+  ///
+  /// The polygon should be a list of four points. The points should
+  /// form a convex, clock-wise loop.
+  ///
+  /// \param polygon The list of points to define the quad.
   virtual void setPolygon(const QPolygonF &polygon) {this->setPoints(polygon);}
 
+  /// \brief
+  ///   Gets the list of quad points.
+  /// \return
+  ///   The list of quad points.
   const QPolygonF &getPoints() const;
+
+  /// \brief
+  ///   Sets the quad shape.
+  /// \param points The list of points to define the quad.
   void setPoints(const QPolygonF &points);
+
+  /// \brief
+  ///   Sets the point for the given index.
+  /// \param index The index of the quad point.
+  /// \param point The new point.
   void setPoint(int index, const QPointF &point);
 
 private:
