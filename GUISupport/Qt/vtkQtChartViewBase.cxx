@@ -103,7 +103,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.5");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.6");
 vtkStandardNewMacro(vtkQtChartViewBase);
 
 //----------------------------------------------------------------------------
@@ -589,11 +589,8 @@ void SetColorScheme(vtkQtChartStyleManager* styleManager,
         qobject_cast<vtkQtChartColorStyleGenerator*>(styleManager->getGenerator());
     if (!generator)
       {
-      // Create a new color style generator
-      vtkQtChartColorStyleGenerator* generator = 
-        new vtkQtChartColorStyleGenerator(styleManager);
-      
-      // Set the generator
+      // Create and set a new color style generator
+      generator = new vtkQtChartColorStyleGenerator(styleManager);
       styleManager->setGenerator(generator);
       }
     generator->getColors()->setColorScheme(scheme);
@@ -602,13 +599,12 @@ void SetColorScheme(vtkQtChartStyleManager* styleManager,
 }
 
 //----------------------------------------------------------------------------
-// SetColorScheme macro
 #define vtkQtChartViewBase_SetColorScheme_macro(scheme)         \
 void vtkQtChartViewBase::SetColorSchemeTo##scheme()             \
 {                                                               \
   SetColorScheme(this->GetChartArea()->getStyleManager(),       \
                                   vtkQtChartColors::scheme);    \
-  this->Update();                                    \
+  this->Update();                                               \
 }                                                               
 
 //----------------------------------------------------------------------------
