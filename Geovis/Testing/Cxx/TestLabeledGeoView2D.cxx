@@ -44,7 +44,7 @@
 
 int TestLabeledGeoView2D(int argc, char* argv[])
 {
-  int proj = 40;
+  int proj = 35;
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/NE2_ps_bath_small.jpg");
   vtkStdString imageFile = fname;
