@@ -196,6 +196,15 @@ public:
   // Sets up the default interactor.
   virtual void SetupDefaultInteractor();
 
+  // Description:
+  // Set color scheme methods
+  void SetColorSchemeToSpectrum();
+  void SetColorSchemeToWarm();
+  void SetColorSchemeToCool();
+  void SetColorSchemeToBlues();
+  void SetColorSchemeToWildFlower();
+  void SetColorSchemeToCitrus();
+
 protected:
   // Description:
   // Create a vtkQtChartRepresentation for the given input connection.

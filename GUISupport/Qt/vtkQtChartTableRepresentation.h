@@ -16,51 +16,19 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkQtChartTableRepresentation - Put a vtkTable into a QChartLayer
+// .NAME vtkQtChartTableRepresentation - A representation for displaying a
+// vtkTable in a vtkQtChartViewBase
 //
 // .SECTION Description
 //
 // This is a specialization of vtkQtTableDataRepresentation to put the
-// data into a QChartLayer.  The user must supply the QChartLayer to be
-// used either through SetChartLayer() or via a subclass.
+// data into a vtkQtChartViewBase.
 
 #ifndef __vtkQtChartTableRepresentation_h
 #define __vtkQtChartTableRepresentation_h
 
-#include "QVTKWin32Header.h"
 #include "vtkQtTableDataRepresentation.h"
-
-#include "vtkQtChartSeriesSelection.h"
-
-class vtkQtAbstractModelAdapter;
-class vtkAlgorithmOutput;
-class vtkDataArray;
-class vtkIdTypeArray;
-class vtkIntArray;
-class vtkLookupTable;
-class vtkQtChartTableRepresentation;
-class vtkQtItemView;
-class vtkSelection;
-class vtkSelectionLink;
-class vtkView;
-
-/*
-// TODO Move the signal helper to its own class so we don't have to MOC compile
-// vtkQtChartTableRepresentation.h (this header)
-//BTX
-class QVTK_EXPORT vtkQtChartRepresentationSignalHandler : public QObject
-{
-Q_OBJECT
-public:
-  void setTarget(vtkQtChartTableRepresentation* t) { this->Target = t; }
-public slots:
-  void selectedSeriesChanged(const vtkQtChartSeriesSelection&);
-  void modelChanged();
-private:
-  vtkQtChartRepresentation* Target;
-};
-//ETX
-*/
+class vtkQtChartTableSeriesModel;
 
 class QVTK_EXPORT vtkQtChartTableRepresentation : public vtkQtTableDataRepresentation
 {
@@ -70,24 +38,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Sets the input pipeline connection to this representation.
-  virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-
+  // Return the series model for this table representation
+  vtkQtChartTableSeriesModel* GetSeriesModel();
+ 
   // Description:
-  // Called by the handler when the layer selection changes.
-  virtual void QtSelectedSeriesChanged(const vtkQtChartSeriesSelection &list);
-  
-  // Description:
-  // Called by the handler whent the data model changes.
-  virtual void QtModelChanged();
-
-  // Description:
-  // Update the current selection.
-  virtual void Update();
-
-  // Description:
-  // Orients the table as being either columns-as-series or
-  // rows-as-series oriented.
+  // Orients the table as being either columns-as-series or rows-as-series oriented.
   void SetColumnsAsSeries(bool);
   vtkGetMacro(ColumnsAsSeries,int);
 
@@ -96,18 +51,14 @@ protected:
   ~vtkQtChartTableRepresentation();
   
   // Decription:
-  // Adds the representation to the view.  This is called from
-  // vtkView::AddRepresentation().
+  // Adds the representation to the view.
+  // This is called from vtkView::AddRepresentation().
   bool AddToView(vtkView* view);
   
   // Decription:
-  // Removes the representation to the view.  This is called from
-  // vtkView::RemoveRepresentation().
+  // Removes the representation to the view.
+  // This is called from vtkView::RemoveRepresentation().
   bool RemoveFromView(vtkView* view);
-
-  // Description:
-  // Listens for selection changed events from the chart layer.
-  //vtkQtChartTableRepresentationSignalHandler* Handler;
 
   bool ColumnsAsSeries;
 

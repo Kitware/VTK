@@ -96,6 +96,10 @@ public:
   vtkSetStringMacro(LastDataColumn);
   vtkGetStringMacro(LastDataColumn);
 
+  // Description:
+  // Update the table representation
+  virtual void Update();
+
 protected:
   vtkQtTableRepresentation();
   ~vtkQtTableRepresentation();
@@ -113,8 +117,6 @@ protected:
 
   virtual void ResetModel();
   virtual void CreateSeriesColors();
-
-  virtual void Update();
 
   // Description:
   // This should set the model type to DATA, METADATA or FULL

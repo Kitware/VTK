@@ -31,6 +31,8 @@
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartTitle.h"
 #include "vtkQtChartWidget.h"
+#include "vtkQtChartStyleManager.h"
+#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkTable.h"
 
 #include "vtkObjectFactory.h"
@@ -101,7 +103,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.4");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.5");
 vtkStandardNewMacro(vtkQtChartViewBase);
 
 //----------------------------------------------------------------------------
@@ -572,6 +574,50 @@ vtkDataRepresentation* vtkQtChartViewBase::CreateDefaultRepresentation(vtkAlgori
   rep->SetInputConnection(conn);
   return rep;
 }
+
+
+//----------------------------------------------------------------------------
+// Internal helper method to switch color schemes.
+// This method may have the side effect of changing the style manager's generator.
+namespace {
+void SetColorScheme(vtkQtChartStyleManager* styleManager,
+                    vtkQtChartColors::ColorScheme scheme)
+{
+  if (styleManager)
+    {
+    vtkQtChartColorStyleGenerator* generator =
+        qobject_cast<vtkQtChartColorStyleGenerator*>(styleManager->getGenerator());
+    if (!generator)
+      {
+      // Create a new color style generator
+      vtkQtChartColorStyleGenerator* generator = 
+        new vtkQtChartColorStyleGenerator(styleManager);
+      
+      // Set the generator
+      styleManager->setGenerator(generator);
+      }
+    generator->getColors()->setColorScheme(scheme);
+    }
+}
+}
+
+//----------------------------------------------------------------------------
+// SetColorScheme macro
+#define vtkQtChartViewBase_SetColorScheme_macro(scheme)         \
+void vtkQtChartViewBase::SetColorSchemeTo##scheme()             \
+{                                                               \
+  SetColorScheme(this->GetChartArea()->getStyleManager(),       \
+                                  vtkQtChartColors::scheme);    \
+  this->Update();                                    \
+}                                                               
+
+//----------------------------------------------------------------------------
+vtkQtChartViewBase_SetColorScheme_macro(Spectrum);
+vtkQtChartViewBase_SetColorScheme_macro(Warm);
+vtkQtChartViewBase_SetColorScheme_macro(Cool);
+vtkQtChartViewBase_SetColorScheme_macro(Blues);
+vtkQtChartViewBase_SetColorScheme_macro(WildFlower);
+vtkQtChartViewBase_SetColorScheme_macro(Citrus);
 
 //----------------------------------------------------------------------------
 void vtkQtChartViewBase::PrintSelf(ostream& os, vtkIndent indent)

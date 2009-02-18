@@ -18,79 +18,27 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkQtChartTableRepresentation.h"
-
-#include "vtkQtChartSeriesModelCollection.h"
-#include "vtkQtChartSeriesLayer.h"
-#include "vtkQtChartTableSeriesModel.h"
-#include "vtkQtChartArea.h"
-#include "vtkQtChartSeriesOptions.h"
-#include "vtkQtChartSeriesSelection.h"
-#include "vtkQtChartSeriesSelectionModel.h"
-#include "vtkQtChartStyleManager.h"
-#include "vtkQtChartStyleGenerator.h"
-#include "vtkQtChartColorStyleGenerator.h"
-#include "vtkQtChartPenBrushGenerator.h"
-
-#include "vtkAlgorithmOutput.h"
-#include "vtkCommand.h"
-#include "vtkConvertSelection.h"
-#include "vtkDataObjectToTable.h"
-#include "vtkDataObject.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkLookupTable.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkQtChartViewBase.h"
-#include "vtkQtItemView.h"
-#include "vtkQtListView.h"
-#include "vtkQtTreeView.h"
-#include "vtkSelectionLink.h"
-#include "vtkSelectionNode.h"
-#include "vtkSmartPointer.h"
-#include "vtkTable.h"
+#include "vtkQtChartSeriesModelCollection.h"
+#include "vtkQtChartTableSeriesModel.h"
 #include "vtkQtTableModelAdapter.h"
-#include "vtkTree.h"
-#include "vtkQtTreeModelAdapter.h"
-
-/*
-// TODO Move the signal helper to its own class so we don't have to MOC compile
-// vtkQtChartTableRepresentation.h
-// Signal helper class
-void vtkQtChartRepresentationSignalHandler::selectedSeriesChanged(const vtkQtChartSeriesSelection &list)
-{
-  this->Target->QtSelectedSeriesChanged(list);
-}
-
-// Signal helper class
-void vtkQtChartRepresentationSignalHandler::modelChanged()
-{
-  this->Target->QtModelChanged();
-}
-*/
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
 //----------------------------------------------------------------------------
 class vtkQtChartTableRepresentation::vtkInternal
 {
 public:
-
   vtkInternal()
     {
-    this->ChartView = 0;
     this->SeriesModel = 0;
     }
 
-  ~vtkInternal()
-    {
-    }
-
-  vtkQtChartViewBase* ChartView;
   vtkQtChartTableSeriesModel* SeriesModel;
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.4");
 vtkStandardNewMacro(vtkQtChartTableRepresentation);
 
 //----------------------------------------------------------------------------
@@ -98,8 +46,6 @@ vtkQtChartTableRepresentation::vtkQtChartTableRepresentation()
 {
   this->Internal = new vtkInternal;
   this->ColumnsAsSeries = true;
-  //this->Handler = new vtkQtChartTableRepresentationSignalHandler();
-  //this->Handler->setTarget(this);
 
   // Set up the chart table series model. It will be deleted when the
   // model adapter is deleted in the parent destructor.
@@ -108,77 +54,29 @@ vtkQtChartTableRepresentation::vtkQtChartTableRepresentation()
 }
 
 //----------------------------------------------------------------------------
-
 vtkQtChartTableRepresentation::~vtkQtChartTableRepresentation()
 {
-  // If we are still in a view, then remove self from the view
-  if (this->Internal->ChartView)
-    {
-    this->RemoveFromView(this->Internal->ChartView);
-    }
-
-  //delete this->Handler;
   delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
+void vtkQtChartTableRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::SetInputConnection(conn);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::QtModelChanged()
-{
-
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::
-QtSelectedSeriesChanged(const vtkQtChartSeriesSelection& vtkNotUsed(list))
+bool vtkQtChartTableRepresentation::AddToView(vtkView* view)
 {
-
-}
-
-//----------------------------------------------------------------------------
-bool 
-vtkQtChartTableRepresentation::AddToView(vtkView* view)
-{
-  // Don't add to the same view twice
-  if (view == this->Internal->ChartView)
-    {
-    return false;
-    }
-
-  // Remove self from current view if needed
-  if (this->Internal->ChartView)
-    {
-    this->RemoveFromView(this->Internal->ChartView);
-    }
-
   // Downcast the view to a chart view
   vtkQtChartViewBase* chart = vtkQtChartViewBase::SafeDownCast(view);
-
-  // If view if null then return false
   if (!chart)
     {
     return false;
     }
 
-  // If we dont have a valid model adapter than it means we have
-  // no data, so there is nothing we can do.
-  if (!this->ModelAdapter)
-    {
-    vtkDebugMacro("Representation cannot be added to chart view because the model "
-      " adapter is null, probably because table data has not been set.");
-    return false;
-    }
-
-
   // Get the chart view's model collection
-  vtkQtChartSeriesModelCollection* modelCollection =
-    qobject_cast<vtkQtChartSeriesModelCollection*>(chart->GetChartSeriesModel());
+  vtkQtChartSeriesModelCollection* modelCollection = chart->GetChartSeriesModel();
   if (!modelCollection)
     {
     vtkDebugMacro("Representation cannot be added to chart view because the chart "
@@ -186,24 +84,15 @@ vtkQtChartTableRepresentation::AddToView(vtkView* view)
     return false;
     }
 
-  // Add the new series model to the chart view's model collection.
-  modelCollection->addSeriesModel(this->Internal->SeriesModel);
-
-  this->Internal->ChartView = chart;
+  // Add the our series model to the chart view's model collection.
+  modelCollection->addSeriesModel(this->GetSeriesModel());
   return true;
 }
 
 //----------------------------------------------------------------------------
-
-bool 
-vtkQtChartTableRepresentation::RemoveFromView(vtkView* view)
+bool vtkQtChartTableRepresentation::RemoveFromView(vtkView* view)
 {
-  // Only remove self from view if we have previously been added to the view
-  if (view != this->Internal->ChartView)
-    {
-    return false;
-    }
-
+  // Downcast the view to a chart view
   vtkQtChartViewBase* chart = vtkQtChartViewBase::SafeDownCast(view);
   if (!chart)
     {
@@ -211,8 +100,7 @@ vtkQtChartTableRepresentation::RemoveFromView(vtkView* view)
     }
 
   // Get the chart view's model collection
-  vtkQtChartSeriesModelCollection* modelCollection =
-    qobject_cast<vtkQtChartSeriesModelCollection*>(chart->GetChartSeriesModel());
+  vtkQtChartSeriesModelCollection* modelCollection = chart->GetChartSeriesModel();
   if (!modelCollection)
     {
     vtkDebugMacro("Representation cannot be removed from the chart view because "
@@ -220,24 +108,18 @@ vtkQtChartTableRepresentation::RemoveFromView(vtkView* view)
     return false;
     }
 
-  modelCollection->removeSeriesModel(this->Internal->SeriesModel);
-
-  this->Internal->ChartView = 0;
+  // Remove the our series model from the chart view's model collection.
+  modelCollection->removeSeriesModel(this->GetSeriesModel());
   return true;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::Update()
+vtkQtChartTableSeriesModel* vtkQtChartTableRepresentation::GetSeriesModel()
 {
-  if(!this->Internal->ChartView)
-    {
-    return;
-    }
-
-  this->Superclass::Update();
+  return this->Internal->SeriesModel;
 }
 
-// ----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkQtChartTableRepresentation::SetColumnsAsSeries(bool value)
 {
   if (this->ColumnsAsSeries == value)
@@ -245,12 +127,6 @@ void vtkQtChartTableRepresentation::SetColumnsAsSeries(bool value)
     return;
     }
   this->ColumnsAsSeries = value;
-  this->Internal->SeriesModel->setColumnsAsSeries(value);
+  this->GetSeriesModel()->setColumnsAsSeries(value);
   this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
 }
