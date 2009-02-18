@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.73");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.74");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -4774,7 +4774,11 @@ void vtkExodusIIReaderPrivate::Reset()
   this->TimeStep = 0;
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
   this->FastPathObjectId = -1;
-  this->FileId = 0;
+
+  // Don't clear file id since it's not part of meta-data that's read from the
+  // file, it's set externally (by vtkPExodusIIReader).
+  // Refer to BUG #7633.
+  //this->FileId = 0;
 
   this->Modified();
 }
@@ -5297,7 +5301,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.73");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.74");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
