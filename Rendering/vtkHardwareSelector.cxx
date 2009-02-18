@@ -24,6 +24,7 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -47,7 +48,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
-vtkCxxRevisionMacro(vtkHardwareSelector, "1.6");
+vtkCxxRevisionMacro(vtkHardwareSelector, "1.7");
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
@@ -135,6 +136,7 @@ bool vtkHardwareSelector::CaptureBuffers()
     }
 
   rwin->SwapBuffersOff();
+  vtkRenderWindowInteractor* iren = rwin->GetInteractor();
 
   // Initialize renderer for selection.
   //change the renderer's background to black, which will indicate a miss
@@ -152,11 +154,17 @@ bool vtkHardwareSelector::CaptureBuffers()
       continue;
       }
     this->InvokeEvent(vtkCommand::StartEvent);
-    //cout << "Before Pass: " << this->CurrentPass << endl;
-    //glFinish();
-    rwin->Render();
-    //cout << "Rendered Pass: " << this->CurrentPass << endl;
-    //glFinish();
+    // We go through render window interactor, if available, since that allows
+    // applications, such as ParaView, to do application specific updates etc.
+    // before render gets called.
+    if (iren)
+      {
+      iren->Render();
+      }
+    else
+      {
+      rwin->Render();
+      }
     this->InvokeEvent(vtkCommand::EndEvent);
     this->SavePixelBuffer(this->CurrentPass);
     }
