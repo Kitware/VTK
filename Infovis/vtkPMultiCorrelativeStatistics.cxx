@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.3");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.4");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -100,7 +100,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   vtkCommunicator* com = curController->GetCommunicator();
   
   // (All) gather all sample sizes
-  int n_l = sparseCov->GetValueByName( 0, "Entries" ).ToInt(); // Sample Size
+  int n_l = sparseCov->GetValueByName( 0, "Entries" ).ToInt(); // Cardinality
   int* n_g = new int[np];
   com->AllGather( &n_l, n_g, 1 ); 
   
