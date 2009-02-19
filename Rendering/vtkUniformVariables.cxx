@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.3");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.4");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -97,6 +97,8 @@ public:
   
   virtual void Send(int location)=0;
   
+  virtual void PrintSelf(ostream &os, vtkIndent indent)=0;
+  
 protected:
   char *Name;
   
@@ -160,6 +162,22 @@ public:
         }
     }
   
+  virtual void PrintSelf(ostream &os, vtkIndent indent)
+    {
+      os << indent << this->Name << " (uniform" << this->Size << "i): ";
+      int i=0;
+      while(i<this->Size)
+        {
+        os << this->Values[i];
+        if(i<(this->Size-1))
+          {
+          os <<",";
+          }
+        ++i;
+        }
+      os << endl;
+    }
+  
 protected:
   int Size;
   int *Values;
@@ -220,6 +238,22 @@ public:
                            this->Values[2],this->Values[3]);
           break;
         }
+    }
+  
+  virtual void PrintSelf(ostream &os, vtkIndent indent)
+    {
+      os << indent << this->Name << " (uniform" << this->Size << "f): ";
+      int i=0;
+      while(i<this->Size)
+        {
+        os << this->Values[i];
+        if(i<(this->Size-1))
+          {
+          os <<",";
+          }
+        ++i;
+        }
+      os << endl;
     }
   
 protected:
@@ -330,6 +364,28 @@ public:
         }
     }
   
+  virtual void PrintSelf(ostream &os, vtkIndent indent)
+    {
+      os << indent << this->Name << " (matrix " << this->Rows << "x"
+         << this->Columns << "): ";
+      
+      int i=0;
+      while(i<this->Rows)
+        {
+        int j=0;
+        while(j<this->Columns)
+          {
+          int index=i*this->Columns+j;
+          os << this->Values[index];
+          if(j<(this->Columns-1))
+            os << ",";
+          ++j;
+          }
+        os << endl;
+        ++i;
+        }
+    }
+  
 protected:
   float *Values;
   int Rows;
@@ -415,7 +471,8 @@ void vtkUniformVariables::SetUniformi(const char *name,
     u->SetName(name);
   
     vtksys_stl::pair<const char *, vtkUniform *> p;
-    p.first=name;
+    p.first=u->GetName(); // cannot be `name' because
+    // we don't manage this pointer.
     p.second=u;
     
     this->Map->Map.insert(p);
@@ -464,7 +521,8 @@ void vtkUniformVariables::SetUniformf(const char *name,
     u->SetName(name);
     
     vtksys_stl::pair<const char *, vtkUniform *> p;
-    p.first=name;
+    p.first=u->GetName(); // cannot be `name' because
+    // we don't manage this pointer.
     p.second=u;
     
     this->Map->Map.insert(p);
@@ -513,7 +571,8 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
     vtkUniform *u=new vtkUniformMatrix(rows,columns,value);
     u->SetName(name);
     vtksys_stl::pair<const char *, vtkUniform *> p;
-    p.first=name;
+    p.first=u->GetName(); // cannot be `name' because
+    // we don't manage this pointer.
     p.second=u;
     this->Map->Map.insert(p);
     }
@@ -591,4 +650,13 @@ void vtkUniformVariables::Next()
 void vtkUniformVariables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  this->Start();
+  while(!this->IsAtEnd())
+    {
+    const char *name=this->GetCurrentName();
+    UniformMapIt cur=this->Map->Map.find(name);
+    (*cur).second->PrintSelf(os,indent);
+    this->Next();
+    }
 }
