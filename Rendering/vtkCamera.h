@@ -274,8 +274,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // The viewport coordinates of a point located inside the frustum are in the
   // range ([-1,+1],[-1,+1],[nearz,farz]).
   // WARNING: the name of the method is wrong, it should be
-  // GetProjectiveTransformMatrix() (it is used also in parallel projection)
-  // @deprecated Replaced by GetProjectionTransformMatrix as of VTK 5.4.
+  // GetProjectionTransformMatrix() (it is used also in parallel projection)
+  // @deprecated Replaced by GetProjectionTransformMatrix() as of VTK 5.4.
   VTK_LEGACY(virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
                                                                  double nearz,
                                                                  double farz));
@@ -312,8 +312,9 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // The viewport coordinates of a point located inside the frustum are in the
   // range ([-1,+1],[-1,+1],[nearz,farz]).
   // WARNING: the name of the method is wrong, it should be
-  // GetPerspectiveTransformMatrix() (it is used also in parallel projection)
-  // @deprecated Replaced by GetCompositeProjectionTransformMatrix as of
+  // GetCompositeProjectionTransformMatrix() (it is used also in parallel
+  // projection)
+  // @deprecated Replaced by GetCompositeProjectionTransformMatrix() as of
   // VTK 5.4.
   VTK_LEGACY(virtual vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(
                double aspect,
@@ -371,9 +372,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   double *GetOrientationWXYZ();
 
   // Description:
-  // These methods have been deprecated.  The view plane normal is
-  // automatically set from the DirectionOfProjection according to
-  // the ViewShear.
+  // @deprecated The view plane normal is automatically set from the
+  // DirectionOfProjection according to the ViewShear.
   VTK_LEGACY(void SetViewPlaneNormal(double x, double y, double z));
   VTK_LEGACY(void SetViewPlaneNormal(const double a[3]));
 
@@ -408,14 +408,13 @@ protected:
   
 #ifndef VTK_LEGACY_REMOVE
   // Description:
-  // @deprecated Replaced by GetCompositeProjectionTransformMatrix as of
-  // VTK 5.4.
+  // @deprecated Replaced by ComputeProjectionTransform() as of VTK 5.4.
   void ComputePerspectiveTransform(double aspect,
                                    double nearz,
                                    double farz);
   
   // Description:
-  // @deprecated Replaced by GetCompositeProjectionTransformMatrix as of
+  // @deprecated Replaced by ComputeCompositeProjectionTransform() as of
   // VTK 5.4.
   void ComputeCompositePerspectiveTransform(double aspect,
                                             double nearz,
