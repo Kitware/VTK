@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.39");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.40");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -670,7 +670,7 @@ int vtkXMLDataReaderReadArrayValues(
   int inline_data = (da->GetAttribute("offset") == NULL);
   
   unsigned long offset = 0;
-  if (inline_data)
+  if (inline_data == 0)
     {
     da->GetScalarAttribute("offset", offset);
     }
