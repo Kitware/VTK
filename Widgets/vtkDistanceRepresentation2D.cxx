@@ -27,7 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.6");
+vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.7");
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -75,6 +75,18 @@ void vtkDistanceRepresentation2D::GetPoint2WorldPosition(double pos[3])
 }
 
 //----------------------------------------------------------------------
+double* vtkDistanceRepresentation2D::GetPoint1WorldPosition()
+{
+  return this->Point1Representation->GetWorldPosition();
+}
+
+//----------------------------------------------------------------------
+double* vtkDistanceRepresentation2D::GetPoint2WorldPosition()
+{
+  return this->Point2Representation->GetWorldPosition();
+}
+
+//----------------------------------------------------------------------
 void vtkDistanceRepresentation2D::SetPoint1DisplayPosition(double x[3])
 {
   this->Point1Representation->SetDisplayPosition(x);
@@ -92,6 +104,20 @@ void vtkDistanceRepresentation2D::SetPoint2DisplayPosition(double x[3])
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
   this->AxisActor->GetPoint2Coordinate()->SetValue(p);
+}
+
+//----------------------------------------------------------------------
+void vtkDistanceRepresentation2D::SetPoint1WorldPosition(double x[3])
+{
+  this->Point1Representation->SetWorldPosition(x);
+  this->AxisActor->GetPoint1Coordinate()->SetValue(x);
+}
+
+//----------------------------------------------------------------------
+void vtkDistanceRepresentation2D::SetPoint2WorldPosition(double x[3])
+{
+  this->Point2Representation->SetWorldPosition(x);
+  this->AxisActor->GetPoint2Coordinate()->SetValue(x);
 }
 
 //----------------------------------------------------------------------

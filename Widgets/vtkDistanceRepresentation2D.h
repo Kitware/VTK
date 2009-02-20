@@ -53,8 +53,13 @@ public:
   // Methods to Set/Get the coordinates of the two points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.
+  double* GetPoint1WorldPosition();
+  double* GetPoint2WorldPosition();
   void GetPoint1WorldPosition(double pos[3]);
   void GetPoint2WorldPosition(double pos[3]);
+  void SetPoint1WorldPosition(double pos[3]);
+  void SetPoint2WorldPosition(double pos[3]);
+
   void SetPoint1DisplayPosition(double pos[3]);
   void SetPoint2DisplayPosition(double pos[3]);
   void GetPoint1DisplayPosition(double pos[3]);

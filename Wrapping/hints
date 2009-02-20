@@ -47,6 +47,8 @@ vtkDICOMImageReader                   GetImageOrientationPatient        301  6
 vtkDICOMImageReader                   GetImagePositionPatient           301  3
 vtkDICOMImageReader                   GetPixelSpacing                   307  3
 vtkDirectionEncoder                   GetDecodedGradient                301  3
+vtkDistanceRepresentation             GetPoint1WorldPosition            307  3
+vtkDistanceRepresentation             GetPoint2WorldPosition            307  3
 vtkExtentSplitter                     GetSubExtent                      304  6
 vtkExtractUnstructuredGrid            GetExtent                         307  6
 vtkFunctionParser                     GetVectorResult                   307  3
