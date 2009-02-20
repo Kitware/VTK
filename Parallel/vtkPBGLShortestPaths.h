@@ -140,6 +140,16 @@ public:
   // But you can also specify other things like "ROOT","2D_MAX", etc
   vtkSetStringMacro(OutputSelectionType);
 
+  // Description:
+  // This option causes a temporary edge-weight array to be created
+  // with uniform edge weights of 1.0 at each edge.  This option should
+  // preempt a given edge weight array via EdgeWeightArrayName.
+  // Defaults to off.
+  vtkSetMacro(UseUniformEdgeWeights, bool);
+  vtkGetMacro(UseUniformEdgeWeights, bool);
+  vtkBooleanMacro(UseUniformEdgeWeights, bool);
+
+
 protected:
   vtkPBGLShortestPaths();
   ~vtkPBGLShortestPaths();
@@ -168,6 +178,7 @@ private:
   //ETX
   bool OutputSelection;
   bool OriginFromSelection;
+  bool UseUniformEdgeWeights;
   char* OutputSelectionType;
   
   // Description:

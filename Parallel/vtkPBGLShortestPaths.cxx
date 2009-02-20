@@ -56,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.4");
+vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.5");
 vtkStandardNewMacro(vtkPBGLShortestPaths);
 
 // Function object used to reduce (vertex, distance) pairs to find
@@ -324,7 +324,6 @@ int vtkPBGLShortestPaths::RequestData(
       edgeWeightArray->SetTuple1(i, 1.0);
       }
     }
-
 
   // Create the predecessor array
   vtkIdTypeArray* PredecessorArray = vtkIdTypeArray::New();
