@@ -49,7 +49,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.5");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.6");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, TransformFilter, vtkTransformFilter);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
@@ -212,6 +212,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
   grat->SetLongitudeBounds(-180.0, 180.0);
   grat->SetLatitudeBounds(-90.0, 90.0);
   grat->SetGeometryType(vtkGeoGraticule::QUADRILATERALS);
+  this->TransformLock->Lock();
   this->TransformFilter->SetInputConnection(grat->GetOutputPort());
   this->TransformFilter->Update();
   double* realBounds = this->TransformFilter->GetOutput()->GetBounds();
@@ -240,6 +241,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
     }
 
   root->GetModel()->ShallowCopy(this->TransformFilter->GetOutput());
+  this->TransformLock->Unlock();
   root->SetLatitudeRange(-90.0, 90.0);
   root->SetLongitudeRange(-180.0, 180.0);
   root->SetProjectionBounds(bounds);
