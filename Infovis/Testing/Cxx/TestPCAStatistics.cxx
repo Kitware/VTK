@@ -22,7 +22,7 @@
 //=============================================================================
 int TestPCAStatistics( int argc, char* argv[] )
 {
-  const char* normScheme = vtkTestUtilities::GetArgOrEnvOrDefault(
+  char* normScheme = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-normalize-covariance", argc, argv, "VTK_NORMALIZE_COVARIANCE", "None" );
   int testStatus = 0;
 
