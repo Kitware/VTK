@@ -26,9 +26,6 @@
 // rendering correctly.  It can also attach itself to render windows and
 // propagate rendering events and camera views.
 //
-// This class is based on the vtkCompositeManager class, except that it can
-// handle any type of parallel rendering.
-//
 // .SECTION Note:
 // Many parallel rendering schemes do not correctly handle transparency.
 // Unless otherwise documented, assume a sub class does not.
