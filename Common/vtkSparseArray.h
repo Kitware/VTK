@@ -173,9 +173,7 @@ private:
   
   // Description:
   // Stores the value of each non-null element within the array
-  T* ValueBegin;
-  T* ValueEnd;
-  T* ValueReserve;
+  vtkstd::vector<T> Values;
 
   // Description:
   // Stores the value that will be returned when accessing NULL areas
