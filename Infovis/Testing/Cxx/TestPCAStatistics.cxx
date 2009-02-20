@@ -63,21 +63,6 @@ int TestPCAStatistics( int argc, char* argv[] )
     47, 47
     };
   int nVals = 32;
-  /*
-  double mingledData[] =
-    {
-    1,
-    5,
-    11,
-    10,
-    9,
-    7,
-    11,
-    11
-    };
-  int nVals = 4;
-  */
-
 
   const char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
@@ -109,14 +94,6 @@ int TestPCAStatistics( int argc, char* argv[] )
   dataset2Arr->Delete();
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
-
-  /*
-  int nMetricPairs = 3;
-  vtkStdString columnPairs[] = { m0Name, m1Name, m1Name, m0Name, m2Name, m1Name };
-  double centers[] = { 49.2188, 49.5 };
-  double covariance[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = 4.;
-  */
 
   vtkPCAStatistics* haruspex = vtkPCAStatistics::New();
   haruspex->SetInput( 0, datasetTable );
@@ -166,12 +143,6 @@ int TestPCAStatistics( int argc, char* argv[] )
     outputMeta->Dump();
     }
 
-#if 0
-  // -- Select Column Pairs of Interest ( Assess Mode ) -- 
-  haruspex->ResetColumnPairs(); // Clear existing pairs
-  haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
-#endif // 0
-
   // -- Test Assess Mode -- 
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
@@ -185,44 +156,9 @@ int TestPCAStatistics( int argc, char* argv[] )
 
   vtkTable* outputData = haruspex->GetOutput();
   outputData->Dump();
-#if 0
-  int nOutliers = 0;
-  int tableIdx[] = { 0, 1, 3 };
-  cout << "   Found the following outliers:\n";
-  for ( int i = 0; i < 3; ++ i )
-    {
-    cout << "   "
-         << outputData->GetColumnName( tableIdx[i] );
-    }
-  cout << "\n";
-
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
-    {
-    if ( outputData->GetValue( r, tableIdx[2] ).ToDouble() > threshold )
-      {
-      ++ nOutliers;
-
-      for ( int i = 0; i < 3; ++ i )
-        {
-        cout << "     "
-             << outputData->GetValue( r,  tableIdx[i] ).ToString()
-             << "    ";
-        }
-      cout << "\n";
-      }
-    }
-
-  if ( nOutliers != 3 )
-    {
-    cout << "Error: Expected 3 outliers, found " << nOutliers << ".\n";
-    testStatus = 1;
-    }
-
-  paramsTable->Delete();
-#endif // 0
 
   haruspex->Delete();
+  delete [] normScheme;
 
   return testStatus;
 }
-
