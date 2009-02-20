@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -51,33 +51,38 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.4");
+vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.5");
 vtkStandardNewMacro(vtkPBGLCollectGraph);
+
 
 // Constructor/Destructor
 vtkPBGLCollectGraph::vtkPBGLCollectGraph()
 {
   // Default values for the origin vertex
   this->TargetProcessor = 0;
-  this->ReplicateGraph = false;
-  this->CopyVertexData = true;
-  this->CopyEdgeData = true;
+  this->ReplicateGraph  = false;
+  this->CopyVertexData  = true;
+  this->CopyEdgeData    = true;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
 
+
+//----------------------------------------------------------------------------
 vtkPBGLCollectGraph::~vtkPBGLCollectGraph()
 {
 }
 
+
+//----------------------------------------------------------------------------
 int vtkPBGLCollectGraph::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation * inInfo  = inputVector[0]->GetInformationObject(0);
+  vtkInformation * outInfo = outputVector->GetInformationObject(0);
 
   // get the input
   vtkGraph *input = vtkGraph::SafeDownCast(
@@ -107,26 +112,26 @@ int vtkPBGLCollectGraph::RequestData(
     }
 
   int myRank = input->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  int numProcs 
+  int numProcs
     = input->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   // Get the Boost.MPI communicator from the input graph.
   boost::mpi::communicator comm = communicator(pbglHelper->GetProcessGroup());
 
-  // Determine the number of vertices stored on each processor. 
+  // Determine the number of vertices stored on each processor.
   vtkstd::vector<vtkIdType> numVerticesPerProcessor(numProcs);
-  boost::mpi::all_gather(comm, input->GetNumberOfVertices(), 
+  boost::mpi::all_gather(comm, input->GetNumberOfVertices(),
                          numVerticesPerProcessor);
-  
+
   // Determine the total number of vertices stored on each processor
-  vtkIdType totalNumVertices 
+  vtkIdType totalNumVertices
     = vtkstd::accumulate(numVerticesPerProcessor.begin(),
                          numVerticesPerProcessor.end(),
                          vtkIdType(0));
 
   // Determine the ID of the first vertex provided by each rank.
   vtkstd::vector<vtkIdType> vertexOffsets(numProcs+1);
-  vtkstd::partial_sum(numVerticesPerProcessor.begin(), 
+  vtkstd::partial_sum(numVerticesPerProcessor.begin(),
                       numVerticesPerProcessor.end(),
                       vertexOffsets.begin()+1);
 
@@ -150,12 +155,49 @@ int vtkPBGLCollectGraph::RequestData(
       vtkIdType myNumVertices = numVerticesPerProcessor[myRank];
       vtkstd::vector<vtkVariant> myVertexProperties(myNumVertices * numArrays);
       vtkIdType vertIndex;
-      for (vertIndex = 0; vertIndex < myNumVertices; ++vertIndex) 
+
+      for (vertIndex = 0; vertIndex < myNumVertices; ++vertIndex)
         {
         for (int arrayIndex = 0; arrayIndex < numArrays; ++arrayIndex)
           {
           myVertexProperties[vertIndex * numArrays + arrayIndex]
               = arrays[arrayIndex]->GetVariantValue(vertIndex);
+          }
+        }
+
+      // Any attribute arrays flagged as containing distributed ids should be
+      // converted to appropriate serialized values.
+      for(int arrayIndex=0; arrayIndex<numArrays; ++arrayIndex)
+        {
+        if(arrays[arrayIndex]->GetInformation()->Get(vtkDistributedGraphHelper::DISTRIBUTEDVERTEXIDS()))
+          {
+          // TODO: Currently we just assume DistributedIds are vtkIdType
+          //       values.  This should be generalized to support other
+          //       integer types that might be valid.  (vtkIdType should be
+          //       okay for now since the GetVertexOwner() and GetVertexIndex()
+          //       methods take a vtkIdType vale. (i.e., TemplateMacro <egad!>)
+          vtkIdTypeArray * distributedIdArray = NULL;
+          distributedIdArray = vtkIdTypeArray::SafeDownCast( arrays[arrayIndex]);
+          if(distributedIdArray)
+            {
+            for(vtkIdType vertIndex=0; vertIndex < myNumVertices; ++vertIndex)
+              {
+              vtkIdType value   = distributedIdArray->GetValue(vertIndex);
+              vtkIdType owner   = helper->GetVertexOwner(value);
+              vtkIdType index   = helper->GetVertexIndex(value);
+              vtkIdType localId = vertexOffsets[owner]+index;
+              myVertexProperties[vertIndex*numArrays+arrayIndex] = localId;
+              }
+            }
+          else
+            {
+            // Print a warning message if the distributed vertex id array
+            // isn't a vtkIdType array.
+            vtkStdString arrayName(arrays[arrayIndex]->GetName());
+            vtkWarningMacro(<< "Array '" << arrayName.c_str() << "' is flagged "
+                            << "as a DISTRIBUTEDVERTEXID array but is not "
+                            << "a vtkIdTypeArray." );
+            }
           }
         }
 
@@ -168,7 +210,7 @@ int vtkPBGLCollectGraph::RequestData(
       else
         {
         // Only the target processor receives the vertex properties
-        boost::mpi::gather(comm, myVertexProperties, allVertexProperties, 
+        boost::mpi::gather(comm, myVertexProperties, allVertexProperties,
                            this->TargetProcessor);
         }
 
@@ -187,18 +229,18 @@ int vtkPBGLCollectGraph::RequestData(
         {
         outputVertexData = undirBuilder->GetVertexData();
         }
-      this->CopyStructureOfDataSetAttributes(distribVertexData, 
+      this->CopyStructureOfDataSetAttributes(distribVertexData,
                                              outputVertexData,
                                              totalNumVertices);
-      
+
       // Add all of the vertices, in blocks, from rank 0 up to the
       // last processor.
       vtkSmartPointer<vtkVariantArray> propArray
         = vtkSmartPointer<vtkVariantArray>::New();
       for (int origin = 0; origin < numProcs; ++origin)
         {
-        for (vtkIdType vertIndex = 0; 
-             vertIndex < numVerticesPerProcessor[origin]; 
+        for (vtkIdType vertIndex = 0;
+             vertIndex < numVerticesPerProcessor[origin];
              ++vertIndex)
           {
           propArray->SetArray
@@ -206,11 +248,11 @@ int vtkPBGLCollectGraph::RequestData(
              numArrays, /*save=*/1);
           if (isDirected)
             {
-            dirBuilder->AddVertex(propArray);
+            vtkIdType id = dirBuilder->AddVertex(propArray);
             }
           else
             {
-            undirBuilder->AddVertex(propArray);
+            vtkIdType id = undirBuilder->AddVertex(propArray);
             }
           }
 
@@ -222,10 +264,10 @@ int vtkPBGLCollectGraph::RequestData(
     }
   else
     {
-    // No need to exchange data: just add the vertices 
+    // No need to exchange data: just add the vertices
     if (this->ReplicateGraph || myRank == this->TargetProcessor)
       {
-      for (vtkIdType vertIndex = 0; vertIndex < totalNumVertices; ++vertIndex) 
+      for (vtkIdType vertIndex = 0; vertIndex < totalNumVertices; ++vertIndex)
         {
         if (isDirected)
           {
@@ -253,7 +295,7 @@ int vtkPBGLCollectGraph::RequestData(
       arrays[arrayIndex] = distribEdgeData->GetAbstractArray(arrayIndex);
       }
 
-    // Serialize and communicate the endpoints and attributes of the
+    // Serialize and communicate the end points and attributes of the
     // edges.
     vtkstd::vector<mpi_buffer_type> allEdgesBuffers;
 
@@ -265,7 +307,7 @@ int vtkPBGLCollectGraph::RequestData(
       // Serialize all of the local edges and their properties.
       vtkIdType myNumEdges = input->GetNumberOfEdges();
       out << myNumEdges;
-      vtkSmartPointer<vtkEdgeListIterator> edges 
+      vtkSmartPointer<vtkEdgeListIterator> edges
         = vtkSmartPointer<vtkEdgeListIterator>::New();
       input->GetEdges(edges);
       while (edges->HasNext())
@@ -273,10 +315,10 @@ int vtkPBGLCollectGraph::RequestData(
         vtkEdgeType edge = edges->Next();
 
         // Serialize source, target with global IDs
-        vtkIdType source 
+        vtkIdType source
           = vertexOffsets[pbglHelper->GetVertexOwner(edge.Source)]
           + pbglHelper->GetVertexIndex(edge.Source);
-        vtkIdType target 
+        vtkIdType target
           = vertexOffsets[pbglHelper->GetVertexOwner(edge.Target)]
           + pbglHelper->GetVertexIndex(edge.Target);
         out << source << target;
@@ -298,11 +340,11 @@ int vtkPBGLCollectGraph::RequestData(
       else
         {
         // Only the target processor receives the vertex properties
-        boost::mpi::gather(comm, myEdgesBuffer, allEdgesBuffers, 
+        boost::mpi::gather(comm, myEdgesBuffer, allEdgesBuffers,
                            this->TargetProcessor);
         }
 
-      // Note: local storage for myEdgesBuffer is deallocated here.      
+      // Note: local storage for myEdgesBuffer is deallocated here.
     }
 
     vtkIdType totalNumEdges
@@ -321,7 +363,7 @@ int vtkPBGLCollectGraph::RequestData(
         {
         outputEdgeData = undirBuilder->GetEdgeData();
         }
-      this->CopyStructureOfDataSetAttributes(distribEdgeData, 
+      this->CopyStructureOfDataSetAttributes(distribEdgeData,
                                              outputEdgeData,
                                              totalNumEdges);
 
@@ -376,10 +418,10 @@ int vtkPBGLCollectGraph::RequestData(
       myEdges.reserve(input->GetNumberOfEdges());
 
       // Serialize all of the local edges.
-      vtkSmartPointer<vtkEdgeListIterator> edges 
+      vtkSmartPointer<vtkEdgeListIterator> edges
         = vtkSmartPointer<vtkEdgeListIterator>::New();
       input->GetEdges(edges);
-      while (edges->HasNext()) 
+      while (edges->HasNext())
         {
         vtkEdgeType edge = edges->Next();
         myEdges.push_back
@@ -398,7 +440,7 @@ int vtkPBGLCollectGraph::RequestData(
       else
         {
         // Only the target processor receives the vertex properties
-        boost::mpi::gather(comm, myEdges, allEdges, 
+        boost::mpi::gather(comm, myEdges, allEdges,
                            this->TargetProcessor);
         }
 
@@ -455,12 +497,14 @@ int vtkPBGLCollectGraph::RequestData(
   return 1;
 }
 
+
+//----------------------------------------------------------------------------
 void vtkPBGLCollectGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "TargetProcessor: " << this->TargetProcessor << endl;
-  
+
   os << indent << "ReplicateGraph: "
      << (this->ReplicateGraph ? "on" : "off") << endl;
 
@@ -470,6 +514,7 @@ void vtkPBGLCollectGraph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CopyEdgeData: "
      << (this->CopyEdgeData ? "on" : "off") << endl;
 }
+
 
 //----------------------------------------------------------------------------
 int vtkPBGLCollectGraph::FillInputPortInformation(
@@ -483,6 +528,7 @@ int vtkPBGLCollectGraph::FillInputPortInformation(
   return 1;
 }
 
+
 //----------------------------------------------------------------------------
 int vtkPBGLCollectGraph::FillOutputPortInformation(
   int port, vtkInformation* info)
@@ -494,6 +540,7 @@ int vtkPBGLCollectGraph::FillOutputPortInformation(
     }
   return 1;
 }
+
 
 //----------------------------------------------------------------------------
 void vtkPBGLCollectGraph::CopyStructureOfDataSetAttributes
@@ -509,14 +556,14 @@ void vtkPBGLCollectGraph::CopyStructureOfDataSetAttributes
     {
     // Build an array of the appropriate type.
     vtkAbstractArray *fromArray = inAttrs->GetAbstractArray(arrayIndex);
-    vtkAbstractArray *toArray 
+    vtkAbstractArray *toArray
       = vtkAbstractArray::CreateArray(fromArray->GetDataType());
 
     // Allocate the array and set its name.
     toArray->SetNumberOfComponents(fromArray->GetNumberOfComponents());
     toArray->SetNumberOfTuples(numberOfTuples);
     toArray->SetName(fromArray->GetName());
-    
+
     // Add the array to the vertex data of the output graph.
     outAttrs->AddArray(toArray);
     int attribute = inAttrs->IsArrayAnAttribute(arrayIndex);

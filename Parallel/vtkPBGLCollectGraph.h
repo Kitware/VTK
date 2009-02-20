@@ -44,12 +44,18 @@
 
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
+#include "vtkSystemIncludes.h"
+
+#include <vtksys/stl/utility> // for pair
+#include <vtksys/stl/numeric> // for accumulate, partial_sum
+#include <vtksys/stl/functional> // for plus
 
 #include "vtkGraphAlgorithm.h"
 
 class vtkSelection;
+class vtkDistributedGraphHelper;
 
-class VTK_PARALLEL_EXPORT vtkPBGLCollectGraph : public vtkGraphAlgorithm 
+class VTK_PARALLEL_EXPORT vtkPBGLCollectGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLCollectGraph *New();
@@ -93,8 +99,8 @@ protected:
   ~vtkPBGLCollectGraph();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
@@ -119,6 +125,7 @@ private:
 
   vtkPBGLCollectGraph(const vtkPBGLCollectGraph&);  // Not implemented.
   void operator=(const vtkPBGLCollectGraph&);  // Not implemented.
+
 };
 
 #endif
