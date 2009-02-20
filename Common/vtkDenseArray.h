@@ -117,8 +117,7 @@ private:
   // Description:
   // Stores the current array values using a contiguous range of memory
   // with constant-time value lookup.
-  T* ValueBegin;
-  T* ValueEnd;
+  vtkstd::vector<T> Storage;
   
   // Description:
   // Stores the strides along each array dimension (used for fast lookups).

@@ -42,7 +42,7 @@ int ArrayBool(int argc, char* argv[])
   try
     {
     // Confirm that we can work with dense arrays of bool values
-    vtkSmartPointer<vtkDenseArray<bool> > dense = vtkSmartPointer<vtkDenseArray<bool> >::New();
+    vtkSmartPointer<vtkDenseArray<char> > dense = vtkSmartPointer<vtkDenseArray<char> >::New();
     dense->Resize(2, 2);
     dense->Fill(false);
 
@@ -55,7 +55,7 @@ int ArrayBool(int argc, char* argv[])
     test_expression(dense->GetValue(0, 1) == true);
 
     // Confirm that we can work with sparse arrays of bool values
-    vtkSmartPointer<vtkSparseArray<bool> > sparse = vtkSmartPointer<vtkSparseArray<bool> >::New();
+    vtkSmartPointer<vtkSparseArray<char> > sparse = vtkSmartPointer<vtkSparseArray<char> >::New();
     sparse->Resize(2, 2);
 
     test_expression(sparse->GetValue(1, 1) == false);
