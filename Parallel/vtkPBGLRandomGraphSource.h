@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPBGLRandomGraphSource - Generates a distributed graph with 
+// .NAME vtkPBGLRandomGraphSource - Generates a distributed graph with
 // random edges.
 //
 // .SECTION Description
@@ -123,6 +123,7 @@ public:
 
   // Description:
   // The name of the vertex pedigree id array. Default "vertex id".
+  // Vertex pedigree ids will be labeled from 0 to n-1 globally.
   vtkSetStringMacro(VertexPedigreeIdArrayName);
   vtkGetStringMacro(VertexPedigreeIdArrayName);
 
@@ -134,7 +135,7 @@ public:
   // Description:
   // Control the seed used for pseudo-random-number generation.
   // This ensures that vtkPBGLRandomGraphSource can produce repeatable
-  // results. The seed values provided for each process should be different, 
+  // results. The seed values provided for each process should be different,
   vtkSetMacro(Seed, int);
   vtkGetMacro(Seed, int);
 
@@ -157,14 +158,14 @@ protected:
   char* EdgePedigreeIdArrayName;
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   // Description:
   // Creates directed or undirected output based on Directed flag.
-  virtual int RequestDataObject(vtkInformation*, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
 
 private:
