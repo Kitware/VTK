@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.9");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.10");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -348,7 +348,7 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   mucov->FillComponent( 0, 0. );
   double* rv = mucov->GetPointer( 0 );
   *rv = static_cast<double>( n );
-  ++ rv; // skip SampleSize entry
+  ++ rv; // skip Cardinality entry
   for ( i = 0; i < n; ++ i )
     {
     // First fetch column values
@@ -388,8 +388,6 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->SetBlock( 0, sparseCov );
   outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Raw Sparse Covariance Data" );
   sparseCov->Delete();
-
-  this->SetSampleSize( n );
 }
 
 // ----------------------------------------------------------------------
@@ -477,7 +475,7 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
   outMeta->SetNumberOfBlocks( 1 + static_cast<int>( this->Internals->Requests.size() ) );
   // For each request:
   i = 0;
-  double scale = 1. / ( this->GetSampleSize() - 1 );
+  double scale = 1. / ( n - 1 ); // n -1 for unbiased variance estimators
   for ( reqIt = this->Internals->Requests.begin(); reqIt != this->Internals->Requests.end(); ++ reqIt, ++ i )
     {
     vtkStringArray* colNames = vtkStringArray::New();

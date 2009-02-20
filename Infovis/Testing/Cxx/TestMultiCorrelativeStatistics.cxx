@@ -145,7 +145,6 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
-
     if ( b == 0 )
       {
       cout << "Raw sums\n";

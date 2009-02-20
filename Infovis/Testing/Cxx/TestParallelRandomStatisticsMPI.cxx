@@ -543,15 +543,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
+    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pmcs->GetOutputDataObject( 1 ) ); 
+
     cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
          << "   Total sample size: "
-         << pmcs->GetSampleSize()
+         << vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) )->GetValueByName( 0, "Entries").ToInt()
          << " \n"
          << "   Wall time: "
          << difftime( t5, t4 )
          << " sec.\n";
 
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pmcs->GetOutputDataObject( 1 ) ); 
     for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
       {
       outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
