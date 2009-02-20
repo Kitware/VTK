@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.5");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.6");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -72,9 +72,6 @@ void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     }
   
   vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
-
-  // Set global statistics
-  int ns = sparseCov->GetValueByName( 0, "Entries" ).ToInt();
 }
 
 // ----------------------------------------------------------------------
