@@ -24,6 +24,7 @@ FIND_PATH(MYSQL_INCLUDE_DIRECTORIES mysql.h
   /usr/local/include/mysql
   /usr/local/mysql/include
   "C:/Program Files/MySQL/include"
+  "C:/Program Files/MySQL/MySQL Server 5.0/include"
   "C:/MySQL/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/include"
@@ -39,6 +40,7 @@ FIND_LIBRARY( MYSQL_LIBRARY
   /usr/local/lib/mysql
   /usr/local/mysql/lib
   "C:/Program Files/MySQL/lib"
+  "C:/Program Files/MySQL/MySQL Server 5.0/lib/opt"
   "C:/MySQL/lib/debug"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
@@ -65,4 +67,3 @@ IF (MYSQL_LIBRARY)
 ENDIF (MYSQL_LIBRARY)
 
 MARK_AS_ADVANCED( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIRECTORIES )
-
