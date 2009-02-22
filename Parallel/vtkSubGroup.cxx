@@ -26,7 +26,7 @@
 #endif
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.12");
+vtkCxxRevisionMacro(vtkSubGroup, "1.13");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -183,7 +183,9 @@ void vtkSubGroup::setGatherPattern(int root, int length)
   this->gatherLength = length;
 
   int clogn; // ceiling(log2(this->nmembers))
-  for (clogn=0; 1<<clogn < this->nmembers; clogn++);
+  for (clogn=0; 1<<clogn < this->nmembers; clogn++)
+    {
+    }
 
   int left = 0;
   int right = this->nmembers - 1;
