@@ -35,11 +35,12 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <cctype>
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.23");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.24");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -61,6 +62,19 @@ static int splitString(const vtkStdString& input,
 // some platforms but not others so I'm afraid I have to write it
 // myself.
 static int my_getline(istream& stream, vtkStdString &output, int& line_count);
+
+// Returns true if the line is entirely whitespace, false otherwise.
+static bool isspace(vtkStdString s)
+{
+  for (unsigned int i = 0; i < s.length(); ++i)
+    {
+    if (!isspace(s[i]))
+      {
+      return false;
+      }
+    }
+  return true;
+}
 
 // ----------------------------------------------------------------------
 
@@ -198,7 +212,17 @@ int vtkDelimitedTextReader::RequestData(
   vtkstd::vector<vtkStdString> firstLineFields;
   vtkStdString firstLine;
 
-  my_getline(*(this->Internals->File), firstLine, line_count);
+  int status = 0;
+  do
+    {
+    status = my_getline(*(this->Internals->File), firstLine, line_count);
+    } while (isspace(firstLine) && status);
+  // No data in the file, so we are done.
+  if (!status)
+    {
+    return 1;
+    }
+
   vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
    
   if (this->HaveHeaders)
@@ -259,10 +283,18 @@ int vtkDelimitedTextReader::RequestData(
 
   // Okay read the file and add the data to the table
   vtkStdString nextLine;
+
   while (my_getline(*(this->Internals->File), nextLine, line_count))
     {
+    if(isspace(nextLine))
+      {
+      continue;
+      }
+
     if(this->MaxRecords && line_count > this->MaxRecords)
+      {
       break;
+      }
     
     double progress = total_bytes
       ? static_cast<double>(this->Internals->File->tellg()) / static_cast<double>(total_bytes)
@@ -297,6 +329,9 @@ int vtkDelimitedTextReader::RequestData(
       {
       dataArray->InsertNextValue(vtkVariant());
       }
+
+    // Eliminate any extra columns
+    dataArray->SetNumberOfTuples(table->GetNumberOfColumns());
 
     // Insert the data into the table
     table->InsertNextRow(dataArray);

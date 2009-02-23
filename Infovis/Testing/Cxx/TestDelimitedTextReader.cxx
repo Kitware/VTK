@@ -50,6 +50,17 @@ TestDelimitedTextReader(int argc, char *argv[])
  
   cout << "### Test 1: colon delimiter, no headers, do not merge consecutive delimiters" << endl;
 
+  if (table->GetNumberOfRows() != 6)
+    {
+    cout << "ERROR: Wrong number of rows." << endl;
+    return 1;
+    }
+  if (table->GetNumberOfColumns() != 4)
+    {
+    cout << "ERROR: Wrong number of columns." << endl;
+    return 1;
+    }
+
   cout << "Delimited text file has " << table->GetNumberOfRows() 
        << " rows" << endl;
   cout << "Delimited text file has " << table->GetNumberOfColumns() 
@@ -108,6 +119,17 @@ TestDelimitedTextReader(int argc, char *argv[])
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
     {
     cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
+    }
+
+  if (table->GetNumberOfRows() != 1)
+    {
+    cout << "ERROR: Wrong number of rows." << endl;
+    return 1;
+    }
+  if (table->GetNumberOfColumns() != 9)
+    {
+    cout << "ERROR: Wrong number of columns." << endl;
+    return 1;
     }
 
   cout << "Table contents:" << endl;
