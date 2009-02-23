@@ -56,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.5");
+vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.6");
 vtkStandardNewMacro(vtkPBGLShortestPaths);
 
 // Function object used to reduce (vertex, distance) pairs to find
@@ -515,6 +515,9 @@ void vtkPBGLShortestPaths::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OriginFromSelection: "
      << (this->OriginFromSelection ? "on" : "off") << endl;
+
+  os << indent << "UseUniformEdgeWeights: "
+     << (this->UseUniformEdgeWeights ? "on" : "off") << endl;
 
   os << indent << "OutputSelectionType: "
      << (this->OutputSelectionType ? this->OutputSelectionType : "(none)") << endl;
