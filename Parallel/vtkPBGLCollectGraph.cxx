@@ -37,7 +37,9 @@
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkSystemIncludes.h"
 #include "vtkUndirectedGraph.h"
+#include "vtkVariant.h"
 #include "vtkVariantBoostSerialization.h"
 
 #include <boost/mpi/collectives/all_gather.hpp>
@@ -51,7 +53,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.5");
+vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.6");
 vtkStandardNewMacro(vtkPBGLCollectGraph);
 
 

@@ -43,8 +43,6 @@
 #define __vtkPBGLCollectGraph_h
 
 #include "vtkStdString.h" // For string type
-#include "vtkVariant.h" // For variant type
-#include "vtkSystemIncludes.h"
 
 #include <vtksys/stl/utility> // for pair
 #include <vtksys/stl/numeric> // for accumulate, partial_sum
