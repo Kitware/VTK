@@ -42,6 +42,12 @@ PURPOSE.  See the above copyright notice for more information.
 class VTK_INFOVIS_EXPORT vtkTransferAttributes : public vtkPassInputTypeAlgorithm 
 {
 public:
+  // Description:
+  // Create a vtkTransferAttributes object.
+  // Initial values are DirectMapping = false, DefaultValue = 1,
+  // SourceArrayName=0, TargetArrayName = 0,
+  // SourceFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS,
+  // TargetFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS
   static vtkTransferAttributes *New();
   
   vtkTypeRevisionMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
@@ -67,12 +73,14 @@ public:
   vtkSetStringMacro(TargetArrayName);
   
   // Description:
-  // The source field type for accessing the source array.
+  // The source field type for accessing the source array. Valid values are
+  // those from enum vtkDataObject::FieldAssociations.
   vtkGetMacro(SourceFieldType, int);
   vtkSetMacro(SourceFieldType, int);
   
   // Description:
-  // The target field type for accessing the target array.
+  // The target field type for accessing the target array. Valid values are
+  // those from enum vtkDataObject::FieldAssociations.
   vtkGetMacro(TargetFieldType, int);
   vtkSetMacro(TargetFieldType, int);
   

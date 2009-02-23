@@ -61,7 +61,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
   return val;
 }
 
-vtkCxxRevisionMacro(vtkTransferAttributes, "1.6");
+vtkCxxRevisionMacro(vtkTransferAttributes, "1.7");
 vtkStandardNewMacro(vtkTransferAttributes);
 
 vtkTransferAttributes::vtkTransferAttributes()
@@ -71,6 +71,8 @@ vtkTransferAttributes::vtkTransferAttributes()
   this->DefaultValue = 1;
   this->SourceArrayName = 0;
   this->TargetArrayName = 0;
+  this->SourceFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  this->TargetFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS;
 }
 
 vtkTransferAttributes::~vtkTransferAttributes()
