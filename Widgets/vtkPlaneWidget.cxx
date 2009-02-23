@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.5");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.6");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -135,9 +135,6 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   bounds[4] = -0.5;
   bounds[5] = 0.5;
 
-  // Initial creation of the widget, serves to initialize it
-  this->PlaceWidget(bounds);
-
   //Manage the picking stuff
   this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
@@ -166,7 +163,11 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->CreateDefaultProperties();
   
   this->SelectRepresentation();
-
+  
+  // Initial creation of the widget, serves to initialize it
+  // Call PlaceWidget() LAST in the constructor as it depends on ivar
+  // values.
+  this->PlaceWidget(bounds);
 }
 
 vtkPlaneWidget::~vtkPlaneWidget()
