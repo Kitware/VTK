@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPPCAStatistics);
-vtkCxxRevisionMacro(vtkPPCAStatistics, "1.2");
+vtkCxxRevisionMacro(vtkPPCAStatistics, "1.3");
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPPCAStatistics::vtkPPCAStatistics()
@@ -72,7 +72,4 @@ void vtkPPCAStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
-
-  // Set global statistics
-  int ns = sparseCov->GetValueByName( 0, "Entries" ).ToInt();
 }
