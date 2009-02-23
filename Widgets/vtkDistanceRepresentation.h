@@ -49,10 +49,14 @@ public:
   // display and world coordinates.
   virtual void GetPoint1WorldPosition(double pos[3]) = 0;
   virtual void GetPoint2WorldPosition(double pos[3]) = 0;
+  virtual double* GetPoint1WorldPosition() = 0;
+  virtual double* GetPoint2WorldPosition() = 0;
   virtual void SetPoint1DisplayPosition(double pos[3]) = 0;
   virtual void SetPoint2DisplayPosition(double pos[3]) = 0;
   virtual void GetPoint1DisplayPosition(double pos[3]) = 0;
   virtual void GetPoint2DisplayPosition(double pos[3]) = 0;
+  virtual void SetPoint1WorldPosition(double pos[3])=0;
+  virtual void SetPoint2WorldPosition(double pos[3])=0;
 
   // Description:
   // This method is used to specify the type of handle representation to
