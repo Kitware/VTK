@@ -1,74 +1,82 @@
 #include "vtkGeoGraticule.h"
 
+#include "vtkActor.h"
 #include "vtkGeoProjection.h"
 #include "vtkGeoTransform.h"
-
-#include "vtkActor.h"
 #include "vtkPNGWriter.h"
-#include "vtkPolyDataWriter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransformFilter.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkWindowToImageFilter.h"
 
+#define vtkCreateMacro(type, obj) \
+  vtkSmartPointer<type> obj = vtkSmartPointer<type>::New()
+
 int TestGeoGraticule( int argc, char* argv[] )
 {
-  int latLevel = argc > 1 ? atoi( argv[1] ) : 3;
-  int lngLevel = argc > 2 ? atoi( argv[2] ) : 3;
-  const char* fname = argc > 3 ? argv[3] : "graticule.vtk";
-  const char* pname = argc > 4 ? argv[4] : "rouss";
-  vtkGeoGraticule* ggr = vtkGeoGraticule::New();
-  vtkPolyDataWriter* wri = vtkPolyDataWriter::New();
-  vtkGeoTransform* xfm = vtkGeoTransform::New();
-  vtkGeoProjection* gcs = vtkGeoProjection::New();
-  vtkGeoProjection* pcs = vtkGeoProjection::New();
-  vtkTransformFilter* xff = vtkTransformFilter::New();
-  vtkXMLPolyDataReader* pdr = vtkXMLPolyDataReader::New();
-  vtkTransformFilter* xf2 = vtkTransformFilter::New();
-  vtkPolyDataWriter* wr2 = vtkPolyDataWriter::New();
+  int latLevel = 2;
+  int lngLevel = 2;
+  const char* pname = "rouss";
+  vtkCreateMacro( vtkGeoGraticule, ggr );
+  vtkCreateMacro( vtkGeoTransform, xfm );
+  vtkCreateMacro( vtkGeoProjection, gcs );
+  vtkCreateMacro( vtkGeoProjection, pcs );
+  vtkCreateMacro( vtkTransformFilter, xff );
+  vtkCreateMacro( vtkXMLPolyDataReader, pdr );
+  vtkCreateMacro( vtkTransformFilter, xf2 );
+  vtkCreateMacro( vtkPolyDataMapper, mapper );
+  vtkCreateMacro( vtkPolyDataMapper, mapper2 );
+  vtkCreateMacro( vtkActor, actor );
+  vtkCreateMacro( vtkActor, actor2 );
 
-  ggr->SetGeometryType( vtkGeoGraticule::POLYLINES | vtkGeoGraticule::QUADRILATERALS ); 
+  ggr->SetGeometryType( vtkGeoGraticule::POLYLINES );
   ggr->SetLatitudeLevel( latLevel );
   ggr->SetLongitudeLevel( lngLevel );
-  ggr->SetLongitudeBounds( -270, 90 );
+  ggr->SetLongitudeBounds( -180, 180 );
   ggr->SetLatitudeBounds( -90, 90 );
 
   // gcs defaults to latlong.
   pcs->SetName( pname );
-  pcs->SetCentralMeridian( -90. );
+  pcs->SetCentralMeridian( 0. );
   xfm->SetSourceProjection( gcs );
   xfm->SetDestinationProjection( pcs );
   xff->SetInputConnection( ggr->GetOutputPort() );
   xff->SetTransform( xfm );
+  mapper->SetInputConnection( xff->GetOutputPort() );
+  actor->SetMapper( mapper );
 
-  wri->SetInputConnection( xff->GetOutputPort() );
-  wri->SetFileName( fname );
-  wri->Write();
-
-  char* input_file = vtkTestUtilities::ExpandDataFileName(argc, argv, "/Data/political.vtp");
+  char* input_file = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "/Data/political.vtp");
   pdr->SetFileName(input_file);
 
   xf2->SetTransform( xfm );
   xf2->SetInputConnection( pdr->GetOutputPort() );
-  wr2->SetInputConnection( xf2->GetOutputPort() );
-  wr2->SetFileName( "political.vtk" );
-  wr2->Write();
+  mapper2->SetInputConnection( xf2->GetOutputPort() );
+  actor2->SetMapper( mapper2 );
 
-  ggr->Delete();
-  wri->Delete();
-  xfm->Delete();
-  xff->Delete();
-  gcs->Delete();
-  pcs->Delete();
+  vtkCreateMacro( vtkRenderWindow, win );
+  vtkCreateMacro( vtkRenderer, ren );
+  vtkCreateMacro( vtkRenderWindowInteractor, iren );
+  win->SetInteractor( iren );
+  win->AddRenderer( ren );
+  ren->AddActor( actor );
+  ren->AddActor( actor2 );
 
-  pdr->Delete();
-  xf2->Delete();
-  wr2->Delete();
+  win->Render();
+  int retVal = vtkRegressionTestImage(win);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Initialize();
+    iren->Start();
+    }
 
   delete [] input_file;
 
-  return 0;
+  return !retVal;
 };
