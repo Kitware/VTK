@@ -42,7 +42,7 @@
 using vtksys_ios::stringstream;
 using vtksys_stl::make_pair;
 
-vtkCxxRevisionMacro(vtkNetworkHierarchy, "1.2");
+vtkCxxRevisionMacro(vtkNetworkHierarchy, "1.3");
 vtkStandardNewMacro(vtkNetworkHierarchy);
 
 // This is just a macro wrapping for smart pointers
@@ -52,12 +52,13 @@ vtkStandardNewMacro(vtkNetworkHierarchy);
 
 vtkNetworkHierarchy::vtkNetworkHierarchy()
 {
-  IPArrayName = 0;
+  this->IPArrayName = 0;
   this->SetIPArrayName("ip");
 }
 
 vtkNetworkHierarchy::~vtkNetworkHierarchy()
 {
+  this->SetIPArrayName(0);
 }
 
 void vtkNetworkHierarchy::PrintSelf(ostream& os, vtkIndent indent)
