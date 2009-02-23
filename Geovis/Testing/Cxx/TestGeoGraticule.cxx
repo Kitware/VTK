@@ -61,6 +61,7 @@ int TestGeoGraticule( int argc, char* argv[] )
   actor2->SetMapper( mapper2 );
 
   vtkCreateMacro( vtkRenderWindow, win );
+  win->SetMultiSamples(0);
   vtkCreateMacro( vtkRenderer, ren );
   vtkCreateMacro( vtkRenderWindowInteractor, iren );
   win->SetInteractor( iren );
