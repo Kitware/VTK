@@ -40,14 +40,14 @@
 #ifndef __vtkOpenGLPainterDeviceAdapter_h
 #define __vtkOpenGLPainterDeviceAdapter_h
 
+#include "vtkPainterDeviceAdapter.h"
+
 // To switch off deprecated warning about
 // vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck
 #if defined(_MSC_VER) && _MSC_VER >= 1300
 #pragma warning(push)
 #pragma warning(disable:4996)
 #endif
-
-#include "vtkPainterDeviceAdapter.h"
 
 class VTK_RENDERING_EXPORT vtkOpenGLPainterDeviceAdapter : 
   public vtkPainterDeviceAdapter
