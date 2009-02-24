@@ -218,8 +218,8 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   recorder->EnabledOn();
 
   recorder->Play();
-    
-  int retVal = vtkRegressionTestImage( renWin );
+
+  int retVal = vtkRegressionTestImageThreshold( renWin, 11 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();
