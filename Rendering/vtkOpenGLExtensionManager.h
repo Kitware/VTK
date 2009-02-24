@@ -260,7 +260,6 @@ protected:
   vtkOpenGLExtensionManager();
   virtual ~vtkOpenGLExtensionManager();
 
-  vtkWeakPointer<vtkRenderWindow> RenderWindow;
 
   int OwnRenderWindow;
   char *ExtensionsString;
@@ -279,6 +278,8 @@ protected:
 private:
   vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&); // Not implemented
   void operator=(const vtkOpenGLExtensionManager&); // Not implemented
+
+  vtkWeakPointer<vtkRenderWindow> RenderWindow;
 //ETX
 };
 
