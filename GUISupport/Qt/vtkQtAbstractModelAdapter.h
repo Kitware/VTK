@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtAbtractModelAdapter - Superclass for Qt model adapters.
+// .NAME vtkQtAbstractModelAdapter - Superclass for Qt model adapters.
 //
 // .SECTION Description
 // vtkQtAbstractModelAdapter is the superclass for classes that adapt
