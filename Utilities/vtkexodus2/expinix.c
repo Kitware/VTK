@@ -183,6 +183,7 @@ int ex_put_init_ext (int   exoid,
   int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim, nsetdim, ssetdim, strdim, dim[2], varid, temp;
   int status;
   int nmapdim,edmapdim,famapdim,emapdim;
+  int title_len;
 #if 0
   /* used for header size calculations which are turned off for now */
   int header_size, fixed_var_size, iows;
@@ -213,9 +214,10 @@ int ex_put_init_ext (int   exoid,
     }
 
   /* define some attributes... */
-
+  title_len = strlen(model->title) < MAX_LINE_LENGTH ?
+    strlen(model->title) : MAX_LINE_LENGTH;
   if ((status = nc_put_att_text(exoid, NC_GLOBAL, (const char*)ATT_TITLE, 
-				strlen(model->title)+1, model->title)) != NC_NOERR)
+				title_len+1, model->title)) != NC_NOERR)
     {
       exerrval = status;
       sprintf(errmsg,

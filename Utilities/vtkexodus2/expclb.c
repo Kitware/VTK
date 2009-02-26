@@ -228,46 +228,6 @@ int ex_put_concat_elem_block (int    exoid,
       goto error_ret;         /* exit define mode and return */
     }
 
-    /* element attribute array */
-    if (num_attr[iblk] > 0) {
-      if ((status = nc_def_dim (exoid, 
-				DIM_NUM_ATT_IN_BLK(cur_num_elem_blk+1),
-				num_attr[iblk], &numattrdim)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to define number of attributes in block %d in file id %d",
-		elem_blk_id[iblk],exoid);
-	ex_err("ex_put_concat_elem_block",errmsg,exerrval);
-	goto error_ret;         /* exit define mode and return */
-      }
-      
-      dims[0] = numelbdim;
-      dims[1] = numattrdim;
-      
-      if ((status = nc_def_var(exoid, VAR_ATTRIB(cur_num_elem_blk+1),
-			       nc_flt_code(exoid), 2, dims, &temp)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error:  failed to define attributes for element block %d in file id %d",
-		elem_blk_id[iblk],exoid);
-	ex_err("ex_put_concat_elem_block",errmsg,exerrval);
-	goto error_ret;         /* exit define mode and return */
-      }
-
-      /* Attribute names... */
-      dims[0] = numattrdim;
-      dims[1] = strdim;
-      
-      if ((status = nc_def_var(exoid, VAR_NAME_ATTRIB(cur_num_elem_blk+1),
-			       NC_CHAR, 2, dims, &temp)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to define element attribute name array in file id %d",exoid);
-	ex_err("ex_put_concat_elem_block",errmsg,exerrval);
-	goto error_ret;         /* exit define mode and return */
-      }
-    }
-    
     /* element connectivity array */
     dims[0] = numelbdim;
     dims[1] = nelnoddim;
@@ -292,6 +252,48 @@ int ex_put_concat_elem_block (int    exoid,
       ex_err("ex_put_concat_elem_block",errmsg,exerrval);
       goto error_ret;         /* exit define mode and return */
     }
+
+    /* element attribute array */
+    if (num_attr[iblk] > 0) {
+      if ((status = nc_def_dim (exoid, 
+				DIM_NUM_ATT_IN_BLK(cur_num_elem_blk+1),
+				num_attr[iblk], &numattrdim)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to define number of attributes in block %d in file id %d",
+		elem_blk_id[iblk],exoid);
+	ex_err("ex_put_concat_elem_block",errmsg,exerrval);
+	goto error_ret;         /* exit define mode and return */
+      }
+      
+      /* Attribute names... */
+      dims[0] = numattrdim;
+      dims[1] = strdim;
+      
+      if ((status = nc_def_var(exoid, VAR_NAME_ATTRIB(cur_num_elem_blk+1),
+			       NC_CHAR, 2, dims, &temp)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error: failed to define element attribute name array in file id %d",exoid);
+	ex_err("ex_put_concat_elem_block",errmsg,exerrval);
+	goto error_ret;         /* exit define mode and return */
+      }
+
+      dims[0] = numelbdim;
+      dims[1] = numattrdim;
+      
+      if ((status = nc_def_var(exoid, VAR_ATTRIB(cur_num_elem_blk+1),
+			       nc_flt_code(exoid), 2, dims, &temp)) != NC_NOERR) {
+	exerrval = status;
+	sprintf(errmsg,
+		"Error:  failed to define attributes for element block %d in file id %d",
+		elem_blk_id[iblk],exoid);
+	ex_err("ex_put_concat_elem_block",errmsg,exerrval);
+	goto error_ret;         /* exit define mode and return */
+      }
+
+    }
+    
   }
 
   /* Define the element map here to avoid a later redefine call */

@@ -21,7 +21,7 @@ CREATE_TEST_SOURCELIST( ExoIICTests
   )
 
 ADD_EXECUTABLE( ExoIICTests ${ExoIICTests} )
-TARGET_LINK_LIBRARIES( ExoIICTests vtkexoIIc vtkNetCDF )
+TARGET_LINK_LIBRARIES( ExoIICTests vtkCommon vtkexoIIc vtkNetCDF )
 
 SET( TestsToRun ${ExoIICTests} )
 REMOVE( TestsToRun ExoIICTests.cxx )

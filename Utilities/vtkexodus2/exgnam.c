@@ -159,7 +159,7 @@ int ex_get_name (int   exoid,
     }
     --ptr;
     if (ptr > name) {
-      while (*(--ptr) == ' ');      /*    get rid of trailing blanks */
+      while (--ptr >= name && *ptr == ' ');      /*    get rid of trailing blanks */
     }
     *(++ptr) = '\0';
   } else {

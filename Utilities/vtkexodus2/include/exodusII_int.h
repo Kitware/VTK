@@ -572,11 +572,10 @@ enum convert_task { RTN_ADDRESS,
                     WRITE_CONVERT_DOWN, 
                     WRITE_CONVERT_UP };
 
-int ex_conv_ini  ( int, int*, int*, int);
-void ex_conv_exit  (int);
-nc_type nc_flt_code  (int);
-int ex_comp_ws  (int);
-void* ex_conv_array  (int, int, const void*, size_t);
+int ex_conv_ini  (int exoid, int* comp_wordsize, int* io_wordsize, int file_wordsize);
+void ex_conv_exit  (int exoid);
+nc_type nc_flt_code  (int exoid);
+int ex_comp_ws  (int exoid);
 int ex_get_cpu_ws(void);
 
 struct list_item** ex_get_counter_list(ex_entity_type obj_type);

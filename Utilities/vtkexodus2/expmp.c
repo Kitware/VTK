@@ -51,7 +51,11 @@
 #include "exodusII_int.h"
 
 /*!
- * defines the number of node and element maps
+ * defines the number of node and element maps. It is more efficient
+ * to define both of these at the same time; however, they can be
+ * defined in separate calls by setting only one of the counts to a
+ * non-zero value. It is an error to redefine the number of node or
+ * element maps.
  * \param exoid                   exodus file id
  * \param num_node_maps           number of node maps
  * \param num_elem_maps           number of element maps
@@ -68,8 +72,8 @@ int ex_put_map_param (int   exoid,
   exerrval = 0; /* clear error code */
 
   /* return if these have been defined before */
-  if ( ((nc_inq_dimid (exoid, DIM_NUM_NM, &dimid)) == NC_NOERR) || 
-       ((nc_inq_dimid (exoid, DIM_NUM_EM, &dimid)) == NC_NOERR) )
+  if ( (num_node_maps > 0 && ((nc_inq_dimid (exoid, DIM_NUM_NM, &dimid)) == NC_NOERR)) || 
+       (num_elem_maps > 0 && ((nc_inq_dimid (exoid, DIM_NUM_EM, &dimid)) == NC_NOERR)) )
     {
       exerrval = EX_MSG;
       sprintf(errmsg,

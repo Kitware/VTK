@@ -176,7 +176,7 @@ int ex_put_truth_table (int  exoid,
 		     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_ELSET_TAB, &varid);
     var_name = "vals_elset_var";
-    ent_type = "els";
+    ent_type = "es";
     ent_size = "num_ele_els";
     sta_type = VAR_ELS_STAT;
     tab_type = VAR_ELSET_TAB;

@@ -1068,6 +1068,7 @@ void ex_iqsort(int v[], int iv[], int N)
  */
 int ex_large_model(int exoid)
 {
+  static int message_output = FALSE;
   if (exoid < 0) {
     /* If exoid not specified, then query is to see if user specified
      * the large model via an environment variable
@@ -1075,12 +1076,18 @@ int ex_large_model(int exoid)
     char *option = getenv("EXODUS_LARGE_MODEL");
     if (option != NULL) {
       if (option[0] == 'n' || option[0] == 'N') {
-        fprintf(stderr,
-                "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
+	if (!message_output) {
+	  fprintf(stderr,
+		  "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
+	  message_output = TRUE;
+	}
         return 0;
       } else {
-        fprintf(stderr,
-                "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
+	if (!message_output) {
+	  fprintf(stderr,
+		  "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
+	  message_output = TRUE;
+	}
         return 1;
       }
     } else {

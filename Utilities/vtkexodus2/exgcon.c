@@ -133,7 +133,7 @@ int ex_get_coord_names (int    exoid,
     --ptr;
     if (ptr > coord_names[i]) {
       /*    get rid of trailing blanks */
-      while (*(--ptr) == ' ');
+      while (--ptr >= coord_names[i] && *ptr == ' ');
     }
     *(++ptr) = '\0';
   }

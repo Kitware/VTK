@@ -168,8 +168,7 @@ int ex_get_names (int exoid,
       }
       --ptr;
       if (ptr > names[i]) {
-	/*    get rid of trailing blanks */
-	while (*(--ptr) == ' ');
+	while (--ptr >= names[i] && *ptr == ' ');      /*    get rid of trailing blanks */
       }
       *(++ptr) = '\0';
     }

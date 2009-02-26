@@ -4,8 +4,8 @@
  * retains certain rights in this software.
  * 
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * modification, are permitted provided that the following conditions
+ * are met:
  * 
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
@@ -21,32 +21,25 @@
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 
 /*****************************************************************************
  *
- * exodusII.h - Exodus II include file, for general use
+ * exodusII.h - Exodus II API include file
  *
- * author - Sandia National Laboratories
- *          
- * environment - UNIX
- *
- * exit conditions - 
- *
- * revision history - 
- *
- *  Id
  *****************************************************************************/
+
 #ifndef EXODUS_II_HDR
 #define EXODUS_II_HDR
 
@@ -56,21 +49,23 @@
 
 
 /* EXODUS II version number */
-#define EX_API_VERS 4.75
-#define EX_API_VERS_NODOT 475
+#define EX_API_VERS 4.81
+#define EX_API_VERS_NODOT 481
 #define EX_VERS EX_API_VERS
 
 
 /*
- * need following extern if this include file is used in a C++ program, to
- * keep the C++ compiler from mangling the function names.
+ * need following extern if this include file is used in a C++
+ * program, to keep the C++ compiler from mangling the function names.
  */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
   /*
-   * The following are miscellaneous constants used in the EXODUS II API.
+   * The following are miscellaneous constants used in the EXODUS II
+   * API. They should already be defined, but are left over from the
+   * old days...
    */
 #ifndef TRUE
 #define TRUE -1
@@ -151,6 +146,7 @@ extern "C" {
   /*   properties               */
   enum ex_entity_type {
     EX_NODAL       = 14,          /**< nodal "block" for variables*/
+    EX_NODE_BLOCK  = 14,          /**< alias for EX_NODAL         */
     EX_NODE_SET    =  2,          /**< node set property code     */
     EX_EDGE_BLOCK  =  6,          /**< edge block property code   */
     EX_EDGE_SET    =  7,          /**< edge set property code     */
@@ -175,14 +171,14 @@ extern "C" {
    */
   enum ex_options {
     EX_DEFAULT  = 0,
-    EX_VERBOSE  = 1,       /**< verbose mode message flag   */
-    EX_DEBUG    = 2,       /**< debug mode def             */
-    EX_ABORT    = 4       /**< abort mode flag def        */
+    EX_VERBOSE  = 1,  /**< verbose mode message flag   */
+    EX_DEBUG    = 2,  /**< debug mode def             */
+    EX_ABORT    = 4   /**< abort mode flag def        */
   };
   typedef enum ex_options ex_options;
   
   /**
-   * \defgroup StringLengths max string lengths;
+   * \defgroup StringLengths maximum string lengths;
    * constants that are used as netcdf dimensions must be of type long
    * @{ 
    */
@@ -751,6 +747,7 @@ extern "C" {
   EXODUS_EXPORT void ex_get_err(const char** msg, const char** func, int* errcode);
   EXODUS_EXPORT void ex_opts(int options);
   EXODUS_EXPORT int ex_inquire(int exoid, int inquiry, int*, void*, char*);
+  EXODUS_EXPORT int ex_inquire_int(int exoid, int inquiry);
 
   EXODUS_EXPORT int ex_get_varid_var(int   exoid,
 				     int   time_step,
@@ -779,9 +776,9 @@ extern "C" {
 #define EX_WRONGFILETYPE 1003   /**< wrong file type for function             */
 #define EX_LOOKUPFAIL    1004   /**< id table lookup failed                   */
 #define EX_BADPARAM      1005   /**< bad parameter passed                     */
-#define EX_NULLENTITY   -1006   /**< null entity found                        */
 #define EX_MSG          -1000   /**< message print code - no error implied    */
 #define EX_PRTLASTMSG   -1001   /**< print last error message msg code        */
+#define EX_NULLENTITY   -1006   /**< null entity found                        */
 /* @} */
 
 #include "exodusII_ext.h"

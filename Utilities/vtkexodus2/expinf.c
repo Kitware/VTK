@@ -137,11 +137,12 @@ int ex_put_info (int   exoid,
 
     /* write out information records */
     for (i=0; i<num_info; i++) {
+      int length = strlen(info[i]);
       start[0] = i;
       start[1] = 0;
 
       count[0] = 1;
-      count[1] = strlen(info[i]) + 1;
+      count[1] = length < MAX_LINE_LENGTH ? length : MAX_LINE_LENGTH;
 
       if ((status = nc_put_vara_text(exoid, varid, start, count, info[i])) != NC_NOERR) {
 	exerrval = status;

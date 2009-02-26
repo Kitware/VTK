@@ -98,7 +98,7 @@ int famap1[] = {
 };
 
 int emap1[] = {
-  1, 2
+  1, 2, 3
 };
 
 char* eblk_names[] = {
@@ -277,7 +277,7 @@ int cCreateEdgeFace( int argc, char* argv[] )
     1,  /* num_edge_blk */
     11, /* num_face */
     3,  /* num_face_blk */
-    2,  /* num_elem */
+    3,  /* num_elem */
     2,  /* num_elem_blk */
     1,  /* num_node_sets */
     1,  /* num_edge_sets */

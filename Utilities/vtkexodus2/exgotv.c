@@ -84,7 +84,7 @@ int ex_get_object_truth_vector (int  exoid,
     status = ex_get_dimension(exoid, DIM_NUM_FAC_VAR,  "face variables", &num_var_db, &varid, routine);
     statust = nc_inq_varid (exoid, VAR_FBLK_TAB, &tabid);
     var_name = "vals_face_var";
-    ent_type = "eb";
+    ent_type = "fb";
     break;
   case EX_ELEM_BLOCK:
     status = ex_get_dimension(exoid, DIM_NUM_ELE_VAR,  "element variables", &num_var_db, &varid, routine);
@@ -102,13 +102,13 @@ int ex_get_object_truth_vector (int  exoid,
     status = ex_get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var_db, &varid, routine);
     statust = nc_inq_varid (exoid, VAR_ESET_TAB, &tabid);
     var_name = "vals_eset_var";
-    ent_type = "ns";
+    ent_type = "es";
     break;
   case EX_FACE_SET:
     status = ex_get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var_db, &varid, routine);
     statust = nc_inq_varid (exoid, VAR_FSET_TAB, &tabid);
     var_name = "vals_fset_var";
-    ent_type = "ns";
+    ent_type = "fs";
     break;
   case EX_SIDE_SET:
     status = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, &varid, routine);
@@ -120,7 +120,7 @@ int ex_get_object_truth_vector (int  exoid,
     status = ex_get_dimension(exoid, DIM_NUM_ELSET_VAR, "elemset variables", &num_var_db, &varid, routine);
     statust = nc_inq_varid (exoid, VAR_ELSET_TAB, &tabid);
     var_name = "vals_elset_var";
-    ent_type = "els";
+    ent_type = "es";
     break;
   default:
     exerrval = EX_BADPARAM;
@@ -139,13 +139,7 @@ int ex_get_object_truth_vector (int  exoid,
   /* Determine index of entity_id in id array */
   ent_ndx = ex_id_lkup(exoid,obj_type,entity_id);
   if (exerrval != 0) {
-    if (exerrval == EX_NULLENTITY) {
-      sprintf(errmsg,
-              "Warning: no %s variables for NULL block %d in file id %d",
-              ex_name_of_object(obj_type), entity_id,exoid);
-      ex_err(routine,errmsg,exerrval);
-      return (EX_WARN);
-    } else {
+    if (exerrval != EX_NULLENTITY) {
       sprintf(errmsg,
 	      "Error: failed to locate %s id %d in id variable in file id %d",
 	      ex_name_of_object(obj_type), entity_id, exoid);

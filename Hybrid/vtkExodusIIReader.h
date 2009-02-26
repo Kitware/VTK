@@ -174,14 +174,16 @@ public:
     NODE_SET_CONN = 89,        //!< node set connectivity
     NODAL_COORDS = 88,         //!< raw nodal coordinates (not the "squeezed" version)
     OBJECT_ID = 87,            //!< object id (old BlockId) array
-    GLOBAL_ELEMENT_ID = 86,    //!< assembled, zero-padded element id array
-    GLOBAL_NODE_ID = 85,       //!< assembled, zero-padded nodal id array
+    GLOBAL_ELEMENT_ID = 86,    //!< element id array extracted for a particular block (yes, this is a bad name)
+    GLOBAL_NODE_ID = 85,       //!< nodal id array extracted for a particular block (yes, this is a bad name)
     ELEMENT_ID = 84,           //!< element id map (old-style elem_num_map or first new-style elem map) array
     NODE_ID = 83,              //!< nodal id map (old-style node_num_map or first new-style node map) array
     NODAL_SQUEEZEMAP = 82,     //!< the integer map use to "squeeze" coordinates and nodal arrays/maps
     ELEM_BLOCK_ATTRIB = 81,    //!< an element block attribute array (time-constant scalar per element)
     FACE_BLOCK_ATTRIB = 80,    //!< a face block attribute array (time-constant scalar per element)
-    EDGE_BLOCK_ATTRIB = 79     //!< an edge block attribute array (time-constant scalar per element)
+    EDGE_BLOCK_ATTRIB = 79,    //!< an edge block attribute array (time-constant scalar per element)
+    FACE_ID = 105,             //!< face id map (old-style face_num_map or first new-style face map) array
+    EDGE_ID = 106              //!< edge id map (old-style edge_num_map or first new-style edge map) array
   };
   /// Ways to decorate edge and face variables.
   enum DecorationType {

@@ -54,43 +54,13 @@
 /*! \file
  * this file contains code needed to support the various floating point word
  * size combinations for computation and i/o that applications might want to
- * use.  the following discussion uses the C type names "float" and "double".
+ * use. See the netcdf documentation for more details on the floating point
+ * conversion capabilities.
  *
  * netCDF supports two floating point word sizes for its files:
  *   - NC_FLOAT  - 32 bit IEEE
  *   - NC_DOUBLE - 64 bit IEEE
  * 
- * now, if you want to write an array of NC_FLOATs, netCDF expects as input
- * an array of native floats; NC_DOUBLEs require an input array of native
- * doubles.
- *
- * so, suppose you're computing using variables declared double, but you want
- * to write a netCDF file using NC_FLOATs.  you need to copy your array into
- * a buffer array declared as float, which truncates your data from double to
- * float (type conversion).  then you can pass the buffer array to netCDF 
- * routines for output as NC_FLOATs, and everything will work OK.  similarly,
- * if you are computing in floats but want to write NC_DOUBLEs, you need to 
- * copy your data into a buffer array declared as double, which promotes it
- * from float to double, and then call the netCDF routine with the buffer array.
- *
- * these routines are designed to do this type conversion, based on information
- * given in the ex_open or ex_create calls.  thus, except for when the file is
- * opened, the user is relieved of the burden of caring about compute word size
- * (the size of floating point variables used in the application program, and
- * passed into the EXODUS II calls) and i/o word size (the size of floating
- * point data as written in the netCDF file).
- *
- * this code is supposed to be general enough to handle weird cases like the
- * cray, where in C (and C++) both floats and doubles are 8 byte quantities.
- * thus the same array can be passed into a netCDF routine to write either
- * NC_FLOATs or NC_DOUBLEs.
- *
- * \note 16 byte floating point values, such as might be obtained from an ANSI C
- *       "long double", are specifically not handled.  Also, I don't know how
- *       the vanilla netCDF interface handles double precision on a CRAY, which
- *       gives 16 byte values, but these routines as written won't be able to
- *       handle it.
- *
  */
 
 #define NC_FLOAT_WORDSIZE 4
@@ -104,13 +74,6 @@ struct file_item {
 };
 
 struct file_item* file_list = NULL;
-
-/*
- * Now recognized at more locations worldwide in this file...
- */
-
-static size_t cur_len = 0;                       /* in bytes! */
-static void* buffer_array = NULL;
 
 #define FIND_FILE(ptr,id) { ptr = file_list;                    \
                             while(ptr) {                        \
@@ -224,7 +187,7 @@ void ex_conv_exit( int exoid )
   /*! ex_conv_exit() takes the structure identified by "exoid" out of the linked
    * list which describes the files that ex_conv_array() knows how to convert.
    *
-   * \note it is absolutely necessary for ex_conv_array() to be called after
+   * \note it is absolutely necessary for ex_conv_exit() to be called after
    *       ncclose(), if the parameter used as "exoid" is the id returned from
    *       an ncopen() or nccreate() call, as netCDF reuses file ids!
    *       the best place to do this is ex_close(), which is where I did it.
@@ -259,18 +222,6 @@ void ex_conv_exit( int exoid )
     file_list = file->next;
 
   free( file );
-
-  /*
-   * If no other files are opened, any buffer arrays for float/double 
-   * conversion ought to be cleaned up.
-   */
-  if ( !file_list ) {
-    if ( cur_len > 0 ) {
-      free(buffer_array);     /* Better not be null if condition true! */
-      buffer_array = NULL;
-      cur_len = 0;
-    }
-  }
 }
 
 /*............................................................................*/

@@ -186,6 +186,18 @@ static void flt_cvt(float *xptr,double x)
   *xptr = (float)x;
 }
 
+int ex_inquire_int (int exoid, int req_info)
+{
+  char *cdummy = NULL; /* Needed just for function call, unused. */
+  float fdummy = 0;    /* Needed just for function call, unused. */
+  int   ret_val = 0;
+  int error = ex_inquire(exoid, req_info, &ret_val, &fdummy, cdummy);
+  if (error < 0)
+    ret_val = error;
+
+  return ret_val;
+}
+
 /*!
  * returns information about the database
  * \param       exoid                   exodus file id
@@ -252,8 +264,11 @@ int ex_inquire (int   exoid,
 
     case EX_INQ_LIB_VERS:
       /* returns the EXODUS II Library version number */
-      flt_cvt((float *)ret_float, EX_API_VERS);
-      *ret_int = EX_API_VERS_NODOT;
+      if (ret_float)
+	flt_cvt((float *)ret_float, EX_API_VERS);
+
+      if (ret_int)
+	*ret_int = EX_API_VERS_NODOT;
       break;
 
     case EX_INQ_TITLE:

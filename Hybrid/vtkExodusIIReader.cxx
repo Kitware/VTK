@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.74");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.75");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -2112,8 +2112,21 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     int obj = key.ArrayId;
     BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
 
-    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead(
-        vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 ) ) );
+    vtkExodusIICacheKey ckey( -1, -1, 0, 0 );
+    switch ( key.ObjectId )
+      {
+    case vtkExodusIIReader::EDGE_BLOCK:
+      ckey.ObjectType = vtkExodusIIReader::EDGE_ID;
+      break;
+    case vtkExodusIIReader::FACE_BLOCK:
+      ckey.ObjectType = vtkExodusIIReader::FACE_ID;
+      break;
+    case vtkExodusIIReader::ELEM_BLOCK:
+    default:
+      ckey.ObjectType = vtkExodusIIReader::ELEMENT_ID;
+      break;
+      }
+    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead( ckey ) );
     if ( ! src )
       {
       arr = 0;
@@ -2160,6 +2173,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     }
   else if (
     key.ObjectType == vtkExodusIIReader::ELEMENT_ID ||
+    key.ObjectType == vtkExodusIIReader::EDGE_ID ||
+    key.ObjectType == vtkExodusIIReader::FACE_ID ||
     key.ObjectType == vtkExodusIIReader::NODE_ID
     )
     {
@@ -2167,20 +2182,29 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     int nMaps;
     vtkIdType mapSize;
     vtkExodusIICacheKey ktmp;
-    vtkExodusIIGetMapFunc getMapFunc;
     if ( key.ObjectType == vtkExodusIIReader::ELEMENT_ID )
       {
       nMaps = this->ModelParameters.num_elem_maps;
       mapSize = this->ModelParameters.num_elem;
       ktmp = vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEM_MAP, 0, 0 );
-      getMapFunc = ex_get_elem_num_map;
+      }
+    else if ( key.ObjectType == vtkExodusIIReader::FACE_ID )
+      {
+      nMaps = this->ModelParameters.num_face_maps;
+      mapSize = this->ModelParameters.num_face;
+      ktmp = vtkExodusIICacheKey( -1, vtkExodusIIReader::FACE_MAP, 0, 0 );
+      }
+    else if ( key.ObjectType == vtkExodusIIReader::EDGE_ID )
+      {
+      nMaps = this->ModelParameters.num_edge_maps;
+      mapSize = this->ModelParameters.num_edge;
+      ktmp = vtkExodusIICacheKey( -1, vtkExodusIIReader::EDGE_MAP, 0, 0 );
       }
     else // ( key.ObjectType == vtkExodusIIReader::NODE_ID )
       {
       nMaps = this->ModelParameters.num_node_maps;
       mapSize = this->ModelParameters.num_nodes;
       ktmp = vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_MAP, 0, 0 );
-      getMapFunc = ex_get_node_num_map;
       }
     // If there are no new-style maps, get the old-style map (which creates a default if nothing is stored on disk).
     if ( nMaps < 1 || ! (iarr = vtkIdTypeArray::SafeDownCast(this->GetCacheOrRead( ktmp ))) )
@@ -2192,7 +2216,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
 #ifdef VTK_USE_64BIT_IDS
         vtkstd::vector<int> tmpMap( iarr->GetNumberOfTuples() );
-        if ( getMapFunc( exoid, &tmpMap[0] ) < 0 )
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( ktmp.ObjectType ), &tmpMap[0] ) < 0 )
           {
           vtkErrorMacro( "Could not read old-style node or element map." );
           iarr->Delete();
@@ -2206,7 +2230,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
             }
           }
 #else
-        if ( getMapFunc( exoid, (int*)iarr->GetPointer( 0 ) ) < 0 )
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( ktmp.ObjectType ), (int*)iarr->GetPointer( 0 ) ) < 0 )
           {
           vtkErrorMacro( "Could not read old-style node or element map." );
           iarr->Delete();
@@ -5301,7 +5325,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.74");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.75");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
