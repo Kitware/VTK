@@ -30,6 +30,7 @@ SET( Kit_SRCS
   vtkAssembly.cxx
   vtkAxisActor2D.cxx
   vtkCamera.cxx
+  vtkCameraActor.cxx
   vtkCameraInterpolator.cxx
   vtkCellCenterDepthSort.cxx
   vtkCellPicker.cxx
@@ -88,6 +89,7 @@ SET( Kit_SRCS
   vtkLabelPlacer.cxx
   vtkLabelSizeCalculator.cxx
   vtkLeaderActor2D.cxx
+  vtkLightActor.cxx
   vtkLightCollection.cxx
   vtkLight.cxx
   vtkLightingPainter.cxx
@@ -222,6 +224,7 @@ SET( KitOpenGL_SRCS
   vtkShader2.cxx
   vtkShader2Collection.cxx
   vtkShaderProgram2.cxx
+  vtkShadowMapPass.cxx
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
@@ -277,6 +280,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
+  vtkShadowMapPass
   vtkSobelGradientMagnitudePass
   vtkTextureUnitManager
   vtkTranslucentPass
@@ -314,6 +318,7 @@ ENDIF(VTK_USE_X)
 SET(glsl_files
   vtkDepthPeeling_fs
   vtkGaussianBlurPassShader_fs
+  vtkLighting_s # s not vs or fs because it can be used in both.
   vtkOpenGLRenderer_PeelingFS
   vtkOpenGLPropertyDefaultPropFunc_fs
   vtkOpenGLPropertyDefaultPropFunc_vs
@@ -321,6 +326,8 @@ SET(glsl_files
   vtkOpenGLPropertyDefaultMain_vs
   vtkSobelGradientMagnitudePassShader1_fs
   vtkSobelGradientMagnitudePassShader2_fs
+  vtkShadowMapPassShader_fs
+  vtkShadowMapPassShader_vs
   )
 
 # Create custom commands to encode each assembly file into a C string

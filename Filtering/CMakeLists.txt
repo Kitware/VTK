@@ -106,6 +106,7 @@ vtkImageToStructuredPoints.cxx
 vtkImageTwoInputFilter.cxx
 vtkImplicitBoolean.cxx
 vtkImplicitDataSet.cxx
+vtkImplicitHalo.cxx
 vtkImplicitSelectionLoop.cxx
 vtkImplicitSum.cxx
 vtkImplicitVolume.cxx

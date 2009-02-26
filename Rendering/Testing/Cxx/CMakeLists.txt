@@ -28,6 +28,7 @@ IF(VTK_USE_DISPLAY)
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx
     TestLabelPlacerCoincidentPoints.cxx
+    TestLightActor.cxx
     TestLODActor.cxx
     TestManyActors.cxx
     TestOrderedTriangulator.cxx
@@ -35,6 +36,7 @@ IF(VTK_USE_DISPLAY)
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
     TestSobelGradientMagnitudePass.cxx
+    TestShadowMapPass.cxx
     TestTextActorAlphaBlending.cxx
     TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx

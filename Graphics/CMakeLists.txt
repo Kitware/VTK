@@ -91,6 +91,7 @@ vtkExtractVectorComponents.cxx
 vtkFeatureEdges.cxx
 vtkFieldDataToAttributeDataFilter.cxx
 vtkFillHolesFilter.cxx
+vtkFrustumSource.cxx
 vtkGeodesicPath.cxx
 vtkGeometryFilter.cxx
 vtkGlyph2D.cxx

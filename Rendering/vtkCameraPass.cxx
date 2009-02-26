@@ -25,7 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkFrameBufferObject.h"
 
-vtkCxxRevisionMacro(vtkCameraPass, "1.4");
+vtkCxxRevisionMacro(vtkCameraPass, "1.5");
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
 
@@ -213,7 +213,9 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   // adjust the mode first
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-
+  
+  glLoadIdentity();
+  
   matrix->DeepCopy(camera->GetViewTransformMatrix());
   matrix->Transpose();
   
