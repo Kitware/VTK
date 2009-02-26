@@ -60,7 +60,7 @@
 #include "vtkImplicitWindowFunction.h"
 #include "vtkImplicitSum.h"
 
-vtkCxxRevisionMacro(vtkShadowMapPass, "1.1");
+vtkCxxRevisionMacro(vtkShadowMapPass, "1.2");
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,OpaquePass,vtkRenderPass);
 
@@ -325,7 +325,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         }
       }
     int lightIndex=0;
-    bool autoLight=r->GetAutomaticLightCreation();
+    bool autoLight=r->GetAutomaticLightCreation()==1;
     vtkCamera *realCamera=r->GetActiveCamera();
     vtkRenderState s2(r);
     if(needUpdate) // create or re-create the shadow maps.
@@ -497,7 +497,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     lightIndex=0;
     while(l!=0)
       {
-      lightSwitches[lightIndex]=l->GetSwitch();
+      lightSwitches[lightIndex]=l->GetSwitch()==1;
       l=lights->GetNextItem();
       ++lightIndex;
       }
@@ -705,7 +705,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         
         // setup texture matrix.
         glMatrixMode(GL_TEXTURE);
-        vtkgl::ActiveTexture(GL_TEXTURE0+shadowingLightIndex);
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0+shadowingLightIndex);
         
         // scale_bias*projection_light[i]*view_light[i]*view_camera_inv
         
@@ -753,7 +753,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
       ++lightIndex;
       }
     
-    vtkgl::ActiveTexture(GL_TEXTURE0+shadowingLightIndex);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+shadowingLightIndex);
     this->IntensityMap->Bind();
     u->SetUniformi("spotLightShape",1,&shadowingLightIndex);
 //    u->Print(cout);
@@ -779,7 +779,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     glEnable(GL_ALPHA_TEST);
     // render scene
     
-    bool rendererEraseFlag=r->GetErase();
+    bool rendererEraseFlag=r->GetErase()==1;
     r->SetErase(0);
     
     this->OpaquePass->Render(&s2);
