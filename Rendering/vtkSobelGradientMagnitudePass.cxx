@@ -38,7 +38,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 
-vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.3");
+vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.4");
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 vtkCxxSetObjectMacro(vtkSobelGradientMagnitudePass,DelegatePass,vtkRenderPass);
 
@@ -178,8 +178,10 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       height=size[1];
       }
     
-    int w=width;
-    int h=height;
+    const int extraPixels=1; // one on each side
+    
+    int w=width+2*extraPixels;
+    int h=height+2*extraPixels;
     
     vtkRenderState s2(r);
     s2.SetPropArrayAndCount(s->GetPropArray(),s->GetPropArrayCount());
@@ -556,28 +558,24 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     glLoadIdentity();
     glViewport(0, 0, width, height);
     
-    // Render quad 0,w-1,0,h-1 in original FB
+    // Render quad 0,width-1,0,height-1 in original FB
     int minX=0;
-    int maxX=w-1;
+    int maxX=width-1;
     int minY=0;
-    int maxY=h-1;
-    float maxYTexCoord;
-    if(minY==maxY)
-      {
-      maxYTexCoord=0.0;
-      }
-    else
-      {
-      maxYTexCoord=1.0;
-      }
+    int maxY=height-1;
+    
+    // skip first and last extra texel.
+    float minXTexCoord=static_cast<float>(extraPixels)/w;
+    float minYTexCoord=static_cast<float>(extraPixels)/h;
+
     glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
+    glTexCoord2f(minXTexCoord,minYTexCoord);
     glVertex2f(minX, minY);
-    glTexCoord2f(1.0, 0);
+    glTexCoord2f(1.0-minXTexCoord, minYTexCoord);
     glVertex2f(maxX+1, minY);
-    glTexCoord2f(1.0, maxYTexCoord);
+    glTexCoord2f(1.0-minXTexCoord, 1.0-minYTexCoord);
     glVertex2f(maxX+1, maxY+1);
-    glTexCoord2f(0, maxYTexCoord);
+    glTexCoord2f(minXTexCoord, 1.0-minYTexCoord);
     glVertex2f(minX, maxY+1);
     glEnd();
     
