@@ -50,7 +50,7 @@ public:
   virtual void GetVolumes(vtkPropCollection *) {}
 
   // Description:
-  // Set/Get visibility of this vtkProp.
+  // Set/Get visibility of this vtkProp. Initial value is true.
   vtkSetMacro(Visibility, int);
   vtkGetMacro(Visibility, int);
   vtkBooleanMacro(Visibility, int);
@@ -58,6 +58,7 @@ public:
   // Description:
   // Set/Get the pickable instance variable.  This determines if the vtkProp
   // can be picked (typically using the mouse). Also see dragable.
+  // Initial value is true.
   vtkSetMacro(Pickable,int);
   vtkGetMacro(Pickable,int);
   vtkBooleanMacro(Pickable,int);
@@ -73,6 +74,7 @@ public:
   // This does not affect methods such as SetPosition, which will continue
   // to work.  It is just intended to prevent some vtkProp'ss from being
   // dragged from within a user interface.
+  // Initial value is true.
   vtkSetMacro(Dragable,int);
   vtkGetMacro(Dragable,int);
   vtkBooleanMacro(Dragable,int);
