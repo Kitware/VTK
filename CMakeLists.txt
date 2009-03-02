@@ -869,7 +869,7 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 #------------------------------------------------------------------------------
-# Looking for MPI in the Parallel package happens to late. It has to happen
+# Looking for MPI in the Parallel package happens too late. It has to happen
 # before we run vtkIncludeDirectories.cmake.
 #
 # This is a hack.
