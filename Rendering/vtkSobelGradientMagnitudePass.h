@@ -46,6 +46,9 @@
 // gradient which is stored in the render target.
 // The gradient computation happens per component (R,G,B). A is arbitrarly set
 // to 1 (full opacity).
+//
+// \image html vtkSobelGradientMagnitudePassFigure.png
+// \image latex vtkSobelGradientMagnitudePassFigure.eps
 
 // .SECTION See Also
 // vtkRenderPass
