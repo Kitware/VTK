@@ -868,6 +868,19 @@ IF(VTK_WRAP_JAVA)
   FIND_PACKAGE(JNI)
 ENDIF(VTK_WRAP_JAVA)
 
+#------------------------------------------------------------------------------
+# Looking for MPI in the Parallel package happens to late. It has to happen
+# before we run vtkIncludeDirectories.cmake.
+#
+# This is a hack.
+#
+# The real fix is to rewrite vtkIncludeDirectories.cmake to not have global
+# inclusion and instead have inclusion per package (which will also avoid
+# rebuilding the whole build tree each time you switch a package ON or OFF).
+IF(VTK_USE_MPI)
+  INCLUDE(FindMPI)
+ENDIF(VTK_USE_MPI)
+
 #-----------------------------------------------------------------------------
 # The entire VTK tree should use the same include path.
 
