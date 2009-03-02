@@ -192,7 +192,8 @@ int TestGeoView(int argc, char* argv[])
 
   view->Update();
 
-  int retVal = vtkRegressionTestImage(win);
+  //int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImageThreshold(win, 11);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     // Interact with data.
