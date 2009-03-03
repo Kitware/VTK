@@ -49,42 +49,44 @@
 #include <vtksys/stl/stack>
 #include <vtksys/stl/utility>
 
-void heapdump( void )
-{
-_HEAPINFO hinfo;
-int heapstatus;
-hinfo._pentry = NULL;
-while( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
-{
-//printf( "%6s block at %Fp of size %4.4X\n", ( hinfo._useflag == _USEDENTRY ? "USED" : "FREE" ), hinfo._pentry, hinfo._size );
-}
 
-switch( heapstatus )
-{
-case _HEAPEMPTY:
-//printf( "OK - empty heap\n" );
-break;
-case _HEAPEND:
-//printf( "OK - end of heap\n" );
-break;
-case _HEAPBADPTR:
-printf( "ERROR - bad pointer to heap\n" );
-//throw("asdf");
-break;
-case _HEAPBADBEGIN:
-printf( "ERROR - bad start of heap\n" );
-//throw("asdf");
-break;
-case _HEAPBADNODE:
-printf( "ERROR - bad node in heap\n" );
-//throw("asdf");
-break;
-}
-  }
+// Heap dump method used for debugging threading issues on windows.
+//void heapdump( void )
+//  {
+//  _HEAPINFO hinfo;
+//  int heapstatus;
+//  hinfo._pentry = NULL;
+//  while( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
+//    {
+//    //printf( "%6s block at %Fp of size %4.4X\n", ( hinfo._useflag == _USEDENTRY ? "USED" : "FREE" ), hinfo._pentry, hinfo._size );
+//    }
+//
+//  switch( heapstatus )
+//    {
+//    case _HEAPEMPTY:
+//      //printf( "OK - empty heap\n" );
+//      break;
+//    case _HEAPEND:
+//      //printf( "OK - end of heap\n" );
+//      break;
+//    case _HEAPBADPTR:
+//      printf( "ERROR - bad pointer to heap\n" );
+//      //throw("asdf");
+//      break;
+//    case _HEAPBADBEGIN:
+//      printf( "ERROR - bad start of heap\n" );
+//      //throw("asdf");
+//      break;
+//    case _HEAPBADNODE:
+//      printf( "ERROR - bad node in heap\n" );
+//      //throw("asdf");
+//      break;
+//    }
+//  }
 
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.7");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.8");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
