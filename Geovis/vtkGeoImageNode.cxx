@@ -24,7 +24,7 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoImageNode, "1.6");
+vtkCxxRevisionMacro(vtkGeoImageNode, "1.7");
 vtkStandardNewMacro(vtkGeoImageNode);
 
 
@@ -227,5 +227,36 @@ int vtkGeoImageNode::PowerOfTwo(int val)
     tmp = tmp >> 1;
     }
   return tmp;
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoImageNode::ShallowCopy(vtkGeoTreeNode *src)
+{
+  vtkGeoImageNode *imageNode = vtkGeoImageNode::SafeDownCast(src);
+
+  if(imageNode != NULL)
+    {
+    this->Image = imageNode->Image;
+    this->Texture = imageNode->Texture;
+    }
+  this->Superclass::ShallowCopy(src);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoImageNode::DeepCopy(vtkGeoTreeNode *src)
+{
+  vtkGeoImageNode *imageNode = vtkGeoImageNode::SafeDownCast(src);
+
+  if(imageNode != NULL)
+    {
+    vtkImageData * image = vtkImageData::New();
+    image->DeepCopy(imageNode->Image);
+    this->SetImage(image);
+    image->Delete();
+    image = NULL;
+
+    this->Texture = imageNode->Texture;
+    }
+  this->Superclass::DeepCopy(src);
 }
 

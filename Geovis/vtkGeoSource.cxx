@@ -31,6 +31,7 @@
 #include "vtkTimerLog.h"
 
 #include <vtksys/stl/map>
+#include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
 // For vtkSleep
@@ -67,11 +68,11 @@ VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 
 class vtkGeoSource::implementation {
 public:
-  vtksys_stl::map<vtkSmartPointer<vtkGeoTreeNode>, vtkSmartPointer<vtkCollection> > OutputMap;
+  vtksys_stl::map<vtksys_stl::pair<unsigned long, int>, vtkSmartPointer<vtkCollection> > OutputMap;
   vtksys_stl::vector<int> ThreadIds;
 };
 
-vtkCxxRevisionMacro(vtkGeoSource, "1.3");
+vtkCxxRevisionMacro(vtkGeoSource, "1.4");
 vtkGeoSource::vtkGeoSource()
 {
   this->InputSet = vtkCollection::New();
@@ -123,6 +124,7 @@ void vtkGeoSource::ShutDown()
       {
       this->Threader->TerminateThread(*iter);
       }
+    this->Implementation->ThreadIds.clear();
     }
 }
 
@@ -130,9 +132,10 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 {
   vtkCollection* c = 0;
   this->OutputSetLock->Lock();
-  if (this->Implementation->OutputMap.count(node) > 0)
+  vtksys_stl::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
+  if (this->Implementation->OutputMap.count(p) > 0)
     {
-    c = this->Implementation->OutputMap[node];
+    c = this->Implementation->OutputMap[p];
     }
   this->OutputSetLock->Unlock();
 
@@ -149,6 +152,7 @@ void vtkGeoSource::RequestChildren(vtkGeoTreeNode* node)
 
 void vtkGeoSource::WorkerThread()
 {
+  bool isTerrainNode = false;
   while (true)
     {
     this->Lock->Lock();
@@ -174,7 +178,8 @@ void vtkGeoSource::WorkerThread()
 
       // Create appropriate child instances
       vtkGeoTreeNode* child[4];
-      if (vtkGeoTerrainNode::SafeDownCast(node))
+      isTerrainNode = vtkGeoTerrainNode::SafeDownCast(node) != NULL ? true : false;
+      if (isTerrainNode)
         {
         for (int i = 0; i < 4; ++i)
           {
@@ -202,18 +207,22 @@ void vtkGeoSource::WorkerThread()
 
       // Move from processing set to output
       this->OutputSetLock->Lock();
-      this->Implementation->OutputMap[node] =
+      vtksys_stl::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
+      this->Implementation->OutputMap[p] =
         vtkSmartPointer<vtkCollection>::New();
       if (success)
         {
         for (int i = 0; i < 4; ++i)
           {
-          this->Implementation->OutputMap[node]->AddItem(child[i]);
+          this->Implementation->OutputMap[p]->AddItem(child[i]);
           }
         }
       this->OutputSetLock->Unlock();
 
-      // Clean up
+
+      node->Delete();
+      node = NULL;
+
       for (int i = 0; i < 4; ++i)
         {
         child[i]->Delete();

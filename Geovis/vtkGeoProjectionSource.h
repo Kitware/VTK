@@ -29,8 +29,6 @@
 
 class vtkAbstractTransform;
 class vtkGeoTerrainNode;
-class vtkTransformFilter;
-class vtkMutexLock;
 
 class VTK_GEOVIS_EXPORT vtkGeoProjectionSource : public vtkGeoSource
 {
@@ -66,10 +64,8 @@ protected:
 
   int Projection;
   int MinCellsPerNode;
-  virtual void SetTransformFilter(vtkTransformFilter* transform);
-  vtkTransformFilter* TransformFilter;
-
-  vtkMutexLock* TransformLock;
+  virtual void SetTransform(vtkAbstractTransform* transform);
+  vtkAbstractTransform* Transform;
 
 private:
   vtkGeoProjectionSource(const vtkGeoProjectionSource&); // Not implemented

@@ -43,36 +43,67 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
 #include <vtksys/stl/stack>
 #include <vtksys/stl/utility>
 
+void heapdump( void )
+{
+_HEAPINFO hinfo;
+int heapstatus;
+hinfo._pentry = NULL;
+while( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
+{
+//printf( "%6s block at %Fp of size %4.4X\n", ( hinfo._useflag == _USEDENTRY ? "USED" : "FREE" ), hinfo._pentry, hinfo._size );
+}
+
+switch( heapstatus )
+{
+case _HEAPEMPTY:
+//printf( "OK - empty heap\n" );
+break;
+case _HEAPEND:
+//printf( "OK - end of heap\n" );
+break;
+case _HEAPBADPTR:
+printf( "ERROR - bad pointer to heap\n" );
+//throw("asdf");
+break;
+case _HEAPBADBEGIN:
+printf( "ERROR - bad start of heap\n" );
+//throw("asdf");
+break;
+case _HEAPBADNODE:
+printf( "ERROR - bad node in heap\n" );
+//throw("asdf");
+break;
+}
+  }
+
+
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.6");
-vtkCxxSetObjectMacro(vtkGeoProjectionSource, TransformFilter, vtkTransformFilter);
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.7");
+vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
 {
-  this->TransformFilter = 0;
+  this->Transform = 0;
   this->MinCellsPerNode = 20;
-
-  this->TransformLock = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::~vtkGeoProjectionSource()
 {
-  this->TransformLock->Delete();
-  this->SetTransformFilter(0);
+  this->SetTransform(0);
 }
 
 void vtkGeoProjectionSource::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Projection: " << this->Projection << "\n";
-  os << indent << "TransformFilter: " << this->TransformFilter << "\n";
-  os << indent << "TransformLock: " << this->TransformLock << "\n";
+  os << indent << "Transform: " << this->Transform << "\n";
   os << indent << "MinCellsPerNode: " << this->MinCellsPerNode << "\n";
 }
 
@@ -94,6 +125,12 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
 
   vtkSmartPointer<vtkGeoGraticule> grat = vtkSmartPointer<vtkGeoGraticule>::New();
   vtkSmartPointer<vtkGeoGraticule> refinedGrat = vtkSmartPointer<vtkGeoGraticule>::New();
+  vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkSmartPointer<vtkGeoTransform> trans = vtkSmartPointer<vtkGeoTransform>::New();
+  vtkSmartPointer<vtkGeoProjection> proj = vtkSmartPointer<vtkGeoProjection>::New();
+  proj->SetName(vtkGeoProjection::GetProjectionName(this->Projection));
+  trans->SetDestinationProjection(proj);
+  transformFilter->SetTransform(trans);
   grat->SetGeometryType(vtkGeoGraticule::QUADRILATERALS);
   grat->SetLatitudeBounds(latRange);
   grat->SetLongitudeBounds(lonRange);
@@ -105,22 +142,18 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
     {
     grat->SetLatitudeLevel(level);
     grat->SetLongitudeLevel(level);
-    this->TransformLock->Lock();
-    this->TransformFilter->SetInputConnection(grat->GetOutputPort());
-    this->TransformFilter->Update();
-    geom->ShallowCopy(this->TransformFilter->GetOutput());
-    this->TransformLock->Unlock();
+    transformFilter->SetInputConnection(grat->GetOutputPort());
+    transformFilter->Update();
+    geom->DeepCopy(transformFilter->GetOutput());
     refinedGrat->SetLatitudeLevel(level+1);
     refinedGrat->SetLongitudeLevel(level+1);
     double* curLatRange = geom->GetPointData()->GetArray("LatLong")->GetRange(0);
     refinedGrat->SetLatitudeBounds(curLatRange);
     double* curLonRange = geom->GetPointData()->GetArray("LatLong")->GetRange(1);
     refinedGrat->SetLongitudeBounds(curLonRange);
-    this->TransformLock->Lock();
-    this->TransformFilter->SetInputConnection(refinedGrat->GetOutputPort());
-    this->TransformFilter->Update();
-    refined->ShallowCopy(this->TransformFilter->GetOutput());
-    this->TransformLock->Unlock();
+    transformFilter->SetInputConnection(refinedGrat->GetOutputPort());
+    transformFilter->Update();
+    refined->DeepCopy(transformFilter->GetOutput());
     ++level;
     } while (geom->GetNumberOfCells() < this->MinCellsPerNode &&
         level < vtkGeoGraticule::NUMBER_OF_LEVELS);
@@ -148,6 +181,18 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
 
   // Calculate error.
   double error = 0.0;
+  double pt00[3];
+  double pt01[3];
+  double pt11[3];
+  double pt10[3];
+  double latFrac;
+  double lonFrac;
+  double curPt[3];
+  double interpPt[3];
+  double interpLon0;
+  double interpLon1;
+  double curError;
+
   vtkIdType skip = (rgridSize[0]-1) / (gridSize[0]-1);
   for (vtkIdType latInd = 0; latInd < rgridSize[1]-skip; ++latInd)
     {
@@ -157,30 +202,25 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
       vtkIdType ind01 =   latInd          * rgridSize[0] + lonInd + skip;
       vtkIdType ind11 = ( latInd + skip ) * rgridSize[0] + lonInd + skip;
       vtkIdType ind10 = ( latInd + skip ) * rgridSize[0] + lonInd;
-      double pt00[3];
-      double pt01[3];
-      double pt11[3];
-      double pt10[3];
+      
       refined->GetPoint(ind00, pt00);
       refined->GetPoint(ind01, pt01);
       refined->GetPoint(ind11, pt11);
       refined->GetPoint(ind10, pt10);
       for (vtkIdType rlatInd = latInd + 1; rlatInd < latInd + skip; ++rlatInd)
         {
-        double latFrac = static_cast<double>(rlatInd - latInd) / skip;
+        latFrac = static_cast<double>(rlatInd - latInd) / skip;
         for (vtkIdType rlonInd = lonInd + 1; rlonInd < lonInd + skip; ++rlonInd)
           {
-          double lonFrac = static_cast<double>(rlonInd - lonInd) / skip;
-          double curPt[3];
+          lonFrac = static_cast<double>(rlonInd - lonInd) / skip;
           refined->GetPoint(rlatInd * rgridSize[0] + rlonInd, curPt);
-          double interpPt[3];
           for (int c = 0; c < 3; ++c)
             {
-            double interpLon0 = (1.0 - lonFrac)*pt00[c] + lonFrac*pt01[c];
-            double interpLon1 = (1.0 - lonFrac)*pt10[c] + lonFrac*pt11[c];
+            interpLon0 = (1.0 - lonFrac)*pt00[c] + lonFrac*pt01[c];
+            interpLon1 = (1.0 - lonFrac)*pt10[c] + lonFrac*pt11[c];
             interpPt[c] = (1.0 - latFrac)*interpLon0 + latFrac*interpLon1;
             }
-          double curError = vtkMath::Distance2BetweenPoints(curPt, interpPt);
+          curError = vtkMath::Distance2BetweenPoints(curPt, interpPt);
           if (curError > error)
             {
             error = curError;
@@ -190,7 +230,7 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
       }
     }
 
-  node->GetModel()->ShallowCopy(geom);
+  node->GetModel()->DeepCopy(geom);
   node->SetError(sqrt(error));
 }
 
@@ -212,10 +252,17 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
   grat->SetLongitudeBounds(-180.0, 180.0);
   grat->SetLatitudeBounds(-90.0, 90.0);
   grat->SetGeometryType(vtkGeoGraticule::QUADRILATERALS);
-  this->TransformLock->Lock();
-  this->TransformFilter->SetInputConnection(grat->GetOutputPort());
-  this->TransformFilter->Update();
-  double* realBounds = this->TransformFilter->GetOutput()->GetBounds();
+
+  vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkSmartPointer<vtkGeoTransform> trans = vtkSmartPointer<vtkGeoTransform>::New();
+  vtkSmartPointer<vtkGeoProjection> proj = vtkSmartPointer<vtkGeoProjection>::New();
+  proj->SetName(vtkGeoProjection::GetProjectionName(this->Projection));
+  trans->SetDestinationProjection(proj);
+  transformFilter->SetTransform(trans);
+  
+  transformFilter->SetInputConnection(grat->GetOutputPort());
+  transformFilter->Update();
+  double* realBounds = transformFilter->GetOutput()->GetBounds();
 
   // Extend the bounds just a tad to be safe
   double bounds[4];
@@ -240,8 +287,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
     bounds[1] = center + size/2.0;
     }
 
-  root->GetModel()->ShallowCopy(this->TransformFilter->GetOutput());
-  this->TransformLock->Unlock();
+  root->GetModel()->DeepCopy(transformFilter->GetOutput());
   root->SetLatitudeRange(-90.0, 90.0);
   root->SetLongitudeRange(-180.0, 180.0);
   root->SetProjectionBounds(bounds);
@@ -303,12 +349,12 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   latClip->Update();
   if (index / 2)
     {
-    child->GetModel()->ShallowCopy(latClip->GetOutput(1));
+    child->GetModel()->DeepCopy(latClip->GetOutput(1));
     bounds[2] = center[1];
     }
   else
     {
-    child->GetModel()->ShallowCopy(latClip->GetOutput(0));
+    child->GetModel()->DeepCopy(latClip->GetOutput(0));
     bounds[3] = center[1];
     }
   int level = parent->GetLevel() + 1;
@@ -372,10 +418,10 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
       }
     finalClip->SetClipFunction(plane);
     vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
-    pd->ShallowCopy(child->GetModel());
+    pd->DeepCopy(child->GetModel());
     finalClip->SetInput(pd);
     finalClip->Update();
-    child->GetModel()->ShallowCopy(finalClip->GetOutput());
+    child->GetModel()->DeepCopy(finalClip->GetOutput());
     }
 
   // The lat/long range could have changed
@@ -403,22 +449,16 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
 void vtkGeoProjectionSource::SetProjection(int projection)
 {
   this->Projection = projection;
-  vtkSmartPointer<vtkTransformFilter> filter = vtkSmartPointer<vtkTransformFilter>::New();
   vtkSmartPointer<vtkGeoTransform> trans = vtkSmartPointer<vtkGeoTransform>::New();
   vtkSmartPointer<vtkGeoProjection> proj = vtkSmartPointer<vtkGeoProjection>::New();
   proj->SetName(vtkGeoProjection::GetProjectionName(projection));
   trans->SetDestinationProjection(proj);
-  filter->SetTransform(trans);
-  this->SetTransformFilter(filter);
+  this->SetTransform(trans.GetPointer());
 }
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform* vtkGeoProjectionSource::GetTransform()
 {
-  if(this->TransformFilter)
-    {
-    return this->TransformFilter->GetTransform();
-    }
-  return NULL;
+  return this->Transform;
 }
 

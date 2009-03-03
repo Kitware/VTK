@@ -71,6 +71,10 @@ public:
   // This loads the image from a tile database at the specified location.
   void LoadAnImage(const char* prefix);
 
+  // Description:
+  // Shallow and Deep copy.
+  virtual void ShallowCopy(vtkGeoTreeNode *src);  
+  virtual void DeepCopy(vtkGeoTreeNode *src);
   
 protected:
   vtkGeoImageNode();

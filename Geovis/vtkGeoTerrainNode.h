@@ -89,6 +89,11 @@ public:
   // from the actual projection value.
   vtkGetMacro(Coverage,float);
   vtkSetMacro(Coverage,float);
+
+  // Description:
+  // Shallow and Deep copy.
+  virtual void ShallowCopy(vtkGeoTreeNode *src);  
+  virtual void DeepCopy(vtkGeoTreeNode *src);
   
 protected:
   vtkGeoTerrainNode();

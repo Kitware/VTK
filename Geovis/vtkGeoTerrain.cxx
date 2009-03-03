@@ -61,7 +61,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.17");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.18");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
@@ -278,7 +278,10 @@ void vtkGeoTerrain::AddActors(
       else if(cur->GetStatus() == vtkGeoTreeNode::NONE)
         {
         cur->SetStatus(vtkGeoTreeNode::PROCESSING);
-        this->GeoSource->RequestChildren(cur);
+        vtkGeoTerrainNode * temp = vtkGeoTerrainNode::New();
+        temp->DeepCopy(cur);
+        //this->GeoSource->RequestChildren(cur);
+        this->GeoSource->RequestChildren(temp);
         }
       }
 

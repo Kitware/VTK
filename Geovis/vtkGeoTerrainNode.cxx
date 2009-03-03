@@ -26,7 +26,7 @@
 #include "vtkGeoMath.h"
 #include "vtkGeoTerrainNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.6");
+vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.7");
 vtkStandardNewMacro(vtkGeoTerrainNode);
 
 
@@ -201,3 +201,94 @@ vtkGeoTerrainNode* vtkGeoTerrainNode::GetParent()
   return vtkGeoTerrainNode::SafeDownCast(this->Parent);
 }
 
+//-----------------------------------------------------------------------------
+void vtkGeoTerrainNode::ShallowCopy(vtkGeoTreeNode *src)
+{
+  vtkGeoTerrainNode *terrainNode = vtkGeoTerrainNode::SafeDownCast(src);
+
+  if(terrainNode != NULL)
+    {
+    vtkPolyData * polyData = vtkPolyData::New();
+    polyData->ShallowCopy(terrainNode->Model);
+    this->SetModel(polyData);
+    polyData->Delete();
+    polyData = NULL;
+    //this->Model = terrainNode->Model;
+    this->BoundingSphereRadius = terrainNode->BoundingSphereRadius;
+    this->BoundingSphereCenter[0] = terrainNode->BoundingSphereCenter[0];
+    this->BoundingSphereCenter[1] = terrainNode->BoundingSphereCenter[1];
+
+    this->CornerNormal00[0] = terrainNode->CornerNormal00[0];
+    this->CornerNormal00[1] = terrainNode->CornerNormal00[1];
+    this->CornerNormal00[2] = terrainNode->CornerNormal00[2];
+
+    this->CornerNormal01[0] = terrainNode->CornerNormal01[0];
+    this->CornerNormal01[1] = terrainNode->CornerNormal01[1];
+    this->CornerNormal01[2] = terrainNode->CornerNormal01[2];
+
+    this->CornerNormal10[0] = terrainNode->CornerNormal10[0];
+    this->CornerNormal10[1] = terrainNode->CornerNormal10[1];
+    this->CornerNormal10[2] = terrainNode->CornerNormal10[2];
+
+    this->CornerNormal11[0] = terrainNode->CornerNormal11[0];
+    this->CornerNormal11[1] = terrainNode->CornerNormal11[1];
+    this->CornerNormal11[2] = terrainNode->CornerNormal11[2];
+
+    this->ProjectionBounds[0] = terrainNode->ProjectionBounds[0];
+    this->ProjectionBounds[1] = terrainNode->ProjectionBounds[1];
+    this->ProjectionBounds[2] = terrainNode->ProjectionBounds[2];
+    this->ProjectionBounds[3] = terrainNode->ProjectionBounds[3];
+
+    this->GraticuleLevel = terrainNode->GraticuleLevel;
+    this->Error = terrainNode->Error;
+    this->Coverage = terrainNode->Coverage;
+    }
+  this->Superclass::ShallowCopy(src);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoTerrainNode::DeepCopy(vtkGeoTreeNode *src)
+{
+  vtkGeoTerrainNode *terrainNode = vtkGeoTerrainNode::SafeDownCast(src);
+
+  if(terrainNode != NULL)
+    {
+    vtkPolyData * polyData = vtkPolyData::New();
+    polyData->DeepCopy(terrainNode->Model);
+    this->SetModel(polyData);
+    polyData->Delete();
+    polyData = NULL;
+
+    //this->Model = terrainNode->Model;
+    this->BoundingSphereRadius = terrainNode->BoundingSphereRadius;
+    this->BoundingSphereCenter[0] = terrainNode->BoundingSphereCenter[0];
+    this->BoundingSphereCenter[1] = terrainNode->BoundingSphereCenter[1];
+
+    this->CornerNormal00[0] = terrainNode->CornerNormal00[0];
+    this->CornerNormal00[1] = terrainNode->CornerNormal00[1];
+    this->CornerNormal00[2] = terrainNode->CornerNormal00[2];
+
+    this->CornerNormal01[0] = terrainNode->CornerNormal01[0];
+    this->CornerNormal01[1] = terrainNode->CornerNormal01[1];
+    this->CornerNormal01[2] = terrainNode->CornerNormal01[2];
+
+    this->CornerNormal10[0] = terrainNode->CornerNormal10[0];
+    this->CornerNormal10[1] = terrainNode->CornerNormal10[1];
+    this->CornerNormal10[2] = terrainNode->CornerNormal10[2];
+
+    this->CornerNormal11[0] = terrainNode->CornerNormal11[0];
+    this->CornerNormal11[1] = terrainNode->CornerNormal11[1];
+    this->CornerNormal11[2] = terrainNode->CornerNormal11[2];
+
+    this->ProjectionBounds[0] = terrainNode->ProjectionBounds[0];
+    this->ProjectionBounds[1] = terrainNode->ProjectionBounds[1];
+    this->ProjectionBounds[2] = terrainNode->ProjectionBounds[2];
+    this->ProjectionBounds[3] = terrainNode->ProjectionBounds[3];
+
+    this->GraticuleLevel = terrainNode->GraticuleLevel;
+    this->Error = terrainNode->Error;
+    this->Coverage = terrainNode->Coverage;
+    }
+
+  this->Superclass::DeepCopy(src);
+}

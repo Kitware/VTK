@@ -96,6 +96,12 @@ public:
   void SetStatus(NodeStatus status);
 //ETX
 
+  // Description:
+  // Shallow and Deep copy. Deep copy performs a shallow copy
+  // of the Child nodes.
+  virtual void ShallowCopy(vtkGeoTreeNode *src);  
+  virtual void DeepCopy(vtkGeoTreeNode *src);
+
 protected:
   vtkGeoTreeNode();
   ~vtkGeoTreeNode();
@@ -108,9 +114,10 @@ protected:
 
 //BTX
   vtkSmartPointer<vtkGeoTreeNode> Children[4];
+  vtkGeoTreeNode * Parent;
   NodeStatus Status;
 //ETX
-  vtkGeoTreeNode* Parent;
+  
 
 private:
   vtkGeoTreeNode(const vtkGeoTreeNode&);  // Not implemented.
