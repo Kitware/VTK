@@ -137,8 +137,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.l.*warning: passing argument .* of .* as .* due to prototype"
   "lex.yy.c.*warning: passing argument .* of .* as .* due to prototype"
 
-  # warnings from some MPI headers/libs, cannot fix:
+  # warnings from some Open MPI headers/libs, cannot fix:
   "/openmpi/.*request_inln.h.*warning: declaration .struct MPI::Grequest_intercept_t. does not declare anything"
+  "openmpi.*comm_inln.h.*warning: unused parameter"
 
   # warnings from some python headers/libs, cannot fix:
   "warning: the use of .tmpnam_r. is dangerous, better use .mkstemp."
