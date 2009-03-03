@@ -22,8 +22,9 @@
 #include "vtkPlanes.h"
 #include "vtkProperty.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkCameraActor, "1.2");
+vtkCxxRevisionMacro(vtkCameraActor, "1.3");
 vtkStandardNewMacro(vtkCameraActor);
 vtkCxxSetObjectMacro(vtkCameraActor, Camera, vtkCamera);
 
@@ -94,8 +95,13 @@ void vtkCameraActor::ReleaseGraphicsResources(vtkWindow *window)
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkCameraActor::GetBounds()
 {
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
+  // we cannot initialize the Bounds the same way vtkBoundingBox does because
+  // vtkProp3D::GetLength() does not check if the Bounds are initialized or
+  // not and makes a call to sqrt(). This call to sqrt with invalid values
+  // would raise a floating-point overflow exception (notably on BCC).
+  // As vtkMath::UninitializeBounds initialized finite unvalid bounds, it
+  // passes silently and GetLength() returns 0.
+  vtkMath::UninitializeBounds(this->Bounds);
   
   this->UpdateViewProps();
   if(this->FrustumActor!=0 && this->FrustumActor->GetUseBounds())
