@@ -86,7 +86,7 @@
 
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.8");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.9");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
@@ -375,8 +375,12 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   if (child->GetModel()->GetNumberOfPoints() > 0)
     {
     latRange = child->GetModel()->GetPointData()->GetArray("LatLong")->GetRange(0);
+    latRange[0] = (latRange[0] < -90) ? -90 : latRange[0];
+    latRange[1] = (latRange[1] >  90) ?  90 : latRange[1];
     child->SetLatitudeRange(latRange);
     lonRange = child->GetModel()->GetPointData()->GetArray("LatLong")->GetRange(1);
+    lonRange[0] = (lonRange[0] < -180) ? -180 : lonRange[0];
+    lonRange[1] = (lonRange[1] >  180) ?  180 : lonRange[1];
     child->SetLongitudeRange(lonRange);
     }
   else
