@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME - Base class to place points given constraints on polygonal data
+// .NAME vtkPolyDataPointPlacer - Base class to place points given constraints on polygonal data
 //
 // .SECTION Description
 // vtkPolyDataPointPlacer is a base class to place points on the surface of 
