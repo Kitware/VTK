@@ -22,7 +22,7 @@
 // vtkDisplayListPainter --> vtkCompositePainter -->
 // vtkCoincidentTopologyResolutionPainter -->
 // vtkLightingPainter --> vtkRepresentationPainter --> 
-// <Delegate of vtkDefaultPainter>.
+// \<Delegate of vtkDefaultPainter\>.
 // Typically, the delegate of the default painter be one that is capable of r
 // rendering graphics primitives or a vtkChooserPainter which can select appropriate
 // painters to do the rendering.
