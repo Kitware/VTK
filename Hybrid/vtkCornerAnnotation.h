@@ -119,7 +119,7 @@ public:
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
 
   // Description:
-  // Even if there is an image actor, should <slice> and <image> be displayed?
+  // Even if there is an image actor, should `slice' and `image' be displayed?
   vtkBooleanMacro(ShowSliceAndImage, int);
   vtkSetMacro(ShowSliceAndImage, int);
   vtkGetMacro(ShowSliceAndImage, int);

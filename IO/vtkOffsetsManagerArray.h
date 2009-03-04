@@ -18,13 +18,15 @@
 // in a file (unsigned long) and associate a offset in the file. This is
 // usefull when writing TimeStep XML file when you want to forward the 
 // same offset from the AppendData section on every entry in let say
-// <Points> definition
+// \<Points\> definition
 // Example:
+// \verbatim
 // <Points>
 //   <DataArray type="Float32" TimeStep="0" format="appended" offset="268" />
 //   <DataArray type="Float32" TimeStep="1" format="appended" offset="268" />
 //   ...
 // </Points>
+// \endverbatim
 // Therefore data is only stored once in the XML file. At read time the 
 // offset value is stored to determine whenever we need to read data 
 // (ie when offset different from previously stored offset)

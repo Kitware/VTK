@@ -22,7 +22,7 @@
 // implicitly composed of cells (e.g., vtkStructuredPoints).
 //
 // .SECTION Caveats
-// The #define VTK_CELL_SIZE is a parameter used to construct cells and provide
+// The \#define VTK_CELL_SIZE is a parameter used to construct cells and provide
 // a general guideline for controlling object execution. This parameter is 
 // not a hard boundary: you can create cells with more points.
 

@@ -21,13 +21,13 @@
 // .SECTION Warning
 // When deriving a class from vtkAbstractCellLocator, one should include the 
 // 'hidden' member functions by the following construct in the derived class 
-// <verbatim>
+// \verbatim
 // //BTX
 //  using vtkAbstractCellLocator::IntersectWithLine;
 //  using vtkAbstractCellLocator::FindClosestPoint;
 //  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
 // //ETX
-// </verbatim>
+// \endverbatim
 
 //
 // .SECTION See Also
