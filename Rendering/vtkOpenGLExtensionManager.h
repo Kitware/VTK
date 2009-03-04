@@ -60,7 +60,7 @@
 // query the vtkOpenGLExtensionManager to see if the extension is supported
 // with the ExtensionSupported method.  Valid names for extensions are
 // given in the OpenGL extension registry at
-// \ref http://www.opengl.org/registry/ .
+// http://www.opengl.org/registry/ .
 // You can also grep vtkgl.h (which will be in the binary build directory
 // if VTK is not installed) for appropriate names.  There are also
 // special extensions GL_VERSION_X_X (where X_X is replaced with a major

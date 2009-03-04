@@ -142,9 +142,9 @@ public:
   // When set to vtkPCAStatistics::FIXED_BASIS_ENERGY, the number of basis vectors
   // used to derive new coordinates for each tuple will be the minimum number
   // of columns N that satisfy
-  // \[
+  // \f[
   //   \frac{\sum_{i=1}^{N} \lambda_i}{\sum_{i=1}^{D} \lambda_i} < T
-  // \]
+  // \f]
   // You must set T prior to assessing data using the SetFixedBasisEnergy() method.
   // When T < 1, this turns the PCA into a projection (instead of change of basis).
   //

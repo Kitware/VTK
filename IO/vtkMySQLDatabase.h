@@ -137,7 +137,9 @@ public:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
   // NB1: this method implements the MySQL-specific syntax:
+  // \verbatim
   // `<column name>` <column type> <column attributes>
+  // \endverbatim
   // NB2: if a column has type SERIAL in the schema, this will be turned
   // into INT NOT NULL AUTO_INCREMENT. Therefore, one should not pass
   // NOT NULL as an attribute of a column whose type is SERIAL.
@@ -149,7 +151,9 @@ public:
   // Return the SQL string with the syntax to create an index inside a
   // "CREATE TABLE" SQL statement.
   // NB1: this method implements the MySQL-specific syntax:
+  // \verbatim
   // <index type> [<index name>]  (`<column name 1>`,... )
+  // \endverbatim
   // NB2: since MySQL supports INDEX creation within a CREATE TABLE statement,
   // skipped is always returned false.
   virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
