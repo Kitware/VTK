@@ -168,17 +168,17 @@ public:
   // Description:
   // The layout strategy to use when performing the graph layout.
   // The possible strings are:
-  //   "Random"         - Randomly places vertices in a box.
-  //   "Force Directed" - A layout in 3D or 2D simulating forces on edges.
-  //   "Simple 2D"      - A simple 2D force directed layout.
-  //   "Clustering 2D"  - A 2D force directed layout that's just like
-  //                    - simple 2D but uses some techniques to cluster better.
-  //   "Community 2D"   - A linear-time 2D layout that's just like
-  //                    - Fast 2D but looks for and uses a community 
-  //                    - array to 'accentuate' clusters.
-  //   "Fast 2D"        - A linear-time 2D layout.
-  //   "Pass Through"   - Use locations assigned to the input.
-  //   "Circular"       - Places vertices uniformly on a circle.
+  //  - "Random"         Randomly places vertices in a box.
+  //  - "Force Directed" A layout in 3D or 2D simulating forces on edges.
+  //  - "Simple 2D"      A simple 2D force directed layout.
+  //  - "Clustering 2D"  A 2D force directed layout that's just like
+  //                     simple 2D but uses some techniques to cluster better.
+  //  - "Community 2D"   A linear-time 2D layout that's just like
+  //                    Fast 2D but looks for and uses a community 
+  //                    array to 'accentuate' clusters.
+  //  - "Fast 2D"       A linear-time 2D layout.
+  //  - "Pass Through"  Use locations assigned to the input.
+  //  - "Circular"      Places vertices uniformly on a circle.
   // Default is "Simple 2D".
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToRandom()
