@@ -33,7 +33,8 @@ GRAPHICAL_HIERARCHY  = NO        # would be too large for vtkObject
 
 ALLEXTERNALS         = NO
 
-IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Utilities/Doxygen/contrib"
+IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Utilities/Doxygen/contrib" \
+                       "@VTK_SOURCE_DIR@/Rendering"
 
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
