@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.39");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.40");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -643,7 +643,7 @@ void vtkImageViewer2::Render()
     // Initialize the size if not set yet
 
     vtkImageData *input = this->GetInput();
-    if (this->RenderWindow->GetSize()[0] == 0 && input)
+    if (input)
       {
       input->UpdateInformation();
       int *w_ext = input->GetWholeExtent();
@@ -669,8 +669,11 @@ void vtkImageViewer2::Render()
         }
 
       // if it would be smaller than 150 by 100 then limit to 150 by 100
-      this->RenderWindow->SetSize(
-        xs < 150 ? 150 : xs, ys < 100 ? 100 : ys);
+      if (this->RenderWindow->GetSize()[0] == 0)
+        {
+        this->RenderWindow->SetSize(
+          xs < 150 ? 150 : xs, ys < 100 ? 100 : ys);
+        }
 
       if (this->Renderer)
         {
