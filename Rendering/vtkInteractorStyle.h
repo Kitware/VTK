@@ -43,7 +43,7 @@
 // actor mode). In joystick mode, the direction of pan or translation is
 // from the center of the viewport towards the mouse position. In trackball
 // mode, the direction of motion is the direction the mouse moves. (Note:
-// with 2-button mice, pan is defined as <Shift>-Button 1.)
+// with 2-button mice, pan is defined as \<Shift\>-Button 1.)
 // - Button 3: zoom the camera (if camera mode) or scale the actor (if
 // actor mode). Zoom in/increase scale if the mouse position is in the top
 // half of the viewport; zoom out/decrease scale if the mouse position is in

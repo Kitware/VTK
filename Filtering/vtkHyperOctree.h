@@ -19,6 +19,7 @@
 // or no child at all if the node is a leaf.
 // The class name comes from the following paper:
 //
+// \verbatim
 // @ARTICLE{yau-srihari-1983,
 //  author={Mann-May Yau and Sargur N. Srihari},
 //  title={A Hierarchical Data Structure for Multidimensional Digital Images},
@@ -29,6 +30,7 @@
 //  number={7},
 //  pages={504--515}
 //  }
+// \endverbatim
 //
 // Each node is a cell. Attributes are associated with cells, not with points.
 // The geometry is implicitly given by the size of the root node on each axis

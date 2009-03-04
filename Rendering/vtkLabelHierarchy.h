@@ -117,7 +117,7 @@ public:
   // (3D world).
   // @param type - the type should be one of FULL_SORT, QUEUE, DEPTH_FIRST, or FRUSTUM.
   // @param ren - the current renderer (used for viewport information)
-  // @param camera - the current camera.
+  // @param cam - the current camera.
   // @param frustumPlanes - should be the output of the camera's frustum planes.
   // @param positionsAsNormals - throws out octree nodes on the opposite side of the origin.
   // @param bucketSize - an array of 2 integers describing the width and height of label placer buckets.
