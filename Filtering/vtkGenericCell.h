@@ -18,7 +18,7 @@
 // It's main purpose is to allow thread-safe access to cells, supporting
 // the vtkDataSet::GetCell(vtkGenericCell *) method. vtkGenericCell acts
 // like any type of cell, it just dereferences an internal representation.
-// The SetCellType() methods use #define constants; these are defined in
+// The SetCellType() methods use \#define constants; these are defined in
 // the file vtkCellType.h.
 
 // .SECTION See Also
