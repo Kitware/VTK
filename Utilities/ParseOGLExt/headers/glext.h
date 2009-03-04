@@ -46,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated 2008/11/14 */
+/* glext.h last updated 2009/03/02 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 44
+#define GL_GLEXT_VERSION 45
 
 #ifndef GL_VERSION_1_2
 #define GL_UNSIGNED_BYTE_3_3_2            0x8032
@@ -3860,6 +3860,22 @@ extern "C" {
 #define GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED_NV 0x8E23
 #define GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE_NV 0x8E24
 #define GL_TRANSFORM_FEEDBACK_BINDING_NV  0x8E25
+#endif
+
+#ifndef GL_ATI_meminfo
+#define GL_VBO_FREE_MEMORY_ATI            0x87FB
+#define GL_TEXTURE_FREE_MEMORY_ATI        0x87FC
+#define GL_RENDERBUFFER_FREE_MEMORY_ATI   0x87FD
+#endif
+
+#ifndef GL_AMD_performance_monitor
+#define GL_COUNTER_TYPE_AMD               0x8BC0
+#define GL_COUNTER_RANGE_AMD              0x8BC1
+#define GL_UNSIGNED_INT64_AMD             0x8BC2
+#define GL_PERCENTAGE_AMD                 0x8BC3
+#define GL_PERFMON_RESULT_AVAILABLE_AMD   0x8BC4
+#define GL_PERFMON_RESULT_SIZE_AMD        0x8BC5
+#define GL_PERFMON_RESULT_AMD             0x8BC6
 #endif
 
 
@@ -8011,6 +8027,22 @@ typedef void (APIENTRYP PFNGLENDCONDITIONALRENDERNVPROC) (void);
 
 #ifndef GL_NV_present_video
 #define GL_NV_present_video 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glPresentFrameKeyedNV (GLuint, GLuint64EXT, GLuint, GLuint, GLenum, GLenum, GLuint, GLuint, GLenum, GLuint, GLuint);
+GLAPI void APIENTRY glPresentFrameDualFillNV (GLuint, GLuint64EXT, GLuint, GLuint, GLenum, GLenum, GLuint, GLenum, GLuint, GLenum, GLuint, GLenum, GLuint);
+GLAPI void APIENTRY glGetVideoivNV (GLuint, GLenum, GLint *);
+GLAPI void APIENTRY glGetVideouivNV (GLuint, GLenum, GLuint *);
+GLAPI void APIENTRY glGetVideoi64vNV (GLuint, GLenum, GLint64EXT *);
+GLAPI void APIENTRY glGetVideoui64vNV (GLuint, GLenum, GLuint64EXT *);
+GLAPI void APIENTRY glVideoParameterivNV (GLuint, GLenum, const GLint *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLPRESENTFRAMEKEYEDNVPROC) (GLuint video_slot, GLuint64EXT minPresentTime, GLuint beginPresentTimeId, GLuint presentDurationId, GLenum type, GLenum target0, GLuint fill0, GLuint key0, GLenum target1, GLuint fill1, GLuint key1);
+typedef void (APIENTRYP PFNGLPRESENTFRAMEDUALFILLNVPROC) (GLuint video_slot, GLuint64EXT minPresentTime, GLuint beginPresentTimeId, GLuint presentDurationId, GLenum type, GLenum target0, GLuint fill0, GLenum target1, GLuint fill1, GLenum target2, GLuint fill2, GLenum target3, GLuint fill3);
+typedef void (APIENTRYP PFNGLGETVIDEOIVNVPROC) (GLuint video_slot, GLenum pname, GLint *params);
+typedef void (APIENTRYP PFNGLGETVIDEOUIVNVPROC) (GLuint video_slot, GLenum pname, GLuint *params);
+typedef void (APIENTRYP PFNGLGETVIDEOI64VNVPROC) (GLuint video_slot, GLenum pname, GLint64EXT *params);
+typedef void (APIENTRYP PFNGLGETVIDEOUI64VNVPROC) (GLuint video_slot, GLenum pname, GLuint64EXT *params);
+typedef void (APIENTRYP PFNGLVIDEOPARAMETERIVNVPROC) (GLuint video_slot, GLenum pname, const GLint *params);
 #endif
 
 #ifndef GL_EXT_transform_feedback
@@ -8449,6 +8481,38 @@ typedef GLboolean (APIENTRYP PFNGLISTRANSFORMFEEDBACKNVPROC) (GLuint id);
 typedef void (APIENTRYP PFNGLPAUSETRANSFORMFEEDBACKNVPROC) (void);
 typedef void (APIENTRYP PFNGLRESUMETRANSFORMFEEDBACKNVPROC) (void);
 typedef void (APIENTRYP PFNGLDRAWTRANSFORMFEEDBACKNVPROC) (GLenum mode, GLuint id);
+#endif
+
+#ifndef GL_ATI_meminfo
+#define GL_ATI_meminfo 1
+#endif
+
+#ifndef GL_AMD_performance_monitor
+#define GL_AMD_performance_monitor 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glGetPerfMonitorGroupsAMD (GLint *, GLsizei, GLuint *);
+GLAPI void APIENTRY glGetPerfMonitorCountersAMD (GLuint, GLint *, GLint *, GLsizei, GLuint *);
+GLAPI void APIENTRY glGetPerfMonitorGroupStringAMD (GLuint, GLsizei, GLsizei *, GLchar *);
+GLAPI void APIENTRY glGetPerfMonitorCounterStringAMD (GLuint, GLuint, GLsizei, GLsizei *, GLchar *);
+GLAPI void APIENTRY glGetPerfMonitorCounterInfoAMD (GLuint, GLuint, GLenum, void *);
+GLAPI void APIENTRY glGenPerfMonitorsAMD (GLsizei, GLuint *);
+GLAPI void APIENTRY glDeletePerfMonitorsAMD (GLsizei, GLuint *);
+GLAPI void APIENTRY glSelectPerfMonitorCountersAMD (GLuint, GLboolean, GLuint, GLint, GLuint *);
+GLAPI void APIENTRY glBeginPerfMonitorAMD (GLuint);
+GLAPI void APIENTRY glEndPerfMonitorAMD (GLuint);
+GLAPI void APIENTRY glGetPerfMonitorCounterDataAMD (GLuint, GLenum, GLsizei, GLuint *, GLint *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLGETPERFMONITORGROUPSAMDPROC) (GLint *numGroups, GLsizei groupsSize, GLuint *groups);
+typedef void (APIENTRYP PFNGLGETPERFMONITORCOUNTERSAMDPROC) (GLuint group, GLint *numCounters, GLint *maxActiveCounters, GLsizei counterSize, GLuint *counters);
+typedef void (APIENTRYP PFNGLGETPERFMONITORGROUPSTRINGAMDPROC) (GLuint group, GLsizei bufSize, GLsizei *length, GLchar *groupString);
+typedef void (APIENTRYP PFNGLGETPERFMONITORCOUNTERSTRINGAMDPROC) (GLuint group, GLuint counter, GLsizei bufSize, GLsizei *length, GLchar *counterString);
+typedef void (APIENTRYP PFNGLGETPERFMONITORCOUNTERINFOAMDPROC) (GLuint group, GLuint counter, GLenum pname, void *data);
+typedef void (APIENTRYP PFNGLGENPERFMONITORSAMDPROC) (GLsizei n, GLuint *monitors);
+typedef void (APIENTRYP PFNGLDELETEPERFMONITORSAMDPROC) (GLsizei n, GLuint *monitors);
+typedef void (APIENTRYP PFNGLSELECTPERFMONITORCOUNTERSAMDPROC) (GLuint monitor, GLboolean enable, GLuint group, GLint numCounters, GLuint *counterList);
+typedef void (APIENTRYP PFNGLBEGINPERFMONITORAMDPROC) (GLuint monitor);
+typedef void (APIENTRYP PFNGLENDPERFMONITORAMDPROC) (GLuint monitor);
+typedef void (APIENTRYP PFNGLGETPERFMONITORCOUNTERDATAAMDPROC) (GLuint monitor, GLenum pname, GLsizei dataSize, GLuint *data, GLint *bytesWritten);
 #endif
 
 
