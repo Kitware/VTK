@@ -29,6 +29,7 @@
 
 class vtkAbstractTransform;
 class vtkGeoTerrainNode;
+class vtkMutexLock;
 
 class VTK_GEOVIS_EXPORT vtkGeoProjectionSource : public vtkGeoSource
 {
@@ -65,6 +66,7 @@ protected:
   int Projection;
   int MinCellsPerNode;
   virtual void SetTransform(vtkAbstractTransform* transform);
+  vtkMutexLock* TransformLock;
   vtkAbstractTransform* Transform;
 
 private:

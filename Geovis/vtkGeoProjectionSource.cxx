@@ -86,18 +86,21 @@
 
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.9");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.10");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
 {
   this->Transform = 0;
   this->MinCellsPerNode = 20;
+
+  this->TransformLock = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::~vtkGeoProjectionSource()
 {
+  this->TransformLock->Delete();
   this->SetTransform(0);
 }
 
@@ -140,6 +143,7 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
 
   vtkSmartPointer<vtkPolyData> geom = vtkSmartPointer<vtkPolyData>::New();
   vtkSmartPointer<vtkPolyData> refined = vtkSmartPointer<vtkPolyData>::New();
+
   do
     {
     grat->SetLatitudeLevel(level);
@@ -159,6 +163,7 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
     ++level;
     } while (geom->GetNumberOfCells() < this->MinCellsPerNode &&
         level < vtkGeoGraticule::NUMBER_OF_LEVELS);
+
   node->SetGraticuleLevel(level);
 
   // Compute grid size
@@ -239,6 +244,8 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
 //----------------------------------------------------------------------------
 bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
 {
+  this->TransformLock->Lock();
+
   vtkGeoTerrainNode* root = 0;
   if (!(root = vtkGeoTerrainNode::SafeDownCast(r)))
     {
@@ -300,12 +307,15 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
   // when we hand this off to the main thread.
   root->GetModel()->ComputeBounds();
 
+  this->TransformLock->Unlock();
   return true;
 }
 
 //----------------------------------------------------------------------------
 bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode* c)
 {
+  this->TransformLock->Lock();
+
   vtkGeoTerrainNode* parent = 0;
   if (!(parent = vtkGeoTerrainNode::SafeDownCast(p)))
     {
@@ -387,6 +397,7 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
     {
     child->SetLatitudeRange(0.0, 0.0);
     child->SetLongitudeRange(0.0, 0.0);
+    this->TransformLock->Unlock();
     return true;
     }
 
@@ -448,6 +459,7 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   // when we hand this off to the main thread.
   child->GetModel()->ComputeBounds();
 
+  this->TransformLock->Unlock();
   return true;
 }
 
