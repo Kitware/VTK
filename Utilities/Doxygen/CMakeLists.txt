@@ -28,12 +28,14 @@ IF (BUILD_DOCUMENTATION)
     ${VTK_BINARY_DIR}/Utilities/Doxygen/doxyfile)
 
   CONFIGURE_FILE(
-    ${VTK_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.sh.in
-    ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
+    ${VTK_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.cmake.in
+    ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake
+    @ONLY)
 
   ADD_CUSTOM_TARGET(DoxygenDoc
-    ${BASH}
-    ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
+    ${CMAKE_COMMAND}
+    -P ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake
+    DEPENDS ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake)
 
 ENDIF (BUILD_DOCUMENTATION)
 
