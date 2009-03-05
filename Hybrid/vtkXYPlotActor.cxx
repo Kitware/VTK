@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.68");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.69");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -180,6 +180,8 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->CachedSize[0] = 0;
   this->CachedSize[1] = 0;
 
+  this->AdjustXLabels = 1;
+  this->AdjustYLabels = 1;
   this->AdjustTitlePosition = 1;
   this->TitlePosition[0] = 0.5;
   this->TitlePosition[1] = 0.9;
@@ -635,9 +637,18 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       range[0] = this->XRange[0];
       range[1] = this->XRange[1];
       }
+    
+    if ( this->AdjustXLabels )
+      {
+      vtkAxisActor2D::ComputeRange(range, xRange, this->NumberOfXLabels,
+                                   numTicks, interval);
+      }
+    else
+      {
+      xRange[0] = range[0];
+      xRange[1] = range[1];
+      }
 
-    vtkAxisActor2D::ComputeRange(range, xRange, this->NumberOfXLabels,
-                                 numTicks, interval);
     if ( !this->ExchangeAxes )
       {
       this->XComputedRange[0] = xRange[0];
@@ -682,8 +693,17 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       yrange[0] = this->YRange[0];
       yrange[1] = this->YRange[1];
       }
-    vtkAxisActor2D::ComputeRange(yrange, yRange, this->NumberOfYLabels,
-                                 numTicks, interval);
+
+    if ( this->AdjustYLabels )
+      {
+      vtkAxisActor2D::ComputeRange(yrange, yRange, this->NumberOfYLabels,
+                                   numTicks, interval);
+      }
+    else
+      {
+      yRange[0] = yrange[0];
+      yRange[1] = yrange[1];
+      }
 
     if ( !this->ExchangeAxes )
       {
@@ -978,6 +998,10 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Glyph Source:";
   this->GlyphSource->PrintSelf( os << endl, i2);
 
+  os << indent << "AdjustXLabels: " 
+     << this->AdjustXLabels << endl;
+  os << indent << "AdjustYLabels: " 
+     << this->AdjustYLabels << endl;
   os << indent << "AdjustTitlePosition: " 
      << this->AdjustTitlePosition << endl;
   os << indent << "TitlePosition: " 
@@ -2229,25 +2253,15 @@ double vtkXYPlotActor::GetYTitlePosition()
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAdjustXLabels(int adjust)
 {
+  this->AdjustXLabels = adjust;
   this->XAxis->SetAdjustLabels(adjust);
-}
-
-//----------------------------------------------------------------------------
-int vtkXYPlotActor::GetAdjustXLabels()
-{
-  return this->XAxis->GetAdjustLabels();
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetAdjustYLabels(int adjust)
 {
+  this->AdjustYLabels = adjust;
   this->YAxis->SetAdjustLabels(adjust);
-}
-
-//----------------------------------------------------------------------------
-int vtkXYPlotActor::GetAdjustYLabels()
-{
-  return this->YAxis->GetAdjustLabels();
 }
 
 //----------------------------------------------------------------------------
@@ -2397,4 +2411,3 @@ void vtkXYPlotActor::PrintAsCSV(ostream &os)
 
     }
 }
-

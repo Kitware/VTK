@@ -336,9 +336,9 @@ public:
   // Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
   // range and number of labels.
   void SetAdjustXLabels(int adjust);
-  int GetAdjustXLabels();
+  vtkGetMacro( AdjustXLabels, int );
   void SetAdjustYLabels(int adjust);
-  int GetAdjustYLabels();
+  vtkGetMacro( AdjustYLabels, int );
 
   // Description:
   // Set/Get the position of the title of X or Y axis.
@@ -545,6 +545,8 @@ protected:
   int ExchangeAxes;
   int ReverseXAxis;
   int ReverseYAxis;
+  int AdjustXLabels;
+  int AdjustYLabels;
   int AdjustTitlePosition;
   double TitlePosition[2];
   
@@ -552,8 +554,8 @@ protected:
   vtkActor2D      *TitleActor;
   vtkTextProperty *TitleTextProperty;
 
-  vtkAxisActor2D      *XAxis;
-  vtkAxisActor2D      *YAxis;
+  vtkAxisActor2D  *XAxis;
+  vtkAxisActor2D  *YAxis;
 
   vtkTextProperty *AxisTitleTextProperty;
   vtkTextProperty *AxisLabelTextProperty;
@@ -613,4 +615,3 @@ private:
 
 
 #endif
-
