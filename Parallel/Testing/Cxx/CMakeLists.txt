@@ -12,9 +12,17 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       PrmMagnify.cxx
       #TestExodusTime.cxx
       TestTemporalFractal.cxx
-      TestMultiBlockExodusWrite.cxx
       )
-  ENDIF (VTK_DATA_ROOT)    
+
+    # VS6 builds do not handle out-of-range double assignment to float
+    # properly. Do not run TestMultiBlockExodusWrite on VS6 builds.
+    #
+    IF(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
+      SET(MyTests ${MyTests}
+        TestMultiBlockExodusWrite.cxx
+        )
+    ENDIF(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
+  ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ExerciseMultiProcessController.cxx)
