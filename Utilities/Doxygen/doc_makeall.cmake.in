@@ -11,6 +11,11 @@ set(PERL "@PERL@")
 # These checks should really be in the CMakeLists.txt file when VTK is
 # configured with BUILD_DOCUMENTATION ON:
 #
+if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
+  message(FATAL_ERROR "error: please use CMake 2.6.2 or later to build VTK documentation")
+  # for file(DOWNLOAD capability *and* endif() without arguments...
+endif(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
+
 if(NOT DOXYGEN)
   message(FATAL_ERROR "error: cannot build VTK documentation without doxygen")
 endif()
@@ -19,10 +24,6 @@ if(NOT DOXYGEN_DOT_EXECUTABLE)
 endif()
 if(NOT PERL)
   message(FATAL_ERROR "error: cannot build VTK documentation without perl")
-endif()
-if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
-  message(FATAL_ERROR "error: please use CMake 2.6.2 or later to build VTK documentation")
-  # for file(DOWNLOAD capability
 endif()
 
 # PROJECT_NAME:
