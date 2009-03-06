@@ -127,22 +127,40 @@ int TestMultiTexturing(int argc, char *argv[])
   vtkOpenGLHardwareSupport * hardware = 
     vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
 
-  if(hardware->GetSupportsMultiTexturing() && hardware->GetNumberOfFixedTextureUnits() > 2)
+  bool supported=hardware->GetSupportsMultiTexturing();
+  int tu=0;
+  if(supported)
+    {
+    tu=hardware->GetNumberOfFixedTextureUnits();
+    }
+  
+  if(supported && tu > 2)
     {
     mapper->MapDataArrayToMultiTextureAttribute(
-      vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords",
+      vtkDataObject::FIELD_ASSOCIATION_POINTS);
     mapper->MapDataArrayToMultiTextureAttribute(
-      vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords",
+      vtkDataObject::FIELD_ASSOCIATION_POINTS);
     mapper->MapDataArrayToMultiTextureAttribute(
-      vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords",
+      vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
-    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
-    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
-    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,
+                                     textureRed);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,
+                                     textureBlue);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,
+                                     textureGreen);
     }
   else
     {
     // no multitexturing just show the green texture.
+    if(supported)
+      {
+      textureGreen->SetBlendingMode(
+        vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
+      }
     actor->SetTexture(textureGreen);
     }
 
