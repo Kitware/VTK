@@ -37,7 +37,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.33");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.34");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -249,7 +249,7 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
   options = "dbname=";
   options += this->DatabaseName;
 
-  if ( this->ServerPort )
+  if ( this->ServerPort > 0 )
     {
     options += " port=";
     vtksys_ios::ostringstream stream;
@@ -365,7 +365,7 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
   url += "://";
   if ( this->HostName && this->DatabaseName )
     {
-    if ( this->User )
+    if ( this->User && strlen( this->User ) > 0 )
       {
       url += this->User;
       url += "@";
@@ -388,19 +388,19 @@ bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
   vtkstd::string database;
 
   // Okay now for all the other database types get more detailed info
-  if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
-                                        unused, hostname, dataport, database) )
+  if ( ! vtksys::SystemTools::ParseURL(
+      URL, protocol, username, unused, hostname, dataport, database) )
     {
     vtkErrorMacro( "Invalid URL: " << URL );
     return false;
     }
-  
+
   if ( protocol == "psql" )
     {
-    this->SetUser(username.c_str());
-    this->SetHostName(hostname.c_str());
-    this->SetServerPort(atoi(dataport.c_str()));
-    this->SetDatabaseName(database.c_str());
+    this->SetUser( username.empty() ? 0 : username.c_str() );
+    this->SetHostName( hostname.empty() ? 0 : hostname.c_str() );
+    this->SetServerPort( atoi( dataport.c_str() ) );
+    this->SetDatabaseName( database.empty() ? 0 : database.c_str() );
     return true;
     }
 
@@ -567,6 +567,12 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
 
   if ( ! this->Connection )
     {
+    if ( this->DatabaseName && ! strcmp( this->DatabaseName, dbName ) )
+      {
+      // we can't connect to a database we haven't created yet and aren't connected to...
+      this->SetDatabaseName( "template1" );
+      dropCurrentlyConnected = true;
+      }
     bool err = true;
     if ( this->DatabaseName && this->HostName )
       {
