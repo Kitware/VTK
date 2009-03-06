@@ -61,7 +61,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.19");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.20");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
@@ -198,6 +198,11 @@ void vtkGeoTerrain::AddActors(
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow())->GetHardwareSupport();
 
   bool multiTexturing = hardware->GetSupportsMultiTexturing();
+  int textureUnits = 0;
+  if(multiTexturing)
+    {
+    textureUnits = hardware->GetNumberOfFixedTextureUnits();
+    }
 
   // Extract the image representations from the collection.
   vtkGeoAlignedImageRepresentation* textureTree1 = 0;
@@ -352,7 +357,9 @@ void vtkGeoTerrain::AddActors(
 
       if (textureNode1)
         {
-        if (multiTexturing)
+        // Some implementations will report they support multi-texturing but have only 1
+        // texture unit. Seriously!!
+        if (multiTexturing && textureUnits > 1)
           {
           // Multi texturing
           mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_0,
@@ -370,6 +377,11 @@ void vtkGeoTerrain::AddActors(
           }
         else
           {
+          if(multiTexturing)
+            {
+            textureNode1->GetTexture()->SetBlendingMode(
+              vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
+            }
           // Single texturing
           cur->GetModel()->GetPointData()->SetActiveTCoords("LatLong");
           actor->SetTexture(textureNode1->GetTexture());
