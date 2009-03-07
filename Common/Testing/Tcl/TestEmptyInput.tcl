@@ -39,7 +39,14 @@ proc TestOne {cname} {
         }
     }
 
-   b Delete
+    # If thread creation moves away from the vtkGeoSource constructor, then
+    # this ShutDown call will not be necessary...
+    #
+    if {[b IsA "vtkGeoSource"]} {
+        catch {b ShutDown}
+    }
+
+    b Delete
 }
 
 set classExceptions {
