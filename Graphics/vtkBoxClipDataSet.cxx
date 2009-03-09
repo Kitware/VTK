@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.23");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.24");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkPointLocator)
@@ -2609,8 +2609,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                 continue;
               }                                                    
 
-            if (((p[3] > 0) && ((planes % 2) == 0)) ||
-                ((p[3] > 0) && ((planes % 2) == 1))) 
+            if (p[3] > 0)
               {
               // The v_tetra[3] is outside box, so the first wedge is outside
               // ps: v_tetra[3] is always in first wedge (see tab)
@@ -2655,8 +2654,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                 continue;
               }                                                     
 
-              if (((p[i0] > 0) && ((planes % 2) == 0)) ||   
-                  ((p[i0] > 0) && ((planes % 2) == 1))) 
+              if (p[i0] > 0)
                 {
                 // Isolate vertex is outside box, so the tetrahedron is outside
 
@@ -2721,8 +2719,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               } 
-            if (((p[i1] > 0) && ((planes % 2) == 0)) ||
-                ((p[i1] > 0) && ((planes % 2) == 1)))
+            if (p[i1] > 0)
               {
               // Isolate vertex is outside box, so the tetrahedron is outside
 
@@ -2749,8 +2746,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                              num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                        
-            if (((p[tab1[2*edges_inter-1][2]] > 0) && ((planes % 2) == 0)) ||
-                ((p[tab1[2*edges_inter-1][2]] > 0) && ((planes % 2) == 1)))
+            if (p[tab1[2*edges_inter-1][2]] > 0)
               {
               // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = p_id[0];
@@ -3654,8 +3650,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                              
-            if (((p[3] > 0) && ((planes % 2) == 0)) ||   
-                 ((p[3] > 0) && ((planes % 2) == 1))) 
+            if (p[3] > 0)
               {
               // The v_tetra[3] is outside box, so the first wedge is outside
               // ps: v_tetra[3] is always in first wedge (see tab)
@@ -3716,9 +3711,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                               
-            if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // Isolate vertex is outside box, so
-                ((p[i0] > 0) && ((planes % 2) == 1)))    // the tetrahedron is outside
+            if (p[i0] > 0)
               {
+              // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = p_id[tab3[i0][0]];  // Inside
               tab_id[1] = p_id[tab3[i0][1]];
               tab_id[2] = p_id[tab3[i0][2]];
@@ -3795,9 +3790,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                 continue;
               } 
     
-            if (((p[i1] > 0) && ((planes % 2) == 0)) ||   // Isolate vertex is outside box, so
-                ((p[i1] > 0) && ((planes % 2) == 1)))    // the tetrahedron is outside
+            if (p[i1] > 0)
               {
+              // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = v_id[tab2[i0][0]];  // Inside
               tab_id[1] = p_id[tab2[i0][1]];
               tab_id[2] = p_id[tab2[i0][2]];
@@ -3834,8 +3829,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                              num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                        
-            if (((p[tab1[2*edges_inter-1][2]] > 0) && ((planes % 2) == 0)) ||
-                ((p[tab1[2*edges_inter-1][2]] > 0) && ((planes % 2) == 1))) 
+            if (p[tab1[2*edges_inter-1][2]] > 0)
               {
               // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = p_id[0];                    // Inside
@@ -4907,9 +4901,11 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
                                 num_inter << " Edges_inter = " << edges_inter);
                   continue;
                 }                                                    
-              if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // The v_triangle[3] is outside box, so
-                  ((p[i0] > 0) && ((planes % 2) == 1)))    // the first wedge is outside
+              if (p[i0] > 0)
                 {
+                // The v_triangle[3] is outside box, so
+                // the first wedge is outside
+
                 // The v_triangle[3] is outside box, so the quad is outside
                 // The Quad is inside: two triangles: (v0,v1,p0) and (p0,p1,v1)
                 tab_id[0] = v_id[tab2[i0][0]];
@@ -4961,8 +4957,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
                                 num_inter << " Edges_inter = " << edges_inter);
                   continue;
                 }
-              if (((p[i0] > 0) && ((planes % 2) == 0)) ||
-                  ((p[i0] > 0) && ((planes % 2) == 1)))
+              if (p[i0] > 0)
                 {
                 // Isolate vertex is outside box, so the triangle is outside
                 tab_id[0] = v_id[tab1[i0][1]];
@@ -5270,9 +5265,11 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                   continue;
                 }                                                    
 
-              if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // The v_triangle[3] is outside box, so
-                  ((p[i0] > 0) && ((planes % 2) == 1)))     // the first wedge is outside
+              if (p[i0] > 0)
                 {
+                // The v_triangle[3] is outside box, so
+                // the first wedge is outside
+
                 // The Quad is inside: two triangles: (v0,v1,p0) and (p0,p1,v1)
                 tab_id[0] = v_id[tab2[i0][0]];
                 tab_id[1] = v_id[tab2[i0][1]];
@@ -5348,9 +5345,10 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                                 num_inter << " Edges_inter = " << edges_inter);
                   continue;
                 }                                                     
-              if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // Isolate vertex is outside box, so
-                  ((p[i0] > 0) && ((planes % 2) == 1)))    // the triangle is outside
+              if (p[i0] > 0)
                 {
+                // Isolate vertex is outside box, so
+                // the triangle is outside
                 tab_id[0] = v_id[tab1[i0][1]];  // Inside
                 tab_id[1] = v_id[tab1[i0][0]];
                 tab_id[2] = p_id[0];
