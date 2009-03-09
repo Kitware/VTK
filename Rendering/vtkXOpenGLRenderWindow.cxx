@@ -111,7 +111,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.100");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.101");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1516,17 +1516,6 @@ int *vtkXOpenGLRenderWindow::GetPosition(void)
 // Get this RenderWindow's X display id.
 Display *vtkXOpenGLRenderWindow::GetDisplayId()
 {
-  // get the default display connection 
-  if (!this->DisplayId)
-    {
-    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-    if (this->DisplayId == NULL) 
-      {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY="
-        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
-      }
-    this->OwnDisplay = 1;
-    }
   vtkDebugMacro(<< "Returning DisplayId of " << static_cast<void *>(this->DisplayId) << "\n"); 
 
   return this->DisplayId;
