@@ -61,6 +61,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   vtkGeoProjectionSource* projSource = vtkGeoProjectionSource::New();
   projSource->SetProjection(proj);
   terrainSource.TakeReference(projSource);
+  terrainSource->Initialize();
   terrain->SetSource(terrainSource);
   view->SetSurface(terrain);
 
@@ -75,6 +76,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   reader->Update();
   alignedSource->SetImage(reader->GetOutput());
   imageSource.TakeReference(alignedSource);
+  imageSource->Initialize();
   imageRep->SetSource(imageSource);
   view->AddRepresentation(imageRep);
 

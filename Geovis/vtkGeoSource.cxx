@@ -72,7 +72,7 @@ public:
   vtksys_stl::vector<int> ThreadIds;
 };
 
-vtkCxxRevisionMacro(vtkGeoSource, "1.4");
+vtkCxxRevisionMacro(vtkGeoSource, "1.5");
 vtkGeoSource::vtkGeoSource()
 {
   this->InputSet = vtkCollection::New();
@@ -83,15 +83,9 @@ vtkGeoSource::vtkGeoSource()
   this->Lock = vtkMutexLock::New();
   this->Condition = vtkConditionVariable::New();
   this->StopThread = false;
+  this->Initialized = false;
   this->Implementation = new implementation();
   this->Threader = vtkMultiThreader::New();
-  int maxThreads = this->Threader->GetGlobalDefaultNumberOfThreads();
-  maxThreads = 1;
-  for(int i = 0; i < maxThreads; ++i)
-    {
-    this->Implementation->ThreadIds.push_back(
-      this->Threader->SpawnThread(vtkGeoSourceThreadStart, this));
-    }
 }
 
 vtkGeoSource::~vtkGeoSource()
@@ -106,6 +100,24 @@ vtkGeoSource::~vtkGeoSource()
   this->OutputSetLock->Delete();
   this->Condition->Delete();
   this->Lock->Delete();
+}
+
+void vtkGeoSource::Initialize(int numThreads)
+{
+  if(this->Initialized)
+    {
+    return;
+    }
+  
+  int maxThreads = this->Threader->GetGlobalDefaultNumberOfThreads();
+  maxThreads = numThreads < maxThreads ? numThreads : maxThreads;
+
+  for(int i = 0; i < maxThreads; ++i)
+    {
+    this->Implementation->ThreadIds.push_back(
+      this->Threader->SpawnThread(vtkGeoSourceThreadStart, this));
+    }
+  this->Initialized = true;
 }
 
 void vtkGeoSource::ShutDown()
@@ -126,6 +138,7 @@ void vtkGeoSource::ShutDown()
       }
     this->Implementation->ThreadIds.clear();
     }
+  this->Initialized = false;
 }
 
 vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
@@ -144,6 +157,12 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 
 void vtkGeoSource::RequestChildren(vtkGeoTreeNode* node)
 {
+  if(!this->Initialized)
+    {
+    vtkErrorMacro("Call Initialize() first in order to spawn worker threads.");
+    return;
+    }
+
   this->InputSetLock->Lock();
   this->InputSet->AddItem(node);
   this->Condition->Broadcast();

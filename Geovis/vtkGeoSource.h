@@ -66,6 +66,10 @@ public:
   virtual vtkCollection* GetRequestedNodes(vtkGeoTreeNode* node);
 
   // Description:
+  // Spawn worker threads. 
+  void Initialize(int numThreads = 1);
+
+  // Description:
   // Shut down the source. This terminates the thread and releases memory.
   void ShutDown();
 
@@ -92,6 +96,7 @@ protected:
 
   vtkMultiThreader* Threader;
   bool StopThread;
+  bool Initialized;
 
   //BTX
   class implementation;

@@ -71,6 +71,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   vtkSmartPointer<vtkGeoSource> terrainSource;
   vtkGeoProjectionSource* projSource = vtkGeoProjectionSource::New();
   projSource->SetProjection(projNum);
+  projSource->Initialize();
   vtkSmartPointer<vtkGeoTransform> transform = 
     vtkSmartPointer<vtkGeoTransform>::New();
   vtkSmartPointer<vtkGeoProjection> proj =
@@ -92,6 +93,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   reader->Update();
   alignedSource->SetImage(reader->GetOutput());
   imageSource.TakeReference(alignedSource);
+  imageSource->Initialize();
   imageRep->SetSource(imageSource);
   view->AddRepresentation(imageRep);
 

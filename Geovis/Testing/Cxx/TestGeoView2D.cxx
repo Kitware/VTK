@@ -139,6 +139,7 @@ int TestGeoView2D(int argc, char* argv[])
   vtkGeoProjectionSource* projSource = vtkGeoProjectionSource::New();
   projSource->SetProjection(proj);
   terrainSource.TakeReference(projSource);
+  terrainSource->Initialize();
   terrain->SetSource(terrainSource);
   view->SetSurface(terrain);
 
@@ -153,6 +154,7 @@ int TestGeoView2D(int argc, char* argv[])
   reader->Update();
   alignedSource->SetImage(reader->GetOutput());
   imageSource.TakeReference(alignedSource);
+  imageSource->Initialize();
   imageRep->SetSource(imageSource);
   view->AddRepresentation(imageRep);
 
@@ -166,6 +168,7 @@ int TestGeoView2D(int argc, char* argv[])
   vtkSmartPointer<vtkGeoAlignedImageSource> imageSource2 =
     vtkSmartPointer<vtkGeoAlignedImageSource>::New();
   imageSource2->SetImage(reader2->GetOutput());
+  imageSource2->Initialize();
   vtkSmartPointer<vtkGeoAlignedImageRepresentation> imageRep2 =
     vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
   imageRep2->SetSource(imageSource2);
@@ -187,6 +190,7 @@ int TestGeoView2D(int argc, char* argv[])
     terrainSource->ShutDown();
     vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
     source->SetPath(terrainReadPath.c_str());
+    source->Initialize();
     terrainSource.TakeReference(source);
     }
   terrain->SetSource(terrainSource);
@@ -195,6 +199,7 @@ int TestGeoView2D(int argc, char* argv[])
     imageSource->ShutDown();
     vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
     source->SetPath(imageReadPath.c_str());
+    source->Initialize();
     imageSource.TakeReference(source);
     }
   imageRep->SetSource(imageSource);
