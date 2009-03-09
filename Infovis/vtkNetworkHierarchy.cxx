@@ -39,10 +39,8 @@
 #include <vtksys/stl/vector>
 #include <vtksys/ios/sstream>
 #include <vtkstd/algorithm>
-using vtksys_ios::stringstream;
-using vtksys_stl::make_pair;
 
-vtkCxxRevisionMacro(vtkNetworkHierarchy, "1.3");
+vtkCxxRevisionMacro(vtkNetworkHierarchy, "1.4");
 vtkStandardNewMacro(vtkNetworkHierarchy);
 
 // This is just a macro wrapping for smart pointers
@@ -142,7 +140,7 @@ int vtkNetworkHierarchy::RequestData(
   for (vtkIdType i = 0; i < ipArray->GetNumberOfTuples(); ++i)
     {
     unsigned int packedID = this->ITON(ipArray->GetValue(i));
-    SubnetMap.push_back(make_pair(packedID,i));
+    SubnetMap.push_back(vtksys_stl::make_pair(packedID,i));
     }
   vtksys_stl::sort(SubnetMap.begin(), SubnetMap.end());
     
@@ -234,7 +232,7 @@ int vtkNetworkHierarchy::RequestData(
       treeTable->InsertNextBlankRow();
       
       // Set the label for the child
-      stringstream subnetStream;
+      vtksys_ios::ostringstream subnetStream;
       subnetStream << subnets[0];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
 
@@ -263,7 +261,7 @@ int vtkNetworkHierarchy::RequestData(
       treeTable->InsertNextBlankRow();
       
       // Set the label for the child
-      stringstream subnetStream;
+      vtksys_ios::ostringstream subnetStream;
       subnetStream << subnets[0] << "." << subnets[1];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
       
@@ -292,7 +290,7 @@ int vtkNetworkHierarchy::RequestData(
       treeTable->InsertNextBlankRow();
       
       // Set the label for the child
-      stringstream subnetStream;
+      vtksys_ios::ostringstream subnetStream;
       subnetStream << subnets[0] << "." << subnets[1] << "." << subnets[2];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
       

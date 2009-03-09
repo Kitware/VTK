@@ -35,12 +35,13 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <cctype>
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.25");
+#include <ctype.h>
+
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.26");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -64,12 +65,13 @@ static int splitString(const vtkStdString& input,
 static int my_getline(istream& stream, vtkStdString &output, int& line_count);
 
 // Returns true if the line is entirely whitespace, false otherwise.
-static bool isspace(vtkStdString s)
+static bool isSpaceOnlyString(const vtkStdString& s)
 {
   vtkStdString::size_type i;
+  const char* c = s.c_str();
   for (i = 0; i < s.length(); ++i)
     {
-    if (!isspace(s[i]))
+    if (!isspace(c[i]))
       {
       return false;
       }
@@ -217,7 +219,7 @@ int vtkDelimitedTextReader::RequestData(
   do
     {
     status = my_getline(*(this->Internals->File), firstLine, line_count);
-    } while (isspace(firstLine) && status);
+    } while (isSpaceOnlyString(firstLine) && status);
   // No data in the file, so we are done.
   if (!status)
     {
@@ -287,7 +289,7 @@ int vtkDelimitedTextReader::RequestData(
 
   while (my_getline(*(this->Internals->File), nextLine, line_count))
     {
-    if(isspace(nextLine))
+    if(isSpaceOnlyString(nextLine))
       {
       continue;
       }
@@ -495,6 +497,3 @@ my_getline(istream& in, vtkStdString &out, int& line_count)
 
   return numCharactersRead;
 }
-  
-      
-  
