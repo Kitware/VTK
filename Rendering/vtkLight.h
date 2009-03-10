@@ -125,7 +125,7 @@ public:
 
   // Description:
   // Set/Get the exponent of the cosine used in positional lighting.
-  vtkSetMacro(Exponent,double);
+  vtkSetClampMacro(Exponent,double,0.0,128.0);
   vtkGetMacro(Exponent,double);
 
   // Description:

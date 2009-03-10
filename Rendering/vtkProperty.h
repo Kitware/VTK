@@ -142,7 +142,7 @@ public:
 
   // Description:
   // Set/Get the specular power.
-  vtkSetClampMacro(SpecularPower,double,0.0,100.0);
+  vtkSetClampMacro(SpecularPower,double,0.0,128.0);
   vtkGetMacro(SpecularPower,double);
 
   // Description:
