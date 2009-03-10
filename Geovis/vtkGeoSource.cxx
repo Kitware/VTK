@@ -72,7 +72,7 @@ public:
   vtksys_stl::vector<int> ThreadIds;
 };
 
-vtkCxxRevisionMacro(vtkGeoSource, "1.5");
+vtkCxxRevisionMacro(vtkGeoSource, "1.6");
 vtkGeoSource::vtkGeoSource()
 {
   this->InputSet = vtkCollection::New();
@@ -165,6 +165,10 @@ void vtkGeoSource::RequestChildren(vtkGeoTreeNode* node)
 
   this->InputSetLock->Lock();
   this->InputSet->AddItem(node);
+  // Reference Count is 2 at this point. Decrease so that
+  // we can delete this copy of the node from the worker
+  // thread.
+  node->UnRegister(this);
   this->Condition->Broadcast();
   this->InputSetLock->Unlock();
 }
@@ -192,6 +196,7 @@ void vtkGeoSource::WorkerThread()
       {
       // Move from input set to processing set
       vtkGeoTreeNode* node = vtkGeoTreeNode::SafeDownCast(this->InputSet->GetItemAsObject(0));
+      node->Register(this);
       this->InputSet->RemoveItem(0);
       this->InputSetLock->Unlock();
 
