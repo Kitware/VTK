@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.55");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.56");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -58,6 +58,9 @@ vtkCxxSetObjectMacro(vtkOpenGLProperty,Shader2Collection,vtkShader2Collection);
 vtkOpenGLProperty::vtkOpenGLProperty()
 {
   this->Shader2Collection=0;
+  
+  this->CachedShaderProgram2=0;
+  this->LastCachedShaderProgram2=0;
   
   this->PropProgram=0;
   this->DefaultMainVS=0;
@@ -76,6 +79,10 @@ vtkOpenGLProperty::~vtkOpenGLProperty()
 {
   this->SetShader2Collection(0);
   
+  if(this->CachedShaderProgram2!=0)
+    {
+    this->CachedShaderProgram2->Delete();
+    }
   if(this->PropProgram!=0)
     {
     this->PropProgram->Delete();
@@ -147,38 +154,87 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     bool needDefaultPropFuncFS=progHasFragment;
     bool needDefaultMainVS=false;
     bool needDefaultMainFS=false;
+    bool needCacheUpdate=false;
+    bool needCacheUniformUpdate=false;
+    
+    if(this->CachedShaderProgram2==0)
+      {
+      this->CachedShaderProgram2=vtkShaderProgram2::New();
+      this->CachedShaderProgram2->SetContext(static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow()));
+      }
+    needCacheUpdate=this->LastCachedShaderProgram2!=prog
+      || this->CachedShaderProgram2->GetShaders()->GetMTime()<prog->GetShaders()->GetMTime();
+    
+    needCacheUniformUpdate=this->LastCachedShaderProgram2!=prog || this->CachedShaderProgram2->GetUniformVariables()->GetMTime()<prog->GetUniformVariables()->GetMTime();
+    
     if(this->Shader2Collection!=0)
       {
       needDefaultPropFuncVS=needDefaultPropFuncVS &&
         !this->Shader2Collection->HasVertexShaders();
       needDefaultPropFuncFS=needDefaultPropFuncFS &&
         !this->Shader2Collection->HasFragmentShaders();
-      prog->GetShaders()->AddCollection(this->Shader2Collection);
+      
+      needCacheUpdate=needCacheUpdate ||
+        this->CachedShaderProgram2->GetShaders()->GetMTime()<this->Shader2Collection->GetMTime();
       
       needDefaultMainVS=!progHasVertex && this->Shader2Collection->HasVertexShaders();
       needDefaultMainFS=!progHasFragment && this->Shader2Collection->HasFragmentShaders();
       }
+    
+    if(needCacheUpdate)
+      {
+      this->CachedShaderProgram2->GetShaders()->RemoveAllItems();
+      this->UseDefaultPropVS=false;
+      this->UseDefaultPropFS=false;
+      this->UseDefaultMainVS=false;
+      this->UseDefaultMainFS=false;
+      this->CachedShaderProgram2->GetShaders()->AddCollection(
+        prog->GetShaders());
+      
+      if(this->Shader2Collection!=0)
+        {
+        this->CachedShaderProgram2->GetShaders()->AddCollection(
+          this->Shader2Collection);
+        }
+      this->LastCachedShaderProgram2=prog;
+      }
+    
+    if(needCacheUniformUpdate)
+      {
+      vtkUniformVariables *v=prog->GetUniformVariables();
+      
+      this->CachedShaderProgram2->GetUniformVariables()->DeepCopy(v);
+      }
+    
+    
     if(needDefaultPropFuncVS)
       {
       if(this->DefaultPropVS==0)
         {
+        this->UseDefaultPropVS=false;
         this->DefaultPropVS=vtkShader2::New();
         this->DefaultPropVS->SetType(VTK_SHADER_TYPE_VERTEX);
         this->DefaultPropVS->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_vs);
         // so far, no uniform on the default prop vs.
+        assert("check: prog is initialized" && prog->GetContext()!=0);
+        this->DefaultPropVS->SetContext(prog->GetContext());
         }
-      prog->GetShaders()->AddItem(this->DefaultPropVS);
-      this->UseDefaultPropVS=true;
-      assert("check: prog is initialized" && prog->GetContext()!=0);
-      this->DefaultPropVS->SetContext(prog->GetContext());
+      if(!this->UseDefaultPropVS)
+        {
+        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultPropVS);
+        this->UseDefaultPropVS=true;
+        }
       }
     if(needDefaultPropFuncFS)
       {
       if(this->DefaultPropFS==0)
         {
+        this->UseDefaultPropFS=false;
         this->DefaultPropFS=vtkShader2::New();
         this->DefaultPropFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
         this->DefaultPropFS->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_fs);
+        assert("check: prog is initialized" && prog->GetContext()!=0);
+        this->DefaultPropFS->SetContext(prog->GetContext());
         }
       vtkUniformVariables *v=this->DefaultPropFS->GetUniformVariables();
       int value;
@@ -187,38 +243,47 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       value=0; // allocate texture unit?
       v->SetUniformi("uTexture",1,&value);
       
-      prog->GetShaders()->AddItem(this->DefaultPropFS);
-      this->UseDefaultPropFS=true;
-      assert("check: prog is initialized" && prog->GetContext()!=0);
-      this->DefaultPropFS->SetContext(prog->GetContext());
+      if(!UseDefaultPropFS)
+        {
+        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultPropFS);
+        this->UseDefaultPropFS=true;
+        }
       }
     if(needDefaultMainVS)
       {
       if(this->DefaultMainVS==0)
         {
+        this->UseDefaultMainVS=false;
         this->DefaultMainVS=vtkShader2::New();
         this->DefaultMainVS->SetType(VTK_SHADER_TYPE_VERTEX);
         this->DefaultMainVS->SetSourceCode(vtkOpenGLPropertyDefaultMain_vs);
         // so far, no uniform on the default main() vs.
+        assert("check: prog is initialized" && prog->GetContext()!=0);
+        this->DefaultMainVS->SetContext(prog->GetContext());
         }
-      prog->GetShaders()->AddItem(this->DefaultMainVS);
-      this->UseDefaultMainVS=true;
-      assert("check: prog is initialized" && prog->GetContext()!=0);
-      this->DefaultMainVS->SetContext(prog->GetContext());
+      if(!this->UseDefaultMainVS)
+        {
+        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultMainVS);
+        this->UseDefaultMainVS=true;
+        }
       }
     if(needDefaultMainFS)
       {
       if(this->DefaultMainFS==0)
         {
+        this->UseDefaultMainFS=false;
         this->DefaultMainFS=vtkShader2::New();
         this->DefaultMainFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
         this->DefaultMainFS->SetSourceCode(vtkOpenGLPropertyDefaultMain_fs);
         // so far, no uniform on the default main() fs.
+        assert("check: prog is initialized" && prog->GetContext()!=0);
+        this->DefaultMainFS->SetContext(prog->GetContext());
         }
-      prog->GetShaders()->AddItem(this->DefaultMainFS);
-      this->UseDefaultMainFS=true;
-      assert("check: prog is initialized" && prog->GetContext()!=0);
-      this->DefaultMainFS->SetContext(prog->GetContext());
+      if(!this->UseDefaultMainFS)
+        {
+        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultMainFS);
+        this->UseDefaultMainFS=true;
+        }
       }
     }
   else
@@ -278,8 +343,8 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       }
     if(prog!=0)
       {
-      this->ShaderDeviceAdapter2->SetShaderProgram(prog);
-      this->CurrentShaderProgram2=prog;
+      this->ShaderDeviceAdapter2->SetShaderProgram(this->CachedShaderProgram2);
+      this->CurrentShaderProgram2=this->CachedShaderProgram2;
       }
     else
       {
@@ -307,29 +372,29 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
         }
       else
         {
-        prog->ReleaseGraphicsResources();
+        this->CachedShaderProgram2->ReleaseGraphicsResources();
         if(this->Shader2Collection!=0)
           {
-          prog->GetShaders()->RemoveCollection(this->Shader2Collection);
+          this->CachedShaderProgram2->GetShaders()->RemoveCollection(this->Shader2Collection);
           }
         if(this->UseDefaultMainVS)
           {
-          prog->GetShaders()->RemoveItem(this->DefaultMainVS);
+          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultMainVS);
           this->UseDefaultMainVS=false;
           }
         if(this->UseDefaultMainFS)
           {
-          prog->GetShaders()->RemoveItem(this->DefaultMainFS);
+          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultMainFS);
           this->UseDefaultMainFS=false;
           }
         if(this->UseDefaultPropVS)
           {
-          prog->GetShaders()->RemoveItem(this->DefaultPropVS);
+          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultPropVS);
           this->UseDefaultPropVS=false;
           }
         if(this->UseDefaultPropFS)
           {
-          prog->GetShaders()->RemoveItem(this->DefaultPropFS);
+          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultPropFS);
           this->UseDefaultPropFS=false;
           }
         }
@@ -548,43 +613,7 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
   
   if(this->CurrentShaderProgram2!=0) // ie if shaders are supported
     {
-    if(prog!=0)
-      {
-      prog->Restore();
-      if(this->Shader2Collection!=0)
-        {
-        prog->GetShaders()->RemoveCollection(this->Shader2Collection);
-        }
-      if(this->UseDefaultMainVS)
-        {
-        prog->GetShaders()->RemoveItem(this->DefaultMainVS);
-        this->UseDefaultMainVS=false;
-        }
-      if(this->UseDefaultMainFS)
-        {
-        prog->GetShaders()->RemoveItem(this->DefaultMainFS);
-        this->UseDefaultMainFS=false;
-        }
-      if(this->UseDefaultPropVS)
-        {
-        prog->GetShaders()->RemoveItem(this->DefaultPropVS);
-        this->UseDefaultPropVS=false;
-        }
-      if(this->UseDefaultPropFS)
-        {
-        prog->GetShaders()->RemoveItem(this->DefaultPropFS);
-        this->UseDefaultPropFS=false;
-        }
-      }
-    if(this->PropProgram!=0)
-      {
-      this->PropProgram->Restore();
-      this->PropProgram->ReleaseGraphicsResources();
-      this->UseDefaultMainVS=false;
-      this->UseDefaultMainFS=false;
-      this->PropProgram->Delete();
-      this->PropProgram=0;
-      }
+    this->CurrentShaderProgram2->Restore();
     this->CurrentShaderProgram2=0;
     }
    
@@ -800,6 +829,10 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
 
   this->Superclass::ReleaseGraphicsResources(win);
   
+  if(this->CachedShaderProgram2!=0)
+    {
+    this->CachedShaderProgram2->ReleaseGraphicsResources();
+    }
   if(this->Shader2Collection!=0)
     {
     this->Shader2Collection->ReleaseGraphicsResources();

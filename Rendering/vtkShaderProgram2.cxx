@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.11");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.12");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -284,6 +284,7 @@ bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
 // It also set the uniform variables.
 void vtkShaderProgram2::Use()
 {
+  assert("pre: context_is_set" && this->Context!=0);
   assert("pre: current_context_matches" && this->Context->IsCurrent());
   this->Build();
   

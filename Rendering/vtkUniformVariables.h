@@ -95,6 +95,13 @@ public:
   // \pre not_done: !this->IsAtEnd()
   void Next();
   
+  // Description:
+  // Copy all the variables from `other'. Any existing variable will be
+  // deleted first.
+  // \pre other_exists: other!=0
+  // \pre not_self: other!=this
+  void DeepCopy(vtkUniformVariables *other);
+  
 protected:
   vtkUniformVariables();
   virtual ~vtkUniformVariables();

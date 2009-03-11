@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.4");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.5");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -98,6 +98,8 @@ public:
   virtual void Send(int location)=0;
   
   virtual void PrintSelf(ostream &os, vtkIndent indent)=0;
+  
+  virtual vtkUniform *Clone() const=0;
   
 protected:
   char *Name;
@@ -178,6 +180,14 @@ public:
       os << endl;
     }
   
+  virtual vtkUniform *Clone() const
+    {
+      vtkUniformVectorInt *result=new vtkUniformVectorInt(this->Size,
+                                                          this->Values);
+      result->SetName(this->Name);
+      return result;
+    }
+  
 protected:
   int Size;
   int *Values;
@@ -254,6 +264,14 @@ public:
         ++i;
         }
       os << endl;
+    }
+  
+  virtual vtkUniform *Clone() const
+    { 
+      vtkUniformVectorFloat *result=new vtkUniformVectorFloat(this->Size,
+                                                              this->Values);
+      result->SetName(this->Name);
+      return result;
     }
   
 protected:
@@ -384,6 +402,14 @@ public:
         os << endl;
         ++i;
         }
+    }
+  
+  virtual vtkUniform *Clone() const
+    {
+      vtkUniformMatrix *result=new vtkUniformMatrix(this->Rows,this->Columns,
+                                                    this->Values);
+      result->SetName(this->Name);
+      return result;
     }
   
 protected:
@@ -644,6 +670,38 @@ void vtkUniformVariables::Next()
 {
   assert("pre: not_done" && !this->IsAtEnd());
   ++this->Map->It;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Copy all the variables from `other'. Any existing variable will be
+// deleted first.
+// \pre other_exists: other!=0
+// \pre not_self: other!=this
+void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
+{
+  assert("pre: other_exists" && other!=0);
+  assert("pre: not_self" && other!=this);
+  
+  delete this->Map;
+  this->Map=new vtkUniformVariablesMap;
+  
+  other->Start();
+  while(!other->IsAtEnd())
+    {
+    const char *name=other->GetCurrentName();
+    UniformMapIt cur=other->Map->Map.find(name);
+    
+    vtkUniform *u1=(*cur).second;
+    
+    vtkUniform *u2=u1->Clone();
+    vtksys_stl::pair<const char *, vtkUniform *> p;
+    p.first=u2->GetName();
+    p.second=u2;
+    this->Map->Map.insert(p);
+    
+    other->Next();
+    }
 }
 
 // ----------------------------------------------------------------------------

@@ -126,6 +126,8 @@ public:
   // Use the shader program.
   // It saves the current shader program or fixed-pipeline in use.
   // It also set the uniform variables.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   void Use();
   
   // Description:

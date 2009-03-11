@@ -86,7 +86,10 @@ protected:
   
   vtkShader2Collection *Shader2Collection;
   
-  vtkShaderProgram2 *PropProgram;
+  vtkShaderProgram2 *CachedShaderProgram2; // owned
+  vtkShaderProgram2 *LastCachedShaderProgram2; // just a ref
+  vtkShaderProgram2 *PropProgram; // owned
+  
   vtkShader2 *DefaultMainVS;
   vtkShader2 *DefaultMainFS;
   vtkShader2 *DefaultPropVS;
@@ -96,7 +99,8 @@ protected:
   bool UseDefaultPropVS;
   bool UseDefaultPropFS;
   vtkGLSLShaderDeviceAdapter2 *ShaderDeviceAdapter2;
-  vtkShaderProgram2 *CurrentShaderProgram2;
+  
+  vtkShaderProgram2 *CurrentShaderProgram2; // point to PropProgram or CachedShaderProgram2
   
 private:
   vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
