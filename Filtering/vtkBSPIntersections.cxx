@@ -24,10 +24,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkCell.h"
 #include "vtkPoints.h"
+#include "vtkMath.h"
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkBSPIntersections, "1.1");
+vtkCxxRevisionMacro(vtkBSPIntersections, "1.2");
 
 vtkStandardNewMacro(vtkBSPIntersections);
 
@@ -90,6 +91,7 @@ vtkBSPIntersections::vtkBSPIntersections()
   this->NumberOfRegions = 0;
   this->RegionList = NULL;
   this->ComputeIntersectionsUsingDataBounds = 0;
+  vtkMath::UninitializeBounds(this->CellBoundsCache);
 }
 
 //----------------------------------------------------------------------------
