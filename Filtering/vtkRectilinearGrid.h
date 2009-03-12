@@ -72,7 +72,7 @@ public:
   vtkCell *GetCell(vtkIdType cellId);
   void GetCell(vtkIdType cellId, vtkGenericCell *cell);
   void GetCellBounds(vtkIdType cellId, double bounds[6]);
-  int FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
   vtkIdType FindPoint(double x[3]);
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
                      int& subId, double pcoords[3], double *weights);
