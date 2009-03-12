@@ -15,6 +15,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// We have to define XTSTRINGDEFINES (used in X11/StringDefs.h and X11/Shell.h)
+// otherwise the string are define as char * instead of const char which can
+// cause warnings.
+#define XTSTRINGDEFINES
 #include <X11/X.h>
 #include <X11/keysym.h>
 #include "vtkXRenderWindowInteractor.h"
@@ -29,7 +34,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.137");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.138");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -83,36 +88,6 @@ typedef struct
 } OptionsRec;
 OptionsRec      Options;
 
-XtResource resources[] =
-{
-  {(char *)("visual"),
-   (char *)("Visual"),
-   XtRVisual,
-   sizeof (Visual *),
-   XtOffsetOf (OptionsRec, visual),
-   XtRImmediate,
-   NULL},
-  {(char *)("depth"),
-   (char *)("Depth"),
-   XtRInt,
-   sizeof (int),
-   XtOffsetOf (OptionsRec, depth),
-   XtRImmediate,
-   NULL},
-};
-
-XrmOptionDescRec Desc[] =
-{
-  {(char *)("-visual"),
-   (char *)("*visual"),
-   XrmoptionSepArg,
-   NULL},
-  {(char *)("-depth"),
-   (char *)("*depth"),
-   XrmoptionSepArg, NULL}
-};
-
-
 //-------------------------------------------------------------------------
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
@@ -139,7 +114,7 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     }
 
   this->BreakXtLoopCallback->Delete();
-
+  
   if (vtkXRenderWindowInteractor::App)
     {
     if(vtkXRenderWindowInteractor::NumAppInitialized == 1)
@@ -377,7 +352,7 @@ void vtkXRenderWindowInteractor::Initialize()
                                    XtNheight, size[1],
                                    XtNinput, True,
                                    XtNmappedWhenManaged, 0,
-                                   NULL);
+                                   static_cast<void *>(NULL));
     this->OwnTop = 1;
     XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
@@ -662,16 +637,17 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       static int MousePressTime = 0;
       int repeat = 0;
       // 400 ms threshold by default is probably good to start
-      if((reinterpret_cast<XButtonEvent*>(event)->time - MousePressTime) < 400)
+      int eventTime=static_cast<int>(reinterpret_cast<XButtonEvent*>(event)->time);
+      if((eventTime - MousePressTime) < 400)
         {
         MousePressTime -= 2000;  // no double click next time
         repeat = 1;
         }
       else
         {
-        MousePressTime = reinterpret_cast<XButtonEvent*>(event)->time;
+        MousePressTime = eventTime;
         }
-
+      
       me->SetEventInformationFlipY(xp, 
                                    yp,
                                    ctrl, 
