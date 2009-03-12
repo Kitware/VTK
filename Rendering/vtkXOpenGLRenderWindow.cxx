@@ -111,7 +111,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.101");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.102");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -192,7 +192,7 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   attributes[index++] = None;
   int tmp;
   vtkglX::GLXFBConfig* fb = vtkglX::ChooseFBConfig(DisplayId,
-                                                   DefaultScreen(DisplayId),
+                                                   XDefaultScreen(DisplayId),
                                                    attributes, &tmp);
   return fb;
 }
@@ -251,7 +251,7 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
     
   attributes[index++] = None;
 
-  return glXChooseVisual(DisplayId, DefaultScreen(DisplayId), attributes );
+  return glXChooseVisual(DisplayId, XDefaultScreen(DisplayId), attributes );
 }
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
@@ -550,8 +550,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     {
     v = this->GetDesiredVisualInfo();
     this->ColorMap = XCreateColormap(this->DisplayId,
-                                     RootWindow( this->DisplayId, v->screen),
-                                     v->visual, AllocNone );
+                                     XRootWindow(this->DisplayId,v->screen),
+                                     v->visual, AllocNone);
     
     attr.background_pixel = 0;
     attr.border_pixel = 0;
@@ -561,12 +561,14 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     // get a default parent if one has not been set.
     if (! this->ParentId)
       {
-      this->ParentId = RootWindow(this->DisplayId, v->screen);
+      this->ParentId = XRootWindow(this->DisplayId, v->screen);
       }
     this->WindowId = 
       XCreateWindow(this->DisplayId,
                     this->ParentId,
-                    x, y, width, height, 0, v->depth, InputOutput, v->visual,
+                    x, y, static_cast<unsigned int>(width),
+                    static_cast<unsigned int>(height), 0, v->depth,
+                    InputOutput, v->visual,
                     CWBackPixel | CWBorderPixel | CWColormap | 
                     CWOverrideRedirect | CWEventMask, 
                     &attr);
@@ -581,7 +583,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId,&winattr);
     matcher.visualid = XVisualIDFromVisual(winattr.visual);
-    matcher.screen = DefaultScreen(DisplayId);
+    matcher.screen = XDefaultScreen(DisplayId);
     v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
                        &matcher, &nItems);
     }
@@ -592,9 +594,9 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     vtkDebugMacro(<< "Resizing the xwindow\n");
     XResizeWindow(this->DisplayId,this->WindowId,
                   ((this->Size[0] > 0) ? 
-                   static_cast<int>(this->Size[0]) : 300),
+                   static_cast<unsigned int>(this->Size[0]) : 300),
                   ((this->Size[1] > 0) ? 
-                   static_cast<int>(this->Size[1]) : 300));
+                   static_cast<unsigned int>(this->Size[1]) : 300));
     XSync(this->DisplayId,False);
     }
 
@@ -907,12 +909,12 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         v = this->GetDesiredVisualInfo();
         this->Internal->PixmapContextId = glXCreateContext(this->DisplayId,
                                                            v, 0, GL_FALSE);
-        this->Internal->pixmap = XCreatePixmap(this->DisplayId,
-                                               RootWindow(this->DisplayId,
-                                                          v->screen),
-                                               width,
-                                               height,
-                                               v->depth);
+        this->Internal->pixmap=
+          XCreatePixmap(this->DisplayId,
+                        XRootWindow(this->DisplayId,v->screen),
+                        static_cast<unsigned int>(width),
+                        static_cast<unsigned int>(height),
+                        static_cast<unsigned int>(v->depth));
 
         this->Internal->PixmapWindowId = glXCreateGLXPixmap(this->DisplayId, v, this->Internal->pixmap);
         glXMakeCurrent(this->DisplayId,this->Internal->PixmapWindowId,
@@ -1201,7 +1203,9 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       }
     else if(this->WindowId && this->Mapped)
       {
-      XResizeWindow(this->DisplayId,this->WindowId,width,height);
+      XResizeWindow(this->DisplayId,this->WindowId,
+                    static_cast<unsigned int>(width),
+                    static_cast<unsigned int>(height));
       XSync(this->DisplayId,False);
       }
 
@@ -1260,8 +1264,8 @@ Colormap vtkXOpenGLRenderWindow::GetDesiredColormap ()
   if (v)
     {
     this->ColorMap = XCreateColormap(this->DisplayId,
-                                     RootWindow( this->DisplayId, v->screen),
-                                     v->visual, AllocNone ); 
+                                     XRootWindow(this->DisplayId, v->screen),
+                                     v->visual, AllocNone);
     XFree(v);
     }
 
@@ -1481,9 +1485,9 @@ int *vtkXOpenGLRenderWindow::GetScreenSize()
     }
 
   this->ScreenSize[0] = 
-    DisplayWidth(this->DisplayId, DefaultScreen(this->DisplayId));
+    XDisplayWidth(this->DisplayId, XDefaultScreen(this->DisplayId));
   this->ScreenSize[1] = 
-    DisplayHeight(this->DisplayId, DefaultScreen(this->DisplayId));
+    XDisplayHeight(this->DisplayId, XDefaultScreen(this->DisplayId));
 
   return this->ScreenSize;
 }
@@ -1507,7 +1511,8 @@ int *vtkXOpenGLRenderWindow::GetPosition(void)
   y = attribs.y;
 
   XTranslateCoordinates(this->DisplayId,this->WindowId,
-                        RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
+                        XRootWindowOfScreen(XScreenOfDisplay(
+                                              this->DisplayId,0)),
                         x,y,&this->Position[0],&this->Position[1],&child);
 
   return this->Position;
@@ -1604,7 +1609,7 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(char *info)
 
   sscanf(info,"%i",&tmp);
  
-  this->SetWindowId(tmp);
+  this->SetWindowId(static_cast<Window>(tmp));
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
@@ -1638,7 +1643,7 @@ void vtkXOpenGLRenderWindow::SetParentInfo(char *info)
 
   sscanf(info,"%i",&tmp);
  
-  this->SetParentId(tmp);
+  this->SetParentId(static_cast<Window>(tmp));
 }
 
 void vtkXOpenGLRenderWindow::SetWindowId(void *arg)
@@ -1659,7 +1664,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
     return "display id not set";
     }
 
-  int scrnum = DefaultScreen(this->DisplayId);
+  int scrnum = XDefaultScreen(this->DisplayId);
   const char *serverVendor = glXQueryServerString(this->DisplayId, scrnum,
                                                   GLX_VENDOR);
   const char *serverVersion = glXQueryServerString(this->DisplayId, scrnum,
