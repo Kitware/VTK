@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkBitArrayIterator);
-vtkCxxRevisionMacro(vtkBitArrayIterator, "1.2");
+vtkCxxRevisionMacro(vtkBitArrayIterator, "1.3");
 vtkCxxSetObjectMacro(vtkBitArrayIterator, Array, vtkBitArray);
 //-----------------------------------------------------------------------------
 vtkBitArrayIterator::vtkBitArrayIterator()
@@ -67,11 +67,11 @@ int* vtkBitArrayIterator::GetTuple(vtkIdType id)
   vtkIdType numComps = this->Array->GetNumberOfComponents();
   if (this->TupleSize < numComps)
     {
-    this->TupleSize = numComps;
+    this->TupleSize = static_cast<int>(numComps);
     delete [] this->Tuple;
     this->Tuple = new int [this->TupleSize];
     }
-  int loc = id * numComps;
+  vtkIdType loc = id * numComps;
   for (int j = 0; j < numComps; j++)
     {
     this->Tuple[j] = this->Array->GetValue(loc + j);

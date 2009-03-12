@@ -254,7 +254,7 @@ public:
   // Returns the size of the data in DataTypeSize units. Thus, the number of bytes
   // for the data can be computed by GetDataSize() * GetDataTypeSize(). Non-contiguous 
   // or variable- size arrays  need to override this method.
-  virtual unsigned long GetDataSize()
+  virtual vtkIdType GetDataSize()
     {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
     }

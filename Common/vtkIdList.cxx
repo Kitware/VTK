@@ -15,7 +15,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkIdList, "1.44");
+vtkCxxRevisionMacro(vtkIdList, "1.45");
 vtkStandardNewMacro(vtkIdList);
 
 vtkIdList::vtkIdList()
@@ -44,7 +44,7 @@ void vtkIdList::Initialize()
   this->Size = 0;
 }
 
-int vtkIdList::Allocate(const int sz, const int vtkNotUsed(strategy))
+int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
 {
   if ( sz > this->Size)
     {
@@ -174,7 +174,7 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
   if (this->Ids)
     {
     memcpy(newIds, this->Ids,
-           (sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
+           static_cast<size_t>(sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
     delete [] this->Ids;
     }
 
@@ -194,7 +194,7 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
 
   if (thisNumIds <= VTK_TMP_ARRAY_SIZE) 
     {//Use fast method if we can fit in temporary storage
-    int  thisIds[VTK_TMP_ARRAY_SIZE];
+    vtkIdType  thisIds[VTK_TMP_ARRAY_SIZE];
     vtkIdType i, vtkid;
     
     for (i=0; i < thisNumIds; i++)

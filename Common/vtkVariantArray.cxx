@@ -76,7 +76,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.16");
+vtkCxxRevisionMacro(vtkVariantArray, "1.17");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -207,8 +207,8 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
       // TODO : This just makes a double variant by default.
       //        We really should make the appropriate type of variant
       //        based on the subclass of vtkDataArray.
-      int tuple = (locj + cur) / a->GetNumberOfComponents();
-      int component = (locj + cur) % a->GetNumberOfComponents();
+      vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
+      int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
       this->SetValue(loci + cur, vtkVariant(a->GetComponent(tuple, component)));
       }
     }
@@ -249,8 +249,8 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
       {
-      int tuple = (locj + cur) / a->GetNumberOfComponents();
-      int component = (locj + cur) % a->GetNumberOfComponents();
+      vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
+      int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
       this->InsertValue(loci + cur, vtkVariant(a->GetComponent(tuple, component)));
       }
     }
@@ -289,8 +289,8 @@ vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
       {
-      int tuple = (locj + cur) / a->GetNumberOfComponents();
-      int component = (locj + cur) % a->GetNumberOfComponents();
+      vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
+      int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
       this->InsertNextValue(vtkVariant(a->GetComponent(tuple, component)));
       }
     }
@@ -464,9 +464,9 @@ int vtkVariantArray::Resize(vtkIdType sz)
 
   if(this->Array)
     {
-    int numCopy = (newSize < this->Size ? newSize : this->Size);
+    vtkIdType numCopy = (newSize < this->Size ? newSize : this->Size);
 
-    for (int i = 0; i < numCopy; ++i)
+    for (vtkIdType i = 0; i < numCopy; ++i)
       {
       newArray[i] = this->Array[i];
       }
@@ -499,12 +499,13 @@ void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save)
 unsigned long vtkVariantArray::GetActualMemorySize()
 {
   // NOTE: Currently does not take into account the "pointed to" data.
-  unsigned long totalSize = 0;
-  unsigned long numPrims = this->GetSize();
+  size_t totalSize = 0;
+  size_t numPrims = static_cast<size_t>(this->GetSize());
 
   totalSize = numPrims*sizeof(vtkVariant);
 
-  return static_cast<unsigned long>(ceil(totalSize / 1024.0)); // kilobytes
+  return static_cast<unsigned long>(
+    ceil(static_cast<double>(totalSize) / 1024.0)); // kilobytes
 }
 
 //----------------------------------------------------------------------------
@@ -647,8 +648,8 @@ vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
   if(this->Array)
     {
     // can't use memcpy here
-    int numCopy = (newSize < this->Size ? newSize : this->Size);
-    for (int i = 0; i < numCopy; ++i)
+    vtkIdType numCopy = (newSize < this->Size ? newSize : this->Size);
+    for (vtkIdType i = 0; i < numCopy; ++i)
       {
       newArray[i] = this->Array[i];
       }

@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Return the number of files in the current directory.
-  int GetNumberOfFiles();
+  vtkIdType GetNumberOfFiles();
 
   // Description:
   // Return the file at the given index, the indexing is 0 based

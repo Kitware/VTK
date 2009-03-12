@@ -169,7 +169,7 @@ public:
   // SetValue() method for fast insertion.
   void SetNumberOfValues(vtkIdType number);
 
-  int GetNumberOfValues() { return this->MaxId + 1; }
+  vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
 
   int GetNumberOfElementComponents() { return 0; }
   int GetElementComponentSize() { return static_cast<int>(sizeof(vtkStdString::value_type)); }
@@ -249,7 +249,7 @@ public:
   // Returns the size of the data in DataTypeSize units. Thus, the number of bytes
   // for the data can be computed by GetDataSize() * GetDataTypeSize().
   // The size computation includes the string termination character for each string.
-  virtual unsigned long GetDataSize();
+  virtual vtkIdType GetDataSize();
   
   //BTX
   // Description:

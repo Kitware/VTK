@@ -151,7 +151,8 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
                                                        def);
   if (value)
     {
-    fullName = new char[strlen(value) + strlen(fname) + 2 + (slash ? 1 : 0)];
+    fullName = new char[strlen(value) + strlen(fname) + 2 +
+                        static_cast<size_t>(slash ? 1 : 0)];
     fullName[0] = 0;
     strcat(fullName, value);
     size_t len = strlen(fullName);
@@ -161,7 +162,7 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
     }
   else
     {
-    fullName = new char[strlen(fname) + 1 + (slash ? 1 : 0)];
+    fullName = new char[strlen(fname) + 1 + static_cast<size_t>(slash ? 1 : 0)];
     strcpy(fullName, fname);
     }
 

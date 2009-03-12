@@ -45,14 +45,14 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkBitArray, "1.65");
+vtkCxxRevisionMacro(vtkBitArray, "1.66");
 vtkStandardNewMacro(vtkBitArray);
 
 //----------------------------------------------------------------------------
 // Instantiate object.
 vtkBitArray::vtkBitArray(vtkIdType numComp)
 {
-  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->NumberOfComponents = static_cast<int>(numComp < 1 ? 1 : numComp);
   this->Array = NULL;
   this->TupleSize = 3;
   this->Tuple = new double[this->TupleSize]; //used for conversion
@@ -208,7 +208,7 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
 
     this->Array = new unsigned char[(this->Size+7)/8];
     memcpy(this->Array, static_cast<unsigned char*>(ia->GetVoidPointer(0)),
-           ((this->Size+7)/8)*sizeof(unsigned char));
+           static_cast<size_t>((this->Size+7)/8)*sizeof(unsigned char));
     }
 }
 
@@ -262,10 +262,10 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
 
   if (this->Array)
     {
-    int usedSize = (sz < this->Size) ? sz : this->Size;
+    vtkIdType usedSize = (sz < this->Size) ? sz : this->Size;
 
     memcpy(newArray, this->Array, 
-         ((usedSize+7)/8)*sizeof(unsigned char));
+         static_cast<size_t>((usedSize+7)/8)*sizeof(unsigned char));
     if (!this->SaveUserArray)
       {
         delete[] this->Array;
@@ -309,10 +309,10 @@ int vtkBitArray::Resize(vtkIdType sz)
 
   if (this->Array)
     {
-    int usedSize = (newSize < this->Size) ? newSize : this->Size;
+    vtkIdType usedSize = (newSize < this->Size) ? newSize : this->Size;
 
     memcpy(newArray, this->Array, 
-         ((usedSize+7)/8)*sizeof(unsigned char));
+           static_cast<size_t>((usedSize+7)/8)*sizeof(unsigned char));
     if (!this->SaveUserArray)
       {
         delete[] this->Array;
@@ -420,7 +420,7 @@ double *vtkBitArray::GetTuple(vtkIdType i)
     this->Tuple = new double[this->TupleSize];
     }
 
-  int loc = this->NumberOfComponents*i;
+  vtkIdType loc = this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Tuple[j] = static_cast<double>(this->GetValue(loc+j));

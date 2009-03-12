@@ -73,7 +73,7 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkStringArray, "1.17");
+vtkCxxRevisionMacro(vtkStringArray, "1.18");
 vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
@@ -356,8 +356,8 @@ vtkStdString * vtkStringArray::ResizeAndExtend(vtkIdType sz)
   if(this->Array)
     {
     // can't use memcpy here
-    int numCopy = (newSize < this->Size ? newSize : this->Size);
-    for (int i = 0; i < numCopy; ++i)
+    vtkIdType numCopy = (newSize < this->Size ? newSize : this->Size);
+    for (vtkIdType i = 0; i < numCopy; ++i)
       {
       newArray[i] = this->Array[i];
       }
@@ -405,9 +405,9 @@ int vtkStringArray::Resize(vtkIdType sz)
 
   if(this->Array)
     {
-    int numCopy = (newSize < this->Size ? newSize : this->Size);
+    vtkIdType numCopy = (newSize < this->Size ? newSize : this->Size);
 
-    for (int i = 0; i < numCopy; ++i)
+    for (vtkIdType i = 0; i < numCopy; ++i)
       {
       newArray[i] = this->Array[i];
       }
@@ -487,30 +487,30 @@ int vtkStringArray::GetDataTypeSize( void )
 // ----------------------------------------------------------------------------
 unsigned long vtkStringArray::GetActualMemorySize( void )
 {
-  unsigned long totalSize = 0;
-  unsigned long  numPrims = this->GetSize();
+  size_t totalSize = 0;
+  size_t  numPrims = static_cast<size_t>(this->GetSize());
 
-  for (unsigned long i = 0; i < numPrims; ++i)
+  for (size_t i = 0; i < numPrims; ++i)
     {
     totalSize += sizeof( vtkStdString );
-    totalSize += static_cast<unsigned long>(this->Array[i].size()) *
-      sizeof( vtkStdString::value_type );
+    totalSize += this->Array[i].size() *sizeof( vtkStdString::value_type );
     }
 
-  return static_cast<unsigned long>(ceil( totalSize / 1024.0 )); // kilobytes
+  return static_cast<unsigned long>(
+    ceil(static_cast<double>(totalSize) / 1024.0 )); // kilobytes
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkStringArray::GetDataSize()
+vtkIdType vtkStringArray::GetDataSize()
 {
-  unsigned long size = 0;
-  unsigned long numStrs = this->GetMaxId() + 1;
-  for (unsigned long i=0; i < numStrs; i++)
+  size_t size = 0;
+  size_t numStrs = static_cast<size_t>(this->GetMaxId() + 1);
+  for(size_t i=0; i < numStrs; i++)
     {
-    size += static_cast<unsigned long>(this->Array[i].size()) + 1;
-      // (+1) for termination character.
+    size += this->Array[i].size() + 1;
+    // (+1) for termination character.
     }
-  return size;
+  return static_cast<vtkIdType>(size);
 }
 
 // ----------------------------------------------------------------------------

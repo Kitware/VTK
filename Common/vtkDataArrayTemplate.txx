@@ -132,7 +132,8 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
     this->Size = 0;
 
     vtkIdType newSize = (sz > 0 ? sz : 1);
-    this->Array = static_cast<T*>(malloc(newSize * sizeof(T)));
+    this->Array = static_cast<T*>(malloc(static_cast<size_t>(newSize)
+                                         * sizeof(T)));
     if(this->Array==0)
       {
       vtkErrorMacro("Unable to allocate " << newSize
@@ -202,7 +203,8 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
   this->Size = fa->GetSize();
 
   this->Size = (this->Size > 0 ? this->Size : 1);
-  this->Array = static_cast<T*>(malloc(this->Size * sizeof(T)));
+  this->Array = static_cast<T* >(
+    malloc(static_cast<size_t>(this->Size) * sizeof(T)));
   if(this->Array==0)
     {
     vtkErrorMacro("Unable to allocate " << this->Size
@@ -225,7 +227,8 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     }
   if (fa->GetSize() > 0)
     {
-    memcpy(this->Array, fa->GetVoidPointer(0), this->Size*sizeof(T));
+    memcpy(this->Array, fa->GetVoidPointer(0),
+           static_cast<size_t>(this->Size)*sizeof(T));
     }
   this->vtkAbstractArray::DeepCopy( fa );
   this->DataChanged();
@@ -316,7 +319,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
        || this->DeleteMethod==VTK_DATA_ARRAY_DELETE
        || dontUseRealloc ))
     {
-    newArray = static_cast<T*>(malloc(newSize*sizeof(T)));
+    newArray = static_cast<T*>(malloc(static_cast<size_t>(newSize)*sizeof(T)));
     if(!newArray)
       {
       vtkErrorMacro("Unable to allocate " << newSize
@@ -336,7 +339,8 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
 
     // Copy the data from the old array.
     memcpy(newArray, this->Array,
-           (newSize < this->Size ? newSize : this->Size) * sizeof(T));
+           static_cast<size_t>(newSize < this->Size ? newSize : this->Size)
+           * sizeof(T));
 
     // Realease old array if we own
     this->DeleteArray();
@@ -345,7 +349,8 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     {
     // Try to reallocate with minimal memory usage and possibly avoid
     // copying.
-    newArray = static_cast<T*>(realloc(this->Array, newSize*sizeof(T)));
+    newArray = static_cast<T*>(
+      realloc(this->Array,static_cast<size_t>(newSize)*sizeof(T)));
     if(!newArray)
       {
       vtkErrorMacro("Unable to allocate " << newSize
@@ -466,7 +471,8 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
   T* outPtr = this->GetPointer(locOut);
   T* inPtr = static_cast<T*>(source->GetVoidPointer(locIn));
 
-  memcpy(outPtr, inPtr, sizeof(T)*inNumComp);
+  size_t s=static_cast<size_t>(inNumComp);
+  memcpy(outPtr, inPtr, s*sizeof(T));
 
   vtkIdType maxId = maxSize-1;
   if ( maxId > this->MaxId )
@@ -528,7 +534,8 @@ double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
     {
     this->TupleSize = this->NumberOfComponents;
     free(this->Tuple);
-    this->Tuple = static_cast<double*>(malloc(this->TupleSize*sizeof(double)));
+    size_t s=static_cast<size_t>(this->TupleSize);
+    this->Tuple = static_cast<double *>(malloc(s*sizeof(double)));
     }
 
   // Make sure tuple allocation succeeded.
@@ -783,7 +790,8 @@ void vtkDataArrayTemplate<T>::RemoveTuple(vtkIdType id)
   len *= this->GetNumberOfComponents();
   vtkIdType from = (id+1) * this->GetNumberOfComponents();
   vtkIdType to = id * this->GetNumberOfComponents();
-  memmove(this->Array + to, this->Array + from, len * sizeof(T));
+  memmove(this->Array + to, this->Array + from,
+          static_cast<size_t>(len) * sizeof(T));
   this->Resize(this->GetNumberOfTuples() - 1);
   this->DataChanged();
 }
@@ -938,8 +946,8 @@ void vtkDataArrayTemplate<T>::ComputeScalarRange(int comp)
     }
 
   // Store the range.
-  this->Range[0] = range[0];
-  this->Range[1] = range[1];
+  this->Range[0] = static_cast<double>(range[0]);
+  this->Range[1] = static_cast<double>(range[1]);
 }
 
 //----------------------------------------------------------------------------
@@ -962,7 +970,7 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange()
     double s = 0.0;
     for(int j=0; j < numComp; ++j)
       {
-      double t = i[j];
+      double t = static_cast<double>(i[j]);
       s += t*t;
       }
     if(s < range[0])
@@ -989,7 +997,7 @@ void vtkDataArrayTemplate<T>::ExportToVoidPointer(void *out_ptr)
   if(out_ptr && this->Array) 
     {
     memcpy(static_cast<T*>(out_ptr), this->Array, 
-           (this->MaxId + 1)*sizeof(T));
+           static_cast<size_t>(this->MaxId + 1)*sizeof(T));
     }
 }
 

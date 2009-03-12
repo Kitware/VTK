@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.48");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.49");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -132,13 +132,13 @@ void vtkObjectFactory::LoadDynamicFactories()
     SeparatorPosition = strchr(LoadPath, PathSeparator);
     // if not found then use the whole string
     if(SeparatorPosition == 0)
-    {
+      {
       PathLength = strlen(LoadPath);
-    }
+      }
     else
-    {
-      PathLength = SeparatorPosition - LoadPath;
-    }
+      {
+      PathLength = static_cast<size_t>(SeparatorPosition - LoadPath);
+      }
     // copy the path out of LoadPath into CurrentPath
     strncpy(CurrentPath, LoadPath, PathLength);
     // add a null terminator
@@ -156,7 +156,7 @@ void vtkObjectFactory::LoadDynamicFactories()
 // a full path
 static char* CreateFullPath(const char* path, const char* file)
 {
-  int lenpath = static_cast<int>(strlen(path));
+  size_t lenpath = strlen(path);
   char* ret = new char[lenpath + strlen(file)+2];
 #ifdef _WIN32
   const char sep = '\\';
@@ -193,7 +193,7 @@ inline int vtkNameIsSharedLibrary(const char* name)
   
   for(int i = 0; i < len; i++)
     {
-    copy[i] = tolower(name[i]);
+    copy[i] = static_cast<char>(tolower(name[i]));
     }
   copy[len] = 0;
   char* ret = strstr(copy, vtkDynamicLoader::LibExtension());

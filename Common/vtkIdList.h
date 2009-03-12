@@ -29,7 +29,7 @@ public:
   static vtkIdList *New();
 
   void Initialize();
-  int Allocate(const int sz, const int strategy=0);
+  int Allocate(const vtkIdType sz, const int strategy=0);
   vtkTypeRevisionMacro(vtkIdList,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 

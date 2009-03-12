@@ -39,7 +39,7 @@ vtkInformationKeyMacro(vtkDataArray, PER_COMPONENT, InformationVector);
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 
-vtkCxxRevisionMacro(vtkDataArray, "1.82");
+vtkCxxRevisionMacro(vtkDataArray, "1.83");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -52,7 +52,7 @@ vtkDataArray::vtkDataArray(vtkIdType numComp)
   this->MaxId = -1;
   this->LookupTable = NULL;
 
-  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->NumberOfComponents = static_cast<int>(numComp < 1 ? 1 : numComp);
   this->Name = 0;
 }
 
@@ -69,9 +69,10 @@ vtkDataArray::~vtkDataArray()
 //----------------------------------------------------------------------------
 template <class IT, class OT>
 void vtkDeepCopyArrayOfDifferentType(IT *input, OT *output,
-                                     int numTuples, int nComp)
+                                     vtkIdType numTuples, vtkIdType nComp)
 {
-  int i, j;
+  vtkIdType i;
+  vtkIdType j;
   for (i=0; i<numTuples; i++)
     {
     for (j=0; j<nComp; j++)
@@ -84,17 +85,17 @@ void vtkDeepCopyArrayOfDifferentType(IT *input, OT *output,
 //----------------------------------------------------------------------------
 template <class IT>
 void vtkDeepCopySwitchOnOutput(IT *input, vtkDataArray *da,
-                                      int numTuples, int nComp)
+                               vtkIdType numTuples, vtkIdType nComp)
 {
   void *output = da->GetVoidPointer(0);
 
   switch (da->GetDataType())
     {
     vtkTemplateMacro(
-      vtkDeepCopyArrayOfDifferentType (input,
-                                       static_cast<VTK_TT*>(output),
-                                       numTuples,
-                                       nComp) );
+      vtkDeepCopyArrayOfDifferentType(input,
+                                      static_cast<VTK_TT*>(output),
+                                      numTuples,
+                                      nComp));
 
     default:
       vtkGenericWarningMacro("Unsupported data type " << da->GetDataType()
@@ -137,7 +138,7 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     {
     this->Superclass::DeepCopy( da ); // copy Information object
 
-    int numTuples = da->GetNumberOfTuples();
+    vtkIdType numTuples = da->GetNumberOfTuples();
     this->NumberOfComponents = da->NumberOfComponents;
     this->SetNumberOfTuples(numTuples);
     void *input=da->GetVoidPointer(0);
@@ -152,7 +153,7 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 
       case VTK_BIT:
         {//bit not supported, using generic double API
-        for (int i=0; i < numTuples; i++)
+        for (vtkIdType i=0; i < numTuples; i++)
           {
           this->SetTuple(i, da->GetTuple(i));
           }
@@ -235,7 +236,8 @@ void vtkDataArray::InsertComponent(vtkIdType i, int j, double c)
 void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
                            int compMax, vtkDoubleArray* data)
 {
-  int i, j;
+  int i;
+  vtkIdType j;
   int numComp=this->GetNumberOfComponents();
   double *tuple=new double[numComp];
   double *ptr=data->WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
@@ -282,7 +284,7 @@ void vtkDataArrayInterpolateTuple(T* from, T* to, int numComp,
     double c = 0;
     for(vtkIdType j=0; j < numIds; ++j)
       {
-      c += weights[j]*from[ids[j]*numComp+i];
+      c += weights[j]*static_cast<double>(from[ids[j]*numComp+i]);
       }
     // Round integer types. Don't round floating point types.
     vtkDataArrayRoundIfNecessary(c, to);
@@ -353,7 +355,10 @@ void vtkDataArrayInterpolateTuple(T* from1, T* from2, T* to,
 {
   for(int i=0; i < numComp; ++i)
     {
-    double c = (1.0 - t) * *from1++ + t * *from2++;
+    double c = (1.0 - t) * static_cast<double>(*from1)
+      + t * static_cast<double>(*from2);
+    from1++;
+    from2++;
     *to++ = static_cast<T>(c);
     }
 }
@@ -738,7 +743,7 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
 //----------------------------------------------------------------------------
 unsigned long vtkDataArray::GetActualMemorySize()
 {
-  unsigned long numPrims;
+  vtkIdType numPrims;
   double size;
   // The allocated array may be larger than the number of primatives used.
   //numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
@@ -747,7 +752,8 @@ unsigned long vtkDataArray::GetActualMemorySize()
   size = vtkDataArray::GetDataTypeSize(this->GetDataType());
 
   // kilobytes
-  return static_cast<unsigned long>(ceil((size * numPrims)/1024.0));
+  return static_cast<unsigned long>(ceil((size*static_cast<double>(numPrims)
+                                           )/1024.0));
 }
 
 //----------------------------------------------------------------------------
@@ -768,7 +774,7 @@ template <class IT, class OT>
 void vtkCopyTuples(IT* input, OT* output, int nComp, vtkIdList* ptIds )
 {
   int i, j;
-  int num=ptIds->GetNumberOfIds();
+  vtkIdType num=ptIds->GetNumberOfIds();
   for (i=0; i<num; i++)
     {
     for (j=0; j<nComp; j++)
@@ -839,8 +845,9 @@ template <class IT, class OT>
 void vtkCopyTuples(IT* input, OT* output, int nComp, 
                    vtkIdType p1, vtkIdType p2)
 {
-  int i, j;
-  int num=p2-p1+1;
+  vtkIdType i;
+  int j;
+  vtkIdType num=p2-p1+1;
   for (i=0; i<num; i++)
     {
     for (j=0; j<nComp; j++)
