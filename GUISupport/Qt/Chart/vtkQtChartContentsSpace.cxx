@@ -239,64 +239,6 @@ void vtkQtChartContentsSpace::zoomToFactorY(float factor)
   this->zoomToFactor(this->ZoomFactorX, factor);
 }
 
-void vtkQtChartContentsSpace::zoomIn(
-    vtkQtChartContentsSpace::ZoomFlags flags)
-{
-  bool changeInX = true;
-  bool changeInY = true;
-  if(flags == vtkQtChartContentsSpace::ZoomXOnly)
-    {
-    changeInY = false;
-    }
-  else if(flags == vtkQtChartContentsSpace::ZoomYOnly)
-    {
-    changeInX = false;
-    }
-
-  float x = this->ZoomFactorX;
-  float y = this->ZoomFactorY;
-  if(changeInX)
-    {
-    x += vtkQtChartContentsSpace::ZoomFactorStep;
-    }
-
-  if(changeInY)
-    {
-    y += vtkQtChartContentsSpace::ZoomFactorStep;
-    }
-
-  this->zoomToFactor(x, y);
-}
-
-void vtkQtChartContentsSpace::zoomOut(
-    vtkQtChartContentsSpace::ZoomFlags flags)
-{
-  bool changeInX = true;
-  bool changeInY = true;
-  if(flags == vtkQtChartContentsSpace::ZoomXOnly)
-    {
-    changeInY = false;
-    }
-  else if(flags == vtkQtChartContentsSpace::ZoomYOnly)
-    {
-    changeInX = false;
-    }
-
-  float x = this->ZoomFactorX;
-  float y = this->ZoomFactorY;
-  if(changeInX)
-    {
-    x -= vtkQtChartContentsSpace::ZoomFactorStep;
-    }
-
-  if(changeInY)
-    {
-    y -= vtkQtChartContentsSpace::ZoomFactorStep;
-    }
-
-  this->zoomToFactor(x, y);
-}
-
 void vtkQtChartContentsSpace::startInteraction()
 {
   this->Internal->InInteraction = true;

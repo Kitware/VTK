@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtBarChartSeriesOptions.cxx
+  Module:    vtkQtChartSeriesColors.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,44 +18,24 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-/// \file vtkQtBarChartSeriesOptions.cxx
-/// \date February 22, 2008
+/// \file vtkQtChartSeriesColors.cxx
+/// \date February 25, 2009
 
 #ifdef _MSC_VER
 // Disable warnings that Qt headers give.
 #pragma warning(disable:4127)
 #endif
 
-#include "vtkQtBarChartSeriesOptions.h"
+#include "vtkQtChartSeriesColors.h"
 
-#include "vtkQtChartStyleGenerator.h"
+#include "vtkQtChartSeriesModel.h"
 #include <QBrush>
 
 
-vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(QObject *parentObject)
-  : vtkQtChartSeriesOptions(parentObject)
+vtkQtChartSeriesColors::vtkQtChartSeriesColors(QObject *parentObject)
+  : QObject(parentObject)
 {
-  this->MultiColored = false;
-  this->setBrush(QBrush(Qt::red));
-}
-
-void vtkQtBarChartSeriesOptions::setStyle(int style,
-    vtkQtChartStyleGenerator *generator)
-{
-  vtkQtChartSeriesOptions::setStyle(style, generator);
-  if(generator)
-    {
-    this->setBrush(generator->getSeriesBrush(style));
-    }
-}
-
-void vtkQtBarChartSeriesOptions::setMultiColored(bool multiColored)
-{
-  if(this->MultiColored != multiColored)
-    {
-    this->MultiColored = multiColored;
-    emit this->multiColoredChanged(multiColored);
-    }
+  this->Model = 0;
 }
 
 

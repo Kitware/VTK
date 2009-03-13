@@ -49,6 +49,24 @@ public:
   /// \param style The style index for the generator.
   /// \param generator The style generator to use.
   virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
+
+  /// \brief
+  ///   Gets whether or not the series uses multiple colors.
+  /// \return
+  ///   True if the series uses multiple colors.
+  bool isMultiColored() const {return this->MultiColored;}
+
+  /// \brief
+  ///   Sets whether or not the series uses multiple colors.
+  /// \param multiColored True if the series should use multiple colors.
+  void setMultiColored(bool multiColored);
+
+signals:
+  /// Emitted when the multi-colored property changes.
+  void multiColoredChanged(bool multiColored);
+
+private:
+  bool MultiColored; ///< True if the series uses multiple colors.
 };
 
 #endif

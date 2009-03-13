@@ -137,7 +137,37 @@ public:
   ///   the given color to white.
   /// \return
   ///   The new lighter color.
-  static QColor lighter(const QColor color, float factor=0.7);
+  static QColor lighter(const QColor &color, float factor=0.7);
+
+  static QColor interpolateHsv(const QColor &color1, const QColor &color2,
+      float fraction);
+
+  static QColor interpolateRgb(const QColor &color1, const QColor &color2,
+      float fraction);
+
+private:
+  /// \brief
+  ///   Computes the distance between the two points.
+  /// \param x1 The x-coordinate for the first point.
+  /// \param y1 The y-coordinate for the first point.
+  /// \param z1 The z-coordinate for the first point.
+  /// \param x2 The x-coordinate for the second point.
+  /// \param y2 The y-coordinate for the second point.
+  /// \param z2 The z-coordinate for the second point.
+  static float getDistance(float x1, float y1, float z1, float x2, float y2,
+      float z2);
+
+  /// \brief
+  ///   Gets the component for interpolation.
+  ///
+  /// The new component value will be distance \c f from the first point
+  /// \c x1 and distance \c s from the second point \c x2.
+  ///
+  /// \param x1 The first end point component.
+  /// \param x2 The second end point component.
+  /// \param f The distance from the first end point.
+  /// \param s The distance from the second end point.
+  static float getComponent(float x1, float x2, float f, float s);
 
 private:
   vtkQtChartColorsInternal *Internal; ///< Stores the color list.

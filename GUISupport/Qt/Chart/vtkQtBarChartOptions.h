@@ -31,6 +31,7 @@
 #include <QColor>            // needed for static member
 
 class vtkQtChartHelpFormatter;
+class vtkQtChartSeriesColors;
 
 
 /// \class vtkQtBarChartOptions
@@ -124,6 +125,17 @@ public:
   void setOutlineStyle(OutlineStyle style);
 
   /// \brief
+  ///   Gets the series colors object.
+  /// \return
+  ///   A pointer to the series colors object.
+  vtkQtChartSeriesColors *getSeriesColors() const {return this->Colors;}
+
+  /// \brief
+  ///   Sets the series colors object.
+  /// \param colors The new series colors object.
+  void setSeriesColors(vtkQtChartSeriesColors *colors);
+
+  /// \brief
   ///   Gets the highlight background color.
   /// \return
   ///   The current highlight background color.
@@ -167,6 +179,9 @@ signals:
   /// Emitted when the outline style changes.
   void outlineStyleChanged();
 
+  /// Emitted when the series colors object changes.
+  void seriesColorsChanged();
+
   /// Emitted when the highlight color changes.
   void highlightChanged();
 
@@ -179,6 +194,7 @@ private:
   QColor Highlight;
   vtkQtChartLayer::AxesCorner AxesCorner; ///< Stores the chart axes.
   OutlineStyle OutlineType;               ///< Stores the outline style.
+  vtkQtChartSeriesColors *Colors;         ///< Stores the series colors.
   vtkQtChartHelpFormatter *Help;          ///< Stores the help text format.
   float GroupFraction;                    ///< Stores the bar group fraction.
   float BarFraction;                      ///< Stores the bar width fraction.

@@ -202,35 +202,81 @@ void vtkQtChartColors::removeColor(int index)
     }
 }
 
-QColor vtkQtChartColors::lighter(const QColor color, float factor)
+QColor vtkQtChartColors::lighter(const QColor &color, float factor)
 {
-  if(factor <= 0.0)
+  return vtkQtChartColors::interpolateRgb(color, Qt::white, factor);
+}
+
+QColor vtkQtChartColors::interpolateHsv(const QColor &color1,
+    const QColor &color2, float fraction)
+{
+  if(fraction <= 0.0)
     {
-    return color;
+    return color1;
     }
-  else if(factor >= 1.0)
+  else if(fraction >= 1.0)
     {
-    return Qt::white;
+    return color2;
     }
 
-  // Find the distance between the current color and white.
-  float r = color.red();
-  float g = color.green();
-  float b = color.blue();
-  float d = sqrt(((255.0 - r) * (255.0 - r)) + ((255.0 - g) * (255.0 - g)) +
-      ((255.0 - b) * (255.0 - b)));
-  float f = factor * d;
+  // Find the distance between the two colors.
+  float h1 = color1.hue();
+  float s1 = color1.saturation();
+  float v1 = color1.value();
+  float h2 = color2.hue();
+  float s2 = color2.saturation();
+  float v2 = color2.value();
+  float d = vtkQtChartColors::getDistance(h1, s1, v1, h2, s2, v2);
+  float f = fraction * d;
   float s = d - f;
 
-  // For a point on a line distance f from p1 and distance s
-  // from p2, the equation is:
-  // px = (fx2 + sx1)/(f + s)
-  // py = (fy2 + sy1)/(f + s)
-  // px = (fz2 + sz1)/(f + s)
-  r = ((f * 255.0) + (s * r))/(d);
-  g = ((f * 255.0) + (s * g))/(d);
-  b = ((f * 255.0) + (s * b))/(d);
-  return QColor((int)r, (int)g, (int)b);
+  // Calculate the new components.
+  h1 = vtkQtChartColors::getComponent(h1, h2, f, s);
+  s1 = vtkQtChartColors::getComponent(s1, s2, f, s);
+  v1 = vtkQtChartColors::getComponent(v1, v2, f, s);
+  return QColor::fromHsv((int)h1, (int)s1, (int)v1);
+}
+
+QColor vtkQtChartColors::interpolateRgb(const QColor &color1,
+    const QColor &color2, float fraction)
+{
+  if(fraction <= 0.0)
+    {
+    return color1;
+    }
+  else if(fraction >= 1.0)
+    {
+    return color2;
+    }
+
+  // Find the distance between the two colors.
+  float r1 = color1.red();
+  float g1 = color1.green();
+  float b1 = color1.blue();
+  float r2 = color2.red();
+  float g2 = color2.green();
+  float b2 = color2.blue();
+  float d = vtkQtChartColors::getDistance(r1, g1, b1, r2, g2, b2);
+  float f = fraction * d;
+  float s = d - f;
+
+  // Calculate the new components.
+  r1 = vtkQtChartColors::getComponent(r1, r2, f, s);
+  g1 = vtkQtChartColors::getComponent(g1, g2, f, s);
+  b1 = vtkQtChartColors::getComponent(b1, b2, f, s);
+  return QColor((int)r1, (int)g1, (int)b1);
+}
+
+float vtkQtChartColors::getDistance(float x1, float y1, float z1, float x2,
+    float y2, float z2)
+{
+  return sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)) +
+      ((z2 - z1) * (z2 - z1)));
+}
+
+float vtkQtChartColors::getComponent(float x1, float x2, float f, float s)
+{
+  return ((f * x2) + (s * x1)) / (f + s);
 }
 
 

@@ -38,6 +38,7 @@ ENDFOREACH (test)
 SET(Tests
   TestLineSeries.cxx
   TestBarChart.cxx
+  TestBarSeriesColors.cxx
   TestStackedChart.cxx
   TestStackedChartAnimate.cxx
   TestStatisticalBoxChart.cxx

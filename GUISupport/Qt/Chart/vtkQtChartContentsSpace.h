@@ -43,14 +43,6 @@ class VTKQTCHART_EXPORT vtkQtChartContentsSpace : public QObject
   Q_OBJECT
 
 public:
-  enum ZoomFlags
-    {
-    ZoomBoth,  ///< Zoom in both directions.
-    ZoomXOnly, ///< Zoom only in the x-direction.
-    ZoomYOnly  ///< Zoom only in the y-direction.
-    };
-
-public:
   /// \brief
   ///   Creates a chart contents space instance.
   /// \param parent The parent object.
@@ -198,16 +190,6 @@ public:
   /// \param factor The y-axis zoom factor.
   /// \sa vtkQtChartContentsSpace::zoomToFactor(float, float)
   void zoomToFactorY(float factor);
-
-  /// \brief
-  ///   Zooms in by a predetermined factor.
-  /// \param flags Used to change the interaction slightly.
-  void zoomIn(ZoomFlags flags);
-
-  /// \brief
-  ///   Zooms out by a predetermined factor.
-  /// \param flags Used to change the interaction slightly.
-  void zoomOut(ZoomFlags flags);
   //@}
 
   /// \name Mouse Interactions
@@ -298,8 +280,6 @@ public:
   ///   Gets the zoom factor step.
   /// \return
   ///   The zoom factor step.
-  /// \sa vtkQtChartContentsSpace::zoomIn(ZoomFlags),
-  ///     vtkQtChartContentsSpace::zoomOut(ZoomFlags)
   static float getZoomFactorStep();
 
   /// \brief

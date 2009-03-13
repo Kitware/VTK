@@ -100,10 +100,14 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartQuad.h
     vtkQtChartScene.cxx
     vtkQtChartScene.h
+    vtkQtChartSeriesColors.cxx
+    vtkQtChartSeriesColors.h
     vtkQtChartSeriesDomain.cxx
     vtkQtChartSeriesDomain.h
     vtkQtChartSeriesDomainGroup.cxx
     vtkQtChartSeriesDomainGroup.h
+    vtkQtChartSeriesHueRange.cxx
+    vtkQtChartSeriesHueRange.h
     vtkQtChartSeriesLayer.cxx
     vtkQtChartSeriesLayer.h
     vtkQtChartSeriesModel.cxx
@@ -185,6 +189,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartMouseFunction.h
     vtkQtChartMouseSelection.h
     vtkQtChartPenBrushGenerator.h
+    vtkQtChartSeriesColors.h
     vtkQtChartSeriesLayer.h
     vtkQtChartSeriesModel.h
     vtkQtChartSeriesModelCollection.h

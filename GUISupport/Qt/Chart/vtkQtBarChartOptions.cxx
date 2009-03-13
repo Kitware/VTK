@@ -29,6 +29,7 @@
 #include "vtkQtBarChartOptions.h"
 
 #include "vtkQtChartHelpFormatter.h"
+#include "vtkQtChartSeriesColors.h"
 
 
 const QColor vtkQtBarChartOptions::LightBlue = QColor(125, 165, 230);
@@ -38,6 +39,7 @@ vtkQtBarChartOptions::vtkQtBarChartOptions(QObject *parentObject)
 {
   this->AxesCorner = vtkQtChartLayer::BottomLeft;
   this->OutlineType = vtkQtBarChartOptions::Darker;
+  this->Colors = 0;
   this->Help = new vtkQtChartHelpFormatter("%s: %1, %2");
   this->GroupFraction = (float)0.7;
   this->BarFraction = (float)0.8;
@@ -48,6 +50,7 @@ vtkQtBarChartOptions::vtkQtBarChartOptions(const vtkQtBarChartOptions &other)
 {
   this->AxesCorner = other.AxesCorner;
   this->OutlineType = other.OutlineType;
+  this->Colors = other.Colors;
   this->Help = new vtkQtChartHelpFormatter(other.Help->getFormat());
   this->GroupFraction = other.GroupFraction;
   this->BarFraction = other.BarFraction;
@@ -95,6 +98,21 @@ void vtkQtBarChartOptions::setOutlineStyle(
     }
 }
 
+void vtkQtBarChartOptions::setSeriesColors(vtkQtChartSeriesColors *colors)
+{
+  if(this->Colors != colors)
+    {
+    // Clear the model from the previous series colors object.
+    if(this->Colors)
+      {
+      this->Colors->setModel(0);
+      }
+
+    this->Colors = colors;
+    emit this->seriesColorsChanged();
+    }
+}
+
 void vtkQtBarChartOptions::setHighlightColor(const QColor &color)
 {
   if(this->Highlight != color)
@@ -110,6 +128,7 @@ vtkQtBarChartOptions &vtkQtBarChartOptions::operator=(
   this->Highlight = other.Highlight;
   this->AxesCorner = other.AxesCorner;
   this->OutlineType = other.OutlineType;
+  this->Colors = other.Colors;
   this->Help->setFormat(other.Help->getFormat());
   this->GroupFraction = other.GroupFraction;
   this->BarFraction = other.BarFraction;
