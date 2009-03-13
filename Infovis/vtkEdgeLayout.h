@@ -67,7 +67,6 @@ protected:
 private:
 
   vtkGraph *InternalGraph;
-  bool StrategyChanged;
 
   vtkEdgeLayout(const vtkEdgeLayout&);  // Not implemented.
   void operator=(const vtkEdgeLayout&);  // Not implemented.
