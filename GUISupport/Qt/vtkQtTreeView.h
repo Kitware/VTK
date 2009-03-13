@@ -65,8 +65,6 @@ public:
   // vtkDataObject to a QAbstractItemModel.
   vtkQtAbstractModelAdapter* GetItemModelAdapter();
 
-  void ExpandAll();
-
   // Description:
   // Updates the view.
   virtual void Update();

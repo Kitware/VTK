@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.3");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.4");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -82,12 +82,6 @@ QWidget* vtkQtTreeView::GetWidget()
 vtkQtAbstractModelAdapter* vtkQtTreeView::GetItemModelAdapter()
 {
   return this->TreeAdapter;
-}
-
-//----------------------------------------------------------------------------
-void vtkQtTreeView::ExpandAll()
-{
-  this->TreeView->expandAll();
 }
 
 //----------------------------------------------------------------------------

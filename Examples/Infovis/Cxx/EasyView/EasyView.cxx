@@ -33,6 +33,7 @@
 
 #include <QDir>
 #include <QFileDialog>
+#include <QTreeView>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -152,7 +153,7 @@ void EasyView::slotOpenXMLFile()
   // Now hand off tree to the tree view
   this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-  this->TreeView->ExpandAll();
+  qobject_cast<QTreeView*>(this->TreeView->GetWidget())->expandAll();
    
   // Extract a table and give to table view
   VTK_CREATE(vtkDataObjectToTable, toTable);
