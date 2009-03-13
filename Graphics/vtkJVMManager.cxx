@@ -47,7 +47,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkJVMManager);
-vtkCxxRevisionMacro(vtkJVMManager, "1.2");
+vtkCxxRevisionMacro(vtkJVMManager, "1.3");
 
 //----------------------------------------------------------------------------
 class vtkJVMManagerInternal
@@ -136,7 +136,7 @@ void vtkJVMManager::CreateJVM()
     args.ignoreUnrecognized = JNI_FALSE;
     args.nOptions = 1;
     JavaVMOption options[3];
-    vtksys_ios::ostrstream oss;
+    vtksys_ios::ostringstream oss;
     oss << "-Xmx" << this->MaximumHeapSizeMB << "M" << ends;
     vtkStdString memStr = oss.str();
     cerr << "loading JVM with max heap size: " << memStr.c_str() << endl;
