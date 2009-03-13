@@ -24,6 +24,7 @@
 
 class vtkQtStatisticalBoxChart;
 class vtkQtChartSeriesModelCollection;
+class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtStatisticalBoxChartView : public vtkQtChartViewBase
 {
@@ -60,6 +61,10 @@ public:
   // Description:
   // Gets the statistical box chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+
+  // Description:
+  // Gets the statistical box chart series options.
+  virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series);
   //ETX
 
 protected:

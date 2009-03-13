@@ -24,7 +24,7 @@
 
 class vtkQtStackedChart;
 class vtkQtChartSeriesModelCollection;
-
+class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtStackedChartView : public vtkQtChartViewBase
 {
@@ -57,6 +57,10 @@ public:
   // Description:
   // Gets the stacked chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+
+  // Description:
+  // Gets the stacked chart series options.
+  virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series);
   //ETX
 
 protected:

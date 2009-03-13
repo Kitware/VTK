@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtTableView.h
+  Module:    vtkQtRecordView.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,37 +17,37 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtTableView - A VTK view based on a Qt Table view.
+// .NAME vtkQtRecordView - Superclass for QAbstractItemView-based views.
 //
 // .SECTION Description
-// vtkQtTableView is a VTK view using an underlying QTableView. 
+// This superclass provides all the plumbing to integrate a QAbstractItemView 
+// into the VTK view framework, including reporting selection changes and 
+// detecting selection changes from linked views.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
 // this class
 
-#ifndef __vtkQtTableView_h
-#define __vtkQtTableView_h
+#ifndef __vtkQtRecordView_h
+#define __vtkQtRecordView_h
 
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
-
+#include "vtkSmartPointer.h"
 #include <QPointer>
-#include "vtkQtAbstractModelAdapter.h"
 
-class QItemSelection;
-class QTableView;
-class vtkQtTableModelAdapter;
+class QTextEdit;
+class vtkDataObjectToTable;
 
-class QVTK_EXPORT vtkQtTableView : public vtkQtView
+class QVTK_EXPORT vtkQtRecordView : public vtkQtView
 {
 Q_OBJECT
 
 public:
-  static vtkQtTableView *New();
-  vtkTypeRevisionMacro(vtkQtTableView, vtkQtView);
+  static vtkQtRecordView *New();
+  vtkTypeRevisionMacro(vtkQtRecordView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the main container of this view (a  QWidget).
   // The application typically places the view with a call
@@ -55,21 +55,36 @@ public:
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
 
+  //BTX
+  enum
+    {
+    FIELD_DATA = 0,
+    POINT_DATA = 1,
+    CELL_DATA = 2,
+    VERTEX_DATA = 3,
+    EDGE_DATA = 4,
+    ROW_DATA = 5,
+    };
+  //ETX
+  
   // Description:
-  // Pointer to the internal model adapter used convert the
-  // vtkDataObject to a QAbstractItemModel.
-  vtkQtAbstractModelAdapter* GetItemModelAdapter();
+  // The field type to copy into the output table.
+  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  vtkGetMacro(FieldType, int);
+  void SetFieldType(int);
 
-  void SetAlternatingRowColors(bool);
+  vtkGetMacro(CurrentRow, int);
+  vtkGetStringMacro(Text);
 
   // Description:
   // Updates the view.
   virtual void Update();
-
+  
 protected:
-  vtkQtTableView();
-  ~vtkQtTableView();
-
+  
+  vtkQtRecordView();
+  ~vtkQtRecordView();
+    
   // Description:
   // Connects the algorithm output to the internal pipeline.
   // This view only supports a single representation.
@@ -82,20 +97,20 @@ protected:
   virtual void RemoveInputConnection( int port, int index,
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
+    
+//BTX
+  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+//ETX
 
-  // Description:
-  // We need to keep track of whether were in selection mode
-  bool Selecting;
-  
-  QPointer<QTableView> TableView;
-  vtkQtTableModelAdapter* TableAdapter;
+  QPointer<QTextEdit> TextWidget;
 
-private slots:
-  void slotSelectionChanged(const QItemSelection&,const QItemSelection&);
+  char* Text;
+  int FieldType;
+  int CurrentRow;
 
 private:
-  vtkQtTableView(const vtkQtTableView&);  // Not implemented.
-  void operator=(const vtkQtTableView&);  // Not implemented.
+  vtkQtRecordView(const vtkQtRecordView&);  // Not implemented.
+  void operator=(const vtkQtRecordView&);  // Not implemented.
   
 };
 

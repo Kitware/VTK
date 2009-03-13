@@ -20,85 +20,192 @@
 
 #include "vtkQtTableView.h"
 
+#include <QItemSelection>
 #include <QTableView>
 
-#include "vtkTable.h"
-#include "vtkQtTableModelAdapter.h"
+#include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
+#include "vtkConvertSelection.h"
+#include "vtkDataRepresentation.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkQtTableModelAdapter.h"
+#include "vtkSelection.h"
+#include "vtkSelectionLink.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.2");
+vtkCxxRevisionMacro(vtkQtTableView, "1.3");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
 vtkQtTableView::vtkQtTableView()
 {
-  // Create an internal view and adapter
-  // Either of these can be overwritten 
-  // through the API.
-  this->TableViewPtr = new QTableView;
-  this->TableAdapterPtr = new vtkQtTableModelAdapter();
-  
-  // Set up the Table view and adapter
-  this->SetItemView(this->TableViewPtr);
-  this->SetItemModelAdapter(this->TableAdapterPtr);
-  
-  this->IOwnTableView = true;
-  this->IOwnTableAdapter = true;
+  this->TableView = new QTableView();
+  this->TableAdapter = new vtkQtTableModelAdapter();
+  this->TableView->setModel(this->TableAdapter);
+  this->TableView->setSelectionMode(QAbstractItemView::SingleSelection);
+  this->Selecting = false;
+
+  QObject::connect(this->TableView->selectionModel(), 
+      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+      this, 
+      SLOT(slotSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
 vtkQtTableView::~vtkQtTableView()
 {
-  if (this->IOwnTableView)
+  if(this->TableView)
     {
-    delete this->TableViewPtr;
+    delete this->TableView;
     }
-  if (this->IOwnTableAdapter)
+  delete this->TableAdapter;
+}
+
+//----------------------------------------------------------------------------
+QWidget* vtkQtTableView::GetWidget()
+{
+  return this->TableView;
+}
+
+//----------------------------------------------------------------------------
+vtkQtAbstractModelAdapter* vtkQtTableView::GetItemModelAdapter()
+{
+  return this->TableAdapter;
+}
+
+void vtkQtTableView::SetAlternatingRowColors(bool state)
+{
+  this->TableView->setAlternatingRowColors(state);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+{
+  // Get a handle to the input data object. Note: For now
+  // we are enforcing that the input data is a Table.
+  conn->GetProducer()->Update();
+  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
+  vtkTable *Table = vtkTable::SafeDownCast(d);
+
+  // Enforce input
+  if (!Table)
     {
-    delete this->TableAdapterPtr;
+    vtkErrorMacro("vtkQtERMView requires a vtkTable as input (for now)");
+    return;
+    }
+
+  // Give the data object to the Qt Table Adapters
+  this->TableAdapter->SetVTKDataObject(Table);
+
+  // Now set the Qt Adapters (qt models) on the views
+  this->TableView->update();
+
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+{
+  // Remove VTK data from the adapter
+  conn->GetProducer()->Update();
+  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
+  if (this->TableAdapter->GetVTKDataObject() == d)
+    {
+    this->TableAdapter->SetVTKDataObject(0);
+    this->TableView->update();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableView::SetItemView(QAbstractItemView *qiv)
-{
-  if (qiv != this->TableViewPtr)
-    {
-    // Delete my copy
-    delete this->TableViewPtr;
-    
-    // Mark that I no longer own the view
-    this->IOwnTableView = false;
-    }
-    
-  // Setting this behavior because it 
-  // seems to be the most functional
-  qiv->setSelectionBehavior(QAbstractItemView::SelectRows);
+void vtkQtTableView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
+{  
+  this->Selecting = true;
+
+  // Create index selection
+  vtkSmartPointer<vtkSelection> selection =
+    vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> node =
+    vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(vtkSelectionNode::INDICES);
+  node->SetFieldType(vtkSelectionNode::VERTEX);
+  vtkSmartPointer<vtkIdTypeArray> idarr =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  node->SetSelectionList(idarr);
+  selection->AddNode(node);
+  const QModelIndexList list = this->TableView->selectionModel()->selectedRows();
   
-  // Set up my internals to point to the new view
-  this->Superclass::SetItemView(qiv);
+  // For index selection do this odd little dance with two maps :)
+  for (int i = 0; i < list.size(); i++)
+    {
+    vtkIdType pid = this->TableAdapter->QModelIndexToPedigree(list.at(i));
+    idarr->InsertNextValue(this->TableAdapter->PedigreeToId(pid));
+    }  
+
+  // Convert to the correct type of selection
+  vtkDataObject* data = this->TableAdapter->GetVTKDataObject();
+  vtkSmartPointer<vtkSelection> converted;
+  converted.TakeReference(vtkConvertSelection::ToSelectionType(
+    selection, data, this->SelectionType, this->SelectionArrayNames));
+   
+  // Call select on the representation
+  this->GetRepresentation()->Select(this, converted);
+  
+  this->Selecting = false;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableView::SetItemModelAdapter(vtkQtAbstractModelAdapter* qma)
+void vtkQtTableView::Update()
 {
-  if (qma != this->TableAdapterPtr)
+  vtkDataRepresentation* rep = this->GetRepresentation();
+  if (!rep)
     {
-    // Delete my copy
-    delete this->TableAdapterPtr;
-    
-    // Mark that I no longer own the adapter
-    this->IOwnTableAdapter = false;
+    return;
     }
-  
-  // Set up my internals to point to the new adapter
-  this->Superclass::SetItemModelAdapter(qma);
-}
 
- vtkTable* vtkQtTableView::GetVTKTable() 
- {
-   return this->TableAdapterPtr->table(); 
- }
+  // Make the data current
+  vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
+  alg->Update();
+  vtkDataObject *d = alg->GetOutputDataObject(0);
+  this->TableAdapter->SetVTKDataObject(d);
+  
+  // Make the selection current
+  if (this->Selecting)
+    {
+    // If we initiated the selection, do nothing.
+    return;
+    }
+
+  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  vtkSmartPointer<vtkSelection> selection;
+  selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
+  QItemSelection list;
+  vtkSelectionNode* node = selection->GetNode(0);
+  if (node)
+    {
+    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    if (arr)
+      {
+      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
+        {
+        vtkIdType id = arr->GetValue(i);
+        QModelIndex index = 
+          this->TableAdapter->PedigreeToQModelIndex(
+          this->TableAdapter->IdToPedigree(id));
+        list.select(index, index);
+        }
+      }
+    }
+
+  this->TableView->selectionModel()->select(list, 
+    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  
+  this->TableView->update();
+}
 
 //----------------------------------------------------------------------------
 void vtkQtTableView::PrintSelf(ostream& os, vtkIndent indent)

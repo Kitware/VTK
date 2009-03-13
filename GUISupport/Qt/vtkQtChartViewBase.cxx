@@ -103,8 +103,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.7");
-vtkStandardNewMacro(vtkQtChartViewBase);
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.8");
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::vtkQtChartViewBase()
@@ -141,7 +140,7 @@ vtkQtChartViewBase::~vtkQtChartViewBase()
 //----------------------------------------------------------------------------
 void vtkQtChartViewBase::Show()
 {
-  this->GetChartWidget()->show();
+  this->Internal->Chart->show();
 }
 
 //----------------------------------------------------------------------------
@@ -495,7 +494,7 @@ void vtkQtChartViewBase::AddChartSelectionHandlers(vtkQtChartMouseSelection*)
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartWidget* vtkQtChartViewBase::GetChartWidget()
+QWidget* vtkQtChartViewBase::GetWidget()
 {
   return this->Internal->Chart;
 }
@@ -503,7 +502,7 @@ vtkQtChartWidget* vtkQtChartViewBase::GetChartWidget()
 //----------------------------------------------------------------------------
 vtkQtChartArea* vtkQtChartViewBase::GetChartArea()
 {
-  return this->GetChartWidget()->getChartArea();
+  return this->Internal->Chart->getChartArea();
 }
 
 //----------------------------------------------------------------------------

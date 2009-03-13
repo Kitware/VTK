@@ -27,13 +27,17 @@
 #ifndef __vtkQtLineChartView_h
 #define __vtkQtLineChartView_h
 
+#include "QVTKWin32Header.h"
 #include "vtkQtChartViewBase.h"
 
 class vtkQtLineChart;
 class vtkQtChartSeriesModelCollection;
+class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtLineChartView : public vtkQtChartViewBase
 {
+Q_OBJECT
+
 public:
   static vtkQtLineChartView *New();
   vtkTypeRevisionMacro(vtkQtLineChartView, vtkQtChartViewBase);
@@ -57,11 +61,14 @@ public:
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
   //ETX
 
+  // Description:
+  // Gets the series options.
+  virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series);
+
 protected:
   vtkQtLineChartView();
   ~vtkQtLineChartView();
 
-protected:
   vtkQtLineChart *LineChart;
   vtkQtChartSeriesModelCollection *LineModel;
 

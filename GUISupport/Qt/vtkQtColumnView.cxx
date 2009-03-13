@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtListView.cxx
+  Module:    vtkQtColumnView.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,10 +18,10 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkQtListView.h"
+#include "vtkQtColumnView.h"
 
 #include <QItemSelection>
-#include <QListView>
+#include <QColumnView>
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
@@ -30,95 +30,95 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkQtTableModelAdapter.h"
+#include "vtkQtTreeModelAdapter.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkTable.h"
+#include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtListView, "1.4");
-vtkStandardNewMacro(vtkQtListView);
+vtkCxxRevisionMacro(vtkQtColumnView, "1.2");
+vtkStandardNewMacro(vtkQtColumnView);
 
 
 //----------------------------------------------------------------------------
-vtkQtListView::vtkQtListView()
+vtkQtColumnView::vtkQtColumnView()
 {
-  this->ListView = new QListView();
-  this->ListAdapter = new vtkQtTableModelAdapter();
-  this->ListView->setModel(this->ListAdapter);
-  this->ListView->setSelectionMode(QAbstractItemView::SingleSelection);
+  this->ColumnView = new QColumnView();
+  this->TreeAdapter = new vtkQtTreeModelAdapter();
+  this->ColumnView->setModel(this->TreeAdapter);
+  this->ColumnView->setSelectionMode(QAbstractItemView::SingleSelection);
   this->Selecting = false;
 
-  QObject::connect(this->ListView->selectionModel(), 
+  QObject::connect(this->ColumnView->selectionModel(), 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
       this, 
       SLOT(slotSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
-vtkQtListView::~vtkQtListView()
+vtkQtColumnView::~vtkQtColumnView()
 {
-  if(this->ListView)
+  if(this->ColumnView)
     {
-    delete this->ListView;
+    delete this->ColumnView;
     }
-  delete this->ListAdapter;
+  delete this->TreeAdapter;
 }
 
 //----------------------------------------------------------------------------
-QWidget* vtkQtListView::GetWidget()
+QWidget* vtkQtColumnView::GetWidget()
 {
-  return this->ListView;
+  return this->ColumnView;
 }
 
 //----------------------------------------------------------------------------
-vtkQtAbstractModelAdapter* vtkQtListView::GetItemModelAdapter()
+vtkQtAbstractModelAdapter* vtkQtColumnView::GetItemModelAdapter()
 {
-  return this->ListAdapter;
+  return this->TreeAdapter;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtColumnView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Get a handle to the input data object. Note: For now
-  // we are enforcing that the input data is a List.
+  // we are enforcing that the input data is a tree.
   conn->GetProducer()->Update();
   vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  vtkTable *table = vtkTable::SafeDownCast(d);
+  vtkTree *tree = vtkTree::SafeDownCast(d);
 
   // Enforce input
-  if (!table)
+  if (!tree)
     {
-    vtkErrorMacro("vtkQtERMView requires a vtkList as input (for now)");
+    vtkErrorMacro("vtkQtERMView requires a vtkTree as input (for now)");
     return;
     }
 
-  // Give the data object to the Qt List Adapters
-  this->ListAdapter->SetVTKDataObject(table);
+  // Give the data object to the Qt Tree Adapters
+  this->TreeAdapter->SetVTKDataObject(tree);
 
   // Now set the Qt Adapters (qt models) on the views
-  this->ListView->update();
+  this->ColumnView->update();
 
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtColumnView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Remove VTK data from the adapter
   conn->GetProducer()->Update();
   vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  if (this->ListAdapter->GetVTKDataObject() == d)
+  if (this->TreeAdapter->GetVTKDataObject() == d)
     {
-    this->ListAdapter->SetVTKDataObject(0);
-    this->ListView->update();
+    this->TreeAdapter->SetVTKDataObject(0);
+    this->ColumnView->update();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
+void vtkQtColumnView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {  
   this->Selecting = true;
 
@@ -133,17 +133,17 @@ void vtkQtListView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), c
     vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(idarr);
   selection->AddNode(node);
-  const QModelIndexList list = this->ListView->selectionModel()->selectedRows();
+  const QModelIndexList list = this->ColumnView->selectionModel()->selectedRows();
   
   // For index selection do this odd little dance with two maps :)
   for (int i = 0; i < list.size(); i++)
     {
-    vtkIdType pid = this->ListAdapter->QModelIndexToPedigree(list.at(i));
-    idarr->InsertNextValue(this->ListAdapter->PedigreeToId(pid));
+    vtkIdType pid = this->TreeAdapter->QModelIndexToPedigree(list.at(i));
+    idarr->InsertNextValue(this->TreeAdapter->PedigreeToId(pid));
     }  
 
   // Convert to the correct type of selection
-  vtkDataObject* data = this->ListAdapter->GetVTKDataObject();
+  vtkDataObject* data = this->TreeAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
     selection, data, this->SelectionType, this->SelectionArrayNames));
@@ -155,7 +155,7 @@ void vtkQtListView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), c
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::Update()
+void vtkQtColumnView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
@@ -167,7 +167,7 @@ void vtkQtListView::Update()
   vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
   alg->Update();
   vtkDataObject *d = alg->GetOutputDataObject(0);
-  this->ListAdapter->SetVTKDataObject(d);
+  this->TreeAdapter->SetVTKDataObject(d);
   
   // Make the selection current
   if (this->Selecting)
@@ -190,21 +190,21 @@ void vtkQtListView::Update()
         {
         vtkIdType id = arr->GetValue(i);
         QModelIndex index = 
-          this->ListAdapter->PedigreeToQModelIndex(
-          this->ListAdapter->IdToPedigree(id));
+          this->TreeAdapter->PedigreeToQModelIndex(
+          this->TreeAdapter->IdToPedigree(id));
         list.select(index, index);
         }
       }
     }
 
-  this->ListView->selectionModel()->select(list, 
+  this->ColumnView->selectionModel()->select(list, 
     QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   
-  this->ListView->update();
+  this->ColumnView->update();
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::PrintSelf(ostream& os, vtkIndent indent)
+void vtkQtColumnView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

@@ -36,14 +36,14 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtLineChartView, "1.6");
+vtkCxxRevisionMacro(vtkQtLineChartView, "1.7");
 vtkStandardNewMacro(vtkQtLineChartView);
 
 //----------------------------------------------------------------------------
 vtkQtLineChartView::vtkQtLineChartView()
 {
   // Get the chart widget from the base class.
-  vtkQtChartWidget* chart = this->GetChartWidget();
+  vtkQtChartWidget* chart = qobject_cast<vtkQtChartWidget*>(this->GetWidget());
   vtkQtChartArea* area = chart->getChartArea();
 
   // Create the line chart and model. Add the line chart on top of the
@@ -88,6 +88,12 @@ void vtkQtLineChartView::AddChartSelectionHandlers(
 vtkQtChartSeriesModelCollection* vtkQtLineChartView::GetChartSeriesModel()
 {
   return this->LineModel;
+}
+
+//----------------------------------------------------------------------------
+vtkQtChartSeriesOptions* vtkQtLineChartView::GetChartSeriesOptions(int idx)
+{
+  return this->LineChart->getSeriesOptions(idx);
 }
 
 //----------------------------------------------------------------------------

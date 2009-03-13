@@ -30,14 +30,14 @@
 #include "vtkQtChartWidget.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtBarChartView, "1.4");
+vtkCxxRevisionMacro(vtkQtBarChartView, "1.5");
 vtkStandardNewMacro(vtkQtBarChartView);
 
 //----------------------------------------------------------------------------
 vtkQtBarChartView::vtkQtBarChartView()
 {
   // Get the chart widget from the base class.
-  vtkQtChartWidget* chart = this->GetChartWidget();
+  vtkQtChartWidget* chart = qobject_cast<vtkQtChartWidget*>(this->GetWidget());
   vtkQtChartArea* area = chart->getChartArea();
 
   // Create the bar chart and model. Add them to the chart between the
@@ -102,6 +102,12 @@ void vtkQtBarChartView::AddChartSelectionHandlers(
 vtkQtChartSeriesModelCollection* vtkQtBarChartView::GetChartSeriesModel()
 {
   return this->BarModel;
+}
+
+//----------------------------------------------------------------------------
+vtkQtChartSeriesOptions* vtkQtBarChartView::GetChartSeriesOptions(int idx)
+{
+  return this->BarChart->getSeriesOptions(idx);
 }
 
 //----------------------------------------------------------------------------

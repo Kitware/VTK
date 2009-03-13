@@ -66,52 +66,37 @@
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
-           <widget class="QTableView" name="tableView1" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QFrame" name="tableFrame1" >
+            <property name="frameShape" >
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="alternatingRowColors" >
-             <bool>true</bool>
+            <property name="frameShadow" >
+             <enum>QFrame::Raised</enum>
             </property>
            </widget>
-           <widget class="QTableView" name="tableView2" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QFrame" name="tableFrame2" >
+            <property name="frameShape" >
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="alternatingRowColors" >
-             <bool>true</bool>
+            <property name="frameShadow" >
+             <enum>QFrame::Raised</enum>
             </property>
            </widget>
-           <widget class="QTableView" name="tableView3" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QFrame" name="tableFrame3" >
+            <property name="frameShape" >
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="alternatingRowColors" >
-             <bool>true</bool>
+            <property name="frameShadow" >
+             <enum>QFrame::Raised</enum>
             </property>
            </widget>
           </widget>
-          <widget class="QTableView" native="1" name="tableView4" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-             <horstretch>1</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
+          <widget class="QFrame" name="tableFrame4" >
+           <property name="frameShape" >
+            <enum>QFrame::StyledPanel</enum>
            </property>
-           <property name="minimumSize" >
-            <size>
-             <width>300</width>
-             <height>300</height>
-            </size>
+           <property name="frameShadow" >
+            <enum>QFrame::Raised</enum>
            </property>
           </widget>
          </widget>
@@ -139,7 +124,7 @@
      <x>0</x>
      <y>0</y>
      <width>1002</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -181,13 +166,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QVTKWidget</class>
-   <extends>QWidget</extends>
-   <header>QVTKWidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="Icons/icons.qrc" />
  </resources>

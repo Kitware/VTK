@@ -31,15 +31,14 @@
 
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtStatisticalBoxChartView, "1.1");
+vtkCxxRevisionMacro(vtkQtStatisticalBoxChartView, "1.2");
 vtkStandardNewMacro(vtkQtStatisticalBoxChartView);
 
 //-----------------------------------------------------------------------------
 vtkQtStatisticalBoxChartView::vtkQtStatisticalBoxChartView()
 {
-  // Get the chart widget from the base class.
-  vtkQtChartWidget* chart = this->GetChartWidget();
-  vtkQtChartArea* area = chart->getChartArea();
+  // Get the chart area from the base class.
+  vtkQtChartArea* area = this->GetChartArea();
 
   // Create the bar chart and model. Add them to the chart between the
   // grid and axis layers.
@@ -103,6 +102,14 @@ vtkQtChartSeriesModelCollection*
 vtkQtStatisticalBoxChartView::GetChartSeriesModel()
 {
   return this->BoxModel;
+}
+
+//-----------------------------------------------------------------------------
+vtkQtChartSeriesOptions* vtkQtStatisticalBoxChartView::GetChartSeriesOptions(
+  int vtkNotUsed(series))
+{
+  // TODO: Implement this.
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

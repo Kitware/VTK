@@ -29,23 +29,32 @@
 #define __vtkQtChartViewBase_h
 
 #include "QVTKWin32Header.h"
-#include "vtkView.h"
+#include "vtkQtView.h"
 
 class vtkQtChartArea;
 class vtkQtChartAxis;
 class vtkQtChartLegend;
 class vtkQtChartMouseSelection;
 class vtkQtChartSeriesModelCollection;
+class vtkQtChartSeriesOptions;
 class vtkQtChartWidget;
 class vtkTable;
 
-class QVTK_EXPORT vtkQtChartViewBase : public vtkView
+class QVTK_EXPORT vtkQtChartViewBase : public vtkQtView
 {
+Q_OBJECT
+
 public:
-  static vtkQtChartViewBase *New();
-  vtkTypeRevisionMacro(vtkQtChartViewBase, vtkView);
+  vtkTypeRevisionMacro(vtkQtChartViewBase, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  // Description:
+  // Get the main container of this view (a  QWidget).
+  // The application typically places the view with a call
+  // to GetWidget(): something like this
+  // this->ui->box->layout()->addWidget(this->View->GetWidget());
+  virtual QWidget* GetWidget();
+
   // Description:
   // Updates the view.
   virtual void Update();
@@ -171,10 +180,6 @@ public:
   virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
 
   // Description:
-  // Gets the chart widget, this is the main widget to display.
-  vtkQtChartWidget* GetChartWidget();
-
-  // Description:
   // Gets the chart area from the chart widget.  This method is equivalent
   // to GetChartWidget()->getChartArea().
   vtkQtChartArea* GetChartArea();
@@ -186,6 +191,10 @@ public:
   // Description:
   // Gets the chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+
+  // Description:
+  // Gets the series options.
+  virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series) = 0;
 
   // Description:
   // Gets the chart legend widget.
@@ -206,12 +215,12 @@ public:
   void SetColorSchemeToCitrus();
 
 protected:
+  vtkQtChartViewBase();
+  ~vtkQtChartViewBase();
+
   // Description:
   // Create a vtkQtChartRepresentation for the given input connection.
   virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
-
-  vtkQtChartViewBase();
-  ~vtkQtChartViewBase();
 
 private:
   //BTX

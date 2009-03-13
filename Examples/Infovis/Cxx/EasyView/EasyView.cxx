@@ -50,11 +50,19 @@ EasyView::EasyView()
   this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
   this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
   
-  // Set widgets for the tree and table views
-  this->TreeView->SetItemView(this->ui->treeView);
-  this->TableView->SetItemView(this->ui->tableView);
-  this->ColumnView->SetItemView(this->ui->columnView);
-  
+  // Set widgets for the tree and table views  
+  QVBoxLayout *layout1 = new QVBoxLayout;
+  layout1->addWidget(this->TreeView->GetWidget());
+  this->ui->treeFrame->setLayout(layout1);
+
+  QVBoxLayout *layout2 = new QVBoxLayout;
+  layout2->addWidget(this->TableView->GetWidget());
+  this->ui->tableFrame->setLayout(layout2);
+
+  QVBoxLayout *layout3 = new QVBoxLayout;
+  layout3->addWidget(this->ColumnView->GetWidget());
+  this->ui->columnFrame->setLayout(layout3);
+ 
   // Graph View needs to get my render window
   this->GraphView->SetupRenderWindow(this->ui->vtkGraphViewWidget->GetRenderWindow());
   
@@ -144,7 +152,7 @@ void EasyView::slotOpenXMLFile()
   // Now hand off tree to the tree view
   this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-  this->ui->treeView->expandAll();
+  this->TreeView->ExpandAll();
    
   // Extract a table and give to table view
   VTK_CREATE(vtkDataObjectToTable, toTable);

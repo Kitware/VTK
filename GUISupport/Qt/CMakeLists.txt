@@ -59,14 +59,16 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   # add additional files depending on infovis and/or views
   IF(VTK_USE_VIEWS)
     SET( QVTKLibSrcs ${QVTKLibSrcs}
+      vtkQtBarChartView.cxx
       vtkQtChartRepresentation.cxx
       vtkQtChartTableRepresentation.cxx
       vtkQtChartView.cxx
       vtkQtChartViewBase.cxx
-      vtkQtBarChartView.cxx
-      vtkQtLineChartView.cxx
+      vtkQtColumnView.cxx
       vtkQtItemView.cxx
+      vtkQtLineChartView.cxx
       vtkQtListView.cxx
+      vtkQtRecordView.cxx
       vtkQtStackedChartView.cxx
       vtkQtStatisticalBoxChartView.cxx
       vtkQtTableDataRepresentation.cxx
@@ -78,9 +80,17 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       ) 
     SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
-      vtkQtView.h
-      vtkQtItemView.h
+      vtkQtBarChartView.h
       vtkQtChartRepresentation.h
+      vtkQtChartViewBase.h
+      vtkQtColumnView.h
+      vtkQtItemView.h
+      vtkQtLineChartView.h
+      vtkQtListView.h
+      vtkQtRecordView.h
+      vtkQtTableView.h
+      vtkQtTreeView.h
+      vtkQtView.h
       )
   ENDIF(VTK_USE_VIEWS)
   

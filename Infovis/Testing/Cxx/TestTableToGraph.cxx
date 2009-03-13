@@ -339,14 +339,14 @@ int TestTableToGraph(int argc, char* argv[])
 #if SHOW_QT_DATA_TABLES
   VTK_CREATE(vtkQtTableView, mergeView);
   mergeView->SetRepresentationFromInputConnection(merge->GetOutputPort());
-  mergeView->GetItemView()->show();
+  mergeView->GetWidget()->show();
   
   VTK_CREATE(vtkDataObjectToTable, vertToTable);
   vertToTable->SetInputConnection(tableToGraph->GetOutputPort());
   vertToTable->SetFieldType(vtkDataObjectToTable::POINT_DATA);
   VTK_CREATE(vtkQtTableView, vertView);
   vertView->SetRepresentationFromInputConnection(vertToTable->GetOutputPort());
-  vertView->GetItemView()->show();
+  vertView->GetWidget()->show();
   vertView->Update();
   
   VTK_CREATE(vtkDataObjectToTable, edgeToTable);
@@ -354,7 +354,7 @@ int TestTableToGraph(int argc, char* argv[])
   edgeToTable->SetFieldType(vtkDataObjectToTable::CELL_DATA);
   VTK_CREATE(vtkQtTableView, edgeView);
   edgeView->SetRepresentationFromInputConnection(edgeToTable->GetOutputPort());
-  edgeView->GetItemView()->show();
+  edgeView->GetWidget()->show();
 #endif
   
   int retVal = vtkRegressionTestImage(win);

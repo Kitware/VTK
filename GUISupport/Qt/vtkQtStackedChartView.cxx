@@ -31,15 +31,14 @@
 
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtStackedChartView, "1.1");
+vtkCxxRevisionMacro(vtkQtStackedChartView, "1.2");
 vtkStandardNewMacro(vtkQtStackedChartView);
 
 //-----------------------------------------------------------------------------
 vtkQtStackedChartView::vtkQtStackedChartView()
 {
-  // Get the chart widget from the base class.
-  vtkQtChartWidget* chart = this->GetChartWidget();
-  vtkQtChartArea* area = chart->getChartArea();
+  // Get the chart area from the base class.
+  vtkQtChartArea* area = this->GetChartArea();
 
   // Create the bar chart and model. Add them to the chart between the
   // grid and axis layers.
@@ -96,6 +95,14 @@ void vtkQtStackedChartView::AddChartSelectionHandlers(
 vtkQtChartSeriesModelCollection* vtkQtStackedChartView::GetChartSeriesModel()
 {
   return this->StackedModel;
+}
+
+//-----------------------------------------------------------------------------
+vtkQtChartSeriesOptions* vtkQtStackedChartView::GetChartSeriesOptions(
+  int vtkNotUsed(series))
+{
+  // TODO: Implement this
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

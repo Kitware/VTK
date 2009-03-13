@@ -55,11 +55,23 @@ StatsView::StatsView()
   this->TableView4 = vtkSmartPointer<vtkQtTableView>::New();
   
   // Set widgets for the tree and table views
-  this->TableView1->SetItemView(this->ui->tableView1);
-  this->TableView2->SetItemView(this->ui->tableView2);
-  this->TableView3->SetItemView(this->ui->tableView3);
-  this->TableView4->SetItemView(this->ui->tableView4);
   
+  QVBoxLayout *layout1 = new QVBoxLayout;
+  layout1->addWidget(this->TableView1->GetWidget());
+  this->ui->tableFrame1->setLayout(layout1);
+
+  QVBoxLayout *layout2 = new QVBoxLayout;
+  layout2->addWidget(this->TableView2->GetWidget());
+  this->ui->tableFrame2->setLayout(layout2);
+
+  QVBoxLayout *layout3 = new QVBoxLayout;
+  layout3->addWidget(this->TableView3->GetWidget());
+  this->ui->tableFrame3->setLayout(layout3);
+
+  QVBoxLayout *layout4 = new QVBoxLayout;
+  layout4->addWidget(this->TableView4->GetWidget());
+  this->ui->tableFrame4->setLayout(layout4);
+
   // Set up action signals and slots
   connect(this->ui->actionOpenSQLiteDB, SIGNAL(triggered()), this, SLOT(slotOpenSQLiteDB()));
 };

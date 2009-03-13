@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtTableView.h
+  Module:    vtkQtColumnView.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,35 +17,34 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtTableView - A VTK view based on a Qt Table view.
+// .NAME vtkQtColumnView - A VTK view based on a Qt column view.
 //
 // .SECTION Description
-// vtkQtTableView is a VTK view using an underlying QTableView. 
+// vtkQtColumnView is a VTK view using an underlying QColumnView. 
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
 // this class
 
-#ifndef __vtkQtTableView_h
-#define __vtkQtTableView_h
+#ifndef __vtkQtColumnView_h
+#define __vtkQtColumnView_h
 
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
-
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
 
 class QItemSelection;
-class QTableView;
-class vtkQtTableModelAdapter;
+class QColumnView;
+class vtkQtTreeModelAdapter;
 
-class QVTK_EXPORT vtkQtTableView : public vtkQtView
+class QVTK_EXPORT vtkQtColumnView : public vtkQtView
 {
 Q_OBJECT
 
 public:
-  static vtkQtTableView *New();
-  vtkTypeRevisionMacro(vtkQtTableView, vtkQtView);
+  static vtkQtColumnView *New();
+  vtkTypeRevisionMacro(vtkQtColumnView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -60,15 +59,13 @@ public:
   // vtkDataObject to a QAbstractItemModel.
   vtkQtAbstractModelAdapter* GetItemModelAdapter();
 
-  void SetAlternatingRowColors(bool);
-
   // Description:
   // Updates the view.
   virtual void Update();
 
 protected:
-  vtkQtTableView();
-  ~vtkQtTableView();
+  vtkQtColumnView();
+  ~vtkQtColumnView();
 
   // Description:
   // Connects the algorithm output to the internal pipeline.
@@ -83,20 +80,19 @@ protected:
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
 
-  // Description:
-  // We need to keep track of whether were in selection mode
-  bool Selecting;
-  
-  QPointer<QTableView> TableView;
-  vtkQtTableModelAdapter* TableAdapter;
-
 private slots:
   void slotSelectionChanged(const QItemSelection&,const QItemSelection&);
 
 private:
-  vtkQtTableView(const vtkQtTableView&);  // Not implemented.
-  void operator=(const vtkQtTableView&);  // Not implemented.
+  vtkQtColumnView(const vtkQtColumnView&);  // Not implemented.
+  void operator=(const vtkQtColumnView&);  // Not implemented.
   
+  // Description:
+  // We need to keep track of whether were in selection mode
+  bool Selecting;
+  
+  QPointer<QColumnView> ColumnView;
+  vtkQtTreeModelAdapter* TreeAdapter;
 };
 
 #endif
