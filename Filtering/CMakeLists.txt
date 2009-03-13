@@ -15,6 +15,9 @@ vtkAdjacentVertexIterator.cxx
 vtkAlgorithm.cxx
 vtkAlgorithmOutput.cxx
 vtkAMRBox.cxx
+vtkAnnotation.cxx
+vtkAnnotationLayers.cxx
+vtkAnnotationLayersAlgorithm.cxx
 vtkAttributesErrorMetric.cxx
 vtkBiQuadraticQuad.cxx
 vtkBiQuadraticQuadraticHexahedron.cxx

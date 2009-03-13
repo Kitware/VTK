@@ -8,6 +8,7 @@ IF (JAVA_AWT_LIBRARY)
   SET(KIT_LIBS ${KIT_LIBS} ${JAVA_AWT_LIBRARY} ${JAVA_JVM_LIBRARY})
 ENDIF (JAVA_AWT_LIBRARY)
 SET( Kit_SRCS
+vtkAnnotationLink.cxx
 vtkAppendCompositeDataLeaves.cxx
 vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
