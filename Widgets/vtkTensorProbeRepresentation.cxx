@@ -30,7 +30,7 @@
 #define min(x,y) ((x<y) ? (x) : (y))
 #define max(x,y) ((x>y) ? (x) : (y))
 
-vtkCxxRevisionMacro(vtkTensorProbeRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkTensorProbeRepresentation, "1.4");
 
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
@@ -39,8 +39,8 @@ vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
   this->TrajectoryMapper = vtkPolyDataMapper::New();
   this->TrajectoryActor = vtkActor::New();
   this->TrajectoryActor->SetMapper(this->TrajectoryMapper);
-  this->ProbePosition[0] = 
-  this->ProbePosition[1] = 
+  this->ProbePosition[0] = VTK_DOUBLE_MAX;
+  this->ProbePosition[1] = VTK_DOUBLE_MAX;
   this->ProbePosition[2] = VTK_DOUBLE_MAX;
   this->ProbeCellId = -1;
 }
@@ -235,7 +235,6 @@ void vtkTensorProbeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TrajectoryActor: " << this->TrajectoryActor << endl;
   os << indent << "TrajectoryMapper: " << this->TrajectoryMapper << endl;
   os << indent << "Trajectory: " << this->Trajectory << endl;
-  os << indent << "CellLocator: " << this->CellLocator << endl;
   os << indent << "ProbePosition: (" 
      << this->ProbePosition[0] << "," 
      << this->ProbePosition[1] << ","

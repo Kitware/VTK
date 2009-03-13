@@ -30,7 +30,6 @@
 class vtkActor;
 class vtkPolyData;
 class vtkPolyDataMapper;
-class vtkCellLocator;
 class vtkGenericCell;
 
 class VTK_WIDGETS_EXPORT vtkTensorProbeRepresentation :
@@ -89,7 +88,6 @@ protected:
   vtkActor           * TrajectoryActor;
   vtkPolyDataMapper  * TrajectoryMapper;
   vtkPolyData        * Trajectory;
-  vtkCellLocator     * CellLocator;
   double               ProbePosition[3];
   vtkIdType            ProbeCellId;
 
