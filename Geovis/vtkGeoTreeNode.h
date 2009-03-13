@@ -163,8 +163,8 @@ protected:
   vtkSmartPointer<vtkGeoTreeNode> Children[4];
   vtkGeoTreeNode * Parent;
   NodeStatus Status;
-  vtkSmartPointer<vtkGeoTreeNode> Older;
-  vtkSmartPointer<vtkGeoTreeNode> Newer;
+  vtkGeoTreeNode* Older;
+  vtkGeoTreeNode* Newer;
   //ETX
 
 private:
