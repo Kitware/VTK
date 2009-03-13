@@ -12,18 +12,27 @@ STRING(REGEX REPLACE "\n" ";" FOLDING "${FOLDING}")
 
 FOREACH(FOLD ${FOLDING})
   IF(FOLD MATCHES "^([0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]?); (C|F); ([^;]*); # (.*)")
-    SET(CODE ${CMAKE_MATCH_1})
-    SET(MAPPING ${CMAKE_MATCH_3})
-    SET(COMMENT ${CMAKE_MATCH_4})
+    # The following 3 lines work in CMake 2.6, but not in 2.4,
+    # so again we do it the old way.
+    #SET(CODE ${CMAKE_MATCH_1})
+    #SET(MAPPING ${CMAKE_MATCH_3})
+    #SET(COMMENT ${CMAKE_MATCH_4})
+    STRING(REGEX REPLACE  "^([0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]?); (C|F); ([^;]*); # (.*)"
+      "\\1" CODE "${FOLD}")
+    STRING(REGEX REPLACE  "^([0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]?); (C|F); ([^;]*); # (.*)"
+      "\\3" MAPPING "${FOLD}")
+    STRING(REGEX REPLACE  "^([0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]?); (C|F); ([^;]*); # (.*)"
+      "\\4" COMMENT "${FOLD}")
 
     SEPARATE_ARGUMENTS(MAPPING)
 
     FILE(APPEND ${CASE_FOLD_DATA_FILE} "  0x${CODE}, ")
     FOREACH(MAP ${MAPPING})
       FILE(APPEND ${CASE_FOLD_DATA_FILE} "0x${MAP}, ")
-    ENDFOREACH()
+    ENDFOREACH(MAP ${MAPPING})
     FILE(APPEND ${CASE_FOLD_DATA_FILE} "0x0000, // ${COMMENT}\n")
-  ENDIF()
-ENDFOREACH()
+  ENDIF(FOLD MATCHES "^([0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]?); (C|F); ([^;]*); # (.*)")
+ENDFOREACH(FOLD ${FOLDING})
+
 FILE(APPEND ${CASE_FOLD_DATA_FILE} "  0x0000 };\n\n")
 
