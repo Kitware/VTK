@@ -3,17 +3,9 @@
   Program:   Visualization Toolkit
   Module:    vtkQtView.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2009 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -32,34 +24,29 @@
 #include "QVTKWin32Header.h"
 #include "vtkView.h"
 
-class QWidget;
+#include <QWidget>
 
-class QVTK_EXPORT vtkQtView : public vtkView
+class QVTK_EXPORT vtkQtView : public QWidget, public vtkView
 {
+Q_OBJECT
 public:
+
+  // VTK Constructor
   static vtkQtView *New();
   vtkTypeRevisionMacro(vtkQtView, vtkView);
   void PrintSelf(ostream& os, vtkIndent indent);
-      
-  // Description:
-  // Set and get the underlying Qt widget.
-  // Subclasses should call SetWidget() with their own QWidget.
-  // Alternatively, it is convenient to setup your widget in
-  // designer and then pass it to SetWidget().
-  virtual void SetWidget(QWidget*);
-  virtual QWidget* GetWidget();
+  
+  // Qt Constructor/Destructor
+  vtkQtView(QWidget* parent = 0) : QWidget(parent) {};
+  ~vtkQtView() {};
   
 protected:
-  vtkQtView();
-  ~vtkQtView();
+
 
 private:
   vtkQtView(const vtkQtView&);  // Not implemented.
   void operator=(const vtkQtView&);  // Not implemented.
-  
-  // Description:
-  // Pointer to the qt widget
-  QWidget *Widget;
+
 };
 
 #endif

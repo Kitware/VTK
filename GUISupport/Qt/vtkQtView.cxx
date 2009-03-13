@@ -3,17 +3,9 @@
   Program:   Visualization Toolkit
   Module:    vtkQtView.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2009 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -22,31 +14,14 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQtView, "1.2");
-vtkStandardNewMacro(vtkQtView);
+vtkCxxRevisionMacro(vtkQtView, "1.3");
 
-
-//----------------------------------------------------------------------------
-vtkQtView::vtkQtView()
+// Implementing the VTK static New method, in this case
+// instead of fancy object factory stuff, just doing
+// the vanilla return of the created class.
+vtkQtView* vtkQtView::New()
 {
-  this->Widget = 0;
-}
-
-//----------------------------------------------------------------------------
-vtkQtView::~vtkQtView()
-{
-}
-
-//----------------------------------------------------------------------------
-void vtkQtView::SetWidget(QWidget *w)
-{
-  this->Widget = w;
-}
-
-//----------------------------------------------------------------------------
-QWidget* vtkQtView::GetWidget()
-{
-  return this->Widget;
+  return new vtkQtView;
 }
 
 //----------------------------------------------------------------------------

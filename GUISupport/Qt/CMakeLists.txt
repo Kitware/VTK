@@ -65,10 +65,10 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtChartViewBase.cxx
       vtkQtBarChartView.cxx
       vtkQtLineChartView.cxx
-      vtkQtStackedChartView.cxx
-      vtkQtStatisticalBoxChartView.cxx
       vtkQtItemView.cxx
       vtkQtListView.cxx
+      vtkQtStackedChartView.cxx
+      vtkQtStatisticalBoxChartView.cxx
       vtkQtTableDataRepresentation.cxx
       vtkQtTableMetadataRepresentation.cxx
       vtkQtTableRepresentation.cxx
@@ -77,6 +77,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtView.cxx
       ) 
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
+      vtkQtView.h
       vtkQtItemView.h
       vtkQtChartRepresentation.h
       )
