@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifdef _MSC_VER
-// Disable warnings that Qt headers give.
-#pragma warning(disable:4127)
-#endif
-
 #include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
@@ -38,8 +33,8 @@
 #include "vtkQtChartWidget.h"
 #include "vtkQtStatisticalBoxChart.h"
 
-#include <QStandardItemModel>
 #include <QVariant>
+#include <QStandardItemModel>
 
 #include "QTestApp.h"
 
@@ -66,7 +61,7 @@ int TestStatisticalBoxChart(int argc, char* argv[])
   vtkQtStatisticalBoxChart *boxes = new vtkQtStatisticalBoxChart();
   area->insertLayer(area->getAxisLayerIndex(), boxes);
 
-  // Set up the legend.
+  // Add a legend to the chart.
   vtkQtChartLegend *legend = new vtkQtChartLegend();
   vtkQtChartLegendManager *manager = new vtkQtChartLegendManager(legend);
   manager->setChartLegend(legend);
@@ -83,6 +78,7 @@ int TestStatisticalBoxChart(int argc, char* argv[])
   handler->setLayer(boxes);
   selector->addHandler(handler);
   selector->setSelectionMode("Box Chart - Series");
+  vtkQtChartInteractorSetup::setupDefaultKeys(area->getInteractor());
 
   // Hide the x-axis grid.
   vtkQtChartAxisLayer *axisLayer = area->getAxisLayer();

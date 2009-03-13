@@ -32,43 +32,31 @@ class vtkQtChartArea;
 class vtkQtChartContentsSpace;
 class vtkQtChartInteractorInternal;
 class vtkQtChartInteractorModeList;
-class vtkQtChartMouseBox;
+class vtkQtChartKeyboardFunction;
 class vtkQtChartMouseFunction;
 class QCursor;
 class QKeyEvent;
+class QKeySequence;
 class QMouseEvent;
 class QRect;
 class QWheelEvent;
 
 
-/*!
- *  \class vtkQtChartInteractor
- *  \brief
- *    The vtkQtChartInteractor class is used to interact with a chart.
- *
- *  The contents space and mouse box object used by the chart are
- *  shared among the mouse functions. The contents space object is
- *  used to convert widget coordinates to contents coordinates. It is
- *  also used to pan and zoom the contents. The chart uses the mouse
- *  box to draw a dashed rectangle on top of the chart. Mouse
- *  functions can use this rectangle for selection or zooming.
- * 
- *  The keyboard shortcuts are as follows:
- *  \code
- *  Plus...................Zoom in.
- *  Minus..................Zoom out.
- *  Ctrl+Plus..............Horizontally zoom in.
- *  Ctrl+minus.............Horizontally zoom out.
- *  Alt+Plus...............Vertically zoom in.
- *  Alt+minus..............Vertically zoom out.
- *  Up.....................Pan up.
- *  Down...................Pan down.
- *  Left...................Pan left.
- *  Right..................Pan right.
- *  Alt+Left...............Go to previous view in the history.
- *  Alt+Right..............Go to next view in the history.
- *  \endcode
- */
+/// \class vtkQtChartInteractor
+/// \brief
+///   The vtkQtChartInteractor class is used to interact with a chart.
+///
+/// The chart area object is is shared among the mouse and keyboard
+/// functions. The chart area can be used to get access to the
+/// contents space object or the mouse box. The chart uses the mouse
+/// box to draw a dashed rectangle on top of the chart. Mouse
+/// functions can use this rectangle for selection or zooming.
+///
+/// Mouse and keyboard buttons can be configured to perform functions
+/// using the configuration methods. Mouse functions can be combined
+/// on the same mouse button. To access the different functions on a
+/// button, the mode must first be set. Only on keyboard function can
+/// be added to a key sequence.
 class VTKQTCHART_EXPORT vtkQtChartInteractor : public QObject
 {
   Q_OBJECT
@@ -91,7 +79,7 @@ public:
   /// \brief
   ///   Sets the chart area.
   /// \param area The new chart area.
-  void setChartArea(vtkQtChartArea *area) {this->ChartArea = area;}
+  void setChartArea(vtkQtChartArea *area);
   //@}
 
   /// \name Configuration Methods
@@ -193,10 +181,37 @@ public:
   void setWheelMode(int index);
   //@}
 
+  /// \name Keyboard Methods
+  //@{
+  /// \brief
+  ///   Adds a keyboard function to the chart.
+  ///
+  /// The key sequence must be unique to be added to the chart. The
+  /// same function pointer can be added to multiple key sequence
+  /// entries.
+  ///
+  /// \param sequence The key sequence to activate the function.
+  /// \param function The keyboard function.
+  void addKeyboardFunction(const QKeySequence &sequence,
+      vtkQtChartKeyboardFunction *function);
+
+  /// \brief
+  ///   Removes the keyboard function from the chart.
+  /// \param function The keyboard function to remove.
+  void removeKeyboardFunction(vtkQtChartKeyboardFunction *function);
+
+  /// Removes all the keyboard functions from the chart.
+  void removeKeyboardFunctions();
+  //@}
+
   /// \name Interaction Methods
   //@{
   /// \brief
   ///   Handles the key press events for the chart.
+  ///
+  /// The key and modifiers from the keyboard event are used to
+  /// determine the function to call.
+  ///
   /// \param e Event specific information.
   virtual bool keyPressEvent(QKeyEvent *e);
 
@@ -270,7 +285,7 @@ private:
   void removeFunctions(vtkQtChartInteractorModeList *list);
 
 private:
-  /// Stores the mouse function configuration.
+  /// Stores the mouse/keyboard function configuration.
   vtkQtChartInteractorInternal *Internal;
   vtkQtChartArea *ChartArea;         ///< Stores the chart area.
   Qt::KeyboardModifier XModifier;    ///< Stores the zoom x-only modifier.

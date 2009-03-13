@@ -30,14 +30,17 @@
 
 #include "vtkQtChartArea.h"
 #include "vtkQtChartContentsSpace.h"
-#include "vtkQtChartMouseBox.h"
+#include "vtkQtChartKeyboardFunction.h"
 #include "vtkQtChartMouseFunction.h"
 
 #include <QCursor>
 #include <QKeyEvent>
+#include <QKeySequence>
 #include <QList>
+#include <QMap>
 #include <QMouseEvent>
 #include <QRect>
+#include <QShortcut>
 #include <QVector>
 #include <QWheelEvent>
 
@@ -94,6 +97,7 @@ public:
   vtkQtChartMouseFunction *Owner;
   vtkQtChartInteractorModeList *OwnerList;
   QVector<vtkQtChartInteractorModeList> Buttons;
+  QMap<QKeySequence, vtkQtChartKeyboardFunction *> Keys;
 };
 
 
@@ -187,7 +191,7 @@ vtkQtChartInteractorMode *vtkQtChartInteractorModeList::getCurrentMode()
 
 //----------------------------------------------------------------------------
 vtkQtChartInteractorInternal::vtkQtChartInteractorInternal()
-  : Buttons(4)
+  : Buttons(4), Keys()
 {
   this->Owner = 0;
   this->OwnerList = 0;
@@ -231,6 +235,31 @@ vtkQtChartInteractor::vtkQtChartInteractor(QObject *parentObject)
 vtkQtChartInteractor::~vtkQtChartInteractor()
 {
   delete this->Internal;
+}
+
+void vtkQtChartInteractor::setChartArea(vtkQtChartArea *area)
+{
+  QMap<QKeySequence, vtkQtChartKeyboardFunction *>::Iterator jter;
+  if(this->ChartArea)
+    {
+    // Clear the chart area pointer in the keyboard functions.
+    jter =this->Internal->Keys.begin();
+    for( ; jter != this->Internal->Keys.end(); ++jter)
+      {
+      (*jter)->setChartArea(0);
+      }
+    }
+
+  this->ChartArea = area;
+  if(this->ChartArea)
+    {
+    // Assign the new chart area to the keyboard functions.
+    jter =this->Internal->Keys.begin();
+    for( ; jter != this->Internal->Keys.end(); ++jter)
+      {
+      (*jter)->setChartArea(this->ChartArea);
+      }
+    }
 }
 
 void vtkQtChartInteractor::setFunction(Qt::MouseButton button,
@@ -400,6 +429,58 @@ void vtkQtChartInteractor::setWheelMode(int index)
     }
 }
 
+void vtkQtChartInteractor::addKeyboardFunction(const QKeySequence &sequence,
+    vtkQtChartKeyboardFunction *function)
+{
+  if(!function)
+    {
+    return;
+    }
+
+  // Make sure the sequence doesn't exist.
+  QMap<QKeySequence, vtkQtChartKeyboardFunction *>::Iterator iter =
+      this->Internal->Keys.find(sequence);
+  if(iter == this->Internal->Keys.end())
+    {
+    // Add the function to the list.
+    this->Internal->Keys.insert(sequence, function);
+    function->setChartArea(this->ChartArea);
+    }
+}
+
+void vtkQtChartInteractor::removeKeyboardFunction(
+    vtkQtChartKeyboardFunction *function)
+{
+  if(!function)
+    {
+    return;
+    }
+
+  // Search the list for the function. The function can be added to
+  // more than one key sequence.
+  function->setChartArea(0);
+  QMap<QKeySequence, vtkQtChartKeyboardFunction *>::Iterator iter =
+      this->Internal->Keys.begin();
+  while(iter != this->Internal->Keys.end())
+    {
+    if(*iter == function)
+      {
+      // Remove the function from the list.
+      iter = this->Internal->Keys.erase(iter);
+      }
+    else
+      {
+      ++iter;
+      }
+    }
+}
+
+void vtkQtChartInteractor::removeKeyboardFunctions()
+{
+  // Remove all the keyboard functions.
+  this->Internal->Keys.clear();
+}
+
 bool vtkQtChartInteractor::keyPressEvent(QKeyEvent *e)
 {
   if(!this->ChartArea)
@@ -407,74 +488,21 @@ bool vtkQtChartInteractor::keyPressEvent(QKeyEvent *e)
     return false;
     }
 
-  bool handled = true;
-  vtkQtChartContentsSpace *contents = this->ChartArea->getContentsSpace();
-  if(e->key() == Qt::Key_Plus || e->key() == Qt::Key_Minus ||
-      e->key() == Qt::Key_Equal)
-    {
-    // If only the ctrl key is down, zoom only in the x. If only
-    // the alt key is down, zoom only in the y. Otherwise, zoom
-    // both axes by the same amount. Mask off the shift key since
-    // it is needed to press the plus key.
-    vtkQtChartContentsSpace::ZoomFlags flags =
-        vtkQtChartContentsSpace::ZoomBoth;
-    Qt::KeyboardModifiers state = e->modifiers() & (Qt::ControlModifier |
-        Qt::AltModifier | Qt::MetaModifier);
-    if(state & this->XModifier)
-      {
-      flags = vtkQtChartContentsSpace::ZoomXOnly;
-      }
-    else if(state & this->YModifier)
-      {
-      flags = vtkQtChartContentsSpace::ZoomYOnly;
-      }
+  // Create a key sequence object from the key event.
+  QKeySequence sequence(e->key() | (e->modifiers() & (Qt::ShiftModifier |
+      Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier)));
 
-    // Zoom in for the plus/equal key and out for the minus key.
-    if(e->key() == Qt::Key_Minus)
-      {
-      contents->zoomOut(flags);
-      }
-    else
-      {
-      contents->zoomIn(flags);
-      }
-    }
-  else if(e->key() == Qt::Key_Up)
+  // Search the list of functions for the sequence.
+  QMap<QKeySequence, vtkQtChartKeyboardFunction *>::Iterator iter =
+      this->Internal->Keys.find(sequence);
+  if(iter == this->Internal->Keys.end())
     {
-    contents->panUp();
-    }
-  else if(e->key() == Qt::Key_Down)
-    {
-    contents->panDown();
-    }
-  else if(e->key() == Qt::Key_Left)
-    {
-    if(e->modifiers() & Qt::AltModifier)
-      {
-      contents->historyPrevious();
-      }
-    else
-      {
-      contents->panLeft();
-      }
-    }
-  else if(e->key() == Qt::Key_Right)
-    {
-    if(e->modifiers() & Qt::AltModifier)
-      {
-      contents->historyNext();
-      }
-    else
-      {
-      contents->panRight();
-      }
-    }
-  else
-    {
-    handled = false;
+    return false;
     }
 
-  return handled;
+  // Call the keyboard function.
+  (*iter)->activate();
+  return true;
 }
 
 void vtkQtChartInteractor::mousePressEvent(QMouseEvent *e)

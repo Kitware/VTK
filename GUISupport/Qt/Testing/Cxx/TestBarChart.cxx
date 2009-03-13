@@ -85,6 +85,7 @@ int TestBarChart(int argc, char* argv[])
   handler->setLayer(bars);
   selector->addHandler(handler);
   selector->setSelectionMode("Bar Chart - Bars");
+  vtkQtChartInteractorSetup::setupDefaultKeys(area->getInteractor());
 
   // Hide the x-axis grid.
   vtkQtChartAxisLayer *axisLayer = area->getAxisLayer();

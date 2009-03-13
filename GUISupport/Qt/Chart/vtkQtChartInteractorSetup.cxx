@@ -30,10 +30,15 @@
 
 #include "vtkQtChartArea.h"
 #include "vtkQtChartInteractor.h"
+#include "vtkQtChartKeyboardHistory.h"
+#include "vtkQtChartKeyboardPan.h"
+#include "vtkQtChartKeyboardZoom.h"
 #include "vtkQtChartMouseFunction.h"
 #include "vtkQtChartMousePan.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartMouseZoom.h"
+
+#include <QKeySequence>
 
 
 vtkQtChartMouseSelection *vtkQtChartInteractorSetup::createDefault(
@@ -105,6 +110,58 @@ vtkQtChartMouseSelection *vtkQtChartInteractorSetup::createSplitZoom(
       Qt::AltModifier);
 
   return selection;
+}
+
+void vtkQtChartInteractorSetup::setupDefaultKeys(
+    vtkQtChartInteractor *interactor)
+{
+  if(interactor)
+    {
+    // Remove the current keyboard functions.
+    interactor->removeKeyboardFunctions();
+
+    // Add zoom in and zoom out functions.
+    vtkQtChartKeyboardZoom *zoom = new vtkQtChartKeyboardZoom(interactor);
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Plus), zoom);
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Equal), zoom);
+    vtkQtChartKeyboardZoomX *zoomX = new vtkQtChartKeyboardZoomX(interactor);
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Plus | Qt::ControlModifier), zoomX);
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Equal | Qt::ControlModifier), zoomX);
+    vtkQtChartKeyboardZoomY *zoomY = new vtkQtChartKeyboardZoomY(interactor);
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Plus | Qt::AltModifier), zoomY);
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Equal | Qt::AltModifier), zoomY);
+
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Minus),
+        new vtkQtChartKeyboardZoomOut(interactor));
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Minus | Qt::ControlModifier),
+        new vtkQtChartKeyboardZoomOutX(interactor));
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Minus | Qt::AltModifier),
+        new vtkQtChartKeyboardZoomOutY(interactor));
+
+    // Add pan functions.
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Right),
+        new vtkQtChartKeyboardPan(interactor));
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Left),
+        new vtkQtChartKeyboardPanLeft(interactor));
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Down),
+        new vtkQtChartKeyboardPanDown(interactor));
+    interactor->addKeyboardFunction(QKeySequence(Qt::Key_Up),
+        new vtkQtChartKeyboardPanUp(interactor));
+
+    // Add history functions.
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Left | Qt::AltModifier),
+        new vtkQtChartKeyboardHistory(interactor));
+    interactor->addKeyboardFunction(
+        QKeySequence(Qt::Key_Right | Qt::AltModifier),
+        new vtkQtChartKeyboardHistoryNext(interactor));
+    }
 }
 
 

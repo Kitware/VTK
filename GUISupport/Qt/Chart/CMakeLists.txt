@@ -64,6 +64,14 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartInteractor.h
     vtkQtChartInteractorSetup.cxx
     vtkQtChartInteractorSetup.h
+    vtkQtChartKeyboardFunction.cxx
+    vtkQtChartKeyboardFunction.h
+    vtkQtChartKeyboardHistory.cxx
+    vtkQtChartKeyboardHistory.h
+    vtkQtChartKeyboardPan.cxx
+    vtkQtChartKeyboardPan.h
+    vtkQtChartKeyboardZoom.cxx
+    vtkQtChartKeyboardZoom.h
     vtkQtChartLayer.cxx
     vtkQtChartLayer.h
     vtkQtChartLayerDomain.cxx
@@ -168,6 +176,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartContentsSpace.h
     vtkQtChartGridLayer.h
     vtkQtChartInteractor.h
+    vtkQtChartKeyboardFunction.h
     vtkQtChartLayer.h
     vtkQtChartLegend.h
     vtkQtChartLegendManager.h

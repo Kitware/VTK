@@ -73,6 +73,7 @@ int TestLineSeries(int argc, char* argv[])
   handler->setLayer(line);
   selector->addHandler(handler);
   selector->setSelectionMode("Line Chart - Points");
+  vtkQtChartInteractorSetup::setupDefaultKeys(area->getInteractor());
 
   QStandardItemModel * model = new QStandardItemModel(3, 2, line);
   model->setItemPrototype(new QStandardItem());

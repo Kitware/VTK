@@ -83,6 +83,7 @@ int TestStackedChart(int argc, char* argv[])
   handler->setLayer(stacked);
   selector->addHandler(handler);
   selector->setSelectionMode("Stacked Chart - Series");
+  vtkQtChartInteractorSetup::setupDefaultKeys(area->getInteractor());
 
   //stacked->getOptions()->setSumNormalized(true);
   //stacked->getOptions()->setGradientDisplayed(true);

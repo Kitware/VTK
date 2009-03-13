@@ -28,6 +28,7 @@
 #include "vtkQtChartExport.h"
 
 class vtkQtChartArea;
+class vtkQtChartInteractor;
 class vtkQtChartMouseSelection;
 
 
@@ -80,6 +81,28 @@ public:
   /// \return
   ///   A pointer to the mouse selection handler.
   static vtkQtChartMouseSelection *createSplitZoom(vtkQtChartArea *area);
+
+  /// \brief
+  ///   Sets up the default keyboard functions.
+  ///
+  /// The keyboard shortcuts are as follows:
+  /// \code
+  /// Plus/Equal.............Zoom in.
+  /// Minus..................Zoom out.
+  /// Ctrl+Plus..............Horizontally zoom in.
+  /// Ctrl+minus.............Horizontally zoom out.
+  /// Alt+Plus...............Vertically zoom in.
+  /// Alt+minus..............Vertically zoom out.
+  /// Up.....................Pan up.
+  /// Down...................Pan down.
+  /// Left...................Pan left.
+  /// Right..................Pan right.
+  /// Alt+Left...............Go to previous view in the history.
+  /// Alt+Right..............Go to next view in the history.
+  /// \endcode
+  ///
+  /// \param interactor The interactor to set up.
+  static void setupDefaultKeys(vtkQtChartInteractor *interactor);
 };
 
 #endif
