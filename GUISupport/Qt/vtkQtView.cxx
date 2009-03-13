@@ -12,16 +12,21 @@
 
 #include "vtkQtView.h"
 
+#include <QWidget>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQtView, "1.3");
+vtkCxxRevisionMacro(vtkQtView, "1.4");
 
-// Implementing the VTK static New method, in this case
-// instead of fancy object factory stuff, just doing
-// the vanilla return of the created class.
-vtkQtView* vtkQtView::New()
+//----------------------------------------------------------------------------
+vtkQtView::vtkQtView()
 {
-  return new vtkQtView;
+
+}
+
+//----------------------------------------------------------------------------
+vtkQtView::~vtkQtView()
+{
+
 }
 
 //----------------------------------------------------------------------------
