@@ -33,7 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.9");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.10");
 vtkStandardNewMacro(vtkGraphLayout);
 
 // ----------------------------------------------------------------------
@@ -41,6 +41,7 @@ vtkStandardNewMacro(vtkGraphLayout);
 vtkGraphLayout::vtkGraphLayout()
 {
   this->LayoutStrategy = 0;
+  this->StrategyChanged=false;
   this->LastInput = NULL;
   this->LastInputMTime = 0;
   this->InternalGraph = NULL;
