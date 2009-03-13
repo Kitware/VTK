@@ -54,7 +54,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.14");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.15");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -309,7 +309,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
     sel->AddNode(node);
     node->SetSelectionList(ids);
     node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
-    node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
+    node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::VERTEX);
     ids->Delete();
     }
 
