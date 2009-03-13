@@ -30,9 +30,7 @@
 #define __vtkUnicodeStringArray_h
 
 #include "vtkAbstractArray.h"
-#include "vtkUnicodeString.h"
-
-#include <vtkstd/vector>
+#include "vtkUnicodeString.h" // For value type
 
 class VTK_COMMON_EXPORT vtkUnicodeStringArray :
   public vtkAbstractArray
@@ -90,8 +88,8 @@ private:
   void operator=(const vtkUnicodeStringArray&);  // Not implemented.
 
 //BTX
-  typedef vtkstd::vector<vtkUnicodeString> StorageT;
-  StorageT Storage;
+  class Internals;
+  Internals* Implementation;
 //ETX
 };
 

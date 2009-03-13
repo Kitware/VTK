@@ -19,15 +19,26 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnicodeStringArray.h"
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.2");
+#include <vtkstd/vector>
+
+class vtkUnicodeStringArray::Internals
+{
+public:
+  typedef vtkstd::vector<vtkUnicodeString> StorageT;
+  StorageT Storage;
+};
+
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.3");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
 {
+  this->Implementation = new Internals;
 }
 
 vtkUnicodeStringArray::~vtkUnicodeStringArray()
 {
+  delete this->Implementation;
 }
 
 void vtkUnicodeStringArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -37,14 +48,14 @@ void vtkUnicodeStringArray::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkUnicodeStringArray::Allocate(vtkIdType sz, vtkIdType)
 {
-  this->Storage.reserve(sz);
+  this->Implementation->Storage.reserve(sz);
   this->DataChanged();
   return 1;
 }
 
 void vtkUnicodeStringArray::Initialize()
 {
-  this->Storage.clear();
+  this->Implementation->Storage.clear();
   this->DataChanged();
 }
 
@@ -65,7 +76,7 @@ int vtkUnicodeStringArray::GetElementComponentSize()
 
 void vtkUnicodeStringArray::SetNumberOfTuples(vtkIdType number)
 {
-  this->Storage.resize(number);
+  this->Implementation->Storage.resize(number);
   this->DataChanged();
 }
 
@@ -78,7 +89,7 @@ void vtkUnicodeStringArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray*
     return;
     }
 
-  this->Storage[i] = array->Storage[j];
+  this->Implementation->Storage[i] = array->Implementation->Storage[j];
   this->DataChanged();
 }
 
@@ -91,7 +102,7 @@ void vtkUnicodeStringArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArr
     return;
     }
 
-  this->Storage.insert(this->Storage.begin() + i, array->Storage[j]);
+  this->Implementation->Storage.insert(this->Implementation->Storage.begin() + i, array->Implementation->Storage[j]);
   this->DataChanged();
 }
 
@@ -104,14 +115,14 @@ vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* 
     return 0;
     }
 
-  this->Storage.push_back(array->Storage[j]);
+  this->Implementation->Storage.push_back(array->Implementation->Storage[j]);
   this->DataChanged();
-  return this->Storage.size() - 1;
+  return this->Implementation->Storage.size() - 1;
 }
 
 void* vtkUnicodeStringArray::GetVoidPointer(vtkIdType id)
 {
-  return &this->Storage[id];
+  return &this->Implementation->Storage[id];
 }
 
 void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
@@ -129,7 +140,7 @@ void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
     return;
     }
 
-  this->Storage = array->Storage;
+  this->Implementation->Storage = array->Implementation->Storage;
   this->DataChanged();
 }
 
@@ -191,13 +202,13 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
 
 void vtkUnicodeStringArray::Squeeze()
 {
-  StorageT(this->Storage).swap(this->Storage);
+  Internals::StorageT(this->Implementation->Storage).swap(this->Implementation->Storage);
   this->DataChanged();
 }
 
 int vtkUnicodeStringArray::Resize(vtkIdType numTuples)
 {
-  this->Storage.resize(numTuples);
+  this->Implementation->Storage.resize(numTuples);
   this->DataChanged();
   return 1;
 }
@@ -210,9 +221,9 @@ void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int)
 unsigned long vtkUnicodeStringArray::GetActualMemorySize()
 {
   unsigned long count = 0;
-  for(StorageT::size_type i = 0; i != this->Storage.size(); ++i)
+  for(Internals::StorageT::size_type i = 0; i != this->Implementation->Storage.size(); ++i)
     {
-    count += this->Storage[i].byte_count();
+    count += this->Implementation->Storage[i].byte_count();
     count += sizeof(vtkUnicodeString);
     }
   return count;
@@ -248,7 +259,7 @@ void vtkUnicodeStringArray::InsertVariantValue(vtkIdType, vtkVariant)
 
 void vtkUnicodeStringArray::DataChanged()
 {
-  this->MaxId = this->Storage.size() - 1;
+  this->MaxId = this->Implementation->Storage.size() - 1;
 }
 
 void vtkUnicodeStringArray::ClearLookup()
@@ -257,20 +268,20 @@ void vtkUnicodeStringArray::ClearLookup()
 
 vtkIdType vtkUnicodeStringArray::InsertNextValue(const vtkUnicodeString& value)
 {
-  this->Storage.push_back(value);
+  this->Implementation->Storage.push_back(value);
   this->DataChanged();
-  return this->Storage.size() - 1;
+  return this->Implementation->Storage.size() - 1;
 }
 
 void vtkUnicodeStringArray::SetValue(vtkIdType i, const vtkUnicodeString& value)
 {
-  this->Storage[i] = value;
+  this->Implementation->Storage[i] = value;
   this->DataChanged();
 }
 
 vtkUnicodeString& vtkUnicodeStringArray::GetValue(vtkIdType i)
 {
-  return this->Storage[i];
+  return this->Implementation->Storage[i];
 }
 
 void vtkUnicodeStringArray::InsertNextUTF8Value(const char* value)
@@ -280,6 +291,6 @@ void vtkUnicodeStringArray::InsertNextUTF8Value(const char* value)
 
 const char* vtkUnicodeStringArray::GetUTF8Value(vtkIdType i)
 {
-  return this->Storage[i].utf8_str();
+  return this->Implementation->Storage[i].utf8_str();
 }
 

@@ -92,6 +92,7 @@ IF(PYTHON_EXECUTABLE)
     vtkTypeTemplate.h
     vtkTypeTraits.h
     vtkTypedArray.h
+    vtkUnicodeString.h
     vtkVariantBoostSerialization.h
     vtkVariantCast.h
     vtkVariantExtract.h
