@@ -194,13 +194,7 @@ IF(JAVA_COMPILE)
       SET(class ${VTK_JAVA_HOME}/${jfile}.class)
       IF(jfile MATCHES "vtkSettings")
       ELSE(jfile MATCHES "vtkSettings")
-        ADD_CUSTOM_COMMAND(
-          TARGET VTKJavaJar
-          SOURCE ${src}
-          OUTPUTS ${dst}
-          COMMAND ${CMAKE_COMMAND}
-          ARGS -E copy ${src} ${dst}
-          )
+        CONFIGURE_FILE(${src} ${dst} COPYONLY)
       ENDIF(jfile MATCHES "vtkSettings")
 
       ADD_CUSTOM_COMMAND(

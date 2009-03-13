@@ -84,8 +84,8 @@ IF (VTK_WRAP_JAVA)
    ADD_EXECUTABLE(TestJavaProgrammableFilter TestJavaProgrammableFilter.cxx)
    ADD_TEST(TestJavaProgrammableFilter
      ${CXX_TEST_PATH}/TestJavaProgrammableFilter
-     -j ${VTK_BINARY_DIR}/bin/vtk.jar
-     -cp ${VTK_BINARY_DIR}/bin/vtk.jar
+     -j ${LIBRARY_OUTPUT_PATH}/vtk.jar
+     -cp ${LIBRARY_OUTPUT_PATH}/vtk.jar
      -class vtk/SampleAlgorithm
       )
   TARGET_LINK_LIBRARIES(TestJavaProgrammableFilter vtkGraphicsJava)
