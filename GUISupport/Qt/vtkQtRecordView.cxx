@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.2");
+vtkCxxRevisionMacro(vtkQtRecordView, "1.3");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------
@@ -93,8 +93,10 @@ void vtkQtRecordView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(i
 }
 
 //----------------------------------------------------------------------------
-void vtkQtRecordView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+void vtkQtRecordView::RemoveInputConnection(
+  int vtkNotUsed(port), int vtkNotUsed(index),
+  vtkAlgorithmOutput* vtkNotUsed(conn),
+  vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   this->DataObjectToTable->SetInputConnection(NULL);
   this->DataObjectToTable->Update();
