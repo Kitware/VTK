@@ -61,7 +61,7 @@ class VTKQTCHART_EXPORT vtkQtChartKeyboardHistoryNext :
 {
 public:
   /// \brief
-  ///   Creates a chart keyboard history instance.
+  ///   Creates a chart keyboard history next instance.
   /// \param parent The parent object.
   vtkQtChartKeyboardHistoryNext(QObject *parent=0);
   virtual ~vtkQtChartKeyboardHistoryNext() {}

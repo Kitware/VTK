@@ -91,6 +91,9 @@ class VTKQTCHART_EXPORT vtkQtChartKeyboardZoomX :
     public vtkQtChartKeyboardZoom
 {
 public:
+  /// \brief
+  ///   Creates a chart keyboard zoom in x instance.
+  /// \param parent The parent object.
   vtkQtChartKeyboardZoomX(QObject *parent=0);
   virtual ~vtkQtChartKeyboardZoomX() {}
 
@@ -108,6 +111,9 @@ class VTKQTCHART_EXPORT vtkQtChartKeyboardZoomY :
     public vtkQtChartKeyboardZoom
 {
 public:
+  /// \brief
+  ///   Creates a chart keyboard zoom in y instance.
+  /// \param parent The parent object.
   vtkQtChartKeyboardZoomY(QObject *parent=0);
   virtual ~vtkQtChartKeyboardZoomY() {}
 
@@ -125,6 +131,9 @@ class VTKQTCHART_EXPORT vtkQtChartKeyboardZoomOut :
     public vtkQtChartKeyboardZoom
 {
 public:
+  /// \brief
+  ///   Creates a chart keyboard zoom out instance.
+  /// \param parent The parent object.
   vtkQtChartKeyboardZoomOut(QObject *parent=0);
   virtual ~vtkQtChartKeyboardZoomOut() {}
 
@@ -134,14 +143,17 @@ private:
 };
 
 
-/// \class vtkQtChartKeyboardZoomX
+/// \class vtkQtChartKeyboardZoomOutX
 /// \brief
-///   The vtkQtChartKeyboardZoomX class zooms out the chart contents in
-///   the x-direction.
+///   The vtkQtChartKeyboardZoomOutX class zooms out the chart contents
+///   in the x-direction.
 class VTKQTCHART_EXPORT vtkQtChartKeyboardZoomOutX :
     public vtkQtChartKeyboardZoomOut
 {
 public:
+  /// \brief
+  ///   Creates a chart keyboard zoom out x instance.
+  /// \param parent The parent object.
   vtkQtChartKeyboardZoomOutX(QObject *parent=0);
   virtual ~vtkQtChartKeyboardZoomOutX() {}
 
@@ -151,14 +163,17 @@ private:
 };
 
 
-/// \class vtkQtChartKeyboardZoomY
+/// \class vtkQtChartKeyboardZoomOutY
 /// \brief
-///   The vtkQtChartKeyboardZoomY class zooms out the chart contents in
-///   the y-direction.
+///   The vtkQtChartKeyboardZoomOutY class zooms out the chart contents
+///   in the y-direction.
 class VTKQTCHART_EXPORT vtkQtChartKeyboardZoomOutY :
     public vtkQtChartKeyboardZoomOut
 {
 public:
+  /// \brief
+  ///   Creates a chart keyboard zoom out y instance.
+  /// \param parent The parent object.
   vtkQtChartKeyboardZoomOutY(QObject *parent=0);
   virtual ~vtkQtChartKeyboardZoomOutY() {}
 
