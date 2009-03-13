@@ -184,18 +184,8 @@ T* vtkSparseArray<T>::GetValueStorage()
 template<typename T>
 void vtkSparseArray<T>::ReserveStorage(const vtkIdType value_count)
 {
-  // Provide the strong exception guarantee when allocating memory
-  vtkstd::vector<vtkIdType> new_coordinates(value_count * this->GetDimensions());
-  T* new_value_begin = new T[value_count];
-  T* new_value_end = new_value_begin + value_count;
-  T* new_value_reserve = new_value_begin + value_count;
-
-  vtkstd::swap(this->Coordinates, new_coordinates);
-  vtkstd::swap(this->ValueBegin, new_value_begin);
-  vtkstd::swap(this->ValueEnd, new_value_end);
-  vtkstd::swap(this->ValueReserve, new_value_reserve);
-
-  delete[] new_value_begin;
+  this->Coordinates.resize(value_count * this->GetDimensions());
+  this->Values.resize(value_count);
 }
 
 template<typename T>
