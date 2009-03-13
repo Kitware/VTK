@@ -24,7 +24,7 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoImageNode, "1.7");
+vtkCxxRevisionMacro(vtkGeoImageNode, "1.8");
 vtkStandardNewMacro(vtkGeoImageNode);
 
 
@@ -260,3 +260,15 @@ void vtkGeoImageNode::DeepCopy(vtkGeoTreeNode *src)
   this->Superclass::DeepCopy(src);
 }
 
+//-----------------------------------------------------------------------------
+bool vtkGeoImageNode::HasData()
+{
+  return (this->Image != 0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoImageNode::DeleteData()
+{
+  this->Image = 0;
+  this->Texture = 0;
+}

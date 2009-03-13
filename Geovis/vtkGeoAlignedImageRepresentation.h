@@ -32,6 +32,7 @@
 
 class vtkGeoImageNode;
 class vtkGeoSource;
+class vtkGeoTreeNodeCache;
 
 class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
 {
@@ -80,6 +81,8 @@ protected:
   // Description:
   // Print information about the image tree.
   void PrintTree(ostream& os, vtkIndent indent, vtkGeoImageNode* root);
+
+  vtkGeoTreeNodeCache* Cache;
 
 private:
   vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&); // Not implemented

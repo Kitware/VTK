@@ -23,6 +23,7 @@
 #include "vtkCollection.h"
 #include "vtkGeoImageNode.h"
 #include "vtkGeoSource.h"
+#include "vtkGeoTreeNodeCache.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -37,8 +38,12 @@
 #include <vtksys/stl/utility>
 
 vtksys_stl::pair<vtkGeoImageNode*, double>
-vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, double* bounds)
+vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, double* bounds, vtkGeoTreeNodeCache* nodeList)
 {
+  if (!p->HasData())
+    {
+    return vtksys_stl::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+    }
   double lb[3];
   double ub[3];
   p->GetTexture()->GetImageDataInput(0)->GetOrigin(lb);
@@ -52,21 +57,25 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       lb[1] <= bounds[2] &&
       ub[1] >= bounds[3])
     {
+    nodeList->SendToFront(p);
     vtksys_stl::pair<vtkGeoImageNode*, double> minDist(0, VTK_DOUBLE_MAX);
 
     vtkGeoImageNode* child = p->GetChild(0);
     vtkCollection* coll = NULL;
 
-    // TODO: This multiplier should be configurable
-    if (child == NULL || p->GetStatus() == vtkGeoTreeNode::PROCESSING)
+    if (!child || !child->HasData() || p->GetStatus() == vtkGeoTreeNode::PROCESSING)
       {
+      // TODO: This multiplier should be configurable
       if ((ub[0] - lb[0]) > 2.0*(bounds[1] - bounds[0]))
         {
         // Populate the children
         coll = source->GetRequestedNodes(p);
         if (coll && coll->GetNumberOfItems() == 4)
           {
-          p->CreateChildren();
+          if (!child)
+            {
+            p->CreateChildren();
+            }
           for (int c = 0; c < 4; ++c)
             {
             vtkGeoImageNode* node = vtkGeoImageNode::SafeDownCast(coll->GetItemAsObject(c));
@@ -76,9 +85,14 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
               p->GetChild(c)->SetTexture(node->GetTexture());
               p->GetChild(c)->SetId(node->GetId());
               p->GetChild(c)->SetLevel(node->GetLevel());
+              nodeList->SendToFront(p->GetChild(c));
               }
             }
           p->SetStatus(vtkGeoTreeNode::NONE);
+          if (coll)
+            {
+            coll->Delete();
+            }
           }
         else if(p->GetStatus() == vtkGeoTreeNode::NONE)
           {
@@ -96,7 +110,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       for (int i = 0; i < 4; ++i)
         {
         vtksys_stl::pair<vtkGeoImageNode*, double> subsearch =
-          vtkGeoAlignedImageRepresentationFind(source, p->GetChild(i), bounds);
+          vtkGeoAlignedImageRepresentationFind(source, p->GetChild(i), bounds, nodeList);
         if (subsearch.first && subsearch.second < minDist.second)
           {
           minDist = subsearch;
@@ -116,13 +130,14 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
 }
 
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.10");
 vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
 {
   this->GeoSource = 0;
   this->Root = vtkGeoImageNode::New();
+  this->Cache = vtkGeoTreeNodeCache::New();
 }
 
 //----------------------------------------------------------------------------
@@ -132,6 +147,10 @@ vtkGeoAlignedImageRepresentation::~vtkGeoAlignedImageRepresentation()
   if (this->Root)
     {
     this->Root->Delete();
+    }
+  if (this->Cache)
+    {
+    this->Cache->Delete();
     }
 }
 
@@ -204,7 +223,7 @@ void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
 vtkGeoImageNode* vtkGeoAlignedImageRepresentation::GetBestImageForBounds(double bounds[4])
 {
   vtksys_stl::pair<vtkGeoImageNode*, double> res =
-    vtkGeoAlignedImageRepresentationFind(this->GeoSource, this->Root, bounds);
+    vtkGeoAlignedImageRepresentationFind(this->GeoSource, this->Root, bounds, this->Cache);
   return res.first;
 }
 

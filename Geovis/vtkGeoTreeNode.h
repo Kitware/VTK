@@ -19,10 +19,17 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkGeoTreeNode - 
-// .SECTION Description I wanted to hide the normal vtkCamera API
+// .NAME vtkGeoTreeNode - Stores data for a patch of the globe.
+//
+// .SECTION Description
+// A self-referential data structure for storing geometry or imagery for
+// the geospatial views. The data is organized in a quadtree. Each node
+// contains a pointer to its parent and owns references to its four
+// child nodes. The ID of each node is unique in its level, and encodes
+// the path from the root node in its bits.
 
 // .SECTION See Also
+// vtkGeoView vtkGeoView2D vtkGeoTerrain vtkGeoAlignedImageRepresentation
    
 #ifndef __vtkGeoTreeNode_h
 #define __vtkGeoTreeNode_h
@@ -67,7 +74,33 @@ public:
   // When we merge children to a lower resolution parent, we need
   // this reference.  It is not referenced counted to avoid reference loops.
   // A child should never exist when the parent is destructed anyway.
-  void SetParent(vtkGeoTreeNode* node) {this->Parent = node;}
+  void SetParent(vtkGeoTreeNode* node)
+    { this->Parent = node; }
+
+  // Description:
+  // Manage links to older and newer tree nodes.
+  // These are used to periodically delete unused patches.
+  void SetOlder(vtkGeoTreeNode* node)
+    { this->Older = node; }
+  vtkGeoTreeNode* GetOlder()
+    { return this->Older; }
+  void SetNewer(vtkGeoTreeNode* node)
+    { this->Newer = node; }
+  vtkGeoTreeNode* GetNewer()
+    { return this->Newer; }
+
+  // Description:
+  // Returns whether this node has valid data associated
+  // with it, or if it is an "empty" node.
+  virtual bool HasData()
+    { return false; }
+
+  // Description:
+  // Deletes the data associated with the node to make this
+  // an "empty" node. This is performed when the node has
+  // been unused for a certain amount of time.
+  virtual void DeleteData()
+    { }
 
   // Decription:
   // Get this nodes child index in node's parent.
@@ -84,6 +117,20 @@ public:
   // Id, level and Latitude-Longitude ranges are set.
   // Returns VTK_ERROR if level gets too deep to create children.
   int CreateChildren();
+
+  // Description:
+  // Get the child as a vtkGeoTreeNode.
+  // Subclasses also implement GetChild() which returns the child
+  // as the appropriate subclass type.
+  vtkGeoTreeNode* GetChildTreeNode(int idx)
+    { return this->Children[idx]; }
+
+  // Description:
+  // Get the parent as a vtkGeoTreeNode.
+  // Subclasses also implement GetParent() which returns the parent
+  // as the appropriate subclass type.
+  vtkGeoTreeNode* GetParentTreeNode()
+    { return this->Parent; }
 
 //BTX
   enum NodeStatus
@@ -112,12 +159,13 @@ protected:
   double LongitudeRange[2];
   double LatitudeRange[2];
 
-//BTX
+  //BTX
   vtkSmartPointer<vtkGeoTreeNode> Children[4];
   vtkGeoTreeNode * Parent;
   NodeStatus Status;
-//ETX
-  
+  vtkSmartPointer<vtkGeoTreeNode> Older;
+  vtkSmartPointer<vtkGeoTreeNode> Newer;
+  //ETX
 
 private:
   vtkGeoTreeNode(const vtkGeoTreeNode&);  // Not implemented.

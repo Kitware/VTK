@@ -30,11 +30,12 @@ SET( Kit_SRCS
   vtkGeoRandomGraphSource.cxx
   vtkGeoSampleArcs.cxx
   vtkGeoSource.cxx
-  vtkGeoTreeNode.cxx
   vtkGeoTerrain.cxx
   vtkGeoTerrain2D.cxx
   vtkGeoTerrainNode.cxx
   vtkGeoTransform.cxx
+  vtkGeoTreeNode.cxx
+  vtkGeoTreeNodeCache.cxx
   vtkGeoView.cxx
   vtkGeoView2D.cxx
   vtkGlobeSource.cxx

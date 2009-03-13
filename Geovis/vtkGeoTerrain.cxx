@@ -33,6 +33,7 @@
 #include "vtkGeoCamera.h"
 #include "vtkGeoImageNode.h"
 #include "vtkGeoInteractorStyle.h"
+#include "vtkGeoTreeNodeCache.h"
 #include "vtkGeoSource.h"
 #include "vtkGeoTerrainNode.h"
 #include "vtkImageData.h"
@@ -61,7 +62,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.20");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.21");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
@@ -75,6 +76,7 @@ vtkGeoTerrain::vtkGeoTerrain()
   this->Extractor = vtkExtractSelectedFrustum::New();
   this->GeoCamera = 0;
   this->MaxLevel = 20;
+  this->Cache = vtkGeoTreeNodeCache::New();
 }
 
 //----------------------------------------------------------------------------
@@ -89,6 +91,10 @@ vtkGeoTerrain::~vtkGeoTerrain()
   if (this->Extractor)
     {
     this->Extractor->Delete();
+    }
+  if (this->Cache)
+    {
+    this->Cache->Delete();
     }
 }
 
@@ -251,7 +257,7 @@ void vtkGeoTerrain::AddActors(
     {
     vtkGeoTerrainNode* cur = s.top();
     s.pop();
-    if (cur->GetModel()->GetNumberOfCells() == 0)
+    if (!cur->HasData() || cur->GetModel()->GetNumberOfCells() == 0)
       {
       continue;
       }
@@ -262,21 +268,31 @@ void vtkGeoTerrain::AddActors(
       continue;
       }
 
+    // Mark this node as "visited" so it will be less likely to
+    // be deleted.
+    this->Cache->SendToFront(cur);
+
     // Determine whether to traverse this node's children
     int refine = this->EvaluateNode(cur);
 
     child = cur->GetChild(0);
-    if ((!child && cur->GetLevel() < this->MaxLevel && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
+    if (((!child || !child->HasData()) && cur->GetLevel() < this->MaxLevel && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
       {
       coll = this->GeoSource->GetRequestedNodes(cur);
       // Load children
       if (coll != NULL && coll->GetNumberOfItems() == 4)
         {
-        cur->CreateChildren();
         for (int c = 0; c < 4; ++c)
           {
           child = vtkGeoTerrainNode::SafeDownCast(coll->GetItemAsObject(c));
+          vtkGeoTerrainNode* oldChild = cur->GetChild(c);
+          if (oldChild)
+            {
+            this->Cache->RemoveNode(oldChild);
+            }
+          this->Cache->SendToFront(child);
           cur->SetChild(child, c);
+          child->SetParent(cur);
           }
         cur->SetStatus(vtkGeoTreeNode::NONE);
         }
@@ -287,10 +303,15 @@ void vtkGeoTerrain::AddActors(
         temp->DeepCopy(cur);
         this->GeoSource->RequestChildren(temp);
         }
+      if (coll)
+        {
+        coll->Delete();
+        }
       }
 
-    if (!cur->GetChild(0) || refine != 1)
+    if (!cur->GetChild(0) || !cur->GetChild(0)->HasData() || refine != 1)
       {
+
       // Find the best texture for this geometry
       llbounds[0] = cur->GetLongitudeRange()[0];
       llbounds[1] = cur->GetLongitudeRange()[1];

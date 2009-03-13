@@ -86,7 +86,7 @@
 
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.10");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.11");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
@@ -250,6 +250,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
   if (!(root = vtkGeoTerrainNode::SafeDownCast(r)))
     {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
+    return false;
     }
 
   // Let's start with graticule level 2 ... why not?
@@ -320,11 +321,17 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   if (!(parent = vtkGeoTerrainNode::SafeDownCast(p)))
     {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
+    return false;
     }
   vtkGeoTerrainNode* child = 0;
   if (!(child = vtkGeoTerrainNode::SafeDownCast(c)))
     {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
+    return false;
+    }
+  if (!parent->HasData())
+    {
+    return false;
     }
 
   // Clip the cells of the children
@@ -445,8 +452,12 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   if (child->GetModel()->GetNumberOfPoints() > 0)
     {
     latRange = child->GetModel()->GetPointData()->GetArray("LatLong")->GetRange(0);
+    latRange[0] = (latRange[0] < -90) ? -90 : latRange[0];
+    latRange[1] = (latRange[1] >  90) ?  90 : latRange[1];
     child->SetLatitudeRange(latRange);
     lonRange = child->GetModel()->GetPointData()->GetArray("LatLong")->GetRange(1);
+    lonRange[0] = (lonRange[0] < -180) ? -180 : lonRange[0];
+    lonRange[1] = (lonRange[1] >  180) ?  180 : lonRange[1];
     child->SetLongitudeRange(lonRange);
     }
   else

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoTreeNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTreeNode, "1.6");
+vtkCxxRevisionMacro(vtkGeoTreeNode, "1.7");
 vtkStandardNewMacro(vtkGeoTreeNode);
 
 
@@ -30,6 +30,8 @@ vtkGeoTreeNode::vtkGeoTreeNode()
 {
   this->Level = 0;
   this->Parent = 0;
+  this->Older = 0;
+  this->Newer = 0;
   this->Id = 0; // make valgrind happy
   this->LatitudeRange[0]  = this->LatitudeRange[1]  = 0.;
   this->LongitudeRange[0] = this->LongitudeRange[1] = 0.;
@@ -48,6 +50,8 @@ void vtkGeoTreeNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Level: " << this->Level << "\n";
   os << indent << "Parent: " << this->Parent << "\n";
+  os << indent << "Older: " << this->Older << "\n";
+  os << indent << "Newer: " << this->Newer << "\n";
   os << indent << "Id: " << this->Id << "\n";
   os << indent << "LatitudeRange: ["  << this->LatitudeRange[0]  << "," << this->LatitudeRange[1]  << "]\n";
   os << indent << "LongitudeRange: [" << this->LongitudeRange[0] << "," << this->LongitudeRange[1] << "]\n";

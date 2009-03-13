@@ -26,7 +26,7 @@
 #include "vtkGeoMath.h"
 #include "vtkGeoTerrainNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.7");
+vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.8");
 vtkStandardNewMacro(vtkGeoTerrainNode);
 
 
@@ -291,4 +291,16 @@ void vtkGeoTerrainNode::DeepCopy(vtkGeoTreeNode *src)
     }
 
   this->Superclass::DeepCopy(src);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkGeoTerrainNode::HasData()
+{
+  return (this->Model != 0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoTerrainNode::DeleteData()
+{
+  this->Model = 0;
 }

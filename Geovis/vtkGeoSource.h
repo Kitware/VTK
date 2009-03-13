@@ -56,12 +56,18 @@ public:
   ~vtkGeoSource();
 
   // Description:
-  // Blocking access methods.
+  // Blocking access methods to be implemented in subclasses.
   virtual bool FetchRoot(vtkGeoTreeNode* root) = 0;
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) = 0;
 
   // Description:
-  // Non-blocking methods for sources with high latency.
+  // Non-blocking methods for to use from the main application.
+  // After calling RequestChildren() for a certain node,
+  // GetRequestedNodes() will after a certain period of time return a
+  // non-null pointer to a collection of four vtkGeoTreeNode objects,
+  // which are the four children of the requested node.
+  // The collection is reference counted, so you need to eventually
+  // call Delete() on the returned collection pointer (if it is non-null).
   virtual void RequestChildren(vtkGeoTreeNode* node);
   virtual vtkCollection* GetRequestedNodes(vtkGeoTreeNode* node);
 

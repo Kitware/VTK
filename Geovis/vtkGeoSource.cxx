@@ -72,7 +72,7 @@ public:
   vtksys_stl::vector<int> ThreadIds;
 };
 
-vtkCxxRevisionMacro(vtkGeoSource, "1.6");
+vtkCxxRevisionMacro(vtkGeoSource, "1.7");
 vtkGeoSource::vtkGeoSource()
 {
   this->InputSet = vtkCollection::New();
@@ -149,6 +149,11 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
   if (this->Implementation->OutputMap.count(p) > 0)
     {
     c = this->Implementation->OutputMap[p];
+    if (c)
+      {
+      c->Register(0);
+      this->Implementation->OutputMap[p] = 0;
+      }
     }
   this->OutputSetLock->Unlock();
 

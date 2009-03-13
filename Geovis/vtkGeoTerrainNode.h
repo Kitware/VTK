@@ -95,6 +95,17 @@ public:
   virtual void ShallowCopy(vtkGeoTreeNode *src);  
   virtual void DeepCopy(vtkGeoTreeNode *src);
   
+  // Description:
+  // Returns whether this node has valid data associated
+  // with it, or if it is an "empty" node.
+  virtual bool HasData();
+
+  // Description:
+  // Deletes the data associated with the node to make this
+  // an "empty" node. This is performed when the node has
+  // been unused for a certain amount of time.
+  virtual void DeleteData();
+
 protected:
   vtkGeoTerrainNode();
   ~vtkGeoTerrainNode();

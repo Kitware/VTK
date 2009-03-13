@@ -36,6 +36,7 @@ class vtkAssembly;
 class vtkCollection;
 class vtkExtractSelectedFrustum;
 class vtkGeoCamera;
+class vtkGeoTreeNodeCache;
 class vtkGeoSource;
 class vtkGeoTerrainNode;
 class vtkRenderer;
@@ -85,6 +86,7 @@ protected:
   virtual void SetGeoSource(vtkGeoSource* source);
   vtkGeoSource* GeoSource;
   vtkGeoTerrainNode* Root;
+  vtkGeoTreeNodeCache* Cache;
 
   // Description:
   // Initialize the terrain with a new source.
