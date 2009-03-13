@@ -139,9 +139,28 @@ public:
   ///   The new lighter color.
   static QColor lighter(const QColor &color, float factor=0.7);
 
+  /// \brief
+  ///   Gets a new color between the given colors in hsv space.
+  ///
+  /// The interpolation does not wrap around in the hue component.
+  ///
+  /// \param color1 The first color.
+  /// \param color2 The last color.
+  /// \param fraction The fraction (0.0 to 1.0) of the distance from
+  ///   \c color1 to \c color2.
+  /// \return
+  ///   The interpolated color.
   static QColor interpolateHsv(const QColor &color1, const QColor &color2,
       float fraction);
 
+  /// \brief
+  ///   Gets a new color between the given colors in rgb space.
+  /// \param color1 The first color.
+  /// \param color2 The last color.
+  /// \param fraction The fraction (0.0 to 1.0) of the distance from
+  ///   \c color1 to \c color2.
+  /// \return
+  ///   The interpolated color.
   static QColor interpolateRgb(const QColor &color1, const QColor &color2,
       float fraction);
 
