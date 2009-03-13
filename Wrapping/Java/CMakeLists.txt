@@ -120,19 +120,8 @@ IF(JAVA_COMPILE)
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java)
     ADD_CUSTOM_TARGET(VTKBuildAll ALL)
 
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkGlobalJavaHash.java
-      ${VTK_BINARY_DIR}/java/vtk/vtkGlobalJavaHash.java COPYONLY)
-      
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkCanvas.java
-      ${VTK_BINARY_DIR}/java/vtk/vtkCanvas.java COPYONLY)
-      
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkPanel.java
-      ${VTK_BINARY_DIR}/java/vtk/vtkPanel.java COPYONLY)
-      
-#    ADD_CUSTOM_COMMAND(OUTPUT ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
-#      COMMAND ${JAVA_COMPILE}
-#      ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
-#      DEPENDS ${VTK_BUILD_ALL_DEPENDS})
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkSettings.java.in
+      ${VTK_BINARY_DIR}/java/vtk/vtkSettings.java)
 
     ADD_CUSTOM_COMMAND(
       TARGET VTKBuildAll
@@ -167,11 +156,20 @@ IF(JAVA_COMPILE)
     ADD_DEPENDENCIES(VTKJavaGenericFiltering VTKJavaGraphics)
     ADD_DEPENDENCIES(VTKJavaImaging VTKJavaFiltering)
 
-    SET(VTK_JAVA_DEPENDENCIES vtkTesting2 vtkSettings)
+    SET(VTK_JAVA_DEPENDENCIES
+      Algorithm
+      DynamicClassLoader
+      SampleAlgorithm
+      vtkGlobalJavaHash
+      vtkSettings
+      vtkTesting2
+    )
     IF(VTK_USE_RENDERING)
-      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkCanvas vtkPanel)
-      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkPanel)
-      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkRenderWindowPanel)
+      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
+        vtkCanvas
+        vtkPanel
+        vtkRenderWindowPanel
+      )
       ADD_DEPENDENCIES(VTKJavaRendering VTKJavaGraphics VTKJavaImaging)
       ADD_DEPENDENCIES(VTKJavaVolumeRendering VTKJavaRendering)
       ADD_DEPENDENCIES(VTKJavaHybrid VTKJavaRendering)
@@ -194,10 +192,8 @@ IF(JAVA_COMPILE)
       SET(src ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/${jfile}.java)
       SET(dst ${VTK_JAVA_HOME}/${jfile}.java)
       SET(class ${VTK_JAVA_HOME}/${jfile}.class)
-      IF(${jfile} MATCHES vtkSettings)
-        CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkSettings.java.in
-          ${VTK_JAVA_HOME}/vtkSettings.java)
-      ELSE(${jfile} MATCHES vtkSettings)
+      IF(jfile MATCHES "vtkSettings")
+      ELSE(jfile MATCHES "vtkSettings")
         ADD_CUSTOM_COMMAND(
           TARGET VTKJavaJar
           SOURCE ${src}
@@ -205,13 +201,13 @@ IF(JAVA_COMPILE)
           COMMAND ${CMAKE_COMMAND}
           ARGS -E copy ${src} ${dst}
           )
-      ENDIF(${jfile} MATCHES vtkSettings)
+      ENDIF(jfile MATCHES "vtkSettings")
 
       ADD_CUSTOM_COMMAND(
         TARGET VTKJavaJar
         SOURCE ${dst}
         OUTPUTS ${class}
-        DEPENDS ${VTK_JAVA_HOME}/vtkPanel.java
+        DEPENDS ${VTK_JAVA_HOME}/vtkPanel.java ${VTK_JAVA_HOME}/Algorithm.java
         COMMAND ${JAVA_COMPILE}
         ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
         )

@@ -866,6 +866,22 @@ IF(VTK_WRAP_JAVA)
   INCLUDE("${VTK_CMAKE_DIR}/vtkWrapJava.cmake")
   FIND_PACKAGE(Java)
   FIND_PACKAGE(JNI)
+  # Some platforms have libjvm in a subdirectory from
+  # the rest of the java libraries and are missing the symlink.
+  IF(JAVA_AWT_LIBRARY)
+    FOREACH(__java_library ${JAVA_AWT_LIBRARY})
+      GET_FILENAME_COMPONENT(JAVA_LIB_DIR ${__java_library} PATH)
+      IF(EXISTS ${JAVA_LIB_DIR}/xawt)
+        LINK_DIRECTORIES(${JAVA_LIB_DIR}/xawt)
+      ENDIF(EXISTS ${JAVA_LIB_DIR}/xawt)
+      IF(EXISTS ${JAVA_LIB_DIR}/client)
+        LINK_DIRECTORIES(${JAVA_LIB_DIR}/client)
+      ENDIF(EXISTS ${JAVA_LIB_DIR}/client)
+      IF(EXISTS ${JAVA_LIB_DIR}/server)
+        LINK_DIRECTORIES(${JAVA_LIB_DIR}/server)
+      ENDIF(EXISTS ${JAVA_LIB_DIR}/server)
+    ENDFOREACH(__java_library)
+  ENDIF(JAVA_AWT_LIBRARY)
 ENDIF(VTK_WRAP_JAVA)
 
 #------------------------------------------------------------------------------
