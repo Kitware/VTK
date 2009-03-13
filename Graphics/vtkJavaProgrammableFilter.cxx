@@ -30,7 +30,9 @@
 #include "vtkTable.h"
 
 #include <jni.h>
+#include <vtksys/SystemTools.hxx>
 #include <vtksys/stl/map>
+#include <vtksys/stl/vector>
 
 class vtkJavaProgrammableFilterInternals
 {
@@ -39,17 +41,15 @@ public:
   vtksys_stl::map<vtkStdString, vtkVariant> Parameters;
 };
 
-vtkCxxRevisionMacro(vtkJavaProgrammableFilter, "1.2");
+vtkCxxRevisionMacro(vtkJavaProgrammableFilter, "1.3");
 vtkStandardNewMacro(vtkJavaProgrammableFilter);
 //---------------------------------------------------------------------------
 vtkJavaProgrammableFilter::vtkJavaProgrammableFilter()
 {
   this->Internals = new vtkJavaProgrammableFilterInternals();
   this->JVM = vtkJVMManager::New();
-  this->JavaClassName = 0;
-  this->VTKJarPath = 0;
-  this->JavaClassPath = 0;
-  this->VTKBinaryPath = 0;
+  this->JavaClassNameInternal = 0;
+  this->JavaClassPathInternal = 0;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
@@ -58,10 +58,8 @@ vtkJavaProgrammableFilter::vtkJavaProgrammableFilter()
 vtkJavaProgrammableFilter::~vtkJavaProgrammableFilter()
 {
   delete this->Internals;
-  this->SetJavaClassName(0);
-  this->SetVTKJarPath(0);
-  this->SetJavaClassPath(0);
-  this->SetVTKBinaryPath(0);
+  this->SetJavaClassNameInternal(0);
+  this->SetJavaClassPathInternal(0);
   if (this->JVM)
     {
     this->JVM->Delete();
@@ -69,21 +67,44 @@ vtkJavaProgrammableFilter::~vtkJavaProgrammableFilter()
 }
 
 //---------------------------------------------------------------------------
+void vtkJavaProgrammableFilter::SetJavaClassName(const char* name)
+{
+  this->SetJavaClassNameInternal(name);
+  if (this->JavaClassNameInternal && this->JavaClassPathInternal)
+    {
+    this->Initialize();
+    }
+}
+
+//---------------------------------------------------------------------------
+void vtkJavaProgrammableFilter::SetJavaClassPath(const char* name)
+{
+  this->SetJavaClassPathInternal(name);
+  if (this->JavaClassNameInternal && this->JavaClassPathInternal)
+    {
+    this->Initialize();
+    }
+}
+
+//---------------------------------------------------------------------------
 void vtkJavaProgrammableFilter::SetParameter(const char* name, int value)
 {
   this->Internals->Parameters[name] = vtkVariant(value);
+  this->Modified();
 }
 
 //---------------------------------------------------------------------------
 void vtkJavaProgrammableFilter::SetParameter(const char* name, double value)
 {
   this->Internals->Parameters[name] = vtkVariant(value);
+  this->Modified();
 }
 
 //---------------------------------------------------------------------------
 void vtkJavaProgrammableFilter::SetParameter(const char* name, const char* value)
 {
   this->Internals->Parameters[name] = vtkVariant(value);
+  this->Modified();
 }
 
 //---------------------------------------------------------------------------
@@ -107,19 +128,17 @@ const char* vtkJavaProgrammableFilter::GetStringParameter(const char* name)
 //---------------------------------------------------------------------------
 bool vtkJavaProgrammableFilter::Initialize()
 {
-  //this->JVM->RemoveAllClassPaths();
-  //this->JVM->AddClassPath(this->VTKJarPath);
-  //this->JVM->AddClassPath(this->JavaClassPath);
-  //this->JVM->RemoveAllLibraryPaths();
-  //this->JVM->AddLibraryPath(this->VTKBinaryPath);
   this->JVM->CreateJVM();
   
   // Load the new class path
-  cerr << "trying to add to path: " << this->JavaClassPath << endl;
-  jstring str = this->JVM->NewString(this->JavaClassPath);
-  this->JVM->CallStaticMethod("vtk/DynamicClassLoader", "addFile", "(Ljava/lang/String;)V", str);
+  vtksys_stl::vector<vtksys::String> paths = vtksys::SystemTools::SplitString(this->JavaClassPathInternal, ':');
+  for (unsigned int i = 0; i < paths.size(); ++i)
+    {
+    jstring str = this->JVM->NewString(paths[i].c_str());
+    this->JVM->CallStaticMethod("vtk/DynamicClassLoader", "addFile", "(Ljava/lang/String;)V", str);
+    }
   
-  this->Internals->JavaAlgorithm = this->JVM->NewObject(this->JavaClassName, "()V");
+  this->Internals->JavaAlgorithm = this->JVM->NewObject(this->JavaClassNameInternal, "()V");
   jobject javathis = this->JVM->NewObject("vtk/vtkJavaProgrammableFilter", "(J)V", reinterpret_cast<jlong>(this));
   this->JVM->CallMethod(this->Internals->JavaAlgorithm, "initialize",
       "(Lvtk/vtkJavaProgrammableFilter;)V", javathis);
@@ -130,6 +149,10 @@ bool vtkJavaProgrammableFilter::Initialize()
 //---------------------------------------------------------------------------
 int vtkJavaProgrammableFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
+  if (!this->Internals->JavaAlgorithm)
+    {
+    return 1;
+    }
   jobject javainfo = this->JVM->NewObject("vtk/vtkInformation", "(J)V", reinterpret_cast<jlong>(info));
   jboolean b = this->JVM->CallMethod(this->Internals->JavaAlgorithm, "fillInputPortInformation", "(ILvtk/vtkInformation;)Z", static_cast<jint>(port), javainfo);
   return b ? 1 : 0;
@@ -139,6 +162,10 @@ int vtkJavaProgrammableFilter::FillInputPortInformation(int port, vtkInformation
 int vtkJavaProgrammableFilter::FillOutputPortInformation(
   int port, vtkInformation* info)
 {
+  if (!this->Internals->JavaAlgorithm)
+    {
+    return 1;
+    }
   jobject javainfo = this->JVM->NewObject("vtk/vtkInformation", "(J)V", reinterpret_cast<jlong>(info));
   jboolean b = this->JVM->CallMethod(this->Internals->JavaAlgorithm, "fillOutputPortInformation", "(ILvtk/vtkInformation;)Z", static_cast<jint>(port), javainfo);
   return b ? 1 : 0;
@@ -183,6 +210,10 @@ int vtkJavaProgrammableFilter::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  if (!this->Internals->JavaAlgorithm)
+    {
+    return 1;
+    }
   jobject javaRequest = this->JVM->NewObject("vtk/vtkInformation",
       "(J)V", reinterpret_cast<jlong>(request));
   int numInputs = this->GetNumberOfInputPorts();
@@ -207,6 +238,10 @@ int vtkJavaProgrammableFilter::RequestDataObject(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  if (!this->Internals->JavaAlgorithm)
+    {
+    return 1;
+    }
   jobject javaRequest = this->JVM->NewObject("vtk/vtkInformation",
       "(J)V", reinterpret_cast<jlong>(request));
   int numInputs = this->GetNumberOfInputPorts();
@@ -231,6 +266,10 @@ int vtkJavaProgrammableFilter::RequestInformation(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  if (!this->Internals->JavaAlgorithm)
+    {
+    return 1;
+    }
   jobject javaRequest = this->JVM->NewObject("vtk/vtkInformation",
       "(J)V", reinterpret_cast<jlong>(request));
   int numInputs = this->GetNumberOfInputPorts();
@@ -255,6 +294,10 @@ int vtkJavaProgrammableFilter::RequestUpdateExtent(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  if (!this->Internals->JavaAlgorithm)
+    {
+    return 1;
+    }
   jobject javaRequest = this->JVM->NewObject("vtk/vtkInformation",
       "(J)V", reinterpret_cast<jlong>(request));
   int numInputs = this->GetNumberOfInputPorts();
@@ -277,8 +320,6 @@ int vtkJavaProgrammableFilter::RequestUpdateExtent(
 void vtkJavaProgrammableFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "JavaClassName: " << (this->JavaClassName ? this->JavaClassName : "(none)") << endl;
-  os << indent << "VTKJarPath: " << (this->VTKJarPath ? this->VTKJarPath : "(none)") << endl;
-  os << indent << "JavaClassPath: " << (this->JavaClassPath ? this->JavaClassPath : "(none)") << endl;
-  os << indent << "VTKBinaryPath: " << (this->VTKBinaryPath ? this->VTKBinaryPath : "(none)") << endl;
+  os << indent << "JavaClassName: " << (this->JavaClassNameInternal ? this->JavaClassNameInternal : "(none)") << endl;
+  os << indent << "JavaClassPath: " << (this->JavaClassPathInternal ? this->JavaClassPathInternal : "(none)") << endl;
 }
