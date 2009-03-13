@@ -1,12 +1,12 @@
-package require -exact vtkrendering 5.3
+package require -exact vtkrendering 5.5
 
 if {[info commands ::vtk::init::require_package] != ""} {
-  if {[::vtk::init::require_package vtkVolumeRenderingTCL 5.3]} {
-    package provide vtkvolumerendering 5.3
+  if {[::vtk::init::require_package vtkVolumeRenderingTCL 5.5]} {
+    package provide vtkvolumerendering 5.5
   }
 } else {
   if {[info commands vtkEncodedGradientShader] != "" ||
     [::vtk::load_component vtkVolumeRenderingTCL] == ""} {
-    package provide vtkvolumerendering 5.3
+    package provide vtkvolumerendering 5.5
   }
 }
