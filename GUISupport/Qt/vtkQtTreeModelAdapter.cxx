@@ -24,6 +24,9 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkPointData.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
@@ -98,13 +101,12 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
       {
       this->Tree->Register(0);
       vtkIdType root = this->Tree->GetRoot();
-      this->IdToPedigreeHash.clear();
-      this->PedigreeToIndexHash.clear();
-      this->IndexToIdHash.clear();
+      this->VTKIndexToQtModelIndex.clear();
+      this->VTKIndexToQtModelIndex.resize(this->Tree->GetNumberOfVertices());
       if (root >= 0)
         {
-        vtkIdType row = 0;
-        this->GenerateHashMap(row, root, this->createIndex(0, 0, static_cast<int>(root)));
+        this->GenerateVTKIndexToQtModelIndex(root, 
+          this->createIndex(0, 0, static_cast<int>(root)));
         }
       this->TreeMTime = this->Tree->GetMTime();
       }
@@ -127,49 +129,80 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
 
 void vtkQtTreeModelAdapter::treeModified()
 {
-  this->IdToPedigreeHash.clear();
-  this->PedigreeToIndexHash.clear();
-  this->IndexToIdHash.clear();
-  this->RowToPedigreeHash.clear();
+  this->VTKIndexToQtModelIndex.clear();
   if (this->Tree->GetNumberOfVertices() > 0)
     {
     vtkIdType root = this->Tree->GetRoot();
-    vtkIdType row = 0;
-    this->GenerateHashMap(row, root, this->createIndex(0, 0, static_cast<int>(root)));
+    this->VTKIndexToQtModelIndex.resize(this->Tree->GetNumberOfVertices());
+    this->GenerateVTKIndexToQtModelIndex(root, 
+      this->createIndex(0, 0, static_cast<int>(root)));
     }
   this->TreeMTime = this->Tree->GetMTime();
   emit reset();
 }
 
-void vtkQtTreeModelAdapter::GenerateHashMap(vtkIdType & row, vtkIdType id, QModelIndex idx)
+// Description:
+// Selection conversion from VTK land to Qt land
+vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
+  const QModelIndexList qmil) const
 {
-  vtkAbstractArray *pedigreeIds = this->Tree->GetVertexData()->GetPedigreeIds();
-  vtkIdType pedigree = -1;
-  if (pedigreeIds != NULL)
+  // Create vtk index selection
+  vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
+  vtkSmartPointer<vtkSelectionNode> node =
+    vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(vtkSelectionNode::INDICES);
+  node->SetFieldType(vtkSelectionNode::VERTEX);
+  vtkSmartPointer<vtkIdTypeArray> index_arr =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  node->SetSelectionList(index_arr);
+  IndexSelection->AddNode(node);
+  
+  // Run through the QModelIndexList pulling out vtk indexes
+  for (int i = 0; i < qmil.size(); i++)
     {
-      vtkVariant v(0);
-      switch (pedigreeIds->GetDataType())
+    vtkIdType vtk_index = qmil.at(i).internalId();
+    index_arr->InsertNextValue(vtk_index);
+    }  
+  return IndexSelection;
+}
+
+QItemSelection vtkQtTreeModelAdapter::VTKIndexSelectionToQItemSelection(
+  vtkSelection *vtksel) const
+{
+
+  QItemSelection qis_list;
+  vtkSelectionNode* node = vtksel->GetNode(0);
+  if (node)
+    {
+    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    if (arr)
+      {
+      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
         {
-        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(pedigreeIds->GetVoidPointer(id)));
+        vtkIdType vtk_index = arr->GetValue(i);
+        QModelIndex qmodel_index = this->VTKIndexToQtModelIndex[vtk_index];
+        qis_list.select(qmodel_index, qmodel_index);
         }
-      pedigree = v.ToInt();
+      }
     }
-  else
-    {
-    pedigree = id;
-    }
-  this->IdToPedigreeHash[id] = pedigree;
-  this->PedigreeToIndexHash[pedigree] = idx;
-  this->IndexToIdHash[idx] = id;
-  this->RowToPedigreeHash[row] = pedigree;
+  return qis_list;
+}
+
+void vtkQtTreeModelAdapter::GenerateVTKIndexToQtModelIndex(vtkIdType vtk_index, QModelIndex qmodel_index)
+{
+
+  // Store the QModelIndex for selection conversions later
+  this->VTKIndexToQtModelIndex.replace(vtk_index, qmodel_index);
+  
+  // Iterate through the children of this tree nodes
   vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
-  this->Tree->GetChildren(id, it);
+  this->Tree->GetChildren(vtk_index, it);
   int i = 0;
   while (it->HasNext())
     {
-    ++row;
-    vtkIdType v = it->Next();
-    this->GenerateHashMap(row, v, this->createIndex(i, 0, static_cast<int>(v)));
+    vtkIdType vtk_child_index = it->Next();
+    this->GenerateVTKIndexToQtModelIndex(vtk_child_index,
+      this->createIndex(i, 0, static_cast<int>(vtk_child_index)));
     ++i;
     }
   it->Delete();
@@ -216,12 +249,6 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
     return this->IndexToDecoration[idx];
     }
 
-  // If viewing columns, just return the column name.
-  if (!this->ViewRows && (role == Qt::DisplayRole || role == Qt::UserRole))
-    {
-    vtkAbstractArray* arr = this->Tree->GetVertexData()->GetAbstractArray(this->DataStartColumn + idx.row());
-    return QVariant(arr->GetName());
-    }
 
   vtkIdType vertex = static_cast<vtkIdType>(idx.internalId());
   int column = this->ModelColumnToFieldDataColumn(idx.column());
@@ -275,18 +302,6 @@ Qt::ItemFlags vtkQtTreeModelAdapter::flags(const QModelIndex &idx) const
 QVariant vtkQtTreeModelAdapter::headerData(int section, Qt::Orientation orientation,
                     int role) const
 {
-  if (!this->ViewRows && orientation == Qt::Horizontal && 
-      (role == Qt::DisplayRole || role == Qt::UserRole))
-    {
-    return QVariant("");
-    }
-
-  if (!this->ViewRows && orientation == Qt::Vertical && 
-      (role == Qt::DisplayRole || role == Qt::UserRole))
-    {
-    vtkAbstractArray* arr = this->Tree->GetVertexData()->GetAbstractArray(this->DataStartColumn + section);
-    return QVariant(arr->GetName());
-    }
 
   // For horizontal headers, try to convert the column names to double.
   // If it doesn't work, return a string.
@@ -309,17 +324,10 @@ QVariant vtkQtTreeModelAdapter::headerData(int section, Qt::Orientation orientat
   if (orientation == Qt::Vertical && this->KeyColumn != -1 &&
       (role == Qt::DisplayRole || role == Qt::UserRole))
     {
-    vtkIdType pedigree = this->RowToPedigreeHash[section];
-    vtkAbstractArray* arr = this->Tree->GetVertexData()->GetAbstractArray(this->KeyColumn);
-    return vtkQtTreeModelAdapterArrayValue(arr, pedigree, 0);
+    return QVariant(this->Tree->GetVertexData()->GetArrayName(this->KeyColumn));
     }
 
   return QVariant();
-}
-
-QModelIndex vtkQtTreeModelAdapter::index(vtkIdType item) const
-{
-  return this->PedigreeToIndexHash[item];
 }
 
 QModelIndex vtkQtTreeModelAdapter::index(int row, int column,
@@ -328,11 +336,6 @@ QModelIndex vtkQtTreeModelAdapter::index(int row, int column,
   if (!this->Tree)
     {
     return QModelIndex();
-    }
-
-  if (!this->ViewRows)
-    {
-    return createIndex(row, column, row);
     }
   
   vtkIdType parentItem;
@@ -381,11 +384,6 @@ QModelIndex vtkQtTreeModelAdapter::parent(const QModelIndex &idx) const
     return QModelIndex();
     }
 
-  if (!this->ViewRows)
-    {
-    return QModelIndex();
-    }
-
   vtkIdType child = static_cast<vtkIdType>(idx.internalId());
 
   if (child == this->Tree->GetRoot())
@@ -427,19 +425,7 @@ int vtkQtTreeModelAdapter::rowCount(const QModelIndex &idx) const
   
   if (!idx.isValid())
     {
-    if (!this->ViewRows)
-      {
-      return (this->DataEndColumn - this->DataStartColumn + 1);
-      }
-    else
-      {
-      return 1;
-      }
-    }
-
-  if (!this->ViewRows)
-    {
-    return 0;
+    return 1;
     }
 
   vtkIdType parentId = static_cast<vtkIdType>(idx.internalId());
@@ -451,11 +437,6 @@ int vtkQtTreeModelAdapter::columnCount(const QModelIndex & vtkNotUsed(parentIdx)
   if (!this->Tree)
     {
     return 0;
-    }
-
-  if (!this->ViewRows)
-    {
-    return 1;
     }
 
   int numArrays = this->Tree->GetVertexData()->GetNumberOfArrays();
@@ -472,40 +453,4 @@ int vtkQtTreeModelAdapter::columnCount(const QModelIndex & vtkNotUsed(parentIdx)
       vtkGenericWarningMacro("vtkQtTreeModelAdapter: Bad view type.");
     };
   return 0;
-}
-
-vtkIdType vtkQtTreeModelAdapter::IdToPedigree(vtkIdType id) const
-{
-  if (this->ViewRows)
-    {
-    return this->IdToPedigreeHash[id];
-    }
-  return id;
-}
-
-vtkIdType vtkQtTreeModelAdapter::PedigreeToId(vtkIdType pedigree) const
-{
-  if (this->ViewRows)
-    {
-    return this->IndexToIdHash[this->PedigreeToIndexHash[pedigree]];
-    }
-  return pedigree;
-}
-
-QModelIndex vtkQtTreeModelAdapter::PedigreeToQModelIndex(vtkIdType pedigree) const
-{
-  if (this->ViewRows)
-    {
-    return this->PedigreeToIndexHash[pedigree];
-    }
-  return this->index(static_cast<int>(pedigree), 0);
-}
-
-vtkIdType vtkQtTreeModelAdapter::QModelIndexToPedigree(QModelIndex idx) const
-{
-  if (this->ViewRows)
-    {
-    return this->IdToPedigreeHash[this->IndexToIdHash[idx]];
-    }
-  return idx.row();
 }

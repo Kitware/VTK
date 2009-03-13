@@ -15,6 +15,7 @@
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkGraphLayoutView.h>
+#include <vtkQtColumnView.h>
 #include <vtkQtTableModelAdapter.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeModelAdapter.h>
@@ -49,7 +50,7 @@ EasyView::EasyView()
   this->GraphView    = vtkSmartPointer<vtkGraphLayoutView>::New();
   this->TreeView     = vtkSmartPointer<vtkQtTreeView>::New();
   this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
-  this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
+  this->ColumnView   = vtkSmartPointer<vtkQtColumnView>::New();
   
   // Set widgets for the tree and table views  
   QVBoxLayout *layout1 = new QVBoxLayout;
@@ -87,13 +88,14 @@ void EasyView::SetupSelectionLink()
   VTK_CREATE(vtkSelectionLink,selectionLink);
   this->TreeView->GetRepresentation()->SetSelectionLink(selectionLink);
   this->TableView->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->ColumnView->GetRepresentation()->SetSelectionLink(selectionLink);
   this->GraphView->GetRepresentation()->SetSelectionLink(selectionLink);
 
   VTK_CREATE(vtkViewUpdater,updater);
   updater->AddView(this->TreeView);
   updater->AddView(this->TableView);
+  updater->AddView(this->ColumnView);
   updater->AddView(this->GraphView);
-
 }
 
 EasyView::~EasyView()
@@ -153,7 +155,6 @@ void EasyView::slotOpenXMLFile()
   // Now hand off tree to the tree view
   this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-  qobject_cast<QTreeView*>(this->TreeView->GetWidget())->expandAll();
    
   // Extract a table and give to table view
   VTK_CREATE(vtkDataObjectToTable, toTable);

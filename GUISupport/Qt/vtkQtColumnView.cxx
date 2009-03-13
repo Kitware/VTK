@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtColumnView, "1.2");
+vtkCxxRevisionMacro(vtkQtColumnView, "1.3");
 vtkStandardNewMacro(vtkQtColumnView);
 
 
@@ -47,13 +47,14 @@ vtkQtColumnView::vtkQtColumnView()
   this->ColumnView = new QColumnView();
   this->TreeAdapter = new vtkQtTreeModelAdapter();
   this->ColumnView->setModel(this->TreeAdapter);
-  this->ColumnView->setSelectionMode(QAbstractItemView::SingleSelection);
+  this->ColumnView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  this->ColumnView->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->Selecting = false;
 
   QObject::connect(this->ColumnView->selectionModel(), 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
       this, 
-      SLOT(slotSelectionChanged(const QItemSelection&,const QItemSelection&)));
+      SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
@@ -73,9 +74,9 @@ QWidget* vtkQtColumnView::GetWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkQtAbstractModelAdapter* vtkQtColumnView::GetItemModelAdapter()
+void vtkQtColumnView::SetAlternatingRowColors(bool state)
 {
-  return this->TreeAdapter;
+  this->ColumnView->setAlternatingRowColors(state);
 }
 
 //----------------------------------------------------------------------------
@@ -91,7 +92,7 @@ void vtkQtColumnView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(i
   // Enforce input
   if (!tree)
     {
-    vtkErrorMacro("vtkQtERMView requires a vtkTree as input (for now)");
+    vtkErrorMacro("vtkQtColumnView requires a vtkTree as input");
     return;
     }
 
@@ -118,40 +119,66 @@ void vtkQtColumnView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed
 }
 
 //----------------------------------------------------------------------------
-void vtkQtColumnView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
+void vtkQtColumnView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {  
   this->Selecting = true;
-
-  // Create index selection
-  vtkSmartPointer<vtkSelection> selection =
-    vtkSmartPointer<vtkSelection>::New();
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::VERTEX);
-  vtkSmartPointer<vtkIdTypeArray> idarr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  node->SetSelectionList(idarr);
-  selection->AddNode(node);
-  const QModelIndexList list = this->ColumnView->selectionModel()->selectedRows();
   
-  // For index selection do this odd little dance with two maps :)
-  for (int i = 0; i < list.size(); i++)
-    {
-    vtkIdType pid = this->TreeAdapter->QModelIndexToPedigree(list.at(i));
-    idarr->InsertNextValue(this->TreeAdapter->PedigreeToId(pid));
-    }  
-
+  // Convert from a QModelIndexList to an index based vtkSelection
+  const QModelIndexList qmil = this->ColumnView->selectionModel()->selectedRows();
+  vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(qmil);
+  
   // Convert to the correct type of selection
   vtkDataObject* data = this->TreeAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    selection, data, this->SelectionType, this->SelectionArrayNames));
+    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames));
    
   // Call select on the representation
   this->GetRepresentation()->Select(this, converted);
   
   this->Selecting = false;
+  
+  // Delete the selection list
+  VTKIndexSelectList->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkQtColumnView::SetVTKSelection()
+{
+  // Make the selection current
+  if (this->Selecting)
+    {
+    // If we initiated the selection, do nothing.
+    return;
+    }
+
+  // See if the selection has changed in any way
+  vtkDataRepresentation* rep = this->GetRepresentation();
+  vtkDataObject *d = this->TreeAdapter->GetVTKDataObject();
+  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  if (s->GetMTime() != this->CurrentSelectionMTime)
+    {
+    this->CurrentSelectionMTime = s->GetMTime();
+    
+    vtkSmartPointer<vtkSelection> selection;
+    selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
+    
+    QItemSelection qisList = this->TreeAdapter->
+      VTKIndexSelectionToQItemSelection(selection);
+      
+    // Here we want the qt model to have it's selection changed
+    // but we don't want to emit the selection.
+    QObject::disconnect(this->ColumnView->selectionModel(), 
+      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+      
+    this->ColumnView->selectionModel()->select(qisList, 
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+      
+    QObject::connect(this->ColumnView->selectionModel(), 
+     SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+     this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -176,30 +203,10 @@ void vtkQtColumnView::Update()
     return;
     }
 
-  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
-  vtkSmartPointer<vtkSelection> selection;
-  selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
-  QItemSelection list;
-  vtkSelectionNode* node = selection->GetNode(0);
-  if (node)
-    {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-    if (arr)
-      {
-      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
-        {
-        vtkIdType id = arr->GetValue(i);
-        QModelIndex index = 
-          this->TreeAdapter->PedigreeToQModelIndex(
-          this->TreeAdapter->IdToPedigree(id));
-        list.select(index, index);
-        }
-      }
-    }
-
-  this->ColumnView->selectionModel()->select(list, 
-    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  // Update the VTK selection
+  this->SetVTKSelection();
   
+  // Refresh the view  
   this->ColumnView->update();
 }
 

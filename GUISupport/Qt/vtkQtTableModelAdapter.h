@@ -31,10 +31,9 @@
 
 #include "QVTKWin32Header.h"
 #include "vtkType.h"
+#include "vtkSelection.h"
 
 #include "vtkQtAbstractModelAdapter.h"
-
-#include "vtkSelection.h"
 #include <QHash>
 
 class vtkTable;
@@ -48,17 +47,22 @@ public:
   vtkQtTableModelAdapter(vtkTable* table, QObject *parent = 0);
   ~vtkQtTableModelAdapter();
   
+  // Description:
   // Set/Get the VTK data object as input to this adapter
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
   
-  vtkIdType IdToPedigree(vtkIdType id) const;
-  vtkIdType PedigreeToId(vtkIdType pedigree) const;
-  QModelIndex PedigreeToQModelIndex(vtkIdType id) const;
-  vtkIdType QModelIndexToPedigree(QModelIndex index) const;
+  // Description:
+  // Selection conversion from VTK land to Qt land
+  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
+    const QModelIndexList qmil) const;
+  virtual QItemSelection VTKIndexSelectionToQItemSelection(
+    vtkSelection *vtksel) const;
   
   virtual void SetKeyColumnName(const char* name);
 
+  // Description:
+  // Set up the model based on the current table.
   void setTable(vtkTable* table);
   vtkTable* table() const { return this->Table; }
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -73,14 +77,10 @@ public:
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-  void GenerateHashMap();
+
   bool noTableCheck() const;
 
   vtkTable* Table;
-  QHash<vtkIdType, vtkIdType> IdToPedigreeHash;
-  QHash<vtkIdType, QModelIndex> PedigreeToIndexHash;
-  QHash<QModelIndex, vtkIdType> IndexToIdHash;
-  
   QHash<QModelIndex, QVariant> IndexToDecoration;
   
   vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented

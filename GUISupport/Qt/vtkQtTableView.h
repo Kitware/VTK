@@ -56,10 +56,7 @@ public:
   virtual QWidget* GetWidget();
 
   // Description:
-  // Pointer to the internal model adapter used convert the
-  // vtkDataObject to a QAbstractItemModel.
-  vtkQtAbstractModelAdapter* GetItemModelAdapter();
-
+  // Have the view alternate its row colors
   void SetAlternatingRowColors(bool);
 
   // Description:
@@ -83,17 +80,17 @@ protected:
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
 
-  // Description:
-  // We need to keep track of whether were in selection mode
-  bool Selecting;
+private slots:
+  void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+
+private:
+  void SetVTKSelection();
+  unsigned long CurrentSelectionMTime;
   
   QPointer<QTableView> TableView;
   vtkQtTableModelAdapter* TableAdapter;
-
-private slots:
-  void slotSelectionChanged(const QItemSelection&,const QItemSelection&);
-
-private:
+  bool Selecting;
+  
   vtkQtTableView(const vtkQtTableView&);  // Not implemented.
   void operator=(const vtkQtTableView&);  // Not implemented.
   

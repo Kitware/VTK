@@ -35,6 +35,7 @@
 
 #include "vtkQtAbstractModelAdapter.h"
 #include <QHash>
+#include <QVector>
 
 class vtkTree;
 class vtkAdjacentVertexIterator;
@@ -52,10 +53,12 @@ public:
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
   
-  vtkIdType IdToPedigree(vtkIdType id) const;
-  vtkIdType PedigreeToId(vtkIdType pedigree) const;
-  QModelIndex PedigreeToQModelIndex(vtkIdType id) const;
-  vtkIdType QModelIndexToPedigree(QModelIndex index) const;
+  // Description:
+  // Selection conversion from VTK land to Qt land
+  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
+    const QModelIndexList qmil) const;
+  virtual QItemSelection VTKIndexSelectionToQItemSelection(
+    vtkSelection *vtksel) const;
   
   virtual void SetKeyColumnName(const char* name);
 
@@ -69,7 +72,6 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const;
   QVariant headerData(int section, Qt::Orientation orientation,
                       int role = Qt::DisplayRole) const;
-  QModelIndex index(vtkIdType index) const;
   QModelIndex index(int row, int column,
                     const QModelIndex &parent = QModelIndex()) const;
   QModelIndex parent(const QModelIndex &index) const;
@@ -78,16 +80,12 @@ public:
 
 protected:
   void treeModified();
-  void GenerateHashMap(vtkIdType & row, vtkIdType id, QModelIndex index);
+  void GenerateVTKIndexToQtModelIndex(vtkIdType vtk_index, QModelIndex qmodel_index);
   
   vtkTree* Tree;
   vtkAdjacentVertexIterator* ChildIterator;
   unsigned long TreeMTime;
-  QHash<vtkIdType, vtkIdType> IdToPedigreeHash;
-  QHash<vtkIdType, QModelIndex> PedigreeToIndexHash;
-  QHash<QModelIndex, vtkIdType> IndexToIdHash;
-  QHash<vtkIdType, vtkIdType> RowToPedigreeHash;
-
+  QVector<QModelIndex> VTKIndexToQtModelIndex;
   QHash<QModelIndex, QVariant> IndexToDecoration;
   
 private:

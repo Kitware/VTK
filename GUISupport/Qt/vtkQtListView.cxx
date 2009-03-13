@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtListView, "1.4");
+vtkCxxRevisionMacro(vtkQtListView, "1.5");
 vtkStandardNewMacro(vtkQtListView);
 
 
@@ -47,13 +47,14 @@ vtkQtListView::vtkQtListView()
   this->ListView = new QListView();
   this->ListAdapter = new vtkQtTableModelAdapter();
   this->ListView->setModel(this->ListAdapter);
-  this->ListView->setSelectionMode(QAbstractItemView::SingleSelection);
+  this->ListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  this->ListView->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->Selecting = false;
 
   QObject::connect(this->ListView->selectionModel(), 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
       this, 
-      SLOT(slotSelectionChanged(const QItemSelection&,const QItemSelection&)));
+      SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
@@ -73,9 +74,9 @@ QWidget* vtkQtListView::GetWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkQtAbstractModelAdapter* vtkQtListView::GetItemModelAdapter()
+void vtkQtListView::SetAlternatingRowColors(bool state)
 {
-  return this->ListAdapter;
+  this->ListView->setAlternatingRowColors(state);
 }
 
 //----------------------------------------------------------------------------
@@ -118,40 +119,63 @@ void vtkQtListView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(i
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::slotSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
+void vtkQtListView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {  
   this->Selecting = true;
-
-  // Create index selection
-  vtkSmartPointer<vtkSelection> selection =
-    vtkSmartPointer<vtkSelection>::New();
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::VERTEX);
-  vtkSmartPointer<vtkIdTypeArray> idarr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  node->SetSelectionList(idarr);
-  selection->AddNode(node);
-  const QModelIndexList list = this->ListView->selectionModel()->selectedRows();
-  
-  // For index selection do this odd little dance with two maps :)
-  for (int i = 0; i < list.size(); i++)
-    {
-    vtkIdType pid = this->ListAdapter->QModelIndexToPedigree(list.at(i));
-    idarr->InsertNextValue(this->ListAdapter->PedigreeToId(pid));
-    }  
+ 
+  // Convert from a QModelIndexList to an index based vtkSelection
+  const QModelIndexList qmil = this->ListView->selectionModel()->selectedRows();
+  vtkSelection *VTKIndexSelectList = this->ListAdapter->QModelIndexListToVTKIndexSelection(qmil);
 
   // Convert to the correct type of selection
   vtkDataObject* data = this->ListAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    selection, data, this->SelectionType, this->SelectionArrayNames));
+    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames));
    
   // Call select on the representation
   this->GetRepresentation()->Select(this, converted);
   
   this->Selecting = false;
+}
+
+//----------------------------------------------------------------------------
+void vtkQtListView::SetVTKSelection()
+{
+  // Make the selection current
+  if (this->Selecting)
+    {
+    // If we initiated the selection, do nothing.
+    return;
+    }
+
+  // See if the selection has changed in any way
+  vtkDataRepresentation* rep = this->GetRepresentation();
+  vtkDataObject *d = this->ListAdapter->GetVTKDataObject();
+  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  if (s->GetMTime() != this->CurrentSelectionMTime)
+    {
+    this->CurrentSelectionMTime = s->GetMTime();
+    
+    vtkSmartPointer<vtkSelection> selection;
+    selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
+    
+    QItemSelection qisList = this->ListAdapter->
+      VTKIndexSelectionToQItemSelection(selection);
+      
+    // Here we want the qt model to have it's selection changed
+    // but we don't want to emit the selection.
+    QObject::disconnect(this->ListView->selectionModel(), 
+      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+      
+    this->ListView->selectionModel()->select(qisList, 
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+      
+    QObject::connect(this->ListView->selectionModel(), 
+     SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+     this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -169,36 +193,8 @@ void vtkQtListView::Update()
   vtkDataObject *d = alg->GetOutputDataObject(0);
   this->ListAdapter->SetVTKDataObject(d);
   
-  // Make the selection current
-  if (this->Selecting)
-    {
-    // If we initiated the selection, do nothing.
-    return;
-    }
-
-  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
-  vtkSmartPointer<vtkSelection> selection;
-  selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
-  QItemSelection list;
-  vtkSelectionNode* node = selection->GetNode(0);
-  if (node)
-    {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-    if (arr)
-      {
-      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
-        {
-        vtkIdType id = arr->GetValue(i);
-        QModelIndex index = 
-          this->ListAdapter->PedigreeToQModelIndex(
-          this->ListAdapter->IdToPedigree(id));
-        list.select(index, index);
-        }
-      }
-    }
-
-  this->ListView->selectionModel()->select(list, 
-    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  // Update the VTK selection
+  this->SetVTKSelection();
   
   this->ListView->update();
 }

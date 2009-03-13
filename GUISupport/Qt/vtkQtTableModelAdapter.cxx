@@ -23,6 +23,8 @@
 #include "vtkTable.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
 
@@ -41,7 +43,6 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   if (this->Table != NULL)
     {
     this->Table->Register(0);
-    this->GenerateHashMap();
     }
 }
 
@@ -73,36 +74,6 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
     }
 }
 
-void vtkQtTableModelAdapter::GenerateHashMap()
-{
-  vtkAbstractArray *pedigreeIds = this->Table->GetRowData()->GetPedigreeIds();
-
-  this->IdToPedigreeHash.clear();
-  this->PedigreeToIndexHash.clear();
-  this->IndexToIdHash.clear();
-  for (vtkIdType i = 0; i < this->Table->GetNumberOfRows(); i++)
-    {
-    QModelIndex idx = this->createIndex(i, 0, static_cast<int>(i));
-    vtkIdType pedigree = -1;
-    if (pedigreeIds != NULL)
-      {
-      vtkVariant v(0);
-      switch (pedigreeIds->GetDataType())
-        {
-        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(pedigreeIds->GetVoidPointer(i)));
-        }
-      pedigree = v.ToInt();
-      }
-    else
-      {
-      pedigree = i;
-      }
-    this->IdToPedigreeHash[i] = pedigree;
-    this->PedigreeToIndexHash[pedigree] = idx;
-    this->IndexToIdHash[idx] = i;
-    }
-}
-
 void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject *obj)
 {
   vtkTable *t = vtkTable::SafeDownCast(obj);
@@ -114,7 +85,6 @@ void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject *obj)
     
   // Okay it's a table so set it :)
   this->setTable(t);
-
 }
 
 vtkDataObject* vtkQtTableModelAdapter::GetVTKDataObject() const
@@ -136,7 +106,6 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
   if (this->Table != NULL)
     {
     this->Table->Register(0);
-    this->GenerateHashMap();
 
     // We will assume the table is totally
     // new and any views should update completely
@@ -150,7 +119,6 @@ bool vtkQtTableModelAdapter::noTableCheck() const
     {
     // It's not necessarily an error to have a null pointer for the
     // table.  It just means that the model is empty.
-//    qWarning("Using vtkQtTableModelAdapter without a table input set!");
     return true;
     }
   if (this->Table->GetNumberOfRows() == 0)
@@ -159,6 +127,56 @@ bool vtkQtTableModelAdapter::noTableCheck() const
     }
   return false;
 }
+
+// Description:
+// Selection conversion from VTK land to Qt land
+vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
+  const QModelIndexList qmil) const
+{
+  // Create vtk index selection
+  vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
+  vtkSmartPointer<vtkSelectionNode> node =
+    vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(vtkSelectionNode::INDICES);
+  node->SetFieldType(vtkSelectionNode::VERTEX);
+  vtkSmartPointer<vtkIdTypeArray> index_arr =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  node->SetSelectionList(index_arr);
+  IndexSelection->AddNode(node);
+  
+  // Run through the QModelIndexList pulling out vtk indexes
+  for (int i = 0; i < qmil.size(); i++)
+    {
+    vtkIdType vtk_index = qmil.at(i).internalId();
+    index_arr->InsertNextValue(vtk_index);
+    }  
+  return IndexSelection;
+}
+
+QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
+  vtkSelection *vtksel) const
+{
+
+  QItemSelection qis_list;
+  vtkSelectionNode* node = vtksel->GetNode(0);
+  if (node)
+    {
+    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    if (arr)
+      {
+      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
+        {
+        vtkIdType vtk_index = arr->GetValue(i);
+        QModelIndex qmodel_index =
+          this->createIndex(vtk_index, 0, static_cast<int>(vtk_index));
+        qis_list.select(qmodel_index, qmodel_index);
+        }
+      }
+    }
+  return qis_list;
+}
+
+
 
 QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
 {
@@ -174,12 +192,6 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   if (role == Qt::DecorationRole)
     {
     return this->IndexToDecoration[idx];
-    }
-
-  if (!this->ViewRows && (role == Qt::DisplayRole || role == Qt::UserRole))
-    {
-    vtkAbstractArray* arr = this->Table->GetColumn(this->DataStartColumn + idx.row());
-    return QVariant(arr->GetName());
     }
     
   // Get the item
@@ -260,18 +272,6 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
     return QVariant();
     }
 
-  if (!this->ViewRows && orientation == Qt::Horizontal &&
-      (role == Qt::DisplayRole || role == Qt::UserRole))
-    {
-    return QVariant("");
-    }
-  if (!this->ViewRows && orientation == Qt::Vertical &&
-    (role == Qt::DisplayRole || role == Qt::UserRole))
-    {
-    vtkAbstractArray* arr = this->Table->GetColumn(this->DataStartColumn + section);
-    return QVariant(arr->GetName());
-    }
-
   // For horizontal headers, try to convert the column names to double.
   // If it doesn't work, return a string.
   if (orientation == Qt::Horizontal &&
@@ -323,14 +323,7 @@ int vtkQtTableModelAdapter::rowCount(const QModelIndex & mIndex) const
     }
   if (mIndex == QModelIndex())
     {
-    if (this->ViewRows)
-      {
-      return this->Table->GetNumberOfRows();
-      }
-    else
-      {
-      return (this->DataEndColumn - this->DataStartColumn + 1);
-      }
+    return this->Table->GetNumberOfRows();
     }
   return 0;
 }
@@ -340,11 +333,6 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
   if (this->noTableCheck())
     {
     return 0;
-    }
-
-  if (!this->ViewRows)
-    {
-    return 1;
     }
 
   int numArrays = this->Table->GetNumberOfColumns();
@@ -362,40 +350,3 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
     };
   return 0;
 }
-
-vtkIdType vtkQtTableModelAdapter::IdToPedigree(vtkIdType id) const
-{
-  if (this->ViewRows)
-    {
-    return this->IdToPedigreeHash[id];
-    }
-  return id;
-}
-
-vtkIdType vtkQtTableModelAdapter::PedigreeToId(vtkIdType pedigree) const
-{
-  if (this->ViewRows)
-    {
-    return this->IndexToIdHash[this->PedigreeToIndexHash[pedigree]];
-    }
-  return pedigree;
-}
-
-QModelIndex vtkQtTableModelAdapter::PedigreeToQModelIndex(vtkIdType pedigree) const
-{
-  if (this->ViewRows)
-    {
-    return this->PedigreeToIndexHash[pedigree];
-    }
-  return this->index(static_cast<int>(pedigree), 0);
-}
-
-vtkIdType vtkQtTableModelAdapter::QModelIndexToPedigree(QModelIndex idx) const
-{
-  if (this->ViewRows)
-    {
-    return this->IdToPedigreeHash[this->IndexToIdHash[idx]];
-    }
-  return idx.row();
-}
-

@@ -31,6 +31,7 @@
 
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
+
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
 
@@ -55,9 +56,8 @@ public:
   virtual QWidget* GetWidget();
 
   // Description:
-  // Pointer to the internal model adapter used convert the
-  // vtkDataObject to a QAbstractItemModel.
-  vtkQtAbstractModelAdapter* GetItemModelAdapter();
+  // Have the view alternate its row colors
+  void SetAlternatingRowColors(bool);
 
   // Description:
   // Updates the view.
@@ -81,18 +81,18 @@ protected:
     vtkAlgorithmOutput* selectionConn);
 
 private slots:
-  void slotSelectionChanged(const QItemSelection&,const QItemSelection&);
+  void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
 
 private:
-  vtkQtColumnView(const vtkQtColumnView&);  // Not implemented.
-  void operator=(const vtkQtColumnView&);  // Not implemented.
-  
-  // Description:
-  // We need to keep track of whether were in selection mode
-  bool Selecting;
+  void SetVTKSelection();
+  unsigned long CurrentSelectionMTime;
   
   QPointer<QColumnView> ColumnView;
   vtkQtTreeModelAdapter* TreeAdapter;
+  bool Selecting;
+  
+  vtkQtColumnView(const vtkQtColumnView&);  // Not implemented.
+  void operator=(const vtkQtColumnView&);  // Not implemented.
 };
 
 #endif

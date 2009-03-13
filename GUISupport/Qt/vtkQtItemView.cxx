@@ -42,7 +42,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkQtItemView, "1.7");
+vtkCxxRevisionMacro(vtkQtItemView, "1.8");
 vtkStandardNewMacro(vtkQtItemView);
 
 
@@ -209,31 +209,15 @@ void vtkQtItemView::QtSelectionChanged(const QItemSelection&, const QItemSelecti
   
   this->Selecting = true;
   
-  // Create index selection
-  vtkSmartPointer<vtkSelection> selection =
-    vtkSmartPointer<vtkSelection>::New();
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::VERTEX);
-  vtkSmartPointer<vtkIdTypeArray> idarr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  node->SetSelectionList(idarr);
-  selection->AddNode(node);
-  const QModelIndexList list = this->GetSelectionModel()->selectedRows();
+   // Convert from a QModelIndexList to an index based vtkSelection
+  const QModelIndexList qmil = this->ItemViewPtr->selectionModel()->selectedRows();
+  vtkSelection *VTKIndexSelectList = this->ModelAdapterPtr->QModelIndexListToVTKIndexSelection(qmil);
   
-  // For index selection do this odd little dance with two maps :)
-  for (int i = 0; i < list.size(); i++)
-    {
-    vtkIdType pid = this->ModelAdapterPtr->QModelIndexToPedigree(list.at(i));
-    idarr->InsertNextValue(this->ModelAdapterPtr->PedigreeToId(pid));
-    }  
-
   // Convert to the correct type of selection
   vtkDataObject* data = this->ModelAdapterPtr->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    selection, data, this->SelectionType, this->SelectionArrayNames));
+    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames));
    
   // Call select on the representation
   this->GetRepresentation()->Select(this, converted);
@@ -274,29 +258,14 @@ void vtkQtItemView::Update()
     {
     // If we initiated the selection, do nothing.
     return;
-    }
+    }  
 
   vtkSelection* s = rep->GetSelectionLink()->GetSelection();
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
-  QItemSelection list;
-  vtkSelectionNode* node = selection->GetNode(0);
-  if (node)
-    {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-    if (arr)
-      {
-      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
-        {
-        vtkIdType id = arr->GetValue(i);
-        QModelIndex index = 
-          this->ModelAdapterPtr->PedigreeToQModelIndex(
-          this->ModelAdapterPtr->IdToPedigree(id));
-        list.select(index, index);
-        }
-      }
-    }
-  this->GetSelectionModel()->select(list, 
+  QItemSelection qisList = this->ModelAdapterPtr->
+    VTKIndexSelectionToQItemSelection(selection);
+  this->GetSelectionModel()->select(qisList, 
     QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);  
   
   // Sub-classes might use their own views, so don't assume the view has been set

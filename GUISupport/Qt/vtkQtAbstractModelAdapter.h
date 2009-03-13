@@ -38,8 +38,7 @@
 class vtkDataObject;
 
 #include <QAbstractItemModel>
-
-class QModelIndex;
+#include <QItemSelection>
 
 class QVTK_EXPORT vtkQtAbstractModelAdapter : public QAbstractItemModel
 {
@@ -59,8 +58,7 @@ public:
     ViewType(FULL_VIEW),
     KeyColumn(-1),
     DataStartColumn(-1),
-    DataEndColumn(-1),
-    ViewRows(true)
+    DataEndColumn(-1)
     { }
 
   // Description:
@@ -69,11 +67,11 @@ public:
   virtual vtkDataObject* GetVTKDataObject() const = 0;
   
   // Description:
-  // Mapping methods for converting from VTK land to Qt land
-  virtual vtkIdType IdToPedigree(vtkIdType id) const = 0;
-  virtual vtkIdType PedigreeToId(vtkIdType pedigree) const = 0;
-  virtual QModelIndex PedigreeToQModelIndex(vtkIdType id) const = 0;
-  virtual vtkIdType QModelIndexToPedigree(QModelIndex index) const = 0;
+  // Selection conversion from VTK land to Qt land
+  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
+    const QModelIndexList qmil) const = 0;
+  virtual QItemSelection VTKIndexSelectionToQItemSelection(
+    vtkSelection *vtksel) const = 0;
 
   // Description:
   // Set/Get the view type.
@@ -101,22 +99,11 @@ public:
   virtual void SetDataColumnRange(int c1, int c2)
     { this->DataStartColumn = c1; this->DataEndColumn = c2; }
 
-  virtual bool GetViewRows()
-    { return this->ViewRows; }
-
   // We make the reset() method public because it isn't always possible for
   // an adapter to know when its input has changed, so it must be callable
   // by an outside entity.
   void reset() { QAbstractItemModel::reset(); }
 
-public slots:
-  // Description:
-  // Sets the view to either rows (standard) or columns.
-  // When viewing columns, each row in the item model will contain the name
-  // of a column in the underlying data object.
-  // This essentially flips the table on its side.
-  void SetViewRows(bool b)
-    { this->ViewRows = b; this->reset(); emit this->modelChanged(); }
 
 signals:
   void modelChanged();
@@ -128,7 +115,6 @@ protected:
   int KeyColumn;
   int DataStartColumn;
   int DataEndColumn;
-  bool ViewRows;
 };
 
 #endif
