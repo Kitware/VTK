@@ -18,6 +18,8 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestPolynomialSolversUnivariate.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
+  TestUnicodeStringAPI.cxx
+  TestUnicodeStringArrayAPI.cxx
   TestVariantComparison.cxx
   SystemInformation.cxx
   EXTRA_INCLUDE vtkTestDriver.h

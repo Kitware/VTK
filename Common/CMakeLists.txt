@@ -174,6 +174,8 @@ vtkTimeStamp.cxx
 vtkTimerLog.cxx
 vtkTransform.cxx
 vtkTransformCollection.cxx
+vtkUnicodeString.cxx
+vtkUnicodeStringArray.cxx
 vtkUnsignedCharArray.cxx
 vtkUnsignedIntArray.cxx
 vtkUnsignedLongArray.cxx
@@ -189,6 +191,21 @@ vtkWindowLevelLookupTable.cxx
 vtkXMLDataElement.cxx
 vtkXMLFileOutputWindow.cxx
 )
+
+# Generate data for folding Unicode strings
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake @ONLY)
+
+ADD_CUSTOM_COMMAND(
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake 
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
+  )
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkUnicodeString.cxx
+  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
+  )
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
   SET_SOURCE_FILES_PROPERTIES(
@@ -328,6 +345,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkTimeStamp.cxx
   vtkVariant.cxx
   vtkWeakPointerBase.cxx
+  vtkUnicodeString.cxx
 
   WRAP_EXCLUDE
 )

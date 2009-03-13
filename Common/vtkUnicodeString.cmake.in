@@ -1,0 +1,23 @@
+# Generate data for folding Unicode strings
+SET(CASE_FOLD_DATA_FILE @CMAKE_CURRENT_BINARY_DIR@/vtkUnicodeCaseFoldData.h)
+FILE(WRITE ${CASE_FOLD_DATA_FILE} "// Generated file, do not edit by hand!\n")
+FILE(APPEND ${CASE_FOLD_DATA_FILE} "\n")
+FILE(APPEND ${CASE_FOLD_DATA_FILE} "static vtkUnicodeString::value_type vtkUnicodeCaseFoldData[] = {\n")
+FILE(STRINGS @CMAKE_CURRENT_SOURCE_DIR@/CaseFolding.txt FOLDING)
+FOREACH(FOLD ${FOLDING})
+  IF(FOLD MATCHES "^([0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]?); (C|F); ([^;]*); # (.*)")
+    SET(CODE ${CMAKE_MATCH_1})
+    SET(MAPPING ${CMAKE_MATCH_3})
+    SET(COMMENT ${CMAKE_MATCH_4})
+
+    SEPARATE_ARGUMENTS(MAPPING)
+
+    FILE(APPEND ${CASE_FOLD_DATA_FILE} "  0x${CODE}, ")
+    FOREACH(MAP ${MAPPING})
+      FILE(APPEND ${CASE_FOLD_DATA_FILE} "0x${MAP}, ")
+    ENDFOREACH()
+    FILE(APPEND ${CASE_FOLD_DATA_FILE} "0x0000, // ${COMMENT}\n")
+  ENDIF()
+ENDFOREACH()
+FILE(APPEND ${CASE_FOLD_DATA_FILE} "  0x0000 };\n\n")
+
