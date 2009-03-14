@@ -39,7 +39,7 @@ vtkUnicodeString::const_iterator::const_iterator(vtkstd::string::const_iterator 
 {
 }
 
-const vtkUnicodeString::value_type vtkUnicodeString::const_iterator::operator*() const
+vtkUnicodeString::value_type vtkUnicodeString::const_iterator::operator*() const
 {
   return utf8::unchecked::peek_next(this->Position);
 }
@@ -161,7 +161,7 @@ vtkUnicodeString::const_iterator vtkUnicodeString::end() const
   return const_iterator(this->Storage.end());
 }
 
-const vtkUnicodeString::value_type vtkUnicodeString::at(size_type offset) const
+vtkUnicodeString::value_type vtkUnicodeString::at(size_type offset) const
 {
   if(offset >= this->character_count())
     throw vtkstd::out_of_range("character out-of-range");
@@ -171,7 +171,7 @@ const vtkUnicodeString::value_type vtkUnicodeString::at(size_type offset) const
   return utf8::unchecked::peek_next(iterator);
 }
 
-const vtkUnicodeString::value_type vtkUnicodeString::operator[](size_type offset) const
+vtkUnicodeString::value_type vtkUnicodeString::operator[](size_type offset) const
 {
   vtkstd::string::const_iterator iterator = this->Storage.begin();
   utf8::unchecked::advance(iterator, offset);
@@ -338,33 +338,32 @@ void vtkUnicodeString::swap(vtkUnicodeString& rhs)
   vtkstd::swap(this->Storage, rhs.Storage);
 }
 
-const bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
+bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
 {
   return lhs.compare(rhs) == 0;
 }
 
-const bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
+bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
 {
   return lhs.compare(rhs) != 0;
 }
 
-const bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
+bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
 {
   return lhs.compare(rhs) < 0;
 }
 
-const bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
+bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
 {
   return lhs.compare(rhs) <= 0;
 }
 
-const bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
+bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
 {
   return lhs.compare(rhs) >= 0;
 }
 
-const bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
+bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs)
 {
   return lhs.compare(rhs) > 0;
 }
-

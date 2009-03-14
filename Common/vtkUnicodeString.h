@@ -65,7 +65,7 @@ public:
   
     const_iterator();
 
-    const value_type operator*() const;
+    value_type operator*() const;
     bool operator==(const const_iterator&) const;
     bool operator!=(const const_iterator&) const;
     const_iterator& operator++();
@@ -120,11 +120,11 @@ public:
   // Description:
   // Returns the Unicode character at the given character offset within the sequence,
   // or throws vtkstd::out_of_range if the offset is invalid.
-  const value_type at(size_type offset) const;
+  value_type at(size_type offset) const;
   // Description:
   // Returns the Unicode character at the given character offset within the sequence.
   // Behavior is undefined if the position is invalid.
-  const value_type operator[](size_type offset) const;
+  value_type operator[](size_type offset) const;
 
   // Description:
   // Returns the sequence as a null-terminated sequence of UTF-8 encoded characters.
@@ -203,12 +203,12 @@ private:
   vtkstd::string Storage;
 };
 
-VTK_COMMON_EXPORT const bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT const bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT const bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT const bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT const bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT const bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTK_COMMON_EXPORT bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTK_COMMON_EXPORT bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTK_COMMON_EXPORT bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTK_COMMON_EXPORT bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTK_COMMON_EXPORT bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTK_COMMON_EXPORT bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
 
 #endif
 
