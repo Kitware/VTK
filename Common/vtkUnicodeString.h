@@ -48,6 +48,8 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
+class vtkUnicodeString;
+
 class VTK_COMMON_EXPORT vtkUnicodeString
 {
 public:
