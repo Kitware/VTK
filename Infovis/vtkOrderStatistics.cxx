@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -36,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.39");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.40");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -72,20 +73,19 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  if ( ! this->SampleSize )
-    {
-    return;
-    }
-
   if ( ! this->Internals->Selection.size() )
     {
     return;
     }
 
-  vtkIdType nCol = inData->GetNumberOfColumns();
-  if ( ! nCol )
+  vtkIdType n = inData->GetNumberOfRows();
+  if ( n <= 0 )
     {
-    this->SampleSize = 0;
+    return;
+    }
+
+  if ( inData->GetNumberOfColumns() <= 0 )
+    {
     return;
     }
 
@@ -94,11 +94,11 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( stringCol );
   stringCol->Delete();
 
-  if ( this->NumberOfIntervals < 1 )
-    {
-    return;
-    }
-  
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  outMeta->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
   vtkVariantArray* variantCol;
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
@@ -150,53 +150,89 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
       continue;
       }
 
-    int isNum = inData->GetColumnByName( col )->IsNumeric();
-
-    vtkstd::map<vtkVariant,vtkIdType> distr;
-    for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
-      {
-      ++ distr[inData->GetValueByName( r, col )];
-      }
-
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( this->NumberOfIntervals + 2 );
+    // A row contains: variable name, cardinality, and NumberOfIntervals + 1 quantile values
+    row->SetNumberOfValues( this->NumberOfIntervals + 3 );
     
     int i = 0;
     row->SetValue( i ++, col );
+    row->SetValue( i ++, n );
     
     vtkstd::vector<double> quantileThresholds;
-    double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
+    double dh = n / static_cast<double>( this->NumberOfIntervals );
     for ( int j = 0; j < this->NumberOfIntervals; ++ j )
       {
       quantileThresholds.push_back( j * dh );
       }
-    
-    vtkIdType sum = 0;
-    vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
-    for ( vtkstd::map<vtkVariant,vtkIdType>::iterator mit = distr.begin();
-          mit != distr.end(); ++ mit  )
+
+    // Try to downcast column to eith data or string arrays for efficient data access
+    vtkAbstractArray* arr = inData->GetColumnByName( col );
+
+    if ( arr->IsA("vtkDataArray") ) 
       {
-      for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
+      vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
+
+      vtkstd::map<double,vtkIdType> distr;
+      for ( vtkIdType r = 0; r < n; ++ r )
         {
-        if ( isNum
-             && sum == *qit
-             && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+        ++ distr[darr->GetTuple1( r )];
+        }
+
+      vtkIdType sum = 0;
+      vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
+      for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
+            mit != distr.end(); ++ mit  )
+        {
+        for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
           {
-          vtkstd::map<vtkVariant,vtkIdType>::iterator nit = mit;
-          row->SetValue( i ++, ( (++ nit)->first.ToDouble() + mit->first.ToDouble() ) * .5 );
+          // Mid-point interpolation is available for numeric types only
+          if ( sum == *qit
+               && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+            {
+            vtkstd::map<double,vtkIdType>::iterator nit = mit;
+            row->SetValue( i ++, ( (++ nit)->first + mit->first ) * .5 );
+            }
+          else
+            {
+            row->SetValue( i ++, mit->first );
+            }
           }
-        else
+        }
+    
+      row->SetValue( i, distr.rbegin()->first );
+      outMeta->InsertNextRow( row );
+      }
+    else if ( arr->IsA("vtkStringArray") ) 
+      {
+      vtkStringArray* sarr = vtkStringArray::SafeDownCast( arr ); 
+      vtkstd::map<vtkStdString,vtkIdType> distr;
+      for ( vtkIdType r = 0; r < n; ++ r )
+        {
+        ++ distr[sarr->GetValue( r )];
+        }
+
+      vtkIdType sum = 0;
+      vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
+      for ( vtkstd::map<vtkStdString,vtkIdType>::iterator mit = distr.begin();
+            mit != distr.end(); ++ mit  )
+        {
+        for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
           {
           row->SetValue( i ++, mit->first );
           }
         }
+      
+      row->SetValue( i, distr.rbegin()->first );
+      outMeta->InsertNextRow( row );
       }
-    
-    row->SetValue( i, distr.rbegin()->first );
-    
-    outMeta->InsertNextRow( row );
-    
+    else // column is of type vtkVariantArray, which is not supported by this filter
+      {
+      vtkWarningMacro("Type vtkVariantArray of column "
+                      <<col.c_str()
+                      << " not supported. Ignoring it." );
+      }
+
     row->Delete();
     }
 
@@ -300,11 +336,19 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
       assessValues->Delete();  
     }  
 
+  // Downcast meta columns to string arrays for efficient data access
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
+  if ( ! vars )
+    {
+    dfunc = 0;
+    return;
+    }
+
   // Loop over parameters table until the requested variable is found
   vtkIdType nRowP = inMeta->GetNumberOfRows();
-  for ( int i = 0; i < nRowP; ++ i )
+  for ( int r = 0; r < nRowP; ++ r )
     {
-    if ( inMeta->GetValueByName( i, "Variable" ).ToString() == varName )
+    if ( vars->GetValue( r ) == varName )
       {
       // Grab the data for the requested variable
       vtkAbstractArray* vals = outData->GetColumnByName( varName );
@@ -314,7 +358,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      dfunc = new TableColumnBucketingFunctor( vals, inMeta->GetRow( i ) );
+      dfunc = new TableColumnBucketingFunctor( vals, inMeta->GetRow( r ) );
       return;
       }
     }
