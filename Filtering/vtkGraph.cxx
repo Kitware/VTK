@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.33");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.34");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.33");
+vtkCxxRevisionMacro(vtkGraph, "1.34");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1256,6 +1256,14 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
     }
 
   vtkIdType existingVertex = this->FindVertex(pedigreeId);
+
+  // If we're on a distributed graph, FindVertex may return a distributedID
+  // even for a local vertex, so first we make sure we have the local-ID
+  // before doing the range-check.
+  if(helper)
+    {
+    existingVertex = helper->GetVertexIndex(existingVertex);
+    }
   if (existingVertex != -1 && existingVertex < this->GetNumberOfVertices())
     {
     // We found this vertex; nothing more to do.
