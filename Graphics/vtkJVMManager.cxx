@@ -40,14 +40,13 @@
     }                                                                         \
   if ( this->ExceptionRaised() )                                              \
     {                                                                         \
-    cerr << "EXCEPTION!" << endl;                                             \
     this->DescribeException();                                                \
     return retval;                                                            \
     }
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkJVMManager);
-vtkCxxRevisionMacro(vtkJVMManager, "1.3");
+vtkCxxRevisionMacro(vtkJVMManager, "1.4");
 
 //----------------------------------------------------------------------------
 class vtkJVMManagerInternal
@@ -62,8 +61,8 @@ public:
   vtksys_stl::vector<jvalue> Arguments;
 };
 
-vtkStringArray* vtkJVMManager::ClassPaths = vtkStringArray::New();
-vtkStringArray* vtkJVMManager::LibraryPaths = vtkStringArray::New();
+vtkStringArray* vtkJVMManager::ClassPaths = 0;
+vtkStringArray* vtkJVMManager::LibraryPaths = 0;
 
 //----------------------------------------------------------------------------
 vtkJVMManager::vtkJVMManager()
@@ -90,25 +89,41 @@ JNIEnv* vtkJVMManager::GetEnvironment()
 //----------------------------------------------------------------------------
 void vtkJVMManager::AddClassPath(const char* path)
 {
+  if (!ClassPaths)
+    {
+    ClassPaths = vtkStringArray::New();
+    }
   ClassPaths->InsertNextValue(path);
 }
 
 //----------------------------------------------------------------------------
 void vtkJVMManager::RemoveAllClassPaths()
 {
-  ClassPaths->Initialize();
+  if (ClassPaths)
+    {
+    ClassPaths->Delete();
+    ClassPaths = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkJVMManager::AddLibraryPath(const char* path)
 {
+  if (!LibraryPaths)
+    {
+    LibraryPaths = vtkStringArray::New();
+    }
   LibraryPaths->InsertNextValue(path);
 }
 
 //----------------------------------------------------------------------------
 void vtkJVMManager::RemoveAllLibraryPaths()
 {
-  LibraryPaths->Initialize();
+  if (LibraryPaths)
+    {
+    LibraryPaths->Delete();
+    LibraryPaths = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -139,10 +154,9 @@ void vtkJVMManager::CreateJVM()
     vtksys_ios::ostringstream oss;
     oss << "-Xmx" << this->MaximumHeapSizeMB << "M" << ends;
     vtkStdString memStr = oss.str();
-    cerr << "loading JVM with max heap size: " << memStr.c_str() << endl;
     options[0].optionString = const_cast<char*>(memStr.c_str());
     vtkStdString classStr;
-    if (this->ClassPaths->GetNumberOfTuples() > 0)
+    if (this->ClassPaths && this->ClassPaths->GetNumberOfTuples() > 0)
       {
       args.nOptions++;
       classStr += "-Djava.class.path=";
@@ -155,11 +169,10 @@ void vtkJVMManager::CreateJVM()
           }
         classStr += this->ClassPaths->GetValue(i);
         }
-      cerr << "loading JVM with java.class.path=" << classStr.c_str() << endl;
       options[args.nOptions-1].optionString = const_cast<char*>(classStr.c_str());
       }
     vtkStdString libraryStr;
-    if (this->LibraryPaths->GetNumberOfTuples() > 0)
+    if (this->LibraryPaths && this->LibraryPaths->GetNumberOfTuples() > 0)
       {
       args.nOptions++;
       libraryStr += "-Djava.library.path=";
@@ -172,7 +185,6 @@ void vtkJVMManager::CreateJVM()
           }
         libraryStr += this->LibraryPaths->GetValue(i);
         }
-      cerr << "loading JVM with java.library.path=" << libraryStr.c_str() << endl;
       options[args.nOptions-1].optionString = const_cast<char*>(libraryStr.c_str());
       }
     args.options = options;

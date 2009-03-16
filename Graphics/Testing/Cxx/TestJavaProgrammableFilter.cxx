@@ -117,5 +117,8 @@ int main(int argc, char* argv[])
     }
   cerr << "... success." << endl;
 
+  vtkJVMManager::RemoveAllClassPaths();
+  vtkJVMManager::RemoveAllLibraryPaths();
+
   return 0;
 }
