@@ -43,7 +43,13 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       QVTKPaintEngine.cxx
       QVTKPaintEngine.h
       vtkQtAbstractModelAdapter.cxx
+      vtkQImageToImageSource.cxx
       vtkQtInitialization.cxx
+      vtkQtLabelMapper.cxx
+      vtkQtLabelSizeCalculator.cxx
+      vtkQtLabelSurface.cxx
+      vtkQtTreeRingLabelMapper.cxx
+      vtkTreeRingView3.cxx
       vtkQtSQLDatabase.cxx
       vtkQtSQLQuery.cxx
       vtkQtTableModelAdapter.cxx
