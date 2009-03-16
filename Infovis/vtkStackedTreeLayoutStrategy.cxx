@@ -22,6 +22,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -39,7 +40,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
@@ -82,6 +83,18 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
     vtkErrorMacro("Area array not defined.");
     return;
     }
+
+  VTK_CREATE(vtkDoubleArray, textRotationArray);
+//  VTK_CREATE(vtkDoubleArray, textRadiusArray);
+  textRotationArray->SetName( "TextRotation" );
+  textRotationArray->SetNumberOfComponents(1);
+  textRotationArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
+//  textRadiusArray->SetName( "TextRadius" );
+//  textRadiusArray->SetNumberOfComponents(1);
+//  textRadiusArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
+  vtkDataSetAttributes* data = inputTree->GetVertexData();
+  data->AddArray( textRotationArray );
+//  data->AddArray( textRadiusArray );
 
   double outer_radius = 0.0;
   if (this->Reverse)
@@ -138,13 +151,19 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
       {
       x = 0.5*(sector_coords[0] + sector_coords[1]);
       y = 0.5*(sector_coords[2] + sector_coords[3]);
-      z = 0.;
+      z = 0.;  
+
+      textRotationArray->SetValue( i, 0 );
+//      textRadiusArray->SetValue( i, 0 );
       }
     else
       {
       if( i == rootId )
         {
         x = y = z = 0.;
+
+        textRotationArray->SetValue( i, 0 );
+//        textRadiusArray->SetValue( i, 0 );
         }
       else
         {
@@ -153,6 +172,38 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
         x = r * cos( vtkMath::RadiansFromDegrees( theta ) );
         y = r * sin( vtkMath::RadiansFromDegrees( theta ) );
         z = 0.;
+        
+        double sector_arc_length = r * vtkMath::RadiansFromDegrees(sector_coords[1] - sector_coords[0]);
+        double radial_arc_length = sector_coords[3] - sector_coords[2];
+        double aspect_ratio = sector_arc_length / radial_arc_length;
+        if( aspect_ratio > 1 )
+          {
+          //sector length is greater than radial length; 
+          // align text with the sector
+          if( theta > 0. && theta < 180. )
+            {
+            textRotationArray->SetValue( i, theta - 90. );
+            }
+          else
+            {
+            textRotationArray->SetValue( i, theta + 90. );
+            }
+//          textRadiusArray->SetValue( i, r );
+          }
+        else
+          {
+          //radial length is greater than sector length;
+          // align text radially...
+          if( theta > 90. && theta < 270. )
+            {
+            textRotationArray->SetValue( i, theta - 180. );
+            }
+          else
+            {
+            textRotationArray->SetValue( i, theta );
+            }
+//          textRadiusArray->SetValue( i, 0 );
+          }
         }
       }
     points->SetPoint(i, x, y, z);
