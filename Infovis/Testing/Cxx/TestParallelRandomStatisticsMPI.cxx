@@ -149,9 +149,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 #if PRINT_ALL_SERIAL_STATS
   cout << "\n## Proc "
        << myRank
-       << " calculated the following statistics ( "
-       << ds->GetSampleSize()
-       << " entries per column ):\n";
+       << " calculated the following statistics:\n";
   for ( vtkIdType r = 0; r < ds->GetOutput( 1 )->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -180,7 +178,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   double dn;
   for ( vtkIdType r = 0; r < nRows; ++ r )
     {
-    dn = static_cast<double>( ds->GetSampleSize() );
+    dn = ds->GetOutput( 1 )->GetValueByName( r, "Cardinality" ).ToDouble();
     cardsAndMeans_l[2 * r] = dn;
     cardsAndMeans_l[2 * r + 1] = dn * ds->GetOutput( 1 )->GetValueByName( r, "Mean" ).ToDouble();
 
@@ -333,7 +331,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
          << "   Total sample size: "
-         << pds->GetSampleSize()
+         << pds->GetOutput( 1 )->GetValueByName( 0, "Cardinality" ).ToInt()   
          << " \n"
          << "   Wall time: "
          << difftime( t1, t0 )
@@ -418,7 +416,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
            << ":\n";
       for ( int i = 0; i < 3; ++ i )
         {
-        double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( pds->GetSampleSize() ) ) * 100.;
+        double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( pds->GetOutput( 1 )->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
 
         cout << "      " 
              << testVal
@@ -470,7 +468,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
          << "   Total sample size: "
-         << pcs->GetSampleSize()
+         << pcs->GetOutput( 1 )->GetValueByName( 0, "Cardinality" ).ToInt() 
          << " \n"
          << "   Wall time: "
          << difftime( t3, t2 )
