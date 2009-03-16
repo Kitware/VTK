@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.22");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.23");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -102,13 +102,13 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     return; 
     } 
 
-  if ( ! inData->GetNumberOfColumns() )
+  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
     {
     return;
     }
 
   vtkIdType nRowD = inData->GetNumberOfRows();
-  if ( ! nRowD )
+  if ( nRowD <= 0 )
     {
     return;
     }
@@ -129,11 +129,6 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     }
 
   if ( ! inMeta->GetNumberOfRows() )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->Selection.size() )
     {
     return;
     }
