@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.6");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.7");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -79,7 +79,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
                                                        vtkTable* sparseCov )
 {
   vtkIdType nRow = sparseCov->GetNumberOfRows();
-  if ( ! nRow )
+  if ( nRow <= 0 )
     {
     // No statistics were calculated.
     return;
