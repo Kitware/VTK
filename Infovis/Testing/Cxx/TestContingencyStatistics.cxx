@@ -135,8 +135,6 @@ int TestContingencyStatistics( int, char *[] )
   // Skip first row which contains data set cardinality
   for ( vtkIdType r = 1; r < outputContingency->GetNumberOfRows(); ++ r )
     {
-    int c = outputContingency->GetValue( r, 4 ).ToInt();
-
     cout << "   ("
          << outputSummary->GetValue( outputContingency->GetValue( r, 0 ).ToInt(), 0 ).ToString()
          << ", "

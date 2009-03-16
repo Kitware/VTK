@@ -76,14 +76,6 @@ public:
   vtkGetMacro( NumberOfVariables, vtkIdType );
 
   // Description:
-  // Set the sample size.
-  vtkSetMacro( SampleSize, vtkIdType );
-
-  // Description:
-  // Get the sample size.
-  vtkGetMacro( SampleSize, vtkIdType );
-
-  // Description:
   // Set the Learn option.
   vtkSetMacro( Learn, bool );
 
@@ -195,7 +187,6 @@ protected:
                               vtkDataObject* ) = 0; 
 
   vtkIdType NumberOfVariables;
-  vtkIdType SampleSize;
   bool Learn;
   bool Derive;
   bool Assess;

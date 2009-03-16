@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.29");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.30");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -62,7 +62,6 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
-  os << indent << "SampleSize: " << this->SampleSize << endl;
   os << indent << "Learn: " << this->Learn << endl;
   os << indent << "Derive: " << this->Derive << endl;
   os << indent << "FullWasDerived: " << this->FullWasDerived << endl;
@@ -109,8 +108,6 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
     {
     return 1;
     }
-
-  this->SampleSize = inData->GetNumberOfRows();
 
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
