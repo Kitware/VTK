@@ -46,7 +46,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkJVMManager);
-vtkCxxRevisionMacro(vtkJVMManager, "1.4");
+vtkCxxRevisionMacro(vtkJVMManager, "1.5");
 
 //----------------------------------------------------------------------------
 class vtkJVMManagerInternal
@@ -552,3 +552,11 @@ void vtkJVMManager::DescribeException()
 {
   this->Internal->JavaEnvironment->ExceptionDescribe();
 }
+
+//----------------------------------------------------------------------------
+void vtkJVMManager::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "MaximumHeapSizeMB: " << this->MaximumHeapSizeMB << endl;
+}
+

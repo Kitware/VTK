@@ -72,6 +72,7 @@ class VTK_GRAPHICS_EXPORT vtkJVMManager : public vtkObject
 public:
   static vtkJVMManager *New();
   vtkTypeRevisionMacro(vtkJVMManager,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Add a path (or jar file) to the places Java will look for
