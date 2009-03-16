@@ -103,7 +103,7 @@ int TestQtImages( int argc, char* argv[] )
   window->Render();
 
   int retVal = vtkRegressionTestImage(window);
-//  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();
   }
