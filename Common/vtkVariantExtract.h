@@ -158,6 +158,13 @@ inline vtkStdString vtkVariantExtract<vtkStdString>(const vtkVariant& value, boo
 }
 
 template<>
+inline vtkUnicodeString vtkVariantExtract<vtkUnicodeString>(const vtkVariant& value, bool& valid)
+{
+  valid = value.IsUnicodeString();
+  return valid ? value.ToUnicodeString() : vtkUnicodeString();
+}
+
+template<>
 inline vtkVariant vtkVariantExtract<vtkVariant>(const vtkVariant& value, bool& valid)
 {
   valid = true;

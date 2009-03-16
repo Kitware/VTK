@@ -49,6 +49,7 @@
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
 
 class vtkStdString;
+class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
 struct vtkVariantLessThan;
@@ -141,6 +142,10 @@ public:
   vtkVariant(vtkStdString value);
 
   // Description:
+  // Create a Unicode string variant
+  vtkVariant(const vtkUnicodeString& value);
+
+  // Description:
   // Create a vtkObjectBase variant.
   vtkVariant(vtkObjectBase* value);
 
@@ -155,6 +160,10 @@ public:
   // Description:
   // Get whether the variant is a string.
   bool IsString() const;
+
+  // Description:
+  // Get whether the variant is a Unicode string.
+  bool IsUnicodeString() const;
 
   // Description:
   // Get whether the variant is any numeric type.
@@ -239,6 +248,10 @@ public:
   // Description:
   // Convert the variant to a string.
   vtkStdString ToString() const;
+
+  // Description:
+  // convert the variant to a Unicode string.
+  vtkUnicodeString ToUnicodeString() const;
 
   // Description:
   // Convert the variant to a numeric type:
@@ -335,6 +348,7 @@ private:
   union
   {
     vtkStdString* String;
+    vtkUnicodeString* UnicodeString;
     float Float;
     double Double;
     char Char;

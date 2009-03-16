@@ -22,6 +22,7 @@
 #ifndef __vtkVariantCast_h
 #define __vtkVariantCast_h
 
+#include <vtkUnicodeString.h>
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -145,6 +146,15 @@ inline vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* 
     *valid = true;
 
   return value.ToString();
+}
+
+template<>
+inline vtkUnicodeString vtkVariantCast<vtkUnicodeString>(const vtkVariant& value, bool* valid)
+{
+  if(valid)
+    *valid = true;
+
+  return value.ToUnicodeString();
 }
 
 template<>
