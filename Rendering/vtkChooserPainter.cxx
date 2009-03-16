@@ -28,7 +28,7 @@
 #include "vtkStandardPolyDataPainter.h"
 #include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.8");
+vtkCxxRevisionMacro(vtkChooserPainter, "1.9");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);
@@ -335,8 +335,10 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Polys" << endl;
     this->ProgressScaleFactor = static_cast<double>(numPolys)/total_cells;
-    if (this->UseLinesPainterForWireframes && 
-      actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    if (   this->UseLinesPainterForWireframes
+        && (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+        && !actor->GetProperty()->GetBackfaceCulling()
+        && !actor->GetProperty()->GetFrontfaceCulling() )
       {
       this->LinePainter->Render(renderer, actor, vtkPainter::POLYS,
         forceCompileOnly);
