@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.17");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.18");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -435,7 +435,17 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     this->LookupTable->SetRange(this->ScalarRange);
     }
   
-  double* range = this->LookupTable->GetRange();
+  double range[2];
+  range[0] = this->LookupTable->GetRange()[0];
+  range[1] = this->LookupTable->GetRange()[1];
+
+  bool use_log_scale = this->LookupTable->UsingLogScale();
+  if (use_log_scale)
+    {
+    // convert range to log.
+    vtkLookupTable::GetLogRange(range, range);
+    }
+
   double orig_alpha = this->LookupTable->GetAlpha();
 
   // If the lookup table has changed, the recreate the color texture map.
@@ -459,6 +469,10 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     for (int i = 0; i < COLOR_TEXTURE_MAP_SIZE; ++i)
       {
       *ptr = range[0] + i * k;
+      if (use_log_scale)
+        {
+        *ptr = pow(10, *ptr);
+        }
       ++ptr;
       }
     this->ColorTextureMap = vtkSmartPointer<vtkImageData>::New();
@@ -633,7 +647,9 @@ void vtkScalarsToColorsPainter::CreateDefaultLookupTable()
 template<class T>
 void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
                                             vtkIdType num, int numComps, 
-                                            int component, double* range)
+                                            int component, double* range,
+                                            double* table_range,
+                                            bool use_log_scale)
 {
   double tmp, sum;
   double k = 1.0 / (range[1]-range[0]);
@@ -651,7 +667,13 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
         sum += (tmp * tmp);
         ++input;
         }
-      output[i] = k * (sqrt(sum) - range[0]);
+      double magnitude = sqrt(sum);
+      if (use_log_scale)
+        {
+        magnitude = vtkLookupTable::ApplyLogScale(
+          magnitude, table_range, range);
+        }
+      output[i] = k * (magnitude - range[0]);
       if (output[i] > 1.0)
         {
         output[i] = 1.0;
@@ -667,7 +689,13 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
     input += component;
     for (i = 0; i < num; ++i)
       {
-      output[i] = k * (static_cast<double>(*input) - range[0]);
+      double input_value = static_cast<double>(*input);
+      if (use_log_scale)
+        {
+        input_value = vtkLookupTable::ApplyLogScale(
+          input_value, table_range, range);
+        }
+      output[i] = k * (input_value - range[0]);
       if (output[i] > 1.0)
         {
         output[i] = 1.0;
@@ -694,7 +722,16 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(
     input->GetMTime() > tcoords->GetMTime() ||
     this->LookupTable->GetMTime() > tcoords->GetMTime())
     {
-    double* range = this->LookupTable->GetRange();
+    double range[2];
+    range[0] = this->LookupTable->GetRange()[0];
+    range[1] = this->LookupTable->GetRange()[1];
+    bool use_log_scale = this->LookupTable->UsingLogScale();
+    if (use_log_scale)
+      {
+      // convert range to log.
+      vtkLookupTable::GetLogRange(range, range);
+      }
+
     // Get rid of old colors
     if ( tcoords )
       {
@@ -728,7 +765,9 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(
       vtkTemplateMacro(
         vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(void_input),
           tcptr, num, numComps,
-          scalarComponent, range)
+          scalarComponent, range,
+          this->LookupTable->GetRange(),
+          use_log_scale)
       );
     case VTK_BIT:
       vtkErrorMacro("Cannot color by bit array.");

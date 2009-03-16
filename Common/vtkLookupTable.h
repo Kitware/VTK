@@ -193,6 +193,20 @@ public:
   void SetRange(double min, double max) { this->SetTableRange(min, max); };
   void SetRange(double rng[2]) { this->SetRange(rng[0], rng[1]); };
 
+  //BTX
+  // Description:
+  // Returns the log of \c range in \c log_range.
+  // There is a little more to this than simply taking the log10 of the
+  // two range values: we do conversion of negative ranges to positive
+  // ranges, and conversion of zero to a 'very small number'.
+  static void GetLogRange(const double range[2], double log_range[2]);
+
+  // Description:
+  // Apply log to value, with appropriate constraints.
+  static double ApplyLogScale(double v, const double range[2],
+    const double log_range[2]);
+  //ETX
+
   // Description:
   // Set the number of colors in the lookup table.  Use
   // SetNumberOfTableValues() instead, it can be used both before and

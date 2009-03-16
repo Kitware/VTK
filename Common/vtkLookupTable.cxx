@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.107");
+vtkCxxRevisionMacro(vtkLookupTable, "1.108");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -271,12 +271,12 @@ double vtkLookupTable::GetOpacity(double v)
 
   return rgb8[3]/255.0;
 }
-
+ 
 //----------------------------------------------------------------------------
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
-void vtkLookupTableLogRange(double range[2], double logRange[2])
+void vtkLookupTableLogRange(const double range[2], double logRange[2])
 {
   double rmin = range[0];
   double rmax = range[1];
@@ -311,8 +311,8 @@ void vtkLookupTableLogRange(double range[2], double logRange[2])
 
 //----------------------------------------------------------------------------
 // Apply log to value, with appropriate constraints.
-inline double vtkApplyLogScale(double v, double range[2], 
-                               double logRange[2])
+inline double vtkApplyLogScale(double v, const double range[2], 
+                               const double logRange[2])
 {
   // is the range set for negative numbers?
   if (range[0] < 0)
@@ -368,6 +368,19 @@ inline unsigned char *vtkLinearLookup(double v,
   /* round
   return &table[4*(int)(findx + 0.5f)];
   */
+}
+
+//----------------------------------------------------------------------------
+void vtkLookupTable::GetLogRange(const double range[2], double log_range[2])
+{
+  vtkLookupTableLogRange(range, log_range);
+}
+
+//----------------------------------------------------------------------------
+double vtkLookupTable::ApplyLogScale(double v, const double range[2],
+  const double log_range[2])
+{
+  return vtkApplyLogScale(v, range, log_range);
 }
 
 //----------------------------------------------------------------------------
