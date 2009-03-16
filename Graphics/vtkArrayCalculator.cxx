@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.43");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.44");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -391,6 +391,7 @@ int vtkArrayCalculator::RequestData(
   else
     {
     // Error occurred in vtkFunctionParser.
+    vtkWarningMacro("An error occured when parsing the calculator's function.  See previous errors.");
     return 1;
     }
 
