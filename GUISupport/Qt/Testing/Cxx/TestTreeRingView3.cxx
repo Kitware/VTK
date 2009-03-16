@@ -77,6 +77,7 @@ int TestTreeRingView3(int argc, char* argv[])
   theme->Delete();
 
   VTK_CREATE(vtkRenderWindow, win);
+  win->SetSize(512, 512); 
   win->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetupRenderWindow(win);
   view->Update();
