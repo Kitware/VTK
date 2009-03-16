@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -37,7 +37,7 @@
 
 // This include fixes header-ordering issues in Boost.Serialization
 // prior to Boost 1.35.0.
-#include <boost/archive/binary_oarchive.hpp> 
+#include <boost/archive/binary_oarchive.hpp>
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
@@ -62,7 +62,7 @@ template<typename Archiver>
 void save(Archiver& ar, const vtkVariant& variant,
           const unsigned int vtkNotUsed(version))
 {
-  if (!variant.IsValid()) 
+  if (!variant.IsValid())
     {
     char null = 0;
     ar & null;
@@ -127,7 +127,7 @@ void load(Archiver& ar, vtkVariant& variant,
       }                                         \
       return
 
-  switch (Type) 
+  switch (Type)
     {
     case 0: variant = vtkVariant(); return;
     VTK_VARIANT_LOAD(VTK_STRING,vtkStdString);
@@ -163,13 +163,14 @@ BOOST_SERIALIZATION_SPLIT_FREE(vtkVariant)
 //----------------------------------------------------------------------------
 
 template<typename Archiver>
-void save(Archiver& ar, const vtkVariantArray& c_array, 
+void save(Archiver& ar, const vtkVariantArray& c_array,
           const unsigned int vtkNotUsed(version))
 {
   vtkVariantArray& array = const_cast<vtkVariantArray&>(c_array);
 
   // Array name
-  vtkStdString name = array.GetName();
+  vtkStdString name;
+  if(array.GetName()!=NULL) name=array.GetName();
   ar & name;
 
   // Array data
@@ -189,6 +190,15 @@ void load(Archiver& ar, vtkVariantArray& array,
   vtkStdString name;
   ar & name;
   array.SetName(name.c_str());
+
+  if(name.empty())
+    {
+    array.SetName(0);
+    }
+  else
+    {
+    array.SetName(name.c_str());
+    }
 
   // Array data
   vtkIdType n;
