@@ -51,9 +51,12 @@
 #include <vtksys/stl/numeric> // for accumulate, partial_sum
 #include <vtksys/stl/functional> // for plus
 
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.6");
+vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.7");
 vtkStandardNewMacro(vtkPBGLCollectGraph);
 
 
@@ -65,6 +68,8 @@ vtkPBGLCollectGraph::vtkPBGLCollectGraph()
   this->ReplicateGraph  = false;
   this->CopyVertexData  = true;
   this->CopyEdgeData    = true;
+  this->CreateOriginProcessArray = false;
+  this->OriginProcessArrayName = NULL;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
@@ -111,6 +116,20 @@ int vtkPBGLCollectGraph::RequestData(
     {
     vtkErrorMacro("Can only collect Parallel BGL distributed graph");
     return 1;
+    }
+
+  // Set up the origin process array
+  VTK_CREATE(vtkIdTypeArray, VertexProcessSourceArray);
+  if(this->CreateOriginProcessArray)
+    {
+    if(OriginProcessArrayName)
+      {
+      VertexProcessSourceArray->SetName(this->OriginProcessArrayName);
+      }
+    else
+      {
+      VertexProcessSourceArray->SetName("ProcessorID");
+      }
     }
 
   int myRank = input->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -477,6 +496,27 @@ int vtkPBGLCollectGraph::RequestData(
       }
     }
 
+  // Set the vertex ProcessorID array if requested.
+  if(CreateOriginProcessArray)
+    {
+    VertexProcessSourceArray->SetNumberOfTuples(totalNumVertices);
+    for(vtkIdType pid=0; pid<numProcs; pid++)
+      {
+      for(vtkIdType vid=vertexOffsets[pid]; vid<vertexOffsets[pid+1]; vid++)
+        {
+        VertexProcessSourceArray->SetValue(vid, pid);
+        }
+      }
+    if(isDirected)
+      {
+      dirBuilder->GetVertexData()->AddArray(VertexProcessSourceArray);
+      }
+    else
+      {
+      undirBuilder->GetVertexData()->AddArray(VertexProcessSourceArray);
+      }
+    }
+
   // Copy the structure into the output.
   vtkGraph *output = vtkGraph::GetData(outputVector);
   if (isDirected)
@@ -515,6 +555,14 @@ void vtkPBGLCollectGraph::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CopyEdgeData: "
      << (this->CopyEdgeData ? "on" : "off") << endl;
+
+  os << indent << "CreateOriginProcessArray: "
+     << (this->CreateOriginProcessArray ? "on" : "off") << endl;
+
+  os << indent << "OriginProcessArrayName: "
+     << (this->OriginProcessArrayName ? this->OriginProcessArrayName
+                                      : "ProcessorID")
+     << endl;
 }
 
 

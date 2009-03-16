@@ -92,6 +92,19 @@ public:
   vtkSetMacro(CopyEdgeData, bool);
   vtkBooleanMacro(CopyEdgeData, bool);
 
+  // Description:
+  // When true, a new attribute array will be added to the output
+  // graph that stores the mpi process id from which each vertex
+  // was stored in the distributed vtkGraph.
+  vtkGetMacro(CreateOriginProcessArray, bool);
+  vtkSetMacro(CreateOriginProcessArray, bool);
+  vtkBooleanMacro(CreateOriginProcessArray, bool);
+
+  // Description:
+  // Sets the name of the array storing the process-id's for each vertex.
+  // If not set, defaults to "ProcessorID"
+  vtkSetStringMacro(OriginProcessArrayName);
+
 protected:
   vtkPBGLCollectGraph();
   ~vtkPBGLCollectGraph();
@@ -120,6 +133,8 @@ private:
   bool ReplicateGraph;
   bool CopyVertexData;
   bool CopyEdgeData;
+  bool CreateOriginProcessArray;
+  char * OriginProcessArrayName;
 
   vtkPBGLCollectGraph(const vtkPBGLCollectGraph&);  // Not implemented.
   void operator=(const vtkPBGLCollectGraph&);  // Not implemented.
