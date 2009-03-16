@@ -111,7 +111,12 @@ public:
   // specified, they may lie anywhere on the supplied ImageActor.
   vtkSetVector6Macro( Bounds, double );
   vtkGetVector6Macro( Bounds, double );
-  
+
+  // Description:
+  // Set the world tolerance. This propagates it to the internal 
+  // BoundedPlanePointPlacer.
+  virtual void SetWorldTolerance( double s );
+    
 protected:
   vtkImageActorPointPlacer();
   ~vtkImageActorPointPlacer();

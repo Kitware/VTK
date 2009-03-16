@@ -20,7 +20,7 @@
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.4");
+vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.5");
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 
 vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
@@ -248,6 +248,19 @@ int vtkImageActorPointPlacer::UpdateInternalState()
     }     
   
   return 1;
+}
+
+//----------------------------------------------------------------------
+void vtkImageActorPointPlacer::SetWorldTolerance( double tol )
+{
+  if (this->WorldTolerance != 
+      (tol<0.0?0.0:(tol>VTK_DOUBLE_MAX?VTK_DOUBLE_MAX:tol)))
+    {
+    this->WorldTolerance = 
+      (tol<0.0?0.0:(tol>VTK_DOUBLE_MAX?VTK_DOUBLE_MAX:tol));
+    this->Placer->SetWorldTolerance(tol);
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------
