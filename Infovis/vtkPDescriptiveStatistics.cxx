@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPDescriptiveStatistics);
-vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.4");
+vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.5");
 vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
@@ -88,7 +88,7 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     // Reduce to global extrema
     double extrema_l[2];
     extrema_l[0] = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
-    // Collect -max instead of max so a single reduce op. (minimum) can process both extrema at a time
+    // Collect - max instead of max so a single reduce op. (minimum) can process both extrema at a time
     extrema_l[1] = - outMeta->GetValueByName( r, "Maximum" ).ToDouble();
 
     double extrema_g[2];
@@ -97,6 +97,7 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
                     2, 
                     vtkCommunicator::MIN_OP );
     outMeta->SetValueByName( r, "Minimum", extrema_g[0] );
+    // max = - min ( - max )
     outMeta->SetValueByName( r, "Maximum", - extrema_g[1] );
 
     // (All) gather all local M statistics
