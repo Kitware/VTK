@@ -35,7 +35,10 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.4");
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.5");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
 
 vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
@@ -107,7 +110,7 @@ int vtkPBGLGraphSQLReaderRequestData(
   vtkInformationVector**,
   vtkInformationVector* output_vec)
 {
-  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  VTK_CREATE(vtkTimerLog, timer);
   timer->StartTimer();
   // Check for valid inputs
   if (!self->GetDatabase())
@@ -174,8 +177,7 @@ int vtkPBGLGraphSQLReaderRequestData(
   self->GetRange(rank, total, num_edges, edge_offset, edge_limit);
 
   // Setup the graph as a distributed graph
-  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
-    vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
+  VTK_CREATE(vtkPBGLDistributedGraphHelper, helper);
   builder->SetDistributedGraphHelper(helper);
 
   // Setup hash to always add vertices locally
@@ -193,6 +195,7 @@ int vtkPBGLGraphSQLReaderRequestData(
   vertex_query->Execute();
 
   // Add local vertex data arrays
+  // Note: GetNumberOfFields() is analogous to the # of columns in Query Tbl.
   for (int i = 0; i < vertex_query->GetNumberOfFields(); ++i)
     {
     vtkStdString field_name = vertex_query->GetFieldName(i);
@@ -213,13 +216,14 @@ int vtkPBGLGraphSQLReaderRequestData(
   helper->Synchronize();
 
   // Add the vertices
-  vtkSmartPointer<vtkVariantArray> row =
-    vtkSmartPointer<vtkVariantArray>::New();
+  VTK_CREATE(vtkVariantArray, row);
   while (vertex_query->NextRow(row))
     {
     builder->LazyAddVertex(row);
     }
   helper->Synchronize();
+
+  // -----[ Edges ]-------------------------
 
   // Read edges from edge query, adding attribute values
   oss.str("");
@@ -268,8 +272,8 @@ int vtkPBGLGraphSQLReaderRequestData(
 }
 
 int vtkPBGLGraphSQLReader::RequestData(
-  vtkInformation* info, 
-  vtkInformationVector** input_vec, 
+  vtkInformation* info,
+  vtkInformationVector** input_vec,
   vtkInformationVector* output_vec)
 {
   if (this->Directed)
@@ -287,7 +291,7 @@ int vtkPBGLGraphSQLReader::RequestDataObject(
   vtkInformationVector* output_vec)
 {
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current 
+  if (!current
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
     {
