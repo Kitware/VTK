@@ -21,17 +21,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkQtInitialization.h"
 
-#include <QCoreApplication>
+#include <QApplication>
 
-vtkCxxRevisionMacro(vtkQtInitialization, "1.2");
+vtkCxxRevisionMacro(vtkQtInitialization, "1.3");
 vtkStandardNewMacro(vtkQtInitialization);
 
 vtkQtInitialization::vtkQtInitialization()
 {
-  if(!QCoreApplication::instance())
+  if(!QApplication::instance())
     {
     int argc = 0;
-    new QCoreApplication(argc, 0);
+    new QApplication(argc, 0);
     }
 }
 
@@ -42,5 +42,5 @@ vtkQtInitialization::~vtkQtInitialization()
 void vtkQtInitialization::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "QCoreApplication: " << QCoreApplication::instance() << endl;
+  os << indent << "QApplication: " << QApplication::instance() << endl;
 }

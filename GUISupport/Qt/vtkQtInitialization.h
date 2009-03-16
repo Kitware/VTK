@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 // Utility class that initializes Qt by creating an instance of 
-// QCoreApplication in its ctor, if one doesn't already exist.
+// QApplication in its ctor, if one doesn't already exist.
 // This is mainly of use in ParaView with filters that use Qt in
 // their implementation - create an instance of vtkQtInitialization
 // prior to instantiating any filters that require Qt.
