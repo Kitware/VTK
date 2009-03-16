@@ -90,6 +90,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ADD_EXECUTABLE(TestParallelRandomStatisticsMPI TestParallelRandomStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRandomStatisticsMPI vtkInfovis vtkParallel)
 
+    ADD_EXECUTABLE(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel)
+
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(TestParallelRandomStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
