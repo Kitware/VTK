@@ -55,7 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.2");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.3");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -73,7 +73,8 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   this->FieldDataArray = 0;
   this->FieldDataName = NULL;
   
-  this->SetTextRotationArrayName( "TextRotation" );
+  this->TextRotationArrayName = 0;
+  this->SetTextRotationArrayName("TextRotation");
   this->SetSectorsArrayName("area");
   
   this->LabelTextProperty = vtkTextProperty::New();
