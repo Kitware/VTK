@@ -24,7 +24,7 @@
 #include "vtkBivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
+#include "vtkIDTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.44");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.45");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -77,16 +77,21 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  if ( ! this->SampleSize )
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! nRow )
     {
     return;
     }
 
   if ( ! inData->GetNumberOfColumns() )
     {
-    this->SampleSize = 0;
     return;
     }
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  outMeta->AddColumn( idTypeCol );
+  idTypeCol->Delete();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable X" );
@@ -151,7 +156,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     double momXY = 0.;
 
     double inv_n, x, y, delta, deltaXn;
-    for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
+    for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       inv_n = 1. / ( r + 1. );
 
@@ -171,15 +176,16 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( 7 );
+    row->SetNumberOfValues( 8 );
     
-    row->SetValue( 0, colX );
-    row->SetValue( 1, colY );
-    row->SetValue( 2, meanX );
-    row->SetValue( 3, meanY );
-    row->SetValue( 4, mom2X );
-    row->SetValue( 5, mom2Y );
-    row->SetValue( 6, momXY );
+    row->SetValue( 0, nRow );
+    row->SetValue( 1, colX );
+    row->SetValue( 2, colY );
+    row->SetValue( 3, meanX );
+    row->SetValue( 4, meanY );
+    row->SetValue( 5, mom2X );
+    row->SetValue( 6, mom2Y );
+    row->SetValue( 7, momXY );
 
     outMeta->InsertNextRow( row );
 
@@ -199,7 +205,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     } 
 
   vtkIdType nCol = inMeta->GetNumberOfColumns();
-  if ( nCol < 7 )
+  if ( nCol < 8 )
     {
     return;
     }
@@ -253,7 +259,8 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     double mXY = inMeta->GetValueByName( i, "M XY" ).ToDouble();
 
     double varX, varY, covXY;
-    if ( this->SampleSize == 1 )
+    int numSamples = inMeta->GetValueByName(i, "Cardinality" ).ToInt();
+    if ( numSamples == 1 )
       {
       varX  = 0.;
       varY  = 0.;
@@ -262,7 +269,8 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     else
       {
       double inv_nm1;
-      inv_nm1 = 1. / ( this->SampleSize - 1. );
+      double n = static_cast<double>( numSamples );
+      inv_nm1 = 1. / ( n - 1. );
       varX  = m2X * inv_nm1;
       varY  = m2Y * inv_nm1;
       covXY = mXY * inv_nm1;

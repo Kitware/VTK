@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPCorrelativeStatistics, "1.2");
+vtkCxxRevisionMacro(vtkPCorrelativeStatistics, "1.3");
 vtkCxxSetObjectMacro(vtkPCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPCorrelativeStatistics::vtkPCorrelativeStatistics()
@@ -78,7 +78,7 @@ void vtkPCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   vtkCommunicator* com = this->Controller->GetCommunicator();
   
   // (All) gather all sample sizes
-  int n_l = this->SampleSize;
+  int n_l = outMeta->GetValueByName( 0, "Cardinality" ).ToInt(); // Cardinality
   int* n_g = new int[np];
   com->AllGather( &n_l, n_g, 1 ); 
   
@@ -144,7 +144,7 @@ void vtkPCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     outMeta->SetValueByName( r, "M XY", momXY );
 
     // Set global statistics
-    this->SampleSize = ns;
+    outMeta->SetValueByName( r, "Cardinality", ns );
 
     // Clean-up
     delete [] M_g;

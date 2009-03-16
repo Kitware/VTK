@@ -145,20 +145,21 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->SetDerive( true );
   haruspex->SetAssess( false );
   haruspex->Update();
-  vtkIdType n = haruspex->GetSampleSize();
 
-  cout << "## Calculated the following statistics ( "
-       << n
-       << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
-    cout << "   (X, Y) = ("
-         << outputMeta->GetValue( r, 0 ).ToString()
-         << ", "
+    cout << "   "
+         << outputMeta->GetColumnName( 0 )
+         << "="
+         << outputMeta->GetValue( 0, 0 ).ToString();
+
+    cout << ", (X, Y) = ("
          << outputMeta->GetValue( r, 1 ).ToString()
+         << ", "
+         << outputMeta->GetValue( r, 2 ).ToString()
          << ")";
 
-    for ( int i = 2; i < 7; ++ i )
+    for ( int i = 3; i < 8; ++ i )
       {
       cout << ", "
            << outputMeta->GetColumnName( i )
