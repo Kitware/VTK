@@ -125,7 +125,7 @@ protected:
  
   // Description:
   // Create a new shallow-copied clone for data with no scalars.
-  vtkDataObject* NewClone(vtkDataObject* data);
+  virtual vtkDataObject* NewClone(vtkDataObject* data);
 
   // Description:
   // Create texture coordinates for the output assuming a texture for the
