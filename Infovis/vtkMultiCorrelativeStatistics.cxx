@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.10");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.11");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -101,83 +101,6 @@ void vtkMultiCorrelativeTransposeTriangular( vtkstd::vector<double>& a, vtkIdTyp
   //                                 J                            G H I J
 }
 
-// ======================================================== vtkMultiCorrelativeAssessFunctor
-vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::New()
-{
-  return new vtkMultiCorrelativeAssessFunctor;
-}
-
-bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData, vtkTable* reqModel, bool cholesky )
-{
-  vtkDoubleArray* avgs = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
-  if ( ! avgs )
-    {
-    vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column" );
-    return false;
-    }
-  vtkStringArray* name = vtkStringArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_COLUMNAMES ) );
-  if ( ! name )
-    {
-    vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_COLUMNAMES "\" column" );
-    return false;
-    }
-
-  vtkstd::vector<vtkDataArray*> cols; // input data columns
-  vtkstd::vector<double*> chol; // Cholesky matrix columns. Only the lower triangle is significant.
-  vtkIdType m = reqModel->GetNumberOfColumns() - 2;
-  vtkIdType i;
-  for ( i = 0; i < m ; ++ i )
-    {
-    vtkStdString colname( name->GetValue( i ) );
-    vtkDataArray* arr = vtkDataArray::SafeDownCast( inData->GetColumnByName( colname.c_str() ) );
-    if ( ! arr )
-      {
-      vtkGenericWarningMacro( "Multicorrelative input data needs a \"" << colname.c_str() << "\" column" );
-      return false;
-      }
-    cols.push_back( arr );
-    vtkDoubleArray* dar = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( colname.c_str() ) );
-    if ( ! dar )
-      {
-      vtkGenericWarningMacro( "Multicorrelative request needs a \"" << colname.c_str() << "\" column" );
-      return false;
-      }
-    chol.push_back( dar->GetPointer( 1 ) );
-    }
-
-  // OK, if we made it this far, we will succeed
-  this->Columns = cols;
-  this->Center = avgs->GetPointer( 0 );
-  this->Tuple.resize( m );
-  this->EmptyTuple = vtkstd::vector<double>( m, 0. );
-  if ( cholesky )
-    {
-    vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); // store the inverse of chol in this->Factor, F
-    vtkMultiCorrelativeTransposeTriangular( this->Factor, m ); // transposing F makes it easier to use in the () operator.
-    }
-#if 0
-  // Compute the normalization factor to turn X * F * F' * X' into a cumulance.
-  if ( m % 2 == 0 )
-    {
-    this->Normalization = 1.0;
-    for ( i = m / 2 - 1; i > 1; -- i )
-      {
-      this->Normalization *= i;
-      }
-    }
-  else
-    {
-    this->Normalization = sqrt( 3.141592653589793 ) / ( 1 << ( m / 2 ) );
-    for ( i = m - 2; i > 1; i -= 2 )
-      {
-      this->Normalization *= i;
-      }
-    }
-#endif // 0
-
-  return true;
-}
-
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
@@ -246,6 +169,17 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
+    {
+    return;
+    }
+
+  vtkIdType n = inData->GetNumberOfRows();
+  if ( n <= 0 )
+    {
+    return;
+    }
+
+  if ( inData->GetNumberOfColumns() <= 0 )
     {
     return;
     }
@@ -338,7 +272,6 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   // Now (finally!) compute the covariance and column sums.
   // This uses the on-line algorithms for computing centered
   // moments and covariances from Philippe's SAND2008-6212 report.
-  vtkIdType n = inData->GetNumberOfRows();
   double* x;
   vtkstd::vector<double> v( m, 0. ); // Values (v) for one observation
   //vtkstd::vector<double> mucov( m + colPairs.size(), 0. ); // mean (mu) followed by covariance (cov) values
@@ -652,6 +585,86 @@ void vtkMultiCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
     delete dfunc;
     delete [] names;
     }
+}
+
+// ----------------------------------------------------------------------
+vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::New()
+{
+  return new vtkMultiCorrelativeAssessFunctor;
+}
+
+// ----------------------------------------------------------------------
+bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData, 
+                                                   vtkTable* reqModel, 
+                                                   bool cholesky )
+{
+  vtkDoubleArray* avgs = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
+  if ( ! avgs )
+    {
+    vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column" );
+    return false;
+    }
+  vtkStringArray* name = vtkStringArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_COLUMNAMES ) );
+  if ( ! name )
+    {
+    vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_COLUMNAMES "\" column" );
+    return false;
+    }
+
+  vtkstd::vector<vtkDataArray*> cols; // input data columns
+  vtkstd::vector<double*> chol; // Cholesky matrix columns. Only the lower triangle is significant.
+  vtkIdType m = reqModel->GetNumberOfColumns() - 2;
+  vtkIdType i;
+  for ( i = 0; i < m ; ++ i )
+    {
+    vtkStdString colname( name->GetValue( i ) );
+    vtkDataArray* arr = vtkDataArray::SafeDownCast( inData->GetColumnByName( colname.c_str() ) );
+    if ( ! arr )
+      {
+      vtkGenericWarningMacro( "Multicorrelative input data needs a \"" << colname.c_str() << "\" column" );
+      return false;
+      }
+    cols.push_back( arr );
+    vtkDoubleArray* dar = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( colname.c_str() ) );
+    if ( ! dar )
+      {
+      vtkGenericWarningMacro( "Multicorrelative request needs a \"" << colname.c_str() << "\" column" );
+      return false;
+      }
+    chol.push_back( dar->GetPointer( 1 ) );
+    }
+
+  // OK, if we made it this far, we will succeed
+  this->Columns = cols;
+  this->Center = avgs->GetPointer( 0 );
+  this->Tuple.resize( m );
+  this->EmptyTuple = vtkstd::vector<double>( m, 0. );
+  if ( cholesky )
+    {
+    vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); // store the inverse of chol in this->Factor, F
+    vtkMultiCorrelativeTransposeTriangular( this->Factor, m ); // transposing F makes it easier to use in the () operator.
+    }
+#if 0
+  // Compute the normalization factor to turn X * F * F' * X' into a cumulance.
+  if ( m % 2 == 0 )
+    {
+    this->Normalization = 1.0;
+    for ( i = m / 2 - 1; i > 1; -- i )
+      {
+      this->Normalization *= i;
+      }
+    }
+  else
+    {
+    this->Normalization = sqrt( 3.141592653589793 ) / ( 1 << ( m / 2 ) );
+    for ( i = m - 2; i > 1; i -= 2 )
+      {
+      this->Normalization *= i;
+      }
+    }
+#endif // 0
+
+  return true;
 }
 
 // ----------------------------------------------------------------------

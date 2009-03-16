@@ -75,11 +75,10 @@ protected:
 
   // Description:
   // This algorithm accepts and returns a multiblock dataset containing several tables for
-  // its Learn input/output (port 1) instead of a single vtkTable.
-  // We override FillInputPortInformation/FillOutputPortInformation to indicate this.
+  // its meta input/output (port 1) instead of a single vtkTable.
+  // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
   virtual int FillInputPortInformation( int port, vtkInformation* info );
   virtual int FillOutputPortInformation( int port, vtkInformation* info );
-
 
   // Description:
   // Execute the calculations required by the Derive option.
