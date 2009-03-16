@@ -36,6 +36,7 @@ class QPaintEngine;
 
 class vtkRenderWindow;
 class QVTKInteractor;
+class QVTKPaintEngine;
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCommand.h>
 #include <vtkConfigure.h>
@@ -218,6 +219,9 @@ protected:
      
   // the vtk render window
   vtkRenderWindow* mRenWin;
+
+  // the paint engine
+  QPaintEngine* mPaintEngine;
     
   // set up an X11 window based on a visual and colormap
   // that VTK chooses

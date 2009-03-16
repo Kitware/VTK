@@ -40,6 +40,8 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   # add files that require Qt 4
   SET ( QVTKLibSrcs
       ${QVTKLibSrcs}
+      QVTKPaintEngine.cxx
+      QVTKPaintEngine.h
       vtkQtAbstractModelAdapter.cxx
       vtkQtInitialization.cxx
       vtkQtSQLDatabase.cxx
