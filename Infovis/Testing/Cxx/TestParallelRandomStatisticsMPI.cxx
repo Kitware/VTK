@@ -657,7 +657,7 @@ int main( int argc, char** argv )
 
   if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
     {
-    // Houston, we'we had a problem: no I/O node found.
+    // Getting MPI attributes did not return any I/O node found.
     ioRank = MPI_PROC_NULL;
     vtkGenericWarningMacro("No MPI I/O nodes found.");
 
