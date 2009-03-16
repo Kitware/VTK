@@ -156,11 +156,7 @@ int TestDescriptiveStatistics( int, char *[] )
   haruspex->SetAssess( true );
   haruspex->SignedDeviationsOff();
   haruspex->Update();
-  vtkIdType n = haruspex->GetSampleSize();
 
-  cout << "## Calculated the following statistics ( "
-       << n
-       << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -370,11 +366,12 @@ int TestDescriptiveStatistics( int, char *[] )
   ds->SetAssess( false );
   ds->Update();
 
+
   cout << "## Calculated the following statistics ( "
-       <<   ds->GetSampleSize()
+       <<  outputSimpleMeta->GetValueByName( 0, "Cardinality" ).ToInt() 
        << " entries in a single column ):\n"
        << "   ";
-
+  
   for ( int i = 0; i < outputSimpleMeta->GetNumberOfColumns(); ++ i )
     {
     cout << outputSimpleMeta->GetColumnName( i )
@@ -383,6 +380,7 @@ int TestDescriptiveStatistics( int, char *[] )
          << "  ";
     }
     
+  
   if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e6 )
     {
     vtkGenericWarningMacro("Incorrect mean");

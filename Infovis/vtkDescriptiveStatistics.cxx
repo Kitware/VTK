@@ -24,6 +24,7 @@
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
+#include "vtkIDTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -35,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.61");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.62");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -86,7 +87,8 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  if ( ! this->SampleSize )
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! nRow )
     {
     return;
     }
@@ -99,7 +101,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
     {
-    this->SampleSize = 0;
     return;
     }
 
@@ -107,6 +108,11 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   stringCol->SetName( "Variable" );
   outMeta->AddColumn( stringCol );
   stringCol->Delete();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  outMeta->AddColumn( idTypeCol );
+  idTypeCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Minimum" );
@@ -158,7 +164,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     double mom4 = 0.;
 
     double n, inv_n, val, delta, A, B;
-    for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
+    for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       n = r + 1.;
       inv_n = 1. / n;
@@ -186,15 +192,16 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( 7 );
+    row->SetNumberOfValues( 8 );
 
     row->SetValue( 0, colName );
-    row->SetValue( 1, minVal );
-    row->SetValue( 2, maxVal );
-    row->SetValue( 3, mean );
-    row->SetValue( 4, mom2 );
-    row->SetValue( 5, mom3 );
-    row->SetValue( 6, mom4 );
+    row->SetValue( 1, nRow );
+    row->SetValue( 2, minVal );
+    row->SetValue( 3, maxVal );
+    row->SetValue( 4, mean );
+    row->SetValue( 5, mom2 );
+    row->SetValue( 6, mom3 );
+    row->SetValue( 7, mom4 );
 
     outMeta->InsertNextRow( row );
 
@@ -214,7 +221,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     } 
 
   vtkIdType nCol = inMeta->GetNumberOfColumns();
-  if ( nCol < 7 )
+  if ( nCol < 8 )
     {
     return;
     }
@@ -255,7 +262,8 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
 
-    if ( this->SampleSize == 1 || mom2 < 1.e-150 )
+    int numSamples = inMeta->GetValueByName(i, "Cardinality" ).ToInt();
+    if ( numSamples == 1 || mom2 < 1.e-150 )
       {
       doubleVals[0] = 0.;
       doubleVals[1] = 0.;
@@ -266,7 +274,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       }
     else
       {
-      double n = this->SampleSize;
+      double n = static_cast<double>( numSamples );
       double inv_n = 1. / n;
       double nm1 = n - 1.;
 
