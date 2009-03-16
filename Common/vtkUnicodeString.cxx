@@ -259,7 +259,7 @@ void vtkUnicodeString::append(size_type count, value_type character)
 
 void vtkUnicodeString::append(const_iterator first, const_iterator last)
 {
-  this->Storage.append(first.Position, last.Position);
+  this->Storage.append(first.Position, last.Position-first.Position);
 }
 
 void vtkUnicodeString::assign(const vtkUnicodeString& value)
@@ -281,7 +281,7 @@ void vtkUnicodeString::assign(size_type count, value_type character)
 
 void vtkUnicodeString::assign(const_iterator first, const_iterator last)
 {
-  this->Storage.assign(first.Position, last.Position);
+  this->Storage.assign(first.Position, last.Position-first.Position);
 }
 
 void vtkUnicodeString::clear()
