@@ -25,12 +25,6 @@ PURPOSE.  See the above copyright notice for more information.
 // following functionalities, depending on the execution mode it is executed in:
 // * Learn: calculate contigency tables and corresponding discrete bivariate
 //   probability distribution. 
-//   More precisely, ExecuteLearn calculates the sums; if \p finalize
-//   is set to true (default), the final statistics are calculated with the 
-//   function CalculateFromSums. Otherwise, only raw sums are output; this 
-//   option is made for efficient parallel calculations.
-//   Note that CalculateFromSums is a static function, so that it can be used
-//   directly with no need to instantiate a vtkContingencyStatistics object.
 // * Assess: given two columns of interest with the same number of entries as
 //   input in port 0, and a corresponding bivariate probability distribution,
 //  
@@ -56,8 +50,18 @@ public:
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
+  // This one does nothing because the API is not sufficient for tables indexed
+  // by a separate summary table.
   virtual void SelectAssessFunctor( vtkTable* outData, 
                                     vtkDataObject* inMeta,
+                                    vtkStringArray* rowNames,
+                                    AssessFunctor*& dfunc );
+  // Description:
+  // Provide the appropriate assessment functor.
+  // This one is the one that is actually used.
+  virtual void SelectAssessFunctor( vtkTable* outData,
+                                    vtkTable* contingencyTab,
+                                    vtkIdType pairKey,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
 //ETX
@@ -67,12 +71,26 @@ protected:
   ~vtkContingencyStatistics();
 
   // Description:
+  // This algorithm accepts and returns a multiblock dataset containing several tables for
+  // its meta input/output (port 1) instead of a single vtkTable.
+  // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
+  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  virtual int FillOutputPortInformation( int port, vtkInformation* info );
+
+  // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkDataObject* outMeta );
   // Description:
   // Execute the calculations required by the Derive option.
   virtual void ExecuteDerive( vtkDataObject* );
+
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void ExecuteAssess( vtkTable* inData,
+                              vtkDataObject* inMeta,
+                              vtkTable* outData,
+                              vtkDataObject* outMeta ); 
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented

@@ -27,6 +27,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
@@ -37,10 +38,10 @@
 
 #include <vtksys/ios/sstream>
 
-typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
-typedef vtkstd::map<vtkVariant,double> PDF;
+typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
+typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.34");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.35");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -71,56 +72,115 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
  }
 
 // ----------------------------------------------------------------------
+int vtkContingencyStatistics::FillInputPortInformation( int port, vtkInformation* info )
+{
+  // Override the parent class for Meta port 1
+  int res; 
+  if ( port == 1 )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+
+    res = 1;
+    }
+  else
+    {
+    res = this->Superclass::FillInputPortInformation( port, info );
+    }
+
+  return res;
+}
+
+// ----------------------------------------------------------------------
+int vtkContingencyStatistics::FillOutputPortInformation( int port, vtkInformation* info )
+{
+  // Override the parent class for Meta port 1
+  int res = this->Superclass::FillOutputPortInformation( port, info );
+  if ( port == 1 )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    }
+  
+  return res;
+}
+
+// ----------------------------------------------------------------------
 void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
                                              vtkDataObject* outMetaDO )
 {
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
     }
 
-  if ( ! this->SampleSize )
+  vtkIdType n = inData->GetNumberOfRows();
+  if ( n <= 0 )
     {
     return;
     }
 
-  if ( ! inData->GetNumberOfColumns() )
+  if ( inData->GetNumberOfColumns() <= 0 )
     {
-    this->SampleSize = 0;
     return;
     }
+
+  // Summary table: assigns a unique key to each (variable X,variable Y) pair
+  vtkTable* summaryTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable X" );
-  outMeta->AddColumn( stringCol );
+  summaryTab->AddColumn( stringCol );
   stringCol->Delete();
 
   stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable Y" );
-  outMeta->AddColumn( stringCol );
+  summaryTab->AddColumn( stringCol );
   stringCol->Delete();
 
-  vtkVariantArray* variantCol = vtkVariantArray::New();
-  variantCol->SetName( "x" );
-  outMeta->AddColumn( variantCol );
-  variantCol->Delete();
+  vtkVariantArray* row2 = vtkVariantArray::New();
+  row2->SetNumberOfValues( 2 );
 
-  variantCol = vtkVariantArray::New();
-  variantCol->SetName( "y" );
-  outMeta->AddColumn( variantCol );
-  variantCol->Delete();
+  // The actual contingency table, indexed by the key of the summary
+  vtkTable* contingencyTab = vtkTable::New();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Cardinality" );
-  outMeta->AddColumn( idTypeCol );
+  idTypeCol->SetName( "Key" );
+  contingencyTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
-  vtkVariantArray* row = vtkVariantArray::New();
+  stringCol = vtkStringArray::New();
+  stringCol->SetName( "x" );
+  contingencyTab->AddColumn( stringCol );
+  stringCol->Delete();
 
-  row->SetNumberOfValues( 5 );
+  stringCol = vtkStringArray::New();
+  stringCol->SetName( "y" );
+  contingencyTab->AddColumn( stringCol );
+  stringCol->Delete();
 
-  typedef vtkstd::map<vtkVariant,vtkIdType,vtkVariantLessThan> Distribution;
+  idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  contingencyTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  vtkVariantArray* row4 = vtkVariantArray::New();
+  row4->SetNumberOfValues( 4 );
+
+  // Insert first row which will always contain the data set cardinality, with key -1
+  // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in 
+  // learn mode to make it clear that it is not a correct value. This is an issue of database
+  // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
+  // when the input meta table is calculated by something else than the learn mode (e.g., is specified
+  // by the user).
+  vtkStdString zString = vtkStdString( "" );
+  row4->SetValue( 0, -1 );
+  row4->SetValue( 1,  zString );
+  row4->SetValue( 2, zString );
+  row4->SetValue( 3, -1 );
+  contingencyTab->InsertNextRow( row4 );
+
+  typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
 
   for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
         it != this->Internals->Selection.end(); ++ it )
@@ -143,29 +203,53 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
       continue;
       }
 
-    row->SetValue( 0, colX );
-    row->SetValue( 1, colY );
+    // Create entry in summary for pair (colX,colY) and set its index to be the key
+    // for (colX,colY) values in the contingency table
+    row2->SetValue( 0, colX );
+    row2->SetValue( 1, colY );
 
-    vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan> conTable;
-    for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
+    row4->SetValue( 0, summaryTab->GetNumberOfRows() );
+
+    summaryTab->InsertNextRow( row2 );
+
+
+    vtkAbstractArray* valsX = inData->GetColumnByName( colX );
+    vtkAbstractArray* valsY = inData->GetColumnByName( colY );
+
+    vtkstd::map<vtkStdString,Distribution> contingencyTable;
+    for ( vtkIdType r = 0; r < n; ++ r )
       {
-      ++ conTable[inData->GetValueByName( r, colX )][inData->GetValueByName( r, colY )];
+      ++ contingencyTable
+        [valsX->GetVariantValue( r ).ToString()]
+        [valsY->GetVariantValue( r ).ToString()];
       }
 
-    for ( vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan>::iterator mit = conTable.begin(); 
-          mit != conTable.end(); ++ mit )
+    for ( vtkstd::map<vtkStdString,Distribution>::iterator mit = contingencyTable.begin(); 
+          mit != contingencyTable.end(); ++ mit )
       {
-      row->SetValue( 2, mit->first );
+      row4->SetValue( 1, mit->first );
       for ( Distribution::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
         {
-        row->SetValue( 3, dit->first );
-        row->SetValue( 4, dit->second );
+        row4->SetValue( 2, dit->first );
+        row4->SetValue( 3, dit->second );
 
-        outMeta->InsertNextRow( row );
+        contingencyTab->InsertNextRow( row4 );
         }
       }
     }
-  row->Delete();
+
+  // Finally set blocks of the output meta information
+  outMeta->SetNumberOfBlocks( 2 );
+  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Summary" );
+  outMeta->SetBlock( 0, summaryTab );
+  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Contingency Table" );
+  outMeta->SetBlock( 1, contingencyTab );
+
+  // Clean up
+  summaryTab->Delete();
+  row2->Delete();
+  contingencyTab->Delete();
+  row4->Delete();
 
   return;
 }
@@ -173,104 +257,212 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 {
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta ) 
-    { 
-    return; 
-    } 
-
-  vtkIdType nCol = inMeta->GetNumberOfColumns();
-  if ( nCol < 5 )
-    {
-    return;
-
-    }
-
-  vtkIdType nRow = inMeta->GetNumberOfRows();
-  if ( ! nRow )
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
     }
 
+  vtkTable* summaryTab;
+  if ( ! ( summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
+       || summaryTab->GetNumberOfColumns() < 2 )
+    {
+    return;
+    }
+
+  vtkIdType nRowDict = summaryTab->GetNumberOfRows();
+  if ( nRowDict <= 0 )
+    {
+    return;
+    }
+
+  // Add columns for joint and conditional probabilities
   int numDoubles = 3;
-  vtkStdString doubleNames[] = { "P",
-                                 "Py|x",
-                                 "Px|y" };
+  vtkStdString entropyNames[] = { "H(X,Y)",
+                                  "H(Y|X)",
+                                  "H(X|Y)" };
   
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
     {
-    if ( ! inMeta->GetColumnByName( doubleNames[j] ) )
+    if ( ! summaryTab->GetColumnByName( entropyNames[j] ) )
       {
       doubleCol = vtkDoubleArray::New();
-      doubleCol->SetName( doubleNames[j] );
-      doubleCol->SetNumberOfTuples( nRow );
-      inMeta->AddColumn( doubleCol );
+      doubleCol->SetName( entropyNames[j] );
+      doubleCol->SetNumberOfTuples( nRowDict );
+      summaryTab->AddColumn( doubleCol );
       doubleCol->Delete();
       }
     }
 
-  // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
-  vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > marginalToPair;
-  vtkstd::map<vtkStdString,Counts> marginalCounts;
-  double inv_n = 1. / this->SampleSize;
-  vtkVariant x, y;
-  for ( int i = 0; i < nRow; ++ i )
+  vtkTable* contingencyTab;
+  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
+       || contingencyTab->GetNumberOfColumns() < 4 )
     {
-    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
-    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
-    if ( c1 == "" || c2 == "" )
+    return;
+    }
+
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+  if ( nRowCont <= 0 )
+    {
+    return;
+    }
+
+  // Add columns for joint and conditional probabilities
+  vtkStdString doubleNames[] = { "P",
+                                 "Py|x",
+                                 "Px|y" };
+  
+  for ( int j = 0; j < numDoubles; ++ j )
+    {
+    if ( ! contingencyTab->GetColumnByName( doubleNames[j] ) )
       {
-      // Clean up previously defined marginal probabilities and information entropies
-      inMeta->RemoveRow( i );
-      }
-    else
-      {
-      if ( marginalToPair.find( c1 ) == marginalToPair.end() )
-        { 
-        // c1 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
-        marginalToPair[c1].first = c1;
-        marginalToPair[c1].second = c2;
-        }
-
-      if ( marginalToPair.find( c2 ) == marginalToPair.end() )
-        { 
-        // c2 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
-        marginalToPair[c2].first = c1;
-        marginalToPair[c2].second = c2;
-        }
-
-      x = inMeta->GetValueByName( i, "x" );
-      y = inMeta->GetValueByName( i, "y" );
-      vtkIdType c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
-      
-      if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
-        {
-        if ( x != "" )
-          {
-          marginalCounts[c1][x] += c;
-          }
-        }
-
-      if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
-        {
-        if ( y != "" )
-          {
-          marginalCounts[c2][y] += c;
-          }
-        }
+      doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( doubleNames[j] );
+      doubleCol->SetNumberOfTuples( nRowCont );
+      contingencyTab->AddColumn( doubleCol );
+      doubleCol->Delete();
       }
     }
 
-  // Append marginal probabilities to the model table
-  vtkstd::map<vtkStdString,PDF> marginalPDFs;
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 8 );
-  double p;
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
 
-  for ( vtkstd::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
-        sit != marginalCounts.end(); ++ sit )
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
+  vtkDoubleArray* prob[3];
+  for ( int j = 0; j < numDoubles; ++ j )
+    {
+    prob[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( doubleNames[j] ) );
+    }
+
+  if ( ! varX || ! varX || ! keys || ! valx || ! valy || ! card 
+       || ! prob[0] || ! prob[1] || ! prob[2] )
+    {
+    vtkErrorMacro("Empty model column(s). Cannot derive model.\n");
+    return;
+    }
+
+  // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
+  vtkstd::map<vtkIdType,vtkIdType> cardinality;
+
+  // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
+  vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > marginalToPair;
+  vtkstd::map<vtkStdString,Counts> marginalCounts;
+  vtkStdString x, y, c1, c2;
+  vtkIdType key, c;
+  for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+    {
+    // Find the pair of variables to which the key corresponds
+    key = keys->GetValue( r );
+
+    if ( key < 0 || key >= nRowDict )
       {
+      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
+                     <<  key
+                     <<". Cannot derive model." );
+      return;
+      }
+
+    c1 = varX->GetValue( key );
+    c2 = varY->GetValue( key );
+
+    if ( marginalToPair.find( c1 ) == marginalToPair.end() )
+      { 
+      // c1 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
+      marginalToPair[c1].first = c1;
+      marginalToPair[c1].second = c2;
+      }
+    
+    if ( marginalToPair.find( c2 ) == marginalToPair.end() )
+      { 
+      // c2 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
+      marginalToPair[c2].first = c1;
+      marginalToPair[c2].second = c2;
+      }
+    
+    x = valx->GetValue( r );
+    y = valy->GetValue( r );
+    c = card->GetValue( r );
+    cardinality[key] += c;
+
+    if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
+      {
+      marginalCounts[c1][x] += c;
+      }
+    
+    if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
+      {
+      marginalCounts[c2][y] += c;
+      }
+    }
+
+  // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
+  // have the same cardinality.
+  vtkIdType n = cardinality.at( 0 );
+  for ( vtkstd::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
+        iit != cardinality.end(); ++ iit )
+    {
+    if ( iit->second != n )
+      {
+      vtkErrorMacro( "Inconsistent input: variable pairs do not have equal cardinalities: "
+                     << iit->first
+                     << " != "
+                     << n
+                     <<". Cannot derive model." );
+      return;
+      }
+    }
+  
+  // We have a unique value for the cardinality and can henceforth proceed
+  double inv_n = 1. / n;
+  contingencyTab->SetValueByName( 0, "Cardinality", n );
+
+  // Complete cardinality row (0) with invalid values for derived statistics
+  for ( int i = 0; i < numDoubles; ++ i )
+    {
+    contingencyTab->SetValueByName( 0, doubleNames[i], -1. );
+    }
+
+  
+  // Resize output meta so marginal PDF tables can be appended
+  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+  inMeta->SetNumberOfBlocks( nBlocks + marginalCounts.size() );
+
+  // Rows of the marginal PDF tables contain:
+  // 0: variable value
+  // 1: marginal cardinality
+  // 2: marginal probability
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 3 );
+
+  // Add marginal PDF tables as new blocks to the meta output starting at block nBlock + 1
+  // NB: block nBlock is kept for information entropy
+  vtkstd::map<vtkStdString,PDF> marginalPDFs;
+  for ( vtkstd::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+        sit != marginalCounts.end(); ++ sit, ++ nBlocks )
+      {
+      vtkTable* marginalTab = vtkTable::New();
+
+      vtkStringArray* stringCol = vtkStringArray::New();
+      stringCol->SetName( sit->first.c_str() );
+      marginalTab->AddColumn( stringCol );
+      stringCol->Delete();
+
+      vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+      idTypeCol->SetName( "Cardinality" );
+      marginalTab->AddColumn( idTypeCol );
+      idTypeCol->Delete();
+
+      doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( "P" );
+      marginalTab->AddColumn( doubleCol );
+      doubleCol->Delete();
+
+      double p;
       for ( Counts::iterator xit = sit->second.begin(); 
             xit != sit->second.end(); ++ xit )
         {
@@ -279,76 +471,73 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
         marginalPDFs[sit->first][xit->first] = p;
 
         // Insert marginal cardinalities and probabilities
-        row->SetValue( 0, sit->first );    // variable name
-        row->SetValue( 1, "" );            // empty entry for the second variable name
-        row->SetValue( 2, xit->first );    // variable value
-        row->SetValue( 3, "" );            // empty entry for the second variable value
-        row->SetValue( 4, xit->second );   // marginal cardinality
-        row->SetValue( 5, p );             // marginal probability
-        row->SetValue( 6, -1. );           // invalid entry for the first conditional probability
-        row->SetValue( 7, -1. );           // invalid entry for the second conditional probability
-        inMeta->InsertNextRow( row );
+        row->SetValue( 0, xit->first );    // variable value
+        row->SetValue( 1, xit->second );   // marginal cardinality
+        row->SetValue( 2, p );             // marginal probability
+        marginalTab->InsertNextRow( row );
         }
+
+      // Add marginal PDF block
+      inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), sit->first.c_str() );
+      inMeta->SetBlock( nBlocks, marginalTab );
+
+      marginalTab->Delete();
       }
 
-  // Calculate PDFs and information entropies
-  double* doubleVals = new double[numDoubles]; // P(x,y), P(y|x), P(x|y)
+
+  // Container for P(x,y), P(y|x), P(x|y)
+  double* doubleVals = new double[numDoubles]; 
   
-  typedef vtkstd::map<vtkStdString,vtkstd::map<vtkStdString,double> > Entropies;
-  Entropies *H = new Entropies[numDoubles];  // H(X,Y), H(Y|X), H(X|Y)
-  vtkstd::map<vtkStdString,vtkstd::map<vtkStdString,vtkIdType> > sanityChecks;
+  // Container for H(X,Y), H(Y|X), H(X|Y)
+  typedef vtkstd::map<vtkIdType,double> Entropies;
+  Entropies *H = new Entropies[numDoubles];
 
-  for ( int i = 0; i < nRow; ++ i )
+  // Calculate joint and conditional PDFs, and information entropies
+  for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
-    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
-    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
-    if ( c1 == "" || c2 == "" )
+    // Find the pair of variables to which the key corresponds
+    key = keys->GetValue( r );
+
+    // Paranoid check: this test is not necessary since it has already been performed above
+    // and the DB should not have been corrupted since. However, it does not cost much anyway.
+    if ( key < 0 || key >= nRowDict )
       {
-      continue;
+      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
+                     <<  key
+                     <<". Cannot derive model." );
+      return;
       }
 
-    vtkIdType c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
+    c1 = varX->GetValue( key );
+    c2 = varY->GetValue( key );
+
+    x = valx->GetValue( r );
+    y = valy->GetValue( r );
+    c = card->GetValue( r );
     doubleVals[0] = inv_n * c;
 
-    x = inMeta->GetValueByName( i, "x" );
-    y = inMeta->GetValueByName( i, "y" );
+    doubleVals[1] = doubleVals[0] / marginalPDFs[c1][x];
+    doubleVals[2] = doubleVals[0] / marginalPDFs[c2][y];
 
-    if ( x != "" && y != "" )
+    for ( int j = 0; j < numDoubles; ++ j )
       {
-      sanityChecks[c1][c2] += c;
+      // Store conditional probabilities
+      prob[j]->SetValue( r, doubleVals[j] );
 
-      doubleVals[1] = doubleVals[0] / marginalPDFs[c1][x];
-      doubleVals[2] = doubleVals[0] / marginalPDFs[c2][y];
-      
-      for ( int j = 0; j < numDoubles; ++ j )
-        {
-        // Update information entropies
-        H[j][c1][c2] -= doubleVals[0] * log( doubleVals[j] );
-
-        // Store conditional probabilities -- but not information entropies
-        inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
-        }
+      // Update information entropies
+      H[j][key] -= doubleVals[0] * log( doubleVals[j] );
       }
     }
 
   // Store information entropies
   for ( Entropies::iterator eit = H[0].begin(); eit != H[0].end(); ++ eit )
       {
-      for ( vtkstd::map<vtkStdString,double>::iterator xit = eit->second.begin(); 
-            xit != eit->second.end(); ++ xit )
-        {
-        row->SetValue( 0, eit->first );                           // X variable name
-        row->SetValue( 1, xit->first );                           // Y variable name
-        row->SetValue( 2, "" );                                   // empty entry for the X variable value
-        row->SetValue( 3, "" );                                   // empty entry for the Y variable value
-        row->SetValue( 4, sanityChecks[eit->first][xit->first] ); // must be equal to sample size
-        row->SetValue( 5, xit->second );                          // H(X,Y)
-        row->SetValue( 6, H[1][eit->first][xit->first] );         // H(Y|X)
-        row->SetValue( 7, H[2][eit->first][xit->first] );         // H(X|Y)
-        inMeta->InsertNextRow( row );
-        }
+      summaryTab->SetValueByName( eit->first, entropyNames[0], eit->second ); // H(X,Y)
+      summaryTab->SetValueByName( eit->first, entropyNames[1], H[1][eit->first] ); // H(Y|X)
+      summaryTab->SetValueByName( eit->first, entropyNames[2], H[2][eit->first] ); // H(X|Y)
       }
 
+  // Clean up
   row->Delete();
   delete [] H;
   delete [] doubleVals;
@@ -360,15 +549,15 @@ class BivariateContingenciesFunctor : public vtkStatisticsAlgorithm::AssessFunct
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  vtkstd::map<vtkVariant,PDF> PdfXY;
-  vtkstd::map<vtkVariant,PDF> PdfYcondX;
-  vtkstd::map<vtkVariant,PDF> PdfXcondY;
+  vtkstd::map<vtkStdString,PDF> PdfXY;
+  vtkstd::map<vtkStdString,PDF> PdfYcondX;
+  vtkstd::map<vtkStdString,PDF> PdfXcondY;
 
   BivariateContingenciesFunctor( vtkAbstractArray* valsX,
                                  vtkAbstractArray* valsY,
-                                 const vtkstd::map<vtkVariant,PDF>& pdfXY,
-                                 const vtkstd::map<vtkVariant,PDF>& pdfYcondX,
-                                 const vtkstd::map<vtkVariant,PDF>& pdfXcondY )
+                                 const vtkstd::map<vtkStdString,PDF>& pdfXY,
+                                 const vtkstd::map<vtkStdString,PDF>& pdfYcondX,
+                                 const vtkstd::map<vtkStdString,PDF>& pdfXcondY )
   {
     this->DataX = valsX;
     this->DataY = valsY;
@@ -380,8 +569,8 @@ public:
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
-    vtkVariant x = this->DataX->GetVariantValue( id );
-    vtkVariant y = this->DataY->GetVariantValue( id );
+    vtkStdString x = this->DataX->GetVariantValue( id ).ToString();
+    vtkStdString y = this->DataY->GetVariantValue( id ).ToString();
 
     result->SetNumberOfValues( 3 );
     result->SetValue( 0, this->PdfXY[x][y] );
@@ -391,16 +580,183 @@ public:
 };
 
 // ----------------------------------------------------------------------
+void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
+                                              vtkDataObject* inMetaDO,
+                                              vtkTable* outData,
+                                              vtkDataObject* vtkNotUsed( outMeta ) )
+{
+  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
+    {
+    return;
+    }
+
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  if ( nRowData <= 0 )
+    {
+    return;
+    }
+
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+    {
+    return;
+    }
+
+  vtkTable* summaryTab;
+  if ( ! ( summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
+       || summaryTab->GetNumberOfColumns() < 2 )
+    {
+    return;
+    }
+
+  vtkIdType nRowDict = summaryTab->GetNumberOfRows();
+  if ( nRowDict <= 0 )
+    {
+    return;
+    }
+
+  vtkTable* contingencyTab;
+  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
+       || contingencyTab->GetNumberOfColumns() < 7 )
+    {
+    return;
+    }
+
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+  if ( nRowCont <= 0 )
+    {
+    return;
+    }
+
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
+
+  // Loop over pairs of columns of interest
+  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
+        it != this->Internals->Selection.end(); ++ it )
+    {
+    vtkStdString varNameX = it->first;
+    if ( ! inData->GetColumnByName( varNameX ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varNameX.c_str()
+                       << ". Ignoring this pair." );
+      continue;
+      }
+
+    vtkStdString varNameY = it->second;
+    if ( ! inData->GetColumnByName( varNameY ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varNameY.c_str()
+                       << ". Ignoring this pair." );
+      continue;
+      }
+
+    // Find the summary key to which the pair (colX,colY) corresponds
+    vtkIdType pairKey = -1;
+    for ( vtkIdType r = 0; r < nRowDict && pairKey == -1; ++ r )
+      {
+      if ( varX->GetValue( r ) == varNameX
+           &&
+           varY->GetValue( r ) == varNameY )
+        {
+        pairKey = r;
+        }
+      }
+    if ( pairKey < 0 || pairKey >= nRowDict )
+      {
+      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
+                     << pairKey
+                     <<". Cannot derive model." );
+      return;
+      }
+
+    vtkStringArray* varNames = vtkStringArray::New();
+    varNames->SetNumberOfValues( this->NumberOfVariables );
+    varNames->SetValue( 0, varNameX );
+    varNames->SetValue( 1, varNameY );
+
+    // Store names to be able to use SetValueByName which is faster than SetValue
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
+      {
+      vtksys_ios::ostringstream assessColName;
+      assessColName << this->AssessNames->GetValue( v )
+                    << "("
+                    << varNameX
+                    << ","
+                    << varNameY
+                    << ")";
+
+      names[v] = assessColName.str().c_str();
+      }
+
+    // Select assess functor
+    AssessFunctor* dfunc;
+    this->SelectAssessFunctor( outData,
+                               contingencyTab,
+                               pairKey,
+                               varNames,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      // Functor selection did not work. Do nothing.
+      vtkWarningMacro( "AssessFunctors could not be allocated for column pair ("
+                       << varNameX.c_str()
+                       << ","
+                       << varNameY.c_str()
+                       << "). Ignoring it." );
+      delete [] names;
+      continue;
+      }
+    else
+      {
+      // Assess each entry of the column
+      vtkVariantArray* assessResult = vtkVariantArray::New();
+      for ( vtkIdType r = 0; r < nRowData; ++ r )
+        {
+        (*dfunc)( assessResult, r );
+        for ( int v = 0; v < nv; ++ v )
+          {
+          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+          }
+        }
+
+      assessResult->Delete();
+      }
+
+    delete dfunc;
+    delete [] names;
+    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
+    }
+}
+
+// ----------------------------------------------------------------------
+void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed( outData ),
+                                                    vtkDataObject* vtkNotUsed( inMetaDO ),
+                                                    vtkStringArray* vtkNotUsed( rowNames ),
+                                                    AssessFunctor*& vtkNotUsed( dfunc ) )
+{
+  // This method is not implemented for contingency statistics, as its API does not allow
+  // for the passing of necessary parameters.
+}
+
+// ----------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
-                                                    vtkDataObject* inMetaDO,
+                                                    vtkTable* contingencyTab,
+                                                    vtkIdType pairKey,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta ) 
-    { 
-    return; 
-    } 
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+  if ( nRowCont <= 0 )
+    {
+    return;
+    }
 
   vtkStdString varNameX = rowNames->GetValue( 0 );
   vtkStdString varNameY = rowNames->GetValue( 1 );
@@ -433,61 +789,55 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
       
-  // Values
-  vtkVariant x, y;
+  // Downcast columns to string arrays for efficient data access
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+
+  int np = this->AssessParameters->GetNumberOfValues();
+  vtkDoubleArray* para[3];
+  for ( int p = 0; p < np; ++ p )
+    {
+    para[p] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( this->AssessParameters->GetValue( p ) ) );
+    if ( ! para[p] )
+      {
+      dfunc = 0;
+      return;
+      }
+    }
 
   // PDFs
-  vtkstd::map<vtkVariant,PDF> pdf[3];
+  vtkstd::map<vtkStdString,PDF> pdf[3];
 
   // Joint CDF 
   double cdf = 0.;
 
   // Loop over parameters table until the requested variables are found 
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  for ( int i = 0; i < nRowP; ++ i )
+  vtkStdString x, y;
+  vtkIdType key, c;
+  for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
-    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
-    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
+    // Find the pair of variables to which the key corresponds
+    key = keys->GetValue( r );
 
-    if ( c1 == "" || c2 == "" )
+    if ( key != pairKey )
       {
       continue;
       }
 
-    if ( c1 == varNameX && c2 == varNameY )
+    x = valx->GetValue( r );
+    y = valy->GetValue( r );
+
+    for ( int p = 0; p < np; ++ p )
       {
-      x = inMeta->GetValueByName( i, "x" );
-      y = inMeta->GetValueByName( i, "y" );
+      pdf[p][x][y] = para[p]->GetValue( r );
 
-      if ( x != "" && y != "" ) // NB: the latter implies the former if the meta table is well-formed...
+      if ( ! p )
         {
-        for ( int j = 0; j < 3; ++ j )
-          {
-          pdf[j][x][y] = inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ) ).ToDouble();
-
-          if ( ! j )
-            {
-            cdf += pdf[j][x][y];
-            }
-          }
-        } // if ( x != "" && y != "" )
-      else if ( x == "" && y == "" ) // NB: the former implies the latter if the meta table is well-formed...
-        {
-        // If row contains information entropies, check cardinalities (cf. sanityChecks above)
-        if ( inMeta->GetValueByName( i, "Cardinality" ) != this->SampleSize )
-          {
-          vtkWarningMacro( "Incorrect information entropy for column pair:"
-                           << varNameX.c_str()
-                           << ","
-                           << varNameY.c_str()
-                           << "). Ignoring it." );
-          
-          dfunc = 0;
-          return;
-          }
-        } // else if ( x == "" && y == "" )
-      } // if ( c1 == varNameX && c2 == varNameY )
-    } // for ( int i = 0; i < nRowP; ++ i )
+        cdf += pdf[p][x][y];
+        }
+      }
+    } // for ( int r = 1; r < nRowCont; ++ r )
 
   if ( fabs( cdf - 1. ) > 1.e-6 )
     {
