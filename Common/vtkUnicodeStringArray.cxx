@@ -28,7 +28,7 @@ public:
   StorageT Storage;
 };
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.3");
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.4");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
@@ -223,8 +223,8 @@ unsigned long vtkUnicodeStringArray::GetActualMemorySize()
   unsigned long count = 0;
   for(Internals::StorageT::size_type i = 0; i != this->Implementation->Storage.size(); ++i)
     {
-    count += this->Implementation->Storage[i].byte_count();
-    count += sizeof(vtkUnicodeString);
+    count += static_cast<unsigned long>(this->Implementation->Storage[i].byte_count());
+    count += static_cast<unsigned long>(sizeof(vtkUnicodeString));
     }
   return count;
 }
