@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.36");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.37");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -402,7 +402,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 
   // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
   // have the same cardinality.
-  vtkIdType n = cardinality.at( 0 );
+  vtkIdType n = cardinality[0];
   for ( vtkstd::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
         iit != cardinality.end(); ++ iit )
     {
