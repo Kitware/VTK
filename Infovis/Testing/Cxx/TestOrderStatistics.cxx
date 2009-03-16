@@ -10,7 +10,6 @@
 // Thanks to Philippe Pebay from Sandia National Laboratories 
 // for implementing this test.
 
-#include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -142,14 +141,17 @@ int TestOrderStatistics( int, char *[] )
   haruspex->SetAssess( false );
   haruspex->Update();
 
-  double valsTest1 [] = { 0.,
-    46., 47., 49., 51.5, 54.,
-    45., 47., 49., 52., 54.,
-    -1., -1., -1., -1., -1.,
-  };
-  cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition ( "
-       << haruspex->GetSampleSize()
-       << " entries per column ):\n";
+  // offset between baseline values for each variable
+  int valsOffset = 6;
+
+  double valsTest1 [] = 
+    { 0.,
+      32., 46., 47., 49., 51.5, 54.,
+      32., 45., 47., 49., 52., 54.,
+      32., -1., -1., -1., -1., -1.,
+    };
+
+  cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -160,10 +162,10 @@ int TestOrderStatistics( int, char *[] )
            << outputMeta->GetValue( r, i ).ToString()
            << "  ";
 
-      if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest1[r * 5 + i] )
+      if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest1[r * valsOffset + i] )
         {
         testStatus = 1;
-        vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest1[r * 5 + i] << ".");
+        vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest1[r * valsOffset + i] << ".");
         }
       }
     cout << "\n";
@@ -176,14 +178,14 @@ int TestOrderStatistics( int, char *[] )
   haruspex->SetAssess( true );
   haruspex->Update();
 
-  double valsTest2 [] = { 0.,
-    46., 47., 49., 51., 54.,
-    45., 47., 49., 52., 54.,
-    -1., -1., -1., -1., -1.,
-  };
-  cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition ( "
-       << haruspex->GetSampleSize()
-       << " entries per column ):\n";
+  double valsTest2 [] = 
+    { 0.,
+      32., 46., 47., 49., 51., 54.,
+      32., 45., 47., 49., 52., 54.,
+      32., -1., -1., -1., -1., -1.,
+    };
+
+  cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -194,10 +196,10 @@ int TestOrderStatistics( int, char *[] )
            << outputMeta->GetValue( r, i ).ToString()
            << "  ";
 
-      if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest2[r * 5 + i] )
+      if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest2[r * valsOffset + i] )
         {
         testStatus = 1;
-        vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest2[r * 5 + i] << ".");
+        vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest2[r * valsOffset + i] << ".");
         }
       }
     cout << "\n";
@@ -243,9 +245,7 @@ int TestOrderStatistics( int, char *[] )
   haruspex->SetAssess( false );
   haruspex->Update();
 
-  cout << "## Calculated the following deciles with InverseCDF quantile definition ( "
-       << haruspex->GetSampleSize()
-       << " entries per column ):\n";
+  cout << "## Calculated the following deciles with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -260,10 +260,12 @@ int TestOrderStatistics( int, char *[] )
     }
 
 // -- Test Learn option for quartiles with non-numeric ordinal data --
-  char text[] = "An ordinal scale defines a total preorder of objects; the scale values themselves have a total order; names may be used like bad, medium, good; if numbers are used they are only relevant up to strictly monotonically increasing transformations (order isomorphism).";
-  int textLength = 263;
+  vtkStdString text[] = { 
+    "an", "ordinal", "scale", "defines", "a", "total", "preorder", "of", "objects", "the", "scale", "values", "themselves", "have", "a", "total", "order", "names", "may", "be", "used", "like", "bad", "medium", "good", "if", "numbers", "are", "used", "they", "are", "only", "relevant", "up", "to", "strictly", "monotonically", "increasing", "transformations", "order", "isomorphism"
+  };
+  int textLength = 41;
     
-  vtkCharArray* textArr = vtkCharArray::New();
+  vtkStringArray* textArr = vtkStringArray::New();
   textArr->SetNumberOfComponents( 1 );
   textArr->SetName( "Text" );
 
@@ -278,16 +280,14 @@ int TestOrderStatistics( int, char *[] )
 
   haruspex->SetInput( 0, textTable );
   textTable->Delete();
-  haruspex->SetQuantileDefinition( 1 ); // InverseCDFAverageSteps to make sure it is not trying to average non-numeric values
+  haruspex->SetQuantileDefinition( 0 ); // Does not matter and should be ignored by the engine since the column contains strings
   haruspex->SetNumberOfIntervals( 4 );
   haruspex->ResetColumns(); // Clear list of columns of interest
   haruspex->AddColumn( "Text" ); // Add column of interest
   haruspex->SetAssess( true );
   haruspex->Update();
 
-  cout << "## Calculated the following 5-points statistics with non-numerical ordinal data (letters) ( "
-       << haruspex->GetSampleSize()
-       << " entries ):\n";
+  cout << "## Calculated the following 5-points statistics with non-numerical ordinal data (letters):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
