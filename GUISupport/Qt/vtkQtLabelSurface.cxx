@@ -50,7 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelSurface, "1.2");
+vtkCxxRevisionMacro(vtkQtLabelSurface, "1.3");
 vtkStandardNewMacro(vtkQtLabelSurface);
 vtkCxxSetObjectMacro(vtkQtLabelSurface,LabelTextProperty,vtkTextProperty);
 
@@ -168,11 +168,9 @@ int vtkQtLabelSurface::RequestInformation (
     }
   
   int *size = this->Renderer->GetRenderWindow()->GetSize();
-  double w = size[0]-1;
-  double h = size[1]-1;
-  
-  this->DataExtent[1] = w;
-  this->DataExtent[3] = h;
+
+  this->DataExtent[1] = size[0]-1;
+  this->DataExtent[3] = size[1]-1;
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent,6);
   return 1;

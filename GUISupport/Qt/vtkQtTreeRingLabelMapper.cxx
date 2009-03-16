@@ -55,7 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.1");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.2");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -73,7 +73,7 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   this->FieldDataArray = 0;
   this->FieldDataName = NULL;
   
-  this->TextRotationArrayName = "TextRotation";
+  this->SetTextRotationArrayName( "TextRotation" );
   this->SetSectorsArrayName("area");
   
   this->LabelTextProperty = vtkTextProperty::New();
@@ -114,7 +114,7 @@ vtkQtTreeRingLabelMapper::~vtkQtTreeRingLabelMapper()
   this->SetLabelTextProperty(NULL);
   this->SetFieldDataName(NULL);  
   
-  this->TextRotationArrayName = 0;
+  this->SetTextRotationArrayName( 0 );
   
   this->VCoord->Delete();
   this->PlaneSource->Delete();
@@ -352,7 +352,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
         {
         continue;
         }
-      allowedTextWidth = sdimDC[0];
+      allowedTextWidth = static_cast<int>(sdimDC[0]);
       }
     else
       {
@@ -360,7 +360,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
         {
         continue;
         }
-      allowedTextWidth = sdimDC[1];
+      allowedTextWidth = static_cast<int>(sdimDC[1]);
       }
 //FIXME - This next step assumes no markup to the original text, which is probably a bad
 //  choice, but is necessary due to Qt's current methods for handling and computing

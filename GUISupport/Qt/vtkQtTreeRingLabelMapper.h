@@ -82,6 +82,11 @@ public:
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
 
   // Description:
+  // Set/Get the name of the text rotation array.
+  vtkSetStringMacro(TextRotationArrayName);
+  vtkGetStringMacro(TextRotationArrayName);
+
+  // Description:
   // Return the object's MTime. This is overridden to include 
   // the timestamp of its internal class.
   virtual unsigned long GetMTime();
