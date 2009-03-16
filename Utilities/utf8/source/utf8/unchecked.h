@@ -30,7 +30,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include "core.h"
 
-namespace utf8
+namespace vtk_utf8
 {
     namespace unchecked 
     {
@@ -61,7 +61,7 @@ namespace utf8
         uint32_t next(octet_iterator& it)
         {
             uint32_t cp = internal::mask8(*it);
-            typename vtkstd::iterator_traits<octet_iterator>::difference_type length = utf8::internal::sequence_length(it);
+            typename vtkstd::iterator_traits<octet_iterator>::difference_type length = vtk_utf8::internal::sequence_length(it);
             switch (length) {
                 case 1:
                     break;
@@ -221,7 +221,7 @@ namespace utf8
           }; // class iterator
 
     } // namespace utf8::unchecked
-} // namespace utf8 
+} // namespace vtk_utf8 
 
 
 #endif // header guard
