@@ -24,7 +24,7 @@
 #include "vtkBivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
-#include "vtkIDTypeArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.45");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.46");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
