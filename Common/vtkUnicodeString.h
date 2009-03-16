@@ -50,17 +50,19 @@
 
 class vtkUnicodeString;
 
+typedef vtkTypeUInt32 vtkUnicodeStringValueType;
+
 class VTK_COMMON_EXPORT vtkUnicodeString
 {
 public:
-  typedef vtkTypeUInt32 value_type;
+  typedef vtkUnicodeStringValueType value_type;
   typedef vtkstd::string::size_type size_type;
 
   class VTK_COMMON_EXPORT const_iterator
   {
   public:
     typedef vtkstd::forward_iterator_tag iterator_category;
-    typedef vtkUnicodeString::value_type value_type;
+    typedef vtkUnicodeStringValueType value_type;
     typedef vtkstd::string::difference_type difference_type;
     typedef value_type* pointer;
     typedef value_type& reference;
