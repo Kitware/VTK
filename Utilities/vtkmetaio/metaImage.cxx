@@ -2994,6 +2994,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
           {
           m_ReadStream->close();
           }
+        delete readStreamTemp;
         return false;
         }     
      
