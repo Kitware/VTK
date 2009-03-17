@@ -28,6 +28,8 @@
 #ifdef _WIN64
 #pragma warning( disable: 4244 ) /* conversion, possible loss of data */
 #pragma warning( disable: 4267 ) /* conversion, possible loss of data */
+#pragma warning( disable: 4305 ) /* truncation from t1 to t2 */
+#pragma warning( disable: 4306 ) /* conversion from t1 to t2 of greater size */
 #endif
 #endif
 #if defined(__BORLANDC__)
