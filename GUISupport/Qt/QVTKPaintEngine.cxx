@@ -86,7 +86,7 @@ void QVTKPaintEngine::drawPath(const QPainterPath& path)
 {
   // drawPath in base class does nothing so here we make it do something
   QRectF box = path.boundingRect();
-  QPixmap img(box.width(), box.height());
+  QPixmap img((int)box.width(), (int)box.height());
   img.fill(Qt::transparent);
   QPainter p(&img);
   p.translate(-box.left(), -box.right());
