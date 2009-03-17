@@ -111,11 +111,11 @@ public:
 
   // Description:
   // If an interpolation was successful, we can retrieve the last computed
-  // value from here.
+  // value from here. Initial value is (0.0,0.0,0.0)
   vtkGetVector3Macro(LastGoodVelocity,double);
 
   // Description:
-  // Get the most recent weight between 0->1 from T1->T2
+  // Get the most recent weight between 0->1 from T1->T2. Initial value is 0.
   vtkGetMacro(CurrentWeight,double);
   
   bool InterpolatePoint(vtkPointData *outPD1, 

@@ -25,7 +25,7 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.8");
+vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.9");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
@@ -34,7 +34,12 @@ vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
   this->NumIndepVars     = 4; // x, y, z, t
   this->ivf[0] = vtkSmartPointer<vtkCachingInterpolatedVelocityField>::New();
   this->ivf[1] = vtkSmartPointer<vtkCachingInterpolatedVelocityField>::New();
+  this->LastGoodVelocity[0]=0.0;
+  this->LastGoodVelocity[1]=0.0;
+  this->LastGoodVelocity[2]=0.0;
+  this->CurrentWeight=0.0; 
 }
+
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::~vtkTemporalInterpolatedVelocityField()
 {
