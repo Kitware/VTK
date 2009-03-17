@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.18");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.19");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -439,7 +439,7 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
   range[0] = this->LookupTable->GetRange()[0];
   range[1] = this->LookupTable->GetRange()[1];
 
-  bool use_log_scale = this->LookupTable->UsingLogScale();
+  bool use_log_scale = (this->LookupTable->UsingLogScale() != 0);
   if (use_log_scale)
     {
     // convert range to log.
@@ -471,7 +471,7 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
       *ptr = range[0] + i * k;
       if (use_log_scale)
         {
-        *ptr = pow(10, *ptr);
+        *ptr = pow(static_cast<float>(10.0), *ptr);
         }
       ++ptr;
       }
@@ -725,7 +725,7 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(
     double range[2];
     range[0] = this->LookupTable->GetRange()[0];
     range[1] = this->LookupTable->GetRange()[1];
-    bool use_log_scale = this->LookupTable->UsingLogScale();
+    bool use_log_scale = (this->LookupTable->UsingLogScale() != 0);
     if (use_log_scale)
       {
       // convert range to log.
