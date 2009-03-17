@@ -24,6 +24,7 @@
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkSortDataArray.h"
+#include "vtkTypeTraits.h"
 #include <vtkstd/new>
 #include <vtkstd/exception>
 #include <vtkstd/utility>
@@ -931,15 +932,15 @@ void vtkDataArrayTemplate<T>::ComputeScalarRange(int comp)
 
   // Compute the range of scalar values.
   int numComp = this->NumberOfComponents;
-  T range[2] = {*begin, *begin};
-  for(T* i = begin+numComp; i != end; i += numComp)
+  T range[2] = {vtkTypeTraits<T>::Max(), vtkTypeTraits<T>::Min()};
+  for(T* i = begin; i != end; i += numComp)
     {
     T s = *i;
     if(s < range[0])
       {
       range[0] = s;
       }
-    else if(s > range[1])
+    if(s > range[1])
       {
       range[1] = s;
       }
