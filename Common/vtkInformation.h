@@ -66,6 +66,7 @@ public:
   VTK_COMMON_EXPORT static vtkInformation *New();
   vtkExportedTypeRevisionMacro(vtkInformation,vtkObject,VTK_COMMON_EXPORT);
   VTK_COMMON_EXPORT void PrintSelf(ostream& os, vtkIndent indent);
+  VTK_COMMON_EXPORT void PrintKeys(ostream& os, vtkIndent indent);
 
   // Description:
   // Modified signature with no arguments that calls Modified

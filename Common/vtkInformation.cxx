@@ -41,7 +41,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.30");
+vtkCxxRevisionMacro(vtkInformation, "1.31");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -88,6 +88,26 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
       }
     }
 }
+  
+//----------------------------------------------------------------------------
+void vtkInformation::PrintKeys(ostream& os, vtkIndent indent)
+{
+  // Give each key a chance to print its value.
+  unsigned short i;
+  for (i = 0; i < this->Internal->TableSize; ++i)
+    {
+    if (this->Internal->Keys[i])
+      {
+      // Print the key name first.
+      vtkInformationKey* key = this->Internal->Keys[i];
+      os << indent << key->GetName() << ": ";
+      // Ask the key to print its value.
+      key->Print(os, this);
+      os << "\n";
+      }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 // call modified on superclass
