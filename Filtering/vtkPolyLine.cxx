@@ -21,7 +21,7 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.5");
+vtkCxxRevisionMacro(vtkPolyLine, "1.6");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
@@ -276,12 +276,12 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
   double closest[3];
   double pc[3], dist2;
   int ignoreId, i, return_status, status;
-  double lineWeights[2];
+  double lineWeights[2], closestWeights[2];
 
   pcoords[1] = pcoords[2] = 0.0;
 
   return_status = 0;
-  weights[0] = 0.0;
+  subId = -1;
   for (minDist2=VTK_DOUBLE_MAX,i=0; i<this->Points->GetNumberOfPoints()-1; i++)
     {
     this->Line->Points->SetPoint(0,this->Points->GetPoint(i));
@@ -300,13 +300,16 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
       minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
-      weights[i] = lineWeights[0];
-      weights[i+1] = lineWeights[1];
+      closestWeights[0] = lineWeights[0];
+      closestWeights[1] = lineWeights[1];
       }
-    else
-      {
-      weights[i+1] = 0.0;
-      }
+    }
+
+  vtkstd::fill_n(weights, this->Points->GetNumberOfPoints(), 0.0);
+  if (subId >= 0)
+    {
+    weights[subId] = closestWeights[0];
+    weights[subId+1] = closestWeights[1];
     }
 
   return return_status;
