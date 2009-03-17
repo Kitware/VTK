@@ -77,6 +77,8 @@ vtkMINCImageReader.cxx
 vtkMINCImageWriter.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
+vtkNetCDFCOARDSReader.cxx
+vtkNetCDFReader.cxx
 vtkOBJReader.cxx
 vtkOutputStream.cxx
 vtkOpenFOAMReader.cxx
