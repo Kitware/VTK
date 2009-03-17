@@ -37,7 +37,7 @@
 #include "vtkDoubleArray.h"
 
 vtkStandardNewMacro(vtkSplineRepresentation);
-vtkCxxRevisionMacro(vtkSplineRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkSplineRepresentation, "1.2");
 //----------------------------------------------------------------------------
 vtkSplineRepresentation::vtkSplineRepresentation()
 {
@@ -997,7 +997,8 @@ int vtkSplineRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
-int vtkSplineRepresentation::ComputeInteractionState(int X, int Y, int modify)
+int vtkSplineRepresentation::ComputeInteractionState(int X, int Y,
+  int vtkNotUsed(modify))
 {
   this->InteractionState = vtkSplineRepresentation::Outside;
   if (!this->Renderer || !this->Renderer->IsInViewport(X, Y))
