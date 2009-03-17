@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.23");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.24");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -181,6 +181,8 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->FluentCaseFile = new ifstream;
   this->FluentDataFile = new ifstream;
 
+  this->NumberOfCells=0;
+  
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->SetDataByteOrderToLittleEndian();
 }
