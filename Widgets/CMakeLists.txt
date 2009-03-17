@@ -97,7 +97,9 @@ vtkSphereHandleRepresentation.cxx
 vtkSphereRepresentation.cxx
 vtkSphereWidget.cxx
 vtkSphereWidget2.cxx
+vtkSplineRepresentation.cxx
 vtkSplineWidget.cxx
+vtkSplineWidget2.cxx
 vtkTensorProbeWidget.cxx
 vtkTensorProbeRepresentation.cxx
 vtkTerrainDataPointPlacer.cxx

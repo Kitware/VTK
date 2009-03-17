@@ -87,6 +87,12 @@ public:
   vtkGetObjectMacro(Points,vtkPoints);
 
   // Description:
+  // Another API to set the points. Set the number of points and then set the
+  // individual point coordinates.
+  void SetNumberOfPoints(vtkIdType numPts);
+  void SetPoint(vtkIdType index, double x, double y, double z);
+
+  // Description:
   // Control whether the spline is open or closed. A closed spline forms
   // a continuous loop: the first and last points are the same, and
   // derivatives are continuous.

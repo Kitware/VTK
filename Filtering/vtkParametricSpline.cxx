@@ -18,7 +18,7 @@
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricSpline, "1.7");
+vtkCxxRevisionMacro(vtkParametricSpline, "1.8");
 vtkStandardNewMacro(vtkParametricSpline);
 
 //----------------------------------------------------------------------------
@@ -62,6 +62,30 @@ vtkParametricSpline::~vtkParametricSpline()
   if (this->ZSpline)
     {
     this->ZSpline->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkParametricSpline::SetNumberOfPoints(vtkIdType numPts)
+{
+  if (!this->Points)
+    {
+    vtkPoints* pts = vtkPoints::New(VTK_DOUBLE);
+    this->SetPoints(pts);
+    pts->Delete();
+    }
+  this->Points->SetNumberOfPoints(numPts);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkParametricSpline::SetPoint(
+  vtkIdType index, double x, double y, double z)
+{
+  if (this->Points)
+    {
+    this->Points->SetPoint(index, x, y, z);
+    this->Modified();
     }
 }
 
@@ -160,6 +184,12 @@ void vtkParametricSpline::Evaluate(double U[3], double Pt[3], double*)
     t *= this->Length;
     }
 
+  if (this->Length == 0 && this->Points && this->Points->GetNumberOfPoints() > 0)
+    {
+    this->Points->GetPoint(0, Pt);
+    return;
+    }
+
   // Evaluate the spline at the parameter t
   Pt[0] = this->XSpline->Evaluate(t);
   Pt[1] = this->YSpline->Evaluate(t);
@@ -220,10 +250,18 @@ int vtkParametricSpline::Initialize()
   vtkIdType i;
   double xPrev[3], x[3], len;
   vtkIdType npts = this->Points->GetNumberOfPoints();
+
+  if ( npts < 1)
+    {
+    vtkErrorMacro("Please specify at least one point.");
+    return 0;
+    }
   if ( npts < 2 )
     {
-    vtkErrorMacro("Please specify at least two points");
-    return 0;
+    this->Length = 0;
+    this->ClosedLength = 0;
+    // If number of points == 1, then we simply generate a single point.
+    return 1;
     }
 
   if ( this->ParameterizeByLength )
@@ -234,18 +272,21 @@ int vtkParametricSpline::Initialize()
       {
       this->Points->GetPoint(i,x);
       len = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
-      if ( len <= 0.0 )
-        {
-        vtkErrorMacro("Spline must have non-coincident points");
-        return 0; //failure
-        }
+      // No need to complain if there are coincident points, we indeed handle
+      // them correctly.
+      //if ( len <= 0.0 )
+      //  {
+      //  vtkErrorMacro("Spline must have non-coincident points");
+      //  return 0; //failure
+      //  }
       this->Length += len;
       xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
       }
     if ( this->Length <= 0.0 )
       {
-      vtkErrorMacro("Spline must have non-zero length");
-      return 0; //failure
+      // Zero length spline is same a single point.
+      this->ClosedLength = 0.0;
+      return 1;
       }
     if ( this->Closed )
       {
