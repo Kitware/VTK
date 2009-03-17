@@ -87,17 +87,11 @@ int main( int argc, char** argv )
 
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
-  vtkQtChartStyleManager *style = area->getStyleManager();
-  vtkQtChartColorStyleGenerator *generator =
-      qobject_cast<vtkQtChartColorStyleGenerator *>(style->getGenerator());
-  if(generator)
+  vtkQtChartBasicStyleManager *style =
+      qobject_cast<vtkQtChartBasicStyleManager *>(area->getStyleManager());
+  if(style)
     {
-    generator->getColors()->setColorScheme(vtkQtChartColors::Blues);
-    }
-  else
-    {
-    style->setGenerator(
-        new vtkQtChartColorStyleGenerator(chart, vtkQtChartColors::Blues));
+    style->getColors()->setColorScheme(vtkQtChartColors::Blues);
     }
 
   // Set up the box chart.
