@@ -189,6 +189,11 @@ public:
         // TODO; To add information about where which cell/pt this grid came
         // from.
 
+        // Remove vtkOriginalCellIds or vtkOriginalPointIds arrays which were
+        // added by vtkExtractSelection.
+        value.Output->GetRowData()->RemoveArray("vtkOriginalCellIds");
+        value.Output->GetRowData()->RemoveArray("vtkOriginalPointIds");
+
         value.Output->GetRowData()->RemoveArray(
           value.ValidMaskArray->GetName());
         value.Output->GetRowData()->AddArray(value.ValidMaskArray);
@@ -196,6 +201,7 @@ public:
         value.Output->GetRowData()->RemoveArray(
           this->TimeArray->GetName());
         value.Output->GetRowData()->AddArray(this->TimeArray);
+
  
         if (value.PointCoordinatesArray)
           {
@@ -515,7 +521,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.25");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.26");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
