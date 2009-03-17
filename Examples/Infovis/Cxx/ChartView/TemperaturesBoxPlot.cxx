@@ -26,7 +26,7 @@
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
-#include "vtkQtChartBasicStyleManager.h
+#include "vtkQtChartBasicStyleManager.h"
 #include "vtkQtChartColors.h"
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartMouseSelection.h"
