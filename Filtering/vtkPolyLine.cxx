@@ -21,7 +21,9 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.6");
+#include <vtkstd/algorithm>
+
+vtkCxxRevisionMacro(vtkPolyLine, "1.7");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
