@@ -55,6 +55,10 @@ int TIFFFillTile(TIFF*, ttile_t);
 #pragma warn -8066 // Disable "unreachable code" warning.
 #endif
 
+#if defined (_MSC_VER)
+#pragma warning(disable:4324) /* structure was padded due to... */
+#endif
+
 /*
   Libjpeg's jmorecfg.h defines INT16 and INT32, but only if XMD_H is
   not defined.  Unfortunately, the MinGW and Borland compilers include

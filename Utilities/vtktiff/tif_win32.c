@@ -31,6 +31,7 @@
 
 #if defined ( _MSC_VER )
 #pragma warning ( disable : 4115 )
+#pragma warning(disable:4306) /* conversion from t1 to t2 of greater size */
 #endif
 
 #include "tiffiop.h"
