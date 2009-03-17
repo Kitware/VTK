@@ -185,14 +185,15 @@ protected:
   virtual vtkQtChartSeriesOptions *createOptions(QObject *parent) = 0;
 
   /// \brief
-  ///   Sets up the options object.
+  ///   Sets up the series options object.
   ///
-  /// The style has been reserved and set before this method is called.
+  /// The style manager should be used to help set up the series options.
   /// Signal connections should be set up here in order to avoid slot
   /// calls during setup.
   ///
+  /// \param style The series style index.
   /// \param options The newly created series options.
-  virtual void setupOptions(vtkQtChartSeriesOptions *options) = 0;
+  virtual void setupOptions(int style, vtkQtChartSeriesOptions *options) = 0;
 
 private slots:
   /// \brief

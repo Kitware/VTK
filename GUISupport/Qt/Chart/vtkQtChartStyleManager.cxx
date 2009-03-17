@@ -28,59 +28,87 @@
 
 #include "vtkQtChartStyleManager.h"
 
-#include "vtkQtChartStyleGenerator.h"
-#include "vtkQtChartColorStyleGenerator.h"
 #include <QList>
+#include <QMap>
+
+
+class vtkQtChartStyleManagerInternal
+{
+public:
+  vtkQtChartStyleManagerInternal();
+  ~vtkQtChartStyleManagerInternal() {}
+
+  QMap<QString, QObject *> Generators;
+};
+
+
+//----------------------------------------------------------------------------
+vtkQtChartStyleManagerInternal::vtkQtChartStyleManagerInternal()
+  : Generators()
+{
+}
 
 
 //----------------------------------------------------------------------------
 vtkQtChartStyleManager::vtkQtChartStyleManager(QObject *parentObject)
-  : QObject(parentObject), Ids()
+  : QObject(parentObject)
 {
-  this->DefaultGenerator = new vtkQtChartColorStyleGenerator(this,
-      vtkQtChartColors::Spectrum);
-  this->Generator = this->DefaultGenerator;
+  this->Internal = new vtkQtChartStyleManagerInternal();
 }
 
-vtkQtChartStyleGenerator *vtkQtChartStyleManager::getGenerator()
+vtkQtChartStyleManager::~vtkQtChartStyleManager()
 {
-  return this->Generator;
+  delete this->Internal;
 }
 
-void vtkQtChartStyleManager::setGenerator(
-    vtkQtChartStyleGenerator *generator)
+QObject *vtkQtChartStyleManager::getGenerator(const QString &name) const
 {
-  this->Generator = generator;
-  if(this->Generator == 0)
+  QMap<QString, QObject *>::Iterator iter =
+      this->Internal->Generators.find(name);
+  if(iter != this->Internal->Generators.end())
     {
-    this->Generator = this->DefaultGenerator;
+    return *iter;
+    }
+
+  return 0;
+}
+
+void vtkQtChartStyleManager::setGenerator(const QString &name,
+    QObject *generator)
+{
+  if(generator && !name.isEmpty())
+    {
+    this->Internal->Generators.insert(name, generator);
     }
 }
 
-int vtkQtChartStyleManager::reserveStyle()
+void vtkQtChartStyleManager::removeGenerator(const QString &name)
 {
-  int idx = this->Ids.indexOf(0);
-  if(idx != -1)
+  QMap<QString, QObject *>::Iterator iter =
+      this->Internal->Generators.find(name);
+  if(iter != this->Internal->Generators.end())
     {
-    this->Ids[idx] = 1;
-    return idx;
+    this->Internal->Generators.erase(iter);
     }
-  
-  this->Ids.append(1);
-  return this->Ids.count() - 1;
 }
 
-void vtkQtChartStyleManager::releaseStyle(int id)
+void vtkQtChartStyleManager::removeGenerator(QObject *generator)
 {
-  if(id >= 0 && this->Ids.count() > id)
+  if(generator)
     {
-    this->Ids[id] = 0;
-    }
-
-  // clean up at end
-  while(this->Ids.count() && this->Ids[this->Ids.count()-1] == 0)
-    {
-    this->Ids.removeLast();
+    QMap<QString, QObject *>::Iterator iter =
+        this->Internal->Generators.begin();
+    while(iter != this->Internal->Generators.end())
+      {
+      if(*iter == generator)
+        {
+        iter = this->Internal->Generators.erase(iter);
+        }
+      else
+        {
+        ++iter;
+        }
+      }
     }
 }
 

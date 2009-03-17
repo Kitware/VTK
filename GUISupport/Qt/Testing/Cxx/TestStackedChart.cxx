@@ -24,7 +24,8 @@
 #endif
 
 #include "vtkQtChartArea.h"
-#include "vtkQtChartColorStyleGenerator.h"
+#include "vtkQtChartBasicStyleManager.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartLegend.h"
 #include "vtkQtChartLegendManager.h"
@@ -49,17 +50,11 @@ int TestStackedChart(int argc, char* argv[])
 
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
-  vtkQtChartStyleManager *style = area->getStyleManager();
-  vtkQtChartColorStyleGenerator *generator =
-      qobject_cast<vtkQtChartColorStyleGenerator *>(style->getGenerator());
-  if(generator)
+  vtkQtChartBasicStyleManager *style =
+      qobject_cast<vtkQtChartBasicStyleManager *>(area->getStyleManager());
+  if(style)
     {
-    generator->getColors()->setColorScheme(vtkQtChartColors::WildFlower);
-    }
-  else
-    {
-    style->setGenerator(
-        new vtkQtChartColorStyleGenerator(chart, vtkQtChartColors::WildFlower));
+    style->getColors()->setColorScheme(vtkQtChartColors::WildFlower);
     }
 
   // Set up the stacked chart.

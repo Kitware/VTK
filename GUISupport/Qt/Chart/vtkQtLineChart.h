@@ -136,8 +136,13 @@ protected:
 
   /// \brief
   ///   Sets up the series options defaults.
+  ///
+  /// The style manager's "Pen" generator is used to set the series
+  /// pen.
+  ///
+  /// \param style The series style index.
   /// \param options The new series options object.
-  virtual void setupOptions(vtkQtChartSeriesOptions *options);
+  virtual void setupOptions(int style, vtkQtChartSeriesOptions *options);
 
 private slots:
   /// \brief

@@ -48,16 +48,6 @@ public:
   virtual ~vtkQtStatisticalBoxChartSeriesOptions();
 
   /// \brief
-  ///   Sets the style generator index for the series.
-  ///
-  /// This method uses the style generator to assign the initial brush
-  /// for the series.
-  ///
-  /// \param style The style index for the generator.
-  /// \param generator The style generator to use.
-  virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
-
-  /// \brief
   ///   Gets the series marker style.
   /// \return
   ///   The series marker style.

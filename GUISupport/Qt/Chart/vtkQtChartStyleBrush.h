@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtStackedChartSeriesOptions.h
+  Module:    vtkQtChartStyleBrush.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,31 +18,31 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-/// \file vtkQtStackedChartSeriesOptions.h
-/// \date February 27, 2008
+/// \file vtkQtChartStyleBrush.h
+/// \date March 16, 2009
 
-#ifndef _vtkQtStackedChartSeriesOptions_h
-#define _vtkQtStackedChartSeriesOptions_h
+#ifndef _vtkQtChartStyleBrush_h
+#define _vtkQtChartStyleBrush_h
+
 
 #include "vtkQtChartExport.h"
-#include "vtkQtChartSeriesOptions.h"
+#include <QObject>
+#include <QBrush> // needed for return type
 
 
-/// \class vtkQtStackedChartSeriesOptions
-/// \brief
-///   The vtkQtStackedChartSeriesOptions class stores the options for
-///   a stacked chart series.
-class VTKQTCHART_EXPORT vtkQtStackedChartSeriesOptions :
-  public vtkQtChartSeriesOptions
+class VTKQTCHART_EXPORT vtkQtChartStyleBrush : public QObject
 {
   Q_OBJECT
 
 public:
-  /// \brief
-  ///   Creates a stacked chart series options object.
-  /// \param parent The parent object.
-  vtkQtStackedChartSeriesOptions(QObject *parent=0);
-  virtual ~vtkQtStackedChartSeriesOptions() {}
+  vtkQtChartStyleBrush(QObject *parent=0);
+  virtual ~vtkQtChartStyleBrush() {}
+
+  virtual QBrush getStyleBrush(int index) const = 0;
+
+private:
+  vtkQtChartStyleBrush(const vtkQtChartStyleBrush &);
+  vtkQtChartStyleBrush &operator=(const vtkQtChartStyleBrush &);
 };
 
 #endif

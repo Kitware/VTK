@@ -24,15 +24,16 @@
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartBasicStyleManager.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartLegend.h"
 #include "vtkQtChartLegendManager.h"
 #include "vtkQtChartLegendModel.h"
 #include "vtkQtChartMouseSelection.h"
+#include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTitle.h"
 #include "vtkQtChartWidget.h"
-#include "vtkQtChartStyleManager.h"
-#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkTable.h"
 
 #include "vtkObjectFactory.h"
@@ -103,7 +104,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.8");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.9");
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::vtkQtChartViewBase()
@@ -584,17 +585,11 @@ namespace {
 void SetColorScheme(vtkQtChartStyleManager* styleManager,
                     vtkQtChartColors::ColorScheme scheme)
 {
-  if (styleManager)
+  vtkQtChartBasicStyleManager *manager =
+      qobject_cast<vtkQtChartBasicStyleManager *>(styleManager);
+  if(manager)
     {
-    vtkQtChartColorStyleGenerator* generator =
-        qobject_cast<vtkQtChartColorStyleGenerator*>(styleManager->getGenerator());
-    if (!generator)
-      {
-      // Create and set a new color style generator
-      generator = new vtkQtChartColorStyleGenerator(styleManager);
-      styleManager->setGenerator(generator);
-      }
-    generator->getColors()->setColorScheme(scheme);
+    manager->getColors()->setColorScheme(scheme);
     }
 }
 }

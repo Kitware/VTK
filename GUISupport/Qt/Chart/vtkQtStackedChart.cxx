@@ -28,6 +28,7 @@
 
 #include "vtkQtStackedChart.h"
 
+#include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
@@ -39,18 +40,18 @@
 #include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
-#include "vtkQtChartShapeLocator.h"
 #include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesDomainGroup.h"
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
-#include "vtkQtChartArea.h"
+#include "vtkQtChartShapeLocator.h"
+#include "vtkQtChartStyleBrush.h"
+#include "vtkQtChartStyleManager.h"
 #include "vtkQtStackedChartOptions.h"
 #include "vtkQtStackedChartSeriesOptions.h"
 
 #include <QBrush>
-#include <QGraphicsScene>
 #include <QList>
 #include <QPen>
 #include <QPointF>
@@ -59,7 +60,6 @@
 #include <QTimeLine>
 #include <QVector>
 
-#include <iostream>
 
 class vtkQtStackedChartSeries
 {
@@ -878,12 +878,22 @@ vtkQtChartSeriesOptions *vtkQtStackedChart::createOptions(
   return new vtkQtStackedChartSeriesOptions(parentObject);
 }
 
-void vtkQtStackedChart::setupOptions(vtkQtChartSeriesOptions *options)
+void vtkQtStackedChart::setupOptions(int style,
+    vtkQtChartSeriesOptions *options)
 {
   vtkQtStackedChartSeriesOptions *seriesOptions =
       qobject_cast<vtkQtStackedChartSeriesOptions *>(options);
   if(seriesOptions)
     {
+    // Set up the series options.
+    vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
+        this->ChartArea->getStyleManager()->getGenerator("Brush"));
+    if(styleBrush)
+      {
+      seriesOptions->setBrush(styleBrush->getStyleBrush(style));
+      seriesOptions->setPen(seriesOptions->getBrush().color().dark());
+      }
+
     // Listen for series options changes.
     this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
         this, SLOT(handleSeriesVisibilityChange(bool)));

@@ -45,12 +45,6 @@ public:
   virtual ~vtkQtBarChartSeriesOptions() {}
 
   /// \brief
-  ///   Sets the series brush using the style generator.
-  /// \param style The style index for the generator.
-  /// \param generator The style generator to use.
-  virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
-
-  /// \brief
   ///   Gets whether or not the series uses multiple colors.
   /// \return
   ///   True if the series uses multiple colors.

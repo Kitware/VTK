@@ -30,6 +30,7 @@
 
 #include "vtkQtBarChartOptions.h"
 #include "vtkQtBarChartSeriesOptions.h"
+#include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
@@ -48,11 +49,10 @@
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
-#include "vtkQtChartArea.h"
+#include "vtkQtChartStyleBrush.h"
+#include "vtkQtChartStyleManager.h"
 
 #include <QBrush>
-#include <QGraphicsRectItem>
-#include <QGraphicsScene>
 #include <QStyleOptionGraphicsItem>
 #include <QList>
 #include <QPen>
@@ -766,13 +766,20 @@ vtkQtChartSeriesOptions *vtkQtBarChart::createOptions(QObject *parentObject)
   return new vtkQtBarChartSeriesOptions(parentObject);
 }
 
-void vtkQtBarChart::setupOptions(vtkQtChartSeriesOptions *options)
+void vtkQtBarChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
 {
   vtkQtBarChartSeriesOptions *seriesOptions =
       qobject_cast<vtkQtBarChartSeriesOptions *>(options);
   if(seriesOptions)
     {
-    // Finish setting up the series options.
+    // Set up the series options.
+    vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
+        this->ChartArea->getStyleManager()->getGenerator("Brush"));
+    if(styleBrush)
+      {
+      seriesOptions->setBrush(styleBrush->getStyleBrush(style));
+      }
+
     if(this->Options->getOutlineStyle() == vtkQtBarChartOptions::Darker)
       {
       seriesOptions->setPen(seriesOptions->getBrush().color().dark());

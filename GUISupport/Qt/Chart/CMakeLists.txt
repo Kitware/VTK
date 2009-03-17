@@ -48,6 +48,12 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartBar.h
     vtkQtChartBarLocator.cxx
     vtkQtChartBarLocator.h
+    vtkQtChartBasicStyleManager.cxx
+    vtkQtChartBasicStyleManager.h
+    vtkQtChartBrushGenerator.cxx
+    vtkQtChartBrushGenerator.h
+    vtkQtChartColorGenerator.cxx
+    vtkQtChartColorGenerator.h
     vtkQtChartColors.cxx
     vtkQtChartColors.h
     vtkQtChartColorStyleGenerator.cxx
@@ -94,8 +100,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartMouseSelectionHandler.h
     vtkQtChartMouseZoom.cxx
     vtkQtChartMouseZoom.h
-    vtkQtChartPenBrushGenerator.cxx
-    vtkQtChartPenBrushGenerator.h
+    vtkQtChartPenGenerator.cxx
+    vtkQtChartPenGenerator.h
     vtkQtChartQuad.cxx
     vtkQtChartQuad.h
     vtkQtChartScene.cxx
@@ -128,10 +134,14 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartShape.h
     vtkQtChartShapeLocator.cxx
     vtkQtChartShapeLocator.h
-    vtkQtChartStyleGenerator.cxx
-    vtkQtChartStyleGenerator.h
+    vtkQtChartStyleBrush.cxx
+    vtkQtChartStyleBrush.h
     vtkQtChartStyleManager.cxx
     vtkQtChartStyleManager.h
+    vtkQtChartStylePen.cxx
+    vtkQtChartStylePen.h
+    vtkQtChartStyleRegistry.cxx
+    vtkQtChartStyleRegistry.h
     vtkQtChartTableSeriesModel.cxx
     vtkQtChartTableSeriesModel.h
     vtkQtChartTitle.cxx
@@ -175,8 +185,10 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartAxisLayer.h
     vtkQtChartAxisModel.h
     vtkQtChartAxisOptions.h
+    vtkQtChartBasicStyleManager.h
+    vtkQtChartBrushGenerator.h
+    vtkQtChartColorGenerator.h
     vtkQtChartColorStyleGenerator.h
-    vtkQtChartStyleGenerator.h
     vtkQtChartContentsSpace.h
     vtkQtChartGridLayer.h
     vtkQtChartInteractor.h
@@ -188,7 +200,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartMouseBox.h
     vtkQtChartMouseFunction.h
     vtkQtChartMouseSelection.h
-    vtkQtChartPenBrushGenerator.h
+    vtkQtChartPenGenerator.h
     vtkQtChartSeriesColors.h
     vtkQtChartSeriesLayer.h
     vtkQtChartSeriesModel.h
@@ -196,6 +208,9 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartSeriesModelRange.h
     vtkQtChartSeriesOptions.h
     vtkQtChartSeriesSelectionModel.h
+    vtkQtChartStyleBrush.h
+    vtkQtChartStyleManager.h
+    vtkQtChartStylePen.h
     vtkQtChartTableSeriesModel.h
     vtkQtChartTitle.h
     vtkQtChartWidget.h

@@ -28,7 +28,6 @@
 
 #include "vtkQtStatisticalBoxChartSeriesOptions.h"
 
-#include "vtkQtChartStyleGenerator.h"
 #include <QBrush>
 
 
@@ -45,16 +44,6 @@ vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(
 vtkQtStatisticalBoxChartSeriesOptions::~vtkQtStatisticalBoxChartSeriesOptions()
 {
   delete this->PointSize;
-}
-
-void vtkQtStatisticalBoxChartSeriesOptions::setStyle(int style,
-    vtkQtChartStyleGenerator *generator)
-{
-  vtkQtChartSeriesOptions::setStyle(style, generator);
-  if(generator)
-    {
-    this->setBrush(generator->getSeriesBrush(style));
-    }
 }
 
 vtkQtPointMarker::MarkerStyle

@@ -18,13 +18,19 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#endif
+
+#include "vtkQtChartArea.h"
+#include "vtkQtChartBasicStyleManager.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
-#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTableSeriesModel.h"
-#include "vtkQtChartArea.h"
 #include "vtkQtChartWidget.h"
 #include "vtkQtSeriesFilterLineEdit.h"
 #include "vtkQtStackedChart.h"
@@ -42,17 +48,11 @@ int TestStackedChartAnimate(int argc, char* argv[])
 
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
-  vtkQtChartStyleManager *style = area->getStyleManager();
-  vtkQtChartColorStyleGenerator *generator =
-      qobject_cast<vtkQtChartColorStyleGenerator *>(style->getGenerator());
-  if(generator)
+  vtkQtChartBasicStyleManager *style =
+      qobject_cast<vtkQtChartBasicStyleManager *>(area->getStyleManager());
+  if(style)
     {
-    generator->getColors()->setColorScheme(vtkQtChartColors::WildFlower);
-    }
-  else
-    {
-    style->setGenerator(
-        new vtkQtChartColorStyleGenerator(chart, vtkQtChartColors::WildFlower));
+    style->getColors()->setColorScheme(vtkQtChartColors::WildFlower);
     }
 
   // Set up the stacked chart.

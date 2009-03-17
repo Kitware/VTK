@@ -49,16 +49,6 @@ public:
   virtual ~vtkQtLineChartSeriesOptions();
 
   /// \brief
-  ///   Sets the style generator index for the series.
-  ///
-  /// This method uses the style generator to assign the initial pen
-  /// for the series.
-  ///
-  /// \param style The style index for the generator.
-  /// \param generator The style generator to use.
-  virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
-
-  /// \brief
   ///   Gets the axes corner for the series.
   /// \return
   ///   The axes corner for the series.

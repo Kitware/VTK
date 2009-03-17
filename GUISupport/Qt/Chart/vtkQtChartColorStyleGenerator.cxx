@@ -27,6 +27,7 @@
 #endif
 
 #include "vtkQtChartColorStyleGenerator.h"
+#include "vtkQtChartColors.h"
 
 #include <QVector>
 
@@ -50,11 +51,11 @@ vtkQtChartColorStyleGeneratorInternal::vtkQtChartColorStyleGeneratorInternal()
 
 //-----------------------------------------------------------------------------
 vtkQtChartColorStyleGenerator::vtkQtChartColorStyleGenerator(
-    QObject *parentObject, vtkQtChartColors::ColorScheme scheme)
-  : vtkQtChartStyleGenerator(parentObject)
+    QObject *parentObject)
+  : vtkQtChartStylePen(parentObject)
 {
   this->Internal = new vtkQtChartColorStyleGeneratorInternal();
-  this->Colors = new vtkQtChartColors(scheme);
+  this->Colors = 0;
 
   // Add the default list of pen styles.
   this->Internal->Styles.append(Qt::SolidLine);
@@ -67,24 +68,12 @@ vtkQtChartColorStyleGenerator::vtkQtChartColorStyleGenerator(
 vtkQtChartColorStyleGenerator::~vtkQtChartColorStyleGenerator()
 {
   delete this->Internal;
-  delete this->Colors;
 }
 
-QBrush vtkQtChartColorStyleGenerator::getSeriesBrush(int index) const
-{
-  if(index >= 0 && this->Colors->getNumberOfColors()>0)
-    {
-    index = index % this->Colors->getNumberOfColors();
-    return QBrush(this->Colors->getColor(index));
-    }
-
-  return QBrush();
-}
-
-QPen vtkQtChartColorStyleGenerator::getSeriesPen(int index) const
+QPen vtkQtChartColorStyleGenerator::getStylePen(int index) const
 {
   QPen pen;
-  if(index >= 0)
+  if(index >= 0 && this->Colors)
     {
     int numColors = this->Colors->getNumberOfColors();
     if(numColors > 0)

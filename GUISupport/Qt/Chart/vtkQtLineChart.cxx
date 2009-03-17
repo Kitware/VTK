@@ -46,12 +46,13 @@
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
+#include "vtkQtChartStyleManager.h"
+#include "vtkQtChartStylePen.h"
 #include "vtkQtLineChartOptions.h"
 #include "vtkQtLineChartSeriesOptions.h"
 #include "vtkQtPointMarker.h"
 
 #include <QList>
-#include <QPair>
 #include <QPolygonF>
 #include <QStyleOptionGraphicsItem>
 
@@ -926,12 +927,20 @@ vtkQtChartSeriesOptions *vtkQtLineChart::createOptions(QObject *parentObject)
   return new vtkQtLineChartSeriesOptions(parentObject);
 }
 
-void vtkQtLineChart::setupOptions(vtkQtChartSeriesOptions *options)
+void vtkQtLineChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
 {
   vtkQtLineChartSeriesOptions *seriesOptions =
       qobject_cast<vtkQtLineChartSeriesOptions *>(options);
   if(seriesOptions)
     {
+    // Set up the series options.
+    vtkQtChartStylePen *stylePen = qobject_cast<vtkQtChartStylePen *>(
+        this->ChartArea->getStyleManager()->getGenerator("Pen"));
+    if(stylePen)
+      {
+      seriesOptions->setPen(stylePen->getStylePen(style));
+      }
+
     // Listen for series option changes.
     this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
         this, SLOT(handleSeriesVisibilityChange(bool)));

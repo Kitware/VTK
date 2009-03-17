@@ -27,7 +27,6 @@
 #include "vtkQtChartExport.h"
 #include <QObject>
 
-class vtkQtChartStyleGenerator;
 class QBrush;
 class QPen;
 
@@ -49,22 +48,6 @@ public:
   virtual ~vtkQtChartSeriesOptions();
 
   vtkQtChartSeriesOptions &operator=(const vtkQtChartSeriesOptions &other);
-
-  /// \brief
-  ///   Gets the style generator index for the series.
-  /// \return
-  ///   The style generator index for the series.
-  int getStyle() const {return this->Style;}
-
-  /// \brief
-  ///   Sets the style generator index for the series.
-  ///
-  /// This method only sets the style index. It can be overridden to
-  /// use the generator to set other series options.
-  ///
-  /// \param style The style index for the generator.
-  /// \param generator The style generator to use.
-  virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
 
   /// \brief
   ///   Gets whether or not the series should be visible.
@@ -118,7 +101,6 @@ signals:
 private:
   QPen *Pen;     ///< Stores the series pen.
   QBrush *Brush; ///< Stores the series brush.
-  int Style;     ///< Stores the style generator index.
   bool Visible;  ///< True if the series should be displayed.
 };
 

@@ -30,6 +30,9 @@
 
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartBasicStyleManager.h"
+#include "vtkQtChartColorGenerator.h"
+#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartGridLayer.h"
 #include "vtkQtChartInteractor.h"
@@ -68,6 +71,7 @@ public:
   vtkQtChartMouseBox *MouseBox;
   vtkQtChartContentsSpace *Contents;
   vtkQtChartInteractor *Interactor;
+  vtkQtChartBasicStyleManager *StyleDefault;
   vtkQtChartStyleManager *StyleManager;
   bool InResize;           ///< True if the widget is resizing.
   bool InZoom;             ///< True if handling a zoom layout.
@@ -88,6 +92,7 @@ vtkQtChartAreaInternal::vtkQtChartAreaInternal()
   this->MouseBox = 0;
   this->Contents = 0;
   this->Interactor = 0;
+  this->StyleDefault = 0;
   this->StyleManager = 0;
   this->InResize = false;
   this->InZoom = false;
@@ -107,8 +112,20 @@ vtkQtChartArea::vtkQtChartArea(QWidget *widgetParent)
   this->Internal->Contents = new vtkQtChartContentsSpace(this);
   this->Internal->Contents->setObjectName("ContentsSpace");
 
-  this->Internal->StyleManager = new vtkQtChartStyleManager(this);
-  this->Internal->Contents->setObjectName("StyleManager");
+  // Set up the default style manager.
+  this->Internal->StyleDefault = new vtkQtChartBasicStyleManager(this);
+  this->Internal->StyleDefault->setObjectName("BasicStyleManager");
+  this->Internal->StyleManager = this->Internal->StyleDefault;
+
+  vtkQtChartColorGenerator *seriesBrush = new vtkQtChartColorGenerator(
+      this->Internal->StyleDefault);
+  seriesBrush->setColors(this->Internal->StyleDefault->getColors());
+  this->Internal->StyleDefault->setGenerator("Brush", seriesBrush);
+
+  vtkQtChartColorStyleGenerator *seriesPen = new vtkQtChartColorStyleGenerator(
+      this->Internal->StyleDefault);
+  seriesPen->setColors(this->Internal->StyleDefault->getColors());
+  this->Internal->StyleDefault->setGenerator("Pen", seriesPen);
 
   // Set up the graphics scene.
   vtkQtChartScene *chartScene = new vtkQtChartScene(this);
@@ -363,6 +380,15 @@ void vtkQtChartArea::finishInteractiveResize()
 vtkQtChartStyleManager *vtkQtChartArea::getStyleManager() const
 {
   return this->Internal->StyleManager;
+}
+
+void vtkQtChartArea::setStyleManager(vtkQtChartStyleManager *manager)
+{
+  this->Internal->StyleManager = manager;
+  if(this->Internal->StyleManager == 0)
+    {
+    this->Internal->StyleManager = this->Internal->StyleDefault;
+    }
 }
 
 void vtkQtChartArea::layoutChart()

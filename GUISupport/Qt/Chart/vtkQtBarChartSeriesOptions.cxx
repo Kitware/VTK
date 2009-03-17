@@ -28,7 +28,6 @@
 
 #include "vtkQtBarChartSeriesOptions.h"
 
-#include "vtkQtChartStyleGenerator.h"
 #include <QBrush>
 
 
@@ -37,16 +36,6 @@ vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(QObject *parentObject)
 {
   this->MultiColored = false;
   this->setBrush(QBrush(Qt::red));
-}
-
-void vtkQtBarChartSeriesOptions::setStyle(int style,
-    vtkQtChartStyleGenerator *generator)
-{
-  vtkQtChartSeriesOptions::setStyle(style, generator);
-  if(generator)
-    {
-    this->setBrush(generator->getSeriesBrush(style));
-    }
 }
 
 void vtkQtBarChartSeriesOptions::setMultiColored(bool multiColored)

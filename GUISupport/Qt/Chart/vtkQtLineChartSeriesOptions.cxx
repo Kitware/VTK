@@ -28,7 +28,6 @@
 
 #include "vtkQtLineChartSeriesOptions.h"
 
-#include "vtkQtChartStyleGenerator.h"
 #include <QBrush>
 
 
@@ -46,16 +45,6 @@ vtkQtLineChartSeriesOptions::vtkQtLineChartSeriesOptions(QObject *parentObject)
 vtkQtLineChartSeriesOptions::~vtkQtLineChartSeriesOptions()
 {
   delete this->PointSize;
-}
-
-void vtkQtLineChartSeriesOptions::setStyle(int style,
-    vtkQtChartStyleGenerator *generator)
-{
-  vtkQtChartSeriesOptions::setStyle(style, generator);
-  if(generator)
-    {
-    this->setPen(generator->getSeriesPen(style));
-    }
 }
 
 vtkQtChartLayer::AxesCorner vtkQtLineChartSeriesOptions::getAxesCorner() const

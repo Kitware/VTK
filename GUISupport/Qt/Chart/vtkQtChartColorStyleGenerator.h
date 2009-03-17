@@ -25,18 +25,18 @@
 #define _vtkQtChartColorStyleGenerator_h
 
 #include "vtkQtChartExport.h"
-#include "vtkQtChartStyleGenerator.h"
-#include "vtkQtChartColors.h" // Needed for enum.
+#include "vtkQtChartStylePen.h"
 
+class vtkQtChartColors;
 class vtkQtChartColorStyleGeneratorInternal;
 
 
 /// \class vtkQtChartColorStyleGenerator
 /// \brief
-///   The vtkQtChartColorStyleGenerator class generates series drawing
-///   options using color and pen style.
+///   The vtkQtChartColorStyleGenerator class generates series pens
+///   using color and pen style lists.
 class VTKQTCHART_EXPORT vtkQtChartColorStyleGenerator :
-  public vtkQtChartStyleGenerator
+  public vtkQtChartStylePen
 {
   Q_OBJECT
 
@@ -44,35 +44,22 @@ public:
   /// \brief
   ///   Creates a color/style generator.
   /// \param parent The parent object.
-  /// \param scheme The initial color scheme.
-  vtkQtChartColorStyleGenerator(QObject *parent=0,
-    vtkQtChartColors::ColorScheme scheme=vtkQtChartColors::Spectrum);
+  vtkQtChartColorStyleGenerator(QObject *parent=0);
   virtual ~vtkQtChartColorStyleGenerator();
 
-  /// \name vtkQtChartStyleGenerator Methods
+  /// \name vtkQtChartStylePen Methods
   //@{
   /// \brief
-  ///   Gets the brush for the specified series index.
-  ///
-  /// If the index is greater than the internal color list, the index
-  /// will be wrapped around repeating the colors.
-  ///
-  /// \param index The series index.
-  /// \return
-  ///   The brush for the specified series index.
-  virtual QBrush getSeriesBrush(int index) const;
-
-  /// \brief
-  ///   Gets the pen for the specified series index.
+  ///   Gets the pen for the specified series style index.
   ///
   /// If the index is greater than the internal color list, the index
   /// will be wrapped around repeating the colors. The repeated
   /// colors will have the next pen style in the list.
   ///
-  /// \param index The series index.
+  /// \param index The series style index.
   /// \return
-  ///   The pen for the specified series index.
-  virtual QPen getSeriesPen(int index) const;
+  ///   The pen for the specified series style index.
+  virtual QPen getStylePen(int index) const;
   //@}
 
   /// \name Color Methods
@@ -88,6 +75,11 @@ public:
   /// \return
   ///   A pointer to the list of colors.
   const vtkQtChartColors *getColors() const {return this->Colors;}
+
+  /// \brief
+  ///   Sets the list of colors.
+  /// \param colors The new list of colors.
+  void setColors(vtkQtChartColors *colors) {this->Colors = colors;}
   //@}
 
   /// \name Pen Style Methods
@@ -143,6 +135,11 @@ private:
   /// Stores the list of pen styles.
   vtkQtChartColorStyleGeneratorInternal *Internal;
   vtkQtChartColors *Colors; ///< Stores the color list.
+
+private:
+  vtkQtChartColorStyleGenerator(const vtkQtChartColorStyleGenerator &);
+  vtkQtChartColorStyleGenerator &operator=(
+      const vtkQtChartColorStyleGenerator &);
 };
 
 #endif

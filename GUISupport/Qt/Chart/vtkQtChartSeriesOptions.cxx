@@ -28,7 +28,6 @@
 
 #include "vtkQtChartSeriesOptions.h"
 
-#include "vtkQtChartStyleGenerator.h"
 #include <QBrush>
 #include <QPen>
 
@@ -38,7 +37,6 @@ vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(QObject *parentObject)
 {
   this->Pen = new QPen(Qt::black);
   this->Brush = new QBrush();
-  this->Style = -1;
   this->Visible = true;
 }
 
@@ -48,7 +46,6 @@ vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(
 {
   this->Pen = new QPen(*other.Pen);
   this->Brush = new QBrush(*other.Brush);
-  this->Style = other.Style;
   this->Visible = other.Visible;
 }
 
@@ -63,14 +60,8 @@ vtkQtChartSeriesOptions &vtkQtChartSeriesOptions::operator=(
 {
   *this->Pen = *other.Pen;
   *this->Brush = *other.Brush;
-  this->Style = other.Style;
   this->Visible = other.Visible;
   return *this;
-}
-
-void vtkQtChartSeriesOptions::setStyle(int style, vtkQtChartStyleGenerator *)
-{
-  this->Style = style;
 }
 
 void vtkQtChartSeriesOptions::setVisible(bool visible)

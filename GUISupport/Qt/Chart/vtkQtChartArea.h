@@ -169,12 +169,20 @@ public:
   /// Notifies the chart layers that a resize interaction has finished.
   void finishInteractiveResize();
   //@}
-  
+
+  /// \name Style Methods
+  //@{
   /// \brief
   ///   Gets the style manager for layers that want unique styles.
   /// \return
   ///   A pointer to the style manager.
   vtkQtChartStyleManager *getStyleManager() const;
+
+  /// \brief
+  ///   Sets the style manager for layers that want unique styles.
+  /// \param manager The new style manager.
+  void setStyleManager(vtkQtChartStyleManager *manager);
+  //@}
 
 public slots:
   /// Calculates the axis and chart layout.

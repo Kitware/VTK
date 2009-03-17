@@ -28,65 +28,62 @@
 #include "vtkQtChartExport.h"
 #include <QObject>
 
-class vtkQtChartStyleGenerator;
+class vtkQtChartSeriesLayer;
+class vtkQtChartSeriesOptions;
+class vtkQtChartStyleManagerInternal;
+class QString;
 
 
 /// \class vtkQtChartStyleManager
 /// \brief
 ///   The vtkQtChartStyleManager class allows several chart layers
-///   to share the same style generator.
+///   to share the same style generators.
 ///
-/// Sharing a style generator keeps the style from repeating. This is
+/// Sharing style generators keeps the style from repeating. This is
 /// useful when several chart layers are displayed in the same chart.
 /// For example, a line chart and a bar chart can share a style
 /// generator to make sure that none of the series are the same color.
 class VTKQTCHART_EXPORT vtkQtChartStyleManager : public QObject
 {
+  Q_OBJECT
+
 public:
   /// \brief
   ///   Creates a chart style manager.
   /// \param parent The parent object.
   vtkQtChartStyleManager(QObject *parent=0);
-  virtual ~vtkQtChartStyleManager() {}
+  virtual ~vtkQtChartStyleManager();
 
-  /// \brief
-  ///   Gets the options generator.
-  /// \return
-  ///   A pointer to the options generator.
-  vtkQtChartStyleGenerator *getGenerator();
+  /// \name Style Setup Methods
+  //@{
+  virtual int getStyleIndex(vtkQtChartSeriesLayer *layer,
+      vtkQtChartSeriesOptions *options) const = 0;
 
-  /// \brief
-  ///   Sets the options generator.
-  /// \param generator The new options generator.
-  void setGenerator(vtkQtChartStyleGenerator *generator);
+  virtual int insertStyle(vtkQtChartSeriesLayer *layer,
+      vtkQtChartSeriesOptions *options) = 0;
 
-  /// \brief
-  ///   Reserves a style index for the style generator.
-  ///
-  /// The index returned is the lowest index available. If there are
-  /// empty spots from removals, the index will come from the first
-  /// empty spot.
-  ///
-  /// \return
-  ///   The reserved style index for the style generator.
-  int reserveStyle();
+  virtual void removeStyle(vtkQtChartSeriesLayer *layer,
+      vtkQtChartSeriesOptions *options) = 0;
+  //@}
 
-  /// \brief
-  ///   Releases a series style index.
-  ///
-  /// When an index is released, the empty spot is saved so it can be
-  /// used for the next reservation.
-  ///
-  /// \param index The style index to release.
-  void releaseStyle(int index);
+  /// \name Generator Methods
+  //@{
+  QObject *getGenerator(const QString &name) const;
+
+  void setGenerator(const QString &name, QObject *generator);
+
+  void removeGenerator(const QString &name);
+
+  void removeGenerator(QObject *generator);
+  //@}
 
 private:
-  /// Stores the default style generator.
-  vtkQtChartStyleGenerator *DefaultGenerator;
+  /// Stores the style generators.
+  vtkQtChartStyleManagerInternal *Internal;
 
-  /// Stores the current style generator.
-  vtkQtChartStyleGenerator *Generator;
-  QList<int> Ids; ///< Stores the list of available indexes.
+private:
+  vtkQtChartStyleManager(const vtkQtChartStyleManager &);
+  vtkQtChartStyleManager &operator=(const vtkQtChartStyleManager &);
 };
 
 #endif

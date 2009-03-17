@@ -202,9 +202,9 @@ void vtkQtChartSeriesLayer::insertSeriesOptions(int first, int last)
     for( ; first <= last; first++)
       {
       vtkQtChartSeriesOptions *options = this->createOptions(this);
-      options->setStyle(manager->reserveStyle(), manager->getGenerator());
       this->Options.insert(first, options);
-      this->setupOptions(options);
+      int style = manager->insertStyle(this, options);
+      this->setupOptions(style, options);
       }
     }
 }
@@ -216,7 +216,7 @@ void vtkQtChartSeriesLayer::removeSeriesOptions(int first, int last)
     vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
     for( ; last >= first; last--)
       {
-      manager->releaseStyle(this->Options[last]->getStyle());
+      manager->removeStyle(this, this->Options[last]);
       delete this->Options.takeAt(last);
       }
     }
@@ -228,7 +228,7 @@ void vtkQtChartSeriesLayer::clearOptions()
   QList<vtkQtChartSeriesOptions *>::Iterator iter = this->Options.begin();
   for( ; iter != this->Options.end(); ++iter)
     {
-    manager->releaseStyle((*iter)->getStyle());
+    manager->removeStyle(this, *iter);
     delete *iter;
     }
 

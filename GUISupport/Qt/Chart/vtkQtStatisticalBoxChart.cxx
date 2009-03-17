@@ -47,6 +47,8 @@
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
+#include "vtkQtChartStyleBrush.h"
+#include "vtkQtChartStyleManager.h"
 #include "vtkQtPointMarker.h"
 #include "vtkQtStatisticalBoxChartOptions.h"
 #include "vtkQtStatisticalBoxChartSeriesOptions.h"
@@ -841,13 +843,21 @@ vtkQtChartSeriesOptions *vtkQtStatisticalBoxChart::createOptions(
   return new vtkQtStatisticalBoxChartSeriesOptions(parentObject);
 }
 
-void vtkQtStatisticalBoxChart::setupOptions(vtkQtChartSeriesOptions *options)
+void vtkQtStatisticalBoxChart::setupOptions(int style,
+    vtkQtChartSeriesOptions *options)
 {
   vtkQtStatisticalBoxChartSeriesOptions *seriesOptions = qobject_cast<
       vtkQtStatisticalBoxChartSeriesOptions *>(options);
   if(seriesOptions)
     {
-    // Finish setting up the series options.
+    // Set up the series options.
+    vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
+        this->ChartArea->getStyleManager()->getGenerator("Brush"));
+    if(styleBrush)
+      {
+      seriesOptions->setBrush(styleBrush->getStyleBrush(style));
+      }
+
     if(this->Options->getOutlineStyle() ==
         vtkQtStatisticalBoxChartOptions::Darker)
       {

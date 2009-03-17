@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtStackedChartSeriesOptions.h
+  Module:    vtkQtChartStyleBrush.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,31 +18,20 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-/// \file vtkQtStackedChartSeriesOptions.h
-/// \date February 27, 2008
+/// \file vtkQtChartStyleBrush.cxx
+/// \date March 16, 2009
 
-#ifndef _vtkQtStackedChartSeriesOptions_h
-#define _vtkQtStackedChartSeriesOptions_h
-
-#include "vtkQtChartExport.h"
-#include "vtkQtChartSeriesOptions.h"
-
-
-/// \class vtkQtStackedChartSeriesOptions
-/// \brief
-///   The vtkQtStackedChartSeriesOptions class stores the options for
-///   a stacked chart series.
-class VTKQTCHART_EXPORT vtkQtStackedChartSeriesOptions :
-  public vtkQtChartSeriesOptions
-{
-  Q_OBJECT
-
-public:
-  /// \brief
-  ///   Creates a stacked chart series options object.
-  /// \param parent The parent object.
-  vtkQtStackedChartSeriesOptions(QObject *parent=0);
-  virtual ~vtkQtStackedChartSeriesOptions() {}
-};
-
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
 #endif
+
+#include "vtkQtChartStyleBrush.h"
+
+
+vtkQtChartStyleBrush::vtkQtChartStyleBrush(QObject *parentObject)
+  : QObject(parentObject)
+{
+}
+
+

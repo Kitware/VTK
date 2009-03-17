@@ -28,10 +28,7 @@
 
 #include "vtkQtStackedChartSeriesOptions.h"
 
-#include "vtkQtChartStyleGenerator.h"
 #include <QBrush>
-#include <QColor>
-#include <QPen>
 
 
 vtkQtStackedChartSeriesOptions::vtkQtStackedChartSeriesOptions(
@@ -39,18 +36,6 @@ vtkQtStackedChartSeriesOptions::vtkQtStackedChartSeriesOptions(
   : vtkQtChartSeriesOptions(parentObject)
 {
   this->setBrush(Qt::red);
-}
-
-void vtkQtStackedChartSeriesOptions::setStyle(int style,
-                                              vtkQtChartStyleGenerator *generator)
-{
-  vtkQtChartSeriesOptions::setStyle(style, generator);
-  if(generator)
-    {
-    QBrush brush = generator->getSeriesBrush(style);
-    this->setBrush(brush);
-    this->setPen(QPen(brush.color().dark()));
-    }
 }
 
 
