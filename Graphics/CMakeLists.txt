@@ -4,9 +4,6 @@ SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
 SET(KIT_LIBS vtkFiltering vtkverdict )
-IF (JAVA_AWT_LIBRARY)
-  SET(KIT_LIBS ${KIT_LIBS} ${JAVA_AWT_LIBRARY} ${JAVA_JVM_LIBRARY})
-ENDIF (JAVA_AWT_LIBRARY)
 SET( Kit_SRCS
 vtkAnnotationLink.cxx
 vtkAppendCompositeDataLeaves.cxx
@@ -276,18 +273,17 @@ vtkStreamer
 ABSTRACT
 )
 
-IF (VTK_WRAP_JAVA)
-  SET (Kit_SRCS ${Kit_SRCS}
-    vtkJavaProgrammableFilter.cxx
-    vtkJVMManager.cxx
-    )
-ENDIF (VTK_WRAP_JAVA)
-
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS)
 SET(Kit_PYTHON_EXTRA_SRCS)
-SET(Kit_JAVA_EXTRA_SRCS)
+SET(Kit_JAVA_EXTRA_WRAP_SRCS
+  vtkJavaProgrammableFilter.cxx
+  )
+SET(Kit_JAVA_EXTRA_SRCS
+  ${Kit_JAVA_EXTRA_WRAP_SRCS}
+  vtkJVMManager.cxx
+  )
 SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
