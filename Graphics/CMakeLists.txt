@@ -3,6 +3,9 @@ SET(UKIT GRAPHICS)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
+IF(${JAVA_JVM_LIBRARY})
+  SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_JVM_LIBRARY})
+ENDIF(${JAVA_JVM_LIBRARY})
 SET(KIT_LIBS vtkFiltering vtkverdict )
 SET( Kit_SRCS
 vtkAnnotationLink.cxx
