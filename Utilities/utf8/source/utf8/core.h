@@ -84,7 +84,7 @@ namespace internal
     }  
 
     template <typename octet_iterator>
-    inline typename vtkstd::iterator_traits<octet_iterator>::difference_type
+    inline vtkstd::string::iterator::difference_type
     sequence_length(octet_iterator lead_it)
     {
         uint8_t lead = mask8(*lead_it);
@@ -107,7 +107,7 @@ namespace internal
     {
         uint32_t cp = mask8(*it);
         // Check the lead octet
-        typedef typename vtkstd::iterator_traits<octet_iterator>::difference_type octet_difference_type;
+        typedef typename vtkstd::string::iterator::difference_type octet_difference_type;
         octet_difference_type length = sequence_length(it);
 
         // "Shortcut" for ASCII characters

@@ -189,10 +189,10 @@ namespace vtk_utf8
     }
 
     template <typename octet_iterator>
-    typename vtkstd::iterator_traits<octet_iterator>::difference_type
+    typename vtkstd::string::iterator::difference_type
     distance (octet_iterator first, octet_iterator last)
     {
-        typename vtkstd::iterator_traits<octet_iterator>::difference_type dist;
+        typename vtkstd::string::iterator::difference_type dist;
         for (dist = 0; first < last; ++dist) 
             next(first, last);
         return dist;
