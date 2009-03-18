@@ -88,5 +88,9 @@ IF (VTK_WRAP_JAVA)
      -cp ${LIBRARY_OUTPUT_PATH}/vtk.jar
      -class vtk/SampleAlgorithm
       )
-  TARGET_LINK_LIBRARIES(TestJavaProgrammableFilter vtkGraphicsJava)
+  TARGET_LINK_LIBRARIES(TestJavaProgrammableFilter
+    vtkGraphicsJava
+    ${JAVA_AWT_LIBRARY}
+    ${JAVA_JVM_LIBRARY}
+    )
 ENDIF (VTK_WRAP_JAVA)
