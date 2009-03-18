@@ -30,14 +30,26 @@
 #include <QPen> // needed for return type
 
 
+/// \class vtkQtChartStylePen
+/// \brief
+///   The vtkQtChartStylePen class is the interface for series pen
+///   options.
 class VTKQTCHART_EXPORT vtkQtChartStylePen : public QObject
 {
   Q_OBJECT
 
 public:
+  /// \brief
+  ///   Creates a chart style pen.
+  /// \param parent The parent object.
   vtkQtChartStylePen(QObject *parent=0);
   virtual ~vtkQtChartStylePen() {}
 
+  /// \brief
+  ///   Gets the pen for the given style index.
+  /// \param index The style index.
+  /// \return
+  ///   The pen for the given style index.
   virtual QPen getStylePen(int index) const = 0;
 
 private:

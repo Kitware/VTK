@@ -42,7 +42,11 @@ public:
   ///   Creates a bar chart series options object.
   /// \param parent The parent object.
   vtkQtBarChartSeriesOptions(QObject *parent=0);
+  vtkQtBarChartSeriesOptions(const vtkQtBarChartSeriesOptions &other);
   virtual ~vtkQtBarChartSeriesOptions() {}
+
+  vtkQtBarChartSeriesOptions &operator=(
+      const vtkQtBarChartSeriesOptions &other);
 
   /// \brief
   ///   Gets whether or not the series uses multiple colors.

@@ -46,7 +46,11 @@ public:
   ///   Creates a line chart series options object.
   /// \param parent The parent object.
   vtkQtLineChartSeriesOptions(QObject *parent=0);
+  vtkQtLineChartSeriesOptions(const vtkQtLineChartSeriesOptions &other);
   virtual ~vtkQtLineChartSeriesOptions();
+
+  vtkQtLineChartSeriesOptions &operator=(
+      const vtkQtLineChartSeriesOptions &other);
 
   /// \brief
   ///   Gets the axes corner for the series.

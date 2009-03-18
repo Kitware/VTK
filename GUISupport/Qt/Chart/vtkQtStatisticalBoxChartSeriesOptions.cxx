@@ -41,9 +41,27 @@ vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(
   this->setBrush(Qt::red);
 }
 
+vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(
+    const vtkQtStatisticalBoxChartSeriesOptions &other)
+  : vtkQtChartSeriesOptions(other)
+{
+  this->PointStyle = other.PointStyle;
+  this->PointSize = new QSizeF(*other.PointSize);
+}
+
 vtkQtStatisticalBoxChartSeriesOptions::~vtkQtStatisticalBoxChartSeriesOptions()
 {
   delete this->PointSize;
+}
+
+vtkQtStatisticalBoxChartSeriesOptions &
+vtkQtStatisticalBoxChartSeriesOptions::operator=(
+    const vtkQtStatisticalBoxChartSeriesOptions &other)
+{
+  vtkQtChartSeriesOptions::operator=(other);
+  this->PointStyle = other.PointStyle;
+  *this->PointSize = *other.PointSize;
+  return *this;
 }
 
 vtkQtPointMarker::MarkerStyle

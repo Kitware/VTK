@@ -42,7 +42,11 @@ public:
   ///   Creates a stacked chart series options object.
   /// \param parent The parent object.
   vtkQtStackedChartSeriesOptions(QObject *parent=0);
+  vtkQtStackedChartSeriesOptions(const vtkQtStackedChartSeriesOptions &other);
   virtual ~vtkQtStackedChartSeriesOptions() {}
+
+  vtkQtStackedChartSeriesOptions &operator=(
+      const vtkQtStackedChartSeriesOptions &other);
 };
 
 #endif

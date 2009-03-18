@@ -45,7 +45,12 @@ public:
   ///   Creates a statistical box chart series options object.
   /// \param parent The parent object.
   vtkQtStatisticalBoxChartSeriesOptions(QObject *parent=0);
+  vtkQtStatisticalBoxChartSeriesOptions(
+      const vtkQtStatisticalBoxChartSeriesOptions &other);
   virtual ~vtkQtStatisticalBoxChartSeriesOptions();
+
+  vtkQtStatisticalBoxChartSeriesOptions &operator=(
+      const vtkQtStatisticalBoxChartSeriesOptions &other);
 
   /// \brief
   ///   Gets the series marker style.

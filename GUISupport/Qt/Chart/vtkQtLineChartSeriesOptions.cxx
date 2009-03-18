@@ -42,9 +42,30 @@ vtkQtLineChartSeriesOptions::vtkQtLineChartSeriesOptions(QObject *parentObject)
   this->setBrush(Qt::white);
 }
 
+vtkQtLineChartSeriesOptions::vtkQtLineChartSeriesOptions(
+    const vtkQtLineChartSeriesOptions &other)
+  : vtkQtChartSeriesOptions(other)
+{
+  this->AxesCorner = other.AxesCorner;
+  this->PointStyle = other.PointStyle;
+  this->PointSize = new QSizeF(*other.PointSize);
+  this->ShowPoints = other.ShowPoints;
+}
+
 vtkQtLineChartSeriesOptions::~vtkQtLineChartSeriesOptions()
 {
   delete this->PointSize;
+}
+
+vtkQtLineChartSeriesOptions &vtkQtLineChartSeriesOptions::operator=(
+    const vtkQtLineChartSeriesOptions &other)
+{
+  vtkQtChartSeriesOptions::operator=(other);
+  this->AxesCorner = other.AxesCorner;
+  this->PointStyle = other.PointStyle;
+  *this->PointSize = *other.PointSize;
+  this->ShowPoints = other.ShowPoints;
+  return *this;
 }
 
 vtkQtChartLayer::AxesCorner vtkQtLineChartSeriesOptions::getAxesCorner() const

@@ -38,6 +38,21 @@ vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(QObject *parentObject)
   this->setBrush(QBrush(Qt::red));
 }
 
+vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(
+    const vtkQtBarChartSeriesOptions &other)
+  : vtkQtChartSeriesOptions(other)
+{
+  this->MultiColored = other.MultiColored;
+}
+
+vtkQtBarChartSeriesOptions &vtkQtBarChartSeriesOptions::operator=(
+    const vtkQtBarChartSeriesOptions &other)
+{
+  vtkQtChartSeriesOptions::operator=(other);
+  this->MultiColored = other.MultiColored;
+  return *this;
+}
+
 void vtkQtBarChartSeriesOptions::setMultiColored(bool multiColored)
 {
   if(this->MultiColored != multiColored)

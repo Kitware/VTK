@@ -38,4 +38,17 @@ vtkQtStackedChartSeriesOptions::vtkQtStackedChartSeriesOptions(
   this->setBrush(Qt::red);
 }
 
+vtkQtStackedChartSeriesOptions::vtkQtStackedChartSeriesOptions(
+    const vtkQtStackedChartSeriesOptions &other)
+  : vtkQtChartSeriesOptions(other)
+{
+}
+
+vtkQtStackedChartSeriesOptions &vtkQtStackedChartSeriesOptions::operator=(
+    const vtkQtStackedChartSeriesOptions &other)
+{
+  vtkQtChartSeriesOptions::operator=(other);
+  return *this;
+}
+
 
