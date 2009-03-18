@@ -23,7 +23,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.7");
+vtkCxxRevisionMacro(vtkPolyLine, "1.8");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
@@ -284,6 +284,7 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
 
   return_status = 0;
   subId = -1;
+  closestWeights[0] = closestWeights[1] = 0.0;  // Shut up, compiler
   for (minDist2=VTK_DOUBLE_MAX,i=0; i<this->Points->GetNumberOfPoints()-1; i++)
     {
     this->Line->Points->SetPoint(0,this->Points->GetPoint(i));
