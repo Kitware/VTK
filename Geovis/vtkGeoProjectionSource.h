@@ -47,7 +47,7 @@ public:
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
 
   // Description:
-  // The projection ID defining the projection.
+  // The projection ID defining the projection. Initial value is 0.
   vtkGetMacro(Projection, int);
   virtual void SetProjection(int projection);
 

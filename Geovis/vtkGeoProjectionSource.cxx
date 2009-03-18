@@ -86,11 +86,12 @@
 
 
 vtkStandardNewMacro(vtkGeoProjectionSource);
-vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.11");
+vtkCxxRevisionMacro(vtkGeoProjectionSource, "1.12");
 vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
 {
+  this->Projection=0;
   this->Transform = 0;
   this->MinCellsPerNode = 20;
 
