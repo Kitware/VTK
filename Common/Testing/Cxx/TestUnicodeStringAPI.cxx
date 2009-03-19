@@ -42,6 +42,17 @@ static const vtkstd::string sample_utf8_greek = "\xce\xb1\xce\xb2\xce\xb3"; // G
 static const vtkstd::string sample_utf8_thai = "\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"; // Thai ko kai, kho khai, kho khuat.
 static const vtkstd::string sample_utf8_linear_b = "\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"; // Linear-B syllables a, e, i, o, u.
 static const vtkstd::string sample_utf8_mixed = "a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"; // a, alpha, ko kai, syllable-a.
+static const vtkTypeUInt16 sample_utf16[] = 
+{
+  0x0041,       // 'a'
+  0x0020,       // ' '
+  0xD800,       // high-half zone part
+  0xDC00,       // low-half zone part
+  0xD800,       // etc.
+  0xDC01,
+  0x0000
+};
+
 
 int TestUnicodeStringAPI(int, char*[])
 {
@@ -92,6 +103,13 @@ int TestUnicodeStringAPI(int, char*[])
     test_expression(a.utf8_str() == sample_utf8_ascii);
     test_expression(b.utf8_str() == sample_utf8_mixed);
 
+    a = vtkUnicodeString::from_utf16(sample_utf16);
+    test_expression(a.character_count() == 4);
+    test_expression(a[0] == 0x00000041);
+    test_expression(a[1] == 0x00000020);
+    test_expression(a[2] == 0x00010000);
+    test_expression(a[3] == 0x00010001);
+  
     return 0;
     }
   catch(vtkstd::exception& e)
