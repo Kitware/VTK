@@ -113,6 +113,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtknetcdf.*warning: dereferencing type-punned pointer"
   "vtknetcdf.*warning: passing argument .* of .* as .*signed due to prototype"
   "vtknetcdf.*warning: conversion to .* from .* may change the sign of the result"
+  "vtknetcdf.*warning: conversion to .* from .* may alter its value"
+
 
   # Some VTK dashboards include building bits of Qt which produce lots of
   # the following warnings when built with the MS compilers. Qt guys should
