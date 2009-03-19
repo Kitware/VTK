@@ -28,10 +28,8 @@
 #include <QObject>
 
 #include "vtkQtChartLayer.h" // needed for enum
-#include <QColor>            // needed for static member
 
 class vtkQtChartHelpFormatter;
-class vtkQtChartSeriesColors;
 
 
 /// \class vtkQtBarChartOptions
@@ -42,9 +40,8 @@ class vtkQtChartSeriesColors;
 /// The default settings are as follows:
 ///   \li axes: \c BottomLeft
 ///   \li bar group fraction: 0.7
-///   \li bar width fraction: 0.9
+///   \li bar width fraction: 0.8
 ///   \li outline style: \c Darker
-///   \li selection background: \c LightBlue
 class VTKQTCHART_EXPORT vtkQtBarChartOptions : public QObject
 {
   Q_OBJECT
@@ -125,28 +122,6 @@ public:
   void setOutlineStyle(OutlineStyle style);
 
   /// \brief
-  ///   Gets the series colors object.
-  /// \return
-  ///   A pointer to the series colors object.
-  vtkQtChartSeriesColors *getSeriesColors() const {return this->Colors;}
-
-  /// \brief
-  ///   Sets the series colors object.
-  /// \param colors The new series colors object.
-  void setSeriesColors(vtkQtChartSeriesColors *colors);
-
-  /// \brief
-  ///   Gets the highlight background color.
-  /// \return
-  ///   The current highlight background color.
-  const QColor &getHighlightColor() const {return this->Highlight;}
-
-  /// \brief
-  ///   Sets the highlight background color.
-  /// \param color The color for the highlight background.
-  void setHighlightColor(const QColor &color);
-
-  /// \brief
   ///   Gets the chart help text formatter.
   ///
   /// The help text formatter stores the format string. It is also
@@ -182,19 +157,9 @@ signals:
   /// Emitted when the series colors object changes.
   void seriesColorsChanged();
 
-  /// Emitted when the highlight color changes.
-  void highlightChanged();
-
-public:
-  /// Defines the default highlight background.
-  static const QColor LightBlue;
-
 private:
-  /// Stores the highlight background color.
-  QColor Highlight;
   vtkQtChartLayer::AxesCorner AxesCorner; ///< Stores the chart axes.
   OutlineStyle OutlineType;               ///< Stores the outline style.
-  vtkQtChartSeriesColors *Colors;         ///< Stores the series colors.
   vtkQtChartHelpFormatter *Help;          ///< Stores the help text format.
   float GroupFraction;                    ///< Stores the bar group fraction.
   float BarFraction;                      ///< Stores the bar width fraction.

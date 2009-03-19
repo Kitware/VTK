@@ -28,13 +28,15 @@
 
 #include "vtkQtBarChartSeriesOptions.h"
 
+#include "vtkQtChartSeriesColors.h"
 #include <QBrush>
 
 
 vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(QObject *parentObject)
   : vtkQtChartSeriesOptions(parentObject)
 {
-  this->MultiColored = false;
+  this->Colors = 0;
+
   this->setBrush(QBrush(Qt::red));
 }
 
@@ -42,23 +44,24 @@ vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(
     const vtkQtBarChartSeriesOptions &other)
   : vtkQtChartSeriesOptions(other)
 {
-  this->MultiColored = other.MultiColored;
+  this->Colors = other.Colors;
 }
 
 vtkQtBarChartSeriesOptions &vtkQtBarChartSeriesOptions::operator=(
     const vtkQtBarChartSeriesOptions &other)
 {
   vtkQtChartSeriesOptions::operator=(other);
-  this->MultiColored = other.MultiColored;
+  this->Colors = other.Colors;
   return *this;
 }
 
-void vtkQtBarChartSeriesOptions::setMultiColored(bool multiColored)
+void vtkQtBarChartSeriesOptions::setSeriesColors(
+    vtkQtChartSeriesColors *colors)
 {
-  if(this->MultiColored != multiColored)
+  if(colors != this->Colors)
     {
-    this->MultiColored = multiColored;
-    emit this->multiColoredChanged(multiColored);
+    this->Colors = colors;
+    emit this->seriesColorsChanged();
     }
 }
 

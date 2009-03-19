@@ -27,7 +27,6 @@
 #include "vtkQtChartExport.h"
 #include "vtkQtChartSeriesColors.h"
 
-class vtkQtChartSeriesHueRangeInternal;
 class QColor;
 
 
@@ -51,42 +50,26 @@ public:
   ///   Gets the brush for the given index of a series.
   ///
   /// The index and total number of series values is used to pick a
-  /// color along a hue gradient between the colors for the given
-  /// series. If the series does not have an associated color range,
-  /// the brush is not modified.
+  /// color along a hue gradient between the color range.
   ///
-  /// \param series The multi-color series.
   /// \param index The index in the series items.
+  /// \param total The total number of items in the series.
   /// \param brush Used to return the brush for the given index.
-  virtual void getBrush(int series, int index, QBrush &brush) const;
+  virtual void getBrush(int index, int total, QBrush &brush) const;
   //@}
 
   /// \name Setup Methods
   //@{
   /// \brief
-  ///   Gets the number of color ranges.
-  /// \return
-  ///   The number of color ranges.
-  int getNumberOfRanges() const;
-
-  /// \brief
   ///   Adds a color range to the list.
   /// \param color1 The first color in the range.
   /// \param color2 The last color in the range.
-  void addRange(const QColor &color1, const QColor &color2);
-
-  /// \brief
-  ///   Removes the color range at the given index.
-  /// \param index The color range to remove.
-  void removeRange(int index);
-
-  /// Removes all the color ranges in the list.
-  void removeAllRanges();
+  void setRange(const QColor &color1, const QColor &color2);
   //@}
 
 private:
-  /// Stores the list of color ranges.
-  vtkQtChartSeriesHueRangeInternal *Internal;
+  QColor *First;  ///< Stores the first color in the range.
+  QColor *Second; ///< Stores the second color in the range.
 
 private:
   vtkQtChartSeriesHueRange(const vtkQtChartSeriesHueRange &);

@@ -59,12 +59,6 @@ int TestBarSeriesColors(int argc, char* argv[])
   vtkQtBarChart *bars = new vtkQtBarChart();
   area->insertLayer(area->getAxisLayerIndex(), bars);
 
-  // Set up the bar chart series colors object.
-  vtkQtChartSeriesHueRange *colors = new vtkQtChartSeriesHueRange(bars);
-  bars->getOptions()->setSeriesColors(colors);
-  colors->addRange(QColor(113, 217, 21), QColor(15, 142, 246));
-  colors->addRange(QColor(255, 239, 96), QColor(255, 123, 16));
-
   // Set up the legend.
   vtkQtChartLegend *legend = new vtkQtChartLegend();
   vtkQtChartLegendManager *manager = new vtkQtChartLegendManager(legend);
@@ -156,9 +150,16 @@ int TestBarSeriesColors(int argc, char* argv[])
       new vtkQtChartTableSeriesModel(model, bars);
   bars->setModel(table);
 
-  // Set the series to use the color ranges.
-  bars->getBarSeriesOptions(0)->setMultiColored(true);
-  bars->getBarSeriesOptions(1)->setMultiColored(true);
+  // Set up the multi-colored series.
+  vtkQtBarChartSeriesOptions *options = bars->getBarSeriesOptions(0);
+  vtkQtChartSeriesHueRange *colors = new vtkQtChartSeriesHueRange(options);
+  colors->setRange(QColor(113, 217, 21), QColor(15, 142, 246));
+  options->setSeriesColors(colors);
+
+  options = bars->getBarSeriesOptions(1);
+  colors = new vtkQtChartSeriesHueRange(options);
+  colors->setRange(QColor(255, 239, 96), QColor(255, 123, 16));
+  options->setSeriesColors(colors);
 
   chart->show();
   int status = app.exec();

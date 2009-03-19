@@ -28,14 +28,12 @@
 
 #include "vtkQtChartSeriesColors.h"
 
-#include "vtkQtChartSeriesModel.h"
 #include <QBrush>
 
 
 vtkQtChartSeriesColors::vtkQtChartSeriesColors(QObject *parentObject)
   : QObject(parentObject)
 {
-  this->Model = 0;
 }
 
 

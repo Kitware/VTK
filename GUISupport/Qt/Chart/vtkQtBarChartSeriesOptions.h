@@ -27,6 +27,8 @@
 #include "vtkQtChartExport.h"
 #include "vtkQtChartSeriesOptions.h"
 
+class vtkQtChartSeriesColors;
+
 
 /// \class vtkQtBarChartSeriesOptions
 /// \brief
@@ -49,22 +51,26 @@ public:
       const vtkQtBarChartSeriesOptions &other);
 
   /// \brief
-  ///   Gets whether or not the series uses multiple colors.
+  ///   Gets the series colors object.
   /// \return
-  ///   True if the series uses multiple colors.
-  bool isMultiColored() const {return this->MultiColored;}
+  ///   A pointer to the series colors object.
+  vtkQtChartSeriesColors *getSeriesColors() const {return this->Colors;}
 
   /// \brief
-  ///   Sets whether or not the series uses multiple colors.
-  /// \param multiColored True if the series should use multiple colors.
-  void setMultiColored(bool multiColored);
+  ///   Sets the series colors object.
+  ///
+  /// If the series colors object is not null, the series should be
+  /// drawn in multiple colors.
+  ///
+  /// \param colors The new series colors object.
+  void setSeriesColors(vtkQtChartSeriesColors *colors);
 
 signals:
-  /// Emitted when the multi-colored property changes.
-  void multiColoredChanged(bool multiColored);
+  /// Emitted when the series colors object changes.
+  void seriesColorsChanged();
 
 private:
-  bool MultiColored; ///< True if the series uses multiple colors.
+  vtkQtChartSeriesColors *Colors; ///< Stores the multi-color interface.
 };
 
 #endif

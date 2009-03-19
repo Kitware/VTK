@@ -192,15 +192,13 @@ vtkQtBarChart::vtkQtBarChart()
   this->InModelChange = false;
   this->BuildNeeded = false;
 
-  // Listen for option changes.
+  // Listen for options changes.
   this->connect(this->Options, SIGNAL(axesCornerChanged()),
       this, SLOT(handleAxesCornerChange()));
   this->connect(this->Options, SIGNAL(barFractionsChanged()),
       this, SIGNAL(layoutNeeded()));
   this->connect(this->Options, SIGNAL(outlineStyleChanged()),
       this, SLOT(handleOutlineChange()));
-  this->connect(this->Options, SIGNAL(seriesColorsChanged()),
-      this, SLOT(handleSeriesColorsChange()));
 
   // Listen for selection changes.
   this->connect(this->Selection,
@@ -221,17 +219,10 @@ void vtkQtBarChart::setChartArea(vtkQtChartArea *area)
 
 void vtkQtBarChart::setModel(vtkQtChartSeriesModel *model)
 {
-  vtkQtChartSeriesColors *colors = this->Options->getSeriesColors();
   if(this->Model)
     {
     // Disconnect from the previous model's signals.
     this->disconnect(this->Model, 0, this, 0);
-
-    // Remove the model from the series colors object.
-    if(colors)
-      {
-      colors->setModel(0);
-      }
     }
 
   vtkQtChartSeriesLayer::setModel(model);
@@ -247,12 +238,6 @@ void vtkQtBarChart::setModel(vtkQtChartSeriesModel *model)
         this, SLOT(startSeriesRemoval(int, int)));
     this->connect(this->Model, SIGNAL(seriesRemoved(int, int)),
         this, SLOT(finishSeriesRemoval(int, int)));
-
-    // Set the model for the series colors object.
-    if(colors)
-      {
-      colors->setModel(this->Model);
-      }
     }
 
   // Reset the view items for the new model.
@@ -285,18 +270,18 @@ QPixmap vtkQtBarChart::getSeriesIcon(int series) const
 
   // Get the options for the series.
   vtkQtBarChartSeriesOptions *options = this->getBarSeriesOptions(series);
-  vtkQtChartSeriesColors *colors = this->Options->getSeriesColors();
   if(options)
     {
     // Fill some bars with the series color(s).
+    vtkQtChartSeriesColors *colors = options->getSeriesColors();
     QPainter painter(&icon);
     painter.setPen(options->getPen());
-    if(colors && options->isMultiColored())
+    if(colors)
       {
       int total = this->Model->getNumberOfSeriesValues(series);
       QPen barPen = options->getPen();
       QBrush barColor = options->getBrush();
-      colors->getBrush(series, 0, barColor);
+      colors->getBrush(0, total, barColor);
       painter.setBrush(barColor);
       if(this->Options->getOutlineStyle() == vtkQtBarChartOptions::Darker)
         {
@@ -307,7 +292,7 @@ QPixmap vtkQtBarChart::getSeriesIcon(int series) const
       painter.drawRect(1, 4, 3, 10);
       if(total > 0)
         {
-        colors->getBrush(series, total / 2, barColor);
+        colors->getBrush(total / 2, total, barColor);
         painter.setBrush(barColor);
         if(this->Options->getOutlineStyle() == vtkQtBarChartOptions::Darker)
           {
@@ -319,7 +304,7 @@ QPixmap vtkQtBarChart::getSeriesIcon(int series) const
       painter.drawRect(6, 1, 3, 13);
       if(total > 0)
         {
-        colors->getBrush(series, total - 1, barColor);
+        colors->getBrush(total - 1, total, barColor);
         painter.setBrush(barColor);
         if(this->Options->getOutlineStyle() == vtkQtBarChartOptions::Darker)
           {
@@ -641,9 +626,6 @@ void vtkQtBarChart::paint(QPainter *painter,
     painter->setClipRect(this->Internal->Bounds);
     painter->translate(-space->getXOffset(), -space->getYOffset());
 
-    // Get the series colors object in case it is needed.
-    vtkQtChartSeriesColors *colors = this->Options->getSeriesColors();
-
     // Get the list of series in the selected domain.
     QList<int> seriesList = this->Internal->Groups.getGroup(domainIndex);
     QList<int>::Iterator iter = seriesList.begin();
@@ -652,6 +634,7 @@ void vtkQtBarChart::paint(QPainter *painter,
       // Set up the painter for the series.
       vtkQtBarChartSeries *series = this->Internal->Series[*iter];
       vtkQtBarChartSeriesOptions *options = this->getBarSeriesOptions(*iter);
+      vtkQtChartSeriesColors *colors = options->getSeriesColors();
       QBrush light = options->getBrush();
       light.setColor(vtkQtChartColors::lighter(light.color()));
       painter->setPen(options->getPen());
@@ -680,11 +663,11 @@ void vtkQtBarChart::paint(QPainter *painter,
 
         bool highlighted = !series->IsHighlighted &&
             series->Highlights.contains(index);
-        if(colors && options->isMultiColored())
+        if(colors)
           {
           painter->save();
           QBrush barColor = options->getBrush();
-          colors->getBrush(*iter, index, barColor);
+          colors->getBrush(index, total, barColor);
           if(highlighted)
             {
             barColor.setColor(vtkQtChartColors::lighter(barColor.color()));
@@ -699,14 +682,14 @@ void vtkQtBarChart::paint(QPainter *painter,
 
           painter->setBrush(barColor);
           }
-        if(highlighted)
+        else if(highlighted)
           {
           painter->save();
           painter->setBrush(light);
           }
 
         painter->drawRect(*bar);
-        if(highlighted || (colors && options->isMultiColored()))
+        if(highlighted || colors)
           {
           painter->restore();
           }
@@ -796,8 +779,8 @@ void vtkQtBarChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
         this, SLOT(handleSeriesPenChange(const QPen &)));
     this->connect(seriesOptions, SIGNAL(brushChanged(const QBrush &)),
         this, SLOT(handleSeriesBrushChange(const QBrush &)));
-    this->connect(seriesOptions, SIGNAL(multiColoredChanged(bool)),
-        this, SLOT(handleSeriesMultiColoredChange()));
+    this->connect(seriesOptions, SIGNAL(seriesColorsChanged()),
+        this, SLOT(handleSeriesColorsChange()));
     }
 }
 
@@ -1007,20 +990,6 @@ void vtkQtBarChart::handleOutlineChange()
     }
 }
 
-void vtkQtBarChart::handleSeriesColorsChange()
-{
-  // Set the series model for the series colors object.
-  vtkQtChartSeriesColors *colors = this->Options->getSeriesColors();
-  if(colors)
-    {
-    colors->setModel(this->Model);
-    }
-
-  this->update();
-
-  // TODO: Notify the legend manager of any series changes.
-}
-
 void vtkQtBarChart::handleSeriesVisibilityChange(bool visible)
 {
   // Get the series index from the options index.
@@ -1098,7 +1067,7 @@ void vtkQtBarChart::handleSeriesBrushChange(const QBrush &)
     }
 }
 
-void vtkQtBarChart::handleSeriesMultiColoredChange()
+void vtkQtBarChart::handleSeriesColorsChange()
 {
   // Get the series index from the options index.
   vtkQtBarChartSeriesOptions *options =

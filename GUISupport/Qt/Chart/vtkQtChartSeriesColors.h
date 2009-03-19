@@ -28,7 +28,6 @@
 #include <QObject>
 
 class QBrush;
-class vtkQtChartSeriesModel;
 
 
 /// \class vtkQtChartSeriesColors
@@ -47,25 +46,11 @@ public:
   virtual ~vtkQtChartSeriesColors() {}
 
   /// \brief
-  ///   Gets the chart series model.
-  /// \return
-  ///   A pointer to the chart series model.
-  vtkQtChartSeriesModel *getModel() const {return this->Model;}
-
-  /// \brief
-  ///   Sets the chart series model.
-  /// \param model The new chart series model.
-  virtual void setModel(vtkQtChartSeriesModel *model) {this->Model = model;}
-
-  /// \brief
   ///   Gets the brush for the given index of a series.
-  /// \param series The multi-color series.
   /// \param index The index in the series items.
+  /// \param total The total number of items in the series.
   /// \param brush Used to return the brush for the given index.
-  virtual void getBrush(int series, int index, QBrush &brush) const = 0;
-
-private:
-  vtkQtChartSeriesModel *Model; ///< Stores the chart series model.
+  virtual void getBrush(int index, int total, QBrush &brush) const = 0;
 
 private:
   vtkQtChartSeriesColors(const vtkQtChartSeriesColors &);

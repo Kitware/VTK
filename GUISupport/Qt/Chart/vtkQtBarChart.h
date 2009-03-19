@@ -174,9 +174,6 @@ private slots:
   /// Changes the bar outline style.
   void handleOutlineChange();
 
-  /// Repaints the bar chart when the series colors object changes.
-  void handleSeriesColorsChange();
-
   /// \brief
   ///   Changes the series visibility.
   ///
@@ -195,8 +192,8 @@ private slots:
   /// \param brush The new series brush.
   void handleSeriesBrushChange(const QBrush &brush);
 
-  /// Repaints the chart when the series multi-colored property changes.
-  void handleSeriesMultiColoredChange();
+  /// Repaints the bar chart when a series colors object changes.
+  void handleSeriesColorsChange();
 
   /// \brief
   ///   Called to set up the highlights.

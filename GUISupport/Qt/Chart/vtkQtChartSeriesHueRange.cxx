@@ -29,128 +29,37 @@
 #include "vtkQtChartSeriesHueRange.h"
 
 #include "vtkQtChartColors.h"
-#include "vtkQtChartSeriesModel.h"
-
 #include <QBrush>
 #include <QColor>
-#include <QList>
 
 
-class vtkQtChartSeriesHueRangeItem
-{
-public:
-  vtkQtChartSeriesHueRangeItem();
-  vtkQtChartSeriesHueRangeItem(const QColor &first, const QColor &second);
-  vtkQtChartSeriesHueRangeItem(const vtkQtChartSeriesHueRangeItem &other);
-  ~vtkQtChartSeriesHueRangeItem() {}
-
-  vtkQtChartSeriesHueRangeItem &operator=(
-      const vtkQtChartSeriesHueRangeItem &other);
-
-  QColor getColor(int index, int total) const;
-
-  QColor First;
-  QColor Second;
-};
-
-
-class vtkQtChartSeriesHueRangeInternal
-{
-public:
-  vtkQtChartSeriesHueRangeInternal();
-  ~vtkQtChartSeriesHueRangeInternal() {}
-
-  QList<vtkQtChartSeriesHueRangeItem> Ranges;
-};
-
-
-//-----------------------------------------------------------------------------
-vtkQtChartSeriesHueRangeItem::vtkQtChartSeriesHueRangeItem()
-  : First(), Second()
-{
-}
-
-vtkQtChartSeriesHueRangeItem::vtkQtChartSeriesHueRangeItem(const QColor &first,
-    const QColor &second)
-  : First(first), Second(second)
-{
-}
-
-vtkQtChartSeriesHueRangeItem::vtkQtChartSeriesHueRangeItem(
-    const vtkQtChartSeriesHueRangeItem &other)
-  : First(other.First), Second(other.Second)
-{
-}
-
-vtkQtChartSeriesHueRangeItem &vtkQtChartSeriesHueRangeItem::operator=(
-    const vtkQtChartSeriesHueRangeItem &other)
-{
-  this->First = other.First;
-  this->Second = other.Second;
-  return *this;
-}
-
-QColor vtkQtChartSeriesHueRangeItem::getColor(int index, int total) const
-{
-  // Interpolate the HSV values.
-  float fraction = (float)index / (float)total;
-  return vtkQtChartColors::interpolateHsv(this->First, this->Second, fraction);
-}
-
-
-//-----------------------------------------------------------------------------
-vtkQtChartSeriesHueRangeInternal::vtkQtChartSeriesHueRangeInternal()
-  : Ranges()
-{
-}
-
-
-//-----------------------------------------------------------------------------
 vtkQtChartSeriesHueRange::vtkQtChartSeriesHueRange(QObject *parentObject)
   : vtkQtChartSeriesColors(parentObject)
 {
-  this->Internal = new vtkQtChartSeriesHueRangeInternal();
+  this->First = new QColor(Qt::red);
+  this->Second = new QColor(Qt::blue);
 }
 
 vtkQtChartSeriesHueRange::~vtkQtChartSeriesHueRange()
 {
-  delete this->Internal;
+  delete this->First;
+  delete this->Second;
 }
 
-void vtkQtChartSeriesHueRange::getBrush(int series, int index,
+void vtkQtChartSeriesHueRange::getBrush(int index, int total,
     QBrush &brush) const
 {
-  vtkQtChartSeriesModel *model = this->getModel();
-  if(model && series >= 0 && series < this->Internal->Ranges.size() &&
-      series < model->getNumberOfSeries())
-    {
-    int total = model->getNumberOfSeriesValues(series);
-    brush.setColor(this->Internal->Ranges[series].getColor(index, total));
-    }
+  // Interpolate the HSV values.
+  float fraction = (float)index / (float)total;
+  brush.setColor(vtkQtChartColors::interpolateHsv(*this->First, *this->Second,
+      fraction));
 }
 
-int vtkQtChartSeriesHueRange::getNumberOfRanges() const
-{
-  return this->Internal->Ranges.size();
-}
-
-void vtkQtChartSeriesHueRange::addRange(const QColor &color1,
+void vtkQtChartSeriesHueRange::setRange(const QColor &color1,
     const QColor &color2)
 {
-  this->Internal->Ranges.append(vtkQtChartSeriesHueRangeItem(color1, color2));
-}
-
-void vtkQtChartSeriesHueRange::removeRange(int index)
-{
-  if(index >= 0 && index < this->Internal->Ranges.size())
-    {
-    this->Internal->Ranges.removeAt(index);
-    }
-}
-
-void vtkQtChartSeriesHueRange::removeAllRanges()
-{
-  this->Internal->Ranges.clear();
+  *this->First = color1;
+  *this->Second = color2;
 }
 
 
