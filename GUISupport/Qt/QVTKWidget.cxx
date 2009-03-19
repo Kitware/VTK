@@ -1120,7 +1120,7 @@ int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
   if(iter != this->Internal->Timers.end())
     {
     iter->second->stop();
-    delete iter->second;
+    iter->second->deleteLater();
     this->Internal->Timers.erase(iter);
     return 1;
     }
