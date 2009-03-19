@@ -294,7 +294,8 @@ void vtkUnicodeString::assign(const_iterator first, const_iterator last)
 
 void vtkUnicodeString::clear()
 {
-  this->Storage.clear();
+  // We use erase() because MSVC 6 doesn't provide clear() ...
+  this->Storage.erase(this->Storage.begin(), this->Storage.end());
 }
 
 vtkUnicodeString vtkUnicodeString::fold_case() const
