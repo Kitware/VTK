@@ -61,7 +61,7 @@ namespace vtk_utf8
         uint32_t next(octet_iterator& it)
         {
             uint32_t cp = internal::mask8(*it);
-            typename vtkstd::string::iterator::difference_type length = vtk_utf8::internal::sequence_length(it);
+            typename vtkstd::string::difference_type length = vtk_utf8::internal::sequence_length(it);
             switch (length) {
                 case 1:
                     break;
@@ -117,10 +117,10 @@ namespace vtk_utf8
         }
 
         template <typename octet_iterator>
-        typename vtkstd::string::iterator::difference_type
+        typename vtkstd::string::difference_type
         distance (octet_iterator first, octet_iterator last)
         {
-            typename vtkstd::string::iterator::difference_type dist;
+            typename vtkstd::string::difference_type dist;
             for (dist = 0; first < last; ++dist) 
                 next(first);
             return dist;
