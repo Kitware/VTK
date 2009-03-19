@@ -38,7 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkMFIXReader, "1.6");
+vtkCxxRevisionMacro(vtkMFIXReader, "1.7");
 vtkStandardNewMacro(vtkMFIXReader);
 
 //----------------------------------------------------------------------------
@@ -169,7 +169,43 @@ int vtkMFIXReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDebugMacro( << "Reading MFIX file");
 
+  // Save the time value in the output data information.
+  int length = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* steps = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+  if (outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+    {
+    // Get the requested time step. We only support requests of a single time 
+    // step in this reader right now
+    double* requestedTimeSteps = 
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+
+
+    //find the timestep with the closest value
+    int cnt=0;
+    int closestStep=0;
+    double minDist=-1;
+    for (cnt=0;cnt<length;cnt++)
+      {
+      double tdist=(steps[cnt]-requestedTimeSteps[0]>requestedTimeSteps[0]-steps[cnt])?
+        steps[cnt]-requestedTimeSteps[0]:
+        requestedTimeSteps[0]-steps[cnt];
+      if (minDist<0 || tdist<minDist)
+        {
+        minDist=tdist;
+        closestStep=cnt;
+        }
+      }
+    this->CurrentTimeStep=closestStep;
+    }
+  else
+    {
+    this->CurrentTimeStep = this->TimeStep;
+    }
+
   this->MakeMesh(output);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), 
+    steps + this->CurrentTimeStep, 1);
   return 1;
 }
 
@@ -590,7 +626,7 @@ void vtkMFIXReader::MakeMesh(vtkUnstructuredGrid *output)
       {
       if (this->VariableComponents->GetValue(j) == 1)
         {
-        this->GetVariableAtTimestep( j, this->TimeStep, CellDataArray[j]);
+        this->GetVariableAtTimestep( j, this->CurrentTimeStep, CellDataArray[j]);
         }
       else
         {
@@ -1851,7 +1887,7 @@ void vtkMFIXReader::CreateVariableNames()
             }
           break;
         default:
-          cout << "unknown SPx file : " << i << "\n";
+          vtkWarningMacro(<< "unknown SPx file : " << i << "\n");
           break;
         }
       }
@@ -2333,6 +2369,10 @@ void vtkMFIXReader::GetAllTimes(vtkInformationVector *outputVector)
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
     steps, this->NumberOfTimeSteps);
+  double timeRange[2];
+  timeRange[0] = steps[0];
+  timeRange[1] = steps[this->NumberOfTimeSteps - 1];
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
   delete [] steps;
 }
