@@ -38,6 +38,7 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkArrayIteratorIncludes.h"
+#include "vtkToolkits.h" // for VTK_USE_PARALLEL
 
 #ifdef VTK_USE_PARALLEL
 #include "vtkMultiProcessController.h"
@@ -48,7 +49,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.37");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.38");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -491,7 +492,6 @@ int vtkExodusIIWriter::CreateNewExodusFile()
     if (this->CurrentTimeIndex == 0) 
       {
       this->fid = ex_create(this->FileName, EX_CLOBBER, &compWordSize, &IOWordSize);
-
       if (fid <= 0) 
         {
         vtkErrorMacro (
@@ -891,11 +891,12 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
     for(int j=0; j<ncells; j++)
       {
       vtkstd::map<int, Block>::iterator iter = 
-        this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
+        this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j) + 1);
+                                 // shift by 1 in case there's a 0
       if (iter == this->BlockInfoMap.end ())
         {
         this->CellToElementOffset[i][j] = 0;
-        Block& b = this->BlockInfoMap[this->BlockIdList[i]->GetValue (j)];
+        Block& b = this->BlockInfoMap[this->BlockIdList[i]->GetValue (j) + 1];
         b.Name = vtkExodusIIWriter::GetCellTypeName (
             this->FlattenedInput[i]->GetCellType (j));
         b.NumElements = 1;
@@ -1432,7 +1433,6 @@ int vtkExodusIIWriter::WriteInitializationParameters()
   int nssets = em->GetNumberOfSideSets();
   char *title = em->GetTitle();
   int numBlocks = em->GetNumberOfBlocks();
-
   int rc = ex_put_init(this->fid, title, dim, this->NumPoints, this->NumCells, 
                        numBlocks, nnsets, nssets);
   return rc >= 0;
@@ -1644,7 +1644,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
     int ncells = this->FlattenedInput[i]->GetNumberOfCells();
     for (int j = 0; j < ncells; j++)
       {
-      int blockId = this->BlockIdList[i]->GetValue(j);
+      int blockId = this->BlockIdList[i]->GetValue(j) + 1;
       int blockOutIndex = this->BlockInfoMap[blockId].OutputIndex;
 
       int nodesPerElement = this->BlockInfoMap[blockId].NodesPerElements;
@@ -1698,7 +1698,8 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
     if (rc < 0)
       {
-      break;
+      vtkErrorMacro (<< "Problem adding block with id " << blockIter->first);
+      continue;
       }
 
     if (blockIter->second.NumElements > 0)
@@ -1708,7 +1709,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
       if (rc < 0)
         {
-        break;
+        continue;
         }
 
       if (blockIter->second.NumAttributes != 0)
@@ -1728,7 +1729,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
         if (rc < 0)
           {
-          break;
+          continue;
           }
         }
       }
@@ -1771,7 +1772,7 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
         int ncells = this->FlattenedInput[i]->GetNumberOfCells();
         for (int j=0; j<ncells; j++)
           {
-          int blockId = this->BlockIdList[i]->GetValue (j);
+          int blockId = this->BlockIdList[i]->GetValue (j) + 1;
           int start = this->BlockInfoMap[blockId].ElementStartIndex;
           vtkIdType offset = this->CellToElementOffset[i][j];
           copyOfIds[start + offset] = static_cast<int>(ids[j]);
@@ -2224,7 +2225,7 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
           {
           vtkIdType gid = this->GlobalElementIdList[i][j];
           int offset = this->CellToElementOffset[i][j];
-          int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j)].ElementStartIndex; 
+          int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j) + 1].ElementStartIndex; 
           this->LocalElementIdMap->insert(
             vtkstd::map<vtkIdType, vtkIdType>::value_type(gid, start + offset));
           }
@@ -2533,7 +2534,7 @@ void vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
       for (vtkIdType j = 0; j < ncells; j ++)
         {
         vtkstd::map<int, Block>::const_iterator blockIter = 
-                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
+                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j) + 1);
         if (blockIter == this->BlockInfoMap.end ())
           {
           vtkErrorMacro ("vtkExodusIIWriter: The block id map has come out of sync");
@@ -2557,7 +2558,7 @@ void vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
       for (vtkIdType j = 0; j < ncells; j ++)
         {
         vtkstd::map<int, Block>::const_iterator blockIter = 
-                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
+                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j) + 1);
         if (blockIter == this->BlockInfoMap.end ())
           {
           vtkErrorMacro ("vtkExodusIIWriter: The block id map has come out of sync");
