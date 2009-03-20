@@ -68,35 +68,35 @@ vtkUnicodeString::const_iterator vtkUnicodeString::const_iterator::operator++(in
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// vtkUnicodeString::back_insert_iterator
+// vtkUnicodeString::my_append_iterator
 
 // We provide our own implementation of vtkstd::back_insert_iterator for
 // use with MSVC 6, where push_back() isn't implemented for vtkstd::string.
 
-class vtkUnicodeString::back_insert_iterator
+class vtkUnicodeString::my_append_iterator
 {
 public:
-  back_insert_iterator(vtkstd::string& container) :
+  my_append_iterator(vtkstd::string& container) :
     Container(&container)
   {
   }
 
-  back_insert_iterator& operator*()
+  my_append_iterator& operator*()
   {
     return *this;
   }
 
-  back_insert_iterator& operator++()
+  my_append_iterator& operator++()
   {
     return *this;
   }
 
-  back_insert_iterator& operator++(int)
+  my_append_iterator& operator++(int)
   {
     return *this;
   }
 
-  back_insert_iterator& operator=(vtkstd::string::const_reference value)
+  my_append_iterator& operator=(vtkstd::string::const_reference value)
   {
     this->Container->append(1, value);
     return *this;
@@ -170,7 +170,7 @@ vtkUnicodeString vtkUnicodeString::from_utf16(const vtkTypeUInt16* value)
 
     try
       {
-      vtk_utf8::utf16to8(value, value + length, vtkUnicodeString::back_insert_iterator(result.Storage));
+      vtk_utf8::utf16to8(value, value + length, vtkUnicodeString::my_append_iterator(result.Storage));
       }
     catch(vtk_utf8::invalid_utf16&)
       {
