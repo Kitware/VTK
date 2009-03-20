@@ -53,7 +53,7 @@ protected:
     this->mWidget->GetRenderWindow()->Frame();
     }
   
-  void drawBackground(QPainter* p, const QRectF& r)
+  void drawBackground(QPainter*, const QRectF& r)
     {
     mWidget->GetRenderWindow()->Render();
     }
