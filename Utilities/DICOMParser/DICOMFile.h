@@ -125,28 +125,25 @@ class DICOM_EXPORT DICOMFile
   // Convert the data to signed long.
   //
   static int ReturnAsSignedLong(unsigned char* data, bool )
-  {
-    unsigned char* data2 = data;
-    return *((quadbyte*) data2);
-  }
+    {
+      return *reinterpret_cast<quadbyte*>(data);
+    }
   
   
   //
   // Convert the data to unsigned long.
   //
   static uint ReturnAsUnsignedLong(unsigned char* data, bool)
-  {
-    unsigned char* data2 = data;
-    return *((ulong*) data2);
-  }
-  
+    {
+      return static_cast<uint>(*reinterpret_cast<ulong*>(data));
+    }
+
   //
   // Convert data to unsigned short.
   //
   static ushort ReturnAsUnsignedShort(unsigned char* data, bool)
   {
-    unsigned char* data2 = data;
-    return *((doublebyte*)data2);
+    return *reinterpret_cast<doublebyte*>(data);
   }
   
   //
@@ -154,8 +151,7 @@ class DICOM_EXPORT DICOMFile
   // 
   static short int ReturnAsSignedShort(unsigned char* data, bool)
   {
-    unsigned char* data2 = data;
-    return *((short int*)data2);
+    return *reinterpret_cast<short int*>(data);
   }
 
   //
@@ -163,12 +159,12 @@ class DICOM_EXPORT DICOMFile
   //
   static int ReturnAsInteger(unsigned char* data, bool)
   {
-    return static_cast<int> (atoi((const char*) data));
+    return atoi(reinterpret_cast<const char*>(data));
   }
   
   static float ReturnAsFloat(unsigned char* data, bool)
     {
-    return static_cast<float> (atof((const char*) data));
+    return static_cast<float>(atof(reinterpret_cast<const char*>(data)));
     }
 
   bool GetPlatformIsBigEndian()

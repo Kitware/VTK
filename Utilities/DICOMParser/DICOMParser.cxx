@@ -121,7 +121,7 @@ bool DICOMParser::OpenFile(const dicom_stl::string& filename)
     this->ParserOutputFile.flush();
     this->ParserOutputFile.close();
     }
-
+  
   dicom_stl::string fn(filename);
   dicom_stl::string append(".parser.txt");
   dicom_stl::string parseroutput(fn + append);
@@ -195,7 +195,7 @@ bool DICOMParser::ReadHeader() {
 bool DICOMParser::IsDICOMFile(DICOMFile* file) {
   char magic_number[4];
   file->SkipToStart();
-  file->Read((void*)magic_number,4);
+  file->Read(static_cast<void*>(magic_number),4);
   if (CheckMagic(magic_number))
     {
     return(true);
@@ -204,7 +204,7 @@ bool DICOMParser::IsDICOMFile(DICOMFile* file) {
   else
     {
     file->Skip(OPTIONAL_SKIP-4);
-    file->Read((void*)magic_number,4);
+    file->Read(static_cast<void*>(magic_number),4);
     if (CheckMagic(magic_number)) 
       {
       return true;
@@ -342,7 +342,8 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
     //
     // Only read the data if there's a registered callback.
     //
-    unsigned char* tempdata = (unsigned char*) DataFile->ReadAsciiCharArray(length);
+    unsigned char* tempdata = reinterpret_cast<unsigned char*>(
+      DataFile->ReadAsciiCharArray(length));
 
     DICOMMapKey ge = (*iter).first;
     callbackType = VRTypes(((*iter).second.first));
@@ -377,7 +378,10 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
         dicom_stream::cout << " DataFile Byte Swap : " << this->DataFile->GetPlatformIsBigEndian() << dicom_stream::endl;
         dicom_stream::cout << "==============================" << dicom_stream::endl;
 #endif
-        DICOMFile::swap2((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
+        size_t uLength=static_cast<size_t>(length);
+        DICOMFile::swap2(reinterpret_cast<ushort*>(tempdata),
+                         reinterpret_cast<ushort*>(tempdata),
+                         static_cast<int>(uLength/sizeof(ushort)));
         }
       else
         {
@@ -408,12 +412,15 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
       {
       if (this->DataFile->GetPlatformIsBigEndian() == true)
         {
+        size_t uLength=static_cast<size_t>(length);
         switch (callbackType)
           {
           case DICOMParser::VR_OW:
           case DICOMParser::VR_US:
           case DICOMParser::VR_SS:
-            DICOMFile::swap2((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
+            DICOMFile::swap2(reinterpret_cast<ushort*>(tempdata),
+                             reinterpret_cast<ushort*>(tempdata),
+                             static_cast<int>(uLength/sizeof(ushort)));
             // dicom_stream::cout << "16 bit byte swap needed!" << dicom_stream::endl;
             break;
           case DICOMParser::VR_FL:
@@ -422,7 +429,9 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
             break;
           case DICOMParser::VR_SL:
           case DICOMParser::VR_UL:
-            DICOMFile::swap4((uint*) tempdata, (uint*) tempdata, length/sizeof(uint));
+            DICOMFile::swap4(reinterpret_cast<uint*>(tempdata),
+                             reinterpret_cast<uint*>(tempdata),
+                             static_cast<int>(uLength/sizeof(uint)));
             // dicom_stream::cout << "32 bit byte swap needed!" << dicom_stream::endl;
             break;
           case DICOMParser::VR_AT:
@@ -510,7 +519,7 @@ void DICOMParser::InitTypeMap()
     {
     group = dicom_tags[i].group;
     element = dicom_tags[i].element;
-    datatype = (VRTypes) dicom_tags[i].datatype;
+    datatype = static_cast<VRTypes>(dicom_tags[i].datatype);
     Implementation->TypeMap.insert(dicom_stl::pair<const DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), datatype));
     }
 
@@ -518,7 +527,7 @@ void DICOMParser::InitTypeMap()
 
 void DICOMParser::SetDICOMTagCallbacks(doublebyte group, doublebyte element, VRTypes datatype, dicom_stl::vector<DICOMCallback*>* cbVector)
 {
-  Implementation->Map.insert(dicom_stl::pair<const DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((int)datatype, cbVector)));
+  Implementation->Map.insert(dicom_stl::pair<const DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue(static_cast<doublebyte>(datatype), cbVector)));
 }
 
 
@@ -544,8 +553,8 @@ void DICOMParser::DumpTag(dicom_stream::ostream& out, doublebyte group, doubleby
     t2 = '?';
     }
 
-  char ct2(t2);
-  char ct1(t1);
+  char ct2=static_cast<char>(t2);
+  char ct1=static_cast<char>(t1);
     
   out << "(0x";
 
@@ -572,7 +581,7 @@ void DICOMParser::DumpTag(dicom_stream::ostream& out, doublebyte group, doubleby
     }
   else
     {
-    out << (tempdata ? (char*) tempdata : "NULL");
+    out << (tempdata ? reinterpret_cast<char*>(tempdata) : "NULL");
     }
  
   out << dicom_stream::dec << dicom_stream::endl;
@@ -585,14 +594,14 @@ void DICOMParser::DumpTag(dicom_stream::ostream& out, doublebyte group, doubleby
 
 void DICOMParser::ModalityTag(doublebyte, doublebyte, VRTypes, unsigned char* tempdata, quadbyte)
 {
-  if (!strcmp( (char*)tempdata, "MR"))
+  if (!strcmp(reinterpret_cast<char*>(tempdata), "MR"))
     {
     // this->AddMRTags();
     }
-  else if (!strcmp((char*) tempdata, "CT"))
+  else if (!strcmp(reinterpret_cast<char*>(tempdata), "CT"))
     {
     }
-  else if (!strcmp((char*) tempdata, "US"))
+  else if (!strcmp(reinterpret_cast<char*>(tempdata), "US"))
     {
     }
 }
@@ -700,7 +709,8 @@ void DICOMParser::TransferSyntaxCallback(DICOMParser *,
 
   this->ToggleByteSwapImageData = false;
 
-  if (strcmp(TRANSFER_UID_EXPLICIT_BIG_ENDIAN, (char*) val) == 0)
+  if (strcmp(TRANSFER_UID_EXPLICIT_BIG_ENDIAN,
+             reinterpret_cast<char*>(val)) == 0)
     {
 #ifdef DEBUG_DICOM
     dicom_stream::cout << "EXPLICIT BIG ENDIAN" << dicom_stream::endl;
@@ -712,7 +722,8 @@ void DICOMParser::TransferSyntaxCallback(DICOMParser *,
     // We're always reading little endian in the beginning,
     // so now we need to swap.
     }
-  else if (strcmp(TRANSFER_UID_GE_PRIVATE_IMPLICIT_BIG_ENDIAN, (char*) val) == 0)
+  else if (strcmp(TRANSFER_UID_GE_PRIVATE_IMPLICIT_BIG_ENDIAN,
+                  reinterpret_cast<char*>(val)) == 0)
     {
     this->ToggleByteSwapImageData = true;
 #ifdef DEBUG_DICOM
