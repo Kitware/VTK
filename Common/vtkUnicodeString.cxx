@@ -68,37 +68,41 @@ vtkUnicodeString::const_iterator vtkUnicodeString::const_iterator::operator++(in
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// vtkUnicodeString::my_append_iterator
+// vtkUnicodeString::back_insert_iterator
 
 // We provide our own implementation of vtkstd::back_insert_iterator for
 // use with MSVC 6, where push_back() isn't implemented for vtkstd::string.
 
-class vtkUnicodeString::my_append_iterator
+class vtkUnicodeString::back_insert_iterator
 {
 public:
-  my_append_iterator(vtkstd::string& container) :
+  back_insert_iterator(vtkstd::string& container) :
     Container(&container)
   {
   }
 
-  my_append_iterator& operator*()
+  back_insert_iterator& operator*()
   {
     return *this;
   }
 
-  my_append_iterator& operator++()
+  back_insert_iterator& operator++()
   {
     return *this;
   }
 
-  my_append_iterator& operator++(int)
+  back_insert_iterator& operator++(int)
   {
     return *this;
   }
 
-  my_append_iterator& operator=(vtkstd::string::const_reference value)
+  back_insert_iterator& operator=(vtkstd::string::const_reference value)
   {
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // MSVC 6
     this->Container->append(1, value);
+#else
+    this->Container->push_back(value);
+#endif
     return *this;
   }
 
@@ -121,7 +125,7 @@ vtkUnicodeString::vtkUnicodeString(const vtkUnicodeString& rhs) :
 vtkUnicodeString::vtkUnicodeString(size_type count, value_type character)
 {
   for(size_type i = 0; i != count; ++i)
-    vtk_utf8::append(character, vtkstd::back_inserter(this->Storage));
+    vtk_utf8::append(character, vtkUnicodeString::back_insert_iterator(this->Storage));
 }
 
 vtkUnicodeString::vtkUnicodeString(const_iterator first, const_iterator last) :
@@ -170,7 +174,7 @@ vtkUnicodeString vtkUnicodeString::from_utf16(const vtkTypeUInt16* value)
 
     try
       {
-      vtk_utf8::utf16to8(value, value + length, vtkUnicodeString::my_append_iterator(result.Storage));
+      vtk_utf8::utf16to8(value, value + length, vtkUnicodeString::back_insert_iterator(result.Storage));
       }
     catch(vtk_utf8::invalid_utf16&)
       {
@@ -271,7 +275,7 @@ void vtkUnicodeString::push_back(value_type character)
 {
   try
     {
-    vtk_utf8::append(character, vtkstd::back_inserter(this->Storage));
+    vtk_utf8::append(character, vtkUnicodeString::back_insert_iterator(this->Storage));
     }
   catch(vtk_utf8::invalid_code_point&)
     {
