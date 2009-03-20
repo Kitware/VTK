@@ -47,8 +47,11 @@
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
+#include "vtkQtChartStyleBoolean.h"
 #include "vtkQtChartStyleBrush.h"
 #include "vtkQtChartStyleManager.h"
+#include "vtkQtChartStyleMarker.h"
+#include "vtkQtChartStyleSize.h"
 #include "vtkQtPointMarker.h"
 #include "vtkQtStatisticalBoxChartOptions.h"
 #include "vtkQtStatisticalBoxChartSeriesOptions.h"
@@ -851,8 +854,17 @@ void vtkQtStatisticalBoxChart::setupOptions(int style,
   if(seriesOptions)
     {
     // Set up the series options.
+    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+    vtkQtChartStyleBoolean *styleVisible =
+        qobject_cast<vtkQtChartStyleBoolean *>(
+        manager->getGenerator("Visible"));
+    if(styleVisible)
+      {
+      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
+      }
+
     vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
-        this->ChartArea->getStyleManager()->getGenerator("Brush"));
+        manager->getGenerator("Brush"));
     if(styleBrush)
       {
       seriesOptions->setBrush(styleBrush->getStyleBrush(style));
@@ -866,6 +878,20 @@ void vtkQtStatisticalBoxChart::setupOptions(int style,
     else
       {
       seriesOptions->setPen(QColor(Qt::black));
+      }
+
+    vtkQtChartStyleMarker *styleMarker = qobject_cast<vtkQtChartStyleMarker *>(
+        manager->getGenerator("Marker Style"));
+    if(styleMarker)
+      {
+      seriesOptions->setMarkerStyle(styleMarker->getStyleMarker(style));
+      }
+
+    vtkQtChartStyleSize *styleSize = qobject_cast<vtkQtChartStyleSize *>(
+        manager->getGenerator("Marker Size"));
+    if(styleSize)
+      {
+      seriesOptions->setMarkerSize(styleSize->getStyleSize(style));
       }
 
     // Listen for series options changes.

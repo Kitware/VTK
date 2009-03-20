@@ -46,6 +46,7 @@
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
+#include "vtkQtChartStyleBoolean.h"
 #include "vtkQtChartStyleBrush.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtStackedChartOptions.h"
@@ -886,8 +887,17 @@ void vtkQtStackedChart::setupOptions(int style,
   if(seriesOptions)
     {
     // Set up the series options.
+    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+    vtkQtChartStyleBoolean *styleVisible =
+        qobject_cast<vtkQtChartStyleBoolean *>(
+        manager->getGenerator("Visible"));
+    if(styleVisible)
+      {
+      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
+      }
+
     vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
-        this->ChartArea->getStyleManager()->getGenerator("Brush"));
+        manager->getGenerator("Brush"));
     if(styleBrush)
       {
       seriesOptions->setBrush(styleBrush->getStyleBrush(style));

@@ -134,8 +134,9 @@ protected:
   /// \brief
   ///   Sets up the series options defaults.
   ///
-  /// The style manager's "Brush" generator is used to set the series
-  /// brush. The series pen is based on the brush color.
+  /// The style manager's "Visible" generator is used to set the
+  /// initial visibility. The style manager's "Brush" generator is used
+  /// to set the series brush. The series pen is based on the brush color.
   ///
   /// \param style The series style index.
   /// \param options The new series options object.

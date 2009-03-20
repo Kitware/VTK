@@ -46,8 +46,12 @@
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
+#include "vtkQtChartStyleAxesCorner.h"
+#include "vtkQtChartStyleBoolean.h"
 #include "vtkQtChartStyleManager.h"
+#include "vtkQtChartStyleMarker.h"
 #include "vtkQtChartStylePen.h"
+#include "vtkQtChartStyleSize.h"
 #include "vtkQtLineChartOptions.h"
 #include "vtkQtLineChartSeriesOptions.h"
 #include "vtkQtPointMarker.h"
@@ -934,11 +938,49 @@ void vtkQtLineChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
   if(seriesOptions)
     {
     // Set up the series options.
+    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+    vtkQtChartStyleBoolean *styleVisible =
+        qobject_cast<vtkQtChartStyleBoolean *>(
+        manager->getGenerator("Visible"));
+    if(styleVisible)
+      {
+      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
+      }
+
     vtkQtChartStylePen *stylePen = qobject_cast<vtkQtChartStylePen *>(
-        this->ChartArea->getStyleManager()->getGenerator("Pen"));
+        manager->getGenerator("Pen"));
     if(stylePen)
       {
       seriesOptions->setPen(stylePen->getStylePen(style));
+      }
+
+    vtkQtChartStyleAxesCorner *styleCorner =
+        qobject_cast<vtkQtChartStyleAxesCorner *>(
+        manager->getGenerator("Axes Corner"));
+    if(styleCorner)
+      {
+      seriesOptions->setAxesCorner(styleCorner->getStyleAxesCorner(style));
+      }
+
+    styleVisible = qobject_cast<vtkQtChartStyleBoolean *>(
+        manager->getGenerator("Point Visibility"));
+    if(styleVisible)
+      {
+      seriesOptions->setPointsVisible(styleVisible->getStyleBoolean(style));
+      }
+
+    vtkQtChartStyleMarker *styleMarker = qobject_cast<vtkQtChartStyleMarker *>(
+        manager->getGenerator("Marker Style"));
+    if(styleMarker)
+      {
+      seriesOptions->setMarkerStyle(styleMarker->getStyleMarker(style));
+      }
+
+    vtkQtChartStyleSize *styleSize = qobject_cast<vtkQtChartStyleSize *>(
+        manager->getGenerator("Marker Size"));
+    if(styleSize)
+      {
+      seriesOptions->setMarkerSize(styleSize->getStyleSize(style));
       }
 
     // Listen for series option changes.

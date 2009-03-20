@@ -134,14 +134,24 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartShape.h
     vtkQtChartShapeLocator.cxx
     vtkQtChartShapeLocator.h
+    vtkQtChartStyleAxesCorner.cxx
+    vtkQtChartStyleAxesCorner.h
+    vtkQtChartStyleBoolean.cxx
+    vtkQtChartStyleBoolean.h
     vtkQtChartStyleBrush.cxx
     vtkQtChartStyleBrush.h
     vtkQtChartStyleManager.cxx
     vtkQtChartStyleManager.h
+    vtkQtChartStyleMarker.cxx
+    vtkQtChartStyleMarker.h
     vtkQtChartStylePen.cxx
     vtkQtChartStylePen.h
     vtkQtChartStyleRegistry.cxx
     vtkQtChartStyleRegistry.h
+    vtkQtChartStyleSeriesColors.cxx
+    vtkQtChartStyleSeriesColors.h
+    vtkQtChartStyleSize.cxx
+    vtkQtChartStyleSize.h
     vtkQtChartTableSeriesModel.cxx
     vtkQtChartTableSeriesModel.h
     vtkQtChartTitle.cxx
@@ -208,9 +218,14 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartSeriesModelRange.h
     vtkQtChartSeriesOptions.h
     vtkQtChartSeriesSelectionModel.h
+    vtkQtChartStyleAxesCorner.h
+    vtkQtChartStyleBoolean.h
     vtkQtChartStyleBrush.h
     vtkQtChartStyleManager.h
+    vtkQtChartStyleMarker.h
     vtkQtChartStylePen.h
+    vtkQtChartStyleSeriesColors.h
+    vtkQtChartStyleSize.h
     vtkQtChartTableSeriesModel.h
     vtkQtChartTitle.h
     vtkQtChartWidget.h

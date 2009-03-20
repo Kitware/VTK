@@ -49,8 +49,10 @@
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
+#include "vtkQtChartStyleBoolean.h"
 #include "vtkQtChartStyleBrush.h"
 #include "vtkQtChartStyleManager.h"
+#include "vtkQtChartStyleSeriesColors.h"
 
 #include <QBrush>
 #include <QStyleOptionGraphicsItem>
@@ -660,6 +662,10 @@ void vtkQtBarChart::paint(QPainter *painter,
           {
           break;
           }
+        else if(bar->height() == 0.0)
+          {
+          continue;
+          }
 
         bool highlighted = !series->IsHighlighted &&
             series->Highlights.contains(index);
@@ -756,8 +762,17 @@ void vtkQtBarChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
   if(seriesOptions)
     {
     // Set up the series options.
+    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+    vtkQtChartStyleBoolean *styleVisible =
+        qobject_cast<vtkQtChartStyleBoolean *>(
+        manager->getGenerator("Visible"));
+    if(styleVisible)
+      {
+      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
+      }
+
     vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
-        this->ChartArea->getStyleManager()->getGenerator("Brush"));
+        manager->getGenerator("Brush"));
     if(styleBrush)
       {
       seriesOptions->setBrush(styleBrush->getStyleBrush(style));
@@ -770,6 +785,14 @@ void vtkQtBarChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
     else
       {
       seriesOptions->setPen(QColor(Qt::black));
+      }
+
+    vtkQtChartStyleSeriesColors *styleColors =
+        qobject_cast<vtkQtChartStyleSeriesColors *>(
+        manager->getGenerator("Series Colors"));
+    if(styleColors)
+      {
+      seriesOptions->setSeriesColors(styleColors->getStyleColors(style));
       }
 
     // Listen for series options changes.

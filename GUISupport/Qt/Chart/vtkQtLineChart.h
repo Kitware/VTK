@@ -137,8 +137,13 @@ protected:
   /// \brief
   ///   Sets up the series options defaults.
   ///
-  /// The style manager's "Pen" generator is used to set the series
-  /// pen.
+  /// The style manager's "Visible" generator is used to set the
+  /// initial visibility. The style manager's "Pen" generator is used
+  /// to set the series pen. The following generators are also used:
+  ///   \li "Axes Corner"
+  ///   \li "Point Visibility"
+  ///   \li "Marker Style"
+  ///   \li "Marker Size"
   ///
   /// \param style The series style index.
   /// \param options The new series options object.
