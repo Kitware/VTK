@@ -205,6 +205,7 @@ public:
 
 private:
   vtkstd::string Storage;
+  class back_insert_iterator;
 };
 
 VTK_COMMON_EXPORT bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
