@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.63");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.64");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -232,13 +232,14 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     return;
     }
 
-  int numDoubles = 6;
-  vtkStdString doubleNames[] = { "Standard Deviation", 
+  int numDoubles = 7;
+  vtkStdString doubleNames[] = { "Standard Deviation",
                                  "Variance",
                                  "g1 Skewness",
                                  "G1 Skewness",
                                  "g2 Kurtosis",
-                                 "G2 Kurtosis" };
+                                 "G2 Kurtosis",
+                                 "Sum" };
 
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
@@ -253,7 +254,8 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       }
     }
 
-  double* doubleVals = new double[numDoubles]; // std, variance, skewness, G1, kurtosis, G2
+  // Storage for standard deviation, variance, skewness, G1, kurtosis, G2, sum
+  double* doubleVals = new double[numDoubles]; 
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -263,6 +265,9 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
 
     int numSamples = inMeta->GetValueByName(i, "Cardinality" ).ToInt();
+
+    doubleVals[6] = numSamples * inMeta->GetValueByName( i, "Mean" ).ToDouble();
+
     if ( numSamples == 1 || mom2 < 1.e-150 )
       {
       doubleVals[0] = 0.;
