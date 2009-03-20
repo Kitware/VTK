@@ -15,6 +15,7 @@ IF(PYTHON_EXECUTABLE)
     VTK_GRAPHICS_EXPORT
     vtkButterflySubdivisionFilter.h
     vtkDijkstraGraphInternals.h
+    vtkJavaProgrammableFilter.h
     vtkLinearSubdivisionFilter.h
     vtkLoopSubdivisionFilter.h
     vtkOutlineFilter.h
