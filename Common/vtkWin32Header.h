@@ -187,6 +187,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_GRAPHICS_EXPORT __declspec( dllimport ) 
  #endif
 
+ #if defined(vtkGraphicsJava_EXPORTS)
+  #define VTK_GRAPHICS_JAVA_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_GRAPHICS_JAVA_EXPORT __declspec( dllimport ) 
+ #endif
+
  #if defined(vtkInfovis_EXPORTS)
   #define VTK_INFOVIS_EXPORT __declspec( dllexport ) 
  #else
@@ -241,6 +247,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_GENERIC_FILTERING_EXPORT
  #define VTK_GEOVIS_EXPORT
  #define VTK_GRAPHICS_EXPORT
+ #define VTK_GRAPHICS_JAVA_EXPORT
  #define VTK_IMAGING_EXPORT
  #define VTK_INFOVIS_EXPORT
  #define VTK_IO_EXPORT

@@ -58,7 +58,7 @@
 class vtkJavaProgrammableFilterInternals;
 class vtkJVMManager;
 
-class VTK_GRAPHICS_EXPORT vtkJavaProgrammableFilter : public vtkAlgorithm
+class VTK_GRAPHICS_JAVA_EXPORT vtkJavaProgrammableFilter : public vtkAlgorithm
 {
 public:
   static vtkJavaProgrammableFilter* New();

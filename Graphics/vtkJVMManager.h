@@ -67,7 +67,7 @@ public:
 };
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkJVMManager : public vtkObject
+class VTK_GRAPHICS_JAVA_EXPORT vtkJVMManager : public vtkObject
 {
 public:
   static vtkJVMManager *New();
