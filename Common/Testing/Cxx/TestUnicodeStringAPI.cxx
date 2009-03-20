@@ -30,7 +30,7 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw vtkstd::runtime_error(buffer.str()); \
     } \
