@@ -112,7 +112,7 @@ void DICOMFile::Close()
 
 long DICOMFile::Tell() 
 {
-  vtksys_ios::streamoff loc = InputStream.tellg();
+  dicom_stream::ios::streamoff loc = InputStream.tellg();
   // dicom_stream::cout << "Tell: " << loc << dicom_stream::endl;
   return static_cast<long>(loc);
 }
