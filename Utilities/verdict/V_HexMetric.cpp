@@ -428,13 +428,13 @@ static double v_hex_edge_length(int max_min, double coordinates[][3])
   {
     for( i = 1; i<12; i++) 
       _edge = VERDICT_MIN( _edge, edge[i] ); 
-    return (double)_edge;
+    return _edge;
   }  
   else
   {
     for( i = 1; i<12; i++) 
       _edge = VERDICT_MAX( _edge, edge[i] );
-    return (double)_edge;
+    return _edge;
   }
   
 }
@@ -479,13 +479,13 @@ static double v_diag_length(int max_min, double coordinates[][3])
   { 
     for( i = 1; i<4; i++)
       diagonal = VERDICT_MIN( diagonal, diag[i] );
-    return (double)diagonal;
+    return diagonal;
   }
   else          //Return max diagonal
   {
     for( i = 1; i<4; i++)
       diagonal = VERDICT_MAX( diagonal, diag[i] );
-    return (double)diagonal;  
+    return diagonal;  
   }
 
 }

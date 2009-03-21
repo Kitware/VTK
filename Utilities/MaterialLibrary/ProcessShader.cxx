@@ -36,7 +36,7 @@ public:
   vtksys_ios::ostringstream Stream;
 
   int MaxLen;
-  long CurrentPosition;
+  vtksys_ios::streamoff CurrentPosition;
   int Count;
   vtkstd::string Prefix;
   vtkstd::string Suffix;

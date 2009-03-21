@@ -112,9 +112,9 @@ void DICOMFile::Close()
 
 long DICOMFile::Tell() 
 {
-  long loc = InputStream.tellg();
+  vtksys_ios::streamoff loc = InputStream.tellg();
   // dicom_stream::cout << "Tell: " << loc << dicom_stream::endl;
-  return loc;
+  return static_cast<long>(loc);
 }
 
 void DICOMFile::SkipToPos(long increment) 
