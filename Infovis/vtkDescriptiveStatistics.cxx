@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.64");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.65");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -422,11 +422,19 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
     assessValues->Delete(); 
     } 
  
+  // Downcast meta columns to string arrays for efficient data access
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
+  if ( ! vars )
+    {
+    dfunc = 0;
+    return;
+    }
+
   // Loop over parameters table until the requested variable is found
   vtkIdType nRowP = inMeta->GetNumberOfRows();
-  for ( int i = 0; i < nRowP; ++ i )
+  for ( int r = 0; r < nRowP; ++ r )
     {
-    if ( inMeta->GetValueByName( i, "Variable" ).ToString() == varName )
+    if ( vars->GetValue( r ) == varName )
       {
       // Grab the data for the requested variable
       vtkAbstractArray* arr = outData->GetColumnByName( varName );
@@ -444,8 +452,8 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      double nominal   = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 0 ) ).ToDouble();
-      double deviation = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 1 ) ).ToDouble();
+      double nominal   = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
+      double deviation = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
 
       if ( deviation == 0. )
         {
