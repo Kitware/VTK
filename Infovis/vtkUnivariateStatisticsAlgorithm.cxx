@@ -21,6 +21,7 @@
 #include "vtkUnivariateStatisticsAlgorithm.h"
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
@@ -30,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.23");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.24");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -150,7 +151,7 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     varNames->SetNumberOfValues( this->NumberOfVariables );
     varNames->SetValue( 0, varName );
 
-    // Store names to be able to use SetValueByName which is faster than SetValue    
+    // Store names to be able to use SetValueByName, and create the outData columns
     int nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
     for ( int v = 0; v < nv; ++ v )
@@ -162,6 +163,12 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                     << ")";
 
       names[v] = assessColName.str().c_str(); 
+
+      vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
+      assessValues->SetName( names[v] ); 
+      assessValues->SetNumberOfTuples( nRowD  ); 
+      outData->AddColumn( assessValues ); 
+      assessValues->Delete(); 
       }
 
     // Select assess functor

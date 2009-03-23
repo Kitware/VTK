@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.40");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.41");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -318,23 +318,6 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     }
 
   vtkStdString varName = rowNames->GetValue( 0 );
-
-  // Create the outData columns  
-  int nv = this->AssessNames->GetNumberOfValues();  
-  for ( int v = 0; v < nv; ++ v )  
-    {  
-      vtksys_ios::ostringstream assessColName;  
-      assessColName << this->AssessNames->GetValue( v )  
-                    << "("  
-                    << varName  
-                    << ")"; 
-  
-      vtkIntArray* assessValues = vtkIntArray::New();  
-      assessValues->SetName( assessColName.str().c_str() );  
-      assessValues->SetNumberOfTuples( outData->GetNumberOfRows() );  
-      outData->AddColumn( assessValues );  
-      assessValues->Delete();  
-    }  
 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );

@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.65");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.66");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -405,23 +405,6 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
 
   vtkStdString varName = rowNames->GetValue( 0 );
 
-  // Create the outData columns 
-  int nv = this->AssessNames->GetNumberOfValues(); 
-  for ( int v = 0; v < nv; ++ v ) 
-    { 
-    vtksys_ios::ostringstream assessColName; 
-    assessColName << this->AssessNames->GetValue( v ) 
-                  << "(" 
-                  << varName 
-                  << ")";
- 
-    vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
-    assessValues->SetName( assessColName.str().c_str() ); 
-    assessValues->SetNumberOfTuples( outData->GetNumberOfRows() ); 
-    outData->AddColumn( assessValues ); 
-    assessValues->Delete(); 
-    } 
- 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
   if ( ! vars )
