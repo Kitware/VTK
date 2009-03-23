@@ -49,7 +49,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.38");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.39");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -234,16 +234,20 @@ int vtkExodusIIWriter::RequestData (
   this->WriteData ();
 
   this->CurrentTimeIndex ++;
-
   if (this->CurrentTimeIndex >= this->NumberOfTimeSteps)
     {
-    this->CurrentTimeIndex = 0;
     this->CloseExodusFile ();
+    this->CurrentTimeIndex = 0;
     if (this->WriteAllTimeSteps)
       {
       // Tell the pipeline to start looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
       }
+    }
+  // still close out the file after each step written.
+  if (!this->WriteAllTimeSteps)
+    {
+    this->CloseExodusFile ();
     }
 
   return 1;
@@ -486,6 +490,7 @@ int vtkExodusIIWriter::CreateNewExodusFile()
 {
   int compWordSize= (this->PassDoubles ? sizeof(double) : sizeof(float));
   int IOWordSize = (this->StoreDoubles ? sizeof(double) : sizeof(float));
+
 
   if (this->NumberOfProcesses == 1)
     {
@@ -831,7 +836,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
 
     // Trying to find global node id
     da = pd->GetGlobalIds();
-    if (this->WriteOutGlobalNodeIdArray && da)
+    if (da)
       {
       vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
       if (!ia)
@@ -920,7 +925,6 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
           }
 
         this->CellToElementOffset[i][j] = iter->second.NumElements;
-
         iter->second.NumElements ++;
         }
       }
@@ -1555,7 +1559,6 @@ int vtkExodusIIWriter::WriteGlobalPointIds()
     {
     return 1;
     }
-
   int *copyOfIds = new int [this->NumPoints];
   int index = 0;
   for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
@@ -1615,7 +1618,6 @@ int vtkExodusIIWriter::WriteBlockInformation()
     if (numElts > 0)
       {
       connectivity[outputIndex] = new int [numElts * numNodes];
-
       if (numAtts > 0)
         {
         if (this->PassDoubles)
@@ -1654,6 +1656,11 @@ int vtkExodusIIWriter::WriteBlockInformation()
       // the block connectivity array
       vtkIdType ptListIdx = loc[j];
       vtkIdType npts = ptIds[ptListIdx++];
+      if (npts != nodesPerElement)
+        {
+        vtkErrorMacro (<< "The nodes per element doesn't match, data will not be written correctly");
+        }
+
       for (vtkIdType p=0; p<npts; p++)
         {
         int ExodusPointId = pointOffset + (int) ptIds[ptListIdx++] + 1;
@@ -1709,6 +1716,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
       if (rc < 0)
         {
+        vtkErrorMacro (<< "Problem writing connectivity " << blockIter->first);
         continue;
         }
 
