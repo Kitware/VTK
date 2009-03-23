@@ -21,6 +21,7 @@
 #include "vtkBivariateStatisticsAlgorithm.h"
 #include "vtkBivariateStatisticsAlgorithmPrivate.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
@@ -30,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.11");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.12");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -177,7 +178,7 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     varNames->SetValue( 0, varNameX );
     varNames->SetValue( 1, varNameY );
 
-    // Store names to be able to use SetValueByName which is faster than SetValue
+    // Store names to be able to use SetValueByName, and create the outData columns
     int nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
     for ( int v = 0; v < nv; ++ v )
@@ -191,6 +192,12 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                     << ")";
 
       names[v] = assessColName.str().c_str();
+
+      vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
+      assessValues->SetName( names[v] ); 
+      assessValues->SetNumberOfTuples( nRowD  ); 
+      outData->AddColumn( assessValues ); 
+      assessValues->Delete(); 
       }
 
     // Select assess functor

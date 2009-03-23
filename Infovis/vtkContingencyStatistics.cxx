@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.37");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.38");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -692,6 +692,12 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
                     << ")";
 
       names[v] = assessColName.str().c_str();
+
+      vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
+      assessValues->SetName( names[v] ); 
+      assessValues->SetNumberOfTuples( nRowData ); 
+      outData->AddColumn( assessValues ); 
+      assessValues->Delete(); 
       }
 
     // Select assess functor
@@ -760,25 +766,6 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
 
   vtkStdString varNameX = rowNames->GetValue( 0 );
   vtkStdString varNameY = rowNames->GetValue( 1 );
-
-  // Create the outData columns
-  int nv = this->AssessNames->GetNumberOfValues();
-  for ( int v = 0; v < nv; ++ v )
-    {
-    vtksys_ios::ostringstream assessColName;
-    assessColName << this->AssessNames->GetValue( v )
-                  << "("
-                  << varNameX
-                  << ","
-                  << varNameY
-                  << ")";
-    
-    vtkDoubleArray* assessValues = vtkDoubleArray::New();
-    assessValues->SetName( assessColName.str().c_str() );
-    assessValues->SetNumberOfTuples( outData->GetNumberOfRows() );
-    outData->AddColumn( assessValues );
-    assessValues->Delete();
-    }
 
   // Grab the data for the requested variables
   vtkAbstractArray* valsX = outData->GetColumnByName( varNameX );
