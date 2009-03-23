@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.47");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.48");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -442,11 +442,11 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
 
       double meanX = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
       double meanY = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
-      double varX  = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 2 ) ).ToDouble();
-      double varY  = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 3 ) ).ToDouble();
+      double variX = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 2 ) ).ToDouble();
+      double variY = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 3 ) ).ToDouble();
       double covXY = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 4 ) ).ToDouble();
 
-      double d = varX * varY - covXY * covXY;
+      double d = variX * variY - covXY * covXY;
       if ( d <= 0. )
         {
         vtkWarningMacro( "Incorrect parameters for column pair:"
@@ -461,8 +461,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                       valsY,
                                                       meanX,
                                                       meanY,
-                                                      varX,
-                                                      varY,
+                                                      variX,
+                                                      variY,
                                                       covXY,
                                                       1. / d );
         }
