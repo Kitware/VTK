@@ -32,7 +32,7 @@
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 
-GLenum OpenGLDepthTextureCompareFunction[8]=
+GLint OpenGLDepthTextureCompareFunction[8]=
 {
   GL_LEQUAL,
   GL_GEQUAL,
@@ -58,7 +58,7 @@ const char *DepthTextureCompareFunctionAsString[8]=
 
 // Mapping from DepthTextureMode values to OpenGL values.
 
-GLenum OpenGLDepthTextureMode[3]=
+GLint OpenGLDepthTextureMode[3]=
 {
   GL_LUMINANCE,
   GL_INTENSITY,
@@ -73,7 +73,7 @@ const char *DepthTextureModeAsString[3]=
 };
 
 // Mapping from Wrap values to OpenGL values.
-GLenum OpenGLWrap[5]=
+GLint OpenGLWrap[5]=
 {
   GL_CLAMP,
   vtkgl::CLAMP_TO_EDGE,
@@ -92,7 +92,7 @@ const char *WrapAsString[5]=
 };
 
 // Mapping MinificationFilter values to OpenGL values.
-GLenum OpenGLMinFilter[6]=
+GLint OpenGLMinFilter[6]=
 {
   GL_NEAREST,
   GL_LINEAR,
@@ -114,7 +114,7 @@ const char *MinFilterAsString[6]=
 
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.7");
+vtkCxxRevisionMacro(vtkTextureObject, "1.8");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -405,8 +405,8 @@ void vtkTextureObject::SendParameters()
 }
 
 //----------------------------------------------------------------------------
-int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
-                                        bool shaderSupportsTextureInt)
+unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
+                                                 bool shaderSupportsTextureInt)
 {
   // 1 or 2 components not supported as render target in FBO on GeForce<8
   // force internal format component to be 3 or 4, even if client format is 1
@@ -657,8 +657,8 @@ int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
   return 0;
 }
 
-int vtkTextureObject::GetFormat(int vtktype, int numComps,
-                                bool shaderSupportsTextureInt)
+unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
+                                         bool shaderSupportsTextureInt)
 {
   if (vtktype == VTK_VOID)
     {
@@ -699,7 +699,7 @@ int vtkTextureObject::GetFormat(int vtktype, int numComps,
   return 0;
 }
 
-static GLint vtkGetType(int vtk_scalar_type)
+static GLenum vtkGetType(int vtk_scalar_type)
 {
   // DON'T DEAL with VTK_CHAR as this is platform dependent.
   
@@ -730,7 +730,7 @@ static GLint vtkGetType(int vtk_scalar_type)
   return 0;
 }
 
-static int vtkGetVTKType(GLint gltype)
+static int vtkGetVTKType(GLenum gltype)
 {
    // DON'T DEAL with VTK_CHAR as this is platform dependent.
   switch (gltype)
@@ -763,7 +763,7 @@ static int vtkGetVTKType(GLint gltype)
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetDataType()
 {
-  return ::vtkGetType(this->Type);
+  return ::vtkGetVTKType(this->Type);
 }
 
 //----------------------------------------------------------------------------
@@ -792,15 +792,15 @@ bool vtkTextureObject::Create1D(int numComps,
   // Now, detemine texture parameters using the information from the pbo.
   
   // * internalFormat depends on number of components and the data type.
-  GLint internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
+  GLenum internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
                                                  shaderSupportsTextureInt);
 
   // * format depends on the number of components.
-  GLint format = this->GetFormat(pbo->GetType(), numComps,
+  GLenum format = this->GetFormat(pbo->GetType(), numComps,
                                  shaderSupportsTextureInt);
 
   // * type if the data type in the pbo
-  GLint type = ::vtkGetType(pbo->GetType());
+  GLenum type = ::vtkGetType(pbo->GetType());
 
   if (!internalFormat || !format || !type)
     {
@@ -817,8 +817,11 @@ bool vtkTextureObject::Create1D(int numComps,
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage1D(target, 0, internalFormat,
-    pbo->GetSize()/numComps, 0, format, type, BUFFER_OFFSET(0));
+  glTexImage1D(target, 0, static_cast<GLint>(internalFormat),
+               static_cast<GLsizei>(pbo->GetSize()/
+                                    static_cast<unsigned int>(numComps)),
+               0, format,
+               type, BUFFER_OFFSET(0));
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   pbo->UnBind();
   this->UnBind();
@@ -861,7 +864,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
     return false;
     }
 
-  if (pbo->GetSize() != width*height*numComps)
+  if (pbo->GetSize() != width*height*static_cast<unsigned int>(numComps))
     {
     vtkErrorMacro("PBO size must match texture size.");
     return false;
@@ -872,15 +875,15 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   // Now, detemine texture parameters using the information from the pbo.
 
   // * internalFormat depends on number of components and the data type.
-  GLint internalFormat =this->GetInternalFormat(pbo->GetType(), numComps,
-                                                shaderSupportsTextureInt);
+  GLenum internalFormat =this->GetInternalFormat(pbo->GetType(), numComps,
+                                                 shaderSupportsTextureInt);
 
   // * format depends on the number of components.
-  GLint format = this->GetFormat(pbo->GetType(), numComps,
+  GLenum format = this->GetFormat(pbo->GetType(), numComps,
                                  shaderSupportsTextureInt);
 
   // * type if the data type in the pbo
-  GLint type = ::vtkGetType(pbo->GetType());
+  GLenum type = ::vtkGetType(pbo->GetType());
 
   if (!internalFormat || !format || !type)
     {
@@ -897,8 +900,9 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage2D(target, 0, internalFormat,
-    width, height, 0, format, type, BUFFER_OFFSET(0));
+  glTexImage2D(target, 0, static_cast<GLint>(internalFormat),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0,
+               format, type, BUFFER_OFFSET(0));
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   pbo->UnBind();
   this->UnBind();
@@ -943,7 +947,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
     return false;
     }
 
-  if (pbo->GetSize() != width*height*depth*numComps)
+  if (pbo->GetSize() != width*height*depth*static_cast<unsigned int>(numComps))
     {
     vtkErrorMacro("PBO size must match texture size.");
     return false;
@@ -954,15 +958,15 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   // Now, detemine texture parameters using the information from the pbo.
 
   // * internalFormat depends on number of components and the data type.
-  GLint internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
+  GLenum internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
                                                  shaderSupportsTextureInt);
 
   // * format depends on the number of components.
-  GLint format = this->GetFormat(pbo->GetType(), numComps,
-                                 shaderSupportsTextureInt);
+  GLenum format = this->GetFormat(pbo->GetType(), numComps,
+                                  shaderSupportsTextureInt);
 
   // * type if the data type in the pbo
-  GLint type = ::vtkGetType(pbo->GetType());
+  GLenum type = ::vtkGetType(pbo->GetType());
 
   if (!internalFormat || !format || !type)
     {
@@ -978,8 +982,10 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   //vtkgl::ClampColorARB(vtkgl::CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
-  vtkgl::TexImage3D(target, 0, internalFormat,
-    width, height, depth, 0, format, type, BUFFER_OFFSET(0));
+  vtkgl::TexImage3D(target, 0, static_cast<GLint>(internalFormat),
+                    static_cast<GLsizei>(width), static_cast<GLsizei>(height),
+                    static_cast<GLsizei>(depth), 0, format, type,
+                    BUFFER_OFFSET(0));
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   pbo->UnBind();
   this->UnBind();
@@ -1068,15 +1074,15 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
 
   // Now, detemine texture parameters using the information provided.
   // * internalFormat depends on number of components and the data type.
-  GLint internalFormat = this->GetInternalFormat(vtktype, numComps,
+  GLenum internalFormat = this->GetInternalFormat(vtktype, numComps,
                                                  shaderSupportsTextureInt);
 
   // * format depends on the number of components.
-  GLint format = this->GetFormat(vtktype, numComps,
+  GLenum format = this->GetFormat(vtktype, numComps,
                                  shaderSupportsTextureInt);
 
   // * type if the data type in the pbo
-  GLint type = ::vtkGetType(vtktype);
+  GLenum type = ::vtkGetType(vtktype);
 
   if (!internalFormat || !format || !type)
     {
@@ -1091,8 +1097,9 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   //vtkgl::ClampColorARB(vtkgl::CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Allocate space for texture, don't upload any data.
-  glTexImage2D(target, 0, internalFormat,
-    width, height, 0, format, type, NULL);
+  glTexImage2D(target, 0, static_cast<GLint>(internalFormat),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height),
+               0, format, type, NULL);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   this->UnBind();
 
@@ -1123,15 +1130,15 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
   // Now, detemine texture parameters using the information provided.
   // * internalFormat depends on number of components and the data type.
-  GLint internalFormat = this->GetInternalFormat(vtktype, numComps,
+  GLenum internalFormat = this->GetInternalFormat(vtktype, numComps,
                                                  shaderSupportsTextureInt);
 
   // * format depends on the number of components.
-  GLint format = this->GetFormat(vtktype, numComps,
+  GLenum format = this->GetFormat(vtktype, numComps,
                                  shaderSupportsTextureInt);
 
   // * type if the data type in the pbo
-  GLint type = ::vtkGetType(vtktype);
+  GLenum type = ::vtkGetType(vtktype);
 
   if (!internalFormat || !format || !type)
     {
@@ -1147,8 +1154,9 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Allocate space for texture, don't upload any data.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  vtkgl::TexImage3D(target, 0, internalFormat,
-    width, height, depth, 0, format, type, NULL);
+  vtkgl::TexImage3D(target, 0, static_cast<GLint>(internalFormat),
+                    static_cast<GLsizei>(width), static_cast<GLsizei>(height),
+                    static_cast<GLsizei>(depth), 0, format, type, NULL);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   this->UnBind();
 

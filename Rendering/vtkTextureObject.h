@@ -101,7 +101,7 @@ public:
 
   // Description:
   // Returns OpenGL texture target to which the texture is/can be bound.
-  vtkGetMacro(Target, int);
+  vtkGetMacro(Target, unsigned int);
 
   // Description:
   // Returns the OpenGL handle.
@@ -176,10 +176,10 @@ public:
   // Get the data type for the texture as a vtk type int i.e. VTK_INT etc.
   int GetDataType();
 
-  int GetInternalFormat(int vtktype, int numComps,
-                        bool shaderSupportsTextureInt);
-  int GetFormat(int vtktype, int numComps,
-                bool shaderSupportsTextureInt);
+  unsigned int GetInternalFormat(int vtktype, int numComps,
+                                 bool shaderSupportsTextureInt);
+  unsigned int GetFormat(int vtktype, int numComps,
+                         bool shaderSupportsTextureInt);
   
   // Description:
   // Wrap mode for the first texture coordinate "s"
@@ -354,9 +354,9 @@ protected:
   unsigned int Height;
   unsigned int Depth;
 
-  int Target; // GLenum
-  int Format; // GLint
-  int Type; // GLint
+  unsigned int Target; // GLenum
+  unsigned int Format; // GLenum
+  unsigned int Type; // GLenum
   int Components;
 
   vtkWeakPointer<vtkRenderWindow> Context;
