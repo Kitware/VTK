@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.46");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.47");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -405,12 +405,22 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
     assessValues->Delete();
     }
 
+  // Downcast meta columns to string arrays for efficient data access
+  vtkStringArray* varX = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable Y" ) );
+  if ( ! varX || ! varY )
+    {
+    dfunc = 0;
+    return;
+    }
+
   // Loop over parameters table until the requested variables are found 
   vtkIdType nRowP = inMeta->GetNumberOfRows();
-  for ( int i = 0; i < nRowP; ++ i )
+  for ( int r = 0; r < nRowP; ++ r )
     {
-    if ( inMeta->GetValueByName( i, "Variable X" ).ToString() == varNameX
-         && inMeta->GetValueByName( i, "Variable Y" ).ToString() == varNameY )
+    if ( varX->GetValue( r ) == varNameX
+         && 
+         varY->GetValue( r ) == varNameY )
       { 
       // Grab the data for the requested variables
       vtkAbstractArray* arrX = outData->GetColumnByName( varNameX );
@@ -430,11 +440,11 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      double meanX = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 0 ) ).ToDouble();
-      double meanY = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 1 ) ).ToDouble();
-      double varX  = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 2 ) ).ToDouble();
-      double varY  = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 3 ) ).ToDouble();
-      double covXY = inMeta->GetValueByName( i, this->AssessParameters->GetValue( 4 ) ).ToDouble();
+      double meanX = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
+      double meanY = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
+      double varX  = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 2 ) ).ToDouble();
+      double varY  = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 3 ) ).ToDouble();
+      double covXY = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 4 ) ).ToDouble();
 
       double d = varX * varY - covXY * covXY;
       if ( d <= 0. )
