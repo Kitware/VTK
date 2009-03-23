@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.78");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.79");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -183,11 +183,14 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
           }
         }
       }
-
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+      
+    // use do-while here to initialize 'line' before 'strncmp' is appllied
+    // Thanks go to Brancois for care of this issue
+    do
       {
       this->ReadLine(line);
       }
+    while ( strncmp(line, "BEGIN TIME STEP", 15) != 0 );
     }
   
   // Skip the 2 description lines.
@@ -243,6 +246,11 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
       return 0;
       }
     realId = this->InsertNewPartId(partId);
+    
+    // Increment the number of geoemtry parts such that the measured geomtry,
+    // if any, can be properly combined into a vtkMultiBlockDataSet object.
+    // --- fix to bug #7453
+    this->NumberOfGeometryParts ++;
     
     this->ReadLine(line); // part description line
 
@@ -1124,21 +1132,14 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
   this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
   this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
   
-  if (this->ParticleCoordinatesByIndex) 
+  // NOTE: EnSight always employs a 1-based indexing scheme and therefore
+  // 'if (this->ParticleCoordinatesByIndex)' was removed here. Otherwise
+  // the measured geometry could not be proeperly interpreted.
+  // This bug was noticed while fixing bug #7453.
+  for (i = 0; i < this->NumberOfMeasuredPoints; i++)
     {
-    for (i = 0; i < this->NumberOfMeasuredPoints; i++)
-      {
-      points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
-      pd->InsertNextCell(VTK_VERTEX, 1, &i);
-      }
-   }
-  else
-    {
-    for (i = 0; i < this->NumberOfMeasuredPoints; i++)
-      {
-      points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
-      pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
-      }
+    points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
+    pd->InsertNextCell(VTK_VERTEX, 1, &i);
     }
 
   pd->SetPoints(points);
@@ -1258,7 +1259,9 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
-      this->ReadLine(line);
+      // 'this->ReadLine(line)' was removed here, otherwise there would be a
+      // problem with timestep retrieval of the measured scalars.
+      // This bug was noticed while fixing bug #7453.
       scalars = vtkFloatArray::New();
       scalars->SetNumberOfComponents(numberOfComponents);
       scalars->SetNumberOfTuples(numPts);
