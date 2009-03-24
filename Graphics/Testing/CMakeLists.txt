@@ -16,6 +16,7 @@ IF(PYTHON_EXECUTABLE)
     vtkButterflySubdivisionFilter.h
     vtkDijkstraGraphInternals.h
     vtkJavaProgrammableFilter.h
+    vtkJVMManager.h
     vtkLinearSubdivisionFilter.h
     vtkLoopSubdivisionFilter.h
     vtkOutlineFilter.h
