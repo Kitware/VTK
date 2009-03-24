@@ -71,7 +71,7 @@ int ex_put_set_dist_fact (int   exoid,
   int dimid, set_id_ndx;
   int dist_id;
   char errmsg[MAX_ERR_LENGTH];
-  char* factptr;
+  char* factptr = NULL;
 
   exerrval = 0; /* clear error code */
 

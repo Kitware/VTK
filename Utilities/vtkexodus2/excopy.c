@@ -691,7 +691,7 @@ cpy_coord_val(int in_id,int out_id,char *var_nm,
   size_t start[2], count[2];
   nc_type var_type_in, var_type_out;
 
-  void *void_ptr;
+  void *void_ptr = NULL;
 
   /* Handle easiest situation first: in_large matches out_large */
   if (in_large == out_large)
@@ -763,7 +763,10 @@ cpy_coord_val(int in_id,int out_id,char *var_nm,
   }
 
   /* Free the space that held the variable */
-  (void)free(void_ptr);
+  if (void_ptr)
+    {
+    (void)free(void_ptr);
+    }
   return(EX_NOERR);
 } /* end cpy_coord_val() */
 
