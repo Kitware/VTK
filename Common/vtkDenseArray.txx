@@ -22,6 +22,74 @@
 #ifndef __vtkDenseArray_txx
 #define __vtkDenseArray_txx
 
+///////////////////////////////////////////////////////////////////////////////
+// vtkDenseArray::MemoryBlock
+
+template<typename T>
+vtkDenseArray<T>::MemoryBlock::~MemoryBlock()
+{
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// vtkDenseArray::CxxMemoryBlock
+
+template<typename T>
+vtkDenseArray<T>::CxxMemoryBlock::CxxMemoryBlock(const vtkArrayExtents& extents) :
+  Storage(new T[extents.GetSize()])
+{
+}
+
+template<typename T>
+vtkDenseArray<T>::CxxMemoryBlock::~CxxMemoryBlock()
+{
+  delete[] this->Storage;
+}
+
+template<typename T>
+T* vtkDenseArray<T>::CxxMemoryBlock::GetAddress()
+{
+  return this->Storage;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// vtkDenseArray::CMemoryBlock
+
+template<typename T>
+vtkDenseArray<T>::CMemoryBlock::CMemoryBlock(const vtkArrayExtents& extents) :
+  Storage(malloc(sizeof(T) * extents.GetSize()))
+{
+}
+
+template<typename T>
+vtkDenseArray<T>::CMemoryBlock::~CMemoryBlock()
+{
+  free(this->Storage);
+}
+
+template<typename T>
+T* vtkDenseArray<T>::CMemoryBlock::GetAddress()
+{
+  return this->Storage;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// vtkDenseArray::StaticMemoryBlock
+
+template<typename T>
+vtkDenseArray<T>::StaticMemoryBlock::StaticMemoryBlock(T* const storage) :
+  Storage(storage)
+{
+}
+
+template<typename T>
+T* vtkDenseArray<T>::StaticMemoryBlock::GetAddress()
+{
+  return this->Storage;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// vtkDenseArray
+
 template<typename T>
 vtkDenseArray<T>* vtkDenseArray<T>::New()
 {
@@ -71,7 +139,7 @@ vtkArray* vtkDenseArray<T>::DeepCopy()
 
   copy->Resize(this->Extents);
   copy->DimensionLabels = this->DimensionLabels;
-  vtkstd::copy(this->Storage.begin(), this->Storage.end(), copy->Storage.begin());    
+  vtkstd::copy(this->Begin, this->End, copy->Begin);    
 
   return copy;
 }
@@ -86,13 +154,13 @@ const T& vtkDenseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
     return temp;
     }
 
-  return this->Storage[this->MapCoordinates(coordinates)];
+  return this->Begin[this->MapCoordinates(coordinates)];
 }
 
 template<typename T>
 const T& vtkDenseArray<T>::GetValueN(const vtkIdType n)
 {
-  return this->Storage[n];
+  return this->Begin[n];
 }
 
 template<typename T>
@@ -104,19 +172,25 @@ void vtkDenseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T&
     return;
     }
  
-  this->Storage[this->MapCoordinates(coordinates)] = value;
+  this->Begin[this->MapCoordinates(coordinates)] = value;
 }
 
 template<typename T>
 void vtkDenseArray<T>::SetValueN(const vtkIdType n, const T& value)
 {
-  this->Storage[n] = value;
+  this->Begin[n] = value;
+}
+
+template<typename T>
+void vtkDenseArray<T>::ExternalStorage(const vtkArrayExtents& extents, MemoryBlock* storage)
+{
+  this->Reconfigure(extents, storage);
 }
 
 template<typename T>
 void vtkDenseArray<T>::Fill(const T& value)
 {
-  vtkstd::fill(this->Storage.begin(), this->Storage.end(), value);
+  vtkstd::fill(this->Begin, this->End, value);
 }
 
 template<typename T>
@@ -129,46 +203,43 @@ T& vtkDenseArray<T>::operator[](const vtkArrayCoordinates& coordinates)
     return temp;
     }
  
-  return this->Storage[this->MapCoordinates(coordinates)];
+  return this->Begin[this->MapCoordinates(coordinates)];
 }
 
 template<typename T>
 const T* vtkDenseArray<T>::GetStorage() const
 {
-  return &this->Storage[0];
+  return this->Begin;
 }
 
 template<typename T>
 T* vtkDenseArray<T>::GetStorage()
 {
-  return &this->Storage[0];
+  return this->Begin;
 }
 
 template<typename T>
-vtkDenseArray<T>::vtkDenseArray()
+vtkDenseArray<T>::vtkDenseArray() :
+  Storage(0),
+  Begin(0),
+  End(0)
 {
 }
 
 template<typename T>
 vtkDenseArray<T>::~vtkDenseArray()
 {
+  delete this->Storage;
+
+  this->Storage = 0;
+  this->Begin = 0;
+  this->End = 0;
 }
 
 template<typename T>
 void vtkDenseArray<T>::InternalResize(const vtkArrayExtents& extents)
 {
-  this->Extents = extents;
-  this->DimensionLabels.resize(extents.GetDimensions(), vtkStdString());
-  this->Storage.resize(this->Extents.GetSize());
-
-  this->Strides.resize(this->GetDimensions());
-  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
-    {
-    if(i == 0)
-      this->Strides[i] = 1;
-    else
-      this->Strides[i] = this->Strides[i-1] * this->Extents[i-1];
-    }
+  this->Reconfigure(extents, new CxxMemoryBlock(extents));
 }
 
 template<typename T>
@@ -190,6 +261,27 @@ vtkIdType vtkDenseArray<T>::MapCoordinates(const vtkArrayCoordinates& coordinate
   for(vtkIdType i = 0; i != static_cast<vtkIdType>(this->Strides.size()); ++i)
     index += (coordinates[i] * this->Strides[i]);
   return index;
+}
+
+template<typename T>
+void vtkDenseArray<T>::Reconfigure(const vtkArrayExtents& extents, MemoryBlock* storage)
+{
+  this->Extents = extents;
+  this->DimensionLabels.resize(extents.GetDimensions(), vtkStdString());
+
+  delete this->Storage;
+  this->Storage = storage;
+  this->Begin = storage->GetAddress();
+  this->End = this->Begin + extents.GetSize(); 
+
+  this->Strides.resize(extents.GetDimensions());
+  for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
+    {
+    if(i == 0)
+      this->Strides[i] = 1;
+    else
+      this->Strides[i] = this->Strides[i-1] * extents[i-1];
+    }
 }
 
 #endif

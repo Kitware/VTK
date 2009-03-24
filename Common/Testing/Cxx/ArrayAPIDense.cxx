@@ -143,6 +143,17 @@ int ArrayAPIDense(int argc, char* argv[])
     test_expression(array->GetStorage()[0] == 2);
     test_expression(array->GetStorage()[1] == 4);
     test_expression(array->GetStorage()[2] == 6);
+
+    // Verify that external storage works correctly ...
+    double a[] = { 7, 8, 9 };
+    double b[] = { 5, 6, 7, 8 };
+    array->ExternalStorage(vtkArrayExtents(3), new vtkDenseArray<double>::StaticMemoryBlock(a));
+    test_expression(array->GetValue(0) == 7);
+    test_expression(array->GetValue(2) == 9);
+
+    array->ExternalStorage(vtkArrayExtents(2, 2), new vtkDenseArray<double>::StaticMemoryBlock(b));
+    test_expression(array->GetValue(0, 0) == 5);
+    test_expression(array->GetValue(1, 0) == 6);
     
     return 0;
     }

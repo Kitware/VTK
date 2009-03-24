@@ -74,6 +74,77 @@ public:
   // vtkDenseArray API
 
   // Description:
+  // Strategy object that contains a block of memory to be used by vtkDenseArray
+  // for value storage.  The MemoryBlock object is responsible for freeing
+  // memory when destroyed.
+  class MemoryBlock
+  {
+  public:
+    virtual ~MemoryBlock();
+    // Description:
+    // Returns a pointer to the block of memory to be used for storage.
+    virtual T* GetAddress() = 0;
+  };
+
+  // Description:
+  // MemoryBlock implementation that manages its memory using new[] and delete[].
+  class CxxMemoryBlock :
+    public MemoryBlock
+  {
+  public:
+    CxxMemoryBlock(const vtkArrayExtents& extents);
+    virtual ~CxxMemoryBlock();
+    virtual T* GetAddress();
+
+  private:
+    T* Storage;
+  };
+
+  // Description:
+  // MemoryBlock implementation that manages its memory using malloc() and free().
+  class CMemoryBlock :
+    public MemoryBlock
+  {
+  public:
+    CMemoryBlock(const vtkArrayExtents& extents);
+    virtual ~CMemoryBlock();
+    virtual T* GetAddress();
+
+  private:
+    T* Storage;
+  };
+
+  // Description:
+  // MemoryBlock implementation that manages a static (will not be freed) memory block.
+  class StaticMemoryBlock :
+    public MemoryBlock
+  {
+  public:
+    StaticMemoryBlock(T* const storage);
+    virtual T* GetAddress();
+
+  private:
+    T* Storage;
+  };
+
+  // Description:
+  // Initializes the array to use an externally-allocated memory block.  The supplied
+  // MemoryBlock must be large enough to store extents.GetSize() values.  The contents of
+  // the memory must be stored contiguously with fortran ordering, 
+  //
+  // Dimension-labels are undefined after calling ExternalStorage() - you should
+  // initialize them accordingly.
+  //
+  // The array will use the supplied memory for storage until the array goes out of
+  // scope, is configured to use a different memory block by calling ExternalStorage()
+  // again, or is configured to use internally-allocated memory by calling Resize().
+  //
+  // Note that the array will delete the supplied memory block when it is no longer in use.
+  // caller's responsibility to ensure that the memory does not go out-of-scope until
+  // the array has been destroyed or is no longer using it.
+  void ExternalStorage(const vtkArrayExtents& extents, MemoryBlock* storage);
+
+  // Description:
   // Fills every element in the array with the given value.
   void Fill(const T& value);
 
@@ -104,6 +175,8 @@ private:
   vtkStdString InternalGetDimensionLabel(vtkIdType i);
   vtkIdType MapCoordinates(const vtkArrayCoordinates& coordinates);
 
+  void Reconfigure(const vtkArrayExtents& extents, MemoryBlock* storage);
+
   typedef vtkDenseArray<T> ThisT;
 
   // Description:
@@ -113,12 +186,17 @@ private:
   // Description:
   // Stores labels for each array dimension
   vtkstd::vector<vtkStdString> DimensionLabels;
+
+  // Description:
+  // Manages array value memory storage.
+  MemoryBlock* Storage;
   
   // Description:
-  // Stores the current array values using a contiguous range of memory
+  // Stores array values using a contiguous range of memory
   // with constant-time value lookup.
-  vtkstd::vector<T> Storage;
-  
+  T* Begin;
+  T* End;
+
   // Description:
   // Stores the strides along each array dimension (used for fast lookups).
   vtkstd::vector<vtkIdType> Strides;
