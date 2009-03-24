@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.6");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.7");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -102,6 +102,12 @@ void vtkQtTreeView::SetShowHeaders(bool state)
 void vtkQtTreeView::SetAlternatingRowColors(bool state)
 {
   this->TreeView->setAlternatingRowColors(state);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::HideColumn(int i) 
+{
+  this->TreeView->hideColumn(i);
 }
 
 //----------------------------------------------------------------------------

@@ -68,6 +68,10 @@ public:
   void SetAlternatingRowColors(bool);
 
   // Description:
+  // Hide the column of the given index from being shown in the view
+  void HideColumn(int i);
+
+  // Description:
   // Updates the view.
   virtual void Update();
 
