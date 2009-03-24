@@ -31,43 +31,22 @@ vtkDenseArray<T>::MemoryBlock::~MemoryBlock()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// vtkDenseArray::CxxMemoryBlock
+// vtkDenseArray::HeapMemoryBlock
 
 template<typename T>
-vtkDenseArray<T>::CxxMemoryBlock::CxxMemoryBlock(const vtkArrayExtents& extents) :
+vtkDenseArray<T>::HeapMemoryBlock::HeapMemoryBlock(const vtkArrayExtents& extents) :
   Storage(new T[extents.GetSize()])
 {
 }
 
 template<typename T>
-vtkDenseArray<T>::CxxMemoryBlock::~CxxMemoryBlock()
+vtkDenseArray<T>::HeapMemoryBlock::~HeapMemoryBlock()
 {
   delete[] this->Storage;
 }
 
 template<typename T>
-T* vtkDenseArray<T>::CxxMemoryBlock::GetAddress()
-{
-  return this->Storage;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// vtkDenseArray::CMemoryBlock
-
-template<typename T>
-vtkDenseArray<T>::CMemoryBlock::CMemoryBlock(const vtkArrayExtents& extents) :
-  Storage(malloc(sizeof(T) * extents.GetSize()))
-{
-}
-
-template<typename T>
-vtkDenseArray<T>::CMemoryBlock::~CMemoryBlock()
-{
-  free(this->Storage);
-}
-
-template<typename T>
-T* vtkDenseArray<T>::CMemoryBlock::GetAddress()
+T* vtkDenseArray<T>::HeapMemoryBlock::GetAddress()
 {
   return this->Storage;
 }
@@ -239,7 +218,7 @@ vtkDenseArray<T>::~vtkDenseArray()
 template<typename T>
 void vtkDenseArray<T>::InternalResize(const vtkArrayExtents& extents)
 {
-  this->Reconfigure(extents, new CxxMemoryBlock(extents));
+  this->Reconfigure(extents, new HeapMemoryBlock(extents));
 }
 
 template<typename T>

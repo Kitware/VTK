@@ -87,27 +87,15 @@ public:
   };
 
   // Description:
-  // MemoryBlock implementation that manages its memory using new[] and delete[].
-  class CxxMemoryBlock :
+  // MemoryBlock implementation that manages internally-allocated memory using
+  // new[] and delete[].  Note: HeapMemoryBlock is the default used by vtkDenseArray
+  // for its "normal" internal memory allocation.
+  class HeapMemoryBlock :
     public MemoryBlock
   {
   public:
-    CxxMemoryBlock(const vtkArrayExtents& extents);
-    virtual ~CxxMemoryBlock();
-    virtual T* GetAddress();
-
-  private:
-    T* Storage;
-  };
-
-  // Description:
-  // MemoryBlock implementation that manages its memory using malloc() and free().
-  class CMemoryBlock :
-    public MemoryBlock
-  {
-  public:
-    CMemoryBlock(const vtkArrayExtents& extents);
-    virtual ~CMemoryBlock();
+    HeapMemoryBlock(const vtkArrayExtents& extents);
+    virtual ~HeapMemoryBlock();
     virtual T* GetAddress();
 
   private:
