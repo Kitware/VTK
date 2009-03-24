@@ -94,10 +94,6 @@ vtkDataObject* vtkQtTableModelAdapter::GetVTKDataObject() const
 
 void vtkQtTableModelAdapter::setTable(vtkTable* t) 
 {
-  if (t == this->Table)
-    {
-    return;
-    }
   if (this->Table != NULL)
     {
     this->Table->Delete();
