@@ -53,17 +53,9 @@ EasyView::EasyView()
   this->ColumnView   = vtkSmartPointer<vtkQtColumnView>::New();
   
   // Set widgets for the tree and table views  
-  QVBoxLayout *layout1 = new QVBoxLayout;
-  layout1->addWidget(this->TreeView->GetWidget());
-  this->ui->treeFrame->setLayout(layout1);
-
-  QVBoxLayout *layout2 = new QVBoxLayout;
-  layout2->addWidget(this->TableView->GetWidget());
-  this->ui->tableFrame->setLayout(layout2);
-
-  QVBoxLayout *layout3 = new QVBoxLayout;
-  layout3->addWidget(this->ColumnView->GetWidget());
-  this->ui->columnFrame->setLayout(layout3);
+  this->ui->treeFrame->layout()->addWidget(this->TreeView->GetWidget());
+  this->ui->tableFrame->layout()->addWidget(this->TableView->GetWidget());
+  this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
  
   // Graph View needs to get my render window
   this->GraphView->SetupRenderWindow(this->ui->vtkGraphViewWidget->GetRenderWindow());
