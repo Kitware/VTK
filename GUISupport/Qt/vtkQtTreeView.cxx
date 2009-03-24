@@ -20,6 +20,7 @@
 
 #include "vtkQtTreeView.h"
 
+#include <QHeaderView>
 #include <QItemSelection>
 #include <QTreeView>
 
@@ -37,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.5");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.6");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -81,6 +82,20 @@ vtkQtTreeView::~vtkQtTreeView()
 QWidget* vtkQtTreeView::GetWidget()
 {
   return this->TreeView;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::SetShowHeaders(bool state)
+{
+  if (state)
+    {
+    this->TreeView->header()->show();
+    }
+  else
+    {
+    this->TreeView->header()->hide();
+    }
 }
 
 //----------------------------------------------------------------------------

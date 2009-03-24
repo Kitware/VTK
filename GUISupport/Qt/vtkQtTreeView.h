@@ -58,6 +58,10 @@ public:
   // to GetWidget(): something like this
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
+  
+  // Description:
+  // Have the view show/hide its column headers
+  void SetShowHeaders(bool);
 
   // Description:
   // Have the view alternate its row colors
