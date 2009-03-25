@@ -128,16 +128,16 @@ protected:
   vtkIdType NumberOfNewCells;
   
   // Better memory allocation for faces (hash)
-  void InitFastGeomQuadAllocation(int numberOfCells);
+  void InitFastGeomQuadAllocation(vtkIdType numberOfCells);
   vtkFastGeomQuad* NewFastGeomQuad(int numPts);
   void DeleteAllFastGeomQuads();
   // -----
-  int FastGeomQuadArrayLength;
-  int NumberOfFastGeomQuadArrays;
+  vtkIdType FastGeomQuadArrayLength;
+  vtkIdType NumberOfFastGeomQuadArrays;
   unsigned char** FastGeomQuadArrays;  // store this data as an array of bytes
   // These indexes allow us to find the next available face.
-  int NextArrayIndex;
-  int NextQuadIndex;
+  vtkIdType NextArrayIndex;
+  vtkIdType NextQuadIndex;
 
   int PieceInvariant;
 
