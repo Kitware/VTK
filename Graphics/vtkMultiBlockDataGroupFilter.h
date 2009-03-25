@@ -48,9 +48,12 @@ protected:
   vtkMultiBlockDataGroupFilter();
   ~vtkMultiBlockDataGroupFilter();
 
-  int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation*, 
+                                 vtkInformationVector**, 
+                                 vtkInformationVector*);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
