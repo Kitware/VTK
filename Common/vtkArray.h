@@ -116,6 +116,13 @@ public:
   virtual vtkIdType GetNonNullSize() = 0;
 
   // Description:
+  // Sets the array name.
+  void SetName(const vtkStdString& name);
+  // Description:
+  // Returns the array name.
+  vtkStdString GetName();
+
+  // Description:
   // Sets the label for the i-th array dimension.
   void SetDimensionLabel(vtkIdType i, const vtkStdString& label);
   
@@ -184,6 +191,10 @@ protected:
 private:
   vtkArray(const vtkArray&); // Not implemented
   void operator=(const vtkArray&); // Not implemented
+
+  // Description:
+  // Stores the array name.
+  vtkStdString Name;
 
   // Description:
   // Implemented in concrete derivatives to update their storage

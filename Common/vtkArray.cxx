@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArray, "1.1");
+vtkCxxRevisionMacro(vtkArray, "1.2");
 
 //----------------------------------------------------------------------------
 
@@ -47,6 +47,9 @@ vtkArray::~vtkArray()
 void vtkArray::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+
+  os << indent << "Name: " << this->Name << endl;
+  
   os << indent << "Dimensions: " << this->GetDimensions() << endl;
   os << indent << "Extents: " << this->GetExtents() << endl;
   
@@ -170,6 +173,16 @@ vtkIdType vtkArray::GetDimensions()
 vtkIdType vtkArray::GetSize()
 {
   return this->GetExtents().GetSize();
+}
+
+void vtkArray::SetName(const vtkStdString& name)
+{
+  this->Name = name;
+}
+
+vtkStdString vtkArray::GetName()
+{
+  return this->Name;
 }
 
 void vtkArray::SetDimensionLabel(vtkIdType i, const vtkStdString& label)

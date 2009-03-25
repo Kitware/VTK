@@ -85,6 +85,10 @@ int ArrayAPI(int argc, char* argv[])
         array.TakeReference(vtkArray::CreateArray(*storage_type, value_types[value_type]));
         test_expression(array);
 
+        test_expression(array->GetName() == "");
+        array->SetName("foo");
+        test_expression(array->GetName() == "foo");
+
         array->Resize(10);
         array->SetVariantValue(5, sample_values[value_type]);
         test_expression(array->GetVariantValue(5).IsValid());
