@@ -122,12 +122,15 @@ int ArrayAPISparse(int argc, char* argv[])
     test_expression(array->GetNonNullSize() == 6);
 
     // Verify that deep-copy works correctly ...
+    array->SetNullValue(1.0);
+    
     vtkSmartPointer<vtkSparseArray<double> > deep_copy;
     deep_copy.TakeReference(vtkSparseArray<double>::SafeDownCast(array->DeepCopy()));
     test_expression(deep_copy->GetDimensions() == array->GetDimensions());
     test_expression(deep_copy->GetSize() == array->GetSize());
     test_expression(deep_copy->GetNonNullSize() == array->GetNonNullSize());
     test_expression(deep_copy->GetExtents() == array->GetExtents());
+    test_expression(deep_copy->GetNullValue() == array->GetNullValue());
     for(int n = 0; n != deep_copy->GetNonNullSize(); ++n)
       test_expression(deep_copy->GetValueN(n) == array->GetValueN(n));
 

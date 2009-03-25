@@ -68,6 +68,7 @@ vtkArray* vtkSparseArray<T>::DeepCopy()
   copy->DimensionLabels = this->DimensionLabels;
   copy->Coordinates = this->Coordinates;
   copy->Values = this->Values;
+  copy->NullValue = this->NullValue;
 
   return copy;
 }
