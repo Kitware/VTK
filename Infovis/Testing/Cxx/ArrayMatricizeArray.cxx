@@ -60,7 +60,7 @@ int ArrayMatricizeArray(int argc, char* argv[])
 
     // Create an array data object to hold it ...
     vtkSmartPointer<vtkArrayData> array_data = vtkSmartPointer<vtkArrayData>::New();
-    array_data->SetArray(array);
+    array_data->AddArray(array);
 
     // Matricize it ...
     vtkSmartPointer<vtkMatricizeArray> matricize = vtkSmartPointer<vtkMatricizeArray>::New();
@@ -68,7 +68,7 @@ int ArrayMatricizeArray(int argc, char* argv[])
     matricize->SetSliceDimension(0);
     matricize->Update();
 
-    vtkSparseArray<double>* const matricized_array = vtkSparseArray<double>::SafeDownCast(matricize->GetOutput()->GetArray());
+    vtkSparseArray<double>* const matricized_array = vtkSparseArray<double>::SafeDownCast(matricize->GetOutput()->GetArray(0));
     test_expression(matricized_array);
 
     cout << "matricize output:\n";

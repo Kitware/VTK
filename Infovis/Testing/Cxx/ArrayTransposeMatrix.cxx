@@ -50,13 +50,13 @@ int ArrayTransposeMatrix(int argc, char* argv[])
     vtkPrintMatrixFormat(cout, source.GetPointer());
     
     vtkSmartPointer<vtkArrayData> source_data = vtkSmartPointer<vtkArrayData>::New();
-    source_data->SetArray(source);
+    source_data->AddArray(source);
      
     vtkSmartPointer<vtkTransposeMatrix> transpose = vtkSmartPointer<vtkTransposeMatrix>::New();
     transpose->AddInputConnection(source_data->GetProducerPort());
     transpose->Update();
 
-    vtkSparseArray<double>* const output = vtkSparseArray<double>::SafeDownCast(transpose->GetOutput()->GetArray());
+    vtkSparseArray<double>* const output = vtkSparseArray<double>::SafeDownCast(transpose->GetOutput()->GetArray(0));
     cout << "output matrix:\n";
     vtkPrintMatrixFormat(cout, output);
 

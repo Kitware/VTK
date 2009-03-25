@@ -62,7 +62,7 @@ int ArrayCosineSimilarity(int argc, char* argv[])
     vtkPrintMatrixFormat(cout, source.GetPointer());
     
     vtkSmartPointer<vtkArrayData> source_data = vtkSmartPointer<vtkArrayData>::New();
-    source_data->SetArray(source);
+    source_data->AddArray(source);
      
     vtkSmartPointer<vtkCosineSimilarity> similarity = vtkSmartPointer<vtkCosineSimilarity>::New();
     similarity->AddInputConnection(source_data->GetProducerPort());

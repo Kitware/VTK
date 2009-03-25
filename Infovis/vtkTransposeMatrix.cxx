@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkTransposeMatrix
 
-vtkCxxRevisionMacro(vtkTransposeMatrix, "1.1");
+vtkCxxRevisionMacro(vtkTransposeMatrix, "1.2");
 vtkStandardNewMacro(vtkTransposeMatrix);
 
 vtkTransposeMatrix::vtkTransposeMatrix()
@@ -53,9 +53,13 @@ int vtkTransposeMatrix::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+  if(input->GetNumberOfArrays() != 1)
+    {
+    vtkErrorMacro(<< "vtkTransposeMatrix requires vtkArrayData containing exactly one array as input.");
+    return 0;
+    }
 
-  if(vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(input->GetArray()))
+  if(vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(input->GetArray(0)))
     {
     if(input_array->GetDimensions() != 2)
       {
@@ -66,9 +70,6 @@ int vtkTransposeMatrix::RequestData(
     const vtkArrayExtents input_extents = input_array->GetExtents();
 
     vtkSparseArray<double>* const output_array = vtkSparseArray<double>::New();
-    output->SetArray(output_array);
-    output_array->Delete();
-
     output_array->Resize(vtkArrayExtents(input_extents[1], input_extents[0]));
     output_array->SetDimensionLabel(0, input_array->GetDimensionLabel(1));
     output_array->SetDimensionLabel(1, input_array->GetDimensionLabel(0));
@@ -80,8 +81,13 @@ int vtkTransposeMatrix::RequestData(
       input_array->GetCoordinatesN(n, coordinates);
       output_array->AddValue(vtkArrayCoordinates(coordinates[1], coordinates[0]), input_array->GetValueN(n));
       }
+
+    vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+    output->ClearArrays();
+    output->AddArray(output_array);
+    output_array->Delete();
     }
-  else if(vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray()))
+  else if(vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray(0)))
     {
     if(input_array->GetDimensions() != 2)
       {
@@ -92,8 +98,6 @@ int vtkTransposeMatrix::RequestData(
     const vtkArrayExtents input_extents = input_array->GetExtents();
 
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
-    output->SetArray(output_array);
-    output_array->Delete();
 
     output_array->Resize(vtkArrayExtents(input_extents[1], input_extents[0]));
     output_array->SetDimensionLabel(0, input_array->GetDimensionLabel(1));
@@ -106,6 +110,11 @@ int vtkTransposeMatrix::RequestData(
         output_array->SetValue(vtkArrayCoordinates(j, i), input_array->GetValue(vtkArrayCoordinates(i, j)));
         }
       }
+
+    vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+    output->ClearArrays();
+    output->AddArray(output_array);
+    output_array->Delete();
     }
   else
     {

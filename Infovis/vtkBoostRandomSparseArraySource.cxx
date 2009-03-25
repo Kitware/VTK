@@ -31,7 +31,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkBoostRandomSparseArraySource, "1.1");
+vtkCxxRevisionMacro(vtkBoostRandomSparseArraySource, "1.2");
 vtkStandardNewMacro(vtkBoostRandomSparseArraySource);
 
 // ----------------------------------------------------------------------
@@ -115,7 +115,8 @@ int vtkBoostRandomSparseArraySource::RequestData(
     }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
-  output->SetArray(array);
+  output->ClearArrays();
+  output->AddArray(array);
   array->Delete();
 
   return 1;

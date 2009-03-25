@@ -46,7 +46,7 @@ int ArrayToTable(int argc, char* argv[])
     a->SetValue(1, "World!");
 
     vtkSmartPointer<vtkArrayData> b = vtkSmartPointer<vtkArrayData>::New();
-    b->SetArray(a);
+    b->AddArray(a);
 
     vtkSmartPointer<vtkArrayToTable> c = vtkSmartPointer<vtkArrayToTable>::New();
     c->SetInputConnection(0, b->GetProducerPort());
@@ -64,7 +64,7 @@ int ArrayToTable(int argc, char* argv[])
     d->SetValue(1, 1, 2.0);
 
     vtkSmartPointer<vtkArrayData> e = vtkSmartPointer<vtkArrayData>::New();
-    e->SetArray(d);
+    e->AddArray(d);
 
     vtkSmartPointer<vtkArrayToTable> f = vtkSmartPointer<vtkArrayToTable>::New();
     f->SetInputConnection(0, e->GetProducerPort());

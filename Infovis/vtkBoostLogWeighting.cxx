@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkBoostLogWeighting
 
-vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.1");
+vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.2");
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
 vtkBoostLogWeighting::vtkBoostLogWeighting()
@@ -59,13 +59,15 @@ int vtkBoostLogWeighting::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+  if(input->GetNumberOfArrays() != 1)
+    {
+    vtkErrorMacro(<< "vtkBoostLogWeighting requires vtkArrayData containing exactly one array as input.");
+    return 0;
+    }
 
-  if(vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input->GetArray()))
+  if(vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input->GetArray(0)))
     {
     vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
-    output->SetArray(output_array);
-    output_array->Delete();
 
     const vtkIdType value_count = input_array->GetNonNullSize();
     
@@ -76,6 +78,11 @@ int vtkBoostLogWeighting::RequestData(
       double progress = static_cast<double>(i) / static_cast<double>(value_count);
       this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
       }
+
+    vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+    output->ClearArrays();
+    output->AddArray(output_array);
+    output_array->Delete();
     }
   else
     {

@@ -56,14 +56,14 @@ int ArrayMatrixColumnNorm(int argc, char* argv[])
     source->Update();
 
     cout << "diagonal source:\n";
-    vtkPrintMatrixFormat(cout, vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray()));
+    vtkPrintMatrixFormat(cout, vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
 
     vtkSmartPointer<vtkMatrixColumnNorm> vector_norm = vtkSmartPointer<vtkMatrixColumnNorm>::New();
     vector_norm->AddInputConnection(source->GetOutputPort());
     vector_norm->SetL(2);
     vector_norm->Update();
 
-    vtkDenseArray<double>* const l2_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray());
+    vtkDenseArray<double>* const l2_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
     
     cout << "L2-norm:\n";
     vtkPrintVectorFormat(cout, l2_norm);
@@ -76,7 +76,7 @@ int ArrayMatrixColumnNorm(int argc, char* argv[])
     vector_norm->SetL(1);
     vector_norm->Update();
 
-    vtkDenseArray<double>* const l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray());
+    vtkDenseArray<double>* const l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
     
     cout << "L1-norm:\n";
     vtkPrintVectorFormat(cout, l1_norm);

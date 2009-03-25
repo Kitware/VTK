@@ -35,7 +35,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.2");
+vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.3");
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
 // ----------------------------------------------------------------------
@@ -90,15 +90,21 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray());
+  if(input->GetNumberOfArrays() != 1)
+    {
+    vtkErrorMacro(<< this->GetClassName() << " requires an input vtkArrayData containing one array.");
+    return 0;
+    }
+  
+  vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray(0));
   if(!input_array)
     {
-    vtkErrorMacro(<< "vtkAdjacencyMatrixToEdgeTable requires an input vtkDenseArray<double>");
+    vtkErrorMacro(<< this->GetClassName() << " requires an input vtkDenseArray<double>.");
     return 0;
     }
   if(input_array->GetDimensions() != 2)
     {
-    vtkErrorMacro(<< "vtkAdjacencyMatrixToEdgeTable requires an input matrix.");
+    vtkErrorMacro(<< this->GetClassName() << " requires an input matrix.");
     return 0;
     }
 

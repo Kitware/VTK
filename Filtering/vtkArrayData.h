@@ -26,12 +26,19 @@
 #include "vtkDataObject.h"
 
 class vtkArray;
-class vtkInformation;
-class vtkInformationVector;
 
-// .NAME vtkArrayData - Pipeline data object that acts as a container
-// for a single vtkArray
-
+// .NAME vtkArrayData - Pipeline data object that contains multiple vtkArray objects.
+//
+// .SECTION Description
+// Because vtkArray cannot be stored as attributes of data objects (yet), a "carrier"
+// object is needed to pass vtkArray through the pipeline.  vtkArrayData acts as a
+// container of zero-to-many vtkArray instances, which can be retrieved via a zero-based
+// index.  Note that a collection of arrays stored in vtkArrayData may-or-may-not have related
+// types, dimensions, or extents.
+//
+// .SECTION See Also
+// vtkArrayDataAlgorithm, vtkArray
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
@@ -46,22 +53,33 @@ public:
   static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
 
   // Description:
-  // Sets the vtkArray instance contained by this object
-  virtual void SetArray(vtkArray*);
+  // Adds a vtkArray to the collection
+  void AddArray(vtkArray*);
   
   // Description:
-  // Returns the vtkArray instance (if any) contained by this object
-  vtkGetObjectMacro(Array, vtkArray);
+  // Clears the contents of the collection
+  void ClearArrays();
+  
+  // Description:
+  // Returns the number of vtkArray instances in the collection
+  vtkIdType GetNumberOfArrays();
+  
+  // Description:
+  // Returns the n-th vtkArray in the collection
+  vtkArray* GetArray(vtkIdType index);
 
 protected:
   vtkArrayData();
   ~vtkArrayData();
 
-  vtkArray* Array;
-
 private:
   vtkArrayData(const vtkArrayData&); // Not implemented
   void operator=(const vtkArrayData&); // Not implemented
+
+//BTX
+  class implementation;
+  implementation* const Implementation;
+//ETX
 };
 
 #endif

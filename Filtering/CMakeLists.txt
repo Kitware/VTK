@@ -327,8 +327,6 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ${Kit_SRCS}
     vtkArrayData.cxx
     vtkArrayDataAlgorithm.cxx
-    vtkFactoredArrayData.cxx
-    vtkFactoredArrayDataAlgorithm.cxx
     )
 
 ENDIF(VTK_USE_N_WAY_ARRAYS)

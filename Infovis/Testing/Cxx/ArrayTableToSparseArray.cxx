@@ -85,7 +85,7 @@ int ArrayTableToSparseArray(int argc, char* argv[])
     source->SetValueColumn("value");
     source->Update();
 
-    vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray());
+    vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0));
     test_expression(sparse_array);
 
     cout << "sparse array:\n";

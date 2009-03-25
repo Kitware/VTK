@@ -52,7 +52,7 @@ int BoostArrayRandomSparseArraySource(int argc, char* argv[])
     source->SetMaxValue(1.0);
     source->Update();
 
-    vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray());
+    vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0));
     
     cout << "sparse random source:\n";
 

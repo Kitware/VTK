@@ -154,7 +154,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayToTable.cxx
     vtkCosineSimilarity.cxx
     vtkDiagonalMatrixSource.cxx
-    vtkExtractFactoredArray.cxx
+    vtkExtractArray.cxx
     vtkMatricizeArray.cxx
     vtkMatrixColumnNorm.cxx
     vtkNormalizeMatrixVectors.cxx

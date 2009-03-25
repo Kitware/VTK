@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractFactoredArray.cxx
+  Module:    vtkExtractArray.cxx
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -21,63 +21,63 @@
 
 #include "vtkArrayData.h"
 #include "vtkCommand.h"
-#include "vtkFactoredArrayData.h"
+#include "vtkExtractArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkExtractFactoredArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// vtkExtractFactoredArray
+// vtkExtractArray
 
-vtkCxxRevisionMacro(vtkExtractFactoredArray, "1.1");
-vtkStandardNewMacro(vtkExtractFactoredArray);
+vtkCxxRevisionMacro(vtkExtractArray, "1.1");
+vtkStandardNewMacro(vtkExtractArray);
 
-vtkExtractFactoredArray::vtkExtractFactoredArray() :
+vtkExtractArray::vtkExtractArray() :
   Index(0)
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
 
-vtkExtractFactoredArray::~vtkExtractFactoredArray()
+vtkExtractArray::~vtkExtractArray()
 {
 }
 
-void vtkExtractFactoredArray::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Index: " << this->Index << endl;
 }
 
-int vtkExtractFactoredArray::FillInputPortInformation(int port, vtkInformation* info)
+int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
     {
     case 0:
-      info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkFactoredArrayData");
+      info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
     }
 
   return 0;
 }
 
-int vtkExtractFactoredArray::RequestData(
+int vtkExtractArray::RequestData(
   vtkInformation*, 
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  vtkFactoredArrayData* const input = vtkFactoredArrayData::GetData(inputVector[0]);
+  vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
 
   if(this->Index < 0 || this->Index >= input->GetNumberOfArrays())
     {
-    vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkFactoredArrayData containing " << input->GetNumberOfArrays() << " arrays.");
+    vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkArrayData containing " << input->GetNumberOfArrays() << " arrays.");
     return 0;
     }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
-  output->SetArray(input->GetArray(this->Index));
+  output->ClearArrays();
+  output->AddArray(input->GetArray(this->Index));
 
   return 1;
 }

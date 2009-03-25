@@ -84,7 +84,7 @@ private:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCosineSimilarity, "1.1");
+vtkCxxRevisionMacro(vtkCosineSimilarity, "1.2");
 vtkStandardNewMacro(vtkCosineSimilarity);
 
 // ----------------------------------------------------------------------
@@ -137,7 +137,13 @@ int vtkCosineSimilarity::RequestData(
 {
   // Get input arrays ...
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray());
+  if(input->GetNumberOfArrays() != 1)
+    {
+    vtkErrorMacro(<< "vtkCosineSimilarity requires a vtkArrayData with exactly one array as input.");
+    return 0;
+    }
+    
+  vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray(0));
   if(!input_array)
     {
     vtkErrorMacro(<< "vtkCosineSimilarity requires a vtkDenseArray<double> as input.");

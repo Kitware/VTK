@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractFactoredArray.h
+  Module:    vtkExtractArray.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,22 +19,23 @@
 
 =========================================================================*/
 
-#ifndef __vtkExtractFactoredArray_h
-#define __vtkExtractFactoredArray_h
+#ifndef __vtkExtractArray_h
+#define __vtkExtractArray_h
 
 #include "vtkArrayDataAlgorithm.h"
 
-// .NAME vtkExtractFactoredArray - Extracts the Nth array stored in a
-// vtkFactoredArrayData object into a pipeline array data object.
+// .NAME vtkExtractArray - Given a vtkArrayData object containing one-or-more
+// vtkArray instances, produces a vtkArrayData containing just one vtkArray,
+// indentified by index.
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class VTK_INFOVIS_EXPORT vtkExtractFactoredArray : public vtkArrayDataAlgorithm
+class VTK_INFOVIS_EXPORT vtkExtractArray : public vtkArrayDataAlgorithm
 {
 public:
-  static vtkExtractFactoredArray* New();
-  vtkTypeRevisionMacro(vtkExtractFactoredArray, vtkArrayDataAlgorithm);
+  static vtkExtractArray* New();
+  vtkTypeRevisionMacro(vtkExtractArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -43,8 +44,8 @@ public:
   vtkSetMacro(Index, vtkIdType);
 
 protected:
-  vtkExtractFactoredArray();
-  ~vtkExtractFactoredArray();
+  vtkExtractArray();
+  ~vtkExtractArray();
 
   int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -54,8 +55,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkExtractFactoredArray(const vtkExtractFactoredArray&); // Not implemented
-  void operator=(const vtkExtractFactoredArray&);   // Not implemented
+  vtkExtractArray(const vtkExtractArray&); // Not implemented
+  void operator=(const vtkExtractArray&);   // Not implemented
 
   vtkIdType Index;
 };

@@ -32,7 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkMatricizeArray
 
-vtkCxxRevisionMacro(vtkMatricizeArray, "1.1");
+vtkCxxRevisionMacro(vtkMatricizeArray, "1.2");
 vtkStandardNewMacro(vtkMatricizeArray);
 
 vtkMatricizeArray::vtkMatricizeArray() :
@@ -56,7 +56,13 @@ int vtkMatricizeArray::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(input->GetArray());
+  if(input->GetNumberOfArrays() != 1)
+    {
+    vtkErrorMacro(<< "vtkMatricizeArray requires vtkArrayData containing exactly one array as input.");
+    return 0;
+    }
+    
+  vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(input->GetArray(0));
   if(!input_array)
     {
     vtkErrorMacro(<< "vtkMatricizeArray requires a vtkSparseArray<double> as input.");
@@ -118,7 +124,8 @@ int vtkMatricizeArray::RequestData(
     }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
-  output->SetArray(output_array);
+  output->ClearArrays();
+  output->AddArray(output_array);
   output_array->Delete();
 
   return 1;

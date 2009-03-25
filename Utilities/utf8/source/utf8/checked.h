@@ -216,7 +216,7 @@ namespace vtk_utf8
                     throw invalid_utf16(static_cast<uint16_t>(*start));
             
             }
-            append(cp, result);
+            result = append(cp, result);
         }
         return result;        
     }

@@ -30,7 +30,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkMatrixColumnNorm
 
-vtkCxxRevisionMacro(vtkMatrixColumnNorm, "1.1");
+vtkCxxRevisionMacro(vtkMatrixColumnNorm, "1.2");
 vtkStandardNewMacro(vtkMatrixColumnNorm);
 
 vtkMatrixColumnNorm::vtkMatrixColumnNorm() :
@@ -69,13 +69,13 @@ int vtkMatrixColumnNorm::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+  if(input->GetNumberOfArrays() != 1)
+    {
+    vtkErrorMacro(<< "vtkMatrixColumnNorm requires vtkArrayData containing exactly one vtkArray as input.");
+    return 0;
+    }
 
-  vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
-  output->SetArray(output_array);
-  output_array->Delete();
-
-  vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input->GetArray());
+  vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input->GetArray(0));
   if(!input_array)
     {
     vtkErrorMacro(<< "vtkMatrixColumnNorm requires a vtkTypedArray<double> input array.");
@@ -86,6 +86,8 @@ int vtkMatrixColumnNorm::RequestData(
     vtkErrorMacro(<< "vtkMatrixColumnNorm requires an input matrix.");
     return 0;
     }
+
+  vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
 
   const vtkArrayExtents input_extents = input_array->GetExtents();
 
@@ -104,6 +106,11 @@ int vtkMatrixColumnNorm::RequestData(
     {
     (*output_array)[vtkArrayCoordinates(i)] = pow((*output_array)[vtkArrayCoordinates(i)], 1.0 / this->L);
     }
+
+  vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+  output->ClearArrays();
+  output->AddArray(output_array);
+  output_array->Delete();
 
   return 1;
 }

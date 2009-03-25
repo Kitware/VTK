@@ -43,7 +43,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkTableToSparseArray, "1.1");
+vtkCxxRevisionMacro(vtkTableToSparseArray, "1.2");
 vtkStandardNewMacro(vtkTableToSparseArray);
 
 // ----------------------------------------------------------------------
@@ -170,7 +170,8 @@ int vtkTableToSparseArray::RequestData(
   array->ResizeToContents();
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
-  output->SetArray(array);
+  output->ClearArrays();
+  output->AddArray(array);
   array->Delete();
 
   return 1;

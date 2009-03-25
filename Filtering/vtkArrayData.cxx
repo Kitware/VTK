@@ -25,31 +25,47 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkArrayData, "1.3");
+#include <vtksys/stl/algorithm>
+#include <vtksys/stl/vector>
+
+//
+// Standard functions
+//
+
+vtkCxxRevisionMacro(vtkArrayData, "1.4");
 vtkStandardNewMacro(vtkArrayData);
-vtkCxxSetObjectMacro(vtkArrayData, Array, vtkArray);
+
+class vtkArrayData::implementation
+{
+public:
+  vtkstd::vector<vtkArray*> Arrays;
+};
+
+//----------------------------------------------------------------------------
 
 vtkArrayData::vtkArrayData() :
-  Array(0)
+  Implementation(new implementation())
 {
 }
+
+//----------------------------------------------------------------------------
 
 vtkArrayData::~vtkArrayData()
 {
-  if(this->Array)
-    {
-    this->Array->Delete();
-    }
+  this->ClearArrays();
+  delete this->Implementation;
 }
+
+//----------------------------------------------------------------------------
 
 void vtkArrayData::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Array: " << (this->Array ? "" : "(none)") << endl;
-  if(this->Array)
+  for(unsigned int i = 0; i != this->Implementation->Arrays.size(); ++i)
     {
-    this->Array->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "Array: " << this->Implementation->Arrays[i] << endl;
+    this->Implementation->Arrays[i]->PrintSelf(os, indent.GetNextIndent());
     }
 }
 
@@ -61,5 +77,41 @@ vtkArrayData* vtkArrayData::GetData(vtkInformation* info)
 vtkArrayData* vtkArrayData::GetData(vtkInformationVector* v, int i)
 {
   return vtkArrayData::GetData(v->GetInformationObject(i));
+}
+
+void vtkArrayData::AddArray(vtkArray* array)
+{
+  if(!array)
+    {
+    vtkErrorMacro(<< "vtkArrayData::AddArray() - cannot add NULL array");
+    return;
+    }
+    
+  if(vtkstd::count(this->Implementation->Arrays.begin(), this->Implementation->Arrays.end(), array))
+    {
+    vtkErrorMacro(<< "vtkArrayData::AddArray() - cannot add array twice");
+    return;
+    }
+
+  this->Implementation->Arrays.push_back(array);
+  array->Register(0);
+}
+
+void vtkArrayData::ClearArrays()
+{
+  for(unsigned int i = 0; i != this->Implementation->Arrays.size(); ++i)
+    this->Implementation->Arrays[i]->Delete();
+
+  this->Implementation->Arrays.clear();
+}
+
+vtkIdType vtkArrayData::GetNumberOfArrays()
+{
+  return this->Implementation->Arrays.size();
+}
+
+vtkArray* vtkArrayData::GetArray(vtkIdType index)
+{
+  return this->Implementation->Arrays[index];
 }
 

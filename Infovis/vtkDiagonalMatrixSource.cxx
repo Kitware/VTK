@@ -29,7 +29,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDiagonalMatrixSource, "1.2");
+vtkCxxRevisionMacro(vtkDiagonalMatrixSource, "1.3");
 vtkStandardNewMacro(vtkDiagonalMatrixSource);
 
 // ----------------------------------------------------------------------
@@ -100,7 +100,8 @@ int vtkDiagonalMatrixSource::RequestData(
     }
     
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
-  output->SetArray(array);
+  output->ClearArrays();
+  output->AddArray(array);
   array->Delete();
 
   return 1;
