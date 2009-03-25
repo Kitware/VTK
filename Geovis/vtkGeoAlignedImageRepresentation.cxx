@@ -89,10 +89,10 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
               }
             }
           p->SetStatus(vtkGeoTreeNode::NONE);
-          if (coll)
-            {
-            coll->Delete();
-            }
+          }
+        if (coll)
+          {
+          coll->Delete();
           }
         else if(p->GetStatus() == vtkGeoTreeNode::NONE)
           {
@@ -130,7 +130,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
 }
 
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.11");
 vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
