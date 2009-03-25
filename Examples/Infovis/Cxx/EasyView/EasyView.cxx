@@ -16,9 +16,7 @@
 #include <vtkDataRepresentation.h>
 #include <vtkGraphLayoutView.h>
 #include <vtkQtColumnView.h>
-#include <vtkQtTableModelAdapter.h>
 #include <vtkQtTableView.h>
-#include <vtkQtTreeModelAdapter.h>
 #include <vtkQtTreeView.h>
 #include <vtkRenderer.h>
 #include <vtkSelection.h>

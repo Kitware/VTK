@@ -62,11 +62,10 @@ SimpleView::SimpleView()
   this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(ren);
 
   // Just a bit of Qt interest: Culling off the
-  // vertex data and handing it to a vtkQtTableView
+  // point data and handing it to a vtkQtTableView
   VTK_CREATE(vtkDataObjectToTable, toTable);
   toTable->SetInputConnection(elevation->GetOutputPort());
   toTable->SetFieldType(vtkDataObjectToTable::POINT_DATA);
-  toTable->Update();
 
   // Here we take the end of the VTK pipeline and give it to a Qt View
   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
