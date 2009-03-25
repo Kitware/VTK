@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.79");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.80");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -116,6 +116,7 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
     vtkErrorMacro("A GeometryFileName must be specified in the case file.");
     return 0;
     }
+    
   vtkstd::string sfilename;
   if (this->FilePath)
     {
@@ -137,8 +138,21 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
-  this->ReadLine(line);
-  sscanf(line, " %*s %s", subLine);
+
+  line[0] = '\0';
+  subLine[0] = '\0';    
+  if ( this->ReadLine( line ) == 0 )
+    {
+    vtkErrorMacro( "Error with line reading upon file initialization" );
+    return 0;
+    }
+    
+  if ( sscanf( line, " %*s %s", subLine ) != 1 )
+    {
+    vtkErrorMacro( "Error with subline extraction upon file initialization" );
+    return 0;
+    }
+    
   if (strncmp(subLine, "Binary", 6) != 0 &&
       strncmp(subLine, "binary", 6) != 0)
     {
