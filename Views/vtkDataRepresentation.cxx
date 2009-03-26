@@ -43,10 +43,6 @@ class vtkDataRepresentationInput : public vtkObject
 public:
   static vtkDataRepresentationInput* New();
   vtkTypeRevisionMacro(vtkDataRepresentationInput, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent)
-    {
-    this->Superclass::PrintSelf(os, indent);
-    }
 
   vtkDataRepresentationInput()
     {
@@ -79,7 +75,7 @@ public:
 protected:
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomain;
 };
-vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.7");
+vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.8");
 vtkStandardNewMacro(vtkDataRepresentationInput);
 
 //---------------------------------------------------------------------------
@@ -96,7 +92,7 @@ public:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.8");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   SelectionLinkInternal, vtkSelectionLink);
