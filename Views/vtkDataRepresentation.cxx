@@ -79,7 +79,7 @@ public:
 protected:
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomain;
 };
-vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.6");
+vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.7");
 vtkStandardNewMacro(vtkDataRepresentationInput);
 
 //---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ public:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.7");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   SelectionLinkInternal, vtkSelectionLink);
@@ -136,10 +136,15 @@ void vtkDataRepresentation::SetAnnotationLink(vtkAnnotationLink* link)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataRepresentation::GetInput(int port, int conn)
 {
-  if (port >= 0 && port < this->Implementation->Inputs.size() &&
-      conn >= 0 && conn < this->Implementation->Inputs[port].size())
+  if (port >= 0 && conn >= 0)
     {
-    return this->Implementation->Inputs[port][conn]->GetInput();
+    unsigned int uport = static_cast<unsigned int>(port);
+    unsigned int uconn = static_cast<unsigned int>(conn);
+    if (uport < this->Implementation->Inputs.size() &&
+        uconn < this->Implementation->Inputs[uport].size())
+      {
+      return this->Implementation->Inputs[uport][uconn]->GetInput();
+      }
     }
   return 0;
 }
@@ -148,10 +153,16 @@ vtkDataObject* vtkDataRepresentation::GetInput(int port, int conn)
 vtkAlgorithmOutput* vtkDataRepresentation::GetSelectionConnection(
   int port, int conn)
 {
-  if (port >= 0 && port < this->Implementation->Inputs.size() &&
-      conn >= 0 && conn < this->Implementation->Inputs[port].size())
+  if (port >= 0 && conn >= 0)
     {
-    return this->Implementation->Inputs[port][conn]->GetSelectionConnection();
+    unsigned int uport = static_cast<unsigned int>(port);
+    unsigned int uconn = static_cast<unsigned int>(conn);
+    if (uport < this->Implementation->Inputs.size() &&
+        uconn < this->Implementation->Inputs[uport].size())
+      {
+      return this->Implementation->Inputs[uport][uconn]->
+        GetSelectionConnection();
+      }
     }
   return 0;
 }
@@ -160,10 +171,15 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetSelectionConnection(
 vtkAlgorithmOutput* vtkDataRepresentation::GetAnnotationConnection(
   int port, int conn)
 {
-  if (port >= 0 && port < this->Implementation->Inputs.size() &&
-      conn >= 0 && conn < this->Implementation->Inputs[port].size())
+  if (port >= 0 && conn >= 0)
     {
-    return this->AnnotationLinkInternal->GetOutputPort();
+    unsigned int uport = static_cast<unsigned int>(port);
+    unsigned int uconn = static_cast<unsigned int>(conn);
+    if (uport < this->Implementation->Inputs.size() &&
+        uconn < this->Implementation->Inputs[uport].size())
+      {
+      return this->AnnotationLinkInternal->GetOutputPort();
+      }
     }
   return 0;
 }
