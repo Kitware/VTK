@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.10");
+vtkCxxRevisionMacro(vtkRenderView, "1.11");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -235,6 +235,7 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 //----------------------------------------------------------------------------
 void vtkRenderView::Update()
 {
+  this->Superclass::Update();
   if (this->Renderer->GetRenderWindow())
     {
     this->Renderer->ResetCameraClippingRange();
@@ -252,6 +253,12 @@ void vtkRenderView::ApplyViewTheme(vtkViewTheme* theme)
 void vtkRenderView::RepresentationSelectionChanged(
     vtkDataRepresentation* vtkNotUsed(rep),
     vtkSelection* vtkNotUsed(selection))
+{
+  this->Update();
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderView::PrepareForRendering()
 {
   this->Update();
 }

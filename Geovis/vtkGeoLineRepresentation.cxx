@@ -47,7 +47,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.7");
 vtkStandardNewMacro(vtkGeoLineRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoLineRepresentation::vtkGeoLineRepresentation()
@@ -75,7 +75,6 @@ vtkGeoLineRepresentation::vtkGeoLineRepresentation()
   this->VertexGlyphFilter->SetInputConnection(this->GeoSampleArcs->GetOutputPort());
   this->VertexMapper->SetInputConnection(this->VertexGlyphFilter->GetOutputPort());
   this->VertexActor->SetMapper(this->VertexMapper);
-  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
   this->SelectionGeometryFilter->SetInputConnection(this->ExtractSelection->GetOutputPort());
   this->SelectionAssignCoords->SetInputConnection(this->SelectionGeometryFilter->GetOutputPort());
   this->SelectionGeoSampleArcs->SetInputConnection(this->SelectionAssignCoords->GetOutputPort());
@@ -111,11 +110,12 @@ vtkGeoLineRepresentation::~vtkGeoLineRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoLineRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
+void vtkGeoLineRepresentation::SetupInputConnections()
 {
-  this->Superclass::SetInputConnection(conn);
-  this->GeometryFilter->SetInputConnection(conn);
-  this->ExtractSelection->SetInputConnection(conn);
+  this->GeometryFilter->SetInput(this->GetInput());
+  this->ExtractSelection->SetInput(this->GetInput());
+  this->ExtractSelection->SetInputConnection(1,
+    this->GetSelectionConnection());
 }
 
 //----------------------------------------------------------------------------

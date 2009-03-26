@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.16");
+vtkCxxRevisionMacro(vtkView, "1.17");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -311,6 +311,7 @@ void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
 {
   if( !this->CheckPort( port, 0 ) )
     {
+    rep->Update();
     this->SetRepresentation(port, 0, rep);
     }
   else
@@ -320,7 +321,12 @@ void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
       if( rep->AddToView( this ) )
         {
         rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-        this->AddInputConnection(port, 0, rep->GetInputConnection(), rep->GetSelectionConnection());
+        rep->Update();
+        if (rep->GetNumberOfInputPorts() > 0)
+          {
+          this->AddInputConnection(port, 0, rep->GetInputConnection(),
+                                            rep->GetSelectionConnection());
+          }
         this->AddRepresentationInternal(rep);
 
         int port_length=
@@ -363,14 +369,22 @@ void vtkView::SetRepresentation(int port, int index, vtkDataRepresentation* rep)
         {
         old_rep->RemoveFromView( this );
         old_rep->RemoveObserver(this->GetObserver());
-        this->RemoveInputConnection(port, index, old_rep->GetInputConnection(),
+        if (old_rep->GetNumberOfInputPorts() > 0)
+          {
+          this->RemoveInputConnection(port, index,
+                                      old_rep->GetInputConnection(),
                                       old_rep->GetSelectionConnection());
+          }
         this->RemoveRepresentationInternal(old_rep);
         }
       
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-      this->AddInputConnection(port, index, rep->GetInputConnection(),
-                                                rep->GetSelectionConnection());
+      rep->Update();
+      if (rep->GetNumberOfInputPorts() > 0)
+        {
+        this->AddInputConnection(port, index, rep->GetInputConnection(),
+                                              rep->GetSelectionConnection());
+        }
       this->AddRepresentationInternal(rep);
       this->SizePort(port, index);
       this->Implementation->Ports[port][index] = rep;
@@ -385,8 +399,11 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     {
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());
-    this->RemoveInputConnection(0, 0, rep->GetInputConnection(),
-                                  rep->GetSelectionConnection());
+    if (rep->GetNumberOfInputPorts() > 0)
+      {
+      this->RemoveInputConnection(0, 0, rep->GetInputConnection(),
+                                        rep->GetSelectionConnection());
+      }
     this->RemoveRepresentationInternal(rep);
     this->RemoveItem(rep);
     }
@@ -422,7 +439,8 @@ void vtkView::RemoveRepresentation(vtkAlgorithmOutput* conn)
       {
       vtkDataRepresentation* rep = this->Implementation->Ports[i][j];
       
-      if (rep->GetInputConnection() == conn)
+      if (rep->GetNumberOfInputPorts() > 0 &&
+          rep->GetInputConnection() == conn)
         {
         this->RemoveRepresentation(rep);
         }
@@ -571,6 +589,22 @@ void vtkView::UnRegisterProgress(vtkObject* algorithm)
       {
       this->Internal->RegisteredProgress.erase(iter);
       algorithm->RemoveObservers(vtkCommand::ProgressEvent, this->Observer);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkView::Update()
+{
+  unsigned int i, j;
+  for( i = 0; i < this->Implementation->Ports.size(); i++ )
+    {
+    for( j = 0; j < this->Implementation->Ports[i].size(); j++ )
+      {
+      if( this->Implementation->Ports[i][j] )
+        {
+        this->Implementation->Ports[i][j]->Update();
+        }
       }
     }
 }

@@ -31,7 +31,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkQtTableMetadataRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkQtTableMetadataRepresentation, "1.2");
 vtkStandardNewMacro(vtkQtTableMetadataRepresentation);
 
 // ----------------------------------------------------------------------
@@ -51,11 +51,9 @@ vtkQtTableMetadataRepresentation::~vtkQtTableMetadataRepresentation()
 // ----------------------------------------------------------------------
 
 void
-vtkQtTableMetadataRepresentation::SetInputConnection(vtkAlgorithmOutput *conn)
+vtkQtTableMetadataRepresentation::SetupInputConnections()
 {
-  this->Superclass::SetInputConnection(conn);
-
-  if (!conn) return;
+  this->Superclass::SetupInputConnections();
 
   // The superclass took care of creating colors for each series.
   // Since the model is populated at this point, go through and put

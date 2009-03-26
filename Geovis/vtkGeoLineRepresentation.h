@@ -53,10 +53,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Sets the input pipeline connection to this representation.
-  virtual void SetInputConnection(vtkAlgorithmOutput *conn);
-  
-  // Description:
   // The point array holding the latitude.
   virtual void SetLatitudeArrayName(const char *name);
   virtual const char* GetLatitudeArrayName();
@@ -95,6 +91,10 @@ public:
 protected:
   vtkGeoLineRepresentation();
   ~vtkGeoLineRepresentation();
+  
+  // Description:
+  // Sets the input pipeline connections for this representation.
+  virtual void SetupInputConnections();
   
   // Decription:
   // Adds the representation to the view.  This is called from

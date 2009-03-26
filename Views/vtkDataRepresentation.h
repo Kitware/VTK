@@ -47,42 +47,57 @@
 #ifndef __vtkDataRepresentation_h
 #define __vtkDataRepresentation_h
 
-#include "vtkObject.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 class vtkAlgorithmOutput;
-class vtkConvertSelectionDomain;
+class vtkAnnotationLink;
 class vtkDataObject;
 class vtkSelection;
 class vtkSelectionLink;
-class vtkTable;
 class vtkView;
+class vtkViewTheme;
 
-class VTK_VIEWS_EXPORT vtkDataRepresentation : public vtkObject
+class VTK_VIEWS_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkDataRepresentation *New();
-  vtkTypeRevisionMacro(vtkDataRepresentation, vtkObject);
+  vtkTypeRevisionMacro(vtkDataRepresentation, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Convenience override method for obtaining the input connection
+  // without specifying the port or index.
+  vtkAlgorithmOutput* GetInputConnection(int port = 0, int index = 0)
+    { return this->Superclass::GetInputConnection(port, index); }
   
   // Description:
-  // A convenience method that calls SetInputConnection on the producer's
-  // connection.
-  void SetInput(vtkDataObject* input);
-  
+  // The selection link for this representation.
+  // To link selections, set the same vtkSelectionLink object in
+  // multiple representations.
+  vtkSelectionLink* GetSelectionLink()
+    { return this->SelectionLinkInternal; }
+  void SetSelectionLink(vtkSelectionLink* link);
+
   // Description:
-  // Sets the input pipeline connection to this representation.
-  // This method should be overridden by subclasses to connect to the
-  // internal pipeline.
-  virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-  virtual vtkAlgorithmOutput* GetInputConnection()
-    { return this->GetInputConnectionInternal(); }
-  
+  // The annotation link for this representation.
+  // To link annotations, set the same vtkAnnotationLink object in
+  // multiple representations.
+  vtkAnnotationLink* GetAnnotationLink()
+    { return this->AnnotationLinkInternal; }
+  void SetAnnotationLink(vtkAnnotationLink* link);
+
   // Description:
-  // Handle a selection from a view.  Subclasses should not generally override this.
-  // This function calls ConvertSelection() to (possibly) convert the selection
-  // into something appropriate for linked representations.
-  // This function then calls UpdateSelection() with the result of the
-  // conversion.
+  // Apply a theme to this representation.
+  // Subclasses should override this method.
+  virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
+
+  // Description:
+  // The view calls this method when a selection occurs.
+  // The representation takes this selection and converts it into
+  // a selection on its data by calling ConvertSelection,
+  // then calls UpdateSelection with the converted selection.
+  // Subclasses should not overrride this method, but should instead
+  // override ConvertSelection.
   void Select(vtkView* view, vtkSelection* selection);
 
   // Description:
@@ -93,37 +108,77 @@ public:
   vtkBooleanMacro(Selectable, bool);
   
   // Description:
-  // Copies the selection into the representation's linked selection
-  // and triggers a SelectionChanged event.
+  // Updates the selection in the selection link and fires a selection
+  // change event. Subclasses should not overrride this method,
+  // but should instead override ConvertSelection.
   void UpdateSelection(vtkSelection* selection);
-  
-  // Description:
-  // The selection linking object.
-  // Set the same selection link on multiple representations to link views.
-  // Subclasses should override SetSelectionLink to additionally connect
-  // the selection link into the internal selection pipeline.
-  virtual vtkSelectionLink* GetSelectionLink()
-    { return this->GetSelectionLinkInternal(); }
-  virtual void SetSelectionLink(vtkSelectionLink* link);
 
   // Description:
   // The output port that contains the selection after it has gone through
   // the domain map. ExtractSelection filters in views/representations
   // should use this port for the selection input.
-  vtkAlgorithmOutput* GetSelectionConnection();
-  
+  virtual vtkAlgorithmOutput* GetSelectionConnection(
+    int port = 0, int conn = 0);
+
+  // Description:
+  // The output port that contains the annotations for this representation.
+  virtual vtkAlgorithmOutput* GetAnnotationConnection(
+    int port = 0, int conn = 0);
+
+  // Description:
+  // Retrieves the input data object at the specified port
+  // and connection index. This may be connected to the representation's
+  // internal pipeline.
+  virtual vtkDataObject* GetInput(int port = 0, int conn = 0);
+ 
 protected:
   vtkDataRepresentation();
   ~vtkDataRepresentation();
   
-  // Decription:
+  // Description:
+  // Creates shallow copies of all inputs, which are available to subclasses
+  // through GetInput(), then calls SetupInputConnections() on the subclass.
+  virtual int RequestData(
+    vtkInformation*,
+    vtkInformationVector**,
+    vtkInformationVector*);
+
+  // Description:
+  // The linked selection.
+  virtual void SetSelectionLinkInternal(vtkSelectionLink* link);
+  vtkSelectionLink* SelectionLinkInternal;
+
+  // Description:
+  // The annotation link for this representation.
+  virtual void SetAnnotationLinkInternal(vtkAnnotationLink* link);
+  vtkAnnotationLink* AnnotationLinkInternal;
+
+  // Whether is represenation can handle a selection.
+  bool Selectable;
+
+  //BTX
+  friend class vtkView;
+  friend class vtkRenderView;
+  //ETX
+
+  // ------------------------------------------------------------------------
+  // Methods to override in subclasses
+  // ------------------------------------------------------------------------
+
+  // Description:
+  virtual void SetInputConnectionInternal(vtkAlgorithmOutput* vtkNotUsed(conn))
+    { }
+
+  // Description:
   // Adds the representation to the view.  This is called from
   // vtkView::AddRepresentation().  Subclasses should override this method.
+  // Returns true if the addition succeeds.
   virtual bool AddToView(vtkView* vtkNotUsed(view)) { return true; }
   
-  // Decription:
+  // Description:
   // Removes the representation to the view.  This is called from
   // vtkView::RemoveRepresentation().  Subclasses should override this method.
+  // Returns true if the removal succeeds.
   virtual bool RemoveFromView(vtkView* vtkNotUsed(view)) { return true; }
   
   // Description:
@@ -134,30 +189,21 @@ protected:
   // from a frustrum to a list of pedigree ids.  If the selection cannot
   // be applied to this representation, return NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
-  
-  // The input connection.
-  vtkGetObjectMacro(InputConnectionInternal, vtkAlgorithmOutput);
-  void SetInputConnectionInternal(vtkAlgorithmOutput* conn);
-  vtkAlgorithmOutput* InputConnectionInternal;
-  
-  // The linked selection.
-  vtkGetObjectMacro(SelectionLinkInternal, vtkSelectionLink);
-  void SetSelectionLinkInternal(vtkSelectionLink* link);
-  vtkSelectionLink* SelectionLinkInternal;
 
-  // The filter used to map the selection to the appropriate domain.
-  vtkConvertSelectionDomain* ConvertDomain;
-
-  // Whether is represenation can handle a selection.
-  bool Selectable;
-
-  //BTX
-  friend class vtkView;
-  //ETX
+  // Description:
+  // Subclasses should override this method, calling GetInput(),
+  // GetSelectionConnection(), and GetAnnotationConnection() in order
+  // to use possibly new input data objects.
+  virtual void SetupInputConnections() { }
 
 private:
   vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.
   void operator=(const vtkDataRepresentation&);  // Not implemented.
+
+  //BTX
+  class Internals;
+  Internals* Implementation;
+  //ETX
 };
 
 #endif

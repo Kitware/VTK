@@ -130,7 +130,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
 }
 
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.12");
 vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
@@ -138,6 +138,7 @@ vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
   this->GeoSource = 0;
   this->Root = vtkGeoImageNode::New();
   this->Cache = vtkGeoTreeNodeCache::New();
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------

@@ -44,6 +44,11 @@
 // vtkQtTableDataRepresentation or vtkQtTableMetadataRepresentation
 // instead.
 //
+// .SECTION Caveats
+//
+// Call SetInputConnection with a table connection
+// BEFORE the representation is added to a view or strange things
+// may happen, including segfaults.
 
 #ifndef __vtkQtTableRepresentation_h
 #define __vtkQtTableRepresentation_h
@@ -62,12 +67,6 @@ class QVTK_EXPORT vtkQtTableRepresentation : public vtkDataRepresentation
 public:
   vtkTypeRevisionMacro(vtkQtTableRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream &os, vtkIndent indent);
-
-  // Description:
-  // Hand in a connection to a vtkTable.  NOTE: This must be called
-  // BEFORE the representation is added to a view or strange things
-  // may happen, including segfaults.
-  virtual void SetInputConnection(vtkAlgorithmOutput *conn);
 
   // Description:
   // Set/get the lookup table that will be used to determine colors
@@ -114,6 +113,10 @@ protected:
   char *KeyColumnInternal;
   char *FirstDataColumn;
   char *LastDataColumn;
+
+  // Description:
+  // Setup the input connections to this representation.
+  virtual void SetupInputConnections();
 
   virtual void ResetModel();
   virtual void CreateSeriesColors();

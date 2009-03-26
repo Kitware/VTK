@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.3");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -81,17 +81,8 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
 // ----------------------------------------------------------------------
 
 void
-vtkQtTableRepresentation::SetInputConnection(vtkAlgorithmOutput *conn)
+vtkQtTableRepresentation::SetupInputConnections()
 {
-  if (conn == this->GetInputConnection())
-    {
-    return;
-    }
-
-  // Grab a reference to the connection so that VTK's garbage
-  // collection will work
-  this->Superclass::SetInputConnection(conn);
-
   this->Update();
 }
 
@@ -116,23 +107,19 @@ vtkQtTableRepresentation::SetKeyColumn(const char *col)
 void
 vtkQtTableRepresentation::Update()
 {
+  this->Superclass::Update();
+
   this->ResetModel();
 
-  vtkAlgorithmOutput *conn = this->GetInputConnection();
-  if (conn == NULL)
+  if (!this->GetInput())
     {
     return;
     }
 
-  // Is there a usable vtkTable in there?
-  vtkAlgorithm *algorithm = conn->GetProducer();
-  algorithm->Update();
-  vtkDataObject *obj = algorithm->GetOutputDataObject(conn->GetIndex());
-  vtkTable *table = vtkTable::SafeDownCast(obj);
-  
+  vtkTable *table = vtkTable::SafeDownCast(this->GetInput());
   if (!table)
     {
-    vtkErrorMacro(<<"vtkQtTableRepresentation: I need a vtkTable as input.  You supplied a " << obj->GetClassName() << ".");
+    vtkErrorMacro(<<"vtkQtTableRepresentation: I need a vtkTable as input.  You supplied a " << this->GetInput()->GetClassName() << ".");
     return;
     }
 

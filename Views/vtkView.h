@@ -218,7 +218,7 @@ public:
 
   // Description:
   // Update the view.
-  virtual void Update() { }
+  virtual void Update();
   
   // Description:
   // Apply a theme to the view.

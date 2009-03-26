@@ -66,10 +66,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Sets the input pipeline connection to this representation.
-  virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-
-  // Description:
   // The array to use for vertex labeling.  Default is "label".
   virtual void SetVertexLabelArrayName(const char* name);
   virtual const char* GetVertexLabelArrayName();
@@ -175,6 +171,10 @@ protected:
   // we are already using the same array.
   vtkSetStringMacro(LabelArrayName);
   vtkGetStringMacro(LabelArrayName);
+
+  // Description:
+  // Sets the input pipeline connections for this representation.
+  virtual void SetupInputConnections();
 
   // Decription:
   // Adds the representation to the view.  This is called from

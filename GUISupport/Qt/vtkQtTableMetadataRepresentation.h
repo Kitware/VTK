@@ -47,15 +47,13 @@ public:
   static vtkQtTableMetadataRepresentation *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Hand in a connection to a vtkTable.  NOTE: This must be called
-  // BEFORE the representation is added to a view or strange things
-  // may happen, including segfaults.
-  virtual void SetInputConnection(vtkAlgorithmOutput *conn);
-
 protected:
   vtkQtTableMetadataRepresentation();
   ~vtkQtTableMetadataRepresentation();
+
+  // Description:
+  // Setup input connections to the view.
+  virtual void SetupInputConnections();
 
   // Description:
   // Add this representation to the view.  That view needs to be a

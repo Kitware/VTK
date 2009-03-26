@@ -91,7 +91,7 @@ protected:
   
   // Description:
   // Called by the view when the renderer is about to render.
-  virtual void PrepareForRendering() { }
+  virtual void PrepareForRendering();
   
   // Description:
   // Called when a representation's selection changed.

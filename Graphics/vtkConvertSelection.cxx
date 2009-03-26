@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.23");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.24");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -1023,6 +1023,10 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   vtkStringArray* arrayNames)
 {
   VTK_CREATE(vtkConvertSelection, convert);
+  vtkDataObject* dataCopy = data->NewInstance();
+  dataCopy->ShallowCopy(data);
+  vtkSelection* inputCopy = vtkSelection::New();
+  inputCopy->ShallowCopy(input);
   convert->SetInput(0, input);
   convert->SetInput(1, data);
   convert->SetOutputType(type);
@@ -1030,6 +1034,8 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   convert->Update();
   vtkSelection* output = convert->GetOutput();
   output->Register(0);
+  dataCopy->Delete();
+  inputCopy->Delete();
   return output;
 }
 

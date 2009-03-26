@@ -66,7 +66,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.20");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.21");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -98,7 +98,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->GraphMapper->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->GraphActor->SetMapper(this->GraphMapper);
   this->ExtractSelection->SetInputConnection(0, this->EdgeLayout->GetOutputPort());
-  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
   this->SelectionMapper->SetInputConnection(this->ExtractSelection->GetOutputPort());
   this->SelectionActor->SetMapper(this->SelectionMapper);
 
@@ -175,10 +174,11 @@ vtkGeoGraphRepresentation::~vtkGeoGraphRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoGraphRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
+void vtkGeoGraphRepresentation::SetupInputConnections()
 {
-  this->Superclass::SetInputConnection(conn);
-  this->AssignCoordinates->SetInputConnection(conn);
+  this->AssignCoordinates->SetInput(this->GetInput());
+  this->ExtractSelection->SetInputConnection(1,
+    this->GetSelectionConnection());
 }
 
 //----------------------------------------------------------------------------

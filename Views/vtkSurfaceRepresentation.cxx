@@ -40,7 +40,7 @@
 #include "vtkSelectionLink.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.8");
 vtkStandardNewMacro(vtkSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkSurfaceRepresentation::vtkSurfaceRepresentation()
@@ -81,11 +81,11 @@ vtkSurfaceRepresentation::~vtkSurfaceRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
+void vtkSurfaceRepresentation::SetupInputConnections()
 {
-  this->Superclass::SetInputConnection(conn);
-  this->GeometryFilter->SetInputConnection(conn);
-  this->ExtractSelection->SetInputConnection(conn);
+  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
+  this->GeometryFilter->SetInput(this->GetInput());
+  this->ExtractSelection->SetInput(this->GetInput());
 }
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,8 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
     vtkSmartPointer<vtkSelection>::New();
 
   // Extract the selection for the right prop
-  if (selection->GetNumberOfNodes() > 1)
+  if (selection->GetNumberOfNodes() > 0 &&
+      selection->GetNode(0)->GetProperties()->Get(vtkSelectionNode::PROP()))
     {
     for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
       {
@@ -133,7 +134,12 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
         node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (prop == this->Actor)
         {
-        propSelection->AddNode(node);
+        // Remove the prop to avoid a reference loop
+        vtkSmartPointer<vtkSelectionNode> nodeCopy =
+          vtkSmartPointer<vtkSelectionNode>::New();
+        nodeCopy->ShallowCopy(node);
+        nodeCopy->GetProperties()->Remove(vtkSelectionNode::PROP());
+        propSelection->AddNode(nodeCopy);
         }
       }
     }
@@ -152,12 +158,9 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
   node->SetSelectionList(empty);
   converted->AddNode(node);
   // Convert to the correct type of selection
-  if (this->GetInputConnection())
+  if (this->GetInput())
     {
-    vtkAlgorithm* producer = this->GetInputConnection()->GetProducer();
-    producer->Update();
-    vtkDataObject* obj = producer->GetOutputDataObject(
-      this->GetInputConnection()->GetIndex());
+    vtkDataObject* obj = this->GetInput();
     if (obj)
       {
       vtkSelection* index = vtkConvertSelection::ToSelectionType(

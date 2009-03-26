@@ -46,10 +46,6 @@ public:
   vtkTypeRevisionMacro(vtkSurfaceRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Sets the input pipeline connection to this representation.
-  virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-  
 protected:
   vtkSurfaceRepresentation();
   ~vtkSurfaceRepresentation();
@@ -69,6 +65,10 @@ protected:
   // representations through vtkSelectionLink.
   // If the selection cannot be applied to this representation, returns NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
+  
+  // Description:
+  // Sets the input pipeline connection to this representation.
+  virtual void SetupInputConnections();
   
   // Description:
   // Internal pipeline objects.

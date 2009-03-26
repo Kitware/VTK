@@ -64,10 +64,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Sets the input pipeGraph connection to this representation.
-  virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-
-  // Description:
   // The array to use for vertex labeling.  Default is "label".
   virtual void SetVertexLabelArrayName(const char* name);
   virtual const char* GetVertexLabelArrayName();
@@ -163,6 +159,10 @@ public:
 protected:
   vtkGeoGraphRepresentation2D();
   ~vtkGeoGraphRepresentation2D();
+
+  // Description:
+  // Sets the input connections for this representation.
+  virtual void SetupInputConnections();
 
   // Decription:
   // Adds the representation to the view.  This is called from
