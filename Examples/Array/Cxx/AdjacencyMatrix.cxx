@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
   source->Update();
 
   cout << "adjacency matrix:\n";
-  vtkPrintMatrixFormat(cout, vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray()));
+  vtkPrintMatrixFormat(cout, vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
   cout << "\n";
 
   vtkSmartPointer<vtkAdjacencyMatrixToEdgeTable> edges = vtkSmartPointer<vtkAdjacencyMatrixToEdgeTable>::New();
