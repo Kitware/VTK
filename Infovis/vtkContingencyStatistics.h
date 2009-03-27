@@ -68,11 +68,13 @@ public:
 //ETX
 
   // Description:
-  // Set/get whether the pointwise mutual information should be reported.
+  // Get whether the pointwise mutual information must be computed.
+  vtkGetMacro( CalculatePointwiseInformation, bool );
+
+  // Description:
+  // Set whether the pointwise mutual information must be computed.
   // The default is that pointwise mutual informations deviations will be computed.
-  vtkSetMacro(CalculatePointwiseInformation,int);
-  vtkGetMacro(CalculatePointwiseInformation,int);
-  vtkBooleanMacro(CalculatePointwiseInformation,int);
+  vtkSetMacro( CalculatePointwiseInformation, bool );
 
 protected:
   vtkContingencyStatistics();
