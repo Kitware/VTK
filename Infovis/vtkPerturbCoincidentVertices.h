@@ -50,10 +50,6 @@ protected:
     vtkInformationVector**, 
     vtkInformationVector*);
 
-//BTX
-  vtkSmartPointer<vtkCoincidentPoints> CoincidentPoints;
-//ETX
-
 private:
 
   // This class might have more than one method of coincident resolution
