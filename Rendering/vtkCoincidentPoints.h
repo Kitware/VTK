@@ -66,9 +66,13 @@ public:
   // no coincident points (only a single point Id).
   void RemoveNonCoincidentPoints();
 
+  // Description
+  // Clear the maps for reuse. This should be called if the caller 
+  // might reuse this class (another executive pass for instance).
+  void Clear();
+
   //BTX
   class implementation;
-
   implementation * GetImplementation() { return this->Implementation; }
   //ETX
 

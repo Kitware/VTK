@@ -34,7 +34,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.6");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.7");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -48,17 +48,11 @@ vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices()
 }
 
 //----------------------------------------------------------------------------
-int vtkPerturbCoincidentVertices::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
-  vtkInformationVector* outputVector)
+void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph *output)
 {
-  vtkGraph* input = vtkGraph::GetData(inputVector[0]);
-  vtkGraph* output = vtkGraph::GetData(outputVector);
 
   output->DeepCopy(input);
-  output->GetFieldData()->DeepCopy(input->GetFieldData());
-  
+
   vtkPoints* points = output->GetPoints();
   int numPoints = points->GetNumberOfPoints();
 
@@ -70,6 +64,7 @@ int vtkPerturbCoincidentVertices::RequestData(
   double vertEdge1[3], vertEdge2[3], boundingDims[3];
   int numCoincidentPoints = 0, i = 0, j = 0;
 
+  this->CoincidentPoints->Clear();
   for(i = 0; i < numPoints; ++i)
     {
     this->CoincidentPoints->AddPoint(i, points->GetPoint(i));
@@ -182,8 +177,23 @@ int vtkPerturbCoincidentVertices::RequestData(
       }
     coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkPerturbCoincidentVertices::RequestData(
+  vtkInformation* vtkNotUsed(request), 
+  vtkInformationVector** inputVector, 
+  vtkInformationVector* outputVector)
+{
+  vtkGraph* input = vtkGraph::GetData(inputVector[0]);
+  vtkGraph* output = vtkGraph::GetData(outputVector);
+
+  this->SpiralPerturbation(input, output);
+
   return 1;
 }
+
+
 
 //----------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::PrintSelf(ostream& os, vtkIndent indent)

@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPerturbCoincidentVertices - remove vertices of a vtkGraph with 
-//    degree zero.
+// .NAME vtkPerturbCoincidentVertices - Perturbs vertices that are coincident.
 //
 // .SECTION Description
+// This filter perturbs vertices in a graph that have coincident coordinates.
+// In particular this happens all the time with graphs that are georeferenced,
+// so we need a nice scheme to perturb the vertices so that when the user
+// zooms in the vertices can be distiquished.
 
 #ifndef __vtkPerturbCoincidentVertices_h
 #define __vtkPerturbCoincidentVertices_h
@@ -38,7 +41,6 @@ public:
   vtkTypeRevisionMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkPerturbCoincidentVertices();
   ~vtkPerturbCoincidentVertices();
@@ -48,12 +50,17 @@ protected:
     vtkInformationVector**, 
     vtkInformationVector*);
 
+//BTX
   vtkSmartPointer<vtkCoincidentPoints> CoincidentPoints;
-  
+//ETX
+
 private:
+
+  // This class might have more than one method of coincident resolution
+  void SpiralPerturbation(vtkGraph *input, vtkGraph *output);
+
   vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&); // Not implemented
   void operator=(const vtkPerturbCoincidentVertices&);   // Not implemented
-//ETX
 };
 
 #endif

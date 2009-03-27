@@ -99,7 +99,7 @@ public:
 // vtkCoincidentPoints
 
 vtkStandardNewMacro(vtkCoincidentPoints);
-vtkCxxRevisionMacro(vtkCoincidentPoints,"1.1");
+vtkCxxRevisionMacro(vtkCoincidentPoints,"1.2");
 
 vtkCoincidentPoints::vtkCoincidentPoints()
 {
@@ -110,6 +110,12 @@ vtkCoincidentPoints::vtkCoincidentPoints()
 vtkCoincidentPoints::~vtkCoincidentPoints()
 {
   delete this->Implementation;
+}
+
+void vtkCoincidentPoints::Clear()
+{
+ this->Implementation->CoordMap.clear();
+ this->Implementation->CoincidenceMap.clear();
 }
 
 void vtkCoincidentPoints::PrintSelf( ostream& os, vtkIndent indent )
