@@ -123,7 +123,8 @@ namespace internal
         }
 
         // Do we have enough memory?     
-        if (vtkstd::distance(it, end) < length)
+//        if (vtkstd::distance(it, end) < length)
+        if (end - it < length)
             return NOT_ENOUGH_ROOM;
         
         // Check trail octets and calculate the code point
