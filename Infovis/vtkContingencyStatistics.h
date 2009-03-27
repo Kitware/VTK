@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkBivariateStatisticsAlgorithm.h"
 
+class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 
@@ -60,11 +61,18 @@ public:
   // Provide the appropriate assessment functor.
   // This one is the one that is actually used.
   virtual void SelectAssessFunctor( vtkTable* outData,
-                                    vtkTable* contingencyTab,
+                                    vtkMultiBlockDataSet* inMeta,
                                     vtkIdType pairKey,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
 //ETX
+
+  // Description:
+  // Set/get whether the pointwise mutual information should be reported.
+  // The default is that pointwise mutual informations deviations will be computed.
+  vtkSetMacro(CalculatePointwiseInformation,int);
+  vtkGetMacro(CalculatePointwiseInformation,int);
+  vtkBooleanMacro(CalculatePointwiseInformation,int);
 
 protected:
   vtkContingencyStatistics();
@@ -91,6 +99,8 @@ protected:
                               vtkDataObject* inMeta,
                               vtkTable* outData,
                               vtkDataObject* outMeta ); 
+
+  bool CalculatePointwiseInformation;
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented

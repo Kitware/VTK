@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.39");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.40");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -51,13 +51,15 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 0, "P" );
   this->AssessNames->SetValue( 1, "Py|x" );
   this->AssessNames->SetValue( 2, "Px|y" );
-  this->AssessNames->SetValue( 3, "SI(x,y)" );
+  this->AssessNames->SetValue( 3, "SI" );
 
   this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 3 );
   this->AssessParameters->SetValue( 0, "P" );
   this->AssessParameters->SetValue( 1, "Py|x" );
   this->AssessParameters->SetValue( 2, "Px|y" );
+
+  this->CalculatePointwiseInformation = true;
 }
 
 // ----------------------------------------------------------------------
@@ -70,7 +72,8 @@ vtkContingencyStatistics::~vtkContingencyStatistics()
 void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
- }
+  os << indent << "CalculatePointwiseInformation: " << this->CalculatePointwiseInformation << endl;
+}
 
 // ----------------------------------------------------------------------
 int vtkContingencyStatistics::FillInputPortInformation( int port, vtkInformation* info )
@@ -479,7 +482,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
         }
 
       // Add marginal PDF block
-      inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), sit->first.c_str() );
+      inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), sit->first.c_str() );
       inMeta->SetBlock( nBlocks, marginalTab );
 
       marginalTab->Delete();
@@ -659,19 +662,6 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  vtkTable* contingencyTab;
-  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
-       || contingencyTab->GetNumberOfColumns() < 7 )
-    {
-    return;
-    }
-
-  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  if ( nRowCont <= 0 )
-    {
-    return;
-    }
-
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
@@ -747,7 +737,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     // Select assess functor
     AssessFunctor* dfunc;
     this->SelectAssessFunctor( outData,
-                               contingencyTab,
+                               inMeta,
                                pairKey,
                                varNames,
                                dfunc );
@@ -797,11 +787,18 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed( outDat
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
-                                                    vtkTable* contingencyTab,
+                                                    vtkMultiBlockDataSet* inMeta,
                                                     vtkIdType pairKey,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
+  vtkTable* contingencyTab;
+  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
+       || contingencyTab->GetNumberOfColumns() < 7 )
+    {
+    return;
+    }
+
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   if ( nRowCont <= 0 )
     {
@@ -839,6 +836,8 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
 
   // PDFs
   vtkstd::map<vtkStdString,PDF> pdf[3];
+  PDF pdfX;
+  PDF pdfY;
 
   // Joint CDF 
   double cdf = 0.;
@@ -846,6 +845,8 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   // Loop over parameters table until the requested variables are found 
   vtkStdString x, y;
   vtkIdType key;
+  double v;
+  bool infos = this->GetCalculatePointwiseInformation();
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
     // Find the pair of variables to which the key corresponds
@@ -861,11 +862,17 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
 
     for ( int p = 0; p < np; ++ p )
       {
-      pdf[p][x][y] = para[p]->GetValue( r );
+      v = para[p]->GetValue( r );
+      pdf[p][x][y] += v;
 
       if ( ! p )
         {
-        cdf += pdf[p][x][y];
+        cdf += v;
+        if ( infos )
+          {
+          pdfX[x] += v; 
+          pdfY[y] += v; 
+          }
         }
       }
     } // for ( int r = 1; r < nRowCont; ++ r )
@@ -882,9 +889,22 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  dfunc = new BivariateContingenciesFunctor( valsX,
-                                             valsY,
-                                             pdf[0],
-                                             pdf[1],
-                                             pdf[2] );
+  if ( infos )
+    {
+    dfunc = new BivariateContingenciesAndInformationFunctor( valsX,
+                                                             valsY,
+                                                             pdfX,
+                                                             pdfY,
+                                                             pdf[0],
+                                                             pdf[1],
+                                                             pdf[2] );
+    }
+  else
+    {
+    dfunc = new BivariateContingenciesFunctor( valsX,
+                                               valsY,
+                                               pdf[0],
+                                               pdf[1],
+                                               pdf[2] );
+    }
 }
