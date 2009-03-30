@@ -80,15 +80,16 @@ void vtkQtChartSeriesSelectionHandlerInternal::setLast(const QString &mode,
       selection.getType() == vtkQtChartSeriesSelection::SeriesSelection)
     {
     const vtkQtChartIndexRangeList &series = selection.getSeries();
-    this->LastSeries = series[0].first;
+    this->LastSeries = series.getFirst()->getFirst();
     this->LastPoint = -1;
     }
   else if(mode == this->PointMode &&
       selection.getType() == vtkQtChartSeriesSelection::PointSelection)
     {
-    const QList<vtkQtChartSeriesSelectionItem> &points = selection.getPoints();
-    this->LastSeries = points[0].Series;
-    this->LastPoint = points[0].Points[0].first;
+    QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+        selection.getPoints().begin();
+    this->LastSeries = iter.key();
+    this->LastPoint = iter->getFirst()->getFirst();
     }
   else
     {
@@ -104,10 +105,10 @@ void vtkQtChartSeriesSelectionHandlerInternal::getRange(const QString &mode,
       selection.getType() == vtkQtChartSeriesSelection::SeriesSelection)
     {
     vtkQtChartIndexRangeList series = selection.getSeries();
-    int next = series[0].first;
+    int next = series.getFirst()->getFirst();
     if(this->LastSeries != -1)
       {
-      selection.setSeries(vtkQtChartIndexRange(this->LastSeries, next));
+      selection.setSeries(this->LastSeries, next);
       }
     else
       {
@@ -118,16 +119,14 @@ void vtkQtChartSeriesSelectionHandlerInternal::getRange(const QString &mode,
   else if(mode == this->PointMode &&
       selection.getType() == vtkQtChartSeriesSelection::PointSelection)
     {
-    QList<vtkQtChartSeriesSelectionItem> points = selection.getPoints();
-    int nextSeries = points[0].Series;
-    int nextPoint = points[0].Points[0].first;
+    QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+        selection.getPoints().begin();
+    int nextSeries = iter.key();
+    int nextPoint = iter->getFirst()->getFirst();
     if(this->LastSeries == nextSeries && this->LastPoint != -1)
       {
-      points.clear();
-      points.append(vtkQtChartSeriesSelectionItem(nextSeries));
-      points[0].Points.append(
-          vtkQtChartIndexRange(this->LastPoint, nextPoint));
-      selection.setPoints(points);
+      selection.setPoints(nextSeries,
+          vtkQtChartIndexRangeList(this->LastPoint, nextPoint));
       }
     else
       {
@@ -314,28 +313,26 @@ void vtkQtChartSeriesSelectionHandler::mouseMoveEvent(const QString &mode,
     vtkQtChartSeriesSelectionModel *model = this->Layer->getSelectionModel();
     if(modifiers & Qt::ControlModifier)
       {
-      // Use a temporary selection to find the difference between the
-      // new selection and the previous one.
-      vtkQtChartSeriesSelection temp = this->Internal->Selection;
-      if(temp.isEmpty())
+      if(this->Internal->Selection.isEmpty())
         {
-        temp = selection;
+        model->xorSelection(selection);
         }
-      else if(!selection.isEmpty())
+      else
         {
-        if(temp.getType() == vtkQtChartSeriesSelection::SeriesSelection)
+        // Find the difference between the new selection and the
+        // previous one.
+        if(this->Internal->Selection.getType() ==
+            vtkQtChartSeriesSelection::SeriesSelection)
           {
-          temp.xorSeries(selection.getSeries());
+          this->Internal->Selection.xorSeries(selection.getSeries());
           }
-        else if(temp.getType() == vtkQtChartSeriesSelection::PointSelection)
+        else if(this->Internal->Selection.getType() ==
+            vtkQtChartSeriesSelection::PointSelection)
           {
-          temp.xorPoints(selection.getPoints());
+          this->Internal->Selection.xorPoints(selection.getPoints());
           }
-        }
 
-      if(!temp.isEmpty())
-        {
-        model->xorSelection(temp);
+        model->xorSelection(this->Internal->Selection);
         }
       }
     else if(modifiers & Qt::ShiftModifier)

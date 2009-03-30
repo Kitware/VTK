@@ -28,61 +28,75 @@
 
 #include "vtkQtChartSeriesSelection.h"
 
+#include <QList>
+
+
+class vtkQtChartSeriesSelectionInternal
+{
+public:
+  vtkQtChartSeriesSelectionInternal();
+  vtkQtChartSeriesSelectionInternal(const vtkQtChartIndexRangeList &series,
+      const QMap<int, vtkQtChartIndexRangeList> &points);
+  ~vtkQtChartSeriesSelectionInternal() {}
+
+  vtkQtChartIndexRangeList Series;
+  QMap<int, vtkQtChartIndexRangeList> Points;
+};
+
 
 //-----------------------------------------------------------------------------
-vtkQtChartSeriesSelectionItem::vtkQtChartSeriesSelectionItem()
-  : Points()
+vtkQtChartSeriesSelectionInternal::vtkQtChartSeriesSelectionInternal()
+  : Series(), Points()
 {
-  this->Series = -1;
 }
 
-vtkQtChartSeriesSelectionItem::vtkQtChartSeriesSelectionItem(int series)
-  : Points()
+vtkQtChartSeriesSelectionInternal::vtkQtChartSeriesSelectionInternal(
+    const vtkQtChartIndexRangeList &series,
+    const QMap<int, vtkQtChartIndexRangeList> &points)
+  : Series(series), Points(points)
 {
-  this->Series = series;
-}
-
-vtkQtChartSeriesSelectionItem::vtkQtChartSeriesSelectionItem(
-    const vtkQtChartSeriesSelectionItem &other)
-  : Points(other.Points)
-{
-  this->Series = other.Series;
-}
-
-vtkQtChartSeriesSelectionItem &vtkQtChartSeriesSelectionItem::operator=(
-    const vtkQtChartSeriesSelectionItem &other)
-{
-  this->Series = other.Series;
-  this->Points = other.Points;
-  return *this;
 }
 
 
 //-----------------------------------------------------------------------------
 vtkQtChartSeriesSelection::vtkQtChartSeriesSelection()
-  : Series(), Points()
 {
+  this->Internal = new vtkQtChartSeriesSelectionInternal();
 }
 
 vtkQtChartSeriesSelection::vtkQtChartSeriesSelection(
     const vtkQtChartSeriesSelection &other)
-  : Series(other.Series), Points(other.Points)
 {
+  this->Internal = new vtkQtChartSeriesSelectionInternal(
+      other.Internal->Series, other.Internal->Points);
+}
+
+vtkQtChartSeriesSelection::~vtkQtChartSeriesSelection()
+{
+  delete this->Internal;
+}
+
+vtkQtChartSeriesSelection &vtkQtChartSeriesSelection::operator=(
+    const vtkQtChartSeriesSelection &other)
+{
+  this->Internal->Series = other.Internal->Series;
+  this->Internal->Points = other.Internal->Points;
+  return *this;
 }
 
 bool vtkQtChartSeriesSelection::isEmpty() const
 {
-  return this->Series.isEmpty() && this->Points.isEmpty();
+  return this->Internal->Series.isEmpty() && this->Internal->Points.isEmpty();
 }
 
 vtkQtChartSeriesSelection::SelectionType
 vtkQtChartSeriesSelection::getType() const
 {
-  if(this->Series.size() > 0)
+  if(!this->Internal->Series.isEmpty())
     {
     return vtkQtChartSeriesSelection::SeriesSelection;
     }
-  else if(this->Points.size() > 0)
+  else if(!this->Internal->Points.isEmpty())
     {
     return vtkQtChartSeriesSelection::PointSelection;
     }
@@ -92,22 +106,23 @@ vtkQtChartSeriesSelection::getType() const
 
 bool vtkQtChartSeriesSelection::clear()
 {
-  bool changed = this->Series.size() > 0 || this->Points.size() > 0;
-  this->Series.clear();
-  this->Points.clear();
+  bool changed = !this->Internal->Series.isEmpty() ||
+      !this->Internal->Points.isEmpty();
+  this->Internal->Series.clear();
+  this->Internal->Points.clear();
   return changed;
 }
 
 const vtkQtChartIndexRangeList &vtkQtChartSeriesSelection::getSeries() const
 {
-  return this->Series;
+  return this->Internal->Series;
 }
 
 bool vtkQtChartSeriesSelection::setSeries(
     const vtkQtChartIndexRangeList &series)
 {
   bool changed = this->clear();
-  if(this->addSeries(series))
+  if(this->Internal->Series.setRanges(series))
     {
     changed = true;
     }
@@ -115,10 +130,10 @@ bool vtkQtChartSeriesSelection::setSeries(
   return changed;
 }
 
-bool vtkQtChartSeriesSelection::setSeries(const vtkQtChartIndexRange &series)
+bool vtkQtChartSeriesSelection::setSeries(int first, int second)
 {
   bool changed = this->clear();
-  if(this->addSeries(series))
+  if(this->Internal->Series.setRange(first, second))
     {
     changed = true;
     }
@@ -129,83 +144,81 @@ bool vtkQtChartSeriesSelection::setSeries(const vtkQtChartIndexRange &series)
 bool vtkQtChartSeriesSelection::addSeries(
     const vtkQtChartIndexRangeList &series)
 {
-  if(this->Points.isEmpty())
+  if(this->Internal->Points.isEmpty())
     {
-    return this->addRanges(series, this->Series);
+    return this->Internal->Series.addRanges(series);
     }
 
   return false;
 }
 
-bool vtkQtChartSeriesSelection::addSeries(const vtkQtChartIndexRange &series)
+bool vtkQtChartSeriesSelection::addSeries(int first, int last)
 {
-  vtkQtChartIndexRangeList list;
-  list.append(series);
-  return this->addSeries(list);
+  if(this->Internal->Points.isEmpty())
+    {
+    return this->Internal->Series.addRange(first, last);
+    }
+
+  return false;
 }
 
 bool vtkQtChartSeriesSelection::subtractSeries(
     const vtkQtChartIndexRangeList &series)
 {
-  if(this->Points.isEmpty())
+  if(this->Internal->Points.isEmpty())
     {
-    return this->subtractRanges(series, this->Series);
+    return this->Internal->Series.subtractRanges(series);
     }
 
   return false;
 }
 
-bool vtkQtChartSeriesSelection::subtractSeries(
-    const vtkQtChartIndexRange &series)
+bool vtkQtChartSeriesSelection::subtractSeries(int first, int last)
 {
-  vtkQtChartIndexRangeList list;
-  list.append(series);
-  return this->subtractSeries(list);
+  if(this->Internal->Points.isEmpty())
+    {
+    return this->Internal->Series.subtractRange(first, last);
+    }
+
+  return false;
 }
 
 bool vtkQtChartSeriesSelection::xorSeries(
     const vtkQtChartIndexRangeList &series)
 {
-  if(this->Points.isEmpty() && !series.isEmpty())
+  if(this->Internal->Points.isEmpty())
     {
-    if(this->Series.isEmpty())
-      {
-      return this->addRanges(series, this->Series);
-      }
-    else
-      {
-      vtkQtChartIndexRangeList temp = series;
-      this->subtractRanges(this->Series, temp);
-      this->subtractRanges(series, this->Series);
-      this->addRanges(temp, this->Series);
-      return true;
-      }
+    return this->Internal->Series.xorRanges(series);
     }
 
   return false;
 }
 
-bool vtkQtChartSeriesSelection::xorSeries(const vtkQtChartIndexRange &series)
+bool vtkQtChartSeriesSelection::xorSeries(int first, int last)
 {
-  vtkQtChartIndexRangeList list;
-  list.append(series);
-  return this->xorSeries(list);
+  if(this->Internal->Points.isEmpty())
+    {
+    return this->Internal->Series.xorRange(first, last);
+    }
+
+  return false;
 }
 
 void vtkQtChartSeriesSelection::limitSeries(int minimum, int maximum)
 {
-  if(this->Points.isEmpty())
+  if(this->Internal->Points.isEmpty())
     {
-    this->limitRanges(this->Series, minimum, maximum);
+    this->Internal->Series.limitRange(minimum, maximum);
     }
   else
     {
-    QList<vtkQtChartSeriesSelectionItem>::Iterator iter = this->Points.begin();
-    while(iter != this->Points.end())
+    QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+        this->Internal->Points.begin();
+    while(iter != this->Internal->Points.end())
       {
-      if(iter->Series < minimum || iter->Series > maximum)
+      if(iter.key() < minimum || iter.key() > maximum)
         {
-        iter = this->Points.erase(iter);
+        iter = this->Internal->Points.erase(iter);
         }
       else
         {
@@ -215,14 +228,63 @@ void vtkQtChartSeriesSelection::limitSeries(int minimum, int maximum)
     }
 }
 
-const QList<vtkQtChartSeriesSelectionItem> &
+bool vtkQtChartSeriesSelection::offsetSeries(int first, int offset)
+{
+  bool changed = false;
+  if(this->Internal->Points.isEmpty())
+    {
+    return this->Internal->Series.offsetRanges(first, offset);
+    }
+  else
+    {
+    // The keys are returned in ascending order.
+    QList<int> series = this->Internal->Points.keys();
+    if(offset > 0)
+      {
+      // Loop backwards through the list of keys to change them.
+      for(int i = series.size() - 1; i >= 0; i--)
+        {
+        if(series[i] >= first)
+          {
+          vtkQtChartIndexRangeList list =
+              this->Internal->Points.take(series[i]);
+          this->Internal->Points.insert(series[i] + offset, list);
+          changed = true;
+          }
+        else
+          {
+          // Skip the items before the first.
+          break;
+          }
+        }
+      }
+    else
+      {
+      // Loop forward through the list of keys to change them.
+      for(int i = 0; i < series.size(); i++)
+        {
+        if(series[i] >= first)
+          {
+          vtkQtChartIndexRangeList list =
+              this->Internal->Points.take(series[i]);
+          this->Internal->Points.insert(series[i] + offset, list);
+          changed = true;
+          }
+        }
+      }
+    }
+
+  return changed;
+}
+
+const QMap<int, vtkQtChartIndexRangeList> &
 vtkQtChartSeriesSelection::getPoints() const
 {
-  return this->Points;
+  return this->Internal->Points;
 }
 
 bool vtkQtChartSeriesSelection::setPoints(
-    const QList<vtkQtChartSeriesSelectionItem> &points)
+    const QMap<int, vtkQtChartIndexRangeList> &points)
 {
   bool changed = this->clear();
   if(this->addPoints(points))
@@ -233,52 +295,32 @@ bool vtkQtChartSeriesSelection::setPoints(
   return changed;
 }
 
-bool vtkQtChartSeriesSelection::addPoints(
-    const QList<vtkQtChartSeriesSelectionItem> &points)
+bool vtkQtChartSeriesSelection::setPoints(int series,
+    const vtkQtChartIndexRangeList &indexes)
 {
-  if(!this->Series.isEmpty() || points.isEmpty())
+  bool changed = this->clear();
+  if(this->addPoints(series, indexes))
+    {
+    changed = true;
+    }
+
+  return changed;
+}
+
+bool vtkQtChartSeriesSelection::addPoints(
+    const QMap<int, vtkQtChartIndexRangeList> &points)
+{
+  if(!this->Internal->Series.isEmpty() || points.isEmpty())
     {
     return false;
     }
 
   bool changed = false;
-  QList<vtkQtChartSeriesSelectionItem>::ConstIterator iter = points.begin();
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter = points.begin();
   for( ; iter != points.end(); ++iter)
     {
-    if(iter->Series < 0 || iter->Points.isEmpty())
+    if(this->addPoints(iter.key(), *iter))
       {
-      continue;
-      }
-
-    bool doAdd = true;
-    QList<vtkQtChartSeriesSelectionItem>::Iterator jter = this->Points.begin();
-    for( ; jter != this->Points.end(); ++jter)
-      {
-      if(iter->Series < jter->Series)
-        {
-        jter = this->Points.insert(jter,
-            vtkQtChartSeriesSelectionItem(iter->Series));
-        this->addRanges(iter->Points, jter->Points);
-        changed = true;
-        doAdd = false;
-        break;
-        }
-      else if(iter->Series == jter->Series)
-        {
-        if(this->addRanges(iter->Points, jter->Points))
-          {
-          changed = true;
-          }
-
-        doAdd = false;
-        break;
-        }
-      }
-
-    if(doAdd)
-      {
-      this->Points.append(vtkQtChartSeriesSelectionItem(iter->Series));
-      this->addRanges(iter->Points, this->Points.last().Points);
       changed = true;
       }
     }
@@ -286,66 +328,92 @@ bool vtkQtChartSeriesSelection::addPoints(
   return changed;
 }
 
-bool vtkQtChartSeriesSelection::subtractPoints(
-    const QList<vtkQtChartSeriesSelectionItem> &points)
+bool vtkQtChartSeriesSelection::addPoints(int series,
+    const vtkQtChartIndexRangeList &points)
 {
-  if(!this->Series.isEmpty() || points.isEmpty() || this->Points.isEmpty())
+  if(!this->Internal->Series.isEmpty() || points.isEmpty())
     {
     return false;
     }
 
   bool changed = false;
-  QList<vtkQtChartSeriesSelectionItem>::ConstIterator iter = points.begin();
-  for( ; iter != points.end(); ++iter)
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+      this->Internal->Points.find(series);
+  if(iter == this->Internal->Points.end())
     {
-    if(iter->Series < 0 || iter->Points.isEmpty())
-      {
-      continue;
-      }
-
-    QList<vtkQtChartSeriesSelectionItem>::Iterator jter = this->Points.begin();
-    while(jter != this->Points.end())
-      {
-      if(iter->Series < jter->Series)
-        {
-        break;
-        }
-      else if(iter->Series == jter->Series)
-        {
-        if(this->subtractRanges(iter->Points, jter->Points))
-          {
-          changed = true;
-          if(jter->Points.isEmpty())
-            {
-            jter = this->Points.erase(jter);
-            continue;
-            }
-          }
-        }
-
-      ++jter;
-      }
+    this->Internal->Points.insert(series, points);
+    changed = true;
+    }
+  else
+    {
+    changed = iter->addRanges(points);
     }
 
   return changed;
 }
 
 bool vtkQtChartSeriesSelection::subtractPoints(
-    const vtkQtChartIndexRange &series)
+    const QMap<int, vtkQtChartIndexRangeList> &points)
 {
-  if(!this->Series.isEmpty() || this->Points.isEmpty())
+  if(!this->Internal->Series.isEmpty() || points.isEmpty() ||
+      this->Internal->Points.isEmpty())
+    {
+    return false;
+    }
+
+  bool changed = false;
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter = points.begin();
+  for( ; iter != points.end(); ++iter)
+    {
+    if(this->subtractPoints(iter.key(), *iter))
+      {
+      changed = true;
+      }
+    }
+
+  return changed;
+}
+
+bool vtkQtChartSeriesSelection::subtractPoints(int series,
+    const vtkQtChartIndexRangeList &points)
+{
+  if(!this->Internal->Series.isEmpty() || points.isEmpty() ||
+      this->Internal->Points.isEmpty())
+    {
+    return false;
+    }
+
+  bool changed = false;
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+      this->Internal->Points.find(series);
+  if(iter != this->Internal->Points.end())
+    {
+    changed = iter->subtractRanges(points);
+    if(iter->isEmpty())
+      {
+      this->Internal->Points.erase(iter);
+      }
+    }
+
+  return changed;
+}
+
+bool vtkQtChartSeriesSelection::subtractPoints(int first, int last)
+{
+  if(!this->Internal->Series.isEmpty() || this->Internal->Points.isEmpty())
     {
     return false;
     }
 
   // Remove the series range along with any series points.
   bool changed = false;
-  QList<vtkQtChartSeriesSelectionItem>::Iterator iter = this->Points.begin();
-  while(iter != this->Points.end())
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+      this->Internal->Points.begin();
+  while(iter != this->Internal->Points.end())
     {
-    if(iter->Series >= series.first || iter->Series <= series.second)
+    if(iter.key() >= first || iter.key() <= last)
       {
-      iter = this->Points.erase(iter);
+      iter = this->Internal->Points.erase(iter);
       changed = true;
       }
     else
@@ -358,177 +426,19 @@ bool vtkQtChartSeriesSelection::subtractPoints(
 }
 
 bool vtkQtChartSeriesSelection::xorPoints(
-    const QList<vtkQtChartSeriesSelectionItem> &points)
+    const QMap<int, vtkQtChartIndexRangeList> &points)
 {
-  if(this->Series.isEmpty() && !points.isEmpty())
-    {
-    if(this->Points.isEmpty())
-      {
-      return this->addPoints(points);
-      }
-    else
-      {
-      bool changed = false;
-      QList<vtkQtChartSeriesSelectionItem>::ConstIterator iter;
-      for(iter = points.begin(); iter != points.end(); ++iter)
-        {
-        if(iter->Series < 0 || iter->Points.isEmpty())
-          {
-          continue;
-          }
-
-        bool doAdd = true;
-        QList<vtkQtChartSeriesSelectionItem>::Iterator jter =
-            this->Points.begin();
-        while(jter != this->Points.end())
-          {
-          if(iter->Series < jter->Series)
-            {
-            jter = this->Points.insert(jter,
-                vtkQtChartSeriesSelectionItem(iter->Series));
-            this->addRanges(iter->Points, jter->Points);
-            changed = true;
-            doAdd = false;
-            break;
-            }
-          else if(iter->Series == jter->Series)
-            {
-            vtkQtChartIndexRangeList temp = iter->Points;
-            this->subtractRanges(jter->Points, temp);
-            this->subtractRanges(iter->Points, jter->Points);
-            this->addRanges(temp, jter->Points);
-            changed = true;
-            doAdd = false;
-            if(jter->Points.isEmpty())
-              {
-              this->Points.erase(jter);
-              }
-
-            break;
-            }
-
-          ++jter;
-          }
-
-        if(doAdd)
-          {
-          this->Points.append(vtkQtChartSeriesSelectionItem(iter->Series));
-          this->addRanges(iter->Points, this->Points.last().Points);
-          changed = true;
-          }
-        }
-
-      return changed;
-      }
-    }
-
-  return false;
-}
-
-QList<int> vtkQtChartSeriesSelection::getPointSeries() const
-{
-  QList<int> series;
-  QList<vtkQtChartSeriesSelectionItem>::ConstIterator iter;
-  for(iter = this->Points.begin(); iter != this->Points.end(); ++iter)
-    {
-    series.append(iter->Series);
-    }
-
-  return series;
-}
-
-void vtkQtChartSeriesSelection::limitPoints(int series, int minimum,
-    int maximum)
-{
-  QList<vtkQtChartSeriesSelectionItem>::Iterator iter = this->Points.begin();
-  for( ; iter != this->Points.end(); ++iter)
-    {
-    if(iter->Series == series)
-      {
-      this->limitRanges(iter->Points, minimum, maximum);
-      if(iter->Points.isEmpty())
-        {
-        this->Points.erase(iter);
-        }
-
-      break;
-      }
-    }
-}
-
-vtkQtChartSeriesSelection &vtkQtChartSeriesSelection::operator=(
-    const vtkQtChartSeriesSelection &other)
-{
-  this->Series = other.Series;
-  this->Points = other.Points;
-  return *this;
-}
-
-bool vtkQtChartSeriesSelection::addRanges(
-    const vtkQtChartIndexRangeList &source, vtkQtChartIndexRangeList &target)
-{
-  if(source.isEmpty())
+  if(!this->Internal->Series.isEmpty() || points.isEmpty())
     {
     return false;
     }
 
   bool changed = false;
-  vtkQtChartIndexRangeList::ConstIterator iter = source.begin();
-  for( ; iter != source.end(); ++iter)
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter = points.begin();
+  for( ; iter != points.end(); ++iter)
     {
-    // Make sure the range is in the right order.
-    vtkQtChartIndexRange range = *iter;
-    if(range.second < range.first)
+    if(this->xorPoints(iter.key(), *iter))
       {
-      int temp = range.second;
-      range.second = range.first;
-      range.first = temp;
-      }
-
-    // Add or merge the range.
-    bool doAdd = true;
-    vtkQtChartIndexRangeList::Iterator jter = target.begin();
-    while(jter != target.end())
-      {
-      if(range.first <= jter->second + 1)
-        {
-        if(range.second < jter->first - 1)
-          {
-          target.insert(jter, range);
-          doAdd = false;
-          changed = true;
-          break;
-          }
-        else if(range.second > jter->second)
-          {
-          if(jter->first < range.first)
-            {
-            range.first = jter->first;
-            }
-
-          jter = target.erase(jter);
-          continue;
-          }
-        else if(range.first < jter->first)
-          {
-          jter->first = range.first;
-          doAdd = false;
-          changed = true;
-          break;
-          }
-        else
-          {
-          doAdd = false;
-          break;
-          }
-        }
-
-      ++jter;
-      }
-
-    if(doAdd)
-      {
-      target.append(range);
       changed = true;
       }
     }
@@ -536,107 +446,46 @@ bool vtkQtChartSeriesSelection::addRanges(
   return changed;
 }
 
-bool vtkQtChartSeriesSelection::subtractRanges(
-    const vtkQtChartIndexRangeList &source, vtkQtChartIndexRangeList &target)
+bool vtkQtChartSeriesSelection::xorPoints(int series,
+    const vtkQtChartIndexRangeList &points)
 {
-  if(target.isEmpty())
+  if(!this->Internal->Series.isEmpty() || points.isEmpty())
     {
     return false;
     }
 
   bool changed = false;
-  vtkQtChartIndexRangeList::ConstIterator iter = source.begin();
-  for( ; iter != source.end(); ++iter)
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+      this->Internal->Points.find(series);
+  if(iter == this->Internal->Points.end())
     {
-    // Make sure the range is in the right order.
-    vtkQtChartIndexRange range = *iter;
-    if(range.second < range.first)
+    this->Internal->Points.insert(series, points);
+    changed = true;
+    }
+  else
+    {
+    changed = iter->xorRanges(points);
+    if(iter->isEmpty())
       {
-      int temp = range.second;
-      range.second = range.first;
-      range.first = temp;
-      }
-
-    // Subtract the range if it is in the target list.
-    vtkQtChartIndexRangeList::Iterator jter = target.begin();
-    while(jter != target.end())
-      {
-      if(jter->first > range.second)
-        {
-        break;
-        }
-      else if(jter->second >= range.first)
-        {
-        if(range.first <= jter->first)
-          {
-          if(range.second >= jter->second)
-            {
-            jter = target.erase(jter);
-            changed = true;
-            continue;
-            }
-          else
-            {
-            jter->first = range.second + 1;
-            changed = true;
-            break;
-            }
-          }
-        else if(range.second >= jter->second)
-          {
-          jter->second = range.first - 1;
-          changed = true;
-          }
-        else
-          {
-          jter = target.insert(jter,
-              vtkQtChartIndexRange(jter->first, range.first - 1));
-          ++jter;
-          jter->first = range.second + 1;
-          changed = true;
-          break;
-          }
-        }
-
-      ++jter;
+      this->Internal->Points.erase(iter);
       }
     }
 
   return changed;
 }
 
-void vtkQtChartSeriesSelection::limitRanges(vtkQtChartIndexRangeList &list,
-    int minimum, int maximum)
+void vtkQtChartSeriesSelection::limitPoints(int series, int minimum,
+    int maximum)
 {
-  vtkQtChartIndexRangeList::Iterator iter = list.begin();
-  while(iter != list.end())
+  QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+      this->Internal->Points.find(series);
+  if(iter != this->Internal->Points.end())
     {
-    if((iter->first < minimum && iter->second < minimum) ||
-        (iter->first > maximum && iter->second > maximum))
+    iter->limitRange(minimum, maximum);
+    if(iter->isEmpty())
       {
-      iter = list.erase(iter);
-      continue;
+      this->Internal->Points.erase(iter);
       }
-
-    if(iter->first < minimum)
-      {
-      iter->first = minimum;
-      }
-    else if(iter->first > maximum)
-      {
-      iter->first = maximum;
-      }
-
-    if(iter->second < minimum)
-      {
-      iter->second = minimum;
-      }
-    else if(iter->second > maximum)
-      {
-      iter->second = maximum;
-      }
-
-    ++iter;
     }
 }
 

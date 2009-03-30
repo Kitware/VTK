@@ -38,6 +38,7 @@
 #include "vtkQtChartColors.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
+#include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
 #include "vtkQtChartSeriesDomain.h"
@@ -624,19 +625,19 @@ bool vtkQtLineChart::getHelpText(const QPointF &point, QString &text)
     vtkQtChartAxisOptions *yAxis = 0;
     vtkQtLineChartSeriesOptions *options = 0;
     vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
-    const QList<vtkQtChartSeriesSelectionItem> &points = selection.getPoints();
-    QList<vtkQtChartSeriesSelectionItem>::ConstIterator iter = points.begin();
+    const QMap<int, vtkQtChartIndexRangeList> &points = selection.getPoints();
+    QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter = points.begin();
     for( ; iter != points.end(); ++iter)
       {
       // Use the axis options to format the data.
-      options = this->getLineSeriesOptions(iter->Series);
+      options = this->getLineSeriesOptions(iter.key());
       xAxis = layer->getHorizontalAxis(options->getAxesCorner())->getOptions();
       yAxis = layer->getVerticalAxis(options->getAxesCorner())->getOptions();
 
-      vtkQtChartIndexRangeList::ConstIterator jter = iter->Points.begin();
-      for( ; jter != iter->Points.end(); ++jter)
+      vtkQtChartIndexRange *range = iter->getFirst();
+      while(range)
         {
-        for(int i = jter->first; i <= jter->second; i++)
+        for(int i = range->getFirst(); i <= range->getSecond(); i++)
           {
           if(!text.isEmpty())
             {
@@ -646,12 +647,14 @@ bool vtkQtLineChart::getHelpText(const QPointF &point, QString &text)
           // Get the data from the model.
           QStringList args;
           args.append(xAxis->formatValue(
-              this->Model->getSeriesValue(iter->Series, i, 0)));
+              this->Model->getSeriesValue(iter.key(), i, 0)));
           args.append(yAxis->formatValue(
-              this->Model->getSeriesValue(iter->Series, i, 1)));
+              this->Model->getSeriesValue(iter.key(), i, 1)));
           text = this->Options->getHelpFormat()->getHelpText(
-              this->Model->getSeriesName(iter->Series).toString(), args);
+              this->Model->getSeriesName(iter.key()).toString(), args);
           }
+
+        range = iter->getNext(range);
         }
       }
 
@@ -685,14 +688,14 @@ void vtkQtLineChart::getSeriesAt(const QPointF &point,
   for( ; iter != shapes.end(); ++iter)
     {
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   shapes = this->Internal->PointTree.getItemsAt(local);
   for(iter = shapes.begin(); iter != shapes.end(); ++iter)
     {
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   selection.setSeries(indexes);
@@ -706,19 +709,16 @@ void vtkQtLineChart::getPointsAt(const QPointF &point,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the selected shapes from the search tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartShape *> shapes =
       this->Internal->PointTree.getItemsAt(local);
   QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
   for( ; iter != shapes.end(); ++iter)
     {
-    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
     int index = (*iter)->getIndex();
-    item.Points.append(vtkQtChartIndexRange(index, index));
-    indexes.append(item);
+    selection.addPoints((*iter)->getSeries(),
+        vtkQtChartIndexRangeList(index, index));
     }
-
-  selection.setPoints(indexes);
 }
 
 void vtkQtLineChart::getSeriesIn(const QRectF &area,
@@ -736,14 +736,14 @@ void vtkQtLineChart::getSeriesIn(const QRectF &area,
   for( ; iter != shapes.end(); ++iter)
     {
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   shapes = this->Internal->PointTree.getItemsIn(local);
   for(iter = shapes.begin(); iter != shapes.end(); ++iter)
     {
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   selection.setSeries(indexes);
@@ -757,19 +757,16 @@ void vtkQtLineChart::getPointsIn(const QRectF &area,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the list of shapes from the search tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartShape *> shapes =
       this->Internal->PointTree.getItemsIn(local);
   QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
   for( ; iter != shapes.end(); ++iter)
     {
-    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
     int index = (*iter)->getIndex();
-    item.Points.append(vtkQtChartIndexRange(index, index));
-    indexes.append(item);
+    selection.addPoints((*iter)->getSeries(),
+        vtkQtChartIndexRangeList(index, index));
     }
-
-  selection.setPoints(indexes);
 }
 
 QRectF vtkQtLineChart::boundingRect() const
@@ -1408,30 +1405,34 @@ void vtkQtLineChart::updateHighlights()
       if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
         {
         const vtkQtChartIndexRangeList &series = current.getSeries();
-        vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
-        for( ; jter != series.end(); ++jter)
+        vtkQtChartIndexRange *range = series.getFirst();
+        while(range)
           {
-          for(int i = jter->first; i <= jter->second; i++)
+          for(int i = range->getFirst(); i <= range->getSecond(); i++)
             {
             this->Internal->Series[i]->Highlighted = true;
             }
+
+          range = series.getNext(range);
           }
         }
       else if(current.getType() == vtkQtChartSeriesSelection::PointSelection)
         {
-        const QList<vtkQtChartSeriesSelectionItem> &points =
+        const QMap<int, vtkQtChartIndexRangeList> &points =
             current.getPoints();
-        QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
+        QMap<int, vtkQtChartIndexRangeList>::ConstIterator jter;
         for(jter = points.begin(); jter != points.end(); ++jter)
           {
-          vtkQtLineChartSeries *series = this->Internal->Series[jter->Series];
-          vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
-          for( ; kter != jter->Points.end(); ++kter)
+          vtkQtLineChartSeries *series = this->Internal->Series[jter.key()];
+          vtkQtChartIndexRange *range = jter->getFirst();
+          while(range)
             {
-            for(int i = kter->first; i <= kter->second; i++)
+            for(int i = range->getFirst(); i <= range->getSecond(); i++)
               {
               series->Highlights.append(i);
               }
+
+            range = jter->getNext(range);
             }
           }
         }

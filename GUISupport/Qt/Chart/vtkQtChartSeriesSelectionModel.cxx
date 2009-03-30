@@ -28,6 +28,7 @@
 
 #include "vtkQtChartSeriesSelectionModel.h"
 
+#include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesSelection.h"
 
@@ -81,8 +82,7 @@ void vtkQtChartSeriesSelectionModel::selectAllSeries()
 {
   if(this->Model && this->Model->getNumberOfSeries() > 0)
     {
-    if(this->Selection->setSeries(
-        vtkQtChartIndexRange(0, this->Model->getNumberOfSeries() - 1)))
+    if(this->Selection->setSeries(0, this->Model->getNumberOfSeries() - 1))
       {
       emit this->selectionChanged(*this->Selection);
       }
@@ -93,18 +93,21 @@ void vtkQtChartSeriesSelectionModel::selectAllPoints()
 {
   if(this->Model && this->Model->getNumberOfSeries() > 0)
     {
-    QList<vtkQtChartSeriesSelectionItem> points;
+    bool changed = false;
     for(int i = 0; i < this->Model->getNumberOfSeries(); i++)
       {
       int count = this->Model->getNumberOfSeriesValues(i);
       if(count > 0)
         {
-        points.append(vtkQtChartSeriesSelectionItem(i));
-        points.last().Points.append(vtkQtChartIndexRange(0, count));
+        if(this->Selection->addPoints(i,
+            vtkQtChartIndexRangeList(0, count - 1)))
+          {
+          changed = true;
+          }
         }
       }
 
-    if(this->Selection->setPoints(points))
+    if(changed)
       {
       emit this->selectionChanged(*this->Selection);
       }
@@ -127,8 +130,7 @@ void vtkQtChartSeriesSelectionModel::selectInverse()
     if(this->Selection->getType() ==
         vtkQtChartSeriesSelection::SeriesSelection)
       {
-      if(this->Selection->xorSeries(
-          vtkQtChartIndexRange(0, this->Model->getNumberOfSeries() - 1)))
+      if(this->Selection->xorSeries(0, this->Model->getNumberOfSeries() - 1))
         {
         emit this->selectionChanged(*this->Selection);
         }
@@ -136,18 +138,21 @@ void vtkQtChartSeriesSelectionModel::selectInverse()
     else if(this->Selection->getType() ==
         vtkQtChartSeriesSelection::PointSelection)
       {
-      QList<vtkQtChartSeriesSelectionItem> points;
+      bool changed = false;
       for(int i = 0; i < this->Model->getNumberOfSeries(); i++)
         {
         int count = this->Model->getNumberOfSeriesValues(i);
         if(count > 0)
           {
-          points.append(vtkQtChartSeriesSelectionItem(i));
-          points.last().Points.append(vtkQtChartIndexRange(0, count));
+          if(this->Selection->xorPoints(i,
+              vtkQtChartIndexRangeList(0, count - 1)))
+            {
+            changed = true;
+            }
           }
         }
 
-      if(this->Selection->xorPoints(points))
+      if(changed)
         {
         emit this->selectionChanged(*this->Selection);
         }
@@ -169,24 +174,22 @@ void vtkQtChartSeriesSelectionModel::setSelection(
       }
     else
       {
-      // Make sure the selection is limited to model boundaries.
-      vtkQtChartSeriesSelection list = selection;
-      this->limitSelection(list);
-
       // Save the new selection.
-      if(list.getType() == vtkQtChartSeriesSelection::SeriesSelection)
+      bool changed = false;
+      if(selection.getType() == vtkQtChartSeriesSelection::SeriesSelection)
         {
-        if(this->Selection->setSeries(list.getSeries()))
-          {
-          emit this->selectionChanged(*this->Selection);
-          }
+        changed = this->Selection->setSeries(selection.getSeries());
         }
-      else if(list.getType() == vtkQtChartSeriesSelection::PointSelection)
+      else if(selection.getType() == vtkQtChartSeriesSelection::PointSelection)
         {
-        if(this->Selection->setPoints(list.getPoints()))
-          {
-          emit this->selectionChanged(*this->Selection);
-          }
+        changed = this->Selection->setPoints(selection.getPoints());
+        }
+
+      if(changed)
+        {
+        // Make sure the selection is limited to model boundaries.
+        this->limitSelection();
+        emit this->selectionChanged(*this->Selection);
         }
       }
     }
@@ -198,24 +201,22 @@ void vtkQtChartSeriesSelectionModel::addSelection(
   if(this->Model && this->Model->getNumberOfSeries() > 0 &&
       !selection.isEmpty())
     {
-    // Make sure the selection is limited to model boundaries.
-    vtkQtChartSeriesSelection list = selection;
-    this->limitSelection(list);
-
     // Add the new selection.
-    if(list.getType() == vtkQtChartSeriesSelection::SeriesSelection)
+    bool changed = false;
+    if(selection.getType() == vtkQtChartSeriesSelection::SeriesSelection)
       {
-      if(this->Selection->addSeries(list.getSeries()))
-        {
-        emit this->selectionChanged(*this->Selection);
-        }
+      changed = this->Selection->addSeries(selection.getSeries());
       }
-    else if(list.getType() == vtkQtChartSeriesSelection::PointSelection)
+    else if(selection.getType() == vtkQtChartSeriesSelection::PointSelection)
       {
-      if(this->Selection->addPoints(list.getPoints()))
-        {
-        emit this->selectionChanged(*this->Selection);
-        }
+      changed = this->Selection->addPoints(selection.getPoints());
+      }
+
+    if(changed)
+      {
+      // Make sure the selection is limited to model boundaries.
+      this->limitSelection();
+      emit this->selectionChanged(*this->Selection);
       }
     }
 }
@@ -226,24 +227,22 @@ void vtkQtChartSeriesSelectionModel::subtractSelection(
   if(this->Model && this->Model->getNumberOfSeries() > 0 &&
       !selection.isEmpty())
     {
-    // Make sure the selection is limited to model boundaries.
-    vtkQtChartSeriesSelection list = selection;
-    this->limitSelection(list);
-
     // Add the new selection.
-    if(list.getType() == vtkQtChartSeriesSelection::SeriesSelection)
+    bool changed = false;
+    if(selection.getType() == vtkQtChartSeriesSelection::SeriesSelection)
       {
-      if(this->Selection->subtractSeries(list.getSeries()))
-        {
-        emit this->selectionChanged(*this->Selection);
-        }
+      changed = this->Selection->subtractSeries(selection.getSeries());
       }
-    else if(list.getType() == vtkQtChartSeriesSelection::PointSelection)
+    else if(selection.getType() == vtkQtChartSeriesSelection::PointSelection)
       {
-      if(this->Selection->subtractPoints(list.getPoints()))
-        {
-        emit this->selectionChanged(*this->Selection);
-        }
+      changed = this->Selection->subtractPoints(selection.getPoints());
+      }
+
+    if(changed)
+      {
+      // Make sure the selection is limited to model boundaries.
+      this->limitSelection();
+      emit this->selectionChanged(*this->Selection);
       }
     }
 }
@@ -254,24 +253,22 @@ void vtkQtChartSeriesSelectionModel::xorSelection(
   if(this->Model && this->Model->getNumberOfSeries() > 0 &&
       !selection.isEmpty())
     {
-    // Make sure the selection is limited to model boundaries.
-    vtkQtChartSeriesSelection list = selection;
-    this->limitSelection(list);
-
     // Add the new selection.
-    if(list.getType() == vtkQtChartSeriesSelection::SeriesSelection)
+    bool changed = false;
+    if(selection.getType() == vtkQtChartSeriesSelection::SeriesSelection)
       {
-      if(this->Selection->xorSeries(list.getSeries()))
-        {
-        emit this->selectionChanged(*this->Selection);
-        }
+      changed = this->Selection->xorSeries(selection.getSeries());
       }
-    else if(list.getType() == vtkQtChartSeriesSelection::PointSelection)
+    else if(selection.getType() == vtkQtChartSeriesSelection::PointSelection)
       {
-      if(this->Selection->xorPoints(list.getPoints()))
-        {
-        emit this->selectionChanged(*this->Selection);
-        }
+      changed = this->Selection->xorPoints(selection.getPoints());
+      }
+
+    if(changed)
+      {
+      // Make sure the selection is limited to model boundaries.
+      this->limitSelection();
+      emit this->selectionChanged(*this->Selection);
       }
     }
 }
@@ -298,49 +295,7 @@ void vtkQtChartSeriesSelectionModel::endModelReset()
 void vtkQtChartSeriesSelectionModel::beginInsertSeries(int first, int last)
 {
   int offset = last - first + 1;
-  if(this->Selection->getType() == vtkQtChartSeriesSelection::SeriesSelection)
-    {
-    vtkQtChartIndexRangeList series = this->Selection->getSeries();
-    vtkQtChartIndexRangeList::Iterator iter = series.begin();
-    for( ; iter != series.end(); ++iter)
-      {
-      if(iter->first >= first)
-        {
-        iter->first += offset;
-        iter->second += offset;
-        this->PendingSignal = true;
-        }
-      else if(iter->second >= first)
-        {
-        iter->second += offset;
-        this->PendingSignal = true;
-        }
-      }
-
-    if(this->PendingSignal)
-      {
-      this->Selection->setSeries(series);
-      }
-    }
-  else if(this->Selection->getType() ==
-      vtkQtChartSeriesSelection::PointSelection)
-    {
-    QList<vtkQtChartSeriesSelectionItem> points = this->Selection->getPoints();
-    QList<vtkQtChartSeriesSelectionItem>::Iterator iter = points.begin();
-    for( ; iter != points.end(); ++iter)
-      {
-      if(iter->Series >= first)
-        {
-        iter->Series += offset;
-        this->PendingSignal = true;
-        }
-      }
-
-    if(this->PendingSignal)
-      {
-      this->Selection->setPoints(points);
-      }
-    }
+  this->PendingSignal = this->Selection->offsetSeries(first, offset);
 }
 
 void vtkQtChartSeriesSelectionModel::endInsertSeries(int, int)
@@ -357,61 +312,21 @@ void vtkQtChartSeriesSelectionModel::beginRemoveSeries(int first, int last)
   int offset = last - first + 1;
   if(this->Selection->getType() == vtkQtChartSeriesSelection::SeriesSelection)
     {
-    // Remove the range from the selection.
-    bool changed = this->Selection->subtractSeries(
-        vtkQtChartIndexRange(first, last));
-
-    vtkQtChartIndexRangeList series = this->Selection->getSeries();
-    vtkQtChartIndexRangeList::Iterator iter = series.begin();
-    for( ; iter != series.end(); ++iter)
+    // Remove the range from the selection. Update the indexes.
+    this->PendingSignal = this->Selection->subtractSeries(first, last);
+    if(this->Selection->offsetSeries(last + 1, -offset))
       {
-      if(iter->first > last)
-        {
-        iter->first -= offset;
-        iter->second -= offset;
-        this->PendingSignal = true;
-        }
-      else if(iter->second > last)
-        {
-        iter->second -= offset;
-        this->PendingSignal = true;
-        }
-      }
-
-    if(this->PendingSignal)
-      {
-      this->Selection->setSeries(series);
-      }
-    else
-      {
-      this->PendingSignal = changed;
+      this->PendingSignal = true;
       }
     }
   else if(this->Selection->getType() ==
       vtkQtChartSeriesSelection::PointSelection)
     {
-    // Remove the range from the selection.
-    bool changed = this->Selection->subtractPoints(
-        vtkQtChartIndexRange(first, last));
-
-    QList<vtkQtChartSeriesSelectionItem> points = this->Selection->getPoints();
-    QList<vtkQtChartSeriesSelectionItem>::Iterator iter = points.begin();
-    for( ; iter != points.end(); ++iter)
+    // Remove the range from the selection. Update the indexes.
+    this->PendingSignal = this->Selection->subtractPoints(first, last);
+    if(this->Selection->offsetSeries(last + 1, -offset))
       {
-      if(iter->Series > last)
-        {
-        iter->Series -= offset;
-        this->PendingSignal = true;
-        }
-      }
-
-    if(this->PendingSignal)
-      {
-      this->Selection->setPoints(points);
-      }
-    else
-      {
-      this->PendingSignal = changed;
+      this->PendingSignal = true;
       }
     }
 }
@@ -425,17 +340,16 @@ void vtkQtChartSeriesSelectionModel::endRemoveSeries(int, int)
     }
 }
 
-void vtkQtChartSeriesSelectionModel::limitSelection(
-    vtkQtChartSeriesSelection &list)
+void vtkQtChartSeriesSelectionModel::limitSelection()
 {
-  list.limitSeries(0, this->Model->getNumberOfSeries() - 1);
-  if(list.getType() == vtkQtChartSeriesSelection::PointSelection)
+  this->Selection->limitSeries(0, this->Model->getNumberOfSeries() - 1);
+  if(this->Selection->getType() == vtkQtChartSeriesSelection::PointSelection)
     {
-    QList<int> series = list.getPointSeries();
+    QList<int> series = this->Selection->getPoints().keys();
     QList<int>::Iterator iter = series.begin();
     for( ; iter != series.end(); ++iter)
       {
-      list.limitPoints(*iter, 0,
+      this->Selection->limitPoints(*iter, 0,
           this->Model->getNumberOfSeriesValues(*iter) - 1);
       }
     }

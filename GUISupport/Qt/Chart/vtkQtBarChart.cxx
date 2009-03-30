@@ -42,6 +42,7 @@
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
+#include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartSeriesColors.h"
 #include "vtkQtChartSeriesDomain.h"
@@ -456,14 +457,14 @@ bool vtkQtBarChart::getHelpText(const QPointF &point, QString &text)
         this->Options->getAxesCorner())->getOptions();
 
     // Get the data from the model.
-    const QList<vtkQtChartSeriesSelectionItem> &points = selection.getPoints();
-    QList<vtkQtChartSeriesSelectionItem>::ConstIterator iter = points.begin();
+    const QMap<int, vtkQtChartIndexRangeList> &points = selection.getPoints();
+    QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter = points.begin();
     for( ; iter != points.end(); ++iter)
       {
-      vtkQtChartIndexRangeList::ConstIterator jter = iter->Points.begin();
-      for( ; jter != iter->Points.end(); ++jter)
+      vtkQtChartIndexRange *range = iter->getFirst();
+      while(range)
         {
-        for(int i = jter->first; i <= jter->second; i++)
+        for(int i = range->getFirst(); i <= range->getSecond(); i++)
           {
           if(!text.isEmpty())
             {
@@ -472,12 +473,14 @@ bool vtkQtBarChart::getHelpText(const QPointF &point, QString &text)
 
           QStringList args;
           args.append(xAxis->formatValue(
-              this->Model->getSeriesValue(iter->Series, i, 0)));
+              this->Model->getSeriesValue(iter.key(), i, 0)));
           args.append(yAxis->formatValue(
-              this->Model->getSeriesValue(iter->Series, i, 1)));
+              this->Model->getSeriesValue(iter.key(), i, 1)));
           text = this->Options->getHelpFormat()->getHelpText(
-              this->Model->getSeriesName(iter->Series).toString(), args);
+              this->Model->getSeriesName(iter.key()).toString(), args);
           }
+
+        range = iter->getNext(range);
         }
       }
 
@@ -521,7 +524,7 @@ void vtkQtBarChart::getSeriesAt(const QPointF &point,
   if(bar)
     {
     // Add the series to the selection.
-    indexes.append(vtkQtChartIndexRange(bar->getSeries(), bar->getSeries()));
+    indexes.addRange(bar->getSeries(), bar->getSeries());
     }
 
   selection.setSeries(indexes);
@@ -535,18 +538,14 @@ void vtkQtBarChart::getPointsAt(const QPointF &point,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the bar index from the search tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   vtkQtChartBar *bar = this->Internal->BarTree.getItemAt(local);
   if(bar)
     {
     // Add the bar to the selection.
-    vtkQtChartSeriesSelectionItem item(bar->getSeries());
-    item.Points.append(
-        vtkQtChartIndexRange(bar->getIndex(), bar->getIndex()));
-    indexes.append(item);
+    selection.addPoints(bar->getSeries(),
+        vtkQtChartIndexRangeList(bar->getIndex(), bar->getIndex()));
     }
-
-  selection.setPoints(indexes);
 }
 
 void vtkQtBarChart::getSeriesIn(const QRectF &area,
@@ -563,8 +562,7 @@ void vtkQtBarChart::getSeriesIn(const QRectF &area,
   for( ; iter != list.end(); ++iter)
     {
     // Add the series to the selection.
-    indexes.append(vtkQtChartIndexRange((*iter)->getSeries(),
-        (*iter)->getSeries()));
+    indexes.addRange((*iter)->getSeries(), (*iter)->getSeries());
     }
 
   selection.setSeries(indexes);
@@ -578,19 +576,15 @@ void vtkQtBarChart::getPointsIn(const QRectF &area,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the list of bar indexes from the bar tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartBar *> list = this->Internal->BarTree.getItemsIn(local);
   QList<vtkQtChartBar *>::Iterator iter = list.begin();
   for( ; iter != list.end(); ++iter)
     {
     // Add the bar to the selection.
-    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
-    item.Points.append(
-        vtkQtChartIndexRange((*iter)->getIndex(), (*iter)->getIndex()));
-    indexes.append(item);
+    selection.addPoints((*iter)->getSeries(),
+        vtkQtChartIndexRangeList((*iter)->getIndex(), (*iter)->getIndex()));
     }
-
-  selection.setPoints(indexes);
 }
 
 QRectF vtkQtBarChart::boundingRect() const
@@ -674,7 +668,7 @@ void vtkQtBarChart::paint(QPainter *painter,
           painter->save();
           QBrush barColor = options->getBrush();
           colors->getBrush(index, total, barColor);
-          if(highlighted)
+          if(highlighted || series->IsHighlighted)
             {
             barColor.setColor(vtkQtChartColors::lighter(barColor.color()));
             }
@@ -1124,30 +1118,34 @@ void vtkQtBarChart::updateHighlights()
       if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
         {
         const vtkQtChartIndexRangeList &series = current.getSeries();
-        vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
-        for( ; jter != series.end(); ++jter)
+        vtkQtChartIndexRange *range = series.getFirst();
+        while(range)
           {
-          for(int i = jter->first; i <= jter->second; i++)
+          for(int i = range->getFirst(); i <= range->getSecond(); i++)
             {
             this->Internal->Series[i]->IsHighlighted = true;
             }
+
+          range = series.getNext(range);
           }
         }
       else if(current.getType() == vtkQtChartSeriesSelection::PointSelection)
         {
-        const QList<vtkQtChartSeriesSelectionItem> &points =
+        const QMap<int, vtkQtChartIndexRangeList> &points =
             current.getPoints();
-        QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
+        QMap<int, vtkQtChartIndexRangeList>::ConstIterator jter;
         for(jter = points.begin(); jter != points.end(); ++jter)
           {
-          vtkQtBarChartSeries *series = this->Internal->Series[jter->Series];
-          vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
-          for( ; kter != jter->Points.end(); ++kter)
+          vtkQtBarChartSeries *series = this->Internal->Series[jter.key()];
+          vtkQtChartIndexRange *range = jter->getFirst();
+          while(range)
             {
-            for(int i = kter->first; i <= kter->second; i++)
+            for(int i = range->getFirst(); i <= range->getSecond(); i++)
               {
               series->Highlights.append(i);
               }
+
+            range = jter->getNext(range);
             }
           }
         }

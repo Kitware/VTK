@@ -39,6 +39,7 @@
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
+#include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
 #include "vtkQtChartSeriesDomain.h"
@@ -609,7 +610,7 @@ void vtkQtStatisticalBoxChart::getSeriesAt(const QPointF &point,
     {
     // Add the series to the selection.
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   selection.setSeries(indexes);
@@ -623,7 +624,7 @@ void vtkQtStatisticalBoxChart::getPointsAt(const QPointF &point,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the selected outliers from the tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartShape *> shapes =
       this->Internal->ShapeTree.getItemsAt(local);
   QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
@@ -632,13 +633,10 @@ void vtkQtStatisticalBoxChart::getPointsAt(const QPointF &point,
     int index = (*iter)->getIndex();
     if(index != -1)
       {
-      vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
-      item.Points.append(vtkQtChartIndexRange(index, index));
-      indexes.append(item);
+      selection.addPoints((*iter)->getSeries(),
+          vtkQtChartIndexRangeList(index, index));
       }
     }
-
-  selection.setPoints(indexes);
 }
 
 void vtkQtStatisticalBoxChart::getSeriesIn(const QRectF &area,
@@ -657,7 +655,7 @@ void vtkQtStatisticalBoxChart::getSeriesIn(const QRectF &area,
     {
     // Add the series to the selection.
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   selection.setSeries(indexes);
@@ -671,7 +669,7 @@ void vtkQtStatisticalBoxChart::getPointsIn(const QRectF &area,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the selected outliers from the tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartShape *> shapes =
       this->Internal->ShapeTree.getItemsIn(local);
   QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
@@ -680,13 +678,10 @@ void vtkQtStatisticalBoxChart::getPointsIn(const QRectF &area,
     int index = (*iter)->getIndex();
     if(index != -1)
       {
-      vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
-      item.Points.append(vtkQtChartIndexRange(index, index));
-      indexes.append(item);
+      selection.addPoints((*iter)->getSeries(),
+          vtkQtChartIndexRangeList(index, index));
       }
     }
-
-  selection.setPoints(indexes);
 }
 
 QRectF vtkQtStatisticalBoxChart::boundingRect() const
@@ -1281,31 +1276,35 @@ void vtkQtStatisticalBoxChart::updateHighlights()
       if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
         {
         const vtkQtChartIndexRangeList &series = current.getSeries();
-        vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
-        for( ; jter != series.end(); ++jter)
+        vtkQtChartIndexRange *range = series.getFirst();
+        while(range)
           {
-          for(int i = jter->first; i <= jter->second; i++)
+          for(int i = range->getFirst(); i <= range->getSecond(); i++)
             {
             this->Internal->Series[i]->Highlighted = true;
             }
+
+          range = series.getNext(range);
           }
         }
       else if(current.getType() == vtkQtChartSeriesSelection::PointSelection)
         {
-        const QList<vtkQtChartSeriesSelectionItem> &points =
+        const QMap<int, vtkQtChartIndexRangeList> &points =
             current.getPoints();
         vtkQtStatisticalBoxChartSeries *series = 0;
-        QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
+        QMap<int, vtkQtChartIndexRangeList>::ConstIterator jter;
         for(jter = points.begin(); jter != points.end(); ++jter)
           {
-          series = this->Internal->Series[jter->Series];
-          vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
-          for( ; kter != jter->Points.end(); ++kter)
+          series = this->Internal->Series[jter.key()];
+          vtkQtChartIndexRange *range = jter->getFirst();
+          while(range)
             {
-            for(int i = kter->first; i <= kter->second; i++)
+            for(int i = range->getFirst(); i <= range->getSecond(); i++)
               {
               series->Highlights.append(i);
               }
+
+            range = jter->getNext(range);
             }
           }
         }

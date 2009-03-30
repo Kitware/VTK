@@ -66,6 +66,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartGridLayer.h
     vtkQtChartHelpFormatter.cxx
     vtkQtChartHelpFormatter.h
+    vtkQtChartIndexRangeList.cxx
+    vtkQtChartIndexRangeList.h
     vtkQtChartInteractor.cxx
     vtkQtChartInteractor.h
     vtkQtChartInteractorSetup.cxx

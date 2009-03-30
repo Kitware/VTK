@@ -25,31 +25,10 @@
 #define _vtkQtChartSeriesSelection_h
 
 #include "vtkQtChartExport.h"
-#include <QList> // needed for typedef
-#include <QPair> // needed for typedef
+#include <QMap> // needed for return type
+#include "vtkQtChartIndexRangeList.h" // needed for return type.
 
-typedef QList<QPair<int, int> > vtkQtChartIndexRangeList;
-typedef QPair<int, int> vtkQtChartIndexRange;
-
-
-/// \class vtkQtChartSeriesSelectionItem
-/// \brief
-///   The vtkQtChartSeriesSelectionItem class stores a list of index
-///   ranges.
-class VTKQTCHART_EXPORT vtkQtChartSeriesSelectionItem
-{
-public:
-  vtkQtChartSeriesSelectionItem();
-  vtkQtChartSeriesSelectionItem(int series);
-  vtkQtChartSeriesSelectionItem(const vtkQtChartSeriesSelectionItem &other);
-  ~vtkQtChartSeriesSelectionItem() {}
-
-  vtkQtChartSeriesSelectionItem &operator=(
-      const vtkQtChartSeriesSelectionItem &other);
-
-  int Series;                      ///< Stores the series index.
-  vtkQtChartIndexRangeList Points; ///< Stores the list of ranges.
-};
+class vtkQtChartSeriesSelectionInternal;
 
 
 /// \class vtkQtChartSeriesSelection
@@ -69,7 +48,9 @@ public:
 public:
   vtkQtChartSeriesSelection();
   vtkQtChartSeriesSelection(const vtkQtChartSeriesSelection &other);
-  ~vtkQtChartSeriesSelection() {}
+  ~vtkQtChartSeriesSelection();
+
+  vtkQtChartSeriesSelection &operator=(const vtkQtChartSeriesSelection &other);
 
   /// \brief
   ///   Gets whether or not the selection is empty.
@@ -103,10 +84,11 @@ public:
 
   /// \brief
   ///   Sets the list of selected series ranges.
-  /// \param series The series index range to select.
+  /// \param first The first series index in the range.
+  /// \param last The last series index in the range.
   /// \return
   ///   True if the selection was modified.
-  bool setSeries(const vtkQtChartIndexRange &series);
+  bool setSeries(int first, int last);
 
   /// \brief
   ///   Adds the list of series ranges to the selection.
@@ -117,10 +99,11 @@ public:
 
   /// \brief
   ///   Adds the series index range to the selection.
-  /// \param series The series index range to add.
+  /// \param first The first series index in the range.
+  /// \param last The last series index in the range.
   /// \return
   ///   True if the selection was modified.
-  bool addSeries(const vtkQtChartIndexRange &series);
+  bool addSeries(int first, int last);
 
   /// \brief
   ///   Subtracts the list of series ranges from the selection.
@@ -131,10 +114,11 @@ public:
 
   /// \brief
   ///   Subtracts the series index range from the selection.
-  /// \param series The series index range to subtract.
+  /// \param first The first series index in the range.
+  /// \param last The last series index in the range.
   /// \return
   ///   True if the selection was modified.
-  bool subtractSeries(const vtkQtChartIndexRange &series);
+  bool subtractSeries(int first, int last);
 
   /// \brief
   ///   Selects unique series from the given list and the selection.
@@ -145,16 +129,26 @@ public:
 
   /// \brief
   ///   Selects unique series from the given range and the selection.
-  /// \param series The series index range.
+  /// \param first The first series index in the range.
+  /// \param last The last series index in the range.
   /// \return
   ///   True if the selection was modified.
-  bool xorSeries(const vtkQtChartIndexRange &series);
+  bool xorSeries(int first, int last);
 
   /// \brief
   ///   Trims the selected series to the given bounds.
   /// \param minimum The minimum series index.
   /// \param maximum The maximum series index.
   void limitSeries(int minimum, int maximum);
+
+  /// \brief
+  ///   Adds the offset to all the series greater than or equal to
+  ///   the given series.
+  /// \param first The starting series index.
+  /// \param offset The offset to add to the indexes.
+  /// \return
+  ///   True if the selection was modified.
+  bool offsetSeries(int first, int offset);
   //@}
 
   /// \name Point Selection Methods
@@ -163,49 +157,48 @@ public:
   ///   Gets the list of selected point ranges.
   /// \return
   ///   A reference to the list of selected point ranges.
-  const QList<vtkQtChartSeriesSelectionItem> &getPoints() const;
+  const QMap<int, vtkQtChartIndexRangeList> &getPoints() const;
 
   /// \brief
   ///   Sets the list of selected point ranges.
   /// \param points The new list of selected point ranges.
   /// \return
   ///   True if the selection was modified.
-  bool setPoints(const QList<vtkQtChartSeriesSelectionItem> &points);
+  bool setPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+  bool setPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
   ///   Adds the list of point ranges to the selection.
   /// \param points The list of selected point ranges to add.
   /// \return
   ///   True if the selection was modified.
-  bool addPoints(const QList<vtkQtChartSeriesSelectionItem> &points);
+  bool addPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+  bool addPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
   ///   Subtracts the list of point ranges from the selection.
   /// \param points The list of selected point ranges to subtract.
   /// \return
   ///   True if the selection was modified.
-  bool subtractPoints(const QList<vtkQtChartSeriesSelectionItem> &points);
+  bool subtractPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+  bool subtractPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
   ///   Subtracts all the selected points in the given series from
   ///   the selection.
-  /// \param series The list of series ranges to subtract.
+  /// \param first The first series in the range.
+  /// \param last The last series in the range.
   /// \return
   ///   True if the selection was modified.
-  bool subtractPoints(const vtkQtChartIndexRange &series);
+  bool subtractPoints(int first, int last);
 
   /// \brief
   ///   Selects unique points from the given list and the selection.
   /// \param points The list of point ranges.
   /// \return
   ///   True if the selection was modified.
-  bool xorPoints(const QList<vtkQtChartSeriesSelectionItem> &points);
-
-  /// \brief
-  ///   Gets the list of series that have selected points.
-  /// \return
-  ///   The list of series that have selected points.
-  QList<int> getPointSeries() const;
+  bool xorPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+  bool xorPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
   ///   Trims the selected point indexes for the given series.
@@ -215,37 +208,8 @@ public:
   void limitPoints(int series, int minimum, int maximum);
   //@}
 
-  vtkQtChartSeriesSelection &operator=(const vtkQtChartSeriesSelection &other);
-
 private:
-  /// \brief
-  ///   Adds the source ranges to the target ranges.
-  /// \param source The list of index ranges to add.
-  /// \param target The list of index ranges to be added to.
-  /// \return
-  ///   True if the target list was modified in the union.
-  bool addRanges(const vtkQtChartIndexRangeList &source,
-      vtkQtChartIndexRangeList &target);
-
-  /// \brief
-  ///   Subtracts the source ranges from the target ranges.
-  /// \param source The list of index ranges to subtract.
-  /// \param target The list of index ranges to be subtracted from.
-  /// \return
-  ///   True if the target list was modified in the subtraction.
-  bool subtractRanges(const vtkQtChartIndexRangeList &source,
-      vtkQtChartIndexRangeList &target);
-
-  /// \brief
-  ///   Trims the index ranges to be within the given bounds.
-  /// \param list The index ranges to limit.
-  /// \param minimum The minimum index.
-  /// \param maximum The maximum index.
-  void limitRanges(vtkQtChartIndexRangeList &list, int minimum, int maximum);
-
-private:
-  vtkQtChartIndexRangeList Series;             ///< Stores the selected series.
-  QList<vtkQtChartSeriesSelectionItem> Points; ///< Stores the selected points.
+  vtkQtChartSeriesSelectionInternal *Internal; ///< Stores the selection lists.
 };
 
 #endif

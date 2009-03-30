@@ -38,6 +38,7 @@
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
+#include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
 #include "vtkQtChartSeriesDomain.h"
@@ -608,13 +609,14 @@ bool vtkQtStackedChart::getHelpText(const QPointF &point, QString &text)
         this->Options->getAxesCorner())->getOptions();
 
     // Use the x-axis domain and the table for the data values.
-    const QList<vtkQtChartSeriesSelectionItem> &points = selection.getPoints();
-    int series = points[0].Series;
+    QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter =
+        selection.getPoints().begin();
+    int series = iter.key();
     vtkQtStackedChartSeries *item = this->Internal->Series[series];
     const vtkQtChartSeriesDomain *seriesDomain =
         this->Internal->Domain.getDomain(item->Group);
     bool isRange = false;
-    int index = points[0].Points[0].first;
+    int index = iter->getFirst()->getFirst();
     QStringList args;
     args.append(xAxis->formatValue(
         seriesDomain->getXDomain().getDomain(isRange)[index]));
@@ -676,7 +678,7 @@ void vtkQtStackedChart::getSeriesAt(const QPointF &point,
     {
     // Add the series to the selection.
     int series = shapes.first()->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   selection.setSeries(indexes);
@@ -690,17 +692,14 @@ void vtkQtStackedChart::getPointsAt(const QPointF &point,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the quad index from the search tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsAt(local);
   if(shapes.size() > 0)
     {
-    vtkQtChartSeriesSelectionItem item(shapes.first()->getSeries());
     int index = shapes.first()->getIndex();
-    item.Points.append(vtkQtChartIndexRange(index, index));
-    indexes.append(item);
+    selection.addPoints(shapes.first()->getSeries(),
+        vtkQtChartIndexRangeList(index, index));
     }
-
-  selection.setPoints(indexes);
 }
 
 void vtkQtStackedChart::getSeriesIn(const QRectF &area,
@@ -718,7 +717,7 @@ void vtkQtStackedChart::getSeriesIn(const QRectF &area,
     {
     // Add the series to the selection.
     int series = (*iter)->getSeries();
-    indexes.append(vtkQtChartIndexRange(series, series));
+    indexes.addRange(series, series);
     }
 
   selection.setSeries(indexes);
@@ -732,18 +731,15 @@ void vtkQtStackedChart::getPointsIn(const QRectF &area,
   this->ChartArea->getContentsSpace()->translateToLayerContents(local);
 
   // Get the list of quads from the search tree.
-  QList<vtkQtChartSeriesSelectionItem> indexes;
+  selection.clear();
   QList<vtkQtChartShape *> shapes = this->Internal->QuadTree.getItemsIn(local);
   QList<vtkQtChartShape *>::Iterator iter = shapes.begin();
   for( ; iter != shapes.end(); ++iter)
     {
-    vtkQtChartSeriesSelectionItem item((*iter)->getSeries());
     int index = (*iter)->getIndex();
-    item.Points.append(vtkQtChartIndexRange(index, index));
-    indexes.append(item);
+    selection.addPoints((*iter)->getSeries(),
+        vtkQtChartIndexRangeList(index, index));
     }
-
-  selection.setPoints(indexes);
 }
 
 QRectF vtkQtStackedChart::boundingRect() const
@@ -1255,13 +1251,15 @@ void vtkQtStackedChart::updateHighlights()
       if(current.getType() == vtkQtChartSeriesSelection::SeriesSelection)
         {
         const vtkQtChartIndexRangeList &series = current.getSeries();
-        vtkQtChartIndexRangeList::ConstIterator jter = series.begin();
-        for( ; jter != series.end(); ++jter)
+        vtkQtChartIndexRange *range = series.getFirst();
+        while(range)
           {
-          for(int i = jter->first; i <= jter->second; i++)
+          for(int i = range->getFirst(); i <= range->getSecond(); i++)
             {
             this->Internal->Series[i]->IsHighlighted = true;
             }
+
+          range = series.getNext(range);
           }
         }
       else if(current.getType() == vtkQtChartSeriesSelection::PointSelection)
@@ -1283,42 +1281,41 @@ void vtkQtStackedChart::layoutHighlights()
         this->Selection->getSelection();
     if(current.getType() == vtkQtChartSeriesSelection::PointSelection)
       {
-      const QList<vtkQtChartSeriesSelectionItem> &points =
-          current.getPoints();
-      QList<vtkQtChartSeriesSelectionItem>::ConstIterator jter;
+      const QMap<int, vtkQtChartIndexRangeList> &points = current.getPoints();
+      QMap<int, vtkQtChartIndexRangeList>::ConstIterator jter;
       for(jter = points.begin(); jter != points.end(); ++jter)
         {
         // Clear the current highlights.
-        vtkQtStackedChartSeries *item = this->Internal->Series[jter->Series];
+        vtkQtStackedChartSeries *item = this->Internal->Series[jter.key()];
         item->clearHighlights();
 
         // Add lightened polygons for the selected points.
         int half = item->Polygon->size() / 2;
-        vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
-        for( ; kter != jter->Points.end(); ++kter)
+        vtkQtChartIndexRange *range = jter->getFirst();
+        while(range)
           {
           // Add the mid-point to the front if needed.
           QPolygonF *selectedPoints = new QPolygonF();
-          if(kter->first != 0)
+          if(range->getFirst() != 0)
             {
             selectedPoints->append(this->Internal->getMidPoint(
-                (*item->Polygon)[kter->first - 1],
-                (*item->Polygon)[kter->first]));
+                (*item->Polygon)[range->getFirst() - 1],
+                (*item->Polygon)[range->getFirst()]));
             }
 
           // Add the selected points.
-          int count = kter->second - kter->first + 1;
-          *selectedPoints << item->Polygon->mid(kter->first, count);
+          int count = range->getSecond() - range->getFirst() + 1;
+          *selectedPoints << item->Polygon->mid(range->getFirst(), count);
 
           // Add a midpoint to the end if needed. Add one for the
           // beginning of the bottom half as well.
-          int bSecond = item->Polygon->size() - 1 - kter->first;
+          int bSecond = item->Polygon->size() - 1 - range->getFirst();
           int bFirst = bSecond - count + 1;
-          if(kter->second < half - 1)
+          if(range->getSecond() < half - 1)
             {
             selectedPoints->append(this->Internal->getMidPoint(
-                (*item->Polygon)[kter->second],
-                (*item->Polygon)[kter->second + 1]));
+                (*item->Polygon)[range->getSecond()],
+                (*item->Polygon)[range->getSecond() + 1]));
             selectedPoints->append(this->Internal->getMidPoint(
                 (*item->Polygon)[bFirst - 1], (*item->Polygon)[bFirst]));
             }
@@ -1327,7 +1324,7 @@ void vtkQtStackedChart::layoutHighlights()
           *selectedPoints << item->Polygon->mid(bFirst, count);
 
           // Add the final mid-point if needed.
-          if(kter->first != 0)
+          if(range->getFirst() != 0)
             {
             selectedPoints->append(this->Internal->getMidPoint(
                 (*item->Polygon)[bSecond], (*item->Polygon)[bSecond + 1]));
@@ -1335,6 +1332,7 @@ void vtkQtStackedChart::layoutHighlights()
 
           // Add the highlight polygon.
           item->Highlights.append(selectedPoints);
+          range = jter->getNext(range);
           }
         }
       }
