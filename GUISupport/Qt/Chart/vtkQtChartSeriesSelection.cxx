@@ -316,7 +316,7 @@ bool vtkQtChartSeriesSelection::addPoints(
     }
 
   bool changed = false;
-  QMap<int, vtkQtChartIndexRangeList>::Iterator iter = points.begin();
+  QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter = points.begin();
   for( ; iter != points.end(); ++iter)
     {
     if(this->addPoints(iter.key(), *iter))
@@ -362,7 +362,7 @@ bool vtkQtChartSeriesSelection::subtractPoints(
     }
 
   bool changed = false;
-  QMap<int, vtkQtChartIndexRangeList>::Iterator iter = points.begin();
+  QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter = points.begin();
   for( ; iter != points.end(); ++iter)
     {
     if(this->subtractPoints(iter.key(), *iter))
@@ -434,7 +434,7 @@ bool vtkQtChartSeriesSelection::xorPoints(
     }
 
   bool changed = false;
-  QMap<int, vtkQtChartIndexRangeList>::Iterator iter = points.begin();
+  QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter = points.begin();
   for( ; iter != points.end(); ++iter)
     {
     if(this->xorPoints(iter.key(), *iter))

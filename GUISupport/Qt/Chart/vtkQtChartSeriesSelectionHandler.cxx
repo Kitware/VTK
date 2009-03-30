@@ -86,7 +86,7 @@ void vtkQtChartSeriesSelectionHandlerInternal::setLast(const QString &mode,
   else if(mode == this->PointMode &&
       selection.getType() == vtkQtChartSeriesSelection::PointSelection)
     {
-    QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+    QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter =
         selection.getPoints().begin();
     this->LastSeries = iter.key();
     this->LastPoint = iter->getFirst()->getFirst();
@@ -119,7 +119,7 @@ void vtkQtChartSeriesSelectionHandlerInternal::getRange(const QString &mode,
   else if(mode == this->PointMode &&
       selection.getType() == vtkQtChartSeriesSelection::PointSelection)
     {
-    QMap<int, vtkQtChartIndexRangeList>::Iterator iter =
+    QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter =
         selection.getPoints().begin();
     int nextSeries = iter.key();
     int nextPoint = iter->getFirst()->getFirst();
