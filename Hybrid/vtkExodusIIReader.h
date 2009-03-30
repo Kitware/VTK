@@ -251,6 +251,16 @@ public:
   double GetModeShapeTime();
 
   // Description:
+  // If this flag is on (the default) and HasModeShapes is also on, then this
+  // reader will report a continuous time range [0,1] and animate the
+  // displacements in a periodic sinusoid.  If this flag is off and
+  // HasModeShapes is on, this reader ignores time.  This flag has no effect if
+  // HasModeShapes is off.
+  virtual void SetAnimateModeShapes(int flag);
+  int GetAnimateModeShapes();
+  vtkBooleanMacro(AnimateModeShapes, int);
+
+  // Description:
   // FIXME
   virtual void SetEdgeFieldDecorations( int d );
   int GetEdgeFieldDecorations();

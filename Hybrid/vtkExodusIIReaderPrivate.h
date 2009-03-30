@@ -258,6 +258,9 @@ public:
   vtkSetMacro(ModeShapeTime,double);
   vtkGetMacro(ModeShapeTime,double);
 
+  vtkSetMacro(AnimateModeShapes, int);
+  vtkGetMacro(AnimateModeShapes, int);
+
   vtkDataArray* FindDisplacementVectors( int timeStep );
 
   vtkSetMacro(EdgeFieldDecorations,int);
@@ -787,6 +790,7 @@ protected:
   int ApplyDisplacements;
   float DisplacementMagnitude;
   int HasModeShapes;
+  int AnimateModeShapes;
 
   // Specify how to decorate edge and face variables.
   int EdgeFieldDecorations;

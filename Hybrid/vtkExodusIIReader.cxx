@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.75");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.76");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -392,6 +392,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->TimeStep = 0;
   this->HasModeShapes = 0;
   this->ModeShapeTime = -1.;
+  this->AnimateModeShapes = 1;
 
   this->GenerateObjectIdArray = 1;
   this->GenerateGlobalElementIdArray = 0;
@@ -2493,7 +2494,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     if ( displ )
       {
       double* coords = darr->GetPointer( 0 );
-      if ( this->HasModeShapes )
+      if ( this->HasModeShapes && this->AnimateModeShapes )
         {
         for ( vtkIdType idx = 0; idx < displ->GetNumberOfTuples(); ++idx )
           {
@@ -3400,6 +3401,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "HasModeShapes: " << this->HasModeShapes << "\n";
   os << indent << "ModeShapeTime: " << this->ModeShapeTime << "\n";
+  os << indent << "AnimateModeShapes: " << this->AnimateModeShapes << "\n";
 
   // Print nodal variables
   if ( this->ArrayInfo[ vtkExodusIIReader::NODAL ].size() > 0 )
@@ -4820,6 +4822,7 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 
   this->HasModeShapes = 0;
   this->ModeShapeTime = -1.;
+  this->AnimateModeShapes = 1;
 
   this->SqueezePoints = 1;
 
@@ -5325,7 +5328,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.75");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.76");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5604,7 +5607,7 @@ int vtkExodusIIReader::RequestData(
       //cout << "Requested value: " << requestedTimeSteps[0] << " Step: " << this->TimeStep << endl;
       output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + this->TimeStep, 1 );
       }
-    else
+    else if (this->GetAnimateModeShapes())
       {
       // Let the metadata know the time value so that the Metadata->RequestData call below will generate
       // the animated mode shape properly.
@@ -5734,6 +5737,16 @@ void vtkExodusIIReader::SetModeShapeTime( double phase )
 double vtkExodusIIReader::GetModeShapeTime()
 {
   return this->Metadata->GetModeShapeTime();
+}
+
+void vtkExodusIIReader::SetAnimateModeShapes(int flag)
+{
+  this->Metadata->SetAnimateModeShapes(flag);
+}
+
+int vtkExodusIIReader::GetAnimateModeShapes()
+{
+  return this->Metadata->GetAnimateModeShapes();
 }
 
 void vtkExodusIIReader::SetEdgeFieldDecorations( int d )
@@ -6539,11 +6552,16 @@ void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
       this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
       }
     }
-  else
+  else if (this->GetAnimateModeShapes())
     {
     outInfo->Remove( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     static double timeRange[] = { 0, 1 };
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+    }
+  else
+    {
+    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
     }
 
   // Advertise to downstream filters that this reader supports a fast-path

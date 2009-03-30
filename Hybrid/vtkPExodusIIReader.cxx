@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.25");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.26");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -578,6 +578,7 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetApplyDisplacements( this->GetApplyDisplacements() );
     this->ReaderList[reader_idx]->SetDisplacementMagnitude( this->GetDisplacementMagnitude() );
     this->ReaderList[reader_idx]->SetHasModeShapes( this->GetHasModeShapes() );
+    this->ReaderList[reader_idx]->SetAnimateModeShapes( this->GetAnimateModeShapes() );
     this->ReaderList[reader_idx]->SetEdgeFieldDecorations( this->GetEdgeFieldDecorations() );
     this->ReaderList[reader_idx]->SetFaceFieldDecorations( this->GetFaceFieldDecorations() );
 
