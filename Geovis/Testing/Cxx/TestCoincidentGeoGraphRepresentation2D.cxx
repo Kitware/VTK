@@ -259,6 +259,8 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   graphRep->SetInput(graph);
   graphRep->SetVertexColorArrayName("stuff");
   graphRep->ColorVerticesOn();
+  graphRep->SetVertexLabelArrayName("stuff");
+  graphRep->VertexLabelVisibilityOff();
   
   view->AddRepresentation(graphRep);
 
