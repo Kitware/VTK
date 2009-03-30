@@ -83,6 +83,7 @@ private:
 
   class vtkSet;
   vtkSet *Indices;
+  vtkSet *ActiveIndices;
 //ETX
 };
 

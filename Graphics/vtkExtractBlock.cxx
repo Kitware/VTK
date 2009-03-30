@@ -30,12 +30,13 @@ class vtkExtractBlock::vtkSet : public vtkstd::set<unsigned int>
 };
 
 vtkStandardNewMacro(vtkExtractBlock);
-vtkCxxRevisionMacro(vtkExtractBlock, "1.4");
+vtkCxxRevisionMacro(vtkExtractBlock, "1.5");
 vtkInformationKeyMacro(vtkExtractBlock, DONT_PRUNE, Integer);
 //----------------------------------------------------------------------------
 vtkExtractBlock::vtkExtractBlock()
 {
   this->Indices = new vtkExtractBlock::vtkSet();
+  this->ActiveIndices = new vtkExtractBlock::vtkSet();
   this->PruneOutput = 1;
 }
 
@@ -43,6 +44,7 @@ vtkExtractBlock::vtkExtractBlock()
 vtkExtractBlock::~vtkExtractBlock()
 {
   delete this->Indices;
+  delete this->ActiveIndices;
 }
 
 //----------------------------------------------------------------------------
@@ -85,13 +87,19 @@ void vtkExtractBlock::CopySubTree(vtkCompositeDataIterator* loc,
     vtkCompositeDataSet* coutput = vtkCompositeDataSet::SafeDownCast(
       output->GetDataSet(loc));
     vtkCompositeDataIterator* iter = cinput->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    iter->VisitOnlyLeavesOff();
+    for (iter->InitTraversal();
+      !iter->IsDoneWithTraversal() && this->ActiveIndices->size() > 0;
+      iter->GoToNextItem())
       {
       vtkDataObject* curNode = iter->GetCurrentDataObject();
       vtkDataObject* clone = curNode->NewInstance();
       clone->ShallowCopy(curNode);
       coutput->SetDataSet(iter, clone);
       clone->Delete();
+
+      this->ActiveIndices->erase(loc->GetCurrentFlatIndex() +
+        iter->GetCurrentFlatIndex());
       }
     iter->Delete();
     }
@@ -115,19 +123,25 @@ int vtkExtractBlock::RequestData(
 
   output->CopyStructure(input);
 
+  (*this->ActiveIndices) = (*this->Indices);
+
   // Copy selected blocks over to the output.
   vtkCompositeDataIterator* iter = input->NewIterator();
   iter->VisitOnlyLeavesOff();
 
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-    if (this->Indices->find(iter->GetCurrentFlatIndex()) != this->Indices->end())
+    if (this->ActiveIndices->find(iter->GetCurrentFlatIndex()) !=
+      this->ActiveIndices->end())
       {
+      this->ActiveIndices->erase(iter->GetCurrentFlatIndex());
+
+      // This removed the visited indices from this->ActiveIndices.
       this->CopySubTree(iter, output, input);
-      // TODO: avoid copying if subtree has already been copied over.
       }
     }
   iter->Delete();
+  this->ActiveIndices->clear();
 
   if (!this->PruneOutput)
     {
