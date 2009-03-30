@@ -27,6 +27,7 @@
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartColorStyleGenerator.h"
+#include "vtkQtChartIndexRangeList.h"
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
@@ -73,7 +74,7 @@ void vtkQtChartRepresentationSignalHandler::modelChanged()
   this->Target->QtModelChanged();
 }
 
-vtkCxxRevisionMacro(vtkQtChartRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkQtChartRepresentation, "1.5");
 vtkStandardNewMacro(vtkQtChartRepresentation);
 
 //----------------------------------------------------------------------------
@@ -189,15 +190,18 @@ vtkQtChartRepresentation::SetChartLayer(vtkQtChartSeriesLayer* layer)
 void 
 vtkQtChartRepresentation::QtSelectedSeriesChanged(const vtkQtChartSeriesSelection &list)
 {
-  QList<QPair<int, int> > ranges = list.getSeries();
+  const vtkQtChartIndexRangeList &ranges = list.getSeries();
 
   VTK_CREATE(vtkIdTypeArray, ids);
-  for (int i = 0; i < ranges.size(); ++i)
+  vtkQtChartIndexRange *range = ranges.getFirst();
+  while (range)
     {
-    for (int j = ranges[i].first; j <= ranges[i].second; ++j)
+    for (int j = range->getFirst(); j <= range->getSecond(); ++j)
       {
       ids->InsertNextValue(j);
       }
+
+    range = ranges.getNext(range);
     }
 
   VTK_CREATE(vtkSelection, sel);
