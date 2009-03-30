@@ -26,15 +26,18 @@
 #include "vtkPolyData.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
-#include <vtkstd/set> // keep track of inserted triangles
+#include <vtksys/hash_set.hxx> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.88");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.89");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
 // PIMPLd STL set for keeping track of inserted cells
-class vtkCellSet : public vtkstd::set<vtkIdType> {};
-typedef vtkstd::set<vtkIdType>::iterator vtkCellSetIterator;
+struct vtkQuadricClusteringIdTypeHash {
+  size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
+};
+class vtkQuadricClusteringCellSet : public vtksys::hash_set<vtkIdType, vtkQuadricClusteringIdTypeHash> {};
+typedef vtkQuadricClusteringCellSet::iterator vtkQuadricClusteringCellSetIterator;
 
 
 //----------------------------------------------------------------------------
@@ -231,7 +234,7 @@ void vtkQuadricClustering::StartAppend(double *bounds)
   // If there are duplicate triangles. remove them
   if ( this->PreventDuplicateCells )
     {
-    this->CellSet = new vtkCellSet;
+    this->CellSet = new vtkQuadricClusteringCellSet;
     this->NumberOfBins = 
       this->NumberOfDivisions[0]*this->NumberOfDivisions[1]*this->NumberOfDivisions[2];
     }
@@ -293,6 +296,10 @@ void vtkQuadricClustering::StartAppend(double *bounds)
   this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfDivisions[0];
   this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfDivisions[1];
   this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfDivisions[2];
+
+  this->XBinStep = (this->XBinSize > 0.0) ? (1.0/this->XBinSize) : 0.0;
+  this->YBinStep = (this->YBinSize > 0.0) ? (1.0/this->YBinSize) : 0.0;
+  this->ZBinStep = (this->ZBinSize > 0.0) ? (1.0/this->ZBinSize) : 0.0;
 
   this->NumberOfBinsUsed = 0;
   if (this->QuadricArray)
@@ -483,6 +490,17 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
   vtkIdType triPtIds[3];
   double quadric[9], quadric4x4[4][4];
   vtkIdType minIdx, midIdx, maxIdx, idx;
+
+  // Special condition for fast execution.
+  // Only add triangles that traverse three bins to quadrics.
+  if (this->UseInternalTriangles == 0)
+    {
+    if (binIds[0] == binIds[1] || binIds[0] == binIds[2] ||
+        binIds[1] == binIds[2])
+      {
+      return;
+      }
+    }
  
   // Compute the quadric.
   vtkTriangle::ComputeQuadric(pt0, pt1, pt2, quadric4x4);
@@ -495,17 +513,6 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
   quadric[6] = quadric4x4[1][3];
   quadric[7] = quadric4x4[2][2];
   quadric[8] = quadric4x4[2][3];
-
-  // Special condition for fast execution.
-  // Only add triangles that traverse three bins to quadrics.
-  if (this->UseInternalTriangles == 0)
-    {
-    if (binIds[0] == binIds[1] || binIds[0] == binIds[2] ||
-        binIds[1] == binIds[2])
-      {
-      return;
-      }
-    }
 
   // Add the quadric to each of the three corner bins.
   for (i = 0; i < 3; ++i)
@@ -878,50 +885,38 @@ void vtkQuadricClustering::AddQuadric(vtkIdType binId, double quadric[9])
 vtkIdType vtkQuadricClustering::HashPoint(double point[3])
 {
   vtkIdType binId;
-  int xBinCoord = 0;
-  int yBinCoord = 0;
-  int zBinCoord = 0;
+  int xBinCoord;
+  int yBinCoord;
+  int zBinCoord;
   
-  if (this->XBinSize > 0.0)
+  xBinCoord = static_cast<int>((point[0] - this->Bounds[0])*this->XBinStep);
+  if (xBinCoord < 0)
     {
-    xBinCoord = 
-      static_cast<int>((point[0] - this->Bounds[0]) / this->XBinSize);
-    if (xBinCoord < 0)
-      {
-      xBinCoord = 0;
-      }
-    else if (xBinCoord >= this->NumberOfDivisions[0])
-      {
-      xBinCoord = this->NumberOfDivisions[0] - 1;
-      }
+    xBinCoord = 0;
+    }
+  else if (xBinCoord >= this->NumberOfDivisions[0])
+    {
+    xBinCoord = this->NumberOfDivisions[0] - 1;
     }
   
-  if (this->YBinSize > 0.0)
+  yBinCoord = static_cast<int>((point[1] - this->Bounds[2])*this->YBinStep);
+  if (yBinCoord < 0)
     {
-    yBinCoord = 
-      static_cast<int>((point[1] - this->Bounds[2]) / this->YBinSize);
-    if (yBinCoord < 0)
-      {
-      yBinCoord = 0;
-      }
-    else if (yBinCoord >= this->NumberOfDivisions[1])
-      {
-      yBinCoord = this->NumberOfDivisions[1] - 1;
-      }
+    yBinCoord = 0;
+    }
+  else if (yBinCoord >= this->NumberOfDivisions[1])
+    {
+    yBinCoord = this->NumberOfDivisions[1] - 1;
     }
 
-  if (this->ZBinSize > 0.0)
+  zBinCoord = static_cast<int>((point[2] - this->Bounds[4])*this->ZBinStep);
+  if (zBinCoord < 0)
     {
-    zBinCoord = 
-      static_cast<int>((point[2] - this->Bounds[4]) / this->ZBinSize);
-    if (zBinCoord < 0)
-      {
-      zBinCoord = 0;
-      }
-    else if (zBinCoord >= this->NumberOfDivisions[2])
-      {
-      zBinCoord = this->NumberOfDivisions[2] - 1;
-      }
+    zBinCoord = 0;
+    }
+  else if (zBinCoord >= this->NumberOfDivisions[2])
+    {
+    zBinCoord = this->NumberOfDivisions[2] - 1;
     }
   
   // vary x fastest, then y, then z

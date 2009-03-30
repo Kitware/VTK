@@ -85,7 +85,7 @@
 class vtkCellArray;
 class vtkFeatureEdges;
 class vtkPoints;
-class vtkCellSet;
+class vtkQuadricClusteringCellSet;
 
 
 class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
@@ -293,7 +293,7 @@ protected:
 
   // Set this to eliminate duplicate cells
   int PreventDuplicateCells;
-  vtkCellSet *CellSet; //PIMPLd stl set for tracking inserted cells
+  vtkQuadricClusteringCellSet *CellSet; //PIMPLd stl set for tracking inserted cells
   vtkIdType NumberOfBins;
 
   // Used internally.
@@ -313,6 +313,9 @@ protected:
   double XBinSize;
   double YBinSize;
   double ZBinSize;
+  double XBinStep;     //replace some divisions with multiplication
+  double YBinStep;
+  double ZBinStep;
   vtkIdType SliceSize; //eliminate one multiplication
 
   //BTX
