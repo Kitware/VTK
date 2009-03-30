@@ -13,16 +13,18 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2009 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
 #include "vtkPerturbCoincidentVertices.h"
 
+#include "vtkBitArray.h"
 #include "vtkCoincidentPoints.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkFloatArray.h"
 #include "vtkGraph.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -34,11 +36,12 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.8");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.9");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
 {
+  PerturbFactor = 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -65,7 +68,6 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
 
   vtkSmartPointer<vtkCoincidentPoints> coincidentPoints =
     vtkSmartPointer<vtkCoincidentPoints>::New();
-
   for(i = 0; i < numPoints; ++i)
     {
     coincidentPoints->AddPoint(i, points->GetPoint(i));
@@ -180,6 +182,114 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
     }
 }
 
+
+// Temp datastructure
+struct Coord
+{
+  double coord[2];
+  Coord()
+    { 
+    }
+  Coord( const double src[3] )
+    {
+    this->coord[0] = src[0];
+    this->coord[1] = src[1];
+    }
+  ~Coord() {}
+
+   static double distance(Coord x,Coord y)
+     {
+      return ( ( x.coord[0] - y.coord[0] ) * ( x.coord[0] - y.coord[0] ) 
+           + ( x.coord[1] - y.coord[1] ) * ( x.coord[1] - y.coord[1] ) );
+     }
+};
+
+//----------------------------------------------------------------------------
+void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input, 
+                                                          vtkGraph *output, 
+                                                          float perturbFactor)
+{
+
+  // Note: Look into this...
+  output->DeepCopy(input);
+
+  vtkPoints* points = output->GetPoints();
+  int numPoints = points->GetNumberOfPoints();
+  int numCoincidentPoints = 0;
+  double spiralOffsets[3];
+  double currentPoint[3];
+  vtkIdType index;
+
+  // Collect the coincident points into a nice list
+  vtkSmartPointer<vtkCoincidentPoints> coincidentPoints =
+    vtkSmartPointer<vtkCoincidentPoints>::New();
+  for(int i = 0; i < numPoints; ++i)
+    {
+    coincidentPoints->AddPoint(i, points->GetPoint(i));
+    }
+
+  // Note: We're not going to remove the non-coincident
+  // points until after computing the distance from all
+  // the points that have distinct coordinates.
+  coincidentPoints->InitTraversal();
+
+  vtkstd::vector<Coord> coincidentFoci;
+  vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+  while(coincidentPointsList != NULL)
+    {
+    // Just grabbing the first vertex of each coincident foci
+    vtkIdType vertexIndex = coincidentPointsList->GetId(0);
+    points->GetPoint(vertexIndex,currentPoint);
+    coincidentFoci.push_back(currentPoint);
+
+    // Get next coincident point list
+    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+    }
+
+  // Compute the shortest intra-distance between coincident point foci
+  double shortestDistance = VTK_DOUBLE_MAX;
+  int numberOfFoci = coincidentFoci.size();
+  for (int i=0; i<numberOfFoci; ++i)
+    {
+    for (int j=i+1; j<numberOfFoci; ++j)
+      {
+      double distance = Coord::distance(coincidentFoci[i], coincidentFoci[j]);
+      shortestDistance = distance < shortestDistance ? distance : shortestDistance;
+      }
+    }
+
+  // Set the offset distance to be the shortest distance /4 * user setting (perturbFactor)
+  double offsetDistance = sqrt(shortestDistance)/4.0 * perturbFactor;
+ 
+  // These store the offsets for a spiral with a certain number of points
+  vtkSmartPointer<vtkPoints> offsets = vtkSmartPointer<vtkPoints>::New();
+
+  // Removing the coincident points and re-initializing the iterator.
+  coincidentPoints->RemoveNonCoincidentPoints();
+  coincidentPoints->InitTraversal();
+  coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+
+  // Iterate over each coordinate that may have a set of coincident point ids.
+  while(coincidentPointsList != NULL)
+    {
+    // Iterate over all coincident point ids and perturb them
+    numCoincidentPoints = coincidentPointsList->GetNumberOfIds();
+    vtkMath::SpiralPoints( numCoincidentPoints + 1, offsets );
+    for(int i = 0; i < numCoincidentPoints; ++i)
+      {
+      index = coincidentPointsList->GetId(i);
+      points->GetPoint(index, currentPoint);
+      offsets->GetPoint(i + 1, spiralOffsets);
+
+      points->SetPoint(index,
+        currentPoint[0] + spiralOffsets[0] * offsetDistance,
+        currentPoint[1] + spiralOffsets[1] * offsetDistance,
+        currentPoint[2] );
+      }
+    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+    }
+}
+
 //----------------------------------------------------------------------------
 int vtkPerturbCoincidentVertices::RequestData(
   vtkInformation* vtkNotUsed(request), 
@@ -189,7 +299,7 @@ int vtkPerturbCoincidentVertices::RequestData(
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
   vtkGraph* output = vtkGraph::GetData(outputVector);
 
-  this->SpiralPerturbation(input, output);
+  this->SimpleSpiralPerturbation(input, output, 1.0);
 
   return 1;
 }
@@ -200,4 +310,5 @@ int vtkPerturbCoincidentVertices::RequestData(
 void vtkPerturbCoincidentVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "PerturbFactor: " << this->PerturbFactor << "\n";
 }

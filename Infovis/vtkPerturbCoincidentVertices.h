@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2009 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
@@ -41,6 +41,11 @@ public:
   vtkTypeRevisionMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Specify the perturbation factor (defaults to 1.0)
+  vtkSetMacro(PerturbFactor,double);
+  vtkGetMacro(PerturbFactor,double);
+
 protected:
   vtkPerturbCoincidentVertices();
   ~vtkPerturbCoincidentVertices();
@@ -54,6 +59,9 @@ private:
 
   // This class might have more than one method of coincident resolution
   void SpiralPerturbation(vtkGraph *input, vtkGraph *output);
+  void SimpleSpiralPerturbation(vtkGraph *input, vtkGraph *output, float perturbFactor);
+
+  float PerturbFactor;
 
   vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&); // Not implemented
   void operator=(const vtkPerturbCoincidentVertices&);   // Not implemented
