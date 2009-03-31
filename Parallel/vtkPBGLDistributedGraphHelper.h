@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -48,9 +48,9 @@ namespace boost { namespace graph { namespace distributed {
 class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
 {
  public:
-  vtkTypeRevisionMacro (vtkPBGLDistributedGraphHelper, 
+  vtkTypeRevisionMacro (vtkPBGLDistributedGraphHelper,
                         vtkDistributedGraphHelper);
-  
+
   // Description:
   // Creates an empty Parallel BGL distributed graph helper
   static vtkPBGLDistributedGraphHelper* New();
@@ -75,7 +75,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   //ETX
 
   // Description:
-  // The Parallel BGL-specific internal information for this distributed 
+  // The Parallel BGL-specific internal information for this distributed
   // graph. TODO: Make this protected
   vtkPBGLDistributedGraphHelperInternals *Internals;
 
@@ -98,25 +98,39 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
     ADD_VERTEX_PROPS_WITH_REPLY_TAG,
     // Add a back edge; the forward edge has already been added.
     ADD_DIRECTED_BACK_EDGE_TAG,
+    ADD_DIRECTED_BACK_EDGE_PROPS_TAG,
     ADD_UNDIRECTED_BACK_EDGE_TAG,
+    ADD_UNDIRECTED_BACK_EDGE_PROPS_TAG,
     // Add an edge; don't reply.
     ADD_DIRECTED_EDGE_NO_REPLY_TAG,
+    ADD_DIRECTED_EDGE_PROPS_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_PROPS_NO_REPLY_TAG,
     // Add an edge; return the edge ID.
     ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
+    ADD_DIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
     // Add an edge via (pedigree, id); don't reply.
     ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG,
+    ADD_DIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
     // Add an edge via (pedigree, id); return the edge ID.
     ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG,
+    ADD_DIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
     // Add an edge via (id, pedigree); don't reply.
     ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG,
+    ADD_DIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
     // Add an edge via (pedigree, pedigree); don't reply.
     ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG
+    ADD_DIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG
   };
 
   // Description:
@@ -125,23 +139,23 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // to the newly-added (or found) vertex. Note that if propertyArr is
   // non-NULL and the vertex data contains pedigree IDs, a vertex will
   // only be added if there is no vertex with that pedigree ID.
-  void AddVertexInternal(vtkVariantArray *propertyArr, 
+  void AddVertexInternal(vtkVariantArray *propertyArr,
                          vtkIdType *vertex);
-  
+
   // Description:
   // Add a vertex with the given pedigree ID to the distributed graph. If
   // vertex is non-NULL, it will receive the newly-created vertex.
   void AddVertexInternal(const vtkVariant& pedigreeId, vtkIdType *vertex);
 
   // Description:
-  // Add an edge (u, v) to the distributed graph. The edge may be directed 
+  // Add an edge (u, v) to the distributed graph. The edge may be directed
   // undirected. If edge is non-null, it will receive the newly-created edge.
   // If propertyArr is non-null, it specifies the properties that will be
   // attached to the newly-created edge.
-  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
-                       vtkVariantArray *propertyArr, 
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
+                       vtkVariantArray *propertyArr,
                        vtkEdgeType *edge);
-  
+
   // Description:
   // Adds an edge (u, v) and returns the new edge. The graph edge may
   // or may not be directed, depending on the given flag. If edge is
@@ -149,8 +163,8 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // the pedigree ID of vertex u, which will be added if no vertex by
   // that pedigree ID exists. If propertyArr is non-null, it specifies
   // the properties that will be attached to the newly-created edge.
-  void AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v, 
-                       bool directed, vtkVariantArray *propertyArr, 
+  void AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v,
+                       bool directed, vtkVariantArray *propertyArr,
                        vtkEdgeType *edge);
 
   // Description:
@@ -160,8 +174,8 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // the pedigree ID of vertex u, which will be added if no vertex
   // with that pedigree ID exists. If propertyArr is non-null, it specifies
   // the properties that will be attached to the newly-created edge.
-  void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId, 
-                       bool directed, vtkVariantArray *propertyArr, 
+  void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId,
+                       bool directed, vtkVariantArray *propertyArr,
                        vtkEdgeType *edge);
 
   // Description:
@@ -172,10 +186,10 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // vertex u, each of which will be added if no vertex by that
   // pedigree ID exists. If propertyArr is non-null, it specifies
   // the properties that will be attached to the newly-created edge.
-  void AddEdgeInternal(const vtkVariant& uPedigreeId, 
-                       const vtkVariant& vPedigreeId, 
-                       bool directed, vtkVariantArray *propertyArr, 
-                       vtkEdgeType *edge); 
+  void AddEdgeInternal(const vtkVariant& uPedigreeId,
+                       const vtkVariant& vPedigreeId,
+                       bool directed, vtkVariantArray *propertyArr,
+                       vtkEdgeType *edge);
   // Description:
   // Try to find the vertex with the given pedigree ID. Returns true and
   // fills in the vertex ID if the vertex is found, and returns false
@@ -186,7 +200,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // Determine the source and target of the edge with the given
   // ID. Used internally by vtkGraph::GetSourceVertex and
   // vtkGraph::GetTargetVertex.
-  void FindEdgeSourceAndTarget(vtkIdType id, 
+  void FindEdgeSourceAndTarget(vtkIdType id,
                                vtkIdType *source, vtkIdType *target);
 
   // Description:

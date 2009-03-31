@@ -34,6 +34,7 @@
 #include <boost/bind.hpp>
 #include <vtkstd/utility>
 
+
 //----------------------------------------------------------------------------
 // private class vtkPBGLDistributedGraphHelperInternals
 //----------------------------------------------------------------------------
@@ -44,7 +45,7 @@ public:
   vtkTypeRevisionMacro(vtkPBGLDistributedGraphHelperInternals, vtkObject);
 
   // Description:
-  // Handle a FIND_VERTEX_TAG messagae.
+  // Handle a FIND_VERTEX_TAG message.
   vtkIdType HandleFindVertex(const vtkVariant& pedigreeId);
 
   // Description:
@@ -74,10 +75,23 @@ public:
   HandleAddEdge(const vtkstd::pair<vtkIdType, vtkIdType>& msg, bool directed);
 
   // Description:
+  // Handle ADD_*DIRECTED_EDGE_PROPS_*_REPLY_TAG messages.
+  vtkEdgeType
+  HandleAddEdgeWithProps(
+      const vtkstd::pair<vtkstd::pair<vtkIdType,vtkIdType>,vtkVariantArray*>& msg,
+      bool directed);
+
+  // Description:
   // Handle ADD_*DIRECTED_EDGE_NI_*_REPLY_TAG messages.
   vtkEdgeType
-  HandleAddEdgeNI(const vtkstd::pair<vtkVariant, vtkIdType>& msg,
-                  bool directed);
+  HandleAddEdgeNI(const vtkstd::pair<vtkVariant, vtkIdType>& msg, bool directed);
+
+  // Description:
+  // Handle ADD_*_DIRECTED_EDGE_PROPS_NI_*_REPLY_TAG messages.
+  vtkEdgeType
+  HandleAddEdgeNIWithProps(
+      const vtkstd::pair<vtkstd::pair<vtkVariant,vtkIdType>,vtkVariantArray*>& msg,
+      bool directed);
 
   // Description:
   // Handle ADD_*DIRECTED_EDGE_IN_*_REPLY_TAG messages
@@ -86,10 +100,24 @@ public:
                   bool directed);
 
   // Description:
-  // Handle ADD_*DIRECTED_EDGE_NN_*_REPLY_TAG messages
+  // Handle ADD_*DIRECTED_EDGE_PROPS_IN_*_REPLY_TAG messages.
+  vtkEdgeType
+  HandleAddEdgeINWithProps(
+      const vtkstd::pair<vtkstd::pair<vtkIdType, vtkVariant>,vtkVariantArray*>& msg,
+      bool directed);
+
+  // Description:
+  // Handle ADD_*DIRECTED_EDGE_NN_*_REPLY_TAG messages.
   vtkEdgeType
   HandleAddEdgeNN(const vtkstd::pair<vtkVariant, vtkVariant>& msg,
                   bool directed);
+
+  // Description:
+  // Handle ADD_*DIRECTED_EDGE_PROPS_NN_*_REPLY_TAG messages.
+  vtkEdgeType
+  HandleAddEdgeNNWithProps(
+     const vtkstd::pair<vtkstd::pair<vtkVariant,vtkVariant>, vtkVariantArray*>& msg,
+     bool directed);
 
   // Description:
   // The helper class of which this structure is a part.
@@ -125,12 +153,12 @@ boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.7");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.8");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.7");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.8");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -291,15 +319,15 @@ void vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& pedigree
 
 //----------------------------------------------------------------------------
 void
-vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
-                                               vtkIdType v,
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
+                                               vtkIdType vDistributedId,
                                                bool directed,
                                                vtkVariantArray *propertyArr,
                                                vtkEdgeType *edge)
 {
-  int rank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  int rank     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
   int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-  int uOwner = this->GetVertexOwner (u);
+  int uOwner   = this->GetVertexOwner (uDistributedId);
 
   if (uOwner == rank)
     {
@@ -307,8 +335,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
     vtkGraphInternals* GraphInternals = this->Graph->GetGraphInternals(true);
 
     // The edge ID involves our rank and the local number of edges.
-    vtkIdType edgeId
-      = this->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
+    vtkIdType edgeId = this->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
 
     if (propertyArr)      // Add edge properties
       {
@@ -334,72 +361,209 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
       }
 
     // Add the forward edge.
-    GraphInternals->Adjacency[this->GetVertexIndex(u)]
-      .OutEdges.push_back(vtkOutEdgeType(v, edgeId));
+    GraphInternals->Adjacency[this->GetVertexIndex(uDistributedId)]
+      .OutEdges.push_back(vtkOutEdgeType(vDistributedId, edgeId));
 
     // We've added an edge.
     GraphInternals->NumberOfEdges++;
 
-    int vOwner = this->GetVertexOwner(v);
+    int vOwner = this->GetVertexOwner(vDistributedId);
     if (vOwner == rank)
       {
         // The target vertex is local. Add the appropriate back edge.
         if (directed)
           {
-          GraphInternals->Adjacency[this->GetVertexIndex(v)]
-            .InEdges.push_back(vtkInEdgeType(u, edgeId));
+          GraphInternals->Adjacency[this->GetVertexIndex(vDistributedId)]
+            .InEdges.push_back(vtkInEdgeType(uDistributedId, edgeId));
           }
-        else if (u != v)
+        else if (uDistributedId != vDistributedId)
           {
           // Avoid storing self-loops twice in undirected graphs
-          GraphInternals->Adjacency[this->GetVertexIndex(v)]
-            .OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+          GraphInternals->Adjacency[this->GetVertexIndex(vDistributedId)]
+            .OutEdges.push_back(vtkOutEdgeType(uDistributedId, edgeId));
           }
       }
     else
       {
-      // The target vertex is remote: send a message asking its
-      // owner to add the back edge.
-      send(this->Internals->process_group, vOwner,
-           directed? ADD_DIRECTED_BACK_EDGE_TAG : ADD_UNDIRECTED_BACK_EDGE_TAG,
-           vtkEdgeType(u, v, edgeId));
+      if(!propertyArr)
+        {
+        // The target vertex is remote: send a message asking its
+        // owner to add the back edge.
+        send(this->Internals->process_group, vOwner,
+             directed ? ADD_DIRECTED_BACK_EDGE_TAG
+                      : ADD_UNDIRECTED_BACK_EDGE_TAG,
+             vtkEdgeType(uDistributedId, vDistributedId, edgeId));
+        }
+      else
+        {
+        // WCMCLEN: what about back edges with property arrays???
+        }
       }
 
     if (edge)
       {
-      *edge = vtkEdgeType(u, v, edgeId);
+      *edge = vtkEdgeType(uDistributedId, vDistributedId, edgeId);
+      }
+    }
+  else  // uOwner != rank
+    {
+    // The source of the edge is non-local.
+    if (edge)
+      {
+      // Send an AddEdge request to the owner of "u", and wait
+      // patiently for the reply.
+      if(!propertyArr)
+        {
+        send_oob_with_reply(this->Internals->process_group, uOwner,
+                directed ? ADD_DIRECTED_EDGE_WITH_REPLY_TAG
+                         : ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
+                vtkstd::pair<vtkIdType, vtkIdType>(uDistributedId, vDistributedId),
+                *edge);
+        }
+      else
+        {
+        send_oob_with_reply(this->Internals->process_group, uOwner,
+                directed ? ADD_DIRECTED_EDGE_PROPS_WITH_REPLY_TAG
+                         : ADD_UNDIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
+                vtkstd::pair<vtkstd::pair<vtkIdType,vtkIdType>,vtkVariantArray*>(
+                    vtkstd::pair<vtkIdType,vtkIdType>(uDistributedId,vDistributedId),propertyArr),
+                *edge);
+        }
+      }
+    else
+      {
+      // We're adding a remote edge, but we don't need to wait
+      // until the edge has been added. Just send a message to the
+      // owner of the source; we don't need (or want) a reply.
+      if(!propertyArr)
+        {
+        send(this->Internals->process_group, uOwner,
+             directed? ADD_DIRECTED_EDGE_NO_REPLY_TAG
+                     : ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
+             vtkstd::pair<vtkIdType, vtkIdType>(uDistributedId, vDistributedId));
+        }
+      else
+        {
+        send(this->Internals->process_group, uOwner,
+             directed ? ADD_DIRECTED_EDGE_PROPS_NO_REPLY_TAG
+                      : ADD_UNDIRECTED_EDGE_PROPS_NO_REPLY_TAG,
+             vtkstd::pair<vtkstd::pair<vtkIdType, vtkIdType>,vtkVariantArray*>(
+                 vtkstd::pair<vtkIdType,vtkIdType>(uDistributedId,vDistributedId),propertyArr));
+        }
+      }
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
+                                               vtkIdType vDistributedId,
+                                               bool directed,
+                                               vtkVariantArray *propertyArr,
+                                               vtkEdgeType *edge)
+{
+  vtkIdType rank   = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType uOwner = this->GetVertexOwnerByPedigreeId(uPedigreeId);
+
+  if (uOwner == rank)
+    {
+    // Resolve the pedigreeId for u immediately and add the edge locally.
+    vtkIdType uDistributedId;
+    this->AddVertexInternal(uPedigreeId, &uDistributedId);
+    uDistributedId = this->MakeDistributedId(rank, uDistributedId);
+    this->AddEdgeInternal(uDistributedId, vDistributedId, directed, propertyArr, edge);
+    return;
+    }
+
+  // Edge is remote: request its addition.
+
+  vtkIdType vDistribId = this->MakeDistributedId(rank,vDistributedId);
+  if (edge)
+    {
+    if(!propertyArr)
+      {
+      send_oob_with_reply(this->Internals->process_group, uOwner,
+                          directed? ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG
+                                  : ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
+                          vtkstd::pair<vtkVariant, vtkIdType>(uPedigreeId, vDistribId),
+                          *edge);
+      }
+    else
+      {
+      send_oob_with_reply(this->Internals->process_group, uOwner,
+                          directed? ADD_DIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG
+                                  : ADD_UNDIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
+                          vtkstd::pair<vtkstd::pair<vtkVariant, vtkIdType>,vtkVariantArray*>
+                                (vtkstd::pair<vtkVariant,vtkIdType>(uPedigreeId,vDistribId), propertyArr),
+                          *edge);
       }
     }
   else
     {
-    // The source of the edge is non-local.
-      if (edge)
-        {
-        // Send an AddEdge request to the owner of "u", and wait
-        // patiently for the reply.
-        send_oob_with_reply(this->Internals->process_group, uOwner,
-                            directed? ADD_DIRECTED_EDGE_WITH_REPLY_TAG
-                                    : ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
-                            vtkstd::pair<vtkIdType, vtkIdType>(u, v),
-                            *edge);
-        }
-      else
-        {
-        // We're adding a remote edge, but we don't need to wait
-        // until the edge has been added. Just send a message to the
-        // owner of the source; we don't need (or want) a reply.
-        send(this->Internals->process_group, uOwner,
-             directed? ADD_DIRECTED_EDGE_NO_REPLY_TAG
-                     : ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
-             vtkstd::pair<vtkIdType, vtkIdType>(u, v));
-        }
+    if(!propertyArr)
+      {
+      send(this->Internals->process_group, uOwner,
+          directed? ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG
+                  : ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
+          vtkstd::pair<vtkVariant, vtkIdType>(uPedigreeId, vDistribId));
+      }
+    else
+      {
+      send(this->Internals->process_group, uOwner,
+          directed? ADD_DIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG
+                  : ADD_UNDIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
+          vtkstd::pair<vtkstd::pair<vtkVariant, vtkIdType>,vtkVariantArray*>
+          (vtkstd::pair<vtkVariant,vtkIdType>(uPedigreeId,vDistribId), propertyArr));
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
+                                               const vtkVariant& vPedigreeId,
+                                               bool directed,
+                                               vtkVariantArray *propertyArr,
+                                               vtkEdgeType *edge)
+{
+  vtkIdType rank
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType vOwner = this->GetVertexOwnerByPedigreeId(vPedigreeId);
+
+  if (vOwner == rank || edge)
+    {
+    // Resolve the pedigree ID for v immediately and add the edge.
+    vtkIdType vDistributedId;
+    this->AddVertexInternal(vPedigreeId, &vDistributedId);
+    vDistributedId=this->MakeDistributedId(rank,vDistributedId);
+    this->AddEdgeInternal(uDistributedId, vDistributedId, directed, propertyArr, edge);
+    return;
+    }
+
+  // v is remote and we don't care when the edge is added. Ask the
+  // owner of v to resolve the pedigree ID of v and add the edge.
+  if(!propertyArr)
+    {
+    send(this->Internals->process_group, vOwner,
+         directed ? ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG
+                  : ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
+         vtkstd::pair<vtkIdType, vtkVariant>(uDistributedId, vPedigreeId));
+    }
+  else
+    {
+    send(this->Internals->process_group, vOwner,
+              directed ? ADD_DIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG
+                       : ADD_UNDIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
+              vtkstd::pair<vtkstd::pair<vtkIdType,vtkVariant>,vtkVariantArray*>
+                      (vtkstd::pair<vtkIdType,vtkVariant>(uDistributedId,vPedigreeId),propertyArr));
     }
 }
 
 //----------------------------------------------------------------------------
 void
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
-                                               vtkIdType v,
+                                               const vtkVariant& vPedigreeId,
                                                bool directed,
                                                vtkVariantArray *propertyArr,
                                                vtkEdgeType *edge)
@@ -410,78 +574,11 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 
   if (uOwner == rank)
     {
-    // Resolve the pedigreeId for u immediately and add the edge locally.
-    vtkIdType u;
-    this->AddVertexInternal(uPedigreeId, &u);
-    this->AddEdgeInternal(u, v, directed, propertyArr, edge);
-    return;
-    }
-
-  // Edge is remote: request its addition.
-  if (edge)
-    {
-    send_oob_with_reply(this->Internals->process_group, uOwner,
-                        directed? ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG
-                                : ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
-                        vtkstd::pair<vtkVariant, vtkIdType>(uPedigreeId, v),
-                        *edge);
-    }
-  else
-    {
-    send(this->Internals->process_group, uOwner,
-         directed? ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG
-                 : ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
-         vtkstd::pair<vtkVariant, vtkIdType>(uPedigreeId, v));
-    }
-}
-
-//----------------------------------------------------------------------------
-void
-vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
-                                               const vtkVariant& vPedigreeId,
-                                               bool directed,
-                                               vtkVariantArray *propertyArr,
-                                               vtkEdgeType *edge)
-{
-  vtkIdType rank
-    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  vtkIdType vOwner = this->GetVertexOwnerByPedigreeId(vPedigreeId);
-
-  if (vOwner == rank || edge)
-    {
-    // Resolve the pedigree ID for v immediately and add the edge.
-    vtkIdType v;
-    this->AddVertexInternal(vPedigreeId, &v);
-    this->AddEdgeInternal(u, v, directed, propertyArr, edge);
-    return;
-    }
-
-  // v is remote and we don't care when the edge is added. Ask the
-  // owner of v to resolve the pedigree ID of v and add the edge.
-  send(this->Internals->process_group, vOwner,
-       directed? ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG
-               : ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
-       vtkstd::pair<vtkIdType, vtkVariant>(u, vPedigreeId));
-}
-
-//----------------------------------------------------------------------------
-void
-vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
-                                               const vtkVariant& vPedigreeId,
-                                               bool directed,
-                                               vtkVariantArray *propertyArr,
-                                               vtkEdgeType *edge)
-{
-  vtkIdType rank
-    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  vtkIdType uOwner = this->GetVertexOwnerByPedigreeId(vPedigreeId);
-
-  if (uOwner == rank)
-    {
     // Resolve the pedigree ID for u immediately and add the edge.
     vtkIdType u;
     this->AddVertexInternal(uPedigreeId, &u);
-    this->AddEdgeInternal(u, vPedigreeId, directed, propertyArr, edge);
+    vtkIdType uDistributedId = this->MakeDistributedId(rank,u);
+    this->AddEdgeInternal(uDistributedId, vPedigreeId, directed, propertyArr, edge);
     return;
     }
 
@@ -489,19 +586,32 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
   if (vOwner == rank || edge)
     {
     // Resolve the pedigree ID for v immediately and add the edge.
-    vtkIdType v;
-    this->AddVertexInternal(vPedigreeId, &v);
-    this->AddEdgeInternal(uPedigreeId, v, directed, propertyArr, edge);
+    vtkIdType vLocalIndex;
+    this->AddVertexInternal(vPedigreeId, &vLocalIndex);
+    vtkIdType vDistributedId = this->MakeDistributedId(rank,vLocalIndex);
+    this->AddEdgeInternal(uPedigreeId, vDistributedId, directed, propertyArr, edge);
     return;
     }
 
   // Neither u nor v is local, and we don't care when the edge is
   // added, so ask the owner of v to resolve the pedigree ID of v and
   // add the edge.
-  send(this->Internals->process_group, vOwner,
-       directed? ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG
-               : ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
-       vtkstd::pair<vtkVariant, vtkVariant>(uPedigreeId, vPedigreeId));
+  if(!propertyArr)
+    {
+    send(this->Internals->process_group, vOwner,
+         directed? ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG
+                 : ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
+         vtkstd::pair<vtkVariant, vtkVariant>(uPedigreeId, vPedigreeId));
+    }
+  else
+    {
+    // add property array case
+    send(this->Internals->process_group, vOwner,
+         directed? ADD_DIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG
+                 : ADD_UNDIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG,
+         vtkstd::pair<vtkstd::pair<vtkVariant, vtkVariant>,vtkVariantArray*>(
+             vtkstd::pair<vtkVariant,vtkVariant>(uPedigreeId, vPedigreeId),propertyArr));
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -586,6 +696,7 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 
     // Add our triggers to the process group
     typedef vtkstd::pair<vtkIdType, vtkIdType> IdPair;
+    typedef vtkstd::pair<vtkstd::pair<vtkIdType,vtkIdType>, vtkVariantArray*> IdPairWithProps;
     this->Internals->process_group.make_distributed_object();
     this->Internals->process_group.trigger_with_reply<vtkVariant>
       (FIND_VERTEX_TAG,
@@ -612,6 +723,7 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_VERTEX_PROPS_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddVertexProps,
                    this->Internals, _3));
+
     this->Internals->process_group.trigger<vtkEdgeType>
       (ADD_DIRECTED_BACK_EDGE_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddBackEdge,
@@ -630,6 +742,17 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
                    this->Internals, _3, false));
+
+    // WCMCLEN: Add edges with property arrays
+    this->Internals->process_group.trigger<IdPairWithProps>
+      (ADD_DIRECTED_EDGE_PROPS_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeWithProps,
+                   this->Internals, _3, true));
+    this->Internals->process_group.trigger<IdPairWithProps>
+      (ADD_UNDIRECTED_EDGE_PROPS_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeWithProps,
+                   this->Internals, _3, false));
+
     this->Internals->process_group.trigger_with_reply<IdPair>
       (ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
@@ -637,6 +760,16 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
     this->Internals->process_group.trigger_with_reply<IdPair>
       (ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
+                   this->Internals, _3, false));
+
+    // WCMCLEN: Add edges with property arrays + reply tag
+    this->Internals->process_group.trigger_with_reply<IdPairWithProps>
+      (ADD_DIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeWithProps,
+                   this->Internals, _3, true));
+    this->Internals->process_group.trigger_with_reply<IdPairWithProps>
+      (ADD_UNDIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeWithProps,
                    this->Internals, _3, false));
 
     // Add edge for (pedigree, id) pairs
@@ -658,6 +791,25 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNI,
                    this->Internals, _3, false));
 
+    // WCMCLEN: Add edges (PedigreeId,DistributedId) with property arrays
+    typedef vtkstd::pair< vtkstd::pair<vtkVariant,vtkIdType>, vtkVariantArray*> PedigreeIdPairWithProps;
+    this->Internals->process_group.trigger<PedigreeIdPairWithProps>
+      (ADD_DIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNIWithProps,
+                   this->Internals, _3, true));
+    this->Internals->process_group.trigger<PedigreeIdPairWithProps>
+      (ADD_UNDIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNIWithProps,
+                   this->Internals, _3, false));
+    this->Internals->process_group.trigger<PedigreeIdPairWithProps>
+      (ADD_DIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNIWithProps,
+                   this->Internals, _3, true));
+    this->Internals->process_group.trigger<PedigreeIdPairWithProps>
+      (ADD_UNDIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNIWithProps,
+                   this->Internals, _3, false));
+
     // Add edge for (id, pedigree) pairs
     typedef vtkstd::pair<vtkIdType, vtkVariant> IdPedigreePair;
     this->Internals->process_group.trigger<IdPedigreePair>
@@ -667,6 +819,17 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
     this->Internals->process_group.trigger<IdPedigreePair>
       (ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeIN,
+                   this->Internals, _3, false));
+
+    // WCMCLEN: Add edges (DistributedId,PedigreeId) + PropertyArray
+    typedef vtkstd::pair<vtkstd::pair<vtkIdType, vtkVariant>,vtkVariantArray*> IdPedigreePairWithProps;
+    this->Internals->process_group.trigger<IdPedigreePairWithProps>
+      (ADD_DIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeINWithProps,
+                   this->Internals, _3, true));
+    this->Internals->process_group.trigger<IdPedigreePairWithProps>
+      (ADD_UNDIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeINWithProps,
                    this->Internals, _3, false));
 
     // Add edge for (pedigree, pedigree) pairs
@@ -679,6 +842,17 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN,
                    this->Internals, _3, false));
+
+    // WCMCLEN: Add edge (PedigreeId, PedigreeId) + PropertyArray
+    typedef vtkstd::pair<vtkstd::pair<vtkVariant, vtkVariant>, vtkVariantArray*> PedigreePedigreePairWithProps;
+    this->Internals->process_group.trigger<PedigreePedigreePairWithProps>
+          (ADD_DIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG,
+           boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNNWithProps,
+                       this->Internals, _3, true));
+    this->Internals->process_group.trigger<PedigreePedigreePairWithProps>
+          (ADD_UNDIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG,
+           boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNNWithProps,
+                       this->Internals, _3, true));
     }
 
   // vtkDistributedGraphHelper will set up the appropriate masks.
@@ -755,12 +929,36 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdge
 }
 
 //----------------------------------------------------------------------------
+// WCMCLEN
+vtkEdgeType
+vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeWithProps
+  (const vtkstd::pair<vtkstd::pair<vtkIdType,vtkIdType>,vtkVariantArray*>& msg,
+   bool directed)
+{
+  vtkEdgeType result;
+  this->Helper->AddEdgeInternal(msg.first.first, msg.first.second,
+                                directed, msg.second, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
 vtkEdgeType
 vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNI
   (const vtkstd::pair<vtkVariant, vtkIdType>& msg, bool directed)
 {
   vtkEdgeType result;
   this->Helper->AddEdgeInternal(msg.first, msg.second, directed, 0, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+// WCMCLEN
+vtkEdgeType
+vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNIWithProps
+  (const vtkstd::pair<vtkstd::pair<vtkVariant, vtkIdType>,vtkVariantArray*>& msg, bool directed)
+{
+  vtkEdgeType result;
+  this->Helper->AddEdgeInternal(msg.first.first, msg.first.second, directed, msg.second, &result);
   return result;
 }
 
@@ -775,6 +973,17 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeIN
 }
 
 //----------------------------------------------------------------------------
+// WCMCLEN
+vtkEdgeType
+vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeINWithProps
+  (const vtkstd::pair<vtkstd::pair<vtkIdType, vtkVariant>,vtkVariantArray*>& msg, bool directed)
+{
+  vtkEdgeType result;
+  this->Helper->AddEdgeInternal(msg.first.first, msg.first.second, directed, msg.second, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
 vtkEdgeType
 vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN
   (const vtkstd::pair<vtkVariant, vtkVariant>& msg, bool directed)
@@ -783,6 +992,20 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN
   this->Helper->AddEdgeInternal(msg.first, msg.second, directed, 0, &result);
   return result;
 }
+
+//----------------------------------------------------------------------------
+// WCMCLEN
+vtkEdgeType
+vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNNWithProps
+  (const vtkstd::pair<vtkstd::pair<vtkVariant,vtkVariant>, vtkVariantArray*>& msg,
+   bool directed)
+{
+  vtkEdgeType result;
+  this->Helper->AddEdgeInternal(msg.first.first, msg.first.second,
+                                directed, msg.second, &result);
+  return result;
+}
+
 
 //----------------------------------------------------------------------------
 // Parallel BGL interface functions
