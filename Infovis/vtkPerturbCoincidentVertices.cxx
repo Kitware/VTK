@@ -36,7 +36,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.9");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.10");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -52,10 +52,11 @@ vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices()
 //----------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph *output)
 {
-
-  output->DeepCopy(input);
-
-  vtkPoints* points = output->GetPoints();
+  output->ShallowCopy(input);
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  points->DeepCopy(input->GetPoints());
+  output->SetPoints(points);
+  
   int numPoints = points->GetNumberOfPoints();
 
   double bounds[6]; // xmin, xmax, ymin, ymax, zmin, zmax
