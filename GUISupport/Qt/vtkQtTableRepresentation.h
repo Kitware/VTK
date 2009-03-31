@@ -95,13 +95,13 @@ public:
   vtkSetStringMacro(LastDataColumn);
   vtkGetStringMacro(LastDataColumn);
 
-  // Description:
-  // Update the table representation
-  virtual void Update();
-
-protected:
+ protected:
   vtkQtTableRepresentation();
   ~vtkQtTableRepresentation();
+
+  // Description:
+  // Update the table representation
+  void UpdateTable();
 
   vtkSetStringMacro(KeyColumnInternal);
   vtkGetStringMacro(KeyColumnInternal);

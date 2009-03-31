@@ -24,6 +24,7 @@
 #include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesModelCollection.h"
+#include "vtkQtChartSeriesOptionsModelCollection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartWidget.h"
 #include "vtkQtStackedChart.h"
@@ -31,7 +32,7 @@
 
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtStackedChartView, "1.2");
+vtkCxxRevisionMacro(vtkQtStackedChartView, "1.3");
 vtkStandardNewMacro(vtkQtStackedChartView);
 
 //-----------------------------------------------------------------------------
@@ -45,6 +46,7 @@ vtkQtStackedChartView::vtkQtStackedChartView()
   this->StackedChart = new vtkQtStackedChart();
   this->StackedModel = new vtkQtChartSeriesModelCollection(this->StackedChart);
   this->StackedChart->setModel(this->StackedModel);
+  this->StackedChart->setOptionsModel(this->GetChartOptionsModel());
   area->insertLayer(area->getAxisLayerIndex(), this->StackedChart);
 }
 
@@ -98,11 +100,15 @@ vtkQtChartSeriesModelCollection* vtkQtStackedChartView::GetChartSeriesModel()
 }
 
 //-----------------------------------------------------------------------------
-vtkQtChartSeriesOptions* vtkQtStackedChartView::GetChartSeriesOptions(
-  int vtkNotUsed(series))
+vtkQtChartSeriesLayer* vtkQtStackedChartView::GetChartSeriesLayer()
 {
-  // TODO: Implement this
-  return 0;
+  return this->StackedChart;
+}
+
+//-----------------------------------------------------------------------------
+vtkQtChartSeriesOptions* vtkQtStackedChartView::GetChartSeriesOptions(int series)
+{
+  return this->StackedChart->getSeriesOptions(series);
 }
 
 //-----------------------------------------------------------------------------

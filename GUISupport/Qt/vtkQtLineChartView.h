@@ -59,6 +59,10 @@ public:
   // Description:
   // Gets the line chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+
+  // Description:
+  // Gets the chart series layer
+  virtual vtkQtChartSeriesLayer* GetChartSeriesLayer();
   //ETX
 
   // Description:

@@ -63,6 +63,10 @@ public:
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
 
   // Description:
+  // Gets the chart series layer
+  virtual vtkQtChartSeriesLayer* GetChartSeriesLayer();
+
+  // Description:
   // Gets the statistical box chart series options.
   virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series);
   //ETX

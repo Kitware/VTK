@@ -28,6 +28,8 @@
 #define __vtkQtChartTableRepresentation_h
 
 #include "vtkQtTableDataRepresentation.h"
+class vtkIntArray;
+class vtkQtChartSeriesOptionsModel;
 class vtkQtChartTableSeriesModel;
 
 class QVTK_EXPORT vtkQtChartTableRepresentation : public vtkQtTableDataRepresentation
@@ -37,10 +39,31 @@ public:
   vtkTypeRevisionMacro(vtkQtChartTableRepresentation, vtkQtTableDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  //BTX
   // Description:
   // Return the series model for this table representation
   vtkQtChartTableSeriesModel* GetSeriesModel();
- 
+
+
+  // Description:
+  // Get/Set the series options model. By default,
+  // vtkQtChartBasicSeriesOptionsModel will be used. The series options model
+  // must be changed before the representation is added to a view.
+  void SetOptionsModel(vtkQtChartSeriesOptionsModel*);
+  vtkQtChartSeriesOptionsModel* GetOptionsModel();
+  //ETX
+
+  // Description:
+  // Return the number of series.
+  // This is equivalent to this->GetSeriesModel()->getNumberOfSeries().
+  int GetNumberOfSeries();
+
+  // Description:
+  // Return the name of the series.  The returned const char may be null
+  // if the series index is out of range.  The returned const char is only
+  // valid until the next call to GetSeriesName.
+  const char* GetSeriesName(int series);
+
   // Description:
   // Orients the table as being either columns-as-series or rows-as-series oriented.
   void SetColumnsAsSeries(bool);

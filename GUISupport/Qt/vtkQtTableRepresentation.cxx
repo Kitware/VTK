@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.4");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -83,7 +83,7 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
 void
 vtkQtTableRepresentation::SetupInputConnections()
 {
-  this->Update();
+  this->UpdateTable();
 }
 
 // ----------------------------------------------------------------------
@@ -99,16 +99,14 @@ vtkQtTableRepresentation::SetKeyColumn(const char *col)
 
   this->SetKeyColumnInternal(col);
   this->ModelAdapter->SetKeyColumn(-1);
+  this->Modified();
+  // Is this really good? We never call Update() in algorithms.
   this->Update();
 }
 
 // ----------------------------------------------------------------------
-
-void
-vtkQtTableRepresentation::Update()
+void vtkQtTableRepresentation::UpdateTable()
 {
-  this->Superclass::Update();
-
   this->ResetModel();
 
   if (!this->GetInput())
@@ -125,13 +123,15 @@ vtkQtTableRepresentation::Update()
 
   // Set first/last data column names if they
   // have not already been set.
-  if (!this->FirstDataColumn)
+  const char* firstDataColumn = this->FirstDataColumn;
+  const char* lastDataColumn = this->LastDataColumn;
+  if (!firstDataColumn)
     {
-    this->SetFirstDataColumn(table->GetColumnName(0));
+    firstDataColumn = table->GetColumnName(0);
     }
-  if (!this->LastDataColumn)
+  if (!lastDataColumn)
     {
-    this->SetLastDataColumn(table->GetColumnName(table->GetNumberOfColumns()-1));
+    lastDataColumn = table->GetColumnName(table->GetNumberOfColumns()-1);
     }
 
   // Now that we're sure of having data, put it into a Qt model
@@ -158,15 +158,15 @@ vtkQtTableRepresentation::Update()
       this->ModelAdapter->SetKeyColumn(0);
       }
     }
-  if (this->FirstDataColumn != NULL)
+  if (firstDataColumn != NULL)
     {
-    table->GetRowData()->GetAbstractArray(this->FirstDataColumn,
-                                            firstDataColumnIndex);
+    table->GetRowData()->GetAbstractArray(firstDataColumn,
+                                          firstDataColumnIndex);
     }
-  if (this->LastDataColumn != NULL)
+  if (lastDataColumn != NULL)
     {
-    table->GetRowData()->GetAbstractArray(this->LastDataColumn,
-                                            lastDataColumnIndex);
+    table->GetRowData()->GetAbstractArray(lastDataColumn,
+                                          lastDataColumnIndex);
     }
   this->ModelAdapter->SetDataColumnRange(firstDataColumnIndex, lastDataColumnIndex);
 
@@ -186,7 +186,11 @@ vtkQtTableRepresentation::ResetModel()
   this->SetModelType();
   if (this->ModelAdapter)
     {
-    this->ModelAdapter->SetVTKDataObject(NULL);
+    // FIXME
+    // Need to alert the model of potential changes to the vtkTable
+    // in different way than disconnecting/reconnecting the vtkTable from
+    // the model adapter
+    //this->ModelAdapter->SetVTKDataObject(NULL);
     }
   this->SeriesColors->Reset();
   this->SeriesColors->SetNumberOfComponents(4);

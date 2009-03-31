@@ -19,7 +19,6 @@
 
 #include "vtkQtChartViewBase.h"
 
-#include "vtkQtChartTableRepresentation.h"
 #include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
@@ -31,7 +30,9 @@
 #include "vtkQtChartLegendManager.h"
 #include "vtkQtChartLegendModel.h"
 #include "vtkQtChartMouseSelection.h"
+#include "vtkQtChartSeriesOptionsModelCollection.h"
 #include "vtkQtChartStyleManager.h"
+#include "vtkQtChartTableRepresentation.h"
 #include "vtkQtChartTitle.h"
 #include "vtkQtChartWidget.h"
 #include "vtkTable.h"
@@ -94,7 +95,9 @@ public:
   QPointer<vtkQtChartWidget>          Chart;
   QPointer<vtkQtChartLegend>          Legend;
   QPointer<vtkQtChartTitle>           Title;
+  QPointer<vtkQtChartSeriesOptionsModelCollection> OptionsModel;
   QVector<QPointer<vtkQtChartTitle> > AxisTitles;
+
   vtkQtChartLegendManager*            LegendManager;
   bool                                ShowLegend;
   
@@ -104,7 +107,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.9");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.10");
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::vtkQtChartViewBase()
@@ -130,12 +133,21 @@ vtkQtChartViewBase::vtkQtChartViewBase()
   this->Internal->AxisTitles[1] = new vtkQtChartTitle();
   this->Internal->AxisTitles[2] = new vtkQtChartTitle(Qt::Vertical);
   this->Internal->AxisTitles[3] = new vtkQtChartTitle();
+
+  this->Internal->OptionsModel =
+    new vtkQtChartSeriesOptionsModelCollection(area);
 }
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::~vtkQtChartViewBase()
 {
   delete this->Internal;
+}
+
+//----------------------------------------------------------------------------
+vtkQtChartSeriesOptionsModelCollection* vtkQtChartViewBase::GetChartOptionsModel()
+{
+  return this->Internal->OptionsModel;
 }
 
 //----------------------------------------------------------------------------
@@ -523,12 +535,6 @@ vtkQtChartAxis* vtkQtChartViewBase::GetAxis(int index)
     return area->getAxisLayer()->getAxis(axes[index]);
     }
 
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-vtkQtChartSeriesModelCollection* vtkQtChartViewBase::GetChartSeriesModel()
-{
   return 0;
 }
 

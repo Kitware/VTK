@@ -35,8 +35,10 @@ class vtkQtChartArea;
 class vtkQtChartAxis;
 class vtkQtChartLegend;
 class vtkQtChartMouseSelection;
+class vtkQtChartSeriesLayer;
 class vtkQtChartSeriesModelCollection;
 class vtkQtChartSeriesOptions;
+class vtkQtChartSeriesOptionsModelCollection;
 class vtkQtChartWidget;
 class vtkTable;
 
@@ -190,11 +192,18 @@ public:
 
   // Description:
   // Gets the chart series model.
-  virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
+  virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel()=0;
+
+  // Description:
+  // Gets the series options model.
+  virtual vtkQtChartSeriesOptionsModelCollection* GetChartOptionsModel();
 
   // Description:
   // Gets the series options.
   virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series) = 0;
+
+  // Gets the chart series layer
+  virtual vtkQtChartSeriesLayer* GetChartSeriesLayer()=0;
 
   // Description:
   // Gets the chart legend widget.

@@ -248,4 +248,15 @@ int vtkQtChartSeriesModelCollection::seriesForModel(
   return -1;
 }
 
+int vtkQtChartSeriesModelCollection::
+mapSeriesIndexToCollectionIndex(vtkQtChartSeriesModel* model, int index) const
+{
+  if (!this->Models.contains(model))
+    {
+    return 0;
+    }
+
+  int startIndex = this->seriesForModel(model);
+  return startIndex + index;
+}
 

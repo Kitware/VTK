@@ -24,6 +24,7 @@
 #include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesModelCollection.h"
+#include "vtkQtChartSeriesOptionsModelCollection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartWidget.h"
 #include "vtkQtStatisticalBoxChart.h"
@@ -31,7 +32,7 @@
 
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtStatisticalBoxChartView, "1.2");
+vtkCxxRevisionMacro(vtkQtStatisticalBoxChartView, "1.3");
 vtkStandardNewMacro(vtkQtStatisticalBoxChartView);
 
 //-----------------------------------------------------------------------------
@@ -45,6 +46,7 @@ vtkQtStatisticalBoxChartView::vtkQtStatisticalBoxChartView()
   this->BoxChart = new vtkQtStatisticalBoxChart();
   this->BoxModel = new vtkQtChartSeriesModelCollection(this->BoxChart);
   this->BoxChart->setModel(this->BoxModel);
+  this->BoxChart->setOptionsModel(this->GetChartOptionsModel());
   area->insertLayer(area->getAxisLayerIndex(), this->BoxChart);
 }
 
@@ -105,11 +107,16 @@ vtkQtStatisticalBoxChartView::GetChartSeriesModel()
 }
 
 //-----------------------------------------------------------------------------
-vtkQtChartSeriesOptions* vtkQtStatisticalBoxChartView::GetChartSeriesOptions(
-  int vtkNotUsed(series))
+vtkQtChartSeriesLayer* vtkQtStatisticalBoxChartView::GetChartSeriesLayer()
 {
-  // TODO: Implement this.
-  return 0;
+  return this->BoxChart;
+}
+
+//-----------------------------------------------------------------------------
+vtkQtChartSeriesOptions* vtkQtStatisticalBoxChartView::GetChartSeriesOptions(
+  int series)
+{
+  return this->BoxChart->getSeriesOptions(series);
 }
 
 //-----------------------------------------------------------------------------

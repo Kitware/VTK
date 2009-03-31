@@ -50,6 +50,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartBarLocator.h
     vtkQtChartBasicStyleManager.cxx
     vtkQtChartBasicStyleManager.h
+    vtkQtChartBasicSeriesOptionsModel.cxx
+    vtkQtChartBasicSeriesOptionsModel.h
     vtkQtChartBrushGenerator.cxx
     vtkQtChartBrushGenerator.h
     vtkQtChartColorGenerator.cxx
@@ -102,6 +104,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartMouseSelectionHandler.h
     vtkQtChartMouseZoom.cxx
     vtkQtChartMouseZoom.h
+    vtkQtChartNamedSeriesOptionsModel.cxx
+    vtkQtChartNamedSeriesOptionsModel.h
     vtkQtChartPenGenerator.cxx
     vtkQtChartPenGenerator.h
     vtkQtChartQuad.cxx
@@ -126,6 +130,10 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartSeriesModelRange.h
     vtkQtChartSeriesOptions.cxx
     vtkQtChartSeriesOptions.h
+    vtkQtChartSeriesOptionsModel.cxx
+    vtkQtChartSeriesOptionsModel.h
+    vtkQtChartSeriesOptionsModelCollection.cxx
+    vtkQtChartSeriesOptionsModelCollection.h
     vtkQtChartSeriesSelection.cxx
     vtkQtChartSeriesSelection.h
     vtkQtChartSeriesSelectionHandler.cxx
@@ -198,6 +206,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartAxisModel.h
     vtkQtChartAxisOptions.h
     vtkQtChartBasicStyleManager.h
+    vtkQtChartBasicSeriesOptionsModel.h
     vtkQtChartBrushGenerator.h
     vtkQtChartColorGenerator.h
     vtkQtChartColorStyleGenerator.h
@@ -212,6 +221,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartMouseBox.h
     vtkQtChartMouseFunction.h
     vtkQtChartMouseSelection.h
+    vtkQtChartNamedSeriesOptionsModel.h
     vtkQtChartPenGenerator.h
     vtkQtChartSeriesColors.h
     vtkQtChartSeriesLayer.h
@@ -219,6 +229,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartSeriesModelCollection.h
     vtkQtChartSeriesModelRange.h
     vtkQtChartSeriesOptions.h
+    vtkQtChartSeriesOptionsModel.h
+    vtkQtChartSeriesOptionsModelCollection.h
     vtkQtChartSeriesSelectionModel.h
     vtkQtChartStyleAxesCorner.h
     vtkQtChartStyleBoolean.h

@@ -31,6 +31,7 @@
 class vtkQtChartContentsArea;
 class vtkQtChartSeriesModel;
 class vtkQtChartSeriesOptions;
+class vtkQtChartSeriesOptionsModel;
 class vtkQtChartSeriesSelection;
 class vtkQtChartSeriesSelectionModel;
 class QPointF;
@@ -78,6 +79,18 @@ public:
   ///   Sets the chart series model.
   /// \param model The new chart series model.
   virtual void setModel(vtkQtChartSeriesModel *model);
+
+  /// \brief
+  ///   Gets the chart series options model. 
+  /// \return
+  ///   A pointer to the current chart series options model.
+  vtkQtChartSeriesOptionsModel* getOptionsModel() const
+    { return this->Options; }
+
+  /// \brief
+  ///   Sets the chart series options model.
+  /// \param model The new chart series options model.
+  virtual void setOptionsModel(vtkQtChartSeriesOptionsModel* model);
 
   /// \brief
   ///   Gets the drawing options for the given series.
@@ -137,6 +150,17 @@ public:
   virtual void getPointsIn(const QRectF &area,
       vtkQtChartSeriesSelection &selection) const;
 
+  /// \brief
+  ///   Creates a new options object (by calling createOptions()) and then
+  /// initializes it (by calling setupOptions()).
+  /// \param parent The parent QObject.
+  vtkQtChartSeriesOptions* newOptions(QObject* parent);
+
+  /// \brief 
+  ///   Releases the options. This will delete the options.
+  /// \param options The options object to be freed.
+  void releaseOptions(vtkQtChartSeriesOptions* options);
+
 public slots:
   /// \brief
   ///   Sets the contents x-axis offset.
@@ -147,9 +171,6 @@ public slots:
   ///   Sets the contents y-axis offset.
   /// \param offset The new y-axis offset.
   void setYOffset(float offset);
-
-  /// Resets the series options for the model.
-  void resetSeriesOptions();
 
 signals:
   /// \brief
@@ -195,32 +216,12 @@ protected:
   /// \param options The newly created series options.
   virtual void setupOptions(int style, vtkQtChartSeriesOptions *options) = 0;
 
-private slots:
-  /// \brief
-  ///   Inserts new options for the given series.
-  /// \param first The first index of the new series.
-  /// \param last The last index of the new series.
-  void insertSeriesOptions(int first, int last);
-
-  /// \brief
-  ///   Removes options for the given series.
-  /// \param first The first index of the series to remove.
-  /// \param last The last index of the series to remove.
-  void removeSeriesOptions(int first, int last);
-
-private:
-  /// Removes all the series options.
-  void clearOptions();
-
 protected:
   /// Stores the series/point selection.
   vtkQtChartSeriesSelectionModel *Selection;
   vtkQtChartSeriesModel *Model;     ///< Stores the series model.
   vtkQtChartContentsArea *Contents; ///< Used for panning.
-
-private:
-  /// Stores the series options.
-  QList<vtkQtChartSeriesOptions *> Options;
+  vtkQtChartSeriesOptionsModel* Options; ///< Stores the series options.
 
 private:
   vtkQtChartSeriesLayer(const vtkQtChartSeriesLayer &);

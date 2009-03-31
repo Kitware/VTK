@@ -28,6 +28,8 @@
 
 #include "vtkQtChartSeriesLayer.h"
 
+#include "vtkQtChartArea.h"
+#include "vtkQtChartBasicSeriesOptionsModel.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartSeriesModel.h"
@@ -35,11 +37,10 @@
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartStyleManager.h"
-#include "vtkQtChartArea.h"
 
 
 vtkQtChartSeriesLayer::vtkQtChartSeriesLayer(bool useContents)
-  : vtkQtChartLayer(), Options()
+  : vtkQtChartLayer(), Options(0)
 {
   this->Selection = new vtkQtChartSeriesSelectionModel(this);
   this->Model = 0;
@@ -55,7 +56,6 @@ void vtkQtChartSeriesLayer::setChartArea(vtkQtChartArea *area)
   // Remove options from the previous area's style manager.
   if(this->ChartArea)
     {
-    this->clearOptions();
     this->disconnect(this->ChartArea->getContentsSpace(), 0, this, 0);
     }
 
@@ -68,8 +68,6 @@ void vtkQtChartSeriesLayer::setChartArea(vtkQtChartArea *area)
     this->connect(space, SIGNAL(yOffsetChanged(float)),
         this, SLOT(setYOffset(float)));
     }
-
-  this->resetSeriesOptions();
 }
 
 void vtkQtChartSeriesLayer::setModel(vtkQtChartSeriesModel *model)
@@ -79,48 +77,50 @@ void vtkQtChartSeriesLayer::setModel(vtkQtChartSeriesModel *model)
     return;
     }
 
-  if(this->Model)
-    {
-    // Disconnect from the previous model's signals.
-    this->disconnect(this->Model, 0, this, 0);
-    }
-
   vtkQtChartSeriesModel *previous = this->Model;
   this->Model = model;
   this->Selection->setModel(model);
-  if(this->Model)
+
+  if (!this->Options && model)
     {
-    // Listen for model changes.
-    this->connect(this->Model, SIGNAL(modelReset()),
-        this, SLOT(resetSeriesOptions()));
-    this->connect(this->Model, SIGNAL(seriesInserted(int, int)),
-        this, SLOT(insertSeriesOptions(int, int)));
-    this->connect(this->Model, SIGNAL(seriesRemoved(int, int)),
-        this, SLOT(removeSeriesOptions(int, int)));
+    // Create a vtkQtChartBasicSeriesOptionsModel by default.
+    this->setOptionsModel(
+      new vtkQtChartBasicSeriesOptionsModel(model, this));
+    }
+  emit this->modelChanged(previous, this->Model);
+}
+
+void vtkQtChartSeriesLayer::setOptionsModel(vtkQtChartSeriesOptionsModel* model)
+{
+  if (model == this->Options)
+    {
+    return;
     }
 
-  this->resetSeriesOptions();
+  if (this->Options)
+    {
+    this->Options->setChartSeriesLayer(0);
+    }
 
-  emit this->modelChanged(previous, this->Model);
+  this->Options = model;
+  if (this->Options)
+    {
+    this->Options->setChartSeriesLayer(this);
+    }
 }
 
 vtkQtChartSeriesOptions *vtkQtChartSeriesLayer::getSeriesOptions(
     int series) const
 {
-  if(series >= 0 && series < this->Options.count())
-    {
-    return this->Options[series];
-    }
-
-  return 0;
+  return this->Options? this->Options->getOptions(series) : 0;
 }
 
 int vtkQtChartSeriesLayer::getSeriesOptionsIndex(
     vtkQtChartSeriesOptions *options) const
 {
-  if(options)
+  if (options && this->Options)
     {
-    return this->Options.indexOf(options);
+    return this->Options->getOptionsIndex(options);
     }
 
   return -1;
@@ -175,63 +175,26 @@ void vtkQtChartSeriesLayer::setYOffset(float offset)
     }
 }
 
-void vtkQtChartSeriesLayer::resetSeriesOptions()
+vtkQtChartSeriesOptions* vtkQtChartSeriesLayer::newOptions(QObject* parentObject)
 {
-  if(this->ChartArea)
+  vtkQtChartSeriesOptions* options = this->createOptions(parentObject);
+  if (this->ChartArea && options)
     {
-    // Clean up the current list of options.
-    this->clearOptions();
-
-    // Create new options objects for the model series.
-    if(this->Model)
-      {
-      int total = this->Model->getNumberOfSeries();
-      if(total > 0)
-        {
-        this->insertSeriesOptions(0, total - 1);
-        }
-      }
+    // I am not sure I understand the utility of the manager anymore. But I am
+    // going to let this be as is.
+    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+    int style = manager->insertStyle(this, options);
+    this->setupOptions(style, options);
     }
+  return options;
 }
 
-void vtkQtChartSeriesLayer::insertSeriesOptions(int first, int last)
+void vtkQtChartSeriesLayer::releaseOptions(vtkQtChartSeriesOptions* options)
 {
-  if(this->ChartArea)
+  if (this->ChartArea && options)
     {
     vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    for( ; first <= last; first++)
-      {
-      vtkQtChartSeriesOptions *options = this->createOptions(this);
-      this->Options.insert(first, options);
-      int style = manager->insertStyle(this, options);
-      this->setupOptions(style, options);
-      }
+    manager->removeStyle(this, options);
     }
-}
-
-void vtkQtChartSeriesLayer::removeSeriesOptions(int first, int last)
-{
-  if(this->ChartArea)
-    {
-    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    for( ; last >= first; last--)
-      {
-      manager->removeStyle(this, this->Options[last]);
-      delete this->Options.takeAt(last);
-      }
-    }
-}
-
-void vtkQtChartSeriesLayer::clearOptions()
-{
-  vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-  QList<vtkQtChartSeriesOptions *>::Iterator iter = this->Options.begin();
-  for( ; iter != this->Options.end(); ++iter)
-    {
-    manager->removeStyle(this, *iter);
-    delete *iter;
-    }
-
-  this->Options.clear();
 }
 

@@ -26,11 +26,12 @@
 #include "vtkQtChartHelpFormatter.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesModelCollection.h"
+#include "vtkQtChartSeriesOptionsModelCollection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartWidget.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtBarChartView, "1.5");
+vtkCxxRevisionMacro(vtkQtBarChartView, "1.6");
 vtkStandardNewMacro(vtkQtBarChartView);
 
 //----------------------------------------------------------------------------
@@ -45,6 +46,7 @@ vtkQtBarChartView::vtkQtBarChartView()
   this->BarChart = new vtkQtBarChart();
   this->BarModel = new vtkQtChartSeriesModelCollection(this->BarChart);
   this->BarChart->setModel(this->BarModel);
+  this->BarChart->setOptionsModel(this->GetChartOptionsModel());
   area->insertLayer(area->getAxisLayerIndex(), this->BarChart);
 }
 
@@ -108,6 +110,12 @@ vtkQtChartSeriesModelCollection* vtkQtBarChartView::GetChartSeriesModel()
 vtkQtChartSeriesOptions* vtkQtBarChartView::GetChartSeriesOptions(int idx)
 {
   return this->BarChart->getSeriesOptions(idx);
+}
+
+//----------------------------------------------------------------------------
+vtkQtChartSeriesLayer* vtkQtBarChartView::GetChartSeriesLayer()
+{
+  return this->BarChart;
 }
 
 //----------------------------------------------------------------------------

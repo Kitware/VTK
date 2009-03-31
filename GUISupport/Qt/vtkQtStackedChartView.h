@@ -55,6 +55,10 @@ public:
   virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
 
   // Description:
+  // Gets the chart series layer
+  virtual vtkQtChartSeriesLayer* GetChartSeriesLayer();
+
+  // Description:
   // Gets the stacked chart series model.
   virtual vtkQtChartSeriesModelCollection* GetChartSeriesModel();
 
