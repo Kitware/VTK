@@ -36,7 +36,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.10");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.11");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -52,13 +52,14 @@ vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices()
 //----------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph *output)
 {
+
+  // The points will be deep copied because they
+  // will be modified (perturbed).
   output->ShallowCopy(input);
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  points->DeepCopy(input->GetPoints());
-  output->SetPoints(points);
+  output->GetPoints()->DeepCopy(input->GetPoints());
+  vtkPoints* points = output->GetPoints();
   
   int numPoints = points->GetNumberOfPoints();
-
   double bounds[6]; // xmin, xmax, ymin, ymax, zmin, zmax
   points->ComputeBounds();
   points->GetBounds(bounds);
@@ -210,11 +211,12 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
                                                           vtkGraph *output, 
                                                           float perturbFactor)
 {
-
-  // Note: Look into this...
-  output->DeepCopy(input);
-
+  // The points will be deep copied because they
+  // will be modified (perturbed).
+  output->ShallowCopy(input);
+  output->GetPoints()->DeepCopy(input->GetPoints());
   vtkPoints* points = output->GetPoints();
+
   int numPoints = points->GetNumberOfPoints();
   int numCoincidentPoints = 0;
   double spiralOffsets[3];
