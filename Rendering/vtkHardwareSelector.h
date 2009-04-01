@@ -185,7 +185,7 @@ protected:
       {
       return 0;
       }
-    int offset = (yy * (this->Area[2]-this->Area[0]) + xx) * 3;
+    int offset = (yy * static_cast<int>(this->Area[2]-this->Area[0]) + xx) * 3;
     unsigned char rgb[3];
     rgb[0] = pb[offset];
     rgb[1] = pb[offset+1];

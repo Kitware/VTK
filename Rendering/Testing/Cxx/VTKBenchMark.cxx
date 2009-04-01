@@ -122,7 +122,7 @@ double VTKBenchmark::BuildTheFractal()
   cerr << "Number Of Triangles: " << 
     this->TriFilter->GetOutput()->GetNumberOfPolys() << "\n";
   cerr << "Average Strip Length: " << 
-    this->TriFilter->GetOutput()->GetNumberOfPolys()/
+    static_cast<double>(this->TriFilter->GetOutput()->GetNumberOfPolys())/
     static_cast<double>(this->Stripper->GetOutput()->GetNumberOfStrips()) << "\n";
   
   this->Timer->StopTimer();

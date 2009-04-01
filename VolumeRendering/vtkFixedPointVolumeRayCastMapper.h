@@ -592,10 +592,11 @@ inline void vtkFixedPointVolumeRayCastMapper::ShiftVectorDown( unsigned int in[3
 inline int vtkFixedPointVolumeRayCastMapper::CheckMinMaxVolumeFlag( unsigned int mmpos[3], int c )
 {
   unsigned int offset = 
-    this->MinMaxVolumeSize[3] * 
-    ( mmpos[2]*this->MinMaxVolumeSize[0]*this->MinMaxVolumeSize[1] +
-      mmpos[1]*this->MinMaxVolumeSize[0] +
-      mmpos[0] ) + c;
+    static_cast<unsigned int>(this->MinMaxVolumeSize[3]) * 
+    ( mmpos[2]*static_cast<unsigned int>(
+        this->MinMaxVolumeSize[0]*this->MinMaxVolumeSize[1]) +
+      mmpos[1]*static_cast<unsigned int>(this->MinMaxVolumeSize[0]) +
+      mmpos[0] ) + static_cast<unsigned int>(c);
   
   return ((*(this->MinMaxVolume + 3*offset + 2))&0x00ff);
 }
@@ -604,10 +605,11 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned 
                                                                        unsigned short maxIdx, int flip )
 {
   unsigned int offset = 
-    this->MinMaxVolumeSize[3] * 
-    ( mmpos[2]*this->MinMaxVolumeSize[0]*this->MinMaxVolumeSize[1] +
-      mmpos[1]*this->MinMaxVolumeSize[0] +
-      mmpos[0] ) + c;
+    static_cast<unsigned int>(this->MinMaxVolumeSize[3]) * 
+    ( mmpos[2]*static_cast<unsigned int>(
+        this->MinMaxVolumeSize[0]*this->MinMaxVolumeSize[1]) +
+      mmpos[1]*static_cast<unsigned int>(this->MinMaxVolumeSize[0]) +
+      mmpos[0] ) + static_cast<unsigned int>(c);
   
   if ( (*(this->MinMaxVolume + 3*offset + 2)&0x00ff) )
     {
@@ -737,7 +739,8 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckIfCropped( unsigned int pos[3]
       }
     }
   
-  return !(this->CroppingRegionFlags&this->CroppingRegionMask[idx]);
+  return !(static_cast<unsigned int>(this->CroppingRegionFlags)
+           &this->CroppingRegionMask[idx]);
 }
 
 #endif
