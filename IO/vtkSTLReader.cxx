@@ -23,12 +23,13 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPolyData.h"
+#include "vtkErrorCode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.75");
+vtkCxxRevisionMacro(vtkSTLReader, "1.76");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -95,6 +96,7 @@ int vtkSTLReader::RequestData(
   if (!this->FileName || (this->FileName && (0==strlen(this->FileName))))
     {
     vtkErrorMacro(<<"A FileName must be specified.");
+    this->SetErrorCode( vtkErrorCode::NoFileNameError );
     return 0;
     }
 
@@ -103,6 +105,7 @@ int vtkSTLReader::RequestData(
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
+    this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
     return 0;
     }
 
