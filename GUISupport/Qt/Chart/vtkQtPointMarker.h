@@ -40,11 +40,12 @@ class VTKQTCHART_EXPORT vtkQtPointMarker
 public:
   enum MarkerStyle
     {
-    Cross = 0, ///< Draws a cross.
-    Plus,      ///< Draws a plus.
-    Square,    ///< Draws a square.
-    Circle,    ///< Draws a circle.
-    Diamond,   ///< Draws a diamond.
+    NoMarker = 0, ///< Nothing is drawn.
+    Cross,        ///< Draws a cross.
+    Plus,         ///< Draws a plus.
+    Square,       ///< Draws a square.
+    Circle,       ///< Draws a circle.
+    Diamond,      ///< Draws a diamond.
 
     /// The next available style for extension classes.
     UserStyle = 32

@@ -800,6 +800,11 @@ void vtkQtLineChart::paint(QPainter *painter,
     {
     vtkQtLineChartSeries *series = this->Internal->Series[*iter];
     vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(*iter);
+    if(options->getPen().style() == Qt::NoPen)
+      {
+      // If the pen is set to no-pen, there's nothing to draw.
+      continue;
+      }
 
     // Set up the painter for the polyline.
     QPen widePen;

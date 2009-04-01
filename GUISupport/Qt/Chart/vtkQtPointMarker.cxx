@@ -90,7 +90,9 @@ void vtkQtPointMarker::paint(QPainter *painter)
       painter->drawPolygon(diamond);
       break;
       }
+    case vtkQtPointMarker::NoMarker:
     case vtkQtPointMarker::UserStyle:
+    default:
       {
       break;
       }
