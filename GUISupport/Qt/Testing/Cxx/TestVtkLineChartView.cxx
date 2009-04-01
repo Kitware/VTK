@@ -75,8 +75,8 @@ int TestVtkLineChartView(int argc, char* argv[])
 
   // Show the table in a vtkQtTableView
   VTK_CREATE(vtkQtTableView, tableView);
-  tableView->AddRepresentationFromInput(pointTable);
   tableView->SetSplitMultiComponentColumns(true);
+  tableView->AddRepresentationFromInput(pointTable);
   tableView->Update();
   tableView->GetWidget()->show();
 
