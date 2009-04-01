@@ -102,11 +102,7 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
 
   // Do not continue if SplitMultiComponentColumns is false
   // or our table is null.
-  if (!this->SplitMultiComponentColumns)
-    {
-    return;
-    }
-  if (!this->Table)
+  if (!this->SplitMultiComponentColumns || !this->Table)
     {
     return;
     }
@@ -118,6 +114,14 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
     {
     startColumn = this->DataStartColumn;
     endColumn = this->DataEndColumn;
+    }
+
+  // Double check to make sure startColumn and endColumn are within bounds
+  int maxColumn = this->Table->GetNumberOfColumns()-1;
+  if ((startColumn < 0 || startColumn > maxColumn) ||
+      (endColumn   < 0 || endColumn   > maxColumn))
+    {
+    return;
     }
 
   // For each column in the vtkTable, iterate over the column's number of
@@ -254,7 +258,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
     {
     return this->IndexToDecoration[idx];
     }
-    
+
   // Map the qt model column to a column in the vtk table
   int column;
   if (this->GetSplitMultiComponentColumns())
