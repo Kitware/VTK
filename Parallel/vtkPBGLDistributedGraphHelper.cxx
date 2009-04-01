@@ -153,12 +153,12 @@ boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.8");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.9");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.8");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.9");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -397,6 +397,9 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
       else
         {
         // WCMCLEN: what about back edges with property arrays???
+        //          a distributed edgeId might be ok tbh so we don't cause
+        //          yet another duplicate copy of the edge data.  Still seems
+        //          to cause crashes though :(
         }
       }
 
@@ -852,7 +855,7 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
     this->Internals->process_group.trigger<PedigreePedigreePairWithProps>
           (ADD_UNDIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG,
            boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNNWithProps,
-                       this->Internals, _3, true));
+                       this->Internals, _3, false));
     }
 
   // vtkDistributedGraphHelper will set up the appropriate masks.
