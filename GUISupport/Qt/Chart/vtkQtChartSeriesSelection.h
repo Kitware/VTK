@@ -165,6 +165,13 @@ public:
   /// \return
   ///   True if the selection was modified.
   bool setPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+
+  /// \brief
+  ///   Sets the list of selected point ranges.
+  /// \param series The series index.
+  /// \param indexes The list of point ranges.
+  /// \return
+  ///   True if the selection was modified.
   bool setPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
@@ -173,6 +180,13 @@ public:
   /// \return
   ///   True if the selection was modified.
   bool addPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+
+  /// \brief
+  ///   Adds the list of point ranges to the selection.
+  /// \param series The series index.
+  /// \param indexes The list of point ranges.
+  /// \return
+  ///   True if the selection was modified.
   bool addPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
@@ -181,6 +195,13 @@ public:
   /// \return
   ///   True if the selection was modified.
   bool subtractPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+
+  /// \brief
+  ///   Subtracts the list of point ranges from the selection.
+  /// \param series The series index.
+  /// \param indexes The list of point ranges.
+  /// \return
+  ///   True if the selection was modified.
   bool subtractPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
@@ -198,6 +219,13 @@ public:
   /// \return
   ///   True if the selection was modified.
   bool xorPoints(const QMap<int, vtkQtChartIndexRangeList> &points);
+
+  /// \brief
+  ///   Selects unique points from the given list and the selection.
+  /// \param series The series index.
+  /// \param indexes The list of point ranges.
+  /// \return
+  ///   True if the selection was modified.
   bool xorPoints(int series, const vtkQtChartIndexRangeList &indexes);
 
   /// \brief
