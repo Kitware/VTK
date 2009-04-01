@@ -80,7 +80,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtStackedChartView.cxx
       vtkQtStatisticalBoxChartView.cxx
       vtkQtTableDataRepresentation.cxx
-      vtkQtTableMetadataRepresentation.cxx
       vtkQtTableRepresentation.cxx
       vtkQtTableView.cxx
       vtkQtTreeView.cxx

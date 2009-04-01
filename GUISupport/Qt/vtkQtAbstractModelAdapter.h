@@ -49,8 +49,7 @@ public:
   // The view types.
   enum {
     FULL_VIEW,
-    DATA_VIEW,
-    METADATA_VIEW
+    DATA_VIEW
   };
 
   vtkQtAbstractModelAdapter(QObject* p) : 
@@ -76,8 +75,7 @@ public:
   // Description:
   // Set/Get the view type.
   // FULL_VIEW gives access to all the data.
-  // DATA_VIEW gives access only to the data columns.
-  // METADATA_VIEW gives access only to the metadata (non-data) columns.
+  // DATA_VIEW gives access only to the data columns specified with SetDataColumnRange()
   // The default is FULL_VIEW.
   virtual void SetViewType(int type) { this->ViewType = type; }
   virtual int GetViewType() { return this->ViewType; }
@@ -109,6 +107,11 @@ signals:
   void modelChanged();
   
 protected:
+
+  // Description:
+  // Map a column index in the QAbstractItemModel to a vtkTable column.
+  // If the argument is out of range or cannot be mapped then
+  // this method may return -1.
   virtual int ModelColumnToFieldDataColumn(int col) const;
 
   int ViewType;

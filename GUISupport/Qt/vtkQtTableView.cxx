@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.6");
+vtkCxxRevisionMacro(vtkQtTableView, "1.7");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -107,6 +107,18 @@ void vtkQtTableView::SetShowHorizontalHeaders(bool state)
 void vtkQtTableView::SetAlternatingRowColors(bool state)
 {
   this->TableView->setAlternatingRowColors(state);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableView::SetSplitMultiComponentColumns(bool value)
+{
+  this->TableAdapter->SetSplitMultiComponentColumns(value);
+}
+
+//----------------------------------------------------------------------------
+bool vtkQtTableView::GetSplitMultiComponentColumns()
+{
+  return this->TableAdapter->GetSplitMultiComponentColumns();
 }
 
 //----------------------------------------------------------------------------

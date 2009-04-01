@@ -68,6 +68,16 @@ public:
   void SetAlternatingRowColors(bool);
 
   // Description:
+  // Set whether or not the table view should split multi-component columns
+  // into multiple single-component columns
+  void SetSplitMultiComponentColumns(bool value);
+
+  // Description:
+  // Get whether or not the table view splits multi-component columns into
+  // multiple single-component columns
+  bool GetSplitMultiComponentColumns();
+
+  // Description:
   // Updates the view.
   virtual void Update();
 

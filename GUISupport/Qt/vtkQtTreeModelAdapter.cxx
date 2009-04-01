@@ -447,8 +447,6 @@ int vtkQtTreeModelAdapter::columnCount(const QModelIndex & vtkNotUsed(parentIdx)
       return numArrays;
     case DATA_VIEW:
       return numDataArrays;
-    case METADATA_VIEW:
-      return numArrays - numDataArrays;
     default:
       vtkGenericWarningMacro("vtkQtTreeModelAdapter: Bad view type.");
     };

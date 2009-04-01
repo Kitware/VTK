@@ -34,12 +34,14 @@
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
-  Table = NULL;
+  this->Table = NULL;
+  this->SplitMultiComponentColumns = false;
 } 
   
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   : vtkQtAbstractModelAdapter(p), Table(t)
 {
+  this->SplitMultiComponentColumns = false;
   if (this->Table != NULL)
     {
     this->Table->Register(0);
@@ -92,6 +94,52 @@ vtkDataObject* vtkQtTableModelAdapter::GetVTKDataObject() const
   return this->Table;
 }
 
+void vtkQtTableModelAdapter::updateModelColumnHashTables() 
+{
+  // Clear the hash tables
+  this->ModelColumnToTableColumn.clear();
+  this->ModelColumnNames.clear();
+
+  // Do not continue if SplitMultiComponentColumns is false
+  // or our table is null.
+  if (!this->SplitMultiComponentColumns)
+    {
+    return;
+    }
+  if (!this->Table)
+    {
+    return;
+    }
+
+  // Get the start and end columns.
+  int startColumn = 0;
+  int endColumn = this->Table->GetNumberOfColumns() - 1;
+  if (this->GetViewType() == DATA_VIEW)
+    {
+    startColumn = this->DataStartColumn;
+    endColumn = this->DataEndColumn;
+    }
+
+  // For each column in the vtkTable, iterate over the column's number of
+  // components to construct a mapping from qt model columns to
+  // vtkTable columns-component pairs.  Also generate qt model column names.
+  int modelColumn = 0;
+  for (int tableColumn = startColumn; tableColumn <= endColumn; ++tableColumn)
+    {
+    int nComponents = this->Table->GetColumn(tableColumn)->GetNumberOfComponents();
+    for (int c = 0; c < nComponents; ++c)
+      {
+      QString columnName = this->Table->GetColumnName(tableColumn);
+      if (nComponents != 1)
+        {
+        columnName = QString("%1 (%2)").arg(columnName).arg(c);
+        }
+      this->ModelColumnNames[modelColumn] = columnName;
+      this->ModelColumnToTableColumn[modelColumn++] = QPair<vtkIdType, int>(tableColumn, c);
+      }
+    }
+}
+
 void vtkQtTableModelAdapter::setTable(vtkTable* t) 
 {
   if (this->Table != NULL)
@@ -102,6 +150,11 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
   if (this->Table != NULL)
     {
     this->Table->Register(0);
+
+    // When setting a table, update the QHash tables for column mapping.
+    // If SplitMultiComponentColumns is disabled, this call will just clear
+    // the tables and return.
+    this->updateModelColumnHashTables();
 
     // We will assume the table is totally
     // new and any views should update completely
@@ -172,7 +225,19 @@ QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
   return qis_list;
 }
 
+bool vtkQtTableModelAdapter::GetSplitMultiComponentColumns() const
+{
+  return this->SplitMultiComponentColumns;
+}
 
+void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
+{
+  if (value != this->SplitMultiComponentColumns)
+    {
+    this->SplitMultiComponentColumns = value;
+    this->updateModelColumnHashTables();
+    }
+}
 
 QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
 {
@@ -190,10 +255,36 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
     return this->IndexToDecoration[idx];
     }
     
-  // Get the item
-  int row = idx.row();
-  int column = this->ModelColumnToFieldDataColumn(idx.column());
-  vtkVariant v = this->Table->GetValue(row, column);
+  // Map the qt model column to a column in the vtk table
+  int column;
+  if (this->GetSplitMultiComponentColumns())
+    {
+    column = this->ModelColumnToTableColumn[idx.column()].first;
+    }
+  else
+    {
+    column = this->ModelColumnToFieldDataColumn(idx.column());
+    }
+
+  // Get the value from the table as a vtkVariant
+  vtkVariant v = this->Table->GetValue(idx.row(), column);
+
+  // Special case- if the variant is an array and we are splitting
+  // multi-component columns:
+  if (v.IsArray() && this->GetSplitMultiComponentColumns())
+    {
+    // SplitMultiComponentColumns only works for vtkDataArray
+    vtkDataArray* dataArray = vtkDataArray::SafeDownCast(v.ToArray());
+    if (dataArray)
+      {
+      // Map the qt model column to the corresponding component in the vtk column
+      int component = this->ModelColumnToTableColumn[idx.column()].second;
+
+      // Reconstruct the variant using a single scalar from the array
+      double value = dataArray->GetComponent(0, component);
+      v = vtkVariant(value);
+      }
+    }
   
   // Return a string if they ask for a display role 
   if (role == Qt::DisplayRole)
@@ -273,8 +364,19 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
   if (orientation == Qt::Horizontal &&
       (role == Qt::DisplayRole || role == Qt::UserRole))
     {
-    int column = this->ModelColumnToFieldDataColumn(section);
-    QVariant svar(this->Table->GetColumnName(column));
+
+    QString columnName; 
+    if (this->GetSplitMultiComponentColumns())
+      {
+      columnName = this->ModelColumnNames[section];
+      }
+    else
+      {
+      int column = this->ModelColumnToFieldDataColumn(section);
+      columnName = this->Table->GetColumnName(column);
+      }
+
+    QVariant svar(columnName);
     bool ok;
     double value = svar.toDouble(&ok);
     if (ok)
@@ -331,16 +433,20 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
     return 0;
     }
 
-  int numArrays = this->Table->GetNumberOfColumns();
-  int numDataArrays = this->DataEndColumn - this->DataStartColumn + 1;
+  // If we are splitting multi-component columns, then just return the
+  // number of entries in the QHash map that stores column names.
+  if (this->GetSplitMultiComponentColumns())
+    {
+    return this->ModelColumnNames.size();
+    }
+
+  // The number of columns in the qt model depends on the current ViewType
   switch (this->ViewType)
     {
     case FULL_VIEW:
-      return numArrays;
+      return this->Table->GetNumberOfColumns();;
     case DATA_VIEW:
-      return numDataArrays;
-    case METADATA_VIEW:
-      return numArrays - numDataArrays;
+      return this->DataEndColumn - this->DataStartColumn + 1;;
     default:
       vtkGenericWarningMacro("vtkQtTreeModelAdapter: Bad view type.");
     };

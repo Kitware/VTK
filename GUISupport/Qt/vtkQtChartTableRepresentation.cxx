@@ -49,7 +49,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.6");
 vtkStandardNewMacro(vtkQtChartTableRepresentation);
 
 //----------------------------------------------------------------------------
@@ -57,6 +57,7 @@ vtkQtChartTableRepresentation::vtkQtChartTableRepresentation()
 {
   this->Internal = new vtkInternal;
   this->ColumnsAsSeries = true;
+  this->ModelAdapter->SetSplitMultiComponentColumns(true);
 
   // Set up the chart table series model. It will be deleted when the
   // model adapter is deleted in the parent destructor.

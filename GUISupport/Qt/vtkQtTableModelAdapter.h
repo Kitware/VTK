@@ -61,6 +61,9 @@ public:
   
   virtual void SetKeyColumnName(const char* name);
 
+  bool GetSplitMultiComponentColumns() const;
+  void SetSplitMultiComponentColumns(bool value);
+
   // Description:
   // Set up the model based on the current table.
   void setTable(vtkTable* table);
@@ -80,8 +83,13 @@ private:
 
   bool noTableCheck() const;
 
+  void updateModelColumnHashTables();
+
+  bool SplitMultiComponentColumns;
   vtkTable* Table;
   QHash<QModelIndex, QVariant> IndexToDecoration;
+  QHash<int, QPair<vtkIdType, int> > ModelColumnToTableColumn;
+  QHash<int, QString> ModelColumnNames;
   
   vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
   void operator=(const vtkQtTableModelAdapter&);  // Not implemented.

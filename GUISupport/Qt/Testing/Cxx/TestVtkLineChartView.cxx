@@ -20,60 +20,41 @@
 
 #include "vtkQtLineChartView.h"
 #include "vtkQtChartTableRepresentation.h"
+#include "vtkQtTableView.h"
 
+#include "vtkSphereSource.h"
+#include "vtkDataObjectToTable.h"
 #include "vtkTable.h"
-#include "vtkDoubleArray.h"
 #include "vtkSmartPointer.h"
 
 #include "QTestApp.h"
+#include <QWidget>
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestVtkLineChartView(int argc, char* argv[])
 {
   QTestApp app(argc, argv);
 
-  // Create a table with two columns
-  vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
-  vtkDoubleArray* column1 = vtkDoubleArray::New();
-  vtkDoubleArray* column2 = vtkDoubleArray::New();
-  column1->SetName("Series 1");
-  column2->SetName("Series 2");
+  // Create a sphere and create a vtkTable from its point data (normal vectors)
+  VTK_CREATE(vtkSphereSource, sphereSource);
+  VTK_CREATE(vtkDataObjectToTable, tableConverter);
+  tableConverter->SetInput(sphereSource->GetOutput());
+  tableConverter->SetFieldType(vtkDataObjectToTable::POINT_DATA);
+  tableConverter->Update();
+  vtkTable* pointTable = tableConverter->GetOutput();
 
-  double col1[5]={ 1, 2, 3, 4, 5 };
-  double col2[5]={ 1, 1.5, 3, 2.3, 0.2 };
-  for (unsigned int i=0; i<5; ++i)
-    {
-    column1->InsertNextValue(col1[i]);
-    column2->InsertNextValue(col2[i]);
-    }
-
-  // Add the data to the table
-  table->AddColumn(column1);
-  table->AddColumn(column2);
-  column1->Delete();
-  column2->Delete();
-
-
-  // Create a bar chart view
+  // Create a line chart view
   vtkSmartPointer<vtkQtLineChartView> chartView = 
     vtkSmartPointer<vtkQtLineChartView>::New();
   chartView->SetupDefaultInteractor();
 
   // Set the chart title
-  chartView->SetTitle("My Line Chart");
+  chartView->SetTitle("Sphere Normals");
 
-
-  // Here is one way to add the table to the view
-  // by manually creating a chart representation.
-  vtkSmartPointer<vtkQtChartTableRepresentation> rep =
-    vtkSmartPointer<vtkQtChartTableRepresentation>::New();
-  rep->SetInput(table);
-  chartView->AddRepresentation(rep);
-  // Now remove the representation from the view
-  chartView->RemoveRepresentation(rep);
-
-  // Here is another way to add the table to the view.
-  // With this method the view creates a representation for you:
-  vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(table);
+  // Add the table to the view
+  vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(pointTable);
 
   // You can downcast to get the chart representation:
   vtkQtChartTableRepresentation* chartRep =
@@ -91,6 +72,13 @@ int TestVtkLineChartView(int argc, char* argv[])
 
   // Show the view's qt widget
   chartView->Show();
+
+  // Show the table in a vtkQtTableView
+  VTK_CREATE(vtkQtTableView, tableView);
+  tableView->AddRepresentationFromInput(pointTable);
+  tableView->SetSplitMultiComponentColumns(true);
+  tableView->Update();
+  tableView->GetWidget()->show();
 
   // Start the Qt event loop to run the application
   int status = app.exec();
