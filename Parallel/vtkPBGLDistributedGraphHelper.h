@@ -88,49 +88,46 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   {
     // Find a vertex by pedigree ID. This always has a reply.
     FIND_VERTEX_TAG,
+
     // Find the source and target by edge ID. This always has a reply.
     FIND_EDGE_SOURCE_TARGET_TAG,
+
     // Add a vertex with the given pedigree ID.
     ADD_VERTEX_NO_REPLY_TAG,
     ADD_VERTEX_WITH_REPLY_TAG,
+
     // Add a vertex with the given property array.
     ADD_VERTEX_PROPS_NO_REPLY_TAG,
     ADD_VERTEX_PROPS_WITH_REPLY_TAG,
+
     // Add a back edge; the forward edge has already been added.
     ADD_DIRECTED_BACK_EDGE_TAG,
-    ADD_DIRECTED_BACK_EDGE_PROPS_TAG,
     ADD_UNDIRECTED_BACK_EDGE_TAG,
-    ADD_UNDIRECTED_BACK_EDGE_PROPS_TAG,
+
     // Add an edge; don't reply.
     ADD_DIRECTED_EDGE_NO_REPLY_TAG,
-    ADD_DIRECTED_EDGE_PROPS_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_PROPS_NO_REPLY_TAG,
+
     // Add an edge; return the edge ID.
     ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
-    ADD_DIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_PROPS_WITH_REPLY_TAG,
+
     // Add an edge via (pedigree, id); don't reply.
     ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG,
-    ADD_DIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_PROPS_NI_NO_REPLY_TAG,
+
     // Add an edge via (pedigree, id); return the edge ID.
     ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG,
-    ADD_DIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_PROPS_NI_WITH_REPLY_TAG,
+
     // Add an edge via (id, pedigree); don't reply.
     ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG,
-    ADD_DIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_PROPS_IN_NO_REPLY_TAG,
+
     // Add an edge via (pedigree, pedigree); don't reply.
     ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG,
-    ADD_DIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_PROPS_NN_NO_REPLY_TAG
+    ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG
+
   };
 
   // Description:

@@ -38,7 +38,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.6");
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.7");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
 
 vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
@@ -233,6 +233,12 @@ int vtkPBGLGraphSQLReaderRequestData(
   edge_query->SetQuery(oss.str().c_str());
   edge_query->Execute();
 
+#if defined(DEBUG)      // WCMCLEN
+  cout << "["<<rank<<"]\tSQLReader: NumberOfEdgeAttributeArrays = "
+       << edge_query->GetNumberOfFields() << endl;
+  fflush(stdout);
+#endif
+
   // Add local edge data arrays
   for (int i = 0; i < edge_query->GetNumberOfFields(); ++i)
     {
@@ -241,6 +247,12 @@ int vtkPBGLGraphSQLReaderRequestData(
     arr.TakeReference(vtkAbstractArray::CreateArray(edge_query->GetFieldType(i)));
     arr->SetName(field_name);
     builder->GetEdgeData()->AddArray(arr);
+
+#if defined(DEBUG)      // WCMCLEN
+    cout << "["<<rank<<"]\t"
+         << "-\tEdge field_name["<<i<<"]='"<<field_name<<"'"
+         << endl; fflush(stdout);  // WCMCLEN
+#endif
     }
   helper->Synchronize();
 
@@ -251,8 +263,18 @@ int vtkPBGLGraphSQLReaderRequestData(
     {
     vtkVariant source = edge_query->DataValue(source_id);
     vtkVariant target = edge_query->DataValue(target_id);
+#if defined(DEBUG)      // WCMCLEN
+    cout << "["<<rank<< "]\tReader: Read edge("
+         << source.ToString() << ", " << target.ToString() << ", " << &row << ")"
+         << endl; fflush(stdout); // WCMCLEN
+#endif
     builder->LazyAddEdge(source, target, row);
     }
+
+#if defined(DEBUG)      // WCMCLEN
+  cout << "["<<rank<<"]\tReader: Done adding edges!"
+       << endl; fflush(stdout);  // WCMCLEN
+#endif
   helper->Synchronize();
 
   // Copy into output graph
