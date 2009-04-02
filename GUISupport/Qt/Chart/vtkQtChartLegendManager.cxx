@@ -268,6 +268,10 @@ void vtkQtChartLegendManager::changeModel(vtkQtChartSeriesModel *previous,
     // Remove the previous model's series.
     if(previous)
       {
+      // Disconnect from the model signals.
+      this->disconnect(previous, 0, this, 0);
+
+      // Remove the model's series from the legend model.
       last = previous->getNumberOfSeries() - 1;
       if(last >= 0)
         {
@@ -278,6 +282,17 @@ void vtkQtChartLegendManager::changeModel(vtkQtChartSeriesModel *previous,
     // Add series for the current model.
     if(current)
       {
+      // Listen for model changes.
+      this->connect(current, SIGNAL(modelAboutToBeReset()),
+          this, SLOT(removeModelEntries()));
+      this->connect(current, SIGNAL(modelReset()),
+          this, SLOT(insertModelEntries()));
+      this->connect(current, SIGNAL(seriesInserted(int, int)),
+          this, SLOT(insertModelEntries(int, int)));
+      this->connect(current, SIGNAL(seriesAboutToBeRemoved(int, int)),
+          this, SLOT(removeModelEntries(int, int)));
+
+      // Add the model's series to the legend.
       last = current->getNumberOfSeries() - 1;
       if(last >= 0)
         {
