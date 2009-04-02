@@ -47,7 +47,6 @@
 #include "vtkLabelPlacer.h"
 #include "vtkLabelSizeCalculator.h"
 #include "vtkLookupTable.h"
-#include "vtkMaskPoints.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -58,7 +57,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
-#include "vtkSelectVisiblePoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
@@ -66,7 +64,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.21");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.22");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -83,8 +81,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->LabelActor                = vtkSmartPointer<vtkActor2D>::New();
   this->EdgeCenters                   = vtkSmartPointer<vtkEdgeCenters>::New();
   this->EdgeLabelMapper               = vtkSmartPointer<vtkLabeledDataMapper>::New();
-  this->EdgeLabelMaskPoints           = vtkSmartPointer<vtkMaskPoints>::New();
-  this->EdgeLabelSelectVisiblePoints  = vtkSmartPointer<vtkSelectVisiblePoints>::New();
   this->EdgeLabelTransform            = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   this->EdgeLabelActor                = vtkSmartPointer<vtkActor2D>::New();
   this->ExtractSelection          = vtkSmartPointer<vtkExtractSelectedGraph>::New();
@@ -108,10 +104,8 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->LabelActor->SetMapper(this->LabelMapper);
 
   this->EdgeCenters->SetInputConnection(this->EdgeLayout->GetOutputPort());
-  this->EdgeLabelMaskPoints->SetInputConnection(this->EdgeCenters->GetOutputPort());
-  this->EdgeLabelTransform->SetInputConnection(this->EdgeLabelMaskPoints->GetOutputPort());
-  this->EdgeLabelSelectVisiblePoints->SetInputConnection(this->EdgeLabelTransform->GetOutputPort());
-  this->EdgeLabelMapper->SetInputConnection(this->EdgeLabelSelectVisiblePoints->GetOutputPort());
+  this->EdgeLabelTransform->SetInputConnection(this->EdgeCenters->GetOutputPort());
+  this->EdgeLabelMapper->SetInputConnection(this->EdgeLabelTransform->GetOutputPort());
   this->EdgeLabelActor->SetMapper(this->EdgeLabelMapper);
   
   // Set parameters
@@ -138,9 +132,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->SetEdgeLayoutStrategyToGeo();
   this->AssignCoordinates->SetLatitudeArrayName("latitude");
   this->AssignCoordinates->SetLongitudeArrayName("longitude");
-  this->EdgeLabelMaskPoints->RandomModeOn();
-  this->EdgeLabelMaskPoints->SetMaximumNumberOfPoints(75);
-  this->EdgeLabelMaskPoints->SetOnRatio(1);
   vtkSmartPointer<vtkTransform> edgeTrans = vtkSmartPointer<vtkTransform>::New();
   this->EdgeLabelTransform->SetTransform(edgeTrans);
   this->EdgeLabelMapper->SetLabelModeToLabelFieldData();
@@ -444,7 +435,6 @@ bool vtkGeoGraphRepresentation::AddToView(vtkView* view)
     {
     this->In3DGeoView = true;
     }
-  this->EdgeLabelSelectVisiblePoints->SetRenderer(rv->GetRenderer());
   this->LabelPlacer->SetRenderer(rv->GetRenderer());
   rv->GetRenderer()->AddActor(this->SelectionActor);
   rv->GetRenderer()->AddActor(this->GraphActor);
@@ -462,8 +452,6 @@ bool vtkGeoGraphRepresentation::AddToView(vtkView* view)
   view->RegisterProgress(GraphToPolyData);
   view->RegisterProgress(EdgeCenters);
   view->RegisterProgress(EdgeLabelMapper);
-  view->RegisterProgress(EdgeLabelMaskPoints);
-  view->RegisterProgress(EdgeLabelSelectVisiblePoints);
   view->RegisterProgress(EdgeLabelTransform);
   view->RegisterProgress(SelectionMapper);
   return true;
@@ -493,8 +481,6 @@ bool vtkGeoGraphRepresentation::RemoveFromView(vtkView* view)
   view->UnRegisterProgress(GraphToPolyData);
   view->UnRegisterProgress(EdgeCenters);
   view->UnRegisterProgress(EdgeLabelMapper);
-  view->UnRegisterProgress(EdgeLabelMaskPoints);
-  view->UnRegisterProgress(EdgeLabelSelectVisiblePoints);
   view->UnRegisterProgress(EdgeLabelTransform);
   view->UnRegisterProgress(SelectionMapper);
   return true;

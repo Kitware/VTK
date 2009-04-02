@@ -40,6 +40,7 @@
 
 class vtkRenderer;
 class vtkCoordinate;
+class vtkSelectVisiblePoints;
 
 class VTK_RENDERING_EXPORT vtkLabelPlacer : public vtkPolyDataAlgorithm
 {
@@ -152,6 +153,7 @@ protected:
 
   vtkRenderer* Renderer;
   vtkCoordinate* AnchorTransform;
+  vtkSelectVisiblePoints* VisiblePoints;
   int Gravity;
   double MaximumLabelFraction;
   bool PositionsAsNormals;

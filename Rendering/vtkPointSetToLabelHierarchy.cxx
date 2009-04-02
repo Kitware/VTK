@@ -33,11 +33,12 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTimerLog.h"
 
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.5");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.6");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
@@ -74,6 +75,10 @@ int vtkPointSetToLabelHierarchy::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector )
 {
+
+  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  timer->StartTimer();
+
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkstd::vector< vtkSmartPointer<vtkDataObject> > inData;
   vtkIdType totalPoints = 0;
@@ -236,6 +241,9 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->GetPointData()->AddArray( iconIndex );
   ouData->GetPointData()->AddArray( labelString );
   ouData->ComputeHierarchy();
+
+  timer->StopTimer();
+  cout << "StartupTime: " << timer->GetElapsedTime() << endl;
 
   return 1;
 }

@@ -45,6 +45,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkRenderer;
+class vtkMatrix4x4;
 
 class VTK_RENDERING_EXPORT vtkSelectVisiblePoints : public vtkPolyDataAlgorithm
 {
@@ -98,6 +99,15 @@ public:
   vtkGetMacro(Tolerance,double);
 
   // Description:
+  // Pass in the Renderer and a matrix that will be populated with the
+  // appropriate composite perspective transform. Also the Z-buffer will
+  // be returned via zPtr.
+  float * Initialize(bool getZbuff);
+
+  // Description:
+  bool IsPointOccluded(const double x[], float *zPtr);
+
+  // Description:
   // Return MTime also considering the renderer.
   unsigned long GetMTime();
 
@@ -109,9 +119,11 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkRenderer *Renderer;
+  vtkMatrix4x4 *CompositePerspectiveTransform;
 
   int SelectionWindow;
   int Selection[4];
+  int InternalSelection[4];
   int SelectInvisible;
   double Tolerance;
 

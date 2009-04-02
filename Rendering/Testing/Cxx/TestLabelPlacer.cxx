@@ -39,6 +39,7 @@
 #include "vtkPolyData.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
@@ -57,6 +58,17 @@ int TestLabelPlacer(int argc, char *argv[])
   int iteratorType = vtkLabelHierarchy::QUEUE;
   //int iteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   bool showBounds = false;
+
+  vtkSmartPointer<vtkSphereSource> sphere = 
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkActor> sphereActor =
+    vtkSmartPointer<vtkActor>::New();
+
+  sphere->SetRadius(5.0);
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
+  sphereActor->SetMapper(sphereMapper);
 
   vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
     vtkSmartPointer<vtkLabelSizeCalculator>::New();
@@ -110,7 +122,7 @@ int TestLabelPlacer(int argc, char *argv[])
 
   actor->SetMapper(polyDataMapper);
 
-  labelPlacer->Update();
+  //labelPlacer->Update();
 
   labeledMapper->SetInputConnection(labelPlacer->GetOutputPort());
   labeledMapper->SetLabelTextProperty(labelSizeCalculator->GetFontProperty());
@@ -119,7 +131,8 @@ int TestLabelPlacer(int argc, char *argv[])
   labeledMapper->GetLabelTextProperty()->SetColor(0.0, 0.8, 0.2);
   textActor->SetMapper(labeledMapper);
   
-  renderer->AddActor(actor);
+  //renderer->AddActor(actor);
+  renderer->AddActor(sphereActor);
   renderer->AddActor(textActor);
 
   renWin->SetSize(300, 300);

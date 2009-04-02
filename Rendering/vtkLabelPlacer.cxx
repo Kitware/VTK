@@ -29,10 +29,13 @@
 #include "vtkInformationVector.h"
 #include "vtkLabelHierarchy.h"
 #include "vtkLabelHierarchyIterator.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkSelectVisiblePoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTimerLog.h"
@@ -40,7 +43,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.16");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.17");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -200,6 +203,8 @@ vtkLabelPlacer::vtkLabelPlacer()
   //this->IteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   //this->IteratorType = vtkLabelHierarchy::FULL_SORT;
   this->IteratorType = vtkLabelHierarchy::QUEUE;
+  this->VisiblePoints = vtkSelectVisiblePoints::New();
+  this->VisiblePoints->SetTolerance(0.002);
 
   this->LastRendererSize[0] = 0;
   this->LastRendererSize[1] = 0;
@@ -229,6 +234,7 @@ vtkLabelPlacer::~vtkLabelPlacer()
     {
     delete this->Buckets;
     }
+  this->VisiblePoints->Delete();
 }
 
 void vtkLabelPlacer::SetRenderer( vtkRenderer* ren )
@@ -237,6 +243,7 @@ void vtkLabelPlacer::SetRenderer( vtkRenderer* ren )
   if ( this->Renderer != ren )
     {
     this->Renderer = ren;
+    this->VisiblePoints->SetRenderer(ren);
     this->Modified();
     }
 }
@@ -356,6 +363,22 @@ int vtkLabelPlacer::RequestData(
     {
     vtkErrorMacro( "No renderer -- can't determine screen space size." );
     return 0;
+    }
+
+  if ( ! this->Renderer->GetRenderWindow() )
+    {
+    vtkErrorMacro( "No render window -- can't get window size to query z buffer." );
+    return 0;
+    }
+
+  // This will trigger if you do something like ResetCamera before the Renderer or
+  // RenderWindow have allocated their appropriate system resources (like creating
+  // an OpenGL context)." Resource allocation must occure before we can use the Z
+  // buffer.
+  if ( this->Renderer->GetRenderWindow()->GetNeverRendered() )
+    {
+    vtkDebugMacro( "RenderWindow not initialized -- aborting update." );
+    return 1;
     }
 
   vtkCamera* cam = this->Renderer->GetActiveCamera();
@@ -491,6 +514,10 @@ int vtkLabelPlacer::RequestData(
     {
     this->Buckets->Reset( kdbounds, tileSize );
     }
+
+  float * zPtr = NULL;
+  int placed = 0;
+
   double ll[3], lr[3], ul[3], ur[3];
   ll[2] = lr[2] = ul[2] = ur[2] = 0.;
   double x[3];
@@ -521,6 +548,8 @@ int vtkLabelPlacer::RequestData(
 
   inIter->Begin( this->Buckets->LastLabelsPlaced );
   this->Buckets->NewLabelsPlaced->Initialize();
+
+  zPtr = this->VisiblePoints->Initialize(true);
 
   timer->StopTimer();
   vtkDebugMacro("Iterator initialization time: " << timer->GetElapsedTime());
@@ -559,6 +588,12 @@ int vtkLabelPlacer::RequestData(
         {
         continue;
         }
+      }
+
+    // Test for occlusion using the z-buffer
+    if (!this->VisiblePoints->IsPointOccluded(x, zPtr))
+      {
+      continue;
       }
 
     this->AnchorTransform->SetValue( x );
@@ -735,10 +770,17 @@ int vtkLabelPlacer::RequestData(
       // Currently starting with a clean slate each time.
       this->Buckets->NewLabelsPlaced->InsertNextValue( inIter->GetLabelId() );
       vtkDebugMacro("Placed: " << inIter->GetLabelId() << " (" << ll[0] << ", " << ll[1] << "  " << ur[0] << "," << ur[1] << ") " << labelType);
+      placed++;
       }
     }
   vtkDebugMacro("------");
+  //cout << "Not Placed: " << notPlaced << endl;
+
   inIter->Delete();
+  if (zPtr)
+    {
+    delete [] zPtr;
+    }
 
   timer->StopTimer();
   vtkDebugMacro("Iteration time: " << timer->GetElapsedTime());

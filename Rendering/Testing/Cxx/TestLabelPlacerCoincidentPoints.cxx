@@ -70,7 +70,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   int targetLabels = 7;
   double labelRatio = 1.0;
   int i = 0;
-  int iteratorType = vtkLabelHierarchy::FULL_SORT;
+  int iteratorType = vtkLabelHierarchy::QUEUE;
   bool showBounds = true;
 
   vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
@@ -117,7 +117,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
     //points->InsertPoint( i, vtkMath::Random(-1.0, 1.0), vtkMath::Random(-1.0, 1.0), 0. );
     points->InsertPoint( i, 0.0, 0.0, 0.0 );
     }
-  points->InsertPoint( 29, 5.0, 5.0, 0.0 );
+  points->InsertPoint( 29, 2.2, 2.2, 0.0 );
 
   vtkSmartPointer<vtkCellArray> cells = 
     vtkSmartPointer<vtkCellArray>::New();
@@ -189,13 +189,13 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labelPlacer->SetMaximumLabelFraction( labelRatio );
   //labelPlacer->SetIteratorType(1); // Quadtree is only available type for 2-D.
 
-  polyDataMapper->SetInputConnection(labelPlacer->GetOutputPort());
-  polyDataMapper2->SetInputConnection(labelPlacer->GetOutputPort(2));
+  polyDataMapper->SetInput(polyData);
+  //polyDataMapper2->SetInputConnection(labelPlacer->GetOutputPort(2));
 
   actor->SetMapper(polyDataMapper);
-  actor2->SetMapper(polyDataMapper2);
+  //actor2->SetMapper(polyDataMapper2);
 
-  labelPlacer->Update();
+  //labelPlacer->Update();
 
   labeledMapper->SetInputConnection(labelPlacer->GetOutputPort());
   labeledMapper->SetLabelTextProperty(labelSizeCalculator->GetFontProperty());
@@ -204,16 +204,16 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   labeledMapper->GetLabelTextProperty()->SetColor(0.0, 0.8, 0.2);
   textActor->SetMapper(labeledMapper);
 
-  renderer->AddActor(actor);
-  renderer->AddActor(actor2);
+  //renderer->AddActor(actor);
+  //renderer->AddActor(actor2);
   renderer->AddActor(textActor);
 
   renWin->SetSize(600, 600);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(0.0, 0.0, 0.0);
-    iren->SetRenderWindow(renWin);
+  iren->SetRenderWindow(renWin);
 
-  labelPlacer->Update();
+  //labelPlacer->Update();
   //cout << "Pre-reset-camera bounds of...\n";
   //prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
   //prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );

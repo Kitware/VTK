@@ -52,7 +52,6 @@ class vtkLabelSizeCalculator;
 class vtkMaskPoints;
 class vtkPolyDataMapper;
 class vtkSelection;
-class vtkSelectVisiblePoints;
 class vtkAbstractTransform;
 class vtkTransformPolyDataFilter;
 class vtkView;
@@ -208,8 +207,6 @@ protected:
   vtkSmartPointer<vtkEdgeCenters>             EdgeCenters;
   vtkSmartPointer<vtkLabeledDataMapper>       EdgeLabelMapper;
   vtkSmartPointer<vtkActor2D>                 EdgeLabelActor;
-  vtkSmartPointer<vtkMaskPoints>              EdgeLabelMaskPoints;
-  vtkSmartPointer<vtkSelectVisiblePoints>     EdgeLabelSelectVisiblePoints;
   vtkSmartPointer<vtkTransformPolyDataFilter> EdgeLabelTransform;
   vtkSmartPointer<vtkExtractSelectedGraph>    ExtractSelection;
   vtkSmartPointer<vtkGraphMapper>             SelectionMapper;
