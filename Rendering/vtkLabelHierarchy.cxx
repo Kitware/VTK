@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.38");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.39");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.38");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.39");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -806,7 +806,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.38");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.39");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -1127,7 +1127,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.38");
+vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.39");
 vtkStandardNewMacro(vtkLabelHierarchyOctreeQueueIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
@@ -1315,16 +1315,16 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsAtEnd()
 
 vtkIdType vtkLabelHierarchyOctreeQueueIterator::GetLabelId()
 {
-  vtkIdType id;
+  vtkIdType myId;
   if ( this->LastPlacedIndex >= 0 )
     {
-    id = this->LastPlaced->GetValue( this->LastPlacedIndex );
+    myId = this->LastPlaced->GetValue( this->LastPlacedIndex );
     }
   else
     {
-    id = *this->LabelIterator;
+    myId = *this->LabelIterator;
     }
-  return id;
+  return myId;
 }
 
 void vtkLabelHierarchyOctreeQueueIterator::GetNodeGeometry( double center[3], double& sz )
@@ -1469,7 +1469,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.38");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.39");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1763,7 +1763,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.38");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.39");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
