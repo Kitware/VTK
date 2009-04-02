@@ -26,7 +26,9 @@
 #include "vtkQtChartArea.h"
 #include "vtkQtChartBasicStyleManager.h"
 #include "vtkQtChartColors.h"
+#include "vtkQtChartInteractor.h"
 #include "vtkQtChartInteractorSetup.h"
+#include "vtkQtChartKeyboardFunction.h"
 #include "vtkQtChartLegend.h"
 #include "vtkQtChartLegendManager.h"
 #include "vtkQtChartMouseSelection.h"
@@ -41,50 +43,123 @@
 #include <QVariant>
 
 #include <QFile>
+#include <QFileDialog>
 
 #include "QTestApp.h"
 
-int TestStackedChart(int argc, char* argv[])
+class StackedChartFileOpener : public vtkQtChartKeyboardFunction
 {
-  QTestApp app(argc, argv);
+public:
+  StackedChartFileOpener(QObject *parent=0);
+  virtual ~StackedChartFileOpener() {}
 
-  vtkQtChartWidget *chart = new vtkQtChartWidget();
-  vtkQtChartArea *area = chart->getChartArea();
-  vtkQtChartBasicStyleManager *style =
-      qobject_cast<vtkQtChartBasicStyleManager *>(area->getStyleManager());
-  if(style)
+  virtual void activate();
+
+public:
+  vtkQtChartTableSeriesModel *Model;
+};
+
+StackedChartFileOpener::StackedChartFileOpener(QObject *parentObject)
+  : vtkQtChartKeyboardFunction(parentObject)
+{
+  this->Model = 0;
+}
+
+void StackedChartFileOpener::activate()
+{
+  // Get the file from the user.
+  QString fileName = QFileDialog::getOpenFileName(0, "Open Chart File",
+      QString(), "Chart Files (*.csv)");
+  if(!fileName.isEmpty())
     {
-    style->getColors()->setColorScheme(vtkQtChartColors::WildFlower);
+    // Clear the current chart model.
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(
+        this->Model->getItemModel());
+    if(model)
+      {
+      this->Model->setItemModel(0);
+      delete model;
+      }
+
+    // Open the file.
+    QFile movies(fileName);
+    if(movies.open(QIODevice::ReadOnly))
+      {
+      // Create a new item model for the file.
+      model = new QStandardItemModel(0, 0, this->Model);
+      model->setItemPrototype(new QStandardItem());
+
+      // Read in the file data.
+      for(int row = -1; movies.bytesAvailable() > 0; ++row)
+        {
+        QString line = movies.readLine(256);
+        QStringList tokens = line.trimmed().split(",");
+        QStringList::Iterator iter = tokens.begin();
+        for(int column = -1; iter != tokens.end(); ++iter, ++column)
+          {
+          if(row == -1)
+            {
+            if(column == -1)
+              {
+              continue;
+              }
+
+            model->setHorizontalHeaderItem(column, new QStandardItem());
+            model->horizontalHeaderItem(column)->setData(QVariant(*iter),
+                Qt::DisplayRole);
+            }
+          else if(column == -1)
+            {
+            model->setVerticalHeaderItem(row, new QStandardItem());
+            model->verticalHeaderItem(row)->setData(QVariant(iter->toInt()),
+                Qt::DisplayRole);
+            }
+          else
+            {
+            model->setItem(row, column, new QStandardItem());
+            model->item(row, column)->setData(QVariant(iter->toDouble()),
+                Qt::DisplayRole);
+            }
+          }
+        }
+
+      // Set the new model in the chart.
+      this->Model->setItemModel(model);
+      }
+    }
+}
+
+class StackedChartFileReseter : public vtkQtChartKeyboardFunction
+{
+public:
+  StackedChartFileReseter(QObject *parent=0);
+  virtual ~StackedChartFileReseter() {}
+
+  virtual void activate();
+
+public:
+  vtkQtChartTableSeriesModel *Model;
+};
+
+StackedChartFileReseter::StackedChartFileReseter(QObject *parentObject)
+  : vtkQtChartKeyboardFunction(parentObject)
+{
+  this->Model = 0;
+}
+
+void StackedChartFileReseter::activate()
+{
+  // Clear the current chart model.
+  QStandardItemModel *model = qobject_cast<QStandardItemModel *>(
+      this->Model->getItemModel());
+  if(model)
+    {
+    this->Model->setItemModel(0);
+    delete model;
     }
 
-  // Set up the stacked chart.
-  vtkQtStackedChart *stacked = new vtkQtStackedChart();
-  area->insertLayer(area->getAxisLayerIndex(), stacked);
-
-  // Set up the legend.
-  vtkQtChartLegend *legend = new vtkQtChartLegend();
-  vtkQtChartLegendManager *manager = new vtkQtChartLegendManager(legend);
-  manager->setChartLegend(legend);
-  manager->setChartArea(area);
-  chart->setLegend(legend);
-
-  // Set up the default interactor.
-  vtkQtChartMouseSelection *selector =
-      vtkQtChartInteractorSetup::createDefault(area);
-  vtkQtChartSeriesSelectionHandler *handler =
-      new vtkQtChartSeriesSelectionHandler(selector);
-  handler->setModeNames("Stacked Chart - Series", "Stacked Chart - Points");
-  handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
-  handler->setLayer(stacked);
-  selector->addHandler(handler);
-  selector->setSelectionMode("Stacked Chart - Series");
-  vtkQtChartInteractorSetup::setupDefaultKeys(area->getInteractor());
-
-  //stacked->getOptions()->setSumNormalized(true);
-  //stacked->getOptions()->setGradientDisplayed(true);
-
-  // Set up the model for the bar chart.
-  QStandardItemModel *model = new QStandardItemModel(9, 3, stacked);
+  // Create a new item model for the file.
+  model = new QStandardItemModel(9, 3, this->Model);
   model->setItemPrototype(new QStandardItem());
   model->setVerticalHeaderItem(0, new QStandardItem());
   model->setVerticalHeaderItem(1, new QStandardItem());
@@ -166,8 +241,64 @@ int TestStackedChart(int argc, char* argv[])
   model->item(7, 2)->setData(1.50, Qt::DisplayRole);
   model->item(8, 2)->setData(1.80, Qt::DisplayRole);
 
+  // Set the new model in the chart.
+  this->Model->setItemModel(model);
+}
+
+int TestStackedChart(int argc, char* argv[])
+{
+  QTestApp app(argc, argv);
+
+  vtkQtChartWidget *chart = new vtkQtChartWidget();
+  vtkQtChartArea *area = chart->getChartArea();
+  vtkQtChartBasicStyleManager *style =
+      qobject_cast<vtkQtChartBasicStyleManager *>(area->getStyleManager());
+  if(style)
+    {
+    style->getColors()->setColorScheme(vtkQtChartColors::WildFlower);
+    }
+
+  // Set up the stacked chart.
+  vtkQtStackedChart *stacked = new vtkQtStackedChart();
+  area->insertLayer(area->getAxisLayerIndex(), stacked);
+
+  // Set up the legend.
+  vtkQtChartLegend *legend = new vtkQtChartLegend();
+  vtkQtChartLegendManager *manager = new vtkQtChartLegendManager(legend);
+  manager->setChartLegend(legend);
+  manager->setChartArea(area);
+  chart->setLegend(legend);
+
+  // Set up the default interactor.
+  vtkQtChartMouseSelection *selector =
+      vtkQtChartInteractorSetup::createDefault(area);
+  vtkQtChartSeriesSelectionHandler *handler =
+      new vtkQtChartSeriesSelectionHandler(selector);
+  handler->setModeNames("Stacked Chart - Series", "Stacked Chart - Points");
+  handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
+  handler->setLayer(stacked);
+  selector->addHandler(handler);
+  selector->setSelectionMode("Stacked Chart - Series");
+  vtkQtChartInteractorSetup::setupDefaultKeys(area->getInteractor());
+
+  // Add the file opener to the interactor.
+  vtkQtChartInteractor *interactor = area->getInteractor();
+  StackedChartFileOpener *opener = new StackedChartFileOpener(interactor);
+  interactor->addKeyboardFunction(
+      QKeySequence(Qt::Key_O | Qt::ControlModifier), opener);
+  StackedChartFileReseter *reseter = new StackedChartFileReseter(interactor);
+  interactor->addKeyboardFunction(
+      QKeySequence(Qt::Key_N | Qt::ControlModifier), reseter);
+
+  //stacked->getOptions()->setSumNormalized(true);
+  //stacked->getOptions()->setGradientDisplayed(true);
+
+  // Set up the model for the stacked chart.
   vtkQtChartTableSeriesModel *table =
-      new vtkQtChartTableSeriesModel(model, stacked);
+      new vtkQtChartTableSeriesModel(0, stacked);
+  opener->Model = table;
+  reseter->Model = table;
+  reseter->activate();
   stacked->setModel(table);
 
   chart->show();
