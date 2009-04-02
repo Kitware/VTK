@@ -43,14 +43,21 @@ class VTKQTCHART_EXPORT vtkQtChartSeriesModelRange : public QObject
 public:
   /// \brief
   ///   Creates a chart series model range.
-  /// \param model The series model to use.
-  vtkQtChartSeriesModelRange(vtkQtChartSeriesModel *model);
+  /// \param parent The parent object.
+  vtkQtChartSeriesModelRange(QObject *parent=0);
   ~vtkQtChartSeriesModelRange() {}
 
   /// \brief
-  ///   Initializes the series ranges.
+  ///   Gets the chart series model.
+  /// \return
+  ///   A pointer to the chart series model.
+  vtkQtChartSeriesModel *getModel() const {return this->Model;}
+
+  /// \brief
+  ///   Sets the chart series model.
+  /// \param model The new chart series model.
   /// \param xShared True if the series share the same x-axis array.
-  void initializeRanges(bool xShared=false);
+  void setModel(vtkQtChartSeriesModel *model, bool xShared=false);
 
   /// \brief
   ///   Gets whether or not the series share the same x-axis array.

@@ -31,39 +31,63 @@
 #include "vtkQtChartSeriesModelRange.h"
 #include <QAbstractItemModel>
 
+
 vtkQtChartTableSeriesModel::vtkQtChartTableSeriesModel(
-  QAbstractItemModel* model, QObject* p)
-  : vtkQtChartSeriesModel(p)
+    QAbstractItemModel *model, QObject *parentObject)
+  : vtkQtChartSeriesModel(parentObject)
 {
-  this->Model = model;
+  this->Model = 0;
   this->Range = new vtkQtChartSeriesModelRange(this);
   this->ColumnsAsSeries = true;
 
-  if(this->Model)
+  // Set up the model and ranges.
+  this->Range->setModel(this, true);
+  this->setItemModel(model);
+}
+
+void vtkQtChartTableSeriesModel::setItemModel(QAbstractItemModel *model)
+{
+  if(this->Model != model)
     {
-    this->connect(this->Model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-      SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-    this->connect(this->Model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-      SLOT(rowsRemoved(QModelIndex,int,int)));
-    this->connect(this->Model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-      SLOT(rowsAboutToBeInserted(QModelIndex,int,int)));
-    this->connect(this->Model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-      SLOT(rowsInserted(QModelIndex,int,int)));
-    
-    this->connect(this->Model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-      SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
-    this->connect(this->Model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-      SLOT(columnsRemoved(QModelIndex,int,int)));
-    this->connect(this->Model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
-      SLOT(columnsAboutToBeInserted(QModelIndex,int,int)));
-    this->connect(this->Model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-      SLOT(columnsInserted(QModelIndex,int,int)));
+    emit this->modelAboutToBeReset();
+    if(this->Model)
+      {
+      this->disconnect(this->Model, 0, this, 0);
+      }
 
-    this->connect(this->Model, SIGNAL(modelReset()), SIGNAL(modelReset()));
-    this->connect(this->Model, SIGNAL(modelAboutToBeReset()), SIGNAL(modelAboutToBeReset()));
+    this->Model = model;
+    if(this->Model)
+      {
+      this->connect(
+          this->Model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+          this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+      this->connect(this->Model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+          this, SLOT(rowsRemoved(QModelIndex,int,int)));
+      this->connect(
+          this->Model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+          this, SLOT(rowsAboutToBeInserted(QModelIndex,int,int)));
+      this->connect(this->Model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+          this, SLOT(rowsInserted(QModelIndex,int,int)));
+      
+      this->connect(
+          this->Model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+          this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
+      this->connect(this->Model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+          this, SLOT(columnsRemoved(QModelIndex,int,int)));
+      this->connect(
+          this->Model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+          this, SLOT(columnsAboutToBeInserted(QModelIndex,int,int)));
+      this->connect(this->Model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+          this, SLOT(columnsInserted(QModelIndex,int,int)));
+
+      this->connect(this->Model, SIGNAL(modelReset()),
+          this, SIGNAL(modelReset()));
+      this->connect(this->Model, SIGNAL(modelAboutToBeReset()),
+          this, SIGNAL(modelAboutToBeReset()));
+      }
+
+    emit this->modelReset();
     }
-
-  this->Range->initializeRanges(true);
 }
 
 bool vtkQtChartTableSeriesModel::getColumnsAsSeries() const

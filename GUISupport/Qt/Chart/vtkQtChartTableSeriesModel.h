@@ -50,6 +50,17 @@ public:
   virtual ~vtkQtChartTableSeriesModel() {}
 
   /// \brief
+  ///   Gets the item model.
+  /// \return
+  ///   A pointer to the item model.
+  QAbstractItemModel *getItemModel() const {return this->Model;}
+
+  /// \brief
+  ///   Sets the item model.
+  /// \param model The new item model.
+  void setItemModel(QAbstractItemModel *model);
+
+  /// \brief
   ///   Gets whether or not columns are series.
   /// \return
   ///   True if columns are series.

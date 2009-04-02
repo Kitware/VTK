@@ -34,25 +34,43 @@
 #include <QTime>
 
 
-vtkQtChartSeriesModelRange::vtkQtChartSeriesModelRange(
-    vtkQtChartSeriesModel *model)
-  : QObject(model)
+vtkQtChartSeriesModelRange::vtkQtChartSeriesModelRange(QObject *parentObject)
+  : QObject(parentObject)
 {
-  this->Model = model;
+  this->Model = 0;
   this->XRangeShared = false;
-
-  // Use the series change signals to update the ranges.
-  this->connect(this->Model, SIGNAL(modelReset()), this, SLOT(resetSeries()));
-  this->connect(this->Model, SIGNAL(seriesInserted(int, int)),
-      this, SLOT(insertSeries(int, int)));
-  this->connect(this->Model, SIGNAL(seriesRemoved(int, int)),
-      this, SLOT(removeSeries(int, int)));
 }
 
-void vtkQtChartSeriesModelRange::initializeRanges(bool xShared)
+void vtkQtChartSeriesModelRange::setModel(vtkQtChartSeriesModel *model,
+    bool xShared)
 {
-  this->XRangeShared = xShared;
-  this->resetSeries();
+  if(this->Model != model)
+    {
+    if(this->Model)
+      {
+      this->disconnect(this->Model, 0, this, 0);
+      }
+
+    this->Model = model;
+    if(this->Model)
+      {
+      // Use the series change signals to update the ranges.
+      this->connect(this->Model, SIGNAL(modelReset()),
+          this, SLOT(resetSeries()));
+      this->connect(this->Model, SIGNAL(seriesInserted(int, int)),
+          this, SLOT(insertSeries(int, int)));
+      this->connect(this->Model, SIGNAL(seriesRemoved(int, int)),
+          this, SLOT(removeSeries(int, int)));
+      }
+
+    this->XRangeShared = xShared;
+    this->resetSeries();
+    }
+  else if(this->XRangeShared != xShared)
+    {
+    this->XRangeShared = xShared;
+    this->resetSeries();
+    }
 }
 
 QList<QVariant> vtkQtChartSeriesModelRange::getSeriesRange(int series,
