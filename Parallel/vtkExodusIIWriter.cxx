@@ -49,7 +49,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.39");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.40");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -83,6 +83,10 @@ vtkExodusIIWriter::vtkExodusIIWriter ()
   this->PassDoubles = 1;
 
   this->BlockElementVariableTruthTable = 0;
+
+  this->LocalNodeIdMap = 0;
+  this->LocalElementIdMap = 0;
+
 }
 
 vtkExodusIIWriter::~vtkExodusIIWriter ()
@@ -896,12 +900,12 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
     for(int j=0; j<ncells; j++)
       {
       vtkstd::map<int, Block>::iterator iter = 
-        this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j) + 1);
-                                 // shift by 1 in case there's a 0
+        this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
+                                 // shift by 1 in case there's a 0  This was removed because it changes the user supplied block ids in the metadata.
       if (iter == this->BlockInfoMap.end ())
         {
         this->CellToElementOffset[i][j] = 0;
-        Block& b = this->BlockInfoMap[this->BlockIdList[i]->GetValue (j) + 1];
+        Block& b = this->BlockInfoMap[this->BlockIdList[i]->GetValue (j)];//CLM
         b.Name = vtkExodusIIWriter::GetCellTypeName (
             this->FlattenedInput[i]->GetCellType (j));
         b.NumElements = 1;
@@ -1646,7 +1650,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
     int ncells = this->FlattenedInput[i]->GetNumberOfCells();
     for (int j = 0; j < ncells; j++)
       {
-      int blockId = this->BlockIdList[i]->GetValue(j) + 1;
+      int blockId = this->BlockIdList[i]->GetValue(j);//CLM
       int blockOutIndex = this->BlockInfoMap[blockId].OutputIndex;
 
       int nodesPerElement = this->BlockInfoMap[blockId].NodesPerElements;
@@ -1780,7 +1784,7 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
         int ncells = this->FlattenedInput[i]->GetNumberOfCells();
         for (int j=0; j<ncells; j++)
           {
-          int blockId = this->BlockIdList[i]->GetValue (j) + 1;
+          int blockId = this->BlockIdList[i]->GetValue (j);
           int start = this->BlockInfoMap[blockId].ElementStartIndex;
           vtkIdType offset = this->CellToElementOffset[i][j];
           copyOfIds[start + offset] = static_cast<int>(ids[j]);
@@ -2233,7 +2237,7 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
           {
           vtkIdType gid = this->GlobalElementIdList[i][j];
           int offset = this->CellToElementOffset[i][j];
-          int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j) + 1].ElementStartIndex; 
+          int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j)].ElementStartIndex; 
           this->LocalElementIdMap->insert(
             vtkstd::map<vtkIdType, vtkIdType>::value_type(gid, start + offset));
           }
@@ -2349,7 +2353,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
         {
         ssSize[i]++;
 
-        idBuf[nextId] = lid;
+        idBuf[nextId] = lid+1;
         sideBuf[nextId] = sides[j];
 
         nextId++;
@@ -2542,7 +2546,7 @@ void vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
       for (vtkIdType j = 0; j < ncells; j ++)
         {
         vtkstd::map<int, Block>::const_iterator blockIter = 
-                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j) + 1);
+                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
         if (blockIter == this->BlockInfoMap.end ())
           {
           vtkErrorMacro ("vtkExodusIIWriter: The block id map has come out of sync");
@@ -2566,7 +2570,7 @@ void vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
       for (vtkIdType j = 0; j < ncells; j ++)
         {
         vtkstd::map<int, Block>::const_iterator blockIter = 
-                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j) + 1);
+                this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
         if (blockIter == this->BlockInfoMap.end ())
           {
           vtkErrorMacro ("vtkExodusIIWriter: The block id map has come out of sync");
