@@ -69,12 +69,14 @@ public:
   // Description:
   // Set the maximum allowable level for the tree. If the Automatic ivar is 
   // off, this will be the target depth of the locator.
+  // Initial value is 8.
   vtkSetClampMacro(MaxLevel,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxLevel,int);
 
   // Description:
   // Get the level of the locator (determined automatically if Automatic is 
   // true). The value of this ivar may change each time the locator is built.
+  // Initial value is 8.
   vtkGetMacro(Level,int);
 
   // Description:

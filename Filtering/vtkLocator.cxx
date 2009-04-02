@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkLocator, "1.5");
+vtkCxxRevisionMacro(vtkLocator, "1.6");
 
 vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 
@@ -27,6 +27,7 @@ vtkLocator::vtkLocator()
   this->Tolerance = 0.001;
   this->Automatic = 1;
   this->MaxLevel = 8;
+  this->Level = 8;
 }
 
 vtkLocator::~vtkLocator()
