@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.26");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.27");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -853,6 +853,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     }
 
   char* ex2v3 = strstr( prefix, ".ex2v3" );
+  bool dot_separator = false;
   // Find minimum of range, if any
   for ( cc = ex2v3 ? ex2v3 - prefix - 1 : slen - 1; cc >= 0; -- cc )
     {
@@ -863,6 +864,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
       }
     else if ( prefix[cc] == '.' )
       {
+      dot_separator = true;
       prefix[cc] = 0;
       break;
       }
@@ -880,11 +882,13 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
       {
       if ( ex2v3 )
         {
-        sprintf( pattern, "%%s.%%0%ii%s", scount, file + (ex2v3 - prefix) );
+        const char* reg_ex = dot_separator? "%%s.%%0%ii%s" : "%%s%%0%ii%s";
+        sprintf( pattern, reg_ex, scount, file + (ex2v3 - prefix) );
         }
       else
         {
-        sprintf( pattern, "%%s.%%0%ii", scount );
+        const char* reg_ex = dot_separator? "%%s.%%0%ii" : "%%s%%0%ii";
+        sprintf( pattern, reg_ex, scount );
         }
       }
     }
