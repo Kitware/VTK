@@ -39,13 +39,15 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.11");
+vtkCxxRevisionMacro(vtkRenderView, "1.12");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
 {
   this->Renderer = vtkRenderer::New();
   this->Renderer->AddObserver(vtkCommand::StartEvent, this->GetObserver());
+  this->Renderer->AddObserver(vtkCommand::ComputeVisiblePropBoundsEvent,
+    this->GetObserver());
   this->InteractorStyle = vtkInteractorStyleRubberBand3D::New();
   this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
   this->SelectionMode = SURFACE;
@@ -114,6 +116,11 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
   if (caller == this->Renderer && eventId == vtkCommand::StartEvent)
     {
     this->PrepareForRendering();
+    }
+  else if (caller == this->Renderer &&
+           eventId == vtkCommand::ComputeVisiblePropBoundsEvent)
+    {
+    this->Update();
     }
   else if (caller == this->InteractorStyle && eventId == vtkCommand::SelectionChangedEvent)
     {
@@ -223,7 +230,11 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     }
   else if(eventId == vtkCommand::SelectionChangedEvent)
     {
-    this->Update();
+    if (this->Renderer->GetRenderWindow())
+      {
+      this->Renderer->ResetCameraClippingRange();
+      this->Renderer->GetRenderWindow()->Render();
+      }
     Superclass::ProcessEvents(caller, eventId, callData);
     }
   else
@@ -233,28 +244,9 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderView::Update()
-{
-  this->Superclass::Update();
-  if (this->Renderer->GetRenderWindow())
-    {
-    this->Renderer->ResetCameraClippingRange();
-    this->Renderer->GetRenderWindow()->Render();
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkRenderView::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Renderer->SetBackground(theme->GetBackgroundColor());
-}
-
-//----------------------------------------------------------------------------
-void vtkRenderView::RepresentationSelectionChanged(
-    vtkDataRepresentation* vtkNotUsed(rep),
-    vtkSelection* vtkNotUsed(selection))
-{
-  this->Update();
 }
 
 //----------------------------------------------------------------------------

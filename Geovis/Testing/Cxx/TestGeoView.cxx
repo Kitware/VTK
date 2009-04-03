@@ -195,7 +195,7 @@ int TestGeoView(int argc, char* argv[])
     }
   imageRep->SetSource(imageSource);
 
-  view->Update();
+  view->GetRenderer()->ResetCameraClippingRange();
 
   //int retVal = vtkRegressionTestImage(win);
   int retVal = vtkRegressionTestImageThreshold(win, 11);

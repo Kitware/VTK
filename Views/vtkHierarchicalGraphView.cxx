@@ -74,7 +74,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.10");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.11");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -244,6 +244,7 @@ vtkHierarchicalGraphView::vtkHierarchicalGraphView()
   this->GraphEdgeMapper->SetInputConnection(this->Spline->GetOutputPort());
   this->GraphEdgeActor->SetMapper(this->GraphEdgeMapper);
   this->KdTreeSelector->SetInputConnection(this->VertexDegree->GetOutputPort());
+  this->ExtractSelectedGraph->SetInput(1, this->EmptySelection);
   this->SelectedGraphHBundle->SetInputConnection(0, this->ExtractSelectedGraph->GetOutputPort());
   this->SelectedGraphHBundle->SetInputConnection(1, this->VertexDegree->GetOutputPort());
   this->SelectedGraphSpline->SetInputConnection(this->SelectedGraphHBundle->GetOutputPort());
@@ -689,14 +690,28 @@ void vtkHierarchicalGraphView::AddInputConnection( int port, int vtkNotUsed(inde
   if( port == 0 )
     {
     this->TreeAggregation->SetInputConnection(0, conn);
-    this->ExtractSelectedTree->SetInputConnection(1, selectionConn);
+    if (selectionConn)
+      {
+      this->ExtractSelectedTree->SetInputConnection(1, selectionConn);
+      }
+    else
+      {
+      this->ExtractSelectedTree->SetInput(1, this->EmptySelection);
+      }
     haveTree = true;
     }
   else
     {
     this->HBundle->SetInputConnection(0, conn);
     this->ExtractSelectedGraph->SetInputConnection(0, conn);
-    this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+    if (selectionConn)
+      {
+      this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+      }
+    else
+      {
+      this->ExtractSelectedGraph->SetInput(1, this->EmptySelection);
+      }
     haveGraph = true;
     }
 
@@ -861,7 +876,11 @@ void vtkHierarchicalGraphView::ProcessEvents(
       if (sel)
         {
         vtkSelectionNode* node = sel->GetNode(0);
-        ids = node ? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : 0;
+        if (node && node->GetProperties()->Get(vtkSelectionNode::PROP()) ==
+            this->GraphEdgeMapper)
+          {
+          ids = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+          }
         }
 
       // Set the speciale dge actor back to normal.
@@ -938,24 +957,28 @@ void vtkHierarchicalGraphView::PrepareForRendering()
   vtkDataRepresentation* treeRep = this->GetRepresentation();
   
   vtkAlgorithmOutput* treeConn = treeRep->GetInputConnection();
-  if (this->TreeAggregation->GetInputConnection(0, 0) != treeConn)
+  vtkAlgorithmOutput* selectionConn = treeRep->GetSelectionConnection();
+  if (this->TreeAggregation->GetInputConnection(0, 0) != treeConn ||
+      this->ExtractSelectedTree->GetInputConnection(1, 0) != selectionConn)
     {
-      this->RemoveInputConnection(0, 0,
+    this->RemoveInputConnection(0, 0,
       this->TreeAggregation->GetInputConnection(0, 0),
       this->ExtractSelectedTree->GetInputConnection(1, 0));
-    this->AddInputConnection(0, 0, treeConn, treeRep->GetSelectionConnection());
+    this->AddInputConnection(0, 0, treeConn, selectionConn);
     }
 
   // Make sure the graph input connection is up to date.
   vtkDataRepresentation* graphRep = this->GetRepresentation(1, 0);
   
   vtkAlgorithmOutput* graphConn = graphRep->GetInputConnection();
-  if (this->HBundle->GetInputConnection(0, 0) != graphConn)
+  selectionConn = graphRep->GetSelectionConnection();
+  if (this->HBundle->GetInputConnection(0, 0) != graphConn ||
+      this->ExtractSelectedGraph->GetInputConnection(1, 0) != selectionConn)
     {
-      this->RemoveInputConnection(1, 0,
+    this->RemoveInputConnection(1, 0,
       this->HBundle->GetInputConnection(0, 0),
       this->ExtractSelectedGraph->GetInputConnection(1, 0));
-      this->AddInputConnection(1, 0, graphConn, graphRep->GetSelectionConnection());
+    this->AddInputConnection(1, 0, graphConn, selectionConn);
     }
   
   this->Superclass::PrepareForRendering();

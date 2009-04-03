@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView2D, "1.3");
+vtkCxxRevisionMacro(vtkGeoView2D, "1.4");
 vtkStandardNewMacro(vtkGeoView2D);
 vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 
@@ -72,6 +72,7 @@ void vtkGeoView2D::ApplyViewTheme(vtkViewTheme* theme)
 
 void vtkGeoView2D::PrepareForRendering()
 {
+  this->Superclass::PrepareForRendering();
   if (!this->Surface)
     {
     return;

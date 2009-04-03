@@ -58,7 +58,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.14");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.15");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -408,7 +408,23 @@ void vtkTreeLayoutView::AddInputConnection( int port, int item,
   else if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
     this->GraphLayout->SetInputConnection(conn);
-    this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+    if (selectionConn)
+      {
+      this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+      }
+    else
+      {
+      vtkSmartPointer<vtkSelection> empty =
+        vtkSmartPointer<vtkSelection>::New();
+      vtkSmartPointer<vtkSelectionNode> node =
+        vtkSmartPointer<vtkSelectionNode>::New();
+      node->SetContentType(vtkSelectionNode::INDICES);
+      vtkSmartPointer<vtkIdTypeArray> arr =
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      node->SetSelectionList(arr);
+      empty->AddNode(node);
+      this->ExtractSelectedGraph->SetInput(1, empty);
+      }
   
     this->Renderer->AddActor(this->VertexActor);
     this->Renderer->AddActor(this->OutlineActor);
@@ -619,12 +635,14 @@ void vtkTreeLayoutView::PrepareForRendering()
   
   // Make sure the input connection is up to date.
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
-  if (this->GraphLayout->GetInputConnection(0, 0) != conn)
+  vtkAlgorithmOutput* selectionConn = rep->GetSelectionConnection();
+  if (this->GraphLayout->GetInputConnection(0, 0) != conn ||
+      this->ExtractSelectedGraph->GetInputConnection(1, 0) != selectionConn)
     {
-      this->RemoveInputConnection( 0, 0,
+    this->RemoveInputConnection( 0, 0,
       this->GraphLayout->GetInputConnection(0, 0),
       this->ExtractSelectedGraph->GetInputConnection(1, 0));
-    this->AddInputConnection(0, 0, conn, rep->GetSelectionConnection());
+    this->AddInputConnection(0, 0, conn, selectionConn);
     }
 
   // Update the pipeline up until the graph to polydata

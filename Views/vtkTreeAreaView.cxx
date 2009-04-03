@@ -70,7 +70,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.2");
+vtkCxxRevisionMacro(vtkTreeAreaView, "1.3");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
@@ -252,6 +252,7 @@ vtkTreeAreaView::vtkTreeAreaView()
   this->GraphEdgeMapper->SetInputConnection(this->Spline->GetOutputPort());
   this->GraphEdgeActor->SetMapper(this->GraphEdgeMapper);
   this->KdTreeSelector->SetInputConnection(this->AreaLayout->GetOutputPort());
+  this->ExtractSelectedGraph->SetInput(1, this->EmptySelection);
   this->SelectedGraphHBundle->SetInputConnection(0, this->ExtractSelectedGraph->GetOutputPort());
   this->SelectedGraphHBundle->SetInputConnection(1, this->AreaLayout->GetOutputPort(1));
   this->SelectedGraphSpline->SetInputConnection(this->SelectedGraphHBundle->GetOutputPort());
@@ -263,6 +264,7 @@ vtkTreeAreaView::vtkTreeAreaView()
   this->AreaLabelMapper->SetInputConnection(this->AreaLayout->GetOutputPort());
   this->AreaLabelActor->SetMapper(this->AreaLabelMapper);
 
+  this->ConvertSelection->SetInput(0, this->EmptySelection);
   this->ConvertSelection->SetInputConnection(1, this->AreaToPolyData->GetOutputPort());
   this->ExtractSelectedAreas->SetInputConnection(0, this->AreaToPolyData->GetOutputPort());
   this->ExtractSelectedAreas->SetInputConnection(1, this->ConvertSelection->GetOutputPort());
@@ -524,7 +526,14 @@ void vtkTreeAreaView::AddInputConnection(
   if( port == 0 )
     {
     this->TreeLevels->SetInputConnection(0, conn);
-    this->ConvertSelection->SetInputConnection(0, selectionConn);
+    if (selectionConn)
+      {
+      this->ConvertSelection->SetInputConnection(0, selectionConn);
+      }
+    else
+      {
+      this->ConvertSelection->SetInput(0, this->EmptySelection);
+      }
     haveTree = true;
     }
   else
@@ -532,7 +541,14 @@ void vtkTreeAreaView::AddInputConnection(
     this->HBundle->SetInputConnection(0, conn);
     this->GraphVertexDegree->SetInputConnection(0, conn);
     this->ExtractSelectedGraph->SetInputConnection(0, conn);
-    this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+    if (selectionConn)
+      {
+      this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+      }
+    else
+      {
+      this->ExtractSelectedGraph->SetInput(1, this->EmptySelection);
+      }
     this->TreeAggregation->SetInputConnection(this->TransferAttributes->GetOutputPort());
     haveGraph = true;
     }
@@ -809,13 +825,11 @@ void vtkTreeAreaView::PrepareForRendering()
     {
     // Make sure the tree input connection is up to date.
     vtkAlgorithmOutput* treeConn = treeRep->GetInputConnection();
-    if (this->TreeLevels->GetInputConnection(0, 0) != treeConn)
+    vtkAlgorithmOutput* selectionConn = treeRep->GetSelectionConnection();
+    if (this->TreeLevels->GetInputConnection(0, 0) != treeConn ||
+        this->ConvertSelection->GetInputConnection(0, 0) != selectionConn)
       {
-      this->RemoveInputConnection(0, 0,
-          this->TreeLevels->GetInputConnection(0, 0), NULL );
-      //FIXME - jfsheph - what does setting this to NULL do?
-      // this->ExtractSelectedTree->GetInputConnection(1, 0));
-      this->AddInputConnection(0, 0, treeConn, treeRep->GetSelectionConnection());
+      this->AddInputConnection(0, 0, treeConn, selectionConn);
       }
 
     // Make sure vertex color range is up-to-date.
@@ -839,12 +853,11 @@ void vtkTreeAreaView::PrepareForRendering()
     {
     // Make sure the graph input connection is up to date.
     vtkAlgorithmOutput* graphConn = graphRep->GetInputConnection();
-    if (this->HBundle->GetInputConnection(0, 0) != graphConn)
+    vtkAlgorithmOutput* selectionConn = graphRep->GetSelectionConnection();
+    if (this->HBundle->GetInputConnection(0, 0) != graphConn ||
+        this->ExtractSelectedGraph->GetInputConnection(1, 0) != selectionConn)
       {
-      this->RemoveInputConnection(1, 0,
-          this->HBundle->GetInputConnection(0, 0),
-          this->ExtractSelectedGraph->GetInputConnection(1, 0));
-      this->AddInputConnection(1, 0, graphConn, graphRep->GetSelectionConnection());
+      this->AddInputConnection(1, 0, graphConn, selectionConn);
       }
 
     // Make sure edge color range is up-to-date.

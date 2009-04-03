@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView, "1.11");
+vtkCxxRevisionMacro(vtkGeoView, "1.12");
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
@@ -164,6 +164,7 @@ bool vtkGeoView::GetLockHeading()
 // Prepares the view for rendering.
 void vtkGeoView::PrepareForRendering()
 {
+  this->Superclass::PrepareForRendering();
   vtkSmartPointer<vtkCollection> imageReps =
     vtkSmartPointer<vtkCollection>::New();
   for (int i = 0; i < this->GetNumberOfRepresentations(); i++)

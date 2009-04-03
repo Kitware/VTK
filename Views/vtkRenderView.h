@@ -63,10 +63,6 @@ public:
   // Apply a theme to the view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description:
-  // Update the view.
-  virtual void Update();
-
   //BTX
   enum {
     SURFACE = 0,
@@ -92,12 +88,6 @@ protected:
   // Description:
   // Called by the view when the renderer is about to render.
   virtual void PrepareForRendering();
-  
-  // Description:
-  // Called when a representation's selection changed.
-  virtual void RepresentationSelectionChanged(
-    vtkDataRepresentation* rep,
-    vtkSelection* selection);
   
   // Description:
   // Allow subclasses to change the interactor style.

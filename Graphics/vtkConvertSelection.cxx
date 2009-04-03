@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.24");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.25");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -678,7 +678,11 @@ int vtkConvertSelection::Convert(
             }
           }
         }
-      else
+      // If no domain array, the name of the selection and data arrays
+      // must match (if they exist).
+      else if (inputNode->GetContentType() != vtkSelectionNode::PEDIGREEIDS ||
+               !selArr->GetName() || !dataArr->GetName() ||
+               !strcmp(selArr->GetName(), dataArr->GetName()))
         {
         // Perform the lookup
         vtkIdType numTuples = selArr->GetNumberOfTuples();
@@ -924,6 +928,7 @@ void vtkConvertSelection::GetSelectedItems(
         }
       }
     }
+  indexSel->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1025,17 +1030,16 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   VTK_CREATE(vtkConvertSelection, convert);
   vtkDataObject* dataCopy = data->NewInstance();
   dataCopy->ShallowCopy(data);
-  vtkSelection* inputCopy = vtkSelection::New();
+  VTK_CREATE(vtkSelection, inputCopy);
   inputCopy->ShallowCopy(input);
-  convert->SetInput(0, input);
-  convert->SetInput(1, data);
+  convert->SetInput(0, inputCopy);
+  convert->SetInput(1, dataCopy);
   convert->SetOutputType(type);
   convert->SetArrayNames(arrayNames);
   convert->Update();
   vtkSelection* output = convert->GetOutput();
   output->Register(0);
   dataCopy->Delete();
-  inputCopy->Delete();
   return output;
 }
 

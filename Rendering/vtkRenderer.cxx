@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.246");
+vtkCxxRevisionMacro(vtkRenderer, "1.247");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -878,6 +878,8 @@ void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
   vtkProp    *prop;
   double      *bounds;
   int        nothingVisible=1;
+
+  this->InvokeEvent(vtkCommand::ComputeVisiblePropBoundsEvent, this);
 
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_DOUBLE_MAX;
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_DOUBLE_MAX;

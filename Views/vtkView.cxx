@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.17");
+vtkCxxRevisionMacro(vtkView, "1.18");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -311,7 +311,6 @@ void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
 {
   if( !this->CheckPort( port, 0 ) )
     {
-    rep->Update();
     this->SetRepresentation(port, 0, rep);
     }
   else
@@ -321,7 +320,6 @@ void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
       if( rep->AddToView( this ) )
         {
         rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-        rep->Update();
         if (rep->GetNumberOfInputPorts() > 0)
           {
           this->AddInputConnection(port, 0, rep->GetInputConnection(),
@@ -379,7 +377,6 @@ void vtkView::SetRepresentation(int port, int index, vtkDataRepresentation* rep)
         }
       
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-      rep->Update();
       if (rep->GetNumberOfInputPorts() > 0)
         {
         this->AddInputConnection(port, index, rep->GetInputConnection(),

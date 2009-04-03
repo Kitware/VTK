@@ -269,23 +269,9 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   // Set up the viewport
   win->SetSize(900, 600);
-  vtkSmartPointer<vtkGeoTerrainNode> root =
-    vtkSmartPointer<vtkGeoTerrainNode>::New();
-  terrainSource->FetchRoot(root);
-  double bounds[6];
-  root->GetModel()->GetBounds(bounds);
-  bounds[0] = bounds[0] - (bounds[1] - bounds[0])*0.01;
-  bounds[1] = bounds[1] + (bounds[1] - bounds[0])*0.01;
-  bounds[2] = bounds[2] - (bounds[3] - bounds[2])*0.01;
-  bounds[3] = bounds[3] + (bounds[3] - bounds[2])*0.01;
-  double scalex = (bounds[1] - bounds[0])/2.0;
-  double scaley = (bounds[3] - bounds[2])/2.0;
-  double scale = (scalex > scaley) ? scalex : scaley;
-  view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
+  view->GetRenderer()->GetActiveCamera()->SetParallelScale(95.8);
+  view->GetRenderer()->Render();
 
-  view->Update();
-  view->GetRenderer()->ResetCamera();
-  view->GetRenderer()->GetActiveCamera()->Zoom(2.1);
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

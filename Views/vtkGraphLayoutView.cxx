@@ -73,7 +73,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.52");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.53");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -772,7 +772,23 @@ void vtkGraphLayoutView::AddInputConnection( int port, int item,
   else if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
     this->GraphLayout->SetInputConnection(conn);
-    this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+    if (selectionConn)
+      {
+      this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
+      }
+    else
+      {
+      vtkSmartPointer<vtkSelection> empty =
+        vtkSmartPointer<vtkSelection>::New();
+      vtkSmartPointer<vtkSelectionNode> emptyNode =
+        vtkSmartPointer<vtkSelectionNode>::New();
+      emptyNode->SetContentType(vtkSelectionNode::INDICES);
+      vtkSmartPointer<vtkIdTypeArray> arr =
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      emptyNode->SetSelectionList(arr);
+      empty->AddNode(emptyNode);
+      this->ExtractSelectedGraph->SetInput(1, empty);
+      }
   
     this->Renderer->AddActor(this->GraphActor);
     this->Renderer->AddActor(this->SelectedGraphActor);
@@ -905,7 +921,11 @@ void vtkGraphLayoutView::ProcessEvents(
       if (sel)
         {
         vtkSelectionNode* node = sel->GetNode(0);
-        ids = node ? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : 0;
+        if (node && node->GetProperties()->Get(vtkSelectionNode::PROP()) ==
+            this->EdgeSelectionActor)
+          {
+          ids = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+          }
         }
 
       // Turn off the special edge actor
@@ -969,12 +989,14 @@ void vtkGraphLayoutView::PrepareForRendering()
   
   // Make sure the input connection is up to date.
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
-  if (this->GraphLayout->GetInputConnection(0, 0) != conn)
+  vtkAlgorithmOutput* selectionConn = rep->GetSelectionConnection();
+  if (this->GraphLayout->GetInputConnection(0, 0) != conn ||
+      this->ExtractSelectedGraph->GetInputConnection(1, 0) != selectionConn)
     {
-      this->RemoveInputConnection( 0, 0,
+    this->RemoveInputConnection( 0, 0,
       this->GraphLayout->GetInputConnection(0, 0),
       this->ExtractSelectedGraph->GetInputConnection(1, 0));
-    this->AddInputConnection(0, 0, conn, rep->GetSelectionConnection());
+    this->AddInputConnection(0, 0, conn, selectionConn);
     }
   
   this->Superclass::PrepareForRendering();
