@@ -38,13 +38,15 @@
 //#define DEBUG   // if defined this prompts printouts
 
 
-
+//----------------------------------------------------------------------------
+// private class vtkPBGLDistributedGraphHelperMessageTypes
+//----------------------------------------------------------------------------
 class vtkPBGLDistributedGraphHelperMessageTypes
 {
 public:
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Edge message bundle class for Id:Id edge types
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   class EdgeIIMessageBundle
   {
   public:
@@ -67,9 +69,9 @@ public:
     }
   };
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Edge message bundle class for Id:Name edge types
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   class EdgeINMessageBundle
   {
   public:
@@ -92,9 +94,9 @@ public:
     }
   };
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Edge message bundle class for Name:Id edge types
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   class EdgeNIMessageBundle
   {
   public:
@@ -117,9 +119,9 @@ public:
     }
   };
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Edge message bundle class for Name:Name edge types
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   class EdgeNNMessageBundle
   {
   public:
@@ -238,12 +240,12 @@ boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.11");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.12");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.11");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.12");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -278,8 +280,9 @@ boost::graph::distributed::mpi_process_group vtkPBGLDistributedGraphHelper::GetP
 }
 
 //----------------------------------------------------------------------------
-void vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyArr,
-                                                      vtkIdType *vertex)
+void
+vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyArr,
+                                                 vtkIdType *vertex)
 {
   vtkIdType rank
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -344,8 +347,9 @@ void vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyA
 }
 
 //----------------------------------------------------------------------------
-void vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& pedigreeId,
-                                                      vtkIdType *vertex)
+void
+vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& pedigreeId,
+                                                 vtkIdType *vertex)
 {
   vtkIdType rank
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -490,27 +494,10 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
       }
     else
       {
-      if(!propertyArr)
-        {
-        // The target vertex is remote: send a message asking its
-        // owner to add the back edge.
-#if !WCMCLEN_DEBUG_REMOVED
-        // WCMCLEN: Need to figure out what we're doing with back edges...
-        //          for that matter, even forward edges--are we duplicating edge
-        //          data somehow?
-        send(this->Internals->process_group, vOwner,
-             directed ? ADD_DIRECTED_BACK_EDGE_TAG
-                      : ADD_UNDIRECTED_BACK_EDGE_TAG,
-             vtkEdgeType(uDistributedId, vDistributedId, edgeId));
-#endif
-        }
-      else
-        {
-        // WCMCLEN: what about back edges with property arrays???
-        //          a distributed edgeId might be ok tbh so we don't cause
-        //          yet another duplicate copy of the edge data.  Still seems
-        //          to cause crashes though :(
-        }
+      send(this->Internals->process_group, vOwner,
+           directed ? ADD_DIRECTED_BACK_EDGE_TAG
+                    : ADD_UNDIRECTED_BACK_EDGE_TAG,
+           vtkEdgeType(uDistributedId, vDistributedId, edgeId));
       }
 
     if (edge)
@@ -776,8 +763,6 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       num_processes(this->Internals->process_group));
 
     // Add our triggers to the process group
-    typedef vtkstd::pair<vtkIdType, vtkIdType> IdPair;
-    typedef vtkstd::pair<vtkstd::pair<vtkIdType,vtkIdType>, vtkVariantArray*> IdPairWithProps;
     this->Internals->process_group.make_distributed_object();
     this->Internals->process_group.trigger_with_reply<vtkVariant>
       (FIND_VERTEX_TAG,
@@ -851,7 +836,6 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
                    this->Internals, _3, false));
 
     // Add edge for (id, pedigree) pairs
-//    typedef vtkstd::pair<vtkIdType, vtkVariant> IdPedigreePair;
     this->Internals->process_group.trigger<EdgeINMessageBundle>
       (ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeIN,
@@ -862,7 +846,6 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
                    this->Internals, _3, false));
 
     // Add edge for (pedigree, pedigree) pairs
-//    typedef vtkstd::pair<vtkVariant, vtkVariant> PedigreePedigreePair;
     this->Internals->process_group.trigger<EdgeNNMessageBundle>
       (ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN,
