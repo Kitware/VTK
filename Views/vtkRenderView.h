@@ -69,10 +69,21 @@ public:
     FRUSTUM = 1
   };
   //ETX
+
+  // Description:
+  // Sets the selection mode for the render view.
+  // SURFACE selection uses vtkHardwareSelector to perform a selection
+  // of visible cells.
+  // FRUSTUM selection just creates a view frustum selection, which will
+  // select everything in the frustum.
   vtkSetClampMacro(SelectionMode, int, 0, 1);
   vtkGetMacro(SelectionMode, int);
   void SetSelectionModeToSurface() { this->SetSelectionMode(SURFACE); }
   void SetSelectionModeToFrustum() { this->SetSelectionMode(FRUSTUM); }
+
+  // Description:
+  // Calls Render() on the render window associated with this view.
+  virtual void Render();
   
 protected:
   vtkRenderView();

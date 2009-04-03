@@ -23,13 +23,11 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkView.h"
-#include "vtkRenderer.h"
 #include "vtkRenderView.h"
-#include "vtkRenderWindow.h"
 
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkViewUpdater, "1.1");
+vtkCxxRevisionMacro(vtkViewUpdater, "1.2");
 vtkStandardNewMacro(vtkViewUpdater);
 
 class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand
@@ -43,11 +41,7 @@ public:
       vtkRenderView* rv = vtkRenderView::SafeDownCast(this->Views[i]);
       if (rv)
         {
-        vtkRenderWindow* win = rv->GetRenderer()->GetRenderWindow();
-        if (win)
-          {
-          win->Render();
-          }
+        rv->Render();
         }
       else
         {
