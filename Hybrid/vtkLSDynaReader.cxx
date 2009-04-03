@@ -110,7 +110,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.19");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.20");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1162,6 +1162,7 @@ public:
   vtkLSDynaReaderPrivate()
     {
     this->FileIsValid = 0;
+    this->Dimensionality=0;
     this->FileSizeFactor = 7;
     this->MaxFileLength = this->FileSizeFactor*512*512*8;
 
@@ -1480,7 +1481,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.19");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.20");
 // ============================================== End of XML Summary reader class
 
 
