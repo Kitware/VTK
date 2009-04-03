@@ -32,7 +32,7 @@
 class vtkIdList;
 class vtkPoints;
 
-class VTK_RENDERING_EXPORT vtkCoincidentPoints : public vtkObject
+class VTK_GRAPHICS_EXPORT vtkCoincidentPoints : public vtkObject
 {
 public:
   static vtkCoincidentPoints* New();

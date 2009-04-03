@@ -41,7 +41,7 @@
 class vtkMapType;
 class vtkVariant;
 
-class VTK_INFOVIS_EXPORT vtkArrayMap : public vtkPassInputTypeAlgorithm
+class VTK_RENDERING_EXPORT vtkArrayMap : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeRevisionMacro(vtkArrayMap,vtkPassInputTypeAlgorithm);

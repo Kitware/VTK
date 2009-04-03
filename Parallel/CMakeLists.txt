@@ -35,7 +35,6 @@ vtkExtractPiece.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
-vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
 vtkMultiProcessStream.cxx
 vtkParallelFactory.cxx
@@ -47,7 +46,6 @@ vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
 vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
-vtkPImageWriter.cxx
 vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPOPReader.cxx
@@ -82,8 +80,10 @@ IF(VTK_USE_RENDERING)
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkCompositeRenderManager.cxx
+    vtkMemoryLimitImageDataStreamer.cxx
     vtkPipelineSize.cxx
     vtkParallelRenderManager.cxx
+    vtkPImageWriter.cxx
     vtkTreeCompositer.cxx
     )
 ENDIF(VTK_USE_RENDERING)

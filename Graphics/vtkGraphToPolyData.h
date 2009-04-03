@@ -34,7 +34,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkGraphToPolyData : public vtkPolyDataAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkGraphToPolyData : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkGraphToPolyData *New();

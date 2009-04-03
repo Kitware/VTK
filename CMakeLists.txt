@@ -244,21 +244,21 @@ MARK_AS_ADVANCED(VTK_USE_METAIO)
 
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data or using widgets." ON)
+OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." ON)
+
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF "" OFF)
-
-VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." ON "VTK_USE_RENDERING" OFF)
-
-VTK_DEPENDENT_OPTION(VTK_USE_VIEWS "Build the vtkViews kit.  Needed for creating packaged and linked views." ON "VTK_USE_INFOVIS" OFF)
-
-VTK_DEPENDENT_OPTION(VTK_USE_GEOVIS "Build the vtkGeovis kit.  Needed for performing geographic visualization." ON "VTK_USE_VIEWS" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_VIEWS "Build the vtkViews kit.  Needed for creating packaged and linked views." ON
+  "VTK_USE_RENDERING;VTK_USE_INFOVIS" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_GEOVIS "Build the vtkGeovis kit.  Needed for performing geographic visualization." ON
+  "VTK_USE_VIEWS" OFF)
 
 OPTION(VTK_USE_N_WAY_ARRAYS "Add support for arbitrary-dimension sparse and dense arrays." OFF)
 
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
-                     "VTK_USE_RENDERING" OFF)
+  "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." ON
-                     "VTK_USE_RENDERING" OFF)
+  "VTK_USE_RENDERING" OFF)
 
 SET(VTK_DEFAULT_SHADERS_DIR
    "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"

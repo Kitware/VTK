@@ -14,7 +14,6 @@
 =========================================================================*/
 
 #include "vtkParallelFactory.h"
-#include "vtkPImageWriter.h"
 #include "vtkPPolyDataNormals.h"
 #include "vtkPSphereSource.h"
 #include "vtkPOutlineCornerFilter.h"
@@ -23,8 +22,11 @@
 #include "vtkPProbeFilter.h"
 #include "vtkPLinearExtrusionFilter.h"
 #include "vtkVersion.h"
+#ifdef VTK_USE_RENDERING
+#  include "vtkPImageWriter.h"
+#endif // VTK_USE_RENDERING
 
-vtkCxxRevisionMacro(vtkParallelFactory, "1.10");
+vtkCxxRevisionMacro(vtkParallelFactory, "1.11");
 vtkStandardNewMacro(vtkParallelFactory);
 
 void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
@@ -33,7 +35,9 @@ void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+#ifdef VTK_USE_RENDERING
 VTK_CREATE_CREATE_FUNCTION(vtkPImageWriter);
+#endif // VTK_USE_RENDERING
 VTK_CREATE_CREATE_FUNCTION(vtkPPolyDataNormals);
 VTK_CREATE_CREATE_FUNCTION(vtkPSphereSource);
 VTK_CREATE_CREATE_FUNCTION(vtkPStreamTracer);
@@ -44,11 +48,13 @@ VTK_CREATE_CREATE_FUNCTION(vtkPProbeFilter);
 
 vtkParallelFactory::vtkParallelFactory()
 {
+#ifdef VTK_USE_RENDERING
   this->RegisterOverride("vtkImageWriter",
                          "vtkPImageWriter",
                          "Parallel",
                          1,
                          vtkObjectFactoryCreatevtkPImageWriter);
+#endif // VTK_USE_RENDERING
   this->RegisterOverride("vtkPolyDataNormals",
                          "vtkPPolyDataNormals",
                          "Parallel",

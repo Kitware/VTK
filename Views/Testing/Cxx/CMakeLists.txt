@@ -4,6 +4,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # add tests that do not require data
   SET(MyTests
     TestRenderView.cxx
+    TestInteractorStyleTreeMapHover
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data
@@ -14,6 +15,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestIconGlyphFilter.cxx
       TestTreeLayoutView.cxx
       TestTreeMapView.cxx
+      TestTreeMapViewer.cxx
       TestTreeRingView.cxx
       TestIcicleView.cxx
       )

@@ -41,7 +41,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.14");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.1");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()

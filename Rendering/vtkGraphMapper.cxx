@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.34");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.3");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \

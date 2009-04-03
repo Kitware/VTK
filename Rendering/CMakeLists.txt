@@ -27,6 +27,7 @@ SET( Kit_SRCS
   vtkActorCollection.cxx
   vtkActor.cxx
   vtkAreaPicker.cxx
+  vtkArrayMap.cxx
   vtkAssembly.cxx
   vtkAxisActor2D.cxx
   vtkCamera.cxx
@@ -36,7 +37,6 @@ SET( Kit_SRCS
   vtkCellPicker.cxx
   vtkChooserPainter.cxx
   vtkClipPlanesPainter.cxx
-  vtkCoincidentPoints.cxx
   vtkCoincidentTopologyResolutionPainter.cxx
   vtkCompositePainter.cxx
   vtkCompositePolyDataMapper2.cxx
@@ -54,6 +54,7 @@ SET( Kit_SRCS
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
   vtkGraphicsFactory.cxx
+  vtkGraphMapper.cxx
   vtkHardwareSelector.cxx
   vtkHardwareSelectionPolyDataPainter.cxx
   vtkHierarchicalPolyDataMapper.cxx
@@ -83,6 +84,7 @@ SET( Kit_SRCS
   vtkInteractorStyleUser.cxx
   vtkIVExporter.cxx
   vtkLabeledDataMapper.cxx
+  vtkLabeledTreeMapDataMapper.cxx
   vtkLabelHierarchy.cxx
   vtkLabelHierarchyAlgorithm.cxx
   vtkLabelHierarchyIterator.cxx

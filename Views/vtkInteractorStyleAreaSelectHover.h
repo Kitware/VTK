@@ -41,7 +41,7 @@ class vtkTree;
 class vtkWorldPointPicker;
 class vtkPolyData;
 
-class VTK_INFOVIS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorStyleRubberBand2D
+class VTK_VIEWS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorStyleRubberBand2D
 {
 public:
   static vtkInteractorStyleAreaSelectHover* New();

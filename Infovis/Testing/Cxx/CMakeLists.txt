@@ -17,7 +17,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestGraphHierarchicalBundle
     TestGraphLayoutStrategy
     TestGroupLeafVertices
-    TestInteractorStyleTreeMapHover
     TestKdTreeBoxSelection
     TestMultiCorrelativeStatistics
     TestOrderStatistics
@@ -41,7 +40,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestFixedWidthTextReader
       TestRISReader
       TestStringToNumeric
-      TestTreeMapViewer
       TestTulipReader
       )
     IF (VTK_USE_VIEWS)

@@ -36,6 +36,7 @@ vtkClipDataSet.cxx
 vtkClipHyperOctree.cxx
 vtkClipPolyData.cxx
 vtkClipVolume.cxx
+vtkCoincidentPoints.cxx
 vtkCompositeDataGeometryFilter.cxx
 vtkCompositeDataProbeFilter.cxx
 vtkConeSource.cxx
@@ -104,6 +105,7 @@ vtkGlyphSource2D.cxx
 vtkGradientFilter.cxx
 vtkGraphGeodesicPath.cxx
 vtkGraphLayoutFilter.cxx
+vtkGraphToPolyData.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkHedgeHog.cxx
 vtkHierarchicalDataExtractDataSets.cxx

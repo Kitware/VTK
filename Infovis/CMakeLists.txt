@@ -4,16 +4,22 @@
 
 SET(KIT Infovis)
 SET(UKIT INFOVIS)
-SET(KIT_TCL_LIBS vtkWidgetsTCL)
-SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
-SET(KIT_JAVA_LIBS vtkWidgetsJava)
-SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES} vtkalglib)
+IF(VTK_USE_RENDERING)
+  SET(KIT_TCL_LIBS vtkWidgetsTCL)
+  SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
+  SET(KIT_JAVA_LIBS vtkWidgetsJava)
+  SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES} vtkalglib)
+ELSE(VTK_USE_RENDERING)
+  SET(KIT_TCL_LIBS vtkGraphicsTCL)
+  SET(KIT_PYTHON_LIBS vtkGraphicsPythonD)
+  SET(KIT_JAVA_LIBS vtkGraphicsJava)
+  SET(KIT_LIBS vtkGraphics  ${VTK_LIBXML2_LIBRARIES} vtkalglib)
+ENDIF(VTK_USE_RENDERING)
 
 SET( Kit_SRCS
 vtkArcParallelEdgeStrategy.cxx
 vtkAreaLayout.cxx
 vtkAreaLayoutStrategy.cxx
-vtkArrayMap.cxx
 vtkAssignCoordinates.cxx
 vtkBivariateStatisticsAlgorithm.cxx
 vtkBoxLayoutStrategy.cxx
@@ -40,13 +46,8 @@ vtkGenerateIndexArray.cxx
 vtkGraphHierarchicalBundle.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
-vtkGraphMapper.cxx
-vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
-vtkInteractorStyleAreaSelectHover.cxx
-vtkInteractorStyleTreeMapHover.cxx
-vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
 vtkMultiCorrelativeStatistics.cxx
@@ -81,7 +82,6 @@ vtkTreeLevelsFilter.cxx
 vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
-vtkTreeMapViewer.cxx
 vtkTreeRingToPolyData.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx

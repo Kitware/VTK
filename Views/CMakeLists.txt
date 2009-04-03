@@ -10,13 +10,16 @@ vtkConvertSelectionDomain.cxx
 vtkDataRepresentation.cxx
 vtkGraphLayoutView.cxx
 vtkHierarchicalGraphView.cxx
+vtkIcicleView.cxx
+vtkInteractorStyleAreaSelectHover.cxx
+vtkInteractorStyleTreeMapHover.cxx
 vtkRenderView.cxx
 vtkSurfaceRepresentation.cxx
 vtkTreeAreaView.cxx
 vtkTreeLayoutView.cxx
 vtkTreeMapView.cxx
+vtkTreeMapViewer.cxx
 vtkTreeRingView.cxx
-vtkIcicleView.cxx
 vtkView.cxx
 vtkViewUpdater.cxx
 )

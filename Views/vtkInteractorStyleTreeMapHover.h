@@ -41,7 +41,7 @@ class vtkTreeMapLayout;
 class vtkTreeMapToPolyData;
 class vtkWorldPointPicker;
 
-class VTK_INFOVIS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteractorStyleImage
+class VTK_VIEWS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteractorStyleImage
 {
 public:
   static vtkInteractorStyleTreeMapHover* New();
