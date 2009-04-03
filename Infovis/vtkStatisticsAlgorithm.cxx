@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.31");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.32");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -44,11 +44,6 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->Assess = false;
   this->AssessNames = vtkStringArray::New();
   this->AssessParameters = 0;
-
-  // Keep valgrind happy: initialize this iVar, but with an invalid value
-  // for the number of variables is unknown at this point
-  this->NumberOfVariables = -1;
-
   this->Internals = new vtkStatisticsAlgorithmPrivate;
 }
 
@@ -66,7 +61,6 @@ vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
   os << indent << "Learn: " << this->Learn << endl;
   os << indent << "Derive: " << this->Derive << endl;
   os << indent << "FullWasDerived: " << this->FullWasDerived << endl;

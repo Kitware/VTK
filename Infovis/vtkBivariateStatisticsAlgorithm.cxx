@@ -31,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.12");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.13");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -50,6 +50,7 @@ vtkBivariateStatisticsAlgorithm::~vtkBivariateStatisticsAlgorithm()
 void vtkBivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
 }
 
 // ----------------------------------------------------------------------

@@ -31,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.24");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.25");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -50,6 +50,7 @@ vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
 }
 
 // ----------------------------------------------------------------------

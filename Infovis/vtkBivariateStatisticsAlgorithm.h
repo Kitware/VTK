@@ -81,6 +81,7 @@ protected:
   vtkBivariateStatisticsAlgorithm();
   ~vtkBivariateStatisticsAlgorithm();
 
+  vtkIdType NumberOfVariables;
   vtkBivariateStatisticsAlgorithmPrivate* Internals;
 
 private:

@@ -80,6 +80,7 @@ protected:
   vtkUnivariateStatisticsAlgorithm();
   ~vtkUnivariateStatisticsAlgorithm();
 
+  vtkIdType NumberOfVariables;
   vtkUnivariateStatisticsAlgorithmPrivate* Internals;
 
 private:
