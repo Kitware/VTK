@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -96,7 +96,7 @@ private:
   void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -223,6 +223,7 @@ vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction
   this->Image             = NULL;
   this->TriangleList      = NULL;
   this->TetraTriangles    = NULL;
+  this->TetraTrianglesSize= 0;
   this->NumberOfPoints    = 0;
   this->ImageSize[0]      = 0;
   this->ImageSize[1]      = 0;
@@ -555,7 +556,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     tmpList[i] = NULL;      
     }
     
-  int numCells = input->GetNumberOfCells();
+  vtkIdType numCells = input->GetNumberOfCells();
   
   // Provide a warnings for anomalous conditions.
   int nonTetraWarningNeeded = 0;
@@ -563,7 +564,17 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     
   // Create a set of links from each tetra to the four triangles
   // This is redundant information, but saves time during rendering
-  this->TetraTriangles = new Triangle *[4 * numCells];
+  
+  if(this->TetraTriangles!=0 && numCells!=this->TetraTrianglesSize)
+    {
+    delete [] this->TetraTriangles;
+    this->TetraTriangles=0;
+    }
+  if(this->TetraTriangles==0)
+    {
+    this->TetraTriangles = new Triangle *[4 * numCells];
+    this->TetraTrianglesSize=numCells;
+    }
     
   // Loop through all the cells
   for ( i = 0; i < numCells; i++ )
