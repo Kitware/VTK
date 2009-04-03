@@ -18,6 +18,7 @@ vtkTreeMapView.cxx
 vtkTreeRingView.cxx
 vtkIcicleView.cxx
 vtkView.cxx
+vtkViewUpdater.cxx
 )
 
 #SET_SOURCE_FILES_PROPERTIES(

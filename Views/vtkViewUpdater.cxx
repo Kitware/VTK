@@ -29,7 +29,7 @@
 
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkViewUpdater, "1.2");
+vtkCxxRevisionMacro(vtkViewUpdater, "1.1");
 vtkStandardNewMacro(vtkViewUpdater);
 
 class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand

@@ -87,7 +87,6 @@ vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 vtkVertexDegree.cxx
 vtkViewTheme.cxx
-vtkViewUpdater.cxx
 vtkXMLTreeReader.cxx
 )
 

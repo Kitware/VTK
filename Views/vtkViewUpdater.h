@@ -32,7 +32,7 @@
 
 class vtkView;
 
-class VTK_INFOVIS_EXPORT vtkViewUpdater : public vtkObject
+class VTK_VIEWS_EXPORT vtkViewUpdater : public vtkObject
 {
 public:
   static vtkViewUpdater *New();
