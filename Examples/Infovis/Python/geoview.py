@@ -1,6 +1,9 @@
 from vtk import *
+import os.path
 
 data_dir = "../../../../VTKData/Data/Infovis/Images/"
+if not os.path.exists(data_dir):
+  data_dir = "../../../../../VTKData/Data/Infovis/Images/"
 
 source = vtkGeoRandomGraphSource()
 source.DirectedOff()
@@ -67,8 +70,11 @@ updater = vtkViewUpdater()
 updater.AddView(view)
 updater.AddView(view2)
 
-view.Update()
+view.GetRenderer().ResetCamera()
 view2.GetRenderer().ResetCamera()
+
+window.Render()
+window2.Render()
 
 window.GetInteractor().Initialize()
 window.GetInteractor().Start()

@@ -32,11 +32,13 @@ theme.SetLineWidth(5)
 theme.SetPointSize(10)
 theme.SetCellOpacity(1)
 view.ApplyViewTheme(theme)
+theme.FastDelete()
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 
 window.GetInteractor().Start()
 

@@ -1,6 +1,9 @@
 from vtk import *
+import os.path
 
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+if not os.path.exists(data_dir):
+  data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "SmallEmailTest.db"
 
 # Construct a graph from database tables (yes very tricky)
@@ -31,4 +34,5 @@ window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 window.GetInteractor().Start()

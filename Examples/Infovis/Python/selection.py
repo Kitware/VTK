@@ -98,16 +98,19 @@ window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 
 window2 = vtkRenderWindow()
 window2.SetSize(600, 600)
 view2.SetupRenderWindow(window2)
 view2.GetRenderer().ResetCamera()
+window2.Render()
 
 window3 = vtkRenderWindow()
 window3.SetSize(600, 600)
 view3.SetupRenderWindow(window3)
 view3.GetRenderer().ResetCamera()
+window3.Render()
 
 window.GetInteractor().Start()
 

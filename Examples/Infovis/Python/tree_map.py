@@ -23,8 +23,8 @@ theme.FastDelete()
 
 win = vtkRenderWindow()
 view.SetupRenderWindow(win)
-view.Update()
 view.GetRenderer().ResetCamera()
+win.Render()
 
 win.GetInteractor().Initialize()
 win.GetInteractor().Start()

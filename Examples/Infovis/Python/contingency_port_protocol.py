@@ -1,7 +1,10 @@
 from vtk import *
+import os.path
 
 # Open database
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+if not os.path.exists(data_dir):
+  data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "ports_protocols.db"
 database = vtkSQLDatabase.CreateFromURL("sqlite://" + sqlite_file)
 database.Open("")
@@ -58,9 +61,11 @@ theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
 view.SetVertexLabelFontSize(14)
 view.SetEdgeLabelFontSize(12)
+theme.FastDelete()
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 window.GetInteractor().Start()

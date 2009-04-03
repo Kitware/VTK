@@ -1,4 +1,5 @@
 from vtk import *
+import os.path
 
 def setup_view(link, file, domain1, domain2, hue_range):
   reader = vtkDelimitedTextReader()
@@ -38,14 +39,15 @@ def setup_view(link, file, domain1, domain2, hue_range):
   theme.SetSelectedPointColor(1,0,1)
   view.ApplyViewTheme(theme)
 
-  view.Update()
   view.GetRenderer().ResetCamera()
-  view.Update()
+  win.Render()
 
   return (view, win)
 
 if __name__ == "__main__":
   data_dir = "../../../../VTKData/Data/Infovis/"
+  if not os.path.exists(data_dir):
+    data_dir = "../../../../../VTKData/Data/Infovis/"
   dt_reader = vtkDelimitedTextReader()
   dt_reader.SetHaveHeaders(True)
   dt_reader.SetFileName(data_dir + "document-term.csv")

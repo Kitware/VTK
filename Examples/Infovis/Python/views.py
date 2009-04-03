@@ -1,6 +1,9 @@
 from vtk import *
+import os.path
 
 xmlRootDir = "../../../../VTKData/Data/Infovis/XML/"
+if not os.path.exists(xmlRootDir):
+  xmlRootDir = "../../../../../VTKData/Data/Infovis/XML/"
 
 treeReader = vtkXMLTreeReader()
 treeReader.SetFileName(xmlRootDir+"vtklibrary.xml")
@@ -16,12 +19,12 @@ treeStrat.SetLogSpacingValue(1)
 # Display the tree in the tree map viewer
 view0 = vtkTreeMapView()
 view0.AddRepresentationFromInputConnection(treeReader.GetOutputPort());
-view0.SetLabelArrayName("id")
+view0.SetAreaLabelArrayName("id")
 #view0.SetLayoutStrategyToBox()
 #view0.SetLayoutStrategyToSliceAndDice()
 view0.SetLayoutStrategyToSquarify()
 view0.SetFontSizeRange(16,8,4)
-view0.SetBorderPercentage(.02)
+view0.SetShrinkPercentage(.02)
 
 # Create a graph layout view
 view1 = vtkGraphLayoutView()
@@ -62,18 +65,22 @@ view2.ApplyViewTheme(theme)
 win0 = vtkRenderWindow()
 win0.SetSize(600,600)
 view0.SetupRenderWindow(win0)
+view0.GetRenderer().ResetCamera()
+win0.Render()
 win0.GetInteractor().Initialize()
 
 win1 = vtkRenderWindow()
 win1.SetSize(600,600)
 view1.SetupRenderWindow(win1)
 view1.GetRenderer().ResetCamera()
+win1.Render()
 win1.GetInteractor().Initialize()
 
 win2 = vtkRenderWindow()
 win2.SetSize(600,600)
 view2.SetupRenderWindow(win2)
 view2.GetRenderer().ResetCamera()
+win2.Render()
 win2.GetInteractor().Initialize()
 
 win0.GetInteractor().Start()

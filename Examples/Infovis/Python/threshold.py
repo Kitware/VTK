@@ -28,7 +28,7 @@ create_index.SetExecuteMethod(create_index_callback)
 selection = vtkSelectionSource()
 selection.SetContentType(7) # vtkSelection::THRESHOLDS
 selection.SetFieldType(4) # vtkSelection::EDGE
-selection.SetArrayName("edge weights")
+selection.SetArrayName("weight")
 selection.AddThreshold(0.8, 1.0)
 
 create_index.Update()
@@ -46,14 +46,14 @@ view1 = vtkGraphLayoutView()
 view1.AddRepresentationFromInputConnection(create_index.GetOutputPort())
 view1.SetVertexLabelArrayName("vertex_id")
 view1.SetVertexLabelVisibility(True)
-view1.SetEdgeLabelArrayName("edge_weights")
+view1.SetEdgeLabelArrayName("weight")
 view1.SetEdgeLabelVisibility(True)
 
 view2 = vtkGraphLayoutView()
 view2.AddRepresentationFromInputConnection(subgraph.GetOutputPort())
 view2.SetVertexLabelArrayName("vertex_id")
 view2.SetVertexLabelVisibility(True)
-view2.SetEdgeLabelArrayName("edge_weights")
+view2.SetEdgeLabelArrayName("weight")
 view2.SetEdgeLabelVisibility(True)
 
 theme = vtkViewTheme.CreateMellowTheme()
@@ -64,10 +64,14 @@ theme.FastDelete()
 window1 = vtkRenderWindow()
 window1.SetSize(600, 600)
 view1.SetupRenderWindow(window1)
+view1.GetRenderer().ResetCamera()
+window1.Render()
 
 window2 = vtkRenderWindow()
 window2.SetSize(600, 600)
 view2.SetupRenderWindow(window2)
+view2.GetRenderer().ResetCamera()
+window2.Render()
 
 window1.GetInteractor().Start()
                       

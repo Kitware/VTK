@@ -44,6 +44,8 @@ view2.SetupRenderWindow(win2)
 view3.SetupRenderWindow(win3)
 view2.GetRenderer().ResetCamera()
 view3.GetRenderer().ResetCamera()
+win2.Render()
+win3.Render()
 
 win2.GetInteractor().Initialize()
 win3.GetInteractor().Initialize()

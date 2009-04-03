@@ -69,6 +69,7 @@ win = vtk.vtkRenderWindow()
 interact = vtk.vtkRenderWindowInteractor()
 interact.SetRenderWindow(win)
 viewer.SetRenderWindow(win)
+win.Render()
 
 win.GetInteractor().Initialize()
 win.GetInteractor().Start();

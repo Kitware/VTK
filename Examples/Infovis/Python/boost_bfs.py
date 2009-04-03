@@ -23,6 +23,7 @@ theme = vtkViewTheme.CreateMellowTheme()
 theme.SetLineWidth(5)
 theme.SetPointSize(10)
 view.ApplyViewTheme(theme)
+theme.FastDelete()
 view.SetVertexLabelFontSize(20)
 view.SetEdgeLabelFontSize(12)
 
@@ -30,6 +31,7 @@ window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 
 window.GetInteractor().Start()
 

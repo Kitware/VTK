@@ -68,6 +68,7 @@ theme.FastDelete()
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
-# view.GetRenderer().ResetCamera()
+view.GetRenderer().ResetCamera()
+window.Render()
 
 window.GetInteractor().Start()

@@ -14,5 +14,7 @@ window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.SetVertexColorArrayName("VertexDegree");
 view.SetColorVertices(True);
+view.GetRenderer().ResetCamera()
+window.Render()
 window.GetInteractor().Start()
 

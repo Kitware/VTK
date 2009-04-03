@@ -45,12 +45,14 @@ theme.SetPointSize(10)
 theme.SetSelectedCellColor(1,0,1)
 theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
+theme.FastDelete()
 view.SetVertexLabelFontSize(14)
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 
 window.GetInteractor().Start()
 

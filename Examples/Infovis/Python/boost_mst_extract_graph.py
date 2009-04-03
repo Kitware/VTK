@@ -68,16 +68,19 @@ theme.SetSelectedCellColor(1,0,1)
 theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
 view2.ApplyViewTheme(theme)
+theme.FastDelete()
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
+window.Render()
 
 window2 = vtkRenderWindow()
 window2.SetSize(600, 600)
 view2.SetupRenderWindow(window2)
 view2.GetRenderer().ResetCamera()
+window2.Render()
 
 window.GetInteractor().Start()
 
