@@ -35,11 +35,118 @@
 #include <vtkstd/utility>
 
 #define WCMCLEN_DEBUG_REMOVED 1  // temporarily disable code for debugging...
+//#define DEBUG   // if defined this prompts printouts
 
-class EdgeMessageBundle;
-class EdgeINMessageBundle;
-class EdgeNIMessageBundle;
-class EdgeNNMessageBundle;
+
+
+class vtkPBGLDistributedGraphHelperMessageTypes
+{
+public:
+  //------------------------------------------------------------------------------
+  // Edge message bundle class for Id:Id edge types
+  //------------------------------------------------------------------------------
+  class EdgeIIMessageBundle
+  {
+  public:
+    EdgeIIMessageBundle() { uDistributedId=0; vDistributedId=0; propertyArr=NULL; }
+    EdgeIIMessageBundle(vtkIdType u, vtkIdType v, vtkVariantArray* prop=NULL)
+         : uDistributedId(u), vDistributedId(v), propertyArr(prop)
+    { };
+    ~EdgeIIMessageBundle() {};
+
+    vtkIdType uDistributedId;
+    vtkIdType vDistributedId;
+    vtkVariantArray * propertyArr;
+
+  private:
+    friend class boost::serialization::access;
+    template<typename Archiver>
+    void serialize(Archiver& ar, const unsigned int version)
+    {
+      ar & uDistributedId & vDistributedId & propertyArr;
+    }
+  };
+
+  //------------------------------------------------------------------------------
+  // Edge message bundle class for Id:Name edge types
+  //------------------------------------------------------------------------------
+  class EdgeINMessageBundle
+  {
+  public:
+    EdgeINMessageBundle() { uDistributedId=0; propertyArr=NULL; }
+    EdgeINMessageBundle(vtkIdType u, const vtkVariant& v, vtkVariantArray* prop=NULL)
+         : uDistributedId(u), vPedigreeId(v), propertyArr(prop)
+    { };
+    ~EdgeINMessageBundle() {};
+
+    vtkIdType  uDistributedId;
+    vtkVariant vPedigreeId;
+    vtkVariantArray * propertyArr;
+
+  private:
+    friend class boost::serialization::access;
+    template<typename Archiver>
+    void serialize(Archiver& ar, const unsigned int version)
+    {
+      ar & uDistributedId & vPedigreeId & propertyArr;
+    }
+  };
+
+  //------------------------------------------------------------------------------
+  // Edge message bundle class for Name:Id edge types
+  //------------------------------------------------------------------------------
+  class EdgeNIMessageBundle
+  {
+  public:
+    EdgeNIMessageBundle() { vDistributedId=0; propertyArr=NULL; }
+    EdgeNIMessageBundle(const vtkVariant& u, vtkIdType v, vtkVariantArray* prop=NULL)
+       : uPedigreeId(u), vDistributedId(v), propertyArr(prop)
+    { };
+    ~EdgeNIMessageBundle() {};
+
+    vtkVariant uPedigreeId;
+    vtkIdType  vDistributedId;
+    vtkVariantArray * propertyArr;
+
+  private:
+    friend class boost::serialization::access;
+    template<typename Archiver>
+    void serialize(Archiver& ar, const unsigned int version)
+    {
+      ar & uPedigreeId & vDistributedId & propertyArr;
+    }
+  };
+
+  //------------------------------------------------------------------------------
+  // Edge message bundle class for Name:Name edge types
+  //------------------------------------------------------------------------------
+  class EdgeNNMessageBundle
+  {
+  public:
+    EdgeNNMessageBundle() { propertyArr=NULL; }
+    EdgeNNMessageBundle(const vtkVariant& u, const vtkVariant& v, vtkVariantArray* prop=NULL)
+         : uPedigreeId(u), vPedigreeId(v), propertyArr(prop)
+    { };
+    ~EdgeNNMessageBundle() {};
+
+    vtkVariant uPedigreeId;
+    vtkVariant vPedigreeId;
+    vtkVariantArray * propertyArr;
+
+  private:
+    friend class boost::serialization::access;
+    template<typename Archiver>
+    void serialize(Archiver& ar, const unsigned int version)
+    {
+      ar & uPedigreeId & vPedigreeId & propertyArr;
+    }
+  };
+};
+typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeIIMessageBundle EdgeIIMessageBundle;
+typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeINMessageBundle EdgeINMessageBundle;
+typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeNIMessageBundle EdgeNIMessageBundle;
+typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeNNMessageBundle EdgeNNMessageBundle;
+
 
 //----------------------------------------------------------------------------
 // private class vtkPBGLDistributedGraphHelperInternals
@@ -78,7 +185,7 @@ public:
   // Description:
   // Handle ADD_*DIRECTED_EDGE_*_REPLY_TAG messages.
   vtkEdgeType
-  HandleAddEdge(const EdgeMessageBundle& msg, bool directed);
+  HandleAddEdge(const EdgeIIMessageBundle& msg, bool directed);
 
   // Description:
   // Handle ADD_*DIRECTED_EDGE_NI_*_REPLY_TAG messages.
@@ -131,120 +238,12 @@ boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.10");
-
-
-//------------------------------------------------------------------------------
-// Edge message bundle class for Id:Id edge types
-//------------------------------------------------------------------------------
-class EdgeMessageBundle
-{
-public:
-  EdgeMessageBundle() { uDistributedId=0; vDistributedId=0; propertyArr=NULL; }
-  EdgeMessageBundle(vtkIdType u, vtkIdType v, vtkVariantArray* prop=NULL)
-       : uDistributedId(u), vDistributedId(v), propertyArr(prop)
-  { };
-  ~EdgeMessageBundle() {};
-
-  vtkIdType uDistributedId;
-  vtkIdType vDistributedId;
-  vtkVariantArray * propertyArr;
-
-private:
-  friend class boost::serialization::access;
-  template<typename Archiver>
-  void serialize(Archiver& ar, const unsigned int version)
-  {
-    ar & uDistributedId & vDistributedId & propertyArr;
-  }
-};
-
-
-//------------------------------------------------------------------------------
-// Edge message bundle class for Id:Name edge types
-//------------------------------------------------------------------------------
-class EdgeINMessageBundle
-{
-public:
-  EdgeINMessageBundle() { uDistributedId=0; propertyArr=NULL; }
-  EdgeINMessageBundle(vtkIdType u, const vtkVariant& v, vtkVariantArray* prop=NULL)
-       : uDistributedId(u), vPedigreeId(v), propertyArr(prop)
-  { };
-  ~EdgeINMessageBundle() {};
-
-  vtkIdType  uDistributedId;
-  vtkVariant vPedigreeId;
-  vtkVariantArray * propertyArr;
-
-private:
-  friend class boost::serialization::access;
-  template<typename Archiver>
-  void serialize(Archiver& ar, const unsigned int version)
-  {
-    ar & uDistributedId & vPedigreeId & propertyArr;
-  }
-};
-
-
-//------------------------------------------------------------------------------
-// Edge message bundle class for Name:Id edge types
-//------------------------------------------------------------------------------
-class EdgeNIMessageBundle
-{
-public:
-  EdgeNIMessageBundle() { vDistributedId=0; propertyArr=NULL; }
-  EdgeNIMessageBundle(const vtkVariant& u, vtkIdType v, vtkVariantArray* prop=NULL)
-       : uPedigreeId(u), vDistributedId(v), propertyArr(prop)
-  { };
-  ~EdgeNIMessageBundle() {};
-
-  vtkVariant uPedigreeId;
-  vtkIdType  vDistributedId;
-  vtkVariantArray * propertyArr;
-
-private:
-  friend class boost::serialization::access;
-  template<typename Archiver>
-  void serialize(Archiver& ar, const unsigned int version)
-  {
-    ar & uPedigreeId & vDistributedId & propertyArr;
-  }
-};
-
-
-//------------------------------------------------------------------------------
-// Edge message bundle class for Name:Name edge types
-//------------------------------------------------------------------------------
-class EdgeNNMessageBundle
-{
-public:
-  EdgeNNMessageBundle() { propertyArr=NULL; }
-  EdgeNNMessageBundle(const vtkVariant& u, const vtkVariant& v, vtkVariantArray* prop=NULL)
-       : uPedigreeId(u), vPedigreeId(v), propertyArr(prop)
-  { };
-  ~EdgeNNMessageBundle() {};
-
-  vtkVariant uPedigreeId;
-  vtkVariant vPedigreeId;
-  vtkVariantArray * propertyArr;
-
-private:
-  friend class boost::serialization::access;
-  template<typename Archiver>
-  void serialize(Archiver& ar, const unsigned int version)
-  {
-    ar & uPedigreeId & vPedigreeId & propertyArr;
-  }
-};
-
-// TODO: Roll these message bundle classes into the DistributedGraphHelper class
-//       as internals.
-
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.11");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.10");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.11");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -529,7 +528,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
         send_oob_with_reply(this->Internals->process_group, uOwner,
                 directed ? ADD_DIRECTED_EDGE_WITH_REPLY_TAG
                          : ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
-                EdgeMessageBundle(uDistributedId, vDistributedId,propertyArr),
+                EdgeIIMessageBundle(uDistributedId, vDistributedId,propertyArr),
                 *edge);
       }
     else
@@ -540,7 +539,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
         send(this->Internals->process_group, uOwner,
              directed? ADD_DIRECTED_EDGE_NO_REPLY_TAG
                      : ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
-             EdgeMessageBundle(uDistributedId, vDistributedId,propertyArr));
+             EdgeIIMessageBundle(uDistributedId, vDistributedId,propertyArr));
       }
     }
 }
@@ -583,16 +582,16 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
   if (edge)
     {
     send_oob_with_reply(this->Internals->process_group, uOwner,
-                        directed? ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG
-                                : ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
-                        EdgeNIMessageBundle(uPedigreeId, vDistribId, propertyArr),
+                        directed ? ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG
+                                 : ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
+                        EdgeNIMessageBundle(uPedigreeId,vDistribId,propertyArr),
                         *edge);
     }
   else
     {
     send(this->Internals->process_group, uOwner,
-        directed? ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG
-                : ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
+        directed ? ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG
+                 : ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
         EdgeNIMessageBundle(uPedigreeId, vDistribId, propertyArr));
     }
 }
@@ -641,7 +640,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
   send(this->Internals->process_group, vOwner,
        directed ? ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG
                 : ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
-       EdgeINMessageBundle(uDistributedId, vPedigreeId, propertyArr));
+       EdgeINMessageBundle(uDistributedId,vPedigreeId,propertyArr));
 }
 
 //----------------------------------------------------------------------------
@@ -816,19 +815,19 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
                    this->Internals, _3, false));
 
     // Add edge for (id, id) pairs
-    this->Internals->process_group.trigger<EdgeMessageBundle>
+    this->Internals->process_group.trigger<EdgeIIMessageBundle>
       (ADD_DIRECTED_EDGE_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
                    this->Internals, _3, true));
-    this->Internals->process_group.trigger<EdgeMessageBundle>
+    this->Internals->process_group.trigger<EdgeIIMessageBundle>
       (ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
                    this->Internals, _3, false));
-    this->Internals->process_group.trigger_with_reply<EdgeMessageBundle>
+    this->Internals->process_group.trigger_with_reply<EdgeIIMessageBundle>
       (ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
                    this->Internals, _3, true));
-    this->Internals->process_group.trigger_with_reply<EdgeMessageBundle>
+    this->Internals->process_group.trigger_with_reply<EdgeIIMessageBundle>
       (ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdge,
                    this->Internals, _3, false));
@@ -946,7 +945,7 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddBackEdge
 //----------------------------------------------------------------------------
 vtkEdgeType
 vtkPBGLDistributedGraphHelperInternals::HandleAddEdge
-  (const EdgeMessageBundle& msg, bool directed)
+  (const EdgeIIMessageBundle& msg, bool directed)
 {
 #if defined(DEBUG)      // WCMCLEN
   vtkIdType uOwner = Helper->GetVertexOwner(msg.uDistributedId);   // WCMCLEN
