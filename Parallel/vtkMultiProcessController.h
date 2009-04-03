@@ -291,6 +291,9 @@ public:
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends or receives exist in the same process.
+  // It is recommended to use custom tag number over 100.
+  // vtkMultiProcessController has reserved tags between 1 and 4.
+  // vtkCommunicator has reserved tags between 10 and 16.
   int Send(const int* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned int* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned long* data, vtkIdType length, int remoteProcessId, 
