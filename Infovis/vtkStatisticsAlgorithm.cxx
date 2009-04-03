@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.32");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.33");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -224,3 +224,27 @@ void vtkStatisticsAlgorithm::ResetRequests()
   this->Internals->ResetRequests();
 }
 
+vtkIdType vtkStatisticsAlgorithm::GetNumberOfRequests()
+{
+  return this->Internals->GetNumberOfRequests();
+}
+
+vtkIdType vtkStatisticsAlgorithm::GetNumberOfColumnsForRequest( vtkIdType request )
+{
+  return this->Internals->GetNumberOfColumnsForRequest( request );
+}
+
+const char* vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c )
+{
+  static vtkStdString columnName;
+  if ( this->Internals->GetColumnForRequest( r, c, columnName ) )
+    {
+    return columnName.c_str();
+    }
+  return 0;
+}
+
+int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName )
+{
+  return this->Internals->GetColumnForRequest( r, c, columnName ) ? 1 : 0;
+}

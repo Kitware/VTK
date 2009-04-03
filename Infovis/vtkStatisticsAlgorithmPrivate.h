@@ -109,6 +109,51 @@ public:
     {
     this->Buffer.clear();
     }
+  /// Return the number of currently-defined requests
+  vtkIdType GetNumberOfRequests()
+    {
+    return static_cast<vtkIdType>( this->Requests.size() );
+    }
+  /// Return the number of columns associated with request \a r.
+  vtkIdType GetNumberOfColumnsForRequest( vtkIdType r )
+    {
+    if ( r < 0 || r > static_cast<vtkIdType>( this->Requests.size() ) )
+      {
+      return 0;
+      }
+    vtkstd::set<vtkstd::set<vtkStdString> >::iterator it = this->Requests.begin();
+    for ( vtkIdType i = 0; i < r; ++ i )
+      {
+      ++ it;
+      }
+    return it->size();
+    }
+  /**\brief Provide the name of the \a c-th column of the \a r-th request in \a columnName.
+    * Returns false if the request or column does not exist and true otherwise.
+    */
+  bool GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName )
+    {
+    if ( r < 0 || r > static_cast<vtkIdType>( this->Requests.size() ) || c < 0 )
+      {
+      return false;
+      }
+    vtkstd::set<vtkstd::set<vtkStdString> >::iterator it = this->Requests.begin();
+    for ( vtkIdType i = 0; i < r; ++ i )
+      {
+      ++ it;
+      }
+    if ( c > static_cast<vtkIdType>( it->size() ) )
+      {
+      return false;
+      }
+    vtkstd::set<vtkStdString>::iterator cit = it->begin();
+    for ( vtkIdType j = 0; j < c; ++ j )
+      {
+      ++ cit;
+      }
+    columnName = *cit;
+    return true;
+    }
   
   vtkstd::set<vtkstd::set<vtkStdString> > Requests;
   vtkstd::set<vtkStdString> Buffer;

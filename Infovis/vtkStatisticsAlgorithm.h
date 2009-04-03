@@ -156,6 +156,35 @@ public:
   // Empty the list of current requests.
   virtual void ResetRequests();
 
+  // Description:
+  // Return the number of requests.
+  // This does not include any request that is in the column-status buffer
+  // but for which RequestSelectedColumns() has not yet been called (even though
+  // it is possible this request will be honored when the filter is run -- see SetColumnStatus()
+  // for more information).
+  virtual vtkIdType GetNumberOfRequests();
+
+  // Description:
+  // Return the number of columns for a given request.
+  virtual vtkIdType GetNumberOfColumnsForRequest( vtkIdType request );
+
+  // Description:
+  // Provide the name of the \a c-th column for the \a r-th request.
+  //
+  // For the version of this routine that returns an integer,
+  // if the request or column does not exist because \a r or \a c is out of bounds,
+  // this routine returns 0 and the value of \a columnName is unspecified.
+  // Otherwise, it returns 1 and the value of \a columnName is set.
+  //
+  // For the version of this routine that returns const char*,
+  // if the request or column does not exist because \a r or \a c is out of bounds,
+  // the routine returns NULL. Otherwise it returns the column name.
+  // This version is not thread-safe.
+  virtual const char* GetColumnForRequest( vtkIdType r, vtkIdType c );
+  //BTX
+  virtual int GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName );
+  //ETX
+
 protected:
   vtkStatisticsAlgorithm();
   ~vtkStatisticsAlgorithm();
