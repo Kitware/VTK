@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.18");
+vtkCxxRevisionMacro(vtkView, "1.19");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -320,7 +320,8 @@ void vtkView::AddRepresentation(int port, vtkDataRepresentation* rep)
       if( rep->AddToView( this ) )
         {
         rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-        if (rep->GetNumberOfInputPorts() > 0)
+        if (rep->GetNumberOfInputPorts() > 0 &&
+            rep->GetNumberOfInputConnections(0) > 0)
           {
           this->AddInputConnection(port, 0, rep->GetInputConnection(),
                                             rep->GetSelectionConnection());
@@ -367,7 +368,8 @@ void vtkView::SetRepresentation(int port, int index, vtkDataRepresentation* rep)
         {
         old_rep->RemoveFromView( this );
         old_rep->RemoveObserver(this->GetObserver());
-        if (old_rep->GetNumberOfInputPorts() > 0)
+        if (old_rep->GetNumberOfInputPorts() > 0 &&
+            old_rep->GetNumberOfInputConnections(0) > 0)
           {
           this->RemoveInputConnection(port, index,
                                       old_rep->GetInputConnection(),
@@ -377,7 +379,8 @@ void vtkView::SetRepresentation(int port, int index, vtkDataRepresentation* rep)
         }
       
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-      if (rep->GetNumberOfInputPorts() > 0)
+      if (rep->GetNumberOfInputPorts() > 0 &&
+          rep->GetNumberOfInputConnections(0) > 0)
         {
         this->AddInputConnection(port, index, rep->GetInputConnection(),
                                               rep->GetSelectionConnection());
@@ -396,7 +399,8 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     {
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());
-    if (rep->GetNumberOfInputPorts() > 0)
+    if (rep->GetNumberOfInputPorts() > 0 &&
+        rep->GetNumberOfInputConnections(0) > 0)
       {
       this->RemoveInputConnection(0, 0, rep->GetInputConnection(),
                                         rep->GetSelectionConnection());
