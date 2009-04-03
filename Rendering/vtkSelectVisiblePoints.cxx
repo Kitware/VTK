@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.39");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.40");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -211,7 +211,7 @@ float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
     {
     for (int i=0; i<4; i++)
       {
-      this->InternalSelection[i] = this->InternalSelection[i];
+      this->InternalSelection[i] = this->Selection[i];
       }
     }
   else
