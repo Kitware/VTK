@@ -2712,7 +2712,7 @@ int TestLabelPlacer2D( int argc, char* argv[] )
   cam->SetViewUp( -0.0373979, 0.253276, 0.966671 );
   //cam->SetDirectionOfProjection( 0.140573, 0.959062, -0.245844 );
 
-  rw->Render();
+  //rw->Render();
 
   int retval = vtkRegressionTestImageThreshold( rw, 60.0 );
   if ( retval == vtkRegressionTester::DO_INTERACTOR)
