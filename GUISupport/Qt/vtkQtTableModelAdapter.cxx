@@ -191,7 +191,7 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
   vtkSmartPointer<vtkSelectionNode> node =
     vtkSmartPointer<vtkSelectionNode>::New();
   node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::VERTEX);
+  node->SetFieldType(vtkSelectionNode::ROW);
   vtkSmartPointer<vtkIdTypeArray> index_arr =
     vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(index_arr);
