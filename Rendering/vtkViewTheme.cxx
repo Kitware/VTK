@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.5");
+vtkCxxRevisionMacro(vtkViewTheme, "1.1");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()

@@ -157,6 +157,7 @@ SET( Kit_SRCS
   vtkTransformInterpolator.cxx
   vtkTStripsPainter.cxx
   vtkTupleInterpolator.cxx
+  vtkViewTheme.cxx
   vtkVisibilitySort.cxx
   vtkVolumeCollection.cxx
   vtkVolume.cxx

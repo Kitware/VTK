@@ -86,7 +86,6 @@ vtkTreeRingToPolyData.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 vtkVertexDegree.cxx
-vtkViewTheme.cxx
 vtkXMLTreeReader.cxx
 )
 
