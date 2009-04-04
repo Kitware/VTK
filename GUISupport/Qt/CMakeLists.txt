@@ -49,7 +49,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLabelSizeCalculator.cxx
       vtkQtLabelSurface.cxx
       vtkQtTreeRingLabelMapper.cxx
-      vtkTreeRingView3.cxx
       vtkQtSQLDatabase.cxx
       vtkQtSQLQuery.cxx
       vtkQtTableModelAdapter.cxx
@@ -84,6 +83,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtTableView.cxx
       vtkQtTreeView.cxx
       vtkQtView.cxx
+      vtkTreeRingView3.cxx
       ) 
     SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
