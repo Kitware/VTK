@@ -34,8 +34,12 @@
 
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
+#include "vtkSmartPointer.h"
 
+class vtkAddMembershipArray;
+class vtkDataObjectToTable;
 class QItemSelection;
+class QSortFilterProxyModel;
 class QTableView;
 class vtkQtTableModelAdapter;
 
@@ -63,9 +67,23 @@ public:
   // Have the view show/hide its row headers
   void SetShowHorizontalHeaders(bool);
 
+  //BTX
+  enum
+    {
+    FIELD_DATA = 0,
+    POINT_DATA = 1,
+    CELL_DATA = 2,
+    VERTEX_DATA = 3,
+    EDGE_DATA = 4,
+    ROW_DATA = 5,
+    };
+  //ETX
+  
   // Description:
-  // Have the view alternate its row colors
-  void SetAlternatingRowColors(bool);
+  // The field type to copy into the output table.
+  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  vtkGetMacro(FieldType, int);
+  void SetFieldType(int);
 
   // Description:
   // Set whether or not the table view should split multi-component columns
@@ -107,7 +125,14 @@ private:
   
   QPointer<QTableView> TableView;
   vtkQtTableModelAdapter* TableAdapter;
+  QSortFilterProxyModel* TableSorter;
   bool Selecting;
+  int FieldType;    
+
+//BTX
+  vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
+  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+//ETX
   
   vtkQtTableView(const vtkQtTableView&);  // Not implemented.
   void operator=(const vtkQtTableView&);  // Not implemented.

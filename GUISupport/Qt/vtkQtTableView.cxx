@@ -24,34 +24,59 @@
 #include <QItemSelection>
 #include <QTableView>
 
+#include "vtkAbstractArray.h"
+#include "vtkAddMembershipArray.h"
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkConvertSelection.h"
+#include "vtkDataObjectToTable.h"
 #include "vtkDataRepresentation.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include <vtkOutEdgeIterator.h>
 #include "vtkQtTableModelAdapter.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
+#include "QSortFilterProxyModel.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.7");
+vtkCxxRevisionMacro(vtkQtTableView, "1.8");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
 vtkQtTableView::vtkQtTableView()
 {
+  this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
+  this->AddSelectedColumn = vtkSmartPointer<vtkAddMembershipArray>::New();
+  this->AddSelectedColumn->SetInputConnection(0, this->DataObjectToTable->GetOutputPort());
+  vtkSmartPointer<vtkSelection> empty = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> emptyNode = vtkSmartPointer<vtkSelectionNode>::New();
+  emptyNode->SetContentType(vtkSelectionNode::INDICES);
+  vtkSmartPointer<vtkIdTypeArray> arr = vtkSmartPointer<vtkIdTypeArray>::New();
+  emptyNode->SetSelectionList(arr);
+  empty->AddNode(emptyNode);
+  this->AddSelectedColumn->SetInput(1, empty);
+  this->DataObjectToTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
+  this->AddSelectedColumn->SetFieldType(vtkAddMembershipArray::VERTEX_DATA);
+  this->FieldType = vtkQtTableView::VERTEX_DATA;
+  this->AddSelectedColumn->SetOutputArrayName("selected");
+
   this->TableView = new QTableView();
   this->TableAdapter = new vtkQtTableModelAdapter();
-  this->TableView->setModel(this->TableAdapter);
+  this->TableSorter = new QSortFilterProxyModel();
+  this->TableSorter->setSourceModel(this->TableAdapter);
+  this->TableView->setModel(this->TableSorter);
   
   // Set up some default properties
   this->TableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   this->TableView->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->TableView->setAlternatingRowColors(true);
+  this->TableView->setSortingEnabled(true);
   this->Selecting = false;
   this->CurrentSelectionMTime = 0;
 
@@ -69,6 +94,7 @@ vtkQtTableView::~vtkQtTableView()
     delete this->TableView;
     }
   delete this->TableAdapter;
+  delete this->TableSorter;
 }
 
 //----------------------------------------------------------------------------
@@ -104,9 +130,11 @@ void vtkQtTableView::SetShowHorizontalHeaders(bool state)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableView::SetAlternatingRowColors(bool state)
+void vtkQtTableView::SetFieldType(int type)
 {
-  this->TableView->setAlternatingRowColors(state);
+  this->DataObjectToTable->SetFieldType(type);
+  this->AddSelectedColumn->SetFieldType(type);
+  this->FieldType = type;
 }
 
 //----------------------------------------------------------------------------
@@ -123,63 +151,56 @@ bool vtkQtTableView::GetSplitMultiComponentColumns()
 
 //----------------------------------------------------------------------------
 void vtkQtTableView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
-  // Get a handle to the input data object. Note: For now
-  // we are enforcing that the input data is a Table.
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  vtkTable *Table = vtkTable::SafeDownCast(d);
+  this->DataObjectToTable->SetInputConnection(0, conn);
 
-  // Enforce input
-  if (!Table)
+  if (selectionConn)
     {
-    vtkErrorMacro("vtkTableView requires a vtkTable as input");
-    return;
+    this->AddSelectedColumn->SetInputConnection(1, selectionConn);
     }
-
-  // Give the data object to the Qt Table Adapters
-  this->TableAdapter->SetVTKDataObject(Table);
-
-  // Now set the Qt Adapters (qt models) on the views
-  this->TableView->update();
-  this->TableView->resizeColumnToContents(0);
-  if (this->TableView->columnWidth(0) < 100)
+  else
     {
-    this->TableView->setColumnWidth(0,100);
+    vtkSmartPointer<vtkSelection> empty =
+      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelectionNode> emptyNode =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    emptyNode->SetContentType(vtkSelectionNode::INDICES);
+    vtkSmartPointer<vtkIdTypeArray> arr =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    emptyNode->SetSelectionList(arr);
+    empty->AddNode(emptyNode);
+    this->AddSelectedColumn->SetInput(1, empty);
     }
-
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTableView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
-  // Remove VTK data from the adapter
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  if (this->TableAdapter->GetVTKDataObject() == d)
+  if (this->DataObjectToTable->GetInputConnection(0, 0) == conn)
     {
-    this->TableAdapter->SetVTKDataObject(0);
-    this->TableView->update();
+    this->DataObjectToTable->RemoveInputConnection(0, conn);
+    this->AddSelectedColumn->RemoveInputConnection(1, selectionConn);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), 
+void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& s1, 
   const QItemSelection& vtkNotUsed(s2))
 {  
   this->Selecting = true;
  
   // Convert from a QModelIndexList to an index based vtkSelection
-  const QModelIndexList qmil = this->TableView->selectionModel()->selectedRows();
-  vtkSelection *VTKIndexSelectList = this->TableAdapter->QModelIndexListToVTKIndexSelection(qmil);
+  QItemSelection sortedSel = this->TableSorter->mapSelectionToSource(s1);
+  vtkSelection *VTKIndexSelectList = 
+    this->TableAdapter->QModelIndexListToVTKIndexSelection(sortedSel.indexes());
 
   // Convert to the correct type of selection
   vtkDataObject* data = this->TableAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames));
+    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames, this->FieldType));
    
   // Call select on the representation
   this->GetRepresentation()->Select(this, converted);
@@ -199,17 +220,23 @@ void vtkQtTableView::SetVTKSelection()
 
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
+  vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
+  vtkDataObject *input = alg->GetOutputDataObject(0);  
   vtkDataObject *d = this->TableAdapter->GetVTKDataObject();
   vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  //vtkSelection *s = vtkSelection::SafeDownCast(
+  //  this->GetRepresentation()->GetSelectionConnection()->GetProducer()->GetOutputDataObject(0));
   if (s->GetMTime() != this->CurrentSelectionMTime)
     {
     this->CurrentSelectionMTime = s->GetMTime();
     
     vtkSmartPointer<vtkSelection> selection;
-    selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
-    
+    selection.TakeReference(vtkConvertSelection::ToSelectionType(
+      s, d, vtkSelectionNode::INDICES, this->SelectionArrayNames, vtkSelectionNode::ROW));
+
     QItemSelection qisList = this->TableAdapter->
       VTKIndexSelectionToQItemSelection(selection);
+    QItemSelection sortedSel = this->TableSorter->mapSelectionFromSource(qisList);
       
     // Here we want the qt model to have it's selection changed
     // but we don't want to emit the selection.
@@ -217,12 +244,21 @@ void vtkQtTableView::SetVTKSelection()
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
       this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
       
-    this->TableView->selectionModel()->select(qisList, 
+    this->TableView->selectionModel()->select(sortedSel, 
       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
       
     QObject::connect(this->TableView->selectionModel(), 
      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+
+    // Sort by the column currently being sorted by, only now the selected items will be
+    // sorted to the top.
+    //this->TableSorter->setSortBySelection(true);
+    if(this->TableAdapter->columnCount()>0 && selection->GetNode(0))
+      {
+      this->TableView->sortByColumn(this->TableAdapter->columnCount()-1, Qt::DescendingOrder);
+      //this->TableView->hideColumn(this->TableAdapter->columnCount()-1);
+      }
     }
 }
 
@@ -235,16 +271,34 @@ void vtkQtTableView::Update()
     return;
     }
 
-  // Make the data current
-  vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
-  alg->Update();
-  vtkDataObject *d = alg->GetOutputDataObject(0);
-  this->TableAdapter->SetVTKDataObject(d); 
+  // Make sure the input connection is up to date.
+  vtkAlgorithmOutput* conn = rep->GetInputConnection();
+  vtkAlgorithmOutput* selectionConn = rep->GetSelectionConnection();
+  if (this->DataObjectToTable->GetInputConnection(0, 0) != conn ||
+      this->AddSelectedColumn->GetInputConnection(1, 0) != selectionConn)
+    {
+    this->RemoveInputConnection( 0, 0,
+      this->DataObjectToTable->GetInputConnection(0, 0),
+      this->AddSelectedColumn->GetInputConnection(1, 0));
+    this->AddInputConnection(0, 0, conn, selectionConn);
+    }
   
+  this->DataObjectToTable->Update();
+  this->AddSelectedColumn->Update();
+
+  // Give the data object to the Qt Table Adapters
+  this->TableAdapter->SetVTKDataObject(0);
+  this->TableAdapter->SetVTKDataObject(this->AddSelectedColumn->GetOutput());
+
   // Update the VTK selection
   this->SetVTKSelection();
   
   this->TableView->update();
+  this->TableView->resizeColumnToContents(0);
+  if (this->TableView->columnWidth(0) < 100)
+    {
+    this->TableView->setColumnWidth(0,100);
+    }
 }
 
 //----------------------------------------------------------------------------
