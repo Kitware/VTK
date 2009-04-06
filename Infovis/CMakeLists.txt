@@ -17,6 +17,7 @@ ELSE(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 
 SET( Kit_SRCS
+vtkAddMembershipArray.cxx
 vtkArcParallelEdgeStrategy.cxx
 vtkAreaLayout.cxx
 vtkAreaLayoutStrategy.cxx
@@ -38,6 +39,7 @@ vtkDescriptiveStatistics.cxx
 vtkEdgeCenters.cxx
 vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
+vtkExpandSelectedGraph.cxx
 vtkExtractSelectedGraph.cxx
 vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
