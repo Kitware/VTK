@@ -25531,7 +25531,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeKeySize(BtCursor *pCur, i64 *pSize){
   }
   else
     {
-      *pSize = 0 ; // just to avoid some warning
+      *pSize = 0 ; /* just to avoid some warning */
     }
   return rc;
 }
@@ -25557,7 +25557,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeDataSize(BtCursor *pCur, u32 *pSize){
   }
   else
     {
-      *pSize = 0; // to avoid compiler warning.
+      *pSize = 0; /* to avoid compiler warning. */
     }
   return rc;
 }
@@ -26131,7 +26131,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFirst(BtCursor *pCur, int *pRes){
   rc = moveToRoot(pCur);
   if( rc )
     {
-      *pRes=1; // not relevant, just to avoid compiler warning.
+      *pRes=1; /* not relevant, just to avoid compiler warning. */
       return rc;
     }
   if( pCur->eState==CURSOR_INVALID ){
@@ -37300,7 +37300,7 @@ case OP_Rowid: {
     v = keyToInt(pC->iKey);
   }else if( pC->nullRow || pC->pCursor==0 ){
     pTos->flags = MEM_Null;
-    v = 0; // just to stop warning
+    v = 0; /* just to stop warning */
     break;
   }else{
     assert( pC->pCursor!=0 );
