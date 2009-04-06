@@ -33,13 +33,13 @@
 #include "vtkQtView.h"
 
 #include <QPointer>
+#include <QSortFilterProxyModel>
 #include "vtkQtAbstractModelAdapter.h"
 #include "vtkSmartPointer.h"
 
 class vtkAddMembershipArray;
 class vtkDataObjectToTable;
 class QItemSelection;
-class QSortFilterProxyModel;
 class QTableView;
 class vtkQtTableModelAdapter;
 
