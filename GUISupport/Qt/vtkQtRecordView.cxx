@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.3");
+vtkCxxRevisionMacro(vtkQtRecordView, "1.4");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,6 @@ vtkQtRecordView::vtkQtRecordView()
   this->TextWidget = new QTextEdit();
   this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->FieldType = vtkQtRecordView::VERTEX_DATA;
-  this->CurrentRow = 0;
   this->Text = NULL;
 
 }
@@ -74,32 +73,21 @@ void vtkQtRecordView::SetFieldType(int type)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtRecordView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
-{
-  // Get a handle to the input data object. Note: For now
-  // we are enforcing that the input data is a Table.
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  if (!d)
-    {
-    vtkErrorMacro("vtkQtRecordView requires a vtkDataObject as input");
-    return;
-    }
-
-  // Give the data object to the Qt Table Adapters
-  this->DataObjectToTable->SetInput(d);
-  this->DataObjectToTable->Update();
+void vtkQtRecordView::AddInputConnection( 
+  int vtkNotUsed(port), int vtkNotUsed(index),
+  vtkAlgorithmOutput* conn, 
+  vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+{  
+  this->DataObjectToTable->SetInputConnection(0, conn);
 }
 
 //----------------------------------------------------------------------------
 void vtkQtRecordView::RemoveInputConnection(
   int vtkNotUsed(port), int vtkNotUsed(index),
-  vtkAlgorithmOutput* vtkNotUsed(conn),
+  vtkAlgorithmOutput* conn, 
   vtkAlgorithmOutput* vtkNotUsed(selectionConn))
-{
-  this->DataObjectToTable->SetInputConnection(NULL);
-  this->DataObjectToTable->Update();
+{  
+  this->DataObjectToTable->RemoveInputConnection(0, conn);
 }
 
 //----------------------------------------------------------------------------
@@ -123,38 +111,32 @@ void vtkQtRecordView::Update()
 
   vtkSmartPointer<vtkSelection> cs;
   cs.TakeReference(vtkConvertSelection::ToSelectionType(rep->GetSelectionLink()->GetSelection(), 
-      table, vtkSelectionNode::INDICES));
+    table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
   vtkSelectionNode *node = cs->GetNode(0);
+  const vtkIdType row_count = table->GetNumberOfRows();
+  const vtkIdType column_count = table->GetNumberOfColumns();
+
   if(node)
     {
     vtkAbstractArray *indexArr = node->GetSelectionList();
-    if(indexArr->GetNumberOfTuples()>0)
+    int numRecords = indexArr->GetNumberOfTuples() > 2 ? 2 : indexArr->GetNumberOfTuples();
+    for(vtkIdType i=0; i<numRecords; ++i)
       {
       vtkVariant v(0);
       switch (indexArr->GetDataType())
         {
-        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(indexArr->GetVoidPointer(0)));
+        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(indexArr->GetVoidPointer(i)));
         }
-      this->CurrentRow = v.ToInt();
-      }
-    }
 
-  const vtkIdType row_count = table->GetNumberOfRows();
-  const vtkIdType column_count = table->GetNumberOfColumns();
-
-  if(row_count && column_count && this->CurrentRow>=0)
-    {
-    vtkIdType row_index = this->CurrentRow % row_count;
-    while(row_index < 0)
-      row_index += row_count;
-
-    for(vtkIdType i = 0; i != column_count; ++i)
-      {
-      html += "<b>";
-      html += table->GetColumnName(i);
-      html += ":</b> ";
-      html += table->GetValue(row_index, i).ToString().c_str();
-      html += "<br>\n";
+      for(vtkIdType j = 0; j != column_count; ++j)
+        {
+        html += "<b>";
+        html += table->GetColumnName(j);
+        html += ":</b> ";
+        html += table->GetValue(v.ToInt(), j).ToString().c_str();
+        html += "<br>\n";
+        }
+      html += "<br>\n<br>\n<br>\n<br>\n<br>\n";
       }
     }
 
