@@ -41,7 +41,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.27");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.28");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -101,6 +101,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->PedigreeIdArrayName = NULL;
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = true;
+  this->OutputPedigreeIds = false;
 
 }
 
@@ -357,32 +358,35 @@ int vtkDelimitedTextReader::RequestData(
     dataArray->Delete();
     }
 
-  if (this->GeneratePedigreeIds)
+  if(this->OutputPedigreeIds)
     {
-    vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
-      vtkSmartPointer<vtkIdTypeArray>::New();
-    vtkIdType numRows = table->GetNumberOfRows();
-    pedigreeIds->SetNumberOfTuples(numRows);
-    pedigreeIds->SetName(this->PedigreeIdArrayName);
-    for (vtkIdType i = 0; i < numRows; ++i)
+    if (this->GeneratePedigreeIds)
       {
-      pedigreeIds->InsertValue(i, i);
-      }
-    table->GetRowData()->SetPedigreeIds(pedigreeIds);
-    }
-  else
-    {
-    vtkAbstractArray* arr =
-      table->GetColumnByName(this->PedigreeIdArrayName);
-    if (arr)
-      {
-      table->GetRowData()->SetPedigreeIds(arr);
+      vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      vtkIdType numRows = table->GetNumberOfRows();
+      pedigreeIds->SetNumberOfTuples(numRows);
+      pedigreeIds->SetName(this->PedigreeIdArrayName);
+      for (vtkIdType i = 0; i < numRows; ++i)
+        {
+        pedigreeIds->InsertValue(i, i);
+        }
+      table->GetRowData()->SetPedigreeIds(pedigreeIds);
       }
     else
       {
-      vtkErrorMacro(<< "Could find pedigree id array: "
-        << this->PedigreeIdArrayName);
-      return 0;
+      vtkAbstractArray* arr =
+        table->GetColumnByName(this->PedigreeIdArrayName);
+      if (arr)
+        {
+        table->GetRowData()->SetPedigreeIds(arr);
+        }
+      else
+        {
+        vtkErrorMacro(<< "Could find pedigree id array: "
+          << this->PedigreeIdArrayName);
+        return 0;
+        }
       }
     }
 
