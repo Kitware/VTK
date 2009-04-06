@@ -139,7 +139,8 @@ public:
     vtkSelection* input, 
     vtkDataObject* data, 
     int type, 
-    vtkStringArray* arrayNames = 0);
+    vtkStringArray* arrayNames = 0,
+    int inputFieldType = -1);
 protected:
   vtkConvertSelection();
   ~vtkConvertSelection();

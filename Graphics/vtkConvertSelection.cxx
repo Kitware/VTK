@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.25");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.26");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -502,18 +502,13 @@ int vtkConvertSelection::Convert(
     else if (vtkTable::SafeDownCast(data))
       {
       if (!inputNode->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()) ||
-          inputNode->GetFieldType() == vtkSelectionNode::ROW)
+          inputNode->GetFieldType() != vtkSelectionNode::FIELD)
         {
         dsa = vtkTable::SafeDownCast(data)->GetRowData();
         }
-      else if (inputNode->GetFieldType() == vtkSelectionNode::FIELD)
-        {
-        fd = data->GetFieldData();
-        }
       else
         {
-        vtkErrorMacro("Inappropriate selection type for a vtkTable");
-        return 0;
+        fd = data->GetFieldData();
         }
       }
     else
@@ -1025,7 +1020,8 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   vtkSelection* input, 
   vtkDataObject* data, 
   int type, 
-  vtkStringArray* arrayNames)
+  vtkStringArray* arrayNames,
+  int inputFieldType)
 {
   VTK_CREATE(vtkConvertSelection, convert);
   vtkDataObject* dataCopy = data->NewInstance();
@@ -1036,6 +1032,7 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   convert->SetInput(1, dataCopy);
   convert->SetOutputType(type);
   convert->SetArrayNames(arrayNames);
+  convert->SetInputFieldType(inputFieldType);
   convert->Update();
   vtkSelection* output = convert->GetOutput();
   output->Register(0);
