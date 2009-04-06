@@ -297,6 +297,10 @@ public:
   void SetVertexScalarBarVisibility(bool vis);
 
   // Description:
+  // Reset the camera based on the bounds of the selected region.
+  void ZoomToSelection();
+
+  // Description:
   // Is the graph layout complete? This method is useful
   // for when the strategy is iterative and the application
   // wants to show the iterative progress of the graph layout

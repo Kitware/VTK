@@ -73,7 +73,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.53");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.54");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -159,8 +159,10 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SetVertexColorArrayName("VertexDegree");
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
-  this->SetEnabledEdgesArrayName("weight");
-  this->SetEnabledVerticesArrayName("label");
+  this->GraphMapper->SetEnabledEdgesArrayName("enabled");
+  this->GraphMapper->SetEnabledVerticesArrayName("enabled");
+  this->SetEnabledVerticesArrayName("enabled");
+  this->SetEnabledEdgesArrayName("enabled");
   this->ColorEdgesOff();
   this->SetEnableEdgesByArray(false);
   this->SetEnableVerticesByArray(false);
@@ -904,6 +906,7 @@ void vtkGraphLayoutView::ProcessEvents(
     if (kdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
       {
       // If we didn't find any vertices, perform edge selection.
+      // Add the selected edges' vertices to a separate vtkSelectionNode.
       // The edge actor must be opaque for visible cell selection
       this->EdgeSelectionActor->VisibilityOn();
       
@@ -931,11 +934,14 @@ void vtkGraphLayoutView::ProcessEvents(
       // Turn off the special edge actor
       this->EdgeSelectionActor->VisibilityOff();
       
-      vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
+      vtkSmartPointer<vtkIdTypeArray> selectedEdgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
+      vtkSmartPointer<vtkIdTypeArray> selectedVertexIds = vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; ids && (i < ids->GetNumberOfTuples()); i++)
         {
         vtkIdType edge = ids->GetValue(i);
-        selectedIds->InsertNextValue(edge);
+        selectedEdgeIds->InsertNextValue(edge);
+        selectedVertexIds->InsertNextValue(data->GetSourceVertex(edge));
+        selectedVertexIds->InsertNextValue(data->GetTargetVertex(edge));
         if (singleSelectMode)
           {
           break;
@@ -947,7 +953,14 @@ void vtkGraphLayoutView::ProcessEvents(
       edgeIndexSelection->AddNode(edgeIndexSelectionNode);
       edgeIndexSelectionNode->SetContentType(vtkSelectionNode::INDICES);
       edgeIndexSelectionNode->SetFieldType(vtkSelectionNode::EDGE);
-      edgeIndexSelectionNode->SetSelectionList(selectedIds);
+      edgeIndexSelectionNode->SetSelectionList(selectedEdgeIds);
+
+      // Create a separate selection for the edges' vertices
+      vtkSmartPointer<vtkSelectionNode> vertexIndexSelectionNode = vtkSmartPointer<vtkSelectionNode>::New();
+      edgeIndexSelection->AddNode(vertexIndexSelectionNode);
+      vertexIndexSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+      vertexIndexSelectionNode->SetFieldType(vtkSelectionNode::VERTEX);
+      vertexIndexSelectionNode->SetSelectionList(selectedVertexIds);
 
       // Convert to the proper selection type.
       vtkSmartPointer<vtkSelection> edgeSelection;
@@ -1053,6 +1066,132 @@ void vtkGraphLayoutView::SetEdgeLabelFontSize(const int size)
 int vtkGraphLayoutView::GetEdgeLabelFontSize()
 {
   return this->EdgeLabelMapper->GetLabelTextProperty()->GetFontSize();
+}
+
+void vtkGraphLayoutView::ZoomToSelection()
+{
+  // Bring the graph up to date
+  this->GraphLayout->Update();
+
+  // Convert to an index selection
+  vtkSmartPointer<vtkConvertSelection> cs = vtkSmartPointer<vtkConvertSelection>::New();
+  cs->SetInputConnection(0, this->GetRepresentation()->GetSelectionConnection());
+  cs->SetInputConnection(1, this->GraphLayout->GetOutputPort());
+  cs->SetOutputType(vtkSelectionNode::INDICES);
+  cs->Update();
+  vtkGraph* data = vtkGraph::SafeDownCast(this->GraphLayout->GetOutput());
+  vtkSelection* converted = cs->GetOutput();
+
+  // Iterate over the selection's nodes, constructing a list of selected vertices.
+  // In the case of an edge selection, we add the edges' vertices to vertex list.
+
+  vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
+  bool hasEdges = false;
+  vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
+  bool hasVertices = false;
+  for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
+    {
+    vtkSelectionNode* node = converted->GetNode(i);
+    vtkIdTypeArray* list = 0;
+    if (node->GetFieldType() == vtkSelectionNode::VERTEX)
+      {
+      list = vertexList;
+      hasVertices = true;
+      }
+    else if (node->GetFieldType() == vtkSelectionNode::EDGE)
+      {
+      list = edgeList;
+      hasEdges = true;
+      }
+
+    if (list)
+      {
+      // Append the selection list to the selection
+      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      if (curList)
+        {
+        int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
+        if (inverse)
+          {
+          vtkIdType num =
+            (node->GetFieldType() == vtkSelectionNode::VERTEX) ?
+            data->GetNumberOfVertices() : data->GetNumberOfEdges();
+          for (vtkIdType j = 0; j < num; ++j)
+            {
+            if (curList->LookupValue(j) < 0 && list->LookupValue(j) < 0)
+              {
+              list->InsertNextValue(j);
+              }
+            }
+          }
+        else
+          {
+          vtkIdType numTuples = curList->GetNumberOfTuples();
+          for (vtkIdType j = 0; j < numTuples; ++j)
+            {
+            vtkIdType curValue = curList->GetValue(j);
+            if (list->LookupValue(curValue) < 0)
+              {
+              list->InsertNextValue(curValue);
+              }
+            }
+          }
+        } // end if (curList)
+      } // end if (list)
+    } // end for each child
+
+  if(hasEdges)
+    {
+    vtkIdType numSelectedEdges = edgeList->GetNumberOfTuples();
+    for (vtkIdType i = 0; i < numSelectedEdges; ++i)
+      {
+      vtkIdType eid = edgeList->GetValue(i);
+      vertexList->InsertNextValue(data->GetSourceVertex(eid));
+      vertexList->InsertNextValue(data->GetTargetVertex(eid));
+      }
+    }
+  
+  // If there is no selection list, return 
+  if (vertexList->GetNumberOfTuples() == 0)
+    {
+    return;
+    }
+
+  // Now we use our list of vertices to get the point coordinates
+  // of the selection and use that to initialize the bounds that
+  // we'll use to reset the camera.
+
+  double bounds[6];
+  vtkIdType i;
+  double position[3];
+  data->GetPoint(vertexList->GetValue(0), position);
+  bounds[0] = bounds[1] = position[0];
+  bounds[2] = bounds[3] = position[1];
+  bounds[4] = -0.1;
+  bounds[5] = 0.1;
+  for (i = 1; i < vertexList->GetNumberOfTuples(); ++i)
+    {
+    data->GetPoint(vertexList->GetValue(i), position);
+
+    if (position[0] < bounds[0])
+      {
+      bounds[0] = position[0]; 
+      }
+    if (position[0] > bounds[1])
+      {
+      bounds[1] = position[0]; 
+      }
+    if (position[1] < bounds[2])
+      {
+      bounds[2] = position[1]; 
+      }
+    if (position[1] > bounds[3])
+      {
+      bounds[3] = position[1]; 
+      }
+    }
+
+  this->Renderer->ResetCamera(bounds);
 }
 
 //----------------------------------------------------------------------------
