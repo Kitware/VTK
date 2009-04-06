@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkCameraActor, "1.3");
+vtkCxxRevisionMacro(vtkCameraActor, "1.4");
 vtkStandardNewMacro(vtkCameraActor);
 vtkCxxSetObjectMacro(vtkCameraActor, Camera, vtkCamera);
 
@@ -132,7 +132,7 @@ void vtkCameraActor::UpdateViewProps()
 {
   if(this->Camera==0)
     {
-    vtkErrorMacro(<< "no camera to represent.");
+    vtkDebugMacro(<< "no camera to represent.");
     return;
     }
  
