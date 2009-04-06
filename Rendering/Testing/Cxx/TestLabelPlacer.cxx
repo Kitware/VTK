@@ -117,6 +117,7 @@ int TestLabelPlacer(int argc, char *argv[])
   labelPlacer->SetOutputTraversedBounds( showBounds );
   labelPlacer->SetRenderer( renderer );
   labelPlacer->SetMaximumLabelFraction( labelRatio );
+  labelPlacer->UseDepthBufferOn();
 
   polyDataMapper->SetInputConnection(labelPlacer->GetOutputPort());
 
