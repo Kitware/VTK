@@ -71,7 +71,7 @@ public:
   
   // Description:
   // Set/Get the field to use for the edge weights.
-  vtkSetStringMacro(EdgeWeightField);
+  virtual void SetEdgeWeightField(const char* field);
   vtkGetStringMacro(EdgeWeightField);
 
 protected:

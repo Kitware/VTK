@@ -21,7 +21,7 @@
 
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.8");
+vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.9");
 
 void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
 {
@@ -55,6 +55,34 @@ vtkGraphLayoutStrategy::~vtkGraphLayoutStrategy()
   // Unregister vtk objects that were passed in
   this->SetGraph(NULL);
   this->SetEdgeWeightField(NULL);
+}
+
+void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
+{
+  // This method is a cut and paste of vtkSetStringMacro
+  // except for the call to Initialize at the end :)
+  if ( this->EdgeWeightField == NULL && weights == NULL) { return;}
+  if ( this->EdgeWeightField && weights && (!strcmp(this->EdgeWeightField,weights))) { return;}
+  if (this->EdgeWeightField) { delete [] this->EdgeWeightField; }
+  if (weights)
+    {
+    size_t n = strlen(weights) + 1;
+    char *cp1 =  new char[n];
+    const char *cp2 = (weights);
+    this->EdgeWeightField = cp1;
+    do { *cp1++ = *cp2++; } while ( --n );
+    }
+   else
+    {
+    this->EdgeWeightField = NULL;
+    }
+  
+  this->Modified();
+
+  if(this->Graph)
+    {
+    this->Initialize();
+    }
 }
 
 void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
