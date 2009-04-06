@@ -28,6 +28,13 @@
 #include "vtkSystemIncludes.h"
 #include <math.h>
 
+// Convert a macro representing a value to a string.
+//
+// Example: vtkQuoteMacro(__LINE__) will expand to "1234" whereas
+// vtkInternalQuoteMacro(__LINE__) will expand to "__LINE__"
+#define vtkInternalQuoteMacro(x) #x
+#define vtkQuoteMacro(x) vtkInternalQuoteMacro(x)
+
 // A macro to get the name of a type
 #define vtkImageScalarTypeNameMacro(type) \
 (((type) == VTK_VOID) ? "void" : \
