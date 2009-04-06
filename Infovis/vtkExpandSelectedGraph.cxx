@@ -40,12 +40,11 @@
 #include "vtkStringArray.h"
 
 #include <vtksys/stl/set>
-using vtksys_stl::set;
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.1");
+vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.2");
 vtkStandardNewMacro(vtkExpandSelectedGraph);
 
 vtkExpandSelectedGraph::vtkExpandSelectedGraph()
@@ -98,7 +97,7 @@ int vtkExpandSelectedGraph::RequestData(
   // to a single index selection which we then expand, instead of
   // expanding each child selection and merging them which creates
   // duplicates.
-  set<vtkIdType> indexSet;
+  vtksys_stl::set<vtkIdType> indexSet;
   for(int i=0; i<indexArray->GetNumberOfTuples(); ++i)
     {
     indexSet.insert(indexArray->GetValue(i));
@@ -106,7 +105,7 @@ int vtkExpandSelectedGraph::RequestData(
   // Delete any entries in the current selection list
   indexArray->Reset();
   // Convert the stl set into the selection list
-  set<vtkIdType>::iterator I;
+  vtksys_stl::set<vtkIdType>::iterator I;
   for(I = indexSet.begin(); I != indexSet.end(); ++I)
     {
     indexArray->InsertNextValue(*I);
@@ -145,7 +144,7 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
   VTK_CREATE(vtkInEdgeIterator, inIt);
   VTK_CREATE(vtkOutEdgeIterator, outIt);
 
-  set<vtkIdType> indexSet;
+  vtksys_stl::set<vtkIdType> indexSet;
   for (int i=0; i<indexArray->GetNumberOfTuples(); ++i)
   {  
     // First insert myself
@@ -168,7 +167,7 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
   indexArray->Reset();
   
   // Convert the stl set into the selection list
-  set<vtkIdType>::iterator I;
+  vtksys_stl::set<vtkIdType>::iterator I;
   for(I = indexSet.begin(); I != indexSet.end(); ++I)
     {
     indexArray->InsertNextValue(*I);
