@@ -56,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.7");
+vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.8");
 vtkStandardNewMacro(vtkPBGLCollectGraph);
 
 
@@ -120,15 +120,18 @@ int vtkPBGLCollectGraph::RequestData(
 
   // Set up the origin process array
   VTK_CREATE(vtkIdTypeArray, VertexProcessSourceArray);
+  VTK_CREATE(vtkIdTypeArray, EdgeProcessSourceArray);
   if(this->CreateOriginProcessArray)
     {
     if(OriginProcessArrayName)
       {
       VertexProcessSourceArray->SetName(this->OriginProcessArrayName);
+      EdgeProcessSourceArray->SetName(this->OriginProcessArrayName);
       }
     else
       {
       VertexProcessSourceArray->SetName("ProcessorID");
+      EdgeProcessSourceArray->SetName("ProcessorID");
       }
     }
 
@@ -393,6 +396,7 @@ int vtkPBGLCollectGraph::RequestData(
       vtkSmartPointer<vtkVariantArray> propArray
         = vtkSmartPointer<vtkVariantArray>::New();
       propArray->SetNumberOfTuples(numArrays);
+
       for (int origin = 0; origin < numProcs; ++origin)
         {
         // Extract the edges and properties
@@ -415,11 +419,19 @@ int vtkPBGLCollectGraph::RequestData(
           // Add the edge.
           if (isDirected)
             {
-            dirBuilder->AddEdge(source, target, &*propArray);
+            vtkEdgeType newEdge = dirBuilder->AddEdge(source, target, &*propArray);
+            if(CreateOriginProcessArray)
+              {
+              EdgeProcessSourceArray->InsertNextValue(origin);
+              }
             }
           else
             {
-            undirBuilder->AddEdge(source, target, &*propArray);
+            vtkEdgeType newEdge = undirBuilder->AddEdge(source, target, &*propArray);
+            if(CreateOriginProcessArray)
+              {
+              EdgeProcessSourceArray->InsertNextValue(origin);
+              }
             }
           }
 
@@ -481,11 +493,11 @@ int vtkPBGLCollectGraph::RequestData(
           {
           if (isDirected)
             {
-            dirBuilder->AddEdge(e->first, e->second);
+            vtkEdgeType edge = dirBuilder->AddEdge(e->first, e->second);
             }
           else
             {
-            undirBuilder->AddEdge(e->first, e->second);
+            vtkEdgeType edge = undirBuilder->AddEdge(e->first, e->second);
             }
           }
 
@@ -510,10 +522,12 @@ int vtkPBGLCollectGraph::RequestData(
     if(isDirected)
       {
       dirBuilder->GetVertexData()->AddArray(VertexProcessSourceArray);
+      dirBuilder->GetEdgeData()->AddArray(EdgeProcessSourceArray);
       }
     else
       {
       undirBuilder->GetVertexData()->AddArray(VertexProcessSourceArray);
+      undirBuilder->GetEdgeData()->AddArray(EdgeProcessSourceArray);
       }
     }
 
