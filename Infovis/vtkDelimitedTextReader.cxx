@@ -41,7 +41,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.26");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.27");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -98,6 +98,10 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->MaxRecords = 0;
   this->MergeConsecutiveDelimiters = false;
   this->DetectNumericColumns = false;
+  this->PedigreeIdArrayName = NULL;
+  this->SetPedigreeIdArrayName("id");
+  this->GeneratePedigreeIds = true;
+
 }
 
 // ----------------------------------------------------------------------
@@ -112,6 +116,7 @@ vtkDelimitedTextReader::~vtkDelimitedTextReader()
 
   this->SetFileName(0);
   this->SetFieldDelimiterCharacters(NULL);
+  this->SetPedigreeIdArrayName(0);
 
   delete [] this->ReadBuffer;
   delete this->Internals;
@@ -138,6 +143,10 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "DetectNumericColumns: "
     << (this->DetectNumericColumns? "true" : "false") << endl;
+  os << indent << "GeneratePedigreeIds: " 
+    << this->GeneratePedigreeIds << endl;
+  os << indent << "PedigreeIdArrayName: " 
+    << this->PedigreeIdArrayName << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -180,6 +189,13 @@ int vtkDelimitedTextReader::RequestData(
     {
     return 1;
     }
+
+  if(!this->PedigreeIdArrayName)
+    {
+    vtkErrorMacro(<< "You must specify a pedigree id array name.");
+    return 0;
+    }
+
 
   int line_count = 0;
 
@@ -341,19 +357,33 @@ int vtkDelimitedTextReader::RequestData(
     dataArray->Delete();
     }
 
-  // Look for pedigree id array.
-  vtkAbstractArray* pedIds = table->GetColumnByName("id");
-  if (!pedIds)
+  if (this->GeneratePedigreeIds)
     {
-    pedIds = table->GetColumnByName("edge id");
+    vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkIdType numRows = table->GetNumberOfRows();
+    pedigreeIds->SetNumberOfTuples(numRows);
+    pedigreeIds->SetName(this->PedigreeIdArrayName);
+    for (vtkIdType i = 0; i < numRows; ++i)
+      {
+      pedigreeIds->InsertValue(i, i);
+      }
+    table->GetRowData()->SetPedigreeIds(pedigreeIds);
     }
-  if (!pedIds)
+  else
     {
-    pedIds = table->GetColumnByName("vertex id");
-    }
-  if (pedIds)
-    {
-    table->GetRowData()->SetPedigreeIds(pedIds);
+    vtkAbstractArray* arr =
+      table->GetColumnByName(this->PedigreeIdArrayName);
+    if (arr)
+      {
+      table->GetRowData()->SetPedigreeIds(arr);
+      }
+    else
+      {
+      vtkErrorMacro(<< "Could find pedigree id array: "
+        << this->PedigreeIdArrayName);
+      return 0;
+      }
     }
 
   if (this->DetectNumericColumns)

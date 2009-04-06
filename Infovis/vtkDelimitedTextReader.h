@@ -108,6 +108,19 @@ public:
   vtkGetMacro(DetectNumericColumns, bool);
   vtkBooleanMacro(DetectNumericColumns, bool);
 
+  // Description:
+  // The name of the array for generating or assigning pedigree ids
+  // (default "id").
+  vtkSetStringMacro(PedigreeIdArrayName);
+  vtkGetStringMacro(PedigreeIdArrayName);
+
+  // Description:
+  // If on (default), generates pedigree ids automatically.
+  // If off, assign one of the arrays to be the pedigree id.
+  vtkSetMacro(GeneratePedigreeIds, bool);
+  vtkGetMacro(GeneratePedigreeIds, bool);
+  vtkBooleanMacro(GeneratePedigreeIds, bool);
+
  protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader();
@@ -130,6 +143,8 @@ public:
   char *ReadBuffer;
   int MaxRecords;
   bool DetectNumericColumns;
+  char* PedigreeIdArrayName;
+  bool GeneratePedigreeIds;
 
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented
