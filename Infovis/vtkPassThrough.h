@@ -29,6 +29,15 @@ public:
   vtkTypeRevisionMacro(vtkPassThrough, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description: 
+  // Whether or not to deep copy the input. This can be useful if you
+  // want to create a copy of a data object. You can then disconnect
+  // this filter's input connections and it will act like a source.
+  // Defaults to OFF.
+  vtkSetMacro(DeepCopyInput, int);
+  vtkGetMacro(DeepCopyInput, int);
+  vtkBooleanMacro(DeepCopyInput, int);
+
 protected:
   vtkPassThrough();
   ~vtkPassThrough();
@@ -37,6 +46,8 @@ protected:
     vtkInformation*, 
     vtkInformationVector**, 
     vtkInformationVector*);
+
+  int DeepCopyInput;
     
 private:
   vtkPassThrough(const vtkPassThrough&); // Not implemented
