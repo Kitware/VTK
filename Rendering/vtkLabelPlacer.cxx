@@ -43,7 +43,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.17");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.18");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -517,6 +517,7 @@ int vtkLabelPlacer::RequestData(
 
   float * zPtr = NULL;
   int placed = 0;
+  int occluded = 0;
 
   double ll[3], lr[3], ul[3], ur[3];
   ll[2] = lr[2] = ul[2] = ur[2] = 0.;
@@ -593,6 +594,7 @@ int vtkLabelPlacer::RequestData(
     // Test for occlusion using the z-buffer
     if (!this->VisiblePoints->IsPointOccluded(x, zPtr))
       {
+      occluded++;
       continue;
       }
 
@@ -775,6 +777,7 @@ int vtkLabelPlacer::RequestData(
     }
   vtkDebugMacro("------");
   //cout << "Not Placed: " << notPlaced << endl;
+  cout << "Labels Occluded: " << occluded << endl;
 
   inIter->Delete();
   if (zPtr)
