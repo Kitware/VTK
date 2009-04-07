@@ -105,6 +105,6 @@ namespace GaussIntegration
    void get_node_local_coord_tet(int node_id, double &y1, double &y2, 
                                                 double &y3, double &y4);
    //- get nodal volume coordinates for tetrahedron element
-};
+}
 
 #endif 
