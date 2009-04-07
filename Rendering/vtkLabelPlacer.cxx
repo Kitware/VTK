@@ -43,7 +43,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.19");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.20");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -261,6 +261,8 @@ void vtkLabelPlacer::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "OutputTraversedBounds: " << (this->OutputTraversedBounds ? "ON" : "OFF" ) << "\n";
   os << indent << "GeneratePerturbedLabelSpokes: " 
     << (this->GeneratePerturbedLabelSpokes ? "ON" : "OFF" ) << "\n";
+  os << indent << "UseDepthBuffer: " 
+    << (this->UseDepthBuffer ? "ON" : "OFF" ) << "\n";
   os << indent << "OutputCoordinateSystem: " << this->OutputCoordinateSystem << "\n";
 }
 
