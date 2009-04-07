@@ -935,7 +935,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"      return TCL_ERROR;\n }\n" );
   
   fprintf(fp,"    if(argc==2) {\n" );
-  // Return a list of methods
+  /* Return a list of methods */
   fprintf(fp,"\n  Tcl_DString dString, dStringParent;\n");
   fprintf(fp,"\n  Tcl_DStringInit ( &dString );\n" );
   fprintf(fp,"\n  Tcl_DStringInit ( &dStringParent );\n" );
@@ -980,7 +980,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->SuperClasses[i]);
     fprintf(fp,"    if ( SuperClassStatus == TCL_OK ) { return TCL_OK; }\n" );
     }
-  // Now we handle it ourselves
+  /* Now we handle it ourselves */
   for (k = 0; k < numberOfWrappedFunctions; k++)
     {
       currentFunction = wrappedFunctions[k];
@@ -1146,8 +1146,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    }\n");
     }
 
-  // i.e. If this is vtkObjectBase (or whatever the top of the class hierarchy will be)
-  // then report the error
+  /* i.e. If this is vtkObjectBase (or whatever the top of the class hierarchy will be) */
+  /* then report the error */
   if (data->NumberOfSuperClasses == 0)
     {
     fprintf(fp,"\n  if (argc >= 2)\n    {\n");
