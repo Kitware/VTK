@@ -185,6 +185,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may alter its value"
   "Utilities/DICOMParser.*warning: conversion to .* from .* may alter its value"
   "Utilities/DICOMParser.*warning: conversion to .* from .* may change the sign of the result"
+  # gcc -Wsign-conversion
+  "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may change the sign of the result"
+  # gcc -Wconversion
+  "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may alter its value"
+
   )
 
 IF(APPLE)
