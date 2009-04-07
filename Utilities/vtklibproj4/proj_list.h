@@ -216,9 +216,12 @@ PROJ_HEAD(weren3, "Werenskiold III")
 PROJ_HEAD(wink1, "Winkel I")
 PROJ_HEAD(wink2, "Winkel II")
 PROJ_HEAD(wintri, "Winkel Tripel")
-//PROJ_HEAD(dummy, "Dummy projection")
+/* PROJ_HEAD(dummy, "Dummy projection") */
 /*
 ** Log: proj_list.h
+** Revision 1.2  2008-11-25 19:30:04  david.cole
+** COMP: Suppress warnings in vtklibproj4.
+**
 ** Revision 1.1  2008-11-07 16:41:14  jeff
 ** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
 ** to Utilities. Updating the architecture of the geospatial views. All

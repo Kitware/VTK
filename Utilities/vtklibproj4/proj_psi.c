@@ -29,13 +29,13 @@ LIBPROJ_ID[] = "Id";
 #define MAX_ITER 11
 #define EPS 1e-14
 
-  double // isometric latitude
+  double /* isometric latitude */
 proj_psi(double phi, double sphi, double e) {
   double esp = e * sphi;
 
   return log(tan(FORTPI + 0.5 * phi) * pow((1. - esp)/(1. + esp), 0.5 * e));
 }
-  double // inverse isometric latitude
+  double /* inverse isometric latitude */
 proj_apsi(double psi, double e) {
   double esp, phi, phi0, he = e * 0.5, exp_psi = exp(psi);
   int i = MAX_ITER;
@@ -52,6 +52,9 @@ proj_apsi(double psi, double e) {
 }
 /*
 ** Log: proj_psi.c
+** Revision 1.2  2008-11-14 16:56:33  jeff
+** COMP: Fixing more libproj warnings.
+**
 ** Revision 1.1  2008-11-07 16:41:15  jeff
 ** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
 ** to Utilities. Updating the architecture of the geospatial views. All
