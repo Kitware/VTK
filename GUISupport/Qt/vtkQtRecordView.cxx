@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.4");
+vtkCxxRevisionMacro(vtkQtRecordView, "1.5");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,6 @@ void vtkQtRecordView::Update()
   cs.TakeReference(vtkConvertSelection::ToSelectionType(rep->GetSelectionLink()->GetSelection(), 
     table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
   vtkSelectionNode *node = cs->GetNode(0);
-  const vtkIdType row_count = table->GetNumberOfRows();
   const vtkIdType column_count = table->GetNumberOfColumns();
 
   if(node)
