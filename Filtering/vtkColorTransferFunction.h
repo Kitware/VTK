@@ -23,6 +23,8 @@
 // the specification of the midpoint (the place where the function
 // reaches the average of the two bounding nodes) as a normalize distance
 // between nodes.
+// See the description of class vtkPiecewiseFunction for an explanation of
+// midpoint and sharpness.
 
 // .SECTION see also
 // vtkPiecewiseFunction
@@ -61,6 +63,8 @@ public:
   // Description:
   // Add/Remove a point to/from the function defined in RGB or HSV
   // Return the index of the point (0 based), or -1 on error.
+  // See the description of class vtkPiecewiseFunction for an explanation of
+  // midpoint and sharpness.
   int AddRGBPoint( double x, double r, double g, double b );
   int AddRGBPoint( double x, double r, double g, double b, 
                    double midpoint, double sharpness );
