@@ -162,6 +162,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* with different width due to prototype"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* as .*signed due to prototype"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*[Ll]ong.double"
+  # gcc -Wsign-conversion
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: conversion to .* from .* may change the sign of the result"
+  # gcc -Wconversion
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
