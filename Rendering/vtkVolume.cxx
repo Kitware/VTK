@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.88");
+vtkCxxRevisionMacro(vtkVolume, "1.89");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -191,9 +191,9 @@ void vtkVolume::SetMapper(vtkAbstractVolumeMapper *mapper)
     }
 }
 
-float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
+double vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
 {
-  float coverage = 1.0;
+  double coverage = 1.0;
   
   vtkRenderer *ren = vtkRenderer::SafeDownCast( vp );
   
@@ -205,12 +205,12 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
     vtkMatrix4x4 *mat = cam->GetCompositeProjectionTransformMatrix( 
       aspect[0]/aspect[1], 0.0, 1.0 );
     double *bounds = this->GetBounds();
-    float minX =  1.0;
-    float maxX = -1.0;
-    float minY =  1.0;
-    float maxY = -1.0;
+    double minX =  1.0;
+    double maxX = -1.0;
+    double minY =  1.0;
+    double maxY = -1.0;
     int i, j, k;
-    float p[4];
+    double p[4];
     for ( k = 0; k < 2; k++ )
       {
       for ( j = 0; j < 2; j++ )
@@ -241,7 +241,6 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
     coverage = (coverage > 1.0 )?(1.0):(coverage);
     coverage = (coverage < 0.0 )?(0.0):(coverage);
     }
-  
   
   return coverage;
 }
@@ -773,8 +772,9 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
         if (originalAlpha > 0.0001)
           {
           correctedAlpha = 
-            1.0-pow(static_cast<double>(1.0-originalAlpha),
-                    static_cast<double>(this->CorrectedStepSize));
+            1.0f-static_cast<float>(
+              pow(static_cast<double>(1.0f-originalAlpha),
+                  static_cast<double>(this->CorrectedStepSize)));
           }
         else
           {

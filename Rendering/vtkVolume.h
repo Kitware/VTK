@@ -219,7 +219,7 @@ protected:
   vtkTimeStamp         GradientOpacityArrayMTime[VTK_MAX_VRCOMP];
 
   // Function to compute screen coverage of this volume
-  float ComputeScreenCoverage( vtkViewport *vp );
+  double ComputeScreenCoverage( vtkViewport *vp );
   
 private:
   vtkVolume(const vtkVolume&);  // Not implemented.
