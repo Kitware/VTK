@@ -49,6 +49,10 @@
 #include "vtkGaussianBlurPass.h"
 #include "vtkConeSource.h"
 
+// Make sure to have a valid OpenGL context current on the calling thread
+// before calling it. Defined in TestGenericVertexAttributesGLSLAlphaBlending.
+bool MesaHasVTKBug8135();
+
 int TestGaussianBlurPass(int argc, char* argv[])
 {
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
@@ -160,24 +164,42 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renderer->SetBackground(0.1,0.3,0.0);
   renWin->SetSize(400,400);
   
+  // empty scene during OpenGL detection.
+  actor->SetVisibility(0);
+  coneActor->SetVisibility(0);
   renWin->Render();
-  if(peeling->GetLastRenderingUsedDepthPeeling())
+  
+  int retVal;
+  if(MesaHasVTKBug8135())
     {
-    cout<<"depth peeling was used"<<endl;
+    // Mesa will crash if version<7.3
+    cout<<"This version of Mesa would crash. Skip the test."<<endl;
+    retVal=vtkRegressionTester::PASSED;
     }
   else
     {
-    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
-  vtkCamera *camera=renderer->GetActiveCamera();
-  camera->Azimuth(-40.0);
-  camera->Elevation(20.0);
-  renWin->Render();
+    actor->SetVisibility(1);
+    coneActor->SetVisibility(1);
+    renderer->ResetCamera();
+    vtkCamera *camera=renderer->GetActiveCamera();
+    camera->Azimuth(-40.0);
+    camera->Elevation(20.0);
+    renWin->Render();
   
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
+    if(peeling->GetLastRenderingUsedDepthPeeling())
+      {
+      cout<<"depth peeling was used"<<endl;
+      }
+    else
+      {
+      cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+      }
+  
+    retVal = vtkRegressionTestImage( renWin );
+    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
     }
   iren->Delete();
   
