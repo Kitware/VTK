@@ -80,7 +80,8 @@ public:
   vtkBooleanMacro( IndependentComponents, int );
 
   // Description:
-  // Set the interpolation type for sampling a volume.
+  // Set the interpolation type for sampling a volume. Initial value is
+  // VTK_NEAREST_INTERPOLATION.
   vtkSetClampMacro( InterpolationType, int,
         VTK_NEAREST_INTERPOLATION, VTK_LINEAR_INTERPOLATION);
   vtkGetMacro(InterpolationType,int);
