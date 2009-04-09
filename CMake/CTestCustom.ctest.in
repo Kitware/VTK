@@ -164,6 +164,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*[Ll]ong.double"
   # gcc -Wsign-conversion
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: conversion to .* from .* may change the sign of the result"
+ # gcc -Wsign-conversion
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: conversion of unsigned constant value to negative integer"
   # gcc -Wconversion
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
@@ -171,6 +173,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*passing argument .* of .* as unsigned due to prototype"
   "Utilities.vtkexodus2.*warning.*possible loss of data"
+  # gcc -Wsign-conversion
+  "Utilities.vtkexodus2.*warning.*conversion to .* from .* may change the sign of the result"
+  # gcc -Wconversion
+  "Utilities.vtkexodus2.*warning.*conversion to .* from .* may alter its value"
+
   "Utilities.vtklibproj4.*warning.*defined but not used"
   "Utilities.vtklibproj4.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtklibproj4.*warning.*assignment discards qualifiers from pointer target type"
