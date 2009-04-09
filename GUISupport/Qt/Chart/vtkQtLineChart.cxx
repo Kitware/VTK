@@ -246,20 +246,24 @@ vtkQtLineChartInternal::~vtkQtLineChartInternal()
 void vtkQtLineChartInternal::mergeLists(QList<vtkQtChartShape *> &target,
     const QList<vtkQtChartShape *> &source) const
 {
-  if(target.size() == 0)
+  if (source.empty()) return;
+
+  if (target.empty())
     {
     target = source;
     return;
     }
+
+  QList<vtkQtChartShape *> holder;
 
   QRectF bounds;
   float xTarget = 0.0;
   float xSource = 0.0;
   bool newTarget = true;
   bool newSource = true;
-  QList<vtkQtChartShape *>::Iterator iter = target.begin();
-  QList<vtkQtChartShape *>::ConstIterator jter = source.begin();
-  while(iter != target.end() && jter != source.end())
+  QList<vtkQtChartShape *>::ConstIterator iter = target.constBegin();
+  QList<vtkQtChartShape *>::ConstIterator jter = source.constBegin();
+  while(iter != target.constEnd() && jter != source.constEnd())
     {
     if(newTarget)
       {
@@ -277,23 +281,29 @@ void vtkQtLineChartInternal::mergeLists(QList<vtkQtChartShape *> &target,
 
     if(xSource < xTarget)
       {
-      iter = target.insert(iter, *jter);
-      ++iter;
+      holder.append(*jter);
       ++jter;
       newSource = true;
       }
     else
       {
+      holder.append(*iter);
       ++iter;
       newTarget = true;
       }
     }
 
-  // Add the remaining source items to the target list.
-  for( ; jter != source.end(); ++jter)
+  // Add the remaining items to the holder list.
+  for( ; jter != source.constEnd(); ++jter)
     {
-    target.append(*jter);
+    holder.append(*jter);
     }
+  for( ; iter != target.constEnd(); ++iter)
+    {
+    holder.append(*jter);
+    }
+
+  target = holder;
 }
 
 void vtkQtLineChartInternal::removeList(QList<vtkQtChartShape *> &list,

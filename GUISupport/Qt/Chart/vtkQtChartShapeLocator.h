@@ -209,7 +209,7 @@ public:
   ///   Sorts the list of shapes according to the y value.
   ///
   /// The list of shapes is sorted by the y-axis value using a quick
-  /// sort algorithm. The list is sorted in place and non-recursively.
+  /// sort algorithm. The list is sorted in place.
   ///
   /// \param list The list of shapes to be sorted.
   static void sort(QList<vtkQtChartShape *> &list);
