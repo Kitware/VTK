@@ -185,15 +185,13 @@ void vtkQtChartShapeLocator::build(const QList<vtkQtChartShape *> &list)
   // The list should already be sorted in x. Divide the list into
   // equal portions.
   QList<QList<vtkQtChartShape *> > table;
-  int length = (int)(sqrt((double)(list.size() * list.size())) + 0.5);
+  int length = static_cast<int>(list.size()/2.0 + 0.5);
   QList<vtkQtChartShape *>::ConstIterator iter = list.begin();
-  while(iter != list.end())
+  int offset=0;
+  while(offset < list.size())
     {
-    table.append(QList<vtkQtChartShape *>());
-    for(int i = 0; i < length && iter != list.end(); ++iter, ++i)
-      {
-      table.last().append(*iter);
-      }
+    table.append(list.mid(offset, length));
+    offset += length;
     }
   
   // Then, sort each portion in y.
