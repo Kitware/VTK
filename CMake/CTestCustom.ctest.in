@@ -169,7 +169,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # gcc -Wconversion
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: conversion to .* from .* may alter its value"
   # SunOS CC 5.6
-  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: integer overflow detected: op .<<."
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: integer overflow detected: op .*"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
@@ -202,7 +202,12 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may change the sign of the result"
   # gcc -Wconversion
   "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may alter its value"
-
+  # gcc -Wsign-conversion
+  "Utilities/vtkalglib.*warning: conversion to .* from .* may change the sign of the result"
+  # gcc -Wsign-conversion
+  "Utilities/ftgl/src/.*warning: conversion to .* from .* may change the sign of the result"
+  # gcc -Wconversion
+  "Utilities/ftgl/src/.*warning: conversion to .* from .* may alter its value"
   )
 
 IF(APPLE)
