@@ -75,7 +75,6 @@ int TestLabelPlacerExodus(int argc, char *argv[])
   //int iteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   bool showBounds = false;
 
-
   vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
     vtkSmartPointer<vtkLabelSizeCalculator>::New();
   vtkSmartPointer<vtkLabelHierarchy> labelHierarchy = 
@@ -255,7 +254,7 @@ int TestLabelPlacerExodus(int argc, char *argv[])
   renderer->AddActor(textActor);
 
 
-  renWin->SetSize(600, 600);
+  renWin->SetSize(300, 300);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(1.0, 1.0, 1.0);
   iren->SetRenderWindow(renWin);
