@@ -107,7 +107,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.10");
+vtkCxxRevisionMacro(vtkQtChartViewBase, "1.11");
 
 //----------------------------------------------------------------------------
 vtkQtChartViewBase::vtkQtChartViewBase()
@@ -300,15 +300,12 @@ void vtkQtChartViewBase::SetAxisTitleAlignment(int index, int alignment)
 void vtkQtChartViewBase::SetLegendVisibility(bool visible)
 {
   this->Internal->ShowLegend = visible;
-  int total = this->Internal->Legend->getModel()->getNumberOfEntries();
-  if((total == 0 || !this->Internal->ShowLegend) &&
-      this->Internal->Chart->getLegend() != 0)
+  if (!this->Internal->ShowLegend && this->Internal->Chart->getLegend() != 0)
     {
     // Remove the legend from the chart since it is not needed.
     this->Internal->Chart->setLegend(0);
     }
-  else if(total > 0 && this->Internal->ShowLegend &&
-      this->Internal->Chart->getLegend() == 0)
+  else if (this->Internal->ShowLegend && this->Internal->Chart->getLegend() == 0)
     {
     // Add the legend to the chart since it is needed.
     this->Internal->Chart->setLegend(this->Internal->Legend);
