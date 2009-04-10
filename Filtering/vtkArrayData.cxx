@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.4");
+vtkCxxRevisionMacro(vtkArrayData, "1.5");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -83,13 +83,13 @@ void vtkArrayData::AddArray(vtkArray* array)
 {
   if(!array)
     {
-    vtkErrorMacro(<< "vtkArrayData::AddArray() - cannot add NULL array");
+    vtkErrorMacro(<< "Cannot add NULL array.");
     return;
     }
     
   if(vtkstd::count(this->Implementation->Arrays.begin(), this->Implementation->Arrays.end(), array))
     {
-    vtkErrorMacro(<< "vtkArrayData::AddArray() - cannot add array twice");
+    vtkErrorMacro(<< "Cannot add array twice.");
     return;
     }
 
@@ -112,6 +112,12 @@ vtkIdType vtkArrayData::GetNumberOfArrays()
 
 vtkArray* vtkArrayData::GetArray(vtkIdType index)
 {
+  if(index < 0 || index >= this->Implementation->Arrays.size())
+    {
+    vtkErrorMacro(<< "Array index out-of-range.");
+    return 0;
+    }
+    
   return this->Implementation->Arrays[index];
 }
 
