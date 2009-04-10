@@ -1,22 +1,8 @@
-
-INCLUDE_REGULAR_EXPRESSION("^(vtk|Q).*$")
-
-# we need Qt3 or Qt4
-# we ask up front so FindQt.cmake doesn't auto-find an undesired Qt version
-SET(DESIRED_QT_VERSION 0 CACHE STRING "Pick a version of Qt to use: 3 or 4")
-
+# DESIRED_QT_VERSION is set in the VTK top-level CMakeLists.txt
 IF(DESIRED_QT_VERSION MATCHES 0)
   MESSAGE("Please set the DESIRED_QT_VERSION")
 ELSE(DESIRED_QT_VERSION MATCHES 0)
   
-SET ( QT_USE_QTSQL 1 )
-
-INCLUDE( ${CMAKE_ROOT}/Modules/FindQt${DESIRED_QT_VERSION}.cmake )
-
-IF(NOT QT_FOUND)
-  MESSAGE("Qt was not found")
-ELSE(NOT QT_FOUND)
-
 # set up sources to build
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
@@ -305,8 +291,5 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     SUBDIRS(Testing/Cxx)
   ENDIF(BUILD_TESTING)
 ENDIF(DESIRED_QT_VERSION MATCHES 4)
-
-ENDIF(NOT QT_FOUND)
-
 ENDIF(DESIRED_QT_VERSION MATCHES 0)
 
