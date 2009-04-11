@@ -36,7 +36,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.19");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.20");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -44,6 +44,7 @@ vtkSQLiteQuery::vtkSQLiteQuery()
 {
   this->Statement = NULL;
   this->InitialFetch = true;
+  this->InitialFetchResult=VTK_SQLITE_DONE;
   this->LastErrorText = NULL;
   this->TransactionInProgress = false;
 }
@@ -81,9 +82,10 @@ void vtkSQLiteQuery::PrintSelf(ostream  &os, vtkIndent indent)
     {
     os << "(null)" << "\n";
     }
-  os << indent << "InitialFetch: " << InitialFetch << "\n";
-  os << indent << "InitialFetchResult: " << InitialFetchResult << "\n";
-  os << indent << "TransactionInProgress: " << TransactionInProgress << "\n";
+  os << indent << "InitialFetch: " << this->InitialFetch << "\n";
+  os << indent << "InitialFetchResult: " << this->InitialFetchResult << "\n";
+  os << indent << "TransactionInProgress: " << this->TransactionInProgress
+     << "\n";
   os << indent << "LastErrorText: "
     << (this->LastErrorText ? this->LastErrorText : "(null)") << endl;
 }
