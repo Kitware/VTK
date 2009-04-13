@@ -40,10 +40,6 @@
 // <li>(optionally) a vtkLookupTable to use when assigning colors.
 // </ul>
 //
-// Note that this is an abstract class.  You really want to use
-// vtkQtTableDataRepresentation or vtkQtTableMetadataRepresentation
-// instead.
-//
 // .SECTION Caveats
 //
 // Call SetInputConnection with a table connection
@@ -77,11 +73,8 @@ public:
   // Description:
   // Set/get the name of the column that contains series names.  This
   // must be called BEFORE the representation is added to a view.
-  //vtkSetStringMacro(KeyColumn);
   void SetKeyColumn(const char* col);
-  // This wasn't actually implemented anywhere so
-  // I commented out the declaration:
-  // char* GetKeyColumn();
+  char* GetKeyColumn();
 
   // Description:
   // Set/get the name of the first data column.  This must be called

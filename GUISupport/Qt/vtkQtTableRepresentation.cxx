@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.5");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -102,6 +102,13 @@ vtkQtTableRepresentation::SetKeyColumn(const char *col)
   this->Modified();
   // Is this really good? We never call Update() in algorithms.
   this->Update();
+}
+
+// ----------------------------------------------------------------------
+
+char* vtkQtTableRepresentation::GetKeyColumn()
+{
+  return this->GetKeyColumnInternal();
 }
 
 // ----------------------------------------------------------------------

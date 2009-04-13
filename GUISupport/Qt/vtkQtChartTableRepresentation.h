@@ -21,22 +21,22 @@
 //
 // .SECTION Description
 //
-// This is a specialization of vtkQtTableDataRepresentation to put the
+// This is a specialization of vtkQtTableRepresentation to put the
 // data into a vtkQtChartViewBase.
 
 #ifndef __vtkQtChartTableRepresentation_h
 #define __vtkQtChartTableRepresentation_h
 
-#include "vtkQtTableDataRepresentation.h"
+#include "vtkQtTableRepresentation.h"
 class vtkIntArray;
 class vtkQtChartSeriesOptionsModel;
 class vtkQtChartTableSeriesModel;
 
-class QVTK_EXPORT vtkQtChartTableRepresentation : public vtkQtTableDataRepresentation
+class QVTK_EXPORT vtkQtChartTableRepresentation : public vtkQtTableRepresentation
 {
 public:
   static vtkQtChartTableRepresentation *New();
-  vtkTypeRevisionMacro(vtkQtChartTableRepresentation, vtkQtTableDataRepresentation);
+  vtkTypeRevisionMacro(vtkQtChartTableRepresentation, vtkQtTableRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //BTX
