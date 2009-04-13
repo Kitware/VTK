@@ -22,7 +22,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.28");
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.29");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -91,9 +91,9 @@ void vtkAbstractTransform::TransformNormalAtPoint(const float point[3],
 
   this->TransformNormalAtPoint(coord,normal,normal);
 
-  out[0] = normal[0];
-  out[1] = normal[1];
-  out[2] = normal[2];
+  out[0] = static_cast<float>(normal[0]);
+  out[1] = static_cast<float>(normal[1]);
+  out[2] = static_cast<float>(normal[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -127,9 +127,9 @@ void vtkAbstractTransform::TransformVectorAtPoint(const float point[3],
 
   this->TransformVectorAtPoint(coord,vector,vector);
 
-  out[0] = vector[0];
-  out[1] = vector[1];
-  out[2] = vector[2];
+  out[0] = static_cast<float>(vector[0]);
+  out[1] = static_cast<float>(vector[1]);
+  out[2] = static_cast<float>(vector[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -380,7 +380,7 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.28");
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.29");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()
@@ -1016,7 +1016,7 @@ vtkTransformConcatenationStack::vtkTransformConcatenationStack()
 //----------------------------------------------------------------------------
 vtkTransformConcatenationStack::~vtkTransformConcatenationStack()
 {
-  int n = this->Stack-this->StackBottom;
+  int n = static_cast<int>(this->Stack-this->StackBottom);
   for (int i = 0; i < n; i++)
     {
     this->StackBottom[i]->Delete();
@@ -1084,8 +1084,8 @@ void vtkTransformConcatenationStack::Push(vtkTransformConcatenation **concat)
 void vtkTransformConcatenationStack::DeepCopy(
                                       vtkTransformConcatenationStack *stack)
 {
-  int n = stack->Stack - stack->StackBottom;
-  int m = this->Stack - this->StackBottom;
+  int n = static_cast<int>(stack->Stack - stack->StackBottom);
+  int m = static_cast<int>(this->Stack - this->StackBottom);
 
   // check to see if we have to grow the stack
   if (n > this->StackSize)
