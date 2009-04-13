@@ -27,17 +27,36 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
+#include "vtkDoubleArray.h"
 
 #include <QIcon>
 #include <QPixmap>
 
+//----------------------------------------------------------------------------
+class vtkQtTableModelAdapter::vtkInternal {
+public:
+
+  vtkInternal()
+    {
+    }
+  ~vtkInternal()
+    {
+    }
+
+  QHash<vtkIdType, vtkSmartPointer<vtkDoubleArray> > MagnitudeColumns;
+
+};
+
+//----------------------------------------------------------------------------
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
+  this->Internal = new vtkInternal;
   this->Table = NULL;
   this->SplitMultiComponentColumns = false;
 } 
-  
+
+//----------------------------------------------------------------------------
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   : vtkQtAbstractModelAdapter(p), Table(t)
 {
@@ -48,14 +67,17 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
     }
 }
 
+//----------------------------------------------------------------------------
 vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
 {
   if (this->Table != NULL)
     {
     this->Table->Delete();
     }
+  delete this->Internal;
 }
 
+//----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
 {
   if (name == 0)
@@ -76,6 +98,7 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject *obj)
 {
   vtkTable *t = vtkTable::SafeDownCast(obj);
@@ -89,16 +112,19 @@ void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject *obj)
   this->setTable(t);
 }
 
+//----------------------------------------------------------------------------
 vtkDataObject* vtkQtTableModelAdapter::GetVTKDataObject() const
 {
   return this->Table;
 }
 
+//----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::updateModelColumnHashTables() 
 {
   // Clear the hash tables
   this->ModelColumnToTableColumn.clear();
   this->ModelColumnNames.clear();
+  this->Internal->MagnitudeColumns.clear();
 
   // Do not continue if SplitMultiComponentColumns is false
   // or our table is null.
@@ -130,7 +156,7 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
   int modelColumn = 0;
   for (int tableColumn = startColumn; tableColumn <= endColumn; ++tableColumn)
     {
-    int nComponents = this->Table->GetColumn(tableColumn)->GetNumberOfComponents();
+    const int nComponents = this->Table->GetColumn(tableColumn)->GetNumberOfComponents();
     for (int c = 0; c < nComponents; ++c)
       {
       QString columnName = this->Table->GetColumnName(tableColumn);
@@ -141,9 +167,42 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
       this->ModelColumnNames[modelColumn] = columnName;
       this->ModelColumnToTableColumn[modelColumn++] = QPair<vtkIdType, int>(tableColumn, c);
       }
+
+    // If number of components is greater than 1, create a new column for Magnitude
+    vtkDataArray* dataArray = vtkDataArray::SafeDownCast(this->Table->GetColumn(tableColumn));
+    if (nComponents > 1 && dataArray)
+      {
+      vtkSmartPointer<vtkDoubleArray> magArray = vtkSmartPointer<vtkDoubleArray>::New();
+      magArray->SetNumberOfComponents(1);
+      const vtkIdType nTuples = dataArray->GetNumberOfTuples();
+      for (vtkIdType i = 0; i < nTuples; ++i)
+        {
+        double mag = 0; 
+        for (int j = 0; j < nComponents; ++j)
+          {
+          double tmp = dataArray->GetComponent(i,j);
+          mag += tmp*tmp;
+          }
+        mag = sqrt(mag);
+        magArray->InsertNextValue(mag);
+        }
+
+      // Create a name for this column and add it to the ModelColumnNames map
+      QString columnName = this->Table->GetColumnName(tableColumn);
+      columnName = QString("%1 (Magnitude)").arg(columnName);
+      this->ModelColumnNames[modelColumn] = columnName;
+
+      // Store the magnitude column mapped to its corresponding column in the vtkTable
+      this->Internal->MagnitudeColumns[tableColumn] = magArray;
+
+      // Add a pair that has the vtkTable column and component, but use a component value
+      // that is out of range to signal that this column represents magnitude
+      this->ModelColumnToTableColumn[modelColumn++] = QPair<vtkIdType, int>(tableColumn, nComponents);
+      }
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::setTable(vtkTable* t) 
 {
   if (this->Table != NULL)
@@ -166,6 +225,7 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
     }
 }
 
+//----------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::noTableCheck() const
 {
   if (this->Table == NULL)
@@ -181,6 +241,7 @@ bool vtkQtTableModelAdapter::noTableCheck() const
   return false;
 }
 
+//----------------------------------------------------------------------------
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
@@ -206,6 +267,7 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
   return IndexSelection;
 }
 
+//----------------------------------------------------------------------------
 QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
   vtkSelection *vtksel) const
 {
@@ -229,11 +291,13 @@ QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
   return qis_list;
 }
 
+//----------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::GetSplitMultiComponentColumns() const
 {
   return this->SplitMultiComponentColumns;
 }
 
+//----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
 {
   if (value != this->SplitMultiComponentColumns)
@@ -243,6 +307,7 @@ void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
     }
 }
 
+//----------------------------------------------------------------------------
 QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
 {
   if (this->noTableCheck())
@@ -261,6 +326,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
 
   // Map the qt model column to a column in the vtk table
   int column;
+  const int row = idx.row();
   if (this->GetSplitMultiComponentColumns())
     {
     column = this->ModelColumnToTableColumn[idx.column()].first;
@@ -271,7 +337,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
     }
 
   // Get the value from the table as a vtkVariant
-  vtkVariant v = this->Table->GetValue(idx.row(), column);
+  vtkVariant v = this->Table->GetValue(row, column);
 
   // Special case- if the variant is an array and we are splitting
   // multi-component columns:
@@ -282,10 +348,21 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
     if (dataArray)
       {
       // Map the qt model column to the corresponding component in the vtk column
-      int component = this->ModelColumnToTableColumn[idx.column()].second;
+      const int component = this->ModelColumnToTableColumn[idx.column()].second;
+      const int nComponents = dataArray->GetNumberOfComponents();
+      double value = 0;
 
-      // Reconstruct the variant using a single scalar from the array
-      double value = dataArray->GetComponent(0, component);
+      if (component < nComponents)
+        {
+        // Reconstruct the variant using a single scalar from the array
+        value = dataArray->GetComponent(0, component);
+        }
+      else
+        {
+        // If component is out of range this signals that we should return the
+        // value from the magnitude column
+        value = this->Internal->MagnitudeColumns[column]->GetValue(row);
+        }
       v = vtkVariant(value);
       }
     }
@@ -334,6 +411,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
    
 }
 
+//----------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
   if (role == Qt::DecorationRole)
@@ -345,6 +423,7 @@ bool vtkQtTableModelAdapter::setData(const QModelIndex &idx, const QVariant &val
   return false;
 }
 
+//----------------------------------------------------------------------------
 Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex &idx) const
 {
   if (!idx.isValid())
@@ -355,6 +434,7 @@ Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex &idx) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
+//----------------------------------------------------------------------------
 QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orientation,
                     int role) const
 {
@@ -406,17 +486,20 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
   return QVariant();
 }
 
+//----------------------------------------------------------------------------
 QModelIndex vtkQtTableModelAdapter::index(int row, int column,
                   const QModelIndex & vtkNotUsed(parentIdx)) const
 {
   return createIndex(row, column, row);
 }
 
+//----------------------------------------------------------------------------
 QModelIndex vtkQtTableModelAdapter::parent(const QModelIndex & vtkNotUsed(idx)) const
 {
   return QModelIndex();
 }
 
+//----------------------------------------------------------------------------
 int vtkQtTableModelAdapter::rowCount(const QModelIndex & mIndex) const
 {
   if (this->noTableCheck())
@@ -430,6 +513,7 @@ int vtkQtTableModelAdapter::rowCount(const QModelIndex & mIndex) const
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
 {
   if (this->noTableCheck())

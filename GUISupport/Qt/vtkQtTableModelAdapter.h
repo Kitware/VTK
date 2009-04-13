@@ -93,6 +93,9 @@ private:
   
   vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
   void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
+
+  class vtkInternal;
+  vtkInternal* Internal;
 };
 
 #endif
