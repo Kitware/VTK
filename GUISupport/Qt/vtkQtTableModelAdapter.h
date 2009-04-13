@@ -29,15 +29,9 @@
 #ifndef __vtkQtTableModelAdapter_h
 #define __vtkQtTableModelAdapter_h
 
-#include "QVTKWin32Header.h"
-#include "vtkType.h"
-#include "vtkSelection.h"
-
 #include "vtkQtAbstractModelAdapter.h"
-#include <QHash>
 
 class vtkTable;
-
 class QVTK_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
 {
   Q_OBJECT
@@ -82,20 +76,16 @@ public:
 private:
 
   bool noTableCheck() const;
-
   void updateModelColumnHashTables();
 
-  bool SplitMultiComponentColumns;
-  vtkTable* Table;
-  QHash<QModelIndex, QVariant> IndexToDecoration;
-  QHash<int, QPair<vtkIdType, int> > ModelColumnToTableColumn;
-  QHash<int, QString> ModelColumnNames;
-  
-  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
-  void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
+  bool        SplitMultiComponentColumns;
+  vtkTable*   Table;
 
   class vtkInternal;
   vtkInternal* Internal;
+  
+  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
+  void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
 };
 
 #endif

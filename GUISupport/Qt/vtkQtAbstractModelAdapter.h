@@ -33,13 +33,12 @@
 #define __vtkQtAbstractModelAdapter_h
 
 #include "QVTKWin32Header.h"
-#include "vtkType.h"
-#include "vtkSelection.h"
-class vtkDataObject;
-
 #include <QAbstractItemModel>
 #include <QItemSelection>
 
+class vtkDataObject;
+class vtkSelection;
+class QItemSelection;
 class QVTK_EXPORT vtkQtAbstractModelAdapter : public QAbstractItemModel
 {
   Q_OBJECT

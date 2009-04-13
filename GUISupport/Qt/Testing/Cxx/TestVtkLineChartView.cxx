@@ -73,12 +73,19 @@ int TestVtkLineChartView(int argc, char* argv[])
   // Show the view's qt widget
   chartView->Show();
 
-  // Show the table in a vtkQtTableView
+  // Show the table in a vtkQtTableView with split columns off
   VTK_CREATE(vtkQtTableView, tableView);
-  tableView->SetSplitMultiComponentColumns(true);
+  tableView->SetSplitMultiComponentColumns(false);
   tableView->AddRepresentationFromInput(pointTable);
   tableView->Update();
   tableView->GetWidget()->show();
+
+  // Show the table in a vtkQtTableView with split column on
+  VTK_CREATE(vtkQtTableView, tableView2);
+  tableView2->SetSplitMultiComponentColumns(true);
+  tableView2->AddRepresentationFromInput(pointTable);
+  tableView2->Update();
+  tableView2->GetWidget()->show();
 
   // Start the Qt event loop to run the application
   int status = app.exec();

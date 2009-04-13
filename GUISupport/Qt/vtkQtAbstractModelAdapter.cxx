@@ -19,6 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkQtAbstractModelAdapter.h"
+#include "vtkObject.h" // For vtkGenericWarningMacro
 
 int vtkQtAbstractModelAdapter::ModelColumnToFieldDataColumn(int col) const
 {
