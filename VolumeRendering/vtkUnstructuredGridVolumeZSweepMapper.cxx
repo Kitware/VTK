@@ -2368,7 +2368,7 @@ using namespace vtkUnstructuredGridVolumeZSweepMapperNamespace;
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.12");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.13");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
@@ -2594,10 +2594,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::PrintSelf(ostream& os,
   // The PrintSelf test just search for words in the PrintSelf function
   // We add here the internal variable we don't want to display:
   // this->ImageViewportSize this->ImageOrigin this->ImageInUseSize
-  
-  os << indent << "ImageOrigin="<<ImageOrigin[0]<<", "<<ImageOrigin[1]<<"\n";
-  os << indent << "ImageInUseSize="<<ImageInUseSize[0]<<", "<<ImageInUseSize[1]<<"\n";
-  os << indent << "ImageMemorySize="<<ImageMemorySize[0]<<", "<<ImageMemorySize[1]<<"\n";
   
   if (this->RayIntegrator)
     {
