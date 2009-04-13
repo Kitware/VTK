@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtChartTableRepresentation.h
+  Module:    vtkQtChartRepresentation.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,27 +16,27 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkQtChartTableRepresentation - A representation for displaying a
-// vtkTable in a vtkQtChartViewBase
+// .NAME vtkQtChartRepresentation - A representation for displaying a
+// vtkTable in a vtkQtChartView
 //
 // .SECTION Description
 //
 // This is a specialization of vtkQtTableRepresentation to put the
-// data into a vtkQtChartViewBase.
+// data into a vtkQtChartView.
 
-#ifndef __vtkQtChartTableRepresentation_h
-#define __vtkQtChartTableRepresentation_h
+#ifndef __vtkQtChartRepresentation_h
+#define __vtkQtChartRepresentation_h
 
 #include "vtkQtTableRepresentation.h"
 class vtkIntArray;
 class vtkQtChartSeriesOptionsModel;
 class vtkQtChartTableSeriesModel;
 
-class QVTK_EXPORT vtkQtChartTableRepresentation : public vtkQtTableRepresentation
+class QVTK_EXPORT vtkQtChartRepresentation : public vtkQtTableRepresentation
 {
 public:
-  static vtkQtChartTableRepresentation *New();
-  vtkTypeRevisionMacro(vtkQtChartTableRepresentation, vtkQtTableRepresentation);
+  static vtkQtChartRepresentation *New();
+  vtkTypeRevisionMacro(vtkQtChartRepresentation, vtkQtTableRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //BTX
@@ -70,8 +70,8 @@ public:
   vtkGetMacro(ColumnsAsSeries,int);
 
 protected:
-  vtkQtChartTableRepresentation();
-  ~vtkQtChartTableRepresentation();
+  vtkQtChartRepresentation();
+  ~vtkQtChartRepresentation();
   
   // Decription:
   // Adds the representation to the view.
@@ -92,8 +92,8 @@ private:
   vtkInternal* Internal;
   //ETX
 
-  vtkQtChartTableRepresentation(const vtkQtChartTableRepresentation&);  // Not implemented.
-  void operator=(const vtkQtChartTableRepresentation&);  // Not implemented.
+  vtkQtChartRepresentation(const vtkQtChartRepresentation&);  // Not implemented.
+  void operator=(const vtkQtChartRepresentation&);  // Not implemented.
 };
 
 #endif

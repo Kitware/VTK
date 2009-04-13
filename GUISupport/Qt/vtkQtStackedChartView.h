@@ -20,17 +20,17 @@
 #ifndef _vtkQtStackedChartView_h
 #define _vtkQtStackedChartView_h
 
-#include "vtkQtChartViewBase.h"
+#include "vtkQtChartView.h"
 
 class vtkQtStackedChart;
 class vtkQtChartSeriesModelCollection;
 class vtkQtChartSeriesOptions;
 
-class QVTK_EXPORT vtkQtStackedChartView : public vtkQtChartViewBase
+class QVTK_EXPORT vtkQtStackedChartView : public vtkQtChartView
 {
 public:
   static vtkQtStackedChartView *New();
-  vtkTypeRevisionMacro(vtkQtStackedChartView, vtkQtChartViewBase);
+  vtkTypeRevisionMacro(vtkQtStackedChartView, vtkQtChartView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

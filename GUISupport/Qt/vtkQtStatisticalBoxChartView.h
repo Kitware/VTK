@@ -20,17 +20,17 @@
 #ifndef __vtkQtStatisticalBoxChartView_h
 #define __vtkQtStatisticalBoxChartView_h
 
-#include "vtkQtChartViewBase.h"
+#include "vtkQtChartView.h"
 
 class vtkQtStatisticalBoxChart;
 class vtkQtChartSeriesModelCollection;
 class vtkQtChartSeriesOptions;
 
-class QVTK_EXPORT vtkQtStatisticalBoxChartView : public vtkQtChartViewBase
+class QVTK_EXPORT vtkQtStatisticalBoxChartView : public vtkQtChartView
 {
 public:
   static vtkQtStatisticalBoxChartView *New();
-  vtkTypeRevisionMacro(vtkQtStatisticalBoxChartView, vtkQtChartViewBase);
+  vtkTypeRevisionMacro(vtkQtStatisticalBoxChartView, vtkQtChartView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

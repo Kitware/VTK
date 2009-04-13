@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtChartViewBase.cxx
+  Module:    vtkQtChartView.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkQtChartViewBase.h"
+#include "vtkQtChartView.h"
 
 #include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
@@ -32,7 +32,7 @@
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesOptionsModelCollection.h"
 #include "vtkQtChartStyleManager.h"
-#include "vtkQtChartTableRepresentation.h"
+#include "vtkQtChartRepresentation.h"
 #include "vtkQtChartTitle.h"
 #include "vtkQtChartWidget.h"
 #include "vtkTable.h"
@@ -42,7 +42,7 @@
 #include <QPointer>
 #include <QVector>
 
-class vtkQtChartViewBase::vtkInternal
+class vtkQtChartView::vtkInternal
 {
 public:
 
@@ -107,10 +107,10 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartViewBase, "1.11");
+vtkCxxRevisionMacro(vtkQtChartView, "1.3");
 
 //----------------------------------------------------------------------------
-vtkQtChartViewBase::vtkQtChartViewBase()
+vtkQtChartView::vtkQtChartView()
 {
   this->Internal = new vtkInternal();
 
@@ -139,31 +139,31 @@ vtkQtChartViewBase::vtkQtChartViewBase()
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartViewBase::~vtkQtChartViewBase()
+vtkQtChartView::~vtkQtChartView()
 {
   delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartSeriesOptionsModelCollection* vtkQtChartViewBase::GetChartOptionsModel()
+vtkQtChartSeriesOptionsModelCollection* vtkQtChartView::GetChartOptionsModel()
 {
   return this->Internal->OptionsModel;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::Show()
+void vtkQtChartView::Show()
 {
   this->Internal->Chart->show();
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::AddTableToView(vtkTable* table)
+void vtkQtChartView::AddTableToView(vtkTable* table)
 {
   this->AddRepresentationFromInput(table);
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetTitle(const char* title)
+void vtkQtChartView::SetTitle(const char* title)
 {
   QString titleText(title);
   if(titleText.isEmpty() && this->Internal->Chart->getTitle() != 0)
@@ -181,7 +181,7 @@ void vtkQtChartViewBase::SetTitle(const char* title)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetTitleFont(const char *family, int pointSize,
+void vtkQtChartView::SetTitleFont(const char *family, int pointSize,
   bool bold, bool italic)
 {
   this->Internal->Title->setFont(QFont(family, pointSize,
@@ -189,7 +189,7 @@ void vtkQtChartViewBase::SetTitleFont(const char *family, int pointSize,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetTitleColor(double red, double green, double blue)
+void vtkQtChartView::SetTitleColor(double red, double green, double blue)
 {
   QPalette palette = this->Internal->Title->palette();
   palette.setColor(QPalette::Text, QColor::fromRgbF(red, green, blue));
@@ -197,7 +197,7 @@ void vtkQtChartViewBase::SetTitleColor(double red, double green, double blue)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetTitleAlignment(int alignment)
+void vtkQtChartView::SetTitleAlignment(int alignment)
 {
   if(alignment == 0)
     {
@@ -216,7 +216,7 @@ void vtkQtChartViewBase::SetTitleAlignment(int alignment)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisTitle(int index, const char* title)
+void vtkQtChartView::SetAxisTitle(int index, const char* title)
 {
   if(index < 0 || index >= 4)
     {
@@ -250,7 +250,7 @@ void vtkQtChartViewBase::SetAxisTitle(int index, const char* title)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisTitleFont(int index, const char* family,
+void vtkQtChartView::SetAxisTitleFont(int index, const char* family,
   int pointSize, bool bold, bool italic)
 {
   if(index >= 0 && index < 4)
@@ -261,7 +261,7 @@ void vtkQtChartViewBase::SetAxisTitleFont(int index, const char* family,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisTitleColor(int index, double red, double green,
+void vtkQtChartView::SetAxisTitleColor(int index, double red, double green,
   double blue)
 {
   if(index >= 0 && index < 4)
@@ -273,7 +273,7 @@ void vtkQtChartViewBase::SetAxisTitleColor(int index, double red, double green,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisTitleAlignment(int index, int alignment)
+void vtkQtChartView::SetAxisTitleAlignment(int index, int alignment)
 {
   if(index < 0 || index >= 4)
     {
@@ -297,7 +297,7 @@ void vtkQtChartViewBase::SetAxisTitleAlignment(int index, int alignment)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetLegendVisibility(bool visible)
+void vtkQtChartView::SetLegendVisibility(bool visible)
 {
   this->Internal->ShowLegend = visible;
   if (!this->Internal->ShowLegend && this->Internal->Chart->getLegend() != 0)
@@ -313,20 +313,20 @@ void vtkQtChartViewBase::SetLegendVisibility(bool visible)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetLegendLocation(int location)
+void vtkQtChartView::SetLegendLocation(int location)
 {
   this->Internal->Legend->setLocation(
     (vtkQtChartLegend::LegendLocation)location);
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetLegendFlow(int flow)
+void vtkQtChartView::SetLegendFlow(int flow)
 {
   this->Internal->Legend->setFlow((vtkQtChartLegend::ItemFlow)flow);
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisVisibility(int index, bool visible)
+void vtkQtChartView::SetAxisVisibility(int index, bool visible)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
   vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
@@ -337,7 +337,7 @@ void vtkQtChartViewBase::SetAxisVisibility(int index, bool visible)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisColor(int index, double red, double green,
+void vtkQtChartView::SetAxisColor(int index, double red, double green,
   double blue)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
@@ -349,7 +349,7 @@ void vtkQtChartViewBase::SetAxisColor(int index, double red, double green,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetGridVisibility(int index, bool visible)
+void vtkQtChartView::SetGridVisibility(int index, bool visible)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
   vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
@@ -360,7 +360,7 @@ void vtkQtChartViewBase::SetGridVisibility(int index, bool visible)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetGridColorType(int index, int gridColorType)
+void vtkQtChartView::SetGridColorType(int index, int gridColorType)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
   vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
@@ -372,7 +372,7 @@ void vtkQtChartViewBase::SetGridColorType(int index, int gridColorType)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetGridColor(int index, double red, double green,
+void vtkQtChartView::SetGridColor(int index, double red, double green,
   double blue)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
@@ -384,7 +384,7 @@ void vtkQtChartViewBase::SetGridColor(int index, double red, double green,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisLabelVisibility(int index, bool visible)
+void vtkQtChartView::SetAxisLabelVisibility(int index, bool visible)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
   vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
@@ -395,7 +395,7 @@ void vtkQtChartViewBase::SetAxisLabelVisibility(int index, bool visible)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisLabelFont(int index, const char* family,
+void vtkQtChartView::SetAxisLabelFont(int index, const char* family,
   int pointSize, bool bold, bool italic)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
@@ -408,7 +408,7 @@ void vtkQtChartViewBase::SetAxisLabelFont(int index, const char* family,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisLabelColor(int index, double red, double green,
+void vtkQtChartView::SetAxisLabelColor(int index, double red, double green,
   double blue)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
@@ -420,7 +420,7 @@ void vtkQtChartViewBase::SetAxisLabelColor(int index, double red, double green,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisLabelNotation(int index, int notation)
+void vtkQtChartView::SetAxisLabelNotation(int index, int notation)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
   vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
@@ -431,7 +431,7 @@ void vtkQtChartViewBase::SetAxisLabelNotation(int index, int notation)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisLabelPrecision(int index, int precision)
+void vtkQtChartView::SetAxisLabelPrecision(int index, int precision)
 {
   vtkQtChartAxis *axis = this->GetAxis(index);
   vtkQtChartAxisOptions *options = axis ? axis->getOptions() : 0;
@@ -442,7 +442,7 @@ void vtkQtChartViewBase::SetAxisLabelPrecision(int index, int precision)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisScale(int index, int scale)
+void vtkQtChartView::SetAxisScale(int index, int scale)
 {
   vtkQtChartAxis* axis = this->GetAxis(index);
   vtkQtChartAxisOptions* options = axis ? axis->getOptions() : 0;
@@ -453,7 +453,7 @@ void vtkQtChartViewBase::SetAxisScale(int index, int scale)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisBehavior(int index, int behavior)
+void vtkQtChartView::SetAxisBehavior(int index, int behavior)
 {
   vtkQtChartAxis* axis = this->GetAxis(index);
   if(axis)
@@ -466,7 +466,7 @@ void vtkQtChartViewBase::SetAxisBehavior(int index, int behavior)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisRange(int index, double minimum,
+void vtkQtChartView::SetAxisRange(int index, double minimum,
   double maximum)
 {
   vtkQtChartAxis* axis = this->GetAxis(index);
@@ -483,7 +483,7 @@ void vtkQtChartViewBase::SetAxisRange(int index, double minimum,
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetAxisRange(int index, int minimum, int maximum)
+void vtkQtChartView::SetAxisRange(int index, int minimum, int maximum)
 {
   vtkQtChartAxis* axis = this->GetAxis(index);
   if(axis)
@@ -499,24 +499,24 @@ void vtkQtChartViewBase::SetAxisRange(int index, int minimum, int maximum)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::AddChartSelectionHandlers(vtkQtChartMouseSelection*)
+void vtkQtChartView::AddChartSelectionHandlers(vtkQtChartMouseSelection*)
 {
 }
 
 //----------------------------------------------------------------------------
-QWidget* vtkQtChartViewBase::GetWidget()
+QWidget* vtkQtChartView::GetWidget()
 {
   return this->Internal->Chart;
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartArea* vtkQtChartViewBase::GetChartArea()
+vtkQtChartArea* vtkQtChartView::GetChartArea()
 {
   return this->Internal->Chart->getChartArea();
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartAxis* vtkQtChartViewBase::GetAxis(int index)
+vtkQtChartAxis* vtkQtChartView::GetAxis(int index)
 {
   if(index >= 0 && index < 4)
     {
@@ -536,19 +536,19 @@ vtkQtChartAxis* vtkQtChartViewBase::GetAxis(int index)
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartLegend* vtkQtChartViewBase::GetLegend()
+vtkQtChartLegend* vtkQtChartView::GetLegend()
 {
   return this->Internal->Legend;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::Update()
+void vtkQtChartView::Update()
 {
   int i = 0;
   for ( ; i < this->GetNumberOfRepresentations(); ++i)
     {
-    vtkQtChartTableRepresentation* rep =
-      vtkQtChartTableRepresentation::SafeDownCast(this->GetRepresentation(i));
+    vtkQtChartRepresentation* rep =
+      vtkQtChartRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (rep)
       {
       rep->Update();
@@ -557,13 +557,13 @@ void vtkQtChartViewBase::Update()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::Render()
+void vtkQtChartView::Render()
 {
   this->Internal->Chart->update();
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::SetupDefaultInteractor()
+void vtkQtChartView::SetupDefaultInteractor()
 {
   vtkQtChartMouseSelection *selector =
     vtkQtChartInteractorSetup::createDefault(this->GetChartArea());
@@ -573,9 +573,9 @@ void vtkQtChartViewBase::SetupDefaultInteractor()
 }
 
 //----------------------------------------------------------------------------
-vtkDataRepresentation* vtkQtChartViewBase::CreateDefaultRepresentation(vtkAlgorithmOutput* conn)
+vtkDataRepresentation* vtkQtChartView::CreateDefaultRepresentation(vtkAlgorithmOutput* conn)
 {
-  vtkDataRepresentation* rep = vtkQtChartTableRepresentation::New();
+  vtkDataRepresentation* rep = vtkQtChartRepresentation::New();
   rep->SetInputConnection(conn);
   return rep;
 }
@@ -598,8 +598,8 @@ void SetColorScheme(vtkQtChartStyleManager* styleManager,
 }
 
 //----------------------------------------------------------------------------
-#define vtkQtChartViewBase_SetColorScheme_macro(scheme)         \
-void vtkQtChartViewBase::SetColorSchemeTo##scheme()             \
+#define vtkQtChartView_SetColorScheme_macro(scheme)         \
+void vtkQtChartView::SetColorSchemeTo##scheme()             \
 {                                                               \
   SetColorScheme(this->GetChartArea()->getStyleManager(),       \
                                   vtkQtChartColors::scheme);    \
@@ -607,15 +607,15 @@ void vtkQtChartViewBase::SetColorSchemeTo##scheme()             \
 }                                                               
 
 //----------------------------------------------------------------------------
-vtkQtChartViewBase_SetColorScheme_macro(Spectrum);
-vtkQtChartViewBase_SetColorScheme_macro(Warm);
-vtkQtChartViewBase_SetColorScheme_macro(Cool);
-vtkQtChartViewBase_SetColorScheme_macro(Blues);
-vtkQtChartViewBase_SetColorScheme_macro(WildFlower);
-vtkQtChartViewBase_SetColorScheme_macro(Citrus);
+vtkQtChartView_SetColorScheme_macro(Spectrum);
+vtkQtChartView_SetColorScheme_macro(Warm);
+vtkQtChartView_SetColorScheme_macro(Cool);
+vtkQtChartView_SetColorScheme_macro(Blues);
+vtkQtChartView_SetColorScheme_macro(WildFlower);
+vtkQtChartView_SetColorScheme_macro(Citrus);
 
 //----------------------------------------------------------------------------
-void vtkQtChartViewBase::PrintSelf(ostream& os, vtkIndent indent)
+void vtkQtChartView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

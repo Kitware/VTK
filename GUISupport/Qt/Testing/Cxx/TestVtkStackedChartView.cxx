@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkQtStackedChartView.h"
-#include "vtkQtChartTableRepresentation.h"
+#include "vtkQtChartRepresentation.h"
 
 #include "vtkTable.h"
 #include "vtkDoubleArray.h"
@@ -63,8 +63,8 @@ int TestVtkStackedChartView(int argc, char* argv[])
 
   // Here is one way to add the table to the view
   // by manually creating a chart representation.
-  vtkSmartPointer<vtkQtChartTableRepresentation> rep =
-    vtkSmartPointer<vtkQtChartTableRepresentation>::New();
+  vtkSmartPointer<vtkQtChartRepresentation> rep =
+    vtkSmartPointer<vtkQtChartRepresentation>::New();
   rep->SetInput(table);
   chartView->AddRepresentation(rep);
 

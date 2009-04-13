@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtChartViewBase.h
+  Module:    vtkQtChartView.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,17 +16,17 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkQtChartViewBase - Wraps a vtkQtChartArea into a VTK view.
+// .NAME vtkQtChartView - Wraps a vtkQtChartArea into a VTK view.
 //
 // .SECTION Description
-// vtkQtChartViewBase is a vtkView which wraps an instance of vtkQtChartArea.
-// This view expects vtkQtChartTableRepresentation instances as its representation.
+// vtkQtChartView is a vtkView which wraps an instance of vtkQtChartArea.
+// This view expects vtkQtChartRepresentation instances as its representation.
 //
 // .SECTION See Also
-// vtkQtChartTableRepresentation
+// vtkQtChartRepresentation
 
-#ifndef __vtkQtChartViewBase_h
-#define __vtkQtChartViewBase_h
+#ifndef __vtkQtChartView_h
+#define __vtkQtChartView_h
 
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
@@ -42,12 +42,12 @@ class vtkQtChartSeriesOptionsModelCollection;
 class vtkQtChartWidget;
 class vtkTable;
 
-class QVTK_EXPORT vtkQtChartViewBase : public vtkQtView
+class QVTK_EXPORT vtkQtChartView : public vtkQtView
 {
 Q_OBJECT
 
 public:
-  vtkTypeRevisionMacro(vtkQtChartViewBase, vtkQtView);
+  vtkTypeRevisionMacro(vtkQtChartView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -224,8 +224,8 @@ public:
   void SetColorSchemeToCitrus();
 
 protected:
-  vtkQtChartViewBase();
-  ~vtkQtChartViewBase();
+  vtkQtChartView();
+  ~vtkQtChartView();
 
   // Description:
   // Create a vtkQtChartRepresentation for the given input connection.
@@ -238,8 +238,8 @@ private:
   //ETX
 
 private:
-  vtkQtChartViewBase(const vtkQtChartViewBase&);  // Not implemented.
-  void operator=(const vtkQtChartViewBase&);  // Not implemented.
+  vtkQtChartView(const vtkQtChartView&);  // Not implemented.
+  void operator=(const vtkQtChartView&);  // Not implemented.
 };
 
 #endif

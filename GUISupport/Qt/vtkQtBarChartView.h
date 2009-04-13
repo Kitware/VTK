@@ -28,19 +28,19 @@
 #define __vtkQtBarChartView_h
 
 #include "QVTKWin32Header.h"
-#include "vtkQtChartViewBase.h"
+#include "vtkQtChartView.h"
 
 class vtkQtBarChart;
 class vtkQtChartSeriesModelCollection;
 class vtkQtChartSeriesOptions;
 
-class QVTK_EXPORT vtkQtBarChartView : public vtkQtChartViewBase
+class QVTK_EXPORT vtkQtBarChartView : public vtkQtChartView
 {
 Q_OBJECT
 
 public:
   static vtkQtBarChartView *New();
-  vtkTypeRevisionMacro(vtkQtBarChartView, vtkQtChartViewBase);
+  vtkTypeRevisionMacro(vtkQtBarChartView, vtkQtChartView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkQtBarChartView.h"
-#include "vtkQtChartTableRepresentation.h"
+#include "vtkQtChartRepresentation.h"
 
 #include "vtkTable.h"
 #include "vtkDoubleArray.h"
@@ -64,8 +64,8 @@ int TestVtkBarChartView(int argc, char* argv[])
 
   // Here is one way to add the table to the view
   // by manually creating a chart representation.
-  vtkSmartPointer<vtkQtChartTableRepresentation> rep =
-    vtkSmartPointer<vtkQtChartTableRepresentation>::New();
+  vtkSmartPointer<vtkQtChartRepresentation> rep =
+    vtkSmartPointer<vtkQtChartRepresentation>::New();
   rep->SetInput(table);
   chartView->AddRepresentation(rep);
   // Now remove the representation from the view
@@ -77,8 +77,8 @@ int TestVtkBarChartView(int argc, char* argv[])
   vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(table);
 
   // You can downcast to get the chart representation:
-  vtkQtChartTableRepresentation* chartRep =
-    vtkQtChartTableRepresentation::SafeDownCast(dataRep);
+  vtkQtChartRepresentation* chartRep =
+    vtkQtChartRepresentation::SafeDownCast(dataRep);
   if (!chartRep)
     {
     cerr << "Failed to get chart table representation." << endl;

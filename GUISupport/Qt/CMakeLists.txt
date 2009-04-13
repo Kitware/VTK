@@ -53,8 +53,8 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   IF(VTK_USE_VIEWS)
     SET( QVTKLibSrcs ${QVTKLibSrcs}
       vtkQtBarChartView.cxx
-      vtkQtChartTableRepresentation.cxx
-      vtkQtChartViewBase.cxx
+      vtkQtChartRepresentation.cxx
+      vtkQtChartView.cxx
       vtkQtColumnView.cxx
       vtkQtItemView.cxx
       vtkQtLineChartView.cxx
@@ -71,7 +71,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
       vtkQtBarChartView.h
-      vtkQtChartViewBase.h
+      vtkQtChartView.h
       vtkQtColumnView.h
       vtkQtItemView.h
       vtkQtLineChartView.h

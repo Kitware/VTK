@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkQtLineChartView.h"
-#include "vtkQtChartTableRepresentation.h"
+#include "vtkQtChartRepresentation.h"
 #include "vtkQtTableView.h"
 
 #include "vtkSphereSource.h"
@@ -57,8 +57,8 @@ int TestVtkLineChartView(int argc, char* argv[])
   vtkDataRepresentation* dataRep = chartView->AddRepresentationFromInput(pointTable);
 
   // You can downcast to get the chart representation:
-  vtkQtChartTableRepresentation* chartRep =
-    vtkQtChartTableRepresentation::SafeDownCast(dataRep);
+  vtkQtChartRepresentation* chartRep =
+    vtkQtChartRepresentation::SafeDownCast(dataRep);
   if (!chartRep)
     {
     cerr << "Failed to get chart table representation." << endl;

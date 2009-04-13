@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQtChartTableRepresentation.cxx
+  Module:    vtkQtChartRepresentation.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,7 +16,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-#include "vtkQtChartTableRepresentation.h"
+#include "vtkQtChartRepresentation.h"
 
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
@@ -26,7 +26,7 @@
 #include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesOptionsModelCollection.h"
 #include "vtkQtChartTableSeriesModel.h"
-#include "vtkQtChartViewBase.h"
+#include "vtkQtChartView.h"
 #include "vtkQtTableModelAdapter.h"
 #include "vtkSmartPointer.h"
 
@@ -34,7 +34,7 @@
 #include <QBrush>
 
 //----------------------------------------------------------------------------
-class vtkQtChartTableRepresentation::vtkInternal
+class vtkQtChartRepresentation::vtkInternal
 {
 public:
   vtkInternal()
@@ -49,11 +49,11 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtChartTableRepresentation, "1.6");
-vtkStandardNewMacro(vtkQtChartTableRepresentation);
+vtkCxxRevisionMacro(vtkQtChartRepresentation, "1.7");
+vtkStandardNewMacro(vtkQtChartRepresentation);
 
 //----------------------------------------------------------------------------
-vtkQtChartTableRepresentation::vtkQtChartTableRepresentation()
+vtkQtChartRepresentation::vtkQtChartRepresentation()
 {
   this->Internal = new vtkInternal;
   this->ColumnsAsSeries = true;
@@ -69,19 +69,19 @@ vtkQtChartTableRepresentation::vtkQtChartTableRepresentation()
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartTableRepresentation::~vtkQtChartTableRepresentation()
+vtkQtChartRepresentation::~vtkQtChartRepresentation()
 {
   delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkQtChartRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::SetOptionsModel(
+void vtkQtChartRepresentation::SetOptionsModel(
   vtkQtChartSeriesOptionsModel* model)
 {
   if (model == NULL)
@@ -98,19 +98,19 @@ void vtkQtChartTableRepresentation::SetOptionsModel(
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartSeriesOptionsModel* vtkQtChartTableRepresentation::GetOptionsModel()
+vtkQtChartSeriesOptionsModel* vtkQtChartRepresentation::GetOptionsModel()
 {
   return this->Internal->OptionsModel;
 }
 
 //----------------------------------------------------------------------------
-int vtkQtChartTableRepresentation::GetNumberOfSeries()
+int vtkQtChartRepresentation::GetNumberOfSeries()
 {
   return this->GetSeriesModel()->getNumberOfSeries();
 }
 
 //----------------------------------------------------------------------------
-const char* vtkQtChartTableRepresentation::GetSeriesName(int series)
+const char* vtkQtChartRepresentation::GetSeriesName(int series)
 {
   if (series >= this->GetNumberOfSeries())
     {
@@ -123,10 +123,10 @@ const char* vtkQtChartTableRepresentation::GetSeriesName(int series)
 }
 
 //----------------------------------------------------------------------------
-bool vtkQtChartTableRepresentation::AddToView(vtkView* view)
+bool vtkQtChartRepresentation::AddToView(vtkView* view)
 {
   // Downcast the view to a chart view
-  vtkQtChartViewBase* chart = vtkQtChartViewBase::SafeDownCast(view);
+  vtkQtChartView* chart = vtkQtChartView::SafeDownCast(view);
   if (!chart)
     {
     return false;
@@ -158,10 +158,10 @@ bool vtkQtChartTableRepresentation::AddToView(vtkView* view)
 }
 
 //----------------------------------------------------------------------------
-bool vtkQtChartTableRepresentation::RemoveFromView(vtkView* view)
+bool vtkQtChartRepresentation::RemoveFromView(vtkView* view)
 {
   // Downcast the view to a chart view
-  vtkQtChartViewBase* chart = vtkQtChartViewBase::SafeDownCast(view);
+  vtkQtChartView* chart = vtkQtChartView::SafeDownCast(view);
   if (!chart)
     {
     return false;
@@ -193,13 +193,13 @@ bool vtkQtChartTableRepresentation::RemoveFromView(vtkView* view)
 }
 
 //----------------------------------------------------------------------------
-vtkQtChartTableSeriesModel* vtkQtChartTableRepresentation::GetSeriesModel()
+vtkQtChartTableSeriesModel* vtkQtChartRepresentation::GetSeriesModel()
 {
   return this->Internal->SeriesModel;
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartTableRepresentation::SetColumnsAsSeries(bool value)
+void vtkQtChartRepresentation::SetColumnsAsSeries(bool value)
 {
   if (this->ColumnsAsSeries == value)
     {
