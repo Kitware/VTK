@@ -634,12 +634,9 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "#include \"vtkWindows.h\"" << endl;
   hfile << "#include \"vtkOpenGL.h\"" << endl;
   hfile << "#include <stddef.h>" << endl << endl;
-  hfile << "//#ifdef __APPLE__" << endl
-        << "//#include <OpenGL/glu.h>" << endl
-        << "//#else" << endl
-        << "//#include <GL/glu.h>" << endl
-        << "//#endif" << endl << endl;
   hfile << "#ifdef VTK_USE_X" << endl
+        << "/* To prevent glx.h to include glxext.h from the OS */" << endl
+        << "#define GLX_GLXEXT_LEGACY" << endl
         << "#include <GL/glx.h>" << endl
         << "#endif" << endl << endl;
   hfile << "class vtkOpenGLExtensionManager;" << endl << endl;
