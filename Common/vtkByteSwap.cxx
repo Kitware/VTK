@@ -16,7 +16,7 @@
 #include <memory.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkByteSwap, "1.56");
+vtkCxxRevisionMacro(vtkByteSwap, "1.57");
 vtkStandardNewMacro(vtkByteSwap);
 
 //----------------------------------------------------------------------------
@@ -158,8 +158,8 @@ template <class T> inline void vtkByteSwapBERange(T*, vtkIdType) {}
 template <class T>
 inline bool vtkByteSwapBERangeWrite(const T* p, vtkIdType num, FILE* f)
 {
-  size_t status=fwrite(p, sizeof(T), num, f);
-  return status==num;
+  size_t status=fwrite(p, sizeof(T), static_cast<size_t>(num), f);
+  return status==static_cast<size_t>(num);
 }
 template <class T>
 inline void vtkByteSwapBERangeWrite(const T* p, vtkIdType num, ostream* os)
