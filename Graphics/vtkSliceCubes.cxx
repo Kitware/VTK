@@ -32,7 +32,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.1");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.2");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
@@ -366,7 +366,11 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
               }
             vtkMath::Normalize(point+3);
             // swap bytes if necessary
-            vtkByteSwap::SwapWrite4BERange(point,6,outFP);
+            bool status=vtkByteSwap::SwapWrite4BERange(point,6,outFP);
+            if(!status)
+              {
+              vtkGenericWarningMacro(<< "SwapWrite failed!");
+              }
             }
           numTriangles++;
           }//for each triangle
@@ -575,22 +579,45 @@ void vtkSliceCubes::Execute()
       }
     else
       {
+      bool status=true;
       float forigin[3];
-      for (i=0; i<3; i++)
+      for (i=0; i<3 && status; i++)
         {
         t = origin[i] + (dims[i] - 1)*Spacing[i];
         forigin[i] = (float)origin[i];
-        vtkByteSwap::SwapWrite4BERange(forigin+i,1,outFP);
+        status=vtkByteSwap::SwapWrite4BERange(forigin+i,1,outFP);
+        if(!status)
+          {
+          vtkWarningMacro(<<"SwapWrite failed.");
+          }
         // swap if neccessary
-        vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
+        if(status)
+          {
+          status=vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
+          if(!status)
+            {
+            vtkWarningMacro(<<"SwapWrite failed.");
+            }
+          }
         }
       float ftmp;
-      for (i=0; i<3; i++)
+      for (i=0; i<3 && status; i++)
         {
         ftmp = (float)xmin[i];
-        vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+        status=vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+        if(!status)
+          {
+          vtkWarningMacro(<<"SwapWrite failed.");
+          }
         ftmp = (float)xmax[i];
-        vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+        if(status)
+          {
+          status=vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+          if(!status)
+            {
+            vtkWarningMacro(<<"SwapWrite failed.");
+            }
+          }
         }
       }
      fclose(outFP);

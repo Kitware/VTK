@@ -48,8 +48,13 @@ public:
 protected:
   vtkMCubesWriter();
   ~vtkMCubesWriter();
-
+  
   void WriteData();
+  
+  void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
+                   vtkCellArray *polys);
+  void WriteLimits(FILE *fp, double *bounds);
+  
   char *LimitsFileName;
 private:
   vtkMCubesWriter(const vtkMCubesWriter&);  // Not implemented.

@@ -38,8 +38,8 @@ public:
   static void SwapBE(T* p);                                                     \
   static void SwapLERange(T* p, vtkIdType num);                                 \
   static void SwapBERange(T* p, vtkIdType num);                                 \
-  static void SwapLERangeWrite(const T* p, vtkIdType num, FILE* file);          \
-  static void SwapBERangeWrite(const T* p, vtkIdType num, FILE* file);          \
+  static bool SwapLERangeWrite(const T* p, vtkIdType num, FILE* file);          \
+  static bool SwapBERangeWrite(const T* p, vtkIdType num, FILE* file);          \
   static void SwapLERangeWrite(const T* p, vtkIdType num, ostream* os);         \
   static void SwapBERangeWrite(const T* p, vtkIdType num, ostream* os)
   VTK_BYTE_SWAP_DECL(float);
@@ -79,9 +79,9 @@ public:
   // Description:
   // Swap a block of 2-, 4-, or 8-byte segments for storage as Little Endian.
   // The results are written directly to a file to avoid temporary storage.
-  static void SwapWrite2LERange(const void* p, int num, FILE* f);
-  static void SwapWrite4LERange(const void* p, int num, FILE* f);
-  static void SwapWrite8LERange(const void* p, int num, FILE* f);
+  static bool SwapWrite2LERange(const void* p, int num, FILE* f);
+  static bool SwapWrite4LERange(const void* p, int num, FILE* f);
+  static bool SwapWrite8LERange(const void* p, int num, FILE* f);
   static void SwapWrite2LERange(const void* p, int num, ostream* os);
   static void SwapWrite4LERange(const void* p, int num, ostream* os);
   static void SwapWrite8LERange(const void* p, int num, ostream* os);
@@ -101,9 +101,9 @@ public:
   // Description:
   // Swap a block of 2-, 4-, or 8-byte segments for storage as Big Endian.
   // The results are written directly to a file to avoid temporary storage.
-  static void SwapWrite2BERange(const void* p, int num, FILE* f);
-  static void SwapWrite4BERange(const void* p, int num, FILE* f);
-  static void SwapWrite8BERange(const void* p, int num, FILE* f);
+  static bool SwapWrite2BERange(const void* p, int num, FILE* f);
+  static bool SwapWrite4BERange(const void* p, int num, FILE* f);
+  static bool SwapWrite8BERange(const void* p, int num, FILE* f);
   static void SwapWrite2BERange(const void* p, int num, ostream* os);
   static void SwapWrite4BERange(const void* p, int num, ostream* os);
   static void SwapWrite8BERange(const void* p, int num, ostream* os);
@@ -116,7 +116,7 @@ public:
 protected:
   vtkByteSwap();
   ~vtkByteSwap();
-
+  
 private:
   vtkByteSwap(const vtkByteSwap&);  // Not implemented.
   void operator=(const vtkByteSwap&);  // Not implemented.
