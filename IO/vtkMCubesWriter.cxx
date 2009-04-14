@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMCubesWriter, "1.35");
+vtkCxxRevisionMacro(vtkMCubesWriter, "1.36");
 vtkStandardNewMacro(vtkMCubesWriter);
 
 // Create object.
@@ -36,11 +36,6 @@ vtkMCubesWriter::~vtkMCubesWriter()
     delete [] this->LimitsFileName;
     }
 }
-#if 0
-static void WriteMCubes(vtkMCubesWriter *self, FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
-                        vtkCellArray *polys);
-static void WriteLimits(vtkMCubesWriter *self, FILE *fp, double *bounds);
-#endif
 
 // Write out data in MOVIE.BYU format.
 void vtkMCubesWriter::WriteData()
