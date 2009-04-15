@@ -22,6 +22,8 @@
 #ifndef __vtkSparseArray_txx
 #define __vtkSparseArray_txx
 
+#include <vtkstd/algorithm>
+
 template<typename T>
 vtkSparseArray<T>* vtkSparseArray<T>::New()
 {
