@@ -252,8 +252,8 @@ protected:
   int GetMathFunctionStringLength(int mathFunctionNumber);
   int GetMathConstantNumber(int currentIndex);
   int GetMathConstantStringLength(int mathConstantNumber);
-  int GetElementaryOperatorNumber(char op);
-  int GetOperandNumber(int currentIndex);
+  unsigned char GetElementaryOperatorNumber(char op);
+  unsigned char GetOperandNumber(int currentIndex);
   int GetVariableNameLength(int variableNumber);
   
   int DisambiguateOperators();

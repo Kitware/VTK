@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.43");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.44");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1327,7 +1327,8 @@ void vtkFunctionParser::RemoveSpaces()
   
   delete [] this->Function;
   this->Function = new char[this->FunctionLength+1];
-  strncpy(this->Function, tempString, this->FunctionLength);
+  strncpy(this->Function, tempString,
+          static_cast<size_t>(this->FunctionLength));
   this->Function[this->FunctionLength] = '\0';
   delete [] tempString;
 }
@@ -1475,7 +1476,10 @@ int vtkFunctionParser::CheckSyntax()
     if(isdigit(currentChar) ||
        (currentChar == '.' && isdigit(this->Function[index+1])))
       {
-      strtod(&this->Function[index], &ptr);
+      double value=strtod(&this->Function[index], &ptr);
+      // ignore the return value, we just try to figure out
+      // the position of the pointer after the double value.
+      static_cast<void>(value);
       index += int(ptr-&this->Function[index]);
       currentChar = this->Function[index];
       }
@@ -1747,7 +1751,8 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
               {
               this->BuildInternalSubstringStructure(beginIndex2+1, i-1);
               this->BuildInternalSubstringStructure(i+1, endIndex-1);
-              this->AddInternalByte(mathFunctionNum);
+              this->AddInternalByte(
+                static_cast<unsigned char>(mathFunctionNum));
               this->StackPointer--;
               return;
               }
@@ -1785,7 +1790,8 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
                 this->BuildInternalSubstringStructure(i+1, secondCommaIndex-1);
                 // first arg
                 this->BuildInternalSubstringStructure(beginIndex2+1, i-1);
-                this->AddInternalByte(mathFunctionNum);
+                this->AddInternalByte(
+                  static_cast<unsigned char>(mathFunctionNum));
                 this->StackPointer--;
                 return;
                 }
@@ -1794,7 +1800,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
           } // VTK_PARSER_IF, ...
 
         this->BuildInternalSubstringStructure(beginIndex2+1, endIndex-1);
-        this->AddInternalByte(mathFunctionNum);
+        this->AddInternalByte(static_cast<unsigned char>(mathFunctionNum));
         return;
         } // if (this->IsSubstringCompletelyEnclosed ... )
       } // if (mathFunctionNum > 0)
@@ -2128,7 +2134,7 @@ int vtkFunctionParser::FindEndOfMathConstant(int beginIndex)
   return beginIndex;
 }
 
-int vtkFunctionParser::GetElementaryOperatorNumber(char op)
+unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
 {
   static const char* const operators = "+-*/^";
   int i;
@@ -2158,7 +2164,7 @@ int vtkFunctionParser::GetElementaryOperatorNumber(char op)
     {
     if (operators[i] == op)
       {
-      return VTK_PARSER_ADD + i;
+      return static_cast<unsigned char>(VTK_PARSER_ADD + i);
       }
     }
   if (op == '.')
@@ -2169,7 +2175,7 @@ int vtkFunctionParser::GetElementaryOperatorNumber(char op)
   return 0;
 }
 
-int vtkFunctionParser::GetOperandNumber(int currentIndex)
+unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
 {
   int i, variableIndex = -1;
 
@@ -2230,7 +2236,8 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
     }
   if (variableIndex >= 0)
     {
-    return VTK_PARSER_BEGIN_VARIABLES + variableIndex;
+    return static_cast<unsigned char>(
+      VTK_PARSER_BEGIN_VARIABLES + variableIndex);
     }
 
   for (i = 0; i < this->NumberOfVectorVariables; i++)
@@ -2248,7 +2255,9 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
     }
   if (variableIndex >= 0)
     {
-    return VTK_PARSER_BEGIN_VARIABLES + variableIndex + this->NumberOfScalarVariables;
+    return static_cast<unsigned char>(
+      VTK_PARSER_BEGIN_VARIABLES + variableIndex
+      + this->NumberOfScalarVariables);
     }
   
   return 0;
