@@ -177,6 +177,7 @@ ENDIF(VTK_USE_N_WAY_ARRAYS)
 IF(VTK_USE_PARALLEL)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkPCorrelativeStatistics.cxx
+    vtkPContingencyStatistics.cxx
     vtkPDescriptiveStatistics.cxx
     vtkPMultiCorrelativeStatistics.cxx
     vtkPPCAStatistics.cxx
