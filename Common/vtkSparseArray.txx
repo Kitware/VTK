@@ -56,7 +56,7 @@ void vtkSparseArray<T>::GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& 
 {
   coordinates.SetDimensions(this->GetDimensions());
   for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
-    coordinates[i] = this->Coordinates[(n * this->GetDimensions()) + i];
+    coordinates[i] = this->Coordinates[i][n];
 }
 
 template<typename T>
@@ -87,7 +87,7 @@ const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
     {
     for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
       {
-      if(coordinates[column] != this->Coordinates[(row * this->GetDimensions()) + column])
+      if(coordinates[column] != this->Coordinates[column][row])
         break;
 
       if(column + 1 == this->GetDimensions())
@@ -118,7 +118,7 @@ void vtkSparseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T
     {
     for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
       {
-      if(coordinates[column] != this->Coordinates[(row * this->GetDimensions()) + column])
+      if(coordinates[column] != this->Coordinates[column][row])
         break;
 
       if(column + 1 == this->GetDimensions())
@@ -154,20 +154,112 @@ const T& vtkSparseArray<T>::GetNullValue()
 template<typename T>
 void vtkSparseArray<T>::Clear()
 {
-  this->Coordinates.clear();
+  for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
+    this->Coordinates[column].clear();
+  
   this->Values.clear();
 }
 
-template<typename T>
-const vtkIdType* vtkSparseArray<T>::GetCoordinateStorage() const
+struct SortCoordinates
 {
-  return &this->Coordinates[0];
+  SortCoordinates(const vtkArraySort& sort, vtkstd::vector<vtkstd::vector<vtkIdType> >& coordinates) :
+    Sort(sort),
+    Coordinates(coordinates)
+  {
+  }
+
+  bool operator()(const vtkIdType lhs, const vtkIdType rhs) const
+  {
+    for(vtkIdType i = 0; i != this->Sort.GetDimensions(); ++i)
+      {
+      if(Coordinates[this->Sort[i]][lhs] == Coordinates[this->Sort[i]][rhs])
+        continue;
+
+      return Coordinates[this->Sort[i]][lhs] < Coordinates[this->Sort[i]][rhs];
+      }
+      
+    return false;
+  }
+
+  const vtkArraySort& Sort;
+  vtkstd::vector<vtkstd::vector<vtkIdType > >& Coordinates;
+};
+
+template<typename T>
+void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
+{
+  if(sort.GetDimensions() < 1)
+    {
+    vtkErrorMacro(<< "Sort must order at least one dimension.");
+    return;
+    }
+    
+  for(vtkIdType i = 0; i != sort.GetDimensions(); ++i)
+    {
+    if(sort[i] < 0 || sort[i] >= this->GetDimensions())
+      {
+      vtkErrorMacro(<< "Sort dimension out-of-bounds.");
+      return;
+      }
+    }
+
+  const vtkIdType count = this->GetNonNullSize();
+  vtkstd::vector<vtkIdType> sort_order(count);
+  for(vtkIdType i = 0; i != count; ++i)
+    sort_order[i] = i;
+  vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
+
+  vtkstd::vector<vtkIdType> temp_coordinates(count);
+  for(vtkIdType j = 0; j != this->GetDimensions(); ++j)
+    {
+    for(vtkIdType i = 0; i != count; ++i)
+      temp_coordinates[i] = this->Coordinates[j][sort_order[i]];
+    vtkstd::swap(temp_coordinates, this->Coordinates[j]);
+    }
+
+  vtkstd::vector<T> temp_values(count);
+  for(vtkIdType i = 0; i != count; ++i)
+    temp_values[i] = this->Values[sort_order[i]];
+  vtkstd::swap(temp_values, this->Values);
 }
 
 template<typename T>
-vtkIdType* vtkSparseArray<T>::GetCoordinateStorage()
+vtkstd::vector<vtkIdType> vtkSparseArray<T>::GetUniqueCoordinates(vtkIdType dimension)
 {
-  return &this->Coordinates[0];
+  if(dimension < 0 || dimension >= this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Dimension out-of-bounds.");
+    return vtkstd::vector<vtkIdType>();
+    }
+
+  vtkstd::vector<vtkIdType> results(this->Coordinates[dimension]);
+  vtkstd::sort(results.begin(), results.end());
+  results.erase(vtkstd::unique(results.begin(), results.end()), results.end());
+  return results;
+}
+
+template<typename T>
+const vtkIdType* vtkSparseArray<T>::GetCoordinateStorage(vtkIdType dimension) const
+{
+  if(dimension < 0 || dimension >= this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Dimension out-of-bounds.");
+    return 0;
+    }
+
+  return &this->Coordinates[dimension][0];
+}
+
+template<typename T>
+vtkIdType* vtkSparseArray<T>::GetCoordinateStorage(vtkIdType dimension)
+{
+  if(dimension < 0 || dimension >= this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Dimension out-of-bounds.");
+    return 0;
+    }
+
+  return &this->Coordinates[dimension][0];
 }
 
 template<typename T>
@@ -185,7 +277,9 @@ T* vtkSparseArray<T>::GetValueStorage()
 template<typename T>
 void vtkSparseArray<T>::ReserveStorage(const vtkIdType value_count)
 {
-  this->Coordinates.resize(value_count * this->GetDimensions());
+  for(vtkIdType dimension = 0; dimension != this->GetDimensions(); ++dimension)
+    this->Coordinates[dimension].resize(value_count);
+  
   this->Values.resize(value_count);
 }
 
@@ -200,7 +294,7 @@ void vtkSparseArray<T>::ResizeToContents()
     {
     for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
       {
-      new_extents[column] = vtkstd::max(new_extents[column], this->Coordinates[(row * this->GetDimensions()) + column] + 1);
+      new_extents[column] = vtkstd::max(new_extents[column], this->Coordinates[column][row] + 1);
       }
     }
 
@@ -237,7 +331,7 @@ void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T
   this->Values.push_back(value);
 
   for(vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
-    this->Coordinates.push_back(coordinates[i]);
+    this->Coordinates[i].push_back(coordinates[i]);
 }
 
 template<typename T>
@@ -256,8 +350,8 @@ void vtkSparseArray<T>::InternalResize(const vtkArrayExtents& extents)
 {
   this->Extents = extents;
   this->DimensionLabels.resize(extents.GetDimensions(), vtkStdString());
+  this->Coordinates.resize(extents.GetDimensions());
   this->Values.resize(0);
-  this->Coordinates.resize(0);
 }
 
 template<typename T>

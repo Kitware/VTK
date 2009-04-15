@@ -366,6 +366,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayRange.cxx
     vtkArraySlice.cxx
     vtkArraySlices.cxx
+    vtkArraySort.cxx
     vtkArrayWeights.cxx
     )
 
@@ -380,6 +381,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayRange.cxx
     vtkArraySlice.cxx
     vtkArraySlices.cxx
+    vtkArraySort.cxx
     vtkArrayWeights.cxx
     WRAP_EXCLUDE
     )

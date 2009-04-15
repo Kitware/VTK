@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArray, "1.2");
+vtkCxxRevisionMacro(vtkArray, "1.3");
 
 //----------------------------------------------------------------------------
 
@@ -175,8 +175,13 @@ vtkIdType vtkArray::GetSize()
   return this->GetExtents().GetSize();
 }
 
-void vtkArray::SetName(const vtkStdString& name)
+void vtkArray::SetName(const vtkStdString& raw_name)
 {
+  // Don't allow newlines in array names ...
+  vtkStdString name(raw_name);
+  name.erase(vtkstd::remove(name.begin(), name.end(), '\r'), name.end());
+  name.erase(vtkstd::remove(name.begin(), name.end(), '\n'), name.end());
+  
   this->Name = name;
 }
 
@@ -185,13 +190,18 @@ vtkStdString vtkArray::GetName()
   return this->Name;
 }
 
-void vtkArray::SetDimensionLabel(vtkIdType i, const vtkStdString& label)
+void vtkArray::SetDimensionLabel(vtkIdType i, const vtkStdString& raw_label)
 {
   if(i < 0 || i >= this->GetDimensions())
     {
     vtkErrorMacro("Cannot set label for dimension " << i << " of a " << this->GetDimensions() << "-way array");
     return;
     }
+
+  // Don't allow newlines in dimension labels ...
+  vtkStdString label(raw_label);
+  label.erase(vtkstd::remove(label.begin(), label.end(), '\r'), label.end());
+  label.erase(vtkstd::remove(label.begin(), label.end(), '\n'), label.end());
 
   this->InternalSetDimensionLabel(i, label);
 }

@@ -19,13 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkSparseArray - Sparse storage for N-way arrays.
+// .NAME vtkSparseArray - Sparse, independent coordinate storage for N-way arrays.
 //
 // .SECTION Description
 // vtkSparseArray is a concrete vtkArray implementation that stores values using
-// sparse coordinate storage.  This means that the array stores the complete set of
-// coordinates and the value for each non-null value in the array, an approach that
-// generalizes well for arbitrary numbers of dimensions.
+// sparse independent coordinate storage.  This means that the array stores the
+// complete set of coordinates and the value for each non-null value in the array.
+// While this approach is not optimal for some special-cases (such as matrices),
+// it generalizes well for arbitrary numbers of dimensions.
 //
 // In addition to the value retrieval and update methods provided by vtkTypedArray,
 // vtkSparseArray provides methods to:
@@ -35,15 +36,20 @@
 //
 // Clear the contents of the array so that every set of coordinates is undefined.
 //
-// Add values to the array in amortized-constant time.
+// Sort the array contents so that value coordinates can be visited in a specific order.
+//
+// Retrieve pointers to the value- and coordinate-storage memory blocks.
+//
+// Reserve storage for a specific number of array values, for efficiency when the
+// number of array values is known in advance.
 //
 // Resize the array extents so that they bound the largest set of non-NULL values
 // along each dimension.
 //
-// Retrieve pointers to the value- and coordinate-storage memory blocks.
+// Add values to the array in amortized-constant time.
 //
 // .SECTION See Also
-// vtkArray, vtkTypedArray, vtkDenseArray
+// vtkArray, vtkTypedArray, vtkDenseArray, vtkSparseArray
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -52,6 +58,7 @@
 #define __vtkSparseArray_h
 
 #include "vtkArrayCoordinates.h"
+#include "vtkArraySort.h"
 #include "vtkObjectFactory.h"
 #include "vtkTypeTemplate.h"
 #include "vtkTypedArray.h"
@@ -95,17 +102,29 @@ public:
   void Clear();
 
   // Description:
+  // Sorts array values so that their coordinates appear in some well-defined order.
+  // The supplied vtkArraySort object controls which dimensions are sorted, and in what
+  // order, and should contain one-or-more sort dimensions, up to the number of dimensions
+  // stored in the array.
+  void Sort(const vtkArraySort& sort);
+
+  // Description:
+  // Returns the set of unique coordinates along the given dimension. 
+  vtkstd::vector<vtkIdType> GetUniqueCoordinates(vtkIdType dimension); 
+
+  // Description:
   // Return a read-only reference to the underlying coordinate storage.  Coordinates
-  // are stored contiguously as a one-dimensional array with the coordinates for each value
-  // stored adjacent to one-another.  The ordering of coordinates is arbitrary.
-  const vtkIdType* GetCoordinateStorage() const;
-  
+  // for each dimension are stored contiguously as a one-dimensional array.  The ordering
+  // of coordinates within the array depends on the order in which values were added to
+  // the array.
+  const vtkIdType* GetCoordinateStorage(vtkIdType dimension) const;
+ 
   // Description:
   // Return a mutable reference to the underlying coordinate storage.  Coordinates
-  // are stored contiguously as a one-dimensional array with the coordinates for each value
-  // stored adjacent to one-another.  The ordering of coordinates is arbitrary.
-  // Use at your own risk!
-  vtkIdType* GetCoordinateStorage();
+  // for each dimension are stored contiguously as a one-dimensional array.  The ordering
+  // of coordinates within the array depends on the order in which values were added to
+  // the array, and any subsequent sorting.  Use at your own risk!
+  vtkIdType* GetCoordinateStorage(vtkIdType dimension);
   
   // Description:
   // Return a read-only reference to the underlying value storage.  Values are stored
@@ -164,12 +183,11 @@ private:
   // Description:
   // Stores a label for each array dimension
   vtkstd::vector<vtkStdString> DimensionLabels;
-  
+
   // Description:
-  // Stores the coordinates of each non-null element within the array
-  // as a contiguous block of values organized into a row-major ("C")
-  // 2D array.
-  vtkstd::vector<vtkIdType> Coordinates;
+  // Stores the coordinates of each non-null element within the array,
+  // using one contiguous array to store the coordinates for each dimension.
+  vtkstd::vector<vtkstd::vector<vtkIdType> > Coordinates;
   
   // Description:
   // Stores the value of each non-null element within the array
