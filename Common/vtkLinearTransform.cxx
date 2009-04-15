@@ -19,7 +19,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLinearTransform, "1.34");
+vtkCxxRevisionMacro(vtkLinearTransform, "1.35");
 
 //------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
@@ -30,11 +30,14 @@ void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline void vtkLinearTransformPoint(T1 matrix[4][4], 
-                                           T2 in[3], T3 out[3])
+                                    T2 in[3], T3 out[3])
 {
-  T3 x = matrix[0][0]*in[0]+matrix[0][1]*in[1]+matrix[0][2]*in[2]+matrix[0][3];
-  T3 y = matrix[1][0]*in[0]+matrix[1][1]*in[1]+matrix[1][2]*in[2]+matrix[1][3];
-  T3 z = matrix[2][0]*in[0]+matrix[2][1]*in[1]+matrix[2][2]*in[2]+matrix[2][3];
+  T3 x = static_cast<T3>(
+    matrix[0][0]*in[0]+matrix[0][1]*in[1]+matrix[0][2]*in[2]+matrix[0][3]);
+  T3 y = static_cast<T3>(
+    matrix[1][0]*in[0]+matrix[1][1]*in[1]+matrix[1][2]*in[2]+matrix[1][3]);
+  T3 z = static_cast<T3>(
+    matrix[2][0]*in[0]+matrix[2][1]*in[1]+matrix[2][2]*in[2]+matrix[2][3]);
 
   out[0] = x;
   out[1] = y;
@@ -44,27 +47,30 @@ inline void vtkLinearTransformPoint(T1 matrix[4][4],
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3, class T4>
 inline void vtkLinearTransformDerivative(T1 matrix[4][4], 
-                                                T2 in[3], T3 out[3], 
-                                                T4 derivative[3][3])
+                                         T2 in[3], T3 out[3], 
+                                         T4 derivative[3][3])
 {
   vtkLinearTransformPoint(matrix,in,out);
 
   for (int i = 0; i < 3; i++)
     {
-    derivative[0][i] = matrix[0][i];
-    derivative[1][i] = matrix[1][i];
-    derivative[2][i] = matrix[2][i];
+    derivative[0][i] = static_cast<T4>(matrix[0][i]);
+    derivative[1][i] = static_cast<T4>(matrix[1][i]);
+    derivative[2][i] = static_cast<T4>(matrix[2][i]);
     }
 }
 
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline void vtkLinearTransformVector(T1 matrix[4][4],
-                                            T2 in[3], T3 out[3]) 
+                                     T2 in[3], T3 out[3]) 
 {
-  T3 x = matrix[0][0]*in[0] + matrix[0][1]*in[1] + matrix[0][2]*in[2];
-  T3 y = matrix[1][0]*in[0] + matrix[1][1]*in[1] + matrix[1][2]*in[2];
-  T3 z = matrix[2][0]*in[0] + matrix[2][1]*in[1] + matrix[2][2]*in[2];
+  T3 x = static_cast<T3>(
+    matrix[0][0]*in[0] + matrix[0][1]*in[1] + matrix[0][2]*in[2]);
+  T3 y = static_cast<T3>(
+    matrix[1][0]*in[0] + matrix[1][1]*in[1] + matrix[1][2]*in[2]);
+  T3 z = static_cast<T3>(
+    matrix[2][0]*in[0] + matrix[2][1]*in[1] + matrix[2][2]*in[2]);
 
   out[0] = x;
   out[1] = y;
@@ -174,13 +180,13 @@ void vtkLinearTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 void vtkLinearTransform::TransformPoints(vtkPoints *inPts, 
                                          vtkPoints *outPts)
 {
-  int n = inPts->GetNumberOfPoints();
+  vtkIdType n = inPts->GetNumberOfPoints();
   double (*matrix)[4] = this->Matrix->Element;
   double point[3];  
 
   this->Update();
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inPts->GetPoint(i,point);
 
@@ -194,7 +200,7 @@ void vtkLinearTransform::TransformPoints(vtkPoints *inPts,
 void vtkLinearTransform::TransformNormals(vtkDataArray *inNms, 
                                           vtkDataArray *outNms)
 {
-  int n = inNms->GetNumberOfTuples();
+  vtkIdType n = inNms->GetNumberOfTuples();
   double norm[3];
   double matrix[4][4];
   
@@ -205,7 +211,7 @@ void vtkLinearTransform::TransformNormals(vtkDataArray *inNms,
   vtkMatrix4x4::Invert(*matrix,*matrix);
   vtkMatrix4x4::Transpose(*matrix,*matrix);
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inNms->GetTuple(i,norm);
 

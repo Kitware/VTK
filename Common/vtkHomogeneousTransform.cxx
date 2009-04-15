@@ -18,7 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.11");
+vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.12");
 
 //----------------------------------------------------------------------------
 vtkHomogeneousTransform::vtkHomogeneousTransform()
@@ -49,7 +49,7 @@ void vtkHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline double vtkHomogeneousTransformPoint(T1 M[4][4],
-                                                  T2 in[3], T3 out[3])
+                                           T2 in[3], T3 out[3])
 {
   double x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
   double y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
@@ -57,9 +57,9 @@ inline double vtkHomogeneousTransformPoint(T1 M[4][4],
   double w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
 
   double f = 1.0/w;
-  out[0] = x*f; 
-  out[1] = y*f; 
-  out[2] = z*f;
+  out[0] = static_cast<T3>(x*f);
+  out[1] = static_cast<T3>(y*f);
+  out[2] = static_cast<T3>(z*f);
 
   return f;
 }
@@ -68,16 +68,16 @@ inline double vtkHomogeneousTransformPoint(T1 M[4][4],
 // computes a coordinate transformation and also returns the Jacobian matrix
 template <class T1, class T2, class T3, class T4>
 inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
-                                                     T2 in[3], T3 out[3],
-                                                     T4 derivative[3][3])
+                                              T2 in[3], T3 out[3],
+                                              T4 derivative[3][3])
 {
   double f = vtkHomogeneousTransformPoint(M,in,out);
 
   for (int i = 0; i < 3; i++)
     { 
-    derivative[0][i] = (M[0][i] - M[3][i]*out[0])*f;
-    derivative[1][i] = (M[1][i] - M[3][i]*out[1])*f;
-    derivative[2][i] = (M[2][i] - M[3][i]*out[2])*f;
+    derivative[0][i] = static_cast<T4>((M[0][i] - M[3][i]*out[0])*f);
+    derivative[1][i] = static_cast<T4>((M[1][i] - M[3][i]*out[1])*f);
+    derivative[2][i] = static_cast<T4>((M[2][i] - M[3][i]*out[2])*f);
     }
 }
 
@@ -115,7 +115,7 @@ void vtkHomogeneousTransform::InternalTransformDerivative(const double in[3],
 void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts, 
                                               vtkPoints *outPts)
 {
-  int n = inPts->GetNumberOfPoints();
+  vtkIdType n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
   double point[3];  
 
@@ -145,7 +145,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                             vtkDataArray *inVrs, 
                                                             vtkDataArray *outVrs)
 {
-  int n = inPts->GetNumberOfPoints();
+  vtkIdType n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
   double L[4][4];
   double inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];

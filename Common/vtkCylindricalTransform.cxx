@@ -18,7 +18,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkCylindricalTransform, "1.5");
+vtkCxxRevisionMacro(vtkCylindricalTransform, "1.6");
 vtkStandardNewMacro(vtkCylindricalTransform);
 
 //----------------------------------------------------------------------------
@@ -62,8 +62,8 @@ void vtkCylindricalToRectangular(const T inPoint[3], T outPoint[3],
                                         T derivative[3][3])
 {
   T r = inPoint[0];
-  T sintheta = sin(inPoint[1]);
-  T costheta = cos(inPoint[1]);
+  T sintheta = static_cast<T>(sin(inPoint[1]));
+  T costheta = static_cast<T>(cos(inPoint[1]));
   T z = inPoint[2];
 
   outPoint[0] = r*costheta;
@@ -95,7 +95,7 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
   
   T rr = x*x + y*y;
 
-  outPoint[0] = sqrt(rr);
+  outPoint[0] = static_cast<T>(sqrt(rr));
   if (rr == 0)
     {
     outPoint[1] = 0;
@@ -103,7 +103,7 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
   else
     {
     // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
-    outPoint[1] = vtkMath::Pi() + atan2(-y, -x);
+    outPoint[1] = static_cast<T>(vtkMath::Pi() + atan2(-y, -x));
     }
   outPoint[2] = z;
 }
