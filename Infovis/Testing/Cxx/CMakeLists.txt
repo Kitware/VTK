@@ -85,6 +85,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
     # Add parallel tests only if PARALLEL and MPI are turned ON
     # These tests are kept separate, because they must be run with mpirun or mpiexec
+    ADD_EXECUTABLE(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel)
+
     ADD_EXECUTABLE(TestParallelRandomStatisticsMPI TestParallelRandomStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRandomStatisticsMPI vtkInfovis vtkParallel)
 
