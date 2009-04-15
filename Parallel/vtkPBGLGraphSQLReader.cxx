@@ -38,8 +38,10 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.7");
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.8");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
+
+
 
 vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
 {
@@ -60,6 +62,8 @@ vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
   return 0;
 }
 
+
+
 vtkPBGLGraphSQLReader::vtkPBGLGraphSQLReader()
 {
   this->Directed = true;
@@ -75,6 +79,8 @@ vtkPBGLGraphSQLReader::vtkPBGLGraphSQLReader()
   this->DistributionUserData[1] = 0;
 }
 
+
+
 vtkPBGLGraphSQLReader::~vtkPBGLGraphSQLReader()
 {
   this->SetDatabase(0);
@@ -84,6 +90,8 @@ vtkPBGLGraphSQLReader::~vtkPBGLGraphSQLReader()
   this->SetTargetField(0);
   this->SetVertexIdField(0);
 }
+
+
 
 void vtkPBGLGraphSQLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -101,7 +109,11 @@ void vtkPBGLGraphSQLReader::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+
+
 vtkCxxSetObjectMacro(vtkPBGLGraphSQLReader, Database, vtkSQLDatabase);
+
+
 
 template<class MutableGraph>
 int vtkPBGLGraphSQLReaderRequestData(
@@ -251,7 +263,8 @@ int vtkPBGLGraphSQLReaderRequestData(
 #if defined(DEBUG)      // WCMCLEN
     cout << "["<<rank<<"]\t"
          << "-\tEdge field_name["<<i<<"]='"<<field_name<<"'"
-         << endl; fflush(stdout);  // WCMCLEN
+         << endl;
+    fflush(stdout);
 #endif
     }
   helper->Synchronize();
@@ -263,17 +276,20 @@ int vtkPBGLGraphSQLReaderRequestData(
     {
     vtkVariant source = edge_query->DataValue(source_id);
     vtkVariant target = edge_query->DataValue(target_id);
+
 #if defined(DEBUG)      // WCMCLEN
     cout << "["<<rank<< "]\tReader: Read edge("
          << source.ToString() << ", " << target.ToString() << ", " << &row << ")"
-         << endl; fflush(stdout); // WCMCLEN
+         << endl;
+    fflush(stdout);
 #endif
+
     builder->LazyAddEdge(source, target, row);
     }
 
 #if defined(DEBUG)      // WCMCLEN
-  cout << "["<<rank<<"]\tReader: Done adding edges!"
-       << endl; fflush(stdout);  // WCMCLEN
+  cout << "["<<rank<<"]\tReader: Done adding edges!" << endl;
+  fflush(stdout);
 #endif
   helper->Synchronize();
 
@@ -285,10 +301,14 @@ int vtkPBGLGraphSQLReaderRequestData(
     }
 
   timer->StopTimer();
+#ifdef VTKPBGL_REPORT_TIMES
+  // Suppress timer printing (for now)
   cerr << "vtkPBGLGraphSQLReader: " << timer->GetElapsedTime() << endl;
+#endif
 
   return 1;
 }
+
 
 
 int vtkPBGLGraphSQLReader::RequestData(
@@ -309,6 +329,7 @@ int vtkPBGLGraphSQLReader::RequestData(
     }
   return rval;
 }
+
 
 
 int vtkPBGLGraphSQLReader::RequestDataObject(
@@ -339,10 +360,10 @@ int vtkPBGLGraphSQLReader::RequestDataObject(
 }
 
 
+
 void vtkPBGLGraphSQLReader::GetRange(int rank, int total,
   vtkIdType size, vtkIdType& offset, vtkIdType& limit)
 {
   offset = size*rank/total;
   limit = size*(rank+1)/total - offset;
 }
-

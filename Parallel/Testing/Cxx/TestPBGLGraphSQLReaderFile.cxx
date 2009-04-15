@@ -100,16 +100,14 @@ TestPBGLGraphSQLReaderFile(int argc, char* argv[])
     return 1;
     }
 
-  //vtkIdType testCase = 1;
-
-//  for(vtkIdType testCase=1; testCase<=5; testCase++)
-    //{
-    if(executeTestCase(1, db)) { return 1; }
-    if(executeTestCase(2, db)) { return 1; }
-    //if(executeTestCase(3, db)) { return 1; }   // This one crashes currently... investigating.
-    if(executeTestCase(4, db)) { return 1; }
-    if(executeTestCase(5, db)) { return 1; }
-    //}
+  for(vtkIdType testCase=1; testCase<=5; testCase++)
+    {
+    if(executeTestCase(testCase, db))
+      {
+      cerr << "Failed test case: " << testCase << endl;
+      return 1;
+      }
+    }
   return 0;
 }
 
@@ -252,13 +250,13 @@ int validateByCounting(vtkIdType testCase, vtkIdType numVerts, vtkIdType numEdge
 
 //=====[ Connect to SQLite Database ]===========================================
 int ConnectToDb(int argc, char* argv[], vtkSQLiteDatabase * db)
-{
+  {
   boost::mpi::communicator world;
 
   char * filename = NULL;
 
   filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                      "Data/Infovis/SQLite/SmallTestGraphs.db");
+      "Data/Infovis/SQLite/SmallTestGraphs.db");
 
   cout << "Filename:" << filename << endl;
 
@@ -283,7 +281,7 @@ int ConnectToDb(int argc, char* argv[], vtkSQLiteDatabase * db)
     }
 #endif
   return 0;
-}
+  }
 
 
 
