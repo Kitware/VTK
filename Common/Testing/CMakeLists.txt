@@ -25,6 +25,7 @@ IF(PYTHON_EXECUTABLE)
     vtkArrayRange.h
     vtkArraySlices.h
     vtkArraySlice.h
+    vtkArraySort.h
     vtkArrayWeights.h
     vtkArrayIteratorIncludes.h
     vtkArrayIteratorTemplate.h
