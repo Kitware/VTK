@@ -201,6 +201,17 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         ${VTK_MPI_PREFLAGS} 
         ${CXX_TEST_PATH}/TestPBGLPedigrees
         ${VTK_MPI_POSTFLAGS})
+        
+      ADD_EXECUTABLE(TestPBGLEdgesPedigrees TestPBGLEdgesPedigrees.cxx)
+      TARGET_LINK_LIBRARIES(TestPBGLEdgesPedigrees
+        vtkParallel vtkViews ${Boost_LIBRARIES})
+        
+      ADD_TEST(TestPBGLEdgesPedigrees
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/TestPBGLEdgesPedigrees
+        ${VTK_MPI_POSTFLAGS})
+        
     ENDIF (VTK_USE_PARALLEL_BGL)
 
     #
