@@ -123,7 +123,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << " \n"
          << "   Wall time: "
          << difftime( t1, t0 )
-         << outputMetaDS->GetNumberOfBlocks()
          << " sec.\n";
 
 //    for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
