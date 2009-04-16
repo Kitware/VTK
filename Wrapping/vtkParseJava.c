@@ -721,7 +721,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   size_t len;
   char *dir;
   char *fname;
-  char javaDone[] = "VTKJavaWrapped";
+  /*const */char javaDone[] = "VTKJavaWrapped";
   FILE* tfp;
   fname = data->OutputFileName;
   dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
@@ -742,6 +742,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(tfp, "File: %s\n", fname);
     fclose(tfp);
     }
+  free(dir);
   }
 }
 

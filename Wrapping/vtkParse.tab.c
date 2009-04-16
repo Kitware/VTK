@@ -3706,6 +3706,12 @@ int main(int argc,char *argv[])
   vtkParseOutput(fout,&data);
   fclose (fout);
 
+  free(data.NameComment);
+  free(data.Description);
+  free(data.Caveats);
+  free(data.SeeAlso);
+  free(currentFunction->Signature);
+
   return 0;
 }
 
