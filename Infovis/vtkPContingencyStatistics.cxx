@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.2");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.3");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -183,7 +183,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
   
   // Now gather all xyPacked and kcValues on process reduceProc
-  if ( ! com->Gather( &xyPacked_l[0],
+  if ( ! com->Gather( &(xyPacked_l[0]),
                       xyPacked_g,
                       xySize_l,
                       reduceProc ) )
@@ -192,7 +192,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
   
-  if ( ! com->Gather( &kcValues_l[0],
+  if ( ! com->Gather( &(kcValues_l[0]),
                       kcValues_g,
                       kcSize_l,
                       reduceProc ) )
