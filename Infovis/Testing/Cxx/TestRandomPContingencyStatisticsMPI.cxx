@@ -82,7 +82,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     int x;
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      x = floor( vtkMath::Random() * 10. ) + 5;
+      x = static_cast<int>( floor( vtkMath::Random() * 10. ) ) + 5;
       intArray[c]->InsertNextValue( x );
       }
     
