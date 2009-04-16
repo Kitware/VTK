@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.1");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.2");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -202,7 +202,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
   
   // Clean up
-  if ( myRank == reduceProc );
+  if ( myRank == reduceProc )
     {
     delete [] xyPacked_g;
     delete [] kcValues_g;
