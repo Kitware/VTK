@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.40");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.41");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -215,7 +215,6 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
     row4->SetValue( 0, summaryTab->GetNumberOfRows() );
 
     summaryTab->InsertNextRow( row2 );
-
 
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );

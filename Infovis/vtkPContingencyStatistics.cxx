@@ -26,14 +26,14 @@
 #include "vtkMultiProcessController.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkVariant.h"
+#include "vtkVariantArray.h"
 
 #include <vtkstd/map>
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.4");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.5");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -63,7 +63,7 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
        it != values.end(); ++ it )
     {
     buffer.append( *it );
-    buffer.push_back( 0 );
+    //    buffer.push_back( 0 );
     }
 }
 
@@ -132,9 +132,9 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   vtkstd::vector<vtkStdString> xyValues_l; // consecutive values of ( x, y ) pairs
-  vtkstd::vector<int>          kcValues_l; // consecutive values of ( (X,Y) indices, #(x,y) ) pairs
+  vtkstd::vector<vtkIdType>    kcValues_l; // consecutive values of ( (X,Y) indices, #(x,y) ) pairs
 
-  for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+  for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
     // Push back x and y to list of strings
     xyValues_l.push_back( valx->GetValue( r ) );
@@ -156,56 +156,149 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   int reduceProc = 0; 
 
   // (All) gather all xy and kc sizes on process reduceProc
-  int xySize_l = xyPacked_l.size();
-  int* xySize_g = new int[np];
+  vtkIdType xySize_l = xyPacked_l.size();
+  vtkIdType* xySize_g = new vtkIdType[np];
   com->AllGather( &xySize_l,
                   xySize_g,
                   1 );
 
-  int kcSize_l = kcValues_l.size();
-  int* kcSize_g = new int[np];
+  vtkIdType kcSize_l = kcValues_l.size();
+  vtkIdType* kcSize_g = new vtkIdType[np];
   com->AllGather( &kcSize_l,
                   kcSize_g,
                   1 );
 
-  // Calculate total size, receive counts, and displacement array
-  int xySizeTotal = 0;
-  int kcSizeTotal = 0;
-  for ( int i = 0; i < np; ++ i )
+  // Calculate total size and displacement arrays
+  vtkIdType* xyOffset = new vtkIdType[np];
+  vtkIdType* kcOffset = new vtkIdType[np];
+
+  vtkIdType xySizeTotal = 0;
+  vtkIdType kcSizeTotal = 0;
+
+  for ( vtkIdType i = 0; i < np; ++ i )
     {
+    xyOffset[i] = xySizeTotal;
+    kcOffset[i] = kcSizeTotal;
+
     xySizeTotal += xySize_g[i];
     kcSizeTotal += kcSize_g[i];
     }
 
-  int myRank = com->GetLocalProcessId();
+  vtkIdType myRank = com->GetLocalProcessId();
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
   char* xyPacked_g;
-  int*  kcValues_g;
+  vtkIdType*  kcValues_g;
   if ( myRank == reduceProc )
     {
     xyPacked_g = new char[xySizeTotal];
-    kcValues_g = new  int[kcSizeTotal];
+    kcValues_g = new vtkIdType[kcSizeTotal];
     }
   
-  // Now gather all xyPacked and kcValues on process reduceProc
-//   if ( ! com->Gather( &(xyPacked_l[0]),
-//                       xyPacked_g,
-//                       xySize_l,
-//                       reduceProc ) )
-//     {
-//     vtkErrorMacro("Process "<<myRank<< "could not gather (x,y) values.");
-//     return;
-//     }
+  // Collect all xyPacked and kcValues on process reduceProc
+  if ( ! com->GatherV( &(xyPacked_l[0]),
+                       xyPacked_g,
+                       xySize_l,
+                       xySize_g,
+                       xyOffset,
+                       reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not gather (x,y) values.");
+    return;
+    }
   
-//   if ( ! com->Gather( &(kcValues_l[0]),
-//                       kcValues_g,
-//                       kcSize_l,
-//                       reduceProc ) )
-//     {
-//     vtkErrorMacro("Process "<<myRank<< "could not gather (x,y) indices and cardinalities.");
-//     return;
-//     }
+  if ( ! com->GatherV( &(kcValues_l[0]),
+                       kcValues_g,
+                       kcSize_l,
+                       kcSize_g,
+                       kcOffset,
+                       reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not gather (x,y) indices and cardinalities.");
+    return;
+    }
   
+  // Now have process reduceProc perform the reduction of the global contingency table
+  if ( myRank == reduceProc )
+    {
+    // First, unpack the collection of strings
+    xyValues_l.clear();
+    UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_l );
+
+    // Second, check consistency: we must have the same number of xy and kc entries
+    if ( vtkIdType( xyValues_l.size() ) != kcSizeTotal )
+      {
+      vtkErrorMacro("Process "
+                    << myRank
+                    << " collected inconsistent number of (x,y) and (k,c) pairs: "
+                    << xyValues_l.size()
+                    << " <> "
+                    << kcSizeTotal
+                    << ".");
+      return;
+      }
+
+    // Third, reduce to the global contingency table
+    typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
+    typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
+    vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
+
+    vtkIdType i = 0;
+    for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_l.begin(); vit != xyValues_l.end(); vit += 2, i += 2 )
+      {
+      contingencyTable
+        [kcValues_g[i]]
+        [*vit]
+        [*(vit + 1)] 
+        += kcValues_g[i + 1];
+      }
+
+    // Fourth, fill the output contigency table
+    vtkVariantArray* row4 = vtkVariantArray::New();
+    row4->SetNumberOfValues( 4 );
+    
+    vtkIdType r = 1; // start at row 1 (cf. superclass)
+    for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
+          ait != contingencyTable.end(); ++ ait )
+      {
+      Bidistribution bidi = ait->second;
+      for ( Bidistribution::iterator bit = bidi.begin();
+            bit != bidi.end(); ++ bit )
+        {
+        Distribution di = bit->second;
+        for ( Distribution::iterator dit = di.begin();
+              dit != di.end(); ++ dit, ++ r )
+          {
+          row4->SetValue( 0, ait->first );
+          row4->SetValue( 1, bit->first );
+          row4->SetValue( 2, dit->first );
+          row4->SetValue( 3, dit->second );
+
+          // FIXME: this is not optimal (test for each row) but there is not better way due to the vtkTable API
+          if ( r < nRowCont )
+            {
+            // Replace existing row
+            contingencyTab->SetRow( r, row4 );
+            }
+          else
+            {
+            // Insert new row
+            contingencyTab->InsertNextRow( row4 );
+            }
+          }
+        }
+      }
+
+    // Fifth, scatter the contingency table to everyone
+    // FIXME: To do
+
+    // Last, clean up
+    row4->Delete();
+    } // if ( myRank == reduceProc )
+    
   // Clean up
   if ( myRank == reduceProc )
     {
@@ -215,6 +308,8 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
 
   delete [] xySize_g;
   delete [] kcSize_g;
+  delete [] xyOffset;
+  delete [] kcOffset;
 }
 
 
