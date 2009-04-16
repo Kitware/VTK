@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.3");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.4");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -155,22 +155,27 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   // Use process 0 as sole reducer for now
   int reduceProc = 0; 
 
-  // Reduce the sums of all xy and kc sizes on process reduceProc
+  // (All) gather all xy and kc sizes on process reduceProc
   int xySize_l = xyPacked_l.size();
-  int xySize_g;
-  com->Reduce( &xySize_l,
-               &xySize_g,
-               1,
-               vtkCommunicator::SUM_OP,
-               reduceProc );
+  int* xySize_g = new int[np];
+  com->AllGather( &xySize_l,
+                  xySize_g,
+                  1 );
 
   int kcSize_l = kcValues_l.size();
-  int kcSize_g;
-  com->Reduce( &kcSize_l,
-               &kcSize_g,
-               1,
-               vtkCommunicator::SUM_OP,
-               reduceProc );
+  int* kcSize_g = new int[np];
+  com->AllGather( &kcSize_l,
+                  kcSize_g,
+                  1 );
+
+  // Calculate total size, receive counts, and displacement array
+  int xySizeTotal = 0;
+  int kcSizeTotal = 0;
+  for ( int i = 0; i < np; ++ i )
+    {
+    xySizeTotal += xySize_g[i];
+    kcSizeTotal += kcSize_g[i];
+    }
 
   int myRank = com->GetLocalProcessId();
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
@@ -178,28 +183,28 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   int*  kcValues_g;
   if ( myRank == reduceProc )
     {
-    xyPacked_g = new char[xySize_g];
-    kcValues_g = new  int[kcSize_g];
+    xyPacked_g = new char[xySizeTotal];
+    kcValues_g = new  int[kcSizeTotal];
     }
   
   // Now gather all xyPacked and kcValues on process reduceProc
-  if ( ! com->Gather( &(xyPacked_l[0]),
-                      xyPacked_g,
-                      xySize_l,
-                      reduceProc ) )
-    {
-    vtkErrorMacro("Process "<<myRank<< "could not gather (x,y) values.");
-    return;
-    }
+//   if ( ! com->Gather( &(xyPacked_l[0]),
+//                       xyPacked_g,
+//                       xySize_l,
+//                       reduceProc ) )
+//     {
+//     vtkErrorMacro("Process "<<myRank<< "could not gather (x,y) values.");
+//     return;
+//     }
   
-  if ( ! com->Gather( &(kcValues_l[0]),
-                      kcValues_g,
-                      kcSize_l,
-                      reduceProc ) )
-    {
-    vtkErrorMacro("Process "<<myRank<< "could not gather (x,y) indices and cardinalities.");
-    return;
-    }
+//   if ( ! com->Gather( &(kcValues_l[0]),
+//                       kcValues_g,
+//                       kcSize_l,
+//                       reduceProc ) )
+//     {
+//     vtkErrorMacro("Process "<<myRank<< "could not gather (x,y) indices and cardinalities.");
+//     return;
+//     }
   
   // Clean up
   if ( myRank == reduceProc )
@@ -207,6 +212,9 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     delete [] xyPacked_g;
     delete [] kcValues_g;
     }
+
+  delete [] xySize_g;
+  delete [] kcSize_g;
 }
 
 
