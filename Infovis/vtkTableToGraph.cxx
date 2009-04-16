@@ -52,7 +52,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.18");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.19");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -858,14 +858,22 @@ int vtkTableToGraph::RequestData(
     ++curHidden;
     }
 
-  // Add pedigree ids to the edges of the graph.
-  vtkIdType numEdges = builder->GetNumberOfEdges();
-  vtkSmartPointer<vtkIdTypeArray> edgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
-  edgeIds->SetNumberOfTuples(numEdges);
-  edgeIds->SetName("edge");
-  for (vtkIdType i = 0; i < numEdges; ++i)
-    {
-    edgeIds->SetValue(i, i);
+  // Check if pedigree ids are in the input edge data
+  vtkSmartPointer<vtkIdTypeArray> edgeIds;
+  edgeIds.TakeReference( 
+    vtkIdTypeArray::SafeDownCast(edgeTable->GetRowData()->GetPedigreeIds()));
+  edgeIds->Register(NULL);
+  if (edgeIds == NULL)
+    { 
+    // Add pedigree ids to the edges of the graph.
+    vtkIdType numEdges = builder->GetNumberOfEdges();
+    edgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
+    edgeIds->SetNumberOfTuples(numEdges);
+    edgeIds->SetName("edge");
+    for (vtkIdType i = 0; i < numEdges; ++i)
+      {
+      edgeIds->SetValue(i, i);
+      }
     }
   builder->GetEdgeData()->SetPedigreeIds(edgeIds);
 
