@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.6");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.7");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -63,7 +63,7 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
        it != values.end(); ++ it )
     {
     buffer.append( *it );
-    //    buffer.push_back( 0 );
+//    buffer.push_back( 0 );
     }
 }
 
@@ -195,31 +195,31 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
   
   // Collect all xyPacked and kcValues on process reduceProc
-//   if ( ! com->GatherV( &(xyPacked_l[0]),
-//                        xyPacked_g,
-//                        xySize_l,
-//                        xySize_g,
-//                        xyOffset,
-//                        reduceProc ) )
-//     {
-//     vtkErrorMacro("Process "
-//                   << myRank
-//                   << "could not gather (x,y) values.");
-//     return;
-//     }
+  if ( ! com->GatherV( &(*xyPacked_l.begin()),
+                       xyPacked_g,
+                       xySize_l,
+                       xySize_g,
+                       xyOffset,
+                       reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not gather (x,y) values.");
+    return;
+    }
   
-//   if ( ! com->GatherV( &(kcValues_l[0]),
-//                        kcValues_g,
-//                        kcSize_l,
-//                        kcSize_g,
-//                        kcOffset,
-//                        reduceProc ) )
-//     {
-//     vtkErrorMacro("Process "
-//                   << myRank
-//                   << "could not gather (x,y) indices and cardinalities.");
-//     return;
-//     }
+  if ( ! com->GatherV( &(*kcValues_l.begin()),
+                       kcValues_g,
+                       kcSize_l,
+                       kcSize_g,
+                       kcOffset,
+                       reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not gather (x,y) indices and cardinalities.");
+    return;
+    }
   
   // Now have process reduceProc perform the reduction of the global contingency table
   if ( myRank == reduceProc )
