@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.8");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.9");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -190,8 +190,8 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
 
   vtkIdType myRank = com->GetLocalProcessId();
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
-  char* xyPacked_g;
-  vtkIdType*  kcValues_g;
+  char* xyPacked_g = 0;
+  vtkIdType*  kcValues_g = 0;
   if ( myRank == reduceProc )
     {
     xyPacked_g = new char[xySizeTotal];
