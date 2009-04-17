@@ -52,7 +52,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.19");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.20");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -862,7 +862,6 @@ int vtkTableToGraph::RequestData(
   vtkSmartPointer<vtkIdTypeArray> edgeIds;
   edgeIds.TakeReference( 
     vtkIdTypeArray::SafeDownCast(edgeTable->GetRowData()->GetPedigreeIds()));
-  edgeIds->Register(NULL);
   if (edgeIds == NULL)
     { 
     // Add pedigree ids to the edges of the graph.
@@ -874,6 +873,10 @@ int vtkTableToGraph::RequestData(
       {
       edgeIds->SetValue(i, i);
       }
+    }
+  else
+    {
+    edgeIds->Register(NULL);
     }
   builder->GetEdgeData()->SetPedigreeIds(edgeIds);
 
