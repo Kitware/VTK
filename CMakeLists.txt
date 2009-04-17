@@ -286,7 +286,6 @@ MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
 
 # Add Option to enable Qt Support.
 OPTION(VTK_USE_QT "Build Qt support" OFF)
-SET(VTK_HAS_QT OFF CACHE INTERNAL "Set when Qt support is available")
 
 IF(VTK_USE_QT)
 # we need Qt3 or Qt4
@@ -303,7 +302,6 @@ IF(VTK_USE_QT)
     ELSE(NOT QT_FOUND)
       # Enable dependencies on Qt headers.
       INCLUDE_REGULAR_EXPRESSION("^(vtk|Q).*$")
-      SET(VTK_HAS_QT ON CACHE INTERNAL "Set when Qt support is available")
     ENDIF(NOT QT_FOUND)
   ENDIF(DESIRED_QT_VERSION MATCHES 0)
 ENDIF(VTK_USE_QT)
@@ -312,6 +310,11 @@ ENDIF(VTK_USE_QT)
 VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
                      "VTK_USE_RENDERING" OFF)
 MARK_AS_ADVANCED(VTK_USE_GUISUPPORT)
+
+# Determing Qt GUI.
+VTK_DEPENDENT_OPTION(VTK_USE_QVTK "Build QVTK widget and plugin for Qt" ON
+                     "VTK_USE_GUISUPPORT;VTK_USE_RENDERING;VTK_USE_QT" OFF)
+MARK_AS_ADVANCED(VTK_USE_QVTK)
 
 # Remove old options from an existing cache.
 IF(NOT "VTK_USE_HYBRID" MATCHES "^VTK_USE_HYBRID$")
