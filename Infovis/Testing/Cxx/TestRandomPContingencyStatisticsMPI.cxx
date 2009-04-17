@@ -82,7 +82,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     int x;
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      x = static_cast<int>( floor( vtkMath::Random() * 10. ) ) + 5;
+      x = static_cast<int>( floor( vtkMath::Random() * 100. ) ) + 5;
       intArray[c]->InsertNextValue( x );
       }
     
@@ -126,15 +126,12 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << " sec.\n";
 
 //    for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    for ( unsigned int b = 0; b < 2; ++ b )
+    for ( unsigned int b = 0; b < 1; ++ b )
       {
       vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
       outputMeta->Dump();
       }
     }
-
-  com->Barrier();
-  outputData->Dump();
 
   // Clean up
   pcs->Delete();
@@ -217,7 +214,7 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 20;
+  args.nVals = 200000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.argc = argc;
