@@ -129,19 +129,22 @@ int TestContingencyStatistics( int, char *[] )
       }
     cout << "\n";
     }
+  cout << "\n";
 
   cout << "## Calculated the following probabilities:\n";
 
   // Skip first row which contains data set cardinality
+  vtkIdType key;
   for ( vtkIdType r = 1; r < outputContingency->GetNumberOfRows(); ++ r )
     {
+    key = outputContingency->GetValue( r, 0 ).ToInt();
     cout << "   ("
-         << outputSummary->GetValue( outputContingency->GetValue( r, 0 ).ToInt(), 0 ).ToString()
-         << ", "
-         << outputSummary->GetValue( outputContingency->GetValue( r, 0 ).ToInt(), 1 ).ToString()
+         << outputSummary->GetValue( key, 0 ).ToString()
+         << ","
+         << outputSummary->GetValue( key, 1 ).ToString()
          << ") = ("
          << outputContingency->GetValue( r, 1 ).ToString()
-         << ", "
+         << ","
          << outputContingency->GetValue( r, 2 ).ToString()
          << ")";
 
@@ -168,8 +171,55 @@ int TestContingencyStatistics( int, char *[] )
                            << ".");
     testStatus = 1;
     }
+  cout << "\n";
 
-  outputData->Dump();
+  key = 0;
+  vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
+  vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
+  vtkStdString proName = "Px|y";
+  vtkStdString colName = proName + "(" + varX + "," + varY + ")";
+  double threshold = .2;
+
+  cout << "## Found the following outliers such that "
+       << colName
+       << " < "
+       << threshold
+       << ":\n";
+
+  double p;
+  testIntValue = 0;
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    p = outputData->GetValueByName( r, colName ).ToDouble();
+    if ( p >= threshold )
+      {
+      continue;
+      }
+
+    ++ testIntValue;
+
+    cout << "   ("
+         << outputData->GetValueByName( r, varX ).ToString()
+         << ","
+         << outputData->GetValueByName( r, varY ).ToString()
+         << "):  "
+         << proName
+         << " = "
+         << p
+         << "\n";
+    }
+
+  double nOutliers = 4;
+  if ( testIntValue != nOutliers )
+    {
+    vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
+                           << testIntValue 
+                           << " != " 
+                           << nOutliers
+                           << ".");
+    testStatus = 1;
+    }
+  cout << "\n";
 
   haruspex->Delete();
 
