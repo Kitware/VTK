@@ -126,7 +126,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << " sec.\n";
 
 //    for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    for ( unsigned int b = 0; b < 1; ++ b )
+    for ( unsigned int b = 0; b < 2; ++ b )
       {
       vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
       outputMeta->Dump();
