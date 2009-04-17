@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.7");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.8");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -59,11 +59,13 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 void PackValues( const vtkstd::vector<vtkStdString>& values, 
                  vtkStdString& buffer )
 {
+  buffer.clear();
+
   for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
        it != values.end(); ++ it )
     {
     buffer.append( *it );
-//    buffer.push_back( 0 );
+    buffer.push_back( 0 );
     }
 }
 
@@ -71,6 +73,8 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
 void UnpackValues( const vtkStdString& buffer,
                    vtkstd::vector<vtkStdString>& values )
 {
+  values.clear();
+
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
   for( const char* start = &buffer[0]; start != bufferEnd; ++ start )
@@ -131,10 +135,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
-  vtkstd::vector<vtkStdString> xyValues_l; // consecutive values of ( x, y ) pairs
-  vtkstd::vector<vtkIdType>    kcValues_l; // consecutive values of ( (X,Y) indices, #(x,y) ) pairs
+  vtkstd::vector<vtkStdString> xyValues_l; // local consecutive xy pairs
+  vtkstd::vector<vtkIdType>    kcValues_l; // local consecutive kc  pairs
 
-  for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+  for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
     {
     // Push back x and y to list of strings
     xyValues_l.push_back( valx->GetValue( r ) );
@@ -145,17 +149,17 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     kcValues_l.push_back( card->GetValue( r ) );
     }
 
-  // Now concatenate vector of strings into single string
+  // Concatenate vector of strings into single string
   vtkStdString xyPacked_l;
   PackValues( xyValues_l, xyPacked_l );
 
-  // Now get ready for parallel calculations
+  // Get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
 
   // Use process 0 as sole reducer for now
   int reduceProc = 0; 
 
-  // (All) gather all xy and kc sizes on process reduceProc
+  // (All) gather all xy and kc sizes
   vtkIdType xySize_l = xyPacked_l.size();
   vtkIdType* xySize_g = new vtkIdType[np];
   com->AllGather( &xySize_l,
@@ -194,7 +198,8 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     kcValues_g = new vtkIdType[kcSizeTotal];
     }
   
-  // Collect all xyPacked and kcValues on process reduceProc
+  // Gather all xyPacked and kcValues on process reduceProc
+  // NB: GatherV because the packets have variable lengths
   if ( ! com->GatherV( &(*xyPacked_l.begin()),
                        xyPacked_g,
                        xySize_l,
@@ -217,24 +222,24 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     {
     vtkErrorMacro("Process "
                   << myRank
-                  << "could not gather (x,y) indices and cardinalities.");
+                  << "could not gather (k,c) values.");
     return;
     }
-  
-  // Now have process reduceProc perform the reduction of the global contingency table
+
+  // Reduction step: have process reduceProc perform the reduction of the global contingency table
   if ( myRank == reduceProc )
     {
-    // First, unpack the collection of strings
-    xyValues_l.clear();
-    UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_l );
+    // First, unpack the packet of strings
+    vtkstd::vector<vtkStdString> xyValues_g; 
+    UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
 
     // Second, check consistency: we must have the same number of xy and kc entries
-    if ( vtkIdType( xyValues_l.size() ) != kcSizeTotal )
+    if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
       {
       vtkErrorMacro("Process "
                     << myRank
                     << " collected inconsistent number of (x,y) and (k,c) pairs: "
-                    << xyValues_l.size()
+                    << xyValues_g.size()
                     << " <> "
                     << kcSizeTotal
                     << ".");
@@ -247,7 +252,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
 
     vtkIdType i = 0;
-    for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_l.begin(); vit != xyValues_l.end(); vit += 2, i += 2 )
+    for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); vit != xyValues_g.end(); vit += 2, i += 2 )
       {
       contingencyTable
         [kcValues_g[i]]
@@ -255,12 +260,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
         [*(vit + 1)] 
         += kcValues_g[i + 1];
       }
-
-    // Fourth, fill the output contigency table
-    vtkVariantArray* row4 = vtkVariantArray::New();
-    row4->SetNumberOfValues( 4 );
     
-    vtkIdType r = 1; // start at row 1 (cf. superclass)
+    // Fourth, prepare send buffers of (global) xy and kc values
+    xyValues_l.clear();
+    kcValues_l.clear();
     for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
           ait != contingencyTable.end(); ++ ait )
       {
@@ -270,36 +273,107 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
         {
         Distribution di = bit->second;
         for ( Distribution::iterator dit = di.begin();
-              dit != di.end(); ++ dit, ++ r )
+              dit != di.end(); ++ dit )
           {
-          row4->SetValue( 0, ait->first );
-          row4->SetValue( 1, bit->first );
-          row4->SetValue( 2, dit->first );
-          row4->SetValue( 3, dit->second );
-
-          // FIXME: this is not optimal (test for each row) but there is not better way due to the vtkTable API
-          if ( r < nRowCont )
-            {
-            // Replace existing row
-            contingencyTab->SetRow( r, row4 );
-            }
-          else
-            {
-            // Insert new row
-            contingencyTab->InsertNextRow( row4 );
-            }
+          // Push back x and y to list of strings
+          xyValues_l.push_back( bit->first );  // x
+          xyValues_l.push_back( dit->first );  // y
+          
+          // Push back (X,Y) index and #(x,y) to list of strings
+          kcValues_l.push_back( ait->first );  // k
+          kcValues_l.push_back( dit->second ); // c
           }
         }
       }
-
-    // Fifth, scatter the contingency table to everyone
-    // FIXME: To do
-
-    // Last, clean up
-    row4->Delete();
+    PackValues( xyValues_l, xyPacked_l );
+    
+    // Last, update xy and kc buffer sizes (which have changed because of the reduction)
+    xySizeTotal = xyPacked_l.size();
+    kcSizeTotal = kcValues_l.size();
     } // if ( myRank == reduceProc )
+
+  // Broadcast the xy and kc buffer sizes
+  if ( ! com->Broadcast( &xySizeTotal,
+                         1,
+                         reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not broadcast (x,y) buffer size.");
+    return;
+    }
+
+  if ( ! com->Broadcast( &kcSizeTotal,
+                         1,
+                         reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not broadcast (k,c) buffer size.");
+    return;
+    }
+  
+  // Resize vectors so they can receive the broadcasted xy and kc values
+  xyPacked_l.resize( xySizeTotal );
+  kcValues_l.resize( kcSizeTotal );
+
+  // Broadcast the contents of contingency table to everyone
+  if ( ! com->Broadcast( &(*xyPacked_l.begin()),
+                         xySizeTotal,
+                         reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not broadcast (x,y) values.");
+    return;
+    }
+  
+  if ( ! com->Broadcast( &(*kcValues_l.begin()),
+                         kcSizeTotal,
+                         reduceProc ) )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << "could not broadcast (k,c) values.");
+    return;
+    }
+  
+  // Unpack the packet of strings
+  UnpackValues( xyPacked_l, xyValues_l );
+
+  // Finally, fill the new, global contigency table (everyone does this so everyone ends up with the same model)
+  vtkVariantArray* row4 = vtkVariantArray::New();
+  row4->SetNumberOfValues( 4 );
+
+  vtkstd::vector<vtkStdString>::iterator xyit = xyValues_l.begin();
+  vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
+
+  // First replace existing rows
+  // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
+  for ( vtkIdType r = 1 ; r < nRowCont; ++ r, xyit += 2, kcit += 2 )
+    {
+    row4->SetValue( 0, *kcit );
+    row4->SetValue( 1, *xyit );
+    row4->SetValue( 2, *(xyit + 1) );
+    row4->SetValue( 3, *(kcit + 1) );
+
+    contingencyTab->SetRow( r, row4 );
+    }
+
+  // Then insert new rows
+  for ( ; xyit != xyValues_l.end() ; xyit += 2, kcit += 2 )
+    {
+    row4->SetValue( 0, *kcit );
+    row4->SetValue( 1, *xyit );
+    row4->SetValue( 2, *(xyit + 1) );
+    row4->SetValue( 3, *(kcit + 1) );
+
+   contingencyTab->InsertNextRow( row4 );
+   }
     
   // Clean up
+  row4->Delete();
+
   if ( myRank == reduceProc )
     {
     delete [] xyPacked_g;
