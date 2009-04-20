@@ -24,8 +24,10 @@
 #include "vtkXRenderWindowInteractor.h"
 
 #include "vtkOpenGL.h"
-// To prevent glx.h to include glxext.h provided by the system
-#define GLX_GLXEXT_LEGACY
+
+// define GLX_GLXEXT_LEGACY to prevent glx.h to include glxext.h provided by
+// the system
+//#define GLX_GLXEXT_LEGACY
 #include "GL/glx.h"
 
 #include "vtkgl.h"
@@ -115,7 +117,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.103");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.104");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
