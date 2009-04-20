@@ -43,6 +43,7 @@
 struct RandomSampleStatisticsArgs
 {
   int nVals;
+  double span;
   int* retVal;
   int ioRank;
   int argc;
@@ -82,7 +83,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     int x;
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      x = static_cast<int>( floor( vtkMath::Random() * 100. ) ) + 5;
+      x = static_cast<int>( floor( vtkMath::Random() * args->span ) ) + 5;
       intArray[c]->InsertNextValue( x );
       }
     
@@ -120,18 +121,49 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of contingency statistics (with assessment):\n"
-         << " \n"
          << "   Wall time: "
          << difftime( t1, t0 )
          << " sec.\n";
 
-//    for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    for ( unsigned int b = 0; b < 2; ++ b )
-      {
-      vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
-      outputMeta->Dump();
-      }
+    vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+    outputMeta->Dump();
     }
+
+  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+
+  vtkIdType key = 0;
+  vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
+  vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
+  vtkStdString proName = "P";
+  vtkStdString colName = proName + "(" + varX + "," + varY + ")";
+
+  double threshold = 1. / ( args->span * args->span );
+  double p;
+  vtkIdType testIntValue = 0;
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    p = outputData->GetValueByName( r, colName ).ToDouble();
+    if ( p >= threshold )
+      {
+      continue;
+      }
+
+    ++ testIntValue;
+    }
+
+  com->Barrier();
+  cout << "## Found "
+       << testIntValue
+       << " outliers (out of "
+       << args->nVals
+       << " data points) such that "
+       << colName
+       << " < "
+       << threshold
+       << " on process "
+       <<  com->GetLocalProcessId()
+       << ".\n";
 
   // Clean up
   pcs->Delete();
@@ -214,7 +246,8 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 200000;
+  args.nVals = 20000;
+  args.span = 10.;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.argc = argc;
