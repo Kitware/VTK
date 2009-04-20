@@ -56,7 +56,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtChartRepresentation.cxx
       vtkQtChartView.cxx
       vtkQtColumnView.cxx
-      vtkQtItemView.cxx
       vtkQtLineChartView.cxx
       vtkQtListView.cxx
       vtkQtRecordView.cxx
@@ -73,7 +72,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtBarChartView.h
       vtkQtChartView.h
       vtkQtColumnView.h
-      vtkQtItemView.h
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h

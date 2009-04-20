@@ -1,12 +1,15 @@
-/*-------------------------------------------------------------------------
-  Copyright 2009 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------*/
+/*
+ * Copyright 2007 Sandia Corporation.
+ * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
+ * license for use of this work by or on behalf of the
+ * U.S. Government. Redistribution and use in source and binary forms, with
+ * or without modification, are permitted provided that this Notice and any
+ * statement of authorship are reproduced on all copies.
+ */
 
 
-#include "ui_EasyView.h"
-#include "EasyView.h"
+#include "ui_ChartView.h"
+#include "ChartView.h"
 
 
 #include <vtkDataObjectToTable.h>
@@ -36,9 +39,9 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
-EasyView::EasyView() 
+ChartView::ChartView() 
 {
-  this->ui = new Ui_EasyView;
+  this->ui = new Ui_ChartView;
   this->ui->setupUi(this);
 
   this->XMLReader    = vtkSmartPointer<vtkXMLTreeReader>::New();
@@ -69,7 +72,7 @@ EasyView::EasyView()
 };
 
 // Set up the selection between the vtk and qt views
-void EasyView::SetupSelectionLink()
+void ChartView::SetupSelectionLink()
 {
   // Create a selection link and have all the views use it
   VTK_CREATE(vtkSelectionLink,selectionLink);
@@ -85,13 +88,13 @@ void EasyView::SetupSelectionLink()
   updater->AddView(this->GraphView);
 }
 
-EasyView::~EasyView()
+ChartView::~ChartView()
 {
 
 }
 
 // Action to be taken upon graph file open 
-void EasyView::slotOpenXMLFile()
+void ChartView::slotOpenXMLFile()
 {
   // Browse for and open the file
   QDir dir;
@@ -152,6 +155,6 @@ void EasyView::slotOpenXMLFile()
   this->SetupSelectionLink();
 }
 
-void EasyView::slotExit() {
+void ChartView::slotExit() {
   qApp->exit();
 }
