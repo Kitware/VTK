@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.10");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.11");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -59,7 +59,7 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 void PackValues( const vtkstd::vector<vtkStdString>& values, 
                  vtkStdString& buffer )
 {
-  buffer.clear();
+  //  buffer.clear();
 
   for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
        it != values.end(); ++ it )
@@ -73,7 +73,7 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
 void UnpackValues( const vtkStdString& buffer,
                    vtkstd::vector<vtkStdString>& values )
 {
-  values.clear();
+  //  values.clear();
 
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
