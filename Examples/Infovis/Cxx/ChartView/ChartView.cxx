@@ -140,7 +140,7 @@ void ChartView::slotOpenDatabase()
   // Just opening up a set file for now
   VTK_CREATE(vtkTesting, testHelper);
   vtkStdString dataRoot = testHelper->GetDataRoot();
-  QString fileName = dataRoot;
+  QString fileName = dataRoot.c_str();
   fileName += "/Data/Infovis/SQLite/temperatures.db";
  
 
@@ -160,7 +160,8 @@ void ChartView::slotOpenDatabase()
 #endif
 
   // Create Database
-  vtkStdString URL = "sqlite://" + fileName.toAscii();
+  vtkStdString URL = "sqlite://";
+  URL += fileName.toAscii().data();
   this->Database = vtkSQLDatabase::CreateFromURL( URL );
   bool status = this->Database->Open("");
   if ( ! status )
@@ -218,10 +219,8 @@ void ChartView::slotOpenDatabase()
   this->StackedChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
   this->BoxChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
 
-  // Some display parameters on the charts (hard coded)
-  this->BarChart->Update(); // This ensures that the chart series is created and valid
-  this->BarChart->GetChartSeriesOptions(0)->setVisible(false);
-  this->BarChart->GetChartSeriesOptions(1)->setVisible(false);
+
+
 
   // FIXME: Does linked selection really work for charts?
   this->SetupSelectionLink();
@@ -236,6 +235,16 @@ void ChartView::slotOpenDatabase()
   this->LineChart->Update();
   this->StackedChart->Update();
   this->BoxChart->Update();
+
+  // Setup the default chart interactors
+  this->BarChart->SetupDefaultInteractor();
+  this->LineChart->SetupDefaultInteractor();
+  this->StackedChart->SetupDefaultInteractor();
+  this->BoxChart->SetupDefaultInteractor();
+
+  // Some display parameters on the charts (hard coded)
+  this->BarChart->GetChartSeriesOptions(0)->setVisible(false);
+  this->BarChart->GetChartSeriesOptions(1)->setVisible(false);
 }
 
 // Display any database errors
