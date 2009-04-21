@@ -166,6 +166,12 @@ void StatsView::slotOpenSQLiteDB()
   correlativeC->ShallowCopy( correlative->GetOutput( 0 ) );
   this->TableView4->SetRepresentationFromInput( correlativeC );
 
+  // All views need to be updated
+  this->TableView1->Update();
+  this->TableView2->Update();
+  this->TableView3->Update();
+  this->TableView4->Update();
+
   // Clean up 
   query->Delete();
   db->Delete();

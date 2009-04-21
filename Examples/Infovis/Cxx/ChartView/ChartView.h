@@ -25,6 +25,9 @@
 class Ui_ChartView;
 
 // Forward VTK class declarations
+class vtkCorrelativeStatistics;
+class vtkDescriptiveStatistics;
+class vtkOrderStatistics;
 class vtkQtBarChartView;
 class vtkQtLineChartView;
 class vtkQtStackedChartView;
@@ -61,10 +64,22 @@ private:
   void SetupSelectionLink();
   
    
-  // Members
+  // Data ingestion
   vtkSmartPointer<vtkSQLDatabase>               Database;
   vtkSmartPointer<vtkRowQueryToTable>           QueryToTable;
-  vtkSmartPointer<vtkQtTableView>               TableView;
+
+  // Statistics filters
+  vtkSmartPointer<vtkDescriptiveStatistics>     DescriptiveStats;
+  vtkSmartPointer<vtkOrderStatistics>           QuartileStats;
+  vtkSmartPointer<vtkOrderStatistics>           DecileStats;
+  vtkSmartPointer<vtkCorrelativeStatistics>     CorrelativeStats;
+
+  // Views
+  vtkSmartPointer<vtkQtTableView>               TableView0;
+  vtkSmartPointer<vtkQtTableView>               TableView1;
+  vtkSmartPointer<vtkQtTableView>               TableView2;
+  vtkSmartPointer<vtkQtTableView>               TableView3;
+  vtkSmartPointer<vtkQtTableView>               TableView4;
   vtkSmartPointer<vtkQtBarChartView>            BarChart;
   vtkSmartPointer<vtkQtLineChartView>           LineChart;
   vtkSmartPointer<vtkQtStackedChartView>        StackedChart;

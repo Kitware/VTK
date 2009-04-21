@@ -11,8 +11,10 @@
 #include "ui_ChartView.h"
 #include "ChartView.h"
 
-
+#include <vtkCorrelativeStatistics.h>
 #include <vtkDataRepresentation.h>
+#include <vtkDescriptiveStatistics.h>
+#include <vtkOrderStatistics.h>
 #include <vtkQtBarChartView.h>
 #include <vtkQtLineChartView.h>
 #include <vtkQtStackedChartView.h>
@@ -24,7 +26,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkSQLDatabase.h>
 #include <vtkSQLQuery.h>
+#include <vtkStdString.h>
 #include <vtkTable.h>
+#include <vtkTesting.h>
 #include <vtkViewUpdater.h>
 
 
@@ -43,23 +47,46 @@ ChartView::ChartView()
   this->ui = new Ui_ChartView;
   this->ui->setupUi(this);
 
-  this->QueryToTable  = vtkSmartPointer<vtkRowQueryToTable>::New();
-  this->TableView     = vtkSmartPointer<vtkQtTableView>::New();
+  // Data ingestion
+  this->QueryToTable = vtkSmartPointer<vtkRowQueryToTable>::New();
+
+  // Statistics filters
+  this->DescriptiveStats  = vtkSmartPointer<vtkDescriptiveStatistics>::New();
+  this->QuartileStats     = vtkSmartPointer<vtkOrderStatistics>::New();      
+  this->DecileStats       = vtkSmartPointer<vtkOrderStatistics>::New();
+  this->CorrelativeStats  = vtkSmartPointer<vtkCorrelativeStatistics>::New();
+
+  // Views
+  this->TableView0    = vtkSmartPointer<vtkQtTableView>::New();
+  this->TableView1    = vtkSmartPointer<vtkQtTableView>::New();
+  this->TableView2    = vtkSmartPointer<vtkQtTableView>::New();
+  this->TableView3    = vtkSmartPointer<vtkQtTableView>::New();
+  this->TableView4    = vtkSmartPointer<vtkQtTableView>::New();
   this->BarChart      = vtkSmartPointer<vtkQtBarChartView>::New();
   this->LineChart     = vtkSmartPointer<vtkQtLineChartView>::New();
   this->StackedChart  = vtkSmartPointer<vtkQtStackedChartView>::New();
   this->BoxChart      = vtkSmartPointer<vtkQtStatisticalBoxChartView>::New();
   
   // Set widgets for the table view and charts
-  this->ui->tableFrame->layout()->addWidget(this->TableView->GetWidget());
+  this->ui->tableFrame0->layout()->addWidget(this->TableView0->GetWidget());
+  this->ui->tableFrame1->layout()->addWidget(this->TableView1->GetWidget());
+  this->ui->tableFrame2->layout()->addWidget(this->TableView2->GetWidget());
+  this->ui->tableFrame3->layout()->addWidget(this->TableView3->GetWidget());
+  this->ui->tableFrame4->layout()->addWidget(this->TableView4->GetWidget());
   this->ui->barChartFrame->layout()->addWidget(this->BarChart->GetWidget());
   this->ui->lineChartFrame->layout()->addWidget(this->LineChart->GetWidget());
   this->ui->stackedChartFrame->layout()->addWidget(this->StackedChart->GetWidget());
   this->ui->boxChartFrame->layout()->addWidget(this->BoxChart->GetWidget());
+
+  // Set up any display parameters for the views
+  this->BarChart->SetColorSchemeToSpectrum();
   
   // Set up action signals and slots
   connect(this->ui->actionOpenDatabase, SIGNAL(triggered()), this, SLOT(slotOpenDatabase()));
   connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
+
+  // Manually invoke the database open
+  slotOpenDatabase();
 
 };
 
@@ -68,14 +95,22 @@ void ChartView::SetupSelectionLink()
 {
   // Create a selection link and have all the views use it
   VTK_CREATE(vtkSelectionLink,selectionLink);
-  this->TableView->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView0->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView1->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView2->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView3->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView4->GetRepresentation()->SetSelectionLink(selectionLink);
   this->BarChart->GetRepresentation()->SetSelectionLink(selectionLink);
   this->LineChart->GetRepresentation()->SetSelectionLink(selectionLink);
   this->StackedChart->GetRepresentation()->SetSelectionLink(selectionLink);
   this->BoxChart->GetRepresentation()->SetSelectionLink(selectionLink);
 
   VTK_CREATE(vtkViewUpdater,updater);
-  updater->AddView(this->TableView);
+  updater->AddView(this->TableView0);
+  updater->AddView(this->TableView1);
+  updater->AddView(this->TableView2);
+  updater->AddView(this->TableView3);
+  updater->AddView(this->TableView4);
   updater->AddView(this->BarChart);
   updater->AddView(this->LineChart);
   updater->AddView(this->StackedChart);
@@ -98,10 +133,18 @@ ChartView::~ChartView()
 // Action to be taken upon database open 
 void ChartView::slotOpenDatabase()
 {
-  // Browse for and open the database file
   QDir dir;
 
-  // Open the database file
+#if 1
+  // Just opening up a set file for now
+  VTK_CREATE(vtkTesting, testHelper);
+  vtkStdString dataRoot = testHelper->GetDataRoot();
+  QString fileName = dataRoot;
+  fileName += "/Data/Infovis/SQLite/temperatures.db";
+ 
+
+#else
+  // Browse for and open the database file
   QString fileName = QFileDialog::getOpenFileName(
     this, 
     "Select the database file", 
@@ -113,27 +156,60 @@ void ChartView::slotOpenDatabase()
     cerr << "Could not open database file" << endl;
     return;
     }
-    
+#endif
+
   // Create Database
-  QString fullName = "sqlite://" + fileName;
-  this->Database = vtkSQLDatabase::CreateFromURL( fullName.toAscii() );
+  vtkStdString URL = "sqlite://" + fileName.toAscii();
+  this->Database = vtkSQLDatabase::CreateFromURL( URL );
   bool status = this->Database->Open("");
   if ( ! status )
     {
     QString error = "Could not create database with URL: ";
-    error += fullName;
+    error += URL;
     this->slotShowError(error);
     return;
     }
 
 
-  // Create Query
+  // Create Query and put into a table
   vtkSQLQuery* sqlQuery = this->Database->GetQueryInstance();
   sqlQuery->SetQuery("select * from main_tbl");
   QueryToTable->SetQuery(sqlQuery);
+  sqlQuery->Delete(); // -1 reference count
 
-  // Set the input to the table
-  this->TableView->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
+  // Compute a bunch of stats
+  // Calculate descriptive statistics
+  DescriptiveStats->SetInputConnection( 0, this->QueryToTable->GetOutputPort() );
+  DescriptiveStats->AddColumn( "Temp1" );
+  DescriptiveStats->AddColumn( "Temp2" );
+  DescriptiveStats->Update();
+
+  // Calculate order statistics -- quartiles
+  QuartileStats->SetInputConnection( 0, this->QueryToTable->GetOutputPort() );
+  QuartileStats->AddColumn( "Temp1" );
+  QuartileStats->AddColumn( "Temp2" );
+  QuartileStats->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
+  QuartileStats->Update();
+
+  // Calculate order statistics -- deciles
+  DecileStats->SetInputConnection( 0, this->QueryToTable->GetOutputPort() );
+  DecileStats->AddColumn( "Temp1" );
+  DecileStats->AddColumn( "Temp2" );
+  DecileStats->SetNumberOfIntervals( 10 );
+  DecileStats->Update();
+
+  // Calculate correlative statistics
+  CorrelativeStats->SetInputConnection( 0, this->QueryToTable->GetOutputPort() );
+  CorrelativeStats->AddColumnPair( "Temp1", "Temp2" );
+  CorrelativeStats->SetAssess( true );
+  CorrelativeStats->Update();
+
+  // Now output the stats to the table views
+  this->TableView0->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
+  this->TableView1->SetRepresentationFromInputConnection(DescriptiveStats->GetOutputPort(1));
+  this->TableView2->SetRepresentationFromInputConnection(QuartileStats->GetOutputPort(1));
+  this->TableView3->SetRepresentationFromInputConnection(DecileStats->GetOutputPort(1));
+  this->TableView4->SetRepresentationFromInputConnection(CorrelativeStats->GetOutputPort(1));
   
   // Set the input to the charts
   this->BarChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
@@ -141,10 +217,15 @@ void ChartView::slotOpenDatabase()
   this->StackedChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
   this->BoxChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
 
+  // FIXME: Does linked selection really work for charts?
   this->SetupSelectionLink();
 
   // Update all the views
-  this->TableView->Update();
+  this->TableView0->Update();
+  this->TableView1->Update();
+  this->TableView2->Update();
+  this->TableView3->Update();
+  this->TableView4->Update();
   this->BarChart->Update();
   this->LineChart->Update();
   this->StackedChart->Update();
