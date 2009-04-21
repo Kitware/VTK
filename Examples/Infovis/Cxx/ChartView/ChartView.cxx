@@ -16,6 +16,7 @@
 #include <vtkDescriptiveStatistics.h>
 #include <vtkOrderStatistics.h>
 #include <vtkQtBarChartView.h>
+#include <vtkQtChartSeriesOptions.h>
 #include <vtkQtLineChartView.h>
 #include <vtkQtStackedChartView.h>
 #include <vtkQtStatisticalBoxChartView.h>
@@ -216,6 +217,11 @@ void ChartView::slotOpenDatabase()
   this->LineChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
   this->StackedChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
   this->BoxChart->SetRepresentationFromInputConnection(QueryToTable->GetOutputPort());
+
+  // Some display parameters on the charts (hard coded)
+  this->BarChart->Update(); // This ensures that the chart series is created and valid
+  this->BarChart->GetChartSeriesOptions(0)->setVisible(false);
+  this->BarChart->GetChartSeriesOptions(1)->setVisible(false);
 
   // FIXME: Does linked selection really work for charts?
   this->SetupSelectionLink();
