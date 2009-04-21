@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.11");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.12");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -65,7 +65,11 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
        it != values.end(); ++ it )
     {
     buffer.append( *it );
-//    buffer.push_back( 0 );
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+    buffer.append( "0" );
+#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
+    buffer.push_back( 0 );
+#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
     }
 }
 
@@ -73,7 +77,11 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
 void UnpackValues( const vtkStdString& buffer,
                    vtkstd::vector<vtkStdString>& values )
 {
-  //  values.clear();
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+    values.resize( 0 );
+#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
+    values.clear();
+#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
 
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
