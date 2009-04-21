@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1002</width>
+    <width>1139</width>
     <height>666</height>
    </rect>
   </property>
@@ -23,153 +23,201 @@
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" >
-    <property name="spacing" >
-     <number>6</number>
-    </property>
-    <property name="leftMargin" >
-     <number>9</number>
-    </property>
-    <property name="topMargin" >
-     <number>9</number>
-    </property>
-    <property name="rightMargin" >
-     <number>9</number>
-    </property>
-    <property name="bottomMargin" >
-     <number>9</number>
-    </property>
     <item>
-     <widget class="QSplitter" name="splitter_5" >
+     <widget class="QSplitter" name="splitter" >
       <property name="orientation" >
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QGroupBox" name="groupBoxGraph" >
+      <widget class="QGroupBox" name="tableGroup" >
        <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
          <horstretch>1</horstretch>
-         <verstretch>1</verstretch>
+         <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="title" >
-        <string>Views</string>
+        <string>Table View</string>
        </property>
-       <layout class="QHBoxLayout" >
+       <layout class="QVBoxLayout" >
         <property name="spacing" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="leftMargin" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="topMargin" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="rightMargin" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="bottomMargin" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <item>
-         <widget class="QSplitter" name="splitter_3" >
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
+         <widget class="QFrame" name="tableFrame" >
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
           </property>
-          <widget class="QSplitter" name="splitter_2" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="spacing" >
+            <number>0</number>
            </property>
-           <property name="orientation" >
-            <enum>Qt::Vertical</enum>
+           <property name="leftMargin" >
+            <number>0</number>
            </property>
-           <widget class="QFrame" name="treeFrame" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
-              <number>0</number>
-             </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-            </layout>
-           </widget>
-           <widget class="QFrame" name="tableFrame" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
-              <number>0</number>
-             </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-            </layout>
-           </widget>
-           <widget class="QFrame" name="columnFrame" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
-              <number>0</number>
-             </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-            </layout>
-           </widget>
-          </widget>
-          <widget class="QVTKWidget" name="vtkGraphViewWidget" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-             <horstretch>1</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
+           <property name="topMargin" >
+            <number>0</number>
            </property>
-           <property name="minimumSize" >
-            <size>
-             <width>300</width>
-             <height>300</height>
-            </size>
+           <property name="rightMargin" >
+            <number>0</number>
            </property>
-          </widget>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+          </layout>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QSplitter" name="splitter" >
+      <widget class="QGroupBox" name="groupBox" >
        <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-         <horstretch>0</horstretch>
-         <verstretch>2</verstretch>
+        <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+         <horstretch>2</horstretch>
+         <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
+       <property name="title" >
+        <string>Chart Views</string>
        </property>
+       <layout class="QGridLayout" >
+        <property name="leftMargin" >
+         <number>2</number>
+        </property>
+        <property name="topMargin" >
+         <number>2</number>
+        </property>
+        <property name="rightMargin" >
+         <number>2</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>2</number>
+        </property>
+        <property name="horizontalSpacing" >
+         <number>2</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QFrame" name="barChartFrame" >
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QFrame" name="lineChartFrame" >
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QFrame" name="stackedChartFrame" >
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QFrame" name="boxChartFrame" >
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -180,7 +228,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1002</width>
+     <width>1139</width>
      <height>25</height>
     </rect>
    </property>
@@ -188,7 +236,7 @@
     <property name="title" >
      <string>File</string>
     </property>
-    <addaction name="actionOpenXMLFile" />
+    <addaction name="actionOpenDatabase" />
     <addaction name="actionSave" />
     <addaction name="separator" />
     <addaction name="actionPrint" />
@@ -214,13 +262,13 @@
    <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpenXMLFile" />
+   <addaction name="actionOpenDatabase" />
    <addaction name="actionSave" />
    <addaction name="separator" />
    <addaction name="actionPrint" />
    <addaction name="actionHelp" />
   </widget>
-  <action name="actionOpenXMLFile" >
+  <action name="actionOpenDatabase" >
    <property name="enabled" >
     <bool>true</bool>
    </property>
@@ -228,7 +276,7 @@
     <iconset resource="Icons/icons.qrc" >:/Icons/fileopen.png</iconset>
    </property>
    <property name="text" >
-    <string>OpenXML File...</string>
+    <string>Open Database...</string>
    </property>
   </action>
   <action name="actionExit" >
@@ -264,13 +312,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QVTKWidget</class>
-   <extends>QWidget</extends>
-   <header>QVTKWidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="Icons/icons.qrc" />
  </resources>
