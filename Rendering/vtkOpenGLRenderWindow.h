@@ -89,14 +89,6 @@ public:
   virtual int SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
   virtual int SetZbufferData( int x1, int y1, int x2, int y2,
                               vtkFloatArray *buffer );
-
-  // Description:
-  // Make this window the current OpenGL context.
-  void MakeCurrent() = 0;
-  
-  // Description:
-  // Tells if this window is the current OpenGL context for the calling thread.
-  virtual bool IsCurrent()=0;
   
   // Description:
   // Register a texture name with this render window.

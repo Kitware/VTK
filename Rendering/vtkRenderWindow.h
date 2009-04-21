@@ -145,7 +145,7 @@ public:
   // Performed at the end of the rendering process to generate image.
   // This is typically done right before swapping buffers.
   virtual void CopyResultFrame();
-
+  
   // Description:
   // Create an interactor to control renderers in this window. We need
   // to know what type of interactor to create, because we might be in
@@ -306,7 +306,7 @@ public:
   vtkSetMacro(SwapBuffers,int);
   vtkGetMacro(SwapBuffers,int);
   vtkBooleanMacro(SwapBuffers,int);
-
+  
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
   // front argument indicates if the front buffer should be used or the back
@@ -471,9 +471,15 @@ public:
   virtual void SetParentInfo(char *) = 0;
 
   // Description:
-  // Make this the current window.
+  // Attempt to make this window the current graphics context for the calling
+  // thread.
   virtual void MakeCurrent() = 0;
 
+  // Description:
+  // Tells if this window is the current graphics context for the calling
+  // thread.
+  virtual bool IsCurrent()=0;
+  
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
