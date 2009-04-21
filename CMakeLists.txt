@@ -1,30 +1,20 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+# On July 19, 2009: CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
 
-# Check to see if this is CMake 2.6.3 or higher
+# Conveniently CMake 2.6.3 introduces a nice CMAKE_VERSION variable.
 SET(CMAKE_2_6_3_OR_HIGHER 0)
-IF(${CMAKE_MAJOR_VERSION} GREATER 2)
+IF(DEFINED CMAKE_VERSION)
   SET(CMAKE_2_6_3_OR_HIGHER 1)
-ENDIF(${CMAKE_MAJOR_VERSION} GREATER 2)
-IF(${CMAKE_MAJOR_VERSION} EQUAL 2)
-  IF(${CMAKE_MINOR_VERSION} GREATER 6)
-    SET(CMAKE_2_6_3_OR_HIGHER 1)
-  ENDIF(${CMAKE_MINOR_VERSION} GREATER 6)
-  IF(${CMAKE_MINOR_VERSION} EQUAL 6)
-    IF(${CMAKE_PATCH_VERSION} GREATER 2)
-      SET(CMAKE_2_6_3_OR_HIGHER 1)
-    ENDIF(${CMAKE_PATCH_VERSION} GREATER 2)
-  ENDIF(${CMAKE_MINOR_VERSION} EQUAL 6)
-ENDIF(${CMAKE_MAJOR_VERSION} EQUAL 2)
+ELSE(DEFINED CMAKE_VERSION)
+  MESSAGE("VTK will require CMake 2.6.3 starting July 19th 2009. "
+          "Please update your CMake and this message will go away.")
+ENDIF(DEFINED CMAKE_VERSION)
 
-IF(NOT ${CMAKE_2_6_3_OR_HIGHER})
-  MESSAGE(WARNING "VTK will require CMake 2.6.3 starting July 19th 2009. Please update your CMake and this message will go away.")
-ENDIF(NOT ${CMAKE_2_6_3_OR_HIGHER})
-
+# This whole policy block can go away when we require 2.6.3.
 IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0003 NEW)
-  # Should be replaced with
-  # IF(POLICY CMP0011)
-  # when we upgrade to 2.6
+  # CMake 2.4.6 and lower cannot parse "IF(POLICY CMP0011)".
+  # Policy CMP0011 was introduced in 2.6.3.
   IF(CMAKE_2_6_3_OR_HIGHER)
     CMAKE_POLICY(SET CMP0011 NEW)
   ENDIF(CMAKE_2_6_3_OR_HIGHER)
