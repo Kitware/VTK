@@ -38,7 +38,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.8");
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.9");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
 
 
@@ -291,6 +291,10 @@ int vtkPBGLGraphSQLReaderRequestData(
   cout << "["<<rank<<"]\tReader: Done adding edges!" << endl;
   fflush(stdout);
 #endif
+  helper->Synchronize();
+
+  // Call a second synchronize to pick up anything that was possibly sent
+  // in a trigger after the previous synchronize.
   helper->Synchronize();
 
   // Copy into output graph
