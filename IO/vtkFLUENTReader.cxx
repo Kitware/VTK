@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.24");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.25");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -452,6 +452,7 @@ int vtkFLUENTReader::RequestInformation(
       this->VectorSubSectionIds->value.push_back(this->SubSectionIds->value[i]);
       }
     }
+  this->NumberOfCells = (int)this->Cells->value.size();
   return 1;
 }
 
@@ -746,8 +747,8 @@ int vtkFLUENTReader::GetDataChunk ()
     //file pointer to the "))" entry.
     char end[120];
     strcpy(end, "End of Binary Section   ");
-    strcat(end, index.c_str());
-    strcat(end, ")");
+    // strcat(end, index.c_str());
+    // strcat(end, ")");
     size_t len = strlen(end);
 
     // Load the data buffer enough to start comparing to the end vtkstd::string.
