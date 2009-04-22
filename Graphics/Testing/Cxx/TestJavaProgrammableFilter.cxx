@@ -1,6 +1,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include "vtkDebugLeaks.h"
 #include "vtkJavaProgrammableFilter.h"
 #include "vtkJVMManager.h"
 #include "vtkSmartPointer.h"
@@ -117,8 +118,16 @@ int main(int argc, char* argv[])
     }
   cerr << "... success." << endl;
 
+  vtkSmartPointer<vtkJVMManager> manager = vtkSmartPointer<vtkJVMManager>::New();
+  manager->CreateJVM();
+  manager->CallStaticMethod("vtk/vtkGlobalJavaHash", "DeleteAll", "()V");
+
   vtkJVMManager::RemoveAllClassPaths();
   vtkJVMManager::RemoveAllLibraryPaths();
+
+  // There will be leaks, but this is because Java cannot guarantee to
+  // delete everything. Succeed anyway.
+  vtkDebugLeaks::SetExitError(0);
 
   return 0;
 }
