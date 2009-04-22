@@ -46,8 +46,8 @@
 #define __vtkConeLayoutStrategy_h
 
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkPoints.h"
 
+class vtkPoints;
 
 class VTK_INFOVIS_EXPORT vtkConeLayoutStrategy : public vtkGraphLayoutStrategy 
 {
