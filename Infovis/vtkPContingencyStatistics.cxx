@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#if defined(_MSC_VER)
+#pragma warning (disable:4503)
+#endif
+
 #include "vtkToolkits.h"
 
 #include "vtkPContingencyStatistics.h"
@@ -33,7 +37,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.13");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.14");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -70,7 +74,7 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
     {
     buffer.append( *it );
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
-    buffer.append( "0" );
+    buffer.append( 1, 0 );
 #else // defined(_MSC_VER) && (_MSC_VER <= 1200)
     buffer.push_back( 0 );
 #endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
