@@ -24,7 +24,7 @@
 #include <vtkTk.h>
 
 //-------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.56");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.57");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 
@@ -61,9 +61,8 @@ public:
   Tcl_TimerToken TimerToken;
 };
 
-
 //-------------------------------------------------------------------------
-void vtkXTclTimerProc(ClientData clientData)
+extern "C" void vtkXTclTimerProc(ClientData clientData)
 {
   vtkXTclTimer* timer = static_cast<vtkXTclTimer*>(clientData);
 
@@ -84,7 +83,6 @@ void vtkXTclTimerProc(ClientData clientData)
     }
 }
 
-
 //-------------------------------------------------------------------------
 // Map between the Tcl native timer token to our own int id.  Note this
 // is separate from the TimerMap in the vtkRenderWindowInteractor
@@ -100,8 +98,9 @@ public:
 
     timer->Interactor = iren;
     timer->ID = timerId;
-    timer->TimerToken = Tcl_CreateTimerHandler(duration, vtkXTclTimerProc,
-      (ClientData) timer);
+    timer->TimerToken = Tcl_CreateTimerHandler(static_cast<int>(duration),
+                                               vtkXTclTimerProc,
+                                               static_cast<ClientData>(timer));
 
     return timer;
     }
@@ -139,12 +138,14 @@ static int vtkTclEventProc(XtPointer clientData, XEvent *event)
   Boolean ctd;
   vtkXOpenGLRenderWindow *rw;
 
-  rw = (vtkXOpenGLRenderWindow *)
-    (((vtkXRenderWindowTclInteractor *)clientData)->GetRenderWindow());
+  rw = static_cast<vtkXOpenGLRenderWindow *>
+    (static_cast<vtkXRenderWindowTclInteractor *>(
+       clientData)->GetRenderWindow());
 
   if (rw->GetWindowId() == (reinterpret_cast<XAnyEvent *>(event))->window)
     {
-    vtkXRenderWindowInteractorCallback((Widget)NULL, clientData, event, &ctd);
+    vtkXRenderWindowInteractorCallback(static_cast<Widget>(NULL), clientData,
+                                       event, &ctd);
     ctd = 0;
     }
   else
@@ -168,8 +169,8 @@ vtkXRenderWindowTclInteractor::~vtkXRenderWindowTclInteractor()
 {
   if (this->Initialized)
     {
-    Tk_DeleteGenericHandler((Tk_GenericProc *)vtkTclEventProc,
-                            (ClientData)this);
+    Tk_DeleteGenericHandler(static_cast<Tk_GenericProc *>(vtkTclEventProc),
+                            static_cast<ClientData>(this));
     }
 
   delete this->Internal;
@@ -209,7 +210,8 @@ void vtkXRenderWindowTclInteractor::Initialize()
 
   // Create a Tcl/Tk event handler:
   //
-  Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc, (ClientData)this);
+  Tk_CreateGenericHandler(static_cast<Tk_GenericProc *>(vtkTclEventProc),
+                          static_cast<ClientData>(this));
 
   ren->Start();
   this->WindowId = ren->GetWindowId();
