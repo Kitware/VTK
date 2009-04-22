@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkConeLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkConeLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkConeLayoutStrategy);
 
 vtkConeLayoutStrategy::vtkConeLayoutStrategy()
@@ -288,5 +288,8 @@ void vtkConeLayoutStrategy::Layout()
 void vtkConeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Spacing: " << this->Spacing << endl;
+  os << indent << "Compactness: " << this->Compactness << endl;
+  os << indent << "Compression: " << this->Compression << endl;
 }
 
