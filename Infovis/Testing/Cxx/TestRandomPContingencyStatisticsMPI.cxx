@@ -37,8 +37,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-// For debugging purposes, output results of serial engines ran on each slice of the distributed data set
-#define PRINT_ALL_SERIAL_STATS 0 
+// For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
+#define DEBUG_CONTINGENCY_TABLE 0 
 
 struct RandomSampleStatisticsArgs
 {
@@ -130,7 +130,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+
+#if DEBUG_CONTINGENCY_TABLE
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  outputContigency->Dump();
+#endif // DEBUG_CONTINGENCY_TABLE
 
   vtkIdType key = 0;
   vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
