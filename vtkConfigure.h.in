@@ -141,6 +141,9 @@
 /* Whether the Boost library is being used */
 #cmakedefine VTK_USE_BOOST
 
+/* Whether the Qt files are available */
+#cmakedefine VTK_USE_QT
+
 /*--------------------------------------------------------------------------*/
 /* VTK Versioning                                                           */
 
