@@ -50,7 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelSurface, "1.1");
+vtkCxxRevisionMacro(vtkQtLabelSurface, "1.2");
 vtkStandardNewMacro(vtkQtLabelSurface);
 vtkCxxSetObjectMacro(vtkQtLabelSurface,LabelTextProperty,vtkTextProperty);
 
@@ -537,6 +537,7 @@ void vtkQtLabelSurface::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
   os << indent << "Field Data Name: " << (this->FieldDataName ? this->FieldDataName : "Null") << "\n";
+  os << indent << "TextRotationArrayName: " << (this->TextRotationArrayName ? this->TextRotationArrayName : "(none)") << endl;
 }
 
 // ----------------------------------------------------------------------
