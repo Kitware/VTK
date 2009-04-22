@@ -317,6 +317,20 @@ IF(VTK_USE_X)
   SET( Kit_SRCS ${Kit_SRCS} vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
 
+IF(VTK_USE_QT)   
+  SET(QT_DONT_USE_QTGUI)
+  INCLUDE(${QT_USE_FILE})
+
+  SET( Kit_SRCS ${Kit_SRCS}
+    vtkQImageToImageSource.cxx
+    vtkQtLabelMapper.cxx
+    vtkQtLabelSizeCalculator.cxx
+    vtkQtLabelSurface.cxx
+    vtkQtTreeRingLabelMapper.cxx
+    )
+  SET (KIT_LIBS ${KIT_LIBS} ${QT_LIBRARIES})
+ENDIF(VTK_USE_QT)
+
 # The set of source files to be encoded.
 SET(glsl_files
   vtkDepthPeeling_fs

@@ -13,7 +13,7 @@
 #include "vtkPointData.h"
 #include "vtkTextProperty.h"
 
-#include "vtkQtInitialization.h"
+#include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
 
@@ -27,7 +27,11 @@ vtkCxxSetObjectMacro(vtkQtLabelSizeCalculator,FontProperty,vtkTextProperty);
 
 vtkQtLabelSizeCalculator::vtkQtLabelSizeCalculator()
 {
-  VTK_CREATE( vtkQtInitialization, initApp );
+  if(!QApplication::instance())
+    {
+    int argc = 0;
+    new QApplication(argc, 0);
+    }
 
   this->FontProperty = vtkTextProperty::New(); // Always defined but user may set to NULL.
   this->LabelSizeArrayName = 0;

@@ -29,12 +29,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       QVTKPaintEngine.cxx
       QVTKPaintEngine.h
       vtkQtAbstractModelAdapter.cxx
-      vtkQImageToImageSource.cxx
       vtkQtInitialization.cxx
-      vtkQtLabelMapper.cxx
-      vtkQtLabelSizeCalculator.cxx
-      vtkQtLabelSurface.cxx
-      vtkQtTreeRingLabelMapper.cxx
       vtkQtSQLDatabase.cxx
       vtkQtSQLQuery.cxx
       vtkQtTableModelAdapter.cxx
@@ -65,7 +60,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtTableView.cxx
       vtkQtTreeView.cxx
       vtkQtView.cxx
-      vtkTreeRingView3.cxx
       ) 
     SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
     SET ( QVTKMocHeaders ${QVTKMocHeaders}

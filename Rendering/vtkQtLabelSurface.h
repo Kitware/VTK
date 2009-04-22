@@ -37,15 +37,17 @@
 #define __vtkQtLabelSurface_h
 
 #include "vtkImageAlgorithm.h"
-#include "QVTKWin32Header.h"
 
 class vtkDataObject;
 class vtkDataSet;
 class vtkTextProperty;
 class vtkRenderer;
-class QPainter;
 
-class QVTK_EXPORT vtkQtLabelSurface : public vtkImageAlgorithm
+//BTX
+class QPainter;
+//ETX
+
+class VTK_RENDERING_EXPORT vtkQtLabelSurface : public vtkImageAlgorithm
 {
 public:
   // Description:

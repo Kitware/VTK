@@ -2,7 +2,7 @@
 #define __vtkQtLabelSizeCalculator_h
 
 #include "vtkPassInputTypeAlgorithm.h"
-#include "QVTKWin32Header.h"
+//#include "QVTKWin32Header.h"
 
 class vtkIntArray;
 class vtkStringArray;
@@ -21,7 +21,7 @@ class vtkTextProperty;
 // In no input array is specified, the first of the following that
 // is a string array is used: point scalars, cell scalars, field scalars.
 
-class QVTK_EXPORT vtkQtLabelSizeCalculator : public vtkPassInputTypeAlgorithm
+class VTK_RENDERING_EXPORT vtkQtLabelSizeCalculator : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkQtLabelSizeCalculator* New();

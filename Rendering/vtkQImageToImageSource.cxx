@@ -22,7 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkPointData.h"
 
-#include "vtkQtInitialization.h"
+#include <QApplication>
 #include <QImage>
 #include <math.h>
 
@@ -36,7 +36,11 @@ vtkStandardNewMacro(vtkQImageToImageSource);
 //----------------------------------------------------------------------------
 vtkQImageToImageSource::vtkQImageToImageSource()
 {
-  VTK_CREATE( vtkQtInitialization, initApp );
+  if(!QApplication::instance())
+    {
+    int argc = 0;
+    new QApplication(argc, 0);
+    }
 
   this->QtImage = 0;
   this->SetNumberOfInputPorts(0);

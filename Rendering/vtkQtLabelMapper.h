@@ -48,7 +48,6 @@
 #define __vtkQtLabelMapper_h
 
 #include "vtkLabeledDataMapper.h"
-#include "QVTKWin32Header.h"
 
 class vtkQtLabelSizeCalculator;
 class vtkLabelPlacer;
@@ -58,7 +57,7 @@ class vtkPolyDataMapper2D;
 
 #include "vtkSmartPointer.h" //include to avoid compiler error
 
-class QVTK_EXPORT vtkQtLabelMapper : public vtkLabeledDataMapper
+class VTK_RENDERING_EXPORT vtkQtLabelMapper : public vtkLabeledDataMapper
 {
 public:
   static vtkQtLabelMapper *New();

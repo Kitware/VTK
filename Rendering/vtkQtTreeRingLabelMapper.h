@@ -42,9 +42,11 @@
 #define __vtkQtTreeRingLabelMapper_h
 
 #include "vtkLabeledDataMapper.h"
-#include "QVTKWin32Header.h"
 
+//BTX
 class QImage;
+//ETX 
+
 class vtkQImageToImageSource;
 class vtkCoordinate;
 class vtkDoubleArray;
@@ -56,7 +58,7 @@ class vtkTexture;
 class vtkTextureMapToPlane;
 class vtkTree;
 
-class QVTK_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMapper
+class VTK_RENDERING_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMapper
 {
 public:
   static vtkQtTreeRingLabelMapper *New();

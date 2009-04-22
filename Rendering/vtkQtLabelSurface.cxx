@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextureMapToPlane.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtkQtInitialization.h"
+#include <QApplication>
 #include <QColor>
 #include <QFont>
 #include <QImage>
@@ -50,7 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelSurface, "1.4");
+vtkCxxRevisionMacro(vtkQtLabelSurface, "1.1");
 vtkStandardNewMacro(vtkQtLabelSurface);
 vtkCxxSetObjectMacro(vtkQtLabelSurface,LabelTextProperty,vtkTextProperty);
 
@@ -58,7 +58,11 @@ vtkCxxSetObjectMacro(vtkQtLabelSurface,LabelTextProperty,vtkTextProperty);
 // Creates a new label mapper
 vtkQtLabelSurface::vtkQtLabelSurface()
 {
-  VTK_CREATE( vtkQtInitialization, initApp );
+  if(!QApplication::instance())
+    {
+    int argc = 0;
+    new QApplication(argc, 0);
+    }
   
   this->Input = NULL;
   this->Renderer = NULL;

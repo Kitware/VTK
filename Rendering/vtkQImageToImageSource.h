@@ -20,11 +20,12 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkQImageToImageSource_h
 
 #include "vtkImageAlgorithm.h"
-#include "QVTKWin32Header.h"
 
+//BTX
 class QImage;
+//ETX
 
-class QVTK_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
+class VTK_RENDERING_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
 {
 public:
   static vtkQImageToImageSource *New();

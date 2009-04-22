@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextureMapToPlane.h"
 #include "vtkTree.h"
 
-#include "vtkQtInitialization.h"
+#include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
 #include <QImage>
@@ -55,14 +55,18 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.3");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.1");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
 
 vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
 {
-  VTK_CREATE( vtkQtInitialization, initApp );
+  if(!QApplication::instance())
+    {
+    int argc = 0;
+    new QApplication(argc, 0);
+    }
   
   this->Input = NULL;
   this->Renderer = NULL;
