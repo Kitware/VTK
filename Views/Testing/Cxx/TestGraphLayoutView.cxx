@@ -32,6 +32,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
 
+using vtkstd::string;
+
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -1076,11 +1078,13 @@ char GraphLayoutViewEventLog[] =
 
 int TestGraphLayoutView(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/treetest.xml");
+  VTK_CREATE(vtkTesting, testHelper);
+  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  string dataRoot = testHelper->GetDataRoot();
+  string file = dataRoot + "/Data/treetest.xml";
 
   VTK_CREATE(vtkXMLTreeReader, reader);
-  reader->SetFileName(file);
+  reader->SetFileName(file.c_str());
   reader->SetMaskArrays(true);
   reader->Update();
   vtkTree* t = reader->GetOutput();
@@ -1165,6 +1169,5 @@ int TestGraphLayoutView(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
     }
 
-  delete [] file;
   return !retVal;
 }
