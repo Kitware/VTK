@@ -19,6 +19,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestTreeRingView.cxx
       TestIcicleView.cxx
       )
+    IF (VTK_USE_QT)
+      # add tests that require Qt
+      SET(MyTests ${MyTests}
+        TestQtTreeRingLabeler.cxx
+        )
+    ENDIF(VTK_USE_QT)
   ENDIF (VTK_DATA_ROOT)
   # Add these classes only if vtkTypeUInt64Array exists
   IF(VTK_HAS_UINT64_ARRAY)
