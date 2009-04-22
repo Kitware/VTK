@@ -47,6 +47,7 @@ class vtkActor2D;
 class vtkArcParallelEdgeStrategy;
 class vtkCircularLayoutStrategy;
 class vtkClustering2DLayoutStrategy;
+class vtkConeLayoutStrategy;
 class vtkCoordinate;
 class vtkCommunity2DLayoutStrategy;
 class vtkConstrained2DLayoutStrategy;
@@ -179,10 +180,13 @@ public:
   //  - "Fast 2D"       A linear-time 2D layout.
   //  - "Pass Through"  Use locations assigned to the input.
   //  - "Circular"      Places vertices uniformly on a circle.
+  //  - "Cone"          Places vertices using a conical tree strategy.
   // Default is "Simple 2D".
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToRandom()
     { this->SetLayoutStrategy("Random"); }
+  void SetLayoutStrategyToCone()
+    { this->SetLayoutStrategy("Cone"); }
   void SetLayoutStrategyToForceDirected()
     { this->SetLayoutStrategy("Force Directed"); }
   void SetLayoutStrategyToSimple2D()
@@ -387,6 +391,7 @@ protected:
   // Representation objects
   vtkSmartPointer<vtkGraphLayout>                  GraphLayout;
   vtkSmartPointer<vtkRandomLayoutStrategy>         RandomStrategy;
+  vtkSmartPointer<vtkConeLayoutStrategy>           ConeStrategy;
   vtkSmartPointer<vtkForceDirectedLayoutStrategy>  ForceDirectedStrategy;
   vtkSmartPointer<vtkSimple2DLayoutStrategy>       Simple2DStrategy;
   vtkSmartPointer<vtkClustering2DLayoutStrategy>   Clustering2DStrategy;

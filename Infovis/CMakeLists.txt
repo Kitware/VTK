@@ -29,6 +29,7 @@ vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
 vtkCollapseGraph.cxx
 vtkCommunity2DLayoutStrategy.cxx
+vtkConeLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
 vtkContingencyStatistics.cxx
 vtkCorrelativeStatistics.cxx

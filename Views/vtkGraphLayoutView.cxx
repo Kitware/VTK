@@ -28,6 +28,7 @@
 #include "vtkCellData.h"
 #include "vtkCircularLayoutStrategy.h"
 #include "vtkClustering2DLayoutStrategy.h"
+#include "vtkConeLayoutStrategy.h"
 #include "vtkCommand.h"
 #include "vtkCommunity2DLayoutStrategy.h"
 #include "vtkConstrained2DLayoutStrategy.h"
@@ -73,7 +74,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.54");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.55");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -613,6 +614,10 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
   else if (!strcmp(str, "circular"))
     {
     this->LayoutStrategy = this->CircularStrategy;
+    }
+  else if (!strcmp(str, "cone"))
+    {
+    this->LayoutStrategy = this->ConeStrategy;
     }
   else
     {
@@ -1220,6 +1225,8 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->PassThroughStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "CircularStrategy: " << endl;
   this->CircularStrategy->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "ConeStrategy: " << endl;
+  this->ConeStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "GraphLayout: " << endl;
   this->GraphLayout->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexDegree: " << endl;
