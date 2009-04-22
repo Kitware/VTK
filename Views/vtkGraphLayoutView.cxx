@@ -74,7 +74,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.55");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.56");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -89,7 +89,8 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->Fast2DStrategy         = vtkSmartPointer<vtkFast2DLayoutStrategy>::New();
   this->ForceDirectedStrategy  = vtkSmartPointer<vtkForceDirectedLayoutStrategy>::New();
   this->PassThroughStrategy    = vtkSmartPointer<vtkPassThroughLayoutStrategy>::New();
-  this->CircularStrategy       = vtkSmartPointer<vtkCircularLayoutStrategy>::New();
+  this->CircularStrategy       = vtkSmartPointer<vtkCircularLayoutStrategy>::New(); 
+  this->ConeStrategy           = vtkSmartPointer<vtkConeLayoutStrategy>::New();
   this->EdgeLayout             = vtkSmartPointer<vtkEdgeLayout>::New();
   this->ArcParallelStrategy    = vtkSmartPointer<vtkArcParallelEdgeStrategy>::New();
   this->PassThroughEdgeStrategy = vtkSmartPointer<vtkPassThroughEdgeStrategy>::New();
