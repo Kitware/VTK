@@ -6,7 +6,7 @@ SET(CMAKE_2_6_3_OR_HIGHER 0)
 IF(DEFINED CMAKE_VERSION)
   SET(CMAKE_2_6_3_OR_HIGHER 1)
 ELSE(DEFINED CMAKE_VERSION)
-  MESSAGE("VTK will require CMake 2.6.3 starting July 19th 2009. "
+  MESSAGE("WARNING: VTK will require CMake 2.6.3 starting July 19th 2009. "
           "Please update your CMake and this message will go away.")
 ENDIF(DEFINED CMAKE_VERSION)
 
