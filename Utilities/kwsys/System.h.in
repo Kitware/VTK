@@ -39,6 +39,15 @@
 # define kwsysSystem_Shell_Flag_AllowMakeVariables    kwsys_ns(System_Shell_Flag_AllowMakeVariables)
 #endif
 
+#ifdef __VMS
+#define @KWSYS_NAMESPACE@System_Shell_GetArgumentForUnix \
+   @KWSYS_NAMESPACE@System_Shell_UnixGA
+#define @KWSYS_NAMESPACE@System_Shell_GetArgumentSizeForUnix \
+   @KWSYS_NAMESPACE@System_Shell_UnixGAS
+#define @KWSYS_NAMESPACE@System_Shell_GetArgumentForWindows \
+   @KWSYS_NAMESPACE@System_Shell_WindowsGA
+#endif
+
 #if defined(__cplusplus)
 extern "C"
 {
