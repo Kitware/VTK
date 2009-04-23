@@ -26,6 +26,8 @@
 
 #include "vtkContingencyStatistics.h"
 
+#include <vtkstd/vector>
+
 class vtkMultiProcessController;
 
 class VTK_INFOVIS_EXPORT vtkPContingencyStatistics : public vtkContingencyStatistics
@@ -49,6 +51,17 @@ public:
 protected:
   vtkPContingencyStatistics();
   ~vtkPContingencyStatistics();
+
+  // Description:
+  // Reduce the collection of local contingency tables to the global one
+  void Reduce( vtkIdType myRank,
+               char* xyPacked_g,
+               vtkIdType& xySizeTotal,
+               vtkstd::vector<vtkStdString>& xyValues_l,
+               vtkStdString& xyPacked_l,
+               vtkIdType*  kcValues_g,
+               vtkIdType& kcSizeTotal,
+               vtkstd::vector<vtkIdType>& kcValues_l );
 
   vtkMultiProcessController* Controller;
 private:
