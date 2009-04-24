@@ -24,7 +24,7 @@
 #include <vtkTk.h>
 
 //-------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.57");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.58");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 
@@ -133,7 +133,7 @@ private:
 
 
 //-------------------------------------------------------------------------
-static int vtkTclEventProc(XtPointer clientData, XEvent *event)
+extern "C" int vtkTclEventProc(XtPointer clientData, XEvent *event)
 {
   Boolean ctd;
   vtkXOpenGLRenderWindow *rw;
