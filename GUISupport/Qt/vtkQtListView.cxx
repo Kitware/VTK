@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtListView, "1.5");
+vtkCxxRevisionMacro(vtkQtListView, "1.6");
 vtkStandardNewMacro(vtkQtListView);
 
 
@@ -80,7 +80,7 @@ void vtkQtListView::SetAlternatingRowColors(bool state)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtListView::AddInputConnection(
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Get a handle to the input data object. Note: For now
@@ -105,7 +105,7 @@ void vtkQtListView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(ind
 }
 
 //----------------------------------------------------------------------------
-void vtkQtListView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtListView::RemoveInputConnection(
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Remove VTK data from the adapter

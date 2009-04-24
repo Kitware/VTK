@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.7");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.8");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void vtkQtTreeView::HideColumn(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTreeView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtTreeView::AddInputConnection(
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Get a handle to the input data object. Note: For now
@@ -137,7 +137,7 @@ void vtkQtTreeView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(ind
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTreeView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtTreeView::RemoveInputConnection(
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Remove VTK data from the adapter

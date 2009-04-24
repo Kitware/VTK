@@ -82,13 +82,13 @@ protected:
   // Description:
   // Connects the algorithm output to the internal pipeline.
   // This view only supports a single representation.
-  virtual void AddInputConnection( int port, int index,
+  virtual void AddInputConnection(
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
   
   // Description:
   // Removes the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection( int port, int index,
+  virtual void RemoveInputConnection(
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
 

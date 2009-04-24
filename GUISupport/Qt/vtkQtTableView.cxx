@@ -44,7 +44,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.12");
+vtkCxxRevisionMacro(vtkQtTableView, "1.13");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ bool vtkQtTableView::GetSplitMultiComponentColumns()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtTableView::AddInputConnection(
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
   this->DataObjectToTable->SetInputConnection(0, conn);
@@ -174,7 +174,7 @@ void vtkQtTableView::AddInputConnection( int vtkNotUsed(port), int vtkNotUsed(in
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableView::RemoveInputConnection(int vtkNotUsed(port), int vtkNotUsed(index),
+void vtkQtTableView::RemoveInputConnection(
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
   if (this->DataObjectToTable->GetInputConnection(0, 0) == conn)
@@ -274,10 +274,10 @@ void vtkQtTableView::Update()
   if (this->DataObjectToTable->GetInputConnection(0, 0) != conn ||
       this->AddSelectedColumn->GetInputConnection(1, 0) != selectionConn)
     {
-    this->RemoveInputConnection( 0, 0,
+    this->RemoveInputConnection(
       this->DataObjectToTable->GetInputConnection(0, 0),
       this->AddSelectedColumn->GetInputConnection(1, 0));
-    this->AddInputConnection(0, 0, conn, selectionConn);
+    this->AddInputConnection(conn, selectionConn);
     }
   
   this->DataObjectToTable->Update();

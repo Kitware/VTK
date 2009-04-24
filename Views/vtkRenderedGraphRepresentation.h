@@ -190,7 +190,7 @@ public:
   // contracting levels, and = 1 makes all levels the same size. See
   // vtkTreeLayoutStrategy for more information.
   virtual void SetLayoutStrategyToTree(
-    bool radial = false,
+    bool radial,
     double angle = 90,
     double leafSpacing = 0.9,
     double logSpacing = 1.0);
@@ -205,7 +205,7 @@ public:
   // node of the layout (default is -1, which will use the tree's root).
   // See vtkCosmicTreeLayoutStrategy for more information.
   virtual void SetLayoutStrategyToCosmicTree(
-    const char* nodeSizeArrayName = 0,
+    const char* nodeSizeArrayName,
     bool sizeLeafNodesOnly = true,
     int layoutDepth = 0,
     vtkIdType layoutRoot = -1);
