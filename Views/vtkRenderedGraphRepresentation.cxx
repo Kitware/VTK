@@ -74,7 +74,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.3");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1199,8 +1199,8 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
 
-  int baseSize = theme->GetPointSize();
-  int lineWidth = theme->GetLineWidth();
+  float baseSize = static_cast<float>(theme->GetPointSize());
+  float lineWidth = static_cast<float>(theme->GetLineWidth());
   this->VertexGlyph->SetScreenSize(baseSize);
   this->VertexActor->GetProperty()->SetPointSize(baseSize);
   this->OutlineGlyph->SetScreenSize(baseSize + 2);
