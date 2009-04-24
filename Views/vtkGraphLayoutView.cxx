@@ -74,7 +74,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.57");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.58");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -1091,14 +1091,13 @@ void vtkGraphLayoutView::ZoomToSelection()
   // Iterate over the selection's nodes, constructing a list of selected vertices.
   // In the case of an edge selection, we add the edges' vertices to vertex list.
 
-  vtkIdType i;
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasEdges = false;
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasVertices = false;
-  for( i = 0; i < converted->GetNumberOfNodes(); ++i)
+  for( unsigned int m = 0; m < static_cast<vtkIdType>(converted->GetNumberOfNodes()); ++m)
     {
-    vtkSelectionNode* node = converted->GetNode(i);
+    vtkSelectionNode* node = converted->GetNode(m);
     vtkIdTypeArray* list = 0;
     if (node->GetFieldType() == vtkSelectionNode::VERTEX)
       {
@@ -1147,6 +1146,7 @@ void vtkGraphLayoutView::ZoomToSelection()
       } // end if (list)
     } // end for each child
 
+  vtkIdType i;
   if(hasEdges)
     {
     vtkIdType numSelectedEdges = edgeList->GetNumberOfTuples();
