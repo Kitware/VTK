@@ -52,6 +52,7 @@ protected:
   vtkPContingencyStatistics();
   ~vtkPContingencyStatistics();
 
+//BTX
   // Description:
   // Reduce the collection of local contingency tables to the global one
   void Reduce( vtkIdType myRank,
@@ -62,6 +63,7 @@ protected:
                vtkIdType*  kcValues_g,
                vtkIdType& kcSizeTotal,
                vtkstd::vector<vtkIdType>& kcValues_l );
+//ETX
 
   vtkMultiProcessController* Controller;
 private:
