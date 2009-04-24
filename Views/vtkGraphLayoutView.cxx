@@ -74,7 +74,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.56");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.57");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -1091,11 +1091,12 @@ void vtkGraphLayoutView::ZoomToSelection()
   // Iterate over the selection's nodes, constructing a list of selected vertices.
   // In the case of an edge selection, we add the edges' vertices to vertex list.
 
+  vtkIdType i;
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasEdges = false;
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
   bool hasVertices = false;
-  for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
+  for( i = 0; i < converted->GetNumberOfNodes(); ++i)
     {
     vtkSelectionNode* node = converted->GetNode(i);
     vtkIdTypeArray* list = 0;
@@ -1149,7 +1150,7 @@ void vtkGraphLayoutView::ZoomToSelection()
   if(hasEdges)
     {
     vtkIdType numSelectedEdges = edgeList->GetNumberOfTuples();
-    for (vtkIdType i = 0; i < numSelectedEdges; ++i)
+    for( i = 0; i < numSelectedEdges; ++i)
       {
       vtkIdType eid = edgeList->GetValue(i);
       vertexList->InsertNextValue(data->GetSourceVertex(eid));
@@ -1168,7 +1169,6 @@ void vtkGraphLayoutView::ZoomToSelection()
   // we'll use to reset the camera.
 
   double bounds[6];
-  vtkIdType i;
   double position[3];
   data->GetPoint(vertexList->GetValue(0), position);
   bounds[0] = bounds[1] = position[0];
