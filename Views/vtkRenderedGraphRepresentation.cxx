@@ -32,6 +32,7 @@
 #include "vtkCircularLayoutStrategy.h"
 #include "vtkClustering2DLayoutStrategy.h"
 #include "vtkCommunity2DLayoutStrategy.h"
+#include "vtkConeLayoutStrategy.h"
 #include "vtkConvertSelection.h"
 #include "vtkCosmicTreeLayoutStrategy.h"
 #include "vtkDirectedGraph.h"
@@ -73,7 +74,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.2");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -743,6 +744,10 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(vtkGraphLayoutStrategy* s
     {
     this->SetLayoutStrategyName("Pass Through");
     }
+  else if (vtkConeLayoutStrategy::SafeDownCast(s))
+    {
+    this->SetLayoutStrategyName("Cone");
+    }
   else
     {
     this->SetLayoutStrategyName("Unknown");
@@ -797,6 +802,10 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(const char* name)
   else if (str == "cosmictree")
     {
     strategy = vtkSmartPointer<vtkCosmicTreeLayoutStrategy>::New();
+    }
+  else if (str == "cone")
+    {
+    strategy = vtkSmartPointer<vtkConeLayoutStrategy>::New();
     }
   else if (str != "passthrough")
     {

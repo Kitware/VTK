@@ -167,6 +167,12 @@ public:
     { this->SetLayoutStrategy("Pass Through"); }
   void SetLayoutStrategyToCircular()
     { this->SetLayoutStrategy("Circular"); }
+  void SetLayoutStrategyToTree()
+    { this->SetLayoutStrategy("Tree"); }
+  void SetLayoutStrategyToCosmicTree()
+    { this->SetLayoutStrategy("Cosmic Tree"); }
+  void SetLayoutStrategyToCone()
+    { this->SetLayoutStrategy("Cone"); }
 
   // Description:
   // Set the layout strategy to use coordinates from arrays.

@@ -142,6 +142,7 @@ public:
   //  - "Fast 2D"       A linear-time 2D layout.
   //  - "Pass Through"  Use locations assigned to the input.
   //  - "Circular"      Places vertices uniformly on a circle.
+  //  - "Cone"          Cone tree layout.
   // Default is "Simple 2D".
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToRandom()
@@ -164,6 +165,8 @@ public:
     { this->SetLayoutStrategy("Tree"); }
   void SetLayoutStrategyToCosmicTree()
     { this->SetLayoutStrategy("Cosmic Tree"); }
+  void SetLayoutStrategyToCone()
+    { this->SetLayoutStrategy("Cone"); }
   const char* GetLayoutStrategyName();
 
   // Description:
