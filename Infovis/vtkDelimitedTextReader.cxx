@@ -41,7 +41,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.29");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.30");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -193,6 +193,12 @@ int vtkDelimitedTextReader::RequestData(
     return 1;
     }
 
+  // If the filename hasn't been specified, we're done ...
+  if(!this->FileName)
+    {
+    return 1;
+    }
+    
   if(!this->PedigreeIdArrayName)
     {
     vtkErrorMacro(<< "You must specify a pedigree id array name.");
@@ -202,13 +208,6 @@ int vtkDelimitedTextReader::RequestData(
 
   int line_count = 0;
 
-  // Check that the filename has been specified
-  if (!this->FileName)
-    {
-    vtkErrorMacro("vtkDelimitedTextReader: You must specify a filename!");
-    return 0;
-    }
-    
   // Open the file
   this->OpenFile();
   
