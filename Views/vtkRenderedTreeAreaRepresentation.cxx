@@ -78,7 +78,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.2");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -243,7 +243,8 @@ void vtkRenderedTreeAreaRepresentation::SetAreaColorArrayName(const char* name)
 
 bool vtkRenderedTreeAreaRepresentation::ValidIndex(int idx)
 {
-  return (idx >= 0 && idx < this->Implementation->Graphs.size());
+  return (idx >= 0 &&
+          idx < static_cast<int>(this->Implementation->Graphs.size()));
 }
 
 const char* vtkRenderedTreeAreaRepresentation::GetGraphEdgeColorArrayName(int idx)
@@ -795,7 +796,7 @@ void vtkRenderedTreeAreaRepresentation::SetupInputConnections()
     this->GetSelectionConnection());
 
   // Add new graph objects if needed.
-  int numGraphs = static_cast<int>(this->GetNumberOfInputConnections(1));
+  size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
   while (numGraphs > this->Implementation->Graphs.size())
     {
     this->Implementation->Graphs.push_back(
@@ -804,7 +805,7 @@ void vtkRenderedTreeAreaRepresentation::SetupInputConnections()
 
   // Keep track of actors to remove if the number of input connections
   // decreased.
-  for (int i = numGraphs; i < this->Implementation->Graphs.size(); ++i)
+  for (size_t i = numGraphs; i < this->Implementation->Graphs.size(); ++i)
     {
     this->Implementation->ActorsToRemove.push_back(
       this->Implementation->Graphs[i]->GetActor());
@@ -884,7 +885,8 @@ void vtkRenderedTreeAreaRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
 
   // Make sure we have the right number of graphs
-  if (this->GetNumberOfInputConnections(1) != this->Implementation->Graphs.size())
+  if (this->GetNumberOfInputConnections(1) !=
+      static_cast<int>(this->Implementation->Graphs.size()))
     {
     this->Update();
     }

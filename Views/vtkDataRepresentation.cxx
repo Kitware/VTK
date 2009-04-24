@@ -78,7 +78,7 @@ public:
 protected:
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomain;
 };
-vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.9");
+vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.10");
 vtkStandardNewMacro(vtkDataRepresentationInput);
 
 //---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.10");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   SelectionLinkInternal, vtkSelectionLink);
@@ -189,16 +189,18 @@ int vtkDataRepresentation::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
+  size_t numInputPorts = static_cast<size_t>(this->GetNumberOfInputPorts());
   // Create placeholders for inputs if they do not exist.
   for (size_t i = this->Implementation->Inputs.size();
-       i < this->GetNumberOfInputPorts(); ++i)
+       i < numInputPorts; ++i)
     {
     this->Implementation->Inputs.push_back(
       vtkstd::vector<vtkSmartPointer<vtkDataRepresentationInput> >());
     }
-  for (int i = 0; i < this->GetNumberOfInputPorts(); ++i)
+  for (size_t i = 0; i < numInputPorts; ++i)
     {
-    int connections = inputVector[i]->GetNumberOfInformationObjects();
+    size_t connections = static_cast<size_t>(
+      inputVector[i]->GetNumberOfInformationObjects());
     for (size_t j = this->Implementation->Inputs[i].size();
          j < connections; ++j)
       {

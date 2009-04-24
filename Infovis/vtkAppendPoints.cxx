@@ -28,7 +28,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAppendPoints, "1.1");
+vtkCxxRevisionMacro(vtkAppendPoints, "1.2");
 vtkStandardNewMacro(vtkAppendPoints);
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
     idArr->SetName(this->InputIdArrayName);
     idArr->SetNumberOfTuples(totalPoints);
     }
-  for (int idx = 0; idx < inputs.size(); ++idx)
+  for (size_t idx = 0; idx < inputs.size(); ++idx)
     {
     vtkPolyData* input = inputs[idx];
     if (input)
@@ -152,7 +152,7 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
         pts->InsertPoint(index, input->GetPoint(i));
         if (this->InputIdArrayName)
           {
-          idArr->InsertValue(index, idx);
+          idArr->InsertValue(index, static_cast<int>(idx));
           }
         ++index;
         }

@@ -51,7 +51,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.2");
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);
 
 vtkRenderedHierarchyRepresentation::vtkRenderedHierarchyRepresentation()
@@ -69,7 +69,8 @@ vtkRenderedHierarchyRepresentation::~vtkRenderedHierarchyRepresentation()
 
 bool vtkRenderedHierarchyRepresentation::ValidIndex(int idx)
 {
-  return (idx >= 0 && idx < this->Implementation->Graphs.size());
+  return (idx >= 0 &&
+          idx < static_cast<int>(this->Implementation->Graphs.size()));
 }
 
 void vtkRenderedHierarchyRepresentation::SetGraphEdgeLabelArrayName(const char* name, int idx)
@@ -243,7 +244,7 @@ void vtkRenderedHierarchyRepresentation::SetupInputConnections()
   this->Superclass::SetupInputConnections();
 
   // Add new graph objects if needed.
-  int numGraphs = static_cast<int>(this->GetNumberOfInputConnections(1));
+  size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
   while (numGraphs > this->Implementation->Graphs.size())
     {
     this->Implementation->Graphs.push_back(
@@ -252,7 +253,7 @@ void vtkRenderedHierarchyRepresentation::SetupInputConnections()
 
   // Keep track of actors to remove if the number of input connections
   // decreased.
-  for (int i = numGraphs; i < this->Implementation->Graphs.size(); ++i)
+  for (size_t i = numGraphs; i < this->Implementation->Graphs.size(); ++i)
     {
     this->Implementation->ActorsToRemove.push_back(
       this->Implementation->Graphs[i]->GetActor());
@@ -260,7 +261,7 @@ void vtkRenderedHierarchyRepresentation::SetupInputConnections()
   this->Implementation->Graphs.resize(numGraphs);
 
   // Setup input connections for bundled graphs.
-  for (int i = 0; i < numGraphs; ++i)
+  for (size_t i = 0; i < numGraphs; ++i)
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
     p->SetupInputConnections(
