@@ -38,7 +38,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.7");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.8");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
@@ -142,9 +142,9 @@ int vtkPointSetToLabelHierarchy::RequestData(
   vtkSmartPointer<vtkIntArray> type =
     vtkSmartPointer<vtkIntArray>::New();
   type->SetName( "Type" );
-  vtkSmartPointer<vtkIntArray> id =
+  vtkSmartPointer<vtkIntArray> idArr =
     vtkSmartPointer<vtkIntArray>::New();
-  id->SetName( "ID" );
+  idArr->SetName( "ID" );
   vtkSmartPointer<vtkIntArray> iconIndex =
     vtkSmartPointer<vtkIntArray>::New();
   iconIndex->SetName( "IconIndex" );
@@ -220,11 +220,11 @@ int vtkPointSetToLabelHierarchy::RequestData(
         size->InsertNextTuple( &sz[0] );
         if ( curId )
           {
-          id->InsertNextValue( curId->GetValue( p ) );
+          idArr->InsertNextValue( curId->GetValue( p ) );
           }
         else
           {
-          id->InsertNextValue( 0 );
+          idArr->InsertNextValue( 0 );
           }
         if ( labels )
           {
@@ -257,7 +257,7 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->GetPointData()->AddArray( type );
   ouData->GetPointData()->AddArray( iconIndex );
   ouData->GetPointData()->AddArray( labelString );
-  ouData->GetPointData()->AddArray( id );
+  ouData->GetPointData()->AddArray( idArr );
   ouData->ComputeHierarchy();
 
   timer->StopTimer();
