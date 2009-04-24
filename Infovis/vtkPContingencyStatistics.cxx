@@ -37,7 +37,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.15");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.16");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -106,80 +106,6 @@ void UnpackValues( const vtkStdString& buffer,
       }
     }
 }
-
-// ----------------------------------------------------------------------
-void vtkPContingencyStatistics::Reduce( vtkIdType myRank,
-                                        char* xyPacked_g,
-                                        vtkIdType& xySizeTotal,
-                                        vtkstd::vector<vtkStdString>& xyValues_l,
-                                        vtkStdString& xyPacked_l,
-                                        vtkIdType*  kcValues_g,
-                                        vtkIdType& kcSizeTotal,
-                                        vtkstd::vector<vtkIdType>& kcValues_l )
-{
-  // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> xyValues_g; 
-  UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
-  
-  // Second, check consistency: we must have the same number of xy and kc entries
-  if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
-    {
-    vtkErrorMacro("Process "
-                  << myRank
-                    << " collected inconsistent number of (x,y) and (k,c) pairs: "
-                    << xyValues_g.size()
-                    << " <> "
-                    << kcSizeTotal
-                    << ".");
-      return;
-      }
-
-    // Third, reduce to the global contingency table
-    typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
-    typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
-    vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
-
-    vtkIdType i = 0;
-    for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); vit != xyValues_g.end(); vit += 2, i += 2 )
-      {
-      contingencyTable
-        [kcValues_g[i]]
-        [*vit]
-        [*(vit + 1)] 
-        += kcValues_g[i + 1];
-      }
-    
-    // Fourth, prepare send buffers of (global) xy and kc values
-    xyValues_l.clear();
-    kcValues_l.clear();
-    for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
-          ait != contingencyTable.end(); ++ ait )
-      {
-      Bidistribution bidi = ait->second;
-      for ( Bidistribution::iterator bit = bidi.begin();
-            bit != bidi.end(); ++ bit )
-        {
-        Distribution di = bit->second;
-        for ( Distribution::iterator dit = di.begin();
-              dit != di.end(); ++ dit )
-          {
-          // Push back x and y to list of strings
-          xyValues_l.push_back( bit->first );  // x
-          xyValues_l.push_back( dit->first );  // y
-          
-          // Push back (X,Y) index and #(x,y) to list of strings
-          kcValues_l.push_back( ait->first );  // k
-          kcValues_l.push_back( dit->second ); // c
-          }
-        }
-      }
-    PackValues( xyValues_l, xyPacked_l );
-    
-    // Last, update xy and kc buffer sizes (which have changed because of the reduction)
-    xySizeTotal = xyPacked_l.size();
-    kcSizeTotal = kcValues_l.size();
-}
-
 
 // ----------------------------------------------------------------------
 void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
@@ -319,67 +245,14 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   // Reduction step: have process reduceProc perform the reduction of the global contingency table
   if ( myRank == reduceProc )
     {
-    // First, unpack the packet of strings
-    vtkstd::vector<vtkStdString> xyValues_g; 
-    UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
-
-    // Second, check consistency: we must have the same number of xy and kc entries
-    if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
-      {
-      vtkErrorMacro("Process "
-                    << myRank
-                    << " collected inconsistent number of (x,y) and (k,c) pairs: "
-                    << xyValues_g.size()
-                    << " <> "
-                    << kcSizeTotal
-                    << ".");
-      return;
-      }
-
-    // Third, reduce to the global contingency table
-    typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
-    typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
-    vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
-
-    vtkIdType i = 0;
-    for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); vit != xyValues_g.end(); vit += 2, i += 2 )
-      {
-      contingencyTable
-        [kcValues_g[i]]
-        [*vit]
-        [*(vit + 1)] 
-        += kcValues_g[i + 1];
-      }
-    
-    // Fourth, prepare send buffers of (global) xy and kc values
-    xyValues_l.clear();
-    kcValues_l.clear();
-    for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
-          ait != contingencyTable.end(); ++ ait )
-      {
-      Bidistribution bidi = ait->second;
-      for ( Bidistribution::iterator bit = bidi.begin();
-            bit != bidi.end(); ++ bit )
-        {
-        Distribution di = bit->second;
-        for ( Distribution::iterator dit = di.begin();
-              dit != di.end(); ++ dit )
-          {
-          // Push back x and y to list of strings
-          xyValues_l.push_back( bit->first );  // x
-          xyValues_l.push_back( dit->first );  // y
-          
-          // Push back (X,Y) index and #(x,y) to list of strings
-          kcValues_l.push_back( ait->first );  // k
-          kcValues_l.push_back( dit->second ); // c
-          }
-        }
-      }
-    PackValues( xyValues_l, xyPacked_l );
-    
-    // Last, update xy and kc buffer sizes (which have changed because of the reduction)
-    xySizeTotal = xyPacked_l.size();
-    kcSizeTotal = kcValues_l.size();
+    this->Reduce( myRank,
+                  xyPacked_g,
+                  xySizeTotal,
+                  xyValues_l,
+                  xyPacked_l,
+                  kcValues_g,
+                  kcSizeTotal,
+                  kcValues_l );
     } // if ( myRank == reduceProc )
 
   // Broadcast the xy and kc buffer sizes
@@ -474,6 +347,79 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   delete [] kcSize_g;
   delete [] xyOffset;
   delete [] kcOffset;
+}
+
+// ----------------------------------------------------------------------
+void vtkPContingencyStatistics::Reduce( vtkIdType myRank,
+                                        char* xyPacked_g,
+                                        vtkIdType& xySizeTotal,
+                                        vtkstd::vector<vtkStdString>& xyValues_l,
+                                        vtkStdString& xyPacked_l,
+                                        vtkIdType*  kcValues_g,
+                                        vtkIdType& kcSizeTotal,
+                                        vtkstd::vector<vtkIdType>& kcValues_l )
+{
+  // First, unpack the packet of strings
+  vtkstd::vector<vtkStdString> xyValues_g; 
+  UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
+  
+  // Second, check consistency: we must have the same number of xy and kc entries
+  if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
+    {
+    vtkErrorMacro("Process "
+                  << myRank
+                  << " collected inconsistent number of (x,y) and (k,c) pairs: "
+                  << xyValues_g.size()
+                  << " <> "
+                  << kcSizeTotal
+                  << ".");
+    return;
+    }
+
+  // Third, reduce to the global contingency table
+  typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
+  typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
+  vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
+
+  vtkIdType i = 0;
+  for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); vit != xyValues_g.end(); vit += 2, i += 2 )
+    {
+    contingencyTable
+      [kcValues_g[i]]
+      [*vit]
+      [*(vit + 1)] 
+      += kcValues_g[i + 1];
+    }
+    
+  // Fourth, prepare send buffers of (global) xy and kc values
+  xyValues_l.clear();
+  kcValues_l.clear();
+  for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
+        ait != contingencyTable.end(); ++ ait )
+    {
+    Bidistribution bidi = ait->second;
+    for ( Bidistribution::iterator bit = bidi.begin();
+          bit != bidi.end(); ++ bit )
+      {
+      Distribution di = bit->second;
+      for ( Distribution::iterator dit = di.begin();
+            dit != di.end(); ++ dit )
+        {
+        // Push back x and y to list of strings
+        xyValues_l.push_back( bit->first );  // x
+        xyValues_l.push_back( dit->first );  // y
+          
+        // Push back (X,Y) index and #(x,y) to list of strings
+        kcValues_l.push_back( ait->first );  // k
+        kcValues_l.push_back( dit->second ); // c
+        }
+      }
+    }
+  PackValues( xyValues_l, xyPacked_l );
+    
+  // Last, update xy and kc buffer sizes (which have changed because of the reduction)
+  xySizeTotal = xyPacked_l.size();
+  kcSizeTotal = kcValues_l.size();
 }
 
 
