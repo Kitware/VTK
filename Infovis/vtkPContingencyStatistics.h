@@ -26,7 +26,7 @@
 
 #include "vtkContingencyStatistics.h"
 
-#include <vtkstd/vector>
+#include <vtkstd/vector> // used by Reduce()
 
 class vtkMultiProcessController;
 
