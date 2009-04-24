@@ -27,7 +27,6 @@
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoFileImageSource.h"
 #include "vtkGeoFileTerrainSource.h"
-#include "vtkGeoGraphRepresentation2D.h"
 #include "vtkGeoProjection.h"
 #include "vtkGeoProjectionSource.h"
 #include "vtkGeoTransform.h"
@@ -41,6 +40,7 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPolyData.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderedGraphRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -253,14 +253,12 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
     }
   graph->GetVertexData()->AddArray(colorScalars);
 
-  vtkSmartPointer<vtkGeoGraphRepresentation2D> graphRep =
-    vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();
-  graphRep->SetTransform(transform);
+  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
+    vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
   graphRep->SetInput(graph);
   graphRep->SetVertexColorArrayName("stuff");
-  graphRep->ColorVerticesOn();
-  graphRep->SetVertexLabelArrayName("stuff");
-  graphRep->VertexLabelVisibilityOff();
+  graphRep->SetColorVerticesByArray(true);
+  graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");
   
   view->AddRepresentation(graphRep);
 
@@ -269,9 +267,24 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   // Set up the viewport
   win->SetSize(900, 600);
-  view->GetRenderer()->GetActiveCamera()->SetParallelScale(95.8);
-  view->GetRenderer()->Render();
+  vtkSmartPointer<vtkGeoTerrainNode> root =
+    vtkSmartPointer<vtkGeoTerrainNode>::New();
+  terrainSource->FetchRoot(root);
+  double bounds[6];
+  root->GetModel()->GetBounds(bounds);
+  bounds[0] = bounds[0] - (bounds[1] - bounds[0])*0.01;
+  bounds[1] = bounds[1] + (bounds[1] - bounds[0])*0.01;
+  bounds[2] = bounds[2] - (bounds[3] - bounds[2])*0.01;
+  bounds[3] = bounds[3] + (bounds[3] - bounds[2])*0.01;
+  double scalex = (bounds[1] - bounds[0])/2.0;
+  double scaley = (bounds[3] - bounds[2])/2.0;
+  double scale = (scalex > scaley) ? scalex : scaley;
+  view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
 
+  view->Update();
+  view->GetRenderer()->ResetCamera();
+  view->GetRenderer()->GetActiveCamera()->Zoom(2.1);
+  view->GetRenderer()->Render();
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

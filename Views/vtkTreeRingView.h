@@ -47,11 +47,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Use vtkQtTreeRingLabeler with fitted labeling and unicode support
-  // Requires VTK_USE_QT to be on.
-  void UseFittedLabeling();
-
-  // Description:
   // Set the root angles for laying out the hierarchy.
   void SetRootAngles(double start, double end);
 

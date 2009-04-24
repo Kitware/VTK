@@ -27,7 +27,7 @@
 
 #include "vtkObject.h"
 
-class VTK_GEOVIS_EXPORT vtkGeoMath : public vtkObject
+class VTK_INFOVIS_EXPORT vtkGeoMath : public vtkObject
 {
 public:
   static vtkGeoMath *New();

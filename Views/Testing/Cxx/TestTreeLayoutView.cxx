@@ -24,6 +24,7 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelectionLink.h"
@@ -991,6 +992,8 @@ int TestTreeLayoutView(int argc, char* argv[])
   view->GetRepresentation()->SetSelectionLink(link);
   view->Update();
   updater->AddView(view);
+
+  view->GetRenderer()->GradientBackgroundOff();
   
   // record events
   VTK_CREATE(vtkInteractorEventRecorder, recorder);

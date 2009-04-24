@@ -32,6 +32,8 @@
 
 #include "vtkObject.h"
 
+class vtkScalarsToColors;
+
 class VTK_RENDERING_EXPORT vtkViewTheme : public vtkObject
 {
 public:
@@ -133,6 +135,12 @@ public:
   static vtkViewTheme* CreateOceanTheme();
   static vtkViewTheme* CreateMellowTheme();
   static vtkViewTheme* CreateNeonTheme();
+
+  // Description:
+  // Whether a given lookup table matches the point or cell theme of this
+  // theme.
+  bool LookupMatchesPointTheme(vtkScalarsToColors* s2c);
+  bool LookupMatchesCellTheme(vtkScalarsToColors* s2c);
 
 protected:
   vtkViewTheme();

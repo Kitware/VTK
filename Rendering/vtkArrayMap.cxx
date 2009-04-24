@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.1");
+vtkCxxRevisionMacro(vtkArrayMap, "1.2");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -121,8 +121,9 @@ int vtkArrayMap::RequestData(
   
   if(!this->InputArrayName)
     {
-    vtkErrorMacro(<<"Input array not specified.");
-    return 0;
+    //vtkErrorMacro(<<"Input array not specified.");
+    output->ShallowCopy(input);
+    return 1;
     }
 
   vtkDataSetAttributes* ods=0;
@@ -172,6 +173,10 @@ int vtkArrayMap::RequestData(
     }
 
   vtkAbstractArray *inputArray = ods->GetAbstractArray(this->InputArrayName);
+  if (!inputArray)
+    {
+    return 1;
+    }
   vtkAbstractArray *outputArray = 
       vtkAbstractArray::CreateArray(this->OutputArrayType);
   vtkDataArray *outputDataArray = vtkDataArray::SafeDownCast(outputArray);
@@ -184,7 +189,7 @@ int vtkArrayMap::RequestData(
   if(this->PassArray)
     {
     // Make sure the DeepCopy will succeed
-      if((inputArray->IsA("vtkDataArray") && outputArray->IsA("vtkDataArray"))
+    if((inputArray->IsA("vtkDataArray") && outputArray->IsA("vtkDataArray"))
          || (inputArray->IsA("vtkStringArray")
              && outputArray->IsA("vtkStringArray")))
       {
@@ -192,15 +197,24 @@ int vtkArrayMap::RequestData(
       }
     else
       {
-      vtkErrorMacro(<<"When PassArray is turned on, input and output array "
-                    <<"types must be compatible.");
-      return 0;
+      vtkIdType numComps = inputArray->GetNumberOfComponents();
+      vtkIdType numTuples = inputArray->GetNumberOfTuples();
+      outputArray->SetNumberOfComponents(numComps);
+      outputArray->SetNumberOfTuples(numTuples);
+      for (vtkIdType i = 0; i < numTuples; ++i)
+        {
+        for (vtkIdType j = 0; j < numComps; ++j)
+          {
+          outputArray->InsertVariantValue(
+            i*numComps + j, inputArray->GetVariantValue(i*numComps + j));
+          }
+        }
       }
     }
   else
     {
-    outputArray->SetNumberOfTuples(inputArray->GetNumberOfTuples());
     outputArray->SetNumberOfComponents(inputArray->GetNumberOfComponents());
+    outputArray->SetNumberOfTuples(inputArray->GetNumberOfTuples());
 
     // Fill the output array with a default value
     if(outputDataArray)

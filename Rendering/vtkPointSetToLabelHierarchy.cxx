@@ -38,12 +38,16 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.6");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.7");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
   this->MaximumDepth = 5;
   this->TargetLabelCount = 32;
+  this->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priority" );
+  this->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize" );
+  this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText" );
+  this->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID" );
 }
 
 vtkPointSetToLabelHierarchy::~vtkPointSetToLabelHierarchy()
@@ -138,6 +142,9 @@ int vtkPointSetToLabelHierarchy::RequestData(
   vtkSmartPointer<vtkIntArray> type =
     vtkSmartPointer<vtkIntArray>::New();
   type->SetName( "Type" );
+  vtkSmartPointer<vtkIntArray> id =
+    vtkSmartPointer<vtkIntArray>::New();
+  id->SetName( "ID" );
   vtkSmartPointer<vtkIntArray> iconIndex =
     vtkSmartPointer<vtkIntArray>::New();
   iconIndex->SetName( "IconIndex" );
@@ -173,11 +180,13 @@ int vtkPointSetToLabelHierarchy::RequestData(
       }
 
     vtkDataArray* curPriorities = vtkDataArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess( 3*i+0, inputVector ) );
+      this->GetInputAbstractArrayToProcess( 4*i+0, inputVector ) );
     vtkDataArray* curSize = vtkDataArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess( 3*i+1, inputVector ) );
+      this->GetInputAbstractArrayToProcess( 4*i+1, inputVector ) );
     vtkAbstractArray* curStringOrIndex =
-      this->GetInputAbstractArrayToProcess( 3*i+2, inputVector );
+      this->GetInputAbstractArrayToProcess( 4*i+2, inputVector );
+    vtkIntArray* curId = vtkIntArray::SafeDownCast(
+      this->GetInputAbstractArrayToProcess( 4*i+3, inputVector ) );
 
     if ( curPts && curSize )
       {
@@ -209,6 +218,14 @@ int vtkPointSetToLabelHierarchy::RequestData(
           }
         curSize->GetTuple( p, &sz[0] );
         size->InsertNextTuple( &sz[0] );
+        if ( curId )
+          {
+          id->InsertNextValue( curId->GetValue( p ) );
+          }
+        else
+          {
+          id->InsertNextValue( 0 );
+          }
         if ( labels )
           {
           type->InsertNextValue( 0 );
@@ -240,6 +257,7 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->GetPointData()->AddArray( type );
   ouData->GetPointData()->AddArray( iconIndex );
   ouData->GetPointData()->AddArray( labelString );
+  ouData->GetPointData()->AddArray( id );
   ouData->ComputeHierarchy();
 
   timer->StopTimer();

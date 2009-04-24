@@ -56,6 +56,12 @@ public:
   virtual void OnMouseWheelForward();
   virtual void OnMouseWheelBackward();
 
+  // Description:
+  // Whether to invoke a render when the mouse moves.
+  vtkSetMacro(RenderOnMouseMove, bool);
+  vtkGetMacro(RenderOnMouseMove, bool);
+  vtkBooleanMacro(RenderOnMouseMove, bool);
+
   //BTX
   // Description:
   // Selection types
@@ -98,6 +104,9 @@ protected:
   
   // The pixel array for the rubber band
   vtkUnsignedCharArray* PixelArray;
+
+  // Whether to render when the mouse moves
+  bool RenderOnMouseMove;
   
 private:
   vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&); // Not implemented

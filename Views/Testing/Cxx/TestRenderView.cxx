@@ -1103,6 +1103,7 @@ int TestRenderView(int argc, char* argv[])
   view->Update();
 
   view->GetRenderer()->ResetCamera();
+  view->GetRenderer()->GradientBackgroundOff();
   view->Update();
 
   // record events

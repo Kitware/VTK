@@ -58,7 +58,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.15");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.16");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -396,16 +396,12 @@ void vtkTreeLayoutView::SetupRenderWindow(vtkRenderWindow *win)
   win->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
 }
 
+// These should go into AddToView, RemoveFromView, SetupInputConnections
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::AddInputConnection( int port, int item,
+void vtkTreeLayoutView::AddInputConnection(
   vtkAlgorithmOutput *conn, vtkAlgorithmOutput *selectionConn)
 {
-  if( port != 0 || item != 0 )
-    {
-    vtkErrorMacro("This view only supports one representation.");
-    return;
-    }
-  else if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
+  if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
     this->GraphLayout->SetInputConnection(conn);
     if (selectionConn)
@@ -442,14 +438,9 @@ void vtkTreeLayoutView::AddInputConnection( int port, int item,
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::RemoveInputConnection( int port, int item,
+void vtkTreeLayoutView::RemoveInputConnection(
   vtkAlgorithmOutput *conn, vtkAlgorithmOutput *selectionConn)
 {
-  if( port != 0 || item != 0 )
-    {
-    vtkErrorMacro("This view only supports one representation.");
-    }
-
   if (this->GraphLayout->GetNumberOfInputConnections(0) > 0 &&
       this->GraphLayout->GetInputConnection(0, 0) == conn)
     {
@@ -639,10 +630,10 @@ void vtkTreeLayoutView::PrepareForRendering()
   if (this->GraphLayout->GetInputConnection(0, 0) != conn ||
       this->ExtractSelectedGraph->GetInputConnection(1, 0) != selectionConn)
     {
-    this->RemoveInputConnection( 0, 0,
+    this->RemoveInputConnection(
       this->GraphLayout->GetInputConnection(0, 0),
       this->ExtractSelectedGraph->GetInputConnection(1, 0));
-    this->AddInputConnection(0, 0, conn, selectionConn);
+    this->AddInputConnection(conn, selectionConn);
     }
 
   // Update the pipeline up until the graph to polydata

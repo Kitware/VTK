@@ -9,10 +9,16 @@ SET( Kit_SRCS
 vtkConvertSelectionDomain.cxx
 vtkDataRepresentation.cxx
 vtkGraphLayoutView.cxx
+vtkHierarchicalGraphPipeline.cxx
 vtkHierarchicalGraphView.cxx
 vtkIcicleView.cxx
 vtkInteractorStyleAreaSelectHover.cxx
 vtkInteractorStyleTreeMapHover.cxx
+vtkRenderedSurfaceRepresentation.cxx
+vtkRenderedGraphRepresentation.cxx
+vtkRenderedRepresentation.cxx
+vtkRenderedTreeAreaRepresentation.cxx
+vtkRenderedHierarchyRepresentation.cxx
 vtkRenderView.cxx
 vtkSurfaceRepresentation.cxx
 vtkTreeAreaView.cxx

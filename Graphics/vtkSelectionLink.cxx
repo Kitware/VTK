@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkSelectionLink, "1.4");
+vtkCxxRevisionMacro(vtkSelectionLink, "1.5");
 vtkStandardNewMacro(vtkSelectionLink);
 //----------------------------------------------------------------------------
 vtkSelectionLink::vtkSelectionLink()
@@ -50,7 +50,10 @@ vtkSelectionLink::vtkSelectionLink()
 //----------------------------------------------------------------------------
 vtkSelectionLink::~vtkSelectionLink()
 {
-  this->Selection->Delete();
+  if (this->Selection)
+    {
+    this->Selection->Delete();
+    }
   this->DomainMaps->Delete();
 }
 
@@ -62,9 +65,20 @@ void vtkSelectionLink::SetSelection(vtkSelection* selection)
     vtkErrorMacro("Cannot set a null selection.");
     return;
     }
-  this->Selection->ShallowCopy(selection);
-  this->Modified();
-  this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting Selection to " << selection );
+  if (this->Selection != selection)
+    {
+    vtkSelection* tempSGMacroVar = this->Selection;
+    this->Selection = selection;
+    if (this->Selection != NULL) { this->Selection->Register(this); }
+    if (tempSGMacroVar != NULL)
+      {
+      tempSGMacroVar->UnRegister(this);
+      }
+    this->Modified();
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    }
 }
 
 //----------------------------------------------------------------------------

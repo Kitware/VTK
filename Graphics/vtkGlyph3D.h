@@ -221,6 +221,14 @@ public:
   vtkGetStringMacro(PointIdsName);
 
   // Description:
+  // Enable/disable the generation of cell data as part of the output.
+  // The cell data at each cell will match the point data of the input
+  // at the glyphed point.
+  vtkSetMacro(FillCellData,int);
+  vtkGetMacro(FillCellData,int);
+  vtkBooleanMacro(FillCellData,int);
+
+  // Description:
   // This can be overwritten by subclass to return 0 when a point is
   // blanked. Default implementation is to always return 1;
   virtual int IsPointVisible(vtkDataSet*, vtkIdType) {return 1;};
@@ -246,6 +254,7 @@ protected:
   int Clamping; // whether to clamp scale factor
   int IndexMode; // what to use to index into glyph table
   int GeneratePointIds; // produce input points ids for each output point
+  int FillCellData; // whether to fill output cell data
   char *PointIdsName;
 
 private:

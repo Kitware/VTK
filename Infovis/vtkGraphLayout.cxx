@@ -20,6 +20,7 @@
 
 #include "vtkGraphLayout.h"
 
+#include "vtkAbstractTransform.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -32,21 +33,25 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.10");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.11");
 vtkStandardNewMacro(vtkGraphLayout);
+vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 
 // ----------------------------------------------------------------------
 
 vtkGraphLayout::vtkGraphLayout()
 {
   this->LayoutStrategy = 0;
-  this->StrategyChanged=false;
+  this->StrategyChanged = false;
   this->LastInput = NULL;
   this->LastInputMTime = 0;
-  this->InternalGraph = NULL;
+  this->InternalGraph = 0;
+  this->ZRange = 0.0;
+  this->Transform = 0;
+  this->UseTransform = false;
 
-  this->ObserverTag = 0;
   this->EventForwarder = vtkEventForwarderCommand::New();
   this->EventForwarder->SetTarget(this);
 }
@@ -57,11 +62,16 @@ vtkGraphLayout::~vtkGraphLayout()
 {
   if (this->LayoutStrategy)
     {
+    this->LayoutStrategy->RemoveObserver(this->EventForwarder);
     this->LayoutStrategy->Delete();
     }
   if (this->InternalGraph)
     {
     this->InternalGraph->Delete();
+    }
+  if (this->Transform)
+    {
+    this->Transform->Delete();
     }
   this->EventForwarder->Delete();
 }
@@ -76,14 +86,17 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
   if (strategy != this->LayoutStrategy)
     {
     vtkGraphLayoutStrategy *tmp = this->LayoutStrategy;
+    if (tmp)
+      {
+      tmp->RemoveObserver(this->EventForwarder);
+      }
     this->LayoutStrategy = strategy;
     if (this->LayoutStrategy != NULL)
       {
       this->StrategyChanged = true;
       this->LayoutStrategy->Register(this);
-      this->ObserverTag =
-        this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, 
-                                          this->EventForwarder);
+      this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, 
+                                        this->EventForwarder);
       if (this->InternalGraph)
         {
         // Set the graph in the layout strategy
@@ -92,12 +105,10 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
       }
     if (tmp != NULL)
       {
-      tmp->RemoveObserver(this->ObserverTag);
       tmp->UnRegister(this);
       }
     this->Modified();
     }
-  
 }
 
 // ----------------------------------------------------------------------
@@ -215,6 +226,53 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
   this->LayoutStrategy->Layout();
   output->ShallowCopy(this->InternalGraph);
 
+  // Perturb points so they do not all have the same z value.
+  if (this->ZRange != 0.0)
+    {
+    vtkIdType numVert = output->GetNumberOfVertices();
+    double x[3];
+    bool onPlane = true;
+    for (vtkIdType i = 0; i < numVert; ++i)
+      {
+      output->GetPoint(i, x);
+      if (x[2] != 0.0)
+        {
+        onPlane = false;
+        break;
+        }
+      }
+    if (onPlane)
+      {
+      vtkPoints* pts = vtkPoints::New();
+      pts->SetNumberOfPoints(numVert);
+      for (vtkIdType i = 0; i < numVert; ++i)
+        {
+        output->GetPoint(i, x);
+        x[2] = this->ZRange*static_cast<double>(i)/numVert;
+        pts->SetPoint(i, x);
+        }
+      output->SetPoints(pts);
+      pts->Delete();
+      }
+    }
+
+  if (this->UseTransform && this->Transform)
+    {
+    vtkIdType numVert = output->GetNumberOfVertices();
+    double x[3];
+    double y[3];
+    vtkPoints* pts = vtkPoints::New();
+    pts->SetNumberOfPoints(numVert);
+    for (vtkIdType i = 0; i < numVert; ++i)
+      {
+      output->GetPoint(i, x);
+      this->Transform->TransformPoint(x, y);
+      pts->SetPoint(i, y);
+      }
+    output->SetPoints(pts);
+    pts->Delete();
+    }
+
   return 1;
 }
 
@@ -235,4 +293,11 @@ void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->InternalGraph->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "ZRange: " << this->ZRange << endl;
+  os << indent << "Transform: " << (this->Transform ? "" : "(none)") << endl;
+  if (this->Transform)
+    {
+    this->Transform->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "UseTransform: " << (this->UseTransform ? "True" : "False") << endl;
 }

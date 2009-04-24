@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.20");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.21");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -217,16 +217,12 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   this->ZSpline->RemoveAllPoints();
     
   // Compute the length of the resulting spline
-  double xPrev[3], x[3], length=0.0, len, t, tc;
+  double xPrev[3], x[3], length=0.0, len, t, tc, dist;
   inPts->GetPoint(pts[0],xPrev);
   for (i=1; i < npts; i++)
     {
     inPts->GetPoint(pts[i],x);
     len = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
-    if ( len <= 0.0 )
-      {
-      return 0; //failure
-      }
     length += len;
     xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
     }
@@ -242,7 +238,12 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   for (len=0,i=0; i < npts; i++)
     {
     inPts->GetPoint(pts[i],x);
-    len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+    dist = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+    if (i > 0 && dist == 0)
+      {
+      continue;
+      }
+    len += dist;
     t = len/length;
     this->TCoordMap->InsertValue(i,t);
 

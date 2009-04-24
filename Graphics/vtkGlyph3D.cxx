@@ -15,6 +15,7 @@
 #include "vtkGlyph3D.h"
 
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
@@ -29,7 +30,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.125");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.126");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -53,6 +54,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->PointIdsName = NULL;
   this->SetPointIdsName("InputPointIds");
   this->SetNumberOfInputPorts(2);
+  this->FillCellData = 0;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -115,10 +117,11 @@ int vtkGlyph3D::RequestData(
   vtkIdList *cellPts;
   int npts;
   vtkIdList *pts;
-  vtkIdType ptIncr, cellId;
+  vtkIdType ptIncr, cellIncr, cellId;
   int haveVectors, haveNormals, haveTCoords = 0;
   double scalex,scaley,scalez, den;
-  vtkPointData *outputPD = output->GetPointData();
+  vtkPointData* outputPD = output->GetPointData();
+  vtkCellData* outputCD = output->GetCellData();
   int numberOfSources = this->GetNumberOfInputConnections(1);
   vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
@@ -283,6 +286,10 @@ int vtkGlyph3D::RequestData(
     // Prepare to copy output.
     pd = input->GetPointData();
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
+    if (this->FillCellData)
+      {
+      outputCD->CopyAllocate(pd,numPts*numSourceCells);
+      }
     }
 
   newPts = vtkPoints::New();
@@ -356,6 +363,7 @@ int vtkGlyph3D::RequestData(
   // point attributes.
   //
   ptIncr=0;
+  cellIncr=0;
   for (inPtId=0; inPtId < numPts; inPtId++)
     {
     scalex = scaley = scalez = 1.0;
@@ -594,6 +602,13 @@ int vtkGlyph3D::RequestData(
         {
         outputPD->CopyData(pd,inPtId,ptIncr+i);
         }
+      if (this->FillCellData)
+        {
+        for (i=0; i < numSourceCells; i++)
+          {
+          outputCD->CopyData(pd,inPtId,cellIncr+i);
+          }
+        }
       }
 
     // If point ids are to be generated, do it here
@@ -606,6 +621,7 @@ int vtkGlyph3D::RequestData(
       }
 
     ptIncr += numSourcePts;
+    cellIncr += numSourceCells;
     } 
   
   // Update ourselves and release memory
@@ -784,6 +800,8 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Indexing off\n";
     }
+
+  os << indent << "Fill Cell Data: " << (this->FillCellData ? "On\n" : "Off\n");
 }
 
 int vtkGlyph3D::RequestUpdateExtent(

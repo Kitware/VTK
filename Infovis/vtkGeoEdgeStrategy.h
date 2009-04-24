@@ -29,7 +29,7 @@
 
 #include "vtkEdgeLayoutStrategy.h"
 
-class VTK_GEOVIS_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
+class VTK_INFOVIS_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
   static vtkGeoEdgeStrategy *New();

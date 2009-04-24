@@ -47,7 +47,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.8");
 vtkStandardNewMacro(vtkGeoLineRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoLineRepresentation::vtkGeoLineRepresentation()
@@ -286,9 +286,12 @@ vtkSelection* vtkGeoLineRepresentation::ConvertSelection(
     vtkProp* prop = vtkProp::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (prop == this->Actor.GetPointer())
       {
-      // TODO: Should convert this to a pedigree id selection.
       converted->Initialize();
-      converted->AddNode(node);
+      vtkSmartPointer<vtkSelectionNode> nodeCopy =
+        vtkSmartPointer<vtkSelectionNode>::New();
+      nodeCopy->ShallowCopy(node);
+      nodeCopy->GetProperties()->Remove(vtkSelectionNode::PROP());
+      converted->AddNode(nodeCopy);
       }
     }
   return converted;

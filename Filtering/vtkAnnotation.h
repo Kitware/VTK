@@ -66,6 +66,11 @@ public:
   static vtkInformationDoubleVectorKey* COLOR();
 
   // Description:
+  // The color for this annotation.
+  // This is stored as a value between 0 and 1.
+  static vtkInformationDoubleKey* OPACITY();
+
+  // Description:
   // Initialize the annotation to an empty state.
   virtual void Initialize();
 

@@ -57,6 +57,10 @@ public:
   virtual void SetSurface(vtkGeoTerrain2D* surf);
 
   // Description:
+  // Returns the transform associated with the surface.
+  virtual vtkAbstractTransform* GetTransform();
+
+  // Description:
   // Apply the view theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
@@ -65,10 +69,6 @@ protected:
   vtkAssembly* Assembly;
 
   virtual void PrepareForRendering();
-
-  // Description:
-  // Make the tranform the same as the terrain.
-  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
 
 private:
   vtkGeoView2D(const vtkGeoView2D&); // Not implemented

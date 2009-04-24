@@ -23,7 +23,7 @@
 #undef VTK_COSMIC_DBG
 
 vtkStandardNewMacro(vtkCosmicTreeLayoutStrategy);
-vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.5");
+vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.6");
 
 /// Represent a circle to be placed
 class vtkCosmicTreeEntry
@@ -644,16 +644,7 @@ vtkDoubleArray* vtkCosmicTreeLayoutStrategy::CreateRadii( vtkIdType numVertices,
     {
     radii->DeepCopy( inputRadii );
     }
-  if ( this->NodeSizeArrayName && strlen( this->NodeSizeArrayName ) )
-    {
-    vtksys_ios::ostringstream rname;
-    rname << this->NodeSizeArrayName << "TreeRadius";
-    radii->SetName( rname.str().c_str() );
-    }
-  else
-    {
-    radii->SetName( "TreeRadius" );
-    }
+  radii->SetName( "TreeRadius" );
   return radii;
 }
 
@@ -663,16 +654,7 @@ vtkDoubleArray* vtkCosmicTreeLayoutStrategy::CreateScaleFactors( vtkIdType numVe
   scale->SetNumberOfComponents( 1 );
   scale->SetNumberOfTuples( numVertices );
   scale->FillComponent( 0, -1. ); // Initialize all scale factors to an invalid value...
-  if ( this->NodeSizeArrayName && strlen( this->NodeSizeArrayName ) )
-    {
-    vtksys_ios::ostringstream sname;
-    sname << this->NodeSizeArrayName << "TreeScaleFactor";
-    scale->SetName( sname.str().c_str() );
-    }
-  else
-    {
-    scale->SetName( "TreeScaleFactor" );
-    }
+  scale->SetName( "TreeScaleFactor" );
   return scale;
 }
 

@@ -29,12 +29,14 @@
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkKdTree.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkTextMapper.h"
@@ -51,7 +53,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.12");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.13");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -63,7 +65,7 @@ vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapper()
   this->LabelHeight = NULL;
   this->Cutoff = NULL;
   
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "priority");
+  this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "priority");
   this->ReversePriority = false;
   this->LabelHeightPadding = 50;
   this->LabelWidthPadding = 10;
@@ -105,7 +107,7 @@ vtkDynamic2DLabelMapper::~vtkDynamic2DLabelMapper()
 //----------------------------------------------------------------------------
 void vtkDynamic2DLabelMapper::SetPriorityArrayName(const char* name)
 {
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name);
+  this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name);
 }
 
 //----------------------------------------------------------------------------
@@ -132,7 +134,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  vtkTextProperty *tprop = this->LabelTextProperty;
+  vtkTextProperty *tprop = this->GetLabelTextProperty();
   if (!tprop)
     {
     vtkErrorMacro(<<"Need text property to render labels");
@@ -143,6 +145,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
   // Input might have changed
   input = this->GetExecutive()->GetInputData(0, 0);
+
   vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
   vtkGraph *gInput = vtkGraph::SafeDownCast(input);
   if (!dsInput && !gInput)
@@ -153,13 +156,21 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   vtkDataSetAttributes *pd = 
     dsInput ? dsInput->GetPointData() : gInput->GetVertexData();
 
+  // If no labels we are done
+  vtkIdType numItems = dsInput ? dsInput->GetNumberOfPoints() : gInput->GetNumberOfVertices();
+  if (numItems == 0)
+    {
+    return;
+    }
+
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
-       input->GetMTime() > this->BuildTime ||
-       tprop->GetMTime() > this->BuildTime)
+       input->GetMTime() > this->BuildTime)
     {
     vtkDebugMacro(<<"Rebuilding labels");
 
+    vtkIntArray *typeArr = vtkIntArray::SafeDownCast(
+      this->GetInputAbstractArrayToProcess(0, input));
 
     // figure out what to label, and if we can label it
     pointIdLabels = 0;
@@ -413,7 +424,19 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         } // done creating string 
 
       this->TextMappers[i]->SetInput(ResultString.c_str());
-      this->TextMappers[i]->SetTextProperty(tprop);
+
+      // Find the correct property type
+      int type = 0;
+      if (typeArr)
+        {
+        type = typeArr->GetValue(i);
+        }
+      vtkTextProperty* prop = this->GetLabelTextProperty(type);
+      if (!prop)
+        {
+        prop = this->GetLabelTextProperty(0);
+        }
+      this->TextMappers[i]->SetTextProperty(prop);
       }
 
     this->BuildTime.Modified();
@@ -505,7 +528,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
     
     // If the array is found, sort it and rearrange the corresponding index array.
-    vtkAbstractArray* inputArr = this->GetInputAbstractArrayToProcess(0, input);
+    vtkAbstractArray* inputArr = this->GetInputAbstractArrayToProcess(1, input);
     if (inputArr)
       {
       // Don't sort the original array, instead make a copy.
@@ -572,7 +595,11 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   //
 
   // Determine the current scale
-  double scale = this->GetCurrentScale(viewport) / this->ReferenceScale;    
+  double scale = 1.0;
+  if (this->ReferenceScale != 0.0)
+    {
+    scale = this->GetCurrentScale(viewport) / this->ReferenceScale;    
+    }
 
   for (i = 0; i < this->NumberOfLabels; i++)
     {
@@ -634,7 +661,11 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
   vtkIdType numPts = dsInput ? dsInput->GetNumberOfPoints() : gInput->GetNumberOfVertices();
 
   // Determine the current scale
-  double scale = this->GetCurrentScale(viewport) / this->ReferenceScale;
+  double scale = 1.0;
+  if (this->ReferenceScale != 0.0)
+    {
+    scale = this->GetCurrentScale(viewport) / this->ReferenceScale;
+    }
 
   vtkTimerLog* timer = vtkTimerLog::New();
   timer->StartTimer();

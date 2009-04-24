@@ -43,7 +43,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.20");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.21");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -422,10 +422,17 @@ int vtkLabelPlacer::RequestData(
   ouData1->GetPointData()->AddArray( iconIndexArr1 );
   iconIndexArr1->Delete();
 
+  vtkIntArray* idArr0 = vtkIntArray::New();
+  idArr0->SetName( "ID" );
+  ouData0->GetPointData()->AddArray( idArr0 );
+  idArr0->Delete();
+
   vtkStringArray* nameArr = vtkStringArray::SafeDownCast( 
     inData->GetPointData()->GetAbstractArray( "LabelText" ) );
   vtkIntArray* iconIndexArr = vtkIntArray::SafeDownCast( 
     inData->GetPointData()->GetAbstractArray( "IconIndex" ) );
+  vtkIntArray* idArr = vtkIntArray::SafeDownCast(
+    inData->GetPointData()->GetAbstractArray( "ID" ) );
 
   if ( ! inData )
     {
@@ -744,6 +751,7 @@ int vtkLabelPlacer::RequestData(
         ouData0->InsertNextCell( VTK_VERTEX, 1, conn );
         nameArr0->InsertNextValue( nameArr->GetValue( inIter->GetLabelId() ) );
         opArr0->InsertNextValue( opacity );
+        idArr0->InsertNextValue( idArr->GetValue( inIter->GetLabelId() ) );
         }
       else
         { // label is an icon
@@ -783,7 +791,7 @@ int vtkLabelPlacer::RequestData(
     }
   vtkDebugMacro("------");
   //cout << "Not Placed: " << notPlaced << endl;
-  cout << "Labels Occluded: " << occluded << endl;
+  //cout << "Labels Occluded: " << occluded << endl;
 
   inIter->Delete();
   if (zPtr)

@@ -40,7 +40,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelMapper, "1.1");
+vtkCxxRevisionMacro(vtkQtLabelMapper, "1.2");
 vtkStandardNewMacro(vtkQtLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -91,7 +91,7 @@ void vtkQtLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
   this->pcLabelSizer->SetInput( input );
-  this->pcLabelSizer->SetFontProperty( this->LabelTextProperty );
+  this->pcLabelSizer->SetFontProperty( this->GetLabelTextProperty() );
   this->pcLabelSizer->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
   this->pcLabelSizer->SetLabelSizeArrayName( "LabelSize" );
   
@@ -154,7 +154,7 @@ void vtkQtLabelMapper::RenderOverlay(vtkViewport *viewport,
     }
 
   this->pcLabelSizer->SetInput( input );
-  this->pcLabelSizer->SetFontProperty( this->LabelTextProperty );
+  this->pcLabelSizer->SetFontProperty( this->GetLabelTextProperty() );
   this->pcLabelSizer->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
   this->pcLabelSizer->SetLabelSizeArrayName( "LabelSize" );
   

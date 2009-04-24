@@ -24,7 +24,6 @@
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoFileImageSource.h"
 #include "vtkGeoFileTerrainSource.h"
-#include "vtkGeoGraphRepresentation2D.h"
 #include "vtkGeoProjectionSource.h"
 #include "vtkGeoRandomGraphSource.h"
 #include "vtkGeoTerrain2D.h"
@@ -33,6 +32,7 @@
 #include "vtkJPEGReader.h"
 #include "vtkPolyData.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderedGraphRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -79,17 +79,17 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   imageSource->Initialize();
   imageRep->SetSource(imageSource);
   view->AddRepresentation(imageRep);
+  view->SetLabelPlacementModeToLabelPlacer();
 
   vtkSmartPointer<vtkGeoRandomGraphSource> graphSource = 
     vtkSmartPointer<vtkGeoRandomGraphSource>::New();
-  graphSource->SetNumberOfVertices(500);
-  vtkSmartPointer<vtkGeoGraphRepresentation2D> graphRep = 
-    vtkSmartPointer<vtkGeoGraphRepresentation2D>::New();
-
+  graphSource->SetNumberOfVertices(1000);
+  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep = 
+    vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
   graphRep->SetInputConnection(graphSource->GetOutputPort());
   graphRep->SetVertexLabelArrayName("latitude");
-  graphRep->SetUseLabelHierarchy(true);
   graphRep->SetVertexLabelVisibility(true);
+  graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");
   
   view->AddRepresentation(graphRep);
 

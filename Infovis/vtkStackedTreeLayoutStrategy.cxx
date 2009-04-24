@@ -40,7 +40,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
@@ -276,7 +276,7 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(
   points->SetNumberOfPoints(numVerts);
   for( vtkIdType i = 0; i < numVerts; i++ )
     {
-    if( i == rootId )
+    if( !this->UseRectangularCoordinates && i == rootId )
       {
       points->SetPoint( i, 0, 0, 0 );
       continue;

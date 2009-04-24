@@ -38,39 +38,14 @@
 #ifndef __vtkTreeAreaView_h
 #define __vtkTreeAreaView_h
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 #include "vtkRenderView.h"
 
-class vtkActor;
-class vtkActor2D;
-class vtkAlgorithmOutput;
-class vtkAreaLayout;
 class vtkAreaLayoutStrategy;
-class vtkConvertSelection;
-class vtkCoordinate;
-class vtkDynamic2DLabelMapper;
-class vtkEdgeCenters;
-class vtkExtractSelectedGraph;
-class vtkExtractSelectedPolyDataIds;
 class vtkGraph;
-class vtkGraphHierarchicalBundle;
-class vtkGraphMapper;
-class vtkTransferAttributes;
-class vtkKdTreeSelector;
 class vtkLabeledDataMapper;
-class vtkLookupTable;
 class vtkPolyDataAlgorithm;
-class vtkPolyDataMapper;
-class vtkSelection;
-class vtkSelectionLink;
-class vtkSplineFilter;
-class vtkTexture;
+class vtkRenderedTreeAreaRepresentation;
 class vtkTree;
-class vtkTreeFieldAggregator;
-class vtkTreeLevelsFilter;
-class vtkVertexDegree;
-class vtkViewTheme;
-class vtkHardwareSelector;
 
 class VTK_VIEWS_EXPORT vtkTreeAreaView : public vtkRenderView
 {
@@ -94,11 +69,13 @@ public:
   // Description:
   // The array to use for area sizes. Default is "size".
   void SetAreaSizeArrayName(const char* name);
+  const char* GetAreaSizeArrayName();
 
   // Description:
   // The array to use for area labeling priority.
   // Default is "GraphVertexDegree".
   void SetLabelPriorityArrayName(const char* name);
+  const char* GetLabelPriorityArrayName();
 
   // Description:
   // The array to use for edge labeling.  Default is "label".
@@ -116,25 +93,24 @@ public:
   // Whether to show area labels.  Default is off.
   void SetAreaLabelVisibility(bool vis);
   bool GetAreaLabelVisibility();
-  void AreaLabelVisibilityOn();
-  void AreaLabelVisibilityOff();
+  vtkBooleanMacro(AreaLabelVisibility, bool);
 
   // Description:
   // Whether to show edge labels.  Default is off.
   void SetEdgeLabelVisibility(bool vis);
   bool GetEdgeLabelVisibility();
-  void EdgeLabelVisibilityOn();
-  void EdgeLabelVisibilityOff();
+  vtkBooleanMacro(EdgeLabelVisibility, bool);
 
   // Description:
   // The array to use for coloring vertices.  Default is "color".
   void SetAreaColorArrayName(const char* name);
+  const char* GetAreaColorArrayName();
 
   // Description:
   // Whether to color vertices.  Default is off.
-  void SetColorVertices(bool vis);
-  bool GetColorVertices();
-  vtkBooleanMacro(ColorVertices, bool);
+  void SetColorAreas(bool vis);
+  bool GetColorAreas();
+  vtkBooleanMacro(ColorAreas, bool);
 
   // Description:
   // The array to use for coloring edges.  Default is "color".
@@ -159,21 +135,11 @@ public:
   // Description:
   // Set the bundling strength.
   void SetBundlingStrength(double strength);
-
-  // Description:
-  // Retrieve the graph and tree representations.
-  virtual vtkDataRepresentation* GetGraphRepresentation()
-    { return this->GetRepresentation(1, 0); }
-  virtual vtkDataRepresentation* GetTreeRepresentation()
-    { return this->GetRepresentation(0, 0); }
+  double GetBundlingStrength();
 
   // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);
-
-  // Description:
-  // Apply the theme to this view.
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
 
   // Description:
   // The size of the font used for area labeling
@@ -190,12 +156,16 @@ public:
   virtual void SetLayoutStrategy(vtkAreaLayoutStrategy* strategy);
   virtual vtkAreaLayoutStrategy* GetLayoutStrategy();
 
+protected:
+  vtkTreeAreaView();
+  ~vtkTreeAreaView();
+
   // Description:
   // The filter for converting areas to polydata. This may e.g. be
   // vtkTreeMapToPolyData or vtkTreeRingToPolyData.
   // The filter must take a vtkTree as input and produce vtkPolyData.
   virtual void SetAreaToPolyData(vtkPolyDataAlgorithm* areaToPoly);
-  vtkGetObjectMacro(AreaToPolyData, vtkPolyDataAlgorithm);
+  virtual vtkPolyDataAlgorithm* GetAreaToPolyData();
 
   // Description:
   // Whether the area represents radial or rectangular coordinates.
@@ -207,79 +177,13 @@ public:
   // The mapper for rendering labels on areas. This may e.g. be
   // vtkDynamic2DLabelMapper or vtkTreeMapLabelMapper.
   virtual void SetAreaLabelMapper(vtkLabeledDataMapper* mapper);
-  vtkGetObjectMacro(AreaLabelMapper, vtkLabeledDataMapper);
-
-protected:
-  vtkTreeAreaView();
-  ~vtkTreeAreaView();
+  virtual vtkLabeledDataMapper* GetAreaLabelMapper();
 
   // Description:
-  // Called to process the user event from the interactor style.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData);
-
-  // Description:
-  // Connects the algorithm output to the internal pipelines.
-  virtual void AddInputConnection(int port, int item,
-                                  vtkAlgorithmOutput* conn,
-                                  vtkAlgorithmOutput* selectConn);
-
-  // Description:
-  // Removes the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection(int port, int item,
-                                     vtkAlgorithmOutput* conn,
-                                     vtkAlgorithmOutput* selectConn);
-
-  // Decsription:
-  // Prepares the view for rendering.
-  virtual void PrepareForRendering();
-
-  // Description:
-  // May a display coordinate to a world coordinate on the x-y plane.
-  void MapToXYPlane(double displayX, double displayY, double &x, double &y);
-
-  //BTX
-  // Processing objects
-  vtkSmartPointer<vtkCoordinate>                   Coordinate;
-  vtkSmartPointer<vtkGraphHierarchicalBundle>      HBundle;
-  vtkSmartPointer<vtkSplineFilter>                 Spline;
-  vtkSmartPointer<vtkVertexDegree>                 VertexDegree;
-  vtkSmartPointer<vtkVertexDegree>                 GraphVertexDegree;
-  vtkSmartPointer<vtkEdgeCenters>                  EdgeCenters;
-  vtkSmartPointer<vtkTreeFieldAggregator>          TreeAggregation;
-  vtkSmartPointer<vtkTransferAttributes>           TransferAttributes;
-  vtkSmartPointer<vtkTreeLevelsFilter>             TreeLevels;
-
-  // Representation objects
-  vtkSmartPointer<vtkDynamic2DLabelMapper>         EdgeLabelMapper;
-  vtkSmartPointer<vtkActor2D>                      EdgeLabelActor;
-  vtkSmartPointer<vtkPolyDataMapper>               GraphEdgeMapper;
-  vtkSmartPointer<vtkActor>                        GraphEdgeActor;
-
-  // Area objects
-  vtkSmartPointer<vtkAreaLayout>                   AreaLayout;
-  vtkSmartPointer<vtkPolyDataMapper>               AreaMapper;
-  vtkSmartPointer<vtkActor>                        AreaActor;
-  vtkSmartPointer<vtkActor2D>                      AreaLabelActor;
-  vtkPolyDataAlgorithm*                            AreaToPolyData;
-  vtkLabeledDataMapper*                            AreaLabelMapper;
-
-  // Graph edge selection objects
-  vtkSmartPointer<vtkSelection>                    EmptySelection;
-  vtkSmartPointer<vtkKdTreeSelector>               KdTreeSelector;
-  vtkSmartPointer<vtkHardwareSelector>             HardwareSelector;
-  vtkSmartPointer<vtkExtractSelectedGraph>         ExtractSelectedGraph;
-  vtkSmartPointer<vtkGraphHierarchicalBundle>      SelectedGraphHBundle;
-  vtkSmartPointer<vtkSplineFilter>                 SelectedGraphSpline;
-  vtkSmartPointer<vtkActor>                        SelectedGraphActor;
-  vtkSmartPointer<vtkPolyDataMapper>               SelectedGraphMapper;
-
-  // Area selection objects
-  vtkSmartPointer<vtkConvertSelection>             ConvertSelection;
-  vtkSmartPointer<vtkExtractSelectedPolyDataIds>   ExtractSelectedAreas;
-  vtkSmartPointer<vtkPolyDataMapper>               SelectedAreaMapper;
-  vtkSmartPointer<vtkActor>                        SelectedAreaActor;
-  //ETX
+  // Overrides behavior in vtkView to create a vtkRenderedGraphRepresentation
+  // by default.
+  virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
+  virtual vtkRenderedTreeAreaRepresentation* GetTreeAreaRepresentation();
 
 private:
   vtkTreeAreaView(const vtkTreeAreaView&);  // Not implemented.

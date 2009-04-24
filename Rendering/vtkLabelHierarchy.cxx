@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.39");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.40");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.39");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.40");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -806,7 +806,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.39");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.40");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -1127,7 +1127,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.39");
+vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.40");
 vtkStandardNewMacro(vtkLabelHierarchyOctreeQueueIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
@@ -1204,6 +1204,21 @@ void vtkLabelHierarchyOctreeQueueIterator::Begin( vtkIdTypeArray* lastPlaced )
   this->LastPlaced = lastPlaced;
   this->LastPlacedIndex = ( lastPlaced && lastPlaced->GetNumberOfTuples() > 0 )? 0 : -1; // don't try to traverse what's not there
 
+  // Skip over invalid label indices
+  if ( this->LastPlacedIndex >= 0 )
+    {
+    vtkIdType numLabels = this->Hierarchy->GetPointData()->GetAbstractArray( "Type" )->GetNumberOfTuples();
+    while ( this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() &&
+            this->LastPlaced->GetValue( this->LastPlacedIndex ) >= numLabels )
+      {
+      ++ this->LastPlacedIndex;
+      }
+    if ( this->LastPlacedIndex >= this->LastPlaced->GetNumberOfTuples() )
+      {
+      this->LastPlacedIndex = -1;
+      }
+    }
+
   this->Node = this->Hierarchy->GetImplementation()->Hierarchy3->root();
   if ( &(this->Node->value()) )
     {
@@ -1266,6 +1281,15 @@ void vtkLabelHierarchyOctreeQueueIterator::Next()
   if ( this->LastPlacedIndex >= 0 )
     {
     ++ this->LastPlacedIndex;
+
+    // Skip over invalid label indices
+    vtkIdType numLabels = this->Hierarchy->GetPointData()->GetAbstractArray( "Type" )->GetNumberOfTuples();
+    while ( this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() &&
+            this->LastPlaced->GetValue( this->LastPlacedIndex ) >= numLabels )
+      {
+      ++ this->LastPlacedIndex;
+      }
+
     if ( this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() )
       {
       return; // Done
@@ -1469,7 +1493,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.39");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.40");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1763,7 +1787,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.39");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.40");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {

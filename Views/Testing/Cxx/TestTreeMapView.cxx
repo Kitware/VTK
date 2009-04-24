@@ -22,6 +22,7 @@
 #include "vtkDataRepresentation.h"
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
 #include "vtkTreeMapView.h"
@@ -61,13 +62,13 @@ int TestTreeMapView(int argc, char* argv[])
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
 
-  view->SetAreaColorArrayName("GraphVertexDegree");
+  view->SetAreaColorArrayName("level");
   view->SetEdgeColorToSplineFraction();
   view->SetColorEdges(true);
   view->SetAreaLabelArrayName("id");
   view->SetAreaHoverArrayName("id");
   view->SetAreaLabelVisibility(true);
-  view->SetAreaSizeArrayName("GraphVertexDegree");
+  view->SetAreaSizeArrayName("VertexDegree");
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -78,6 +79,8 @@ int TestTreeMapView(int argc, char* argv[])
   win->SetMultiSamples(0);
   view->SetupRenderWindow(win);
   view->Update();
+  view->Render();
+  view->GetRenderer()->ResetCamera();
 
   int retVal = vtkRegressionTestImage(win);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )

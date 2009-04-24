@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.35");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.36");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.35");
+vtkCxxRevisionMacro(vtkGraph, "1.36");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -990,8 +990,7 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
     }
   if (!this->EdgePoints)
     {
-    vtkErrorMacro("No edge points defined.");
-    return 0;
+    this->EdgePoints = vtkGraphEdgePoints::New();
     }
   vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
@@ -1029,8 +1028,7 @@ void vtkGraph::SetEdgePoint(vtkIdType e, vtkIdType i, double x[3])
     }
   if (!this->EdgePoints)
     {
-    vtkErrorMacro("No edge points defined.");
-    return;
+    this->EdgePoints = vtkGraphEdgePoints::New();
     }
   vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
@@ -1071,8 +1069,7 @@ void vtkGraph::ClearEdgePoints(vtkIdType e)
     }
   if (!this->EdgePoints)
     {
-    vtkErrorMacro("No edge points defined.");
-    return;
+    this->EdgePoints = vtkGraphEdgePoints::New();
     }
   vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
@@ -1103,8 +1100,7 @@ void vtkGraph::AddEdgePoint(vtkIdType e, double x[3])
     }
   if (!this->EdgePoints)
     {
-    vtkErrorMacro("No edge points defined.");
-    return;
+    this->EdgePoints = vtkGraphEdgePoints::New();
     }
   vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
@@ -1487,6 +1483,14 @@ void vtkGraph::ForceOwnership()
     internals->NumberOfEdges = this->Internals->NumberOfEdges;
     this->SetInternals(internals);
     internals->Delete();
+    }
+  if (this->EdgePoints && this->EdgePoints->GetReferenceCount() > 1)
+    {
+    vtkGraphEdgePoints *oldEdgePoints = this->EdgePoints;
+    vtkGraphEdgePoints *edgePoints = vtkGraphEdgePoints::New();
+    edgePoints->Storage = oldEdgePoints->Storage;
+    this->EdgePoints = edgePoints;
+    oldEdgePoints->Delete();
     }
 }
 

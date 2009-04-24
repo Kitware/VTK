@@ -18,10 +18,13 @@ ENDIF(VTK_USE_RENDERING)
 
 SET( Kit_SRCS
 vtkAddMembershipArray.cxx
+vtkAppendPoints.cxx
+vtkApplyColors.cxx
 vtkArcParallelEdgeStrategy.cxx
 vtkAreaLayout.cxx
 vtkAreaLayoutStrategy.cxx
 vtkAssignCoordinates.cxx
+vtkAssignCoordinatesLayoutStrategy.cxx
 vtkBivariateStatisticsAlgorithm.cxx
 vtkBoxLayoutStrategy.cxx
 vtkChacoGraphReader.cxx
@@ -37,6 +40,7 @@ vtkCosmicTreeLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkDescriptiveStatistics.cxx
+vtkDistanceToCamera.cxx
 vtkEdgeCenters.cxx
 vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
@@ -46,9 +50,14 @@ vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx
 vtkGenerateIndexArray.cxx
+vtkGeoEdgeStrategy.cxx
+vtkGeoMath.cxx
 vtkGraphHierarchicalBundle.cxx
+vtkGraphHierarchicalBundleEdges.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
+vtkGraphToGlyphs.cxx
+vtkGraphToPoints.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
 vtkMergeColumns.cxx
@@ -69,6 +78,7 @@ vtkRandomLayoutStrategy.cxx
 vtkRemoveIsolatedVertices.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
+vtkSplineGraphEdges.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkStackedTreeLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx

@@ -1074,10 +1074,10 @@ char GraphLayoutViewEventLog[] =
 "ExitEvent 276 299 0 0 0 0 0\n"
 ;
 
-//#define RECORD
-
 int TestGraphLayoutView(int argc, char* argv[])
 {
+  bool record = false;
+
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
@@ -1124,12 +1124,12 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->VertexLabelVisibilityOn();
   view->SetVertexColorArrayName("size");
   view->ColorVerticesOn();
+  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
   view->SetEdgeColorArrayName("distance");
   view->ColorEdgesOn();
   view->SetEdgeLabelArrayName("edge label");
   view->EdgeLabelVisibilityOn();
   view->SetupRenderWindow(win);
-  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
 
   view->GetRenderer()->ResetCamera();
   view->Update();
@@ -1137,28 +1137,30 @@ int TestGraphLayoutView(int argc, char* argv[])
   // record events
   VTK_CREATE(vtkInteractorEventRecorder, recorder);
   recorder->SetInteractor(iren);
-#ifdef RECORD
-  recorder->SetFileName("record.log");
-  recorder->SetEnabled(true);
-  recorder->Record();
-#else
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(GraphLayoutViewEventLog);
-#endif
+  if (record)
+    {
+    recorder->SetFileName("record.log");
+    recorder->SetEnabled(true);
+    recorder->Record();
+    }
+  else
+    {
+    recorder->ReadFromInputStringOn();
+    recorder->SetInputString(GraphLayoutViewEventLog);
+    }
 
   // interact with data
   // render the image
   //
   iren->Initialize();
   win->Render();
-#ifdef RECORD
-#else
-  recorder->Play();
-
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
-#endif
+  if (!record)
+    {
+    recorder->Play();
+    // Remove the observers so we can go interactive. Without this the "-I"
+    // testing option fails.
+    recorder->Off();
+    }
   
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -19,8 +19,10 @@
 
 =========================================================================*/
 
+#include "vtkCosmicTreeLayoutStrategy.h"
 #include "vtkDataRepresentation.h"
 #include "vtkHierarchicalGraphView.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
@@ -47,16 +49,19 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   VTK_CREATE(vtkXMLTreeReader, reader1);
   reader1->SetFileName(treeFileName.c_str());
   reader1->SetEdgePedigreeIdArrayName("tree edge");
+  reader1->GenerateVertexPedigreeIdsOff();
+  reader1->SetVertexPedigreeIdArrayName("id");
   
   VTK_CREATE(vtkXMLTreeReader, reader2);
   reader2->SetFileName(graphFileName.c_str());
   reader2->SetEdgePedigreeIdArrayName("graph edge");
+  reader2->GenerateVertexPedigreeIdsOff();
+  reader2->SetVertexPedigreeIdArrayName("id");
 
   reader1->Update();
   reader2->Update();
   
   VTK_CREATE(vtkHierarchicalGraphView, view);
-  view->PrintSelf(cout,vtkIndent());
   view->SetHierarchyFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
 
@@ -66,8 +71,11 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   view->SetColorEdges(true);
   view->SetVertexLabelArrayName("id");
   view->SetVertexLabelVisibility(true);
-  view->SetLayoutStrategyToCosmicTree();
-  view->SetScalingArrayName("VertexDegree");
+  VTK_CREATE(vtkCosmicTreeLayoutStrategy, ct);
+  ct->SetNodeSizeArrayName("VertexDegree");
+  ct->SetSizeLeafNodesOnly(true);
+  view->SetLayoutStrategy(ct);
+  view->SetScalingArrayName("TreeRadius");
   
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -76,6 +84,8 @@ int TestHierarchicalGraphView(int argc, char* argv[])
  
   VTK_CREATE(vtkRenderWindow, win);
   view->SetupRenderWindow(win);
+
+  view->GetRenderer()->ResetCamera();
   
   int retVal = vtkRegressionTestImage(win);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
@@ -86,7 +96,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
     }
   
- return 0;
+ return !retVal;
 }
 
 

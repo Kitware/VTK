@@ -133,8 +133,15 @@ public:
 
   // Description:
   // Set/Get the text property.
-  virtual void SetLabelTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  // If an integer argument is provided, you may provide different text
+  // properties for different label types. The type is determined by an
+  // optional type input array.
+  virtual void SetLabelTextProperty(vtkTextProperty *p)
+    { this->SetLabelTextProperty(p, 0); }
+  virtual vtkTextProperty* GetLabelTextProperty()
+    { return this->GetLabelTextProperty(0); }
+  virtual void SetLabelTextProperty(vtkTextProperty *p, int type);
+  virtual vtkTextProperty* GetLabelTextProperty(int type);
 
   // Description:
   // Draw the text to the screen at each input point.
@@ -150,12 +157,15 @@ public:
   vtkGetObjectMacro(Transform, vtkTransform);
   void SetTransform(vtkTransform* t);
 
+  // Description:
+  // Return the modified time for this object.
+  virtual unsigned long GetMTime();
+
 protected:
   vtkLabeledDataMapper();
   ~vtkLabeledDataMapper();
 
   vtkDataSet *Input;
-  vtkTextProperty *LabelTextProperty;
 
   char  *LabelFormat;
   int   LabelMode;
@@ -176,6 +186,12 @@ protected:
   void AllocateLabels(int numLabels);
   void BuildLabels();
   void BuildLabelsInternal(vtkDataSet*);
+  
+  //BTX
+  class Internals;
+  Internals* Implementation;
+  //ETX
+
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.
   void operator=(const vtkLabeledDataMapper&);  // Not implemented.

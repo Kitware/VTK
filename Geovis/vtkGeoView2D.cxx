@@ -23,7 +23,6 @@
 #include "vtkCamera.h"
 #include "vtkCollection.h"
 #include "vtkGeoAlignedImageRepresentation.h"
-#include "vtkGeoGraphRepresentation2D.h"
 #include "vtkGeoTerrain2D.h"
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkObjectFactory.h"
@@ -31,17 +30,14 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView2D, "1.4");
+vtkCxxRevisionMacro(vtkGeoView2D, "1.5");
 vtkStandardNewMacro(vtkGeoView2D);
 vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 
 vtkGeoView2D::vtkGeoView2D()
 {
   this->Surface = 0;
-  vtkSmartPointer<vtkInteractorStyleRubberBand2D> style =
-    vtkSmartPointer<vtkInteractorStyleRubberBand2D>::New();
-  this->SetInteractorStyle(style);
-  this->Renderer->GetActiveCamera()->ParallelProjectionOn();
+  this->SetInteractionModeTo2D();
   this->Assembly = vtkAssembly::New();
   this->Renderer->AddActor(this->Assembly);
   this->SetSelectionModeToFrustum();
@@ -54,6 +50,15 @@ vtkGeoView2D::~vtkGeoView2D()
     {
     this->Assembly->Delete();
     }
+}
+
+vtkAbstractTransform* vtkGeoView2D::GetTransform()
+{
+  if (this->Surface)
+    {
+    return this->Surface->GetTransform();
+    }
+  return 0;
 }
 
 void vtkGeoView2D::PrintSelf( ostream& os, vtkIndent indent )
@@ -73,6 +78,7 @@ void vtkGeoView2D::ApplyViewTheme(vtkViewTheme* theme)
 void vtkGeoView2D::PrepareForRendering()
 {
   this->Superclass::PrepareForRendering();
+
   if (!this->Surface)
     {
     return;
@@ -91,16 +97,6 @@ void vtkGeoView2D::PrepareForRendering()
   if (collection->GetNumberOfItems() > 0)
     {
     this->Surface->AddActors(this->Renderer, this->Assembly, collection);
-    }
-}
-
-void vtkGeoView2D::AddRepresentationInternal(vtkDataRepresentation* rep)
-{
-  vtkGeoGraphRepresentation2D* graphRep = vtkGeoGraphRepresentation2D::SafeDownCast(rep);
-  // Make sure the transform of the graph representation matches that of the view.
-  if (graphRep && this->Surface && this->Surface->GetTransform())
-    {
-    graphRep->SetTransform(this->Surface->GetTransform());
     }
 }
 

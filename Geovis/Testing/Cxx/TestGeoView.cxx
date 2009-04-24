@@ -22,14 +22,14 @@
 #include "vtkCamera.h"
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoAlignedImageSource.h"
+#include "vtkGeoEdgeStrategy.h"
 #include "vtkGeoFileImageSource.h"
 #include "vtkGeoFileTerrainSource.h"
 #include "vtkGeoGlobeSource.h"
-#include "vtkGeoGraphRepresentation.h"
-#include "vtkGeoGraphRepresentation2D.h"
 #include "vtkGeoProjection.h"
 #include "vtkGeoProjectionSource.h"
 #include "vtkGeoRandomGraphSource.h"
+#include "vtkGeoSphereTransform.h"
 #include "vtkGeoTerrain.h"
 #include "vtkGeoTerrainNode.h"
 #include "vtkGeoTerrain2D.h"
@@ -39,6 +39,7 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkJPEGReader.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderedGraphRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -115,6 +116,9 @@ int TestGeoView(int argc, char* argv[])
   VTK_CREATE(vtkRenderWindow, win);
   win->SetMultiSamples(0);
   VTK_CREATE(vtkGeoView, view);
+  //VTK_CREATE(vtkRenderView, view);
+  //VTK_CREATE(vtkGeoSphereTransform, trans);
+  //view->SetTransform(trans);
   view->SetupRenderWindow(win);
   win->SetSize(400,400);
 
@@ -154,17 +158,6 @@ int TestGeoView(int argc, char* argv[])
   imageRep2->SetSource(imageSource2);
   view->AddRepresentation(imageRep2);
 
-  // Add a graph representation
-  vtkSmartPointer<vtkGeoRandomGraphSource> graphSource =
-    vtkSmartPointer<vtkGeoRandomGraphSource>::New();
-  graphSource->SetNumberOfVertices(100);
-  graphSource->StartWithTreeOn();
-  graphSource->SetNumberOfEdges(0);
-  vtkSmartPointer<vtkGeoGraphRepresentation> graphRep =
-    vtkSmartPointer<vtkGeoGraphRepresentation>::New();
-  graphRep->SetInputConnection(graphSource->GetOutputPort());
-  view->AddRepresentation(graphRep);
-
   // Serialize databases
   if (terrainSavePath.length() > 0)
     {
@@ -195,7 +188,27 @@ int TestGeoView(int argc, char* argv[])
     }
   imageRep->SetSource(imageSource);
 
-  view->GetRenderer()->ResetCameraClippingRange();
+  view->Update();
+  view->GetRenderer()->ResetCamera();
+  view->GetRenderer()->GetActiveCamera()->Zoom(1.2);
+
+  // Add a graph representation
+  vtkSmartPointer<vtkGeoRandomGraphSource> graphSource =
+    vtkSmartPointer<vtkGeoRandomGraphSource>::New();
+  graphSource->SetNumberOfVertices(100);
+  graphSource->StartWithTreeOn();
+  graphSource->SetNumberOfEdges(0);
+  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
+    vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
+  graphRep->SetInputConnection(graphSource->GetOutputPort());
+  graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");
+  VTK_CREATE(vtkGeoEdgeStrategy, edgeStrategy);
+  graphRep->SetEdgeLayoutStrategy(edgeStrategy);
+  view->AddRepresentation(graphRep);
+
+  vtkViewTheme* theme = vtkViewTheme::New();
+  view->ApplyViewTheme(theme);
+  theme->Delete();
 
   //int retVal = vtkRegressionTestImage(win);
   int retVal = vtkRegressionTestImageThreshold(win, 11);

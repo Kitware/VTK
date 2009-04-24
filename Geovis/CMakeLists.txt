@@ -14,22 +14,19 @@ SET( Kit_SRCS
   vtkGeoArcs.cxx
   vtkGeoAssignCoordinates.cxx
   vtkGeoCamera.cxx
-  vtkGeoEdgeStrategy.cxx
   vtkGeoFileImageSource.cxx
   vtkGeoFileTerrainSource.cxx
   vtkGeoGlobeSource.cxx
-  vtkGeoGraphRepresentation.cxx
-  vtkGeoGraphRepresentation2D.cxx
   vtkGeoGraticule.cxx
   vtkGeoImageNode.cxx
   vtkGeoInteractorStyle.cxx
   vtkGeoLineRepresentation.cxx
-  vtkGeoMath.cxx
   vtkGeoProjectionSource.cxx
   vtkGeoProjection.cxx
   vtkGeoRandomGraphSource.cxx
   vtkGeoSampleArcs.cxx
   vtkGeoSource.cxx
+  vtkGeoSphereTransform.cxx
   vtkGeoTerrain.cxx
   vtkGeoTerrain2D.cxx
   vtkGeoTerrainNode.cxx

@@ -23,7 +23,7 @@
 // vtkGeoView is a 3D globe view. The globe may contain a multi-resolution
 // geometry source (vtkGeoTerrain), multiple multi-resolution image sources
 // (vtkGeoAlignedImageRepresentation), as well as other representations such
-// as vtkGeoGraphRepresentation. At a minimum, the view must have a terrain
+// as vtkRenderedGraphRepresentation. At a minimum, the view must have a terrain
 // and one image representation. The view uses vtkGeoInteractorStyle to orbit,
 // zoom, and tilt the view, and contains a vtkCompassWidget for manipulating
 // the camera.
@@ -85,10 +85,6 @@ public:
   virtual void SetLockHeading(bool lock);
   virtual bool GetLockHeading();
   vtkBooleanMacro(LockHeading, bool);
-
-  // Description:
-  // Apply a view theme to the view.
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
 
   // Description:
   // Convenience method for obtaining the internal interactor style.

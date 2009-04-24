@@ -1,0 +1,132 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkHierarchicalGraphPipeline.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
+// .NAME vtkHierarchicalGraphPipeline - helper class for rendering graphs superimposed on a tree.
+//
+// .SECTION Description
+// vtkHierarchicalGraphPipeline renders bundled edges that are meant to be
+// viewed as an overlay on a tree. This class is not for general use, but
+// is used in the internals of vtkRenderedHierarchyRepresentation and
+// vtkRenderedTreeAreaRepresentation.
+
+#include "vtkObject.h"
+
+class vtkActor;
+class vtkAlgorithmOutput;
+class vtkApplyColors;
+class vtkGraphHierarchicalBundleEdges;
+class vtkGraphToPolyData;
+class vtkPolyDataMapper;
+class vtkSplineGraphEdges;
+class vtkSelection;
+class vtkTextProperty;
+class vtkView;
+class vtkViewTheme;
+
+class VTK_VIEWS_EXPORT vtkHierarchicalGraphPipeline : public vtkObject
+{
+public:
+  static vtkHierarchicalGraphPipeline* New();
+  vtkTypeRevisionMacro(vtkHierarchicalGraphPipeline, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // The actor associated with the hierarchical graph.
+  vtkGetObjectMacro(Actor, vtkActor);
+
+  // Description:
+  // The bundling strength for the bundled edges.
+  virtual void SetBundlingStrength(double strength);
+  virtual double GetBundlingStrength();
+
+  // Description:
+  // The edge label array name.
+  virtual void SetLabelArrayName(const char* name);
+  virtual const char* GetLabelArrayName();
+
+  // Description:
+  // The edge label visibility.
+  virtual void SetLabelVisibility(bool vis);
+  virtual bool GetLabelVisibility();
+  vtkBooleanMacro(LabelVisibility, bool);
+
+  // Description:
+  // The edge label text property.
+  virtual void SetLabelTextProperty(vtkTextProperty* prop);
+  virtual vtkTextProperty* GetLabelTextProperty();
+
+  // Description:
+  // The edge color array.
+  virtual void SetColorArrayName(const char* name);
+  virtual const char* GetColorArrayName();
+
+  // Description:
+  // Whether to color the edges by an array.
+  virtual void SetColorEdgesByArray(bool vis);
+  virtual bool GetColorEdgesByArray();
+  vtkBooleanMacro(ColorEdgesByArray, bool);
+
+  // Description:
+  // The visibility of this graph.
+  virtual void SetVisibility(bool vis);
+  virtual bool GetVisibility();
+  vtkBooleanMacro(Visibility, bool);
+
+  // Description:
+  // Returns a new selection relevant to this graph based on an input
+  // selection and the view that this graph is contained in.
+  virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
+
+  // Description:
+  // Sets the input connections for this graph.
+  // graphConn is the input graph connection.
+  // treeConn is the input tree connection.
+  // annConn is the annotation link connection.
+  // selConn is the selection link connection.
+  virtual void SetupInputConnections(
+    vtkAlgorithmOutput* graphConn,
+    vtkAlgorithmOutput* treeConn,
+    vtkAlgorithmOutput* annConn,
+    vtkAlgorithmOutput* selConn);
+
+  // Description:
+  // Applies the view theme to this graph.
+  virtual void ApplyViewTheme(vtkViewTheme* theme);
+
+protected:
+  vtkHierarchicalGraphPipeline();
+  ~vtkHierarchicalGraphPipeline();
+
+  vtkApplyColors*                  ApplyColors;
+  vtkGraphHierarchicalBundleEdges* Bundle;
+  vtkGraphToPolyData*              GraphToPoly;
+  vtkSplineGraphEdges*             Spline;
+  vtkPolyDataMapper*               Mapper;
+  vtkActor*                        Actor;
+  vtkTextProperty*                 TextProperty;
+
+  vtkSetStringMacro(ColorArrayNameInternal);
+  vtkGetStringMacro(ColorArrayNameInternal);
+  char* ColorArrayNameInternal;
+
+private:
+  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&); // Not implemented
+  void operator=(const vtkHierarchicalGraphPipeline&); // Not implemented
+};
+

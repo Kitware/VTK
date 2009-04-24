@@ -157,7 +157,7 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
 
   VTK_CREATE(vtkGraphMapper, mapper);
   mapper->SetInputConnection( layout->GetOutputPort() );
-  mapper->SetScalingArrayName( "inputRadiusTreeRadius" );
+  mapper->SetScalingArrayName( "TreeRadius" );
   mapper->ScaledGlyphsOn();
   mapper->SetVertexColorArrayName( "id" );
   mapper->ColorVerticesOn();

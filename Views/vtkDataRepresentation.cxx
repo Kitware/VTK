@@ -47,6 +47,7 @@ public:
   vtkDataRepresentationInput()
     {
     this->ConvertDomain = vtkSmartPointer<vtkConvertSelectionDomain>::New();
+    this->InputMTime = 0;
     }
 
   ~vtkDataRepresentationInput()
@@ -72,10 +73,12 @@ public:
     return this->ConvertDomain->GetInputDataObject(2, 0);
     }
 
+  unsigned long InputMTime;
+
 protected:
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomain;
 };
-vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.8");
+vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.9");
 vtkStandardNewMacro(vtkDataRepresentationInput);
 
 //---------------------------------------------------------------------------
@@ -92,7 +95,7 @@ public:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.9");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   SelectionLinkInternal, vtkSelectionLink);
@@ -186,13 +189,17 @@ int vtkDataRepresentation::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
-  for (int i = this->Implementation->Inputs.size();
+  // Create placeholders for inputs if they do not exist.
+  for (size_t i = this->Implementation->Inputs.size();
        i < this->GetNumberOfInputPorts(); ++i)
     {
     this->Implementation->Inputs.push_back(
       vtkstd::vector<vtkSmartPointer<vtkDataRepresentationInput> >());
+    }
+  for (int i = 0; i < this->GetNumberOfInputPorts(); ++i)
+    {
     int connections = inputVector[i]->GetNumberOfInformationObjects();
-    for (int j = this->Implementation->Inputs[i].size();
+    for (size_t j = this->Implementation->Inputs[i].size();
          j < connections; ++j)
       {
       vtkSmartPointer<vtkDataRepresentationInput> dri =
@@ -201,6 +208,8 @@ int vtkDataRepresentation::RequestData(
       }
     }
 
+  // Fill inputs data structure with shallow copies of the real inputs
+  // since these will be placed in the separate internal pipeline.
   for (int i = 0; i < this->GetNumberOfInputPorts(); ++i)
     {
     int connections = inputVector[i]->GetNumberOfInformationObjects();
@@ -208,10 +217,14 @@ int vtkDataRepresentation::RequestData(
       {
       vtkInformation* inInfo = inputVector[i]->GetInformationObject(j);
       vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      vtkDataObject* inputCopy = input->NewInstance();
-      inputCopy->ShallowCopy(input);
-      this->Implementation->Inputs[i][j]->SetInput(inputCopy, this);
-      inputCopy->Delete();
+      if (input->GetMTime() > this->Implementation->Inputs[i][j]->InputMTime)
+        {
+        this->Implementation->Inputs[i][j]->InputMTime = input->GetMTime();
+        vtkDataObject* inputCopy = input->NewInstance();
+        inputCopy->ShallowCopy(input);
+        this->Implementation->Inputs[i][j]->SetInput(inputCopy, this);
+        inputCopy->Delete();
+        }
       }
     }
   this->SetupInputConnections();

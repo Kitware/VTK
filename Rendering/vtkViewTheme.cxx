@@ -20,9 +20,10 @@
 
 #include "vtkViewTheme.h"
 
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.1");
+vtkCxxRevisionMacro(vtkViewTheme, "1.2");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -164,6 +165,56 @@ vtkViewTheme* vtkViewTheme::CreateMellowTheme()
   theme->SetSelectedCellColor(0, 0, 0);
 
   return theme;
+}
+
+bool vtkViewTheme::LookupMatchesPointTheme(vtkScalarsToColors* s2c)
+{
+  if (!s2c)
+    {
+    return false;
+    }
+  vtkLookupTable* lut = vtkLookupTable::SafeDownCast(s2c);
+  if (!lut)
+    {
+    return false;
+    }
+  if (lut->GetHueRange()[0] == this->PointHueRange[0] &&
+      lut->GetHueRange()[1] == this->PointHueRange[1] &&
+      lut->GetSaturationRange()[0] == this->PointSaturationRange[0] &&
+      lut->GetSaturationRange()[1] == this->PointSaturationRange[1] &&
+      lut->GetValueRange()[0] == this->PointValueRange[0] &&
+      lut->GetValueRange()[1] == this->PointValueRange[1] &&
+      lut->GetAlphaRange()[0] == this->PointAlphaRange[0] &&
+      lut->GetAlphaRange()[1] == this->PointAlphaRange[1])
+    {
+    return true;
+    }
+  return false;
+}
+
+bool vtkViewTheme::LookupMatchesCellTheme(vtkScalarsToColors* s2c)
+{
+  if (!s2c)
+    {
+    return false;
+    }
+  vtkLookupTable* lut = vtkLookupTable::SafeDownCast(s2c);
+  if (!lut)
+    {
+    return false;
+    }
+  if (lut->GetHueRange()[0] == this->CellHueRange[0] &&
+      lut->GetHueRange()[1] == this->CellHueRange[1] &&
+      lut->GetSaturationRange()[0] == this->CellSaturationRange[0] &&
+      lut->GetSaturationRange()[1] == this->CellSaturationRange[1] &&
+      lut->GetValueRange()[0] == this->CellValueRange[0] &&
+      lut->GetValueRange()[1] == this->CellValueRange[1] &&
+      lut->GetAlphaRange()[0] == this->CellAlphaRange[0] &&
+      lut->GetAlphaRange()[1] == this->CellAlphaRange[1])
+    {
+    return true;
+    }
+  return false;
 }
 
 void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)

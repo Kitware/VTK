@@ -26,9 +26,8 @@
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoCamera.h"
 #include "vtkGeoGlobeSource.h"
-#include "vtkGeoGraphRepresentation.h"
 #include "vtkGeoInteractorStyle.h"
-#include "vtkGeoLineRepresentation.h"
+#include "vtkGeoSphereTransform.h"
 #include "vtkGeoTerrain.h"
 #include "vtkGlobeSource.h"
 #include "vtkLight.h"
@@ -41,12 +40,15 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView, "1.13");
+vtkCxxRevisionMacro(vtkGeoView, "1.14");
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
 {
+  this->RenderWindow = 0;
+  this->Terrain = 0;
+
   // Replace the interactor style
   vtkGeoInteractorStyle* style = vtkGeoInteractorStyle::New();
   this->SetInteractorStyle(style);
@@ -75,15 +77,14 @@ vtkGeoView::vtkGeoView()
   this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
   this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
   this->LowResEarthActor->SetMapper(this->LowResEarthMapper);
-  this->RenderWindow = 0;
-  this->Terrain = 0;
-
-  // Perform frustum selection by default
-  this->SetSelectionModeToFrustum();
 
   // Add the assembly to the view.
   this->Assembly = vtkAssembly::New();
   this->Renderer->AddActor(this->Assembly);
+
+  vtkGeoSphereTransform* t = vtkGeoSphereTransform::New();
+  this->SetTransform(t);
+  t->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -121,7 +122,6 @@ void vtkGeoView::BuildLowResEarth( double origin[3] )
   this->LowResEarthMapper->SetInputConnection(this->LowResEarthSource->GetOutputPort());
   //this->LowResEarthActor->VisibilityOff();
 }
-  
 
 //----------------------------------------------------------------------------
 void vtkGeoView::SetupRenderWindow(vtkRenderWindow* win)
@@ -165,6 +165,7 @@ bool vtkGeoView::GetLockHeading()
 void vtkGeoView::PrepareForRendering()
 {
   this->Superclass::PrepareForRendering();
+
   vtkSmartPointer<vtkCollection> imageReps =
     vtkSmartPointer<vtkCollection>::New();
   for (int i = 0; i < this->GetNumberOfRepresentations(); i++)
@@ -174,18 +175,6 @@ void vtkGeoView::PrepareForRendering()
     if (imageRep)
       {
       imageReps->AddItem(imageRep);
-      }
-    vtkGeoLineRepresentation* lineRep =
-      vtkGeoLineRepresentation::SafeDownCast(this->GetRepresentation(i));
-    if (lineRep)
-      {
-      lineRep->PrepareForRendering();
-      }
-    vtkGeoGraphRepresentation* graphRep =
-      vtkGeoGraphRepresentation::SafeDownCast(this->GetRepresentation(i));
-    if (graphRep)
-      {
-      graphRep->PrepareForRendering();
       }
     }
 
@@ -201,7 +190,6 @@ vtkGeoAlignedImageRepresentation* vtkGeoView::AddDefaultImageRepresentation(vtkI
   // Add default terrain
   vtkSmartPointer<vtkGeoGlobeSource> terrainSource =
     vtkSmartPointer<vtkGeoGlobeSource>::New();
-  terrainSource->Initialize();
   vtkSmartPointer<vtkGeoTerrain> terrain =
     vtkSmartPointer<vtkGeoTerrain>::New();
   terrain->SetSource(terrainSource);
@@ -211,21 +199,12 @@ vtkGeoAlignedImageRepresentation* vtkGeoView::AddDefaultImageRepresentation(vtkI
   vtkSmartPointer<vtkGeoAlignedImageSource> imageSource =
     vtkSmartPointer<vtkGeoAlignedImageSource>::New();
   imageSource->SetImage(image);
-  imageSource->Initialize();
   vtkSmartPointer<vtkGeoAlignedImageRepresentation> rep =
     vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
   rep->SetSource(imageSource);
   this->AddRepresentation(rep);
 
   return rep;
-}
-
-//----------------------------------------------------------------------------
-void vtkGeoView::ApplyViewTheme(vtkViewTheme* theme)
-{
-  this->Renderer->SetBackground(theme->GetBackgroundColor());
-  this->Renderer->SetBackground2(theme->GetBackgroundColor2());
-  this->Renderer->GradientBackgroundOn();
 }
 
 //----------------------------------------------------------------------------
@@ -237,7 +216,7 @@ vtkGeoInteractorStyle* vtkGeoView::GetGeoInteractorStyle()
 //----------------------------------------------------------------------------
 void vtkGeoView::SetGeoInteractorStyle(vtkGeoInteractorStyle* style)
 {
-  if(style && style != this->InteractorStyle)
+  if(style && style != this->GetInteractorStyle())
     {
     this->SetInteractorStyle(style);
     style->SetCurrentRenderer(this->Renderer);

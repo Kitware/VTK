@@ -23,6 +23,7 @@
 #include "vtkIcicleView.h"
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
 #include "vtkViewTheme.h"
@@ -61,13 +62,13 @@ int TestIcicleView(int argc, char* argv[])
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
 
-  view->SetAreaColorArrayName("GraphVertexDegree");
+  view->SetAreaColorArrayName("VertexDegree");
   view->SetEdgeColorToSplineFraction();
   view->SetColorEdges(true);
   view->SetAreaLabelArrayName("id");
   view->SetAreaHoverArrayName("id");
   view->SetAreaLabelVisibility(true);
-  view->SetAreaSizeArrayName("GraphVertexDegree");
+  view->SetAreaSizeArrayName("VertexDegree");
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -78,6 +79,7 @@ int TestIcicleView(int argc, char* argv[])
   win->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetupRenderWindow(win);
   view->Update();
+  view->GetRenderer()->ResetCamera();
 
   int retVal = vtkRegressionTestImage(win);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )

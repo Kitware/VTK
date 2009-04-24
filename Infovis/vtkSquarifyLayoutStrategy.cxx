@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkSquarifyLayoutStrategy);
 
 vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy()
@@ -61,6 +61,7 @@ void vtkSquarifyLayoutStrategy::Layout(
   vtkIdType rootId = inputTree->GetRoot();
   float coords[] = {0,1,0,1};
   coordsArray->SetTuple(rootId, coords);
+  inputTree->GetPoints()->SetPoint(rootId, 0.5, 0.5, 0.0);
 
   // Now layout the children vertices
   this->AddBorder(coords);

@@ -20,6 +20,7 @@
 
 #include "vtkNetworkHierarchy.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSQLDatabaseTableSource.h"
@@ -69,15 +70,17 @@ int TestNetworkViews(int argc, char* argv[])
   VTK_CREATE( vtkTreeRingView, view1 );
   view1->SetTreeFromInputConnection(ip_tree->GetOutputPort());
   view1->SetGraphFromInputConnection(graph->GetOutputPort());
-  view1->SetLabelPriorityArrayName("GraphVertexDegree");
-  view1->SetAreaColorArrayName("GraphVertexDegree");
+  view1->Update();
+  view1->SetLabelPriorityArrayName("VertexDegree");
+  view1->SetAreaColorArrayName("VertexDegree");
+  view1->SetColorAreas(true);
   view1->SetAreaLabelArrayName("ip");
   view1->SetAreaHoverArrayName("ip");
   view1->SetAreaLabelVisibility(true);
   view1->SetEdgeColorArrayName("dport");
   view1->SetColorEdges(true);
-  view1->SetInteriorLogSpacingValue(2.);
-  view1->SetBundlingStrength(.8);
+  view1->SetInteriorLogSpacingValue(5.);
+  view1->SetBundlingStrength(.5);
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -89,9 +92,11 @@ int TestNetworkViews(int argc, char* argv[])
   window1->SetSize(600, 600);
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(window1);
-  dummy->SetupRenderWindow(window1);
+  //dummy->SetupRenderWindow(window1);
   view1->SetupRenderWindow(window1);
 
+  view1->Update();
+  view1->GetRenderer()->ResetCamera();
   window1->Render();
 
   int retVal = vtkRegressionTestImage(window1);

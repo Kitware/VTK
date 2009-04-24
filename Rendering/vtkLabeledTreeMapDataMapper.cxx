@@ -38,7 +38,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.3");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.4");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -328,7 +328,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  vtkTextProperty *tprop = this->LabelTextProperty;
+  vtkTextProperty *tprop = this->GetLabelTextProperty();
   if (!tprop)
     {
     vtkErrorMacro(<<"Need text property to render labels");
