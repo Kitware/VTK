@@ -37,7 +37,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.16");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.17");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -245,14 +245,17 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   // Reduction step: have process reduceProc perform the reduction of the global contingency table
   if ( myRank == reduceProc )
     {
-    this->Reduce( myRank,
-                  xyPacked_g,
-                  xySizeTotal,
-                  xyValues_l,
-                  xyPacked_l,
-                  kcValues_g,
-                  kcSizeTotal,
-                  kcValues_l );
+    if ( this->Reduce( xyPacked_g,
+                       xySizeTotal,
+                       xyPacked_l,
+                       kcValues_g,
+                       kcSizeTotal,
+                       kcValues_l ) )
+      {
+      vtkErrorMacro("Reduction error on process "
+                    << myRank
+                    << ".");
+      }
     } // if ( myRank == reduceProc )
 
   // Broadcast the xy and kc buffer sizes
@@ -350,10 +353,8 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPContingencyStatistics::Reduce( vtkIdType myRank,
-                                        char* xyPacked_g,
+bool vtkPContingencyStatistics::Reduce( char* xyPacked_g,
                                         vtkIdType& xySizeTotal,
-                                        vtkstd::vector<vtkStdString>& xyValues_l,
                                         vtkStdString& xyPacked_l,
                                         vtkIdType*  kcValues_g,
                                         vtkIdType& kcSizeTotal,
@@ -366,14 +367,13 @@ void vtkPContingencyStatistics::Reduce( vtkIdType myRank,
   // Second, check consistency: we must have the same number of xy and kc entries
   if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
     {
-    vtkErrorMacro("Process "
-                  << myRank
-                  << " collected inconsistent number of (x,y) and (k,c) pairs: "
+    vtkErrorMacro("Inconsistent number of (x,y) and (k,c) pairs: "
                   << xyValues_g.size()
                   << " <> "
                   << kcSizeTotal
                   << ".");
-    return;
+
+    return true;
     }
 
   // Third, reduce to the global contingency table
@@ -392,7 +392,7 @@ void vtkPContingencyStatistics::Reduce( vtkIdType myRank,
     }
     
   // Fourth, prepare send buffers of (global) xy and kc values
-  xyValues_l.clear();
+  vtkstd::vector<vtkStdString> xyValues_l;
   kcValues_l.clear();
   for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
         ait != contingencyTable.end(); ++ ait )
@@ -420,6 +420,8 @@ void vtkPContingencyStatistics::Reduce( vtkIdType myRank,
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
   xySizeTotal = xyPacked_l.size();
   kcSizeTotal = kcValues_l.size();
+
+  return false;
 }
 
 

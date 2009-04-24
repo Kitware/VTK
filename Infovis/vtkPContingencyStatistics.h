@@ -55,10 +55,8 @@ protected:
 //BTX
   // Description:
   // Reduce the collection of local contingency tables to the global one
-  void Reduce( vtkIdType myRank,
-               char* xyPacked_g,
+  bool Reduce( char* xyPacked_g,
                vtkIdType& xySizeTotal,
-               vtkstd::vector<vtkStdString>& xyValues_l,
                vtkStdString& xyPacked_l,
                vtkIdType*  kcValues_g,
                vtkIdType& kcSizeTotal,
