@@ -156,6 +156,12 @@ public:
   virtual void SetLayoutStrategy(vtkAreaLayoutStrategy* strategy);
   virtual vtkAreaLayoutStrategy* GetLayoutStrategy();
 
+  // Description:
+  // Whether the area represents radial or rectangular coordinates.
+  virtual void SetUseRectangularCoordinates(bool rect);
+  virtual bool GetUseRectangularCoordinates();
+  vtkBooleanMacro(UseRectangularCoordinates, bool);
+
 protected:
   vtkTreeAreaView();
   ~vtkTreeAreaView();
@@ -166,12 +172,6 @@ protected:
   // The filter must take a vtkTree as input and produce vtkPolyData.
   virtual void SetAreaToPolyData(vtkPolyDataAlgorithm* areaToPoly);
   virtual vtkPolyDataAlgorithm* GetAreaToPolyData();
-
-  // Description:
-  // Whether the area represents radial or rectangular coordinates.
-  virtual void SetUseRectangularCoordinates(bool rect);
-  virtual bool GetUseRectangularCoordinates();
-  vtkBooleanMacro(UseRectangularCoordinates, bool);
 
   // Description:
   // The mapper for rendering labels on areas. This may e.g. be
