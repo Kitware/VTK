@@ -103,7 +103,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   // Instantiate a parallel contingency statistics engine and set its ports
   vtkPContingencyStatistics* pcs = vtkPContingencyStatistics::New();
   pcs->SetInput( 0, inputData );
-  vtkTable* outputData = pcs->GetOutput( 0 );
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( 1 ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
@@ -138,11 +137,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     }
   
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-
-#if DEBUG_CONTINGENCY_TABLE
-  outputContingency->Dump();
-#endif // DEBUG_CONTINGENCY_TABLE
-
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
   if ( ! keys )
     {
@@ -207,10 +201,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
       }
     }
   
-  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
-  vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
-  vtkStdString dblName = "(" + varX + "," + varY + ")";
+#if DEBUG_CONTINGENCY_TABLE
+  outputContingency->Dump();
+#endif // DEBUG_CONTINGENCY_TABLE
 
   // Clean up
   delete [] cdf_g;
@@ -277,9 +270,9 @@ int main( int argc, char** argv )
   // ************************** Initialize test ********************************* 
   if ( com->GetLocalProcessId() == ioRank )
     {
-    cout << "\n# Houston, this is process "
+    cout << "\n# Process "
          << ioRank
-         << " speaking. I'll be the I/O node.\n";
+         << " will be the I/O node.\n";
     }
       
   // Check how many processes have been made available
