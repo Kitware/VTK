@@ -119,9 +119,25 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     doubleArray[c]->Delete();
     }
 
+  // "68-95-99.7 rule"
+  // Actually testing for 1, ..., numRuleVa standard deviations
+  int numRuleVal = 6; 
+
   // Reference values
-  double sigmaRuleVal[] = { 68.27 , 95.45, 99.73 };     // "68-95-99.7 rule"
-  double sigmaRuleTol[] = { 1., .5, .1 };
+  double sigmaRuleVal[] = { 68.2689492137,
+                            95.4499736104,
+                            99.7300203937,
+                            99.9936657516,
+                            99.9999426697,
+                            99.9999998027 }; 
+
+  // Tolerances
+  double sigmaRuleTol[] = { 1.,
+                            .5,
+                            .1,
+                            .05,
+                            .01,
+                            .005 };
 
   // ************************** Descriptive Statistics ************************** 
 
@@ -379,42 +395,63 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << ".\n";
     }
 
+  // For each normal variable, count deviations of more than 1, ..., numRuleVal standard deviations from the mean
   for ( int c = 0; c < nNormal; ++ c )
     {
-    int outsideStdv_l[] = { 0, 0, 0 };
+    // Allocate and initialize counters
+    int* outsideStdv_l = new int[numRuleVal];
+    for ( int i = 0; i < numRuleVal; ++ i )
+      {
+      outsideStdv_l[i] = 0;
+      }
+
+    // Count outliers
     double dev;
     int n = outputData->GetNumberOfRows();
     for ( vtkIdType r = 0; r < n; ++ r )
       {
       dev = relDev[c]->GetValue( r );
+
       if ( dev >= 1. )
         {
         ++ outsideStdv_l[0];
+
         if ( dev >= 2. )
           {
           ++ outsideStdv_l[1];
+
           if ( dev >= 3. )
             {
             ++ outsideStdv_l[2];
-            }
-          }
-        }
+
+            if ( dev >= 4. )
+              {
+              ++ outsideStdv_l[3];
+
+              if ( dev >= 5. )
+                {
+                ++ outsideStdv_l[4];
+                } // if ( dev >= 5. )
+              } // if ( dev >= 4. )
+            } // if ( dev >= 3. )
+          } // if ( dev >= 2. )
+        } // if ( dev >= 1. )
       }
 
     // Sum all local counters
-    int outsideStdv_g[3];
+    int* outsideStdv_g = new int[numRuleVal];
     com->AllReduce( outsideStdv_l, 
-                           outsideStdv_g, 
-                           3, 
-                           vtkCommunicator::SUM_OP );
+                    outsideStdv_g, 
+                    numRuleVal,
+                    vtkCommunicator::SUM_OP );
 
-    // Print out percentages of sample points within 1, 2, and 3 standard deviations of the mean.
+    // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
     if ( com->GetLocalProcessId() == args->ioRank )
       {
       cout << "   "
            << outputData->GetColumnName( nUniform + c )
            << ":\n";
-      for ( int i = 0; i < 3; ++ i )
+      for ( int i = 0; i < numRuleVal; ++ i )
         {
         double testVal = ( 1. - outsideStdv_g[i] / static_cast<double>( pds->GetOutput( 1 )->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
 
@@ -431,7 +468,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
           }
         }
       }
-    }
+
+    // Clean up
+    delete [] outsideStdv_l;
+    delete [] outsideStdv_g;
+    } // for ( int c = 0; c < nNormal; ++ c )
 
   // Clean up
   pds->Delete();
@@ -686,9 +727,9 @@ int main( int argc, char** argv )
   // ************************** Initialize test ********************************* 
   if ( com->GetLocalProcessId() == ioRank )
     {
-    cout << "\n# Houston, this is process "
+    cout << "\n# Process "
          << ioRank
-         << " speaking. I'll be the I/O node.\n";
+         << " will be the I/O node.\n";
     }
       
   // Check how many processes have been made available
