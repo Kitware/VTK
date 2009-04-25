@@ -29,6 +29,8 @@
 #include "vtkContingencyStatistics.h"
 #include "vtkPContingencyStatistics.h"
 
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
@@ -38,9 +40,9 @@
 #include "vtkVariantArray.h"
 
 // For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
-#define DEBUG_CONTINGENCY_TABLE 0 
+#define DEBUG_CONTINGENCY_TABLE 0
 
-struct RandomSampleStatisticsArgs
+struct RandomContingencyStatisticsArgs
 {
   int nVals;
   double span;
@@ -51,10 +53,10 @@ struct RandomSampleStatisticsArgs
 };
 
 // This will be called by all processes
-void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
+void RandomContingencyStatistics( vtkMultiProcessController* controller, void* arg )
 {
   // Get test parameters
-  RandomSampleStatisticsArgs* args = reinterpret_cast<RandomSampleStatisticsArgs*>( arg );
+  RandomContingencyStatisticsArgs* args = reinterpret_cast<RandomContingencyStatisticsArgs*>( arg );
   *(args->retVal) = 0;
 
   // Get MPI communicator
@@ -69,21 +71,21 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Generate an input table that contains samples of mutually independent discrete random variables
   int nVariables = 2;
   vtkIntArray* intArray[2];
-  vtkStdString columnNames[] = { "Uniform 0", 
-                                 "Uniform 1" };
+  vtkStdString columnNames[] = { "Rounded Normal 0", 
+                                 "Rounded Normal 1" };
   
   vtkTable* inputData = vtkTable::New();
-  // Discrete uniform samples
+  // Discrete rounded normal samples
   for ( int c = 0; c < nVariables; ++ c )
     {
     intArray[c] = vtkIntArray::New();
     intArray[c]->SetNumberOfComponents( 1 );
     intArray[c]->SetName( columnNames[c] );
 
-    int x;
+    double x;
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      x = static_cast<int>( floor( vtkMath::Random() * args->span ) ) + 5;
+      x = static_cast<int>( round( vtkMath::Gaussian() * args->span ) );
       intArray[c]->InsertNextValue( x );
       }
     
@@ -129,47 +131,89 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     outputMeta->Dump();
     }
 
-  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  // Verify that the distributed reduced contingency tables all result in a CDF value of 1.
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Verifying that joint probabilities sum to 1.\n";
+    }
+  
+  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
 #if DEBUG_CONTINGENCY_TABLE
-  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-  outputContigency->Dump();
+  outputContingency->Dump();
 #endif // DEBUG_CONTINGENCY_TABLE
 
-  vtkIdType key = 0;
-  vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
-  vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
-  vtkStdString proName = "P";
-  vtkStdString colName = proName + "(" + varX + "," + varY + ")";
-
-  double threshold = 1. / ( args->span * args->span );
-  double p;
-  vtkIdType testIntValue = 0;
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
+  if ( ! keys )
     {
-    p = outputData->GetValueByName( r, colName ).ToDouble();
-    if ( p >= threshold )
-      {
-      continue;
-      }
-
-    ++ testIntValue;
+    cout << "*** Error: "
+         << "Empty contingency table column 'Key' on process "
+         << com->GetLocalProcessId()
+         << ".\n";
     }
 
-  com->Barrier();
-  cout << "## Found "
-       << testIntValue
-       << " outliers (out of "
-       << args->nVals
-       << " data points) such that "
-       << colName
-       << " < "
-       << threshold
-       << " on process "
-       <<  com->GetLocalProcessId()
-       << ".\n";
+  vtkStdString proName = "P";
+  vtkDoubleArray* prob = vtkDoubleArray::SafeDownCast( outputContingency->GetColumnByName( proName ) );
+  if ( ! prob )
+    {
+    cout << "*** Error: "
+         << "Empty contingency table column '"
+         << proName
+         << "' on process "
+         << com->GetLocalProcessId()
+         << ".\n";
+    }
+
+  // Calculate local CDFs
+  double cdf_l = 0.;
+  vtkIdType key = 0;
+  int n = outputContingency->GetNumberOfRows();
+  vtkIdType k;
+
+  // Skip first entry which is reserved for the cardinality
+  for ( vtkIdType r = 1; r < n; ++ r )
+    {
+    k = keys->GetValue( r );
+    
+    if ( k == key )
+      {
+      cdf_l += prob->GetValue( r );
+      }
+    }
+
+  // Gather all local CDFs
+  int numProcs = controller->GetNumberOfProcesses();
+  double* cdf_g = new double[numProcs];
+  com->AllGather( &cdf_l, 
+                  cdf_g, 
+                  1 );
+
+  // Print out all CDFs
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    for ( int i = 0; i < numProcs; ++ i )
+      {
+      cout << "   On process "
+           << i
+           << ", CDF = "
+           << cdf_g[i]
+           << "\n";
+      
+      if ( fabs ( 1. - cdf_g[i] ) > 1.e-6 )
+        {
+        vtkGenericWarningMacro("Incorrect CDF.");
+        *(args->retVal) = 1;
+        }
+      }
+    }
+  
+  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
+  vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
+  vtkStdString dblName = "(" + varX + "," + varY + ")";
 
   // Clean up
+  delete [] cdf_g;
   pcs->Delete();
 }
 
@@ -249,16 +293,16 @@ int main( int argc, char** argv )
 
   // Parameters for regression test.
   int testValue = 0;
-  RandomSampleStatisticsArgs args;
-  args.nVals = 20000;
-  args.span = 10.;
+  RandomContingencyStatisticsArgs args;
+  args.nVals = 100000;
+  args.span = 50.;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.argc = argc;
   args.argv = argv;
 
   // Execute the function named "process" on both processes
-  controller->SetSingleMethod( RandomSampleStatistics, &args );
+  controller->SetSingleMethod( RandomContingencyStatistics, &args );
   controller->SingleMethodExecute();
 
   // Clean up and exit
