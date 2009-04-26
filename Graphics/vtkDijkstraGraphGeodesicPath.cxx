@@ -18,6 +18,7 @@
 #include "vtkDijkstraGraphInternals.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -27,8 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.13");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.14");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath,RepelVertices,vtkPoints);
 
@@ -56,6 +56,21 @@ vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
     delete this->Internals;
     }
   this->SetRepelVertices(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray *weights)
+{
+  if (!weights) 
+    {
+    return;
+    }
+  
+  weights->Initialize();
+  double *weightsArray = new double[this->Internals->CumulativeWeights.size()];
+  vtkstd::copy(this->Internals->CumulativeWeights.begin(), 
+    this->Internals->CumulativeWeights.end(), weightsArray);
+  weights->SetArray(weightsArray, this->Internals->CumulativeWeights.size(), 0);
 }
 
 //----------------------------------------------------------------------------

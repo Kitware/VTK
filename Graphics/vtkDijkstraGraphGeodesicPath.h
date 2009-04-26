@@ -86,6 +86,10 @@ public:
   // TODO: Get the total geodesic length.
   virtual double GetGeodesicLength() { return 0.0; }
 
+  //Description:
+  //Fill the array with the cumulative weights.
+  virtual void GetCumulativeWeights(vtkDoubleArray *weights);
+  
 protected:
   vtkDijkstraGraphGeodesicPath();
   ~vtkDijkstraGraphGeodesicPath();
