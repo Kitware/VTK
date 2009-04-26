@@ -663,7 +663,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Clean up
   pcas->Delete();
-
   inputData->Delete();
 }
 
