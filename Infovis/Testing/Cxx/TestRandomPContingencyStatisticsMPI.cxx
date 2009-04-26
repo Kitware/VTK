@@ -82,11 +82,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     intArray[c]->SetNumberOfComponents( 1 );
     intArray[c]->SetName( columnNames[c] );
 
-    double x;
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      x = static_cast<int>( round( vtkMath::Gaussian() * args->span ) );
-      intArray[c]->InsertNextValue( x );
+      intArray[c]->InsertNextValue( static_cast<int>( round( vtkMath::Gaussian() * args->span ) ) );
       }
     
     inputData->AddColumn( intArray[c] );
