@@ -46,6 +46,7 @@ SET( Kit_SRCS
   vtkDataSetMapper.cxx
   vtkDefaultPainter.cxx
   vtkDisplayListPainter.cxx
+  vtkDistanceToCamera.cxx
   vtkDynamic2DLabelMapper.cxx
   vtkExporter.cxx
   vtkFollower.cxx
@@ -55,6 +56,7 @@ SET( Kit_SRCS
   vtkGenericVertexAttributeMapping.cxx
   vtkGraphicsFactory.cxx
   vtkGraphMapper.cxx
+  vtkGraphToGlyphs.cxx
   vtkHardwareSelector.cxx
   vtkHardwareSelectionPolyDataPainter.cxx
   vtkHierarchicalPolyDataMapper.cxx

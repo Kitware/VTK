@@ -40,7 +40,7 @@ class vtkGlyphSource2D;
 class vtkRenderer;
 class vtkSphereSource;
 
-class VTK_INFOVIS_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm 
+class VTK_RENDERING_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkGraphToGlyphs *New();

@@ -30,7 +30,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkGraphToPoints : public vtkPolyDataAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkGraphToPoints : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkGraphToPoints *New();

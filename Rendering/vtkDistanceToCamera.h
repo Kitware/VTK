@@ -33,7 +33,7 @@
 
 class vtkRenderer;
 
-class VTK_INFOVIS_EXPORT vtkDistanceToCamera : public vtkPolyDataAlgorithm 
+class VTK_RENDERING_EXPORT vtkDistanceToCamera : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkDistanceToCamera *New();

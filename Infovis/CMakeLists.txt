@@ -40,7 +40,6 @@ vtkCosmicTreeLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkDescriptiveStatistics.cxx
-vtkDistanceToCamera.cxx
 vtkEdgeCenters.cxx
 vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
@@ -56,8 +55,6 @@ vtkGraphHierarchicalBundle.cxx
 vtkGraphHierarchicalBundleEdges.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
-vtkGraphToGlyphs.cxx
-vtkGraphToPoints.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
 vtkMergeColumns.cxx

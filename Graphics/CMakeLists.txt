@@ -105,6 +105,7 @@ vtkGlyphSource2D.cxx
 vtkGradientFilter.cxx
 vtkGraphGeodesicPath.cxx
 vtkGraphLayoutFilter.cxx
+vtkGraphToPoints.cxx
 vtkGraphToPolyData.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkHedgeHog.cxx
