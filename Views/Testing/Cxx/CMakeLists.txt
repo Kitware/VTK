@@ -15,7 +15,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestIconGlyphFilter.cxx
       TestTreeLayoutView.cxx
       TestTreeMapView.cxx
-      TestTreeMapViewer.cxx
       TestTreeRingView.cxx
       TestIcicleView.cxx
       TestConeLayoutStrategy.cxx
