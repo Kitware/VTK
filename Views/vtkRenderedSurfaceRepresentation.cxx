@@ -40,7 +40,7 @@
 #include "vtkSelectionLink.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.2");
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
@@ -57,7 +57,6 @@ vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
   this->Mapper->SetInputConnection(this->GeometryFilter->GetOutputPort());
   this->Actor->SetMapper(this->Mapper);
   this->Actor->GetProperty()->SetPointSize(10);
-  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
   this->SelectionGeometryFilter->SetInputConnection(this->ExtractSelection->GetOutputPort());
   this->SelectionMapper->SetInputConnection(this->SelectionGeometryFilter->GetOutputPort());
   this->SelectionActor->SetMapper(this->SelectionMapper);
@@ -82,11 +81,11 @@ vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderedSurfaceRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
+void vtkRenderedSurfaceRepresentation::SetupInputConnections()
 {
-  this->Superclass::SetInputConnection(conn);
-  this->GeometryFilter->SetInputConnection(conn);
-  this->ExtractSelection->SetInputConnection(conn);  
+  this->GeometryFilter->SetInput(this->GetInput());
+  this->ExtractSelection->SetInput(0, this->GetInput());  
+  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
 }
 
 //----------------------------------------------------------------------------

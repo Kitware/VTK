@@ -47,10 +47,6 @@ public:
   vtkTypeRevisionMacro(vtkRenderedSurfaceRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Sets the input pipeline connection to this representation.
-  virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-
   //Description:
   //Sets the color array name
   virtual void SetCellColorArrayName(const char* arrayName);
@@ -68,6 +64,10 @@ public:
 protected:
   vtkRenderedSurfaceRepresentation();
   ~vtkRenderedSurfaceRepresentation();
+
+  // Description:
+  // Sets the input pipeline connection to this representation.
+  virtual void SetupInputConnections();
   
   // Decription:
   // Adds the representation to the view.  This is called from
