@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.24");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.25");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkPointLocator)
@@ -2039,8 +2039,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
           p1 = v_tetra[verts[0]];
           p2 = v_tetra[verts[1]];
 
-          if ( (p1[cutInd] <= value && value <= p2[cutInd]) ||
-               (p2[cutInd] <= value && value <= p1[cutInd]) )
+          if ( (p1[cutInd] < value && value < p2[cutInd]) ||
+               (p2[cutInd] < value && value < p1[cutInd]) )
             {
             deltaScalar = p2[cutInd] - p1[cutInd];
 
@@ -2059,11 +2059,6 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 :
             (value - pedg1[cutInd]) / deltaScalar );
-
-            if ( t == 0.0 || t == 1.0 )
-              {
-              continue;
-              }
 
             for (j=0; j<3; j++)
               {
@@ -2520,7 +2515,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
           p2 = v_tetra[verts[1]];
           double s1 = p[verts[0]];
           double s2 = p[verts[1]];    
-          if ( (s1 * s2) <=0)
+          if ( (s1 * s2) < 0)
             {
             deltaScalar = s2 - s1;
           
@@ -2540,20 +2535,11 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 : ( - s1) / deltaScalar );
       
-            if ( t == 0.0 )
-              {
-              continue;
-              }
-            else if ( t == 1.0 )
-              {
-              continue;
-              }
-      
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               }
-      
+
             // Incorporate point into output and interpolate edge data as necessary
             edges_inter = edges_inter * 10 + (edgeNum+1);
 
@@ -3000,8 +2986,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
           p1 = v_tetra[verts[0]];
           p2 = v_tetra[verts[1]];
   
-          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
-               (p2[cutInd] <= value && value <= p1[cutInd]) )
+          if ( (p1[cutInd] < value && value < p2[cutInd]) || 
+               (p2[cutInd] < value && value < p1[cutInd]) )
             {
             deltaScalar = p2[cutInd] - p1[cutInd];
       
@@ -3020,15 +3006,6 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 :
                 (value - pedg1[cutInd]) / deltaScalar );
-      
-            if ( t == 0.0 )
-              {
-              continue;
-              }
-            else if ( t == 1.0 )
-              {
-              continue;
-              }
       
             for (j=0; j<3; j++)
               {
@@ -3563,7 +3540,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
           p2 = v_tetra[verts[1]];
           double s1 = p[verts[0]];
           double s2 = p[verts[1]];    
-          if ( (s1 * s2) <=0)
+          if ( (s1 * s2) < 0)
             {
             deltaScalar = s2 - s1;
               
@@ -3583,11 +3560,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 :
                   ( - s1) / deltaScalar );
-          
-            if ( t == 0.0 || t == 1.0 )
-              {
-              continue;
-              }
           
             for (j=0; j<3; j++)
               {
@@ -4062,8 +4034,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
           p1 = v_triangle[verts[0]];
           p2 = v_triangle[verts[1]];
 
-          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
-               (p2[cutInd] <= value && value <= p1[cutInd]) )
+          if ( (p1[cutInd] < value && value < p2[cutInd]) || 
+               (p2[cutInd] < value && value < p1[cutInd]) )
             {
             deltaScalar = p2[cutInd] - p1[cutInd];
 
@@ -4081,11 +4053,6 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
 
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 : (value - pedg1[cutInd]) / deltaScalar );
-
-            if ( t == 0.0 || t == 1.0 )
-              {
-              continue;
-              }
 
             for (j=0; j<3; j++)
               {
@@ -4418,8 +4385,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
           p1 = v_triangle[verts[0]];
           p2 = v_triangle[verts[1]];
   
-          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
-               (p2[cutInd] <= value && value <= p1[cutInd]) )
+          if ( (p1[cutInd] < value && value < p2[cutInd]) || 
+               (p2[cutInd] < value && value < p1[cutInd]) )
             {
             deltaScalar = p2[cutInd] - p1[cutInd];
       
@@ -4437,15 +4404,6 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 : (value - pedg1[cutInd]) / deltaScalar );
-      
-            if ( t == 0.0 )
-              {
-              continue;
-              }
-            else if ( t == 1.0 )
-              {
-              continue;
-              }
       
             for (j=0; j<3; j++)
               {
@@ -4819,7 +4777,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
             p2 = v_triangle[verts[1]];
             double s1 = p[verts[0]];
             double s2 = p[verts[1]];    
-            if ( (s1 * s2) <=0)
+            if ( (s1 * s2) < 0)
               {
               deltaScalar = s2 - s1;
             
@@ -4838,11 +4796,6 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
 
               // linear interpolation
               t = ( deltaScalar == 0.0 ? 0.0 : ( - s1) / deltaScalar );
-        
-              if ( t == 0.0 || t == 1.0 )
-                {
-                continue;
-                }
         
               for (j=0; j<3; j++)
                 {
@@ -5179,7 +5132,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
           p2 = v_triangle[verts[1]];
           double s1 = p[verts[0]];
           double s2 = p[verts[1]];    
-          if ( (s1 * s2) <=0)
+          if ( (s1 * s2) < 0)
             {
             deltaScalar = s2 - s1;
           
@@ -5198,11 +5151,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 : ( - s1) / deltaScalar );
-      
-            if ( t == 0.0 || t == 1.0)
-              {
-              continue;
-              }
       
             for (j=0; j<3; j++)
               {
