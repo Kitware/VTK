@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.78");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.79");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -164,7 +164,8 @@ int vtkCleanPolyData::RequestData(
 
   vtkIdType numNewPts;
   vtkIdType numUsedPts=0;
-  vtkPoints *newPts = vtkPoints::New();
+  vtkPoints *newPts = input->GetPoints()->NewInstance();
+  newPts->SetDataType(input->GetPoints()->GetDataType());
   newPts->Allocate(numPts);
 
   // we'll be needing these
