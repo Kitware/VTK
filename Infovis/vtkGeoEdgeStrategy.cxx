@@ -25,7 +25,6 @@
 #include "vtkEdgeListIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkGeoMath.h"
-#include "vtkGlobeSource.h"
 #include "vtkGraph.h"
 #include "vtkMath.h"
 #include "vtkInformation.h"
@@ -38,7 +37,7 @@
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkGeoEdgeStrategy, "1.1");
+vtkCxxRevisionMacro(vtkGeoEdgeStrategy, "1.2");
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
 vtkGeoEdgeStrategy::vtkGeoEdgeStrategy()
