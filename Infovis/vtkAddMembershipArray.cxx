@@ -41,8 +41,9 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkAddMembershipArray, "1.1");
+vtkCxxRevisionMacro(vtkAddMembershipArray, "1.2");
 vtkStandardNewMacro(vtkAddMembershipArray);
+vtkCxxSetObjectMacro(vtkAddMembershipArray,InputValues,vtkAbstractArray);
 
 //---------------------------------------------------------------------------
 vtkAddMembershipArray::vtkAddMembershipArray()
@@ -50,6 +51,8 @@ vtkAddMembershipArray::vtkAddMembershipArray()
   this->FieldType = -1;
   this->OutputArrayName = 0;
   this->SetOutputArrayName("membership");
+  this->InputArrayName = 0;
+  this->InputValues = NULL;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -72,6 +75,7 @@ int vtkAddMembershipArray::FillInputPortInformation(
   else if(port == 1)
     {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
 
   return 1;
@@ -90,6 +94,77 @@ int vtkAddMembershipArray::RequestData(
   vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
 
   output->ShallowCopy(input);
+
+  if(!selection)
+    {
+    if(!this->InputArrayName || !this->InputValues)
+      return 1;
+
+    vtkDataSetAttributes* ds;  
+    switch(this->FieldType)
+      {
+      case vtkAddMembershipArray::VERTEX_DATA:
+        if(vtkGraph* const graph = vtkGraph::SafeDownCast(output))
+          {
+          if(graph->GetVertexData())
+            {
+            ds = graph->GetVertexData();
+            }
+          }
+        break;
+      case vtkAddMembershipArray::EDGE_DATA:
+        if(vtkGraph* const graph = vtkGraph::SafeDownCast(output))
+          {
+          if(graph->GetEdgeData())
+            {
+            ds = graph->GetEdgeData();
+            }
+          }
+        break;
+      case vtkAddMembershipArray::ROW_DATA:
+        if(vtkTable* const table = vtkTable::SafeDownCast(output))
+          {
+          if(table->GetRowData())
+            {
+            ds = table->GetRowData();
+            }
+          }
+        break;
+      }
+    
+    vtkIntArray *vals = vtkIntArray::New();
+    vals->SetNumberOfTuples(ds->GetNumberOfTuples());
+    vals->SetNumberOfComponents(1);
+    vals->SetName(this->OutputArrayName);
+    vals->FillComponent(0,0);
+    
+    vtkAbstractArray *inputArray = ds->GetAbstractArray(this->InputArrayName);
+    if(inputArray && this->InputValues)
+      {
+      for(vtkIdType i=0; i<inputArray->GetNumberOfTuples(); ++i)
+        {
+        vtkVariant v(0);
+        switch (inputArray->GetDataType())
+          {
+          vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(inputArray->GetVoidPointer(i)));
+          }
+        if(this->InputValues->LookupValue(v)>=0)
+          {
+          vals->SetValue(i,1);
+          }
+        else
+          {
+          vals->SetValue(i,0);
+          }
+        }
+      }
+
+    ds->AddArray(vals);
+
+    vals->Delete();
+
+    return 1;
+    }
 
   // Convert the selection to an INDICES selection
   vtkSmartPointer<vtkSelection> converted;

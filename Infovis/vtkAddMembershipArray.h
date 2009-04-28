@@ -47,13 +47,14 @@ public:
     CELL_DATA = 2,
     VERTEX_DATA = 3,
     EDGE_DATA = 4,
+    ROW_DATA = 5,
     };
   //ETX
   
   // Description:
   // The field type to add the membership array to.
   vtkGetMacro(FieldType, int);
-  vtkSetClampMacro(FieldType, int, 0, 4);
+  vtkSetClampMacro(FieldType, int, 0, 5);
 
   // Description:
   // The name of the array added to the output vtkDataSetAttributes 
@@ -61,6 +62,12 @@ public:
   vtkSetStringMacro(OutputArrayName);
   vtkGetStringMacro(OutputArrayName);
   
+  vtkSetStringMacro(InputArrayName);
+  vtkGetStringMacro(InputArrayName);
+
+  void SetInputValues(vtkAbstractArray*);
+  vtkGetObjectMacro(InputValues,vtkAbstractArray);
+
 protected:
   vtkAddMembershipArray();
   ~vtkAddMembershipArray();
@@ -74,6 +81,10 @@ protected:
   
   int FieldType;
   char* OutputArrayName;
+  char* InputArrayName;
+//BTX
+  vtkAbstractArray* InputValues;
+//ETX
 
 private:
   vtkAddMembershipArray(const vtkAddMembershipArray&); // Not implemented
