@@ -56,7 +56,7 @@
 #include "vtkTransformCoordinateSystems.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderView, "1.14");
+vtkCxxRevisionMacro(vtkRenderView, "1.15");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -668,4 +668,26 @@ void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "SelectionMode: " << this->SelectionMode << endl;
   os << indent << "InteractionMode: " << this->InteractionMode << endl;
+  os << indent << "DisplayHoverText: " << this->DisplayHoverText << endl;
+  os << indent << "Transform: ";
+  if (this->Transform)
+    {
+    os << "\n";
+    this->Transform->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
+  os << indent << "InteractorStyle: ";
+  if (this->InteractorStyle)
+    {
+    os << "\n";
+    this->InteractorStyle->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }

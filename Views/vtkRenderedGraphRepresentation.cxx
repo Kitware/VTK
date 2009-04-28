@@ -74,7 +74,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.4");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1218,4 +1218,8 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "LayoutStrategyName: "
+     << (this->LayoutStrategyName ? this->LayoutStrategyName : "(none)") << endl;
+  os << indent << "EdgeLayoutStrategyName: "
+     << (this->EdgeLayoutStrategyName ? this->EdgeLayoutStrategyName : "(none)") << endl;
 }

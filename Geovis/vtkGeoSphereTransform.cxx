@@ -28,7 +28,7 @@
 #include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkGeoSphereTransform);
-vtkCxxRevisionMacro(vtkGeoSphereTransform,"1.1");
+vtkCxxRevisionMacro(vtkGeoSphereTransform,"1.2");
 
 vtkGeoSphereTransform::vtkGeoSphereTransform()
 {
@@ -41,6 +41,7 @@ vtkGeoSphereTransform::~vtkGeoSphereTransform()
 
 void vtkGeoSphereTransform::PrintSelf( ostream& os, vtkIndent indent )
 {
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "ToRectangular: " << this->ToRectangular << endl;
 }
 

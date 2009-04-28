@@ -38,7 +38,7 @@
 #include "vtkView.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.2");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -240,4 +240,14 @@ void vtkHierarchicalGraphPipeline::ApplyViewTheme(vtkViewTheme* theme)
 void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Actor: ";
+  if (this->Actor && this->Bundle->GetNumberOfInputConnections(0) > 0)
+    {
+    os << "\n";
+    this->Actor->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }

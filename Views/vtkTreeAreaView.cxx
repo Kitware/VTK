@@ -34,7 +34,7 @@
 #include "vtkTree.h"
 #include "vtkAreaLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.4");
+vtkCxxRevisionMacro(vtkTreeAreaView, "1.5");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
@@ -280,13 +280,22 @@ int vtkTreeAreaView::GetAreaLabelFontSize()
 //----------------------------------------------------------------------------
 void vtkTreeAreaView::SetEdgeLabelFontSize(const int size)
 {
-  this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty()->SetFontSize(size);
+  vtkTextProperty* prop = this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty();
+  if (prop)
+    {
+    prop->SetFontSize(size);
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkTreeAreaView::GetEdgeLabelFontSize()
 {
-  return this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty()->GetFontSize();
+  vtkTextProperty* prop = this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty();
+  if (prop)
+    {
+    return prop->GetFontSize();
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

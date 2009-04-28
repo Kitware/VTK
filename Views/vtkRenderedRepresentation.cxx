@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderView.h"
 
-vtkCxxRevisionMacro(vtkRenderedRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkRenderedRepresentation, "1.2");
 vtkStandardNewMacro(vtkRenderedRepresentation);
 
 vtkRenderedRepresentation::vtkRenderedRepresentation()
@@ -38,4 +38,5 @@ vtkRenderedRepresentation::~vtkRenderedRepresentation()
 void vtkRenderedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
 }

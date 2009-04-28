@@ -78,7 +78,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.5");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -530,7 +530,10 @@ const char* vtkRenderedTreeAreaRepresentation::GetGraphEdgeLabelArrayName(int id
 
 void vtkRenderedTreeAreaRepresentation::SetGraphEdgeLabelArrayName(const char* name, int idx)
 {
-  this->Implementation->Graphs[idx]->SetLabelArrayName(name);
+  if (this->ValidIndex(idx))
+    {
+    this->Implementation->Graphs[idx]->SetLabelArrayName(name);
+    }
 }
 
 vtkTextProperty* vtkRenderedTreeAreaRepresentation::GetGraphEdgeLabelTextProperty(int idx)
@@ -919,4 +922,26 @@ int vtkRenderedTreeAreaRepresentation::FillInputPortInformation(int port, vtkInf
 void vtkRenderedTreeAreaRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "UseRectangularCoordinates: " << this->UseRectangularCoordinates << endl;
+  os << indent << "AreaHoverArrayName: " << (this->AreaHoverArrayName ? this->AreaHoverArrayName : "(none)") << endl;
+  os << indent << "AreaToPolyData: ";
+  if (this->AreaToPolyData)
+    {
+    os << "\n";
+    this->AreaToPolyData->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "AreaLabelMapper: ";
+  if (this->AreaLabelMapper)
+    {
+    os << "\n";
+    this->AreaLabelMapper->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }
