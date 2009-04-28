@@ -211,6 +211,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/ftgl/src/.*warning: conversion to .* from .* may alter its value"
   # Sun cc5.6 - the code is designed to trigger an overflow
   "Utilities/vtksqlite/vtk_sqlite.c.*warning: integer overflow detected"
+  # bogus unreachable code warning in hashtable in kwsys
+  "hashtable.hxx.*warning C4702: unreachable code"
   )
 
 IF(APPLE)
