@@ -56,7 +56,7 @@
 #include "vtkTransformCoordinateSystems.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderView, "1.15");
+vtkCxxRevisionMacro(vtkRenderView, "1.16");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -353,8 +353,8 @@ void vtkRenderView::RemoveIcons(vtkAlgorithmOutput* conn)
 void vtkRenderView::ProcessEvents(
   vtkObject* caller, unsigned long eventId, void* callData)
 {
-  if (caller == this->Renderer && eventId == vtkCommand::StartEvent ||
-      eventId == vtkCommand::ComputeVisiblePropBoundsEvent)
+  if (caller == this->Renderer && (eventId == vtkCommand::StartEvent ||
+      eventId == vtkCommand::ComputeVisiblePropBoundsEvent))
     {
     this->PrepareForRendering();
     }

@@ -19416,7 +19416,7 @@ static int pager_playback(Pager *pPager, int isHot){
     }
   }
   /*NOTREACHED*/
-  assert( 0 );
+  /* assert( 0 ); unreachable: causes warning on Sun compiler */
 
 end_playback:
   if( rc==VTK_SQLITE_OK ){
