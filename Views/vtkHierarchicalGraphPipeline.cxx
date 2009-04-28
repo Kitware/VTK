@@ -38,7 +38,7 @@
 #include "vtkView.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.2");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.3");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -69,7 +69,6 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
   this->Mapper->SetInputConnection(this->GraphToPoly->GetOutputPort());
   this->Actor->SetMapper(this->Mapper);
 
-  this->ApplyColors->SetUseCellLookupTable(true);
   this->Mapper->SetScalarModeToUseCellFieldData();
   this->Mapper->SelectColorArray("vtkApplyColors color");
   this->Mapper->ScalarVisibilityOn();
