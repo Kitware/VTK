@@ -49,7 +49,10 @@
 // warnings.  Python documentation says these should not be necessary.
 // We define it as a macro in case the length needs to change across
 // python versions.
-#if   PY_VERSION_HEX >= 0x02030000
+#if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
+#elif   PY_VERSION_HEX >= 0x02030000
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,
 #elif PY_VERSION_HEX >= 0x02020000
@@ -459,6 +462,10 @@ static PyBufferProcs array_as_buffer = {
   (writebufferproc)array_getwritebuf,  /*bf_getwritebuffer*/
   (segcountproc)array_getsegcount,            /*bf_getsegcount*/
   (charbufferproc)array_getcharbuf,    /*bf_getcharbuffer*/
+  #if PY_VERSION_HEX >= 0x02060000
+   (getbufferproc)0, /* bf_getbuffer */
+   (releasebufferproc)0 /* bf_releasebuffer */
+  #endif
 #else
   (getreadbufferproc)array_getreadbuf,    /*bf_getreadbuffer*/
   (getwritebufferproc)array_getwritebuf,  /*bf_getwritebuffer*/
