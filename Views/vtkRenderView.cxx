@@ -56,7 +56,7 @@
 #include "vtkTransformCoordinateSystems.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderView, "1.16");
+vtkCxxRevisionMacro(vtkRenderView, "1.17");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -71,7 +71,12 @@ vtkRenderView::vtkRenderView()
   t->Identity();
   this->Transform = t;
   this->InteractorStyle = 0;
+
+  // Set interaction mode to -1 before calling SetInteractionMode,
+  // this will force an initialization of the interaction mode/style.
+  this->InteractionMode = -1;
   this->SetInteractionModeTo3D();
+
   this->LabelRenderMode = FREETYPE;
 
   this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
