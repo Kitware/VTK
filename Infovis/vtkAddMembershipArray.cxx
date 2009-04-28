@@ -41,7 +41,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkAddMembershipArray, "1.2");
+vtkCxxRevisionMacro(vtkAddMembershipArray, "1.3");
 vtkStandardNewMacro(vtkAddMembershipArray);
 vtkCxxSetObjectMacro(vtkAddMembershipArray,InputValues,vtkAbstractArray);
 
@@ -100,7 +100,7 @@ int vtkAddMembershipArray::RequestData(
     if(!this->InputArrayName || !this->InputValues)
       return 1;
 
-    vtkDataSetAttributes* ds;  
+    vtkDataSetAttributes* ds = 0;;  
     switch(this->FieldType)
       {
       case vtkAddMembershipArray::VERTEX_DATA:
@@ -130,6 +130,12 @@ int vtkAddMembershipArray::RequestData(
             }
           }
         break;
+      }
+
+    if(!ds)
+      {
+      vtkErrorMacro("Unsupported input field type.");
+      return 0;
       }
     
     vtkIntArray *vals = vtkIntArray::New();
@@ -293,4 +299,20 @@ void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FieldType: " << this->FieldType << endl;
   os << indent << "OutputArrayName: " 
     << this->OutputArrayName << endl;
+  os << indent << "InputArrayName: " 
+    << this->InputArrayName << endl;
+  if(this->InputValues)
+    {
+    os << indent << "Input Values :" << endl;
+    int num = this->InputValues->GetNumberOfTuples();
+    for (int idx = 0; idx < num; ++idx)
+      {
+      vtkVariant v(0);
+      switch (this->InputValues->GetDataType())
+        {
+        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(this->InputValues->GetVoidPointer(idx)));
+        }
+      os << v.ToString() << endl;
+      }
+    }
 }
