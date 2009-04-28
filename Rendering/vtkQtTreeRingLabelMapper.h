@@ -79,9 +79,15 @@ public:
   virtual void SetSectorsArrayName(const char* name);
 
   // Description:
-  // Set/Get the text property.
+  // Set/Get the text property. Note that multiple type text properties
+  // (set with a second integer parameter) are not currently supported,
+  // but are provided to avoid compiler warnings.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  virtual void SetLabelTextProperty(vtkTextProperty *p, int type)
+    { this->Superclass::SetLabelTextProperty(p, type); }
+  virtual vtkTextProperty* GetLabelTextProperty(int type)
+    { return this->Superclass::GetLabelTextProperty(type); }
 
   // Description:
   // Set/Get the name of the text rotation array.

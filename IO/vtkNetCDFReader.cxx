@@ -83,7 +83,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFReader, "1.2");
+vtkCxxRevisionMacro(vtkNetCDFReader, "1.3");
 vtkStandardNewMacro(vtkNetCDFReader);
 
 //-----------------------------------------------------------------------------
@@ -240,7 +240,7 @@ int vtkNetCDFReader::RequestInformation(
         // Remember that netCDF arrays are indexed backward from VTK images.
         int dim = this->LoadingDimensions->GetValue(numDims-i-1);
         CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
-        extent[2*i+1] = dimlength-1;
+        extent[2*i+1] = static_cast<int>(dimlength-1);
         }
       else
         {

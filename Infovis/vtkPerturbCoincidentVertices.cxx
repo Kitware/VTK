@@ -36,7 +36,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.11");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.12");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -251,7 +251,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
 
   // Compute the shortest intra-distance between coincident point foci
   double shortestDistance = VTK_DOUBLE_MAX;
-  int numberOfFoci = coincidentFoci.size();
+  int numberOfFoci = static_cast<int>(coincidentFoci.size());
   for (int i=0; i<numberOfFoci; ++i)
     {
     for (int j=i+1; j<numberOfFoci; ++j)

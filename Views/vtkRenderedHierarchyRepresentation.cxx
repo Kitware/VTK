@@ -51,7 +51,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.4");
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);
 
 vtkRenderedHierarchyRepresentation::vtkRenderedHierarchyRepresentation()
@@ -265,7 +265,7 @@ void vtkRenderedHierarchyRepresentation::SetupInputConnections()
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
     p->SetupInputConnections(
-      this->GetInput(1, i)->GetProducerPort(),
+      this->GetInput(1, static_cast<int>(i))->GetProducerPort(),
       this->Layout->GetOutputPort(),
       this->GetAnnotationConnection(),
       this->GetSelectionConnection());

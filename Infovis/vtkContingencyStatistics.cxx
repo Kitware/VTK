@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.41");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.42");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -433,7 +433,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   
   // Resize output meta so marginal PDF tables can be appended
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
-  inMeta->SetNumberOfBlocks( nBlocks + marginalCounts.size() );
+  inMeta->SetNumberOfBlocks( nBlocks + static_cast<unsigned int>(marginalCounts.size()) );
 
   // Rows of the marginal PDF tables contain:
   // 0: variable value

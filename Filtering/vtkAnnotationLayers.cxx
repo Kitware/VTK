@@ -30,7 +30,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAnnotationLayers, "1.2");
+vtkCxxRevisionMacro(vtkAnnotationLayers, "1.3");
 vtkStandardNewMacro(vtkAnnotationLayers);
 
 class vtkAnnotationLayers::Internals
@@ -52,7 +52,7 @@ vtkAnnotationLayers::~vtkAnnotationLayers()
 
 unsigned int vtkAnnotationLayers::GetNumberOfLayers()
 {
-  return this->Implementation->Layers.size();
+  return static_cast<unsigned int>(this->Implementation->Layers.size());
 }
 
 unsigned int vtkAnnotationLayers::GetNumberOfAnnotations(
@@ -63,7 +63,7 @@ unsigned int vtkAnnotationLayers::GetNumberOfAnnotations(
     vtkErrorMacro("Index out of bounds");
     return 0;
     }
-  return this->Implementation->Layers[layer].size();
+  return static_cast<unsigned int>(this->Implementation->Layers[layer].size());
 }
 
 vtkAnnotation* vtkAnnotationLayers::GetAnnotation(
