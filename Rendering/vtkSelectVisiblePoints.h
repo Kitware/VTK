@@ -99,12 +99,13 @@ public:
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Pass in the Renderer and a matrix that will be populated with the
-  // appropriate composite perspective transform. Also the Z-buffer will
-  // be returned via zPtr.
+  // Requires the renderer to be set. Populates the composite perspective transform
+  // and returns a pointer to the Z-buffer (that must be deleted) if getZbuff is set.
   float * Initialize(bool getZbuff);
 
   // Description:
+  // Tests if a point x is being occluded or not against the Z-Buffer array passed in by
+  // zPtr. Call Initialize before calling this method.
   bool IsPointOccluded(const double x[], float *zPtr);
 
   // Description:
