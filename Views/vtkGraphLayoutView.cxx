@@ -33,9 +33,8 @@
 #include "vtkSelection.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
-#include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.60");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.61");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -367,25 +366,6 @@ void vtkGraphLayoutView::SetEdgeLayoutStrategy(const char* name)
 const char* vtkGraphLayoutView::GetEdgeLayoutStrategyName()
 {
   return this->GetGraphRepresentation()->GetEdgeLayoutStrategyName();
-}
-
-//----------------------------------------------------------------------------
-void vtkGraphLayoutView::SetIterationsPerLayout(int iterations)
-{
-  // Hmmm... this seems a bit silly, probably a better way
-  vtkGraphLayoutStrategy* strategy = this->GetLayoutStrategy();
-  vtkSimple2DLayoutStrategy *simple =
-    vtkSimple2DLayoutStrategy::SafeDownCast(strategy);
-  vtkFast2DLayoutStrategy *fast =
-    vtkFast2DLayoutStrategy::SafeDownCast(strategy);
-  if (simple)
-    {
-    simple->SetIterationsPerLayout(iterations);
-    }
-  else if (fast)
-    {
-    fast->SetIterationsPerLayout(iterations);
-    }
 }
 
 //----------------------------------------------------------------------------

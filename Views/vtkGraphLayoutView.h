@@ -201,14 +201,6 @@ public:
   // object directly and simply set the pointer through this method.
   vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
   void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy *s);
-
-  // Description:
-  // Set the number of iterations per refresh (defaults to all)
-  // In other words, the default is to do the entire layout
-  // and then do a visual refresh. Changing this variable
-  // to something like '1', will enable an application to
-  // see the layout as it progresses.
-  void SetIterationsPerLayout(int iterations);
   
   // Description: 
   // Associate the icon at index "index" in the vtkTexture to all vertices
