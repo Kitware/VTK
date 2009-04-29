@@ -507,6 +507,9 @@ QPixmap vtkQtLineChart::getSeriesIcon(int series) const
 
     if(options->arePointsVisible())
       {
+      QPen markerPen = options->getPen();
+      markerPen.setStyle(Qt::SolidLine);
+      painter.setPen(markerPen);
       // Draw a point on the line.
       painter.setBrush(options->getBrush());
       painter.translate(QPoint(7, 7));
@@ -810,7 +813,8 @@ void vtkQtLineChart::paint(QPainter *painter,
     {
     vtkQtLineChartSeries *series = this->Internal->Series[*iter];
     vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(*iter);
-    if(options->getPen().style() == Qt::NoPen)
+    if(options->getPen().style() == Qt::NoPen &&
+      options->getMarkerStyle() == vtkQtPointMarker::NoMarker)
       {
       // If the pen is set to no-pen, there's nothing to draw.
       continue;
@@ -827,24 +831,28 @@ void vtkQtLineChart::paint(QPainter *painter,
       lightPen.setColor(vtkQtChartColors::lighter(lightPen.color()));
       }
 
-    painter->save();
-    painter->setClipRect(clipArea);
-    if(series->Highlighted)
+    // Draw the line only if line-style is not none.
+    if (options->getPen().style() != Qt::NoPen)
       {
-      // If the series is highlighted, draw in a wider line behind it.
-      painter->setPen(widePen);
+      painter->save();
+      painter->setClipRect(clipArea);
+      if(series->Highlighted)
+        {
+        // If the series is highlighted, draw in a wider line behind it.
+        painter->setPen(widePen);
+        painter->drawPolyline(series->Polyline);
+
+        painter->setPen(lightPen);
+        }
+      else
+        {
+        painter->setPen(options->getPen());
+        }
+
+      // Draw the polyline.
       painter->drawPolyline(series->Polyline);
-
-      painter->setPen(lightPen);
+      painter->restore();
       }
-    else
-      {
-      painter->setPen(options->getPen());
-      }
-
-    // Draw the polyline.
-    painter->drawPolyline(series->Polyline);
-    painter->restore();
 
     // Skip the points if none are visible.
     if(!options->arePointsVisible() && series->Highlights.isEmpty())
@@ -853,6 +861,14 @@ void vtkQtLineChart::paint(QPainter *painter,
       }
 
     // Draw each of the points.
+
+    // Before drawing the points, ensure that the pen style is Solid. Markers
+    // are not be drawn dashed or dotted.
+    widePen.setStyle(Qt::SolidLine);
+    lightPen.setStyle(Qt::SolidLine);
+    QPen markerPen = options->getPen();
+    markerPen.setStyle(Qt::SolidLine);
+
     painter->setBrush(options->getBrush());
     QPolygonF::Iterator point = series->Polyline.begin();
     for(int j = 0; point != series->Polyline.end(); ++point, ++j)
@@ -878,7 +894,7 @@ void vtkQtLineChart::paint(QPainter *painter,
         }
       else if(options->arePointsVisible())
         {
-        painter->setPen(options->getPen());
+        painter->setPen(markerPen);
         series->Marker->paint(painter);
         }
 
