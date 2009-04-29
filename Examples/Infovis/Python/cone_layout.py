@@ -3,8 +3,6 @@ from vtk import *
 
 reader = vtkXMLTreeReader()
 reader.SetFileName("vtkclasses.xml")
-reader.Update()
-print reader.GetOutput()
 
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(reader.GetOutputPort())
