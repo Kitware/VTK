@@ -732,6 +732,7 @@ int TestHandleWidget( int argc, char *argv[] )
     }
 
   iren->Initialize();
+  renWin->Render();
   handleWidget->EnabledOn();
   planeWidget->EnabledOn();
   ren1->SetBackground(0.1, 0.2, 0.4);
