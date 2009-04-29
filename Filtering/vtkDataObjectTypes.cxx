@@ -17,6 +17,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 
+#include  "vtkAnnotation.h"
+#include  "vtkAnnotationLayers.h"
 #include  "vtkCompositeDataSet.h"
 #include  "vtkDataObject.h"
 #include  "vtkDataSet.h"
@@ -43,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkUniformGrid.h"
 #include  "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.6");
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.7");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -220,6 +222,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkDirectedAcyclicGraph") == 0)
     {
     return vtkDirectedAcyclicGraph::New();
+    }
+  else if(strcmp(type, "vtkAnnotation") == 0)
+    {
+    return vtkAnnotation::New();
+    }
+  else if(strcmp(type, "vtkAnnotationLayers") == 0)
+    {
+    return vtkAnnotationLayers::New();
     }
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
