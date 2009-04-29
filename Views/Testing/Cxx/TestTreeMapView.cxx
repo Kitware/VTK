@@ -77,6 +77,7 @@ int TestTreeMapView(int argc, char* argv[])
 
   VTK_CREATE(vtkRenderWindow, win);
   win->SetMultiSamples(0);
+  win->SetAlphaBitPlanes(1);
   view->SetupRenderWindow(win);
   view->Update();
   view->Render();

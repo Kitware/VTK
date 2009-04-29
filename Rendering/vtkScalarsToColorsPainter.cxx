@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.19");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.20");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -105,6 +105,7 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
   this->ScalarVisibility = 1;
 
   this->LastUsedAlpha = -1.0;
+  this->LastUsedMultiplyWithAlpha = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -338,6 +339,7 @@ void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
       vtkDataSet::SafeDownCast(input));
     }
   this->LastUsedAlpha = actor->GetProperty()->GetOpacity();
+  this->LastUsedMultiplyWithAlpha = this->GetPremultiplyColorsWithAlpha(actor);
   this->Superclass::PrepareForRendering(renderer, actor);
 }
 
@@ -454,7 +456,8 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     this->GetMTime() > this->ColorTextureMap->GetMTime() ||
     this->LookupTable->GetMTime() > this->ColorTextureMap->GetMTime() ||
     this->LookupTable->GetAlpha() != alpha ||
-    this->LastUsedAlpha != alpha)
+    this->LastUsedAlpha != alpha ||
+    this->LastUsedMultiplyWithAlpha != multiply_with_alpha)
     {
     this->LookupTable->SetAlpha(alpha);
     this->ColorTextureMap = 0;
@@ -570,7 +573,8 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   // correctly when this->MapScalars(..) is called when iterating over a
   // composite dataset.
   if (colors && lut->GetAlpha() == alpha &&
-    this->LastUsedAlpha == alpha)
+    this->LastUsedAlpha == alpha &&
+    this->LastUsedMultiplyWithAlpha == multiply_with_alpha)
     {
     if (this->GetMTime() < colors->GetMTime() &&
       input->GetMTime() < colors->GetMTime() &&

@@ -202,6 +202,7 @@ protected:
   int ScalarMaterialMode;
   double LastUsedAlpha; // Essential to ensure alpha changes work correctly 
                         // for composite datasets.
+  int LastUsedMultiplyWithAlpha;
   double ScalarRange[2];
   int ScalarVisibility;
   int UseLookupTableScalarRange;

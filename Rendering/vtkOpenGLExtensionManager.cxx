@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.33");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.34");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -403,11 +403,13 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       this->ExtensionsString[0] = '\0';
       return;
       }
-    if (this->RenderWindow->GetNeverRendered())
+    this->RenderWindow->MakeCurrent();
+    if (!this->RenderWindow->IsCurrent())
       {
+      // Really should create a method in the render window to create
+      // the graphics context instead of forcing a full render.
       this->RenderWindow->Render();
       }
-    this->RenderWindow->MakeCurrent();
     }
 
   vtkstd::string extensions_string;
