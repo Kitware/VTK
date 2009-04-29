@@ -48,12 +48,18 @@ public:
   vtkTypeRevisionMacro(vtkTableToSparseArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Specify the set of input table columns that will be mapped to coordinates
+  // in the output sparse array.
   void ClearCoordinateColumns();
   void AddCoordinateColumn(const char* name);
 
+  // Description:
+  // Specify the input table column that will be mapped to values in the output array.
   void SetValueColumn(const char* name);
   const char* GetValueColumn();
 
+//BTX
 protected:
   vtkTableToSparseArray();
   ~vtkTableToSparseArray();
@@ -69,11 +75,8 @@ private:
   vtkTableToSparseArray(const vtkTableToSparseArray&); // Not implemented
   void operator=(const vtkTableToSparseArray&);   // Not implemented
 
-//BTX
   class implementation;
   implementation* const Implementation;
-
-  class Generator;
 //ETX
 };
 
