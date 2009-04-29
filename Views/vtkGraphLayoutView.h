@@ -68,6 +68,12 @@ public:
   void SetVertexLabelVisibility(bool vis);
   bool GetVertexLabelVisibility();
   vtkBooleanMacro(VertexLabelVisibility, bool);
+
+  // Description:
+  // Whether to show the edges at all. Default is on
+  void SetEdgeVisibility(bool vis);
+  bool GetEdgeVisibility();
+  vtkBooleanMacro(EdgeVisibility, bool);
   
   // Description:
   // Whether to show edge labels.  Default is off.

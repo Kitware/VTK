@@ -35,7 +35,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.59");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.60");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -115,6 +115,18 @@ void vtkGraphLayoutView::SetVertexLabelVisibility(bool vis)
 bool vtkGraphLayoutView::GetVertexLabelVisibility()
 {
   return this->GetGraphRepresentation()->GetVertexLabelVisibility();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEdgeVisibility(bool vis)
+{
+  this->GetGraphRepresentation()->SetEdgeVisibility(vis);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphLayoutView::GetEdgeVisibility()
+{
+  return this->GetGraphRepresentation()->GetEdgeVisibility();
 }
 
 //----------------------------------------------------------------------------
