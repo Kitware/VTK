@@ -25,6 +25,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
@@ -39,36 +40,24 @@ int TestIcicleView(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
-  string treeFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
-  string graphFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
+  string treeFileName = dataRoot + "/Data/Infovis/XML/smalltest.xml";
 
   // We need to put the graph and tree edges in different domains.
-  VTK_CREATE(vtkXMLTreeReader, reader1);
-  reader1->SetFileName(treeFileName.c_str());
-  reader1->SetEdgePedigreeIdArrayName("tree edge");
-  reader1->GenerateVertexPedigreeIdsOff();
-  reader1->SetVertexPedigreeIdArrayName("id");
+  VTK_CREATE(vtkXMLTreeReader, reader);
+  reader->SetFileName(treeFileName.c_str());
 
-  VTK_CREATE(vtkXMLTreeReader, reader2);
-  reader2->SetFileName(graphFileName.c_str());
-  reader2->SetEdgePedigreeIdArrayName("graph edge");
-  reader2->GenerateVertexPedigreeIdsOff();
-  reader2->SetVertexPedigreeIdArrayName("id");
-
-  reader1->Update();
-  reader2->Update();
+  VTK_CREATE(vtkStringToNumeric, numeric);
+  numeric->SetInputConnection(reader->GetOutputPort());
 
   VTK_CREATE(vtkIcicleView, view);
-  view->SetTreeFromInputConnection(reader2->GetOutputPort());
-  view->SetGraphFromInputConnection(reader1->GetOutputPort());
+  view->SetTreeFromInputConnection(numeric->GetOutputPort());
 
-  view->SetAreaColorArrayName("VertexDegree");
-  view->SetEdgeColorToSplineFraction();
-  view->SetColorEdges(true);
-  view->SetAreaLabelArrayName("id");
-  view->SetAreaHoverArrayName("id");
-  view->SetAreaLabelVisibility(true);
-  view->SetAreaSizeArrayName("VertexDegree");
+  view->SetAreaColorArrayName("size");
+  view->ColorAreasOn();
+  view->SetAreaLabelArrayName("label");
+  view->AreaLabelVisibilityOn();
+  view->SetAreaHoverArrayName("label");
+  view->SetAreaSizeArrayName("size");
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -92,5 +81,3 @@ int TestIcicleView(int argc, char* argv[])
 
  return !retVal;
 }
-
-
