@@ -84,6 +84,7 @@ recorder SetFileName "$VTK_DATA_ROOT/Data/EventRecording.log"
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
+renWin Render
 #recorder Record
 
 # prevent the tk window from showing up then start the event loop
