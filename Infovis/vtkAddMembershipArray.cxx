@@ -41,7 +41,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkAddMembershipArray, "1.3");
+vtkCxxRevisionMacro(vtkAddMembershipArray, "1.4");
 vtkStandardNewMacro(vtkAddMembershipArray);
 vtkCxxSetObjectMacro(vtkAddMembershipArray,InputValues,vtkAbstractArray);
 
@@ -298,9 +298,9 @@ void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FieldType: " << this->FieldType << endl;
   os << indent << "OutputArrayName: " 
-    << this->OutputArrayName << endl;
+    << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
   os << indent << "InputArrayName: " 
-    << this->InputArrayName << endl;
+    << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
   if(this->InputValues)
     {
     os << indent << "Input Values :" << endl;
