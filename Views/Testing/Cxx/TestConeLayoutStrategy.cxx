@@ -84,11 +84,7 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   strategy->SetSpacing(0.3);
   view->SetLayoutStrategy(strategy);
   view->SetVertexLabelArrayName("id");
-//  view->SetVertexLabelArrayName("name");
   view->VertexLabelVisibilityOn();
-  view->SetVertexColorArrayName("id");
-//  view->SetVertexColorArrayName("size");
-  view->ColorVerticesOn();
   view->SetEdgeColorArrayName("distance");
   view->ColorEdgesOn();
   view->SetEdgeLabelArrayName("edge label");
@@ -101,6 +97,8 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   win->SetSize( 600, 600 );
   win->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetupRenderWindow(win);
+  view->SetInteractionModeTo3D();
+  view->SetLabelPlacementModeToLabelPlacer();
   view->Update();
 
   int retVal = vtkRegressionTestImage(win);
