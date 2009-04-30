@@ -26,8 +26,6 @@ ELSE(NOT QT4_FOUND)
     vtkQtBarChart.h
     vtkQtBarChartOptions.cxx
     vtkQtBarChartOptions.h
-    vtkQtBarChartSeriesOptions.cxx
-    vtkQtBarChartSeriesOptions.h
     vtkQtChartArea.cxx
     vtkQtChartArea.h
     vtkQtChartAxis.cxx
@@ -174,8 +172,6 @@ ELSE(NOT QT4_FOUND)
     vtkQtLineChart.h
     vtkQtLineChartOptions.cxx
     vtkQtLineChartOptions.h
-    vtkQtLineChartSeriesOptions.cxx
-    vtkQtLineChartSeriesOptions.h
     vtkQtPointMarker.cxx
     vtkQtPointMarker.h
     vtkQtPolylineItem.cxx
@@ -186,20 +182,15 @@ ELSE(NOT QT4_FOUND)
     vtkQtStackedChart.h
     vtkQtStackedChartOptions.cxx
     vtkQtStackedChartOptions.h
-    vtkQtStackedChartSeriesOptions.cxx
-    vtkQtStackedChartSeriesOptions.h
     vtkQtStatisticalBoxChart.cxx
     vtkQtStatisticalBoxChart.h
     vtkQtStatisticalBoxChartOptions.cxx
     vtkQtStatisticalBoxChartOptions.h
-    vtkQtStatisticalBoxChartSeriesOptions.cxx
-    vtkQtStatisticalBoxChartSeriesOptions.h
   )
   
   SET(vtkQtChart_MOCHEADERS
     vtkQtBarChart.h
     vtkQtBarChartOptions.h
-    vtkQtBarChartSeriesOptions.h
     vtkQtChartArea.h
     vtkQtChartAxis.h
     vtkQtChartAxisLayer.h
@@ -245,14 +236,11 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartWidget.h
     vtkQtLineChart.h
     vtkQtLineChartOptions.h
-    vtkQtLineChartSeriesOptions.h
     vtkQtSeriesFilterLineEdit.h
     vtkQtStackedChart.h
     vtkQtStackedChartOptions.h
-    vtkQtStackedChartSeriesOptions.h
     vtkQtStatisticalBoxChart.h
     vtkQtStatisticalBoxChartOptions.h
-    vtkQtStatisticalBoxChartSeriesOptions.h
     )
   SET(vtkQtChart_HEADERS
     vtkQtChartGraphicsItemTypes.h

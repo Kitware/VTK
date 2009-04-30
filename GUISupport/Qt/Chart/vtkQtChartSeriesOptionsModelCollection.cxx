@@ -93,6 +93,11 @@ void vtkQtChartSeriesOptionsModelCollection::addSeriesOptionsModel(
     this, SLOT(onOptionsAboutToBeRemoved(int, int)));
   this->connect(model, SIGNAL(optionsRemoved(int, int)),
     this, SLOT(onOptionsRemoved(int, int)));
+  this->connect(model,
+    SIGNAL(optionsChanged(
+        vtkQtChartSeriesOptions*, int, const QVariant&, const QVariant&)),
+    this, SIGNAL( optionsChanged(
+        vtkQtChartSeriesOptions*, int, const QVariant&, const QVariant&)));
 
   int x = this->getNumberOfOptions();
   int total = model->getNumberOfOptions();

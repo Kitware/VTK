@@ -29,7 +29,6 @@
 
 class vtkQtLineChartInternal;
 class vtkQtLineChartOptions;
-class vtkQtLineChartSeriesOptions;
 
 
 /// \class vtkQtLineChart
@@ -69,13 +68,6 @@ public:
   ///
   /// \param options The new line chart drawing options.
   void setOptions(const vtkQtLineChartOptions &options);
-
-  /// \brief
-  ///   Gets the line chart series options.
-  /// \param series The series index.
-  /// \return
-  ///   A pointer to the line chart series options.
-  vtkQtLineChartSeriesOptions *getLineSeriesOptions(int series) const;
 
   virtual QPixmap getSeriesIcon(int series) const;
   //@}
@@ -126,28 +118,16 @@ public slots:
   /// it is used to populate the line chart.
   void reset();
 
-protected:
+protected slots:
   /// \brief
-  ///   Creates a new line chart series options object.
-  /// \param parent The parent object.
-  /// \return
-  ///   A pointer to the new line chart series options object.
-  virtual vtkQtChartSeriesOptions *createOptions(QObject *parent);
-
-  /// \brief
-  ///   Sets up the series options defaults.
-  ///
-  /// The style manager's "Visible" generator is used to set the
-  /// initial visibility. The style manager's "Pen" generator is used
-  /// to set the series pen. The following generators are also used:
-  ///   \li "Axes Corner"
-  ///   \li "Point Visibility"
-  ///   \li "Marker Style"
-  ///   \li "Marker Size"
-  ///
-  /// \param style The series style index.
-  /// \param options The new series options object.
-  virtual void setupOptions(int style, vtkQtChartSeriesOptions *options);
+  ///   Called when any of the series options are changed.
+  ///  Default implementation fires the modelSeriesChanged() signal.
+  /// \param options The options that fired the dataChanged() signal.
+  /// \param type Type of the option that was changed.
+  /// \param newValue The new value for the option.
+  /// \param oldValue The previous value for the option, if any.
+  virtual void handleOptionsChanged(vtkQtChartSeriesOptions*,
+    int type, const QVariant& newvalue, const QVariant& oldvalue);
 
 private slots:
   /// \brief
@@ -180,7 +160,8 @@ private slots:
   /// The signal sender is used to determine which series has changed.
   ///
   /// \param visible True if the series should be shown.
-  void handleSeriesVisibilityChange(bool visible);
+  void handleSeriesVisibilityChange(
+    vtkQtChartSeriesOptions* options, bool visible);
 
   /// \brief
   ///   Changes the series axes corner.
@@ -189,25 +170,11 @@ private slots:
   ///
   /// \param corner The new axes corner.
   /// \param previous The previous axes corner.
-  void handleSeriesAxesCornerChange(int corner, int previous);
-
-  /// \brief
-  ///   Changes the series point visibility.
-  /// \param visible True if the series points should be shown.
-  void handleSeriesPointVisibilityChange(bool visible);
+  void handleSeriesAxesCornerChange(
+    vtkQtChartSeriesOptions* options, int corner, int previous);
 
   /// Changes the series point marker.
-  void handleSeriesPointMarkerChange();
-
-  /// \brief
-  ///   Changes the series pen.
-  /// \param pen The new series pen.
-  void handleSeriesPenChange(const QPen &pen);
-
-  /// \brief
-  ///   Changes the series brush.
-  /// \param brush The new series brush.
-  void handleSeriesBrushChange(const QBrush &brush);
+  void handleSeriesPointMarkerChange(vtkQtChartSeriesOptions*);
 
   /// \brief
   ///   Called to update the highlights.

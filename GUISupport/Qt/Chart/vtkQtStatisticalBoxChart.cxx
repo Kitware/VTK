@@ -29,9 +29,9 @@
 #include "vtkQtStatisticalBoxChart.h"
 
 #include "vtkQtChartArea.h"
-#include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
+#include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
 #include "vtkQtChartBar.h"
@@ -42,9 +42,10 @@
 #include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
-#include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesDomainGroup.h"
+#include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesModel.h"
+#include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
@@ -55,7 +56,6 @@
 #include "vtkQtChartStyleSize.h"
 #include "vtkQtPointMarker.h"
 #include "vtkQtStatisticalBoxChartOptions.h"
-#include "vtkQtStatisticalBoxChartSeriesOptions.h"
 
 #include <QBrush>
 #include <QGraphicsScene>
@@ -345,13 +345,6 @@ void vtkQtStatisticalBoxChart::setOptions(
   this->Options->setOutlineStyle(options.getOutlineStyle());
 }
 
-vtkQtStatisticalBoxChartSeriesOptions *
-    vtkQtStatisticalBoxChart::getBoxSeriesOptions(int series) const
-{
-  return qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(
-      this->getSeriesOptions(series));
-}
-
 QPixmap vtkQtStatisticalBoxChart::getSeriesIcon(int series) const
 {
   // Fill in the pixmap background.
@@ -359,13 +352,18 @@ QPixmap vtkQtStatisticalBoxChart::getSeriesIcon(int series) const
   icon.fill(QColor(255, 255, 255, 0));
 
   // Get the options for the series.
-  vtkQtStatisticalBoxChartSeriesOptions *options =
-      this->getBoxSeriesOptions(series);
+  vtkQtChartSeriesOptions *options =
+      this->getSeriesOptions(series);
   if(options)
     {
     // Fill a box with the series color.
     QPainter painter(&icon);
-    painter.setPen(options->getPen());
+    QPen pen(Qt::black);
+    if(this->Options->getOutlineStyle() == vtkQtStatisticalBoxChartOptions::Darker)
+      {
+      pen = options->getBrush().color().dark();
+      }
+    painter.setPen(pen);
     painter.setBrush(options->getBrush());
     painter.drawRect(3, 3, 10, 10);
     }
@@ -438,7 +436,7 @@ void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
   // Position and size the box series. Skip the series if it is
   // invisible or invalid for the domain.
   float halfWidth = boxWidth * 0.5;
-  vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+  vtkQtChartSeriesOptions *options = 0;
   QList<int>::Iterator iter = seriesList.begin();
   for( ; iter != seriesList.end(); ++iter)
     {
@@ -464,7 +462,7 @@ void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
       series->Box.setRect(left, upper, boxWidth, lower - upper);
 
       // Set up the box for the search tree.
-      options = this->getBoxSeriesOptions(*iter);
+      options = this->getSeriesOptions(*iter);
       float penWidth = options->getPen().widthF();
       if(penWidth == 0.0)
         {
@@ -721,16 +719,24 @@ void vtkQtStatisticalBoxChart::paint(QPainter *painter,
 
     // Get the list of series in the selected domain.
     vtkQtStatisticalBoxChartSeries *series = 0;
-    vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+    vtkQtChartSeriesOptions *options = 0;
     QList<int> seriesList = this->Internal->Groups.getGroup(domainIndex);
     QList<int>::Iterator iter = seriesList.begin();
     for( ; iter != seriesList.end(); ++iter)
       {
       // Set up the painter for the series.
       series = this->Internal->Series[*iter];
-      options = this->getBoxSeriesOptions(*iter);
+      options = this->getSeriesOptions(*iter);
       QColor light = vtkQtChartColors::lighter(options->getBrush().color());
       QPen seriesPen = options->getPen();
+      if (this->Options->getOutlineStyle() == vtkQtStatisticalBoxChartOptions::Darker)
+        {
+        seriesPen.setColor(options->getBrush().color().dark());
+        }
+      else
+        {
+        seriesPen.setColor(Qt::black);
+        }
       painter->setPen(seriesPen);
       if(series->Highlighted)
         {
@@ -744,7 +750,7 @@ void vtkQtStatisticalBoxChart::paint(QPainter *painter,
       QPen widePen;
       if(series->Highlighted || !series->Highlights.isEmpty())
         {
-        widePen = options->getPen();
+        widePen = seriesPen;
         widePen.setWidthF(widePen.widthF() + 3.0);
         }
 
@@ -835,72 +841,6 @@ void vtkQtStatisticalBoxChart::reset()
   this->InModelChange = false;
 }
 
-vtkQtChartSeriesOptions *vtkQtStatisticalBoxChart::createOptions(
-    QObject *parentObject)
-{
-  return new vtkQtStatisticalBoxChartSeriesOptions(parentObject);
-}
-
-void vtkQtStatisticalBoxChart::setupOptions(int style,
-    vtkQtChartSeriesOptions *options)
-{
-  vtkQtStatisticalBoxChartSeriesOptions *seriesOptions = qobject_cast<
-      vtkQtStatisticalBoxChartSeriesOptions *>(options);
-  if(seriesOptions)
-    {
-    // Set up the series options.
-    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    vtkQtChartStyleBoolean *styleVisible =
-        qobject_cast<vtkQtChartStyleBoolean *>(
-        manager->getGenerator("Visible"));
-    if(styleVisible)
-      {
-      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
-      }
-
-    vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
-        manager->getGenerator("Brush"));
-    if(styleBrush)
-      {
-      seriesOptions->setBrush(styleBrush->getStyleBrush(style));
-      }
-
-    if(this->Options->getOutlineStyle() ==
-        vtkQtStatisticalBoxChartOptions::Darker)
-      {
-      seriesOptions->setPen(seriesOptions->getBrush().color().dark());
-      }
-    else
-      {
-      seriesOptions->setPen(QColor(Qt::black));
-      }
-
-    vtkQtChartStyleMarker *styleMarker = qobject_cast<vtkQtChartStyleMarker *>(
-        manager->getGenerator("Marker Style"));
-    if(styleMarker)
-      {
-      seriesOptions->setMarkerStyle(styleMarker->getStyleMarker(style));
-      }
-
-    vtkQtChartStyleSize *styleSize = qobject_cast<vtkQtChartStyleSize *>(
-        manager->getGenerator("Marker Size"));
-    if(styleSize)
-      {
-      seriesOptions->setMarkerSize(styleSize->getStyleSize(style));
-      }
-
-    // Listen for series options changes.
-    this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
-        this, SLOT(handleSeriesVisibilityChange(bool)));
-    this->connect(seriesOptions, SIGNAL(penChanged(const QPen &)),
-        this, SLOT(handleSeriesPenChange(const QPen &)));
-    this->connect(seriesOptions, SIGNAL(brushChanged(const QBrush &)),
-        this, SLOT(handleSeriesBrushChange(const QBrush &)));
-    this->connect(seriesOptions, SIGNAL(pointMarkerChanged()),
-        this, SLOT(handleSeriesPointMarkerChanged()));
-   }
-}
-
 void vtkQtStatisticalBoxChart::prepareSeriesInsert(int first, int last)
 {
   if(this->ChartArea)
@@ -924,7 +864,7 @@ void vtkQtStatisticalBoxChart::insertSeries(int first, int last)
     QList<int> groups;
     bool signalDomain = false;
     vtkQtStatisticalBoxChartSeries *series = 0;
-    vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+    vtkQtChartSeriesOptions *options = 0;
     for( ; i <= last; i++)
       {
       // Add an item for each series.
@@ -932,7 +872,8 @@ void vtkQtStatisticalBoxChart::insertSeries(int first, int last)
       this->Internal->Series.insert(i, series);
 
       // Get the series options.
-      options = this->getBoxSeriesOptions(first);
+      options = this->getSeriesOptions(i);
+      this->setupOptions(options);
 
       // Set the drawing options for the point marker.
       series->Marker.setSize(options->getMarkerSize());
@@ -1014,6 +955,8 @@ void vtkQtStatisticalBoxChart::startSeriesRemoval(int first, int last)
     // Remove each of the series items.
     for( ; last >= first; last--)
       {
+      vtkQtChartSeriesOptions *options = this->getSeriesOptions(last);
+      this->cleanupOptions(options);
       delete this->Internal->Series.takeAt(last);
       }
 
@@ -1103,32 +1046,39 @@ void vtkQtStatisticalBoxChart::handleAxesCornerChange()
 void vtkQtStatisticalBoxChart::handleOutlineChange()
 {
   // Change the bar outline.
-  if(this->Model && this->ChartArea)
+  if (this->Model && this->ChartArea)
     {
-    QPen blackPen(Qt::black);
-    vtkQtStatisticalBoxChartSeriesOptions *options = 0;
     int total = this->Model->getNumberOfSeries();
-    for(int i = 0; i < total; i++)
-      {
-      options = this->getBoxSeriesOptions(i);
-      if(this->Options->getOutlineStyle() ==
-          vtkQtStatisticalBoxChartOptions::Darker)
-        {
-        options->setPen(options->getBrush().color().dark());
-        }
-      else
-        {
-        options->setPen(blackPen);
-        }
-      }
+    emit this->modelSeriesChanged(0, total-1);
+    this->update();
     }
 }
 
-void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
+void vtkQtStatisticalBoxChart::handleOptionsChanged(
+  vtkQtChartSeriesOptions* options,
+  int type, const QVariant& newvalue, const QVariant& oldvalue)
+{
+  if (type == vtkQtChartSeriesOptions::VISIBLE)
+    {
+    bool visible = options->isVisible();
+    // visibility has changed.
+    this->handleSeriesVisibilityChange(options, visible);
+    }
+
+  if (type == vtkQtChartSeriesOptions::MARKER_STYLE)
+    {
+    this->handleSeriesPointMarkerChanged(options);
+    }
+  // TODO: Update the series rectangle.
+
+  this->vtkQtChartSeriesLayer::handleOptionsChanged(options, type, newvalue,
+    oldvalue);
+}
+
+void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(
+  vtkQtChartSeriesOptions* options, bool visible)
 {
   // Get the series index from the options index.
-  vtkQtStatisticalBoxChartSeriesOptions *options = qobject_cast<
-      vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
@@ -1168,42 +1118,13 @@ void vtkQtStatisticalBoxChart::handleSeriesVisibilityChange(bool visible)
         emit this->layoutNeeded();
         }
       }
-
-    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 }
 
-void vtkQtStatisticalBoxChart::handleSeriesPenChange(const QPen &)
+void vtkQtStatisticalBoxChart::handleSeriesPointMarkerChanged(
+  vtkQtChartSeriesOptions* options)
 {
   // Get the series index from the options index.
-  vtkQtStatisticalBoxChartSeriesOptions *options =
-      qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
-    emit this->modelSeriesChanged(series, series);
-    }
-}
-
-void vtkQtStatisticalBoxChart::handleSeriesBrushChange(const QBrush &)
-{
-  // Get the series index from the options index.
-  vtkQtStatisticalBoxChartSeriesOptions *options =
-      qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
-    emit this->modelSeriesChanged(series, series);
-    }
-}
-
-void vtkQtStatisticalBoxChart::handleSeriesPointMarkerChanged()
-{
-  // Get the series index from the options index.
-  vtkQtStatisticalBoxChartSeriesOptions *options =
-      qobject_cast<vtkQtStatisticalBoxChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
@@ -1355,11 +1276,11 @@ void vtkQtStatisticalBoxChart::calculateDomain(int seriesGroup)
   domain->getYDomain().clear();
 
   // Get the list of series in the group.
-  vtkQtStatisticalBoxChartSeriesOptions *options = 0;
+  vtkQtChartSeriesOptions *options = 0;
   QList<int> list = this->Internal->Groups.getGroup(seriesGroup);
   for(QList<int>::Iterator iter = list.begin(); iter != list.end(); ++iter)
     {
-    options = this->getBoxSeriesOptions(*iter);
+    options = this->getSeriesOptions(*iter);
     if(options && !options->isVisible())
       { 
       continue;
@@ -1432,4 +1353,22 @@ void vtkQtStatisticalBoxChart::buildShapeTree(int seriesGroup)
     }
 }
 
+
+void vtkQtStatisticalBoxChart::setupOptions(vtkQtChartSeriesOptions *options)
+{
+  this->vtkQtChartSeriesLayer::setupOptions(options);
+  if (!this->ChartArea || !options)
+    {
+    return;
+    }
+  // Ensure the defaults for the options are set correctly.
+  vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+  int styleindex = manager->getStyleIndex (this, options);
+
+  vtkQtChartStyleMarker *styleMarker = qobject_cast<vtkQtChartStyleMarker *>(
+    manager->getGenerator("Marker Style"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::MARKER_STYLE,
+    styleMarker? styleMarker->getStyleMarker(styleindex) :
+    vtkQtPointMarker::Circle);
+}
 

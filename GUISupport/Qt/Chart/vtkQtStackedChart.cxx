@@ -29,9 +29,9 @@
 #include "vtkQtStackedChart.h"
 
 #include "vtkQtChartArea.h"
-#include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
+#include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
 #include "vtkQtChartColors.h"
@@ -41,17 +41,16 @@
 #include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
-#include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesDomainGroup.h"
+#include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesModel.h"
+#include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
 #include "vtkQtChartStyleBoolean.h"
 #include "vtkQtChartStyleBrush.h"
-#include "vtkQtChartStyleManager.h"
 #include "vtkQtStackedChartOptions.h"
-#include "vtkQtStackedChartSeriesOptions.h"
 
 #include <QBrush>
 #include <QList>
@@ -423,13 +422,6 @@ void vtkQtStackedChart::setOptions(const vtkQtStackedChartOptions &options)
       options.getHelpFormat()->getFormat());
 }
 
-vtkQtStackedChartSeriesOptions *vtkQtStackedChart::getStackedSeriesOptions(
-    int series) const
-{
-  return qobject_cast<vtkQtStackedChartSeriesOptions *>(
-      this->getSeriesOptions(series));
-}
-
 QPixmap vtkQtStackedChart::getSeriesIcon(int series) const
 {
   // Fill in the pixmap background.
@@ -437,14 +429,13 @@ QPixmap vtkQtStackedChart::getSeriesIcon(int series) const
   icon.fill(QColor(255, 255, 255, 0));
 
   // Get the options for the series.
-  vtkQtStackedChartSeriesOptions *options =
-      this->getStackedSeriesOptions(series);
+  vtkQtChartSeriesOptions *options = this->getSeriesOptions(series);
   if(options)
     {
     // Fill a box with the series color.
     QPainter painter(&icon);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setPen(options->getPen());
+    painter.setPen(options->getBrush().color().dark());
     painter.setBrush(options->getBrush());
     //painter.drawRect(3, 3, 10, 10);
     QPolygon polygon;
@@ -779,7 +770,7 @@ void vtkQtStackedChart::paint(QPainter *painter,
 
     // Get the list of series in the selected domain.
     vtkQtStackedChartSeries *series = 0;
-    vtkQtStackedChartSeriesOptions *options = 0;
+    vtkQtChartSeriesOptions *options = 0;
     QList<int> seriesList = this->Internal->Groups.getGroup(domainIndex);
     QMutableListIterator<int> iter(seriesList);
     iter.toBack();
@@ -788,9 +779,9 @@ void vtkQtStackedChart::paint(QPainter *painter,
       // Set up the painter for the series.
       int index = iter.previous();
       series = this->Internal->Series[index];
-      options = this->getStackedSeriesOptions(index);
+      options = this->getSeriesOptions(index);
       QColor light = vtkQtChartColors::lighter(options->getBrush().color());
-      painter->setPen(options->getPen());
+      painter->setPen(options->getBrush().color().dark());
       if(series->IsHighlighted)
         {
         painter->setBrush(light);
@@ -869,47 +860,6 @@ void vtkQtStackedChart::reset()
   this->InModelChange = false;
 }
 
-vtkQtChartSeriesOptions *vtkQtStackedChart::createOptions(
-    QObject *parentObject)
-{
-  return new vtkQtStackedChartSeriesOptions(parentObject);
-}
-
-void vtkQtStackedChart::setupOptions(int style,
-    vtkQtChartSeriesOptions *options)
-{
-  vtkQtStackedChartSeriesOptions *seriesOptions =
-      qobject_cast<vtkQtStackedChartSeriesOptions *>(options);
-  if(seriesOptions)
-    {
-    // Set up the series options.
-    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    vtkQtChartStyleBoolean *styleVisible =
-        qobject_cast<vtkQtChartStyleBoolean *>(
-        manager->getGenerator("Visible"));
-    if(styleVisible)
-      {
-      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
-      }
-
-    vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
-        manager->getGenerator("Brush"));
-    if(styleBrush)
-      {
-      seriesOptions->setBrush(styleBrush->getStyleBrush(style));
-      seriesOptions->setPen(seriesOptions->getBrush().color().dark());
-      }
-
-    // Listen for series options changes.
-    this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
-        this, SLOT(handleSeriesVisibilityChange(bool)));
-    this->connect(seriesOptions, SIGNAL(penChanged(const QPen &)),
-        this, SLOT(handleSeriesPenChange(const QPen &)));
-    this->connect(seriesOptions, SIGNAL(brushChanged(const QBrush &)),
-        this, SLOT(handleSeriesBrushChange(const QBrush &)));
-    }
-}
-
 void vtkQtStackedChart::prepareSeriesInsert(int first, int last)
 {
   if(this->ChartArea)
@@ -931,7 +881,7 @@ void vtkQtStackedChart::insertSeries(int first, int last)
 
     // Add an item for each series.
     QList<int> tableGroups;
-    vtkQtStackedChartSeriesOptions *options = 0;
+    vtkQtChartSeriesOptions *options = 0;
     for(int i = first; i <= last; i++)
       {
       // Only add a polygon if the series y-axis range is numeric.
@@ -947,7 +897,8 @@ void vtkQtStackedChart::insertSeries(int first, int last)
         }
 
       this->Internal->Series.insert(i, new vtkQtStackedChartSeries(polygon));
-      options = this->getStackedSeriesOptions(i);
+      options = this->getSeriesOptions(i);
+      this->setupOptions(options);
       if(polygon && options->isVisible())
         {
         this->Internal->Series[i]->CurrentVisibility = 1.0;
@@ -998,6 +949,8 @@ void vtkQtStackedChart::startSeriesRemoval(int first, int last)
     // Remove each of the series items.
     for( ; last >= first; last--)
       {
+      vtkQtChartSeriesOptions *options = this->getSeriesOptions(last);
+      this->cleanupOptions(options);
       delete this->Internal->Series.takeAt(last);
       }
     }
@@ -1127,11 +1080,22 @@ void vtkQtStackedChart::handleGradientChange()
     }
 }
 
-void vtkQtStackedChart::handleSeriesVisibilityChange(bool visible)
+void vtkQtStackedChart::handleOptionsChanged(vtkQtChartSeriesOptions* options,
+  int type, const QVariant& newvalue, const QVariant& oldvalue)
+{
+  if (type == vtkQtChartSeriesOptions::VISIBLE)
+    {
+    this->handleSeriesVisibilityChange(options, newvalue.toBool());
+    }
+
+  this->vtkQtChartSeriesLayer::handleOptionsChanged(
+    options, type, newvalue, oldvalue);
+}
+
+void vtkQtStackedChart::handleSeriesVisibilityChange(
+  vtkQtChartSeriesOptions* options, bool visible)
 {
   // Get the series index from the options index.
-  vtkQtStackedChartSeriesOptions *options =
-      qobject_cast<vtkQtStackedChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
 
   if(series >= 0 && series < this->Internal->Series.size() &&
@@ -1155,8 +1119,6 @@ void vtkQtStackedChart::handleSeriesVisibilityChange(bool visible)
 
     this->Internal->ShowHideTimer.setCurrentTime(0);
     this->Internal->ShowHideTimer.start();
-
-    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 
 #if 0
@@ -1202,32 +1164,6 @@ void vtkQtStackedChart::handleSeriesVisibilityChange(bool visible)
       }
     }
 #endif
-}
-
-void vtkQtStackedChart::handleSeriesPenChange(const QPen &)
-{
-  // Get the series index from the options.
-  vtkQtStackedChartSeriesOptions *options =
-      qobject_cast<vtkQtStackedChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
-    emit this->modelSeriesChanged(series, series);
-    }
-}
-
-void vtkQtStackedChart::handleSeriesBrushChange(const QBrush &)
-{
-  // Get the series index from the options.
-  vtkQtStackedChartSeriesOptions *options =
-      qobject_cast<vtkQtStackedChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
-    emit this->modelSeriesChanged(series, series);
-    }
 }
 
 void vtkQtStackedChart::updateHighlights()

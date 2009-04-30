@@ -32,11 +32,19 @@
 #include "vtkQtChartBasicSeriesOptionsModel.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
+#include "vtkQtChartSeriesColors.h"
 #include "vtkQtChartSeriesModel.h"
 #include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
+#include "vtkQtChartStyleAxesCorner.h"
+#include "vtkQtChartStyleBoolean.h"
+#include "vtkQtChartStyleBrush.h"
 #include "vtkQtChartStyleManager.h"
+#include "vtkQtChartStyleMarker.h"
+#include "vtkQtChartStylePen.h"
+#include "vtkQtChartStyleSeriesColors.h"
+#include "vtkQtChartStyleSize.h"
 
 
 vtkQtChartSeriesLayer::vtkQtChartSeriesLayer(bool useContents)
@@ -99,13 +107,15 @@ void vtkQtChartSeriesLayer::setOptionsModel(vtkQtChartSeriesOptionsModel* model)
 
   if (this->Options)
     {
-    this->Options->setChartSeriesLayer(0);
+    QObject::disconnect(this->Options, 0, this, 0);
     }
-
   this->Options = model;
   if (this->Options)
     {
-    this->Options->setChartSeriesLayer(this);
+    QObject::connect(this->Options,
+      SIGNAL(optionsChanged(vtkQtChartSeriesOptions*, int, const QVariant&, const QVariant&)),
+      this, SLOT(handleOptionsChanged(
+          vtkQtChartSeriesOptions*, int, const QVariant&, const QVariant&)));
     }
 }
 
@@ -175,26 +185,77 @@ void vtkQtChartSeriesLayer::setYOffset(float offset)
     }
 }
 
-vtkQtChartSeriesOptions* vtkQtChartSeriesLayer::newOptions(QObject* parentObject)
+void vtkQtChartSeriesLayer::setupOptions(vtkQtChartSeriesOptions* options)
 {
-  vtkQtChartSeriesOptions* options = this->createOptions(parentObject);
-  if (this->ChartArea && options)
+  if (!this->ChartArea || !options)
     {
-    // I am not sure I understand the utility of the manager anymore. But I am
-    // going to let this be as is.
-    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    int style = manager->insertStyle(this, options);
-    this->setupOptions(style, options);
+    return;
     }
-  return options;
+  // Ensure the defaults for the options are set correctly.
+  vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+  int styleindex = manager->insertStyle(this, options);
+
+  // Set up the series options.
+  vtkQtChartStyleBoolean *styleVisible = qobject_cast<vtkQtChartStyleBoolean *>(
+    manager->getGenerator("Visible"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::VISIBLE,
+    styleVisible? styleVisible->getStyleBoolean(styleindex) : true);
+
+  vtkQtChartStyleBrush *styleBrush = qobject_cast<vtkQtChartStyleBrush *>(
+    manager->getGenerator("Brush"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::BRUSH,
+    styleBrush? styleBrush->getStyleBrush(styleindex): QBrush(Qt::red));
+
+  vtkQtChartStyleSeriesColors *styleColors =
+    qobject_cast<vtkQtChartStyleSeriesColors *>(
+      manager->getGenerator("Series Colors"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::COLORS,
+    styleColors? styleColors->getStyleColors(styleindex) : 0);
+
+  vtkQtChartStylePen *stylePen = qobject_cast<vtkQtChartStylePen *>(
+    manager->getGenerator("Pen"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::PEN,
+    stylePen? stylePen->getStylePen(styleindex) : QPen(Qt::red));
+
+  vtkQtChartStyleAxesCorner *styleCorner =
+    qobject_cast<vtkQtChartStyleAxesCorner *>(
+      manager->getGenerator("Axes Corner"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::AXES_CORNER,
+    styleCorner? styleCorner->getStyleAxesCorner(styleindex) :
+    vtkQtChartLayer::BottomLeft);
+
+  vtkQtChartStyleMarker *styleMarker = qobject_cast<vtkQtChartStyleMarker *>(
+    manager->getGenerator("Marker Style"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::MARKER_STYLE,
+    styleMarker? styleMarker->getStyleMarker(styleindex) :
+    vtkQtPointMarker::NoMarker);
+
+  vtkQtChartStyleSize *styleSize = qobject_cast<vtkQtChartStyleSize *>(
+    manager->getGenerator("Marker Size"));
+  options->setDefaultOption(vtkQtChartSeriesOptions::MARKER_SIZE,
+    styleSize? styleSize->getStyleSize(styleindex): QSizeF(5.0, 5.0));
 }
 
-void vtkQtChartSeriesLayer::releaseOptions(vtkQtChartSeriesOptions* options)
+void vtkQtChartSeriesLayer::cleanupOptions(vtkQtChartSeriesOptions* options)
 {
-  if (this->ChartArea && options)
+  if (!this->ChartArea || !options)
     {
-    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    manager->removeStyle(this, options);
+    return;
+    }
+  vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
+  manager->removeStyle(this, options);
+}
+
+void vtkQtChartSeriesLayer::handleOptionsChanged(
+  vtkQtChartSeriesOptions* options,
+  int /*type*/, const QVariant& /*newvalue*/, const QVariant&)
+{
+  // Get the series index from the options index.
+  int series = this->getSeriesOptionsIndex(options);
+  if(series >= 0 /*&& series < this->Internal->Series.size()*/)
+    {
+    this->update();
+    emit this->modelSeriesChanged(series, series);
     }
 }
 

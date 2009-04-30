@@ -44,9 +44,7 @@ class QRectF;
 ///   layers that use the chart series model.
 ///
 /// It stores the pointer to the chart series model and the list of
-/// options for the series. The series options are created using the
-/// \c createOptions method. Subclasses should overload this method to
-/// create the appropriate type of options object.
+/// options for the series. 
 class VTKQTCHART_EXPORT vtkQtChartSeriesLayer : public vtkQtChartLayer
 {
   Q_OBJECT
@@ -150,17 +148,6 @@ public:
   virtual void getPointsIn(const QRectF &area,
       vtkQtChartSeriesSelection &selection) const;
 
-  /// \brief
-  ///   Creates a new options object (by calling createOptions()) and then
-  /// initializes it (by calling setupOptions()).
-  /// \param parent The parent QObject.
-  vtkQtChartSeriesOptions* newOptions(QObject* parent);
-
-  /// \brief 
-  ///   Releases the options. This will delete the options.
-  /// \param options The options object to be freed.
-  void releaseOptions(vtkQtChartSeriesOptions* options);
-
 public slots:
   /// \brief
   ///   Sets the contents x-axis offset.
@@ -186,35 +173,32 @@ signals:
   /// \param last The last series index of the range.
   void modelSeriesChanged(int first, int last);
 
+protected slots:
   /// \brief
-  ///   Emitted when the visibility for a series has changed.
-  /// \param series The index of the series.
-  /// \param visible True if the series is visible.
-  void modelSeriesVisibilityChanged(int series, bool visible);
+  ///   Called when any of the series options are changed.
+  ///  Default implementation fires the modelSeriesChanged() signal.
+  /// \param options The options that fired the dataChanged() signal.
+  /// \param type Type of the option that was changed.
+  /// \param newValue The new value for the option.
+  /// \param oldValue The previous value for the option, if any.
+  virtual void handleOptionsChanged(vtkQtChartSeriesOptions*,
+    int type, const QVariant& newvalue, const QVariant& oldvalue);
 
 protected:
   /// \brief
-  ///   Creates an options object for a series.
-  /// \note
-  ///   Subclasses should only create the options in this method. Use
-  ///   the \c setupOptions to set up connections.
-  /// \param parent The parent of the options object.
-  /// \return
-  ///   A pointer to a new options object.
-  /// \sa
-  ///   vtkQtChaerSeriesLayer::setupOptions(vtkQtChartSeriesOptions *)
-  virtual vtkQtChartSeriesOptions *createOptions(QObject *parent) = 0;
-
-  /// \brief
-  ///   Sets up the series options object.
+  ///   Sets up the default values for the series options object.
   ///
   /// The style manager should be used to help set up the series options.
-  /// Signal connections should be set up here in order to avoid slot
-  /// calls during setup.
+  /// Subclass must call this method every time a new series options is set up.
   ///
-  /// \param style The series style index.
   /// \param options The newly created series options.
-  virtual void setupOptions(int style, vtkQtChartSeriesOptions *options) = 0;
+  virtual void setupOptions(vtkQtChartSeriesOptions *options);
+
+  /// \brief
+  ///   Cleans up the options by deallocating the style reservation for the
+  /// option. Subclass must call this method before a series options object is
+  /// cleaned up.
+  virtual void cleanupOptions(vtkQtChartSeriesOptions* options);
 
 protected:
   /// Stores the series/point selection.

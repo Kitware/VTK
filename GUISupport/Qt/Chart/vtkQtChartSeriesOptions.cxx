@@ -17,10 +17,6 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-
-/// \file vtkQtChartSeriesOptions.cxx
-/// \date February 15, 2008
-
 #ifdef _MSC_VER
 // Disable warnings that Qt headers give.
 #pragma warning(disable:4127)
@@ -28,76 +24,88 @@
 
 #include "vtkQtChartSeriesOptions.h"
 
-#include <QBrush>
-#include <QPen>
+#include "vtkQtChartSeriesColors.h"
 
-
-vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(QObject *parentObject)
-  : QObject(parentObject)
+//----------------------------------------------------------------------------
+vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(QObject* parentObject)
+  :QObject(parentObject)
 {
-  this->Pen = new QPen(Qt::black);
-  this->Brush = new QBrush();
-  this->Visible = true;
 }
 
+//----------------------------------------------------------------------------
 vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(
     const vtkQtChartSeriesOptions &other)
-  : QObject()
+  : QObject(), Data(other.Data), Defaults(other.Defaults)
 {
-  this->Pen = new QPen(*other.Pen);
-  this->Brush = new QBrush(*other.Brush);
-  this->Visible = other.Visible;
 }
 
+//----------------------------------------------------------------------------
 vtkQtChartSeriesOptions::~vtkQtChartSeriesOptions()
 {
-  delete this->Pen;
-  delete this->Brush;
 }
 
+//----------------------------------------------------------------------------
 vtkQtChartSeriesOptions &vtkQtChartSeriesOptions::operator=(
     const vtkQtChartSeriesOptions &other)
 {
-  *this->Pen = *other.Pen;
-  *this->Brush = *other.Brush;
-  this->Visible = other.Visible;
+  this->Defaults = other.Defaults;
+  this->Data = other.Data;
   return *this;
 }
 
-void vtkQtChartSeriesOptions::setVisible(bool visible)
+//----------------------------------------------------------------------------
+vtkQtChartSeriesColors *vtkQtChartSeriesOptions::getSeriesColors() const
 {
-  if(this->Visible != visible)
+  return qobject_cast<vtkQtChartSeriesColors*>(
+    this->getGenericOption(COLORS).value<QObject*>());
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartSeriesOptions::setSeriesColors(vtkQtChartSeriesColors *colors)
+{
+  this->setGenericOption(COLORS, colors);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtChartSeriesOptions::setGenericOption(
+  vtkQtChartSeriesOptions::OptionType type, const QVariant& value)
+{
+  QMap<OptionType, QVariant>::const_iterator iter = this->Data.find(type);
+  if (iter == this->Data.end() || iter.value() != value)
     {
-    this->Visible = visible;
-    emit this->visibilityChanged(visible);
+    QVariant oldValue = iter != this->Data.end()? iter.value() : QVariant();
+    this->Data[type] = value;
+    emit this->dataChanged(type, value, oldValue);
     }
 }
 
-const QPen &vtkQtChartSeriesOptions::getPen() const
+//----------------------------------------------------------------------------
+QVariant vtkQtChartSeriesOptions::getGenericOption(
+  vtkQtChartSeriesOptions::OptionType type) const
 {
-  return *this->Pen;
-}
-
-void vtkQtChartSeriesOptions::setPen(const QPen &pen)
-{
-  if(*this->Pen != pen)
+  if (this->Data.contains(type))
     {
-    *this->Pen = pen;
-    emit this->penChanged(pen);
+    return this->Data[type];
     }
-}
-
-const QBrush &vtkQtChartSeriesOptions::getBrush() const
-{
-  return *this->Brush;
-}
-
-void vtkQtChartSeriesOptions::setBrush(const QBrush &brush)
-{
-  if(*this->Brush != brush)
+  else if (this->Defaults.contains(type))
     {
-    *this->Brush = brush;
-    emit this->brushChanged(brush);
+    return this->Defaults[type];
+    }
+
+  return QVariant();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkQtChartSeriesOptions::setDefaultOption(
+  OptionType type, const QVariant& value)
+{
+  QMap<OptionType, QVariant>::const_iterator iter = this->Defaults.find(type);
+  if (iter == this->Defaults.end() || iter.value() != value)
+    {
+    QVariant oldValue = iter != this->Defaults.end()? iter.value() : QVariant();
+    this->Defaults[type] = value;
+    emit this->dataChanged(type, value, oldValue);
     }
 }
 

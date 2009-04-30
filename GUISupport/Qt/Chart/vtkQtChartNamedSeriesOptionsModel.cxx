@@ -101,20 +101,17 @@ void vtkQtChartNamedSeriesOptionsModel::reset()
 //----------------------------------------------------------------------------
 void vtkQtChartNamedSeriesOptionsModel::insertSeriesOptions(int first, int last)
 {
-  if (this->Layer)
+  emit this->optionsAboutToBeInserted(first, last);
+  for (int cc=first; cc <=last; cc++)
     {
-    emit this->optionsAboutToBeInserted(first, last);
-    for (int cc=first; cc <=last; cc++)
+    QString name = this->Model->getSeriesName(cc).toString();
+    if (!this->Options.contains(name))
       {
-      QString name = this->Model->getSeriesName(cc).toString();
-      if (!this->Options.contains(name))
-        {
-        vtkQtChartSeriesOptions* options = this->newOptions(this);
-        this->addOptions(name, options);
-        }
+      vtkQtChartSeriesOptions* options = this->newOptions(this);
+      this->addOptions(name, options);
       }
-    emit this->optionsInserted(first, last);
     }
+  emit this->optionsInserted(first, last);
 }
 
 //----------------------------------------------------------------------------

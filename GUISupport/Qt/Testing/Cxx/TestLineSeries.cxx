@@ -38,7 +38,7 @@
 #include "vtkQtChartTableSeriesModel.h"
 #include "vtkQtChartWidget.h"
 #include "vtkQtLineChart.h"
-#include "vtkQtLineChartSeriesOptions.h"
+#include "vtkQtChartSeriesOptions.h"
 
 #include <QStandardItemModel>
 #include <QVariant>
@@ -245,12 +245,10 @@ int TestLineSeries(int argc, char* argv[])
 
   line->setModel(collection);
 
-  vtkQtLineChartSeriesOptions *opts = line->getLineSeriesOptions(0);
-  opts->setPointsVisible(true);
+  vtkQtChartSeriesOptions *opts = line->getSeriesOptions(0);
   opts->setMarkerStyle(vtkQtPointMarker::Circle);
 
-  opts = line->getLineSeriesOptions(1);
-  opts->setPointsVisible(true);
+  opts = line->getSeriesOptions(1);
   opts->setMarkerStyle(vtkQtPointMarker::Diamond);
   opts->setMarkerSize(QSizeF(7.0, 7.0));
 

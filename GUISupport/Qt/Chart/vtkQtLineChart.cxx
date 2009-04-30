@@ -29,9 +29,9 @@
 #include "vtkQtLineChart.h"
 
 #include "vtkQtChartArea.h"
-#include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisCornerDomain.h"
 #include "vtkQtChartAxisDomain.h"
+#include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
 #include "vtkQtChartBar.h"
@@ -41,20 +41,19 @@
 #include "vtkQtChartIndexRangeList.h"
 #include "vtkQtChartLayerDomain.h"
 #include "vtkQtChartQuad.h"
-#include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesDomainGroup.h"
+#include "vtkQtChartSeriesDomain.h"
 #include "vtkQtChartSeriesModel.h"
+#include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesSelection.h"
 #include "vtkQtChartSeriesSelectionModel.h"
 #include "vtkQtChartShapeLocator.h"
 #include "vtkQtChartStyleAxesCorner.h"
 #include "vtkQtChartStyleBoolean.h"
-#include "vtkQtChartStyleManager.h"
 #include "vtkQtChartStyleMarker.h"
 #include "vtkQtChartStylePen.h"
 #include "vtkQtChartStyleSize.h"
 #include "vtkQtLineChartOptions.h"
-#include "vtkQtLineChartSeriesOptions.h"
 #include "vtkQtPointMarker.h"
 
 #include <QList>
@@ -482,13 +481,6 @@ void vtkQtLineChart::setOptions(const vtkQtLineChartOptions &options)
       options.getHelpFormat()->getFormat());
 }
 
-vtkQtLineChartSeriesOptions *vtkQtLineChart::getLineSeriesOptions(
-    int series) const
-{
-  return qobject_cast<vtkQtLineChartSeriesOptions *>(
-      this->getSeriesOptions(series));
-}
-
 QPixmap vtkQtLineChart::getSeriesIcon(int series) const
 {
   // Fill in the pixmap background.
@@ -496,7 +488,7 @@ QPixmap vtkQtLineChart::getSeriesIcon(int series) const
   icon.fill(QColor(255, 255, 255, 0));
 
   // Get the options for the series.
-  vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(series);
+  vtkQtChartSeriesOptions *options = this->getSeriesOptions(series);
   if(options)
     {
     // Draw a line on the pixmap.
@@ -505,7 +497,7 @@ QPixmap vtkQtLineChart::getSeriesIcon(int series) const
     painter.setPen(options->getPen());
     painter.drawLine(1, 15, 14, 0);
 
-    if(options->arePointsVisible())
+    if (options->getMarkerStyle() != vtkQtPointMarker::NoMarker)
       {
       QPen markerPen = options->getPen();
       markerPen.setStyle(Qt::SolidLine);
@@ -561,7 +553,7 @@ void vtkQtLineChart::layoutChart(const QRectF &area)
     QList<int>::Iterator iter = seriesList.begin();
     for( ; iter != seriesList.end(); ++iter)
       {
-      vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(*iter);
+      vtkQtChartSeriesOptions *options = this->getSeriesOptions(*iter);
       vtkQtLineChartSeries *series = this->Internal->Series[*iter];
 
       QPointF last;
@@ -636,14 +628,14 @@ bool vtkQtLineChart::getHelpText(const QPointF &point, QString &text)
     // Use the axis options to format the data.
     vtkQtChartAxisOptions *xAxis = 0;
     vtkQtChartAxisOptions *yAxis = 0;
-    vtkQtLineChartSeriesOptions *options = 0;
+    vtkQtChartSeriesOptions *options = 0;
     vtkQtChartAxisLayer *layer = this->ChartArea->getAxisLayer();
     const QMap<int, vtkQtChartIndexRangeList> &points = selection.getPoints();
     QMap<int, vtkQtChartIndexRangeList>::ConstIterator iter = points.begin();
     for( ; iter != points.end(); ++iter)
       {
       // Use the axis options to format the data.
-      options = this->getLineSeriesOptions(iter.key());
+      options = this->getSeriesOptions(iter.key());
       xAxis = layer->getHorizontalAxis(options->getAxesCorner())->getOptions();
       yAxis = layer->getVerticalAxis(options->getAxesCorner())->getOptions();
 
@@ -812,8 +804,8 @@ void vtkQtLineChart::paint(QPainter *painter,
   for( ; iter != this->Internal->CurrentSeries.end(); ++iter)
     {
     vtkQtLineChartSeries *series = this->Internal->Series[*iter];
-    vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(*iter);
-    if(options->getPen().style() == Qt::NoPen &&
+    vtkQtChartSeriesOptions *options = this->getSeriesOptions(*iter);
+    if (options->getPen().style() == Qt::NoPen &&
       options->getMarkerStyle() == vtkQtPointMarker::NoMarker)
       {
       // If the pen is set to no-pen, there's nothing to draw.
@@ -855,7 +847,8 @@ void vtkQtLineChart::paint(QPainter *painter,
       }
 
     // Skip the points if none are visible.
-    if(!options->arePointsVisible() && series->Highlights.isEmpty())
+    if (options->getMarkerStyle() == vtkQtPointMarker::NoMarker
+      && series->Highlights.isEmpty())
       {
       continue;
       }
@@ -892,7 +885,7 @@ void vtkQtLineChart::paint(QPainter *painter,
         painter->setPen(lightPen);
         series->Marker->paint(painter);
         }
-      else if(options->arePointsVisible())
+      else if(options->getMarkerStyle() != vtkQtPointMarker::NoMarker)
         {
         painter->setPen(markerPen);
         series->Marker->paint(painter);
@@ -954,79 +947,6 @@ void vtkQtLineChart::reset()
   this->InModelChange = false;
 }
 
-vtkQtChartSeriesOptions *vtkQtLineChart::createOptions(QObject *parentObject)
-{
-  return new vtkQtLineChartSeriesOptions(parentObject);
-}
-
-void vtkQtLineChart::setupOptions(int style, vtkQtChartSeriesOptions *options)
-{
-  vtkQtLineChartSeriesOptions *seriesOptions =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(options);
-  if(seriesOptions)
-    {
-    // Set up the series options.
-    vtkQtChartStyleManager *manager = this->ChartArea->getStyleManager();
-    vtkQtChartStyleBoolean *styleVisible =
-        qobject_cast<vtkQtChartStyleBoolean *>(
-        manager->getGenerator("Visible"));
-    if(styleVisible)
-      {
-      seriesOptions->setVisible(styleVisible->getStyleBoolean(style));
-      }
-
-    vtkQtChartStylePen *stylePen = qobject_cast<vtkQtChartStylePen *>(
-        manager->getGenerator("Pen"));
-    if(stylePen)
-      {
-      seriesOptions->setPen(stylePen->getStylePen(style));
-      }
-
-    vtkQtChartStyleAxesCorner *styleCorner =
-        qobject_cast<vtkQtChartStyleAxesCorner *>(
-        manager->getGenerator("Axes Corner"));
-    if(styleCorner)
-      {
-      seriesOptions->setAxesCorner(styleCorner->getStyleAxesCorner(style));
-      }
-
-    styleVisible = qobject_cast<vtkQtChartStyleBoolean *>(
-        manager->getGenerator("Point Visibility"));
-    if(styleVisible)
-      {
-      seriesOptions->setPointsVisible(styleVisible->getStyleBoolean(style));
-      }
-
-    vtkQtChartStyleMarker *styleMarker = qobject_cast<vtkQtChartStyleMarker *>(
-        manager->getGenerator("Marker Style"));
-    if(styleMarker)
-      {
-      seriesOptions->setMarkerStyle(styleMarker->getStyleMarker(style));
-      }
-
-    vtkQtChartStyleSize *styleSize = qobject_cast<vtkQtChartStyleSize *>(
-        manager->getGenerator("Marker Size"));
-    if(styleSize)
-      {
-      seriesOptions->setMarkerSize(styleSize->getStyleSize(style));
-      }
-
-    // Listen for series option changes.
-    this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
-        this, SLOT(handleSeriesVisibilityChange(bool)));
-    this->connect(seriesOptions, SIGNAL(axesCornerChanged(int, int)),
-        this, SLOT(handleSeriesAxesCornerChange(int, int)));
-    this->connect(seriesOptions, SIGNAL(pointVisibilityChanged(bool)),
-        this, SLOT(handleSeriesPointVisibilityChange(bool)));
-    this->connect(seriesOptions, SIGNAL(pointMarkerChanged()),
-        this, SLOT(handleSeriesPointMarkerChange()));
-    this->connect(seriesOptions, SIGNAL(penChanged(const QPen &)),
-        this, SLOT(handleSeriesPenChange(const QPen &)));
-    this->connect(seriesOptions, SIGNAL(brushChanged(const QBrush &)),
-        this, SLOT(handleSeriesBrushChange(const QBrush &)));
-    }
-}
-
 void vtkQtLineChart::prepareSeriesInsert(int first, int last)
 {
   if(this->ChartArea)
@@ -1057,7 +977,9 @@ void vtkQtLineChart::insertSeries(int first, int last)
       this->Internal->Series.insert(i, item);
 
       // Set the series drawing options.
-      vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(i);
+      vtkQtChartSeriesOptions *options = this->getSeriesOptions(i);
+      this->setupOptions(options);
+      
       item->Marker->setStyle(options->getMarkerStyle());
       item->Marker->setSize(options->getMarkerSize());
 
@@ -1121,7 +1043,8 @@ void vtkQtLineChart::startSeriesRemoval(int first, int last)
     QList<int>::Iterator iter;
     for( ; i <= last; i++)
       {
-      vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(i);
+      vtkQtChartSeriesOptions *options = this->getSeriesOptions(i);
+      this->cleanupOptions(options);
       vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
       int index = this->Internal->Groups[corner].removeSeries(i);
       if(index != -1)
@@ -1210,17 +1133,44 @@ void vtkQtLineChart::finishSeriesRemoval(int first, int last)
     }
 }
 
-void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
+void vtkQtLineChart::handleOptionsChanged(vtkQtChartSeriesOptions* options,
+  int type, const QVariant& newvalue, const QVariant& oldvalue)
 {
   // Get the series index from the options index.
-  vtkQtLineChartSeriesOptions *options =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
+  if (type == vtkQtChartSeriesOptions::AXES_CORNER )
+    {
+    // axes corner has changed.
+    this->handleSeriesAxesCornerChange(
+      options, newvalue.toInt(), oldvalue.toInt());
+    }
+
+  if (type == vtkQtChartSeriesOptions::VISIBLE)
+    {
+    bool visible = options->isVisible();
+    // visibility has changed.
+    this->handleSeriesVisibilityChange(options, visible);
+    }
+
+  if (type == vtkQtChartSeriesOptions::MARKER_STYLE)
+    {
+    this->handleSeriesPointMarkerChange(options);
+    }
+  // TODO: Update the series rectangle.
+
+  this->vtkQtChartSeriesLayer::handleOptionsChanged(options, type, newvalue,
+    oldvalue);
+}
+
+void vtkQtLineChart::handleSeriesVisibilityChange(
+  vtkQtChartSeriesOptions* options, bool visible)
+{
+  // Get the series index from the options index.
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
     if(visible)
       {
+      vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
       // If the series is going to be visible, add to the domain.
       int seriesGroup = -1;
       this->Internal->Series[series]->AddNeeded = true;
@@ -1235,6 +1185,8 @@ void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
       }
     else
       {
+       vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
+      // assured that (corner != -1).
       int seriesGroup = this->Internal->Groups[corner].removeSeries(series);
       if(seriesGroup != -1)
         {
@@ -1246,7 +1198,7 @@ void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
         else
           {
           // Re-calculate the domain.
-          this->calculateDomain(seriesGroup, corner);
+          this->calculateDomain(seriesGroup,corner); 
 
           // Remove the series shapes from the search lists.
           this->Internal->removeList(
@@ -1266,15 +1218,12 @@ void vtkQtLineChart::handleSeriesVisibilityChange(bool visible)
         emit this->layoutNeeded();
         }
       }
-
-    emit this->modelSeriesVisibilityChanged(series, visible);
     }
 }
 
-void vtkQtLineChart::handleSeriesAxesCornerChange(int corner, int previous)
+void vtkQtLineChart::handleSeriesAxesCornerChange(
+  vtkQtChartSeriesOptions* options, int corner, int previous)
 {
-  vtkQtLineChartSeriesOptions *options =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
@@ -1318,22 +1267,9 @@ void vtkQtLineChart::handleSeriesAxesCornerChange(int corner, int previous)
     }
 }
 
-void vtkQtLineChart::handleSeriesPointVisibilityChange(bool)
+void vtkQtLineChart::handleSeriesPointMarkerChange(
+  vtkQtChartSeriesOptions* options)
 {
-  vtkQtLineChartSeriesOptions *options =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
-    emit this->modelSeriesChanged(series, series);
-    }
-}
-
-void vtkQtLineChart::handleSeriesPointMarkerChange()
-{
-  vtkQtLineChartSeriesOptions *options =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
@@ -1387,30 +1323,6 @@ void vtkQtLineChart::handleSeriesPointMarkerChange()
       }
 
     emit this->layoutNeeded();
-    emit this->modelSeriesChanged(series, series);
-    }
-}
-
-void vtkQtLineChart::handleSeriesPenChange(const QPen &)
-{
-  vtkQtLineChartSeriesOptions *options =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
-    emit this->modelSeriesChanged(series, series);
-    }
-}
-
-void vtkQtLineChart::handleSeriesBrushChange(const QBrush &)
-{
-  vtkQtLineChartSeriesOptions *options =
-      qobject_cast<vtkQtLineChartSeriesOptions *>(this->sender());
-  int series = this->getSeriesOptionsIndex(options);
-  if(series >= 0 && series < this->Internal->Series.size())
-    {
-    this->update();
     emit this->modelSeriesChanged(series, series);
     }
 }
@@ -1540,7 +1452,7 @@ void vtkQtLineChart::calculateDomain(int seriesGroup,
   QList<int> list = this->Internal->Groups[corner].getGroup(seriesGroup);
   for(QList<int>::Iterator iter = list.begin(); iter != list.end(); ++iter)
     {
-    vtkQtLineChartSeriesOptions *options = this->getLineSeriesOptions(*iter);
+    vtkQtChartSeriesOptions *options = this->getSeriesOptions(*iter);
     if(options && !options->isVisible())
       {
       continue;

@@ -29,7 +29,6 @@
 
 class vtkQtStackedChartInternal;
 class vtkQtStackedChartOptions;
-class vtkQtStackedChartSeriesOptions;
 
 
 /// \class vtkQtStackedChart
@@ -66,13 +65,6 @@ public:
   ///
   /// \param options The new stacked chart drawing options.
   void setOptions(const vtkQtStackedChartOptions &options);
-
-  /// \brief
-  ///   Gets the stacked chart series options.
-  /// \param series The series index.
-  /// \return
-  ///   A pointer to the stacked chart series options.
-  vtkQtStackedChartSeriesOptions *getStackedSeriesOptions(int series) const;
 
   virtual QPixmap getSeriesIcon(int series) const;
   //@}
@@ -123,24 +115,16 @@ public slots:
   /// it is used to populate the stacked chart.
   void reset();
 
-protected:
+protected slots:
   /// \brief
-  ///   Creates a new stacked chart series options object.
-  /// \param parent The parent object.
-  /// \return
-  ///   A pointer to the new stacked chart series options object.
-  virtual vtkQtChartSeriesOptions *createOptions(QObject *parent);
-
-  /// \brief
-  ///   Sets up the series options defaults.
-  ///
-  /// The style manager's "Visible" generator is used to set the
-  /// initial visibility. The style manager's "Brush" generator is used
-  /// to set the series brush. The series pen is based on the brush color.
-  ///
-  /// \param style The series style index.
-  /// \param options The new series options object.
-  virtual void setupOptions(int style, vtkQtChartSeriesOptions *options);
+  ///   Called when any of the series options are changed.
+  ///  Default implementation fires the modelSeriesChanged() signal.
+  /// \param options The options that fired the dataChanged() signal.
+  /// \param type Type of the option that was changed.
+  /// \param newValue The new value for the option.
+  /// \param oldValue The previous value for the option, if any.
+  virtual void handleOptionsChanged(vtkQtChartSeriesOptions*,
+    int type, const QVariant& newvalue, const QVariant& oldvalue);
 
 private slots:
   /// \brief
@@ -177,24 +161,6 @@ private slots:
   void handleGradientChange();
 
   /// \brief
-  ///   Changes the series visibility.
-  ///
-  /// The signal sender is used to determine which series has changed.
-  ///
-  /// \param visible True if the series should be shown.
-  void handleSeriesVisibilityChange(bool visible);
-
-  /// \brief
-  ///   Changes the series pen.
-  /// \param pen The new series pen.
-  void handleSeriesPenChange(const QPen &pen);
-
-  /// \brief
-  ///   Changes the series brush.
-  /// \param brush The new series brush.
-  void handleSeriesBrushChange(const QBrush &brush);
-
-  /// \brief
   ///   Called to layout the highlights.
   ///
   /// The layout request is ignored if the model is being changed.
@@ -207,6 +173,16 @@ private slots:
   void seriesVisibilityAnimateFinished();
 
 private:
+  /// \brief
+  ///   Changes the series visibility.
+  ///
+  /// The signal sender is used to determine which series has changed.
+  ///
+  /// \param options Options that changed.
+  /// \param visible True if the series should be shown.
+  void handleSeriesVisibilityChange(
+    vtkQtChartSeriesOptions* options, bool visible);
+
   /// Called to layout the highlights.
   void layoutHighlights();
 

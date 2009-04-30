@@ -25,7 +25,6 @@
 
 #include "vtkQtBarChart.h"
 #include "vtkQtBarChartOptions.h"
-#include "vtkQtBarChartSeriesOptions.h"
 #include "vtkQtChartArea.h"
 #include "vtkQtChartAxis.h"
 #include "vtkQtChartAxisLayer.h"
@@ -36,6 +35,7 @@
 #include "vtkQtChartLegendManager.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesHueRange.h"
+#include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTableSeriesModel.h"
@@ -151,12 +151,12 @@ int TestBarSeriesColors(int argc, char* argv[])
   bars->setModel(table);
 
   // Set up the multi-colored series.
-  vtkQtBarChartSeriesOptions *options = bars->getBarSeriesOptions(0);
+  vtkQtChartSeriesOptions *options = bars->getSeriesOptions(0);
   vtkQtChartSeriesHueRange *colors = new vtkQtChartSeriesHueRange(options);
   colors->setRange(QColor(113, 217, 21), QColor(15, 142, 246));
   options->setSeriesColors(colors);
 
-  options = bars->getBarSeriesOptions(1);
+  options = bars->getSeriesOptions(1);
   colors = new vtkQtChartSeriesHueRange(options);
   colors->setRange(QColor(255, 239, 96), QColor(255, 123, 16));
   options->setSeriesColors(colors);

@@ -92,12 +92,6 @@ private slots:
       vtkQtChartSeriesModel *current);
 
   /// \brief
-  ///   Sets the visibility for the given series.
-  /// \param series The chart series index.
-  /// \param visible True if the series should be visible.
-  void updateSeriesVisibility(int series, bool visible);
-
-  /// \brief
   ///   Updates the legend model for series changes.
   /// \param first The first index of the series range.
   /// \param last The last index of the series range.

@@ -23,54 +23,41 @@
 #pragma warning(disable:4127)
 #endif
 
-#include "vtkQtChartSeriesLayer.h"
 #include "vtkQtChartSeriesOptions.h"
 #include "vtkQtChartSeriesOptionsModel.h"
 
 //----------------------------------------------------------------------------
 vtkQtChartSeriesOptionsModel::vtkQtChartSeriesOptionsModel(QObject* parentObject)
-  : Superclass(parentObject), Layer(0)
+  : Superclass(parentObject)
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkQtChartSeriesOptionsModel::setChartSeriesLayer(
-  vtkQtChartSeriesLayer* layer)
+vtkQtChartSeriesOptions* vtkQtChartSeriesOptionsModel::newOptions(
+  QObject* parentObject)
 {
-  if (this->Layer != layer)
-    {
-    this->Layer = layer;
-    // this is needed since if the type of the layer changes, then the type of
-    // options also changes.
-    this->reset();
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkQtChartSeriesLayer* vtkQtChartSeriesOptionsModel::getChartSeriesLayer() const
-{
-  return this->Layer;
-}
-
-//----------------------------------------------------------------------------
-vtkQtChartSeriesOptions* vtkQtChartSeriesOptionsModel::newOptions(QObject* parent)
-{
-  return this->Layer? this->Layer->newOptions(parent) : NULL;
+  vtkQtChartSeriesOptions* options = new vtkQtChartSeriesOptions(parentObject);
+  QObject::connect(options,
+    SIGNAL(dataChanged(int, const QVariant&, const QVariant&)),
+    this, SLOT(optionsChanged(int, const QVariant&, const QVariant&)));
+  return options;
 }
 
 //----------------------------------------------------------------------------
 void vtkQtChartSeriesOptionsModel::releaseOptions(vtkQtChartSeriesOptions* options)
 {
-  if (this->Layer)
-    {
-    if (this->Layer)
-      {
-      this->Layer->releaseOptions(options);
-      }
-    else
-      {
-      delete options;
-      }
-    }
+  delete options;
 }
 
+//----------------------------------------------------------------------------
+void vtkQtChartSeriesOptionsModel::optionsChanged(
+  int type, const QVariant& newval, const QVariant& oldval)
+{
+  // Get the series index from the options index.
+  vtkQtChartSeriesOptions *options =
+    qobject_cast<vtkQtChartSeriesOptions *>(this->sender());
+  if (options)
+    {
+    emit this->optionsChanged(options, type, newval, oldval);
+    }
+}

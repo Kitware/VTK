@@ -24,7 +24,6 @@
 #include "vtkQtChartExport.h"
 #include <QObject>
 
-class vtkQtChartSeriesLayer;
 class vtkQtChartSeriesModel;
 class vtkQtChartSeriesOptions;
 
@@ -46,15 +45,6 @@ public:
   /// \param param The parent object.
   vtkQtChartSeriesOptionsModel(QObject* parent=0);
   virtual ~vtkQtChartSeriesOptionsModel() {}
-
-  /// \brief
-  ///   Get/Set the vtkQtChartSeriesLayer. The layer is needed to create new
-  ///   options of the right type.
-  /// FIXME: We need to get rid of this dependency on the layer. Right now, I
-  /// don't see how that can be done esp. since the type of options depends on
-  /// the type of layer.
-  virtual void setChartSeriesLayer(vtkQtChartSeriesLayer*);
-  virtual vtkQtChartSeriesLayer* getChartSeriesLayer() const;
 
   /// \brief
   ///   Gets the number of options.
@@ -110,19 +100,29 @@ signals:
   /// \param last The last index that was removed.
   void optionsRemoved(int first, int last);
 
+  /// \brief
+  ///   Emitted when options fire dataChanged() signal.
+  /// \param options The options that fired the dataChanged() signal.
+  /// \param type Type of the option that was changed.
+  /// \param newValue The new value for the option.
+  /// \param oldValue The previous value for the option, if any.
+  void optionsChanged(vtkQtChartSeriesOptions* options,
+    int type, const QVariant& newValue, const QVariant& oldValue);
+
 protected:
   /// \brief Creates a new options object.
   /// \param parent The parent QObject for the options.
   /// \return
-  ///   The new instance of vtkQtChartSeriesOptions subclass suitable for the
-  ///   layer set using setChartSeriesLayer().
+  ///   The new instance of vtkQtChartSeriesOptions with proper default values.
   vtkQtChartSeriesOptions* newOptions(QObject* parent);
 
   /// \brief Releases the options. This will delete the options instance.
   void releaseOptions(vtkQtChartSeriesOptions* options);
 
-protected:
-  vtkQtChartSeriesLayer* Layer;
+private slots:
+  /// \brief called when the options fires dataChanged() signal.
+  void optionsChanged(
+    int type, const QVariant& newValue, const QVariant& oldValue);
 };
 
 #endif

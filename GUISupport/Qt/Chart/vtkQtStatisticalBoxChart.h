@@ -29,8 +29,6 @@
 
 class vtkQtStatisticalBoxChartInternal;
 class vtkQtStatisticalBoxChartOptions;
-class vtkQtStatisticalBoxChartSeriesOptions;
-
 
 /// \class vtkQtStatisticalBoxChart
 /// \brief
@@ -66,13 +64,6 @@ public:
   ///
   /// \param options The new box chart drawing options.
   void setOptions(const vtkQtStatisticalBoxChartOptions &options);
-
-  /// \brief
-  ///   Gets the statistical box chart series options.
-  /// \param series The series index.
-  /// \return
-  ///   A pointer to the statistical box chart series options.
-  vtkQtStatisticalBoxChartSeriesOptions *getBoxSeriesOptions(int series) const;
 
   virtual QPixmap getSeriesIcon(int series) const;
   //@}
@@ -124,26 +115,26 @@ public slots:
   /// it is used to populate the statistical box chart.
   void reset();
 
+protected slots:
+  /// \brief
+  ///   Called when any of the series options are changed.
+  ///  Default implementation fires the modelSeriesChanged() signal.
+  /// \param options The options that fired the dataChanged() signal.
+  /// \param type Type of the option that was changed.
+  /// \param newValue The new value for the option.
+  /// \param oldValue The previous value for the option, if any.
+  virtual void handleOptionsChanged(vtkQtChartSeriesOptions*,
+    int type, const QVariant& newvalue, const QVariant& oldvalue);
+
 protected:
   /// \brief
-  ///   Creates a new statistical box chart series options object.
-  /// \param parent The parent object.
-  /// \return
-  ///   A pointer to the new statistical box chart series options object.
-  virtual vtkQtChartSeriesOptions *createOptions(QObject *parent);
-
-  /// \brief
-  ///   Sets up the series options defaults.
+  ///   Sets up the default values for the series options object.
   ///
-  /// The style manager's "Visible" generator is used to set the
-  /// initial visibility. The style manager's "Brush" generator is used
-  /// to set the series brush. The series pen is set to black or a darker
-  /// version of the series brush color. The "Marker Style" and
-  /// "Marker Size" generators are used to set up the outlier points.
+  /// The style manager should be used to help set up the series options.
+  /// Subclass must call this method every time a new series options is set up.
   ///
-  /// \param style The series style index.
-  /// \param options The new series options object.
-  virtual void setupOptions(int style, vtkQtChartSeriesOptions *options);
+  /// \param options The newly created series options.
+  virtual void setupOptions(vtkQtChartSeriesOptions *options);
 
 private slots:
   /// \brief
@@ -176,26 +167,6 @@ private slots:
   /// Changes the box outline style.
   void handleOutlineChange();
 
-  /// \brief
-  ///   Changes the series visibility.
-  ///
-  /// The signal sender is used to determine which series has changed.
-  ///
-  /// \param visible True if the series should be shown.
-  void handleSeriesVisibilityChange(bool visible);
-
-  /// \brief
-  ///   Changes the series pen.
-  /// \param pen The new series pen.
-  void handleSeriesPenChange(const QPen &pen);
-
-  /// \brief
-  ///   Changes the series brush.
-  /// \param brush The new series brush.
-  void handleSeriesBrushChange(const QBrush &brush);
-
-  /// Changes the series point marker.
-  void handleSeriesPointMarkerChanged();
 
   /// \brief
   ///   Called to set up the highlights.
@@ -204,6 +175,17 @@ private slots:
   void updateHighlights();
 
 private:
+  /// \brief
+  ///   Changes the series visibility.
+  ///
+  /// The signal sender is used to determine which series has changed.
+  ///
+  /// \param visible True if the series should be shown.
+  void handleSeriesVisibilityChange(vtkQtChartSeriesOptions* options, bool visible);
+
+  /// Changes the series point marker.
+  void handleSeriesPointMarkerChanged(vtkQtChartSeriesOptions*);
+
   /// \brief
   ///   Adds the domain for the given series to the current domain.
   /// \param series The series index.

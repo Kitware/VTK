@@ -34,6 +34,7 @@
 #include "vtkQtChartLegendModel.h"
 #include "vtkQtChartSeriesLayer.h"
 #include "vtkQtChartSeriesModel.h"
+#include "vtkQtChartSeriesOptions.h"
 
 #include <QList>
 #include <QPixmap>
@@ -167,8 +168,6 @@ void vtkQtChartLegendManager::insertLayer(int index, vtkQtChartLayer *chart)
         SLOT(changeModel(vtkQtChartSeriesModel *, vtkQtChartSeriesModel *)));
     this->connect(seriesLayer, SIGNAL(modelSeriesChanged(int, int)),
         this, SLOT(updateModelEntries(int, int)));
-    this->connect(seriesLayer, SIGNAL(modelSeriesVisibilityChanged(int, bool)),
-        this, SLOT(updateSeriesVisibility(int, bool)));
 
     vtkQtChartSeriesModel *model = seriesLayer->getModel();
     if(model)
@@ -304,21 +303,6 @@ void vtkQtChartLegendManager::changeModel(vtkQtChartSeriesModel *previous,
     }
 }
 
-void vtkQtChartLegendManager::updateSeriesVisibility(int series, bool visible)
-{
-  // Get the chart layer from the sender.
-  vtkQtChartSeriesLayer *chart =
-      qobject_cast<vtkQtChartSeriesLayer *>(this->sender());
-  if(chart)
-    {
-    // Determine the starting index for the layer series.
-    int index = this->getLegendIndex(chart);
-
-    // Set the legend entry visibility.
-    this->Legend->setEntryVisible(index + series, visible);
-    }
-}
-
 void vtkQtChartLegendManager::updateModelEntries(int first, int last)
 {
   // Get the chart layer from the sender.
@@ -332,12 +316,16 @@ void vtkQtChartLegendManager::updateModelEntries(int first, int last)
       // Determine the starting index for the layer series.
       int index = this->getLegendIndex(chart);
 
+
+
       // Update the icon and text for the given series.
       vtkQtChartLegendModel *legend = this->Legend->getModel();
       for(int i = first; i <= last; i++)
         {
         legend->setText(index + i, model->getSeriesName(i).toString());
         legend->setIcon(index + i, chart->getSeriesIcon(i));
+        this->Legend->setEntryVisible(
+          index + i, chart->getSeriesOptions(i)->isVisible());
         }
       }
     }

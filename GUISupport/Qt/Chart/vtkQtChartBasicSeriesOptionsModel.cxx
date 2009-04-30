@@ -97,16 +97,13 @@ void vtkQtChartBasicSeriesOptionsModel::reset()
 //----------------------------------------------------------------------------
 void vtkQtChartBasicSeriesOptionsModel::insertSeriesOptions(int first, int last)
 {
-  if (this->Layer)
+  emit this->optionsAboutToBeInserted(first, last);
+  for (int cc=first; cc <=last; cc++)
     {
-    emit this->optionsAboutToBeInserted(first, last);
-    for (int cc=first; cc <=last; cc++)
-      {
-      vtkQtChartSeriesOptions* options = this->newOptions(this);
-      this->Options.insert(cc, options);
-      }
-    emit this->optionsInserted(first, last);
+    vtkQtChartSeriesOptions* options = this->newOptions(this);
+    this->Options.insert(cc, options);
     }
+  emit this->optionsInserted(first, last);
 }
 
 //----------------------------------------------------------------------------
