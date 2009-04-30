@@ -1128,6 +1128,7 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
 //         break;
 //       case 2:
 //         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"));// Thai ko kai, kho khai, kho khuat.
+//         break;
 //       case 3:
 //         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84")); // Linear-B syllables a, e, i, o, u.
 //         break;
@@ -1142,6 +1143,7 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
         break;
       case 2:
         vlabel->InsertNextValue("\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83");// Thai ko kai, kho khai, kho khuat.
+        break;
       case 3:
         vlabel->InsertNextValue("\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"); // Linear-B syllables a, e, i, o, u.
         break;
