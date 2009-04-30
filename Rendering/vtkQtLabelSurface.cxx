@@ -34,6 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTextProperty.h"
 #include "vtkTextureMapToPlane.h"
+#include "vtkUnicodeString.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <QApplication>
@@ -50,7 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelSurface, "1.2");
+vtkCxxRevisionMacro(vtkQtLabelSurface, "1.3");
 vtkStandardNewMacro(vtkQtLabelSurface);
 vtkCxxSetObjectMacro(vtkQtLabelSurface,LabelTextProperty,vtkTextProperty);
 
@@ -207,9 +209,9 @@ int vtkQtLabelSurface::RequestData( vtkInformation *vtkNotUsed(request),
   int height = size[1];
   
   QImage surface( width, height, QImage::Format_ARGB32 );
-  
-//FIXME - The image surface appears to be initialized to grey.  This clears it, but seems like there should be a more appropriate way to do this...
   QPainter painter( &surface );
+
+//FIXME - The image surface appears to be initialized to grey.  This clears it, but seems like there should be a more appropriate way to do this...
   painter.setCompositionMode( QPainter::CompositionMode_Clear );
   painter.drawImage( 0,0,surface );
   painter.setCompositionMode( QPainter::CompositionMode_SourceOver );
@@ -306,7 +308,8 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
   vtkAbstractArray *abstractData = NULL;
   vtkDataArray *numericData = NULL;
   vtkStringArray *stringData = NULL;
-  
+  vtkUnicodeStringArray *ustringData = NULL;
+
   vtkPointData *pd = input->GetPointData();
   // figure out what to label, and if we can label it
   int arrayNum;
@@ -323,9 +326,16 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
     }
   numericData = vtkDataArray::SafeDownCast(abstractData);
   stringData = vtkStringArray::SafeDownCast(abstractData);
-  
+  ustringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
+
   // determine number of components and check input
-  if ( stringData )
+  bool use_unicode_strings = false;
+  if( ustringData )
+    {
+    numComp = ustringData->GetNumberOfComponents();
+    use_unicode_strings = true;
+    }
+  else if( stringData )
     {
     numComp = stringData->GetNumberOfComponents();
     }
@@ -372,7 +382,15 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
   
   for (i=0; i < numCurLabels; i++)
     {
-    vtkStdString ResultString = stringData->GetValue(i);
+    vtkUnicodeString ResultString;
+    if( use_unicode_strings )
+      { 
+      ResultString = ustringData->GetValue(i);
+      }
+    else
+      {
+      ResultString = vtkUnicodeString::from_utf8( stringData->GetValue(i) );
+      }
     
     double x[3];
     input->GetPoint(i, x);
@@ -384,8 +402,8 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
 //FIXME - This ensures all label colorings are consistent.  Is this appropriate?
 //    QString textString = QString::fromUtf8( ResultString.c_str() );
     QString textString, testString;
-    QTextStream(&textString) << "<span>" << QString::fromUtf8( ResultString.c_str() ) << "</span>";
-    QTextStream(&testString) << QString::fromUtf8( ResultString.c_str() );
+    QTextStream(&textString) << "<span>" << QString::fromUtf8( ResultString.utf8_str() ) << "</span>";
+    QTextStream(&testString) << QString::fromUtf8( ResultString.utf8_str() );
 //end FIXME
     
     //Qt's coordinate system starts at the top left corner of the layout...
