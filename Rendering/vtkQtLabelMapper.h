@@ -49,9 +49,6 @@
 
 #include "vtkLabeledDataMapper.h"
 
-class vtkQtLabelSizeCalculator;
-class vtkLabelPlacer;
-class vtkPointSetToLabelHierarchy;
 class vtkQtLabelSurface;
 class vtkPolyDataMapper2D;
 
@@ -74,9 +71,6 @@ protected:
   ~vtkQtLabelMapper();
 
 //BTX
-  vtkSmartPointer<vtkQtLabelSizeCalculator> pcLabelSizer;
-  vtkSmartPointer<vtkLabelPlacer> labelPlacer;
-  vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy;
   vtkSmartPointer<vtkQtLabelSurface> QtLabelSurface;
   vtkSmartPointer<vtkPolyDataMapper2D> polyDataMapper2; 
 //ETX

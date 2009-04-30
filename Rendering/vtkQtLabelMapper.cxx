@@ -40,16 +40,13 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelMapper, "1.2");
+vtkCxxRevisionMacro(vtkQtLabelMapper, "1.3");
 vtkStandardNewMacro(vtkQtLabelMapper);
 
 //----------------------------------------------------------------------------
 // Creates a new label mapper
 vtkQtLabelMapper::vtkQtLabelMapper()
 {
-  this->pcLabelSizer = vtkSmartPointer<vtkQtLabelSizeCalculator>::New();
-  this->labelPlacer = vtkSmartPointer<vtkLabelPlacer>::New();
-  this->pointSetToLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
   this->QtLabelSurface = vtkSmartPointer<vtkQtLabelSurface>::New();
   this->polyDataMapper2 = vtkSmartPointer<vtkPolyDataMapper2D>::New(); 
 
@@ -75,12 +72,6 @@ vtkQtLabelMapper::~vtkQtLabelMapper()
 void vtkQtLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
                                                 vtkActor2D *actor)
 {
-  int maxLevels = 5;
-  int targetLabels = 7;
-  double labelRatio = 1.0;
-  int iteratorType = vtkLabelHierarchy::FULL_SORT;
-  bool showBounds = true;
-
   vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
 
   vtkDataObject *input = this->GetExecutive()->GetInputData(0, 0);
@@ -90,30 +81,10 @@ void vtkQtLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  this->pcLabelSizer->SetInput( input );
-  this->pcLabelSizer->SetFontProperty( this->GetLabelTextProperty() );
-  this->pcLabelSizer->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
-  this->pcLabelSizer->SetLabelSizeArrayName( "LabelSize" );
-  
-  this->pointSetToLabelHierarchy->SetInputConnection(this->pcLabelSizer->GetOutputPort());
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "LabelSize" );
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "TextRotation" );
-  this->pointSetToLabelHierarchy->SetMaximumDepth( maxLevels );
-  this->pointSetToLabelHierarchy->SetTargetLabelCount( targetLabels );
-  
-  this->labelPlacer->SetInputConnection( this->pointSetToLabelHierarchy->GetOutputPort() );
-  this->labelPlacer->SetIteratorType( iteratorType );
-  this->labelPlacer->SetOutputTraversedBounds( showBounds );
-  this->labelPlacer->SetRenderer( ren );
-  this->labelPlacer->SetMaximumLabelFraction( labelRatio );
-  this->labelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
-  
-  this->QtLabelSurface->SetInputConnection(this->labelPlacer->GetOutputPort());
+  this->QtLabelSurface->SetInput( input );
   
   this->QtLabelSurface->SetRenderer( ren );
-  this->QtLabelSurface->SetLabelTextProperty(this->pcLabelSizer->GetFontProperty());
+  this->QtLabelSurface->SetLabelTextProperty( this->GetLabelTextProperty() );
   this->QtLabelSurface->SetFieldDataName("LabelText");
   this->QtLabelSurface->SetTextRotationArrayName( "TextRotation" );
   
@@ -138,12 +109,6 @@ void vtkQtLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 void vtkQtLabelMapper::RenderOverlay(vtkViewport *viewport, 
                                             vtkActor2D *actor)
 {
-  int maxLevels = 5;
-  int targetLabels = 7;
-  double labelRatio = 1.0;
-  int iteratorType = vtkLabelHierarchy::FULL_SORT;
-  bool showBounds = true;
-
   vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
   
   vtkDataObject *input = this->GetExecutive()->GetInputData(0, 0);
@@ -153,30 +118,10 @@ void vtkQtLabelMapper::RenderOverlay(vtkViewport *viewport,
     return;
     }
 
-  this->pcLabelSizer->SetInput( input );
-  this->pcLabelSizer->SetFontProperty( this->GetLabelTextProperty() );
-  this->pcLabelSizer->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
-  this->pcLabelSizer->SetLabelSizeArrayName( "LabelSize" );
-  
-  this->pointSetToLabelHierarchy->SetInputConnection(this->pcLabelSizer->GetOutputPort());
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "LabelSize" );
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id" );
-  this->pointSetToLabelHierarchy->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "TextRotation" );
-  this->pointSetToLabelHierarchy->SetMaximumDepth( maxLevels );
-  this->pointSetToLabelHierarchy->SetTargetLabelCount( targetLabels );
-  
-  this->labelPlacer->SetInputConnection( this->pointSetToLabelHierarchy->GetOutputPort() );
-  this->labelPlacer->SetIteratorType( iteratorType );
-  this->labelPlacer->SetOutputTraversedBounds( showBounds );
-  this->labelPlacer->SetRenderer( ren );
-  this->labelPlacer->SetMaximumLabelFraction( labelRatio );
-  this->labelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
-  
-  this->QtLabelSurface->SetInputConnection(this->labelPlacer->GetOutputPort());
-  
+  this->QtLabelSurface->SetInput( input );
+
   this->QtLabelSurface->SetRenderer( ren );
-  this->QtLabelSurface->SetLabelTextProperty(this->pcLabelSizer->GetFontProperty());
+  this->QtLabelSurface->SetLabelTextProperty(this->GetLabelTextProperty());
   this->QtLabelSurface->SetFieldDataName("LabelText");
   this->QtLabelSurface->SetTextRotationArrayName( "TextRotation" );
   
