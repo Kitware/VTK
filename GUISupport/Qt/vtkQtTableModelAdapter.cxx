@@ -87,9 +87,24 @@ vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
 //----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
 {
-  if (name == 0)
+  int key_column = this->KeyColumn;
+  if (name == 0 || !this->Table)
     {
     this->KeyColumn = -1;
+    }
+  else if (this->SplitMultiComponentColumns)
+    {
+    this->KeyColumn = -1;
+    int index=0;
+    foreach(QString columnname, this->Internal->ModelColumnNames)
+      {
+      if (columnname == name)
+        {
+        this->KeyColumn = index;
+        break;
+        }
+      index++;
+      }
     }
   else
     {
@@ -102,6 +117,10 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
         break;
         }
       }
+    }
+  if (this->KeyColumn != key_column)
+    {
+    emit this->reset();
     }
 }
 
@@ -333,64 +352,10 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
     return this->Internal->IndexToDecoration[idx];
     }
 
-  // Map the qt model column to a column in the vtk table
-  int column;
-  const int row = idx.row();
-  if (this->GetSplitMultiComponentColumns())
-    {
-    column = this->Internal->ModelColumnToTableColumn[idx.column()].first;
-    }
-  else
-    {
-    column = this->ModelColumnToFieldDataColumn(idx.column());
-    }
-
-  // Get the value from the table as a vtkVariant
-  vtkVariant v = this->Table->GetValue(row, column);
-
-  // Special case- if the variant is an array it means the column data
-  // has multiple components
-  vtkDataArray* dataArray = 0;
-  if (v.IsArray() && (dataArray = vtkDataArray::SafeDownCast(v.ToArray())) )
-    {
-    const int nComponents = dataArray->GetNumberOfComponents();
-
-    if (this->GetSplitMultiComponentColumns())
-      {
-      // Map the qt model column to the corresponding component in the vtkTable column
-      const int component = this->Internal->ModelColumnToTableColumn[idx.column()].second;
-      double value = 0;
-
-      if (component < nComponents)
-        {
-        // If component is in range, then fetch the component's value
-        value = dataArray->GetComponent(0, component);
-        }
-      else
-        {
-        // If component is out of range this signals that we should return the
-        // value from the magnitude column
-        value = this->Internal->MagnitudeColumns[column]->GetValue(row);
-        }
-
-      // Reconstruct the variant using this value
-      v = vtkVariant(value);
-
-      }
-    else if (dataArray)
-      {
-      QString strValue;
-      for (int i = 0; i < nComponents; ++i)
-        {
-        strValue.append(QString("%1, ").arg(dataArray->GetComponent(0,i)));
-        }
-      strValue = strValue.remove(strValue.size()-2, 2); // remove the last comma
-
-      // Reconstruct the variant using this string value
-      v = vtkVariant(strValue.toAscii().data());
-      }
-    }
-
+  // Map the qt model column to a column in the vtk table and
+  // get the value from the table as a vtkVariant
+  vtkVariant v;
+  this->getValue(idx.row(), idx.column(), v); 
   
   // Return a string if they ask for a display role 
   if (role == Qt::DisplayRole)
@@ -500,7 +465,8 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
   if (orientation == Qt::Vertical && this->KeyColumn >= 0 &&
       (role == Qt::DisplayRole || role == Qt::UserRole))
     {
-    vtkVariant v = this->Table->GetValue(section, this->KeyColumn);
+    vtkVariant v;
+    this->getValue(section, this->KeyColumn, v);
     if (v.IsNumeric())
       {
       return QVariant(v.ToDouble());
@@ -509,6 +475,71 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
     }
 
   return QVariant();
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) const
+{
+  // Map the qt model column to a column in the vtk table
+  int column;
+  if (this->GetSplitMultiComponentColumns())
+    {
+    column = this->Internal->ModelColumnToTableColumn[in_column].first;
+    }
+  else
+    {
+    column = this->ModelColumnToFieldDataColumn(in_column);
+    }
+
+  // Get the value from the table as a vtkVariant
+  // We don't use vtkTable::GetValue() since for multi-component arrays, it can
+  // be slow due to the use of vtkDataArray in the vtkVariant.
+  vtkAbstractArray* array = this->Table->GetColumn(column);
+  if (!array)
+    {
+    return;
+    }
+  
+  const int nComponents = array->GetNumberOfComponents();
+
+  // Special case- if the variant is an array it means the column data
+  // has multiple components
+  if (nComponents == 1)
+    {
+    v = array->GetVariantValue(row);
+    }
+  else if (nComponents > 1)
+    {
+    if (this->GetSplitMultiComponentColumns())
+      {
+      // Map the qt model column to the corresponding component in the vtkTable column
+      const int component = this->Internal->ModelColumnToTableColumn[in_column].second;
+      if (component < nComponents)
+        {
+        // If component is in range, then fetch the component's value
+        v = array->GetVariantValue(nComponents*row + component);
+        }
+      else
+        {
+        // If component is out of range this signals that we should return the
+        // value from the magnitude column
+        v = this->Internal->MagnitudeColumns[column]->GetValue(row);
+        }
+      }
+    else // don't split columns.
+      {
+      QString strValue;
+      for (int i = 0; i < nComponents; ++i)
+        {
+        strValue.append(QString("%1, ").arg(
+            array->GetVariantValue(row*nComponents + i).ToString().c_str()));
+        }
+      strValue = strValue.remove(strValue.size()-2, 2); // remove the last comma
+
+      // Reconstruct the variant using this string value
+      v = vtkVariant(strValue.toAscii().data());
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

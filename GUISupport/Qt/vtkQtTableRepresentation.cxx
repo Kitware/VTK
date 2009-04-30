@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.6");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -148,23 +148,23 @@ void vtkQtTableRepresentation::UpdateTable()
   int keyColumnIndex = -1;
   int firstDataColumnIndex = -1;
   int lastDataColumnIndex = -1;
-  if (this->KeyColumnInternal != NULL)
-    {
-    table->GetRowData()->GetAbstractArray(this->KeyColumnInternal, keyColumnIndex);
-    if (keyColumnIndex >= 0)
-      {
-      this->ModelAdapter->SetKeyColumn(keyColumnIndex);
-      }
-    else
-      {
-      // Either the user didn't specify a key column or else it wasn't
-      // found.  We'll do the best we can.
-      vtkWarningMacro(<<"vtkQtTableRepresentation: Key column "
-                      << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
-                      << " not found.  Defaulting to column 0.");
-      this->ModelAdapter->SetKeyColumn(0);
-      }
-    }
+  //if (this->KeyColumnInternal != NULL)
+  //  {
+  //  table->GetRowData()->GetAbstractArray(this->KeyColumnInternal, keyColumnIndex);
+  //  if (keyColumnIndex >= 0)
+  //    {
+  //    this->ModelAdapter->SetKeyColumn(keyColumnIndex);
+  //    }
+  //  else
+  //    {
+  //    // Either the user didn't specify a key column or else it wasn't
+  //    // found.  We'll do the best we can.
+  //    vtkWarningMacro(<<"vtkQtTableRepresentation: Key column "
+  //                    << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
+  //                    << " not found.  Defaulting to column 0.");
+  //    this->ModelAdapter->SetKeyColumn(0);
+  //    }
+  //  }
   if (firstDataColumn != NULL)
     {
     table->GetRowData()->GetAbstractArray(firstDataColumn,
@@ -182,6 +182,10 @@ void vtkQtTableRepresentation::UpdateTable()
   // here.
 
   this->ModelAdapter->SetVTKDataObject(table);
+  if (this->KeyColumnInternal != NULL)
+    {
+    this->ModelAdapter->SetKeyColumnName(this->KeyColumnInternal);
+    }
   this->CreateSeriesColors();
 }
 

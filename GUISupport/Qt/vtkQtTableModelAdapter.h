@@ -32,6 +32,7 @@
 #include "vtkQtAbstractModelAdapter.h"
 
 class vtkTable;
+class vtkVariant;
 class QVTK_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
 {
   Q_OBJECT
@@ -75,6 +76,7 @@ public:
 
 private:
 
+  void getValue(int row, int column, vtkVariant& retVal) const;
   bool noTableCheck() const;
   void updateModelColumnHashTables();
 
