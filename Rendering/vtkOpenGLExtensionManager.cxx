@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.34");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.35");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -580,7 +580,12 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     vtkgl::TexImage3D = reinterpret_cast<vtkgl::PFNGLTEXIMAGE3DPROC>(this->GetProcAddress("glTexImage3D"));
     vtkgl::TexSubImage3D = reinterpret_cast<vtkgl::PFNGLTEXSUBIMAGE3DPROC>(this->GetProcAddress("glTexSubImage3D"));
     vtkgl::CopyTexSubImage3D = reinterpret_cast<vtkgl::PFNGLCOPYTEXSUBIMAGE3DPROC>(this->GetProcAddress("glCopyTexSubImage3D"));
-    return (vtkgl::DrawRangeElements != NULL) && (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL) && (vtkgl::CopyTexSubImage3D != NULL);
+    
+    // rely on the generated function for most of the OpenGL 1.2 functions.
+    int success=vtkgl::LoadExtension(name, this);
+    success=success && vtkgl::LoadExtension("GL_VERSION_1_2_DEPRECATED", this);
+    
+    return success && (vtkgl::DrawRangeElements != NULL) && (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL) && (vtkgl::CopyTexSubImage3D != NULL);
     }
   if (strcmp(name, "GL_ARB_imaging") == 0)
     {
@@ -620,10 +625,19 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     vtkgl::ResetMinmax = reinterpret_cast<vtkgl::PFNGLRESETMINMAXPROC>(this->GetProcAddress("glResetMinmax"));
     return (vtkgl::BlendColor != NULL) && (vtkgl::BlendEquation != NULL) && (vtkgl::ColorTable != NULL) && (vtkgl::ColorTableParameterfv != NULL) && (vtkgl::ColorTableParameteriv != NULL) && (vtkgl::CopyColorTable != NULL) && (vtkgl::GetColorTable != NULL) && (vtkgl::GetColorTableParameterfv != NULL) && (vtkgl::GetColorTableParameteriv != NULL) && (vtkgl::ColorSubTable != NULL) && (vtkgl::CopyColorSubTable != NULL) && (vtkgl::ConvolutionFilter1D != NULL) && (vtkgl::ConvolutionFilter2D != NULL) && (vtkgl::ConvolutionParameterf != NULL) && (vtkgl::ConvolutionParameterfv != NULL) && (vtkgl::ConvolutionParameteri != NULL) && (vtkgl::ConvolutionParameteriv != NULL) && (vtkgl::CopyConvolutionFilter1D != NULL) && (vtkgl::CopyConvolutionFilter2D != NULL) && (vtkgl::GetConvolutionFilter != NULL) && (vtkgl::GetConvolutionParameterfv != NULL) && (vtkgl::GetConvolutionParameteriv != NULL) && (vtkgl::GetSeparableFilter != NULL) && (vtkgl::SeparableFilter2D != NULL) && (vtkgl::GetHistogram != NULL) && (vtkgl::GetHistogramParameterfv != NULL) && (vtkgl::GetHistogramParameteriv != NULL) && (vtkgl::GetMinmax != NULL) && (vtkgl::GetMinmaxParameterfv != NULL) && (vtkgl::GetMinmaxParameteriv != NULL) && (vtkgl::Histogram != NULL) && (vtkgl::Minmax != NULL) && (vtkgl::ResetHistogram != NULL) && (vtkgl::ResetMinmax != NULL);
     }
+  
+  if (strcmp(name, "GL_VERSION_1_3") == 0)
+    {
+    int success=vtkgl::LoadExtension(name, this);
+    return success && vtkgl::LoadExtension("GL_VERSION_1_3_DEPRECATED", this);
+    }
   if (strcmp(name, "GL_VERSION_1_4") == 0)
     {
     // rely on the generated function for most of the OpenGL 1.4 functions.
     int success=vtkgl::LoadExtension(name, this);
+    
+    success=success && vtkgl::LoadExtension("GL_VERSION_1_4_DEPRECATED", this);
+    
     // The following functions that used to be optional in OpenGL 1.2 and 1.3
     // and only available through GL_ARB_imaging are now core features in
     // OpenGL 1.4.
@@ -632,9 +646,36 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     vtkgl::BlendEquation = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONPROC>(this->GetProcAddress("glBlendEquation"));
     return success && (vtkgl::BlendColor != NULL) && (vtkgl::BlendEquation != NULL);
     }
+  if (strcmp(name, "GL_VERSION_1_5") == 0)
+    {
+    int success=vtkgl::LoadExtension(name, this);
+    return success && vtkgl::LoadExtension("GL_VERSION_1_5_DEPRECATED", this);
+    }
+  if (strcmp(name, "GL_VERSION_2_0") == 0)
+    {
+    int success=vtkgl::LoadExtension(name, this);
+    return success && vtkgl::LoadExtension("GL_VERSION_2_0_DEPRECATED", this);
+    }
+  if (strcmp(name, "GL_VERSION_2_1") == 0)
+    {
+    int success=vtkgl::LoadExtension(name, this);
+    return success && vtkgl::LoadExtension("GL_VERSION_2_1_DEPRECATED", this);
+    }
+  if (strcmp(name, "GL_VERSION_3_0") == 0)
+    {
+    int success=vtkgl::LoadExtension(name, this);
+    return success && vtkgl::LoadExtension("GL_VERSION_3_0_DEPRECATED", this);
+    }
+   if (strcmp(name, "GL_ARB_framebuffer_object") == 0)
+    {
+    int success=vtkgl::LoadExtension(name, this);
+    return success &&
+      vtkgl::LoadExtension("GL_ARB_framebuffer_object_DEPRECATED", this);
+    }
   
   // For all other cases, rely on the generated function.
-  return vtkgl::LoadExtension(name, this);
+  int result=vtkgl::LoadExtension(name, this);
+  return result;
 }
 
 // Those two functions are part of OpenGL2.0 but don't have direct
