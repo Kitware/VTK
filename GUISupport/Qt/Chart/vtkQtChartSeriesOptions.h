@@ -194,6 +194,8 @@ signals:
 private:
   QMap<OptionType, QVariant> Data;
   QMap<OptionType, QVariant> Defaults;
+
+  void InitializeDefaults();
 };
 
 #endif

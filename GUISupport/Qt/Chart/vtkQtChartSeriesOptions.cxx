@@ -30,6 +30,7 @@
 vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(QObject* parentObject)
   :QObject(parentObject)
 {
+  this->InitializeDefaults();
 }
 
 //----------------------------------------------------------------------------
@@ -37,6 +38,7 @@ vtkQtChartSeriesOptions::vtkQtChartSeriesOptions(
     const vtkQtChartSeriesOptions &other)
   : QObject(), Data(other.Data), Defaults(other.Defaults)
 {
+  this->InitializeDefaults();
 }
 
 //----------------------------------------------------------------------------
@@ -73,9 +75,17 @@ void vtkQtChartSeriesOptions::setGenericOption(
   QMap<OptionType, QVariant>::const_iterator iter = this->Data.find(type);
   if (iter == this->Data.end() || iter.value() != value)
     {
-    QVariant oldValue = iter != this->Data.end()? iter.value() : QVariant();
+    // we call getGenericOption() since we need to take into consideration the
+    // default value as well before firing the dataChanged() signal. This is
+    // essential since the chart layers may do some non-idempotent operations
+    // that can cause amazing issues when this signal is fired when no data has
+    // really changed.
+    QVariant oldValue = this->getGenericOption(type);
     this->Data[type] = value;
-    emit this->dataChanged(type, value, oldValue);
+    if (oldValue != value)
+      {
+      emit this->dataChanged(type, value, oldValue);
+      }
     }
 }
 
@@ -103,9 +113,25 @@ void vtkQtChartSeriesOptions::setDefaultOption(
   QMap<OptionType, QVariant>::const_iterator iter = this->Defaults.find(type);
   if (iter == this->Defaults.end() || iter.value() != value)
     {
-    QVariant oldValue = iter != this->Defaults.end()? iter.value() : QVariant();
+    QVariant oldValue = this->getGenericOption(type);
     this->Defaults[type] = value;
-    emit this->dataChanged(type, value, oldValue);
+    if (this->getGenericOption(type) != oldValue)
+      {
+      emit this->dataChanged(type, value, oldValue);
+      }
     }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkQtChartSeriesOptions::InitializeDefaults()
+{
+  this->Defaults[VISIBLE] = true;
+  this->Defaults[PEN] = QPen(Qt::red);
+  this->Defaults[BRUSH] = QBrush(Qt::red);
+  this->Defaults[COLORS]= (vtkQtChartSeriesColors*)NULL;
+  this->Defaults[AXES_CORNER] = vtkQtChartLayer::BottomLeft;
+  this->Defaults[MARKER_STYLE] = vtkQtPointMarker::NoMarker;
+  this->Defaults[MARKER_SIZE] = QSizeF(5, 5);
 }
 
