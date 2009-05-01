@@ -46,6 +46,7 @@ vtkQtChartSeriesOptions* vtkQtChartSeriesOptionsModel::newOptions(
 //----------------------------------------------------------------------------
 void vtkQtChartSeriesOptionsModel::releaseOptions(vtkQtChartSeriesOptions* options)
 {
+  QObject::disconnect(options, 0, this, 0);
   delete options;
 }
 

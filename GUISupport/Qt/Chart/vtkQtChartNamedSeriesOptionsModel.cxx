@@ -137,11 +137,18 @@ void vtkQtChartNamedSeriesOptionsModel::addOptions(
   const QString& name, vtkQtChartSeriesOptions* options)
 {
   this->Options[name] = options;
+  QObject::connect(options,
+    SIGNAL(dataChanged(int, const QVariant&, const QVariant&)),
+    this, SLOT(optionsChanged(int, const QVariant&, const QVariant&)));
 }
 
 //----------------------------------------------------------------------------
 void vtkQtChartNamedSeriesOptionsModel::removeOptions(const QString& name)
 {
+  if (this->Options.contains(name))
+    {
+    QObject::disconnect(this->Options[name], 0, this, 0);
+    }
   this->Options.remove(name);
   this->reset();
 }

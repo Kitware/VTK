@@ -187,9 +187,7 @@ void vtkQtChartLegendManager::insertLayer(int index, vtkQtChartLayer *chart)
         {
         int start = this->getLegendIndex(seriesLayer);
         vtkQtChartLegendModel *legend = this->Legend->getModel();
-        legend->startModifyingData();
         this->insertLegendEntries(legend, start, seriesLayer, model, 0, last);
-        legend->finishModifyingData();
         }
       }
     }
@@ -344,9 +342,7 @@ void vtkQtChartLegendManager::insertModelEntries()
       vtkQtChartSeriesLayer *chart = 0;
       int index = this->getLegendIndex(model, &chart);
       vtkQtChartLegendModel *legend = this->Legend->getModel();
-      legend->startModifyingData();
       this->insertLegendEntries(legend, index, chart, model, 0, last);
-      legend->finishModifyingData();
       }
     }
 }
@@ -361,9 +357,7 @@ void vtkQtChartLegendManager::insertModelEntries(int first, int last)
     vtkQtChartSeriesLayer *chart = 0;
     int index = this->getLegendIndex(model, &chart);
     vtkQtChartLegendModel *legend = this->Legend->getModel();
-    legend->startModifyingData();
     this->insertLegendEntries(legend, index, chart, model, first, last);
-    legend->finishModifyingData();
     }
 }
 
@@ -459,10 +453,17 @@ void vtkQtChartLegendManager::insertLegendEntries(
     vtkQtChartLegendModel *legend, int index, vtkQtChartSeriesLayer *chart,
     vtkQtChartSeriesModel *model, int first, int last)
 {
+  legend->startModifyingData();
   for(int i = first; i <= last; i++)
     {
     legend->insertEntry(index + i, chart->getSeriesIcon(i),
         model->getSeriesName(i).toString());
+    }
+  legend->finishModifyingData();
+  for (int cc=first; cc <= last; cc++)
+    {
+    this->Legend->setEntryVisible(
+      index + cc, chart->getSeriesOptions(cc)->isVisible());
     }
 }
 
