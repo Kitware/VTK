@@ -116,6 +116,7 @@ int TestContingencyStatistics( int, char *[] )
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
   int testIntValue = 0;
+  double testDoubleValue = 0;
 
   vtkIdType n = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
   cout << "## Calculated the following information entropies( grand total: "
@@ -123,6 +124,7 @@ int TestContingencyStatistics( int, char *[] )
        << " ):\n";
 
   testIntValue = outputSummary->GetNumberOfColumns();
+
   if ( testIntValue != nEntropies + 2 )
     {
     vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: " 
@@ -156,8 +158,20 @@ int TestContingencyStatistics( int, char *[] )
              << H[c];
         }
       cout << "\n";
+
+      // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
+      testDoubleValue = H[1] + H[2]; // H(Y|X)+ H(X|Y)
+
+      if ( testDoubleValue > H[0] )
+        {
+        vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
+                               << H[0]
+                               << " < " 
+                               << testDoubleValue 
+                               << " = H(Y|X)+ H(X|Y).");
+        testStatus = 1;
+        }
       }
-    cout << "\n";
     }
 
   cout << "## Calculated the following probabilities:\n";
