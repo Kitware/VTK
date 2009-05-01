@@ -56,6 +56,10 @@ class vtkTexture;
 class vtkTexturedActor2D;
 class vtkTransformCoordinateSystems;
 
+#ifdef VTK_USE_QT
+class vtkQtLabelMapper;
+#endif
+
 class VTK_VIEWS_EXPORT vtkRenderView : public vtkView
 {
 public:
@@ -244,6 +248,10 @@ protected:
   // Called in PrepareForRendering to update the hover text.
   virtual void UpdateHoverText();
 
+  // Description:
+  // Setup the correct pipelines for the given render and placement modes.
+  void SetLabelPlacementAndRenderMode( int placement_mode, int render_mode );
+
   vtkRenderer* Renderer;
   int SelectionMode;
   int InteractionMode;
@@ -261,8 +269,11 @@ protected:
   vtkSmartPointer<vtkPointSetToLabelHierarchy> LabelHierarchy;
   vtkSmartPointer<vtkLabelPlacer>              LabelPlacer;
   vtkSmartPointer<vtkLabeledDataMapper>        LabelMapper;
-  vtkSmartPointer<vtkActor2D>                  LabelActor;
+  vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
   vtkSmartPointer<vtkDynamic2DLabelMapper>     LabelMapper2D;
+#ifdef VTK_USE_QT
+  vtkSmartPointer<vtkQtLabelMapper>            QtLabelMapper;
+#endif
 
   vtkSmartPointer<vtkAppendPoints>               IconAppend;
   vtkSmartPointer<vtkArrayCalculator>            IconSize;

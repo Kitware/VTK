@@ -56,7 +56,11 @@
 #include "vtkTransformCoordinateSystems.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderView, "1.17");
+#ifdef VTK_USE_QT
+#include "vtkQtLabelMapper.h"
+#endif
+
+vtkCxxRevisionMacro(vtkRenderView, "1.18");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -76,7 +80,6 @@ vtkRenderView::vtkRenderView()
   // this will force an initialization of the interaction mode/style.
   this->InteractionMode = -1;
   this->SetInteractionModeTo3D();
-
   this->LabelRenderMode = FREETYPE;
 
   this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
@@ -88,7 +91,7 @@ vtkRenderView::vtkRenderView()
   this->LabelPlacer = vtkSmartPointer<vtkLabelPlacer>::New();
   this->LabelMapper = vtkSmartPointer<vtkLabeledDataMapper>::New();
   this->LabelMapper2D = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
-  this->LabelActor = vtkSmartPointer<vtkActor2D>::New();
+  this->LabelActor = vtkSmartPointer<vtkTexturedActor2D>::New();
 
   this->IconAppend = vtkSmartPointer<vtkAppendPoints>::New();
   this->IconSize = vtkSmartPointer<vtkArrayCalculator>::New();
@@ -135,6 +138,16 @@ vtkRenderView::vtkRenderView()
   this->LabelMapper2D->SetPriorityArrayName("Priority");
   this->LabelMapper2D->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
+
+#ifdef VTK_USE_QT
+  this->QtLabelMapper = vtkSmartPointer<vtkQtLabelMapper>::New();
+  this->QtLabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
+  this->QtLabelMapper->SetLabelMode(VTK_LABEL_FIELD_DATA);
+  this->QtLabelMapper->SetFieldDataName("LabelText");
+  this->QtLabelMapper->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
+#endif
+
   this->LabelActor->PickableOff();
   this->Renderer->AddActor(this->LabelActor);
 
@@ -320,6 +333,9 @@ void vtkRenderView::AddLabels(vtkAlgorithmOutput* conn, vtkTextProperty* prop)
   this->LabelSize->SetFontProperty(prop, id);
   this->LabelMapper->SetLabelTextProperty(prop, id);
   this->LabelMapper2D->SetLabelTextProperty(prop, id);
+#ifdef VTK_USE_QT
+  this->QtLabelMapper->SetLabelTextProperty(prop, id);
+#endif
 }
 
 void vtkRenderView::RemoveLabels(vtkAlgorithmOutput* conn)
@@ -341,6 +357,9 @@ void vtkRenderView::RemoveLabels(vtkAlgorithmOutput* conn)
       this->LabelSize->SetFontProperty(prop, i);
       this->LabelMapper->SetLabelTextProperty(prop, i);
       this->LabelMapper2D->SetLabelTextProperty(prop, i);
+#ifdef VTK_USE_QT
+      this->QtLabelMapper->SetLabelTextProperty(prop, i);
+#endif
       }
     }
 }
@@ -590,65 +609,125 @@ void vtkRenderView::ApplyViewTheme(vtkViewTheme* theme)
 
 void vtkRenderView::SetLabelPlacementMode(int mode)
 {
-  /*
-   <graphviz>
-   // If labeller is LABEL_PLACER:
-   digraph {
-     LabelAppend -> LabelSize -> LabelHierarchy
-     LabelHierarchy -> LabelPlacer
-     LabelPlacer -> LabelMapper -> LabelActor
-     IconAppend -> IconSize -> LabelHierarchy
-     LabelPlacer -> IconTransform -> IconGlyph -> IconMapper -> IconActor
-   }
-   // If labeller is DYNAMIC_2D:
-   digraph {
-     LabelAppend -> LabelMapper2D -> LabelActor
-     IconAppend -> IconSize -> IconTransform -> IconGlyph -> IconMapper -> IconActor
-   }
-   // If labeller is ALL:
-   digraph {
-     LabelAppend -> LabelMapper -> LabelActor
-     IconAppend -> IconSize -> IconTransform -> IconGlyph -> IconMapper -> IconActor
-   }
-   </graphviz>
-  */
-  if (mode == LABEL_PLACER)
-    {
-    this->LabelActor->SetMapper(this->LabelMapper);
-    this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
-    this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
-    }
-  else if (mode == DYNAMIC_2D)
-    {
-    this->LabelActor->SetMapper(this->LabelMapper2D);
-    this->LabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
-    this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
-    }
-  else
-    {
-    this->LabelActor->SetMapper(this->LabelMapper);
-    this->LabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
-    this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
-    }
+  this->SetLabelPlacementAndRenderMode(mode, this->GetLabelRenderMode());
 }
 
 void vtkRenderView::SetLabelRenderMode(int mode)
 {
-  // TODO: Setup global labeller render mode
-  this->LabelRenderMode = mode;
-
-  // Set label render mode of all representations.
-  for (int r = 0; r < this->GetNumberOfRepresentations(); ++r)
-    {
-    vtkRenderedRepresentation* rr =
-      vtkRenderedRepresentation::SafeDownCast(this->GetRepresentation(r));
-    if (rr)
-      {
-      rr->SetLabelRenderMode(mode);
-      }
-    }
+  this->SetLabelPlacementAndRenderMode(this->GetLabelPlacementMode(), mode);
 }
 
+void vtkRenderView::SetLabelPlacementAndRenderMode( int placement_mode, int render_mode )
+{
+  //First, make sure the render mode is set on all the representations.
+  // TODO: Setup global labeller render mode
+  if( render_mode != this->LabelRenderMode )
+    {
+    this->LabelRenderMode = render_mode;
+    
+    // Set label render mode of all representations.
+    for (int r = 0; r < this->GetNumberOfRepresentations(); ++r)
+      {
+      vtkRenderedRepresentation* rr =
+        vtkRenderedRepresentation::SafeDownCast(this->GetRepresentation(r));
+      if (rr)
+        {
+        rr->SetLabelRenderMode(render_mode);
+        }
+      }
+    }
+
+  //Now, setup the pipeline for the various permutations of placement mode 
+  // and render modes...
+  switch( this->LabelRenderMode )
+    {
+    case QT:
+      if (placement_mode == LABEL_PLACER)
+        {
+#ifdef VTK_USE_QT
+        this->LabelActor->SetMapper(this->QtLabelMapper);
+        this->LabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
+        this->QtLabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
+//FIXME - How about labeling with icons?  Is this sufficient?
+        this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
+#else
+      vtkErrorMacro("Qt label rendering not supported.");
+#endif
+        }
+      else if (placement_mode == DYNAMIC_2D)
+        {
+#ifdef VTK_USE_QT
+//FIXME - Qt label rendering doesn't have a dynamic2D label mapper; so,
+//  use freetype dynamic labeling with an error...
+        vtkErrorMacro("Qt-based label rendering is not available with dynamic 2D label placement.  Using freetype-based label rendering.\n");
+        this->LabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
+        this->LabelActor->SetMapper(this->QtLabelMapper);
+        this->QtLabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
+//FIXME - How about labeling with icons?  Is this sufficient?
+        this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
+
+#else
+     vtkErrorMacro("Qt label rendering not supported.");
+#endif
+        }
+      else
+        {
+#ifdef VTK_USE_QT
+        this->LabelActor->SetMapper(this->QtLabelMapper);
+        this->LabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
+        this->QtLabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
+//FIXME - How about labeling with icons?  Is this sufficient?
+        this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
+
+#else
+      vtkErrorMacro("Qt label rendering not supported.");
+#endif
+        }
+      break;
+    default:
+      /*
+        <graphviz>
+        // If labeller is LABEL_PLACER:
+        digraph {
+        LabelAppend -> LabelSize -> LabelHierarchy
+        LabelHierarchy -> LabelPlacer
+        LabelPlacer -> LabelMapper -> LabelActor
+        IconAppend -> IconSize -> LabelHierarchy
+        LabelPlacer -> IconTransform -> IconGlyph -> IconMapper -> IconActor
+        }
+        // If labeller is DYNAMIC_2D:
+        digraph {
+        LabelAppend -> LabelMapper2D -> LabelActor
+        IconAppend -> IconSize -> IconTransform -> IconGlyph -> IconMapper -> IconActor
+        }
+        // If labeller is ALL:
+        digraph {
+        LabelAppend -> LabelMapper -> LabelActor
+        IconAppend -> IconSize -> IconTransform -> IconGlyph -> IconMapper -> IconActor
+        }
+        </graphviz>
+      */
+      if (placement_mode == LABEL_PLACER)
+        {
+        this->LabelActor->SetMapper(this->LabelMapper);
+        this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
+        this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
+        }
+      else if (placement_mode == DYNAMIC_2D)
+        {
+        this->LabelActor->SetMapper(this->LabelMapper2D);
+        this->LabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
+        this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
+        }
+      else
+        {
+        this->LabelActor->SetMapper(this->LabelMapper);
+        this->LabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
+        this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
+        }
+    }
+}
+  
 int vtkRenderView::GetLabelPlacementMode()
 {
   if (this->LabelActor->GetMapper() == this->LabelMapper2D.GetPointer())
