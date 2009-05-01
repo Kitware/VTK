@@ -40,7 +40,7 @@ public:
   vtkstd::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
 };
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.56");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.57");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
@@ -326,6 +326,11 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   vtkAbstractArray *abstractData = NULL;
   vtkDataArray *numericData = NULL;
   vtkStringArray *stringData = NULL;
+
+  if (input->GetNumberOfPoints() == 0)
+    {
+    return;
+    }
 
   vtkPointData *pd = input->GetPointData();
   // figure out what to label, and if we can label it
