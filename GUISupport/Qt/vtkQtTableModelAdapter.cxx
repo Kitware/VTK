@@ -95,15 +95,15 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
   else if (this->SplitMultiComponentColumns)
     {
     this->KeyColumn = -1;
-    int index=0;
+    int key_index=0;
     foreach(QString columnname, this->Internal->ModelColumnNames)
       {
       if (columnname == name)
         {
-        this->KeyColumn = index;
+        this->KeyColumn = key_index;
         break;
         }
-      index++;
+      key_index++;
       }
     }
   else
