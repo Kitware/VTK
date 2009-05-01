@@ -42,8 +42,8 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
-  string treeFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
-  string graphFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
+  string treeFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
+  string graphFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
 
   // We need to put the graph and tree edges in different domains.
   VTK_CREATE(vtkXMLTreeReader, reader1);
@@ -62,23 +62,27 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   reader2->Update();
   
   VTK_CREATE(vtkHierarchicalGraphView, view);
-  view->SetHierarchyFromInputConnection(reader2->GetOutputPort());
-  view->SetGraphFromInputConnection(reader1->GetOutputPort());
-
+  view->SetHierarchyFromInputConnection(reader1->GetOutputPort());
+  view->SetGraphFromInputConnection(reader2->GetOutputPort());
   view->SetVertexColorArrayName("VertexDegree");
   view->SetColorVertices(true);
-  view->SetEdgeColorArrayName("tree edge");
-  view->SetColorEdges(true);
   view->SetVertexLabelArrayName("id");
   view->SetVertexLabelVisibility(true);
+  view->SetScalingArrayName("TreeRadius");
+
+  view->Update(); // Needed for now
+  view->SetGraphEdgeColorArrayName("graph edge");
+  view->SetColorGraphEdgesByArray(true);
+
   VTK_CREATE(vtkCosmicTreeLayoutStrategy, ct);
   ct->SetNodeSizeArrayName("VertexDegree");
   ct->SetSizeLeafNodesOnly(true);
   view->SetLayoutStrategy(ct);
-  view->SetScalingArrayName("TreeRadius");
+
   
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
+  theme->SetLineWidth(3);
   view->ApplyViewTheme(theme);
   theme->Delete();
  
