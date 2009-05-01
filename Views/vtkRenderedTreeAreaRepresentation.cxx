@@ -78,7 +78,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.6");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -788,9 +788,9 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
   return converted;
 }
 
-void vtkRenderedTreeAreaRepresentation::SetupInputConnections()
+void vtkRenderedTreeAreaRepresentation::PrepareInputConnections()
 {
-  this->Superclass::SetupInputConnections();
+  this->Superclass::PrepareInputConnections();
 
   // Tree area connections
   this->TreeLevels->SetInput(this->GetInput(0));
@@ -819,7 +819,7 @@ void vtkRenderedTreeAreaRepresentation::SetupInputConnections()
   for (size_t i = 0; i < numGraphs; ++i)
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
-    p->SetupInputConnections(
+    p->PrepareInputConnections(
       this->GetInput(1, static_cast<int>(i))->GetProducerPort(),
       this->AreaLayout->GetOutputPort(1),
       this->GetAnnotationConnection(),

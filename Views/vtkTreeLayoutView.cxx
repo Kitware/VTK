@@ -58,7 +58,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.16");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.17");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -396,7 +396,7 @@ void vtkTreeLayoutView::SetupRenderWindow(vtkRenderWindow *win)
   win->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
 }
 
-// These should go into AddToView, RemoveFromView, SetupInputConnections
+// These should go into AddToView, RemoveFromView, PrepareInputConnections
 //----------------------------------------------------------------------------
 void vtkTreeLayoutView::AddInputConnection(
   vtkAlgorithmOutput *conn, vtkAlgorithmOutput *selectionConn)

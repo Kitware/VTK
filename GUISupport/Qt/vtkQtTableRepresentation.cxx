@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.9");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -81,7 +81,7 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
 // ----------------------------------------------------------------------
 
 void
-vtkQtTableRepresentation::SetupInputConnections()
+vtkQtTableRepresentation::PrepareInputConnections()
 {
   this->UpdateTable();
 }

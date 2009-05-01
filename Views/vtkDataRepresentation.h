@@ -137,7 +137,7 @@ protected:
   
   // Description:
   // Creates shallow copies of all inputs, which are available to subclasses
-  // through GetInput(), then calls SetupInputConnections() on the subclass.
+  // through GetInput(), then calls PrepareInputConnections() on the subclass.
   virtual int RequestData(
     vtkInformation*,
     vtkInformationVector**,
@@ -194,7 +194,7 @@ protected:
   // Subclasses should override this method, calling GetInput(),
   // GetSelectionConnection(), and GetAnnotationConnection() in order
   // to use possibly new input data objects.
-  virtual void SetupInputConnections() { }
+  virtual void PrepareInputConnections() { }
 
 private:
   vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.

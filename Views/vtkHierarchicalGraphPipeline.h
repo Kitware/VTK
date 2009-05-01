@@ -99,7 +99,7 @@ public:
   // treeConn is the input tree connection.
   // annConn is the annotation link connection.
   // selConn is the selection link connection.
-  virtual void SetupInputConnections(
+  virtual void PrepareInputConnections(
     vtkAlgorithmOutput* graphConn,
     vtkAlgorithmOutput* treeConn,
     vtkAlgorithmOutput* annConn,

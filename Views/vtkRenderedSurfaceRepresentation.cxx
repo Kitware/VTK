@@ -40,7 +40,7 @@
 #include "vtkSelectionLink.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.4");
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
@@ -81,7 +81,7 @@ vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderedSurfaceRepresentation::SetupInputConnections()
+void vtkRenderedSurfaceRepresentation::PrepareInputConnections()
 {
   this->GeometryFilter->SetInput(this->GetInput());
   this->ExtractSelection->SetInput(0, this->GetInput());  

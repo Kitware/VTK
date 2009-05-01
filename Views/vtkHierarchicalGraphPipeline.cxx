@@ -38,7 +38,7 @@
 #include "vtkView.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.4");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -166,7 +166,7 @@ bool vtkHierarchicalGraphPipeline::GetVisibility()
   return this->Actor->GetVisibility() ? true : false;
 }
 
-void vtkHierarchicalGraphPipeline::SetupInputConnections(
+void vtkHierarchicalGraphPipeline::PrepareInputConnections(
   vtkAlgorithmOutput* graphConn,
   vtkAlgorithmOutput* treeConn,
   vtkAlgorithmOutput* annConn,

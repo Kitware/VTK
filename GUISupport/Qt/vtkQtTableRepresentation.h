@@ -108,8 +108,8 @@ public:
   char *LastDataColumn;
 
   // Description:
-  // Setup the input connections to this representation.
-  virtual void SetupInputConnections();
+  // Prepare the input connections to this representation.
+  virtual void PrepareInputConnections();
 
   virtual void ResetModel();
   virtual void CreateSeriesColors();

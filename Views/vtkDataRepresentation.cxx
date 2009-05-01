@@ -78,7 +78,7 @@ public:
 protected:
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomain;
 };
-vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.10");
+vtkCxxRevisionMacro(vtkDataRepresentationInput, "1.11");
 vtkStandardNewMacro(vtkDataRepresentationInput);
 
 //---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.11");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   SelectionLinkInternal, vtkSelectionLink);
@@ -229,7 +229,7 @@ int vtkDataRepresentation::RequestData(
         }
       }
     }
-  this->SetupInputConnections();
+  this->PrepareInputConnections();
   return 1;
 }
 

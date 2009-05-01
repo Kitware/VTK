@@ -215,7 +215,7 @@ protected:
 
   // Description:
   // Sets up the input connections for this representation.
-  virtual void SetupInputConnections();
+  virtual void PrepareInputConnections();
 
   virtual void PrepareForRendering(vtkRenderView* view);
 

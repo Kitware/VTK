@@ -94,7 +94,7 @@ protected:
   
   // Description:
   // Sets the input pipeline connections for this representation.
-  virtual void SetupInputConnections();
+  virtual void PrepareInputConnections();
   
   // Decription:
   // Adds the representation to the view.  This is called from

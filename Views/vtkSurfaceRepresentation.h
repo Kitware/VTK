@@ -68,7 +68,7 @@ protected:
   
   // Description:
   // Sets the input pipeline connection to this representation.
-  virtual void SetupInputConnections();
+  virtual void PrepareInputConnections();
   
   // Description:
   // Internal pipeline objects.

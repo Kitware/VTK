@@ -75,7 +75,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.7");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1158,9 +1158,9 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
   return converted;
 }
 
-void vtkRenderedGraphRepresentation::SetupInputConnections()
+void vtkRenderedGraphRepresentation::PrepareInputConnections()
 {
-  this->Superclass::SetupInputConnections();
+  this->Superclass::PrepareInputConnections();
 
   this->Layout->SetInput(this->GetInput());
   this->ApplyColors->SetInputConnection(1, this->GetAnnotationConnection());
