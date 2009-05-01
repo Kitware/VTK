@@ -39,6 +39,8 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+#include <string.h>
+
 #include <netcdf.h>
 
 #define CALL_NETCDF_GENERIC(call, on_error) \
@@ -153,7 +155,7 @@ int vtkNetCDFCOARDSReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.2");
+vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.3");
 vtkStandardNewMacro(vtkNetCDFCOARDSReader);
 
 //-----------------------------------------------------------------------------
@@ -347,8 +349,8 @@ int vtkNetCDFCOARDSReader::RequestData(vtkInformation *request,
         VTK_CREATE(vtkDoubleArray, newcoords);
         newcoords->SetNumberOfComponents(1);
         newcoords->SetNumberOfTuples(extHi-extLow+1);
-        vtkstd::copy(coords->GetPointer(extLow), coords->GetPointer(extHi+1),
-                     newcoords->GetPointer(0));
+        memcpy(newcoords->GetPointer(0), coords->GetPointer(extLow),
+               (extHi-extLow+1)*sizeof(double));
         coords = newcoords;
         }
       switch (dim)
