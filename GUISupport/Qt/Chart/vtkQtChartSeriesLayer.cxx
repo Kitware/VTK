@@ -210,7 +210,9 @@ void vtkQtChartSeriesLayer::setupOptions(vtkQtChartSeriesOptions* options)
     qobject_cast<vtkQtChartStyleSeriesColors *>(
       manager->getGenerator("Series Colors"));
   options->setDefaultOption(vtkQtChartSeriesOptions::COLORS,
-    styleColors? QVariant(styleColors->getStyleColors(styleindex)) : QVariant());
+    styleColors?
+    QVariant::fromValue<QObject*>(styleColors->getStyleColors(styleindex)) : 
+    QVariant());
 
   vtkQtChartStylePen *stylePen = qobject_cast<vtkQtChartStylePen *>(
     manager->getGenerator("Pen"));

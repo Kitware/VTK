@@ -65,7 +65,7 @@ vtkQtChartSeriesColors *vtkQtChartSeriesOptions::getSeriesColors() const
 //----------------------------------------------------------------------------
 void vtkQtChartSeriesOptions::setSeriesColors(vtkQtChartSeriesColors *colors)
 {
-  this->setGenericOption(COLORS, colors);
+  this->setGenericOption(COLORS, QVariant::fromValue<QObject*>(colors));
 }
 
 //----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void vtkQtChartSeriesOptions::InitializeDefaults()
   this->Defaults[VISIBLE] = true;
   this->Defaults[PEN] = QPen(Qt::red);
   this->Defaults[BRUSH] = QBrush(Qt::red);
-  this->Defaults[COLORS]= 0;
+  this->Defaults[COLORS]= QVariant();
   this->Defaults[AXES_CORNER] = vtkQtChartLayer::BottomLeft;
   this->Defaults[MARKER_STYLE] = vtkQtPointMarker::NoMarker;
   this->Defaults[MARKER_SIZE] = QSizeF(5, 5);
