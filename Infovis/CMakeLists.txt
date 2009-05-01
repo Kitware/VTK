@@ -77,6 +77,7 @@ vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSplineGraphEdges.cxx
 vtkSquarifyLayoutStrategy.cxx
+vtkSpanTreeLayoutStrategy.cxx
 vtkStackedTreeLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkStringToCategory.cxx
@@ -96,6 +97,7 @@ vtkTreeRingToPolyData.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 vtkVertexDegree.cxx
+vtkXGMLReader.cxx
 vtkXMLTreeReader.cxx
 )
 

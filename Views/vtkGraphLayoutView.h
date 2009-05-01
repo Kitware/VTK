@@ -149,6 +149,7 @@ public:
   //  - "Pass Through"  Use locations assigned to the input.
   //  - "Circular"      Places vertices uniformly on a circle.
   //  - "Cone"          Cone tree layout.
+  //  - "Span Tree"     Span Tree Layout.
   // Default is "Simple 2D".
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToRandom()
@@ -173,6 +174,8 @@ public:
     { this->SetLayoutStrategy("Cosmic Tree"); }
   void SetLayoutStrategyToCone()
     { this->SetLayoutStrategy("Cone"); }
+  void SetLayoutStrategyToSpanTree()
+    { this->SetLayoutStrategy("Span Tree"); }
   const char* GetLayoutStrategyName();
 
   // Description:

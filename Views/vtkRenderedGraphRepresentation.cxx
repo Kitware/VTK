@@ -65,6 +65,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
+#include "vtkSpanTreeLayoutStrategy.h"
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
@@ -74,7 +75,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.6");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -748,6 +749,10 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(vtkGraphLayoutStrategy* s
     {
     this->SetLayoutStrategyName("Cone");
     }
+  else if (vtkSpanTreeLayoutStrategy::SafeDownCast(s))
+    {
+    this->SetLayoutStrategyName("Span Tree");
+    }
   else
     {
     this->SetLayoutStrategyName("Unknown");
@@ -806,6 +811,10 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(const char* name)
   else if (str == "cone")
     {
     strategy = vtkSmartPointer<vtkConeLayoutStrategy>::New();
+    }
+  else if (str == "spantree")
+    {
+    strategy = vtkSmartPointer<vtkSpanTreeLayoutStrategy>::New();
     }
   else if (str != "passthrough")
     {

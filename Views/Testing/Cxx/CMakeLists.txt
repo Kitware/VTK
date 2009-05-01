@@ -18,6 +18,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestTreeRingView.cxx
       TestIcicleView.cxx
       TestConeLayoutStrategy.cxx
+      TestSpanTreeLayoutStrategy.cxx
       )
     IF (VTK_USE_QT)
       # add tests that require Qt

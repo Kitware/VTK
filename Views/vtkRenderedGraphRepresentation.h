@@ -173,6 +173,8 @@ public:
     { this->SetLayoutStrategy("Cosmic Tree"); }
   void SetLayoutStrategyToCone()
     { this->SetLayoutStrategy("Cone"); }
+  void SetLayoutStrategyToSpanTree()
+    { this->SetLayoutStrategy("Span Tree"); }
 
   // Description:
   // Set the layout strategy to use coordinates from arrays.
