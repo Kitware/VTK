@@ -84,6 +84,16 @@ int TestContingencyStatistics( int, char *[] )
 
   int nMetricPairs = 3;
 
+  // Entropies in the summary table should normally be retrieved as follows:
+  //   column 2: H(X,Y)
+  //   column 3: H(Y|X)
+  //   column 4: H(X|Y)
+  int iEntropies[] = { 2,
+                       3,
+                       4 }; 
+  int nEntropies = 3; // correct number of entropies reported in the summary table
+  double* H = new double[nEntropies];
+  
   vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   vtkTable* outputData = haruspex->GetOutput( 0 );
@@ -112,26 +122,46 @@ int TestContingencyStatistics( int, char *[] )
        << n
        << " ):\n";
 
-  for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
+  testIntValue = outputSummary->GetNumberOfColumns();
+  if ( testIntValue != nEntropies + 2 )
     {
-    cout << "   ("
-         << outputSummary->GetValue( r, 0 ).ToString()
-         << ", "
-         << outputSummary->GetValue( r, 1 ).ToString()
-         << "):";
-
-    for ( vtkIdType c = 2; c < outputSummary->GetNumberOfColumns(); ++ c )
+    vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: " 
+                           << testIntValue 
+                           << " != " 
+                           << nEntropies + 2
+                           << ".");
+    testStatus = 1;
+    }
+  else
+    {
+    // For each row in the summary table, fetch variable names and information entropies
+    for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
       {
-      cout << ", "
-           << outputSummary->GetColumnName( c )
-           << "="
-           << outputSummary->GetValue( r, c ).ToDouble();
+      // Variable names
+      cout << "   ("
+           << outputSummary->GetValue( r, 0 ).ToString()
+           << ", "
+           << outputSummary->GetValue( r, 1 ).ToString()
+           << "):";
+      
+      
+      // Information entropies
+      for ( vtkIdType c = 0; c < nEntropies; ++ c )
+        {
+        H[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
+
+        cout << ", "
+             << outputSummary->GetColumnName( iEntropies[c] )
+             << "="
+             << H[c];
+        }
+      cout << "\n";
       }
     cout << "\n";
     }
-  cout << "\n";
 
   cout << "## Calculated the following probabilities:\n";
+  testIntValue = 0;
 
   // Skip first row which contains data set cardinality
   vtkIdType key;
@@ -221,6 +251,8 @@ int TestContingencyStatistics( int, char *[] )
     }
   cout << "\n";
 
+  // Clean up
+  delete [] H;
   haruspex->Delete();
 
   return testStatus;
