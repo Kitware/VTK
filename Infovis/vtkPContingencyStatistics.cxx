@@ -40,7 +40,7 @@
 #define DEBUG_PARALLEL_CONTINGENCY_STATISTICS 1
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.18");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.19");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -217,6 +217,16 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     kcValues_g = new vtkIdType[kcSizeTotal];
     }
   
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  cout << "## Process "
+       << myRank
+       << " sending character string of size "
+       << xySize_l
+       << " and integer array of size "
+       << kcSize_l
+       << "\n";
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
   // Gather all xyPacked and kcValues on process reduceProc
   // NB: GatherV because the packets have variable lengths
   if ( ! com->GatherV( &(*xyPacked_l.begin()),
@@ -364,9 +374,9 @@ bool vtkPContingencyStatistics::Reduce( char* xyPacked_g,
                                         vtkstd::vector<vtkIdType>& kcValues_l )
 {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  cout << "## Reduction step, character string size: "
+  cout << "## Reduce received character string of size "
        << xySizeTotal
-       << ", integer array size: "
+       << " and integer array of size "
        << kcSizeTotal
        << "\n";
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
