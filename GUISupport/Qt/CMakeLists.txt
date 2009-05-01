@@ -50,7 +50,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtBarChartView.cxx
       vtkQtChartRepresentation.cxx
       vtkQtChartView.cxx
-      vtkQtColumnView.cxx
       vtkQtLineChartView.cxx
       vtkQtListView.cxx
       vtkQtRecordView.cxx
@@ -65,7 +64,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
       vtkQtBarChartView.h
       vtkQtChartView.h
-      vtkQtColumnView.h
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h
@@ -73,6 +71,15 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtTreeView.h
       vtkQtView.h
       )
+    # Column view is only supported in Qt >= 4.3.0
+    STRING(REGEX MATCH "^4\\.0\\.[0-9]+" QT_VERSION_4_0 "${QTVERSION}")
+    STRING(REGEX MATCH "^4\\.1\\.[0-9]+" QT_VERSION_4_1 "${QTVERSION}")
+    STRING(REGEX MATCH "^4\\.2\\.[0-9]+" QT_VERSION_4_2 "${QTVERSION}")
+    IF(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
+    ELSE(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
+      SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtColumnView.cxx)
+      SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtColumnView.h)
+    ENDIF(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
   ENDIF(VTK_USE_VIEWS)
   
   # help CMake fine QtDesigner on Mac (binary install)
