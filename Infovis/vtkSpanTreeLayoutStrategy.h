@@ -62,8 +62,6 @@
 #define __vtkSpanTreeLayoutStrategy_h
 
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkPoints.h"
-
 
 class VTK_INFOVIS_EXPORT vtkSpanTreeLayoutStrategy : public vtkGraphLayoutStrategy 
 {
