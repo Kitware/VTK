@@ -24,7 +24,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.23");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.23.14.1");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -151,7 +151,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       if(view_for_mouse != ren->GetWindowId())
         return eventNotHandledErr;
 
-      GetEventParameter(event, kEventParamMouseLocation, typeHIPoint,
+      GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint,
                         NULL, sizeof(HIPoint), NULL, &mouseLoc);
       
       HIViewConvertPoint(&mouseLoc, root_window, ren->GetWindowId());
