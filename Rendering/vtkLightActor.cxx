@@ -25,7 +25,7 @@
 #include "vtkProperty.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkLightActor, "1.1");
+vtkCxxRevisionMacro(vtkLightActor, "1.1.2.1");
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 
@@ -183,7 +183,7 @@ void vtkLightActor::UpdateViewProps()
 {
   if(this->Light==0)
     {
-    vtkErrorMacro(<< "no light.");
+    vtkDebugMacro(<< "no light.");
     return;
     }
   double angle=this->Light->GetConeAngle();
