@@ -52,6 +52,10 @@ public:
   vtkSetMacro(SphericalCoordinates, int);
   vtkBooleanMacro(SphericalCoordinates, int);
 
+  // Description:
+  // Returns true if the given file can be read.
+  static int CanReadFile(const char *filename);
+
 protected:
   vtkNetCDFCOARDSReader();
   ~vtkNetCDFCOARDSReader();

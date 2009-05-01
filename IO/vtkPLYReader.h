@@ -47,6 +47,10 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // A simple, non-exhaustive check to see if a file is a valid ply file.
+  static int CanReadFile(const char *filename);
+
 protected:
   vtkPLYReader();
   ~vtkPLYReader();

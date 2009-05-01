@@ -81,6 +81,13 @@ public:
   vtkSetClampMacro(PartNumber,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(PartNumber,int);
 
+  // Description:
+  // Returns 1 if this file can be read and 0 if the file cannot be read.
+  // Because BYU files do not have anything in the header specifying the file
+  // type, the result is not definitive.  Invalid files may still return 1
+  // although a valid file will never return 0.
+  static int CanReadFile(const char *filename);
+
 protected:
   vtkBYUReader();
   ~vtkBYUReader();

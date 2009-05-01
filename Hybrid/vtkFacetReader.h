@@ -50,6 +50,8 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  static int CanReadFile(const char *filename);
+
 protected:
   vtkFacetReader();
   ~vtkFacetReader();

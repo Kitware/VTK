@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.86");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.87");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -177,6 +177,16 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
   delete this->TranslationTable;
 }
 
+//-----------------------------------------------------------------------------
+int vtkGenericEnSightReader::CanReadFile(const char *casefilename)
+{
+  vtkGenericEnSightReader *reader = vtkGenericEnSightReader::New();
+  reader->SetCaseFileName(casefilename);
+  int type = reader->DetermineEnSightVersion(1);
+  reader->Delete();
+  return (type != -1);
+}
+
 //----------------------------------------------------------------------------
 int vtkGenericEnSightReader::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -264,7 +274,7 @@ void vtkGenericEnSightReader::SetTimeValue(float value)
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericEnSightReader::DetermineEnSightVersion()
+int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 {
   char line[256], subLine[256], subLine1[256], subLine2[256], binaryLine[81];
   char *binaryLinePtr;
@@ -275,7 +285,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   
   if (!this->CaseFileName)
     {
-    vtkErrorMacro("A case file name must be specified.");
+    if (!quiet) vtkErrorMacro("A case file name must be specified.");
     return -1;
     }
   vtkstd::string sfilename = "";
@@ -298,7 +308,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    if (!quiet) vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return -1;
@@ -353,8 +363,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           
             if (!fileName)
               {
-              vtkErrorMacro(
-                "A GeometryFileName must be specified in the case file.");
+              if (!quiet)
+                {
+                vtkErrorMacro(
+                      "A GeometryFileName must be specified in the case file.");
+                }
               return 0;
               }
             if (strrchr(fileName, '*') != NULL)
@@ -364,8 +377,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
               // file set and fill in wildcards from there.
               if ( this->ReplaceWildcards(fileName, timeSet, fileSet) == 0 )
                 {
-                vtkErrorMacro(
-                  "upon DetermineEnSightVersion()'s call to ReplaceWildCards()");
+                if (!quiet)
+                  {
+                  vtkErrorMacro(
+                    "upon DetermineEnSightVersion()'s call to ReplaceWildCards()");
+                  }
                 return -1;
                 }
               }
@@ -391,8 +407,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             this->IFile = fopen(sfilename.c_str(), "rb");
             if (this->IFile == NULL)
               {
-              vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-              vtkWarningMacro("Assuming binary file.");
+              if (!quiet)
+                {
+                vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+                vtkWarningMacro("Assuming binary file.");
+                }
               this->IFile = NULL;
               delete [] fileName;
               return vtkGenericEnSightReader::ENSIGHT_GOLD_BINARY;
@@ -467,8 +486,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         this->IS = NULL;
         if (!fileName)
           {
-          vtkErrorMacro(
-            "A GeometryFileName must be specified in the case file.");
+          if (!quiet)
+            {
+            vtkErrorMacro(
+                      "A GeometryFileName must be specified in the case file.");
+            }
           return 0;
           }
         if (strrchr(fileName, '*') != NULL)
@@ -500,8 +522,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         this->IFile = fopen(sfilename.c_str(), "rb");
         if (this->IFile == NULL)
           {
-          vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-          vtkWarningMacro("Assuming binary file.");
+          if (!quiet)
+            {
+            vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+            vtkWarningMacro("Assuming binary file.");
+            }
           this->IFile = NULL;
           delete [] fileName;
           return vtkGenericEnSightReader::ENSIGHT_6_BINARY;
