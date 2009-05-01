@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.8");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -100,8 +100,10 @@ vtkQtTableRepresentation::SetKeyColumn(const char *col)
   this->SetKeyColumnInternal(col);
   this->ModelAdapter->SetKeyColumn(-1);
   this->Modified();
-  // Is this really good? We never call Update() in algorithms.
-  this->Update();
+  // We don't call Update(), representations should not call Update() on
+  // themselves when their ivars are changed. It's almost like a vtkAlgorithm
+  // calling Update() on itself when an ivar change which is not recommended.
+  //this->Update();
 }
 
 // ----------------------------------------------------------------------
