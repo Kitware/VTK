@@ -64,7 +64,7 @@ public:
   virtual int getOptionsIndex(vtkQtChartSeriesOptions *options) const;
 
   // this will create new options if none exist.
-  vtkQtChartSeriesOptions* getOptions(const QString& name) const;
+  vtkQtChartSeriesOptions* getOptions(const QString& name);
 
   /// Returns the name for series at the given index.
   QString getSeriesName(int series) const;

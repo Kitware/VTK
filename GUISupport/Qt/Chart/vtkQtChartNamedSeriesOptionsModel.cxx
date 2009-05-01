@@ -105,11 +105,8 @@ void vtkQtChartNamedSeriesOptionsModel::insertSeriesOptions(int first, int last)
   for (int cc=first; cc <=last; cc++)
     {
     QString name = this->Model->getSeriesName(cc).toString();
-    if (!this->Options.contains(name))
-      {
-      vtkQtChartSeriesOptions* options = this->newOptions(this);
-      this->addOptions(name, options);
-      }
+    // this will create new options if needed.
+    this->getOptions(name);
     }
   emit this->optionsInserted(first, last);
 }
@@ -122,14 +119,16 @@ QString vtkQtChartNamedSeriesOptionsModel::getSeriesName(int series) const
 
 //----------------------------------------------------------------------------
 vtkQtChartSeriesOptions* vtkQtChartNamedSeriesOptionsModel::getOptions(
-  const QString& name) const
+  const QString& name)
 {
   if (this->Options.contains(name))
     {
     return this->Options[name];
     }
 
-  return 0;
+  vtkQtChartSeriesOptions* options = this->newOptions(this);
+  this->addOptions(name, options);
+  return options;
 }
 
 //----------------------------------------------------------------------------
@@ -137,9 +136,6 @@ void vtkQtChartNamedSeriesOptionsModel::addOptions(
   const QString& name, vtkQtChartSeriesOptions* options)
 {
   this->Options[name] = options;
-  QObject::connect(options,
-    SIGNAL(dataChanged(int, const QVariant&, const QVariant&)),
-    this, SLOT(optionsChanged(int, const QVariant&, const QVariant&)));
 }
 
 //----------------------------------------------------------------------------
