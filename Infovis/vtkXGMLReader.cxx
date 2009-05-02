@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 // Copied from vtkTulipReader.cxx ..
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkXGMLReader, "1.1");
+vtkCxxRevisionMacro(vtkXGMLReader, "1.2");
 vtkStandardNewMacro(vtkXGMLReader);
 
 vtkXGMLReader::vtkXGMLReader()
@@ -319,6 +319,7 @@ int vtkXGMLReader::RequestData(
           }
         else if (property_table[i].Data->GetDataType() == VTK_DOUBLE)
           {
+          d = 0;
           if (tok.Type == vtkXGMLReaderToken::DOUBLE)
             d = tok.DoubleValue;
           else if (tok.Type == vtkXGMLReaderToken::INT)
