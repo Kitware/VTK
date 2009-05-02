@@ -9,6 +9,7 @@
 #include "vtkSmartPointer.h"
 
 #include <QCache>
+#include <QPainterPath>
 
 class QVTKPaintEngineInternal
 {
