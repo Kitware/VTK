@@ -330,7 +330,12 @@ void vtkSpanTreeLayoutStrategy::Layout()
 void vtkSpanTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGraphLayoutStrategy::PrintSelf(os,indent);
-  os << indent << "vtkSpanTreeLayoutStrategy\n";
+  os << indent << "TreeLayout: " << (this->TreeLayout ? "" : "(none)") << endl;
+  if (this->TreeLayout)
+    {
+    this->TreeLayout->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "DepthFirstSpanningTree: " << (this->DepthFirstSpanningTree ? "On" : "Off") << endl;
 }
 
 
