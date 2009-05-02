@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 // Copied from vtkTulipReader.cxx ..
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkXGMLReader, "1.2");
+vtkCxxRevisionMacro(vtkXGMLReader, "1.3");
 vtkStandardNewMacro(vtkXGMLReader);
 
 vtkXGMLReader::vtkXGMLReader()
@@ -187,7 +187,7 @@ int vtkXGMLReader::RequestData(
   vtkStdString name;
   int kind;
   int i;
-  vtkIdType id, src, dst;
+  vtkIdType dst, id = 0, src = 0;
   double d;
   vtkIdTypeArray *edgeIds, *nodeIds;
   

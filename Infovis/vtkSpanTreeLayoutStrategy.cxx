@@ -103,6 +103,8 @@ void vtkSpanTreeLayoutStrategy::Layout()
   // Auxiliary structures for placing bends into edges.
   _vtkBridge_s *editlist;
   _vtkBridge_s link;
+  link.delta = 0;
+  link.anchor[1] = 0;
   vtkIdType editsize;
   vtkEdgeType edge;
   vtkIdType i, nrNodes, nrEdges;
