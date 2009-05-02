@@ -34,6 +34,7 @@
 #include <QPixmap>
 #include <QHash>
 #include <QMap>
+#include <QPair>
 
 //----------------------------------------------------------------------------
 class vtkQtTableModelAdapter::vtkInternal {
