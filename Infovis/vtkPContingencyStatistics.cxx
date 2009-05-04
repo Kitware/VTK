@@ -39,8 +39,12 @@
 // For debugging purposes, output message sizes
 #define DEBUG_PARALLEL_CONTINGENCY_STATISTICS 1
 
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+#include "vtkTimerLog.h"
+#endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.19");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.20");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -374,6 +378,9 @@ bool vtkPContingencyStatistics::Reduce( char* xyPacked_g,
                                         vtkstd::vector<vtkIdType>& kcValues_l )
 {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timer=vtkTimerLog::New();
+  timer->StartTimer();
+
   cout << "## Reduce received character string of size "
        << xySizeTotal
        << " and integer array of size "
@@ -441,6 +448,17 @@ bool vtkPContingencyStatistics::Reduce( char* xyPacked_g,
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
   xySizeTotal = xyPacked_l.size();
   kcSizeTotal = kcValues_l.size();
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->StopTimer();
+
+  cout<< "## Reduce completed in "
+      << timer->GetElapsedTime()
+      << " seconds."
+      << "\n";
+
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   return false;
 }
