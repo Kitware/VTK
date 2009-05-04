@@ -22,8 +22,10 @@
 #include <vtkstd/iterator>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.80");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.81");
 vtkStandardNewMacro(vtkColorTransferFunction);
+
+#define MY_MAX(x, y) ((x) > (y) ? (x) : (y))
 
 //=============================================================================
 class vtkCTFNode
@@ -181,14 +183,16 @@ inline void vtkColorTransferFunctionInterpolateDiverging(double s,
     {
     // Insert the white midpoint by setting one end to white and adjusting the
     // scalar value.
+    double Mmid = MY_MAX(msh1[0], msh2[0]);
+    Mmid = MY_MAX(88.0, Mmid);
     if (s < 0.5)
       {
-      msh2[0] = 95.0;  msh2[1] = 0.0;  msh2[2] = 0.0;
+      msh2[0] = Mmid;  msh2[1] = 0.0;  msh2[2] = 0.0;
       s = 2.0*s;
       }
     else
       {
-      msh1[0] = 95.0;  msh1[1] = 0.0;  msh1[2] = 0.0;
+      msh1[0] = Mmid;  msh1[1] = 0.0;  msh1[2] = 0.0;
       s = 2.0*s - 1.0;
       }
     }

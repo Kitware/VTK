@@ -36,7 +36,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.132");
+vtkCxxRevisionMacro(vtkMath, "1.133");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2804,21 +2804,19 @@ void vtkMath::XYZToRGB(double x, double y, double z,
   *b = x *  0.0557 + y * -0.2040 + z *  1.0570;
 
   // The following performs a "gamma correction" specified by the sRGB color
-  // space.  sRGB is defined by a cononical definition of a display monitor and
+  // space.  sRGB is defined by a canonical definition of a display monitor and
   // has been standardized by the International Electrotechnical Commission (IEC
-  // 61966-2-1).  However, it is a non-linear color space, which means that it
-  // will invalidate the color computations done by OpenGL.  Furthermore, most
-  // OS or display drivers will do some gamma correction on there own, so
-  // displaying these colors directly usually results in overly bright images.
-  // Thus, the non-linear RGB values are inappropriate for VTK, so the code is
-  // commented out.  If someone needs sRGB values in the future, there should be
-  // a separate set of color conversion functions for that.
-//   if (*r > 0.0031308) *r = 1.055 * (pow(*r, ( 1 / 2.4 ))) - 0.055;
-//   else *r = 12.92 * (*r);
-//   if (*g > 0.0031308) *g = 1.055 * (pow(*g ,( 1 / 2.4 ))) - 0.055;
-//   else  *g = 12.92 * )*g);
-//   if (*b > 0.0031308) *b = 1.055 * (pow(*b, ( 1 / 2.4 ))) - 0.055;
-//   else *b = 12.92 * (*b);
+  // 61966-2-1).  The nonlinearity of the correction is designed to make the
+  // colors more perceptually uniform.  This color space has been adopted by
+  // several applications including Adobe Photoshop and Microsoft Windows color
+  // management.  OpenGL is agnostic on its RGB color space, but it is reasonable
+  // to assume it is close to this one.
+  if (*r > 0.0031308) *r = 1.055 * (pow(*r, ( 1 / 2.4 ))) - 0.055;
+  else *r = 12.92 * (*r);
+  if (*g > 0.0031308) *g = 1.055 * (pow(*g ,( 1 / 2.4 ))) - 0.055;
+  else  *g = 12.92 * (*g);
+  if (*b > 0.0031308) *b = 1.055 * (pow(*b, ( 1 / 2.4 ))) - 0.055;
+  else *b = 12.92 * (*b);
   
   // Clip colors. ideally we would do something that is perceptually closest
   // (since we can see colors outside of the display gamut), but this seems to
@@ -2850,22 +2848,20 @@ double *vtkMath::XYZToRGB(const double xyz[3])
 void vtkMath::RGBToXYZ(double r, double g, double b,
                        double *x, double *y, double *z)
 {
-  // The following performs an inverse "gamma correction" specified by the sRGB
-  // color space.  sRGB is defined by a cononical definition of a display
-  // monitor and has been standardized by the International Electrotechnical
-  // Commission (IEC 61966-2-1).  However, it is a non-linear color space, which
-  // means that it will invalidate the color computations done by OpenGL.
-  // Furthermore, most OS or display drivers will do some gamma correction on
-  // there own, so displaying these colors directly usually results in overly
-  // bright images.  Thus, the non-linear RGB values are inappropriate for VTK,
-  // so the code is commented out.  If someone needs sRGB values in the future,
-  // there should be a separate set of color conversion functions for that.
-//   if ( r > 0.04045 ) r = pow(( r + 0.055 ) / 1.055, 2.4);
-//   else               r = r / 12.92;
-//   if ( g > 0.04045 ) g = pow(( g + 0.055 ) / 1.055, 2.4);
-//   else               g = g / 12.92;
-//   if ( b > 0.04045 ) b = pow(( b + 0.055 ) / 1.055, 2.4);
-//   else               b = b / 12.92;
+  // The following performs a "gamma correction" specified by the sRGB color
+  // space.  sRGB is defined by a canonical definition of a display monitor and
+  // has been standardized by the International Electrotechnical Commission (IEC
+  // 61966-2-1).  The nonlinearity of the correction is designed to make the
+  // colors more perceptually uniform.  This color space has been adopted by
+  // several applications including Adobe Photoshop and Microsoft Windows color
+  // management.  OpenGL is agnostic on its RGB color space, but it is reasonable
+  // to assume it is close to this one.
+  if ( r > 0.04045 ) r = pow(( r + 0.055 ) / 1.055, 2.4);
+  else               r = r / 12.92;
+  if ( g > 0.04045 ) g = pow(( g + 0.055 ) / 1.055, 2.4);
+  else               g = g / 12.92;
+  if ( b > 0.04045 ) b = pow(( b + 0.055 ) / 1.055, 2.4);
+  else               b = b / 12.92;
 
   //Observer. = 2 deg, Illuminant = D65
   *x = r * 0.4124 + g * 0.3576 + b * 0.1805;
