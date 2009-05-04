@@ -84,6 +84,10 @@ public:
   // a copy of the selection of another annotation.
   virtual void DeepCopy(vtkDataObject* other);
 
+  // Description:
+  // Get the modified time of this object.
+  virtual unsigned long GetMTime();
+
 //BTX
 protected:
   vtkAnnotation();

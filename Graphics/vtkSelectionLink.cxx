@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkSelectionLink, "1.5");
+vtkCxxRevisionMacro(vtkSelectionLink, "1.6");
 vtkStandardNewMacro(vtkSelectionLink);
 //----------------------------------------------------------------------------
 vtkSelectionLink::vtkSelectionLink()
@@ -158,6 +158,29 @@ int vtkSelectionLink::FillOutputPortInformation(int port, vtkInformation* info)
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkSelectionLink::GetMTime()
+{
+  unsigned long mtime = this->Superclass::GetMTime();
+  if (this->Selection)
+    {
+    unsigned long stime = this->Selection->GetMTime();
+    if (stime > mtime)
+      {
+      mtime = stime;
+      }
+    }
+  if (this->DomainMaps)
+    {
+    unsigned long dtime = this->DomainMaps->GetMTime();
+    if (dtime > mtime)
+      {
+      mtime = dtime;
+      }
+    }
+  return mtime;
 }
 
 //----------------------------------------------------------------------------

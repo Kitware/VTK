@@ -50,6 +50,10 @@ public:
   void RemoveAllDomainMaps();
   int GetNumberOfDomainMaps();
   vtkTable* GetDomainMap(int i);
+
+  // Description:
+  // Get the mtime of this object.
+  virtual unsigned long GetMTime();
   
 protected:
   vtkSelectionLink();

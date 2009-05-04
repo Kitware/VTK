@@ -29,7 +29,7 @@
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkAnnotation, "1.3");
+vtkCxxRevisionMacro(vtkAnnotation, "1.4");
 vtkStandardNewMacro(vtkAnnotation);
 
 vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
@@ -94,6 +94,20 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
   vtkSmartPointer<vtkSelection> sel = vtkSmartPointer<vtkSelection>::New();
   sel->DeepCopy(obj->GetSelection());
   this->SetSelection(sel);
+}
+
+unsigned long vtkAnnotation::GetMTime()
+{
+  unsigned long mtime = this->Superclass::GetMTime();
+  if (this->Selection)
+    {
+    unsigned long stime = this->Selection->GetMTime();
+    if (stime > mtime)
+      {
+      mtime = stime;
+      }
+    }
+  return mtime;
 }
 
 vtkAnnotation* vtkAnnotation::GetData(vtkInformation* info)

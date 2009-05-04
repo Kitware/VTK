@@ -33,6 +33,7 @@
 #include "vtkDataObject.h"
 
 class vtkAnnotation;
+class vtkSelection;
 
 class VTK_FILTERING_EXPORT vtkAnnotationLayers : public vtkDataObject
 {
@@ -42,41 +43,31 @@ public:
   static vtkAnnotationLayers* New();
 
   // Description:
-  // The number of layers of annotations.
-  unsigned int GetNumberOfLayers();
+  // The current annotation associated with this annotation link.
+  virtual void SetCurrentAnnotation(vtkAnnotation* ann);
+  vtkGetObjectMacro(CurrentAnnotation, vtkAnnotation);
+
+  // Description:
+  // The current selection associated with this annotation link.
+  // This is simply the selection contained in the current annotation.
+  virtual void SetCurrentSelection(vtkSelection* sel);
+  virtual vtkSelection* GetCurrentSelection();
 
   // Description:
   // The number of annotations in a specific layer.
-  unsigned int GetNumberOfAnnotations(unsigned int layer);
+  unsigned int GetNumberOfAnnotations();
 
   // Description:
   // Retrieve an annotation from a layer.
-  vtkAnnotation* GetAnnotation(unsigned int layer, unsigned int idx);
+  vtkAnnotation* GetAnnotation(unsigned int idx);
 
   // Description:
   // Add an annotation to a layer.
-  void AddAnnotation(unsigned int layer, vtkAnnotation* ann);
+  void AddAnnotation(vtkAnnotation* ann);
 
   // Description:
   // Remove an annotation from a layer.
-  void RemoveAnnotation(unsigned int layer, vtkAnnotation* ann);
-
-  // Description:
-  // Add an empty annotation layer to the top of the layer stack.
-  void AddLayer()
-    { this->InsertLayer(this->GetNumberOfLayers()); }
-
-  // Description:
-  // Insert an empty annotation layer at the specified index.
-  // This increases the index of existing layers with index >= layer
-  // by 1.
-  void InsertLayer(unsigned int layer);
-
-  // Description:
-  // Remove an annotation layer.
-  // This decreases the index of existing layers with index >= layer
-  // by 1.
-  void RemoveLayer(unsigned int layer);
+  void RemoveAnnotation(vtkAnnotation* ann);
 
   // Description:
   // Initialize the data structure to an empty state.
@@ -97,6 +88,10 @@ public:
   static vtkAnnotationLayers* GetData(vtkInformation* info);
   static vtkAnnotationLayers* GetData(vtkInformationVector* v, int i=0);
 
+  // Description:
+  // The modified time for this object.
+  virtual unsigned long GetMTime();
+
 //BTX
 protected:
   vtkAnnotationLayers();
@@ -104,6 +99,7 @@ protected:
 
   class Internals;
   Internals* Implementation;
+  vtkAnnotation* CurrentAnnotation;
 
 private:
   vtkAnnotationLayers(const vtkAnnotationLayers&);  // Not implemented.
@@ -112,4 +108,3 @@ private:
 };
 
 #endif
-
