@@ -216,7 +216,7 @@ virtual type *Get##name ()                                              \
 // Set method must be defined to use this macro.
 //
 #define vtkBooleanMacro(name,type) \
-  virtual void name##On () { this->Set##name(static_cast<type>(1));};   \
+  virtual void name##On () { this->Set##name(static_cast<type>(1));}   \
   virtual void name##Off () { this->Set##name(static_cast<type>(0));}
 
 //
