@@ -28,13 +28,14 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkVariantArray.h"
 
 //
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.22");
+vtkCxxRevisionMacro(vtkTable, "1.23");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -512,6 +513,24 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
       {
       // Create a variant holding a vtkStringArray with one tuple.
       vtkStringArray* sa = vtkStringArray::New();
+      sa->SetNumberOfComponents(comps);
+      sa->InsertNextTuple(row, data);
+      vtkVariant v(sa);
+      sa->Delete();
+      return v;
+      }
+    }
+  else if (vtkUnicodeStringArray::SafeDownCast(arr))
+    {
+    vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+    if (comps == 1)
+      {
+      return vtkVariant(data->GetValue(row));
+      }
+    else
+      {
+      // Create a variant holding a vtkStringArray with one tuple.
+      vtkUnicodeStringArray* sa = vtkUnicodeStringArray::New();
       sa->SetNumberOfComponents(comps);
       sa->InsertNextTuple(row, data);
       vtkVariant v(sa);

@@ -646,6 +646,10 @@ vtkStdString vtkVariant::ToString() const
     {
     return vtkStdString(*(this->Data.String));
     }
+  if (this->IsUnicodeString())
+    {
+    return vtkUnicodeString(*(this->Data.UnicodeString)).utf8_str();
+    }
   if (this->IsFloat())
     {
     vtksys_ios::ostringstream ostr;
