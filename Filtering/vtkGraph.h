@@ -542,6 +542,11 @@ public:
   // this vtkGraph object.
   vtkGraphInternals *GetGraphInternals(bool modifying);
 
+  // Description:
+  // Fills a list of edge indices with the edges contained in the induced
+  // subgraph formed by the vertices in the vertex list.
+  void GetInducedEdges(vtkIdTypeArray* verts, vtkIdTypeArray* edges);
+
 protected:
   //BTX
   vtkGraph();

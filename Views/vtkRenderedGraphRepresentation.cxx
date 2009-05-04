@@ -45,6 +45,7 @@
 #include "vtkGraphToGlyphs.h"
 #include "vtkGraphToPoints.h"
 #include "vtkGraphToPolyData.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -75,7 +76,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.8");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1078,7 +1079,7 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
   edgeNode->GetProperties()->Remove(vtkSelectionNode::PROP());
 
   vtkSelection* converted = vtkSelection::New();
-  vtkDataObject* input = this->GetInput();
+  vtkGraph* input = vtkGraph::SafeDownCast(this->GetInput());
   if (input)
     {
     bool selectedVerticesFound = false;
@@ -1114,7 +1115,30 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
         if (vertexConverted->GetNode(i)->GetSelectionList()->
             GetNumberOfTuples() > 0)
           {
+          // Select all the edges among selected vertices.
           selectedVerticesFound = true;
+          vtkSmartPointer<vtkIdTypeArray> selectedVerts =
+            vtkSmartPointer<vtkIdTypeArray>::New();
+          vtkConvertSelection::GetSelectedVertices(
+            vertexConverted, input, selectedVerts);
+          vtkSmartPointer<vtkIdTypeArray> selectedEdges =
+            vtkSmartPointer<vtkIdTypeArray>::New();
+          input->GetInducedEdges(selectedVerts, selectedEdges);
+          vtkSmartPointer<vtkSelection> edgeSelection =
+            vtkSmartPointer<vtkSelection>::New();
+          vtkSmartPointer<vtkSelectionNode> edgeSelectionNode =
+            vtkSmartPointer<vtkSelectionNode>::New();
+          edgeSelectionNode->SetSelectionList(selectedEdges);
+          edgeSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+          edgeSelectionNode->SetFieldType(vtkSelectionNode::EDGE);
+          edgeSelection->AddNode(edgeSelectionNode);
+          vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
+            edgeSelection, input, view->GetSelectionType());
+          if (edgeConverted->GetNumberOfNodes() > 0)
+            {
+            converted->AddNode(edgeConverted->GetNode(0));
+            }
+          edgeConverted->Delete();
           }
         converted->AddNode(vertexConverted->GetNode(i));
         }
