@@ -46,6 +46,7 @@ struct RandomContingencyStatisticsArgs
 {
   int nVals;
   double span;
+  double absTol;
   int* retVal;
   int ioRank;
   int argc;
@@ -191,7 +192,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << cdf_g[i]
            << "\n";
       
-      if ( fabs ( 1. - cdf_g[i] ) > 1.e-6 )
+      if ( fabs ( 1. - cdf_g[i] ) > args->absTol )
         {
         vtkGenericWarningMacro("Incorrect CDF.");
         *(args->retVal) = 1;
@@ -286,8 +287,9 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomContingencyStatisticsArgs args;
-  args.nVals = 100000;
+  args.nVals = 1000000;
   args.span = 50.;
+  args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.argc = argc;
