@@ -76,7 +76,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.9");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1062,6 +1062,7 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
         {
         vertexNode->ShallowCopy(node);
         edgeNode->ShallowCopy(node);
+        foundEdgeNode = true;
         }
       else if (prop == this->VertexActor.GetPointer())
         {
