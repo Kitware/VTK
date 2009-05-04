@@ -15,11 +15,16 @@
 // .NAME vtkPExtractArraysOverTime - extract point or cell data over time (parallel)
 // .SECTION Description
 // vtkPExtractArraysOverTime is a parallelized version of
-// vtkExtractArraysOverTime. After the data is extracted, it is gathered to
-// the first node. During this reduction process, only data points that are
-// valid are copied: if the point/cell extracted is not available on a
-// particular processor, it is marked as invalid during extraction by the
-// superclass.
+// vtkExtractArraysOverTime. 
+// vtkExtractArraysOverTime extract point or cell data given a selection. For
+// every cell or point extracted, vtkExtractArraysOverTime create a vtkTable
+// that is placed in an appropriately named block in an output multi-block
+// dataset. For global-id based selections or location based selections, it's
+// possible that over time the cell/point moves across processes. This filter
+// ensures that such extractions spread across processes are combined correctly
+// into a single vtkTable.
+// This filter produces a valid output on the root node alone, all other nodes,
+// simply have empty multi-block datasets.
 // .SECTION See Also
 // vtkExtractArraysOverTime
 
@@ -29,6 +34,7 @@
 #include "vtkExtractArraysOverTime.h"
 
 class vtkMultiProcessController;
+class vtkTable;
 
 class VTK_PARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkExtractArraysOverTime
 {
@@ -56,8 +62,9 @@ protected:
   virtual void PostExecute(vtkInformation* request,
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector);
-  void AddRemoteData(vtkTable* routput,
-                     vtkTable* output);
+  void AddRemoteData(vtkMultiBlockDataSet* routput,
+                     vtkMultiBlockDataSet* output);
+  void MergeTables(vtkTable* routput, vtkTable* output);
 
   vtkMultiProcessController* Controller;
 

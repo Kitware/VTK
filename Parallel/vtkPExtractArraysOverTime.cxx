@@ -14,18 +14,21 @@
 =========================================================================*/
 #include "vtkPExtractArraysOverTime.h"
 
+#include "vtkCompositeDataIterator.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkInformationVector.h"
+#include "vtkInformation.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkSelectionNode.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.8");
+#include <vtkstd/string>
+
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
-
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.9");
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
-
 //----------------------------------------------------------------------------
 vtkPExtractArraysOverTime::vtkPExtractArraysOverTime()
 {
@@ -38,11 +41,11 @@ vtkPExtractArraysOverTime::~vtkPExtractArraysOverTime()
 {
   this->SetController(0);
 }
+
 //----------------------------------------------------------------------------
 void vtkPExtractArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
   os << indent << "Controller: " << this->Controller << endl;
 }
 
@@ -52,8 +55,7 @@ void vtkPExtractArraysOverTime::PostExecute(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkTable *output = vtkTable::GetData(outInfo);
+  this->Superclass::PostExecute(request, inputVector, outputVector);
 
   int procid = 0;
   int numProcs = 1;
@@ -63,74 +65,79 @@ void vtkPExtractArraysOverTime::PostExecute(
     numProcs = this->Controller->GetNumberOfProcesses();
     }
 
-  if (numProcs > 1)
+  if (numProcs <= 1)
     {
-    if (procid == 0)
-      {
-      for (int i = 1; i < numProcs; i++)
-        {
-        vtkTable* remoteOutput = vtkTable::New();
-        this->Controller->Receive(remoteOutput, i, EXCHANGE_DATA);
-        this->AddRemoteData(remoteOutput, output);
-        remoteOutput->Delete();
-        }
-
-      // Zero out invalid time steps and report error if necessary.
-      bool error = false;
-      vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
-        output->GetRowData()->GetArray("vtkValidPointMask"));
-      if (validPts)
-        {
-        vtkIdType numRows = output->GetNumberOfRows();
-        for (vtkIdType i=0; i<numRows; i++)
-          {
-          if (!validPts->GetValue(i))
-            {
-            error = true;
-            vtkDataSetAttributes* outRowData = output->GetRowData();
-            int numArrays = outRowData->GetNumberOfArrays();
-            for (int aidx=0; aidx<numArrays; aidx++)
-              {
-              vtkDataArray* array = outRowData->GetArray(aidx);
-              // If array is not null and it is not the time array
-              if (array &&
-                  (!array->GetName() ||
-                   strncmp(array->GetName(), "Time", 4) != 0))
-                {
-                int numComps = array->GetNumberOfComponents();
-                if (numComps > 0)
-                  {
-                  // This should also initialize to 0
-                  double* val = new double[numComps];
-                  array->SetTuple(i, val);
-                  delete[] val;
-                  }
-                }
-              }
-            }
-          }
-        }
-      if (error)
-        {
-        //this is not necessarily an error
-        //when the probe misses invalid and zeroing is correct
-        //vtkErrorMacro("One or more selected items could not be found. "
-        //              "Array values for those items are set to 0");
-        }
-      }
-    else
-      {
-      this->Controller->Send(output, 0, EXCHANGE_DATA);
-      }
+    // Trivial case.
+    return;
     }
 
-  this->Superclass::PostExecute(request, inputVector, outputVector);
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
+  if (procid == 0)
+    {
+    for (int cc=1; cc < numProcs; cc++)
+      {
+      vtkMultiBlockDataSet* remoteOutput = vtkMultiBlockDataSet::New();
+      this->Controller->Receive(remoteOutput, cc, EXCHANGE_DATA);
+      this->AddRemoteData(remoteOutput, output);
+      remoteOutput->Delete();
+      }
+    }
+  else
+    {
+    this->Controller->Send(output, 0, EXCHANGE_DATA);
+    output->Initialize();
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkPExtractArraysOverTime::AddRemoteData(vtkTable* routput,
-                                              vtkTable* output)
+void vtkPExtractArraysOverTime::AddRemoteData(
+  vtkMultiBlockDataSet* remoteOutput, vtkMultiBlockDataSet* output)
 {
+  vtkCompositeDataIterator* localIter = output->NewIterator();
+  vtkCompositeDataIterator* remoteIter = remoteOutput->NewIterator();
+  for (remoteIter->InitTraversal();
+    !remoteIter->IsDoneWithTraversal(); remoteIter->GoToNextItem())
+    {
+    // We really need to think of merging blocks only in 2 cases: for global id
+    // based selections or for location based selections
+    if (this->ContentType != vtkSelectionNode::LOCATIONS &&
+      this->ContentType != vtkSelectionNode::GLOBALIDS)
+      {
+      unsigned int index = output->GetNumberOfBlocks();
+      output->SetBlock(index, remoteIter->GetCurrentDataObject());
+      output->GetMetaData(index)->Copy(remoteIter->GetCurrentMetaData(),
+        /*deep=*/0);
+      continue;
+      }
+
+    vtkstd::string name = remoteIter->GetCurrentMetaData()->Get(
+      vtkCompositeDataSet::NAME());
+
+    // We need to merge "coincident" tables.
+    for (localIter->InitTraversal(); !localIter->IsDoneWithTraversal();
+      localIter->GoToNextItem())
+      {
+      if (name ==
+        localIter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME()))
+        {
+        this->MergeTables(vtkTable::SafeDownCast(remoteIter->GetCurrentDataObject()),
+          vtkTable::SafeDownCast(localIter->GetCurrentDataObject()));
+        break;
+        }
+      }
+    }
+  remoteIter->Delete();
+  localIter->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkPExtractArraysOverTime::MergeTables(
+  vtkTable* routput, vtkTable* output)
+{
+  if (!routput || !output)
+    {
+    return;
+    }
   vtkIdType rDims = routput->GetNumberOfRows();
   vtkIdType dims = output->GetNumberOfRows();
   if (dims != rDims)
@@ -180,7 +187,9 @@ void vtkPExtractArraysOverTime::AddRemoteData(vtkTable* routput,
               }
             else
               {
-              //cerr << (raa->GetName()?raa->GetName():"NONAME") <<" has only " << raa->GetNumberOfTuples() << " and looking for value at " << i << endl;
+              //cerr << (raa->GetName()?raa->GetName():"NONAME")
+              // <<" has only " << raa->GetNumberOfTuples()
+              // << " and looking for value at " << i << endl;
               }
             }
           }
