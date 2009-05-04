@@ -72,15 +72,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the strategy that is to be used in laying out the
-  // underlying spanning tree.  For sensible results, any
-  // tree layout used should place each layer of the tree
-  // in a single X-Y plane.
-  // By default, vtkConeTreeLayoutStrategy is used.
-  vtkSetObjectMacro(TreeLayout,vtkGraphLayoutStrategy);
-  vtkGetObjectMacro(TreeLayout,vtkGraphLayoutStrategy);
- 
-  // Description:
   // If set, base the layout on a depth-first spanning tree,
   // rather than the default breadth-first spanning tree.
   // Switching between DFT and BFT may significantly change
