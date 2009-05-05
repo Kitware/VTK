@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.20");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.21");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -118,14 +118,35 @@ void UnpackValues( const vtkStdString& buffer,
 void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
                                               vtkDataObject* outMetaDO )
 {
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timer=vtkTimerLog::New();
+  timer->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
     }
 
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timers=vtkTimerLog::New();
+  timers->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   // First calculate contingency statistics on local data set
   this->Superclass::ExecuteLearn( inData, outMeta );
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timers->StopTimer();
+
+  cout << "## Process "
+       << this->Controller->GetCommunicator()->GetLocalProcessId()
+       << " serial engine executed in "
+       << timers->GetElapsedTime()
+       << " seconds."
+       << "\n";
+
+  timers->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Get a hold of the contingency table
   vtkTable* contingencyTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
@@ -161,6 +182,11 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   vtkstd::vector<vtkStdString> xyValues_l; // local consecutive xy pairs
   vtkstd::vector<vtkIdType>    kcValues_l; // local consecutive kc  pairs
 
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timer0=vtkTimerLog::New();
+  timer0->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
   for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
     {
     // Push back x and y to list of strings
@@ -185,15 +211,34 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   // (All) gather all xy and kc sizes
   vtkIdType xySize_l = xyPacked_l.size();
   vtkIdType* xySize_g = new vtkIdType[np];
+
+  vtkIdType kcSize_l = kcValues_l.size();
+  vtkIdType* kcSize_g = new vtkIdType[np];
+
   com->AllGather( &xySize_l,
                   xySize_g,
                   1 );
 
-  vtkIdType kcSize_l = kcValues_l.size();
-  vtkIdType* kcSize_g = new vtkIdType[np];
   com->AllGather( &kcSize_l,
                   kcSize_g,
                   1 );
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer0->StopTimer();
+
+  cout << "## Process "
+       << com->GetLocalProcessId()
+       << " prepared character string of size "
+       << xySize_l
+       << " and integer array of size "
+       << kcSize_l
+       << " in "
+       << timer0->GetElapsedTime()
+       << " seconds."
+       << "\n";
+
+  timer0->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Calculate total size and displacement arrays
   vtkIdType* xyOffset = new vtkIdType[np];
@@ -222,13 +267,8 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
   
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  cout << "## Process "
-       << myRank
-       << " sending character string of size "
-       << xySize_l
-       << " and integer array of size "
-       << kcSize_l
-       << "\n";
+  vtkTimerLog *timer1=vtkTimerLog::New();
+  timer1->StartTimer();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Gather all xyPacked and kcValues on process reduceProc
@@ -246,6 +286,22 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
   
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer1->StopTimer();
+
+  cout << "## Process "
+       << myRank
+       << " executed GatherV of character string in "
+       << timer1->GetElapsedTime()
+       << " seconds."
+       << "\n";
+  
+  timer1->Delete();
+
+  vtkTimerLog *timer2=vtkTimerLog::New();
+  timer2->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
   if ( ! com->GatherV( &(*kcValues_l.begin()),
                        kcValues_g,
                        kcSize_l,
@@ -258,6 +314,19 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
                   << "could not gather (k,c) values.");
     return;
     }
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer2->StopTimer();
+
+  cout << "## Process "
+       << myRank
+       << " executed GatherV of integer array in "
+       << timer2->GetElapsedTime()
+       << " seconds."
+       << "\n";
+  
+  timer2->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Reduction step: have process reduceProc perform the reduction of the global contingency table
   if ( myRank == reduceProc )
@@ -274,6 +343,11 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
                     << ".");
       }
     } // if ( myRank == reduceProc )
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timer3=vtkTimerLog::New();
+  timer3->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Broadcast the xy and kc buffer sizes
   if ( ! com->Broadcast( &xySizeTotal,
@@ -321,8 +395,39 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
   
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer3->StopTimer();
+
+  cout << "## Process "
+       << myRank
+       << " executed Broadcasts in "
+       << timer3->GetElapsedTime()
+       << " seconds."
+       << "\n";
+  
+  timer3->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timer4=vtkTimerLog::New();
+  timer4->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
   // Unpack the packet of strings
   UnpackValues( xyPacked_l, xyValues_l );
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer4->StopTimer();
+
+  cout << "## Process "
+       << myRank
+       << " unpacked character string in "
+       << timer4->GetElapsedTime()
+       << " seconds."
+       << "\n";
+  
+  timer4->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Finally, fill the new, global contigency table (everyone does this so everyone ends up with the same model)
   vtkVariantArray* row4 = vtkVariantArray::New();
@@ -330,6 +435,11 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
 
   vtkstd::vector<vtkStdString>::iterator xyit = xyValues_l.begin();
   vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  vtkTimerLog *timer5=vtkTimerLog::New();
+  timer5->StartTimer();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // First replace existing rows
   // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
@@ -354,6 +464,19 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
    contingencyTab->InsertNextRow( row4 );
    }
     
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer5->StopTimer();
+
+  cout << "## Process "
+       << myRank
+       << " updated contingency table in "
+       << timer5->GetElapsedTime()
+       << " seconds."
+       << "\n";
+  
+  timer5->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
   // Clean up
   row4->Delete();
 
@@ -367,6 +490,19 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   delete [] kcSize_g;
   delete [] xyOffset;
   delete [] kcOffset;
+
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->StopTimer();
+
+  cout << "## Process "
+       << myRank
+       << " parallel ExecuteLearn took "
+       << timer->GetElapsedTime()
+       << " seconds."
+       << "\n";
+  
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 }
 
 // ----------------------------------------------------------------------
@@ -381,11 +517,11 @@ bool vtkPContingencyStatistics::Reduce( char* xyPacked_g,
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
 
-  cout << "## Reduce received character string of size "
+  cout << "\n## Reduce received character string of size "
        << xySizeTotal
        << " and integer array of size "
        << kcSizeTotal
-       << "\n";
+       << "... ";
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // First, unpack the packet of strings
@@ -452,10 +588,10 @@ bool vtkPContingencyStatistics::Reduce( char* xyPacked_g,
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->StopTimer();
 
-  cout<< "## Reduce completed in "
+  cout<< " and completed in "
       << timer->GetElapsedTime()
       << " seconds."
-      << "\n";
+      << "\n\n";
 
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
