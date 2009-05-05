@@ -25,7 +25,6 @@
 // for implementing this test.
 
 #include <mpi.h>
-#include <time.h>
 
 #include "vtkDescriptiveStatistics.h"
 #include "vtkPDescriptiveStatistics.h"
@@ -41,6 +40,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
+#include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
 // For debugging purposes, output results of serial engines ran on each slice of the distributed data set
@@ -143,8 +143,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and start clock
   com->Barrier();
-  time_t ta;
-  time ( &ta );
+  vtkTimerLog *timer=vtkTimerLog::New();
+  timer->StartTimer();
 
   // For verification, instantiate a serial descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
@@ -264,8 +264,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and stop clock
   com->Barrier();
-  time_t tb;
-  time ( &tb );
+  timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
@@ -274,7 +273,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << calcProc
          << "\n"
          << "   Wall time: "
-         << difftime( tb, ta )
+         << timer->GetElapsedTime()
          << " sec.\n";
 
     for ( vtkIdType r = 0; r < nRows; ++ r )
@@ -316,8 +315,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and start clock
   com->Barrier();
-  time_t t0;
-  time ( &t0 );
+  timer->StartTimer();
   
   // Instantiate a parallel descriptive statistics engine and set its ports
   vtkPDescriptiveStatistics* pds = vtkPDescriptiveStatistics::New();
@@ -340,8 +338,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and stop clock
   com->Barrier();
-  time_t t1;
-  time ( &t1 );
+  timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
@@ -350,7 +347,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << pds->GetOutput( 1 )->GetValueByName( 0, "Cardinality" ).ToInt()   
          << " \n"
          << "   Wall time: "
-         << difftime( t1, t0 )
+         << timer->GetElapsedTime()
          << " sec.\n";
 
    for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
@@ -481,8 +478,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and start clock
   com->Barrier();
-  time_t t2;
-  time ( &t2 );
+  timer->StartTimer();
 
   // Instantiate a parallel correlative statistics engine and set its ports
   vtkPCorrelativeStatistics* pcs = vtkPCorrelativeStatistics::New();
@@ -502,8 +498,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Synchronize and stop clock
   com->Barrier();
-  time_t t3;
-  time ( &t3 );
+  timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
@@ -512,7 +507,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << pcs->GetOutput( 1 )->GetValueByName( 0, "Cardinality" ).ToInt() 
          << " \n"
          << "   Wall time: "
-         << difftime( t3, t2 )
+         << timer->GetElapsedTime()
          << " sec.\n";
 
     for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
@@ -544,8 +539,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and start clock
   com->Barrier();
-  time_t t4;
-  time ( &t4 );
+  timer->StartTimer();
 
   // Instantiate a parallel correlative statistics engine and set its ports
   vtkPMultiCorrelativeStatistics* pmcs = vtkPMultiCorrelativeStatistics::New();
@@ -577,8 +571,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Synchronize and stop clock
   com->Barrier();
-  time_t t5;
-  time ( &t5 );
+  timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
@@ -589,7 +582,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) )->GetValueByName( 0, "Entries").ToInt()
          << " \n"
          << "   Wall time: "
-         << difftime( t5, t4 )
+         << timer->GetElapsedTime()
          << " sec.\n";
 
     for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
@@ -606,8 +599,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Synchronize and start clock
   com->Barrier();
-  time_t t6;
-  time ( &t6 );
+  timer->StartTimer();
 
   // Instantiate a parallel pca statistics engine and set its ports
   vtkPPCAStatistics* pcas = vtkPPCAStatistics::New();
@@ -639,8 +631,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
     // Synchronize and stop clock
   com->Barrier();
-  time_t t7;
-  time ( &t7 );
+  timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
@@ -651,7 +642,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) )->GetValueByName( 0, "Entries").ToInt()
          << " \n"
          << "   Wall time: "
-         << difftime( t7, t6 )
+         << timer->GetElapsedTime()
          << " sec.\n";
 
     for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
@@ -664,6 +655,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Clean up
   pcas->Delete();
   inputData->Delete();
+  timer->Delete();
 }
 
 //----------------------------------------------------------------------------
