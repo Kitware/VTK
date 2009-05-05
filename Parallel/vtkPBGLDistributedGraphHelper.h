@@ -36,6 +36,7 @@
 #define __vtkPBGLDistributedGraphHelper_h
 
 #include "vtkDistributedGraphHelper.h"
+#include <boost/graph/use_mpi.hpp>
 
 class vtkPBGLDistributedGraphHelperInternals;
 

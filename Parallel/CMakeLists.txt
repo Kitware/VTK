@@ -142,14 +142,14 @@ IF (NOT VTK_LEGACY_REMOVE)
 ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF (VTK_USE_PARALLEL_BGL)
-  SET(KIT_LIBS ${KIT_LIBS} boost_graph_mpi ${Boost_LIBRARIES})
+  SET(KIT_LIBS ${KIT_LIBS} ${Boost_LIBRARIES})
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkPBGLBreadthFirstSearch.cxx
     vtkPBGLCollapseGraph.cxx
     vtkPBGLCollapseParallelEdges.cxx
     vtkPBGLCollectGraph.cxx
-    vtkPBGLConnectedComponents.cxx
+    vtkPBGLConnectedComponents.cxx 
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
     vtkPBGLMinimumSpanningTree.cxx

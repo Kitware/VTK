@@ -48,17 +48,20 @@
 
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/distributed/breadth_first_search.hpp>
-#include <boost/parallel/algorithm.hpp>
+#include <boost/graph/parallel/algorithm.hpp>
+//#include <boost/parallel/algorithm.hpp>
 #include <boost/graph/visitors.hpp>
-#include <boost/property_map.hpp>
-#include <boost/vector_property_map.hpp>
+#include <boost/property_map/property_map.hpp>
+//#include <boost/property_map.hpp>
+#include <boost/property_map/vector_property_map.hpp>
+//#include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
 #include <vtksys/stl/utility> // for pair
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLBreadthFirstSearch, "1.2");
+vtkCxxRevisionMacro(vtkPBGLBreadthFirstSearch, "1.3");
 vtkStandardNewMacro(vtkPBGLBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we

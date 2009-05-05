@@ -760,15 +760,6 @@ IF(VTK_USE_MPI AND BUILD_TESTING)
   SEPARATE_ARGUMENTS(VTK_MPI_POSTFLAGS)
 ENDIF(VTK_USE_MPI AND BUILD_TESTING)
 
-#-----------------------------------------------------------------------------
-# Configure Parallel BGL support.
-IF(VTK_USE_PARALLEL_BGL)
-  CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
-  FIND_PACKAGE(PBGL REQUIRED)
-  IF (PBGL_INCLUDE_DIR)
-    INCLUDE_DIRECTORIES(BEFORE ${PBGL_INCLUDE_DIR})
-  ENDIF (PBGL_INCLUDE_DIR)
-ENDIF(VTK_USE_PARALLEL_BGL)
 
 #-----------------------------------------------------------------------------
 # Create STL header wrappers to block warnings in the STL headers.
@@ -1065,11 +1056,23 @@ MARK_AS_ADVANCED(VTK_USE_BOOST)
 # Look for Boost only if using Boost
 IF(VTK_USE_BOOST)
   if (VTK_USE_PARALLEL_BGL)
+    CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
     if (MSVC)
       set(Boost_USE_STATIC_LIBS ON)
     endif (MSVC)
-    FIND_PACKAGE(Boost 1.35.1 REQUIRED
-      COMPONENTS mpi serialization filesystem system)
+    SET(Boost_ADDITIONAL_VERSIONS "1.40" "1.40.0" "1.39" "1.39.0")
+    # TODO: Change to Boost 1.40.0 when that version is released.
+    #       PBGL is in Boost SVN Head, but will first appear in 1.40 release.
+    FIND_PACKAGE(Boost 1.39.0 REQUIRED
+      COMPONENTS mpi serialization filesystem system graph_parallel)
+
+    # A note to user, until Boost 1.40 is released to use SVN Head if using PBGL
+    if (NOT Boost_GRAPH_PARALLEL_FOUND)
+      message("Could not find Parallel Boost Graph Library components, please
+          use Boost 1.40 or the latest development snapshop from the Boost
+          SVN.")
+    endif (NOT Boost_GRAPH_PARALLEL_FOUND)
+    
   else (VTK_USE_PARALLEL_BGL)
     FIND_PACKAGE(Boost REQUIRED)
   endif (VTK_USE_PARALLEL_BGL)
@@ -1077,9 +1080,10 @@ IF(VTK_USE_BOOST)
   INCLUDE(${VTK_CMAKE_DIR}/ExtractBoostVersion.cmake)
 
 # We need Boost 1.32 or later
-  IF(BOOST_VERSION LESS 103200)
+  if (BOOST_VERSION LESS 103200)
     MESSAGE(SEND_ERROR "Incompatible Boost version.  Boost 1.32.0 or later is required.")
-  ENDIF(BOOST_VERSION LESS 103200)
+  endif (BOOST_VERSION LESS 103200)
+
 ENDIF(VTK_USE_BOOST)
 
 #-----------------------------------------------------------------------------

@@ -28,10 +28,12 @@
 #include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 
 //BTX
+#include <boost/graph/use_mpi.hpp>
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/parallel/container_traits.hpp>
-#include <boost/parallel/local_property_map.hpp>
+#include <boost/property_map/parallel/local_property_map.hpp>
+#include <boost/property_map/parallel/distributed_property_map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/functional/hash.hpp>
 //ETX

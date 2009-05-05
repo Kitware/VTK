@@ -47,17 +47,20 @@
 
 #include <boost/graph/distributed/dehne_gotz_min_spanning_tree.hpp>
 #include <boost/graph/distributed/vertex_list_adaptor.hpp>
-#include <boost/parallel/global_index_map.hpp>
-#include <boost/property_map.hpp>
-#include <boost/vector_property_map.hpp>
+#include <boost/property_map/parallel/global_index_map.hpp>
+#include <boost/property_map/property_map.hpp>
+#include <boost/property_map/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
+//#include <boost/parallel/global_index_map.hpp>
+//#include <boost/property_map.hpp>
+//#include <boost/vector_property_map.hpp>
 
 #include <vtksys/stl/utility> // for pair
 #include <vtksys/stl/iterator> // for back_inserter
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLMinimumSpanningTree, "1.2");
+vtkCxxRevisionMacro(vtkPBGLMinimumSpanningTree, "1.3");
 vtkStandardNewMacro(vtkPBGLMinimumSpanningTree);
 
 // Constructor/Destructor
