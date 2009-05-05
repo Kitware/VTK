@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.7");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.8");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -503,7 +503,7 @@ int vtkTemporalPathLineFilter::RequestData(
   this->TrailId->SetName("TrailId");
   //
   vtkstd::vector<vtkIdType> TempIds(this->MaxTrackLength);
-  vtkIdType VertexId;
+  vtkIdType VertexId=0;
   //
   for (vtkTemporalPathLineFilterInternals::TrailIterator t=
     this->Internals->Trails.begin(); 
