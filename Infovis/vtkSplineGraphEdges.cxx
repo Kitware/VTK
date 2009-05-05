@@ -37,7 +37,7 @@
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.1");
+vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.2");
 vtkStandardNewMacro(vtkSplineGraphEdges);
 
 vtkSplineGraphEdges::vtkSplineGraphEdges()
@@ -95,8 +95,8 @@ int vtkSplineGraphEdges::RequestData(
   vtkPoints* pts = splined->GetPoints();
   double pt[3];
   lines->InitTraversal();
-  vtkIdType numCellPts;
-  vtkIdType* cellPts;
+  vtkIdType numCellPts = 0;
+  vtkIdType* cellPts = 0;
   for (vtkIdType i = 0; i < numLines; ++i)
     {
     lines->GetNextCell(numCellPts, cellPts);

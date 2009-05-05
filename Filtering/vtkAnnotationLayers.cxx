@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAnnotationLayers, "1.4");
+vtkCxxRevisionMacro(vtkAnnotationLayers, "1.5");
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 
@@ -190,6 +190,16 @@ void vtkAnnotationLayers::PrintSelf(ostream& os, vtkIndent indent)
       {
       os << "(none)\n";
       }
+    }
+  os << indent << "CurrentAnnotation: ";
+  if (this->CurrentAnnotation)
+    {
+    os << "\n";
+    this->CurrentAnnotation->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
     }
 }
 
