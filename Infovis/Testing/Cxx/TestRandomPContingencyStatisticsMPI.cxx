@@ -24,7 +24,6 @@
 // Thanks to Philippe Pebay for implementing this test.
 
 #include <mpi.h>
-#include <time.h>
 
 #include "vtkContingencyStatistics.h"
 #include "vtkPContingencyStatistics.h"
@@ -37,6 +36,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
+#include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
 // For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
@@ -96,8 +96,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Synchronize and start clock
   com->Barrier();
-  time_t t0;
-  time ( &t0 );
+  vtkTimerLog *timer=vtkTimerLog::New();
+  timer->StartTimer();
 
   // Instantiate a parallel contingency statistics engine and set its ports
   vtkPContingencyStatistics* pcs = vtkPContingencyStatistics::New();
@@ -115,14 +115,13 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
     // Synchronize and stop clock
   com->Barrier();
-  time_t t1;
-  time ( &t1 );
+  timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Completed parallel calculation of contingency statistics (with assessment):\n"
          << "   Wall time: "
-         << difftime( t1, t0 )
+         << timer->GetElapsedTime()
          << " sec.\n";
 
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
@@ -208,6 +207,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   delete [] cdf_g;
   pcs->Delete();
   inputData->Delete();
+  timer->Delete();
 }
 
 //----------------------------------------------------------------------------
