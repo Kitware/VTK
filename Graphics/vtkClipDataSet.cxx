@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.54");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.55");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -327,7 +327,9 @@ int vtkClipDataSet::RequestData(
         }
       cellScalars->Delete();
       newPoints->Delete();
-      vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
+      // When processing composite datasets with partial arrays, this warning is
+      // not applicable, hence disabling it.
+      // vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
       return 1;
       }
     }
