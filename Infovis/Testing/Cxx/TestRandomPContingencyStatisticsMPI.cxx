@@ -92,6 +92,16 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     intArray[c]->Delete();
     }
 
+  // Entropies in the summary table should normally be retrieved as follows:
+  //   column 2: H(X,Y)
+  //   column 3: H(Y|X)
+  //   column 4: H(X|Y)
+  int iEntropies[] = { 2,
+                       3,
+                       4 }; 
+  int nEntropies = 3; // correct number of entropies reported in the summary table
+  double* H = new double[nEntropies];
+
   // ************************** Contingency Statistics ************************** 
 
   // Synchronize and start clock
@@ -123,18 +133,90 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
          << "   Wall time: "
          << timer->GetElapsedTime()
          << " sec.\n";
-
-    vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-    outputMeta->Dump();
     }
 
-  // Verify that the distributed reduced contingency tables all result in a CDF value of 1.
+  // Verify that information entropies on all processes make sense
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that joint probabilities sum to 1.\n";
+    cout << "\n## Verifying that information entropies are consistent on all processes.\n";
+    }
+
+  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+
+  int testIntValue = 0;
+  double testDoubleValue = 0;
+
+  // Synchronize
+  com->Barrier();
+
+  vtkIdType card = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
+  cout << "   On process "
+       << com->GetLocalProcessId()
+       << " ( grand total: "
+       << card
+       << " ): ";
+
+  testIntValue = outputSummary->GetNumberOfColumns();
+
+  if ( testIntValue != nEntropies + 2 )
+    {
+    vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: " 
+                           << testIntValue 
+                           << " != " 
+                           << nEntropies + 2
+                           << ".");
+    *(args->retVal) = 1;
+    }
+  else
+    {
+    // For each row in the summary table, fetch variable names and information entropies
+    for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
+      {
+      // Variable names
+      cout << "("
+           << outputSummary->GetValue( r, 0 ).ToString()
+           << ", "
+           << outputSummary->GetValue( r, 1 ).ToString()
+           << "):";
+      
+      
+      // Information entropies
+      for ( vtkIdType c = 0; c < nEntropies; ++ c )
+        {
+        H[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
+
+        cout << ", "
+             << outputSummary->GetColumnName( iEntropies[c] )
+             << "="
+             << H[c];
+        }
+      cout << "\n";
+
+      // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
+      testDoubleValue = H[1] + H[2]; // H(Y|X)+ H(X|Y)
+
+      if ( testDoubleValue > H[0] )
+        {
+        vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
+                               << H[0]
+                               << " < " 
+                               << testDoubleValue 
+                               << " = H(Y|X)+ H(X|Y).");
+        *(args->retVal) = 1;
+        }
+      }
+    }
+
+  // Synchronize
+  com->Barrier();
+
+  // Verify that the broadcasted reduced contingency tables all result in a CDF value of 1
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Verifying that broadcasted CDF sum to 1 on all processes.\n";
     }
   
-  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
   if ( ! keys )
     {
