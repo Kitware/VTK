@@ -33,7 +33,9 @@ public:
     uchar_value,
     double_value,
     float_value,
-    string_value
+    string_value,
+    int64_value,
+    uint64_value
     };
 
   void Push(const unsigned char* data, size_t length)
@@ -183,6 +185,24 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (unsigned char value)
   return (*this);
 }
 
+//-----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (vtkTypeInt64 value)
+{
+  this->Internals->Data.push_back(vtkInternals::int64_value);
+  this->Internals->Push(reinterpret_cast<unsigned char*>(&value),
+                        sizeof(vtkTypeInt64));
+  return (*this);
+}
+
+//-----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (vtkTypeUInt64 value)
+{
+  this->Internals->Data.push_back(vtkInternals::uint64_value);
+  this->Internals->Push(reinterpret_cast<unsigned char*>(&value),
+                        sizeof(vtkTypeUInt64));
+  return (*this);
+}
+
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator << (const vtkstd::string& value)
 {
@@ -214,6 +234,15 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (float &value)
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator >> (int &value)
 {
+  // Automatically convert 64 bit values in case we are trying to transfer
+  // vtkIdType with processes compiled with 32/64 values.
+  if (this->Internals->Data.front() == vtkInternals::int64_value)
+    {
+    vtkTypeInt64 value64;
+    (*this) >> value64;
+    value = value64;
+    return (*this);
+    }
   assert(this->Internals->Data.front() == vtkInternals::int32_value);
   this->Internals->Data.pop_front();
   this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(int));
@@ -244,6 +273,33 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (unsigned char &value)
   assert(this->Internals->Data.front() == vtkInternals::uchar_value);
   this->Internals->Data.pop_front();
   this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(unsigned char));
+  return (*this);
+}
+
+//----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeInt64 &value)
+{
+  // Automatically convert 64 bit values in case we are trying to transfer
+  // vtkIdType with processes compiled with 32/64 values.
+  if (this->Internals->Data.front() == vtkInternals::int32_value)
+    {
+    int value32;
+    (*this) >> value32;
+    value = value32;
+    return (*this);
+    }
+  assert(this->Internals->Data.front() == vtkInternals::int64_value);
+  this->Internals->Data.pop_front();
+  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(int));
+  return (*this);
+}
+
+//----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeUInt64 &value)
+{
+  assert(this->Internals->Data.front() == vtkInternals::uint64_value);
+  this->Internals->Data.pop_front();
+  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(unsigned int));
   return (*this);
 }
 
