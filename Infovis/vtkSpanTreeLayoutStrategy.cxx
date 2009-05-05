@@ -229,11 +229,11 @@ void vtkSpanTreeLayoutStrategy::Layout()
     // is greater than one, this edge, by definition, is not
     // present in the layout tree.
     link.delta = level[link.edge.Target] - level[link.edge.Source];    
-    if (abs(static_cast<double>(link.delta)) > 1)
+    if (abs(static_cast<int>(link.delta)) > 1)
       {
       link.anchor[0] = spanningDAG->AddVertex();
       spanningDAG->AddEdge(link.delta > 0 ? link.edge.Source : link.edge.Target, link.anchor[0]);
-      if (abs(static_cast<double>(link.delta)) > 2)
+      if (abs(static_cast<int>(link.delta)) > 2)
         {
         link.anchor[1] = spanningDAG->AddVertex();
         spanningDAG->AddEdge(link.anchor[0], link.anchor[1]);
