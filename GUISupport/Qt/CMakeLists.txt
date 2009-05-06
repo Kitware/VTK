@@ -29,6 +29,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       QVTKPaintEngine.cxx
       QVTKPaintEngine.h
       vtkQtAbstractModelAdapter.cxx
+      vtkQtAnnotationLayersModelAdapter.cxx
       vtkQtInitialization.cxx
       vtkQtSQLDatabase.cxx
       vtkQtSQLQuery.cxx
@@ -40,6 +41,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   SET ( QVTKMocHeaders
       ${QVTKMocHeaders}
       vtkQtAbstractModelAdapter.h
+      vtkQtAnnotationLayersModelAdapter.h
       vtkQtTableModelAdapter.h
       vtkQtTreeModelAdapter.h
       )
@@ -47,6 +49,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   # add additional files depending on infovis and/or views
   IF(VTK_USE_VIEWS)
     SET( QVTKLibSrcs ${QVTKLibSrcs}
+      vtkQtAnnotationView.cxx
       vtkQtBarChartView.cxx
       vtkQtChartRepresentation.cxx
       vtkQtChartView.cxx
@@ -62,6 +65,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       ) 
     SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
+      vtkQtAnnotationView.h
       vtkQtBarChartView.h
       vtkQtChartView.h
       vtkQtLineChartView.h
