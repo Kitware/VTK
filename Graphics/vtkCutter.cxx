@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.89");
+vtkCxxRevisionMacro(vtkCutter, "1.90");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkPointLocator)
@@ -91,12 +91,6 @@ unsigned long vtkCutter::GetMTime()
   if ( this->CutFunction != NULL )
     {
     time = this->CutFunction->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
-  if ( this->Locator != NULL )
-    {
-    time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 
