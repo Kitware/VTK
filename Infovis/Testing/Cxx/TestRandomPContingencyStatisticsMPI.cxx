@@ -100,7 +100,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
                        3,
                        4 }; 
   int nEntropies = 3; // correct number of entropies reported in the summary table
-  double* H = new double[nEntropies];
 
   // ************************** Contingency Statistics ************************** 
 
@@ -146,16 +145,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   int testIntValue = 0;
   double testDoubleValue = 0;
-
-  // Synchronize
-  com->Barrier();
-
-  vtkIdType card = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
-  cout << "   On process "
-       << com->GetLocalProcessId()
-       << " ( grand total: "
-       << card
-       << " ): ";
+  int numProcs = controller->GetNumberOfProcesses();
 
   testIntValue = outputSummary->GetNumberOfColumns();
 
@@ -173,43 +163,66 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     // For each row in the summary table, fetch variable names and information entropies
     for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
       {
-      // Variable names
-      cout << "("
-           << outputSummary->GetValue( r, 0 ).ToString()
-           << ", "
-           << outputSummary->GetValue( r, 1 ).ToString()
-           << "):";
-      
-      
-      // Information entropies
+      // Get local information entropies from summary table
+      double* H_l = new double[nEntropies];
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
         {
-        H[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
-
-        cout << " "
-             << outputSummary->GetColumnName( iEntropies[c] )
-             << "="
-             << H[c];
+        H_l[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
         }
-      cout << "\n";
 
-      // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
-      testDoubleValue = H[1] + H[2]; // H(Y|X)+ H(X|Y)
-
-      if ( testDoubleValue > H[0] )
+      // Gather all local entropies
+      double* H_g = new double[nEntropies * numProcs];
+      com->AllGather( H_l, 
+                      H_g, 
+                      nEntropies );
+      
+      // Print out all entropies
+      if ( com->GetLocalProcessId() == args->ioRank )
         {
-        vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
-                               << H[0]
-                               << " < " 
-                               << testDoubleValue 
-                               << " = H(Y|X)+ H(X|Y).");
-        *(args->retVal) = 1;
+        // Get variable names
+        cout << "   (X,Y) = ("
+             << outputSummary->GetValue( r, 0 ).ToString()
+             << ", "
+             << outputSummary->GetValue( r, 1 ).ToString()
+             << "), grand total: "
+             << outputContingency->GetValueByName( 0, "Cardinality" ).ToInt()
+             << ",\n";
+        
+        for ( int i = 0; i < numProcs; ++ i )
+          {
+          cout << "     On process "
+               << i;
+
+          for ( vtkIdType c = 0; c < nEntropies; ++ c )
+            {
+            cout << ", "
+                 << outputSummary->GetColumnName( iEntropies[c] )
+                 << "="
+                 << H_g[nEntropies * i + c];
+            }
+          
+          cout << "\n";
+          
+          // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
+          testDoubleValue = H_g[nEntropies * i + 1] + H_g[nEntropies * i + 2]; // H(Y|X)+ H(X|Y)
+          
+          if ( testDoubleValue > H_g[nEntropies * i] )
+            {
+            vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
+                                   << H_g[nEntropies * i]
+                                   << " < " 
+                                   << testDoubleValue 
+                                   << " = H(Y|X)+ H(X|Y).");
+            *(args->retVal) = 1;
+            }
+          }
         }
+
+      // Clean up
+      delete [] H_l;
+      delete [] H_g;
       }
     }
-
-  // Synchronize
-  com->Barrier();
 
   // Verify that the broadcasted reduced contingency tables all result in a CDF value of 1
   if ( com->GetLocalProcessId() == args->ioRank )
@@ -256,7 +269,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     }
 
   // Gather all local CDFs
-  int numProcs = controller->GetNumberOfProcesses();
   double* cdf_g = new double[numProcs];
   com->AllGather( &cdf_l, 
                   cdf_g, 
