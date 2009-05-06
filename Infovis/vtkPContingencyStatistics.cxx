@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.22");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.23");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -126,6 +126,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
     return;
     }
 
@@ -152,6 +156,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   vtkTable* contingencyTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
   if ( ! contingencyTab )
     {
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
     return;
     }
 
@@ -159,6 +167,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   if ( nRowCont <= 0 )
     {
     // No statistics were calculated in serial.
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
     return;
     }
 
@@ -166,6 +178,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
     {
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
     return;
     }
 
@@ -176,6 +192,10 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
   if ( ! keys || ! valx || ! valy || ! card )
     {
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
     return;
     }
 
