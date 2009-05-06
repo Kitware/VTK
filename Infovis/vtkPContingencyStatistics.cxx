@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.23");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.24");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -286,11 +286,6 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     kcValues_g = new vtkIdType[kcSizeTotal];
     }
   
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  vtkTimerLog *timer1=vtkTimerLog::New();
-  timer1->StartTimer();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-
   // Gather all xyPacked and kcValues on process reduceProc
   // NB: GatherV because the packets have variable lengths
   if ( ! com->GatherV( &(*xyPacked_l.begin()),
@@ -306,22 +301,6 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
   
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  timer1->StopTimer();
-
-  cout << "## Process "
-       << myRank
-       << " executed GatherV of character string in "
-       << timer1->GetElapsedTime()
-       << " seconds."
-       << "\n";
-  
-  timer1->Delete();
-
-  vtkTimerLog *timer2=vtkTimerLog::New();
-  timer2->StartTimer();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-
   if ( ! com->GatherV( &(*kcValues_l.begin()),
                        kcValues_g,
                        kcSize_l,
@@ -334,19 +313,6 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
                   << "could not gather (k,c) values.");
     return;
     }
-
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  timer2->StopTimer();
-
-  cout << "## Process "
-       << myRank
-       << " executed GatherV of integer array in "
-       << timer2->GetElapsedTime()
-       << " seconds."
-       << "\n";
-  
-  timer2->Delete();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Reduction step: have process reduceProc perform the reduction of the global contingency table
   if ( myRank == reduceProc )
