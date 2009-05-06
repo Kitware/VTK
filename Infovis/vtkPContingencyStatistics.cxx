@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.21");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.22");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -145,7 +145,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
        << " seconds."
        << "\n";
 
-  timers->StartTimer();
+  timers->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Get a hold of the contingency table
@@ -237,7 +237,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
        << " seconds."
        << "\n";
 
-  timer0->StartTimer();
+  timer0->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Calculate total size and displacement arrays
