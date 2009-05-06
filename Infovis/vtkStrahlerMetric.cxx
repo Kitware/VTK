@@ -20,6 +20,8 @@ the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
 #include "vtkStrahlerMetric.h"
+
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkInformation.h"

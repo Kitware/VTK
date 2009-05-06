@@ -43,6 +43,8 @@
 
 #include "vtkTreeAlgorithm.h"
 
+class vtkFloatArray;
+
 class VTK_INFOVIS_EXPORT vtkStrahlerMetric : public vtkTreeAlgorithm
 {
 public:
