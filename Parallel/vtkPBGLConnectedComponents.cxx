@@ -22,6 +22,8 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
+#include <boost/graph/use_mpi.hpp> // must precede PBGL headers
+
 #include "vtkPBGLConnectedComponents.h"
 
 #include "vtkCellArray.h"
@@ -34,8 +36,8 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkPBGLGraphAdapter.h"
+#include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
@@ -54,7 +56,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLConnectedComponents, "1.1");
+vtkCxxRevisionMacro(vtkPBGLConnectedComponents, "1.2");
 vtkStandardNewMacro(vtkPBGLConnectedComponents);
 
 // Constructor/Destructor

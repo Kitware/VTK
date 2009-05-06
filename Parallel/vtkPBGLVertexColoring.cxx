@@ -45,17 +45,17 @@
 #include "vtkUndirectedGraph.h"
 #include "vtkVertexListIterator.h"
 
+#include <boost/graph/use_mpi.hpp>
+
 #include <boost/graph/distributed/boman_et_al_graph_coloring.hpp>
 #include <boost/graph/parallel/algorithm.hpp>
-//#include <boost/parallel/algorithm.hpp>
 #include <boost/property_map/property_map.hpp>
-//#include <boost/property_map.hpp>
 
 #include <vtksys/stl/utility> // for pair
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLVertexColoring, "1.2");
+vtkCxxRevisionMacro(vtkPBGLVertexColoring, "1.3");
 vtkStandardNewMacro(vtkPBGLVertexColoring);
 
 // Constructor/Destructor

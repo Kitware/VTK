@@ -36,7 +36,6 @@
 #define __vtkPBGLDistributedGraphHelper_h
 
 #include "vtkDistributedGraphHelper.h"
-#include <boost/graph/use_mpi.hpp>
 
 class vtkPBGLDistributedGraphHelperInternals;
 
@@ -79,6 +78,8 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // The Parallel BGL-specific internal information for this distributed
   // graph. TODO: Make this protected
   vtkPBGLDistributedGraphHelperInternals *Internals;
+
+  void PrintSelf(ostream& os, vtkIndent indent);
 
  protected:
   vtkPBGLDistributedGraphHelper();

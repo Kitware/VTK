@@ -47,19 +47,18 @@
 #include "vtkUndirectedGraph.h"
 #include "vtkVertexListIterator.h"
 
+#include <boost/graph/use_mpi.hpp>
+
 #include <boost/graph/distributed/delta_stepping_shortest_paths.hpp>
 #include <boost/graph/parallel/algorithm.hpp>
 #include <boost/property_map/property_map.hpp>
 #include <boost/property_map/vector_property_map.hpp>
-//#include <boost/parallel/algorithm.hpp>
-//#include <boost/property_map.hpp>
-//#include <boost/vector_property_map.hpp>
 
 #include <vtksys/stl/utility> // for pair
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.7");
+vtkCxxRevisionMacro(vtkPBGLShortestPaths, "1.8");
 vtkStandardNewMacro(vtkPBGLShortestPaths);
 
 // Function object used to reduce (vertex, distance) pairs to find
