@@ -186,8 +186,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
         {
         H[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
 
-        cout << ", "
-             << outputSummary->GetColumnName( iEntropies[c] )
+        cout << outputSummary->GetColumnName( iEntropies[c] )
              << "="
              << H[c];
         }
