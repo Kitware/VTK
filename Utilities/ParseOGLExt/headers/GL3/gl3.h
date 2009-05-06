@@ -36,12 +36,12 @@ extern "C" {
  * will probably change slightly as we make sure exactly the right set
  * of interfaces is included.
  *
- * gl3.h last updated on $Date: 2009-04-30 14:22:35 $
+ * gl3.h last updated on $Date: 2009-05-06 00:54:09 $
  *
  * RELEASE NOTES
  *
- * gl3.h should be placed under a directory 'GL3' and
- * included as '<GL3/gl3.h>'.
+ * gl3.h should be placed under a directory 'GL3' and included as
+ * '<GL3/gl3.h>'.
  *
  * gl3.h only includes interfaces supported in a core OpenGL 3.1
  * implementation, as well as interfaces for a few ARB extensions which
@@ -201,16 +201,6 @@ typedef void GLvoid;
 #define GL_STEREO                         0x0C33
 #define GL_LINE_SMOOTH_HINT               0x0C52
 #define GL_POLYGON_SMOOTH_HINT            0x0C53
-#define GL_PIXEL_MAP_I_TO_I_SIZE          0x0CB0
-#define GL_PIXEL_MAP_S_TO_S_SIZE          0x0CB1
-#define GL_PIXEL_MAP_I_TO_R_SIZE          0x0CB2
-#define GL_PIXEL_MAP_I_TO_G_SIZE          0x0CB3
-#define GL_PIXEL_MAP_I_TO_B_SIZE          0x0CB4
-#define GL_PIXEL_MAP_I_TO_A_SIZE          0x0CB5
-#define GL_PIXEL_MAP_R_TO_R_SIZE          0x0CB6
-#define GL_PIXEL_MAP_G_TO_G_SIZE          0x0CB7
-#define GL_PIXEL_MAP_B_TO_B_SIZE          0x0CB8
-#define GL_PIXEL_MAP_A_TO_A_SIZE          0x0CB9
 #define GL_UNPACK_SWAP_BYTES              0x0CF0
 #define GL_UNPACK_LSB_FIRST               0x0CF1
 #define GL_UNPACK_ROW_LENGTH              0x0CF2
@@ -226,14 +216,6 @@ typedef void GLvoid;
 #define GL_MAX_TEXTURE_SIZE               0x0D33
 #define GL_MAX_VIEWPORT_DIMS              0x0D3A
 #define GL_SUBPIXEL_BITS                  0x0D50
-#define GL_INDEX_BITS                     0x0D51
-#define GL_MAP2_COLOR_4                   0x0DB0
-#define GL_MAP2_INDEX                     0x0DB1
-#define GL_MAP2_NORMAL                    0x0DB2
-#define GL_MAP2_TEXTURE_COORD_1           0x0DB3
-#define GL_MAP2_TEXTURE_COORD_2           0x0DB4
-#define GL_MAP2_TEXTURE_COORD_3           0x0DB5
-#define GL_MAP2_TEXTURE_COORD_4           0x0DB6
 #define GL_TEXTURE_1D                     0x0DE0
 #define GL_TEXTURE_2D                     0x0DE1
 #define GL_POLYGON_OFFSET_UNITS           0x2A00
@@ -384,6 +366,20 @@ typedef void GLvoid;
 #define GL_SMOOTH_LINE_WIDTH_RANGE        0x0B22
 #define GL_SMOOTH_LINE_WIDTH_GRANULARITY  0x0B23
 #define GL_ALIASED_LINE_WIDTH_RANGE       0x846E
+#endif
+
+#ifndef GL_ARB_imaging
+#define GL_CONSTANT_COLOR                 0x8001
+#define GL_ONE_MINUS_CONSTANT_COLOR       0x8002
+#define GL_CONSTANT_ALPHA                 0x8003
+#define GL_ONE_MINUS_CONSTANT_ALPHA       0x8004
+#define GL_BLEND_COLOR                    0x8005
+#define GL_FUNC_ADD                       0x8006
+#define GL_MIN                            0x8007
+#define GL_MAX                            0x8008
+#define GL_BLEND_EQUATION                 0x8009
+#define GL_FUNC_SUBTRACT                  0x800A
+#define GL_FUNC_REVERSE_SUBTRACT          0x800B
 #endif
 
 #ifndef GL_VERSION_1_3
@@ -724,8 +720,6 @@ typedef void GLvoid;
 /* reuse GL_TEXTURE_GREEN_TYPE */
 /* reuse GL_TEXTURE_BLUE_TYPE */
 /* reuse GL_TEXTURE_ALPHA_TYPE */
-/* reuse GL_TEXTURE_LUMINANCE_TYPE */
-/* reuse GL_TEXTURE_INTENSITY_TYPE */
 /* reuse GL_TEXTURE_DEPTH_TYPE */
 /* reuse GL_UNSIGNED_NORMALIZED */
 /* reuse GL_FRAMEBUFFER_BINDING */
@@ -867,13 +861,11 @@ typedef void GLvoid;
 /* reuse GL_UNIFORM_BUFFER_START */
 /* reuse GL_UNIFORM_BUFFER_SIZE */
 /* reuse GL_MAX_VERTEX_UNIFORM_BLOCKS */
-/* reuse GL_MAX_GEOMETRY_UNIFORM_BLOCKS */
 /* reuse GL_MAX_FRAGMENT_UNIFORM_BLOCKS */
 /* reuse GL_MAX_COMBINED_UNIFORM_BLOCKS */
 /* reuse GL_MAX_UNIFORM_BUFFER_BINDINGS */
 /* reuse GL_MAX_UNIFORM_BLOCK_SIZE */
 /* reuse GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS */
-/* reuse GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS */
 /* reuse GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS */
 /* reuse GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT */
 /* reuse GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH */
@@ -892,7 +884,6 @@ typedef void GLvoid;
 /* reuse GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS */
 /* reuse GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES */
 /* reuse GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER */
-/* reuse GL_UNIFORM_BLOCK_REFERENCED_BY_GEOMETRY_SHADER */
 /* reuse GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER */
 /* reuse GL_INVALID_INDEX */
 #endif
@@ -1037,7 +1028,7 @@ typedef void GLvoid;
 #include <stddef.h>
 #ifndef GL_VERSION_2_0
 /* GL type for program/shader text */
-typedef char GLchar; /* native character */
+typedef char GLchar;
 #endif
 
 #ifndef GL_VERSION_1_5
@@ -1053,12 +1044,12 @@ typedef ptrdiff_t GLsizeiptrARB;
 #endif
 
 #ifndef GL_ARB_shader_objects
-/* GL types for handling shader object handles and program/shader text */
-typedef char GLcharARB; /* native character */
-typedef unsigned int GLhandleARB; /* shader object handle */
+/* GL types for program/shader text and shader object handles */
+typedef char GLcharARB;
+typedef unsigned int GLhandleARB;
 #endif
 
-/* GL types for "half" precision (s10e5) float data in host memory */
+/* GL type for "half" precision (s10e5) float data in host memory */
 #ifndef GL_ARB_half_float_pixel
 typedef unsigned short GLhalfARB;
 #endif
@@ -1100,7 +1091,8 @@ typedef __int32 int32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #else
-#include <inttypes.h>     /* Fallback option */
+/* Fallback if nothing above works */
+#include <inttypes.h>
 #endif
 #endif
 
