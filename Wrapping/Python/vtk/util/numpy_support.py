@@ -162,9 +162,9 @@ def numpy_to_vtk(num_array, deep=0):
     result_array.SetVoidArray(z_flat, len(z_flat), 1)
     if deep:
         copy = result_array.NewInstance()
-        # NewInstance sets the refcount to 3 and this causes a severe
+        # NewInstance sets the refcount to 2 and this causes a severe
         # memory leak.        
-        copy.SetReferenceCount(2)
+        copy.UnRegister(None)
         copy.DeepCopy(result_array)
         result_array = copy
     return result_array

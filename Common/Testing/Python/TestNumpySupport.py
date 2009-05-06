@@ -76,7 +76,7 @@ class TestNumpySupport(Testing.vtkTest):
         for z in t_z:
             vtk_arr = numpy_to_vtk(z)
             # Test for memory leaks.
-            self.assertEqual(vtk_arr.GetReferenceCount(), 2)
+            self.assertEqual(vtk_arr.GetReferenceCount(), 1)
             self._check_arrays(z, vtk_arr)
             z1 = vtk_to_numpy(vtk_arr)
             if len(z.shape) == 1:
