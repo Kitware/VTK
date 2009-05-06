@@ -80,7 +80,7 @@ protected:
   float MaxStrahler;
   char *MetricArrayName;
 
-  float CalculateStrahler( vtkIdType root, vtkFloatArray *metric, vtkTree *graph);
+  float CalculateStrahler(vtkIdType root, vtkFloatArray *metric, vtkTree *graph);
   
 private:
   vtkStrahlerMetric(const vtkStrahlerMetric&);  // Not implemented.
