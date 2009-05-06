@@ -42,9 +42,8 @@
 #define __vtkStrahlerMetric_h
 
 #include "vtkTreeAlgorithm.h"
-#include "vtkFloatArray.h"
 
-class VTK_EXPORT vtkStrahlerMetric : public vtkTreeAlgorithm
+class VTK_INFOVIS_EXPORT vtkStrahlerMetric : public vtkTreeAlgorithm
 {
 public:
   static vtkStrahlerMetric *New();
@@ -82,8 +81,8 @@ protected:
   float CalculateStrahler( vtkIdType root, vtkFloatArray *metric, vtkTree *graph);
   
 private:
-  vtkStrahlerMetric(const vtkStrahlerMetric&) {};
-  void operator=(const vtkStrahlerMetric&) {};
+  vtkStrahlerMetric(const vtkStrahlerMetric&);  // Not implemented.
+  void operator=(const vtkStrahlerMetric&);  // Not implemented.
 };
 
 #endif
