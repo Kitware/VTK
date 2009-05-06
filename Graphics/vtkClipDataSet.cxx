@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.55");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.56");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -333,9 +333,14 @@ int vtkClipDataSet::RequestData(
       return 1;
       }
     }
-    
-  if ( !this->GenerateClipScalars && 
-       !this->GetInputArrayToProcess(0,inputVector))
+   
+  // Typically we pass input scalars to the output unharmed. If
+  // this->GenerateClipScalars is on, then the input scalars are replaced by the
+  // "ClipDataSetScalars" array (I am not convinced we really want replace the
+  // input scalars, we should pass them as well). If we are clipping by scalar
+  // itself, then the scalar is passed only if this->GenerateClipScalars is on. 
+  // Refer to BUG #8494.
+  if (!this->GenerateClipScalars && !this->ClipFunction)
     {
     outPD->CopyScalarsOff();
     }
