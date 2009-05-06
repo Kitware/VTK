@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.87");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.88");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -664,7 +664,7 @@ int vtkGenericEnSightReader::ReadNextDataLine(char result[256])
       {
       size_t len = strlen( result );
       unsigned int i = 0;
-      while( i < len && isspace( result[i] ) )
+      while( i < len && (static_cast<unsigned int>(result[i]) <= 255) && isspace(result[i]) )
         {
         ++i;
         }
