@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.24");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.25");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -331,8 +331,8 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     } // if ( myRank == reduceProc )
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  vtkTimerLog *timer3=vtkTimerLog::New();
-  timer3->StartTimer();
+  vtkTimerLog *timerB=vtkTimerLog::New();
+  timerB->StartTimer();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Broadcast the xy and kc buffer sizes
@@ -382,38 +382,20 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
   
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  timer3->StopTimer();
+  timerB->StopTimer();
 
   cout << "## Process "
        << myRank
        << " executed Broadcasts in "
-       << timer3->GetElapsedTime()
+       << timerB->GetElapsedTime()
        << " seconds."
        << "\n";
   
-  timer3->Delete();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  vtkTimerLog *timer4=vtkTimerLog::New();
-  timer4->StartTimer();
+  timerB->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Unpack the packet of strings
   UnpackValues( xyPacked_l, xyValues_l );
-
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  timer4->StopTimer();
-
-  cout << "## Process "
-       << myRank
-       << " unpacked character string in "
-       << timer4->GetElapsedTime()
-       << " seconds."
-       << "\n";
-  
-  timer4->Delete();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Finally, fill the new, global contigency table (everyone does this so everyone ends up with the same model)
   vtkVariantArray* row4 = vtkVariantArray::New();
