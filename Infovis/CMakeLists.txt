@@ -80,6 +80,7 @@ vtkSquarifyLayoutStrategy.cxx
 vtkSpanTreeLayoutStrategy.cxx
 vtkStackedTreeLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
+vtkStrahlerMetric.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
