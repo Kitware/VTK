@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.23");
+vtkCxxRevisionMacro(vtkTable, "1.24");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -248,6 +248,15 @@ vtkIdType vtkTable::InsertNextBlankRow()
       for (int j = 0; j < comps; j++)
         {
         data->InsertNextValue(vtkVariant());
+        }
+      }
+    else if (vtkUnicodeStringArray::SafeDownCast(arr))
+      {
+//      vtkErrorMacro(<< "vtkUnicodeStringArray is not supported for InsertNextBlankRow");
+      vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+      for (int j = 0; j < comps; j++)
+        {
+        data->InsertNextValue(vtkUnicodeString::from_utf8(""));
         }
       }
     else
