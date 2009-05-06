@@ -21,7 +21,7 @@
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.26");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.27");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ class vtkEarlyCocoaSetup
 // We create a global/static instance of this class to ensure that we have an
 // autorelease pool before main() starts (the C++ constructor for a global
 // object runs before main).  Note: I am unable to find a place to delete this
-// object safely.
+// object safely, but having it around for the lifetime of the process is ok.
 static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 //----------------------------------------------------------------------------
@@ -209,25 +209,17 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
     {
     win = reinterpret_cast<NSWindow *>(renWin->GetWindowId());
   
-  // We don't want to be informed of every window closing, so check for nil.
+    // We don't want to be informed of every window closing, so check for nil.
     if (win != nil)
-    {
+      {
       // Register for the windowWillClose notification in order to stop
       // the run loop if the window closes.
       NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
       [nc addObserver:self selector:@selector(windowWillClose:) 
                                name:@"NSWindowWillCloseNotification" 
                              object:win];
+      }
     }
-    }
-
-  // Now that we are about to begin the standard Cocoa event loop, we can get
-  // rid of the 'pool of last resort' because [NSApp run] will create a new
-  // pool for every event
-  #ifndef __OBJC_GC__
-  delete gEarlyCocoaSetup;
-  gEarlyCocoaSetup = 0;
-  #endif
 
   // Start the NSApplication's run loop
   [NSApp run];
@@ -297,8 +289,11 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
   // init the ivar to null first.
   this->CocoaManager = NULL;
   this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
+  [cocoaManager self]; // prevent premature collection.
   
-  this->SetTimerDictionary(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
+  NSMutableDictionary* timerDictionary = [NSMutableDictionary dictionary];
+  this->SetTimerDictionary(reinterpret_cast<void *>(timerDictionary));
+  [timerDictionary self]; // prevent premature collection.
 }
 
 //----------------------------------------------------------------------------

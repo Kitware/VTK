@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.65");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.66");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -38,6 +38,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   // init the ivar to null first.
   this->CocoaManager = NULL;
   this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
+  [cocoaManager self]; // prevent premature collection.
   
   this->WindowCreated = 0;
   this->ViewCreated = 0;
@@ -517,23 +518,22 @@ void vtkCocoaRenderWindow::CreateAWindow()
                                (CGFloat)this->Size[0] / this->ScaleFactor,
                                (CGFloat)this->Size[1] / this->ScaleFactor);
 
-    NSWindow* theWindow = [[NSWindow alloc]
+    NSWindow* theWindow = [[[NSWindow alloc]
                            initWithContentRect:ctRect
                            styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask
                            backing:NSBackingStoreBuffered
-                           defer:NO];
+                           defer:NO] autorelease];
     if (!theWindow)
       {
       vtkErrorMacro("Could not create window, serious error!");
       return;
       }
 
-    [theWindow makeKeyAndOrderFront:nil];
-
-    [theWindow setAcceptsMouseMovedEvents:YES];
-
     this->SetWindowId(theWindow);
     this->WindowCreated = 1;
+
+    [theWindow makeKeyAndOrderFront:nil];
+    [theWindow setAcceptsMouseMovedEvents:YES];
   }
   
   // Always use the scaling factor from the window once it is created.
@@ -632,6 +632,9 @@ void vtkCocoaRenderWindow::CreateGLContext()
 
   this->SetPixelFormat((void*)pixelFormat);
   this->SetContextId((void*)context);
+  
+  [pixelFormat self]; // prevent premature collection.
+  [context self]; // prevent premature collection.
 }
 
 //----------------------------------------------------------------------------
@@ -714,9 +717,13 @@ int *vtkCocoaRenderWindow::GetSize()
   // is overloaded. It's really the NSView that vtk draws into, so we
   // return its size.
   // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-  NSRect frameRect = [(NSView*)this->GetDisplayId() frame];
-  this->Size[0] = (int)round(NSWidth(frameRect) * this->ScaleFactor);
-  this->Size[1] = (int)round(NSHeight(frameRect) * this->ScaleFactor);
+  NSView* view = (NSView*)this->GetDisplayId();
+  if (view)
+    {
+    NSRect frameRect = [view frame];
+    this->Size[0] = (int)round(NSWidth(frameRect) * this->ScaleFactor);
+    this->Size[1] = (int)round(NSHeight(frameRect) * this->ScaleFactor);
+    }
   return this->Superclass::GetSize();
 }
 
@@ -756,9 +763,13 @@ int *vtkCocoaRenderWindow::GetPosition()
   // is overloaded. In this case, it's the position of the NSWindow itself
   // on the screen that we return. We don't much care where the NSView is
   // within the NSWindow.
-  NSRect winFrameRect = [(NSWindow*)this->GetWindowId() frame];
-  this->Position[0] = (int)NSMinX(winFrameRect);
-  this->Position[1] = (int)NSMinY(winFrameRect);
+  NSWindow* window = (NSWindow*)this->GetWindowId();
+  if (window)
+    {
+    NSRect winFrameRect = [window frame];
+    this->Position[0] = (int)NSMinX(winFrameRect);
+    this->Position[1] = (int)NSMinY(winFrameRect);
+    }
   return this->Position;
 }
 
