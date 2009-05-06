@@ -49,7 +49,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkQtAnnotationView, "1.1");
+vtkCxxRevisionMacro(vtkQtAnnotationView, "1.2");
 vtkStandardNewMacro(vtkQtAnnotationView);
 
 //----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& s1,
   vtkSmartPointer<vtkAnnotationLayers> annotations;
   annotations.TakeReference(this->Adapter->QModelIndexListToVTKAnnotationLayers(qmi));
   this->GetRepresentation()->GetAnnotationLink()->SetAnnotationLayers(annotations);
-  this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(annotations));
+  this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(annotations.GetPointer()));
 
   vtkAnnotationLayers* a = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
   this->LastInputMTime = a->GetMTime();
