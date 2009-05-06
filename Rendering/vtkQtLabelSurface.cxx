@@ -52,7 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelSurface, "1.3");
+vtkCxxRevisionMacro(vtkQtLabelSurface, "1.4");
 vtkStandardNewMacro(vtkQtLabelSurface);
 vtkCxxSetObjectMacro(vtkQtLabelSurface,LabelTextProperty,vtkTextProperty);
 
@@ -449,6 +449,7 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
       }
 //    radian_rotation = 45.;
     
+    double line_offset = this->LabelTextProperty->GetLineOffset();
     if( this->LabelTextProperty->GetShadow() )
       {
       painter->save();
@@ -459,6 +460,7 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
       painter->translate( x[0], h-x[1] );
       painter->rotate( rotation );
       painter->translate( delta_x, delta_y );
+      painter->translate( 0., line_offset );
       painter->translate( shOff[0], -shOff[1] );
       
       double shadowColor[3];
@@ -479,7 +481,8 @@ void vtkQtLabelSurface::BuildLabelsInternal(vtkDataSet* input, QPainter* painter
     painter->translate( x[0], h-x[1] );
     painter->rotate( rotation );
     painter->translate( delta_x, delta_y );
-    
+    painter->translate( 0., line_offset );
+
     QTextDocument( textDocument );
     textDocument.setDefaultFont( fontSpec );
     QString styleSheet;
