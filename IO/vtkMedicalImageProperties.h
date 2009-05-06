@@ -150,6 +150,12 @@ public:
   static int GetDateAsFields(const char *date, int &year, int &month, int &day);
 
   // Description:
+  // Take as input a string in VR:TM format (HHMMSS) and extract the
+  // different fields namely: hour, minute and second
+  // Return 0 on error, 1 on success
+  static int GetTimeAsFields(const char *time, int &hour, int &minute, int &second /* , long &milliseconds */);
+
+  // Description:
   // Take as input a string in ISO 8601 date (YYYY/MM/DD) and construct a
   // locale date based on the different fields (see GetDateAsFields to extract
   // different fields)
