@@ -76,12 +76,9 @@
 //  - Views/vtkView returns NULL
 //  - Views/vtkDataRepresentation returns a pointer to a vtkSelection
 //  - Rendering/vtkInteractorStyleRubberBand2D returns an array of 5 unsigned
-// int values (startPosition[2],endPosition[2], and selection type
-// {SELECT_UNION|SELECT_NORMAL})
-//  - Rendering/vtkInteractorStyleRubberBand3D returns an array of 5 unsigned
-// int values (startPosition[2],endPosition[2], and selection type
-// {SELECT_UNION|SELECT_NORMAL})
-//  - Graphics/vtkSelectionLink returns NULL
+// - vtkCommand::AnnotationChangedEvent
+//  - GUISupport/Qt/vtkQtAnnotationView returns a pointer to a 
+// vtkAnnotationLayers
 // - vtkCommand::PlacePointEvent
 //  - Widgets/vtkSeedWidget returns a pointer to an int, being the current
 // handle number
@@ -333,6 +330,7 @@ public:
     RegisterEvent,
     UnRegisterEvent,
     UpdateInformationEvent,
+    AnnotationChangedEvent,
     SelectionChangedEvent,
     UpdatePropertyEvent,
     ViewProgressEvent,
