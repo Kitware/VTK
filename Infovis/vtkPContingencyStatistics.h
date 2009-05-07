@@ -22,6 +22,9 @@
 // of successive integers, where n is the number of rows of the summary table.
 // If this requirement is not fulfilled, then the outcome of the parallel update of contingency 
 // tables is unpredictable but will most likely be a crash.
+// Note that this requirement is consistent with the way contingency tables are constructed
+// by the (serial) superclass and thus, if you are using this class as it is intended to be ran,
+// then you do not have to worry about this requirement.
 
 // .SECTION Thanks
 // Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
