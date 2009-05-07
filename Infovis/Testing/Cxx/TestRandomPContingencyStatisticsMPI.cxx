@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestRandomPContingencyStatisticsMPI.cxx
+Program:   Visualization Toolkit
+Module:    TestRandomPContingencyStatisticsMPI.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*
@@ -122,7 +122,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   pcs->SetAssess( true );
   pcs->Update();
 
-    // Synchronize and stop clock
+  // Synchronize and stop clock
   com->Barrier();
   timer->StopTimer();
 
@@ -134,18 +134,54 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
          << " sec.\n";
     }
 
+  // Now perform verifications
+  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+
+  int testIntValue;
+  double testDoubleValue;
+  int numProcs = controller->GetNumberOfProcesses();
+
+  // Verify that all processes have the same grand total
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    cout << "\n## Verifying that all processes have the same grand total.\n";
+    }
+
+  // Gather all grand totals
+  int GT_l = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
+  int* GT_g = new int[numProcs];
+  com->AllGather( &GT_l, 
+                  GT_g, 
+                  1 );
+
+  // Use the first grand total as reference (as they all must be equal)
+  testIntValue = GT_g[0];
+  
+  // Print out all grand totals
+  if ( com->GetLocalProcessId() == args->ioRank )
+    {
+    for ( int i = 0; i < numProcs; ++ i )
+      {
+      cout << "     On process "
+           << i
+           << ", grand total = "
+           << GT_g[i]
+           << "\n";
+      
+      if ( GT_g[i] != testIntValue )
+        {
+        vtkGenericWarningMacro("Incorrect CDF.");
+        *(args->retVal) = 1;
+        }
+      }
+    }
+
   // Verify that information entropies on all processes make sense
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     cout << "\n## Verifying that information entropies are consistent on all processes.\n";
     }
-
-  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
-
-  int testIntValue = 0;
-  double testDoubleValue = 0;
-  int numProcs = controller->GetNumberOfProcesses();
 
   testIntValue = outputSummary->GetNumberOfColumns();
 
@@ -184,9 +220,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
              << outputSummary->GetValue( r, 0 ).ToString()
              << ", "
              << outputSummary->GetValue( r, 1 ).ToString()
-             << "), grand total: "
-             << outputContingency->GetValueByName( 0, "Cardinality" ).ToInt()
-             << ",\n";
+             << "):\n";
         
         for ( int i = 0; i < numProcs; ++ i )
           {
@@ -284,7 +318,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << ", CDF = "
            << cdf_g[i]
            << "\n";
-      
+
+      // Verify that CDF = 1 (within absTol)
       if ( fabs ( 1. - cdf_g[i] ) > args->absTol )
         {
         vtkGenericWarningMacro("Incorrect CDF.");
