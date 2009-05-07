@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.42");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.43");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -273,8 +273,8 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     return;
     }
 
-  vtkIdType nRowDict = summaryTab->GetNumberOfRows();
-  if ( nRowDict <= 0 )
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  if ( nRowSumm <= 0 )
     {
     return;
     }
@@ -292,7 +292,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       {
       doubleCol = vtkDoubleArray::New();
       doubleCol->SetName( entropyNames[j] );
-      doubleCol->SetNumberOfTuples( nRowDict );
+      doubleCol->SetNumberOfTuples( nRowSumm );
       summaryTab->AddColumn( doubleCol );
       doubleCol->Delete();
       }
@@ -362,7 +362,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     // Find the pair of variables to which the key corresponds
     key = keys->GetValue( r );
 
-    if ( key < 0 || key >= nRowDict )
+    if ( key < 0 || key >= nRowSumm )
       {
       vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
                      <<  key
@@ -503,7 +503,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 
     // Paranoid check: this test is not necessary since it has already been performed above
     // and the DB should not have been corrupted since. However, it does not cost much anyway.
-    if ( key < 0 || key >= nRowDict )
+    if ( key < 0 || key >= nRowSumm )
       {
       vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
                      <<  key
@@ -655,8 +655,8 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  vtkIdType nRowDict = summaryTab->GetNumberOfRows();
-  if ( nRowDict <= 0 )
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  if ( nRowSumm <= 0 )
     {
     return;
     }
@@ -689,7 +689,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
 
     // Find the summary key to which the pair (colX,colY) corresponds
     vtkIdType pairKey = -1;
-    for ( vtkIdType r = 0; r < nRowDict && pairKey == -1; ++ r )
+    for ( vtkIdType r = 0; r < nRowSumm && pairKey == -1; ++ r )
       {
       if ( varX->GetValue( r ) == varNameX
            &&
@@ -698,7 +698,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
         pairKey = r;
         }
       }
-    if ( pairKey < 0 || pairKey >= nRowDict )
+    if ( pairKey < 0 || pairKey >= nRowSumm )
       {
       vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
                      << pairKey
