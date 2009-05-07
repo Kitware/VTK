@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.25");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.26");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -152,6 +152,29 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   timers->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
+  // Get a hold of the summary table
+  vtkTable* summaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
+  if ( ! summaryTab )
+    {
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
+    return;
+    }
+
+  // Determine how many (X,Y) variable pairs are present
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  if ( nRowSumm <= 0 )
+    {
+    // No statistics were calculated in serial.
+#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+  timer->Delete();
+#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
+
+    return;
+    }
+
   // Get a hold of the contingency table
   vtkTable* contingencyTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
   if ( ! contingencyTab )
@@ -163,6 +186,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
+  // Determine number of (x,y) realizations are present
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   if ( nRowCont <= 0 )
     {
@@ -200,7 +224,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   vtkstd::vector<vtkStdString> xyValues_l; // local consecutive xy pairs
-  vtkstd::vector<vtkIdType>    kcValues_l; // local consecutive kc  pairs
+  vtkstd::vector<vtkIdType>    kcValues_l; // local consecutive kc pairs
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog *timer0=vtkTimerLog::New();
