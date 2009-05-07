@@ -18,7 +18,7 @@
 // It learns and derives the global statistical model on each node, but assesses each 
 // individual data points on the node that owns it.
 
-// .NOTE: It is assumed that the keys in the contingency table form a set {0,...,n-1}
+// .NOTE: It is assumed that the keys in the contingency table be contained in the set {0,...,n-1}
 // of successive integers, where n is the number of rows of the summary table.
 // If this requirement is not fulfilled, then the outcome of the parallel update of contingency 
 // tables is unpredictable but will most likely be a crash.
