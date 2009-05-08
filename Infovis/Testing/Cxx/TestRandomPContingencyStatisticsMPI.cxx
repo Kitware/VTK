@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 // For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
 #define DEBUG_CONTINGENCY_TABLE 0
+#define CONTINGENCY_BIG_CASE 1
 
 struct RandomContingencyStatisticsArgs
 {
@@ -70,10 +71,11 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) * ( myRank + 1 ) );
 
   // Generate an input table that contains samples of mutually independent discrete random variables
-  int nVariables = 2;
-  vtkIntArray* intArray[2];
+  int nVariables = 3;
+  vtkIntArray* intArray[3];
   vtkStdString columnNames[] = { "Rounded Normal 0", 
-                                 "Rounded Normal 1" };
+                                 "Rounded Normal 1",
+                                 "Rounded Normal 2" };
   
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
@@ -115,11 +117,15 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcs->AddColumnPair( columnNames[0], columnNames[1] );
+#if CONTINGENCY_BIG_CASE
+#else // CONTINGENCY_BIG_CASE
+  pcs->AddColumnPair( columnNames[0], columnNames[2] );
+#endif // CONTINGENCY_BIG_CASE
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearn( true );
   pcs->SetDerive( true );
-  pcs->SetAssess( true );
+  pcs->SetAssess( false );
   pcs->Update();
 
   // Synchronize and stop clock
@@ -138,6 +144,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
+  vtkIdType nRowSumm = outputSummary->GetNumberOfRows();
   int testIntValue;
   double testDoubleValue;
   int numProcs = controller->GetNumberOfProcesses();
@@ -197,13 +204,13 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   else
     {
     // For each row in the summary table, fetch variable names and information entropies
-    for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
+    for ( vtkIdType k = 0; k < nRowSumm; ++ k )
       {
       // Get local information entropies from summary table
       double* H_l = new double[nEntropies];
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
         {
-        H_l[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
+        H_l[c] = outputSummary->GetValue( k, iEntropies[c] ).ToDouble();
         }
 
       // Gather all local entropies
@@ -217,9 +224,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
         {
         // Get variable names
         cout << "   (X,Y) = ("
-             << outputSummary->GetValue( r, 0 ).ToString()
+             << outputSummary->GetValue( k, 0 ).ToString()
              << ", "
-             << outputSummary->GetValue( r, 1 ).ToString()
+             << outputSummary->GetValue( k, 1 ).ToString()
              << "):\n";
         
         for ( int i = 0; i < numProcs; ++ i )
@@ -231,13 +238,13 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
             {
             cout << ", "
                  << outputSummary->GetColumnName( iEntropies[c] )
-                 << "="
+                 << " = "
                  << H_g[nEntropies * i + c];
             }
           
           cout << "\n";
           
-          // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
+          // Make sure that H(X,Y) >= H(Y|X)+ H(X|Y)
           testDoubleValue = H_g[nEntropies * i + 1] + H_g[nEntropies * i + 2]; // H(Y|X)+ H(X|Y)
           
           if ( testDoubleValue > H_g[nEntropies * i] )
@@ -286,44 +293,54 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     }
 
   // Calculate local CDFs
-  double cdf_l = 0.;
-  vtkIdType key = 0;
+  double* cdf_l = new double[nRowSumm];
+  for ( vtkIdType k = 0; k < nRowSumm; ++ k )
+    {
+    cdf_l[k] = 0;
+    }
+  
   int n = outputContingency->GetNumberOfRows();
-  vtkIdType k;
 
   // Skip first entry which is reserved for the cardinality
   for ( vtkIdType r = 1; r < n; ++ r )
     {
-    k = keys->GetValue( r );
-    
-    if ( k == key )
-      {
-      cdf_l += prob->GetValue( r );
-      }
+    cdf_l[keys->GetValue( r )] += prob->GetValue( r );
     }
 
   // Gather all local CDFs
-  double* cdf_g = new double[numProcs];
-  com->AllGather( &cdf_l, 
+  double* cdf_g = new double[nRowSumm * numProcs];
+  com->AllGather( cdf_l, 
                   cdf_g, 
-                  1 );
+                  nRowSumm );
 
   // Print out all CDFs
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    for ( int i = 0; i < numProcs; ++ i )
+    for ( vtkIdType k = 0; k < nRowSumm; ++ k )
       {
-      cout << "   On process "
-           << i
-           << ", CDF = "
-           << cdf_g[i]
-           << "\n";
-
-      // Verify that CDF = 1 (within absTol)
-      if ( fabs ( 1. - cdf_g[i] ) > args->absTol )
+      // Get variable names
+      cout << "   (X,Y) = ("
+           << outputSummary->GetValue( k, 0 ).ToString()
+           << ", "
+           << outputSummary->GetValue( k, 1 ).ToString()
+           << "):\n";
+        
+      for ( int i = 0; i < numProcs; ++ i )
         {
-        vtkGenericWarningMacro("Incorrect CDF.");
-        *(args->retVal) = 1;
+        testDoubleValue = cdf_g[i * nRowSumm + k];
+
+        cout << "     On process "
+             << i
+             << ", CDF = "
+             << testDoubleValue
+             << "\n";
+
+        // Verify that CDF = 1 (within absTol)
+        if ( fabs ( 1. - testDoubleValue ) > args->absTol )
+          {
+          vtkGenericWarningMacro("Incorrect CDF.");
+          *(args->retVal) = 1;
+          }
         }
       }
     }
@@ -333,6 +350,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 #endif // DEBUG_CONTINGENCY_TABLE
 
   // Clean up
+  delete [] cdf_l;
   delete [] cdf_g;
   pcs->Delete();
   inputData->Delete();
@@ -416,8 +434,15 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomContingencyStatisticsArgs args;
+
+#if CONTINGENCY_BIG_CASE
   args.nVals = 1000000;
   args.span = 50.;
+#else // CONTINGENCY_BIG_CASE
+  args.nVals = 10;
+  args.span = 3.;
+#endif // CONTINGENCY_BIG_CASE
+
   args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;
