@@ -299,7 +299,7 @@ void vtkQtLineChartInternal::mergeLists(QList<vtkQtChartShape *> &target,
     }
   for( ; iter != target.constEnd(); ++iter)
     {
-    holder.append(*jter);
+    holder.append(*iter);
     }
 
   target = holder;
