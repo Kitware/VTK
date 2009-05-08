@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This example demonstrates the capabilities of vtkQuadraturePointInterpolator
-// vtkQuadraturePointsGenerator and the class required to suppport their
+// This example demonstrates the capabilities of vtkQuadraturePointInterpolator 
+// vtkQuadraturePointsGenerator and the class required to suppport their 
 // addition.
-//
+// 
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -49,6 +49,7 @@
 #include "vtkWindowToImageFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkstd/string"
+using vtkstd::string;
 
 // Generate a vector to warp by.
 int GenerateWarpVector(vtkUnstructuredGrid *usg);
@@ -64,11 +65,11 @@ int TestQuadraturePoints(int argc,char *argv[])
     cerr << "Error: -D /path/to/data was not specified.";
     return 1;
     }
-  vtkstd::string dataRoot=testHelper->GetDataRoot();
-  vtkstd::string tempDir=testHelper->GetTempDirectory();
-  vtkstd::string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
-  vtkstd::string tempFile=tempDir+"/tmp.vtu";
-  vtkstd::string tempBaseline=tempDir+"/TestQuadraturePoints.png";
+  string dataRoot=testHelper->GetDataRoot();
+  string tempDir=testHelper->GetTempDirectory();
+  string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
+  string tempFile=tempDir+"/tmp.vtu";
+  string tempBaseline=tempDir+"/TestQuadraturePoints.png";
 
   // Raed, xml or legacy file.
   vtkUnstructuredGrid *input=0;
@@ -96,13 +97,11 @@ int TestQuadraturePoints(int argc,char *argv[])
     cerr << "Error: Could not read file " << inputFileName << "." << endl;
     return 1;
     }
-
-  // Add a couple arrays to be used in the demonstrations.
+  // Addd a couple arrays to be used in the demonstrations.
   int warpIdx=GenerateWarpVector(input);
-  vtkstd::string warpName=input->GetPointData()->GetArray(warpIdx)->GetName();
+  string warpName=input->GetPointData()->GetArray(warpIdx)->GetName();
   int threshIdx=GenerateThresholdScalar(input);
-  vtkstd::string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
-
+  string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
   // Add a quadrature scheme dictionary to the data set. This filter is
   // solely for our convinience. Typically we would expect that users
   // provide there own in XML format and use the readers or to generate
@@ -110,38 +109,27 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkQuadratureSchemeDictionaryGenerator *dictGen=vtkQuadratureSchemeDictionaryGenerator::New();
   dictGen->SetInput(input);
   input->Delete();
-
-  // Interpolate fields to the quadrature points. This generates new field data
-  // arrays, but not a set of points.
-  vtkQuadraturePointInterpolator *fieldInterp=vtkQuadraturePointInterpolator::New();
-  fieldInterp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
-  fieldInterp->SetInput(dictGen->GetOutput());
-  dictGen->Delete();
-
   // Write the dataset as XML. This excercises the information writer.
-  /*vtkXMLUnstructuredGridWriter *xusgw=vtkXMLUnstructuredGridWriter::New();
+  vtkXMLUnstructuredGridWriter *xusgw=vtkXMLUnstructuredGridWriter::New();
   xusgw->SetFileName(tempFile.c_str());
-  xusgw->SetInput(fieldInterp->GetOutput());
-  fieldInterp->Delete();
+  xusgw->SetInput(dictGen->GetOutput());
+  dictGen->Delete();
   xusgw->Write();
   xusgw->Delete();
-
   // Read the data back in form disk. This excercises the information reader.
   xusgr=vtkXMLUnstructuredGridReader::New();
   xusgr->SetFileName(tempFile.c_str());
-  input=xusgr->GetOutput();*/
-  input = vtkUnstructuredGrid::SafeDownCast(fieldInterp->GetOutput());
+  input=xusgr->GetOutput();
   input->Update();
   input->Register(0);
-  /*xusgr->Delete();*/
-  fieldInterp->Delete();
+  xusgr->Delete();
   input->GetPointData()->SetActiveVectors(warpName.c_str());
   input->GetPointData()->SetActiveScalars(threshName.c_str());
- // Demonstrate warp by vector.
+  // Demonstrate warp by vector.
   vtkWarpVector *warper=vtkWarpVector::New();
   warper->SetInput(input);
+  input->Delete();
   warper->SetScaleFactor(0.02);
-
   // Demonstrate clip functionality.
   vtkPlane *plane=vtkPlane::New();
   plane->SetOrigin(0.0,0.0,0.03);
@@ -151,25 +139,26 @@ int TestQuadraturePoints(int argc,char *argv[])
   plane->Delete();
   clip->SetInput(warper->GetOutput());
   warper->Delete();
-
   // Demonstrate threshold functionality.
   vtkThreshold *thresholder=vtkThreshold::New();
   thresholder->SetInput(clip->GetOutput());
   clip->Delete();
   thresholder->ThresholdBetween(0.0,3.0);
-
+  // Interpolate fields to the quadrature points. This generates new field data
+  // arrays, but not a set of points.
+  vtkQuadraturePointInterpolator *fieldInterp=vtkQuadraturePointInterpolator::New();
+  fieldInterp->SetInput(thresholder->GetOutput());
+  thresholder->Delete();
   // Generate the quadrature point set using a specific array as point data.
   vtkQuadraturePointsGenerator *pointGen=vtkQuadraturePointsGenerator::New();
-  pointGen->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
-  pointGen->SetInput(thresholder->GetOutput());
-  thresholder->Delete();
+  pointGen->SetSourceArrayName("pressure");
+  pointGen->SetInput(fieldInterp->GetOutput());
+  fieldInterp->Delete();
   vtkPolyData *output=vtkPolyData::SafeDownCast(pointGen->GetOutput());
   output->Update();
   output->Register(0);
   pointGen->Delete();
-  const char* activeScalars = "pressure";
-  output->GetPointData()->SetActiveScalars(activeScalars);
-
+  output->GetPointData()->SetActiveScalars("pressure_QP_Interpolated");
   // Glyph the point set.
   vtkSphereSource *ss=vtkSphereSource::New();
   ss->SetRadius(0.0008);
@@ -186,16 +175,10 @@ int TestQuadraturePoints(int argc,char *argv[])
   glyphs->Delete();
   pdmQPts->SetColorModeToMapScalars();
   pdmQPts->SetScalarModeToUsePointData();
-  if(output->GetPointData()->GetArray(0) == NULL)
-    {
-    vtkGenericWarningMacro( << "no point data in output of vtkQuadraturePointsGenerator" );
-    return 0;
-    }
-  pdmQPts->SetScalarRange(output->GetPointData()->GetArray(activeScalars)->GetRange());
+  pdmQPts->SetScalarRange(output->GetPointData()->GetArray(0)->GetRange());
   vtkActor *outputActor=vtkActor::New();
   outputActor->SetMapper(pdmQPts);
   pdmQPts->Delete();
-
   // Extract the surface of the warped input, for reference.
   vtkDataSetSurfaceFilter *surface=vtkDataSetSurfaceFilter::New();
   surface->SetInput(warper->GetOutput());
@@ -246,7 +229,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren2->AddActor(surfaceActor);
   ren2->ResetCamera();
   camera=0;
-  // If interactive mode then we show wireframes for
+  // If interactive mode then we show wireframes for 
   // reference.
   if (testHelper->IsInteractiveModeSpecified())
     {

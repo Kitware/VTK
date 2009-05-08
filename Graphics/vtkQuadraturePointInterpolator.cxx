@@ -24,7 +24,6 @@
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkCellType.h"
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -39,7 +38,7 @@ using vtksys_ios::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
-vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.8");
+vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.9");
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
 //-----------------------------------------------------------------------------
@@ -136,36 +135,11 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
   // Extract info we need for all cells.
   vtkIdType nCells=usgOut->GetNumberOfCells();
 
-  // For each array we interpolate scalar data to the
+  // For each array we interpolate scalar data to the 
   // integration point location. Results are in associated
   // field data arrays.
   int nArrays
     = usgOut->GetPointData()->GetNumberOfArrays();
-
-  vtkIdTypeArray *offsets=vtkIdTypeArray::SafeDownCast(this->GetInputArrayToProcess(0,usgOut));
-
-  if(offsets == NULL)
-    {
-    vtkWarningMacro("no Offset array, skipping.");
-    return 0;
-    }
-
-  const char* arrayOffsetName = offsets->GetName();
-
-  vtkInformation *info=offsets->GetInformation();
-  vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
-  if (!key->Has(info))
-    {
-    vtkWarningMacro("Dictionary is not present in.  Skipping.");
-    return 0;
-    }
-  int dictSize= key->Size(info);
-  vtkQuadratureSchemeDefinition **dict=new vtkQuadratureSchemeDefinition *[dictSize];
-  key->GetRange(info,dict,0,0,dictSize);
-
-  vtkIdType *pOffsets=offsets->GetPointer(0);
-
-  // interpolate the arrays
   for (int arrayId=0; arrayId<nArrays; ++arrayId)
     {
     // Grab the next array, proccess it only if we have floating
@@ -177,21 +151,41 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
       continue;
       }
     // Use two arrays, one with the interpolated values,
-    // the other with offsets to the start of each cell's
+    // the other with offsets to the start of each cell's 
     // interpolated values.
+    vtkIdTypeArray *indexes=vtkIdTypeArray::New();
+    indexes->SetNumberOfComponents(1);
+    indexes->SetNumberOfTuples(nCells);
+    ostringstream indexesName;
+    indexesName << V->GetName() << "_QP_Indexes";
+    indexes->SetName(indexesName.str().c_str());
+    usgOut->GetFieldData()->AddArray(indexes);
+    indexes->Delete();
+    vtkIdType *pIndexes=indexes->GetPointer(0);
+    //
     int nComps=V->GetNumberOfComponents();
     vtkDoubleArray *interpolated=vtkDoubleArray::New();
     interpolated->SetNumberOfComponents(nComps);
     interpolated->Allocate(nComps*nCells); // at least one qp per cell
     ostringstream interpolatedName;
-    interpolatedName << V->GetName();// << "_QP_Interpolated";
+    interpolatedName << V->GetName() << "_QP_Interpolated";
     interpolated->SetName(interpolatedName.str().c_str());
     usgOut->GetFieldData()->AddArray(interpolated);
-    interpolated->GetInformation()->Set(vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME(), arrayOffsetName);
     interpolated->Delete();
 
-    // Get the dictionary associated with this array.We are going
+    // Get the dictionary associated with this array.We are going 
     // to make a copy for efficiency.
+    vtkInformation *info=V->GetInformation();
+    vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
+    if (!key->Has(info))
+      {
+      vtkWarningMacro("Dictionary is not present in "
+                       << V->GetName() << ".  Skipping.");
+      continue;
+      }
+    int dictSize= key->Size(info);
+    vtkQuadratureSchemeDefinition **dict=new vtkQuadratureSchemeDefinition *[dictSize];
+    key->GetRange(info,dict,0,0,dictSize);
 
     // For all cells interpolate.
     switch (V_type)
@@ -200,7 +194,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
         {
         vtkDoubleArray *V_d=static_cast<vtkDoubleArray *>(V);
         double *pV_d=V_d->GetPointer(0);
-        if (!Interpolate(usgOut,nCells,pV_d,nComps,dict,interpolated,pOffsets))
+        if (!Interpolate(usgOut,nCells,V_d,pV_d,nComps,dict,interpolated,pIndexes))
           {
           vtkWarningMacro("Failed to interpolate fields "
                           "to quadrature points. Aborting.");
@@ -212,7 +206,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
         {
         vtkFloatArray *V_f=static_cast<vtkFloatArray *>(V);
         float *pV_f=V_f->GetPointer(0);
-        if (!Interpolate(usgOut,nCells,pV_f,nComps,dict,interpolated,pOffsets))
+        if (!Interpolate(usgOut,nCells,V_f,pV_f,nComps,dict,interpolated,pIndexes))
           {
           vtkWarningMacro("Failed to interpolate fields "
                           "to quadrature points. Aborting.");
@@ -222,8 +216,8 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
         }
       }
 
+    delete [] dict;
     }
-  delete [] dict;
 
   return 1;
 }
