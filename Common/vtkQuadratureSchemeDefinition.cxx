@@ -17,6 +17,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkCellType.h"
 #include "vtkXMLDataElement.h"
 #include "vtksys/ios/sstream"
@@ -26,13 +27,18 @@ using vtksys_ios::istringstream;
 using vtkstd::string;
 
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
-vtkCxxRevisionMacro(vtkQuadratureSchemeDefinition, "1.4");
+vtkCxxRevisionMacro(vtkQuadratureSchemeDefinition, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkInformationKeyMacro(
         vtkQuadratureSchemeDefinition,
         DICTIONARY,
         QuadratureSchemeDefinitionVector);
+
+vtkInformationKeyMacro(
+        vtkQuadratureSchemeDefinition,
+        QUADRATURE_OFFSET_ARRAY_NAME,
+        String);
 
 //-----------------------------------------------------------------------------
 vtkQuadratureSchemeDefinition::vtkQuadratureSchemeDefinition()
@@ -51,12 +57,6 @@ vtkQuadratureSchemeDefinition::~vtkQuadratureSchemeDefinition()
 //-----------------------------------------------------------------------------
 int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition *other)
 {
-  if (other==this)
-    {
-    vtkWarningMacro("Attempt to copy self.");
-    return 0;
-    }
-
   this->ShapeFunctionWeights=0;
   this->QuadratureWeights=0;
   this->Clear();
@@ -150,12 +150,9 @@ int vtkQuadratureSchemeDefinition::SecureResources()
     }
 
   // Shape function weights, one vector for each quad point.
-  size_t nShapeWts=this->NumberOfQuadraturePoints*this->NumberOfNodes;
-  this->ShapeFunctionWeights=new double [nShapeWts];
-  memset(this->ShapeFunctionWeights,0,nShapeWts*sizeof(double));
+  this->ShapeFunctionWeights=new double [this->NumberOfQuadraturePoints*this->NumberOfNodes];
   // Quadrature weights, one double for each quad point
   this->QuadratureWeights=new double [this->NumberOfQuadraturePoints];
-  memset(this->QuadratureWeights,0,this->NumberOfQuadraturePoints*sizeof(double));
 
   return 1;
 }
@@ -215,6 +212,8 @@ void vtkQuadratureSchemeDefinition::PrintSelf(ostream &sout, vtkIndent indent)
   return;
 }
 
+
+//NOTE: These are used by XML readers/writers.
 //-----------------------------------------------------------------------------
 ostream &operator<<(ostream &sout, const vtkQuadratureSchemeDefinition &def)
 {

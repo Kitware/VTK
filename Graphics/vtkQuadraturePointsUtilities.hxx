@@ -25,16 +25,15 @@ namespace {
 
 // Description:
 // For all cells in the input "usg", for a specific array
-// "V" interpolate to quadrature points using the given 
+// "V" interpolate to quadrature points using the given
 // dictionary "dict" into "interpolated". Additionally if
 // "indexes" is not 0 then track the indexes of where the
-// values from each cell start as well. In the case of 
+// values from each cell start as well. In the case of
 // an error the return is 0.
-template<class vtk_T, class T>
+template<class T>
 int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
-        vtk_T *,
         T *pV,
         const int nCompsV,
         vtkQuadratureSchemeDefinition **dict,
@@ -55,11 +54,9 @@ int Interpolate(
     vtkQuadratureSchemeDefinition *def=dict[cellType];
     if (def==NULL)
       {
-      vtkGenericWarningMacro(
-                      "Definition for cell type "
-                      << cellType << " is not included in this dictionary. "
-                      << "Aborting.");
-      return 0;
+      // no quadrature scheme been specified for this cell type
+      // skipping the cell.
+      continue;
       }
     vtkIdType nNodes=def->GetNumberOfNodes();
     int nQPts=def->GetNumberOfQuadraturePoints();

@@ -36,6 +36,7 @@
 #include "vtkObject.h"
 
 class vtkInformationQuadratureSchemeDefinitionVectorKey;
+class vtkInformationStringKey;
 class vtkXMLDataElement;
 
 class VTK_COMMON_EXPORT vtkQuadratureSchemeDefinition : public vtkObject
@@ -45,6 +46,7 @@ public:
   vtkTypeRevisionMacro(vtkQuadratureSchemeDefinition,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkInformationQuadratureSchemeDefinitionVectorKey* DICTIONARY();
+  static vtkInformationStringKey* QUADRATURE_OFFSET_ARRAY_NAME();
 
   // Description:
   // New object in an unsuable state. You'll have to call
