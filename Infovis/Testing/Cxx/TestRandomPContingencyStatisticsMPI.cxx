@@ -40,8 +40,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 // For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
-#define DEBUG_CONTINGENCY_TABLE 0
-#define CONTINGENCY_BIG_CASE 1
+#define DEBUG_CONTINGENCY_TABLE 1
+#define CONTINGENCY_BIG_CASE 0
 
 struct RandomContingencyStatisticsArgs
 {

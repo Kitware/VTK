@@ -34,7 +34,7 @@
 
 #include "vtkContingencyStatistics.h"
 
-#include <vtkstd/vector> // used by Reduce()
+#include <vtkstd/vector> // used by protected member functions
 
 class vtkMultiProcessController;
 
@@ -71,11 +71,11 @@ protected:
 
   // Description:
   // Reduce the collection of local contingency tables to the global one
-  bool Reduce( char* xyPacked_g,
-               vtkIdType& xySizeTotal,
+  bool Reduce( vtkIdType& xySizeTotal,
+               char* xyPacked_g,
                vtkStdString& xyPacked_l,
-               vtkIdType*  kcValues_g,
                vtkIdType& kcSizeTotal,
+               vtkIdType*  kcValues_g,
                vtkstd::vector<vtkIdType>& kcValues_l );
 
   // Description:
