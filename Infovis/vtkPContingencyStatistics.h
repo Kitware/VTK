@@ -62,6 +62,14 @@ protected:
 
 //BTX
   // Description:
+  // Pack all entries of a contingency table in:
+  // 1. a single string for all realizations of pairs of categorical variables, and
+  // 2. a single vector for the corresponding keys and cardinalities
+  bool Pack( vtkTable* contingencyTab,
+             vtkStdString& xyPacked,
+             vtkstd::vector<vtkIdType>& kcValues );
+
+  // Description:
   // Reduce the collection of local contingency tables to the global one
   bool Reduce( char* xyPacked_g,
                vtkIdType& xySizeTotal,
@@ -69,6 +77,15 @@ protected:
                vtkIdType*  kcValues_g,
                vtkIdType& kcSizeTotal,
                vtkstd::vector<vtkIdType>& kcValues_l );
+
+  // Description:
+  // Broadcast reduced contingency table to all processes
+  bool Broadcast( vtkIdType xySizeTotal,
+                  vtkStdString& xyPacked,
+                  vtkstd::vector<vtkStdString>& xyValues,
+                  vtkIdType kcSizeTotal,
+                  vtkstd::vector<vtkIdType>& kcValues,
+                  int reduceProc );
 //ETX
 
   vtkMultiProcessController* Controller;
