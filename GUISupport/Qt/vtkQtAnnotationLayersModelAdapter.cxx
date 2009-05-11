@@ -65,7 +65,7 @@ vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* name)
+void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* vtkNotUsed(name))
 {
 /*
   if (name == 0)
@@ -167,7 +167,7 @@ vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnno
 
 //----------------------------------------------------------------------------
 QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSelection(
-  vtkAnnotationLayers *vtkann) const
+  vtkAnnotationLayers *vtkNotUsed(vtkann)) const
 {
 
   QItemSelection qis_list;
@@ -195,7 +195,7 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSele
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelection(
-  const QModelIndexList qmil) const
+  const QModelIndexList vtkNotUsed(qmil)) const
 {
 /*
   // Create vtk index selection
@@ -222,7 +222,7 @@ vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelect
 
 //----------------------------------------------------------------------------
 QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelection(
-  vtkSelection *vtksel) const
+  vtkSelection *vtkNotUsed(vtksel)) const
 {
 
   QItemSelection qis_list;
@@ -258,7 +258,7 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
     {
     return QVariant();
     }
-  if(idx.row() >= this->Annotations->GetNumberOfAnnotations())
+  if(idx.row() >= static_cast<int>(this->Annotations->GetNumberOfAnnotations()))
     {
     return QVariant();
     }
@@ -268,7 +268,7 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
   vtkSelection *s = a->GetSelection();
   if(s)
     {
-    for(int i=0; i<s->GetNumberOfNodes(); ++i)
+    for(unsigned int i=0; i<s->GetNumberOfNodes(); ++i)
       {
       numItems += s->GetNode(i)->GetSelectionList()->GetNumberOfTuples();
       }
@@ -312,7 +312,9 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
 }
 
 //----------------------------------------------------------------------------
-bool vtkQtAnnotationLayersModelAdapter::setData(const QModelIndex &idx, const QVariant &value, int role)
+bool vtkQtAnnotationLayersModelAdapter::setData(const QModelIndex &vtkNotUsed(idx), 
+                                                const QVariant &vtkNotUsed(value), 
+                                                int vtkNotUsed(role))
 {
 /*
   if (role == Qt::DecorationRole)
