@@ -157,6 +157,7 @@ public:
   vtkGetObjectMacro(Transform, vtkTransform);
   void SetTransform(vtkTransform* t);
 
+  //BTX
   /// Coordinate systems that output dataset may use.
   enum Coordinates
     {
