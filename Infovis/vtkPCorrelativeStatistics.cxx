@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPCorrelativeStatistics, "1.3");
+vtkCxxRevisionMacro(vtkPCorrelativeStatistics, "1.4");
 vtkCxxSetObjectMacro(vtkPCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPCorrelativeStatistics::vtkPCorrelativeStatistics()
@@ -76,6 +76,10 @@ void vtkPCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 
   // Now get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
+  if ( ! com )
+    {
+    vtkErrorMacro("No parallel communicator.");
+    }
   
   // (All) gather all sample sizes
   int n_l = outMeta->GetValueByName( 0, "Cardinality" ).ToInt(); // Cardinality
