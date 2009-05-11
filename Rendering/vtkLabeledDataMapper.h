@@ -157,6 +157,22 @@ public:
   vtkGetObjectMacro(Transform, vtkTransform);
   void SetTransform(vtkTransform* t);
 
+  /// Coordinate systems that output dataset may use.
+  enum Coordinates
+    {
+    WORLD=0,           //!< Output 3-D world-space coordinates for each label anchor.
+    DISPLAY=1          //!< Output 2-D display coordinates for each label anchor (3 components but only 2 are significant).
+    };
+  //ETX
+
+  // Description:
+  // Set/get the coordinate system used for output labels.
+  // The output datasets may have point coordinates reported in the world space or display space.
+  vtkGetMacro(CoordinateSystem,int);
+  vtkSetClampMacro(CoordinateSystem,int,WORLD,DISPLAY);
+  void CoordinateSystemWorld() { this->SetCoordinateSystem( vtkLabeledDataMapper::WORLD ); }
+  void CoordinateSystemDisplay() { this->SetCoordinateSystem( vtkLabeledDataMapper::DISPLAY ); }
+
   // Description:
   // Return the modified time for this object.
   virtual unsigned long GetMTime();
@@ -172,6 +188,7 @@ protected:
   int   LabeledComponent;
   int   FieldDataArray;
   char  *FieldDataName;
+  int CoordinateSystem;
 
   vtkTimeStamp BuildTime;
 

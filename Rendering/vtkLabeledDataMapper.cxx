@@ -40,7 +40,7 @@ public:
   vtkstd::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
 };
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.57");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.58");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
@@ -95,6 +95,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "type");
   
   this->Transform = 0;
+  this->CoordinateSystem = vtkLabeledDataMapper::WORLD;
 }
 
 //----------------------------------------------------------------------------
@@ -219,8 +220,18 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
       {
       pos = this->Transform->TransformDoublePoint(x);
       }
-    actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
-    actor->GetPositionCoordinate()->SetValue(pos);
+
+    if(this->CoordinateSystem == vtkLabeledDataMapper::WORLD)
+      {
+      actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
+      actor->GetPositionCoordinate()->SetValue(pos);
+      }
+    else if(this->CoordinateSystem == vtkLabeledDataMapper::DISPLAY)
+      {
+      actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+      actor->GetPositionCoordinate()->SetValue(pos);
+      }
+
     this->TextMappers[i]->RenderOverlay(viewport, actor);
     }
 }
@@ -276,8 +287,18 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       {
       pos = this->Transform->TransformDoublePoint(pos);
       }
-    actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
-    actor->GetPositionCoordinate()->SetValue(pos);
+
+    if(this->CoordinateSystem == vtkLabeledDataMapper::WORLD)
+      {
+      actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
+      actor->GetPositionCoordinate()->SetValue(pos);
+      }
+    else if(this->CoordinateSystem == vtkLabeledDataMapper::DISPLAY)
+      {
+      actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+      actor->GetPositionCoordinate()->SetValue(pos);
+      }
+
     this->TextMappers[i]->RenderOpaqueGeometry(viewport, actor);
     }
 }
