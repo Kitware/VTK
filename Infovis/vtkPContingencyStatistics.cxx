@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.29");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.30");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -227,6 +227,9 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
+  // NB: Use process 0 as sole reducer for now
+  vtkIdType reduceProc = 0; 
+
   // (All) gather all xy and kc sizes
   vtkIdType xySize_l = xyPacked_l.size();
   vtkIdType* xySize_g = new vtkIdType[np];
@@ -259,8 +262,6 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
-  // NB: Use process 0 as sole reducer for now
-  vtkIdType reduceProc = 0; 
   char* xyPacked_g = 0;
   vtkIdType*  kcValues_g = 0;
   if ( myRank == reduceProc )
