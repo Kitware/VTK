@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.8");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.9");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -96,7 +96,9 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   vtkCommunicator* com = curController->GetCommunicator();
   if ( ! com )
     {
-    vtkErrorMacro("No parallel communicator.");
+    vtkGenericWarningMacro("No parallel communicator.");
+
+    return;
     }
 
   // (All) gather all sample sizes
