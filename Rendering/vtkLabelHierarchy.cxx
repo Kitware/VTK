@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.40");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.41");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.40");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.41");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -806,7 +806,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.40");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.41");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -855,7 +855,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
   if ( cam->GetParallelProjection() )
     { // Compute threshold for quadtree nodes too small to visit using parallel projection
     //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
-    this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
+    //this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
@@ -874,7 +874,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
       }
     double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
-    this->SizeLimit = fac * fac;
+    //this->SizeLimit = fac * fac;
     }
 }
 
@@ -1127,7 +1127,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.40");
+vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.41");
 vtkStandardNewMacro(vtkLabelHierarchyOctreeQueueIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
@@ -1176,7 +1176,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
   if ( cam->GetParallelProjection() )
     { // Compute threshold for quadtree nodes too small to visit using parallel projection
     //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
-    this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
+    //this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
@@ -1195,7 +1195,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
       }
     double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
-    this->SizeLimit = fac * fac;
+    //this->SizeLimit = fac * fac;
     }
 }
 
@@ -1493,7 +1493,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.40");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.41");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1541,7 +1541,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
   if ( cam->GetParallelProjection() )
     { // Compute threshold for quadtree nodes too small to visit using parallel projection
     //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
-    this->SizeLimit = 0.0001; // FIXME: Should be set using cam->ParallelScale
+    //this->SizeLimit = 0.0001; // FIXME: Should be set using cam->ParallelScale
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
@@ -1560,7 +1560,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
       }
     double fac = 0.1 * tva / vsr;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
-    this->SizeLimit = fac * fac;
+    //this->SizeLimit = fac * fac;
     }
 }
 
@@ -1787,7 +1787,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.40");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.41");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
