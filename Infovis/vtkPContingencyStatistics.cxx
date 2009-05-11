@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.28");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.29");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -260,7 +260,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
 
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
   // NB: Use process 0 as sole reducer for now
-  int reduceProc = 0; 
+  vtkIdType reduceProc = 0; 
   char* xyPacked_g = 0;
   vtkIdType*  kcValues_g = 0;
   if ( myRank == reduceProc )
@@ -557,7 +557,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
                                            vtkstd::vector<vtkStdString>& xyValues,
                                            vtkIdType kcSizeTotal,
                                            vtkstd::vector<vtkIdType>& kcValues,
-                                           int reduceProc )
+                                           vtkIdType reduceProc )
 {
   vtkCommunicator* com = this->Controller->GetCommunicator();
 

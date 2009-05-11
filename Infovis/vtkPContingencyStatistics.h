@@ -85,7 +85,7 @@ protected:
                   vtkstd::vector<vtkStdString>& xyValues,
                   vtkIdType kcSizeTotal,
                   vtkstd::vector<vtkIdType>& kcValues,
-                  int reduceProc );
+                  vtkIdType reduceProc );
 //ETX
 
   vtkMultiProcessController* Controller;
