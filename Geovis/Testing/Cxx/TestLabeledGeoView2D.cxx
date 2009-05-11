@@ -84,10 +84,13 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   vtkSmartPointer<vtkGeoRandomGraphSource> graphSource = 
     vtkSmartPointer<vtkGeoRandomGraphSource>::New();
   graphSource->SetNumberOfVertices(1000);
+  graphSource->SetNumberOfEdges(0);
   vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep = 
     vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
   graphRep->SetInputConnection(graphSource->GetOutputPort());
   graphRep->SetVertexLabelArrayName("latitude");
+  graphRep->SetColorVerticesByArray(true);
+  graphRep->SetVertexColorArrayName("longitude");
   graphRep->SetVertexLabelVisibility(true);
   graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");
   
