@@ -49,6 +49,12 @@ public:
   vtkSetMacro(MaximumDepth,int);
   vtkGetMacro(MaximumDepth,int);
 
+  // Description:
+  // Set whether, or not, to use unicode strings.
+  vtkSetMacro(UseUnicodeStrings,bool);
+  vtkGetMacro(UseUnicodeStrings,bool);
+  vtkBooleanMacro(UseUnicodeStrings,bool);
+
 protected:
   vtkPointSetToLabelHierarchy();
   virtual ~vtkPointSetToLabelHierarchy();
@@ -62,6 +68,7 @@ protected:
 
   int TargetLabelCount;
   int MaximumDepth;
+  bool UseUnicodeStrings;
 
 private:
   vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ); // Not implemented.

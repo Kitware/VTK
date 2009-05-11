@@ -34,16 +34,19 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTimerLog.h"
+#include "vtkUnicodeString.h"
+#include "vtkUnicodeStringArray.h"
 
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.8");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.9");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
   this->MaximumDepth = 5;
   this->TargetLabelCount = 32;
+  this->UseUnicodeStrings = false;
   this->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priority" );
   this->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize" );
   this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText" );
@@ -58,6 +61,7 @@ void vtkPointSetToLabelHierarchy::PrintSelf( ostream& os, vtkIndent indent )
 {
   os << indent << "MaximumDepth: " << this->MaximumDepth << "\n";
   os << indent << "TargetLabelCount: " << this->TargetLabelCount << "\n";
+  os << indent << "UseUnicodeStrings: " << (this->UseUnicodeStrings ? "ON" : "OFF") << endl; 
   this->Superclass::PrintSelf( os, indent );
 }
 
@@ -151,6 +155,9 @@ int vtkPointSetToLabelHierarchy::RequestData(
   vtkSmartPointer<vtkStringArray> labelString =
     vtkSmartPointer<vtkStringArray>::New();
   labelString->SetName( "LabelText" );
+  vtkSmartPointer<vtkUnicodeStringArray> labelUString =
+    vtkSmartPointer<vtkUnicodeStringArray>::New();
+  labelUString->SetName( "LabelText" );
 
   for ( int i = 0; i < numInputs; ++i )
     {
@@ -230,15 +237,30 @@ int vtkPointSetToLabelHierarchy::RequestData(
           {
           type->InsertNextValue( 0 );
           iconIndex->InsertNextValue( 0 );
-          labelString->InsertNextValue(
-            curStringOrIndex->GetVariantValue(p).ToString() );
+          if( this->UseUnicodeStrings )
+            {
+            labelUString->InsertNextValue(
+              curStringOrIndex->GetVariantValue(p).ToUnicodeString() );
+            }
+          else
+            {
+            labelString->InsertNextValue(
+              curStringOrIndex->GetVariantValue(p).ToString() );
+            }
           }
         else // icons
           {
           type->InsertNextValue( 1 );
           iconIndex->InsertNextValue(
             curStringOrIndex->GetVariantValue(p).ToInt() );
-          labelString->InsertNextValue( "" );
+          if( this->UseUnicodeStrings )
+            {
+            labelUString->InsertNextValue( vtkUnicodeString::from_utf8( "" ) );
+            }
+          else
+            {
+            labelString->InsertNextValue( "" );
+            }
           }
         }
       }
@@ -256,7 +278,14 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->GetPointData()->AddArray( size );
   ouData->GetPointData()->AddArray( type );
   ouData->GetPointData()->AddArray( iconIndex );
-  ouData->GetPointData()->AddArray( labelString );
+  if( this->UseUnicodeStrings )
+    {
+    ouData->GetPointData()->AddArray( labelUString );
+    }
+  else
+    {
+    ouData->GetPointData()->AddArray( labelString );
+    }
   ouData->GetPointData()->AddArray( idArr );
   ouData->ComputeHierarchy();
 

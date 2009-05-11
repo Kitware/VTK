@@ -105,6 +105,12 @@ public:
   vtkSetMacro(IteratorType,int);
   vtkGetMacro(IteratorType,int);
 
+  // Description:
+  // Set whether, or not, to use unicode strings.
+  vtkSetMacro(UseUnicodeStrings,bool);
+  vtkGetMacro(UseUnicodeStrings,bool);
+  vtkBooleanMacro(UseUnicodeStrings,bool);
+
   virtual unsigned long GetMTime();
 
   // Description:
@@ -167,6 +173,7 @@ protected:
   bool OutputTraversedBounds;
   bool GeneratePerturbedLabelSpokes;
   bool UseDepthBuffer;
+  bool UseUnicodeStrings;
 
   int LastRendererSize[2];
   double LastCameraPosition[3];

@@ -15,12 +15,7 @@
 #ifndef __vtkQtLabelSizeCalculator_h
 #define __vtkQtLabelSizeCalculator_h
 
-#include "vtkPassInputTypeAlgorithm.h"
-//#include "QVTKWin32Header.h"
-
-class vtkIntArray;
-class vtkStringArray;
-class vtkTextProperty;
+#include "vtkLabelSizeCalculator.h"
 
 // .NAME vtkQtLabelSizeCalculator
 // .SECTION Description
@@ -35,39 +30,23 @@ class vtkTextProperty;
 // In no input array is specified, the first of the following that
 // is a string array is used: point scalars, cell scalars, field scalars.
 
-class VTK_RENDERING_EXPORT vtkQtLabelSizeCalculator : public vtkPassInputTypeAlgorithm
+class VTK_RENDERING_EXPORT vtkQtLabelSizeCalculator : public vtkLabelSizeCalculator
 {
 public:
   static vtkQtLabelSizeCalculator* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
-  vtkTypeRevisionMacro(vtkQtLabelSizeCalculator,vtkPassInputTypeAlgorithm);
-
-  // Description:
-  // Get/Set the font used compute label sizes.
-  // This defaults to "Arial" at 12 points.
-  virtual void SetFontProperty( vtkTextProperty* fontProp );
-  vtkGetObjectMacro(FontProperty,vtkTextProperty);
-
-  // Description:
-  // The name of the output array containing text label sizes
-  // This defaults to "LabelSize"
-  vtkSetStringMacro(LabelSizeArrayName);
-  vtkGetStringMacro(LabelSizeArrayName);
+  vtkTypeRevisionMacro(vtkQtLabelSizeCalculator,vtkLabelSizeCalculator);
 
 protected:
   vtkQtLabelSizeCalculator();
   virtual ~vtkQtLabelSizeCalculator();
 
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inInfo,
-    vtkInformationVector* outInfo );
-
-  virtual vtkIntArray* LabelSizesForArray( vtkAbstractArray* labels );
-
-  vtkTextProperty* FontProperty;
-  char* LabelSizeArrayName;
+  virtual vtkIntArray* LabelSizesForArray( vtkAbstractArray* labels, 
+                                           vtkIntArray* types );
+  //BTX
+  class Internals;
+  Internals* Implementation;
+  //ETX
 
 private:
   vtkQtLabelSizeCalculator( const vtkQtLabelSizeCalculator& ); // Not implemented.

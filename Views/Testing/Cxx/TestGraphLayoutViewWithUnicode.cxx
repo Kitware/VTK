@@ -1113,43 +1113,43 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   t->GetEdgeData()->AddArray(dist);
   t->GetEdgeData()->AddArray(label);
 
-//  VTK_CREATE( vtkUnicodeStringArray, vlabel );
-  VTK_CREATE( vtkStringArray, vlabel );
+  VTK_CREATE( vtkUnicodeStringArray, vlabel );
+//  VTK_CREATE( vtkStringArray, vlabel );
   vlabel->SetName( "unicode" );
   for (vtkIdType i = 0; i < t->GetNumberOfVertices(); i++)
     {
     switch (i % 5)
       {
-//       case 0:
-//         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("abcd"));
-//         break;
-//       case 1:
-//         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xce\xb1\xce\xb2\xce\xb3")); // Greek lower-case alpha, beta, gamma.
-//         break;
-//       case 2:
-//         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"));// Thai ko kai, kho khai, kho khuat.
-//         break;
-//       case 3:
-//         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84")); // Linear-B syllables a, e, i, o, u.
-//         break;
-//       case 4:
-//         vlabel->InsertNextValue(vtkUnicodeString::from_utf8("a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"));// a, alpha, ko kai, syllable-a.
-//         break;
       case 0:
-        vlabel->InsertNextValue("abcd");
+        vlabel->InsertNextValue(vtkUnicodeString::from_utf8("abcd"));
         break;
       case 1:
-        vlabel->InsertNextValue("\xce\xb1\xce\xb2\xce\xb3"); // Greek lower-case alpha, beta, gamma.
+        vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xce\xb1\xce\xb2\xce\xb3")); // Greek lower-case alpha, beta, gamma.
         break;
       case 2:
-        vlabel->InsertNextValue("\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83");// Thai ko kai, kho khai, kho khuat.
+        vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"));// Thai ko kai, kho khai, kho khuat.
         break;
       case 3:
-        vlabel->InsertNextValue("\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"); // Linear-B syllables a, e, i, o, u.
+        vlabel->InsertNextValue(vtkUnicodeString::from_utf8("\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84")); // Linear-B syllables a, e, i, o, u.
         break;
       case 4:
-        vlabel->InsertNextValue("a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80");// a, alpha, ko kai, syllable-a.
+        vlabel->InsertNextValue(vtkUnicodeString::from_utf8("a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"));// a, alpha, ko kai, syllable-a.
         break;
+//       case 0:
+//         vlabel->InsertNextValue("abcd");
+//         break;
+//       case 1:
+//         vlabel->InsertNextValue("\xce\xb1\xce\xb2\xce\xb3"); // Greek lower-case alpha, beta, gamma.
+//         break;
+//       case 2:
+//         vlabel->InsertNextValue("\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83");// Thai ko kai, kho khai, kho khuat.
+//         break;
+//       case 3:
+//         vlabel->InsertNextValue("\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"); // Linear-B syllables a, e, i, o, u.
+//         break;
+//       case 4:
+//         vlabel->InsertNextValue("a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80");// a, alpha, ko kai, syllable-a.
+//         break;
       }
     }
   t->GetVertexData()->AddArray(vlabel);
@@ -1159,7 +1159,7 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   
   // Graph layout view
   VTK_CREATE(vtkRenderWindow, win);
-  win->SetSize(600,600);
+  win->SetSize(512,512);
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
   VTK_CREATE(vtkGraphLayoutView, view);
@@ -1168,13 +1168,16 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   view->VertexLabelVisibilityOn();
   view->SetVertexColorArrayName("size");
   view->ColorVerticesOn();
-  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
   view->SetEdgeColorArrayName("distance");
   view->ColorEdgesOn();
   view->SetEdgeLabelArrayName("edge label");
   view->EdgeLabelVisibilityOn();
-  view->SetupRenderWindow(win);
+  view->SetLabelPlacementModeToLabelPlacer();
+//  view->SetLabelPlacementModeToAll();
   view->SetLabelRenderModeToQt();
+
+  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
+  view->SetupRenderWindow(win);
 
   view->GetRenderer()->ResetCamera();
   view->Update();

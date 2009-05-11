@@ -57,6 +57,7 @@ class vtkTexturedActor2D;
 class vtkTransformCoordinateSystems;
 
 #ifdef VTK_USE_QT
+class vtkQtLabelSizeCalculator;
 class vtkQtLabelMapper;
 #endif
 
@@ -272,6 +273,9 @@ protected:
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
   vtkSmartPointer<vtkDynamic2DLabelMapper>     LabelMapper2D;
 #ifdef VTK_USE_QT
+  vtkSmartPointer<vtkQtLabelSizeCalculator>    QtLabelSize;
+  vtkSmartPointer<vtkPointSetToLabelHierarchy> QtLabelHierarchy;
+  vtkSmartPointer<vtkLabelPlacer>              QtLabelPlacer;
   vtkSmartPointer<vtkQtLabelMapper>            QtLabelMapper;
 #endif
 

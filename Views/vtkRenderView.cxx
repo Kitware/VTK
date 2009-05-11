@@ -57,10 +57,11 @@
 #include "vtkViewTheme.h"
 
 #ifdef VTK_USE_QT
+#include "vtkQtLabelSizeCalculator.h"
 #include "vtkQtLabelMapper.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.18");
+vtkCxxRevisionMacro(vtkRenderView, "1.19");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -140,12 +141,48 @@ vtkRenderView::vtkRenderView()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
 
 #ifdef VTK_USE_QT
+  this->QtLabelSize = vtkSmartPointer<vtkQtLabelSizeCalculator>::New();
+  this->QtLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
+  this->QtLabelPlacer = vtkSmartPointer<vtkLabelPlacer>::New();
   this->QtLabelMapper = vtkSmartPointer<vtkQtLabelMapper>::New();
-  this->QtLabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
+
+  this->QtLabelSize->SetInputConnection(this->LabelAppend->GetOutputPort());
+  this->QtLabelHierarchy->AddInputConnection(0, this->QtLabelSize->GetOutputPort());
+  this->QtLabelPlacer->SetInputConnection(this->QtLabelHierarchy->GetOutputPort());
+  this->QtLabelMapper->SetInputConnection(this->QtLabelPlacer->GetOutputPort(0));
+
+  this->QtLabelSize->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
+  this->QtLabelSize->SetInputArrayToProcess(
+    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
+  this->QtLabelSize->SetLabelSizeArrayName("LabelSize");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priority");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
+  this->QtLabelPlacer->SetRenderer(this->Renderer);
+
+  this->QtLabelHierarchy->SetUseUnicodeStrings( true );
+  this->QtLabelPlacer->SetUseUnicodeStrings( true );
+
   this->QtLabelMapper->SetLabelMode(VTK_LABEL_FIELD_DATA);
   this->QtLabelMapper->SetFieldDataName("LabelText");
   this->QtLabelMapper->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
+
+  this->QtLabelHierarchy->AddInputConnection(0, this->IconSize->GetOutputPort());
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    4, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    5, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconSize");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    6, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
+  this->QtLabelHierarchy->SetInputArrayToProcess(
+    7, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
 #endif
 
   this->LabelActor->PickableOff();
@@ -334,6 +371,7 @@ void vtkRenderView::AddLabels(vtkAlgorithmOutput* conn, vtkTextProperty* prop)
   this->LabelMapper->SetLabelTextProperty(prop, id);
   this->LabelMapper2D->SetLabelTextProperty(prop, id);
 #ifdef VTK_USE_QT
+  this->QtLabelSize->SetFontProperty(prop, id);
   this->QtLabelMapper->SetLabelTextProperty(prop, id);
 #endif
 }
@@ -358,6 +396,7 @@ void vtkRenderView::RemoveLabels(vtkAlgorithmOutput* conn)
       this->LabelMapper->SetLabelTextProperty(prop, i);
       this->LabelMapper2D->SetLabelTextProperty(prop, i);
 #ifdef VTK_USE_QT
+      this->QtLabelSize->SetFontProperty(prop, i);
       this->QtLabelMapper->SetLabelTextProperty(prop, i);
 #endif
       }
@@ -646,10 +685,9 @@ void vtkRenderView::SetLabelPlacementAndRenderMode( int placement_mode, int rend
         {
 #ifdef VTK_USE_QT
         this->LabelActor->SetMapper(this->QtLabelMapper);
-        this->LabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
-        this->QtLabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
-//FIXME - How about labeling with icons?  Is this sufficient?
-        this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
+        this->QtLabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
+        this->QtLabelMapper->SetInputConnection(this->QtLabelPlacer->GetOutputPort(0));
+        this->IconTransform->SetInputConnection(this->QtLabelPlacer->GetOutputPort(1));
 #else
       vtkErrorMacro("Qt label rendering not supported.");
 #endif
@@ -660,11 +698,10 @@ void vtkRenderView::SetLabelPlacementAndRenderMode( int placement_mode, int rend
 //FIXME - Qt label rendering doesn't have a dynamic2D label mapper; so,
 //  use freetype dynamic labeling with an error...
         vtkErrorMacro("Qt-based label rendering is not available with dynamic 2D label placement.  Using freetype-based label rendering.\n");
-        this->LabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
+        this->QtLabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
         this->LabelActor->SetMapper(this->QtLabelMapper);
-        this->QtLabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
-//FIXME - How about labeling with icons?  Is this sufficient?
-        this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
+        this->QtLabelMapper->SetInputConnection(this->QtLabelPlacer->GetOutputPort(0));
+        this->IconTransform->SetInputConnection(this->QtLabelPlacer->GetOutputPort(1));
 
 #else
      vtkErrorMacro("Qt label rendering not supported.");
@@ -674,9 +711,8 @@ void vtkRenderView::SetLabelPlacementAndRenderMode( int placement_mode, int rend
         {
 #ifdef VTK_USE_QT
         this->LabelActor->SetMapper(this->QtLabelMapper);
-        this->LabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
+        this->QtLabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
         this->QtLabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
-//FIXME - How about labeling with icons?  Is this sufficient?
         this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
 
 #else
