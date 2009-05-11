@@ -122,7 +122,7 @@ protected:
   vtkIdType PreviousLabelIter;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.41");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.42");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -553,7 +553,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.41");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.42");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -806,7 +806,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.41");
+vtkCxxRevisionMacro(vtkLabelHierarchyQuadtreeIterator,"1.42");
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
@@ -859,8 +859,8 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
-    double va = vtkMath::RadiansFromDegrees( cam->GetViewAngle() );
-    double tva = 2. * tan( va / 2. );
+    //double va = vtkMath::RadiansFromDegrees( cam->GetViewAngle() );
+    //double tva = 2. * tan( va / 2. );
     double vsr;
     if ( cam->GetUseHorizontalViewAngle() )
       {
@@ -872,7 +872,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
-    double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
+    //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
     }
@@ -1127,7 +1127,7 @@ protected:
   int NodesQueued;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.41");
+vtkCxxRevisionMacro(vtkLabelHierarchyOctreeQueueIterator,"1.42");
 vtkStandardNewMacro(vtkLabelHierarchyOctreeQueueIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
@@ -1180,8 +1180,8 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
-    double va = vtkMath::RadiansFromDegrees( cam->GetViewAngle() );
-    double tva = 2. * tan( va / 2. );
+    //double va = vtkMath::RadiansFromDegrees( cam->GetViewAngle() );
+    //double tva = 2. * tan( va / 2. );
     double vsr;
     if ( cam->GetUseHorizontalViewAngle() )
       {
@@ -1193,7 +1193,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
       }
-    double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
+    //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
     }
@@ -1493,7 +1493,7 @@ protected:
   int DidRoot;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.41");
+vtkCxxRevisionMacro(vtkLabelHierarchy3DepthFirstIterator,"1.42");
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
@@ -1545,8 +1545,8 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
     }
   else
     { // Compute threshold for quadtree nodes too small to visit using perspective projection
-    double va = vtkMath::RadiansFromDegrees( cam->GetViewAngle() );
-    double tva = 2. * tan( va / 2. );
+    //double va = vtkMath::RadiansFromDegrees( cam->GetViewAngle() );
+    //double tva = 2. * tan( va / 2. );
     double vsr;
     if ( cam->GetUseHorizontalViewAngle() )
       {
@@ -1558,7 +1558,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
       double vs = ren->GetSize()[1];
       vsr = vs / this->BucketSize[1];
       }
-    double fac = 0.1 * tva / vsr;
+    //double fac = 0.1 * tva / vsr;
     //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
     }
@@ -1787,7 +1787,7 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.41");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.42");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
