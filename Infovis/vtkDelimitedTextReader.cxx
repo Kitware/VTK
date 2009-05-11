@@ -41,7 +41,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.30");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.31");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -64,6 +64,10 @@ static int splitString(const vtkStdString& input,
 // myself.
 static int my_getline(istream& stream, vtkStdString &output, int& line_count);
 
+// Standard isspace asserts by testing if the characters is < 256
+// This doesnt work so well with unicode.
+static int my_isspace(int space);
+
 // Returns true if the line is entirely whitespace, false otherwise.
 static bool isSpaceOnlyString(const vtkStdString& s)
 {
@@ -71,7 +75,7 @@ static bool isSpaceOnlyString(const vtkStdString& s)
   const char* c = s.c_str();
   for (i = 0; i < s.length(); ++i)
     {
-    if (!isspace(c[i]))
+    if(!my_isspace(c[i]))
       {
       return false;
       }
@@ -531,4 +535,24 @@ my_getline(istream& in, vtkStdString &out, int& line_count)
     }
 
   return numCharactersRead;
+}
+
+static int
+my_isspace(int space)
+{
+  int count = 0;
+  switch(space)
+    {
+    case ' ':
+    case '\t':
+    case '\n':
+    case '\v':
+    case '\f':
+    case '\r':
+      count++;
+      break;
+    default:
+      break;
+    }
+  return count;
 }
