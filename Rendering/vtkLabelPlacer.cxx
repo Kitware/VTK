@@ -45,7 +45,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.22");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.23");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -229,6 +229,7 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->UseDepthBuffer = false;
 
   this->SetNumberOfOutputPorts( 4 );
+  //this->DebugOn();
 }
 
 vtkLabelPlacer::~vtkLabelPlacer()
@@ -673,7 +674,9 @@ int vtkLabelPlacer::RequestData(
       break;
       }
     if ( ll[0] > kdbounds[1] || lr[0] < kdbounds[0] )
+      {
       continue; // cull label not in frame
+      }
     
     switch ( gravity & VerticalBitMask )
       {
