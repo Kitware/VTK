@@ -75,26 +75,8 @@ TestMergeTables(int argc, char* argv[])
     cout << "ERROR: Wrong number of columns!" << endl
          << "       Expected 3, got " << mergedTable->GetNumberOfColumns()
          << endl;
-
-    reader1->Delete();
-    reader2->Delete();
-    table1->Delete();
-    table2->Delete();
-    mergedTable->Delete();
-    delete [] filename1;
-    delete [] filename2;
-
     return 1;
     }
-
-  // Cleanup
-  reader1->Delete();
-  reader2->Delete();
-  table1->Delete();
-  table2->Delete();
-  mergedTable->Delete();
-  delete [] filename1;
-  delete [] filename2;
 
   return 0;
 }
