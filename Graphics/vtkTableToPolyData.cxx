@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkTableToPolyData);
-vtkCxxRevisionMacro(vtkTableToPolyData, "1.4");
+vtkCxxRevisionMacro(vtkTableToPolyData, "1.5");
 //----------------------------------------------------------------------------
 vtkTableToPolyData::vtkTableToPolyData()
 {
@@ -186,13 +186,16 @@ void vtkTableToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XColumn: " 
     << (this->XColumn? this->XColumn : "(none)") << endl;
   os << indent << "XComponent: " << this->XComponent << endl;
+  os << indent << "XColumnIndex: " << this->XColumnIndex << endl;
   os << indent << "YColumn: " 
     << (this->YColumn? this->YColumn : "(none)") << endl;
   os << indent << "YComponent: " << this->YComponent << endl;
+  os << indent << "YColumnIndex: " << this->YColumnIndex << endl;
   os << indent << "ZColumn: " 
     << (this->ZColumn? this->ZColumn : "(none)") << endl;
   os << indent << "ZComponent: " << this->ZComponent << endl;
-  os << indent << "Create2DPoints: " << (this->Create2DPoints ? "true" : "false") << endl;;
+  os << indent << "ZColumnIndex: " << this->ZColumnIndex << endl;
+  os << indent << "Create2DPoints: " << (this->Create2DPoints ? "true" : "false") << endl;
 }
 
 

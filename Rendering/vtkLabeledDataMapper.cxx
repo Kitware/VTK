@@ -40,7 +40,7 @@ public:
   vtkstd::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
 };
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.58");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.59");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
@@ -725,6 +725,8 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->Transform->PrintSelf(os,indent.GetNextIndent());
     }
+
+  os << indent << "CoordinateSystem: " << this->CoordinateSystem << endl;
 }
 
 // ----------------------------------------------------------------------
