@@ -51,14 +51,16 @@ public:
   vtkIdType GetNumberOfPoints();
   double *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
   void GetPoint(vtkIdType ptId, double x[3]) {this->Points->GetPoint(ptId,x);};
-  vtkIdType FindPoint(double x[3]);
+  virtual vtkIdType FindPoint(double x[3]);
   vtkIdType FindPoint(double x, double y, double z) {
     return this->vtkDataSet::FindPoint(x, y, z);};
-  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-               int& subId, double pcoords[3], double *weights);
-  vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
-               vtkIdType cellId, double tol2, int& subId,
-               double pcoords[3], double *weights);
+  virtual vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
+                             double tol2, int& subId, double pcoords[3],
+                             double *weights);
+  virtual vtkIdType FindCell(double x[3], vtkCell *cell,
+                             vtkGenericCell *gencell, vtkIdType cellId,
+                             double tol2, int& subId, double pcoords[3],
+                             double *weights);
 
   // Description:
   // Get MTime which also considers its vtkPoints MTime.

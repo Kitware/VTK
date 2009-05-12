@@ -22,7 +22,13 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.8");
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+#include <vtkstd/set>
+
+vtkCxxRevisionMacro(vtkPointSet, "1.9");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -139,20 +145,92 @@ vtkIdType vtkPointSet::FindPoint(double x[3])
 //the furthest the walk can be - prevents aimless wandering
 #define VTK_MAX_WALK 12
 
+//-----------------------------------------------------------------------------
+// Used internally by FindCell to walk through neighbors from a starting cell.
+// The arguments are the same as those for FindCell.  In addition, visitedCells
+// keeps a list of cells already traversed.  If we run into such already
+// visited, the walk terminates since we assume we already walked from that cell
+// and found nothing.
+static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
+                              vtkGenericCell *gencell, vtkIdType cellId,
+                              double tol2, int &subId, double pcoords[3],
+                              double *weights,
+                              vtkstd::set<vtkIdType> &visitedCells)
+{
+  VTK_CREATE(vtkIdList, ptIds);
+  ptIds->Allocate(8, 100);
+  VTK_CREATE(vtkIdList, neighbors);
+  neighbors->Allocate(8, 100);
+
+  for (int walk = 0; walk < VTK_MAX_WALK; walk++)
+    {
+    // Check to see if we already visited this cell.
+    if (visitedCells.find(cellId) != visitedCells.end()) break;
+    visitedCells.insert(cellId);
+
+    // Get information for the cell.
+    if (!cell)
+      {
+      if (gencell)
+        {
+        self->GetCell(cellId, gencell);
+        cell = gencell;
+        }
+      else
+        {
+        cell = self->GetCell(cellId);
+        }
+      }
+
+    // Check to see if the cell contains the point.
+    double closestPoint[3];
+    double dist2;
+    if (   (cell->EvaluatePosition(x, closestPoint, subId,
+                                   pcoords, dist2, weights) == 1)
+        && (dist2 <= tol2) )
+      {
+      return cellId;
+      }
+
+    // This is not the right cell.  Find the next one.
+    cell->CellBoundary(subId, pcoords, ptIds);
+    self->GetCellNeighbors(cellId, ptIds, neighbors);
+    // If there is no next one, exit.
+    if (neighbors->GetNumberOfIds() < 1) break;
+    // Set the next cell as the current one and iterate.
+    cellId = neighbors->GetId(0);
+    cell = NULL;
+    }
+
+  // Could not find a cell.
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+static vtkIdType FindCellWalk(vtkPointSet *self, double x[3],
+                              vtkGenericCell *gencell, vtkIdList *cellIds,
+                              double tol2, int &subId, double pcoords[3],
+                              double *weights,
+                              vtkstd::set<vtkIdType> &visitedCells)
+{
+  for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); i++)
+    {
+    vtkIdType cellId = cellIds->GetId(i);
+    vtkIdType foundCell = FindCellWalk(self, x, NULL, gencell, cellId,
+                                       tol2, subId, pcoords, weights,
+                                       visitedCells);
+    if (foundCell >= 0) return foundCell;
+    }
+  return -1;
+}
+
 //----------------------------------------------------------------------------
 vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
                                 vtkGenericCell *gencell, vtkIdType cellId,
                                 double tol2, int& subId, double pcoords[3],
                                 double *weights)
 {
-  vtkIdType       ptId;
-  int             walk;
-  double           closestPoint[3];
-  double           dist2;
-  vtkIdList       *cellIds, *ptIds;
-  int             initialCellProvided = 1;
-  vtkIdList       *neighbors;
-  vtkIdType       curIdListPosn;
+  vtkIdType foundCell;
 
   // make sure everything is up to snuff
   if ( !this->Points || this->Points->GetNumberOfPoints() < 1)
@@ -160,12 +238,16 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     return -1;
     }
 
-  cellIds = vtkIdList::New();
-  cellIds->Allocate(8,100);
-  neighbors = vtkIdList::New();
-  neighbors->Allocate(8,100);
-  ptIds = vtkIdList::New();
-  ptIds->Allocate(8,100);
+  // Check to see if the point is within the bounds of the data.  This is not
+  // a strict check, but it is fast.
+  double bounds[6];
+  this->GetBounds(bounds);
+  if (   (x[0] < bounds[0]) || (x[0] > bounds[1])
+      || (x[1] < bounds[2]) || (x[1] > bounds[3])
+      || (x[2] < bounds[4]) || (x[2] > bounds[5]) )
+    {
+    return -1;
+    }
 
   if ( !this->Locator )
     {
@@ -180,161 +262,56 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     this->Locator->SetDataSet(this);
     }
 
-  // If we don't have a starting cell, we'll have to find one. Find
-  // the closest point to the input position, then get the cells that use
-  // the point.  Then use one of the cells to begin the walking process.
-  if ( !cell )
+  vtkstd::set<vtkIdType> visitedCells;
+
+  // If we are given a starting cell, try that.
+  if (cell && (cellId >= 0))
     {
-    initialCellProvided = 0;
-    ptId = this->Locator->FindClosestPoint(x);
-    if ( ptId < 0 )
-      {
-      neighbors->Delete();
-      cellIds->Delete();
-      ptIds->Delete();
-      return (-1); //if point completely outside of data
-      }
-
-    this->GetPointCells(ptId, cellIds);
-    curIdListPosn = 0;
-    if ( cellIds->GetNumberOfIds() > 0 )
-      {
-      cellId = cellIds->GetId(curIdListPosn++); //arbitrarily use first cell in list
-      if ( gencell )
-        {
-        this->GetCell(cellId, gencell);
-        }
-      else
-        {
-        cell = this->GetCell(cellId);
-        }
-
-      // See whether this randomly choosen cell contains the point      
-      double dx[3];
-      dx[0] = x[0];
-      dx[1] = x[1];
-      dx[2] = x[2];
-      if ( ( gencell && 
-             gencell->EvaluatePosition(dx,closestPoint,subId,
-                                       pcoords, dist2,weights) == 1
-             && dist2 <= tol2 )  ||
-           ( !gencell && 
-             cell->EvaluatePosition(dx,closestPoint,subId,
-                                    pcoords, dist2,weights) == 1
-             && dist2 <= tol2 ) )
-        {
-        neighbors->Delete();
-        cellIds->Delete();
-        ptIds->Delete();  
-        return cellId;
-        }
-      }
+    foundCell = FindCellWalk(this, x, cell, gencell, cellId,
+                             tol2, subId, pcoords, weights, visitedCells);
+    if (foundCell >= 0) return foundCell;
     }
-  else //EvaluatePosition insures that pcoords is defined
+
+  VTK_CREATE(vtkIdList, cellIds);
+  cellIds->Allocate(8,100);
+
+  // Now find the point closest to the coordinates given and search from the
+  // adjacent cells.
+  vtkIdType ptId = this->Locator->FindClosestPoint(x);
+  if (ptId < 0) return -1;
+  this->GetPointCells(ptId, cellIds);
+  foundCell = FindCellWalk(this, x, gencell, cellIds,
+                           tol2, subId, pcoords, weights, visitedCells);
+  if (foundCell >= 0) return foundCell;
+
+  // It is possible that the toplogy is not fully connected.  That is, two
+  // points in the point list could be coincident.  Handle that by looking
+  // at every point within the tolerance and consider all cells connected.
+  // It has been suggested that we should really do this coincident point
+  // check at every point as we walk through neighbors, which would happen
+  // in FindCellWalk.  If that were ever implemented, this step might become
+  // unnecessary.
+  double ptCoord[3];
+  this->GetPoint(ptId, ptCoord);
+  VTK_CREATE(vtkIdList, coincidentPtIds);
+  this->Locator->FindPointsWithinRadius(tol2, ptCoord, coincidentPtIds);
+  coincidentPtIds->DeleteId(ptId);      // Already searched this one.
+  for (vtkIdType i = 0; i < coincidentPtIds->GetNumberOfIds(); i++)
     {
-    cell->EvaluatePosition(x,NULL,subId,pcoords,dist2,weights);
-    curIdListPosn = 1;
+    this->GetPointCells(coincidentPtIds->GetId(i), cellIds);
+    foundCell = FindCellWalk(this, x, gencell, cellIds,
+                             tol2, subId, pcoords, weights, visitedCells);
+    if (foundCell >= 0) return foundCell;
     }
-  
-  // If a cell is supplied, or we didn't find a starting cell (in the
-  // previous chunk of code), then we use this to start our search. A
-  // walking scheme is used, where we walk towards the point and eventually
-  // locate the cell that contains the point.
-  do {
-    if ( cell || cellIds->GetNumberOfIds() > 0 ) //we have a starting cell
-      {
-      vtkIdType prevCellId = cellId;
-      for ( walk=0; walk < VTK_MAX_WALK; walk++ )
-        {
-        if ( cell )
-          {
-          cell->CellBoundary(subId, pcoords, ptIds);
-          }
-        else
-          {
-          gencell->CellBoundary(subId, pcoords, ptIds);
-          }
-        this->GetCellNeighbors(cellId, ptIds, neighbors);
-        if ( neighbors->GetNumberOfIds() > 0 )
-          {
-          vtkIdType nextCellId = neighbors->GetId(0);
-          // if the previous cell is the same as the next cell, 
-          // break out of walk loop because we're stuck
-          if(nextCellId == prevCellId)
-            {
-            break;
-            }
-          prevCellId = cellId;
-          cellId = nextCellId;
-          if ( gencell )
-            {
-            cell = NULL;
-            this->GetCell(cellId, gencell);
-            }
-          else
-            {
-            cell = this->GetCell(cellId);
-            }
-          }
-        else
-          {
-          break; //outside of data
-          }
-        if ( ( (!cell && 
-              gencell->EvaluatePosition(x,closestPoint,subId,pcoords,
-                dist2,weights) == 1 ) ||
-            (cell && cell->EvaluatePosition(x,closestPoint,
-                                            subId,pcoords,
-                                            dist2,weights) == 1 ) )
-          && dist2 <= tol2 )
-          {
-          neighbors->Delete();
-          cellIds->Delete();
-          ptIds->Delete();  
-          return cellId;
-          }
 
-        }//for a walk
-      }//if we have a starting cell
-    if ( curIdListPosn < cellIds->GetNumberOfIds() )
-      {
-      cellId = cellIds->GetId( curIdListPosn++ );
-      if ( gencell )
-        {
-        this->GetCell(cellId, gencell);
-        }
-      else
-        {
-        cell = this->GetCell(cellId);
-        }
-      }
-    else
-      {
-      cell = 0;
-      }
-  } while ( cell );
-
-  neighbors->Delete();
-  cellIds->Delete();
-  ptIds->Delete();
-
-  //sometimes the initial cell is a really bad guess so we'll
-  //just ignore it and start from scratch as a last resort
-  if ( initialCellProvided )
-    {
-    return this->FindCell(x, NULL, gencell, cellId, tol2,
-                          subId, pcoords, weights);
-    }
-  else
-    {
-    return -1;
-    }
+  // Could not find the cell.
+  return -1;
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                               double tol2, int& subId,double pcoords[3],
-                               double *weights)
+                                double tol2, int& subId,double pcoords[3],
+                                double *weights)
 {
   return
     this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
