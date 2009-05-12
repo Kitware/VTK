@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.25");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.26");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -418,10 +418,10 @@ int vtkFLUENTReader::RequestInformation(
     return 0;
     }
 
-  if(!this->OpenDataFile(this->FileName))
+  int dat_file_opened = this->OpenDataFile(this->FileName);
+  if(!dat_file_opened)
     {
-    vtkErrorMacro("Unable to open dat file.");
-    return 0;
+    vtkWarningMacro("Unable to open dat file.");
     }
 
   this->LoadVariableNames();
@@ -431,7 +431,10 @@ int vtkFLUENTReader::RequestInformation(
   this->GetNumberOfCellZones();
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
-  this->ParseDataFile();
+  if(dat_file_opened)
+    {
+    this->ParseDataFile();
+    }
   for (int i = 0; i < (int)this->SubSectionIds->value.size(); i++)
     {
     if (this->SubSectionSize->value[i] == 1)
