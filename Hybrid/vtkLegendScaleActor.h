@@ -122,6 +122,12 @@ public:
   vtkGetMacro(BottomBorderOffset,int);
 
   // Description:
+  // Get/Set the corner offset. This is the offset factor used to offset the
+  // axes at the corners. Default value is 2.0.
+  vtkSetClampMacro(CornerOffsetFactor, double, 1.0, 10.0);
+  vtkGetMacro(CornerOffsetFactor, double);
+
+  // Description:
   // Set/Get the labels text properties for the legend title and labels.
   vtkGetObjectMacro(LegendTitleProperty,vtkTextProperty);
   vtkGetObjectMacro(LegendLabelProperty,vtkTextProperty);
@@ -152,6 +158,7 @@ protected:
   int    TopBorderOffset;
   int    LeftBorderOffset;
   int    BottomBorderOffset;
+  double CornerOffsetFactor;
   
   // The four axes around the borders of the renderer
   vtkAxisActor2D *RightAxis;

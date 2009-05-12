@@ -32,7 +32,7 @@
 #include "vtkCellData.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkLegendScaleActor, "1.2");
+vtkCxxRevisionMacro(vtkLegendScaleActor, "1.3");
 vtkStandardNewMacro(vtkLegendScaleActor);
 
 
@@ -45,6 +45,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->TopBorderOffset = 30;
   this->LeftBorderOffset = 50;
   this->BottomBorderOffset = 30;
+  this->CornerOffsetFactor = 2.0;
   
   this->RightAxis = vtkAxisActor2D::New();
   this->RightAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
@@ -277,33 +278,43 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
     int *size = viewport->GetSize();
     
     this->RightAxis->GetPositionCoordinate()->
-      SetValue(size[0]-this->RightBorderOffset,2.0*this->BottomBorderOffset,0.0);
+      SetValue(size[0]-this->RightBorderOffset,
+        this->CornerOffsetFactor*this->BottomBorderOffset,0.0);
     this->RightAxis->GetPosition2Coordinate()->
-      SetValue(size[0]-this->RightBorderOffset,size[1]-2.0*this->TopBorderOffset,0.0);
+      SetValue(size[0]-this->RightBorderOffset,
+        size[1]-this->CornerOffsetFactor*this->TopBorderOffset,0.0);
 
     this->TopAxis->GetPositionCoordinate()->
-      SetValue(size[0]-2.0*this->RightBorderOffset,size[1]-this->TopBorderOffset,0.0);
+      SetValue(size[0]-this->CornerOffsetFactor*this->RightBorderOffset,
+        size[1]-this->TopBorderOffset,0.0);
     this->TopAxis->GetPosition2Coordinate()->
-      SetValue(2.0*this->LeftBorderOffset,size[1]-this->TopBorderOffset,0.0);
+      SetValue(this->CornerOffsetFactor*this->LeftBorderOffset,
+        size[1]-this->TopBorderOffset,0.0);
 
     this->LeftAxis->GetPositionCoordinate()->
-      SetValue(this->LeftBorderOffset,size[1]-2.0*this->TopBorderOffset,0.0);
+      SetValue(this->LeftBorderOffset,
+        size[1]-this->CornerOffsetFactor*this->TopBorderOffset,0.0);
     this->LeftAxis->GetPosition2Coordinate()->
-      SetValue(this->LeftBorderOffset,2.0*this->BottomBorderOffset,0.0);
+      SetValue(this->LeftBorderOffset,
+        this->CornerOffsetFactor*this->BottomBorderOffset,0.0);
 
     if ( this->LegendVisibility )
       {
       this->BottomAxis->GetPositionCoordinate()->
-        SetValue(2.0*this->LeftBorderOffset,2*this->BottomBorderOffset,0.0);
+        SetValue(this->CornerOffsetFactor*this->LeftBorderOffset,
+          2*this->BottomBorderOffset,0.0);
       this->BottomAxis->GetPosition2Coordinate()->
-        SetValue(size[0]-2.0*this->RightBorderOffset,2*this->BottomBorderOffset,0.0);
+        SetValue(size[0]-this->CornerOffsetFactor*this->RightBorderOffset,
+          2*this->BottomBorderOffset,0.0);
       }
     else
       {
       this->BottomAxis->GetPositionCoordinate()->
-        SetValue(2.0*this->LeftBorderOffset,this->BottomBorderOffset,0.0);
+        SetValue(this->CornerOffsetFactor*this->LeftBorderOffset,
+          this->BottomBorderOffset,0.0);
       this->BottomAxis->GetPosition2Coordinate()->
-        SetValue(size[0]-2.0*this->RightBorderOffset,this->BottomBorderOffset,0.0);
+        SetValue(size[0]-this->CornerOffsetFactor*this->RightBorderOffset,
+          this->BottomBorderOffset,0.0);
       }
     
 
@@ -512,6 +523,7 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
      << (this->BottomAxisVisibility ? "On\n" : "Off\n");
   os << indent << "Legend Visibility: " 
      << (this->LegendVisibility ? "On\n" : "Off\n");
+  os << indent << "Corner Offset Factor: " << this->CornerOffsetFactor << "\n";
   
   os << indent << "Right Border Offset: " << this->RightBorderOffset << "\n";
   os << indent << "Top Border Offset: " << this->TopBorderOffset << "\n";
