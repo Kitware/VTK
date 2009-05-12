@@ -52,7 +52,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.21");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.22");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -701,15 +701,14 @@ int vtkTableToGraph::RequestData(
   builder->GetVertexData()->AddArray(domainArr);
 
   // Check if the vertex table already has pedigree ids.
-  // If it does we're still going to add the ids array
-  // but we won't set it as the official pedigree ids.
+  // If it does we're not going to add the generated
+  // array.
   if (vertexTable->GetRowData()->GetPedigreeIds() == NULL)
     {
     builder->GetVertexData()->SetPedigreeIds(idArr);
     }
   else
     {
-    builder->GetVertexData()->AddArray(idArr);
     builder->GetVertexData()->SetPedigreeIds(
       vertexTable->GetRowData()->GetPedigreeIds());
     }
