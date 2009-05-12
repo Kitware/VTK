@@ -28,7 +28,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkPointSet, "1.9");
+vtkCxxRevisionMacro(vtkPointSet, "1.10");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -255,11 +255,13 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     this->Locator->Register(this);
     this->Locator->Delete();
     this->Locator->SetDataSet(this);
+    this->Locator->BuildLocator();
     }
 
   if ( this->Points->GetMTime() > this->Locator->GetMTime() )
     {
     this->Locator->SetDataSet(this);
+    this->Locator->BuildLocator();
     }
 
   vtkstd::set<vtkIdType> visitedCells;
@@ -278,6 +280,12 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   // Now find the point closest to the coordinates given and search from the
   // adjacent cells.
   vtkIdType ptId = this->Locator->FindClosestPoint(x);
+  vtkIdType ptId2;
+  while ((ptId2 = this->Locator->FindClosestPoint(x)) != ptId)
+    {
+    vtkWarningMacro(<< "Ack!  The locator is not giving us consistent results.  Is there an issue with thread safety?  " << ptId << " " << ptId2);
+    ptId = ptId2;
+    }
   if (ptId < 0) return -1;
   this->GetPointCells(ptId, cellIds);
   foundCell = FindCellWalk(this, x, gencell, cellIds,
