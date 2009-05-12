@@ -222,97 +222,62 @@ int TestContingencyStatistics( int, char *[] )
   vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
   vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
 
-  // Outliers for conditional probability
-  vtkStdString proName = "Px|y";
-  vtkStdString colName = proName + "(" + varX + "," + varY + ")";
-  double threshold = .2;
+  // List of columns used for outlier detection
+  vtkStdString outlierColumn[] = { "Px|y",
+                                   "PMI" };
+  // Corresponding threshold (low) values
+  double threshold[] = { .2,
+                         .0 };
 
-  cout << "## Found the following outliers such that "
-       << colName
-       << " < "
-       << threshold
-       << ":\n";
+  // Corresponding known number of outliers
+  int nOutliers[] = { 4,
+                      1 };
 
-  double p;
-  testIntValue = 0;
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
-    {
-    p = outputData->GetValueByName( r, colName ).ToDouble();
-    if ( p >= threshold )
+  int nOutlierTypes = 2;
+  for ( int i = 0; i < nOutlierTypes; ++ i )
+    { 
+    vtkStdString colName = outlierColumn[i] + "(" + varX + "," + varY + ")";
+
+    cout << "## Found the following outliers such that "
+         << colName
+         << " < "
+         << threshold[i]
+         << ":\n";
+    
+    double val;
+    testIntValue = 0;
+    for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
       {
-      continue;
+      val = outputData->GetValueByName( r, colName ).ToDouble();
+      if ( val >= threshold[i] )
+        {
+        continue;
+        }
+
+      ++ testIntValue;
+
+      cout << "   ("
+           << outputData->GetValueByName( r, varX ).ToString()
+           << ","
+           << outputData->GetValueByName( r, varY ).ToString()
+           << "):  "
+           << outlierColumn[i]
+           << " = "
+           << val
+           << "\n";
       }
 
-    ++ testIntValue;
-
-    cout << "   ("
-         << outputData->GetValueByName( r, varX ).ToString()
-         << ","
-         << outputData->GetValueByName( r, varY ).ToString()
-         << "):  "
-         << proName
-         << " = "
-         << p
-         << "\n";
-    }
-
-  int nOutliers = 4;
-  if ( testIntValue != nOutliers )
-    {
-    vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
-                           << testIntValue 
-                           << " != " 
-                           << nOutliers
-                           << ".");
-    testStatus = 1;
-    }
-  cout << "\n";
-
-  // Outliers for pointwise mutual information
-  proName = "PMI";
-  colName = proName + "(" + varX + "," + varY + ")";
-  threshold = 0.;
-
-  cout << "## Found the following outliers such that "
-       << colName
-       << " < "
-       << threshold
-       << ":\n";
-
-  double pmi;
-  testIntValue = 0;
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
-    {
-    pmi = outputData->GetValueByName( r, colName ).ToDouble();
-    if ( pmi >= threshold )
+    if ( testIntValue != nOutliers[i] )
       {
-      continue;
+      vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
+                             << testIntValue 
+                             << " != " 
+                             << nOutliers[i]
+                             << ".");
+      testStatus = 1;
       }
-
-    ++ testIntValue;
-
-    cout << "   ("
-         << outputData->GetValueByName( r, varX ).ToString()
-         << ","
-         << outputData->GetValueByName( r, varY ).ToString()
-         << "):  "
-         << proName
-         << " = "
-         << pmi
-         << "\n";
+    cout << "\n";
     }
-
-  nOutliers = 1;
-  if ( testIntValue != nOutliers )
-    {
-    vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
-                           << testIntValue 
-                           << " != " 
-                           << nOutliers
-                           << ".");
-    testStatus = 1;
-    }
-  cout << "\n";
 
   // Clean up
   delete [] H;
