@@ -223,17 +223,20 @@ int TestContingencyStatistics( int, char *[] )
   vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
 
   // List of columns used for outlier detection
-  vtkStdString outlierColumn[] = { "Px|y",
+  vtkStdString outlierColumn[] = { "P",
+                                   "Px|y",
                                    "PMI" };
   // Corresponding threshold (low) values
   double threshold[] = { .2,
+                         .2,
                          .0 };
 
   // Corresponding known number of outliers
   int nOutliers[] = { 4,
+                      4,
                       1 };
 
-  int nOutlierTypes = 2;
+  int nOutlierTypes = 3;
   for ( int i = 0; i < nOutlierTypes; ++ i )
     { 
     vtkStdString colName = outlierColumn[i] + "(" + varX + "," + varY + ")";
