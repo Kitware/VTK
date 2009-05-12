@@ -217,9 +217,12 @@ int TestContingencyStatistics( int, char *[] )
     }
   cout << "\n";
 
+  // Now inspect results of the Assess mode by looking for outliers
   key = 0;
   vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
   vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
+
+  // Outliers for conditional probability
   vtkStdString proName = "Px|y";
   vtkStdString colName = proName + "(" + varX + "," + varY + ")";
   double threshold = .2;
@@ -253,7 +256,53 @@ int TestContingencyStatistics( int, char *[] )
          << "\n";
     }
 
-  double nOutliers = 4;
+  int nOutliers = 4;
+  if ( testIntValue != nOutliers )
+    {
+    vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
+                           << testIntValue 
+                           << " != " 
+                           << nOutliers
+                           << ".");
+    testStatus = 1;
+    }
+  cout << "\n";
+
+  // Outliers for pointwise mutual information
+  proName = "PMI";
+  colName = proName + "(" + varX + "," + varY + ")";
+  threshold = 0.;
+
+  cout << "## Found the following outliers such that "
+       << colName
+       << " < "
+       << threshold
+       << ":\n";
+
+  double pmi;
+  testIntValue = 0;
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    pmi = outputData->GetValueByName( r, colName ).ToDouble();
+    if ( pmi >= threshold )
+      {
+      continue;
+      }
+
+    ++ testIntValue;
+
+    cout << "   ("
+         << outputData->GetValueByName( r, varX ).ToString()
+         << ","
+         << outputData->GetValueByName( r, varY ).ToString()
+         << "):  "
+         << proName
+         << " = "
+         << pmi
+         << "\n";
+    }
+
+  nOutliers = 1;
   if ( testIntValue != nOutliers )
     {
     vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
