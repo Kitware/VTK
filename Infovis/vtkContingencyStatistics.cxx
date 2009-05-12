@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.43");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.44");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -51,7 +51,7 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 0, "P" );
   this->AssessNames->SetValue( 1, "Py|x" );
   this->AssessNames->SetValue( 2, "Px|y" );
-  this->AssessNames->SetValue( 3, "SI" );
+  this->AssessNames->SetValue( 3, "PMI" );
 
   this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 3 );
@@ -621,7 +621,7 @@ public:
     result->SetValue( 0, this->PdfXY[x][y] );
     result->SetValue( 1, this->PdfYcondX[x][y] );
     result->SetValue( 2, this->PdfXcondY[x][y] );
-    result->SetValue( 3, log ( this->PdfXY[x][y] / ( this->PdfX[x] * this->PdfX[x] ) ) );
+    result->SetValue( 3, log ( this->PdfXY[x][y] / ( this->PdfX[x] * this->PdfY[y] ) ) );
   }
 };
 
