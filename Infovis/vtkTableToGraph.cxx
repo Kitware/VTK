@@ -52,7 +52,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.20");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.21");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -698,8 +698,22 @@ int vtkTableToGraph::RequestData(
   
   // Add the auxiliary arrays to the vertex table.
   builder->GetVertexData()->AddArray(labelArr);
-  builder->GetVertexData()->SetPedigreeIds(idArr);
   builder->GetVertexData()->AddArray(domainArr);
+
+  // Check if the vertex table already has pedigree ids.
+  // If it does we're still going to add the ids array
+  // but we won't set it as the official pedigree ids.
+  if (vertexTable->GetRowData()->GetPedigreeIds() == NULL)
+    {
+    builder->GetVertexData()->SetPedigreeIds(idArr);
+    }
+  else
+    {
+    builder->GetVertexData()->AddArray(idArr);
+    builder->GetVertexData()->SetPedigreeIds(
+      vertexTable->GetRowData()->GetPedigreeIds());
+    }
+
 
   // Now go through the edge table, adding edges.
   // For each row in the edge table, add one edge to the
@@ -859,26 +873,24 @@ int vtkTableToGraph::RequestData(
     }
 
   // Check if pedigree ids are in the input edge data
-  vtkSmartPointer<vtkIdTypeArray> edgeIds;
-  edgeIds.TakeReference( 
-    vtkIdTypeArray::SafeDownCast(edgeTable->GetRowData()->GetPedigreeIds()));
-  if (edgeIds == NULL)
-    { 
+  if (edgeTable->GetRowData()->GetPedigreeIds() == NULL)
+    {
     // Add pedigree ids to the edges of the graph.
     vtkIdType numEdges = builder->GetNumberOfEdges();
-    edgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
+    VTK_CREATE(vtkIdTypeArray, edgeIds);
     edgeIds->SetNumberOfTuples(numEdges);
     edgeIds->SetName("edge");
     for (vtkIdType i = 0; i < numEdges; ++i)
       {
       edgeIds->SetValue(i, i);
       }
+    builder->GetEdgeData()->SetPedigreeIds(edgeIds);
     }
   else
     {
-    edgeIds->Register(NULL);
+    builder->GetEdgeData()->SetPedigreeIds(
+      edgeTable->GetRowData()->GetPedigreeIds());
     }
-  builder->GetEdgeData()->SetPedigreeIds(edgeIds);
 
   // Copy structure into output graph.
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
