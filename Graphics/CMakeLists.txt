@@ -180,7 +180,6 @@ vtkProgrammableSource.cxx
 vtkProjectedTexture.cxx
 vtkQuadraturePointInterpolator.cxx
 vtkQuadraturePointsGenerator.cxx
-vtkQuadraturePointStatistics.cxx
 vtkQuadratureSchemeDictionaryGenerator.cxx
 vtkQuadricClustering.cxx
 vtkQuadricDecimation.cxx

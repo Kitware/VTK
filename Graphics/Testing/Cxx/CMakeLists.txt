@@ -38,7 +38,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestIconGlyphFilterGravity.cxx
       TestMultiBlock.cxx
       TestQuadraturePoints.cxx
-      TestQuadraturePointStatistics.cxx
       TestUnstructuredGridGeometryFilter.cxx
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx

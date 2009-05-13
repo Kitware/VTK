@@ -22,10 +22,10 @@
 
 
 //============================================================================
-class vtkInformationQuadratureSchemeDefinitionVectorValue: public vtkQuadratureSchemeDefinition
+class vtkInformationQuadratureSchemeDefinitionVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorValue, vtkQuadratureSchemeDefinition);
+  vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorValue, vtkObjectBase);
   //
   vtkInformationQuadratureSchemeDefinitionVectorValue()
   {
@@ -42,7 +42,7 @@ private:
 };
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationQuadratureSchemeDefinitionVectorKey::vtkInformationQuadratureSchemeDefinitionVectorKey(
@@ -70,7 +70,7 @@ vtkInformationQuadratureSchemeDefinitionVectorValue *
 
   // If we don't already have a vector then associated,
   // we will create it here.
-  if(base==NULL)
+  if(base == NULL)
     {
     base=new vtkInformationQuadratureSchemeDefinitionVectorValue;
     this->ConstructClass("vtkInformationQuadratureSchemeDefinitionVectorValue"); // For debug info
