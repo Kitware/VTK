@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.44");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.45");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -280,13 +280,13 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 
   // Add columns for joint and conditional probabilities
-  int numDoubles = 3;
+  int nSummAssess = 3;
   vtkStdString entropyNames[] = { "H(X,Y)",
                                   "H(Y|X)",
                                   "H(X|Y)" };
   
   vtkDoubleArray* doubleCol;
-  for ( int j = 0; j < numDoubles; ++ j )
+  for ( int j = 0; j < nSummAssess; ++ j )
     {
     if ( ! summaryTab->GetColumnByName( entropyNames[j] ) )
       {
@@ -312,11 +312,12 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 
   // Add columns for joint and conditional probabilities
+  int nContAssess = 3;
   vtkStdString doubleNames[] = { "P",
                                  "Py|x",
                                  "Px|y" };
   
-  for ( int j = 0; j < numDoubles; ++ j )
+  for ( int j = 0; j < nContAssess; ++ j )
     {
     if ( ! contingencyTab->GetColumnByName( doubleNames[j] ) )
       {
@@ -337,7 +338,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
   vtkDoubleArray* prob[3];
-  for ( int j = 0; j < numDoubles; ++ j )
+  for ( int j = 0; j < nContAssess; ++ j )
     {
     prob[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( doubleNames[j] ) );
     }
@@ -425,7 +426,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   contingencyTab->SetValueByName( 0, "Cardinality", n );
 
   // Complete cardinality row (0) with invalid values for derived statistics
-  for ( int i = 0; i < numDoubles; ++ i )
+  for ( int i = 0; i < nContAssess; ++ i )
     {
     contingencyTab->SetValueByName( 0, doubleNames[i], -1. );
     }
@@ -489,11 +490,11 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 
 
   // Container for P(x,y), P(y|x), P(x|y)
-  double* doubleVals = new double[numDoubles]; 
+  double* doubleVals = new double[nContAssess]; 
   
   // Container for H(X,Y), H(Y|X), H(X|Y)
   typedef vtkstd::map<vtkIdType,double> Entropies;
-  Entropies *H = new Entropies[numDoubles];
+  Entropies *H = new Entropies[nSummAssess];
 
   // Calculate joint and conditional PDFs, and information entropies
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -522,7 +523,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     doubleVals[1] = doubleVals[0] / marginalPDFs[c1][x];
     doubleVals[2] = doubleVals[0] / marginalPDFs[c2][y];
 
-    for ( int j = 0; j < numDoubles; ++ j )
+    for ( int j = 0; j < nSummAssess; ++ j )
       {
       // Store conditional probabilities
       prob[j]->SetValue( r, doubleVals[j] );
