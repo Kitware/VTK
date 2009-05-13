@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.47");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.48");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -280,13 +280,13 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 
   // Add columns for joint and conditional probabilities
-  int nSummDerive = 3;
+  int nEntropy = 3;
   vtkStdString entropyNames[] = { "H(X,Y)",
                                   "H(Y|X)",
                                   "H(X|Y)" };
   
   vtkDoubleArray* doubleCol;
-  for ( int j = 0; j < nSummDerive; ++ j )
+  for ( int j = 0; j < nEntropy; ++ j )
     {
     if ( ! summaryTab->GetColumnByName( entropyNames[j] ) )
       {
@@ -312,17 +312,19 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 
   // Add columns for joint and conditional probabilities
-  int nContDerive = 3;
-  vtkStdString doubleNames[] = { "P",
-                                 "Py|x",
-                                 "Px|y" };
+  int nDerivedValues = 4;
+  int idPMI = 3;
+  vtkStdString derivedNames[] = { "P",
+                                  "Py|x",
+                                  "Px|y",
+                                  "PMI" };
   
-  for ( int j = 0; j < nContDerive; ++ j )
+  for ( int j = 0; j < nDerivedValues; ++ j )
     {
-    if ( ! contingencyTab->GetColumnByName( doubleNames[j] ) )
+    if ( ! contingencyTab->GetColumnByName( derivedNames[j] ) )
       {
       doubleCol = vtkDoubleArray::New();
-      doubleCol->SetName( doubleNames[j] );
+      doubleCol->SetName( derivedNames[j] );
       doubleCol->SetNumberOfTuples( nRowCont );
       contingencyTab->AddColumn( doubleCol );
       doubleCol->Delete();
@@ -337,12 +339,12 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
-  vtkDoubleArray** prob = new vtkDoubleArray*[nContDerive];
-  for ( int j = 0; j < nContDerive; ++ j )
+  vtkDoubleArray** derivedCols = new vtkDoubleArray*[nDerivedValues];
+  for ( int j = 0; j < nDerivedValues; ++ j )
     {
-    prob[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( doubleNames[j] ) );
+    derivedCols[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( derivedNames[j] ) );
 
-    if ( ! prob[j] )
+    if ( ! derivedCols[j] )
       {
       vtkErrorMacro("Empty model column(s). Cannot derive model.\n");
       return;
@@ -425,9 +427,9 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   contingencyTab->SetValueByName( 0, "Cardinality", n );
 
   // Complete cardinality row (0) with invalid values for derived statistics
-  for ( int i = 0; i < nContDerive; ++ i )
+  for ( int i = 0; i < nDerivedValues; ++ i )
     {
-    contingencyTab->SetValueByName( 0, doubleNames[i], -1. );
+    contingencyTab->SetValueByName( 0, derivedNames[i], -1. );
     }
 
   
@@ -488,14 +490,15 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       }
 
 
-  // Container for P(x,y), P(y|x), P(x|y)
-  double* doubleVals = new double[nContDerive]; 
+  // Container for probability values (it makes them to retain them in order to update entropies on the fly)
+  double* probVals = new double[nEntropy];
   
-  // Container for H(X,Y), H(Y|X), H(X|Y)
+  // Container for information entropies
   typedef vtkstd::map<vtkIdType,double> Entropies;
-  Entropies *H = new Entropies[nSummDerive];
+  Entropies *H = new Entropies[nEntropy];
 
   // Calculate joint and conditional PDFs, and information entropies
+  double p1, p2;
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
     // Find the pair of variables to which the key corresponds
@@ -511,40 +514,55 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       return;
       }
 
+    // Get values
     c1 = varX->GetValue( key );
     c2 = varY->GetValue( key );
 
+    // Get primary statistics for (c1,c2) pair
     x = valx->GetValue( r );
     y = valy->GetValue( r );
     c = card->GetValue( r );
-    doubleVals[0] = inv_n * c;
 
-    doubleVals[1] = doubleVals[0] / marginalPDFs[c1][x];
-    doubleVals[2] = doubleVals[0] / marginalPDFs[c2][y];
+    // Calculate P(c1,c2)
+    probVals[0] = inv_n * c;
 
-    for ( int j = 0; j < nSummDerive; ++ j )
+    // Get marginal PDF values
+    p1 = marginalPDFs[c1][x];
+    p2 = marginalPDFs[c2][y];
+    
+    // Calculate P(c2|c1)
+    probVals[1] = probVals[0] / p1;
+
+    // Calculate P(c1|c2)
+    probVals[2] = probVals[0] / p2;
+
+    // Store P(c1,c2), P(c2|c1), P(c1|c2) and use them to update H(X,Y), H(Y|X), H(X|Y)
+    for ( int j = 0; j < nEntropy; ++ j )
       {
-      // Store conditional probabilities
-      prob[j]->SetValue( r, doubleVals[j] );
+      // Store probabilities
+      derivedCols[j]->SetValue( r, probVals[j] );
 
       // Update information entropies
-      H[j][key] -= doubleVals[0] * log( doubleVals[j] );
+      H[j][key] -= probVals[0] * log( probVals[j] );
       }
+
+    // Calculate and store PMI(c1,c2)
+    derivedCols[idPMI]->SetValue( r, log( probVals[0] / ( p1 * p2 ) ) );
     }
 
   // Store information entropies
   for ( Entropies::iterator eit = H[0].begin(); eit != H[0].end(); ++ eit )
       {
-      summaryTab->SetValueByName( eit->first, entropyNames[0], eit->second ); // H(X,Y)
+      summaryTab->SetValueByName( eit->first, entropyNames[0], eit->second );      // H(X,Y)
       summaryTab->SetValueByName( eit->first, entropyNames[1], H[1][eit->first] ); // H(Y|X)
       summaryTab->SetValueByName( eit->first, entropyNames[2], H[2][eit->first] ); // H(X|Y)
       }
 
   // Clean up
   row->Delete();
-  delete [] prob;
   delete [] H;
-  delete [] doubleVals;
+  delete [] derivedCols;
+  delete [] probVals;
 }
 
 // ----------------------------------------------------------------------

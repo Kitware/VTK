@@ -174,7 +174,7 @@ int TestContingencyStatistics( int, char *[] )
       }
     }
 
-  cout << "## Calculated the following probabilities:\n";
+  cout << "## Calculated the following probabilities and mutual informations:\n";
   testIntValue = 0;
 
   // Skip first row which contains data set cardinality
