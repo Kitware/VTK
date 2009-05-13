@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.46");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.47");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -341,13 +341,12 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   for ( int j = 0; j < nContDerive; ++ j )
     {
     prob[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( doubleNames[j] ) );
-    }
 
-  if ( ! varX || ! varX || ! keys || ! valx || ! valy || ! card 
-       || ! prob[0] || ! prob[1] || ! prob[2] )
-    {
-    vtkErrorMacro("Empty model column(s). Cannot derive model.\n");
-    return;
+    if ( ! prob[j] )
+      {
+      vtkErrorMacro("Empty model column(s). Cannot derive model.\n");
+      return;
+      }
     }
 
   // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
@@ -434,7 +433,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   
   // Resize output meta so marginal PDF tables can be appended
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
-  inMeta->SetNumberOfBlocks( nBlocks + static_cast<unsigned int>(marginalCounts.size()) );
+  inMeta->SetNumberOfBlocks( nBlocks + static_cast<unsigned int>( marginalCounts.size() ) );
 
   // Rows of the marginal PDF tables contain:
   // 0: variable value
@@ -443,7 +442,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
 
-  // Add marginal PDF tables as new blocks to the meta output starting at block nBlock + 1
+  // Add marginal PDF tables as new blocks to the meta output starting at block nBlock
   // NB: block nBlock is kept for information entropy
   vtkstd::map<vtkStdString,PDF> marginalPDFs;
   for ( vtkstd::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
