@@ -28,7 +28,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkPointSet, "1.11");
+vtkCxxRevisionMacro(vtkPointSet, "1.12");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -150,18 +150,16 @@ vtkIdType vtkPointSet::FindPoint(double x[3])
 // The arguments are the same as those for FindCell.  In addition, visitedCells
 // keeps a list of cells already traversed.  If we run into such already
 // visited, the walk terminates since we assume we already walked from that cell
-// and found nothing.
+// and found nothing.  The ptIds and neighbors lists are buffers used
+// internally.  They are passed in so that they do not have to be continuously
+// reallocated.
 static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
                               vtkGenericCell *gencell, vtkIdType cellId,
                               double tol2, int &subId, double pcoords[3],
                               double *weights,
-                              vtkstd::set<vtkIdType> &visitedCells)
+                              vtkstd::set<vtkIdType> &visitedCells,
+                              vtkIdList *ptIds, vtkIdList *neighbors)
 {
-  VTK_CREATE(vtkIdList, ptIds);
-  ptIds->Allocate(8, 100);
-  VTK_CREATE(vtkIdList, neighbors);
-  neighbors->Allocate(8, 100);
-
   for (int walk = 0; walk < VTK_MAX_WALK; walk++)
     {
     // Check to see if we already visited this cell.
@@ -211,14 +209,15 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3],
                               vtkGenericCell *gencell, vtkIdList *cellIds,
                               double tol2, int &subId, double pcoords[3],
                               double *weights,
-                              vtkstd::set<vtkIdType> &visitedCells)
+                              vtkstd::set<vtkIdType> &visitedCells,
+                              vtkIdList *ptIds, vtkIdList *neighbors)
 {
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); i++)
     {
     vtkIdType cellId = cellIds->GetId(i);
     vtkIdType foundCell = FindCellWalk(self, x, NULL, gencell, cellId,
                                        tol2, subId, pcoords, weights,
-                                       visitedCells);
+                                       visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
     }
   return -1;
@@ -265,12 +264,17 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     }
 
   vtkstd::set<vtkIdType> visitedCells;
+  VTK_CREATE(vtkIdList, ptIds);
+  ptIds->Allocate(8, 100);
+  VTK_CREATE(vtkIdList, neighbors);
+  neighbors->Allocate(8, 100);
 
   // If we are given a starting cell, try that.
   if (cell && (cellId >= 0))
     {
     foundCell = FindCellWalk(this, x, cell, gencell, cellId,
-                             tol2, subId, pcoords, weights, visitedCells);
+                             tol2, subId, pcoords, weights,
+                             visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
     }
 
@@ -283,7 +287,8 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   if (ptId < 0) return -1;
   this->GetPointCells(ptId, cellIds);
   foundCell = FindCellWalk(this, x, gencell, cellIds,
-                           tol2, subId, pcoords, weights, visitedCells);
+                           tol2, subId, pcoords, weights,
+                           visitedCells, ptIds, neighbors);
   if (foundCell >= 0) return foundCell;
 
   // It is possible that the toplogy is not fully connected.  That is, two
@@ -296,13 +301,15 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   double ptCoord[3];
   this->GetPoint(ptId, ptCoord);
   VTK_CREATE(vtkIdList, coincidentPtIds);
+  coincidentPtIds->Allocate(8, 100);
   this->Locator->FindPointsWithinRadius(tol2, ptCoord, coincidentPtIds);
   coincidentPtIds->DeleteId(ptId);      // Already searched this one.
   for (vtkIdType i = 0; i < coincidentPtIds->GetNumberOfIds(); i++)
     {
     this->GetPointCells(coincidentPtIds->GetId(i), cellIds);
     foundCell = FindCellWalk(this, x, gencell, cellIds,
-                             tol2, subId, pcoords, weights, visitedCells);
+                             tol2, subId, pcoords, weights,
+                             visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
     }
 
