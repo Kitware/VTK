@@ -20,12 +20,16 @@
 
 #include <vtkDelimitedTextReader.h>
 #include <vtkMergeTables.h>
+#include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
 #include <vtkTestUtilities.h>
 #include <vtkIOStream.h>
+
+#define VTK_CREATE(type,name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int 
 TestMergeTables(int argc, char* argv[])
@@ -35,7 +39,7 @@ TestMergeTables(int argc, char* argv[])
   char * filename2 = vtkTestUtilities::ExpandDataFileName(argc,argv,
                                                   "Data/Infovis/merge2.csv");
 
-  vtkDelimitedTextReader * reader1 = vtkDelimitedTextReader::New();
+  VTK_CREATE(vtkDelimitedTextReader,reader1);
   reader1->SetFieldDelimiterCharacters(",");
   reader1->SetFileName(filename1);
   reader1->SetHaveHeaders(true);
@@ -43,7 +47,7 @@ TestMergeTables(int argc, char* argv[])
 
   vtkTable * table1 = reader1->GetOutput();
 
-  vtkDelimitedTextReader * reader2 = vtkDelimitedTextReader::New();
+  VTK_CREATE(vtkDelimitedTextReader,reader2);
   reader2->SetFieldDelimiterCharacters(",");
   reader2->SetFileName(filename2);
   reader2->SetHaveHeaders(true);
@@ -57,7 +61,7 @@ TestMergeTables(int argc, char* argv[])
   cout << "Table 2:" << endl;
   table2->Dump(10);
 
-  vtkMergeTables * merge = vtkMergeTables::New();
+  VTK_CREATE(vtkMergeTables,merge);
   merge->SetInput(0, table1);
   merge->SetInput(1, table2);
   merge->SetMergeColumnsByName(true);
