@@ -242,7 +242,10 @@ void vtkQtChartLegendManager::setLayerVisible(vtkQtChartLayer *chart,
       int index = this->getLegendIndex(seriesLayer);
 
       // Set the legend entry visibility.
-      this->Legend->setEntriesVisible(index, index + last, visible);
+      for (int cc=index; cc <= index+last; cc++)
+        {
+        this->Legend->getModel()->setVisible(cc, visible);
+        }
       }
     }
 }
@@ -322,8 +325,8 @@ void vtkQtChartLegendManager::updateModelEntries(int first, int last)
         {
         legend->setText(index + i, model->getSeriesName(i).toString());
         legend->setIcon(index + i, chart->getSeriesIcon(i));
-        this->Legend->setEntryVisible(
-          index + i, chart->getSeriesOptions(i)->isVisible());
+        legend->setVisible(index+i, 
+          chart->getSeriesOptions(i)->isVisible());
         }
       }
     }
@@ -457,14 +460,10 @@ void vtkQtChartLegendManager::insertLegendEntries(
   for(int i = first; i <= last; i++)
     {
     legend->insertEntry(index + i, chart->getSeriesIcon(i),
-        model->getSeriesName(i).toString());
+        model->getSeriesName(i).toString(),
+        chart->getSeriesOptions(i)->isVisible());
     }
   legend->finishModifyingData();
-  for (int cc=first; cc <= last; cc++)
-    {
-    this->Legend->setEntryVisible(
-      index + cc, chart->getSeriesOptions(cc)->isVisible());
-    }
 }
 
 void vtkQtChartLegendManager::removeLegendEntries(

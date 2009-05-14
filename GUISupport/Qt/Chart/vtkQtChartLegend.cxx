@@ -46,7 +46,6 @@ public:
 
 public:
   int Width;
-  bool Visible;
 };
 
 
@@ -70,7 +69,6 @@ public:
 vtkQtChartLegendEntry::vtkQtChartLegendEntry()
 {
   this->Width = 0;
-  this->Visible = true;
 }
 
 
@@ -123,6 +121,8 @@ vtkQtChartLegend::vtkQtChartLegend(QWidget *widgetParent)
       this, SLOT(update()));
   this->connect(this->Model, SIGNAL(textChanged(int)),
       this, SLOT(updateEntryText(int)));
+  this->connect(this->Model, SIGNAL(visibilityChanged(int)),
+      this, SLOT(updateEntryVisible(int)));
 }
 
 vtkQtChartLegend::~vtkQtChartLegend()
@@ -217,7 +217,7 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
     iter = this->Internal->Entries.begin();
     for( ; iter != this->Internal->Entries.end(); ++iter, ++index)
       {
-      if((*iter)->Visible)
+      if (this->Model->getVisible(index))
         {
         int px = offset;
         QPixmap icon = this->Model->getIcon(index);
@@ -263,7 +263,7 @@ void vtkQtChartLegend::drawLegend(QPainter &painter)
     iter = this->Internal->Entries.begin();
     for( ; iter != this->Internal->Entries.end(); ++iter, ++index)
       {
-      if((*iter)->Visible)
+      if (this->Model->getVisible(index))
         {
         int px = this->Margin;
         QPixmap icon = this->Model->getIcon(index);
@@ -305,24 +305,10 @@ void vtkQtChartLegend::reset()
   this->update();
 }
 
-void vtkQtChartLegend::setEntryVisible(int index, bool visible)
+void vtkQtChartLegend::updateEntryVisible(int)
 {
-  this->setEntriesVisible(index, index, visible);
-}
-
-void vtkQtChartLegend::setEntriesVisible(int first, int last, bool visible)
-{
-  if(first >= 0 && first < this->Internal->Entries.size() &&
-      last >= 0 && last < this->Internal->Entries.size())
-    {
-    for(int i = first; i <= last; i++)
-      {
-      this->Internal->Entries[i]->Visible = visible;
-      }
-
-    this->calculateSize();
-    this->update();
-    }
+  this->calculateSize();
+  this->update();
 }
 
 void vtkQtChartLegend::setOffset(int offset)
@@ -499,7 +485,7 @@ void vtkQtChartLegend::calculateSize()
 
       // Sum up the entry widths for left-to-right. In top-to-bottom
       // mode, find the max width.
-      if((*iter)->Visible)
+      if (this->Model->getVisible(i))
         {
         visibleCount++;
         if(this->Flow == vtkQtChartLegend::LeftToRight)

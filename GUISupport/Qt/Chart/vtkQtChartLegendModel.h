@@ -55,7 +55,7 @@ public:
   /// \param text The series label.
   /// \return
   ///   The id for the inserted entry or zero for failure.
-  int addEntry(const QPixmap &icon, const QString &text);
+  int addEntry(const QPixmap &icon, const QString &text, bool visible);
 
   /// \brief
   ///   Inserts an entry into the chart legend.
@@ -64,7 +64,8 @@ public:
   /// \param text The series label.
   /// \return
   ///   The id for the inserted entry or zero for failure.
-  int insertEntry(int index, const QPixmap &icon, const QString &text);
+  int insertEntry(
+    int index, const QPixmap &icon, const QString &text, bool visible);
 
   /// \brief
   ///   Removes an entry from the chart legend.
@@ -136,6 +137,16 @@ public:
   /// \param text The new series label.
   void setText(int index, const QString &text);
 
+  /// \brief 
+  ///   Sets if the given entry is visible.
+  /// \param index The index of the entry.
+  /// \param visible The visibility of the entry.
+  void setVisible(int index, bool visible);
+
+  /// \brief 
+  ///   Returns if the given entry is visible.
+  bool getVisible(int index) const;
+
 signals:
   /// \brief
   ///   Emitted when a new entry is added.
@@ -164,6 +175,10 @@ signals:
   ///   Emitted when the text for an entry has changed.
   /// \param index The index of the entry that changed.
   void textChanged(int index);
+
+  /// \brief
+  ///   Emitted when the visibility of an entry changes.
+  void visibilityChanged(int index);
 
 private:
   vtkQtChartLegendModelInternal *Internal; ///< Stores the legend items.

@@ -35,11 +35,13 @@
 class vtkQtChartLegendModelItem
 {
 public:
-  vtkQtChartLegendModelItem(const QPixmap &icon, const QString &text);
+  vtkQtChartLegendModelItem(
+    const QPixmap &icon, const QString &text, bool visible);
   ~vtkQtChartLegendModelItem() {}
 
   QPixmap Icon;
   QString Text;
+  bool Visible;
   unsigned int Id;
 };
 
@@ -57,8 +59,8 @@ public:
 
 //----------------------------------------------------------------------------
 vtkQtChartLegendModelItem::vtkQtChartLegendModelItem(const QPixmap &icon,
-    const QString &text)
-  : Icon(icon), Text(text)
+    const QString &text, bool visible)
+  : Icon(icon), Text(text), Visible(visible)
 {
   this->Id = 0;
 }
@@ -92,20 +94,22 @@ vtkQtChartLegendModel::~vtkQtChartLegendModel()
   delete this->Internal;
 }
 
-int vtkQtChartLegendModel::addEntry(const QPixmap &icon, const QString &text)
+int vtkQtChartLegendModel::addEntry(const QPixmap &icon, const QString &text,
+  bool visible)
 {
-  return this->insertEntry(this->Internal->Entries.size(), icon, text);
+  return this->insertEntry(this->Internal->Entries.size(), icon, text, visible);
 }
 
 int vtkQtChartLegendModel::insertEntry(int index, const QPixmap &icon,
-    const QString &text)
+    const QString &text, bool visible)
 {
   if(index < 0)
     {
     index = 0;
     }
 
-  vtkQtChartLegendModelItem *item = new vtkQtChartLegendModelItem(icon, text);
+  vtkQtChartLegendModelItem *item = 
+    new vtkQtChartLegendModelItem(icon, text, visible);
   item->Id = this->Internal->NextId++;
   if(index < this->Internal->Entries.size())
     {
@@ -233,4 +237,23 @@ void vtkQtChartLegendModel::setText(int index, const QString &text)
     }
 }
 
+bool vtkQtChartLegendModel::getVisible(int index) const
+{
+  if (index >= 0 && index < this->Internal->Entries.size())
+    {
+    return this->Internal->Entries[index]->Visible;
+    }
+
+  return false;
+}
+
+void vtkQtChartLegendModel::setVisible(int index, bool visible)
+{
+  if (index >= 0 && index < this->Internal->Entries.size() &&
+    visible != this->Internal->Entries[index]->Visible)
+    {
+    this->Internal->Entries[index]->Visible = visible;
+    emit this->visibilityChanged(index);
+    }
+}
 

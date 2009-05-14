@@ -137,19 +137,6 @@ public slots:
   void reset();
 
   /// \brief
-  ///   Sets the visibility for the given entry.
-  /// \param index The legend index of the entry.
-  /// \param visible True if the entry should be visible.
-  void setEntryVisible(int index, bool visible);
-
-  /// \brief
-  ///   Sets the visibility for the given set of entries.
-  /// \param first The first index of the entry range.
-  /// \param last The last index of the entry range.
-  /// \param visible True if the entry should be visible.
-  void setEntriesVisible(int first, int last, bool visible);
-
-  /// \brief
   ///   Sets the panning offset.
   ///
   /// The offset is applied to the x or y axis depending on the
@@ -178,6 +165,11 @@ protected slots:
   ///   Updates the text for the given entry.
   /// \param index The index of the modified entry.
   void updateEntryText(int index);
+
+  /// \brief
+  ///   Updates the visibility for the given entry.
+  /// \param index The index of the modified entry.
+  void updateEntryVisible(int index);
 
 protected:
   /// \brief
