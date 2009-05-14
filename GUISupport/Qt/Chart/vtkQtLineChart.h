@@ -129,6 +129,9 @@ protected slots:
   virtual void handleOptionsChanged(vtkQtChartSeriesOptions*,
     int type, const QVariant& newvalue, const QVariant& oldvalue);
 
+  /// Called when this layer fires the layoutNeeded() signal is fired.
+  void handleLayoutNeeded();
+
 private slots:
   /// \brief
   ///   Prepares the line chart for a series insertion.

@@ -430,6 +430,9 @@ vtkQtLineChart::vtkQtLineChart()
   this->connect(this->Selection,
       SIGNAL(selectionChanged(const vtkQtChartSeriesSelection &)),
       this, SLOT(updateHighlights()));
+
+  this->connect(this, SIGNAL(layoutNeeded()),
+    this, SLOT(handleLayoutNeeded()));
 }
 
 vtkQtLineChart::~vtkQtLineChart()
@@ -531,79 +534,77 @@ void vtkQtLineChart::layoutChart(const QRectF &area)
   this->Internal->Bounds.setSize(area.size());
   this->setPos(area.topLeft());
   this->Internal->CurrentSeries.clear();
-  if(this->Internal->Series.size() == 0)
+  if (this->Internal->Series.size() != 0)
     {
-    return;
-    }
-
-  vtkQtChartAxis *xAxis = 0;
-  vtkQtChartAxis *yAxis = 0;
-  vtkQtChartAxisLayer *axisLayer = this->ChartArea->getAxisLayer();
-  for(int i = 0; i < 4; i++)
-    {
-    xAxis = axisLayer->getHorizontalAxis((vtkQtChartLayer::AxesCorner)i);
-    yAxis = axisLayer->getVerticalAxis((vtkQtChartLayer::AxesCorner)i);
-
-    int seriesGroup = -1;
-    this->Internal->Domains[i].getDomain(xAxis->getAxisDomain(),
-        yAxis->getAxisDomain(), &seriesGroup);
-    QList<int> seriesList = this->Internal->Groups[i].getGroup(seriesGroup);
-    vtkQtChartSeriesDomainGroup::mergeSeriesLists(
-        this->Internal->CurrentSeries, seriesList);
-    QList<int>::Iterator iter = seriesList.begin();
-    for( ; iter != seriesList.end(); ++iter)
+    vtkQtChartAxis *xAxis = 0;
+    vtkQtChartAxis *yAxis = 0;
+    vtkQtChartAxisLayer *axisLayer = this->ChartArea->getAxisLayer();
+    for(int i = 0; i < 4; i++)
       {
-      vtkQtChartSeriesOptions *options = this->getSeriesOptions(*iter);
-      vtkQtLineChartSeries *series = this->Internal->Series[*iter];
+      xAxis = axisLayer->getHorizontalAxis((vtkQtChartLayer::AxesCorner)i);
+      yAxis = axisLayer->getVerticalAxis((vtkQtChartLayer::AxesCorner)i);
 
-      QPointF last;
-      QVariant xValue, yValue;
-      bool useQuad = options->getMarkerStyle() == vtkQtPointMarker::Diamond ||
+      int seriesGroup = -1;
+      this->Internal->Domains[i].getDomain(xAxis->getAxisDomain(),
+        yAxis->getAxisDomain(), &seriesGroup);
+      QList<int> seriesList = this->Internal->Groups[i].getGroup(seriesGroup);
+      vtkQtChartSeriesDomainGroup::mergeSeriesLists(
+        this->Internal->CurrentSeries, seriesList);
+      QList<int>::Iterator iter = seriesList.begin();
+      for( ; iter != seriesList.end(); ++iter)
+        {
+        vtkQtChartSeriesOptions *options = this->getSeriesOptions(*iter);
+        vtkQtLineChartSeries *series = this->Internal->Series[*iter];
+
+        QPointF last;
+        QVariant xValue, yValue;
+        bool useQuad = options->getMarkerStyle() == vtkQtPointMarker::Diamond ||
           options->getMarkerStyle() == vtkQtPointMarker::Plus;
-      float penWidth = options->getPen().widthF();
-      if(penWidth == 0.0)
-        {
-        penWidth = 1.0;
-        }
-
-      QPolygonF::Iterator point = series->Polyline.begin();
-      for(int j = 0; point != series->Polyline.end(); ++point, ++j)
-        {
-        xValue = this->Model->getSeriesValue(*iter, j, 0);
-        yValue = this->Model->getSeriesValue(*iter, j, 1);
-        *point = QPointF(xAxis->getPixel(xValue), yAxis->getPixel(yValue));
-
-        // Update the search shape for the point.
-        if(useQuad)
+        float penWidth = options->getPen().widthF();
+        if(penWidth == 0.0)
           {
-          this->Internal->setPointQuad(series->Points[j], *point,
-              options->getMarkerSize(), penWidth);
-          }
-        else
-          {
-          this->Internal->setPointBar(series->Points[j], *point,
-              options->getMarkerSize(), penWidth);
+          penWidth = 1.0;
           }
 
-        if(j > 0)
+        QPolygonF::Iterator point = series->Polyline.begin();
+        for(int j = 0; point != series->Polyline.end(); ++point, ++j)
           {
-          // Update the quad for the line segment.
-          this->Internal->setLineSegment(series->Lines[j - 1], last, *point,
+          xValue = this->Model->getSeriesValue(*iter, j, 0);
+          yValue = this->Model->getSeriesValue(*iter, j, 1);
+          *point = QPointF(xAxis->getPixel(xValue), yAxis->getPixel(yValue));
+
+          // Update the search shape for the point.
+          if(useQuad)
+            {
+            this->Internal->setPointQuad(series->Points[j], *point,
+              options->getMarkerSize(), penWidth);
+            }
+          else
+            {
+            this->Internal->setPointBar(series->Points[j], *point,
+              options->getMarkerSize(), penWidth);
+            }
+
+          if(j > 0)
+            {
+            // Update the quad for the line segment.
+            this->Internal->setLineSegment(series->Lines[j - 1], last, *point,
               penWidth + 1.0);
+            }
+
+          last = *point;
           }
 
-        last = *point;
-        }
-
-      // If the series is new, merge the shapes into the search list.
-      if(series->AddNeeded)
-        {
-        series->AddNeeded = false;
-        this->Internal->mergeLists(
+        // If the series is new, merge the shapes into the search list.
+        if(series->AddNeeded)
+          {
+          series->AddNeeded = false;
+          this->Internal->mergeLists(
             this->Internal->Groups[i].Points[seriesGroup], series->Points);
-        this->Internal->mergeLists(
+          this->Internal->mergeLists(
             this->Internal->Groups[i].Lines[seriesGroup], series->Lines);
-        this->Internal->CurrentGroup[i] = -1;
+          this->Internal->CurrentGroup[i] = -2;
+          }
         }
       }
     }
@@ -1044,8 +1045,8 @@ void vtkQtLineChart::startSeriesRemoval(int first, int last)
     for( ; i <= last; i++)
       {
       vtkQtChartSeriesOptions *options = this->getSeriesOptions(i);
-      this->cleanupOptions(options);
       vtkQtChartLayer::AxesCorner corner = options->getAxesCorner();
+      this->cleanupOptions(options);
       int index = this->Internal->Groups[corner].removeSeries(i);
       if(index != -1)
         {
@@ -1081,7 +1082,8 @@ void vtkQtLineChart::startSeriesRemoval(int first, int last)
             this->Internal->Series[i]->Lines);
         if(this->Internal->CurrentGroup[corner] == index)
           {
-          this->Internal->CurrentGroup[corner] = -1;
+          // this forces the tree to be rebuild when buildTree() is called. 
+          this->Internal->CurrentGroup[corner] = -2;
           }
         }
       }
@@ -1209,7 +1211,7 @@ void vtkQtLineChart::handleSeriesVisibilityChange(
               this->Internal->Series[series]->Lines);
           if(this->Internal->CurrentGroup[corner] == seriesGroup)
             {
-            this->Internal->CurrentGroup[corner] = -1;
+            this->Internal->CurrentGroup[corner] = -2;
             }
           }
 
@@ -1248,7 +1250,7 @@ void vtkQtLineChart::handleSeriesAxesCornerChange(
           this->Internal->Series[series]->Lines);
       if(this->Internal->CurrentGroup[previous] == seriesGroup)
         {
-        this->Internal->CurrentGroup[previous] = -1;
+        this->Internal->CurrentGroup[previous] = -2;
         }
       }
 
@@ -1301,7 +1303,7 @@ void vtkQtLineChart::handleSeriesPointMarkerChange(
         if(this->Internal->CurrentGroup[corner] == seriesGroup)
           {
           this->Internal->PointTree.clear();
-          this->Internal->CurrentGroup[corner] = -1;
+          this->Internal->CurrentGroup[corner] = -2;
           }
         }
 
@@ -1501,6 +1503,8 @@ void vtkQtLineChart::calculateDomain(int seriesGroup,
     }
 }
 
+#include <iostream>
+using namespace std;
 void vtkQtLineChart::buildTree()
 {
   // Get the current series domain groups.
@@ -1524,6 +1528,7 @@ void vtkQtLineChart::buildTree()
     }
 
   this->BuildNeeded = false;
+  cout << "BuildNeeded: " << rebuild << endl;
   if(rebuild)
     {
     // Merge the series group selection lists to build the trees.
@@ -1553,3 +1558,15 @@ void vtkQtLineChart::buildTree()
 }
 
 
+void vtkQtLineChart::handleLayoutNeeded()
+{
+  // this->layoutNeeded() may have been fired as a consequence of the series
+  // being added/removed. In that case the obsolete CurrentSeries data structure
+  // may be invalid (even have invalid values). Since layoutChart() is
+  // called "eventually" by the vtkQtChartArea, in some cases it's possible the
+  // this->paint() gets called before the layoutChart(). If that happens, the
+  // the paint method may try to access invalid series. Hence we ensure that the
+  // CurrentSeries datastructure is cleared here. It will be repopulated in
+  // layoutChart().
+  this->Internal->CurrentSeries.clear();
+}
