@@ -299,7 +299,7 @@ vtkQtChartAxisInternal::~vtkQtChartAxisInternal()
 
 //-----------------------------------------------------------------------------
 static double MinIntLogPower = -1;
-const double vtkQtChartAxis::MinLogValue = 0.0001;
+const double vtkQtChartAxis::MinLogValue = 1e-20;
 
 vtkQtChartAxis::vtkQtChartAxis(vtkQtChartAxis::AxisLocation location,
     QGraphicsItem *item)
@@ -2093,21 +2093,15 @@ void vtkQtChartAxis::generateLogLabels(const QRectF &contents)
         {
         for(int j = subInterval; j < 10; j += subInterval)
           {
-          if(value.type() == QVariant::Int)
+          double subItemExp = minExp+(i-1)+(j/10.00001);
+          QVariant subItem = pow(10.0, subItemExp);
+          if (value.type() == QVariant::Int)
             {
-            int subItem = value.toInt();
-            subItem += j;
-            this->Model->addLabel(QVariant(subItem));
+            subItem.convert(QVariant::Int);
             }
-          else
-            {
-            double subItem = value.toDouble();
-            subItem += j;
-            this->Model->addLabel(QVariant(subItem));
-            }
+          this->Model->addLabel(subItem);
           }
         }
-
       value = pow((double)10.0, (double)(minExp + i));
       if(minimum.type() == QVariant::Int)
         {
