@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.9");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.10");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -343,7 +343,7 @@ int vtkTemporalPathLineFilter::RequestData(
   if (this->IdChannelArray) {
     Ids = input->GetPointData()->GetArray(this->IdChannelArray);
   }
-  else {
+  if (!Ids) {
     // Try loading the global ids.
     Ids = input->GetPointData()->GetGlobalIds();
   }
