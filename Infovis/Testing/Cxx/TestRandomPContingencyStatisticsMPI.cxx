@@ -40,8 +40,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 // For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
-#define DEBUG_CONTINGENCY_TABLE 1
-#define CONTINGENCY_BIG_CASE 0
+#define DEBUG_CONTINGENCY_TABLE 0
+#define CONTINGENCY_BIG_CASE 1
 
 struct RandomContingencyStatisticsArgs
 {
@@ -125,7 +125,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearn( true );
   pcs->SetDerive( true );
-  pcs->SetAssess( false );
+  pcs->SetAssess( true );
   pcs->Update();
 
   // Synchronize and stop clock
