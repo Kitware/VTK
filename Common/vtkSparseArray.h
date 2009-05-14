@@ -48,6 +48,8 @@
 //
 // Add values to the array in amortized-constant time.
 //
+// Validate that the array does not contain duplicate coordinates.
+//
 // .SECTION See Also
 // vtkArray, vtkTypedArray, vtkDenseArray, vtkSparseArray
 //
@@ -161,6 +163,16 @@ public:
   inline void AddValue(vtkIdType i, vtkIdType j, const T& value);
   inline void AddValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
   void AddValue(const vtkArrayCoordinates& coordinates, const T& value);
+
+  // Description:
+  // Validate the contents of the array, returning false if there are any problems.
+  // Potential problems include duplicate coordinates, which can be introduced into the
+  // array either through AddValue() or direct access to coordinates storage; and coordinates
+  // out-of-bounds given the current array extents.
+  //
+  // Note that Validate() is a heavyweight O(N log N) operation that is intended for
+  // temporary use during debugging.
+  bool Validate();
 
 protected:
   vtkSparseArray();

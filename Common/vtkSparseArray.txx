@@ -337,6 +337,74 @@ void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T
 }
 
 template<typename T>
+bool vtkSparseArray<T>::Validate()
+{
+  vtkIdType duplicate_count = 0;
+  vtkIdType out_of_bound_count = 0;
+
+  const vtkIdType dimensions = this->GetDimensions();
+  const vtkIdType count = this->GetNonNullSize();
+
+  // Create an arbitrary sorted order for our coordinates ...
+  vtkArraySort sort;
+  sort.SetDimensions(dimensions);
+  for(vtkIdType i = 0; i != dimensions; ++i)
+    sort[i] = i;
+
+  vtkstd::vector<vtkIdType> sort_order(count);
+  for(vtkIdType i = 0; i != count; ++i)
+    sort_order[i] = i;
+    
+  vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
+
+  // Now, look for duplicates ...
+  for(vtkIdType i = 0; i + 1 < count; ++i)
+    {
+    vtkIdType j;
+    for(j = 0; j != dimensions; ++j)
+      {
+      if(this->Coordinates[j][sort_order[i]] != this->Coordinates[j][sort_order[i + 1]])
+        break;
+      }
+    if(j == dimensions)
+      {
+      duplicate_count += 1;
+      }
+    }
+
+  // Look for out-of-bound coordinates ...
+  for(vtkIdType i = 0; i != count; ++i)
+    {
+    for(vtkIdType j = 0; j != dimensions; ++j)
+      {
+      if(this->Coordinates[j][i] < 0)
+        {
+        ++out_of_bound_count;
+        break;
+        }
+
+      if(this->Coordinates[j][i] >= this->Extents[j])
+        {
+        ++out_of_bound_count;
+        break;
+        }
+      }
+    }
+
+  if(duplicate_count)
+    {
+    vtkErrorMacro(<< "Array contains " << duplicate_count << " duplicate coordinates.");
+    }
+
+  if(out_of_bound_count)
+    {
+    vtkErrorMacro(<< "Array contains " << out_of_bound_count << " out-of-bound coordinates.");
+    }
+
+  return (0 == duplicate_count) && (0 == out_of_bound_count);
+}
+
+template<typename T>
 vtkSparseArray<T>::vtkSparseArray() :
   NullValue(T())
 {

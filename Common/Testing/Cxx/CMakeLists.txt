@@ -81,6 +81,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayNullValues.cxx
     ArraySlice.cxx
     ArrayVariants.cxx
+    SparseArrayValidation.cxx
     )
 
   ADD_EXECUTABLE(ArrayCxxTests ${ArrayTests})
