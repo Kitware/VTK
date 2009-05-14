@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.81");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.82");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -1474,7 +1474,9 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
-      this->ReadLine(line);
+      // NOTE: NO ReadLine() here since there is only one description
+      // line (already read above), immediately followed by the actual data.
+      
       vectors = vtkFloatArray::New();
       vectors->SetNumberOfComponents(3);
       vectors->SetNumberOfTuples(numPts);
