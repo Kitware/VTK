@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.49");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.50");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -54,10 +54,11 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 3, "PMI" );
 
   this->AssessParameters = vtkStringArray::New();
-  this->AssessParameters->SetNumberOfValues( 3 );
+  this->AssessParameters->SetNumberOfValues( 4 );
   this->AssessParameters->SetValue( 0, "P" );
   this->AssessParameters->SetValue( 1, "Py|x" );
   this->AssessParameters->SetValue( 2, "Px|y" );
+  this->AssessParameters->SetValue( 3, "PMI" );
 
   this->CalculatePointwiseInformation = true;
 }
@@ -574,18 +575,21 @@ public:
   vtkstd::map<vtkStdString,PDF> PdfXY;
   vtkstd::map<vtkStdString,PDF> PdfYcondX;
   vtkstd::map<vtkStdString,PDF> PdfXcondY;
+  vtkstd::map<vtkStdString,PDF> PmiXY;
 
   BivariateContingenciesFunctor( vtkAbstractArray* valsX,
                                  vtkAbstractArray* valsY,
                                  const vtkstd::map<vtkStdString,PDF>& pdfXY,
                                  const vtkstd::map<vtkStdString,PDF>& pdfYcondX,
-                                 const vtkstd::map<vtkStdString,PDF>& pdfXcondY )
+                                 const vtkstd::map<vtkStdString,PDF>& pdfXcondY,
+                                 const vtkstd::map<vtkStdString,PDF>& pmiXY )
   {
     this->DataX = valsX;
     this->DataY = valsY;
     this->PdfXY = pdfXY;
     this->PdfYcondX = pdfYcondX;
     this->PdfXcondY = pdfXcondY;
+    this->PmiXY = pmiXY;
   }
   virtual ~BivariateContingenciesFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -598,6 +602,7 @@ public:
     result->SetValue( 0, this->PdfXY[x][y] );
     result->SetValue( 1, this->PdfYcondX[x][y] );
     result->SetValue( 2, this->PdfXcondY[x][y] );
+    result->SetValue( 3, this->PmiXY[x][y] );
   }
 };
 
@@ -607,27 +612,24 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  PDF PdfX;
-  PDF PdfY;
   vtkstd::map<vtkStdString,PDF> PdfXY;
   vtkstd::map<vtkStdString,PDF> PdfYcondX;
   vtkstd::map<vtkStdString,PDF> PdfXcondY;
+  vtkstd::map<vtkStdString,PDF> PmiXY;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               PDF pdfX,
-                                               PDF pdfY,
                                                const vtkstd::map<vtkStdString,PDF>& pdfXY,
                                                const vtkstd::map<vtkStdString,PDF>& pdfYcondX,
-                                               const vtkstd::map<vtkStdString,PDF>& pdfXcondY )
+                                               const vtkstd::map<vtkStdString,PDF>& pdfXcondY,
+                                               const vtkstd::map<vtkStdString,PDF>& pmiXY )
   {
     this->DataX = valsX;
     this->DataY = valsY;
-    this->PdfX = pdfX;
-    this->PdfY = pdfY;
     this->PdfXY = pdfXY;
     this->PdfYcondX = pdfYcondX;
     this->PdfXcondY = pdfXcondY;
+    this->PmiXY = pmiXY;
   }
   virtual ~BivariateContingenciesAndInformationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -640,7 +642,7 @@ public:
     result->SetValue( 0, this->PdfXY[x][y] );
     result->SetValue( 1, this->PdfYcondX[x][y] );
     result->SetValue( 2, this->PdfXcondY[x][y] );
-    result->SetValue( 3, log ( this->PdfXY[x][y] / ( this->PdfX[x] * this->PdfY[y] ) ) );
+    result->SetValue( 3, this->PmiXY[x][y] );
   }
 };
 
@@ -852,12 +854,14 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
       }
     }
 
-  // PDFs
-  vtkstd::map<vtkStdString,PDF> pdf[3];
-  PDF pdfX;
-  PDF pdfY;
+  // parameter maps:
+  // 0: PDF(X,Y)
+  // 1: PDF(Y|X)
+  // 2: PDF(X|Y)
+  // 3: PMI(X,Y)
+  vtkstd::map<vtkStdString,PDF> paraMap[4];
 
-  // Joint CDF 
+  // Sanity check: joint PDF
   double cdf = 0.;
 
   // Loop over parameters table until the requested variables are found 
@@ -881,20 +885,17 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     for ( int p = 0; p < np; ++ p )
       {
       v = para[p]->GetValue( r );
-      pdf[p][x][y] = v;
+      paraMap[p][x][y] = v;
 
+      // Sanity check: update CDF
       if ( ! p )
         {
         cdf += v;
-        if ( infos )
-          {
-          pdfX[x] += v; 
-          pdfY[y] += v; 
-          }
         }
       }
     } // for ( int r = 1; r < nRowCont; ++ r )
 
+  // Sanity check: verify that CDF = 1
   if ( fabs( cdf - 1. ) > 1.e-6 )
     {
     vtkWarningMacro( "Incorrect CDF for column pair:"
@@ -911,18 +912,18 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     {
     dfunc = new BivariateContingenciesAndInformationFunctor( valsX,
                                                              valsY,
-                                                             pdfX,
-                                                             pdfY,
-                                                             pdf[0],
-                                                             pdf[1],
-                                                             pdf[2] );
+                                                             paraMap[0],
+                                                             paraMap[1],
+                                                             paraMap[2],
+                                                             paraMap[3] );
     }
   else
     {
     dfunc = new BivariateContingenciesFunctor( valsX,
                                                valsY,
-                                               pdf[0],
-                                               pdf[1],
-                                               pdf[2] );
+                                               paraMap[0],
+                                               paraMap[1],
+                                               paraMap[2],
+                                               paraMap[3] );
     }
 }
