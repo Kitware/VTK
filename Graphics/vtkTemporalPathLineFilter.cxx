@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.8");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.9");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -341,7 +341,11 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   vtkDataArray *Ids = NULL;
   if (this->IdChannelArray) {
-    Ids = vtkDataArray::SafeDownCast(input->GetPointData()->GetArray(this->IdChannelArray));
+    Ids = input->GetPointData()->GetArray(this->IdChannelArray);
+  }
+  else {
+    // Try loading the global ids.
+    Ids = input->GetPointData()->GetGlobalIds();
   }
   // we don't always know how many trails there will be so guess 1000 for allocation of
   // point scalars on the second Particle output
@@ -354,10 +358,16 @@ int vtkTemporalPathLineFilter::RequestData(
   if (!Ids) {
     this->Internals->LastIdArrayName = "";
   }
-  else {
-    if (this->Internals->LastIdArrayName!=vtkstd::string(this->IdChannelArray)) {
+  else if (this->IdChannelArray) {
+    if (this->Internals->LastIdArrayName != this->IdChannelArray) {
       this->FirstTime = 1;
       this->Internals->LastIdArrayName = this->IdChannelArray;
+    }
+  }
+  else {
+    if (this->Internals->LastIdArrayName != "") {
+      this->FirstTime = 1;
+      this->Internals->LastIdArrayName = "";
     }
   }
   //
@@ -423,7 +433,15 @@ int vtkTemporalPathLineFilter::RequestData(
   if (selection && Ids) {
     this->UsingSelection = 1;
     this->SelectionIds.clear();
-    vtkDataArray *selectionIds = vtkDataArray::SafeDownCast(selection->GetPointData()->GetArray(this->IdChannelArray));
+    vtkDataArray *selectionIds;
+    if (this->IdChannelArray)
+      {
+      selectionIds = selection->GetPointData()->GetArray(this->IdChannelArray);
+      }
+    else
+      {
+      selectionIds = selection->GetPointData()->GetGlobalIds();
+      }
     if (selectionIds) {
       vtkIdType N  = selectionIds->GetNumberOfTuples();
       for (vtkIdType i=0; i<N; i++) {
@@ -584,12 +602,12 @@ void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
 #ifndef VTK_LEGACY_REMOVE
 void vtkTemporalPathLineFilter::SetScalarArray(const char *)
 {
-  VTK_LEGACY_BODY(SetScalarArray, "5.4");
+  VTK_LEGACY_BODY(SetScalarArray, "5.6");
 }
 
 const char *vtkTemporalPathLineFilter::GetScalarArray()
 {
-  VTK_LEGACY_BODY(GetScalarArray, "5.4");
+  VTK_LEGACY_BODY(GetScalarArray, "5.6");
   return NULL;
 }
 #endif
