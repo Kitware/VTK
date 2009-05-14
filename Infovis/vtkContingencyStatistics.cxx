@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.48");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.49");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -881,7 +881,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     for ( int p = 0; p < np; ++ p )
       {
       v = para[p]->GetValue( r );
-      pdf[p][x][y] += v;
+      pdf[p][x][y] = v;
 
       if ( ! p )
         {
