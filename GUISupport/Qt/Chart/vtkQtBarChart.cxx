@@ -849,6 +849,56 @@ void vtkQtBarChart::startSeriesRemoval(int first, int last)
     this->InModelChange = true;
     this->Selection->beginRemoveSeries(first, last);
 
+    // Find which groups need to be re-calculated
+    QList<int> groups;
+    QList<int>::Iterator iter;
+    for (int i = first; i <= last; i++)
+      {
+      int index = this->Internal->Groups.removeSeries(i);
+      if (index != -1)
+        {
+        // Add the group indexes in reverse order.
+        bool doAdd = true;
+        for (iter = groups.begin(); iter != groups.end(); ++iter)
+          {
+          if (index > *iter)
+            {
+            doAdd = false;
+            groups.insert(iter, index);
+            break;
+            }
+          else if (index == *iter)
+            {
+            doAdd = false;
+            break;
+            }
+          }
+
+        if (doAdd)
+          {
+          groups.append(index);
+          }
+        }
+      }
+
+    for (iter = groups.begin(); iter != groups.end(); ++iter)
+      {
+      if(this->Internal->Groups.getNumberOfSeries(*iter) == 0)
+        {
+        // Remove the empty domain.
+        this->Internal->Domain.removeDomain(*iter);
+        }
+      else
+        {
+        // Re-calculate the chart domain.
+        this->calculateDomain(*iter);
+        this->createBarList(*iter);
+        }
+      }
+
+    // Fix the stored indexes in the domain groups.
+    this->Internal->Groups.finishRemoval(first, last);
+
     // Remove each of the series items.
     for( ; last >= first; last--)
       {
@@ -868,62 +918,10 @@ void vtkQtBarChart::startSeriesRemoval(int first, int last)
 
 void vtkQtBarChart::finishSeriesRemoval(int first, int last)
 {
-  if(this->ChartArea)
+  if (this->ChartArea)
     {
-    // Find which groups need to be re-calculated
-    QList<int> groups;
-    QList<int>::Iterator iter;
-    for(int i = first; i <= last; i++)
-      {
-      int index = this->Internal->Groups.removeSeries(i);
-      if(index != -1)
-        {
-        // Add the group indexes in reverse order.
-        bool doAdd = true;
-        for(iter = groups.begin(); iter != groups.end(); ++iter)
-          {
-          if(index > *iter)
-            {
-            doAdd = false;
-            groups.insert(iter, index);
-            break;
-            }
-          else if(index == *iter)
-            {
-            doAdd = false;
-            break;
-            }
-          }
-
-        if(doAdd)
-          {
-          groups.append(index);
-          }
-        }
-      }
-
-    for(iter = groups.begin(); iter != groups.end(); ++iter)
-      {
-      if(this->Internal->Groups.getNumberOfSeries(*iter) == 0)
-        {
-        // Remove the empty domain.
-        this->Internal->Domain.removeDomain(*iter);
-        }
-      else
-        {
-        // Re-calculate the chart domain.
-        this->calculateDomain(*iter);
-        this->createBarList(*iter);
-        }
-      }
-
-    // Fix the stored indexes in the domain groups.
-    this->Internal->Groups.finishRemoval(first, last);
-    if(groups.size() > 0)
-      {
-      emit this->rangeChanged();
-      emit this->layoutNeeded();
-      }
+    emit this->rangeChanged();
+    emit this->layoutNeeded();
 
     // Close the event for the selection model, which will trigger a
     // selection change signal.
