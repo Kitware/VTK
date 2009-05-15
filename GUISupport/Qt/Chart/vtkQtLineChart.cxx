@@ -1503,8 +1503,6 @@ void vtkQtLineChart::calculateDomain(int seriesGroup,
     }
 }
 
-#include <iostream>
-using namespace std;
 void vtkQtLineChart::buildTree()
 {
   // Get the current series domain groups.
@@ -1528,7 +1526,6 @@ void vtkQtLineChart::buildTree()
     }
 
   this->BuildNeeded = false;
-  cout << "BuildNeeded: " << rebuild << endl;
   if(rebuild)
     {
     // Merge the series group selection lists to build the trees.
