@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.53");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.54");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -310,14 +310,13 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 
   // Add columns for joint and conditional probabilities
-  int nDerivedValues = 4;
-  int idPMI = 3;
+  int nDerivedVals = 4;
   vtkStdString derivedNames[] = { "P",
                                   "Py|x",
                                   "Px|y",
                                   "PMI" };
   
-  for ( int j = 0; j < nDerivedValues; ++ j )
+  for ( int j = 0; j < nDerivedVals; ++ j )
     {
     if ( ! contingencyTab->GetColumnByName( derivedNames[j] ) )
       {
@@ -337,8 +336,8 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
-  vtkDoubleArray** derivedCols = new vtkDoubleArray*[nDerivedValues];
-  for ( int j = 0; j < nDerivedValues; ++ j )
+  vtkDoubleArray** derivedCols = new vtkDoubleArray*[nDerivedVals];
+  for ( int j = 0; j < nDerivedVals; ++ j )
     {
     derivedCols[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( derivedNames[j] ) );
 
@@ -425,7 +424,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   contingencyTab->SetValueByName( 0, "Cardinality", n );
 
   // Complete cardinality row (0) with invalid values for derived statistics
-  for ( int i = 0; i < nDerivedValues; ++ i )
+  for ( int i = 0; i < nDerivedVals; ++ i )
     {
     contingencyTab->SetValueByName( 0, derivedNames[i], -1. );
     }
@@ -488,8 +487,8 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       }
 
 
-  // Container for probability values (it makes them to retain them in order to update entropies on the fly)
-  double* probVals = new double[nEntropy];
+  // Container for derived values
+  double* derivedVals = new double[nDerivedVals];
   
   // Container for information entropies
   typedef vtkstd::map<vtkIdType,double> Entropies;
@@ -522,30 +521,31 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     c = card->GetValue( r );
 
     // Calculate P(c1,c2)
-    probVals[0] = inv_n * c;
+    derivedVals[0] = inv_n * c;
 
     // Get marginal PDF values
     p1 = marginalPDFs[c1][x];
     p2 = marginalPDFs[c2][y];
     
     // Calculate P(c2|c1)
-    probVals[1] = probVals[0] / p1;
+    derivedVals[1] = derivedVals[0] / p1;
 
     // Calculate P(c1|c2)
-    probVals[2] = probVals[0] / p2;
+    derivedVals[2] = derivedVals[0] / p2;
 
     // Store P(c1,c2), P(c2|c1), P(c1|c2) and use them to update H(X,Y), H(Y|X), H(X|Y)
     for ( int j = 0; j < nEntropy; ++ j )
       {
       // Store probabilities
-      derivedCols[j]->SetValue( r, probVals[j] );
+      derivedCols[j]->SetValue( r, derivedVals[j] );
 
       // Update information entropies
-      H[j][key] -= probVals[0] * log( probVals[j] );
+      H[j][key] -= derivedVals[0] * log( derivedVals[j] );
       }
 
     // Calculate and store PMI(c1,c2)
-    derivedCols[idPMI]->SetValue( r, log( probVals[0] / ( p1 * p2 ) ) );
+    derivedVals[3] = log( derivedVals[0] / ( p1 * p2 ) );
+    derivedCols[3]->SetValue( r, derivedVals[3] );
     }
 
   // Store information entropies
@@ -560,7 +560,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
   row->Delete();
   delete [] H;
   delete [] derivedCols;
-  delete [] probVals;
+  delete [] derivedVals;
 }
 
 // ----------------------------------------------------------------------
