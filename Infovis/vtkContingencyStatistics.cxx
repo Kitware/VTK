@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.52");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.53");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -53,22 +53,12 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 2, "Px|y" );
   this->AssessNames->SetValue( 3, "PMI" );
 
-  this->CalculatePointwiseInformation = true;
-
   this->AssessParameters = vtkStringArray::New();
-  if (  this->CalculatePointwiseInformation )
-    {
-    this->AssessParameters->SetNumberOfValues( 4 );
-    this->AssessParameters->SetValue( 3, "PMI" );
-    }
-  else
-    {
-    this->AssessParameters->SetNumberOfValues( 3 );
-    }
-
+  this->AssessParameters->SetNumberOfValues( 4 );
   this->AssessParameters->SetValue( 0, "P" );
   this->AssessParameters->SetValue( 1, "Py|x" );
   this->AssessParameters->SetValue( 2, "Px|y" );
+  this->AssessParameters->SetValue( 3, "PMI" );
 }
 
 // ----------------------------------------------------------------------
@@ -81,7 +71,6 @@ vtkContingencyStatistics::~vtkContingencyStatistics()
 void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "CalculatePointwiseInformation: " << this->CalculatePointwiseInformation << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -575,43 +564,6 @@ void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 }
 
 // ----------------------------------------------------------------------
-class BivariateContingenciesFunctor : public vtkStatisticsAlgorithm::AssessFunctor
-{
-public:
-  vtkAbstractArray* DataX;
-  vtkAbstractArray* DataY;
-  vtkstd::map<vtkStdString,PDF> PdfXY;
-  vtkstd::map<vtkStdString,PDF> PdfYcondX;
-  vtkstd::map<vtkStdString,PDF> PdfXcondY;
-  vtkstd::map<vtkStdString,PDF> PmiXY;
-
-  BivariateContingenciesFunctor( vtkAbstractArray* valsX,
-                                 vtkAbstractArray* valsY,
-                                 const vtkstd::map<vtkStdString,PDF>& pdfXY,
-                                 const vtkstd::map<vtkStdString,PDF>& pdfYcondX,
-                                 const vtkstd::map<vtkStdString,PDF>& pdfXcondY )
-  {
-    this->DataX = valsX;
-    this->DataY = valsY;
-    this->PdfXY = pdfXY;
-    this->PdfYcondX = pdfYcondX;
-    this->PdfXcondY = pdfXcondY;
-  }
-  virtual ~BivariateContingenciesFunctor() { }
-  virtual void operator() ( vtkVariantArray* result,
-                            vtkIdType id )
-  {
-    vtkStdString x = this->DataX->GetVariantValue( id ).ToString();
-    vtkStdString y = this->DataY->GetVariantValue( id ).ToString();
-
-    result->SetNumberOfValues( 3 );
-    result->SetValue( 0, this->PdfXY[x][y] );
-    result->SetValue( 1, this->PdfYcondX[x][y] );
-    result->SetValue( 2, this->PdfXcondY[x][y] );
-  }
-};
-
-// ----------------------------------------------------------------------
 class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
@@ -873,7 +825,6 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString x, y;
   vtkIdType key;
   double v;
-  bool infos = this->GetCalculatePointwiseInformation();
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
     // Find the pair of variables to which the key corresponds
@@ -913,21 +864,10 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  if ( infos )
-    {
-    dfunc = new BivariateContingenciesAndInformationFunctor( valsX,
+  dfunc = new BivariateContingenciesAndInformationFunctor( valsX,
                                                              valsY,
                                                              paraMap[0],
                                                              paraMap[1],
                                                              paraMap[2],
                                                              paraMap[3] );
-    }
-  else
-    {
-    dfunc = new BivariateContingenciesFunctor( valsX,
-                                               valsY,
-                                               paraMap[0],
-                                               paraMap[1],
-                                               paraMap[2] );
-    }
 }

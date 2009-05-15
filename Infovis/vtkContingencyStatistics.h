@@ -67,15 +67,6 @@ public:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  // Description:
-  // Get whether the pointwise mutual information must be computed.
-  vtkGetMacro( CalculatePointwiseInformation, bool );
-
-  // Description:
-  // Set whether the pointwise mutual information must be computed.
-  // The default is that pointwise mutual informations deviations will be computed.
-  vtkSetMacro( CalculatePointwiseInformation, bool );
-
 protected:
   vtkContingencyStatistics();
   ~vtkContingencyStatistics();
@@ -101,8 +92,6 @@ protected:
                               vtkDataObject* inMeta,
                               vtkTable* outData,
                               vtkDataObject* outMeta ); 
-
-  bool CalculatePointwiseInformation;
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented
