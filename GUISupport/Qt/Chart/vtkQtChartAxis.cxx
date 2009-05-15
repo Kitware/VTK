@@ -2081,6 +2081,11 @@ void vtkQtChartAxis::generateLogLabels(const QRectF &contents)
 
     // Place the first value on the list using value min in case
     // the first value is int zero.
+    if (minimum.toDouble() < value.toDouble())
+      {
+      // if minimum is less than the 1st power or 10, then we add minimum first.
+      this->Model->addLabel(minimum);
+      }
     this->Model->addLabel(value);
 
     // Fill in the data based on the interval.
@@ -2108,8 +2113,18 @@ void vtkQtChartAxis::generateLogLabels(const QRectF &contents)
         value.convert(QVariant::Int);
         }
 
-      this->Model->addLabel(value);
+      if (i==intervals)
+        {
+        // for the last value, add maximum 
+        this->Model->addLabel(maximum);
+        }
+      else
+        {
+        this->Model->addLabel(value);
+        }
       }
+
+
     }
   else if(this->Internal->DataAvailable)
     {
