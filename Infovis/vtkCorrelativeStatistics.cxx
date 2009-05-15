@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.49");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.50");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -248,7 +248,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     stringCol->Delete();
     }
 
-  double* doubleVals = new double[numDoubles]; // var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r
+  double* derivedVals = new double[numDoubles]; // var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -276,9 +276,9 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       covXY = mXY * inv_nm1;
       }
     
-    doubleVals[0] = varX;
-    doubleVals[1] = varY;
-    doubleVals[2] = covXY;
+    derivedVals[0] = varX;
+    derivedVals[1] = varY;
+    derivedVals[2] = covXY;
 
     vtkStdString status = "valid";
 
@@ -290,11 +290,11 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
                        <<", "
                        <<c2.c_str()
                        <<"): variance/covariance matrix has non-positive determinant." );
-      doubleVals[3] = 0.;
-      doubleVals[4] = 0.;
-      doubleVals[5] = 0.;
-      doubleVals[6] = 0.;
-      doubleVals[7] = 0.;
+      derivedVals[3] = 0.;
+      derivedVals[4] = 0.;
+      derivedVals[5] = 0.;
+      derivedVals[6] = 0.;
+      derivedVals[7] = 0.;
       status = "invalid";
       }
     else
@@ -304,28 +304,28 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 
       // variable Y on variable X:
       //   slope
-      doubleVals[3] = covXY / varX;
+      derivedVals[3] = covXY / varX;
       //   intersect
-      doubleVals[4] = meanY - doubleVals[0] * meanX;
+      derivedVals[4] = meanY - derivedVals[0] * meanX;
       
       //   variable X on variable Y:
       //   slope
-      doubleVals[5] = covXY / varY;
+      derivedVals[5] = covXY / varY;
       //   intersect
-      doubleVals[6] = meanX - doubleVals[2] * meanY;
+      derivedVals[6] = meanX - derivedVals[2] * meanY;
       
       // correlation coefficient
-      doubleVals[7] = covXY / sqrt( varX * varY );
+      derivedVals[7] = covXY / sqrt( varX * varY );
       }
 
     inMeta->SetValueByName( i, "Linear Correlation", status );
     for ( int j = 0; j < numDoubles; ++ j )
       {
-      inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
+      inMeta->SetValueByName( i, doubleNames[j], derivedVals[j] );
       }
     }
 
-  delete [] doubleVals;
+  delete [] derivedVals;
 }
 
 // ----------------------------------------------------------------------
