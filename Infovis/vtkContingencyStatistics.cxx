@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.54");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.55");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -569,24 +569,21 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  vtkstd::map<vtkStdString,PDF> PdfXY;
-  vtkstd::map<vtkStdString,PDF> PdfYcondX;
-  vtkstd::map<vtkStdString,PDF> PdfXcondY;
-  vtkstd::map<vtkStdString,PDF> PmiXY;
+  vtkstd::map<vtkStdString,PDF> PdfX_Y;
+  vtkstd::map<vtkStdString,PDF> PdfYcX;
+  vtkstd::map<vtkStdString,PDF> PdfXcY;
+  vtkstd::map<vtkStdString,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               const vtkstd::map<vtkStdString,PDF>& pdfXY,
-                                               const vtkstd::map<vtkStdString,PDF>& pdfYcondX,
-                                               const vtkstd::map<vtkStdString,PDF>& pdfXcondY,
-                                               const vtkstd::map<vtkStdString,PDF>& pmiXY )
+                                               const vtkstd::map<vtkStdString,PDF> parameters[4] )
   {
     this->DataX = valsX;
     this->DataY = valsY;
-    this->PdfXY = pdfXY;
-    this->PdfYcondX = pdfYcondX;
-    this->PdfXcondY = pdfXcondY;
-    this->PmiXY = pmiXY;
+    this->PdfX_Y = parameters[0];
+    this->PdfYcX = parameters[1];
+    this->PdfXcY = parameters[2];
+    this->PmiX_Y = parameters[3];
   }
   virtual ~BivariateContingenciesAndInformationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -596,10 +593,10 @@ public:
     vtkStdString y = this->DataY->GetVariantValue( id ).ToString();
 
     result->SetNumberOfValues( 4 );
-    result->SetValue( 0, this->PdfXY[x][y] );
-    result->SetValue( 1, this->PdfYcondX[x][y] );
-    result->SetValue( 2, this->PdfXcondY[x][y] );
-    result->SetValue( 3, this->PmiXY[x][y] );
+    result->SetValue( 0, this->PdfX_Y[x][y] );
+    result->SetValue( 1, this->PdfYcX[x][y] );
+    result->SetValue( 2, this->PdfXcY[x][y] );
+    result->SetValue( 3, this->PmiX_Y[x][y] );
   }
 };
 
@@ -865,9 +862,6 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     }
 
   dfunc = new BivariateContingenciesAndInformationFunctor( valsX,
-                                                             valsY,
-                                                             paraMap[0],
-                                                             paraMap[1],
-                                                             paraMap[2],
-                                                             paraMap[3] );
+                                                           valsY,
+                                                           paraMap );
 }
