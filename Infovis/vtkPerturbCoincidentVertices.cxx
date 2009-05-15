@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.13");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.14");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -343,7 +343,7 @@ int vtkPerturbCoincidentVertices::RequestData(
   this->SimpleSpiralPerturbation(input, output, 1.0);
 
   timer->StopTimer();
-  cout << "Spiral Time: " << timer->GetElapsedTime() << endl;
+  vtkDebugMacro("Spiral Time: " << timer->GetElapsedTime() << endl);
 
   return 1;
 }

@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.9");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.10");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
@@ -290,7 +290,7 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->ComputeHierarchy();
 
   timer->StopTimer();
-  cout << "StartupTime: " << timer->GetElapsedTime() << endl;
+  vtkDebugMacro("StartupTime: " << timer->GetElapsedTime() << endl);
 
   return 1;
 }
