@@ -41,7 +41,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.51");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.52");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 2, "Px|y" );
   this->AssessNames->SetValue( 3, "PMI" );
 
-  this->CalculatePointwiseInformation = false;
+  this->CalculatePointwiseInformation = true;
 
   this->AssessParameters = vtkStringArray::New();
   if (  this->CalculatePointwiseInformation )
