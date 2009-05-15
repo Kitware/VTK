@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.66");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.67");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -255,7 +255,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 
   // Storage for standard deviation, variance, skewness, G1, kurtosis, G2, sum
-  double* doubleVals = new double[numDoubles]; 
+  double* derivedVals = new double[numDoubles]; 
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -266,16 +266,14 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 
     int numSamples = inMeta->GetValueByName(i, "Cardinality" ).ToInt();
 
-    doubleVals[6] = numSamples * inMeta->GetValueByName( i, "Mean" ).ToDouble();
-
     if ( numSamples == 1 || mom2 < 1.e-150 )
       {
-      doubleVals[0] = 0.;
-      doubleVals[1] = 0.;
-      doubleVals[2] = 0.;
-      doubleVals[3] = 0.;
-      doubleVals[4] = 0.;
-      doubleVals[5] = 0.;
+      derivedVals[0] = 0.;
+      derivedVals[1] = 0.;
+      derivedVals[2] = 0.;
+      derivedVals[3] = 0.;
+      derivedVals[4] = 0.;
+      derivedVals[5] = 0.;
       }
     else
       {
@@ -283,43 +281,46 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
       double inv_n = 1. / n;
       double nm1 = n - 1.;
 
-      doubleVals[1] = mom2 / nm1;
-      doubleVals[0] = sqrt( doubleVals[1] );
+      derivedVals[1] = mom2 / nm1;
+      derivedVals[0] = sqrt( derivedVals[1] );
 
-      double var_inv = 1. / doubleVals[1];
+      double var_inv = 1. / derivedVals[1];
       double nvar_inv = var_inv * inv_n;
-      doubleVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
-      doubleVals[4] = nvar_inv * var_inv * mom4 - 3.;
+      derivedVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
+      derivedVals[4] = nvar_inv * var_inv * mom4 - 3.;
       if ( n > 2 )
         {
         // G1 skewness estimate
         double nm2 = nm1 - 1.;
-        doubleVals[3] = ( n * n ) / ( nm1 * nm2 ) * doubleVals[2];
+        derivedVals[3] = ( n * n ) / ( nm1 * nm2 ) * derivedVals[2];
  
         if ( n > 3 )
           { 
           // G2 kurtosis estimate
-          doubleVals[5] = ( ( n + 1. ) * doubleVals[4] + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
+          derivedVals[5] = ( ( n + 1. ) * derivedVals[4] + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
           }
         else
           {
-          doubleVals[5] = doubleVals[4];
+          derivedVals[5] = derivedVals[4];
           }
         }
       else
         {
-        doubleVals[3] = doubleVals[2];
-        doubleVals[5] = doubleVals[4];
+        derivedVals[3] = derivedVals[2];
+        derivedVals[5] = derivedVals[4];
         }
       }
 
+    // Sum
+    derivedVals[6] = numSamples * inMeta->GetValueByName( i, "Mean" ).ToDouble();
+
     for ( int j = 0; j < numDoubles; ++ j )
       {
-      inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
+      inMeta->SetValueByName( i, doubleNames[j], derivedVals[j] );
       }
     }
 
-  delete [] doubleVals;
+  delete [] derivedVals;
 }
 
 // ----------------------------------------------------------------------
