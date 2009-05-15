@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.79");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.80");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -116,7 +116,7 @@ int vtkCleanPolyData::RequestUpdateExtent(
       }
     else
       {
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), -1);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                   0);
       }
