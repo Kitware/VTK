@@ -266,6 +266,10 @@ public:
   // Performs another iteration on the graph layout.
   virtual void UpdateLayout();
 
+  // Description:
+  // Compute the bounding box of the selected subgraph.
+  void ComputeSelectedGraphBounds( double bounds[6] );
+
 protected:
   vtkRenderedGraphRepresentation();
   ~vtkRenderedGraphRepresentation();

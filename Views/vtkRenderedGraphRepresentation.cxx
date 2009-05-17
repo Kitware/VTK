@@ -76,7 +76,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.10");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1247,6 +1247,130 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
   this->VertexTextProperty->SetLineOffset(-2*baseSize);
   this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6] )
+{
+  // Bring the graph up to date
+  this->Layout->Update();
+
+  // Convert to an index selection
+  vtkSmartPointer<vtkConvertSelection> cs = vtkSmartPointer<vtkConvertSelection>::New();
+  cs->SetInputConnection(0, this->GetSelectionConnection());
+  cs->SetInputConnection(1, this->Layout->GetOutputPort());
+  cs->SetOutputType(vtkSelectionNode::INDICES);
+  cs->Update();
+  vtkGraph* data = vtkGraph::SafeDownCast(this->Layout->GetOutput());
+  vtkSelection* converted = cs->GetOutput();
+
+  // Iterate over the selection's nodes, constructing a list of selected vertices.
+  // In the case of an edge selection, we add the edges' vertices to vertex list.
+
+  vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
+  bool hasEdges = false;
+  vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
+  bool hasVertices = false;
+  for( unsigned int m = 0; m < static_cast<vtkIdType>(converted->GetNumberOfNodes()); ++m)
+    {
+    vtkSelectionNode* node = converted->GetNode(m);
+    vtkIdTypeArray* list = 0;
+    if (node->GetFieldType() == vtkSelectionNode::VERTEX)
+      {
+      list = vertexList;
+      hasVertices = true;
+      }
+    else if (node->GetFieldType() == vtkSelectionNode::EDGE)
+      {
+      list = edgeList;
+      hasEdges = true;
+      }
+
+    if (list)
+      {
+      // Append the selection list to the selection
+      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      if (curList)
+        {
+        int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
+        if (inverse)
+          {
+          vtkIdType num =
+            (node->GetFieldType() == vtkSelectionNode::VERTEX) ?
+            data->GetNumberOfVertices() : data->GetNumberOfEdges();
+          for (vtkIdType j = 0; j < num; ++j)
+            {
+            if (curList->LookupValue(j) < 0 && list->LookupValue(j) < 0)
+              {
+              list->InsertNextValue(j);
+              }
+            }
+          }
+        else
+          {
+          vtkIdType numTuples = curList->GetNumberOfTuples();
+          for (vtkIdType j = 0; j < numTuples; ++j)
+            {
+            vtkIdType curValue = curList->GetValue(j);
+            if (list->LookupValue(curValue) < 0)
+              {
+              list->InsertNextValue(curValue);
+              }
+            }
+          }
+        } // end if (curList)
+      } // end if (list)
+    } // end for each child
+
+  vtkIdType i;
+  if(hasEdges)
+    {
+    vtkIdType numSelectedEdges = edgeList->GetNumberOfTuples();
+    for( i = 0; i < numSelectedEdges; ++i)
+      {
+      vtkIdType eid = edgeList->GetValue(i);
+      vertexList->InsertNextValue(data->GetSourceVertex(eid));
+      vertexList->InsertNextValue(data->GetTargetVertex(eid));
+      }
+    }
+  
+  // If there is no selection list, return 
+  if (vertexList->GetNumberOfTuples() == 0)
+    {
+    return;
+    }
+
+  // Now we use our list of vertices to get the point coordinates
+  // of the selection and use that to initialize the bounds that
+  // we'll use to reset the camera.
+
+  double position[3];
+  data->GetPoint(vertexList->GetValue(0), position);
+  bounds[0] = bounds[1] = position[0];
+  bounds[2] = bounds[3] = position[1];
+  bounds[4] = -0.1;
+  bounds[5] = 0.1;
+  for (i = 1; i < vertexList->GetNumberOfTuples(); ++i)
+    {
+    data->GetPoint(vertexList->GetValue(i), position);
+
+    if (position[0] < bounds[0])
+      {
+      bounds[0] = position[0]; 
+      }
+    if (position[0] > bounds[1])
+      {
+      bounds[1] = position[0]; 
+      }
+    if (position[1] < bounds[2])
+      {
+      bounds[2] = position[1]; 
+      }
+    if (position[1] > bounds[3])
+      {
+      bounds[3] = position[1]; 
+      }
+    }
 }
 
 void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
