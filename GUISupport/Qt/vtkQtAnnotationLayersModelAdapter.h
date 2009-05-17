@@ -76,11 +76,11 @@ public:
   QModelIndex parent(const QModelIndex &index) const;
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
+/*
   Qt::DropActions supportedDropActions() const;
   Qt::DropActions supportedDragActions() const;
   bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
   bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
-  /*
   virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) ;
   virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
   virtual QStringList mimeTypes () const ;

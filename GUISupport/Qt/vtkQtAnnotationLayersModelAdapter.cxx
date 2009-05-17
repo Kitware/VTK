@@ -406,7 +406,7 @@ int vtkQtAnnotationLayersModelAdapter::columnCount(const QModelIndex &) const
 
   return 3;
 }
-
+/*
 Qt::DropActions vtkQtAnnotationLayersModelAdapter::supportedDropActions() const
 {
    return Qt::MoveAction;
@@ -417,30 +417,30 @@ Qt::DropActions vtkQtAnnotationLayersModelAdapter::supportedDragActions() const
    return Qt::MoveAction;
 }
 
-bool vtkQtAnnotationLayersModelAdapter::insertRows(int row, int count, const QModelIndex & parent)
+bool vtkQtAnnotationLayersModelAdapter::insertRows(int row, int count, const QModelIndex &p)
 {
-  emit this->beginInsertRows(parent,row,row+count-1);
+  emit this->beginInsertRows(p,row,row+count-1);
   for(int i=0; i<count; ++i)
     {
-    //this->Annotations->InsertLayer(row);
+    this->Annotations->InsertLayer(row);
     }
   emit this->endInsertRows();
 
   return true;
 }
 
-bool vtkQtAnnotationLayersModelAdapter::removeRows(int row, int count, const QModelIndex & parent)
+bool vtkQtAnnotationLayersModelAdapter::removeRows(int row, int count, const QModelIndex &p)
 {
-  emit this->beginRemoveRows(parent,row,row+count-1);
+  emit this->beginRemoveRows(p,row,row+count-1);
   for(int i=0; i<count; ++i)
     {
-    //this->Annotations->RemoveAnnotation(this->Annotations->GetAnnotation(row));
+    this->Annotations->RemoveAnnotation(this->Annotations->GetAnnotation(row));
     }
   emit this->endRemoveRows();
 
   return true;
 }
-/*
+
 bool vtkQtAnnotationLayersModelAdapter::dropMimeData(const QMimeData *data,
      Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
