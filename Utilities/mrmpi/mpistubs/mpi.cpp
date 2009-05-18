@@ -219,7 +219,7 @@ void MPI_Bcast(void * /* buf */, int /* count */, MPI_Datatype /* datatype */,
 void MPI_Allreduce(void *sendbuf, void *recvbuf, int count,
        MPI_Datatype datatype, MPI_Op /* op */, MPI_Comm /* comm */)
 {
-  int n;
+  int n = 0;
   if (datatype == MPI_INT) n = count*sizeof(int);
   else if (datatype == MPI_FLOAT) n = count*sizeof(float);
   else if (datatype == MPI_DOUBLE) n = count*sizeof(double);
@@ -235,7 +235,7 @@ void MPI_Allreduce(void *sendbuf, void *recvbuf, int count,
 void MPI_Scan(void *sendbuf, void *recvbuf, int count,
         MPI_Datatype datatype, MPI_Op /* op */, MPI_Comm /* comm */)
 {
-  int n;
+  int n = 0;
   if (datatype == MPI_INT) n = count*sizeof(int);
   else if (datatype == MPI_FLOAT) n = count*sizeof(float);
   else if (datatype == MPI_DOUBLE) n = count*sizeof(double);
@@ -254,7 +254,7 @@ void MPI_Allgather(void *sendbuf, int sendcount, MPI_Datatype sendtype,
        void *recvbuf, int /* recvcount */, MPI_Datatype /* recvtype */,
        MPI_Comm /* comm */)
 {
-  int n;
+  int n = 0;
   if (sendtype == MPI_INT) n = sendcount*sizeof(int);
   else if (sendtype == MPI_FLOAT) n = sendcount*sizeof(float);
   else if (sendtype == MPI_DOUBLE) n = sendcount*sizeof(double);
@@ -273,7 +273,7 @@ void MPI_Allgatherv(void *sendbuf, int sendcount, MPI_Datatype sendtype,
         void *recvbuf, int * /* recvcounts */, int * /* displs */,
         MPI_Datatype /* recvtype */, MPI_Comm /* comm */)
 {
-  int n;
+  int n = 0;
   if (sendtype == MPI_INT) n = sendcount*sizeof(int);
   else if (sendtype == MPI_FLOAT) n = sendcount*sizeof(float);
   else if (sendtype == MPI_DOUBLE) n = sendcount*sizeof(double);
@@ -291,7 +291,7 @@ void MPI_Allgatherv(void *sendbuf, int sendcount, MPI_Datatype sendtype,
 void MPI_Reduce_scatter(void *sendbuf, void *recvbuf, int *recvcounts,
       MPI_Datatype datatype, MPI_Op /* op */, MPI_Comm /* comm */)
 {
-  int n;
+  int n = 0;
   if (datatype == MPI_INT) n = *recvcounts*sizeof(int);
   else if (datatype == MPI_FLOAT) n = *recvcounts*sizeof(float);
   else if (datatype == MPI_DOUBLE) n = *recvcounts*sizeof(double);
@@ -310,7 +310,7 @@ void MPI_Gather(void *sendbuf, int sendcount, MPI_Datatype sendtype,
        void *recvbuf, int /* recvcount */, MPI_Datatype /* recvtype */,
        int /* root */, MPI_Comm /* comm */)
 {
-  int n;
+  int n = 0;
   if (sendtype == MPI_INT) n = sendcount*sizeof(int);
   else if (sendtype == MPI_FLOAT) n = sendcount*sizeof(float);
   else if (sendtype == MPI_DOUBLE) n = sendcount*sizeof(double);

@@ -327,14 +327,15 @@ void KeyMultiValue::grow_buckets(KeyValue *kv)
     int depth = 1;
     if (buckets[ibucket] < 0) buckets[ibucket] = i;
     else {
-      int iprevious;
+      int iprevious = -1;
       int ikey2 = buckets[ibucket];
       while (ikey2 >= 0) {
         iprevious = ikey2;
         ikey2 = uniques[ikey2].next;
         depth++;
       }
-      uniques[iprevious].next = i;
+      if (iprevious >= 0)
+        uniques[iprevious].next = i;
     }
     maxdepth = MAX(maxdepth,depth);
   }

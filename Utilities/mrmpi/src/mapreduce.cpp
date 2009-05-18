@@ -526,8 +526,8 @@ int MapReduce::map(int nmap, void (*appmap)(int, KeyValue *, void *),
 
   } else if (mapstyle == 0) {
     vtkTypeUInt64 nmap64 = nmap;
-    int lo = me * nmap64 / nprocs;
-    int hi = (me+1) * nmap64 / nprocs;
+    int lo = me * (int)(nmap64 / nprocs);
+    int hi = (me+1) * (int)(nmap64 / nprocs);
     for (int itask = lo; itask < hi; itask++)
       appmap(itask,kv,ptr);
 
@@ -564,12 +564,12 @@ int MapReduce::map(int nmap, void (*appmap)(int, KeyValue *, void *),
       }
 
     } else {
-      while (1) {
-  int itask;
-  MPI_Recv(&itask,1,MPI_INT,0,0,comm,&status);
-  if (itask < 0) break;
-  appmap(itask,kv,ptr);
-  MPI_Send(&itask,1,MPI_INT,0,0,comm);
+      int itask = 0;
+      while (itask >= 0) {
+        MPI_Recv(&itask,1,MPI_INT,0,0,comm,&status);
+        if (itask < 0) break;
+        appmap(itask,kv,ptr);
+        MPI_Send(&itask,1,MPI_INT,0,0,comm);
       }
     }
 
@@ -614,7 +614,7 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
   int nmap = 0;
   int maxfiles = 0;
   char **files = NULL;
-  FILE *fp;
+  FILE *fp = 0;
 
   if (me == 0) {
     fp = fopen(file,"r");
@@ -645,7 +645,7 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
     if (nmap == maxfiles) {
       maxfiles += FILECHUNK;
       files = (char **)
-  memory->srealloc(files,maxfiles*sizeof(char *),"MR:files");
+      memory->srealloc(files,maxfiles*sizeof(char *),"MR:files");
     }
     n = strlen(ptr1) + 1;
     files[nmap] = new char[n];
@@ -664,8 +664,8 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
 
   } else if (mapstyle == 0) {
     vtkTypeUInt64 nmap64 = nmap;
-    int lo = me * nmap64 / nprocs;
-    int hi = (me+1) * nmap64 / nprocs;
+    int lo = me * (int)(nmap64 / nprocs);
+    int hi = (me+1) * (int)(nmap64 / nprocs);
     for (int itask = lo; itask < hi; itask++)
       appmap(itask,files[itask],kv,ptr);
 
@@ -679,35 +679,35 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
       int ndone = 0;
       int itask = 0;
       for (int iproc = 1; iproc < nprocs; iproc++) {
-  if (itask < nmap) {
-    MPI_Send(&itask,1,MPI_INT,iproc,0,comm);
-    itask++;
-  } else {
-    MPI_Send(&doneflag,1,MPI_INT,iproc,0,comm);
-    ndone++;
-  }
+        if (itask < nmap) {
+          MPI_Send(&itask,1,MPI_INT,iproc,0,comm);
+          itask++;
+        } else {
+          MPI_Send(&doneflag,1,MPI_INT,iproc,0,comm);
+          ndone++;
+        }
       }
       while (ndone < nprocs-1) {
-  int iproc,tmp;
-  MPI_Recv(&tmp,1,MPI_INT,MPI_ANY_SOURCE,0,comm,&status);
-  iproc = status.MPI_SOURCE;
-
-  if (itask < nmap) {
-    MPI_Send(&itask,1,MPI_INT,iproc,0,comm);
-    itask++;
-  } else {
-    MPI_Send(&doneflag,1,MPI_INT,iproc,0,comm);
-    ndone++;
-  }
+        int iproc,tmp;
+        MPI_Recv(&tmp,1,MPI_INT,MPI_ANY_SOURCE,0,comm,&status);
+        iproc = status.MPI_SOURCE;
+      
+        if (itask < nmap) {
+          MPI_Send(&itask,1,MPI_INT,iproc,0,comm);
+          itask++;
+        } else {
+          MPI_Send(&doneflag,1,MPI_INT,iproc,0,comm);
+          ndone++;
+        }
       }
 
     } else {
-      while (1) {
-  int itask;
-  MPI_Recv(&itask,1,MPI_INT,0,0,comm,&status);
-  if (itask < 0) break;
-  appmap(itask,files[itask],kv,ptr);
-  MPI_Send(&itask,1,MPI_INT,0,0,comm);
+      int itask = 0;
+      while (itask >= 0) {
+        MPI_Recv(&itask,1,MPI_INT,0,0,comm,&status);
+        if (itask < 0) break;
+        appmap(itask,files[itask],kv,ptr);
+        MPI_Send(&itask,1,MPI_INT,0,0,comm);
       }
     }
 
@@ -823,7 +823,7 @@ int MapReduce::map_file(int nmap, int nfiles, char **files,
 
   int ntasks = 0;
   for (int i = 0; i < nfiles; i++) {
-    filemap.tasksperfile[i] = MAX(1,filemap.filesize[i]/nideal);
+    filemap.tasksperfile[i] = (int)MAX(1,filemap.filesize[i]/nideal);
     ntasks += filemap.tasksperfile[i];
   }
 
@@ -857,7 +857,7 @@ int MapReduce::map_file(int nmap, int nfiles, char **files,
     }
   }
 
-  if (flag & me == 0) {
+  if (flag && me == 0) {
     char str[128];
     sprintf(str,"File(s) too small for file delta - decreased map tasks to %d",
       nmap);
@@ -922,7 +922,7 @@ void map_file_standalone(int imap, KeyValue *kv, void *ptr)
   mr->map_file_wrapper(imap,kv);
 }
 
-void MapReduce::map_file_wrapper(int imap, KeyValue *kv)
+void MapReduce::map_file_wrapper(int imap, KeyValue *pkv)
 {
   // readstart = position in file to start reading for this task
   // readsize = # of bytes to read including delta
@@ -932,8 +932,8 @@ void MapReduce::map_file_wrapper(int imap, KeyValue *kv)
   int ntask = filemap.tasksperfile[filemap.whichfile[imap]];
 
   vtkTypeUInt64 readstart = itask*filesize/ntask;
-  vtkTypeUInt64 readnext = (itask+1)*filesize/ntask;
-  int readsize = readnext - readstart + filemap.delta;
+  vtkTypeUInt64 readnext = (vtkTypeUInt64)(itask+1)*filesize/ntask;
+  int readsize = (int)(readnext - readstart) + filemap.delta;
   readsize = MIN(readsize,(vtkTypeInt64)(filesize-readstart));
 
   // read from appropriate file
@@ -941,7 +941,7 @@ void MapReduce::map_file_wrapper(int imap, KeyValue *kv)
 
   char *str = new char[readsize+1];
   FILE *fp = fopen(filemap.filename[filemap.whichfile[imap]],"rb");
-  fseek(fp,readstart,SEEK_SET);
+  fseek(fp,(long)readstart,SEEK_SET);
   fread(str,1,readsize,fp);
   str[readsize] = '\0';
   fclose(fp);
@@ -972,9 +972,9 @@ void MapReduce::map_file_wrapper(int imap, KeyValue *kv)
   if (itask < ntask-1) {
     char *ptr;
     if (filemap.sepwhich) 
-      ptr = strchr(&str[readnext-readstart],filemap.sepchar);
+      ptr = strchr(&str[(int)(readnext-readstart)],filemap.sepchar);
     else 
-      ptr = strstr(&str[readnext-readstart],filemap.sepstr);
+      ptr = strstr(&str[(int)(readnext-readstart)],filemap.sepstr);
     if (ptr == NULL) error->one("Could not find separator within delta");
     if (filemap.sepwhich) ptr++;
     *ptr = '\0';
@@ -984,7 +984,7 @@ void MapReduce::map_file_wrapper(int imap, KeyValue *kv)
   // call user appmapfile() function with user data ptr
 
   int strsize = strstop - strstart + 1;
-  filemap.appmapfile(imap,&str[strstart],strsize,kv,filemap.ptr);
+  filemap.appmapfile(imap,&str[strstart],strsize,pkv,filemap.ptr);
   delete [] str;
 }
 
