@@ -1,0 +1,12 @@
+# RedStorm (Cray XT3) Makefile for MapReduce examples, CC, MPI
+
+CC =		CC
+CCFLAGS =	-fastsse -I../src -DMPICH_IGNORE_CXX_SEEK
+LINK =		CC
+LINKFLAGS =	-O -L../src
+USRLIB =	-lmrmpi
+SYSLIB =
+
+LIB =		../src/libmrmpi.a
+
+include Makefile.common

@@ -1,0 +1,14 @@
+# MPI-based makefile using mpic++ and mpicc.
+
+CC =		mpicc
+CPP =		mpic++
+CCFLAGS =	-g -O -I../src 
+LINK =		mpic++
+LINKFLAGS =	-g -O
+#USRLIB =	../src/libmrmpi.a 
+USRLIB =	-L../src -lmrmpi
+SYSLIB =
+
+LIB =		../src/libmrmpi.a
+
+include Makefile.common

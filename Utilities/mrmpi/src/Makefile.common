@@ -1,0 +1,26 @@
+# Settings
+
+OBJ =	mapreduce.o cmapreduce.o keyvalue.o keymultivalue.o irregular.o \
+	hash.o memory.o error.o 
+EXE = 	libmrmpi.a
+
+# Targets
+
+lib:	$(OBJ)
+	$(ARCHIVE) $(ARFLAGS) $(EXE) $(OBJ)
+
+clean:
+	rm *.o *.d *.a
+
+# Rules
+
+%.o:%.cpp
+	$(CC) $(CCFLAGS) -c $<
+
+%.d:%.cpp
+	$(CC) $(CCFLAGS) $(DEPFLAGS) $< > $@
+
+# Individual dependencies
+
+DEPENDS = $(OBJ:.o=.d)
+include $(DEPENDS)

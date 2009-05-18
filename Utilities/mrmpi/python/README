@@ -1,0 +1,8 @@
+This directory contains a Python wrapper of the MapReduce-MPI library.
+Before you can use it, the library has to be built as a dynamically
+loadable library (as does MPI itself if you wish to use it in
+parallel), and installed with the wrapper mrmpi.py in your Python.
+
+Instructions for doing this are given in the MapReduce-MPI doc pages
+in the doc directory.
+

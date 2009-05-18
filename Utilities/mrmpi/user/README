@@ -1,0 +1,10 @@
+This directory will eventually contain MapReduce programs written by
+the developers and users which call the MapReduce MPI library.
+
+At this initial release, it's empty.
+
+If you write a MapReduce program you'd like to contribute to the
+distrubution, please send an email to Steve Plimpton: sjplimp at
+sandia.gov.
+
+See the examples dir for other MapReduce programs.

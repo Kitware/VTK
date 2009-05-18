@@ -1,0 +1,9 @@
+# RedStorm (Cray XT3) Makefile, CC, MPI
+
+CC =		CC
+CCFLAGS =	-fastsse -DMPICH_IGNORE_CXX_SEEK
+DEPFLAGS =	-M
+ARCHIVE =	ar
+ARFLAGS =	-rc
+
+include Makefile.common

@@ -1,0 +1,10 @@
+# MPI-based Makefile using mpic++ and mpicc.
+
+CC =		mpic++ -m64
+CCFLAGS =	-g -O 
+DEPFLAGS =	-M
+ARCHIVE =	ar
+ARFLAGS =	-rc
+
+include Makefile.common
+

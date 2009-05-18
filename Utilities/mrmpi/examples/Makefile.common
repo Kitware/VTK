@@ -1,0 +1,26 @@
+# Targets
+
+all:	wordfreq cwordfreq rmat crmat
+
+wordfreq:	wordfreq.o $(LIB)
+	$(LINK) $(LINKFLAGS) wordfreq.o $(USRLIB) $(SYSLIB) -o wordfreq
+
+cwordfreq:	cwordfreq.o $(LIB)
+	$(LINK) $(LINKFLAGS) cwordfreq.o $(USRLIB) $(SYSLIB) -o cwordfreq
+
+rmat:	rmat.o $(LIB)
+	$(LINK) $(LINKFLAGS) rmat.o $(USRLIB) $(SYSLIB) -o rmat
+
+crmat:	crmat.o $(LIB)
+	$(LINK) $(LINKFLAGS) crmat.o $(USRLIB) $(SYSLIB) -o crmat
+
+clean:
+	rm *.o wordfreq cwordfreq rmat crmat
+
+# Rules
+
+%.o:%.cpp
+	$(CPP) $(CCFLAGS) -c $<
+
+%.o:%.c
+	$(CC) $(CCFLAGS) -c $<
