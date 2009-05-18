@@ -35,7 +35,7 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApplyColors, "1.5");
+vtkCxxRevisionMacro(vtkApplyColors, "1.6");
 vtkStandardNewMacro(vtkApplyColors);
 vtkCxxSetObjectMacro(vtkApplyColors, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkApplyColors, CellLookupTable, vtkScalarsToColors);
@@ -312,12 +312,10 @@ int vtkApplyColors::RequestData(
     if (vtkAnnotation* ann = layers->GetCurrentAnnotation())
       {
       vtkSelection* selection = ann->GetSelection();
-      vtkSmartPointer<vtkIdTypeArray> list1 =
-        vtkSmartPointer<vtkIdTypeArray>::New();
-      vtkSmartPointer<vtkIdTypeArray> list2 =
-        vtkSmartPointer<vtkIdTypeArray>::New();
-      unsigned char color1[4] = {0.0, 0.0, 0.0, 1.0};
-      unsigned char color2[4] = {0.0, 0.0, 0.0, 1.0};
+      list1 = vtkSmartPointer<vtkIdTypeArray>::New();
+      list2 = vtkSmartPointer<vtkIdTypeArray>::New();
+      unsigned char color1[4] = {0, 0, 0, 255};
+      unsigned char color2[4] = {0, 0, 0, 255};
       if (this->UseCurrentAnnotationColor)
         {
         if (ann->GetInformation()->Has(vtkAnnotation::COLOR()))
