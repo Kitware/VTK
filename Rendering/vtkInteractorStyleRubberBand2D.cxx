@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBand2D, "1.10");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBand2D, "1.11");
 vtkStandardNewMacro(vtkInteractorStyleRubberBand2D);
 
 //--------------------------------------------------------------------------
@@ -150,7 +150,6 @@ void vtkInteractorStyleRubberBand2D::OnRightButtonUp()
 //--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand2D::OnMouseMove()
 {
-  bool rendered = false;
   if (this->Interaction == PANNING || this->Interaction == ZOOMING)
     {
     vtkRenderWindowInteractor* rwi = this->GetInteractor();
@@ -176,7 +175,6 @@ void vtkInteractorStyleRubberBand2D::OnMouseMove()
       camera->SetPosition(lastPos[0] + delta[0], lastPos[1] + delta[1], lastPos[2] + delta[2]);
       this->InvokeEvent(vtkCommand::InteractionEvent);
       rwi->Render();
-      rendered = true;
       }
     else if (this->Interaction == ZOOMING)
       {
@@ -186,7 +184,6 @@ void vtkInteractorStyleRubberBand2D::OnMouseMove()
       camera->SetParallelScale(camera->GetParallelScale() / factor);
       this->InvokeEvent(vtkCommand::InteractionEvent);
       rwi->Render();
-      rendered = true;
       }
     }
   else if (this->Interaction == SELECTING)
@@ -213,7 +210,7 @@ void vtkInteractorStyleRubberBand2D::OnMouseMove()
     this->InvokeEvent(vtkCommand::InteractionEvent);
     this->RedrawRubberBand();
     }
-  if (this->RenderOnMouseMove && !rendered && this->Interaction != SELECTING)
+  else if (this->RenderOnMouseMove)
     {
     this->GetInteractor()->Render();
     }

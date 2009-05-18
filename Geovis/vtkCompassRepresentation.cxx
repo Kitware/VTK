@@ -44,7 +44,7 @@
 
 #include <sstream>
 
-vtkCxxRevisionMacro(vtkCompassRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkCompassRepresentation, "1.3");
 vtkStandardNewMacro(vtkCompassRepresentation);
 
 //----------------------------------------------------------------------
@@ -366,6 +366,21 @@ void vtkCompassRepresentation::Highlight(int highlight)
 //----------------------------------------------------------------------
 void vtkCompassRepresentation::BuildRepresentation()
 {
+  if ( this->GetMTime() <= this->BuildTime && 
+       (!this->Renderer || !this->Renderer->GetVTKWindow() ||
+        this->Renderer->GetVTKWindow()->GetMTime() <= this->BuildTime) )
+    {
+    return;
+    }
+
+  int *size = this->Renderer->GetSize();
+  if (0 == size[0] || 0 == size[1])
+    {
+    // Renderer has no size yet: wait until the next
+    // BuildRepresentation...
+    return;
+    }
+
   this->XForm->Identity();
   
   int center[2];
@@ -713,6 +728,14 @@ void vtkCompassRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 int vtkCompassRepresentation::ComputeInteractionState(int x, int y, 
                                                       int modify)
 {
+  int *size = this->Renderer->GetSize();
+  if (0 == size[0] || 0 == size[1])
+    {
+    // Renderer has no size yet
+    this->InteractionState = vtkCompassRepresentation::Outside;
+    return this->InteractionState;
+    }
+
   // is the pick on the ring?
   int center[2];
   double rsize;

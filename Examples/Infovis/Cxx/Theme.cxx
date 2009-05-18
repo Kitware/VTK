@@ -39,13 +39,12 @@ int main(int, char*[])
   view->SetVertexLabelArrayName("VertexDegree");
   view->SetVertexLabelVisibility(true);
 
-  vtkRenderWindow* window = vtkRenderWindow::New();
-  view->SetupRenderWindow(window);
-  window->GetInteractor()->Start();
+  view->ResetCamera();
+  view->Render();
+  view->GetInteractor()->Start();
   
   source->Delete();
   view->Delete();
-  window->Delete();
   
   return 0;
 }

@@ -29,7 +29,6 @@
 // vertices based on their categorization within the hierarchy.
 //
 // .SEE ALSO
-// vtkTreeLayoutView
 // vtkGraphLayoutView
 //
 // .SECTION Thanks

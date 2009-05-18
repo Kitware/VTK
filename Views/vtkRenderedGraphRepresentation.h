@@ -59,8 +59,6 @@ public:
   vtkTypeRevisionMacro(vtkRenderedGraphRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetupRenderWindow(vtkRenderWindow* win);
-
   virtual void SetVertexLabelArrayName(const char* name);
   virtual const char* GetVertexLabelArrayName();
   virtual void SetVertexLabelPriorityArrayName(const char* name);
@@ -284,8 +282,11 @@ protected:
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
   // Description:
-  // Sets up the input connections for this representation.
-  virtual void PrepareInputConnections();
+  // Connect inputs to internal pipeline.
+  virtual int RequestData(
+    vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   //BTX
   // Description:

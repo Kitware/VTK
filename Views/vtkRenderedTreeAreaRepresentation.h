@@ -213,9 +213,10 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Sets up the input connections for this representation.
-  virtual void PrepareInputConnections();
+  virtual int RequestData(
+    vtkInformation*,
+    vtkInformationVector**,
+    vtkInformationVector*);
 
   virtual void PrepareForRendering(vtkRenderView* view);
 

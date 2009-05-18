@@ -64,11 +64,18 @@ public:
   vtkGetMacro(ToRectangular, bool);
   vtkBooleanMacro(ToRectangular, bool);
 
+  // Description:
+  // The base altitude to transform coordinates to. This can be useful for transforming
+  // lines just above the earth's surface. Default is 0.
+  vtkSetMacro(BaseAltitude, double);
+  vtkGetMacro(BaseAltitude, double);
+
 protected:
   vtkGeoSphereTransform();
   virtual ~vtkGeoSphereTransform();
 
   bool ToRectangular;
+  double BaseAltitude;
 
 private:
   vtkGeoSphereTransform( const vtkGeoSphereTransform& ); // Not implemented.

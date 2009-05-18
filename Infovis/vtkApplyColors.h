@@ -186,6 +186,14 @@ public:
   vtkSetStringMacro(CellColorOutputArrayName);
   vtkGetStringMacro(CellColorOutputArrayName);
 
+  // Description:
+  // Use the annotation to color the current annotation
+  // (i.e. the current selection). Otherwise use the selection
+  // color attributes of this filter.
+  vtkSetMacro(UseCurrentAnnotationColor, bool);
+  vtkGetMacro(UseCurrentAnnotationColor, bool);
+  vtkBooleanMacro(UseCurrentAnnotationColor, bool);
+
 protected:
   vtkApplyColors();
   ~vtkApplyColors();
@@ -222,6 +230,7 @@ protected:
   bool UseCellLookupTable;
   char* PointColorOutputArrayName;
   char* CellColorOutputArrayName;
+  bool UseCurrentAnnotationColor;
 
 private:
   vtkApplyColors(const vtkApplyColors&);  // Not implemented.

@@ -50,7 +50,6 @@ class vtkGeoTerrain;
 class vtkGlobeSource;
 class vtkImageData;
 class vtkPolyDataMapper;
-class vtkRenderWindow;
 class vtkViewTheme;
 
 class VTK_GEOVIS_EXPORT vtkGeoView : public vtkRenderView
@@ -65,12 +64,6 @@ public:
   // the image in the specified file as the globe terrain.
   vtkGeoAlignedImageRepresentation* AddDefaultImageRepresentation(vtkImageData* image);
   
-  // Description:
-  // Set up a render window to use this view.
-  // The superclass adds the renderer to the render window.
-  // Subclasses should override this to set interactor, etc.
-  virtual void SetupRenderWindow(vtkRenderWindow* win);
-
   // Decsription:
   // Prepares the view for rendering.
   virtual void PrepareForRendering();
@@ -98,12 +91,15 @@ public:
   // The terrain (geometry) model for this earth view.
   virtual void SetTerrain(vtkGeoTerrain* terrain);
   vtkGetObjectMacro(Terrain, vtkGeoTerrain);
+
+  // Description:
+  // Update and render the view.
+  virtual void Render();
   
 protected:
   vtkGeoView();
   ~vtkGeoView();
   
-  vtkRenderWindow*   RenderWindow;
   vtkGlobeSource*    LowResEarthSource;
   vtkPolyDataMapper* LowResEarthMapper;
   vtkActor*          LowResEarthActor;

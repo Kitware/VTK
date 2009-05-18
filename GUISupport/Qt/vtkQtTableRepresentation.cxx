@@ -35,7 +35,7 @@
 #include <assert.h>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkQtTableRepresentation, "1.10");
 
 // ----------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
@@ -80,10 +80,13 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
 
 // ----------------------------------------------------------------------
 
-void
-vtkQtTableRepresentation::PrepareInputConnections()
+int
+vtkQtTableRepresentation::RequestData(vtkInformation*,
+                                      vtkInformationVector**,
+                                      vtkInformationVector*)
 {
   this->UpdateTable();
+  return 1;
 }
 
 // ----------------------------------------------------------------------

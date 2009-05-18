@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.26");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.27");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -799,38 +799,41 @@ int vtkConvertSelection::Convert(
         }
     
       // Check array existence.
-      if (!outputDataArr)
+      if (outputDataArr)
         {
-        vtkErrorMacro("Output selection array does not exist in input dataset.");
-        return 0;
+        // Put the array's values into the selection.
+        vtkAbstractArray* outputArr = vtkAbstractArray::CreateArray(outputDataArr->GetDataType());
+        outputArr->SetName(outputDataArr->GetName());
+        vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
+        vtkIdType numIndices = indices->GetNumberOfTuples();
+        for (vtkIdType i = 0; i < numIndices; ++i)
+          {
+          vtkIdType index = indices->GetValue(i);
+          if (index < numTuples)
+            {
+            outputArr->InsertNextTuple(index, outputDataArr);
+            }
+          if (i % 1000 == 0)
+            {
+            progress = 0.8 + (0.2 * (ind*numIndices + i)) / (numOutputArrays*numIndices);
+            this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+            }
+          }
+        outputData->AddArray(outputArr);
+        outputArr->Delete();
         }
-
-      // Put the array's values into the selection.
-      vtkAbstractArray* outputArr = vtkAbstractArray::CreateArray(outputDataArr->GetDataType());
-      outputArr->SetName(outputDataArr->GetName());
-      vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
-      vtkIdType numIndices = indices->GetNumberOfTuples();
-      for (vtkIdType i = 0; i < numIndices; ++i)
-        {
-        vtkIdType index = indices->GetValue(i);
-        if (index < numTuples)
-          {
-          outputArr->InsertNextTuple(index, outputDataArr);
-          }
-        else
-          {
-          // TODO: Make this a silent warning when we are done debugging
-          vtkWarningMacro("Attempting to select an index outside the array range.");
-          }
-        if (i % 1000 == 0)
-          {
-          progress = 0.8 + (0.2 * (ind*numIndices + i)) / (numOutputArrays*numIndices);
-          this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-          }
-        }
-      outputData->AddArray(outputArr);
-      outputArr->Delete();
       }
+
+    // If there are no output arrays, just add a dummy one so
+    // that the selection list is not null.
+    if (outputData->GetNumberOfArrays() == 0)
+      {
+      vtkSmartPointer<vtkIdTypeArray> arr =
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      arr->SetName("Empty");
+      outputData->AddArray(arr);
+      }
+
     outputNode->SetSelectionData(outputData);
     output->Union(outputNode);
     }

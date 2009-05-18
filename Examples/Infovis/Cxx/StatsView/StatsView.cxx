@@ -29,7 +29,6 @@
 #include <vtkQtTableView.h>
 #include <vtkRenderer.h>
 #include <vtkSelection.h>
-#include <vtkSelectionLink.h>
 #include <vtkTable.h>
 #include <vtkViewTheme.h>
 #include <vtkViewUpdater.h>

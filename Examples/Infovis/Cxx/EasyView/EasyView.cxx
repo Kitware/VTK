@@ -8,7 +8,7 @@
 #include "ui_EasyView.h"
 #include "EasyView.h"
 
-
+#include <vtkAnnotationLink.h>
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkGraphLayoutView.h>
@@ -17,7 +17,6 @@
 #include <vtkQtTreeView.h>
 #include <vtkRenderer.h>
 #include <vtkSelection.h>
-#include <vtkSelectionLink.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
 #include <vtkTreeLayoutStrategy.h>
@@ -53,7 +52,7 @@ EasyView::EasyView()
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
  
   // Graph View needs to get my render window
-  this->GraphView->SetupRenderWindow(this->ui->vtkGraphViewWidget->GetRenderWindow());
+  this->ui->vtkGraphViewWidget->SetRenderWindow(this->GraphView->GetRenderWindow());
   
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
@@ -72,11 +71,11 @@ EasyView::EasyView()
 void EasyView::SetupSelectionLink()
 {
   // Create a selection link and have all the views use it
-  VTK_CREATE(vtkSelectionLink,selectionLink);
-  this->TreeView->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->TableView->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->ColumnView->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->GraphView->GetRepresentation()->SetSelectionLink(selectionLink);
+  VTK_CREATE(vtkAnnotationLink,annLink);
+  this->TreeView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TableView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->ColumnView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->GraphView->GetRepresentation()->SetAnnotationLink(annLink);
 
   VTK_CREATE(vtkViewUpdater,updater);
   updater->AddView(this->TreeView);
@@ -133,11 +132,10 @@ void EasyView::slotOpenXMLFile()
   // Set the input to the graph view
   this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
   
-  // Okay now do an explicit update so that
+  // Okay now do an explicit reset camera so that
   // the user doesn't have to move the mouse 
   // in the window to see the resulting graph
-  this->GraphView->Update();
-  this->GraphView->GetRenderer()->ResetCamera();
+  this->GraphView->ResetCamera();
    
   // Now hand off tree to the tree view
   this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());

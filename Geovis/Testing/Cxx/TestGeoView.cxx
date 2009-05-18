@@ -113,14 +113,9 @@ int TestGeoView(int argc, char* argv[])
       }
     }
   // Create the geo view.
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetMultiSamples(0);
   VTK_CREATE(vtkGeoView, view);
-  //VTK_CREATE(vtkRenderView, view);
-  //VTK_CREATE(vtkGeoSphereTransform, trans);
-  //view->SetTransform(trans);
-  view->SetupRenderWindow(win);
-  win->SetSize(400,400);
+  view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetRenderWindow()->SetSize(400,400);
 
   vtkSmartPointer<vtkGeoTerrain> terrain =
     vtkSmartPointer<vtkGeoTerrain>::New();
@@ -188,8 +183,7 @@ int TestGeoView(int argc, char* argv[])
     }
   imageRep->SetSource(imageSource);
 
-  view->Update();
-  view->GetRenderer()->ResetCamera();
+  view->ResetCamera();
   view->GetRenderer()->GetActiveCamera()->Zoom(1.2);
 
   // Add a graph representation
@@ -211,12 +205,13 @@ int TestGeoView(int argc, char* argv[])
   theme->Delete();
 
   //int retVal = vtkRegressionTestImage(win);
-  int retVal = vtkRegressionTestImageThreshold(win, 11);
+  view->Render();
+  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 11);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     // Interact with data.
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }

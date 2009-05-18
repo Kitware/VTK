@@ -23,6 +23,7 @@
 #include "vtkActor.h"
 #include "vtkApplyColors.h"
 #include "vtkConvertSelection.h"
+#include "vtkDataRepresentation.h"
 #include "vtkGraphHierarchicalBundleEdges.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkInformation.h"
@@ -35,10 +36,9 @@
 #include "vtkSplineFilter.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkTextProperty.h"
-#include "vtkView.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.5");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -169,16 +169,14 @@ bool vtkHierarchicalGraphPipeline::GetVisibility()
 void vtkHierarchicalGraphPipeline::PrepareInputConnections(
   vtkAlgorithmOutput* graphConn,
   vtkAlgorithmOutput* treeConn,
-  vtkAlgorithmOutput* annConn,
-  vtkAlgorithmOutput* selConn)
+  vtkAlgorithmOutput* annConn)
 {
   this->Bundle->SetInputConnection(0, graphConn);
   this->Bundle->SetInputConnection(1, treeConn);
   this->ApplyColors->SetInputConnection(1, annConn);
-  this->ApplyColors->SetInputConnection(2, selConn);
 }
 
-vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(vtkView* view, vtkSelection* sel)
+vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(vtkDataRepresentation* rep, vtkSelection* sel)
 {
   vtkSelection* converted = vtkSelection::New();
   for (unsigned int j = 0; j < sel->GetNumberOfNodes(); ++j)
@@ -204,7 +202,7 @@ vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(vtkView* view, vtkS
         polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::EDGE);
         }
       vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
-        polyConverted, input, view->GetSelectionType());
+        polyConverted, input, rep->GetSelectionType(), rep->GetSelectionArrayNames());
       for (unsigned int i = 0; i < edgeConverted->GetNumberOfNodes(); ++i)
         {
         converted->AddNode(edgeConverted->GetNode(i));

@@ -28,11 +28,12 @@
 #include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkGeoSphereTransform);
-vtkCxxRevisionMacro(vtkGeoSphereTransform,"1.2");
+vtkCxxRevisionMacro(vtkGeoSphereTransform,"1.3");
 
 vtkGeoSphereTransform::vtkGeoSphereTransform()
 {
   this->ToRectangular = true;
+  this->BaseAltitude = 0.0;
 }
 
 vtkGeoSphereTransform::~vtkGeoSphereTransform()
@@ -43,6 +44,7 @@ void vtkGeoSphereTransform::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ToRectangular: " << this->ToRectangular << endl;
+  os << indent << "BaseAltitude: " << this->BaseAltitude << endl;
 }
 
 void vtkGeoSphereTransform::Inverse()
@@ -68,12 +70,12 @@ void vtkGeoSphereTransform::InternalTransformPoint( const double in[3], double o
   if ( this->ToRectangular )
     {
     vtkGlobeSource::ComputeGlobePoint(
-      in[0], in[1], vtkGeoMath::EarthRadiusMeters() + in[2], out);
+      in[0], in[1], vtkGeoMath::EarthRadiusMeters() + in[2] + this->BaseAltitude, out);
     }
   else
     {
     vtkGlobeSource::ComputeLatitudeLongitude(const_cast<double*>(in), out[0], out[1]);
-    out[2] = vtkMath::Norm(in) - vtkGeoMath::EarthRadiusMeters();
+    out[2] = vtkMath::Norm(in) - vtkGeoMath::EarthRadiusMeters() - this->BaseAltitude;
     }
 }
 

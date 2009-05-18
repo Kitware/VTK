@@ -16,7 +16,7 @@
 // This example...
 //
 
-
+#include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDataSetAttributes.h"
@@ -25,10 +25,8 @@
 #include "vtkRandomGraphSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkSelectionLink.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
-#include "vtkTreeLayoutView.h"
 #include "vtkViewTheme.h"
 
 #include <vtksys/stl/vector>
@@ -90,35 +88,33 @@ int main(int, char*[])
   view->SetColorVertices(true);
   view->SetVertexLabelArrayName("Label");
   view->SetVertexLabelVisibility(true);
-  vtkRenderWindow* window = vtkRenderWindow::New();
-  view->SetupRenderWindow(window);
 
-  vtkTreeLayoutView* view2 = vtkTreeLayoutView::New();
+  vtkGraphLayoutView* view2 = vtkGraphLayoutView::New();
   vtkDataRepresentation* rep2 =
     view2->SetRepresentationFromInput(tree);
-  view2->SetLabelArrayName("Label");
-  view2->SetLabelVisibility(true);
-  vtkRenderWindow* window2 = vtkRenderWindow::New();
-  view2->SetupRenderWindow(window2);
+  view2->SetVertexLabelArrayName("Label");
+  view2->SetVertexLabelVisibility(true);
   
-  vtkSelectionLink* link = vtkSelectionLink::New();
-  rep->SetSelectionLink(link);
-  rep2->SetSelectionLink(link);
+  vtkAnnotationLink* link = vtkAnnotationLink::New();
+  rep->SetAnnotationLink(link);
+  rep2->SetAnnotationLink(link);
   
   ViewUpdater* update = ViewUpdater::New();
   update->AddView(view);
   update->AddView(view2);
   
-  window->GetInteractor()->Start();
+  view->ResetCamera();
+  view2->ResetCamera();
+  view->Render();
+  view2->Render();
+  view->GetInteractor()->Start();
   
   graph->Delete();
   labels->Delete();
   tree->Delete();
   view->Delete();
   theme->Delete();
-  window->Delete();
   view2->Delete();
-  window2->Delete();
   link->Delete();
   update->Delete();
   

@@ -23,7 +23,7 @@
 // vtkViewUpdater registers with selection change events for a set of
 // views, and updates all views when a view fires a selection changed event.
 // This is often needed when multiple views share a selection with
-// vtkSelectionLink.
+// vtkAnnotationLink.
 
 #ifndef __vtkViewUpdater_h
 #define __vtkViewUpdater_h

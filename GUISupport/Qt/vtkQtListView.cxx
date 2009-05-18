@@ -25,6 +25,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotationLink.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkIdTypeArray.h"
@@ -32,12 +33,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkQtTableModelAdapter.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtListView, "1.6");
+vtkCxxRevisionMacro(vtkQtListView, "1.7");
 vtkStandardNewMacro(vtkQtListView);
 
 
@@ -128,13 +128,14 @@ void vtkQtListView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   vtkSelection *VTKIndexSelectList = this->ListAdapter->QModelIndexListToVTKIndexSelection(qmil);
 
   // Convert to the correct type of selection
+  vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject* data = this->ListAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames));
+    VTKIndexSelectList, data, rep->GetSelectionType(), rep->GetSelectionArrayNames()));
    
   // Call select on the representation
-  this->GetRepresentation()->Select(this, converted);
+  rep->Select(this, converted);
   
   this->Selecting = false;
 }
@@ -152,7 +153,7 @@ void vtkQtListView::SetVTKSelection()
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject *d = this->ListAdapter->GetVTKDataObject();
-  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
   if (s->GetMTime() != this->CurrentSelectionMTime)
     {
     this->CurrentSelectionMTime = s->GetMTime();

@@ -87,23 +87,17 @@ int TestNetworkViews(int argc, char* argv[])
   view1->ApplyViewTheme(theme);
   theme->Delete();
 
-  VTK_CREATE( vtkRenderWindow, window1 );
-  window1->SetMultiSamples(0);
-  window1->SetSize(600, 600);
-  VTK_CREATE(vtkRenderWindowInteractor, iren);
-  iren->SetRenderWindow(window1);
-  //dummy->SetupRenderWindow(window1);
-  view1->SetupRenderWindow(window1);
+  view1->GetRenderWindow()->SetMultiSamples(0);
+  view1->GetRenderWindow()->SetSize(600, 600);
 
-  view1->Update();
-  view1->GetRenderer()->ResetCamera();
-  window1->Render();
+  view1->ResetCamera();
+  view1->Render();
 
-  int retVal = vtkRegressionTestImage(window1);
+  int retVal = vtkRegressionTestImage(view1->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Initialize();
-    iren->Start();
+    view1->GetInteractor()->Initialize();
+    view1->GetInteractor()->Start();
     
     retVal = vtkRegressionTester::PASSED;
     }

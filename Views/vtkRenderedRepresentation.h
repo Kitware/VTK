@@ -41,8 +41,6 @@ public:
   vtkTypeRevisionMacro(vtkRenderedRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetupRenderWindow(vtkRenderWindow*) { }
-
   // Description:
   // Set the label render mode.
   // vtkRenderView::QT - Use Qt-based labeler with fitted labeling

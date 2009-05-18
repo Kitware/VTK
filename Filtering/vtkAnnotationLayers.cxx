@@ -22,16 +22,18 @@
 #include "vtkAnnotationLayers.h"
 
 #include "vtkAnnotation.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAnnotationLayers, "1.5");
+vtkCxxRevisionMacro(vtkAnnotationLayers, "1.6");
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 
@@ -45,8 +47,17 @@ vtkAnnotationLayers::vtkAnnotationLayers() :
   Implementation(new Internals())
 {
   this->CurrentAnnotation = vtkAnnotation::New();
+
+  // Start with an empty index selection
   vtkSmartPointer<vtkSelection> sel =
     vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> node =
+    vtkSmartPointer<vtkSelectionNode>::New();
+  node->SetContentType(vtkSelectionNode::INDICES);
+  vtkSmartPointer<vtkIdTypeArray> ids =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  node->SetSelectionList(ids);
+  sel->AddNode(node);
   this->CurrentAnnotation->SetSelection(sel);
 }
 
@@ -71,7 +82,7 @@ vtkSelection* vtkAnnotationLayers::GetCurrentSelection()
 {
   if (this->CurrentAnnotation)
     {
-    this->CurrentAnnotation->GetSelection();
+    return this->CurrentAnnotation->GetSelection();
     }
   return 0;
 }
@@ -125,6 +136,7 @@ void vtkAnnotationLayers::ShallowCopy(vtkDataObject* other)
     vtkAnnotation* ann = obj->GetAnnotation(a);
     this->AddAnnotation(ann);
     }
+  this->SetCurrentAnnotation(obj->GetCurrentAnnotation());
 }
 
 void vtkAnnotationLayers::DeepCopy(vtkDataObject* other)

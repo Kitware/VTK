@@ -11,6 +11,7 @@
 #include "ui_ChartView.h"
 #include "ChartView.h"
 
+#include <vtkAnnotationLink.h>
 #include <vtkCorrelativeStatistics.h>
 #include <vtkDataRepresentation.h>
 #include <vtkDescriptiveStatistics.h>
@@ -23,7 +24,6 @@
 #include <vtkQtTableView.h>
 #include <vtkRowQueryToTable.h>
 #include <vtkSelection.h>
-#include <vtkSelectionLink.h>
 #include <vtkSmartPointer.h>
 #include <vtkSQLDatabase.h>
 #include <vtkSQLQuery.h>
@@ -95,16 +95,16 @@ ChartView::ChartView()
 void ChartView::SetupSelectionLink()
 {
   // Create a selection link and have all the views use it
-  VTK_CREATE(vtkSelectionLink,selectionLink);
-  this->TableView0->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->TableView1->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->TableView2->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->TableView3->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->TableView4->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->BarChart->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->LineChart->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->StackedChart->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->BoxChart->GetRepresentation()->SetSelectionLink(selectionLink);
+  VTK_CREATE(vtkAnnotationLink,annLink);
+  this->TableView0->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TableView1->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TableView2->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TableView3->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TableView4->GetRepresentation()->SetAnnotationLink(annLink);
+  this->BarChart->GetRepresentation()->SetAnnotationLink(annLink);
+  this->LineChart->GetRepresentation()->SetAnnotationLink(annLink);
+  this->StackedChart->GetRepresentation()->SetAnnotationLink(annLink);
+  this->BoxChart->GetRepresentation()->SetAnnotationLink(annLink);
 
   VTK_CREATE(vtkViewUpdater,updater);
   updater->AddView(this->TableView0);

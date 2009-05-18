@@ -29,7 +29,6 @@
 // vertices based on their categorization within the hierarchy.
 //
 // .SEE ALSO
-// vtkTreeLayoutView
 // vtkGraphLayoutView
 //
 // .SECTION Thanks
@@ -136,10 +135,6 @@ public:
   // Set the bundling strength.
   void SetBundlingStrength(double strength);
   double GetBundlingStrength();
-
-  // Description:
-  // Sets up interactor style.
-  virtual void SetupRenderWindow(vtkRenderWindow* win);
 
   // Description:
   // The size of the font used for area labeling

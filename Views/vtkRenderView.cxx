@@ -61,21 +61,28 @@
 #include "vtkQtLabelMapper.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.19");
+vtkCxxRevisionMacro(vtkRenderView, "1.20");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
 vtkRenderView::vtkRenderView()
 {
   this->Renderer = vtkRenderer::New();
-  this->Renderer->AddObserver(vtkCommand::StartEvent, this->GetObserver());
-  this->Renderer->AddObserver(vtkCommand::ComputeVisiblePropBoundsEvent,
-    this->GetObserver());
-
+  this->RenderWindow = vtkRenderWindow::New();
   vtkTransform* t = vtkTransform::New();
   t->Identity();
   this->Transform = t;
-  this->InteractorStyle = 0;
+
+  this->RenderWindow->AddRenderer(this->Renderer);
+
+  // We will handle all interactor renders by turning off rendering
+  // in the interactor and listening to the interactor's render event.
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->EnableRenderOff();
+  iren->AddObserver(vtkCommand::RenderEvent, this->GetObserver());
+  this->RenderWindow->SetInteractor(iren);
+  //iren->Initialize();
 
   // Set interaction mode to -1 before calling SetInteractionMode,
   // this will force an initialization of the interaction mode/style.
@@ -229,33 +236,19 @@ vtkRenderView::~vtkRenderView()
     {
     this->Renderer->Delete();
     }
+  if (this->RenderWindow)
+    {
+    this->RenderWindow->Delete();
+    }
   if (this->Transform)
     {
     this->Transform->Delete();
     }
-  if (this->InteractorStyle)
-    {
-    this->InteractorStyle->RemoveObserver(this->GetObserver());
-    this->InteractorStyle->Delete();
-    }
 }
 
-void vtkRenderView::SetupRenderWindow(vtkRenderWindow* win)
+vtkRenderWindowInteractor* vtkRenderView::GetInteractor()
 {
-  win->AddRenderer(this->Renderer);
-  if (!win->GetInteractor())
-    {
-    vtkSmartPointer<vtkRenderWindowInteractor> iren =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    win->SetInteractor(iren);
-    iren->Initialize();
-    }
-  win->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
-}
-
-vtkRenderWindow* vtkRenderView::GetRenderWindow()
-{
-  return this->Renderer->GetRenderWindow();
+  return this->RenderWindow->GetInteractor();
 }
 
 void vtkRenderView::SetInteractionMode(int mode)
@@ -263,67 +256,61 @@ void vtkRenderView::SetInteractionMode(int mode)
   if (this->InteractionMode != mode)
     {
     this->InteractionMode = mode;
+    vtkInteractorObserver* oldStyle = this->GetInteractorStyle();
     if (mode == INTERACTION_MODE_2D)
       {
-      if (this->InteractorStyle)
+      if (oldStyle)
         {
-        this->InteractorStyle->RemoveObserver(this->GetObserver());
-        this->InteractorStyle->Delete();
+        oldStyle->RemoveObserver(this->GetObserver());
         }
       vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
-      this->InteractorStyle = style;
+      this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
       style->SetRenderOnMouseMove(this->GetDisplayHoverText());
-      this->InteractorStyle->AddObserver(
-        vtkCommand::SelectionChangedEvent, this->GetObserver());
+      style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
       this->Renderer->GetActiveCamera()->ParallelProjectionOn();
+      style->Delete();
       }
     else if (mode == INTERACTION_MODE_3D)
       {
-      if (this->InteractorStyle)
+      if (oldStyle)
         {
-        this->InteractorStyle->RemoveObserver(this->GetObserver());
-        this->InteractorStyle->Delete();
+        oldStyle->RemoveObserver(this->GetObserver());
         }
       vtkInteractorStyleRubberBand3D* style = vtkInteractorStyleRubberBand3D::New();
-      this->InteractorStyle = style;
-      this->InteractorStyle->AddObserver(
-        vtkCommand::SelectionChangedEvent, this->GetObserver());
+      this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
+      style->SetRenderOnMouseMove(this->GetDisplayHoverText());
+      style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
       this->Renderer->GetActiveCamera()->ParallelProjectionOff();
+      style->Delete();
       }
     else
       {
       vtkErrorMacro("Unknown interaction mode.");
       }
-    if (this->Renderer->GetRenderWindow())
-      {
-      this->Renderer->GetRenderWindow()->GetInteractor()->SetInteractorStyle(
-        this->InteractorStyle);
-      }
     }
 }
 
-void vtkRenderView::SetInteractorStyle(vtkInteractorStyle* style)
+void vtkRenderView::SetInteractorStyle(vtkInteractorObserver* style)
 {
   if (!style)
     {
     vtkErrorMacro("Interactor style must not be null.");
     return;
     }
-  if (style != this->InteractorStyle)
+  vtkInteractorObserver* oldStyle = this->GetInteractorStyle();
+  if (style != oldStyle)
     {
-    if (this->InteractorStyle)
+    if (oldStyle)
       {
-      this->InteractorStyle->RemoveObserver(this->GetObserver());
-      this->InteractorStyle->Delete();
+      oldStyle->RemoveObserver(this->GetObserver());
       }
-    this->InteractorStyle = style;
-    this->InteractorStyle->Register(this);
-    this->InteractorStyle->AddObserver(
+    this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
+    style->AddObserver(
       vtkCommand::SelectionChangedEvent, this->GetObserver());
     vtkInteractorStyleRubberBand2D* style2D =
-      vtkInteractorStyleRubberBand2D::SafeDownCast(this->InteractorStyle);
+      vtkInteractorStyleRubberBand2D::SafeDownCast(style);
     vtkInteractorStyleRubberBand3D* style3D =
-      vtkInteractorStyleRubberBand3D::SafeDownCast(this->InteractorStyle);
+      vtkInteractorStyleRubberBand3D::SafeDownCast(style);
     if (style2D)
       {
       style2D->SetRenderOnMouseMove(this->GetDisplayHoverText());
@@ -331,6 +318,7 @@ void vtkRenderView::SetInteractorStyle(vtkInteractorStyle* style)
       }
     else if (style3D)
       {
+      style3D->SetRenderOnMouseMove(this->GetDisplayHoverText());
       this->InteractionMode = INTERACTION_MODE_3D;
       }
     else
@@ -338,6 +326,11 @@ void vtkRenderView::SetInteractorStyle(vtkInteractorStyle* style)
       this->InteractionMode = INTERACTION_MODE_UNKNOWN;
       }
     }
+}
+
+vtkInteractorObserver* vtkRenderView::GetInteractorStyle()
+{
+  return this->GetInteractor()->GetInteractorStyle();
 }
 
 void vtkRenderView::SetIconTexture(vtkTexture* texture)
@@ -416,17 +409,16 @@ void vtkRenderView::RemoveIcons(vtkAlgorithmOutput* conn)
 void vtkRenderView::ProcessEvents(
   vtkObject* caller, unsigned long eventId, void* callData)
 {
-  if (caller == this->Renderer && (eventId == vtkCommand::StartEvent ||
-      eventId == vtkCommand::ComputeVisiblePropBoundsEvent))
+  if (caller == this->GetInteractor() && eventId == vtkCommand::RenderEvent)
     {
-    this->PrepareForRendering();
+    this->Render();
     }
   if (vtkDataRepresentation::SafeDownCast(caller) &&
       eventId == vtkCommand::SelectionChangedEvent)
     {
     this->Render();
     }
-  else if (caller == this->InteractorStyle &&
+  else if (caller == this->GetInteractorStyle() &&
            eventId == vtkCommand::SelectionChangedEvent)
     {
     vtkSmartPointer<vtkSelection> selection =
@@ -541,28 +533,42 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
     }
 }
 
-void vtkRenderView::RepresentationSelectionChanged(vtkDataRepresentation* vtkNotUsed(rep), vtkSelection* vtkNotUsed(selection))
-{
-  this->Render();
-}
-
 void vtkRenderView::Render()
 {
-  if (this->Renderer->GetRenderWindow())
-    {
-    this->Renderer->ResetCameraClippingRange();
-    this->Renderer->GetRenderWindow()->Render();
-    }
+  this->Update();
+  this->PrepareForRendering();
+  this->Renderer->ResetCameraClippingRange();
+  this->RenderWindow->Render();
+}
+
+void vtkRenderView::ResetCamera()
+{
+  this->Update();
+  this->PrepareForRendering();
+  this->Renderer->ResetCamera();
+}
+
+void vtkRenderView::ResetCameraClippingRange()
+{
+  this->Update();
+  this->PrepareForRendering();
+  this->Renderer->ResetCameraClippingRange();
 }
 
 void vtkRenderView::SetDisplayHoverText(bool b)
 {
   this->Balloon->SetVisibility(b);
   vtkInteractorStyleRubberBand2D* style2D =
-    vtkInteractorStyleRubberBand2D::SafeDownCast(this->InteractorStyle);
+    vtkInteractorStyleRubberBand2D::SafeDownCast(this->GetInteractorStyle());
+  vtkInteractorStyleRubberBand3D* style3D =
+    vtkInteractorStyleRubberBand3D::SafeDownCast(this->GetInteractorStyle());
   if (style2D)
     {
     style2D->SetRenderOnMouseMove(b);
+    }
+  if (style3D)
+    {
+    style3D->SetRenderOnMouseMove(b);
     }
   this->DisplayHoverText = b;
 }
@@ -600,9 +606,9 @@ void vtkRenderView::UpdateHoverText()
   bool foundHoverText = false;
   int pos[2] = {0, 0};
   double loc[2] = {0.0, 0.0};
-  if (this->InteractorStyle && this->InteractorStyle->GetInteractor())
+  if (this->RenderWindow->GetInteractor())
     {
-    this->InteractorStyle->GetInteractor()->GetEventPosition(pos);
+    this->RenderWindow->GetInteractor()->GetEventPosition(pos);
     loc[0] = pos[0];
     loc[1] = pos[1];
     }
@@ -615,7 +621,7 @@ void vtkRenderView::UpdateHoverText()
       {
       if (!foundHoverText)
         {
-        if (this->InteractorStyle && this->InteractorStyle->GetInteractor())
+        if (this->RenderWindow->GetInteractor())
           {
           const char* hoverText = rep->GetHoverText(this, pos[0], pos[1]);
           if (hoverText)
@@ -776,6 +782,16 @@ int vtkRenderView::GetLabelPlacementMode()
 void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "RenderWindow: ";
+  if (this->RenderWindow)
+    {
+    os << "\n";
+    this->RenderWindow->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
   os << indent << "Renderer: ";
   if (this->Renderer)
     {
@@ -800,14 +816,4 @@ void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
   os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
-  os << indent << "InteractorStyle: ";
-  if (this->InteractorStyle)
-    {
-    os << "\n";
-    this->InteractorStyle->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)\n";
-    }
 }

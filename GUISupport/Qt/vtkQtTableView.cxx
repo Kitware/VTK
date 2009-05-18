@@ -28,6 +28,7 @@
 #include "vtkAddMembershipArray.h"
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotationLink.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataObjectToTable.h"
 #include "vtkDataRepresentation.h"
@@ -36,15 +37,14 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include <vtkOutEdgeIterator.h>
+#include "vtkOutEdgeIterator.h"
 #include "vtkQtTableModelAdapter.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.13");
+vtkCxxRevisionMacro(vtkQtTableView, "1.14");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -196,13 +196,14 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& s1,
     this->TableAdapter->QModelIndexListToVTKIndexSelection(sortedSel.indexes());
 
   // Convert to the correct type of selection
+  vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject* data = this->TableAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames, this->FieldType));
+    VTKIndexSelectList, data, rep->GetSelectionType(), rep->GetSelectionArrayNames(), this->FieldType));
    
   // Call select on the representation
-  this->GetRepresentation()->Select(this, converted);
+  rep->Select(this, converted);
   
   this->Selecting = false;
 }
@@ -220,7 +221,7 @@ void vtkQtTableView::SetVTKSelection()
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject *d = this->TableAdapter->GetVTKDataObject();
-  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
   //vtkSelection *s = vtkSelection::SafeDownCast(
   //  this->GetRepresentation()->GetSelectionConnection()->GetProducer()->GetOutputDataObject(0));
   if (s->GetMTime() != this->CurrentSelectionMTime)
@@ -229,7 +230,7 @@ void vtkQtTableView::SetVTKSelection()
     
     vtkSmartPointer<vtkSelection> selection;
     selection.TakeReference(vtkConvertSelection::ToSelectionType(
-      s, d, vtkSelectionNode::INDICES, this->SelectionArrayNames, vtkSelectionNode::ROW));
+      s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
 
     QItemSelection qisList = this->TableAdapter->
       VTKIndexSelectionToQItemSelection(selection);
@@ -267,10 +268,11 @@ void vtkQtTableView::Update()
     {
     return;
     }
+  rep->Update();
 
   // Make sure the input connection is up to date.
-  vtkAlgorithmOutput* conn = rep->GetInputConnection();
-  vtkAlgorithmOutput* selectionConn = rep->GetSelectionConnection();
+  vtkAlgorithmOutput* conn = rep->GetInternalOutputPort();
+  vtkAlgorithmOutput* selectionConn = rep->GetInternalSelectionOutputPort();
   if (this->DataObjectToTable->GetInputConnection(0, 0) != conn ||
       this->AddSelectedColumn->GetInputConnection(1, 0) != selectionConn)
     {

@@ -42,10 +42,31 @@ public:
   // The annotations to be shared.
   vtkGetObjectMacro(AnnotationLayers, vtkAnnotationLayers);
   virtual void SetAnnotationLayers(vtkAnnotationLayers* layers);
+
+  // Description:
+  // Set or get the current selection in the annotation layers.
+  virtual void SetCurrentSelection(vtkSelection* sel);
+  virtual vtkSelection* GetCurrentSelection();
+  
+  // Description:
+  // The domain mappings.
+  void AddDomainMap(vtkTable* map);
+  void RemoveDomainMap(vtkTable* map);
+  void RemoveAllDomainMaps();
+  int GetNumberOfDomainMaps();
+  vtkTable* GetDomainMap(int i);
+
+  // Description:
+  // Get the mtime of this object.
+  virtual unsigned long GetMTime();
   
 protected:
   vtkAnnotationLink();
   ~vtkAnnotationLink();
+  
+  // Description:
+  // Set up output ports.
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // Description:
   // Shallow copy the internal selection to the output.
@@ -58,6 +79,10 @@ protected:
   // The shared selection.
   vtkAnnotationLayers* AnnotationLayers;
 
+  // Description:
+  // The mappings between domains.
+  vtkDataObjectCollection* DomainMaps;
+  
 private:
   vtkAnnotationLink(const vtkAnnotationLink&);  // Not implemented.
   void operator=(const vtkAnnotationLink&);  // Not implemented.  

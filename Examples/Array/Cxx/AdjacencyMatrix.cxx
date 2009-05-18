@@ -51,11 +51,9 @@ int main(int argc, char* argv[])
   view->SetEdgeLabelFontSize(18);
   view->VertexLabelVisibilityOn();
 
-  vtkSmartPointer<vtkRenderWindow> window = vtkSmartPointer<vtkRenderWindow>::New();
-  window->SetSize(600, 600);
-  view->SetupRenderWindow(window);
-  view->GetRenderer()->ResetCamera();
-  window->GetInteractor()->Start();
+  view->GetRenderWindow()->SetSize(600, 600);
+  view->ResetCamera();
+  view->GetInteractor()->Start();
  
   return 0;
 }

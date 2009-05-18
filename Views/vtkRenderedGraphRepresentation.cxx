@@ -62,7 +62,6 @@
 #include "vtkScalarBarActor.h"
 #include "vtkScalarBarWidget.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
@@ -76,7 +75,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.12");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -258,12 +257,6 @@ vtkRenderedGraphRepresentation::~vtkRenderedGraphRepresentation()
   this->SetEdgeColorArrayNameInternal(0);
   this->SetLayoutStrategyName(0);
   this->SetEdgeLayoutStrategyName(0);
-}
-
-void vtkRenderedGraphRepresentation::SetupRenderWindow(vtkRenderWindow* win)
-{
-  this->VertexScalarBar->SetInteractor(win->GetInteractor());
-  this->EdgeScalarBar->SetInteractor(win->GetInteractor());
 }
 
 void vtkRenderedGraphRepresentation::SetVertexLabelArrayName(const char* name)
@@ -964,6 +957,8 @@ bool vtkRenderedGraphRepresentation::AddToView(vtkView* view)
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
   if (rv)
     {
+    this->VertexScalarBar->SetInteractor(rv->GetRenderWindow()->GetInteractor());
+    this->EdgeScalarBar->SetInteractor(rv->GetRenderWindow()->GetInteractor());
     this->VertexGlyph->SetRenderer(rv->GetRenderer());
     this->OutlineGlyph->SetRenderer(rv->GetRenderer());
     rv->GetRenderer()->AddActor(this->OutlineActor);
@@ -1041,10 +1036,10 @@ void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
 }
 
 vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
-  vtkView* view, vtkSelection* sel)
+  vtkView* vtkNotUsed(view), vtkSelection* sel)
 {
-  //cout << "Initial selection:" << endl;
-  //sel->Dump();
+  // Search for selection nodes relating to the vertex and edges
+  // of the graph.
   vtkSmartPointer<vtkSelectionNode> vertexNode =
     vtkSmartPointer<vtkSelectionNode>::New();
   vtkSmartPointer<vtkSelectionNode> edgeNode =
@@ -1060,136 +1055,179 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
         node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (node->GetContentType() == vtkSelectionNode::FRUSTUM)
         {
+        // A frustum selection can be used to select vertices and edges.
         vertexNode->ShallowCopy(node);
         edgeNode->ShallowCopy(node);
         foundEdgeNode = true;
         }
       else if (prop == this->VertexActor.GetPointer())
         {
+        // The prop on the selection matches the vertex actor, so
+        // this must have been a visible cell selection.
         vertexNode->ShallowCopy(node);
         }
       else if (prop == this->EdgeActor.GetPointer())
         {
+        // The prop on the selection matches the edge actor, so
+        // this must have been a visible cell selection.
         edgeNode->ShallowCopy(node);
         foundEdgeNode = true;
         }
       }
     }
-  // Remove the prop to avoid reference loops
+
+  // Remove the prop to avoid reference loops.
   vertexNode->GetProperties()->Remove(vtkSelectionNode::PROP());
   edgeNode->GetProperties()->Remove(vtkSelectionNode::PROP());
 
   vtkSelection* converted = vtkSelection::New();
   vtkGraph* input = vtkGraph::SafeDownCast(this->GetInput());
-  if (input)
+  if (!input)
     {
-    bool selectedVerticesFound = false;
-    if (vertexNode)
-      {
-      vtkSmartPointer<vtkSelection> vertexSel =
-        vtkSmartPointer<vtkSelection>::New();
-      vertexSel->AddNode(vertexNode);
-      vtkPolyData* poly = vtkPolyData::SafeDownCast(
-        this->VertexGlyph->GetOutput());
-      vtkSmartPointer<vtkTable> temp =
-        vtkSmartPointer<vtkTable>::New();
-      temp->SetRowData(vtkPolyData::SafeDownCast(poly)->GetCellData());
-      vtkSelection* polyConverted = 0;
-      if (poly->GetCellData()->GetPedigreeIds())
-        {
-        polyConverted = vtkConvertSelection::ToSelectionType(
-          vertexSel, poly, vtkSelectionNode::PEDIGREEIDS);
-        }
-      else
-        {
-        polyConverted = vtkConvertSelection::ToSelectionType(
-          vertexSel, poly, vtkSelectionNode::INDICES);
-        }
-      for (unsigned int i = 0; i < polyConverted->GetNumberOfNodes(); ++i)
-        {
-        polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::VERTEX);
-        }
-      vtkSelection* vertexConverted = vtkConvertSelection::ToSelectionType(
-        polyConverted, input, view->GetSelectionType());
-      for (unsigned int i = 0; i < vertexConverted->GetNumberOfNodes(); ++i)
-        {
-        if (vertexConverted->GetNode(i)->GetSelectionList()->
-            GetNumberOfTuples() > 0)
-          {
-          // Select all the edges among selected vertices.
-          selectedVerticesFound = true;
-          vtkSmartPointer<vtkIdTypeArray> selectedVerts =
-            vtkSmartPointer<vtkIdTypeArray>::New();
-          vtkConvertSelection::GetSelectedVertices(
-            vertexConverted, input, selectedVerts);
-          vtkSmartPointer<vtkIdTypeArray> selectedEdges =
-            vtkSmartPointer<vtkIdTypeArray>::New();
-          input->GetInducedEdges(selectedVerts, selectedEdges);
-          vtkSmartPointer<vtkSelection> edgeSelection =
-            vtkSmartPointer<vtkSelection>::New();
-          vtkSmartPointer<vtkSelectionNode> edgeSelectionNode =
-            vtkSmartPointer<vtkSelectionNode>::New();
-          edgeSelectionNode->SetSelectionList(selectedEdges);
-          edgeSelectionNode->SetContentType(vtkSelectionNode::INDICES);
-          edgeSelectionNode->SetFieldType(vtkSelectionNode::EDGE);
-          edgeSelection->AddNode(edgeSelectionNode);
-          vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
-            edgeSelection, input, view->GetSelectionType());
-          if (edgeConverted->GetNumberOfNodes() > 0)
-            {
-            converted->AddNode(edgeConverted->GetNode(0));
-            }
-          edgeConverted->Delete();
-          }
-        converted->AddNode(vertexConverted->GetNode(i));
-        }
-      polyConverted->Delete();
-      vertexConverted->Delete();
-      }
-    if (foundEdgeNode && !selectedVerticesFound)
-      {
-      vtkSmartPointer<vtkSelection> edgeSel =
-        vtkSmartPointer<vtkSelection>::New();
-      edgeSel->AddNode(edgeNode);
-      vtkPolyData* poly = vtkPolyData::SafeDownCast(
-        this->GraphToPoly->GetOutput());
-      vtkSelection* polyConverted = 0;
-      if (poly->GetCellData()->GetPedigreeIds())
-        {
-        polyConverted = vtkConvertSelection::ToSelectionType(
-          edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
-        }
-      else
-        {
-        polyConverted = vtkConvertSelection::ToSelectionType(
-          edgeSel, poly, vtkSelectionNode::INDICES);
-        }
-      for (unsigned int i = 0; i < polyConverted->GetNumberOfNodes(); ++i)
-        {
-        polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::EDGE);
-        }
-      vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
-        polyConverted, input, view->GetSelectionType());
-      for (unsigned int i = 0; i < edgeConverted->GetNumberOfNodes(); ++i)
-        {
-        converted->AddNode(edgeConverted->GetNode(i));
-        }
-      polyConverted->Delete();
-      edgeConverted->Delete();
-      }
+    return converted;
     }
-  //cout << "Converted selection:" << endl;
-  //converted->Dump();
+
+  bool selectedVerticesFound = false;
+  if (vertexNode)
+    {
+    // Convert a cell selection on the glyphed vertices into a
+    // vertex selection on the graph of the appropriate type.
+
+    // First, convert the cell selection on the polydata to
+    // a pedigree ID selection (or index selection if there are no
+    // pedigree IDs).
+    vtkSmartPointer<vtkSelection> vertexSel =
+      vtkSmartPointer<vtkSelection>::New();
+    vertexSel->AddNode(vertexNode);
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(
+      this->VertexGlyph->GetOutput());
+    vtkSmartPointer<vtkTable> temp =
+      vtkSmartPointer<vtkTable>::New();
+    temp->SetRowData(vtkPolyData::SafeDownCast(poly)->GetCellData());
+    vtkSelection* polyConverted = 0;
+    if (poly->GetCellData()->GetPedigreeIds())
+      {
+      polyConverted = vtkConvertSelection::ToSelectionType(
+        vertexSel, poly, vtkSelectionNode::PEDIGREEIDS);
+      }
+    else
+      {
+      polyConverted = vtkConvertSelection::ToSelectionType(
+        vertexSel, poly, vtkSelectionNode::INDICES);
+      }
+
+    // Now that we have a pedigree or index selection, interpret this
+    // as a vertex selection on the graph, and convert it to the
+    // appropriate selection type for this representation.
+    for (unsigned int i = 0; i < polyConverted->GetNumberOfNodes(); ++i)
+      {
+      polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::VERTEX);
+      }
+    vtkSelection* vertexConverted = vtkConvertSelection::ToSelectionType(
+      polyConverted, input, this->SelectionType, this->SelectionArrayNames);
+
+    // For all output selection nodes, select all the edges among selected vertices.
+    for (unsigned int i = 0; i < vertexConverted->GetNumberOfNodes(); ++i)
+      {
+      if (vertexConverted->GetNode(i)->GetSelectionList()->
+          GetNumberOfTuples() > 0)
+        {
+        // Get the list of selected vertices.
+        selectedVerticesFound = true;
+        vtkSmartPointer<vtkIdTypeArray> selectedVerts =
+          vtkSmartPointer<vtkIdTypeArray>::New();
+        vtkConvertSelection::GetSelectedVertices(
+          vertexConverted, input, selectedVerts);
+
+        // Get the list of induced edges on these vertices.
+        vtkSmartPointer<vtkIdTypeArray> selectedEdges =
+          vtkSmartPointer<vtkIdTypeArray>::New();
+        input->GetInducedEdges(selectedVerts, selectedEdges);
+
+        // Create an edge index selection containing the induced edges.
+        vtkSmartPointer<vtkSelection> edgeSelection =
+          vtkSmartPointer<vtkSelection>::New();
+        vtkSmartPointer<vtkSelectionNode> edgeSelectionNode =
+          vtkSmartPointer<vtkSelectionNode>::New();
+        edgeSelectionNode->SetSelectionList(selectedEdges);
+        edgeSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+        edgeSelectionNode->SetFieldType(vtkSelectionNode::EDGE);
+        edgeSelection->AddNode(edgeSelectionNode);
+
+        // Convert the edge selection to the appropriate type for this representation.
+        vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
+          edgeSelection, input, this->SelectionType, this->SelectionArrayNames);
+
+        // Add the converted induced edge selection to the output selection.
+        if (edgeConverted->GetNumberOfNodes() > 0)
+          {
+          converted->AddNode(edgeConverted->GetNode(0));
+          }
+        edgeConverted->Delete();
+        }
+
+      // Add the vertex selection node to the output selection.
+      converted->AddNode(vertexConverted->GetNode(i));
+      }
+    polyConverted->Delete();
+    vertexConverted->Delete();
+    }
+  if (foundEdgeNode && !selectedVerticesFound)
+    {
+    // If no vertices were found (hence no induced edges), look for
+    // edges that were within the selection box.
+
+    // First, convert the cell selection on the polydata to
+    // a pedigree ID selection (or index selection if there are no
+    // pedigree IDs).
+    vtkSmartPointer<vtkSelection> edgeSel =
+      vtkSmartPointer<vtkSelection>::New();
+    edgeSel->AddNode(edgeNode);
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(
+      this->GraphToPoly->GetOutput());
+    vtkSelection* polyConverted = 0;
+    if (poly->GetCellData()->GetPedigreeIds())
+      {
+      polyConverted = vtkConvertSelection::ToSelectionType(
+        edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
+      }
+    else
+      {
+      polyConverted = vtkConvertSelection::ToSelectionType(
+        edgeSel, poly, vtkSelectionNode::INDICES);
+      }
+
+    // Now that we have a pedigree or index selection, interpret this
+    // as an edge selection on the graph, and convert it to the
+    // appropriate selection type for this representation.
+    for (unsigned int i = 0; i < polyConverted->GetNumberOfNodes(); ++i)
+      {
+      polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::EDGE);
+      }
+
+    // Convert the edge selection to the appropriate type for this representation.
+    vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
+      polyConverted, input, this->SelectionType, this->SelectionArrayNames);
+
+    // Add the vertex selection node to the output selection.
+    for (unsigned int i = 0; i < edgeConverted->GetNumberOfNodes(); ++i)
+      {
+      converted->AddNode(edgeConverted->GetNode(i));
+      }
+    polyConverted->Delete();
+    edgeConverted->Delete();
+    }
   return converted;
 }
 
-void vtkRenderedGraphRepresentation::PrepareInputConnections()
+int vtkRenderedGraphRepresentation::RequestData(
+  vtkInformation*,
+  vtkInformationVector**,
+  vtkInformationVector*)
 {
-  this->Superclass::PrepareInputConnections();
-
-  this->Layout->SetInput(this->GetInput());
-  this->ApplyColors->SetInputConnection(1, this->GetAnnotationConnection());
-  this->ApplyColors->SetInputConnection(2, this->GetSelectionConnection());
+  this->Layout->SetInputConnection(this->GetInternalOutputPort());
+  this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
+  return 1;
 }
 
 void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
@@ -1257,7 +1295,7 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
 
   // Convert to an index selection
   vtkSmartPointer<vtkConvertSelection> cs = vtkSmartPointer<vtkConvertSelection>::New();
-  cs->SetInputConnection(0, this->GetSelectionConnection());
+  cs->SetInputConnection(0, this->GetInternalSelectionOutputPort());
   cs->SetInputConnection(1, this->Layout->GetOutputPort());
   cs->SetOutputType(vtkSelectionNode::INDICES);
   cs->Update();

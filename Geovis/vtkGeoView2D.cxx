@@ -27,10 +27,11 @@
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView2D, "1.5");
+vtkCxxRevisionMacro(vtkGeoView2D, "1.6");
 vtkStandardNewMacro(vtkGeoView2D);
 vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 
@@ -70,6 +71,8 @@ void vtkGeoView2D::PrintSelf( ostream& os, vtkIndent indent )
 
 void vtkGeoView2D::ApplyViewTheme(vtkViewTheme* theme)
 {
+  this->Superclass::ApplyViewTheme(theme);
+
   this->Renderer->SetBackground(theme->GetBackgroundColor());
   this->Renderer->SetBackground2(theme->GetBackgroundColor2());
   this->Renderer->GradientBackgroundOn();
@@ -100,3 +103,16 @@ void vtkGeoView2D::PrepareForRendering()
     }
 }
 
+void vtkGeoView2D::Render()
+{
+  // If this is the first time, render an extra time to get things
+  // initialized for the first PrepareForRendering pass.
+  this->RenderWindow->MakeCurrent();
+  if (!this->RenderWindow->IsCurrent())
+    {
+    this->Update();
+    this->PrepareForRendering();
+    this->RenderWindow->Render();
+    }
+  this->Superclass::Render();
+}

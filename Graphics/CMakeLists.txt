@@ -201,7 +201,6 @@ vtkRotationFilter.cxx
 vtkRuledSurfaceFilter.cxx
 vtkSectorSource.cxx
 vtkSelectEnclosedPoints.cxx
-vtkSelectionLink.cxx
 vtkSelectionSource.cxx
 vtkSelectPolyData.cxx
 vtkShrinkFilter.cxx

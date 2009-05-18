@@ -76,9 +76,8 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.20");
+vtkCxxRevisionMacro(vtkView, "1.21");
 vtkStandardNewMacro(vtkView);
-vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
 vtkView::vtkView()
 {
@@ -86,8 +85,6 @@ vtkView::vtkView()
   this->Implementation = new vtkView::vtkImplementation();
   this->Observer = vtkView::Command::New();
   this->Observer->SetTarget(this);
-  this->SelectionArrayNames = vtkStringArray::New();
-  this->SelectionType = vtkSelectionNode::INDICES;
   this->ReuseSingleRepresentation = false;
   
   // Apply default theme
@@ -103,7 +100,6 @@ vtkView::~vtkView()
 
   this->Observer->SetTarget(0);
   this->Observer->Delete();
-  this->SetSelectionArrayNames(0);
   delete this->Internal;
   delete this->Implementation;
 }
@@ -195,8 +191,9 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
       if (rep->GetNumberOfInputPorts() > 0 &&
           rep->GetNumberOfInputConnections(0) > 0)
         {
-        this->AddInputConnection(rep->GetInputConnection(),
-                                 rep->GetSelectionConnection());
+        // TODO: Do we need to update the rep
+        this->AddInputConnection(rep->GetInternalOutputPort(),
+                                 rep->GetInternalSelectionOutputPort());
         }
       this->AddRepresentationInternal(rep);
       this->Implementation->Representations.push_back(rep);
@@ -221,8 +218,9 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     if (rep->GetNumberOfInputPorts() > 0 &&
         rep->GetNumberOfInputConnections(0) > 0)
       {
-      this->RemoveInputConnection(rep->GetInputConnection(),
-                                  rep->GetSelectionConnection());
+      // TODO: Do we need to update the rep
+      this->RemoveInputConnection(rep->GetInternalOutputPort(),
+                                  rep->GetInternalSelectionOutputPort());
       }
     this->RemoveRepresentationInternal(rep);
     vtkstd::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator it, itEnd;
@@ -276,28 +274,6 @@ vtkDataRepresentation* vtkView::GetRepresentation(int index)
   if (index >= 0 && index < this->GetNumberOfRepresentations())
     {
     return this->Implementation->Representations[index];
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkView::SetSelectionArrayName(const char* name)
-{
-  if (!this->SelectionArrayNames)
-    {
-    this->SelectionArrayNames = vtkStringArray::New();
-    }
-  this->SelectionArrayNames->Initialize();
-  this->SelectionArrayNames->InsertNextValue(name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkView::GetSelectionArrayName()
-{
-  if (this->SelectionArrayNames &&
-      this->SelectionArrayNames->GetNumberOfTuples() > 0)
-    {
-    return this->SelectionArrayNames->GetValue(0);
     }
   return 0;
 }
@@ -374,10 +350,4 @@ void vtkView::Update()
 void vtkView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "SelectionType: " << this->SelectionType << endl;
-  os << indent << "SelectionArrayNames: " << (this->SelectionArrayNames ? "" : "(null)") << endl;
-  if (this->SelectionArrayNames)
-    {
-    this->SelectionArrayNames->PrintSelf(os, indent.GetNextIndent());
-    }
 }

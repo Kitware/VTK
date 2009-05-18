@@ -34,7 +34,7 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.62");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.63");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -384,13 +384,6 @@ void vtkGraphLayoutView::SetIconVisibility(bool b)
 bool vtkGraphLayoutView::GetIconVisibility()
 {
   return this->GetGraphRepresentation()->GetVertexIconVisibility();
-}
-
-//----------------------------------------------------------------------------
-void vtkGraphLayoutView::SetupRenderWindow(vtkRenderWindow* win)
-{
-  this->Superclass::SetupRenderWindow(win);
-  this->GetGraphRepresentation()->SetupRenderWindow(win);
 }
 
 //----------------------------------------------------------------------------

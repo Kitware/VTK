@@ -52,7 +52,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSectorSource.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkStackedTreeLayoutStrategy.h"
@@ -78,7 +77,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.7");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -772,7 +771,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
   for (size_t i = 0; i < this->Implementation->Graphs.size(); ++i)
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
-    vtkSelection* conv = p->ConvertSelection(view, sel);
+    vtkSelection* conv = p->ConvertSelection(this, sel);
     if (conv)
       {
       for (unsigned int j = 0; j < conv->GetNumberOfNodes(); ++j)
@@ -788,16 +787,14 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
   return converted;
 }
 
-void vtkRenderedTreeAreaRepresentation::PrepareInputConnections()
+int vtkRenderedTreeAreaRepresentation::RequestData(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
-  this->Superclass::PrepareInputConnections();
-
   // Tree area connections
-  this->TreeLevels->SetInput(this->GetInput(0));
-  this->ApplyColors->SetInputConnection(1,
-    this->GetAnnotationConnection());
-  this->ApplyColors->SetInputConnection(2,
-    this->GetSelectionConnection());
+  this->TreeLevels->SetInputConnection(this->GetInternalOutputPort());
+  this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
 
   // Add new graph objects if needed.
   size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
@@ -820,11 +817,11 @@ void vtkRenderedTreeAreaRepresentation::PrepareInputConnections()
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
     p->PrepareInputConnections(
-      this->GetInput(1, static_cast<int>(i))->GetProducerPort(),
+      this->GetInternalOutputPort(1, static_cast<int>(i)),
       this->AreaLayout->GetOutputPort(1),
-      this->GetAnnotationConnection(),
-      this->GetSelectionConnection());
+      this->GetInternalAnnotationOutputPort());
     }
+  return 1;
 }
 
 void vtkRenderedTreeAreaRepresentation::PrepareForRendering(vtkRenderView* view)

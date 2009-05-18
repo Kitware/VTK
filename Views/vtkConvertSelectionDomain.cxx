@@ -20,6 +20,8 @@
 #include "vtkConvertSelectionDomain.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDataSet.h"
@@ -39,12 +41,13 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.5");
+vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.6");
 vtkStandardNewMacro(vtkConvertSelectionDomain);
 //----------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
 {
   this->SetNumberOfInputPorts(3);
+  this->SetNumberOfOutputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -77,73 +80,23 @@ void vtkConvertSelectionDomainFindDomains(
     }
 }
 
-//----------------------------------------------------------------------------
-int vtkConvertSelectionDomain::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+void vtkConvertSelectionDomainConvertAnnotationDomain(
+  vtkAnnotation* annIn,
+  vtkAnnotation* annOut,
+  vtksys_stl::set<vtkStdString>& domains1,
+  vtksys_stl::set<vtkStdString>& domains2,
+  vtkDataSetAttributes* dsa1,
+  vtkDataSetAttributes* dsa2,
+  int fieldType1, int fieldType2,
+  vtkMultiBlockDataSet* maps)
 {
-  // Retrieve the input and output.
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkSelection* input = vtkSelection::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkSelection* output = vtkSelection::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  // If we have no mapping table, we are done.
-  vtkInformation* mapInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation* dataInfo = inputVector[2]->GetInformationObject(0);
-  if (!dataInfo || !mapInfo)
-    {
-    output->ShallowCopy(input);
-    return 1;
-    }
-
-  vtkMultiBlockDataSet* maps = vtkMultiBlockDataSet::SafeDownCast(
-    mapInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataObject* data = dataInfo->Get(vtkDataObject::DATA_OBJECT());
-
-  vtkDataSetAttributes* dsa1 = 0;
-  int fieldType1 = 0;
-  vtkDataSetAttributes* dsa2 = 0;
-  int fieldType2 = 0;
-  if (vtkDataSet::SafeDownCast(data))
-    {
-    dsa1 = vtkDataSet::SafeDownCast(data)->GetPointData();
-    fieldType1 = vtkSelectionNode::POINT;
-    dsa2 = vtkDataSet::SafeDownCast(data)->GetCellData();
-    fieldType2 = vtkSelectionNode::CELL;
-    }
-  else if (vtkGraph::SafeDownCast(data))
-    {
-    dsa1 = vtkGraph::SafeDownCast(data)->GetVertexData();
-    fieldType1 = vtkSelectionNode::VERTEX;
-    dsa2 = vtkGraph::SafeDownCast(data)->GetEdgeData();
-    fieldType2 = vtkSelectionNode::EDGE;
-    }
-  else if (vtkTable::SafeDownCast(data))
-    {
-    dsa1 = vtkDataSetAttributes::SafeDownCast(vtkTable::SafeDownCast(data)->GetRowData());
-    fieldType1 = vtkSelectionNode::ROW;
-    }
-
-  vtksys_stl::set<vtkStdString> domains1;
-  vtksys_stl::set<vtkStdString> domains2;
-  if (dsa1)
-    {
-    vtkConvertSelectionDomainFindDomains(dsa1, domains1);
-    }
-  if (dsa2)
-    {
-    vtkConvertSelectionDomainFindDomains(dsa2, domains2);
-    }
-
+  vtkSelection* inputSel = annIn->GetSelection();
+  vtkSmartPointer<vtkSelection> outputSel =
+    vtkSmartPointer<vtkSelection>::New();
   // Iterate over all input selections
-  for (unsigned int c = 0; c < input->GetNumberOfNodes(); ++c)
+  for (unsigned int c = 0; c < inputSel->GetNumberOfNodes(); ++c)
     {
-    vtkSelectionNode* curInput = input->GetNode(c);
+    vtkSelectionNode* curInput = inputSel->GetNode(c);
     vtkSmartPointer<vtkSelectionNode> curOutput =
       vtkSmartPointer<vtkSelectionNode>::New();
     vtkAbstractArray* inArr = curInput->GetSelectionList();
@@ -156,7 +109,7 @@ int vtkConvertSelectionDomain::RequestData(
     if (!inArr || !inArr->GetName() ||
         curInput->GetContentType() != vtkSelectionNode::PEDIGREEIDS)
       {
-      output->AddNode(curOutput);
+      outputSel->AddNode(curOutput);
       continue;
       }
 
@@ -164,13 +117,13 @@ int vtkConvertSelectionDomain::RequestData(
     if (domains1.count(inArr->GetName()) > 0)
       {
       curOutput->SetFieldType(fieldType1);
-      output->AddNode(curOutput);
+      outputSel->AddNode(curOutput);
       continue;
       }
     if (domains2.count(inArr->GetName()) > 0)
       {
       curOutput->SetFieldType(fieldType2);
-      output->AddNode(curOutput);
+      outputSel->AddNode(curOutput);
       continue;
       }
 
@@ -246,20 +199,139 @@ int vtkConvertSelectionDomain::RequestData(
         }
       }
     curOutput->SetSelectionList(outArr);
-    output->AddNode(curOutput);
+    outputSel->AddNode(curOutput);
     }
-
   // Make sure there is at least something in the output selection.
-  if (output->GetNumberOfNodes() == 0)
+  if (outputSel->GetNumberOfNodes() == 0)
     {
     vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
     node->SetContentType(vtkSelectionNode::INDICES);
     vtkSmartPointer<vtkIdTypeArray> inds =
       vtkSmartPointer<vtkIdTypeArray>::New();
     node->SetSelectionList(inds);
-    output->AddNode(node);
+    outputSel->AddNode(node);
     }
 
+  annOut->ShallowCopy(annIn);
+  annOut->SetSelection(outputSel);
+}
+
+//----------------------------------------------------------------------------
+int vtkConvertSelectionDomain::RequestData(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  // Retrieve the input and output.
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkAnnotationLayers* inputAnn = vtkAnnotationLayers::SafeDownCast(input);
+  
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkAnnotationLayers* outputAnn = vtkAnnotationLayers::SafeDownCast(output);
+
+  outInfo = outputVector->GetInformationObject(1);
+  vtkSelection* outputCurrentSel = vtkSelection::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  // If we have no mapping table, we are done.
+  vtkInformation* mapInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* dataInfo = inputVector[2]->GetInformationObject(0);
+  if (!dataInfo || !mapInfo)
+    {
+    output->ShallowCopy(input);
+    return 1;
+    }
+
+  // If the input is instead a vtkSelection, wrap it in a vtkAnnotationLayers
+  // object so it can be used uniformly in the function.
+  bool createdInput = false;
+  if (!inputAnn)
+    {
+    vtkSelection* inputSel = vtkSelection::SafeDownCast(input);
+    inputAnn = vtkAnnotationLayers::New();
+    inputAnn->SetCurrentSelection(inputSel);
+    vtkSelection* outputSel = vtkSelection::SafeDownCast(output);
+    outputAnn = vtkAnnotationLayers::New();
+    outputAnn->SetCurrentSelection(outputSel);
+    createdInput = true;
+    }
+
+  vtkMultiBlockDataSet* maps = vtkMultiBlockDataSet::SafeDownCast(
+    mapInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* data = dataInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  vtkDataSetAttributes* dsa1 = 0;
+  int fieldType1 = 0;
+  vtkDataSetAttributes* dsa2 = 0;
+  int fieldType2 = 0;
+  if (vtkDataSet::SafeDownCast(data))
+    {
+    dsa1 = vtkDataSet::SafeDownCast(data)->GetPointData();
+    fieldType1 = vtkSelectionNode::POINT;
+    dsa2 = vtkDataSet::SafeDownCast(data)->GetCellData();
+    fieldType2 = vtkSelectionNode::CELL;
+    }
+  else if (vtkGraph::SafeDownCast(data))
+    {
+    dsa1 = vtkGraph::SafeDownCast(data)->GetVertexData();
+    fieldType1 = vtkSelectionNode::VERTEX;
+    dsa2 = vtkGraph::SafeDownCast(data)->GetEdgeData();
+    fieldType2 = vtkSelectionNode::EDGE;
+    }
+  else if (vtkTable::SafeDownCast(data))
+    {
+    dsa1 = vtkDataSetAttributes::SafeDownCast(vtkTable::SafeDownCast(data)->GetRowData());
+    fieldType1 = vtkSelectionNode::ROW;
+    }
+
+  vtksys_stl::set<vtkStdString> domains1;
+  vtksys_stl::set<vtkStdString> domains2;
+  if (dsa1)
+    {
+    vtkConvertSelectionDomainFindDomains(dsa1, domains1);
+    }
+  if (dsa2)
+    {
+    vtkConvertSelectionDomainFindDomains(dsa2, domains2);
+    }
+
+  for (unsigned int a = 0; a < inputAnn->GetNumberOfAnnotations(); ++a)
+    {
+    vtkSmartPointer<vtkAnnotation> ann =
+      vtkSmartPointer<vtkAnnotation>::New();
+    vtkConvertSelectionDomainConvertAnnotationDomain(
+      inputAnn->GetAnnotation(a), ann,
+      domains1, domains2, dsa1, dsa2, fieldType1, fieldType2, maps);
+    outputAnn->AddAnnotation(ann);
+    }
+
+  if (inputAnn->GetCurrentAnnotation())
+    {
+    vtkSmartPointer<vtkAnnotation> ann =
+      vtkSmartPointer<vtkAnnotation>::New();
+    vtkConvertSelectionDomainConvertAnnotationDomain(
+      inputAnn->GetCurrentAnnotation(), ann,
+      domains1, domains2, dsa1, dsa2, fieldType1, fieldType2, maps);
+    outputAnn->SetCurrentAnnotation(ann);
+    }
+  else
+    {
+    outputAnn->SetCurrentAnnotation(0);
+    }
+
+  // Copy current selection to the second output
+  if (outputAnn->GetCurrentSelection())
+    {
+    outputCurrentSel->ShallowCopy(outputAnn->GetCurrentSelection());
+    }
+
+  if (createdInput)
+    {
+    inputAnn->Delete();
+    outputAnn->Delete();
+    }
   return 1;
 }
 
@@ -269,7 +341,9 @@ int vtkConvertSelectionDomain::FillInputPortInformation(
 {
   if (port == 0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     }
   else if (port == 1)
     {
@@ -282,6 +356,18 @@ int vtkConvertSelectionDomain::FillInputPortInformation(
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkConvertSelectionDomain::FillOutputPortInformation(
+  int port, vtkInformation* info)
+{
+  this->Superclass::FillOutputPortInformation(port, info);
+  if (port == 1)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
     }
   return 1;
 }

@@ -91,21 +91,18 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   view->EdgeLabelVisibilityOn();
   view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
 
-  view->GetRenderer()->ResetCamera();
+  view->ResetCamera();
 
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetSize( 600, 600 );
-  win->SetMultiSamples(0); // ensure to have the same test image everywhere
-  view->SetupRenderWindow(win);
+  view->GetRenderWindow()->SetSize( 600, 600 );
+  view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetInteractionModeTo3D();
   view->SetLabelPlacementModeToLabelPlacer();
-  view->Update();
 
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }

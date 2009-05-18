@@ -75,19 +75,16 @@ int TestTreeMapView(int argc, char* argv[])
   view->ApplyViewTheme(theme);
   theme->Delete();
 
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetMultiSamples(0);
-  win->SetAlphaBitPlanes(1);
-  view->SetupRenderWindow(win);
+  view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetRenderWindow()->SetAlphaBitPlanes(1);
   view->Update();
-  view->Render();
-  view->GetRenderer()->ResetCamera();
+  view->ResetCamera();
 
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }

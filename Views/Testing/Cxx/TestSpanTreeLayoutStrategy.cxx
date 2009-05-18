@@ -22,7 +22,6 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
@@ -47,35 +46,24 @@ int TestSpanTreeLayoutStrategy(int argc, char* argv[])
 
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
-//  VTK_CREATE(vtkSpanTreeLayoutStrategy, strategy);
-//  strategy->DepthFirstSpanningTreeOn();
-//  view->SetLayoutStrategy(strategy);
   view->SetLayoutStrategyToSpanTree();
   view->SetVertexLabelArrayName("vertex id");
   view->VertexLabelVisibilityOn();
   view->SetVertexColorArrayName("vertex id");
   view->SetColorVertices(true);
-//  view->SetEdgeColorArrayName("distance");
-//  view->ColorEdgesOn();
-//  view->SetEdgeLabelArrayName("edge label");
-//  view->EdgeLabelVisibilityOn();
   view->SetRepresentationFromInputConnection(reader->GetOutputPort());
 
-  view->GetRenderer()->ResetCamera();
-
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetSize( 600, 600 );
-  win->SetMultiSamples(0); // ensure to have the same test image everywhere
-  view->SetupRenderWindow(win);
+  view->ResetCamera();
+  view->GetRenderWindow()->SetSize( 600, 600 );
+  view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetInteractionModeTo3D();
   view->SetLabelPlacementModeToLabelPlacer();
-  view->Update();
 
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }

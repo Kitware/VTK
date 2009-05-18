@@ -36,7 +36,6 @@
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkTextProperty.h"
@@ -51,7 +50,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.6");
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);
 
 vtkRenderedHierarchyRepresentation::vtkRenderedHierarchyRepresentation()
@@ -223,7 +222,7 @@ vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(
   for (int i = 0; i < numGraphs; ++i)
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
-    vtkSelection* conv = p->ConvertSelection(view, sel);
+    vtkSelection* conv = p->ConvertSelection(this, sel);
     if (conv)
       {
       for (unsigned int j = 0; j < conv->GetNumberOfNodes(); ++j)
@@ -239,9 +238,16 @@ vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(
   return converted;
 }
 
-void vtkRenderedHierarchyRepresentation::PrepareInputConnections()
+int vtkRenderedHierarchyRepresentation::RequestData(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  this->Superclass::PrepareInputConnections();
+  // Setup superclass connections.
+  if (!this->Superclass::RequestData(request, inputVector, outputVector))
+    {
+    return 0;
+    }
 
   // Add new graph objects if needed.
   size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
@@ -265,11 +271,11 @@ void vtkRenderedHierarchyRepresentation::PrepareInputConnections()
     {
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
     p->PrepareInputConnections(
-      this->GetInput(1, static_cast<int>(i))->GetProducerPort(),
+      this->GetInternalOutputPort(1, static_cast<int>(i)),
       this->Layout->GetOutputPort(),
-      this->GetAnnotationConnection(),
-      this->GetSelectionConnection());
+      this->GetInternalAnnotationOutputPort());
     }
+  return 1;
 }
 
 void vtkRenderedHierarchyRepresentation::PrepareForRendering(vtkRenderView* view)

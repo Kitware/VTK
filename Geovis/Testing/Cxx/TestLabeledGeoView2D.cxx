@@ -50,9 +50,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   vtkStdString imageFile = fname;
 
   // Create the view
-  vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
-  view->SetupRenderWindow(win);
 
   // Create the terrain
   vtkSmartPointer<vtkGeoTerrain2D> terrain =
@@ -97,7 +95,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   view->AddRepresentation(graphRep);
 
   // Set up the viewport
-  win->SetSize(600, 600);
+  view->GetRenderWindow()->SetSize(600, 600);
   vtkSmartPointer<vtkGeoTerrainNode> root =
     vtkSmartPointer<vtkGeoTerrainNode>::New();
   terrainSource->FetchRoot(root);
@@ -111,15 +109,15 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   double scaley = (bounds[3] - bounds[2])/2.0;
   double scale = (scalex > scaley) ? scalex : scaley;
   
-  view->GetRenderer()->ResetCamera();
+  view->ResetCamera();
   view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
 
-  view->Update();
-  int retVal = vtkRegressionTestImage(win);
+  view->Render();
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
     }
 
   terrainSource->ShutDown();

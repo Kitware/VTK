@@ -28,12 +28,12 @@
 //
 // For views which display only one data object at a time you may set a
 // data object or pipeline connection directly on the view itself (e.g.
-// vtkGraphLayoutView, vtkTreeLayoutView, vtkLandscapeView, vtkTreeMapView).
+// vtkGraphLayoutView, vtkLandscapeView, vtkTreeMapView).
 // The view will internally create a vtkDataRepresentation for the data.
 //
 // A view has the concept of linked selection.  If the same data is displayed
 // in multiple views, their selections may be linked by setting the same
-// vtkSelectionLink on their representations (see vtkDataRepresentation).
+// vtkAnnotationLink on their representations (see vtkDataRepresentation).
 
 #ifndef __vtkView_h
 #define __vtkView_h
@@ -45,8 +45,6 @@ class vtkCommand;
 class vtkDataObject;
 class vtkDataRepresentation;
 class vtkSelection;
-class vtkSelectionLink;
-class vtkStringArray;
 class vtkViewTheme;
 
 class VTK_VIEWS_EXPORT vtkView : public vtkObject
@@ -130,26 +128,6 @@ public:
   // Apply a theme to the view.
   virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
 
-  // Description:
-  // Set the selection type produced by this view.
-  // This should be one of the content type constants defined in
-  // vtkSelection.h. Common values are
-  // vtkSelection::INDICES
-  // vtkSelection::PEDIGREEIDS
-  // vtkSelection::VALUES
-  vtkSetMacro(SelectionType, int);
-  vtkGetMacro(SelectionType, int);
-
-  // Description:
-  // If a VALUES selection, the arrays used to produce a selection.
-  virtual void SetSelectionArrayNames(vtkStringArray* names);
-  vtkGetObjectMacro(SelectionArrayNames, vtkStringArray);
-
-  // Description:
-  // If a VALUES selection, the array used to produce a selection.
-  virtual void SetSelectionArrayName(const char* name);
-  virtual const char* GetSelectionArrayName();
-
   //BTX
   // Description:
   // Returns the observer that the subclasses can use to listen to additional
@@ -230,14 +208,6 @@ protected:
     vtkAlgorithmOutput* vtkNotUsed(conn),
     vtkAlgorithmOutput* vtkNotUsed(selectionConn)) { }
   
-  // Description:
-  // The selection type created by the view.
-  int SelectionType;
-
-  // Description:
-  // If a VALUES selection, the array names used in the selection.
-  vtkStringArray* SelectionArrayNames;
-
   // Description:
   // Create a default vtkDataRepresentation for the given vtkAlgorithmOutput.
   // View subclasses may override this method to create custom representations.

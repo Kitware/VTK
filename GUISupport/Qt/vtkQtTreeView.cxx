@@ -26,6 +26,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotationLink.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkIdTypeArray.h"
@@ -33,12 +34,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkQtTreeModelAdapter.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.9");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.10");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -160,16 +160,17 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(qmil);
   
   // Convert to the correct type of selection
+  vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject* data = this->TreeAdapter->GetVTKDataObject();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, this->SelectionType, this->SelectionArrayNames));
+    VTKIndexSelectList, data, rep->GetSelectionType(), rep->GetSelectionArrayNames()));
     
   // Store the selection mtime
   this->CurrentSelectionMTime = converted->GetMTime();
    
   // Call select on the representation (all 'linked' views will receive this selection)
-  this->GetRepresentation()->Select(this, converted);
+  rep->Select(this, converted);
   
   this->Selecting = false;
   
@@ -197,7 +198,7 @@ void vtkQtTreeView::SetVTKSelection()
 
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
-  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
   if (s->GetMTime() != this->CurrentSelectionMTime)
     {
     this->CurrentSelectionMTime = s->GetMTime();
@@ -231,6 +232,7 @@ void vtkQtTreeView::Update()
     {
     return;
     }
+  rep->Update();
 
   // Make the data current
   vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();

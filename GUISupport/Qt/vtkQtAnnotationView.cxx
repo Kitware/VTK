@@ -41,7 +41,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkQtAnnotationLayersModelAdapter.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
@@ -49,7 +48,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkQtAnnotationView, "1.3");
+vtkCxxRevisionMacro(vtkQtAnnotationView, "1.4");
 vtkStandardNewMacro(vtkQtAnnotationView);
 
 //----------------------------------------------------------------------------

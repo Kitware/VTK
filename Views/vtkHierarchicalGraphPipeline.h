@@ -30,13 +30,13 @@
 class vtkActor;
 class vtkAlgorithmOutput;
 class vtkApplyColors;
+class vtkDataRepresentation;
 class vtkGraphHierarchicalBundleEdges;
 class vtkGraphToPolyData;
 class vtkPolyDataMapper;
 class vtkSplineGraphEdges;
 class vtkSelection;
 class vtkTextProperty;
-class vtkView;
 class vtkViewTheme;
 
 class VTK_VIEWS_EXPORT vtkHierarchicalGraphPipeline : public vtkObject
@@ -91,19 +91,17 @@ public:
   // Description:
   // Returns a new selection relevant to this graph based on an input
   // selection and the view that this graph is contained in.
-  virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
+  virtual vtkSelection* ConvertSelection(vtkDataRepresentation* rep, vtkSelection* sel);
 
   // Description:
   // Sets the input connections for this graph.
   // graphConn is the input graph connection.
   // treeConn is the input tree connection.
   // annConn is the annotation link connection.
-  // selConn is the selection link connection.
   virtual void PrepareInputConnections(
     vtkAlgorithmOutput* graphConn,
     vtkAlgorithmOutput* treeConn,
-    vtkAlgorithmOutput* annConn,
-    vtkAlgorithmOutput* selConn);
+    vtkAlgorithmOutput* annConn);
 
   // Description:
   // Applies the view theme to this graph.

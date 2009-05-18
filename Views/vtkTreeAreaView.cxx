@@ -34,7 +34,7 @@
 #include "vtkTree.h"
 #include "vtkAreaLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.5");
+vtkCxxRevisionMacro(vtkTreeAreaView, "1.6");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
@@ -256,13 +256,6 @@ void vtkTreeAreaView::SetLayoutStrategy(vtkAreaLayoutStrategy* s)
 vtkAreaLayoutStrategy* vtkTreeAreaView::GetLayoutStrategy()
 {
   return this->GetTreeAreaRepresentation()->GetAreaLayoutStrategy();
-}
-
-//----------------------------------------------------------------------------
-void vtkTreeAreaView::SetupRenderWindow(vtkRenderWindow* win)
-{
-  this->Superclass::SetupRenderWindow(win);
-  this->GetTreeAreaRepresentation()->SetupRenderWindow(win);
 }
 
 //----------------------------------------------------------------------------

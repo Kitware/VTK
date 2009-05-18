@@ -22,6 +22,7 @@
 
 #include "vtkActor.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkApplyColors.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataObject.h"
@@ -29,6 +30,7 @@
 #include "vtkGeometryFilter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -37,55 +39,69 @@
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkSelectionLink.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransformFilter.h"
+#include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.5");
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
 {
+  this->TransformFilter         = vtkTransformFilter::New();
+  this->ApplyColors             = vtkApplyColors::New();
   this->GeometryFilter          = vtkGeometryFilter::New();
   this->Mapper                  = vtkPolyDataMapper::New();
   this->Actor                   = vtkActor::New();
-  this->ExtractSelection        = vtkExtractSelection::New();
-  this->SelectionGeometryFilter = vtkGeometryFilter::New();
-  this->SelectionMapper         = vtkPolyDataMapper::New();
-  this->SelectionActor          = vtkActor::New();
+
+  this->CellColorArrayNameInternal = 0;
    
   // Connect pipeline
+  this->ApplyColors->SetInputConnection(this->TransformFilter->GetOutputPort());
+  this->GeometryFilter->SetInputConnection(this->ApplyColors->GetOutputPort());
   this->Mapper->SetInputConnection(this->GeometryFilter->GetOutputPort());
   this->Actor->SetMapper(this->Mapper);
   this->Actor->GetProperty()->SetPointSize(10);
-  this->SelectionGeometryFilter->SetInputConnection(this->ExtractSelection->GetOutputPort());
-  this->SelectionMapper->SetInputConnection(this->SelectionGeometryFilter->GetOutputPort());
-  this->SelectionActor->SetMapper(this->SelectionMapper);
   
   // Set parameters
-  this->SelectionMapper->ScalarVisibilityOff();
-  this->SelectionActor->GetProperty()->SetColor(1, 0, 1);
-  this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
-  this->SelectionActor->PickableOff();
+  this->Mapper->SetScalarModeToUseCellFieldData();
+  this->Mapper->SelectColorArray("vtkApplyColors color");
+  this->Mapper->SetScalarVisibility(true);
+
+  // Apply default theme
+  vtkSmartPointer<vtkViewTheme> theme =
+    vtkSmartPointer<vtkViewTheme>::New();
+  theme->SetCellOpacity(1.0);
+  this->ApplyViewTheme(theme);
 }
 
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
 {
+  this->TransformFilter->Delete();
+  this->ApplyColors->Delete();
   this->GeometryFilter->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
-  this->ExtractSelection->Delete();
-  this->SelectionGeometryFilter->Delete();
-  this->SelectionMapper->Delete();
-  this->SelectionActor->Delete();
+  this->SetCellColorArrayNameInternal(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderedSurfaceRepresentation::PrepareInputConnections()
+int vtkRenderedSurfaceRepresentation::RequestData(
+  vtkInformation*,
+  vtkInformationVector**,
+  vtkInformationVector*)
 {
-  this->GeometryFilter->SetInput(this->GetInput());
-  this->ExtractSelection->SetInput(0, this->GetInput());  
-  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
+  this->TransformFilter->SetInputConnection(0, this->GetInternalOutputPort());
+  this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderedSurfaceRepresentation::PrepareForRendering(vtkRenderView* view)
+{
+  this->Superclass::PrepareForRendering(view);
+  this->TransformFilter->SetTransform(view->GetTransform());
 }
 
 //----------------------------------------------------------------------------
@@ -98,7 +114,6 @@ bool vtkRenderedSurfaceRepresentation::AddToView(vtkView* view)
     return false;
     }
   rv->GetRenderer()->AddActor(this->Actor);
-  rv->GetRenderer()->AddActor(this->SelectionActor);
   return true;
 }
 
@@ -111,13 +126,12 @@ bool vtkRenderedSurfaceRepresentation::RemoveFromView(vtkView* view)
     return false;
     }
   rv->GetRenderer()->RemoveActor(this->Actor);
-  rv->GetRenderer()->RemoveActor(this->SelectionActor);
   return true;
 }
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
-  vtkView* view, 
+  vtkView* vtkNotUsed(view),
   vtkSelection* selection)
 {
   vtkSmartPointer<vtkSelection> propSelection =
@@ -133,7 +147,11 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
         node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (prop == this->Actor)
         {
-        propSelection->AddNode(node);
+        vtkSmartPointer<vtkSelectionNode> nodeCopy =
+          vtkSmartPointer<vtkSelectionNode>::New();
+        nodeCopy->ShallowCopy(node);
+        nodeCopy->GetProperties()->Remove(vtkSelectionNode::PROP());
+        propSelection->AddNode(nodeCopy);
         }
       }
     }
@@ -145,7 +163,7 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
   // Start with an empty selection
   vtkSelection* converted = vtkSelection::New();
   vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
-  node->SetContentType(view->GetSelectionType());
+  node->SetContentType(this->SelectionType);
   node->SetFieldType(vtkSelectionNode::CELL);
   vtkSmartPointer<vtkIdTypeArray> empty =
     vtkSmartPointer<vtkIdTypeArray>::New();
@@ -158,8 +176,8 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
     if (obj)
       {
       vtkSelection* index = vtkConvertSelection::ToSelectionType(
-        propSelection, obj, view->GetSelectionType(),
-        view->GetSelectionArrayNames());
+        propSelection, obj, this->SelectionType,
+        this->SelectionArrayNames);
       converted->ShallowCopy(index);
       index->Delete();
       }
@@ -172,47 +190,72 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
 void vtkRenderedSurfaceRepresentation::SetCellColorArrayName(
  const char* arrayName)
 {
-  this->Mapper->SetScalarModeToUseCellFieldData();
-  this->Mapper->SelectColorArray(arrayName);
+  this->SetCellColorArrayNameInternal(arrayName);
+  this->ApplyColors->SetInputArrayToProcess(
+    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayName);
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderedSurfaceRepresentation::SetCellColorLookupTable(
-  vtkScalarsToColors* lut)
+void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 {
-  this->Mapper->SetLookupTable(lut);
-}
+  this->Superclass::ApplyViewTheme(theme);
 
-//----------------------------------------------------------------------------
-vtkScalarsToColors* vtkRenderedSurfaceRepresentation::GetCellColorLookupTable()
-{
-  return this->Mapper->GetLookupTable();
-}
+  vtkLookupTable* plutOld = vtkLookupTable::SafeDownCast(
+    this->ApplyColors->GetPointLookupTable());
+  if (!theme->LookupMatchesPointTheme(plutOld))
+    {
+    vtkSmartPointer<vtkLookupTable> plut =
+      vtkSmartPointer<vtkLookupTable>::New();
+    plut->SetHueRange(theme->GetPointHueRange());
+    plut->SetSaturationRange(theme->GetPointSaturationRange());
+    plut->SetValueRange(theme->GetPointValueRange());
+    plut->SetAlphaRange(theme->GetPointAlphaRange());
+    plut->Build();
+    this->ApplyColors->SetPointLookupTable(plut);
+    }
 
-//----------------------------------------------------------------------------
-void vtkRenderedSurfaceRepresentation::SetCellColorScalarRange(
-  double mn, double mx)
-{
-  this->Mapper->SetScalarRange(mn, mx);
+  vtkLookupTable* clutOld = vtkLookupTable::SafeDownCast(
+    this->ApplyColors->GetCellLookupTable());
+  if (!theme->LookupMatchesCellTheme(clutOld))
+    {
+    vtkSmartPointer<vtkLookupTable> clut =
+      vtkSmartPointer<vtkLookupTable>::New();
+    clut->SetHueRange(theme->GetCellHueRange());
+    clut->SetSaturationRange(theme->GetCellSaturationRange());
+    clut->SetValueRange(theme->GetCellValueRange());
+    clut->SetAlphaRange(theme->GetCellAlphaRange());
+    clut->Build();
+    this->ApplyColors->SetCellLookupTable(clut);
+    }
+
+  this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
+  this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
+  this->ApplyColors->SetDefaultCellColor(theme->GetCellColor());
+  this->ApplyColors->SetDefaultCellOpacity(theme->GetCellOpacity());
+  this->ApplyColors->SetSelectedPointColor(theme->GetSelectedPointColor());
+  //this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
+  this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
+  //this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
+
+  float baseSize = static_cast<float>(theme->GetPointSize());
+  float lineWidth = static_cast<float>(theme->GetLineWidth());
+  this->Actor->GetProperty()->SetPointSize(baseSize);
+  this->Actor->GetProperty()->SetLineWidth(lineWidth);
+
+  // TODO: Enable labeling
+  //this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
+  //this->VertexTextProperty->SetLineOffset(-2*baseSize);
+  //this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderedSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "ApplyColors:" << endl;
+  this->ApplyColors->PrintSelf(os, indent.GetNextIndent());
   os << indent << "GeometryFilter:" << endl;
   this->GeometryFilter->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Mapper:" << endl;
   this->Mapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionGeometryFilter:" << endl;
-  this->SelectionGeometryFilter->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionMapper:" << endl;
-  this->SelectionMapper->PrintSelf(os, indent.GetNextIndent());
-  if (this->GeometryFilter->GetNumberOfInputConnections(0) > 0)
-    {
-    os << indent << "Actor:" << endl;
-    this->Actor->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "SelectionActor:" << endl;
-    this->SelectionActor->PrintSelf(os, indent.GetNextIndent());
-    }
 }

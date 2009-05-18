@@ -61,16 +61,13 @@ int main(int, char*[])
   view->SetVertexLabelArrayName("Label");
   view->SetVertexLabelVisibility(true);
   
-  vtkRenderWindow* window = vtkRenderWindow::New();
-  view->SetupRenderWindow(window);
-  view->GetRenderer()->ResetCamera();
-  window->GetInteractor()->Start();
+  view->ResetCamera();
+  view->GetInteractor()->Start();
   
   graph->Delete();
   labels->Delete();
   tree->Delete();
   view->Delete();
-  window->Delete();
   
   return 0;
 }

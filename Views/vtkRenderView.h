@@ -42,7 +42,7 @@ class vtkArrayCalculator;
 class vtkBalloonRepresentation;
 class vtkDynamic2DLabelMapper;
 class vtkIconGlyphFilter;
-class vtkInteractorStyle;
+class vtkInteractorObserver;
 class vtkLabeledDataMapper;
 class vtkLabelPlacer;
 class vtkLabelSizeCalculator;
@@ -50,6 +50,7 @@ class vtkPointSetToLabelHierarchy;
 class vtkPolyDataMapper2D;
 class vtkRenderer;
 class vtkRenderWindow;
+class vtkRenderWindowInteractor;
 class vtkSelection;
 class vtkTextProperty;
 class vtkTexture;
@@ -73,14 +74,17 @@ public:
   vtkGetObjectMacro(Renderer, vtkRenderer);
   
   // Description:
-  // Set up a render window to use this view.
-  // The superclass adds the renderer to the render window.
-  // Subclasses should override this to set interactor, etc.
-  virtual void SetupRenderWindow(vtkRenderWindow* win);
+  // Get a handle to the render window.
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
 
   // Description:
-  // Get a handle to the render window.
-  virtual vtkRenderWindow* GetRenderWindow();
+  // The render window interactor.
+  virtual vtkRenderWindowInteractor* GetInteractor();
+  
+  // Description:
+  // The interactor style associated with the render view.
+  virtual void SetInteractorStyle(vtkInteractorObserver* style);
+  virtual vtkInteractorObserver* GetInteractorStyle();
   
   //BTX
   enum
@@ -135,13 +139,19 @@ public:
   void SetSelectionModeToFrustum() { this->SetSelectionMode(FRUSTUM); }
 
   // Description:
-  // Calls Render() on the render window associated with this view.
+  // Updates the representations, then calls Render() on the render window
+  // associated with this view.
   virtual void Render();
   
   // Description:
-  // The interactor style associated with the render view.
-  vtkGetObjectMacro(InteractorStyle, vtkInteractorStyle);
-  virtual void SetInteractorStyle(vtkInteractorStyle* style);
+  // Updates the representations, then calls ResetCamera() on the renderer
+  // associated with this view.
+  virtual void ResetCamera();
+  
+  // Description:
+  // Updates the representations, then calls ResetCameraClippingRange() on the renderer
+  // associated with this view.
+  virtual void ResetCameraClippingRange();
   
   // Description:
   // Add labels from an input connection with an associated text
@@ -240,12 +250,6 @@ protected:
   virtual void PrepareForRendering();
   
   // Description:
-  // Called when a representation's selection changed.
-  virtual void RepresentationSelectionChanged(
-    vtkDataRepresentation* rep,
-    vtkSelection* selection);
-
-  // Description:
   // Called in PrepareForRendering to update the hover text.
   virtual void UpdateHoverText();
 
@@ -254,13 +258,13 @@ protected:
   void SetLabelPlacementAndRenderMode( int placement_mode, int render_mode );
 
   vtkRenderer* Renderer;
+  vtkRenderWindow* RenderWindow;
   int SelectionMode;
   int InteractionMode;
   int LabelRenderMode;
   bool DisplayHoverText;
 
   vtkAbstractTransform* Transform;
-  vtkInteractorStyle* InteractorStyle;
 
   //BTX
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;

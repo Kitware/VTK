@@ -232,10 +232,6 @@ public:
   const char* GetIconArrayName();
   
   // Description:
-  // Sets up interactor style.
-  virtual void SetupRenderWindow(vtkRenderWindow* win);
-  
-  // Description:
   // The size of the font used for vertex labeling
   virtual void SetVertexLabelFontSize(const int size);
   virtual int GetVertexLabelFontSize();

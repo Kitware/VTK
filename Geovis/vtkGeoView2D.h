@@ -64,6 +64,10 @@ public:
   // Apply the view theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
+  // Description:
+  // Update and render the view.
+  virtual void Render();
+
 protected:
   vtkGeoTerrain2D* Surface;
   vtkAssembly* Assembly;

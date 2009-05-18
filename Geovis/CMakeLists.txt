@@ -20,7 +20,6 @@ SET( Kit_SRCS
   vtkGeoGraticule.cxx
   vtkGeoImageNode.cxx
   vtkGeoInteractorStyle.cxx
-  vtkGeoLineRepresentation.cxx
   vtkGeoProjectionSource.cxx
   vtkGeoProjection.cxx
   vtkGeoRandomGraphSource.cxx

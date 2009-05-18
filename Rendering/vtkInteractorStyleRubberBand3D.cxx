@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBand3D, "1.8");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBand3D, "1.9");
 vtkStandardNewMacro(vtkInteractorStyleRubberBand3D);
 
 //--------------------------------------------------------------------------
@@ -37,6 +37,7 @@ vtkInteractorStyleRubberBand3D::vtkInteractorStyleRubberBand3D()
 {
   this->PixelArray = vtkUnsignedCharArray::New();
   this->Interaction = NONE;
+  this->RenderOnMouseMove = false;
 }
 
 //--------------------------------------------------------------------------
@@ -191,6 +192,10 @@ void vtkInteractorStyleRubberBand3D::OnMouseMove()
     this->InvokeEvent(vtkCommand::InteractionEvent);
     this->RedrawRubberBand();
     }
+  else if (this->RenderOnMouseMove)
+    {
+    this->GetInteractor()->Render();
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -288,4 +293,5 @@ void vtkInteractorStyleRubberBand3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Interaction: " << this->Interaction << endl;
+  os << indent << "RenderOnMouseMove: " << this->RenderOnMouseMove << endl;
 }

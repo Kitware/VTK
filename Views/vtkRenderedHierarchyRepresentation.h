@@ -111,7 +111,10 @@ protected:
 
   // Description:
   // Sets up the input connections for this representation.
-  virtual void PrepareInputConnections();
+  virtual int RequestData(
+    vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 

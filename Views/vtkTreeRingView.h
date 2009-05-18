@@ -28,7 +28,6 @@
 // vertices as leaves of the tree with curved graph edges between leaves.
 //
 // .SEE ALSO
-// vtkTreeLayoutView
 // vtkGraphLayoutView
 //
 // .SECTION Thanks

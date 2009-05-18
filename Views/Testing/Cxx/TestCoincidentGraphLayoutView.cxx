@@ -129,9 +129,6 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   graph->GetEdgeData()->AddArray(label);
   
   // Graph layout view
-  VTK_CREATE(vtkRenderWindow, win);
-  VTK_CREATE(vtkRenderWindowInteractor, iren);
-  iren->SetRenderWindow(win);
   VTK_CREATE(vtkGraphLayoutView, view);
   view->SetLayoutStrategyToPassThrough();
   view->SetVertexLabelArrayName("name");
@@ -142,20 +139,16 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   view->ColorEdgesOn();
   view->SetEdgeLabelArrayName("edge label");
   view->EdgeLabelVisibilityOn();
-  view->SetupRenderWindow(win);
   view->SetRepresentationFromInput(graph);
 
-  view->GetRenderer()->ResetCamera();
-  view->Update();
+  view->ResetCamera();
+  view->Render();
 
-  iren->Initialize();
-  win->Render();
-  
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Initialize();
-    iren->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
     
     retVal = vtkRegressionTester::PASSED;
     }

@@ -28,38 +28,36 @@
 #ifndef __vtkRenderedSurfaceRepresentation_h
 #define __vtkRenderedSurfaceRepresentation_h
 
-#include "vtkDataRepresentation.h"
+#include "vtkRenderedRepresentation.h"
 
 class vtkActor;
 class vtkAlgorithmOutput;
+class vtkApplyColors;
 class vtkDataObject;
-class vtkExtractSelection;
 class vtkGeometryFilter;
 class vtkPolyDataMapper;
+class vtkRenderView;
 class vtkScalarsToColors;
 class vtkSelection;
+class vtkTransformFilter;
 class vtkView;
 
-class VTK_VIEWS_EXPORT vtkRenderedSurfaceRepresentation : public vtkDataRepresentation
+class VTK_VIEWS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRenderedRepresentation
 {
 public:
   static vtkRenderedSurfaceRepresentation *New();
-  vtkTypeRevisionMacro(vtkRenderedSurfaceRepresentation, vtkDataRepresentation);
+  vtkTypeRevisionMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //Description:
   //Sets the color array name
   virtual void SetCellColorArrayName(const char* arrayName);
+  virtual const char* GetCellColorArrayName()
+    { return this->GetCellColorArrayNameInternal(); }
 
   // Description:
-  //Sets the lookup table
-  virtual void SetCellColorLookupTable(vtkScalarsToColors* lut);
-  virtual vtkScalarsToColors* GetCellColorLookupTable();
-  
-  // Description:
-  // Specify range in terms of scalar minimum and maximum. 
-  // These values are used to map scalars into lookup table.
-  void SetCellColorScalarRange(double _arg1, double _arg2);
+  // Apply a theme to this representation.
+  virtual void ApplyViewTheme(vtkViewTheme* theme);
 
 protected:
   vtkRenderedSurfaceRepresentation();
@@ -67,7 +65,14 @@ protected:
 
   // Description:
   // Sets the input pipeline connection to this representation.
-  virtual void PrepareInputConnections();
+  virtual int RequestData(
+    vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+  
+  // Description:
+  // Performs per-render operations.
+  virtual void PrepareForRendering(vtkRenderView* view);
   
   // Decription:
   // Adds the representation to the view.  This is called from
@@ -81,19 +86,21 @@ protected:
   
   // Description:
   // Convert the selection to a type appropriate for sharing with other
-  // representations through vtkSelectionLink.
+  // representations through vtkAnnotationLink.
   // If the selection cannot be applied to this representation, returns NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
   
   // Description:
   // Internal pipeline objects.
+  vtkTransformFilter*   TransformFilter;
+  vtkApplyColors*       ApplyColors;
   vtkGeometryFilter*    GeometryFilter;
   vtkPolyDataMapper*    Mapper;
   vtkActor*             Actor;
-  vtkExtractSelection*  ExtractSelection;
-  vtkGeometryFilter*    SelectionGeometryFilter;
-  vtkPolyDataMapper*    SelectionMapper;
-  vtkActor*             SelectionActor;
+
+  vtkGetStringMacro(CellColorArrayNameInternal);
+  vtkSetStringMacro(CellColorArrayNameInternal);
+  char* CellColorArrayNameInternal;
 
 private:
   vtkRenderedSurfaceRepresentation(const vtkRenderedSurfaceRepresentation&);  // Not implemented.

@@ -109,7 +109,9 @@ public:
 
   // Description:
   // Prepare the input connections to this representation.
-  virtual void PrepareInputConnections();
+  virtual int RequestData(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   virtual void ResetModel();
   virtual void CreateSeriesColors();

@@ -27,6 +27,7 @@
 #include "vtkGeoCamera.h"
 #include "vtkGeoGlobeSource.h"
 #include "vtkGeoInteractorStyle.h"
+#include "vtkGeoMath.h"
 #include "vtkGeoSphereTransform.h"
 #include "vtkGeoTerrain.h"
 #include "vtkGlobeSource.h"
@@ -40,13 +41,12 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView, "1.14");
+vtkCxxRevisionMacro(vtkGeoView, "1.15");
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
 {
-  this->RenderWindow = 0;
   this->Terrain = 0;
 
   // Replace the interactor style
@@ -77,12 +77,14 @@ vtkGeoView::vtkGeoView()
   this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
   this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
   this->LowResEarthActor->SetMapper(this->LowResEarthMapper);
+  this->Renderer->AddActor(this->LowResEarthActor);
 
   // Add the assembly to the view.
   this->Assembly = vtkAssembly::New();
   this->Renderer->AddActor(this->Assembly);
 
   vtkGeoSphereTransform* t = vtkGeoSphereTransform::New();
+  t->SetBaseAltitude(vtkGeoMath::EarthRadiusMeters()*0.0001);
   this->SetTransform(t);
   t->Delete();
 }
@@ -95,11 +97,6 @@ vtkGeoView::~vtkGeoView()
   this->LowResEarthActor->Delete();
   this->Assembly->Delete();
   this->SetTerrain(0);
-
-  if (this->RenderWindow)
-    {
-    this->RenderWindow->Delete();
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -121,25 +118,6 @@ void vtkGeoView::BuildLowResEarth( double origin[3] )
   this->LowResEarthSource->SetLongitudeResolution(15);
   this->LowResEarthMapper->SetInputConnection(this->LowResEarthSource->GetOutputPort());
   //this->LowResEarthActor->VisibilityOff();
-}
-
-//----------------------------------------------------------------------------
-void vtkGeoView::SetupRenderWindow(vtkRenderWindow* win)
-{
-  this->Superclass::SetupRenderWindow(win);
-
-  if (win->GetRenderers()->GetFirstRenderer())
-    {
-    win->GetRenderers()->GetFirstRenderer()->AddActor(this->LowResEarthActor);
-    }
-  
-  // We must keep a reference to the render window so we can call
-  // ExitCleanup() before it gets deleted.
-  if (win)
-    {
-    this->RenderWindow = win;
-    this->RenderWindow->Register(this);
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -182,6 +160,21 @@ void vtkGeoView::PrepareForRendering()
     {
     this->Terrain->AddActors(this->Renderer, this->Assembly, imageReps);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoView::Render()
+{
+  // If this is the first time, render an extra time to get things
+  // initialized for the first PrepareForRendering pass.
+  this->RenderWindow->MakeCurrent();
+  if (!this->RenderWindow->IsCurrent())
+    {
+    this->Update();
+    this->PrepareForRendering();
+    this->RenderWindow->Render();
+    }
+  this->Superclass::Render();
 }
 
 //----------------------------------------------------------------------------

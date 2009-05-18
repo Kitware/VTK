@@ -24,6 +24,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataObjectToTable.h"
@@ -32,12 +33,11 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
-#include "vtkSelectionLink.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.6");
+vtkCxxRevisionMacro(vtkQtRecordView, "1.7");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,8 @@ void vtkQtRecordView::Update()
     }
 
   vtkSmartPointer<vtkSelection> cs;
-  cs.TakeReference(vtkConvertSelection::ToSelectionType(rep->GetSelectionLink()->GetSelection(), 
+  cs.TakeReference(vtkConvertSelection::ToSelectionType(
+    rep->GetAnnotationLink()->GetCurrentSelection(), 
     table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
   vtkSelectionNode *node = cs->GetNode(0);
   const vtkIdType column_count = table->GetNumberOfColumns();

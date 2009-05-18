@@ -39,13 +39,15 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.7");
+vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.8");
 vtkStandardNewMacro(vtkGeoSampleArcs);
 
 vtkGeoSampleArcs::vtkGeoSampleArcs()
 {
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
   this->MaximumDistanceMeters = 100000.0;
+  this->InputCoordinateSystem = RECTANGULAR;
+  this->OutputCoordinateSystem = RECTANGULAR;
 }
 
 vtkGeoSampleArcs::~vtkGeoSampleArcs()
@@ -88,11 +90,21 @@ int vtkGeoSampleArcs::RequestData(
     double curPoint[3];
     double lastPtLL[2];
     double curPtLL[2];
-    curPoint[0] = pointsPtr[3*pts[0]+0];
-    curPoint[1] = pointsPtr[3*pts[0]+1];
-    curPoint[2] = pointsPtr[3*pts[0]+2];
-    vtkGlobeSource::ComputeLatitudeLongitude(
-      curPoint, curPtLL[0], curPtLL[1]);
+    if (this->InputCoordinateSystem == RECTANGULAR)
+      {
+      curPoint[0] = pointsPtr[3*pts[0]+0];
+      curPoint[1] = pointsPtr[3*pts[0]+1];
+      curPoint[2] = pointsPtr[3*pts[0]+2];
+      vtkGlobeSource::ComputeLatitudeLongitude(
+        curPoint, curPtLL[0], curPtLL[1]);
+      }
+    else // SPHERICAL
+      {
+      curPtLL[0] = pointsPtr[3*pts[0]+0];
+      curPtLL[1] = pointsPtr[3*pts[0]+1];
+      vtkGlobeSource::ComputeGlobePoint(
+        curPtLL[0], curPtLL[1], this->GlobeRadius, curPoint);
+      }
     
     for (vtkIdType p = 1; p < npts; ++p)
       {
@@ -103,11 +115,21 @@ int vtkGeoSampleArcs::RequestData(
         }
       lastPtLL[0] = curPtLL[0];
       lastPtLL[1] = curPtLL[1];
-      curPoint[0] = pointsPtr[3*pts[p]+0];
-      curPoint[1] = pointsPtr[3*pts[p]+1];
-      curPoint[2] = pointsPtr[3*pts[p]+2];
-      vtkGlobeSource::ComputeLatitudeLongitude(
-        curPoint, curPtLL[0], curPtLL[1]);
+      if (this->InputCoordinateSystem == RECTANGULAR)
+        {
+        curPoint[0] = pointsPtr[3*pts[p]+0];
+        curPoint[1] = pointsPtr[3*pts[p]+1];
+        curPoint[2] = pointsPtr[3*pts[p]+2];
+        vtkGlobeSource::ComputeLatitudeLongitude(
+          curPoint, curPtLL[0], curPtLL[1]);
+        }
+      else // SPHERICAL
+        {
+        curPtLL[0] = pointsPtr[3*pts[p]+0];
+        curPtLL[1] = pointsPtr[3*pts[p]+1];
+        vtkGlobeSource::ComputeGlobePoint(
+          curPtLL[0], curPtLL[1], this->GlobeRadius, curPoint);
+        }
 
       double dist = sqrt(vtkMath::Distance2BetweenPoints(lastPoint, curPoint));
 
@@ -130,13 +152,20 @@ int vtkGeoSampleArcs::RequestData(
           {
           interpPtLL[c] = frac*curPtLL[c] + (1.0 - frac)*lastPtLL[c];
           }
-        // Convert lat-long to world;
-        double interpPt[3];
-        vtkGlobeSource::ComputeGlobePoint(interpPtLL[0], interpPtLL[1], this->GlobeRadius, interpPt);
-        vtkIdType newPt = newPoints->InsertNextPoint(interpPt);
-        newLines->InsertCellPoint(newPt);        
+        if (this->OutputCoordinateSystem == RECTANGULAR)
+          {
+          // Convert lat-long to world;
+          double interpPt[3];
+          vtkGlobeSource::ComputeGlobePoint(interpPtLL[0], interpPtLL[1], this->GlobeRadius, interpPt);
+          vtkIdType newPt = newPoints->InsertNextPoint(interpPt);
+          newLines->InsertCellPoint(newPt);
+          }
+        else // SPHERICAL
+          {
+          vtkIdType newPt = newPoints->InsertNextPoint(interpPtLL[0], interpPtLL[1], 0.0);
+          newLines->InsertCellPoint(newPt);
+          }
         }
-
       }
     }
 
@@ -156,5 +185,7 @@ void vtkGeoSampleArcs::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "GlobeRadius: " << this->GlobeRadius << endl;
   os << indent << "MaximumDistanceMeters: " << this->MaximumDistanceMeters << endl;
+  os << indent << "InputCoordinateSystem: " << this->InputCoordinateSystem << endl;
+  os << indent << "OutputCoordinateSystem: " << this->OutputCoordinateSystem << endl;
 }
 

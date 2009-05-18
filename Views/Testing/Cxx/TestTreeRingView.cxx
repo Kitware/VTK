@@ -76,18 +76,15 @@ int TestTreeRingView(int argc, char* argv[])
   view->ApplyViewTheme(theme);
   theme->Delete();
 
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetMultiSamples(0); // ensure to have the same test image everywhere
-  view->SetupRenderWindow(win);
-  view->Update();
-  view->GetRenderer()->ResetCamera();
-  view->GetRenderer()->Render();
+  view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
+  view->ResetCamera();
+  view->Render();
 
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }

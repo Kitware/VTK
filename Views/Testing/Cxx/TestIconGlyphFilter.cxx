@@ -99,7 +99,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   vtkGraphLayoutView *view = vtkGraphLayoutView::New();
   view->SetRepresentationFromInput(graph);
   view->SetLayoutStrategyToSimple2D();
-  view->GetRenderer()->ResetCamera();
+  view->ResetCamera();
   
   vtkTexture * texture =  vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
@@ -110,17 +110,14 @@ int TestIconGlyphFilter( int argc, char *argv[])
   view->IconVisibilityOn();
   view->SetLayoutStrategyToPassThrough();
 
-  vtkRenderWindow * renWin = vtkRenderWindow::New();
-  renWin->SetSize(500, 500);
-  view->SetupRenderWindow(renWin);
-  view->Update();
+  view->GetRenderWindow()->SetSize(500, 500);
 
-  renWin->GetInteractor()->Initialize();
-
-  int retVal = vtkRegressionTestImageThreshold(renWin,18);
+  view->GetInteractor()->Initialize();
+  view->Render();
+  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 18);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    renWin->GetInteractor()->Start();
+    view->GetInteractor()->Start();
     }
 
   imageReader->Delete();
@@ -129,7 +126,6 @@ int TestIconGlyphFilter( int argc, char *argv[])
   points->Delete();
   pointData->Delete();
   view->Delete();
-  renWin->Delete();
   texture->Delete();
 
   return !retVal;

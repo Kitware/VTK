@@ -1158,11 +1158,8 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   numeric->SetInput(t);
   
   // Graph layout view
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetSize(512,512);
-  VTK_CREATE(vtkRenderWindowInteractor, iren);
-  iren->SetRenderWindow(win);
   VTK_CREATE(vtkGraphLayoutView, view);
+  view->GetRenderWindow()->SetSize(512,512);
   view->SetLayoutStrategyToCircular();
   view->SetVertexLabelArrayName("unicode");
   view->VertexLabelVisibilityOn();
@@ -1173,18 +1170,13 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   view->SetEdgeLabelArrayName("edge label");
   view->EdgeLabelVisibilityOn();
   view->SetLabelPlacementModeToLabelPlacer();
-//  view->SetLabelPlacementModeToAll();
   view->SetLabelRenderModeToQt();
-
   view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
-  view->SetupRenderWindow(win);
-
-  view->GetRenderer()->ResetCamera();
-  view->Update();
+  view->ResetCamera();
 
   // record events
   VTK_CREATE(vtkInteractorEventRecorder, recorder);
-  recorder->SetInteractor(iren);
+  recorder->SetInteractor(view->GetInteractor());
   if (record)
     {
     recorder->SetFileName("record.log");
@@ -1200,8 +1192,8 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   // interact with data
   // render the image
   //
-  iren->Initialize();
-  win->Render();
+  view->GetInteractor()->Initialize();
+  view->Render();
   if (!record)
     {
     recorder->Play();
@@ -1210,11 +1202,11 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
     recorder->Off();
     }
   
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Initialize();
-    iren->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
     
     retVal = vtkRegressionTester::PASSED;
     }

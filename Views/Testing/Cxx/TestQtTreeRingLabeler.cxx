@@ -62,6 +62,7 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
   view->Update();
+  view->SetLabelPlacementModeToLabelPlacer();
   view->SetLabelRenderModeToQt();
   view->SetAreaColorArrayName("VertexDegree");
   //view->SetEdgeColorArrayName("tree edge");
@@ -77,19 +78,16 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   view->ApplyViewTheme(theme);
   theme->Delete();
 
-  VTK_CREATE(vtkRenderWindow, win);
-  win->SetSize(600,600);
-  win->SetMultiSamples(0); // ensure to have the same test image everywhere
-  view->SetupRenderWindow(win);
-  view->Update();
-  view->GetRenderer()->ResetCamera();
+  view->GetRenderWindow()->SetSize(600,600);
+  view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
+  view->ResetCamera();
   view->Render();
 
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
-    win->GetInteractor()->Initialize();
-    win->GetInteractor()->Start();
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
     }

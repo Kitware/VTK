@@ -45,7 +45,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.23");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.24");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -467,6 +467,13 @@ int vtkLabelPlacer::RequestData(
   if ( ! isz ) //|| isz->GetNumberOfComponents() > 2 )
     {
     vtkWarningMacro( "Missing or improper label size point array -- output will be empty." );
+    return 1;
+    }
+
+  // If the renderer size is zero, silently place no labels.
+  int* renSize = this->Renderer->GetSize();
+  if ( renSize[0] == 0 || renSize[1] == 0 )
+    {
     return 1;
     }
 
