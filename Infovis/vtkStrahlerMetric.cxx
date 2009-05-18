@@ -42,6 +42,11 @@ vtkStrahlerMetric::vtkStrahlerMetric()
   this->SetMetricArrayName( "Strahler" );
 }
 
+vtkStrahlerMetric::~vtkStrahlerMetric()
+{
+  this->SetMetricArrayName(0);
+}
+
 //----------------------------------------------------------------------------
 
 float vtkStrahlerMetric::CalculateStrahler(

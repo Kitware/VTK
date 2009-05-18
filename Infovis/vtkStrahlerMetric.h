@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkStrahlerMetric();
-  ~vtkStrahlerMetric() {};
+  ~vtkStrahlerMetric();
    
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
