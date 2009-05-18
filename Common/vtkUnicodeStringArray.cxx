@@ -28,7 +28,7 @@ public:
   StorageT Storage;
 };
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.6");
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.7");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
@@ -290,6 +290,11 @@ vtkUnicodeString& vtkUnicodeStringArray::GetValue(vtkIdType i)
 void vtkUnicodeStringArray::InsertNextUTF8Value(const char* value)
 {
   this->InsertNextValue(vtkUnicodeString::from_utf8(value));
+}
+
+void vtkUnicodeStringArray::SetUTF8Value(vtkIdType i, const char* value)
+{
+  this->SetValue(i, vtkUnicodeString::from_utf8(value));
 }
 
 const char* vtkUnicodeStringArray::GetUTF8Value(vtkIdType i)

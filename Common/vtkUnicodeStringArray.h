@@ -77,6 +77,7 @@ public:
 //ETX
 
   void InsertNextUTF8Value(const char*);
+  void SetUTF8Value(vtkIdType i, const char*);
   const char* GetUTF8Value(vtkIdType i);
   
 protected:
