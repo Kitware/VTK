@@ -118,8 +118,6 @@ protected:
 
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  virtual void PrepareForRendering(vtkRenderView* view);
-
   //BTX
   class Internals;
   Internals* Implementation;

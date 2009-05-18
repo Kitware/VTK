@@ -49,7 +49,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.8");
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);
 
 vtkRenderedHierarchyRepresentation::vtkRenderedHierarchyRepresentation()
@@ -275,22 +275,6 @@ int vtkRenderedHierarchyRepresentation::RequestData(
       this->GetInternalAnnotationOutputPort());
     }
   return 1;
-}
-
-void vtkRenderedHierarchyRepresentation::PrepareForRendering(vtkRenderView* view)
-{
-  for (size_t i = 0; i < this->Implementation->ActorsToRemove.size(); ++i)
-    {
-    view->GetRenderer()->RemoveActor(this->Implementation->ActorsToRemove[i]);
-    }
-  this->Implementation->ActorsToRemove.clear();
-  for (size_t i = 0; i < this->Implementation->Graphs.size(); ++i)
-    {
-    if (!view->GetRenderer()->HasViewProp(this->Implementation->Graphs[i]->GetActor()))
-      {
-      view->GetRenderer()->AddActor(this->Implementation->Graphs[i]->GetActor());
-      }
-    }
 }
 
 void vtkRenderedHierarchyRepresentation::ApplyViewTheme(vtkViewTheme* theme)

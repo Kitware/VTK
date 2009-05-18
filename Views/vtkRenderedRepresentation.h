@@ -68,7 +68,7 @@ protected:
   // Description:
   // The view will call this method before every render.
   // Representations may add their own pre-render logic here.
-  virtual void PrepareForRendering(vtkRenderView* vtkNotUsed(view)) { }
+  virtual void PrepareForRendering(vtkRenderView* view);
 
   //BTX
   friend class vtkRenderView;
