@@ -77,7 +77,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.8");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -808,13 +808,14 @@ int vtkRenderedTreeAreaRepresentation::RequestData(
   // decreased.
   for (size_t i = numGraphs; i < this->Implementation->Graphs.size(); ++i)
     {
-    this->Implementation->ActorsToRemove.push_back(
-      this->Implementation->Graphs[i]->GetActor());
+    this->RemovePropOnNextRender(this->Implementation->Graphs[i]->GetActor());
     }
   this->Implementation->Graphs.resize(numGraphs);
 
+  // Make sure all hierarchical graph edges inputs are up to date.
   for (size_t i = 0; i < numGraphs; ++i)
     {
+    this->AddPropOnNextRender(this->Implementation->Graphs[i]->GetActor());
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
     p->PrepareInputConnections(
       this->GetInternalOutputPort(1, static_cast<int>(i)),

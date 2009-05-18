@@ -28,6 +28,7 @@
 #include "vtkSmartPointer.h" // for SP ivars
 
 class vtkApplyColors;
+class vtkProp;
 class vtkRenderView;
 class vtkRenderWindow;
 class vtkTextProperty;
@@ -53,6 +54,13 @@ protected:
   vtkRenderedRepresentation();
   ~vtkRenderedRepresentation();
 
+  // Description:
+  // Subclasses may call these methods to add or remove props from the representation.
+  // Use these if the number of props/actors changes as the result of input connection
+  // changes.
+  void AddPropOnNextRender(vtkProp* p);
+  void RemovePropOnNextRender(vtkProp* p);
+
   virtual const char* GetHoverText(
     vtkView* vtkNotUsed(view), int vtkNotUsed(x), int vtkNotUsed(y))
     { return 0; }
@@ -64,6 +72,8 @@ protected:
 
   //BTX
   friend class vtkRenderView;
+  class Internals;
+  Internals* Implementation;
   //ETX
 
   int LabelRenderMode;
