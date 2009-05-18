@@ -138,6 +138,7 @@ vtkTypeUInt32 hashlittle( const void *key, size_t length, vtkTypeUInt32 initval)
   if (HASH_LITTLE_ENDIAN && ((u.i & 0x3) == 0)) {
     const vtkTypeUInt32 *k = (const vtkTypeUInt32 *)key;         /* read 32-bit chunks */
     const vtkTypeUInt8  *k8;
+    (void)k8;
 
     /*------ all but last block: aligned reads and affect 32 bits of (a,b,c) */
     while (length > 12)

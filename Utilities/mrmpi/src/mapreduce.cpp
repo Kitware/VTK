@@ -114,6 +114,7 @@ MapReduce::MapReduce()
 
 MapReduce::MapReduce(double dummy)
 {
+  (void)dummy;
   instance_count++;
   mpi_finalize_flag = 1;
 
@@ -633,10 +634,10 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
 
     MPI_Bcast(line,n,MPI_CHAR,0,comm);
 
-    char *ptr = line;
-    while (isspace(*ptr)) ptr++;
-    if (strlen(ptr) == 0) error->all("Blank line in file of file names");
-    char *ptr2 = ptr + strlen(ptr) - 1;
+    char *ptr1 = line;
+    while (isspace(*ptr1)) ptr1++;
+    if (strlen(ptr1) == 0) error->all("Blank line in file of file names");
+    char *ptr2 = ptr1 + strlen(ptr1) - 1;
     while (isspace(*ptr2)) ptr2--;
     ptr2++;
     *ptr2 = '\0';
@@ -646,9 +647,9 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
       files = (char **)
   memory->srealloc(files,maxfiles*sizeof(char *),"MR:files");
     }
-    n = strlen(ptr) + 1;
+    n = strlen(ptr1) + 1;
     files[nmap] = new char[n];
-    strcpy(files[nmap],ptr);
+    strcpy(files[nmap],ptr1);
     nmap++;
   }
   
@@ -846,13 +847,13 @@ int MapReduce::map_file(int nmap, int nfiles, char **files,
 
   int flag = 0;
   for (int i = 0; i < nfiles; i++) {
-    if (filemap.filesize[i] / filemap.tasksperfile[i] > filemap.delta)
+    if ((vtkTypeInt64)(filemap.filesize[i] / filemap.tasksperfile[i]) > filemap.delta)
       continue;
     flag = 1;
     while (filemap.tasksperfile[i] > 1) {
       filemap.tasksperfile[i]--;
       nmap--;
-      if (filemap.filesize[i] / filemap.tasksperfile[i] > filemap.delta) break;
+      if ((vtkTypeInt64)(filemap.filesize[i] / filemap.tasksperfile[i]) > filemap.delta) break;
     }
   }
 
@@ -933,7 +934,7 @@ void MapReduce::map_file_wrapper(int imap, KeyValue *kv)
   vtkTypeUInt64 readstart = itask*filesize/ntask;
   vtkTypeUInt64 readnext = (itask+1)*filesize/ntask;
   int readsize = readnext - readstart + filemap.delta;
-  readsize = MIN(readsize,filesize-readstart);
+  readsize = MIN(readsize,(vtkTypeInt64)(filesize-readstart));
 
   // read from appropriate file
   // terminate string with NULL
@@ -1430,7 +1431,7 @@ int MapReduce::compare_multivalues_wrapper(int i, int j)
    stats for either KV or KMV
 ------------------------------------------------------------------------- */
 
-void MapReduce::stats(char *heading, int which, int level)
+void MapReduce::stats(const char *heading, int which, int level)
 {
   if (timer) {
     if (timer == 1) {

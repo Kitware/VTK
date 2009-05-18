@@ -315,12 +315,12 @@ void KeyMultiValue::grow_buckets(KeyValue *kv)
   // rehash current unique keys
 
   int *kv_keys = kv->keys;
-  char *keydata = kv->keydata;
+  char *kv_keydata = kv->keydata;
 
   for (int i = 0; i < nunique; i++) {
     uniques[i].next = -1;
     int ikey = uniques[i].keyindex;
-    char *key = &keydata[kv_keys[ikey]];
+    char *key = &kv_keydata[kv_keys[ikey]];
     int keybytes = kv_keys[ikey+1] - kv_keys[ikey];
     int ibucket = hash(key,keybytes);
 
@@ -328,11 +328,11 @@ void KeyMultiValue::grow_buckets(KeyValue *kv)
     if (buckets[ibucket] < 0) buckets[ibucket] = i;
     else {
       int iprevious;
-      int ikey = buckets[ibucket];
-      while (ikey >= 0) {
-  iprevious = ikey;
-  ikey = uniques[ikey].next;
-  depth++;
+      int ikey2 = buckets[ibucket];
+      while (ikey2 >= 0) {
+        iprevious = ikey2;
+        ikey2 = uniques[ikey2].next;
+        depth++;
       }
       uniques[iprevious].next = i;
     }

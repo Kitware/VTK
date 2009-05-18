@@ -122,7 +122,7 @@ class MRMPI_EXPORT MapReduce {
          void (*)(int, char *, int, class KeyValue *, void *),
          void *, int addflag);
   void sort_kv(int);
-  void stats(char *, int, int);
+  void stats(const char *, int, int);
   void histogram(int, double *, double &, double &, double &,
      int, int *, int *);
   void start_timer();
