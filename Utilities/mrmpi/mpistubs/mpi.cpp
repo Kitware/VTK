@@ -31,7 +31,7 @@ void mpi_copy_byte(void *, void *, int);
 
 /* lo-level data structure */
 
-struct {
+struct _double_int {
   double value;
   int proc;
 } double_int;

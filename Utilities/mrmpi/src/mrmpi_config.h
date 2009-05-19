@@ -15,6 +15,7 @@
 #define MRMPI_CONFIG_H
 
 #include "vtkConfigure.h"
+#include "vtkWin32Header.h"
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
  #if defined(mrmpi_EXPORTS)
@@ -25,7 +26,5 @@
 #else
  #define MRMPI_EXPORT
 #endif
-
-#pragma warning ( disable : 4127 ) /* conditional expression is constant */
 
 #endif
