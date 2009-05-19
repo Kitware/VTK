@@ -4,6 +4,7 @@
 
 #include "stddef.h"
 #include "vtkType.h"
+#include "hash.h"
 
 #define HASH_LITTLE_ENDIAN 1       // Intel and AMD are little endian
 
