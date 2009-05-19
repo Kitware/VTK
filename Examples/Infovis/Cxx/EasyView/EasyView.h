@@ -54,7 +54,7 @@ protected slots:
 private:
 
   // Methods
-  void SetupSelectionLink();
+  void SetupAnnotationLink();
   
    
   // Members

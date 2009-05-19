@@ -67,8 +67,8 @@ EasyView::EasyView()
 
 };
 
-// Set up the selection between the vtk and qt views
-void EasyView::SetupSelectionLink()
+// Set up the annotation between the vtk and qt views
+void EasyView::SetupAnnotationLink()
 {
   // Create a selection link and have all the views use it
   VTK_CREATE(vtkAnnotationLink,annLink);
@@ -147,7 +147,12 @@ void EasyView::slotOpenXMLFile()
   toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
 
-  this->SetupSelectionLink();
+  this->SetupAnnotationLink();
+
+  // Update all the views
+  this->TreeView->Update();
+  this->TableView->Update();
+  this->ColumnView->Update();
 }
 
 void EasyView::slotExit() {
