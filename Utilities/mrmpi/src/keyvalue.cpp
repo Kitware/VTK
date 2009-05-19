@@ -296,7 +296,7 @@ void KeyValue::unpack(char *buf)
   keydata_new = &buf[n];
   n += *keysize_new;
   valuedata_new = &buf[n];
-  n += *valuesize_new;
+  // n += *valuesize_new;
 
   // grow memory as needed
 

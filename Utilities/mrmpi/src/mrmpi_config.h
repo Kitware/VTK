@@ -15,7 +15,7 @@
 #define MRMPI_CONFIG_H
 
 #include "vtkConfigure.h"
-#include "vtkWin32Header.h"
+#include "vtkSystemIncludes.h"
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
  #if defined(mrmpi_EXPORTS)

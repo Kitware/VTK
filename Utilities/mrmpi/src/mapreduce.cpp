@@ -823,7 +823,7 @@ int MapReduce::map_file(int nmap, int nfiles, char **files,
 
   int ntasks = 0;
   for (int i = 0; i < nfiles; i++) {
-    filemap.tasksperfile[i] = (int)MAX(1,filemap.filesize[i]/nideal);
+    filemap.tasksperfile[i] = MAX(1,(int)(filemap.filesize[i]/nideal));
     ntasks += filemap.tasksperfile[i];
   }
 
@@ -934,7 +934,7 @@ void MapReduce::map_file_wrapper(int imap, KeyValue *pkv)
   vtkTypeUInt64 readstart = itask*filesize/ntask;
   vtkTypeUInt64 readnext = (vtkTypeUInt64)(itask+1)*filesize/ntask;
   int readsize = (int)(readnext - readstart) + filemap.delta;
-  readsize = MIN(readsize,(vtkTypeInt64)(filesize-readstart));
+  readsize = MIN(readsize,(int)(filesize-readstart));
 
   // read from appropriate file
   // terminate string with NULL
