@@ -21,7 +21,7 @@
 
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.9");
+vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.10");
 
 void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
 {
@@ -48,6 +48,7 @@ vtkGraphLayoutStrategy::vtkGraphLayoutStrategy()
 {
   this->Graph = NULL;
   this->EdgeWeightField = NULL;
+  this->WeightEdges = false;
 }
 
 vtkGraphLayoutStrategy::~vtkGraphLayoutStrategy()
@@ -55,6 +56,21 @@ vtkGraphLayoutStrategy::~vtkGraphLayoutStrategy()
   // Unregister vtk objects that were passed in
   this->SetGraph(NULL);
   this->SetEdgeWeightField(NULL);
+}
+
+void vtkGraphLayoutStrategy::SetWeightEdges(bool state)
+{
+  // This method is a cut and paste of vtkSetMacro
+  // except for the call to Initialize at the end :)
+  if (this->WeightEdges != state) 
+    {
+    this->WeightEdges = state;
+    this->Modified();
+    if(this->Graph)
+      {
+      this->Initialize();
+      }
+    }
 }
 
 void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
@@ -93,5 +109,6 @@ void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->Graph->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "WeightEdges: " << (this->WeightEdges ? "True" : "False") << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
 }

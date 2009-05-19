@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.28");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.29");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -162,7 +162,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   // Get the weight array
   vtkDataArray* weightArray = NULL;
   double weight, maxWeight = 1;
-  if (this->EdgeWeightField != NULL)
+  if (this->WeightEdges && this->EdgeWeightField != NULL)
     {
     weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
     if (weightArray != NULL)
