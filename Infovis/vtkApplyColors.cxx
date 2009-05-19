@@ -35,7 +35,7 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApplyColors, "1.6");
+vtkCxxRevisionMacro(vtkApplyColors, "1.7");
 vtkStandardNewMacro(vtkApplyColors);
 vtkCxxSetObjectMacro(vtkApplyColors, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkApplyColors, CellLookupTable, vtkScalarsToColors);
@@ -152,7 +152,7 @@ int vtkApplyColors::RequestData(
     }
   else
     {
-    colorArr1->SetNumberOfTuples(table->GetNumberOfColumns());
+    colorArr1->SetNumberOfTuples(table->GetNumberOfRows());
     table->AddColumn(colorArr1);
     }
   vtkSmartPointer<vtkUnsignedCharArray> colorArr2 =
@@ -207,9 +207,14 @@ int vtkApplyColors::RequestData(
     unsigned int numAnnotations = layers->GetNumberOfAnnotations();
     for (unsigned int a = 0; a < numAnnotations; ++a)
       {
+      vtkAnnotation* ann = layers->GetAnnotation(a);
+      if (ann->GetInformation()->Has(vtkAnnotation::ENABLED()) && 
+          ann->GetInformation()->Get(vtkAnnotation::ENABLED())==0)
+        {
+        continue;
+        }
       list1->Initialize();
       list2->Initialize();
-      vtkAnnotation* ann = layers->GetAnnotation(a);
       vtkSelection* sel = ann->GetSelection();
       bool hasColor = false;
       bool hasOpacity = false;

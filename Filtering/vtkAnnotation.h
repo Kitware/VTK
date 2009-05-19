@@ -37,6 +37,7 @@
 
 class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
+class vtkInformationIntegerVectorKey;
 class vtkSelection;
 
 class VTK_FILTERING_EXPORT vtkAnnotation : public vtkDataObject
@@ -69,6 +70,11 @@ public:
   // The color for this annotation.
   // This is stored as a value between 0 and 1.
   static vtkInformationDoubleKey* OPACITY();
+  
+  // Description:
+  // Whether or not this annotation is enabled. 
+  // A value of 1 means enabled, 0 disabled.
+  static vtkInformationIntegerKey* ENABLED();
 
   // Description:
   // Initialize the annotation to an empty state.

@@ -23,13 +23,14 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkAnnotation, "1.4");
+vtkCxxRevisionMacro(vtkAnnotation, "1.5");
 vtkStandardNewMacro(vtkAnnotation);
 
 vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
@@ -37,6 +38,7 @@ vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
 vtkInformationKeyMacro(vtkAnnotation, LABEL, String);
 vtkInformationKeyRestrictedMacro(vtkAnnotation, COLOR, DoubleVector, 3);
 vtkInformationKeyMacro(vtkAnnotation, OPACITY, Double);
+vtkInformationKeyMacro(vtkAnnotation, ENABLED, Integer);
 
 vtkAnnotation::vtkAnnotation()
 {
@@ -81,6 +83,21 @@ void vtkAnnotation::ShallowCopy(vtkDataObject* other)
     return;
     }
   this->SetSelection(obj->GetSelection());
+
+  vtkInformation* info = this->GetInformation();
+  vtkInformation* otherInfo = obj->GetInformation();
+  if(otherInfo->Has(vtkAnnotation::ENABLED()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::ENABLED());
+    }
+  if(otherInfo->Has(vtkAnnotation::LABEL()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::LABEL());
+    }
+  if(otherInfo->Has(vtkAnnotation::COLOR()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::COLOR());
+    }
 }
 
 void vtkAnnotation::DeepCopy(vtkDataObject* other)
@@ -94,6 +111,21 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
   vtkSmartPointer<vtkSelection> sel = vtkSmartPointer<vtkSelection>::New();
   sel->DeepCopy(obj->GetSelection());
   this->SetSelection(sel);
+
+  vtkInformation* info = this->GetInformation();
+  vtkInformation* otherInfo = obj->GetInformation();
+  if(otherInfo->Has(vtkAnnotation::ENABLED()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::ENABLED());
+    }
+  if(otherInfo->Has(vtkAnnotation::LABEL()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::LABEL());
+    }
+  if(otherInfo->Has(vtkAnnotation::COLOR()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::COLOR());
+    }
 }
 
 unsigned long vtkAnnotation::GetMTime()

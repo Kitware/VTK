@@ -36,7 +36,9 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
-#include "vtkInformation.h"
+#include "vtkEventQtSlotConnect.h"
+#include <vtkInformation.h>
+#include <vtkInformationIntegerKey.h>
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkQtAnnotationLayersModelAdapter.h"
@@ -48,7 +50,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkQtAnnotationView, "1.4");
+vtkCxxRevisionMacro(vtkQtAnnotationView, "1.5");
 vtkStandardNewMacro(vtkQtAnnotationView);
 
 //----------------------------------------------------------------------------
@@ -103,13 +105,30 @@ void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUse
     return;
 
   QModelIndexList qmi = this->View->selectionModel()->selectedRows();
-  vtkSmartPointer<vtkAnnotationLayers> annotations;
-  annotations.TakeReference(this->Adapter->QModelIndexListToVTKAnnotationLayers(qmi));
-  this->GetRepresentation()->GetAnnotationLink()->SetAnnotationLayers(annotations);
-  this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(annotations.GetPointer()));
+  vtkAnnotationLayers* curLayers = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
+  for(int i=0; i<curLayers->GetNumberOfAnnotations(); ++i)
+    {
+    vtkAnnotation* a = curLayers->GetAnnotation(i);
+    vtkAnnotation::ENABLED()->Set(a->GetInformation(),0);
+    }
 
-  vtkAnnotationLayers* a = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
-  this->LastInputMTime = a->GetMTime();
+  for(int j=0; j<qmi.count(); ++j)
+    {
+    vtkAnnotation* a = curLayers->GetAnnotation(qmi[j].row());
+    vtkAnnotation::ENABLED()->Set(a->GetInformation(),1);
+    }
+
+  //vtkSmartPointer<vtkAnnotationLayers> annotations;
+  //annotations.TakeReference(this->Adapter->QModelIndexListToVTKAnnotationLayers(qmi));
+  //for(int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
+  //  {
+  //  vtkAnnotation* a = annotations->GetAnnotation(i);
+  //  a->ENABLED().Set(1);
+  //  }
+  //this->GetRepresentation()->GetAnnotationLink()->SetAnnotationLayers(annotations);
+  this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(curLayers));
+
+  this->LastInputMTime = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers()->GetMTime();
 }
 
 //----------------------------------------------------------------------------
