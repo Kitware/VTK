@@ -60,12 +60,16 @@ public:
   virtual QWidget* GetWidget();
   
   // Description:
-  // Have the view show/hide its column headers
+  // Have the view show/hide its column headers (default is ON)
   void SetShowHeaders(bool);
 
   // Description:
-  // Have the view alternate its row colors
+  // Have the view alternate its row colors (default is OFF)
   void SetAlternatingRowColors(bool);
+
+  // Description:
+  // Show the root node of the tree (default is OFF)
+  void SetShowRootNode(bool);
 
   // Description:
   // Hide the column of the given index from being shown in the view

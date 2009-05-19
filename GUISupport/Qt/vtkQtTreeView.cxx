@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.10");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.11");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -51,7 +51,8 @@ vtkQtTreeView::vtkQtTreeView()
   // Set up some default properties
   this->TreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   this->TreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-  this->TreeView->setAlternatingRowColors(true);
+  this->SetAlternatingRowColors(false);
+  this->SetShowRootNode(false);
   this->Selecting = false;
   this->CurrentSelectionMTime = 0;
 
@@ -105,6 +106,19 @@ void vtkQtTreeView::SetAlternatingRowColors(bool state)
 }
 
 //----------------------------------------------------------------------------
+void vtkQtTreeView::SetShowRootNode(bool state)
+{
+  if (!state)
+    {
+    this->TreeView->setRootIndex(this->TreeView->model()->index(0,0));
+    }
+  else
+    {
+    this->TreeView->setRootIndex(QModelIndex());
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkQtTreeView::HideColumn(int i) 
 {
   this->TreeView->hideColumn(i);
@@ -112,42 +126,16 @@ void vtkQtTreeView::HideColumn(int i)
 
 //----------------------------------------------------------------------------
 void vtkQtTreeView::AddInputConnection(
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+  vtkAlgorithmOutput* vtkNotUsed(conn), vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
-  // Get a handle to the input data object. Note: For now
-  // we are enforcing that the input data is a tree.
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  vtkTree *tree = vtkTree::SafeDownCast(d);
 
-  // Enforce input
-  if (!tree)
-    {
-    vtkErrorMacro("vtkQtTreeView requires a vtkTree as input");
-    return;
-    }
-
-  // Give the data object to the Qt Tree Adapters
-  this->TreeAdapter->SetVTKDataObject(tree);
-
-  // Now set the Qt Adapters (qt models) on the views
-  this->TreeView->update();
-  this->TreeView->expandAll();
-  this->TreeView->resizeColumnToContents(0);
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTreeView::RemoveInputConnection(
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+  vtkAlgorithmOutput* vtkNotUsed(conn), vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
-  // Remove VTK data from the adapter
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  if (this->TreeAdapter->GetVTKDataObject() == d)
-    {
-    this->TreeAdapter->SetVTKDataObject(0);
-    this->TreeView->update();
-    }
+
 }
 
 //----------------------------------------------------------------------------
@@ -230,6 +218,9 @@ void vtkQtTreeView::Update()
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
     {
+    // Remove VTK data from the adapter
+    this->TreeAdapter->SetVTKDataObject(0);
+    this->TreeView->update();
     return;
     }
   rep->Update();
@@ -238,13 +229,30 @@ void vtkQtTreeView::Update()
   vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
   alg->Update();
   vtkDataObject *d = alg->GetOutputDataObject(0);
-  this->TreeAdapter->SetVTKDataObject(d);
-  
-  // Update the VTK selection
-  this->SetVTKSelection();
-  
-  // Refresh the view
-  this->TreeView->update();    
+  vtkTree *tree = vtkTree::SafeDownCast(d);
+
+  // Enforce input
+  if (!tree)
+    {
+    vtkErrorMacro("vtkQtTreeView requires a vtkTree as input");
+    return;
+    }
+
+  // See if this is the same tree I already have
+  if ((this->TreeAdapter->GetVTKDataObject() != tree) ||
+      (this->TreeAdapter->GetVTKDataObjectMTime() != tree->GetMTime()))
+    {
+    this->TreeAdapter->SetVTKDataObject(tree);
+    
+    // Refresh the view
+    this->TreeView->update();  
+    this->TreeView->expandAll();
+    this->TreeView->resizeColumnToContents(0);
+    this->SetShowRootNode(false);
+
+    // Update the VTK selection
+    this->SetVTKSelection();
+    }
 }
 
 //----------------------------------------------------------------------------
