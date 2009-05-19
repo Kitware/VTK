@@ -317,9 +317,6 @@ IF(VTK_USE_QT)
     INCLUDE( ${CMAKE_ROOT}/Modules/FindQt${DESIRED_QT_VERSION}.cmake )
     IF(NOT QT_FOUND)
       MESSAGE("Qt was not found")
-    ELSE(NOT QT_FOUND)
-      # Enable dependencies on Qt headers.
-      INCLUDE_REGULAR_EXPRESSION("^(vtk|Q).*$")
     ENDIF(NOT QT_FOUND)
   ENDIF(DESIRED_QT_VERSION MATCHES 0)
 ENDIF(VTK_USE_QT)
@@ -468,7 +465,7 @@ ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies except *Implicit.txx files.
   SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
 ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-INCLUDE_REGULAR_EXPRESSION("^((lex|png|j|z|t|D|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
+INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
 # Determine the set of language wrappers that should be built.
