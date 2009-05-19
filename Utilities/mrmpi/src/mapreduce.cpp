@@ -564,8 +564,8 @@ int MapReduce::map(int nmap, void (*appmap)(int, KeyValue *, void *),
       }
 
     } else {
-      int itask = 0;
-      while (itask >= 0) {
+      while (1) {
+        int itask;
         MPI_Recv(&itask,1,MPI_INT,0,0,comm,&status);
         if (itask < 0) break;
         appmap(itask,kv,ptr);
@@ -702,8 +702,8 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
       }
 
     } else {
-      int itask = 0;
-      while (itask >= 0) {
+      while (1) {
+        int itask;
         MPI_Recv(&itask,1,MPI_INT,0,0,comm,&status);
         if (itask < 0) break;
         appmap(itask,files[itask],kv,ptr);
