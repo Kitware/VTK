@@ -52,6 +52,15 @@ public:
   // Set/Get the VTK data object as input to this adapter
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
+
+  // Description:
+  // Get the stored VTK data object modification time of when the
+  // adaption to a Qt model was done. This is in general not the 
+  // same this as the data objects modification time. It is the mod 
+  // time of the object when it was placed into the Qt model adapter. 
+  // You can use this mtime as part of the checking to see whether 
+  // you need to update the the adapter by call SetVTKDataObject again. :)
+  unsigned long GetVTKDataObjectMTime() const;
   
   // Description:
   // Selection conversion from VTK land to Qt land

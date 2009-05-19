@@ -91,6 +91,11 @@ vtkDataObject* vtkQtTreeModelAdapter::GetVTKDataObject() const
   return this->Tree;
 }
 
+unsigned long vtkQtTreeModelAdapter::GetVTKDataObjectMTime() const
+{
+  return this->TreeMTime;
+}
+
 void vtkQtTreeModelAdapter::setTree(vtkTree* t)
 {
   if (!t || (t != this->Tree))
