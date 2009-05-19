@@ -312,7 +312,7 @@ int main(int argc, char** argv)
     view->Update();
 
     view->Render();
-    view->GetInteractor()->Start();
+//    view->GetInteractor()->Start();
 
 
     /*
