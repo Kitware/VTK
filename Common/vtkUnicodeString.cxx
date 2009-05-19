@@ -259,6 +259,8 @@ bool vtkUnicodeString::empty() const
   return this->Storage.empty();
 }
 
+const vtkUnicodeString::size_type vtkUnicodeString::npos = vtkstd::string::npos;
+
 vtkUnicodeString& vtkUnicodeString::operator+=(value_type value)
 {
   this->push_back(value);
@@ -383,6 +385,21 @@ vtkUnicodeString vtkUnicodeString::fold_case() const
 int vtkUnicodeString::compare(const vtkUnicodeString& rhs) const
 {
   return this->Storage.compare(rhs.Storage);
+}
+
+vtkUnicodeString vtkUnicodeString::substr(size_type offset, size_type count) const
+{
+  vtkstd::string::const_iterator from = this->Storage.begin();
+  vtkstd::string::const_iterator end = this->Storage.end();
+
+  while(from != end && offset--)
+    vtk_utf8::unchecked::advance(from, 1);
+
+  vtkstd::string::const_iterator to = from;
+  while(to != end && count--)
+    vtk_utf8::unchecked::advance(to, 1);
+
+  return vtkUnicodeString(from, to);
 }
 
 void vtkUnicodeString::swap(vtkUnicodeString& rhs)

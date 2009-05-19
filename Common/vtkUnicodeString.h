@@ -154,7 +154,11 @@ public:
   // Description:
   // Returns true if the string contains an empty sequence.
   bool empty() const;
- 
+
+  // Description:
+  // The largest representable value of size_type, used as a special-code.
+  static const size_type npos;
+
   // Description:
   // Append a Unicode character to the end of the sequence.
   vtkUnicodeString& operator+=(value_type); 
@@ -198,6 +202,11 @@ public:
   // is undefined, so you should use some other method if you wish to
   // establish a specific ordering (such as alphabetical).
   int compare(const vtkUnicodeString&) const;
+
+  // Description:
+  // Returns a subset of the current sequence that up-to 'count' characters in length,
+  // starting at character 'offset'. 
+  vtkUnicodeString substr(size_type offset = 0, size_type count = npos) const;
   
   // Description:
   // Swap the sequences stored by two strings.

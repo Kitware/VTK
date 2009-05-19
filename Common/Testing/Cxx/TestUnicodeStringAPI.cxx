@@ -109,6 +109,10 @@ int TestUnicodeStringAPI(int, char*[])
     test_expression(a[1] == 0x00000020);
     test_expression(a[2] == 0x00010000);
     test_expression(a[3] == 0x00010001);
+
+    a = vtkUnicodeString::from_utf8("Hello, World!");
+    test_expression(a.substr(7) == vtkUnicodeString::from_utf8("World!"));
+    test_expression(a.substr(1, 4) == vtkUnicodeString::from_utf8("ello"));
   
     return 0;
     }
