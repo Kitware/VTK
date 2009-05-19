@@ -287,10 +287,11 @@ int main(int argc, char** argv)
     {
     // Display the output
     VTK_CREATE(vtkGraphLayoutView, view);
-    VTK_CREATE(vtkRenderWindow, win);
-    view->SetupRenderWindow(win);
+//    VTK_CREATE(vtkRenderWindow, win);
+//    view->SetupRenderWindow(win);
     //view->AddRepresentationFromInputConnection(category->GetOutputPort());
-    view->AddRepresentationFromInput(output);
+//    view->AddRepresentationFromInput(output);
+    view->SetRepresentationFromInput(output);
     //view->SetVertexLabelArrayName("email");
     //view->VertexLabelVisibilityOn();
     //view->SetVertexColorArrayName("category");
@@ -303,19 +304,25 @@ int main(int argc, char** argv)
     view->SetEdgeLayoutStrategyToPassThrough();
     view->SetLayoutStrategyToFast2D();
     //view->SetLayoutStrategyToSimple2D();
-    view->GetRenderer()->ResetCamera();
+    view->ResetCamera();
     vtkSmartPointer<vtkViewTheme> theme;
     theme.TakeReference(vtkViewTheme::CreateMellowTheme());
     //theme->SetCellOpacity(0.02);
     view->ApplyViewTheme(theme);
     view->Update();
 
+    view->Render();
+    view->GetInteractor()->Start();
+
+
+    /*
     int retVal = vtkRegressionTestImage(win);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
       {
       win->GetInteractor()->Start();
       retVal = vtkRegressionTester::PASSED;
       }
+    */
     }
 
   MPI_Finalize();
