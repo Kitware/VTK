@@ -42,7 +42,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.13");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.14");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -225,6 +225,7 @@ int vtkQuadraturePointsGenerator::Generate(vtkUnstructuredGrid *usgIn,
         {
         vtkDebugMacro("Failed to interpolate cell vertices "
             "to quadrature points. Aborting.");
+        delete[] dict;
         return 0;
         }
       break;
@@ -237,11 +238,13 @@ int vtkQuadraturePointsGenerator::Generate(vtkUnstructuredGrid *usgIn,
         {
         vtkDebugMacro("Failed to interpolate cell vertices "
             "to quadrature points. Aborting.");
+        delete[] dict;
         return 0;
         }
       break;
       }
     }
+  delete[] dict;
 
   // Add the interpolated quadrature points to the output
   vtkIdType nVerts = qPts->GetNumberOfTuples();
@@ -288,7 +291,7 @@ int vtkQuadraturePointsGenerator::Generate(vtkUnstructuredGrid *usgIn,
       continue;
       }
 
-    GenerateField(usgIn, array, offsets, pdOut);
+    this->GenerateField(usgIn, array, offsets, pdOut);
     }
 
   return 1;
