@@ -71,7 +71,7 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
   view->SetLabelRenderModeToQt();
-  view->SetupRenderWindow(win);
+  //view->SetupRenderWindow(win);
 
   // Create the terrain
   vtkSmartPointer<vtkGeoTerrain2D> terrain =

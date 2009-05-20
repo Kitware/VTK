@@ -12,6 +12,7 @@ IF (VTK_USE_DISPLAY)
       TestGeoGraticule.cxx
       TestGeoProjection.cxx
       TestGeoView2D.cxx
+      TestGeoView2DPopulation.cxx
       TestGeoView.cxx
       TestLabeledGeoView2D.cxx
       )
