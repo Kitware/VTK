@@ -42,7 +42,14 @@ int compare_keys_standalone(const void *, const void *);
 int compare_values_standalone(const void *, const void *);
 int compare_multivalues_standalone(const void *, const void *);
 
+#ifdef MIN
+#  undef MIN
+#endif
 #define MIN(A,B) ((A) < (B)) ? (A) : (B)
+
+#ifdef MAX
+#  undef MAX
+#endif
 #define MAX(A,B) ((A) > (B)) ? (A) : (B)
 
 #define FILECHUNK 1

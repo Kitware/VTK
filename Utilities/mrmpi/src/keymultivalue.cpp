@@ -23,7 +23,14 @@
 
 using namespace MAPREDUCE_NS;
 
+#ifdef MIN
+#  undef MIN
+#endif
 #define MIN(A,B) ((A) < (B)) ? (A) : (B)
+
+#ifdef MAX
+#  undef MAX
+#endif 
 #define MAX(A,B) ((A) > (B)) ? (A) : (B)
 
 #define KEYCHUNK 25000000

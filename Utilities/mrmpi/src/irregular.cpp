@@ -20,6 +20,9 @@
 
 using namespace MAPREDUCE_NS;
 
+#ifdef MAX
+#  undef MAX
+#endif 
 #define MAX(A,B) ((A) > (B)) ? (A) : (B)
 
 enum{UNSET,SET};
