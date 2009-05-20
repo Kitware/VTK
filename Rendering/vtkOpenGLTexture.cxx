@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.75");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.76");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -40,6 +40,8 @@ vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->Index = 0;
   this->RenderWindow = 0;
+  this->CheckedHardwareSupport=false;
+  this->SupportsNonPowerOfTwoTextures=false;
 }
 
 vtkOpenGLTexture::~vtkOpenGLTexture()
@@ -65,7 +67,7 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
     static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1
     // free any textures
-    if (glIsTexture(this->Index))
+    if (glIsTexture(static_cast<GLuint>(this->Index)))
       {
       GLuint tempIndex;
       tempIndex = this->Index;
@@ -82,6 +84,8 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
     }
   this->Index = 0;
   this->RenderWindow = NULL;
+  this->CheckedHardwareSupport=false;
+  this->SupportsNonPowerOfTwoTextures=false;
   this->Modified();
 }
 
@@ -103,7 +107,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   vtkOpenGLRenderWindow* renWin = 
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
 
-  if(this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE && vtkgl::ActiveTexture)
+  if(this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE
+     && vtkgl::ActiveTexture)
     {
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, vtkgl::COMBINE);
 
@@ -167,7 +172,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     int rowLength;
     unsigned char *resultData=NULL;
     int xsize, ysize;
-    unsigned short xs,ys;
+    unsigned int xs,ys;
     GLuint tempIndex=0;
 
     // Get the scalars the user choose to color with.
@@ -233,36 +238,46 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
           }
         }
       }
-
-    // xsize and ysize must be a power of 2 in OpenGL
-    xs = static_cast<unsigned short>(xsize);
-    ys = static_cast<unsigned short>(ysize);
-    while (!(xs & 0x01))
+    
+    
+    if(!this->CheckedHardwareSupport)
       {
-      xs = xs >> 1;
+      vtkOpenGLExtensionManager *m=renWin->GetExtensionManager();
+      this->CheckedHardwareSupport=true;
+      this->SupportsNonPowerOfTwoTextures=
+        m->ExtensionSupported("GL_VERSION_2_0")
+        || m->ExtensionSupported("GL_ARB_texture_non_power_of_two");
       }
-    while (!(ys & 0x01))
-      {
-      ys = ys >> 1;
-      }
-
+    
     // -- decide whether the texture needs to be resampled --
-    int resampleNeeded = 0;
-    // if not a power of two then resampling is required
-    if ((xs > 1)||(ys > 1))
-      {
-      resampleNeeded = 1;
-      }
+    
     GLint maxDimGL;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
     // if larger than permitted by the graphics library then must resample
-    if ( xsize > maxDimGL || ysize > maxDimGL )
+    bool resampleNeeded=xsize > maxDimGL || ysize > maxDimGL;
+    if(resampleNeeded)
       {
       vtkDebugMacro( "Texture too big for gl, maximum is " << maxDimGL);
-      resampleNeeded = 1;
+      }
+    
+    if(!resampleNeeded && !this->SupportsNonPowerOfTwoTextures)
+      {
+      // xsize and ysize must be a power of 2 in OpenGL
+      xs = static_cast<unsigned int>(xsize);
+      ys = static_cast<unsigned int>(ysize);
+      while (!(xs & 0x01))
+        {
+        xs = xs >> 1;
+        }
+      while (!(ys & 0x01))
+        {
+        ys = ys >> 1;
+        }
+      // if not a power of two then resampling is required
+      resampleNeeded= (xs>1) || (ys>1);
       }
 
-    if ( resampleNeeded )
+    if(resampleNeeded)
       {
       vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
       resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr, 
@@ -295,7 +310,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
       for (col = 0; col < ysize; col++)
         {
-        memcpy(dest,src,srcLength);
+        memcpy(dest,src,static_cast<size_t>(srcLength));
         src += srcLength;
         dest += rowLength;
         }
@@ -356,8 +371,10 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
            (manager->ExtensionSupported("GL_VERSION_1_2") ||
             manager->ExtensionSupported("GL_EXT_texture_edge_clamp")))
         {
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                         vtkgl::CLAMP_TO_EDGE );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                         vtkgl::CLAMP_TO_EDGE );
         }
       else
         {
@@ -416,7 +433,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 #ifdef GL_VERSION_1_1
   glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
-  glCallList ((GLuint) this->Index);
+  glCallList(this->Index);
 #endif
   
   // don't accept fragments if they have zero opacity. this will stop the
@@ -483,7 +500,8 @@ static int FindPowerOfTwo(int i)
     i /= 2;
     }
 
-  // [these lines added by Tim Hutton (implementing Joris Vanden Wyngaerd's suggestions)]
+  // [these lines added by Tim Hutton (implementing Joris Vanden Wyngaerd's
+  // suggestions)]
   // limit the size of the texture to the maximum allowed by OpenGL
   // (slightly more graceful than texture failing but not ideal)
   GLint maxDimGL;
@@ -497,13 +515,16 @@ static int FindPowerOfTwo(int i)
   return size;
 }
 
-// Creates resampled unsigned char texture map that is a power of two in both x and y.
-unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned char *dptr,
+// Creates resampled unsigned char texture map that is a power of two in both
+// x and y.
+unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
+                                                      int &ys,
+                                                      unsigned char *dptr,
                                                       int bpp)
 {
   unsigned char *tptr, *p, *p1, *p2, *p3, *p4;
   int xsize, ysize, i, j, k, jOffset, iIdx, jIdx;
-  float pcoords[3], hx, hy, rm, sm, w0, w1, w2, w3;
+  double pcoords[3], hx, hy, rm, sm, w0, w1, w2, w3;
 
   xsize = FindPowerOfTwo(xs);
   ysize = FindPowerOfTwo(ys);
@@ -518,12 +539,13 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
       ysize /= 2;
       }
     }
-  hx = static_cast<float>(xs - 1.0) / (xsize - 1.0);
-  hy = static_cast<float>(ys - 1.0) / (ysize - 1.0);
+  hx = (xs - 1.0) / (xsize - 1.0);
+  hy = (ys - 1.0) / (ysize - 1.0);
 
   tptr = p = new unsigned char[xsize*ysize*bpp];
 
-  //Resample from the previous image. Compute parametric coordinates and interpolate
+  // Resample from the previous image. Compute parametric coordinates and
+  // interpolate
   for (j=0; j < ysize; j++)
     {
     pcoords[1] = j*hy;

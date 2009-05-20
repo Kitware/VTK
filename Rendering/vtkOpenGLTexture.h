@@ -61,8 +61,10 @@ protected:
                                       unsigned char *dptr, int bpp);
 
   vtkTimeStamp   LoadTime;
-  long          Index;
+  unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
+  bool CheckedHardwareSupport;
+  bool SupportsNonPowerOfTwoTextures;
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
   void operator=(const vtkOpenGLTexture&);  // Not implemented.
