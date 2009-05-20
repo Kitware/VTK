@@ -16,9 +16,7 @@ source.SetStartWithTree(True)
 
 # Create a 3D geospatial view
 view = vtkGeoView()
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
+view.GetRenderWindow().SetSize(600, 600)
 
 # Create the background image
 reader = vtkJPEGReader()
@@ -27,22 +25,23 @@ reader.Update()
 view.AddDefaultImageRepresentation(reader.GetOutput())
 
 # Create graph
-graph_rep = vtkGeoGraphRepresentation()
+graph_rep = vtkRenderedGraphRepresentation()
 graph_rep.SetInputConnection(source.GetOutputPort())
 graph_rep.SetVertexColorArrayName("vertex id")
-graph_rep.ColorVerticesOn()
+graph_rep.ColorVerticesByArrayOn()
 graph_rep.SetEdgeColorArrayName("edge id")
-graph_rep.ColorEdgesOn()
+graph_rep.ColorEdgesByArrayOn()
 graph_rep.SetVertexLabelArrayName("vertex id")
 graph_rep.VertexLabelVisibilityOn()
-graph_rep.SetExplodeFactor(.1)
+graph_rep.SetLayoutStrategyToAssignCoordinates("longitude", "latitude", None)
+strategy = vtkGeoEdgeStrategy()
+strategy.SetExplodeFactor(.1)
+graph_rep.SetEdgeLayoutStrategy(strategy)
 view.AddRepresentation(graph_rep)
 
 # Make a normal graph layout view
 view2 = vtkGraphLayoutView()
-window2 = vtkRenderWindow()
-window2.SetSize(600, 600)
-view2.SetupRenderWindow(window2)
+view2.GetRenderWindow().SetSize(600, 600)
 view2.AddRepresentationFromInputConnection(source.GetOutputPort())
 view2.SetVertexColorArrayName("vertex id")
 view2.ColorVerticesOn()
@@ -61,21 +60,22 @@ theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
 graph_rep.ApplyViewTheme(theme)
 view2.ApplyViewTheme(theme)
+theme.FastDelete()
 
-link = vtkSelectionLink()
-graph_rep.SetSelectionLink(link)
-view2.GetRepresentation(0).SetSelectionLink(link)
+link = vtkAnnotationLink()
+graph_rep.SetAnnotationLink(link)
+view2.GetRepresentation(0).SetAnnotationLink(link)
 
 updater = vtkViewUpdater()
 updater.AddView(view)
 updater.AddView(view2)
 
-view.GetRenderer().ResetCamera()
-view2.GetRenderer().ResetCamera()
+view.ResetCamera()
+view2.ResetCamera()
 
-window.Render()
-window2.Render()
+view.Render()
+view2.Render()
 
-window.GetInteractor().Initialize()
-window.GetInteractor().Start()
+view.GetInteractor().Initialize()
+view.GetInteractor().Start()
 

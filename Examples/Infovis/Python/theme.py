@@ -9,12 +9,10 @@ theme = vtkViewTheme.CreateMellowTheme()
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
+view.GetRenderWindow().SetSize(600, 600)
 view.SetVertexColorArrayName("VertexDegree");
 view.SetColorVertices(True);
-view.GetRenderer().ResetCamera()
-window.Render()
-window.GetInteractor().Start()
+view.ResetCamera()
+view.Render()
+view.GetInteractor().Start()
 

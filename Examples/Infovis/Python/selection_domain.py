@@ -7,8 +7,7 @@ def setup_view(link, file, domain1, domain2, hue_range):
   reader.SetFileName(file)
 
   ttg = vtkTableToGraph()
-  ttg.SetInputConnection(reader.GetOutputPort())
-  ttg.SetInputConnection(reader.GetOutputPort())
+  ttg.SetInputConnection(0, reader.GetOutputPort())
   ttg.AddLinkVertex(domain1, domain1, False)
   ttg.AddLinkVertex(domain2, domain2, False)
   ttg.AddLinkEdge(domain1, domain2)
@@ -18,16 +17,14 @@ def setup_view(link, file, domain1, domain2, hue_range):
   cat.SetInputArrayToProcess(0,0,0,4,"domain")
 
   view = vtkGraphLayoutView()
-  view.SetSelectionType(2)
   view.SetVertexLabelArrayName("label")
   view.VertexLabelVisibilityOn()
   view.SetVertexColorArrayName("category")
   view.ColorVerticesOn()
   rep = view.AddRepresentationFromInputConnection(cat.GetOutputPort())
-  rep.SetSelectionLink(link)
-  win = vtkRenderWindow()
-  win.SetSize(500,500)
-  view.SetupRenderWindow(win)
+  rep.SetSelectionType(2)
+  rep.SetAnnotationLink(link)
+  view.GetRenderWindow().SetSize(500,500)
   theme = vtkViewTheme.CreateMellowTheme()
   theme.SetLineWidth(5)
   theme.SetCellOpacity(0.9)
@@ -38,11 +35,12 @@ def setup_view(link, file, domain1, domain2, hue_range):
   theme.SetSelectedCellColor(1,0,1)
   theme.SetSelectedPointColor(1,0,1)
   view.ApplyViewTheme(theme)
+  theme.FastDelete()
 
-  view.GetRenderer().ResetCamera()
-  win.Render()
+  view.ResetCamera()
+  view.Render()
 
-  return (view, win)
+  return view
 
 if __name__ == "__main__":
   data_dir = "../../../../VTKData/Data/Infovis/"
@@ -52,13 +50,13 @@ if __name__ == "__main__":
   dt_reader.SetHaveHeaders(True)
   dt_reader.SetFileName(data_dir + "document-term.csv")
   dt_reader.Update()
-  link = vtkSelectionLink()
+  link = vtkAnnotationLink()
   link.AddDomainMap(dt_reader.GetOutput())
 
-  (tc_view, tc_win) = setup_view(
+  tc_view = setup_view(
     link, data_dir + "term-concept.csv",
     "term", "concept", [0.2, 0.0])
-  (pd_view, pd_win) = setup_view(
+  pd_view = setup_view(
     link, data_dir + "person-document.csv",
     "person", "document", [0.75, 0.25])
 
@@ -66,6 +64,5 @@ if __name__ == "__main__":
   updater.AddView(tc_view)
   updater.AddView(pd_view)
 
-  tc_win.GetInteractor().Initialize()
-  tc_win.GetInteractor().Start()
+  tc_view.GetInteractor().Start()
 

@@ -64,19 +64,19 @@ view2.SetLayoutStrategy(forceStrat)
 #view2.SetLayoutStrategy(treeStrat)
 
 # Make sure all views are using a pedigree id selection
-view.SetSelectionType(2)
-view2.SetSelectionType(2)
+view.GetRepresentation(0).SetSelectionType(2)
+view2.GetRepresentation(0).SetSelectionType(2)
 
 # Create a selection link and set both view to use it
-#selectionLink = vtkSelectionLink()
-#view.GetRepresentation(0).SetSelectionLink(selectionLink)
-#view2.GetRepresentation(0).SetSelectionLink(selectionLink)
+annotationLink = vtkAnnotationLink()
+view.GetRepresentation(0).SetAnnotationLink(annotationLink)
+view2.GetRepresentation(0).SetAnnotationLink(annotationLink)
+annotationLink.SetCurrentSelection(mstTreeSelection.GetOutput())
 
-# Set the selection to be the MST
-view.GetRepresentation(0).GetSelectionLink().SetSelection(mstTreeSelection.GetOutput())
-
-# Set the selection to be the MST
-view2.GetGraphRepresentation().GetSelectionLink().SetSelection(mstTreeSelection.GetOutput())
+# Make updater to update views on selection change
+updater = vtkViewUpdater()
+updater.AddView(view)
+updater.AddView(view2)
 
 # Set the theme on the view
 theme = vtkViewTheme.CreateMellowTheme()
@@ -89,17 +89,13 @@ theme.SetLineWidth(1)
 view2.ApplyViewTheme(theme)
 theme.FastDelete()
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
-window.Render()
+view.GetRenderWindow().SetSize(600, 600)
+view.ResetCamera()
+view.Render()
 
-window2 = vtkRenderWindow()
-window2.SetSize(600, 600)
-view2.SetupRenderWindow(window2)
-view2.GetRenderer().ResetCamera()
-window2.Render()
+view2.GetRenderWindow().SetSize(600, 600)
+view2.ResetCamera()
+view2.Render()
 
-window.GetInteractor().Start()
+view.GetInteractor().Start()
 

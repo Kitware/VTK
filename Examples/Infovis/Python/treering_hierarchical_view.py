@@ -46,18 +46,11 @@ view.ApplyViewTheme(theme)
 view2.ApplyViewTheme(theme)
 theme.FastDelete()
 
-win = vtkRenderWindow()
-view.SetupRenderWindow(win)
-view.GetRenderer().ResetCamera()
-win.Render()
+view.ResetCamera()
+view.Render()
 
-win2 = vtkRenderWindow()
-view2.SetupRenderWindow(win2)
-view2.GetRenderer().ResetCamera()
-win2.Render()
+view2.ResetCamera()
+view2.Render()
 
-win.GetInteractor().Initialize()
-win2.GetInteractor().Initialize()
-
-win.GetInteractor().Start()
+view.GetInteractor().Start()
 

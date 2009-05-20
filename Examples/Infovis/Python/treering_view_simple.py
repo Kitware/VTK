@@ -19,10 +19,7 @@ theme = vtkViewTheme.CreateMellowTheme()
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 
-win = vtkRenderWindow()
-view.SetupRenderWindow(win)
-view.GetRenderer().ResetCamera()
-win.Render()
+view.ResetCamera()
+view.Render()
 
-win.GetInteractor().Initialize()
-win.GetInteractor().Start()
+view.GetInteractor().Start()

@@ -31,11 +31,11 @@ view.SetEdgeColorArrayName("centrality")
 view.SetColorEdges(True)
 view.SetLayoutStrategyToSimple2D()
 
-# Make sure the view is using a pedigree id selection
-view.SetSelectionType(2)
+# Make sure the representation is using a pedigree id selection
+view.GetRepresentation(0).SetSelectionType(2)
 
 # Set the selection to be the MST
-view.GetRepresentation(0).GetSelectionLink().SetSelection(mstTreeSelection.GetOutput())
+view.GetRepresentation(0).GetAnnotationLink().SetCurrentSelection(mstTreeSelection.GetOutput())
 
 # Set the theme on the view
 theme = vtkViewTheme.CreateMellowTheme()
@@ -48,11 +48,9 @@ view.ApplyViewTheme(theme)
 theme.FastDelete()
 view.SetVertexLabelFontSize(14)
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
-window.Render()
+view.GetRenderWindow().SetSize(600, 600)
+view.ResetCamera()
+view.Render()
 
-window.GetInteractor().Start()
+view.GetInteractor().Start()
 

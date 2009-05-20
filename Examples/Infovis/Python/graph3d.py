@@ -24,11 +24,9 @@ theme.SetPointSize(10)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
-window.Render()
+view.GetRenderWindow().SetSize(600, 600)
+view.ResetCamera()
+view.Render()
 
 #Here's the window with David's original layout methodology
 #  Aside from the theme elements in the view above, the notable 
@@ -83,4 +81,4 @@ iren.SetRenderWindow(renWin)
 iren.Initialize()
 #iren.Start()
 
-window.GetInteractor().Start()
+view.GetInteractor().Start()

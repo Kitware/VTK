@@ -14,11 +14,9 @@ tree.CheckedShallowCopy(graph)
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInput(tree)
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
-window.Render()
-window.GetInteractor().Start()
+view.GetRenderWindow().SetSize(600, 600)
+view.ResetCamera()
+view.Render()
+view.GetInteractor().Start()
 
 

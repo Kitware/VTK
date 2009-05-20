@@ -34,11 +34,9 @@ theme.SetCellOpacity(1)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
-window.Render()
+view.GetRenderWindow().SetSize(600, 600)
+view.ResetCamera()
+view.Render()
 
-window.GetInteractor().Start()
+view.GetInteractor().Start()
 

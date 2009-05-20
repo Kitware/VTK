@@ -53,10 +53,8 @@ view.SetEdgeColorArrayName("edge weight")
 view.SetColorEdges(True)
 view.SetEdgeLabelArrayName("edge weight")
 view.SetEdgeLabelVisibility(True)
-view.TreeEdgeVisibilityOn()
 view.SetLayoutStrategy(forceStrat)
 view.SetBundlingStrength(.8)
-view.TreeEdgeVisibilityOn()
 
 
 # Set up the theme
@@ -65,10 +63,8 @@ theme.SetCellColor(.2,.2,.6)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 
-window = vtkRenderWindow()
-window.SetSize(600, 600)
-view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
-window.Render()
+view.GetRenderWindow().SetSize(600, 600)
+view.ResetCamera()
+view.Render()
 
-window.GetInteractor().Start()
+view.GetInteractor().Start()

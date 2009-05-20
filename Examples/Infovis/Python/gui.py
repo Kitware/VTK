@@ -39,12 +39,10 @@ window.show()
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(source.GetOutputPort())
 
-render_window = vtkRenderWindow()
-render_window.SetSize(600, 600)
-view.SetupRenderWindow(render_window)
+view.GetRenderWindow().SetSize(600, 600)
 
 # This initializes the VTK window for interaction, but doesn't start an event-loop ...
-render_window.Start()
+view.GetRenderWindow().Start()
 
 # Start the Qt event-loop ...
 application.exec_()
