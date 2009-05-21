@@ -390,13 +390,13 @@ int vtkUnicodeString::compare(const vtkUnicodeString& rhs) const
 vtkUnicodeString vtkUnicodeString::substr(size_type offset, size_type count) const
 {
   vtkstd::string::const_iterator from = this->Storage.begin();
-  vtkstd::string::const_iterator end = this->Storage.end();
+  vtkstd::string::const_iterator last = this->Storage.end();
 
-  while(from != end && offset--)
+  while(from != last && offset--)
     vtk_utf8::unchecked::advance(from, 1);
 
   vtkstd::string::const_iterator to = from;
-  while(to != end && count--)
+  while(to != last && count--)
     vtk_utf8::unchecked::advance(to, 1);
 
   return vtkUnicodeString(from, to);
