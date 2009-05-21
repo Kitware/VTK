@@ -38,9 +38,12 @@ int MapReduce::mpi_finalize_flag = 0;
 // prototypes for non-class functions
 
 void map_file_standalone(int nmap, KeyValue *ptr, void *data);
-int compare_keys_standalone(const void *, const void *);
-int compare_values_standalone(const void *, const void *);
-int compare_multivalues_standalone(const void *, const void *);
+
+extern "C" {
+  int compare_keys_standalone(const void *, const void *);
+  int compare_values_standalone(const void *, const void *);
+  int compare_multivalues_standalone(const void *, const void *);
+};
 
 #ifdef MIN
 #  undef MIN
@@ -1401,9 +1404,11 @@ void MapReduce::sort_kv(int flag)
    standalone calls back into class wrapper which calls user compare()
 ------------------------------------------------------------------------- */
 
-int compare_keys_standalone(const void *iptr, const void *jptr)
-{
-  return MapReduce::mrptr->compare_keys_wrapper(*(int *) iptr,*(int *) jptr);
+extern "C" {
+  int compare_keys_standalone(const void *iptr, const void *jptr)
+  {
+    return MapReduce::mrptr->compare_keys_wrapper(*(int *) iptr,*(int *) jptr);
+  }
 }
 
 int MapReduce::compare_keys_wrapper(int i, int j)
@@ -1412,9 +1417,11 @@ int MapReduce::compare_keys_wrapper(int i, int j)
      &kv->keydata[kv->keys[j]],kv->keys[j+1]-kv->keys[j]);
 }
 
-int compare_values_standalone(const void *iptr, const void *jptr)
-{
-  return MapReduce::mrptr->compare_values_wrapper(*(int *) iptr,*(int *) jptr);
+extern "C" {
+  int compare_values_standalone(const void *iptr, const void *jptr)
+  {
+    return MapReduce::mrptr->compare_values_wrapper(*(int *) iptr,*(int *) jptr);
+  }
 }
 
 int MapReduce::compare_values_wrapper(int i, int j)
@@ -1423,12 +1430,13 @@ int MapReduce::compare_values_wrapper(int i, int j)
      &kv->valuedata[kv->values[j]],kv->values[j+1]-kv->values[j]);
 }
 
-int compare_multivalues_standalone(const void *iptr, const void *jptr)
-{
-  return MapReduce::mrptr->
-    compare_multivalues_wrapper(*(int *) iptr,*(int *) jptr);
+extern "C" {
+  int compare_multivalues_standalone(const void *iptr, const void *jptr)
+  {
+    return MapReduce::mrptr->
+      compare_multivalues_wrapper(*(int *) iptr,*(int *) jptr);
+  }
 }
-
 int MapReduce::compare_multivalues_wrapper(int i, int j)
 {
   return compare(mv_values[i],mv_valuesizes[i],mv_values[j],mv_valuesizes[j]);

@@ -1,6 +1,5 @@
 SET (mrmpi_SOURCES
         mapreduce.cpp
-        cmapreduce.cpp
         keyvalue.cpp
         keymultivalue.cpp
         irregular.cpp
