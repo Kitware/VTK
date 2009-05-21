@@ -50,7 +50,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkQtAnnotationView, "1.5");
+vtkCxxRevisionMacro(vtkQtAnnotationView, "1.6");
 vtkStandardNewMacro(vtkQtAnnotationView);
 
 //----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUse
 
   QModelIndexList qmi = this->View->selectionModel()->selectedRows();
   vtkAnnotationLayers* curLayers = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
-  for(int i=0; i<curLayers->GetNumberOfAnnotations(); ++i)
+  for(unsigned int i=0; i<curLayers->GetNumberOfAnnotations(); ++i)
     {
     vtkAnnotation* a = curLayers->GetAnnotation(i);
     vtkAnnotation::ENABLED()->Set(a->GetInformation(),0);
