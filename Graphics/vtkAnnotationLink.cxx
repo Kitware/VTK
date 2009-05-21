@@ -23,17 +23,18 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkAnnotationLayers.h"
+#include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.3");
+vtkCxxRevisionMacro(vtkAnnotationLink, "1.4");
 vtkStandardNewMacro(vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 //----------------------------------------------------------------------------
 vtkAnnotationLink::vtkAnnotationLink()
 {
   this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(2);
+  this->SetNumberOfOutputPorts(3);
   this->AnnotationLayers = vtkAnnotationLayers::New();
   this->DomainMaps = vtkDataObjectCollection::New();  
 }
@@ -117,9 +118,18 @@ int vtkAnnotationLink::RequestData(
   vtkMultiBlockDataSet* maps = vtkMultiBlockDataSet::SafeDownCast(
     mapInfo->Get(vtkDataObject::DATA_OBJECT()));
   
+  vtkInformation *selInfo = outVector->GetInformationObject(2);
+  vtkSelection* sel = vtkSelection::SafeDownCast(
+    selInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   if (this->AnnotationLayers)
     {
     output->ShallowCopy(this->AnnotationLayers);
+
+    if (this->AnnotationLayers->GetCurrentSelection())
+      {
+      sel->ShallowCopy(this->AnnotationLayers->GetCurrentSelection());
+      }
     }
 
   unsigned int numMaps = static_cast<unsigned int>(this->DomainMaps->GetNumberOfItems());
@@ -130,7 +140,7 @@ int vtkAnnotationLink::RequestData(
     map->ShallowCopy(this->DomainMaps->GetItem(i));
     maps->SetBlock(i, map);
     }
-  
+
   return 1;
 }
 
@@ -141,9 +151,13 @@ int vtkAnnotationLink::FillOutputPortInformation(int port, vtkInformation* info)
     {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkAnnotationLayers");
     }
-  else
+  else if (port == 1)
     {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+    }
+  else
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
     }
   return 1;
 }
