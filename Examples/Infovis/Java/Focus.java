@@ -27,8 +27,8 @@ public class Focus extends JFrame {
 
   private vtkRenderWindowPanel mainPanel = new vtkRenderWindowPanel();
   private vtkRenderWindowPanel focusPanel = new vtkRenderWindowPanel();
-  private vtkDataRepresentation mainRep = new vtkDataRepresentation();
-  private vtkDataRepresentation focusRep = new vtkDataRepresentation();
+  private vtkRenderedGraphRepresentation mainRep = new vtkRenderedGraphRepresentation();
+  private vtkRenderedGraphRepresentation focusRep = new vtkRenderedGraphRepresentation();
   
   private vtkDelimitedTextReader reader = new vtkDelimitedTextReader();
   private vtkTableToGraph tableToGraph = new vtkTableToGraph();
@@ -40,7 +40,7 @@ public class Focus extends JFrame {
   private vtkGraphLayoutView mainView = new vtkGraphLayoutView();
   private vtkGraphLayoutView focusView = new vtkGraphLayoutView();
 
-  private vtkSelectionLink link = new vtkSelectionLink();
+  private vtkAnnotationLink link = new vtkAnnotationLink();
 
   private vtkDoubleArray thresh = new vtkDoubleArray();
 
@@ -50,7 +50,8 @@ public class Focus extends JFrame {
     ViewChangedObserver obs = new ViewChangedObserver();
     this.link.AddObserver("SelectionChangedEvent", obs, "SelectionChanged");
     
-    this.reader.SetFileName("../../../../VTKData/Data/Infovis/classes.csv");
+    //this.reader.SetFileName("../../../../VTKData/Data/Infovis/classes.csv");
+    this.reader.SetFileName("C:/Users/Jeff/Work/VTKData/Data/Infovis/classes.csv");
     this.tableToGraph.SetInputConnection(this.reader.GetOutputPort());
     this.tableToGraph.AddLinkEdge("Field 0", "Field 1");
     vtkSimple2DLayoutStrategy strategy = new vtkSimple2DLayoutStrategy();
@@ -60,12 +61,14 @@ public class Focus extends JFrame {
     this.bfs.SetInputConnection(this.mainBFS.GetOutputPort());
     this.extract.SetInputConnection(0, this.bfs.GetOutputPort());
     vtkSelection select = new vtkSelection();
-    select.SetContentType(7); // 7 == vtkSelection.THRESHOLDS
-    select.SetFieldType(3);   // 3 == vtkSelection.VERTEX
+    vtkSelectionNode node = new vtkSelectionNode();
+    node.SetContentType(7); // 7 == vtkSelection.THRESHOLDS
+    node.SetFieldType(3);   // 3 == vtkSelection.VERTEX
     this.thresh.SetName("BFS");
     this.thresh.InsertNextValue(0);
     this.thresh.InsertNextValue(1);
-    select.SetSelectionList(this.thresh);
+    node.SetSelectionList(this.thresh);
+    select.AddNode(node);
     this.extract.SetInput(1, select);
 
     this.mainRep.SetInputConnection(this.bfs.GetOutputPort());
@@ -91,13 +94,13 @@ public class Focus extends JFrame {
     this.mainView.ApplyViewTheme(theme);
     this.focusView.ApplyViewTheme(theme);
 
-    this.mainView.SetupRenderWindow(this.mainPanel.GetRenderWindow());
-    this.focusView.SetupRenderWindow(this.focusPanel.GetRenderWindow());
+    this.mainPanel = new vtkRenderWindowPanel(this.mainView.GetRenderWindow());
+    this.focusPanel = new vtkRenderWindowPanel(this.focusView.GetRenderWindow());
 
     // Views should produce pedigree id selections.
     // 2 == vtkSelection.PEDIGREEIDS
-    this.mainView.SetSelectionType(2);
-    this.focusView.SetSelectionType(2);
+    this.mainRep.SetSelectionType(2);
+    this.focusRep.SetSelectionType(2);
 
     this.mainPanel.setSize(500, 500);
     this.focusPanel.setSize(500, 500);
@@ -105,8 +108,8 @@ public class Focus extends JFrame {
     //this.mainView.SetLayoutStrategyToSimple2D();
     //this.focusView.SetLayoutStrategyToSimple2D();
 
-    this.mainRep.SetSelectionLink(this.link);
-    this.focusRep.SetSelectionLink(this.link);
+    this.mainRep.SetAnnotationLink(this.link);
+    this.focusRep.SetAnnotationLink(this.link);
 
     // Arrange the views in a grid.
     GridLayout layout = new GridLayout(1, 2);
@@ -184,21 +187,21 @@ public class Focus extends JFrame {
   void update() {
     this.mainPanel.Render();
     this.focusPanel.Render();
-    this.mainView.GetRenderer().ResetCamera();
-    this.focusView.GetRenderer().ResetCamera();
-    this.mainPanel.Render();
-    this.focusPanel.Render();
+    this.mainView.ResetCamera();
+    this.focusView.ResetCamera();
+    this.mainView.Render();
+    this.focusView.Render();
   }
 
   private class ViewChangedObserver {
     // When a selection changes, render all views.
     void SelectionChanged() {
-      vtkSelection currentSel = link.GetSelection();
+      vtkSelection currentSel = link.GetCurrentSelection();
       vtkConvertSelection convert = new vtkConvertSelection();
       vtkSelection indexSel =
         convert.ToIndexSelection(currentSel, tableToGraph.GetOutput());
-      if (currentSel.GetNumberOfChildren() > 0) {
-        vtkIdTypeArray ids = (vtkIdTypeArray)indexSel.GetChild(0).
+      if (currentSel.GetNumberOfNodes() > 0) {
+        vtkIdTypeArray ids = (vtkIdTypeArray)indexSel.GetNode(0).
           GetSelectionList();
         if (ids != null && ids.GetNumberOfTuples() == 1) {
           bfs.SetOriginVertex(ids.GetValue(0));

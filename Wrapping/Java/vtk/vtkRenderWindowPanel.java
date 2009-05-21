@@ -14,6 +14,12 @@ public class vtkRenderWindowPanel extends vtkCanvas {
     lgt = new vtkLight();
   }
 
+  public vtkRenderWindowPanel(vtkRenderWindow win) {
+    super(win);
+    cam = new vtkCamera();
+    lgt = new vtkLight();
+  }
+
   public synchronized void Render() {
     if (!rendering) {
       rendering = true;

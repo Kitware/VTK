@@ -73,6 +73,18 @@ public class vtkPanel extends Canvas implements
     addWindowSetObserver(new WindowSetObserver());
   }
 
+  public vtkPanel(vtkRenderWindow renwin)
+  {
+    rw = renwin;
+    rw.AddRenderer(ren);
+    addMouseListener(this);
+    addMouseMotionListener(this);
+    addKeyListener(this);
+    super.setSize(200,200);
+    rw.SetSize(200,200);
+    addWindowSetObserver(new WindowSetObserver());
+  }
+
   public void Report() {
 
     // must be performed on awt event thread

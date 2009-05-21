@@ -21,8 +21,8 @@ public class HelloWorld {
     vtkGraphLayoutView view = new vtkGraphLayoutView();
     view.AddRepresentationFromInputConnection(source.GetOutputPort());
 
-    vtkRenderWindow window = new vtkRenderWindow();
-    view.SetupRenderWindow(window);
-    window.GetInteractor().Start();
+    view.ResetCamera();
+    view.Render();
+    view.GetInteractor().Start();
   }
 }

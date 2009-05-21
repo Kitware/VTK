@@ -21,17 +21,17 @@ import vtk.*;
 
 public class TreeViews extends JFrame {
 
-  private vtkRenderWindowPanel panel1 = new vtkRenderWindowPanel();
-  private vtkRenderWindowPanel panel2 = new vtkRenderWindowPanel();
-  private vtkRenderWindowPanel panel3 = new vtkRenderWindowPanel();
-  private vtkRenderWindowPanel panel4 = new vtkRenderWindowPanel();
+  private vtkRenderWindowPanel panel1;
+  private vtkRenderWindowPanel panel2;
+  private vtkRenderWindowPanel panel3;
+  private vtkRenderWindowPanel panel4;
   
   private vtkXMLTreeReader reader = new vtkXMLTreeReader();
   private vtkTreeLevelsFilter levels = new vtkTreeLevelsFilter();
 
   private vtkGraphLayoutView view1;
-  private vtkTreeLayoutView view2;
-  private vtkTreeLayoutView view3;
+  private vtkGraphLayoutView view2;
+  private vtkGraphLayoutView view3;
   private vtkTreeMapView view4;
 
   public TreeViews() {
@@ -58,59 +58,64 @@ public class TreeViews extends JFrame {
 
     // Create the selection link.
     // This is shared among all views in order to link the selection.
-    vtkSelectionLink link = new vtkSelectionLink();
+    vtkAnnotationLink link = new vtkAnnotationLink();
 
     // Create a graph layout view.
     // This view performs an automatic embedding of the graph in 2D.
     // Label by name, color by level.
     view1 = new vtkGraphLayoutView();
     vtkDataRepresentation rep1 = view1.AddRepresentationFromInputConnection(levels.GetOutputPort());
-    view1.SetupRenderWindow(panel1.GetRenderWindow());
+    panel1 = new vtkRenderWindowPanel(view1.GetRenderWindow());
     view1.SetVertexLabelArrayName("name");
     view1.VertexLabelVisibilityOn();
     view1.SetVertexColorArrayName("level");
     view1.ColorVerticesOn();
+    view1.ResetCamera();
     // Link the selection.
-    rep1.SetSelectionLink(link);
+    rep1.SetAnnotationLink(link);
 
     // Create a standard tree layout view.
     // The standard tree layout arranges the vertices of a tree in horizontal
     // levels.
     // Label by name, color by level.
-    view2 = new vtkTreeLayoutView();
+    view2 = new vtkGraphLayoutView();
     vtkDataRepresentation rep2 = view2.AddRepresentationFromInputConnection(levels.GetOutputPort());
-    view2.SetupRenderWindow(panel2.GetRenderWindow());
-    view2.SetLabelArrayName("name");
-    view2.LabelVisibilityOn();
+    panel2 = new vtkRenderWindowPanel(view2.GetRenderWindow());
+    view2.SetVertexLabelArrayName("name");
+    view2.VertexLabelVisibilityOn();
     view2.SetVertexColorArrayName("level");
     view2.ColorVerticesOn();
+    view2.ResetCamera();
     // Link the selection.
-    rep2.SetSelectionLink(link);
+    rep2.SetAnnotationLink(link);
 
     // Create a radial tree layout view.
     // The radial tree layout arranges the vertices of a tree in concentric
     // circles.
     // Label by name, color by level.
-    view3 = new vtkTreeLayoutView();
+    view3 = new vtkGraphLayoutView();
     vtkDataRepresentation rep3 = view3.AddRepresentationFromInputConnection(levels.GetOutputPort());
-    view3.SetupRenderWindow(panel3.GetRenderWindow());
-    view3.RadialOn();
-    view3.SetAngle(360);
-    view3.SetLeafSpacing(0.3);
-    view3.SetLabelArrayName("name");
-    view3.LabelVisibilityOn();
+    panel3 = new vtkRenderWindowPanel(view3.GetRenderWindow());
+    vtkTreeLayoutStrategy layout3 = new vtkTreeLayoutStrategy();
+    layout3.RadialOn();
+    layout3.SetAngle(360);
+    layout3.SetLeafSpacing(0.3);
+    view3.SetLayoutStrategy(layout3);
+    view3.SetVertexLabelArrayName("name");
+    view3.VertexLabelVisibilityOn();
     view3.SetVertexColorArrayName("level");
     view3.ColorVerticesOn();
-    view3.GetRenderer().ResetCamera();
+    view3.ResetCamera();
     // Link the selection.
-    rep3.SetSelectionLink(link);
+    rep3.SetAnnotationLink(link);
 
     // Create a tree map view.
     view4 = new vtkTreeMapView();
     vtkDataRepresentation rep4 = view4.AddRepresentationFromInputConnection(levels.GetOutputPort());
-    view4.SetupRenderWindow(panel4.GetRenderWindow());
+    panel4 = new vtkRenderWindowPanel(view4.GetRenderWindow());
     // Link the selection.
-    rep4.SetSelectionLink(link);
+    rep4.SetAnnotationLink(link);
+    view4.ResetCamera();
 
     // Use a simple ViewChangedObserver to render all views
     // when the selection in one view changes.
@@ -169,6 +174,10 @@ public class TreeViews extends JFrame {
   private class ViewChangedObserver {
     // When a selection changes, render all views.
     void SelectionChanged() {
+      view1.Update();
+      view2.Update();
+      view3.Update();
+      view4.Update();
       panel1.Render();
       panel2.Render();
       panel3.Render();
