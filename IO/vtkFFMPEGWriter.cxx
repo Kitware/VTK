@@ -114,7 +114,7 @@ int vtkFFMPEGWriterInternal::Start()
     }
 
   //chosen a codec that is easily playable on windows
-  this->avOutputFormat->video_codec = CODEC_ID_MSMPEG4V3;
+  this->avOutputFormat->video_codec = CODEC_ID_MJPEG;
 
   //assign the format to the context
   this->avFormatContext->oformat = this->avOutputFormat;
@@ -136,9 +136,9 @@ int vtkFFMPEGWriterInternal::Start()
   c->codec_type = CODEC_TYPE_VIDEO;
   c->width = this->Dim[0];
   c->height = this->Dim[1];
-  c->pix_fmt = PIX_FMT_YUV420P;
+  c->pix_fmt = PIX_FMT_YUVJ420P;
   //change DIV3 to MP43 fourCC to be easily playable on windows
-  c->codec_tag = ('3'<<24) + ('4'<<16) + ('P'<<8) + 'M';
+  //c->codec_tag = ('3'<<24) + ('4'<<16) + ('P'<<8) + 'M';
   //to do playback at actual recorded rate, this will need more work see also below
   c->time_base.den = this->FrameRate; 
   c->time_base.num = 1;
@@ -354,7 +354,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.5");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.6");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
