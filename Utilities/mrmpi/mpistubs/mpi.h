@@ -17,7 +17,7 @@
 #include "vtkConfigure.h"
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
- #if defined(mpi_EXPORTS)
+ #if defined(mpistubs_EXPORTS)
   #define MPI_EXPORT __declspec( dllexport ) 
  #else
   #define MPI_EXPORT __declspec( dllimport ) 

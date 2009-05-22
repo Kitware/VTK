@@ -18,7 +18,7 @@
 #include "vtkSystemIncludes.h"
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
- #if defined(mrmpi_EXPORTS)
+ #if defined(MapReduceMPI_EXPORTS)
   #define MRMPI_EXPORT __declspec( dllexport ) 
  #else
   #define MRMPI_EXPORT __declspec( dllimport ) 
