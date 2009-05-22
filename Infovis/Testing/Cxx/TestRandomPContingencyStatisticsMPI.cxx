@@ -68,7 +68,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   int myRank = com->GetLocalProcessId();
 
   // Seed random number generator
-  vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) * ( myRank + 1 ) );
+  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
   // Generate an input table that contains samples of mutually independent discrete random variables
   int nVariables = 3;
@@ -87,7 +87,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      intArray[c]->InsertNextValue( static_cast<int>( round( vtkMath::Gaussian() * args->span ) ) );
+      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->span ) ) );
       }
     
     inputData->AddColumn( intArray[c] );

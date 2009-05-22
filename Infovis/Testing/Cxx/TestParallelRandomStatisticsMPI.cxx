@@ -69,7 +69,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   int myRank = com->GetLocalProcessId();
 
   // Seed random number generator
-  vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) * ( myRank + 1 ) );
+  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
   // Generate an input table that contains samples of mutually independent random variables over [0, 1]
   int nUniform = 2;
@@ -454,7 +454,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
         cout << "      " 
              << testVal
-             << "\% within "
+             << "\\% within "
              << i + 1
              << " standard deviation(s) from the mean.\n";
 
