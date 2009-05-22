@@ -34,13 +34,17 @@
   #error "vtkBoostLogWeighting requires Boost 1.34.0 or later"
 #endif
 
+#include <math.h>
+#include <vtkstd/stdexcept>
+
 ///////////////////////////////////////////////////////////////////////////////
 // vtkBoostLogWeighting
 
-vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.2");
+vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.3");
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
-vtkBoostLogWeighting::vtkBoostLogWeighting()
+vtkBoostLogWeighting::vtkBoostLogWeighting() :
+  Base(BASE_E)
 {
 }
 
@@ -51,6 +55,7 @@ vtkBoostLogWeighting::~vtkBoostLogWeighting()
 void vtkBoostLogWeighting::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Base: " << this->Base << endl;
 }
 
 int vtkBoostLogWeighting::RequestData(
@@ -58,38 +63,59 @@ int vtkBoostLogWeighting::RequestData(
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  if(input->GetNumberOfArrays() != 1)
+  try
     {
-    vtkErrorMacro(<< "vtkBoostLogWeighting requires vtkArrayData containing exactly one array as input.");
-    return 0;
-    }
+    vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
+    if(!input_data)
+      throw vtkstd::runtime_error("Missing input vtkArrayData on port 0.");
+    if(input_data->GetNumberOfArrays() != 1)
+      throw vtkstd::runtime_error("Input vtkArrayData must contain exactly one array.");
+    vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
+    if(!input_array)
+      throw vtkstd::runtime_error("Unsupported input array type.");
 
-  if(vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input->GetArray(0)))
-    {
     vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
-
-    const vtkIdType value_count = input_array->GetNonNullSize();
-    
-    for(vtkIdType i = 0; i != value_count; ++i)
-      {
-      output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
-
-      double progress = static_cast<double>(i) / static_cast<double>(value_count);
-      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-      }
-
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
     output->ClearArrays();
     output->AddArray(output_array);
     output_array->Delete();
+
+    const vtkIdType value_count = input_array->GetNonNullSize();
+    switch(this->Base)
+      {
+      case BASE_E:
+        for(vtkIdType i = 0; i != value_count; ++i)
+          {
+          output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
+
+          double progress = static_cast<double>(i) / static_cast<double>(value_count);
+          this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+          }
+        break;
+      case BASE_2:
+        for(vtkIdType i = 0; i != value_count; ++i)
+          {
+          output_array->SetValueN(i, log2(output_array->GetValueN(i)));
+
+          double progress = static_cast<double>(i) / static_cast<double>(value_count);
+          this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+          }
+        break;
+      default:
+        throw vtkstd::runtime_error("Unknown Base type.");
+      }
     }
-  else
+  catch(vtkstd::exception& e)
     {
-    vtkErrorMacro(<< "Unsupported input array type");
+    vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;
     }
-  
+  catch(...)
+    {
+    vtkErrorMacro(<< "unknown exception");
+    return 0;
+    }
+
   return 1;
 }
 
