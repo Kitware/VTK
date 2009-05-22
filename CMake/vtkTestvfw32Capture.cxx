@@ -29,6 +29,12 @@ int main()
 //  capDriverGetCaps
 //  capCaptureGetSetup
 //  capCaptureSetSetup
+  // test if constants used in vtkWin32VideoSource exist.
+  int controlcallback_preroll = CONTROLCALLBACK_PREROLL;
+  int controlcallback_capturing = CONTROLCALLBACK_CAPTURING;
+  int ids_begin = IDS_CAP_BEGIN;
+  int ids_cap_end = IDS_CAP_END;
+  int avstreammaster = AVSTREAMMASTER_NONE;
 
   capSetUserData(internal.CapWnd, &internal);
 
