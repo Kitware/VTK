@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMatrixColumnNorm.h
+  Module:    vtkArrayNorm.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,24 +19,33 @@
 
 =========================================================================*/
 
-// .NAME vtkMatrixColumnNorm - given a sparse input matrix (vtkSparseArray<double>),
-// computes the L-norm for each column, storing the results in a dense output vector
-// (vtkDenseArray<double>).
-
+// .NAME vtkArrayNorm - Computes L-norms along one dimension of an array.
+//
+// .SECTION Description
+// Given an input array (vtkTypedArray<double>), computes the L-norm for each
+// slice along a user-specified dimension, storing the results in a dense output
+// vector (1D vtkDenseArray<double>).  Most useful for matrices.
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkMatrixColumnNorm_h
-#define __vtkMatrixColumnNorm_h
+#ifndef __vtkArrayNorm_h
+#define __vtkArrayNorm_h
 
 #include "vtkArrayDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkMatrixColumnNorm : public vtkArrayDataAlgorithm
+class VTK_INFOVIS_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
 {
 public:
-  static vtkMatrixColumnNorm* New();
-  vtkTypeRevisionMacro(vtkMatrixColumnNorm, vtkArrayDataAlgorithm);
+  static vtkArrayNorm* New();
+  vtkTypeRevisionMacro(vtkArrayNorm, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Controls the dimension along which norms will be computed.  For input matrices,
+  // For input matrices, use "0" (rows) or "1" (columns). Default: 0
+  vtkGetMacro(Dimension, int);
+  vtkSetMacro(Dimension, int);
 
   // Description:
   // Controls the L-value.  Default: 2
@@ -44,8 +53,8 @@ public:
   void SetL(int value);
 
 protected:
-  vtkMatrixColumnNorm();
-  ~vtkMatrixColumnNorm();
+  vtkArrayNorm();
+  ~vtkArrayNorm();
 
   int RequestData(
     vtkInformation*, 
@@ -53,9 +62,10 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkMatrixColumnNorm(const vtkMatrixColumnNorm&); // Not implemented
-  void operator=(const vtkMatrixColumnNorm&);   // Not implemented
+  vtkArrayNorm(const vtkArrayNorm&); // Not implemented
+  void operator=(const vtkArrayNorm&);   // Not implemented
 
+  int Dimension;
   int L;
 };
 

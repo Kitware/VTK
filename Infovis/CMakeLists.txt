@@ -162,12 +162,12 @@ IF(VTK_USE_N_WAY_ARRAYS)
   SET(Kit_SRCS
     ${Kit_SRCS}
     vtkAdjacencyMatrixToEdgeTable.cxx
+    vtkArrayNorm.cxx
     vtkArrayToTable.cxx
     vtkCosineSimilarity.cxx
     vtkDiagonalMatrixSource.cxx
     vtkExtractArray.cxx
     vtkMatricizeArray.cxx
-    vtkMatrixColumnNorm.cxx
     vtkNormalizeMatrixVectors.cxx
     vtkSparseArrayToTable.cxx
     vtkTableToSparseArray.cxx

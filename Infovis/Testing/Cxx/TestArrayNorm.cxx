@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ArrayMatrixColumnNorm.cxx
+  Module:    TestArrayNorm.cxx
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -21,7 +21,7 @@
 
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
-#include <vtkMatrixColumnNorm.h>
+#include <vtkArrayNorm.h>
 #include <vtkDenseArray.h>
 #include <vtkDiagonalMatrixSource.h>
 #include <vtkSmartPointer.h>
@@ -41,7 +41,7 @@ static const bool close_enough(const double lhs, const double rhs)
   return fabs(lhs - rhs) < 1.0e-12;
 }
 
-int ArrayMatrixColumnNorm(int argc, char* argv[])
+int TestArrayNorm(int argc, char* argv[])
 {
   cout << setprecision(17);
   
@@ -58,8 +58,9 @@ int ArrayMatrixColumnNorm(int argc, char* argv[])
     cout << "diagonal source:\n";
     vtkPrintMatrixFormat(cout, vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
 
-    vtkSmartPointer<vtkMatrixColumnNorm> vector_norm = vtkSmartPointer<vtkMatrixColumnNorm>::New();
+    vtkSmartPointer<vtkArrayNorm> vector_norm = vtkSmartPointer<vtkArrayNorm>::New();
     vector_norm->AddInputConnection(source->GetOutputPort());
+    vector_norm->SetDimension(1); // Column-vectors
     vector_norm->SetL(2);
     vector_norm->Update();
 
