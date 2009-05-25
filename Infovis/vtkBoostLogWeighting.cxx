@@ -40,7 +40,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkBoostLogWeighting
 
-vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.3");
+vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.4");
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
 vtkBoostLogWeighting::vtkBoostLogWeighting() :
@@ -84,6 +84,7 @@ int vtkBoostLogWeighting::RequestData(
     switch(this->Base)
       {
       case BASE_E:
+        {
         for(vtkIdType i = 0; i != value_count; ++i)
           {
           output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
@@ -92,15 +93,19 @@ int vtkBoostLogWeighting::RequestData(
           this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
           }
         break;
+        }
       case BASE_2:
+        {
+        double ln2 = log(2.0);
         for(vtkIdType i = 0; i != value_count; ++i)
           {
-          output_array->SetValueN(i, log2(output_array->GetValueN(i)));
+          output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i))/ln2);
 
           double progress = static_cast<double>(i) / static_cast<double>(value_count);
           this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
           }
         break;
+        }
       default:
         throw vtkstd::runtime_error("Unknown Base type.");
       }
