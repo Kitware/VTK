@@ -56,7 +56,7 @@ extern "C" {
 
 /* MPI data structs */
 
-MPI_EXPORT typedef struct {
+MPI_EXPORT typedef struct MPI_Status_Struct {
   int MPI_SOURCE;
 } MPI_Status;
 
