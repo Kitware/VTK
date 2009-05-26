@@ -24,6 +24,7 @@ SET(MyTests
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
   TestImplicitPlaneWidget2.cxx
+  TestImplicitPlaneWidget2b.cxx
 #  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
