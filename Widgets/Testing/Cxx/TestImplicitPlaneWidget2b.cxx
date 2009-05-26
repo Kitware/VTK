@@ -113,7 +113,7 @@ public:
   vtkImplicitPlaneWidget2 *Widget;
 };
 
-int TestImplicitPlaneWidget2b( int argc, char *argv[] )
+int TestImplicitPlaneWidget2b( int, char *[] )
 {
   // Create a mace out of filters.
   //
