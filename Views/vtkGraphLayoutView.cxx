@@ -73,7 +73,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.52");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.52.2.1");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -885,7 +885,8 @@ void vtkGraphLayoutView::ProcessEvents(
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     selection = vertexSelection;
-    if (kdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
+    if (kdSelection->GetNode(0) &&
+        kdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
       {
       // If we didn't find any vertices, perform edge selection.
       // The edge actor must be opaque for visible cell selection
