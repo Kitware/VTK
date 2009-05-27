@@ -30,10 +30,6 @@
 
 #include "QVTKWidget.h"
 
-#if QT_VERSION >= 0x040000
-# include "QVTKPaintEngine.h"
-#endif
-
 #include "qevent.h"
 #include "qapplication.h"
 #include "qpainter.h"
@@ -79,7 +75,7 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 #else
     : QWidget(parent, name, f | Qt::WWinOwnDC )
 #endif
-    , mRenWin(NULL), mPaintEngine(NULL)
+    , mRenWin(NULL), 
       cachedImageCleanFlag(false),
       automaticImageCache(false), maxImageCacheRenderRate(1.0)
 {
@@ -131,8 +127,6 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
     QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
     );
 
-  mPaintEngine = new QVTKPaintEngine;
-
   this->mCachedImage = vtkImageData::New();
   this->mCachedImage->SetScalarTypeToUnsignedChar();
   this->mCachedImage->SetOrigin(0,0,0);
@@ -155,13 +149,6 @@ QVTKWidget::~QVTKWidget()
   this->SetRenderWindow(NULL);
   
   this->mCachedImage->Delete();
-
-#if QT_VERSION >= 0x040000
-  if(mPaintEngine)
-    {
-    delete mPaintEngine;
-    }
-#endif
 }
 
 /*! get the render window
@@ -1022,7 +1009,7 @@ void QVTKWidget::showEvent(QShowEvent* e)
 
 QPaintEngine* QVTKWidget::paintEngine() const
 {
-  return mPaintEngine;
+  return NULL;
 }
 
 class QVTKInteractorInternal : public QObject
@@ -1365,8 +1352,7 @@ void QVTKWidget::x11_setup_window()
   // create the X window based on information VTK gave us
   XSetWindowAttributes attrib;
   attrib.colormap = cmap;
-  attrib.border_pixel = 0;
-  attrib.background_pixel = 0;
+  attrib.border_pixel = BlackPixel(display, DefaultScreen(display));
 
   Window p = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
@@ -1379,7 +1365,7 @@ void QVTKWidget::x11_setup_window()
 
   Window win = XCreateWindow(display, p, a.x, a.y, a.width, a.height,
                              0, vi->depth, InputOutput, vi->visual,
-                             CWBackPixel|CWBorderPixel|CWColormap, &attrib);
+                             CWBorderPixel|CWColormap, &attrib);
   
   // backup colormap stuff
   Window *cmw;
