@@ -50,6 +50,7 @@ class vtkBox;
 class vtkFollower;
 class vtkVectorText;
 class vtkPolyDataMapper;
+class vtkCellPicker;
 
 class VTK_WIDGETS_EXPORT vtkLineRepresentation : public vtkWidgetRepresentation
 {
@@ -268,6 +269,8 @@ protected:
   vtkVectorText     *TextInput;  
   double             Distance;
   bool               AnnotationTextScaleInitialized;
+
+  vtkCellPicker     *LinePicker;
 
 private:
   vtkLineRepresentation(const vtkLineRepresentation&);  //Not implemented
