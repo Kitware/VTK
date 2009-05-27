@@ -30,10 +30,18 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAnnotationLayers, "1.6");
+/* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio 
+   instead of the remove stl algorithm. */
+#ifdef __BORLANDC__
+# define remove borland_remove
+#endif
+/* Include algorithm last so "remove" macro Borland hack does not
+   affect other headers.  */
+#include <vtkstd/algorithm>
+
+vtkCxxRevisionMacro(vtkAnnotationLayers, "1.7");
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 
