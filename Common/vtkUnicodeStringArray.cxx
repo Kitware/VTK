@@ -28,7 +28,7 @@ public:
   StorageT Storage;
 };
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.7");
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.8");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
@@ -241,6 +241,11 @@ vtkArrayIterator* vtkUnicodeStringArray::NewIterator()
 {
   vtkErrorMacro("Not implemented.");
   return 0;
+}
+
+vtkVariant vtkUnicodeStringArray::GetVariantValue(vtkIdType idx)
+{
+  return this->GetValue(idx);
 }
 
 vtkIdType vtkUnicodeStringArray::LookupValue(vtkVariant)

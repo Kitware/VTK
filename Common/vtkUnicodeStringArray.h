@@ -63,6 +63,7 @@ public:
   virtual int IsNumeric();
   virtual vtkArrayIterator* NewIterator();
 //BTX
+  virtual vtkVariant GetVariantValue(vtkIdType idx);
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
   virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
