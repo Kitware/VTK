@@ -23,6 +23,7 @@
 #include "vtkArrayToTable.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -30,6 +31,7 @@
 #include "vtkSparseArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnicodeStringArray.h"
 
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/stdexcept>
@@ -97,7 +99,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkArrayToTable, "1.3");
+vtkCxxRevisionMacro(vtkArrayToTable, "1.4");
 vtkStandardNewMacro(vtkArrayToTable);
 
 // ----------------------------------------------------------------------
@@ -143,6 +145,8 @@ int vtkArrayToTable::RequestData(
   try
     {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
+    if(!input_array_data)
+      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_array_data->GetNumberOfArrays() != 1)
       throw vtkstd::runtime_error("vtkArrayToTable requires a vtkArrayData containing exactly one array.");
     
@@ -153,14 +157,24 @@ int vtkArrayToTable::RequestData(
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
     if(ConvertVector<double, vtkDoubleArray>(input_array, output_table)) return 1;
+    if(ConvertVector<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
+    if(ConvertVector<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
     
     if(ConvertMatrix<double, vtkDoubleArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
+
+    throw vtkstd::runtime_error("Unhandled input array type.");
     }
   catch(vtkstd::exception& e)
     {
-    vtkErrorMacro(<< e.what());
+    vtkErrorMacro(<< "caught exception: " << e.what() << endl);
+    }
+  catch(...)
+    {
+    vtkErrorMacro(<< "caught unknown exception." << endl);
     }
 
   return 0;
