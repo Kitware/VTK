@@ -53,6 +53,17 @@ public:
                    float *value);
 
   // Description:
+  // The array `value' is of size `numberOfElements'*`numberOfComponents.'.
+  // \pre name_exists: name!=0
+  // \pre value_exists: value!=0
+  // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+  // \pre valid_numberOfElements: numberOfElements>=1
+  void SetUniformfv(const char *name,
+                    int numberOfComponents,
+                    int numberOfElements,
+                    float *value);
+
+  // Description:
   //
   // \pre name_exists: name!=0
   // \pre value_exists: value!=0
@@ -67,6 +78,10 @@ public:
   // Remove uniform `name' from the list.
   void RemoveUniform(const char *name);
   
+  // Description:
+  // Remove all uniforms from the list.
+  void RemoveAllUniforms();
+
   // Description:
   // \pre need a valid OpenGL context and a shader program in use.
   void Send(const char *name,
@@ -102,6 +117,13 @@ public:
   // \pre not_self: other!=this
   void DeepCopy(vtkUniformVariables *other);
   
+  // Description:
+  // Copy all the variables from `other'. Any existing variable will be
+  // overwritten.
+  // \pre other_exists: other!=0
+  // \pre not_self: other!=this
+  void Merge(vtkUniformVariables *other);
+
 protected:
   vtkUniformVariables();
   virtual ~vtkUniformVariables();

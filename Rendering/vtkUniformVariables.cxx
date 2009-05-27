@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.5");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.6");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -42,7 +42,8 @@ public:
   {
     ClassTypeVectorInt=0,
     ClassTypeVectorFloat=1,
-    ClassTypeMatrix=2
+    ClassTypeMatrix=2,
+    ClassTypeArrayFloat=3
   };
   
   int GetClassType() const
@@ -143,6 +144,11 @@ public:
         }
     }
   
+  const int *GetValues()
+    {
+     return this->Values;
+    }
+
    virtual void Send(int location)
     {
       switch(this->Size)
@@ -209,6 +215,7 @@ public:
         ++i;
         }
     }
+  
   virtual ~vtkUniformVectorFloat()
     {
       delete[] this->Values;
@@ -229,7 +236,12 @@ public:
         }
     }
   
-   virtual void Send(int location)
+  const float *GetValues()
+    {
+      return this->Values;
+    }
+  
+  virtual void Send(int location)
     {
       switch(this->Size)
         {
@@ -279,7 +291,110 @@ protected:
   float *Values;
 };
 
-
+class vtkUniformArrayFloat : public vtkUniform
+{
+public:
+  vtkUniformArrayFloat(int size,
+                       int arraySize,
+                       float *values)
+    {
+      this->ClassType=ClassTypeArrayFloat;
+      this->Size=size;
+      this->ArraySize=arraySize;
+      this->Values=new float[size*arraySize];
+      int i=0;
+      while(i<this->Size*this->ArraySize)
+        {
+        this->Values[i]=values[i];
+        ++i;
+        }
+    }
+  
+  virtual ~vtkUniformArrayFloat()
+    {
+      delete[] this->Values;
+    }
+  
+  int GetSize()
+    {
+      return this->Size;
+    }
+  
+  int GetArraySize()
+    {
+      return this->ArraySize;
+    }
+  
+  void SetValues(float *values)
+    {
+      int i=0;
+      while(i<this->Size*this->ArraySize)
+        {
+        this->Values[i]=values[i];
+        ++i;
+        }
+    }
+  
+  const float *GetValues()
+    {
+      return this->Values;
+    }
+  
+  virtual void Send(int location)
+    {
+      switch(this->Size)
+        {
+        case 1:
+          vtkgl::Uniform1fv(location,this->ArraySize,this->Values);
+          break;
+        case 2:
+          vtkgl::Uniform2fv(location,this->ArraySize,this->Values);
+          break;
+        case 3:
+          vtkgl::Uniform3fv(location,this->ArraySize,this->Values);
+          break;
+        case 4:
+          vtkgl::Uniform4fv(location,this->ArraySize,this->Values);
+          break;
+        }
+    }
+  
+  virtual void PrintSelf(ostream &os, vtkIndent indent)
+    {
+      os << indent << this->Name << " (uniform" << this->Size << "fv[" << this->ArraySize << "]): ";
+      int j=0;
+      while(j<this->ArraySize)
+        {
+        os << "(";
+        int i=0;
+        while(i<this->Size)
+          {
+          os << this->Values[i];
+          if(i<(this->Size-1))
+            {
+            os <<",";
+            }
+          ++i;
+          }
+        os << endl;
+        ++j;
+        }
+    }
+  
+  virtual vtkUniform *Clone() const
+    {
+      vtkUniformArrayFloat *result=new vtkUniformArrayFloat(this->Size,
+                                                            this->ArraySize,
+                                                            this->Values);
+      result->SetName(this->Name);
+      return result;
+    }
+  
+protected:
+  int Size;  // size of element (eq. to float, vec2, vec2, vec4)
+  int ArraySize; // number of elements
+  float *Values;
+};
 
 // rows or columns are 2,3,4.
 class vtkUniformMatrix : public vtkUniform
@@ -333,6 +448,11 @@ public:
         }
     }
   
+  const float* GetValues()
+    {
+      return this->Values;
+    }
+
   virtual void Send(int location)
     {
       switch(this->Rows)
@@ -486,7 +606,18 @@ void vtkUniformVariables::SetUniformi(const char *name,
         }
       else
         {
-        ui->SetValues(value);
+        bool changed=false;
+        int i=0;
+        while(!changed && i<numberOfComponents)
+          {
+          changed=value[i]!=ui->GetValues()[i];
+          ++i;
+          }
+        if(changed)
+          {
+          ui->SetValues(value);
+          this->Modified();
+          }
         }
       }
     }
@@ -502,6 +633,7 @@ void vtkUniformVariables::SetUniformi(const char *name,
     p.second=u;
     
     this->Map->Map.insert(p);
+    this->Modified();
     }
 }
 
@@ -536,7 +668,18 @@ void vtkUniformVariables::SetUniformf(const char *name,
         }
       else
         {
-        uf->SetValues(value);
+        bool changed=false;
+        int i=0;
+        while(!changed && i<numberOfComponents)
+          {
+          changed=value[i]!=uf->GetValues()[i];
+          ++i;
+          }
+        if(changed)
+          {
+          uf->SetValues(value);
+          this->Modified();
+          }
         }
       }
     }
@@ -552,6 +695,75 @@ void vtkUniformVariables::SetUniformf(const char *name,
     p.second=u;
     
     this->Map->Map.insert(p);
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkUniformVariables::SetUniformfv(const char *name,
+                                       int numberOfComponents,
+                                       int numberOfElements,
+                                       float *value)
+{
+  assert("pre: name_exists" && name!=0);
+  assert("pre: value_exists" && value!=0);
+  assert("pre: valid_numberOfComponents" && numberOfComponents>=1 && numberOfComponents<=4);
+  assert("pre: valid_numberOfElements" && numberOfElements>=1);
+
+  UniformMapIt cur=this->Map->Map.find(name);
+
+  if(cur!=this->Map->Map.end())
+    {
+    vtkUniform *u=(*cur).second;
+    vtkUniformArrayFloat *uf=0;
+    if(u->GetClassType()==vtkUniform::ClassTypeArrayFloat)
+      {
+      uf=static_cast<vtkUniformArrayFloat *>(u);
+      }
+    if(uf==0)
+      {
+      vtkErrorMacro(<<"try to overwrite a value with different type.");
+      }
+    else
+      {
+      if(uf->GetSize()!=numberOfComponents)
+        {
+        vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
+        }
+      if(uf->GetArraySize()!=numberOfElements)
+        {
+        vtkErrorMacro(<<"try to overwrite a value of same type but different number of elements.");
+        }
+      else
+        {
+        bool changed=false;
+        int i=0;
+        while(!changed && i<numberOfComponents*numberOfElements)
+          {
+          changed=value[i]!=uf->GetValues()[i];
+          ++i;
+          }
+        if(changed)
+          {
+          uf->SetValues(value);
+          this->Modified();
+          }
+        }
+      }
+    }
+  else
+    {
+    vtkUniform *u=0;
+    u=new vtkUniformArrayFloat(numberOfComponents,numberOfElements,value);
+    u->SetName(name);
+
+    vtksys_stl::pair<const char *, vtkUniform *> p;
+    p.first=u->GetName(); // cannot be `name' because
+    // we don't manage this pointer.
+    p.second=u;
+
+    this->Map->Map.insert(p);
+    this->Modified();
     }
 }
 
@@ -588,7 +800,18 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
         }
       else
         {
-        um->SetValues(value);
+        bool changed=false;
+        int i=0;
+        while(!changed && i<rows*columns)
+          {
+          changed=value[i]!=um->GetValues()[i];
+          ++i;
+          }
+        if(changed)
+          {
+          um->SetValues(value);
+          this->Modified();
+          }
         }
       }
     }
@@ -601,6 +824,7 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
     // we don't manage this pointer.
     p.second=u;
     this->Map->Map.insert(p);
+    this->Modified();
     }
 }
 
@@ -613,6 +837,7 @@ void vtkUniformVariables::RemoveUniform(const char *name)
   if(cur!=this->Map->Map.end())
     {
     this->Map->Map.erase(cur);
+    this->Modified();
     }
 }
 
@@ -675,16 +900,13 @@ void vtkUniformVariables::Next()
 // ----------------------------------------------------------------------------
 // Description:
 // Copy all the variables from `other'. Any existing variable will be
-// deleted first.
+// overwritten.
 // \pre other_exists: other!=0
 // \pre not_self: other!=this
-void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
+void vtkUniformVariables::Merge(vtkUniformVariables *other)
 {
   assert("pre: other_exists" && other!=0);
   assert("pre: not_self" && other!=this);
-  
-  delete this->Map;
-  this->Map=new vtkUniformVariablesMap;
   
   other->Start();
   while(!other->IsAtEnd())
@@ -698,9 +920,44 @@ void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
     vtksys_stl::pair<const char *, vtkUniform *> p;
     p.first=u2->GetName();
     p.second=u2;
+    this->Map->Map.erase(p.first);
     this->Map->Map.insert(p);
-    
     other->Next();
+    }
+  if(other->Map->Map.size()>0)
+    {
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Copy all the variables from `other'. Any existing variable will be
+// deleted first.
+// \pre other_exists: other!=0
+// \pre not_self: other!=this
+void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
+{
+  assert("pre: other_exists" && other!=0);
+  assert("pre: not_self" && other!=this);
+  
+  if(this->Map->Map.size()>0)
+    {
+    delete this->Map;
+    this->Map=new vtkUniformVariablesMap;
+    this->Modified();
+    }
+  this->Merge(other);
+}
+
+// ----------------------------------------------------------------------------
+void vtkUniformVariables::RemoveAllUniforms()
+{
+  if(this->Map->Map.size()>0)
+    {
+    delete this->Map;
+    this->Map=new vtkUniformVariablesMap;
+    this->Modified();
     }
 }
 
