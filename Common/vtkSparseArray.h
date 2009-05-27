@@ -25,8 +25,10 @@
 // vtkSparseArray is a concrete vtkArray implementation that stores values using
 // sparse independent coordinate storage.  This means that the array stores the
 // complete set of coordinates and the value for each non-null value in the array.
-// While this approach is not optimal for some special-cases (such as matrices),
-// it generalizes well for arbitrary numbers of dimensions.
+// While this approach requires slightly more storage than other sparse storage
+// schemes (such as Compressed-Row or Compressed-Column), it is easier and more
+// efficient to work with when implementing algorithms, and  it generalizes well
+// for arbitrary numbers of dimensions.
 //
 // In addition to the value retrieval and update methods provided by vtkTypedArray,
 // vtkSparseArray provides methods to:
@@ -40,18 +42,20 @@
 //
 // Retrieve pointers to the value- and coordinate-storage memory blocks.
 //
-// Reserve storage for a specific number of array values, for efficiency when the
-// number of array values is known in advance.
+// Reserve storage for a specific number of non-null values, for efficiency when the
+// number of non-null values is known in advance.
 //
-// Resize the array extents so that they bound the largest set of non-NULL values
+// Recompute the array extents so that they bound the largest set of non-NULL values
 // along each dimension.
+//
+// Specify arbitrary array extents.
 //
 // Add values to the array in amortized-constant time.
 //
 // Validate that the array does not contain duplicate coordinates.
 //
 // .SECTION See Also
-// vtkArray, vtkTypedArray, vtkDenseArray, vtkSparseArray
+// vtkArray, vtkTypedArray, vtkDenseArray
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -152,7 +156,13 @@ public:
   // Description:
   // Update the array extents to match its contents, so that the extent along each dimension
   // matches the maximum index value along that dimension.
-  void ResizeToContents();
+  void SetExtentsFromContents();
+  // Description:
+  // Specify arbitrary array extents, without altering the contents of the array.  Note
+  // that the extents must be as-large-or-larger-than the extents of the actual values
+  // stored in the array.  The number of dimensions in the supplied extents must match the
+  // number of dimensions currently stored in the array.
+  void SetExtents(const vtkArrayExtents& extents);
   
   // Description:
   // Adds a new non-null element to the array.  Does not test to see if an element with

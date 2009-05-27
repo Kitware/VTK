@@ -286,9 +286,9 @@ void vtkSparseArray<T>::ReserveStorage(const vtkIdType value_count)
 }
 
 template<typename T>
-void vtkSparseArray<T>::ResizeToContents()
+void vtkSparseArray<T>::SetExtentsFromContents()
 {
-  vtkArrayExtents new_extents = this->Extents;
+  vtkArrayExtents new_extents = vtkArrayExtents::Uniform(this->GetDimensions(), 0);
 
   vtkIdType row_begin = 0;
   vtkIdType row_end = row_begin + this->Values.size();
@@ -301,6 +301,18 @@ void vtkSparseArray<T>::ResizeToContents()
     }
 
   this->Extents = new_extents;
+}
+
+template<typename T>
+void vtkSparseArray<T>::SetExtents(const vtkArrayExtents& extents)
+{
+  if(extents.GetDimensions() != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Extent-array dimension mismatch.");
+    return;
+    }
+
+  this->Extents = extents;
 }
 
 template<typename T>
