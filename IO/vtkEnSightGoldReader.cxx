@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.65");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.66");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -69,6 +69,15 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
   char line[256], subLine[256];
   int partId, realId, i;
   int lineRead;
+  
+  // init line and subLine in case ReadLine(.), ReadNextDataLine(.), or
+  // sscanf(...) fails while strncmp(..) is still subsequently performed
+  // on these two un-assigned char arrays to cause memory leakage, as
+  // detected by Valgrind. As an example, VTKData/Data/EnSight/test.geo
+  // makes the first sscanf(...) below fail to assign 'subLine' that is
+  // though then accessed by strnmp(..) for comparing two char arrays.
+  line[0]    = '\0';
+  subLine[0] = '\0';
   
   // Initialize
   //
