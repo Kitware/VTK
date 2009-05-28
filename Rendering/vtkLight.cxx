@@ -18,7 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkGraphicsFactory.h"
 
-vtkCxxRevisionMacro(vtkLight, "1.54");
+vtkCxxRevisionMacro(vtkLight, "1.55");
 
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
@@ -76,6 +76,42 @@ vtkLight::~vtkLight()
     }
 }
 
+// ----------------------------------------------------------------------------
+vtkLight *vtkLight::ShallowClone()
+{
+  vtkLight *result=vtkLight::New();
+  
+  int i=0;
+  while(i<3)
+    {
+    result->FocalPoint[i]=this->FocalPoint[i];
+    result->Position[i]=this->Position[i];
+    result->AmbientColor[i]=this->AmbientColor[i];
+    result->DiffuseColor[i]=this->DiffuseColor[i];
+    result->SpecularColor[i]=this->SpecularColor[i];
+    result->AttenuationValues[i]=this->AttenuationValues[i];
+    result->TransformedFocalPointReturn[i]=
+      this->TransformedFocalPointReturn[i];
+    result->TransformedPositionReturn[i]=this->TransformedPositionReturn[i];
+    ++i;
+    }
+  
+  result->Intensity=this->Intensity;
+  result->Switch=this->Switch;
+  result->Positional=this->Positional;
+  result->Exponent=this->Exponent;
+  result->ConeAngle=this->ConeAngle;
+  result->LightType=this->LightType;
+  
+  result->TransformMatrix=this->TransformMatrix;
+  if(result->TransformMatrix!=0)
+    {
+    result->TransformMatrix->Register(result);
+    }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
 void vtkLight::SetDirectionAngle(double elevation, double azimuth)
 {
   elevation = vtkMath::RadiansFromDegrees( elevation );

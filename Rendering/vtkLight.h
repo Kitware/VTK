@@ -64,6 +64,13 @@ public:
   static vtkLight *New();
 
   // Description:
+  // Create a new light object with the same light parameters than the current
+  // object (any ivar from the superclasses (vtkObject and vtkObjectBase),
+  // like reference counting, timestamp and observers are not copied).
+  // This is a shallow clone (TransformMatrix is referenced)
+  virtual vtkLight *ShallowClone();
+  
+  // Description:
   // Abstract interface to renderer. Each concrete subclass of vtkLight
   // will load its data into the graphics system in response to this method
   // invocation. The actual loading is performed by a vtkLightDevice
