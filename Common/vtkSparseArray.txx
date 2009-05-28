@@ -66,6 +66,7 @@ vtkArray* vtkSparseArray<T>::DeepCopy()
 {
   ThisT* const copy = ThisT::New();
 
+  copy->SetName(this->GetName());
   copy->Extents = this->Extents;
   copy->DimensionLabels = this->DimensionLabels;
   copy->Coordinates = this->Coordinates;

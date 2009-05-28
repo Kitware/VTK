@@ -116,6 +116,7 @@ vtkArray* vtkDenseArray<T>::DeepCopy()
 {
   vtkDenseArray<T>* const copy = vtkDenseArray<T>::New();
 
+  copy->SetName(this->GetName());
   copy->Resize(this->Extents);
   copy->DimensionLabels = this->DimensionLabels;
   vtkstd::copy(this->Begin, this->End, copy->Begin);    
