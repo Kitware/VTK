@@ -267,13 +267,13 @@ def _printDartImageError(img_err, err_index, img_base):
         print "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">",
         print "%d </DartMeasurement>"%err_index
 	   
-    print "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">",
-    print "%s </DartMeasurementFile>"%(img_base + '.test.small.jpg')
+    print "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">",
+    print "%s </DartMeasurementFile>"%(img_base + '.png')
 
-    print "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/jpeg\">",
-    print "%s </DartMeasurementFile>"%(img_base + '.diff.small.jpg')
-    print "<DartMeasurementFile name=\"ValidImage\" type=\"image/jpeg\">",
-    print "%s </DartMeasurementFile>"%(img_base + '.small.jpg')
+    print "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">",
+    print "%s </DartMeasurementFile>"%(img_base + '.diff.png')
+    print "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">",
+    print "%s </DartMeasurementFile>"%(img_base + '.valid.png')
 
 
 def _printDartImageSuccess(img_err, err_index):
@@ -291,49 +291,28 @@ def _handleFailedImage(idiff, pngr, img_fname):
     """Writes all the necessary images when an image comparison
     failed."""
     f_base, f_ext = os.path.splitext(img_fname)
-
-    # write out the difference file in full.
-    pngw = vtk.vtkPNGWriter()
-    pngw.SetFileName(_getTempImagePath(f_base + ".diff.png"))
-    pngw.SetInput(idiff.GetOutput())
-    pngw.Write()
     
-    # write the difference image scaled and gamma adjusted for the
-    # dashboard.
-    sz = pngr.GetOutput().GetDimensions()
-    if sz[1] <= 250.0:
-        mag = 1.0
-    else:
-        mag = 250.0/sz[1]
-
-    shrink = vtk.vtkImageResample()
-    shrink.SetInput(idiff.GetOutput())
-    shrink.InterpolateOn()
-    shrink.SetAxisMagnificationFactor(0, mag)
-    shrink.SetAxisMagnificationFactor(1, mag)
-
+    # write the difference image gamma adjusted for the dashboard.
     gamma = vtk.vtkImageShiftScale()
-    gamma.SetInput(shrink.GetOutput())
+    gamma.SetInputConnection(idiff.GetOutputPort())
     gamma.SetShift(0)
     gamma.SetScale(10)
 
-    jpegw = vtk.vtkJPEGWriter()
-    jpegw.SetFileName(_getTempImagePath(f_base + ".diff.small.jpg"))
-    jpegw.SetInput(gamma.GetOutput())
-    jpegw.SetQuality(85)
-    jpegw.Write()
+    pngw = vtk.vtkPNGWriter()
+    pngw.SetFileName(_getTempImagePath(f_base + ".diff.png"))
+    pngw.SetInputConnection(gamma.GetOutputPort())
+    pngw.Write()
 
-    # write out the image that was generated.
-    shrink.SetInput(idiff.GetInput())
-    jpegw.SetInput(shrink.GetOutput())
-    jpegw.SetFileName(_getTempImagePath(f_base + ".test.small.jpg"))
-    jpegw.Write()
+    # Write out the image that was generated.  Write it out as full so that
+    # it may be used as a baseline image if the tester deems it valid.
+    pngw.SetInput(idiff.GetInput())
+    pngw.SetFileName(_getTempImagePath(f_base + ".png"))
+    pngw.Write()
 
     # write out the valid image that matched.
-    shrink.SetInput(idiff.GetImage())
-    jpegw.SetInput(shrink.GetOutput())
-    jpegw.SetFileName(_getTempImagePath(f_base + ".small.jpg"))
-    jpegw.Write()
+    pngw.SetInput(idiff.GetImage())
+    pngw.SetFileName(_getTempImagePath(f_base + ".valid.png"))
+    pngw.Write()
 
 
 def main(cases):
