@@ -51,7 +51,7 @@ static bool ConvertVector(vtkArray* Array, vtkTable* Output)
 
   ColumnT* const column = ColumnT::New();
   column->SetNumberOfTuples(extents[0]);
-  column->SetName("0");
+  column->SetName(array->GetName());
   for(vtkIdType i = 0; i != extents[0]; ++i)
     {
     column->SetValue(i, array->GetValue(i));
@@ -99,7 +99,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkArrayToTable, "1.4");
+vtkCxxRevisionMacro(vtkArrayToTable, "1.5");
 vtkStandardNewMacro(vtkArrayToTable);
 
 // ----------------------------------------------------------------------
