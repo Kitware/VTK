@@ -22,6 +22,7 @@
 #include "vtkgl.h"
 #include <assert.h>
 
+//#define VTK_TO_DEBUG
 //#define VTK_TO_TIMING
 
 #ifdef VTK_TO_TIMING
@@ -104,7 +105,7 @@ GLint OpenGLMinFilter[6]=
 
 const char *MinFilterAsString[6]=
 {
-  "Nearest=0",
+  "Nearest",
   "Linear",
   "NearestMipmapNearest",
   "NearestMipmapLinear",
@@ -112,9 +113,26 @@ const char *MinFilterAsString[6]=
   "LinearMipmapLinear"
 };
 
+GLenum OpenGLDepthInternalFormat[5]=
+{
+  GL_DEPTH_COMPONENT,
+  GL_DEPTH_COMPONENT16,
+  GL_DEPTH_COMPONENT24,
+  GL_DEPTH_COMPONENT32,
+  vtkgl::DEPTH_COMPONENT32F,
+};
+  
+const char *DepthInternalFormatFilterAsString[6]=
+{
+  "Native",
+  "Fixed16",
+  "Fixed24",
+  "Fixed32",
+  "Float32"
+};
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.8");
+vtkCxxRevisionMacro(vtkTextureObject, "1.9");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -319,7 +337,8 @@ void vtkTextureObject::UnBind()
 
 //----------------------------------------------------------------------------
 // Description:
-// Tells if the texture object is bound.
+// Tells if the texture object is bound to the active texture image unit.
+// (a texture object can be bound to multiple texture image unit).
 bool vtkTextureObject::IsBound()
 {
   bool result=false;
@@ -925,6 +944,132 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   return true;
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 2D depth texture using a PBO.
+bool vtkTextureObject::CreateDepth(unsigned int width,
+                                   unsigned int height,
+                                   int internalFormat,
+                                   vtkPixelBufferObject *pbo)
+{
+  assert("pre: context_exists" && this->GetContext()!=0);
+  assert("pre: pbo_context_exists" && pbo->GetContext()!=0);
+  assert("pre: context_match" && this->GetContext()==pbo->GetContext());
+  
+#ifdef VTK_TO_DEBUG
+  cout << "pbo size=" << pbo->GetSize() << endl;
+  cout << "width=" << width << endl;
+  cout << "height=" << height << endl;
+  cout << "width*height=" << width*height << endl;
+#endif
+  
+  assert("pre: sizes_match" && pbo->GetSize()==width*height);
+  assert("pre: valid_internalFormat" && internalFormat>=0
+         && internalFormat<NumberOfDepthFormats);
+  
+  GLenum inFormat=OpenGLDepthInternalFormat[internalFormat];
+  GLenum type=::vtkGetType(pbo->GetType());
+  
+  this->Target=GL_TEXTURE_2D;
+  this->Format=GL_DEPTH_COMPONENT;
+  this->Type=type;
+  this->Width=width;
+  this->Height=height;
+  this->Depth=1;
+  this->NumberOfDimensions=2;
+  this->Components=1;
+  
+  this->CreateTexture();
+  this->Bind();
+
+  pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
+  vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
+  // Source texture data from the PBO.
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(this->Target, 0, static_cast<GLint>(inFormat),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0,
+               this->Format, this->Type, BUFFER_OFFSET(0));
+  vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
+  pbo->UnBind();
+  this->UnBind();
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 2D depth texture using a raw pointer.
+// This is a blocking call. If you can, use PBO instead.
+bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
+                                          unsigned int height,
+                                          int internalFormat,
+                                          int rawType,
+                                          void *raw)
+{
+  assert("pre: context_exists" && this->GetContext()!=0);
+  assert("pre: raw_exists" && raw!=0);
+  
+#ifdef VTK_TO_DEBUG
+  cout << "width=" << width << endl;
+  cout << "height=" << height << endl;
+  cout << "width*height=" << width*height << endl;
+#endif
+  
+  assert("pre: valid_internalFormat" && internalFormat>=0
+         && internalFormat<NumberOfDepthFormats);
+  
+  GLenum inFormat=OpenGLDepthInternalFormat[internalFormat];
+  GLenum type=::vtkGetType(rawType);
+  
+  this->Target=GL_TEXTURE_2D;
+  this->Format=GL_DEPTH_COMPONENT;
+  this->Type=type;
+  this->Width=width;
+  this->Height=height;
+  this->Depth=1;
+  this->NumberOfDimensions=2;
+  this->Components=1;
+  
+  this->CreateTexture();
+  this->Bind();
+  
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(this->Target, 0, static_cast<GLint>(inFormat),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0,
+               this->Format, this->Type,raw);
+  this->UnBind();
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 2D depth texture but does not initialize its values.
+bool vtkTextureObject::AllocateDepth(unsigned int width,unsigned int height,
+                                     int internalFormat)
+{
+  assert("pre: context_exists" && this->GetContext()!=0);
+  assert("pre: valid_internalFormat" && internalFormat>=0
+         && internalFormat<NumberOfDepthFormats);
+  
+  GLenum inFormat=OpenGLDepthInternalFormat[internalFormat];
+  this->Target=GL_TEXTURE_2D;
+  this->Format=GL_DEPTH_COMPONENT;
+  this->Type=GL_UNSIGNED_BYTE; // it does not matter.
+  this->Width=width;
+  this->Height=height;
+  this->Depth=1;
+  this->NumberOfDimensions=2;
+  this->Components=1;
+  
+  this->CreateTexture();
+  this->Bind();
+  
+  glTexImage2D(this->Target, 0, static_cast<GLint>(inFormat),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0,
+               this->Format, this->Type,0);
+  this->UnBind();
+  return true;
+}
+
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create3D(unsigned int width, unsigned int height, 
                                 unsigned int depth, int numComps,
@@ -1169,6 +1314,88 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   this->Depth = depth;
   this->NumberOfDimensions = 3;
   return true;
+}
+
+// ----------------------------------------------------------------------------
+void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
+                                         int srcYmin,
+                                         int srcXmax,
+                                         int srcYmax,
+                                         int dstXmin,
+                                         int dstYmin,
+                                         int width,
+                                         int height)
+{
+  assert("pre: positive_srcXmin" && srcXmin>=0);
+  assert("pre: max_srcXmax" &&
+         static_cast<unsigned int>(srcXmax)<this->GetWidth());
+  assert("pre: increasing_x" && srcXmin<=srcXmax);
+  assert("pre: positive_srcYmin" && srcYmin>=0);
+  assert("pre: max_srcYmax" &&
+         static_cast<unsigned int>(srcYmax)<this->GetHeight());
+  assert("pre: increasing_y" && srcYmin<=srcYmax);
+  assert("pre: positive_dstXmin" && dstXmin>=0);
+  assert("pre: positive_dstYmin" && dstYmin>=0);
+  assert("pre: positive_width" && width>0);
+  assert("pre: positive_height" && height>0);
+  assert("pre: x_fit" && dstXmin+(srcXmax-srcXmin)<width);
+  assert("pre: y_fit" && dstYmin+(srcYmax-srcYmin)<height);
+  
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(0.0,width,0.0,height,-1,1);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  
+  glPushAttrib(GL_VIEWPORT_BIT|GL_POLYGON_BIT|GL_TEXTURE_BIT);
+  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  glMatrixMode(GL_TEXTURE);
+  glPushMatrix();
+  glLoadIdentity();
+  
+  glViewport(0,0,width,height);
+  glDepthRange(0.0,1.0);
+  glDisable(GL_POLYGON_OFFSET_FILL);
+  
+  GLfloat minXTexCoord=static_cast<GLfloat>(
+    static_cast<double>(srcXmin)/this->Width);
+  GLfloat minYTexCoord=static_cast<GLfloat>(
+    static_cast<double>(srcYmin)/this->Height);
+  
+  GLfloat maxXTexCoord=static_cast<GLfloat>(
+    static_cast<double>(srcXmax+1)/this->Width);
+  GLfloat maxYTexCoord=static_cast<GLfloat>(
+    static_cast<double>(srcYmax+1)/this->Height);
+  
+  GLfloat dstXmax=static_cast<GLfloat>(dstXmin+srcXmax-srcXmin);
+  GLfloat dstYmax=static_cast<GLfloat>(dstYmin+srcYmax-srcYmin);
+  
+  // rasterization rules are different from points, lines and polygons.
+  // the following vertex coordinates are only valid for 1:1 mapping in the
+  // case of polygons.
+  
+  // Draw a quad.
+  glBegin(GL_TRIANGLE_FAN);
+  glTexCoord2f(minXTexCoord,minYTexCoord);
+  glVertex2f(static_cast<GLfloat>(dstXmin), static_cast<GLfloat>(dstYmin));
+  glTexCoord2f(maxXTexCoord, minYTexCoord);
+  glVertex2f(dstXmax+1, static_cast<GLfloat>(dstYmin));
+  glTexCoord2f(maxXTexCoord, maxYTexCoord);
+  glVertex2f(dstXmax+1, dstYmax+1);
+  glTexCoord2f(minXTexCoord, maxYTexCoord);
+  glVertex2f(static_cast<GLfloat>(dstXmin), dstYmax+1);
+  glEnd();
+  
+  glMatrixMode(GL_TEXTURE);
+  glPopMatrix();
+  
+  glPopAttrib();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 }
 
 //----------------------------------------------------------------------------

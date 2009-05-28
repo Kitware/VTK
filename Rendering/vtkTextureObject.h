@@ -44,7 +44,8 @@ public:
     Equal, // r=R==Dt ? 1.0 : 0.0
     NotEqual, // r=R!=Dt ? 1.0 : 0.0
     AlwaysTrue, //  r=1.0 // WARNING "Always" is macro defined in X11/X.h...
-    Never // r=0.0
+    Never, // r=0.0
+    NumberOfDepthTextureCompareFunctions
   };
   
   // DepthTextureMode values.
@@ -52,7 +53,8 @@ public:
   {
     Luminance=0, // (R,G,B,A)=(r,r,r,1)
     Intensity, // (R,G,B,A)=(r,r,r,r)
-    Alpha // (R.G.B.A)=(0,0,0,r)
+    Alpha, // (R.G.B.A)=(0,0,0,r)
+    NumberOfDepthTextureModes
   };
   
   // Wrap values.
@@ -62,7 +64,8 @@ public:
     ClampToEdge,
     Repeat,
     ClampToBorder,
-    MirroredRepeat
+    MirroredRepeat,
+    NumberOfWrapModes
   };
   
   // MinificationFilter values.
@@ -73,8 +76,21 @@ public:
     NearestMipmapNearest,
     NearestMipmapLinear,
     LinearMipmapNearest,
-    LinearMipmapLinear
+    LinearMipmapLinear,
+    NumberOfMinificationModes
   };
+  
+  // Internal depth format
+  enum
+  {
+    Native=0, // will try to match with the depth buffer format.
+    Fixed16,
+    Fixed24,
+    Fixed32,
+    Float32,
+    NumberOfDepthFormats
+  };
+  
   //ETX
   
   static vtkTextureObject* New();
@@ -114,7 +130,8 @@ public:
   void UnBind();
 
   // Description:
-  // Tells if the texture object is bound.
+  // Tells if the texture object is bound to the active texture image unit.
+  // (a texture object can be bound to multiple texture image unit).
   bool IsBound();
   
   // Description:
@@ -144,6 +161,29 @@ public:
                 vtkPixelBufferObject *pbo,
                 bool shaderSupportsTextureInt);
 
+  // Description:
+  // Create a 2D depth texture using a PBO.
+  // \pre: valid_internalFormat: internalFormat>=0 && internalFormat<NumberOfDepthFormats
+  bool CreateDepth(unsigned int width,
+                   unsigned int height,
+                   int internalFormat,
+                   vtkPixelBufferObject *pbo);
+  
+  // Description:
+  // Create a 2D depth texture using a raw pointer.
+  // This is a blocking call. If you can, use PBO instead.
+  bool CreateDepthFromRaw(unsigned int width,
+                          unsigned int height,
+                          int internalFormat,
+                          int rawType,
+                          void *raw);
+  
+  // Description:
+  // Create a 2D depth texture but does not initialize its values.
+  bool AllocateDepth(unsigned int width,unsigned int height,
+                     int internalFormat);
+  
+  
   // Description:
   // Create a 3D texture using the PBO.
   // Eventually we may start supporting creating a texture from subset of data
@@ -226,7 +266,7 @@ public:
   // - NearestMipmapLinear
   // - LinearMipmapNearest
   // - LinearMipmapLinear
-  // Initial value is NearestMipMapLinear (note initial value in OpenGL spec
+  // Initial value is Nearest (note initial value in OpenGL spec
   // is NearestMipMapLinear but this is error-prone because it makes the
   // texture object incomplete. ).
   vtkGetMacro(MinificationFilter,int);
@@ -332,6 +372,42 @@ public:
   // Description:
   // Returns if the context supports the required extensions.
   static bool IsSupported(vtkRenderWindow* renWin);
+  
+  // Description:
+  // Copy a sub-part of the texture (src) in the current framebuffer
+  // at location (dstXmin,dstYmin). (dstXmin,dstYmin) is the location of the
+  // lower left corner of the rectangle. width and height are the dimensions
+  // of the framebuffer.
+  // - texture coordinates are sent on texture coordinate processing unit 0.
+  // - if the fixed-pipeline fragment shader is used, texturing has to be set
+  // on texture image unit 0 and the texture object has to be bound on texture
+  // image unit 0.
+  // - if a customized fragment shader is used, you are free to pick the
+  // texture image unit you want. You can even have multiple texture objects
+  // attached on multiple texture image units. In this case, you call this
+  // method only on one of them.
+  // \pre positive_srcXmin: srcXmin>=0
+  // \pre max_srcXmax: srcXmax<this->GetWidth()
+  // \pre increasing_x: srcXmin<=srcXmax
+  // \pre positive_srcYmin: srcYmin>=0
+  // \pre max_srcYmax: srcYmax<this->GetHeight()
+  // \pre increasing_y: srcYmin<=srcYmax
+  // \pre positive_dstXmin: dstXmin>=0
+  // \pre positive_dstYmin: dstYmin>=0
+  // \pre positive_width: width>0
+  // \pre positive_height: height>0
+  // \pre x_fit: destXmin+(srcXmax-srcXmin)<width
+  // \pre y_fit: destYmin+(srcYmax-srcYmin)<height
+  void CopyToFrameBuffer(int srcXmin,
+                         int srcYmin,
+                         int srcXmax,
+                         int srcYmax,
+                         int dstXmin,
+                         int dstYmin,
+                         int width,
+                         int height);
+  
+  
 //BTX
 protected:
   vtkTextureObject();
