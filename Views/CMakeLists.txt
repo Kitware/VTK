@@ -8,6 +8,7 @@ SET(KIT_LIBS vtkInfovis)
 SET( Kit_SRCS
 vtkConvertSelectionDomain.cxx
 vtkDataRepresentation.cxx
+vtkEmptyRepresentation.cxx
 vtkGraphLayoutView.cxx
 vtkHierarchicalGraphPipeline.cxx
 vtkHierarchicalGraphView.cxx
