@@ -202,6 +202,12 @@ public:
   // Get the distance between the points.
   double GetDistance();
   
+
+  // Description:
+  // Convenience method to set the line color.
+  // Ideally one should use GetLineProperty()->SetColor().
+  void SetLineColor(double r, double g, double b);
+
 protected:
   vtkLineRepresentation();
   ~vtkLineRepresentation();
