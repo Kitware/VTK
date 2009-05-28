@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.12");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.13");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -309,6 +309,11 @@ void vtkShaderProgram2::Use()
       if(static_cast<GLuint>(value)!=progId)
         {
         this->SavedId=static_cast<unsigned int>(value);
+        if(this->SavedId!=0)
+          {
+          vtkWarningMacro(<<"another program was used (id=" << this->SavedId
+                          <<"), our id is" << progId << ".");
+          }
         vtkgl::UseProgram(progId);
         }
       assert("check: in_use" && this->IsUsed());
@@ -335,6 +340,13 @@ void vtkShaderProgram2::Restore()
       {
       vtkgl::UseProgram(static_cast<GLuint>(this->SavedId));
       this->SavedId=0;
+      }
+    else
+      {
+      vtkWarningMacro(<<"cannot restore because the program in use (id="
+                      << value <<
+                      ") is not the id of the vtkShaderProgram2 object (id="
+                      << this->Id << ").");
       }
     }
 }
@@ -431,7 +443,7 @@ void vtkShaderProgram2::Build()
           {
           delete[] this->LastLinkLog;
           }
-        this->LastLinkLogCapacity=value;
+        this->LastLinkLogCapacity=static_cast<size_t>(value);
         this->LastLinkLog=new char[this->LastLinkLogCapacity];
         }
       vtkgl::GetProgramInfoLog(progId,value,0,this->LastLinkLog);
@@ -447,7 +459,7 @@ void vtkShaderProgram2::Build()
           vtkErrorMacro(<<" the shader program failed to link. Its log is:\n"
                         << this->GetLastLinkLog() << "the shaders are: ");
           size_t i=0;
-          size_t c=this->Shaders->GetNumberOfItems();
+          size_t c=static_cast<size_t>(this->Shaders->GetNumberOfItems());
           this->Shaders->InitTraversal();
           s=this->Shaders->GetNextShader();
           while(s!=0)
@@ -561,10 +573,9 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   // info about the list of active uniform variables
   vtkgl::GetProgramiv(progId,vtkgl::ACTIVE_UNIFORMS,&params);
   os<< indent << "There are "<<params<<" active uniform variables."<<endl;
-  int i=0;
-  int c=params;
-  vtkgl::GetProgramiv(progId,vtkgl::OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
-                      &params);
+  GLuint i=0;
+  GLuint c=static_cast<GLuint>(params);
+  vtkgl::GetProgramiv(progId,vtkgl::ACTIVE_UNIFORM_MAX_LENGTH,&params);
     
   GLint buffSize=params;
   char *name=new char[buffSize+1];
