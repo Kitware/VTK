@@ -636,7 +636,6 @@ void vtkQtChartArea::setUseOpenGLIfAvailable(bool enable)
     if (qobject_cast<QGLWidget*>(this->viewport()) == NULL)
       {
       this->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-      cout << "OpenGL" << endl;
       }
     }
   else 
@@ -644,10 +643,11 @@ void vtkQtChartArea::setUseOpenGLIfAvailable(bool enable)
     if (qobject_cast<QGLWidget*>(this->viewport()) != NULL)
       {
       this->setViewport(new QWidget());
-      cout << "Non OpenGL" << endl;
       }
     }
 #endif
+  (void)enable;
+  // not compiled with OpenGL, nothing to do.
 }
 
 
