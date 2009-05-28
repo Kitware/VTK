@@ -38,7 +38,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 
-vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.4");
+vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.5");
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 vtkCxxSetObjectMacro(vtkSobelGradientMagnitudePass,DelegatePass,vtkRenderPass);
 
@@ -547,37 +547,10 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     glDisable(GL_LIGHTING);
     glDisable(GL_SCISSOR_TEST);
     
-    // Viewport transformation for 1:1 'pixel=texel=data' mapping.
-    // Note this note enough for 1:1 mapping, because depending on the
-    // primitive displayed (point,line,polygon), the rasterization rules
-    // are different.
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0, width, 0.0, height, -1, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glViewport(0, 0, width, height);
-    
-    // Render quad 0,width-1,0,height-1 in original FB
-    int minX=0;
-    int maxX=width-1;
-    int minY=0;
-    int maxY=height-1;
-    
-    // skip first and last extra texel.
-    float minXTexCoord=static_cast<float>(extraPixels)/w;
-    float minYTexCoord=static_cast<float>(extraPixels)/h;
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(minXTexCoord,minYTexCoord);
-    glVertex2f(minX, minY);
-    glTexCoord2f(1.0-minXTexCoord, minYTexCoord);
-    glVertex2f(maxX+1, minY);
-    glTexCoord2f(1.0-minXTexCoord, 1.0-minYTexCoord);
-    glVertex2f(maxX+1, maxY+1);
-    glTexCoord2f(minXTexCoord, 1.0-minYTexCoord);
-    glVertex2f(minX, maxY+1);
-    glEnd();
+    // Trigger a draw on Gy1 (could be called on Gx1).
+    this->Gy1->CopyToFrameBuffer(extraPixels,extraPixels,
+                                 w-1-extraPixels,h-1-extraPixels,
+                                 0,0,width,height);
     
     this->Gy1->UnBind();
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+id0);
