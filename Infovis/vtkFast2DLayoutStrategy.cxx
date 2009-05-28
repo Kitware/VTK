@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.23");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.24");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -290,6 +290,13 @@ void vtkFast2DLayoutStrategy::Layout()
   if (this->Graph == NULL)
     {
     vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
+    this->LayoutComplete = 1;
+    return;
+    }
+
+  // If there are zero or one vertex, we are done
+  if (this->Graph->GetNumberOfVertices() <= 1)
+    {
     this->LayoutComplete = 1;
     return;
     }
