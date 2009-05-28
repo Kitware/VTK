@@ -116,9 +116,9 @@ const char *MinFilterAsString[6]=
 GLenum OpenGLDepthInternalFormat[5]=
 {
   GL_DEPTH_COMPONENT,
-  GL_DEPTH_COMPONENT16,
-  GL_DEPTH_COMPONENT24,
-  GL_DEPTH_COMPONENT32,
+  vtkgl::DEPTH_COMPONENT16,
+  vtkgl::DEPTH_COMPONENT24,
+  vtkgl::DEPTH_COMPONENT32,
   vtkgl::DEPTH_COMPONENT32F,
 };
   
@@ -132,7 +132,7 @@ const char *DepthInternalFormatFilterAsString[6]=
 };
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.9");
+vtkCxxRevisionMacro(vtkTextureObject, "1.10");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
