@@ -27,12 +27,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkArrayNorm.h"
 
+#include <vtksys/ios/sstream>
 #include <vtkstd/stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
 
-vtkCxxRevisionMacro(vtkArrayNorm, "1.1");
+vtkCxxRevisionMacro(vtkArrayNorm, "1.2");
 vtkStandardNewMacro(vtkArrayNorm);
 
 vtkArrayNorm::vtkArrayNorm() :
@@ -90,7 +91,11 @@ int vtkArrayNorm::RequestData(
     const vtkIdType dimension_extents = input_array->GetExtents()[this->Dimension];
 
     // Setup our output ...
+    vtkstd::ostringstream array_name;
+    array_name << "L" << this->L << "_norm";
+    
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
+    output_array->SetName(array_name.str());
     output_array->Resize(dimension_extents);
     output_array->Fill(0.0);
 
