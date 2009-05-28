@@ -92,6 +92,13 @@ public:
   vtkLightCollection *GetLights();
   
   // Description:
+  // Set the collection of lights.
+  // We cannot name it SetLights because of TestSetGet
+  // \pre lights_exist: lights!=0
+  // \post lights_set: lights==this->GetLights()
+  void SetLightCollection(vtkLightCollection *lights);
+  
+  // Description:
   // Create and add a light to renderer.
   void CreateLight(void);
   

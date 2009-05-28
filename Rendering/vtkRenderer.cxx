@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.247");
+vtkCxxRevisionMacro(vtkRenderer, "1.248");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -838,6 +838,20 @@ void vtkRenderer::RemoveCuller(vtkCuller *culler)
   this->Cullers->RemoveItem(culler);
 }
 
+// ----------------------------------------------------------------------------
+void vtkRenderer::SetLightCollection(vtkLightCollection *lights)
+{
+  assert("pre lights_exist" && lights!=0);
+  
+  this->Lights->Delete(); // this->Lights is always not NULL.
+  this->Lights=lights;
+  this->Lights->Register(this);
+  this->Modified();
+  
+  assert("post: lights_set" && lights==this->GetLights());
+}
+
+// ----------------------------------------------------------------------------
 vtkLight *vtkRenderer::MakeLight()
 {
   return vtkLight::New();
@@ -1490,7 +1504,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   numberPickFrom = 2*props->GetNumberOfPaths()*3 + 1;
 
   this->IsPicking = 1; // turn on picking
-  this->StartPick(numberPickFrom);
+  this->StartPick(static_cast<unsigned int>(numberPickFrom));
   this->PathArray = new vtkAssemblyPath *[numberPickFrom];
   this->PathArrayCount = 0;
 
@@ -1517,7 +1531,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
     // because each Prop has RenderOpaqueGeometry,
     // RenderTranslucentPolygonalGeometry, RenderVolumetricGeometry and
     // RenderOverlay called on it.
-    pickedId = pickedId % this->PathArrayCount;
+    pickedId = pickedId % static_cast<unsigned int>(this->PathArrayCount);
     this->PickedProp = this->PathArray[pickedId];
     this->PickedProp->Register(this);
     }
@@ -1536,7 +1550,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
     {
     nextId = idBuff[pIdx] - 1; // pick ids start at 1, so move back one
-    nextId = nextId % this->PathArrayCount;
+    nextId = nextId % static_cast<unsigned int>(this->PathArrayCount);
     vtkProp *propCandidate = this->PathArray[nextId]->GetLastNode()->GetViewProp();
     this->PickResultProps->AddItem(propCandidate);
     }
