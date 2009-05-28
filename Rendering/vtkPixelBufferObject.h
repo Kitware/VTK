@@ -36,6 +36,24 @@ class vtkOpenGLExtensionManager;
 class VTK_RENDERING_EXPORT vtkPixelBufferObject : public vtkObject
 {
 public:
+  
+  //BTX
+  // Usage values.
+  enum 
+  {
+    StreamDraw=0,
+    StreamRead,
+    StreamCopy,
+    StaticDraw,
+    StaticRead,
+    StaticCopy,
+    DynamicDraw,
+    DynamicRead,
+    DynamicCopy,
+    NumberOfUsages
+  };
+  //ETX
+  
   static vtkPixelBufferObject* New();
   vtkTypeRevisionMacro(vtkPixelBufferObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -49,6 +67,25 @@ public:
   void SetContext(vtkRenderWindow* context);
   vtkRenderWindow* GetContext();
 
+  // Description:
+  // Usage is a performance hint.
+  // Valid values are:
+  // - StreamDraw specified once by A, used few times S
+  // - StreamRead specified once by R, queried a few times by A
+  // - StreamCopy specified once by R, used a few times S
+  // - StaticDraw specified once by A, used many times S
+  // - StaticRead specificed once by R, queried many times by A
+  // - StaticCopy specified once by R, used many times S
+  // - DynamicDraw respecified repeatedly by A, used many times S
+  // - DynamicRead respecified repeatedly by R, queried many times by A
+  // - DynamicCopy respecified repeatedly by R, used many times S
+  // A: the application
+  // S: as the source for GL drawing and image specification commands.
+  // R: reading data from the GL
+  // Initial value is StaticDraw, as in OpenGL spec.
+  vtkGetMacro(Usage,int);
+  vtkSetMacro(Usage,int);
+  
   // Description:
   // Upload data to GPU. 
   // The input data can be freed after this call.
@@ -193,6 +230,10 @@ public:
   void Bind(BufferType buffer);
 
   // Description:
+  // Allocate the memory
+  void Allocate(unsigned int size);
+  
+  // Description:
   // Release the memory allocated without destroying the PBO handle.
   void ReleaseMemory();
 
@@ -219,7 +260,8 @@ protected:
   // Destroys the pixel buffer object.
   void DestroyBuffer();
 
-  int BufferTarget;
+  int Usage;
+  unsigned int BufferTarget; // GLenum
   int Type;
   unsigned int Size;
   vtkWeakPointer<vtkRenderWindow> Context;
