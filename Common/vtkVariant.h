@@ -33,6 +33,7 @@
 #include "vtkSystemIncludes.h" // To define ostream
 #include "vtkSetGet.h"         // For vtkNotUsed macro
 #include "vtkStdString.h"
+#include "vtkUnicodeString.h"
 
 //
 // The following should be eventually placed in vtkSetGet.h

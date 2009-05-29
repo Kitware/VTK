@@ -137,15 +137,24 @@ vtkVariant::operator==(const vtkVariant &other) const
     return (this->ToString() == other.ToString());
     }
 
-  // Fourth: floating point dominates integer types.
+  // Fourth test: the Unicode STRING type dominates all else.  If either item
+  // is a unicode string then they must both be compared as strings.
+  if ((this->Type == VTK_UNICODE_STRING) ||
+      (other.Type == VTK_UNICODE_STRING))
+    {
+    return (this->ToUnicodeString() == other.ToUnicodeString());
+    }
+
+
+  // Fifth: floating point dominates integer types.
   if (IsFloatingPoint(this->Type) || IsFloatingPoint(other.Type))
     {
     return (this->ToDouble() == other.ToDouble());
     }
 
-  // Fifth: we must be comparing integers.  
+  // Sixth: we must be comparing integers.  
 
-  // 5A: catch signed/unsigned comparison.  If the signed object is
+  // 6A: catch signed/unsigned comparison.  If the signed object is
   // less than zero then they cannot be equal.
   bool thisSigned = IsSigned(this->Type);
   bool otherSigned = IsSigned(other.Type);
@@ -161,7 +170,7 @@ vtkVariant::operator==(const vtkVariant &other) const
       return CompareSignedUnsignedEqual(other, *this);
       }
     }
-  else // 5B: both are signed or both are unsigned.  In either event
+  else // 6B: both are signed or both are unsigned.  In either event
        // all we have to do is check whether the bit patterns are
        // equal.
     {
@@ -196,6 +205,14 @@ vtkVariant::operator<(const vtkVariant &other) const
       (other.Type == VTK_STRING))
     {
     return (this->ToString() < other.ToString());
+    }
+
+  // Fourth test: the Unicode STRING type dominates all else.  If either item
+  // is a unicode string then they must both be compared as strings.
+  if ((this->Type == VTK_UNICODE_STRING) ||
+      (other.Type == VTK_UNICODE_STRING))
+    {
+    return (this->ToUnicodeString() < other.ToUnicodeString());
     }
 
   // Fourth: floating point dominates integer types.
