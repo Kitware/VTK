@@ -33,6 +33,7 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkVariantArray.h"
 
+#include <vtkstd/algorithm>
 #include <QIcon>
 #include <QPixmap>
 
