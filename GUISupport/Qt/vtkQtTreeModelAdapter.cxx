@@ -30,6 +30,7 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkVariantArray.h"
 
 #include <QIcon>
@@ -217,19 +218,23 @@ void vtkQtTreeModelAdapter::GenerateVTKIndexToQtModelIndex(vtkIdType vtk_index, 
 QVariant vtkQtTreeModelAdapterArrayValue(vtkAbstractArray* arr, vtkIdType i, vtkIdType j)
 {
   int comps = arr->GetNumberOfComponents();
-  if (vtkDataArray::SafeDownCast(arr))
+  if(vtkDataArray* const data = vtkDataArray::SafeDownCast(arr))
     {
-    vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
     return QVariant(data->GetComponent(i, j));
     }
-  else if (vtkStringArray::SafeDownCast(arr))
+
+  if(vtkStringArray* const data = vtkStringArray::SafeDownCast(arr))
     {
-    vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
     return QVariant(data->GetValue(i*comps + j));
     }
-  else if (vtkVariantArray::SafeDownCast(arr))
+
+  if(vtkUnicodeStringArray* const data = vtkUnicodeStringArray::SafeDownCast(arr))
     {
-    vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+    return QVariant(QString::fromUtf8(data->GetValue(i*comps + j).utf8_str()));
+    }
+    
+  if(vtkVariantArray* const data = vtkVariantArray::SafeDownCast(arr))
+    {
     return QVariant(QString(data->GetValue(i*comps + j).ToString().c_str()));
     }
   
@@ -273,7 +278,11 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
     const char* const whitespace = " \t\r\n\v\f";
     s.erase(0, s.find_first_not_of(whitespace));
     s.erase(s.find_last_not_of(whitespace) + 1);
-    return QVariant(s.c_str());
+
+    vtkstd::replace(s.begin(), s.end(), '\r', ' ');
+    vtkstd::replace(s.begin(), s.end(), '\n', ' ');
+
+    return s.c_str();
     }
   else if (role == Qt::UserRole)
     {
