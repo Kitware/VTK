@@ -56,6 +56,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLineChartView.cxx
       vtkQtListView.cxx
       vtkQtRecordView.cxx
+      vtkQtRichTextView.cxx
       vtkQtStackedChartView.cxx
       vtkQtStatisticalBoxChartView.cxx
       vtkQtTableRepresentation.cxx
@@ -71,6 +72,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h
+      vtkQtRichTextView.h
       vtkQtTableView.h
       vtkQtTreeView.h
       vtkQtView.h
@@ -92,6 +94,8 @@ IF(DESIRED_QT_VERSION MATCHES 4)
             NO_DEFAULT_PATH)
 
   # import Qt4 build settings
+  SET (QT_USE_QTWEBKIT 1)
+  SET (QT_USE_QTNETWORK 1)
   INCLUDE(${QT_USE_FILE})
 
   SET ( PluginLibSrcs
