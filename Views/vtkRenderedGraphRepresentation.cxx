@@ -81,10 +81,11 @@
 /* Include algorithm last so "remove" macro Borland hack does not
    affect other headers.  */
 #include <vtksys/stl/algorithm>
+#include <ctype.h>
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.16");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.17");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
