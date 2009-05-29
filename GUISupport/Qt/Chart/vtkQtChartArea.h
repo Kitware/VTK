@@ -184,6 +184,10 @@ public:
   void setStyleManager(vtkQtChartStyleManager *manager);
   //@}
 
+  /// \brief 
+  ///   Enabled OpenGL is available.
+  void setUseOpenGLIfAvailable(bool useOpenGL);
+
 public slots:
   /// Calculates the axis and chart layout.
   void layoutChart();

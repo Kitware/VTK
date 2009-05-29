@@ -133,10 +133,7 @@ vtkQtChartArea::vtkQtChartArea(QWidget *widgetParent)
 
 #if defined(VTK_USE_QVTK_QTOPENGL) && (QT_EDITION & QT_MODULE_OPENGL)
   // Use the OpenGL widget if possible
-  if(QGLFormat::hasOpenGL())
-    {
-    this->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-    }
+  this->setUseOpenGLIfAvailable(true);
 #endif
 
   // Set up the axis and grid layers.
@@ -627,6 +624,30 @@ void vtkQtChartArea::handleZoomChange()
 void vtkQtChartArea::changeCursor(const QCursor &newCursor)
 {
   this->setCursor(newCursor);
+}
+
+#include <iostream>
+using namespace std;
+void vtkQtChartArea::setUseOpenGLIfAvailable(bool enable)
+{
+#if defined(VTK_USE_QVTK_QTOPENGL) && (QT_EDITION & QT_MODULE_OPENGL)
+  if (QGLFormat::hasOpenGL() && enable)
+    {
+    if (qobject_cast<QGLWidget*>(this->viewport()) == NULL)
+      {
+      this->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+      cout << "OpenGL" << endl;
+      }
+    }
+  else 
+    {
+    if (qobject_cast<QGLWidget*>(this->viewport()) != NULL)
+      {
+      this->setViewport(new QWidget());
+      cout << "Non OpenGL" << endl;
+      }
+    }
+#endif
 }
 
 
