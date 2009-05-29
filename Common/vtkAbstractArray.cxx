@@ -26,6 +26,7 @@
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -44,7 +45,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.16");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.17");
 
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
@@ -176,6 +177,10 @@ int vtkAbstractArray::GetDataTypeSize(int type)
       return 0;
       break;
 
+    case VTK_UNICODE_STRING:
+      return 0;
+      break;
+
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
     }
@@ -249,6 +254,9 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
    
     case VTK_STRING:
       return vtkStringArray::New();
+
+    case VTK_UNICODE_STRING:
+      return vtkUnicodeStringArray::New();
 
     case VTK_VARIANT:
       return vtkVariantArray::New();
