@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.57.2.1");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -53,16 +53,15 @@ extern const char *vtkOpenGLPropertyDefaultMain_fs;
 extern const char *vtkOpenGLPropertyDefaultPropFunc_vs;
 extern const char *vtkOpenGLPropertyDefaultPropFunc_fs;
 
-vtkCxxSetObjectMacro(vtkOpenGLProperty,Shader2Collection,vtkShader2Collection);
+vtkCxxSetObjectMacro(vtkOpenGLProperty,PropProgram,vtkShaderProgram2);
 
 vtkOpenGLProperty::vtkOpenGLProperty()
 {
-  this->Shader2Collection=0;
-  
+  this->PropProgram = 0;
   this->CachedShaderProgram2=0;
-  this->LastCachedShaderProgram2=0;
+  this->LastRendererShaderProgram2 = 0;
+  this->LastPropProgram = 0;
   
-  this->PropProgram=0;
   this->DefaultMainVS=0;
   this->DefaultMainFS=0;
   this->DefaultPropVS=0;
@@ -77,15 +76,11 @@ vtkOpenGLProperty::vtkOpenGLProperty()
 
 vtkOpenGLProperty::~vtkOpenGLProperty()
 {
-  this->SetShader2Collection(0);
+  this->SetPropProgram(0);
   
   if(this->CachedShaderProgram2!=0)
     {
     this->CachedShaderProgram2->Delete();
-    }
-  if(this->PropProgram!=0)
-    {
-    this->PropProgram->Delete();
     }
   if(this->DefaultMainVS!=0)
     {
@@ -109,34 +104,104 @@ vtkOpenGLProperty::~vtkOpenGLProperty()
     }
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void vtkOpenGLProperty::AddShaderVariable(const char *name,
+                                          int numVars,
+                                          int *x)
+{
+  this->Superclass::AddShaderVariable(name, numVars, x);
+  if (!this->PropProgram)
+    {
+    return;
+    }
+  vtkShader2Collection* shaders = this->PropProgram->GetShaders();
+  shaders->InitTraversal();
+  vtkShader2* shader = shaders->GetNextShader();
+  while (shader)
+    {
+    shader->GetUniformVariables()->SetUniformi(name, numVars, x);
+    shader = shaders->GetNextShader();
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLProperty::AddShaderVariable(const char *name,
+                                          int numVars,
+                                          float *x)
+{
+  this->Superclass::AddShaderVariable(name, numVars, x);
+  if(this->PropProgram!=0)
+    {
+    if(this->PropProgram->GetUniformVariables()==0)
+      {
+      vtkUniformVariables *vars=vtkUniformVariables::New();
+      this->PropProgram->SetUniformVariables(vars);
+      vars->Delete();
+      }
+    this->PropProgram->GetUniformVariables()->SetUniformf(name, numVars, x);
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLProperty::AddShaderVariable(const char *name,
+                                          int numVars,
+                                          double *x)
+{
+  float *xf = new float[numVars];
+  for (int i = 0; i < numVars; i++)
+    {
+    xf[i] = static_cast<float> (x[i]);
+    }
+  this->AddShaderVariable(name, numVars, xf);
+  delete[] xf;
+}
+
+// ----------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor *anActor,
-                             vtkRenderer *ren)
+                               vtkRenderer *ren)
 {
   int i;
   GLenum method;
-  float Info[4];
-  GLenum Face;
+  GLfloat info[4];
+  GLenum face;
   double  color[4];
   
   // unbind any textures for starters
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
-  vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
-  
-  bool supportShaders=false;
-  
-  if(prog!=0 || this->Shader2Collection!=0)
+  if (!oRenderer)
     {
-    supportShaders=vtkShaderProgram2::IsSupported(
-      static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow()));
-    if(supportShaders)
+    vtkErrorMacro("the vtkOpenGLProperty need a vtkOpenGLRenderer to render.");
+    return;
+    }
+  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
+      oRenderer->GetRenderWindow());
+  vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
+  if (prog != NULL)
+    {
+    assert("check: prog is initialized" && prog->GetContext()==context);
+    }
+  
+  bool useShaders=false;
+  vtkShaderProgram2 *propProg;
+  if(this->Shading)
+    {
+    propProg=this->PropProgram;
+    }
+  else
+    {
+    propProg=0;
+    }
+  if(prog!=0 || propProg!=0)
+    {
+    useShaders=vtkShaderProgram2::IsSupported(context);
+    if(useShaders)
       {
-      const char*gl_renderer=
-        reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-      if(strstr(gl_renderer, "Mesa") != 0)
+      const char *gl_renderer=reinterpret_cast<const char *>(
+        glGetString(GL_RENDERER));
+      if(strstr(gl_renderer,"Mesa")!=0)
         {
-        supportShaders=false;
+        useShaders=false;
         vtkErrorMacro(<<"Mesa does not support separate compilation units.");
         }
       }
@@ -146,211 +211,178 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       }
     }
   
-  if(supportShaders && prog!=0)
+  if(useShaders)
     {
-    bool progHasVertex=prog->HasVertexShaders();
-    bool progHasFragment=prog->HasFragmentShaders();
-    bool needDefaultPropFuncVS=progHasVertex;
-    bool needDefaultPropFuncFS=progHasFragment;
-    bool needDefaultMainVS=false;
-    bool needDefaultMainFS=false;
-    bool needCacheUpdate=false;
-    bool needCacheUniformUpdate=false;
-    
     if(this->CachedShaderProgram2==0)
       {
       this->CachedShaderProgram2=vtkShaderProgram2::New();
-      this->CachedShaderProgram2->SetContext(static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow()));
+      this->CachedShaderProgram2->SetContext(context);
       }
-    needCacheUpdate=this->LastCachedShaderProgram2!=prog
-      || this->CachedShaderProgram2->GetShaders()->GetMTime()<prog->GetShaders()->GetMTime();
     
-    needCacheUniformUpdate=this->LastCachedShaderProgram2!=prog || this->CachedShaderProgram2->GetUniformVariables()->GetMTime()<prog->GetUniformVariables()->GetMTime();
+    bool needCacheUpdate=prog!=this->LastRendererShaderProgram2
+      || propProg != this->LastPropProgram;
     
-    if(this->Shader2Collection!=0)
+    if(!needCacheUpdate && prog!=0)
       {
-      needDefaultPropFuncVS=needDefaultPropFuncVS &&
-        !this->Shader2Collection->HasVertexShaders();
-      needDefaultPropFuncFS=needDefaultPropFuncFS &&
-        !this->Shader2Collection->HasFragmentShaders();
-      
-      needCacheUpdate=needCacheUpdate ||
-        this->CachedShaderProgram2->GetShaders()->GetMTime()<this->Shader2Collection->GetMTime();
-      
-      needDefaultMainVS=!progHasVertex && this->Shader2Collection->HasVertexShaders();
-      needDefaultMainFS=!progHasFragment && this->Shader2Collection->HasFragmentShaders();
+      needCacheUpdate=this->CachedShaderProgram2->GetShaders()->GetMTime()
+        < prog->GetShaders()->GetMTime();
+      }
+    
+    if(!needCacheUpdate && propProg!=0)
+      {
+      needCacheUpdate=this->CachedShaderProgram2->GetShaders()->GetMTime()
+        < propProg->GetShaders()->GetMTime();
       }
     
     if(needCacheUpdate)
       {
+      bool progHasVertex = (prog!=0 ? prog->HasVertexShaders() : false);
+      bool progHasFragment = (prog!=0 ? prog->HasFragmentShaders() : false);
+      bool needDefaultPropFuncVS = progHasVertex;
+      bool needDefaultPropFuncFS = progHasFragment;
+      bool needDefaultMainVS = false;
+      bool needDefaultMainFS = false;
+
+      if(propProg!=0)
+        {
+        needDefaultPropFuncVS = needDefaultPropFuncVS
+          && !propProg->HasVertexShaders();
+        needDefaultPropFuncFS = needDefaultPropFuncFS
+          && !propProg->HasFragmentShaders();
+        needDefaultMainVS = !progHasVertex
+          && propProg->HasVertexShaders();
+        needDefaultMainFS = !progHasFragment
+          && propProg->HasFragmentShaders();
+        }
+      this->CachedShaderProgram2->ReleaseGraphicsResources();
       this->CachedShaderProgram2->GetShaders()->RemoveAllItems();
+      this->CachedShaderProgram2->GetUniformVariables()->RemoveAllUniforms();
       this->UseDefaultPropVS=false;
       this->UseDefaultPropFS=false;
       this->UseDefaultMainVS=false;
       this->UseDefaultMainFS=false;
-      this->CachedShaderProgram2->GetShaders()->AddCollection(
-        prog->GetShaders());
-      
-      if(this->Shader2Collection!=0)
+      if(prog!=0)
         {
         this->CachedShaderProgram2->GetShaders()->AddCollection(
-          this->Shader2Collection);
+          prog->GetShaders());
         }
-      this->LastCachedShaderProgram2=prog;
-      }
     
-    if(needCacheUniformUpdate)
-      {
-      vtkUniformVariables *v=prog->GetUniformVariables();
+      if(propProg!=0)
+        {
+        this->CachedShaderProgram2->GetShaders()->AddCollection(
+          propProg->GetShaders());
+        }
+      this->LastRendererShaderProgram2=prog;
+      this->LastPropProgram=propProg;
       
-      this->CachedShaderProgram2->GetUniformVariables()->DeepCopy(v);
-      }
-    
-    
-    if(needDefaultPropFuncVS)
-      {
-      if(this->DefaultPropVS==0)
+      if(needDefaultPropFuncVS)
         {
-        this->UseDefaultPropVS=false;
-        this->DefaultPropVS=vtkShader2::New();
-        this->DefaultPropVS->SetType(VTK_SHADER_TYPE_VERTEX);
-        this->DefaultPropVS->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_vs);
-        // so far, no uniform on the default prop vs.
-        assert("check: prog is initialized" && prog->GetContext()!=0);
-        this->DefaultPropVS->SetContext(prog->GetContext());
+        if(this->DefaultPropVS==0)
+          {
+          this->UseDefaultPropVS=false;
+          this->DefaultPropVS=vtkShader2::New();
+          this->DefaultPropVS->SetType(VTK_SHADER_TYPE_VERTEX);
+          this->DefaultPropVS->SetSourceCode(
+            vtkOpenGLPropertyDefaultPropFunc_vs);
+          this->DefaultPropVS->SetContext(context);
+          }
+        if(!this->UseDefaultPropVS)
+          {
+          this->CachedShaderProgram2->GetShaders()->AddItem(
+            this->DefaultPropVS);
+          this->UseDefaultPropVS=true;
+          }
         }
-      if(!this->UseDefaultPropVS)
+      if(needDefaultPropFuncFS)
         {
-        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultPropVS);
-        this->UseDefaultPropVS=true;
+        if(this->DefaultPropFS==0)
+          {
+          this->UseDefaultPropFS=false;
+          this->DefaultPropFS=vtkShader2::New();
+          this->DefaultPropFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
+          this->DefaultPropFS->SetSourceCode(
+            vtkOpenGLPropertyDefaultPropFunc_fs);
+          this->DefaultPropFS->SetContext(context);
+          }
+        vtkUniformVariables *v=this->DefaultPropFS->GetUniformVariables();
+        int value;
+        value=0;
+        v->SetUniformi("useTexture",1,&value);
+        value=0; // allocate texture unit?
+        v->SetUniformi("uTexture",1,&value);
+        
+        if(!UseDefaultPropFS)
+          {
+          this->CachedShaderProgram2->GetShaders()->AddItem(
+            this->DefaultPropFS);
+          this->UseDefaultPropFS=true;
+          }
         }
-      }
-    if(needDefaultPropFuncFS)
-      {
-      if(this->DefaultPropFS==0)
-        {
-        this->UseDefaultPropFS=false;
-        this->DefaultPropFS=vtkShader2::New();
-        this->DefaultPropFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
-        this->DefaultPropFS->SetSourceCode(vtkOpenGLPropertyDefaultPropFunc_fs);
-        assert("check: prog is initialized" && prog->GetContext()!=0);
-        this->DefaultPropFS->SetContext(prog->GetContext());
-        }
-      vtkUniformVariables *v=this->DefaultPropFS->GetUniformVariables();
-      int value;
-      value=0;
-      v->SetUniformi("useTexture",1,&value);
-      value=0; // allocate texture unit?
-      v->SetUniformi("uTexture",1,&value);
-      
-      if(!UseDefaultPropFS)
-        {
-        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultPropFS);
-        this->UseDefaultPropFS=true;
-        }
-      }
-    if(needDefaultMainVS)
-      {
-      if(this->DefaultMainVS==0)
-        {
-        this->UseDefaultMainVS=false;
-        this->DefaultMainVS=vtkShader2::New();
-        this->DefaultMainVS->SetType(VTK_SHADER_TYPE_VERTEX);
-        this->DefaultMainVS->SetSourceCode(vtkOpenGLPropertyDefaultMain_vs);
-        // so far, no uniform on the default main() vs.
-        assert("check: prog is initialized" && prog->GetContext()!=0);
-        this->DefaultMainVS->SetContext(prog->GetContext());
-        }
-      if(!this->UseDefaultMainVS)
-        {
-        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultMainVS);
-        this->UseDefaultMainVS=true;
-        }
-      }
-    if(needDefaultMainFS)
-      {
-      if(this->DefaultMainFS==0)
-        {
-        this->UseDefaultMainFS=false;
-        this->DefaultMainFS=vtkShader2::New();
-        this->DefaultMainFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
-        this->DefaultMainFS->SetSourceCode(vtkOpenGLPropertyDefaultMain_fs);
-        // so far, no uniform on the default main() fs.
-        assert("check: prog is initialized" && prog->GetContext()!=0);
-        this->DefaultMainFS->SetContext(prog->GetContext());
-        }
-      if(!this->UseDefaultMainFS)
-        {
-        this->CachedShaderProgram2->GetShaders()->AddItem(this->DefaultMainFS);
-        this->UseDefaultMainFS=true;
-        }
-      }
-    }
-  else
-    {
-    if(supportShaders && this->Shader2Collection!=0)
-      {
-      bool needDefaultMainVS=this->Shader2Collection->HasVertexShaders();
-      bool needDefaultMainFS=this->Shader2Collection->HasFragmentShaders();
-      
-      if(this->PropProgram==0)
-        {
-        this->PropProgram=vtkShaderProgram2::New();
-        this->PropProgram->SetContext(static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow()));
-        }
-      this->PropProgram->GetShaders()->AddCollection(this->Shader2Collection);
-      
       if(needDefaultMainVS)
         {
         if(this->DefaultMainVS==0)
           {
+          this->UseDefaultMainVS=false;
           this->DefaultMainVS=vtkShader2::New();
           this->DefaultMainVS->SetType(VTK_SHADER_TYPE_VERTEX);
           this->DefaultMainVS->SetSourceCode(vtkOpenGLPropertyDefaultMain_vs);
-          // so far, no uniform on the default main() vs.
+          this->DefaultMainVS->SetContext(context);
           }
-        this->PropProgram->GetShaders()->AddItem(this->DefaultMainVS);
-        this->UseDefaultMainVS=true;
-        assert("check: prog is initialized" && this->PropProgram->GetContext()!=0);
-        this->DefaultMainVS->SetContext(this->PropProgram->GetContext());
+        if(!this->UseDefaultMainVS)
+          {
+          this->CachedShaderProgram2->GetShaders()->AddItem(
+            this->DefaultMainVS);
+          this->UseDefaultMainVS=true;
+          }
         }
       if(needDefaultMainFS)
         {
         if(this->DefaultMainFS==0)
           {
+          this->UseDefaultMainFS=false;
           this->DefaultMainFS=vtkShader2::New();
           this->DefaultMainFS->SetType(VTK_SHADER_TYPE_FRAGMENT);
           this->DefaultMainFS->SetSourceCode(vtkOpenGLPropertyDefaultMain_fs);
-          // so far, no uniform on the default main() fs.
+          this->DefaultMainFS->SetContext(context);
           }
-        this->PropProgram->GetShaders()->AddItem(this->DefaultMainFS);
-        this->UseDefaultMainFS=true;
-        assert("check: prog is initialized" && this->PropProgram->GetContext()!=0);
-        this->DefaultMainFS->SetContext(this->PropProgram->GetContext());
+        if(!this->UseDefaultMainFS)
+          {
+          this->CachedShaderProgram2->GetShaders()->AddItem(
+            this->DefaultMainFS);
+          this->UseDefaultMainFS=true;
+          }
         }
-      }
-    else
-      {
-      // fixed-pipeline
-      }
-    }
-  
-  if((supportShaders && prog!=0) || this->PropProgram!=0)
-    {
-    if(this->ShaderDeviceAdapter2==0)
-      {
-      this->ShaderDeviceAdapter2=vtkGLSLShaderDeviceAdapter2::New();
-      }
-    if(prog!=0)
-      {
+      
+      if(this->ShaderDeviceAdapter2==0)
+        {
+        this->ShaderDeviceAdapter2=vtkGLSLShaderDeviceAdapter2::New();
+        }
       this->ShaderDeviceAdapter2->SetShaderProgram(this->CachedShaderProgram2);
-      this->CurrentShaderProgram2=this->CachedShaderProgram2;
       }
-    else
+    
+    if(prog!=0 &&
+       (needCacheUpdate
+        || this->CachedShaderProgram2->GetUniformVariables()->GetMTime()
+        < prog->GetUniformVariables()->GetMTime()))
       {
-      this->ShaderDeviceAdapter2->SetShaderProgram(this->PropProgram);
-      this->CurrentShaderProgram2=this->PropProgram;
+      vtkUniformVariables *v = prog->GetUniformVariables();
+      this->CachedShaderProgram2->GetUniformVariables()->Merge(v);
       }
+    
+    if(propProg!=0 &&
+       (needCacheUpdate
+        || this->CachedShaderProgram2->GetUniformVariables()->GetMTime()
+        < propProg->GetUniformVariables()->GetMTime()))
+      {
+      vtkUniformVariables *v = propProg->GetUniformVariables();
+      this->CachedShaderProgram2->GetUniformVariables()->Merge(v);
+      }
+    
+    this->CurrentShaderProgram2=this->CachedShaderProgram2;
+    }
+  else
+    {
+    this->CurrentShaderProgram2=0;
     }
   
   if(this->CurrentShaderProgram2!=0)
@@ -361,43 +393,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
       this->CurrentShaderProgram2=0;
-      
-      if(this->PropProgram!=0)
-        {
-        this->PropProgram->ReleaseGraphicsResources();
-        this->UseDefaultMainVS=false;
-        this->UseDefaultMainFS=false;
-        this->PropProgram->Delete();
-        this->PropProgram=0;
-        }
-      else
-        {
-        this->CachedShaderProgram2->ReleaseGraphicsResources();
-        if(this->Shader2Collection!=0)
-          {
-          this->CachedShaderProgram2->GetShaders()->RemoveCollection(this->Shader2Collection);
-          }
-        if(this->UseDefaultMainVS)
-          {
-          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultMainVS);
-          this->UseDefaultMainVS=false;
-          }
-        if(this->UseDefaultMainFS)
-          {
-          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultMainFS);
-          this->UseDefaultMainFS=false;
-          }
-        if(this->UseDefaultPropVS)
-          {
-          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultPropVS);
-          this->UseDefaultPropVS=false;
-          }
-        if(this->UseDefaultPropFS)
-          {
-          this->CachedShaderProgram2->GetShaders()->RemoveItem(this->DefaultPropFS);
-          this->UseDefaultPropFS=false;
-          }
-        }
+      this->CachedShaderProgram2->ReleaseGraphicsResources();
       }
     else
       {
@@ -417,7 +413,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 
   glDisable(GL_COLOR_MATERIAL); // fixed-pipeline
 
-  Face = GL_FRONT_AND_BACK;
+  face = GL_FRONT_AND_BACK;
   // turn on/off backface culling
   if ( ! this->BackfaceCulling && ! this->FrontfaceCulling)
     {
@@ -435,7 +431,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     glEnable (GL_CULL_FACE);
     }
 
-  Info[3] = this->Opacity;
+  info[3] = static_cast<GLfloat>(this->Opacity);
   
   double factor;
   GLint alphaBits;
@@ -455,22 +451,25 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   
   for (i=0; i < 3; i++) 
     {
-    Info[i] = static_cast<float>(factor*this->Ambient*this->AmbientColor[i]);
+    info[i] = static_cast<float> (factor * this->Ambient
+        * this->AmbientColor[i]);
     }
-  glMaterialfv( Face, GL_AMBIENT, Info );
+  glMaterialfv( face, GL_AMBIENT, info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = static_cast<float>(factor*this->Diffuse*this->DiffuseColor[i]);
+    info[i] = static_cast<float> (factor * this->Diffuse
+        * this->DiffuseColor[i]);
     }
-  glMaterialfv( Face, GL_DIFFUSE, Info );
+  glMaterialfv( face, GL_DIFFUSE, info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = static_cast<float>(factor*this->Specular*this->SpecularColor[i]);
+    info[i] = static_cast<float> (factor * this->Specular
+        * this->SpecularColor[i]);
     }
-  glMaterialfv( Face, GL_SPECULAR, Info );
+  glMaterialfv( face, GL_SPECULAR, info );
 
-  Info[0] = static_cast<float>(this->SpecularPower);
-  glMaterialfv( Face, GL_SHININESS, Info );
+  info[0] = static_cast<float>(this->SpecularPower);
+  glMaterialfv( face, GL_SHININESS, info );
 
   // set interpolation 
   switch (this->Interpolation) 
@@ -523,13 +522,15 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 #ifdef VTK_USE_GL2PS
     gl2psEnable(GL2PS_LINE_STIPPLE);
 #endif // VTK_USE_GL2PS
-    glLineStipple (this->LineStippleRepeatFactor, this->LineStipplePattern);
+    glLineStipple (this->LineStippleRepeatFactor,
+                   static_cast<GLushort>(this->LineStipplePattern));
     }
   else
     {
     // still need to set this although we are disabling.  else the ATI X1600
     // (for example) still manages to stipple under certain conditions.
-    glLineStipple (this->LineStippleRepeatFactor, this->LineStipplePattern);
+    glLineStipple (this->LineStippleRepeatFactor,
+                   static_cast<GLushort>(this->LineStipplePattern));
     glDisable (GL_LINE_STIPPLE);
 #ifdef VTK_USE_GL2PS
     gl2psDisable(GL2PS_LINE_STIPPLE);
@@ -546,7 +547,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     }
   
   // render any textures.
-  vtkIdType numTextures = this->GetNumberOfTextures();
+  int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0)
     {
     if(prog==0) // fixed-pipeline multitexturing
@@ -556,7 +557,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
         {
         GLint numSupportedTextures;
         glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-        for (vtkIdType t = 0; t < numTextures; t++)
+        for (int t = 0; t < numTextures; t++)
           {
           int texture_unit = this->GetTextureUnitAtIndex(t);
           if (texture_unit >= numSupportedTextures || texture_unit < 0)
@@ -565,7 +566,8 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
             continue;
             }
           
-          vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+          vtkgl::ActiveTexture(vtkgl::TEXTURE0 +
+                               static_cast<GLenum>(texture_unit));
           this->GetTextureAtIndex(t)->Render(ren);
           }
         vtkgl::ActiveTexture(vtkgl::TEXTURE0);
@@ -580,10 +582,9 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       // texture unit are assigned at each call to render, as render can
       // happen in different/multiple passes.
       
-      vtkTextureUnitManager *m=
-        static_cast<vtkOpenGLRenderWindow *>(oRenderer->GetRenderWindow())->GetTextureUnitManager();
+      vtkTextureUnitManager *m = context->GetTextureUnitManager();
       
-      for (vtkIdType t = 0; t < numTextures; t++)
+      for (int t = 0; t < numTextures; t++)
         {
         vtkTexture *tex=this->GetTextureAtIndex(t);
         int unit=m->Allocate();
@@ -593,7 +594,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
           return;
           }
         this->SetTexture(unit,tex);
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + unit);
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0 +static_cast<GLenum>(unit));
         // bind (and load if not yet loaded)
         tex->Render(ren);
         }
@@ -605,8 +606,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLProperty::PostRender(vtkActor *actor,
-                                   vtkRenderer *renderer)
+void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 {
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
@@ -620,14 +620,14 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
   this->Superclass::PostRender(actor, renderer);
 
   // render any textures.
-  vtkIdType numTextures = this->GetNumberOfTextures();
+  int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0 && vtkgl::ActiveTexture)
     {
     if(prog==0) // fixed-pipeline multitexturing
       {
       GLint numSupportedTextures;
       glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-      for (vtkIdType i = 0; i < numTextures; i++)
+      for (int i = 0; i < numTextures; i++)
         {
         int texture_unit = this->GetTextureUnitAtIndex(i);
         if (texture_unit >= numSupportedTextures || texture_unit < 0)
@@ -635,7 +635,8 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
           vtkErrorMacro("Hardware does not support the number of textures defined.");
           continue;
           }
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0+
+                             static_cast<GLenum>(texture_unit));
         // Disable any possible texture.  Wouldn't having a PostRender on
         // vtkTexture be better?
         glDisable(GL_TEXTURE_1D);
@@ -648,10 +649,11 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
       }
     else
       {
-      vtkTextureUnitManager *m=
+      vtkTextureUnitManager
+          *m =
         static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetTextureUnitManager();
       
-      for (vtkIdType t = 0; t < numTextures; t++)
+      for (int t = 0; t < numTextures; t++)
         {
         int textureUnit=this->GetTextureUnitAtIndex(t);
         m->Free(textureUnit);
@@ -663,16 +665,15 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
 
 //-----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
-                             vtkRenderer *vtkNotUsed(ren))
+void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *vtkNotUsed(ren))
 {
   int i;
-  float Info[4];
-  GLenum Face;
+  GLfloat info[4];
+  GLenum face;
 
-  Face = GL_BACK;
+  face = GL_BACK;
 
-  Info[3] = this->Opacity;
+  info[3] = static_cast<GLfloat>(this->Opacity);
 
   double factor;
   GLint alphaBits;
@@ -692,25 +693,25 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
   
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(factor*this->Ambient*this->AmbientColor[i]);
+    info[i] = static_cast<float> (factor * this->Ambient
+        * this->AmbientColor[i]);
     }
-  glMaterialfv( Face, GL_AMBIENT, Info );
+  glMaterialfv( face, GL_AMBIENT, info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(factor*this->Diffuse*this->DiffuseColor[i]);
+    info[i] = static_cast<float> (factor * this->Diffuse
+        * this->DiffuseColor[i]);
     }
-  glMaterialfv( Face, GL_DIFFUSE, Info );
+  glMaterialfv( face, GL_DIFFUSE, info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(factor*this->Specular*this->SpecularColor[i]);
+    info[i] = static_cast<float> (factor * this->Specular
+        * this->SpecularColor[i]);
     }
-  glMaterialfv( Face, GL_SPECULAR, Info );
+  glMaterialfv( face, GL_SPECULAR, info );
 
-  Info[0] = static_cast<float>(this->SpecularPower);
-  glMaterialfv( Face, GL_SHININESS, Info );
+  info[0] = static_cast<float>(this->SpecularPower);
+  glMaterialfv( face, GL_SHININESS, info );
 
 }
 
@@ -726,8 +727,8 @@ void vtkOpenGLProperty::LoadMultiTexturingExtensions(vtkRenderer* ren)
     // multitexture is an ARB extension of OpenGL 1.2.1
     int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
     int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
-    int supports_ARB_mutlitexture = 
-      extensions->ExtensionSupported("GL_ARB_multitexture");
+    int supports_ARB_mutlitexture = extensions->ExtensionSupported(
+        "GL_ARB_multitexture");
     
     if(supports_GL_1_3)
       {
@@ -747,10 +748,9 @@ void vtkOpenGLProperty::LoadMultiTexturingExtensions(vtkRenderer* ren)
 // Read this->Material from new style shaders.
 void vtkOpenGLProperty::ReadFrameworkMaterial()
 {
-  vtkShader2Collection *shaders=vtkShader2Collection::New();
-  this->SetShader2Collection(shaders);
-  shaders->Delete();
-  
+  vtkShaderProgram2 *prog = vtkShaderProgram2::New();
+  this->SetPropProgram(prog);
+  prog->Delete();
   
   if (!this->Material)
     {
@@ -772,7 +772,7 @@ void vtkOpenGLProperty::ReadFrameworkMaterial()
 //    vtkUniformVariables *var=shader->GetUniformVariables();
 //    var->
     
-    shaders->AddItem(shader);
+    prog->GetShaders()->AddItem(shader);
     shader->Delete();
     }
   vtkDebugMacro(<< max << " Vertex shaders added.");
@@ -786,7 +786,7 @@ void vtkOpenGLProperty::ReadFrameworkMaterial()
     shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
     shader->SetSourceCode(XMLshader->GetCode());
     
-    shaders->AddItem(shader);
+    prog->GetShaders()->AddItem(shader);
     shader->Delete();
     }
   vtkDebugMacro(<< max << " Fragment shaders added.");
@@ -797,14 +797,14 @@ void vtkOpenGLProperty::ReadFrameworkMaterial()
 void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
 {
   // release any textures.
-  vtkIdType numTextures = this->GetNumberOfTextures();
+  int numTextures = this->GetNumberOfTextures();
   if (win && numTextures > 0 && vtkgl::ActiveTexture)
     {
     GLint numSupportedTextures;
     glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-    for (vtkIdType i = 0; i < numTextures; i++)
+    for (int i = 0; i < numTextures; i++)
       {
-      if (vtkOpenGLTexture::SafeDownCast(this->GetTextureAtIndex(i))->GetIndex() == 0)
+      if(vtkOpenGLTexture::SafeDownCast(this->GetTextureAtIndex(i))->GetIndex() == 0)
         {
         continue;
         }
@@ -814,14 +814,15 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
         vtkErrorMacro("Hardware does not support the texture unit " << texture_unit << ".");
         continue;
         }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0+
+                           static_cast<GLenum>(texture_unit));
       this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
       }
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
     }
   else if (numTextures > 0 && vtkgl::ActiveTexture)
     {
-    for (vtkIdType i = 0; i < numTextures; i++)
+    for (int i = 0; i < numTextures; i++)
       {
       this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
       }
@@ -832,10 +833,6 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
   if(this->CachedShaderProgram2!=0)
     {
     this->CachedShaderProgram2->ReleaseGraphicsResources();
-    }
-  if(this->Shader2Collection!=0)
-    {
-    this->Shader2Collection->ReleaseGraphicsResources();
     }
   if(this->PropProgram!=0)
     {
@@ -865,10 +862,10 @@ void vtkOpenGLProperty::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Shader2Collection: ";
-  if(this->Shader2Collection!=0)
+  if (this->PropProgram != 0)
     {
     os << endl;
-    this->Shader2Collection->PrintSelf(os, indent.GetNextIndent());
+    this->PropProgram->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
