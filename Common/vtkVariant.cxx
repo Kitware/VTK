@@ -274,6 +274,9 @@ vtkVariant::vtkVariant(const vtkVariant & other)
       case VTK_STRING:
         this->Data.String = new vtkStdString(*other.Data.String);
         break;
+      case VTK_UNICODE_STRING:
+        this->Data.UnicodeString = new vtkUnicodeString(*other.Data.UnicodeString);
+        break;
       case VTK_OBJECT:
         this->Data.VTKObject->Register(0);
         break;
