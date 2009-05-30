@@ -56,7 +56,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLineChartView.cxx
       vtkQtListView.cxx
       vtkQtRecordView.cxx
-      vtkQtRichTextView.cxx
+      # vtkQtRichTextView.cxx  (requires qt 4.5)
       vtkQtStackedChartView.cxx
       vtkQtStatisticalBoxChartView.cxx
       vtkQtTableRepresentation.cxx
@@ -72,7 +72,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h
-      vtkQtRichTextView.h
+      # vtkQtRichTextView.h  (requires qt 4.5)
       vtkQtTableView.h
       vtkQtTreeView.h
       vtkQtView.h
