@@ -37,7 +37,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.9");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.10");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -109,16 +109,6 @@ int vtkGroupLeafVertices::RequestData(
     return 0;
     }
 
-  // Get the (optional) name field.  Right now this will cause a warning
-  // if the array is not set.
-  vtkAbstractArray* nameArr = this->GetInputAbstractArrayToProcess(1, inputVector);
-  vtkStringArray* nameStringArr = vtkStringArray::SafeDownCast(nameArr);
-  if (nameArr != NULL && nameStringArr == NULL)
-    {
-    vtkErrorMacro(<< "The name array, if specified, must be a string array");
-    return 0;
-    }
-
   // Create builder to extend the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder = 
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
@@ -131,12 +121,16 @@ int vtkGroupLeafVertices::RequestData(
   builderVertexData->CopyAllocate(inputVertexData);
   builderEdgeData->CopyAllocate(inputEdgeData);
 
+  // Get the (optional) name field.  Right now this will cause a warning
+  // if the array is not set.
+  vtkAbstractArray* inputNameArr = this->GetInputAbstractArrayToProcess(1, inputVector);
+
   // Get the builder's name array.
-  vtkStringArray *outputNameArr = 0;
-  if (nameStringArr)
+  vtkAbstractArray *outputNameArr = 0;
+  if (inputNameArr)
     {
-    char *name = nameStringArr->GetName();
-    outputNameArr = vtkStringArray::SafeDownCast(builderVertexData->GetAbstractArray(name));
+    char *name = inputNameArr->GetName();
+    outputNameArr = builderVertexData->GetAbstractArray(name);
     if (outputNameArr == NULL)
       {
       vtkErrorMacro(<< "Could not find the name array in the builder.");
@@ -197,7 +191,7 @@ int vtkGroupLeafVertices::RequestData(
           group_vertices[vtksys_stl::make_pair(v, groupVal)] = group_vertex;
           if (outputNameArr)
             {
-            outputNameArr->InsertValue(group_vertex, groupVal.ToString());
+            outputNameArr->InsertVariantValue(group_vertex, groupVal);
             }
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);

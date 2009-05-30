@@ -66,6 +66,7 @@ public:
   virtual vtkVariant GetVariantValue(vtkIdType idx);
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+
   virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
 //ETX
   virtual void DataChanged();
@@ -73,7 +74,8 @@ public:
 
 //BTX
   vtkIdType InsertNextValue(const vtkUnicodeString&);
-  void SetValue(vtkIdType i, const vtkUnicodeString&);
+  void InsertValue(vtkIdType idx, const vtkUnicodeString&); // Ranged checked
+  void SetValue(vtkIdType i, const vtkUnicodeString&); // Not ranged checked
   vtkUnicodeString& GetValue(vtkIdType i);
 //ETX
 

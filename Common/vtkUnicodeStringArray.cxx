@@ -28,7 +28,7 @@ public:
   StorageT Storage;
 };
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.8");
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.9");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
@@ -260,9 +260,9 @@ void vtkUnicodeStringArray::LookupValue(vtkVariant, vtkIdList* ids)
   ids->Reset();
 }
 
-void vtkUnicodeStringArray::InsertVariantValue(vtkIdType, vtkVariant)
+void vtkUnicodeStringArray::InsertVariantValue(vtkIdType id, vtkVariant value)
 {
-  vtkErrorMacro("Not implemented.");
+  this->InsertValue( id, value.ToUnicodeString() );
 }
 
 void vtkUnicodeStringArray::DataChanged()
@@ -279,6 +279,15 @@ vtkIdType vtkUnicodeStringArray::InsertNextValue(const vtkUnicodeString& value)
   this->Implementation->Storage.push_back(value);
   this->DataChanged();
   return this->Implementation->Storage.size() - 1;
+}
+
+void vtkUnicodeStringArray::InsertValue(vtkIdType i, const vtkUnicodeString& value)
+{
+  // Range check
+  if(static_cast<vtkIdType>(this->Implementation->Storage.size()) <= i)
+    this->Implementation->Storage.resize(i + 1);
+
+  this->SetValue(i, value);
 }
 
 void vtkUnicodeStringArray::SetValue(vtkIdType i, const vtkUnicodeString& value)
