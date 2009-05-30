@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.25");
+vtkCxxRevisionMacro(vtkTable, "1.26");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -457,6 +457,31 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
         return;
         }
       }
+    }
+  else if(vtkUnicodeStringArray::SafeDownCast(arr))
+    {
+    vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+    if(comps==1)
+      {
+      data->SetValue(row, value.ToUnicodeString());      
+      }
+    else
+      {
+      if(value.IsArray() && vtkUnicodeStringArray::SafeDownCast(value.ToArray()) &&
+         value.ToArray()->GetNumberOfComponents() == comps)
+        {
+        data->SetTuple(row, 0, vtkUnicodeStringArray::SafeDownCast(value.ToArray()));
+        }
+      else
+        {
+        vtkWarningMacro("Cannot assign this variant type to multi-component unicode string array.");
+        return;
+        }
+      }
+    }
+  else
+    {
+    vtkWarningMacro("Unable to process array named " << col);
     }
 }
 
