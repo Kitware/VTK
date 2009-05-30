@@ -46,6 +46,8 @@ class QFrame;
 class QPushButton;
 class QLayout;
 
+class vtkStdString;
+
 
 class vtkDataObjectToTable;
 
@@ -89,8 +91,11 @@ public:
   // Description:
   // Updates the view.
   virtual void Update();
+
+  protected slots:
+  void onBack();
   
-protected:
+  protected:
   
   vtkQtRichTextView();
   ~vtkQtRichTextView();
@@ -120,6 +125,7 @@ protected:
   
     
 
+  vtkStdString *HtmlTextString;
   char* Text;
   int FieldType;
   int CurrentRow;

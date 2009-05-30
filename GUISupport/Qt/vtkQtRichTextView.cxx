@@ -32,6 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QVBoxLayout>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QWebHistory>
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
@@ -49,7 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.1");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.2");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 //----------------------------------------------------------------------------
@@ -85,8 +86,11 @@ vtkQtRichTextView::vtkQtRichTextView()
   QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
 
   QNetworkProxy::setApplicationProxy(proxy);
-
-
+  QObject::connect(this->BackButton, SIGNAL(clicked()),
+                   this, SLOT(onBack()));
+  
+  this->HtmlTextString = new vtkStdString();
+  
   this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->FieldType = vtkQtRichTextView::VERTEX_DATA;
   this->Text = NULL;
@@ -114,8 +118,8 @@ vtkQtRichTextView::~vtkQtRichTextView()
 //----------------------------------------------------------------------------
 QWidget* vtkQtRichTextView::GetWidget()
 {
-  return this->TextWidgetView;
-  //return this->TextWidgetFrame;
+    //return this->TextWidgetView;
+  return this->TextWidgetFrame;
   
 }
 
@@ -198,8 +202,8 @@ void vtkQtRichTextView::Update()
     //We want to glue these together into an html file, with an
     //appropriate html header and footer
 
-    QString originalString(new_html.c_str());
-    QString htmlTextString;
+    vtkStdString originalString(new_html.c_str());
+    vtkStdString htmlTextString;
 //    newString.reserve(originalString.size() *2);
     htmlTextString+="<!--  ************************************************** -->";
     htmlTextString+="<html>";
@@ -305,9 +309,14 @@ void vtkQtRichTextView::Update()
       }
     htmlTextString += "</body></html>";
 
-    cout<<htmlTextString.toStdString();
+    cout<<htmlTextString.c_str();
     
-    this->TextWidgetView->setHtml(htmlTextString);
+    this->TextWidgetView->setHtml(htmlTextString.c_str());
+    this->HtmlTextString->clear();
+    
+    this->HtmlTextString->append(htmlTextString);
+    
+    
     cout.flush();
     }
   this->TextWidgetView->show();
@@ -341,4 +350,19 @@ int vtkQtRichTextView::insert_string(QString &myString, QString &htmlString, int
   return location;
   
 //  QString & QString::insert ( int position, const QString & str )
+}
+
+void vtkQtRichTextView::onBack()
+{
+  QObject::connect(this->BackButton, SIGNAL(clicked()),
+                   this->TextWidgetView, SLOT(back()));
+  if(this->TextWidgetView->history()->canGoBack())
+      this->TextWidgetView->back();
+  else
+      this->TextWidgetView->setHtml(HtmlTextString->c_str());
+  
+  this->TextWidgetView->update();
+  
+  cout<<"Pressed back"<<endl;
+  
 }
