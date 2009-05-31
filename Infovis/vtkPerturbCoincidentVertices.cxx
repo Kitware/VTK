@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.14");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.15");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -236,8 +236,6 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   vtkSmartPointer<vtkTimerLog> timer =
     vtkSmartPointer<vtkTimerLog>::New();
 
-  timer->StartTimer();
-
   // Collect the coincident points into a nice list
   vtkSmartPointer<vtkCoincidentPoints> coincidentPoints =
     vtkSmartPointer<vtkCoincidentPoints>::New();
@@ -246,15 +244,10 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
     coincidentPoints->AddPoint(i, points->GetPoint(i));
     }
 
-  timer->StopTimer();
-  cout << "Spiral Collect Time: " << timer->GetElapsedTime() << endl;
-
   // Note: We're not going to remove the non-coincident
   // points until after computing the distance from all
   // the points that have distinct coordinates.
   coincidentPoints->InitTraversal();
-
-  timer->StartTimer();
 
   vtkstd::vector<Coord> coincidentFoci;
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
@@ -269,11 +262,6 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
     coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
     }
 
-  timer->StopTimer();
-  cout << "Spiral Grab First Time: " << timer->GetElapsedTime() << endl;
-
-  timer->StartTimer();
-
   // Compute the shortest intra-distance between coincident point foci
   double shortestDistance = VTK_DOUBLE_MAX;
   int numberOfFoci = static_cast<int>(coincidentFoci.size());
@@ -286,9 +274,6 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
       }
     }
 
-  timer->StopTimer();
-  cout << "Spiral Shortest Intra Distance Time: " << timer->GetElapsedTime() << endl;
-
   // Set the offset distance to be the shortest distance /4 * user setting (perturbFactor)
   double offsetDistance = sqrt(shortestDistance)/4.0 * perturbFactor;
  
@@ -299,8 +284,6 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   coincidentPoints->RemoveNonCoincidentPoints();
   coincidentPoints->InitTraversal();
   coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
-
-  timer->StartTimer();
 
   // Iterate over each coordinate that may have a set of coincident point ids.
   while(coincidentPointsList != NULL)
@@ -321,9 +304,6 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
       }
     coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
     }
-
-  timer->StopTimer();
-  cout << "Spiral Perform Perturb Time: " << timer->GetElapsedTime() << endl;
 }
 
 //----------------------------------------------------------------------------
