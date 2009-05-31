@@ -37,7 +37,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.10");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.11");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
   vtkVariant val;
   switch(arr->GetDataType())
     {
-    vtkExtendedTemplateMacro(val = vtkGroupLeafVerticesGetValue(
+    vtkSuperExtraExtendedTemplateMacro(val = vtkGroupLeafVerticesGetValue(
       static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
     }
   return val;

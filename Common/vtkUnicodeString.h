@@ -52,6 +52,16 @@ class vtkUnicodeString;
 
 typedef vtkTypeUInt32 vtkUnicodeStringValueType;
 
+//
+// The following should be eventually placed in vtkSetGet.h
+//
+
+// This is same as extra extended template macro with an 
+// additional case for VTK_UNICODE_STRING
+#define vtkSuperExtraExtendedTemplateMacro(call)                                 \
+  vtkExtraExtendedTemplateMacro(call);                                            \
+  vtkTemplateMacroCase(VTK_UNICODE_STRING, vtkUnicodeString, call)
+
 class VTK_COMMON_EXPORT vtkUnicodeString
 {
 public:
