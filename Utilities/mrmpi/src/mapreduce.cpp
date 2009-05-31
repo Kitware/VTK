@@ -602,7 +602,7 @@ int MapReduce::map(int nmap, void (*appmap)(int, KeyValue *, void *),
 int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
        void *ptr, int addflag)
 {
-  size_t n;
+  int n;
   char line[MAXLINE];
   MPI_Status status;
 
@@ -634,7 +634,7 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
   while (1) {
     if (me == 0) {
       if (fgets(line,MAXLINE,fp) == NULL) n = 0;
-      else n = strlen(line) + 1;
+      else n = static_cast<int>(strlen(line)) + 1;
     }
     MPI_Bcast(&n,1,MPI_INT,0,comm);
     if (n == 0) {
@@ -657,7 +657,7 @@ int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
       files = (char **)
       memory->srealloc(files,maxfiles*sizeof(char *),"MR:files");
     }
-    n = strlen(ptr1) + 1;
+    n = static_cast<int>(strlen(ptr1)) + 1;
     files[nmap] = new char[n];
     strcpy(files[nmap],ptr1);
     nmap++;
@@ -764,7 +764,7 @@ int MapReduce::map(int nmap, int nfiles, char **files,
        void *ptr, int addflag)
 {
   filemap.sepwhich = 0;
-  int n = strlen(sepstr) + 1;
+  int n = static_cast<int>(strlen(sepstr)) + 1;
   filemap.sepstr = new char[n];
   strcpy(filemap.sepstr,sepstr);
   filemap.delta = delta;
@@ -796,7 +796,7 @@ int MapReduce::map_file(int nmap, int nfiles, char **files,
 
   filemap.filename = new char*[nfiles];
   for (int i = 0; i < nfiles; i++) {
-    int n = strlen(files[i]) + 1;
+    int n = static_cast<int>(strlen(files[i])) + 1;
     filemap.filename[i] = new char[n];
     strcpy(filemap.filename[i],files[i]);
   }
