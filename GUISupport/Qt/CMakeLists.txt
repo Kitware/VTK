@@ -56,7 +56,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLineChartView.cxx
       vtkQtListView.cxx
       vtkQtRecordView.cxx
-      # vtkQtRichTextView.cxx  (requires qt 4.5)
       vtkQtStackedChartView.cxx
       vtkQtStatisticalBoxChartView.cxx
       vtkQtTableRepresentation.cxx
@@ -72,7 +71,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h
-      # vtkQtRichTextView.h  (requires qt 4.5)
       vtkQtTableView.h
       vtkQtTreeView.h
       vtkQtView.h
@@ -86,6 +84,12 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtColumnView.cxx)
       SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtColumnView.h)
     ENDIF(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
+
+    # Rich-text view requires Qt >= 4.5.0
+    IF(QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5)
+      SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtRichTextView.cxx)
+      SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtRichTextView.h)
+    ENDIF()
   ENDIF(VTK_USE_VIEWS)
   
   # help CMake fine QtDesigner on Mac (binary install)
