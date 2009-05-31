@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.11");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.12");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -246,7 +246,7 @@ void vtkQtTreeView::Update()
     
     // Refresh the view
     this->TreeView->update();  
-    this->TreeView->expandAll();
+    //this->TreeView->expandAll();
     this->TreeView->resizeColumnToContents(0);
     this->SetShowRootNode(false);
 
