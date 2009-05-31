@@ -602,7 +602,7 @@ int MapReduce::map(int nmap, void (*appmap)(int, KeyValue *, void *),
 int MapReduce::map(char *file, void (*appmap)(int, char *, KeyValue *, void *),
        void *ptr, int addflag)
 {
-  int n;
+  size_t n;
   char line[MAXLINE];
   MPI_Status status;
 
