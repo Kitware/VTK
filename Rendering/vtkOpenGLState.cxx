@@ -85,7 +85,7 @@ void vtkOpenGLState::Update()
   this->ErrorCode=glGetError(); // this change the state..
   // Texture environment
   // Has to be restored to this value.
-  glGetIntegerv(GL_ACTIVE_TEXTURE,ivalues);
+  glGetIntegerv(vtkgl::ACTIVE_TEXTURE,ivalues);
   this->ActiveTexture=static_cast<GLenum>(ivalues[0]);
   
   glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&this->FrameBufferBinding);
@@ -96,7 +96,7 @@ void vtkOpenGLState::Update()
   glGetIntegerv(vtkgl::MAX_TEXTURE_COORDS,&this->MaxTextureCoords); // 8
   
   // Max number of TIU available to the fixed-pipeline (enable/disable state)
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS,&this->MaxTextureUnits); // 4
+  glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS,&this->MaxTextureUnits); // 4
   
   // Max number of TIU.
   glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS,
@@ -125,7 +125,7 @@ void vtkOpenGLState::Update()
   unsigned int i=0;
   while(i<static_cast<size_t>(this->MaxTextureCoords))
     {
-    vtkgl::ActiveTexture(GL_TEXTURE0+i);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
     glGetFloatv(GL_TEXTURE_MATRIX,
                 (*this->TCPU)[i].CurrentMatrix);
     glGetIntegerv(GL_TEXTURE_STACK_DEPTH,
@@ -148,11 +148,11 @@ void vtkOpenGLState::Update()
   i=0;
   while(i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
     {
-    vtkgl::ActiveTexture(GL_TEXTURE0+i);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
     glGetIntegerv(GL_TEXTURE_BINDING_1D,&(*this->TIU)[i].TextureBinding1D);
     glGetIntegerv(GL_TEXTURE_BINDING_2D,&(*this->TIU)[i].TextureBinding2D);
-    glGetIntegerv(GL_TEXTURE_BINDING_3D,&(*this->TIU)[i].TextureBinding3D);
-    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP,&(*this->TIU)[i].TextureBindingCubeMap);  
+    glGetIntegerv(vtkgl::TEXTURE_BINDING_3D,&(*this->TIU)[i].TextureBinding3D);
+    glGetIntegerv(vtkgl::TEXTURE_BINDING_CUBE_MAP,&(*this->TIU)[i].TextureBindingCubeMap);  
     ++i;
     }
   
@@ -205,15 +205,15 @@ void vtkOpenGLState::Update()
   i=0;
   while(i<static_cast<size_t>(this->MaxTextureUnits))
     {
-    vtkgl::ActiveTexture(GL_TEXTURE0+i);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
     (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled=
       glIsEnabled(GL_TEXTURE_1D);
     (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled=
       glIsEnabled(GL_TEXTURE_2D);
     (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled=
-      glIsEnabled(GL_TEXTURE_3D);
+      glIsEnabled(vtkgl::TEXTURE_3D);
     (*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled=
-      glIsEnabled(GL_TEXTURE_CUBE_MAP);
+      glIsEnabled(vtkgl::TEXTURE_CUBE_MAP);
     ++i;
     }
   
@@ -233,7 +233,7 @@ void vtkOpenGLState::Update()
   glGetIntegerv(GL_MATRIX_MODE,&this->MatrixMode);
   
   // fragment fixed-pipeline
-  this->FixedPipeline.ColorSumEnabled=glIsEnabled(GL_COLOR_SUM);
+  this->FixedPipeline.ColorSumEnabled=glIsEnabled(vtkgl::COLOR_SUM);
   
   glGetIntegerv(GL_SHADE_MODEL,&this->ShadeModel);
   
@@ -254,12 +254,12 @@ void vtkOpenGLState::Update()
   this->PolygonStippleEnabled=glIsEnabled(GL_POLYGON_STIPPLE);
   
   // multisampling
-  this->MultiSampleEnabled=glIsEnabled(GL_MULTISAMPLE);
-  this->SampleAlphaToCoverageEnabled=glIsEnabled(GL_SAMPLE_ALPHA_TO_COVERAGE);
-  this->SampleAlphaToOneEnabled=glIsEnabled(GL_SAMPLE_ALPHA_TO_ONE);
-  this->SampleCoverageEnabled=glIsEnabled(GL_SAMPLE_COVERAGE);
-  glGetFloatv(GL_SAMPLE_COVERAGE_VALUE,&this->SampleCoverageValue);
-  glGetBooleanv(GL_SAMPLE_COVERAGE_INVERT,&this->SampleCoverageInvert);
+  this->MultiSampleEnabled=glIsEnabled(vtkgl::MULTISAMPLE);
+  this->SampleAlphaToCoverageEnabled=glIsEnabled(vtkgl::SAMPLE_ALPHA_TO_COVERAGE);
+  this->SampleAlphaToOneEnabled=glIsEnabled(vtkgl::SAMPLE_ALPHA_TO_ONE);
+  this->SampleCoverageEnabled=glIsEnabled(vtkgl::SAMPLE_COVERAGE);
+  glGetFloatv(vtkgl::SAMPLE_COVERAGE_VALUE,&this->SampleCoverageValue);
+  glGetBooleanv(vtkgl::SAMPLE_COVERAGE_INVERT,&this->SampleCoverageInvert);
   
   // pixel operations
   this->ScissorTestEnabled=glIsEnabled(GL_SCISSOR_TEST);
@@ -274,10 +274,10 @@ void vtkOpenGLState::Update()
   glGetIntegerv(GL_DEPTH_FUNC,&this->DepthFunc);
   
   this->BlendEnabled=glIsEnabled(GL_BLEND);
-  glGetIntegerv(GL_BLEND_SRC_RGB,&this->BlendSrcRGB);
-  glGetIntegerv(GL_BLEND_SRC_ALPHA,&this->BlendSrcAlpha);
-  glGetIntegerv(GL_BLEND_DST_RGB,&this->BlendDstRGB);
-  glGetIntegerv(GL_BLEND_DST_ALPHA,&this->BlendDstAlpha);
+  glGetIntegerv(vtkgl::BLEND_SRC_RGB,&this->BlendSrcRGB);
+  glGetIntegerv(vtkgl::BLEND_SRC_ALPHA,&this->BlendSrcAlpha);
+  glGetIntegerv(vtkgl::BLEND_DST_RGB,&this->BlendDstRGB);
+  glGetIntegerv(vtkgl::BLEND_DST_ALPHA,&this->BlendDstAlpha);
   glGetIntegerv(vtkgl::BLEND_EQUATION_RGB,&this->BlendEquationRGB);
   glGetIntegerv(vtkgl::BLEND_EQUATION_ALPHA,&this->BlendEquationAlpha);
   glGetFloatv(vtkgl::BLEND_COLOR,this->BlendColor);
@@ -326,8 +326,8 @@ void vtkOpenGLState::Update()
   
   glGetBooleanv(GL_UNPACK_SWAP_BYTES,&this->Unpack.SwapBytes);
   glGetBooleanv(GL_UNPACK_LSB_FIRST,&this->Unpack.LsbFirst);
-  glGetIntegerv(GL_UNPACK_IMAGE_HEIGHT,&this->Unpack.ImageHeight);
-  glGetIntegerv(GL_UNPACK_SKIP_IMAGES,&this->Unpack.SkipImages);
+  glGetIntegerv(vtkgl::UNPACK_IMAGE_HEIGHT,&this->Unpack.ImageHeight);
+  glGetIntegerv(vtkgl::UNPACK_SKIP_IMAGES,&this->Unpack.SkipImages);
   glGetIntegerv(GL_UNPACK_ROW_LENGTH,&this->Unpack.RowLength);
   glGetIntegerv(GL_UNPACK_SKIP_ROWS,&this->Unpack.SkipRows);
   glGetIntegerv(GL_UNPACK_SKIP_PIXELS,&this->Unpack.SkipPixels);
@@ -335,8 +335,8 @@ void vtkOpenGLState::Update()
   
   glGetBooleanv(GL_PACK_SWAP_BYTES,&this->Pack.SwapBytes);
   glGetBooleanv(GL_PACK_LSB_FIRST,&this->Pack.LsbFirst);
-  glGetIntegerv(GL_PACK_IMAGE_HEIGHT,&this->Pack.ImageHeight);
-  glGetIntegerv(GL_PACK_SKIP_IMAGES,&this->Pack.SkipImages);
+  glGetIntegerv(vtkgl::PACK_IMAGE_HEIGHT,&this->Pack.ImageHeight);
+  glGetIntegerv(vtkgl::PACK_SKIP_IMAGES,&this->Pack.SkipImages);
   glGetIntegerv(GL_PACK_ROW_LENGTH,&this->Pack.RowLength);
   glGetIntegerv(GL_PACK_SKIP_ROWS,&this->Pack.SkipRows);
   glGetIntegerv(GL_PACK_SKIP_PIXELS,&this->Pack.SkipPixels);
@@ -505,7 +505,7 @@ void vtkOpenGLState::UpdateCurrentProgram()
       new vtkstd::vector<vtkOpenGLShaderState>(
         static_cast<size_t>(numberOfShaders));
     
-    GLuint shaders[numberOfShaders];
+    GLuint *shaders=new GLuint[numberOfShaders];
     
     vtkgl::GetAttachedShaders(progId,numberOfShaders,0,shaders);
     
@@ -524,6 +524,8 @@ void vtkOpenGLState::UpdateCurrentProgram()
         ==vtkgl::FRAGMENT_SHADER;
       ++i;
       }
+    
+    delete[] shaders;
     
     this->CurrentProgramState->InfoLog=
       new vtkgl::GLchar[this->CurrentProgramState->InfoLogLength];
@@ -641,8 +643,8 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   if(this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
     {
     os << indent << "fixed-pipeline vertex shader flags:" << endl;
-    os << indent << " LightingEnabled=" << static_cast<bool>(this->FixedPipeline.LightingEnabled) << endl;
-    os << indent << " ColorSumEnabled=" << static_cast<bool>(this->FixedPipeline.ColorSumEnabled) << endl;
+    os << indent << " LightingEnabled=" << static_cast<bool>(this->FixedPipeline.LightingEnabled==GL_TRUE) << endl;
+    os << indent << " ColorSumEnabled=" << static_cast<bool>(this->FixedPipeline.ColorSumEnabled==GL_TRUE) << endl;
     }
   
   if(this->CurrentProgram==0 || !this->CurrentProgramState->HasFragmentShader)
@@ -660,16 +662,16 @@ void vtkOpenGLState::PrintSelf(ostream &os,
         {
         os << indent << " TextureImageUnitFixedFlag" << i<< ":" << endl;
         os << indent << "  Texture1DEnabled=" << 
-          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled)
+          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled==GL_TRUE)
            << endl;
         os << indent << "  Texture2DEnabled=" << 
-          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled)
+          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled==GL_TRUE)
            << endl;
         os << indent << "  Texture3DEnabled=" << 
-          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled)
+          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled==GL_TRUE)
            << endl;
         os << indent << "  TextureCubeMapEnabled=" << 
-          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled)
+          static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled==GL_TRUE)
            << endl;
         }
       ++i;
@@ -688,53 +690,53 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   
   os << indent << "ShadeModel=" << this->ShadeModelToString() << endl;
   
-  os << indent << "CullFaceEnabled=" << static_cast<bool>(this->CullFaceEnabled) << endl;
+  os << indent << "CullFaceEnabled=" << static_cast<bool>(this->CullFaceEnabled==GL_TRUE) << endl;
   
   os << indent << "CullFaceMode=" << this->CullFaceModeToString() << endl;
   
   os << indent << "FrontFace=" << this->FrontFaceToString() << endl;
   
-  os << indent << "PolygonSmoothEnabled=" << static_cast<bool>(this->PolygonSmoothEnabled) << endl;
+  os << indent << "PolygonSmoothEnabled=" << static_cast<bool>(this->PolygonSmoothEnabled==GL_TRUE) << endl;
   os << indent << "PolygonMode Front=" << this->PolygonModeToString(this->PolygonMode[0]);
   os  << " Back=" << this->PolygonModeToString(this->PolygonMode[1]) << endl;
   
   os << indent << "PolygonOffsetFactor=" << this->PolygonOffsetFactor << endl;
   os << indent << "PolygonOffsetUnits=" << this->PolygonOffsetUnits << endl;
   
-  os << indent << "PolygonOffsetPointEnabled=" << static_cast<bool>(this->PolygonOffsetPointEnabled) << endl;
-  os << indent << "PolygonOffsetLineEnabled=" << static_cast<bool>(this->PolygonOffsetLineEnabled) << endl;
-  os << indent << "PolygonOffsetFillEnabled=" << static_cast<bool>(this->PolygonOffsetFillEnabled) << endl;
-  os << indent << "PolygonStippleEnabled=" << static_cast<bool>(this->PolygonStippleEnabled) << endl;
+  os << indent << "PolygonOffsetPointEnabled=" << static_cast<bool>(this->PolygonOffsetPointEnabled==GL_TRUE) << endl;
+  os << indent << "PolygonOffsetLineEnabled=" << static_cast<bool>(this->PolygonOffsetLineEnabled==GL_TRUE) << endl;
+  os << indent << "PolygonOffsetFillEnabled=" << static_cast<bool>(this->PolygonOffsetFillEnabled==GL_TRUE) << endl;
+  os << indent << "PolygonStippleEnabled=" << static_cast<bool>(this->PolygonStippleEnabled==GL_TRUE) << endl;
   
   // multisampling
   os << indent << "-- Multisampling" << endl;
-  os << indent << "MultiSampleEnabled=" << static_cast<bool>(this->MultiSampleEnabled) << endl;
-  os << indent << "SampleAlphaToCoverageEnabled=" << static_cast<bool>(this->SampleAlphaToCoverageEnabled) << endl;
-  os << indent << "SampleAlphaToOneEnabled=" << static_cast<bool>(this->SampleAlphaToOneEnabled) << endl;
-  os << indent << "SampleCoverageEnabled=" << static_cast<bool>(this->SampleCoverageEnabled) << endl;
+  os << indent << "MultiSampleEnabled=" << static_cast<bool>(this->MultiSampleEnabled==GL_TRUE) << endl;
+  os << indent << "SampleAlphaToCoverageEnabled=" << static_cast<bool>(this->SampleAlphaToCoverageEnabled==GL_TRUE) << endl;
+  os << indent << "SampleAlphaToOneEnabled=" << static_cast<bool>(this->SampleAlphaToOneEnabled==GL_TRUE) << endl;
+  os << indent << "SampleCoverageEnabled=" << static_cast<bool>(this->SampleCoverageEnabled==GL_TRUE) << endl;
   os << indent << "SampleCoverageValue=" << this->SampleCoverageValue << endl;
   os << indent << "SampleCoverageInvert=" << this->BooleanToString(this->SampleCoverageInvert) << endl;
   
   // texture env
   os << indent << "-- Texture environment" << endl;
-  os << indent << "ActiveTexture=GL_TEXTURE" << (this->ActiveTexture-GL_TEXTURE0) << endl;
+  os << indent << "ActiveTexture=GL_TEXTURE" << (this->ActiveTexture-vtkgl::TEXTURE0) << endl;
   
   // pixel operations
   os << indent << "-- Pixel operations" << endl;
   os << endl;
-  os << indent << "ScissorTestEnabled=" << static_cast<bool>(this->ScissorTestEnabled) << endl;
+  os << indent << "ScissorTestEnabled=" << static_cast<bool>(this->ScissorTestEnabled==GL_TRUE) << endl;
   os << indent << "ScissorBox=" << this->ScissorBox[0] << ", " << this->ScissorBox[1] << ", " << this->ScissorBox[2] << ", " << this->ScissorBox[3] << endl;
   os << endl;
-  os << indent << "AlphaTestEnabled=" << static_cast<bool>(this->AlphaTestEnabled) << endl;
+  os << indent << "AlphaTestEnabled=" << static_cast<bool>(this->AlphaTestEnabled==GL_TRUE) << endl;
   os << indent << "AlphaTestFunc=" << this->AlphaTestFuncToString() << endl;
   os << indent << "AlphaTestRef=" << this->AlphaTestRef << endl;
   os << endl;
-  os << indent << "StencilTestEnabled=" << static_cast<bool>(this->StencilTestEnabled) << endl;
+  os << indent << "StencilTestEnabled=" << static_cast<bool>(this->StencilTestEnabled==GL_TRUE) << endl;
   os << endl;
-  os << indent << "DepthTestEnabled=" << static_cast<bool>(this->DepthTestEnabled) << endl;
+  os << indent << "DepthTestEnabled=" << static_cast<bool>(this->DepthTestEnabled==GL_TRUE) << endl;
   os << indent << "DepthFunc=" << this->DepthFuncToString() << endl;
   os << endl;
-  os << indent << "BlendEnabled=" << static_cast<bool>(this->BlendEnabled) << endl;
+  os << indent << "BlendEnabled=" << static_cast<bool>(this->BlendEnabled==GL_TRUE) << endl;
   os << indent << "BlendSrcRGB=" << this->BlendFuncToString(this->BlendSrcRGB) << endl;
   os << indent << "BlendSrcAlpha=" << this->BlendFuncToString(this->BlendSrcAlpha) << endl;
   os << indent << "BlendDstRGB=" << this->BlendFuncToString(this->BlendDstRGB) << endl;
@@ -742,10 +744,10 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   os << indent << "BlendEquationRGB=" << this->BlendEquationToString(this->BlendEquationRGB) << endl;
   os << indent << "BlendEquationAlpha=" << this->BlendEquationToString(this->BlendEquationAlpha) << endl;
   os << endl;
-  os << indent << "DitherEnabled=" << static_cast<bool>(this->DitherEnabled) << endl;
+  os << indent << "DitherEnabled=" << static_cast<bool>(this->DitherEnabled==GL_TRUE) << endl;
   os << endl;
-  os << indent << "IndexLogicOpEnabled=" << static_cast<bool>(this->IndexLogicOpEnabled) << endl;
-  os << indent << "ColorLogicOpEnabled=" << static_cast<bool>(this->ColorLogicOpEnabled) << endl;
+  os << indent << "IndexLogicOpEnabled=" << static_cast<bool>(this->IndexLogicOpEnabled==GL_TRUE) << endl;
+  os << indent << "ColorLogicOpEnabled=" << static_cast<bool>(this->ColorLogicOpEnabled==GL_TRUE) << endl;
   
   os << indent << "LogicOpMode=" << this->LogicOpModeToString() << endl;
   os << endl;
@@ -763,8 +765,8 @@ void vtkOpenGLState::PrintSelf(ostream &os,
     }
 
   os << indent << "IndexWriteMask=" << this->IndexWriteMask << endl;
-  os << indent << "ColorWriteMask=" << static_cast<bool>(this->ColorWriteMask[0]) << ", " << static_cast<bool>(this->ColorWriteMask[1])<< ", " << static_cast<bool>(this->ColorWriteMask[2]) << ", " << static_cast<bool>(this->ColorWriteMask[3]) << endl;
-  os << indent << "DepthWriteMask=" << static_cast<bool>(this->DepthWriteMask) << endl;
+  os << indent << "ColorWriteMask=" << static_cast<bool>(this->ColorWriteMask[0]==GL_TRUE) << ", " << static_cast<bool>(this->ColorWriteMask[1]==GL_TRUE)<< ", " << static_cast<bool>(this->ColorWriteMask[2]==GL_TRUE) << ", " << static_cast<bool>(this->ColorWriteMask[3]==GL_TRUE) << endl;
+  os << indent << "DepthWriteMask=" << static_cast<bool>(this->DepthWriteMask==GL_TRUE) << endl;
   os << indent << "StencilWriteMask=0x" << hex << this->StencilWriteMask << dec << endl;
   os << indent << "StencilBackWriteMask=0x" << hex << this->StencilBackWriteMask << dec << endl;
   os << indent << "this->ColorClearValue=" <<  this->ColorClearValue[0] << ", " << this->ColorClearValue[1] << ", " << this->ColorClearValue[2] << ", " << this->ColorClearValue[3] << endl;
@@ -813,10 +815,10 @@ this->ColorBufferToStream(os,this->ReadBuffer);
 os << endl;
 
 os << indent << "AuxBuffers=" << this->AuxBuffers << endl;
-os << indent << "RGBAMode="<< static_cast<bool>(this->RGBAMode)<< endl;
-os << indent << "IndexMode="<< static_cast<bool>(this->IndexMode)<< endl;
-os << indent << "DoubleBuffer="<< static_cast<bool>(this->DoubleBuffer)<< endl;
-os << indent << "Stereo="<< static_cast<bool>(this->Stereo)<< endl;
+os << indent << "RGBAMode="<< static_cast<bool>(this->RGBAMode==GL_TRUE)<< endl;
+os << indent << "IndexMode="<< static_cast<bool>(this->IndexMode==GL_TRUE)<< endl;
+os << indent << "DoubleBuffer="<< static_cast<bool>(this->DoubleBuffer==GL_TRUE)<< endl;
+os << indent << "Stereo="<< static_cast<bool>(this->Stereo==GL_TRUE)<< endl;
 
 os << indent << "MaxColorAttachments=" << this->MaxColorAttachments << endl;
 os << indent << "MaxDrawBuffers=" <<  this->MaxDrawBuffers << endl;
@@ -848,11 +850,11 @@ void vtkOpenGLProgramState::PrintSelf(ostream &os,
     os << indent << "fixed-pipeline fragment shader" << endl;
     }
   
-  os << indent << "DeleteStatus=" << static_cast<bool>(this->DeleteStatus)
+  os << indent << "DeleteStatus=" << static_cast<bool>(this->DeleteStatus==GL_TRUE)
      << endl;
-  os << indent << "LinkStatus=" << static_cast<bool>(this->LinkStatus)
+  os << indent << "LinkStatus=" << static_cast<bool>(this->LinkStatus==GL_TRUE)
      << endl;
-  os << indent << "ValidateStatus=" << static_cast<bool>(this->ValidateStatus)
+  os << indent << "ValidateStatus=" << static_cast<bool>(this->ValidateStatus==GL_TRUE)
      << endl;
   os << indent << "NumberOfAttachedShaders=" << this->NumberOfAttachedShaders
      << endl;
@@ -880,9 +882,9 @@ void vtkOpenGLShaderState::PrintSelf(ostream &os,
 {
   os << indent << "Id=" << this->Id << endl;
   os << indent << "Type=" << this->ShaderTypeToString() << endl;
-  os << indent << "DeleteStatus=" << static_cast<bool>(this->DeleteStatus)
+  os << indent << "DeleteStatus=" << static_cast<bool>(this->DeleteStatus==GL_TRUE)
      << endl;
-  os << indent << "CompileStatus=" << static_cast<bool>(this->CompileStatus)
+  os << indent << "CompileStatus=" << static_cast<bool>(this->CompileStatus==GL_TRUE)
      << endl;
   os << indent << "InfoLogLength=" << this->InfoLogLength << endl;
   os << indent << "InfoLog=|" << endl << this->InfoLog << "|" << endl;
@@ -911,8 +913,8 @@ const char *vtkOpenGLShaderState::ShaderTypeToString()
 void vtkOpenGLPixelControl::PrintSelf(ostream &os,
                                       vtkIndent indent)
 {
-  os << indent << "SwapBytes=" << static_cast<bool>(this->SwapBytes) << endl;
-  os << indent << "LSBFirst=" << static_cast<bool>(this->LsbFirst) << endl;
+  os << indent << "SwapBytes=" << static_cast<bool>(this->SwapBytes==GL_TRUE) << endl;
+  os << indent << "LSBFirst=" << static_cast<bool>(this->LsbFirst==GL_TRUE) << endl;
   os << indent << "ImageHeight=" << this->ImageHeight << endl;
   os << indent << "SkipImages=" << this->SkipImages << endl;
   os << indent << "RowLength=" << this->RowLength << endl;
@@ -1036,7 +1038,7 @@ void vtkOpenGLBufferObjectState::PrintSelf(ostream &os,
 //  os << indent << " AccessFlags=";
 //   this->BufferAccessFlagsToStream(os);
   os << endl;
-  os << indent << " Mapped=" << static_cast<bool>(this->Mapped) << endl;
+  os << indent << " Mapped=" << static_cast<bool>(this->Mapped==GL_TRUE) << endl;
   os << indent << " MapPointer=" << this->MapPointer << endl;
 //  os << indent << " MapOffset=" << this->MapOffset << endl;
 //  os << indent << " MapLength=" << this->MapLength << endl;
@@ -1309,7 +1311,7 @@ int ErrorCodeValueTable[9]={
   GL_STACK_OVERFLOW,
   GL_STACK_UNDERFLOW,
   GL_OUT_OF_MEMORY,
-  GL_TABLE_TOO_LARGE,
+  vtkgl::TABLE_TOO_LARGE,
   vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT
 };
 
