@@ -95,6 +95,7 @@ public:
   
 };
 
+#if 0
 class vtkOpenGLTextureObjectState
 {
 public:
@@ -136,6 +137,7 @@ public:
   GLint TextureCompareFunc;
   GLboolean GenerateMipmap;
 };
+#endif
 
 class vtkOpenGLTexGenState
 {
@@ -576,7 +578,7 @@ public:
   
   
   
-  vtkOpenGLTextureObjectState TextureObjects;
+//  vtkOpenGLTextureObjectState TextureObjects;
   
   // Texture environment generation
   GLint TextureEnvMode;
