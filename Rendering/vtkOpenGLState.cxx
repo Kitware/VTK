@@ -1050,7 +1050,9 @@ void vtkOpenGLComponentTransform::PrintSelf(ostream &os,
   os << indent << "Bias=" << this->Bias << endl;
 }
   
-const char *Unknown="Unknown value";
+// Unknown is a reserved value on BCC:
+// Bcc55\include\winioctl.h 682:
+const char *UnknownValue="Unknown value";
 const char *NA="N/A";
 
 int BooleanValueTable[2]=
@@ -1459,7 +1461,7 @@ const char *ValueToString(GLint value,
     }
   if(!found)
     {
-    result=Unknown;
+    result=UnknownValue;
     }
   else
     {
