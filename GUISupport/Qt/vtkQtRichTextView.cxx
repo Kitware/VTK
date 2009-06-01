@@ -18,22 +18,6 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
 
-#include "vtkQtRichTextView.h"
-#include <QObject>
-#include <QTextEdit>
-#include <QWebPage>
-#include <QWebView>
-#include <QWebFrame>
-#include <QNetworkAccessManager>
-#include <QNetworkProxy>
-#include <QPushButton>
-#include <QApplication>
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QWebHistory>
-
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
@@ -43,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkQtRichTextView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSelectionSource.h"
@@ -50,67 +35,70 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.3");
+#include <QFrame>
+#include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QObject>
+#include <QPointer>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebView>
+
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.4");
 vtkStandardNewMacro(vtkQtRichTextView);
 
-//----------------------------------------------------------------------------
-vtkQtRichTextView::vtkQtRichTextView()
+/////////////////////////////////////////////////////////////////////////////
+// vtkQtRichTextView::Implementation
+
+class vtkQtRichTextView::Implementation
 {
-  this->TextWidgetView = new QWebView();
-  this->TextWidgetPage = new QWebPage();
-  this->BackButton = new QPushButton("Back");
-  this->TextWidgetFrame = new QFrame();
+public:
+  ~Implementation()
+  {
+    delete this->Frame;
+  }
+
+  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+
+  vtkStdString Content;
+
+  QPointer<QFrame> Frame;
+  QPointer<QWebView> WebView;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// vtkQtRichTextView
+
+vtkQtRichTextView::vtkQtRichTextView() :
+  Internal(new Implementation())
+{
+  this->Internal->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
+  this->Internal->DataObjectToTable->SetFieldType(ROW_DATA);
+
+  this->Internal->Frame = new QFrame();
+  this->Internal->Frame->show();
+  this->Internal->WebView = new QWebView();
+  this->Internal->WebView->setHtml("");
+  this->Internal->WebView->show();
+
+  QPushButton* const back_button = new QPushButton("Back");
   
-  //   QHBoxLayout *hlayout = new QHBoxLayout();
-//   hlayout->addWidget(this->BackButton);
-//   hlayout->addStretch();
-
-//   QVBoxLayout *vlayout = new QVBoxLayout();
-//   vlayout->addWidget(this->RichTextView->GetWidget());
-//   vlayout->addWidget(hlayout);
-
-
-//  QVBoxLayout* layout = new QVBoxLayout();
-  this->TextLayout = new QVBoxLayout();
+  QVBoxLayout* const layout = new QVBoxLayout();
+  layout->addWidget(back_button);
+  layout->addWidget(this->Internal->WebView);
+  this->Internal->Frame->setLayout(layout);
   
-  TextLayout->addWidget(this->TextWidgetView);
-  TextLayout->addWidget(this->BackButton);
-
-  this->TextWidgetFrame->setLayout(TextLayout);
-  
-  //TextWidgetPage->setView(this->TextWidgetView);
-  TextWidgetPage->setView(this->TextWidgetFrame);
-
   QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
-
   QNetworkProxy::setApplicationProxy(proxy);
-  QObject::connect(this->BackButton, SIGNAL(clicked()),
-                   this, SLOT(onBack()));
-  
-  this->HtmlTextString = new vtkStdString();
-  
-  this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
-  this->FieldType = vtkQtRichTextView::VERTEX_DATA;
-  this->Text = NULL;
-  
 
+  QObject::connect(back_button, SIGNAL(clicked()), this, SLOT(onBack()));
 }
 
-//----------------------------------------------------------------------------
 vtkQtRichTextView::~vtkQtRichTextView()
 {
-  if(this->TextWidgetView)
-    {
-    delete this->TextWidgetView;
-    }
-  if(this->TextWidgetPage)
-    {
-    delete this->TextWidgetPage;
-    }
-  if(this->BackButton)
-    {
-    delete this->BackButton;
-    }
+  delete this->Internal;
 }
 
 void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
@@ -118,246 +106,74 @@ void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
-//----------------------------------------------------------------------------
 QWidget* vtkQtRichTextView::GetWidget()
 {
-    //return this->TextWidgetView;
-  return this->TextWidgetFrame;
-  
+  return this->Internal->Frame;
 }
 
-//----------------------------------------------------------------------------
 void vtkQtRichTextView::SetFieldType(int type)
 {
-  this->DataObjectToTable->SetFieldType(type);
+  this->Internal->DataObjectToTable->SetFieldType(type);
   this->Update();
 }
 
-//----------------------------------------------------------------------------
+int vtkQtRichTextView::GetFieldType()
+{
+  return this->Internal->DataObjectToTable->GetFieldType();
+}
+
 void vtkQtRichTextView::Update()
 {
-  // Make sure the input connection is up to date.
+  // Make sure the input connection is up to date ...
   vtkDataRepresentation* const representation = this->GetRepresentation();
   if(!representation)
     {
-    this->TextWidgetView->setHtml("");
+    this->Internal->WebView->setHtml("");
     return;
     }
   representation->Update();
 
-/* 
-  vtkAlgorithmOutput* conn = representation->GetInternalOutputPort();
-  vtkAlgorithmOutput* selectionConn = representation->GetInternalSelectionOutputPort();
-  if (this->DataObjectToTable->GetInputConnection(0, 0) != conn)
+  if(this->Internal->DataObjectToTable->GetTotalNumberOfInputConnections() == 0
+      || this->Internal->DataObjectToTable->GetInputConnection(0, 0) != representation->GetInternalOutputPort(0))
     {
-    this->RemoveInputConnection(
-      this->DataObjectToTable->GetInputConnection(0, 0),
-      0);
-    this->AddInputConnection(conn, selectionConn);
+    this->Internal->DataObjectToTable->SetInputConnection(0, representation->GetInternalOutputPort(0));
     }
-*/
-  if(this->DataObjectToTable->GetTotalNumberOfInputConnections() == 0
-      || this->DataObjectToTable->GetInputConnection(0, 0) != representation->GetInternalOutputPort(0))
-    {
-    this->DataObjectToTable->SetInputConnection(0, representation->GetInternalOutputPort(0));
-    }
-  this->DataObjectToTable->Update();
+  this->Internal->DataObjectToTable->Update();
 
-  vtkTable* const table = this->DataObjectToTable->GetOutput();
+  // Get our input table ...
+  vtkTable* const table = this->Internal->DataObjectToTable->GetOutput();
   if(!table)
     {
-    this->TextWidgetView->setHtml("");
+    this->Internal->WebView->setHtml("");
     return;
     }
 
-  vtkStdString new_html;
-
-  vtkSmartPointer<vtkSelection> cs = vtkSmartPointer<vtkSelection>::New();
-  //cs.TakeReference(vtkConvertSelection::ToSelectionType(rep->GetSelectionLink()->GetSelection(), 
-  //                                                    table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
-
-  vtkSmartPointer<vtkSelectionSource> source = vtkSmartPointer<vtkSelectionSource>::New();
-  source->SetContentType(vtkSelectionNode::INDICES);
-  source->SetFieldType(3);
-  source->AddID(-1,0);
-  source->AddID(-1,1);
-  source->AddID(-1,2);
-  source->AddID(-1,3);
-  source->AddID(-1,4);
-  
-  source->Update();
-
-  cs->ShallowCopy(source->GetOutput());
-  
-  vtkSelectionNode *node = cs->GetNode(0);
-  const vtkIdType column_count = table->GetNumberOfColumns();
-
-  if(node)
+  // Special-case: if the table is empty, we're done ...
+  if(0 == table->GetNumberOfRows())
     {
-    vtkAbstractArray *indexArr = node->GetSelectionList();
-    int numRecords = indexArr->GetNumberOfTuples();
-    
-    //Okay, we're assuming that we're getting a table, with a
-    //selection, (or a table of selections) that have columns labeled
-    //according to what they've done. <header> <body> <footer>
-    //<htmlized_body>
-
-    //We want to glue these together into an html file, with an
-    //appropriate html header and footer
-
-    vtkStdString originalString(new_html.c_str());
-    vtkStdString htmlTextString;
-//    newString.reserve(originalString.size() *2);
-    htmlTextString+="<!--  ************************************************** -->";
-    htmlTextString+="<html>";
-    htmlTextString+="<head>";
-    htmlTextString+="<style type=\"text/css\" media=\"all\">";
-    htmlTextString+="p";
-    htmlTextString+="  {";
-    htmlTextString+="  font: 83%/150% georgia, palatino, serif;";
-    htmlTextString+="  }";
-    htmlTextString+="body, p, h3";
-    htmlTextString+="  {";
-    htmlTextString+="  font-family: arial \'Bitstream Vera Sans Mono\' monospace;";
-    htmlTextString+="  }";
-    htmlTextString+="h3";
-    htmlTextString+="  {";
-    htmlTextString+="  letter-spacing: 3px;";
-    htmlTextString+="  }";
-    htmlTextString+="a ";
-    htmlTextString+="  { ";
-    htmlTextString+="  text-decoration: none; ";
-    htmlTextString+="  border-bottom: 1px dashed; ";
-    htmlTextString+="  }";
-    htmlTextString+="a:hover ";
-    htmlTextString+="  { ";
-    htmlTextString+="  border: 1px dashed; ";
-    htmlTextString+="  }";
-    htmlTextString+="#nav-menu ul";
-    htmlTextString+="  {";
-    htmlTextString+="  list-style: none;";
-    htmlTextString+="  padding: 0;";
-    htmlTextString+="  margin: 0;";
-    htmlTextString+="  } ";
-    htmlTextString+="#nav-menu a ";
-    htmlTextString+="  { ";
-    htmlTextString+="  text-decoration: none;";
-    htmlTextString+="  border-bottom: none;";
-    htmlTextString+="  font-size: 85%;";
-    htmlTextString+="  }";
-    htmlTextString+="#nav-menu a:hover ";
-    htmlTextString+="  { ";
-    htmlTextString+="  border: none; ";
-    htmlTextString+="  border-bottom: 1px solid; ";
-    htmlTextString+="  }";
-    htmlTextString+="#M3Header p";
-    htmlTextString+="  {";
-    htmlTextString+="  font-size: 65%;";
-    htmlTextString+="  }";
-    htmlTextString+="#M3Text p";
-    htmlTextString+="  {";
-    htmlTextString+="  font-size: 75%;";
-    htmlTextString+="  }";
-    htmlTextString+="#M3Footer p ";
-    htmlTextString+="  {";
-    htmlTextString+="  font-size: 65%; ";
-    htmlTextString+="  }";
-    htmlTextString+="#M3NavigationLink p ";
-    htmlTextString+="  {";
-    htmlTextString+="  font-size: 35%; ";
-    htmlTextString+="  }";
-    htmlTextString+="a.PERSON { color: blue; }";
-    htmlTextString+="a.LOCATION { color: green; }";
-    htmlTextString+="a.ORGANIZATION { color: red; }";
-    htmlTextString+="a.MISC { color: orange; }";
-  
-    htmlTextString+="<!-- #p111{background: yellow} -->";
-    htmlTextString+="<!-- #p112{background: tan} -->";
-    htmlTextString+="<!-- #p113{background: lightblue} -->";
-    htmlTextString+="<!-- #p114{background: black} -->";
-
-    htmlTextString+="</style></head><body>";
-    vtkIdType ii;
-
-    htmlTextString+="<a name=\"GlobalNav\"></a>";
-    htmlTextString+="<div id=\"nav-menu\">";
-    htmlTextString+="<H3>Global Navigation</H3>";
-    htmlTextString+="<ul>";
-  
-    for(ii = 0; ii<numRecords; ++ii)
-      {
-      if((table->GetValueByName(ii, "htmlized_body").ToString()).size() > 0)
-        {
-        vtkStdString docID = table->GetValueByName(ii, "document").ToString();
-        htmlTextString += "<li><a href=\"#Navigation";
-        htmlTextString += docID;
-        htmlTextString += "\">";
-        htmlTextString += " Document ";
-        htmlTextString += docID;
-        htmlTextString += "</a></li>";
-        }
-      }
-    htmlTextString += "</ul>";
-    htmlTextString += "</div>";
-    
-    for(vtkIdType ii=0; ii<numRecords; ++ii)
-      {
-      vtkStdString currentHtmlText = table->GetValueByName(ii, "htmlized_body").ToString();
-      if(currentHtmlText.size() > 0)
-        {
-        htmlTextString+= table->GetValueByName(ii, "htmlized_body").ToString();
-        htmlTextString += "<div id=\"nav-menu\"><a href=\"#GlobalNav\">Back to Global Navigation</a></div>";
-        htmlTextString += "<br /><br /><br /><br />";
-        }
-      }
-    htmlTextString += "</body></html>";
-
-    cout<<htmlTextString.c_str();
-    
-    this->TextWidgetView->setHtml(htmlTextString.c_str());
-    this->HtmlTextString->clear();
-    
-    this->HtmlTextString->append(htmlTextString);
-    
-    
-    cout.flush();
+    this->Internal->WebView->setHtml("");
+    return;
     }
-  this->TextWidgetView->show();
-  
-  this->TextWidgetView->update();
- 
-}
 
-//----------------------------------------------------------------------------
-int vtkQtRichTextView::find_string(QString &myString, QString &searchString, int prev_loc)
-{
+  // Figure-out which row of the table we're going to display ...
+  const vtkIdType row = 0; /** \TODO: Base this on the current selection */
 
-  int my_loc = myString.indexOf(searchString, prev_loc, Qt::CaseInsensitive);
-  return my_loc;
+  this->Internal->Content = table->GetValueByName(row, "html").ToString();
+cerr << this->Internal->Content << endl;
 
-}
-
-int vtkQtRichTextView::insert_string(QString &myString, QString &htmlString, int location)
-{
-  cout<<"MyString size = "<<myString.size()<<endl;
-  myString.insert(location, htmlString);
-  cout<<"MyString size = "<<myString.size()<<endl;
-    
-  location += htmlString.size();
-  return location;
+  this->Internal->WebView->setHtml(this->Internal->Content.c_str());
+  this->Internal->Content = this->Internal->Content;
 }
 
 void vtkQtRichTextView::onBack()
 {
-  QObject::connect(this->BackButton, SIGNAL(clicked()), this->TextWidgetView, SLOT(back()));
-  if(this->TextWidgetView->history()->canGoBack())
-      this->TextWidgetView->back();
+  if(this->Internal->WebView->history()->canGoBack())
+    {
+    this->Internal->WebView->back();
+    }
   else
-      this->TextWidgetView->setHtml(HtmlTextString->c_str());
-  
-  this->TextWidgetView->update();
-  
-  cout<<"Pressed back"<<endl;
-  
+    {
+    this->Internal->WebView->setHtml(this->Internal->Content.c_str());
+    }
 }
 

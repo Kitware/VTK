@@ -33,23 +33,8 @@
 
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
-#include "vtkSmartPointer.h"
-#include <QPointer>
-
-class QTextEdit;
-class QWebPage;
-class QWebView;
-class QNetworkProxy;
-class QMainWindow;
-class QDialog;
-class QFrame;
-class QPushButton;
-class QLayout;
 
 class vtkStdString;
-
-
-class vtkDataObjectToTable;
 
 class QVTK_EXPORT vtkQtRichTextView : public vtkQtView
 {
@@ -67,7 +52,7 @@ public:
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
 
-  //BTX
+//BTX
   enum
     {
     FIELD_DATA = 0,
@@ -77,54 +62,31 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-  //ETX
+//ETX
   
   // Description:
   // The field type to copy into the output table.
   // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
-  vtkGetMacro(FieldType, int);
   void SetFieldType(int);
-
-  vtkGetMacro(CurrentRow, int);
-  vtkGetStringMacro(Text);
+  int GetFieldType();
 
   // Description:
   // Updates the view.
   virtual void Update();
 
-  protected slots:
+protected slots:
   void onBack();
   
-  protected:
-  
+protected:
   vtkQtRichTextView();
   ~vtkQtRichTextView();
     
-//BTX
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
-//ETX
-
-  QPointer<QPushButton> BackButton;
-  QPointer<QWebPage> TextWidgetPage;
-  QPointer<QWebView> TextWidgetView;
-  QPointer<QFrame> TextWidgetFrame;
-  QPointer<QLayout> TextLayout;
-  
-    
-
-  vtkStdString *HtmlTextString;
-  char* Text;
-  int FieldType;
-  int CurrentRow;
-
 private:
   vtkQtRichTextView(const vtkQtRichTextView&);  // Not implemented.
   void operator=(const vtkQtRichTextView&);  // Not implemented.
 
-  int find_string(QString &myString,QString &searchString, int prev_loc);
-  int insert_string(QString &myString, QString &htmlString, int location);
-  
-  
+  class Implementation;
+  Implementation* const Internal;
 };
 
 #endif
