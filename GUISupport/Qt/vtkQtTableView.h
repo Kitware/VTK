@@ -38,6 +38,7 @@
 #include "vtkSmartPointer.h"
 
 class vtkAddMembershipArray;
+class vtkApplyColors;
 class vtkDataObjectToTable;
 class QItemSelection;
 class QTableView;
@@ -103,35 +104,27 @@ protected:
   vtkQtTableView();
   ~vtkQtTableView();
 
-  // Description:
-  // Connects the algorithm output to the internal pipeline.
-  // This view only supports a single representation.
-  virtual void AddInputConnection(
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
-  
-  // Description:
-  // Removes the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection(
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
+  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
+  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
 
 private:
   void SetVTKSelection();
-  unsigned long CurrentSelectionMTime;
+  unsigned long LastSelectionMTime;
+  unsigned long LastInputMTime;
+  unsigned long LastMTime;
   
   QPointer<QTableView> TableView;
   vtkQtTableModelAdapter* TableAdapter;
   QSortFilterProxyModel* TableSorter;
-  bool Selecting;
   int FieldType;    
 
 //BTX
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkApplyColors> ApplyColors;
 //ETX
   
   vtkQtTableView(const vtkQtTableView&);  // Not implemented.
