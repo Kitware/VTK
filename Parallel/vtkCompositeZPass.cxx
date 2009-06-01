@@ -51,7 +51,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeZPass, "1.1");
+vtkCxxRevisionMacro(vtkCompositeZPass, "1.2");
 vtkStandardNewMacro(vtkCompositeZPass);
 vtkCxxSetObjectMacro(vtkCompositeZPass,Controller,vtkMultiProcessController);
 
@@ -138,6 +138,33 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderer *r=static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
+  
+   // Test for Hardware support. If not supported, return.
+  bool supported=vtkFrameBufferObject::IsSupported(context);
+  
+  if(!supported)
+    {
+    vtkErrorMacro("FBOs are not supported by the context. Cannot perform z-compositing.");
+    }
+  if(supported)
+    {
+    supported=vtkTextureObject::IsSupported(context);
+    if(!supported)
+      {
+      vtkErrorMacro("Texture Objects are not supported by the context. Cannot perform z-compositing.");
+      }
+    }
+  
+  if(supported)
+    {
+    supported=
+      vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
+                                       context));
+    if(!supported)
+      {
+      vtkErrorMacro("GLSL is not supported by the context. Cannot perform z-compositing.");
+      }
+    }
   
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
   vtkOpenGLState *state=new vtkOpenGLState(context);
