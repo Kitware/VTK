@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.19");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.19.4.1");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -91,8 +91,11 @@ vtkCommunity2DLayoutStrategy::~vtkCommunity2DLayoutStrategy()
 {
   this->SetEdgeWeightField(0);
   this->SetCommunityArrayName(0);
+  if (this->EdgeArray)
+    {
+    delete [] this->EdgeArray;
+    }
 }
-
 
 // Helper functions
 void vtkCommunity2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
