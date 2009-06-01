@@ -28,7 +28,7 @@ public:
   StorageT Storage;
 };
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.9");
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.10");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
@@ -125,7 +125,11 @@ vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* 
 
 void* vtkUnicodeStringArray::GetVoidPointer(vtkIdType id)
 {
-  return &this->Implementation->Storage[id];
+  // Err.. not totally sure what to do here
+  if (this->Implementation->Storage.empty())
+    return 0;
+  else
+    return &this->Implementation->Storage[id];
 }
 
 void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
