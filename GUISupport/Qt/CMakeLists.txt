@@ -89,7 +89,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     IF(QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5)
       SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtRichTextView.cxx)
       SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtRichTextView.h)
-    ENDIF()
+    ENDIF(QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5)
   ENDIF(VTK_USE_VIEWS)
   
   # help CMake fine QtDesigner on Mac (binary install)
