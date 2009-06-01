@@ -50,8 +50,6 @@
 #include <vtksys/RegularExpression.hxx>
 #include <math.h>
 
-using namespace vtkstd;
-
 //=============================================================================
 #define CALL_NETCDF(call)                       \
   { \
@@ -236,7 +234,7 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.3");
+vtkCxxRevisionMacro(vtkSLACReader, "1.4");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -945,9 +943,9 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
 
 //-----------------------------------------------------------------------------
 int vtkSLACReader::ReadMidpointCoordinates(
-                                       int meshFD,
-                                       vtkMultiBlockDataSet *output,
-                                       vtkMidpointCoordinateMap &map)
+                                   int meshFD,
+                                   vtkMultiBlockDataSet *output,
+                                   vtkSLACReader::vtkMidpointCoordinateMap &map)
 {
   // Get the number of midpoints.
   int midpointsVar;
@@ -970,6 +968,7 @@ int vtkSLACReader::ReadMidpointCoordinates(
     {
     double *mp = midpointData->GetPointer(i*5);
 
+    using namespace vtkstd;
     map.insert(make_pair(make_pair(static_cast<vtkIdType>(mp[0]),
                                    static_cast<vtkIdType>(mp[1])),
                          vtkSLACReader::vtkMidpoint(mp+2, i + pointTotal)));
@@ -982,6 +981,8 @@ int vtkSLACReader::ReadMidpointCoordinates(
 int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                                     vtkMidpointIdMap &midpointIds)
 {
+  using namespace vtkstd;
+
   static bool GaveMidpointWarning = false;
   if (!GaveMidpointWarning)
     {
@@ -1089,7 +1090,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
 
 //-----------------------------------------------------------------------------
 int vtkSLACReader::InterpolateMidpointData(vtkMultiBlockDataSet *output,
-                                           vtkMidpointIdMap &map)
+                                           vtkSLACReader::vtkMidpointIdMap &map)
 {
   // Get the point information from the output data (where it was placed
   // earlier).
