@@ -236,7 +236,7 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.1");
+vtkCxxRevisionMacro(vtkSLACReader, "1.2");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -322,13 +322,11 @@ void vtkSLACReader::RemoveAllModeFileNames()
 unsigned int vtkSLACReader::GetNumberOfModeFileNames()
 {
   return this->ModeFileNames.size();
-  this->Modified();
 }
 
 const char *vtkSLACReader::GetModeFileName(unsigned int idx)
 {
   return this->ModeFileNames[idx].c_str();
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
