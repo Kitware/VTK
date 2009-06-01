@@ -50,14 +50,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.2");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.3");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 //----------------------------------------------------------------------------
 vtkQtRichTextView::vtkQtRichTextView()
 {
-  int argc = 0;
-  
   this->TextWidgetView = new QWebView();
   this->TextWidgetPage = new QWebPage();
   this->BackButton = new QPushButton("Back");
@@ -115,6 +113,11 @@ vtkQtRichTextView::~vtkQtRichTextView()
     }
 }
 
+void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+
 //----------------------------------------------------------------------------
 QWidget* vtkQtRichTextView::GetWidget()
 {
@@ -131,42 +134,44 @@ void vtkQtRichTextView::SetFieldType(int type)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtRichTextView::AddInputConnection( 
-                                           vtkAlgorithmOutput* conn, 
-                                           vtkAlgorithmOutput* vtkNotUsed(selectionConn))
-{  
-  this->DataObjectToTable->SetInputConnection(0, conn);
-}
-
-//----------------------------------------------------------------------------
-void vtkQtRichTextView::RemoveInputConnection(
-                                              vtkAlgorithmOutput* conn, 
-                                              vtkAlgorithmOutput* vtkNotUsed(selectionConn))
-{  
-  this->DataObjectToTable->RemoveInputConnection(0, conn);
-}
-
-//----------------------------------------------------------------------------
 void vtkQtRichTextView::Update()
 {
-  
-  vtkDataRepresentation* rep = this->GetRepresentation();
- 
-  vtkStdString html, new_html;
-  if (!rep)
+  // Make sure the input connection is up to date.
+  vtkDataRepresentation* const representation = this->GetRepresentation();
+  if(!representation)
     {
-    this->TextWidgetView->setHtml(html.c_str());
+    this->TextWidgetView->setHtml("");
+    return;
+    }
+  representation->Update();
+
+/* 
+  vtkAlgorithmOutput* conn = representation->GetInternalOutputPort();
+  vtkAlgorithmOutput* selectionConn = representation->GetInternalSelectionOutputPort();
+  if (this->DataObjectToTable->GetInputConnection(0, 0) != conn)
+    {
+    this->RemoveInputConnection(
+      this->DataObjectToTable->GetInputConnection(0, 0),
+      0);
+    this->AddInputConnection(conn, selectionConn);
+    }
+*/
+  if(this->DataObjectToTable->GetTotalNumberOfInputConnections() == 0
+      || this->DataObjectToTable->GetInputConnection(0, 0) != representation->GetInternalOutputPort(0))
+    {
+    this->DataObjectToTable->SetInputConnection(0, representation->GetInternalOutputPort(0));
+    }
+  this->DataObjectToTable->Update();
+
+  vtkTable* const table = this->DataObjectToTable->GetOutput();
+  if(!table)
+    {
+    this->TextWidgetView->setHtml("");
     return;
     }
 
-  this->DataObjectToTable->Update();
-  vtkTable *table = this->DataObjectToTable->GetOutput();
-  if (!table)
-    {
-    this->TextWidgetView->setHtml(html.c_str());
-    return;
-    }
-  
+  vtkStdString new_html;
+
   vtkSmartPointer<vtkSelection> cs = vtkSmartPointer<vtkSelection>::New();
   //cs.TakeReference(vtkConvertSelection::ToSelectionType(rep->GetSelectionLink()->GetSelection(), 
   //                                                    table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
@@ -181,10 +186,8 @@ void vtkQtRichTextView::Update()
   source->AddID(-1,4);
   
   source->Update();
-  
 
   cs->ShallowCopy(source->GetOutput());
-  
   
   vtkSelectionNode *node = cs->GetNode(0);
   const vtkIdType column_count = table->GetNumberOfColumns();
@@ -326,17 +329,11 @@ void vtkQtRichTextView::Update()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-}
-
 int vtkQtRichTextView::find_string(QString &myString, QString &searchString, int prev_loc)
 {
 
   int my_loc = myString.indexOf(searchString, prev_loc, Qt::CaseInsensitive);
   return my_loc;
-  //int QString::indexOf ( const QString & str, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive ) const
 
 }
 
@@ -348,14 +345,11 @@ int vtkQtRichTextView::insert_string(QString &myString, QString &htmlString, int
     
   location += htmlString.size();
   return location;
-  
-//  QString & QString::insert ( int position, const QString & str )
 }
 
 void vtkQtRichTextView::onBack()
 {
-  QObject::connect(this->BackButton, SIGNAL(clicked()),
-                   this->TextWidgetView, SLOT(back()));
+  QObject::connect(this->BackButton, SIGNAL(clicked()), this->TextWidgetView, SLOT(back()));
   if(this->TextWidgetView->history()->canGoBack())
       this->TextWidgetView->back();
   else
@@ -366,3 +360,4 @@ void vtkQtRichTextView::onBack()
   cout<<"Pressed back"<<endl;
   
 }
+
