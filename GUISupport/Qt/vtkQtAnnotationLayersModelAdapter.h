@@ -61,6 +61,7 @@ public:
     vtkSelection *vtksel) const;
   
   virtual void SetKeyColumnName(const char* name);
+  virtual void SetColorColumnName(const char* name){}
 
   // Description:
   // Set up the model based on the current table.

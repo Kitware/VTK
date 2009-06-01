@@ -55,6 +55,7 @@ public:
     vtkSelection *vtksel) const;
   
   virtual void SetKeyColumnName(const char* name);
+  virtual void SetColorColumnName(const char* name);
 
   bool GetSplitMultiComponentColumns() const;
   void SetSplitMultiComponentColumns(bool value);
@@ -82,6 +83,7 @@ private:
 
   bool        SplitMultiComponentColumns;
   vtkTable*   Table;
+  char*       ColorColumnName;
 
   class vtkInternal;
   vtkInternal* Internal;

@@ -29,12 +29,17 @@
 #include "vtkStdString.h"
 #include "vtkVariant.h"
 #include "vtkDoubleArray.h"
+#include "vtkUnsignedCharArray.h"
 
+#include <QColor>
 #include <QIcon>
 #include <QPixmap>
 #include <QHash>
 #include <QMap>
 #include <QPair>
+#include <QPixmap>
+
+#include <vtkstd/set>
 
 //----------------------------------------------------------------------------
 class vtkQtTableModelAdapter::vtkInternal {
@@ -83,6 +88,46 @@ vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
     this->Table->Delete();
     }
   delete this->Internal;
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
+{
+  int color_column = this->ColorColumn;
+  if (name == 0 || !this->Table)
+    {
+    this->ColorColumn = -1;
+    }
+  else if (this->SplitMultiComponentColumns)
+    {
+    this->ColorColumn = -1;
+    int color_index=0;
+    foreach(QString columnname, this->Internal->ModelColumnNames)
+      {
+      if (columnname == name)
+        {
+        this->ColorColumn = color_index;
+        break;
+        }
+      color_index++;
+      }
+    }
+  else
+    {
+    this->ColorColumn = -1;
+    for (int i = 0; i < static_cast<int>(this->Table->GetNumberOfColumns()); i++)
+      {
+      if (!strcmp(name, this->Table->GetColumn(i)->GetName()))
+        {
+        this->ColorColumn = i;
+        break;
+        }
+      }
+    }
+  if (this->ColorColumn != color_column)
+    {
+    emit this->reset();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -288,11 +333,17 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
   IndexSelection->AddNode(node);
   
   // Run through the QModelIndexList pulling out vtk indexes
+  vtkstd::set<int> unique_ids;
   for (int i = 0; i < qmil.size(); i++)
     {
-    vtkIdType vtk_index = qmil.at(i).internalId();
-    index_arr->InsertNextValue(vtk_index);
+    unique_ids.insert(qmil.at(i).internalId());
     }  
+  vtkstd::set<int>::iterator iter;
+  for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
+    {
+    index_arr->InsertNextValue(*iter);
+    }  
+
   return IndexSelection;
 }
 
@@ -473,6 +524,42 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
       return QVariant(v.ToDouble());
       }
     return QVariant(v.ToString().c_str());
+    }
+
+  // For the decoration role of vertical headers, return colors
+  // in ColorColumn if it is valid.
+  if (orientation == Qt::Vertical && this->ColorColumn >= 0 &&
+    (role == Qt::DecorationRole))
+    {
+    int column;
+    if (this->GetSplitMultiComponentColumns())
+      {
+      column = this->Internal->ModelColumnToTableColumn[this->ColorColumn].first;
+      }
+    else
+      {
+      column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
+      }
+    vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Table->GetColumn(column));
+    if (!colors)
+      {
+      return QVariant();
+      }
+
+    const int nComponents = colors->GetNumberOfComponents();
+    if(nComponents >= 3)
+      {
+      unsigned char rgba[4];
+      colors->GetTupleValue(section, rgba);
+      int rgb[3];
+      rgb[0] = static_cast<int>(0x0ff & rgba[0]);
+      rgb[1] = static_cast<int>(0x0ff & rgba[1]);
+      rgb[2] = static_cast<int>(0x0ff & rgba[2]);
+
+      QPixmap pixmap(16, 16);
+      pixmap.fill(QColor(rgb[0],rgb[1],rgb[2]));
+      return QVariant(pixmap);
+      }
     }
 
   return QVariant();

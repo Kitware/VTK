@@ -55,6 +55,26 @@ vtkQtTreeModelAdapter::~vtkQtTreeModelAdapter()
   this->ChildIterator->Delete();
 }
 
+void vtkQtTreeModelAdapter::SetColorColumnName(const char* name)
+{
+  if (name == 0)
+    {
+    this->ColorColumn = -1;
+    }
+  else
+    {
+    this->ColorColumn = -1;
+    for (int i = 0; i < this->Tree->GetVertexData()->GetNumberOfArrays(); i++)
+      {
+      if (!strcmp(name, this->Tree->GetVertexData()->GetAbstractArray(i)->GetName()))
+        {
+        this->ColorColumn = i;
+        break;
+        }
+      }
+    }
+}
+
 void vtkQtTreeModelAdapter::SetKeyColumnName(const char* name)
 {
   if (name == 0)

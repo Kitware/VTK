@@ -55,6 +55,7 @@ public:
     QAbstractItemModel(p), 
     ViewType(FULL_VIEW),
     KeyColumn(-1),
+    ColorColumn(-1),
     DataStartColumn(-1),
     DataEndColumn(-1)
     { }
@@ -88,6 +89,16 @@ public:
   virtual void SetKeyColumn(int col) { this->KeyColumn = col; }
   virtual int GetKeyColumn() { return this->KeyColumn; }
   virtual void SetKeyColumnName(const char* name) = 0;
+  
+  // Description:
+  // Set/Get the column storing the rgba color values for each row.
+  // The color column is used as the row headers in a table view,
+  // and as the first column in a tree view.
+  // Set to -1 for no key column.
+  // The default is no key column.
+  virtual void SetColorColumn(int col) { this->ColorColumn = col; }
+  virtual int GetColorColumn() { return this->ColorColumn; }
+  virtual void SetColorColumnName(const char* name) = 0;
 
   // Description:
   // Set the range of columns that specify the main data matrix.
@@ -115,6 +126,7 @@ protected:
 
   int ViewType;
   int KeyColumn;
+  int ColorColumn;
   int DataStartColumn;
   int DataEndColumn;
 };

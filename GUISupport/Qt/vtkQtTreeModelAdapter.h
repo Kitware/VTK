@@ -71,6 +71,8 @@ public:
   
   virtual void SetKeyColumnName(const char* name);
 
+  virtual void SetColorColumnName(const char* name);
+
   // Description:
   // Set up the model based on the current tree.
   void setTree(vtkTree* t);
