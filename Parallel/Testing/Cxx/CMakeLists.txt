@@ -81,6 +81,12 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel)
 
+    ADD_EXECUTABLE(PSLACReaderLinear PSLACReaderLinear.cxx)
+    TARGET_LINK_LIBRARIES(PSLACReaderLinear vtkParallel)
+
+    ADD_EXECUTABLE(PSLACReaderQuadratic PSLACReaderQuadratic.cxx)
+    TARGET_LINK_LIBRARIES(PSLACReaderQuadratic vtkParallel)
+
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(MPIController
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -276,6 +282,24 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPIRUN_EXE)
     ENDIF (VTK_DATA_ROOT)
+    IF (VTK_LARGE_DATA_ROOT)
+      IF (VTK_MPIRUN_EXE)
+        ADD_TEST(PSLACReaderLinear
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+          ${CXX_TEST_PATH}/PSLACReaderLinear
+          -D ${VTK_LARGE_DATA_ROOT}
+          -T ${VTK_BINARY_DIR}/Testing/Temporary
+          -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderLinear.png
+          ${VTK_MPI_POSTFLAGS})
+        ADD_TEST(PSLACReaderQuadratic
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+          ${CXX_TEST_PATH}/PSLACReaderQuadratic
+          -D ${VTK_LARGE_DATA_ROOT}
+          -T ${VTK_BINARY_DIR}/Testing/Temporary
+          -V ${VTK_LARGE_DATA_ROOT}/Baseline/Parallel/PSLACReaderQuadratic.png
+          ${VTK_MPI_POSTFLAGS})
+      ENDIF (VTK_MPIRUN_EXE)
+    ENDIF (VTK_LARGE_DATA_ROOT)
   ENDIF (VTK_USE_MPI)
 
   # For now this test is only available on Unix because

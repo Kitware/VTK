@@ -48,6 +48,8 @@ IF(VTK_HAS_UINT64_ARRAY)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+  SLACReaderLinear.cxx
+  SLACReaderQuadratic.cxx
   TestXML.cxx
   TestCompress.cxx
   TestSQLDatabaseSchema.cxx
@@ -85,6 +87,19 @@ IF (VTK_DATA_ROOT)
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
   ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
+
+IF (VTK_LARGE_DATA_ROOT)
+  IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+    ADD_TEST(SLACReaderLinear ${CXX_TEST_PATH}/${KIT}CxxTests
+         SLACReaderLinear -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACReaderLinear.png)
+    ADD_TEST(SLACReaderQuadratic ${CXX_TEST_PATH}/${KIT}CxxTests
+         SLACReaderQuadratic -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACReaderQuadratic.png)
+  ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+ENDIF (VTK_LARGE_DATA_ROOT)
 
 ADD_TEST(TestSQLDatabaseSchema ${CXX_TEST_PATH}/${KIT}CxxTests TestSQLDatabaseSchema)
 
