@@ -21,6 +21,7 @@ IF(PYTHON_EXECUTABLE)
     vtkgluPickMatrix.h
     vtkLabelHierarchyPrivate.h
     vtkOpenGL.h
+    vtkOpenGLState.h
     vtkOpenGLStateCache.h
     vtkgl.h
     vtkOpenGLExtensionManagerConfigure.h
