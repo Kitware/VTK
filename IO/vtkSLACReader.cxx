@@ -236,7 +236,7 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.2");
+vtkCxxRevisionMacro(vtkSLACReader, "1.3");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -591,7 +591,7 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
 
     this->UpdateProgress(0.875);
 
-    if (!this->InterpolateMidpointData(output, this->MidpointIdCache));
+    if (!this->InterpolateMidpointData(output, this->MidpointIdCache)) return 0;
     }
 
   // Push points to output.
