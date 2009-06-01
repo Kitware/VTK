@@ -197,6 +197,7 @@ ENDIF(VTK_USE_CG_SHADERS)
 
 SET( KitOpenGL_SRCS
   vtkCameraPass.cxx
+  vtkClearZPass.cxx
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
   vtkGaussianBlurPass.cxx
@@ -222,6 +223,7 @@ SET( KitOpenGL_SRCS
   vtkOpenGLRenderer.cxx
   vtkOpenGLRepresentationPainter.cxx
   vtkOpenGLScalarsToColorsPainter.cxx
+  vtkOpenGLState.cxx
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
   vtkRenderPassCollection.cxx
@@ -272,6 +274,7 @@ SET_SOURCE_FILES_PROPERTIES(
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkCameraPass
+  vtkClearZPass
   vtkDefaultPass
   vtkDepthPeelingPass
   vtkGaussianBlurPass
@@ -280,6 +283,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkRenderPass
   vtkRenderState
   vtkOverlayPass
+  vtkOpenGLState
   vtkRenderPassCollection
   vtkSequencePass
   vtkShader2
@@ -462,7 +466,6 @@ ENDIF (WIN32)
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Rendering/vtkOpenGLExtensionManagerConfigure.h.in
   ${VTK_BINARY_DIR}/Rendering/vtkOpenGLExtensionManagerConfigure.h)
-
 # Build a list of libraries to link to vtkRendering.
 
 IF(VTK_USE_GL2PS)

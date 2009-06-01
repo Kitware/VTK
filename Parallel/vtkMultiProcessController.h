@@ -44,6 +44,7 @@ class vtkMultiProcessController;
 class vtkMultiProcessStream;
 class vtkOutputWindow;
 class vtkProcessGroup;
+class vtkProcess;
 
 //BTX
 // The type of function that gets called when new processes are initiated.
@@ -102,6 +103,12 @@ public:
   // when SingleMethodExecute is called.  All the processes will
   // start by calling this function.
   void SetSingleMethod(vtkProcessFunctionType, void *data);
+  
+  // Description:
+  // Object-oriented flavor of SetSingleMethod(). Instead of passing
+  // some function pointer and user data, a vtkProcess object is passed
+  // where the method to execute is Execute() and the data the object itself.
+  void SetSingleProcessObject(vtkProcess *p);
   //ETX
 
   // Description:

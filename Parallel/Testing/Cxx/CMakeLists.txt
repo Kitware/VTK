@@ -75,6 +75,21 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TransmitImageData TransmitImageData.cxx)
     TARGET_LINK_LIBRARIES(TransmitImageData vtkParallel)
 
+    ADD_EXECUTABLE(TestProcess TestProcess.cxx)
+    TARGET_LINK_LIBRARIES(TestProcess vtkParallel)
+
+    ADD_EXECUTABLE(TransmitImageDataRenderPass TransmitImageDataRenderPass.cxx)
+    TARGET_LINK_LIBRARIES(TransmitImageDataRenderPass vtkParallel)
+
+    ADD_EXECUTABLE(TransmitImageDataRenderPassOpacity TransmitImageDataRenderPassOpacity.cxx)
+    TARGET_LINK_LIBRARIES(TransmitImageDataRenderPassOpacity vtkParallel)
+
+    ADD_EXECUTABLE(TestPShadowMapPass TestPShadowMapPass.cxx)
+    TARGET_LINK_LIBRARIES(TestPShadowMapPass vtkParallel)
+
+    ADD_EXECUTABLE(TestPCompositeZPass TestPCompositeZPass.cxx)
+    TARGET_LINK_LIBRARIES(TestPCompositeZPass vtkParallel)
+
     ADD_EXECUTABLE(TransmitRectilinearGrid TransmitRectilinearGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitRectilinearGrid vtkParallel)
 
@@ -94,6 +109,12 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         ${CXX_TEST_PATH}/TestMPIController
         ${VTK_MPI_POSTFLAGS}
         )
+      ADD_TEST(TestProcess
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TestProcess
+            ${VTK_MPI_POSTFLAGS})
+
+
     ENDIF (VTK_MPIRUN_EXE)
 
     # This definition looks wrong in multiple respects:
@@ -248,6 +269,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/DistributedData.cxx.png
             ${VTK_MPI_POSTFLAGS})
+
           ADD_TEST(TransmitImageData-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitImageData
@@ -255,6 +277,36 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitImageData.cxx.png
             ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TransmitImageDataRenderPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TransmitImageDataRenderPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TransmitImageDataRenderPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TransmitImageDataRenderPassOpacity-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TransmitImageDataRenderPassOpacity
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TransmitImageDataRenderPassOpacity.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TestPShadowMapPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TestPShadowMapPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TestPShadowMapPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+
+          ADD_TEST(TestPCompositeZPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TestPCompositeZPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TestPCompositeZPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+
           ADD_TEST(TransmitRectilinearGrid-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitRectilinearGrid

@@ -41,21 +41,49 @@
 #include "vtkCompositeRenderManager.h"
 #include "vtkCamera.h"
 
+#include "vtkProcess.h"
 
-
-static int NumProcs, Me;
-
-struct DDArgs_tmp
+class MyProcess : public vtkProcess
 {
-  int* retVal;
-  int argc;
-  char** argv;
+public:
+  static MyProcess *New();
+  vtkTypeRevisionMacro(MyProcess, vtkProcess);
+  
+  virtual void Execute();
+
+  void SetArgs(int anArgc,
+               char *anArgv[]);
+  
+protected:
+  MyProcess();
+  
+  int Argc;
+  char **Argv;
 };
 
-void Run(vtkMultiProcessController *contr, void *arg)
+vtkCxxRevisionMacro(MyProcess, "1.8");
+vtkStandardNewMacro(MyProcess);
+
+MyProcess::MyProcess()
 {
+  this->Argc=0;
+  this->Argv=0;
+}
+
+void MyProcess::SetArgs(int anArgc,
+                        char *anArgv[])
+{
+  this->Argc=anArgc;
+  this->Argv=anArgv;  
+}
+
+void MyProcess::Execute()
+{
+  this->ReturnValue=1;
+  int numProcs=this->Controller->GetNumberOfProcesses();
+  int me=this->Controller->GetLocalProcessId();
+  
   int i, go;
-  DDArgs_tmp *args = reinterpret_cast<DDArgs_tmp *>(arg);
 
   vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
 
@@ -64,12 +92,12 @@ void Run(vtkMultiProcessController *contr, void *arg)
   vtkStructuredGridReader *sgr = NULL;
   vtkStructuredGrid *sg = NULL;
 
-  if (Me == 0)
+  if (me == 0)
     {
     sgr = vtkStructuredGridReader::New();
     char* fname = 
       vtkTestUtilities::ExpandDataFileName(
-        args->argc, args->argv, "Data/SampleStructGrid.vtk");
+        this->Argc, this->Argv, "Data/SampleStructGrid.vtk");
 
     sgr->SetFileName(fname);
 
@@ -87,30 +115,28 @@ void Run(vtkMultiProcessController *contr, void *arg)
       go = 0;
       }
     }
-  else
-    {
-    }
 
   vtkMPICommunicator *comm =
-    vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
+    vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
 
   comm->Broadcast(&go, 1, 0);
 
-  if (!go){
-    if (sgr) sgr->Delete();
+  if (!go)
+    {
+    if (sgr)
+      {
+      sgr->Delete();
+      }
     prm->Delete();
     return;
-  }
+    }
 
   // FILTER WE ARE TRYING TO TEST
   vtkTransmitStructuredGridPiece *pass = vtkTransmitStructuredGridPiece::New();
-  pass->SetController(contr);
-  if (Me == 0)
+  pass->SetController(this->Controller);
+  if (me == 0)
     {
     pass->SetInput(sg);
-    }
-  else 
-    {
     }
 
   // FILTERING
@@ -122,12 +148,12 @@ void Run(vtkMultiProcessController *contr, void *arg)
   cf->ComputeNormalsOff();
   vtkElevationFilter *elev = vtkElevationFilter::New();
   elev->SetInput(cf->GetOutput());
-  elev->SetScalarRange(Me, Me + .001);
+  elev->SetScalarRange(me, me + .001);
 
   // COMPOSITE RENDER
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetInput(vtkPolyData::SafeDownCast(elev->GetOutput()));
-  mapper->SetScalarRange(0, NumProcs);
+  mapper->SetScalarRange(0, numProcs);
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   vtkRenderer *renderer = prm->MakeRenderer();
@@ -136,11 +162,11 @@ void Run(vtkMultiProcessController *contr, void *arg)
   renWin->AddRenderer(renderer);
   renderer->SetBackground(0,0,0);
   renWin->SetSize(300,300);
-  renWin->SetPosition(0, 360*Me);
+  renWin->SetPosition(0, 360*me);
   prm->SetRenderWindow(renWin);
-  prm->SetController(contr);
+  prm->SetController(this->Controller);
   prm->InitializeOffScreen();   // Mesa GL only
-  if (Me == 0)
+  if (me == 0)
     {
     prm->ResetAllCameras();
     } 
@@ -151,11 +177,13 @@ void Run(vtkMultiProcessController *contr, void *arg)
   // If it executes here, dd will be up-to-date won't have to 
   // execute in GetActiveCamera.
 
-  mapper->SetPiece(Me);
-  mapper->SetNumberOfPieces(NumProcs);
+  mapper->SetPiece(me);
+  mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
+  
+  const int MY_RETURN_VALUE_MESSAGE=0x11;
 
-  if (Me == 0)
+  if (me == 0)
     {
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
@@ -164,11 +192,11 @@ void Run(vtkMultiProcessController *contr, void *arg)
     renWin->Render();
     renWin->Render();
 
-    *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
+    this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 
-    for (i=1; i < NumProcs; i++)
+    for (i=1; i < numProcs; i++)
       {
-      contr->Send(args->retVal, 1, i, 0x11);
+      this->Controller->Send(&this->ReturnValue, 1, i, MY_RETURN_VALUE_MESSAGE);
       }
 
     prm->StopServices();
@@ -176,7 +204,7 @@ void Run(vtkMultiProcessController *contr, void *arg)
   else
     {
     prm->StartServices();
-    contr->Receive(args->retVal, 1, 0, 0x11);
+    this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
     }
 
   // CLEAN UP 
@@ -187,8 +215,10 @@ void Run(vtkMultiProcessController *contr, void *arg)
   elev->Delete(); 
   cf->Delete(); 
   pass->Delete();
-  if (Me == 0)
+  if (me == 0)
+    {
     sgr->Delete();
+    }
   prm->Delete();
 }
 
@@ -210,12 +240,12 @@ int main(int argc, char **argv)
 
   vtkMultiProcessController::SetGlobalController(contr);
 
-  NumProcs = contr->GetNumberOfProcesses();
-  Me = contr->GetLocalProcessId();
+  int numProcs = contr->GetNumberOfProcesses();
+  int me = contr->GetLocalProcessId();
 
-  if (NumProcs != 2)
+  if (numProcs != 2)
     {
-    if (Me == 0)
+    if (me == 0)
       {
       cout << "DistributedData test requires 2 processes" << endl;
       }
@@ -225,27 +255,24 @@ int main(int argc, char **argv)
 
   if (!contr->IsA("vtkMPIController"))
     {
-    if (Me == 0)
+    if (me == 0)
       {
       cout << "DistributedData test requires MPI" << endl;
       }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
     }
-
-  // ----------------------------------------------
-  DDArgs_tmp args;
-  args.retVal = &retVal;
-  args.argc = argc;
-  args.argv = argv;
-  // ---------------------------------------------
-
-  contr->SetSingleMethod(Run, &args);
+  
+  MyProcess *p=MyProcess::New();
+  p->SetArgs(argc,argv);
+  contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
+
+  retVal=p->GetReturnValue();
+  p->Delete();
 
   contr->Finalize();
   contr->Delete();
 
   return !retVal;
 }
-

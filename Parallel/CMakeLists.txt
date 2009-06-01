@@ -53,6 +53,7 @@ vtkPOutlineCornerFilter.cxx
 vtkPOutlineFilter.cxx
 vtkPPolyDataNormals.cxx
 vtkPProbeFilter.cxx
+vtkProcess.cxx
 vtkProcessGroup.cxx
 vtkProcessIdScalars.cxx
 vtkPReflectionFilter.cxx
@@ -86,7 +87,15 @@ IF(VTK_USE_RENDERING)
     vtkParallelRenderManager.cxx
     vtkPImageWriter.cxx
     vtkTreeCompositer.cxx
+    vtkCompositeRGBAPass.cxx
+    vtkCompositeZPass.cxx
     )
+
+# The set of source files to be encoded.
+SET(glsl_files
+  vtkCompositeRGBAPassShader_fs
+  vtkCompositeZPassShader_fs
+  )
 ENDIF(VTK_USE_RENDERING)
 
 IF(VTK_HAS_EXODUS)
@@ -100,11 +109,14 @@ vtkCommunicator
 vtkMultiProcessController
 vtkMultiProcessStream
 vtkPStreamTracer
+vtkProcess
 ABSTRACT
 )
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkMultiProcessStream
+vtkCompositeRGBAPass
+vtkCompositeZPass
 WRAP_EXCLUDE
 )
 
@@ -184,6 +196,26 @@ SET(Kit_JAVA_EXTRA_SRCS)
 SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
+
+IF(VTK_USE_RENDERING)
+# Create custom commands to encode each assembly file into a C string
+# literal in a header file.
+
+SET(glsl_h_files)
+FOREACH(file ${glsl_files})
+  SET(src ${VTK_SOURCE_DIR}/Parallel/${file}.glsl)
+  SET(res ${VTK_BINARY_DIR}/Parallel/${file}.cxx)
+  SET(resh ${VTK_BINARY_DIR}/Parallel/${file}.h)
+  SET(glsl_h_files ${glsl_h_files} "${resh}")
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${res} ${resh}
+    DEPENDS ${src} vtkEncodeString
+    COMMAND ${VTK_ENCODESTRING_EXE}
+    ARGS ${res} ${src} ${file} --build-header VTK_PARALLEL_EXPORT vtkSystemIncludes.h
+    )
+  SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
+ENDFOREACH(file)
+ENDIF(VTK_USE_RENDERING)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.

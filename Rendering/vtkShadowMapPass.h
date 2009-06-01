@@ -92,6 +92,14 @@ public:
   virtual void SetOpaquePass(vtkRenderPass *opaquePass);
   
   // Description:
+  // Delegate for rendering the opaque polygonal geometry.
+  // If it is NULL, nothing will be rendered and a warning will be emitted.
+  // It is usually set to a vtkTranslucentPass.
+  // Initial value is a NULL pointer.
+  vtkGetObjectMacro(CompositeZPass,vtkRenderPass);
+  virtual void SetCompositeZPass(vtkRenderPass *opaquePass);
+  
+  // Description:
   // Set/Get the number of pixels in each dimension of the shadow maps
   // (shadow maps are square). Initial value is 256. The greater the better.
   // Resolution does not have to be a power-of-two value.
@@ -150,6 +158,7 @@ public:
   void CheckSupport(vtkOpenGLRenderWindow *w);
   
   vtkRenderPass *OpaquePass;
+  vtkRenderPass *CompositeZPass;
   unsigned int Resolution;
   
   float PolygonOffsetFactor;
