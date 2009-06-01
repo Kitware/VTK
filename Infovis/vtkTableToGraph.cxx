@@ -52,7 +52,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.22");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.23");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -550,7 +550,7 @@ int vtkTableToGraph::RequestData(
         // but don't update the vertex table.
         switch(arr->GetDataType())
           {
-          vtkExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
+          vtkSuperExtraExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
             static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
             arr->GetNumberOfTuples(), hiddenMap, curHiddenVertex,
             domain));
@@ -562,7 +562,7 @@ int vtkTableToGraph::RequestData(
         // auxiliary arrays, and add rows to the vertex table.
         switch(arr->GetDataType())
           {
-          vtkExtendedTemplateMacro(vtkTableToGraphFindVertices(
+          vtkSuperExtraExtendedTemplateMacro(vtkTableToGraphFindVertices(
             static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
             arr->GetNumberOfTuples(), vertexMap, domainArr, 
             labelArr, idArr, curVertex,
@@ -658,7 +658,7 @@ int vtkTableToGraph::RequestData(
           }
         switch(edgeArr->GetDataType())
           {
-          vtkExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
+          vtkSuperExtraExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
             static_cast<VTK_TT*>(edgeArr->GetVoidPointer(0)), 
             edgeArr->GetNumberOfTuples(), hiddenMap, curHiddenVertex, domain));
           } // end switch
@@ -758,7 +758,7 @@ int vtkTableToGraph::RequestData(
         }  
       switch(columnSource->GetDataType())
         {
-        vtkExtendedTemplateMacro(valueSource = vtkTableToGraphGetValue(
+        vtkSuperExtraExtendedTemplateMacro(valueSource = vtkTableToGraphGetValue(
           static_cast<VTK_TT*>(columnSource->GetVoidPointer(0)), r));
         }
       vtkVariant valueTarget;
@@ -769,7 +769,7 @@ int vtkTableToGraph::RequestData(
         }  
       switch(columnTarget->GetDataType())
         {
-        vtkExtendedTemplateMacro(valueTarget = vtkTableToGraphGetValue(
+        vtkSuperExtraExtendedTemplateMacro(valueTarget = vtkTableToGraphGetValue(
           static_cast<VTK_TT*>(columnTarget->GetVoidPointer(0)), r));
         }
       vtksys_stl::pair<vtkStdString, vtkVariant> lookupSource(typeSource, vtkVariant(valueSource));
