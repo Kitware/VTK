@@ -32,9 +32,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
+#include "vtkCellPicker.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.18");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.18.2.1");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -125,6 +126,11 @@ vtkLineRepresentation::vtkLineRepresentation()
   // The bounding box
   this->BoundingBox = vtkBox::New();
 
+  this->LinePicker = vtkCellPicker::New();
+  this->LinePicker->SetTolerance(0.005); //need some fluff
+  this->LinePicker->AddPickList( this->LineActor );
+  this->LinePicker->PickFromListOn();
+
   this->RepresentationState = vtkLineRepresentation::Outside;
   this->AnnotationTextScaleInitialized = false;
   
@@ -132,6 +138,7 @@ vtkLineRepresentation::vtkLineRepresentation()
   // Call PlaceWidget() LAST in the constructor, as this method depends on ivar
   // values.
   this->PlaceWidget(bounds);
+
 }
 
 //----------------------------------------------------------------------------
@@ -183,6 +190,7 @@ vtkLineRepresentation::~vtkLineRepresentation()
   this->TextInput->Delete();
   this->TextMapper->Delete();
   this->TextActor->Delete();
+  this->LinePicker->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -536,15 +544,20 @@ int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
 
   // Check if we are on edges
   int onLine = (vtkLine::DistanceToLine(xyz,p1,p2,t,closest) <= tol2);
-  if ( onLine )
+  if ( onLine && t < 1.0 && t > 0.0 )
     {
     this->InteractionState = vtkLineRepresentation::OnLine;
     this->SetRepresentationState(vtkLineRepresentation::OnLine);
     this->GetPoint1WorldPosition(pos1);
     this->GetPoint2WorldPosition(pos2);
-    closest[0] = pos1[0] + t*(pos2[0]-pos1[0]);
-    closest[1] = pos1[1] + t*(pos2[1]-pos1[1]);
-    closest[2] = pos1[2] + t*(pos2[2]-pos1[2]);
+
+    // Consider the two infinite lines :
+    //   L1: pos1 to pos2
+    //   L2: camera_position to focal_point
+    // The line handle will lie on the closest point on L1.
+
+    this->LinePicker->Pick(X,Y,0.0,this->Renderer);
+    this->LinePicker->GetPickPosition(closest);
     this->LineHandleRepresentation->SetWorldPosition(closest);
     }
   else
