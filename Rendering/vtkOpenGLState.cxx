@@ -516,10 +516,12 @@ void vtkOpenGLState::UpdateCurrentProgram()
       {
       (*this->CurrentProgramState->AttachedShaders)[i].Id=shaders[i];
       this->UpdateShader(i);
-      this->CurrentProgramState->HasVertexShader|=
+      this->CurrentProgramState->HasVertexShader=
+        this->CurrentProgramState->HasVertexShader||
         (*this->CurrentProgramState->AttachedShaders)[i].Type
         ==vtkgl::VERTEX_SHADER;
-      this->CurrentProgramState->HasFragmentShader|=
+      this->CurrentProgramState->HasFragmentShader=
+         this->CurrentProgramState->HasFragmentShader||
         (*this->CurrentProgramState->AttachedShaders)[i].Type
         ==vtkgl::FRAGMENT_SHADER;
       ++i;
