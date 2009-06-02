@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataObjectToTable.h"
@@ -48,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.6");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.7");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -151,7 +152,21 @@ void vtkQtRichTextView::Update()
     }
 
   // Figure-out which row of the table we're going to display ...
-  const vtkIdType row = 0; /** \TODO: Base this on the current selection */
+  vtkIdType row = 0;
+  if(vtkSelection* const selection = representation->GetAnnotationLink()->GetCurrentSelection())
+    {
+selection->Print(cerr);
+    if(vtkSelectionNode* const selection_node = selection->GetNumberOfNodes() ? selection->GetNode(0) : 0)
+      {
+      if(vtkIdTypeArray* const selection_array = vtkIdTypeArray::SafeDownCast(selection_node->GetSelectionList()))
+        {
+selection_array->Print(cerr);
+
+        if(selection_array->GetNumberOfTuples())
+          row = selection_array->GetValue(0);
+        }
+      }
+    }
 
   this->Internal->Content = table->GetValueByName(row, "html").ToString();
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
