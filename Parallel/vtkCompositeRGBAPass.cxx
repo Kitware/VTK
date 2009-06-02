@@ -51,7 +51,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.2");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.3");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 
@@ -137,6 +137,36 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderer *r=static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
+  
+  // Test for Hardware support. If not supported, return.
+  bool supported=vtkFrameBufferObject::IsSupported(context);
+  
+  if(!supported)
+    {
+    vtkErrorMacro("FBOs are not supported by the context. Cannot perform rgba-compositing.");
+    return;
+    }
+  if(supported)
+    {
+    supported=vtkTextureObject::IsSupported(context);
+    if(!supported)
+      {
+      vtkErrorMacro("Texture Objects are not supported by the context. Cannot perform rgba-compositing.");
+      return;
+      }
+    }
+  
+  if(supported)
+    {
+    supported=
+      vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
+                                       context));
+    if(!supported)
+      {
+      vtkErrorMacro("GLSL is not supported by the context. Cannot perform rgbaa-compositing.");
+      return;
+      }
+    }
   
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
   vtkOpenGLState *state=new vtkOpenGLState(context);
