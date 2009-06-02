@@ -87,7 +87,8 @@ IF(DESIRED_QT_VERSION MATCHES 4)
 
     # Rich-text view requires Qt >= 4.5.0
     IF(QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5)
-      SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtRichTextView.cxx)
+      QT4_WRAP_UI(UI_FILES vtkQtRichTextView.ui)
+      SET(QVTKLibSrcs ${QVTKLibSrcs} ${UI_FILES} vtkQtRichTextView.cxx)
       SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtRichTextView.h)
     ENDIF(QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5)
   ENDIF(VTK_USE_VIEWS)

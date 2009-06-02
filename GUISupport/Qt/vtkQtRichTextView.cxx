@@ -35,6 +35,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <ui_vtkQtRichTextView.h>
+
 #include <QFrame>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
@@ -46,7 +48,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.5");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.6");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -57,15 +59,17 @@ class vtkQtRichTextView::Implementation
 public:
   ~Implementation()
   {
-    delete this->Frame;
+    delete this->Widget;
   }
 
+  // Handles conversion of our input data to a table for display
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
 
+  // Caches displayed content so we can navigate backwards to it
   vtkStdString Content;
 
-  QPointer<QFrame> Frame;
-  QPointer<QWebView> WebView;
+  QPointer<QWidget> Widget;
+  Ui::vtkQtRichTextView UI;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,23 +81,14 @@ vtkQtRichTextView::vtkQtRichTextView() :
   this->Internal->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->Internal->DataObjectToTable->SetFieldType(ROW_DATA);
 
-  this->Internal->Frame = new QFrame();
-  this->Internal->Frame->show();
-  this->Internal->WebView = new QWebView();
-  this->Internal->WebView->setHtml("");
-  this->Internal->WebView->show();
+  this->Internal->Widget = new QWidget();
+  this->Internal->UI.setupUi(this->Internal->Widget);
+  this->Internal->UI.WebView->setHtml("");
 
-  QPushButton* const back_button = new QPushButton("Back");
-  
-  QVBoxLayout* const layout = new QVBoxLayout();
-  layout->addWidget(back_button);
-  layout->addWidget(this->Internal->WebView);
-  this->Internal->Frame->setLayout(layout);
-  
   QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
   QNetworkProxy::setApplicationProxy(proxy);
 
-  QObject::connect(back_button, SIGNAL(clicked()), this, SLOT(onBack()));
+  QObject::connect(this->Internal->UI.BackButton, SIGNAL(clicked()), this, SLOT(onBack()));
 }
 
 vtkQtRichTextView::~vtkQtRichTextView()
@@ -108,7 +103,7 @@ void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
 
 QWidget* vtkQtRichTextView::GetWidget()
 {
-  return this->Internal->Frame;
+  return this->Internal->Widget;
 }
 
 void vtkQtRichTextView::SetFieldType(int type)
@@ -128,7 +123,7 @@ void vtkQtRichTextView::Update()
   vtkDataRepresentation* const representation = this->GetRepresentation();
   if(!representation)
     {
-    this->Internal->WebView->setHtml("");
+    this->Internal->UI.WebView->setHtml("");
     return;
     }
   representation->Update();
@@ -144,14 +139,14 @@ void vtkQtRichTextView::Update()
   vtkTable* const table = this->Internal->DataObjectToTable->GetOutput();
   if(!table)
     {
-    this->Internal->WebView->setHtml("");
+    this->Internal->UI.WebView->setHtml("");
     return;
     }
 
   // Special-case: if the table is empty, we're done ...
   if(0 == table->GetNumberOfRows())
     {
-    this->Internal->WebView->setHtml("");
+    this->Internal->UI.WebView->setHtml("");
     return;
     }
 
@@ -159,21 +154,23 @@ void vtkQtRichTextView::Update()
   const vtkIdType row = 0; /** \TODO: Base this on the current selection */
 
   this->Internal->Content = table->GetValueByName(row, "html").ToString();
+  this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
   //cerr << this->Internal->Content << endl;
 
-  this->Internal->WebView->setHtml(this->Internal->Content.c_str());
-  this->Internal->Content = this->Internal->Content;
+  this->Internal->UI.WebView->setHtml(this->Internal->Content.c_str());
 }
 
 void vtkQtRichTextView::onBack()
 {
-  if(this->Internal->WebView->history()->canGoBack())
+  // This logic is a workaround for a quirk in QWebHistory
+  if(this->Internal->UI.WebView->history()->currentItemIndex() <= 1)
     {
-    this->Internal->WebView->back();
+    this->Internal->UI.WebView->setHtml(this->Internal->Content.c_str());
+    this->Internal->UI.WebView->history()->clear();
     }
   else
     {
-    this->Internal->WebView->setHtml(this->Internal->Content.c_str());
+    this->Internal->UI.WebView->back();
     }
 }
 
