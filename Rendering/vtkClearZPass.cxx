@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkClearZPass, "1.1");
+vtkCxxRevisionMacro(vtkClearZPass, "1.2");
 vtkStandardNewMacro(vtkClearZPass);
 
 // ----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ void vtkClearZPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkClearZPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-
+  (void)s;
   this->NumberOfRenderedProps=0;
 
   glDepthMask(GL_TRUE);

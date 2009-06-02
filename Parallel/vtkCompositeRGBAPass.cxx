@@ -51,7 +51,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.1");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.2");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 
@@ -583,6 +583,8 @@ void vtkCompositeRGBAPass::CreateProgram(vtkOpenGLRenderWindow *context)
 void vtkCompositeRGBAPass::ReleaseGraphicsResources(vtkWindow *w)
 {
   assert("pre: w_exists" && w!=0);
+
+  (void)w;
   
   if(this->PBO!=0)
     {
