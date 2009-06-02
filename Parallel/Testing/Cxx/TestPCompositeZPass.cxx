@@ -34,7 +34,7 @@
 #include "vtkRegressionTestImage.h"
 
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkActor.h"
 
@@ -112,7 +112,7 @@ protected:
   char **Argv;
 };
 
-vtkCxxRevisionMacro(MyProcess, "1.2");
+vtkCxxRevisionMacro(MyProcess, "1.3");
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
@@ -337,9 +337,8 @@ void MyProcess::Execute()
     vtkCamera *camera=renderer->GetActiveCamera();
     camera->Azimuth(40.0);
     camera->Elevation(10.0);
-#if 0
-    retVal=vtkTesting::Test(this->Argc, this->Argv, renWin, 10);
-#else
+
+    // testing code
     double thresh=10;
     int i;
     VTK_CREATE(vtkTesting, testing);
@@ -366,48 +365,55 @@ void MyProcess::Execute()
       if (testing->IsValidImageSpecified())
         {
         renWin->Render();
-        int *dims;
-        dims=renWin->GetSize();
-        float *zBuffer=new float[dims[0]*dims[1]];
-        renWin->GetZbufferData(0,0,dims[0]-1,dims[1]-1,zBuffer);
-        
-        vtkImageImport *importer=vtkImageImport::New();
-        size_t byteSize=static_cast<size_t>(dims[0]*dims[1]);
-        byteSize=byteSize*sizeof(float);
-        importer->CopyImportVoidPointer(zBuffer,static_cast<int>(byteSize));
-        importer->SetDataScalarTypeToFloat();
-        importer->SetNumberOfScalarComponents(1);
-        importer->SetWholeExtent(0,dims[0]-1,0,dims[1]-1,0,0);
-        importer->SetDataExtentToWholeExtent();
-    
-        vtkImageShiftScale *converter=vtkImageShiftScale::New();
-        converter->SetInputConnection(importer->GetOutputPort());
-        converter->SetOutputScalarTypeToUnsignedChar();
-        converter->SetShift(0.0);
-        converter->SetScale(255.0);
-        
-        // vtkImageDifference requires 3 components.
-        vtkImageAppendComponents *luminanceToRGB=
-          vtkImageAppendComponents::New();
-        luminanceToRGB->SetInputConnection(0,converter->GetOutputPort());
-        luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
-        luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
-        luminanceToRGB->Update();
-        
-        vtkImageData *testImage=luminanceToRGB->GetOutput();
-        retVal=testing->RegressionTest(testImage,thresh);
-        
-        luminanceToRGB->Delete();
-        converter->Delete();
-        importer->Delete();
-        delete[] zBuffer;
+        if(compositeZPass->IsSupported(
+             static_cast<vtkOpenGLRenderWindow *>(renWin)))
+          {
+          int *dims;
+          dims=renWin->GetSize();
+          float *zBuffer=new float[dims[0]*dims[1]];
+          renWin->GetZbufferData(0,0,dims[0]-1,dims[1]-1,zBuffer);
+          
+          vtkImageImport *importer=vtkImageImport::New();
+          size_t byteSize=static_cast<size_t>(dims[0]*dims[1]);
+          byteSize=byteSize*sizeof(float);
+          importer->CopyImportVoidPointer(zBuffer,static_cast<int>(byteSize));
+          importer->SetDataScalarTypeToFloat();
+          importer->SetNumberOfScalarComponents(1);
+          importer->SetWholeExtent(0,dims[0]-1,0,dims[1]-1,0,0);
+          importer->SetDataExtentToWholeExtent();
+          
+          vtkImageShiftScale *converter=vtkImageShiftScale::New();
+          converter->SetInputConnection(importer->GetOutputPort());
+          converter->SetOutputScalarTypeToUnsignedChar();
+          converter->SetShift(0.0);
+          converter->SetScale(255.0);
+          
+          // vtkImageDifference requires 3 components.
+          vtkImageAppendComponents *luminanceToRGB=
+            vtkImageAppendComponents::New();
+          luminanceToRGB->SetInputConnection(0,converter->GetOutputPort());
+          luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
+          luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
+          luminanceToRGB->Update();
+          
+          vtkImageData *testImage=luminanceToRGB->GetOutput();
+          retVal=testing->RegressionTest(testImage,thresh);
+          
+          luminanceToRGB->Delete();
+          converter->Delete();
+          importer->Delete();
+          delete[] zBuffer;
+          }
+        else
+          {
+          retVal=vtkTesting::PASSED; // not supported.
+          }
         }
       else
         {
         retVal=vtkTesting::NOT_RUN;
         }
       }
-#endif
     
     if(retVal==vtkRegressionTester::DO_INTERACTOR)
       {
