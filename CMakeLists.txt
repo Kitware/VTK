@@ -825,14 +825,7 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme
   ${VTK_SOURCE_DIR}/../VTKData 
   ${VTK_SOURCE_DIR}/../../VTKData 
   $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To check out this repository from CVS, first run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData login
-
-(respond with password vtk) and then run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData checkout VTKData"
-  )
+  DOC "The repository for data used for testing.  To obtain from CVS: \"cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK co VTKData\"")
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK__LARGE_DATA_ROOT for the location of VTKLargeData.
