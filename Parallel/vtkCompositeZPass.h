@@ -62,6 +62,10 @@ public:
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController *controller);
   
+  // Description:
+  // Is the pass supported by the OpenGL context?
+  bool IsSupported(vtkOpenGLRenderWindow *context);
+  
  protected:
   // Description:
   // Default constructor. Controller is set to NULL.

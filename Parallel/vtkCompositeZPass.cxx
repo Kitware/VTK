@@ -51,7 +51,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeZPass, "1.4");
+vtkCxxRevisionMacro(vtkCompositeZPass, "1.5");
 vtkStandardNewMacro(vtkCompositeZPass);
 vtkCxxSetObjectMacro(vtkCompositeZPass,Controller,vtkMultiProcessController);
 
@@ -107,6 +107,14 @@ void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" <<endl;
     }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkCompositeZPass::IsSupported(vtkOpenGLRenderWindow *context)
+{
+  return vtkFrameBufferObject::IsSupported(context)
+    && vtkTextureObject::IsSupported(context)
+    && vtkShaderProgram2::IsSupported(context);
 }
 
 // ----------------------------------------------------------------------------
