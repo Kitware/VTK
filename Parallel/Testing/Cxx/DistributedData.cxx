@@ -44,19 +44,49 @@
 */
 #include "vtkMPICommunicator.h"
 
-static int NumProcs, Me;
+#include "vtkProcess.h"
 
-struct DDArgs_tmp
+class MyProcess : public vtkProcess
 {
-  int* retVal;
-  int argc;
-  char** argv;
+public:
+  static MyProcess *New();
+  vtkTypeRevisionMacro(MyProcess, vtkProcess);
+  
+  virtual void Execute();
+
+  void SetArgs(int anArgc,
+               char *anArgv[]);
+  
+protected:
+  MyProcess();
+  
+  int Argc;
+  char **Argv;
 };
 
-static void Run(vtkMultiProcessController *contr, void *arg)
+vtkCxxRevisionMacro(MyProcess, "1.12");
+vtkStandardNewMacro(MyProcess);
+
+MyProcess::MyProcess()
 {
+  this->Argc=0;
+  this->Argv=0;
+}
+
+void MyProcess::SetArgs(int anArgc,
+                        char *anArgv[])
+{
+  this->Argc=anArgc;
+  this->Argv=anArgv;  
+}
+
+void MyProcess::Execute()
+{
+  this->ReturnValue=1;
+  int numProcs=this->Controller->GetNumberOfProcesses();
+  int me=this->Controller->GetLocalProcessId();
+  
   int i, go;
-  DDArgs_tmp *args = reinterpret_cast<DDArgs_tmp *>(arg);
 
   vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
 
@@ -67,11 +97,11 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
   vtkDataSet *ds = NULL;
 
-  if (Me == 0)
+  if (me == 0)
     {
     char* fname = 
       vtkTestUtilities::ExpandDataFileName(
-        args->argc, args->argv, "Data/tetraMesh.vtk");
+        this->Argc, this->Argv, "Data/tetraMesh.vtk");
 
     dsr->SetFileName(fname);
 
@@ -85,33 +115,37 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
     if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
       {
-      if (ds) cout << "Failure: input file has no cells" << endl;
+      if (ds)
+        {
+        cout << "Failure: input file has no cells" << endl;
+        }
       go = 0;
       }
     }
   else
     {
-    ds = (vtkDataSet *)ug;
+    ds = static_cast<vtkDataSet *>(ug);
     }
 
   vtkMPICommunicator *comm =
-    vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
+    vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
 
   comm->Broadcast(&go, 1, 0);
 
-  if (!go){
+  if (!go)
+    {
     dsr->Delete();
     ug->Delete();
     prm->Delete();
     return;
-  }
+    }
 
   // DATA DISTRIBUTION FILTER
 
   vtkDistributedDataFilter *dd = vtkDistributedDataFilter::New();
 
   dd->SetInput(ds);
-  dd->SetController(contr);
+  dd->SetController(this->Controller);
 
   dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
   dd->UseMinimalMemoryOff();
@@ -135,7 +169,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("Piece");
-  mapper->SetScalarRange(0, NumProcs-1);
+  mapper->SetScalarRange(0, numProcs-1);
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -148,10 +182,10 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
   renderer->SetBackground(0,0,0);
   renWin->SetSize(300,300);
-  renWin->SetPosition(0, 360*Me);
+  renWin->SetPosition(0, 360*me);
 
   prm->SetRenderWindow(renWin);
-  prm->SetController(contr);
+  prm->SetController(this->Controller);
 
   prm->InitializeOffScreen();   // Mesa GL only
 
@@ -161,11 +195,13 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   // If it executes here, dd will be up-to-date won't have to 
   // execute in GetActiveCamera.
 
-  mapper->SetPiece(Me);
-  mapper->SetNumberOfPieces(NumProcs);
+  mapper->SetPiece(me);
+  mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
+  
+  const int MY_RETURN_VALUE_MESSAGE=0x11;
 
-  if (Me == 0)
+  if (me == 0)
     {
     renderer->ResetCamera();
     vtkCamera *camera = renderer->GetActiveCamera();
@@ -176,11 +212,12 @@ static void Run(vtkMultiProcessController *contr, void *arg)
     renWin->Render();
     renWin->Render();
 
-    *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
+    this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
+                                                10);
 
-    for (i=1; i < NumProcs; i++)
+    for (i=1; i < numProcs; i++)
       {
-      contr->Send(args->retVal, 1, i, 0x11);
+      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
       }
 
     prm->StopServices();
@@ -188,20 +225,20 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   else
     {
     prm->StartServices();
-    contr->Receive(args->retVal, 1, 0, 0x11);
+    this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
     }
 
-  if (*(args->retVal) == vtkTesting::PASSED)
+  if (this->ReturnValue == vtkTesting::PASSED)
     {
     // Now try using the memory conserving *Lean methods.  The
     // image produced should be identical
 
     dd->UseMinimalMemoryOn();
-    mapper->SetPiece(Me);
-    mapper->SetNumberOfPieces(NumProcs);
+    mapper->SetPiece(me);
+    mapper->SetNumberOfPieces(numProcs);
     mapper->Update();
 
-    if (Me == 0)
+    if (me == 0)
       {
       renderer->ResetCamera();
       vtkCamera *camera = renderer->GetActiveCamera();
@@ -212,11 +249,12 @@ static void Run(vtkMultiProcessController *contr, void *arg)
       renWin->Render();
       renWin->Render();
   
-      *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
+      this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
+                                                  10);
   
-      for (i=1; i < NumProcs; i++)
+      for (i=1; i < numProcs; i++)
         {
-        contr->Send(args->retVal, 1, i, 0x11);
+        this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
         }
   
       prm->StopServices();
@@ -224,7 +262,8 @@ static void Run(vtkMultiProcessController *contr, void *arg)
     else
       {
       prm->StartServices();
-      contr->Receive(args->retVal, 1, 0, 0x11);
+      this->Controller->Receive(&this->ReturnValue,1,0,
+                                MY_RETURN_VALUE_MESSAGE);
       }
     }
 
@@ -254,12 +293,12 @@ int main(int argc, char **argv)
 
   vtkMultiProcessController::SetGlobalController(contr);
 
-  NumProcs = contr->GetNumberOfProcesses();
-  Me = contr->GetLocalProcessId();
+  int numProcs = contr->GetNumberOfProcesses();
+  int me = contr->GetLocalProcessId();
 
-  if (NumProcs != 2)
+  if (numProcs != 2)
     {
-    if (Me == 0)
+    if (me == 0)
       {
       cout << "DistributedData test requires 2 processes" << endl;
       }
@@ -269,24 +308,22 @@ int main(int argc, char **argv)
 
   if (!contr->IsA("vtkMPIController"))
     {
-    if (Me == 0)
+    if (me == 0)
       {
       cout << "DistributedData test requires MPI" << endl;
       }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
     }
-
-  // ----------------------------------------------
-  DDArgs_tmp args;
-  args.retVal = &retVal;
-  args.argc = argc;
-  args.argv = argv;
-  // ---------------------------------------------
-
-  contr->SetSingleMethod(Run, &args);
+  
+  MyProcess *p=MyProcess::New();
+  p->SetArgs(argc,argv);
+  contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
+  retVal=p->GetReturnValue();
+  p->Delete();
+  
   contr->Finalize();
   contr->Delete();
 
