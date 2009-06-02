@@ -21,6 +21,8 @@
 #include "vtkAddMembershipArray.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkConvertSelection.h"
@@ -41,7 +43,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkAddMembershipArray, "1.4");
+vtkCxxRevisionMacro(vtkAddMembershipArray, "1.5");
 vtkStandardNewMacro(vtkAddMembershipArray);
 vtkCxxSetObjectMacro(vtkAddMembershipArray,InputValues,vtkAbstractArray);
 
@@ -53,7 +55,7 @@ vtkAddMembershipArray::vtkAddMembershipArray()
   this->SetOutputArrayName("membership");
   this->InputArrayName = 0;
   this->InputValues = NULL;
-  this->SetNumberOfInputPorts(2);
+  this->SetNumberOfInputPorts(3);
 }
 
 //---------------------------------------------------------------------------
@@ -77,6 +79,12 @@ int vtkAddMembershipArray::FillInputPortInformation(
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
+  else if (port == 2)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
+    return 1;
+    }
 
   return 1;
 }
@@ -89,13 +97,14 @@ int vtkAddMembershipArray::RequestData(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
+  vtkSelection* inputSelection = vtkSelection::GetData(inputVector[1]);
+  vtkAnnotationLayers* inputAnnotations = vtkAnnotationLayers::GetData(inputVector[2]);
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
   vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
 
   output->ShallowCopy(input);
 
-  if(!selection)
+  if(!inputSelection)
     {
     if(!this->InputArrayName || !this->InputValues)
       return 1;
@@ -170,6 +179,24 @@ int vtkAddMembershipArray::RequestData(
     vals->Delete();
 
     return 1;
+    }
+
+
+  vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
+  selection->DeepCopy(inputSelection);
+
+  if(inputAnnotations)
+    {
+    for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
+      {
+      vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
+      if (a->GetInformation()->Has(vtkAnnotation::ENABLED()) && 
+          a->GetInformation()->Get(vtkAnnotation::ENABLED())==0)
+        {
+        continue;
+        }
+      selection->Union(a->GetSelection());
+      }
     }
 
   // Convert the selection to an INDICES selection
