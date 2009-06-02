@@ -46,7 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.4");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.5");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ void vtkQtRichTextView::Update()
   const vtkIdType row = 0; /** \TODO: Base this on the current selection */
 
   this->Internal->Content = table->GetValueByName(row, "html").ToString();
-cerr << this->Internal->Content << endl;
+  //cerr << this->Internal->Content << endl;
 
   this->Internal->WebView->setHtml(this->Internal->Content.c_str());
   this->Internal->Content = this->Internal->Content;
