@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.4");
+vtkCxxRevisionMacro(vtkAnnotationLink, "1.5");
 vtkStandardNewMacro(vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 //----------------------------------------------------------------------------
@@ -91,6 +91,7 @@ void vtkAnnotationLink::SetCurrentSelection(vtkSelection* sel)
   if (this->AnnotationLayers)
     {
     this->AnnotationLayers->SetCurrentSelection(sel);
+    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, 0);
     }
 }
 
