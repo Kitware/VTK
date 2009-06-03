@@ -87,7 +87,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.19");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.20");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1293,6 +1293,14 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->EdgeActor->GetProperty()->SetLineWidth(lineWidth);
 
   this->OutlineActor->GetProperty()->SetColor(theme->GetOutlineColor());
+
+  // FIXME: This is a strange hack to get around some weirdness with
+  // the gradient background and multiple transparent actors (assuming
+  // related to depth peeling or some junk...)
+  if (theme->GetPointOpacity() == 0)
+    {
+    this->OutlineActor->VisibilityOff();
+    }
 
   this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
   this->VertexTextProperty->SetLineOffset(-2*baseSize);
