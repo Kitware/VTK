@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.7");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.8");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -151,27 +151,36 @@ void vtkQtRichTextView::Update()
     return;
     }
 
-  // Figure-out which row of the table we're going to display ...
+  // Figure-out which row of the table we're going to display (if any) ...
   vtkIdType row = 0;
+  bool row_valid = false;
   if(vtkSelection* const selection = representation->GetAnnotationLink()->GetCurrentSelection())
     {
-selection->Print(cerr);
     if(vtkSelectionNode* const selection_node = selection->GetNumberOfNodes() ? selection->GetNode(0) : 0)
       {
       if(vtkIdTypeArray* const selection_array = vtkIdTypeArray::SafeDownCast(selection_node->GetSelectionList()))
         {
-selection_array->Print(cerr);
-
-        if(selection_array->GetNumberOfTuples())
+        if(selection_array->GetNumberOfTuples() && selection_array->GetValue(0) < table->GetNumberOfRows())
+          {
           row = selection_array->GetValue(0);
+          row_valid = true;
+          }
         }
       }
     }
 
-  this->Internal->Content = table->GetValueByName(row, "html").ToString();
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
-  //cerr << this->Internal->Content << endl;
 
+  if(row_valid)
+    {
+    this->Internal->Content = table->GetValueByName(row, "html").ToString();
+    }
+  else
+    {
+    this->Internal->Content.clear();
+    }
+
+  //cerr << this->Internal->Content << endl;
   this->Internal->UI.WebView->setHtml(this->Internal->Content.c_str());
 }
 
