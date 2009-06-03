@@ -11,7 +11,13 @@ IF(VTK_USE_FFMPEG_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestFFMPEGWriter.cxx)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
-  SET(ConditionalTests ${ConditionalTests} TestHyperOctreeIO.cxx TestPLYReader.cxx)
+  SET(ConditionalTests 
+    ${ConditionalTests} 
+    TestHyperOctreeIO.cxx 
+    TestPLYReader.cxx 
+    SLACReaderLinear.cxx
+    SLACReaderQuadratic.cxx
+    )
 ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 IF(VTK_USE_INFOVIS)
   SET(ConditionalTests ${ConditionalTests} TestDataObjectIO.cxx)
@@ -48,8 +54,6 @@ IF(VTK_HAS_UINT64_ARRAY)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
-  SLACReaderLinear.cxx
-  SLACReaderQuadratic.cxx
   TestXML.cxx
   TestCompress.cxx
   TestSQLDatabaseSchema.cxx
