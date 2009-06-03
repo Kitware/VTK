@@ -22,6 +22,7 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkPNGReader.h>
+#include <vtkRenderedGraphRepresentation.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -108,6 +109,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   int size[] = {24, 24};
   view->SetIconSize(size);
   view->IconVisibilityOn();
+  static_cast<vtkRenderedGraphRepresentation*>(view->GetRepresentation())->UseVertexIconTypeMapOff();
   view->SetLayoutStrategyToPassThrough();
 
   view->GetRenderWindow()->SetSize(500, 500);
