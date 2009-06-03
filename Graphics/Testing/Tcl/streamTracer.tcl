@@ -27,10 +27,10 @@ vtkRungeKutta45 rk
 vtkStreamTracer streamer
 streamer SetInputConnection [reader GetOutputPort]
 streamer SetStartPosition 0.1 2.1 0.5
-streamer SetMaximumPropagation 0 500
-streamer SetMinimumIntegrationStep 1 0.1
-streamer SetMaximumIntegrationStep 1 1.0
-streamer SetInitialIntegrationStep 2 0.2
+streamer SetMaximumPropagation 500
+streamer SetMinimumIntegrationStep 0.1 
+streamer SetMaximumIntegrationStep 1.0
+streamer SetInitialIntegrationStep 0.2
 streamer SetIntegrationDirection 0
 streamer SetIntegrator rk
 streamer SetRotationScale 0.5
