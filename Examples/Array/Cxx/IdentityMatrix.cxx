@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     {
     matrix->AddValue(vtkArrayCoordinates(n, n), 1);
     }
-  matrix->ResizeToContents(); // To synchronize the array extents with newly-added values.
+  matrix->SetExtentsFromContents(); // To synchronize the array extents with newly-added values.
   
   cout << "matrix:\n";
   vtkPrintMatrixFormat(cout, matrix);
