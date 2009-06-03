@@ -20,8 +20,6 @@
 // .SECTION Caveats
 // This file will change frequently to update the VTKSourceVersion which
 // timestamps a particular source release.
-//
-// Updated for cvs tag VTK-5-4-2-rc3
 
 #ifndef __vtkVersion_h
 #define __vtkVersion_h
