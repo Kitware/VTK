@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.6");
+vtkCxxRevisionMacro(vtkAnnotationLink, "1.7");
 vtkStandardNewMacro(vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 //----------------------------------------------------------------------------
@@ -113,9 +113,11 @@ int vtkAnnotationLink::RequestData(
 {
   vtkInformation *inInfo = inVector[0]->GetInformationObject(0);
   vtkAnnotationLayers* input = 0;
+  vtkSelection* inputSelection = 0;
   if (inInfo)
     {
     input = vtkAnnotationLayers::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    inputSelection = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
   
   vtkInformation *outInfo = outVector->GetInformationObject(0);
@@ -130,7 +132,7 @@ int vtkAnnotationLink::RequestData(
   vtkSelection* sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  // Give preference to the optional input
+  // Give preference to the optional input annotations
   if (input)
     {
     this->ShallowCopyToOutput(input, output, sel);
@@ -138,6 +140,13 @@ int vtkAnnotationLink::RequestData(
   else if (this->AnnotationLayers)
     {
     this->ShallowCopyToOutput(this->AnnotationLayers, output, sel);
+    }
+
+  // If there is an input selection, set it on the annotation layers
+  if (inputSelection)
+    {
+    sel->ShallowCopy(inputSelection);
+    output->SetCurrentSelection(sel);
     }
 
   unsigned int numMaps = static_cast<unsigned int>(this->DomainMaps->GetNumberOfItems());
@@ -172,7 +181,9 @@ int vtkAnnotationLink::FillInputPortInformation(int port, vtkInformation* info)
   if (port == 0)
     {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     return 1;
     }
   return 0;
@@ -191,7 +202,7 @@ int vtkAnnotationLink::FillOutputPortInformation(int port, vtkInformation* info)
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
     }
-  else
+  else if (port == 2)
     {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
     return 1;
