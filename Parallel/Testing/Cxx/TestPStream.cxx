@@ -121,7 +121,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();; 
   Stream0->SetInputConnection(Plot3D0->GetOutputPort());
   Stream0->SetSource(LineSourceWidget0->GetOutput());
-  Stream0->SetIntegrationStepUnit(2)
+  Stream0->SetIntegrationStepUnit(2);
   Stream0->SetMaximumPropagation(0.05);
   Stream0->SetInitialIntegrationStep(0.5);
   Stream0->SetIntegrationDirection(2);
