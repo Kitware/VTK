@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.8");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.9");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ void vtkQtRichTextView::Update()
       {
       if(vtkIdTypeArray* const selection_array = vtkIdTypeArray::SafeDownCast(selection_node->GetSelectionList()))
         {
-        if(selection_array->GetNumberOfTuples() && selection_array->GetValue(0) < table->GetNumberOfRows())
+        if(selection_array->GetNumberOfTuples() && selection_array->GetValue(0) >= 0 && selection_array->GetValue(0) < table->GetNumberOfRows())
           {
           row = selection_array->GetValue(0);
           row_valid = true;
