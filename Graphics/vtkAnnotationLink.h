@@ -83,9 +83,20 @@ protected:
   ~vtkAnnotationLink();
   
   // Description:
+  // Set up input ports.
+  virtual int FillInputPortInformation(int, vtkInformation*);
+  
+  // Description:
   // Set up output ports.
   virtual int FillOutputPortInformation(int, vtkInformation*);
   
+  // Description:
+  // Copy the data to the output objects.
+  void ShallowCopyToOutput(
+    vtkAnnotationLayers* input,
+    vtkAnnotationLayers* output,
+    vtkSelection* sel);
+
   // Description:
   // Shallow copy the internal selection to the output.
   virtual int RequestData(
