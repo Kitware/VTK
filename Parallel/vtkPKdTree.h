@@ -240,14 +240,18 @@ public:
   // Description:
   // Return a list of all process in order from front to back given a
   // vector direction of projection.  Use this to do visibility sorts
-  // in parallel projection mode.
+  // in parallel projection mode. `orderedList' will be resize to the number
+  // of processes. The return value is the number of processes.
+  // \pre orderedList_exists: orderedList!=0
   int ViewOrderAllProcessesInDirection(const double directionOfProjection[3],
                                        vtkIntArray *orderedList);
 
   // Description:
   // Return a list of all processes in order from front to back given a
   // camera position.  Use this to do visibility sorts in perspective
-  // projection mode.
+  // projection mode. `orderedList' will be resize to the number
+  // of processes. The return value is the number of processes.
+  // \pre orderedList_exists: orderedList!=0
   int ViewOrderAllProcessesFromPosition(const double cameraPosition[3],
                                         vtkIntArray *orderedList);
 
