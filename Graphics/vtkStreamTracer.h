@@ -15,50 +15,58 @@
 // .NAME vtkStreamTracer - Streamline generator
 // .SECTION Description
 // vtkStreamTracer is a filter that integrates a vector field to generate
-// streamlines. The integration is performed using the provided integrator.
-// The default is second order Runge-Kutta. 
+// streamlines. The integration is performed using a specified integrator,
+// by default Runge-Kutta2. 
 // 
-// vtkStreamTracer generate polylines as output. Each cell (polyline) 
-// corresponds to one streamline. The values associated with each streamline
-// are stored in the cell data whereas the values associated with points
-// are stored in point data.
+// vtkStreamTracer produces polylines as the output, with each cell (i.e.,
+// polyline) representing a streamline. The attribute values associated
+// with each streamline are stored in the cell data, whereas those
+// associated with streamline-points are stored in the point data.
 //
-// Note that vtkStreamTracer can integrate both forward and backward. 
-// The length of the streamline is controlled by specifying either
-// a maximum value in the units of length, cell length or elapsed time 
-// (the elapsed time is the time each particle would have traveled if
-// flow were steady). Otherwise, the integration terminates after exiting 
-// the dataset or if the particle speed is reduced to a value less than 
-// the terminal speed or when a maximum number of steps is reached. 
-// The reason for the termination is stored in a cell array named 
-// ReasonForTermination.
+// Note that vtkStreamTracer supports forward (the default), backward, and
+// combined (i.e., BOTH) integration. The length of a streamline is 
+// governed by specifying a maximum value either in elapsed time (the time
+// each particle is allowed to travel in a steady flow that is equivalent
+// to the exact physical length/distance the particle travels within the
+// time interval since normalized vectors are adopted in streamline 
+// integration, which achieves high numerical accuracy/smoothness of flow
+// lines particularly expected of Runge-Kutta45 with adaptive step size and 
+// error control) or in cell length. Otherwise, the integration terminates 
+// upon exiting the dataset domain, or if the particle speed is reduced to a
+// value less than a specified terminal speed, or when a maximum number of
+// steps is reached. The specific reason for the termination is stored in a 
+// cell array named ReasonForTermination.
 //
-// The quality of integration can be controlled by setting integration
-// step (InitialIntegrationStep) and in the case of adaptive solvers
-// the maximum error, the minimum integration step and the maximum 
-// integration step. All of these can have units of length, cell length 
-// or elapsed time.
+// The quality of streamline integration can be controlled by setting the
+// initial integration step (InitialIntegrationStep), particularly for 
+// Runge-Kutta2 and Runge-Kutta4 (with fixed step size), and in the case of 
+// Runge-Kutta45 (with adaptive step size and error control) the minimum
+// integration step, the maximum integration step, and the maximum error. 
+// These steps are in either TIME_UNIT or CELL_LENGTH_UNIT while the error
+// is in physical arc length. For the former two integrators, there is a 
+// trade-off between integration speed and streamline quality.
 //
-// The integration time, vorticity, rotation and angular velocity
-// are stored in point arrays named "IntegrationTime", "Vorticity",
-// "Rotation" and "AngularVelocity" respectively (vorticity, rotation
-// and angular velocity are computed only when ComputeVorticity is on).
-// All point attributes in the source data set are interpolated on the 
-// new streamline points.
+// The integration time, vorticity, rotation and angular velocity are stored
+// in point data arrays named "IntegrationTime", "Vorticity", "Rotation" and
+// "AngularVelocity", respectively (vorticity, rotation and angular velocity
+// are computed only when ComputeVorticity is on). All point data attributes
+// in the source dataset are interpolated on the new streamline points.
 //
-// vtkStreamTracer integrates through any type of dataset. As a result, if the 
-// dataset contains 2D cells such as polygons or triangles, the integration is
-// constrained to lie on the surface defined by the 2D cells.
+// vtkStreamTracer supports integration through any type of dataset. Thus if
+// the dataset contains 2D cells like polygons or triangles, the integration
+// is constrained to lie on the surface defined by 2D cells.
 //
-// The starting point of traces may be defined in two different ways.
-// Starting from global x-y-z "position" allows you to start a single trace
-// at a specified x-y-z coordinate. If you specify a source object, 
-// a trace will be generated for each point in the source that is 
-// inside the dataset.
+// The starting point, or the so-called 'seed', of a streamline may be set
+// in two different ways. Starting from global x-y-z "position" allows you
+// to start a single trace at a specified x-y-z coordinate. If you specify
+// a source object, traces will be generated from each point in the source
+// that is inside the dataset.
 //
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver 
-// vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 
+// vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkTemporalStreamTracer
+// vtkInterpolatedVelocityField
+//  
 
 #ifndef __vtkStreamTracer_h
 #define __vtkStreamTracer_h
@@ -83,36 +91,42 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object to start from position (0,0,0), integrate forward,
-  // terminal speed 1.0E-12, vorticity computation on, integration
-  // step length 0.5 (unit cell length), maximum number of steps 2000,
-  // using 2nd order Runge Kutta and maximum propagation 1.0 (unit length).
+  // Construct object to start from position (0,0,0), with forward
+  // integration, terminal speed 1.0E-12, vorticity computation on,
+  // integration step length 0.5 (in cell length unit), maximum number
+  // of steps 2000, using Runge-Kutta2, and maximum propagation 1.0 
+  // (in time unit).
   static vtkStreamTracer *New();
   
   // Description:
-  // Specify the start of the streamline in the global coordinate
-  // system. Search must be performed to find initial cell to start
-  // integration from.
+  // Specify the starting point (seed) of a streamline in the global
+  // coordinate system. Search must be performed to find the initial cell
+  // from which to start integration.
   vtkSetVector3Macro(StartPosition, double);
   vtkGetVector3Macro(StartPosition, double);
 
   // Description:
-  // Specify the source object used to generate starting points.
+  // Specify the source object used to generate starting points (seeds).
   // Old style. Do not use.
   void SetSource(vtkDataSet *source);
   vtkDataSet *GetSource();
 
   // Description:
-  // Specify the source object used to generate starting points.
+  // Specify the source object used to generate starting points (seeds).
   // New style.
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
 //BTX
+  // The previously-supported LENGTH_UNIT is excluded in the current
+  // enumeration definition as it is equivalent to TIME_UNIT due to the
+  // use of normalized vectors in streamline integration. In other words,
+  // TIME_UNIT, representing by name a time interval that a particle
+  // travels, also serves as a metric for exact length or distance that
+  // the particle travels, with unit speed, within the time interval.
   enum Units
   {
-    TIME_UNIT,
-    LENGTH_UNIT,
-    CELL_LENGTH_UNIT
+    TIME_UNIT = 0,
+    CELL_LENGTH_UNIT = 2
   };
 
   enum Solvers
@@ -136,12 +150,11 @@ public:
 //ETX
 
   // Description:
-  // Set/get the integrator type to be used in the stream line
-  // calculation. The object passed is not actually used but
-  // is cloned with NewInstance in the process of integration 
-  // (prototype pattern). The default is 2nd order Runge Kutta.
-  // The integrator can also be changed using SetIntegratorType.
-  // The recognized solvers are:
+  // Set/get the integrator type to be used for streamline generation. 
+  // The object passed is not actually used but is cloned with 
+  // NewInstance in the process of integration  (prototype pattern). 
+  // The default is Runge-Kutta2. The integrator can also be changed
+  // using SetIntegratorType. The recognized solvers are:
   // RUNGE_KUTTA2  = 0
   // RUNGE_KUTTA4  = 1
   // RUNGE_KUTTA45 = 2
@@ -157,97 +170,57 @@ public:
     {this->SetIntegratorType(RUNGE_KUTTA45);};
 
   // Description:
-  // Specify the maximum length of the streamlines expressed in 
-  // one of the: 
-  // TIME_UNIT        = 0
-  // LENGTH_UNIT      = 1
-  // CELL_LENGTH_UNIT = 2
-  // The defaults are LENGTH_UNIT, 1.0.
-  void SetMaximumPropagation(int unit, double max);
+  // Specify the maximum length of a streamline expressed in 
+  // TIME_UNIT, which is equivalent to the physical arc-length unit 
+  // due to the use of normalized vectors in streamline integration.
   void SetMaximumPropagation(double max);
-  void SetMaximumPropagationUnit(int unit);
-  int GetMaximumPropagationUnit();
-  double GetMaximumPropagation();
-  void SetMaximumPropagationUnitToTimeUnit()
-    {this->SetMaximumPropagationUnit(TIME_UNIT);};
-  void SetMaximumPropagationUnitToLengthUnit()
-    {this->SetMaximumPropagationUnit(LENGTH_UNIT);};
-  void SetMaximumPropagationUnitToCellLengthUnit()
-    {this->SetMaximumPropagationUnit(CELL_LENGTH_UNIT);};          
+  double GetMaximumPropagation() { return this->MaximumPropagation; }       
 
   // Description:
-  // Specify the minimum step used in the integration expressed in 
-  // one of the: 
-  // TIME_UNIT        = 0
-  // LENGTH_UNIT      = 1
-  // CELL_LENGTH_UNIT = 2
-  // Only valid when using adaptive integrators.
-  void SetMinimumIntegrationStep(int unit, double step);
-  void SetMinimumIntegrationStepUnit(int unit);
-  void SetMinimumIntegrationStep(double step);
-  int GetMinimumIntegrationStepUnit();
-  double GetMinimumIntegrationStep();
-  void SetMinimumIntegrationStepUnitToTimeUnit()
-    {this->SetMinimumIntegrationStepUnit(TIME_UNIT);};
-  void SetMinimumIntegrationStepUnitToLengthUnit()
-    {this->SetMinimumIntegrationStepUnit(LENGTH_UNIT);};
-  void SetMinimumIntegrationStepUnitToCellLengthUnit()
-    {this->SetMinimumIntegrationStepUnit(CELL_LENGTH_UNIT);};
-
+  // Specify a uniform integration step unit for MinimumIntegrationStep, 
+  // InitialIntegrationStep, and MaximumIntegrationStep. NOTE: The valid
+  // unit is now limited to only TIME_UNIT (0) and CELL_LENGTH_UNIT (2),
+  // EXCLUDING the previously-supported LENGTH_UNIT.  
+  void SetIntegrationStepUnit( int unit );
+  int  GetIntegrationStepUnit() { return this->IntegrationStepUnit; } 
+  
   // Description:
-  // Specify the maximum step used in the integration expressed in 
-  // one of the: 
+  // Specify the Initial step used for line integration, expressed in:
   // TIME_UNIT        = 0
-  // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
-  // Only valid when using adaptive integrators.
-  void SetMaximumIntegrationStep(int unit, double step);
-  void SetMaximumIntegrationStepUnit(int unit);
-  void SetMaximumIntegrationStep(double step);
-  int GetMaximumIntegrationStepUnit();
-  double GetMaximumIntegrationStep();
-  void SetMaximumIntegrationStepUnitToTimeUnit()
-    {this->SetMaximumIntegrationStepUnit(TIME_UNIT);};
-  void SetMaximumIntegrationStepUnitToLengthUnit()
-    {this->SetMaximumIntegrationStepUnit(LENGTH_UNIT);};
-  void SetMaximumIntegrationStepUnitToCellLengthUnit()
-    {this->SetMaximumIntegrationStepUnit(CELL_LENGTH_UNIT);};
-
-  // Description:
-  // Specify the initial step used in the integration expressed in 
-  // one of the: 
-  // TIME_UNIT        = 0
-  // LENGTH_UNIT      = 1
-  // CELL_LENGTH_UNIT = 2
-  // If the integrator is not adaptive, this is the actual
-  // step used.
-  void SetInitialIntegrationStep(int unit, double step);
-  void SetInitialIntegrationStepUnit(int unit);
+  // (either the starting size for an adaptive integrator, e.g., RK45,
+  // or the constant / fixed size for a non-adaptive one, i.e., RK2 and RK4)
   void SetInitialIntegrationStep(double step);
-  int GetInitialIntegrationStepUnit();
-  double GetInitialIntegrationStep();
-  void SetInitialIntegrationStepUnitToTimeUnit()
-    {this->SetInitialIntegrationStepUnit(TIME_UNIT);};
-  void SetInitialIntegrationStepUnitToLengthUnit()
-    {this->SetInitialIntegrationStepUnit(LENGTH_UNIT);};
-  void SetInitialIntegrationStepUnitToCellLengthUnit()
-    {this->SetInitialIntegrationStepUnit(CELL_LENGTH_UNIT);};
+  double GetInitialIntegrationStep() { return this->InitialIntegrationStep; }
+  
+  // Description:
+  // Specify the Minimum step used for line integration, expressed in:
+  // TIME_UNIT        = 0
+  // CELL_LENGTH_UNIT = 2
+  // (Only valid for an adaptive integrator, e.g., RK45)
+  void SetMinimumIntegrationStep( double step );
+  double GetMinimumIntegrationStep() { return this->MinimumIntegrationStep; }
+
+  // Description:
+  // Specify the Maximum step used for line integration, expressed in:
+  // TIME_UNIT        = 0
+  // CELL_LENGTH_UNIT = 2
+  // (Only valid for an adaptive integrator, e.g., RK45)
+  void SetMaximumIntegrationStep( double step );
+  double GetMaximumIntegrationStep() { return this->MaximumIntegrationStep; }
 
   // Description
-  // Specify the maximum error in the integration. This value
-  // is passed to the integrator. Therefore, it's meaning depends
-  // on the integrator used. 
+  // Specify the maximum error used to govern streamline integration.
   vtkSetMacro(MaximumError, double);
   vtkGetMacro(MaximumError, double);
 
   // Description
-  // Specify the maximum number of steps used in the integration.
+  // Specify the maximum number of steps for streamline integration.
   vtkSetMacro(MaximumNumberOfSteps, vtkIdType);
   vtkGetMacro(MaximumNumberOfSteps, vtkIdType);
 
   // Description
-  // If at any point, the speed is below this value, the integration
-  // is terminated.
+  // Specify the terminal speed value, below which integration is terminated.
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
 
@@ -261,8 +234,8 @@ public:
 //ETX
 
   // Description:
-  // Specify whether the streamtrace will be generated in the
-  // upstream or downstream direction.
+  // Specify whether the streamline is integrated in the upstream or
+  // downstream direction.
   vtkSetClampMacro(IntegrationDirection, int, FORWARD, BOTH);
   vtkGetMacro(IntegrationDirection, int);
   void SetIntegrationDirectionToForward()
@@ -273,12 +246,11 @@ public:
     {this->SetIntegrationDirection(BOTH);};  
 
   // Description
-  // Turn on/off calculation of vorticity at streamline points
-  // (necessary for generating proper streamribbons using the
+  // Turn on/off vorticity computation at streamline points
+  // (necessary for generating proper stream-ribbons using the
   // vtkRibbonFilter.
-  vtkSetMacro(ComputeVorticity, int);
-  vtkGetMacro(ComputeVorticity, int);
-  vtkBooleanMacro(ComputeVorticity, int);
+  vtkSetMacro(ComputeVorticity, bool);
+  vtkGetMacro(ComputeVorticity, bool);
 
   // Description
   // This can be used to scale the rate with which the streamribbons
@@ -327,7 +299,7 @@ protected:
                   int* maxCellSize);
   void GenerateNormals(vtkPolyData* output, double* firstNormal, const char *vecName);
 
-  int GenerateNormalsInIntegrate;
+  bool GenerateNormalsInIntegrate;
 
   // starting from global x-y-z position
   double StartPosition[3];
@@ -344,24 +316,23 @@ protected:
     int Unit;
   };
 
-  IntervalInformation MaximumPropagation;
-  IntervalInformation MinimumIntegrationStep;
-  IntervalInformation MaximumIntegrationStep;
-  IntervalInformation InitialIntegrationStep;
+  double MaximumPropagation;
+  double MinimumIntegrationStep;
+  double MaximumIntegrationStep;
+  double InitialIntegrationStep;
 
   void SetIntervalInformation(int unit, double interval,
                               IntervalInformation& currentValues);
   void SetIntervalInformation(int unit,IntervalInformation& currentValues);
-  static double ConvertToTime(IntervalInformation& interval,
-                             double cellLength, double speed);
-  static double ConvertToLength(IntervalInformation& interval,
-                               double cellLength, double speed);
-  static double ConvertToCellLength(IntervalInformation& interval,
-                                   double cellLength, double speed);
-  static double ConvertToUnit(IntervalInformation& interval, int unit,
-                             double cellLength, double speed);
-  void ConvertIntervals(double& step, double& minStep, double& maxStep,
-                        int direction, double cellLength, double speed);
+  void ConvertIntervals( double& step, double& minStep, double& maxStep,
+                        int direction, double cellLength );
+  static double ConvertToTime( double interval, int unit, double cellLength );
+  static double ConvertToTime( IntervalInformation& interval, double cellLength );
+  static double ConvertToCellLength( IntervalInformation& interval,
+                                   double cellLength );
+  static double ConvertToUnit( IntervalInformation& interval, int unit,
+                             double cellLength );
+  
 //ETX
 
   int SetupOutput(vtkInformation* inInfo, 
@@ -371,6 +342,7 @@ protected:
                        vtkIntArray*& integrationDirections,
                        vtkDataSet *source);
   
+  int IntegrationStepUnit;
   int IntegrationDirection;
 
   // Prototype showing the integrator type to be set by the user.
@@ -379,7 +351,7 @@ protected:
   double MaximumError;
   vtkIdType MaximumNumberOfSteps;
 
-  int ComputeVorticity;
+  bool ComputeVorticity;
   double RotationScale;
 
   vtkInterpolatedVelocityField* InterpolatorPrototype;

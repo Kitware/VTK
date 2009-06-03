@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.30");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.31");
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
@@ -126,14 +126,13 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->TerminationTimeUnit   = TERMINATION_STEP_UNIT;
   this->EarliestTime          =-1E6;
   // we are not actually using these for now
-  this->MaximumPropagation.Unit         = TIME_UNIT;
-  this->MaximumPropagation.Interval     = 1.0;
-  this->MinimumIntegrationStep.Unit     = TIME_UNIT;
-  this->MinimumIntegrationStep.Interval = 1.0E-2;
-  this->MaximumIntegrationStep.Unit     = TIME_UNIT;
-  this->MaximumIntegrationStep.Interval = 1.0;
-  this->InitialIntegrationStep.Unit     = TIME_UNIT;
-  this->InitialIntegrationStep.Interval = 0.5;
+  
+  this->MaximumPropagation = 1.0;
+  
+  this->IntegrationStepUnit    = TIME_UNIT; 
+  this->MinimumIntegrationStep = 1.0E-2;
+  this->MaximumIntegrationStep = 1.0;
+  this->InitialIntegrationStep = 0.5;
   //
   this->Interpolator = vtkSmartPointer<vtkTemporalInterpolatedVelocityField>::New();
   //
@@ -839,12 +838,6 @@ int vtkTemporalStreamTracer::RequestData(
     return 1;
   }
 
-  if (this->MaximumPropagation.Unit != TIME_UNIT)
-  {
-    vtkErrorMacro(<<"We can only handle TIME_UNIT propagation steps at the moment");
-    return 1;
-  }
-
   //
   // Add the datasets to an interpolator object
   //
@@ -1168,7 +1161,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
 
   IntervalInformation delT;
   delT.Unit     = TIME_UNIT;
-  delT.Interval = (targettime-currenttime)*this->InitialIntegrationStep.Interval;
+  delT.Interval = (targettime-currenttime) * this->InitialIntegrationStep;
   epsilon = delT.Interval*1E-3;
 
   //

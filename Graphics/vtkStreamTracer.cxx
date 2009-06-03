@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.47");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.48");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -55,30 +55,23 @@ vtkStreamTracer::vtkStreamTracer()
     {
     this->StartPosition[i] = 0.0;
     }
-  this->MaximumPropagation.Unit = LENGTH_UNIT;
-  this->MaximumPropagation.Interval = 1.0;
+  
+  this->MaximumPropagation     = 1.0;
+  this->IntegrationStepUnit    = CELL_LENGTH_UNIT; 
+  this->InitialIntegrationStep = 0.5;
+  this->MinimumIntegrationStep = 1.0E-2;
+  this->MaximumIntegrationStep = 1.0;
 
-  this->MinimumIntegrationStep.Unit = CELL_LENGTH_UNIT;
-  this->MinimumIntegrationStep.Interval = 1.0E-2;
-
-  this->MaximumIntegrationStep.Unit = CELL_LENGTH_UNIT;
-  this->MaximumIntegrationStep.Interval = 1.0;
-
-  this->InitialIntegrationStep.Unit = CELL_LENGTH_UNIT;
-  this->InitialIntegrationStep.Interval = 0.5;
-
-  this->MaximumError = 1.0e-6;
-
+  this->MaximumError         = 1.0e-6;
   this->MaximumNumberOfSteps = 2000;
+  this->TerminalSpeed        = EPSILON;
 
-  this->TerminalSpeed = EPSILON;
-
-  this->ComputeVorticity = 1;
-  this->RotationScale = 1.0;
+  this->ComputeVorticity = true;
+  this->RotationScale    = 1.0;
 
   this->LastUsedTimeStep = 0.0;
 
-  this->GenerateNormalsInIntegrate = 1;
+  this->GenerateNormalsInIntegrate = true;
 
   this->InterpolatorPrototype = 0;
 
@@ -182,8 +175,8 @@ void vtkStreamTracer::SetIntervalInformation(
   this->Modified();
 }
 
-void vtkStreamTracer::SetIntervalInformation(
-  int unit, double interval, vtkStreamTracer::IntervalInformation& currentValues)
+void vtkStreamTracer::SetIntervalInformation( int unit, double interval,
+  vtkStreamTracer::IntervalInformation& currentValues)
 {
   if ( (unit == currentValues.Unit) && (interval == currentValues.Interval) )
     {
@@ -196,212 +189,133 @@ void vtkStreamTracer::SetIntervalInformation(
   this->Modified();
 }
 
-void vtkStreamTracer::SetMaximumPropagation(int unit, double max)
-{
-  this->SetIntervalInformation(unit, max, this->MaximumPropagation);
-}
-void vtkStreamTracer::SetMaximumPropagation( double max)
-{
-  if ( max == this->MaximumPropagation.Interval )
+void vtkStreamTracer::SetMaximumPropagation( double max )
+{   
+  if ( max == this->MaximumPropagation )
     {
     return;
     }
-  this->MaximumPropagation.Interval = max;
+  this->MaximumPropagation = max; 
   this->Modified();
-}
-void vtkStreamTracer::SetMaximumPropagationUnit(int unit)
-{
-  this->SetIntervalInformation(unit, this->MaximumPropagation);
-}
-int vtkStreamTracer::GetMaximumPropagationUnit()
-{
-  return this->MaximumPropagation.Unit;
-}
-double vtkStreamTracer::GetMaximumPropagation()
-{
-  return this->MaximumPropagation.Interval;
 }
 
-void vtkStreamTracer::SetMinimumIntegrationStep(int unit, double step)
-{
-  this->SetIntervalInformation(unit, step, this->MinimumIntegrationStep);
-}
-void vtkStreamTracer::SetMinimumIntegrationStepUnit(int unit)
-{
-  this->SetIntervalInformation(unit, this->MinimumIntegrationStep);
-}
-void vtkStreamTracer::SetMinimumIntegrationStep(double step)
-{
-  if ( step == this->MinimumIntegrationStep.Interval )
+void vtkStreamTracer::SetIntegrationStepUnit( int unit )
+{ 
+  if ( unit != TIME_UNIT && unit != CELL_LENGTH_UNIT )
+    {
+    unit = CELL_LENGTH_UNIT;
+    }
+    
+  if ( unit == this->IntegrationStepUnit )
     {
     return;
     }
-  this->MinimumIntegrationStep.Interval = step;
+  
+  this->IntegrationStepUnit = unit; 
   this->Modified();
-}
-int vtkStreamTracer::GetMinimumIntegrationStepUnit()
+}   
+
+void vtkStreamTracer::SetMinimumIntegrationStep( double step )
 {
-  return this->MinimumIntegrationStep.Unit;
-}
-double vtkStreamTracer::GetMinimumIntegrationStep()
-{
-  return this->MinimumIntegrationStep.Interval;
+  if ( step == this->MinimumIntegrationStep )
+    {
+    return;
+    }
+  this->MinimumIntegrationStep = step;
+  this->Modified();
 }
 
-void vtkStreamTracer::SetMaximumIntegrationStep(int unit, double step)
+void vtkStreamTracer::SetMaximumIntegrationStep( double step )
 {
-  this->SetIntervalInformation(unit, step, this->MaximumIntegrationStep);
-}
-void vtkStreamTracer::SetMaximumIntegrationStepUnit(int unit)
-{
-  this->SetIntervalInformation(unit, this->MaximumIntegrationStep);
-}
-void vtkStreamTracer::SetMaximumIntegrationStep(double step)
-{
-  if ( step == this->MaximumIntegrationStep.Interval )
+  if ( step == this->MaximumIntegrationStep )
     {
     return;
     }
-  this->MaximumIntegrationStep.Interval = step;
+  this->MaximumIntegrationStep = step;
   this->Modified();
-}
-int vtkStreamTracer::GetMaximumIntegrationStepUnit()
-{
-  return this->MaximumIntegrationStep.Unit;
-}
-double vtkStreamTracer::GetMaximumIntegrationStep()
-{
-  return this->MaximumIntegrationStep.Interval;
 }
 
-void vtkStreamTracer::SetInitialIntegrationStep(int unit, double step)
+void vtkStreamTracer::SetInitialIntegrationStep( double step )
 {
-  this->SetIntervalInformation(unit, step, this->InitialIntegrationStep);
-}
-void vtkStreamTracer::SetInitialIntegrationStepUnit(int unit)
-{
-  this->SetIntervalInformation(unit, this->InitialIntegrationStep);
-}
-void vtkStreamTracer::SetInitialIntegrationStep(double step)
-{
-  if ( step == this->InitialIntegrationStep.Interval )
+  if ( step == this->InitialIntegrationStep )
     {
     return;
     }
-  this->InitialIntegrationStep.Interval = step;
+  this->InitialIntegrationStep = step;
   this->Modified();
-}
-int vtkStreamTracer::GetInitialIntegrationStepUnit()
-{
-  return this->InitialIntegrationStep.Unit;
-}
-double vtkStreamTracer::GetInitialIntegrationStep()
-{
-  return this->InitialIntegrationStep.Interval;
 }
 
 double vtkStreamTracer::ConvertToTime(
-  vtkStreamTracer::IntervalInformation& interval, double cellLength, double speed)
+  double interval, int unit, double cellLength )
 {
   double retVal = 0.0;
-  switch (interval.Unit)
+  if ( unit == TIME_UNIT )
     {
-    case TIME_UNIT:
-      retVal = interval.Interval;
-      break;
-    case LENGTH_UNIT:
-      retVal = interval.Interval/speed; 
-      break;
-    case CELL_LENGTH_UNIT:
-      retVal = interval.Interval*cellLength/speed; 
-      break;
+    retVal = interval;
+    }
+  else
+  if ( unit == CELL_LENGTH_UNIT )
+    {
+    retVal = interval * cellLength;
     }
   return retVal;
 }
 
-double vtkStreamTracer::ConvertToLength(
-  vtkStreamTracer::IntervalInformation& interval, double cellLength, double speed)
+double vtkStreamTracer::ConvertToTime(
+  vtkStreamTracer::IntervalInformation& interval, double cellLength )
 {
-  double retVal = 0.0;
-  switch (interval.Unit)
-    {
-    case TIME_UNIT:
-      retVal = interval.Interval * speed;
-      break;
-    case LENGTH_UNIT:
-      retVal = interval.Interval; 
-      break;
-    case CELL_LENGTH_UNIT:
-      retVal = interval.Interval*cellLength; 
-      break;
-    }
-  return retVal;
+  return ConvertToTime( interval.Interval, interval.Unit, cellLength );
 }
 
 double vtkStreamTracer::ConvertToCellLength(
-  vtkStreamTracer::IntervalInformation& interval, double cellLength, double speed)
+  vtkStreamTracer::IntervalInformation& interval, double cellLength )
 {
   double retVal = 0.0;
-  switch (interval.Unit)
+  if ( interval.Unit == TIME_UNIT )
     {
-    case TIME_UNIT:
-      retVal = (interval.Interval * speed)/cellLength;
-      break;
-    case LENGTH_UNIT:
-      retVal = interval.Interval/cellLength; 
-      break;
-    case CELL_LENGTH_UNIT:
-      retVal = interval.Interval; 
-      break;
+    retVal = interval.Interval / cellLength;
+    }
+  else
+  if ( interval.Unit == CELL_LENGTH_UNIT )
+    {
+    retVal = interval.Interval;
     }
   return retVal;
 }
 
 double vtkStreamTracer::ConvertToUnit(
-  vtkStreamTracer::IntervalInformation& interval, 
-  int unit, 
-  double cellLength, 
-  double speed)
+  vtkStreamTracer::IntervalInformation& interval, int unit, double cellLength )
 {
   double retVal = 0.0;
-  switch (unit)
+  if ( unit == TIME_UNIT )
     {
-    case TIME_UNIT:
-      retVal = ConvertToTime(interval, cellLength, speed);
-      break;
-    case LENGTH_UNIT:
-      retVal = ConvertToLength(interval, cellLength, speed);
-      break;
-    case CELL_LENGTH_UNIT:
-      retVal = ConvertToCellLength(interval, cellLength, speed);
-      break;
+    retVal = ConvertToTime(interval, cellLength );
+    }
+  else
+  if ( unit == CELL_LENGTH_UNIT )
+    {
+    retVal = ConvertToCellLength(interval, cellLength );
     }
   return retVal;
 }
 
-void vtkStreamTracer::ConvertIntervals(double& step, double& minStep,
-                                       double& maxStep, int direction,
-                                       double cellLength, double speed)
+void vtkStreamTracer::ConvertIntervals( double& step, double& minStep, 
+  double& maxStep, int direction, double cellLength )
 {
-  step = direction * this->ConvertToTime(
-    this->InitialIntegrationStep, cellLength, speed);
-  if ( this->MinimumIntegrationStep.Interval <= 0.0 )
+  minStep = maxStep = step = 
+    direction * this->ConvertToTime( this->InitialIntegrationStep, 
+                                     this->IntegrationStepUnit, cellLength );
+ 
+  if ( this->MinimumIntegrationStep > 0.0 )
     {
-    minStep = step;
+    minStep = this->ConvertToTime( this->MinimumIntegrationStep,
+                                   this->IntegrationStepUnit, cellLength );
     }
-  else
+  
+  if ( this->MaximumIntegrationStep > 0.0 )
     {
-    minStep = this->ConvertToTime(this->MinimumIntegrationStep, cellLength,  
-                                  speed);
-    }
-  if ( this->MaximumIntegrationStep.Interval <= 0.0 )
-    {
-    maxStep = step;
-    }
-  else
-    {
-    maxStep = this->ConvertToTime(this->MaximumIntegrationStep,cellLength, 
-                                  speed);
+    maxStep = this->ConvertToTime( this->MaximumIntegrationStep,
+                                   this->IntegrationStepUnit, cellLength );
     }
 }
 
@@ -833,8 +747,8 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       continue;
       }
 
-    if (propagation >= this->MaximumPropagation.Interval ||
-        numSteps > this->MaximumNumberOfSteps)
+    if ( propagation >= this->MaximumPropagation ||
+         numSteps    >  this->MaximumNumberOfSteps)
       {
       continue;
       }
@@ -847,11 +761,11 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // We will always pass a time step to the integrator.
     // If the user specifies a step size with another unit, we will 
     // have to convert it to time.
-    IntervalInformation delT;
-    delT.Unit = TIME_UNIT;
+    IntervalInformation delT;  // either positive or negative
+    delT.Unit  = TIME_UNIT; 
     delT.Interval = 0;
-    IntervalInformation aStep;
-    aStep.Unit = this->MaximumPropagation.Unit;
+    IntervalInformation aStep; // always positive
+    aStep.Unit = TIME_UNIT;
     double step, minStep=0, maxStep=0;
     double stepTaken, accumTime=0;
     double speed;
@@ -869,10 +783,10 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     speed = vtkMath::Norm(velocity);
 
     // Never call conversion methods if speed == 0
-    if (speed != 0.0)
+    if ( speed != 0.0 )
       {
-      this->ConvertIntervals(delT.Interval, minStep, maxStep, direction, 
-                             cellLength, speed);
+      this->ConvertIntervals( delT.Interval, minStep, maxStep, 
+                              direction, cellLength );
       }
 
     // Interpolate all point attributes on first point
@@ -907,7 +821,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // Integrate until the maximum propagation length is reached, 
     // maximum number of steps is reached or until a boundary is encountered.
     // Begin Integration
-    while ( propagation < this->MaximumPropagation.Interval )
+    while ( propagation < this->MaximumPropagation )
       {
 
       if (numSteps > this->MaximumNumberOfSteps)
@@ -919,8 +833,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       if ( numSteps++ % 1000 == 1 )
         {
         progress = 
-          (currentLine + propagation / this->MaximumPropagation.Interval) /
-          numLines ;
+          ( currentLine + propagation / this->MaximumPropagation ) / numLines;
         this->UpdateProgress(progress);
 
         if (this->GetAbortExecute())
@@ -939,20 +852,18 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
 
       // If, with the next step, propagation will be larger than
       // max, reduce it so that it is (approximately) equal to max.
-      aStep.Interval = fabs(this->ConvertToUnit(delT, 
-                                                this->MaximumPropagation.Unit,
-                                                cellLength, speed));
-      if ( (propagation + aStep.Interval) >  
-           this->MaximumPropagation.Interval )
+      aStep.Interval = fabs( delT.Interval );
+        
+      if ( ( propagation + aStep.Interval ) > this->MaximumPropagation )
         {
-        aStep.Interval = this->MaximumPropagation.Interval - propagation;
-        if (delT.Interval >= 0)
+        aStep.Interval = this->MaximumPropagation - propagation;
+        if ( delT.Interval >= 0 )
           {
-          delT.Interval = this->ConvertToTime(aStep, cellLength, speed);
+          delT.Interval = this->ConvertToTime( aStep, cellLength );
           }
         else
           {
-          delT.Interval = -1.0 * this->ConvertToTime(aStep, cellLength, speed);
+          delT.Interval = this->ConvertToTime( aStep, cellLength ) * ( -1.0 );
           }
         maxStep = delT.Interval;
         }
@@ -960,10 +871,12 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
           
       // Calculate the next step using the integrator provided
       // Break if the next point is out of bounds.
-      if ((tmp=
-           integrator->ComputeNextStep(point1, point2, 0, delT.Interval, 
-                                       stepTaken, minStep, maxStep, 
-                                       this->MaximumError, error)) != 0)
+      func->SetNormalizeVector( true );
+      tmp = integrator->ComputeNextStep( point1, point2, 0, delT.Interval, 
+                                         stepTaken, minStep, maxStep, 
+                                         this->MaximumError, error );
+      func->SetNormalizeVector( false );
+      if ( tmp != 0 )
         {
         retVal = tmp;
         memcpy(lastPoint, point2, 3*sizeof(double));
@@ -987,11 +900,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
 
       accumTime += stepTaken;
       // Calculate propagation (using the same units as MaximumPropagation
-      propagation += fabs(this->ConvertToUnit(delT, 
-                                              this->MaximumPropagation.Unit,
-                                              cellLength, speed));
-
-
+      propagation += fabs( delT.Interval );
 
       // This is the next starting point
       for(i=0; i<3; i++)
@@ -1054,8 +963,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         }
 
       // Convert all intervals to time
-      this->ConvertIntervals(step, minStep, maxStep, direction, 
-                             cellLength, speed);
+      this->ConvertIntervals( step, minStep, maxStep, direction, cellLength );
 
 
       // If the solver is adaptive and the next time step (delT.Interval)
@@ -1250,6 +1158,7 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
   double point1[3], point2[3];
   double velocity[3];
   double speed;
+  int    stepResult;
 
   (void)seed; // Seed is not used
 
@@ -1270,10 +1179,13 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
 
     // Calculate the next step using the integrator provided
     // Break if the next point is out of bounds.
-    if (integrator->ComputeNextStep(point1, point2, 0, delt, 
-                                    stepTaken, 0, 0, 0, error) != 0)
+    func->SetNormalizeVector( true );
+    stepResult = integrator->ComputeNextStep( point1, point2, 0, delt, 
+                                              stepTaken, 0, 0, 0, error );
+    func->SetNormalizeVector( false );
+    if ( stepResult != 0 )
       {
-      memcpy(lastPoint, point2, 3*sizeof(double));
+      memcpy( lastPoint, point2, 3 * sizeof(double) );
       break;
       }
 
@@ -1328,72 +1240,22 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
      << this->StartPosition[1] << " "
      << this->StartPosition[2] << endl;
   os << indent << "Terminal speed: " << this->TerminalSpeed << endl;
-  os << indent << "Maximum propagation: " << this->MaximumPropagation.Interval
-     << " unit: ";
-  switch (this->MaximumPropagation.Unit)
-    {
-    case TIME_UNIT:
-      os << "time.";
-      break;
-    case LENGTH_UNIT:
-      os << "length.";
-      break;
-    case CELL_LENGTH_UNIT:
-      os << "cell length.";
-      break;
-    }
-  os << endl;
   
-  os << indent << "Min. integration step: " 
-     << this->MinimumIntegrationStep.Interval
-     << " unit: ";
-  switch (this->MinimumIntegrationStep.Unit)
-    {
-    case TIME_UNIT:
-      os << "time.";
-      break;
-    case LENGTH_UNIT:
-      os << "length.";
-      break;
-    case CELL_LENGTH_UNIT:
-      os << "cell length.";
-      break;
-    }
-  os << endl;
+  os << indent << "Maximum propagation: " << this->MaximumPropagation
+     << " unit: length." << endl;
+  
+  os << indent << "Integration step unit: "
+     << ( ( this->IntegrationStepUnit == TIME_UNIT ) 
+          ? "time." : "cell length." ) << endl; 
+     
+  os << indent << "Initial integration step: "
+     << this->InitialIntegrationStep << endl;
+  
+  os << indent << "Minimum integration step: "
+     << this->MinimumIntegrationStep << endl;
 
-  os << indent << "Max. integration step: " 
-     << this->MaximumIntegrationStep.Interval
-     << " unit: ";
-  switch (this->MaximumIntegrationStep.Unit)
-    {
-    case TIME_UNIT:
-      os << "time.";
-      break;
-    case LENGTH_UNIT:
-      os << "length.";
-      break;
-    case CELL_LENGTH_UNIT:
-      os << "cell length.";
-      break;
-    }
-  os << endl;
-
-  os << indent << "Initial integration step: " 
-     << this->InitialIntegrationStep.Interval
-     << " unit: ";
-  switch (this->InitialIntegrationStep.Unit)
-    {
-    case TIME_UNIT:
-      os << "time.";
-      break;
-    case LENGTH_UNIT:
-      os << "length.";
-      break;
-    case CELL_LENGTH_UNIT:
-      os << "cell length.";
-      break;
-    }
-  os << endl;
+  os << indent << "Maximum integration step: "
+     << this->MaximumIntegrationStep << endl;
 
   os << indent << "Integration direction: ";
   switch (this->IntegrationDirection)
@@ -1404,12 +1266,15 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
     case BACKWARD:
       os << "backward.";
       break;
+    case BOTH:
+      os << "both directions.";
+      break;
     }
   os << endl;
 
   os << indent << "Integrator: " << this->Integrator << endl;
   os << indent << "Maximum error: " << this->MaximumError << endl;
-  os << indent << "Max. number of steps: " << this->MaximumNumberOfSteps 
+  os << indent << "Maximum number of steps: " << this->MaximumNumberOfSteps 
      << endl;
   os << indent << "Vorticity computation: " 
      << (this->ComputeVorticity ? " On" : " Off") << endl;
