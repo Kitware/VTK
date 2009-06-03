@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.9");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.10");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,6 +90,7 @@ vtkQtRichTextView::vtkQtRichTextView() :
   QNetworkProxy::setApplicationProxy(proxy);
 
   QObject::connect(this->Internal->UI.BackButton, SIGNAL(clicked()), this, SLOT(onBack()));
+  QObject::connect(this->Internal->UI.WebView, SIGNAL(loadProgress(int)), this, SLOT(onLoadProgress(int)));
 }
 
 vtkQtRichTextView::~vtkQtRichTextView()
@@ -198,3 +199,8 @@ void vtkQtRichTextView::onBack()
     }
 }
 
+void vtkQtRichTextView::onLoadProgress(int progress)
+{
+  ViewProgressEventCallData callData("Web Page Loading", progress/100.0);
+  this->InvokeEvent(vtkCommand::ViewProgressEvent, &callData);
+}

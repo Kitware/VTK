@@ -76,6 +76,7 @@ public:
 
 protected slots:
   void onBack();
+  void onLoadProgress(int progress);
   
 protected:
   vtkQtRichTextView();

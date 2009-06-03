@@ -87,7 +87,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.18");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.19");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -225,7 +225,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexIcons->SetFieldType(vtkArrayMap::POINT_DATA);
   this->VertexIcons->SetOutputArrayType(VTK_INT);
   this->VertexIcons->SetOutputArrayName("IconIndex");
-  this->VertexIcons->PassArrayOn();
+  this->VertexIcons->PassArrayOff();
   this->VertexIconPriority->SetFieldType(vtkArrayMap::POINT_DATA);
   this->VertexIconPriority->SetOutputArrayType(VTK_DOUBLE);
   this->VertexIconPriority->SetOutputArrayName("Priority");
@@ -233,7 +233,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->EdgeIcons->SetFieldType(vtkArrayMap::POINT_DATA);
   this->EdgeIcons->SetOutputArrayType(VTK_INT);
   this->EdgeIcons->SetOutputArrayName("IconIndex");
-  this->EdgeIcons->PassArrayOn();
+  this->EdgeIcons->PassArrayOff();
   this->EdgeIconPriority->SetFieldType(vtkArrayMap::POINT_DATA);
   this->EdgeIconPriority->SetOutputArrayType(VTK_DOUBLE);
   this->EdgeIconPriority->SetOutputArrayName("Priority");
