@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkInterpolatedVelocityField.h"
 
+#include "vtkMath.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
@@ -23,8 +24,8 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.5");
-vtkStandardNewMacro(vtkInterpolatedVelocityField);
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.6");
+vtkStandardNewMacro(vtkInterpolatedVelocityField); 
 //---------------------------------------------------------------------------
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
 class vtkInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase {};
@@ -39,7 +40,9 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
   this->LastCellId = -1;
   this->CacheHit = 0;
   this->CacheMiss = 0;
-  this->Caching = 1; // Caching on by default
+  this->Caching = true; // Caching on by default
+  
+  this->NormalizeVector = false;
 
   this->Cell = vtkGenericCell::New();
   this->VectorsSelection = 0;
@@ -224,6 +227,11 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
         f[i] +=  vec[i] * this->Weights[j];
         }
       }
+      
+    if ( this->NormalizeVector == true )
+      {
+      vtkMath::Normalize( f );
+      }  
     }
   // if not, return false
   else

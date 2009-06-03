@@ -19,7 +19,7 @@
 // by performing cell interpolation on the underlying vtkDataSet.
 // This is a concrete sub-class of vtkFunctionSet with 
 // NumberOfIndependentVariables = 4 (x,y,z,t) and 
-// NumberOfFunctions = 3 (u,v,w). Normally, every time an evaluation
+// NumberOfFunctions = 3 (u,v,w). Normally, every time an evaluation 
 // is performed, the cell which contains the point (x,y,z) has to
 // be found by calling FindCell. This is a computationally expensive 
 // operation. In certain cases, the cell search can be avoided or shortened 
@@ -92,14 +92,32 @@ public:
 
   // Description:
   // Turn caching on/off.
-  vtkGetMacro(Caching, int);
-  vtkSetMacro(Caching, int);
-  vtkBooleanMacro(Caching, int);
+  vtkGetMacro(Caching, bool);
+  vtkSetMacro(Caching, bool);
 
   // Description:
   // Caching statistics.
   vtkGetMacro(CacheHit, int);
   vtkGetMacro(CacheMiss, int);
+  
+  // Description:
+  // Set/Get the flag indicating vector post-normalization (following vector
+  // interpolation). Vector post-normalization is required to avoid the 
+  // 'curve-overshooting' problem (caused by high velocity magnitude) that
+  // occurs when Cell-Length is used as the step size unit (particularly the
+  // Minimum step size unit). Furthermore, it is required by RK45 to achieve,
+  // as expected, high numerical accuracy (or high smoothness of flow lines)
+  // through adaptive step sizing. Note this operation is performed (when
+  // NormalizeVector TRUE) right AFTER vector interpolation such that the
+  // DIFFERING amount of contribution of each node (of a cell) to the
+  // resulting DIRECTION of the interpolated vector, due to the possibly
+  // significantly-differing velocity magnitude values at the nodes (which is
+  // the case with large cells), can be reflected as is. Also note that this
+  // flag needs to be turned to FALSE after vtkInitialValueProblemSolver::
+  // ComputeNextStep() as subsequent operations, e.g., vorticity computation, 
+  // may need non-normalized vectors.
+  vtkSetMacro( NormalizeVector, bool );
+  vtkGetMacro( NormalizeVector, bool );
 
   // Description:
   // If you want to work with an arbitrary vector array, then set its name 
@@ -139,7 +157,8 @@ protected:
   vtkIdType LastCellId;
   int CacheHit;
   int CacheMiss;
-  int Caching;
+  bool Caching;
+  bool NormalizeVector;
   int LastDataSetIndex;
 
   vtkDataSet* LastDataSet;
