@@ -34,8 +34,8 @@ class vtkMultiProcessController;
 
 class vtkPixelBufferObject;
 class vtkTextureObject;
-class vtkShaderProgram2;
 class vtkOpenGLRenderWindow;
+class vtkPKdTree;
 
 class VTK_PARALLEL_EXPORT vtkCompositeRGBAPass : public vtkRenderPass
 {
@@ -62,6 +62,11 @@ public:
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController *controller);
   
+  // Description:
+  // kd tree that gives processes ordering. Initial value is a NULL pointer.
+  vtkGetObjectMacro(Kdtree,vtkPKdTree);
+  virtual void SetKdtree(vtkPKdTree *kdtree);
+  
  protected:
   // Description:
   // Default constructor. Controller is set to NULL.
@@ -71,18 +76,12 @@ public:
   // Destructor.
   virtual ~vtkCompositeRGBAPass();
   
-  // Description:
-  // Create program for texture mapping.
-  // \pre context_exists: context!=0
-  // \pre Program_void: this->Program==0
-  // \post Program_exists: this->Program!=0
-  void CreateProgram(vtkOpenGLRenderWindow *context);
-  
   vtkMultiProcessController *Controller;
+  vtkPKdTree *Kdtree;
   
   vtkPixelBufferObject *PBO;
   vtkTextureObject *RGBATexture;
-  vtkShaderProgram2 *Program;
+  vtkTextureObject *RootTexture;
   float *RawRGBABuffer;
   size_t RawRGBABufferSize;
   

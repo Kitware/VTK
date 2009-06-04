@@ -183,6 +183,24 @@ public:
   bool AllocateDepth(unsigned int width,unsigned int height,
                      int internalFormat);
   
+  // Description:
+  // Create a 1D color texture but does not initialize its values.
+  // Internal format is deduced from numComps and vtkType.
+  bool Allocate1D(unsigned int width, int numComps,int vtkType);
+  
+  // Description:
+  // Create a 2D color texture but does not initialize its values.
+  // Internal format is deduced from numComps and vtkType.
+  bool Allocate2D(unsigned int width,unsigned int height, int numComps,
+                  int vtkType);
+  
+  // Description:
+  // Create a 3D color texture but does not initialize its values.
+  // Internal format is deduced from numComps and vtkType.
+  bool Allocate3D(unsigned int width,unsigned int height,
+                  unsigned int depth, int numComps,
+                  int vtkType);
+  
   
   // Description:
   // Create a 3D texture using the PBO.
@@ -408,6 +426,24 @@ public:
                          int height);
   
   
+  // Description:
+  // Copy a sub-part of a logical buffer of the framebuffer (color or depth)
+  // to the texture object. src is the framebuffer, dst is the texture.
+  // (srcXmin,srcYmin) is the location of the lower left corner of the
+  // rectangle in the framebuffer. (dstXmin,dstYmin) is the location of the
+  // lower left corner of the rectangle in the texture. width and height
+  // specifies the size of the rectangle in pixels.
+  // If the logical buffer is a color buffer, it has to be selected first with
+  // glReadBuffer().
+  // \pre is2D: GetNumberOfDimensions()==2
+  void CopyFromFrameBuffer(int srcXmin,
+                           int srcYmin,
+                           int dstXmin,
+                           int dstYmin,
+                           int width,
+                           int height);
+  
+  
 //BTX
 protected:
   vtkTextureObject();
@@ -424,7 +460,7 @@ protected:
   // Description:
   // Destory the texture.
   void DestroyTexture();
-
+  
   int NumberOfDimensions;
   unsigned int Width;
   unsigned int Height;

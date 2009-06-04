@@ -82,6 +82,7 @@ IF(VTK_USE_RENDERING)
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkCompositeRenderManager.cxx
+    vtkImageRenderManager.cxx
     vtkMemoryLimitImageDataStreamer.cxx
     vtkPipelineSize.cxx
     vtkParallelRenderManager.cxx

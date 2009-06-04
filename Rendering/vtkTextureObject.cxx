@@ -132,7 +132,7 @@ const char *DepthInternalFormatFilterAsString[6]=
 };
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.10");
+vtkCxxRevisionMacro(vtkTextureObject, "1.11");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -183,16 +183,17 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
     
     bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+    bool gl13=mgr->ExtensionSupported("GL_VERSION_1_3")==1;
     bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
     
     bool npot=gl20 ||
       mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
     
     bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
-    
+    bool multi=gl13 || mgr->ExtensionSupported("GL_ARB_multitexture");
     bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float")==1;
     
-    return npot && tex3D && floatTextures;
+    return npot && tex3D && multi && floatTextures;
     }
   return false;
 }
@@ -205,16 +206,17 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr)
     mgr->LoadSupportedExtension("GL_EXT_texture_integer") != 0;
   
   bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
+  bool gl13=mgr->ExtensionSupported("GL_VERSION_1_3")==1;
   bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
   
   bool npot=gl20 ||
     mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   
   bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
-  
+  bool multi=gl13 || mgr->ExtensionSupported("GL_ARB_multitexture");
   bool floatTextures=mgr->ExtensionSupported("GL_ARB_texture_float")==1;
   
-  bool supported=npot && tex3D && floatTextures;
+  bool supported=npot && tex3D && multi && floatTextures;
   
   if(supported)
     {
@@ -226,6 +228,15 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr)
     else
       {
       mgr->LoadCorePromotedExtension("GL_EXT_texture3D");
+      }
+    // multi
+    if(gl13)
+      {
+      mgr->LoadSupportedExtension("GL_VERSION_1_3");
+      }
+    else
+      {
+      mgr->LoadCorePromotedExtension("GL_ARB_multitexture");
       }
     // npot does not provide new functions, nothing to do.
     // texture_float does not provide new functions, nothing to do.
@@ -1070,6 +1081,121 @@ bool vtkTextureObject::AllocateDepth(unsigned int width,unsigned int height,
   return true;
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 1D color texture but does not initialize its values.
+// Internal format is deduced from numComps and vtkType.
+bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
+                                  int vtkType)
+{
+  this->Target=GL_TEXTURE_1D;
+  
+  if(this->Context==0)
+    {
+    vtkErrorMacro("No context specified. Cannot create texture.");
+    return false;
+    }
+  GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
+                                                  false);
+  
+  // don't care, allocation only, no data transfer
+  GLenum format = this->GetFormat(vtkType, numComps,false);
+  
+  GLenum type = ::vtkGetType(vtkType);
+  
+  this->Format = format;
+  this->Type = type;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = 1;
+  this->Depth =1;
+  this->NumberOfDimensions=1;
+  
+  this->CreateTexture();
+  this->Bind();
+  glTexImage1D(this->Target, 0, static_cast<GLint>(internalFormat),
+               static_cast<GLsizei>(width),0, format, type,0);
+  this->UnBind();
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 2D color texture but does not initialize its values.
+// Internal format is deduced from numComps and vtkType.
+bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
+                                  int numComps,int vtkType)
+{
+  this->Target=GL_TEXTURE_2D;
+  
+  
+  if(this->Context==0)
+    {
+    vtkErrorMacro("No context specified. Cannot create texture.");
+    return false;
+    }
+  GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
+                                                  false);
+  
+  // don't care, allocation only, no data transfer
+  GLenum format = this->GetFormat(vtkType, numComps,false);
+  
+  GLenum type = ::vtkGetType(vtkType);
+ 
+  this->Format = format;
+  this->Type = type;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = height;
+  this->Depth =1;
+  this->NumberOfDimensions=2;
+  
+  this->CreateTexture();
+  this->Bind();
+  glTexImage2D(this->Target, 0, static_cast<GLint>(internalFormat),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height),
+               0, format, type,0);
+  this->UnBind();
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 3D color texture but does not initialize its values.
+// Internal format is deduced from numComps and vtkType.
+bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
+                                  unsigned int depth, int numComps,
+                                  int vtkType)
+{
+  this->Target=vtkgl::TEXTURE_3D;
+  
+  if(this->Context==0)
+    {
+    vtkErrorMacro("No context specified. Cannot create texture.");
+    return false;
+    }
+  GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
+                                                  false);
+  
+  // don't care, allocation only, no data transfer
+  GLenum format = this->GetFormat(vtkType, numComps,false);
+  
+  GLenum type = ::vtkGetType(vtkType);
+ 
+  this->Format = format;
+  this->Type = type;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = height;
+  this->Depth =depth;
+  this->NumberOfDimensions=3;
+  
+  this->CreateTexture();
+  this->Bind();
+  vtkgl::TexImage3D(this->Target, 0, static_cast<GLint>(internalFormat),
+                    static_cast<GLsizei>(width), static_cast<GLsizei>(height),
+                    static_cast<GLsizei>(depth), 0, format, type,0);
+  this->UnBind();
+}
+
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create3D(unsigned int width, unsigned int height, 
                                 unsigned int depth, int numComps,
@@ -1396,6 +1522,31 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Copy a sub-part of a logical buffer of the framebuffer (color or depth)
+// to the texture object. src is the framebuffer, dst is the texture.
+// (srcXmin,srcYmin) is the location of the lower left corner of the
+// rectangle in the framebuffer. (dstXmin,dstYmin) is the location of the
+// lower left corner of the rectangle in the texture. width and height
+// specifies the size of the rectangle in pixels.
+// If the logical buffer is a color buffer, it has to be selected first with
+// glReadBuffer().
+// \pre is2D: GetNumberOfDimensions()==2
+void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
+                                           int srcYmin,
+                                           int dstXmin,
+                                           int dstYmin,
+                                           int width,
+                                           int height)
+{
+  assert("pre: is2D" && this->GetNumberOfDimensions()==2);
+  this->Bind();
+  glCopyTexSubImage2D(this->Target,0,dstXmin,dstYmin,srcXmin,srcYmin,width,
+                      height);
+  this->UnBind();
 }
 
 //----------------------------------------------------------------------------

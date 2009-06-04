@@ -44,6 +44,9 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkOpenGLState.h"
+#include "vtkPKdTree.h"
+#include "vtkCamera.h"
+#include "vtkIntArray.h"
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
 //#include <unistd.h>
@@ -51,10 +54,10 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.3");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.4");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
-
+vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
 extern const char *vtkCompositeRGBAPassShader_fs;
 
 
@@ -62,8 +65,10 @@ extern const char *vtkCompositeRGBAPassShader_fs;
 vtkCompositeRGBAPass::vtkCompositeRGBAPass()
 {
   this->Controller=0;
+  this->Kdtree=0;
   this->PBO=0;
   this->RGBATexture=0;
+  this->RootTexture=0;
   this->RawRGBABuffer=0;
   this->RawRGBABufferSize=0;
 }
@@ -75,6 +80,10 @@ vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
     {
       this->Controller->Delete();
     }
+  if(this->Kdtree!=0)
+    {
+      this->Kdtree->Delete();
+    }
   if(this->PBO!=0)
     {
     vtkErrorMacro(<<"PixelBufferObject should have been deleted in ReleaseGraphicsResources().");
@@ -83,10 +92,10 @@ vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
     {
     vtkErrorMacro(<<"RGBATexture should have been deleted in ReleaseGraphicsResources().");
     }
-   if(this->Program!=0)
+   if(this->RootTexture!=0)
      {
-     this->Program->Delete();
-     }
+     vtkErrorMacro(<<"RootTexture should have been deleted in ReleaseGraphicsResources().");
+    }
    if(this->RawRGBABuffer!=0)
      {
      delete[] this->RawRGBABuffer;
@@ -102,6 +111,15 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
   if(this->Controller!=0)
     {
     this->Controller->PrintSelf(os,indent);
+    }
+  else
+    {
+    os << "(none)" <<endl;
+    }
+  os << indent << "Kdtree:";
+  if(this->Kdtree!=0)
+    {
+    this->Kdtree->PrintSelf(os,indent);
     }
   else
     {
@@ -130,6 +148,12 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     return; // nothing to do.
     }
   
+  if(this->Kdtree==0)
+    {
+    vtkErrorMacro(<<" no Kdtree.");
+    return;
+    }
+  
   int me=this->Controller->GetLocalProcessId();
   
   const int VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER=201;
@@ -156,22 +180,10 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
       }
     }
   
-  if(supported)
-    {
-    supported=
-      vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
-                                       context));
-    if(!supported)
-      {
-      vtkErrorMacro("GLSL is not supported by the context. Cannot perform rgbaa-compositing.");
-      return;
-      }
-    }
-  
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
   vtkOpenGLState *state=new vtkOpenGLState(context);
 #endif
-  
+
   int w=0;
   int h=0;
   
@@ -206,13 +218,14 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
      this->RawRGBABufferSize<static_cast<size_t>(w*h*4))
     {
     delete[] this->RawRGBABuffer;
+    this->RawRGBABuffer=0;
     }
   if(this->RawRGBABuffer==0)
     {
     this->RawRGBABufferSize=static_cast<size_t>(w*h*4);
     this->RawRGBABuffer=new float[this->RawRGBABufferSize];
     }
-  
+
   if(this->PBO==0)
     {
     this->PBO=vtkPixelBufferObject::New();
@@ -239,61 +252,39 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   timer->StartTimer();
 #endif
   
-  
   if(me==0)
     {
     // root
-    // 1. for each satellite
-    // 1.a   receive zbuffer
-    // 1.b   composite z against zbuffer in framebuffer
-    // 2. send final zbuffer of the framebuffer to all satellites
+    // 1. figure out the back to front ordering
+    // 2. if root is not farest, save it in a TO
+    // 3. in back to front order:
+    // 3a. if this is step for root, render root TO (if not farest)
+    // 3b. if satellite, get image, load it into TO, render quad
     
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-    
-    // get z-buffer of root before any blending with satellite
+    // get rgba-buffer of root before any blending with satellite
     // for debugging only.
     
     // Framebuffer to PBO
     this->PBO->Allocate(byteSize);
+    cout << "after pbo allocate." << endl;
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-    glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
+    cout << "after pbo bind." << endl;
+    glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));
-    
-    state->Update();
-    vtkIndent indent;
-    vtksys_ios::ostringstream ost00;
-    ost00.setf(ios::fixed,ios::floatfield);
-    ost00.precision(5);
-    ost00 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root00.txt";
-    ofstream outfile00(ost00.str().c_str());
-    state->PrintSelf(outfile00,indent);
-    outfile00.close();
-    
-    this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,1,continuousInc);
-    
-    state->Update();
-    vtksys_ios::ostringstream ost01;
-    ost01.setf(ios::fixed,ios::floatfield);
-    ost01.precision(5);
-    ost01 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root01.txt";
-    ofstream outfile01(ost01.str().c_str());
-    state->PrintSelf(outfile01,indent);
-    outfile01.close();
-    
+    cout << "after readpixel." << endl;
+    this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
+    cout << "after pbodownload." << endl;
     importer=vtkImageImport::New();
-    importer->CopyImportVoidPointer(this->RawZBuffer,
+    importer->CopyImportVoidPointer(this->RawRGBABuffer,
                                     static_cast<int>(byteSize));
     importer->SetDataScalarTypeToFloat();
-    importer->SetNumberOfScalarComponents(1);
+    importer->SetNumberOfScalarComponents(4);
     importer->SetWholeExtent(0,w-1,0,h-1,0,0);
     importer->SetDataExtentToWholeExtent();
     
     importer->Update();
-    double range[2];
-    importer->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
-    
-    cout << "root0 scalar range=" << range[0] << "," << range[1] << endl;
-    
+    cout << "after importer update" << endl;
     converter=vtkImageShiftScale::New();
     converter->SetInputConnection(importer->GetOutputPort());
     converter->SetOutputScalarTypeToUnsignedChar();
@@ -317,6 +308,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     writer->SetFileName(*sssxx);
     delete sssxx;
     writer->SetInputConnection(converter->GetOutputPort());
+    converter->Delete();
     importer->Delete();
 //    rgbaToRgb->Delete();
     cout << "Writing " << writer->GetFileName() << endl;
@@ -324,186 +316,173 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     cout << "Wrote " << writer->GetFileName() << endl;
 //    sleep(30);
     writer->Delete();
-    
 #endif // #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
     
-    
-    
-    
-    
-    
-    int proc=1;
-    while(proc<numProcs)
+    // 1. figure out the back to front ordering
+    vtkCamera *c=r->GetActiveCamera();
+    vtkIntArray *frontToBackList=vtkIntArray::New();
+    if(c->GetParallelProjection())
       {
-      // receive the zbuffer from satellite process.
-      this->Controller->Receive(this->RawRGBABuffer,
-                                static_cast<vtkIdType>(this->RawRGBABufferSize),
-                                proc,VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
-      
-      
+      this->Kdtree->ViewOrderAllProcessesInDirection(
+        c->GetDirectionOfProjection(),frontToBackList);
+      }
+    else
+      {
+      this->Kdtree->ViewOrderAllProcessesFromPosition(
+        c->GetPosition(),frontToBackList);
+      }
+    
+    assert("check same_size" &&
+           frontToBackList->GetNumberOfTuples()==numProcs);
+    
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      importer=vtkImageImport::New();
-      importer->CopyImportVoidPointer(this->RawZBuffer,
-                                      static_cast<int>(byteSize));
-      importer->SetDataScalarTypeToFloat();
-      importer->SetNumberOfScalarComponents(1);
-      importer->SetWholeExtent(0,w-1,0,h-1,0,0);
-      importer->SetDataExtentToWholeExtent();
-      
-      converter=vtkImageShiftScale::New();
-      converter->SetInputConnection(importer->GetOutputPort());
-      converter->SetOutputScalarTypeToUnsignedChar();
-      converter->SetShift(0.0);
-      converter->SetScale(255.0);
-      
+    int i=0;
+    while(i<numProcs)
+      {
+      cout << "frontToBackList[" << i << "]=" << frontToBackList->GetValue(i)
+           <<endl;
+      ++i;
+      }
+#endif
+    
+    glPushAttrib(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_LIGHTING);
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    
+    // per-fragment operations
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_INDEX_LOGIC_OP);
+    glDisable(GL_COLOR_LOGIC_OP);
+    
+    // framebuffers have their color premultiplied by alpha.
+    vtkgl::BlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    
+    // fixed vertex shader
+    glDisable(GL_LIGHTING);
+    
+    // fixed fragment shader
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_FOG);
+    
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
+    
+    // 2. if root is not farest, save it in a TO
+    bool rootIsFarest=frontToBackList->GetValue(numProcs-1)==0;
+    if(!rootIsFarest)
+      {
+      if(this->RootTexture==0)
+        {
+        this->RootTexture=vtkTextureObject::New();
+        this->RootTexture->SetContext(context);
+        }
+      this->RootTexture->Allocate2D(w,h,4,VTK_UNSIGNED_CHAR);
+      this->RootTexture->CopyFromFrameBuffer(0,0,0,0,w,h);
+      }
+    
+    // 3. in back to front order:
+    // 3a. if this is step for root, render root TO (if not farest)
+    // 3b. if satellite, get image, load it into TO, render quad
+    
+    int procIndex=numProcs-1;
+    bool blendingEnabled=false;
+    if(rootIsFarest)
+      {
+      // nothing to do.
+      --procIndex;
+      }
+    while(procIndex>=0)
+      {
+      vtkTextureObject *to;
+      int proc=frontToBackList->GetValue(procIndex);
+      if(proc==0)
+        {
+          to=this->RootTexture;
+        }
+      else
+        {
+        // receive the rgba from satellite process.
+        this->Controller->Receive(this->RawRGBABuffer,
+                                  static_cast<vtkIdType>(this->RawRGBABufferSize),
+                                  proc,VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
+        
+        // send it to a PBO
+        this->PBO->Upload2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
+        // Send PBO to TO
+        this->RGBATexture->Create2D(dims[0],dims[1],4,this->PBO,false);
+        to=this->RGBATexture;
+        }
+      if(!blendingEnabled && procIndex<(numProcs-1))
+        {
+        glEnable(GL_BLEND);
+        blendingEnabled=true;
+        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      // fixed-pipeline for vertex and fragment shaders.
+      to->Bind();
+      to->CopyToFrameBuffer(0,0,w-1,h-1,0,0,w,h);
+      to->UnBind();
+      --procIndex;
+      }
+    glPopAttrib();
+    frontToBackList->Delete();
+#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
+    // get rgba-buffer of root before any blending with satellite
+    // for debugging only.
+    
+    // Framebuffer to PBO
+    this->PBO->Allocate(byteSize);
+    this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
+    glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
+                 static_cast<GLfloat *>(NULL));
+    
+    this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
+    
+    importer=vtkImageImport::New();
+    importer->CopyImportVoidPointer(this->RawRGBABuffer,
+                                    static_cast<int>(byteSize));
+    importer->SetDataScalarTypeToFloat();
+    importer->SetNumberOfScalarComponents(4);
+    importer->SetWholeExtent(0,w-1,0,h-1,0,0);
+    importer->SetDataExtentToWholeExtent();
+    
+    importer->Update();
+    
+    converter=vtkImageShiftScale::New();
+    converter->SetInputConnection(importer->GetOutputPort());
+    converter->SetOutputScalarTypeToUnsignedChar();
+    converter->SetShift(0.0);
+    converter->SetScale(255.0);
+    
 //      vtkImageExtractComponents *rgbaToRgb=vtkImageExtractComponents::New();
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
-      
-      writer=vtkPNGWriter::New();
-      vtksys_ios::ostringstream ost;
-      timer->StopTimer();
-      ost.setf(ios::fixed,ios::floatfield);
-      ost.precision(5);    
-      ost << "root1_proc_" << proc << "_"<< vtkTimerLog::GetUniversalTime() << "_.png";
-      
-      vtkStdString *sss=new vtkStdString;
-      (*sss)=ost.str();
-      
-      writer->SetFileName(*sss);
-      delete sss;
-      writer->SetInputConnection(converter->GetOutputPort());
-      importer->Delete();
+    
+    vtksys_ios::ostringstream osty;
+    osty.setf(ios::fixed,ios::floatfield);
+    osty.precision(5);
+    timer->StopTimer();
+    osty << "rootend_" << vtkTimerLog::GetUniversalTime() << "_.png";
+    
+    vtkStdString *sssy=new vtkStdString;
+    (*sssy)=osty.str();
+    
+    writer=vtkPNGWriter::New();
+    writer->SetFileName(*sssy);
+    delete sssy;
+    writer->SetInputConnection(converter->GetOutputPort());
+    converter->Delete();
+    importer->Delete();
 //    rgbaToRgb->Delete();
-      cout << "Writing " << writer->GetFileName() << endl;
-      writer->Write();
-      cout << "Wrote " << writer->GetFileName() << endl;
+    cout << "Writing " << writer->GetFileName() << endl;
+    writer->Write();
+    cout << "Wrote " << writer->GetFileName() << endl;
 //    sleep(30);
-      writer->Delete();
+    writer->Delete();
 #endif
-      
-      // send it to a PBO
-      glPixelStorei(GL_UNPACK_ALIGNMENT,1); // client to server
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      state->Update();
-      vtksys_ios::ostringstream ost02;
-      ost02.setf(ios::fixed,ios::floatfield);
-      ost02.precision(5);
-      ost02 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root02_proc_" << proc <<"_"<<".txt";
-      ofstream outfile02(ost02.str().c_str());
-      state->PrintSelf(outfile02,indent);
-      outfile02.close();
-#endif
-      
-      this->PBO->Upload2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      state->Update();
-      vtksys_ios::ostringstream ost03;
-      ost03.setf(ios::fixed,ios::floatfield);
-      ost03.precision(5);
-      ost03 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root03_proc_" << proc << "_"<<".txt";
-      ofstream outfile03(ost03.str().c_str());
-      state->PrintSelf(outfile03,indent);
-      outfile03.close();
-      
-      
-      GLint value;
-      glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING,&value);
-      cout << pthread_self() << "compz pixel unpack buffer=" << value << endl;
-      glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING,&value);
-      cout << pthread_self() << "compz pixel unpack buffer=" << value << endl;
-#endif
-      
-      // Send PBO to TO
-      this->RGBATexture->Create2D(dims[0],dims[1],4,this->PBO,false);
-      
-      // Apply TO on quad with special rgbacomposite fragment shader.
-      glPushAttrib(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-      glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-      glEnable(GL_BLEND);
-      glDisable(GL_DEPTH_TEST);
-      
-      if(this->Program==0)
-        {
-        this->CreateProgram(context);
-        }
-      
-      vtkTextureUnitManager *tu=context->GetTextureUnitManager();
-      int sourceId=tu->Allocate();
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      cout << "sourceId=" << sourceId << endl;
-#endif
-      
-      this->Program->GetUniformVariables()->SetUniformi("rgba",1,&sourceId);
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0+static_cast<GLenum>(sourceId));
-      this->Program->Use();
-      if(!this->Program->IsValid())
-        {
-        vtkErrorMacro("prog not valid in current OpenGL state");
-        }
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      state->Update();
-      vtksys_ios::ostringstream ost04;
-      ost04.setf(ios::fixed,ios::floatfield);
-      ost04.precision(5);
-      ost04 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_before_copyframe.txt";
-      ofstream outfile04(ost04.str().c_str());
-      state->PrintSelf(outfile04,indent);
-      outfile04.close();
-#endif
-      
-      this->RGBATexture->Bind();
-      this->RGBATexture->CopyToFrameBuffer(0,0,
-                                           w-1,h-1,
-                                           0,0,w,h);
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      state->Update();
-      vtksys_ios::ostringstream ost05;
-      ost05.setf(ios::fixed,ios::floatfield);
-      ost05.precision(5);
-      ost05 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_after_copyframe.txt";
-      ofstream outfile05(ost05.str().c_str());
-      state->PrintSelf(outfile05,indent);
-      outfile05.close();
-#endif
-      
-      this->RGBATexture->UnBind();
-      this->Program->Restore();
-       
-      tu->Free(sourceId);
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      state->Update();
-      vtksys_ios::ostringstream ost06;
-      ost06.setf(ios::fixed,ios::floatfield);
-      ost06.precision(5);
-      ost06 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_before_popattrib.txt";
-      ofstream outfile06(ost06.str().c_str());
-      state->PrintSelf(outfile06,indent);
-      outfile06.close();
-#endif
-      
-      glPopAttrib();
-      
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-      state->Update();
-      vtksys_ios::ostringstream ost07;
-      ost07.setf(ios::fixed,ios::floatfield);
-      ost07.precision(5);
-      ost07 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_after_popattrib.txt";
-      ofstream outfile07(ost07.str().c_str());
-      state->PrintSelf(outfile07,indent);
-      outfile07.close();
-#endif
-      
-      ++proc;
-      }
     
     // root node Done.
     }
@@ -519,22 +498,20 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
                  static_cast<GLfloat *>(NULL));
     
     // PBO to client
+    glPixelStorei(GL_PACK_ALIGNMENT,1);// server to client
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
+    this->PBO->UnBind();
     
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
     importer=vtkImageImport::New();
-    importer->CopyImportVoidPointer(this->RawZBuffer,
+    importer->CopyImportVoidPointer(this->RawRGBABuffer,
                                     static_cast<int>(byteSize));
     importer->SetDataScalarTypeToFloat();
-    importer->SetNumberOfScalarComponents(1);
+    importer->SetNumberOfScalarComponents(4);
     importer->SetWholeExtent(0,w-1,0,h-1,0,0);
     importer->SetDataExtentToWholeExtent();
     
     importer->Update();
-    double range[2];
-    importer->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
-    
-    cout << " scalar range=" << range[0] << "," << range[1] << endl;
     
     converter=vtkImageShiftScale::New();
     converter->SetInputConnection(importer->GetOutputPort());
@@ -546,19 +523,20 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
     
-    vtksys_ios::ostringstream ost;
-    ost.setf(ios::fixed,ios::floatfield);
-    ost.precision(5);
+    vtksys_ios::ostringstream ostxx;
+    ostxx.setf(ios::fixed,ios::floatfield);
+    ostxx.precision(5);
     timer->StopTimer();
-    ost << "satellite1_"<< vtkTimerLog::GetUniversalTime() << "_.png";
+    ostxx << "satellite_send_" << vtkTimerLog::GetUniversalTime() << "_.png";
     
-    vtkStdString *sss=new vtkStdString;
-    (*sss)=ost.str();
+    vtkStdString *sssxx=new vtkStdString;
+    (*sssxx)=ostxx.str();
     
     writer=vtkPNGWriter::New();
-    writer->SetFileName(*sss);
-    delete sss;
+    writer->SetFileName(*sssxx);
+    delete sssxx;
     writer->SetInputConnection(converter->GetOutputPort());
+    converter->Delete();
     importer->Delete();
 //    rgbaToRgb->Delete();
     cout << "Writing " << writer->GetFileName() << endl;
@@ -567,7 +545,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    sleep(30);
     writer->Delete();
 #endif
-    
     
     // client to root process
     this->Controller->Send(this->RawRGBABuffer,
@@ -578,31 +555,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   delete state;
   timer->Delete();
 #endif
-}
-
-// ----------------------------------------------------------------------------
-void vtkCompositeRGBAPass::CreateProgram(vtkOpenGLRenderWindow *context)
-{
-  assert("pre: context_exists" && context!=0);
-  assert("pre: Program_void" && this->Program==0);
-  
-  this->Program=vtkShaderProgram2::New();
-  this->Program->SetContext(context);
-  
-  vtkShader2 *shader=vtkShader2::New();
-  shader->SetContext(context);
-  
-  this->Program->GetShaders()->AddItem(shader);
-  shader->Delete();
-  shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
-  shader->SetSourceCode(vtkCompositeRGBAPassShader_fs);
-  this->Program->Build();
-  if(this->Program->GetLastBuildStatus()!=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-    {
-    vtkErrorMacro("prog build failed");
-    }
-  
-  assert("post: Program_exists" && this->Program!=0);
 }
 
 // ----------------------------------------------------------------------------
@@ -626,8 +578,9 @@ void vtkCompositeRGBAPass::ReleaseGraphicsResources(vtkWindow *w)
     this->RGBATexture->Delete();
     this->RGBATexture=0;
     }
-  if(this->Program!=0)
+  if(this->RootTexture!=0)
     {
-    this->Program->ReleaseGraphicsResources();
+    this->RootTexture->Delete();
+    this->RootTexture=0;
     }
 }

@@ -72,6 +72,9 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(DistributedData DistributedData.cxx)
     TARGET_LINK_LIBRARIES(DistributedData vtkParallel)
 
+    ADD_EXECUTABLE(DistributedDataRenderPass DistributedDataRenderPass.cxx)
+    TARGET_LINK_LIBRARIES(DistributedDataRenderPass vtkParallel)
+
     ADD_EXECUTABLE(TransmitImageData TransmitImageData.cxx)
     TARGET_LINK_LIBRARIES(TransmitImageData vtkParallel)
 
@@ -80,9 +83,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     ADD_EXECUTABLE(TransmitImageDataRenderPass TransmitImageDataRenderPass.cxx)
     TARGET_LINK_LIBRARIES(TransmitImageDataRenderPass vtkParallel)
-
-    ADD_EXECUTABLE(TransmitImageDataRenderPassOpacity TransmitImageDataRenderPassOpacity.cxx)
-    TARGET_LINK_LIBRARIES(TransmitImageDataRenderPassOpacity vtkParallel)
 
     ADD_EXECUTABLE(TestPShadowMapPass TestPShadowMapPass.cxx)
     TARGET_LINK_LIBRARIES(TestPShadowMapPass vtkParallel)
@@ -269,7 +269,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/DistributedData.cxx.png
             ${VTK_MPI_POSTFLAGS})
-
+          ADD_TEST(DistributedDataRenderPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/DistributedDataRenderPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/DistributedDataRenderPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitImageData-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitImageData
@@ -283,13 +289,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitImageDataRenderPass.cxx.png
-            ${VTK_MPI_POSTFLAGS})
-          ADD_TEST(TransmitImageDataRenderPassOpacity-image
-            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TransmitImageDataRenderPassOpacity
-            -D ${VTK_DATA_ROOT}
-            -T ${VTK_BINARY_DIR}/Testing/Temporary
-            -V Baseline/Parallel/TransmitImageDataRenderPassOpacity.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TestPShadowMapPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
