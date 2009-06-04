@@ -57,6 +57,7 @@ vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
+vtkKMeansStatistics.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
 vtkMultiCorrelativeStatistics.cxx
