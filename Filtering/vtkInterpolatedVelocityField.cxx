@@ -24,7 +24,7 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.6");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.7");
 vtkStandardNewMacro(vtkInterpolatedVelocityField); 
 //---------------------------------------------------------------------------
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -364,6 +364,16 @@ void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cache miss: " << this->CacheMiss << endl;
   os << indent << "Caching: ";
   if ( this->Caching )
+    {
+    os << "on." << endl;
+    }
+  else
+    {
+    os << "off." << endl;
+    }
+    
+  os << indent << "NormalizeVector: ";
+  if ( this->NormalizeVector )
     {
     os << "on." << endl;
     }
