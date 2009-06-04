@@ -24,9 +24,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkMergeColumns, "1.3");
+vtkCxxRevisionMacro(vtkMergeColumns, "1.4");
 vtkStandardNewMacro(vtkMergeColumns);
 
 vtkMergeColumns::vtkMergeColumns()
@@ -104,6 +105,24 @@ int vtkMergeColumns::RequestData(
             col2Str->GetValue(i).length() > 0)
           {
           combined += " ";
+          }
+        combined += col2Str->GetValue(i);
+        mergedStr->SetValue(i, combined);
+        }
+      break;
+      }
+    case VTK_UNICODE_STRING:
+      {
+      vtkUnicodeStringArray* col1Str = vtkUnicodeStringArray::SafeDownCast(col1);
+      vtkUnicodeStringArray* col2Str = vtkUnicodeStringArray::SafeDownCast(col2);
+      vtkUnicodeStringArray* mergedStr = vtkUnicodeStringArray::SafeDownCast(merged);
+      for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
+        {
+        vtkUnicodeString combined = col1Str->GetValue(i);
+        if (!col1Str->GetValue(i).empty() && 
+            !col2Str->GetValue(i).empty())
+          {
+          combined += vtkUnicodeString::from_utf8(" ");
           }
         combined += col2Str->GetValue(i);
         mergedStr->SetValue(i, combined);
