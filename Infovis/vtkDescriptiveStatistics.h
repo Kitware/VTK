@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkDescriptiveStatistics object.
-// * Assess: given an input data set in port 0, and a reference value x along
+// * Assess: given an input data set in port INPUT_DATA, and a reference value x along
 //   with an acceptable deviation d>0, assess all entries in the data set which
 //   are outside of [x-d,x+d].
 //
@@ -79,6 +79,7 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* inParameters,
                              vtkDataObject* outMeta );
 
   // Description:

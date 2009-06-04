@@ -124,9 +124,9 @@ int TestCorrelativeStatistics( int, char *[] )
   double threshold = 4.;
 
   vtkCorrelativeStatistics* haruspex = vtkCorrelativeStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( 0 );
-  vtkTable* outputMeta = haruspex->GetOutput( 1 );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkTable* outputMeta = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
   datasetTable->Delete();
 
@@ -221,7 +221,7 @@ int TestCorrelativeStatistics( int, char *[] )
   paramsTable->SetValueByName( 0, "Variance Y", covariance[1] );
   paramsTable->SetValueByName( 0, "Covariance", covariance[2] );
   
-  haruspex->SetInput( 1, paramsTable );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
   haruspex->SetLearn( false );
   haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
   haruspex->SetAssess( true );

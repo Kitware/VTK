@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 // execution mode it is executed in:
 // * Learn: calculate 5-point statistics (minimum, 1st quartile, median, third
 //   quartile, maximum) and all other deciles (1,2,3,4,6,7,8,9).
-// * Assess: given an input data set in port 0, and two percentiles p1 < p2,
+// * Assess: given an input data set in port INPUT_DATA, and two percentiles p1 < p2,
 //   assess all entries in the data set which are outside of [p1,p2].
 //
 // .SECTION Thanks
@@ -89,6 +89,7 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* inParameters,
                              vtkDataObject* outMeta );
 
   // Description:

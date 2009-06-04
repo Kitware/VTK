@@ -172,7 +172,7 @@ protected:
 
   // Description:
   // This algorithm accepts a vtkTable containing normalization values for
-  // its third input (port 2).
+  // its fourth input (port 3).
   // We override FillInputPortInformation to indicate this.
   virtual int FillInputPortInformation( int port, vtkInformation* info );
 

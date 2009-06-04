@@ -135,9 +135,9 @@ int TestDescriptiveStatistics( int, char *[] )
   double stdevs[] = { sqrt( 7.54839 ), 0., sqrt( 5.98286 ) };
 
   vtkDescriptiveStatistics* haruspex = vtkDescriptiveStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( 0 );
-  vtkTable* outputMeta = haruspex->GetOutput( 1 );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkTable* outputMeta = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
   datasetTable->Delete();
 
@@ -263,7 +263,7 @@ int TestDescriptiveStatistics( int, char *[] )
   paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
   paramsTable->SetValueByName( 1, "Mean", 50. );
   
-  haruspex->SetInput( 1, paramsTable );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
   haruspex->SetLearn( false );
   haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
   haruspex->SetAssess( true );
@@ -352,8 +352,8 @@ int TestDescriptiveStatistics( int, char *[] )
   double g2 = -1.56163636363636;
 
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
-  ds->SetInput( 0, simpleTable );
-  vtkTable* outputSimpleMeta = ds->GetOutput( 1 );
+  ds->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
+  vtkTable* outputSimpleMeta = ds->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
   simpleTable->Delete();
 

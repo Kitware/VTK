@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkCorrelativeStatistics object.
 // * Assess: given two data vectors X and Y with the same number of entries as
-//   input in port 0, and reference means, variances, and covariance, along
+//   input in port INPUT_DATA, and reference means, variances, and covariance, along
 //   with an acceptable threshold t>1, assess all pairs of values of (X,Y) 
 //   whose relative PDF (assuming a bivariate Gaussian model) is below t.
 //  
@@ -61,6 +61,7 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* inParameters,
                              vtkDataObject* outMeta );
 
   // Description:

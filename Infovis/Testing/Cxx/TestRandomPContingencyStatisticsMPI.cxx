@@ -112,8 +112,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Instantiate a parallel contingency statistics engine and set its ports
   vtkPContingencyStatistics* pcs = vtkPContingencyStatistics::New();
-  pcs->SetInput( 0, inputData );
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( 1 ) );
+  pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcs->AddColumnPair( columnNames[0], columnNames[1] );

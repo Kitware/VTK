@@ -27,7 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   More precisely, ExecuteLearn calculates the averages and centered
 //   variance/covariance sums; if \p finalize is set to true (default),
 //   the final statistics are calculated.
-//   The output metadata on port 1 is a multiblock dataset containing at a minimum
+//   The output metadata on port OUTPUT_MODEL is a multiblock dataset containing at a minimum
 //   one vtkTable holding the raw sums in a sparse matrix style. If \a finalize is
 //   true, then one additional vtkTable will be present for each requested set of
 //   column correlations. These additional tables contain column averages, the
@@ -47,11 +47,11 @@ PURPOSE.  See the above copyright notice for more information.
 //      ColC    |avg(C)   |chol(2,1)|chol(2,2)|cov(C,C)
 //      Cholesky|length(A)|chol(3,1)|chol(3,2)|chol(3,3)
 //   </pre>
-// * Assess: given a set of results matrices as specified above in input port 1 and
-//   tabular data on input port 0 that contains column names matching those
-//   of the tables on input port 1, the assess mode computes the relative
-//   deviation of each observation in port 0's table according to the linear
-//   correlations implied by each table in port 1.
+// * Assess: given a set of results matrices as specified above in input port INPUT_MODEL and
+//   tabular data on input port INPUT_DATA that contains column names matching those
+//   of the tables on input port INPUT_MOEDL, the assess mode computes the relative
+//   deviation of each observation in port INPUT_DATA's table according to the linear
+//   correlations implied by each table in port INPUT_MODEL.
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay, Jackson Mayo, and David Thompson of
@@ -91,6 +91,7 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* inParameters,
                              vtkDataObject* outMeta );
   //BTX  
   // Description:

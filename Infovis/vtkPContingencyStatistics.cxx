@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.31");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.32");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -116,6 +116,7 @@ void UnpackValues( const vtkStdString& buffer,
 
 // ----------------------------------------------------------------------
 void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
+                                              vtkTable* inParameters,
                                               vtkDataObject* outMetaDO )
 {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
@@ -138,7 +139,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   timers->StartTimer();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   // First calculate contingency statistics on local data set
-  this->Superclass::ExecuteLearn( inData, outMeta );
+  this->Superclass::ExecuteLearn( inData, inParameters, outMeta );
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timers->StopTimer();
 

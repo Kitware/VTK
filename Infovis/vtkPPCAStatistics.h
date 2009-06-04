@@ -52,6 +52,7 @@ protected:
 
   // Execute the parallel calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* inParameters,
                              vtkDataObject* outMeta );
 private:
   vtkPPCAStatistics(const vtkPPCAStatistics&); // Not implemented.

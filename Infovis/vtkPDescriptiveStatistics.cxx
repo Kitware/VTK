@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPDescriptiveStatistics);
-vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.7");
+vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.8");
 vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
@@ -49,6 +49,7 @@ void vtkPDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 // ----------------------------------------------------------------------
 void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
+                                              vtkTable* inParameters,
                                               vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
@@ -58,7 +59,7 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     } 
 
   // First calculate descriptive statistics on local data set
-  this->Superclass::ExecuteLearn( inData, outMeta );
+  this->Superclass::ExecuteLearn( inData, inParameters, outMeta );
 
   vtkIdType nRow = outMeta->GetNumberOfRows();
   if ( ! nRow )

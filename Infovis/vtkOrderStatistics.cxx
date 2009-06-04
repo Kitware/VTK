@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.41");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.42");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -65,6 +65,7 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
+                                       vtkTable* inParameters,
                                        vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 

@@ -96,7 +96,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   dataset3Arr->Delete();
 
   vtkPCAStatistics* haruspex = vtkPCAStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   haruspex->SetNormalizationSchemeByName( normScheme );
   haruspex->SetBasisSchemeByName( "FixedBasisEnergy" );
   haruspex->SetFixedBasisEnergy( 1. - 1e-8 );
@@ -126,7 +126,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   haruspex->SetAssess( false );
 
   haruspex->Update();
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( 1 ) );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
@@ -147,7 +147,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
-  haruspex->SetInput( 1, paramsTables );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
   haruspex->SetLearn( false );
   haruspex->SetDerive( false ); // Do not recalculate nor rederive a model

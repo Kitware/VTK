@@ -95,8 +95,8 @@ int TestContingencyStatistics( int, char *[] )
   double* H = new double[nEntropies];
   
   vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( 0 );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   datasetTable->Delete();
 
@@ -111,7 +111,7 @@ int TestContingencyStatistics( int, char *[] )
   haruspex->SetAssess( true );
   haruspex->Update();
 
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( 1 ) );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 

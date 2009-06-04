@@ -42,7 +42,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.56");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.57");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -77,9 +77,8 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 // ----------------------------------------------------------------------
 int vtkContingencyStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
-  // Override the parent class for Meta port 1
   int res; 
-  if ( port == 1 )
+  if ( port == INPUT_MODEL )
     {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
@@ -97,9 +96,8 @@ int vtkContingencyStatistics::FillInputPortInformation( int port, vtkInformation
 // ----------------------------------------------------------------------
 int vtkContingencyStatistics::FillOutputPortInformation( int port, vtkInformation* info )
 {
-  // Override the parent class for Meta port 1
   int res = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == 1 )
+  if ( port == OUTPUT_MODEL )
     {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
     }
@@ -109,6 +107,7 @@ int vtkContingencyStatistics::FillOutputPortInformation( int port, vtkInformatio
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
+                                             vtkTable* inParameters,
                                              vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );

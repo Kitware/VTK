@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.11");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.12");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -136,9 +136,8 @@ void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vt
 // ----------------------------------------------------------------------
 int vtkMultiCorrelativeStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
-  // Override the parent class for port 1 (Learn)
   int stat; // = this->Superclass::FillInputPortInformation( port, info );
-  if ( port == 1 )
+  if ( port == INPUT_MODEL )
     {
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
@@ -154,9 +153,8 @@ int vtkMultiCorrelativeStatistics::FillInputPortInformation( int port, vtkInform
 // ----------------------------------------------------------------------
 int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInformation* info )
 {
-  // Override the parent class for port 1 (Learn)
   int stat = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == 1 )
+  if ( port == OUTPUT_MODEL )
     {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
     }
@@ -165,6 +163,7 @@ int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInfor
 
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData, 
+                                                  vtkTable *inParameters,
                                                   vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );

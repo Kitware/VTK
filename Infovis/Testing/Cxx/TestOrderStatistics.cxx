@@ -122,9 +122,9 @@ int TestOrderStatistics( int, char *[] )
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
 
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( 0 );
-  vtkTable* outputMeta = haruspex->GetOutput( 1 );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkTable* outputMeta = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
   datasetTable->Delete();
 
@@ -278,7 +278,7 @@ int TestOrderStatistics( int, char *[] )
   textTable->AddColumn( textArr );
   textArr->Delete();
 
-  haruspex->SetInput( 0, textTable );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
   haruspex->SetQuantileDefinition( 0 ); // Does not matter and should be ignored by the engine since the column contains strings
   haruspex->SetNumberOfIntervals( 4 );

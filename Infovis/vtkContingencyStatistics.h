@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 // * Learn: calculate contigency tables and corresponding discrete bivariate
 //   probability distribution. 
 // * Assess: given two columns of interest with the same number of entries as
-//   input in port 0, and a corresponding bivariate probability distribution,
+//   input in port INPUT_DATA, and a corresponding bivariate probability distribution,
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
@@ -73,7 +73,7 @@ protected:
 
   // Description:
   // This algorithm accepts and returns a multiblock dataset containing several tables for
-  // its meta input/output (port 1) instead of a single vtkTable.
+  // its meta input/output instead of a single vtkTable.
   // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
   virtual int FillInputPortInformation( int port, vtkInformation* info );
   virtual int FillOutputPortInformation( int port, vtkInformation* info );
@@ -81,6 +81,7 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* inParameters,
                              vtkDataObject* outMeta );
   // Description:
   // Execute the calculations required by the Derive option.

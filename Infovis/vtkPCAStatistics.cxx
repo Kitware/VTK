@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.6");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.7");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -203,7 +203,7 @@ void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 // ======================================================== vtkPCAStatistics
 vtkPCAStatistics::vtkPCAStatistics()
 {
-  this->SetNumberOfInputPorts( 3 ); // last port is for normalization coefficients.
+  this->SetNumberOfInputPorts( 4 ); // last port is for normalization coefficients.
   this->NormalizationScheme = NONE;
   this->BasisScheme = FULL_BASIS;
   this->FixedBasisSize = -1;
@@ -248,12 +248,12 @@ void vtkPCAStatistics::SetNormalizationSchemeByName( const char* schemeName )
 
 vtkTable* vtkPCAStatistics::GetSpecifiedNormalization()
 {
-  return vtkTable::SafeDownCast( this->GetInputDataObject( 2, 0 ) );
+  return vtkTable::SafeDownCast( this->GetInputDataObject( 3, 0 ) );
 }
 
 void vtkPCAStatistics::SetSpecifiedNormalization( vtkTable* normSpec )
 {
-  this->SetInput( 2, normSpec );
+  this->SetInput( 3, normSpec );
 }
 
 const char* vtkPCAStatistics::GetBasisSchemeName( int schemeIndex )
@@ -280,7 +280,7 @@ void vtkPCAStatistics::SetBasisSchemeByName( const char* schemeName )
 
 int vtkPCAStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
-  if ( port == 2 )
+  if ( port == 3 )
     {
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );

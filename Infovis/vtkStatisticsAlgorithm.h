@@ -29,8 +29,9 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: given an input data set, input statistics, and some form of 
 //   threshold, assess a subset of the data set. 
 // Therefore, a vtkStatisticsAlgorithm has the following vtkTable ports
-// * 2 input ports:
+// * 3 input ports:
 //   * Data (mandatory)
+//   * Parameters to the learn phase (optional)
 //   * Input model (optional) 
 // * 3 output port (called Output):
 //   * Data (annotated with assessments when the Assess option is ON).
@@ -58,14 +59,41 @@ public:
   vtkTypeRevisionMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  enum InputPorts
+    {
+    INPUT_DATA = 0,         //!< Port 0 is for learn data
+    LEARN_PARAMETERS = 1,   //!< Port 1 is for learn parameters (initial guesses, etc.)
+    INPUT_MODEL = 2         //!< Port 2 is for a priori models
+    };
+
+  enum OutputIndices
+    {
+    OUTPUT_DATA = 0,        //!< Output 0 mirrors the input data, plus optional assessment columns
+    OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
+    ASSESSMENT = 2          //!< Output 2 
+    };
+
   // Description:
-  // A convenience method for setting the statistics table input.
-  // NB: This is mainly for the benefit of the VTK client/server 
-  // layer, vanilla VTKcode should use, e.g:
-  //
-  // stats_algo2->SetInputConnection( 1, stats_algo1->output() );
-  //
-  virtual void SetInputStatisticsConnection( vtkAlgorithmOutput* );
+  // A convenience method for setting learn input parameters (if one is expected or allowed).
+  // It is equivalent to calling SetInputConnection( 1, params );
+  virtual void SetLearnParameterConnection( vtkAlgorithmOutput* params )
+    { this->SetInputConnection( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
+
+  // Description:
+  // A convenience method for setting learn input parameters (if one is expected or allowed).
+  // It is equivalent to calling SetInput( 1, params );
+  virtual void SetLearnParameters( vtkDataObject* params )
+    { this->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
+
+  // Description:
+  // A convenience method for setting the input model (if one is expected or allowed).
+  // It is equivalent to calling SetInputConnection( 2, model );
+  virtual void SetInputModelConnection( vtkAlgorithmOutput* model )
+    { this->SetInputConnection( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
+
+  // Description:
+  virtual void SetInputModel( vtkDataObject* model )
+    { this->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
 
   // Description:
   // Set the Learn option.
@@ -200,6 +228,7 @@ protected:
   // Description:
   // Execute the required calculations in the specified execution modes
   virtual void ExecuteLearn( vtkTable*,
+                             vtkTable*,
                              vtkDataObject* ) = 0;
   virtual void ExecuteDerive( vtkDataObject* ) = 0;
   virtual void ExecuteAssess( vtkTable*,
@@ -221,4 +250,3 @@ private:
 };
 
 #endif
-

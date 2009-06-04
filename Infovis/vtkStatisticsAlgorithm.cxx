@@ -29,12 +29,12 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.33");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.34");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 {
-  this->SetNumberOfInputPorts( 2 );
+  this->SetNumberOfInputPorts( 3 );
   this->SetNumberOfOutputPorts( 2 );
 
   // If not told otherwise, only run Learn option
@@ -102,12 +102,14 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
                                          vtkInformationVector* outputVector )
 {
   // Extract input data table
-  vtkTable* inData = vtkTable::GetData( inputVector[0], 0 );
+  vtkTable* inData = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
   if ( ! inData )
     {
     return 1;
     }
 
+  vtkTable* inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
+  //
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
   vtkDataObject* outMeta1 = vtkDataObject::GetData( outputVector, 1 );
@@ -126,7 +128,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   vtkDataObject* inMeta;
   if ( this->Learn )
     {
-    this->ExecuteLearn( inData, outMeta1 );
+    this->ExecuteLearn( inData, inParameters, outMeta1 );
 
     // The full model (if available) is no longer in sync
     this->FullWasDerived = false;
@@ -134,7 +136,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   else
     {
     // Extract input meta table
-    inMeta = vtkDataObject::GetData( inputVector[1], 0 );
+    inMeta = vtkDataObject::GetData( inputVector[INPUT_MODEL], 0 );
 
     if ( ! inMeta )
       {
@@ -167,18 +169,23 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 // ----------------------------------------------------------------------
 int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* info )
 {
-  if ( port == 0 )
+  if ( port == INPUT_DATA )
     {
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
     }
-  else if ( port == 1 )
+  else if ( port == LEARN_PARAMETERS )
     {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
     }
-
+  else if ( port == INPUT_MODEL )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
+    return 1;
+    }
   return 0;
 }
 
@@ -192,12 +199,6 @@ int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation*
     }
 
   return 0;
-}
-
-//---------------------------------------------------------------------------
-void vtkStatisticsAlgorithm::SetInputStatisticsConnection( vtkAlgorithmOutput* in )
-{ 
-  this->SetInputConnection( 1, in );
 }
 
 //---------------------------------------------------------------------------
