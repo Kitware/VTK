@@ -58,7 +58,10 @@ class VTK_INFOVIS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
 public:
   vtkTypeRevisionMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
+// BTX
+  // Description:
+  // enumeration values to specify input port types
   enum InputPorts
     {
     INPUT_DATA = 0,         //!< Port 0 is for learn data
@@ -66,12 +69,15 @@ public:
     INPUT_MODEL = 2         //!< Port 2 is for a priori models
     };
 
+  // Description:
+  // enumeration values to specify output port types
   enum OutputIndices
     {
     OUTPUT_DATA = 0,        //!< Output 0 mirrors the input data, plus optional assessment columns
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
     ASSESSMENT = 2          //!< Output 2 
     };
+// ETX
 
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).

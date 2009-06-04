@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.52");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.53");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* inParameters,
+                                             vtkTable* vtkNotUsed( inParameters ),
                                              vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
@@ -87,11 +87,6 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   if ( ! inData->GetNumberOfColumns() )
     {
     return;
-    }
-
-  if ( inParameters )
-    {
-    vtkWarningMacro("Input Learn parameters are currently ignored.");
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
