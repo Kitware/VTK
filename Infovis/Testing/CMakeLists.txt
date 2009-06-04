@@ -15,6 +15,8 @@ IF(PYTHON_EXECUTABLE)
     VTK_INFOVIS_EXPORT
     vtkBivariateStatisticsAlgorithmPrivate.h 
     vtkMultiCorrelativeStatisticsAssessFunctor.h 
+    vtkKMeansAssessFunctor.h 
+    vtkKMeansDistanceFunctor.h 
     vtkBoostGraphAdapter.h
     vtkBoostRandomSparseArraySource.h
     vtkSQLDatabaseGraphSource.h

@@ -1,9 +1,6 @@
 #ifndef __vtkKMeansDistanceFunctor_h
 #define __vtkKMeansDistanceFunctor_h
 
-#include "vtkKMeansStatistics.h"
-#include <vtkstd/vector>
-
 class vtkKMeansDistanceFunctor
 {
 protected:

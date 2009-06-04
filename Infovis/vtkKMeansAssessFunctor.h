@@ -1,15 +1,6 @@
 #ifndef __vtkKMeansAssessFunctor_h
 #define __vtkKMeansAssessFunctor_h
 
-#include "vtkStatisticsAlgorithm.h"
-
-#include <vtkstd/vector>
-
-class vtkDataArray;
-class vtkIdTypeArray;
-class vtkTable;
-class vtkKMeansDistanceFunctor;
-
 class vtkKMeansAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
   vtkDoubleArray* Distances;
