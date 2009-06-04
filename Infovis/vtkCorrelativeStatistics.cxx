@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.51");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.52");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -87,6 +87,11 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   if ( ! inData->GetNumberOfColumns() )
     {
     return;
+    }
+
+  if ( inParameters )
+    {
+    vtkWarningMacro("Input Learn parameters are currently ignored.");
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();

@@ -42,7 +42,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.57");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.58");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -125,6 +125,11 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
   if ( inData->GetNumberOfColumns() <= 0 )
     {
     return;
+    }
+
+  if( inParameters )
+    {
+    vtkWarningMacro("Input Learn parameters are currently ignored.");
     }
 
   // Summary table: assigns a unique key to each (variable X,variable Y) pair

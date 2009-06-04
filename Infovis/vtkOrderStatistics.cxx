@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.42");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.43");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -88,6 +88,11 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
   if ( inData->GetNumberOfColumns() <= 0 )
     {
     return;
+    }
+  
+  if( inParameters )
+    {
+    vtkWarningMacro("Input Learn parameters are currently ignored.");
     }
 
   vtkStringArray* stringCol = vtkStringArray::New();

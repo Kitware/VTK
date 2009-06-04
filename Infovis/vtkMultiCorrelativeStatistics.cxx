@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.12");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.13");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -181,6 +181,11 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   if ( inData->GetNumberOfColumns() <= 0 )
     {
     return;
+    }
+
+  if( inParameters )
+    {
+    vtkWarningMacro("Input Learn parameters are currently ignored.");
     }
 
   vtkstd::set<vtkstd::set<vtkStdString> >::iterator reqIt;

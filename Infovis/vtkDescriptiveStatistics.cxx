@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.68");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.69");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -104,7 +104,12 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     {
     return;
     }
-
+  
+ if( inParameters )
+    {
+    vtkWarningMacro("Input Learn parameters are currently ignored.");
+    }
+ 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
   outMeta->AddColumn( stringCol );
