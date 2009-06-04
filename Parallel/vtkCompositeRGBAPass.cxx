@@ -54,7 +54,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.4");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.5");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
@@ -379,7 +379,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
         this->RootTexture=vtkTextureObject::New();
         this->RootTexture->SetContext(context);
         }
-      this->RootTexture->Allocate2D(w,h,4,VTK_UNSIGNED_CHAR);
+      this->RootTexture->Allocate2D(dims[0],dims[1],4,VTK_UNSIGNED_CHAR);
       this->RootTexture->CopyFromFrameBuffer(0,0,0,0,w,h);
       }
     
