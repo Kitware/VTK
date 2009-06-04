@@ -87,9 +87,8 @@ for {set i 0} {$i<3} {incr i 1} {
 vtkStreamTracer Stream0
 Stream0 SetInput mbds
 Stream0 SetSource [LineSourceWidget0 GetOutput]
-Stream0 SetMaximumPropagationUnit 1
+Stream0 SetIntegrationStepUnit 2
 Stream0 SetMaximumPropagation 20
-Stream0 SetInitialIntegrationStepUnit 2
 Stream0 SetInitialIntegrationStep 0.5
 Stream0 SetIntegrationDirection 0
 Stream0 SetIntegratorType 0
