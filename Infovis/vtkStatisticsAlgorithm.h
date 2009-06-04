@@ -59,7 +59,7 @@ public:
   vtkTypeRevisionMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-// BTX
+//BTX
   // Description:
   // enumeration values to specify input port types
   enum InputPorts
@@ -77,7 +77,7 @@ public:
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
     ASSESSMENT = 2          //!< Output 2 
     };
-// ETX
+//ETX
 
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).
