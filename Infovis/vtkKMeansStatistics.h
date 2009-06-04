@@ -94,10 +94,12 @@ public:
   vtkTypeRevisionMacro(vtkKMeansStatistics, vtkStatisticsAlgorithm);
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkKMeansStatistics* New();
-  
+ 
+//BTX 
   // Description:
   // Set the DistanceFunctor.
   vtkSetMacro( DistanceFunctor, vtkKMeansDistanceFunctor* );
+//ETX 
 
   // Description:
   // Set the DefaultNumberOfClusters.
@@ -115,9 +117,11 @@ public:
   // Set the Toleratnce.
   vtkSetMacro( Tolerance, double );
 
+//BTX
   // Description:
   // Get the DistanceFunctor.
   vtkGetMacro( DistanceFunctor, vtkKMeansDistanceFunctor* );
+//ETX
 
   // Description:
   // Get the DefaultNumberOfClusters.
