@@ -61,7 +61,7 @@
 #include "vtkQtLabelMapper.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.20");
+vtkCxxRevisionMacro(vtkRenderView, "1.21");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -249,6 +249,36 @@ vtkRenderView::~vtkRenderView()
 vtkRenderWindowInteractor* vtkRenderView::GetInteractor()
 {
   return this->RenderWindow->GetInteractor();
+}
+
+void vtkRenderView::SetInteractor(vtkRenderWindowInteractor* interactor)
+{
+  if (!interactor)
+    {
+    vtkErrorMacro(<< "SetInteractor called with a null interactor pointer."
+                  << " That can't be right.");
+    return;
+    }
+  
+  // get rid of the render observer on any current interactor
+  if (this->RenderWindow->GetInteractor())
+    {
+    this->RenderWindow->GetInteractor()->RemoveObserver(this->GetObserver());
+    }
+
+  // We need to preserve the interactor style currently present on the
+  // interactor.
+  vtkInteractorObserver *oldStyle = this->GetInteractorStyle();
+  oldStyle->Register(this);
+
+  // We will handle all interactor renders by turning off rendering
+  // in the interactor and listening to the interactor's render event.
+  interactor->EnableRenderOff();
+  interactor->AddObserver(vtkCommand::RenderEvent, this->GetObserver());
+  this->RenderWindow->SetInteractor(interactor);
+
+  interactor->SetInteractorStyle(oldStyle);
+  oldStyle->UnRegister(this);
 }
 
 void vtkRenderView::SetInteractionMode(int mode)

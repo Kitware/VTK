@@ -80,7 +80,8 @@ public:
   // Description:
   // The render window interactor.
   virtual vtkRenderWindowInteractor* GetInteractor();
-  
+  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
+
   // Description:
   // The interactor style associated with the render view.
   virtual void SetInteractorStyle(vtkInteractorObserver* style);
