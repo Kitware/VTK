@@ -54,12 +54,10 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.5");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.6");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
-extern const char *vtkCompositeRGBAPassShader_fs;
-
 
 // ----------------------------------------------------------------------------
 vtkCompositeRGBAPass::vtkCompositeRGBAPass()

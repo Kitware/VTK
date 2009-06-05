@@ -94,7 +94,6 @@ IF(VTK_USE_RENDERING)
 
 # The set of source files to be encoded.
 SET(glsl_files
-  vtkCompositeRGBAPassShader_fs
   vtkCompositeZPassShader_fs
   )
 ENDIF(VTK_USE_RENDERING)
