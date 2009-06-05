@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.3");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.4");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -701,9 +701,9 @@ vtkKMeansAssessFunctor* vtkKMeansAssessFunctor::New()
 }
 
 // ----------------------------------------------------------------------
-bool vtkKMeansAssessFunctor::Initialize( vtkTable *inData, vtkTable *inModel, vtkKMeansDistanceFunctor *dfunc )
+bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData, vtkTable* inModel, vtkKMeansDistanceFunctor* dfunc )
 {
-  int numDataObjects = inData->GetNumberOfRows();
+  vtkIdType numObservations = inData->GetNumberOfRows();
   vtkTable* dataElements = vtkTable::New();
   vtkTable* curClusterElements = vtkTable::New();
   vtkIdTypeArray* startRunID = vtkIdTypeArray::New();
@@ -728,29 +728,39 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable *inData, vtkTable *inModel, vt
     // number of clusters "K" is stored in column 1 of the inModel table 
     curRow += inModel->GetValue( curRow, 1 ).ToInt();
     endRunID->InsertNextValue( curRow );
-  }
+    }
 
-  this->Distances->SetNumberOfValues( numDataObjects*this->NumRuns );
-  this->ClusterMemberIDs->SetNumberOfValues( numDataObjects*this->NumRuns);
+  this->Distances->SetNumberOfValues( numObservations * this->NumRuns );
+  this->ClusterMemberIDs->SetNumberOfValues( numObservations * this->NumRuns );
 
-    // find minimum distance between each data object and cluster center
-  int localMemberID=0;
-  double minDistance=0, curDistance;
-  for ( int dataID=0; dataID < numDataObjects; dataID++ )
+  // find minimum distance between each data object and cluster center
+  for ( vtkIdType observation = 0; observation < numObservations; ++ observation )
     {
-    for( int runID = 0; runID < this->NumRuns; runID++)
+    for( int runID = 0; runID < this->NumRuns; ++ runID )
       {
-      for( int j = startRunID->GetValue(runID); j < endRunID->GetValue(runID); j++ )
+      vtkIdType runStartIdx = startRunID->GetValue( runID );
+      vtkIdType runEndIdx = endRunID->GetValue( runID );
+      if ( runStartIdx >= runEndIdx )
         {
-        (*dfunc)( curDistance, curClusterElements->GetRow( j ), dataElements->GetRow( dataID ) );
-        if( j == startRunID->GetValue(runID) || curDistance < minDistance )
+        continue;
+        }
+      // Find the closest cluster center to the observation across all centers in the runID-th run.
+      vtkIdType j = runStartIdx;
+      double minDistance;
+      double curDistance;
+      (*dfunc)( minDistance, curClusterElements->GetRow( j ), dataElements->GetRow( observation ) );
+      int localMemberID = 0;
+      for( /* no init */; j < runEndIdx; ++ j )
+        {
+        (*dfunc)( curDistance, curClusterElements->GetRow( j ), dataElements->GetRow( observation ) );
+        if ( curDistance < minDistance )
           {
           minDistance = curDistance;
-          localMemberID = j-startRunID->GetValue(runID);
+          localMemberID = j - runStartIdx;
           }
         }
-        this->ClusterMemberIDs->SetValue( dataID*this->NumRuns+runID, localMemberID );
-        this->Distances->SetValue( dataID*this->NumRuns+runID, minDistance );
+      this->ClusterMemberIDs->SetValue( observation * this->NumRuns + runID, localMemberID );
+      this->Distances->SetValue( observation * this->NumRuns + runID, minDistance );
       }
    }
 
@@ -759,7 +769,6 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable *inData, vtkTable *inModel, vt
   startRunID->Delete();
   endRunID->Delete();
   return true;
-
 }
 
 // ----------------------------------------------------------------------
