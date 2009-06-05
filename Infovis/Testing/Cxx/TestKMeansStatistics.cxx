@@ -18,6 +18,7 @@
 #include "vtkMath.h"
 #include "vtkKMeansStatistics.h"
 #include "vtkStdString.h"
+#include "vtkTimerLog.h"
 #include <vtksys/ios/sstream>
 
 
@@ -30,7 +31,7 @@ int TestKMeansStatistics( int, char *[] )
   int nVals = 50;
 
   // Seed random number generator
-  vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) );
+  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
   // Generate an input table that contains samples of mutually independent random variables over [0, 1]
   vtkTable* inputData = vtkTable::New();
