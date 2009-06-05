@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.2");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.3");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -356,8 +356,8 @@ void vtkKMeansStatistics::ExecuteLearn( vtkTable* inData,
       }
 
     // find minimum distance between each data object and cluster center
-    int localMemberID, offsetLocalMemberID;
-    double minDistance, curDistance;
+    int localMemberID=0, offsetLocalMemberID=0;
+    double minDistance=0, curDistance;
     for ( int dataID=0; dataID < dataElements->GetNumberOfRows(); dataID++ )
       {
       for( int runID = 0; runID < numRuns; runID++)
@@ -734,8 +734,8 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable *inData, vtkTable *inModel, vt
   this->ClusterMemberIDs->SetNumberOfValues( numDataObjects*this->NumRuns);
 
     // find minimum distance between each data object and cluster center
-  int localMemberID;
-  double minDistance, curDistance;
+  int localMemberID=0;
+  double minDistance=0, curDistance;
   for ( int dataID=0; dataID < numDataObjects; dataID++ )
     {
     for( int runID = 0; runID < this->NumRuns; runID++)
