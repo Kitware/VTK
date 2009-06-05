@@ -191,8 +191,11 @@ typedef int vtkstd_bool;
 # endif
 #endif
 
+#cmakedefine VTK_USE_FOR_SCOPE_WORKAROUND
+ 
 /* Use the common for-scope work-around when compiling a source in VTK.  */
-#if defined(VTK_IN_VTK) && !defined(VTK_NO_WORKAROUND_FOR_SCOPE)
+/* External Projects can set VTK_USE_FOR_SCOPE_WORKAROUND to get this "fix" */ 
+#if (defined(VTK_IN_VTK) && !defined(VTK_NO_WORKAROUND_FOR_SCOPE)) || defined(VTK_USE_FOR_SCOPE_WORKAROUND)
 # define VTK_WORKAROUND_FOR_SCOPE
 #endif
 #if defined(VTK_NO_FOR_SCOPE) && defined(VTK_WORKAROUND_FOR_SCOPE)
