@@ -65,7 +65,8 @@ vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* vtkNotUsed(name))
+void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(
+  const char *vtkNotUsed(name))
 {
 /*
   if (name == 0)
@@ -85,6 +86,12 @@ void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* vtkNotUsed(
       }
     }
     */
+}
+
+// ----------------------------------------------------------------------------
+virtual void vtkQtAnnotationLayersModelAdapter::SetColorColumnName(
+  const char *vtkNotUsed(name))
+{
 }
 
 //----------------------------------------------------------------------------
