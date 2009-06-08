@@ -113,7 +113,7 @@ public:
   // Description:
   // Simple class used internally to define an edge based on the endpoints.  The
   // endpoints are canonically identified by the lower and higher values.
-  class vtkEdgeEndpoints
+  class VTK_IO_EXPORT vtkEdgeEndpoints
   {
   public:
     vtkEdgeEndpoints() : MinEndPoint(-1), MaxEndPoint(-1) {}
@@ -232,7 +232,7 @@ protected:
 //BTX
   // Description:
   // Simple structure for holding midpoint information.
-  class vtkMidpointCoordinates
+  class VTK_IO_EXPORT vtkMidpointCoordinates
   {
   public:
     vtkMidpointCoordinates() {}
@@ -248,7 +248,7 @@ protected:
 
   // Description:
   // Manages a map from edges to midpoint coordinates.
-  class vtkMidpointCoordinateMap
+  class VTK_IO_EXPORT vtkMidpointCoordinateMap
   {
   public:
     vtkMidpointCoordinateMap();
@@ -277,7 +277,7 @@ protected:
 
   // Description:
   // Manages a map from edges to the point id of the midpoint.
-  class vtkMidpointIdMap
+  class VTK_IO_EXPORT vtkMidpointIdMap
   {
   public:
     vtkMidpointIdMap();
