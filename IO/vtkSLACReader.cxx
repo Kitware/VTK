@@ -380,7 +380,7 @@ bool vtkSLACReader::vtkMidpointIdMap::GetNextMidpoint(vtkEdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.5");
+vtkCxxRevisionMacro(vtkSLACReader, "1.6");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -440,6 +440,8 @@ vtkSLACReader::vtkSLACReader()
 vtkSLACReader::~vtkSLACReader()
 {
   this->SetMeshFileName(NULL);
+
+  delete this->Internal;
 }
 
 void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
