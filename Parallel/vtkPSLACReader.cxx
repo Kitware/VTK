@@ -44,6 +44,8 @@
 
 #include <netcdf.h>
 
+#include <vtksys/hash_map.hxx>
+
 //=============================================================================
 #define MY_MIN(x, y)    ((x) < (y) ? (x) : (y))
 #define MY_MAX(x, y)    ((x) < (y) ? (y) : (x))
@@ -220,9 +222,9 @@ namespace vtkPSLACReaderTypes
     midpointPositionType *position;
     midpointTopologyType *topology;
   } midpointPointersType;
-  typedef vtksys::hash_map<vtkstd::pair<vtkIdType, vtkIdType>,
-                           midpointPointersType,
-                           vtkSLACReaderIdTypePairHash> MidpointsAvailableType;
+  typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints,
+                    midpointPointersType,
+                    vtkSLACReader::vtkEdgeEndpointsHash> MidpointsAvailableType;
 
 //-----------------------------------------------------------------------------
 // Convenience function for gathering midpoint information to a process.
@@ -304,11 +306,52 @@ namespace vtkPSLACReaderTypes
 };
 using namespace vtkPSLACReaderTypes;
 
+//-----------------------------------------------------------------------------
+// Simple hash function for vtkIdType.
+struct vtkPSLACReaderIdTypeHash {
+  size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
+};
+
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.2");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.3");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
+
+//-----------------------------------------------------------------------------
+class vtkPSLACReader::vtkInternal
+{
+public:
+  typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash>
+    GlobalToLocalIdType;
+  GlobalToLocalIdType GlobalToLocalIds;
+
+  // Description:
+  // A map from local point ids to global ids.  Can also be used as the
+  // global point ids.
+  vtkSmartPointer<vtkIdTypeArray> LocalToGlobalIds;
+
+  // Description:
+  // The point data we expect to receive from each process.
+  vtkSmartPointer<vtkIdTypeArray> PointsExpectedFromProcessesLengths;
+  vtkSmartPointer<vtkIdTypeArray> PointsExpectedFromProcessesOffsets;
+
+  // Description:
+  // The point data we have to send to each process.  Stored as global ids.
+  vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcesses;
+  vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesLengths;
+  vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesOffsets;
+  
+  // Description:
+  // The edge data we expect to receive from each process.
+  vtkSmartPointer<vtkIdTypeArray> EdgesExpectedFromProcessesCounts;
+
+  // Description:
+  // The edge data we have to send to each process.  Stored as global ids.
+  vtkSmartPointer<vtkIdTypeArray> EdgesToSendToProcesses;
+  vtkSmartPointer<vtkIdTypeArray> EdgesToSendToProcessesLengths;
+  vtkSmartPointer<vtkIdTypeArray> EdgesToSendToProcessesOffsets;
+};
 
 //-----------------------------------------------------------------------------
 vtkPSLACReader::vtkPSLACReader()
@@ -321,11 +364,15 @@ vtkPSLACReader::vtkPSLACReader()
     }
   this->NumberOfPiecesCache = 0;
   this->RequestedPieceCache = -1;
+
+  this->Internal = new vtkPSLACReader::vtkInternal;
 }
 
 vtkPSLACReader::~vtkPSLACReader()
 {
   this->SetController(NULL);
+
+  delete this->Internal;
 }
 
 void vtkPSLACReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -487,14 +534,14 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
   // locally, make maps between local and global ids, and convert the ids in the
   // connectivity arrays from global ids to local ids.
 
-  this->LocalToGlobalIds = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->LocalToGlobalIds->SetName("GlobalIds");
+  this->Internal->LocalToGlobalIds = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->Internal->LocalToGlobalIds->SetName("GlobalIds");
 
   vtkstd::vector< vtkstd::pair<vtkIdType, vtkIdType> > edgesNeeded;
 
   // Iterate over all points of all cells and mark what points we encounter
   // in GlobalToLocalIds.
-  this->GlobalToLocalIds.clear();
+  this->Internal->GlobalToLocalIds.clear();
   VTK_CREATE(vtkCompositeDataIterator, outputIter);
   for (outputIter.TakeReference(output->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
@@ -510,7 +557,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
         {
         // The following inserts an entry into the map if one does not exist.
         // We will assign actual local ids later.
-        this->GlobalToLocalIds[pts[i]] = -1;
+        this->Internal->GlobalToLocalIds[pts[i]] = -1;
         }
       if (output->GetMetaData(outputIter)->Get(IS_EXTERNAL_SURFACE()))
         {
@@ -532,27 +579,29 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
   // can just copy it into a block of memory.  We are only calculating the
   // local to global id map for now.  We will fill the global to local id
   // later when we iterate over the local ids.
-  this->LocalToGlobalIds->Allocate(this->GlobalToLocalIds.size());
-  for (GlobalToLocalIdType::iterator itr = this->GlobalToLocalIds.begin();
-       itr != this->GlobalToLocalIds.end(); itr++)
+  this->Internal->LocalToGlobalIds->Allocate(
+                                       this->Internal->GlobalToLocalIds.size());
+  vtkInternal::GlobalToLocalIdType::iterator itr;
+  for (itr = this->Internal->GlobalToLocalIds.begin();
+       itr != this->Internal->GlobalToLocalIds.end(); itr++)
     {
-    this->LocalToGlobalIds->InsertNextValue(itr->first);
+    this->Internal->LocalToGlobalIds->InsertNextValue(itr->first);
     }
-  vtkSortDataArray::Sort(this->LocalToGlobalIds);
+  vtkSortDataArray::Sort(this->Internal->LocalToGlobalIds);
 
   // ---------------------------------
   // Now that we have the local to global id maps, we can determine which
   // process will send what point data where.  This is also where we assign
   // local ids to global ids (i.e. determine locally where we store each point).
-  this->PointsExpectedFromProcessesLengths = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->PointsExpectedFromProcessesLengths->SetNumberOfTuples(this->NumberOfPieces);
-  this->PointsExpectedFromProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->PointsExpectedFromProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
-  this->PointsToSendToProcesses = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->PointsToSendToProcessesLengths = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->PointsToSendToProcessesLengths->SetNumberOfTuples(this->NumberOfPieces);
-  this->PointsToSendToProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
-  this->PointsToSendToProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
+  this->Internal->PointsExpectedFromProcessesLengths = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->Internal->PointsExpectedFromProcessesLengths->SetNumberOfTuples(this->NumberOfPieces);
+  this->Internal->PointsExpectedFromProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->Internal->PointsExpectedFromProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
+  this->Internal->PointsToSendToProcesses = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->Internal->PointsToSendToProcessesLengths = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->Internal->PointsToSendToProcessesLengths->SetNumberOfTuples(this->NumberOfPieces);
+  this->Internal->PointsToSendToProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->Internal->PointsToSendToProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
 
   // Record how many global points there are.
   int coordsVarId;
@@ -564,7 +613,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
   // which points.  We also fill out GlobalToLocalIds.  Until this point we
   // only have keys and we need to set the values.
   vtkIdType localId = 0;
-  vtkIdType numLocalIds = this->LocalToGlobalIds->GetNumberOfTuples();
+  vtkIdType numLocalIds = this->Internal->LocalToGlobalIds->GetNumberOfTuples();
   for (int process = 0; process < this->NumberOfPieces; process++)
     {
     VTK_CREATE(vtkIdTypeArray, pointList);
@@ -573,9 +622,9 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
     vtkIdType lastId = this->EndPointRead(process);
     for ( ; (localId < numLocalIds); localId++)
       {
-      vtkIdType globalId = this->LocalToGlobalIds->GetValue(localId);
+      vtkIdType globalId = this->Internal->LocalToGlobalIds->GetValue(localId);
       if (globalId >= lastId) break;
-      this->GlobalToLocalIds[globalId] = localId;
+      this->Internal->GlobalToLocalIds[globalId] = localId;
       pointList->InsertNextValue(globalId);
       }
 
@@ -583,35 +632,37 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
     // process.  Send those ids to process so that it knows what data to send
     // back when reading in point data.
     vtkIdType numPoints = pointList->GetNumberOfTuples();
-    this->PointsExpectedFromProcessesLengths->SetValue(process, numPoints);
+    this->Internal->PointsExpectedFromProcessesLengths->SetValue(process, numPoints);
     this->Controller->Gather(&numPoints,
-                             this->PointsToSendToProcessesLengths->WritePointer(0,this->NumberOfPieces),
+                             this->Internal->PointsToSendToProcessesLengths->WritePointer(0,this->NumberOfPieces),
                              1, process);
     vtkIdType offset = 0;
     if (process == this->RequestedPiece)
       {
       for (int i = 0; i < this->NumberOfPieces; i++)
         {
-        this->PointsToSendToProcessesOffsets->SetValue(i, offset);
-        offset += this->PointsToSendToProcessesLengths->GetValue(i);
+        this->Internal->PointsToSendToProcessesOffsets->SetValue(i, offset);
+        offset += this->Internal->PointsToSendToProcessesLengths->GetValue(i);
         }
-      this->PointsToSendToProcesses->SetNumberOfTuples(offset);
+      this->Internal->PointsToSendToProcesses->SetNumberOfTuples(offset);
       }
     this->Controller->GatherV(
-                           pointList->GetPointer(0),
-                           this->PointsToSendToProcesses->WritePointer(0,offset),
-                           numPoints,
-                           this->PointsToSendToProcessesLengths->GetPointer(0),
-                           this->PointsToSendToProcessesOffsets->GetPointer(0),
-                           process);
+                pointList->GetPointer(0),
+                this->Internal->PointsToSendToProcesses->WritePointer(0,offset),
+                numPoints,
+                this->Internal->PointsToSendToProcessesLengths->GetPointer(0),
+                this->Internal->PointsToSendToProcessesOffsets->GetPointer(0),
+                process);
     }
 
   // Calculate the offsets for the incoming point data into the local array.
   vtkIdType offset = 0;
   for (int process = 0; process < this->NumberOfPieces; process++)
     {
-    this->PointsExpectedFromProcessesOffsets->SetValue(process, offset);
-    offset += this->PointsExpectedFromProcessesLengths->GetValue(process);
+    this->Internal->PointsExpectedFromProcessesOffsets->SetValue(process,
+                                                                 offset);
+    offset
+      += this->Internal->PointsExpectedFromProcessesLengths->GetValue(process);
     }
 
   // Now that we have a complete map from global to local ids, modify the
@@ -628,7 +679,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
       {
       for (vtkIdType i = 0; i < npts; i++)
         {
-        pts[i] = this->GlobalToLocalIds[pts[i]];
+        pts[i] = this->Internal->GlobalToLocalIds[pts[i]];
         }
       }
     }
@@ -636,19 +687,19 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
   // Record the global ids in the point data.
   vtkPointData *pd = vtkPointData::SafeDownCast(
                     output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
-  pd->SetGlobalIds(this->LocalToGlobalIds);
-  pd->SetPedigreeIds(this->LocalToGlobalIds);
+  pd->SetGlobalIds(this->Internal->LocalToGlobalIds);
+  pd->SetPedigreeIds(this->Internal->LocalToGlobalIds);
 
   if (this->ReadMidpoints)
     {
     // Setup the Edge transfers 
-    this->EdgesExpectedFromProcessesCounts = vtkSmartPointer<vtkIdTypeArray>::New();
-    this->EdgesExpectedFromProcessesCounts->SetNumberOfTuples(this->NumberOfPieces);
-    this->EdgesToSendToProcesses = vtkSmartPointer<vtkIdTypeArray>::New();
-    this->EdgesToSendToProcessesLengths = vtkSmartPointer<vtkIdTypeArray>::New();
-    this->EdgesToSendToProcessesLengths->SetNumberOfTuples(this->NumberOfPieces);
-    this->EdgesToSendToProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
-    this->EdgesToSendToProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
+    this->Internal->EdgesExpectedFromProcessesCounts = vtkSmartPointer<vtkIdTypeArray>::New();
+    this->Internal->EdgesExpectedFromProcessesCounts->SetNumberOfTuples(this->NumberOfPieces);
+    this->Internal->EdgesToSendToProcesses = vtkSmartPointer<vtkIdTypeArray>::New();
+    this->Internal->EdgesToSendToProcessesLengths = vtkSmartPointer<vtkIdTypeArray>::New();
+    this->Internal->EdgesToSendToProcessesLengths->SetNumberOfTuples(this->NumberOfPieces);
+    this->Internal->EdgesToSendToProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
+    this->Internal->EdgesToSendToProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
 
     vtkstd::vector< vtkSmartPointer<vtkIdTypeArray> > edgeLists (this->NumberOfPieces);
     for (int process = 0; process < this->NumberOfPieces; process ++)
@@ -668,29 +719,32 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
     for (int process = 0; process < this->NumberOfPieces; process ++)
       {
       vtkIdType numEdges = edgeLists[process]->GetNumberOfTuples();
-      this->EdgesExpectedFromProcessesCounts->SetValue(process, numEdges);
+      this->Internal->EdgesExpectedFromProcessesCounts->SetValue(process,
+                                                                 numEdges);
       this->Controller->Gather(&numEdges,
-                               this->EdgesToSendToProcessesLengths->WritePointer(0,this->NumberOfPieces),
+                               this->Internal->EdgesToSendToProcessesLengths->WritePointer(0,this->NumberOfPieces),
                                1, process);
       offset = 0;
       if (process == this->RequestedPiece)
         {
         for (int i = 0; i < this->NumberOfPieces; i++)
           {
-          this->EdgesToSendToProcessesOffsets->SetValue(i, offset);
-          int len =  this->EdgesToSendToProcessesLengths->GetValue(i) * 2;
-          this->EdgesToSendToProcessesLengths->SetValue (i, len);
+          this->Internal->EdgesToSendToProcessesOffsets->SetValue(i, offset);
+          int len
+            = this->Internal->EdgesToSendToProcessesLengths->GetValue(i) * 2;
+          this->Internal->EdgesToSendToProcessesLengths->SetValue (i, len);
           offset += len;
           }
         }
-      this->EdgesToSendToProcesses->SetNumberOfComponents (2);
-      this->EdgesToSendToProcesses->SetNumberOfTuples (offset/2);
-      this->Controller->GatherV(edgeLists[process]->GetPointer(0),
-                                this->EdgesToSendToProcesses->WritePointer(0,offset),
-                                numEdges*2,
-                                this->EdgesToSendToProcessesLengths->GetPointer(0),
-                                this->EdgesToSendToProcessesOffsets->GetPointer(0),
-                                process);
+      this->Internal->EdgesToSendToProcesses->SetNumberOfComponents (2);
+      this->Internal->EdgesToSendToProcesses->SetNumberOfTuples (offset/2);
+      this->Controller->GatherV(
+                 edgeLists[process]->GetPointer(0),
+                 this->Internal->EdgesToSendToProcesses->WritePointer(0,offset),
+                 numEdges*2,
+                 this->Internal->EdgesToSendToProcessesLengths->GetPointer(0),
+                 this->Internal->EdgesToSendToProcessesOffsets->GetPointer(0),
+                 process);
       }
     }
   return 1;
@@ -704,8 +758,8 @@ int vtkPSLACReader::RestoreMeshCache(vtkMultiBlockDataSet *output)
   // Record the global ids in the point data.
   vtkPointData *pd = vtkPointData::SafeDownCast(
                     output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
-  pd->SetGlobalIds(this->LocalToGlobalIds);
-  pd->SetPedigreeIds(this->LocalToGlobalIds);
+  pd->SetGlobalIds(this->Internal->LocalToGlobalIds);
+  pd->SetPedigreeIds(this->Internal->LocalToGlobalIds);
 
   return 1;
 }
@@ -767,20 +821,21 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD,
   vtkSmartPointer<vtkDataArray> finalDataArray;
   finalDataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
   finalDataArray->SetNumberOfComponents(numComponents);
-  finalDataArray->SetNumberOfTuples(this->LocalToGlobalIds->GetNumberOfTuples());
+  finalDataArray->SetNumberOfTuples(
+                         this->Internal->LocalToGlobalIds->GetNumberOfTuples());
 
   vtkSmartPointer<vtkDataArray> sendBuffer;
   sendBuffer.TakeReference(vtkDataArray::CreateDataArray(vtkType));
   sendBuffer->SetNumberOfComponents(numComponents);
   sendBuffer->SetNumberOfTuples(
-                            this->PointsToSendToProcesses->GetNumberOfTuples());
+                  this->Internal->PointsToSendToProcesses->GetNumberOfTuples());
   switch (vtkType)
     {
     vtkTemplateMacro(vtkPSLACReaderMapValues1(
                                    (VTK_TT*)dataArray->GetVoidPointer(0),
                                    (VTK_TT*)sendBuffer->GetVoidPointer(0),
                                    numComponents,
-                                   this->PointsToSendToProcesses,
+                                   this->Internal->PointsToSendToProcesses,
                                    this->StartPointRead(this->RequestedPiece)));
     }
 
@@ -793,9 +848,9 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD,
   for (int i = 0; i < this->NumberOfPieces; i++)
     {
     sendLengths->SetValue(i,
-               this->PointsToSendToProcessesLengths->GetValue(i)*numComponents);
+     this->Internal->PointsToSendToProcessesLengths->GetValue(i)*numComponents);
     sendOffsets->SetValue(i,
-               this->PointsToSendToProcessesOffsets->GetValue(i)*numComponents);
+     this->Internal->PointsToSendToProcessesOffsets->GetValue(i)*numComponents);
     }
 
   // Let each process have a turn sending data to the other processes.
@@ -804,10 +859,8 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD,
     {
     // Scatter data from source.  Note that lengths and offsets are only valid
     // on the source process.  All others are ignored.
-    vtkIdType destLength
-      = numComponents*this->PointsExpectedFromProcessesLengths->GetValue(proc);
-    vtkIdType destOffset
-      = numComponents*this->PointsExpectedFromProcessesOffsets->GetValue(proc);
+    vtkIdType destLength = numComponents*this->Internal->PointsExpectedFromProcessesLengths->GetValue(proc);
+    vtkIdType destOffset = numComponents*this->Internal->PointsExpectedFromProcessesOffsets->GetValue(proc);
     this->Controller->GetCommunicator()->ScatterVVoidArray(
                                      sendBuffer->GetVoidPointer(0),
                                      finalDataArray->GetVoidPointer(destOffset),
@@ -919,8 +972,8 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     midpointPointersType mp;
     mp.position = &(*posIter);  mp.topology = &(*topIter);
     MidpointsAvailable.insert(
-                    vtkstd::make_pair(vtkstd::make_pair(topIter->minEdgePoint,
-                                                        topIter->maxEdgePoint),
+                    vtkstd::make_pair(vtkEdgeEndpoints(topIter->minEdgePoint,
+                                                       topIter->maxEdgePoint),
                                       mp));
     }
 
@@ -929,21 +982,21 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   midpointListsType midpointsToReceive;
   for (int process = 0; process < this->NumberOfPieces; process++)
     {
-    vtkIdType start = this->EdgesToSendToProcessesOffsets->GetValue(process);
+    vtkIdType start
+      = this->Internal->EdgesToSendToProcessesOffsets->GetValue(process);
     vtkIdType end
-      = start + this->EdgesToSendToProcessesLengths->GetValue(process);
+      = start +this->Internal->EdgesToSendToProcessesLengths->GetValue(process);
 
-    start /= this->EdgesToSendToProcesses->GetNumberOfComponents();
-    end /= this->EdgesToSendToProcesses->GetNumberOfComponents();
+    start /= this->Internal->EdgesToSendToProcesses->GetNumberOfComponents();
+    end /= this->Internal->EdgesToSendToProcesses->GetNumberOfComponents();
 
     midpointListsType midpointsToSend;
     for (vtkIdType i = start; i < end; i ++)
       {
       MidpointsAvailableType::const_iterator iter;
       vtkIdType e[2];
-      this->EdgesToSendToProcesses->GetTupleValue(i, e);
-      iter = MidpointsAvailable.find(vtkstd::make_pair(MY_MIN(e[0], e[1]),
-                                                       MY_MAX(e[0], e[1])));
+      this->Internal->EdgesToSendToProcesses->GetTupleValue(i, e);
+      iter = MidpointsAvailable.find(vtkEdgeEndpoints(e[0], e[1]));
       if (iter != MidpointsAvailable.end ())
         {
         midpointsToSend.position.push_back(*iter->second.position);
@@ -967,7 +1020,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   
   // finally, we have all midpoints that correspond to edges we know about
   // convert their edge points to localId and insert into the map and return.
-  typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkSLACReaderIdTypeHash> localMapType;
+  typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash> localMapType;
   localMapType localMap;
   for (posIter = midpointsToReceive.position.begin(),
          topIter = midpointsToReceive.topology.begin();
@@ -976,23 +1029,24 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     {
     if (topIter->globalId < 0) continue;
      
-    vtkIdType local0 = this->GlobalToLocalIds[topIter->minEdgePoint];
-    vtkIdType local1 = this->GlobalToLocalIds[topIter->maxEdgePoint];
+    vtkIdType local0 = this->Internal->GlobalToLocalIds[topIter->minEdgePoint];
+    vtkIdType local1 = this->Internal->GlobalToLocalIds[topIter->maxEdgePoint];
     localMapType::const_iterator iter;
     iter = localMap.find(topIter->globalId);
     vtkIdType index;
     if (iter == localMap.end())
       {
-      index = this->LocalToGlobalIds->InsertNextTupleValue(&topIter->globalId);
+      index = this->Internal->LocalToGlobalIds->InsertNextTupleValue(
+                                                            &topIter->globalId);
       localMap[topIter->globalId] = index;
       }
     else
       {
       index = iter->second;
       }
-    map.insert(vtkstd::make_pair(vtkstd::make_pair(local0, local1),
-                                 vtkSLACReader::vtkMidpoint(posIter->coord,
-                                                            index)));
+    map.AddMidpoint(vtkSLACReader::vtkEdgeEndpoints(local0, local1),
+                    vtkSLACReader::vtkMidpointCoordinates(posIter->coord,
+                                                          index));
     }
   return 1;
 }
@@ -1010,7 +1064,7 @@ int vtkPSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
   vtkPoints *points = vtkPoints::SafeDownCast(
                         output->GetInformation()->Get(vtkSLACReader::POINTS()));
   vtkIdType pointsAdded = points->GetNumberOfPoints () - 
-          this->LocalToGlobalIds->GetNumberOfTuples (); 
+          this->Internal->LocalToGlobalIds->GetNumberOfTuples (); 
   // Use the maximum number of points added so that the offsets don't overlap
   // There will be gaps and shared edges between two processes will get different ids
   // TODO: Will this cause problems?
@@ -1022,7 +1076,7 @@ int vtkPSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
   vtkIdType end = start + pointsAdded;
   for (vtkIdType i = start; i < end; i ++) 
     {
-    this->LocalToGlobalIds->InsertNextTupleValue (&i);
+    this->Internal->LocalToGlobalIds->InsertNextTupleValue (&i);
     }
 
   return 1;

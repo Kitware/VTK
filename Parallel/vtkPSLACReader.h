@@ -35,8 +35,6 @@
 
 #include "vtkSLACReader.h"
 
-#include <vtkstd/vector>        // For interal lists
-
 class vtkMultiProcessController;
 
 class VTK_PARALLEL_EXPORT vtkPSLACReader : public vtkSLACReader
@@ -91,35 +89,8 @@ protected:
 //ETX
 
 //BTX
-  // Description:
-  // A map from local point ids to global ids.  Can also be used as the
-  // global point ids.
-  typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkSLACReaderIdTypeHash>
-    GlobalToLocalIdType;
-  GlobalToLocalIdType GlobalToLocalIds;
-  vtkSmartPointer<vtkIdTypeArray> LocalToGlobalIds;
-
-  // Description:
-  // The point data we expect to receive from each process.
-  vtkSmartPointer<vtkIdTypeArray> PointsExpectedFromProcessesLengths;
-  vtkSmartPointer<vtkIdTypeArray> PointsExpectedFromProcessesOffsets;
-
-  // Description:
-  // The point data we have to send to each process.  Stored as global ids.
-  vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcesses;
-  vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesLengths;
-  vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesOffsets;
-  
-  // Description:
-  // The edge data we expect to receive from each process.
-  vtkSmartPointer<vtkIdTypeArray> EdgesExpectedFromProcessesCounts;
-
-  // Description:
-  // The edge data we have to send to each process.  Stored as global ids.
-  vtkSmartPointer<vtkIdTypeArray> EdgesToSendToProcesses;
-  vtkSmartPointer<vtkIdTypeArray> EdgesToSendToProcessesLengths;
-  vtkSmartPointer<vtkIdTypeArray> EdgesToSendToProcessesOffsets;
-  
+  class vtkInternal;
+  vtkInternal *Internal;
 //ETX
 
   // Description:

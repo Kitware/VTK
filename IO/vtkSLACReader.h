@@ -35,29 +35,12 @@
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include "vtkMultiBlockDataSet.h" // For ivars
-#include "vtkPoints.h"            // For ivars
-#include "vtkSmartPointer.h"      // For ivars
-#include "vtkStdString.h"         // For ivars
-#include <vtkstd/map>             // For internal maps
-#include <vtkstd/vector>          // For ivars
-#include <vtksys/hash_map.hxx>    // For internal maps
+#include "vtkSmartPointer.h"      // For internal method.
 
 class vtkDataArraySelection;
 class vtkIdTypeArray;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
-
-struct vtkSLACReaderIdTypeHash {
-  size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
-};
-
-struct vtkSLACReaderIdTypePairHash {
-  size_t operator()(vtkstd::pair<vtkIdType, vtkIdType> val) const {
-    return (  static_cast<size_t>(val.first)
-            + 3*static_cast<size_t>(val.second) );
-  }
-};
 
 class VTK_IO_EXPORT vtkSLACReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -126,20 +109,55 @@ public:
   static vtkInformationObjectBaseKey *POINTS();
   static vtkInformationObjectBaseKey *POINT_DATA();
 
+//BTX
+  // Description:
+  // Simple class used internally to define an edge based on the endpoints.  The
+  // endpoints are canonically identified by the lower and higher values.
+  class vtkEdgeEndpoints
+  {
+  public:
+    vtkEdgeEndpoints() : MinEndPoint(-1), MaxEndPoint(-1) {}
+    vtkEdgeEndpoints(vtkIdType endpointA, vtkIdType endpointB) {
+      if (endpointA < endpointB)
+        {
+        this->MinEndPoint = endpointA;  this->MaxEndPoint = endpointB;
+        }
+      else
+        {
+        this->MinEndPoint = endpointB;  this->MaxEndPoint = endpointA;
+        }
+    }
+    inline vtkIdType GetMinEndPoint() const { return this->MinEndPoint; }
+    inline vtkIdType GetMaxEndPoint() const { return this->MaxEndPoint; }
+    inline bool operator==(const vtkEdgeEndpoints &other) const {
+      return (   (this->GetMinEndPoint() == other.GetMinEndPoint())
+              && (this->GetMaxEndPoint() == other.GetMaxEndPoint()) );
+    }
+  protected:
+    vtkIdType MinEndPoint;
+    vtkIdType MaxEndPoint;
+  };
+  struct vtkEdgeEndpointsHash {
+  public:
+    size_t operator()(const vtkSLACReader::vtkEdgeEndpoints &edge) const {
+      return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
+    }
+  };
+//ETX
+
 protected:
   vtkSLACReader();
   ~vtkSLACReader();
 
 //BTX
+  class vtkInternal;
+  vtkInternal *Internal;
 
   char *MeshFileName;
-  vtkstd::vector<vtkStdString> ModeFileNames;
 
   int ReadInternalVolume;
   int ReadExternalSurface;
   int ReadMidpoints;
-
-  vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
 
   // Description:
   // True if reading from a proper mode file.  Set in RequestInformation.
@@ -148,10 +166,6 @@ protected:
   // Description:
   // True if "mode" files are a sequence of time steps.
   bool TimeStepModes;
-  // Description:
-  // A quick lookup to find the correct mode file name given a time value.
-  // Only valid when TimeStepModes is true.
-  vtkstd::map<double, vtkStdString> TimeStepToFile;
 
   // Description:
   // True if mode files describe vibrating fields.
@@ -218,10 +232,11 @@ protected:
 //BTX
   // Description:
   // Simple structure for holding midpoint information.
-  class vtkMidpoint {
+  class vtkMidpointCoordinates
+  {
   public:
-    vtkMidpoint() {}
-    vtkMidpoint(const double coord[3], vtkIdType id) {
+    vtkMidpointCoordinates() {}
+    vtkMidpointCoordinates(const double coord[3], vtkIdType id) {
       this->Coordinate[0] = coord[0];
       this->Coordinate[1] = coord[1];
       this->Coordinate[2] = coord[2];
@@ -232,16 +247,67 @@ protected:
   };
 
   // Description:
-  // A map from two edge points to their midpoint.  This is how midpoints are
-  // stored in the mesh files.
-  typedef vtksys::hash_map<vtkstd::pair<vtkIdType, vtkIdType>, vtkMidpoint,
-                           vtkSLACReaderIdTypePairHash>
-    vtkMidpointCoordinateMap;
+  // Manages a map from edges to midpoint coordinates.
+  class vtkMidpointCoordinateMap
+  {
+  public:
+    vtkMidpointCoordinateMap();
+    ~vtkMidpointCoordinateMap();
+
+    void AddMidpoint(const vtkEdgeEndpoints &edge,
+                     const vtkMidpointCoordinates &midpoint);
+    void RemoveMidpoint(const vtkEdgeEndpoints &edge);
+    void RemoveAllMidpoints();
+    vtkIdType GetNumberOfMidpoints() const;
+
+    // Description:
+    // Finds the coordinates for the given edge or returns NULL if it
+    // does not exist.
+    vtkMidpointCoordinates *FindMidpoint(const vtkEdgeEndpoints &edge);
+
+  protected:
+    class vtkInternal;
+    vtkInternal *Internal;
+
+  private:
+    // Too lazy to implement these.
+    vtkMidpointCoordinateMap(const vtkMidpointCoordinateMap &);
+    void operator=(const vtkMidpointCoordinateMap &);
+  };
 
   // Description:
-  // A map from an edge (defined by two point ids) to a midpoint id.
-  typedef vtksys::hash_map<vtkstd::pair<vtkIdType, vtkIdType>, vtkIdType,
-                           vtkSLACReaderIdTypePairHash> vtkMidpointIdMap;
+  // Manages a map from edges to the point id of the midpoint.
+  class vtkMidpointIdMap
+  {
+  public:
+    vtkMidpointIdMap();
+    ~vtkMidpointIdMap();
+
+    void AddMidpoint(const vtkEdgeEndpoints &edge, vtkIdType midpoint);
+    void RemoveMidpoint(const vtkEdgeEndpoints &edge);
+    void RemoveAllMidpoints();
+    vtkIdType GetNumberOfMidpoints() const;
+
+    // Description:
+    // Finds the id for the given edge or returns NULL if it does not exist.
+    vtkIdType *FindMidpoint(const vtkEdgeEndpoints &edge);
+
+    // Description:
+    // Initialize iteration.  The iteration can occur in any order.
+    void InitTraversal();
+    // Description:
+    // Get the next midpoint in the iteration.  Return 0 if the end is reached.
+    bool GetNextMidpoint(vtkEdgeEndpoints &edge, vtkIdType &midpoint);
+
+  protected:
+    class vtkInternal;
+    vtkInternal *Internal;
+
+  private:
+    // Too lazy to implement these.
+    vtkMidpointIdMap(const vtkMidpointIdMap &);
+    void operator=(const vtkMidpointIdMap &);
+  };
 //ETX
 
   // Description:
@@ -289,17 +355,6 @@ protected:
   // Returns 1 if the mesh is up to date, 0 if the mesh needs to be read from
   // disk.
   virtual int MeshUpToDate();
-
-//BTX
-
-  // Description:
-  // References and shallow copies to the last output data.  We keep this
-  // arround in case we do not have to read everything in again.
-  vtkSmartPointer<vtkPoints> PointCache;
-  vtkSmartPointer<vtkMultiBlockDataSet> MeshCache;
-  vtkMidpointIdMap MidpointIdCache;
-
-//ETX
 
 private:
   vtkSLACReader(const vtkSLACReader &);         // Not implemented

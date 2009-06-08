@@ -37,6 +37,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -47,7 +48,11 @@
 
 #include <netcdf.h>
 
+#include <vtkstd/map>
+#include <vtkstd/vector>
+#include <vtksys/hash_map.hxx>
 #include <vtksys/RegularExpression.hxx>
+
 #include <math.h>
 
 //=============================================================================
@@ -234,7 +239,148 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.4");
+// Classes for storing midpoint maps.  These are basically wrappers around STL
+// maps.
+class vtkSLACReader::vtkMidpointCoordinateMap::vtkInternal
+{
+public:
+  typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints,
+                           vtkSLACReader::vtkMidpointCoordinates,
+                           vtkSLACReader::vtkEdgeEndpointsHash> MapType;
+  MapType Map;
+};
+
+vtkSLACReader::vtkMidpointCoordinateMap::vtkMidpointCoordinateMap()
+{
+  this->Internal = new vtkSLACReader::vtkMidpointCoordinateMap::vtkInternal;
+}
+
+vtkSLACReader::vtkMidpointCoordinateMap::~vtkMidpointCoordinateMap()
+{
+  delete this->Internal;
+}
+
+void vtkSLACReader::vtkMidpointCoordinateMap::AddMidpoint(
+                                                const vtkEdgeEndpoints &edge,
+                                                const vtkMidpointCoordinates &midpoint)
+{
+  this->Internal->Map.insert(vtkstd::make_pair(edge, midpoint));
+}
+
+void vtkSLACReader::vtkMidpointCoordinateMap::RemoveMidpoint(
+                                                   const vtkEdgeEndpoints &edge)
+{
+  vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
+  if (iter != this->Internal->Map.end())
+    {
+    this->Internal->Map.erase(iter);
+    }
+}
+
+void vtkSLACReader::vtkMidpointCoordinateMap::RemoveAllMidpoints()
+{
+  this->Internal->Map.clear();
+}
+
+vtkIdType vtkSLACReader::vtkMidpointCoordinateMap::GetNumberOfMidpoints() const
+{
+  return static_cast<vtkIdType>(this->Internal->Map.size());
+}
+
+vtkSLACReader::vtkMidpointCoordinates *
+vtkSLACReader::vtkMidpointCoordinateMap::FindMidpoint(
+                                                   const vtkEdgeEndpoints &edge)
+{
+  vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
+  if (iter != this->Internal->Map.end())
+    {
+    return &iter->second;
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+//-----------------------------------------------------------------------------
+class vtkSLACReader::vtkMidpointIdMap::vtkInternal
+{
+public:
+  typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints, vtkIdType,
+                           vtkSLACReader::vtkEdgeEndpointsHash> MapType;
+  MapType Map;
+  MapType::iterator Iterator;
+};
+
+vtkSLACReader::vtkMidpointIdMap::vtkMidpointIdMap()
+{
+  this->Internal = new vtkSLACReader::vtkMidpointIdMap::vtkInternal;
+}
+
+vtkSLACReader::vtkMidpointIdMap::~vtkMidpointIdMap()
+{
+  delete this->Internal;
+}
+
+void vtkSLACReader::vtkMidpointIdMap::AddMidpoint(const vtkEdgeEndpoints &edge,
+                                                  vtkIdType midpoint)
+{
+  this->Internal->Map.insert(vtkstd::make_pair(edge, midpoint));
+}
+
+void vtkSLACReader::vtkMidpointIdMap::RemoveMidpoint(
+                                                   const vtkEdgeEndpoints &edge)
+{
+  vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
+  if (iter != this->Internal->Map.end())
+    {
+    this->Internal->Map.erase(iter);
+    }
+}
+
+void vtkSLACReader::vtkMidpointIdMap::RemoveAllMidpoints()
+{
+  this->Internal->Map.clear();
+}
+
+vtkIdType vtkSLACReader::vtkMidpointIdMap::GetNumberOfMidpoints() const
+{
+  return static_cast<vtkIdType>(this->Internal->Map.size());
+}
+
+vtkIdType *vtkSLACReader::vtkMidpointIdMap::FindMidpoint(
+                                                   const vtkEdgeEndpoints &edge)
+{
+  vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
+  if (iter != this->Internal->Map.end())
+    {
+    return &iter->second;
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+void vtkSLACReader::vtkMidpointIdMap::InitTraversal()
+{
+  this->Internal->Iterator = this->Internal->Map.begin();
+}
+
+bool vtkSLACReader::vtkMidpointIdMap::GetNextMidpoint(vtkEdgeEndpoints &edge,
+                                                      vtkIdType &midpoint)
+{
+  if (this->Internal->Iterator == this->Internal->Map.end()) return false;
+
+  edge = this->Internal->Iterator->first;
+  midpoint = this->Internal->Iterator->second;
+
+  this->Internal->Iterator++;
+  return true;
+}
+
+//=============================================================================
+vtkCxxRevisionMacro(vtkSLACReader, "1.5");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -243,8 +389,33 @@ vtkInformationKeyMacro(vtkSLACReader, POINTS, ObjectBase);
 vtkInformationKeyMacro(vtkSLACReader, POINT_DATA, ObjectBase);
 
 //-----------------------------------------------------------------------------
+// The internals class mostly holds templated ivars that we don't want to
+// expose in the header file.
+class vtkSLACReader::vtkInternal
+{
+public:
+  vtkstd::vector<vtkStdString> ModeFileNames;
+
+  vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
+
+  // Description:
+  // A quick lookup to find the correct mode file name given a time value.
+  // Only valid when TimeStepModes is true.
+  vtkstd::map<double, vtkStdString> TimeStepToFile;
+
+  // Description:
+  // References and shallow copies to the last output data.  We keep this
+  // arround in case we do not have to read everything in again.
+  vtkSmartPointer<vtkPoints> PointCache;
+  vtkSmartPointer<vtkMultiBlockDataSet> MeshCache;
+  vtkMidpointIdMap MidpointIdCache;
+};
+
+//-----------------------------------------------------------------------------
 vtkSLACReader::vtkSLACReader()
 {
+  this->Internal = new vtkSLACReader::vtkInternal;
+
   this->SetNumberOfInputPorts(0);
 
   this->MeshFileName = NULL;
@@ -253,11 +424,13 @@ vtkSLACReader::vtkSLACReader()
   this->ReadExternalSurface = 1;
   this->ReadMidpoints = 1;
 
-  this->VariableArraySelection = vtkSmartPointer<vtkDataArraySelection>::New();
+  this->Internal->VariableArraySelection
+    = vtkSmartPointer<vtkDataArraySelection>::New();
   VTK_CREATE(vtkCallbackCommand, cbc);
   cbc->SetCallback(&vtkSLACReader::SelectionModifiedCallback);
   cbc->SetClientData(this);
-  this->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent, cbc);
+  this->Internal->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent,
+                                                      cbc);
 
   this->ReadModeData = false;
   this->TimeStepModes = false;
@@ -274,10 +447,10 @@ void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "MeshFileName: " << this->MeshFileName << endl;
-  for (unsigned int i = 0; i < this->ModeFileNames.size(); i++)
+  for (unsigned int i = 0; i < this->Internal->ModeFileNames.size(); i++)
     {
     os << indent << "ModeFileName[" << i << "]: "
-       << this->ModeFileNames[i] << endl;
+       << this->Internal->ModeFileNames[i] << endl;
     }
 
   os << indent << "ReadInternalVolume: " << this->ReadInternalVolume << endl;
@@ -285,7 +458,7 @@ void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "ReadMidpoints: " << this->ReadMidpoints << endl;
 
   os << indent << "VariableArraySelection:" << endl;
-  this->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
+  this->Internal->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
 //-----------------------------------------------------------------------------
@@ -307,24 +480,24 @@ int vtkSLACReader::CanReadFile(const char *filename)
 //-----------------------------------------------------------------------------
 void vtkSLACReader::AddModeFileName(const char *fname)
 {
-  this->ModeFileNames.push_back(fname);
+  this->Internal->ModeFileNames.push_back(fname);
   this->Modified();
 }
 
 void vtkSLACReader::RemoveAllModeFileNames()
 {
-  this->ModeFileNames.clear();
+  this->Internal->ModeFileNames.clear();
   this->Modified();
 }
 
 unsigned int vtkSLACReader::GetNumberOfModeFileNames()
 {
-  return this->ModeFileNames.size();
+  return this->Internal->ModeFileNames.size();
 }
 
 const char *vtkSLACReader::GetModeFileName(unsigned int idx)
 {
-  return this->ModeFileNames[idx].c_str();
+  return this->Internal->ModeFileNames[idx].c_str();
 }
 
 //-----------------------------------------------------------------------------
@@ -374,20 +547,21 @@ int vtkSLACReader::RequestInformation(
     return 0;
     }
 
-  this->VariableArraySelection->RemoveAllArrays();
+  this->Internal->VariableArraySelection->RemoveAllArrays();
 
   vtkSLACReaderAutoCloseNetCDF meshFD(this->MeshFileName, NC_NOWRITE);
   if (!meshFD.Valid()) return 0;
 
   this->ReadModeData = false;   // Assume false until everything checks out.
   this->TimeStepModes = false;
-  this->TimeStepToFile.clear();
+  this->Internal->TimeStepToFile.clear();
   this->FrequencyModes = false;
   this->Frequency = 0.0;
-  if (!this->ModeFileNames.empty())
+  if (!this->Internal->ModeFileNames.empty())
     {
     // Check the first mode file, assume that the rest follow.
-    vtkSLACReaderAutoCloseNetCDF modeFD(this->ModeFileNames[0], NC_NOWRITE);
+    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0],
+                                        NC_NOWRITE);
     if (!modeFD.Valid()) return 0;
 
     int meshCoordsVarId, modeCoordsVarId;
@@ -397,7 +571,8 @@ int vtkSLACReader::RequestInformation(
     if (   this->GetNumTuplesInVariable(meshFD(), meshCoordsVarId, 3)
         != this->GetNumTuplesInVariable(modeFD(), modeCoordsVarId, 3) )
       {
-      vtkWarningMacro(<< "Mode file " << this->ModeFileNames[0].c_str()
+      vtkWarningMacro(<< "Mode file "
+                      << this->Internal->ModeFileNames[0].c_str()
                       << " invalid for mesh file " << this->MeshFileName
                       << "; the number of coordinates do not match.");
       }
@@ -419,7 +594,8 @@ int vtkSLACReader::RequestInformation(
       if (this->Frequency < 100)
         {
         this->TimeStepModes = true;
-        this->TimeStepToFile[this->Frequency] = this->ModeFileNames[0];
+        this->Internal->TimeStepToFile[this->Frequency]
+          = this->Internal->ModeFileNames[0];
         }
       else
         {
@@ -449,7 +625,7 @@ int vtkSLACReader::RequestInformation(
         if (strcmp(name, "coords") == 0) continue;
         if (this->FrequencyModes && imaginaryVar.find(name)) continue;
 
-        this->VariableArraySelection->AddArray(name);
+        this->Internal->VariableArraySelection->AddArray(name);
         }
       }
     }
@@ -459,9 +635,10 @@ int vtkSLACReader::RequestInformation(
     // If we are in time steps modes, we need to read in the time values from
     // all the files (and we have already read the first one).  We then report
     // the time steps we have.
-    vtkstd::vector<vtkStdString>::iterator fileitr =this->ModeFileNames.begin();
+    vtkstd::vector<vtkStdString>::iterator fileitr
+      = this->Internal->ModeFileNames.begin();
     fileitr++;
-    for ( ; fileitr != this->ModeFileNames.end(); fileitr++)
+    for ( ; fileitr != this->Internal->ModeFileNames.end(); fileitr++)
       {
       vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
       if (!modeFD.Valid()) return 0;
@@ -472,15 +649,15 @@ int vtkSLACReader::RequestInformation(
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
         }
-      this->TimeStepToFile[this->Frequency] = *fileitr;
+      this->Internal->TimeStepToFile[this->Frequency] = *fileitr;
       }
 
     double range[2];
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     vtkstd::map<double, vtkStdString>::iterator timeitr
-      = this->TimeStepToFile.begin();
+      = this->Internal->TimeStepToFile.begin();
     range[0] = timeitr->first;
-    for ( ; timeitr != this->TimeStepToFile.end(); timeitr++)
+    for ( ; timeitr != this->Internal->TimeStepToFile.end(); timeitr++)
       {
       range[1] = timeitr->first;        // Eventually set to last value.
       outInfo->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
@@ -530,8 +707,8 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
 
   if (readMesh)
     {
-    this->MidpointIdCache.clear();
-    this->MeshCache = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+    this->Internal->MidpointIdCache.RemoveAllMidpoints();
+    this->Internal->MeshCache = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 
     vtkSLACReaderAutoCloseNetCDF meshFD(this->MeshFileName, NC_NOWRITE);
     if (!meshFD.Valid()) return 0;
@@ -554,14 +731,15 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
 
     if (this->ReadMidpoints)
       {
-      if (!this->ReadMidpointData(meshFD(), output, this->MidpointIdCache))
+      if (!this->ReadMidpointData(meshFD(), output,
+                                  this->Internal->MidpointIdCache))
         {
         return 0;
         }
       }
 
-    this->MeshCache->ShallowCopy(output);
-    this->PointCache = points;
+    this->Internal->MeshCache->ShallowCopy(output);
+    this->Internal->PointCache = points;
     this->MeshReadTime.Modified();
     }
   else
@@ -576,11 +754,11 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
     vtkStdString modeFileName;
     if (this->TimeStepModes && timeValid)
       {
-      modeFileName = this->TimeStepToFile.lower_bound(time)->second;
+      modeFileName = this->Internal->TimeStepToFile.lower_bound(time)->second;
       }
     else
       {
-      modeFileName = this->ModeFileNames[0];
+      modeFileName = this->Internal->ModeFileNames[0];
       }
     vtkSLACReaderAutoCloseNetCDF modeFD(modeFileName, NC_NOWRITE);
     if (!modeFD.Valid()) return 0;
@@ -589,7 +767,10 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
 
     this->UpdateProgress(0.875);
 
-    if (!this->InterpolateMidpointData(output, this->MidpointIdCache)) return 0;
+    if (!this->InterpolateMidpointData(output, this->Internal->MidpointIdCache))
+      {
+      return 0;
+      }
     }
 
   // Push points to output.
@@ -628,19 +809,19 @@ void vtkSLACReader::SelectionModifiedCallback(vtkObject*, unsigned long,
 //-----------------------------------------------------------------------------
 int vtkSLACReader::GetNumberOfVariableArrays()
 {
-  return this->VariableArraySelection->GetNumberOfArrays();
+  return this->Internal->VariableArraySelection->GetNumberOfArrays();
 }
 
 //-----------------------------------------------------------------------------
 const char* vtkSLACReader::GetVariableArrayName(int index)
 {
-  return this->VariableArraySelection->GetArrayName(index);
+  return this->Internal->VariableArraySelection->GetArrayName(index);
 }
 
 //-----------------------------------------------------------------------------
 int vtkSLACReader::GetVariableArrayStatus(const char* name)
 {
-  return this->VariableArraySelection->ArrayIsEnabled(name);
+  return this->Internal->VariableArraySelection->ArrayIsEnabled(name);
 }
 
 //-----------------------------------------------------------------------------
@@ -649,11 +830,11 @@ void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
   if(status)
     {
-    this->VariableArraySelection->EnableArray(name);
+    this->Internal->VariableArraySelection->EnableArray(name);
     }
   else
     {
-    this->VariableArraySelection->DisableArray(name);
+    this->Internal->VariableArraySelection->DisableArray(name);
     }
 }
 
@@ -878,14 +1059,18 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
   size_t numCoords;
   CALL_NETCDF(nc_inq_dimlen(modeFD, ncoordDim, &numCoords));
 
-  int numArrays = this->VariableArraySelection->GetNumberOfArrays();
+  int numArrays = this->Internal->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
     {
     // skip array if not enabled
-    if (!this->VariableArraySelection->GetArraySetting(arrayIndex)) continue;
+    if (!this->Internal->VariableArraySelection->GetArraySetting(arrayIndex))
+      {
+      continue;
+      }
 
     // from the variable name, get the variable id
-    const char *name = this->VariableArraySelection->GetArrayName(arrayIndex);
+    const char *name
+      = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
     CALL_NETCDF(nc_inq_varid(modeFD, name, &varId));
 
@@ -968,10 +1153,10 @@ int vtkSLACReader::ReadMidpointCoordinates(
     {
     double *mp = midpointData->GetPointer(i*5);
 
-    using namespace vtkstd;
-    map.insert(make_pair(make_pair(static_cast<vtkIdType>(mp[0]),
-                                   static_cast<vtkIdType>(mp[1])),
-                         vtkSLACReader::vtkMidpoint(mp+2, i + pointTotal)));
+    vtkEdgeEndpoints edge(static_cast<vtkIdType>(mp[0]),
+                          static_cast<vtkIdType>(mp[1]));
+    vtkMidpointCoordinates midpoint(mp+2, i+pointTotal);
+    map.AddMidpoint(edge, midpoint);
     }
 
   return 1;
@@ -981,8 +1166,6 @@ int vtkSLACReader::ReadMidpointCoordinates(
 int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                                     vtkMidpointIdMap &midpointIds)
 {
-  using namespace vtkstd;
-
   static bool GaveMidpointWarning = false;
   if (!GaveMidpointWarning)
     {
@@ -998,7 +1181,8 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
   vtkMidpointCoordinateMap midpointCoords;
   if (!this->ReadMidpointCoordinates(meshFD, output, midpointCoords)) return 0;
 
-  vtkIdType newPointTotal = points->GetNumberOfPoints() + midpointCoords.size();
+  vtkIdType newPointTotal
+    = points->GetNumberOfPoints() + midpointCoords.GetNumberOfMidpoints();
 
   // Iterate over all of the parts in the output and visit the ones for the
   // external surface.
@@ -1033,23 +1217,23 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
         // Get the points defining the edge.
         vtkIdType p0 = pts[triEdges[edgeInc][0]];
         vtkIdType p1 = pts[triEdges[edgeInc][1]];
-        pair<vtkIdType,vtkIdType> edge = make_pair(MY_MIN(p0,p1),MY_MAX(p0,p1));
+        vtkEdgeEndpoints edge(p0, p1);
 
         // See if we have already copied this midpoint.
-        vtkMidpointIdMap::iterator idLoc = midpointIds.find(edge);
         vtkIdType midId;
-        if (idLoc != midpointIds.end())
+        vtkIdType *midIdPointer = midpointIds.FindMidpoint(edge);
+        if (midIdPointer != NULL)
           {
-          midId = idLoc->second;
+          midId = *midIdPointer;
           }
         else
           {
           // Check to see if the midpoint was read from the file.  If not,
           // then interpolate linearly between the two edge points.
-          vtkMidpointCoordinateMap::iterator coordLoc
-            = midpointCoords.find(edge);
-          vtkMidpoint midpoint;
-          if (coordLoc == midpointCoords.end())
+          vtkMidpointCoordinates midpoint;
+          vtkMidpointCoordinates *midpointPointer
+            = midpointCoords.FindMidpoint(edge);
+          if (midpointPointer == NULL)
             {
             double coord0[3], coord1[3], coordMid[3];
             points->GetPoint(p0, coord0);
@@ -1057,22 +1241,22 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
             coordMid[0] = 0.5*(coord0[0] + coord1[0]);
             coordMid[1] = 0.5*(coord0[1] + coord1[1]);
             coordMid[2] = 0.5*(coord0[2] + coord1[2]);
-            midpoint = vtkMidpoint(coordMid, newPointTotal);
+            midpoint = vtkMidpointCoordinates(coordMid, newPointTotal);
             newPointTotal ++;
             }
           else
             {
-            midpoint = coordLoc->second;
+            midpoint = *midpointPointer;
             // Erase the midpoint from the map.  We don't need it anymore since
             // we will insert a point id in the midpointIds map (see below).
-            midpointCoords.erase(coordLoc);
+            midpointCoords.RemoveMidpoint(edge);
             }
 
           // Add the new point to the point data.
           points->InsertPoint(midpoint.ID, midpoint.Coordinate);
 
           // Add the new point to the id map.
-          midpointIds.insert(make_pair(edge, midpoint.ID));
+          midpointIds.AddMidpoint(edge, midpoint.ID);
           midId = midpoint.ID;
           }
 
@@ -1107,12 +1291,12 @@ int vtkSLACReader::InterpolateMidpointData(vtkMultiBlockDataSet *output,
   // Set up the point data for adding new points and interpolating their values.
   pd->InterpolateAllocate(pd, points->GetNumberOfPoints());
 
-  for (vtkMidpointIdMap::iterator i = map.begin(); i != map.end(); i++)
+  vtkEdgeEndpoints edge;
+  vtkIdType midpoint;
+  for (map.InitTraversal(); map.GetNextMidpoint(edge, midpoint); )
     {
-    vtkIdType edgePoint0 = i->first.first;
-    vtkIdType edgePoint1 = i->first.second;
-    vtkIdType midpoint = i->second;
-    pd->InterpolateEdge(pd, midpoint, edgePoint0, edgePoint1, 0.5);
+    pd->InterpolateEdge(pd, midpoint,
+                        edge.GetMinEndPoint(), edge.GetMaxEndPoint(), 0.5);
     }
 
   return 1;
@@ -1125,7 +1309,7 @@ int vtkSLACReader::MeshUpToDate()
     {
     return 0;
     }
-  if (this->MeshReadTime < this->VariableArraySelection->GetMTime())
+  if (this->MeshReadTime < this->Internal->VariableArraySelection->GetMTime())
     {
     return 0;
     }
@@ -1135,8 +1319,9 @@ int vtkSLACReader::MeshUpToDate()
 //-----------------------------------------------------------------------------
 int vtkSLACReader::RestoreMeshCache(vtkMultiBlockDataSet *output)
 {
-  output->ShallowCopy(this->MeshCache);
-  output->GetInformation()->Set(vtkSLACReader::POINTS(), this->PointCache);
+  output->ShallowCopy(this->Internal->MeshCache);
+  output->GetInformation()->Set(vtkSLACReader::POINTS(),
+                                this->Internal->PointCache);
 
   VTK_CREATE(vtkPointData, pd);
   output->GetInformation()->Set(vtkSLACReader::POINT_DATA(), pd);
