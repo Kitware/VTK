@@ -89,7 +89,7 @@ void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(
 }
 
 // ----------------------------------------------------------------------------
-virtual void vtkQtAnnotationLayersModelAdapter::SetColorColumnName(
+void vtkQtAnnotationLayersModelAdapter::SetColorColumnName(
   const char *vtkNotUsed(name))
 {
 }
