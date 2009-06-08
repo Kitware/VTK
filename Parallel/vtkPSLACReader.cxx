@@ -199,6 +199,13 @@ static void SynchronizeBlocks(vtkMultiBlockDataSet *blocks,
 // information.
 namespace vtkPSLACReaderTypes
 {
+  struct vtkEdgeEndpointsHash {
+  public:
+    size_t operator()(const vtkSLACReader::vtkEdgeEndpoints &edge) const {
+      return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
+    }
+  };
+
   typedef struct {
     double coord[3];
   } midpointPositionType;
@@ -224,7 +231,7 @@ namespace vtkPSLACReaderTypes
   } midpointPointersType;
   typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints,
                     midpointPointersType,
-                    vtkSLACReader::vtkEdgeEndpointsHash> MidpointsAvailableType;
+                    vtkEdgeEndpointsHash> MidpointsAvailableType;
 
 //-----------------------------------------------------------------------------
 // Convenience function for gathering midpoint information to a process.
@@ -313,7 +320,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.3");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.4");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);

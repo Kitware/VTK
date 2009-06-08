@@ -137,11 +137,21 @@ public:
     vtkIdType MinEndPoint;
     vtkIdType MaxEndPoint;
   };
-  struct vtkEdgeEndpointsHash {
+
+  // Description:
+  // Simple class used internally for holding midpoint information.
+  class VTK_IO_EXPORT vtkMidpointCoordinates
+  {
   public:
-    size_t operator()(const vtkSLACReader::vtkEdgeEndpoints &edge) const {
-      return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
+    vtkMidpointCoordinates() {}
+    vtkMidpointCoordinates(const double coord[3], vtkIdType id) {
+      this->Coordinate[0] = coord[0];
+      this->Coordinate[1] = coord[1];
+      this->Coordinate[2] = coord[2];
+      this->ID = id;
     }
+    double Coordinate[3];
+    vtkIdType ID;
   };
 //ETX
 
@@ -230,22 +240,6 @@ protected:
 //ETX
 
 //BTX
-  // Description:
-  // Simple structure for holding midpoint information.
-  class VTK_IO_EXPORT vtkMidpointCoordinates
-  {
-  public:
-    vtkMidpointCoordinates() {}
-    vtkMidpointCoordinates(const double coord[3], vtkIdType id) {
-      this->Coordinate[0] = coord[0];
-      this->Coordinate[1] = coord[1];
-      this->Coordinate[2] = coord[2];
-      this->ID = id;
-    }
-    double Coordinate[3];
-    vtkIdType ID;
-  };
-
   // Description:
   // Manages a map from edges to midpoint coordinates.
   class VTK_IO_EXPORT vtkMidpointCoordinateMap

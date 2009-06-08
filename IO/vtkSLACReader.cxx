@@ -241,12 +241,23 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 //=============================================================================
 // Classes for storing midpoint maps.  These are basically wrappers around STL
 // maps.
+
+// I originally had this placed inside of the vtkSLACReader declaration, where
+// it makes much more sense.  However, MSVC6 seems to have a problem with this.
+struct vtkSLACReaderEdgeEndpointsHash {
+public:
+  size_t operator()(const vtkSLACReader::vtkEdgeEndpoints &edge) const {
+    return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
+  }
+};
+
+//-----------------------------------------------------------------------------
 class vtkSLACReader::vtkMidpointCoordinateMap::vtkInternal
 {
 public:
   typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints,
                            vtkSLACReader::vtkMidpointCoordinates,
-                           vtkSLACReader::vtkEdgeEndpointsHash> MapType;
+                           vtkSLACReaderEdgeEndpointsHash> MapType;
   MapType Map;
 };
 
@@ -307,7 +318,7 @@ class vtkSLACReader::vtkMidpointIdMap::vtkInternal
 {
 public:
   typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints, vtkIdType,
-                           vtkSLACReader::vtkEdgeEndpointsHash> MapType;
+                           vtkSLACReaderEdgeEndpointsHash> MapType;
   MapType Map;
   MapType::iterator Iterator;
 };
@@ -380,7 +391,7 @@ bool vtkSLACReader::vtkMidpointIdMap::GetNextMidpoint(vtkEdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.6");
+vtkCxxRevisionMacro(vtkSLACReader, "1.7");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
