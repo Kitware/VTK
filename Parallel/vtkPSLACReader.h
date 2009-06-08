@@ -69,9 +69,9 @@ protected:
   virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output);
   virtual int ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output);
   virtual int ReadMidpointCoordinates(int meshFD, vtkMultiBlockDataSet *output,
-                                      vtkMidpointCoordinateMap &map);
+                                      MidpointCoordinateMap &map);
   virtual int ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
-                               vtkMidpointIdMap &map);
+                               MidpointIdMap &map);
   virtual int RestoreMeshCache(vtkMultiBlockDataSet *output);
   virtual int ReadFieldData(int modeFD, vtkMultiBlockDataSet *output);
 

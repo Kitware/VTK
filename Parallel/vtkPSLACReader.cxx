@@ -199,9 +199,9 @@ static void SynchronizeBlocks(vtkMultiBlockDataSet *blocks,
 // information.
 namespace vtkPSLACReaderTypes
 {
-  struct vtkEdgeEndpointsHash {
+  struct EdgeEndpointsHash {
   public:
-    size_t operator()(const vtkSLACReader::vtkEdgeEndpoints &edge) const {
+    size_t operator()(const vtkSLACReader::EdgeEndpoints &edge) const {
       return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
     }
   };
@@ -229,9 +229,9 @@ namespace vtkPSLACReaderTypes
     midpointPositionType *position;
     midpointTopologyType *topology;
   } midpointPointersType;
-  typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints,
-                    midpointPointersType,
-                    vtkEdgeEndpointsHash> MidpointsAvailableType;
+  typedef vtksys::hash_map<vtkSLACReader::EdgeEndpoints,
+                           midpointPointersType,
+                           EdgeEndpointsHash> MidpointsAvailableType;
 
 //-----------------------------------------------------------------------------
 // Convenience function for gathering midpoint information to a process.
@@ -320,7 +320,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.4");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.5");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
@@ -899,7 +899,7 @@ int vtkPSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
 int vtkPSLACReader::ReadMidpointCoordinates (
                                    int meshFD, 
                                    vtkMultiBlockDataSet *vtkNotUsed(output),
-                                   vtkSLACReader::vtkMidpointCoordinateMap &map)
+                                   vtkSLACReader::MidpointCoordinateMap &map)
 {
   // Get the number of midpoints.
   int midpointsVar;
@@ -979,8 +979,8 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     midpointPointersType mp;
     mp.position = &(*posIter);  mp.topology = &(*topIter);
     MidpointsAvailable.insert(
-                    vtkstd::make_pair(vtkEdgeEndpoints(topIter->minEdgePoint,
-                                                       topIter->maxEdgePoint),
+                    vtkstd::make_pair(EdgeEndpoints(topIter->minEdgePoint,
+                                                    topIter->maxEdgePoint),
                                       mp));
     }
 
@@ -1003,7 +1003,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
       MidpointsAvailableType::const_iterator iter;
       vtkIdType e[2];
       this->Internal->EdgesToSendToProcesses->GetTupleValue(i, e);
-      iter = MidpointsAvailable.find(vtkEdgeEndpoints(e[0], e[1]));
+      iter = MidpointsAvailable.find(EdgeEndpoints(e[0], e[1]));
       if (iter != MidpointsAvailable.end ())
         {
         midpointsToSend.position.push_back(*iter->second.position);
@@ -1051,16 +1051,15 @@ int vtkPSLACReader::ReadMidpointCoordinates (
       {
       index = iter->second;
       }
-    map.AddMidpoint(vtkSLACReader::vtkEdgeEndpoints(local0, local1),
-                    vtkSLACReader::vtkMidpointCoordinates(posIter->coord,
-                                                          index));
+    map.AddMidpoint(vtkSLACReader::EdgeEndpoints(local0, local1),
+                    vtkSLACReader::MidpointCoordinates(posIter->coord, index));
     }
   return 1;
 }
 
 //-----------------------------------------------------------------------------
 int vtkPSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
-                                     vtkSLACReader::vtkMidpointIdMap &map)
+                                     vtkSLACReader::MidpointIdMap &map)
 {
   int result = this->Superclass::ReadMidpointData(meshFD, output, map); 
   if (result != 1)

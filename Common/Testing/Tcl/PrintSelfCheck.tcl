@@ -113,6 +113,7 @@ proc check_header_file { filename } {
 
   set printself_found 0
   set class_found 0
+  set line_count 0
 
   if { [file readable $filename] } {
     set fileid [open $filename "r"]
@@ -123,6 +124,8 @@ proc check_header_file { filename } {
     # Read each line in the file
     #
     while { [gets $fileid data] >= 0 && $protected_not_found } {
+      incr line_count
+
       # Search for the printSelf string
       if { [string match "*PrintSelf*(*" $data] == 1 } {
 
@@ -137,7 +140,7 @@ proc check_header_file { filename } {
 
       # Search for the class string
       # Extract the class name from the string
-      if { [string match "*class VTK_*EXPORT*" $data] == 1 } {
+      if { [string match "*class VTK_*EXPORT* vtk*" $data] == 1 } {
         set class_found 1
 
         set class_ivar_count 0
@@ -164,11 +167,11 @@ proc check_header_file { filename } {
 
             set class_name [string trim [string range $data $first $last]]
           }
-        }
-        set class_list($class_name.p) 0
+	  set class_list($class_name.p) 0
 
-        if { $verbose >= 2 } {
-          puts "    Class Name: $class_name"
+	  if { $verbose >= 2 } {
+	      puts "    Class Name: $class_name"
+	  }
         }
 
         if { [string compare $class_name ""] == 0 } {

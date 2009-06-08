@@ -246,40 +246,40 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 // it makes much more sense.  However, MSVC6 seems to have a problem with this.
 struct vtkSLACReaderEdgeEndpointsHash {
 public:
-  size_t operator()(const vtkSLACReader::vtkEdgeEndpoints &edge) const {
+  size_t operator()(const vtkSLACReader::EdgeEndpoints &edge) const {
     return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
   }
 };
 
 //-----------------------------------------------------------------------------
-class vtkSLACReader::vtkMidpointCoordinateMap::vtkInternal
+class vtkSLACReader::MidpointCoordinateMap::vtkInternal
 {
 public:
-  typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints,
-                           vtkSLACReader::vtkMidpointCoordinates,
+  typedef vtksys::hash_map<vtkSLACReader::EdgeEndpoints,
+                           vtkSLACReader::MidpointCoordinates,
                            vtkSLACReaderEdgeEndpointsHash> MapType;
   MapType Map;
 };
 
-vtkSLACReader::vtkMidpointCoordinateMap::vtkMidpointCoordinateMap()
+vtkSLACReader::MidpointCoordinateMap::MidpointCoordinateMap()
 {
-  this->Internal = new vtkSLACReader::vtkMidpointCoordinateMap::vtkInternal;
+  this->Internal = new vtkSLACReader::MidpointCoordinateMap::vtkInternal;
 }
 
-vtkSLACReader::vtkMidpointCoordinateMap::~vtkMidpointCoordinateMap()
+vtkSLACReader::MidpointCoordinateMap::~MidpointCoordinateMap()
 {
   delete this->Internal;
 }
 
-void vtkSLACReader::vtkMidpointCoordinateMap::AddMidpoint(
-                                                const vtkEdgeEndpoints &edge,
-                                                const vtkMidpointCoordinates &midpoint)
+void vtkSLACReader::MidpointCoordinateMap::AddMidpoint(
+                                            const EdgeEndpoints &edge,
+                                            const MidpointCoordinates &midpoint)
 {
   this->Internal->Map.insert(vtkstd::make_pair(edge, midpoint));
 }
 
-void vtkSLACReader::vtkMidpointCoordinateMap::RemoveMidpoint(
-                                                   const vtkEdgeEndpoints &edge)
+void vtkSLACReader::MidpointCoordinateMap::RemoveMidpoint(
+                                                      const EdgeEndpoints &edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -288,19 +288,18 @@ void vtkSLACReader::vtkMidpointCoordinateMap::RemoveMidpoint(
     }
 }
 
-void vtkSLACReader::vtkMidpointCoordinateMap::RemoveAllMidpoints()
+void vtkSLACReader::MidpointCoordinateMap::RemoveAllMidpoints()
 {
   this->Internal->Map.clear();
 }
 
-vtkIdType vtkSLACReader::vtkMidpointCoordinateMap::GetNumberOfMidpoints() const
+vtkIdType vtkSLACReader::MidpointCoordinateMap::GetNumberOfMidpoints() const
 {
   return static_cast<vtkIdType>(this->Internal->Map.size());
 }
 
-vtkSLACReader::vtkMidpointCoordinates *
-vtkSLACReader::vtkMidpointCoordinateMap::FindMidpoint(
-                                                   const vtkEdgeEndpoints &edge)
+vtkSLACReader::MidpointCoordinates *
+vtkSLACReader::MidpointCoordinateMap::FindMidpoint(const EdgeEndpoints &edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -314,33 +313,32 @@ vtkSLACReader::vtkMidpointCoordinateMap::FindMidpoint(
 }
 
 //-----------------------------------------------------------------------------
-class vtkSLACReader::vtkMidpointIdMap::vtkInternal
+class vtkSLACReader::MidpointIdMap::vtkInternal
 {
 public:
-  typedef vtksys::hash_map<vtkSLACReader::vtkEdgeEndpoints, vtkIdType,
+  typedef vtksys::hash_map<vtkSLACReader::EdgeEndpoints, vtkIdType,
                            vtkSLACReaderEdgeEndpointsHash> MapType;
   MapType Map;
   MapType::iterator Iterator;
 };
 
-vtkSLACReader::vtkMidpointIdMap::vtkMidpointIdMap()
+vtkSLACReader::MidpointIdMap::MidpointIdMap()
 {
-  this->Internal = new vtkSLACReader::vtkMidpointIdMap::vtkInternal;
+  this->Internal = new vtkSLACReader::MidpointIdMap::vtkInternal;
 }
 
-vtkSLACReader::vtkMidpointIdMap::~vtkMidpointIdMap()
+vtkSLACReader::MidpointIdMap::~MidpointIdMap()
 {
   delete this->Internal;
 }
 
-void vtkSLACReader::vtkMidpointIdMap::AddMidpoint(const vtkEdgeEndpoints &edge,
-                                                  vtkIdType midpoint)
+void vtkSLACReader::MidpointIdMap::AddMidpoint(const EdgeEndpoints &edge,
+                                               vtkIdType midpoint)
 {
   this->Internal->Map.insert(vtkstd::make_pair(edge, midpoint));
 }
 
-void vtkSLACReader::vtkMidpointIdMap::RemoveMidpoint(
-                                                   const vtkEdgeEndpoints &edge)
+void vtkSLACReader::MidpointIdMap::RemoveMidpoint(const EdgeEndpoints &edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -349,18 +347,17 @@ void vtkSLACReader::vtkMidpointIdMap::RemoveMidpoint(
     }
 }
 
-void vtkSLACReader::vtkMidpointIdMap::RemoveAllMidpoints()
+void vtkSLACReader::MidpointIdMap::RemoveAllMidpoints()
 {
   this->Internal->Map.clear();
 }
 
-vtkIdType vtkSLACReader::vtkMidpointIdMap::GetNumberOfMidpoints() const
+vtkIdType vtkSLACReader::MidpointIdMap::GetNumberOfMidpoints() const
 {
   return static_cast<vtkIdType>(this->Internal->Map.size());
 }
 
-vtkIdType *vtkSLACReader::vtkMidpointIdMap::FindMidpoint(
-                                                   const vtkEdgeEndpoints &edge)
+vtkIdType *vtkSLACReader::MidpointIdMap::FindMidpoint(const EdgeEndpoints &edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -373,13 +370,13 @@ vtkIdType *vtkSLACReader::vtkMidpointIdMap::FindMidpoint(
     }
 }
 
-void vtkSLACReader::vtkMidpointIdMap::InitTraversal()
+void vtkSLACReader::MidpointIdMap::InitTraversal()
 {
   this->Internal->Iterator = this->Internal->Map.begin();
 }
 
-bool vtkSLACReader::vtkMidpointIdMap::GetNextMidpoint(vtkEdgeEndpoints &edge,
-                                                      vtkIdType &midpoint)
+bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
+                                                   vtkIdType &midpoint)
 {
   if (this->Internal->Iterator == this->Internal->Map.end()) return false;
 
@@ -391,7 +388,7 @@ bool vtkSLACReader::vtkMidpointIdMap::GetNextMidpoint(vtkEdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.7");
+vtkCxxRevisionMacro(vtkSLACReader, "1.8");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -419,7 +416,7 @@ public:
   // arround in case we do not have to read everything in again.
   vtkSmartPointer<vtkPoints> PointCache;
   vtkSmartPointer<vtkMultiBlockDataSet> MeshCache;
-  vtkMidpointIdMap MidpointIdCache;
+  MidpointIdMap MidpointIdCache;
 };
 
 //-----------------------------------------------------------------------------
@@ -1143,7 +1140,7 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
 int vtkSLACReader::ReadMidpointCoordinates(
                                    int meshFD,
                                    vtkMultiBlockDataSet *output,
-                                   vtkSLACReader::vtkMidpointCoordinateMap &map)
+                                   vtkSLACReader::MidpointCoordinateMap &map)
 {
   // Get the number of midpoints.
   int midpointsVar;
@@ -1166,9 +1163,9 @@ int vtkSLACReader::ReadMidpointCoordinates(
     {
     double *mp = midpointData->GetPointer(i*5);
 
-    vtkEdgeEndpoints edge(static_cast<vtkIdType>(mp[0]),
-                          static_cast<vtkIdType>(mp[1]));
-    vtkMidpointCoordinates midpoint(mp+2, i+pointTotal);
+    EdgeEndpoints edge(static_cast<vtkIdType>(mp[0]),
+                       static_cast<vtkIdType>(mp[1]));
+    MidpointCoordinates midpoint(mp+2, i+pointTotal);
     map.AddMidpoint(edge, midpoint);
     }
 
@@ -1177,7 +1174,7 @@ int vtkSLACReader::ReadMidpointCoordinates(
 
 //-----------------------------------------------------------------------------
 int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
-                                    vtkMidpointIdMap &midpointIds)
+                                    MidpointIdMap &midpointIds)
 {
   static bool GaveMidpointWarning = false;
   if (!GaveMidpointWarning)
@@ -1191,7 +1188,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                         output->GetInformation()->Get(vtkSLACReader::POINTS()));
 
   // Read in the midpoint coordinates.
-  vtkMidpointCoordinateMap midpointCoords;
+  MidpointCoordinateMap midpointCoords;
   if (!this->ReadMidpointCoordinates(meshFD, output, midpointCoords)) return 0;
 
   vtkIdType newPointTotal
@@ -1230,7 +1227,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
         // Get the points defining the edge.
         vtkIdType p0 = pts[triEdges[edgeInc][0]];
         vtkIdType p1 = pts[triEdges[edgeInc][1]];
-        vtkEdgeEndpoints edge(p0, p1);
+        EdgeEndpoints edge(p0, p1);
 
         // See if we have already copied this midpoint.
         vtkIdType midId;
@@ -1243,8 +1240,8 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
           {
           // Check to see if the midpoint was read from the file.  If not,
           // then interpolate linearly between the two edge points.
-          vtkMidpointCoordinates midpoint;
-          vtkMidpointCoordinates *midpointPointer
+          MidpointCoordinates midpoint;
+          MidpointCoordinates *midpointPointer
             = midpointCoords.FindMidpoint(edge);
           if (midpointPointer == NULL)
             {
@@ -1254,7 +1251,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
             coordMid[0] = 0.5*(coord0[0] + coord1[0]);
             coordMid[1] = 0.5*(coord0[1] + coord1[1]);
             coordMid[2] = 0.5*(coord0[2] + coord1[2]);
-            midpoint = vtkMidpointCoordinates(coordMid, newPointTotal);
+            midpoint = MidpointCoordinates(coordMid, newPointTotal);
             newPointTotal ++;
             }
           else
@@ -1287,7 +1284,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
 
 //-----------------------------------------------------------------------------
 int vtkSLACReader::InterpolateMidpointData(vtkMultiBlockDataSet *output,
-                                           vtkSLACReader::vtkMidpointIdMap &map)
+                                           vtkSLACReader::MidpointIdMap &map)
 {
   // Get the point information from the output data (where it was placed
   // earlier).
@@ -1304,7 +1301,7 @@ int vtkSLACReader::InterpolateMidpointData(vtkMultiBlockDataSet *output,
   // Set up the point data for adding new points and interpolating their values.
   pd->InterpolateAllocate(pd, points->GetNumberOfPoints());
 
-  vtkEdgeEndpoints edge;
+  EdgeEndpoints edge;
   vtkIdType midpoint;
   for (map.InitTraversal(); map.GetNextMidpoint(edge, midpoint); )
     {

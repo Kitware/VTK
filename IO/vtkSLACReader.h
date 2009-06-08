@@ -113,11 +113,11 @@ public:
   // Description:
   // Simple class used internally to define an edge based on the endpoints.  The
   // endpoints are canonically identified by the lower and higher values.
-  class VTK_IO_EXPORT vtkEdgeEndpoints
+  class VTK_IO_EXPORT EdgeEndpoints
   {
   public:
-    vtkEdgeEndpoints() : MinEndPoint(-1), MaxEndPoint(-1) {}
-    vtkEdgeEndpoints(vtkIdType endpointA, vtkIdType endpointB) {
+    EdgeEndpoints() : MinEndPoint(-1), MaxEndPoint(-1) {}
+    EdgeEndpoints(vtkIdType endpointA, vtkIdType endpointB) {
       if (endpointA < endpointB)
         {
         this->MinEndPoint = endpointA;  this->MaxEndPoint = endpointB;
@@ -129,7 +129,7 @@ public:
     }
     inline vtkIdType GetMinEndPoint() const { return this->MinEndPoint; }
     inline vtkIdType GetMaxEndPoint() const { return this->MaxEndPoint; }
-    inline bool operator==(const vtkEdgeEndpoints &other) const {
+    inline bool operator==(const EdgeEndpoints &other) const {
       return (   (this->GetMinEndPoint() == other.GetMinEndPoint())
               && (this->GetMaxEndPoint() == other.GetMaxEndPoint()) );
     }
@@ -140,11 +140,11 @@ public:
 
   // Description:
   // Simple class used internally for holding midpoint information.
-  class VTK_IO_EXPORT vtkMidpointCoordinates
+  class VTK_IO_EXPORT MidpointCoordinates
   {
   public:
-    vtkMidpointCoordinates() {}
-    vtkMidpointCoordinates(const double coord[3], vtkIdType id) {
+    MidpointCoordinates() {}
+    MidpointCoordinates(const double coord[3], vtkIdType id) {
       this->Coordinate[0] = coord[0];
       this->Coordinate[1] = coord[1];
       this->Coordinate[2] = coord[2];
@@ -242,22 +242,22 @@ protected:
 //BTX
   // Description:
   // Manages a map from edges to midpoint coordinates.
-  class VTK_IO_EXPORT vtkMidpointCoordinateMap
+  class VTK_IO_EXPORT MidpointCoordinateMap
   {
   public:
-    vtkMidpointCoordinateMap();
-    ~vtkMidpointCoordinateMap();
+    MidpointCoordinateMap();
+    ~MidpointCoordinateMap();
 
-    void AddMidpoint(const vtkEdgeEndpoints &edge,
-                     const vtkMidpointCoordinates &midpoint);
-    void RemoveMidpoint(const vtkEdgeEndpoints &edge);
+    void AddMidpoint(const EdgeEndpoints &edge,
+                     const MidpointCoordinates &midpoint);
+    void RemoveMidpoint(const EdgeEndpoints &edge);
     void RemoveAllMidpoints();
     vtkIdType GetNumberOfMidpoints() const;
 
     // Description:
     // Finds the coordinates for the given edge or returns NULL if it
     // does not exist.
-    vtkMidpointCoordinates *FindMidpoint(const vtkEdgeEndpoints &edge);
+    MidpointCoordinates *FindMidpoint(const EdgeEndpoints &edge);
 
   protected:
     class vtkInternal;
@@ -265,33 +265,33 @@ protected:
 
   private:
     // Too lazy to implement these.
-    vtkMidpointCoordinateMap(const vtkMidpointCoordinateMap &);
-    void operator=(const vtkMidpointCoordinateMap &);
+    MidpointCoordinateMap(const MidpointCoordinateMap &);
+    void operator=(const MidpointCoordinateMap &);
   };
 
   // Description:
   // Manages a map from edges to the point id of the midpoint.
-  class VTK_IO_EXPORT vtkMidpointIdMap
+  class VTK_IO_EXPORT MidpointIdMap
   {
   public:
-    vtkMidpointIdMap();
-    ~vtkMidpointIdMap();
+    MidpointIdMap();
+    ~MidpointIdMap();
 
-    void AddMidpoint(const vtkEdgeEndpoints &edge, vtkIdType midpoint);
-    void RemoveMidpoint(const vtkEdgeEndpoints &edge);
+    void AddMidpoint(const EdgeEndpoints &edge, vtkIdType midpoint);
+    void RemoveMidpoint(const EdgeEndpoints &edge);
     void RemoveAllMidpoints();
     vtkIdType GetNumberOfMidpoints() const;
 
     // Description:
     // Finds the id for the given edge or returns NULL if it does not exist.
-    vtkIdType *FindMidpoint(const vtkEdgeEndpoints &edge);
+    vtkIdType *FindMidpoint(const EdgeEndpoints &edge);
 
     // Description:
     // Initialize iteration.  The iteration can occur in any order.
     void InitTraversal();
     // Description:
     // Get the next midpoint in the iteration.  Return 0 if the end is reached.
-    bool GetNextMidpoint(vtkEdgeEndpoints &edge, vtkIdType &midpoint);
+    bool GetNextMidpoint(EdgeEndpoints &edge, vtkIdType &midpoint);
 
   protected:
     class vtkInternal;
@@ -299,8 +299,8 @@ protected:
 
   private:
     // Too lazy to implement these.
-    vtkMidpointIdMap(const vtkMidpointIdMap &);
-    void operator=(const vtkMidpointIdMap &);
+    MidpointIdMap(const MidpointIdMap &);
+    void operator=(const MidpointIdMap &);
   };
 //ETX
 
@@ -314,14 +314,14 @@ protected:
   // from edges to midpoints.  This method is called by ReadMidpointData.
   // Returns 1 on success, 0 on failure.
   virtual int ReadMidpointCoordinates(int meshFD, vtkMultiBlockDataSet *output,
-                                      vtkMidpointCoordinateMap &map);
+                                      MidpointCoordinateMap &map);
 
   // Description:
   // Read in the midpoint data from the mesh file.  Returns 1 on success,
   // 0 on failure.  Also fills a midpoint id map that will be passed into
   // InterpolateMidpointFieldData.
   virtual int ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
-                               vtkMidpointIdMap &map);
+                               MidpointIdMap &map);
 
   // Description:
   // Instead of reading data from the mesh file, restore the data from the
@@ -337,7 +337,7 @@ protected:
   // Takes the data read on the fields and interpolates data for the midpoints.
   // map is the same map that was created in ReadMidpointData.
   virtual int InterpolateMidpointData(vtkMultiBlockDataSet *output,
-                                      vtkMidpointIdMap &map);
+                                      MidpointIdMap &map);
 
   // Description:
   // A time stamp for the last time the mesh file was read.  This is used to
