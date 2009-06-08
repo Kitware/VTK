@@ -167,8 +167,10 @@ static void SynchronizeBlocks(vtkMultiBlockDataSet *blocks,
                               vtkMultiProcessController *controller,
                               vtkInformationIntegerKey *typeKey)
 {
-  unsigned long numBlocks = blocks->GetNumberOfBlocks();
-  controller->AllReduce(&numBlocks, &numBlocks, 1, vtkCommunicator::MAX_OP);
+  unsigned long localNumBlocks = blocks->GetNumberOfBlocks();
+  unsigned long numBlocks;
+  controller->AllReduce(&localNumBlocks, &numBlocks, 1,
+                        vtkCommunicator::MAX_OP);
   if (blocks->GetNumberOfBlocks() < numBlocks)
     {
     blocks->SetNumberOfBlocks(numBlocks);
@@ -320,7 +322,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.5");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.6");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
