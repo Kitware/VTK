@@ -322,7 +322,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.6");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.7");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
@@ -467,8 +467,8 @@ int vtkPSLACReader::ReadTetrahedronInteriorArray(int meshFD,
   start[1] = 0;         count[1] = NumPerTetInt;
 
   connectivity->Initialize();
-  connectivity->SetNumberOfComponents(count[1]);
-  connectivity->SetNumberOfTuples(count[0]);
+  connectivity->SetNumberOfComponents(static_cast<int>(count[1]));
+  connectivity->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
   CALL_NETCDF(nc_get_vars_vtkIdType(meshFD, tetInteriorVarId,
                                     start, count, NULL,
                                     connectivity->GetPointer(0)));
@@ -497,8 +497,8 @@ int vtkPSLACReader::ReadTetrahedronExteriorArray(int meshFD,
   start[1] = 0;         count[1] = NumPerTetExt;
 
   connectivity->Initialize();
-  connectivity->SetNumberOfComponents(count[1]);
-  connectivity->SetNumberOfTuples(count[0]);
+  connectivity->SetNumberOfComponents(static_cast<int>(count[1]));
+  connectivity->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
   CALL_NETCDF(nc_get_vars_vtkIdType(meshFD, tetExteriorVarId,
                                     start, count, NULL,
                                     connectivity->GetPointer(0)));
@@ -820,8 +820,8 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD,
   start[0] = this->StartPointRead(this->RequestedPiece);
   count[0] = this->EndPointRead(this->RequestedPiece) - start[0];
   start[1] = 0;  count[1] = numComponents;
-  dataArray->SetNumberOfComponents(count[1]);
-  dataArray->SetNumberOfTuples(count[0]);
+  dataArray->SetNumberOfComponents(static_cast<int>(count[1]));
+  dataArray->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
   CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, NULL,
                           dataArray->GetVoidPointer(0)));
 
@@ -829,13 +829,13 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD,
   // point data and a buffer to send data to the rest of the processes.
   vtkSmartPointer<vtkDataArray> finalDataArray;
   finalDataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
-  finalDataArray->SetNumberOfComponents(numComponents);
+  finalDataArray->SetNumberOfComponents(static_cast<int>(numComponents));
   finalDataArray->SetNumberOfTuples(
                          this->Internal->LocalToGlobalIds->GetNumberOfTuples());
 
   vtkSmartPointer<vtkDataArray> sendBuffer;
   sendBuffer.TakeReference(vtkDataArray::CreateDataArray(vtkType));
-  sendBuffer->SetNumberOfComponents(numComponents);
+  sendBuffer->SetNumberOfComponents(static_cast<int>(numComponents));
   sendBuffer->SetNumberOfTuples(
                   this->Internal->PointsToSendToProcesses->GetNumberOfTuples());
   switch (vtkType)
@@ -843,7 +843,7 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD,
     vtkTemplateMacro(vtkPSLACReaderMapValues1(
                                    (VTK_TT*)dataArray->GetVoidPointer(0),
                                    (VTK_TT*)sendBuffer->GetVoidPointer(0),
-                                   numComponents,
+                                   static_cast<int>(numComponents),
                                    this->Internal->PointsToSendToProcesses,
                                    this->StartPointRead(this->RequestedPiece)));
     }
@@ -924,8 +924,8 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   starts[1] = 0;              counts[1] = 5;
 
   VTK_CREATE (vtkDoubleArray, midpointData);
-  midpointData->SetNumberOfComponents (counts[1]);
-  midpointData->SetNumberOfTuples (counts[0]);
+  midpointData->SetNumberOfComponents(static_cast<int>(counts[1]));
+  midpointData->SetNumberOfTuples(static_cast<vtkIdType>(counts[0]));
   CALL_NETCDF(nc_get_vars_double(meshFD, midpointsVar,
                                  starts, counts, NULL,
                                  midpointData->GetPointer(0)));
