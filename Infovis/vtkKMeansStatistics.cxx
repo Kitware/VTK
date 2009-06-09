@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.4");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.5");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -356,36 +356,48 @@ void vtkKMeansStatistics::ExecuteLearn( vtkTable* inData,
       }
 
     // find minimum distance between each data object and cluster center
-    int localMemberID=0, offsetLocalMemberID=0;
-    double minDistance=0, curDistance;
-    for ( int dataID=0; dataID < dataElements->GetNumberOfRows(); dataID++ )
+    int localMemberID, offsetLocalMemberID;
+    double minDistance, curDistance;
+    for ( int observation=0; observation < dataElements->GetNumberOfRows(); observation++ )
       {
       for( int runID = 0; runID < numRuns; runID++)
         {
         if(computeRun->GetValue( runID ))
           {
-          for( int j = startRunID->GetValue(runID); j < endRunID->GetValue(runID); j++ )
+          vtkIdType runStartIdx = startRunID->GetValue( runID );
+          vtkIdType runEndIdx = endRunID->GetValue( runID );
+          if ( runStartIdx >= runEndIdx )
+            {
+            continue;
+            }
+          vtkIdType j = runStartIdx;
+          localMemberID = 0;
+          offsetLocalMemberID = runStartIdx;
+          (*this->DistanceFunctor)( minDistance, 
+                                    curClusterElements->GetRow( j ), 
+                                    dataElements->GetRow( observation ) );
+          for( /* no init */; j < runEndIdx; j++ )
             {
             (*this->DistanceFunctor)( curDistance, 
                                       curClusterElements->GetRow( j ), 
-                                      dataElements->GetRow( dataID ) );
-            if( j == startRunID->GetValue(runID) || curDistance < minDistance )
+                                      dataElements->GetRow( observation ) );
+            if( curDistance < minDistance )
               {
               minDistance = curDistance;
-              localMemberID = j-startRunID->GetValue(runID);
+              localMemberID = j-runStartIdx;
               offsetLocalMemberID = j;
               }
             }
-            if ( clusterMemberID->GetValue( dataID*numRuns+runID) != localMemberID )
+            if ( clusterMemberID->GetValue( observation*numRuns+runID) != localMemberID )
               {
               numMembershipChanges->SetValue( runID, numMembershipChanges->GetValue( runID ) + 1 );
-              clusterMemberID->SetValue( dataID*numRuns+runID, localMemberID );
+              clusterMemberID->SetValue( observation*numRuns+runID, localMemberID );
               }
             // change this to online update
             int newCardinality = numDataElementsInCluster->GetValue( offsetLocalMemberID ) + 1;
             numDataElementsInCluster->SetValue( offsetLocalMemberID, newCardinality );
             this->DistanceFunctor->IncrementallyUpdate( newClusterElements, offsetLocalMemberID, 
-                                     dataElements->GetRow( dataID ), newCardinality );
+                                     dataElements->GetRow( observation ), newCardinality );
             error->SetValue( offsetLocalMemberID, error->GetValue( offsetLocalMemberID ) + minDistance );
             }
          }

@@ -44,13 +44,14 @@ int TestKMeansStatistics( int, char *[] )
     doubleArray[c] = vtkDoubleArray::New();
     doubleArray[c]->SetNumberOfComponents( 1 );
     doubleArray[c]->SetName( colName.str().c_str() );
+    doubleArray[c]->SetNumberOfTuples( nVals );
 
     double x;
     for ( int r = 0; r < nVals; ++ r )
       {
       //x = vtkMath::Gaussian();
       x = vtkMath::Random();
-      doubleArray[c]->InsertNextValue( x );
+      doubleArray[c]->SetValue( r, x );
       }
 
     inputData->AddColumn( doubleArray[c] );
@@ -62,6 +63,8 @@ int TestKMeansStatistics( int, char *[] )
   vtkDoubleArray* paramArray[nDim];
   const int numRuns = 5;
   const int numClustersInRun[] = { 5, 2, 3, 4, 5 };
+  //const int numRuns = 1;
+  //const int numClustersInRun[] = { 3 };
   paramCluster = vtkIdTypeArray::New();
   paramCluster->SetName( "K" );
 
@@ -104,50 +107,63 @@ int TestKMeansStatistics( int, char *[] )
   haruspex->SetColumnStatus( "Testing", 1 );
   haruspex->RequestSelectedColumns();
 
-  for(unsigned int i=0; i < 2; i++ ) 
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  cout << "Testing default parameter generation with Default Number of Clusters = 3" << endl;
+  haruspex->SetDefaultNumberOfClusters( 3 );
+
+  // -- Test Learn Mode -- 
+  haruspex->SetLearn( true );
+  haruspex->SetDerive( true );
+  haruspex->SetAssess( false );
+
+  haruspex->Update();
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(  
+                        haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
-    haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-    if(i == 0) 
+    vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+    if ( b == 0 )
       {
-      cout << "Testing default parameter generation with Default Number of Clusters = 3" << endl;
-      haruspex->SetDefaultNumberOfClusters( 3 );
+      cout << "Computed clusters:" << "\n";
       }
-    if(i == 1) 
+    else
       {
-      haruspex->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
-      cout << "testing default table:" << endl;
-      paramData->Dump();
+      cout << "Ranked cluster: " << "\n";
       }
+
+    outputMeta->Dump();
+    }
+
+
+  haruspex->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
+  cout << "testing default table:" << endl;
+  paramData->Dump();
     
-    // -- Test Learn Mode -- 
-    haruspex->SetLearn( true );
-    haruspex->SetDerive( true );
-    haruspex->SetAssess( false );
+  // -- Test Learn Mode -- 
+  haruspex->SetLearn( true );
+  haruspex->SetDerive( true );
+  haruspex->SetAssess( false );
 
-    haruspex->Update();
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( 
-                          haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-    for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+  haruspex->Update();
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( 
+                 haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+    {
+    vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+    if ( b == 0 )
       {
-      vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
-      if ( b == 0 )
-        {
-        cout << "Computed clusters:" << "\n";
-        }
-      else
-        {
-        cout << "Ranked cluster: " << "\n";
-        }
-
-      outputMeta->Dump();
+      cout << "Computed clusters:" << "\n";
+      }
+    else
+      {
+      cout << "Ranked cluster: " << "\n";
       }
 
-  }
+    outputMeta->Dump();
+    }
+
   // -- Test Assess Mode -- 
-    
-
   cout << "=================== ASSESS ==================== " << endl;
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
@@ -159,7 +175,7 @@ int TestKMeansStatistics( int, char *[] )
   haruspex->Update();
   vtkTable* outputData = haruspex->GetOutput();
   outputData->Dump();
-
+  cout << "outputData = " << *outputData << endl;
   paramsTables->Delete();
 
   paramData->Delete();
