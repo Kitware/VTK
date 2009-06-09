@@ -45,7 +45,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.15");
+vtkCxxRevisionMacro(vtkQtTableView, "1.16");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -248,10 +248,6 @@ void vtkQtTableView::SetVTKSelection()
     
   if(selection->GetNode(0) && selection->GetNode(0)->GetSelectionList()->GetNumberOfTuples())
     {
-    vtkSmartPointer<vtkSelection> selection;
-    selection.TakeReference(vtkConvertSelection::ToSelectionType(
-      s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
-
     QItemSelection qisList = this->TableAdapter->
       VTKIndexSelectionToQItemSelection(selection);
     QItemSelection sortedSel = this->TableSorter->mapSelectionFromSource(qisList);
