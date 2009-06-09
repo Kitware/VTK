@@ -388,7 +388,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.8");
+vtkCxxRevisionMacro(vtkSLACReader, "1.9");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -502,7 +502,7 @@ void vtkSLACReader::RemoveAllModeFileNames()
 
 unsigned int vtkSLACReader::GetNumberOfModeFileNames()
 {
-  return this->Internal->ModeFileNames.size();
+  return static_cast<unsigned int>(this->Internal->ModeFileNames.size());
 }
 
 const char *vtkSLACReader::GetModeFileName(unsigned int idx)
@@ -1018,7 +1018,7 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD,
   if (vtkType < 1) return 0;
   vtkSmartPointer<vtkDataArray> dataArray;
   dataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
-  dataArray->SetNumberOfComponents(numComponents);
+  dataArray->SetNumberOfComponents(static_cast<vtkIdType>(numComponents));
   dataArray->SetNumberOfTuples(numCoords);
 
   // Read the data from the file.
