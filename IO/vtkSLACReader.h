@@ -163,6 +163,10 @@ protected:
   class vtkInternal;
   vtkInternal *Internal;
 
+  // Friend so vtkInternal can access MidpointIdMap 
+  // (so Sun CC compiler doesn't complain).
+  friend class vtkInternal;
+
   char *MeshFileName;
 
   int ReadInternalVolume;
