@@ -46,7 +46,7 @@ struct octree_node
   bool remove_children();
 
   reference value() { return this->_M_data; }
-  const reference value() const { return this->_M_data; }
+  reference value() const { return this->_M_data; }
 
   const_octree_node_reference operator [] ( int child ) const;
   octree_node_reference operator [] ( int child );
