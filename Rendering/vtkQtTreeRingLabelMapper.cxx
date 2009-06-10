@@ -55,7 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.3");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.4");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -335,8 +335,6 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     double x[3];
     x[0] = textPosDC[0];
     x[1] = textPosDC[1];
-    x[2] = textPosDC[2];
-    
     
     //Now, create the layout for the actual label...
     QString textString, testString;
