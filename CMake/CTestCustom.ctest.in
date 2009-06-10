@@ -128,6 +128,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"
   "Filtering.vtkImageMultiple(Input|InputOutput)Filter.cxx.*warning.*more strictly aligned type"
   "IO.vtkJPEG(Reader|Writer).cxx.*warning.*more strictly aligned type"
+  
+  # QT on HP-UX uses -ldl while VTK uses -dldl.
+  "aCC: warning 983: The -ldl library specified on the command line is also added automatically by the compiler driver."
 
   # This test is made to discover compiler warnings, therefore the emitted
   # warnings are irrelevant in a dashboard submission
