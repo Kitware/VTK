@@ -50,7 +50,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkQtAnnotationView, "1.6");
+vtkCxxRevisionMacro(vtkQtAnnotationView, "1.7");
 vtkStandardNewMacro(vtkQtAnnotationView);
 
 //----------------------------------------------------------------------------
@@ -109,13 +109,13 @@ void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUse
   for(unsigned int i=0; i<curLayers->GetNumberOfAnnotations(); ++i)
     {
     vtkAnnotation* a = curLayers->GetAnnotation(i);
-    vtkAnnotation::ENABLED()->Set(a->GetInformation(),0);
+    vtkAnnotation::ENABLE()->Set(a->GetInformation(),0);
     }
 
   for(int j=0; j<qmi.count(); ++j)
     {
     vtkAnnotation* a = curLayers->GetAnnotation(qmi[j].row());
-    vtkAnnotation::ENABLED()->Set(a->GetInformation(),1);
+    vtkAnnotation::ENABLE()->Set(a->GetInformation(),1);
     }
 
   //vtkSmartPointer<vtkAnnotationLayers> annotations;

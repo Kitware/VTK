@@ -35,7 +35,7 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApplyColors, "1.7");
+vtkCxxRevisionMacro(vtkApplyColors, "1.8");
 vtkStandardNewMacro(vtkApplyColors);
 vtkCxxSetObjectMacro(vtkApplyColors, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkApplyColors, CellLookupTable, vtkScalarsToColors);
@@ -208,8 +208,8 @@ int vtkApplyColors::RequestData(
     for (unsigned int a = 0; a < numAnnotations; ++a)
       {
       vtkAnnotation* ann = layers->GetAnnotation(a);
-      if (ann->GetInformation()->Has(vtkAnnotation::ENABLED()) && 
-          ann->GetInformation()->Get(vtkAnnotation::ENABLED())==0)
+      if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+          ann->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
         {
         continue;
         }
