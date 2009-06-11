@@ -197,7 +197,7 @@ QItemSelection vtkQtTreeModelAdapter::VTKIndexSelectionToQItemSelection(
   vtkSelection *vtksel) const
 {
   QItemSelection qis_list;
-  for(int j=0; j<vtksel->GetNumberOfNodes(); ++j)
+  for(unsigned int j=0; j<vtksel->GetNumberOfNodes(); ++j)
     {
     vtkSelectionNode* node = vtksel->GetNode(j);
     if (node && node->GetFieldType() == vtkSelectionNode::VERTEX)

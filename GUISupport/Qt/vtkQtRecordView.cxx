@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.8");
+vtkCxxRevisionMacro(vtkQtRecordView, "1.9");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------
@@ -100,7 +100,6 @@ void vtkQtRecordView::Update()
   vtkDataRepresentation* rep = this->GetRepresentation();
 
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
-  vtkAlgorithmOutput* selectionConn = rep->GetInternalSelectionOutputPort();
   vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
   vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
   if (d->GetMTime() == this->LastInputMTime &&
