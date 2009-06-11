@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.52");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.52.8.1");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -79,7 +79,7 @@ public:
   double X2;
   bool operator () ( const vtkPiecewiseFunctionNode *node )
     {
-      return ( node->X < this->X1 &&
+      return ( node->X < this->X1 ||
                node->X > this->X2 );
     } 
 };
