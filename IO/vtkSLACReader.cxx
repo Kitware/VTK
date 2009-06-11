@@ -388,7 +388,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.11");
+vtkCxxRevisionMacro(vtkSLACReader, "1.12");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -456,7 +456,15 @@ void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "MeshFileName: " << this->MeshFileName << endl;
+  if (this->MeshFileName)
+    {
+    os << indent << "MeshFileName: " << this->MeshFileName << endl;
+    }
+  else
+    {
+    os << indent << "MeshFileName: (null)\n";
+    }
+
   for (unsigned int i = 0; i < this->Internal->ModeFileNames.size(); i++)
     {
     os << indent << "ModeFileName[" << i << "]: "
