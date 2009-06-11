@@ -29,6 +29,7 @@
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -43,7 +44,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkAddMembershipArray, "1.5");
+vtkCxxRevisionMacro(vtkAddMembershipArray, "1.6");
 vtkStandardNewMacro(vtkAddMembershipArray);
 vtkCxxSetObjectMacro(vtkAddMembershipArray,InputValues,vtkAbstractArray);
 
@@ -101,6 +102,8 @@ int vtkAddMembershipArray::RequestData(
   vtkAnnotationLayers* inputAnnotations = vtkAnnotationLayers::GetData(inputVector[2]);
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
   vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkGraph* graph = vtkGraph::SafeDownCast(output);
+  vtkTable* table = vtkTable::SafeDownCast(output);
 
   output->ShallowCopy(input);
 
@@ -113,30 +116,21 @@ int vtkAddMembershipArray::RequestData(
     switch(this->FieldType)
       {
       case vtkAddMembershipArray::VERTEX_DATA:
-        if(vtkGraph* const graph = vtkGraph::SafeDownCast(output))
+        if(graph)
           {
-          if(graph->GetVertexData())
-            {
-            ds = graph->GetVertexData();
-            }
+          ds = graph->GetVertexData();
           }
         break;
       case vtkAddMembershipArray::EDGE_DATA:
-        if(vtkGraph* const graph = vtkGraph::SafeDownCast(output))
+        if(graph)
           {
-          if(graph->GetEdgeData())
-            {
-            ds = graph->GetEdgeData();
-            }
+          ds = graph->GetEdgeData();
           }
         break;
       case vtkAddMembershipArray::ROW_DATA:
-        if(vtkTable* const table = vtkTable::SafeDownCast(output))
+        if(table)
           {
-          if(table->GetRowData())
-            {
-            ds = table->GetRowData();
-            }
+          ds = table->GetRowData();
           }
         break;
       }
@@ -181,7 +175,6 @@ int vtkAddMembershipArray::RequestData(
     return 1;
     }
 
-
   vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
   selection->DeepCopy(inputSelection);
 
@@ -190,8 +183,8 @@ int vtkAddMembershipArray::RequestData(
     for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
       {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
-      if (a->GetInformation()->Has(vtkAnnotation::ENABLED()) && 
-          a->GetInformation()->Get(vtkAnnotation::ENABLED())==0)
+      if (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+          a->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
         {
         continue;
         }
@@ -199,74 +192,24 @@ int vtkAddMembershipArray::RequestData(
       }
     }
 
-  // Convert the selection to an INDICES selection
-  vtkSmartPointer<vtkSelection> converted;
-  converted.TakeReference(vtkConvertSelection::ToIndexSelection(selection, input));
-  if (!converted.GetPointer())
-    {
-    vtkErrorMacro("Selection conversion to INDICES failed.");
-    return 0;
-    }
-
-  // Collect vertex and edge selections.
   vtkSmartPointer<vtkIdTypeArray> rowList = vtkSmartPointer<vtkIdTypeArray>::New();
-  bool hasRows = false;
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
-  bool hasEdges = false;
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
-  bool hasVertices = false;
-  for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
-    {
-    vtkSelectionNode* node = converted->GetNode(i);
-    vtkIdTypeArray* list = 0;
-    if (node->GetFieldType() == vtkSelectionNode::VERTEX)
-      {
-      list = vertexList;
-      hasVertices = true;
-      }
-    else if (node->GetFieldType() == vtkSelectionNode::EDGE)
-      {
-      list = edgeList;
-      hasEdges = true;
-      }
-    else if (node->GetFieldType() == vtkSelectionNode::ROW)
-      {
-      list = rowList;
-      hasRows = true;
-      }
 
-    if (list)
-      {
-      // Append the selection list to the selection
-      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-      if (curList)
-        {
-        vtkIdType numTuples = curList->GetNumberOfTuples();
-        for (vtkIdType j = 0; j < numTuples; ++j)
-          {
-          vtkIdType curValue = curList->GetValue(j);
-          if (list->LookupValue(curValue) < 0)
-            {
-            list->InsertNextValue(curValue);
-            }
-          }
-        } // end if (curList)
-      } // end if (list)
-    } // end for each child
-  
-  vtkGraph* graph = vtkGraph::SafeDownCast(output);
-  vtkTable* table = vtkTable::SafeDownCast(output);
-  if (hasVertices && vertexList->GetNumberOfTuples() != 0) 
+  if(graph)
     {
-    vtkDataSetAttributes *ds;
-    if(graph)
-      ds = graph->GetVertexData();
-    else if(table && this->FieldType == vtkAddMembershipArray::VERTEX_DATA)
-      ds = table->GetRowData();
-    else
-      return 0;
+    vtkConvertSelection::GetSelectedVertices(selection, graph, vertexList);
+    vtkConvertSelection::GetSelectedEdges(selection, graph, edgeList);
+    }
+  else if(table)
+    {
+    vtkConvertSelection::GetSelectedRows(selection, table, rowList);
+    }
+  
+  if (vertexList->GetNumberOfTuples() != 0) 
+    {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
-    vals->SetNumberOfTuples(ds->GetNumberOfTuples());
+    vals->SetNumberOfTuples(graph->GetVertexData()->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
     vals->SetName(this->OutputArrayName);
     vals->FillComponent(0,0);
@@ -275,20 +218,13 @@ int vtkAddMembershipArray::RequestData(
       {
       vals->SetValue(vertexList->GetValue(i), 1);
       }
-    ds->AddArray(vals);
+    graph->GetVertexData()->AddArray(vals);
     }
 
-  if (hasEdges && edgeList->GetNumberOfTuples() != 0) 
+  if (edgeList->GetNumberOfTuples() != 0) 
     {
-    vtkDataSetAttributes *ds;
-    if(graph)
-      ds = graph->GetEdgeData();
-    else if(table && this->FieldType == vtkAddMembershipArray::EDGE_DATA)
-      ds = table->GetRowData();
-    else
-      return 0;
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
-    vals->SetNumberOfTuples(ds->GetNumberOfTuples());
+    vals->SetNumberOfTuples(graph->GetEdgeData()->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
     vals->SetName(this->OutputArrayName);
     vals->FillComponent(0,0);
@@ -297,14 +233,13 @@ int vtkAddMembershipArray::RequestData(
       {
       vals->SetValue(edgeList->GetValue(i), 1);
       }
-    ds->AddArray(vals);
+    graph->GetEdgeData()->AddArray(vals);
     }
 
-  if (table && hasRows && rowList->GetNumberOfTuples() != 0) 
+  if (rowList->GetNumberOfTuples() != 0) 
     {
-    vtkDataSetAttributes *ds = table->GetRowData();
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
-    vals->SetNumberOfTuples(ds->GetNumberOfTuples());
+    vals->SetNumberOfTuples(table->GetRowData()->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
     vals->SetName(this->OutputArrayName);
     vals->FillComponent(0,0);
@@ -313,7 +248,7 @@ int vtkAddMembershipArray::RequestData(
       {
       vals->SetValue(rowList->GetValue(i), 1);
       }
-    ds->AddArray(vals);
+    table->GetRowData()->AddArray(vals);
     }
 
   return 1;
