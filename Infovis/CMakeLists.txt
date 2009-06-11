@@ -45,6 +45,7 @@ vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkExpandSelectedGraph.cxx
 vtkExtractSelectedGraph.cxx
+vtkExtractSelectedRows.cxx
 vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx
@@ -74,6 +75,7 @@ vtkRISReader.cxx
 vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkRemoveIsolatedVertices.cxx
+vtkRemoveHiddenData.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSplineGraphEdges.cxx
@@ -98,6 +100,7 @@ vtkTreeMapToPolyData.cxx
 vtkTreeRingToPolyData.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
+vtkAttributeClustering2DLayoutStrategy.cxx
 vtkVertexDegree.cxx
 vtkXGMLReader.cxx
 vtkXMLTreeReader.cxx
