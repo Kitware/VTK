@@ -21,6 +21,7 @@
 
 #include "vtkAnnotation.h"
 #include "vtkInformation.h"
+#include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -30,7 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkAnnotation, "1.5");
+vtkCxxRevisionMacro(vtkAnnotation, "1.6");
 vtkStandardNewMacro(vtkAnnotation);
 
 vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
@@ -38,7 +39,9 @@ vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
 vtkInformationKeyMacro(vtkAnnotation, LABEL, String);
 vtkInformationKeyRestrictedMacro(vtkAnnotation, COLOR, DoubleVector, 3);
 vtkInformationKeyMacro(vtkAnnotation, OPACITY, Double);
-vtkInformationKeyMacro(vtkAnnotation, ENABLED, Integer);
+vtkInformationKeyMacro(vtkAnnotation, ENABLE, Integer);
+vtkInformationKeyMacro(vtkAnnotation, HIDE, Integer);
+vtkInformationKeyMacro(vtkAnnotation, DATA, DataObject);
 
 vtkAnnotation::vtkAnnotation()
 {
@@ -86,9 +89,13 @@ void vtkAnnotation::ShallowCopy(vtkDataObject* other)
 
   vtkInformation* info = this->GetInformation();
   vtkInformation* otherInfo = obj->GetInformation();
-  if(otherInfo->Has(vtkAnnotation::ENABLED()))
+  if(otherInfo->Has(vtkAnnotation::ENABLE()))
     {
-    info->CopyEntry(otherInfo,vtkAnnotation::ENABLED());
+    info->CopyEntry(otherInfo,vtkAnnotation::ENABLE());
+    }
+  if(otherInfo->Has(vtkAnnotation::HIDE()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::HIDE());
     }
   if(otherInfo->Has(vtkAnnotation::LABEL()))
     {
@@ -97,6 +104,14 @@ void vtkAnnotation::ShallowCopy(vtkDataObject* other)
   if(otherInfo->Has(vtkAnnotation::COLOR()))
     {
     info->CopyEntry(otherInfo,vtkAnnotation::COLOR());
+    }
+  if(otherInfo->Has(vtkAnnotation::OPACITY()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::OPACITY());
+    }
+  if(otherInfo->Has(vtkAnnotation::DATA()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::DATA());
     }
 }
 
@@ -114,9 +129,13 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
 
   vtkInformation* info = this->GetInformation();
   vtkInformation* otherInfo = obj->GetInformation();
-  if(otherInfo->Has(vtkAnnotation::ENABLED()))
+  if(otherInfo->Has(vtkAnnotation::ENABLE()))
     {
-    info->CopyEntry(otherInfo,vtkAnnotation::ENABLED());
+    info->CopyEntry(otherInfo,vtkAnnotation::ENABLE());
+    }
+  if(otherInfo->Has(vtkAnnotation::HIDE()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::HIDE());
     }
   if(otherInfo->Has(vtkAnnotation::LABEL()))
     {
@@ -125,6 +144,14 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
   if(otherInfo->Has(vtkAnnotation::COLOR()))
     {
     info->CopyEntry(otherInfo,vtkAnnotation::COLOR());
+    }
+  if(otherInfo->Has(vtkAnnotation::OPACITY()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::OPACITY());
+    }
+  if(otherInfo->Has(vtkAnnotation::DATA()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::DATA());
     }
 }
 

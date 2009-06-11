@@ -38,6 +38,7 @@
 class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerVectorKey;
+class vtkInformationDataObjectKey;
 class vtkSelection;
 
 class VTK_FILTERING_EXPORT vtkAnnotation : public vtkDataObject
@@ -74,7 +75,15 @@ public:
   // Description:
   // Whether or not this annotation is enabled. 
   // A value of 1 means enabled, 0 disabled.
-  static vtkInformationIntegerKey* ENABLED();
+  static vtkInformationIntegerKey* ENABLE();
+  
+  // Description:
+  // Whether or not this annotation is visible.
+  static vtkInformationIntegerKey* HIDE();
+
+  // Description:
+  // Associate a vtkDataObject with this annotation
+  static vtkInformationDataObjectKey* DATA();
 
   // Description:
   // Initialize the annotation to an empty state.
