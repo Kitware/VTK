@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.10");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.11");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -145,26 +145,38 @@ void vtkQtRichTextView::Update()
     return;
     }
 
+  vtkIdType row = 0;
+  bool row_valid = false;
+
   // Special-case: if the table is empty, we're done ...
   if(0 == table->GetNumberOfRows())
     {
     this->Internal->UI.WebView->setHtml("");
     return;
     }
-
-  // Figure-out which row of the table we're going to display (if any) ...
-  vtkIdType row = 0;
-  bool row_valid = false;
-  if(vtkSelection* const selection = representation->GetAnnotationLink()->GetCurrentSelection())
+  // Special-case #2: If the table has only one row just use it.
+  else if( 1 == table->GetNumberOfRows())
     {
-    if(vtkSelectionNode* const selection_node = selection->GetNumberOfNodes() ? selection->GetNode(0) : 0)
+      row = 0;
+      row_valid=true;
+    }
+  // For everything else, use the SelectionLink.
+  else
+    {
+    // Figure-out which row of the table we're going to display (if any) ...
+    vtkIdType row = 0;
+    bool row_valid = false;
+    if(vtkSelection* const selection = representation->GetAnnotationLink()->GetCurrentSelection())
       {
-      if(vtkIdTypeArray* const selection_array = vtkIdTypeArray::SafeDownCast(selection_node->GetSelectionList()))
+      if(vtkSelectionNode* const selection_node = selection->GetNumberOfNodes() ? selection->GetNode(0) : 0)
         {
-        if(selection_array->GetNumberOfTuples() && selection_array->GetValue(0) >= 0 && selection_array->GetValue(0) < table->GetNumberOfRows())
+        if(vtkIdTypeArray* const selection_array = vtkIdTypeArray::SafeDownCast(selection_node->GetSelectionList()))
           {
-          row = selection_array->GetValue(0);
-          row_valid = true;
+          if(selection_array->GetNumberOfTuples() && selection_array->GetValue(0) >= 0 && selection_array->GetValue(0) < table->GetNumberOfRows())
+            {
+            row = selection_array->GetValue(0);
+            row_valid = true;
+            }
           }
         }
       }
