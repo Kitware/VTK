@@ -20,6 +20,8 @@
 
 #include "vtkExtractSelectedGraph.h"
 
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
@@ -48,13 +50,13 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.31");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.32");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
 {
-  this->SetNumberOfInputPorts(2);
-  this->RemoveIsolatedVertices = true;
+  this->SetNumberOfInputPorts(3);
+  this->RemoveIsolatedVertices = false;
 }
 
 //----------------------------------------------------------------------------
@@ -72,7 +74,14 @@ int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* 
     }
   else if (port == 1)
     {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    return 1;
+    }
+  else if (port == 2)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     return 1;
     }
   return 0;
@@ -82,6 +91,12 @@ int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* 
 void vtkExtractSelectedGraph::SetSelectionConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
+}
+
+//----------------------------------------------------------------------------
+void vtkExtractSelectedGraph::SetAnnotationLayersConnection(vtkAlgorithmOutput* in)
+{
+  this->SetInputConnection(2, in);
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +149,52 @@ int vtkExtractSelectedGraph::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
-  vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
+  vtkSelection* inputSelection = vtkSelection::GetData(inputVector[1]);
+  vtkAnnotationLayers* inputAnnotations = vtkAnnotationLayers::GetData(inputVector[2]);
+  vtkGraph* output = vtkGraph::GetData(outputVector);
+
+  if(!inputSelection && !inputAnnotations)
+    {
+    vtkErrorMacro("No vtkSelection or vtkAnnotationLayers provided as input.");
+    return 0;
+    }
+
+  vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
+  int numSelections = 0;
+  if(inputSelection)
+    {
+    selection->DeepCopy(inputSelection);
+    numSelections++;
+    }
+
+  // If input annotations are provided, extract their selections only if
+  // they are enabled and not hidden.
+  if(inputAnnotations)
+    {
+    for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
+      {
+      vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
+      if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+          a->GetInformation()->Get(vtkAnnotation::ENABLE())==0) ||
+          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 && 
+          a->GetInformation()->Has(vtkAnnotation::HIDE()) && 
+          a->GetInformation()->Get(vtkAnnotation::HIDE())==0))
+        {
+        continue;
+        }
+      selection->Union(a->GetSelection());
+      numSelections++;
+      }
+    }
+
+  // Handle case where there was no input selection and no enabled, non-hidden
+  // annotations
+  if(numSelections == 0)
+    {
+    output->ShallowCopy(input);
+    return 1;
+    }
 
   // Convert the selection to an INDICES selection
   vtkSmartPointer<vtkSelection> converted;
@@ -387,7 +447,6 @@ int vtkExtractSelectedGraph::RequestData(
     }
 
   // Pass constructed graph to output.
-  vtkGraph* output = vtkGraph::GetData(outputVector);
   if (directed)
     {
     if (!output->CheckedShallowCopy(dirBuilder))

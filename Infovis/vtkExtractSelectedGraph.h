@@ -21,7 +21,9 @@
 //
 // .SECTION Description
 // The first input is a vtkGraph to take a subgraph from.
-// The second input is a vtkSelection containing the selected indices.
+// The second input (optional) is a vtkSelection containing selected 
+// indices. The third input (optional) is a vtkAnnotationsLayers whose 
+// annotations contain selected specifying selected indices.
 // The vtkSelection may have FIELD_TYPE set to POINTS (a vertex selection)
 // or CELLS (an edge selection).  A vertex selection preserves all edges
 // that connect selected vertices.  An edge selection preserves all vertices
@@ -47,6 +49,10 @@ public:
   // Description:
   // A convenience method for setting the second input (i.e. the selection).
   void SetSelectionConnection(vtkAlgorithmOutput* in);
+
+  // Description:
+  // A convenience method for setting the third input (i.e. the annotation layers).
+  void SetAnnotationLayersConnection(vtkAlgorithmOutput* in);
   
   // Description:
   // If set, removes vertices with no adjacent edges in an edge selection.
