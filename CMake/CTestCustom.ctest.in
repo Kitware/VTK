@@ -128,7 +128,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"
   "Filtering.vtkImageMultiple(Input|InputOutput)Filter.cxx.*warning.*more strictly aligned type"
   "IO.vtkJPEG(Reader|Writer).cxx.*warning.*more strictly aligned type"
-  ".*warning.*relational operator .* always evaluates to 'false'(\r\n|\r|\n).*vtkSetClampMacro.*(VTK_LARGE_ID|VTK_LARGE_INTEGER)"
+  ".*warning.*relational operator.*always evaluates to.*(\r\n|\r|\n).*vtkSetClampMacro.*(VTK_LARGE_ID|VTK_LARGE_INTEGER)"
   ".*warning.*controlling expression is constant(\r\n|\r|\n).*assert\(\".*\".*&&.*\);"
   
   # QT on HP-UX uses -ldl while VTK uses -dldl.
