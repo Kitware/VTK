@@ -40,6 +40,7 @@
 class vtkAddMembershipArray;
 class vtkApplyColors;
 class vtkDataObjectToTable;
+class vtkExtractSelectedRows;
 class QItemSelection;
 class QTableView;
 class vtkQtTableModelAdapter;
@@ -86,6 +87,19 @@ public:
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
 
+  // Description: 
+  // Whether or not to display all columns from the input table or to use the 
+  // ColumnName provided.
+  // FIXME: This should be replaced with an Add/Remove column API.
+  void SetShowAll(bool);
+  vtkGetMacro(ShowAll, bool);
+
+  // Description: 
+  // The name of a single column to display.
+  // FIXME: This should be replaced with an Add/Remove column API.
+  vtkSetStringMacro(ColumnName);
+  vtkGetStringMacro(ColumnName);
+
   // Description:
   // Set whether or not the table view should split multi-component columns
   // into multiple single-component columns
@@ -95,6 +109,17 @@ public:
   // Get whether or not the table view splits multi-component columns into
   // multiple single-component columns
   bool GetSplitMultiComponentColumns();
+
+  // Description:
+  // Whether or not to sort selections that the view receives to the top
+  void SetSortSelectionToTop(bool value);
+  vtkGetMacro(SortSelectionToTop, bool);
+
+  // Description:
+  // Whether or not to add an icon to the row header denoting the color
+  // of an annotated row.
+  void SetApplyRowColors(bool value);
+  vtkGetMacro(ApplyRowColors, bool);
 
   // Description:
   // Updates the view.
@@ -120,11 +145,17 @@ private:
   vtkQtTableModelAdapter* TableAdapter;
   QSortFilterProxyModel* TableSorter;
   int FieldType;    
+  bool ShowAll;
+  char* ColumnName;
+  bool InSelectionChanged;
+  bool SortSelectionToTop;
+  bool ApplyRowColors;
 
 //BTX
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
+  vtkSmartPointer<vtkExtractSelectedRows> ExtractRows;
 //ETX
   
   vtkQtTableView(const vtkQtTableView&);  // Not implemented.

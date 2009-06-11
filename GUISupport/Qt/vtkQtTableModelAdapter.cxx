@@ -20,6 +20,7 @@
 #include "vtkQtTableModelAdapter.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkTable.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -514,51 +515,52 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
 
   // For vertical headers, return values in the first column if
   // KeyColumn is valid.
-  if (orientation == Qt::Vertical && this->KeyColumn >= 0 &&
-      (role == Qt::DisplayRole || role == Qt::UserRole))
+  if (orientation == Qt::Vertical)
     {
-    vtkVariant v;
-    this->getValue(section, this->KeyColumn, v);
-    if (v.IsNumeric())
+    if(role == Qt::DisplayRole || role == Qt::UserRole)
       {
-      return QVariant(v.ToDouble());
+      if(this->KeyColumn >= 0)
+        {
+        vtkVariant v;
+        this->getValue(section, this->KeyColumn, v);
+        if (v.IsNumeric())
+          {
+          return QVariant(v.ToDouble());
+          }
+        return QVariant(v.ToString().c_str());
+        }
       }
-    return QVariant(v.ToString().c_str());
-    }
+    else if(role == Qt::DecorationRole && this->ColorColumn >= 0)
+      {
+      int column;
+      if (this->GetSplitMultiComponentColumns())
+        {
+        column = this->Internal->ModelColumnToTableColumn[this->ColorColumn].first;
+        }
+      else
+        {
+        column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
+        }
+      vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Table->GetColumn(column));
+      if (!colors)
+        {
+        return QVariant();
+        }
 
-  // For the decoration role of vertical headers, return colors
-  // in ColorColumn if it is valid.
-  if (orientation == Qt::Vertical && this->ColorColumn >= 0 &&
-    (role == Qt::DecorationRole))
-    {
-    int column;
-    if (this->GetSplitMultiComponentColumns())
-      {
-      column = this->Internal->ModelColumnToTableColumn[this->ColorColumn].first;
-      }
-    else
-      {
-      column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
-      }
-    vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Table->GetColumn(column));
-    if (!colors)
-      {
-      return QVariant();
-      }
+      const int nComponents = colors->GetNumberOfComponents();
+      if(nComponents >= 3)
+        {
+        unsigned char rgba[4];
+        colors->GetTupleValue(section, rgba);
+        int rgb[3];
+        rgb[0] = static_cast<int>(0x0ff & rgba[0]);
+        rgb[1] = static_cast<int>(0x0ff & rgba[1]);
+        rgb[2] = static_cast<int>(0x0ff & rgba[2]);
 
-    const int nComponents = colors->GetNumberOfComponents();
-    if(nComponents >= 3)
-      {
-      unsigned char rgba[4];
-      colors->GetTupleValue(section, rgba);
-      int rgb[3];
-      rgb[0] = static_cast<int>(0x0ff & rgba[0]);
-      rgb[1] = static_cast<int>(0x0ff & rgba[1]);
-      rgb[2] = static_cast<int>(0x0ff & rgba[2]);
-
-      QPixmap pixmap(16, 16);
-      pixmap.fill(QColor(rgb[0],rgb[1],rgb[2]));
-      return QVariant(pixmap);
+        QPixmap pixmap(16, 16);
+        pixmap.fill(QColor(rgb[0],rgb[1],rgb[2]));
+        return QVariant(pixmap);
+        }
       }
     }
 
