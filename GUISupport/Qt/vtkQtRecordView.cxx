@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.7");
+vtkCxxRevisionMacro(vtkQtRecordView, "1.8");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,9 @@ vtkQtRecordView::vtkQtRecordView()
   this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->FieldType = vtkQtRecordView::VERTEX_DATA;
   this->Text = NULL;
-
+  this->CurrentSelectionMTime = 0;
+  this->LastInputMTime = 0;
+  this->LastMTime = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -69,7 +71,11 @@ QWidget* vtkQtRecordView::GetWidget()
 void vtkQtRecordView::SetFieldType(int type)
 {
   this->DataObjectToTable->SetFieldType(type);
-  this->Update();
+  if(this->FieldType != type)
+    {
+    this->FieldType = type;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -92,6 +98,22 @@ void vtkQtRecordView::RemoveInputConnection(
 void vtkQtRecordView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
+
+  vtkAlgorithmOutput* conn = rep->GetInputConnection();
+  vtkAlgorithmOutput* selectionConn = rep->GetInternalSelectionOutputPort();
+  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
+  vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
+  if (d->GetMTime() == this->LastInputMTime &&
+      this->LastMTime == this->GetMTime() &&
+      s->GetMTime() == this->CurrentSelectionMTime)
+    {
+    return;
+    }
+
+  this->LastInputMTime = d->GetMTime();
+  this->LastMTime = this->GetMTime();
+  this->CurrentSelectionMTime = s->GetMTime();
+
   vtkStdString html;
   if (!rep)
     {

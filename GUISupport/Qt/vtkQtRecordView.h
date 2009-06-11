@@ -108,10 +108,14 @@ protected:
   int FieldType;
   int CurrentRow;
 
+
 private:
   vtkQtRecordView(const vtkQtRecordView&);  // Not implemented.
   void operator=(const vtkQtRecordView&);  // Not implemented.
   
+  unsigned long CurrentSelectionMTime;
+  unsigned long LastInputMTime;
+  unsigned long LastMTime;
 };
 
 #endif
