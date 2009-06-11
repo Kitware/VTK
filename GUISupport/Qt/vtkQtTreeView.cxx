@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.14");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.15");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -153,10 +153,7 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
     VTKIndexSelectList, data, rep->GetSelectionType(), rep->GetSelectionArrayNames()));
-    
-  // Store the selection mtime
-  this->CurrentSelectionMTime = converted->GetMTime();
-   
+       
   // Call select on the representation (all 'linked' views will receive this selection)
   rep->Select(this, converted);
   
@@ -165,6 +162,8 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   // Delete the selection list
   VTKIndexSelectList->Delete();
   
+  // Store the selection mtime
+  this->CurrentSelectionMTime = rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
 }
 
 //----------------------------------------------------------------------------
@@ -187,29 +186,26 @@ void vtkQtTreeView::SetVTKSelection()
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
-  if (s->GetMTime() != this->CurrentSelectionMTime)
-    {
-    this->CurrentSelectionMTime = s->GetMTime();
+
+  vtkSmartPointer<vtkSelection> selection;
+  selection.TakeReference(vtkConvertSelection::ToSelectionType(
+    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::VERTEX));
+  
+  QItemSelection qisList = this->TreeAdapter->
+    VTKIndexSelectionToQItemSelection(selection);
     
-    vtkSmartPointer<vtkSelection> selection;
-    selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
+  // Here we want the qt model to have it's selection changed
+  // but we don't want to emit the selection.
+  QObject::disconnect(this->TreeView->selectionModel(), 
+    SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+    this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
     
-    QItemSelection qisList = this->TreeAdapter->
-      VTKIndexSelectionToQItemSelection(selection);
-      
-    // Here we want the qt model to have it's selection changed
-    // but we don't want to emit the selection.
-    QObject::disconnect(this->TreeView->selectionModel(), 
-      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
-      
-    this->TreeView->selectionModel()->select(qisList, 
-      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-      
-    QObject::connect(this->TreeView->selectionModel(), 
-     SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-     this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
-    }
+  this->TreeView->selectionModel()->select(qisList, 
+    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    
+  QObject::connect(this->TreeView->selectionModel(), 
+   SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+   this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
@@ -250,9 +246,16 @@ void vtkQtTreeView::Update()
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
     this->SetShowRootNode(false);
+    }
 
+  if(rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime() != 
+    this->CurrentSelectionMTime)
+    {
     // Update the VTK selection
     this->SetVTKSelection();
+
+    this->CurrentSelectionMTime = 
+      rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
     }
 }
 

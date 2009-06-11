@@ -196,19 +196,21 @@ vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
 QItemSelection vtkQtTreeModelAdapter::VTKIndexSelectionToQItemSelection(
   vtkSelection *vtksel) const
 {
-
   QItemSelection qis_list;
-  vtkSelectionNode* node = vtksel->GetNode(0);
-  if (node)
+  for(int j=0; j<vtksel->GetNumberOfNodes(); ++j)
     {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-    if (arr)
+    vtkSelectionNode* node = vtksel->GetNode(j);
+    if (node && node->GetFieldType() == vtkSelectionNode::VERTEX)
       {
-      for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
+      vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      if (arr)
         {
-        vtkIdType vtk_index = arr->GetValue(i);
-        QModelIndex qmodel_index = this->VTKIndexToQtModelIndex[vtk_index];
-        qis_list.select(qmodel_index, qmodel_index);
+        for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
+          {
+          vtkIdType vtk_index = arr->GetValue(i);
+          QModelIndex qmodel_index = this->VTKIndexToQtModelIndex[vtk_index];
+          qis_list.select(qmodel_index, qmodel_index);
+          }
         }
       }
     }
