@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtColumnView, "1.5");
+vtkCxxRevisionMacro(vtkQtColumnView, "1.6");
 vtkStandardNewMacro(vtkQtColumnView);
 
 
@@ -50,6 +50,7 @@ vtkQtColumnView::vtkQtColumnView()
   this->ColumnView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   this->ColumnView->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->Selecting = false;
+  this->CurrentSelectionMTime = 0;
 
   QObject::connect(this->ColumnView->selectionModel(), 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
@@ -81,41 +82,14 @@ void vtkQtColumnView::SetAlternatingRowColors(bool state)
 
 //----------------------------------------------------------------------------
 void vtkQtColumnView::AddInputConnection(
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+  vtkAlgorithmOutput* vtkNotUsed(conn), vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
-  // Get a handle to the input data object. Note: For now
-  // we are enforcing that the input data is a tree.
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  vtkTree *tree = vtkTree::SafeDownCast(d);
-
-  // Enforce input
-  if (!tree)
-    {
-    vtkErrorMacro("vtkQtColumnView requires a vtkTree as input");
-    return;
-    }
-
-  // Give the data object to the Qt Tree Adapters
-  this->TreeAdapter->SetVTKDataObject(tree);
-
-  // Now set the Qt Adapters (qt models) on the views
-  this->ColumnView->update();
-
 }
 
 //----------------------------------------------------------------------------
 void vtkQtColumnView::RemoveInputConnection(
-  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+  vtkAlgorithmOutput* vtkNotUsed(conn), vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
-  // Remove VTK data from the adapter
-  conn->GetProducer()->Update();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  if (this->TreeAdapter->GetVTKDataObject() == d)
-    {
-    this->TreeAdapter->SetVTKDataObject(0);
-    this->ColumnView->update();
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -140,7 +114,10 @@ void vtkQtColumnView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1
   this->Selecting = false;
   
   // Delete the selection list
-  VTKIndexSelectList->Delete();
+  VTKIndexSelectList->Delete();  
+  
+  // Store the selection mtime
+  this->CurrentSelectionMTime = rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
 }
 
 //----------------------------------------------------------------------------
@@ -153,33 +130,38 @@ void vtkQtColumnView::SetVTKSelection()
     return;
     }
 
+  // Check to see we actually have data
+  vtkDataObject *d = this->TreeAdapter->GetVTKDataObject();
+  if (!d) 
+    {
+    return;
+    }
+
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
-  vtkDataObject *d = this->TreeAdapter->GetVTKDataObject();
   vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
-  if (s->GetMTime() != this->CurrentSelectionMTime)
-    {
-    this->CurrentSelectionMTime = s->GetMTime();
+
+  vtkSmartPointer<vtkSelection> selection;
+  selection.TakeReference(vtkConvertSelection::ToSelectionType(
+    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::VERTEX));
+  //vtkSmartPointer<vtkSelection> selection;
+  //selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
+  
+  QItemSelection qisList = this->TreeAdapter->
+    VTKIndexSelectionToQItemSelection(selection);
     
-    vtkSmartPointer<vtkSelection> selection;
-    selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
+  // Here we want the qt model to have it's selection changed
+  // but we don't want to emit the selection.
+  QObject::disconnect(this->ColumnView->selectionModel(), 
+    SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+    this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
     
-    QItemSelection qisList = this->TreeAdapter->
-      VTKIndexSelectionToQItemSelection(selection);
-      
-    // Here we want the qt model to have it's selection changed
-    // but we don't want to emit the selection.
-    QObject::disconnect(this->ColumnView->selectionModel(), 
-      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
-      
-    this->ColumnView->selectionModel()->select(qisList, 
-      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-      
-    QObject::connect(this->ColumnView->selectionModel(), 
-     SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-     this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
-    }
+  this->ColumnView->selectionModel()->select(qisList, 
+    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    
+  QObject::connect(this->ColumnView->selectionModel(), 
+   SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+   this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
@@ -188,27 +170,50 @@ void vtkQtColumnView::Update()
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
     {
+    // Remove VTK data from the adapter
+    this->TreeAdapter->SetVTKDataObject(0);
+    this->ColumnView->update();
     return;
     }
+  rep->Update();
 
   // Make the data current
   vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
   alg->Update();
-  vtkDataObject *d = alg->GetOutputDataObject(0);
-  this->TreeAdapter->SetVTKDataObject(d);
   
-  // Make the selection current
-  if (this->Selecting)
+  // Make the selection/annotations current
+  vtkAlgorithm *annAlg = rep->GetInternalAnnotationOutputPort()->GetProducer();
+  annAlg->Update();
+
+  vtkDataObject *d = alg->GetOutputDataObject(0);
+  vtkTree *tree = vtkTree::SafeDownCast(d);
+
+  // Special-case: if our input is missing or not-a-tree, quietly exit.
+  if(!tree)
     {
-    // If we initiated the selection, do nothing.
+    //vtkErrorMacro("vtkQtTreeView requires a vtkTree as input");
     return;
     }
 
-  // Update the VTK selection
-  this->SetVTKSelection();
-  
-  // Refresh the view  
-  this->ColumnView->update();
+  // See if this is the same tree I already have
+  if ((this->TreeAdapter->GetVTKDataObject() != tree) ||
+      (this->TreeAdapter->GetVTKDataObjectMTime() != tree->GetMTime()))
+    {
+    this->TreeAdapter->SetVTKDataObject(tree);
+    }
+
+  if(rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime() != 
+    this->CurrentSelectionMTime)
+    {
+    // Update the VTK selection
+    this->SetVTKSelection();
+
+    this->CurrentSelectionMTime = 
+      rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
+    }
+
+  // Refresh the view
+  this->ColumnView->update();  
 }
 
 //----------------------------------------------------------------------------
