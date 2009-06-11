@@ -614,6 +614,8 @@ public:
     // Accessor methods.
     int GetNumberOfFields() { return this->NumberOfFields; }
     int GetFieldIndex(int i) { return this->FieldIndices[i]; }
+    const char* GetFieldName(int i) { return this->Fields[i]; }
+    int GetFieldComponents(int i) { return this->FieldComponents[i]; }
     int GetDSAIndex(int index, int i) { return this->DSAIndices[index][i]; }
     
     friend class vtkDataSetAttributes;
@@ -622,6 +624,8 @@ public:
     FieldList(const FieldList&) {} //prevent these methods from being used
     void operator=(const FieldList&) {}
 
+    void SetFieldIndex(int i, int index)
+      { this->FieldIndices[i] = index; }
   private:
     void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);
