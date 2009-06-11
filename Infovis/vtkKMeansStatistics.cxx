@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.5");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.6");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -128,7 +128,9 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
        inParameters->GetNumberOfColumns() > 1 )
     {
     numToAllocate = inParameters->GetNumberOfRows();
+    cout << "InitDataAndClusterCenters: START numberOfClusters setting number of values " << numToAllocate << endl;
     numberOfClusters->SetNumberOfValues( numToAllocate );
+    cout << "InitDataAndClusterCenters: END numberOfClusters setting number of values " << numToAllocate << endl;
     numberOfClusters->SetName( inParameters->GetColumn( 0 )->GetName() );
     vtkIdTypeArray* counts = vtkIdTypeArray::SafeDownCast( inParameters->GetColumn( 0 ) );
 
@@ -140,9 +142,13 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
     while ( curRow < inParameters->GetNumberOfRows() )
       {
       numRuns++;
+      cout << "InitDataAndClusterCenters: START startRunID  insertingNextValue" << curRow << endl;
       startRunID->InsertNextValue( curRow );
+      cout << "InitDataAndClusterCenters: END startRunID  insertingNextValue" << curRow << endl;
       curRow += inParameters->GetValue( curRow, 0 ).ToInt();
+      cout << "InitDataAndClusterCenters: START endRunID  insertingNextValue" << curRow << endl;
       endRunID->InsertNextValue( curRow );
+      cout << "InitDataAndClusterCenters: END endRunID  insertingNextValue" << curRow << endl;
       }
     vtkTable* condensedTable = vtkTable::New();
     vtkstd::set<vtkStdString>::iterator colItr;
@@ -160,8 +166,12 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
         vtkWarningMacro( "Skipping requested column \"" << colItr->c_str() << "\"." );
         }
       }
+    cout << "InitDataAndClusterCenters: START newClusterElements DeepCopy " << endl;
     newClusterElements->DeepCopy( condensedTable );
+    cout << "InitDataAndClusterCenters: END newClusterElements DeepCopy " << endl;
+    cout << "InitDataAndClusterCenters: START curClusterElements DeepCopy " << endl;
     curClusterElements->DeepCopy( condensedTable );
+    cout << "InitDataAndClusterCenters: END curClusterElements DeepCopy " << endl;
     condensedTable->Delete();
 
     }
@@ -171,8 +181,12 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
     numRuns = 1;
     numToAllocate = this->DefaultNumberOfClusters < inData->GetNumberOfRows() ? 
                     this->DefaultNumberOfClusters : inData->GetNumberOfRows();
+    cout << "InitDataAndClusterCenters: START startRunID  insertingNextValue" << 0  << endl;
     startRunID->InsertNextValue( 0 );
+    cout << "InitDataAndClusterCenters: END startRunID  insertingNextValue" << 0  << endl;
+    cout << "InitDataAndClusterCenters: START endRunID  insertingNextValue" << numToAllocate  << endl;
     endRunID->InsertNextValue( numToAllocate );
+    cout << "InitDataAndClusterCenters: END endRunID  insertingNextValue" << numToAllocate  << endl;
     numberOfClusters->SetName( this->KValuesArrayName );
 
     for ( int j = 0; j < inData->GetNumberOfColumns(); j++ )
@@ -192,19 +206,29 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
       }
     for ( int i = 0; i < numToAllocate; i++ )
       {
+      cout << "InitDataAndClusterCenters: START numberOfClusters  insertingNextValue" << numToAllocate  << endl;
       numberOfClusters->InsertNextValue( numToAllocate );
+      cout << "InitDataAndClusterCenters: END numberOfClusters  insertingNextValue" << numToAllocate  << endl;
       vtkVariantArray *curRow = vtkVariantArray::New();
       vtkVariantArray *newRow = vtkVariantArray::New();
       for ( int j = 0; j < inData->GetNumberOfColumns(); j++ )
         {
         if(reqIt->find( inData->GetColumnName( j ) ) != reqIt->end()  )
           {
+          cout << "InitDataAndClusterCenters: START curRow  insertingNextValue" << endl;
           curRow->InsertNextValue( inData->GetValue( i, j ) );
+          cout << "InitDataAndClusterCenters: END curRow  insertingNextValue" << endl;
+          cout << "InitDataAndClusterCenters: START nextRow  insertingNextValue" << endl;
           newRow->InsertNextValue( inData->GetValue( i, j ) );
+          cout << "InitDataAndClusterCenters: END nextRow  insertingNextValue" << endl;
           }
         }
+      cout << "InitDataAndClusterCenters: START curClusterELements insertingNextRow" << endl;
       curClusterElements->InsertNextRow( curRow );
+      cout << "InitDataAndClusterCenters: END curClusterELements insertingNextRow" << endl;
+      cout << "InitDataAndClusterCenters: START newClusterELements insertingNextRow" << endl;
       newClusterElements->InsertNextRow( newRow );
+      cout << "InitDataAndClusterCenters: END newClusterELements insertingNextRow" << endl;
       curRow->Delete();
       newRow->Delete();
       }
@@ -308,17 +332,31 @@ void vtkKMeansStatistics::ExecuteLearn( vtkTable* inData,
   vtkIntArray* computeRun = vtkIntArray::New();
   vtkIdTypeArray* clusterRunIDs = vtkIdTypeArray::New(); 
 
+  cout << "ExecuteLearn: START numDataElementsInCluster SetNumberOfValues " << numToAllocate << endl;
   numDataElementsInCluster->SetNumberOfValues( numToAllocate );
+  cout << "ExecuteLearn: END numDataElementsInCluster SetNumberOfValues " << numToAllocate << endl;
   numDataElementsInCluster->SetName( "Num Elements" );
+  cout << "ExecuteLearn: START clusterRunIDs SetNumberOfValues " << numToAllocate << endl;
   clusterRunIDs->SetNumberOfValues( numToAllocate );
+  cout << "ExecuteLearn: END clusterRunIDs SetNumberOfValues " << numToAllocate << endl;
   clusterRunIDs->SetName( "Run ID" );
+  cout << "ExecuteLearn: START error SetNumberOfValues " << numToAllocate << endl;
   error->SetNumberOfValues( numToAllocate );
+  cout << "ExecuteLearn: END error SetNumberOfValues " << numToAllocate << endl;
   error->SetName( "Error" );
+  cout << "ExecuteLearn: START numIterations SetNumberOfValues " << numToAllocate << endl;
   numIterations->SetNumberOfValues( numToAllocate );
+  cout << "ExecuteLearn: END numIterations SetNumberOfValues " << numToAllocate << endl;
   numIterations->SetName( "Iterations" );
+  cout << "ExecuteLearn: START numMembershipChanges SetNumberOfValues " << numRuns << endl;
   numMembershipChanges->SetNumberOfValues( numRuns );
+  cout << "ExecuteLearn: END numMembershipChanges SetNumberOfValues " << numRuns << endl;
+  cout << "ExecuteLearn: START computeRun SetNumberOfValues " << numRuns << endl;
   computeRun->SetNumberOfValues( numRuns );
+  cout << "ExecuteLearn: END computeRun SetNumberOfValues " << numRuns << endl;
+  cout << "ExecuteLearn: START clusterMemberID SetNumberOfValues " << numDataObjects << "*" << numRuns << " = " << numDataObjects*numRuns << endl;
   clusterMemberID->SetNumberOfValues( numDataObjects*numRuns );
+  cout << "ExecuteLearn: END clusterMemberID SetNumberOfValues " << numDataObjects << "*" << numRuns << " = " << numDataObjects*numRuns << endl;
   clusterMemberID->SetName( "cluster member id" );
 
   for ( int i = 0; i < numRuns; i++ )
@@ -490,7 +528,10 @@ void vtkKMeansStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
 
   // Create an output table 
   // outMeta and which is presumed to exist upon entry to ExecuteDerive).
+
+  cout << "ExecuteDerive: START outMeta SetNumberOfBlocks " << 2 << endl;
   outMeta->SetNumberOfBlocks( 2 );
+  cout << "ExecuteDerive: END outMeta SetNumberOfBlocks " << 2 << endl;
 
   vtkIdTypeArray* totalClusterRunIDs = vtkIdTypeArray::New();
   vtkIdTypeArray* totalNumberOfClusters = vtkIdTypeArray::New();
@@ -512,15 +553,23 @@ void vtkKMeansStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
   int curRow = 0;
   while ( curRow < outTable->GetNumberOfRows() )
     {
+    cout << "ExecuteDerive: START totalClusterRunIDs InsertNextValue " << 2 << endl;
     totalClusterRunIDs->InsertNextValue( clusterRunIDs->GetValue( curRow ) );
+    cout << "ExecuteDerive: END totalClusterRunIDs InsertNextValue " << endl;
+    cout << "ExecuteDerive: START totalNumIterations InsertNextValue " << endl;
     totalNumIterations->InsertNextValue( numIterations->GetValue( curRow ) );
+    cout << "ExecuteDerive: END totalNumIterations InsertNextValue " << endl;
+    cout << "ExecuteDerive: START totalNumberOfClusters InsertNextValue " << endl;
     totalNumberOfClusters->InsertNextValue( numberOfClusters->GetValue( curRow ) );
+    cout << "ExecuteDerive: END totalNumberOfClusters InsertNextValue " << endl;
     double totalErr = 0.0;
     for(int i=curRow; i < curRow+numberOfClusters->GetValue( curRow ); i++ )
       {
       totalErr+= error->GetValue( i );
       }
+    cout << "ExecuteDerive: START totalError InsertNextValue " << endl;
     totalError->InsertNextValue( totalErr );
+    cout << "ExecuteDerive: END totalError InsertNextValue " << endl;
     globalErrorMap.insert(vtkstd::multimap<double, int>::value_type( totalErr, 
                                                                      clusterRunIDs->GetValue( curRow ) ) );
     localErrorMap[numberOfClusters->GetValue( curRow )].insert(
@@ -528,8 +577,12 @@ void vtkKMeansStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
     curRow += numberOfClusters->GetValue( curRow );
     }
  
+  cout << "ExecuteDerive: START globalRank SetNumberOfValues " << totalClusterRunIDs->GetNumberOfTuples() << endl;
   globalRank->SetNumberOfValues( totalClusterRunIDs->GetNumberOfTuples() );
+  cout << "ExecuteDerive: END globalRank SetNumberOfValues " << totalClusterRunIDs->GetNumberOfTuples() << endl;
+  cout << "ExecuteDerive: START localRank SetNumberOfValues " << totalClusterRunIDs->GetNumberOfTuples() << endl;
   localRank->SetNumberOfValues( totalClusterRunIDs->GetNumberOfTuples() );
+  cout << "ExecuteDerive: END localRank SetNumberOfValues " << totalClusterRunIDs->GetNumberOfTuples() << endl;
   int rankID=1;
 
   for( vtkstd::multimap<double, int>::iterator itr = globalErrorMap.begin(); itr != globalErrorMap.end(); itr++ )
@@ -697,7 +750,10 @@ vtkVariantArray* vtkKMeansDefaultDistanceFunctor::GetEmptyTuple( int dimension )
 {
   if(this->EmptyTuple->GetNumberOfValues() != dimension )
     {
+
+    cout << "GetEmptyTuple: START EmptyTuple SetNumberOfValues " << dimension << endl;
     this->EmptyTuple->SetNumberOfValues( dimension );
+    cout << "GetEmptyTuple: END EmptyTuple SetNumberOfValues " << dimension << endl;
     for( int i = 0; i < dimension; i++ )
       {
       this->EmptyTuple->SetValue( i, 0.0 );
@@ -736,14 +792,23 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData, vtkTable* inModel, vt
   while ( curRow < inModel->GetNumberOfRows() )
     {
     this->NumRuns++;
+    cout << "Assess::Initialize: START startRunID InsertNextValue " << endl;
     startRunID->InsertNextValue( curRow );
+    cout << "Assess::Initialize: END startRunID InsertNextValue " << endl;
     // number of clusters "K" is stored in column 1 of the inModel table 
     curRow += inModel->GetValue( curRow, 1 ).ToInt();
+    cout << "Assess::Initialize: START endRunID InsertNextValue " << endl;
     endRunID->InsertNextValue( curRow );
+    cout << "Assess::Initialize: END endRunID InsertNextValue " << endl;
     }
 
+  cout << "Assess::Initialize: START Distances SetNumberOfValues " << numObservations << "*" << this->NumRuns << "=" << numObservations*this->NumRuns << endl;
   this->Distances->SetNumberOfValues( numObservations * this->NumRuns );
+  cout << "Assess::Initialize: END Distances SetNumberOfValues " << numObservations << "*" << this->NumRuns << "=" << numObservations*this->NumRuns << endl;
+
+  cout << "Assess::Initialize: START ClusterMemberIDs SetNumberOfValues " << numObservations << "*" << this->NumRuns << "=" << numObservations*this->NumRuns << endl;
   this->ClusterMemberIDs->SetNumberOfValues( numObservations * this->NumRuns );
+  cout << "Assess::Initialize: END ClusterMemberIDs SetNumberOfValues " << numObservations << "*" << this->NumRuns << "=" << numObservations*this->NumRuns << endl;
 
   // find minimum distance between each data object and cluster center
   for ( vtkIdType observation = 0; observation < numObservations; ++ observation )
@@ -786,7 +851,10 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData, vtkTable* inModel, vt
 // ----------------------------------------------------------------------
 void vtkKMeansAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
+
+  cout << "Assess::(): START result SetNumberOfValues " << 2*this->NumRuns << endl;
   result->SetNumberOfValues( 2*this->NumRuns );
+  cout << "Assess::(): END result SetNumberOfValues " << 2*this->NumRuns << endl;
   int resIndex=0;
   for( int runID = 0; runID < this->NumRuns; runID++)
     {

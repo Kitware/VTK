@@ -35,32 +35,37 @@ int TestKMeansStatistics( int, char *[] )
 
   // Generate an input table that contains samples of mutually independent random variables over [0, 1]
   vtkTable* inputData = vtkTable::New();
-  vtkDoubleArray* doubleArray[nDim];
+  vtkDoubleArray* doubleArray;
 
+  int numComponents = 1;
   for ( int c = 0; c < nDim; ++ c )
     {
     vtksys_ios::ostringstream colName;
     colName << "coord " << c;
-    doubleArray[c] = vtkDoubleArray::New();
-    doubleArray[c]->SetNumberOfComponents( 1 );
-    doubleArray[c]->SetName( colName.str().c_str() );
-    doubleArray[c]->SetNumberOfTuples( nVals );
+    doubleArray = vtkDoubleArray::New();
+    cout << "TEST: START doubleArray SetNumberOfComponents " << numComponents << endl;
+    doubleArray->SetNumberOfComponents( numComponents );
+    cout << "TEST: END doubleArray SetNumberOfComponents " << numComponents << endl;
+    doubleArray->SetName( colName.str().c_str() );
+    cout << "TEST: START doubleArray SetNumberOfTuples " << numComponents << endl;
+    doubleArray->SetNumberOfTuples( nVals );
+    cout << "TEST: END doubleArray SetNumberOfTuples " << numComponents << endl;
 
     double x;
     for ( int r = 0; r < nVals; ++ r )
       {
       //x = vtkMath::Gaussian();
       x = vtkMath::Random();
-      doubleArray[c]->SetValue( r, x );
+      doubleArray->SetValue( r, x );
       }
 
-    inputData->AddColumn( doubleArray[c] );
-    doubleArray[c]->Delete();
+    inputData->AddColumn( doubleArray );
+    doubleArray->Delete();
     }
 
   vtkTable* paramData = vtkTable::New();
   vtkIdTypeArray* paramCluster;
-  vtkDoubleArray* paramArray[nDim];
+  vtkDoubleArray* paramArray;
   const int numRuns = 5;
   const int numClustersInRun[] = { 5, 2, 3, 4, 5 };
   //const int numRuns = 1;
@@ -82,9 +87,11 @@ int TestKMeansStatistics( int, char *[] )
     {
     vtksys_ios::ostringstream colName;
     colName << "coord " << c;
-    paramArray[c] = vtkDoubleArray::New();
-    paramArray[c]->SetNumberOfComponents( 1 );
-    paramArray[c]->SetName( colName.str().c_str() );
+    paramArray = vtkDoubleArray::New();
+    cout << "TEST: START paramArray SetNumberOfComponents " << numComponents << endl;
+    paramArray->SetNumberOfComponents( numComponents );
+    cout << "TEST: END paramArray SetNumberOfComponents " << numComponents << endl;
+    paramArray->SetName( colName.str().c_str() );
 
     double x;
     for( int curRun = 0; curRun < numRuns; curRun++ )
@@ -93,11 +100,13 @@ int TestKMeansStatistics( int, char *[] )
         {
         //x = vtkMath::Gaussian();
         x = vtkMath::Random();
-        paramArray[c]->InsertNextValue( x );
+        cout << "TEST: START paramArray InsertNextValue " << endl;
+        paramArray->InsertNextValue( x );
+        cout << "TEST: END paramArray InsertNextValue " << endl;
         }
       } 
-    paramData->AddColumn( paramArray[c] );
-    paramArray[c]->Delete();
+    paramData->AddColumn( paramArray );
+    paramArray->Delete();
     }
 
 
@@ -176,11 +185,15 @@ int TestKMeansStatistics( int, char *[] )
   vtkTable* outputData = haruspex->GetOutput();
   outputData->Dump();
   cout << "outputData = " << *outputData << endl;
+  cout << "Done Printing,  about to delete paramsTable" << endl;
   paramsTables->Delete();
-
+  cout << "Deleted paramsTables, about to delete paramData" << endl;
   paramData->Delete();
+  cout << "Deleted paramData, about to delete inputData" << endl;
   inputData->Delete();
+  cout << "Deleted inputData, about to delete haruspex" << endl;
   haruspex->Delete();
+  cout << "Done Deleting- waiting to return" << endl;
 
   return testStatus;
 }
