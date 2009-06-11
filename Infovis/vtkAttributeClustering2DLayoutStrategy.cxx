@@ -46,9 +46,6 @@
 class vtkAttributeClustering2DLayoutStrategy::Internals
 {
 public:
-  vtkAttributeClustering2DLayoutStrategy::Internals() 
-    {
-    }
 
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
@@ -65,7 +62,7 @@ public:
 };
 
 
-vtkCxxRevisionMacro(vtkAttributeClustering2DLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkAttributeClustering2DLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkAttributeClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
