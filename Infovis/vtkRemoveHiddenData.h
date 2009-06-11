@@ -33,7 +33,7 @@
 #define __vtkRemoveHiddenData_h
 
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h"  // For Smartpointer
 
 class vtkExtractSelectedGraph;
 class vtkExtractSelectedRows;
