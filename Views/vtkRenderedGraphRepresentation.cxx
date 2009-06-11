@@ -56,6 +56,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRandomLayoutStrategy.h"
+#include "vtkRemoveHiddenData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
@@ -87,7 +88,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.20");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.21");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -121,6 +122,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->OutlineActor        = vtkSmartPointer<vtkActor>::New();
   this->VertexScalarBar     = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->EdgeScalarBar       = vtkSmartPointer<vtkScalarBarWidget>::New();
+  this->RemoveHiddenGraph   = vtkSmartPointer<vtkRemoveHiddenData>::New();
 
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
@@ -146,7 +148,8 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
    </graphviz>
   */
 
-  this->Coincident->SetInputConnection(this->Layout->GetOutputPort());
+  this->RemoveHiddenGraph->SetInputConnection(this->Layout->GetOutputPort());
+  this->Coincident->SetInputConnection(this->RemoveHiddenGraph->GetOutputPort());
   this->EdgeLayout->SetInputConnection(this->Coincident->GetOutputPort());
   this->VertexDegree->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->ApplyColors->SetInputConnection(this->VertexDegree->GetOutputPort());
@@ -1239,6 +1242,7 @@ int vtkRenderedGraphRepresentation::RequestData(
 {
   this->Layout->SetInputConnection(this->GetInternalOutputPort());
   this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
+  this->RemoveHiddenGraph->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
   return 1;
 }
 

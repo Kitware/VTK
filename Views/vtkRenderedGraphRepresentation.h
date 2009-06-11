@@ -44,6 +44,7 @@ class vtkLookupTable;
 class vtkPerturbCoincidentVertices;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkRemoveHiddenData;
 class vtkRenderView;
 class vtkScalarBarWidget;
 class vtkScalarsToColors;
@@ -320,6 +321,7 @@ protected:
   vtkSmartPointer<vtkActor>                OutlineActor;
   vtkSmartPointer<vtkScalarBarWidget>      VertexScalarBar;
   vtkSmartPointer<vtkScalarBarWidget>      EdgeScalarBar;
+  vtkSmartPointer<vtkRemoveHiddenData>     RemoveHiddenGraph;
   //ETX
 
   vtkSetStringMacro(VertexColorArrayNameInternal);
