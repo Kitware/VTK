@@ -38,7 +38,7 @@ struct vtkSelectionInternals
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSelection, "1.28");
+vtkCxxRevisionMacro(vtkSelection, "1.29");
 vtkStandardNewMacro(vtkSelection);
 
 //----------------------------------------------------------------------------
@@ -223,7 +223,7 @@ void vtkSelection::Union(vtkSelectionNode* node)
     {
     vtkSmartPointer<vtkSelectionNode> clone =
       vtkSmartPointer<vtkSelectionNode>::New();
-    clone->ShallowCopy(node);
+    clone->DeepCopy(node);
     this->AddNode(clone);
     }
 }
