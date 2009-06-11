@@ -17,6 +17,7 @@
 #include <vtkQtTreeView.h>
 #include <vtkRenderer.h>
 #include <vtkSelection.h>
+#include <vtkSelectionNode.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
 #include <vtkTreeLayoutStrategy.h>
@@ -46,6 +47,10 @@ EasyView::EasyView()
   this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
   this->ColumnView   = vtkSmartPointer<vtkQtColumnView>::New();
   
+  // Tell the table view to sort selections that it receives (but does
+  // not initiate) to the top
+  this->TableView->SetSortSelectionToTop(true);
+
   // Set widgets for the tree and table views  
   this->ui->treeFrame->layout()->addWidget(this->TreeView->GetWidget());
   this->ui->tableFrame->layout()->addWidget(this->TableView->GetWidget());
@@ -65,6 +70,7 @@ EasyView::EasyView()
   connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this, SLOT(slotOpenXMLFile()));
   connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
 
+  this->GraphView->Render();
 };
 
 // Set up the annotation between the vtk and qt views
@@ -73,9 +79,13 @@ void EasyView::SetupAnnotationLink()
   // Create a selection link and have all the views use it
   VTK_CREATE(vtkAnnotationLink,annLink);
   this->TreeView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TreeView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
   this->TableView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->TableView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
   this->ColumnView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->ColumnView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
   this->GraphView->GetRepresentation()->SetAnnotationLink(annLink);
+  this->GraphView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
 
   VTK_CREATE(vtkViewUpdater,updater);
   updater->AddView(this->TreeView);
@@ -153,6 +163,9 @@ void EasyView::slotOpenXMLFile()
   this->TreeView->Update();
   this->TableView->Update();
   this->ColumnView->Update();
+
+  // Force a render on the graph view
+  this->GraphView->Render();
 }
 
 void EasyView::slotExit() {
