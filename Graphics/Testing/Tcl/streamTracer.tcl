@@ -28,6 +28,7 @@ vtkStreamTracer streamer
 streamer SetInputConnection [reader GetOutputPort]
 streamer SetStartPosition 0.1 2.1 0.5
 streamer SetMaximumPropagation 500
+streamer SetIntegrationStepUnit 2
 streamer SetMinimumIntegrationStep 0.1 
 streamer SetMaximumIntegrationStep 1.0
 streamer SetInitialIntegrationStep 0.2

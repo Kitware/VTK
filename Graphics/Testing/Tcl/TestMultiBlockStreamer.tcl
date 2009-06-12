@@ -88,7 +88,7 @@ vtkStreamTracer Stream0
 Stream0 SetInput mbds
 Stream0 SetSource [LineSourceWidget0 GetOutput]
 Stream0 SetIntegrationStepUnit 2
-Stream0 SetMaximumPropagation 120
+Stream0 SetMaximumPropagation 20
 Stream0 SetInitialIntegrationStep 0.5
 Stream0 SetIntegrationDirection 0
 Stream0 SetIntegratorType 0
