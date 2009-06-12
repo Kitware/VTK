@@ -60,10 +60,8 @@ EasyView::EasyView()
   this->ui->vtkGraphViewWidget->SetRenderWindow(this->GraphView->GetRenderWindow());
   
   // Set up the theme on the graph view :)
-  vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
-  theme->SetLineWidth(3);
+  vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
   this->GraphView->ApplyViewTheme(theme);
-  this->GraphView->Update();
   theme->Delete();
   
   // Set up action signals and slots
@@ -86,6 +84,12 @@ void EasyView::SetupAnnotationLink()
   this->ColumnView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
   this->GraphView->GetRepresentation()->SetAnnotationLink(annLink);
   this->GraphView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
+
+  // Set up the theme on the graph view :)
+  vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
+  this->GraphView->ApplyViewTheme(theme);
+  this->GraphView->Update();
+  theme->Delete();
 
   VTK_CREATE(vtkViewUpdater,updater);
   updater->AddView(this->TreeView);

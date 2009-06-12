@@ -23,7 +23,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.2");
+vtkCxxRevisionMacro(vtkViewTheme, "1.3");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -110,10 +110,10 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
   vtkViewTheme* theme = vtkViewTheme::New();
   
   theme->SetPointSize(7);
-  theme->SetLineWidth(2);
+  theme->SetLineWidth(3);
 
-  theme->SetBackgroundColor(0, 0, 0);
-  theme->SetBackgroundColor2(.3, .3, .3);
+  theme->SetBackgroundColor(.3,.3,.5);
+  theme->SetBackgroundColor2(.2,.2,.3);
   theme->SetVertexLabelColor(1, 1, 1);
   theme->SetEdgeLabelColor(.7, .7, .7);
 
@@ -123,16 +123,16 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
   theme->SetPointValueRange(1, 1);
 
   theme->SetCellColor(0.25, 0.25, 0.25);
-  theme->SetCellOpacity(0.75);
+  theme->SetCellOpacity(0.5);
   theme->SetCellHueRange(0.667, 0);
-  theme->SetCellAlphaRange(0.75, 1);
+  theme->SetCellAlphaRange(0.5, 1);
   theme->SetCellValueRange(0.75, 1);
   theme->SetCellSaturationRange(1, 1);
   
-  theme->SetOutlineColor(.5,.5,.5);
+  theme->SetOutlineColor(0, 0, 0);
 
-  theme->SetSelectedPointColor(1, 1, 1.0);
-  theme->SetSelectedCellColor(1, 1, 1.0);
+  theme->SetSelectedPointColor(1, 1, 1);
+  theme->SetSelectedCellColor(0, 0, 0);
 
   return theme;
 }
