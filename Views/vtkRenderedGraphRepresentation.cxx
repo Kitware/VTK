@@ -88,7 +88,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.21");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.22");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -148,9 +148,9 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
    </graphviz>
   */
 
-  this->RemoveHiddenGraph->SetInputConnection(this->Layout->GetOutputPort());
-  this->Coincident->SetInputConnection(this->RemoveHiddenGraph->GetOutputPort());
-  this->EdgeLayout->SetInputConnection(this->Coincident->GetOutputPort());
+  this->Coincident->SetInputConnection(this->Layout->GetOutputPort());
+  this->RemoveHiddenGraph->SetInputConnection(this->Coincident->GetOutputPort());
+  this->EdgeLayout->SetInputConnection(this->RemoveHiddenGraph->GetOutputPort());
   this->VertexDegree->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->ApplyColors->SetInputConnection(this->VertexDegree->GetOutputPort());
 
@@ -160,7 +160,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexActor->SetMapper(this->VertexMapper);
 
   // Outline actor
-  this->OutlineGlyph->SetInputConnection(this->Coincident->GetOutputPort());
+  this->OutlineGlyph->SetInputConnection(this->RemoveHiddenGraph->GetOutputPort());
   this->OutlineMapper->SetInputConnection(this->OutlineGlyph->GetOutputPort());
   this->OutlineActor->SetMapper(this->OutlineMapper);
 
