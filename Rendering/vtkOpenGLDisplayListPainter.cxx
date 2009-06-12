@@ -31,7 +31,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.11");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.12");
 #endif
 
 class vtkOpenGLDisplayListPainter::vtkInternals
@@ -43,13 +43,16 @@ public:
   // Refers to the build time of the first display list.
   vtkTimeStamp BuildTime;
 
-  void ReleaseAllLists()
+  void ReleaseAllLists(vtkWindow* win)
     {
-    DisplayListMapType::iterator iter;
-    for (iter = this->DisplayListMap.begin(); iter != this->DisplayListMap.end();
-      iter++)
+    if (win && win->GetMapped())
       {
-      glDeleteLists(iter->second, 1);
+      DisplayListMapType::iterator iter;
+      for (iter = this->DisplayListMap.begin(); iter != this->DisplayListMap.end();
+        iter++)
+        {
+        glDeleteLists(iter->second, 1);
+        }
       }
     this->DisplayListMap.clear();
     }
@@ -94,11 +97,11 @@ vtkOpenGLDisplayListPainter::~vtkOpenGLDisplayListPainter()
 //-----------------------------------------------------------------------------
 void vtkOpenGLDisplayListPainter::ReleaseGraphicsResources(vtkWindow* win)
 {
-  if (win)
+  if (win && win->GetMapped())
     {
     win->MakeCurrent();
-    this->Internals->ReleaseAllLists();
     }
+  this->Internals->ReleaseAllLists(win);
   this->Superclass::ReleaseGraphicsResources(win);
   this->LastWindow = NULL;
 }
@@ -144,7 +147,8 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
     // mapper information was modified
     this->Information->GetMTime() > this->Internals->BuildTime)
     {
-    this->Internals->ReleaseAllLists();
+    this->Internals->ReleaseAllLists(this->LastWindow);
+    this->LastWindow = 0;
     }
 
   vtkInternals::DisplayListMapType::iterator iter = 

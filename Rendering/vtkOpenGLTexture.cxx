@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.76");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.77");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -62,7 +62,7 @@ void vtkOpenGLTexture::Initialize(vtkRenderer * vtkNotUsed(ren))
 // Release the graphics resources used by this texture.  
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  if (this->Index && renWin)
+  if (this->Index && renWin && renWin->GetMapped())
     {
     static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1

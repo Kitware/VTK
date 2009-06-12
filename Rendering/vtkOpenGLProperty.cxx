@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.58");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.59");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -798,7 +798,7 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
 {
   // release any textures.
   int numTextures = this->GetNumberOfTextures();
-  if (win && numTextures > 0 && vtkgl::ActiveTexture)
+  if (win && win->GetMapped() && numTextures > 0 && vtkgl::ActiveTexture)
     {
     GLint numSupportedTextures;
     glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);

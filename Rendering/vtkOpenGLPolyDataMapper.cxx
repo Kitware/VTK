@@ -41,7 +41,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.109");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.110");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -87,12 +87,12 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 // the display list if any.
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->ListId && win)
+  if (this->ListId && win && win->GetMapped())
     {
     win->MakeCurrent();
     glDeleteLists(this->ListId,1);
-    this->ListId = 0;
     }
+  this->ListId = 0;
   this->LastWindow = NULL; 
   // We may not want to do this here.
   if (this->InternalColorTexture)

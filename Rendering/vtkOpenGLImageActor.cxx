@@ -28,7 +28,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.38");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.39");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -49,7 +49,7 @@ vtkOpenGLImageActor::~vtkOpenGLImageActor()
 // Release the graphics resources used by this texture.  
 void vtkOpenGLImageActor::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  if (this->Index && renWin)
+  if (this->Index && renWin && renWin->GetMapped())
     {
     static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1

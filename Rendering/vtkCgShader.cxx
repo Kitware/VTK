@@ -154,7 +154,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.7");
+vtkCxxRevisionMacro(vtkCgShader, "1.8");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
@@ -171,13 +171,16 @@ vtkCgShader::~vtkCgShader()
 }
 
 //-----------------------------------------------------------------------------
-void vtkCgShader::ReleaseGraphicsResources(vtkWindow*)
+void vtkCgShader::ReleaseGraphicsResources(vtkWindow* window)
 {
-  if (cgIsContext(this->Internals->Context))
+  if (window &&
+    window->GetMapped() &&
+    cgIsContext(this->Internals->Context))
     {
     // This will also destroy any programs contained in the context.
     cgDestroyContext(this->Internals->Context);
     }
+  this->Internals->Context = 0;
 }
 
 //-----------------------------------------------------------------------------
