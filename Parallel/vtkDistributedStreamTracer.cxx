@@ -31,7 +31,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.10");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.11");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -347,7 +347,7 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
 
   double tmpseed[3];
   memcpy(tmpseed, lastPoint, 3*sizeof(double));
-  this->SimpleIntegrate(tmpseed, lastPoint, this->LastUsedTimeStep, func);
+  this->SimpleIntegrate(tmpseed, lastPoint, this->LastUsedStepSize, func);
   func->Delete();
 
   this->SetIntegrator(ivp);

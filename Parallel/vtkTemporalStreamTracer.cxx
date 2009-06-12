@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.31");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.32");
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
@@ -129,7 +129,7 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   
   this->MaximumPropagation = 1.0;
   
-  this->IntegrationStepUnit    = TIME_UNIT; 
+  this->IntegrationStepUnit    = LENGTH_UNIT;
   this->MinimumIntegrationStep = 1.0E-2;
   this->MaximumIntegrationStep = 1.0;
   this->InitialIntegrationStep = 0.5;
@@ -1160,7 +1160,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
   }
 
   IntervalInformation delT;
-  delT.Unit     = TIME_UNIT;
+  delT.Unit     = LENGTH_UNIT;
   delT.Interval = (targettime-currenttime) * this->InitialIntegrationStep;
   epsilon = delT.Interval*1E-3;
 
@@ -1186,7 +1186,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
       stepWanted = targettime - point1[3];
       maxStep = stepWanted;
       }
-    this->LastUsedTimeStep = stepWanted;
+    this->LastUsedStepSize = stepWanted;
 
     // Calculate the next step using the integrator provided.
     // If the next point is out of bounds, send it to another process
@@ -1197,7 +1197,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     {
       // if the particle is sent, remove it from the list
       info.ErrorCode = 1;
-      if (this->SendParticleToAnotherProcess(info, point1, this->LastUsedTimeStep)) {
+      if (this->SendParticleToAnotherProcess(info, point1, this->LastUsedStepSize)) {
         this->ParticleHistories.erase(it);
         particle_good = false;
         break;
@@ -1242,7 +1242,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     {
       info.ErrorCode = 2;
       // if the particle is sent, remove it from the list
-      if (this->SendParticleToAnotherProcess(info, point1, this->LastUsedTimeStep)) {
+      if (this->SendParticleToAnotherProcess(info, point1, this->LastUsedStepSize)) {
         this->ParticleHistories.erase(it);
         particle_good = false;
       }
