@@ -7,14 +7,22 @@ SET(MyTests
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx  
   )
+IF(VTK_USE_VIEWS)
+  SET(MyTests
+    ${MyTests}
+    TestVtkQtTableView.cxx
+    )
+ENDIF(VTK_USE_VIEWS)
+
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
+
     )
 ENDIF (VTK_DATA_ROOT)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                        EXTRA_INCLUDE vtkTestDriver.h)
-ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
+ADD_EXECUTABLE(${KIT}CxxTests ${Tests} QTestApp.cxx)
 TARGET_LINK_LIBRARIES(${KIT}CxxTests QVTK)
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
