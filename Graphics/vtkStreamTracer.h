@@ -23,28 +23,33 @@
 // with each streamline are stored in the cell data, whereas those
 // associated with streamline-points are stored in the point data.
 //
-// Note that vtkStreamTracer supports forward (the default), backward, and
-// combined (i.e., BOTH) integration. The length of a streamline is 
-// governed by specifying a maximum value either in elapsed time (the time
-// each particle is allowed to travel in a steady flow that is equivalent
-// to the exact physical length/distance the particle travels within the
-// time interval since normalized vectors are adopted in streamline 
-// integration, which achieves high numerical accuracy/smoothness of flow
-// lines particularly expected of Runge-Kutta45 with adaptive step size and 
-// error control) or in cell length. Otherwise, the integration terminates 
-// upon exiting the dataset domain, or if the particle speed is reduced to a
-// value less than a specified terminal speed, or when a maximum number of
-// steps is reached. The specific reason for the termination is stored in a 
-// cell array named ReasonForTermination.
+// vtkStreamTracer supports forward (the default), backward, and combined
+// (i.e., BOTH) integration. The length of a streamline is governed by 
+// specifying a maximum value either in physical arc length or in (local)
+// cell length. Otherwise, the integration terminates upon exiting the
+// flow field domain, or if the particle speed is reduced to a value less
+// than a specified terminal speed, or when a maximum number of steps is 
+// completed. The specific reason for the termination is stored in a cell 
+// array named ReasonForTermination.
+//
+// Note that normalized vectors are adopted in streamline integration,
+// which achieves high numerical accuracy/smoothness of flow lines that is
+// particularly guranteed for Runge-Kutta45 with adaptive step size and
+// error control). In support of this feature, the underlying step size is
+// ALWAYS in arc length unit (LENGTH_UNIT) while the 'real' time interval 
+// (virtual for steady flows) that a particle actually takes to trave in a 
+// single step is obtained by dividing the arc length by the LOCAL speed. 
+// The overall elapsed time (i.e., the life span) of the particle is the 
+// sum of those individual step-wise time intervals.
 //
 // The quality of streamline integration can be controlled by setting the
 // initial integration step (InitialIntegrationStep), particularly for 
-// Runge-Kutta2 and Runge-Kutta4 (with fixed step size), and in the case of 
-// Runge-Kutta45 (with adaptive step size and error control) the minimum
-// integration step, the maximum integration step, and the maximum error. 
-// These steps are in either TIME_UNIT or CELL_LENGTH_UNIT while the error
-// is in physical arc length. For the former two integrators, there is a 
-// trade-off between integration speed and streamline quality.
+// Runge-Kutta2 and Runge-Kutta4 (with a fixed step size), and in the case
+// of Runge-Kutta45 (with an adaptive step size and error control) the
+// minimum integration step, the maximum integration step, and the maximum
+// error. These steps are in either LENGTH_UNIT or CELL_LENGTH_UNIT while
+// the error is in physical arc length. For the former two integrators,
+// there is a trade-off between integration speed and streamline quality.
 //
 // The integration time, vorticity, rotation and angular velocity are stored
 // in point data arrays named "IntegrationTime", "Vorticity", "Rotation" and
@@ -93,9 +98,9 @@ public:
   // Description:
   // Construct object to start from position (0,0,0), with forward
   // integration, terminal speed 1.0E-12, vorticity computation on,
-  // integration step length 0.5 (in cell length unit), maximum number
+  // integration step size 0.5 (in cell length unit), maximum number
   // of steps 2000, using Runge-Kutta2, and maximum propagation 1.0 
-  // (in time unit).
+  // (in arc length unit).
   static vtkStreamTracer *New();
   
   // Description:
@@ -117,15 +122,18 @@ public:
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
 //BTX
-  // The previously-supported LENGTH_UNIT is excluded in the current
-  // enumeration definition as it is equivalent to TIME_UNIT due to the
-  // use of normalized vectors in streamline integration. In other words,
-  // TIME_UNIT, representing by name a time interval that a particle
-  // travels, also serves as a metric for exact length or distance that
-  // the particle travels, with unit speed, within the time interval.
+  // The previously-supported TIME_UNIT is excluded in this current
+  // enumeration definition because the underlying step size is ALWAYS in
+  // arc length unit (LENGTH_UNIT) while the 'real' time interval (virtual 
+  // for steady flows) that a particle actually takes to trave in a single
+  // step is obtained by dividing the arc length by the LOCAL speed. The
+  // overall elapsed time (i.e., the life span) of the particle is the sum
+  // of those individual step-wise time intervals. The arc-length-to-time 
+  // convertion only occurs for vorticity computation and for generating a
+  // point data array named 'IntegrationTime'.
   enum Units
   {
-    TIME_UNIT = 0,
+    LENGTH_UNIT = 1,
     CELL_LENGTH_UNIT = 2
   };
 
@@ -143,7 +151,7 @@ public:
     OUT_OF_DOMAIN = vtkInitialValueProblemSolver::OUT_OF_DOMAIN,
     NOT_INITIALIZED = vtkInitialValueProblemSolver::NOT_INITIALIZED ,
     UNEXPECTED_VALUE = vtkInitialValueProblemSolver::UNEXPECTED_VALUE,
-    OUT_OF_TIME = 4,
+    OUT_OF_LENGTH = 4,
     OUT_OF_STEPS = 5,
     STAGNATION = 6
   };
@@ -170,52 +178,50 @@ public:
     {this->SetIntegratorType(RUNGE_KUTTA45);};
 
   // Description:
-  // Specify the maximum length of a streamline expressed in 
-  // TIME_UNIT, which is equivalent to the physical arc-length unit 
-  // due to the use of normalized vectors in streamline integration.
+  // Specify the maximum length of a streamline expressed in LENGTH_UNIT.
   void SetMaximumPropagation(double max);
   double GetMaximumPropagation() { return this->MaximumPropagation; }       
 
   // Description:
   // Specify a uniform integration step unit for MinimumIntegrationStep, 
   // InitialIntegrationStep, and MaximumIntegrationStep. NOTE: The valid
-  // unit is now limited to only TIME_UNIT (0) and CELL_LENGTH_UNIT (2),
-  // EXCLUDING the previously-supported LENGTH_UNIT.  
+  // unit is now limited to only LENGTH_UNIT (1) and CELL_LENGTH_UNIT (2),
+  // EXCLUDING the previously-supported TIME_UNIT.  
   void SetIntegrationStepUnit( int unit );
   int  GetIntegrationStepUnit() { return this->IntegrationStepUnit; } 
   
   // Description:
-  // Specify the Initial step used for line integration, expressed in:
-  // TIME_UNIT        = 0
+  // Specify the Initial step size used for line integration, expressed in:
+  // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // (either the starting size for an adaptive integrator, e.g., RK45,
-  // or the constant / fixed size for a non-adaptive one, i.e., RK2 and RK4)
+  // or the constant / fixed size for non-adaptive ones, i.e., RK2 and RK4)
   void SetInitialIntegrationStep(double step);
   double GetInitialIntegrationStep() { return this->InitialIntegrationStep; }
   
   // Description:
-  // Specify the Minimum step used for line integration, expressed in:
-  // TIME_UNIT        = 0
+  // Specify the Minimum step size used for line integration, expressed in:
+  // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // (Only valid for an adaptive integrator, e.g., RK45)
   void SetMinimumIntegrationStep( double step );
   double GetMinimumIntegrationStep() { return this->MinimumIntegrationStep; }
 
   // Description:
-  // Specify the Maximum step used for line integration, expressed in:
-  // TIME_UNIT        = 0
+  // Specify the Maximum step size used for line integration, expressed in:
+  // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // (Only valid for an adaptive integrator, e.g., RK45)
   void SetMaximumIntegrationStep( double step );
   double GetMaximumIntegrationStep() { return this->MaximumIntegrationStep; }
 
   // Description
-  // Specify the maximum error used to govern streamline integration.
+  // Specify the maximum error tolerated throughout streamline integration.
   vtkSetMacro(MaximumError, double);
   vtkGetMacro(MaximumError, double);
 
   // Description
-  // Specify the maximum number of steps for streamline integration.
+  // Specify the maximum number of steps for integrating a streamline.
   vtkSetMacro(MaximumNumberOfSteps, vtkIdType);
   vtkGetMacro(MaximumNumberOfSteps, vtkIdType);
 
@@ -293,7 +299,7 @@ protected:
                  vtkIdType& numSteps);
   void SimpleIntegrate(double seed[3], 
                        double lastPoint[3], 
-                       double delt,
+                       double stepSize,
                        vtkInterpolatedVelocityField* func);
   int CheckInputs(vtkInterpolatedVelocityField*& func,
                   int* maxCellSize);
@@ -307,7 +313,7 @@ protected:
   static const double EPSILON;
   double TerminalSpeed;
 
-  double LastUsedTimeStep;
+  double LastUsedStepSize;
 
 //BTX
   struct IntervalInformation
@@ -321,17 +327,10 @@ protected:
   double MaximumIntegrationStep;
   double InitialIntegrationStep;
 
-  void SetIntervalInformation(int unit, double interval,
-                              IntervalInformation& currentValues);
-  void SetIntervalInformation(int unit,IntervalInformation& currentValues);
   void ConvertIntervals( double& step, double& minStep, double& maxStep,
                         int direction, double cellLength );
-  static double ConvertToTime( double interval, int unit, double cellLength );
-  static double ConvertToTime( IntervalInformation& interval, double cellLength );
-  static double ConvertToCellLength( IntervalInformation& interval,
-                                   double cellLength );
-  static double ConvertToUnit( IntervalInformation& interval, int unit,
-                             double cellLength );
+  static double ConvertToLength( double interval, int unit, double cellLength );
+  static double ConvertToLength( IntervalInformation& interval, double cellLength );
   
 //ETX
 
