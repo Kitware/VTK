@@ -3,6 +3,12 @@ package require vtkinteraction
 
 vtkRenderer ren1
 vtkRenderWindow renWin
+
+# this test has some wireframe geometry
+# Make sure multisampling is disabled to avoid generating multiple
+# regression images
+renWin SetMultiSamples 0
+
 renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
