@@ -20,10 +20,11 @@
 
 #include "vtkActor.h"
 #include "vtkCellDataToPointData.h"
+#include "vtkCompositeDataGeometryFilter.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -40,6 +41,10 @@
 
 int main(int argc, char* argv[])
 {
+  vtkCompositeDataPipeline* exec = vtkCompositeDataPipeline::New();
+  vtkAlgorithm::SetDefaultExecutivePrototype(exec);
+  exec->Delete();
+
   // Standard rendering classes
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -139,6 +144,7 @@ int main(int argc, char* argv[])
   iren->Start();
 
   // Cleanup
+  vtkAlgorithm::SetDefaultExecutivePrototype(0);
   of->Delete();
   geom1->Delete();
   geoMapper->Delete();
