@@ -36,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.8");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.9");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -91,8 +91,12 @@ int vtkTableToTreeFilter::RequestData(
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
+  // Check for a corner case where we have a table with 0 rows
+  if (new_table->GetNumberOfRows() != 0)
+    {
+
   // The tree will have one more vertex than the number of rows
-  // in the table (the extra vertex is the new root.
+  // in the table (the extra vertex is the new root).
   for (vtkIdType v = 0; v <= new_table->GetNumberOfRows(); ++v)
     {
     builder->AddVertex();
@@ -106,9 +110,8 @@ int vtkTableToTreeFilter::RequestData(
     }
 
   // Insert a row in the table for the new root.
-  // This modifies the input, but it might be ok because we are 
-  // just extending the arrays.
   new_table->InsertNextBlankRow();
+    }
 
   // Move the structure of the mutable graph into the tree.
   if (!tree->CheckedShallowCopy(builder))

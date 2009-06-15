@@ -37,7 +37,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.11");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.12");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -100,6 +100,15 @@ int vtkGroupLeafVertices::RequestData(
   // Storing the inputTable and outputTree handles
   vtkTree *input = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree *output = vtkTree::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  // Check for corner case of 'empty' tree
+  if (input->GetNumberOfVertices() == 0)
+    {
+    output->ShallowCopy(input);
+    return 1;
+    }
 
   // Get the field to filter on
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
@@ -202,8 +211,6 @@ int vtkGroupLeafVertices::RequestData(
     }
 
   // Move the structure to the output
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output->CheckedShallowCopy(builder))
     {
     vtkErrorMacro(<<"Invalid tree structure!");
