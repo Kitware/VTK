@@ -36,7 +36,7 @@
 #include "vtkTreeFieldAggregator.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkAreaLayout, "1.2");
+vtkCxxRevisionMacro(vtkAreaLayout, "1.3");
 vtkStandardNewMacro(vtkAreaLayout);
 vtkCxxSetObjectMacro(vtkAreaLayout, LayoutStrategy, vtkAreaLayoutStrategy);
 
@@ -155,6 +155,11 @@ vtkIdType vtkAreaLayout::FindVertex(float pnt[2])
   vtkDataArray *array = otree->GetVertexData()->
     GetArray(this->AreaArrayName);
   if (!array)
+    {
+    return -1;
+    }
+
+  if( otree->GetNumberOfVertices() == 0)
     {
     return -1;
     }
