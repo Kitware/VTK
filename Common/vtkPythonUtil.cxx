@@ -1614,7 +1614,7 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
       }      
     if (i <= 0)
       {
-      i = sscanf(ptrText,"%lx",(long *)&ptr);
+      i = sscanf(ptrText,"%p",&ptr);
       }
     if (i <= 0)
       {

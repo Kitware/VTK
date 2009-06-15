@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.24");
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.24.14.1");
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
@@ -53,7 +53,8 @@ vtkWin32OutputWindow::vtkWin32OutputWindow()
 {
   // Default to sending output to stderr/cerr when running a dashboard:
   //
-  if(getenv("DART_TEST_FROM_DART"))
+  if(getenv("DART_TEST_FROM_DART") ||
+    getenv("DASHBOARD_TEST_FROM_CTEST"))
     {
     this->SendToStdErr = true;
     }

@@ -202,7 +202,8 @@ static int vtkPythonAppInitDebugReport(int, char* message, int*)
 }
 void vtkPythonAppInitEnableMSVCDebugHook()
 {
-  if(getenv("DART_TEST_FROM_DART"))
+  if(getenv("DART_TEST_FROM_DART") ||
+    getenv("DASHBOARD_TEST_FROM_CTEST"))
     {
     _CrtSetReportHook(vtkPythonAppInitDebugReport);
     }
