@@ -23,7 +23,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.4");
+vtkCxxRevisionMacro(vtkViewTheme, "1.5");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -78,28 +78,28 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
   vtkViewTheme* theme = vtkViewTheme::New();
   
   theme->SetPointSize(7);
-  theme->SetLineWidth(2);
+  theme->SetLineWidth(3);
 
-  theme->SetBackgroundColor(.7, .7, .7);
+  theme->SetBackgroundColor(.8, .8, .8);
   theme->SetBackgroundColor2(1, 1, 1);
   theme->SetVertexLabelColor(0, 0, 0);
   theme->SetEdgeLabelColor(.2, .2, .2);
 
   theme->SetPointColor(0.5, 0.5, 0.5);
   theme->SetPointHueRange(0.667, 0);
-  theme->SetPointSaturationRange(0.75, 0.75);
+  theme->SetPointSaturationRange(1, 1);
   theme->SetPointValueRange(0.75, 0.75);
 
   theme->SetCellColor(0.25, 0.25, 0.25);
-  theme->SetCellOpacity(0.3);
+  theme->SetCellOpacity(0.5);
   theme->SetCellHueRange(0.667, 0);
-  theme->SetCellAlphaRange(0.3, 1);
-  theme->SetCellValueRange(0.5, 1);
-  theme->SetCellSaturationRange(0.5, 1);
+  theme->SetCellAlphaRange(0.75, 1);
+  theme->SetCellValueRange(0.75, .75);
+  theme->SetCellSaturationRange(1, 1);
   
   theme->SetOutlineColor(0,0,0);
 
-  theme->SetSelectedPointColor(.8, .3, .8);
+  theme->SetSelectedPointColor(.9, .4, .9);
   theme->SetSelectedCellColor(.8, .3, .8);
 
   return theme;
@@ -112,8 +112,8 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
   theme->SetPointSize(7);
   theme->SetLineWidth(3);
 
-  theme->SetBackgroundColor(.3,.3,.5);
-  theme->SetBackgroundColor2(.2,.2,.3);
+  theme->SetBackgroundColor(.2,.2,.4);
+  theme->SetBackgroundColor2(.1,.1,.2);
   theme->SetVertexLabelColor(1, 1, 1);
   theme->SetEdgeLabelColor(.7, .7, .7);
 
@@ -124,15 +124,15 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
 
   theme->SetCellColor(0.3, 0.3, 0.7);
   theme->SetCellOpacity(0.5);
-  theme->SetCellHueRange(0.6, 0);
-  theme->SetCellAlphaRange(0.5, 1);
+  theme->SetCellHueRange(0.57, 0);
+  theme->SetCellAlphaRange(0.75, 1);
   theme->SetCellValueRange(0.75, 1);
   theme->SetCellSaturationRange(1, 1);
   
   theme->SetOutlineColor(0, 0, 0);
 
-  theme->SetSelectedPointColor(1, 1, 1);
-  theme->SetSelectedCellColor(0, 0, 0);
+  theme->SetSelectedPointColor(.9, .4, .9);
+  theme->SetSelectedCellColor(.8, .3, .8);
 
   return theme;
 }
