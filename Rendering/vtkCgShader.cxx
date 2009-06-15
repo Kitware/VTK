@@ -33,6 +33,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkWindow.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLShader.h"
 
@@ -154,7 +155,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.8");
+vtkCxxRevisionMacro(vtkCgShader, "1.9");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
