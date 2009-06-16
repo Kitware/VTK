@@ -78,6 +78,7 @@
 #include "vtkLightActor.h"
 #include "vtkProcess.h"
 #include "vtkTreeCompositer.h"
+#include "vtkOpenGLRenderWindow.h"
 
 // Defined in TestLightActor.cxx
 // For each spotlight, add a light frustum wireframe representation and a cone
@@ -106,7 +107,7 @@ protected:
   char **Argv;
 };
 
-vtkCxxRevisionMacro(MyProcess, "1.1");
+vtkCxxRevisionMacro(MyProcess, "1.2");
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
@@ -371,7 +372,15 @@ void MyProcess::Execute()
     camera->Azimuth(40.0);
     camera->Elevation(10.0);
 
-    retVal=vtkTesting::Test(this->Argc, this->Argv, renWin, 10);
+    if(compositeZPass->IsSupported(
+             static_cast<vtkOpenGLRenderWindow *>(renWin)))
+      {
+      retVal=vtkTesting::Test(this->Argc, this->Argv, renWin, 10);
+      }
+    else
+      {
+      retVal=vtkTesting::PASSED; // not supported.
+      }
 
     if(retVal==vtkRegressionTester::DO_INTERACTOR)
       {
