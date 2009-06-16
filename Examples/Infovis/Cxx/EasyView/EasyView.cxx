@@ -68,6 +68,11 @@ EasyView::EasyView()
   connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this, SLOT(slotOpenXMLFile()));
   connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
 
+  // Apply application stylesheet
+  QString css = "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
+  css += "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
+  qApp->setStyleSheet(css);
+
   this->GraphView->Render();
 };
 
