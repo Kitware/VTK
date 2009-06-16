@@ -23,7 +23,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.5");
+vtkCxxRevisionMacro(vtkViewTheme, "1.6");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -117,12 +117,12 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
   theme->SetVertexLabelColor(1, 1, 1);
   theme->SetEdgeLabelColor(.7, .7, .7);
 
-  theme->SetPointColor(0.5, 0.5, 1);
+  theme->SetPointColor(0.5, 0.5, 0.6);
   theme->SetPointHueRange(0.6, 0);
   theme->SetPointSaturationRange(1, 1);
   theme->SetPointValueRange(1, 1);
 
-  theme->SetCellColor(0.3, 0.3, 0.7);
+  theme->SetCellColor(0.5, 0.5, 0.7);
   theme->SetCellOpacity(0.5);
   theme->SetCellHueRange(0.57, 0);
   theme->SetCellAlphaRange(0.75, 1);
