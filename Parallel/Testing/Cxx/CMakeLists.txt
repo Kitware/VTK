@@ -87,8 +87,14 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TestPShadowMapPass TestPShadowMapPass.cxx)
     TARGET_LINK_LIBRARIES(TestPShadowMapPass vtkParallel)
 
+    ADD_EXECUTABLE(TestDistributedDataShadowMapPass TestDistributedDataShadowMapPass.cxx)
+TARGET_LINK_LIBRARIES(TestDistributedDataShadowMapPass vtkParallel)
+
     ADD_EXECUTABLE(TestPCompositeZPass TestPCompositeZPass.cxx)
     TARGET_LINK_LIBRARIES(TestPCompositeZPass vtkParallel)
+
+    ADD_EXECUTABLE(TestDistributedDataCompositeZPass TestDistributedDataCompositeZPass.cxx)
+    TARGET_LINK_LIBRARIES(TestDistributedDataCompositeZPass vtkParallel)
 
     ADD_EXECUTABLE(TransmitRectilinearGrid TransmitRectilinearGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitRectilinearGrid vtkParallel)
@@ -297,6 +303,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestPShadowMapPass.cxx.png
             ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TestDistributedDataShadowMapPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TestDistributedDataShadowMapPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TestDistributedDataShadowMapPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
 
           ADD_TEST(TestPCompositeZPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
@@ -304,6 +317,14 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestPCompositeZPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+
+          ADD_TEST(TestDistributedDataCompositeZPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TestDistributedDataCompositeZPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TestDistributedDataCompositeZPass.cxx.png
             ${VTK_MPI_POSTFLAGS})
 
           ADD_TEST(TransmitRectilinearGrid-image
