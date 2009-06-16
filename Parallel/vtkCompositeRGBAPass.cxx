@@ -54,7 +54,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.6");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.7");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
@@ -123,6 +123,13 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" <<endl;
     }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
+{
+  return vtkFrameBufferObject::IsSupported(context)
+    && vtkTextureObject::IsSupported(context);
 }
 
 // ----------------------------------------------------------------------------
