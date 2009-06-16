@@ -45,7 +45,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.94");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.95");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -150,7 +150,7 @@ int vtkOpenGLRenderer::UpdateLights ()
 
   count = 0;
   curLight= this->NumberOfLightsBound + GL_LIGHT0;
-
+  
   // set the matrix mode for lighting. ident matrix on viewing stack  
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -167,6 +167,7 @@ int vtkOpenGLRenderer::UpdateLights ()
       {
       light->Render(this,curLight);
       glEnable(static_cast<GLenum>(curLight));
+      
       // increment the current light by one 
       curLight++;
       count++;
@@ -1054,10 +1055,12 @@ void vtkOpenGLRenderer::Clear(void)
   if (!this->Transparent() && this->GradientBackground)
     {
     glPushAttrib(GL_ENABLE_BIT);
+    glDisable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
     glShadeModel(GL_SMOOTH); // color interpolation
 
     glMatrixMode(GL_MODELVIEW);
@@ -1073,12 +1076,14 @@ void vtkOpenGLRenderer::Clear(void)
         glBegin(GL_QUADS);
 
         //top vertices
-        glColor3dv(this->Background);
+        glColor4d(this->Background[0],this->Background[1],this->Background[2],
+                  0.0);
         glVertex2f(-1.0, -1.0);
         glVertex2f(1.0, -1.0);
 
         //bottom vertices
-        glColor3dv(this->Background2);
+        glColor4d(this->Background2[0],this->Background2[1],
+                  this->Background2[2],0.0);
         glVertex2f(1.0, 1.0);
         glVertex2f(-1.0, 1.0);
         glEnd();
