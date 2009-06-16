@@ -58,7 +58,7 @@ static void RenderRMI(void *arg, void *, int, int);
 static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int);
 bool vtkParallelRenderManager::DefaultRenderEventPropagation = true;
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.79");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.80");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -2118,7 +2118,7 @@ bool vtkParallelRenderManager::RendererInfo::Restore(
          >> value
          >> this->ParallelScale;
   
-  this->GradientBackground=value;
+  this->GradientBackground=value==1;
   return true;
 }
 
