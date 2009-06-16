@@ -22,10 +22,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.22");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.23");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -52,6 +53,20 @@ int vtkPProbeFilter::RequestInformation(vtkInformation *request,
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
+
+  // Setup ExtentTranslator so that all downstream piece requests are
+  // converted to whole extent update requests, as need by this filter.
+  vtkStreamingDemandDrivenPipeline* sddp =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (strcmp(
+      sddp->GetExtentTranslator(outInfo)->GetClassName(),
+      "vtkOnePieceExtentTranslator") != 0)
+    {
+    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
+    sddp->SetExtentTranslator(outInfo, et);
+    et->Delete();
+    }
+
   return 1;
 }
 
@@ -136,6 +151,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
   return 1;
 }
 
+#include "vtkInformationIntegerVectorKey.h"
 //----------------------------------------------------------------------------
 int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
                                          vtkInformationVector **inputVector,
@@ -145,10 +161,17 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              0);
+  vtkStreamingDemandDrivenPipeline* sddp =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (sddp)
+    {
+    sddp->SetUpdateExtentToWholeExtent(inInfo);
+    }
+
+//inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+//inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+//inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+//            0);
   sourceInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
