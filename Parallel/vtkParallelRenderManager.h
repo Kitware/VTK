@@ -586,6 +586,9 @@ protected:
     double CameraClippingRange[2];
     double CameraViewAngle;
     double Background[3];
+    double Background2[3];
+    bool GradientBackground;
+    
     double ParallelScale;
 
     // Save/restore the struct to/from a stream.
