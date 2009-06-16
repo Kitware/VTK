@@ -190,10 +190,6 @@ public:
   // is invalid if the socket is not connected.
   vtkGetMacro(IsServer, int);
 
-  // Description:
-  // Uniquely identifies the version of this class.  If the versions match,
-  // then the socket communicators should be compatible.
-  static int GetVersion();
 //BTX
 protected:
 
@@ -224,6 +220,7 @@ protected:
   void LogTagged(const char* name, const void* data, int wordSize, int numWords,
                  int tag, const char* logName);
   int CheckForErrorInternal(int id);
+
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
   void operator=(const vtkSocketCommunicator&);  // Not implemented.
@@ -241,6 +238,11 @@ private:
   // One may be tempted to change this to a vtkIdType, but really an int is
   // enough since we split messages > VTK_INT_MAX.
   int TagMessageLength;
+
+  // Description:
+  // Uniquely identifies the version of this class.  If the versions match,
+  // then the socket communicators should be compatible.
+  static int GetVersion();
 //ETX
 };
 
