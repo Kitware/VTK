@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.248");
+vtkCxxRevisionMacro(vtkRenderer, "1.249");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -735,6 +735,16 @@ vtkCamera *vtkRenderer::GetActiveCamera()
     }
 
   return this->ActiveCamera;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if there is an active camera. As GetActiveCamera() creates
+// a camera if there is no active camera, this is the only way to
+// query the renderer state without changing it.
+bool vtkRenderer::HasActiveCamera()
+{
+  return this->ActiveCamera!=0;
 }
 
 //----------------------------------------------------------------------------

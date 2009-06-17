@@ -169,6 +169,12 @@ public:
   vtkCamera *GetActiveCamera();
 
   // Description:
+  // Tells if there is an active camera. As GetActiveCamera() creates
+  // a camera if there is no active camera, this is the only way to
+  // query the renderer state without changing it.
+  bool HasActiveCamera();
+  
+  // Description:
   // Create a new Camera sutible for use with this type of Renderer.
   // For example, a vtkMesaRenderer should create a vtkMesaCamera 
   // in this function.   The default is to just call vtkCamera::New.
@@ -580,14 +586,14 @@ protected:
   // Description:
   // Ask all lights to load themselves into rendering pipeline.
   // This method will return the actual number of lights that were on.
-  virtual int UpdateLights(void) {return 0;};
-
+  virtual int UpdateLights(void) {return 0;}
+  
   // Description:
   // Get the current camera and reset it only if it gets created
   // automatically (see GetActiveCamera).
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
-
+  
   // Description:
   // If this flag is on and the GPU supports it, depth peeling is used
   // for rendering translucent materials.

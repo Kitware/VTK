@@ -104,7 +104,7 @@ protected:
   char **Argv;
 };
 
-vtkCxxRevisionMacro(MyProcess, "1.3");
+vtkCxxRevisionMacro(MyProcess, "1.4");
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
@@ -375,7 +375,6 @@ void MyProcess::Execute()
     
     if(retVal==vtkRegressionTester::DO_INTERACTOR)
       {
-      renWin->Render();
       iren->Start();
       }
     prm->StopServices(); // tells satellites to stop listening.
