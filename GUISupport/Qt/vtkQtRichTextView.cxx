@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.12");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.13");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,9 @@ public:
 // vtkQtRichTextView
 
 vtkQtRichTextView::vtkQtRichTextView() :
-  Internal(new Implementation())
+  Internal(new Implementation()),
+  ProxyPort(0),
+  ProxyURL(0)
 {
   this->Internal->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->Internal->DataObjectToTable->SetFieldType(ROW_DATA);
@@ -85,7 +87,6 @@ vtkQtRichTextView::vtkQtRichTextView() :
   this->Internal->Widget = new QWidget();
   this->Internal->UI.setupUi(this->Internal->Widget);
   this->Internal->UI.WebView->setHtml("");
-
   QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
   QNetworkProxy::setApplicationProxy(proxy);
 
@@ -164,6 +165,7 @@ void vtkQtRichTextView::Update()
   else
     {
     // Figure-out which row of the table we're going to display (if any) ...
+    row_valid = false;
     if(vtkSelection* const selection = representation->GetAnnotationLink()->GetCurrentSelection())
       {
       if(vtkSelectionNode* const selection_node = selection->GetNumberOfNodes() ? selection->GetNode(0) : 0)

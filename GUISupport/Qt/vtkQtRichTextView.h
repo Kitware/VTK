@@ -71,6 +71,16 @@ public:
   int GetFieldType();
 
   // Description:
+  // This field sets a URL for a HTTP proxy server.
+  vtkSetStringMacro(ProxyURL);
+  vtkGetStringMacro(ProxyURL);
+
+  // Description:
+  // This fields sets the port number for a HTTP proxy server.
+  vtkSetMacro(ProxyPort, int);
+  vtkGetMacro(ProxyPort, int);
+
+  // Description:
   // Updates the view.
   virtual void Update();
 
@@ -85,6 +95,9 @@ protected:
 private:
   vtkQtRichTextView(const vtkQtRichTextView&);  // Not implemented.
   void operator=(const vtkQtRichTextView&);  // Not implemented.
+
+  char* ProxyURL;
+  int   ProxyPort;
 
   class Implementation;
   Implementation* const Internal;
