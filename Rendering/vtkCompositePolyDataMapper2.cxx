@@ -31,7 +31,7 @@
 #include "vtkDefaultPainter.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.4");
+vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.5");
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
@@ -221,15 +221,18 @@ double *vtkCompositePolyDataMapper2::GetBounds()
   else
     {
 
-    this->Update();
+    if (!this->Static)
+      {
+      this->Update();
+      }
     
     //only compute bounds when the input data has changed
-    vtkCompositeDataPipeline * executive = vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
-    if( executive->GetPipelineMTime() > this->BoundsMTime.GetMTime() )
+    vtkCompositeDataPipeline * executive =
+      vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
+    if( executive->GetPipelineMTime() >= this->BoundsMTime.GetMTime() )
       {
       this->ComputeBounds();
       }
-    
     return this->Bounds;
     }
 }
