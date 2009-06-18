@@ -83,7 +83,9 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   view->ResetCamera();
   view->Render();
 
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  // using image-test threshold of 200 since this test tends to render slightly
+  // differently on different platforms.
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow(), 200);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     view->GetInteractor()->Initialize();
