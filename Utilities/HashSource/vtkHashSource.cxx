@@ -26,7 +26,7 @@ static vtksys_stl::string HashMD5(vtksys_ios::istream& in)
   vtksysMD5* hasher = vtksysMD5_New();
   vtksysMD5_Initialize(hasher);
 
-  vtksys::RegularExpression key("\\$(Revision|Date|RCSFile):[^$]*\\$");
+  vtksys::RegularExpression key("\\$(Revision|Date|RCSfile):[^$]*\\$");
 
   vtksys_stl::string line;
   while(vtksys::SystemTools::GetLineFromStream(in, line))
