@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.27");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.28");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -122,10 +122,13 @@ protected:
     if(event == vtkCommand::ProgressEvent)
     {
       double num = Reader->GetNumberOfFileNames();
-      if(num == 0)
+      if (num <= 1)
+        {
         num = Reader->GetNumberOfFiles();
+        }
       double* progress = static_cast<double*>(callData);
       double newProgress = *progress/num + Index/num;
+      cout << newProgress << endl;
       Reader->UpdateProgress(newProgress);
     }
   }
