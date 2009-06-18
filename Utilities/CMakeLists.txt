@@ -47,7 +47,11 @@ IF(VTK_INCLUDE_NEED_TCL)
 ENDIF(VTK_INCLUDE_NEED_TCL)
 
 SUBDIRS(EncodeString)
-SUBDIRS(HashSource)
+
+IF(VTK_USE_PARALLEL)
+  # vtkParallel uses source hashes during network handshakes.
+  SUBDIRS(HashSource)
+ENDIF(VTK_USE_PARALLEL)
 
 IF(VTK_USE_RENDERING)
   SUBDIRS(ftgl ParseOGLExt)
