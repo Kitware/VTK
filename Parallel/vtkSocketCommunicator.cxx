@@ -25,8 +25,17 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
+// The handshake checks that the client and server are using the same
+// version of this source file.  It first compares a fixed integer
+// hash identifier to make sure the hash algorithms match.  Then it
+// compares hash strings.  Note that the integer id exchange used to
+// represent the CVS revision number of this file, so the value must
+// be larger than the last revision which used that strategy.
+#define vtkSocketCommunicatorHashId 100 /* MD5 */
+#include "Parallel/vtkSocketCommunicatorHash.h"
+
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.77");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.78");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -407,6 +416,32 @@ int vtkSocketCommunicator::ServerSideHandshake()
       return 0;
       }
 
+    // Compare hashes of this source file from each side.
+    const char myHash[] = vtkSocketCommunicatorHash;
+    char clientHash[sizeof(myHash)];
+    if (!this->ReceiveTagged(&clientHash,
+                             1, static_cast<int>(sizeof(clientHash)),
+                             vtkSocketController::HASH_TAG, 0) ||
+        !this->SendTagged(&myHash,
+                          1, static_cast<int>(sizeof(myHash)),
+                          vtkSocketController::HASH_TAG, 0))
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Version hash handshake failed.  "
+                      "Perhaps there is a client/server version mismatch.");
+        }
+      return 0;
+      }
+    if (strncmp(myHash, clientHash, sizeof(myHash)-1) != 0)
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Client/server version hash mismatch.");
+        }
+      return 0;
+      }
+
     // Handshake to determine if remote has 64 bit ids.
 #ifdef VTK_USE_64BIT_IDS
     int IHave64BitIds = 1;
@@ -513,6 +548,32 @@ int vtkSocketCommunicator::ClientSideHandshake()
     if (this->ReportErrors)
       {
       vtkErrorMacro("Client/server version mismatch.");
+      }
+    return 0;
+    }
+
+  // Compare hashes of this source file from each side.
+  const char myHash[] = vtkSocketCommunicatorHash;
+  char serverHash[sizeof(myHash)];
+  if (!this->SendTagged(&myHash,
+                        1, static_cast<int>(sizeof(myHash)),
+                        vtkSocketController::HASH_TAG, 0) ||
+      !this->ReceiveTagged(&serverHash,
+                           1, static_cast<int>(sizeof(serverHash)),
+                           vtkSocketController::HASH_TAG, 0))
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Version hash handshake failed.  "
+                    "Perhaps there is a client/server version mismatch.");
+      }
+    return 0;
+    }
+  if (strncmp(myHash, serverHash, sizeof(myHash)-1) != 0)
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Client/server version hash mismatch.");
       }
     return 0;
     }
@@ -1071,8 +1132,5 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.77 $";
-  int version=0;
-  sscanf(revision, "$Revision: 1.%d", &version);
-  return version;
+  return vtkSocketCommunicatorHashId;
 }

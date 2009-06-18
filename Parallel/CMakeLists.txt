@@ -188,7 +188,9 @@ IF (VTK_USE_MPI)
   ENDIF (MPI_LIBRARIES)
 ENDIF (VTK_USE_MPI)
 
-SET(Kit_EXTRA_SRCS)
+SET(Kit_EXTRA_SRCS
+  ${VTK_BINARY_DIR}/Parallel/vtkSocketCommunicatorHash.h
+  )
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS)
 SET(Kit_PYTHON_EXTRA_SRCS)
@@ -221,6 +223,16 @@ ENDIF(VTK_USE_RENDERING)
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
+
+# Generate "vtkSocketCommunicatorHash.h".
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${VTK_BINARY_DIR}/Parallel/vtkSocketCommunicatorHash.h
+  DEPENDS ${VTK_SOURCE_DIR}/Parallel/vtkSocketCommunicator.cxx
+  COMMAND ${VTK_HASHSOURCE_EXE}
+    ${VTK_SOURCE_DIR}/Parallel/vtkSocketCommunicator.cxx
+    vtkSocketCommunicatorHash > vtkSocketCommunicatorHash.h
+  )
+ADD_DEPENDENCIES(vtkParallel vtkHashSource)
 
 IF (VTK_USE_MPI)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
