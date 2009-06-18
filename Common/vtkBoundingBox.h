@@ -193,7 +193,7 @@ inline double vtkBoundingBox::GetBound(int i) const
   // If i is odd then when are returning a part of the max bounds
   // else part of the min bounds is requested.  The exact component
   // needed is i /2 (or i right shifted by 1
-  return ((i | 0x1) ? this->MaxPnt[i>>1] : this->MinPnt[i>>1]);
+  return ((i & 0x1) ? this->MaxPnt[i>>1] : this->MinPnt[i>>1]);
 }
 
 inline const double *vtkBoundingBox::GetMinPoint() const
