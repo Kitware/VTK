@@ -104,7 +104,7 @@ protected:
   char **Argv;
 };
 
-vtkCxxRevisionMacro(MyProcess, "1.4");
+vtkCxxRevisionMacro(MyProcess, "1.5");
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
@@ -366,10 +366,10 @@ void MyProcess::Execute()
       {
       cout<<"depth peeling was not used (alpha blending instead)"<<endl;
       }
-    renderer->ResetCamera();
     vtkCamera *camera=renderer->GetActiveCamera();
     camera->Azimuth(40.0);
     camera->Elevation(10.0);
+    renderer->ResetCamera();
     
     retVal=vtkTesting::Test(this->Argc, this->Argv, renWin, 10);
     

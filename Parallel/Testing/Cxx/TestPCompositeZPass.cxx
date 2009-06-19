@@ -112,7 +112,7 @@ protected:
   char **Argv;
 };
 
-vtkCxxRevisionMacro(MyProcess, "1.3");
+vtkCxxRevisionMacro(MyProcess, "1.4");
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
@@ -333,11 +333,10 @@ void MyProcess::Execute()
     {
     // root node
     renWin->Render();
-    renderer->ResetCamera();
     vtkCamera *camera=renderer->GetActiveCamera();
     camera->Azimuth(40.0);
     camera->Elevation(10.0);
-
+    renderer->ResetCamera();
     // testing code
     double thresh=10;
     int i;
