@@ -12,6 +12,11 @@ SET(KIT_LIBS vtkGraphics vtkImaging vtkIO
   vtkftgl
   ${VTK_FREETYPE_LIBRARIES}
 )
+#INCLUDE(${VTK_CMAKE_DIR}/vtkTestGL.cmake)
+#INCLUDE(${VTK_CMAKE_DIR}/vtkTestGLX.cmake)
+
+
+
 
 # Fix for bug#1026 moved out of the common section.  This should be
 # changed to add the flag only in the right places (CMAKE_CXX_FLAGS?).
@@ -201,6 +206,7 @@ SET( KitOpenGL_SRCS
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
   vtkGaussianBlurPass.cxx
+  vtkImageProcessingPass.cxx
   vtkLightsPass.cxx
   vtkGLSLShaderDeviceAdapter2.cxx
   vtkOpaquePass.cxx
@@ -254,6 +260,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractPropPicker
   vtkCuller
   vtkExporter
+  vtkImageProcessingPass
   vtkImporter
   vtkInteractorObserver
   vtkMapper
@@ -278,6 +285,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkDefaultPass
   vtkDepthPeelingPass
   vtkGaussianBlurPass
+  vtkImageProcessingPass
   vtkLightsPass
   vtkOpaquePass
   vtkRenderPass
