@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 // Copied from vtkTulipReader.cxx ..
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkXGMLReader, "1.4");
+vtkCxxRevisionMacro(vtkXGMLReader, "1.5");
 vtkStandardNewMacro(vtkXGMLReader);
 
 vtkXGMLReader::vtkXGMLReader()
@@ -414,6 +414,8 @@ int vtkXGMLReader::RequestData(
   assert(tok.Type == vtkXGMLReaderToken::CLOSE_GROUP);
   
   // .. followed by end-of-file.
+  vtkXGMLReaderNextToken(fin, tok);
+  // do an extra read
   vtkXGMLReaderNextToken(fin, tok);
   assert(tok.Type == vtkXGMLReaderToken::END_OF_FILE);
   
