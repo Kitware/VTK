@@ -24,15 +24,22 @@
 
 #include "vtkTableAlgorithm.h"
 
-// .NAME vtkCosineSimilarity
+// .NAME vtkCosineSimilarity - compute vector similarity metrics for a matrix.
 
 // .SECTION Description
-// Treats a matrix as a collection of vectors and computes the cosine similarity
-// between each pair vectors, returning the results as an edge-table that
-// includes the index of each vector with their computed similarity.
+// Treats a matrix as a collection of vectors and computes the dot-product 
+// between each pair of vectors, returning the results as an edge-table that
+// includes the index of each vector with their computed similarity.  The
+// output edge-table is typically used with vtkTableToGraph to create a similarity
+// graph.
 //
+// Note: this filter *only* computes the dot-product between each pair of vectors -
+// you must normalize the inputs to this filter if you want the results to be equal
+// to the cosine of the angle between the vectors.
+//
+// .SECTION Caveats
 // Note that the complexity of this filter is quadratic!
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
