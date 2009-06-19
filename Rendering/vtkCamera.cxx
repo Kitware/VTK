@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.118");
+vtkCxxRevisionMacro(vtkCamera, "1.119");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1000,6 +1000,227 @@ unsigned long int vtkCamera::GetViewingRaysMTime()
 void vtkCamera::ViewingRaysModified()
 {
   this->ViewingRaysMTime.Modified();
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Copy the properties of `source' into `this'.
+// Copy pointers of matrices.
+// \pre source_exists!=0
+// \pre not_this: source!=this
+void vtkCamera::ShallowCopy(vtkCamera *source)
+{
+  assert("pre: source_exists" && source!=0);
+  assert("pre: not_this" && source!=this);
+  
+  this->PartialCopy(source);
+  
+  // Shallow copy of matrices:
+  if(this->UserTransform!=0)
+    {
+    this->UserTransform->Delete();
+    }
+  this->UserTransform=source->UserTransform;
+  if(this->UserTransform!=0)
+    {
+    this->UserTransform->Register(this);
+    }
+  
+  if(this->ViewTransform!=0)
+    {
+    this->ViewTransform->Delete();
+    }
+  this->ViewTransform=source->ViewTransform;
+  if(this->ViewTransform!=0)
+    {
+    this->ViewTransform->Register(this);
+    }
+  
+  if(this->ProjectionTransform!=0)
+    {
+    this->ProjectionTransform->Delete();
+    }
+  this->ProjectionTransform=source->ProjectionTransform;
+  if(this->ProjectionTransform!=0)
+    {
+    this->ProjectionTransform->Register(this);
+    }
+  
+  if(this->Transform!=0)
+    {
+    this->Transform->Delete();
+    }
+  this->Transform=source->Transform;
+  if(this->Transform!=0)
+    {
+    this->Transform->Register(this);
+    }
+  
+  if(this->CameraLightTransform!=0)
+    {
+    this->CameraLightTransform->Delete();
+    }
+  this->CameraLightTransform=source->CameraLightTransform;
+  if(this->CameraLightTransform!=0)
+    {
+    this->CameraLightTransform->Register(this);
+    }
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Copy the properties of `source' into `this'.
+// Copy the contents of the matrices.
+// \pre source_exists!=0
+// \pre not_this: source!=this
+void vtkCamera::DeepCopy(vtkCamera *source)
+{
+  assert("pre: source_exists" && source!=0);
+  assert("pre: not_this" && source!=this);
+  
+  this->PartialCopy(source);
+  
+  // Deep copy the matrices:
+  if(source->UserTransform==0)
+    {
+    if(this->UserTransform!=0)
+      {
+      this->UserTransform->UnRegister(this);
+      this->UserTransform=0;
+      }
+    }
+  else
+    {
+    if(this->UserTransform==0)
+      {
+      this->UserTransform=
+        static_cast<vtkHomogeneousTransform *>(
+          source->UserTransform->MakeTransform());
+      }
+     this->UserTransform->DeepCopy(source->UserTransform);
+    }
+  
+  if(source->ViewTransform==0)
+    {
+    if(this->ViewTransform!=0)
+      {
+      this->ViewTransform->UnRegister(this);
+      this->ViewTransform=0;
+      }
+    }
+  else
+    {
+    if(this->ViewTransform==0)
+      {
+      this->ViewTransform=
+        static_cast<vtkTransform *>(
+          source->ViewTransform->MakeTransform());
+      }
+     this->ViewTransform->DeepCopy(source->ViewTransform);
+    }
+  
+  if(source->ProjectionTransform==0)
+    {
+    if(this->ProjectionTransform!=0)
+      {
+      this->ProjectionTransform->UnRegister(this);
+      this->ProjectionTransform=0;
+      }
+    }
+  else
+    {
+    if(this->ProjectionTransform==0)
+      {
+      this->ProjectionTransform=
+        static_cast<vtkPerspectiveTransform *>(
+          source->ProjectionTransform->MakeTransform());
+      }
+     this->ProjectionTransform->DeepCopy(source->ProjectionTransform);
+    }
+  
+  if(source->Transform==0)
+    {
+    if(this->Transform!=0)
+      {
+      this->Transform->UnRegister(this);
+      this->Transform=0;
+      }
+    }
+  else
+    {
+    if(this->Transform==0)
+      {
+      this->Transform=
+        static_cast<vtkPerspectiveTransform *>(
+          source->Transform->MakeTransform());
+      }
+     this->Transform->DeepCopy(source->Transform);
+    }
+  
+  if(source->CameraLightTransform==0)
+    {
+    if(this->CameraLightTransform!=0)
+      {
+      this->CameraLightTransform->UnRegister(this);
+      this->CameraLightTransform=0;
+      }
+    }
+  else
+    {
+    if(this->CameraLightTransform==0)
+      {
+      this->CameraLightTransform=
+        static_cast<vtkTransform *>(
+          source->CameraLightTransform->MakeTransform());
+      }
+     this->CameraLightTransform->DeepCopy(source->CameraLightTransform);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Copy the ivars. Do nothing for the matrices.
+// Called by ShallowCopy() and DeepCopy()
+// \pre source_exists!=0
+// \pre not_this: source!=this
+void vtkCamera::PartialCopy(vtkCamera *source)
+{
+  assert("pre: source_exists" && source!=0);
+  assert("pre: not_this" && source!=this);
+  
+  int i;
+  
+  i=0;
+  while(i<2)
+    {
+    this->WindowCenter[i]=source->WindowCenter[i];
+    this->ObliqueAngles[i]=source->ObliqueAngles[i];
+    this->ClippingRange[i]=source->ClippingRange[i];
+    ++i;
+    }
+  i=0;
+  while(i<3)
+    {
+    this->FocalPoint[i]=source->FocalPoint[i];
+    this->Position[i]=source->Position[i];
+    this->ViewUp[i]=source->ViewUp[i];
+    this->DirectionOfProjection[i]=source->DirectionOfProjection[i];
+    this->ViewPlaneNormal[i]=source->ViewPlaneNormal[i];
+    this->ViewShear[i]=source->ViewShear[i];
+    ++i;
+    }
+  
+  this->ViewAngle=source->ViewAngle;
+  this->EyeAngle=source->EyeAngle;
+  this->ParallelProjection=source->ParallelProjection;
+  this->ParallelScale=source->ParallelScale;
+  this->Stereo=source->Stereo;
+  this->LeftEye=source->LeftEye;
+  this->Thickness=source->Thickness;
+  this->Distance=source->Distance;
+  this->UseHorizontalViewAngle=source->UseHorizontalViewAngle;
+  this->FocalDisk=source->FocalDisk;
+  this->ViewingRaysMTime=source->ViewingRaysMTime;
 }
 
 //----------------------------------------------------------------------------

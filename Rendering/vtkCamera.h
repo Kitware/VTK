@@ -397,6 +397,20 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkSetMacro(LeftEye,int);
   vtkGetMacro(LeftEye,int);
 
+  // Description:
+  // Copy the properties of `source' into `this'.
+  // Copy pointers of matrices.
+  // \pre source_exists!=0
+  // \pre not_this: source!=this
+  void ShallowCopy(vtkCamera *source);
+  
+  // Description:
+  // Copy the properties of `source' into `this'.
+  // Copy the contents of the matrices.
+  // \pre source_exists!=0
+  // \pre not_this: source!=this
+  void DeepCopy(vtkCamera *source);
+  
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -436,6 +450,13 @@ protected:
   
   void ComputeCameraLightTransform();
 
+  // Description:
+  // Copy the ivars. Do nothing for the matrices.
+  // Called by ShallowCopy() and DeepCopy()
+  // \pre source_exists!=0
+  // \pre not_this: source!=this
+  void PartialCopy(vtkCamera *source);
+  
   double WindowCenter[2];
   double ObliqueAngles[2];
   double FocalPoint[3];
