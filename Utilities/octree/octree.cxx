@@ -98,7 +98,7 @@ octree<T_,d_,A_>::octree( const double* x_center, double length )
   for ( int i = 0; i < d_; ++ i )
     this->_M_center[i] = x_center[i];
   this->_M_size = length;
-  this->_M_root = new octree_node<T_,d_,A_>( 0 );
+  this->_M_root = new octree_node<T_,d_,A_>();
 }
 
 /**\brief Octree constructor.
