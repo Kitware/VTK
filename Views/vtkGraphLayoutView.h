@@ -230,6 +230,11 @@ public:
   // The array used for assigning icons
   void SetIconArrayName(const char* name);
   const char* GetIconArrayName();
+
+  // Description:
+  // The type of glyph to use for the vertices
+  void SetGlyphType(int type);
+  int GetGlyphType();
   
   // Description:
   // The size of the font used for vertex labeling

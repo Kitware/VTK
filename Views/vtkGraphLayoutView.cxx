@@ -34,7 +34,7 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.64");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.65");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -259,6 +259,18 @@ void vtkGraphLayoutView::SetEnableVerticesByArray(bool vis)
 int vtkGraphLayoutView::GetEnableVerticesByArray()
 {
   return this->GetGraphRepresentation()->GetEnableVerticesByArray();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetGlyphType(int type)
+{
+  this->GetGraphRepresentation()->SetGlyphType(type);
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphLayoutView::GetGlyphType()
+{
+  return this->GetGraphRepresentation()->GetGlyphType();
 }
 
 //----------------------------------------------------------------------------
