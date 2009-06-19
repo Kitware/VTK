@@ -137,7 +137,7 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::down( int child_of_this_node )
   * Returns the index into the children of the current node's parent where the current node is located.
   * A -1 is returned at level 0 (i.e., when the cursor is at the root node of the tree).
   *
-  * @retval An integer in \f$\left\{-1,0,\ldots,2^{\mathrm{\texttt{\d_}}}-1\right\}\f$.
+  * @retval An integer in \f$\left\{-1,0,\ldots,2^{\mathrm{\texttt{d\_}}}-1\right\}\f$.
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 int octree_cursor<T_,R_,P_,O_,OP_,d_>::where() const
@@ -155,7 +155,7 @@ int octree_cursor<T_,R_,P_,O_,OP_,d_>::where() const
   * This can throw vtkstd::range_error when \a child_of_shared_parent is invalid.
   *
   * @param[in] child_of_shared_parent the child of the parent node to which the cursor should move.
-  *            This is an integer in \f$\left\{0,\ldots,2^{\mathrm{\texttt{\d_}}}-1\right\}\f$.
+  *            This is an integer in \f$\left\{0,\ldots,2^{\mathrm{\texttt{d\_}}}-1\right\}\f$.
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 void octree_cursor<T_,R_,P_,O_,OP_,d_>::over( int child_of_shared_parent )
@@ -181,7 +181,7 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::over( int child_of_shared_parent )
   * This will throw a vtkstd::logic_error when the cursor is at the root of the tree.
   * It will throw a vtkstd::range_error when the axis is invalid.
   *
-  * @param axis An integer in \f$\left\{0,\ldots,\mathrm{\texttt{\d_}}-1\right\}\f$
+  * @param axis An integer in \f$\left\{0,\ldots,\mathrm{\texttt{d\_}}-1\right\}\f$
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 void octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_partner( int axis )
@@ -207,7 +207,7 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_partner( int axis )
   * This will throw a vtkstd::logic_error when the cursor is at the root of the tree.
   * It will throw a vtkstd::range_error when the axis is invalid.
   *
-  * @param[in] axis The axis of interest. An integer in \f$\left\{0,\ldots,\mathrm{\texttt{\d_}}-1\right\}\f$.
+  * @param[in] axis The axis of interest. An integer in \f$\left\{0,\ldots,\mathrm{\texttt{d\_}}-1\right\}\f$.
   * @retval         0 if the cursor points to a lower quadrant/octant, 1 if the cursor points to an upper quadrant/octant.
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >

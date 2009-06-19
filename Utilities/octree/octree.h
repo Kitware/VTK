@@ -5,6 +5,34 @@
 
 /**\brief An n-dimensional octree. Perhaps it should be named a tttntree (two-to-the n tree)?
   *
+  * This templated class provides an n-dimensional binary tree, storing an
+  * object whose type is specified by the first template parameter at each
+  * node (whether or not that node is a leaf).
+  * The second template parameter is an integer constant specifying the
+  * dimension of the tree.
+  * The final template parameter takes an allocator object just as the STL does.
+  *
+  * The tree itself stores the center and overall bounds of the root node;
+  * the nodes themselves do not contain any information on the geometry.
+  * If needed, it can be derived from an octree_path object referring to
+  * the node or stored in the template class at each node for fast access.
+  * This makes the class useful for storing abstract trees with minimal overhead
+  * as well as trees embedded in a metric space.
+  *
+  * Access to entries in the tree is provided by octree_cursor and octree_iterator
+  * objects, both of which inherit octree_path.
+  * An octree_path stores a vector of integers describing a descent from the root
+  * node to a particular child node of the octree.
+  * Since each node of a \f$d\f$-dimensional tree has \f$2^d\f$ children,
+  * the integers in the vector will all be in \f$\{0,\ldots,2^d-1\}\f$.
+  *
+  * The octree_cursor class provides a free-form way to visit nodes in the octree;
+  * it does not behave like an interator that guarantees each node will be visited once.
+  * Instead, it provides a way to move up, down, and across the tree from any location.
+  * This makes it useful for local queries that do not need to traverse the entire tree.
+  *
+  * The octree_iterator class simply traverses the tree in depth-first order
+  * and can be configured to visit only leaf nodes or to include all nodes.
   */
 template< typename T_, int d_ = 3, typename A_ = vtkstd::allocator<T_> >
 class octree
