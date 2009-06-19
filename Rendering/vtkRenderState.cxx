@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkRenderState.h"
 #include <assert.h>
+#include "vtkRenderer.h"
+#include "vtkFrameBufferObject.h"
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -76,6 +78,21 @@ void vtkRenderState::SetFrameBuffer(vtkFrameBufferObject *fbo)
 {
   this->FrameBuffer=fbo;
   assert("post: is_set" && this->GetFrameBuffer()==fbo);
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Get the window size of the state.
+void vtkRenderState::GetWindowSize(int size[2]) const
+{
+  if(this->FrameBuffer==0)
+    {
+    this->Renderer->GetTiledSize(&size[0],&size[1]);
+    }
+  else
+    {
+    this->FrameBuffer->GetLastSize(size);
+    }
 }
 
 // ----------------------------------------------------------------------------
