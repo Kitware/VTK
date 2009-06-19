@@ -40,7 +40,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
@@ -538,6 +538,8 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
       {
       // Point is at the root vertex.
       // but we don't want the root to be pickable, so return -1.
+      // This won't work for blimits spanning the 0/360 rollover, but the test below
+      // catches that case.
       return -1;
       }
 
@@ -551,7 +553,32 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
     while (it->HasNext())
       {
       child = it->Next();
+      // if the root boundary starts anywhere but zero, the root node will have passed
+      // the earlier test.  This will skip the root and prevent it from being picked.
+      if (child == vertex)
+        {
+        continue;
+        }
       boundsInfo->GetTupleValue(child, blimits); // Get the extents of the child
+
+      // the range checking below doesn't work if either or both of blimits > 360  
+      if ((blimits[0] > 360.0) && (blimits[1] > 360.0))
+        {
+        blimits[0] -= 360.0;
+        blimits[1] -= 360.0;
+        }
+      else if ((blimits[0] < 360.0) && (blimits[1] > 360.0) && (polar_location[1] < 360.0)) 
+        {  // if the range spans the rollover at 0/360 on the circle
+        if (polar_location[1] < 90.0)
+          {
+          blimits[0] = 0.0;
+          blimits[1] -= 360.0;
+          }
+        else if (polar_location[1] > 270.)
+          {
+          blimits[1] = 360.0;
+          }
+        }
       bool beyond_radial_bounds = false;
       bool beyond_angle_bounds = false;
       if( (polar_location[0] < blimits[2]) || (polar_location[0] > blimits[3]))
