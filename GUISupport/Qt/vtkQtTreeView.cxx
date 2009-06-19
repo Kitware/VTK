@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.15");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.16");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -122,6 +122,13 @@ void vtkQtTreeView::SetShowRootNode(bool state)
 void vtkQtTreeView::HideColumn(int i) 
 {
   this->TreeView->hideColumn(i);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::SetItemDelegate(QStyledItemDelegate* delegate) 
+{
+  this->TreeView->setItemDelegate(delegate);
 }
 
 //----------------------------------------------------------------------------
