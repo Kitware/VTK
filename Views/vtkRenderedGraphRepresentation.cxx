@@ -88,7 +88,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.22");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.23");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -1309,6 +1309,13 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
   this->VertexTextProperty->SetLineOffset(-2*baseSize);
   this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
+
+  // Moronic hack.. the circles seem to be really small so make them bigger
+  if (this->VertexGlyph->GetGlyphType() == vtkGraphToGlyphs::CIRCLE)
+      {
+      this->VertexGlyph->SetScreenSize(baseSize*2+1);
+      this->OutlineGlyph->SetScreenSize(baseSize*2+1);
+      }
 }
 
 //----------------------------------------------------------------------------
