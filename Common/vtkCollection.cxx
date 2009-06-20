@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCollection, "1.47");
+vtkCxxRevisionMacro(vtkCollection, "1.48");
 vtkStandardNewMacro(vtkCollection);
 
 // Construct with empty list.
@@ -168,6 +168,12 @@ void vtkCollection::RemoveItem(vtkObject *a)
 void vtkCollection::RemoveAllItems()
 {
   vtkCollectionElement *elem;
+
+  // Don't modify if collection is empty
+  if(this->NumberOfItems == 0)
+    {
+    return;
+    }
 
   while (this->NumberOfItems )
     {

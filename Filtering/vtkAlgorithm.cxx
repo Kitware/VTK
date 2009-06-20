@@ -41,7 +41,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.47");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.48");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -264,16 +264,28 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
     {
     return;
     }
-  
+
   vtkInformation *info = this->GetInputArrayInformation(idx);
+
+  // remove fieldAttr if there is one
+  info->Remove(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
   
+  // Check to see whether the current input array matches - 
+  // if so we're done.
+  if(info->Has(vtkDataObject::FIELD_NAME()) &&
+    info->Get(INPUT_PORT()) == port &&
+    info->Get(INPUT_CONNECTION()) == connection &&
+    info->Get(vtkDataObject::FIELD_ASSOCIATION()) == fieldAssociation &&
+    info->Get(vtkDataObject::FIELD_NAME()) &&
+    strcmp(info->Get(vtkDataObject::FIELD_NAME()), name)==0)
+    {
+    return;
+    }
+
   info->Set(INPUT_PORT(), port);
   info->Set(INPUT_CONNECTION(), connection);
   info->Set(vtkDataObject::FIELD_ASSOCIATION(),fieldAssociation);
   info->Set(vtkDataObject::FIELD_NAME(),name);
-
-  // remove fieldAttr if there is one
-  info->Remove(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
 
   this->Modified();
 }
