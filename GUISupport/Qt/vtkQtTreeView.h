@@ -33,9 +33,9 @@
 #include "vtkQtView.h"
 
 #include <QPointer>
-#include <QStyledItemDelegate>
 #include "vtkQtAbstractModelAdapter.h"
 
+class QAbstractItemDelegate;
 class QItemSelection;
 class QTreeView;
 class vtkQtTreeModelAdapter;
@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Set item delegate to something custom
-  void SetItemDelegate(QStyledItemDelegate* delegate);
+  void SetItemDelegate(QAbstractItemDelegate* delegate);
 
 protected:
   vtkQtTreeView();
