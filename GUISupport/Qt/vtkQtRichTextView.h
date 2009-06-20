@@ -100,7 +100,7 @@ private:
   int   ProxyPort;
 
   class Implementation;
-  Implementation* const Internal;
+  Implementation* Internal;
 };
 
 #endif
