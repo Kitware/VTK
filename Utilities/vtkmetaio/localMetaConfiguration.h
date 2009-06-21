@@ -23,7 +23,6 @@
   #define METAIO_NAMESPACE      ITKMetaIO
   
   #include "itk_zlib.h"
-  #include "itksys/SystemTools.hxx"
   
   #define METAIO_STL    std
   #define METAIO_STREAM std
@@ -41,7 +40,6 @@
 
   #include "vtkConfigure.h"
   #include "vtk_zlib.h"
-  #include "vtksys/SystemTools.hxx"
   
   #ifdef VTK_NO_STD_NAMESPACE
     #define METAIO_STL

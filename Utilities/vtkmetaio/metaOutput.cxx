@@ -16,6 +16,7 @@
 =========================================================================*/
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
+#pragma warning(disable:4996)
 #endif
 
 #include "metaOutput.h"
@@ -33,12 +34,25 @@
 #endif
 
 #include <string.h>
+#include <time.h>
 
 #include <typeinfo>
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
 #endif
+
+
+/** Stolen from kwsys */
+METAIO_STL::string GetCurrentDateTime(const char* format)
+{
+  char buf[1024];
+  time_t t;
+  time(&t);
+  strftime(buf, sizeof(buf), format, localtime(&t));
+  return METAIO_STL::string(buf);
+}
+
 
 /****/
 MetaOutputStream::
@@ -394,9 +408,9 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
   buffer += " version=\""+m_CurrentVersion+"\">\n";
 
   buffer += "<Creation date=\"" 
-             + METAIO_KWSYS::SystemTools::GetCurrentDateTime("%Y%m%d") + "\"";
+             + GetCurrentDateTime("%Y%m%d") + "\"";
   buffer += " time=\"" 
-             + METAIO_KWSYS::SystemTools::GetCurrentDateTime("%H%M%S") + "\"";
+             + GetCurrentDateTime("%H%M%S") + "\"";
   buffer += " hostname=\""+this->GetHostname() +"\"";
   buffer += " hostIP=\""+this->GetHostip() +"\"";
   buffer += " user=\"" + this->GetUsername() + "\"/>\n";
