@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebHistory>
 #include <QWebView>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.13");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.14");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -76,11 +76,11 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 // vtkQtRichTextView
 
-vtkQtRichTextView::vtkQtRichTextView() :
-  Internal(new Implementation()),
-  ProxyPort(0),
-  ProxyURL(0)
+vtkQtRichTextView::vtkQtRichTextView()
 {
+  this->ProxyPort = 0;
+  this->ProxyURL = NULL;
+  this->Internal = new Implementation();
   this->Internal->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->Internal->DataObjectToTable->SetFieldType(ROW_DATA);
 
