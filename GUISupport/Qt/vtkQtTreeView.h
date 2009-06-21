@@ -69,6 +69,10 @@ public:
   void SetAlternatingRowColors(bool);
 
   // Description:
+  // Have the view alternate its row colors (default is OFF)
+  void SetEnableDragDrop(bool);
+
+  // Description:
   // Show the root node of the tree (default is OFF)
   void SetShowRootNode(bool);
 

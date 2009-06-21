@@ -35,6 +35,7 @@
 
 #include "vtkQtAbstractModelAdapter.h"
 #include <QHash>
+#include <QMimeData>
 #include <QVector>
 
 class vtkTree;
@@ -88,6 +89,14 @@ public:
   QModelIndex parent(const QModelIndex &index) const;
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+  // Description:
+  // If drag/drop is enabled in the view, the model will package up the current
+  // pedigreeid vtkSelection into a QMimeData when items are dragged.
+  // Currently only leaves of the tree can be dragged. 
+  Qt::DropActions supportedDragActions() const;
+  virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
+  virtual QStringList mimeTypes () const ;
 
 protected:
   void treeModified();
