@@ -510,9 +510,7 @@ QStringList vtkQtTreeModelAdapter::mimeTypes() const
 
 QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
 {
-  QMimeData *mimeData = new QMimeData();
-  //QByteArray encodedData;
-  //QDataStream stream(&encodedData, QIODevice::WriteOnly);
+  QMimeData *mime_data = new QMimeData();
 
   // First get the index selection using a helper method
   vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
@@ -520,14 +518,11 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
 
   vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Tree, vtkSelectionNode::PEDIGREEIDS);
 
-  //stream << pedigreeIdSelection;
-  //mimeData->setData("vtk/selection", encodedData);
-
   vtksys_ios::ostringstream buffer;
   buffer << pedigreeIdSelection;
-  mimeData->setData("vtk/selection", buffer.str().c_str());
+  mime_data->setData("vtk/selection", buffer.str().c_str());
 
-  return mimeData;
+  return mime_data;
 }
 
 Qt::DropActions vtkQtTreeModelAdapter::supportedDragActions() const
