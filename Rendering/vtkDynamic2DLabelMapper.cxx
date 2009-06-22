@@ -42,6 +42,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
+#include "vtkTypeTraits.h"
 #include "vtkViewport.h"
 
 #include <vtksys/ios/fstream>
@@ -53,7 +54,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.15");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.16");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -285,6 +286,8 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
           {
           case VTK_VOID: FormatString = "0x%x"; break;
 
+          // dont use vtkTypeTraits::ParseFormat for character types as parse formats
+          // aren't the same as print formats for these types.
           case VTK_BIT:
           case VTK_SHORT:
           case VTK_UNSIGNED_SHORT:
@@ -298,21 +301,32 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
             FormatString = "%c"; break;
 
           case VTK_LONG:
+            FormatString = vtkTypeTraits<long>::ParseFormat(); break;
           case VTK_UNSIGNED_LONG:
-          case VTK_ID_TYPE:
-            FormatString = "%ld"; break;
+            FormatString = vtkTypeTraits<unsigned long>::ParseFormat(); break;
 
+          case VTK_ID_TYPE:
+            FormatString = vtkTypeTraits<vtkIdType>::ParseFormat(); break;
+
+#if defined(VTK_TYPE_USE_LONG_LONG)
           case VTK_LONG_LONG:
+            FormatString = vtkTypeTraits<long long>::ParseFormat(); break;
           case VTK_UNSIGNED_LONG_LONG:
+            FormatString = vtkTypeTraits<unsigned long long>::ParseFormat(); break;
+#endif
+
+#if defined(VTK_TYPE_USE___INT64)
           case VTK___INT64:
+            FormatString = vtkTypeTraits<__int64>::ParseFormat(); break;
           case VTK_UNSIGNED___INT64:
-            FormatString = "%lld"; break;
+            FormatString = vtkTypeTraits<unsigned __int64>::ParseFormat(); break;
+#endif
 
           case VTK_FLOAT:
-            FormatString = "%f"; break;
+            FormatString = vtkTypeTraits<float>::ParseFormat(); break;
 
           case VTK_DOUBLE:
-            FormatString = "%g"; break;
+            FormatString = vtkTypeTraits<double>::ParseFormat(); break;
 
           default:
             FormatString = "BUG - UNKNOWN DATA FORMAT"; break;
