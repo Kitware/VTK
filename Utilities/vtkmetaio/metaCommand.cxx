@@ -133,7 +133,8 @@ SetOption(METAIO_STL::string name,
               << " You should use the SetOptionLongTag(optionName,longTagName)"
               << " if you want to use a longer tag. The longtag will be"
               << " refered as --LongTag and the short tag as -ShortTag."
-              << " Replace -" << shortTag << " by --" << shortTag 
+              << " Replace -" << shortTag.c_str() 
+              << " by --" << shortTag.c_str() 
               << METAIO_STREAM::endl;
     }
 
@@ -179,7 +180,8 @@ SetOption(METAIO_STL::string name,
               << " You should use the SetOptionLongTag(optionName,longTagName)"
               << " if you want to use a longer tag. The longtag will be "
               << " refered as --LongTag and the short tag as -ShortTag "
-              << " Replace -" << shortTag << " by --" << shortTag 
+              << " Replace -" << shortTag.c_str() 
+              << " by --" << shortTag.c_str() 
               << METAIO_STREAM::endl;
     }
 
@@ -903,7 +905,8 @@ void MetaCommand::WriteXMLOptionToCout(METAIO_STL::string optionName,
     optionType = this->TypeToString((*itField).type).c_str();
     }
 
-  METAIO_STREAM::cout << "<" << optionType << ">" << METAIO_STREAM::endl;
+  METAIO_STREAM::cout << "<" << optionType.c_str() 
+                      << ">" << METAIO_STREAM::endl;
  
 
   METAIO_STREAM::cout << "<name>" << (*it).name.c_str() << "</name>" 
@@ -965,7 +968,8 @@ void MetaCommand::WriteXMLOptionToCout(METAIO_STL::string optionName,
     }
       
   // Write out the closing tag 
-  METAIO_STREAM::cout << "</" << optionType << ">" << METAIO_STREAM::endl;
+  METAIO_STREAM::cout << "</" << optionType.c_str()
+                      << ">" << METAIO_STREAM::endl;
 }
 
 /** List the current options in Slicer's xml format (www.slicer.org) */
@@ -1001,15 +1005,18 @@ void MetaCommand::ListOptionsSlicerXML()
       {
       METAIO_STREAM::cout << " <parameters>" <<  METAIO_STREAM::endl;
       }
-    METAIO_STREAM::cout << "  <label>" << (*itGroup).name <<  "</label>" <<  METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "  <label>" << (*itGroup).name.c_str() 
+                        <<  "</label>" <<  METAIO_STREAM::endl;
     
     if((*itGroup).description.size() == 0)
       {
-      METAIO_STREAM::cout << "  <description>" << (*itGroup).name << "</description>" <<  METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "  <description>" << (*itGroup).name.c_str()
+                          << "</description>" <<  METAIO_STREAM::endl;
       }
     else
       {
-      METAIO_STREAM::cout << "  <description>" << (*itGroup).description << "</description>" <<  METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "  <description>" << (*itGroup).description.c_str() 
+                          << "</description>" <<  METAIO_STREAM::endl;
       }
 
     METAIO_STL::vector<METAIO_STL::string>::const_iterator itOption = (*itGroup).options.begin();
@@ -2294,7 +2301,8 @@ bool MetaCommand::SetParameterGroup(METAIO_STL::string optionName,
 
   if(!optionExists)
     {
-    METAIO_STREAM::cout << "The option " << optionName << " doesn't exist" << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "The option " << optionName.c_str() 
+                        << " doesn't exist" << METAIO_STREAM::endl;
     return false;
     }
    
