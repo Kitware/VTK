@@ -25,7 +25,7 @@
 #define __vtkEmptyRepresentation_h
 
 #include "vtkDataRepresentation.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // For SP ivars
 
 class vtkConvertSelectionDomain;
 
