@@ -27,13 +27,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkVariant.h"
 #include <ctype.h>
 
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.2");
+vtkCxxRevisionMacro(vtkArrayMap, "1.3");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -153,7 +154,7 @@ int vtkArrayMap::RequestData(
         return 0;
       }
     }
-  else
+  else if (vtkGraph::SafeDownCast(input))
     {
     vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
     vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
@@ -168,6 +169,21 @@ int vtkArrayMap::RequestData(
         break;
       default:
         vtkErrorMacro(<<"Data must be vertex or edge for vtkGraph");
+        return 0;
+      }
+    }
+  else if (vtkTable::SafeDownCast(input))
+    {
+    vtkTable *tableInput = vtkTable::SafeDownCast(input);
+    vtkTable *tableOutput = vtkTable::SafeDownCast(output);
+    tableOutput->ShallowCopy( tableInput );
+    switch (this->FieldType)
+      {
+      case vtkArrayMap::ROW_DATA:
+        ods = tableOutput->GetRowData();
+        break;
+      default:
+        vtkErrorMacro(<<"Data must be row for vtkTable");
         return 0;
       }
     }
@@ -256,6 +272,7 @@ int vtkArrayMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* 
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;  
 }
 

@@ -114,6 +114,7 @@ public:
     CELL_DATA=1,
     VERTEX_DATA=2,
     EDGE_DATA=3,
+    ROW_DATA=4,
     NUM_ATTRIBUTE_LOCS
   };
 //ETX
