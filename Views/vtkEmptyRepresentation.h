@@ -25,6 +25,9 @@
 #define __vtkEmptyRepresentation_h
 
 #include "vtkDataRepresentation.h"
+#include "vtkSmartPointer.h"
+
+class vtkConvertSelectionDomain;
 
 class VTK_VIEWS_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
 {
@@ -33,6 +36,12 @@ public:
   vtkTypeRevisionMacro(vtkEmptyRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Since this representation has no inputs, override superclass 
+  // implementation with one that ignores "port" and "conn" and still allows it
+  // to have an annotation output.
+  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn);
+
 protected:
   vtkEmptyRepresentation();
   ~vtkEmptyRepresentation();
@@ -40,6 +49,10 @@ protected:
 private:
   vtkEmptyRepresentation(const vtkEmptyRepresentation&); // Not implemented
   void operator=(const vtkEmptyRepresentation&);   // Not implemented
+
+//BTX
+  vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
+//ETX
 };
 
 #endif

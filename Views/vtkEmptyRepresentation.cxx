@@ -20,14 +20,18 @@
 
 #include "vtkEmptyRepresentation.h"
 
+#include "vtkAnnotationLink.h"
+#include "vtkConvertSelectionDomain.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEmptyRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkEmptyRepresentation, "1.2");
 vtkStandardNewMacro(vtkEmptyRepresentation);
 
 
 vtkEmptyRepresentation::vtkEmptyRepresentation()
 {
+  this->ConvertDomains = vtkSmartPointer<vtkConvertSelectionDomain>::New();
+  
   this->SetNumberOfInputPorts(0);
 }
 
@@ -35,6 +39,17 @@ vtkEmptyRepresentation::~vtkEmptyRepresentation()
 {
 }
 
+//----------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkEmptyRepresentation::GetInternalAnnotationOutputPort(
+  int vtkNotUsed(port), int vtkNotUsed(conn))
+{
+  this->ConvertDomains->SetInputConnection(0,
+    this->GetAnnotationLink()->GetOutputPort(0));
+  this->ConvertDomains->SetInputConnection(1,
+    this->GetAnnotationLink()->GetOutputPort(1));
+
+  return this->ConvertDomains->GetOutputPort();
+}
 
 void vtkEmptyRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
