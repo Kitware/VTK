@@ -40,6 +40,10 @@ public:
   // Since this representation has no inputs, override superclass 
   // implementation with one that ignores "port" and "conn" and still allows it
   // to have an annotation output.
+  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort()
+    { return this->GetInternalAnnotationOutputPort(0); }
+  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port)
+    { return this->GetInternalAnnotationOutputPort(port, 0); }
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn);
 
 protected:
