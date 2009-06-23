@@ -45,20 +45,21 @@ int SLACParticleReader(int argc, char *argv[])
 {
   char *meshFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                              "Data/SLAC/pic-example/mesh.ncdf");
-  char *modeFileNameBase = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                               "Data/SLAC/pic-example/fields_");
+  char *modeFileNamePattern = vtkTestUtilities::ExpandDataFileName(argc, argv,
+                                         "Data/SLAC/pic-example/fields_%d.mod");
   char *particleFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                       "Data/SLAC/pic-example/particles_5.ncdf");
 
   // Set up mesh reader.
   VTK_CREATE(vtkSLACReader, meshReader);
   meshReader->SetMeshFileName(meshFileName);
+  char *modeFileName = new char[strlen(modeFileNamePattern + 10)];
   for (int i = 0; i < 9; i++)
     {
-    vtkstd::stringstream modeFileName;
-    modeFileName << modeFileNameBase << i << ".mod";
-    meshReader->AddModeFileName(modeFileName.str().c_str());
+    sprintf(modeFileName, modeFileNamePattern, i);
+    meshReader->AddModeFileName(modeFileName);
     }
+  delete[] modeFileName;
 
   meshReader->ReadInternalVolumeOn();
   meshReader->ReadExternalSurfaceOff();
