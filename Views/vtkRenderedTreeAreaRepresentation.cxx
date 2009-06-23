@@ -74,10 +74,9 @@ class vtkRenderedTreeAreaRepresentation::Internals
 {
 public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
-  vtkstd::vector<vtkSmartPointer<vtkActor> > ActorsToRemove;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.9");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -106,7 +105,6 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   this->AreaColorArrayNameInternal = 0;
   this->AreaLabelArrayNameInternal = 0;
   this->AreaLabelPriorityArrayNameInternal = 0;
-  this->GraphEdgeColorArrayNameInternal = 0;
   this->AreaHoverTextInternal = 0;
   this->AreaHoverArrayName = 0;
   this->UseRectangularCoordinates = false;
@@ -182,7 +180,6 @@ vtkRenderedTreeAreaRepresentation::~vtkRenderedTreeAreaRepresentation()
   this->SetAreaColorArrayNameInternal(0);
   this->SetAreaLabelArrayNameInternal(0);
   this->SetAreaLabelPriorityArrayNameInternal(0);
-  this->SetGraphEdgeColorArrayNameInternal(0);
   this->SetAreaHoverTextInternal(0);
   this->SetAreaHoverArrayName(0);
   delete this->Implementation;
@@ -809,6 +806,7 @@ int vtkRenderedTreeAreaRepresentation::RequestData(
   for (size_t i = numGraphs; i < this->Implementation->Graphs.size(); ++i)
     {
     this->RemovePropOnNextRender(this->Implementation->Graphs[i]->GetActor());
+    this->RemovePropOnNextRender(this->Implementation->Graphs[i]->GetLabelActor());
     }
   this->Implementation->Graphs.resize(numGraphs);
 
@@ -816,6 +814,7 @@ int vtkRenderedTreeAreaRepresentation::RequestData(
   for (size_t i = 0; i < numGraphs; ++i)
     {
     this->AddPropOnNextRender(this->Implementation->Graphs[i]->GetActor());
+    this->AddPropOnNextRender(this->Implementation->Graphs[i]->GetLabelActor());
     vtkHierarchicalGraphPipeline* p = this->Implementation->Graphs[i];
     p->PrepareInputConnections(
       this->GetInternalOutputPort(1, static_cast<int>(i)),
@@ -844,19 +843,7 @@ void vtkRenderedTreeAreaRepresentation::PrepareForRendering(vtkRenderView* view)
   view->GetRenderer()->AddActor(this->AreaLabelActor);
 #endif
 
-  // Add/remove graph actors as necessary as input connections are added/removed
-  for (size_t i = 0; i < this->Implementation->ActorsToRemove.size(); ++i)
-    {
-    view->GetRenderer()->RemoveActor(this->Implementation->ActorsToRemove[i]);
-    }
-  this->Implementation->ActorsToRemove.clear();
-  for (size_t i = 0; i < this->Implementation->Graphs.size(); ++i)
-    {
-    if (!view->GetRenderer()->HasViewProp(this->Implementation->Graphs[i]->GetActor()))
-      {
-      view->GetRenderer()->AddActor(this->Implementation->Graphs[i]->GetActor());
-      }
-    }
+  this->Superclass::PrepareForRendering(view);
 }
 
 void vtkRenderedTreeAreaRepresentation::ApplyViewTheme(vtkViewTheme* theme)

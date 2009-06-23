@@ -61,14 +61,21 @@ int TestTreeRingView(int argc, char* argv[])
   VTK_CREATE(vtkTreeRingView, view);
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
+  view->Update();
 
   view->SetAreaColorArrayName("VertexDegree");
-  //view->SetEdgeColorArrayName("tree edge");
-  view->SetEdgeColorToSplineFraction();
-  view->SetColorEdges(true);
+
+  // Uncomment for edge colors
+  //view->SetEdgeColorArrayName("graph edge");
+  //view->SetColorEdges(true);
+
+  // Uncomment for edge labels
+  //view->SetEdgeLabelArrayName("graph edge");
+  //view->SetEdgeLabelVisibility(true);
+
   view->SetAreaLabelArrayName("id");
-  view->SetAreaHoverArrayName("id");
   view->SetAreaLabelVisibility(true);
+  view->SetAreaHoverArrayName("id");
   view->SetAreaSizeArrayName("VertexDegree");
 
   // Apply a theme to the views

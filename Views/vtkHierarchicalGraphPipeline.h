@@ -28,9 +28,12 @@
 #include "vtkObject.h"
 
 class vtkActor;
+class vtkActor2D;
 class vtkAlgorithmOutput;
 class vtkApplyColors;
 class vtkDataRepresentation;
+class vtkDynamic2DLabelMapper;
+class vtkEdgeCenters;
 class vtkGraphHierarchicalBundleEdges;
 class vtkGraphToPolyData;
 class vtkPolyDataMapper;
@@ -49,6 +52,10 @@ public:
   // Description:
   // The actor associated with the hierarchical graph.
   vtkGetObjectMacro(Actor, vtkActor);
+
+  // Description:
+  // The actor associated with the hierarchical graph.
+  vtkGetObjectMacro(LabelActor, vtkActor2D);
 
   // Description:
   // The bundling strength for the bundled edges.
@@ -118,10 +125,17 @@ protected:
   vtkPolyDataMapper*               Mapper;
   vtkActor*                        Actor;
   vtkTextProperty*                 TextProperty;
+  vtkEdgeCenters*                  EdgeCenters;
+  vtkDynamic2DLabelMapper*         LabelMapper;
+  vtkActor2D*                      LabelActor;
 
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);
   char* ColorArrayNameInternal;
+
+  vtkSetStringMacro(LabelArrayNameInternal);
+  vtkGetStringMacro(LabelArrayNameInternal);
+  char* LabelArrayNameInternal;
 
 private:
   vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&); // Not implemented
