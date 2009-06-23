@@ -219,6 +219,7 @@ vtkAreaLayoutStrategy.cxx
 vtkBivariateStatisticsAlgorithm.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
+vtkKMeansDistanceFunctor.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
