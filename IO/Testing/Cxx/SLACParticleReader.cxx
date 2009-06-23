@@ -53,7 +53,7 @@ int SLACParticleReader(int argc, char *argv[])
   // Set up mesh reader.
   VTK_CREATE(vtkSLACReader, meshReader);
   meshReader->SetMeshFileName(meshFileName);
-  char *modeFileName = new char[strlen(modeFileNamePattern + 10)];
+  char *modeFileName = new char[strlen(modeFileNamePattern) + 10];
   for (int i = 0; i < 9; i++)
     {
     sprintf(modeFileName, modeFileNamePattern, i);
