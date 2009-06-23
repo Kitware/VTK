@@ -38,7 +38,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.10");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.11");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -71,7 +71,12 @@ int vtkTreeRingToPolyData::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
+  if( inputTree->GetNumberOfVertices() == 0 )
+    {
+    return 1;
+    }
+
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray* coordArray = this->GetInputArrayToProcess(0, inputTree);
   if (!coordArray)
@@ -79,11 +84,11 @@ int vtkTreeRingToPolyData::RequestData(
     vtkErrorMacro("Sectors array not found.");
     return 0;
     }
-  VTK_CREATE(vtkAppendPolyData, append);
-  
+
   int i;
   vtkIdType rootId = inputTree->GetRoot();
   double progress = 0.0;
+  VTK_CREATE(vtkAppendPolyData, append);
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
   for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
     {
