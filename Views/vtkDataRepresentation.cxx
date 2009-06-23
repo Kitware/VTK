@@ -86,16 +86,16 @@ private:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.13");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   AnnotationLinkInternal, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionArrayNames, vtkStringArray);
 
 //----------------------------------------------------------------------------
-vtkDataRepresentation::vtkDataRepresentation() :
-  Implementation(new Internals())
+vtkDataRepresentation::vtkDataRepresentation()
 {
+  this->Implementation = new vtkDataRepresentation::Internals();
   // Listen to event indicating that the algorithm is done executing.
   // We may need to clear the data object cache after execution.
   this->Observer = Command::New();
@@ -227,7 +227,12 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalSelectionOutputPort(
   // Output port 1 of the convert domain filter is the current selection
   // that was contained in the linked annotation.
   vtkstd::pair<int, int> p(port, conn);
-  return this->Implementation->ConvertDomainInternal[p]->GetOutputPort(1);
+  if (this->Implementation->ConvertDomainInternal.find(p) !=
+    this->Implementation->ConvertDomainInternal.end())
+    {
+    return this->Implementation->ConvertDomainInternal[p]->GetOutputPort(1);
+    }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
