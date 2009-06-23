@@ -177,10 +177,17 @@ protected:
   // to handle distributed datasets).
   virtual void UpdateClusterCenters( vtkTable* newClusterElements, 
                                      vtkTable* curClusterElements, 
-                                     vtkIntArray* numElementsInCluster, 
+                                     vtkIdTypeArray* numMembershipChanges,
+                                     vtkIdTypeArray* numElementsInCluster, 
                                      vtkIdTypeArray* startRunID, 
                                      vtkIdTypeArray* endRunID, 
                                      vtkIntArray *computeRun );
+
+  // Description:
+  // Subroutine to get the total number of observations.
+  // Called from within ExecuteLearn (and will be overridden by vtkPKMeansStatistics
+  // to handle distributed datasets).
+  virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations );
 
   // Description:
   // Subroutine to initalize the cluster centers using those provided by the user
