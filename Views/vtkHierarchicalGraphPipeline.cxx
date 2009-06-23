@@ -41,7 +41,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.6");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.7");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -81,7 +81,7 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
   this->LabelMapper->SetInputConnection(this->EdgeCenters->GetOutputPort());
   this->LabelMapper->SetLabelTextProperty(this->TextProperty);
   this->LabelActor->SetMapper(this->LabelMapper);
-  //this->LabelActor->VisibilityOff();
+  this->LabelActor->VisibilityOff();
 
   this->Mapper->SetScalarModeToUseCellFieldData();
   this->Mapper->SelectColorArray("vtkApplyColors color");
