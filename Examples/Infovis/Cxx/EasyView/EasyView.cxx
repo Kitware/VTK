@@ -71,7 +71,8 @@ EasyView::EasyView()
   // Apply application stylesheet
   QString css = "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
   css += "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
-  qApp->setStyleSheet(css);
+  //qApp->setStyleSheet(css); // Seems to cause a bug on some systems
+                              // But at least it's here as an example
 
   this->GraphView->Render();
 };
