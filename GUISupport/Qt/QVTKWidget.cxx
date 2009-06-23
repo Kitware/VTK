@@ -293,7 +293,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
   if(mRenWin && !this->DirtyRegionHandlerUPP)
     {
     this->DirtyRegionHandlerUPP = NewEventHandlerUPP(QVTKWidget::DirtyRegionProcessor);
-    static EventTypeSpec events[] = { {'cute', 20} };  
+    static EventTypeSpec events[] = { {'cute', 20}, {'Cute', 20} };  
     // kEventClassQt, kEventQtRequestWindowChange from qt_mac_p.h
     // Suggested by Sam Magnuson at Trolltech as best portabile hack 
     // around Apple's missing functionality in HI Toolbox.
@@ -1446,7 +1446,7 @@ OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, v
   QVTKWidget* widget = reinterpret_cast<QVTKWidget*>(wid);
   UInt32 event_kind = GetEventKind(event);
   UInt32 event_class = GetEventClass(event);
-  if(event_class == 'cute' && event_kind == 20)
+  if((event_class == 'cute' || event_class == 'Cute') && event_kind == 20)
     {
     static_cast<vtkCarbonRenderWindow*>(widget->GetRenderWindow())->UpdateGLRegion();
     }
