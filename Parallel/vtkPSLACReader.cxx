@@ -322,7 +322,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.8");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.9");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
@@ -511,6 +511,19 @@ int vtkPSLACReader::ReadTetrahedronExteriorArray(int meshFD,
                                     connectivity->GetPointer(0)));
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkPSLACReader::CheckTetrahedraWinding(int meshFD)
+{
+  // Check the file only on the first process and broadcast the result.
+  int winding;
+  if (this->Controller->GetLocalProcessId() == 0)
+    {
+    winding = this->Superclass::CheckTetrahedraWinding(meshFD);
+    }
+  this->Controller->Broadcast(&winding, 1, 0);
+  return winding;
 }
 
 //-----------------------------------------------------------------------------

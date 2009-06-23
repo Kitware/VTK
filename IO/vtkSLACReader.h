@@ -217,6 +217,11 @@ protected:
                                            int expectedNumComponents);
 
   // Description:
+  // Checks the winding of the tetrahedra in the mesh file.  Returns 1 if
+  // the winding conforms to VTK, 0 if the winding needs to be corrected.
+  virtual int CheckTetrahedraWinding(int meshFD);
+
+  // Description:
   // Read the connectivity information from the mesh file.  Returns 1 on
   // success, 0 on failure.
   virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output);

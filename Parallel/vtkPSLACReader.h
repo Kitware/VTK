@@ -66,6 +66,7 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
+  virtual int CheckTetrahedraWinding(int meshFD);
   virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output);
   virtual int ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output);
   virtual int ReadMidpointCoordinates(int meshFD, vtkMultiBlockDataSet *output,

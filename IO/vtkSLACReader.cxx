@@ -48,6 +48,7 @@
 
 #include <netcdf.h>
 
+#include <vtkstd/algorithm>
 #include <vtkstd/map>
 #include <vtkstd/vector>
 #include <vtksys/hash_map.hxx>
@@ -77,6 +78,7 @@
 #ifdef NC_INT64
 // This may or may not work with the netCDF 4 library reading in netCDF 3 files.
 #define nc_get_var_vtkIdType nc_get_var_longlong
+#define nc_get_vars_vtkIdType nc_get_vars_longlong
 #else // NC_INT64
 static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType *ip)
 {
@@ -108,9 +110,40 @@ static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType *ip)
 
   return NC_NOERR;
 }
+static int nc_get_vars_vtkIdType(int ncid, int varid,
+                                 const size_t start[], const size_t count[],
+                                 const ptrdiff_t stride[],
+                                 vtkIdType *ip)
+{
+  // Step 1, figure out how many entries in the given variable.
+  int numdims;
+  WRAP_NETCDF(nc_inq_varndims(ncid, varid, &numdims));
+  vtkIdType numValues = 1;
+  for (int dim = 0; dim < numdims; dim++)
+    {
+    numValues *= count[dim];
+    }
+
+  // Step 2, read the data in as 32 bit integers.  Recast the input buffer
+  // so we do not have to create a new one.
+  long *smallIp = reinterpret_cast<long*>(ip);
+  WRAP_NETCDF(nc_get_vars_long(ncid, varid, start, count, stride, smallIp));
+
+  // Step 3, recast the data from 32 bit integers to 64 bit integers.  Since we
+  // are storing both in the same buffer, we need to be careful to not overwrite
+  // uncopied 32 bit numbers with 64 bit numbers.  We can do that by copying
+  // backwards.
+  for (vtkIdType i = numValues-1; i >= 0; i--)
+    {
+    ip[i] = static_cast<vtkIdType>(smallIp[i]);
+    }
+
+  return NC_NOERR;
+}
 #endif // NC_INT64
 #else // VTK_USE_64_BIT_IDS
 #define nc_get_var_vtkIdType nc_get_var_int
+#define nc_get_vars_vtkIdType nc_get_vars_int
 #endif // VTK_USE_64BIT_IDS
 
 //-----------------------------------------------------------------------------
@@ -388,7 +421,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.12");
+vtkCxxRevisionMacro(vtkSLACReader, "1.13");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -893,8 +926,62 @@ int vtkSLACReader::ReadTetrahedronExteriorArray(int meshFD,
 }
 
 //-----------------------------------------------------------------------------
+int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
+{
+  int i;
+
+  // Read in the first interior tetrahedron topology.
+  int tetInteriorVarId;
+  CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
+
+  size_t start[2], count[2];
+  start[0] = 0;  count[0] = 1;
+  start[1] = 0;  count[1] = NumPerTetInt;
+
+  vtkIdType tetTopology[NumPerTetInt];
+  CALL_NETCDF(nc_get_vars_vtkIdType(meshFD, tetInteriorVarId, start, count,
+                                    NULL, tetTopology));
+
+  // Read in the point coordinates for the tetrahedron.  The indices for the
+  // points are stored in values 1-4 of tetTopology.
+  int coordsVarId;
+  CALL_NETCDF(nc_inq_varid(meshFD, "coords", &coordsVarId));
+
+  double pts[4][3];
+  for (i = 0; i < 4; i++)
+    {
+    start[0] = tetTopology[i+1];  count[0] = 1;
+    start[1] = 0;                 count[1] = 3;
+    CALL_NETCDF(nc_get_vars_double(meshFD, coordsVarId, start, count,
+                                   NULL, pts[i]));
+    }
+
+  // Given the coordinates of the tetrahedron points, determine the direction of
+  // the winding.  Note that this test will fail if the tetrahedron is
+  // degenerate.  The first step is finding the normal of the triangle (0,1,2).
+  double v1[3], v2[3], n[3];
+  for (i = 0; i < 3; i++)
+    {
+    v1[i] = pts[1][i] - pts[0][i];
+    v2[i] = pts[2][i] - pts[0][i];
+    }
+  vtkMath::Cross(v1, v2, n);
+
+  // For the VTK winding, the normal, n, should point toward the fourth point
+  // of the tetrahedron.
+  double v3[3];
+  for (i = 0; i < 3; i++)  v3[i] = pts[3][i] - pts[0][i];
+  double dir = vtkMath::Dot(v3, n);
+  return (dir >= 0.0);
+}
+
+//-----------------------------------------------------------------------------
 int vtkSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
 {
+  // Decide if we need to invert the tetrahedra to make them compatible
+  // with VTK winding.
+  int invertTets = !this->CheckTetrahedraWinding(meshFD);
+
   // Get ready to read in cells and separate into assembly based on element
   // attributes and boundary conditions.
   VTK_CREATE(vtkMultiBlockDataSet, solidMeshes);
@@ -916,10 +1003,13 @@ int vtkSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
       // Face 1:  0,  3,  2
       // Face 2:  0,  1,  3
       // Face 3:  1,  2,  3
-      // We are fortunate in that the winding of the tetrahedron agrees with the
-      // VTK winding, so we can just copy indices.
+      // There are two possible "windings," the direction in which the normals
+      // face, for any given tetrahedra.  SLAC files might support either
+      // winding, but it should be consistent through the mesh.  The invertTets
+      // flag set earlier indicates whether we need to invert the tetrahedra.
       vtkIdType tetInfo[NumPerTetInt];
       connectivity->GetTupleValue(i, tetInfo);
+      if (invertTets) vtkstd::swap(tetInfo[1], tetInfo[2]);
       vtkUnstructuredGrid *ugrid = AllocateGetBlock(solidMeshes, tetInfo[0],
                                                     IS_INTERNAL_VOLUME());
       ugrid->InsertNextCell(VTK_TETRA, 4, tetInfo+1);
@@ -939,6 +1029,11 @@ int vtkSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
     // data set.
     vtkIdType tetInfo[NumPerTetExt];
     connectivity->GetTupleValue(i, tetInfo);
+    if (invertTets)
+      {
+      vtkstd::swap(tetInfo[1], tetInfo[2]); // Invert point indices
+      vtkstd::swap(tetInfo[6], tetInfo[8]); // Correct faces for inversion
+      }
     if (this->ReadInternalVolume)
       {
       vtkUnstructuredGrid *ugrid = AllocateGetBlock(solidMeshes, tetInfo[0],
