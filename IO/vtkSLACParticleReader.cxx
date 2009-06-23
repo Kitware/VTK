@@ -160,7 +160,7 @@ private:
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACParticleReader, "1.2");
+vtkCxxRevisionMacro(vtkSLACParticleReader, "1.3");
 vtkStandardNewMacro(vtkSLACParticleReader);
 
 //-----------------------------------------------------------------------------
@@ -180,7 +180,14 @@ void vtkSLACParticleReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: " << this->FileName << endl;
+  if (this->FileName)
+  {
+    os << indent << "FileName: " << this->FileName << endl;
+  }
+  else
+  {
+    os << indent << "FileName: (null)\n";
+  }
 }
 
 //-----------------------------------------------------------------------------
