@@ -37,7 +37,7 @@
 int SurfacePlusEdges(int argc, char *argv[])
 {
   vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
-  vtkMapper::SetResolveCoincidentTopologyZShift(0.002);
+  vtkMapper::SetResolveCoincidentTopologyZShift(0.1);
 
   VTK_CREATE(vtkSphereSource, sphere);
 
