@@ -41,7 +41,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.7");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.8");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -261,6 +261,16 @@ void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "\n";
     this->Actor->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "LabelActor: ";
+  if (this->LabelActor && this->Bundle->GetNumberOfInputConnections(0) > 0)
+    {
+    os << "\n";
+    this->LabelActor->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
