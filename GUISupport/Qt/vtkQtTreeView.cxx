@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.18");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.19");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -226,6 +226,13 @@ void vtkQtTreeView::SetVTKSelection()
   QObject::connect(this->TreeView->selectionModel(), 
    SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
    this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+
+  // Make sure selected items are visible
+  // FIXME: Should really recurse up all levels of the tree, this just does one.
+  for(int i=0; i<qisList.size(); ++i)
+    {
+    this->TreeView->setExpanded(qisList[i].parent(), true);
+    }
 }
 
 //----------------------------------------------------------------------------
