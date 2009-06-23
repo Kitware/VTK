@@ -33,9 +33,10 @@
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkStringToNumeric, "1.5");
+vtkCxxRevisionMacro(vtkStringToNumeric, "1.6");
 vtkStandardNewMacro(vtkStringToNumeric);
 
 vtkStringToNumeric::vtkStringToNumeric()
@@ -100,32 +101,54 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     {
     vtkStringArray* stringArray = vtkStringArray::SafeDownCast(
       fieldData->GetAbstractArray(arr));
-    if (!stringArray)
+    vtkUnicodeStringArray* unicodeArray = vtkUnicodeStringArray::SafeDownCast(
+      fieldData->GetAbstractArray(arr));
+    if (!stringArray && !unicodeArray)
       {
       continue;
       }
     
-    vtkIdType numTuples = stringArray->GetNumberOfTuples();
-    vtkIdType numComps = stringArray->GetNumberOfComponents();
-  
+    vtkIdType numTuples,numComps;
+    vtkStdString arrayName;
+    if (stringArray)
+      {
+      numTuples = stringArray->GetNumberOfTuples();
+      numComps = stringArray->GetNumberOfComponents();
+      arrayName = stringArray->GetName();
+      }
+    else
+      {
+      numTuples = unicodeArray->GetNumberOfTuples();
+      numComps = unicodeArray->GetNumberOfComponents();
+      arrayName = unicodeArray->GetName();
+      }
+
     // Set up the output array
     vtkDoubleArray* doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfValues(numComps*numTuples);
     doubleArray->SetNumberOfComponents(numComps);
-    doubleArray->SetName(stringArray->GetName());
+    doubleArray->SetName(arrayName);
   
     // Set up the output array
     vtkIntArray* intArray = vtkIntArray::New();
     intArray->SetNumberOfValues(numComps*numTuples);
     intArray->SetNumberOfComponents(numComps);
-    intArray->SetName(stringArray->GetName());
+    intArray->SetName(arrayName);
   
     // Convert the strings to time point values
     bool allInteger = true;
     bool allNumeric = true;
     for (vtkIdType i = 0; i < numTuples*numComps; i++)
       {
-      vtkStdString str = stringArray->GetValue(i);
+      vtkStdString str;
+      if (stringArray)
+        {
+        str = stringArray->GetValue(i);
+        }
+      else
+        {
+        str = unicodeArray->GetValue(i).utf8_str(); 
+        }
       bool ok;
       if (allInteger)
         {
@@ -169,7 +192,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     if (allNumeric)
       {
       // Calling AddArray will replace the old array since the names match.
-      if (allInteger)
+      if (allInteger && (numTuples*numComps)) // Are they all ints, and did I test anything?
         {
         fieldData->AddArray(intArray);
         }
