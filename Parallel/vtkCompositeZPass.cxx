@@ -51,7 +51,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeZPass, "1.5");
+vtkCxxRevisionMacro(vtkCompositeZPass, "1.6");
 vtkStandardNewMacro(vtkCompositeZPass);
 vtkCxxSetObjectMacro(vtkCompositeZPass,Controller,vtkMultiProcessController);
 
@@ -64,6 +64,7 @@ vtkCompositeZPass::vtkCompositeZPass()
   this->Controller=0;
   this->PBO=0;
   this->ZTexture=0;
+  this->Program=0;
   this->RawZBuffer=0;
   this->RawZBufferSize=0;
 }
