@@ -226,6 +226,12 @@ vtkUnivariateStatisticsAlgorithm.cxx
 ABSTRACT
 )
 
+SET_SOURCE_FILES_PROPERTIES(
+vtkKMeansDistanceFunctor.cxx
+WRAP_EXCLUDE
+)
+
+
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS)
