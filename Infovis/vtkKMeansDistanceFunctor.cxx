@@ -122,3 +122,56 @@ void vtkKMeansDefaultDistanceFunctor::PerturbElement( vtkTable* newClusterElemen
       }
     } 
 }
+
+// ----------------------------------------------------------------------
+void* vtkKMeansDefaultDistanceFunctor::AllocateElementArray( vtkIdType size )
+{
+  return new double[size];
+}
+
+// ----------------------------------------------------------------------
+void vtkKMeansDefaultDistanceFunctor::PackElements( vtkTable* curTable, void* vElements )
+{
+  vtkIdType numCols = curTable->GetNumberOfColumns();
+  vtkIdType numRows = curTable->GetNumberOfRows();
+  double* localElements = static_cast< double* >( vElements );
+ 
+  for( vtkIdType col = 0; col < numCols; col++ )
+    {
+    vtkDoubleArray* doubleArr = vtkDoubleArray::SafeDownCast( curTable->GetColumn( col ) );
+    memcpy( &(localElements[col*numRows]), doubleArr->GetPointer( 0 ), numRows*sizeof( double ) );
+    }
+}
+
+
+// ----------------------------------------------------------------------
+void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np )
+{
+  double *globalElements = static_cast< double* >( vGlobalElements );
+  double *localElements = static_cast< double* >( vLocalElements );
+  vtkIdType numCols = curTable->GetNumberOfColumns();
+  vtkIdType numRows = curTable->GetNumberOfRows();
+  vtkIdType numElements = numCols*numRows;
+  for( vtkIdType col = 0; col < numCols; col++ )
+    {
+    vtkDoubleArray *doubleArr = vtkDoubleArray::New();
+    doubleArr->SetName( curTable->GetColumnName( col ) );
+    doubleArr->SetNumberOfComponents( 1 );
+    doubleArr->SetNumberOfTuples( numRows*np );
+    for( int j = 0; j < np; j++ )
+      {
+      double *ptr = doubleArr->GetPointer(j*numRows);
+      memcpy(ptr, &(globalElements[j*numElements+col*numRows]), numRows*sizeof( double ) );
+      }
+    newTable->AddColumn(doubleArr);
+    doubleArr->Delete();
+    }
+  delete [] localElements; 
+  delete [] globalElements; 
+}
+
+// ----------------------------------------------------------------------
+int vtkKMeansDefaultDistanceFunctor::GetDataType() 
+{
+  return VTK_DOUBLE;
+}
