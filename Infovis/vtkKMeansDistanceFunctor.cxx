@@ -6,7 +6,6 @@
 #include "vtkVariantArray.h"
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkCommunicator.h"
 
 
 // ----------------------------------------------------------------------
@@ -122,41 +121,4 @@ void vtkKMeansDefaultDistanceFunctor::PerturbElement( vtkTable* newClusterElemen
         }
       }
     } 
-}
-
-// ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::AllGatherCoordinates(vtkCommunicator* com,
-                                                           int np,
-                                                           vtkTable* newClusterElements,
-                                                           vtkTable* allNewClusterElements)
-{
-  vtkIdType numCols = newClusterElements->GetNumberOfColumns();
-  vtkIdType numRows = newClusterElements->GetNumberOfRows();
-  vtkIdType numElements = numCols*numRows;
-  double* localElements = new double[numElements];
-  double* globalElements = new double[numElements * np];
-
-  for( vtkIdType col = 0; col < numCols; col++ )
-    {
-    vtkDoubleArray* doubleArr = vtkDoubleArray::SafeDownCast( newClusterElements->GetColumn( col ) );
-    memcpy( &(localElements[col*numRows]), doubleArr->GetPointer( 0 ), numRows*sizeof( double ) );
-    }
-
-  com->AllGather( localElements, globalElements, numElements );
-  for( vtkIdType col = 0; col < numCols; col++ )
-    {
-    vtkDoubleArray *doubleArr = vtkDoubleArray::New();
-    doubleArr->SetName( newClusterElements->GetColumnName( col ) );
-    doubleArr->SetNumberOfComponents( 1 );
-    doubleArr->SetNumberOfTuples( numRows*np );
-    for( int j = 0; j < np; j++ )
-      {
-      double *ptr = doubleArr->GetPointer(j*numRows);
-      memcpy(ptr, &(globalElements[j*numElements+col*numRows]), numRows*sizeof( double ) );
-      }
-    allNewClusterElements->AddColumn(doubleArr);
-    doubleArr->Delete();
-    }
-  delete [] localElements;
-  delete [] globalElements;
 }

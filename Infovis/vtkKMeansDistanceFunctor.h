@@ -2,7 +2,6 @@
 #define __vtkKMeansDistanceFunctor_h
 
 #include "vtkType.h"
-class vtkCommunicator;
 class vtkVariantArray;
 class vtkTable;
 
@@ -17,7 +16,6 @@ public:
   virtual void operator() ( double&, vtkVariantArray*, vtkVariantArray * ) = 0;
   virtual void PairwiseUpdate( vtkTable*, vtkIdType, vtkVariantArray *, vtkIdType, vtkIdType ) = 0;
   virtual void PerturbElement( vtkTable*, vtkTable*, vtkIdType, vtkIdType, vtkIdType, double) = 0;
-  virtual void AllGatherCoordinates( vtkCommunicator* com, int np, vtkTable* newClusterElements, vtkTable* allNewClusterElements ) = 0;
 };
 
 class vtkKMeansDefaultDistanceFunctor: public vtkKMeansDistanceFunctor
@@ -28,7 +26,6 @@ public:
   virtual void operator()( double&, vtkVariantArray*, vtkVariantArray* );
   virtual void PairwiseUpdate( vtkTable*, vtkIdType, vtkVariantArray*, vtkIdType, vtkIdType );
   virtual void PerturbElement( vtkTable*, vtkTable*, vtkIdType, vtkIdType, vtkIdType, double);
-  virtual void AllGatherCoordinates( vtkCommunicator* com, int np, vtkTable* newClusterElements, vtkTable* allNewClusterElements );
 };
 
 #endif // __vtkKMeansDistanceFunctor_h
