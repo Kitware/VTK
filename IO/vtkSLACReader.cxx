@@ -421,7 +421,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.14");
+vtkCxxRevisionMacro(vtkSLACReader, "1.15");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -815,9 +815,9 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
     compositeOutput->SetNumberOfBlocks(2);
     compositeOutput->SetBlock(SURFACE_OUTPUT, surfaceOutput);
     compositeOutput->SetBlock(VOLUME_OUTPUT,  volumeOutput);
-    compositeOutput->GetMetaData(SURFACE_OUTPUT)
+    compositeOutput->GetMetaData(static_cast<unsigned int>(SURFACE_OUTPUT))
       ->Set(vtkCompositeDataSet::NAME(), "Internal Volume");
-    compositeOutput->GetMetaData(VOLUME_OUTPUT)
+    compositeOutput->GetMetaData(static_cast<unsigned int>(VOLUME_OUTPUT))
       ->Set(vtkCompositeDataSet::NAME(), "External Surface");
 
     // Set up point data.
