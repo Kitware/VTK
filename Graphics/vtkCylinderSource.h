@@ -35,27 +35,27 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the height of the cylinder.
+  // Set the height of the cylinder. Initial value is 1.
   vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(Height,double);
 
   // Description:
-  // Set the radius of the cylinder.
+  // Set the radius of the cylinder. Initial value is 0.5
   vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(Radius,double);
 
   // Description:
-  // Set/Get cylinder center
+  // Set/Get cylinder center. Initial value is (0.0,0.0,0.0)
   vtkSetVector3Macro(Center,double);
   vtkGetVectorMacro(Center,double,3);
 
   // Description:
-  // Set the number of facets used to define cylinder.
+  // Set the number of facets used to define cylinder. Initial value is 6.
   vtkSetClampMacro(Resolution,int,2,VTK_CELL_SIZE)
   vtkGetMacro(Resolution,int);
 
   // Description:
-  // Turn on/off whether to cap cylinder with polygons.
+  // Turn on/off whether to cap cylinder with polygons. Initial value is true.
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
