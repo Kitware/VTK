@@ -1083,6 +1083,7 @@ int TestRenderView(int argc, char* argv[])
   
   // Render view 1
   VTK_CREATE(vtkRenderView, view);
+  view->GetRenderWindow()->SetMultiSamples(0);
   updater->AddView(view);
   
   // Sphere 1
