@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.249");
+vtkCxxRevisionMacro(vtkRenderer, "1.250");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -1067,8 +1067,28 @@ void vtkRenderer::ResetCamera(double bounds[6])
   // this forms a right triangle with one side being the radius, another being
   // the target distance for the camera, then just find the target dist using
   // a sin.
-  distance =
-    radius/sin(this->ActiveCamera->GetViewAngle()*vtkMath::Pi()/360.0);
+  double angle=this->ActiveCamera->GetViewAngle();
+
+  this->ComputeAspect();
+  double aspect[2];
+  this->GetAspect(aspect);
+  
+  if(aspect[0]>=1.0) // horizontal window, deal with vertical angle
+    {
+    if(this->ActiveCamera->GetUseHorizontalViewAngle())
+      {
+      angle=angle/aspect[0];
+      }
+    }
+  else // vertical window, deal with horizontal angle
+    {
+    if(!this->ActiveCamera->GetUseHorizontalViewAngle())
+      {
+      angle=angle*aspect[0];
+      }
+    }
+
+  distance =radius/sin(vtkMath::RadiansFromDegrees(angle)*0.5);
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
