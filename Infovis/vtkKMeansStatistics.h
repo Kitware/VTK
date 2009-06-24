@@ -179,6 +179,7 @@ protected:
                                      vtkTable* curClusterElements, 
                                      vtkIdTypeArray* numMembershipChanges,
                                      vtkIdTypeArray* numElementsInCluster, 
+                                     vtkDoubleArray* error,
                                      vtkIdTypeArray* startRunID, 
                                      vtkIdTypeArray* endRunID, 
                                      vtkIntArray *computeRun );

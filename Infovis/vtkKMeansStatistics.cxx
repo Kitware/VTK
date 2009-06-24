@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.7");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.8");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -251,6 +251,7 @@ void vtkKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
                                                 vtkTable* curClusterElements, 
                                                 vtkIdTypeArray* vtkNotUsed( numMembershipChanges ), 
                                                 vtkIdTypeArray* numDataElementsInCluster, 
+                                                vtkDoubleArray* vtkNotUsed( error ), 
                                                 vtkIdTypeArray* startRunID, 
                                                 vtkIdTypeArray* endRunID, 
                                                 vtkIntArray* computeRun ) 
@@ -450,7 +451,7 @@ void vtkKMeansStatistics::ExecuteLearn( vtkTable* inData,
       }
     // update cluster centers
     this->UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges, 
-                                numDataElementsInCluster, startRunID, endRunID, computeRun );
+                                numDataElementsInCluster, error, startRunID, endRunID, computeRun );
 
     // check for convergence 
     numIter++ ;
