@@ -153,6 +153,12 @@ public:
     double Coordinate[3];
     vtkIdType ID;
   };
+
+  enum {
+    SURFACE_OUTPUT = 0,
+    VOLUME_OUTPUT = 1,
+    NUM_OUTPUTS = 2
+  };
 //ETX
 
 protected:
@@ -224,7 +230,8 @@ protected:
   // Description:
   // Read the connectivity information from the mesh file.  Returns 1 on
   // success, 0 on failure.
-  virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output);
+  virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *surfaceOutput,
+                               vtkMultiBlockDataSet *volumeOutput);
 
   // Description:
   // Reads tetrahedron connectivity arrays.  Called by ReadConnectivity.
@@ -335,7 +342,9 @@ protected:
   // Description:
   // Instead of reading data from the mesh file, restore the data from the
   // previous mesh file read.
-  virtual int RestoreMeshCache(vtkMultiBlockDataSet *output);
+  virtual int RestoreMeshCache(vtkMultiBlockDataSet *surfaceOutput,
+                               vtkMultiBlockDataSet *volumeOutput,
+                               vtkMultiBlockDataSet *compositeOutput);
 
   // Description:
   // Read in the field data from the mode file.  Returns 1 on success, 0

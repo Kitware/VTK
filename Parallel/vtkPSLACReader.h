@@ -67,13 +67,16 @@ protected:
                           vtkInformationVector *outputVector);
 
   virtual int CheckTetrahedraWinding(int meshFD);
-  virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output);
+  virtual int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *surfaceOutput,
+                               vtkMultiBlockDataSet *volumeOutput);
   virtual int ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output);
   virtual int ReadMidpointCoordinates(int meshFD, vtkMultiBlockDataSet *output,
                                       MidpointCoordinateMap &map);
   virtual int ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                                MidpointIdMap &map);
-  virtual int RestoreMeshCache(vtkMultiBlockDataSet *output);
+  virtual int RestoreMeshCache(vtkMultiBlockDataSet *surfaceOutput,
+                               vtkMultiBlockDataSet *volumeOutput,
+                               vtkMultiBlockDataSet *compositeOutput);
   virtual int ReadFieldData(int modeFD, vtkMultiBlockDataSet *output);
 
   virtual int ReadTetrahedronInteriorArray(int meshFD,

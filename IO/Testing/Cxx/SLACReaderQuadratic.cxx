@@ -54,7 +54,8 @@ int SLACReaderQuadratic(int argc, char *argv[])
 
   // Extract geometry that we can render.
   VTK_CREATE(vtkCompositeDataGeometryFilter, geometry);
-  geometry->SetInputConnection(reader->GetOutputPort());
+  geometry->SetInputConnection(
+                          reader->GetOutputPort(vtkSLACReader::SURFACE_OUTPUT));
 
   // Set up rendering stuff.
   VTK_CREATE(vtkPolyDataMapper, mapper);

@@ -322,7 +322,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.9");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.10");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
@@ -421,9 +421,12 @@ int vtkPSLACReader::RequestInformation(vtkInformation *request,
   // We only work if each process requests the piece corresponding to its
   // own local process id.  Hint at this by saying that we support the same
   // amount of pieces as processes.
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               this->Controller->GetNumberOfProcesses());
+  for (int i = 0; i < vtkPSLACReader::NUM_OUTPUTS; i++)
+    {
+    vtkInformation *outInfo = outputVector->GetInformationObject(i);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                 this->Controller->GetNumberOfProcesses());
+    }
 
   return 1;
 }
@@ -434,11 +437,27 @@ int vtkPSLACReader::RequestData(vtkInformation *request,
                                 vtkInformationVector *outputVector)
 {
   // Check to make sure the pieces match the processes.
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  this->RequestedPiece
-    = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  this->NumberOfPieces
-    = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  this->RequestedPiece = 0;
+  this->NumberOfPieces = 1;
+  for (int i = 0; i < vtkSLACReader::NUM_OUTPUTS; i++)
+    {
+    vtkInformation *outInfo = outputVector->GetInformationObject(i);
+    if (   outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
+        && outInfo->Has(
+                  vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()) )
+      {
+      this->RequestedPiece = outInfo->Get(
+                       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+      this->NumberOfPieces = outInfo->Get(
+                   vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+      if (   (this->RequestedPiece == this->Controller->GetLocalProcessId())
+          && (this->NumberOfPieces == this->Controller->GetNumberOfProcesses()))
+        {
+        break;
+        }
+      }
+    }
+
   if (   (this->RequestedPiece != this->Controller->GetLocalProcessId())
       || (this->NumberOfPieces != this->Controller->GetNumberOfProcesses()) )
     {
@@ -527,34 +546,34 @@ int vtkPSLACReader::CheckTetrahedraWinding(int meshFD)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
+int vtkPSLACReader::ReadConnectivity(int meshFD,
+                                     vtkMultiBlockDataSet *surfaceOutput,
+                                     vtkMultiBlockDataSet *volumeOutput)
 {
   //---------------------------------
   // Call the superclass to read the arrays from disk and assemble the
   // primitives.  The superclass will call the ReadTetrahedron*Array methods,
   // which we have overridden to read only a partition of the cells.
-  if (!this->Superclass::ReadConnectivity(meshFD, output)) return 0;
+  if (!this->Superclass::ReadConnectivity(meshFD, surfaceOutput, volumeOutput))
+    {
+    return 0;
+    }
 
   //---------------------------------
   // Right now, the output only has blocks that are defined by the local piece.
   // However, downstream components will expect the multiblock structure to be
   // uniform amongst all processes.  Thus, we correct that problem here by
   // adding empty blocks for those not in our local piece.
-  if (this->ReadInternalVolume && this->ReadExternalSurface)
-    {
-    SynchronizeBlocks(vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(0u)),
-                      this->Controller, IS_INTERNAL_VOLUME());
-    SynchronizeBlocks(vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(1u)),
-                      this->Controller, IS_EXTERNAL_SURFACE());
-    }
-  else if (this->ReadInternalVolume) // && !this->ReadExternalSurface
-    {
-    SynchronizeBlocks(output, this->Controller, IS_INTERNAL_VOLUME());
-    }
-  else // this->ReadExternalSurface && !this->ReadInternalVolume
-    {
-    SynchronizeBlocks(output, this->Controller, IS_EXTERNAL_SURFACE());
-    }
+  SynchronizeBlocks(surfaceOutput, this->Controller, IS_EXTERNAL_SURFACE());
+  SynchronizeBlocks(volumeOutput,  this->Controller, IS_INTERNAL_VOLUME());
+
+  //---------------------------------
+  // This multiblock that contains both outputs provides an easy way to iterate
+  // over all cells in both output.
+  VTK_CREATE(vtkMultiBlockDataSet, compositeOutput);
+  compositeOutput->SetNumberOfBlocks(2);
+  compositeOutput->SetBlock(SURFACE_OUTPUT, surfaceOutput);
+  compositeOutput->SetBlock(VOLUME_OUTPUT, volumeOutput);
 
   // ---------------------------------
   // All the cells have "global" ids.  That is, an index into a global list of
@@ -566,17 +585,15 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
   this->Internal->LocalToGlobalIds = vtkSmartPointer<vtkIdTypeArray>::New();
   this->Internal->LocalToGlobalIds->SetName("GlobalIds");
 
-  vtkstd::vector< vtkstd::pair<vtkIdType, vtkIdType> > edgesNeeded;
-
   // Iterate over all points of all cells and mark what points we encounter
   // in GlobalToLocalIds.
   this->Internal->GlobalToLocalIds.clear();
   VTK_CREATE(vtkCompositeDataIterator, outputIter);
-  for (outputIter.TakeReference(output->NewIterator());
+  for (outputIter.TakeReference(compositeOutput->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {
-    vtkUnstructuredGrid *ugrid
-      = vtkUnstructuredGrid::SafeDownCast(output->GetDataSet(outputIter));
+    vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(
+                                       compositeOutput->GetDataSet(outputIter));
     vtkCellArray *cells = ugrid->GetCells();
 
     vtkIdType npts, *pts;
@@ -588,14 +605,30 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
         // We will assign actual local ids later.
         this->Internal->GlobalToLocalIds[pts[i]] = -1;
         }
-      if (output->GetMetaData(outputIter)->Get(IS_EXTERNAL_SURFACE()))
+      }
+    }
+
+
+  // If we are reading midpoints, record any edges that might require endpoints.
+  vtkstd::vector<vtkSLACReader::EdgeEndpoints> edgesNeeded;
+
+  if (this->ReadMidpoints)
+    {
+    for (outputIter.TakeReference(surfaceOutput->NewIterator());
+         !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
+      {
+      vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(
+                                         surfaceOutput->GetDataSet(outputIter));
+      vtkCellArray *cells = ugrid->GetCells();
+
+      vtkIdType npts, *pts;
+      for (cells->InitTraversal(); cells->GetNextCell(npts, pts); )
         {
-        edgesNeeded.push_back (vtkstd::make_pair(MY_MIN(pts[0], pts[1]), 
-                                                 MY_MAX(pts[0], pts[1])));
-        edgesNeeded.push_back (vtkstd::make_pair(MY_MIN(pts[1], pts[2]), 
-                                                 MY_MAX(pts[1], pts[2])));
-        edgesNeeded.push_back (vtkstd::make_pair(MY_MIN(pts[2], pts[0]), 
-                                                 MY_MAX(pts[2], pts[0])));
+        for (vtkIdType i = 0; i < npts; i++)
+          {
+          edgesNeeded.push_back(vtkSLACReader::EdgeEndpoints(pts[i],
+                                                             pts[i%npts]));
+          }
         }
       }
     }
@@ -696,11 +729,11 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
 
   // Now that we have a complete map from global to local ids, modify the
   // connectivity arrays to use local ids instead of global ids.
-  for (outputIter.TakeReference(output->NewIterator());
+  for (outputIter.TakeReference(compositeOutput->NewIterator());
        !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
     {
-    vtkUnstructuredGrid *ugrid
-      = vtkUnstructuredGrid::SafeDownCast(output->GetDataSet(outputIter));
+    vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(
+                                       compositeOutput->GetDataSet(outputIter));
     vtkCellArray *cells = ugrid->GetCells();
 
     vtkIdType npts, *pts;
@@ -712,12 +745,6 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
         }
       }
     }
-
-  // Record the global ids in the point data.
-  vtkPointData *pd = vtkPointData::SafeDownCast(
-                    output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
-  pd->SetGlobalIds(this->Internal->LocalToGlobalIds);
-  pd->SetPedigreeIds(this->Internal->LocalToGlobalIds);
 
   if (this->ReadMidpoints)
     {
@@ -739,10 +766,10 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
     int pointsPerProcess = this->NumberOfGlobalPoints/this->NumberOfPieces + 1;
     for (size_t i = 0; i < edgesNeeded.size (); i ++)
       {
-      int process = MY_MIN(edgesNeeded[i].first,edgesNeeded[i].second) / pointsPerProcess; 
+      int process = edgesNeeded[i].GetMinEndPoint() / pointsPerProcess; 
       vtkIdType ids[2];
-      ids[0] = edgesNeeded[i].first;
-      ids[1] = edgesNeeded[i].second;
+      ids[0] = edgesNeeded[i].GetMinEndPoint();
+      ids[1] = edgesNeeded[i].GetMaxEndPoint();
       edgeLists[process]->InsertNextTupleValue(static_cast<vtkIdType*>(ids));
       }
     for (int process = 0; process < this->NumberOfPieces; process ++)
@@ -780,13 +807,16 @@ int vtkPSLACReader::ReadConnectivity(int meshFD, vtkMultiBlockDataSet *output)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPSLACReader::RestoreMeshCache(vtkMultiBlockDataSet *output)
+int vtkPSLACReader::RestoreMeshCache(vtkMultiBlockDataSet *surfaceOutput,
+                                     vtkMultiBlockDataSet *volumeOutput,
+                                     vtkMultiBlockDataSet *compositeOutput)
 {
-  if (!this->Superclass::RestoreMeshCache(output)) return 0;
+  if (!this->Superclass::RestoreMeshCache(surfaceOutput, volumeOutput,
+                                          compositeOutput)) return 0;
 
   // Record the global ids in the point data.
   vtkPointData *pd = vtkPointData::SafeDownCast(
-                    output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
+           compositeOutput->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
   pd->SetGlobalIds(this->Internal->LocalToGlobalIds);
   pd->SetPedigreeIds(this->Internal->LocalToGlobalIds);
 
@@ -906,7 +936,17 @@ int vtkPSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output)
 {
   // The superclass reads everything correctly because it will call our
   // ReadPointDataArray method, which will properly redistribute points.
-  return this->Superclass::ReadCoordinates(meshFD, output);
+  if (!this->Superclass::ReadCoordinates(meshFD, output)) return 0;
+
+  // This is a convenient place to set the global ids.  Doing this in
+  // ReadFieldData is not a good idea as it might not be called if no mode
+  // file is specified.
+  vtkPointData *pd = vtkPointData::SafeDownCast(
+                    output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
+  pd->SetGlobalIds(this->Internal->LocalToGlobalIds);
+  pd->SetPedigreeIds(this->Internal->LocalToGlobalIds);
+
+  return 1;
 }
 
 //-----------------------------------------------------------------------------

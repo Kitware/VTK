@@ -67,7 +67,8 @@ int SLACParticleReader(int argc, char *argv[])
 
   // Extract geometry that we can render.
   VTK_CREATE(vtkCompositeDataGeometryFilter, geometry);
-  geometry->SetInputConnection(meshReader->GetOutputPort());
+  geometry->SetInputConnection(
+                       meshReader->GetOutputPort(vtkSLACReader::VOLUME_OUTPUT));
 
   // Set up particle reader.
   VTK_CREATE(vtkSLACParticleReader, particleReader);
