@@ -35,6 +35,7 @@ IF(VTK_USE_DISPLAY)
     TestOpacity.cxx
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
+    TestResetCameraVerticalAspectRatio.cxx
     TestSobelGradientMagnitudePass.cxx
     TestShadowMapPass.cxx
     TestTextActorAlphaBlending.cxx
