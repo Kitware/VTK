@@ -27,7 +27,7 @@
 
 
 vtkStandardNewMacro(vtkPKMeansStatistics);
-vtkCxxRevisionMacro(vtkPKMeansStatistics, "1.1");
+vtkCxxRevisionMacro(vtkPKMeansStatistics, "1.2");
 vtkCxxSetObjectMacro(vtkPKMeansStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPKMeansStatistics::vtkPKMeansStatistics()
@@ -84,16 +84,18 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
   int np = this->Controller->GetNumberOfProcesses();
   if( np < 2 ) 
     {
-    return this->Superclass::UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges,
+    this->Superclass::UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges,
                                                   numDataElementsInCluster, error, startRunID, endRunID, computeRun );
+    return;
     }
   // Now get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
   if ( ! com )
     {
     vtkGenericWarningMacro("No parallel communicator.");
-    return this->Superclass::UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges,
+    this->Superclass::UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges,
                                                   numDataElementsInCluster, error, startRunID, endRunID, computeRun );
+    return;
     }
 
   // (All) gather numMembershipChanges 
