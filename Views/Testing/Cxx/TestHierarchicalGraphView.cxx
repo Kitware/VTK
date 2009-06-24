@@ -62,6 +62,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   reader2->Update();
   
   VTK_CREATE(vtkHierarchicalGraphView, view);
+  view->GetRenderWindow()->SetMultiSamples(0);
   view->SetHierarchyFromInputConnection(reader1->GetOutputPort());
   view->SetGraphFromInputConnection(reader2->GetOutputPort());
   view->SetVertexColorArrayName("VertexDegree");
