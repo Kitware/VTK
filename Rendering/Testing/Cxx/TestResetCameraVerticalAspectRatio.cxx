@@ -14,7 +14,7 @@
 =========================================================================*/
 //
 // Make sure that on a window with vertical aspect ratio, the camera is
-// reset properly.
+// reset properly with perspective projection.
 //
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
