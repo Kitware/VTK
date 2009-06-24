@@ -88,7 +88,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # Add parallel tests only if PARALLEL and MPI are turned ON
     # These tests are kept separate, because they must be run with mpirun or mpiexec
 
-    # TestRandomPContingencyStatisticsMPI: 
+    # TestParallelRandomStatisticsMPI: 
     # MPI test of parallel descriptive, correlative, multicorrelative and PCA statistics 
     ADD_EXECUTABLE(TestParallelRandomStatisticsMPI TestParallelRandomStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestParallelRandomStatisticsMPI vtkInfovis vtkParallel)
@@ -97,6 +97,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # MPI test of parallel contingency statistics 
     ADD_EXECUTABLE(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel)
+
+    # TestParallelKMeansStatisticsMPI: 
+    # MPI test of parallel KMeans statistics 
+    ADD_EXECUTABLE(TestParallelKMeansStatisticsMPI TestParallelKMeansStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestParallelKMeansStatisticsMPI vtkInfovis vtkParallel)
 
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(TestParallelRandomStatisticsMPI
@@ -110,6 +115,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
         ${CXX_TEST_PATH}/TestRandomPContingencyStatisticsMPI
+        ${VTK_MPI_POSTFLAGS}
+        )
+
+      ADD_TEST(TestParallelKMeansStatisticsMPI
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/TestParallelKMeansStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
     ENDIF (VTK_MPIRUN_EXE)

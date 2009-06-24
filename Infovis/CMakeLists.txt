@@ -196,6 +196,7 @@ IF(VTK_USE_PARALLEL)
     vtkPCorrelativeStatistics.cxx
     vtkPContingencyStatistics.cxx
     vtkPDescriptiveStatistics.cxx
+    vtkPKMeansStatistics.cxx
     vtkPMultiCorrelativeStatistics.cxx
     vtkPPCAStatistics.cxx
     )
