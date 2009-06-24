@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.250");
+vtkCxxRevisionMacro(vtkRenderer, "1.251");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -1068,24 +1068,27 @@ void vtkRenderer::ResetCamera(double bounds[6])
   // the target distance for the camera, then just find the target dist using
   // a sin.
   double angle=this->ActiveCamera->GetViewAngle();
-
+  double parallelScale=radius;
+  
   this->ComputeAspect();
   double aspect[2];
   this->GetAspect(aspect);
   
-  if(aspect[0]>=1.0) // horizontal window, deal with vertical angle
+  if(aspect[0]>=1.0) // horizontal window, deal with vertical angle|scale
     {
     if(this->ActiveCamera->GetUseHorizontalViewAngle())
       {
       angle=angle/aspect[0];
       }
     }
-  else // vertical window, deal with horizontal angle
+  else // vertical window, deal with horizontal angle|scale
     {
     if(!this->ActiveCamera->GetUseHorizontalViewAngle())
       {
       angle=angle*aspect[0];
       }
+    
+    parallelScale=parallelScale/aspect[0];
     }
 
   distance =radius/sin(vtkMath::RadiansFromDegrees(angle)*0.5);
@@ -1107,7 +1110,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   this->ResetCameraClippingRange( bounds );
 
   // setup default parallel scale
-  this->ActiveCamera->SetParallelScale(radius);
+  this->ActiveCamera->SetParallelScale(parallelScale);
 }
 
 // Alternative version of ResetCamera(bounds[6]);
