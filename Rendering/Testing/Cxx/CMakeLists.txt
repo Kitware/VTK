@@ -36,6 +36,7 @@ IF(VTK_USE_DISPLAY)
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
     TestResetCameraVerticalAspectRatio.cxx
+    TestResetCameraVerticalAspectRatioParallel.cxx
     TestSobelGradientMagnitudePass.cxx
     TestShadowMapPass.cxx
     TestTextActorAlphaBlending.cxx
