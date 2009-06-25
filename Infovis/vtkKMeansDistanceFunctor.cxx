@@ -25,10 +25,7 @@ vtkVariantArray* vtkKMeansDefaultDistanceFunctor::GetEmptyTuple( vtkIdType dimen
 {
   if(this->EmptyTuple->GetNumberOfValues() != dimension )
     {
-
-    cout << "GetEmptyTuple: START EmptyTuple SetNumberOfValues " << dimension << endl;
     this->EmptyTuple->SetNumberOfValues( dimension );
-    cout << "GetEmptyTuple: END EmptyTuple SetNumberOfValues " << dimension << endl;
     for( vtkIdType i = 0; i < dimension; i++ )
       {
       this->EmptyTuple->SetValue( i, 0.0 );

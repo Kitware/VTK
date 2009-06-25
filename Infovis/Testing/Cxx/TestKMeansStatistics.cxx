@@ -43,13 +43,9 @@ int TestKMeansStatistics( int, char *[] )
     vtksys_ios::ostringstream colName;
     colName << "coord " << c;
     doubleArray = vtkDoubleArray::New();
-    cout << "TEST: START doubleArray SetNumberOfComponents " << numComponents << endl;
     doubleArray->SetNumberOfComponents( numComponents );
-    cout << "TEST: END doubleArray SetNumberOfComponents " << numComponents << endl;
     doubleArray->SetName( colName.str().c_str() );
-    cout << "TEST: START doubleArray SetNumberOfTuples " << numComponents << endl;
     doubleArray->SetNumberOfTuples( nVals );
-    cout << "TEST: END doubleArray SetNumberOfTuples " << numComponents << endl;
 
     double x;
     for ( int r = 0; r < nVals; ++ r )
@@ -88,9 +84,7 @@ int TestKMeansStatistics( int, char *[] )
     vtksys_ios::ostringstream colName;
     colName << "coord " << c;
     paramArray = vtkDoubleArray::New();
-    cout << "TEST: START paramArray SetNumberOfComponents " << numComponents << endl;
     paramArray->SetNumberOfComponents( numComponents );
-    cout << "TEST: END paramArray SetNumberOfComponents " << numComponents << endl;
     paramArray->SetName( colName.str().c_str() );
 
     double x;
@@ -100,9 +94,7 @@ int TestKMeansStatistics( int, char *[] )
         {
         //x = vtkMath::Gaussian();
         x = vtkMath::Random();
-        cout << "TEST: START paramArray InsertNextValue " << endl;
         paramArray->InsertNextValue( x );
-        cout << "TEST: END paramArray InsertNextValue " << endl;
         }
       } 
     paramData->AddColumn( paramArray );
@@ -117,7 +109,6 @@ int TestKMeansStatistics( int, char *[] )
   haruspex->RequestSelectedColumns();
 
   haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  cout << "Testing default parameter generation with Default Number of Clusters = 3" << endl;
   haruspex->SetDefaultNumberOfClusters( 3 );
 
   // -- Test Learn Mode -- 
@@ -184,16 +175,10 @@ int TestKMeansStatistics( int, char *[] )
   haruspex->Update();
   vtkTable* outputData = haruspex->GetOutput();
   outputData->Dump();
-  cout << "outputData = " << *outputData << endl;
-  cout << "Done Printing,  about to delete paramsTable" << endl;
   paramsTables->Delete();
-  cout << "Deleted paramsTables, about to delete paramData" << endl;
   paramData->Delete();
-  cout << "Deleted paramData, about to delete inputData" << endl;
   inputData->Delete();
-  cout << "Deleted inputData, about to delete haruspex" << endl;
   haruspex->Delete();
-  cout << "Done Deleting- waiting to return" << endl;
 
   return testStatus;
 }
