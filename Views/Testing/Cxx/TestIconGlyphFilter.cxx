@@ -117,7 +117,6 @@ int TestIconGlyphFilter( int argc, char *argv[])
   rep->SetLayoutStrategyToPassThrough();
 
   view->GetRenderWindow()->SetSize(500, 500);
-  view->SetInteractionModeTo3D();
 
   view->GetInteractor()->Initialize();
   view->Render();
