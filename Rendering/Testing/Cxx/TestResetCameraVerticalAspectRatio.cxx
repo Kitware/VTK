@@ -48,7 +48,10 @@ int TestResetCameraVerticalAspectRatio(int argc, char* argv[])
   
   ren1->AddActor(a);
   ren1->SetBackground(0.1,0.2,0.4);
-  renWin->SetSize(100,400);
+  
+  // Width cannot be smaller than 104 and 108 respectively on Windows XP and
+  // Vista because of decorations.
+  renWin->SetSize(110,400);
   
   // ren1->GetActiveCamera()->SetUseHorizontalViewAngle(1);
   ren1->ResetCamera();
