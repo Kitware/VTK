@@ -55,7 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.4");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.5");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -99,6 +99,14 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   this->LabelTexture = vtkTexture::New();
   
   this->QtImage = new QImage( 1, 1, QImage::Format_ARGB32 );
+
+//FIXME: QImage is initialized to grey.  This will fix that, although it is a bit of a hack...
+  QPainter painter( this->QtImage );
+  painter.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing );
+  painter.setCompositionMode( QPainter::CompositionMode_Clear );
+  painter.drawImage( 0, 0, *this->QtImage );
+  painter.setCompositionMode( QPainter::CompositionMode_SourceOver );
+
   this->QtImageSource->SetQImage( this->QtImage );
   this->LabelTexture->SetInput(this->QtImageSource->GetOutput());
   this->LabelTexture->InterpolateOn();
@@ -160,14 +168,16 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   vtkDataArray *numericData, *sectorInfo;
   vtkStringArray *stringData;
   vtkTree *input=this->GetInputTree();
-  if ( ! input )
+  if ( !input )
     {
     vtkErrorMacro(<<"Need input tree to render labels (2)");
     return;
     }
   
-  input->Update();
-  input = this->GetInputTree();
+  if( input->GetNumberOfVertices() == 0 )
+    {
+    return;
+    }
   
   vtkDataSetAttributes *pd = input->GetVertexData();
   sectorInfo = this->GetInputArrayToProcess(0, input);
