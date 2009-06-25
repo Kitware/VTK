@@ -547,6 +547,17 @@ public:
   // subgraph formed by the vertices in the vertex list.
   void GetInducedEdges(vtkIdTypeArray* verts, vtkIdTypeArray* edges);
 
+  // Description:
+  // Returns the attributes of the data object as a vtkFieldData.
+  // This returns non-null values in all the same cases as GetAttributes,
+  // in addition to the case of FIELD, which will return the field data
+  // for any vtkDataObject subclass.
+  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+
+  // Description:
+  // Get the number of elements for a specific attribute type (VERTEX, EDGE, etc.).
+  virtual vtkIdType GetNumberOfElements(int type);
+
 protected:
   //BTX
   vtkGraph();

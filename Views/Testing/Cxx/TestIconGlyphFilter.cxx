@@ -11,6 +11,7 @@
 
 #include <vtkIconGlyphFilter.h>
 
+#include <vtkApplyIcons.h>
 #include <vtkDoubleArray.h>
 #include <vtkFollower.h>
 #include <vtkGraphLayoutView.h>
@@ -105,14 +106,18 @@ int TestIconGlyphFilter( int argc, char *argv[])
   vtkTexture * texture =  vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   view->SetIconTexture(texture);
-  view->SetIconArrayName(iconIndex->GetName());
   int size[] = {24, 24};
   view->SetIconSize(size);
-  view->IconVisibilityOn();
-  static_cast<vtkRenderedGraphRepresentation*>(view->GetRepresentation())->UseVertexIconTypeMapOff();
-  view->SetLayoutStrategyToPassThrough();
+  vtkRenderedGraphRepresentation* rep = static_cast<vtkRenderedGraphRepresentation*>(view->GetRepresentation());
+  rep->UseVertexIconTypeMapOff();
+  rep->SetVertexSelectedIcon(12);
+  rep->SetVertexIconSelectionModeToSelectedIcon();
+  rep->VertexIconVisibilityOn();
+  rep->SetVertexIconArrayName(iconIndex->GetName());
+  rep->SetLayoutStrategyToPassThrough();
 
   view->GetRenderWindow()->SetSize(500, 500);
+  view->SetInteractionModeTo3D();
 
   view->GetInteractor()->Initialize();
   view->Render();

@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataObject.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
@@ -36,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.45");
+vtkCxxRevisionMacro(vtkDataObject, "1.46");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -1471,4 +1472,54 @@ const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
     return NULL;
     }
   return vtkDataObject::AssociationNames[associationType];
+}
+
+//----------------------------------------------------------------------------
+vtkDataSetAttributes* vtkDataObject::GetAttributes(int type)
+{
+  return vtkDataSetAttributes::SafeDownCast(this->GetAttributesAsFieldData(type));
+}
+
+//----------------------------------------------------------------------------
+vtkFieldData* vtkDataObject::GetAttributesAsFieldData(int type)
+{
+  switch (type)
+    {
+    case FIELD:
+      return this->FieldData;
+      break;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetAttributeTypeForArray(vtkAbstractArray* arr)
+{
+  for (int i = 0; i < NUMBER_OF_ATTRIBUTE_TYPES; ++i)
+    {
+    vtkFieldData* data = this->GetAttributesAsFieldData(i);
+    if (data)
+      {
+      for (int j = 0; j < data->GetNumberOfArrays(); ++j)
+        {
+        if (data->GetAbstractArray(j) == arr)
+          {
+          return i;
+          }
+        }
+      }
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDataObject::GetNumberOfElements(int type)
+{
+  switch (type)
+    {
+    case FIELD:
+      return this->FieldData->GetNumberOfTuples();
+      break;
+    }
+  return 0;
 }

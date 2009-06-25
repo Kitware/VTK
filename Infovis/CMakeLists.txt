@@ -20,6 +20,7 @@ SET( Kit_SRCS
 vtkAddMembershipArray.cxx
 vtkAppendPoints.cxx
 vtkApplyColors.cxx
+vtkApplyIcons.cxx
 vtkArcParallelEdgeStrategy.cxx
 vtkAreaLayout.cxx
 vtkAreaLayoutStrategy.cxx

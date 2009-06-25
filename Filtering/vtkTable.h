@@ -187,6 +187,17 @@ public:
   virtual void ShallowCopy(vtkDataObject* src);
   virtual void DeepCopy(vtkDataObject* src);
 
+  // Description:
+  // Returns the attributes of the data object as a vtkFieldData.
+  // This returns non-null values in all the same cases as GetAttributes,
+  // in addition to the case of FIELD, which will return the field data
+  // for any vtkDataObject subclass.
+  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+
+  // Description:
+  // Get the number of elements for a specific attribute type (ROW, etc.).
+  virtual vtkIdType GetNumberOfElements(int type);
+
 protected:
   vtkTable();
   ~vtkTable();

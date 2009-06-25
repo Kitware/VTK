@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.14");
+vtkCxxRevisionMacro(vtkDataSet, "1.15");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -650,6 +650,36 @@ vtkDataSet* vtkDataSet::GetData(vtkInformation* info)
 vtkDataSet* vtkDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkDataSet::GetData(v->GetInformationObject(i));
+}
+
+//----------------------------------------------------------------------------
+vtkFieldData* vtkDataSet::GetAttributesAsFieldData(int type)
+{
+  switch(type)
+    {
+    case POINT:
+      return this->GetPointData();
+      break;
+    case CELL:
+      return this->GetCellData();
+      break;
+    }
+  return this->Superclass::GetAttributesAsFieldData(type);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDataSet::GetNumberOfElements(int type)
+{
+  switch (type)
+    {
+    case POINT:
+      return this->GetNumberOfPoints();
+      break;
+    case CELL:
+      return this->GetNumberOfCells();
+      break;
+    }
+  return this->Superclass::GetNumberOfElements(type);;
 }
 
 //----------------------------------------------------------------------------

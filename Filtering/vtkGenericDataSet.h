@@ -197,6 +197,23 @@ public:
   vtkGetObjectMacro(Attributes, vtkGenericAttributeCollection);
 
   // Description:
+  // Returns the attributes of the data object of the specified
+  // attribute type. The type may be:
+  // <ul>
+  // <li>POINT  - Defined in vtkDataSet subclasses.
+  // <li>CELL   - Defined in vtkDataSet subclasses.
+  // <li>VERTEX - Defined in vtkGraph subclasses.
+  // <li>EDGE   - Defined in vtkGraph subclasses.
+  // <li>ROW    - Defined in vtkTable.
+  // </ul>
+  // The other attribute type, FIELD, will return NULL since
+  // field data is stored as a vtkFieldData instance, not a
+  // vtkDataSetAttributes instance. To retrieve field data, use
+  // GetAttributesAsFieldData.
+  virtual vtkDataSetAttributes* GetAttributes(int type)
+    { return this->Superclass::GetAttributes(type); }
+
+  // Description:
   // Set/Get a cell tessellator if cells must be tessellated during
   // processing.
   // \pre tessellator_exists: tessellator!=0

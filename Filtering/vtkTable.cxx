@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.26");
+vtkCxxRevisionMacro(vtkTable, "1.27");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -626,4 +626,28 @@ void vtkTable::DeepCopy(vtkDataObject* src)
     }
 
   Superclass::DeepCopy(src);
+}
+
+//----------------------------------------------------------------------------
+vtkFieldData* vtkTable::GetAttributesAsFieldData(int type)
+{
+  switch(type)
+    {
+    case ROW:
+      return this->GetRowData();
+      break;
+    }
+  return this->Superclass::GetAttributesAsFieldData(type);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkTable::GetNumberOfElements(int type)
+{
+  switch (type)
+    {
+    case ROW:
+      return this->GetNumberOfRows();
+      break;
+    }
+  return this->Superclass::GetNumberOfElements(type);;
 }

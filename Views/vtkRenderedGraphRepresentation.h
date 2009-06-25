@@ -29,6 +29,7 @@
 
 class vtkActor;
 class vtkApplyColors;
+class vtkApplyIcons;
 class vtkArrayMap;
 class vtkEdgeCenters;
 class vtkEdgeLayout;
@@ -38,17 +39,21 @@ class vtkGraphLayoutStrategy;
 class vtkGraphToGlyphs;
 class vtkGraphToPoints;
 class vtkGraphToPolyData;
+class vtkIconGlyphFilter;
 class vtkInformation;
 class vtkInformationVector;
 class vtkLookupTable;
 class vtkPerturbCoincidentVertices;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkPolyDataMapper2D;
 class vtkRemoveHiddenData;
 class vtkRenderView;
 class vtkScalarBarWidget;
 class vtkScalarsToColors;
 class vtkTextProperty;
+class vtkTexturedActor2D;
+class vtkTransformCoordinateSystems;
 class vtkVertexDegree;
 class vtkView;
 class vtkViewTheme;
@@ -60,6 +65,9 @@ public:
   vtkTypeRevisionMacro(vtkRenderedGraphRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // ------------------------------------------------------------------------
+  // Vertex labels
+
   virtual void SetVertexLabelArrayName(const char* name);
   virtual const char* GetVertexLabelArrayName();
   virtual void SetVertexLabelPriorityArrayName(const char* name);
@@ -70,6 +78,9 @@ public:
   virtual void SetVertexLabelTextProperty(vtkTextProperty* p);
   virtual vtkTextProperty* GetVertexLabelTextProperty();
 
+  // ------------------------------------------------------------------------
+  // Edge labels
+
   virtual void SetEdgeLabelArrayName(const char* name);
   virtual const char* GetEdgeLabelArrayName();
   virtual void SetEdgeLabelPriorityArrayName(const char* name);
@@ -79,6 +90,9 @@ public:
   vtkBooleanMacro(EdgeLabelVisibility, bool);
   virtual void SetEdgeLabelTextProperty(vtkTextProperty* p);
   virtual vtkTextProperty* GetEdgeLabelTextProperty();
+
+  // ------------------------------------------------------------------------
+  // Vertex icons
 
   virtual void SetVertexIconArrayName(const char* name);
   virtual const char* GetVertexIconArrayName();
@@ -94,6 +108,31 @@ public:
   vtkBooleanMacro(UseVertexIconTypeMap, bool);
   virtual void SetVertexIconAlignment(int align);
   virtual int GetVertexIconAlignment();
+  virtual void SetVertexSelectedIcon(int icon);
+  virtual int GetVertexSelectedIcon();
+
+  // Description:
+  // Set the mode to one of
+  // <ul>
+  // <li>vtkApplyIcons::SELECTED_ICON - use VertexSelectedIcon
+  // <li>vtkApplyIcons::SELECTED_OFFSET - use VertexSelectedIcon as offset
+  // <li>vtkApplyIcons::ANNOTATION_ICON - use current annotation icon
+  // <li>vtkApplyIcons::IGNORE_SELECTION - ignore selected elements
+  // </ul>
+  // The default is IGNORE_SELECTION.
+  virtual void SetVertexIconSelectionMode(int mode);
+  virtual int GetVertexIconSelectionMode();
+  virtual void SetVertexIconSelectionModeToSelectedIcon()
+    { this->SetVertexIconSelectionMode(0); }
+  virtual void SetVertexIconSelectionModeToSelectedOffset()
+    { this->SetVertexIconSelectionMode(1); }
+  virtual void SetVertexIconSelectionModeToAnnotationIcon()
+    { this->SetVertexIconSelectionMode(2); }
+  virtual void SetVertexIconSelectionModeToIgnoreSelection()
+    { this->SetVertexIconSelectionMode(3); }
+
+  // ------------------------------------------------------------------------
+  // Edge icons
 
   virtual void SetEdgeIconArrayName(const char* name);
   virtual const char* GetEdgeIconArrayName();
@@ -110,11 +149,17 @@ public:
   virtual void SetEdgeIconAlignment(int align);
   virtual int GetEdgeIconAlignment();
 
+  // ------------------------------------------------------------------------
+  // Vertex colors
+
   virtual void SetColorVerticesByArray(bool b);
   virtual bool GetColorVerticesByArray();
   vtkBooleanMacro(ColorVerticesByArray, bool);
   virtual void SetVertexColorArrayName(const char* name);
   virtual const char* GetVertexColorArrayName();
+
+  // ------------------------------------------------------------------------
+  // Edge colors
 
   virtual void SetColorEdgesByArray(bool b);
   virtual bool GetColorEdgesByArray();
@@ -122,11 +167,17 @@ public:
   virtual void SetEdgeColorArrayName(const char* name);
   virtual const char* GetEdgeColorArrayName();
 
+  // ------------------------------------------------------------------------
+  // Enabled vertices
+
   virtual void SetEnableVerticesByArray(bool b);
   virtual bool GetEnableVerticesByArray();
   vtkBooleanMacro(EnableVerticesByArray, bool);
   virtual void SetEnabledVerticesArrayName(const char* name);
   virtual const char* GetEnabledVerticesArrayName();
+
+  // ------------------------------------------------------------------------
+  // Enabled edges
 
   virtual void SetEnableEdgesByArray(bool b);
   virtual bool GetEnableEdgesByArray();
@@ -137,6 +188,9 @@ public:
   virtual void SetEdgeVisibility(bool b);
   virtual bool GetEdgeVisibility();
   vtkBooleanMacro(EdgeVisibility, bool);
+
+  // ------------------------------------------------------------------------
+  // Vertex layout strategy
 
   // Description:
   // Set/get the graph layout strategy.
@@ -211,6 +265,9 @@ public:
     int layoutDepth = 0,
     vtkIdType layoutRoot = -1);
 
+  // ------------------------------------------------------------------------
+  // Edge layout strategy
+
   // Description:
   // Set/get the graph layout strategy.
   virtual void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* strategy);
@@ -229,6 +286,9 @@ public:
   // Set the edge layout strategy by name.
   virtual void SetEdgeLayoutStrategy(const char* name);
   vtkGetStringMacro(EdgeLayoutStrategyName);
+
+  // ------------------------------------------------------------------------
+  // Miscellaneous
 
   // Description:
   // Apply a theme to this representation.
@@ -322,6 +382,12 @@ protected:
   vtkSmartPointer<vtkScalarBarWidget>      VertexScalarBar;
   vtkSmartPointer<vtkScalarBarWidget>      EdgeScalarBar;
   vtkSmartPointer<vtkRemoveHiddenData>     RemoveHiddenGraph;
+  vtkSmartPointer<vtkApplyIcons>           ApplyVertexIcons;
+  vtkSmartPointer<vtkGraphToPoints>        VertexIconPoints;
+  vtkSmartPointer<vtkTransformCoordinateSystems> VertexIconTransform;
+  vtkSmartPointer<vtkIconGlyphFilter>      VertexIconGlyph;
+  vtkSmartPointer<vtkPolyDataMapper2D>     VertexIconMapper;
+  vtkSmartPointer<vtkTexturedActor2D>      VertexIconActor;
   //ETX
 
   vtkSetStringMacro(VertexColorArrayNameInternal);

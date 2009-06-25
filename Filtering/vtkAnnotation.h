@@ -73,6 +73,10 @@ public:
   static vtkInformationDoubleKey* OPACITY();
   
   // Description:
+  // An icon index for this annotation.
+  static vtkInformationIntegerKey* ICON_INDEX();
+
+  // Description:
   // Whether or not this annotation is enabled. 
   // A value of 1 means enabled, 0 disabled.
   static vtkInformationIntegerKey* ENABLE();

@@ -25,6 +25,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLink.h"
 #include "vtkApplyColors.h"
+#include "vtkApplyIcons.h"
 #include "vtkArcParallelEdgeStrategy.h"
 #include "vtkArrayMap.h"
 #include "vtkAssignCoordinatesLayoutStrategy.h"
@@ -45,7 +46,9 @@
 #include "vtkGraphToGlyphs.h"
 #include "vtkGraphToPoints.h"
 #include "vtkGraphToPolyData.h"
+#include "vtkIconGlyphFilter.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -54,6 +57,7 @@
 #include "vtkPerturbCoincidentVertices.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
 #include "vtkRandomLayoutStrategy.h"
 #include "vtkRemoveHiddenData.h"
@@ -70,6 +74,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
+#include "vtkTexturedActor2D.h"
+#include "vtkTransformCoordinateSystems.h"
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkVertexDegree.h"
 #include "vtkViewTheme.h"
@@ -88,7 +94,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.23");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.24");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -123,6 +129,12 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexScalarBar     = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->EdgeScalarBar       = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->RemoveHiddenGraph   = vtkSmartPointer<vtkRemoveHiddenData>::New();
+  this->ApplyVertexIcons    = vtkSmartPointer<vtkApplyIcons>::New();
+  this->VertexIconPoints    = vtkSmartPointer<vtkGraphToPoints>::New();
+  this->VertexIconTransform = vtkSmartPointer<vtkTransformCoordinateSystems>::New();
+  this->VertexIconGlyph     = vtkSmartPointer<vtkIconGlyphFilter>::New();
+  this->VertexIconMapper    = vtkSmartPointer<vtkPolyDataMapper2D>::New();
+  this->VertexIconActor     = vtkSmartPointer<vtkTexturedActor2D>::New();
 
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
@@ -136,11 +148,13 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
      Layout -> Coincident -> EdgeLayout -> VertexDegree -> ApplyColors
      ApplyColors -> VertexGlyph -> VertexMapper -> VertexActor
      ApplyColors -> GraphToPoly -> EdgeMapper -> EdgeActor
+     ApplyColors -> ApplyVertexIcons
      Coincident -> OutlineGlyph -> OutlineMapper -> OutlineActor
      
      VertexDegree -> GraphToPoints
      GraphToPoints -> VertexLabels -> VertexLabelPriority -> "vtkRenderView Labels"
      GraphToPoints -> VertexIcons -> VertexIconPriority -> "vtkRenderView Icons"
+     ApplyVertexIcons -> VertexIconPoints -> VertexIconTransform -> VertexIconGlyphFilter -> VertexIconMapper -> VertexIconActor
      VertexDegree -> EdgeCenters
      EdgeCenters -> EdgeLabels -> EdgeLabelPriority -> "vtkRenderView Labels"
      EdgeCenters -> EdgeIcons -> EdgeIconPriority -> "vtkRenderView Icons"
@@ -153,6 +167,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->EdgeLayout->SetInputConnection(this->RemoveHiddenGraph->GetOutputPort());
   this->VertexDegree->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->ApplyColors->SetInputConnection(this->VertexDegree->GetOutputPort());
+  this->ApplyVertexIcons->SetInputConnection(this->ApplyColors->GetOutputPort());
 
   // Vertex actor
   this->VertexGlyph->SetInputConnection(this->ApplyColors->GetOutputPort());
@@ -168,6 +183,18 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->GraphToPoly->SetInputConnection(this->ApplyColors->GetOutputPort());
   this->EdgeMapper->SetInputConnection(this->GraphToPoly->GetOutputPort());
   this->EdgeActor->SetMapper(this->EdgeMapper);
+
+  // Experimental icons
+  this->VertexIconPoints->SetInputConnection(this->ApplyVertexIcons->GetOutputPort());
+  this->VertexIconTransform->SetInputConnection(this->VertexIconPoints->GetOutputPort());
+  this->VertexIconGlyph->SetInputConnection(this->VertexIconTransform->GetOutputPort());
+  this->VertexIconMapper->SetInputConnection(this->VertexIconGlyph->GetOutputPort());
+  this->VertexIconActor->SetMapper(this->VertexIconMapper);
+  this->VertexIconTransform->SetInputCoordinateSystemToWorld();
+  this->VertexIconTransform->SetOutputCoordinateSystemToDisplay();
+  this->VertexIconGlyph->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "vtkApplyIcons icon");
+  this->ApplyVertexIcons->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "icon");
+  this->VertexIconActor->VisibilityOff();
 
   this->GraphToPoints->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->EdgeCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
@@ -388,7 +415,7 @@ vtkTextProperty* vtkRenderedGraphRepresentation::GetEdgeLabelTextProperty()
 
 void vtkRenderedGraphRepresentation::SetVertexIconArrayName(const char* name)
 {
-  this->VertexIcons->SetInputArrayName(name);
+  this->ApplyVertexIcons->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeIconArrayName(const char* name)
@@ -398,7 +425,8 @@ void vtkRenderedGraphRepresentation::SetEdgeIconArrayName(const char* name)
 
 const char* vtkRenderedGraphRepresentation::GetVertexIconArrayName()
 {
-  return this->VertexIcons->GetInputArrayName();
+  // TODO: Make ivar to store this.
+  return 0;
 }
 
 const char* vtkRenderedGraphRepresentation::GetEdgeIconArrayName()
@@ -428,14 +456,7 @@ const char* vtkRenderedGraphRepresentation::GetEdgeIconPriorityArrayName()
 
 void vtkRenderedGraphRepresentation::SetVertexIconVisibility(bool b)
 {
-  if (b)
-    {
-    this->VertexIcons->SetInputConnection(this->GraphToPoints->GetOutputPort());
-    }
-  else
-    {
-    this->VertexIcons->SetInput(this->EmptyPolyData);
-    }
+  this->VertexIconActor->SetVisibility(b);
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool b)
@@ -452,8 +473,7 @@ void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetVertexIconVisibility()
 {
-  return this->VertexIcons->GetInputConnection(0, 0) ==
-         this->GraphToPoints->GetOutputPort();
+  return (this->VertexIconActor->GetVisibility() ? true : false);
 }
 
 bool vtkRenderedGraphRepresentation::GetEdgeIconVisibility()
@@ -464,8 +484,9 @@ bool vtkRenderedGraphRepresentation::GetEdgeIconVisibility()
 
 void vtkRenderedGraphRepresentation::AddVertexIconType(const char* name, int type)
 {
-  this->VertexIcons->AddToMap(name, type);
-}
+  this->ApplyVertexIcons->SetIconType(name, type);
+  this->ApplyVertexIcons->UseLookupTableOn();
+}  
 
 void vtkRenderedGraphRepresentation::AddEdgeIconType(const char* name, int type)
 {
@@ -474,7 +495,8 @@ void vtkRenderedGraphRepresentation::AddEdgeIconType(const char* name, int type)
 
 void vtkRenderedGraphRepresentation::ClearVertexIconTypes()
 {
-  this->VertexIcons->ClearMap();
+  this->ApplyVertexIcons->ClearAllIconTypes();
+  this->ApplyVertexIcons->UseLookupTableOff();
 }
 
 void vtkRenderedGraphRepresentation::ClearEdgeIconTypes()
@@ -484,16 +506,7 @@ void vtkRenderedGraphRepresentation::ClearEdgeIconTypes()
 
 void vtkRenderedGraphRepresentation::SetUseVertexIconTypeMap(bool b)
 {
-  if (b)
-    {
-    this->VertexIcons->PassArrayOff();
-    this->VertexIcons->SetFillValue(-1);
-    }
-  else
-    {
-    this->ClearVertexIconTypes();
-    this->VertexIcons->PassArrayOn();
-    }
+  this->ApplyVertexIcons->SetUseLookupTable(b);
 }
 
 void vtkRenderedGraphRepresentation::SetUseEdgeIconTypeMap(bool b)
@@ -512,7 +525,7 @@ void vtkRenderedGraphRepresentation::SetUseEdgeIconTypeMap(bool b)
 
 bool vtkRenderedGraphRepresentation::GetUseVertexIconTypeMap()
 {
-  return this->VertexIcons->GetPassArray() ? true : false;
+  return this->ApplyVertexIcons->GetUseLookupTable();
 }
 
 bool vtkRenderedGraphRepresentation::GetUseEdgeIconTypeMap()
@@ -539,6 +552,26 @@ void vtkRenderedGraphRepresentation::SetEdgeIconAlignment(int align)
 int vtkRenderedGraphRepresentation::GetEdgeIconAlignment()
 {
   return 0;
+}
+
+void vtkRenderedGraphRepresentation::SetVertexSelectedIcon(int icon)
+{
+  this->ApplyVertexIcons->SetSelectedIcon(icon);
+}
+
+int vtkRenderedGraphRepresentation::GetVertexSelectedIcon()
+{
+  return this->ApplyVertexIcons->GetSelectedIcon();
+}
+
+void vtkRenderedGraphRepresentation::SetVertexIconSelectionMode(int mode)
+{
+  this->ApplyVertexIcons->SetSelectionMode(mode);
+}
+
+int vtkRenderedGraphRepresentation::GetVertexIconSelectionMode()
+{
+  return this->ApplyVertexIcons->GetSelectionMode();
 }
 
 void vtkRenderedGraphRepresentation::SetColorVerticesByArray(bool b)
@@ -976,11 +1009,13 @@ bool vtkRenderedGraphRepresentation::AddToView(vtkView* view)
     this->EdgeScalarBar->SetInteractor(rv->GetRenderWindow()->GetInteractor());
     this->VertexGlyph->SetRenderer(rv->GetRenderer());
     this->OutlineGlyph->SetRenderer(rv->GetRenderer());
+    this->VertexIconTransform->SetViewport(rv->GetRenderer());
     rv->GetRenderer()->AddActor(this->OutlineActor);
     rv->GetRenderer()->AddActor(this->VertexActor);
     rv->GetRenderer()->AddActor(this->EdgeActor);
     rv->GetRenderer()->AddActor(this->VertexScalarBar->GetScalarBarActor());
     rv->GetRenderer()->AddActor(this->EdgeScalarBar->GetScalarBarActor());
+    rv->GetRenderer()->AddActor(this->VertexIconActor);
     rv->AddLabels(this->VertexLabelPriority->GetOutputPort(), this->VertexTextProperty);
     rv->AddLabels(this->EdgeLabelPriority->GetOutputPort(), this->EdgeTextProperty);
     rv->AddIcons(this->VertexIconPriority->GetOutputPort());
@@ -1018,6 +1053,7 @@ bool vtkRenderedGraphRepresentation::RemoveFromView(vtkView* view)
     rv->GetRenderer()->RemoveActor(this->EdgeActor);
     rv->GetRenderer()->RemoveActor(this->VertexScalarBar->GetScalarBarActor());
     rv->GetRenderer()->RemoveActor(this->EdgeScalarBar->GetScalarBarActor());
+    rv->GetRenderer()->RemoveActor(this->VertexIconActor);
     rv->RemoveLabels(this->VertexLabels->GetOutputPort());
     rv->RemoveLabels(this->EdgeLabels->GetOutputPort());
     rv->RemoveIcons(this->VertexIcons->GetOutputPort());
@@ -1045,6 +1081,18 @@ bool vtkRenderedGraphRepresentation::RemoveFromView(vtkView* view)
 void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
 {
   this->Superclass::PrepareForRendering(view);
+
+  this->VertexIconActor->SetTexture(view->GetIconTexture());
+  this->VertexIconGlyph->SetIconSize(view->GetIconSize());
+  this->VertexIconGlyph->SetUseIconSize(true);
+  if (this->VertexIconActor->GetTexture() &&
+      this->VertexIconActor->GetTexture()->GetInput())
+    {
+    this->VertexIconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
+    this->VertexIconActor->GetTexture()->GetInput()->Update();
+    int* dim = this->VertexIconActor->GetTexture()->GetInput()->GetDimensions();
+    this->VertexIconGlyph->SetIconSheetSize(dim);
+    }
 
   // Make sure the transform is synchronized between rep and view
   this->Layout->SetTransform(view->GetTransform());
@@ -1242,6 +1290,7 @@ int vtkRenderedGraphRepresentation::RequestData(
 {
   this->Layout->SetInputConnection(this->GetInternalOutputPort());
   this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
+  this->ApplyVertexIcons->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
   this->RemoveHiddenGraph->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
   return 1;
 }

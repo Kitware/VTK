@@ -34,7 +34,9 @@
 
 #include "vtkObject.h"
 
+class vtkAbstractArray;
 class vtkAlgorithmOutput;
+class vtkDataSetAttributes;
 class vtkExecutive;
 class vtkFieldData;
 class vtkInformation;
@@ -430,6 +432,54 @@ public:
     NUMBER_OF_ASSOCIATIONS
   };
   //ETX
+
+  //BTX
+  // Description:
+  // Possible attribute types.
+  enum AttributeTypes
+  {
+    POINT,
+    CELL,
+    FIELD,
+    VERTEX,
+    EDGE,
+    ROW,
+    NUMBER_OF_ATTRIBUTE_TYPES
+  };
+  //ETX
+
+  // Description:
+  // Returns the attributes of the data object of the specified
+  // attribute type. The type may be:
+  // <ul>
+  // <li>POINT  - Defined in vtkDataSet subclasses.
+  // <li>CELL   - Defined in vtkDataSet subclasses.
+  // <li>VERTEX - Defined in vtkGraph subclasses.
+  // <li>EDGE   - Defined in vtkGraph subclasses.
+  // <li>ROW    - Defined in vtkTable.
+  // </ul>
+  // The other attribute type, FIELD, will return NULL since
+  // field data is stored as a vtkFieldData instance, not a
+  // vtkDataSetAttributes instance. To retrieve field data, use
+  // GetAttributesAsFieldData.
+  virtual vtkDataSetAttributes* GetAttributes(int type);
+
+  // Description:
+  // Returns the attributes of the data object as a vtkFieldData.
+  // This returns non-null values in all the same cases as GetAttributes,
+  // in addition to the case of FIELD, which will return the field data
+  // for any vtkDataObject subclass.
+  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+
+  // Description:
+  // Retrieves the attribute type that an array came from.
+  // This is useful for obtaining which attribute type a input array
+  // to an algorithm came from (retrieved from GetInputAbstractArrayToProcesss).
+  virtual int GetAttributeTypeForArray(vtkAbstractArray* arr);
+
+  // Description:
+  // Get the number of elements for a specific attribute type (POINT, CELL, etc.).
+  virtual vtkIdType GetNumberOfElements(int type);
 
   //BTX
   // Description:
