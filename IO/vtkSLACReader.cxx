@@ -421,7 +421,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.16");
+vtkCxxRevisionMacro(vtkSLACReader, "1.17");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -741,19 +741,20 @@ int vtkSLACReader::RequestInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
+int vtkSLACReader::RequestData(vtkInformation *request,
                                vtkInformationVector **vtkNotUsed(inputVector),
                                vtkInformationVector *outputVector)
 {
-  vtkInformation *surfaceOutInfo
-    = outputVector->GetInformationObject(SURFACE_OUTPUT);
-  vtkMultiBlockDataSet *surfaceOutput
-    = vtkMultiBlockDataSet::GetData(surfaceOutInfo);
+  vtkInformation *outInfo[NUM_OUTPUTS];
+  for (int i = 0; i < NUM_OUTPUTS; i++)
+    {
+    outInfo[i] = outputVector->GetInformationObject(i);
+    }
 
-  vtkInformation *volumeOutInfo
-    = outputVector->GetInformationObject(VOLUME_OUTPUT);
+  vtkMultiBlockDataSet *surfaceOutput
+    = vtkMultiBlockDataSet::GetData(outInfo[SURFACE_OUTPUT]);
   vtkMultiBlockDataSet *volumeOutput
-    = vtkMultiBlockDataSet::GetData(volumeOutInfo);
+    = vtkMultiBlockDataSet::GetData(outInfo[VOLUME_OUTPUT]);
 
   if (!this->MeshFileName)
     {
@@ -763,26 +764,13 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
 
   double time = 0.0;
   bool timeValid = false;
-  if (volumeOutInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
-    {
-    time = volumeOutInfo->Get(
-                       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),0);
-    timeValid = true;
-    }
-  if (surfaceOutInfo->Has(
+  int fromPort = request->Get(vtkExecutive::FROM_OUTPUT_PORT());
+  if (outInfo[fromPort]->Has(
                          vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
-    double surfaceTime = surfaceOutInfo->Get(
+    time = outInfo[fromPort]->Get(
                        vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),0);
-    if (!timeValid)
-      {
-      time = surfaceTime;
-      timeValid = true;
-      }
-    else if (time != surfaceTime)
-      {
-      vtkWarningMacro(<< "Conflicting update times coming from outputs.");
-      }
+    timeValid = true;
     }
 
   if (this->FrequencyModes)
@@ -875,6 +863,14 @@ int vtkSLACReader::RequestData(vtkInformation *vtkNotUsed(request),
                                        this->Internal->MidpointIdCache))
       {
       return 0;
+      }
+
+    if (timeValid)
+      {
+      surfaceOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                           &time, 1);
+      volumeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                          &time, 1);
       }
     }
 
