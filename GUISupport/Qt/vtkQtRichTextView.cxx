@@ -48,8 +48,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWebView>
+#include <QHttpHeader>
+#include <QHttpRequestHeader>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.14");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.15");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -87,8 +89,8 @@ vtkQtRichTextView::vtkQtRichTextView()
   this->Internal->Widget = new QWidget();
   this->Internal->UI.setupUi(this->Internal->Widget);
   this->Internal->UI.WebView->setHtml("");
-  QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
-  QNetworkProxy::setApplicationProxy(proxy);
+  //QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
+  //QNetworkProxy::setApplicationProxy(proxy);
 
   QObject::connect(this->Internal->UI.BackButton, SIGNAL(clicked()), this, SLOT(onBack()));
   QObject::connect(this->Internal->UI.WebView, SIGNAL(loadProgress(int)), this, SLOT(onLoadProgress(int)));
@@ -122,6 +124,23 @@ int vtkQtRichTextView::GetFieldType()
 
 void vtkQtRichTextView::Update()
 {
+
+  // Set the proxy (if needed)
+  if(this->ProxyURL && this->ProxyPort >=0)
+    {
+    if(this->ProxyPort > 65535)
+      {
+      vtkWarningMacro(<<"Proxy port number, "<<this->ProxyPort<<", > 65535 (max for TCP/UDP)");
+      }
+    QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy, ProxyURL, ProxyPort);
+    QNetworkProxy::setApplicationProxy(proxy);
+    }
+  else
+    {
+    QNetworkProxy proxy(QNetworkProxy::NoProxy);
+    QNetworkProxy::setApplicationProxy(proxy);
+    }
+
   // Make sure the input connection is up to date ...
   vtkDataRepresentation* const representation = this->GetRepresentation();
   if(!representation)
@@ -192,6 +211,14 @@ void vtkQtRichTextView::Update()
     {
     this->Internal->Content.clear();
     }
+
+#if 0
+    QHttpRequestHeader header( this->Internal->Content.c_str());
+    QString key("style");
+    QString css("body: { font-weight: bold; }");
+    header.addValue(key, css);
+    cout << header.toString().toStdString() << endl;
+#endif
 
   //cerr << this->Internal->Content << endl;
   this->Internal->UI.WebView->setHtml(this->Internal->Content.c_str());
