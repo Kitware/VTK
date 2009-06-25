@@ -38,7 +38,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.19");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.20");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -254,10 +254,9 @@ void vtkQtTreeView::Update()
   vtkDataObject *d = alg->GetOutputDataObject(0);
   vtkTree *tree = vtkTree::SafeDownCast(d);
 
-  // Special-case: if our input is missing or not-a-tree, quietly exit.
-  if(!tree)
+  // Special-case: if our input is missing or not-a-tree, or empty then quietly exit.
+  if(!tree || !tree->GetNumberOfVertices())
     {
-    //vtkErrorMacro("vtkQtTreeView requires a vtkTree as input");
     return;
     }
 
