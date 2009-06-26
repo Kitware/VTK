@@ -71,7 +71,7 @@ public:
   class VTK_COMMON_EXPORT const_iterator
   {
   public:
-    typedef vtkstd::forward_iterator_tag iterator_category;
+    typedef vtkstd::bidirectional_iterator_tag iterator_category;
     typedef vtkUnicodeStringValueType value_type;
     typedef vtkstd::string::difference_type difference_type;
     typedef value_type* pointer;
@@ -84,6 +84,8 @@ public:
     bool operator!=(const const_iterator&) const;
     const_iterator& operator++();
     const_iterator operator++(int);
+    const_iterator& operator--();
+    const_iterator operator--(int);
 
   private:
     const_iterator(vtkstd::string::const_iterator);

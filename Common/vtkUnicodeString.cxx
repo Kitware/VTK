@@ -56,14 +56,27 @@ bool vtkUnicodeString::const_iterator::operator!=(const const_iterator& rhs) con
 
 vtkUnicodeString::const_iterator& vtkUnicodeString::const_iterator::operator++()
 {
-  vtk_utf8::unchecked::advance(this->Position, 1);
+  vtk_utf8::unchecked::next(this->Position);
   return *this;
 }
 
 vtkUnicodeString::const_iterator vtkUnicodeString::const_iterator::operator++(int)
 {
   const_iterator result(this->Position);
-  vtk_utf8::unchecked::advance(this->Position, 1);
+  vtk_utf8::unchecked::next(this->Position);
+  return result;
+}
+
+vtkUnicodeString::const_iterator& vtkUnicodeString::const_iterator::operator--()
+{
+  vtk_utf8::unchecked::prior(this->Position);
+  return *this;
+}
+
+vtkUnicodeString::const_iterator vtkUnicodeString::const_iterator::operator--(int)
+{
+  const_iterator result(this->Position);
+  vtk_utf8::unchecked::prior(this->Position);
   return result;
 }
 
