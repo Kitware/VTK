@@ -127,7 +127,7 @@ static void CreateLine(vtkPolyData *line)
   line->SetPoints(points);
 
   VTK_CREATE(vtkCellArray, cells);
-  cells->Allocate(5);
+  cells->Allocate(4);
   cells->InsertNextCell(4);
   cells->InsertCellPoint(0);
   cells->InsertCellPoint(1);
