@@ -59,7 +59,7 @@ static void CreateHex(vtkUnstructuredGrid *hex)
   hex->SetPoints(points);
 
   VTK_CREATE(vtkCellArray, cells);
-  cells->Allocate(9);
+  cells->Allocate(8);
   cells->InsertNextCell(8);
   cells->InsertCellPoint(0);
   cells->InsertCellPoint(1);
@@ -97,7 +97,7 @@ static void CreateQuad(vtkPolyData *quad)
   quad->SetPoints(points);
 
   VTK_CREATE(vtkCellArray, cells);
-  cells->Allocate(5);
+  cells->Allocate(4);
   cells->InsertNextCell(4);
   cells->InsertCellPoint(0);
   cells->InsertCellPoint(1);
