@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.59");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.60");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -859,9 +859,10 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
    }
   else
     {
-    vtkIdType id = pointIds[i];
+    vtkIdType id;
     for (i = 0; i < this->NumberOfMeasuredPoints; i++)
       {
+      id = pointIds[i];
       points->InsertNextPoint(coords[3*i], coords[3*i+1], coords[3*i+2]);
       pd->InsertNextCell(VTK_VERTEX, 1, &id);
       }
