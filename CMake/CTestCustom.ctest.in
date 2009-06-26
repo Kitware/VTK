@@ -130,6 +130,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "IO.vtkJPEG(Reader|Writer).cxx.*warning.*more strictly aligned type"
   ".*warning.*relational operator.*always evaluates to.*"
   ".*warning.*controlling expression is constant"
+  "[Qq]t.*h.*warning.*types cannot be declared in anonymous unions"
   
   # QT on HP-UX uses -ldl while VTK uses -dldl.
   "aCC: warning 983: The -ldl library specified on the command line is also added automatically by the compiler driver."
