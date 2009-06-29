@@ -50,8 +50,10 @@ int TestResetCameraVerticalAspectRatio(int argc, char* argv[])
   ren1->SetBackground(0.1,0.2,0.4);
   
   // Width cannot be smaller than 104 and 108 respectively on Windows XP and
-  // Vista because of decorations.
-  renWin->SetSize(110,400);
+  // Vista because of decorations. And apparently not smaller than 116 on
+  // Vista with standard style and 24" wide screen.
+  
+  renWin->SetSize(128,400);
   
   // ren1->GetActiveCamera()->SetUseHorizontalViewAngle(1);
   ren1->ResetCamera();
