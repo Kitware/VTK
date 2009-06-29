@@ -33,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.13");
+vtkCxxRevisionMacro(vtkPolyData, "1.14");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -90,7 +90,8 @@ vtkPolyData::vtkPolyData ()
 //----------------------------------------------------------------------------
 vtkPolyData::~vtkPolyData()
 {
-  vtkPolyData::Initialize();
+  this->Cleanup();
+
   // Reference to static dummy persists. 
   // Keep destructed dummy from being used again.
   DummyCritSect.Lock();
@@ -805,11 +806,8 @@ vtkCellArray* vtkPolyData::GetStrips()
 }
 
 //----------------------------------------------------------------------------
-// Restore object to initial state. Release memory back to system.
-void vtkPolyData::Initialize()
+void vtkPolyData::Cleanup()
 {
-  vtkPointSet::Initialize();
-
   if ( this->Verts ) 
     {
     this->Verts->UnRegister(this);
@@ -845,6 +843,15 @@ void vtkPolyData::Initialize()
     this->Links->UnRegister(this);
     this->Links = NULL;
     }
+}
+
+//----------------------------------------------------------------------------
+// Restore object to initial state. Release memory back to system.
+void vtkPolyData::Initialize()
+{
+  vtkPointSet::Initialize();
+
+  this->Cleanup();
 
   if(this->Information)
     {

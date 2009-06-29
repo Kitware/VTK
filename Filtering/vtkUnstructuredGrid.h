@@ -225,6 +225,8 @@ protected:
   vtkIdTypeArray *Locations;
 
  private:
+  void Cleanup();
+  
   // Hide these from the user and the compiler.
   
   // Description:

@@ -450,6 +450,8 @@ private:
   void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
     {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 
+  void Cleanup();
+
 private:
   vtkPolyData(const vtkPolyData&);  // Not implemented.
   void operator=(const vtkPolyData&);  // Not implemented.

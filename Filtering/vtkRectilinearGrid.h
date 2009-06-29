@@ -199,6 +199,8 @@ protected:
   double PointReturn[3];
 
 private:
+  void Cleanup();
+
   // Description:
   // For legacy compatibility. Do not use.
   VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));

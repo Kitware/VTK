@@ -28,7 +28,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkPointSet, "1.12");
+vtkCxxRevisionMacro(vtkPointSet, "1.13");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -41,7 +41,8 @@ vtkPointSet::vtkPointSet ()
 //----------------------------------------------------------------------------
 vtkPointSet::~vtkPointSet ()
 {
-  this->Initialize();
+  this->Cleanup();
+
   if ( this->Locator ) 
     {
     this->Locator->UnRegister(this);
@@ -65,17 +66,22 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkPointSet::Cleanup()
+{
+  if ( this->Points ) 
+    {
+    this->Points->UnRegister(this);
+    this->Points = NULL;
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkPointSet::Initialize()
 {
   vtkDataSet::Initialize();
 
-  if ( this->Points ) 
-    {
-    this->Points->UnRegister(this);
-    this->Points = NULL;
-    }
+  this->Cleanup();
 
   if ( this->Locator ) 
     {

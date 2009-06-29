@@ -109,6 +109,9 @@ protected:
 
   virtual void ReportReferences(vtkGarbageCollector*);
 private:
+
+  void Cleanup();
+
   vtkPointSet(const vtkPointSet&);  // Not implemented.
   void operator=(const vtkPointSet&);  // Not implemented.
 };

@@ -30,7 +30,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.8");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.9");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -71,7 +71,6 @@ vtkStructuredGrid::vtkStructuredGrid()
 //----------------------------------------------------------------------------
 vtkStructuredGrid::~vtkStructuredGrid()
 {
-  this->Initialize();
   this->Vertex->Delete();
   this->Line->Delete();
   this->Quad->Delete();
@@ -107,6 +106,7 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
   this->CellVisibility->ShallowCopy(sg->CellVisibility);
 }
 
+
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::Initialize()
 {
@@ -120,7 +120,7 @@ void vtkStructuredGrid::Initialize()
 
   if(this->Information)
     {
-  this->SetDimensions(0,0,0);
+    this->SetDimensions(0,0,0);
     }
 }
 

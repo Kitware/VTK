@@ -56,7 +56,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.14");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.15");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -152,7 +152,8 @@ void vtkUnstructuredGrid::Allocate (vtkIdType numCells, int extSize)
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid::~vtkUnstructuredGrid()
 {
-  vtkUnstructuredGrid::Initialize();
+  this->Cleanup();
+
   if(this->Vertex)
     {
     this->Vertex->Delete();
@@ -359,10 +360,8 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 }
 
 //----------------------------------------------------------------------------
-void vtkUnstructuredGrid::Initialize()
+void vtkUnstructuredGrid::Cleanup()
 {
-  vtkPointSet::Initialize();
-
   if ( this->Connectivity )
     {
     this->Connectivity->UnRegister(this);
@@ -386,6 +385,14 @@ void vtkUnstructuredGrid::Initialize()
     this->Locations->UnRegister(this);
     this->Locations = NULL;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::Initialize()
+{
+  vtkPointSet::Initialize();
+
+  this->Cleanup();
 
   if(this->Information)
     {

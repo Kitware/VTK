@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.10");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.11");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -73,7 +73,8 @@ vtkRectilinearGrid::vtkRectilinearGrid()
 //----------------------------------------------------------------------------
 vtkRectilinearGrid::~vtkRectilinearGrid()
 {
-  this->Initialize();
+  this->Cleanup();
+
   this->Vertex->Delete();
   this->Line->Delete();
   this->Pixel->Delete();
@@ -82,14 +83,8 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGrid::Initialize()
+void vtkRectilinearGrid::Cleanup()
 {
-  this->Superclass::Initialize();
-  if(this->Information)
-    {
-  this->SetDimensions(0,0,0);
-    }
-
   if ( this->XCoordinates ) 
     {
     this->XCoordinates->UnRegister(this);
@@ -107,6 +102,19 @@ void vtkRectilinearGrid::Initialize()
     this->ZCoordinates->UnRegister(this);
     this->ZCoordinates = NULL;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::Initialize()
+{
+  this->Superclass::Initialize();
+
+  if(this->Information)
+    {
+    this->SetDimensions(0,0,0);
+    }
+
+  this->Cleanup();
 }
 
 //----------------------------------------------------------------------------
