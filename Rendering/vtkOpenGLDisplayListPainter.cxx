@@ -31,7 +31,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.13");
 #endif
 
 class vtkOpenGLDisplayListPainter::vtkInternals
@@ -45,7 +45,8 @@ public:
 
   void ReleaseAllLists(vtkWindow* win)
     {
-    if (win && win->GetMapped())
+    // Checking is win->GetMapped() is causing segfaults on AIX.
+    if (win /*&& win->GetMapped()*/)
       {
       DisplayListMapType::iterator iter;
       for (iter = this->DisplayListMap.begin(); iter != this->DisplayListMap.end();
@@ -100,8 +101,9 @@ void vtkOpenGLDisplayListPainter::ReleaseGraphicsResources(vtkWindow* win)
   if (win && win->GetMapped())
     {
     win->MakeCurrent();
+    this->Internals->ReleaseAllLists(win);
     }
-  this->Internals->ReleaseAllLists(win);
+  this->Internals->DisplayListMap.clear();
   this->Superclass::ReleaseGraphicsResources(win);
   this->LastWindow = NULL;
 }
