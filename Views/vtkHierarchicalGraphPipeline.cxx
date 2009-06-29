@@ -41,7 +41,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.8");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.9");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -80,6 +80,7 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
   this->EdgeCenters->SetInputConnection(this->Spline->GetOutputPort());
   this->LabelMapper->SetInputConnection(this->EdgeCenters->GetOutputPort());
   this->LabelMapper->SetLabelTextProperty(this->TextProperty);
+  this->LabelMapper->SetLabelModeToLabelFieldData();
   this->LabelActor->SetMapper(this->LabelMapper);
   this->LabelActor->VisibilityOff();
 
@@ -123,7 +124,7 @@ double vtkHierarchicalGraphPipeline::GetBundlingStrength()
 
 void vtkHierarchicalGraphPipeline::SetLabelArrayName(const char* name)
 {
-  this->LabelMapper->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, name);
+  this->LabelMapper->SetFieldDataName(name);
   this->SetLabelArrayNameInternal(name);
 }
 
