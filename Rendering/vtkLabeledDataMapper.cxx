@@ -32,6 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTypeTraits.h"
 #include "vtkTransform.h"
+#include "vtkUnicodeStringArray.h"
 
 #include <vtkstd/map>
 
@@ -41,7 +42,7 @@ public:
   vtkstd::map<int, vtkSmartPointer<vtkTextProperty> > TextProperties;
 };
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.60");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.61");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
@@ -348,6 +349,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   vtkAbstractArray *abstractData = NULL;
   vtkDataArray *numericData = NULL;
   vtkStringArray *stringData = NULL;
+  vtkUnicodeStringArray *uStringData = NULL;
 
   if (input->GetNumberOfPoints() == 0)
     {
@@ -357,9 +359,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   vtkPointData *pd = input->GetPointData();
   // figure out what to label, and if we can label it
   pointIdLabels = 0;
-  abstractData = NULL;
-  numericData = NULL;
-  stringData = NULL;
   switch (this->LabelMode)
     {
     case VTK_LABEL_IDS:
@@ -413,6 +412,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       }
     numericData = vtkDataArray::SafeDownCast(abstractData);
     stringData = vtkStringArray::SafeDownCast(abstractData);
+    uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
     }; break;
     }
 
@@ -437,6 +437,10 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     if ( stringData )
       {
       numComp = stringData->GetNumberOfComponents();
+      }
+    else if( uStringData )
+      {
+      numComp = uStringData->GetNumberOfComponents();
       }
     else
       {
@@ -527,6 +531,11 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       {
       FormatString = ""; // we'll use vtkStdString::operator+ instead of sprintf
       }
+    else if (uStringData)
+      {
+      vtkWarningMacro( "Unicode string arrays are not adequately supported by the vtkLabeledDataMapper.  Unicode strings will be converted to vtkStdStrings for rendering.");
+      FormatString = "unicode"; // we'll use vtkStdString::operator+ instead of sprintf
+      }
     else
       {
       FormatString = "BUG - COULDN'T DETECT DATA TYPE"; 
@@ -613,7 +622,14 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         // we'll sidestep a lot of sprintf nonsense.
         if (this->LabelFormat == NULL)
           {
-          ResultString = stringData->GetValue(i);
+          if( uStringData )
+            {
+            ResultString = uStringData->GetValue(i).utf8_str();
+            }
+          else
+            {
+            ResultString = stringData->GetValue(i);
+            }
           }
         else // the user specified a label format
           {

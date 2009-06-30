@@ -43,6 +43,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkTypeTraits.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkViewport.h"
 
 #include <vtksys/ios/fstream>
@@ -54,7 +55,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.16");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.17");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -128,6 +129,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   vtkAbstractArray *abstractData;
   vtkDataArray *numericData;
   vtkStringArray *stringData;
+  vtkUnicodeStringArray* uStringData;
   vtkDataObject *input = this->GetExecutive()->GetInputData(0, 0);
 
   if ( ! input )
@@ -179,6 +181,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     abstractData = NULL;
     numericData = NULL;
     stringData = NULL;
+    uStringData = NULL;
     switch (this->LabelMode)
       {
       case VTK_LABEL_IDS:
@@ -229,6 +232,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       numericData = vtkDataArray::SafeDownCast(abstractData);
       stringData = vtkStringArray::SafeDownCast(abstractData);
+      uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
       }; break;
       }
 
@@ -247,6 +251,10 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                       this->LabeledComponent : numComp - 1);
         numComp = 1;
         }
+      }
+    else if ( uStringData )
+      {
+      vtkWarningMacro( "Unicode string arrays are not adequately supported by the vtkDynamic2DLabelMapper.  Unicode strings will be converted to vtkStdStrings for rendering.");
       }
     else if ( !stringData )
       {
@@ -335,6 +343,10 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       else if (stringData)
         {
         FormatString = ""; // we'll use vtkStdString::operator+ instead of sprintf
+        }
+      else if (uStringData)
+        {
+        FormatString = "unicode"; // we'll use vtkStdString::operator+ instead of sprintf
         }
       else
         {
@@ -427,7 +439,14 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
           // we'll sidestep a lot of sprintf nonsense.
           if (this->LabelFormat == NULL)
             {
-            ResultString = stringData->GetValue(i);
+            if( uStringData )
+              {
+              ResultString = uStringData->GetValue(i).utf8_str();
+              }
+            else
+              {
+              ResultString = stringData->GetValue(i);
+              }
             }
           else // the user specified a label format
             {
