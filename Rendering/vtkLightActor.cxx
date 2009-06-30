@@ -25,7 +25,7 @@
 #include "vtkProperty.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkLightActor, "1.2");
+vtkCxxRevisionMacro(vtkLightActor, "1.3");
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 
@@ -157,6 +157,16 @@ double *vtkLightActor::GetBounds()
     {
     this->Bounds[i]=this->BoundingBox->GetBound(i);
     ++i;
+    }
+  if(this->Bounds[0]==VTK_DOUBLE_MAX)
+    {
+    // we cannot initialize the Bounds the same way vtkBoundingBox does because
+    // vtkProp3D::GetLength() does not check if the Bounds are initialized or
+    // not and makes a call to sqrt(). This call to sqrt with invalid values
+    // would raise a floating-point overflow exception (notably on BCC).
+    // As vtkMath::UninitializeBounds initialized finite unvalid bounds, it
+    // passes silently and GetLength() returns 0.
+    vtkMath::UninitializeBounds(this->Bounds);
     }
   
   return this->Bounds;
