@@ -7,6 +7,10 @@
 #    PURPOSE.  See the above copyright notice for more information.
 #
 
+# This executable is only run from the build tree so we do not need a
+# launcher for it and should always use the RPATH to find shared libs.
+SET(CMAKE_SKIP_RPATH 0)
+
 IF(NOT CMAKE_CROSSCOMPILING)
   ADD_EXECUTABLE(vtkHashSource vtkHashSource.cxx)
   TARGET_LINK_LIBRARIES(vtkHashSource vtksys)
