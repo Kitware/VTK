@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   </pre>
 // * Assess: given a set of results matrices as specified above in input port INPUT_MODEL and
 //   tabular data on input port INPUT_DATA that contains column names matching those
-//   of the tables on input port INPUT_MOEDL, the assess mode computes the relative
+//   of the tables on input port INPUT_MODEL, the assess mode computes the relative
 //   deviation of each observation in port INPUT_DATA's table according to the linear
 //   correlations implied by each table in port INPUT_MODEL.
 //  
@@ -75,7 +75,7 @@ protected:
 
   // Description:
   // This algorithm accepts and returns a multiblock dataset containing several tables for
-  // its meta input/output (port 1) instead of a single vtkTable.
+  // its meta input/output (port INPUT_MODEL) instead of a single vtkTable.
   // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
   virtual int FillInputPortInformation( int port, vtkInformation* info );
   virtual int FillOutputPortInformation( int port, vtkInformation* info );
