@@ -40,7 +40,7 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.246");
+vtkCxxRevisionMacro(vtkRenderer, "1.246.2.1");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
@@ -737,6 +737,16 @@ vtkCamera *vtkRenderer::GetActiveCamera()
   return this->ActiveCamera;
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if there is an active camera. As GetActiveCamera() creates
+// a camera if there is no active camera, this is the only way to
+// query the renderer state without changing it.
+bool vtkRenderer::HasActiveCamera()
+{
+  return this->ActiveCamera!=0;
+}
+
 //----------------------------------------------------------------------------
 vtkCamera *vtkRenderer::GetActiveCameraAndResetIfCreated()
 {
@@ -838,6 +848,20 @@ void vtkRenderer::RemoveCuller(vtkCuller *culler)
   this->Cullers->RemoveItem(culler);
 }
 
+// ----------------------------------------------------------------------------
+void vtkRenderer::SetLightCollection(vtkLightCollection *lights)
+{
+  assert("pre lights_exist" && lights!=0);
+  
+  this->Lights->Delete(); // this->Lights is always not NULL.
+  this->Lights=lights;
+  this->Lights->Register(this);
+  this->Modified();
+  
+  assert("post: lights_set" && lights==this->GetLights());
+}
+
+// ----------------------------------------------------------------------------
 vtkLight *vtkRenderer::MakeLight()
 {
   return vtkLight::New();
@@ -878,6 +902,8 @@ void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
   vtkProp    *prop;
   double      *bounds;
   int        nothingVisible=1;
+
+  this->InvokeEvent(vtkCommand::ComputeVisiblePropBoundsEvent, this);
 
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_DOUBLE_MAX;
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_DOUBLE_MAX;
@@ -1041,8 +1067,31 @@ void vtkRenderer::ResetCamera(double bounds[6])
   // this forms a right triangle with one side being the radius, another being
   // the target distance for the camera, then just find the target dist using
   // a sin.
-  distance =
-    radius/sin(this->ActiveCamera->GetViewAngle()*vtkMath::Pi()/360.0);
+  double angle=this->ActiveCamera->GetViewAngle();
+  double parallelScale=radius;
+  
+  this->ComputeAspect();
+  double aspect[2];
+  this->GetAspect(aspect);
+  
+  if(aspect[0]>=1.0) // horizontal window, deal with vertical angle|scale
+    {
+    if(this->ActiveCamera->GetUseHorizontalViewAngle())
+      {
+      angle=angle/aspect[0];
+      }
+    }
+  else // vertical window, deal with horizontal angle|scale
+    {
+    if(!this->ActiveCamera->GetUseHorizontalViewAngle())
+      {
+      angle=angle*aspect[0];
+      }
+    
+    parallelScale=parallelScale/aspect[0];
+    }
+
+  distance =radius/sin(vtkMath::RadiansFromDegrees(angle)*0.5);
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
@@ -1061,7 +1110,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   this->ResetCameraClippingRange( bounds );
 
   // setup default parallel scale
-  this->ActiveCamera->SetParallelScale(radius);
+  this->ActiveCamera->SetParallelScale(parallelScale);
 }
 
 // Alternative version of ResetCamera(bounds[6]);
@@ -1488,7 +1537,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   numberPickFrom = 2*props->GetNumberOfPaths()*3 + 1;
 
   this->IsPicking = 1; // turn on picking
-  this->StartPick(numberPickFrom);
+  this->StartPick(static_cast<unsigned int>(numberPickFrom));
   this->PathArray = new vtkAssemblyPath *[numberPickFrom];
   this->PathArrayCount = 0;
 
@@ -1515,7 +1564,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
     // because each Prop has RenderOpaqueGeometry,
     // RenderTranslucentPolygonalGeometry, RenderVolumetricGeometry and
     // RenderOverlay called on it.
-    pickedId = pickedId % this->PathArrayCount;
+    pickedId = pickedId % static_cast<unsigned int>(this->PathArrayCount);
     this->PickedProp = this->PathArray[pickedId];
     this->PickedProp->Register(this);
     }
@@ -1534,7 +1583,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
     {
     nextId = idBuff[pIdx] - 1; // pick ids start at 1, so move back one
-    nextId = nextId % this->PathArrayCount;
+    nextId = nextId % static_cast<unsigned int>(this->PathArrayCount);
     vtkProp *propCandidate = this->PathArray[nextId]->GetLastNode()->GetViewProp();
     this->PickResultProps->AddItem(propCandidate);
     }
