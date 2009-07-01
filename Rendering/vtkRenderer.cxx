@@ -37,7 +37,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.240");
+vtkCxxRevisionMacro(vtkRenderer, "1.240.2.1");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -655,12 +655,15 @@ void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 
   this->ActiveCamera = cam;
   this->Modified();
+  this->InvokeEvent(vtkCommand::ActiveCameraEvent, cam);
 }
 
 //----------------------------------------------------------------------------
 vtkCamera* vtkRenderer::MakeCamera()
 {
-  return vtkCamera::New();
+  vtkCamera *cam = vtkCamera::New();
+  this->InvokeEvent(vtkCommand::CreateCameraEvent, cam);
+  return cam;
 }
   
 //----------------------------------------------------------------------------
