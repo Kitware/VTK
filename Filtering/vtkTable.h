@@ -105,7 +105,7 @@ public:
 
   // Description:
   // Insert a blank row at the end of the table.
-  vtkIdType InsertNextBlankRow();
+  vtkIdType InsertNextBlankRow(double default_num_val=0.0);
 
   // Description:
   // Insert a row specified by a vtkVariantArray.  The number of entries in the array

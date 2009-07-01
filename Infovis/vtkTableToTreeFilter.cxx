@@ -36,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.9");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.10");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -95,22 +95,22 @@ int vtkTableToTreeFilter::RequestData(
   if (new_table->GetNumberOfRows() != 0)
     {
 
-  // The tree will have one more vertex than the number of rows
-  // in the table (the extra vertex is the new root).
-  for (vtkIdType v = 0; v <= new_table->GetNumberOfRows(); ++v)
-    {
-    builder->AddVertex();
-    }
+    // The tree will have one more vertex than the number of rows
+    // in the table (the extra vertex is the new root).
+    for (vtkIdType v = 0; v <= new_table->GetNumberOfRows(); ++v)
+      {
+      builder->AddVertex();
+      }
 
-  // Make a star, originating at the new root (the last vertex).
-  vtkIdType root = new_table->GetNumberOfRows();
-  for (vtkIdType v = 0; v < new_table->GetNumberOfRows(); ++v)
-    {
-    builder->AddEdge(root, v);
-    }
+    // Make a star, originating at the new root (the last vertex).
+    vtkIdType root = new_table->GetNumberOfRows();
+    for (vtkIdType v = 0; v < new_table->GetNumberOfRows(); ++v)
+      {
+      builder->AddEdge(root, v);
+      }
 
-  // Insert a row in the table for the new root.
-  new_table->InsertNextBlankRow();
+    // Insert a row in the table for the new root.
+    new_table->InsertNextBlankRow(-1);
     }
 
   // Move the structure of the mutable graph into the tree.
