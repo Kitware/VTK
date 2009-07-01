@@ -146,7 +146,6 @@ int TestContingencyStatistics( int, char *[] )
            << outputSummary->GetValue( r, 1 ).ToString()
            << "):";
       
-      
       // Information entropies
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
         {
@@ -173,6 +172,8 @@ int TestContingencyStatistics( int, char *[] )
         }
       }
     }
+
+  cout << "\n";
 
   cout << "## Calculated the following probabilities and mutual informations:\n";
   testIntValue = 0;
@@ -259,13 +260,13 @@ int TestContingencyStatistics( int, char *[] )
 
       ++ testIntValue;
 
-      cout << "   ("
+      cout << "   "
+           << outlierColumn[i]
+           << "("
            << outputData->GetValueByName( r, varX ).ToString()
            << ","
            << outputData->GetValueByName( r, varY ).ToString()
-           << "):  "
-           << outlierColumn[i]
-           << " = "
+           << ") = "
            << val
            << "\n";
       }
