@@ -92,6 +92,13 @@ public:
   vtkLightCollection *GetLights();
   
   // Description:
+  // Set the collection of lights.
+  // We cannot name it SetLights because of TestSetGet
+  // \pre lights_exist: lights!=0
+  // \post lights_set: lights==this->GetLights()
+  void SetLightCollection(vtkLightCollection *lights);
+  
+  // Description:
   // Create and add a light to renderer.
   void CreateLight(void);
   
@@ -161,6 +168,12 @@ public:
   // This does *not* reset the camera.
   vtkCamera *GetActiveCamera();
 
+  // Description:
+  // Tells if there is an active camera. As GetActiveCamera() creates
+  // a camera if there is no active camera, this is the only way to
+  // query the renderer state without changing it.
+  bool HasActiveCamera();
+  
   // Description:
   // Create a new Camera sutible for use with this type of Renderer.
   // For example, a vtkMesaRenderer should create a vtkMesaCamera 
@@ -407,7 +420,8 @@ public:
   // Description:
   // Turn on/off rendering of translucent material with depth peeling
   // technique. The render window must have alpha bits (ie call
-  // SetAlphaBitPlanes(1)) to support depth peeling.
+  // SetAlphaBitPlanes(1)) and no multisample buffer (ie call
+  // SetMultiSamples(0) ) to support depth peeling.
   // If UseDepthPeeling is on and the GPU supports it, depth peeling is used
   // for rendering translucent materials.
   // If UseDepthPeeling is off, alpha blending is used.
@@ -572,14 +586,14 @@ protected:
   // Description:
   // Ask all lights to load themselves into rendering pipeline.
   // This method will return the actual number of lights that were on.
-  virtual int UpdateLights(void) {return 0;};
-
+  virtual int UpdateLights(void) {return 0;}
+  
   // Description:
   // Get the current camera and reset it only if it gets created
   // automatically (see GetActiveCamera).
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
-
+  
   // Description:
   // If this flag is on and the GPU supports it, depth peeling is used
   // for rendering translucent materials.
