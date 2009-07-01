@@ -290,6 +290,8 @@ public:
     MouseMoveEvent,
     MouseWheelForwardEvent,
     MouseWheelBackwardEvent,
+    ActiveCameraEvent,
+    CreateCameraEvent,
     ResetCameraEvent,
     ResetCameraClippingRangeEvent,
     ModifiedEvent,
