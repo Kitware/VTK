@@ -103,22 +103,12 @@ int TestDescriptiveStatistics( int, char *[] )
   dataset3Arr->SetNumberOfComponents( 1 );
   dataset3Arr->SetName( "Metric 2" );
 
-  cout << "## Input data set:\n";
-
   for ( int i = 0; i < nVals; ++ i )
     {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( -1. );
-
-    cout << "   "
-         << mingledData[ti]
-         << "\t"
-         << mingledData[ti + 1]
-         << "\t"
-         << -1.
-         << "\n";
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -331,15 +321,9 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetArr->SetNumberOfComponents( 1 );
   datasetArr->SetName( "Metric" );
 
-  cout << "## Input data set:\n";
-
   for ( int i = 0; i < nSimpleVals; ++ i )
     {
     datasetArr->InsertNextValue( simpleData[i] );
-
-    cout << "   "
-         << simpleData[i]
-         << "\n";
     }
 
   vtkTable* simpleTable = vtkTable::New();
