@@ -166,6 +166,8 @@
 //  - GUISupport/Qt/QVTKWidget returns a QEvent*
 // - vtkCommand::RenderWindowMessageEvent
 //  - Rendering/vtkWin32OpenGLRenderWindow return a pointer to a UINT message
+// - vtkCommand::ComputeVisiblePropBoundsEvent
+//  - Rendering/vtkRenderer returns a pointer to itself
 // - QVTKWidget::ContextMenuEvent
 //  - GUISupport/Qt/QVTKWidget returns a QContextMenuEvent*
 // - QVTKWidget::DragEnterEvent
@@ -336,6 +338,7 @@ public:
     ViewProgressEvent,
     UpdateDataEvent,
     CurrentChangedEvent,
+    ComputeVisiblePropBoundsEvent,
     UserEvent = 1000
   };
 //ETX
