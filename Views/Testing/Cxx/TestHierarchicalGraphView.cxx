@@ -83,7 +83,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
-  theme->SetLineWidth(3);
+  theme->SetLineWidth(1);
   view->ApplyViewTheme(theme);
   theme->Delete();
  
