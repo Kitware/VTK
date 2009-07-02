@@ -40,7 +40,6 @@
 class vtkAddMembershipArray;
 class vtkApplyColors;
 class vtkDataObjectToTable;
-class vtkExtractSelectedRows;
 class QItemSelection;
 class QTableView;
 class vtkQtTableModelAdapter;
@@ -155,7 +154,6 @@ private:
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
-  vtkSmartPointer<vtkExtractSelectedRows> ExtractRows;
 //ETX
   
   vtkQtTableView(const vtkQtTableView&);  // Not implemented.

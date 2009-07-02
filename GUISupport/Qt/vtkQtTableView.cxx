@@ -34,7 +34,6 @@
 #include "vtkDataObjectToTable.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkExtractSelectedRows.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -46,7 +45,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.17");
+vtkCxxRevisionMacro(vtkQtTableView, "1.18");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -54,7 +53,6 @@ vtkQtTableView::vtkQtTableView()
 {
   this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
   this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
-  this->ExtractRows = vtkSmartPointer<vtkExtractSelectedRows>::New();
   this->AddSelectedColumn = vtkSmartPointer<vtkAddMembershipArray>::New();
   this->AddSelectedColumn->SetInputConnection(0, this->DataObjectToTable->GetOutputPort());
 
@@ -220,7 +218,6 @@ void vtkQtTableView::AddRepresentationInternal(vtkDataRepresentation* rep)
   if(selConn)
     {
     this->AddSelectedColumn->SetInputConnection(1, selConn);
-    //this->ExtractRows->SetInputConnection(1, selConn);
     }
   else
     {
@@ -240,7 +237,6 @@ void vtkQtTableView::AddRepresentationInternal(vtkDataRepresentation* rep)
     {
     this->ApplyColors->SetInputConnection(1, annConn);
     this->AddSelectedColumn->SetInputConnection(2, annConn);
-    //this->ExtractRows->SetInputConnection(2, annConn);
     }
 }
 
@@ -256,7 +252,6 @@ void vtkQtTableView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->AddSelectedColumn->RemoveInputConnection(1, selConn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
   this->AddSelectedColumn->RemoveInputConnection(2, annConn);
-  //this->ExtractRows->RemoveInputConnection(2, annConn);
   this->TableAdapter->SetVTKDataObject(0);
 }
 

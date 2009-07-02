@@ -48,7 +48,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedRows);
 //----------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()
@@ -162,6 +162,7 @@ int vtkExtractSelectedRows::RequestData(
     return 0;
     }
 
+  output->GetRowData()->CopyStructure(input->GetRowData());
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
     {
     vtkSelectionNode* node = converted->GetNode(i);
