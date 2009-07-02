@@ -33,6 +33,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -41,7 +42,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.9");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.10");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -252,6 +253,7 @@ void vtkHierarchicalGraphPipeline::ApplyViewTheme(vtkViewTheme* theme)
     this->ApplyColors->SetCellLookupTable(lut);
     }
   this->TextProperty->SetColor(theme->GetEdgeLabelColor());
+  this->Actor->GetProperty()->SetLineWidth(theme->GetLineWidth());
 }
 
 void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
