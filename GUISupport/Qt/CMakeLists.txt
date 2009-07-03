@@ -67,10 +67,14 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
       vtkQtAnnotationView.h
       vtkQtBarChartView.h
+      vtkQtChartRepresentation.h
       vtkQtChartView.h
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h
+      vtkQtStackedChartView.h
+      vtkQtStatisticalBoxChartView.h
+      vtkQtTableRepresentation.h
       vtkQtTableView.h
       vtkQtTreeView.h
       vtkQtView.h
