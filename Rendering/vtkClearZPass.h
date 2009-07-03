@@ -33,10 +33,12 @@ public:
   vtkTypeRevisionMacro(vtkClearZPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
+  //ETX
   
   // Description:
   // Set/Get the depth value. Initial value is 1.0 (farest).

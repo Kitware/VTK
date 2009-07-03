@@ -280,28 +280,12 @@ SET_SOURCE_FILES_PROPERTIES(
   )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkCameraPass
-  vtkClearZPass
-  vtkDefaultPass
-  vtkDepthPeelingPass
-  vtkGaussianBlurPass
-  vtkImageProcessingPass
-  vtkLightsPass
-  vtkOpaquePass
-  vtkRenderPass
   vtkRenderState
-  vtkOverlayPass
   vtkOpenGLState
-  vtkRenderPassCollection
-  vtkSequencePass
   vtkShader2
   vtkShader2Collection
   vtkShaderProgram2
-  vtkShadowMapPass
-  vtkSobelGradientMagnitudePass
   vtkTextureUnitManager
-  vtkTranslucentPass
-  vtkVolumetricPass
   WRAP_EXCLUDE
   )
 
