@@ -230,8 +230,9 @@ public:
   void Bind(BufferType buffer);
 
   // Description:
-  // Allocate the memory
-  void Allocate(unsigned int size);
+  // Allocate the memory. size is in number of bytes. type is a VTK type.
+  void Allocate(unsigned int size,
+                int type);
   
   // Description:
   // Release the memory allocated without destroying the PBO handle.

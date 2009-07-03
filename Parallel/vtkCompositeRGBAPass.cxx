@@ -54,7 +54,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.7");
+vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.8");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
@@ -497,7 +497,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     // send rgba-buffer
     
     // framebuffer to PBO.
-    this->PBO->Allocate(byteSize);
+    this->PBO->Allocate(byteSize,VTK_FLOAT);
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
                  static_cast<GLfloat *>(NULL));
