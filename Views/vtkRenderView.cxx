@@ -61,7 +61,7 @@
 #include "vtkQtLabelMapper.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.22");
+vtkCxxRevisionMacro(vtkRenderView, "1.23");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 
@@ -72,6 +72,7 @@ vtkRenderView::vtkRenderView()
   vtkTransform* t = vtkTransform::New();
   t->Identity();
   this->Transform = t;
+  this->DisplayHoverText = true;
 
   this->RenderWindow->AddRenderer(this->Renderer);
 
@@ -91,7 +92,6 @@ vtkRenderView::vtkRenderView()
   this->LabelRenderMode = FREETYPE;
 
   this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
-  this->DisplayHoverText = true;
 
   this->LabelAppend = vtkSmartPointer<vtkAppendPoints>::New();
   this->LabelSize = vtkSmartPointer<vtkLabelSizeCalculator>::New();
