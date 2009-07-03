@@ -155,6 +155,10 @@
 //  - Rendering/vtkRenderer returns a pointer to itself
 // - vtkCommand::ResetCameraClippingRangeEvent
 //  - Rendering/vtkRenderer returns a pointer to itself
+// - vtkCommand::ActiveCameraEvent
+//  - Rendering/vtkRenderer returns a pointer to the active camera
+// - vtkCommand::CreateCameraEvent
+//  - Rendering/vtkRenderer returns a pointer to the created camera
 // - vtkCommand::EnterEvent
 //  - most of the objects return NULL
 //  - GUISupport/Qt/QVTKWidget returns a QEvent*
