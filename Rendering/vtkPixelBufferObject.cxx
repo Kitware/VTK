@@ -62,7 +62,7 @@ const char *BufferObjectUsageAsString[9]=
 #endif
 
 vtkStandardNewMacro(vtkPixelBufferObject);
-vtkCxxRevisionMacro(vtkPixelBufferObject, "1.8");
+vtkCxxRevisionMacro(vtkPixelBufferObject, "1.9");
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
@@ -538,6 +538,7 @@ void vtkPixelBufferObject::Allocate(unsigned int size)
       this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
       vtkgl::BufferData(this->BufferTarget,size,NULL,
                         OpenGLBufferObjectUsage[this->Usage]);
+      this->UnBind();
       }
     }
 }
@@ -686,11 +687,7 @@ bool vtkPixelBufferObject::Download3D(
   cout << pthread_self() << "d type="<< type << endl;
   cout << pthread_self() << "d this->Type="<< this->Type << endl;
 #endif
-  this->Type = type;
-  if (this->Type == VTK_DOUBLE)
-    {
-    this->Type = VTK_FLOAT;
-    }
+
 #ifdef  VTK_PBO_DEBUG
   cout << pthread_self() << "d2 type="<< type << endl;
   cout << pthread_self() << "d2 this->Type="<< this->Type << endl;
