@@ -49,6 +49,10 @@ def vtkLoadPythonTkWidgets(interp):
     # attempt to load
     for path in pathlist:
         try:
+            # If the path object is not str, it means that it is a
+            # Tkinter path object.
+            if type(path) != str:
+              path = path.string
             # try block needed when one uses Gordon McMillan's Python
             # Installer.
             if len(path) > 0 and path[0] == '{' and path[-1] == '}':
