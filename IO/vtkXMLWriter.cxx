@@ -211,7 +211,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.74");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.75");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -275,6 +275,32 @@ vtkXMLWriter::~vtkXMLWriter()
 
   delete this->FieldDataOM;
   delete[] this->NumberOfTimeValues;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetCompressorType(int compressorType)
+{
+  if (compressorType == NONE)
+    {
+    if (this->Compressor)
+      {
+      this->Compressor->Delete();
+      this->Compressor = 0;
+      this->Modified();
+      }
+    return;
+    }
+
+  if (compressorType == ZLIB)
+    {
+    if (!this->Compressor || !this->Compressor->IsTypeOf("vtkZLibDataCompressor"))
+      {
+      this->Compressor->Delete();
+      this->Compressor = vtkZLibDataCompressor::New();
+      this->Modified();
+      }
+    return;
+    }
 }
 
 //----------------------------------------------------------------------------

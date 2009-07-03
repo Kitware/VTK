@@ -109,7 +109,27 @@ public:
   // before writing to the file.  Default is a vtkZLibDataCompressor.
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
-  
+
+//BTX
+  enum CompressorType
+    {
+    NONE,
+    ZLIB
+    };
+//ETX
+
+  // Description:
+  // Convenience functions to set the compressor to certain known types.
+  void SetCompressorType(int compressorType);
+  void SetCompressorTypeToNone()
+    {
+    this->SetCompressorType(NONE);
+    }
+  void SetCompressorTypeToZLib()
+    {
+    this->SetCompressorType(ZLIB);
+    }
+
   // Description:
   // Get/Set the block size used in compression.  When reading, this
   // controls the granularity of how much extra information must be
