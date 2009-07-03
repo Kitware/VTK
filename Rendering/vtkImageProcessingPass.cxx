@@ -30,17 +30,15 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkImageProcessingPass developers.
-//#define VTK_GAUSSIAN_BLUR_PASS_DEBUG
+//#define VTK_IMAGE_PROCESSING_PASS_DEBUG
 
 #include "vtkPNGWriter.h"
 #include "vtkImageImport.h"
 #include "vtkPixelBufferObject.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkImageProcessingPass, "1.1");
+vtkCxxRevisionMacro(vtkImageProcessingPass, "1.2");
 vtkCxxSetObjectMacro(vtkImageProcessingPass,DelegatePass,vtkRenderPass);
 
 
@@ -97,6 +95,13 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   assert("pre: target_exists" && target!=0);
   assert("pre: target_has_context" && target->GetContext()!=0);
   
+#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
+  cout << "width=" << width << endl;
+  cout << "height=" << height << endl;
+  cout << "newWidth=" << newWidth << endl;
+  cout << "newHeight=" << newHeight << endl;
+#endif
+  
   vtkRenderer *r=s->GetRenderer();
   vtkRenderState s2(r);
   s2.SetPropArrayAndCount(s->GetPropArray(),s->GetPropArrayCount());
@@ -106,6 +111,13 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   savedCamera->Register(this);
   vtkCamera *newCamera=vtkCamera::New();
   newCamera->DeepCopy(savedCamera);
+  
+#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
+  cout << "old camera params=";
+  savedCamera->Print(cout);
+  cout << "new camera params=";
+  newCamera->Print(cout);
+#endif
   r->SetActiveCamera(newCamera);
   
   if(newCamera->GetParallelProjection())
@@ -129,7 +141,17 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
       
       }
     double angle=vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
+    
+#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
+    cout << "old angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;
+#endif
+    
     angle=atan(tan(angle)*large/static_cast<double>(small));
+    
+#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
+    cout << "new angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;
+#endif
+    
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
     }
   
@@ -157,6 +179,44 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   this->DelegatePass->Render(&s2);
   this->NumberOfRenderedProps+=
     this->DelegatePass->GetNumberOfRenderedProps();
+  
+#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
+  vtkPixelBufferObject *pbo=target->Download();
+  
+  unsigned int dims[2];
+  vtkIdType continuousInc[3];
+  
+  dims[0]=static_cast<unsigned int>(newWidth);
+  dims[1]=static_cast<unsigned int>(newHeight);
+  continuousInc[0]=0;
+  continuousInc[1]=0;
+  continuousInc[2]=0;
+  
+  int byteSize=newWidth*newHeight*4*sizeof(float);
+  float *buffer=new float[newWidth*newHeight*4];
+  pbo->Download2D(VTK_FLOAT,buffer,dims,4,continuousInc);
+    
+  vtkImageImport *importer=vtkImageImport::New();
+  importer->CopyImportVoidPointer(buffer,static_cast<int>(byteSize));
+  importer->SetDataScalarTypeToFloat();
+  importer->SetNumberOfScalarComponents(4);
+  importer->SetWholeExtent(0,newWidth-1,0,newHeight-1,0,0);
+  importer->SetDataExtentToWholeExtent();
+  
+  importer->Update();
+    
+  vtkPNGWriter *writer=vtkPNGWriter::New();
+  writer->SetFileName("ip.png");
+  writer->SetInputConnection(importer->GetOutputPort());
+  importer->Delete();
+  cout << "Writing " << writer->GetFileName() << endl;
+  writer->Write();
+  cout << "Wrote " << writer->GetFileName() << endl;
+  writer->Delete();
+  
+  pbo->Delete();
+  delete[] buffer;
+#endif
   
   newCamera->Delete();
   r->SetActiveCamera(savedCamera);
