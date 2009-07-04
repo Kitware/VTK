@@ -82,5 +82,8 @@ TestMergeTables(int argc, char* argv[])
     return 1;
     }
 
+  delete [] filename1;
+  delete [] filename2;
+
   return 0;
 }
