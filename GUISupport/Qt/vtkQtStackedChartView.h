@@ -20,7 +20,9 @@
 #ifndef _vtkQtStackedChartView_h
 #define _vtkQtStackedChartView_h
 
+#include "QVTKWin32Header.h"
 #include "vtkQtChartView.h"
+#include <QPointer>
 
 class vtkQtStackedChart;
 class vtkQtChartSeriesModelCollection;
@@ -28,6 +30,8 @@ class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtStackedChartView : public vtkQtChartView
 {
+Q_OBJECT
+
 public:
   static vtkQtStackedChartView *New();
   vtkTypeRevisionMacro(vtkQtStackedChartView, vtkQtChartView);

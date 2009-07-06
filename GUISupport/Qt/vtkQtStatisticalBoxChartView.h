@@ -20,7 +20,9 @@
 #ifndef __vtkQtStatisticalBoxChartView_h
 #define __vtkQtStatisticalBoxChartView_h
 
+#include "QVTKWin32Header.h"
 #include "vtkQtChartView.h"
+#include <QPointer>
 
 class vtkQtStatisticalBoxChart;
 class vtkQtChartSeriesModelCollection;
@@ -28,6 +30,8 @@ class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtStatisticalBoxChartView : public vtkQtChartView
 {
+Q_OBJECT
+
 public:
   static vtkQtStatisticalBoxChartView *New();
   vtkTypeRevisionMacro(vtkQtStatisticalBoxChartView, vtkQtChartView);

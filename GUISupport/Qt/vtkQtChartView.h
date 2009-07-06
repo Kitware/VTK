@@ -30,6 +30,7 @@
 
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
+#include <QPointer>
 
 class vtkQtChartArea;
 class vtkQtChartAxis;
