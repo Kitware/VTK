@@ -27,7 +27,6 @@ class Ui_EasyView;
 // Forward VTK class declarations
 class vtkXMLTreeReader;
 class vtkGraphLayoutView;
-class vtkQtColumnView;
 class vtkQtTableView;
 class vtkQtTreeView;
 
@@ -62,7 +61,7 @@ private:
   vtkSmartPointer<vtkGraphLayoutView>     GraphView;
   vtkSmartPointer<vtkQtTreeView>          TreeView;
   vtkSmartPointer<vtkQtTableView>         TableView;
-  vtkSmartPointer<vtkQtColumnView>        ColumnView;
+  vtkSmartPointer<vtkQtTreeView>          ColumnView;
     
   // Designer form
   Ui_EasyView *ui;

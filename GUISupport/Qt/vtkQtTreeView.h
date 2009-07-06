@@ -35,9 +35,13 @@
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
 
+
 class QAbstractItemDelegate;
+class QAbstractItemView;
+class QColumnView;
 class QItemSelection;
 class QTreeView;
+class QVBoxLayout;
 class vtkQtTreeModelAdapter;
 
 class QVTK_EXPORT vtkQtTreeView : public vtkQtView
@@ -81,6 +85,10 @@ public:
   void HideColumn(int i);
 
   // Description:
+  // Set whether to use a QColumnView (QTreeView is the default)
+  void SetUseColumnView(int state);
+
+  // Description:
   // Updates the view.
   virtual void Update();
 
@@ -113,7 +121,11 @@ private:
   unsigned long CurrentSelectionMTime;
   
   QPointer<QTreeView> TreeView;
+  QPointer<QColumnView> ColumnView;
+  QPointer<QWidget> Widget;
+  QPointer<QVBoxLayout> Layout;
   vtkQtTreeModelAdapter* TreeAdapter;
+  QAbstractItemView* View;
   bool Selecting;
   
   vtkQtTreeView(const vtkQtTreeView&);  // Not implemented.

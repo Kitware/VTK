@@ -79,22 +79,17 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtStackedChartView.h
       vtkQtStatisticalBoxChartView.h
       vtkQtTableView.h
-      vtkQtTreeView.h
       vtkQtView.h
       )
     SET ( QVTKNonMocHeaders ${QVTKNonMocHeaders}
       vtkQtChartRepresentation.h
       vtkQtTableRepresentation.h
       )
-    # Column view is only supported in Qt >= 4.3.0
-    STRING(REGEX MATCH "^4\\.0\\.[0-9]+" QT_VERSION_4_0 "${QTVERSION}")
-    STRING(REGEX MATCH "^4\\.1\\.[0-9]+" QT_VERSION_4_1 "${QTVERSION}")
-    STRING(REGEX MATCH "^4\\.2\\.[0-9]+" QT_VERSION_4_2 "${QTVERSION}")
-    IF(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
-    ELSE(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
-      SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtColumnView.cxx)
-      SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtColumnView.h)
-    ENDIF(QT_VERSION_4_0 OR QT_VERSION_4_1 OR QT_VERSION_4_2)
+   # Tree view (because it contains QColumnView is only supported in Qt >= 4.3.0)
+    IF(QT_VERSION_MINOR GREATER 3 OR QT_VERSION_MINOR EQUAL 3)
+      SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtTreeView.cxx)
+      SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtTreeView.h)
+    ENDIF(QT_VERSION_MINOR GREATER 3 OR QT_VERSION_MINOR EQUAL 3)
 
     # Rich-text view requires Qt >= 4.5.0
     # Rich-text depends on QT Webkit which is not portable on Unix (AIX & HP-UX)
