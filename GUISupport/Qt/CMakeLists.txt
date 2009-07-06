@@ -65,7 +65,6 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtStatisticalBoxChartView.cxx
       vtkQtTableRepresentation.cxx
       vtkQtTableView.cxx
-      vtkQtTreeView.cxx
       vtkQtView.cxx
       ) 
     SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
