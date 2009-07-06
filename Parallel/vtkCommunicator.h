@@ -116,13 +116,13 @@ public:
 //ETX
 
   // Description:
-  // This method sends a data object to a destination.  
+  // This method sends a data object to a destination.
   // Tag eliminates ambiguity
   // and is used to match sends to receives.
   int Send(vtkDataObject* data, int remoteHandle, int tag);
 
   // Description:
-  // This method sends a data array to a destination.  
+  // This method sends a data array to a destination.
   // Tag eliminates ambiguity
   // and is used to match sends to receives.
   int Send(vtkDataArray* data, int remoteHandle, int tag);
@@ -134,7 +134,7 @@ public:
   // in number of values (as opposed to number of bytes).
   virtual int SendVoidArray(const void *data, vtkIdType length, int type,
                             int remoteHandle, int tag) = 0;
-  
+
   // Description:
   // Convenience methods for sending data arrays.
   int Send(const int* data, vtkIdType length, int remoteHandle, int tag) {
@@ -172,7 +172,7 @@ public:
 
   // Description:
   // This method receives a data object from a corresponding send. It blocks
-  // until the receive is finished. 
+  // until the receive is finished.
   int Receive(vtkDataObject* data, int remoteHandle, int tag);
 
   // Description:
@@ -182,7 +182,7 @@ public:
 
   // Description:
   // This method receives a data array from a corresponding send. It blocks
-  // until the receive is finished. 
+  // until the receive is finished.
   int Receive(vtkDataArray* data, int remoteHandle, int tag);
 
   // Description:
@@ -327,7 +327,7 @@ public:
 #endif
   int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int destProcessId);
-  
+
   // Description:
   // GatherV is the vector variant of Gather.  It extends the functionality of
   // Gather by allowing a varying count of data from each process.
@@ -338,42 +338,42 @@ public:
   // defines how much the local process sends to \c destProcessId and
   // \c recvLengths is an array containing the amount \c destProcessId
   // receives from each process, in rank order.
-  int GatherV(const int* sendBuffer, int* recvBuffer, 
+  int GatherV(const int* sendBuffer, int* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
                                   sendLength, recvLengths,
                                   offsets, VTK_INT, destProcessId);
   }
-  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, 
+  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
                                   sendLength, recvLengths,
                                   offsets, VTK_UNSIGNED_LONG, destProcessId);
   }
-  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, 
+  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
                                   sendLength, recvLengths,
                                   offsets, VTK_UNSIGNED_CHAR, destProcessId);
   }
-  int GatherV(const char* sendBuffer, char* recvBuffer, 
+  int GatherV(const char* sendBuffer, char* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
                                   sendLength, recvLengths,
                                   offsets, VTK_CHAR, destProcessId);
   }
-  int GatherV(const float* sendBuffer, float* recvBuffer, 
+  int GatherV(const float* sendBuffer, float* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
                                   sendLength, recvLengths,
                                   offsets, VTK_FLOAT, destProcessId);
   }
-  int GatherV(const double* sendBuffer, double* recvBuffer, 
+  int GatherV(const double* sendBuffer, double* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
@@ -381,7 +381,7 @@ public:
                                   offsets, VTK_DOUBLE, destProcessId);
   }
 #ifdef VTK_USE_64BIT_IDS
-  int GatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer, 
+  int GatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->GatherVVoidArray(sendBuffer, recvBuffer,
@@ -530,42 +530,42 @@ public:
 
   // Description:
   // Same as GatherV except that the result is placed in all processes.
-  int AllGatherV(const int* sendBuffer, int* recvBuffer, 
+  int AllGatherV(const int* sendBuffer, int* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
                                      sendLength, recvLengths,
                                      offsets, VTK_INT);
   }
-  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, 
+  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
                                      sendLength, recvLengths,
                                      offsets, VTK_UNSIGNED_LONG);
   }
-  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, 
+  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
                                      sendLength, recvLengths,
                                      offsets, VTK_UNSIGNED_CHAR);
   }
-  int AllGatherV(const char* sendBuffer, char* recvBuffer, 
+  int AllGatherV(const char* sendBuffer, char* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
                                      sendLength, recvLengths,
                                      offsets, VTK_CHAR);
   }
-  int AllGatherV(const float* sendBuffer, float* recvBuffer, 
+  int AllGatherV(const float* sendBuffer, float* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
                                      sendLength, recvLengths,
                                      offsets, VTK_FLOAT);
   }
-  int AllGatherV(const double* sendBuffer, double* recvBuffer, 
+  int AllGatherV(const double* sendBuffer, double* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
@@ -573,7 +573,7 @@ public:
                                      offsets, VTK_DOUBLE);
   }
 #ifdef VTK_USE_64BIT_IDS
-  int AllGatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer, 
+  int AllGatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
@@ -787,24 +787,26 @@ public:
   static void SetUseCopy(int useCopy);
 
   // Description:
-  // Determine the global bounds for a set of processes.  BBox is 
-  // initially set (outside of the call to the local bounds of the process 
+  // Determine the global bounds for a set of processes.  BBox is
+  // initially set (outside of the call to the local bounds of the process
   // and will be modified to be the global bounds - this default implementation
   // views the processors as a heap tree with the root being processId = 0
-  // If either rightHasBounds or leftHasBounds is not 0 then the 
+  // If either rightHasBounds or leftHasBounds is not 0 then the
   // corresponding int will be set to 1 if the right/left processor has
   // bounds else it will be set to 0
   // The last three arguements are the tags to be used when performing
   // the operation
+//BTX
   virtual int ComputeGlobalBounds(int processorId, int numProcesses,
                                   vtkBoundingBox *bounds,
                                   int *rightHasBounds = 0,
                                   int *leftHasBounds = 0,
-                                  int hasBoundsTag = 288402, 
+                                  int hasBoundsTag = 288402,
                                   int localBoundsTag = 288403,
                                   int globalBoundsTag = 288404);
+//ETX
 
-  // Description: 
+  // Description:
   // Some helper functions when dealing with heap tree - based
   // algorthims - we don't need a function for getting the right
   // processor since it is 1 + theLeftProcessor
@@ -819,7 +821,7 @@ public:
   static int UnMarshalDataObject(vtkCharArray *buffer, vtkDataObject *object);
 
 protected:
-  
+
   int WriteDataArray(vtkDataArray *object);
   int ReadDataArray(vtkDataArray *object);
 
@@ -830,9 +832,9 @@ protected:
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
   int SendMultiBlockDataSet(vtkMultiBlockDataSet* data, int remoteHandle, int tag);
   int SendTemporalDataSet(vtkTemporalDataSet* data, int remoteHandle, int tag);
-  int ReceiveDataObject(vtkDataObject* data, 
+  int ReceiveDataObject(vtkDataObject* data,
                         int remoteHandle, int tag, int type=-1);
-  int ReceiveElementalDataObject(vtkDataObject* data, 
+  int ReceiveElementalDataObject(vtkDataObject* data,
                                  int remoteHandle, int tag);
   int ReceiveMultiBlockDataSet(
     vtkMultiBlockDataSet* data, int remoteHandle, int tag);
