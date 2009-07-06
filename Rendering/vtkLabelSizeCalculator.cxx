@@ -27,7 +27,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkLabelSizeCalculator);
-vtkCxxRevisionMacro(vtkLabelSizeCalculator,"1.3");
+vtkCxxRevisionMacro(vtkLabelSizeCalculator,"1.4");
 vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkFreeTypeUtilities);
 
 vtkLabelSizeCalculator::vtkLabelSizeCalculator()
@@ -36,7 +36,7 @@ vtkLabelSizeCalculator::vtkLabelSizeCalculator()
   // Always defined but user may set to NULL.
   this->Implementation->FontProperties[0] = vtkSmartPointer<vtkTextProperty>::New();
   this->FontUtil = vtkFreeTypeUtilities::New(); // Never a NULL moment.
-  this->LabelSizeArrayName = 0;
+  this->LabelSizeArrayName = NULL;
   this->SetLabelSizeArrayName( "LabelSize" );
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Type");
@@ -45,7 +45,7 @@ vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 vtkLabelSizeCalculator::~vtkLabelSizeCalculator()
 {
   this->SetFontUtil( 0 );
-  this->SetLabelSizeArrayName( 0 );
+  this->SetLabelSizeArrayName( NULL );
   delete this->Implementation;
 }
 

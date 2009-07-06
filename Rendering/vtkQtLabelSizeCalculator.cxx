@@ -45,7 +45,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkQtLabelSizeCalculator);
-vtkCxxRevisionMacro(vtkQtLabelSizeCalculator,"1.3");
+vtkCxxRevisionMacro(vtkQtLabelSizeCalculator,"1.4");
 
 vtkQtLabelSizeCalculator::vtkQtLabelSizeCalculator()
 {
@@ -54,20 +54,10 @@ vtkQtLabelSizeCalculator::vtkQtLabelSizeCalculator()
     int argc = 0;
     new QApplication(argc, 0);
     } 
-
-  this->Implementation = new Internals;
-  // Always defined but user may set to NULL.
-  this->Implementation->FontProperties[0] = vtkSmartPointer<vtkTextProperty>::New();
-  this->LabelSizeArrayName = 0;
-  this->SetLabelSizeArrayName( "LabelSize" );
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
-  this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Type");
 }
 
 vtkQtLabelSizeCalculator::~vtkQtLabelSizeCalculator()
 {
-  this->SetLabelSizeArrayName( 0 );
-  delete this->Implementation;
 }
 
 void vtkQtLabelSizeCalculator::PrintSelf( ostream& os, vtkIndent indent )
