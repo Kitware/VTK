@@ -15,6 +15,11 @@ SET ( QVTKMocHeaders
     vtkQtConnection.h
     )
 
+SET ( QVTKNonMocHeaders
+    ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWin32Header.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkEventQtSlotConnect.h
+    )
+
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 
@@ -67,17 +72,19 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
       vtkQtAnnotationView.h
       vtkQtBarChartView.h
-      vtkQtChartRepresentation.h
       vtkQtChartView.h
       vtkQtLineChartView.h
       vtkQtListView.h
       vtkQtRecordView.h
       vtkQtStackedChartView.h
       vtkQtStatisticalBoxChartView.h
-      vtkQtTableRepresentation.h
       vtkQtTableView.h
       vtkQtTreeView.h
       vtkQtView.h
+      )
+    SET ( QVTKNonMocHeaders ${QVTKNonMocHeaders}
+      vtkQtChartRepresentation.h
+      vtkQtTableRepresentation.h
       )
     # Column view is only supported in Qt >= 4.3.0
     STRING(REGEX MATCH "^4\\.0\\.[0-9]+" QT_VERSION_4_0 "${QTVERSION}")
@@ -102,7 +109,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
     ENDIF(QT_QTWEBKIT_FOUND)
   ENDIF(VTK_USE_VIEWS)
   
-  # help CMake fine QtDesigner on Mac (binary install)
+  # help CMake find QtDesigner on Mac (binary install)
   FIND_PATH(QT_QTDESIGNER_INCLUDE_DIR QDesignerComponents
             PATHS ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
             NO_DEFAULT_PATH)
@@ -273,8 +280,7 @@ ENDIF(NOT VTK_INSTALL_NO_QT_PLUGIN)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${QVTKMocHeaders}
-    "${CMAKE_CURRENT_SOURCE_DIR}/QVTKWin32Header.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/vtkEventQtSlotConnect.h"
+    ${QVTKNonMocHeaders}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
     )
@@ -285,6 +291,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS QVTK
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
@@ -308,4 +315,3 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   ENDIF(BUILD_TESTING)
 ENDIF(DESIRED_QT_VERSION MATCHES 4)
 ENDIF(DESIRED_QT_VERSION MATCHES 0)
-
