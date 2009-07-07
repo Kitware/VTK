@@ -43,6 +43,12 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
+  // Description:
+  // Set whether this instance will write the meta-file. WriteMetaFile
+  // is set to flag only on process 0 and all other processes have
+  // WriteMetaFile set to 0 by default.
+  virtual void SetWriteMetaFile(int flag);
+
 //BTX
 protected:
   vtkXMLPHierarchicalBoxDataWriter();

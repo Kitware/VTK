@@ -42,15 +42,9 @@ public:
   virtual const char* GetDefaultFileExtension();
   
   // Description:
-  // Get/Set the piece number to write.  The same piece number is used
-  // for all inputs.
-  vtkGetMacro(Piece, int);
-  vtkSetMacro(Piece, int);
-  
-  // Description:
   // Get/Set the number of pieces into which the inputs are split.
-  vtkGetMacro(NumberOfPieces, int);
-  vtkSetMacro(NumberOfPieces, int);
+  //vtkGetMacro(NumberOfPieces, int);
+  //vtkSetMacro(NumberOfPieces, int);
   
   // Description:
   // Get/Set the number of ghost levels to be written.
@@ -62,6 +56,7 @@ public:
   vtkGetMacro(WriteMetaFile, int);
   virtual void SetWriteMetaFile(int flag);
 
+  // Description:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
@@ -71,14 +66,16 @@ protected:
   vtkXMLCompositeDataWriter();
   ~vtkXMLCompositeDataWriter();
 
+  // Description:
   // Methods to define the file's major and minor version numbers.
   // Major version incremented since v0.1 composite data readers cannot read 
   // the files written by this new reader.
   virtual int GetDataSetMajorVersion() { return 1; }
   virtual int GetDataSetMinorVersion() { return 0; }
 
+  // Description:
   // Create a filename for the given index.
-  vtkStdString CreatePieceFileName(int index);
+  vtkStdString CreatePieceFileName(int Piece);
   
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
@@ -98,9 +95,14 @@ protected:
 
   // Description:
   // Determine the data types for each of the leaf nodes.
-  virtual void FillDataTypes(vtkCompositeDataSet*);
-
+  virtual void FillDataTypes(vtkCompositeDataSet*, 
+                             bool SkipEmptyNodes = true);
+  // Description:
+  // Returns the number of leaf nodes (also includes empty leaf nodes).
   unsigned int GetNumberOfDataTypes();
+
+  // Description:
+  // Returns the array pointer to the array of leaf nodes.
   int* GetDataTypesPointer();
 
   // Methods to create the set of writers matching the set of inputs.
@@ -114,7 +116,7 @@ protected:
 
   // Description:
   // Write the collection file if it is requested.
-  // This is overridden in parallel writers to comminitate the hierarchy to the
+  // This is overridden in parallel writers to communicate the hierarchy to the
   // root which then write the meta file.
   int WriteMetaFileIfRequested();
   
@@ -127,18 +129,14 @@ protected:
   // Internal implementation details.
   vtkXMLCompositeDataWriterInternals* Internal;  
   
-  // The piece number to write.
-  int Piece;
-  
-  // The number of pieces into which the inputs are split.
-  int NumberOfPieces;
-  
   // The number of ghost levels to write for unstructured data.
   int GhostLevel;
   
-  // Whether to write the collection file on this node.
+  // Description:
+  // Whether to write the collection file on this node. This could
+  // potentially be set to 0 (i.e. do not write) for optimization 
+  // if the file structured does not change but the data does.
   int WriteMetaFile;
-  int WriteMetaFileInitialized;
   
   // Callback registered with the ProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
@@ -152,14 +150,34 @@ protected:
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 
-  // Internal method called recursively to create the xml tree for the children
-  // of compositeData.
+  // Description:
+  // Internal method called recursively to create the xml tree for 
+  // the children of compositeData as well as write the actual data 
+  // set files.  element will only have added nested information.
+  // writerIdx is the global piece index used to create unique
+  // filenames for each file written.
+  // This function returns 0 if no files were written from
+  // compositeData.
   virtual int WriteComposite(vtkCompositeDataSet* compositeData, 
     vtkXMLDataElement* element, int &writerIdx)=0;
 
-  // Internal method to write non vtkCompositeDataSet subclass.
-  virtual int WriteNonCompositeData(vtkDataObject* dObj, 
-    vtkXMLDataElement* element, int& writerIdx);
+  // Description:
+  // Internal method to write a non vtkCompositeDataSet subclass as
+  // well as add in the file name to the metadata file.
+  // Element is the containing XML metadata element that may
+  // have data overwritten and added to (the index XML attribute
+  // should not be touched though).  writerIdx is the piece index
+  // that gets incremented for the globally numbered piece.
+  // This function returns 0 if no file was written.
+  virtual int WriteNonCompositeData(
+    vtkDataObject* dObj, vtkXMLDataElement* element, 
+    int& writerIdx, const char* FileName);
+
+  // Description:
+  // Utility function to remove any already written files
+  // in case writer failed.
+  virtual void RemoveWrittenFiles(const char* SubDirectory);
+
 private:
   vtkXMLCompositeDataWriter(const vtkXMLCompositeDataWriter&);  // Not implemented.
   void operator=(const vtkXMLCompositeDataWriter&);  // Not implemented.

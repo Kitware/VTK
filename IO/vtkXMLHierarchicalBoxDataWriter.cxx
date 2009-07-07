@@ -15,7 +15,6 @@
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 
 #include "vtkAMRBox.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
@@ -25,7 +24,7 @@
 #include "vtkUniformGrid.h"
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataWriter, "1.6");
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataWriter::vtkXMLHierarchicalBoxDataWriter()
 {
@@ -70,7 +69,9 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
       datasetXML->SetIntAttribute("index", cc);
       box.GetDimensions(vec_box);
       datasetXML->SetVectorAttribute("amr_box", 6, vec_box);
-      if (!this->WriteNonCompositeData(ug, datasetXML, writerIdx))
+      vtkStdString FileName = this->CreatePieceFileName(writerIdx);
+      if (!this->WriteNonCompositeData(ug, datasetXML, writerIdx, 
+                                       FileName.c_str()))
         {
         return 0;
         } 

@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.2");
 
 vtkCxxSetObjectMacro(vtkXMLPHierarchicalBoxDataWriter, 
                      Controller,
@@ -31,6 +31,7 @@ vtkXMLPHierarchicalBoxDataWriter::vtkXMLPHierarchicalBoxDataWriter()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->vtkXMLPHierarchicalBoxDataWriter::SetWriteMetaFile(1);
 }
 
 //----------------------------------------------------------------------------
@@ -52,6 +53,23 @@ void vtkXMLPHierarchicalBoxDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << "(none)" << endl;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPHierarchicalBoxDataWriter::SetWriteMetaFile(int flag)
+{
+  this->Modified();
+  if(this->Controller->GetLocalProcessId() == 0)
+    {
+    if(this->WriteMetaFile != flag)
+      {
+      this->WriteMetaFile = flag;
+      }
+    }
+  else
+    {
+    this->WriteMetaFile = 0;
     }
 }
 

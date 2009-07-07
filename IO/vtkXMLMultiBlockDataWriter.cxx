@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiBlockDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLMultiBlockDataWriter, "1.4");
 //----------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter()
 {
@@ -58,13 +58,15 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   iter.TakeReference(compositeData->NewIterator());
   iter->VisitOnlyLeavesOff();
   iter->TraverseSubTreeOff();
+  iter->SkipEmptyNodesOff();
 
   int index = 0;
+  int RetVal = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
     iter->GoToNextItem(), index++)
     {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
-    if (curDO->IsA("vtkCompositeDataSet"))
+    if (curDO && curDO->IsA("vtkCompositeDataSet"))
     // if node is a supported composite dataset
     // note in structure file and recurse.
       {
@@ -87,6 +89,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
         tag->Delete();
         return 0;
         }
+      RetVal = 1;
       parent->AddNestedElement(tag);
       tag->Delete();
       }
@@ -96,16 +99,17 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       vtkXMLDataElement* datasetXML = vtkXMLDataElement::New();
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", index);
-      if (!this->WriteNonCompositeData( curDO, datasetXML, writerIdx))
+      vtkStdString FileName = this->CreatePieceFileName(writerIdx);
+      if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx, 
+                                       FileName.c_str()))
         {
-        datasetXML->Delete();
-        return 0;
+        parent->AddNestedElement(datasetXML);
+        RetVal = 1;
         }
-      parent->AddNestedElement(datasetXML);
       datasetXML->Delete();
       }
     }
-  return 1;
+  return RetVal;
 }
 
 
