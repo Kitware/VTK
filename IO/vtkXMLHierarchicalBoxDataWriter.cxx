@@ -24,7 +24,7 @@
 #include "vtkUniformGrid.h"
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataWriter, "1.7");
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataWriter::vtkXMLHierarchicalBoxDataWriter()
 {
@@ -69,9 +69,9 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
       datasetXML->SetIntAttribute("index", cc);
       box.GetDimensions(vec_box);
       datasetXML->SetVectorAttribute("amr_box", 6, vec_box);
-      vtkStdString FileName = this->CreatePieceFileName(writerIdx);
+      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
       if (!this->WriteNonCompositeData(ug, datasetXML, writerIdx, 
-                                       FileName.c_str()))
+                                       fileName.c_str()))
         {
         return 0;
         } 

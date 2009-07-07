@@ -95,8 +95,8 @@ protected:
 
   // Description:
   // Determine the data types for each of the leaf nodes.
-  virtual void FillDataTypes(vtkCompositeDataSet*, 
-                             bool SkipEmptyNodes = true);
+  virtual void FillDataTypes(vtkCompositeDataSet*);
+
   // Description:
   // Returns the number of leaf nodes (also includes empty leaf nodes).
   unsigned int GetNumberOfDataTypes();

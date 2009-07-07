@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.3");
 
 vtkCxxSetObjectMacro(vtkXMLPHierarchicalBoxDataWriter, 
                      Controller,
@@ -74,7 +74,8 @@ void vtkXMLPHierarchicalBoxDataWriter::SetWriteMetaFile(int flag)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
+void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(
+  vtkCompositeDataSet* hdInput)
 {
   this->Superclass::FillDataTypes(hdInput);
 

@@ -62,8 +62,7 @@ protected:
   // as well as the actual dataset files.  It takes into account
   // that a piece of a dataset may be distributed in multiple pieces
   // over multiple processes.
-  virtual void FillDataTypes(vtkCompositeDataSet*,
-                             bool SkipEmptyNodes = true);
+  virtual void FillDataTypes(vtkCompositeDataSet*);
 
   vtkMultiProcessController* Controller;
 

@@ -53,7 +53,7 @@
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.6");
 
 class vtkXMLCompositeDataWriterInternals
 {
@@ -231,7 +231,7 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
 //----------------------------------------------------------------------------
 int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   vtkDataObject* dObj, vtkXMLDataElement* datasetXML, int &writerIdx, 
-  const char* FileName)
+  const char* fileName)
 {
   // Write a leaf dataset.
   int myWriterIndex = writerIdx;
@@ -259,7 +259,7 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   if (datasetXML)
     {
     // Create the entry for the collection file.
-    datasetXML->SetAttribute("file", FileName);
+    datasetXML->SetAttribute("file", fileName);
     }
 
   // FIXME
@@ -267,7 +267,7 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   //                       GetNumberOfInputConnections(0)+writeCollection);
 
   vtkstd::string full = this->Internal->FilePath;
-  full += FileName;
+  full += fileName;
   writer->SetFileName(full.c_str());
 
   // Write the data.
@@ -361,8 +361,7 @@ const char* vtkXMLCompositeDataWriter::GetDataSetName()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput,
-                                              bool SkipEmptyNodes)
+void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
 {
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(hdInput->NewIterator());

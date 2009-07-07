@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiBlockDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLMultiBlockDataWriter, "1.5");
 //----------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter()
 {
@@ -99,9 +99,9 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       vtkXMLDataElement* datasetXML = vtkXMLDataElement::New();
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", index);
-      vtkStdString FileName = this->CreatePieceFileName(writerIdx);
+      vtkStdString fileName = this->CreatePieceFileName(writerIdx);
       if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx, 
-                                       FileName.c_str()))
+                                       fileName.c_str()))
         {
         parent->AddNestedElement(datasetXML);
         RetVal = 1;
