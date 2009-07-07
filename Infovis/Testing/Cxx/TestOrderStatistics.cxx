@@ -321,11 +321,11 @@ int TestOrderStatistics( int, char *[] )
 
   os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
-  os->SetQuantileDefinition( 0 ); // Does not matter and should be ignored by the engine since the column contains strings
   os->ResetColumns(); // Clear list of columns of interest
   os->AddColumn( "Text" ); // Add column of interest
 
   // -- Test Learn, Derive, and Assess with 4 intervals (use SetParameter method)  -- 
+  os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
   os->SetParameter( "NumberOfIntervals", 0, 4 );
   os->SetParameter( "Learn", 0, true );
   os->SetParameter( "Derive", 0, true );

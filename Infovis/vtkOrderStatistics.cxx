@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.46");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.47");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -135,6 +135,13 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
   if ( ! strcmp( parameter, "NumberOfIntervals" ) )
     {
     this->SetNumberOfIntervals( value.ToInt() );
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "QuantileDefinition" ) )
+    {
+    this->SetQuantileDefinition( value.ToInt() );
 
     return true;
     }
