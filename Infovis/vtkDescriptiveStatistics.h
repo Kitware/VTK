@@ -46,6 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkStringArray;
 class vtkTable;
+class vtkVariant;
 
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
 {
@@ -71,6 +72,14 @@ public:
   // A convenience method (in particular for UI wrapping) to set the name of the
   // column that contains the deviation for the Assess option.
   void SetDeviationParameter( const char* name );
+
+  // Description:
+  // A convenience method (in particular for access from other applications) to 
+  // set parameter values.
+  // Return true if setting of requested parameter name was excuted, false otherwise.
+  virtual bool SetParameter( const char* parameter,
+                             int index,
+                             vtkVariant value );
 
 protected:
   vtkDescriptiveStatistics();
@@ -103,4 +112,3 @@ private:
 };
 
 #endif
-

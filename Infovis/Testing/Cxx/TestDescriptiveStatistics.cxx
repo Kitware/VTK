@@ -344,10 +344,10 @@ int TestDescriptiveStatistics( int, char *[] )
   // -- Select Column of Interest -- 
   ds->AddColumn( "Metric" );
 
-  // -- Test Learn and Derive only -- 
-  ds->SetLearn( true );
-  ds->SetDerive( true );
-  ds->SetAssess( false );
+  // -- Test Learn and Derive only (use SetParameter method)  -- 
+  ds->SetParameter( "Learn", 0, true );
+  ds->SetParameter( "Derive", 0, true );
+  ds->SetParameter( "Assess", 0, false );
   ds->Update();
 
 
