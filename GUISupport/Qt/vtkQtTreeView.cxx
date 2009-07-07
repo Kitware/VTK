@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.21");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.22");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -66,11 +66,12 @@ vtkQtTreeView::vtkQtTreeView()
   this->TreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->ColumnView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   this->ColumnView->setSelectionBehavior(QAbstractItemView::SelectRows);
+  this->SetUseColumnView(false);
   this->SetAlternatingRowColors(false);
   this->SetShowRootNode(false);
   this->Selecting = false;
   this->CurrentSelectionMTime = 0;
-  this->SetUseColumnView(false);
+
 
   // Drag/Drop parameters - defaults to off
   this->TreeView->setDragEnabled(false);
@@ -96,6 +97,10 @@ vtkQtTreeView::vtkQtTreeView()
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
       this, 
       SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+
+  QObject::connect(this->ColumnView, 
+    SIGNAL(updatePreviewWidget(const QModelIndex&)), 
+    this, SIGNAL(updatePreviewWidget(const QModelIndex&)));
 
   QObject::connect(this->ColumnView->selectionModel(), 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),

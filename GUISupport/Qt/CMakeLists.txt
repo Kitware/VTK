@@ -84,7 +84,7 @@ IF(DESIRED_QT_VERSION MATCHES 4)
       vtkQtChartRepresentation.h
       vtkQtTableRepresentation.h
       )
-   # Tree view (because it contains QColumnView is only supported in Qt >= 4.3.0)
+   # Tree view (because it contains QColumnView) is only supported in Qt >= 4.3.0
     IF(QT_VERSION_MINOR GREATER 3 OR QT_VERSION_MINOR EQUAL 3)
       SET(QVTKLibSrcs ${QVTKLibSrcs} vtkQtTreeView.cxx)
       SET(QVTKMocHeaders ${QVTKMocHeaders} vtkQtTreeView.h)

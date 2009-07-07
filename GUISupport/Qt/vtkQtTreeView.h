@@ -51,6 +51,7 @@ Q_OBJECT
 signals:
   void expanded(const QModelIndex&);
   void collapsed(const QModelIndex&);
+  void updatePreviewWidget(const QModelIndex&);
 
 public:
   static vtkQtTreeView *New();
