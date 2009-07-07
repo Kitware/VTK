@@ -73,6 +73,7 @@ public:
   // column that contains the deviation for the Assess option.
   void SetDeviationParameter( const char* name );
 
+//BTX  
   // Description:
   // A convenience method (in particular for access from other applications) to 
   // set parameter values.
@@ -80,6 +81,7 @@ public:
   virtual bool SetParameter( const char* parameter,
                              int index,
                              vtkVariant value );
+//ETX
 
 protected:
   vtkDescriptiveStatistics();
