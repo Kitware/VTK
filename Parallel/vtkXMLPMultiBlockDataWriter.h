@@ -87,7 +87,7 @@ protected:
   // If this piece exists on multiple processes than it also takes
   // care of that in the metadata description. This function returns
   // 0 if no file was written.
-  int WriteNonCompositeData(
+  int ParallelWriteNonCompositeData(
     vtkDataObject* dObj, vtkXMLDataElement* ParentXML, 
     int CurrentFileIndex);
 

@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.6");
 
 vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter, 
                      Controller,
@@ -200,11 +200,12 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
       {
       // this node is not a composite data set.
       vtkXMLDataElement* datasetXML = vtkXMLDataElement::New();
-      // datasetXML::Name may get overwritten in WriteNonCompositeData
+      // datasetXML::Name may get overwritten in ParallelWriteNonCompositeData
       // if this piece is on different processes.
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", IndexCounter);
-      if (this->WriteNonCompositeData( curDO, datasetXML, CurrentFileIndex) )
+      if (this->ParallelWriteNonCompositeData( 
+            curDO, datasetXML, CurrentFileIndex) )
         {
         RetVal = 1;
         }
@@ -218,7 +219,7 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPMultiBlockDataWriter::WriteNonCompositeData(
+int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   vtkDataObject* dObj, vtkXMLDataElement* ParentXML, int CurrentFileIndex)
 {
   int NumberOfProcesses = this->Controller->GetNumberOfProcesses();
