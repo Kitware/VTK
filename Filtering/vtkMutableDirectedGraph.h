@@ -22,8 +22,8 @@
 // .SECTION Description
 // vtkMutableDirectedGraph is a directed graph which has additional methods
 // for adding edges and vertices. AddChild() is a convenience method for
-// constructing trees. ShallowCopy(), DeepCopy(), CheckedShallowCopy() and
-// CheckedDeepCopy() will succeed for instances of vtkDirectedGraph,
+// constructing trees. ShallowCopy(), DeepCopy(), CheckedShallowCopy() and 
+// CheckedDeepCopy() will succeed for instances of vtkDirectedGraph, 
 // vtkMutableDirectedGraph and vtkTree.
 //
 // .SECTION See Also
@@ -62,7 +62,7 @@ public:
   // If non-null, propertyArr provides properties that will be attached
   // to this vertex. The values in propertyArr must match up with the
   // arrays in the vertex data retrieved by GetVertexData.
-  // If the graph has pedigree IDs for its vertices, and a vertex with
+  // If the graph has pedigree IDs for its vertices, and a vertex with 
   // the given pedigree ID already exists, its properties will be
   // overwritten with the properties in propertyArr and its ID will be
   // returned. Note that, in a distributed graph with pedigree IDs,
@@ -80,7 +80,7 @@ public:
   // vertex with that pedigree ID does not already exist) and returns
   // the id the vertex with that pedigree ID. If a vertex with the
   // given pedigree ID already exists, its ID will be returned. Note
-  // that, in a distributed graph,
+  // that, in a distributed graph, 
   // the vertex added or found might not be local. In this case,
   // AddVertex will wait until the vertex can be added or found
   // remotely, so that the proper vertex ID can be returned. If you
@@ -97,10 +97,8 @@ public:
   // in propertyArr must match up with the arrays in the edge data
   // returned by GetEdgeData. Both u and v must refer to vertices
   // already in the graph.
-//BTX
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
-//ETX
-
+  
   // Description:
   // Adds a directed edge from u to v to the graph and returns a
   // vtkEdgeType structure for that edge. propertyArr
@@ -108,12 +106,10 @@ public:
   // in propertyArr must match up with the arrays in the edge data
   // returned by GetEdgeData. Both u and v must refer to vertices
   // already in the graph.
-//BTX
-  vtkEdgeType AddEdge(vtkIdType u, vtkIdType v,
+  vtkEdgeType AddEdge(vtkIdType u, vtkIdType v, 
                       vtkVariantArray *propertyArr);
-//ETX
 
-  //BTX
+  //BTX  
   // Description:
   // Adds a directed edge from u to v to the graph and returns a
   // vtkEdgeType structure for that edge. uPedigreeId is the pedigree
@@ -122,7 +118,7 @@ public:
   // If provided, propertyArr provides edge properties
   // for the newly-created edge. The values in propertyArr must match
   // up with the arrays in the edge data returned by GetEdgeData.
-  vtkEdgeType AddEdge(const vtkVariant& uPedigreeId, vtkIdType v,
+  vtkEdgeType AddEdge(const vtkVariant& uPedigreeId, vtkIdType v, 
                       vtkVariantArray *propertyArr = 0);
 
   // Description:
@@ -133,7 +129,7 @@ public:
   // If provided, propertyArr provides edge properties
   // for the newly-created edge. The values in propertyArr must match
   // up with the arrays in the edge data returned by GetEdgeData.
-  vtkEdgeType AddEdge(vtkIdType u, const vtkVariant& vPedigreeId,
+  vtkEdgeType AddEdge(vtkIdType u, const vtkVariant& vPedigreeId, 
                       vtkVariantArray *propertyArr = 0);
 
   // Description:
@@ -144,8 +140,8 @@ public:
   // propertyArr provides edge properties for the newly-created
   // edge. The values in propertyArr must match up with the arrays in
   // the edge data returned by GetEdgeData.
-  vtkEdgeType AddEdge(const vtkVariant& uPedigreeId,
-                      const vtkVariant& vPedigreeId,
+  vtkEdgeType AddEdge(const vtkVariant& uPedigreeId, 
+                      const vtkVariant& vPedigreeId, 
                       vtkVariantArray *propertyArr = 0);
   //ETX
 
@@ -155,7 +151,7 @@ public:
   // to this vertex. The values in propertyArr must match up with the
   // arrays in the vertex data retrieved by GetVertexData.
   void LazyAddVertex();
-
+  
   // Description:
   // Adds a vertex to the graph, and returns the id of that vertex.
   // If non-null, propertyArr provides properties that will be attached
@@ -189,7 +185,7 @@ public:
   // already exist. If provided, propertyArr provides edge properties
   // for the newly-created edge. The values in propertyArr must match
   // up with the arrays in the edge data returned by GetEdgeData.
-  void LazyAddEdge(const vtkVariant& uPedigreeId, vtkIdType v,
+  void LazyAddEdge(const vtkVariant& uPedigreeId, vtkIdType v, 
                    vtkVariantArray *propertyArr = 0);
 
   // Description:
@@ -201,7 +197,7 @@ public:
   // already exist. If provided, propertyArr provides edge properties
   // for the newly-created edge. The values in propertyArr must match
   // up with the arrays in the edge data returned by GetEdgeData.
-  void LazyAddEdge(vtkIdType u, const vtkVariant& vPedigreeId,
+  void LazyAddEdge(vtkIdType u, const vtkVariant& vPedigreeId, 
                    vtkVariantArray *propertyArr = 0);
 
   // Description:
@@ -214,8 +210,8 @@ public:
   // propertyArr provides edge properties for the newly-created
   // edge. The values in propertyArr must match up with the arrays in
   // the edge data returned by GetEdgeData.
-  void LazyAddEdge(const vtkVariant& uPedigreeId,
-                   const vtkVariant& vPedigreeId,
+  void LazyAddEdge(const vtkVariant& uPedigreeId, 
+                   const vtkVariant& vPedigreeId, 
                    vtkVariantArray *propertyArr = 0);
   //ETX
 
