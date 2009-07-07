@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.45");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.46");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -128,6 +128,13 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
       {
       SetAssess( false );
       }
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "NumberOfIntervals" ) )
+    {
+    this->SetNumberOfIntervals( value.ToInt() );
 
     return true;
     }
@@ -352,7 +359,7 @@ public:
       }
 
     result->SetNumberOfValues( 1 );
-    result->SetValue( 0, q - 1 ); // -1 offset needed because value #0 in parameter row is the variable name
+    result->SetValue( 0, q - 1 ); 
   }
 };
 
