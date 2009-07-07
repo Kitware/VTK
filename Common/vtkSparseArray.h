@@ -81,6 +81,7 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // vtkArray API 
+  bool IsDense();
   vtkArrayExtents GetExtents();
   vtkIdType GetNonNullSize();
   void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates);

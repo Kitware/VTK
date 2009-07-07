@@ -42,6 +42,12 @@ void vtkSparseArray<T>::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 template<typename T>
+bool vtkSparseArray<T>::IsDense()
+{
+  return false;
+}
+
+template<typename T>
 vtkArrayExtents vtkSparseArray<T>::GetExtents()
 {
   return this->Extents;

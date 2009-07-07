@@ -87,6 +87,12 @@ void vtkDenseArray<T>::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 template<typename T>
+bool vtkDenseArray<T>::IsDense()
+{
+  return true;
+}
+
+template<typename T>
 vtkArrayExtents vtkDenseArray<T>::GetExtents()
 {
   return this->Extents;

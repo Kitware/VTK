@@ -76,6 +76,11 @@ public:
   // or VTK_STRING.  The caller is responsible for the lifetime of the returned object.
   static vtkArray* CreateArray(int StorageType, int ValueType);
 
+  // Description:
+  // Returns true iff the underlying array storage is "dense", i.e. that GetSize() and
+  // GetNonNullSize() will always return the same value.  If not, the array is "sparse".
+  virtual bool IsDense() = 0;
+
 //BTX
   // Description:
   // Resizes the array to the given extents (number of dimensions and size of each dimension).
