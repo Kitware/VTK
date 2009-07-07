@@ -177,8 +177,12 @@ class METAIO_EXPORT MetaImage : public MetaObject
     //    ElemByteOrderSwap(), ElemByteOrderFix()
     //       The following functions are available only after
     //       ReadImageData() or if _read_and_close=TRUE when read
-    void  ElementByteOrderSwap(void);
-    bool  ElementByteOrderFix(void);
+    //
+    // if streaming is used, then the size of buffer in total number
+    // of elements, should be passed as an argument, otherwise the
+    // internal value Quantity() will be used
+    void  ElementByteOrderSwap( METAIO_STL::streamsize _quantity = 0);
+    bool  ElementByteOrderFix( METAIO_STL::streamsize _quantity = 0);
 
     //    Min(...) Max(...)
     //       The default max returned is the largest allowed by
