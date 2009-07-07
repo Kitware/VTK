@@ -30,7 +30,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQImageToImageSource, "1.1");
+vtkCxxRevisionMacro(vtkQImageToImageSource, "1.2");
 vtkStandardNewMacro(vtkQImageToImageSource);
 
 //----------------------------------------------------------------------------
@@ -69,31 +69,58 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
     }
 
   this->QtImage->convertToFormat( QImage::Format_ARGB32 );
-  unsigned char* data = this->QtImage->bits();
+  QSize size = this->QtImage->size();
+  int width = size.width();
+  int height = size.height();
+  const unsigned char* data2 = this->QtImage->bits();
+
+  unsigned char* data = new unsigned char[4*width*height];
+  memcpy( data, data2, 4*width*height );
 
   output->SetNumberOfScalarComponents( 4 );
   output->SetScalarTypeToUnsignedChar();
   output->SetExtent(this->DataExtent);
   output->AllocateScalars();
   
-  unsigned char temp[4];
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast( output->GetPointData()->GetScalars() );
   
-  QSize size = this->QtImage->size();
-  int width = size.width();
-  int height = size.height();
-
-  int range = width*height;
-  for( int i = 0; i < range; i++ )
+  int i, j;
+  unsigned char temp[4];
+  for( i = 0; i < height/2; i++ )
     {
-    temp[2] = data[4*i+0]; //B
-    temp[1] = data[4*i+1]; //G
-    temp[0] = data[4*i+2]; //R
-    temp[3] = data[4*i+3]; //A
-    
-    array->SetTupleValue( range - (((i/width)+1)*width) + (i%width), temp );
+    for( j = 0; j < width; j++ )
+      {
+      int bottom_address = ((((height-1)-i)*width)+j);
+      int top_address = (i*width)+j;
+      temp[0] = data[(4*bottom_address)+0];
+      temp[1] = data[(4*bottom_address)+1];
+      temp[2] = data[(4*bottom_address)+2];
+      temp[3] = data[(4*bottom_address)+3];
+
+      data[(4*bottom_address)+2] = data[(4*top_address)+0]; //B
+      data[(4*bottom_address)+1] = data[(4*top_address)+1]; //G
+      data[(4*bottom_address)+0] = data[(4*top_address)+2]; //R
+      data[(4*bottom_address)+3] = data[(4*top_address)+3]; //A
+      
+      data[(4*top_address)+2] = temp[0]; //B
+      data[(4*top_address)+1] = temp[1]; //G
+      data[(4*top_address)+0] = temp[2]; //R
+      data[(4*top_address)+3] = temp[3]; //A
+      }
     }
-  
+
+  if( height%2 )
+    {
+    for( j = 0; j < width; j++ )
+      {
+      int address = (i*width)+j;
+      unsigned char temp1 = data[(4*address)+0];
+      data[(4*address)+0] = data[(4*address)+2];
+      data[(4*address)+2] = temp1;
+      }
+    }
+
+  array->SetVoidArray( data, 4*width*height, 1 );
   return 1;
 }
 

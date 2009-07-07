@@ -36,13 +36,13 @@ public:
   // Set/Get QImage surface to be used.
   void SetQImage( QImage* image )
       {this->QtImage = image;}
-  QImage* GetQImage(){return QtImage;}
+  const QImage* GetQImage(){return QtImage;}
 
 protected:
   vtkQImageToImageSource();
   ~vtkQImageToImageSource() {};
 
-  QImage* QtImage;
+  const QImage* QtImage;
   int DataExtent[6];
 
   virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector*);
