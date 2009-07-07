@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
+class vtkVariant;
 
 class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkBivariateStatisticsAlgorithm
 {
@@ -48,25 +49,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkContingencyStatistics* New();
 
-//BTX  
+//BTX
   // Description:
-  // Provide the appropriate assessment functor.
-  // This one does nothing because the API is not sufficient for tables indexed
-  // by a separate summary table.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
-  // Description:
-  // Provide the appropriate assessment functor.
-  // This one is the one that is actually used.
-  virtual void SelectAssessFunctor( vtkTable* outData,
-                                    vtkMultiBlockDataSet* inMeta,
-                                    vtkIdType pairKey,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
+  // A convenience method (in particular for access from other applications) to 
+  // set parameter values.
+  // Return true if setting of requested parameter name was excuted, false otherwise.
+  virtual bool SetParameter( const char* parameter,
+                             int index,
+                             vtkVariant value );
 //ETX
-
 protected:
   vtkContingencyStatistics();
   ~vtkContingencyStatistics();
@@ -93,6 +84,25 @@ protected:
                               vtkDataObject* inMeta,
                               vtkTable* outData,
                               vtkDataObject* outMeta ); 
+
+//BTX  
+  // Description:
+  // Provide the appropriate assessment functor.
+  // This one does nothing because the API is not sufficient for tables indexed
+  // by a separate summary table.
+  virtual void SelectAssessFunctor( vtkTable* outData, 
+                                    vtkDataObject* inMeta,
+                                    vtkStringArray* rowNames,
+                                    AssessFunctor*& dfunc );
+  // Description:
+  // Provide the appropriate assessment functor.
+  // This one is the one that is actually used.
+  virtual void SelectAssessFunctor( vtkTable* outData,
+                                    vtkMultiBlockDataSet* inMeta,
+                                    vtkIdType pairKey,
+                                    vtkStringArray* rowNames,
+                                    AssessFunctor*& dfunc );
+//ETX
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented

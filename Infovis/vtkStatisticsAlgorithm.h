@@ -154,13 +154,6 @@ public:
                               vtkIdType ) = 0;
     virtual ~AssessFunctor() { }
   };
-
-  // Description:
-  // A pure virtual method to select the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc ) = 0;
 //ETX
 
   // Description:
@@ -217,6 +210,13 @@ public:
   virtual const char* GetColumnForRequest( vtkIdType r, vtkIdType c );
   //BTX
   virtual int GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName );
+
+  // Description:
+  // A pure virtual method to select the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkTable* outData, 
+                                    vtkDataObject* inMeta,
+                                    vtkStringArray* rowNames,
+                                    AssessFunctor*& dfunc ) = 0;
   //ETX
 
 protected:

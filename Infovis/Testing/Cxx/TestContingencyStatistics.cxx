@@ -94,24 +94,25 @@ int TestContingencyStatistics( int, char *[] )
   int nEntropies = 3; // correct number of entropies reported in the summary table
   double* H = new double[nEntropies];
   
-  vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkContingencyStatistics* cs = vtkContingencyStatistics::New();
+  cs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = cs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   datasetTable->Delete();
 
-// -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex->AddColumnPair( "Port", "Protocol" ); // A valid pair
-  haruspex->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
-  haruspex->AddColumnPair( "Source", "Port" ); // Another valid pair
-  haruspex->AddColumnPair( "Source", "Dummy" ); // An invalid pair
+  // Select Column Pair of Interest ( Learn Mode )
+  cs->AddColumnPair( "Port", "Protocol" ); // A valid pair
+  cs->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
+  cs->AddColumnPair( "Source", "Port" ); // Another valid pair
+  cs->AddColumnPair( "Source", "Dummy" ); // An invalid pair
 
-// -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetAssess( true );
-  haruspex->Update();
+  // Test Learn, Derive, and Assess options
+  cs->SetLearn( true );
+  cs->SetDerive( true );
+  cs->SetAssess( true );
+  cs->Update();
 
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
@@ -285,7 +286,7 @@ int TestContingencyStatistics( int, char *[] )
 
   // Clean up
   delete [] H;
-  haruspex->Delete();
+  cs->Delete();
 
   return testStatus;
 }
