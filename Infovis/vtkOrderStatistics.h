@@ -39,6 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkStringArray;
 class vtkTable;
+class vtkVariant;
 
 class VTK_INFOVIS_EXPORT vtkOrderStatistics : public vtkUnivariateStatisticsAlgorithm
 {
@@ -73,14 +74,13 @@ public:
   // Get the quantile definition.
   vtkIdType GetQuantileDefinition() { return static_cast<vtkIdType>( this->QuantileDefinition ); }
 
-//BTX  
   // Description:
-  // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
-//ETX
+  // A convenience method (in particular for access from other applications) to 
+  // set parameter values.
+  // Return true if setting of requested parameter name was excuted, false otherwise.
+  virtual bool SetParameter( const char* parameter,
+                             int index,
+                             vtkVariant value );
 
 protected:
   vtkOrderStatistics();
@@ -95,6 +95,15 @@ protected:
   // Description:
   // Execute the calculations required by the Derive option.
   virtual void ExecuteDerive( vtkDataObject* );
+
+//BTX  
+  // Description:
+  // Provide the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkTable* outData, 
+                                    vtkDataObject* inMeta,
+                                    vtkStringArray* rowNames,
+                                    AssessFunctor*& dfunc );
+//ETX
 
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
