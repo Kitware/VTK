@@ -123,28 +123,28 @@ int TestCorrelativeStatistics( int, char *[] )
   double covariance[] = { 5.98286, 7.54839, 6.14516 };
   double threshold = 4.;
 
-  vtkCorrelativeStatistics* haruspex = vtkCorrelativeStatistics::New();
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkTable* outputMeta = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
+  vtkCorrelativeStatistics* cs = vtkCorrelativeStatistics::New();
+  cs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = cs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkTable* outputMeta = cs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
   datasetTable->Delete();
 
 // -- Select Column Pairs of Interest ( Learn Mode ) -- 
-  haruspex->AddColumnPair( "Metric 0", "Metric 1" ); // A valid pair
-  haruspex->AddColumnPair( "Metric 1", "Metric 0" ); // The same valid pair, just reversed
-  haruspex->AddColumnPair( "Metric 2", "Metric 1" ); // Another valid pair
+  cs->AddColumnPair( "Metric 0", "Metric 1" ); // A valid pair
+  cs->AddColumnPair( "Metric 1", "Metric 0" ); // The same valid pair, just reversed
+  cs->AddColumnPair( "Metric 2", "Metric 1" ); // Another valid pair
   for ( int i = 0; i< nMetricPairs; i += 2 )
     {  // Try to add all valid pairs once more
-    haruspex->AddColumnPair( columnPairs[i], columnPairs[i+1] );
+    cs->AddColumnPair( columnPairs[i], columnPairs[i+1] );
     }
-  haruspex->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
+  cs->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
 
 // -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetDerive( true );
-  haruspex->SetAssess( false );
-  haruspex->Update();
+  cs->SetLearn( true );
+  cs->SetDerive( true );
+  cs->SetAssess( false );
+  cs->Update();
 
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
@@ -188,8 +188,8 @@ int TestCorrelativeStatistics( int, char *[] )
     }
 
 // -- Select Column Pairs of Interest ( Assess Mode ) -- 
-  haruspex->ResetColumnPairs(); // Clear existing pairs
-  haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
+  cs->ResetColumnPairs(); // Clear existing pairs
+  cs->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
 // -- Test Assess Mode -- 
   cout << "## Searching for outliers with respect to this bivariate Gaussian distribution:\n"
@@ -221,11 +221,13 @@ int TestCorrelativeStatistics( int, char *[] )
   paramsTable->SetValueByName( 0, "Variance Y", covariance[1] );
   paramsTable->SetValueByName( 0, "Covariance", covariance[2] );
   
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
-  haruspex->SetLearn( false );
-  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
-  haruspex->SetAssess( true );
-  haruspex->Update();
+  cs->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
+
+  // Test Assess only (Do not recalculate nor rederive a model)
+  cs->SetParameter( "Learn", 0, false );
+  cs->SetParameter( "Derive", 0, false );
+  cs->SetParameter( "Assess", 0, true );
+  cs->Update();
 
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
@@ -260,7 +262,7 @@ int TestCorrelativeStatistics( int, char *[] )
     }
 
   paramsTable->Delete();
-  haruspex->Delete();
+  cs->Delete();
 
   return testStatus;
 }
