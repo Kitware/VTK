@@ -43,8 +43,6 @@ public:
   
   // Description:
   // Get/Set the number of pieces into which the inputs are split.
-  //vtkGetMacro(NumberOfPieces, int);
-  //vtkSetMacro(NumberOfPieces, int);
   
   // Description:
   // Get/Set the number of ghost levels to be written.

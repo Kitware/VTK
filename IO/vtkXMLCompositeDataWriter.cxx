@@ -53,7 +53,7 @@
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.7");
 
 class vtkXMLCompositeDataWriterInternals
 {
@@ -69,7 +69,6 @@ public:
 vtkXMLCompositeDataWriter::vtkXMLCompositeDataWriter()
 {
   this->Internal = new vtkXMLCompositeDataWriterInternals;
-  //this->NumberOfPieces = 1;
   this->GhostLevel = 0;
   this->WriteMetaFile = 1;
   
@@ -597,12 +596,7 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
     << this->Internal->FilePrefix.c_str() << "/"
     << this->Internal->FilePrefix.c_str();
 
-  //if (this->NumberOfPieces > 1)
-    {
-    // put the piece number into the filename, which helps in uniquifying the
-    // name.
-    fn_with_warning_C4701 << "_" << Piece;
-    }
+  fn_with_warning_C4701 << "_" << Piece;
 
   fn_with_warning_C4701 << "_" << Piece << "."
     << this->Internal->Writers[Piece]->GetDefaultFileExtension();

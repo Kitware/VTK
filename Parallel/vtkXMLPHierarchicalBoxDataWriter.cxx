@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.4");
 
 vtkCxxSetObjectMacro(vtkXMLPHierarchicalBoxDataWriter, 
                      Controller,
@@ -60,7 +60,7 @@ void vtkXMLPHierarchicalBoxDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkXMLPHierarchicalBoxDataWriter::SetWriteMetaFile(int flag)
 {
   this->Modified();
-  if(this->Controller->GetLocalProcessId() == 0)
+  if(this->Controller == NULL || this->Controller->GetLocalProcessId() == 0)
     {
     if(this->WriteMetaFile != flag)
       {
