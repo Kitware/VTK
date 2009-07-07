@@ -350,7 +350,6 @@ int TestDescriptiveStatistics( int, char *[] )
   ds->SetParameter( "Assess", 0, false );
   ds->Update();
 
-
   cout << "## Calculated the following statistics ( "
        <<  outputSimpleMeta->GetValueByName( 0, "Cardinality" ).ToInt() 
        << " entries in a single column ):\n"
