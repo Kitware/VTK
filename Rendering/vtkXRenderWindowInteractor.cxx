@@ -34,7 +34,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.138");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.139");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -570,6 +570,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       yp = exposeEvent->y;
       yp = me->Size[1] - yp - 1;
       me->SetEventPosition(xp, yp);
+      
       // only render if we are currently accepting events
       if (me->Enabled)
         {
@@ -604,6 +605,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       int height = (reinterpret_cast<XConfigureEvent *>(event))->height;
       if (width != me->Size[0] || height != me->Size[1])
         {
+        bool resizeSmaller=width<=me->Size[0] && height<=me->Size[1];
         me->UpdateSize(width, height);
         xp = (reinterpret_cast<XButtonEvent*>(event))->x;
         yp = (reinterpret_cast<XButtonEvent*>(event))->y;
@@ -612,7 +614,19 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         if (me->Enabled)
           {
           me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
-          me->Render();
+          if(resizeSmaller)
+            {
+            // Don't call Render when the window is resized to be larger:
+            //
+            // - if the window is resized to be larger, an Expose event will
+            // be trigged by the X server which will trigger a call to
+            // Render().
+            // - if the window is resized to be smaller, no Expose event will
+            // be trigged by the X server, as no new area become visible.
+            // only in this case, we need to explicitly call Render()
+            // in ConfigureNotify.
+            me->Render();
+            }
           }
         }
       }
