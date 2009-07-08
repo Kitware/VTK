@@ -714,7 +714,10 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
         // when the output is bigger than the input (true for small images)
         if(j+count>=buffer_size) 
           {
-          compressedData = (unsigned char *)realloc( compressedData, j+count+1 );
+          unsigned char* compressedDataTemp = new unsigned char[j+count+1];
+          memcpy(compressedDataTemp,compressedData,buffer_size);
+          delete [] compressedData;
+          compressedData = compressedDataTemp;
           }
         
         memcpy((char*)compressedData+j, (char *)output_buffer, count);
@@ -728,7 +731,10 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
       {
       if(j+count>=buffer_size) 
         {
-        compressedData = (unsigned char *)realloc( compressedData, j+count+1 );
+        unsigned char* compressedDataTemp = new unsigned char[j+count+1];
+        memcpy(compressedDataTemp,compressedData,buffer_size);
+        delete [] compressedData;
+        compressedData = compressedDataTemp;
         }
       memcpy((char*)compressedData+j, (char*)output_buffer, count);
       }
