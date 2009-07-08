@@ -60,15 +60,37 @@ public:
   vtkGetMacro(PointOpacity, double);
   
   // Description:
-  // The ranges to use in a lookup table.
-  vtkSetVector2Macro(PointHueRange, double);
-  vtkGetVector2Macro(PointHueRange, double);
-  vtkSetVector2Macro(PointSaturationRange, double);
-  vtkGetVector2Macro(PointSaturationRange, double);
-  vtkSetVector2Macro(PointValueRange, double);
-  vtkGetVector2Macro(PointValueRange, double);
-  vtkSetVector2Macro(PointAlphaRange, double);
-  vtkGetVector2Macro(PointAlphaRange, double);
+  // The ranges to use in the point lookup table.
+  // You may also do this by accessing the point lookup table directly
+  // with GetPointLookupTable() and calling these methods.
+  virtual void SetPointHueRange(double mn, double mx);
+  virtual void SetPointHueRange(double rng[2]);
+  virtual double* GetPointHueRange();
+  virtual void GetPointHueRange(double& mn, double& mx);
+  virtual void GetPointHueRange(double rng[2]);
+
+  virtual void SetPointSaturationRange(double mn, double mx);
+  virtual void SetPointSaturationRange(double rng[2]);
+  virtual double* GetPointSaturationRange();
+  virtual void GetPointSaturationRange(double& mn, double& mx);
+  virtual void GetPointSaturationRange(double rng[2]);
+
+  virtual void SetPointValueRange(double mn, double mx);
+  virtual void SetPointValueRange(double rng[2]);
+  virtual double* GetPointValueRange();
+  virtual void GetPointValueRange(double& mn, double& mx);
+  virtual void GetPointValueRange(double rng[2]);
+
+  virtual void SetPointAlphaRange(double mn, double mx);
+  virtual void SetPointAlphaRange(double rng[2]);
+  virtual double* GetPointAlphaRange();
+  virtual void GetPointAlphaRange(double& mn, double& mx);
+  virtual void GetPointAlphaRange(double rng[2]);
+
+  // Description:
+  // Set/Get the cell lookup table.
+  vtkGetObjectMacro(CellLookupTable, vtkScalarsToColors);
+  virtual void SetCellLookupTable(vtkScalarsToColors* lut);
 
   // Description:
   // The color and opacity of cells or edges when not mapped through
@@ -79,15 +101,37 @@ public:
   vtkGetMacro(CellOpacity, double);
   
   // Description:
-  // The ranges to use in a lookup table.
-  vtkSetVector2Macro(CellHueRange, double);
-  vtkGetVector2Macro(CellHueRange, double);
-  vtkSetVector2Macro(CellSaturationRange, double);
-  vtkGetVector2Macro(CellSaturationRange, double);
-  vtkSetVector2Macro(CellValueRange, double);
-  vtkGetVector2Macro(CellValueRange, double);
-  vtkSetVector2Macro(CellAlphaRange, double);
-  vtkGetVector2Macro(CellAlphaRange, double);
+  // The ranges to use in the cell lookup table.
+  // You may also do this by accessing the cell lookup table directly
+  // with GetCellLookupTable() and calling these methods.
+  virtual void SetCellHueRange(double mn, double mx);
+  virtual void SetCellHueRange(double rng[2]);
+  virtual double* GetCellHueRange();
+  virtual void GetCellHueRange(double& mn, double& mx);
+  virtual void GetCellHueRange(double rng[2]);
+
+  virtual void SetCellSaturationRange(double mn, double mx);
+  virtual void SetCellSaturationRange(double rng[2]);
+  virtual double* GetCellSaturationRange();
+  virtual void GetCellSaturationRange(double& mn, double& mx);
+  virtual void GetCellSaturationRange(double rng[2]);
+
+  virtual void SetCellValueRange(double mn, double mx);
+  virtual void SetCellValueRange(double rng[2]);
+  virtual double* GetCellValueRange();
+  virtual void GetCellValueRange(double& mn, double& mx);
+  virtual void GetCellValueRange(double rng[2]);
+
+  virtual void SetCellAlphaRange(double mn, double mx);
+  virtual void SetCellAlphaRange(double rng[2]);
+  virtual double* GetCellAlphaRange();
+  virtual void GetCellAlphaRange(double& mn, double& mx);
+  virtual void GetCellAlphaRange(double rng[2]);
+
+  // Description:
+  // Set/Get the point lookup table.
+  vtkGetObjectMacro(PointLookupTable, vtkScalarsToColors);
+  virtual void SetPointLookupTable(vtkScalarsToColors* lut);
 
   // Description:
   // The color of any outlines in the view.
@@ -151,17 +195,9 @@ protected:
 
   double PointColor[3];
   double PointOpacity;
-  double PointHueRange[2];
-  double PointSaturationRange[2];
-  double PointValueRange[2];
-  double PointAlphaRange[2];
 
   double CellColor[3];
   double CellOpacity;
-  double CellHueRange[2];
-  double CellSaturationRange[2];
-  double CellValueRange[2];
-  double CellAlphaRange[2];
   
   double OutlineColor[3];
 
@@ -174,6 +210,9 @@ protected:
   double BackgroundColor2[3];
   double VertexLabelColor[3];
   double EdgeLabelColor[3];
+
+  vtkScalarsToColors* PointLookupTable;
+  vtkScalarsToColors* CellLookupTable;
 
 private:
   vtkViewTheme(const vtkViewTheme&);  // Not implemented.

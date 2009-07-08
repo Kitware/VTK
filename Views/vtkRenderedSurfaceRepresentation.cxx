@@ -43,7 +43,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.6");
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
@@ -200,33 +200,8 @@ void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Superclass::ApplyViewTheme(theme);
 
-  vtkLookupTable* plutOld = vtkLookupTable::SafeDownCast(
-    this->ApplyColors->GetPointLookupTable());
-  if (!theme->LookupMatchesPointTheme(plutOld))
-    {
-    vtkSmartPointer<vtkLookupTable> plut =
-      vtkSmartPointer<vtkLookupTable>::New();
-    plut->SetHueRange(theme->GetPointHueRange());
-    plut->SetSaturationRange(theme->GetPointSaturationRange());
-    plut->SetValueRange(theme->GetPointValueRange());
-    plut->SetAlphaRange(theme->GetPointAlphaRange());
-    plut->Build();
-    this->ApplyColors->SetPointLookupTable(plut);
-    }
-
-  vtkLookupTable* clutOld = vtkLookupTable::SafeDownCast(
-    this->ApplyColors->GetCellLookupTable());
-  if (!theme->LookupMatchesCellTheme(clutOld))
-    {
-    vtkSmartPointer<vtkLookupTable> clut =
-      vtkSmartPointer<vtkLookupTable>::New();
-    clut->SetHueRange(theme->GetCellHueRange());
-    clut->SetSaturationRange(theme->GetCellSaturationRange());
-    clut->SetValueRange(theme->GetCellValueRange());
-    clut->SetAlphaRange(theme->GetCellAlphaRange());
-    clut->Build();
-    this->ApplyColors->SetCellLookupTable(clut);
-    }
+  this->ApplyColors->SetPointLookupTable(theme->GetPointLookupTable());
+  this->ApplyColors->SetCellLookupTable(theme->GetCellLookupTable());
 
   this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
   this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
