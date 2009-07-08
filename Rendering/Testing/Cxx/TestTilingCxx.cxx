@@ -158,7 +158,6 @@ int TestTilingCxx(int argc, char* argv[])
     {
     iren->Start();
     }
-  iren->Delete();
 
   return !retVal;
 }
