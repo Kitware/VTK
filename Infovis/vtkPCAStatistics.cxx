@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.7");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.8");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -210,10 +210,12 @@ vtkPCAStatistics::vtkPCAStatistics()
   this->FixedBasisEnergy = 1.;
 }
 
+// ----------------------------------------------------------------------
 vtkPCAStatistics::~vtkPCAStatistics()
 {
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAStatistics::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
@@ -223,6 +225,85 @@ void vtkPCAStatistics::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "FixedBasisEnergy: " << this->FixedBasisEnergy << "\n";
 }
 
+// ----------------------------------------------------------------------
+bool vtkPCAStatistics::SetParameter( const char* parameter,
+                                     int vtkNotUsed( index ),
+                                     vtkVariant value )
+{
+  if ( ! strcmp( parameter, "Learn" ) )
+    {
+    if ( value.ToInt() )
+      {
+      SetLearn( true );
+      }
+    else
+      {
+      SetLearn( false );
+      }
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "Derive" ) )
+    {
+    if ( value.ToInt() )
+      {
+      SetDerive( true );
+      }
+    else
+      {
+      SetDerive( false );
+      }
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "Assess" ) )
+    {
+    if ( value.ToInt() )
+      {
+      SetAssess( true );
+      }
+    else
+      {
+      SetAssess( false );
+      }
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "NormalizationScheme" ) )
+    {
+    this->SetNormalizationScheme( value.ToInt() );
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "BasisScheme" ) )
+    {
+    this->SetBasisScheme( value.ToInt() );
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "FixedBasisSize" ) )
+    {
+    this->SetFixedBasisSize( value.ToInt() );
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "FixedBasisEnergy" ) )
+    {
+    this->SetFixedBasisEnergy( value.ToDouble() );
+
+    return true;
+    }
+
+  return false;
+}
+
+// ----------------------------------------------------------------------
 const char* vtkPCAStatistics::GetNormalizationSchemeName( int schemeIndex )
 {
   if ( schemeIndex < 0 || schemeIndex > NUM_NORMALIZATION_SCHEMES )
@@ -232,6 +313,7 @@ const char* vtkPCAStatistics::GetNormalizationSchemeName( int schemeIndex )
   return vtkPCAStatistics::NormalizationSchemeEnumNames[schemeIndex];
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAStatistics::SetNormalizationSchemeByName( const char* schemeName )
 {
   for ( int i = 0; i < NUM_NORMALIZATION_SCHEMES; ++ i )
@@ -246,6 +328,7 @@ void vtkPCAStatistics::SetNormalizationSchemeByName( const char* schemeName )
 }
 
 
+// ----------------------------------------------------------------------
 vtkTable* vtkPCAStatistics::GetSpecifiedNormalization()
 {
   return vtkTable::SafeDownCast( this->GetInputDataObject( 3, 0 ) );
@@ -256,6 +339,7 @@ void vtkPCAStatistics::SetSpecifiedNormalization( vtkTable* normSpec )
   this->SetInput( 3, normSpec );
 }
 
+// ----------------------------------------------------------------------
 const char* vtkPCAStatistics::GetBasisSchemeName( int schemeIndex )
 {
   if ( schemeIndex < 0 || schemeIndex > NUM_BASIS_SCHEMES )
@@ -265,6 +349,7 @@ const char* vtkPCAStatistics::GetBasisSchemeName( int schemeIndex )
   return vtkPCAStatistics::BasisSchemeEnumNames[schemeIndex];
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAStatistics::SetBasisSchemeByName( const char* schemeName )
 {
   for ( int i = 0; i < NUM_BASIS_SCHEMES; ++ i )
@@ -278,6 +363,7 @@ void vtkPCAStatistics::SetBasisSchemeByName( const char* schemeName )
   vtkErrorMacro( "Invalid basis scheme name \"" << schemeName << "\" provided." );
 }
 
+// ----------------------------------------------------------------------
 int vtkPCAStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
   if ( port == 3 )
@@ -289,6 +375,7 @@ int vtkPCAStatistics::FillInputPortInformation( int port, vtkInformation* info )
   return this->Superclass::FillInputPortInformation( port, info );
 }
 
+// ----------------------------------------------------------------------
 static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData, 
                                            ap::real_2d_array& cov,
                                            vtkTable* normSpec, 
@@ -406,6 +493,7 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
     }
 }
 
+// ----------------------------------------------------------------------
 static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData, 
                                                ap::real_2d_array& cov )
 {
@@ -431,6 +519,7 @@ static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData,
     }
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
@@ -569,6 +658,7 @@ void vtkPCAStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
     }
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAStatistics::ExecuteAssess( vtkTable* inData, 
                                       vtkDataObject* inMetaDO, 
                                       vtkTable* outData, 
@@ -661,6 +751,7 @@ void vtkPCAStatistics::ExecuteAssess( vtkTable* inData,
     }
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData, 
                                             vtkDataObject* inMetaDO,
                                             vtkStringArray* vtkNotUsed(rowNames), 

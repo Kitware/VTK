@@ -95,38 +95,38 @@ int TestPCAStatistics( int argc, char* argv[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  vtkPCAStatistics* haruspex = vtkPCAStatistics::New();
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
-  haruspex->SetNormalizationSchemeByName( normScheme );
-  haruspex->SetBasisSchemeByName( "FixedBasisEnergy" );
-  haruspex->SetFixedBasisEnergy( 1. - 1e-8 );
+  vtkPCAStatistics* pcas = vtkPCAStatistics::New();
+  pcas->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  pcas->SetNormalizationSchemeByName( normScheme );
+  pcas->SetBasisSchemeByName( "FixedBasisEnergy" );
+  pcas->SetFixedBasisEnergy( 1. - 1e-8 );
 
   datasetTable->Delete();
 
   // -- Select Column Pairs of Interest ( Learn Mode ) -- 
-  haruspex->SetColumnStatus( m0Name, 1 );
-  haruspex->SetColumnStatus( m1Name, 1 );
-  haruspex->RequestSelectedColumns();
-  haruspex->ResetAllColumnStates();
-  haruspex->SetColumnStatus( m0Name, 1 );
-  haruspex->SetColumnStatus( m1Name, 1 );
-  haruspex->SetColumnStatus( m2Name, 1 );
-  haruspex->SetColumnStatus( m2Name, 0 );
-  haruspex->SetColumnStatus( m2Name, 1 );
-  haruspex->RequestSelectedColumns();
-  haruspex->RequestSelectedColumns(); // Try a duplicate entry. This should have no effect.
-  haruspex->SetColumnStatus( m0Name, 0 );
-  haruspex->SetColumnStatus( m2Name, 0 );
-  haruspex->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
-  // haruspex->RequestSelectedColumns(); will get called in RequestData()
+  pcas->SetColumnStatus( m0Name, 1 );
+  pcas->SetColumnStatus( m1Name, 1 );
+  pcas->RequestSelectedColumns();
+  pcas->ResetAllColumnStates();
+  pcas->SetColumnStatus( m0Name, 1 );
+  pcas->SetColumnStatus( m1Name, 1 );
+  pcas->SetColumnStatus( m2Name, 1 );
+  pcas->SetColumnStatus( m2Name, 0 );
+  pcas->SetColumnStatus( m2Name, 1 );
+  pcas->RequestSelectedColumns();
+  pcas->RequestSelectedColumns(); // Try a duplicate entry. This should have no effect.
+  pcas->SetColumnStatus( m0Name, 0 );
+  pcas->SetColumnStatus( m2Name, 0 );
+  pcas->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
+  // pcas->RequestSelectedColumns(); will get called in RequestData()
 
   // -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetDerive( true );
-  haruspex->SetAssess( false );
+  pcas->SetLearn( true );
+  pcas->SetDerive( true );
+  pcas->SetAssess( false );
 
-  haruspex->Update();
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  pcas->Update();
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
@@ -147,17 +147,20 @@ int TestPCAStatistics( int argc, char* argv[] )
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
+  pcas->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
-  haruspex->SetLearn( false );
-  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
-  haruspex->SetAssess( true );
-  haruspex->Update();
 
-  vtkTable* outputData = haruspex->GetOutput();
+  // Test Assess only (Do not recalculate nor rederive a model)
+  // Use SetParameter method
+  pcas->SetParameter( "Learn", 0, false );
+  pcas->SetParameter( "Derive", 0, false );
+  pcas->SetParameter( "Assess", 0, true );
+  pcas->Update();
+
+  vtkTable* outputData = pcas->GetOutput();
   outputData->Dump();
 
-  haruspex->Delete();
+  pcas->Delete();
   delete [] normScheme;
 
   return testStatus;

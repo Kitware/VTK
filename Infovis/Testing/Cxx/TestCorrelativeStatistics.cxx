@@ -224,6 +224,7 @@ int TestCorrelativeStatistics( int, char *[] )
   cs->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
 
   // Test Assess only (Do not recalculate nor rederive a model)
+  // Use SetParameter method
   cs->SetParameter( "Learn", 0, false );
   cs->SetParameter( "Derive", 0, false );
   cs->SetParameter( "Assess", 0, true );
