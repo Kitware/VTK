@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.82");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.83");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -1134,17 +1134,44 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
   
   this->ReadInt(&this->NumberOfMeasuredPoints);
   
-  pointIds = new int[this->NumberOfMeasuredPoints];
-  xCoords = new float [this->NumberOfMeasuredPoints];
-  yCoords = new float [this->NumberOfMeasuredPoints];
-  zCoords = new float [this->NumberOfMeasuredPoints];
-  points->Allocate(this->NumberOfMeasuredPoints);
-  pd->Allocate(this->NumberOfMeasuredPoints);
+  pointIds = new int   [ this->NumberOfMeasuredPoints ];
+  xCoords  = new float [ this->NumberOfMeasuredPoints ];
+  yCoords  = new float [ this->NumberOfMeasuredPoints ];
+  zCoords  = new float [ this->NumberOfMeasuredPoints ];
+  points->Allocate( this->NumberOfMeasuredPoints );
+  pd->Allocate( this->NumberOfMeasuredPoints );
   
-  this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
-  this->ReadFloatArray(xCoords, this->NumberOfMeasuredPoints);
-  this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
-  this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
+  // Extract the array of point indices. Note EnSight Manual v8.2 (pp. 559,
+  // http://www-vis.lbl.gov/NERSC/Software/ensight/docs82/UserManual.pdf)
+  // is wrong in describing the format of binary measured geometry files.
+  // As opposed to this description, the actual format employs a 'hybrid'
+  // storage scheme. Specifically, point indices are stored in an array,
+  // whereas 3D coordinates follow the array in a tuple-by-tuple manner.
+  // The following code segment (20+ lines) serves as a fix to bug #9245.
+  this->ReadIntArray( pointIds, this->NumberOfMeasuredPoints );
+  
+  // Read point coordinates tuple by tuple while each tuple contains three
+  // components: (x-cord, y-cord, z-cord)
+  int  floatSize = sizeof( float );
+  for ( i = 0; i < this->NumberOfMeasuredPoints; i ++ )
+    {
+    this->IFile->read(  ( char * )( xCoords + i ),  floatSize  );
+    this->IFile->read(  ( char * )( yCoords + i ),  floatSize  );
+    this->IFile->read(  ( char * )( zCoords + i ),  floatSize  );
+    }
+   
+  if ( this->ByteOrder == FILE_LITTLE_ENDIAN )
+    {
+    vtkByteSwap::Swap4LERange( xCoords, this->NumberOfMeasuredPoints );
+    vtkByteSwap::Swap4LERange( yCoords, this->NumberOfMeasuredPoints );
+    vtkByteSwap::Swap4LERange( zCoords, this->NumberOfMeasuredPoints );
+    }
+  else
+    {
+    vtkByteSwap::Swap4BERange( xCoords, this->NumberOfMeasuredPoints );
+    vtkByteSwap::Swap4BERange( yCoords, this->NumberOfMeasuredPoints );
+    vtkByteSwap::Swap4BERange( zCoords, this->NumberOfMeasuredPoints );
+    }
   
   // NOTE: EnSight always employs a 1-based indexing scheme and therefore
   // 'if (this->ParticleCoordinatesByIndex)' was removed here. Otherwise
