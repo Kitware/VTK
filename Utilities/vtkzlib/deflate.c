@@ -1136,10 +1136,10 @@ local uInt longest_match(s, cur_match)
          * the 256th check will be made at strstart+258.
          */
         do {
-        } while (*++scan == *++match && *++scan == *++match &&
+        } while (*++scan == *++match && /**++scan == *++match &&
                  *++scan == *++match && *++scan == *++match &&
                  *++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match &&
+                 *++scan == *++match && *++scan == *++match &&*/
                  scan < strend);
 
         Assert(scan <= s->window+(unsigned)(s->window_size-1), "wild scan");
