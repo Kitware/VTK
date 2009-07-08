@@ -42,6 +42,7 @@
 
 void colorCells(void *arg)
 {
+  VTK_CREATE(vtkMath, randomColorGenerator);
   vtkProgrammableAttributeDataFilter * randomColors = 
     static_cast<vtkProgrammableAttributeDataFilter *>(arg);
   vtkPolyData * input = 
@@ -53,7 +54,7 @@ void colorCells(void *arg)
 
   for(int i = 0; i < numCells; i++)
     {
-    colors->SetValue(i, vtkMath::Random(0.0 ,1.0));
+    colors->SetValue(i, randomColorGenerator->Random(0 ,1));
     }
 
   output->GetCellData()->CopyScalarsOff();
@@ -117,7 +118,6 @@ int TestTilingCxx(int argc, char* argv[])
   scalarBar->SetNumberOfLabels(8);
   renWin->Render();
 
-
   VTK_CREATE(vtkWindowToImageFilter, w2i);
   w2i->SetInput(renWin);
   w2i->SetMagnification(2);
@@ -140,18 +140,11 @@ int TestTilingCxx(int argc, char* argv[])
   renWin->SetSize(320, 320);
   ren2->RemoveViewProp(scalarBar);
   ren1->RemoveViewProp(sphereActor);
-
-  renWin->Render();
-
   ren1->AddActor(ia2);
   renWin->RemoveRenderer(ren2);
   ren1->SetViewport(0, 0, 1, 1);
 
-  //renWin Render
-  //iren AddObserver UserEvent {wm deiconify .vtkInteract}
-
-
-  //renWin->Render();
+  renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -159,5 +152,6 @@ int TestTilingCxx(int argc, char* argv[])
     iren->Start();
     }
 
+  outputData->Delete();
   return !retVal;
 }
