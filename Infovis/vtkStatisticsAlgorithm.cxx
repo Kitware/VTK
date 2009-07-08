@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.34");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.35");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -95,6 +95,14 @@ vtkStdString vtkStatisticsAlgorithm::GetAssessParameter( vtkIdType id )
     }
   return 0;
 } 
+
+// ----------------------------------------------------------------------
+bool vtkStatisticsAlgorithm::SetParameter( const char* parameter,
+                                           int index,
+                                           vtkVariant value )
+{ 
+  return false;
+}
 
 // ----------------------------------------------------------------------
 int vtkStatisticsAlgorithm::RequestData( vtkInformation*,

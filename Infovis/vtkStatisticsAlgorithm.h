@@ -50,6 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkStdString;
 class vtkStringArray;
+class vtkVariant;
 class vtkVariantArray;
 class vtkStatisticsAlgorithmPrivate;
 
@@ -210,14 +211,19 @@ public:
   virtual const char* GetColumnForRequest( vtkIdType r, vtkIdType c );
   //BTX
   virtual int GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName );
-
-  // Description:
-  // A pure virtual method to select the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc ) = 0;
   //ETX
+
+//BTX  
+  // Description:
+  // A convenience method (in particular for access from other applications) to 
+  // set parameter values of Learn mode.
+  // Return true if setting of requested parameter name was excuted, false otherwise.
+  // NB: default method (which is sufficient for most statistics algorithms) does not
+  // have any Learn parameters to set and always returns false. 
+  virtual bool SetParameter( const char* parameter,
+                             int index,
+                             vtkVariant value );
+//ETX
 
 protected:
   vtkStatisticsAlgorithm();
@@ -241,6 +247,15 @@ protected:
                               vtkDataObject*,
                               vtkTable*,
                               vtkDataObject* ) = 0; 
+
+  //BTX
+  // Description:
+  // A pure virtual method to select the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkTable* outData, 
+                                    vtkDataObject* inMeta,
+                                    vtkStringArray* rowNames,
+                                    AssessFunctor*& dfunc ) = 0;
+  //ETX
 
   bool Learn;
   bool Derive;

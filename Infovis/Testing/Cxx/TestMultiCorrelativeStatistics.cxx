@@ -172,10 +172,9 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
 
   // Test Assess only (Do not recalculate nor rederive a model)
-  // Use SetParameter method
-  mcs->SetParameter( "Learn", 0, false );
-  mcs->SetParameter( "Derive", 0, false );
-  mcs->SetParameter( "Assess", 0, true );
+  mcs->SetLearn( false );
+  mcs->SetDerive( false );
+  mcs->SetAssess( true );
   mcs->Update();
 
   vtkTable* outputData = mcs->GetOutput();

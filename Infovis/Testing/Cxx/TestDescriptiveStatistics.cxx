@@ -341,13 +341,13 @@ int TestDescriptiveStatistics( int, char *[] )
 
   simpleTable->Delete();
 
-  // -- Select Column of Interest -- 
+  // Select Column of Interest
   ds->AddColumn( "Metric" );
 
-  // -- Test Learn and Derive only (use SetParameter method)  -- 
-  ds->SetParameter( "Learn", 0, true );
-  ds->SetParameter( "Derive", 0, true );
-  ds->SetParameter( "Assess", 0, false );
+  // Test Learn and Derive only
+  ds->SetLearn( true );
+  ds->SetDerive( true );
+  ds->SetAssess( false );
   ds->Update();
 
   cout << "## Calculated the following statistics ( "

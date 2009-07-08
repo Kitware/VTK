@@ -71,16 +71,6 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkMultiCorrelativeStatistics* New();
 
-//BTX
-  // Description:
-  // A convenience method (in particular for access from other applications) to 
-  // set parameter values.
-  // Return true if setting of requested parameter name was excuted, false otherwise.
-  virtual bool SetParameter( const char* parameter,
-                             int index,
-                             vtkVariant value );
-//ETX
-
 protected:
   vtkMultiCorrelativeStatistics();
   ~vtkMultiCorrelativeStatistics();

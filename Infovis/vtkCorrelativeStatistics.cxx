@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.54");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.55");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -65,56 +65,6 @@ vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-// ----------------------------------------------------------------------
-bool vtkCorrelativeStatistics::SetParameter( const char* parameter,
-                                             int vtkNotUsed( index ),
-                                             vtkVariant value )
-{
-  if ( ! strcmp( parameter, "Learn" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetLearn( true );
-      }
-    else
-      {
-      SetLearn( false );
-      }
-
-    return true;
-    }
-
-  if ( ! strcmp( parameter, "Derive" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetDerive( true );
-      }
-    else
-      {
-      SetDerive( false );
-      }
-
-    return true;
-    }
-
-  if ( ! strcmp( parameter, "Assess" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetAssess( true );
-      }
-    else
-      {
-      SetAssess( false );
-      }
-
-    return true;
-    }
-
-  return false;
 }
 
 // ----------------------------------------------------------------------
