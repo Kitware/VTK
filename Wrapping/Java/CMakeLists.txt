@@ -225,17 +225,23 @@ IF(JAVA_COMPILE)
       DEPENDS ${VTK_JAR_PATH}/vtk.jar)
 
     IF(BUILD_TESTING)
+      IF(WIN32)
+        SET(SEPARATOR "\;")
+      ELSE(WIN32)
+        SET(SEPARATOR ":")
+      ENDIF(WIN32)
+
       FOREACH(jfile
           SimpleVTK
           Regression
+          AxesActor
           TestVTKCanvas
           TestInternalFrames
-          ImagePlaneWidget
-          AxesActor)
+          ImagePlaneWidget)
         ADD_CUSTOM_COMMAND(
           SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
           COMMAND ${JAVA_COMPILE}
-          ARGS -classpath ${VTK_JAR_PATH}/vtk.jar
+          ARGS -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
           -d ${VTK_BINARY_DIR}/Wrapping/Java
           ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
@@ -245,12 +251,6 @@ IF(JAVA_COMPILE)
           COMMENT "Java Test")
         SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
       ENDFOREACH(jfile)
-
-      IF(WIN32)
-        SET(SEPARATOR "\;")
-      ELSE(WIN32)
-        SET(SEPARATOR ":")
-      ENDIF(WIN32)
 
       # Since vtkTesting is within vtkRendering we need blockers
       IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
@@ -290,17 +290,23 @@ IF(JAVA_COMPILE)
         OUTPUTS ${VTK_JAR_PATH}/vtk.jar)
 
       IF(BUILD_TESTING)
+        IF(WIN32)
+          SET(SEPARATOR "\;")
+        ELSE(WIN32)
+          SET(SEPARATOR ":")
+        ENDIF(WIN32)
+
         FOREACH(jfile
             SimpleVTK
             Regression
+            AxesActor
             TestVTKCanvas
             TestInternalFrames
-            ImagePlaneWidget
-            AxesActor)
+            ImagePlaneWidget)
           ADD_CUSTOM_COMMAND(
             SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
             COMMAND ${JAVA_COMPILE}
-            ARGS -classpath ${VTK_JAR_PATH}/vtk.jar
+            ARGS -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
             -d ${VTK_BINARY_DIR}/Wrapping/Java
             ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
@@ -309,12 +315,6 @@ IF(JAVA_COMPILE)
             OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
           SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
         ENDFOREACH(jfile)
-
-        IF(WIN32)
-          SET(SEPARATOR "\;")
-        ELSE(WIN32)
-          SET(SEPARATOR ":")
-        ENDIF(WIN32)
 
         # Since vtkTesting is within vtkRendering we need blockers
         IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
