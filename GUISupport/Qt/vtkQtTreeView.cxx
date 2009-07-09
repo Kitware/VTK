@@ -30,23 +30,28 @@
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLink.h"
+#include "vtkApplyColors.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkQtTreeModelAdapter.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
+#include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.22");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.23");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
 vtkQtTreeView::vtkQtTreeView()
 {
+  this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
+
   this->Widget = new QWidget();
   this->TreeView = new QTreeView();
   this->ColumnView = new QColumnView();
@@ -71,6 +76,10 @@ vtkQtTreeView::vtkQtTreeView()
   this->SetShowRootNode(false);
   this->Selecting = false;
   this->CurrentSelectionMTime = 0;
+  this->ColorArrayNameInternal = 0;
+  double defCol[3] = {0.827,0.827,0.827};
+  this->ApplyColors->SetDefaultPointColor(defCol);
+  this->LastInputMTime = 0;
 
 
   // Drag/Drop parameters - defaults to off
@@ -206,6 +215,32 @@ void vtkQtTreeView::HideColumn(int i)
 }
 
 
+void vtkQtTreeView::AddRepresentationInternal(vtkDataRepresentation* rep)
+{    
+  vtkAlgorithmOutput *annConn, *conn;
+  conn = rep->GetInputConnection();
+  annConn = rep->GetInternalAnnotationOutputPort();
+
+  this->ApplyColors->SetInputConnection(0, conn);
+
+  if(annConn)
+    {
+    this->ApplyColors->SetInputConnection(1, annConn);
+    }
+}
+
+
+void vtkQtTreeView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
+{   
+  vtkAlgorithmOutput *annConn, *conn;
+  conn = rep->GetInputConnection();
+  annConn = rep->GetInternalAnnotationOutputPort();
+
+  this->ApplyColors->RemoveInputConnection(0, conn);
+  this->ApplyColors->RemoveInputConnection(1, annConn);
+  this->TreeAdapter->SetVTKDataObject(0);
+}
+
 //----------------------------------------------------------------------------
 void vtkQtTreeView::SetItemDelegate(QAbstractItemDelegate* delegate) 
 {
@@ -213,18 +248,26 @@ void vtkQtTreeView::SetItemDelegate(QAbstractItemDelegate* delegate)
   this->ColumnView->setItemDelegate(delegate);
 }
 
-//----------------------------------------------------------------------------
-void vtkQtTreeView::AddInputConnection(
-  vtkAlgorithmOutput* vtkNotUsed(conn), vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+void vtkQtTreeView::SetColorByArray(bool b)
 {
-
+  this->ApplyColors->SetUsePointLookupTable(b);
 }
 
-//----------------------------------------------------------------------------
-void vtkQtTreeView::RemoveInputConnection(
-  vtkAlgorithmOutput* vtkNotUsed(conn), vtkAlgorithmOutput* vtkNotUsed(selectionConn))
+bool vtkQtTreeView::GetColorByArray()
 {
+  return this->ApplyColors->GetUsePointLookupTable();
+}
 
+void vtkQtTreeView::SetColorArrayName(const char* name)
+{
+  this->SetColorArrayNameInternal(name);
+  this->ApplyColors->SetInputArrayToProcess(0, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+}
+
+const char* vtkQtTreeView::GetColorArrayName()
+{
+  return this->GetColorArrayNameInternal();
 }
 
 //----------------------------------------------------------------------------
@@ -329,29 +372,81 @@ void vtkQtTreeView::Update()
     return;
     }
 
-  // See if this is the same tree I already have
-  if ((this->TreeAdapter->GetVTKDataObject() != tree) ||
-      (this->TreeAdapter->GetVTKDataObjectMTime() != tree->GetMTime()))
+  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  if ((tree->GetMTime() > this->LastInputMTime) ||
+      (atime > this->CurrentSelectionMTime))
     {
-    this->TreeAdapter->SetVTKDataObject(tree);
-    
+    vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
+    if(annConn)
+      {
+      annConn->GetProducer()->Update();
+      }
+
+    this->ApplyColors->Update();
+
+    this->TreeAdapter->SetVTKDataObject(0);
+    this->TreeAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
+    if(this->ApplyColors->GetUsePointLookupTable())
+      {
+      this->TreeAdapter->SetColorColumnName("vtkApplyColors color");
+      }
+    else
+      {
+      this->TreeAdapter->SetColorColumnName("");
+      }
+
     // Refresh the view
     this->View->update();  
     this->TreeView->expandAll();
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
     this->SetShowRootNode(false);
+
+    if (atime > this->CurrentSelectionMTime)
+      {
+      this->SetVTKSelection();
+      }
+
+    this->CurrentSelectionMTime = atime;
+    this->LastInputMTime = tree->GetMTime();
     }
 
-  if(rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime() != 
-    this->CurrentSelectionMTime)
+  for(int j=0; j<this->TreeAdapter->columnCount(); ++j)
     {
-    // Update the VTK selection
-    this->SetVTKSelection();
-
-    this->CurrentSelectionMTime = 
-      rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
+    QString colName = this->TreeAdapter->headerData(j, Qt::Horizontal).toString();
+    if(colName == "vtkApplyColors color")
+      {
+      this->TreeView->hideColumn(j);
+      }
     }
+}
+
+void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
+{
+  this->Superclass::ApplyViewTheme(theme);
+
+  vtkLookupTable* plutOld = vtkLookupTable::SafeDownCast(
+    this->ApplyColors->GetPointLookupTable());
+  if (!theme->LookupMatchesPointTheme(plutOld))
+    {
+    vtkSmartPointer<vtkLookupTable> plut =
+      vtkSmartPointer<vtkLookupTable>::New();
+    plut->SetHueRange(theme->GetPointHueRange());
+    plut->SetSaturationRange(theme->GetPointSaturationRange());
+    plut->SetValueRange(theme->GetPointValueRange());
+    plut->SetAlphaRange(theme->GetPointAlphaRange());
+    plut->Build();
+    this->ApplyColors->SetPointLookupTable(plut);
+    }
+
+  this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
+  this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
+  this->ApplyColors->SetDefaultCellColor(theme->GetCellColor());
+  this->ApplyColors->SetDefaultCellOpacity(theme->GetCellOpacity());
+  this->ApplyColors->SetSelectedPointColor(theme->GetSelectedPointColor());
+  this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
+  this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
+  this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
 }
 
 //----------------------------------------------------------------------------

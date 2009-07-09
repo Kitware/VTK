@@ -32,6 +32,7 @@
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 #include "vtkUnicodeStringArray.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 #include <vtkstd/algorithm>
@@ -281,11 +282,10 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
     return QVariant();
     }
 
-  if (role == Qt::DecorationRole)
-    {
-    return this->IndexToDecoration[idx];
-    }
-
+  //if (role == Qt::DecorationRole)
+  //  {
+  //  return this->IndexToDecoration[idx];
+  //  }
 
   vtkIdType vertex = static_cast<vtkIdType>(idx.internalId());
   int column = this->ModelColumnToFieldDataColumn(idx.column());
@@ -314,6 +314,40 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
   else if (role == Qt::UserRole)
     {
     return vtkQtTreeModelAdapterArrayValue(arr, vertex, 0);
+    }
+
+  if(this->ColorColumn >= 0)
+    {
+    int colorColumn = this->ModelColumnToFieldDataColumn(this->ColorColumn);
+    vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(colorColumn));
+    if (!colors)
+      {
+      return QVariant();
+      }
+
+    const int nComponents = colors->GetNumberOfComponents();
+    if(nComponents < 3)
+      {
+      return QVariant();
+      }
+
+    unsigned char rgba[4];
+    colors->GetTupleValue(vertex, rgba);
+    int rgb[3];
+    rgb[0] = static_cast<int>(0x0ff & rgba[0]);
+    rgb[1] = static_cast<int>(0x0ff & rgba[1]);
+    rgb[2] = static_cast<int>(0x0ff & rgba[2]);
+
+    if(role == Qt::DecorationRole)
+      {
+      QPixmap pixmap(12, 12);
+      pixmap.fill(QColor(rgb[0],rgb[1],rgb[2]));
+      return QVariant(pixmap);
+      }
+    else if(role == Qt::TextColorRole)
+      {
+      //return QVariant(QColor(rgb[0],rgb[1],rgb[2]));
+      }
     }
 
   return QVariant();

@@ -34,6 +34,7 @@
 
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
+#include "vtkSmartPointer.h"
 
 
 class QAbstractItemDelegate;
@@ -41,6 +42,7 @@ class QAbstractItemView;
 class QColumnView;
 class QItemSelection;
 class QTreeView;
+class vtkApplyColors;
 class QVBoxLayout;
 class vtkQtTreeModelAdapter;
 
@@ -97,22 +99,25 @@ public:
   // Set item delegate to something custom
   void SetItemDelegate(QAbstractItemDelegate* delegate);
 
+  // Description:
+  // The array to use for coloring items in view.  Default is "color".
+  void SetColorArrayName(const char* name);
+  const char* GetColorArrayName();
+  
+  // Description:
+  // Whether to color vertices.  Default is off.
+  void SetColorByArray(bool vis);
+  bool GetColorByArray();
+  vtkBooleanMacro(ColorByArray, bool);
+
+  virtual void ApplyViewTheme(vtkViewTheme* theme);
+
 protected:
   vtkQtTreeView();
   ~vtkQtTreeView();
 
-  // Description:
-  // Connects the algorithm output to the internal pipeline.
-  // This view only supports a single representation.
-  virtual void AddInputConnection(
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
-  
-  // Description:
-  // Removes the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection(
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
+  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
+  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
@@ -120,7 +125,11 @@ private slots:
 private:
   void SetVTKSelection();
   unsigned long CurrentSelectionMTime;
+  unsigned long LastInputMTime;
   
+  vtkSetStringMacro(ColorArrayNameInternal);
+  vtkGetStringMacro(ColorArrayNameInternal);
+
   QPointer<QTreeView> TreeView;
   QPointer<QColumnView> ColumnView;
   QPointer<QWidget> Widget;
@@ -128,6 +137,11 @@ private:
   vtkQtTreeModelAdapter* TreeAdapter;
   QAbstractItemView* View;
   bool Selecting;
+  char* ColorArrayNameInternal;
+  
+//BTX
+  vtkSmartPointer<vtkApplyColors> ApplyColors;
+//ETX
   
   vtkQtTreeView(const vtkQtTreeView&);  // Not implemented.
   void operator=(const vtkQtTreeView&);  // Not implemented.
