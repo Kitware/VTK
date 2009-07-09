@@ -37,7 +37,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.13");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.14");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -110,14 +110,6 @@ int vtkGroupLeafVertices::RequestData(
     return 1;
     }
 
-  // Get the field to filter on
-  vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
-  if (arr == NULL)
-    {
-    vtkErrorMacro(<< "An input array must be specified");
-    return 0;
-    }
-
   // Create builder to extend the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder = 
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
@@ -129,6 +121,25 @@ int vtkGroupLeafVertices::RequestData(
   vtkDataSetAttributes *builderEdgeData = builder->GetEdgeData();
   builderVertexData->CopyAllocate(inputVertexData);
   builderEdgeData->CopyAllocate(inputEdgeData);
+
+  // Get the field to filter on
+  vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
+  if (arr == NULL)
+    {
+    vtkErrorMacro(<< "An input array must be specified");
+    return 0;
+    }
+
+  // Get the builder's group array.
+  vtkAbstractArray *outputGroupArr = 0;
+  char *groupname = arr->GetName();
+  outputGroupArr = builderVertexData->GetAbstractArray(groupname);
+  if (outputGroupArr == NULL)
+    {
+    vtkErrorMacro(<< "Could not find the group array in the builder.");
+    return 0;
+    }
+
 
   // Get the (optional) name field.  Right now this will cause a warning
   // if the array is not set.
@@ -201,6 +212,10 @@ int vtkGroupLeafVertices::RequestData(
           if (outputNameArr)
             {
             outputNameArr->InsertVariantValue(group_vertex, groupVal);
+            }
+          if (outputGroupArr)
+            {
+            outputGroupArr->InsertVariantValue(group_vertex, groupVal);
             }
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
