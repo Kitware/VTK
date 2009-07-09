@@ -56,7 +56,13 @@
 find_program(MPI_COMPILER 
   NAMES mpic++ mpicxx mpiCC mpicc
   DOC "MPI compiler. Used only to detect MPI compilation flags.")
+
+find_program(MPI_C_COMPILER 
+  NAMES mpicc
+  DOC "MPI compiler. Used for generating mpi4pi bindings")
+
 mark_as_advanced(MPI_COMPILER)
+mark_as_advanced(MPI_C_COMPILER)
 
 find_program(MPIEXEC
   NAMES mpiexec mpirun lamexec
