@@ -351,6 +351,13 @@ vtkVariant::~vtkVariant()
     }
 }
 
+vtkVariant::vtkVariant(bool value)
+{
+  this->Data.Char = value;
+  this->Valid = 1;
+  this->Type = VTK_CHAR;
+}
+
 vtkVariant::vtkVariant(char value)
 {
   this->Data.Char = value;

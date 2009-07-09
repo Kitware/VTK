@@ -72,6 +72,10 @@ public:
   vtkVariant(const vtkVariant & other);
 
   // Description:
+  // Create a bool variant. Internally store it as char.
+  vtkVariant(bool value);
+
+  // Description:
   // Create a char variant.
   vtkVariant(char value);
 
