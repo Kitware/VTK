@@ -322,7 +322,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.10");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.11");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
@@ -627,7 +627,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
         for (vtkIdType i = 0; i < npts; i++)
           {
           edgesNeeded.push_back(vtkSLACReader::EdgeEndpoints(pts[i],
-                                                             pts[i%npts]));
+                                                             pts[(i+1)%npts]));
           }
         }
       }
