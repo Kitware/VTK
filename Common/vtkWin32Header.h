@@ -211,6 +211,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_RENDERING_EXPORT __declspec( dllimport ) 
  #endif
 
+ #if defined(vtkTextAnalysis_EXPORTS)
+  #define VTK_TEXT_ANALYSIS_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_TEXT_ANALYSIS_EXPORT __declspec( dllimport ) 
+ #endif
+
  #if defined(vtkVolumeRendering_EXPORTS)
   #define VTK_VOLUMERENDERING_EXPORT __declspec( dllexport ) 
  #else
@@ -252,6 +258,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_INFOVIS_EXPORT
  #define VTK_IO_EXPORT
  #define VTK_RENDERING_EXPORT
+ #define VTK_TEXT_ANALYSIS_EXPORT
  #define VTK_VOLUMERENDERING_EXPORT
  #define VTK_HYBRID_EXPORT
  #define VTK_WIDGETS_EXPORT
