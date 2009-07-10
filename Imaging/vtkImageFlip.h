@@ -33,7 +33,7 @@ public:
 
   // Description:
   // Specify which axis will be flipped.  This must be an integer
-  // between 0 (for x) and 2 (for z).
+  // between 0 (for x) and 2 (for z). Initial value is 0.
   vtkSetMacro(FilteredAxis, int);
   vtkGetMacro(FilteredAxis, int);
 
