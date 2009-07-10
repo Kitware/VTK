@@ -36,8 +36,6 @@
 // Outputs:
 //   Output port 0: A vtkTable containing "document", "uri", "mime_type",
 //     and "contents" columns.
-//   Output port 1: A 1D vtkDenseArray<vtkIdType> storing the number of documents
-//     as a single value.
 //
 // The output "document" column will contain a zero-based integer document index.
 //
@@ -81,8 +79,6 @@ public:
 protected:
   vtkDocumentReader();
   ~vtkDocumentReader();
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
 
   virtual int RequestData(
     vtkInformation* request,

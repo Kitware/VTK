@@ -67,7 +67,7 @@ public:
   vtkstd::vector<vtkIdType> ID;
 };
 
-vtkCxxRevisionMacro(vtkDocumentReader, "1.1");
+vtkCxxRevisionMacro(vtkDocumentReader, "1.2");
 vtkStandardNewMacro(vtkDocumentReader);
 
 vtkDocumentReader::vtkDocumentReader() :
@@ -121,21 +121,6 @@ void vtkDocumentReader::ClearFiles()
   this->Implementation->Files.clear();
   this->Implementation->ID.clear();
   this->Modified();
-}
-
-int vtkDocumentReader::FillOutputPortInformation(int port, vtkInformation* information)
-{
-  switch(port)
-    {
-    case 0:
-      information->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-      return 1;
-    case 1:
-      information->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkArrayData");
-      return 1;
-    }
-
-    return 0;
 }
 
 int vtkDocumentReader::RequestData(
@@ -195,15 +180,6 @@ int vtkDocumentReader::RequestData(
     uri_array->Delete();
     mime_type_array->Delete();
     content_array->Delete();
-
-    vtkDenseArray<vtkIdType>* const output_document_count_array = vtkDenseArray<vtkIdType>::New();
-    output_document_count_array->Resize(1);
-    output_document_count_array->SetValue(0, this->Implementation->Files.size());
-
-    vtkArrayData* const output_document_count = vtkArrayData::GetData(outputVector, 1);
-    output_document_count->ClearArrays();
-    output_document_count->AddArray(output_document_count_array);
-    output_document_count_array->Delete();
     }
   catch(vtkstd::exception& e)
     {
