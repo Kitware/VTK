@@ -44,7 +44,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.23");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.24");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -425,19 +425,7 @@ void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Superclass::ApplyViewTheme(theme);
 
-  vtkLookupTable* plutOld = vtkLookupTable::SafeDownCast(
-    this->ApplyColors->GetPointLookupTable());
-  if (!theme->LookupMatchesPointTheme(plutOld))
-    {
-    vtkSmartPointer<vtkLookupTable> plut =
-      vtkSmartPointer<vtkLookupTable>::New();
-    plut->SetHueRange(theme->GetPointHueRange());
-    plut->SetSaturationRange(theme->GetPointSaturationRange());
-    plut->SetValueRange(theme->GetPointValueRange());
-    plut->SetAlphaRange(theme->GetPointAlphaRange());
-    plut->Build();
-    this->ApplyColors->SetPointLookupTable(plut);
-    }
+  this->ApplyColors->SetPointLookupTable(theme->GetPointLookupTable());
 
   this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
   this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
