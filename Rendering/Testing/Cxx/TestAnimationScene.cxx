@@ -44,7 +44,7 @@ public:
       this->Cleanup();
     }
   
-  void StartCue(vtkAnimationCue::AnimationCueInfo *info,
+  void StartCue(vtkAnimationCue::AnimationCueInfo *vtkNotUsed(info),
                 vtkRenderer *ren)
     {
       cout << "*** IN StartCue " << endl;
@@ -74,9 +74,10 @@ public:
       ren->Render();
     }
   
-  void EndCue(vtkAnimationCue::AnimationCueInfo *info,
-              vtkRenderer* ren)
+  void EndCue(vtkAnimationCue::AnimationCueInfo *vtkNotUsed(info),
+              vtkRenderer *ren)
     {
+      (void)ren;
       // don't remove the actor for the regression image.
 //      ren->RemoveActor(this->Actor);
       this->Cleanup();
@@ -116,7 +117,7 @@ public:
       return new vtkAnimationCueObserver;
     }
   
-  virtual void Execute(vtkObject *caller,
+  virtual void Execute(vtkObject *vtkNotUsed(caller),
                        unsigned long event,
                        void *calldata)
     {
