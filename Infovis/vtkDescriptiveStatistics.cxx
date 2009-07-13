@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.72");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.73");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -88,23 +88,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  vtkIdType nRow = inData->GetNumberOfRows();
-  if ( ! nRow )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->Selection.size() )
-    {
-    return;
-    }
-
-  vtkIdType nCol = inData->GetNumberOfColumns();
-  if ( ! nCol )
-    {
-    return;
-    }
-  
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
   outMeta->AddColumn( stringCol );
@@ -145,6 +128,23 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    return;
+    }
+
+  if ( ! this->Internals->Selection.size() )
+    {
+    return;
+    }
+
+  vtkIdType nCol = inData->GetNumberOfColumns();
+  if ( ! nCol )
+    {
+    return;
+    }
+  
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
         it != this->Internals->Selection.end(); ++ it )
     {
