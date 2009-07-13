@@ -1263,6 +1263,7 @@ ReadStream(int _nDims,
         {
         delete [] wrds[i++];
         }
+      delete [] wrds;
       if ( (fileImageDim == 0) || (fileImageDim > m_NDims) )
         {
         // if optional file dimension size is not give or is larger than
@@ -1318,6 +1319,11 @@ ReadStream(int _nDims,
           }
         }
       delete readStreamTemp;
+      for(i=0; i<nWrds; i++)
+        {
+        delete [] wrds[i++];
+        }
+      delete [] wrds;
       }
     else if(strstr(m_ElementDataFileName, "%"))
       {
@@ -2795,6 +2801,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         {
         delete [] wrds[i++];
         }
+      delete [] wrds;
       if ( (fileImageDim == 0) || (fileImageDim > m_NDims) )
         {
         // if optional file dimension size is not give or is larger than
@@ -2967,6 +2974,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         {
         delete [] wrds[i++];
         }
+      delete [] wrds;
           
       delete readStreamTemp;
       }
