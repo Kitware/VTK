@@ -28,11 +28,9 @@
 #include <vtkTable.h>
 #include <vtkUnicodeStringArray.h>
 
-#include <boost/algorithm/string.hpp>
-
 #include <stdexcept>
 
-vtkCxxRevisionMacro(vtkTokenLengthFilter, "1.1");
+vtkCxxRevisionMacro(vtkTokenLengthFilter, "1.2");
 vtkStandardNewMacro(vtkTokenLengthFilter);
 
 vtkTokenLengthFilter::vtkTokenLengthFilter() :

@@ -27,12 +27,10 @@
 #include <vtkTable.h>
 #include <vtkNGramExtraction.h>
 
-#include <boost/tokenizer.hpp>
-
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/stdexcept>
 
-vtkCxxRevisionMacro(vtkNGramExtraction, "1.1");
+vtkCxxRevisionMacro(vtkNGramExtraction, "1.2");
 vtkStandardNewMacro(vtkNGramExtraction);
 
 vtkNGramExtraction::vtkNGramExtraction() :
