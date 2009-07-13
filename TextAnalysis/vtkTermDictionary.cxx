@@ -2,12 +2,6 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTermDictionary.cxx
-  
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,6 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include "vtkCommand.h"
 #include "vtkInformation.h"
@@ -35,7 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkTermDictionary
 
-vtkCxxRevisionMacro(vtkTermDictionary, "1.1");
+vtkCxxRevisionMacro(vtkTermDictionary, "1.2");
 vtkStandardNewMacro(vtkTermDictionary);
 
 vtkTermDictionary::vtkTermDictionary()

@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include <vtkCommand.h>
 #include <vtkIdTypeArray.h>
@@ -30,7 +31,7 @@
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/stdexcept>
 
-vtkCxxRevisionMacro(vtkNGramExtraction, "1.2");
+vtkCxxRevisionMacro(vtkNGramExtraction, "1.3");
 vtkStandardNewMacro(vtkNGramExtraction);
 
 vtkNGramExtraction::vtkNGramExtraction() :

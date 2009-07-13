@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include <vtkCommand.h>
 #include <vtkDataSetAttributes.h>
@@ -30,7 +31,7 @@
 
 #include <stdexcept>
 
-vtkCxxRevisionMacro(vtkTokenLengthFilter, "1.2");
+vtkCxxRevisionMacro(vtkTokenLengthFilter, "1.3");
 vtkStandardNewMacro(vtkTokenLengthFilter);
 
 vtkTokenLengthFilter::vtkTokenLengthFilter() :
