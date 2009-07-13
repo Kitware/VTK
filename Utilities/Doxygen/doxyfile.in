@@ -56,8 +56,10 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/TextAnalysis" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Views" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/VolumeRendering" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2tests.dox" \

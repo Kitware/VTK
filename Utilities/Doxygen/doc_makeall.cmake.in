@@ -193,10 +193,11 @@ set(SOURCE_DIRECTORIES
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Infovis"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/IO"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Parallel"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Widgets"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Rendering"
+  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/TextAnalysis"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Views"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/VolumeRendering"
+  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Widgets"
 )
 
 # ----------------------------------------------------------------------------

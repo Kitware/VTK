@@ -122,10 +122,11 @@ my %default =
             "../../Infovis",
             "../../IO",
             "../../Parallel",
-            "../../Patented",
             "../../Rendering",
+            "../../TextAnalysis",
             "../../Views",
-            "../../VolumeRendering"],
+            "../../VolumeRendering"
+            "../../Widgets"],
    relativeto => "",
    temp => "doc_header2doxygen.tmp",
    to => "../../../VTK-doxygen"
