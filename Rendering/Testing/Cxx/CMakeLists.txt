@@ -19,6 +19,7 @@ IF(VTK_USE_DISPLAY)
     LoadOpenGLExtension.cxx
     SurfacePlusEdges.cxx
     TestActorLightingFlag.cxx
+    TestAnimationScene.cxx
     TestBlurAndSobelPasses.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
