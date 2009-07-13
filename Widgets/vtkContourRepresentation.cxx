@@ -33,7 +33,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.25");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.26");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -57,19 +57,21 @@ vtkContourRepresentation::~vtkContourRepresentation()
 {
   this->SetPointPlacer(NULL);
   this->SetLineInterpolator(NULL);
+  this->Internal->ClearNodes();
   
-  for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
-    {
-    for (unsigned int j=0;j<this->Internal->Nodes[i]->Points.size();j++)
-      {
-      delete this->Internal->Nodes[i]->Points[j];
-      }
-    this->Internal->Nodes[i]->Points.clear();
-    delete this->Internal->Nodes[i];
-    }
-  this->Internal->Nodes.clear(); 
   delete this->Internal;
 }
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation::ClearAllNodes()
+{
+  this->Internal->ClearNodes(); 
+  
+  this->BuildLines();
+  this->NeedToRender = 1;
+  this->Modified();
+}
+
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],

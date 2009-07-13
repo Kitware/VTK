@@ -54,7 +54,7 @@
 #define __vtkContourRepresentation_h
 
 #include "vtkWidgetRepresentation.h"
-#include <vtkstd/vector> // Required for vector
+#include <vtkstd/vector> // STL Header; Required for vector
 
 class vtkContourLineInterpolator;
 class vtkPointPlacer;
@@ -82,6 +82,19 @@ class vtkContourRepresentationInternals
 {
 public:
   vtkstd::vector<vtkContourRepresentationNode*> Nodes;
+  void ClearNodes()
+  {
+    for(unsigned int i=0;i<this->Nodes.size();i++)
+      {
+      for (unsigned int j=0;j<this->Nodes[i]->Points.size();j++)
+        {
+        delete this->Nodes[i]->Points[j];
+        }
+      this->Nodes[i]->Points.clear();
+      delete this->Nodes[i];
+      }
+    this->Nodes.clear(); 
+  }   
 };
 //ETX
 
@@ -242,7 +255,11 @@ public:
   // Delete the nth node. Return 1 on success or 0 if n
   // is out of range.
   virtual int DeleteNthNode( int n );
-
+  
+  // Description:
+  // Delete all nodes. 
+  virtual void ClearAllNodes();
+  
   // Description:
   // Given a specific X, Y pixel location, add a new node 
   // on the contour at this location. 
