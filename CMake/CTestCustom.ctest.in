@@ -6,48 +6,51 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   # These tests do not actually run any VTK code
   HeaderTesting-Common
   HeaderTesting-Filtering
-  HeaderTesting-Graphics
   HeaderTesting-GenericFiltering
-  HeaderTesting-Imaging
-  HeaderTesting-IO
-  HeaderTesting-Rendering
-  HeaderTesting-VolumeRendering
-  HeaderTesting-Hybrid
-  HeaderTesting-Parallel
-  HeaderTesting-Widgets
-  HeaderTesting-Infovis
   HeaderTesting-Geovis
+  HeaderTesting-Graphics
+  HeaderTesting-Hybrid
+  HeaderTesting-Imaging
+  HeaderTesting-Infovis
+  HeaderTesting-IO
+  HeaderTesting-Parallel
+  HeaderTesting-Rendering
+  HeaderTesting-TextAnalysis
   HeaderTesting-Views
+  HeaderTesting-VolumeRendering
+  HeaderTesting-Widgets
   
   PrintSelf-Common
   PrintSelf-Filtering
-  PrintSelf-Graphics
   PrintSelf-GenericFiltering
-  PrintSelf-Imaging
-  PrintSelf-IO
-  PrintSelf-Rendering
-  PrintSelf-VolumeRendering
-  PrintSelf-Hybrid
-  PrintSelf-Parallel
-  PrintSelf-Widgets
-  PrintSelf-Infovis
   PrintSelf-Geovis
+  PrintSelf-Graphics
+  PrintSelf-Hybrid
+  PrintSelf-Imaging
+  PrintSelf-Infovis
+  PrintSelf-IO
+  PrintSelf-Parallel
+  PrintSelf-Rendering
+  PrintSelf-TextAnalysis
   PrintSelf-Views
+  PrintSelf-VolumeRendering
+  PrintSelf-Widgets
 
   TestSetObjectMacro-Common
   TestSetObjectMacro-Filtering
-  TestSetObjectMacro-Graphics
   TestSetObjectMacro-GenericFiltering
-  TestSetObjectMacro-Imaging
-  TestSetObjectMacro-IO
-  TestSetObjectMacro-Rendering
-  TestSetObjectMacro-VolumeRendering
-  TestSetObjectMacro-Hybrid
-  TestSetObjectMacro-Parallel
-  TestSetObjectMacro-Widgets
-  TestSetObjectMacro-Infovis
   TestSetObjectMacro-Geovis
+  TestSetObjectMacro-Graphics
+  TestSetObjectMacro-Hybrid
+  TestSetObjectMacro-Imaging
+  TestSetObjectMacro-Infovis
+  TestSetObjectMacro-IO
+  TestSetObjectMacro-Parallel
+  TestSetObjectMacro-Rendering
+  TestSetObjectMacro-TextAnalysis
   TestSetObjectMacro-Views
+  TestSetObjectMacro-VolumeRendering
+  TestSetObjectMacro-Widgets
   
   # this one runs python which then runs two program so no memory checking there
   Sockets-image
@@ -239,6 +242,8 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   "vtk[^\\.]+(Java|Python|Tcl).cxx"
   "Utilities.kwsys"
   "Utilities.vtksys"
+  "vtkOpenGLstate" # debugging class
+  "Testing.Cxx*cxx"
   )
 
 # Temporarily: to show us *all* the remaining warnings on the
