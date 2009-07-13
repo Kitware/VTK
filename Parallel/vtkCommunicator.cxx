@@ -46,7 +46,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.58");
+vtkCxxRevisionMacro(vtkCommunicator, "1.59");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -236,7 +236,7 @@ int vtkCommunicator::SendMultiBlockDataSet(vtkMultiBlockDataSet* mbds,
   for (int cc=0; (cc < numblocks) && returnCode; cc++)
     {
     vtkDataObject* block = mbds->GetBlock(cc);
-    int dataType = (block? block->GetDataObjectType() : 0);
+    int dataType = (block? block->GetDataObjectType() : -1);
     returnCode = returnCode && this->Send(&dataType, 1, remoteHandle, tag);
     if (block)
       {
@@ -259,7 +259,7 @@ int vtkCommunicator::SendTemporalDataSet(vtkTemporalDataSet* mbds,
   for (int cc=0; cc < numblocks && returnCode; cc++)
     {
     vtkDataObject* block = mbds->GetTimeStep(cc);
-    int dataType = (block? block->GetDataObjectType() : 0);
+    int dataType = (block? block->GetDataObjectType() : -1);
     returnCode = returnCode && this->Send(&dataType, 1, remoteHandle, tag);
     if (block)
       {
@@ -481,6 +481,7 @@ int vtkCommunicator::ReceiveMultiBlockDataSet(
 
   int numblocks = 0;
   returnCode = this->Receive(&numblocks, 1, remoteHandle, tag);
+  mbds->SetNumberOfBlocks(numblocks);
   for (int cc=0; (cc < numblocks) && returnCode; cc++)
     {
     int dataType = 0;
@@ -505,6 +506,7 @@ int vtkCommunicator::ReceiveTemporalDataSet(
 
   int numblocks = 0;
   returnCode = this->Receive(&numblocks, 1, remoteHandle, tag);
+  mbds->SetNumberOfTimeSteps(numblocks);
   for (int cc=0; (cc < numblocks) && returnCode; cc++)
     {
     int dataType = -1;
