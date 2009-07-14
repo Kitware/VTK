@@ -32,12 +32,14 @@
 #include "vtkTable.h"
 #include "vtkTree.h"
 #include "vtkVariant.h"
+#include "vtkVariantArray.h"
+#include "vtkUnicodeStringArray.h"
 
 #include <vtksys/stl/map>
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.14");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.15");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -158,12 +160,6 @@ int vtkGroupLeafVertices::RequestData(
       }
     }
 
-  // Make the builder's field data a table
-  // so we can call InsertNextBlankRow.
-  vtkSmartPointer<vtkTable> treeTable = 
-    vtkSmartPointer<vtkTable>::New();
-  treeTable->SetRowData(builder->GetVertexData());
-
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
   vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkVariant>,
@@ -205,7 +201,54 @@ int vtkGroupLeafVertices::RequestData(
         else
           {
           group_vertex = builder->AddVertex();
-          treeTable->InsertNextBlankRow(-1);
+
+          vtkIdType ncol = builderVertexData->GetNumberOfArrays();
+          for (vtkIdType i = 0; i < ncol; i++)
+            {
+            vtkAbstractArray* arr = builderVertexData->GetAbstractArray(i);
+            int comps = arr->GetNumberOfComponents();
+            if (vtkDataArray::SafeDownCast(arr))
+              {
+              vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
+              double* tuple = new double[comps];
+              for (int j = 0; j < comps; j++)
+                {
+                tuple[j] = -1;
+                }
+              data->InsertTuple(group_vertex, tuple);
+              delete[] tuple;
+              }
+            else if (vtkStringArray::SafeDownCast(arr))
+              {
+              vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
+              for (int j = 0; j < comps; j++)
+                {
+                data->InsertValue(group_vertex + j - 1, vtkStdString(""));
+                }
+              }
+            else if (vtkVariantArray::SafeDownCast(arr))
+              {
+              vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+              for (int j = 0; j < comps; j++)
+                {
+                data->InsertValue(group_vertex + j - 1, vtkVariant());
+                }
+              }
+            else if (vtkUnicodeStringArray::SafeDownCast(arr))
+              {
+              vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+              for (int j = 0; j < comps; j++)
+                {
+                data->InsertValue(group_vertex + j - 1, vtkUnicodeString::from_utf8(""));
+                }
+              }
+            else
+              {
+              vtkErrorMacro(<< "Unsupported array type for InsertNextBlankRow");
+              }
+
+            }
+
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, group_e.Id);
           group_vertices[vtksys_stl::make_pair(v, groupVal)] = group_vertex;
