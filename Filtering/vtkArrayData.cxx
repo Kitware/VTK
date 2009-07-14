@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.5");
+vtkCxxRevisionMacro(vtkArrayData, "1.6");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -119,5 +119,31 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
     }
     
   return this->Implementation->Arrays[index];
+}
+
+void vtkArrayData::ShallowCopy(vtkDataObject* other)
+{
+  if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
+    {
+    this->Implementation->Arrays = array_data->Implementation->Arrays;
+    this->Modified();
+    }
+
+  Superclass::ShallowCopy(other);
+}
+
+void vtkArrayData::DeepCopy(vtkDataObject* other)
+{
+  if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
+    {
+    this->Implementation->Arrays.clear();
+    for(vtkIdType i = 0; i != array_data->Implementation->Arrays.size(); ++i)
+      {
+      this->Implementation->Arrays.push_back(array_data->Implementation->Arrays[i]->DeepCopy());
+      }
+    this->Modified();
+    }
+
+  Superclass::DeepCopy(other);
 }
 

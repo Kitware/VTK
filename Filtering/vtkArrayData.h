@@ -68,6 +68,9 @@ public:
   // Returns the n-th vtkArray in the collection
   vtkArray* GetArray(vtkIdType index);
 
+  virtual void ShallowCopy(vtkDataObject* other);
+  virtual void DeepCopy(vtkDataObject* other);
+
 protected:
   vtkArrayData();
   ~vtkArrayData();
