@@ -436,11 +436,13 @@ public:
   //BTX
   // Description:
   // Possible attribute types.
+  // POINT_THEN_CELL is provided for consistency with FieldAssociations.
   enum AttributeTypes
   {
     POINT,
     CELL,
     FIELD,
+    POINT_THEN_CELL,
     VERTEX,
     EDGE,
     ROW,

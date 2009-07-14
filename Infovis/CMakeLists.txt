@@ -67,6 +67,7 @@ vtkMultiCorrelativeStatistics.cxx
 vtkMutableGraphHelper.cxx
 vtkNetworkHierarchy.cxx
 vtkOrderStatistics.cxx
+vtkPassArrays.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx
 vtkPassThroughLayoutStrategy.cxx
