@@ -242,8 +242,8 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   "vtk[^\\.]+(Java|Python|Tcl).cxx"
   "Utilities.kwsys"
   "Utilities.vtksys"
-  "vtkOpenGLstate" # debugging class
-  "Testing.Cxx*cxx"
+  "*vtkOpenGLstate" # debugging class
+  "*Testing.Cxx*cxx"
   )
 
 # Temporarily: to show us *all* the remaining warnings on the
