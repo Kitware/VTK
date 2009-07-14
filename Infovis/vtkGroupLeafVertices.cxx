@@ -39,7 +39,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.15");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.16");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -205,11 +205,11 @@ int vtkGroupLeafVertices::RequestData(
           vtkIdType ncol = builderVertexData->GetNumberOfArrays();
           for (vtkIdType i = 0; i < ncol; i++)
             {
-            vtkAbstractArray* arr = builderVertexData->GetAbstractArray(i);
+            vtkAbstractArray* arr2 = builderVertexData->GetAbstractArray(i);
             int comps = arr->GetNumberOfComponents();
-            if (vtkDataArray::SafeDownCast(arr))
+            if (vtkDataArray::SafeDownCast(arr2))
               {
-              vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
+              vtkDataArray* data = vtkDataArray::SafeDownCast(arr2);
               double* tuple = new double[comps];
               for (int j = 0; j < comps; j++)
                 {
@@ -218,25 +218,25 @@ int vtkGroupLeafVertices::RequestData(
               data->InsertTuple(group_vertex, tuple);
               delete[] tuple;
               }
-            else if (vtkStringArray::SafeDownCast(arr))
+            else if (vtkStringArray::SafeDownCast(arr2))
               {
-              vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
+              vtkStringArray* data = vtkStringArray::SafeDownCast(arr2);
               for (int j = 0; j < comps; j++)
                 {
                 data->InsertValue(group_vertex + j - 1, vtkStdString(""));
                 }
               }
-            else if (vtkVariantArray::SafeDownCast(arr))
+            else if (vtkVariantArray::SafeDownCast(arr2))
               {
-              vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+              vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr2);
               for (int j = 0; j < comps; j++)
                 {
                 data->InsertValue(group_vertex + j - 1, vtkVariant());
                 }
               }
-            else if (vtkUnicodeStringArray::SafeDownCast(arr))
+            else if (vtkUnicodeStringArray::SafeDownCast(arr2))
               {
-              vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+              vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr2);
               for (int j = 0; j < comps; j++)
                 {
                 data->InsertValue(group_vertex + j - 1, vtkUnicodeString::from_utf8(""));
