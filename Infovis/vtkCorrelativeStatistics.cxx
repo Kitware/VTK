@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.55");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.56");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -78,17 +78,6 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  vtkIdType nRow = inData->GetNumberOfRows();
-  if ( ! nRow )
-    {
-    return;
-    }
-
-  if ( ! inData->GetNumberOfColumns() )
-    {
-    return;
-    }
-
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
   outMeta->AddColumn( idTypeCol );
@@ -128,6 +117,17 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   doubleCol->SetName( "M XY" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
+
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    return;
+    }
+
+  if ( ! inData->GetNumberOfColumns() )
+    {
+    return;
+    }
 
   for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
         it != this->Internals->Selection.end(); ++ it )
