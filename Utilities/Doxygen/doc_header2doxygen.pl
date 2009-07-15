@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2005-06-23 17:26:59 barre>
+# Time-stamp: <2009-07-15 11:27:00 barre>
 #
 # Convert VTK headers to doxygen format
 #
@@ -125,7 +125,7 @@ my %default =
             "../../Rendering",
             "../../TextAnalysis",
             "../../Views",
-            "../../VolumeRendering"
+            "../../VolumeRendering",
             "../../Widgets"],
    relativeto => "",
    temp => "doc_header2doxygen.tmp",
