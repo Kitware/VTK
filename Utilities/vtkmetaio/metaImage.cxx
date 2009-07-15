@@ -1261,7 +1261,7 @@ ReadStream(int _nDims,
         }
       for(i=0; i<nWrds; i++)
         {
-        delete [] wrds[i++];
+        delete [] wrds[i];
         }
       delete [] wrds;
       if ( (fileImageDim == 0) || (fileImageDim > m_NDims) )
@@ -1321,7 +1321,7 @@ ReadStream(int _nDims,
       delete readStreamTemp;
       for(i=0; i<nWrds; i++)
         {
-        delete [] wrds[i++];
+        delete [] wrds[i];
         }
       delete [] wrds;
       }
@@ -2799,7 +2799,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         }
       for(i=0; i<nWrds; i++)
         {
-        delete [] wrds[i++];
+        delete [] wrds[i];
         }
       delete [] wrds;
       if ( (fileImageDim == 0) || (fileImageDim > m_NDims) )
@@ -2972,7 +2972,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
      
       for(i=0; i<nWrds; i++)
         {
-        delete [] wrds[i++];
+        delete [] wrds[i];
         }
       delete [] wrds;
           
