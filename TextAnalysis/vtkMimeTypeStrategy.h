@@ -24,7 +24,18 @@
 #include <vtkObject.h>
 #include <vtkStdString.h> //Needed for lookup
 
-/// Abstract interface for an object that can identify the MIME type of a file
+// .NAME vtkMimeTypeStrategy - Abstract interface for an object that can identify the
+// MIME type of a resource.
+//
+// .SECTION Description
+// Concrete derivatives of vtkMimeTypeStrategy implement strategies for looking-up the
+// MIME type of a resource, given its URI, its content, or both.
+//
+// .SECTION See Also
+// vtkMimeTypes, vtkFileExtensionMimeTypeStrategy.
+//
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 class VTK_TEXT_ANALYSIS_EXPORT vtkMimeTypeStrategy :
   public vtkObject
 {
@@ -32,9 +43,11 @@ public:
   vtkTypeRevisionMacro(vtkMimeTypeStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  /// Called to give this strategy an opportunity to identify the MIME type of a file.
-  /// Return the MIME type if positively identified, otherwise return an empty string.
-  virtual vtkStdString Lookup(const vtkStdString& path) = 0;
+  // Description:
+  // Given a resource URI (which could be empty), and the resource contents (would could
+  // be empty), implementations should return the MIME type of the resource, or empty-string
+  // if the type cannot be identified.
+  virtual vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end) = 0;
 
 protected:
   vtkMimeTypeStrategy();

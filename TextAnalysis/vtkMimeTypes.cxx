@@ -23,7 +23,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 
-#include <vector>
+#include <vtkstd/vector>
 
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes::Implementation
@@ -37,7 +37,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes
 
-vtkCxxRevisionMacro(vtkMimeTypes, "1.3");
+vtkCxxRevisionMacro(vtkMimeTypes, "1.4");
 vtkStandardNewMacro(vtkMimeTypes);
 
 vtkMimeTypes::vtkMimeTypes() :
@@ -90,11 +90,31 @@ void vtkMimeTypes::AppendStrategy(vtkMimeTypeStrategy* strategy)
   this->Internal->Strategies.insert(this->Internal->Strategies.end(), strategy);
 }
 
-vtkStdString vtkMimeTypes::Lookup(const vtkStdString& path)
+vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri)
+{
+  return this->Lookup(uri, static_cast<const vtkTypeUInt8*>(0), static_cast<const vtkTypeUInt8*>(0));
+}
+
+vtkStdString vtkMimeTypes::Lookup(const char* begin, const char* end)
+{
+  return this->Lookup(vtkStdString(), reinterpret_cast<const vtkTypeUInt8*>(begin), reinterpret_cast<const vtkTypeUInt8*>(end));
+}
+
+vtkStdString vtkMimeTypes::Lookup(const vtkTypeUInt8* begin, const vtkTypeUInt8* end)
+{
+  return this->Lookup(vtkStdString(), begin, end);
+}
+
+vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri, const char* begin, const char* end)
+{
+  return this->Lookup(uri, reinterpret_cast<const vtkTypeUInt8*>(begin), reinterpret_cast<const vtkTypeUInt8*>(end));
+}
+
+vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end)
 {
   for(unsigned int i = 0; i != this->Internal->Strategies.size(); ++i)
     {
-    const vtkStdString mime_type = this->Internal->Strategies[i]->Lookup(path);
+    const vtkStdString mime_type = this->Internal->Strategies[i]->Lookup(uri, vtkstd::min(begin, end), vtkstd::max(begin, end));
     if(mime_type.size())
       return mime_type;
     }

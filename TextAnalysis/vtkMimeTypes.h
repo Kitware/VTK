@@ -35,7 +35,8 @@ class vtkMimeTypeStrategy;
 //
 // vtkMimeTypes relies on a set of strategy objects to perform the actual lookups.
 // These strategy objects may determine the MIME type based on arbitrary methods,
-// including looking at file extensions, examining the contents of a resource, etc.
+// including looking at file extensions, examining the contents of the resource, or
+// some combination thereof.
 //
 // By default, vtkMimeTypes is configured with a simple cross-platform strategy
 // that identifies resources based on a hard-coded list of filename extensions, but
@@ -70,9 +71,25 @@ public:
   void AppendStrategy(vtkMimeTypeStrategy* strategy);
 
   // Description:
-  // Returns the MIME-type of a URI, or empty-string if the type cannot be identified.
-  // Note that strategies may retrieve / open the given resource for identification.
+  // Given a resource URI, returns the MIME-type of the resource, or empty-string
+  // if the type cannot be identified.
   vtkStdString Lookup(const vtkStdString& uri);
+  // Description:
+  // Given the contents of a resource, returns the MIME-type of the resource, or
+  // empty-string if the type cannot be identified.
+  vtkStdString Lookup(const char* begin, const char* end);
+  // Description:
+  // Given the contents of a resource, returns the MIME-type of the resource, or
+  // empty-string if the type cannot be identified.
+  vtkStdString Lookup(const vtkTypeUInt8* begin, const vtkTypeUInt8* end);
+  // Description:
+  // Given a resource URI and its contents, returns the MIME-type of the resource,
+  // or empty-string if the type cannot be identified.
+  vtkStdString Lookup(const vtkStdString& uri, const char* begin, const char* end);
+  // Description:
+  // Given a resource URI and its contents, returns the MIME-type of the resource,
+  // or empty-string if the type cannot be identified.
+  vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end);
 
 private:
   vtkMimeTypes();

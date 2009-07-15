@@ -40,7 +40,7 @@ public:
   vtkTypeRevisionMacro(vtkFileExtensionMimeTypeStrategy, vtkMimeTypeStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkStdString Lookup(const vtkStdString& uri);
+  vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end);
 
 protected:
   vtkFileExtensionMimeTypeStrategy();
