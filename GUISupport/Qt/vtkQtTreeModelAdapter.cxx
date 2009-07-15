@@ -553,6 +553,8 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
     return 0;
     }
 
+  vtkIdType vertex = static_cast<vtkIdType>(indexes.at(0).internalId());
+
   vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New(); 
   vtkSmartPointer<vtkSelectionNode> node =
     vtkSmartPointer<vtkSelectionNode>::New();
@@ -563,7 +565,7 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
   node->SetSelectionList(index_arr);
   indexSelection->AddNode(node);
   
-  index_arr->InsertNextValue(indexes.at(0).internalId());
+  index_arr->InsertNextValue(vertex);
 
   vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::New();
   pedigreeIdSelection.TakeReference(vtkConvertSelection::ToSelectionType(indexSelection, this->Tree, vtkSelectionNode::PEDIGREEIDS));
@@ -585,11 +587,11 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
     if (colors && colors->GetNumberOfComponents() >= 3)
       {
       unsigned char rgba[4];
-      colors->GetTupleValue(indexes.at(0).internalId(), rgba);
+      colors->GetTupleValue(vertex, rgba);
       double rgb[3];
-      rgb[0] = static_cast<int>(0x0ff & rgba[0])/255;
-      rgb[1] = static_cast<int>(0x0ff & rgba[1])/255;
-      rgb[2] = static_cast<int>(0x0ff & rgba[2])/255;
+      rgb[0] = (0x0ff & rgba[0]);
+      rgb[1] = (0x0ff & rgba[1]);
+      rgb[2] = (0x0ff & rgba[2]);
       ainfo->Set(vtkAnnotation::COLOR(),rgb,3);
       }
     }
