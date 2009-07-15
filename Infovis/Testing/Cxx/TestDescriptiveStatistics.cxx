@@ -141,9 +141,9 @@ int TestDescriptiveStatistics( int, char *[] )
   haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
 
 // -- Test Learn and Assess Modes -- 
-  haruspex->SetLearn( true );
-  haruspex->SetDerive( true );
-  haruspex->SetAssess( true );
+  haruspex->SetLearnOption( true );
+  haruspex->SetDeriveOption( true );
+  haruspex->SetAssessOption( true );
   haruspex->SignedDeviationsOff();
   haruspex->Update();
 
@@ -254,9 +254,9 @@ int TestDescriptiveStatistics( int, char *[] )
   paramsTable->SetValueByName( 1, "Mean", 50. );
   
   haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
-  haruspex->SetLearn( false );
-  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
-  haruspex->SetAssess( true );
+  haruspex->SetLearnOption( false );
+  haruspex->SetDeriveOption( false ); // Do not recalculate nor rederive a model
+  haruspex->SetAssessOption( true );
   haruspex->Update();
 
   m1vals = vtkDoubleArray::SafeDownCast(
@@ -345,9 +345,9 @@ int TestDescriptiveStatistics( int, char *[] )
   ds->AddColumn( "Metric" );
 
   // Test Learn and Derive only
-  ds->SetLearn( true );
-  ds->SetDerive( true );
-  ds->SetAssess( false );
+  ds->SetLearnOption( true );
+  ds->SetDeriveOption( true );
+  ds->SetAssessOption( false );
   ds->Update();
 
   cout << "## Calculated the following statistics ( "

@@ -141,9 +141,9 @@ int TestCorrelativeStatistics( int, char *[] )
   cs->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
 
 // -- Test Learn Mode -- 
-  cs->SetLearn( true );
-  cs->SetDerive( true );
-  cs->SetAssess( false );
+  cs->SetLearnOption( true );
+  cs->SetDeriveOption( true );
+  cs->SetAssessOption( false );
   cs->Update();
 
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
@@ -224,9 +224,9 @@ int TestCorrelativeStatistics( int, char *[] )
   cs->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
 
   // Test Assess only (Do not recalculate nor rederive a model)
-  cs->SetLearn( false );
-  cs->SetDerive( false );
-  cs->SetAssess( true );
+  cs->SetLearnOption( false );
+  cs->SetDeriveOption( false );
+  cs->SetAssessOption( true );
   cs->Update();
 
   int nOutliers = 0;

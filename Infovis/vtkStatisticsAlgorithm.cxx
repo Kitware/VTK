@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.36");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.37");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -38,10 +38,10 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->SetNumberOfOutputPorts( 2 );
 
   // If not told otherwise, only run Learn option
-  this->Learn = true;
-  this->Derive = true;
+  this->LearnOption = true;
+  this->DeriveOption = true;
   this->FullWasDerived = false;
-  this->Assess = false;
+  this->AssessOption = false;
   this->AssessNames = vtkStringArray::New();
   this->AssessParameters = 0;
   this->Internals = new vtkStatisticsAlgorithmPrivate;
@@ -61,10 +61,10 @@ vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "Learn: " << this->Learn << endl;
-  os << indent << "Derive: " << this->Derive << endl;
+  os << indent << "Learn: " << this->LearnOption << endl;
+  os << indent << "Derive: " << this->DeriveOption << endl;
   os << indent << "FullWasDerived: " << this->FullWasDerived << endl;
-  os << indent << "Assess: " << this->Assess << endl;
+  os << indent << "Assess: " << this->AssessOption << endl;
   if ( this->AssessParameters )
     {
     this->AssessParameters->PrintSelf( os, indent.GetNextIndent() );
@@ -77,7 +77,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::SetAssessParameter( vtkIdType id, vtkStdString name )
+void vtkStatisticsAlgorithm::SetAssessOptionParameter( vtkIdType id, vtkStdString name )
 {
   if ( id >= 0 && id < this->AssessParameters->GetNumberOfValues() )
     {
@@ -134,7 +134,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   this->RequestSelectedColumns();
 
   vtkDataObject* inMeta;
-  if ( this->Learn )
+  if ( this->LearnOption )
     {
     this->ExecuteLearn( inData, inParameters, outMeta1 );
 
@@ -158,7 +158,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
     this->FullWasDerived = false;
     }
 
-  if ( this->Derive )
+  if ( this->DeriveOption )
     {
     this->ExecuteDerive( outMeta1 );
 
@@ -166,7 +166,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
     this->FullWasDerived = true;
     }
 
-  if ( this->Assess )
+  if ( this->AssessOption )
     {
     this->ExecuteAssess( inData, outMeta1, outData, outMeta2 );
     }

@@ -107,9 +107,9 @@ int TestContingencyStatistics( int, char *[] )
   cs->AddColumnPair( "Source", "Dummy" ); // An invalid pair
 
   // Test Learn, Derive, and Assess options
-  cs->SetLearn( true );
-  cs->SetDerive( true );
-  cs->SetAssess( true );
+  cs->SetLearnOption( true );
+  cs->SetDeriveOption( true );
+  cs->SetAssessOption( true );
   cs->Update();
 
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );

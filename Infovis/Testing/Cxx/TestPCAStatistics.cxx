@@ -121,9 +121,9 @@ int TestPCAStatistics( int argc, char* argv[] )
   // pcas->RequestSelectedColumns(); will get called in RequestData()
 
   // -- Test Learn Mode -- 
-  pcas->SetLearn( true );
-  pcas->SetDerive( true );
-  pcas->SetAssess( false );
+  pcas->SetLearnOption( true );
+  pcas->SetDeriveOption( true );
+  pcas->SetAssessOption( false );
 
   pcas->Update();
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );

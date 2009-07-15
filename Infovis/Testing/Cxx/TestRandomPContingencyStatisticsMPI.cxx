@@ -123,9 +123,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 #endif // CONTINGENCY_BIG_CASE
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pcs->SetLearn( true );
-  pcs->SetDerive( true );
-  pcs->SetAssess( true );
+  pcs->SetLearnOption( true );
+  pcs->SetDeriveOption( true );
+  pcs->SetAssessOption( true );
   pcs->Update();
 
   // Synchronize and stop clock

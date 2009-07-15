@@ -136,9 +136,9 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   // mcs->RequestSelectedColumns(); will get called in RequestData()
 
   // -- Test Learn Mode -- 
-  mcs->SetLearn( true );
-  mcs->SetDerive( true );
-  mcs->SetAssess( false );
+  mcs->SetLearnOption( true );
+  mcs->SetDeriveOption( true );
+  mcs->SetAssessOption( false );
 
   mcs->Update();
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( mcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
@@ -172,9 +172,9 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
 
   // Test Assess only (Do not recalculate nor rederive a model)
-  mcs->SetLearn( false );
-  mcs->SetDerive( false );
-  mcs->SetAssess( true );
+  mcs->SetLearnOption( false );
+  mcs->SetDeriveOption( false );
+  mcs->SetAssessOption( true );
   mcs->Update();
 
   vtkTable* outputData = mcs->GetOutput();

@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.8");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.9");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -234,11 +234,11 @@ bool vtkPCAStatistics::SetParameter( const char* parameter,
     {
     if ( value.ToInt() )
       {
-      SetLearn( true );
+      SetLearnOption( true );
       }
     else
       {
-      SetLearn( false );
+      SetLearnOption( false );
       }
 
     return true;
@@ -248,11 +248,11 @@ bool vtkPCAStatistics::SetParameter( const char* parameter,
     {
     if ( value.ToInt() )
       {
-      SetDerive( true );
+      SetDeriveOption( true );
       }
     else
       {
-      SetDerive( false );
+      SetDeriveOption( false );
       }
 
     return true;
@@ -262,11 +262,11 @@ bool vtkPCAStatistics::SetParameter( const char* parameter,
     {
     if ( value.ToInt() )
       {
-      SetAssess( true );
+      SetAssessOption( true );
       }
     else
       {
-      SetAssess( false );
+      SetAssessOption( false );
       }
 
     return true;

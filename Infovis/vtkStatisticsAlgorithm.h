@@ -83,13 +83,13 @@ public:
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).
   // It is equivalent to calling SetInputConnection( 1, params );
-  virtual void SetLearnParameterConnection( vtkAlgorithmOutput* params )
+  virtual void SetLearnOptionParameterConnection( vtkAlgorithmOutput* params )
     { this->SetInputConnection( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
 
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).
   // It is equivalent to calling SetInput( 1, params );
-  virtual void SetLearnParameters( vtkDataObject* params )
+  virtual void SetLearnOptionParameters( vtkDataObject* params )
     { this->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
 
   // Description:
@@ -104,27 +104,27 @@ public:
 
   // Description:
   // Set the Learn option.
-  vtkSetMacro( Learn, bool );
+  vtkSetMacro( LearnOption, bool );
 
   // Description:
   // Get the Learn option.
-  vtkGetMacro( Learn, bool );
+  vtkGetMacro( LearnOption, bool );
 
   // Description:
   // Set the Derive option.
-  vtkSetMacro( Derive, bool );
+  vtkSetMacro( DeriveOption, bool );
 
   // Description:
   // Get the Derive option.
-  vtkGetMacro( Derive, bool );
+  vtkGetMacro( DeriveOption, bool );
 
   // Description:
   // Set the Assess option.
-  vtkSetMacro( Assess, bool );
+  vtkSetMacro( AssessOption, bool );
 
   // Description:
   // Get the Assess option.
-  vtkGetMacro( Assess, bool );
+  vtkGetMacro( AssessOption, bool );
 
   // Description:
   // Let the user know whether the full statistical model (when available) was
@@ -141,7 +141,7 @@ public:
 //BTX
   // Description:
   // Set the name of a parameter of the Assess option
-  void SetAssessParameter( vtkIdType id, vtkStdString name );
+  void SetAssessOptionParameter( vtkIdType id, vtkStdString name );
 
   // Description:
   // Get the name of a parameter of the Assess option
@@ -257,9 +257,9 @@ protected:
                                     AssessFunctor*& dfunc ) = 0;
   //ETX
 
-  bool Learn;
-  bool Derive;
-  bool Assess;
+  bool LearnOption;
+  bool DeriveOption;
+  bool AssessOption;
   bool FullWasDerived;
   vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;

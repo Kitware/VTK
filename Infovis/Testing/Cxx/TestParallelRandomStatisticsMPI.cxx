@@ -157,9 +157,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Test (serially) with Learn and Derive options only
-  ds->SetLearn( true );
-  ds->SetDerive( true );
-  ds->SetAssess( true );
+  ds->SetLearnOption( true );
+  ds->SetDeriveOption( true );
+  ds->SetAssessOption( true );
   ds->Update();
 
 #if PRINT_ALL_SERIAL_STATS
@@ -330,9 +330,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pds->SetLearn( true );
-  pds->SetDerive( true );
-  pds->SetAssess( true );
+  pds->SetLearnOption( true );
+  pds->SetDeriveOption( true );
+  pds->SetAssessOption( true );
   pds->SignedDeviationsOff(); // Use unsigned deviations
   pds->Update();
 
@@ -491,9 +491,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcs->AddColumnPair( columnNames[2], columnNames[3] );
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pcs->SetLearn( true );
-  pcs->SetDerive( true );
-  pcs->SetAssess( true );
+  pcs->SetLearnOption( true );
+  pcs->SetDeriveOption( true );
+  pcs->SetAssessOption( true );
   pcs->Update();
 
     // Synchronize and stop clock
@@ -564,9 +564,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pmcs->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pmcs->SetLearn( true );
-  pmcs->SetDerive( true );
-  pmcs->SetAssess( true );
+  pmcs->SetLearnOption( true );
+  pmcs->SetDeriveOption( true );
+  pmcs->SetAssessOption( true );
   pmcs->Update();
 
     // Synchronize and stop clock
@@ -624,9 +624,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcas->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pcas->SetLearn( true );
-  pcas->SetDerive( true );
-  pcas->SetAssess( true );
+  pcas->SetLearnOption( true );
+  pcas->SetDeriveOption( true );
+  pcas->SetAssessOption( true );
   pcas->Update();
 
     // Synchronize and stop clock

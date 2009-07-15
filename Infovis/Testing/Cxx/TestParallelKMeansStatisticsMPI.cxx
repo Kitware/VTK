@@ -194,9 +194,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pks->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pks->SetLearn( true );
-  pks->SetDerive( true );
-  pks->SetAssess( true );
+  pks->SetLearnOption( true );
+  pks->SetDeriveOption( true );
+  pks->SetAssessOption( true );
   pks->Update();
 
     // Synchronize and stop clock

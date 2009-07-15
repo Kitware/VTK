@@ -138,8 +138,8 @@ int TestOrderStatistics( int, char *[] )
   os->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
   // -- Test Learn only (Derive does not do anything for order statistics)  -- 
-  os->SetLearn( true );
-  os->SetAssess( false );
+  os->SetLearnOption( true );
+  os->SetAssessOption( false );
   os->Update();
 
   // offset between baseline values for each variable
@@ -176,7 +176,7 @@ int TestOrderStatistics( int, char *[] )
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
   os->RemoveColumn( "Metric 2" ); // Remove invalid Metric 2 (but which contains only value -1)
   os->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
-  os->SetAssess( true );
+  os->SetAssessOption( true );
   os->Update();
 
   double valsTest2 [] = 
@@ -243,7 +243,7 @@ int TestOrderStatistics( int, char *[] )
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   os->SetNumberOfIntervals( 10 );
   os->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
-  os->SetAssess( false );
+  os->SetAssessOption( false );
   os->Update();
 
   cout << "## Calculated the following deciles with InverseCDF quantile definition:\n";

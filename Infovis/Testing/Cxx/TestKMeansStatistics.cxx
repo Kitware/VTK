@@ -112,9 +112,9 @@ int TestKMeansStatistics( int, char *[] )
   haruspex->SetDefaultNumberOfClusters( 3 );
 
   // -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetDerive( true );
-  haruspex->SetAssess( false );
+  haruspex->SetLearnOption( true );
+  haruspex->SetDeriveOption( true );
+  haruspex->SetAssessOption( false );
 
   haruspex->Update();
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(  
@@ -140,9 +140,9 @@ int TestKMeansStatistics( int, char *[] )
   paramData->Dump();
     
   // -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetDerive( true );
-  haruspex->SetAssess( false );
+  haruspex->SetLearnOption( true );
+  haruspex->SetDeriveOption( true );
+  haruspex->SetAssessOption( false );
 
   haruspex->Update();
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( 
@@ -169,9 +169,9 @@ int TestKMeansStatistics( int, char *[] )
 
   haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
 
-  haruspex->SetLearn( false );
-  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
-  haruspex->SetAssess( true );
+  haruspex->SetLearnOption( false );
+  haruspex->SetDeriveOption( false ); // Do not recalculate nor rederive a model
+  haruspex->SetAssessOption( true );
   haruspex->Update();
   vtkTable* outputData = haruspex->GetOutput();
   outputData->Dump();

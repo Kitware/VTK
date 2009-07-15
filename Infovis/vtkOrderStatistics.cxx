@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.48");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.49");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -94,11 +94,11 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
     {
     if ( value.ToInt() )
       {
-      SetLearn( true );
+      SetLearnOption( true );
       }
     else
       {
-      SetLearn( false );
+      SetLearnOption( false );
       }
 
     return true;
@@ -108,11 +108,11 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
     {
     if ( value.ToInt() )
       {
-      SetDerive( true );
+      SetDeriveOption( true );
       }
     else
       {
-      SetDerive( false );
+      SetDeriveOption( false );
       }
 
     return true;
@@ -122,11 +122,11 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
     {
     if ( value.ToInt() )
       {
-      SetAssess( true );
+      SetAssessOption( true );
       }
     else
       {
-      SetAssess( false );
+      SetAssessOption( false );
       }
 
     return true;
