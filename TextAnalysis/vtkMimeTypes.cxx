@@ -23,6 +23,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 
+#include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
 ////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes
 
-vtkCxxRevisionMacro(vtkMimeTypes, "1.4");
+vtkCxxRevisionMacro(vtkMimeTypes, "1.5");
 vtkStandardNewMacro(vtkMimeTypes);
 
 vtkMimeTypes::vtkMimeTypes() :
