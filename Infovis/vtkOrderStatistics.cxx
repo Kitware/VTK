@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.47");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.48");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -160,22 +160,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  if ( ! this->Internals->Selection.size() )
-    {
-    return;
-    }
-
-  vtkIdType n = inData->GetNumberOfRows();
-  if ( n <= 0 )
-    {
-    return;
-    }
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-  
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
   outMeta->AddColumn( stringCol );
@@ -186,6 +170,22 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
+  vtkIdType n = inData->GetNumberOfRows();
+  if ( n <= 0 )
+    {
+    return;
+    }
+
+  if ( ! this->Internals->Selection.size() )
+    {
+    return;
+    }
+
+  if ( inData->GetNumberOfColumns() <= 0 )
+    {
+    return;
+    }
+  
   vtkVariantArray* variantCol;
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
