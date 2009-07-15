@@ -36,6 +36,7 @@
 #include "vtkTable.h"
 #include "vtkTypeTraits.h"
 #include "vtkSignedCharArray.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -44,7 +45,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.136");
+vtkCxxRevisionMacro(vtkDataWriter, "1.137");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1245,6 +1246,63 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
             {
             idx = i + j*numComp;
             s = static_cast<vtkStringArray *>(data)->GetValue(idx);
+            vtkTypeUInt64 length = s.length();
+            if (length < (static_cast<vtkTypeUInt64>(1) << 6))
+              {
+              vtkTypeUInt8 len = (static_cast<vtkTypeUInt8>(3) << 6)
+                | static_cast<vtkTypeUInt8>(length);
+              fp->write(reinterpret_cast<char*>(&len), 1);
+              }
+            else if (length < (static_cast<vtkTypeUInt64>(1) << 14))
+              {
+              vtkTypeUInt16 len = (static_cast<vtkTypeUInt16>(2) << 14)
+                | static_cast<vtkTypeUInt16>(length);
+              vtkByteSwap::SwapWrite2BERange(&len, 1, fp);
+              }
+            else if (length < (static_cast<vtkTypeUInt64>(1) << 30))
+              {
+              vtkTypeUInt32 len = (static_cast<vtkTypeUInt32>(1) << 30)
+                | static_cast<vtkTypeUInt32>(length);
+              vtkByteSwap::SwapWrite4BERange(&len, 1, fp);
+              }
+            else
+              {
+              vtkByteSwap::SwapWrite8BERange(&length, 1, fp);
+              }
+            fp->write(s.c_str(), length);
+            }
+          }
+        }
+      *fp << "\n";
+      }
+    break;
+
+    case VTK_UNICODE_STRING:
+      {
+      sprintf (str, format, "utf8_string"); *fp << str; 
+      if ( this->FileType == VTK_ASCII )
+        {
+        vtkStdString s;
+        for (j=0; j<num; j++)
+          {
+          for (i=0; i<numComp; i++)
+            {
+            idx = i + j*numComp;
+            s = static_cast<vtkUnicodeStringArray *>(data)->GetValue(idx).utf8_str();
+            this->EncodeWriteString(fp, s.c_str(), false);
+            *fp << "\n";
+            }
+          }
+        }
+      else
+        {
+        vtkStdString s;
+        for (j=0; j<num; j++)
+          {
+          for (i=0; i<numComp; i++)
+            {
+            idx = i + j*numComp;
+            s = static_cast<vtkUnicodeStringArray *>(data)->GetValue(idx).utf8_str();
             vtkTypeUInt64 length = s.length();
             if (length < (static_cast<vtkTypeUInt64>(1) << 6))
               {
