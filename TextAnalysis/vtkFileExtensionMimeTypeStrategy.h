@@ -23,8 +23,15 @@
 
 #include <vtkMimeTypeStrategy.h>
 
-/// vtkMimeTypeStrategy implementation that provides MIME type
-/// identification based on a hard-coded list of file extensions
+// .NAME vtkFileExtentionMimeTypeStrategy - Determines the MIME type of a resource
+// based on a hard-coded list of file extensions.
+//
+// .SECTION See Also
+// vtkMimeTypeStrategy, vtkMimeTypes.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 class VTK_TEXT_ANALYSIS_EXPORT vtkFileExtensionMimeTypeStrategy :
   public vtkMimeTypeStrategy
 {
@@ -33,7 +40,7 @@ public:
   vtkTypeRevisionMacro(vtkFileExtensionMimeTypeStrategy, vtkMimeTypeStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkStdString Lookup(const vtkStdString& path);
+  vtkStdString Lookup(const vtkStdString& uri);
 
 protected:
   vtkFileExtensionMimeTypeStrategy();

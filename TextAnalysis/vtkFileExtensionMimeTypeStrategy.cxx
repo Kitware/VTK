@@ -24,15 +24,15 @@
 
 #include <boost/algorithm/string.hpp>
 
-vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.2");
+vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.3");
 vtkStandardNewMacro(vtkFileExtensionMimeTypeStrategy);
 
 class vtkFileExtensionMimeTypeStrategy::implementation
 {
 public:
-  static bool Lookup(const vtkStdString& path, const vtkStdString& suffix, const vtkStdString& mime_type, vtkStdString& result)
+  static bool Lookup(const vtkStdString& uri, const vtkStdString& suffix, const vtkStdString& mime_type, vtkStdString& result)
   {
-    if(boost::iends_with(path, suffix))
+    if(boost::iends_with(uri, suffix))
       {
       result = mime_type;
       return true;
@@ -55,49 +55,49 @@ void vtkFileExtensionMimeTypeStrategy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& path)
+vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri)
 {
   vtkStdString mime_type;
 
-  if(implementation::Lookup(path, ".ai", "application/postscript", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".bmp", "image/bmp", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".c", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".cpp", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".css", "text/css", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".csv", "text/csv", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".cxx", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".dll", "application/octet-stream", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".doc", "application/msword", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".dot", "application/msword", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".dvi", "application/x-dvi", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".eps", "application/postscript", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".exe", "application/octet-stream", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".gz", "application/x-gzip", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".gif", "image/gif", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".h", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".hpp", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".htm", "text/html", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".html", "text/html", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".hxx", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".ico", "image/x-icon", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".jpe", "image/jpeg", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".jpeg", "image/jpeg", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".jpg", "image/jpeg", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".js", "application/x-javascript", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".latex", "application/x-latex", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".lib", "application/octet-stream", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".pdf", "application/pdf", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".png", "image/png", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".ppt", "application/vnd.ms-powerpoint", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".ps", "application/postscript", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".shtml", "text/html", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".tcl", "application/x-tcl", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".tif", "image/tiff", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".tiff", "image/tiff", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".txt", "text/plain", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".xls", "application/vnd.ms-excel", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".xml", "text/xml", mime_type)) return mime_type;
-  if(implementation::Lookup(path, ".zip", "application/zip", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".ai", "application/postscript", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".bmp", "image/bmp", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".c", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".cpp", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".css", "text/css", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".csv", "text/csv", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".cxx", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".dll", "application/octet-stream", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".doc", "application/msword", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".dot", "application/msword", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".dvi", "application/x-dvi", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".eps", "application/postscript", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".exe", "application/octet-stream", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".gz", "application/x-gzip", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".gif", "image/gif", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".h", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".hpp", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".htm", "text/html", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".html", "text/html", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".hxx", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".ico", "image/x-icon", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".jpe", "image/jpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".jpeg", "image/jpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".jpg", "image/jpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".js", "application/x-javascript", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".latex", "application/x-latex", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".lib", "application/octet-stream", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".pdf", "application/pdf", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".png", "image/png", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".ppt", "application/vnd.ms-powerpoint", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".ps", "application/postscript", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".shtml", "text/html", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".tcl", "application/x-tcl", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".tif", "image/tiff", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".tiff", "image/tiff", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".txt", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".xls", "application/vnd.ms-excel", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".xml", "text/xml", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".zip", "application/zip", mime_type)) return mime_type;
 
   return vtkStdString();
 }
