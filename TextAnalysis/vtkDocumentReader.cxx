@@ -43,9 +43,14 @@
 
 #include <vtksys/ios/sstream>
 
-class vtkDocumentReader::Internals
+class vtkDocumentReader::Implementation
 {
 public:
+  Implementation() :
+    MimeTypes(vtkMimeTypes::New())
+  {
+  }
+
   // Converts a filesystem path to a URI
   static const vtkStdString PathToURI(const vtkStdString& path)
   {
@@ -64,15 +69,16 @@ public:
     return result;
   }
 
+  vtkMimeTypes* MimeTypes;
   vtkstd::vector<vtkStdString> Files;
   vtkstd::vector<vtkIdType> ID;
 };
 
-vtkCxxRevisionMacro(vtkDocumentReader, "1.3");
+vtkCxxRevisionMacro(vtkDocumentReader, "1.4");
 vtkStandardNewMacro(vtkDocumentReader);
 
 vtkDocumentReader::vtkDocumentReader() :
-  Implementation(new Internals()),
+  Internal(new Implementation()),
   DefaultMimeType(0)
 {
   this->SetNumberOfInputPorts(0);
@@ -82,7 +88,7 @@ vtkDocumentReader::vtkDocumentReader() :
 vtkDocumentReader::~vtkDocumentReader()
 {
   this->SetDefaultMimeType(0);
-  delete this->Implementation;
+  delete this->Internal;
 }
 
 void vtkDocumentReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -91,10 +97,29 @@ void vtkDocumentReader::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "DefaultMimeType: " << (this->DefaultMimeType ? this->DefaultMimeType : "(none)") << "\n";
  
-  for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Implementation->Files.size(); ++i)
+  for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Internal->Files.size(); ++i)
     {
-    os << indent << "File: " << this->Implementation->Files[i] << "\n";
+    os << indent << "File: " << this->Internal->Files[i] << "\n";
     }
+}
+
+void vtkDocumentReader::SetMimeTypes(vtkMimeTypes* mime_types)
+{
+  if(!mime_types)
+    {
+    vtkErrorMacro( << "A valid vtkMimeTypes instance is required.");
+    return;
+    }
+
+  if(mime_types == this->Internal->MimeTypes)
+    {
+    vtkErrorMacro(<< "Can't assign the same vtkMimeTypes object twice.");
+    return;
+    }
+
+  this->Internal->MimeTypes->Delete();
+  this->Internal->MimeTypes = mime_types;
+  this->Modified();
 }
 
 void vtkDocumentReader::AddFile(const char* file)
@@ -107,20 +132,20 @@ void vtkDocumentReader::AddFile(const char* file)
 
 void vtkDocumentReader::AddFile(const vtkStdString& file)
 {
-  this->AddFile(file, this->Implementation->Files.size());
+  this->AddFile(file, this->Internal->Files.size());
 }
 
 void vtkDocumentReader::AddFile(const vtkStdString& file, const vtkIdType id)
 {
-  this->Implementation->Files.push_back(file);
-  this->Implementation->ID.push_back(id);
+  this->Internal->Files.push_back(file);
+  this->Internal->ID.push_back(id);
   this->Modified();
 }
 
 void vtkDocumentReader::ClearFiles()
 {
-  this->Implementation->Files.clear();
-  this->Implementation->ID.clear();
+  this->Internal->Files.clear();
+  this->Internal->ID.clear();
   this->Modified();
 }
 
@@ -131,8 +156,6 @@ int vtkDocumentReader::RequestData(
 {
   try
     {
-    vtkSmartPointer<vtkMimeTypes> mime_types = vtkSmartPointer<vtkMimeTypes>::New();
- 
     vtkIdTypeArray* const document_array = vtkIdTypeArray::New();
     document_array->SetName("document");
   
@@ -145,13 +168,13 @@ int vtkDocumentReader::RequestData(
     vtkStringArray* const content_array = vtkStringArray::New();
     content_array->SetName("content");
 
-    int number_of_files = this->Implementation->Files.size();
-    for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Implementation->Files.size(); ++i)
+    int number_of_files = this->Internal->Files.size();
+    for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Internal->Files.size(); ++i)
       {
-      const vtkStdString file = this->Implementation->Files[i];
-      const vtkIdType document = this->Implementation->ID[i];
-      const vtkStdString uri = Internals::PathToURI(file);
-      vtkStdString mime_type = mime_types->Lookup(file);
+      const vtkStdString file = this->Internal->Files[i];
+      const vtkIdType document = this->Internal->ID[i];
+      const vtkStdString uri = Implementation::PathToURI(file);
+      vtkStdString mime_type = this->Internal->MimeTypes->Lookup(file);
 
       if(mime_type.empty() && this->DefaultMimeType)
         mime_type = this->DefaultMimeType;

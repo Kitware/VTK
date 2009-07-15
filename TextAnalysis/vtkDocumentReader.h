@@ -23,6 +23,9 @@
 
 #include <vtkTableAlgorithm.h>
 
+class vtkMimeTypes;
+class vtkStdString;
+
 // .NAME vtkDocumentReader - Reads documents into memory for text analysis.
 //
 // .SECTION Description
@@ -47,8 +50,6 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class vtkStdString;
-
 class VTK_TEXT_ANALYSIS_EXPORT vtkDocumentReader :
   public vtkTableAlgorithm
 {
@@ -56,6 +57,13 @@ public:
   static vtkDocumentReader* New();
   vtkTypeRevisionMacro(vtkDocumentReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set a vtkMimeTypes object to be used for Mime Type lookup.
+  // You only need to do this if you want to provide a vtkMimeTypes instance
+  // that contains custom lookup strategies.  Note: vtkDocumentReader assumes
+  // responsibility for the supplied object.
+  void SetMimeTypes(vtkMimeTypes* mime_types);
 
   // Description:
   // Add a file to be loaded.
@@ -91,8 +99,8 @@ private:
   friend class vtkPDocumentReader;
   void AddFile(const vtkStdString& file, const vtkIdType id);
 
-  class Internals;
-  Internals* const Implementation;
+  class Implementation;
+  Implementation* const Internal;
 
   char* DefaultMimeType;
 //ETX
