@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.16");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.17");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -172,6 +172,23 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
+  vtkTable* sparseCov = vtkTable::New();
+
+  vtkStringArray* ocol1 = vtkStringArray::New();
+  ocol1->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN1 );
+  sparseCov->AddColumn( ocol1 );
+  ocol1->Delete();
+
+  vtkStringArray* ocol2 = vtkStringArray::New();
+  ocol2->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN2 );
+  sparseCov->AddColumn( ocol2 );
+  ocol2->Delete();
+
+  vtkDoubleArray* mucov = vtkDoubleArray::New();
+  mucov->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
+  sparseCov->AddColumn( mucov );
+  mucov->Delete();
+
   vtkIdType n = inData->GetNumberOfRows();
   if ( n <= 0 )
     {
@@ -190,10 +207,6 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
   vtkstd::map<vtkStdString,vtkIdType> colNameToIdx;
   vtkstd::vector<vtkDataArray*> colPtrs;
-  vtkStringArray* ocol1 = vtkStringArray::New();
-  vtkStringArray* ocol2 = vtkStringArray::New();
-  ocol1->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN1 );
-  ocol2->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN2 );
 
   // Populate a vector with pointers to columns of interest (i.e., columns from the input dataset
   // which have some statistics requested) and create a map from column names into this vector.
@@ -274,8 +287,6 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   double* x;
   vtkstd::vector<double> v( m, 0. ); // Values (v) for one observation
   //vtkstd::vector<double> mucov( m + colPairs.size(), 0. ); // mean (mu) followed by covariance (cov) values
-  vtkDoubleArray* mucov = vtkDoubleArray::New();
-  mucov->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
   mucov->SetNumberOfTuples( 1 + m + colPairs.size() ); // sample size followed by mean (mu) followed by covariance (cov) values
   mucov->FillComponent( 0, 0. );
   double* rv = mucov->GetPointer( 0 );
@@ -309,13 +320,6 @@ void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       }
     }
 
-  vtkTable* sparseCov = vtkTable::New();
-  sparseCov->AddColumn( ocol1 );
-  sparseCov->AddColumn( ocol2 );
-  sparseCov->AddColumn( mucov );
-  ocol1->Delete();
-  ocol2->Delete();
-  mucov->Delete();
   outMeta->SetNumberOfBlocks( 1 );
   outMeta->SetBlock( 0, sparseCov );
   outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Raw Sparse Covariance Data" );
