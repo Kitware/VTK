@@ -39,7 +39,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.16");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.17");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -167,7 +167,15 @@ int vtkGroupLeafVertices::RequestData(
   vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > vertStack;
   vertStack.push_back(vtksys_stl::make_pair(input->GetRoot(), builder->AddVertex()));
   vtkSmartPointer<vtkOutEdgeIterator> it =
-    vtkSmartPointer<vtkOutEdgeIterator>::New();
+  vtkSmartPointer<vtkOutEdgeIterator>::New();
+
+  // The pedigree ids for group vertices are negative so as not to conflict
+  // with leaf vertex ids. We give each one a unique negative value
+  // so that selecting a group at a later time will not select ALL groups.
+  // FIXME: This filter should create a new vertex domain for group vertices
+  // so that we don't have to do this. 
+  vtkIdType group_id = -1;
+
   while (!vertStack.empty())
     {
     vtkIdType tree_v = vertStack.back().first;
@@ -213,7 +221,7 @@ int vtkGroupLeafVertices::RequestData(
               double* tuple = new double[comps];
               for (int j = 0; j < comps; j++)
                 {
-                tuple[j] = -1;
+                tuple[j] = group_id;
                 }
               data->InsertTuple(group_vertex, tuple);
               delete[] tuple;
@@ -246,7 +254,6 @@ int vtkGroupLeafVertices::RequestData(
               {
               vtkErrorMacro(<< "Unsupported array type for InsertNextBlankRow");
               }
-
             }
 
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
@@ -260,6 +267,8 @@ int vtkGroupLeafVertices::RequestData(
             {
             outputGroupArr->InsertVariantValue(group_vertex, groupVal);
             }
+          
+          group_id--;
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
