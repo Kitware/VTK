@@ -78,10 +78,10 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         pass->AddArray(type, "column1");
 
         cerr << "RemoveArrays flag is " << removeArrays << endl;
-        pass->SetRemoveArrays(static_cast<bool>(removeArrays));
+        pass->SetRemoveArrays(removeArrays > 0 ? true : false);
 
         cerr << "UseFieldTypes flag is " << useFieldTypes << endl;
-        pass->SetUseFieldTypes(static_cast<bool>(useFieldTypes));
+        pass->SetUseFieldTypes(useFieldTypes > 0 ? true : false);
         pass->ClearFieldTypes();
         int processType = (type+1)%3;
         cerr << "FieldType is " << processType << endl;
