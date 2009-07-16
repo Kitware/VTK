@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.9");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.10");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -230,48 +230,6 @@ bool vtkPCAStatistics::SetParameter( const char* parameter,
                                      int vtkNotUsed( index ),
                                      vtkVariant value )
 {
-  if ( ! strcmp( parameter, "Learn" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetLearnOption( true );
-      }
-    else
-      {
-      SetLearnOption( false );
-      }
-
-    return true;
-    }
-
-  if ( ! strcmp( parameter, "Derive" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetDeriveOption( true );
-      }
-    else
-      {
-      SetDeriveOption( false );
-      }
-
-    return true;
-    }
-
-  if ( ! strcmp( parameter, "Assess" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetAssessOption( true );
-      }
-    else
-      {
-      SetAssessOption( false );
-      }
-
-    return true;
-    }
-
   if ( ! strcmp( parameter, "NormalizationScheme" ) )
     {
     this->SetNormalizationScheme( value.ToInt() );
