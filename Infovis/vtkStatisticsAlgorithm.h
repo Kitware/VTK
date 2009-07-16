@@ -103,28 +103,24 @@ public:
     { this->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
 
   // Description:
-  // Set the Learn option.
+  // Set/Get the Learn option.
   vtkSetMacro( LearnOption, bool );
-
-  // Description:
-  // Get the Learn option.
   vtkGetMacro( LearnOption, bool );
 
   // Description:
-  // Set the Derive option.
+  // Set/Get the Derive option.
   vtkSetMacro( DeriveOption, bool );
-
-  // Description:
-  // Get the Derive option.
   vtkGetMacro( DeriveOption, bool );
 
   // Description:
-  // Set the Assess option.
+  // Set/Get the Assess option.
   vtkSetMacro( AssessOption, bool );
+  vtkGetMacro( AssessOption, bool );
 
   // Description:
-  // Get the Assess option.
-  vtkGetMacro( AssessOption, bool );
+  // Set/get AssessNames array.
+  virtual void SetAssessNames( vtkStringArray* );
+  vtkGetObjectMacro(AssessNames,vtkStringArray);
 
   // Description:
   // Let the user know whether the full statistical model (when available) was
