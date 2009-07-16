@@ -29,7 +29,7 @@
 
 #include <stdexcept>
 
-vtkCxxRevisionMacro(vtkAssignMimeType, "1.1");
+vtkCxxRevisionMacro(vtkAssignMimeType, "1.2");
 vtkStandardNewMacro(vtkAssignMimeType);
 
 vtkAssignMimeType::vtkAssignMimeType() :
@@ -58,6 +58,11 @@ void vtkAssignMimeType::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "OutputArray: " << (this->OutputArray ? this->OutputArray : "(none)") << "\n";
   os << indent << "DefaultMimeType: " << (this->DefaultMimeType ? this->DefaultMimeType : "(none)") << "\n";
+  os << indent << "MimeTypes: " << "\n";
+  if(this->MimeTypes)
+    {
+    this->MimeTypes->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
 int vtkAssignMimeType::RequestData(
