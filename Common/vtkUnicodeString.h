@@ -115,6 +115,8 @@ public:
   // Description:
   // Constructs a string from a null-terminated sequence of UTF-8 encoded characters.
   static vtkUnicodeString from_utf8(const char*);
+  // Constructs a string from a half-open sequence of UTF-8 encoded characters.
+  static vtkUnicodeString from_utf8(const char* begin, const char* end);
   // Constructs a string from a sequence of UTF-8 encoded characters.
   static vtkUnicodeString from_utf8(const vtkstd::string&);
   // Description:

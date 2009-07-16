@@ -161,6 +161,20 @@ vtkUnicodeString vtkUnicodeString::from_utf8(const char* value)
   return vtkUnicodeString::from_utf8(vtkstd::string(value ? value : ""));
 }
 
+vtkUnicodeString vtkUnicodeString::from_utf8(const char* begin, const char* end)
+{
+  vtkUnicodeString result;
+  if(vtk_utf8::is_valid(begin, end))
+    {
+    result.Storage.assign(begin, end);
+    }
+  else
+    {
+    vtkGenericWarningMacro("vtkUnicodeString::from_utf8(): not a valid UTF-8 string.");
+    }
+  return result;
+}
+
 vtkUnicodeString vtkUnicodeString::from_utf8(const vtkstd::string& value)
 {
   vtkUnicodeString result;
