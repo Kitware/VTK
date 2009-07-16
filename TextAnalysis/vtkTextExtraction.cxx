@@ -43,7 +43,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.2");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.3");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
@@ -141,8 +141,7 @@ int vtkTextExtraction::RequestData(
     if(!mime_type_array)
       throw vtkstd::runtime_error("Missing mime_type array.");
 
-    vtkStringArray* const content_array = vtkStringArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess(2, 0, inputVector));
+    vtkAbstractArray* const content_array = this->GetInputAbstractArrayToProcess(2, 0, inputVector);
     if(!content_array)
       throw vtkstd::runtime_error("Missing content array.");
 
@@ -169,7 +168,7 @@ int vtkTextExtraction::RequestData(
       {
       const vtkIdType document = document_id_array->GetValue(i);
       const vtkStdString& mime_type = mime_type_array->GetValue(i);
-      const vtkStdString& content = content_array->GetValue(i);
+      const vtkStdString content = content_array->GetVariantValue(i).ToString();
 
       vtkUnicodeString text;
       for(vtkIdType j = 0; j != this->Internal->Strategies.size(); ++j)

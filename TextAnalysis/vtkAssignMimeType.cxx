@@ -29,7 +29,7 @@
 
 #include <stdexcept>
 
-vtkCxxRevisionMacro(vtkAssignMimeType, "1.2");
+vtkCxxRevisionMacro(vtkAssignMimeType, "1.3");
 vtkStandardNewMacro(vtkAssignMimeType);
 
 vtkAssignMimeType::vtkAssignMimeType() :
@@ -79,13 +79,11 @@ int vtkAssignMimeType::RequestData(
     if(!input_table)
       throw vtkstd::runtime_error("missing input table");
       
-    vtkStringArray* const uri_array = vtkStringArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess(0, 0, inputVector));
+    vtkAbstractArray* const uri_array = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
     if(!uri_array)
       throw vtkstd::runtime_error("missing uri array");
 
-    vtkStringArray* const content_array = vtkStringArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess(1, 0, inputVector));
+    vtkAbstractArray* const content_array = this->GetInputAbstractArrayToProcess(1, 0, inputVector);
     if(!content_array)
       throw vtkstd::runtime_error("missing content array");
 
@@ -95,8 +93,8 @@ int vtkAssignMimeType::RequestData(
     const vtkIdType count = uri_array->GetNumberOfTuples();
     for(vtkIdType i = 0; i != count; ++i)
       {
-      const vtkStdString& uri = uri_array->GetValue(i);
-      const vtkStdString& content = content_array->GetValue(i);
+      const vtkStdString uri = uri_array->GetVariantValue(i).ToString();
+      const vtkStdString content = content_array->GetVariantValue(i).ToString();
 
       vtkStdString mime_type = this->MimeTypes->Lookup(uri, &content[0], &content[0] + content.size());
       if(mime_type.empty() && this->DefaultMimeType)
