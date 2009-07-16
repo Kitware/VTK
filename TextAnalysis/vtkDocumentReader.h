@@ -23,7 +23,6 @@
 
 #include <vtkTableAlgorithm.h>
 
-class vtkMimeTypes;
 class vtkStdString;
 
 // .NAME vtkDocumentReader - Reads documents into memory for text analysis.
@@ -59,13 +58,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set a vtkMimeTypes object to be used for Mime Type lookup.
-  // You only need to do this if you want to provide a vtkMimeTypes instance
-  // that contains custom lookup strategies.  Note: vtkDocumentReader assumes
-  // responsibility for the supplied object.
-  void SetMimeTypes(vtkMimeTypes* mime_types);
-
-  // Description:
   // Add a file to be loaded.
   void AddFile(const char* file);
   void AddFile(const vtkStdString& file);
@@ -73,14 +65,6 @@ public:
   // Description:
   // Clear the list of files to be loaded.
   void ClearFiles();
-
-  // Description:
-  // Specifies a default MIME type that will be assigned to files whose MIME type
-  // can't otherwise be identified.  Set this to "text/plain" if you want to analyze
-  // files that would otherwise be ignored (such as files without a known file
-  // extension, files without any file extension, etc).  Default: empty string.
-  vtkSetStringMacro(DefaultMimeType);
-  vtkGetStringMacro(DefaultMimeType);
 
 //BTX
 protected:
@@ -101,8 +85,6 @@ private:
 
   class Implementation;
   Implementation* const Internal;
-
-  char* DefaultMimeType;
 //ETX
 };
 

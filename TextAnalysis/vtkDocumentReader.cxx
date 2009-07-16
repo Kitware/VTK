@@ -46,11 +46,6 @@
 class vtkDocumentReader::Implementation
 {
 public:
-  Implementation() :
-    MimeTypes(vtkMimeTypes::New())
-  {
-  }
-
   // Converts a filesystem path to a URI
   static const vtkStdString PathToURI(const vtkStdString& path)
   {
@@ -69,17 +64,15 @@ public:
     return result;
   }
 
-  vtkMimeTypes* MimeTypes;
   vtkstd::vector<vtkStdString> Files;
   vtkstd::vector<vtkIdType> ID;
 };
 
-vtkCxxRevisionMacro(vtkDocumentReader, "1.4");
+vtkCxxRevisionMacro(vtkDocumentReader, "1.5");
 vtkStandardNewMacro(vtkDocumentReader);
 
 vtkDocumentReader::vtkDocumentReader() :
-  Internal(new Implementation()),
-  DefaultMimeType(0)
+  Internal(new Implementation())
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
@@ -87,7 +80,6 @@ vtkDocumentReader::vtkDocumentReader() :
 
 vtkDocumentReader::~vtkDocumentReader()
 {
-  this->SetDefaultMimeType(0);
   delete this->Internal;
 }
 
@@ -95,31 +87,10 @@ void vtkDocumentReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   
-  os << indent << "DefaultMimeType: " << (this->DefaultMimeType ? this->DefaultMimeType : "(none)") << "\n";
- 
   for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Internal->Files.size(); ++i)
     {
     os << indent << "File: " << this->Internal->Files[i] << "\n";
     }
-}
-
-void vtkDocumentReader::SetMimeTypes(vtkMimeTypes* mime_types)
-{
-  if(!mime_types)
-    {
-    vtkErrorMacro( << "A valid vtkMimeTypes instance is required.");
-    return;
-    }
-
-  if(mime_types == this->Internal->MimeTypes)
-    {
-    vtkErrorMacro(<< "Can't assign the same vtkMimeTypes object twice.");
-    return;
-    }
-
-  this->Internal->MimeTypes->Delete();
-  this->Internal->MimeTypes = mime_types;
-  this->Modified();
 }
 
 void vtkDocumentReader::AddFile(const char* file)
@@ -162,9 +133,6 @@ int vtkDocumentReader::RequestData(
     vtkStringArray* const uri_array = vtkStringArray::New();
     uri_array->SetName("uri");
 
-    vtkStringArray* const mime_type_array = vtkStringArray::New();
-    mime_type_array->SetName("mime_type");
-
     vtkStringArray* const content_array = vtkStringArray::New();
     content_array->SetName("content");
 
@@ -174,10 +142,6 @@ int vtkDocumentReader::RequestData(
       const vtkStdString file = this->Internal->Files[i];
       const vtkIdType document = this->Internal->ID[i];
       const vtkStdString uri = Implementation::PathToURI(file);
-      vtkStdString mime_type = this->Internal->MimeTypes->Lookup(file);
-
-      if(mime_type.empty() && this->DefaultMimeType)
-        mime_type = this->DefaultMimeType;
 
       ifstream file_stream(file.c_str());
       vtkstd::stringstream contents;
@@ -185,7 +149,6 @@ int vtkDocumentReader::RequestData(
 
       document_array->InsertNextValue(document);
       uri_array->InsertNextValue(uri);
-      mime_type_array->InsertNextValue(mime_type);
       content_array->InsertNextValue(contents.str());
       
       //emit event progress...
@@ -196,13 +159,11 @@ int vtkDocumentReader::RequestData(
     vtkTable* const output_table = vtkTable::GetData(outputVector, 0);
     output_table->AddColumn(document_array);
     output_table->AddColumn(uri_array);
-    output_table->AddColumn(mime_type_array);
     output_table->AddColumn(content_array);
     output_table->GetRowData()->SetPedigreeIds(document_array);
     
     document_array->Delete();
     uri_array->Delete();
-    mime_type_array->Delete();
     content_array->Delete();
     }
   catch(vtkstd::exception& e)
