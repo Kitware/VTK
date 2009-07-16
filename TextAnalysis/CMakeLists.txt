@@ -43,8 +43,11 @@ vtkFoldCase.cxx
 vtkMimeTypes.cxx
 vtkMimeTypeStrategy.cxx
 vtkNGramExtraction.cxx
+vtkPlainTextExtractionStrategy.cxx
 vtkTermDictionary.cxx
 vtkTextAnalysisUtility.cxx
+vtkTextExtraction.cxx
+vtkTextExtractionStrategy.cxx
 vtkTokenizer.cxx
 vtkTokenLengthFilter.cxx
 vtkTokenValueFilter.cxx
@@ -52,6 +55,7 @@ vtkTokenValueFilter.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkMimeTypeStrategy.cxx
+  vtkTextExtractionStrategy.cxx
   ABSTRACT
   )
 

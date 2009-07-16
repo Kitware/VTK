@@ -4,6 +4,7 @@ SET(AUTO_TESTS
   TestMimeTypes
   TestNGramExtraction
   TestTermDictionary
+  TestTextExtraction
   TestTokenLengthFilter
   TestTokenValueFilter
   TestTokenizer
