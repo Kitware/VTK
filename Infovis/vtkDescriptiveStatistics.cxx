@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.74");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.75");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -55,7 +55,6 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 {
-  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------

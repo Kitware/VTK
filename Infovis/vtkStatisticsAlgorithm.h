@@ -118,7 +118,12 @@ public:
   vtkGetMacro( AssessOption, bool );
 
   // Description:
-  // Set/get AssessNames array.
+  // Set/get assessment parameters.
+  virtual void SetAssessParameters( vtkStringArray* );
+  vtkGetObjectMacro(AssessParameters,vtkStringArray);
+
+  // Description:
+  // Set/get assessment names.
   virtual void SetAssessNames( vtkStringArray* );
   vtkGetObjectMacro(AssessNames,vtkStringArray);
 

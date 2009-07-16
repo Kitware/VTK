@@ -29,7 +29,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.38");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.39");
+vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
 // ----------------------------------------------------------------------
@@ -43,14 +44,15 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->DeriveOption = true;
   this->FullWasDerived = false;
   this->AssessOption = false;
-  this->AssessNames = vtkStringArray::New();
   this->AssessParameters = 0;
+  this->AssessNames = vtkStringArray::New();
   this->Internals = new vtkStatisticsAlgorithmPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 {
+  this->SetAssessParameters( 0 );
   this->SetAssessNames( 0 );
   delete this->Internals;
 }

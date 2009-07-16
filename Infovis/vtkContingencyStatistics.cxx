@@ -42,7 +42,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.62");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.63");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -65,7 +65,6 @@ vtkContingencyStatistics::vtkContingencyStatistics()
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::~vtkContingencyStatistics()
 {
-  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------

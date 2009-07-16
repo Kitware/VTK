@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.56");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.57");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -58,7 +58,6 @@ vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 {
-  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------
