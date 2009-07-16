@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.49");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.50");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -90,48 +90,6 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
                                        int vtkNotUsed( index ),
                                        vtkVariant value )
 {
-  if ( ! strcmp( parameter, "Learn" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetLearnOption( true );
-      }
-    else
-      {
-      SetLearnOption( false );
-      }
-
-    return true;
-    }
-
-  if ( ! strcmp( parameter, "Derive" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetDeriveOption( true );
-      }
-    else
-      {
-      SetDeriveOption( false );
-      }
-
-    return true;
-    }
-
-  if ( ! strcmp( parameter, "Assess" ) )
-    {
-    if ( value.ToInt() )
-      {
-      SetAssessOption( true );
-      }
-    else
-      {
-      SetAssessOption( false );
-      }
-
-    return true;
-    }
-
   if ( ! strcmp( parameter, "NumberOfIntervals" ) )
     {
     this->SetNumberOfIntervals( value.ToInt() );
