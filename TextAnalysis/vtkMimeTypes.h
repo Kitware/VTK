@@ -91,6 +91,7 @@ public:
   // or empty-string if the type cannot be identified.
   vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end);
 
+//BTX
 private:
   vtkMimeTypes();
   ~vtkMimeTypes();
@@ -98,7 +99,6 @@ private:
   vtkMimeTypes(const vtkMimeTypes&); //Not implemented.
   void operator=(const vtkMimeTypes&); //Not implemented.
 
-//BTX
   class Implementation;
   Implementation* const Internal;
 //ETX

@@ -38,7 +38,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes
 
-vtkCxxRevisionMacro(vtkMimeTypes, "1.5");
+vtkCxxRevisionMacro(vtkMimeTypes, "1.6");
 vtkStandardNewMacro(vtkMimeTypes);
 
 vtkMimeTypes::vtkMimeTypes() :
@@ -75,6 +75,12 @@ void vtkMimeTypes::ClearStrategies()
 
 void vtkMimeTypes::PrependStrategy(vtkMimeTypeStrategy* strategy)
 {
+  if(!strategy)
+    {
+    vtkErrorMacro(<< "Cannot add NULL strategy.");
+    return;
+    }
+  
   this->Internal->Strategies.erase(
     vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
     this->Internal->Strategies.end());
@@ -84,6 +90,12 @@ void vtkMimeTypes::PrependStrategy(vtkMimeTypeStrategy* strategy)
 
 void vtkMimeTypes::AppendStrategy(vtkMimeTypeStrategy* strategy)
 {
+  if(!strategy)
+    {
+    vtkErrorMacro(<< "Cannot add NULL strategy.");
+    return;
+    }
+  
   this->Internal->Strategies.erase(
     vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
     this->Internal->Strategies.end());
