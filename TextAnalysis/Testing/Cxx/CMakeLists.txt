@@ -1,5 +1,7 @@
 # List tests that can be built and run automatically ...
 SET(AUTO_TESTS
+  TestAssignMimeType
+  TestMimeTypes
   TestNGramExtraction
   TestTermDictionary
   TestTokenLengthFilter
