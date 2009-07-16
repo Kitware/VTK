@@ -27,13 +27,14 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkGenerateIndexArray, "1.1");
+vtkCxxRevisionMacro(vtkGenerateIndexArray, "1.2");
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
 vtkGenerateIndexArray::vtkGenerateIndexArray() :
   ArrayName(0),
   FieldType(ROW_DATA),
-  ReferenceArrayName(0)
+  ReferenceArrayName(0),
+  PedigreeID(false)
 {
   this->SetArrayName("index");
 }
@@ -50,6 +51,7 @@ void vtkGenerateIndexArray::PrintSelf(ostream& os, vtkIndent indent)
   os << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(none)") << endl;
   os << "FieldType: " << this->FieldType << endl;
   os << "ReferenceArrayName: " << (this->ReferenceArrayName ? this->ReferenceArrayName : "(none)") << endl;
+  os << "PedigreeID: " << this->PedigreeID << endl;
 }
 
 int vtkGenerateIndexArray::ProcessRequest(
@@ -170,6 +172,9 @@ int vtkGenerateIndexArray::RequestData(
   output_array->SetNumberOfTuples(output_count);
   output_attributes->AddArray(output_array);
   output_array->Delete();
+
+  if(this->PedigreeID)
+    output_attributes->SetPedigreeIds(output_array);
 
   // Generate indices based on the reference array ...
   if(this->ReferenceArrayName && strlen(this->ReferenceArrayName))
