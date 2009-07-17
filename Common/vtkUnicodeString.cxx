@@ -166,7 +166,7 @@ vtkUnicodeString vtkUnicodeString::from_utf8(const char* begin, const char* end)
   vtkUnicodeString result;
   if(vtk_utf8::is_valid(begin, end))
     {
-    result.Storage.assign(begin, end);
+    result.Storage = vtkstd::string(begin, end);
     }
   else
     {
