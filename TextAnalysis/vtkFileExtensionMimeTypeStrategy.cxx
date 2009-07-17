@@ -24,7 +24,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.4");
+vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.5");
 vtkStandardNewMacro(vtkFileExtensionMimeTypeStrategy);
 
 class vtkFileExtensionMimeTypeStrategy::implementation
@@ -55,7 +55,7 @@ void vtkFileExtensionMimeTypeStrategy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end)
+vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri, const vtkTypeUInt8* vtkNotUsed(begin), const vtkTypeUInt8* vtkNotUsed(end))
 {
   vtkStdString mime_type;
 

@@ -29,7 +29,8 @@
 #include <vtkTable.h>
 #include <vtkUnicodeStringArray.h>
 
-#include <stdexcept>
+#include <vtkstd/algorithm>
+#include <vtkstd/stdexcept>
 
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction::Implementation
@@ -43,7 +44,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.3");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.4");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
@@ -171,7 +172,7 @@ int vtkTextExtraction::RequestData(
       const vtkStdString content = content_array->GetVariantValue(i).ToString();
 
       vtkUnicodeString text;
-      for(vtkIdType j = 0; j != this->Internal->Strategies.size(); ++j)
+      for(vtkIdType j = 0; static_cast<unsigned int>(j) != this->Internal->Strategies.size(); ++j)
         {
         if(this->Internal->Strategies[j]->Extract(
           document,
