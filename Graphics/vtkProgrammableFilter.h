@@ -40,6 +40,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkGraph;
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
 {
@@ -83,6 +84,11 @@ public:
   // Description:
   // Get the input as a concrete type.
   vtkGraph *GetGraphInput();
+
+  
+  // Description:
+  // Get the input as a concrete type.
+  vtkTable *GetTableInput();
 
   // Description:
   // When CopyArrays is true, all arrays are copied to the output

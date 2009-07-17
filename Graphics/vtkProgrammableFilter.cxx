@@ -20,13 +20,14 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.26");
+vtkCxxRevisionMacro(vtkProgrammableFilter, "1.27");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.
@@ -85,6 +86,12 @@ vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridInput()
 vtkGraph *vtkProgrammableFilter::GetGraphInput()
 {
   return (vtkGraph *)this->GetInput();
+}
+
+// Get the input as a concrete type.
+vtkTable *vtkProgrammableFilter::GetTableInput()
+{
+  return (vtkTable *)this->GetInput();
 }
 
 // Specify the function to use to operate on the point attribute data. Note
@@ -168,6 +175,20 @@ int vtkProgrammableFilter::RequestData(
           }
         }
       }
+    if (vtkTable::SafeDownCast(objInput))
+      {
+      vtkTable *tableInput = vtkTable::SafeDownCast(objInput);
+      vtkTable *tableOutput = vtkTable::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      // First, copy the input to the output as a starting point
+      if (tableInput && tableOutput && tableInput->GetDataObjectType() == tableOutput->GetDataObjectType())
+        {
+        if (this->CopyArrays)
+          {
+          tableOutput->ShallowCopy( tableInput );
+          }
+        }
+      }
     if (vtkCompositeDataSet::SafeDownCast(objInput))
       {
       vtkCompositeDataSet *cdsInput = vtkCompositeDataSet::SafeDownCast(objInput);
@@ -215,10 +236,11 @@ int vtkProgrammableFilter::RequestData(
 
 int vtkProgrammableFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  // This algorithm may accept a vtkDataSet or vtkGraph.
+  // This algorithm may accept a vtkDataSet or vtkGraph or vtkTable.
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;  
 }
 
