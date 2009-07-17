@@ -18,7 +18,7 @@ def computeVertexDegree():
       vertexArray.SetValue(i, output.GetDegree(i))
     
   # Add the new attribute array to the output graph
-  output.GetEdgeData().AddArray(vertexArray)
+  output.GetVertexData().AddArray(vertexArray)
 
 vertexDegree.SetExecuteMethod(computeVertexDegree)
 
