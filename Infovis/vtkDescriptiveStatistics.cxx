@@ -37,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.77");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.78");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -148,16 +148,16 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
         it != this->Internals->Selection.end(); ++ it )
     {
-    vtkStdString colName = *it;
-    if ( ! inData->GetColumnByName( colName ) )
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colName.c_str()
+                       << varName.c_str()
                        << ". Ignoring it." );
       continue;
       }
 
-    double minVal = inData->GetValueByName( 0, colName ).ToDouble();
+    double minVal = inData->GetValueByName( 0, varName ).ToDouble();
     double maxVal = minVal;
     double mean = 0.;
     double mom2 = 0.;
@@ -170,7 +170,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
       n = r + 1.;
       inv_n = 1. / n;
 
-      val = inData->GetValueByName( r, colName ).ToDouble();
+      val = inData->GetValueByName( r, varName ).ToDouble();
       delta = val - mean;
 
       A = delta * inv_n; 
@@ -195,7 +195,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 
     row->SetNumberOfValues( 8 );
 
-    row->SetValue( 0, colName );
+    row->SetValue( 0, varName );
     row->SetValue( 1, nRow );
     row->SetValue( 2, minVal );
     row->SetValue( 3, maxVal );
@@ -213,7 +213,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::LearnAggregate( vtkDataObjectCollection* inMetaColl,
+void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
                                                vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
@@ -227,15 +227,109 @@ void vtkDescriptiveStatistics::LearnAggregate( vtkDataObjectCollection* inMetaCo
   inMetaColl->InitTraversal( it );
   vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
 
-  // Verify that the model is indeed table
+  // Verify that the model is indeed contained in a table
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
   if ( ! inMeta ) 
     { 
     return; 
     }
 
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    // No statistics were calculated.
+    return;
+    }
+
   // Use this first model to initialize the aggregated one
   outMeta->DeepCopy( inMeta );
+
+  // Now, loop over all remaining models and update aggregated each time
+  while ( inMetaDO = inMetaColl->GetNextDataObject( it ) )
+    {
+    // Verify that the model is indeed contained in a table
+    inMeta = vtkTable::SafeDownCast( inMetaDO );
+    if ( ! inMeta ) 
+      { 
+      return; 
+      }
+    
+    if ( inMeta->GetNumberOfRows() != nRow )
+      {
+      // Models do not match
+      return;
+      }
+
+    // Iterate over all model rows
+    for ( int r = 0; r < nRow; ++ r )
+      {
+      // Verify that variable names match each other
+      if ( inMeta->GetValueByName( r, "Variable" ) != outMeta->GetValueByName( r, "Variable" ) )
+        {
+        // Models do not match
+        return;
+        }
+
+      // Get aggregated statistics
+      int n = outMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double min = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
+      double max = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean = outMeta->GetValueByName( r, "Mean" ).ToDouble();
+      double M2 = outMeta->GetValueByName( r, "M2" ).ToDouble();
+      double M3 = outMeta->GetValueByName( r, "M3" ).ToDouble();
+      double M4 = outMeta->GetValueByName( r, "M4" ).ToDouble();
+      
+      // Get current model statistics
+      int n_c = inMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double min_c = inMeta->GetValueByName( r, "Minimum" ).ToDouble();
+      double max_c = inMeta->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean_c = inMeta->GetValueByName( r, "Mean" ).ToDouble();
+      double M2_c = inMeta->GetValueByName( r, "M2" ).ToDouble();
+      double M3_c = inMeta->GetValueByName( r, "M3" ).ToDouble();
+      double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
+      
+      // Update global statics
+      n += n_c; 
+
+      if ( min_c < min )
+        {
+        outMeta->SetValueByName( r, "Minimum", min_c );
+        }
+
+      if ( max_c > max )
+        {
+        outMeta->SetValueByName( r, "Minimum", max_c );
+        }
+
+      double delta = mean_c - mean;
+      double delta_sur_n = delta / static_cast<double>( n );
+      double delta_sur_n2 = delta_sur_n * delta_sur_n;
+
+      int n2 = n * n;
+      int n_c2 = n_c * n_c;
+      int prod_n = n * n_c;
+ 
+      M4 += M4_c 
+        + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_n * delta_sur_n2
+        + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta_sur_n2
+        + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_n;
+
+      M3 += M3_c 
+        + prod_n * ( n - n_c ) * delta * delta_sur_n2
+        + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_n;
+
+      M2 += M2_c 
+        + prod_n * delta * delta_sur_n;
+
+      mean += n_c * delta_sur_n;
+
+      outMeta->SetValueByName( r, "Cardinality", n );
+      outMeta->SetValueByName( r, "Mean", mean );
+      outMeta->SetValueByName( r, "M2", M2 );
+      outMeta->SetValueByName( r, "M3", M3 );
+      outMeta->SetValueByName( r, "M4", M4 );
+      }
+    }
 
   return;
 }
@@ -288,7 +382,6 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 
   for ( int i = 0; i < nRow; ++ i )
     {
-    vtkStdString colName = inMeta->GetValueByName( i, "Variable" ).ToString();
     double mom2 = inMeta->GetValueByName( i, "M2" ).ToDouble();
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();

@@ -362,7 +362,7 @@ int TestDescriptiveStatistics( int, char *[] )
   // And calculate the aggregated statistics of the two models
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   vtkTable* mod = vtkTable::New();
-  ds->LearnAggregate( doc, mod );
+  ds->Aggregate( doc, mod );
 
   // Clean up
   ds->Delete();

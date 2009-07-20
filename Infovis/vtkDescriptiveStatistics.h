@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Given a collection of models, calculate aggregate model
-  virtual void LearnAggregate( vtkDataObjectCollection*,
+  virtual void Aggregate( vtkDataObjectCollection*,
                                vtkDataObject* );
 
 protected:
