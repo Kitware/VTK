@@ -35,7 +35,7 @@ class vtkTokenizer::Internals
 public:
   // Returns true iff a Unicode code point is a delimiter that should be dropped
   // (not included as a token in the output).
-  const bool is_dropped(vtkUnicodeString::value_type code_point)
+  bool is_dropped(vtkUnicodeString::value_type code_point)
   {
     for(DelimiterRanges::const_iterator range = this->DroppedDelimiters.begin(); range != this->DroppedDelimiters.end(); ++range)
       {
@@ -48,7 +48,7 @@ public:
 
   // Returns true iff a Unicode code point is a delimiter that should be kept
   // (included as a token in the output).
-  const bool is_kept(vtkUnicodeString::value_type code_point)
+  bool is_kept(vtkUnicodeString::value_type code_point)
   {
     for(DelimiterRanges::const_iterator range = this->KeptDelimiters.begin(); range != this->KeptDelimiters.end(); ++range)
       {
@@ -63,7 +63,7 @@ public:
   DelimiterRanges KeptDelimiters;
 };
 
-vtkCxxRevisionMacro(vtkTokenizer, "1.2");
+vtkCxxRevisionMacro(vtkTokenizer, "1.3");
 vtkStandardNewMacro(vtkTokenizer);
 
 vtkTokenizer::vtkTokenizer() :
@@ -89,12 +89,12 @@ void vtkTokenizer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << hex << setfill('0');
-  for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Implementation->DroppedDelimiters.size(); ++i)
+  for(size_t i = 0; i != this->Implementation->DroppedDelimiters.size(); ++i)
     {
     os << indent << "DroppedDelimiters: [" << "0x" << setw(4) << this->Implementation->DroppedDelimiters[i].first;
     os << ", " << "0x" << setw(4) << this->Implementation->DroppedDelimiters[i].second << ")\n";
     }
-  for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Implementation->KeptDelimiters.size(); ++i)
+  for(size_t i = 0; i != this->Implementation->KeptDelimiters.size(); ++i)
     {
     os << indent << "KeptDelimiters: [" << "0x" << setw(4) << this->Implementation->KeptDelimiters[i].first;
     os << ", " << "0x" << setw(4) << this->Implementation->KeptDelimiters[i].second << ")\n";
@@ -258,12 +258,13 @@ int vtkTokenizer::RequestData(
     text_array->SetName("text");
 
     // Do the work ...
-    int count = input_document_array->GetNumberOfTuples();
+    vtkIdType count = input_document_array->GetNumberOfTuples();
     for(vtkIdType i = 0; i != input_document_array->GetNumberOfTuples(); ++i)
       {
       const vtkIdType document_id = input_document_array->GetValue(i);
       const vtkUnicodeString& document_text = input_text_array->GetValue(i);
-      const vtkIdType document_length = document_text.character_count();
+      const vtkIdType document_length = static_cast<vtkIdType>(
+        document_text.character_count());
 
       vtkstd::vector<vtkIdType> range_begin;
       vtkstd::vector<vtkIdType> range_end;
@@ -284,7 +285,7 @@ int vtkTokenizer::RequestData(
         range_end.push_back(document_length);
         }
 
-      for(vtkIdType range = 0; static_cast<unsigned int>(range) != range_begin.size(); ++range)
+      for(size_t range = 0; range != range_begin.size(); ++range)
         {
         vtkIdType current_offset = range_begin[range];
 

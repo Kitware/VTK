@@ -41,7 +41,7 @@
     } \
 }
 
-int TestNGramExtraction(int argc, char* argv[])
+int TestNGramExtraction(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

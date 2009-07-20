@@ -34,7 +34,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArrayTransposeMatrix(int argc, char* argv[])
+int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
   

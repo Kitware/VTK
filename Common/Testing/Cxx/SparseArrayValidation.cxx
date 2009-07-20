@@ -32,7 +32,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int SparseArrayValidation(int argc, char* argv[])
+int SparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

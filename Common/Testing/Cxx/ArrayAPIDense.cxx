@@ -36,7 +36,7 @@
     } \
 }
 
-int ArrayAPIDense(int argc, char* argv[])
+int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

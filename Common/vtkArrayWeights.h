@@ -41,7 +41,8 @@
 #define __vtkArrayWeights_h
 
 #include "vtkSystemIncludes.h"
-#include <vtksys/stl/vector>
+
+class vtkArrayWeightsStorage; // pimpl
 
 class VTK_COMMON_EXPORT vtkArrayWeights
 {
@@ -68,7 +69,7 @@ public:
 
   // Description:
   // Returns the number of weights stored in this container.
-  const vtkIdType GetCount() const;
+  vtkIdType GetCount() const;
   
   // Description:
   // Sets the number of weights stored in this container.  Note that each
@@ -84,8 +85,8 @@ public:
   // Accesses the i-th weight in the collection.
   const double& operator[](vtkIdType) const;
 
-private:
-  vtkstd::vector<double> Storage;
+protected:
+  vtkArrayWeightsStorage *Storage;
 };
 
 #endif

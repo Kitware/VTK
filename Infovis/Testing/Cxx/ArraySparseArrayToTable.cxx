@@ -35,7 +35,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArraySparseArrayToTable(int argc, char* argv[])
+int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

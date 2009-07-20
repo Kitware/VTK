@@ -35,7 +35,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArrayDiagonalMatrixSource(int argc, char* argv[])
+int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

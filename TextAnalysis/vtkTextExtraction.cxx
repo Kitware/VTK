@@ -44,12 +44,12 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.4");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.5");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
-  Internal(new Implementation()),
-  OutputArray(0)
+  OutputArray(0),
+  Internal(new Implementation())
 {
   this->Internal->Strategies.push_back(vtkPlainTextExtractionStrategy::New());
   
@@ -164,7 +164,7 @@ int vtkTextExtraction::RequestData(
     vtkUnicodeStringArray* const tag_text_array = vtkUnicodeStringArray::New();
     tag_text_array->SetName("text");
 
-    int count = document_id_array->GetNumberOfTuples();
+    vtkIdType count = document_id_array->GetNumberOfTuples();
     for(vtkIdType i = 0; i != count; ++i)
       {
       const vtkIdType document = document_id_array->GetValue(i);
@@ -172,7 +172,7 @@ int vtkTextExtraction::RequestData(
       const vtkStdString content = content_array->GetVariantValue(i).ToString();
 
       vtkUnicodeString text;
-      for(vtkIdType j = 0; static_cast<unsigned int>(j) != this->Internal->Strategies.size(); ++j)
+      for(size_t j = 0; j != this->Internal->Strategies.size(); ++j)
         {
         if(this->Internal->Strategies[j]->Extract(
           document,

@@ -31,7 +31,7 @@
     } \
 }
 
-int TestMimeTypes(int argc, char* argv[])
+int TestMimeTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

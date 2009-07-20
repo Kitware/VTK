@@ -34,7 +34,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArrayMatricizeArray(int argc, char* argv[])
+int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

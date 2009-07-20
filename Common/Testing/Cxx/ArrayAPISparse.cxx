@@ -31,7 +31,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArrayAPISparse(int argc, char* argv[])
+int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

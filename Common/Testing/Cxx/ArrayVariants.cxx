@@ -36,7 +36,7 @@
     } \
 }
 
-int ArrayVariants(int argc, char* argv[])
+int ArrayVariants(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

@@ -41,7 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
-  typedef enum 
+  enum 
   {
     BASE_E = 0,
     BASE_2 = 1,

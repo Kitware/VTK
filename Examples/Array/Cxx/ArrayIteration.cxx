@@ -2,7 +2,7 @@
 #include <vtkDenseArray.h>
 #include <vtkSparseArray.h>
 
-int main(int argc, char* argv[])
+int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create a dense matrix:
   vtkDenseArray<double>* matrix = vtkDenseArray<double>::New();

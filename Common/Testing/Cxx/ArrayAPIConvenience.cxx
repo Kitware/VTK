@@ -36,7 +36,7 @@
     } \
 }
 
-int ArrayAPIConvenience(int argc, char* argv[])
+int ArrayAPIConvenience(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

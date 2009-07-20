@@ -32,7 +32,7 @@ void test_expression(const bool expression, const vtkstd::string& message)
     throw vtkstd::runtime_error(message);
 }
 
-int ArrayInterpolationDense(int argc, char* argv[])
+int ArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

@@ -40,7 +40,7 @@
     } \
 }
 
-int TestTokenizerRanges(int argc, char* argv[])
+int TestTokenizerRanges(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

@@ -46,7 +46,7 @@
     } \
 }
 
-int TestTokenLengthFilter(int argc, char* argv[])
+int TestTokenLengthFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

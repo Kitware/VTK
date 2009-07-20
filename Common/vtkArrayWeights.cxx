@@ -20,58 +20,69 @@
 =========================================================================*/
 
 #include "vtkArrayWeights.h"
+#include <vtksys/stl/vector>
+
+class vtkArrayWeightsStorage
+{
+public:
+  vtkArrayWeightsStorage(size_t size)
+    : Storage(size)
+    {
+    }
+  vtkstd::vector<double> Storage;
+};
 
 vtkArrayWeights::vtkArrayWeights()
 {
+  this->Storage=new vtkArrayWeightsStorage(0);
 }
 
-vtkArrayWeights::vtkArrayWeights(double i) :
-  Storage(1)
+vtkArrayWeights::vtkArrayWeights(double i)
 {
-  this->Storage[0] = i;
+  this->Storage=new vtkArrayWeightsStorage(1);
+  this->Storage->Storage[0] = i;
 }
 
-vtkArrayWeights::vtkArrayWeights(double i, double j) :
-  Storage(2)
+vtkArrayWeights::vtkArrayWeights(double i, double j)
 {
-  this->Storage[0] = i;
-  this->Storage[1] = j;
+  this->Storage=new vtkArrayWeightsStorage(2);
+  this->Storage->Storage[0] = i;
+  this->Storage->Storage[1] = j;
 }
 
-vtkArrayWeights::vtkArrayWeights(double i, double j, double k) :
-  Storage(3)
+vtkArrayWeights::vtkArrayWeights(double i, double j, double k)
 {
-  this->Storage[0] = i;
-  this->Storage[1] = j;
-  this->Storage[2] = k;
+  this->Storage=new vtkArrayWeightsStorage(3);
+  this->Storage->Storage[0] = i;
+  this->Storage->Storage[1] = j;
+  this->Storage->Storage[2] = k;
 }
 
-vtkArrayWeights::vtkArrayWeights(double i, double j, double k, double l) :
-  Storage(4)
+vtkArrayWeights::vtkArrayWeights(double i, double j, double k, double l)
 {
-  this->Storage[0] = i;
-  this->Storage[1] = j;
-  this->Storage[2] = k;
-  this->Storage[3] = l;
+  this->Storage=new vtkArrayWeightsStorage(4);
+  this->Storage->Storage[0] = i;
+  this->Storage->Storage[1] = j;
+  this->Storage->Storage[2] = k;
+  this->Storage->Storage[3] = l;
 }
 
-const vtkIdType vtkArrayWeights::GetCount() const
+vtkIdType vtkArrayWeights::GetCount() const
 {
-  return this->Storage.size();
+  return static_cast<vtkIdType>(this->Storage->Storage.size());
 }
 
 void vtkArrayWeights::SetCount(vtkIdType count)
 {
-  this->Storage.assign(count, 0.0);
+  this->Storage->Storage.assign(static_cast<size_t>(count), 0.0);
 }
 
 double& vtkArrayWeights::operator[](vtkIdType i)
 {
-  return this->Storage[i];
+  return this->Storage->Storage[static_cast<size_t>(i)];
 }
 
 const double& vtkArrayWeights::operator[](vtkIdType i) const
 {
-  return this->Storage[i];
+  return this->Storage->Storage[static_cast<size_t>(i)];
 }
-

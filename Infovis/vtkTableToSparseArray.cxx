@@ -43,7 +43,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkTableToSparseArray, "1.3");
+vtkCxxRevisionMacro(vtkTableToSparseArray, "1.4");
 vtkStandardNewMacro(vtkTableToSparseArray);
 
 // ----------------------------------------------------------------------
@@ -67,7 +67,7 @@ vtkTableToSparseArray::~vtkTableToSparseArray()
 void vtkTableToSparseArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  for(vtkIdType i = 0; i != this->Implementation->Coordinates.size(); ++i)
+  for(size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
     os << indent << "CoordinateColumn: " << this->Implementation->Coordinates[i] << endl;
   os << indent << "ValueColumn: " << this->Implementation->Values << endl;
 }
@@ -129,7 +129,7 @@ int vtkTableToSparseArray::RequestData(
   vtkTable* const table = vtkTable::GetData(inputVector[0]);
 
   vtkstd::vector<vtkAbstractArray*> coordinates(this->Implementation->Coordinates.size());
-  for(vtkIdType i = 0; i != this->Implementation->Coordinates.size(); ++i)
+  for(size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
     {
     coordinates[i] = table->GetColumnByName(this->Implementation->Coordinates[i].c_str());
     if(!coordinates[i])
@@ -153,14 +153,14 @@ int vtkTableToSparseArray::RequestData(
   vtkSparseArray<double>* const array = vtkSparseArray<double>::New();
   array->Resize(vtkArrayExtents::Uniform(coordinates.size(), 0));
 
-  for(vtkIdType i = 0; i != coordinates.size(); ++i)
+  for(size_t i = 0; i != coordinates.size(); ++i)
     array->SetDimensionLabel(i, coordinates[i]->GetName());
 
   vtkArrayCoordinates output_coordinates;
   output_coordinates.SetDimensions(coordinates.size());
   for(vtkIdType i = 0; i != table->GetNumberOfRows(); ++i)
     {
-    for(vtkIdType j = 0; j != coordinates.size(); ++j)
+    for(size_t j = 0; j != coordinates.size(); ++j)
       {
       output_coordinates[j] = coordinates[j]->GetVariantValue(i).ToInt();
       }

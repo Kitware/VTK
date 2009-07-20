@@ -37,7 +37,7 @@
     } \
 }
 
-int ArrayAPI(int argc, char* argv[])
+int ArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -78,7 +78,7 @@ int ArrayAPI(int argc, char* argv[])
 
     for(vtkstd::vector<int>::const_iterator storage_type = storage_types.begin(); storage_type != storage_types.end(); ++storage_type)
       {
-      for(int value_type = 0; value_type != value_types.size(); ++value_type)
+      for(size_t value_type = 0; value_type != value_types.size(); ++value_type)
         {
         cerr << "creating array with storage type " << *storage_type << " and value type " << vtkImageScalarTypeNameMacro(value_types[value_type]) << endl;
 

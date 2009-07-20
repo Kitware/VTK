@@ -40,7 +40,7 @@
     } \
 }
 
-int TestTextExtraction(int argc, char* argv[])
+int TestTextExtraction(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

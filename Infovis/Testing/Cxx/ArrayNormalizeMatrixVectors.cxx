@@ -35,12 +35,12 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-static const bool close_enough(const double lhs, const double rhs)
+static bool close_enough(const double lhs, const double rhs)
 {
   return fabs(lhs - rhs) < 1.0e-12;
 }
 
-int ArrayNormalizeMatrixVectors(int argc, char* argv[])
+int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

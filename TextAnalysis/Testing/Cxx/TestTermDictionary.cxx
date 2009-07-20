@@ -43,13 +43,15 @@
     } \
 }
 
+#if 0
 static ostream& operator<<(ostream& stream, const vtkUnicodeString& value)
 {
   stream << value.utf8_str();
   return stream;
 }
+#endif
 
-int TestTermDictionary(int argc, char* argv[])
+int TestTermDictionary(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

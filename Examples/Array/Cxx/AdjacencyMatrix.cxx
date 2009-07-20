@@ -11,7 +11,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkViewTheme.h>
 
-int main(int argc, char* argv[])
+int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
   source->SetExtents(10);

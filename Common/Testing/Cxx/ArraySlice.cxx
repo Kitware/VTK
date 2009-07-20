@@ -24,6 +24,7 @@
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/stdexcept>
+#include "vtkSetGet.h"
 
 #define test_expression(expression) \
 { \
@@ -35,7 +36,7 @@
     } \
 }
 
-int ArraySlice(int argc, char* argv[])
+int ArraySlice(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

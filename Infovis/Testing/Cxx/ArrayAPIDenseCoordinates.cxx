@@ -35,7 +35,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArrayAPIDenseCoordinates(int argc, char* argv[])
+int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.6");
+vtkCxxRevisionMacro(vtkArrayData, "1.7");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -107,18 +107,19 @@ void vtkArrayData::ClearArrays()
 
 vtkIdType vtkArrayData::GetNumberOfArrays()
 {
-  return this->Implementation->Arrays.size();
+  return static_cast<vtkIdType>(this->Implementation->Arrays.size());
 }
 
 vtkArray* vtkArrayData::GetArray(vtkIdType index)
 {
-  if(index < 0 || index >= this->Implementation->Arrays.size())
+  if(index < 0 ||
+     static_cast<size_t>(index) >= this->Implementation->Arrays.size())
     {
     vtkErrorMacro(<< "Array index out-of-range.");
     return 0;
     }
     
-  return this->Implementation->Arrays[index];
+  return this->Implementation->Arrays[static_cast<size_t>(index)];
 }
 
 void vtkArrayData::ShallowCopy(vtkDataObject* other)
@@ -137,9 +138,10 @@ void vtkArrayData::DeepCopy(vtkDataObject* other)
   if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
     {
     this->Implementation->Arrays.clear();
-    for(vtkIdType i = 0; i != array_data->Implementation->Arrays.size(); ++i)
+    for(size_t i = 0;i != array_data->Implementation->Arrays.size();++i)
       {
-      this->Implementation->Arrays.push_back(array_data->Implementation->Arrays[i]->DeepCopy());
+      this->Implementation->Arrays.push_back(
+        array_data->Implementation->Arrays[i]->DeepCopy());
       }
     this->Modified();
     }

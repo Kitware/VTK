@@ -58,7 +58,7 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
     }
 }
 
-int ArrayNullValues(int argc, char* argv[])
+int ArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

@@ -37,7 +37,7 @@
     } \
 }
 
-int ArrayBool(int argc, char* argv[])
+int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
