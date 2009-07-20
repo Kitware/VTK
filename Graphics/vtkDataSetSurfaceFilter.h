@@ -110,7 +110,7 @@ protected:
   virtual void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c, vtkIdType d,
                         vtkIdType sourceId);
   virtual void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
-                       vtkIdType sourceId);
+                       vtkIdType sourceId, vtkIdType faceId = -1);
   virtual void InsertPolygonInHash(vtkIdType* ids, int numpts,
                            vtkIdType sourceId);
   void InitQuadHashTraversal();
@@ -143,6 +143,7 @@ protected:
 
   int PassThroughCellIds;
   void RecordOrigCellId(vtkIdType newIndex, vtkIdType origId);
+  virtual void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad);
   vtkIdTypeArray *OriginalCellIds;
 
   int PassThroughPointIds;

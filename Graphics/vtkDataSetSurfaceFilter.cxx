@@ -45,7 +45,7 @@ static int sizeofFastQuad(int numPts)
   return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
 }
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.70");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.71");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1089,10 +1089,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       }
     else if (cellType == VTK_TETRA)
       {
-      this->InsertTriInHash(ids[0], ids[1], ids[3], cellId);
-      this->InsertTriInHash(ids[0], ids[2], ids[1], cellId);
-      this->InsertTriInHash(ids[0], ids[3], ids[2], cellId);
-      this->InsertTriInHash(ids[1], ids[2], ids[3], cellId);
+      this->InsertTriInHash(ids[0], ids[1], ids[3], cellId, 2);
+      this->InsertTriInHash(ids[0], ids[2], ids[1], cellId, 3);
+      this->InsertTriInHash(ids[0], ids[3], ids[2], cellId, 1);
+      this->InsertTriInHash(ids[1], ids[2], ids[3], cellId, 0);
       }
     else if (cellType == VTK_PENTAGONAL_PRISM)
       {
@@ -1308,7 +1308,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       q->ptArray[i] = this->GetOutputPointId(q->ptArray[i], input, newPts, outputPD);
       }
     newPolys->InsertNextCell(q->numPts, q->ptArray);
-    this->RecordOrigCellId(this->NumberOfNewCells, q->SourceId);
+    this->RecordOrigCellId(this->NumberOfNewCells, q);
     outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
     }
 
@@ -1478,7 +1478,8 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
 
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
-                                              vtkIdType c, vtkIdType sourceId)
+                                              vtkIdType c, vtkIdType sourceId,
+                                              vtkIdType vtkNotUsed(faceId)/*= -1*/)
 {
   vtkIdType tmp;
   vtkFastGeomQuad *quad, **end;
@@ -1807,6 +1808,16 @@ void vtkDataSetSurfaceFilter::RecordOrigCellId(vtkIdType destIndex,
   if (this->OriginalCellIds != NULL)
     {
     this->OriginalCellIds->InsertValue(destIndex, originalId);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetSurfaceFilter::RecordOrigCellId(vtkIdType destIndex, 
+                                               vtkFastGeomQuad *quad)
+{
+  if (this->OriginalCellIds != NULL)
+    {
+    this->OriginalCellIds->InsertValue(destIndex, quad->SourceId);
     }
 }
 
