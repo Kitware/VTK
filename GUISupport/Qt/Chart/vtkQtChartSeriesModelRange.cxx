@@ -163,7 +163,7 @@ QList<QVariant> vtkQtChartSeriesModelRange::computeSeriesRange(int series,
     int total = this->Model->getNumberOfSeriesValues(series);
     int i;
     QVariant value;
-    QVariant::Type valueType;
+    QVariant::Type valueType = QVariant::Invalid;
 
     // Find the first non-NULL, non-NaN value.  Use it to determine type
     // and initialize min/max values.
