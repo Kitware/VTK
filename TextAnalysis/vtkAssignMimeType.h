@@ -21,8 +21,8 @@
 #ifndef __vtkAssignMimeType_h
 #define __vtkAssignMimeType_h
 
-#include <vtkMimeTypes.h>
-#include <vtkTableAlgorithm.h>
+#include "vtkTableAlgorithm.h"
+class vtkMimeTypes;
 
 // .NAME vtkAssignMimeType - Assigns MIME types to a collection of documents.
 //
@@ -76,7 +76,7 @@ public:
   // Description:
   // Assign a custom vtkMimeTypes object to this filter.  This makes it possible
   // to work with arbitrary Mime Type strategies.
-  vtkSetObjectMacro(MimeTypes, vtkMimeTypes);
+  void SetMimeTypes(vtkMimeTypes *m);
   vtkGetObjectMacro(MimeTypes, vtkMimeTypes);
 
 protected:

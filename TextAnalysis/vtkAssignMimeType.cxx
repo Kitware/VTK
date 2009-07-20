@@ -26,11 +26,13 @@
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
+#include "vtkMimeTypes.h"
 
 #include <stdexcept>
 
-vtkCxxRevisionMacro(vtkAssignMimeType, "1.3");
+vtkCxxRevisionMacro(vtkAssignMimeType, "1.4");
 vtkStandardNewMacro(vtkAssignMimeType);
+vtkCxxSetObjectMacro(vtkAssignMimeType,MimeTypes,vtkMimeTypes);
 
 vtkAssignMimeType::vtkAssignMimeType() :
   OutputArray(0),
