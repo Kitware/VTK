@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.9");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.10");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -256,7 +256,7 @@ void vtkKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::ExecuteLearn( vtkTable* inData, 
+void vtkKMeansStatistics::Learn( vtkTable* inData, 
                                         vtkTable* inParameters,
                                         vtkDataObject* outMetaDO )
 {
@@ -478,7 +478,7 @@ void vtkKMeansStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
+void vtkKMeansStatistics::Derive( vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   vtkTable* outTable;
@@ -500,7 +500,7 @@ void vtkKMeansStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
     }
 
   // Create an output table 
-  // outMeta and which is presumed to exist upon entry to ExecuteDerive).
+  // outMeta and which is presumed to exist upon entry to Derive).
 
   outMeta->SetNumberOfBlocks( 2 );
 
@@ -578,7 +578,7 @@ void vtkKMeansStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::ExecuteAssess( vtkTable* inData, 
+void vtkKMeansStatistics::Assess( vtkTable* inData, 
                                          vtkDataObject* inMetaDO, 
                                          vtkTable* outData, 
                                          vtkDataObject* vtkNotUsed(outMetaDO) )

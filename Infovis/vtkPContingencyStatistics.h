@@ -34,7 +34,9 @@
 
 #include "vtkContingencyStatistics.h"
 
-#include <vtkstd/vector> // used by protected member functions
+//BTX
+#include <vtkstd/vector> // STL Header
+//ETX
 
 class vtkMultiProcessController;
 
@@ -53,9 +55,9 @@ public:
 
   // Description:
   // Execute the parallel calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
-                             vtkTable* inParameters,
-                             vtkDataObject* outMeta );
+  virtual void Learn( vtkTable* inData,
+                      vtkTable* inParameters,
+                      vtkDataObject* outMeta );
 
 protected:
   vtkPContingencyStatistics();

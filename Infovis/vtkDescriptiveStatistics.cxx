@@ -23,6 +23,7 @@
 #include "vtkDescriptiveStatistics.h"
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
+#include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -36,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.75");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.76");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -77,9 +78,9 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* vtkNotUsed( inParameters ),
-                                             vtkDataObject* outMetaDO )
+void vtkDescriptiveStatistics::Learn( vtkTable* inData,
+                                      vtkTable* vtkNotUsed( inParameters ),
+                                      vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
@@ -212,7 +213,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
+void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 

@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPCorrelativeStatistics, "1.5");
+vtkCxxRevisionMacro(vtkPCorrelativeStatistics, "1.6");
 vtkCxxSetObjectMacro(vtkPCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPCorrelativeStatistics::vtkPCorrelativeStatistics()
@@ -48,7 +48,7 @@ void vtkPCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-void vtkPCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
+void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
                                               vtkTable* inParameters,
                                               vtkDataObject* outMetaDO )
 {
@@ -59,7 +59,7 @@ void vtkPCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     } 
 
   // First calculate correlative statistics on local data set
-  this->Superclass::ExecuteLearn( inData, inParameters, outMeta );
+  this->Superclass::Learn( inData, inParameters, outMeta );
 
   vtkIdType nRow = outMeta->GetNumberOfRows();
   if ( ! nRow )

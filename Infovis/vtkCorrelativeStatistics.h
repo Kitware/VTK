@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 // following functionalities, depending on the execution mode it is executed in:
 // * Learn: calculate means, unbiased variance and covariance estimators of
 //   column pairs, and corresponding linear regressions and linear correlation 
-//   coefficient. More precisely, ExecuteLearn calculates the sums; if \p finalize
+//   coefficient. More precisely, Learn calculates the sums; if \p finalize
 //   is set to true (default), the final statistics are calculated with the 
 //   function CalculateFromSums. Otherwise, only raw sums are output; this 
 //   option is made for efficient parallel calculations.
@@ -61,13 +61,13 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
+  virtual void Learn( vtkTable* inData,
                              vtkTable* inParameters,
                              vtkDataObject* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* );
+  virtual void Derive( vtkDataObject* );
 
 //BTX  
   // Description:

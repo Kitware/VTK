@@ -72,7 +72,7 @@ public:
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void ExecuteAssess( vtkTable* inData,
+  virtual void Assess( vtkTable* inData,
                               vtkDataObject* inMeta,
                               vtkTable* outData,
                               vtkDataObject* outMeta ); 

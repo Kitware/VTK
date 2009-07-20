@@ -90,13 +90,13 @@ protected:
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
+  virtual void Learn( vtkTable* inData,
                              vtkTable* inParameters,
                              vtkDataObject* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* );
+  virtual void Derive( vtkDataObject* );
 
 //BTX  
   // Description:

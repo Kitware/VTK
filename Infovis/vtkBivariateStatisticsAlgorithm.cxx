@@ -31,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.14");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -110,7 +110,7 @@ void vtkBivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int s
 }
 
 // ----------------------------------------------------------------------
-void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
+void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
                                                      vtkDataObject* inMetaDO,
                                                      vtkTable* outData,
                                                      vtkDataObject* vtkNotUsed( outMeta ) )

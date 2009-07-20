@@ -51,7 +51,7 @@ protected:
   vtkMultiProcessController* Controller;
 
   // Execute the parallel calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
+  virtual void Learn( vtkTable* inData,
                              vtkTable* inParameters,
                              vtkDataObject* outMeta );
 private:

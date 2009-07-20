@@ -44,7 +44,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.32");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.33");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -115,7 +115,7 @@ void UnpackValues( const vtkStdString& buffer,
 }
 
 // ----------------------------------------------------------------------
-void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
+void vtkPContingencyStatistics::Learn( vtkTable* inData,
                                               vtkTable* inParameters,
                                               vtkDataObject* outMetaDO )
 {
@@ -139,7 +139,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
   timers->StartTimer();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   // First calculate contingency statistics on local data set
-  this->Superclass::ExecuteLearn( inData, inParameters, outMeta );
+  this->Superclass::Learn( inData, inParameters, outMeta );
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timers->StopTimer();
 
@@ -417,7 +417,7 @@ void vtkPContingencyStatistics::ExecuteLearn( vtkTable* inData,
 
   cout << "## Process "
        << myRank
-       << " parallel ExecuteLearn took "
+       << " parallel Learn took "
        << timer->GetElapsedTime()
        << " seconds."
        << "\n";

@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.39");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.40");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -136,7 +136,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   vtkDataObject* inMeta;
   if ( this->LearnOption )
     {
-    this->ExecuteLearn( inData, inParameters, outMeta1 );
+    this->Learn( inData, inParameters, outMeta1 );
 
     // The full model (if available) is no longer in sync
     this->FullWasDerived = false;
@@ -160,7 +160,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 
   if ( this->DeriveOption )
     {
-    this->ExecuteDerive( outMeta1 );
+    this->Derive( outMeta1 );
 
     // A full model was derived from the minimal model
     this->FullWasDerived = true;
@@ -168,7 +168,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 
   if ( this->AssessOption )
     {
-    this->ExecuteAssess( inData, outMeta1, outData, outMeta2 );
+    this->Assess( inData, outMeta1, outData, outMeta2 );
     }
 
   return 1;

@@ -152,15 +152,15 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* );
+  virtual void Derive( vtkDataObject* );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteAssess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
+  virtual void Assess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
+  virtual void Learn( vtkTable* inData,
                              vtkTable* inParameters,
                              vtkDataObject* outMeta );
   //BTX  
@@ -173,7 +173,7 @@ protected:
   //ETX  
   // Description:
   // Subroutine to update new cluster centers from the old centers.
-  // Called from within ExecuteLearn (and will be overridden by vtkPKMeansStatistics
+  // Called from within Learn (and will be overridden by vtkPKMeansStatistics
   // to handle distributed datasets).
   virtual void UpdateClusterCenters( vtkTable* newClusterElements, 
                                      vtkTable* curClusterElements, 
@@ -186,7 +186,7 @@ protected:
 
   // Description:
   // Subroutine to get the total number of observations.
-  // Called from within ExecuteLearn (and will be overridden by vtkPKMeansStatistics
+  // Called from within Learn (and will be overridden by vtkPKMeansStatistics
   // to handle distributed datasets).
   virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations );
 
@@ -194,7 +194,7 @@ protected:
   // Subroutine to initalize the cluster centers using those provided by the user
   // in input port LEARN_PARAMETERS.  If no cluster centers are provided, the subroutine uses the 
   // first DefaultNumberOfClusters input data points as initial cluster centers.
-  // Called from within ExecuteLearn.
+  // Called from within Learn.
   int InitializeDataAndClusterCenters(vtkTable* inParameters,
                                       vtkTable* inData,
                                       vtkTable*  dataElements,

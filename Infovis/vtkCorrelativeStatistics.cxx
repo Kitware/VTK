@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.57");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.58");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -67,7 +67,7 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
+void vtkCorrelativeStatistics::Learn( vtkTable* inData,
                                              vtkTable* vtkNotUsed( inParameters ),
                                              vtkDataObject* outMetaDO )
 {
@@ -196,7 +196,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
+void vtkCorrelativeStatistics::Derive( vtkDataObject* inMetaDO )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 

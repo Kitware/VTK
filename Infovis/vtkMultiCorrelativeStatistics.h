@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 // following functionalities, depending on the execution mode it is executed in:
 // * Learn: calculates means, unbiased variance and covariance estimators of
 //   column pairs coefficient.
-//   More precisely, ExecuteLearn calculates the averages and centered
+//   More precisely, Learn calculates the averages and centered
 //   variance/covariance sums; if \p finalize is set to true (default),
 //   the final statistics are calculated.
 //   The output metadata on port OUTPUT_MODEL is a multiblock dataset containing at a minimum
@@ -84,15 +84,15 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* );
+  virtual void Derive( vtkDataObject* );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteAssess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
+  virtual void Assess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
 
   // Description:
   // Execute the calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
+  virtual void Learn( vtkTable* inData,
                              vtkTable* inParameters,
                              vtkDataObject* outMeta );
   //BTX  

@@ -188,11 +188,11 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* inMeta );
+  virtual void Derive( vtkDataObject* inMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteAssess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
+  virtual void Assess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
 
   //BTX  
   // Description:

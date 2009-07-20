@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPPCAStatistics);
-vtkCxxRevisionMacro(vtkPPCAStatistics, "1.4");
+vtkCxxRevisionMacro(vtkPPCAStatistics, "1.5");
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPPCAStatistics::vtkPPCAStatistics()
@@ -52,7 +52,7 @@ void vtkPPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-void vtkPPCAStatistics::ExecuteLearn( vtkTable* inData,
+void vtkPPCAStatistics::Learn( vtkTable* inData,
                                       vtkTable* inParameters,
                                       vtkDataObject* outMetaDO )
 {
@@ -63,7 +63,7 @@ void vtkPPCAStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   // First calculate correlative statistics on local data set
-  this->Superclass::ExecuteLearn( inData, inParameters, outMeta );
+  this->Superclass::Learn( inData, inParameters, outMeta );
 
   // Get a hold of the (sparse) covariance matrix
   vtkTable* sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );

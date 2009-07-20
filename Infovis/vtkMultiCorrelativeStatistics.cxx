@@ -21,7 +21,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.17");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.18");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -162,7 +162,7 @@ int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInfor
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData, 
+void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData, 
                                                   vtkTable* vtkNotUsed( inParameters ),
                                                   vtkDataObject* outMetaDO )
 {
@@ -362,7 +362,7 @@ void vtkMultiCorrelativeCholesky( vtkstd::vector<double*>& a, vtkIdType m )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
+void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   vtkTable* sparseCov;
@@ -406,7 +406,7 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
   double* x = rv;
 
   // Create an output table for each request and fill it in using the mucov array (the first table in
-  // outMeta and which is presumed to exist upon entry to ExecuteDerive).
+  // outMeta and which is presumed to exist upon entry to Derive).
   // Note that these tables are normalized by the number of samples.
   outMeta->SetNumberOfBlocks( 1 + static_cast<int>( this->Internals->Requests.size() ) );
   // For each request:
@@ -493,7 +493,7 @@ void vtkMultiCorrelativeStatistics::ExecuteDerive( vtkDataObject* outMetaDO )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::ExecuteAssess( vtkTable* inData, 
+void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData, 
                                                    vtkDataObject* inMetaDO, 
                                                    vtkTable* outData, 
                                                    vtkDataObject* vtkNotUsed(outMetaDO) )
