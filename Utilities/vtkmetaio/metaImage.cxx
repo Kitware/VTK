@@ -1319,11 +1319,6 @@ ReadStream(int _nDims,
           }
         }
       delete readStreamTemp;
-      for(i=0; i<nWrds; i++)
-        {
-        delete [] wrds[i];
-        }
-      delete [] wrds;
       }
     else if(strstr(m_ElementDataFileName, "%"))
       {
@@ -1387,6 +1382,11 @@ ReadStream(int _nDims,
         readStreamTemp->close();
         }
       delete readStreamTemp;
+      for(i=0; i<nWrds; i++)
+        {
+        delete [] wrds[i];
+        }
+      delete [] wrds;
       }
     else
       {
