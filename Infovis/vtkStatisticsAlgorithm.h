@@ -227,6 +227,11 @@ public:
                              vtkVariant value );
 //ETX
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  virtual void LearnAggregate( vtkDataObjectCollection*,
+                               vtkDataObject* ) { return; };
+
 protected:
   vtkStatisticsAlgorithm();
   ~vtkStatisticsAlgorithm();
@@ -245,11 +250,6 @@ protected:
   virtual void Learn( vtkTable*,
                       vtkTable*,
                       vtkDataObject* ) = 0;
-
-  // Description:
-  // Execute the calculations required by the Learn option, given a collection of models.
-  virtual void Learn( vtkDataObjectCollection*,
-                      vtkDataObject* ) { return; };
 
   // Description:
   // Execute the calculations required by the Derive option.

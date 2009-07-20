@@ -10,6 +10,7 @@
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
 // for implementing this test.
 
+#include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -20,8 +21,9 @@ int TestDescriptiveStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  // ************** More complex example comprising three columns ************** 
+  // ************** Test with 3 columns of input data ************** 
 
+  // Input data
   double mingledData[] = 
     {
     46,
@@ -89,7 +91,9 @@ int TestDescriptiveStatistics( int, char *[] )
     47,
     47,
     };
-  int nVals = 32;
+
+  // Test with entire data set
+  int nVals1 = 32;
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
@@ -103,7 +107,7 @@ int TestDescriptiveStatistics( int, char *[] )
   dataset3Arr->SetNumberOfComponents( 1 );
   dataset3Arr->SetName( "Metric 2" );
 
-  for ( int i = 0; i < nVals; ++ i )
+  for ( int i = 0; i < nVals1; ++ i )
     {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
@@ -111,12 +115,12 @@ int TestDescriptiveStatistics( int, char *[] )
     dataset3Arr->InsertNextValue( -1. );
     }
 
-  vtkTable* datasetTable = vtkTable::New();
-  datasetTable->AddColumn( dataset1Arr );
+  vtkTable* datasetTable1 = vtkTable::New();
+  datasetTable1->AddColumn( dataset1Arr );
   dataset1Arr->Delete();
-  datasetTable->AddColumn( dataset2Arr );
+  datasetTable1->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
-  datasetTable->AddColumn( dataset3Arr );
+  datasetTable1->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
   int nMetrics = 3;
@@ -124,47 +128,47 @@ int TestDescriptiveStatistics( int, char *[] )
   double means[] = { 49.5, -1., 49.2188 };
   double stdevs[] = { sqrt( 7.54839 ), 0., sqrt( 5.98286 ) };
 
-  vtkDescriptiveStatistics* haruspex = vtkDescriptiveStatistics::New();
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkTable* outputMeta = haruspex->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
+  vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
+  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
+  vtkTable* outputData1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkTable* outputMeta1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
-  datasetTable->Delete();
+  datasetTable1->Delete();
 
-// -- Select Columns of Interest -- 
-  haruspex->AddColumn( "Metric 3" ); // Include invalid Metric 3
-  haruspex->AddColumn( "Metric 4" ); // Include invalid Metric 4
+  // Select Columns of Interest
+  ds1->AddColumn( "Metric 3" ); // Include invalid Metric 3
+  ds1->AddColumn( "Metric 4" ); // Include invalid Metric 4
   for ( int i = 0; i< nMetrics; ++ i )
     {  // Try to add all valid indices once more
-    haruspex->AddColumn( columns[i] );
+    ds1->AddColumn( columns[i] );
     }
-  haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
+  ds1->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
 
-// -- Test Learn and Assess Modes -- 
-  haruspex->SetLearnOption( true );
-  haruspex->SetDeriveOption( true );
-  haruspex->SetAssessOption( true );
-  haruspex->SignedDeviationsOff();
-  haruspex->Update();
+  // Run with Learn and Assess options
+  ds1->SetLearnOption( true );
+  ds1->SetDeriveOption( true );
+  ds1->SetAssessOption( true );
+  ds1->SignedDeviationsOff();
+  ds1->Update();
 
-  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta1->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputMeta1->GetNumberOfColumns(); ++ i )
       {
-      cout << outputMeta->GetColumnName( i )
+      cout << outputMeta1->GetColumnName( i )
            << "="
-           << outputMeta->GetValue( r, i ).ToString()
+           << outputMeta1->GetValue( r, i ).ToString()
            << "  ";
       }
     
-    if ( fabs ( outputMeta->GetValueByName( r, "Mean" ).ToDouble() - means[r] ) > 1.e6 )
+    if ( fabs ( outputMeta1->GetValueByName( r, "Mean" ).ToDouble() - means[r] ) > 1.e6 )
       {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
       }
 
-    if ( fabs ( outputMeta->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs[r] ) > 1.e6 )
+    if ( fabs ( outputMeta1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs[r] ) > 1.e6 )
       {
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
@@ -178,13 +182,13 @@ int TestDescriptiveStatistics( int, char *[] )
   int m1outliers = 0;
   cout << "Outliers:\n";
   vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
-    outputData->GetColumnByName( "d(Metric 0)" ) );
+    outputData1->GetColumnByName( "d(Metric 0)" ) );
   vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
-    outputData->GetColumnByName( "d(Metric 1)" ) );
+    outputData1->GetColumnByName( "d(Metric 1)" ) );
   vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
-    outputData->GetColumnByName( "Metric 0" ) );
+    outputData1->GetColumnByName( "Metric 0" ) );
   vtkDoubleArray* m1vals = vtkDoubleArray::SafeDownCast(
-    outputData->GetColumnByName( "Metric 1" ) );
+    outputData1->GetColumnByName( "Metric 1" ) );
 
   if ( ! m0reld || ! m1reld || ! m0vals || ! m1vals )
     {
@@ -196,7 +200,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   double dev;
   double maxdev = 1.5;
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
     dev = m0reld->GetValue( r );
     if ( dev > maxdev )
@@ -216,7 +220,7 @@ int TestDescriptiveStatistics( int, char *[] )
            << ")\n";
       }
     }
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
     dev = m1reld->GetValue( r );
     if ( dev > maxdev )
@@ -245,24 +249,25 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
-// -- Used modified output 1 as input 1 to test 0-deviation -- 
+  // Used modified output 1 as input 1 to test 0-deviation
   cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
 
   vtkTable* paramsTable = vtkTable::New();
-  paramsTable->ShallowCopy( outputMeta );
+  paramsTable->ShallowCopy( outputMeta1 );
   paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
   paramsTable->SetValueByName( 1, "Mean", 50. );
   
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
-  haruspex->SetLearnOption( false );
-  haruspex->SetDeriveOption( false ); // Do not recalculate nor rederive a model
-  haruspex->SetAssessOption( true );
-  haruspex->Update();
+  // Run with Assess option only (do not recalculate nor rederive a model)
+  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
+  ds1->SetLearnOption( false );
+  ds1->SetDeriveOption( false ); 
+  ds1->SetAssessOption( true );
+  ds1->Update();
 
   m1vals = vtkDoubleArray::SafeDownCast(
-    outputData->GetColumnByName( "Metric 1" ) );
+    outputData1->GetColumnByName( "Metric 1" ) );
   m1reld = vtkDoubleArray::SafeDownCast(
-    outputData->GetColumnByName( "d(Metric 1)" ) );
+    outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! m1reld || ! m1vals )
     {
@@ -274,7 +279,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   m1outliers = 0;
 
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
     dev = m1reld->GetValue( r );
     if ( dev )
@@ -299,7 +304,71 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   paramsTable->Delete();
-  haruspex->Delete();
+
+  // Learn another model with subset (sample size: 20) of initial data set
+  int nVals2 = 20;
+
+  vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
+  dataset4Arr->SetNumberOfComponents( 1 );
+  dataset4Arr->SetName( "Metric 0" );
+
+  vtkDoubleArray* dataset5Arr = vtkDoubleArray::New();
+  dataset5Arr->SetNumberOfComponents( 1 );
+  dataset5Arr->SetName( "Metric 1" );
+
+  vtkDoubleArray* dataset6Arr = vtkDoubleArray::New();
+  dataset6Arr->SetNumberOfComponents( 1 );
+  dataset6Arr->SetName( "Metric 2" );
+
+  for ( int i = 0; i < nVals2; ++ i )
+    {
+    int ti = i << 1;
+    dataset4Arr->InsertNextValue( mingledData[ti] );
+    dataset5Arr->InsertNextValue( mingledData[ti + 1] );
+    dataset6Arr->InsertNextValue( -1. );
+    }
+
+  vtkTable* datasetTable2 = vtkTable::New();
+  datasetTable2->AddColumn( dataset4Arr );
+  dataset4Arr->Delete();
+  datasetTable2->AddColumn( dataset5Arr );
+  dataset5Arr->Delete();
+  datasetTable2->AddColumn( dataset6Arr );
+  dataset6Arr->Delete();
+
+  vtkDescriptiveStatistics* ds2 = vtkDescriptiveStatistics::New();
+  ds2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  vtkTable* outputMeta2 = ds2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
+
+  datasetTable2->Delete();
+
+  // Select Columns of Interest (all of them)
+  for ( int i = 0; i< nMetrics; ++ i )
+    {  // Try to add all valid indices once more
+    ds2->AddColumn( columns[i] );
+    }
+
+  // Update with Learn option only
+  ds2->SetLearnOption( true );
+  ds2->SetDeriveOption( false );
+  ds2->SetAssessOption( false );
+  ds2->Update();
+
+  // Now build a data object collection of the two obtained models
+  vtkDataObjectCollection* doc = vtkDataObjectCollection::New();
+  doc->AddItem( outputMeta1 );
+  doc->AddItem( outputMeta2 );
+
+  // And calculate the aggregated statistics of the two models
+  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
+  vtkTable* mod = vtkTable::New();
+  ds->LearnAggregate( doc, mod );
+
+  // Clean up
+  ds1->Delete();
+  ds2->Delete();
+  doc->Delete();
+  mod->Delete();
 
   // ************** Very simple example, for baseline comparison vs. R ********* 
   double simpleData[] = 
@@ -335,7 +404,7 @@ int TestDescriptiveStatistics( int, char *[] )
   double g1 = 0.;
   double g2 = -1.56163636363636;
 
-  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
+  ds = vtkDescriptiveStatistics::New();
   ds->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
   vtkTable* outputSimpleMeta = ds->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 

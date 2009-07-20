@@ -73,6 +73,11 @@ public:
   // column that contains the deviation for the Assess option.
   void SetDeviationParameter( const char* name );
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  virtual void LearnAggregate( vtkDataObjectCollection*,
+                               vtkDataObject* );
+
 protected:
   vtkDescriptiveStatistics();
   ~vtkDescriptiveStatistics();
