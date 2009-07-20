@@ -365,6 +365,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds->LearnAggregate( doc, mod );
 
   // Clean up
+  ds->Delete();
   ds1->Delete();
   ds2->Delete();
   doc->Delete();
