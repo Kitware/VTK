@@ -151,6 +151,8 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SignedDeviationsOff();
   ds1->Update();
 
+  cout << "## Calculated the following statistics for first data set:\n";
+
   for ( vtkIdType r = 0; r < outputMeta1->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -176,11 +178,13 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
-  cout << "## Searching for outliers:\n";
+  double maxdev = 1.5;
+  cout << "## Searching for outliers from mean with relative deviation > "
+       << maxdev
+       << " for metric 1:\n";
 
   int m0outliers = 0;
   int m1outliers = 0;
-  cout << "Outliers:\n";
   vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
     outputData1->GetColumnByName( "d(Metric 0)" ) );
   vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
@@ -199,7 +203,6 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   double dev;
-  double maxdev = 1.5;
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
     dev = m0reld->GetValue( r );
@@ -241,7 +244,7 @@ int TestDescriptiveStatistics( int, char *[] )
       }
     }
   cout
-    << "Found " << m0outliers << " outliers for Metric 0"
+    << "  Found " << m0outliers << " outliers for Metric 0"
     << " and " << m1outliers << " outliers for Metric 1.\n";
   if ( m0outliers != 4 || m1outliers != 6 )
     {
@@ -250,7 +253,8 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   // Used modified output 1 as input 1 to test 0-deviation
-  cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
+  cout << "## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
+  ds1->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
 
   vtkTable* paramsTable = vtkTable::New();
   paramsTable->ShallowCopy( outputMeta1 );
@@ -305,8 +309,8 @@ int TestDescriptiveStatistics( int, char *[] )
 
   paramsTable->Delete();
 
-  // Learn another model with subset (sample size: 20) of initial data set
-  int nVals2 = 20;
+  // Test with a slight variation of initial data set (to test model aggregation)
+  int nVals2 = 32;
 
   vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
   dataset4Arr->SetNumberOfComponents( 1 );
@@ -323,9 +327,9 @@ int TestDescriptiveStatistics( int, char *[] )
   for ( int i = 0; i < nVals2; ++ i )
     {
     int ti = i << 1;
-    dataset4Arr->InsertNextValue( mingledData[ti] );
+    dataset4Arr->InsertNextValue( mingledData[ti] + 1. );
     dataset5Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset6Arr->InsertNextValue( -1. );
+    dataset6Arr->InsertNextValue( 1. );
     }
 
   vtkTable* datasetTable2 = vtkTable::New();
@@ -364,6 +368,21 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkTable* mod = vtkTable::New();
   ds->Aggregate( doc, mod );
 
+  cout << "\n## Calculated the following statistics for second data set:\n";
+
+  for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputMeta2->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputMeta2->GetColumnName( i )
+           << "="
+           << outputMeta2->GetValue( r, i ).ToString()
+           << "  ";
+      }
+    cout << "\n";
+    }
+
   // Clean up
   ds->Delete();
   ds1->Delete();
@@ -389,7 +408,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   vtkDoubleArray* datasetArr = vtkDoubleArray::New();
   datasetArr->SetNumberOfComponents( 1 );
-  datasetArr->SetName( "Metric" );
+  datasetArr->SetName( "Digits" );
 
   for ( int i = 0; i < nSimpleVals; ++ i )
     {
@@ -412,7 +431,7 @@ int TestDescriptiveStatistics( int, char *[] )
   simpleTable->Delete();
 
   // Select Column of Interest
-  ds->AddColumn( "Metric" );
+  ds->AddColumn( "Digits" );
 
   // Test Learn and Derive only
   ds->SetLearnOption( true );
@@ -420,10 +439,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds->SetAssessOption( false );
   ds->Update();
 
-  cout << "## Calculated the following statistics ( "
-       <<  outputSimpleMeta->GetValueByName( 0, "Cardinality" ).ToInt() 
-       << " entries in a single column ):\n"
-       << "   ";
+  cout << "\n## Calculated the following statistics for {0,...9} sequence:\n";
   
   for ( int i = 0; i < outputSimpleMeta->GetNumberOfColumns(); ++ i )
     {
@@ -432,7 +448,6 @@ int TestDescriptiveStatistics( int, char *[] )
          << outputSimpleMeta->GetValue( 0, i ).ToString()
          << "  ";
     }
-    
   
   if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e6 )
     {
