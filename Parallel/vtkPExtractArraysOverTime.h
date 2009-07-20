@@ -24,7 +24,8 @@
 // ensures that such extractions spread across processes are combined correctly
 // into a single vtkTable.
 // This filter produces a valid output on the root node alone, all other nodes,
-// simply have empty multi-block datasets.
+// simply have empty multi-block dataset with number of blocks matching the root
+// (to ensure that all processes have the same structure).
 // .SECTION See Also
 // vtkExtractArraysOverTime
 
