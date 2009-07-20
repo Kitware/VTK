@@ -37,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.81");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.82");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -320,6 +320,8 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
       M2 += M2_c 
         + prod_n * delta * delta_sur_n;
+
+      mean += n_c * delta_sur_n;
 
       outMeta->SetValueByName( r, "Cardinality", n );
       outMeta->SetValueByName( r, "Mean", mean );

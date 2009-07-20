@@ -381,21 +381,28 @@ int TestDescriptiveStatistics( int, char *[] )
   doc->AddItem( outputMeta1 );
   doc->AddItem( outputMeta2 );
 
-  // And calculate the aggregated statistics of the two models
+  // And calculate the aggregated minimal statistics of the two models
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   vtkTable* aggregated = vtkTable::New();
   ds->Aggregate( doc, aggregated );
 
+  // Finally, calculate the derived statistics of the aggregated model
+  ds2->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
+  ds2->SetLearnOption( false );
+  ds2->SetDeriveOption( true ); 
+  ds2->SetAssessOption( false );
+  ds2->Update();
+
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 
-  for ( vtkIdType r = 0; r < aggregated->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < aggregated->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputMeta2->GetNumberOfColumns(); ++ i )
       {
-      cout << aggregated->GetColumnName( i )
+      cout << outputMeta2->GetColumnName( i )
            << "="
-           << aggregated->GetValue( r, i ).ToString()
+           << outputMeta2->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";
