@@ -258,8 +258,8 @@ int TestDescriptiveStatistics( int, char *[] )
 
   vtkTable* paramsTable = vtkTable::New();
   paramsTable->ShallowCopy( outputMeta1 );
-  paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
   paramsTable->SetValueByName( 1, "Mean", 50. );
+  paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
   
   // Run with Assess option only (do not recalculate nor rederive a model)
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
@@ -307,6 +307,9 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
+  // Clean up (which implies resetting parameters table values which were modified to their initial values)
+  paramsTable->SetValueByName( 1, "Mean", means[0] );
+  paramsTable->SetValueByName( 1, "Standard Deviation", stdevs[0] );
   paramsTable->Delete();
 
   // Test with a slight variation of initial data set (to test model aggregation)
@@ -358,16 +361,6 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->SetAssessOption( false );
   ds2->Update();
 
-  // Now build a data object collection of the two obtained models
-  vtkDataObjectCollection* doc = vtkDataObjectCollection::New();
-  doc->AddItem( outputMeta1 );
-  doc->AddItem( outputMeta2 );
-
-  // And calculate the aggregated statistics of the two models
-  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
-  vtkTable* mod = vtkTable::New();
-  ds->Aggregate( doc, mod );
-
   cout << "\n## Calculated the following statistics for second data set:\n";
 
   for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
@@ -383,12 +376,37 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Now build a data object collection of the two obtained models
+  vtkDataObjectCollection* doc = vtkDataObjectCollection::New();
+  doc->AddItem( outputMeta1 );
+  doc->AddItem( outputMeta2 );
+
+  // And calculate the aggregated statistics of the two models
+  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
+  vtkTable* aggregated = vtkTable::New();
+  ds->Aggregate( doc, aggregated );
+
+  cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
+
+  for ( vtkIdType r = 0; r < aggregated->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < aggregated->GetNumberOfColumns(); ++ i )
+      {
+      cout << aggregated->GetColumnName( i )
+           << "="
+           << aggregated->GetValue( r, i ).ToString()
+           << "  ";
+      }
+    cout << "\n";
+    }
+
   // Clean up
   ds->Delete();
   ds1->Delete();
   ds2->Delete();
   doc->Delete();
-  mod->Delete();
+  aggregated->Delete();
 
   // ************** Very simple example, for baseline comparison vs. R ********* 
   double simpleData[] = 
