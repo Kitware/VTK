@@ -37,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.82");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.83");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -289,7 +289,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
       
       // Update global statics
-      n += n_c; 
+      int N = n + n_c; 
 
       if ( min_c < min )
         {
@@ -302,28 +302,28 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
         }
 
       double delta = mean_c - mean;
-      double delta_sur_n = delta / static_cast<double>( n );
-      double delta_sur_n2 = delta_sur_n * delta_sur_n;
+      double delta_sur_N = delta / static_cast<double>( N );
+      double delta2_sur_N2 = delta_sur_N * delta_sur_N;
 
       int n2 = n * n;
       int n_c2 = n_c * n_c;
       int prod_n = n * n_c;
  
       M4 += M4_c 
-        + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_n * delta_sur_n2
-        + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta_sur_n2
-        + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_n;
+        + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_N * delta2_sur_N2
+        + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta2_sur_N2
+        + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_N;
 
       M3 += M3_c 
-        + prod_n * ( n - n_c ) * delta * delta_sur_n2
-        + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_n;
+        + prod_n * ( n - n_c ) * delta * delta2_sur_N2
+        + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_N;
 
       M2 += M2_c 
-        + prod_n * delta * delta_sur_n;
+        + prod_n * delta * delta_sur_N;
 
-      mean += n_c * delta_sur_n;
+      mean += n_c * delta_sur_N;
 
-      outMeta->SetValueByName( r, "Cardinality", n );
+      outMeta->SetValueByName( r, "Cardinality", N );
       outMeta->SetValueByName( r, "Mean", mean );
       outMeta->SetValueByName( r, "M2", M2 );
       outMeta->SetValueByName( r, "M3", M3 );

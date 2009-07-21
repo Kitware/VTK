@@ -125,8 +125,8 @@ int TestDescriptiveStatistics( int, char *[] )
 
   int nMetrics = 3;
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
-  double means[] = { 49.5, -1., 49.2188 };
-  double stdevs[] = { sqrt( 7.54839 ), 0., sqrt( 5.98286 ) };
+  double means1[] = { 49.21875 , 49.5, -1. };
+  double stdevs1[] = { sqrt( 5.9828629 ), sqrt( 7.548397 ), 0. };
 
   vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
@@ -163,14 +163,15 @@ int TestDescriptiveStatistics( int, char *[] )
            << outputMeta1->GetValue( r, i ).ToString()
            << "  ";
       }
-    
-    if ( fabs ( outputMeta1->GetValueByName( r, "Mean" ).ToDouble() - means[r] ) > 1.e6 )
+
+    // Verify some of the calculated statistics
+    if ( fabs ( outputMeta1->GetValueByName( r, "Mean" ).ToDouble() - means1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
       }
 
-    if ( fabs ( outputMeta1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs[r] ) > 1.e6 )
+    if ( fabs ( outputMeta1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
@@ -308,8 +309,8 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   // Clean up (which implies resetting parameters table values which were modified to their initial values)
-  paramsTable->SetValueByName( 1, "Mean", means[0] );
-  paramsTable->SetValueByName( 1, "Standard Deviation", stdevs[0] );
+  paramsTable->SetValueByName( 1, "Mean", means1[1] );
+  paramsTable->SetValueByName( 1, "Standard Deviation", stdevs1[1] );
   paramsTable->Delete();
 
   // Test with a slight variation of initial data set (to test model aggregation)
@@ -393,6 +394,9 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->SetAssessOption( false );
   ds2->Update();
 
+  // Verify aggregated statistics
+  double means2[] = { 49.71875 , 49.5, 0. };
+  double stdevs2[] = { sqrt( 6.1418651 ), sqrt( 7.548397 * 62. / 63. ), sqrt( 1.015873 ) };
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 
   for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
@@ -404,6 +408,19 @@ int TestDescriptiveStatistics( int, char *[] )
            << "="
            << outputMeta2->GetValue( r, i ).ToString()
            << "  ";
+      }
+
+    // Verify some of the calculated statistics
+    if ( fabs ( outputMeta2->GetValueByName( r, "Mean" ).ToDouble() - means2[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta2->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs2[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect standard deviation");
+      testStatus = 1;
       }
     cout << "\n";
     }
@@ -474,29 +491,29 @@ int TestDescriptiveStatistics( int, char *[] )
          << "  ";
     }
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect mean");
     testStatus = 1;
     }
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect variance");
     testStatus = 1;
     }
   cout << "\n";
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "G1 Skewness" ).ToDouble() - g1 ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "g1 Skewness" ).ToDouble() - g1 ) > 1.e-6 )
     {
-    vtkGenericWarningMacro("Incorrect G1 skewness");
+    vtkGenericWarningMacro("Incorrect g1 skewness");
     testStatus = 1;
     }
   cout << "\n";
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "G2 Kurtosis" ).ToDouble() - g2 ) > 1.e6 )
+  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "g2 Kurtosis" ).ToDouble() - g2 ) > 1.e-6 )
     {
-    vtkGenericWarningMacro("Incorrect G2 kurtosis");
+    vtkGenericWarningMacro("Incorrect g2 kurtosis");
     testStatus = 1;
     }
   cout << "\n";
