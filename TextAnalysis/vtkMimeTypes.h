@@ -91,6 +91,12 @@ public:
   // or empty-string if the type cannot be identified.
   vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end);
 
+  // Description:
+  // Returns true iff a Mime pattern matches the given type.  Handles wildcards
+  // so the pattern "*/*" will match any type (including empty type), and "text/*"
+  // will match "text/plain", "text/html", "text/xml", etc.
+  static bool Match(const vtkStdString& pattern, const vtkStdString& type);
+
 //BTX
 private:
   vtkMimeTypes();

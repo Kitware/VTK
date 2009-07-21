@@ -23,6 +23,8 @@
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 
+#include <boost/algorithm/string.hpp>
+
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
@@ -38,7 +40,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes
 
-vtkCxxRevisionMacro(vtkMimeTypes, "1.6");
+vtkCxxRevisionMacro(vtkMimeTypes, "1.7");
 vtkStandardNewMacro(vtkMimeTypes);
 
 vtkMimeTypes::vtkMimeTypes() :
@@ -132,5 +134,47 @@ vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri, const vtkTypeUInt8* b
       return mime_type;
     }
   return vtkStdString();
+}
+
+bool vtkMimeTypes::Match(const vtkStdString& pattern, const vtkStdString& type)
+{
+  vtkstd::vector<vtkstd::string> pattern_parts;
+  boost::algorithm::split(pattern_parts, pattern, boost::algorithm::is_any_of("/"));
+  if(pattern_parts.size() != 2)
+    {
+    vtkGenericWarningMacro(<< "Not a valid MIME pattern: " << pattern);
+    return false;
+    }
+
+  vtkstd::vector<vtkstd::string> type_parts;
+  // Special-case: we treat an empty string as-if it were "<empty>/</empty>"
+  if(type.empty())
+    {
+    type_parts.push_back("");
+    type_parts.push_back("");
+    }
+  else
+    {
+    boost::algorithm::split(type_parts, type, boost::algorithm::is_any_of("/"));
+    }
+  if(type_parts.size() != 2)
+    {
+    vtkGenericWarningMacro(<< "Not a valid MIME type: " << type);
+    return false;
+    }
+
+  if(pattern_parts[0] != "*")
+    {
+    if(pattern_parts[0] != type_parts[0])
+      return false;
+    }
+
+  if(pattern_parts[1] != "*")
+    {
+    if(pattern_parts[1] != type_parts[1])
+      return false;
+    }
+
+  return true;
 }
 
