@@ -31,6 +31,26 @@ used when the shared library is loaded/unloaded from an executable.
 
 */
 
+#define ex_dim_num_objects vtk_exodus_ex_dim_num_objects
+#define ex_get_attr_param vtk_exodus_ex_get_attr_param
+#define ex_get_counter_list vtk_exodus_ex_get_counter_list
+#define ex_get_err vtk_exodus_ex_get_err
+#define ex_get_id_map vtk_exodus_ex_get_id_map
+#define ex_get_stat_ptr vtk_exodus_ex_get_stat_ptr
+#define ex_get_truth_table vtk_exodus_ex_get_truth_table
+#define ex_get_variable_names vtk_exodus_ex_get_variable_names
+#define ex_get_variable_name vtk_exodus_ex_get_variable_name
+#define ex_get_variable_param vtk_exodus_ex_get_variable_param
+#define ex_inquire_int vtk_exodus_ex_inquire_int
+#define ex_name_of_object vtk_exodus_ex_name_of_object
+#define ex_put_attr_param vtk_exodus_ex_put_attr_param
+#define ex_put_id_map vtk_exodus_ex_put_id_map
+#define ex_put_truth_table vtk_exodus_ex_put_truth_table
+#define ex_put_variable_names vtk_exodus_ex_put_variable_names
+#define ex_put_variable_name vtk_exodus_ex_put_variable_name
+#define ex_put_variable_param vtk_exodus_ex_put_variable_param
+#define ex_rm_stat_ptr vtk_exodus_ex_rm_stat_ptr
+#define ex_var_type_to_ex_entity_type vtk_exodus_ex_var_type_to_ex_entity_type
 #define cpy_coord_def vtk_exodus_cpy_coord_def
 #define cpy_coord_val vtk_exodus_cpy_coord_val
 #define cpy_var_def vtk_exodus_cpy_var_def
