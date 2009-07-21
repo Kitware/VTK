@@ -37,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.83");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.84");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -75,6 +75,129 @@ void vtkDescriptiveStatistics::SetNominalParameter( const char* name )
 void vtkDescriptiveStatistics::SetDeviationParameter( const char* name ) 
 { 
   this->SetAssessOptionParameter( 1, name ); 
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
+                                          vtkDataObject* outMetaDO )
+{
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
+
+  // Get hold of the first model (data object) in the collection
+  vtkCollectionSimpleIterator it;
+  inMetaColl->InitTraversal( it );
+  vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
+
+  // Verify that the model is indeed contained in a table
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
+  if ( ! inMeta ) 
+    { 
+    return; 
+    }
+
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    // No statistics were calculated.
+    return;
+    }
+
+  // Use this first model to initialize the aggregated one
+  outMeta->DeepCopy( inMeta );
+
+  // Now, loop over all remaining models and update aggregated each time
+  while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
+    {
+    // Verify that the model is indeed contained in a table
+    inMeta = vtkTable::SafeDownCast( inMetaDO );
+    if ( ! inMeta ) 
+      { 
+      return; 
+      }
+    
+    if ( inMeta->GetNumberOfRows() != nRow )
+      {
+      // Models do not match
+      return;
+      }
+
+    // Iterate over all model rows
+    for ( int r = 0; r < nRow; ++ r )
+      {
+      // Verify that variable names match each other
+      if ( inMeta->GetValueByName( r, "Variable" ) != outMeta->GetValueByName( r, "Variable" ) )
+        {
+        // Models do not match
+        return;
+        }
+
+      // Get aggregated statistics
+      int n = outMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double min = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
+      double max = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean = outMeta->GetValueByName( r, "Mean" ).ToDouble();
+      double M2 = outMeta->GetValueByName( r, "M2" ).ToDouble();
+      double M3 = outMeta->GetValueByName( r, "M3" ).ToDouble();
+      double M4 = outMeta->GetValueByName( r, "M4" ).ToDouble();
+      
+      // Get current model statistics
+      int n_c = inMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double min_c = inMeta->GetValueByName( r, "Minimum" ).ToDouble();
+      double max_c = inMeta->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean_c = inMeta->GetValueByName( r, "Mean" ).ToDouble();
+      double M2_c = inMeta->GetValueByName( r, "M2" ).ToDouble();
+      double M3_c = inMeta->GetValueByName( r, "M3" ).ToDouble();
+      double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
+      
+      // Update global statics
+      int N = n + n_c; 
+
+      if ( min_c < min )
+        {
+        outMeta->SetValueByName( r, "Minimum", min_c );
+        }
+
+      if ( max_c > max )
+        {
+        outMeta->SetValueByName( r, "Maximum", max_c );
+        }
+
+      double delta = mean_c - mean;
+      double delta_sur_N = delta / static_cast<double>( N );
+      double delta2_sur_N2 = delta_sur_N * delta_sur_N;
+
+      int n2 = n * n;
+      int n_c2 = n_c * n_c;
+      int prod_n = n * n_c;
+ 
+      M4 += M4_c 
+        + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_N * delta2_sur_N2
+        + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta2_sur_N2
+        + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_N;
+
+      M3 += M3_c 
+        + prod_n * ( n - n_c ) * delta * delta2_sur_N2
+        + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_N;
+
+      M2 += M2_c 
+        + prod_n * delta * delta_sur_N;
+
+      mean += n_c * delta_sur_N;
+
+      // Store updated model
+      outMeta->SetValueByName( r, "Cardinality", N );
+      outMeta->SetValueByName( r, "Mean", mean );
+      outMeta->SetValueByName( r, "M2", M2 );
+      outMeta->SetValueByName( r, "M3", M3 );
+      outMeta->SetValueByName( r, "M4", M4 );
+      }
+    }
+
+  return;
 }
 
 // ----------------------------------------------------------------------
@@ -207,128 +330,6 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     outMeta->InsertNextRow( row );
 
     row->Delete();
-    }
-
-  return;
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
-                                               vtkDataObject* outMetaDO )
-{
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
-  if ( ! outMeta ) 
-    { 
-    return; 
-    } 
-
-  // Get hold of the first model (data object) in the collection
-  vtkCollectionSimpleIterator it;
-  inMetaColl->InitTraversal( it );
-  vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
-
-  // Verify that the model is indeed contained in a table
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
-  if ( ! inMeta ) 
-    { 
-    return; 
-    }
-
-  vtkIdType nRow = inMeta->GetNumberOfRows();
-  if ( ! nRow )
-    {
-    // No statistics were calculated.
-    return;
-    }
-
-  // Use this first model to initialize the aggregated one
-  outMeta->DeepCopy( inMeta );
-
-  // Now, loop over all remaining models and update aggregated each time
-  while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
-    {
-    // Verify that the model is indeed contained in a table
-    inMeta = vtkTable::SafeDownCast( inMetaDO );
-    if ( ! inMeta ) 
-      { 
-      return; 
-      }
-    
-    if ( inMeta->GetNumberOfRows() != nRow )
-      {
-      // Models do not match
-      return;
-      }
-
-    // Iterate over all model rows
-    for ( int r = 0; r < nRow; ++ r )
-      {
-      // Verify that variable names match each other
-      if ( inMeta->GetValueByName( r, "Variable" ) != outMeta->GetValueByName( r, "Variable" ) )
-        {
-        // Models do not match
-        return;
-        }
-
-      // Get aggregated statistics
-      int n = outMeta->GetValueByName( r, "Cardinality" ).ToInt();
-      double min = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
-      double max = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
-      double mean = outMeta->GetValueByName( r, "Mean" ).ToDouble();
-      double M2 = outMeta->GetValueByName( r, "M2" ).ToDouble();
-      double M3 = outMeta->GetValueByName( r, "M3" ).ToDouble();
-      double M4 = outMeta->GetValueByName( r, "M4" ).ToDouble();
-      
-      // Get current model statistics
-      int n_c = inMeta->GetValueByName( r, "Cardinality" ).ToInt();
-      double min_c = inMeta->GetValueByName( r, "Minimum" ).ToDouble();
-      double max_c = inMeta->GetValueByName( r, "Maximum" ).ToDouble();
-      double mean_c = inMeta->GetValueByName( r, "Mean" ).ToDouble();
-      double M2_c = inMeta->GetValueByName( r, "M2" ).ToDouble();
-      double M3_c = inMeta->GetValueByName( r, "M3" ).ToDouble();
-      double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
-      
-      // Update global statics
-      int N = n + n_c; 
-
-      if ( min_c < min )
-        {
-        outMeta->SetValueByName( r, "Minimum", min_c );
-        }
-
-      if ( max_c > max )
-        {
-        outMeta->SetValueByName( r, "Maximum", max_c );
-        }
-
-      double delta = mean_c - mean;
-      double delta_sur_N = delta / static_cast<double>( N );
-      double delta2_sur_N2 = delta_sur_N * delta_sur_N;
-
-      int n2 = n * n;
-      int n_c2 = n_c * n_c;
-      int prod_n = n * n_c;
- 
-      M4 += M4_c 
-        + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_N * delta2_sur_N2
-        + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta2_sur_N2
-        + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_N;
-
-      M3 += M3_c 
-        + prod_n * ( n - n_c ) * delta * delta2_sur_N2
-        + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_N;
-
-      M2 += M2_c 
-        + prod_n * delta * delta_sur_N;
-
-      mean += n_c * delta_sur_N;
-
-      outMeta->SetValueByName( r, "Cardinality", N );
-      outMeta->SetValueByName( r, "Mean", mean );
-      outMeta->SetValueByName( r, "M2", M2 );
-      outMeta->SetValueByName( r, "M3", M3 );
-      outMeta->SetValueByName( r, "M4", M4 );
-      }
     }
 
   return;
