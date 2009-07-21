@@ -38,7 +38,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.59");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.60");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -96,7 +96,7 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     return;
     }
 
-  // Use this first model to initialize the aggregated one
+  // use this first model to initialize the aggregated one
   outMeta->DeepCopy( inMeta );
 
   // Now, loop over all remaining models and update aggregated each time
