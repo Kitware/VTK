@@ -72,13 +72,13 @@ public:
   vtkSetStringMacro(DefaultMimeType);
   vtkGetStringMacro(DefaultMimeType);
 
-//BTX
   // Description:
   // Assign a custom vtkMimeTypes object to this filter.  This makes it possible
   // to work with arbitrary Mime Type strategies.
   void SetMimeTypes(vtkMimeTypes *m);
   vtkGetObjectMacro(MimeTypes, vtkMimeTypes);
 
+//BTX
 protected:
   vtkAssignMimeType();
   ~vtkAssignMimeType();
