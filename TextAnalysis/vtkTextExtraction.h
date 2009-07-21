@@ -33,6 +33,10 @@ class vtkTextExtractionStrategy;
 // ranges of text.  The actual work of extracting text and generating tags is
 // performed by an ordered list of vtkTextExtractionStrategy objects.
 //
+// By default, vtkTextExtraction has just a single strategy for extracting plain
+// text documents.  Callers will almost certainly want to supplement or replace
+// the default with their own strategies.
+//
 // Inputs:
 //   Input port 0: (required) A vtkTable containing document ids, Mime types and
 //     document contents (which could be binary).
@@ -41,7 +45,7 @@ class vtkTextExtractionStrategy;
 //   Output port 0: The same table with an additional "text" column that contains the
 //     text extracted from each document.
 //   Output port 1: A table of document tags that includes "document", "begin", "end",
-//     "type" and "text" columns.
+//     and "type" columns.
 //
 // Use SetInputArrayToProcess(0, ...) to specify the input table column that contains
 // document ids (must be a vtkIdTypeArray).  Default: "document".
@@ -55,6 +59,9 @@ class vtkTextExtractionStrategy;
 // .SECTION Caveats
 // The input document contents array must be a string array, even though the individual
 // document contents may be binary data.
+//
+// .SECTION See Also
+// vtkTextExtractionStrategy, vtkPlainTextExtractionStrategy
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

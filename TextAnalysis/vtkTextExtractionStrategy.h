@@ -37,7 +37,7 @@ class vtkUnicodeStringArray;
 // text from a resource, given its Mime type and content.
 //
 // .SECTION See Also
-// vtkTextExtraction.
+// vtkTextExtraction, vtkPlainTextExtractionStrategy.
 //
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
@@ -63,8 +63,7 @@ public:
     vtkIdTypeArray* tag_document,
     vtkIdTypeArray* tag_begin,
     vtkIdTypeArray* tag_end,
-    vtkStringArray* tag_type,
-    vtkUnicodeStringArray* tag_text) = 0;
+    vtkStringArray* tag_type) = 0;
 
 protected:
   vtkTextExtractionStrategy();

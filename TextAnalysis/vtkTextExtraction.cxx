@@ -44,7 +44,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.5");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.6");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
@@ -161,10 +161,7 @@ int vtkTextExtraction::RequestData(
     vtkStringArray* const tag_type_array = vtkStringArray::New();
     tag_type_array->SetName("type");
 
-    vtkUnicodeStringArray* const tag_text_array = vtkUnicodeStringArray::New();
-    tag_text_array->SetName("text");
-
-    vtkIdType count = document_id_array->GetNumberOfTuples();
+    int count = document_id_array->GetNumberOfTuples();
     for(vtkIdType i = 0; i != count; ++i)
       {
       const vtkIdType document = document_id_array->GetValue(i);
@@ -183,8 +180,7 @@ int vtkTextExtraction::RequestData(
           tag_document_array,
           tag_begin_array,
           tag_end_array,
-          tag_type_array,
-          tag_text_array))
+          tag_type_array))
           {
           break;
           }
@@ -208,13 +204,11 @@ int vtkTextExtraction::RequestData(
     output_tags->AddColumn(tag_begin_array);
     output_tags->AddColumn(tag_end_array);
     output_tags->AddColumn(tag_type_array);
-    output_tags->AddColumn(tag_text_array);
 
     tag_document_array->Delete();
     tag_begin_array->Delete();
     tag_end_array->Delete();
     tag_type_array->Delete();
-    tag_text_array->Delete();
     }
   catch(vtkstd::exception& e)
     {

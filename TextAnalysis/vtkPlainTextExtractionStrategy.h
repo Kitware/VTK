@@ -55,8 +55,7 @@ public:
     vtkIdTypeArray* tag_document,
     vtkIdTypeArray* tag_begin,
     vtkIdTypeArray* tag_end,
-    vtkStringArray* tag_type,
-    vtkUnicodeStringArray* tag_text);
+    vtkStringArray* tag_type);
 
 protected:
   vtkPlainTextExtractionStrategy();

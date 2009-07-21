@@ -24,7 +24,7 @@
 #include <vtkStringArray.h>
 #include <vtkUnicodeStringArray.h>
 
-vtkCxxRevisionMacro(vtkPlainTextExtractionStrategy, "1.1");
+vtkCxxRevisionMacro(vtkPlainTextExtractionStrategy, "1.2");
 vtkStandardNewMacro(vtkPlainTextExtractionStrategy);
 
 vtkPlainTextExtractionStrategy::vtkPlainTextExtractionStrategy()
@@ -49,8 +49,7 @@ bool vtkPlainTextExtractionStrategy::Extract(
   vtkIdTypeArray* tag_document,
   vtkIdTypeArray* tag_begin,
   vtkIdTypeArray* tag_end,
-  vtkStringArray* tag_type,
-  vtkUnicodeStringArray* tag_text)
+  vtkStringArray* tag_type)
 {
   // Determine whether we can handle this content or not ...
   if(0 != mime_type.find("text/"))
@@ -64,7 +63,6 @@ bool vtkPlainTextExtractionStrategy::Extract(
   tag_begin->InsertNextValue(0);
   tag_end->InsertNextValue(text.character_count());
   tag_type->InsertNextValue("TEXT");
-  tag_text->InsertNextValue(text);
 
   return true;
 }
