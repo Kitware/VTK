@@ -55,6 +55,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCorrelativeStatistics* New();
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  virtual void Aggregate( vtkDataObjectCollection*,
+                          vtkDataObject* );
+
 protected:
   vtkCorrelativeStatistics();
   ~vtkCorrelativeStatistics();
@@ -62,8 +67,8 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
-                             vtkTable* inParameters,
-                             vtkDataObject* outMeta );
+                      vtkTable* inParameters,
+                      vtkDataObject* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
