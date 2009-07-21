@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2009-05-06 02:45:20 $ */
+/* glext.h last updated $Date: 2009-07-21 14:45:53 $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 52
+#define GL_GLEXT_VERSION 53
 
 /* Function declaration macros - to move into glplatform.h */
 
@@ -1525,6 +1525,9 @@ extern "C" {
 #ifndef GL_ARB_copy_buffer
 #define GL_COPY_READ_BUFFER               0x8F36
 #define GL_COPY_WRITE_BUFFER              0x8F37
+#endif
+
+#ifndef GL_ARB_shader_texture_lod
 #endif
 
 #ifndef GL_EXT_abgr
@@ -4043,6 +4046,94 @@ extern "C" {
 #define GL_PROVOKING_VERTEX_EXT           0x8E4F
 #endif
 
+#ifndef GL_EXT_texture_snorm
+#define GL_ALPHA_SNORM                    0x9010
+#define GL_LUMINANCE_SNORM                0x9011
+#define GL_LUMINANCE_ALPHA_SNORM          0x9012
+#define GL_INTENSITY_SNORM                0x9013
+#define GL_ALPHA8_SNORM                   0x9014
+#define GL_LUMINANCE8_SNORM               0x9015
+#define GL_LUMINANCE8_ALPHA8_SNORM        0x9016
+#define GL_INTENSITY8_SNORM               0x9017
+#define GL_ALPHA16_SNORM                  0x9018
+#define GL_LUMINANCE16_SNORM              0x9019
+#define GL_LUMINANCE16_ALPHA16_SNORM      0x901A
+#define GL_INTENSITY16_SNORM              0x901B
+/* reuse GL_R_SNORM */
+/* reuse GL_RG_SNORM */
+/* reuse GL_RGB_SNORM */
+/* reuse GL_RGBA_SNORM */
+/* reuse GL_R8_SNORM */
+/* reuse GL_RG8_SNORM */
+/* reuse GL_RGB8_SNORM */
+/* reuse GL_RGBA8_SNORM */
+/* reuse GL_R16_SNORM */
+/* reuse GL_RG16_SNORM */
+/* reuse GL_RGB16_SNORM */
+/* reuse GL_RGBA16_SNORM */
+/* reuse GL_SIGNED_NORMALIZED */
+#endif
+
+#ifndef GL_AMD_draw_buffers_blend
+#endif
+
+#ifndef GL_APPLE_texture_range
+#define GL_TEXTURE_RANGE_LENGTH_APPLE     0x85B7
+#define GL_TEXTURE_RANGE_POINTER_APPLE    0x85B8
+#define GL_TEXTURE_STORAGE_HINT_APPLE     0x85BC
+#define GL_STORAGE_PRIVATE_APPLE          0x85BD
+/* reuse GL_STORAGE_CACHED_APPLE */
+/* reuse GL_STORAGE_SHARED_APPLE */
+#endif
+
+#ifndef GL_APPLE_float_pixels
+#define GL_HALF_APPLE                     0x140B
+#define GL_RGBA_FLOAT32_APPLE             0x8814
+#define GL_RGB_FLOAT32_APPLE              0x8815
+#define GL_ALPHA_FLOAT32_APPLE            0x8816
+#define GL_INTENSITY_FLOAT32_APPLE        0x8817
+#define GL_LUMINANCE_FLOAT32_APPLE        0x8818
+#define GL_LUMINANCE_ALPHA_FLOAT32_APPLE  0x8819
+#define GL_RGBA_FLOAT16_APPLE             0x881A
+#define GL_RGB_FLOAT16_APPLE              0x881B
+#define GL_ALPHA_FLOAT16_APPLE            0x881C
+#define GL_INTENSITY_FLOAT16_APPLE        0x881D
+#define GL_LUMINANCE_FLOAT16_APPLE        0x881E
+#define GL_LUMINANCE_ALPHA_FLOAT16_APPLE  0x881F
+#define GL_COLOR_FLOAT_APPLE              0x8A0F
+#endif
+
+#ifndef GL_APPLE_vertex_program_evaluators
+#define GL_VERTEX_ATTRIB_MAP1_APPLE       0x8A00
+#define GL_VERTEX_ATTRIB_MAP2_APPLE       0x8A01
+#define GL_VERTEX_ATTRIB_MAP1_SIZE_APPLE  0x8A02
+#define GL_VERTEX_ATTRIB_MAP1_COEFF_APPLE 0x8A03
+#define GL_VERTEX_ATTRIB_MAP1_ORDER_APPLE 0x8A04
+#define GL_VERTEX_ATTRIB_MAP1_DOMAIN_APPLE 0x8A05
+#define GL_VERTEX_ATTRIB_MAP2_SIZE_APPLE  0x8A06
+#define GL_VERTEX_ATTRIB_MAP2_COEFF_APPLE 0x8A07
+#define GL_VERTEX_ATTRIB_MAP2_ORDER_APPLE 0x8A08
+#define GL_VERTEX_ATTRIB_MAP2_DOMAIN_APPLE 0x8A09
+#endif
+
+#ifndef GL_APPLE_aux_depth_stencil
+#define GL_AUX_DEPTH_STENCIL_APPLE        0x8A14
+#endif
+
+#ifndef GL_APPLE_object_purgeable
+#define GL_BUFFER_OBJECT_APPLE            0x85B3
+#define GL_RELEASED_APPLE                 0x8A19
+#define GL_VOLATILE_APPLE                 0x8A1A
+#define GL_RETAINED_APPLE                 0x8A1B
+#define GL_UNDEFINED_APPLE                0x8A1C
+#define GL_PURGEABLE_APPLE                0x8A1D
+#endif
+
+#ifndef GL_APPLE_row_bytes
+#define GL_PACK_ROW_BYTES_APPLE           0x8A15
+#define GL_UNPACK_ROW_BYTES_APPLE         0x8A16
+#endif
+
 
 /*************************************************************/
 
@@ -5558,6 +5649,10 @@ typedef void (APIENTRYP PFNGLUNIFORMBLOCKBINDINGPROC) (GLuint program, GLuint un
 GLAPI void APIENTRY glCopyBufferSubData (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
 #endif /* GL_GLEXT_PROTOTYPES */
 typedef void (APIENTRYP PFNGLCOPYBUFFERSUBDATAPROC) (GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
+#endif
+
+#ifndef GL_ARB_shader_texture_lod
+#define GL_ARB_shader_texture_lod 1
 #endif
 
 #ifndef GL_EXT_abgr
@@ -8772,6 +8867,78 @@ typedef void (APIENTRYP PFNGLTESSELLATIONMODEAMDPROC) (GLenum mode);
 GLAPI void APIENTRY glProvokingVertexEXT (GLenum);
 #endif /* GL_GLEXT_PROTOTYPES */
 typedef void (APIENTRYP PFNGLPROVOKINGVERTEXEXTPROC) (GLenum mode);
+#endif
+
+#ifndef GL_EXT_texture_snorm
+#define GL_EXT_texture_snorm 1
+#endif
+
+#ifndef GL_AMD_draw_buffers_blend
+#define GL_AMD_draw_buffers_blend 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glBlendFuncIndexedAMD (GLuint, GLenum, GLenum);
+GLAPI void APIENTRY glBlendFuncSeparateIndexedAMD (GLuint, GLenum, GLenum, GLenum, GLenum);
+GLAPI void APIENTRY glBlendEquationIndexedAMD (GLuint, GLenum);
+GLAPI void APIENTRY glBlendEquationSeparateIndexedAMD (GLuint, GLenum, GLenum);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLBLENDFUNCINDEXEDAMDPROC) (GLuint buf, GLenum src, GLenum dst);
+typedef void (APIENTRYP PFNGLBLENDFUNCSEPARATEINDEXEDAMDPROC) (GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+typedef void (APIENTRYP PFNGLBLENDEQUATIONINDEXEDAMDPROC) (GLuint buf, GLenum mode);
+typedef void (APIENTRYP PFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC) (GLuint buf, GLenum modeRGB, GLenum modeAlpha);
+#endif
+
+#ifndef GL_APPLE_texture_range
+#define GL_APPLE_texture_range 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glTextureRangeAPPLE (GLenum, GLsizei, const GLvoid *);
+GLAPI void APIENTRY glGetTexParameterPointervAPPLE (GLenum, GLenum, GLvoid* *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLTEXTURERANGEAPPLEPROC) (GLenum target, GLsizei length, const GLvoid *pointer);
+typedef void (APIENTRYP PFNGLGETTEXPARAMETERPOINTERVAPPLEPROC) (GLenum target, GLenum pname, GLvoid* *params);
+#endif
+
+#ifndef GL_APPLE_float_pixels
+#define GL_APPLE_float_pixels 1
+#endif
+
+#ifndef GL_APPLE_vertex_program_evaluators
+#define GL_APPLE_vertex_program_evaluators 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glEnableVertexAttribAPPLE (GLuint, GLenum);
+GLAPI void APIENTRY glDisableVertexAttribAPPLE (GLuint, GLenum);
+GLAPI GLboolean APIENTRY glIsVertexAttribEnabledAPPLE (GLuint, GLenum);
+GLAPI void APIENTRY glMapVertexAttrib1dAPPLE (GLuint, GLuint, GLdouble, GLdouble, GLint, GLint, const GLdouble *);
+GLAPI void APIENTRY glMapVertexAttrib1fAPPLE (GLuint, GLuint, GLfloat, GLfloat, GLint, GLint, const GLfloat *);
+GLAPI void APIENTRY glMapVertexAttrib2dAPPLE (GLuint, GLuint, GLdouble, GLdouble, GLint, GLint, GLdouble, GLdouble, GLint, GLint, const GLdouble *);
+GLAPI void APIENTRY glMapVertexAttrib2fAPPLE (GLuint, GLuint, GLfloat, GLfloat, GLint, GLint, GLfloat, GLfloat, GLint, GLint, const GLfloat *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLENABLEVERTEXATTRIBAPPLEPROC) (GLuint index, GLenum pname);
+typedef void (APIENTRYP PFNGLDISABLEVERTEXATTRIBAPPLEPROC) (GLuint index, GLenum pname);
+typedef GLboolean (APIENTRYP PFNGLISVERTEXATTRIBENABLEDAPPLEPROC) (GLuint index, GLenum pname);
+typedef void (APIENTRYP PFNGLMAPVERTEXATTRIB1DAPPLEPROC) (GLuint index, GLuint size, GLdouble u1, GLdouble u2, GLint stride, GLint order, const GLdouble *points);
+typedef void (APIENTRYP PFNGLMAPVERTEXATTRIB1FAPPLEPROC) (GLuint index, GLuint size, GLfloat u1, GLfloat u2, GLint stride, GLint order, const GLfloat *points);
+typedef void (APIENTRYP PFNGLMAPVERTEXATTRIB2DAPPLEPROC) (GLuint index, GLuint size, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder, GLdouble v1, GLdouble v2, GLint vstride, GLint vorder, const GLdouble *points);
+typedef void (APIENTRYP PFNGLMAPVERTEXATTRIB2FAPPLEPROC) (GLuint index, GLuint size, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder, GLfloat v1, GLfloat v2, GLint vstride, GLint vorder, const GLfloat *points);
+#endif
+
+#ifndef GL_APPLE_aux_depth_stencil
+#define GL_APPLE_aux_depth_stencil 1
+#endif
+
+#ifndef GL_APPLE_object_purgeable
+#define GL_APPLE_object_purgeable 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI GLenum APIENTRY glObjectPurgeableAPPLE (GLenum, GLuint, GLenum);
+GLAPI GLenum APIENTRY glObjectUnpurgeableAPPLE (GLenum, GLuint, GLenum);
+GLAPI void APIENTRY glGetObjectParameterivAPPLE (GLenum, GLuint, GLenum, GLint *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef GLenum (APIENTRYP PFNGLOBJECTPURGEABLEAPPLEPROC) (GLenum objectType, GLuint name, GLenum option);
+typedef GLenum (APIENTRYP PFNGLOBJECTUNPURGEABLEAPPLEPROC) (GLenum objectType, GLuint name, GLenum option);
+typedef void (APIENTRYP PFNGLGETOBJECTPARAMETERIVAPPLEPROC) (GLenum objectType, GLuint name, GLenum pname, GLint *params);
+#endif
+
+#ifndef GL_APPLE_row_bytes
+#define GL_APPLE_row_bytes 1
 #endif
 
 
