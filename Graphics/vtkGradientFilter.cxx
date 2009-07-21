@@ -42,7 +42,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.12");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.13");
 vtkStandardNewMacro(vtkGradientFilter);
 
 namespace 
@@ -242,7 +242,7 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
           output->IsA("vtkRectilinearGrid") )
     {
     retVal = this->ComputeRegularGridGradient(
-      Array, fieldAssociation, input, output);
+      Array, fieldAssociation, output);
     }
   else
     {
@@ -384,8 +384,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
 
 //-----------------------------------------------------------------------------
 int vtkGradientFilter::ComputeRegularGridGradient(
-  vtkDataArray* Array, int fieldAssociation, vtkDataSet* input,
-  vtkDataSet* output)
+  vtkDataArray* Array, int fieldAssociation, vtkDataSet* output)
 {
   vtkDataArray *gradients
     = vtkDataArray::CreateDataArray(Array->GetDataType());

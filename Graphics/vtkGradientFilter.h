@@ -92,8 +92,7 @@ protected:
   // a vtkStructuredGrid.  Computes the gradient using finite differences.
   // Returns non-zero if the operation was successful.
   virtual int ComputeRegularGridGradient(
-    vtkDataArray* Array, int fieldAssociation, vtkDataSet* input,
-    vtkDataSet* output);
+    vtkDataArray* Array, int fieldAssociation, vtkDataSet* output);
   
   // Description:
   // If non-null then it contains the name of the outputted gradient array
