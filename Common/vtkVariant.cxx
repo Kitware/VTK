@@ -978,6 +978,98 @@ bool vtkVariant::IsEqual(const vtkVariant& other) const
   return this->operator==(other);
 }
 
+ostream& operator << ( ostream& os, const vtkVariant& val )
+{
+  if ( ! val.Valid )
+    {
+    os << "(invalid)";
+    return os;
+    }
+  switch ( val.Type )
+    {
+  case VTK_STRING:
+    if ( val.Data.String )
+      {
+      os << "\"" << val.Data.String->c_str() << "\"";
+      }
+    else
+      {
+      os << "\"\"";
+      }
+    break;
+  case VTK_UNICODE_STRING:
+    if ( val.Data.UnicodeString )
+      {
+      os << "\"" << val.Data.UnicodeString->utf8_str() << "\"";
+      }
+    else
+      {
+      os << "\"\"";
+      }
+    break;
+  case VTK_FLOAT:
+    os << val.Data.Float;
+    break;
+  case VTK_DOUBLE:
+    os << val.Data.Double;
+    break;
+  case VTK_CHAR:
+    os << val.Data.Char;
+    break;
+  case VTK_UNSIGNED_CHAR:
+    os << val.Data.UnsignedChar;
+    break;
+  case VTK_SIGNED_CHAR:
+    os << val.Data.SignedChar;
+    break;
+  case VTK_SHORT:
+    os << val.Data.Short;
+    break;
+  case VTK_UNSIGNED_SHORT:
+    os << val.Data.UnsignedShort;
+    break;
+  case VTK_INT:
+    os << val.Data.Int;
+    break;
+  case VTK_UNSIGNED_INT:
+    os << val.Data.UnsignedInt;
+    break;
+  case VTK_LONG:
+    os << val.Data.Long;
+    break;
+  case VTK_UNSIGNED_LONG:
+    os << val.Data.UnsignedLong;
+    break;
+#if defined(VTK_TYPE_USE___INT64)
+  case VTK___INT64:
+    os << val.Data.__Int64;
+    break;
+  case VTK_UNSIGNED___INT64:
+    os << val.Data.Unsigned__Int64;
+    break;
+#endif
+#if defined(VTK_TYPE_USE_LONG_LONG)
+  case VTK_LONG_LONG:
+    os << val.Data.LongLong;
+    break;
+  case VTK_UNSIGNED_LONG_LONG:
+    os << val.Data.UnsignedLongLong;
+    break;
+#endif
+  case VTK_OBJECT:
+    if ( val.Data.VTKObject )
+      {
+      os << "(" << val.Data.VTKObject->GetClassName() << ")" << hex << val.Data.VTKObject;
+      }
+    else
+      {
+      os << "(vtkObjectBase)0x0";
+      }
+    break;
+    }
+  return os;
+}
+
 //----------------------------------------------------------------------------
 // Definition of ToNumeric if not already included above:
 

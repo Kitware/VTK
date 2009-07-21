@@ -346,7 +346,7 @@ public:
   bool operator<=(const vtkVariant &other) const;
   bool operator>=(const vtkVariant &other) const;
 
-
+  friend ostream& operator << ( ostream& os, const vtkVariant& val );
 
 
 private:
@@ -419,5 +419,7 @@ struct VTK_COMMON_EXPORT vtkVariantStrictEquality
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
+
+ostream& VTK_COMMON_EXPORT operator << ( ostream& os, const vtkVariant& val );
 
 #endif
