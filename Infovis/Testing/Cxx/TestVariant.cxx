@@ -65,6 +65,7 @@ int TestVariant(int, char*[])
       default:
         continue;
       }
+    cerr << "v = " << v << " (" << vtkImageScalarTypeNameMacro(type[i]) << ")\n";
     for (int j = 0; j < numTypes; j++)
       {
       vtkStdString str;
