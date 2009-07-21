@@ -53,8 +53,8 @@ template<typename T>
 class vtkTypedArray : public vtkTypeTemplate<vtkTypedArray<T>, vtkArray>
 {
 public:
-  using vtkArray::GetVariantValue;
-  using vtkArray::SetVariantValue;
+  using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::GetVariantValue;
+  using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::SetVariantValue;
 
   void PrintSelf(ostream &os, vtkIndent indent);
 
