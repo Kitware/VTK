@@ -58,6 +58,11 @@ int TestUnicodeStringArrayAPI(int, char*[])
     array->InsertNextValue(sample_utf8_ascii);
     test_expression(array->GetNumberOfTuples() == 1);
     test_expression((array->GetValue(0)) == sample_utf8_ascii);
+
+    array->InsertNextValue(vtkUnicodeString::from_utf8("foo"));
+    test_expression(array->GetNumberOfTuples() == 2);
+    test_expression(array->LookupValue(vtkUnicodeString::from_utf8("foo")) == 1);
+    test_expression(array->LookupValue(vtkUnicodeString::from_utf8("bar")) == -1);
    
     return 0;
     }

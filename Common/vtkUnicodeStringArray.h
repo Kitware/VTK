@@ -92,8 +92,8 @@ private:
   void operator=(const vtkUnicodeStringArray&);  // Not implemented.
 
 //BTX
-  class Internals;
-  Internals* Implementation;
+  class Implementation;
+  Implementation* Internal;
 //ETX
 };
 
