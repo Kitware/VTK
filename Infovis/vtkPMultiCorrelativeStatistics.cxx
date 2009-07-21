@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.11");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.12");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -155,12 +155,14 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   for ( int i = 1; i < np; ++ i )
     {
     int ns_l = n_g[i];
-    ns += ns_l;
+    int N = ns + ns_l; 
     int prod_ns = ns * ns_l;
     
+    double invN = 1. / static_cast<double>( N );
+
     double* M_part = new double[nM];
     double* delta  = new double[nMeans];
-    double* delta_sur_n  = new double[nMeans];
+    double* delta_sur_N  = new double[nMeans];
     int o = nM * i;
 
     // First, calculate deltas for all means
@@ -169,7 +171,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
       M_part[j] = M_g[o + j];
 
       delta[j] = M_part[j] - M_l[j];
-      delta_sur_n[j] = delta[j] / static_cast<double>( ns );
+      delta_sur_N[j] = delta[j] * invN;
       }
 
     // Then, update covariances
@@ -178,19 +180,22 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
       M_part[j] = M_g[o + j];
     
       M_l[j] += M_part[j]
-        + prod_ns * delta[covToMeans[j].first] * delta_sur_n[covToMeans[j].second];
+        + prod_ns * delta[covToMeans[j].first] * delta_sur_N[covToMeans[j].second];
       }
 
-    // Last, update means
+    // Then, update means
     for ( int j = 0; j < nMeans; ++ j )
       {
-      M_l[j] += ns_l * delta_sur_n[j];
+      M_l[j] += ns_l * delta_sur_N[j];
       }
+
+    // Last, update cardinality
+    ns = N;
 
     // Clean-up
     delete [] M_part;
     delete [] delta;
-    delete [] delta_sur_n;
+    delete [] delta_sur_N;
     }
 
   for ( int i = 0; i < nM; ++ i )
