@@ -71,6 +71,11 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkMultiCorrelativeStatistics* New();
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  virtual void Aggregate( vtkDataObjectCollection*,
+                          vtkDataObject* );
+
 protected:
   vtkMultiCorrelativeStatistics();
   ~vtkMultiCorrelativeStatistics();
@@ -93,8 +98,9 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
-                             vtkTable* inParameters,
-                             vtkDataObject* outMeta );
+                      vtkTable* inParameters,
+                      vtkDataObject* outMeta );
+
   //BTX  
   // Description:
   // Provide the appropriate assessment functor.

@@ -2,6 +2,7 @@
 #include "vtkMultiCorrelativeStatisticsAssessFunctor.h"
 
 #include "vtkDataObject.h"
+#include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
@@ -21,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.18");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.19");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -162,9 +163,144 @@ int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInfor
 }
 
 // ----------------------------------------------------------------------
+void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
+                                               vtkDataObject* outMetaDO )
+{
+  // Verify that the output model is indeed contained in a multiblock data set
+  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
+
+  // Get hold of the first model (data object) in the collection
+  vtkCollectionSimpleIterator it;
+  inMetaColl->InitTraversal( it );
+  vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
+
+  // Verify that the first input model is indeed contained in a multiblock data set
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta ) 
+    { 
+    return; 
+    }
+
+  // Verify that the first covariance matrix is indeed contained in a table
+  vtkTable* inCov = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! inCov )
+    {
+    return;
+    }
+
+  vtkIdType nRow = inCov->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    // No statistics were calculated.
+    return;
+    }
+
+  // Use this first model to initialize the aggregated one
+  vtkTable* outCov = vtkTable::New();
+  outCov->DeepCopy( inCov );
+
+  // Now, loop over all remaining models and update aggregated each time
+  while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
+    {
+    // Verify that the current model is indeed contained in a multiblock data set
+    inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+    if ( ! inMeta ) 
+      { 
+      return; 
+      }
+
+    // Verify that the current covariance matrix is indeed contained in a table
+    inCov = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+    if ( ! inCov )
+      {
+      return;
+      }
+
+    if ( inCov->GetNumberOfRows() != nRow )
+      {
+      // Models do not match
+      return;
+      }
+
+    // Iterate over all model rows
+    for ( int r = 0; r < nRow; ++ r )
+      {
+      // Verify that variable names match each other
+      if ( inCov->GetValueByName( r, "Variable" ) != outCov->GetValueByName( r, "Variable" ) )
+        {
+        // Models do not match
+        return;
+        }
+
+      // Get aggregated statistics
+      int n = outCov->GetValueByName( r, "Cardinality" ).ToInt();
+      double meanX = outCov->GetValueByName( r, "Mean X" ).ToDouble();
+      double meanY = outCov->GetValueByName( r, "Mean Y" ).ToDouble();
+      double M2X = outCov->GetValueByName( r, "M2 X" ).ToDouble();
+      double M2Y = outCov->GetValueByName( r, "M2 Y" ).ToDouble();
+      double MXY = outCov->GetValueByName( r, "M XY" ).ToDouble();
+      
+      // Get current model statistics
+      int n_c = inCov->GetValueByName( r, "Cardinality" ).ToInt();
+      double meanX_c = inCov->GetValueByName( r, "Mean X" ).ToDouble();
+      double meanY_c = inCov->GetValueByName( r, "Mean Y" ).ToDouble();
+      double M2X_c = outCov->GetValueByName( r, "M2 X" ).ToDouble();
+      double M2Y_c = outCov->GetValueByName( r, "M2 Y" ).ToDouble();
+      double MXY_c = outCov->GetValueByName( r, "M XY" ).ToDouble();
+      
+      // Update global statics
+      int N = n + n_c; 
+
+      double invN = 1. / static_cast<double>( N );
+
+      double deltaX = meanX_c - meanX;
+      double deltaX_sur_N = deltaX * invN;
+
+      double deltaY = meanY_c - meanY;
+      double deltaY_sur_N = deltaY * invN;
+
+      int prod_n = n * n_c;
+ 
+      M2X += M2X_c 
+        + prod_n * deltaX * deltaX_sur_N;
+
+      M2Y += M2Y_c 
+        + prod_n * deltaY * deltaY_sur_N;
+
+      MXY += MXY_c 
+        + prod_n * deltaX * deltaY_sur_N;
+
+      meanX += n_c * deltaX_sur_N;
+
+      meanY += n_c * deltaY_sur_N;
+
+      // Store updated model
+      outCov->SetValueByName( r, "Cardinality", N );
+      outCov->SetValueByName( r, "Mean X", meanX );
+      outCov->SetValueByName( r, "Mean Y", meanY );
+      outCov->SetValueByName( r, "M2 X", M2X );
+      outCov->SetValueByName( r, "M2 Y", M2Y );
+      outCov->SetValueByName( r, "M XY", MXY );
+      }
+    }
+  
+  // Replace covariance block of output model with updated one
+  outMeta->SetBlock( 0, outCov );
+
+  // Clean up
+  outCov->Delete();
+
+  return;
+}
+
+// ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData, 
-                                                  vtkTable* vtkNotUsed( inParameters ),
-                                                  vtkDataObject* outMetaDO )
+                                           vtkTable* vtkNotUsed( inParameters ),
+                                           vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
