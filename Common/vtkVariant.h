@@ -420,6 +420,6 @@ public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
 
-ostream& VTK_COMMON_EXPORT operator << ( ostream& os, const vtkVariant& val );
+VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
 
 #endif
