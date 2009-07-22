@@ -40,7 +40,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes
 
-vtkCxxRevisionMacro(vtkMimeTypes, "1.7");
+vtkCxxRevisionMacro(vtkMimeTypes, "1.8");
 vtkStandardNewMacro(vtkMimeTypes);
 
 vtkMimeTypes::vtkMimeTypes() :
@@ -49,7 +49,9 @@ vtkMimeTypes::vtkMimeTypes() :
   // Add more sophisticated platform-specific strategies here ...
   
   // Last-but-not-least, our fallback strategy is to identify MIME type using file extensions
-  this->Internal->Strategies.push_back(vtkFileExtensionMimeTypeStrategy::New());
+  vtkFileExtensionMimeTypeStrategy *defaultStrategy = vtkFileExtensionMimeTypeStrategy::New();
+  this->PrependStrategy(defaultStrategy);
+  defaultStrategy->Delete();
 }
 
 vtkMimeTypes::~vtkMimeTypes()
@@ -72,7 +74,7 @@ void vtkMimeTypes::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMimeTypes::ClearStrategies()
 {
   for(unsigned int i = 0; i != this->Internal->Strategies.size(); ++i)
-    this->Internal->Strategies[i]->Delete();
+    this->Internal->Strategies[i]->UnRegister(NULL);
 }
 
 void vtkMimeTypes::PrependStrategy(vtkMimeTypeStrategy* strategy)
@@ -83,11 +85,23 @@ void vtkMimeTypes::PrependStrategy(vtkMimeTypeStrategy* strategy)
     return;
     }
   
+  for (vtksys_stl::vector<vtkMimeTypeStrategy*>::size_type i = 0;
+       i < this->Internal->Strategies.size(); ++i)
+    {
+    if (this->Internal->Strategies[i] == strategy)
+      {
+      this->Internal->Strategies[i]->UnRegister(NULL);
+      }
+    }
+
   this->Internal->Strategies.erase(
-    vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
+    vtkstd::remove(this->Internal->Strategies.begin(), 
+                   this->Internal->Strategies.end(), 
+                   strategy),
     this->Internal->Strategies.end());
 
   this->Internal->Strategies.insert(this->Internal->Strategies.begin(), strategy);
+  strategy->Register(NULL);
 }
 
 void vtkMimeTypes::AppendStrategy(vtkMimeTypeStrategy* strategy)
@@ -97,12 +111,22 @@ void vtkMimeTypes::AppendStrategy(vtkMimeTypeStrategy* strategy)
     vtkErrorMacro(<< "Cannot add NULL strategy.");
     return;
     }
+
+  for (vtksys_stl::vector<vtkMimeTypeStrategy*>::size_type i = 0;
+       i < this->Internal->Strategies.size(); ++i)
+    {
+    if (this->Internal->Strategies[i] == strategy)
+      {
+      this->Internal->Strategies[i]->UnRegister(NULL);
+      }
+    }
   
   this->Internal->Strategies.erase(
     vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
     this->Internal->Strategies.end());
 
   this->Internal->Strategies.insert(this->Internal->Strategies.end(), strategy);
+  strategy->Register(NULL);
 }
 
 vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri)
