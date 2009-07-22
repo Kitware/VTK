@@ -53,6 +53,8 @@ int SLACParticleReader(int argc, char *argv[])
   // Set up mesh reader.
   VTK_CREATE(vtkSLACReader, meshReader);
   meshReader->SetMeshFileName(meshFileName);
+  delete[] meshFileName;
+  
   char *modeFileName = new char[strlen(modeFileNamePattern) + 10];
   for (int i = 0; i < 9; i++)
     {
@@ -60,6 +62,7 @@ int SLACParticleReader(int argc, char *argv[])
     meshReader->AddModeFileName(modeFileName);
     }
   delete[] modeFileName;
+  delete[] modeFileNamePattern;
 
   meshReader->ReadInternalVolumeOn();
   meshReader->ReadExternalSurfaceOff();
@@ -73,7 +76,8 @@ int SLACParticleReader(int argc, char *argv[])
   // Set up particle reader.
   VTK_CREATE(vtkSLACParticleReader, particleReader);
   particleReader->SetFileName(particleFileName);
-
+  delete[] particleFileName;
+  
   // Set up rendering stuff.
   VTK_CREATE(vtkPolyDataMapper, meshMapper);
   meshMapper->SetInputConnection(geometry->GetOutputPort());

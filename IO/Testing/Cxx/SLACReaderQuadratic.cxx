@@ -46,8 +46,10 @@ int SLACReaderQuadratic(int argc, char *argv[])
   char *modeFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
               "Data/SLAC/ll-9cell-f523/mode0.l0.R2.457036E+09I2.778314E+04.m3");
   reader->SetMeshFileName(meshFileName);
+  delete[] meshFileName;
   reader->AddModeFileName(modeFileName);
-
+  delete[] modeFileName;
+  
   reader->ReadInternalVolumeOff();
   reader->ReadExternalSurfaceOn();
   reader->ReadMidpointsOn();

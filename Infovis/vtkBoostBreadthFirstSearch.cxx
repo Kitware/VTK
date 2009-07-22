@@ -54,7 +54,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.15");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.16");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -111,6 +111,7 @@ vtkBoostBreadthFirstSearch::~vtkBoostBreadthFirstSearch()
 {
   this->SetInputArrayName(0);
   this->SetOutputArrayName(0);
+  this->SetOutputSelectionType(0);
 }
 
 void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)

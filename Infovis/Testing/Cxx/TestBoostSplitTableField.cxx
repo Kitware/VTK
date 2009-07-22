@@ -40,6 +40,7 @@ int TestBoostSplitTableField(int argc, char* argv[])
 
   vtkSmartPointer<vtkDelimitedTextReader> reader = vtkSmartPointer<vtkDelimitedTextReader>::New();
   reader->SetFileName(file);
+  delete[] file;
   reader->SetHaveHeaders(true);
 
   vtkSmartPointer<vtkBoostSplitTableField> split = vtkSmartPointer<vtkBoostSplitTableField>::New();
