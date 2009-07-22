@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.44");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.45");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -380,6 +380,10 @@ int vtkArrayCalculator::RequestData(
       }
     }
 
+  if (!strlen(this->Function))
+    {
+    return 1;
+    }
   if (this->FunctionParser->IsScalarResult())
     {
     resultType = 0;
