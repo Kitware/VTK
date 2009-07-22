@@ -39,7 +39,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "netcdf.h"
-#include "exodusII.h"
+#include "vtkExodusII.h"
 
 #include "vtksys/SystemTools.hxx"
 
@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.28");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.29");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand

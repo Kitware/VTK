@@ -39,7 +39,7 @@
 
 #include <sys/stat.h>
 #include <ctype.h>
-#include <exodusII.h>
+#include "vtkExodusII.h"
 
 #include <vtkstd/algorithm>
 #include <vtkstd/string>
@@ -1395,7 +1395,7 @@ private:
 };
 
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.56");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.57");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1577,7 +1577,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.56");
+vtkCxxRevisionMacro(vtkExodusReader, "1.57");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE

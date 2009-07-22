@@ -44,7 +44,7 @@
 #include "vtkCommand.h"
 
 #include "netcdf.h"
-#include "exodusII.h"
+#include "vtkExodusII.h"
 #include <sys/stat.h>
 #include <ctype.h>
 #include <vtkstd/vector>
@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.14");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.15");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand

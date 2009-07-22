@@ -29,11 +29,11 @@
 #include <ctype.h>
 #include <vtkstd/set>
 #include <vtkstd/map>
-#include <exodusII.h>
+#include "vtkExodusII.h"
 #include <ctype.h>
 
 
-vtkCxxRevisionMacro(vtkExodusModel, "1.8");
+vtkCxxRevisionMacro(vtkExodusModel, "1.9");
 vtkStandardNewMacro(vtkExodusModel);
 
 vtkExodusModel::vtkExodusModel()
