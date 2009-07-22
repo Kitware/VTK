@@ -42,7 +42,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.12");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.12.2.1");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ vtkQuadraturePointsGenerator::~vtkQuadraturePointsGenerator()
 }
 
 //-----------------------------------------------------------------------------
-int vtkQuadraturePointsGenerator::FillInputPortInformation(int port,
+int vtkQuadraturePointsGenerator::FillInputPortInformation(int vtkNotUsed(port),
     vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");

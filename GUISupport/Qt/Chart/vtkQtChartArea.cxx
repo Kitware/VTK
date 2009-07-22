@@ -630,6 +630,7 @@ void vtkQtChartArea::changeCursor(const QCursor &newCursor)
 using namespace std;
 void vtkQtChartArea::setUseOpenGLIfAvailable(bool enable)
 {
+  (void)enable;
 #if defined(VTK_USE_QVTK_QTOPENGL) && (QT_EDITION & QT_MODULE_OPENGL)
   if (QGLFormat::hasOpenGL() && enable)
     {
