@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayCoordinateIterator.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -65,13 +65,15 @@ public:
 //ETX
 
   // Description:
-  // Returns true iff the iterator has not reached the end 
+  // Returns true iff the iterator has not reached the end
   // of the range of unique coordinates.
   bool HasNext();
-  
+
   // Description:
   // Returns the next set of coordinates and advances the iterator.
+//BTX
   vtkArrayCoordinates Next();
+//ETX
 
 protected:
   vtkArrayCoordinateIterator();
