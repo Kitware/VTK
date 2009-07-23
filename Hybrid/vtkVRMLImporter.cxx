@@ -4,7 +4,7 @@
 #  undef __VTK_SYSTEM_INCLUDES__INSIDE
 #endif
 
-#if defined (__digital__) && defined (__unix__) || defined(__IBMCPP__)
+#if defined (__digital__) && defined (__unix__) || defined(__IBMCPP__) || defined(__sun)
 #define HAVE_ALLOCA_H 1
 #endif
 
@@ -4260,7 +4260,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.73");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.74");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
