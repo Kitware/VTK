@@ -26,70 +26,70 @@ int TestDescriptiveStatistics( int, char *[] )
   // Input data
   double mingledData[] = 
     {
-    46,
-    45,
-    47,
-    49,
-    46,
-    47,
-    46,
-    46,
-    47,
-    46,
-    47,
-    49,
-    49,
-    49,
-    47,
-    45,
-    50,
-    50,
-    46,
-    46,
-    51,
-    50,
-    48,
-    48,
-    52,
-    54,
-    48,
-    47,
-    52,
-    52,
-    49,
-    49,
-    53,
-    54,
-    50,
-    50,
-    53,
-    54,
-    50,
-    52,
-    53,
-    53,
-    50,
-    51,
-    54,
-    54,
-    49,
-    49,
-    52,
-    52,
-    50,
-    51,
-    52,
-    52,
-    49,
-    47,
-    48,
-    48,
-    48,
-    50,
-    46,
-    48,
-    47,
-    47,
+      46,
+      45,
+      47,
+      49,
+      46,
+      47,
+      46,
+      46,
+      47,
+      46,
+      47,
+      49,
+      49,
+      49,
+      47,
+      45,
+      50,
+      50,
+      46,
+      46,
+      51,
+      50,
+      48,
+      48,
+      52,
+      54,
+      48,
+      47,
+      52,
+      52,
+      49,
+      49,
+      53,
+      54,
+      50,
+      50,
+      53,
+      54,
+      50,
+      52,
+      53,
+      53,
+      50,
+      51,
+      54,
+      54,
+      49,
+      49,
+      52,
+      52,
+      50,
+      51,
+      52,
+      52,
+      49,
+      47,
+      48,
+      48,
+      48,
+      50,
+      46,
+      48,
+      47,
+      47,
     };
 
   // Test with entire data set
@@ -124,9 +124,15 @@ int TestDescriptiveStatistics( int, char *[] )
   dataset3Arr->Delete();
 
   int nMetrics = 3;
-  vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
-  double means1[] = { 49.21875 , 49.5, -1. };
-  double stdevs1[] = { sqrt( 5.9828629 ), sqrt( 7.548397 ), 0. };
+  vtkStdString columns[] = 
+    { 
+      "Metric 1", 
+      "Metric 2", 
+      "Metric 0" 
+    };
+  // Reference values of metrics 0, 1, and 2, respectively
+  double means1[] = { 49.21875 , 49.5, -1. }; // Means 
+  double stdevs1[] = { sqrt( 5.9828629 ), sqrt( 7.548397 ), 0. }; // Variances
 
   vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
@@ -186,16 +192,12 @@ int TestDescriptiveStatistics( int, char *[] )
 
   int m0outliers = 0;
   int m1outliers = 0;
-  vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
-    outputData1->GetColumnByName( "d(Metric 0)" ) );
-  vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
-    outputData1->GetColumnByName( "d(Metric 1)" ) );
-  vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
-    outputData1->GetColumnByName( "Metric 0" ) );
-  vtkDoubleArray* m1vals = vtkDoubleArray::SafeDownCast(
-    outputData1->GetColumnByName( "Metric 1" ) );
+  vtkDoubleArray* vals0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 0" ) );
+  vtkDoubleArray* vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
+  vtkDoubleArray* devs0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 0)" ) );
+  vtkDoubleArray* devs1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
-  if ( ! m0reld || ! m1reld || ! m0vals || ! m1vals )
+  if ( ! devs0 || ! devs1 || ! vals0 || ! vals1 )
     {
     vtkGenericWarningMacro("Empty output column(s).\n");
     testStatus = 1;
@@ -206,7 +208,7 @@ int TestDescriptiveStatistics( int, char *[] )
   double dev;
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
-    dev = m0reld->GetValue( r );
+    dev = devs0->GetValue( r );
     if ( dev > maxdev )
       {
       ++ m0outliers;
@@ -214,19 +216,19 @@ int TestDescriptiveStatistics( int, char *[] )
            << " row " 
            << r
            << ", "
-           << m0reld->GetName() 
+           << devs0->GetName() 
            << " = " 
            << dev 
            << " > " 
            << maxdev
            << " (value: " 
-           << m0vals->GetValue( r ) 
+           << vals0->GetValue( r ) 
            << ")\n";
       }
     }
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
-    dev = m1reld->GetValue( r );
+    dev = devs1->GetValue( r );
     if ( dev > maxdev )
       {
       ++ m1outliers;
@@ -234,13 +236,13 @@ int TestDescriptiveStatistics( int, char *[] )
            << " row " 
            << r 
            << ", "
-           << m1reld->GetName() 
+           << devs1->GetName() 
            << " = " 
            << dev 
            << " > " 
            << maxdev
            << " (value: " 
-           << m1vals->GetValue( r ) 
+           << vals1->GetValue( r ) 
            << ")\n";
       }
     }
@@ -269,12 +271,10 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetAssessOption( true );
   ds1->Update();
 
-  m1vals = vtkDoubleArray::SafeDownCast(
-    outputData1->GetColumnByName( "Metric 1" ) );
-  m1reld = vtkDoubleArray::SafeDownCast(
-    outputData1->GetColumnByName( "d(Metric 1)" ) );
+  vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
+  devs1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
-  if ( ! m1reld || ! m1vals )
+  if ( ! devs1 || ! vals1 )
     {
     vtkGenericWarningMacro("Empty output column(s).\n");
     testStatus = 1;
@@ -286,7 +286,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
-    dev = m1reld->GetValue( r );
+    dev = devs1->GetValue( r );
     if ( dev )
       {
       ++ m1outliers;
@@ -294,11 +294,11 @@ int TestDescriptiveStatistics( int, char *[] )
            << " row " 
            << r
            << ", "
-           << m1reld->GetName() 
+           << devs1->GetName() 
            << " = " 
            << dev
            << " (value: " 
-           << m1vals->GetValue( r ) 
+           << vals1->GetValue( r ) 
            << ")\n";
       }
     }
@@ -435,16 +435,16 @@ int TestDescriptiveStatistics( int, char *[] )
   // ************** Very simple example, for baseline comparison vs. R ********* 
   double simpleData[] = 
     {
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
     };
   int nSimpleVals = 10;
 
