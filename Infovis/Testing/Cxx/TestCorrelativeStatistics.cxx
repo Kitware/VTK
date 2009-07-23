@@ -419,10 +419,11 @@ int TestCorrelativeStatistics( int, char *[] )
     }
 
   // Clean up
-  doc->Delete();
   cs->Delete();
   cs1->Delete();
   cs2->Delete();
+  doc->Delete();
+  aggregated->Delete();
 
   return testStatus;
 }
