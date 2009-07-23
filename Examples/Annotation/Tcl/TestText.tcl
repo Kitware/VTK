@@ -19,7 +19,7 @@ vtkLODActor sphereActor
 # Create a scaled text actor. 
 # Set the text, font, justification, and properties (bold, italics, etc.).
 vtkTextActor textActor
-    textActor ScaledTextOn
+    textActor SetTextScaleModeToProp
     textActor SetDisplayPosition 90 50 
     textActor SetInput "This is a sphere"
 
@@ -47,8 +47,8 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer; set the background and size; zoom in;
 # and render.
 #
-ren1 AddActor2D textActor
-ren1 AddActor sphereActor
+ren1 AddViewProp textActor
+ren1 AddViewProp sphereActor
 
 ren1 SetBackground 1 1 1
 renWin SetSize 250 125

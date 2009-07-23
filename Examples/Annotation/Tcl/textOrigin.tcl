@@ -31,10 +31,13 @@ vtkFollower textActor
 
 # Create the Renderer, RenderWindow, and RenderWindowInteractor.
 vtkRenderer ren1
+ren1 SetBackground 0.5 0.5 0.5
 vtkRenderWindow renWin
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
+vtkInteractorStyleTrackballCamera style
+iren SetInteractorStyle style
 
 # Add the actors to the renderer.
 ren1 AddActor axesActor
