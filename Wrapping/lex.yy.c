@@ -198,8 +198,6 @@ extern FILE *yyin, *yyout;
     } \
   while ( 0 )
 
-#define unput(c) yyunput( c, (yytext_ptr)  )
-
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
 typedef size_t yy_size_t;
@@ -222,7 +220,7 @@ struct yy_buffer_state
   /* Number of characters read into yy_ch_buf, not including EOB
    * characters.
    */
-  int yy_n_chars;
+  size_t yy_n_chars;
 
   /* Whether we "own" the buffer - i.e., we know we created it,
    * and can realloc() it to grow it, and should free() it to
@@ -292,7 +290,7 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static int yy_n_chars;    /* number of characters read into yy_ch_buf */
+static size_t yy_n_chars;    /* number of characters read into yy_ch_buf */
 int yyleng;
 
 /* Points to current character in buffer. */
@@ -2228,7 +2226,7 @@ static int yy_get_next_buffer (void)
 
   else
     {
-      int num_to_read =
+      size_t num_to_read =
       YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
     while ( num_to_read <= 0 )
@@ -2370,47 +2368,6 @@ static int yy_get_next_buffer (void)
   yy_is_jam = (yy_current_state == 771);
 
   return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-  register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-  /* undo effects of setting up yytext */
-  *yy_cp = (yy_hold_char);
-
-  if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-    { /* need to shift things up to make room */
-    /* +2 for EOB chars. */
-    register int number_to_move = (yy_n_chars) + 2;
-    register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-          YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-    register char *source =
-        &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-    while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-      *--dest = *--source;
-
-    yy_cp += (int) (dest - source);
-    yy_bp += (int) (dest - source);
-    YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-      (yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-    if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-      YY_FATAL_ERROR( "flex scanner push-back overflow" );
-    }
-
-  *--yy_cp = (char) c;
-
-    if ( c == '\n' ){
-        --yylineno;
-    }
-
-  (yytext_ptr) = yy_bp;
-  (yy_hold_char) = *yy_cp;
-  (yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT
