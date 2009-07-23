@@ -845,4 +845,8 @@ virtual double *Get##name() \
   vtkGenericWarningMacro(#method " was deprecated for " version " and will be removed in a future version.  Use " #replace " instead.")
 #endif
 
+// Qualifiers used for function arguments and return types indicating that the
+// class is wrapped externally.
+#define VTK_WRAP_EXTERN
+
 #endif

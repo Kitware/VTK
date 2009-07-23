@@ -45,7 +45,7 @@ typedef struct _FunctionInfo
 #else
     char *ArgClasses[MAX_ARGS];
 #endif
-
+    int ArgExternals[MAX_ARGS];
     int   ReturnType;
 
 #if defined(__cplusplus)
@@ -57,7 +57,7 @@ typedef struct _FunctionInfo
     char *Comment;
     char *Signature;
 #endif
-
+    int ReturnExternal;
     int   IsLegacy;
   } FunctionInfo;
 

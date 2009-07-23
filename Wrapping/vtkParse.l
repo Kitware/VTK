@@ -219,6 +219,7 @@ Modify lex.yy.c:
 "vtkTypeMacro"         return(TypeMacro);
 "vtkTypeRevisionMacro" return(TypeMacro);
 "VTK_LEGACY"           return(VTK_LEGACY);
+"VTK_WRAP_EXTERN"      return(VTK_WRAP_EXTERN);
 "vtkTypeInt8"          return(TypeInt8);
 "vtkTypeUInt8"         return(TypeUInt8);
 "vtkTypeInt16"         return(TypeInt16);

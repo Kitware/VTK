@@ -60,7 +60,7 @@ class vtkInformationStringVectorKey;
 class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
 
-class vtkInformation : public vtkObject
+class vtkInformation : public vtkObject 
 {
 public:
   VTK_COMMON_EXPORT static vtkInformation *New();
@@ -305,11 +305,9 @@ public:
 
   // Description:
   // Get/Set an entry storing a vtkDataObject instance.
-//BTX
-  VTK_COMMON_EXPORT void Set(vtkInformationDataObjectKey* key, vtkDataObject*);
-  VTK_COMMON_EXPORT vtkDataObject* Get(vtkInformationDataObjectKey* key);
-//ETX
-
+  VTK_COMMON_EXPORT void Set(vtkInformationDataObjectKey* key,
+    vtkDataObject VTK_WRAP_EXTERN *);
+  VTK_COMMON_EXPORT vtkDataObject VTK_WRAP_EXTERN* Get(vtkInformationDataObjectKey* key);
   VTK_COMMON_EXPORT void Remove(vtkInformationDataObjectKey* key);
   VTK_COMMON_EXPORT int Has(vtkInformationDataObjectKey* key);
 

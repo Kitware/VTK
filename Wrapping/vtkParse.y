@@ -200,7 +200,11 @@ char *vtkstrdup(const char *in)
 %union{
   char *str;
   int   integer;
-  }
+  struct {
+    char* name;
+    int external;
+  } vtkid;
+}
 
 %token CLASS
 %token PUBLIC
@@ -268,12 +272,24 @@ char *vtkstrdup(const char *in)
 %token ViewportCoordinateMacro
 %token WorldCoordinateMacro
 %token TypeMacro
+%token VTK_WRAP_EXTERN
 
 %%
 /*
  * Here is the start of the grammer
  */
 strt: maybe_other class_def maybe_other;
+
+vtk_id : VTK_ID VTK_WRAP_EXTERN 
+         {
+           ($<vtkid>$).name = $<str>1;
+           ($<vtkid>$).external = 1;
+         }
+       | VTK_ID 
+         {
+           ($<vtkid>$).name = $<str>1;
+           ($<vtkid>$).external = 0;
+         };
 
 class_def : CLASS VTK_ID 
       {
@@ -382,7 +398,7 @@ const_mod: CONST {postSig("const ");};
 
 static_mod: STATIC {postSig("static ");};
 
-any_id: VTK_ID {postSig($<str>1);} | ID {postSig($<str>1);};
+any_id: vtk_id {postSig(($<vtkid>1).name);} | ID {postSig($<str>1);};
 
 func_body: ';' 
     | '{' maybe_other '}' ';' 
@@ -488,21 +504,24 @@ type_primitive:
       sprintf(ctmpid,"%s ",$<str>1);
       postSig(ctmpid);
       $<integer>$ = 0x8;} |
-  VTK_ID  
+  vtk_id  
     { 
       char ctmpid[2048];
-      sprintf(ctmpid,"%s ",$<str>1);
+      sprintf(ctmpid,"%s ",($<vtkid>1).name);
       postSig(ctmpid);
       $<integer>$ = 0x9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
-        vtkstrdup($1); 
+        vtkstrdup(($<vtkid>1).name); 
+      currentFunction->ArgExternals[currentFunction->NumberOfArguments] =
+        ($<vtkid>1).external;
       /* store the string into the return value just in case we need it */
       /* this is a parsing hack because the first "type" parser will */
       /* possibly be ht ereturn type of the first argument */
       if ((!currentFunction->ReturnClass) && 
           (!currentFunction->NumberOfArguments)) 
         { 
-        currentFunction->ReturnClass = vtkstrdup($1); 
+        currentFunction->ReturnClass = vtkstrdup(($<vtkid>1).name); 
+        currentFunction->ReturnExternal = ($<vtkid>1).external;
         }
     } |
   IdType { postSig("vtkIdType "); $<integer>$ = 0xA;} |
