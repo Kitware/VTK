@@ -139,6 +139,12 @@ public:
   // Get the Tolerance.
   vtkGetMacro( Tolerance, double );
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  // NB: not implemented
+  virtual void Aggregate( vtkDataObjectCollection*,
+                          vtkDataObject* ) { return; };
+
 protected:
   vtkKMeansStatistics();
   ~vtkKMeansStatistics();

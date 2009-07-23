@@ -230,7 +230,7 @@ public:
   // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
-                               vtkDataObject* ) { return; };
+                          vtkDataObject* ) = 0;
 
 protected:
   vtkStatisticsAlgorithm();

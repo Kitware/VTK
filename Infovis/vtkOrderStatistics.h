@@ -84,6 +84,12 @@ public:
                              vtkVariant value );
 //ETX
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  // NB: not implemented
+  virtual void Aggregate( vtkDataObjectCollection*,
+                          vtkDataObject* ) { return; };
+
 protected:
   vtkOrderStatistics();
   ~vtkOrderStatistics();

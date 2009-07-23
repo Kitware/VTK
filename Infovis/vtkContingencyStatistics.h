@@ -49,6 +49,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkContingencyStatistics* New();
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  // NB: not implemented
+  virtual void Aggregate( vtkDataObjectCollection*,
+                          vtkDataObject* ) { return; };
+
 protected:
   vtkContingencyStatistics();
   ~vtkContingencyStatistics();
