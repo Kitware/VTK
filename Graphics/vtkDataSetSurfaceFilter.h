@@ -90,10 +90,10 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  int StructuredExecute(vtkDataSet *input, vtkPolyData *output, vtkIdType *ext,
+  virtual int StructuredExecute(vtkDataSet *input, vtkPolyData *output, vtkIdType *ext,
                          vtkInformation *inInfo);
-  int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
-  int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
+  virtual int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
+  virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
 
   // Helper methods.
   void ExecuteFaceStrips(vtkDataSet *input, vtkPolyData *output,
