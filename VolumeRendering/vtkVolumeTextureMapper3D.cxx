@@ -27,7 +27,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.15");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.16");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1493,6 +1493,9 @@ void vtkVolumeTextureMapper3D::PrintSelf(ostream& os, vtkIndent indent)
      << this->VolumeDimensions[1] << " " << this->VolumeDimensions[2] << endl;
   os << indent << "VolumeSpacing: " << this->VolumeSpacing[0] << " "
      << this->VolumeSpacing[1] << " " << this->VolumeSpacing[2] << endl;
+  
+  os << indent << "UseCompressedTexture: " << this->UseCompressedTexture
+     << endl;
 }
 
 
