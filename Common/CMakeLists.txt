@@ -419,6 +419,12 @@ IF(NOT HAVE_SOCKETS)
     COMPILE_FLAGS -DVTK_SOCKET_FAKE_API)
 ENDIF(NOT HAVE_SOCKETS)
 
+# Need nsl to resolve gethostbyname on SunOS-5.8
+# and socket also
+IF(CMAKE_SYSTEM MATCHES "SunOS.*")
+  SET(KIT_LIBS ${KIT_LIBS} socket nsl)
+ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*") 
+
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
