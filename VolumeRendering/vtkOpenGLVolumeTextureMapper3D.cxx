@@ -41,7 +41,7 @@
 #include "vtkVolumeTextureMapper3D_FourDependentShadeFP.h"
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.19");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1790,12 +1790,12 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
     }
   
   this->SupportsCompressedTexture=
-    extensions->ExtensionSupported("GL_VERSION_1_3");
+    extensions->ExtensionSupported("GL_VERSION_1_3")==1;
   
   if(!this->SupportsCompressedTexture)
     {
     this->SupportsCompressedTexture=
-      extensions->ExtensionSupported("GL_ARB_texture_compression");
+      extensions->ExtensionSupported("GL_ARB_texture_compression")==1;
     if(this->SupportsCompressedTexture)
       {
       extensions->LoadCorePromotedExtension("GL_ARB_texture_compression");
