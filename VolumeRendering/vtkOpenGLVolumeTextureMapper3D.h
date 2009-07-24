@@ -93,6 +93,16 @@ protected:
   GLuint           AlphaLookupIndex;
   vtkRenderWindow *RenderWindow;
   
+  bool SupportsCompressedTexture;
+  bool SupportsNonPowerOfTwoTextures;
+  
+  // Actual internal texture format (uncompressed vs compressed)
+  // Computed in Render()
+  int InternalAlpha; // GLint
+  int InternalLA; // GLint
+  int InternalRGB; // GLint
+  int InternalRGBA; // GLint
+  
   void Initialize();
 
   virtual void RenderNV(vtkRenderer *ren, vtkVolume *vol);
@@ -135,8 +145,9 @@ protected:
   void SetupProgramLocalsForShadingFP( vtkRenderer *ren, vtkVolume *vol );
   
   // Description:
-  // Check if we can support this texture size.
-  int IsTextureSizeSupported( int size[3] );
+  // Check if we can support this texture size for the number of components.
+  int IsTextureSizeSupported(int size[3],
+                             int components);
 
   // Description:
   // Common code for setting up interpolation / clamping on 3D textures

@@ -27,7 +27,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.14");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.15");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -673,17 +673,21 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
   this->ActualSampleDistance          = 1.0;
   
   this->RenderMethod                  = vtkVolumeTextureMapper3D::NO_METHOD;
-  this->PreferredRenderMethod         = vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD;
+  this->PreferredRenderMethod         =
+    vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD;
+  
+  this->UseCompressedTexture          = false;
+  this->SupportsNonPowerOfTwoTextures = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkVolumeTextureMapper3D::~vtkVolumeTextureMapper3D()
 {
-    delete [] this->PolygonBuffer;
-    delete [] this->IntersectionBuffer;
-    delete [] this->Volume1;
-    delete [] this->Volume2;
-    delete [] this->Volume3;
+  delete [] this->PolygonBuffer;
+  delete [] this->IntersectionBuffer;
+  delete [] this->Volume1;
+  delete [] this->Volume2;
+  delete [] this->Volume3;
 }
 
 
@@ -1033,18 +1037,30 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   int dim[3];
   input->GetDimensions(dim);
 
+  int components = input->GetNumberOfScalarComponents();
+  
   int powerOfTwoDim[3];
- 
-  for ( int i = 0; i < 3; i++ )
+  
+  if(this->SupportsNonPowerOfTwoTextures)
     {
-    powerOfTwoDim[i] = 32;
-    while ( powerOfTwoDim[i] < dim[i] )
+     for ( int i = 0; i < 3; i++ )
+       {
+       powerOfTwoDim[i]=dim[i];
+       }
+    }
+  else
+    {
+    for ( int i = 0; i < 3; i++ )
       {
-      powerOfTwoDim[i] *= 2;
+      powerOfTwoDim[i] = 32;
+      while ( powerOfTwoDim[i] < dim[i] )
+        {
+        powerOfTwoDim[i] *= 2;
+        }
       }
     }
  
-  while ( ! this->IsTextureSizeSupported( powerOfTwoDim ) )
+  while ( ! this->IsTextureSizeSupported( powerOfTwoDim,components ) )
     {
     if ( powerOfTwoDim[0] >= powerOfTwoDim[1] &&
          powerOfTwoDim[0] >= powerOfTwoDim[2] )
@@ -1063,8 +1079,6 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
     }
  
   int neededSize = powerOfTwoDim[0] * powerOfTwoDim[1] * powerOfTwoDim[2];
- 
-  int components = input->GetNumberOfScalarComponents();
  
   // What is the spacing?
   double spacing[3];

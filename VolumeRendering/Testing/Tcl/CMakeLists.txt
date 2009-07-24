@@ -18,6 +18,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       volRCRotateClip
       volTM2DCropRegions
       volTM2DRotateClip
+      volTM3DCompressedCropRegions
       volTM3DCropRegions
       volTM3DRotateClip
     )
