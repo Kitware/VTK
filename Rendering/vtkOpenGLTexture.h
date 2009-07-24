@@ -28,6 +28,7 @@
 class vtkWindow;
 class vtkOpenGLRenderer;
 class vtkRenderWindow;
+class vtkPixelBufferObject;
 
 class VTK_RENDERING_EXPORT vtkOpenGLTexture : public vtkTexture
 {
@@ -65,6 +66,9 @@ protected:
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
   bool CheckedHardwareSupport;
   bool SupportsNonPowerOfTwoTextures;
+  bool SupportsPBO;
+  vtkPixelBufferObject *PBO;
+  
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
   void operator=(const vtkOpenGLTexture&);  // Not implemented.

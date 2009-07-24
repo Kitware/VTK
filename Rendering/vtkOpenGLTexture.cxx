@@ -24,17 +24,18 @@
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTransform.h"
-
+#include "vtkPixelBufferObject.h"
 #include "vtkOpenGL.h"
 #include "vtkgl.h" // vtkgl namespace
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.77");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.78");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
+// ----------------------------------------------------------------------------
 // Initializes an instance, generates a unique index.
 vtkOpenGLTexture::vtkOpenGLTexture()
 {
@@ -42,23 +43,30 @@ vtkOpenGLTexture::vtkOpenGLTexture()
   this->RenderWindow = 0;
   this->CheckedHardwareSupport=false;
   this->SupportsNonPowerOfTwoTextures=false;
+  this->SupportsPBO=false;
+  this->PBO=0;
 }
 
+// ----------------------------------------------------------------------------
 vtkOpenGLTexture::~vtkOpenGLTexture()
 {
   if (this->RenderWindow)
     {
     this->ReleaseGraphicsResources(this->RenderWindow);
     }
+  if(this->PBO!=0)
+    {
+    vtkErrorMacro(<< "PBO should have been deleted in ReleaseGraphicsResources()");
+    }
   this->RenderWindow = NULL;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkOpenGLTexture::Initialize(vtkRenderer * vtkNotUsed(ren))
 {
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Release the graphics resources used by this texture.  
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
@@ -86,10 +94,16 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
   this->RenderWindow = NULL;
   this->CheckedHardwareSupport=false;
   this->SupportsNonPowerOfTwoTextures=false;
+  this->SupportsPBO=false;
+  if(this->PBO!=0)
+    {
+    this->PBO->Delete();
+    this->PBO=0;
+    }
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
@@ -247,6 +261,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       this->SupportsNonPowerOfTwoTextures=
         m->ExtensionSupported("GL_VERSION_2_0")
         || m->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+      this->SupportsPBO=vtkPixelBufferObject::IsSupported(renWin);
       }
     
     // -- decide whether the texture needs to be resampled --
@@ -413,9 +428,37 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         }
       }
 #endif
-    glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
-                  xsize, ysize, 0, format, 
-                  GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(resultData) );
+    if(this->SupportsPBO)
+      {
+      if(this->PBO==0)
+        {
+        this->PBO=vtkPixelBufferObject::New();
+        this->PBO->SetContext(renWin);
+        }
+      unsigned int dims[2];
+      vtkIdType increments[2];
+      dims[0]=static_cast<unsigned int>(xsize);
+      dims[1]=static_cast<unsigned int>(ysize);
+      increments[0]=0;
+      increments[1]=0;
+      this->PBO->Upload2D(VTK_UNSIGNED_CHAR,resultData,dims,bytesPerPixel,
+        increments);
+      // non-blocking call
+      this->PBO->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
+      glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
+                    xsize, ysize, 0, format, 
+                    GL_UNSIGNED_BYTE,0);
+      this->PBO->UnBind();
+      }
+    else
+      {
+      // blocking call
+      glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
+                    xsize, ysize, 0, format, 
+                    GL_UNSIGNED_BYTE,
+                    static_cast<const GLvoid *>(resultData) );
+      
+      }
 #ifndef GL_VERSION_1_1
     glEndList ();
 #endif
@@ -489,8 +532,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     }
 }
 
-
-
+// ----------------------------------------------------------------------------
 static int FindPowerOfTwo(int i)
 {
   int size;
@@ -515,6 +557,7 @@ static int FindPowerOfTwo(int i)
   return size;
 }
 
+// ----------------------------------------------------------------------------
 // Creates resampled unsigned char texture map that is a power of two in both
 // x and y.
 unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
@@ -603,6 +646,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
   return tptr;
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
