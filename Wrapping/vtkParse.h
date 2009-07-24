@@ -61,6 +61,8 @@ typedef struct _FunctionInfo
     int   IsLegacy;
   } FunctionInfo;
 
+#if defined(__cplusplus)
+#else
 typedef struct _FileInfo
   {
     int   HasDelete;
@@ -95,6 +97,7 @@ typedef struct _FileInfo
 
   } FileInfo;
 
+#endif
 //--------------------------------------------------------------------------nix
 /*
  * This structure is used internally to sort+collect individual functions.
