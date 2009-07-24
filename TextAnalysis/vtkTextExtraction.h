@@ -77,6 +77,7 @@ public:
   // Description:
   // Clear the list of strategies.
   void ClearStrategies();
+//BTX
   // Description:
   // Prepend a strategy to the list of strategies.  vtkTextExtraction assumes ownership
   // of the supplied object.
@@ -85,7 +86,7 @@ public:
   // Append a strategy to the list of strategies.  vtkTextExtraction assumes ownership
   // of the supplied object.
   void AppendStrategy(vtkTextExtractionStrategy* strategy);
-
+//ETX
   // Description:
   // Specifies the name of the output text array.  Default: "text". 
   vtkSetStringMacro(OutputArray);
