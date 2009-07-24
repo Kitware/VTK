@@ -37,7 +37,6 @@ SET(KIT_LIBS
 SET( Kit_SRCS
 vtkAssignMimeType.cxx
 vtkDocumentReader.cxx
-vtkDocumentTextExtraction.cxx
 vtkFileExtensionMimeTypeStrategy.cxx
 vtkFoldCase.cxx
 vtkMimeTypes.cxx

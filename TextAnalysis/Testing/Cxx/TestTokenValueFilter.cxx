@@ -21,13 +21,13 @@
 
 #include <vtkArrayPrint.h>
 #include <vtkDenseArray.h>
-#include <vtkDocumentTextExtraction.h>
 #include <vtkFoldCase.h>
 #include <vtkIdTypeArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTermDictionary.h>
+#include <vtkTextExtraction.h>
 #include <vtkTokenizer.h>
 #include <vtkTokenValueFilter.h>
 #include <vtkUnicodeStringArray.h>
@@ -78,7 +78,7 @@ int TestTokenValueFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     mime_type_array->Delete();
     content_array->Delete();
     
-    vtkSmartPointer<vtkDocumentTextExtraction> text_extraction = vtkSmartPointer<vtkDocumentTextExtraction>::New();
+    vtkSmartPointer<vtkTextExtraction> text_extraction = vtkSmartPointer<vtkTextExtraction>::New();
     text_extraction->SetInputConnection(0, documents->GetProducerPort());
     
     vtkSmartPointer<vtkTokenizer> tokenizer = vtkSmartPointer<vtkTokenizer>::New();

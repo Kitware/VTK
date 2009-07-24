@@ -19,7 +19,6 @@
 
 =========================================================================*/
 
-#include <vtkDocumentTextExtraction.h>
 #include <vtkFoldCase.h>
 #include <vtkIdTypeArray.h>
 #include <vtkSmartPointer.h>

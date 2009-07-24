@@ -106,7 +106,6 @@ int TestTextExtraction(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(tag_table->GetValueByName(0, "begin").ToInt() == 0);
     test_expression(tag_table->GetValueByName(0, "end").ToInt() == 46);
     test_expression(tag_table->GetValueByName(0, "type").ToString() == "TEXT");
-    test_expression(tag_table->GetValueByName(0, "text").ToString() == "The quick brown fox jumped over the lazy dogs.");
 
     return 0;
     }
