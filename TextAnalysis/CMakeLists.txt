@@ -43,7 +43,7 @@ vtkMimeTypes.cxx
 vtkMimeTypeStrategy.cxx
 vtkNGramExtraction.cxx
 vtkPlainTextExtractionStrategy.cxx
-vtkTermDictionary.cxx
+vtkFeatureDictionary.cxx
 vtkTextAnalysisUtility.cxx
 vtkTextExtraction.cxx
 vtkTextExtractionStrategy.cxx

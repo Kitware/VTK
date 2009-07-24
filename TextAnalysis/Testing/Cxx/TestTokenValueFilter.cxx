@@ -26,7 +26,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
-#include <vtkTermDictionary.h>
+#include <vtkFeatureDictionary.h>
 #include <vtkTextExtraction.h>
 #include <vtkTokenizer.h>
 #include <vtkTokenValueFilter.h>

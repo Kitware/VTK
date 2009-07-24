@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTermDictionary.h
+  Module:    vtkFeatureDictionary.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,15 +18,15 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkTermDictionary_h
-#define __vtkTermDictionary_h
+#ifndef __vtkFeatureDictionary_h
+#define __vtkFeatureDictionary_h
 
 #include <vtkTableAlgorithm.h>
 
-// .NAME vtkTermDictionary - Generates a dictionary of unique terms.
+// .NAME vtkFeatureDictionary - Generates a dictionary of unique terms.
 //
 // .SECTION Description
-// vtkTermDictionary reorganizes a table containing (potentially duplicated) terms into
+// vtkFeatureDictionary reorganizes a table containing (potentially duplicated) terms into
 // a dictionary where every term appears exactly once.
 //
 // Inputs:
@@ -45,17 +45,17 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class VTK_TEXT_ANALYSIS_EXPORT vtkTermDictionary :
+class VTK_TEXT_ANALYSIS_EXPORT vtkFeatureDictionary :
   public vtkTableAlgorithm
 {
 public:
-  static vtkTermDictionary* New();
-  vtkTypeRevisionMacro(vtkTermDictionary, vtkTableAlgorithm);
+  static vtkFeatureDictionary* New();
+  vtkTypeRevisionMacro(vtkFeatureDictionary, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkTermDictionary();
-  ~vtkTermDictionary();
+  vtkFeatureDictionary();
+  ~vtkFeatureDictionary();
 
   int RequestData(
     vtkInformation*, 
@@ -63,8 +63,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTermDictionary(const vtkTermDictionary&); // Not implemented
-  void operator=(const vtkTermDictionary&);   // Not implemented
+  vtkFeatureDictionary(const vtkFeatureDictionary&); // Not implemented
+  void operator=(const vtkFeatureDictionary&);   // Not implemented
 };
 
 #endif

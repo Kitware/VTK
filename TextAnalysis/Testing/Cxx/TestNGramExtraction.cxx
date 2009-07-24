@@ -23,7 +23,7 @@
 #include <vtkNGramExtraction.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
-#include <vtkTermDictionary.h>
+#include <vtkFeatureDictionary.h>
 #include <vtkTokenizer.h>
 #include <vtkUnicodeStringArray.h>
 
