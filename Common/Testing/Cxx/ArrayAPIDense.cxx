@@ -30,7 +30,7 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw vtkstd::runtime_error(buffer.str()); \
     } \
@@ -65,8 +65,9 @@ int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(array->GetNonNullSize() == 6);
     test_expression(array->GetExtents() == vtkArrayExtents(1, 2, 3));
 
-    // Verify that the array contains all zeros ...
+    // Initialize the array to zero and verify that the array contains all zeros ...
     {
+    array->Fill(0.0);
     const vtkArrayExtents extents = array->GetExtents();
     for(int i = 0; i != extents[0]; ++i)
       {
@@ -74,7 +75,7 @@ int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         {
         for(int k = 0; k != extents[2]; ++k)
           {
-          test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == 0);
+          test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == 0.0);
           }
         }
       }

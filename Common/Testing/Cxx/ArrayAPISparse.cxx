@@ -60,8 +60,9 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(array->GetNonNullSize() == 0);
     test_expression(array->GetExtents() == vtkArrayExtents(1, 2, 3));
 
-    // Verify that the array contains all zeros ...
+    // Initialize the array to zero and verify that the array contains all zeros ...
     {
+    array->Fill(0.0);
     const vtkArrayExtents extents = array->GetExtents();
     for(int i = 0; i != extents[0]; ++i)
       {
