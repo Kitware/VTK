@@ -60,7 +60,13 @@
 // support the set of required extensions for using at least one of
 // the two implemented methods (nvidia or ati)
 //
-
+// .SECTION Thanks
+// Thanks to Alexandre Gouaillard at the Megason Lab, Department of Systems
+// Biology, Harvard Medical School
+// https://wiki.med.harvard.edu/SysBio/Megason/
+// for the idea and initial patch to speed-up rendering with compressed
+// textures.
+//
 // .SECTION see also
 // vtkVolumeMapper
 
