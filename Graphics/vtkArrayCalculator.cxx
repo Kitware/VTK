@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.45");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.46");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -382,9 +382,11 @@ int vtkArrayCalculator::RequestData(
 
   if (!strlen(this->Function))
     {
+    dsOutput->CopyStructure(dsInput);
+    dsOutput->CopyAttributes(dsInput);
     return 1;
     }
-  if (this->FunctionParser->IsScalarResult())
+  else if (this->FunctionParser->IsScalarResult())
     {
     resultType = 0;
     }
@@ -394,11 +396,13 @@ int vtkArrayCalculator::RequestData(
     }
   else
     {
+    dsOutput->CopyStructure(dsInput);
+    dsOutput->CopyAttributes(dsInput);
     // Error occurred in vtkFunctionParser.
     vtkWarningMacro("An error occured when parsing the calculator's function.  See previous errors.");
     return 1;
     }
-
+  
   if(resultType == 1 && CoordinateResults != 0 && (psOutput || graphOutput))
     {
     resultPoints = vtkPoints::New();
