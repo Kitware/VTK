@@ -22,7 +22,7 @@
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
 
-
+#include <vtksys/stl/functional>
 #include <vtksys/stl/numeric>
 
 vtkArrayExtents::vtkArrayExtents()
