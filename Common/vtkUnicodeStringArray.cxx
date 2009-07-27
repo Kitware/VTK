@@ -28,7 +28,7 @@ public:
   StorageT Storage;
 };
 
-vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.11");
+vtkCxxRevisionMacro(vtkUnicodeStringArray, "1.12");
 vtkStandardNewMacro(vtkUnicodeStringArray);
 
 vtkUnicodeStringArray::vtkUnicodeStringArray(vtkIdType)
@@ -256,7 +256,7 @@ vtkIdType vtkUnicodeStringArray::LookupValue(vtkVariant value)
 {
   const vtkUnicodeString search_value = value.ToUnicodeString();
 
-  for(vtkIdType i = 0; i != this->Internal->Storage.size(); ++i)
+  for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
     {
     if(this->Internal->Storage[i] == search_value)
       return i;
@@ -270,7 +270,7 @@ void vtkUnicodeStringArray::LookupValue(vtkVariant value, vtkIdList* ids)
   const vtkUnicodeString search_value = value.ToUnicodeString();
 
   ids->Reset();
-  for(vtkIdType i = 0; i != this->Internal->Storage.size(); ++i)
+  for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
     {
     if(this->Internal->Storage[i] == search_value)
       ids->InsertNextId(i);
