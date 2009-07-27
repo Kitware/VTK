@@ -49,7 +49,7 @@
 #define __vtkArrayExtents_h
 
 #include "vtkSystemIncludes.h"
-#include <vtksys/stl/vector>
+#include <vtksys/stl/vector> // STL Header
 
 class vtkArrayCoordinates;
 
@@ -125,7 +125,7 @@ public:
     ostream& stream, const vtkArrayExtents& rhs);
   
 private:
-  vtkstd::vector<vtkIdType> Storage;
+  vtksys_stl::vector<vtkIdType> Storage;
 };
 
 #endif
