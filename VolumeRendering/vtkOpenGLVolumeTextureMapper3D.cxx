@@ -41,7 +41,7 @@
 #include "vtkVolumeTextureMapper3D_FourDependentShadeFP.h"
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.19");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.20");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1802,9 +1802,51 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
       }
     }
   
+  const char *gl_version=
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  const char *mesa_version=strstr(gl_version,"Mesa");
+  
+  
+  // Workaround for broken Mesa
+  if(mesa_version!=0) // any Mesa
+    {
+    this->SupportsCompressedTexture=false;
+    }
+  
   this->SupportsNonPowerOfTwoTextures=
         extensions->ExtensionSupported("GL_VERSION_2_0")
         || extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+  
+  if(mesa_version!=0)
+    {
+    // Workaround for broken Mesa (dash16-sql):
+    // GL_VENDOR="Mesa project: www.mesa3d.org"
+    // GL_VERSION="1.4 (2.1 Mesa 7.0.4)"
+    // GL_RENDERER="Mesa GLX Indirect"
+    // there is no problem with (dash6):
+    // GL_VENDOR="Brian Paul"
+    // GL_VERSION="2.0 Mesa 7.0.4"
+    // GL_RENDERER="Mesa X11"
+    int mesa_major=0;
+    int mesa_minor=0;
+    int mesa_patch=0;
+    int opengl_major=0;
+    int opengl_minor=0;
+    if(sscanf(gl_version,"%d.%d",&opengl_major, &opengl_minor)>=2)
+      {
+      if(opengl_major==1 && opengl_minor==4)
+        {
+        if(sscanf(mesa_version,"Mesa %d.%d.%d",&mesa_major,
+                  &mesa_minor,&mesa_patch)>=3)
+          {
+          if(mesa_major==7 && mesa_minor==0 && mesa_patch==4)
+            {
+            this->SupportsNonPowerOfTwoTextures=false;
+            }
+          }
+        }
+      }
+    }
   
   int supports_GL_NV_texture_shader2     = extensions->ExtensionSupported( "GL_NV_texture_shader2" );
   int supports_GL_NV_register_combiners2 = extensions->ExtensionSupported( "GL_NV_register_combiners2" );
