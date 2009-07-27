@@ -227,7 +227,7 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
   vtkstd::vector<vtkIdType> sort_order(count);
   for(vtkIdType i = 0; i != count; ++i)
     sort_order[i] = i;
-  vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
+  vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(&sort, this->Coordinates));
 
   vtkstd::vector<vtkIdType> temp_coordinates(count);
   for(vtkIdType j = 0; j != this->GetDimensions(); ++j)
