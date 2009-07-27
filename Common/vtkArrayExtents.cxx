@@ -53,7 +53,7 @@ vtkArrayExtents::vtkArrayExtents(vtkIdType i, vtkIdType j, vtkIdType k) :
 const vtkArrayExtents vtkArrayExtents::Uniform(vtkIdType n, vtkIdType m)
 {
   vtkArrayExtents result;
-  result.Storage.assign(n, m);
+  result.Storage = vtkstd::vector<vtkIdType>(n, m);
   return result;
 }
 
