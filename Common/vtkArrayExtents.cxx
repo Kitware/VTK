@@ -53,7 +53,16 @@ vtkArrayExtents::vtkArrayExtents(vtkIdType i, vtkIdType j, vtkIdType k) :
 const vtkArrayExtents vtkArrayExtents::Uniform(vtkIdType n, vtkIdType m)
 {
   vtkArrayExtents result;
-  result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
+  // IA64 HP-UX doesnt seem to have the vector<T> vector1(n, value) 
+  // overload nor the assign(n, value) method, so we use the single 
+  // arguement constructor and initialize the values manually.
+  // result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
+
+  result.Storage = vtksys_stl::vector<vtkIdType>(n);
+  for(int i = 0; i < n; i++)
+    {
+    result.Storage[i] = m;
+    }
   return result;
 }
 
