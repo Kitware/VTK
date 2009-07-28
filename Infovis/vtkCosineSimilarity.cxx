@@ -77,14 +77,14 @@ private:
   template<class InIt>
   void insert(InIt first, InIt last);
 
-  const KeyT MinimumThreshold;
-  const size_t MinimumCount;
-  const size_t MaximumCount;
+  KeyT MinimumThreshold;
+  size_t MinimumCount;
+  size_t MaximumCount;
 };
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCosineSimilarity, "1.2");
+vtkCxxRevisionMacro(vtkCosineSimilarity, "1.3");
 vtkStandardNewMacro(vtkCosineSimilarity);
 
 // ----------------------------------------------------------------------
