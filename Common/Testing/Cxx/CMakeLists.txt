@@ -82,6 +82,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArraySlice.cxx
     ArrayVariants.cxx
     SparseArrayValidation.cxx
+    EXTRA_INCLUDE vtkTestDriver.h
     )
 
   ADD_EXECUTABLE(ArrayCxxTests ${ArrayTests})

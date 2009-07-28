@@ -185,6 +185,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayTableToSparseArray.cxx
     ArrayToTable.cxx
     ArrayTransposeMatrix.cxx
+    EXTRA_INCLUDE vtkTestDriver.h
     )
 
   ADD_EXECUTABLE(InfovisArrayCxxTests ${ArrayTests})
