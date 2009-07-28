@@ -127,8 +127,10 @@ int TestCorrelativeStatistics( int, char *[] )
     };
 
   // Reference values
-  double means1[] = { 49.2188, 49.5 }; // For metrics 0 and 1, respectively
+  double meansX1[] = { 49.21875, 49.5, -1. }; // For metrics 0, 1, and 2, respectively
+  double meansY1[] = { 49.5, 49.21875, 49.5 }; // For metrics 1, 0, and 1, respectively
   double covariance1[] = { 5.98286, 7.54839, 6.14516 }; // Covariance matrix of metrics 0 and 1
+  double correlations1[] = { 0.914433, 0.914433, 0. }; // Pearson r for each of the three pairs
   double threshold = 4.;
 
   vtkCorrelativeStatistics* cs1 = vtkCorrelativeStatistics::New();
@@ -153,6 +155,8 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->SetDeriveOption( true );
   cs1->SetAssessOption( false );
   cs1->Update();
+
+  cout << "## Calculated the following statistics for first data set:\n";
 
   for ( vtkIdType r = 0; r < outputMeta1->GetNumberOfRows(); ++ r )
     {
@@ -196,13 +200,32 @@ int TestCorrelativeStatistics( int, char *[] )
            << outputMeta1->GetValueByName( r, "Slope X/Y" ).ToDouble()
            << " * Y + "
            << outputMeta1->GetValueByName( r, "Intersect X/Y" ).ToDouble()
-           << ", corr. coeff.: "
+           << ", correlation coefficient: "
            << outputMeta1->GetValueByName( r, "Pearson r" ).ToDouble()
            << "\n";
       }
     else
       {
       cout << "\n   Degenerate input, linear correlation was not calculated.\n";
+      }
+
+    // Verify some of the calculated statistics
+    if ( fabs ( outputMeta1->GetValueByName( r, "Mean X" ).ToDouble() - meansX1[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean for X");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta1->GetValueByName( r, "Mean Y" ).ToDouble() - meansY1[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean for Y");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta1->GetValueByName( r, "Pearson r" ).ToDouble() - correlations1[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect correlation coefficient");
+      testStatus = 1;
       }
     }
 
@@ -217,9 +240,9 @@ int TestCorrelativeStatistics( int, char *[] )
        << ", "
        << columnPairs[1]
        << "), mean=("
-       << means1[0]
+       << meansX1[0]
        << ", "
-       << means1[1]
+       << meansY1[0]
        << "), covariance=["
        << covariance1[0]
        << ", "
@@ -234,8 +257,8 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkTable* paramsTable = vtkTable::New();
   paramsTable->ShallowCopy( outputMeta1 );
-  paramsTable->SetValueByName( 0, "Mean X", means1[0] );
-  paramsTable->SetValueByName( 0, "Mean Y", means1[1] );
+  paramsTable->SetValueByName( 0, "Mean X", meansX1[0] );
+  paramsTable->SetValueByName( 0, "Mean Y", meansY1[0] );
   paramsTable->SetValueByName( 0, "Variance X", covariance1[0] );
   paramsTable->SetValueByName( 0, "Variance Y", covariance1[1] );
   paramsTable->SetValueByName( 0, "Covariance", covariance1[2] );
@@ -364,6 +387,10 @@ int TestCorrelativeStatistics( int, char *[] )
   cs2->SetAssessOption( false );
   cs2->Update();
 
+  // Verify aggregated statistics
+  double meansX2[] = { 49.71875 , 49.5, 0. };
+  double meansY2[] = { 49.5, 49.71875 , 49.5 };
+  double correlations2[] = { 0.895327, 0.895327, 0. }; // Pearson r for each of the three pairs
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 
   for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
@@ -408,13 +435,33 @@ int TestCorrelativeStatistics( int, char *[] )
            << outputMeta2->GetValueByName( r, "Slope X/Y" ).ToDouble()
            << " * Y + "
            << outputMeta2->GetValueByName( r, "Intersect X/Y" ).ToDouble()
-           << ", corr. coeff.: "
+           << ", correlation coefficient: "
            << outputMeta2->GetValueByName( r, "Pearson r" ).ToDouble()
            << "\n";
       }
     else
       {
       cout << "\n   Degenerate input, linear correlation was not calculated.\n";
+      }
+
+    // Verify some of the calculated statistics
+    if ( fabs ( outputMeta2->GetValueByName( r, "Mean X" ).ToDouble() - meansX2[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean X");
+      testStatus = 1;
+      }
+
+    // Verify some of the calculated statistics
+    if ( fabs ( outputMeta2->GetValueByName( r, "Mean Y" ).ToDouble() - meansY2[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean Y");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta2->GetValueByName( r, "Pearson r" ).ToDouble() - correlations2[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect correlation coefficient");
+      testStatus = 1;
       }
     }
 
