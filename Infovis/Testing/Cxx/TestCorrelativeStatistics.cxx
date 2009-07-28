@@ -118,6 +118,7 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetTable1->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
+  // Pairs of interest
   int nMetricPairs = 3;
   vtkStdString columnPairs[] = 
     { 
@@ -127,10 +128,21 @@ int TestCorrelativeStatistics( int, char *[] )
     };
 
   // Reference values
-  double meansX1[] = { 49.21875, 49.5, -1. }; // For metrics 0, 1, and 2, respectively
-  double meansY1[] = { 49.5, 49.21875, 49.5 }; // For metrics 1, 0, and 1, respectively
-  double covariance1[] = { 5.98286, 7.54839, 6.14516 }; // Covariance matrix of metrics 0 and 1
-  double correlations1[] = { 0.914433, 0.914433, 0. }; // Pearson r for each of the three pairs
+  // Means and variances for metrics 0, 1, and 2, respectively
+  double meansX1[] = { 49.21875, 49.5, -1. };
+  double varsX1[] = { 5.9828629, 7.548397, 0. };
+
+  // Means and variances for metrics 1, 0, and 1, respectively
+  double meansY1[] = { 49.5, 49.21875, 49.5 };
+  double varsY1[] = { 7.548397,5.9828629, 7.548397 };
+
+  // Covariance matrix of (metric 0, metric 1) pair
+  double covariance1[] = { 5.98286, 7.54839, 6.14516 }; 
+
+  // Pearson r for each of the three pairs
+  double correlations1[] = { 0.914433, 0.914433, 0. }; 
+
+  // Threshold for outlier detection
   double threshold = 4.;
 
   vtkCorrelativeStatistics* cs1 = vtkCorrelativeStatistics::New();
@@ -216,9 +228,21 @@ int TestCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
+    if ( fabs ( outputMeta1->GetValueByName( r, "Variance X" ).ToDouble() - varsX1[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect variance for X");
+      testStatus = 1;
+      }
+
     if ( fabs ( outputMeta1->GetValueByName( r, "Mean Y" ).ToDouble() - meansY1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for Y");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta1->GetValueByName( r, "Variance Y" ).ToDouble() - varsY1[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect variance for Y");
       testStatus = 1;
       }
 
@@ -387,10 +411,18 @@ int TestCorrelativeStatistics( int, char *[] )
   cs2->SetAssessOption( false );
   cs2->Update();
 
-  // Verify aggregated statistics
+  // Reference values
+  // Means and variances for metrics 0, 1, and 2, respectively
   double meansX2[] = { 49.71875 , 49.5, 0. };
+  double varsX2[] = { 6.1418651 , 7.548397 * 62. / 63. , 64. / 63. };
+
+  // Means and variances for metrics 1, 0, and 1, respectively
   double meansY2[] = { 49.5, 49.71875 , 49.5 };
-  double correlations2[] = { 0.895327, 0.895327, 0. }; // Pearson r for each of the three pairs
+  double varsY2[] = { 7.548397 * 62. / 63., 6.1418651 , 7.548397 * 62. / 63. };
+
+  // Pearson r for each of the three pairs
+  double correlations2[] = { 0.895327, 0.895327, 0. };
+
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 
   for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
@@ -451,10 +483,21 @@ int TestCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
-    // Verify some of the calculated statistics
+    if ( fabs ( outputMeta2->GetValueByName( r, "Variance X" ).ToDouble() - varsX2[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect variance for X");
+      testStatus = 1;
+      }
+
     if ( fabs ( outputMeta2->GetValueByName( r, "Mean Y" ).ToDouble() - meansY2[r] ) > 1.e-6 )
       {
-      vtkGenericWarningMacro("Incorrect mean Y");
+      vtkGenericWarningMacro("Incorrect mean for Y");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta2->GetValueByName( r, "Variance Y" ).ToDouble() - varsY2[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect variance for Y");
       testStatus = 1;
       }
 
