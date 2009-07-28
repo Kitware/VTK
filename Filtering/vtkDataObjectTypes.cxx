@@ -45,7 +45,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkUniformGrid.h"
 #include  "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.7");
+#ifdef VTK_USE_N_WAY_ARRAYS
+#include  "vtkArrayData.h"
+#endif
+
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.8");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -79,6 +83,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkUndirectedGraph", 
   "vtkMultiPieceDataSet",
   "vtkDirectedAcyclicGraph",
+  "vtkArrayData",
   NULL
 };
 
@@ -143,6 +148,8 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 {
   if (!type)
     {
+    vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
+               << "\" which does not exist.");
     return 0;
     }
 
@@ -231,6 +238,12 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkAnnotationLayers::New();
     }
+#ifdef VTK_USE_N_WAY_ARRAYS
+  else if(strcmp(type, "vtkArrayData") == 0)
+    {
+    return vtkArrayData::New();
+    }
+#endif
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
     vtkDataObject* data = vtkDataObject::SafeDownCast(obj);
@@ -238,8 +251,17 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
       {
       obj->Delete();
       }
+
+    if(data == NULL)
+      {
+      vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
+                 << "\" which does not exist.");
+      }
     return data;
     }
+
+  vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
+             << "\" which does not exist.");
 
   return 0;
 }

@@ -68,6 +68,10 @@ public:
   // Returns the n-th vtkArray in the collection
   vtkArray* GetArray(vtkIdType index);
 
+  // Description:
+  // Return class name of data type (VTK_ARRAY_DATA).
+  virtual int GetDataObjectType() {return VTK_ARRAY_DATA;}
+
   virtual void ShallowCopy(vtkDataObject* other);
   virtual void DeepCopy(vtkDataObject* other);
 

@@ -144,6 +144,9 @@
 /* Whether the Qt files are available */
 #cmakedefine VTK_USE_QT
 
+/* Whether N-way arrays are being used */
+#cmakedefine VTK_USE_N_WAY_ARRAYS
+
 /*--------------------------------------------------------------------------*/
 /* VTK Versioning                                                           */
 
