@@ -60,17 +60,18 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Call exit on 'q','e' keypress. Want more ???
-  void TerminateApp(void) { exit(0); }
+  // Break the event loop on 'q','e' keypress. Want more ???
+  void TerminateApp();
 
   // Description:
   // The BreakLoopFlag is checked in the Start() method.
   // Setting it to anything other than zero will cause
   // the interactor loop to terminate and return to the
   // calling function.
-  vtkSetMacro(BreakLoopFlag, int);
   vtkGetMacro(BreakLoopFlag, int);
-  vtkBooleanMacro(BreakLoopFlag, int);
+  void SetBreakLoopFlag(int);
+  void BreakLoopFlagOff();
+  void BreakLoopFlagOn();
 
   // Description: 
   // Initializes the event handlers using an XtAppContext that you have
@@ -184,14 +185,12 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
 
-  int BreakLoopFlag;
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
                           XtTimerCallbackProc proc, XtPointer client_data) ;
   void Timer(XtPointer client_data, XtIntervalId *id); 
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
-
-  vtkCallbackCommand* BreakXtLoopCallback;
-  static void BreakXtLoop(vtkObject*, unsigned long, void*, void*);
+  
+  int BreakLoopFlag;
 
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
