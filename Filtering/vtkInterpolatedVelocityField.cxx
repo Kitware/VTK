@@ -24,7 +24,7 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.7");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.8");
 vtkStandardNewMacro(vtkInterpolatedVelocityField); 
 //---------------------------------------------------------------------------
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -180,7 +180,7 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
         dataset->GetCell(this->LastCellId, this->Cell);
         
         this->LastCellId = 
-          dataset->FindCell(x, this->Cell, this->GenCell, -1, tol2, 
+          dataset->FindCell(x, this->Cell, this->GenCell, this->LastCellId, tol2, 
                             subId, this->LastPCoords, this->Weights);
         if (this->LastCellId != - 1)
           {
