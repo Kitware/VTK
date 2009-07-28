@@ -46,21 +46,21 @@ int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     dense->Resize(2, 2);
     dense->Fill(false);
 
-    test_expression(dense->GetValue(1, 1) == false);
+    test_expression(dense->GetValue(1, 1) == 0);
     dense->SetValue(1, 1, true);
-    test_expression(dense->GetValue(1, 1) == true);
+    test_expression(dense->GetValue(1, 1) == 1);
     
-    test_expression(dense->GetValue(0, 1) == false);
-    (*dense)[vtkArrayCoordinates(0, 1)] = true;
-    test_expression(dense->GetValue(0, 1) == true);
+    test_expression(dense->GetValue(0, 1) == 0);
+    (*dense)[vtkArrayCoordinates(0, 1)] = 1;
+    test_expression(dense->GetValue(0, 1) == 1);
 
     // Confirm that we can work with sparse arrays of bool values
     vtkSmartPointer<vtkSparseArray<char> > sparse = vtkSmartPointer<vtkSparseArray<char> >::New();
     sparse->Resize(2, 2);
 
-    test_expression(sparse->GetValue(1, 1) == false);
+    test_expression(sparse->GetValue(1, 1) == 0);
     sparse->SetValue(1, 1, true);
-    test_expression(sparse->GetValue(1, 1) == true);
+    test_expression(sparse->GetValue(1, 1) == 1);
     
     return 0;
     }
