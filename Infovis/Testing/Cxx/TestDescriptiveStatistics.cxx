@@ -123,6 +123,7 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetTable1->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
+  // Pairs of interest
   int nMetrics = 3;
   vtkStdString columns[] = 
     { 
@@ -130,9 +131,13 @@ int TestDescriptiveStatistics( int, char *[] )
       "Metric 2", 
       "Metric 0" 
     };
-  // Reference values of metrics 0, 1, and 2, respectively
-  double means1[] = { 49.21875 , 49.5, -1. }; // Means 
-  double stdevs1[] = { sqrt( 5.9828629 ), sqrt( 7.548397 ), 0. }; // Variances
+
+  // Reference values
+  // Means for metrics 0, 1, and 2, respectively
+  double means1[] = { 49.21875 , 49.5, -1. };
+
+  // Standard deviations for metrics 0, 1, and 2, respectively
+  double stdevs1[] = { sqrt( 5.9828629 ), sqrt( 7.548397 ), 0. };
 
   vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
@@ -394,9 +399,13 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->SetAssessOption( false );
   ds2->Update();
 
-  // Verify aggregated statistics
+  // Reference values
+  // Means deviations for metrics 0, 1, and 2, respectively
   double means2[] = { 49.71875 , 49.5, 0. };
-  double stdevs2[] = { sqrt( 6.1418651 ), sqrt( 7.548397 * 62. / 63. ), sqrt( 1.015873 ) };
+
+  // Standard deviations for metrics 0, 1, and 2, respectively
+  double stdevs2[] = { sqrt( 6.1418651 ), sqrt( 7.548397 * 62. / 63. ), sqrt( 64. / 63. ) };
+
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 
   for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
