@@ -101,6 +101,8 @@ vtkRTXMLPolyDataReader.cxx
 vtkRowQuery.cxx
 vtkSESAMEReader.cxx
 vtkShaderCodeLibrary.cxx
+vtkSLACParticleReader.cxx
+vtkSLACReader.cxx
 vtkSQLDatabase.cxx
 vtkSQLDatabaseSchema.cxx
 vtkSQLiteDatabase.cxx

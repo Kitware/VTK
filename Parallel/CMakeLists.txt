@@ -56,6 +56,7 @@ vtkPProbeFilter.cxx
 vtkProcessGroup.cxx
 vtkProcessIdScalars.cxx
 vtkPReflectionFilter.cxx
+vtkPSLACReader.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkPTableToStructuredGrid.cxx
