@@ -421,11 +421,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
       }
     else
       {
-      vtkStdString s = v.ToString();
-      const char* const whitespace = " \t\r\n\v\f";
-      s.erase(0, s.find_first_not_of(whitespace));
-      s.erase(s.find_last_not_of(whitespace) + 1);
-      return QVariant(s.c_str());
+      return QString::fromUtf8(v.ToUnicodeString().utf8_str()).trimmed();
       }
     }
 
