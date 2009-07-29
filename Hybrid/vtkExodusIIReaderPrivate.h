@@ -483,6 +483,8 @@ public:
 
   int UpdateTimeInformation();
 
+  bool ProducedFastPathOutput;
+
 protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();

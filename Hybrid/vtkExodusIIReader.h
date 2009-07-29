@@ -707,6 +707,11 @@ public:
   // Every time the SIL is updated a this will return a different value.
   vtkGetMacro(SILUpdateStamp, int);
 
+  // Description:
+  // HACK: Used by vtkPExodusIIReader to tell is the reader produced a valid
+  // fast path output.
+  vtkGetMacro(ProducedFastPathOutput, bool);
+
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
@@ -770,7 +775,7 @@ protected:
   int ExodusModelMetadata;
 
   int SILUpdateStamp;
-
+  bool ProducedFastPathOutput;
 private:
   vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
   void operator=(const vtkExodusIIReader&); // Not implemented

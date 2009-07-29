@@ -29,7 +29,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.11");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.12");
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkPExtractArraysOverTime::vtkPExtractArraysOverTime()
@@ -129,8 +129,8 @@ void vtkPExtractArraysOverTime::PostExecute(
 void vtkPExtractArraysOverTime::AddRemoteData(
   vtkMultiBlockDataSet* remoteOutput, vtkMultiBlockDataSet* output)
 {
-  vtkCompositeDataIterator* localIter = output->NewIterator();
   vtkCompositeDataIterator* remoteIter = remoteOutput->NewIterator();
+  vtkCompositeDataIterator* localIter = output->NewIterator();
   for (remoteIter->InitTraversal();
     !remoteIter->IsDoneWithTraversal(); remoteIter->GoToNextItem())
     {
@@ -155,7 +155,8 @@ void vtkPExtractArraysOverTime::AddRemoteData(
       vtkCompositeDataSet::NAME());
 
     // We need to merge "coincident" tables.
-    for (localIter->InitTraversal(); localIter->IsDoneWithTraversal();
+    bool merged = false;
+    for (localIter->InitTraversal(); !localIter->IsDoneWithTraversal();
       localIter->GoToNextItem())
       {
       if (name ==
@@ -163,12 +164,20 @@ void vtkPExtractArraysOverTime::AddRemoteData(
         {
         this->MergeTables(vtkTable::SafeDownCast(remoteIter->GetCurrentDataObject()),
           vtkTable::SafeDownCast(localIter->GetCurrentDataObject()));
+        merged = true;
         break;
         }
       }
+    if (!merged)
+      {
+      unsigned int index = output->GetNumberOfBlocks();
+      output->SetBlock(index, remoteIter->GetCurrentDataObject());
+      output->GetMetaData(index)->Copy(remoteIter->GetCurrentMetaData(),
+        /*deep=*/0);
+      }
     }
-  remoteIter->Delete();
   localIter->Delete();
+  remoteIter->Delete();
 }
 
 //----------------------------------------------------------------------------

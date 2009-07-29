@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.78");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.79");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -418,6 +418,8 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->FastPathObjectId = -1;
 
   this->SIL = vtkMutableDirectedGraph::New();
+
+  this->ProducedFastPathOutput = false;
 
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
 }
@@ -4643,7 +4645,7 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
 
   // Pack temporal data onto output field data arrays if fast path.
   // option is available:
-  this->AssembleArraysOverTime(output);
+  this->ProducedFastPathOutput = (this->AssembleArraysOverTime(output) != 0);
 
   // Finally, generate the decorations for edge and face fields.
   this->AssembleOutputEdgeDecorations();
@@ -5329,7 +5331,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.78");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.79");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5348,6 +5350,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->ExodusModel = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;
+  this->ProducedFastPathOutput = false;
 
   this->SetNumberOfInputPorts( 0 );
 }
@@ -5559,6 +5562,7 @@ int vtkExodusIIReader::RequestData(
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector )
 {
+  this->ProducedFastPathOutput = false;
   if ( ! this->FileName || ! this->Metadata->OpenFile( this->FileName ) )
     {
     vtkErrorMacro( "Unable to open file \"" << (this->FileName ? this->FileName : "(null)") << "\" to read data" );
@@ -5648,6 +5652,7 @@ int vtkExodusIIReader::RequestData(
 
   //cout << "Requesting step " << timeStep << " for output " << output << "\n";
   this->Metadata->RequestData( timeStep, output );
+  this->ProducedFastPathOutput = this->Metadata->ProducedFastPathOutput;
 
   // Restore previous fastpath values so we don't respond to old pipeline requests
   if ( haveFastPath )
