@@ -41,7 +41,7 @@
 #include "vtkVolumeTextureMapper3D_FourDependentShadeFP.h"
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.20");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.21");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1817,6 +1817,8 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
         extensions->ExtensionSupported("GL_VERSION_2_0")
         || extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   
+  bool brokenMesa=false;
+  
   if(mesa_version!=0)
     {
     // Workaround for broken Mesa (dash16-sql):
@@ -1827,6 +1829,9 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
     // GL_VENDOR="Brian Paul"
     // GL_VERSION="2.0 Mesa 7.0.4"
     // GL_RENDERER="Mesa X11"
+    // glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,&maxSize) return some
+    // uninitialized value and a loading a Luminance-alpha 16x16x16 just
+    // crashes glx.
     int mesa_major=0;
     int mesa_minor=0;
     int mesa_patch=0;
@@ -1839,10 +1844,7 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
         if(sscanf(mesa_version,"Mesa %d.%d.%d",&mesa_major,
                   &mesa_minor,&mesa_patch)>=3)
           {
-          if(mesa_major==7 && mesa_minor==0 && mesa_patch==4)
-            {
-            this->SupportsNonPowerOfTwoTextures=false;
-            }
+          brokenMesa=mesa_major==7 && mesa_minor==0 && mesa_patch==4;
           }
         }
       }
@@ -1891,7 +1893,8 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
   int canDoFP = 0;
   int canDoNV = 0;
   
-  if ( supports_texture3D          &&
+  if ( !brokenMesa &&
+       supports_texture3D          &&
        supports_multitexture       &&
        supports_GL_ARB_fragment_program   &&
        supports_GL_ARB_vertex_program     &&
@@ -1907,7 +1910,8 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
     canDoFP = 1;
     }
   
-  if ( supports_texture3D          &&
+  if ( !brokenMesa &&
+       supports_texture3D          &&
        supports_multitexture       &&
        supports_GL_NV_texture_shader2     &&
        supports_GL_NV_register_combiners2 &&
