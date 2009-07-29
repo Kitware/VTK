@@ -105,20 +105,12 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  /*
-  int nMetricPairs = 3;
-  vtkStdString columnPairs[] = { m0Name, m1Name, m1Name, m0Name, m2Name, m1Name };
-  double centers[] = { 49.2188, 49.5 };
-  double covariance[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = 4.;
-  */
-
   vtkMultiCorrelativeStatistics* mcs = vtkMultiCorrelativeStatistics::New();
   mcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
 
   datasetTable->Delete();
 
-  // -- Select Column Pairs of Interest ( Learn Mode ) -- 
+  // Select Column Pairs of Interest ( Learn Mode )
   mcs->SetColumnStatus( m0Name, 1 );
   mcs->SetColumnStatus( m1Name, 1 );
   mcs->RequestSelectedColumns();
@@ -135,7 +127,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   mcs->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
   // mcs->RequestSelectedColumns(); will get called in RequestData()
 
-  // -- Test Learn Mode -- 
+  // Test Learn Mode
   mcs->SetLearnOption( true );
   mcs->SetDeriveOption( true );
   mcs->SetAssessOption( false );
@@ -157,19 +149,12 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     outputMeta->Dump();
     }
 
-#if 0
-  // -- Select Column Pairs of Interest ( Assess Mode ) -- 
-  mcs->ResetColumnPairs(); // Clear existing pairs
-  mcs->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
-#endif // 0
-
-  // -- Test Assess Mode -- 
+  // Test Assess Mode 
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
   mcs->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
-
 
   // Test Assess only (Do not recalculate nor rederive a model)
   mcs->SetLearnOption( false );
@@ -179,9 +164,18 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
   vtkTable* outputData = mcs->GetOutput();
   outputData->Dump();
-#if 0
+
+  // Threshold for outlier detection
+  double threshold = 4.;
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
+
+  cout << "## Searching for outliers such that "
+       << outputData->GetColumnName( tableIdx[2] ) 
+       << " > "
+       << threshold
+       << "\n";
+
   cout << "   Found the following outliers:\n";
   for ( int i = 0; i < 3; ++ i )
     {
@@ -211,9 +205,6 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
     testStatus = 1;
     }
-
-  paramsTable->Delete();
-#endif // 0
 
   mcs->Delete();
 
