@@ -61,8 +61,8 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkPrintMatrixFormat(cout, output);
 
     test_expression(output);
-    test_expression(output->GetExtents()[0] = 2);
-    test_expression(output->GetExtents()[1] = 3);
+    test_expression(output->GetExtents()[0] == 2);
+    test_expression(output->GetExtents()[1] == 3);
 
     test_expression(output->GetValue(vtkArrayCoordinates(0, 0)) == 0);
     test_expression(output->GetValue(vtkArrayCoordinates(0, 1)) == 2);
