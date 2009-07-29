@@ -19,15 +19,17 @@
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
+#include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelectionNode.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <vtkstd/string>
+#include <assert.h>
 
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.10");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.11");
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkPExtractArraysOverTime::vtkPExtractArraysOverTime()
@@ -78,6 +80,22 @@ void vtkPExtractArraysOverTime::PostExecute(
       {
       vtkMultiBlockDataSet* remoteOutput = vtkMultiBlockDataSet::New();
       this->Controller->Receive(remoteOutput, cc, EXCHANGE_DATA);
+      // Now receive the block names explicitly.
+      vtkMultiProcessStream stream;
+      this->Controller->Receive(stream, cc, EXCHANGE_DATA);
+      vtkCompositeDataIterator* iter = remoteOutput->NewIterator();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+        iter->GoToNextItem())
+        {
+        unsigned int index;
+        stream >> index;
+        assert(iter->GetCurrentFlatIndex() == index);
+        vtkstd::string name;
+        stream >> name;
+        iter->GetCurrentMetaData()->Set(vtkCompositeDataSet::NAME(),
+          name.c_str());
+        }
+      iter->Delete();
       this->AddRemoteData(remoteOutput, output);
       remoteOutput->Delete();
       }
@@ -87,6 +105,18 @@ void vtkPExtractArraysOverTime::PostExecute(
   else
     {
     this->Controller->Send(output, 0, EXCHANGE_DATA);
+    // Send the names explicitly since the vtkMultiProcessController cannot send
+    // composite-data meta-data yet.
+    vtkMultiProcessStream stream;
+    vtkCompositeDataIterator* iter = output->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+      iter->GoToNextItem())
+      {
+      stream << iter->GetCurrentFlatIndex()
+        << iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+      }
+    iter->Delete();
+    this->Controller->Send(stream, 0, EXCHANGE_DATA);
     output->Initialize();
     int num_blocks = 0;
     // ensures that all processes have the same structure.
@@ -116,11 +146,16 @@ void vtkPExtractArraysOverTime::AddRemoteData(
       continue;
       }
 
+    if (!remoteIter->GetCurrentMetaData()->Has(vtkCompositeDataSet::NAME()))
+      {
+      vtkWarningMacro("Internal filter error: Missing NAME()");
+      continue;
+      }
     vtkstd::string name = remoteIter->GetCurrentMetaData()->Get(
       vtkCompositeDataSet::NAME());
 
     // We need to merge "coincident" tables.
-    for (localIter->InitTraversal(); !localIter->IsDoneWithTraversal();
+    for (localIter->InitTraversal(); localIter->IsDoneWithTraversal();
       localIter->GoToNextItem())
       {
       if (name ==
