@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.31");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.32");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -733,8 +733,8 @@ int vtkPExodusIIReader::RequestData(
       if (inFieldArray && inFieldArray->GetName())
         {
         vtkStdString fieldName = inFieldArray->GetName();
-        vtkStdString::size_type idx = fieldName.find("OverTime",0);
-        if (idx != vtkStdString::npos)
+        
+        if (fieldName.find("OverTime",0) != vtkStdString::npos)
           {
           ofd->AddArray(inFieldArray);
           }
