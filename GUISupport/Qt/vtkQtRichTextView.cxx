@@ -51,7 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QHttpHeader>
 #include <QHttpRequestHeader>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.15");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.16");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -80,8 +80,10 @@ public:
 
 vtkQtRichTextView::vtkQtRichTextView()
 {
+  this->ContentColumnName=NULL;
   this->ProxyPort = 0;
   this->ProxyURL = NULL;
+  this->SetContentColumnName("html");
   this->Internal = new Implementation();
   this->Internal->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->Internal->DataObjectToTable->SetFieldType(ROW_DATA);
@@ -104,6 +106,9 @@ vtkQtRichTextView::~vtkQtRichTextView()
 void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "ProxyURL : " << (this->ProxyURL ? this->ProxyURL : "(none)") << endl;
+  os << indent << "ProxyPort: " << this->ProxyPort << endl;
+  os << indent << "ContentColumnName: " << this->ContentColumnName << endl;
 }
 
 QWidget* vtkQtRichTextView::GetWidget()
@@ -205,7 +210,7 @@ void vtkQtRichTextView::Update()
 
   if(row_valid)
     {
-    this->Internal->Content = table->GetValueByName(row, "html").ToString();
+    this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToString();
     }
   else
     {

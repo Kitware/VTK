@@ -20,8 +20,8 @@
 // .NAME vtkQtRichTextView - Superclass for QAbstractItemView-based views.
 //
 // .SECTION Description
-// This superclass provides all the plumbing to integrate a QAbstractItemView 
-// into the VTK view framework, including reporting selection changes and 
+// This superclass provides all the plumbing to integrate a QAbstractItemView
+// into the VTK view framework, including reporting selection changes and
 // detecting selection changes from linked views.
 //
 // .SECTION Thanks
@@ -63,12 +63,18 @@ public:
     ROW_DATA = 5,
     };
 //ETX
-  
+
   // Description:
   // The field type to copy into the output table.
   // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
   void SetFieldType(int);
   int GetFieldType();
+
+  // Description:
+  // If a vtkTable is provided as input to the view, this sets the column
+  // name to use for the content.  (Default: 'http').
+  vtkSetStringMacro(ContentColumnName);
+  vtkGetStringMacro(ContentColumnName);
 
   // Description:
   // This field sets a URL for a HTTP proxy server.
@@ -87,15 +93,16 @@ public:
 protected slots:
   void onBack();
   void onLoadProgress(int progress);
-  
+
 protected:
   vtkQtRichTextView();
   ~vtkQtRichTextView();
-    
+
 private:
   vtkQtRichTextView(const vtkQtRichTextView&);  // Not implemented.
   void operator=(const vtkQtRichTextView&);  // Not implemented.
 
+  char* ContentColumnName;
   char* ProxyURL;
   int   ProxyPort;
 
