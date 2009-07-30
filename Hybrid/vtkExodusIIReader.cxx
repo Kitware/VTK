@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.80");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.81");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -1047,7 +1047,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       }
     }
 
-  if ( this->GenerateGlobalElementIdArray )
+  if ( this->GenerateGlobalElementIdArray && ! OBJTYPE_IS_SET( otyp ) )
     {
     // This retrieves the first new-style map, or if that is not present,
     // the solitary old-style map (which always exists but may be
@@ -5332,7 +5332,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.80");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.81");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
