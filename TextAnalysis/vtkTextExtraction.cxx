@@ -44,7 +44,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.6");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.7");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
@@ -85,7 +85,7 @@ void vtkTextExtraction::PrintSelf(ostream& os, vtkIndent indent)
 void vtkTextExtraction::ClearStrategies()
 {
   for(unsigned int i = 0; i != this->Internal->Strategies.size(); ++i)
-    this->Internal->Strategies[i]->Delete();
+    this->Internal->Strategies[i]->UnRegister(NULL);
   this->Modified();
 }
 
@@ -93,14 +93,17 @@ void vtkTextExtraction::PrependStrategy(vtkTextExtractionStrategy* strategy)
 {
   if(!strategy)
     {
-    vtkErrorMacro(<< "Cannot add NULL strategy.");
+    vtkErrorMacro(<< "Cannot prepend NULL strategy.");
     return;
     }
-  
-  this->Internal->Strategies.erase(
-    vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
-    this->Internal->Strategies.end());
 
+  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
+    {
+    vtkErrorMacro(<< "Cannot prepend the same strategy twice.");
+    return;
+    }
+
+  strategy->Register(NULL);
   this->Internal->Strategies.insert(this->Internal->Strategies.begin(), strategy);
   this->Modified();
 }
@@ -109,14 +112,17 @@ void vtkTextExtraction::AppendStrategy(vtkTextExtractionStrategy* strategy)
 {
   if(!strategy)
     {
-    vtkErrorMacro(<< "Cannot add NULL strategy.");
+    vtkErrorMacro(<< "Cannot append NULL strategy.");
     return;
     }
-  
-  this->Internal->Strategies.erase(
-    vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
-    this->Internal->Strategies.end());
 
+  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
+    {
+    vtkErrorMacro(<< "Cannot append the same strategy twice.");
+    return;
+    }
+
+  strategy->Register(NULL);
   this->Internal->Strategies.insert(this->Internal->Strategies.end(), strategy);
   this->Modified();
 }

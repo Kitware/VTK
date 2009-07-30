@@ -40,7 +40,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes
 
-vtkCxxRevisionMacro(vtkMimeTypes, "1.8");
+vtkCxxRevisionMacro(vtkMimeTypes, "1.9");
 vtkStandardNewMacro(vtkMimeTypes);
 
 vtkMimeTypes::vtkMimeTypes() :
@@ -49,9 +49,7 @@ vtkMimeTypes::vtkMimeTypes() :
   // Add more sophisticated platform-specific strategies here ...
   
   // Last-but-not-least, our fallback strategy is to identify MIME type using file extensions
-  vtkFileExtensionMimeTypeStrategy *defaultStrategy = vtkFileExtensionMimeTypeStrategy::New();
-  this->PrependStrategy(defaultStrategy);
-  defaultStrategy->Delete();
+  this->Internal->Strategies.push_back(vtkFileExtensionMimeTypeStrategy::New());
 }
 
 vtkMimeTypes::~vtkMimeTypes()
@@ -81,52 +79,36 @@ void vtkMimeTypes::PrependStrategy(vtkMimeTypeStrategy* strategy)
 {
   if(!strategy)
     {
-    vtkErrorMacro(<< "Cannot add NULL strategy.");
+    vtkErrorMacro(<< "Cannot prepend NULL strategy.");
     return;
     }
-  
-  for (vtksys_stl::vector<vtkMimeTypeStrategy*>::size_type i = 0;
-       i < this->Internal->Strategies.size(); ++i)
+
+  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
     {
-    if (this->Internal->Strategies[i] == strategy)
-      {
-      this->Internal->Strategies[i]->UnRegister(NULL);
-      }
+    vtkErrorMacro(<< "Cannot prepend the same strategy twice.");
+    return;
     }
 
-  this->Internal->Strategies.erase(
-    vtkstd::remove(this->Internal->Strategies.begin(), 
-                   this->Internal->Strategies.end(), 
-                   strategy),
-    this->Internal->Strategies.end());
-
-  this->Internal->Strategies.insert(this->Internal->Strategies.begin(), strategy);
   strategy->Register(NULL);
+  this->Internal->Strategies.insert(this->Internal->Strategies.begin(), strategy);
 }
 
 void vtkMimeTypes::AppendStrategy(vtkMimeTypeStrategy* strategy)
 {
   if(!strategy)
     {
-    vtkErrorMacro(<< "Cannot add NULL strategy.");
+    vtkErrorMacro(<< "Cannot append NULL strategy.");
     return;
     }
 
-  for (vtksys_stl::vector<vtkMimeTypeStrategy*>::size_type i = 0;
-       i < this->Internal->Strategies.size(); ++i)
+  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
     {
-    if (this->Internal->Strategies[i] == strategy)
-      {
-      this->Internal->Strategies[i]->UnRegister(NULL);
-      }
+    vtkErrorMacro(<< "Cannot append the same strategy twice.");
+    return;
     }
-  
-  this->Internal->Strategies.erase(
-    vtkstd::remove(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy),
-    this->Internal->Strategies.end());
 
-  this->Internal->Strategies.insert(this->Internal->Strategies.end(), strategy);
   strategy->Register(NULL);
+  this->Internal->Strategies.insert(this->Internal->Strategies.end(), strategy);
 }
 
 vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri)
