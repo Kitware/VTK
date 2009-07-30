@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.28");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.29");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -1083,6 +1083,7 @@ void vtkConvertSelection::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InputFieldType: " << this->InputFieldType << endl;
   os << indent << "OutputType: " << this->OutputType << endl;
+  os << indent << "MatchAnyValues: " << (this->MatchAnyValues ? "true" : "false") << endl;
   os << indent << "ArrayNames: " << (this->ArrayNames ? "" : "(null)") << endl;
   if (this->ArrayNames)
     {
