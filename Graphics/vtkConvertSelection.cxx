@@ -55,7 +55,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.27");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.28");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -64,12 +64,32 @@ vtkConvertSelection::vtkConvertSelection()
   this->OutputType = vtkSelectionNode::INDICES;
   this->ArrayNames = 0;
   this->InputFieldType = -1;
+  this->MatchAnyValues = false;
 }
 
 //----------------------------------------------------------------------------
 vtkConvertSelection::~vtkConvertSelection()
 {
   this->SetArrayNames(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkConvertSelection::AddArrayName(const char* name)
+{
+  if (!this->ArrayNames)
+    {
+    this->ArrayNames = vtkStringArray::New();
+    }
+  this->ArrayNames->InsertNextValue(name);
+}
+
+//----------------------------------------------------------------------------
+void vtkConvertSelection::ClearArrayNames()
+{
+  if (this->ArrayNames)
+    {
+    this->ArrayNames->Initialize();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -819,7 +839,21 @@ int vtkConvertSelection::Convert(
             this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
             }
           }
-        outputData->AddArray(outputArr);
+
+        if(this->MatchAnyValues)
+          {
+          vtkSmartPointer<vtkSelectionNode> outNode =
+            vtkSmartPointer<vtkSelectionNode>::New();
+          outNode->ShallowCopy(inputNode);
+          outNode->SetContentType(this->OutputType);
+          outNode->SetSelectionList(outputArr);
+          output->AddNode(outNode);
+          }
+        else
+          {
+          outputData->AddArray(outputArr);
+          }
+
         outputArr->Delete();
         }
       }
