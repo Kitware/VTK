@@ -99,6 +99,8 @@ public:
   vtkSetStringMacro(ColumnName);
   vtkGetStringMacro(ColumnName);
 
+  void SetColumnVisibility(const QString &name, bool status);
+
   // Description:
   // Set whether or not the table view should split multi-component columns
   // into multiple single-component columns

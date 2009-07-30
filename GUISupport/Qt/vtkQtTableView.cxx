@@ -45,7 +45,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.18");
+vtkCxxRevisionMacro(vtkQtTableView, "1.19");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -145,6 +145,27 @@ void vtkQtTableView::SetFieldType(int type)
     {
     this->FieldType = type;
     this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableView::SetColumnVisibility(const QString& name, bool s)
+{
+  for(int j=0; j<this->TableAdapter->columnCount(); ++j)
+    {
+    QString colName = this->TableAdapter->headerData(j, Qt::Horizontal).toString();
+    if(colName == name)
+      {
+      if(s)
+        {
+        this->TableView->showColumn(j);
+        }
+      else
+        {
+        this->TableView->hideColumn(j);
+        }
+      break;
+      }
     }
 }
 
@@ -286,7 +307,7 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& s1,
   VTKIndexSelectList->Delete();
   
   this->LastSelectionMTime = rep->GetAnnotationLink()->GetMTime();
-  //this->InSelectionChanged = true;
+  this->InSelectionChanged = true;
 }
 
 //----------------------------------------------------------------------------
@@ -418,15 +439,12 @@ void vtkQtTableView::Update()
   for(int j=0; j<this->TableAdapter->columnCount(); ++j)
     {
     QString colName = this->TableAdapter->headerData(j, Qt::Horizontal).toString();
-    if(colName == "vtkApplyColors color")
+    if(colName == "vtkApplyColors color" ||
+       colName == "vtkAddMembershipArray membership")
       {
       this->TableView->hideColumn(j);
       }
-    else if(colName == "vtkAddMembershipArray membership" ||
-      colName == "match")
-      {
-      this->TableView->hideColumn(j);
-      }
+    /*
     else if(this->ShowAll)
       {
       this->TableView->showColumn(j);
@@ -443,6 +461,7 @@ void vtkQtTableView::Update()
         this->TableView->hideColumn(j);
         }
       }
+      */
 
     }
 }
