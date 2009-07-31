@@ -102,7 +102,7 @@ TARGET_LINK_LIBRARIES(TestFBOImplementation
   vtkRendering)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO ${OPENGL_gl_LIBRARY})
 
 
 SET (TestsToRun ${Tests})
