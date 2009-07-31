@@ -187,8 +187,7 @@ TARGET_LINK_LIBRARIES( QVTK
   vtkRendering 
   vtkGraphics
   vtkImaging 
-  vtkCommon
-  vtksys)
+  vtkCommon)
 
 # add extra dependencies if necessary
 IF(DESIRED_QT_VERSION MATCHES 4)
