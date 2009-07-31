@@ -323,7 +323,12 @@ void vtkQtChartLegendManager::updateModelEntries(int first, int last)
       vtkQtChartLegendModel *legend = this->Legend->getModel();
       for(int i = first; i <= last; i++)
         {
-        legend->setText(index + i, model->getSeriesName(i).toString());
+        QString label = chart->getSeriesOptions(i)->getLabel();
+        if (label.isNull())
+          {
+          label = model->getSeriesName(i).toString();
+          }
+        legend->setText(index + i, label);
         legend->setIcon(index + i, chart->getSeriesIcon(i));
         legend->setVisible(index+i, 
           chart->getSeriesOptions(i)->isVisible());
