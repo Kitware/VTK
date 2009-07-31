@@ -55,6 +55,7 @@ public:
     AXES_CORNER,
     MARKER_STYLE,
     MARKER_SIZE,
+    LABEL,
     NUMBER_OF_OPTION_TYPES
     };
 
@@ -169,6 +170,15 @@ public:
   /// \param size The new series marker size.
   void setMarkerSize(const QSizeF &size)
     { this->setGenericOption(MARKER_SIZE, size); }
+
+  /// \brief
+  ///   Gets the label for this series, if any. If an empty string is returned,
+  ///   the default, then the name of the series is used as the label.
+  QString getLabel() const
+    { return this->getGenericOption(LABEL).toString(); }
+
+  void setLabel(const QString& label)
+    { this->setGenericOption(LABEL, label); }
 
   /// \brief
   ///   Sets the option using generic API.
