@@ -17,9 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoSphereTransform - A transformation between lat-long-alt and rect coords
+// .NAME vtkGeoSphereTransform - A transformation between long-lat-alt and rect coords
 // .SECTION Description
-
+// the cartesian coordinate system is the following (if BaseAltitude is 0),
+// - the origin is at the center of the earth
+// - the x axis goes from the origin to (longtitude=-90,latitude=0), intersection of equator and the meridian passing just east of Galápagos Islands
+// - the y axis goes from the origin to the intersection of Greenwitch meridian and equator (longitude=0,latitude=0)
+// - the z axis goes from the origin to the Geographic North Pole (latitude=90)
+// - therefore the frame is right-handed.
 #ifndef __vtkGeoSphereTransform_h
 #define __vtkGeoSphereTransform_h
 
@@ -60,6 +65,7 @@ public:
   // If on, this transform converts (long,lat,alt) triples to (x,y,z) as an offset
   // from the center of the earth. Alt, x, y, and z are all be in meters.
   // If off, the tranform works in the reverse direction.
+  // Initial value is on.
   vtkSetMacro(ToRectangular, bool);
   vtkGetMacro(ToRectangular, bool);
   vtkBooleanMacro(ToRectangular, bool);
