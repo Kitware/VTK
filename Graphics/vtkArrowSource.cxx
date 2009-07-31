@@ -24,7 +24,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-vtkCxxRevisionMacro(vtkArrowSource, "1.7");
+vtkCxxRevisionMacro(vtkArrowSource, "1.8");
 vtkStandardNewMacro(vtkArrowSource);
 
 vtkArrowSource::vtkArrowSource()
@@ -34,7 +34,8 @@ vtkArrowSource::vtkArrowSource()
   this->TipLength = 0.35;
   this->ShaftResolution = 6;
   this->ShaftRadius = 0.03;
-
+  this->Invert = false;
+  
   this->SetNumberOfInputPorts(0);
 }
 
@@ -56,7 +57,9 @@ int vtkArrowSource::RequestData(
   vtkTransformFilter *tf0 = vtkTransformFilter::New();
   vtkConeSource *cone = vtkConeSource::New();
   vtkTransform *trans1 = vtkTransform::New();
+  vtkTransform *trans2 = vtkTransform::New();
   vtkTransformFilter *tf1 = vtkTransformFilter::New();
+  vtkTransformFilter *tf2 = vtkTransformFilter::New();
   vtkAppendPolyData *append = vtkAppendPolyData::New();
 
   piece = output->GetUpdatePiece();
@@ -84,10 +87,24 @@ int vtkArrowSource::RequestData(
   append->AddInput(tf0->GetPolyDataOutput());
   append->AddInput(tf1->GetPolyDataOutput());
 
+ // used only when this->Invert is true.
+ trans2->Translate(1, 0, 0);
+ trans2->Scale(-1, 1, 1);
+ tf2->SetTransform(trans2);
+ tf2->SetInputConnection(append->GetOutputPort());
+
   if (output->GetUpdatePiece() == 0 && numPieces > 0)
     {
-    append->Update();
-    output->ShallowCopy(append->GetOutput());
+    if (this->Invert)
+      {
+      tf2->Update();
+      output->ShallowCopy(tf2->GetOutput());
+      }
+    else
+      {
+      append->Update();
+      output->ShallowCopy(append->GetOutput());
+      }
     }
   output->SetUpdatePiece(piece);
   output->SetUpdateNumberOfPieces(numPieces);
@@ -100,6 +117,8 @@ int vtkArrowSource::RequestData(
   trans1->Delete();
   tf1->Delete();
   append->Delete();
+  tf2->Delete();
+  trans2->Delete();
 
   return 1;
 }
@@ -114,4 +133,6 @@ void vtkArrowSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ShaftResolution: " << this->ShaftResolution << "\n";
   os << indent << "ShaftRadius: " << this->ShaftRadius << "\n";
+
+  os << indent << "Invert: " << this->Invert << "\n";
 }
