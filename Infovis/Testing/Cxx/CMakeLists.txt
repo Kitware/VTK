@@ -92,17 +92,17 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # TestParallelRandomStatisticsMPI: 
     # MPI test of parallel descriptive, correlative, multicorrelative and PCA statistics 
     ADD_EXECUTABLE(TestParallelRandomStatisticsMPI TestParallelRandomStatisticsMPI.cxx)
-    TARGET_LINK_LIBRARIES(TestParallelRandomStatisticsMPI vtkInfovis vtkParallel)
+    TARGET_LINK_LIBRARIES(TestParallelRandomStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
     # TestRandomPContingencyStatisticsMPI: 
     # MPI test of parallel contingency statistics 
     ADD_EXECUTABLE(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
-    TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel)
+    TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
     # TestParallelKMeansStatisticsMPI: 
     # MPI test of parallel KMeans statistics 
     ADD_EXECUTABLE(TestParallelKMeansStatisticsMPI TestParallelKMeansStatisticsMPI.cxx)
-    TARGET_LINK_LIBRARIES(TestParallelKMeansStatisticsMPI vtkInfovis vtkParallel)
+    TARGET_LINK_LIBRARIES(TestParallelKMeansStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(TestParallelRandomStatisticsMPI
