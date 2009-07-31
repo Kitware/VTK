@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageReader2Factory.h"
 
+#include "vtkToolkits.h" // VTK_USE_METAIO
 #include "vtkBMPReader.h"
 #include "vtkGESignaReader.h"
 #include "vtkImageReader2.h"
@@ -35,7 +36,7 @@
 // until after the AvailableReaders singleton has been destroyed.
 #include "vtkFilteringInformationKeyManager.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.22");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.23");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkImageReader2FactoryCleanup
