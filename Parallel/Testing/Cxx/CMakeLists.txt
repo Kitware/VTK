@@ -57,14 +57,14 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
-    TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets)
+    TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestMPIController MPIController.cxx
       ExerciseMultiProcessController.cxx)
-    TARGET_LINK_LIBRARIES(TestMPIController vtkParallel)
+    TARGET_LINK_LIBRARIES(TestMPIController vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
-    TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
+    TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestPStream TestPStream.cxx)
     TARGET_LINK_LIBRARIES(TestPStream vtkParallel)
@@ -76,31 +76,31 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     TARGET_LINK_LIBRARIES(DistributedDataRenderPass vtkParallel)
 
     ADD_EXECUTABLE(TransmitImageData TransmitImageData.cxx)
-    TARGET_LINK_LIBRARIES(TransmitImageData vtkParallel)
+    TARGET_LINK_LIBRARIES(TransmitImageData vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestProcess TestProcess.cxx)
-    TARGET_LINK_LIBRARIES(TestProcess vtkParallel)
+    TARGET_LINK_LIBRARIES(TestProcess vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TransmitImageDataRenderPass TransmitImageDataRenderPass.cxx)
-    TARGET_LINK_LIBRARIES(TransmitImageDataRenderPass vtkParallel)
+    TARGET_LINK_LIBRARIES(TransmitImageDataRenderPass vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestPShadowMapPass TestPShadowMapPass.cxx)
-    TARGET_LINK_LIBRARIES(TestPShadowMapPass vtkParallel)
+    TARGET_LINK_LIBRARIES(TestPShadowMapPass vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestDistributedDataShadowMapPass TestDistributedDataShadowMapPass.cxx)
-TARGET_LINK_LIBRARIES(TestDistributedDataShadowMapPass vtkParallel)
+    TARGET_LINK_LIBRARIES(TestDistributedDataShadowMapPass vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestPCompositeZPass TestPCompositeZPass.cxx)
-    TARGET_LINK_LIBRARIES(TestPCompositeZPass vtkParallel)
+    TARGET_LINK_LIBRARIES(TestPCompositeZPass vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TestDistributedDataCompositeZPass TestDistributedDataCompositeZPass.cxx)
-    TARGET_LINK_LIBRARIES(TestDistributedDataCompositeZPass vtkParallel)
+    TARGET_LINK_LIBRARIES(TestDistributedDataCompositeZPass vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TransmitRectilinearGrid TransmitRectilinearGrid.cxx)
-    TARGET_LINK_LIBRARIES(TransmitRectilinearGrid vtkParallel)
+    TARGET_LINK_LIBRARIES(TransmitRectilinearGrid vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
-    TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel)
+    TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel ${MPI_LIBRARIES})
 
     ADD_EXECUTABLE(PSLACReaderLinear PSLACReaderLinear.cxx)
     TARGET_LINK_LIBRARIES(PSLACReaderLinear vtkParallel)
