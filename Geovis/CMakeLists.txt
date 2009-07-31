@@ -3,7 +3,8 @@ SET(UKIT GEOVIS)
 SET(KIT_TCL_LIBS vtkWidgetsTCL vtkViewsTCL)
 SET(KIT_PYTHON_LIBS vtkWidgetsPythonD vtkViewsPythonD)
 SET(KIT_JAVA_LIBS vtkWidgetsJava vtkViewsJava)
-SET(KIT_LIBS vtkWidgets vtkViews ${VTK_LIBPROJ4_LIBRARIES})
+SET(KIT_INTERFACE_LIBRARIES vtkWidgets vtkViews)
+SET(KIT_LIBS ${VTK_LIBPROJ4_LIBRARIES})
 
 SET( Kit_SRCS
   vtkCompassRepresentation.cxx

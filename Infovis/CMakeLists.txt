@@ -8,12 +8,14 @@ IF(VTK_USE_RENDERING)
   SET(KIT_TCL_LIBS vtkWidgetsTCL)
   SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
   SET(KIT_JAVA_LIBS vtkWidgetsJava)
-  SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES} vtkalglib)
+  SET(KIT_INTERFACE_LIBRARIES vtkWidgets)
+  SET(KIT_LIBS ${VTK_LIBXML2_LIBRARIES} vtkalglib)
 ELSE(VTK_USE_RENDERING)
   SET(KIT_TCL_LIBS vtkGraphicsTCL)
   SET(KIT_PYTHON_LIBS vtkGraphicsPythonD)
   SET(KIT_JAVA_LIBS vtkGraphicsJava)
-  SET(KIT_LIBS vtkGraphics  ${VTK_LIBXML2_LIBRARIES} vtkalglib)
+  SET(KIT_INTERFACE_LIBRARIES vtkGraphics)
+  SET(KIT_LIBS ${VTK_LIBXML2_LIBRARIES} vtkalglib)
 ENDIF(VTK_USE_RENDERING)
 
 SET( Kit_SRCS
@@ -202,7 +204,7 @@ IF(VTK_USE_PARALLEL)
     vtkPMultiCorrelativeStatistics.cxx
     vtkPPCAStatistics.cxx
     )
-  SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
+  SET(KIT_INTERFACE_LIBRARIES ${KIT_INTERFACE_LIBRARIES} vtkParallel)
 ENDIF(VTK_USE_PARALLEL)
 
 # Add these classes only if vtkTypeUInt64Array exists

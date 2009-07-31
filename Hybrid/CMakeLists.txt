@@ -4,7 +4,8 @@ SET(UKIT HYBRID)
 SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL)
 SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_LIBS vtkRendering vtkIO)
+SET(KIT_INTERFACE_LIBRARIES vtkRendering vtkIO)
+SET(KIT_LIBS vtksys)
 IF(VTK_HAS_EXODUS)
   SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
 ENDIF(VTK_HAS_EXODUS)
@@ -91,7 +92,7 @@ IF(VTK_HAS_EXODUS)
       vtkPExodusIIReader.cxx
       vtkPExodusReader.cxx
       )
-    SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
+    SET(KIT_INTERFACE_LIBRARIES ${KIT_INTERFACE_LIBRARIES} vtkParallel)
   ENDIF(VTK_USE_PARALLEL)
 ENDIF(VTK_HAS_EXODUS)
 

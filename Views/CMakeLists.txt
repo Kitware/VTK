@@ -3,7 +3,7 @@ SET(UKIT VIEWS)
 SET(KIT_TCL_LIBS vtkInfovisTCL)
 SET(KIT_PYTHON_LIBS vtkInfovisPythonD)
 SET(KIT_JAVA_LIBS vtkInfovisJava)
-SET(KIT_LIBS vtkInfovis)
+SET(KIT_INTERFACE_LIBRARIES vtkInfovis)
 
 SET( Kit_SRCS
 vtkConvertSelectionDomain.cxx

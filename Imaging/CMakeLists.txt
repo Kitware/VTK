@@ -3,7 +3,7 @@ SET(UKIT IMAGING)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering)
+SET(KIT_INTERFACE_LIBRARIES vtkFiltering)
 
 SET( Kit_SRCS
 vtkBooleanTexture.cxx

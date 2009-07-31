@@ -4,7 +4,8 @@ SET(UKIT WIDGETS)
 SET(KIT_TCL_LIBS vtkRenderingTCL vtkHybridTCL)
 SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkHybridPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkHybridJava)
-SET(KIT_LIBS vtkRendering vtkHybrid)
+SET(KIT_INTERFACE_LIBRARIES vtkRendering vtkHybrid)
+SET(KIT_LIBS ${OPENGL_gl_LIBRARY})
 
 SET ( Kit_SRCS
 vtk3DWidget.cxx

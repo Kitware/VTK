@@ -3,7 +3,7 @@ SET(UKIT GENERIC_FILTERING)
 SET(KIT_TCL_LIBS vtkFilteringTCL vtkGraphicsTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD vtkGraphicsPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava vtkGraphicsJava)
-SET(KIT_LIBS vtkFiltering vtkGraphics)
+SET(KIT_INTERFACE_LIBRARIES vtkFiltering vtkGraphics)
 
 SET( Kit_SRCS
 vtkGenericContourFilter.cxx
