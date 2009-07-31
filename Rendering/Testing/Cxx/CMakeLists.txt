@@ -140,7 +140,7 @@ FOREACH (exe
     VTKBenchMark
     )
   ADD_EXECUTABLE(${exe} ${exe}.cxx)
-  TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO)
+  TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO ${OPENGL_gl_LIBRARY})
   IF (APPLE)
     TARGET_LINK_LIBRARIES(${exe} "-framework GLUT")
   ENDIF (APPLE)
