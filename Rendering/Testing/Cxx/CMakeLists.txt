@@ -99,7 +99,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in
 ADD_EXECUTABLE(TestFBOImplementation
   TestFBOImplementation.cxx)
 TARGET_LINK_LIBRARIES(TestFBOImplementation
-  vtkRendering)
+  vtkRendering ${OPENGL_gl_LIBRARY})
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO ${OPENGL_gl_LIBRARY})
