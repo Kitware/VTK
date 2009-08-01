@@ -43,6 +43,7 @@
 #include <QMimeData>
 
 #include <vtksys/ios/sstream>
+#include <vtkstd/set>
 
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)
@@ -192,11 +193,18 @@ vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
   IndexSelection->AddNode(node);
   
   // Run through the QModelIndexList pulling out vtk indexes
+  vtkstd::set<int> unique_ids;
   for (int i = 0; i < qmil.size(); i++)
     {
-    vtkIdType vtk_index = qmil.at(i).internalId();
-    index_arr->InsertNextValue(vtk_index);
+    unique_ids.insert(qmil.at(i).internalId());
     }  
+
+  vtkstd::set<int>::iterator iter;
+  for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
+    {
+    index_arr->InsertNextValue(*iter);
+    }  
+
   return IndexSelection;
 }
 
@@ -540,7 +548,7 @@ int vtkQtTreeModelAdapter::columnCount(const QModelIndex & vtkNotUsed(parentIdx)
 QStringList vtkQtTreeModelAdapter::mimeTypes() const
 {
   QStringList types;
-  types << "vtk/annotation";
+  types << "vtk/selection";
   return types;
 }
 
@@ -553,54 +561,21 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
     return 0;
     }
 
-  vtkIdType vertex = static_cast<vtkIdType>(indexes.at(0).internalId());
+  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
+  indexSelection.TakeReference(QModelIndexListToVTKIndexSelection(indexes));
 
-  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New(); 
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::VERTEX);
-  vtkSmartPointer<vtkIdTypeArray> index_arr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  node->SetSelectionList(index_arr);
-  indexSelection->AddNode(node);
-  
-  index_arr->InsertNextValue(vertex);
-
-  vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::New();
-  pedigreeIdSelection.TakeReference(vtkConvertSelection::ToSelectionType(indexSelection, this->Tree, vtkSelectionNode::PEDIGREEIDS));
+  vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Tree, vtkSelectionNode::PEDIGREEIDS);
 
   if(pedigreeIdSelection->GetNode(0) == 0 || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
     {
     return 0;
     }
 
-  vtkAnnotation* a = vtkAnnotation::New();
-  vtkInformation* ainfo = a->GetInformation();
-  ainfo->Set(vtkAnnotation::LABEL(), pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetVariantValue(0).ToString());
-  a->SetSelection(pedigreeIdSelection);
-
-  if(this->ColorColumn >= 0)
-    {
-    int colorColumn = this->ModelColumnToFieldDataColumn(this->ColorColumn);
-    vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(colorColumn));
-    if (colors && colors->GetNumberOfComponents() >= 3)
-      {
-      unsigned char rgba[4];
-      colors->GetTupleValue(vertex, rgba);
-      double rgb[3];
-      rgb[0] = (0x0ff & rgba[0]);
-      rgb[1] = (0x0ff & rgba[1]);
-      rgb[2] = (0x0ff & rgba[2]);
-      ainfo->Set(vtkAnnotation::COLOR(),rgb,3);
-      }
-    }
-
   vtksys_ios::ostringstream buffer;
-  buffer << a;
+  buffer << pedigreeIdSelection;
 
   QMimeData *mime_data = new QMimeData();
-  mime_data->setData("vtk/annotation", buffer.str().c_str());
+  mime_data->setData("vtk/selection", buffer.str().c_str());
 
   return mime_data;
 }
