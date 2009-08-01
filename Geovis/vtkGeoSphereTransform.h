@@ -21,7 +21,7 @@
 // .SECTION Description
 // the cartesian coordinate system is the following (if BaseAltitude is 0),
 // - the origin is at the center of the earth
-// - the x axis goes from the origin to (longtitude=-90,latitude=0), intersection of equator and the meridian passing just east of Galápagos Islands
+// - the x axis goes from the origin to (longtitude=-90,latitude=0), intersection of equator and the meridian passing just east of Galapagos Islands
 // - the y axis goes from the origin to the intersection of Greenwitch meridian and equator (longitude=0,latitude=0)
 // - the z axis goes from the origin to the Geographic North Pole (latitude=90)
 // - therefore the frame is right-handed.
