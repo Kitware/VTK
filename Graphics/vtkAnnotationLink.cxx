@@ -27,13 +27,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.7");
+vtkCxxRevisionMacro(vtkAnnotationLink, "1.8");
 vtkStandardNewMacro(vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 //----------------------------------------------------------------------------
 vtkAnnotationLink::vtkAnnotationLink()
 {
-  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(3);
   this->AnnotationLayers = vtkAnnotationLayers::New();
   this->DomainMaps = vtkDataObjectCollection::New();  
@@ -70,7 +70,10 @@ void vtkAnnotationLink::RemoveDomainMap(vtkTable* map)
 //----------------------------------------------------------------------------
 void vtkAnnotationLink::RemoveAllDomainMaps()
 {
-  this->DomainMaps->RemoveAllItems();
+  if(this->DomainMaps->GetNumberOfItems() > 0)
+    {
+    this->DomainMaps->RemoveAllItems();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -112,6 +115,7 @@ int vtkAnnotationLink::RequestData(
   vtkInformationVector *outVector)
 {
   vtkInformation *inInfo = inVector[0]->GetInformationObject(0);
+  vtkTable* inputMap = vtkTable::GetData(inVector[1]);
   vtkAnnotationLayers* input = 0;
   vtkSelection* inputSelection = 0;
   if (inInfo)
@@ -119,7 +123,7 @@ int vtkAnnotationLink::RequestData(
     input = vtkAnnotationLayers::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     inputSelection = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
-  
+
   vtkInformation *outInfo = outVector->GetInformationObject(0);
   vtkAnnotationLayers* output = vtkAnnotationLayers::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -132,7 +136,7 @@ int vtkAnnotationLink::RequestData(
   vtkSelection* sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  // Give preference to the optional input annotations
+  // Give preference to input annotations
   if (input)
     {
     this->ShallowCopyToOutput(input, output, sel);
@@ -149,13 +153,23 @@ int vtkAnnotationLink::RequestData(
     output->SetCurrentSelection(sel);
     }
 
-  unsigned int numMaps = static_cast<unsigned int>(this->DomainMaps->GetNumberOfItems());
-  maps->SetNumberOfBlocks(numMaps);
-  for (unsigned int i = 0; i < numMaps; ++i)
+  // If there are input domain maps, give preference to them
+  if(inputMap)
     {
-    vtkSmartPointer<vtkTable> map = vtkSmartPointer<vtkTable>::New();
-    map->ShallowCopy(this->DomainMaps->GetItem(i));
-    maps->SetBlock(i, map);
+    vtkSmartPointer<vtkTable> outMap = vtkSmartPointer<vtkTable>::New();
+    outMap->ShallowCopy(inputMap);
+    maps->SetBlock(0, outMap);
+    }
+  else
+    {
+    unsigned int numMaps = static_cast<unsigned int>(this->DomainMaps->GetNumberOfItems());
+    maps->SetNumberOfBlocks(numMaps);
+    for (unsigned int i = 0; i < numMaps; ++i)
+      {
+      vtkSmartPointer<vtkTable> map = vtkSmartPointer<vtkTable>::New();
+      map->ShallowCopy(this->DomainMaps->GetItem(i));
+      maps->SetBlock(i, map);
+      }
     }
 
   return 1;
@@ -181,9 +195,15 @@ int vtkAnnotationLink::FillInputPortInformation(int port, vtkInformation* info)
   if (port == 0)
     {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    return 1;
+    }
+  else if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    //info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     return 1;
     }
   return 0;
@@ -222,6 +242,7 @@ unsigned long vtkAnnotationLink::GetMTime()
       mtime = atime;
       }
     }
+
   if (this->DomainMaps)
     {
     unsigned long dtime = this->DomainMaps->GetMTime();
@@ -230,6 +251,7 @@ unsigned long vtkAnnotationLink::GetMTime()
       mtime = dtime;
       }
     }
+
   return mtime;
 }
 
