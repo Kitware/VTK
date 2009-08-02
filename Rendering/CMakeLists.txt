@@ -645,6 +645,12 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
   TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                         vtk${KIT}
                         ${VTK_TK_LIBRARIES})
+  IF(VTK_USE_CARBON)
+    #  "_GetWindowFromPort", referenced from:
+    # vtkTkRenderWidget_MakeRenderWindow(vtkTkRenderWidget*)      in vtkTkRenderWidgetPython.cxx.o
+    # vtkTkImageViewerWidget_MakeImageViewer(vtkTkImageViewerWidget*)      in vtkTkImageViewerWidgetPython.cxx.o
+    TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets "-framework Carbon")
+  ENDIF(VTK_USE_CARBON)
 
   # Apply user-defined properties to the library target.
   IF(VTK_LIBRARY_PROPERTIES)
