@@ -20,6 +20,7 @@
 
 #include "vtkGroupLeafVertices.h"
 
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -39,8 +40,12 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.17");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.18");
 vtkStandardNewMacro(vtkGroupLeafVertices);
+
+// Forward function reference (definition at bottom :)
+static int splitString(const vtkStdString& input, 
+                       vtkstd::vector<vtkStdString>& results);
 
 //---------------------------------------------------------------------------
 class vtkGroupLeafVerticesCompare
@@ -79,15 +84,19 @@ vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
 
 vtkGroupLeafVertices::vtkGroupLeafVertices()
 {
+  this->GroupDomain = 0;
+  this->SetGroupDomain("group_vertex");
 }
 
 vtkGroupLeafVertices::~vtkGroupLeafVertices()
 {
+  this->SetGroupDomain(0);
 }
 
 void vtkGroupLeafVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "GroupDomain: " << (this->GroupDomain ? this->GroupDomain : "(null)") << endl;
 }
 
 int vtkGroupLeafVertices::RequestData(
@@ -160,6 +169,71 @@ int vtkGroupLeafVertices::RequestData(
       }
     }
 
+  // Get the pedigree id array on the vertices
+  vtkAbstractArray* pedigreeIdArr = builderVertexData->GetPedigreeIds();
+  if(!pedigreeIdArr)
+    {
+    vtkErrorMacro(<< "Pedigree ids not assigned to vertices on input graph.");
+    return 0;
+    }
+
+  // Get the domain array. If none exists, create one, and initialize
+  bool addInputDomain = false;
+  vtkStringArray* domainArr = vtkStringArray::SafeDownCast(builderVertexData->GetAbstractArray("domain"));
+  int group_index = 0;
+  if(!domainArr)
+    {
+    domainArr = vtkStringArray::New();
+    domainArr->SetNumberOfTuples(builderVertexData->GetNumberOfTuples());
+    domainArr->SetName("domain");
+    builderVertexData->AddArray(domainArr);
+    domainArr->Delete();
+    addInputDomain = true;
+    }
+  else
+    {
+    // If a domain array already exists, look for indices that match the group 
+    // domain name. Use to index in to pedigree id array and find max group value.
+
+    vtkSmartPointer<vtkIdList> groupIds = vtkSmartPointer<vtkIdList>::New();
+    domainArr->LookupValue(this->GroupDomain, groupIds);
+
+    if(pedigreeIdArr->IsNumeric())
+      {
+      for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
+        {
+        vtkVariant v = pedigreeIdArr->GetVariantValue(i);
+        bool ok;
+        int num = v.ToInt(&ok);
+        if(ok)
+          {
+          group_index = (num > group_index) ? num : group_index;
+          }
+        }
+      }
+    else if(vtkStringArray::SafeDownCast(pedigreeIdArr))
+      {
+      for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
+        {
+        vtkstd::vector<vtkStdString> tokens;
+        vtkVariant v = pedigreeIdArr->GetVariantValue(i);
+        splitString(v.ToString(), tokens);
+        vtkVariant last = tokens[tokens.size()-1];
+        bool ok;
+        int num = last.ToInt(&ok);
+        if(ok)
+          {
+          group_index = (num > group_index) ? num : group_index;
+          }
+        }
+      }
+    else
+      {
+      vtkErrorMacro(<< "PedigreeId array type not supported.");
+      return 0;
+      }
+    }
+
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
   vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkVariant>,
@@ -168,13 +242,6 @@ int vtkGroupLeafVertices::RequestData(
   vertStack.push_back(vtksys_stl::make_pair(input->GetRoot(), builder->AddVertex()));
   vtkSmartPointer<vtkOutEdgeIterator> it =
   vtkSmartPointer<vtkOutEdgeIterator>::New();
-
-  // The pedigree ids for group vertices are negative so as not to conflict
-  // with leaf vertex ids. We give each one a unique negative value
-  // so that selecting a group at a later time will not select ALL groups.
-  // FIXME: This filter should create a new vertex domain for group vertices
-  // so that we don't have to do this. 
-  vtkIdType group_id = -1;
 
   while (!vertStack.empty())
     {
@@ -188,6 +255,14 @@ int vtkGroupLeafVertices::RequestData(
       vtkOutEdgeType tree_e = it->Next();
       vtkIdType tree_child = tree_e.Target;
       vtkIdType child = builder->AddVertex();
+
+      // If the input vertices do not have a "domain" attribute, 
+      // we need to set one.
+      if(addInputDomain)
+        {
+        domainArr->InsertValue(child, pedigreeIdArr->GetName());
+        }
+
       if (!input->IsLeaf(tree_child))
         {
         // If it isn't a leaf, just add the child to the new tree
@@ -210,10 +285,19 @@ int vtkGroupLeafVertices::RequestData(
           {
           group_vertex = builder->AddVertex();
 
+          // Set the domain for this non-leaf vertex
+          domainArr->InsertValue(group_vertex, this->GroupDomain);
+
+          // Initialize vertex attributes that aren't the pedigree ids 
+          // to -1, empty string, etc.
           vtkIdType ncol = builderVertexData->GetNumberOfArrays();
           for (vtkIdType i = 0; i < ncol; i++)
             {
             vtkAbstractArray* arr2 = builderVertexData->GetAbstractArray(i);
+            if(arr2 == pedigreeIdArr || arr2 == domainArr)
+              {
+              continue;
+              }
             int comps = arr->GetNumberOfComponents();
             if (vtkDataArray::SafeDownCast(arr2))
               {
@@ -221,7 +305,7 @@ int vtkGroupLeafVertices::RequestData(
               double* tuple = new double[comps];
               for (int j = 0; j < comps; j++)
                 {
-                tuple[j] = group_id;
+                tuple[j] = -1;
                 }
               data->InsertTuple(group_vertex, tuple);
               delete[] tuple;
@@ -259,6 +343,7 @@ int vtkGroupLeafVertices::RequestData(
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, group_e.Id);
           group_vertices[vtksys_stl::make_pair(v, groupVal)] = group_vertex;
+
           if (outputNameArr)
             {
             outputNameArr->InsertVariantValue(group_vertex, groupVal);
@@ -267,8 +352,20 @@ int vtkGroupLeafVertices::RequestData(
             {
             outputGroupArr->InsertVariantValue(group_vertex, groupVal);
             }
-          
-          group_id--;
+          if(pedigreeIdArr != outputNameArr && pedigreeIdArr != outputGroupArr)
+            {
+            if(pedigreeIdArr->IsNumeric())
+              {
+              pedigreeIdArr->InsertVariantValue(group_vertex, group_index);
+              }
+            else
+              {
+              vtkStdString groupPrefix = "group ";
+              groupPrefix += vtkVariant(group_index).ToString();
+              pedigreeIdArr->InsertVariantValue(group_vertex, groupPrefix);
+              }
+            group_index++;
+            }
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
@@ -285,4 +382,81 @@ int vtkGroupLeafVertices::RequestData(
     }
 
   return 1;
+}
+
+// ----------------------------------------------------------------------
+
+static int 
+splitString(const vtkStdString& input, 
+            vtkstd::vector<vtkStdString>& results)
+{
+  if (input.size() == 0)
+    {
+    return 0;
+    }
+
+  char thisCharacter = 0;
+  char lastCharacter = 0;
+
+  vtkstd::string currentField;
+
+  for (unsigned int i = 0; i < input.size(); ++i)
+    {
+    thisCharacter = input[i];
+
+    // Zeroth: are we in an escape sequence? If so, interpret this
+    // character accordingly.
+    if (lastCharacter == '\\')
+      {
+      char characterToAppend;
+      switch (thisCharacter)
+        {
+        case '0': characterToAppend = '\0'; break;
+        case 'a': characterToAppend = '\a'; break;
+        case 'b': characterToAppend = '\b'; break;
+        case 't': characterToAppend = '\t'; break;
+        case 'n': characterToAppend = '\n'; break;
+        case 'v': characterToAppend = '\v'; break;
+        case 'f': characterToAppend = '\f'; break;
+        case 'r': characterToAppend = '\r'; break;
+        case '\\': characterToAppend = '\\'; break;
+        default:  characterToAppend = thisCharacter; break;
+        }
+
+      currentField += characterToAppend;
+      lastCharacter = thisCharacter;
+      if (lastCharacter == '\\') lastCharacter = 0;
+      }
+    else 
+      {
+      // We're not in an escape sequence.
+
+      // First, are we /starting/ an escape sequence?
+      if (thisCharacter == '\\')
+        {
+        lastCharacter = thisCharacter;
+        continue;
+        }
+      else if ((strchr(" ", thisCharacter) != NULL))
+        {
+        // A delimiter starts a new field unless we're in a string, in
+        // which case it's normal text and we won't even get here.
+        if (currentField.size() > 0)
+          {
+          results.push_back(currentField);
+          }
+        currentField = vtkStdString();
+        }
+      else
+        {
+        // The character is just plain text.  Accumulate it and move on.
+        currentField += thisCharacter;
+        }
+      
+      lastCharacter = thisCharacter;
+      }
+    }
+
+  results.push_back(currentField);
+  return static_cast<int>(results.size());
 }

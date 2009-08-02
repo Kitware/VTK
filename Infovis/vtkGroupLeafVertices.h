@@ -35,6 +35,16 @@ public:
   vtkTypeRevisionMacro(vtkGroupLeafVertices,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // The name of the domain that non-leaf vertices will be assigned to.
+  // If the input graph already contains vertices in this domain:
+  // - If the ids for this domain are numeric, starts assignment with max id
+  // - If the ids for this domain are strings, starts assignment with "group X"
+  //   where "X" is the max id.
+  // Default is "group_vertex".
+  vtkSetStringMacro(GroupDomain);
+  vtkGetStringMacro(GroupDomain);
+
 protected:
   vtkGroupLeafVertices();
   ~vtkGroupLeafVertices();
@@ -43,6 +53,8 @@ protected:
     vtkInformation*, 
     vtkInformationVector**, 
     vtkInformationVector*);
+
+  char* GroupDomain;
     
 private:
   vtkGroupLeafVertices(const vtkGroupLeafVertices&); // Not implemented
