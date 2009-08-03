@@ -26,7 +26,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkLabelHierarchyCompositeIterator, "1.3");
+vtkCxxRevisionMacro(vtkLabelHierarchyCompositeIterator, "1.4");
 vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 
 class vtkLabelHierarchyCompositeIterator::Internal
@@ -87,11 +87,10 @@ void vtkLabelHierarchyCompositeIterator::Begin(vtkIdTypeArray* list)
 
   // Find a non-empty iterator to start at if it exists.
   // If not, CurrentIterator will be past the end of the array, signaling IsAtEnd.
-  vtkLabelHierarchyIterator* iter = this->Implementation->Iterators[this->Implementation->CurrentIterator].first;
-  while (this->Implementation->CurrentIterator < this->Implementation->Iterators.size() && !(iter->IsAtEnd()))
+  while (this->Implementation->CurrentIterator < this->Implementation->Iterators.size() &&
+         this->Implementation->Iterators[this->Implementation->CurrentIterator].first->IsAtEnd())
     {
     this->Implementation->CurrentIterator++;
-    iter = this->Implementation->Iterators[this->Implementation->CurrentIterator].first;
     }
 }
 
