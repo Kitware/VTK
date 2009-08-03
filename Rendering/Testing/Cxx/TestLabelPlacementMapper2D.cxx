@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLabelPlacer2D.cxx
+  Module:    TestLabelPlacementMapper2D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,7 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLabeledDataMapper.h"
-#include "vtkLabelPlacer.h"
+#include "vtkLabelPlacementMapper.h"
 #include "vtkLabelSizeCalculator.h"
 #include "vtkMath.h"
 #include "vtkPoints.h"
@@ -2617,7 +2617,7 @@ static double vtkLabelPlacer2DTestPoints[] =
    0.573014, 0.641371, 0.527178, 0.274917, 0.52401, 0.0369476
 };
 
-int TestLabelPlacer2D( int argc, char* argv[] )
+int TestLabelPlacementMapper2D( int argc, char* argv[] )
 { 
   vtkIdType i;
 
@@ -2670,46 +2670,36 @@ int TestLabelPlacer2D( int argc, char* argv[] )
   polyData->GetPointData()->AddArray( labelText );
   polyData->GetPointData()->AddArray( priorities );
 
-  vtkLabelSizeCalculator* sizeCalc = vtkLabelSizeCalculator::New();
-  sizeCalc->SetInput( polyData );
-  sizeCalc->GetFontProperty()->SetFontSize( 12 );
-  sizeCalc->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
-  sizeCalc->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText" );
+  vtkSmartPointer<vtkTextProperty> tprop = vtkSmartPointer<vtkTextProperty>::New();
+  tprop->SetFontSize( 12 );
+  tprop->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
 
   vtkPointSetToLabelHierarchy* labelHierarchy = vtkPointSetToLabelHierarchy::New();
-  labelHierarchy->SetInputConnection( sizeCalc->GetOutputPort() );
-  labelHierarchy->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priorities" );
-  labelHierarchy->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize" );
-  labelHierarchy->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText" );
+  labelHierarchy->SetInput( polyData );
+  labelHierarchy->SetTextProperty( tprop );
+  labelHierarchy->SetPriorityArrayName( "Priorities" );
+  labelHierarchy->SetLabelArrayName( "LabelText" );
 
-  vtkLabelPlacer* labelPlacer = vtkLabelPlacer::New();
+  vtkLabelPlacementMapper* labelPlacer = vtkLabelPlacementMapper::New();
   labelPlacer->SetInputConnection( labelHierarchy->GetOutputPort() );
   labelPlacer->GeneratePerturbedLabelSpokesOn();
   labelPlacer->OutputTraversedBoundsOn();
-  labelPlacer->SetRenderer( rr );
 
   vtkActor2D* a1 = vtkActor2D::New();
   vtkActor* a2 = vtkActor::New();
   vtkActor* a3 = vtkActor::New();
-  vtkLabeledDataMapper* m1 = vtkLabeledDataMapper::New();
   vtkPolyDataMapper* m2 = vtkPolyDataMapper::New();
   vtkPolyDataMapper* m3 = vtkPolyDataMapper::New();
 
-  m1->SetInputConnection( labelPlacer->GetOutputPort( 0 ) );
-  m2->SetInputConnection( labelPlacer->GetOutputPort( 2 ) );
-  m3->SetInputConnection( labelPlacer->GetOutputPort( 3 ) );
-  a1->SetMapper( m1 );
-  a2->SetMapper( m2 );
-  a3->SetMapper( m3 );
-
-  m1->SetLabelTextProperty( sizeCalc->GetFontProperty() );
-  m1->SetFieldDataName( "LabelText" );
-  m1->SetLabelModeToLabelFieldData();
-  //m1->GetLabelTextProperty()->SetColor(0.0, 0.8, 0.2);
+  //m2->SetInputConnection( labelPlacer->GetOutputPort( 2 ) );
+  //m3->SetInputConnection( labelPlacer->GetOutputPort( 3 ) );
+  a1->SetMapper( labelPlacer );
+  //a2->SetMapper( m2 );
+  //a3->SetMapper( m3 );
 
   rr->AddActor( a1 );
-  rr->AddActor( a2 );
-  rr->AddActor( a3 );
+  //rr->AddActor( a2 );
+  //rr->AddActor( a3 );
   rw->AddRenderer( rr );
   rw->SetInteractor( ri );
 
@@ -2743,7 +2733,6 @@ int TestLabelPlacer2D( int argc, char* argv[] )
   polyData->Delete();
   labelText->Delete();
   priorities->Delete();
-  sizeCalc->Delete();
   labelHierarchy->Delete();
   labelPlacer->Delete();
   rr->Delete();
@@ -2752,7 +2741,6 @@ int TestLabelPlacer2D( int argc, char* argv[] )
   a1->Delete();
   a2->Delete();
   a3->Delete();
-  m1->Delete();
   m2->Delete();
   m3->Delete();
 

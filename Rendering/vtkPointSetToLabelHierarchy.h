@@ -32,6 +32,8 @@
 
 #include "vtkLabelHierarchyAlgorithm.h"
 
+class vtkTextProperty;
+
 class VTK_RENDERING_EXPORT vtkPointSetToLabelHierarchy : public vtkLabelHierarchyAlgorithm
 {
 public:
@@ -50,10 +52,40 @@ public:
   vtkGetMacro(MaximumDepth,int);
 
   // Description:
-  // Set whether, or not, to use unicode strings.
+  // Whether to use unicode strings.
   vtkSetMacro(UseUnicodeStrings,bool);
   vtkGetMacro(UseUnicodeStrings,bool);
   vtkBooleanMacro(UseUnicodeStrings,bool);
+
+  // Description:
+  // Set/get the label array name.
+  virtual void SetLabelArrayName(const char* name);
+  virtual const char* GetLabelArrayName();
+
+  // Description:
+  // Set/get the priority array name.
+  virtual void SetSizeArrayName(const char* name);
+  virtual const char* GetSizeArrayName();
+
+  // Description:
+  // Set/get the priority array name.
+  virtual void SetPriorityArrayName(const char* name);
+  virtual const char* GetPriorityArrayName();
+
+  // Description:
+  // Set/get the icon index array name.
+  virtual void SetIconIndexArrayName(const char* name);
+  virtual const char* GetIconIndexArrayName();
+
+  // Description:
+  // Set/get the text orientation array name.
+  virtual void SetOrientationArrayName(const char* name);
+  virtual const char* GetOrientationArrayName();
+
+  // Description:
+  // Set/get the text property assigned to the hierarchy.
+  virtual void SetTextProperty(vtkTextProperty* tprop);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
 
 protected:
   vtkPointSetToLabelHierarchy();
@@ -69,6 +101,7 @@ protected:
   int TargetLabelCount;
   int MaximumDepth;
   bool UseUnicodeStrings;
+  vtkTextProperty* TextProperty;
 
 private:
   vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ); // Not implemented.

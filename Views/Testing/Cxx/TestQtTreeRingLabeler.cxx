@@ -62,7 +62,7 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
   view->Update();
-  view->SetLabelPlacementModeToLabelPlacer();
+  view->SetLabelPlacementModeToNoOverlap();
   view->SetLabelRenderModeToQt();
   view->SetAreaColorArrayName("VertexDegree");
   //view->SetEdgeColorArrayName("tree edge");

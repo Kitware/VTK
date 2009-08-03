@@ -37,16 +37,11 @@
 class vtkAbstractTransform;
 class vtkActor2D;
 class vtkAlgorithmOutput;
-class vtkAppendPoints;
 class vtkArrayCalculator;
 class vtkBalloonRepresentation;
 class vtkDynamic2DLabelMapper;
-class vtkIconGlyphFilter;
 class vtkInteractorObserver;
-class vtkLabeledDataMapper;
-class vtkLabelPlacer;
-class vtkLabelSizeCalculator;
-class vtkPointSetToLabelHierarchy;
+class vtkLabelPlacementMapper;
 class vtkPolyDataMapper2D;
 class vtkRenderer;
 class vtkRenderWindow;
@@ -56,11 +51,6 @@ class vtkTextProperty;
 class vtkTexture;
 class vtkTexturedActor2D;
 class vtkTransformCoordinateSystems;
-
-#ifdef VTK_USE_QT
-class vtkQtLabelSizeCalculator;
-class vtkQtLabelMapper;
-#endif
 
 class VTK_VIEWS_EXPORT vtkRenderView : public vtkView
 {
@@ -107,6 +97,8 @@ public:
   virtual void SetInteractionModeTo3D()
     { this->SetInteractionMode(INTERACTION_MODE_3D); }
 
+  // Description:
+  // Applies a view theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
   // Description:
@@ -156,58 +148,42 @@ public:
   
   // Description:
   // Add labels from an input connection with an associated text
-  // property. The output must be a vtkDataSet with a string array named
-  // "LabelText" in the point data.
-  virtual void AddLabels(vtkAlgorithmOutput* conn, vtkTextProperty* prop);
+  // property. The output must be a vtkLabelHierarchy (normally the
+  // output of vtkPointSetToLabelHierarchy).
+  virtual void AddLabels(vtkAlgorithmOutput* conn);
 
   // Description:
   // Remove labels from an input connection.
   virtual void RemoveLabels(vtkAlgorithmOutput* conn);
 
   // Description:
-  // Add icons from an input connection. The connection must be a
-  // vtkDataSet with an integer array named "IconType" in the point data.
-  virtual void AddIcons(vtkAlgorithmOutput* conn);
-
-  // Description:
-  // Remove icons from an input connection.
-  virtual void RemoveIcons(vtkAlgorithmOutput* conn);
-
-  // Description:
   // Set the icon sheet to use for rendering icons.
   virtual void SetIconTexture(vtkTexture* texture);
-  virtual vtkTexture* GetIconTexture();
+  vtkGetObjectMacro(IconTexture, vtkTexture);
 
   // Description:
   // Set the size of each icon in the icon texture.
-  virtual void SetIconSize(int* size)
-    { this->SetIconSize(size[0], size[1]); }
-  virtual void SetIconSize(int x, int y);
-  virtual int* GetIconSize();
+  vtkSetVector2Macro(IconSize, int);
+  vtkGetVector2Macro(IconSize, int);
 
   //BTX
   enum
     {
-    DYNAMIC_2D,
-    LABEL_PLACER,
+    NO_OVERLAP,
     ALL
     };
   //ETX
 
   // Description:
   // Label placement mode.
-  // DYNAMIC_2D uses vtkDynamic2DLabelMapper, which has slower startup time,
-  // and only works in 2D, but may be more stable.
-  // LABEL_PLACER uses vtkLabelPlacer, which has a faster startup time and
+  // NO_OVERLAP uses vtkLabelPlacementMapper, which has a faster startup time and
   // works with 2D or 3D labels.
   // ALL displays all labels (Warning: This may cause incredibly slow render
   // times on datasets with more than a few hundred labels).
   virtual void SetLabelPlacementMode(int mode);
   virtual int GetLabelPlacementMode();
-  virtual void SetLabelPlacementModeToDynamic2D()
-    { this->SetLabelPlacementMode(DYNAMIC_2D); }
-  virtual void SetLabelPlacementModeToLabelPlacer()
-    { this->SetLabelPlacementMode(LABEL_PLACER); }
+  virtual void SetLabelPlacementModeToNoOverlap()
+    { this->SetLabelPlacementMode(NO_OVERLAP); }
   virtual void SetLabelPlacementModeToAll()
     { this->SetLabelPlacementMode(ALL); }
 
@@ -224,7 +200,7 @@ public:
   // FREETYPE uses the freetype label rendering.
   // QT uses more advanced Qt-based label rendering.
   virtual void SetLabelRenderMode(int mode);
-  vtkGetMacro(LabelRenderMode, int);
+  virtual int GetLabelRenderMode();
   virtual void SetLabelRenderModeToFreetype()
     { this->SetLabelRenderMode(FREETYPE); }
   virtual void SetLabelRenderModeToQt()
@@ -254,10 +230,6 @@ protected:
   // Called in PrepareForRendering to update the hover text.
   virtual void UpdateHoverText();
 
-  // Description:
-  // Setup the correct pipelines for the given render and placement modes.
-  void SetLabelPlacementAndRenderMode( int placement_mode, int render_mode );
-
   vtkRenderer* Renderer;
   vtkRenderWindow* RenderWindow;
   int SelectionMode;
@@ -266,30 +238,15 @@ protected:
   bool DisplayHoverText;
 
   vtkAbstractTransform* Transform;
+  vtkTexture* IconTexture;
+  int IconSize[2];
 
   //BTX
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
 
-  vtkSmartPointer<vtkAppendPoints>             LabelAppend;
-  vtkSmartPointer<vtkLabelSizeCalculator>      LabelSize;
-  vtkSmartPointer<vtkPointSetToLabelHierarchy> LabelHierarchy;
-  vtkSmartPointer<vtkLabelPlacer>              LabelPlacer;
-  vtkSmartPointer<vtkLabeledDataMapper>        LabelMapper;
+  vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
   vtkSmartPointer<vtkDynamic2DLabelMapper>     LabelMapper2D;
-#ifdef VTK_USE_QT
-  vtkSmartPointer<vtkQtLabelSizeCalculator>    QtLabelSize;
-  vtkSmartPointer<vtkPointSetToLabelHierarchy> QtLabelHierarchy;
-  vtkSmartPointer<vtkLabelPlacer>              QtLabelPlacer;
-  vtkSmartPointer<vtkQtLabelMapper>            QtLabelMapper;
-#endif
-
-  vtkSmartPointer<vtkAppendPoints>               IconAppend;
-  vtkSmartPointer<vtkArrayCalculator>            IconSize;
-  vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
-  vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
-  vtkSmartPointer<vtkPolyDataMapper2D>           IconMapper;
-  vtkSmartPointer<vtkTexturedActor2D>            IconActor;
   //ETX
 
 private:

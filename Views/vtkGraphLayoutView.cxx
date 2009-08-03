@@ -34,13 +34,12 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.65");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.66");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
 {
   this->SetInteractionModeTo2D();
-  this->SetLabelPlacementModeToDynamic2D();
   this->SetSelectionModeToFrustum();
   this->ReuseSingleRepresentationOn();
 }

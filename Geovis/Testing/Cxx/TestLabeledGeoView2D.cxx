@@ -77,7 +77,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   imageSource->Initialize();
   imageRep->SetSource(imageSource);
   view->AddRepresentation(imageRep);
-  view->SetLabelPlacementModeToLabelPlacer();
+  view->SetLabelPlacementModeToNoOverlap();
 
   vtkSmartPointer<vtkGeoRandomGraphSource> graphSource = 
     vtkSmartPointer<vtkGeoRandomGraphSource>::New();

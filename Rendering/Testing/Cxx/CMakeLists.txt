@@ -29,6 +29,9 @@ IF(VTK_USE_DISPLAY)
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx
     TestLabelPlacerCoincidentPoints.cxx
+    TestLabelPlacementMapper.cxx
+    TestLabelPlacementMapper2D.cxx
+    TestLabelPlacementMapperCoincidentPoints.cxx
     TestLightActor.cxx
     TestLODActor.cxx
     TestManyActors.cxx

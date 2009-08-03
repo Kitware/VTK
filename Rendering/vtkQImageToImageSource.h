@@ -35,7 +35,7 @@ public:
   // Description:
   // Set/Get QImage surface to be used.
   void SetQImage( QImage* image )
-      {this->QtImage = image;}
+      {this->QtImage = image; this->Modified();}
   const QImage* GetQImage(){return QtImage;}
 
 protected:

@@ -33,6 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkUnicodeString.h"
 #include "vtkUnicodeStringArray.h"
@@ -40,29 +41,88 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.10");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy, "1.11");
+vtkCxxSetObjectMacro(vtkPointSetToLabelHierarchy, TextProperty, vtkTextProperty);
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
   this->MaximumDepth = 5;
   this->TargetLabelCount = 32;
   this->UseUnicodeStrings = false;
-  this->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priority" );
-  this->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize" );
-  this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText" );
-  this->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID" );
+  this->TextProperty = vtkTextProperty::New();
+  this->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::POINT, "Priority" );
+  this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::POINT, "LabelSize" );
+  this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::POINT, "LabelText" );
+  this->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::POINT, "IconIndex" );
+  this->SetInputArrayToProcess( 4, 0, 0, vtkDataObject::POINT, "Orientation" );
 }
 
 vtkPointSetToLabelHierarchy::~vtkPointSetToLabelHierarchy()
 {
+  if (this->TextProperty)
+    {
+    this->TextProperty->Delete();
+    }
 }
 
-void vtkPointSetToLabelHierarchy::PrintSelf( ostream& os, vtkIndent indent )
+void vtkPointSetToLabelHierarchy::SetPriorityArrayName(const char* name)
 {
-  os << indent << "MaximumDepth: " << this->MaximumDepth << "\n";
-  os << indent << "TargetLabelCount: " << this->TargetLabelCount << "\n";
-  os << indent << "UseUnicodeStrings: " << (this->UseUnicodeStrings ? "ON" : "OFF") << endl; 
-  this->Superclass::PrintSelf( os, indent );
+  this->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::POINT, name );
+}
+
+const char* vtkPointSetToLabelHierarchy::GetPriorityArrayName()
+{
+  vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
+    GetInformationObject( 0 );
+  return info->Get( vtkDataObject::FIELD_NAME() );
+}
+
+void vtkPointSetToLabelHierarchy::SetSizeArrayName(const char* name)
+{
+  this->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::POINT, name );
+}
+
+const char* vtkPointSetToLabelHierarchy::GetSizeArrayName()
+{
+  vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
+    GetInformationObject( 1 );
+  return info->Get( vtkDataObject::FIELD_NAME() );
+}
+
+void vtkPointSetToLabelHierarchy::SetLabelArrayName(const char* name)
+{
+  this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::POINT, name );
+}
+
+const char* vtkPointSetToLabelHierarchy::GetLabelArrayName()
+{
+  vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
+    GetInformationObject( 2 );
+  return info->Get( vtkDataObject::FIELD_NAME() );
+}
+
+void vtkPointSetToLabelHierarchy::SetIconIndexArrayName(const char* name)
+{
+  this->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::POINT, name );
+}
+
+const char* vtkPointSetToLabelHierarchy::GetIconIndexArrayName()
+{
+  vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
+    GetInformationObject( 3 );
+  return info->Get( vtkDataObject::FIELD_NAME() );
+}
+
+void vtkPointSetToLabelHierarchy::SetOrientationArrayName(const char* name)
+{
+  this->SetInputArrayToProcess( 4, 0, 0, vtkDataObject::POINT, name );
+}
+
+const char* vtkPointSetToLabelHierarchy::GetOrientationArrayName()
+{
+  vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
+    GetInformationObject( 4 );
+  return info->Get( vtkDataObject::FIELD_NAME() );
 }
 
 int vtkPointSetToLabelHierarchy::FillInputPortInformation(
@@ -73,7 +133,6 @@ int vtkPointSetToLabelHierarchy::FillInputPortInformation(
     info->Remove( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE() );
     info->Append( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet" );
     info->Append( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph" );
-    info->Set( vtkAlgorithm::INPUT_IS_REPEATABLE(), 1 );
     }
   return 1;
 }
@@ -87,31 +146,22 @@ int vtkPointSetToLabelHierarchy::RequestData(
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   timer->StartTimer();
 
-  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
-  vtkstd::vector< vtkSmartPointer<vtkDataObject> > inData;
-  vtkIdType totalPoints = 0;
-  for ( int i = 0; i < numInputs; ++i )
+  vtkIdType numPoints = 0;
+  vtkInformation* inInfo  =  inputVector[0]->GetInformationObject( 0 );
+  vtkDataObject* inData = inInfo->Get( vtkDataObject::DATA_OBJECT() );
+
+  vtkGraph* graph = vtkGraph::SafeDownCast( inData );
+  if ( graph )
     {
-    vtkInformation* inInfo  =  inputVector[0]->GetInformationObject( i );
-    vtkDataObject* data = inInfo->Get( vtkDataObject::DATA_OBJECT() );
-    vtkDataObject* copy = 
-      vtkDataObjectTypes::NewDataObject( data->GetDataObjectType() );
-    copy->ShallowCopy(data);
-    inData.push_back( vtkSmartPointer<vtkDataObject>::New() );
-    inData[i].TakeReference(copy);
-
-    vtkGraph* graph = vtkGraph::SafeDownCast( inData[i] );
-    if ( graph )
-      {
-      totalPoints += graph->GetNumberOfVertices();
-      }
-
-    vtkPointSet* ptset = vtkPointSet::SafeDownCast( inData[i] );
-    if ( ptset )
-      {
-      totalPoints += ptset->GetNumberOfPoints();
-      }
+    numPoints = graph->GetNumberOfVertices();
     }
+
+  vtkPointSet* ptset = vtkPointSet::SafeDownCast( inData );
+  if ( ptset )
+    {
+    numPoints = ptset->GetNumberOfPoints();
+    }
+
   int maxDepth = this->MaximumDepth;
   //maxDepth = (int)ceil(log(1.0 + 7.0*totalPoints/this->TargetLabelCount) / log(8.0));
 
@@ -119,11 +169,6 @@ int vtkPointSetToLabelHierarchy::RequestData(
 
   vtkLabelHierarchy* ouData = vtkLabelHierarchy::SafeDownCast(
     outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-
-  if ( numInputs == 0 )
-    {
-    return 1;
-    }
 
   if ( ! ouData )
     {
@@ -134,159 +179,107 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->SetTargetLabelCount( this->TargetLabelCount );
   ouData->SetMaximumDepth( maxDepth );
 
-  vtkSmartPointer<vtkPoints> pts =
-    vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkDoubleArray> priorities =
-    vtkSmartPointer<vtkDoubleArray>::New();
-  priorities->SetName( "Priority" );
-  vtkSmartPointer<vtkDoubleArray> size =
-    vtkSmartPointer<vtkDoubleArray>::New();
-  size->SetName( "LabelSize" );
-  size->SetNumberOfComponents( 4 );
-  vtkSmartPointer<vtkIntArray> type =
-    vtkSmartPointer<vtkIntArray>::New();
-  type->SetName( "Type" );
-  vtkSmartPointer<vtkIntArray> idArr =
-    vtkSmartPointer<vtkIntArray>::New();
-  idArr->SetName( "ID" );
-  vtkSmartPointer<vtkIntArray> iconIndex =
-    vtkSmartPointer<vtkIntArray>::New();
-  iconIndex->SetName( "IconIndex" );
-  vtkSmartPointer<vtkStringArray> labelString =
-    vtkSmartPointer<vtkStringArray>::New();
-  labelString->SetName( "LabelText" );
-  vtkSmartPointer<vtkUnicodeStringArray> labelUString =
-    vtkSmartPointer<vtkUnicodeStringArray>::New();
-  labelUString->SetName( "LabelText" );
-
-  for ( int i = 0; i < numInputs; ++i )
+  if ( ! inData )
     {
-    if ( ! inData[i] )
-      {
-      vtkErrorMacro( "Null input data" );
-      return 0;
-      }
-
-    vtkPoints* curPts = 0;
-    vtkDataSetAttributes* pdata = 0;
-
-    vtkGraph* graph = vtkGraph::SafeDownCast( inData[i] );
-    if ( graph )
-      {
-      curPts = graph->GetPoints();
-      pdata = graph->GetVertexData();
-      //cout << "PS2LH graph " << graph << " points: " << curPts << "\n";
-      }
-
-    vtkPointSet* ptset = vtkPointSet::SafeDownCast( inData[i] );
-    if ( ptset )
-      {
-      curPts = ptset->GetPoints();
-      pdata = ptset->GetPointData();
-      //cout << "PS2LH point set " << ptset << " points: " << curPts << "\n";
-      }
-
-    vtkDataArray* curPriorities = vtkDataArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess( 4*i+0, inputVector ) );
-    vtkDataArray* curSize = vtkDataArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess( 4*i+1, inputVector ) );
-    vtkAbstractArray* curStringOrIndex =
-      this->GetInputAbstractArrayToProcess( 4*i+2, inputVector );
-    vtkIntArray* curId = vtkIntArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess( 4*i+3, inputVector ) );
-
-    if ( curPts && curSize )
-      {
-
-      // We need an indicator of whether the third input array
-      // is a label or index array. Currently, we will look for an
-      // array name of "IconIndex".
-      bool labels = true;
-      if ( !strcmp( curStringOrIndex->GetName(), "IconIndex" ) )
-        {
-        labels = false;
-        }
-
-      vtkstd::vector<double> sz;
-      int nc = curSize->GetNumberOfComponents();
-      sz.resize( nc > 4 ? nc : 4 );
-      for ( int c = nc; c < 4; ++ c )
-        sz[c] = 0;
-      for (int p = 0; p < curPts->GetNumberOfPoints(); ++p )
-        {
-        pts->InsertNextPoint( curPts->GetPoint(p) );
-        if ( curPriorities )
-          {
-          priorities->InsertNextValue( curPriorities->GetTuple1( p ) );
-          }
-        else
-          {
-          priorities->InsertNextValue( 1.0 );
-          }
-        curSize->GetTuple( p, &sz[0] );
-        size->InsertNextTuple( &sz[0] );
-        if ( curId )
-          {
-          idArr->InsertNextValue( curId->GetValue( p ) );
-          }
-        else
-          {
-          idArr->InsertNextValue( 0 );
-          }
-        if ( labels )
-          {
-          type->InsertNextValue( 0 );
-          iconIndex->InsertNextValue( 0 );
-          if( this->UseUnicodeStrings )
-            {
-            labelUString->InsertNextValue(
-              curStringOrIndex->GetVariantValue(p).ToUnicodeString() );
-            }
-          else
-            {
-            labelString->InsertNextValue(
-              curStringOrIndex->GetVariantValue(p).ToString() );
-            }
-          }
-        else // icons
-          {
-          type->InsertNextValue( 1 );
-          iconIndex->InsertNextValue(
-            curStringOrIndex->GetVariantValue(p).ToInt() );
-          if( this->UseUnicodeStrings )
-            {
-            labelUString->InsertNextValue( vtkUnicodeString::from_utf8( "" ) );
-            }
-          else
-            {
-            labelString->InsertNextValue( "" );
-            }
-          }
-        }
-      }
+    vtkErrorMacro( "Null input data" );
+    return 0;
     }
 
-  //ouData->GetPointData()->ShallowCopy( pdata );
+  vtkPoints* pts = 0;
+  vtkDataSetAttributes* pdata = 0;
+
+  if ( graph )
+    {
+    pts = graph->GetPoints();
+    pdata = graph->GetVertexData();
+    }
+
+  if ( ptset )
+    {
+    pts = ptset->GetPoints();
+    pdata = ptset->GetPointData();
+    }
+
+  vtkDataArray* priorities = vtkDataArray::SafeDownCast(
+    this->GetInputAbstractArrayToProcess( 0, inputVector ) );
+  vtkDataArray* sizes = vtkDataArray::SafeDownCast(
+    this->GetInputAbstractArrayToProcess( 1, inputVector ) );
+  vtkAbstractArray* labels =
+    this->GetInputAbstractArrayToProcess( 2, inputVector );
+  vtkIntArray* iconIndices = vtkIntArray::SafeDownCast(
+    this->GetInputAbstractArrayToProcess( 3, inputVector ) );
+  vtkDataArray* orientations = vtkDataArray::SafeDownCast(
+    this->GetInputAbstractArrayToProcess( 4, inputVector ) );
+
   if ( ! ouData->GetPoints() )
     {
     vtkPoints* oupts = vtkPoints::New();
     ouData->SetPoints( oupts );
     oupts->FastDelete();
     }
-  ouData->GetPoints()->ShallowCopy( pts );
-  ouData->SetPriorities( priorities );
-  ouData->GetPointData()->AddArray( size );
+  if ( pts )
+    {
+    ouData->GetPoints()->ShallowCopy( pts );
+    }
+  ouData->GetPointData()->ShallowCopy( pdata );
+  vtkSmartPointer<vtkIntArray> type = vtkSmartPointer<vtkIntArray>::New();
+  type->SetName( "Type" );
+  type->SetNumberOfTuples( numPoints );
+  type->FillComponent( 0, 0 );
   ouData->GetPointData()->AddArray( type );
-  ouData->GetPointData()->AddArray( iconIndex );
-  if( this->UseUnicodeStrings )
+  ouData->SetPriorities( priorities );
+  if ( labels )
     {
-    ouData->GetPointData()->AddArray( labelUString );
+    if ( ( this->UseUnicodeStrings && vtkUnicodeStringArray::SafeDownCast( labels ) ) ||
+         ( !this->UseUnicodeStrings && vtkStringArray::SafeDownCast( labels ) ) )
+      {
+      ouData->SetLabels( labels );
+      }
+    else if ( this->UseUnicodeStrings )
+      {
+      vtkSmartPointer<vtkUnicodeStringArray> arr =
+        vtkSmartPointer<vtkUnicodeStringArray>::New();
+      vtkIdType numComps = labels->GetNumberOfComponents();
+      vtkIdType numTuples = labels->GetNumberOfTuples();
+      arr->SetNumberOfComponents( numComps );
+      arr->SetNumberOfTuples( numTuples );
+      for (vtkIdType i = 0; i < numTuples; ++i )
+        {
+        for (vtkIdType j = 0; j < numComps; ++j )
+          {
+          vtkIdType ind = i*numComps + j;
+          arr->SetValue( ind, labels->GetVariantValue(ind).ToUnicodeString() );
+          }
+        }
+      arr->SetName( labels->GetName() );
+      ouData->GetPointData()->AddArray( arr );
+      ouData->SetLabels( arr );
+      }
+    else
+      {
+      vtkSmartPointer<vtkStringArray> arr =
+        vtkSmartPointer<vtkStringArray>::New();
+      vtkIdType numComps = labels->GetNumberOfComponents();
+      vtkIdType numTuples = labels->GetNumberOfTuples();
+      arr->SetNumberOfComponents( numComps );
+      arr->SetNumberOfTuples( numTuples );
+      for (vtkIdType i = 0; i < numTuples; ++i )
+        {
+        for (vtkIdType j = 0; j < numComps; ++j )
+          {
+          vtkIdType ind = i*numComps + j;
+          arr->SetValue( ind, labels->GetVariantValue(ind).ToString() );
+          }
+        }
+      arr->SetName( labels->GetName() );
+      ouData->GetPointData()->AddArray( arr );
+      ouData->SetLabels( arr );
+      }
     }
-  else
-    {
-    ouData->GetPointData()->AddArray( labelString );
-    }
-  ouData->GetPointData()->AddArray( idArr );
+  ouData->SetIconIndices( iconIndices );
+  ouData->SetOrientations( orientations );
+  ouData->SetSizes( sizes );
+  ouData->SetTextProperty( this->TextProperty );
   ouData->ComputeHierarchy();
 
   timer->StopTimer();
@@ -295,3 +288,11 @@ int vtkPointSetToLabelHierarchy::RequestData(
   return 1;
 }
 
+void vtkPointSetToLabelHierarchy::PrintSelf( ostream& os, vtkIndent indent )
+{
+  os << indent << "MaximumDepth: " << this->MaximumDepth << "\n";
+  os << indent << "TargetLabelCount: " << this->TargetLabelCount << "\n";
+  os << indent << "UseUnicodeStrings: " << this->UseUnicodeStrings << "\n";
+  os << indent << "TextProperty: " << this->TextProperty << "\n";
+  this->Superclass::PrintSelf( os, indent );
+}

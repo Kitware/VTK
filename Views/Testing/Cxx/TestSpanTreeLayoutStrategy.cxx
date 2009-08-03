@@ -57,7 +57,7 @@ int TestSpanTreeLayoutStrategy(int argc, char* argv[])
   view->GetRenderWindow()->SetSize( 600, 600 );
   view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetInteractionModeTo3D();
-  view->SetLabelPlacementModeToLabelPlacer();
+  view->SetLabelPlacementModeToNoOverlap();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )

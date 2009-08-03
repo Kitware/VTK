@@ -23,24 +23,20 @@
 #include "vtkActor2D.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAppendPoints.h"
-#include "vtkArrayCalculator.h"
 #include "vtkBalloonRepresentation.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDoubleArray.h"
 #include "vtkDynamic2DLabelMapper.h"
+#include "vtkFreeTypeLabelRenderStrategy.h"
 #include "vtkHardwareSelector.h"
-#include "vtkIconGlyphFilter.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkInteractorStyleRubberBand3D.h"
-#include "vtkLabeledDataMapper.h"
-#include "vtkLabelPlacer.h"
-#include "vtkLabelSizeCalculator.h"
+#include "vtkLabelPlacementMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointSetToLabelHierarchy.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRenderedRepresentation.h"
 #include "vtkRenderer.h"
@@ -57,13 +53,13 @@
 #include "vtkViewTheme.h"
 
 #ifdef VTK_USE_QT
-#include "vtkQtLabelSizeCalculator.h"
-#include "vtkQtLabelMapper.h"
+#include "vtkQtLabelRenderStrategy.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.23");
+vtkCxxRevisionMacro(vtkRenderView, "1.24");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
+vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
 
 vtkRenderView::vtkRenderView()
 {
@@ -73,6 +69,10 @@ vtkRenderView::vtkRenderView()
   t->Identity();
   this->Transform = t;
   this->DisplayHoverText = true;
+
+  this->IconTexture = 0;
+  this->IconSize[0] = 16;
+  this->IconSize[1] = 16;
 
   this->RenderWindow->AddRenderer(this->Renderer);
 
@@ -93,27 +93,11 @@ vtkRenderView::vtkRenderView()
 
   this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
 
-  this->LabelAppend = vtkSmartPointer<vtkAppendPoints>::New();
-  this->LabelSize = vtkSmartPointer<vtkLabelSizeCalculator>::New();
-  this->LabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-  this->LabelPlacer = vtkSmartPointer<vtkLabelPlacer>::New();
-  this->LabelMapper = vtkSmartPointer<vtkLabeledDataMapper>::New();
+  this->LabelPlacementMapper = vtkSmartPointer<vtkLabelPlacementMapper>::New();
   this->LabelMapper2D = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
   this->LabelActor = vtkSmartPointer<vtkTexturedActor2D>::New();
 
-  this->IconAppend = vtkSmartPointer<vtkAppendPoints>::New();
-  this->IconSize = vtkSmartPointer<vtkArrayCalculator>::New();
-  this->IconGlyph = vtkSmartPointer<vtkIconGlyphFilter>::New();
-  this->IconTransform = vtkSmartPointer<vtkTransformCoordinateSystems>::New();
-  this->IconMapper = vtkSmartPointer<vtkPolyDataMapper2D>::New();
-  this->IconActor = vtkSmartPointer<vtkTexturedActor2D>::New();
-
-  this->LabelSize->SetInputConnection(this->LabelAppend->GetOutputPort());
-  this->LabelHierarchy->AddInputConnection(0, this->LabelSize->GetOutputPort());
-  this->LabelPlacer->SetInputConnection(this->LabelHierarchy->GetOutputPort());
-  this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
-  this->LabelMapper2D->SetInputConnection(this->LabelAppend->GetOutputPort());
-  this->LabelActor->SetMapper(this->LabelMapper);
+  this->LabelActor->SetMapper(this->LabelPlacementMapper);
 
   this->Balloon->SetBalloonText("");
   this->Balloon->SetOffset(1, 1);
@@ -122,107 +106,21 @@ vtkRenderView::vtkRenderView()
   this->Balloon->VisibilityOn();
 
   this->SelectionMode = SURFACE;
-  this->LabelAppend->SetInputIdArrayName("ID");
-  this->LabelSize->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
-  this->LabelSize->SetInputArrayToProcess(
-    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-  this->LabelSize->SetLabelSizeArrayName("LabelSize");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priority");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-  this->LabelPlacer->SetRenderer(this->Renderer);
-  this->LabelMapper->SetLabelMode(VTK_LABEL_FIELD_DATA);
-  this->LabelMapper->SetFieldDataName("LabelText");
-  this->LabelMapper->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
   this->LabelMapper2D->SetLabelMode(VTK_LABEL_FIELD_DATA);
   this->LabelMapper2D->SetFieldDataName("LabelText");
   this->LabelMapper2D->SetPriorityArrayName("Priority");
-  this->LabelMapper2D->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-
-#ifdef VTK_USE_QT
-  this->QtLabelSize = vtkSmartPointer<vtkQtLabelSizeCalculator>::New();
-  this->QtLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-  this->QtLabelPlacer = vtkSmartPointer<vtkLabelPlacer>::New();
-  this->QtLabelMapper = vtkSmartPointer<vtkQtLabelMapper>::New();
-
-  this->QtLabelSize->SetInputConnection(this->LabelAppend->GetOutputPort());
-  this->QtLabelHierarchy->AddInputConnection(0, this->QtLabelSize->GetOutputPort());
-  this->QtLabelPlacer->SetInputConnection(this->QtLabelHierarchy->GetOutputPort());
-  this->QtLabelMapper->SetInputConnection(this->QtLabelPlacer->GetOutputPort(0));
-
-  this->QtLabelSize->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
-  this->QtLabelSize->SetInputArrayToProcess(
-    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-  this->QtLabelSize->SetLabelSizeArrayName("LabelSize");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Priority");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelSize");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-  this->QtLabelPlacer->SetRenderer(this->Renderer);
-
-  this->QtLabelHierarchy->SetUseUnicodeStrings( true );
-  this->QtLabelPlacer->SetUseUnicodeStrings( true );
-
-  this->QtLabelMapper->SetLabelMode(VTK_LABEL_FIELD_DATA);
-  this->QtLabelMapper->SetFieldDataName("LabelText");
-  this->QtLabelMapper->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-
-  this->QtLabelHierarchy->AddInputConnection(0, this->IconSize->GetOutputPort());
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    4, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    5, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconSize");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    6, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
-  this->QtLabelHierarchy->SetInputArrayToProcess(
-    7, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-#endif
+  this->LabelMapper2D->SetInputArrayToProcess(0, 0, 0, vtkDataObject::POINT, "ID");
 
   this->LabelActor->PickableOff();
   this->Renderer->AddActor(this->LabelActor);
 
-  this->IconSize->SetInputConnection(this->IconAppend->GetOutputPort());
-  this->LabelHierarchy->AddInputConnection(0, this->IconSize->GetOutputPort());
-  this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
-  this->IconGlyph->SetInputConnection(this->IconTransform->GetOutputPort());
-  this->IconMapper->SetInputConnection(this->IconGlyph->GetOutputPort());
-  this->IconActor->SetMapper(this->IconMapper);
-
-  this->IconAppend->SetInputIdArrayName("ID");
-  this->IconSize->SetFunction("iHat + jHat");
-  this->IconSize->SetResultArrayName("IconSize");
-  this->IconSize->SetResultArrayType(VTK_INT);
-  this->LabelHierarchy->SetInputArrayToProcess(
-    4, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    5, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconSize");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    6, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
-  this->LabelHierarchy->SetInputArrayToProcess(
-    7, 0, 1, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ID");
-  this->IconTransform->SetInputCoordinateSystemToWorld();
-  this->IconTransform->SetOutputCoordinateSystemToDisplay();
-  this->IconTransform->SetViewport(this->Renderer);
-  this->IconGlyph->SetUseIconSize(true);
-  this->IconGlyph->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "IconIndex");
-  this->IconMapper->ScalarVisibilityOff();
-  this->IconActor->PickableOff();
-  this->Renderer->AddActor(this->IconActor);
+#if 0
+  this->LabelPlacementMapper->SetShapeToRoundedRect();
+  this->LabelPlacementMapper->SetStyleToOutline();
+  this->LabelPlacementMapper->SetMargin(10.0);
+  this->LabelPlacementMapper->SetBackgroundColor(0.0, 0.0, 0.1);
+  this->LabelPlacementMapper->SetBackgroundOpacity(0.6);
+#endif
 
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -243,6 +141,10 @@ vtkRenderView::~vtkRenderView()
   if (this->Transform)
     {
     this->Transform->Delete();
+    }
+  if (this->IconTexture)
+    {
+    this->IconTexture->Delete();
     }
 }
 
@@ -363,77 +265,14 @@ vtkInteractorObserver* vtkRenderView::GetInteractorStyle()
   return this->GetInteractor()->GetInteractorStyle();
 }
 
-void vtkRenderView::SetIconTexture(vtkTexture* texture)
+void vtkRenderView::AddLabels(vtkAlgorithmOutput* conn)
 {
-  this->IconActor->SetTexture(texture);
-}
-
-vtkTexture* vtkRenderView::GetIconTexture()
-{
-  return this->IconActor->GetTexture();
-}
-
-void vtkRenderView::SetIconSize(int x, int y)
-{
-  this->IconGlyph->SetIconSize(x, y);
-  vtkstd::string func = vtkVariant(x).ToString() + "*iHat + " +
-                        vtkVariant(y).ToString() + "*jHat";
-  this->IconSize->SetFunction(func.c_str());
-}
-
-int* vtkRenderView::GetIconSize()
-{
-  return this->IconGlyph->GetIconSize();
-}
-
-void vtkRenderView::AddLabels(vtkAlgorithmOutput* conn, vtkTextProperty* prop)
-{
-  this->LabelAppend->AddInputConnection(0, conn);
-  int id = this->LabelAppend->GetNumberOfInputConnections(0) - 1;
-  this->LabelSize->SetFontProperty(prop, id);
-  this->LabelMapper->SetLabelTextProperty(prop, id);
-  this->LabelMapper2D->SetLabelTextProperty(prop, id);
-#ifdef VTK_USE_QT
-  this->QtLabelSize->SetFontProperty(prop, id);
-  this->QtLabelMapper->SetLabelTextProperty(prop, id);
-#endif
+  this->LabelPlacementMapper->AddInputConnection(0, conn);
 }
 
 void vtkRenderView::RemoveLabels(vtkAlgorithmOutput* conn)
 {
-  int numConn = this->LabelAppend->GetNumberOfInputConnections(0);
-  int index = conn->GetIndex();
-  if (this->LabelAppend->GetInputConnection(0, index) == conn)
-    {
-    this->LabelAppend->RemoveInputConnection(0, conn);
-    int updatedNum = this->LabelAppend->GetNumberOfInputConnections(0);
-    if (updatedNum != numConn - 1)
-      {
-      vtkErrorMacro("Labels must have been added more than once!");
-      return;
-      }
-    for (int i = index; i < updatedNum; ++i)
-      {
-      vtkTextProperty* prop = this->LabelSize->GetFontProperty(i+1);
-      this->LabelSize->SetFontProperty(prop, i);
-      this->LabelMapper->SetLabelTextProperty(prop, i);
-      this->LabelMapper2D->SetLabelTextProperty(prop, i);
-#ifdef VTK_USE_QT
-      this->QtLabelSize->SetFontProperty(prop, i);
-      this->QtLabelMapper->SetLabelTextProperty(prop, i);
-#endif
-      }
-    }
-}
-
-void vtkRenderView::AddIcons(vtkAlgorithmOutput* conn)
-{
-  this->IconAppend->AddInputConnection(0, conn);
-}
-
-void vtkRenderView::RemoveIcons(vtkAlgorithmOutput* conn)
-{
-  this->IconAppend->RemoveInputConnection(0, conn);
+  this->LabelPlacementMapper->RemoveInputConnection(0, conn);
 }
 
 void vtkRenderView::ProcessEvents(
@@ -606,14 +445,6 @@ void vtkRenderView::SetDisplayHoverText(bool b)
 void vtkRenderView::PrepareForRendering()
 {
   this->Update();
-  if (this->IconActor->GetTexture() &&
-      this->IconActor->GetTexture()->GetInput())
-    {
-    this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
-    this->IconActor->GetTexture()->GetInput()->Update();
-    int* dim = this->IconActor->GetTexture()->GetInput()->GetDimensions();
-    this->IconGlyph->SetIconSheetSize(dim);
-    }
 
   if (this->GetDisplayHoverText())
     {
@@ -684,22 +515,26 @@ void vtkRenderView::ApplyViewTheme(vtkViewTheme* theme)
 
 void vtkRenderView::SetLabelPlacementMode(int mode)
 {
-  this->SetLabelPlacementAndRenderMode(mode, this->GetLabelRenderMode());
+  this->LabelPlacementMapper->SetPlaceAllLabels(mode == ALL);
 }
 
-void vtkRenderView::SetLabelRenderMode(int mode)
+int vtkRenderView::GetLabelPlacementMode()
 {
-  this->SetLabelPlacementAndRenderMode(this->GetLabelPlacementMode(), mode);
+  return this->LabelPlacementMapper->GetPlaceAllLabels() ? ALL : NO_OVERLAP;
 }
 
-void vtkRenderView::SetLabelPlacementAndRenderMode( int placement_mode, int render_mode )
+int vtkRenderView::GetLabelRenderMode()
+{
+  return vtkFreeTypeLabelRenderStrategy::SafeDownCast(
+    this->LabelPlacementMapper->GetRenderStrategy()) ? FREETYPE : QT;
+}
+
+void vtkRenderView::SetLabelRenderMode(int render_mode)
 {
   //First, make sure the render mode is set on all the representations.
   // TODO: Setup global labeller render mode
-  if( render_mode != this->LabelRenderMode )
+  if(render_mode != this->GetLabelRenderMode())
     {
-    this->LabelRenderMode = render_mode;
-    
     // Set label render mode of all representations.
     for (int r = 0; r < this->GetNumberOfRepresentations(); ++r)
       {
@@ -712,103 +547,28 @@ void vtkRenderView::SetLabelPlacementAndRenderMode( int placement_mode, int rend
       }
     }
 
-  //Now, setup the pipeline for the various permutations of placement mode 
-  // and render modes...
-  switch( this->LabelRenderMode )
+  switch(render_mode)
     {
     case QT:
-      if (placement_mode == LABEL_PLACER)
-        {
+      {
 #ifdef VTK_USE_QT
-        this->LabelActor->SetMapper(this->QtLabelMapper);
-        this->QtLabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
-        this->QtLabelMapper->SetInputConnection(this->QtLabelPlacer->GetOutputPort(0));
-        this->IconTransform->SetInputConnection(this->QtLabelPlacer->GetOutputPort(1));
+      vtkSmartPointer<vtkQtLabelRenderStrategy> qts =
+        vtkSmartPointer<vtkQtLabelRenderStrategy>::New();
+      this->LabelPlacementMapper->SetRenderStrategy(qts);
 #else
       vtkErrorMacro("Qt label rendering not supported.");
 #endif
-        }
-      else if (placement_mode == DYNAMIC_2D)
-        {
-#ifdef VTK_USE_QT
-//FIXME - Qt label rendering doesn't have a dynamic2D label mapper; so,
-//  use freetype dynamic labeling with an error...
-        vtkWarningMacro("Qt-based label rendering is not available with dynamic 2D label placement.  Using label placer.\n");
-        this->QtLabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
-        this->LabelActor->SetMapper(this->QtLabelMapper);
-        this->QtLabelMapper->SetInputConnection(this->QtLabelPlacer->GetOutputPort(0));
-        this->IconTransform->SetInputConnection(this->QtLabelPlacer->GetOutputPort(1));
-
-#else
-     vtkErrorMacro("Qt label rendering not supported.");
-#endif
-        }
-      else
-        {
-#ifdef VTK_USE_QT
-        this->LabelActor->SetMapper(this->QtLabelMapper);
-        this->QtLabelPlacer->SetOutputCoordinateSystem( vtkLabelPlacer::DISPLAY );
-        this->QtLabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
-        this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
-
-#else
-      vtkErrorMacro("Qt label rendering not supported.");
-#endif
-        }
       break;
+      }
     default:
-      /*
-        <graphviz>
-        // If labeller is LABEL_PLACER:
-        digraph {
-        LabelAppend -> LabelSize -> LabelHierarchy
-        LabelHierarchy -> LabelPlacer
-        LabelPlacer -> LabelMapper -> LabelActor
-        IconAppend -> IconSize -> LabelHierarchy
-        LabelPlacer -> IconTransform -> IconGlyph -> IconMapper -> IconActor
-        }
-        // If labeller is DYNAMIC_2D:
-        digraph {
-        LabelAppend -> LabelMapper2D -> LabelActor
-        IconAppend -> IconSize -> IconTransform -> IconGlyph -> IconMapper -> IconActor
-        }
-        // If labeller is ALL:
-        digraph {
-        LabelAppend -> LabelMapper -> LabelActor
-        IconAppend -> IconSize -> IconTransform -> IconGlyph -> IconMapper -> IconActor
-        }
-        </graphviz>
-      */
-      if (placement_mode == LABEL_PLACER)
-        {
-        this->LabelActor->SetMapper(this->LabelMapper);
-        this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort(0));
-        this->IconTransform->SetInputConnection(this->LabelPlacer->GetOutputPort(1));
-        }
-      else if (placement_mode == DYNAMIC_2D)
-        {
-        this->LabelActor->SetMapper(this->LabelMapper2D);
-        this->LabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
-        this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
-        }
-      else
-        {
-        this->LabelActor->SetMapper(this->LabelMapper);
-        this->LabelMapper->SetInputConnection(this->LabelAppend->GetOutputPort());
-        this->IconTransform->SetInputConnection(this->IconSize->GetOutputPort());
-        }
+      {
+      vtkSmartPointer<vtkFreeTypeLabelRenderStrategy> fts =
+        vtkSmartPointer<vtkFreeTypeLabelRenderStrategy>::New();
+      this->LabelPlacementMapper->SetRenderStrategy(fts);
+      }
     }
 }
   
-int vtkRenderView::GetLabelPlacementMode()
-{
-  if (this->LabelActor->GetMapper() == this->LabelMapper2D.GetPointer())
-    {
-    return DYNAMIC_2D;
-    }
-  return LABEL_PLACER;
-}
-
 void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -846,4 +606,15 @@ void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
   os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
+  os << indent << "IconTexture: ";
+  if (this->IconTexture)
+    {
+    os << "\n";
+    this->IconTexture->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "IconSize: " << this->IconSize[0] << "," << this->IconSize[1] << endl;
 }

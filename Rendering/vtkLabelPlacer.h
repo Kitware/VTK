@@ -20,6 +20,9 @@
 // .NAME vtkLabelPlacer - place a prioritized hierarchy of labels in screen space
 //
 // .SECTION Description
+// <b>This class is deprecated and will be removed from VTK in a future
+// release. Use vtkLabelPlacementMapper instead.</b>
+//
 // This should probably be a mapper unto itself (given that
 // the polydata output could be large and will realistically
 // always be iterated over exactly once before being tossed

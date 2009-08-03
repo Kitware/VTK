@@ -26,7 +26,7 @@
 // determines its priority; those at higher levels of the tree will be
 // more likely to render than those at lower levels of the tree.
 //
-// Pass vtkLabelHierarchy objects to a vtkLabelPlacer filter for dynamic,
+// Pass vtkLabelHierarchy objects to a vtkLabelPlacementMapper filter for dynamic,
 // non-overlapping, per-frame placement of labels.
 //
 // Note that if we have a d-dimensional binary tree and we want a fixed
@@ -60,13 +60,16 @@
 
 #include "vtkPointSet.h"
 
+class vtkAbstractArray;
 class vtkCamera;
 class vtkCoincidentPoints;
 class vtkDataArray;
+class vtkIntArray;
 class vtkLabelHierarchyIterator;
 class vtkPoints;
 class vtkPolyData;
 class vtkRenderer;
+class vtkTextProperty;
 
 class VTK_RENDERING_EXPORT vtkLabelHierarchy : public vtkPointSet
 {
@@ -106,9 +109,34 @@ public:
   //ETX
 
   // Description:
+  // The default text property assigned to labels in this hierarchy.
+  virtual void SetTextProperty(vtkTextProperty* tprop);
+  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+
+  // Description:
   // Set/get the array specifying the importance (priority) of each label.
   virtual void SetPriorities(vtkDataArray* arr);
   vtkGetObjectMacro(Priorities,vtkDataArray);
+
+  // Description:
+  // Set/get the array specifying the text of each label.
+  virtual void SetLabels(vtkAbstractArray* arr);
+  vtkGetObjectMacro(Labels,vtkAbstractArray);
+
+  // Description:
+  // Set/get the array specifying the orientation of each label.
+  virtual void SetOrientations(vtkDataArray* arr);
+  vtkGetObjectMacro(Orientations,vtkDataArray);
+
+  // Description:
+  // Set/get the array specifying the icon index of each label.
+  virtual void SetIconIndices(vtkIntArray* arr);
+  vtkGetObjectMacro(IconIndices,vtkIntArray);
+
+  // Description:
+  // Set/get the array specifying the size of each label.
+  virtual void SetSizes(vtkDataArray* arr);
+  vtkGetObjectMacro(Sizes,vtkDataArray);
 
   //BTX
   // Description:
@@ -181,8 +209,13 @@ protected:
   int TargetLabelCount;
   int MaximumDepth;
   vtkDataArray* Priorities;
+  vtkAbstractArray* Labels;
+  vtkDataArray* Orientations;
+  vtkIntArray* IconIndices;
+  vtkDataArray* Sizes;
   vtkCoincidentPoints* CoincidentPoints;
   vtkPoints* CenterPts;
+  vtkTextProperty* TextProperty;
 
   //BTX
   Implementation* Impl;

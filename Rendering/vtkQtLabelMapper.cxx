@@ -24,7 +24,6 @@
 #include "vtkExecutive.h"
 #include "vtkImageData.h"
 #include "vtkLabelHierarchy.h"
-#include "vtkLabelPlacer.h"
 #include "vtkObjectFactory.h"
 #include "vtkQtLabelSizeCalculator.h"
 #include "vtkQtLabelSurface.h"
@@ -40,7 +39,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtLabelMapper, "1.3");
+vtkCxxRevisionMacro(vtkQtLabelMapper, "1.4");
 vtkStandardNewMacro(vtkQtLabelMapper);
 
 //----------------------------------------------------------------------------

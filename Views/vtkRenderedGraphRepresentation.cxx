@@ -55,6 +55,7 @@
 #include "vtkPassThroughEdgeStrategy.h"
 #include "vtkPassThroughLayoutStrategy.h"
 #include "vtkPerturbCoincidentVertices.h"
+#include "vtkPointSetToLabelHierarchy.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
@@ -94,7 +95,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.25");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.26");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -104,16 +105,8 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->EmptyPolyData       = vtkSmartPointer<vtkPolyData>::New();
   this->EdgeCenters         = vtkSmartPointer<vtkEdgeCenters>::New();
   this->GraphToPoints       = vtkSmartPointer<vtkGraphToPoints>::New();
-  this->VertexLabels        = vtkSmartPointer<vtkArrayMap>::New();
-  this->EdgeLabels          = vtkSmartPointer<vtkArrayMap>::New();
-  this->VertexLabelPriority = vtkSmartPointer<vtkArrayMap>::New();
-  this->EdgeLabelPriority   = vtkSmartPointer<vtkArrayMap>::New();
-  this->VertexTextProperty  = vtkSmartPointer<vtkTextProperty>::New();
-  this->EdgeTextProperty    = vtkSmartPointer<vtkTextProperty>::New();
-  this->VertexIcons         = vtkSmartPointer<vtkArrayMap>::New();
-  this->EdgeIcons           = vtkSmartPointer<vtkArrayMap>::New();
-  this->VertexIconPriority  = vtkSmartPointer<vtkArrayMap>::New();
-  this->EdgeIconPriority    = vtkSmartPointer<vtkArrayMap>::New();
+  this->VertexLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
+  this->EdgeLabelHierarchy  = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
   this->Layout              = vtkSmartPointer<vtkGraphLayout>::New();
   this->Coincident          = vtkSmartPointer<vtkPerturbCoincidentVertices>::New();
   this->EdgeLayout          = vtkSmartPointer<vtkEdgeLayout>::New();
@@ -152,11 +145,11 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
      Coincident -> OutlineGlyph -> OutlineMapper -> OutlineActor
      
      VertexDegree -> GraphToPoints
-     GraphToPoints -> VertexLabels -> VertexLabelPriority -> "vtkRenderView Labels"
+     GraphToPoints -> VertexLabelHierarchy -> "vtkRenderView Labels"
      GraphToPoints -> VertexIcons -> VertexIconPriority -> "vtkRenderView Icons"
      ApplyVertexIcons -> VertexIconPoints -> VertexIconTransform -> VertexIconGlyphFilter -> VertexIconMapper -> VertexIconActor
      VertexDegree -> EdgeCenters
-     EdgeCenters -> EdgeLabels -> EdgeLabelPriority -> "vtkRenderView Labels"
+     EdgeCenters -> EdgeLabelHierarchy -> "vtkRenderView Labels"
      EdgeCenters -> EdgeIcons -> EdgeIconPriority -> "vtkRenderView Icons"
    }
    </graphviz>
@@ -198,14 +191,8 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
 
   this->GraphToPoints->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->EdgeCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
-  this->VertexLabels->SetInput(this->EmptyPolyData);
-  this->EdgeLabels->SetInput(this->EmptyPolyData);
-  this->VertexIcons->SetInput(this->EmptyPolyData);
-  this->EdgeIcons->SetInput(this->EmptyPolyData);
-  this->VertexLabelPriority->SetInputConnection(this->VertexLabels->GetOutputPort());
-  this->EdgeLabelPriority->SetInputConnection(this->EdgeLabels->GetOutputPort());
-  this->VertexIconPriority->SetInputConnection(this->VertexIcons->GetOutputPort());
-  this->EdgeIconPriority->SetInputConnection(this->EdgeIcons->GetOutputPort());
+  this->EdgeLabelHierarchy->SetInput(this->EmptyPolyData);
+  this->VertexLabelHierarchy->SetInput(this->EmptyPolyData);
 
   // Set default parameters
   vtkSmartPointer<vtkDirectedGraph> g =
@@ -243,47 +230,15 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->EdgeMapper->SetScalarVisibility(true);
   this->EdgeActor->SetPosition(0, 0, -0.003);
 
-  this->VertexTextProperty->BoldOn();
-  this->VertexTextProperty->SetJustificationToCentered();
-  this->VertexTextProperty->SetVerticalJustificationToCentered();
-  this->VertexTextProperty->SetFontSize(12);
-  this->EdgeTextProperty->BoldOn();
-  this->EdgeTextProperty->SetJustificationToCentered();
-  this->EdgeTextProperty->SetVerticalJustificationToCentered();
-  this->EdgeTextProperty->SetFontSize(10);
+  this->GetVertexLabelTextProperty()->BoldOn();
+  this->GetVertexLabelTextProperty()->SetJustificationToCentered();
+  this->GetVertexLabelTextProperty()->SetVerticalJustificationToCentered();
+  this->GetVertexLabelTextProperty()->SetFontSize(12);
+  this->GetEdgeLabelTextProperty()->BoldOn();
+  this->GetEdgeLabelTextProperty()->SetJustificationToCentered();
+  this->GetEdgeLabelTextProperty()->SetVerticalJustificationToCentered();
+  this->GetEdgeLabelTextProperty()->SetFontSize(10);
 
-  this->VertexIcons->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->VertexIcons->SetOutputArrayType(VTK_INT);
-  this->VertexIcons->SetOutputArrayName("IconIndex");
-  this->VertexIcons->PassArrayOff();
-  this->VertexIconPriority->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->VertexIconPriority->SetOutputArrayType(VTK_DOUBLE);
-  this->VertexIconPriority->SetOutputArrayName("Priority");
-  this->VertexIconPriority->PassArrayOn();
-  this->EdgeIcons->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->EdgeIcons->SetOutputArrayType(VTK_INT);
-  this->EdgeIcons->SetOutputArrayName("IconIndex");
-  this->EdgeIcons->PassArrayOff();
-  this->EdgeIconPriority->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->EdgeIconPriority->SetOutputArrayType(VTK_DOUBLE);
-  this->EdgeIconPriority->SetOutputArrayName("Priority");
-  this->EdgeIconPriority->PassArrayOn();
-  this->VertexLabels->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->VertexLabels->SetOutputArrayType(VTK_STRING);
-  this->VertexLabels->SetOutputArrayName("LabelText");
-  this->VertexLabels->PassArrayOn();
-  this->VertexLabelPriority->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->VertexLabelPriority->SetOutputArrayType(VTK_DOUBLE);
-  this->VertexLabelPriority->SetOutputArrayName("Priority");
-  this->VertexLabelPriority->PassArrayOn();
-  this->EdgeLabels->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->EdgeLabels->SetOutputArrayType(VTK_STRING);
-  this->EdgeLabels->SetOutputArrayName("LabelText");
-  this->EdgeLabels->PassArrayOn();
-  this->EdgeLabelPriority->SetFieldType(vtkArrayMap::POINT_DATA);
-  this->EdgeLabelPriority->SetOutputArrayType(VTK_DOUBLE);
-  this->EdgeLabelPriority->SetOutputArrayName("Priority");
-  this->EdgeLabelPriority->PassArrayOn();
   this->VertexScalarBar->GetScalarBarActor()->VisibilityOff();
   this->EdgeScalarBar->GetScalarBarActor()->VisibilityOff();
 
@@ -303,53 +258,53 @@ vtkRenderedGraphRepresentation::~vtkRenderedGraphRepresentation()
 
 void vtkRenderedGraphRepresentation::SetVertexLabelArrayName(const char* name)
 {
-  this->VertexLabels->SetInputArrayName(name);
+  this->VertexLabelHierarchy->SetLabelArrayName(name);
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeLabelArrayName(const char* name)
 {
-  this->EdgeLabels->SetInputArrayName(name);
+  this->EdgeLabelHierarchy->SetLabelArrayName(name);
 }
 
 const char* vtkRenderedGraphRepresentation::GetVertexLabelArrayName()
 {
-  return this->VertexLabels->GetInputArrayName();
+  return this->VertexLabelHierarchy->GetLabelArrayName();
 }
 
 const char* vtkRenderedGraphRepresentation::GetEdgeLabelArrayName()
 {
-  return this->EdgeLabels->GetInputArrayName();
+  return this->EdgeLabelHierarchy->GetLabelArrayName();
 }
 
 void vtkRenderedGraphRepresentation::SetVertexLabelPriorityArrayName(const char* name)
 {
-  this->VertexLabelPriority->SetInputArrayName(name);
+  this->VertexLabelHierarchy->SetPriorityArrayName(name);
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeLabelPriorityArrayName(const char* name)
 {
-  this->EdgeLabelPriority->SetInputArrayName(name);
+  this->EdgeLabelHierarchy->SetPriorityArrayName(name);
 }
 
 const char* vtkRenderedGraphRepresentation::GetVertexLabelPriorityArrayName()
 {
-  return this->VertexLabelPriority->GetInputArrayName();
+  return this->VertexLabelHierarchy->GetPriorityArrayName();
 }
 
 const char* vtkRenderedGraphRepresentation::GetEdgeLabelPriorityArrayName()
 {
-  return this->EdgeLabelPriority->GetInputArrayName();
+  return this->EdgeLabelHierarchy->GetPriorityArrayName();
 }
 
 void vtkRenderedGraphRepresentation::SetVertexLabelVisibility(bool b)
 {
   if (b)
     {
-    this->VertexLabels->SetInputConnection(this->GraphToPoints->GetOutputPort());
+    this->VertexLabelHierarchy->SetInputConnection(this->GraphToPoints->GetOutputPort());
     }
   else
     {
-    this->VertexLabels->SetInput(this->EmptyPolyData);
+    this->VertexLabelHierarchy->SetInput(this->EmptyPolyData);
     }
 }
 
@@ -357,23 +312,23 @@ void vtkRenderedGraphRepresentation::SetEdgeLabelVisibility(bool b)
 {
   if (b)
     {
-    this->EdgeLabels->SetInputConnection(this->EdgeCenters->GetOutputPort());
+    this->EdgeLabelHierarchy->SetInputConnection(this->EdgeCenters->GetOutputPort());
     }
   else
     {
-    this->EdgeLabels->SetInput(this->EmptyPolyData);
+    this->EdgeLabelHierarchy->SetInput(this->EmptyPolyData);
     }
 }
 
 bool vtkRenderedGraphRepresentation::GetVertexLabelVisibility()
 {
-  return this->VertexLabels->GetInputConnection(0, 0) ==
+  return this->VertexLabelHierarchy->GetInputConnection(0, 0) ==
          this->GraphToPoints->GetOutputPort();
 }
 
 bool vtkRenderedGraphRepresentation::GetEdgeLabelVisibility()
 {
-  return this->EdgeLabels->GetInputConnection(0, 0) ==
+  return this->EdgeLabelHierarchy->GetInputConnection(0, 0) ==
          this->EdgeCenters->GetOutputPort();
 }
 
@@ -389,28 +344,22 @@ bool vtkRenderedGraphRepresentation::GetEdgeVisibility()
 
 void vtkRenderedGraphRepresentation::SetVertexLabelTextProperty(vtkTextProperty* p)
 {
-  if (p)
-    {
-    this->VertexTextProperty->ShallowCopy(p);
-    }
+  this->VertexLabelHierarchy->SetTextProperty(p);
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeLabelTextProperty(vtkTextProperty* p)
 {
-  if (p)
-    {
-    this->EdgeTextProperty->ShallowCopy(p);
-    }
+  this->EdgeLabelHierarchy->SetTextProperty(p);
 }
 
 vtkTextProperty* vtkRenderedGraphRepresentation::GetVertexLabelTextProperty()
 {
-  return this->VertexTextProperty;
+  return this->VertexLabelHierarchy->GetTextProperty();
 }
 
 vtkTextProperty* vtkRenderedGraphRepresentation::GetEdgeLabelTextProperty()
 {
-  return this->EdgeTextProperty;
+  return this->EdgeLabelHierarchy->GetTextProperty();
 }
 
 void vtkRenderedGraphRepresentation::SetVertexIconArrayName(const char* name)
@@ -420,38 +369,41 @@ void vtkRenderedGraphRepresentation::SetVertexIconArrayName(const char* name)
 
 void vtkRenderedGraphRepresentation::SetEdgeIconArrayName(const char* name)
 {
-  this->EdgeIcons->SetInputArrayName(name);
+  // TODO: Implement.
 }
 
 const char* vtkRenderedGraphRepresentation::GetVertexIconArrayName()
 {
-  // TODO: Make ivar to store this.
+  // TODO: Implement.
   return 0;
 }
 
 const char* vtkRenderedGraphRepresentation::GetEdgeIconArrayName()
 {
-  return this->EdgeIcons->GetInputArrayName();
+  // TODO: Implement.
+  return 0;
 }
 
 void vtkRenderedGraphRepresentation::SetVertexIconPriorityArrayName(const char* name)
 {
-  this->VertexIconPriority->SetInputArrayName(name);
+  // TODO: Implement.
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeIconPriorityArrayName(const char* name)
 {
-  this->EdgeIconPriority->SetInputArrayName(name);
+  // TODO: Implement.
 }
 
 const char* vtkRenderedGraphRepresentation::GetVertexIconPriorityArrayName()
 {
-  return this->VertexIconPriority->GetInputArrayName();
+  // TODO: Implement.
+  return 0;
 }
 
 const char* vtkRenderedGraphRepresentation::GetEdgeIconPriorityArrayName()
 {
-  return this->EdgeIconPriority->GetInputArrayName();
+  // TODO: Implement.
+  return 0;
 }
 
 void vtkRenderedGraphRepresentation::SetVertexIconVisibility(bool b)
@@ -461,14 +413,7 @@ void vtkRenderedGraphRepresentation::SetVertexIconVisibility(bool b)
 
 void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool b)
 {
-  if (b)
-    {
-    this->EdgeIcons->SetInputConnection(this->EdgeCenters->GetOutputPort());
-    }
-  else
-    {
-    this->EdgeIcons->SetInput(this->EmptyPolyData);
-    }
+  // TODO: Implement.
 }
 
 bool vtkRenderedGraphRepresentation::GetVertexIconVisibility()
@@ -478,8 +423,8 @@ bool vtkRenderedGraphRepresentation::GetVertexIconVisibility()
 
 bool vtkRenderedGraphRepresentation::GetEdgeIconVisibility()
 {
-  return this->EdgeIcons->GetInputConnection(0, 0) !=
-         this->EdgeCenters->GetOutputPort();
+  // TODO: Implement.
+  return false;
 }
 
 void vtkRenderedGraphRepresentation::AddVertexIconType(const char* name, int type)
@@ -490,7 +435,7 @@ void vtkRenderedGraphRepresentation::AddVertexIconType(const char* name, int typ
 
 void vtkRenderedGraphRepresentation::AddEdgeIconType(const char* name, int type)
 {
-  this->EdgeIcons->AddToMap(name, type);
+  // TODO: Implement.
 }
 
 void vtkRenderedGraphRepresentation::ClearVertexIconTypes()
@@ -501,7 +446,7 @@ void vtkRenderedGraphRepresentation::ClearVertexIconTypes()
 
 void vtkRenderedGraphRepresentation::ClearEdgeIconTypes()
 {
-  this->EdgeIcons->ClearMap();
+  // TODO: Implement.
 }
 
 void vtkRenderedGraphRepresentation::SetUseVertexIconTypeMap(bool b)
@@ -511,16 +456,7 @@ void vtkRenderedGraphRepresentation::SetUseVertexIconTypeMap(bool b)
 
 void vtkRenderedGraphRepresentation::SetUseEdgeIconTypeMap(bool b)
 {
-  if (b)
-    {
-    this->EdgeIcons->PassArrayOff();
-    this->EdgeIcons->SetFillValue(-1);
-    }
-  else
-    {
-    this->ClearEdgeIconTypes();
-    this->EdgeIcons->PassArrayOn();
-    }
+  // TODO: Implement.
 }
 
 bool vtkRenderedGraphRepresentation::GetUseVertexIconTypeMap()
@@ -530,7 +466,8 @@ bool vtkRenderedGraphRepresentation::GetUseVertexIconTypeMap()
 
 bool vtkRenderedGraphRepresentation::GetUseEdgeIconTypeMap()
 {
-  return this->EdgeIcons->GetPassArray() ? true : false;
+  // TODO: Implement.
+  return false;
 }
 
 // TODO: Icon alignment
@@ -1016,17 +953,15 @@ bool vtkRenderedGraphRepresentation::AddToView(vtkView* view)
     rv->GetRenderer()->AddActor(this->VertexScalarBar->GetScalarBarActor());
     rv->GetRenderer()->AddActor(this->EdgeScalarBar->GetScalarBarActor());
     rv->GetRenderer()->AddActor(this->VertexIconActor);
-    rv->AddLabels(this->VertexLabelPriority->GetOutputPort(), this->VertexTextProperty);
-    rv->AddLabels(this->EdgeLabelPriority->GetOutputPort(), this->EdgeTextProperty);
-    rv->AddIcons(this->VertexIconPriority->GetOutputPort());
-    rv->AddIcons(this->EdgeIconPriority->GetOutputPort());
+    rv->AddLabels(this->VertexLabelHierarchy->GetOutputPort());
+    rv->AddLabels(this->EdgeLabelHierarchy->GetOutputPort());
+    //rv->AddIcons(this->VertexIconPriority->GetOutputPort());
+    //rv->AddIcons(this->EdgeIconPriority->GetOutputPort());
     rv->RegisterProgress(this->Layout);
     rv->RegisterProgress(this->EdgeCenters);
     rv->RegisterProgress(this->GraphToPoints);
-    rv->RegisterProgress(this->VertexLabels);
-    rv->RegisterProgress(this->EdgeLabels);
-    rv->RegisterProgress(this->VertexIcons);
-    rv->RegisterProgress(this->EdgeIcons);
+    rv->RegisterProgress(this->VertexLabelHierarchy);
+    rv->RegisterProgress(this->EdgeLabelHierarchy);
     rv->RegisterProgress(this->Layout);
     rv->RegisterProgress(this->EdgeLayout);
     rv->RegisterProgress(this->GraphToPoly);
@@ -1054,17 +989,15 @@ bool vtkRenderedGraphRepresentation::RemoveFromView(vtkView* view)
     rv->GetRenderer()->RemoveActor(this->VertexScalarBar->GetScalarBarActor());
     rv->GetRenderer()->RemoveActor(this->EdgeScalarBar->GetScalarBarActor());
     rv->GetRenderer()->RemoveActor(this->VertexIconActor);
-    rv->RemoveLabels(this->VertexLabels->GetOutputPort());
-    rv->RemoveLabels(this->EdgeLabels->GetOutputPort());
-    rv->RemoveIcons(this->VertexIcons->GetOutputPort());
-    rv->RemoveIcons(this->EdgeIcons->GetOutputPort());
+    rv->RemoveLabels(this->VertexLabelHierarchy->GetOutputPort());
+    rv->RemoveLabels(this->EdgeLabelHierarchy->GetOutputPort());
+    //rv->RemoveIcons(this->VertexIcons->GetOutputPort());
+    //rv->RemoveIcons(this->EdgeIcons->GetOutputPort());
     rv->UnRegisterProgress(this->Layout);
     rv->UnRegisterProgress(this->EdgeCenters);
     rv->UnRegisterProgress(this->GraphToPoints);
-    rv->UnRegisterProgress(this->VertexLabels);
-    rv->UnRegisterProgress(this->EdgeLabels);
-    rv->UnRegisterProgress(this->VertexIcons);
-    rv->UnRegisterProgress(this->EdgeIcons);
+    rv->UnRegisterProgress(this->VertexLabelHierarchy);
+    rv->UnRegisterProgress(this->EdgeLabelHierarchy);
     rv->UnRegisterProgress(this->Layout);
     rv->UnRegisterProgress(this->EdgeLayout);
     rv->UnRegisterProgress(this->GraphToPoly);
@@ -1083,11 +1016,11 @@ void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
   this->Superclass::PrepareForRendering(view);
 
   this->VertexIconActor->SetTexture(view->GetIconTexture());
-  this->VertexIconGlyph->SetIconSize(view->GetIconSize());
-  this->VertexIconGlyph->SetUseIconSize(true);
   if (this->VertexIconActor->GetTexture() &&
       this->VertexIconActor->GetTexture()->GetInput())
     {
+    this->VertexIconGlyph->SetIconSize(view->GetIconSize());
+    this->VertexIconGlyph->SetUseIconSize(true);
     this->VertexIconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
     this->VertexIconActor->GetTexture()->GetInput()->Update();
     int* dim = this->VertexIconActor->GetTexture()->GetInput()->GetDimensions();
@@ -1330,9 +1263,9 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
     this->OutlineActor->VisibilityOff();
     }
 
-  this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
-  this->VertexTextProperty->SetLineOffset(-2*baseSize);
-  this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
+  this->GetVertexLabelTextProperty()->SetColor(theme->GetVertexLabelColor());
+  this->GetVertexLabelTextProperty()->SetLineOffset(-2*baseSize);
+  this->GetEdgeLabelTextProperty()->SetColor(theme->GetEdgeLabelColor());
 
   // Moronic hack.. the circles seem to be really small so make them bigger
   if (this->VertexGlyph->GetGlyphType() == vtkGraphToGlyphs::CIRCLE)

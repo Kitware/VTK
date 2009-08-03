@@ -45,7 +45,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.24");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.25");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -444,13 +444,11 @@ int vtkLabelPlacer::RequestData(
   idArr0->Delete();
 
   vtkStringArray* nameArr = vtkStringArray::SafeDownCast( 
-    inData->GetPointData()->GetAbstractArray( "LabelText" ) );
+    inData->GetLabels());
   vtkUnicodeStringArray* nameUArr = vtkUnicodeStringArray::SafeDownCast( 
-    inData->GetPointData()->GetAbstractArray( "LabelText" ) );
+    inData->GetLabels());
   vtkIntArray* iconIndexArr = vtkIntArray::SafeDownCast( 
-    inData->GetPointData()->GetAbstractArray( "IconIndex" ) );
-  vtkIntArray* idArr = vtkIntArray::SafeDownCast(
-    inData->GetPointData()->GetAbstractArray( "ID" ) );
+    inData->GetIconIndices());
 
   if ( ! inData )
     {
@@ -799,7 +797,7 @@ int vtkLabelPlacer::RequestData(
           nameArr0->InsertNextValue( nameArr->GetValue( inIter->GetLabelId() ) );
           }
         opArr0->InsertNextValue( opacity );
-        idArr0->InsertNextValue( idArr->GetValue( inIter->GetLabelId() ) );
+        idArr0->InsertNextValue( 0 );
         }
       else
         { // label is an icon

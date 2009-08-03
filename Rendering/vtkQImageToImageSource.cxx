@@ -30,7 +30,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQImageToImageSource, "1.2");
+vtkCxxRevisionMacro(vtkQImageToImageSource, "1.3");
 vtkStandardNewMacro(vtkQImageToImageSource);
 
 //----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
       }
     }
 
-  array->SetVoidArray( data, 4*width*height, 1 );
+  array->SetVoidArray( data, 4*width*height, 0 );
   return 1;
 }
 

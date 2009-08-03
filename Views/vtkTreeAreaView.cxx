@@ -34,13 +34,12 @@
 #include "vtkTree.h"
 #include "vtkAreaLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.6");
+vtkCxxRevisionMacro(vtkTreeAreaView, "1.7");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
 {
   this->SetInteractionModeTo2D();
-  this->SetLabelPlacementModeToDynamic2D();
   this->ReuseSingleRepresentationOn();
 }
 
