@@ -231,6 +231,7 @@ protected:
   virtual void UpdateHoverText();
 
   vtkRenderer* Renderer;
+  vtkRenderer* LabelRenderer;
   vtkRenderWindow* RenderWindow;
   int SelectionMode;
   int InteractionMode;
@@ -243,10 +244,8 @@ protected:
 
   //BTX
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
-
   vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
-  vtkSmartPointer<vtkDynamic2DLabelMapper>     LabelMapper2D;
   //ETX
 
 private:

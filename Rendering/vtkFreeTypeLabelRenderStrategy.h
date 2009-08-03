@@ -42,11 +42,15 @@ class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRende
   //BTX
   // Description:
   // Compute the bounds of a label. Must be performed after the renderer is set.
+  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4])
+    { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]);
 
   // Description:
   // Render a label at a location in world coordinates.
   // Must be performed between StartFrame() and EndFrame() calls.
+  virtual void RenderLabel(double x[3], vtkTextProperty* tprop, vtkStdString label)
+    { this->Superclass::RenderLabel(x, tprop, label); }
   virtual void RenderLabel(double x[3], vtkTextProperty* tprop, vtkUnicodeString label);
   //ETX
 

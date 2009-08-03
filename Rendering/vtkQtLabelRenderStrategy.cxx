@@ -34,13 +34,12 @@
 
 #include <QApplication>
 #include <QFont>
-#include <QFontMetrics>
 #include <QImage>
 #include <QPainter>
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.1");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.2");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 class vtkQtLabelRenderStrategy::Internals
@@ -124,14 +123,6 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
   bds[1] = tsz.width();
   bds[2] = 0;
   bds[3] = tsz.height();
-
-#if 0
-  QFontMetrics fontMetric(fontSpec);
-  bds[0] = fontMetric.minLeftBearing();
-  bds[1] = fontMetric.width(QString::fromUtf8(label.utf8_str()));
-  bds[2] = fontMetric.descent();
-  bds[3] = fontMetric.height();
-#endif
 
   bds[2] -= tprop->GetLineOffset();
   bds[3] -= tprop->GetLineOffset();
@@ -232,12 +223,6 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   QTextStream(&testString) << QString::fromUtf8(label.utf8_str());
 //end FIXME
   
-  //Qt's coordinate system starts at the top left corner of the layout...
-  // vtk has been using the text baseline as the starting point, so
-  // we need to add a correction factor to account for the difference
-  QFontMetrics fontMetric(fontSpec);
-  int baseline = fontMetric.ascent();
-  
   QTextDocument textDocument;
   textDocument.setDefaultFont(fontSpec);
   QString styleSheet;
@@ -298,13 +283,13 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     double shadowColor[3];
     tprop->GetShadowColor(shadowColor);
     
-    QTextDocument textDocument;
-    textDocument.setDefaultFont(fontSpec);
+    QTextDocument textDocument2;
+    textDocument2.setDefaultFont(fontSpec);
     QString shadowStyleSheet;
     QTextStream(&shadowStyleSheet) << "* { color: rgb( " << shadowColor[0]*255 << ", " << shadowColor[1]*255 << ", " << shadowColor[2]*255 << " ) }";
-    textDocument.setDefaultStyleSheet(shadowStyleSheet);
-    textDocument.setHtml(textString);
-    textDocument.drawContents(painter);
+    textDocument2.setDefaultStyleSheet(shadowStyleSheet);
+    textDocument2.setHtml(textString);
+    textDocument2.drawContents(painter);
     
     painter->restore();
     }

@@ -95,7 +95,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.26");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.27");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -367,7 +367,7 @@ void vtkRenderedGraphRepresentation::SetVertexIconArrayName(const char* name)
   this->ApplyVertexIcons->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
 }
 
-void vtkRenderedGraphRepresentation::SetEdgeIconArrayName(const char* name)
+void vtkRenderedGraphRepresentation::SetEdgeIconArrayName(const char*)
 {
   // TODO: Implement.
 }
@@ -384,12 +384,12 @@ const char* vtkRenderedGraphRepresentation::GetEdgeIconArrayName()
   return 0;
 }
 
-void vtkRenderedGraphRepresentation::SetVertexIconPriorityArrayName(const char* name)
+void vtkRenderedGraphRepresentation::SetVertexIconPriorityArrayName(const char*)
 {
   // TODO: Implement.
 }
 
-void vtkRenderedGraphRepresentation::SetEdgeIconPriorityArrayName(const char* name)
+void vtkRenderedGraphRepresentation::SetEdgeIconPriorityArrayName(const char*)
 {
   // TODO: Implement.
 }
@@ -411,7 +411,7 @@ void vtkRenderedGraphRepresentation::SetVertexIconVisibility(bool b)
   this->VertexIconActor->SetVisibility(b);
 }
 
-void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool b)
+void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool)
 {
   // TODO: Implement.
 }
@@ -433,7 +433,7 @@ void vtkRenderedGraphRepresentation::AddVertexIconType(const char* name, int typ
   this->ApplyVertexIcons->UseLookupTableOn();
 }  
 
-void vtkRenderedGraphRepresentation::AddEdgeIconType(const char* name, int type)
+void vtkRenderedGraphRepresentation::AddEdgeIconType(const char*, int)
 {
   // TODO: Implement.
 }
@@ -454,7 +454,7 @@ void vtkRenderedGraphRepresentation::SetUseVertexIconTypeMap(bool b)
   this->ApplyVertexIcons->SetUseLookupTable(b);
 }
 
-void vtkRenderedGraphRepresentation::SetUseEdgeIconTypeMap(bool b)
+void vtkRenderedGraphRepresentation::SetUseEdgeIconTypeMap(bool)
 {
   // TODO: Implement.
 }

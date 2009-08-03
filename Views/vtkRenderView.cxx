@@ -56,7 +56,7 @@
 #include "vtkQtLabelRenderStrategy.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.24");
+vtkCxxRevisionMacro(vtkRenderView, "1.25");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -64,6 +64,7 @@ vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
 vtkRenderView::vtkRenderView()
 {
   this->Renderer = vtkRenderer::New();
+  this->LabelRenderer = vtkRenderer::New();
   this->RenderWindow = vtkRenderWindow::New();
   vtkTransform* t = vtkTransform::New();
   t->Identity();
@@ -75,6 +76,10 @@ vtkRenderView::vtkRenderView()
   this->IconSize[1] = 16;
 
   this->RenderWindow->AddRenderer(this->Renderer);
+  this->LabelRenderer->EraseOff();
+  this->LabelRenderer->InteractiveOff();
+  this->LabelRenderer->SetActiveCamera(this->Renderer->GetActiveCamera());
+  this->RenderWindow->AddRenderer(this->LabelRenderer);
 
   // We will handle all interactor renders by turning off rendering
   // in the interactor and listening to the interactor's render event.
@@ -94,33 +99,19 @@ vtkRenderView::vtkRenderView()
   this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
 
   this->LabelPlacementMapper = vtkSmartPointer<vtkLabelPlacementMapper>::New();
-  this->LabelMapper2D = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
   this->LabelActor = vtkSmartPointer<vtkTexturedActor2D>::New();
 
   this->LabelActor->SetMapper(this->LabelPlacementMapper);
+  this->LabelActor->PickableOff();
+  this->LabelRenderer->AddActor(this->LabelActor);
 
   this->Balloon->SetBalloonText("");
   this->Balloon->SetOffset(1, 1);
-  this->Renderer->AddViewProp(this->Balloon);
-  this->Balloon->SetRenderer(this->Renderer);
+  this->LabelRenderer->AddViewProp(this->Balloon);
+  this->Balloon->SetRenderer(this->LabelRenderer);
   this->Balloon->VisibilityOn();
 
   this->SelectionMode = SURFACE;
-  this->LabelMapper2D->SetLabelMode(VTK_LABEL_FIELD_DATA);
-  this->LabelMapper2D->SetFieldDataName("LabelText");
-  this->LabelMapper2D->SetPriorityArrayName("Priority");
-  this->LabelMapper2D->SetInputArrayToProcess(0, 0, 0, vtkDataObject::POINT, "ID");
-
-  this->LabelActor->PickableOff();
-  this->Renderer->AddActor(this->LabelActor);
-
-#if 0
-  this->LabelPlacementMapper->SetShapeToRoundedRect();
-  this->LabelPlacementMapper->SetStyleToOutline();
-  this->LabelPlacementMapper->SetMargin(10.0);
-  this->LabelPlacementMapper->SetBackgroundColor(0.0, 0.0, 0.1);
-  this->LabelPlacementMapper->SetBackgroundOpacity(0.6);
-#endif
 
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -133,6 +124,10 @@ vtkRenderView::~vtkRenderView()
   if (this->Renderer)
     {
     this->Renderer->Delete();
+    }
+  if (this->LabelRenderer)
+    {
+    this->LabelRenderer->Delete();
     }
   if (this->RenderWindow)
     {

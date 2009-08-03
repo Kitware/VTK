@@ -170,7 +170,6 @@ public:
     double ax1len = sqrt(Axis[1][0]*Axis[1][0] + Axis[1][1]*Axis[1][1]);
     dy[0] = margin*Axis[1][0]/ax1len;
     dy[1] = margin*Axis[1][1]/ax1len;
-    bool rounded = true;
     switch (shape)
     {
       case vtkLabelPlacementMapper::ROUNDED_RECT:
@@ -335,7 +334,6 @@ public:
     /// Is there space to place the given rectangle in this tile so that it doesn't overlap any labels in this tile?
     bool IsSpotOpen( const LabelRect& r )
       {
-      float d0, d1, d2, d3;
       for ( vtkstd::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
         {
         if (r.Overlaps(*it))
@@ -443,7 +441,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.1");
+vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.2");
 vtkStandardNewMacro(vtkLabelPlacementMapper);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, AnchorTransform, vtkCoordinate);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, RenderStrategy, vtkLabelRenderStrategy);
@@ -705,8 +703,8 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
       }
 
     // Offset display position by lower left corner of bounding box
-    dispx[0] = origin[0] + bds[0];
-    dispx[1] = origin[1] + bds[2];
+    dispx[0] = static_cast<int>(origin[0] + bds[0]);
+    dispx[1] = static_cast<int>(origin[1] + bds[2]);
 
     sz[0] = bds[1] - bds[0];
     sz[1] = bds[3] - bds[2];
