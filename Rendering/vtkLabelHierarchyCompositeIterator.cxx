@@ -26,7 +26,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkLabelHierarchyCompositeIterator, "1.1");
+vtkCxxRevisionMacro(vtkLabelHierarchyCompositeIterator, "1.2");
 vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 
 class vtkLabelHierarchyCompositeIterator::Internal
@@ -42,6 +42,9 @@ public:
 vtkLabelHierarchyCompositeIterator::vtkLabelHierarchyCompositeIterator()
 {
   this->Implementation = new Internal();
+  this->Implementation->CurrentIterator = 0;
+  this->Implementation->InitialTraversal = 0;
+  this->Implementation->CurrentCount = 0;
 }
 
 vtkLabelHierarchyCompositeIterator::~vtkLabelHierarchyCompositeIterator()
@@ -133,17 +136,28 @@ bool vtkLabelHierarchyCompositeIterator::IsAtEnd()
 
 vtkIdType vtkLabelHierarchyCompositeIterator::GetLabelId()
 {
-  return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetLabelId();
+  if (this->Implementation->CurrentIterator < this->Implementation->Iterators.size())
+    {
+    return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetLabelId();
+    }
+  return -1;
 }
 
 vtkLabelHierarchy* vtkLabelHierarchyCompositeIterator::GetHierarchy()
 {
-  return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetHierarchy();
+  if (this->Implementation->CurrentIterator < this->Implementation->Iterators.size())
+    {
+    return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetHierarchy();
+    }
+  return 0;
 }
 
 void vtkLabelHierarchyCompositeIterator::GetNodeGeometry(double ctr[3], double& size)
 {
-  this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetNodeGeometry(ctr, size);
+  if (this->Implementation->CurrentIterator < this->Implementation->Iterators.size())
+    {
+    this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetNodeGeometry(ctr, size);
+    }
 }
 
 void vtkLabelHierarchyCompositeIterator::PrintSelf( ostream& os, vtkIndent indent )

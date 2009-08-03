@@ -35,7 +35,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.8");
+vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.9");
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,Hierarchy,vtkLabelHierarchy);
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,TraversedBounds,vtkPolyData);
 
@@ -77,6 +77,11 @@ void vtkLabelHierarchyIterator::GetPoint( double x[3] )
 
 void vtkLabelHierarchyIterator::GetSize( double sz[2] )
 {
+  if ( ! this->GetHierarchy() )
+    {
+    sz[0] = sz[1] = 0.;
+    return;
+    }
   vtkDataArray* labelSizeArr = this->GetHierarchy()->GetSizes();
   if ( ! labelSizeArr )
     {
@@ -91,6 +96,10 @@ void vtkLabelHierarchyIterator::GetSize( double sz[2] )
 
 int vtkLabelHierarchyIterator::GetType()
 {
+  if ( ! this->GetHierarchy() )
+    {
+    return -1;
+    }
   vtkDataArray* labelTypeArr = this->GetHierarchy()->GetPointData()->GetArray( "Type" );
   if ( ! labelTypeArr )
     {
@@ -107,6 +116,10 @@ int vtkLabelHierarchyIterator::GetType()
 
 vtkStdString vtkLabelHierarchyIterator::GetLabel()
 {
+  if ( ! this->GetHierarchy() )
+    {
+    return vtkStdString();
+    }
   vtkAbstractArray* labelArr = this->GetHierarchy()->GetLabels();
   if (!labelArr)
     {
@@ -117,8 +130,12 @@ vtkStdString vtkLabelHierarchyIterator::GetLabel()
 
 vtkUnicodeString vtkLabelHierarchyIterator::GetUnicodeLabel()
 {
+  if ( ! this->GetHierarchy() )
+    {
+    return vtkUnicodeString();
+    }
   vtkAbstractArray* labelArr = this->GetHierarchy()->GetLabels();
-  if (!labelArr)
+  if ( ! labelArr )
     {
     return vtkUnicodeString();
     }
@@ -127,8 +144,12 @@ vtkUnicodeString vtkLabelHierarchyIterator::GetUnicodeLabel()
 
 double vtkLabelHierarchyIterator::GetOrientation()
 {
+  if ( ! this->GetHierarchy() )
+    {
+    return 0.0;
+    }
   vtkDataArray* arr = this->GetHierarchy()->GetOrientations();
-  if (!arr)
+  if ( ! arr )
     {
     return 0.0;
     }
