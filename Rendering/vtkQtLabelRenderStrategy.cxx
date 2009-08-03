@@ -39,7 +39,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.2");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.3");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 class vtkQtLabelRenderStrategy::Internals
@@ -114,7 +114,7 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
   fontSpec.setPixelSize(tprop->GetFontSize());
 
   QTextDocument textDocument;
-  textDocument.setDocumentMargin(0);
+  //textDocument.setDocumentMargin(0);
   textDocument.setDefaultFont(fontSpec);
   textDocument.setHtml(textString);
   QSizeF tsz = textDocument.size();
