@@ -70,7 +70,7 @@ protected:
 
   // Description:
   // Need to loop over the hierarchy to compute bounds
-  void ComputeBounds();
+  virtual void ComputeBounds();
 
   // Description:
   // Called when the PainterInformation becomes obsolete. 
