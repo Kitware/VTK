@@ -112,9 +112,9 @@ public:
     ENDIAN_TAG=1010580540,      // 0x3c3c3c3c
     IDTYPESIZE_TAG=1027423549,  // 0x3d3d3d3d
     VERSION_TAG=1044266558,     // 0x3e3e3e3e
-    HASH_TAG=0x3f3f3f3f,
+    HASH_TAG=0x3f3f3f3f
   };
-
+  
 //ETX
 
 protected:
