@@ -86,6 +86,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   ENDIF (VTK_USE_BOOST)
 
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
+    IF (MPI_LIBRARY) 
+      SET(MPI_LIBRARIES ${MPI_LIBRARY})   
+    ENDIF (MPI_LIBRARY)   
+    IF (MPI_EXTRA_LIBRARY)   
+      SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")   
+    ENDIF (MPI_EXTRA_LIBRARY) 
+
     # Add parallel tests only if PARALLEL and MPI are turned ON
     # These tests are kept separate, because they must be run with mpirun or mpiexec
 
