@@ -35,7 +35,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.9");
+vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.10");
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,Hierarchy,vtkLabelHierarchy);
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,TraversedBounds,vtkPolyData);
 
@@ -107,6 +107,10 @@ int vtkLabelHierarchyIterator::GetType()
     }
   vtkIntArray* labelTypeIArr = vtkIntArray::SafeDownCast( labelTypeArr );
   if ( ! labelTypeIArr )
+    {
+    return -1;
+    }
+  if (labelTypeIArr->GetNumberOfTuples()==0)
     {
     return -1;
     }
