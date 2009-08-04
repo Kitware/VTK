@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.1");
+vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.2");
 vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */
@@ -185,7 +185,7 @@ void trilin_line_intersection( float start[3], float vec[3],
     return;
     }
   
-  vtkMath::SolveCubic( c0, c1, c2, c3, &r1, &r2, &r3, &num_roots );
+  vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3, &r1, &r2, &r3, &num_roots );
   
   /* Remove Negative Solutions And Store In Distance Array */
   pos_dist_num = 0;
