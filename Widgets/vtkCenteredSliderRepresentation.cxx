@@ -43,7 +43,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCenteredSliderRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkCenteredSliderRepresentation, "1.4");
 vtkStandardNewMacro(vtkCenteredSliderRepresentation);
 
 //----------------------------------------------------------------------
@@ -68,7 +68,7 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   // The points and the transformation for the points. 
   this->XForm = vtkTransform::New();
   this->Points = vtkPoints::New();
-  this->Points->SetNumberOfPoints(2*(10+this->ArcCount));
+  this->Points->SetNumberOfPoints(2*this->ArcCount + 12);
 
   this->TubeCells = 0;
   this->Tube = 0;
