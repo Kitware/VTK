@@ -22,11 +22,6 @@
 #include "vtkIncrementalOctreePointLocator.h"
 
 
-#define  MAX_INT_IN_DISKFILES  400000
-// NOTE: The two data fils are in little-endian binary format.
-// In case of re-generating the data files, please address the endian issues.
-
-
 // NOTE: ALL THE FOLLOWING FLAGS SHOULD BE OFF
 
 //#define  _BRUTE_FORCE_VERIFICATION_
@@ -89,7 +84,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   // variables
   int         r, t, m, i, j, k;
-  int         needSwap = 0;
   int         retValue = 0;
   int         numbPnts = 0;
   int         inserted = 0;
@@ -266,24 +260,19 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       // ---------------------------------------------------------------------
       // rapid point index-based verification
       fread(  &numInsrt,  sizeof( int ),  1,  diskFile  );
-      if ( numInsrt >  MAX_INT_IN_DISKFILES || 
-           numInsrt < -MAX_INT_IN_DISKFILES )
-      // this is an informal yet effective way for handling the two data files
-        {
-        needSwap = 1;
-        SwapForBigEndian
-          (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
-        }
+      #ifdef VTK_WORDS_BIGENDIAN
+      SwapForBigEndian
+        (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
+      #endif
        
       if (  numInsrt  ==  ptIdList->GetNumberOfIds()  )
         {
         int  samePtId = 1;
         fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
-        if ( needSwap )
-          {
-          SwapForBigEndian
-            (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
-          }
+        #ifdef VTK_WORDS_BIGENDIAN
+        SwapForBigEndian
+          (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
+        #endif
                            
         for (  i = 0;  ( i < numInsrt ) && ( samePtId == 1 );  i ++  )
           {
@@ -345,26 +334,24 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   pntsFile = fopen( fileName, "rb" );
   delete []  fileName;  fileName = NULL;
   fread(  &nLocPnts,  sizeof( int ),  1,  pntsFile  );
-  if ( needSwap )
-    {
-    SwapForBigEndian
-      (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
-    }
+  #ifdef VTK_WORDS_BIGENDIAN
+  SwapForBigEndian
+    (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
+  #endif
   pLocPnts = ( double * ) realloc( pLocPnts, sizeof( double ) * nLocPnts * 3 );
   minDist2 = ( double * ) realloc( minDist2, sizeof( double ) * nLocPnts     );
   maxDist2 = ( double * ) realloc( maxDist2, sizeof( double ) * nLocPnts     );
   fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
   fread( minDist2, sizeof( double ), nLocPnts,     pntsFile );
   fread( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
-  if ( needSwap )
-    {
-    SwapForBigEndian
-      (  ( unsigned char * ) pLocPnts,  sizeof( double ),  nLocPnts * 3  );
-    SwapForBigEndian
-      (  ( unsigned char * ) minDist2,  sizeof( double ),  nLocPnts      );
-    SwapForBigEndian
-      (  ( unsigned char * ) maxDist2,  sizeof( double ),  nLocPnts      );
-    }
+  #ifdef VTK_WORDS_BIGENDIAN
+  SwapForBigEndian
+    (  ( unsigned char * ) pLocPnts,  sizeof( double ),  nLocPnts * 3  );
+  SwapForBigEndian
+    (  ( unsigned char * ) minDist2,  sizeof( double ),  nLocPnts      );
+  SwapForBigEndian
+    (  ( unsigned char * ) maxDist2,  sizeof( double ),  nLocPnts      );
+  #endif
   fclose( pntsFile );                pntsFile = NULL;
   
   
@@ -427,18 +414,16 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // -----------------------------------------------------------------------
     // rapid point index-based verification
     fread( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
+    #endif
       
     fread(  truthIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  nLocPnts  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  nLocPnts  );
+    #endif
     
     for (  i = 0;  ( i < nLocPnts ) && ( retValue == 0 );  i ++  )
       {
@@ -519,20 +504,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // rapid point index-based verification 
     #ifndef _BRUTE_FORCE_VERIFICATION_
     fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
-      } 
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
+    #endif 
    
     truthIds = ( vtkIdType * )
                realloc(  truthIds,  sizeof( vtkIdType ) * numInsrt  );
     fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );  
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
+    #endif
     
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
@@ -685,20 +668,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // rapid point index-based verification 
     #ifndef _BRUTE_FORCE_VERIFICATION_
     fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
+    #endif
     
     truthIds = ( vtkIdType * )
                realloc(  truthIds,  sizeof( vtkIdType ) * numInsrt  );
     fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );  
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
+    #endif
     
     vtkIdType * tmpPtIds = ptIdList->GetPointer( 0 );
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
@@ -725,18 +706,16 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     truthIds = ( vtkIdType * ) 
                realloc( truthIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
     fread( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
+    #endif
       
     fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
-    if ( needSwap )
-      {
-      SwapForBigEndian
-        (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
-      }
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
+    #endif
     #endif
     
     // -----------------------------------------------------------------------
