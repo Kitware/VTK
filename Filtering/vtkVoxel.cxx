@@ -21,11 +21,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.4");
+vtkCxxRevisionMacro(vtkVoxel, "1.5");
 vtkStandardNewMacro(vtkVoxel);
 
 //----------------------------------------------------------------------------
@@ -295,7 +295,7 @@ static int faces[6][4] = { {2,0,6,4}, {1,3,5,7},
 #include "vtkMarchingCubesCases.h"
 
 void vtkVoxel::Contour(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator,
+                       vtkIncrementalPointLocator *locator,
                        vtkCellArray *verts, 
                        vtkCellArray *lines, 
                        vtkCellArray *polys,

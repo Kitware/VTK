@@ -29,6 +29,7 @@
 
 class vtkLine;
 class vtkPixel;
+class vtkIncrementalPointLocator;
 
 class VTK_FILTERING_EXPORT vtkVoxel : public vtkCell3D
 {
@@ -53,7 +54,7 @@ public:
   vtkCell *GetFace(int faceId);
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
   void Contour(double value, vtkDataArray *cellScalars,
-               vtkPointLocator *locator, vtkCellArray *verts,
+               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);

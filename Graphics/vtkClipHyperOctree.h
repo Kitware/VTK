@@ -60,7 +60,7 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkImplicitFunction;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkHyperOctreeCursor;
 class vtkHyperOctree;
 class vtkUnsignedCharArray;
@@ -134,8 +134,8 @@ public:
   // Description:
   // Specify a spatial locator for merging points. By default, an
   // instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified. The 
@@ -163,8 +163,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   vtkImplicitFunction *ClipFunction;
   
-  vtkPointLocator *Locator;
-  vtkPointLocator *Locator2; // used for the clipped output
+  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator2; // used for the clipped output
   
   int InsideOut;
   double Value;

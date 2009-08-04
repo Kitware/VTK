@@ -34,10 +34,11 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.108");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.109");
 vtkStandardNewMacro(vtkGeometryFilter);
-vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkPointLocator)
+vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator)
 
 //----------------------------------------------------------------------------
 // Construct with all types of clipping turned off.

@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.2");
+vtkCxxRevisionMacro(vtkCell3D, "1.3");
 
 vtkCell3D::vtkCell3D()
 {
@@ -51,7 +51,7 @@ vtkCell3D::~vtkCell3D()
 }
 
 void vtkCell3D::Contour(double value, vtkDataArray *cellScalars, 
-                        vtkPointLocator *locator, vtkCellArray *verts, 
+                        vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                         vtkCellArray *lines, vtkCellArray *polys,
                         vtkPointData *inPd, vtkPointData *outPd,
                         vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
@@ -216,7 +216,7 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
 }
 
 void vtkCell3D::Clip(double value, vtkDataArray *cellScalars, 
-                     vtkPointLocator *locator, vtkCellArray *tets,
+                     vtkIncrementalPointLocator *locator, vtkCellArray *tets,
                      vtkPointData *inPD, vtkPointData *outPD,
                      vtkCellData *inCD, vtkIdType cellId,
                      vtkCellData *outCD, int insideOut)

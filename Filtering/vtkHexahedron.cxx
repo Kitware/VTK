@@ -20,11 +20,11 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.5");
+vtkCxxRevisionMacro(vtkHexahedron, "1.6");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -358,7 +358,7 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 #include "vtkMarchingCubesCases.h"
 
 void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars, 
-                            vtkPointLocator *locator,
+                            vtkIncrementalPointLocator *locator,
                             vtkCellArray *verts, 
                             vtkCellArray *lines, 
                             vtkCellArray *polys, 

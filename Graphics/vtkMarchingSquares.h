@@ -41,7 +41,7 @@
 #include "vtkContourValues.h" // Passes calls to vtkContourValues
 
 class vtkImageData;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
 {
@@ -75,8 +75,8 @@ public:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
 
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified. 
@@ -92,7 +92,7 @@ protected:
 
   vtkContourValues *ContourValues;
   int ImageRange[6];
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
 
 private:
   vtkMarchingSquares(const vtkMarchingSquares&);  // Not implemented.

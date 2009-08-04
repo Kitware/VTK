@@ -42,8 +42,9 @@
 #include <math.h>
 #include <assert.h>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.6");
+vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.7");
 vtkStandardNewMacro(vtkHyperOctreeCutter);
 vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 
@@ -1411,7 +1412,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
 //----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkHyperOctreeCutter::SetLocator(vtkPointLocator *locator)
+void vtkHyperOctreeCutter::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator)
     {

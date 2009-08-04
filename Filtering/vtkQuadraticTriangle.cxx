@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.9");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ int vtkQuadraticTriangle::CellBoundary(int subId, double pcoords[3],
 //----------------------------------------------------------------------------
 void vtkQuadraticTriangle::Contour(double value, 
                                    vtkDataArray* cellScalars, 
-                                   vtkPointLocator* locator, 
+                                   vtkIncrementalPointLocator* locator,
                                    vtkCellArray *verts, 
                                    vtkCellArray* lines, 
                                    vtkCellArray* polys, 
@@ -276,7 +276,7 @@ void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
 // and triangles.
 void vtkQuadraticTriangle::Clip(double value, 
                                 vtkDataArray* cellScalars, 
-                                vtkPointLocator* locator,
+                                vtkIncrementalPointLocator* locator,
                                 vtkCellArray* polys,
                                 vtkPointData* inPd, 
                                 vtkPointData* outPd,

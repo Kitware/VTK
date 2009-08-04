@@ -35,7 +35,7 @@
 //
 // If tolerance is specified precisely=0.0, then vtkCleanPolyData will use
 // the vtkMergePoints object to merge points (which is faster). Otherwise the
-// slower vtkPointLocator is used.  Before inserting points into the point
+// slower vtkIncrementalPointLocator is used.  Before inserting points into the point
 // locator, this class calls a function OperateOnPoint which can be used (in
 // subclasses) to further refine the cleaning process. See
 // vtkQuantizePolyDataPoints.
@@ -59,7 +59,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
@@ -116,8 +116,8 @@ public:
   // Description:
   // Set/Get a spatial locator for speeding the search process. By
   // default an instance of vtkMergePoints is used.
-  virtual void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  virtual void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -164,7 +164,7 @@ protected:
   int ConvertPolysToLines;
   int ConvertStripsToPolys;
   int ToleranceIsAbsolute;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
 
   int PieceInvariant;
 private:

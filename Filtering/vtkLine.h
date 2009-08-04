@@ -20,6 +20,7 @@
 #define __vtkLine_h
 
 #include "vtkCell.h"
+class vtkIncrementalPointLocator;
 
 class VTK_FILTERING_EXPORT vtkLine : public vtkCell
 {
@@ -38,7 +39,7 @@ public:
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
   void Contour(double value, vtkDataArray *cellScalars,
-               vtkPointLocator *locator, vtkCellArray *verts,
+               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
@@ -56,7 +57,7 @@ public:
   // Clip this line using scalar value provided. Like contouring, except
   // that it cuts the line to produce other lines.
   void Clip(double value, vtkDataArray *cellScalars,
-            vtkPointLocator *locator, vtkCellArray *lines,
+            vtkIncrementalPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);

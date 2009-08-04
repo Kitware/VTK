@@ -90,7 +90,7 @@ class  vtkDataArray;
 class  vtkDoubleArray;
 struct vtkOTMesh;
 struct vtkOTTemplates;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkPointData;
 class vtkCellData;
 
@@ -253,7 +253,7 @@ public:
   // \pre inCD_exists: inCD!=0
   // \pre outCD_exists: outCD!=0
   vtkIdType AddTetras(int classification,
-                      vtkPointLocator *locator,
+                      vtkIncrementalPointLocator *locator,
                       vtkCellArray *outConnectivity,
                       vtkPointData *inPD,
                       vtkPointData *outPD,

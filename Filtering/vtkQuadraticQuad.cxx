@@ -23,7 +23,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.11");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.12");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -271,7 +271,7 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *in
 //----------------------------------------------------------------------------
 void vtkQuadraticQuad::Contour(double value,
                                vtkDataArray* cellScalars,
-                               vtkPointLocator* locator,
+                               vtkIncrementalPointLocator* locator,
                                vtkCellArray *verts,
                                vtkCellArray* lines,
                                vtkCellArray* polys,
@@ -302,7 +302,7 @@ void vtkQuadraticQuad::Contour(double value,
 // Clip this quadratic quad using scalar value provided. Like contouring,
 // except that it cuts the quad to produce other quads and triangles.
 void vtkQuadraticQuad::Clip(double value, vtkDataArray* cellScalars,
-                            vtkPointLocator* locator, vtkCellArray* polys,
+                            vtkIncrementalPointLocator* locator, vtkCellArray* polys,
                             vtkPointData* inPd, vtkPointData* outPd,
                             vtkCellData* inCd, vtkIdType cellId,
                             vtkCellData* outCd, int insideOut)

@@ -20,8 +20,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkTriangle.h"
 #include "vtkPoints.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkTriangleStrip, "1.3");
+vtkCxxRevisionMacro(vtkTriangleStrip, "1.4");
 vtkStandardNewMacro(vtkTriangleStrip);
 
 //----------------------------------------------------------------------------
@@ -132,7 +133,7 @@ int vtkTriangleStrip::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 
 //----------------------------------------------------------------------------
 void vtkTriangleStrip::Contour(double value, vtkDataArray *cellScalars, 
-                               vtkPointLocator *locator, vtkCellArray *verts, 
+                               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                                vtkCellArray *lines, vtkCellArray *polys, 
                                vtkPointData *inPd, vtkPointData *outPd,
                                vtkCellData *inCd, vtkIdType cellId,
@@ -290,7 +291,7 @@ void vtkTriangleStrip::DecomposeStrip(int npts, vtkIdType *pts,
 
 //----------------------------------------------------------------------------
 void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars, 
-                            vtkPointLocator *locator, vtkCellArray *tris,
+                            vtkIncrementalPointLocator *locator, vtkCellArray *tris,
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
                             vtkCellData *outCd, int insideOut)

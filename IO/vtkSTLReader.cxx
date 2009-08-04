@@ -25,17 +25,18 @@
 #include "vtkPolyData.h"
 #include "vtkErrorCode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkIncrementalPointLocator.h"
 
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.76");
+vtkCxxRevisionMacro(vtkSTLReader, "1.77");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
 #define VTK_BINARY 1
 
-vtkCxxSetObjectMacro(vtkSTLReader,Locator,vtkPointLocator);
+vtkCxxSetObjectMacro(vtkSTLReader,Locator,vtkIncrementalPointLocator);
 
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()

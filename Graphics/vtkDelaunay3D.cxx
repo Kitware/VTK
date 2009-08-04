@@ -26,8 +26,9 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.74");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.75");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 // Structure used to represent sphere around tetrahedron
@@ -180,7 +181,7 @@ vtkIdType vtkDelaunay3D::FindEnclosingFaces(double x[3],
                                             vtkUnstructuredGrid *Mesh,
                                             vtkIdList *tetras,
                                             vtkIdList *faces,
-                                            vtkPointLocator *locator)
+                                            vtkIncrementalPointLocator *locator)
 {
   vtkIdType tetraId, i, numTetras;
   int j, insertFace;
@@ -901,7 +902,7 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkDelaunay3D::SetLocator(vtkPointLocator *locator)
+void vtkDelaunay3D::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator ) 
     {
@@ -926,7 +927,7 @@ void vtkDelaunay3D::CreateDefaultLocator()
   if ( this->Locator == NULL )
     {
     this->Locator = vtkPointLocator::New();
-    this->Locator->SetDivisions(25,25,25);
+    vtkPointLocator::SafeDownCast( this->Locator )->SetDivisions(25,25,25);
     }
 }
 

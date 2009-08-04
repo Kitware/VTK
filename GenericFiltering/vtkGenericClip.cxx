@@ -36,13 +36,14 @@
 #include "vtkGenericPointIterator.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkExecutive.h"
+#include "vtkIncrementalPointLocator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.9");
+vtkCxxRevisionMacro(vtkGenericClip, "1.10");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkGenericClip,Locator,vtkPointLocator);
+vtkCxxSetObjectMacro(vtkGenericClip,Locator,vtkIncrementalPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value

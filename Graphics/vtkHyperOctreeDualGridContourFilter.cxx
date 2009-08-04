@@ -44,6 +44,7 @@
 #include <vtkstd/set>
 #include "vtkBitArray.h"
 #include "vtkTimerLog.h"
+#include "vtkIncrementalPointLocator.h"
 
 
 
@@ -72,7 +73,7 @@ public:
   vtkstd::set<vtkIdType> Set;
 };
 
-vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeDualGridContourFilter);
 
 //----------------------------------------------------------------------------
@@ -607,7 +608,7 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
 //----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkHyperOctreeDualGridContourFilter::SetLocator(vtkPointLocator *locator)
+void vtkHyperOctreeDualGridContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator)
     {

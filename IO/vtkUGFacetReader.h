@@ -23,7 +23,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkShortArray;
 
 class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataAlgorithm 
@@ -72,8 +72,8 @@ public:
   // Description:
   // Specify a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -89,7 +89,7 @@ protected:
   vtkShortArray *PartColors;
   int PartNumber;
   int Merging;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
 private:
   vtkUGFacetReader(const vtkUGFacetReader&);  // Not implemented.
   void operator=(const vtkUGFacetReader&);  // Not implemented.

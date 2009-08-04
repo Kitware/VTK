@@ -20,11 +20,11 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.8");
+vtkCxxRevisionMacro(vtkTetra, "1.9");
 vtkStandardNewMacro(vtkTetra);
 
 //----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ static TRIANGLE_CASES triCases[] = {
 
 //----------------------------------------------------------------------------
 void vtkTetra::Contour(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator,
+                       vtkIncrementalPointLocator *locator,
                        vtkCellArray *verts, 
                        vtkCellArray *lines, 
                        vtkCellArray *polys,
@@ -821,7 +821,7 @@ static TETRA_CASES tetraCases[] = {
 // carefully designed to insure that face neighbors--after clipping--are
 // remain compatible.
 void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
-                    vtkPointLocator *locator, vtkCellArray *tets,
+                    vtkIncrementalPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,
                     vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                     int insideOut)

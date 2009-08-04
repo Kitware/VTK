@@ -36,6 +36,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestActor2DTextures.cxx
       TestHierarchicalBoxPipeline.cxx
       TestIconGlyphFilterGravity.cxx
+      TestIncrementalOctreePointLocator.cxx
       TestMultiBlock.cxx
       TestQuadraturePoints.cxx
       TestUnstructuredGridGeometryFilter.cxx

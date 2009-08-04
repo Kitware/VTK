@@ -20,12 +20,12 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.7");
+vtkCxxRevisionMacro(vtkWedge, "1.8");
 vtkStandardNewMacro(vtkWedge);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -374,7 +374,7 @@ static TRIANGLE_CASES triCases[] = {
 
 //----------------------------------------------------------------------------
 void vtkWedge::Contour(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator,
+                       vtkIncrementalPointLocator *locator,
                        vtkCellArray *verts, 
                        vtkCellArray *lines, 
                        vtkCellArray *polys,

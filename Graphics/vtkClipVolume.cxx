@@ -33,8 +33,9 @@
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.73");
+vtkCxxRevisionMacro(vtkClipVolume, "1.74");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -648,7 +649,7 @@ void vtkClipVolume::ClipVoxel(double value, vtkDataArray *cellScalars,
 
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkClipVolume::SetLocator(vtkPointLocator *locator)
+void vtkClipVolume::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator ) 
     {

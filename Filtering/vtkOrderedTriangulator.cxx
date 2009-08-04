@@ -23,7 +23,7 @@
 #include "vtkHeap.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.9");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.10");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1343,7 +1343,7 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
 // \pre inCD_exists: inCD!=0
 // \pre outCD_exists: outCD!=0
 vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
-                                            vtkPointLocator *locator,
+                                            vtkIncrementalPointLocator *locator,
                                             vtkCellArray *outConnectivity,
                                             vtkPointData *inPD,
                                             vtkPointData *outPD,

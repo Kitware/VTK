@@ -34,11 +34,12 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.9");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.10");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
-vtkCxxSetObjectMacro(vtkGenericContourFilter,Locator,vtkPointLocator);
+vtkCxxSetObjectMacro(vtkGenericContourFilter,Locator,vtkIncrementalPointLocator);
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.

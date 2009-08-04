@@ -46,7 +46,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkPointData;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericGeometryFilter : public vtkPolyDataAlgorithm
@@ -115,8 +115,8 @@ public:
   // Description:
   // Set / get a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -158,7 +158,7 @@ protected:
   int ExtentClipping;
 
   int Merging;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   
   // Used internal by vtkGenericAdaptorCell::Tessellate()
   vtkPointData *InternalPD;

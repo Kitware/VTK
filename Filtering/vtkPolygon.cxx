@@ -27,8 +27,9 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 #include "vtkMergePoints.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.9");
+vtkCxxRevisionMacro(vtkPolygon, "1.10");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -1237,7 +1238,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkPolygon::Contour(double value, vtkDataArray *cellScalars, 
-                         vtkPointLocator *locator,
+                         vtkIncrementalPointLocator *locator,
                          vtkCellArray *verts, vtkCellArray *lines, 
                          vtkCellArray *polys,
                          vtkPointData *inPd, vtkPointData *outPd,
@@ -1493,7 +1494,7 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkPolygon::Clip(double value, vtkDataArray *cellScalars,
-                      vtkPointLocator *locator, vtkCellArray *tris,
+                      vtkIncrementalPointLocator *locator, vtkCellArray *tris,
                       vtkPointData *inPD, vtkPointData *outPD,
                       vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                       int insideOut)

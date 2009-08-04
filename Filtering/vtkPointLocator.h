@@ -36,14 +36,14 @@
 #ifndef __vtkPointLocator_h
 #define __vtkPointLocator_h
 
-#include "vtkAbstractPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 
 class vtkCellArray;
 class vtkIdList;
 class vtkNeighborPoints;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkPointLocator : public vtkAbstractPointLocator
+class VTK_FILTERING_EXPORT vtkPointLocator : public vtkIncrementalPointLocator
 {
 public:
   // Description:
@@ -51,7 +51,7 @@ public:
   // 25 points per bucket.
   static vtkPointLocator *New();
 
-  vtkTypeRevisionMacro(vtkPointLocator,vtkAbstractPointLocator);
+  vtkTypeRevisionMacro(vtkPointLocator,vtkIncrementalPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

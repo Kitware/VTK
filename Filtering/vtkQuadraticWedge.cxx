@@ -20,13 +20,12 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.14");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.15");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -369,7 +368,7 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
 //----------------------------------------------------------------------------
 void vtkQuadraticWedge::Contour(double value, 
                                 vtkDataArray* cellScalars, 
-                                vtkPointLocator* locator, 
+                                vtkIncrementalPointLocator* locator,
                                 vtkCellArray *verts, 
                                 vtkCellArray* lines, 
                                 vtkCellArray* polys, 
@@ -568,7 +567,7 @@ void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
 // Clip this quadratic wedge using scalar value provided. Like contouring, 
 // except that it cuts the wedge to produce tetrahedra.
 void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars, 
-                             vtkPointLocator* locator, vtkCellArray* tets,
+                             vtkIncrementalPointLocator* locator, vtkCellArray* tets,
                              vtkPointData* inPd, vtkPointData* outPd,
                              vtkCellData* inCd, vtkIdType cellId, 
                              vtkCellData* outCd, int insideOut)

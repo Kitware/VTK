@@ -11,7 +11,6 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-
 =========================================================================*/
 #include "vtkMarchingCubes.h"
 
@@ -36,8 +35,9 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.5");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.6");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -155,7 +155,7 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
 template <class T>
 void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3], 
                                      double origin[3], double spacing[3],
-                                     vtkPointLocator *locator, 
+                                     vtkIncrementalPointLocator *locator, 
                                      vtkDataArray *newScalars, 
                                      vtkDataArray *newGradients, 
                                      vtkDataArray *newNormals, 
@@ -550,7 +550,7 @@ int vtkMarchingCubes::RequestData(
 // Description:
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkMarchingCubes::SetLocator(vtkPointLocator *locator)
+void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator ) 
     {

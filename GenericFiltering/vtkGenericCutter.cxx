@@ -36,13 +36,14 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
+#include "vtkIncrementalPointLocator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericCutter, "1.9");
+vtkCxxRevisionMacro(vtkGenericCutter, "1.10");
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkGenericCutter,Locator,vtkPointLocator);
+vtkCxxSetObjectMacro(vtkGenericCutter,Locator,vtkIncrementalPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and

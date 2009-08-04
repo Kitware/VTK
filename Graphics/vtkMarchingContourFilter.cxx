@@ -29,10 +29,11 @@
 #include "vtkScalarTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
+#include "vtkIncrementalPointLocator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.1");
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.2");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -287,7 +288,7 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
 
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkMarchingContourFilter::SetLocator(vtkPointLocator *locator)
+void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator ) 
     {

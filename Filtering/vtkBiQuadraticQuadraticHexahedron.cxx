@@ -30,7 +30,7 @@
 #include "vtkPoints.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.12");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.13");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -388,7 +388,7 @@ int vtkBiQuadraticQuadraticHexahedron::CellBoundary(int subId, double pcoords[3]
 //----------------------------------------------------------------------------
 void vtkBiQuadraticQuadraticHexahedron::Contour(double value,
                                      vtkDataArray* cellScalars,
-                                     vtkPointLocator* locator,
+                                     vtkIncrementalPointLocator* locator,
                                      vtkCellArray *verts,
                                      vtkCellArray* lines,
                                      vtkCellArray* polys,
@@ -590,7 +590,7 @@ void vtkBiQuadraticQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 // except that it cuts the hex to produce tetrahedra.
 void vtkBiQuadraticQuadraticHexahedron::Clip(double value,
                                   vtkDataArray* cellScalars,
-                                  vtkPointLocator* locator, vtkCellArray* tets,
+                                  vtkIncrementalPointLocator* locator, vtkCellArray* tets,
                                   vtkPointData* inPd, vtkPointData* outPd,
                                   vtkCellData* inCd, vtkIdType cellId,
                                   vtkCellData* outCd, int insideOut)

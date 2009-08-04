@@ -21,12 +21,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.8");
+vtkCxxRevisionMacro(vtkTriangle, "1.9");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -365,7 +365,7 @@ int *vtkTriangle::GetEdgeArray(int edgeId)
 
 //----------------------------------------------------------------------------
 void vtkTriangle::Contour(double value, vtkDataArray *cellScalars, 
-                          vtkPointLocator *locator,
+                          vtkIncrementalPointLocator *locator,
                           vtkCellArray *verts, 
                           vtkCellArray *lines, 
                           vtkCellArray *vtkNotUsed(polys), 
@@ -836,7 +836,7 @@ static TRIANGLE_CASES triangleCases[] = {
 // Clip this triangle using scalar value provided. Like contouring, except
 // that it cuts the triangle to produce other triangles.
 void vtkTriangle::Clip(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator, vtkCellArray *tris,
+                       vtkIncrementalPointLocator *locator, vtkCellArray *tris,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                        int insideOut)

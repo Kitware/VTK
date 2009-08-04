@@ -20,10 +20,11 @@
 #include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkPoints.h"
+#include "vtkIncrementalPointLocator.h"
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.8");
+vtkCxxRevisionMacro(vtkPolyLine, "1.9");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
@@ -370,7 +371,7 @@ int vtkPolyLine::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 
 //----------------------------------------------------------------------------
 void vtkPolyLine::Contour(double value, vtkDataArray *cellScalars,
-                          vtkPointLocator *locator, vtkCellArray *verts, 
+                          vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                           vtkCellArray *lines, vtkCellArray *polys, 
                           vtkPointData *inPd, vtkPointData *outPd,
                           vtkCellData *inCd, vtkIdType cellId,
@@ -457,7 +458,7 @@ void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values,
 
 //----------------------------------------------------------------------------
 void vtkPolyLine::Clip(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator, vtkCellArray *lines,
+                       vtkIncrementalPointLocator *locator, vtkCellArray *lines,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                        int insideOut)

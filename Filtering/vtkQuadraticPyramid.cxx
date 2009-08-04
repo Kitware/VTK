@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.18");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.19");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -372,7 +372,7 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
 //----------------------------------------------------------------------------
 void vtkQuadraticPyramid::Contour(double value, 
                                   vtkDataArray* cellScalars, 
-                                  vtkPointLocator* locator, 
+                                  vtkIncrementalPointLocator* locator,
                                   vtkCellArray *verts, 
                                   vtkCellArray* lines, 
                                   vtkCellArray* polys, 
@@ -599,7 +599,7 @@ void vtkQuadraticPyramid::Derivatives(int vtkNotUsed(subId),
 // except that it cuts the pyramid to produce tetrahedra.
 //
 void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
-                               vtkPointLocator* locator, vtkCellArray* tets,
+                               vtkIncrementalPointLocator* locator, vtkCellArray* tets,
                                vtkPointData* inPd, vtkPointData* outPd,
                                vtkCellData* inCd, vtkIdType cellId, 
                                vtkCellData* outCd, int insideOut)

@@ -27,6 +27,7 @@
 class vtkHyperOctreeCursor;
 class vtkDataSetAttributes;
 class vtkIdTypeArray;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDataAlgorithm
 {
@@ -46,8 +47,8 @@ public:
   // Description:
   // Set / get a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Return the MTime also considering the locator.
@@ -82,7 +83,7 @@ protected:
   void CreateDefaultLocator();
   
   int Merging;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   
   // Variables used by generate recursively.
   // It avoids to pass to much argument.

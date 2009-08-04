@@ -39,13 +39,14 @@
 #include "vtkSynchronizedTemplatesCutter3D.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkIncrementalPointLocator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.90");
+vtkCxxRevisionMacro(vtkCutter, "1.91");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkCutter,Locator,vtkPointLocator)
+vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator)
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and

@@ -21,12 +21,12 @@
 #include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkLine.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.4");
+vtkCxxRevisionMacro(vtkPixel, "1.5");
 vtkStandardNewMacro(vtkPixel);
 
 //----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), double pcoords[3], vtkIdList *
 static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 
 void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
-                       vtkPointLocator *locator, 
+                       vtkIncrementalPointLocator *locator,
                        vtkCellArray *vtkNotUsed(verts),
                        vtkCellArray *lines, 
                        vtkCellArray *vtkNotUsed(polys), 
@@ -545,7 +545,7 @@ static PIXEL_CASES pixelCasesComplement[] = {
 // Clip this pixel using scalar value provided. Like contouring, except
 // that it cuts the pixel to produce quads and/or triangles.
 void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
-                   vtkPointLocator *locator, vtkCellArray *polys,
+                   vtkIncrementalPointLocator *locator, vtkCellArray *polys,
                    vtkPointData *inPd, vtkPointData *outPd,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                    int insideOut)

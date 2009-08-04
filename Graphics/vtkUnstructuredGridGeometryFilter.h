@@ -40,7 +40,7 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkHashTableOfSurfels; // internal class
 
 class VTK_GRAPHICS_EXPORT vtkUnstructuredGridGeometryFilter : public vtkUnstructuredGridAlgorithm
@@ -109,8 +109,8 @@ public:
   // Description:
   // Set / get a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -139,7 +139,7 @@ protected:
   int ExtentClipping;
 
   int Merging;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   
   vtkHashTableOfSurfels *HashTable;
   

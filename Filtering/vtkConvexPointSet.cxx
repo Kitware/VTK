@@ -20,12 +20,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.5");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.6");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------
@@ -144,7 +143,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 //----------------------------------------------------------------------------
 void vtkConvexPointSet::Contour(double value,
                                 vtkDataArray *cellScalars,
-                                vtkPointLocator *locator,
+                                vtkIncrementalPointLocator *locator,
                                 vtkCellArray *verts, vtkCellArray *lines,
                                 vtkCellArray *polys,
                                 vtkPointData *inPd, vtkPointData *outPd,
@@ -174,7 +173,7 @@ void vtkConvexPointSet::Contour(double value,
 //----------------------------------------------------------------------------
 void vtkConvexPointSet::Clip(double value,
                              vtkDataArray *cellScalars,
-                             vtkPointLocator *locator, vtkCellArray *tets,
+                             vtkIncrementalPointLocator *locator, vtkCellArray *tets,
                              vtkPointData *inPD, vtkPointData *outPD,
                              vtkCellData *inCD, vtkIdType cellId,
                              vtkCellData *outCD, int insideOut)

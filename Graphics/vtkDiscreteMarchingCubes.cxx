@@ -42,7 +42,7 @@
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.3");
+vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.4");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -67,7 +67,7 @@ template <class T>
 void vtkDiscreteMarchingCubesComputeGradient(
   vtkDiscreteMarchingCubes *self,T *scalars, int dims[3], 
   vtkFloatingPointType origin[3], vtkFloatingPointType Spacing[3],
-  vtkPointLocator *locator, 
+  vtkIncrementalPointLocator *locator, 
   vtkDataArray *newCellScalars, 
   vtkCellArray *newPolys, vtkFloatingPointType *values, 
   int numValues)

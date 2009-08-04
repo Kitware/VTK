@@ -55,7 +55,7 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkScalarTree;
 
 class VTK_GRAPHICS_EXPORT vtkMarchingContourFilter : public vtkPolyDataAlgorithm
@@ -119,8 +119,8 @@ public:
   // Description:
   // Set / get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is
@@ -138,7 +138,7 @@ protected:
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
   

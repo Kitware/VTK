@@ -23,8 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.37");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.38");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -299,7 +300,7 @@ void vtkExtractUnstructuredGrid::CreateDefaultLocator()
 
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkExtractUnstructuredGrid::SetLocator(vtkPointLocator *locator)
+void vtkExtractUnstructuredGrid::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator ) 
     {

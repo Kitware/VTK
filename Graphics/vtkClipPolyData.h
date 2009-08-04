@@ -59,7 +59,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkImplicitFunction;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataAlgorithm
 {
@@ -127,8 +127,8 @@ public:
   // Description:
   // Specify a spatial locator for merging points. By default, an
   // instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified. The 
@@ -146,7 +146,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkImplicitFunction *ClipFunction;
   
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   int InsideOut;
   double Value;
   int GenerateClipScalars;

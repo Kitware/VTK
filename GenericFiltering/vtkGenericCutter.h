@@ -49,7 +49,7 @@
 class vtkContourValues;
 
 class vtkImplicitFunction;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkPointData;
 class vtkCellData;
 
@@ -125,8 +125,8 @@ public:
   // Description:
   // Specify a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified. The 
@@ -143,7 +143,7 @@ protected:
   int FillInputPortInformation(int, vtkInformation*);
   
   vtkImplicitFunction *CutFunction;
-  vtkPointLocator     *Locator;
+  vtkIncrementalPointLocator *Locator;
   vtkContourValues    *ContourValues;
   int                 GenerateCutScalars;
   

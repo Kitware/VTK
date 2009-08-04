@@ -25,7 +25,7 @@
 // returns true if 2 points are equidistant from x, within a tolerance
 bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2,
                           vtkPointSet* grid)
-{
+{ 
   if(id1 == id2)
     {
     return true;

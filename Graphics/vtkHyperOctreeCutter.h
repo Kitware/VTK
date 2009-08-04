@@ -56,7 +56,7 @@
 //#define VTK_NUMBER_OF_CELL_TYPES 68
 
 class vtkImplicitFunction;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkHyperOctree;
 class vtkOrderedTriangulator;
 class vtkHyperOctreeCursor;
@@ -144,8 +144,8 @@ public:
   // Description:
   // Specify a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Set the sorting order for the generated polydata. There are two
@@ -206,7 +206,7 @@ protected:
   vtkImplicitFunction *CutFunction;
 
 
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   int SortBy;
   vtkContourValues *ContourValues;
   int GenerateCutScalars;

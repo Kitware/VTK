@@ -92,6 +92,7 @@ class vtkPointLocator;
 class vtkPointSet;
 class vtkPoints;
 class vtkTetraArray;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
@@ -137,8 +138,8 @@ public:
   // Description:
   // Set / get a spatial locator for merging points. By default, 
   // an instance of vtkPointLocator is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified. The 
@@ -193,7 +194,7 @@ protected:
   int BoundingTriangulation;
   double Offset;
 
-  vtkPointLocator *Locator;  //help locate points faster
+  vtkIncrementalPointLocator *Locator;  //help locate points faster
   
   vtkTetraArray *TetraArray; //used to keep track of circumspheres/neighbors
   int FindTetra(vtkUnstructuredGrid *Mesh, double x[3], vtkIdType tetId,
@@ -210,7 +211,7 @@ protected:
 
   vtkIdType FindEnclosingFaces(double x[3], vtkUnstructuredGrid *Mesh,
                                vtkIdList *tetras, vtkIdList *faces, 
-                               vtkPointLocator *Locator);
+                               vtkIncrementalPointLocator *Locator);
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 private: //members added for performance

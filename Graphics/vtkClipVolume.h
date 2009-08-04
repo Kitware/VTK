@@ -67,7 +67,7 @@ class vtkImplicitFunction;
 class vtkMergePoints;
 class vtkOrderedTriangulator;
 class vtkPointData;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkPoints;
 class vtkUnstructuredGrid;
 class vtkCell;
@@ -150,8 +150,8 @@ public:
   // Description:
   // Set / Get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified. The 
@@ -183,7 +183,7 @@ protected:
                  vtkCellData *clippedCD);
 
   vtkImplicitFunction *ClipFunction;
-  vtkPointLocator     *Locator;
+  vtkIncrementalPointLocator     *Locator;
   int                  InsideOut;
   double                Value;
   int                  GenerateClipScalars;

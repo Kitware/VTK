@@ -24,8 +24,9 @@
 #include "vtkMergePoints.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeSurfaceFilter, "1.4");
+vtkCxxRevisionMacro(vtkHyperOctreeSurfaceFilter, "1.5");
 vtkStandardNewMacro(vtkHyperOctreeSurfaceFilter);
 
 // merging: locator
@@ -694,7 +695,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
 //-----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkHyperOctreeSurfaceFilter::SetLocator(vtkPointLocator *locator)
+void vtkHyperOctreeSurfaceFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if(this->Locator!=locator) 
     {

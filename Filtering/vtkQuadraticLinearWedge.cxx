@@ -28,7 +28,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.11");
+vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.12");
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 
 //----------------------------------------------------------------------------
@@ -321,7 +321,7 @@ int vtkQuadraticLinearWedge::CellBoundary (int subId, double pcoords[3], vtkIdLi
 //----------------------------------------------------------------------------
 void vtkQuadraticLinearWedge::Contour (double value,
           vtkDataArray * cellScalars,
-          vtkPointLocator * locator,
+          vtkIncrementalPointLocator * locator,
           vtkCellArray * verts,
           vtkCellArray * lines,
           vtkCellArray * polys,
@@ -347,7 +347,7 @@ void vtkQuadraticLinearWedge::Contour (double value,
 // Clip this quadratic-linear wedge using scalar value provided. Like contouring,
 // except that it cuts the wedge to produce tetrahedra.
 void vtkQuadraticLinearWedge::Clip (double value, vtkDataArray *cellScalars,
-             vtkPointLocator * locator, vtkCellArray * tets,
+             vtkIncrementalPointLocator * locator, vtkCellArray * tets,
              vtkPointData * inPd, vtkPointData * outPd,
              vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd, int insideOut)
 {

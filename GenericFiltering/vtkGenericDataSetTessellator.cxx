@@ -32,11 +32,12 @@
 #include "vtkGenericAttribute.h"
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.15");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.16");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
-vtkCxxSetObjectMacro(vtkGenericDataSetTessellator,Locator,vtkPointLocator);
+vtkCxxSetObjectMacro(vtkGenericDataSetTessellator,Locator,vtkIncrementalPointLocator);
 //----------------------------------------------------------------------------
 //
 vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
@@ -162,7 +163,7 @@ int vtkGenericDataSetTessellator::RequestData(
   
   input->GetTessellator()->InitErrorMetrics(input);
   
-  vtkPointLocator *locator=0;
+  vtkIncrementalPointLocator *locator=0;
   if ( this->Merging )
     {
     if ( this->Locator == NULL )

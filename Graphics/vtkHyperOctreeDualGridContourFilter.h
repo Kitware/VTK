@@ -49,7 +49,7 @@ class vtkUnstructuredGrid;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
 class vtkBitArray;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeDualGridContourFilter : public vtkPolyDataAlgorithm
 {
@@ -137,8 +137,8 @@ public:
   // Description:
   // Set / get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is
@@ -170,7 +170,7 @@ protected:
   void ContourNode1D();
   
   vtkContourValues *ContourValues;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   
   vtkHyperOctree *Input;
   vtkPolyData *Output;

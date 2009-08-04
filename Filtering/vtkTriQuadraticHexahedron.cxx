@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.12");
+vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.13");
 vtkStandardNewMacro (vtkTriQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -305,7 +305,7 @@ vtkTriQuadraticHexahedron::CellBoundary (int subId, double pcoords[3], vtkIdList
 //----------------------------------------------------------------------------
 void vtkTriQuadraticHexahedron::Contour (double value,
             vtkDataArray * cellScalars,
-            vtkPointLocator * locator,
+            vtkIncrementalPointLocator * locator,
             vtkCellArray * verts,
             vtkCellArray * lines,
             vtkCellArray * polys,
@@ -332,7 +332,7 @@ void vtkTriQuadraticHexahedron::Contour (double value,
 // except that it cuts the hex to produce tetrahedra.
 void vtkTriQuadraticHexahedron::Clip (double value,
          vtkDataArray * cellScalars,
-         vtkPointLocator * locator,
+         vtkIncrementalPointLocator * locator,
          vtkCellArray * tets,
          vtkPointData * inPd,
          vtkPointData * outPd,

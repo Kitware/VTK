@@ -10,7 +10,7 @@
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
-
+     
 =========================================================================*/
 // .NAME vtkCell - abstract class to specify cell behavior
 // .SECTION Description
@@ -46,7 +46,7 @@ class vtkCellArray;
 class vtkCellData;
 class vtkDataArray;
 class vtkPointData;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkPoints;
 
 class VTK_FILTERING_EXPORT vtkCell : public vtkObject
@@ -177,7 +177,7 @@ public:
   // must be invoked on both the output cell and point data. The 
   // cellId refers to the cell from which the cell data is copied.)
   virtual void Contour(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator, vtkCellArray *verts, 
+                       vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                        vtkCellArray *lines, vtkCellArray *polys, 
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId,
@@ -195,7 +195,7 @@ public:
   // method must be invoked on both the output cell and point data. The
   // cellId refers to the cell from which the cell data is copied.)
   virtual void Clip(double value, vtkDataArray *cellScalars, 
-                    vtkPointLocator *locator, vtkCellArray *connectivity,
+                    vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
                     int insideOut) = 0;

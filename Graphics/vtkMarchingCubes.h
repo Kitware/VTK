@@ -34,7 +34,7 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 {
@@ -85,8 +85,8 @@ public:
   // Description:
   // Overide the default locator.  Useful for changing the number of
   // bins for performance or specifying a more aggressive locator.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is
@@ -104,7 +104,7 @@ protected:
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
 private:
   vtkMarchingCubes(const vtkMarchingCubes&);  // Not implemented.
   void operator=(const vtkMarchingCubes&);  // Not implemented.

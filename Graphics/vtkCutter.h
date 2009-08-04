@@ -50,7 +50,7 @@
 #define VTK_SORT_BY_CELL 1
 
 class vtkImplicitFunction;
-class vtkPointLocator;
+class vtkIncrementalPointLocator;
 class vtkSynchronizedTemplates3D;
 class vtkSynchronizedTemplatesCutter3D;
 class vtkGridSynchronizedTemplates3D;
@@ -136,8 +136,8 @@ public:
   // Description:
   // Specify a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
   // Set the sorting order for the generated polydata. There are two
@@ -199,7 +199,7 @@ protected:
   vtkGridSynchronizedTemplates3D *GridSynchronizedTemplates;
   vtkRectilinearSynchronizedTemplates *RectilinearSynchronizedTemplates;
 
-  vtkPointLocator *Locator;
+  vtkIncrementalPointLocator *Locator;
   int SortBy;
   vtkContourValues *ContourValues;
   int GenerateCutScalars;

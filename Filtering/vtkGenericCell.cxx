@@ -47,8 +47,9 @@
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.6");
+vtkCxxRevisionMacro(vtkGenericCell, "1.7");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
@@ -154,7 +155,7 @@ void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars, 
-                             vtkPointLocator *locator, vtkCellArray *verts, 
+                             vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                              vtkCellArray *lines, vtkCellArray *polys, 
                              vtkPointData *inPd, vtkPointData *outPd,
                              vtkCellData *inCd, vtkIdType cellId,
@@ -166,7 +167,7 @@ void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars,
 
 //----------------------------------------------------------------------------
 void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars, 
-                          vtkPointLocator *locator, vtkCellArray *connectivity,
+                          vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                           vtkPointData *inPd, vtkPointData *outPd,
                           vtkCellData *inCd, vtkIdType cellId,
                           vtkCellData *outCd, int insideOut)
