@@ -39,12 +39,13 @@
 # define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.12");
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.13");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
 static const double inv3 = 1 / 3.;
 static const double absolute0 = 10. * VTK_DBL_MIN;
+
 double vtkPolynomialSolversUnivariate::DivisionTolerance = 1e-8;//sqrt( VTK_DBL_EPSILON );
 
 //----------------------------------------------------------------------------
@@ -306,12 +307,17 @@ static int polynomialEucliDivOppositeR(
   return r;
 }
 
+//----------------------------------------------------------------------------
 inline double vtkNormalizePolyCoeff( double d, double* div = 0 )
 {
   static const double high = 18446744073709551616.; // 2^64
-  if ( fabs( d ) < 1e300 )
+  static const double reallyBig = 1.e300;
+  static const double notThatBig = 1.e30;
+  static const double notThatBigInv = 1.e-30;
+
+  if ( fabs( d ) < reallyBig )
     {
-    while ( fabs( d ) > 1e30 )
+    while ( fabs( d ) > notThatBig )
       {
       d /= high;
       if ( div )
@@ -320,9 +326,9 @@ inline double vtkNormalizePolyCoeff( double d, double* div = 0 )
         }
       }
     }
-  if ( fabs( d ) > 1e-300 )
+  if ( fabs( d ) > reallyBig )
     {
-    while(fabs( d ) < 1e-30)
+    while(fabs( d ) < notThatBigInv )
       {
       d *= high;
       if ( div )
