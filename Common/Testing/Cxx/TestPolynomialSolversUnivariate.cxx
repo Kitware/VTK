@@ -634,7 +634,7 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
 #if 0
   double r1, r2, r3;
   int nr;
-  testIntValue = vtkMath::SolveCubic( P3[0], P3[1], P3[2], P3[3], &r1, &r2, &r3, &nr );
+  testIntValue = vtkPolynomialSolversUnivariate::SolveCubic( P3[0], P3[1], P3[2], P3[3], &r1, &r2, &r3, &nr );
   if ( testIntValue != 2 )
     {
     vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 3");
@@ -669,7 +669,7 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
 #if 0
   double r1, r2, r3;
   int nr;
-  testIntValue = vtkMath::SolveCubic( P3_2[0], P3_2[1], P3_2[2], P3_2[3], &r1, &r2, &r3, &nr );
+  testIntValue = vtkPolynomialSolversUnivariate::SolveCubic( P3_2[0], P3_2[1], P3_2[2], P3_2[3], &r1, &r2, &r3, &nr );
   if ( testIntValue != 1 )
     {
     vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 1");
@@ -704,7 +704,7 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
 #if 0
   double r1, r2, r3;
   int nr;
-  testIntValue = vtkMath::SolveCubic( P3_3[0], P3_3[1], P3_3[2], P3_3[3], &r1, &r2, &r3, &nr );
+  testIntValue = vtkPolynomialSolversUnivariate::SolveCubic( P3_3[0], P3_3[1], P3_3[2], P3_3[3], &r1, &r2, &r3, &nr );
   if ( testIntValue != 3 )
     {
     vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 3");
