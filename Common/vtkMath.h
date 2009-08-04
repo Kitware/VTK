@@ -34,6 +34,8 @@
 #define __vtkMath_h
 
 #include "vtkObject.h"
+#include "vtkPolynomialSolversUnivariate.h"
+
 #include <assert.h> // assert() in inline implementations.
 
 #ifndef DBL_EPSILON
@@ -1035,6 +1037,50 @@ inline double vtkMath::Determinant3x3(float A[3][3])
 inline double vtkMath::Determinant3x3(double A[3][3])
 {
   return vtkDeterminant3x3( A );
+}
+
+//----------------------------------------------------------------------------
+inline double* vtkMath::SolveCubic(double c0, double c1, double c2, double c3)
+{
+  return vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3 );
+}
+
+//----------------------------------------------------------------------------
+inline double* vtkMath::SolveQuadratic(double c0, double c1, double c2)
+{
+  return vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2 );
+}
+
+//----------------------------------------------------------------------------
+inline double* vtkMath::SolveLinear(double c0, double c1)
+{
+  return vtkPolynomialSolversUnivariate::SolveLinear( c0, c1 );
+}
+
+//----------------------------------------------------------------------------
+inline int vtkMath::SolveCubic(double c0, double c1, double c2, double c3, 
+                               double *r1, double *r2, double *r3, int *num_roots)
+{
+  return vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3, r1, r2, r3, num_roots );
+}
+
+//----------------------------------------------------------------------------
+inline int vtkMath::SolveQuadratic(double c0, double c1, double c2, 
+                                   double *r1, double *r2, int *num_roots)
+{
+  return vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2, r1, r2, num_roots );
+}
+  
+//----------------------------------------------------------------------------
+inline int vtkMath::SolveQuadratic( double* c, double* r, int* m )
+{
+  return vtkPolynomialSolversUnivariate::SolveQuadratic( c, r, m );
+}
+
+//----------------------------------------------------------------------------
+inline int vtkMath::SolveLinear(double c0, double c1, double *r1, int *num_roots)
+{
+  return vtkPolynomialSolversUnivariate::SolveLinear( c0, c1, r1, num_roots );
 }
 
 //----------------------------------------------------------------------------

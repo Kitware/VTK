@@ -190,6 +190,69 @@ public:
   static int TartagliaCardanSolve( double* c, double* r, int* m, double tol );
 
   // Description:
+  // Solves a cubic equation c0*t^3 + c1*t^2 + c2*t + c3 = 0 when c0, c1, c2,
+  // and c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
+  // Ed.  Return array contains number of (real) roots (counting multiple
+  // roots as one) followed by roots themselves. The value in roots[4] is a
+  // integer giving further information about the roots (see return codes for
+  // int SolveCubic() ).
+  static double* SolveCubic(double c0, double c1, double c2, double c3);
+
+  // Description:
+  // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and c3
+  // are REAL.  Solution is motivated by Numerical Recipes In C 2nd Ed.
+  // Return array contains number of (real) roots (counting multiple roots as
+  // one) followed by roots themselves. Note that roots[3] contains a return
+  // code further describing solution - see documentation for SolveCubic()
+  // for meaning of return codes.
+  static double* SolveQuadratic(double c0, double c1, double c2);
+
+  // Description:
+  // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
+  // Solution is motivated by Numerical Recipes In C 2nd Ed.
+  // Return array contains number of roots followed by roots themselves.
+  static double* SolveLinear(double c0, double c1);
+
+  // Description:
+  // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
+  // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
+  // real roots are stored in user provided variables r1, r2, r3, and
+  // num_roots. Note that the function can return the following integer
+  // values describing the roots: (0)-no solution; (-1)-infinite number
+  // of solutions; (1)-one distinct real root of multiplicity 3 (stored
+  // in r1); (2)-two distinct real roots, one of multiplicity 2 (stored
+  // in r1 & r2); (3)-three distinct real roots; (-2)-quadratic equation
+  // with complex conjugate solution (real part of root returned in r1,
+  // imaginary in r2); (-3)-one real root and a complex conjugate pair
+  // (real root in r1 and real part of pair in r2 and imaginary in r3).
+  static int SolveCubic(double c0, double c1, double c2, double c3, 
+                        double *r1, double *r2, double *r3, int *num_roots);
+
+  // Description:
+  // Solves a quadratic equation c1*t^2  + c2*t  + c3 = 0 when 
+  // c1, c2, and c3 are REAL.
+  // Solution is motivated by Numerical Recipes In C 2nd Ed.
+  // Roots and number of roots are stored in user provided variables
+  // r1, r2, num_roots
+  static int SolveQuadratic(double c0, double c1, double c2, 
+                            double *r1, double *r2, int *num_roots);
+  
+  // Description:
+  // Algebraically extracts REAL roots of the quadratic polynomial with 
+  // REAL coefficients c[0] X^2 + c[1] X + c[2]
+  // and stores them (when they exist) and their respective multiplicities
+  // in the \a r and \a m arrays.
+  // Returns either the number of roots, or -1 if ininite number of roots.
+  static int SolveQuadratic( double* c, double* r, int* m );
+
+  // Description:
+  // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
+  // Solution is motivated by Numerical Recipes In C 2nd Ed.
+  // Root and number of (real) roots are stored in user provided variables
+  // r2 and num_roots.
+  static int SolveLinear(double c0, double c1, double *r1, int *num_roots);
+
+  // Description:
   // Set/get the tolerance used when performing polynomial Euclidean division
   // to find polynomial roots. This tolerance is used to decide whether the
   // coefficient(s) of a polynomial remainder are close enough to
