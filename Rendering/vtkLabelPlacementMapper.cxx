@@ -441,7 +441,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.3");
+vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.4");
 vtkStandardNewMacro(vtkLabelPlacementMapper);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, AnchorTransform, vtkCoordinate);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, RenderStrategy, vtkLabelRenderStrategy);
@@ -650,6 +650,8 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
   vtkDebugMacro("Iterator initialization time: " << timer->GetElapsedTime());
   timer->StartTimer();
 
+  vtkSmartPointer<vtkTextProperty> tpropCopy = vtkSmartPointer<vtkTextProperty>::New();
+
   for ( ; ! inIter->IsAtEnd(); inIter->Next() )
     {
     // Ignore labels that don't have text or an icon.
@@ -693,14 +695,21 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
     // Determine the label bounds
     vtkTextProperty* tprop = inIter->GetHierarchy()->GetTextProperty();
+    tpropCopy->ShallowCopy( tprop );
+
+    if ( this->RenderStrategy->SupportsRotation() && inIter->GetHierarchy()->GetOrientations() )
+      {
+      tpropCopy->SetOrientation( inIter->GetOrientation() );
+      }
+
     double bds[4];
     if ( this->UseUnicodeStrings )
       {
-      this->RenderStrategy->ComputeLabelBounds( tprop, inIter->GetUnicodeLabel(), bds );
+      this->RenderStrategy->ComputeLabelBounds( tpropCopy, inIter->GetUnicodeLabel(), bds );
       }
     else
       {
-      this->RenderStrategy->ComputeLabelBounds( tprop, inIter->GetLabel(), bds );
+      this->RenderStrategy->ComputeLabelBounds( tpropCopy, inIter->GetLabel(), bds );
       }
 
     // Offset display position by lower left corner of bounding box
@@ -751,18 +760,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
     iteratedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
 
-    double orient = 0;
-    if ( this->RenderStrategy->SupportsRotation() )
-      {
-      if ( inIter->GetHierarchy()->GetOrientations() )
-        {
-        orient = inIter->GetOrientation();
-        }
-      else
-        {
-        orient = tprop->GetOrientation();
-        }
-      }
+    double orient = tpropCopy->GetOrientation();
 
     // Translate to origin to simplify bucketing
     double xTrans[4];
@@ -787,11 +785,11 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
         // label is text
         if( this->UseUnicodeStrings )
           {
-          this->RenderStrategy->RenderLabel( x, tprop, inIter->GetUnicodeLabel() );
+          this->RenderStrategy->RenderLabel( x, tpropCopy, inIter->GetUnicodeLabel() );
           }
         else
           {
-          this->RenderStrategy->RenderLabel( x, tprop, inIter->GetLabel() );
+          this->RenderStrategy->RenderLabel( x, tpropCopy, inIter->GetLabel() );
           }
 
         // TODO: 1. Perturb coincident points.
