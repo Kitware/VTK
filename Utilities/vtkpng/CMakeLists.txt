@@ -26,7 +26,13 @@ CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/pngDllConfig.h.in
                ${VTKPNG_BINARY_DIR}/pngDllConfig.h)
 
 ADD_LIBRARY(vtkpng ${PNG_SRCS})
+
 TARGET_LINK_LIBRARIES(vtkpng ${VTK_ZLIB_LIBRARIES})
+
+# link against the math library
+IF(UNIX)
+  TARGET_LINK_LIBRARIES(vtkpng -lm)
+ENDIF()
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)

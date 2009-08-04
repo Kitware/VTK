@@ -120,6 +120,11 @@ CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/tif_config.h.in
 ADD_LIBRARY(vtktiff ${common_SRCS})
 TARGET_LINK_LIBRARIES( vtktiff ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES} )
 
+# link against the math library
+IF(UNIX)
+  TARGET_LINK_LIBRARIES(vtktiff -lm)
+ENDIF()
+
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(vtktiff PROPERTIES ${VTK_LIBRARY_PROPERTIES})
