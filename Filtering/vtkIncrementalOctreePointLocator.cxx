@@ -31,7 +31,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro( vtkIncrementalOctreePointLocator, "1.1" );
+vtkCxxRevisionMacro( vtkIncrementalOctreePointLocator, "1.2" );
 vtkStandardNewMacro( vtkIncrementalOctreePointLocator );
 
 // ---------------------------------------------------------------------------
@@ -213,7 +213,7 @@ int vtkIncrementalOctreePointLocator::GetNumberOfPoints()
 }
 
 //----------------------------------------------------------------------------
-void vtkIncrementalOctreePointLocator::GetBounds( double bounds[6] )
+void vtkIncrementalOctreePointLocator::GetBounds( double * bounds )
 { 
   if ( this->OctreeRootNode )
     {

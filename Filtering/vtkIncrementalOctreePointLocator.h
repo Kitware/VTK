@@ -79,15 +79,20 @@ public:
   
   // Description:
   // Delete the octree search structure.
-  void Initialize() { this->FreeSearchStructure(); }
+  virtual void Initialize() { this->FreeSearchStructure(); }
   
   // Description:
   // Delete the octree search structure. 
-  void FreeSearchStructure();
+  virtual void FreeSearchStructure();
   
   // Description:
   // Get the spatial bounding box of the octree.
-  void GetBounds( double bounds[6] );
+  virtual void GetBounds( double * bounds );
+  
+  // Description:
+  // Get the spatial bounding box of the octree.
+  virtual double * GetBounds()
+    { this->GetBounds( this->Bounds );  return this->Bounds; }
   
   // Description:
   // Get the number of points maintained by the octree.
@@ -104,7 +109,7 @@ public:
   // Description:
   // Create a polygonal representation of the octree boundary (from the root
   // node to a specified level).
-  void GenerateRepresentation( int nodeLevel, vtkPolyData * polysData );
+  virtual void GenerateRepresentation( int nodeLevel, vtkPolyData * polysData );
   
   // -------------------------------------------------------------------------
   // ---------------------------- Point  Location ----------------------------
@@ -113,7 +118,7 @@ public:
   // Description:
   // Load points from a dataset to construct an octree for point location. 
   // This function resorts to InitPointInsertion() to fulfill some of the work.
-  void BuildLocator();
+  virtual void BuildLocator();
   
   // Description:
   // Given a point x, return the id of the closest point. BuildLocator() should
@@ -133,14 +138,14 @@ public:
   // minimum squared distance (via miniDist2). Note BuildLocator() should have
   // been called prior to this function. This method is thread safe if 
   // BuildLocator() is directly or indirectly called from a single thread first.
-  vtkIdType FindClosestPoint( const double x[3], double * miniDist2 );
+  virtual vtkIdType FindClosestPoint( const double x[3], double * miniDist2 );
   
   // Description:
   // Given a point (x, y, z), return the id of the closest point and the
   // associated minimum squared distance (via miniDist2). BuildLocator() should
   // have been called prior to this function. This method is thread safe if 
   // BuildLocator() is directly or indirectly called from a single thread first.
-  vtkIdType FindClosestPoint( double x, double y, double z, double * miniDist2 );
+  virtual vtkIdType FindClosestPoint( double x, double y, double z, double * miniDist2 );
   
   // Description:
   // Given a point x and a radius, return the id of the closest point within
@@ -222,7 +227,7 @@ public:
   // Determine whether or not a given point has been inserted into the octree.
   // Return the id of the already inserted point if true, otherwise return -1.
   // InitPointInsertion() should have been called in advance.
-  vtkIdType IsInsertedPoint( double x, double  y, double z );
+  virtual vtkIdType IsInsertedPoint( double x, double  y, double z );
   
   // Description:
   // Insert a point to the octree unless there has been a duplciate point.
