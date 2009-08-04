@@ -51,7 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QHttpHeader>
 #include <QHttpRequestHeader>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.16");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.17");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -170,52 +170,37 @@ void vtkQtRichTextView::Update()
     return;
     }
 
-  vtkIdType row = 0;
-  bool row_valid = false;
-
   // Special-case: if the table is empty, we're done ...
-  if(0 == table->GetNumberOfRows())
+  if(table->GetNumberOfRows() == 0)
     {
     this->Internal->UI.WebView->setHtml("");
     return;
     }
-  // Special-case #2: If the table has only one row just use it.
-  else if( 1 == table->GetNumberOfRows())
+
+  vtkSelection* s = representation->GetAnnotationLink()->GetCurrentSelection();
+
+  vtkSmartPointer<vtkSelection> selection;
+  selection.TakeReference(vtkConvertSelection::ToSelectionType(
+    s, table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
+
+  if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
     {
-      row = 0;
-      row_valid=true;
+    this->Internal->UI.WebView->setHtml("");
+    return;
     }
-  // For everything else, use the SelectionLink.
-  else
+
+  vtkIdTypeArray* selectedRows = vtkIdTypeArray::SafeDownCast(selection->GetNode(0)->GetSelectionList());
+  if(selectedRows->GetNumberOfTuples() == 0)
     {
-    // Figure-out which row of the table we're going to display (if any) ...
-    row_valid = false;
-    if(vtkSelection* const selection = representation->GetAnnotationLink()->GetCurrentSelection())
-      {
-      if(vtkSelectionNode* const selection_node = selection->GetNumberOfNodes() ? selection->GetNode(0) : 0)
-        {
-        if(vtkIdTypeArray* const selection_array = vtkIdTypeArray::SafeDownCast(selection_node->GetSelectionList()))
-          {
-          if(selection_array->GetNumberOfTuples() && selection_array->GetValue(0) >= 0 && selection_array->GetValue(0) < table->GetNumberOfRows())
-            {
-            row = selection_array->GetValue(0);
-            row_valid = true;
-            }
-          }
-        }
-      }
+    this->Internal->UI.WebView->setHtml("");
+    return;
     }
+
+  vtkIdType row = selectedRows->GetValue(0);
 
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
 
-  if(row_valid)
-    {
-    this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToString();
-    }
-  else
-    {
-    this->Internal->Content.clear();
-    }
+  this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToString();
 
 #if 0
     QHttpRequestHeader header( this->Internal->Content.c_str());
