@@ -42,7 +42,7 @@ public:
     POINT_DATA = 1,
     CELL_DATA = 2,
     VERTEX_DATA = 3,
-    EDGE_DATA = 4,
+    EDGE_DATA = 4
     };
   //ETX
   

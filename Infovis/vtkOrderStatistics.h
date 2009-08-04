@@ -53,7 +53,7 @@ public:
   //BTX
   enum QuantileDefinitionType {
     InverseCDF              = 0,
-    InverseCDFAveragedSteps = 1,
+    InverseCDFAveragedSteps = 1
     };
   //ETX
 
