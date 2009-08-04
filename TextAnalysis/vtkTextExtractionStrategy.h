@@ -51,12 +51,16 @@ public:
 //BTX
   // Description:
   // Given a resource Mime type and content, implementations should return 'true' if they can
-  // handle resource that the given Mime type, otherwise false.  If the implementatino handles
-  // the resource, it should return any text that can be extracted from  the resource, and append
-  // a set of zero-to-many tags to the given tag arrays.  Note that at a minimum, implementations
+  // extract text from resources with the given Mime type, otherwise false.  If the implementation
+  // can handle the resource, it should return any text that can be extracted, and append a set
+  // of zero-to-many tags to the given tag arrays.  Note that at a minimum, implementations
   // should generate a "TEXT" tag that encloses the body of the text content.
+  // 
+  // A resource URI is provided for reference; in general, implementations shouldn't need to
+  // use the URI to access the resource content, since it is already loaded into memory.
   virtual bool Extract(
     const vtkIdType document,
+    const vtkStdString& uri,
     const vtkStdString& mime_type,
     const vtkTypeUInt8* content_begin,
     const vtkTypeUInt8* content_end,

@@ -28,10 +28,10 @@ class vtkTextExtractionStrategy;
 // .NAME vtkTextExtraction - Extracts text from documents based on their MIME type.
 //
 // .SECTION Description
-// Given a table containing document ids, Mime types and document contents, extracts
-// plain text from each document, and generates a list of 'tags' that delineate
-// ranges of text.  The actual work of extracting text and generating tags is
-// performed by an ordered list of vtkTextExtractionStrategy objects.
+// Given a table containing document ids, URIs, Mime types and document contents,
+// extracts plain text from each document, and generates a list of 'tags' that
+// delineate ranges of text.  The actual work of extracting text and generating tags
+// is performed by an ordered list of vtkTextExtractionStrategy objects.
 //
 // By default, vtkTextExtraction has just a single strategy for extracting plain
 // text documents.  Callers will almost certainly want to supplement or replace
@@ -44,16 +44,19 @@ class vtkTextExtractionStrategy;
 // Outputs:
 //   Output port 0: The same table with an additional "text" column that contains the
 //     text extracted from each document.
-//   Output port 1: A table of document tags that includes "document", "begin", "end",
-//     and "type" columns.
+//   Output port 1: A table of document tags that includes "document", "uri", "begin",
+//     "end", and "type" columns.
 //
 // Use SetInputArrayToProcess(0, ...) to specify the input table column that contains
 // document ids (must be a vtkIdTypeArray).  Default: "document".
 //
 // Use SetInputArrayToProcess(1, ...) to specify the input table column that contains
-// Mime types (must be a vtkStringArray).  Default: "mime_type".
+// URIs (must be a vtkStringArray).  Default: "uri".
 //
 // Use SetInputArrayToProcess(2, ...) to specify the input table column that contains
+// Mime types (must be a vtkStringArray).  Default: "mime_type".
+//
+// Use SetInputArrayToProcess(3, ...) to specify the input table column that contains
 // document contents (must be a vtkStringArray).  Default: "content".
 //
 // .SECTION Caveats

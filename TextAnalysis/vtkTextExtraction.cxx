@@ -44,7 +44,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.7");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.8");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
@@ -56,8 +56,9 @@ vtkTextExtraction::vtkTextExtraction() :
   this->SetOutputArray("text");
   
   this->SetInputArrayToProcess(0, 0, 0, 6, "document");
-  this->SetInputArrayToProcess(1, 0, 0, 6, "mime_type");
-  this->SetInputArrayToProcess(2, 0, 0, 6, "content");
+  this->SetInputArrayToProcess(1, 0, 0, 6, "uri");
+  this->SetInputArrayToProcess(2, 0, 0, 6, "mime_type");
+  this->SetInputArrayToProcess(3, 0, 0, 6, "content");
   
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(2);
@@ -143,12 +144,17 @@ int vtkTextExtraction::RequestData(
     if(!document_id_array)
       throw vtkstd::runtime_error("Missing document id array.");
        
-    vtkStringArray* const mime_type_array = vtkStringArray::SafeDownCast(
+    vtkStringArray* const uri_array = vtkStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(1, 0, inputVector));
+    if(!uri_array)
+      throw vtkstd::runtime_error("Missing uri array.");
+
+    vtkStringArray* const mime_type_array = vtkStringArray::SafeDownCast(
+      this->GetInputAbstractArrayToProcess(2, 0, inputVector));
     if(!mime_type_array)
       throw vtkstd::runtime_error("Missing mime_type array.");
 
-    vtkAbstractArray* const content_array = this->GetInputAbstractArrayToProcess(2, 0, inputVector);
+    vtkAbstractArray* const content_array = this->GetInputAbstractArrayToProcess(3, 0, inputVector);
     if(!content_array)
       throw vtkstd::runtime_error("Missing content array.");
 
@@ -171,6 +177,7 @@ int vtkTextExtraction::RequestData(
     for(vtkIdType i = 0; i != count; ++i)
       {
       const vtkIdType document = document_id_array->GetValue(i);
+      const vtkStdString& uri = uri_array->GetValue(i);
       const vtkStdString& mime_type = mime_type_array->GetValue(i);
       const vtkStdString content = content_array->GetVariantValue(i).ToString();
 
@@ -179,6 +186,7 @@ int vtkTextExtraction::RequestData(
         {
         if(this->Internal->Strategies[j]->Extract(
           document,
+          uri,
           mime_type,
           reinterpret_cast<const vtkTypeUInt8*>(content.data()),
           reinterpret_cast<const vtkTypeUInt8*>(content.data() + content.size()),
