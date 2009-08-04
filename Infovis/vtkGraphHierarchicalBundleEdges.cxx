@@ -38,7 +38,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.1");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.2");
 vtkStandardNewMacro(vtkGraphHierarchicalBundleEdges);
 
 vtkGraphHierarchicalBundleEdges::vtkGraphHierarchicalBundleEdges()
@@ -119,6 +119,10 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       vtkErrorMacro("Graph pedigree id array not found.");
       return 0;
       }
+    // Check for valid domain array, if any.
+    vtkAbstractArray* graphDomainArray = 
+      graph->GetVertexData()->GetAbstractArray("domain");
+
     vtkAbstractArray* treeIdArray = 
       tree->GetVertexData()->GetPedigreeIds();
     if (!treeIdArray)
@@ -126,6 +130,9 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       vtkErrorMacro("Tree pedigree id array not found.");
       return 0;
       }
+    // Check for valid domain array, if any.
+    vtkAbstractArray* treeDomainArray = 
+      tree->GetVertexData()->GetAbstractArray("domain");
 
     map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
     
@@ -141,6 +148,27 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       vtkVariant id = treeIdArray->GetVariantValue(i);
       if (graphIdMap.count(id))
         {
+        // Make sure that the domain for this id in the graph matches
+        // the one in the tree before adding to the map. This guards 
+        // against drawing edges to group nodes in the tree.
+        if(treeDomainArray)
+          {
+          vtkVariant treeDomain = treeDomainArray->GetVariantValue(i);
+          vtkVariant graphDomain;
+          if(graphDomainArray)
+            {
+            graphDomain = graphDomainArray->GetVariantValue(graphIdMap[id]);
+            }
+          else
+            {
+            graphDomain == graphIdArray->GetName();
+            }
+          if(graphDomain != treeDomain)
+            {
+            continue;
+            }
+          }
+
         graphIndexToTreeIndex[graphIdMap[id]] = i;
         }
       }
