@@ -276,9 +276,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                            
         for (  i = 0;  ( i < numInsrt ) && ( samePtId == 1 );  i ++  )
           {
-          samePtId = !(  truthIds[i] - ptIdList->GetId( i )  );
+          samePtId = (  truthIds[i] == ptIdList->GetId( i )  )  ?  1  :  0;
           }
-        retValue = !samePtId;
+        retValue = 1 - samePtId;
         }
       else  retValue = 1;
       // -------------------------------------------------------------------//
@@ -314,7 +314,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       octLocat->InsertPointWithoutChecking
                 ( pDataPts + ( i << 1 ) + i, pointIdx, 1 );
       }
-    retValue = int( insrtPts->GetNumberOfPoints() != numbPnts );
+    retValue = ( insrtPts->GetNumberOfPoints() == numbPnts ) ? 0 : 1;
     
     } // end of three resolutions
     
@@ -427,7 +427,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
     for (  i = 0;  ( i < nLocPnts ) && ( retValue == 0 );  i ++  )
       {
-      retValue = !(  !( resltIds[i] - truthIds[i] )  );
+      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
       }
     // ---------------------------------------------------------------------//
     #endif 
@@ -519,7 +519,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
-      retValue = !(  !( resltIds[i] - truthIds[i] )  );
+      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
       } 
     #endif
     // ---------------------------------------------------------------------//
@@ -684,7 +684,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     vtkIdType * tmpPtIds = ptIdList->GetPointer( 0 );
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
-      retValue = !(  !( tmpPtIds[i] - truthIds[i] )  );
+      retValue = ( tmpPtIds[i] == truthIds[i] ) ? 0 : 1;
       } 
     tmpPtIds = NULL;
     #endif
@@ -728,7 +728,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                 (  nClzNpts,  pLocPnts + ( i << 1 ) + i,  ptIdList  );
       
       // check the number of the closest points
-      retValue = !(  !( ptIdList->GetNumberOfIds() - nClzNpts )  );
+      retValue = ( ptIdList->GetNumberOfIds() == nClzNpts ) ? 0 : 1;
       
       // ---------------------------------------------------------------------
       // verify the result in brute force mode
@@ -795,7 +795,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     numInsrt = nClzNpts * nLocPnts;     // data has been read at the beginning
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
-      retValue = !(  !( resltIds[i] - truthIds[i] )  );
+      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
       }
     #endif
     // ---------------------------------------------------------------------//
