@@ -34,7 +34,7 @@
 #define __vtkMath_h
 
 #include "vtkObject.h"
-#include "vtkPolynomialSolversUnivariate.h"
+#include "vtkPolynomialSolversUnivariate.h" // For backwards compatibility of old solvers
 
 #include <assert.h> // assert() in inline implementations.
 
