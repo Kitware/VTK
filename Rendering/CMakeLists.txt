@@ -505,6 +505,12 @@ ELSE (WIN32)
 
       SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView WRAP_EXCLUDE)
       SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} "-framework Cocoa")
+      # This is to resolve a linker error that happens on older (?) OS X builds.
+      # If an executable links against vtkRendering, it would get the following
+      # error unless we add the objc to its link interface:
+      # ld: /usr/lib/crt1.o illegal reference to symbol: __objcInit defined in indirectly
+      # referenced dynamic library /usr/lib/libobjc.A.dylib
+      LIST(APPEND KIT_INTERFACE_LIBRARIES objc)
     ENDIF(VTK_USE_COCOA)
     IF(VTK_USE_CARBON)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
