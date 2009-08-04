@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIncrementalOctreeNode.h"
 
-vtkCxxRevisionMacro( vtkIncrementalOctreeNode, "1.1" );
+vtkCxxRevisionMacro( vtkIncrementalOctreeNode, "1.2" );
 vtkStandardNewMacro( vtkIncrementalOctreeNode );
 
 // ---------------------------------------------------------------------------
@@ -89,6 +89,7 @@ vtkIncrementalOctreeNode::~vtkIncrementalOctreeNode()
 {
   if ( this->Parent )
     {
+    this->Parent->UnRegister( this );
     this->Parent = NULL;
     }
 
