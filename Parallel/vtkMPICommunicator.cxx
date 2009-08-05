@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.51");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.52");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -322,7 +322,7 @@ int vtkMPICommunicatorAllReduceData(const void *sendBuffer, void *recvBuffer,
 // the __stdcall decoration. It should be empty on any other 
 // platform
 static vtkCommunicator::Operation *CurrentOperation;
-extern "C" void MPIAPI vtkMPICommunicatorUserFunction(void *invec, void *inoutvec,
+extern "C" void vtkMPICommunicatorUserFunction(void *invec, void *inoutvec,
                                                int *len, MPI_Datatype *datatype)
 {
   int vtkType = vtkMPICommunicatorGetVTKType(*datatype);
