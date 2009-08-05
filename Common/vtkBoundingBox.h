@@ -148,6 +148,11 @@ public:
   double GetDiagonalLength() const;
 
   // Description:
+  // Expand the Box by delta on each side, the box will grow by
+  // 2*delta in x,y and z
+  void Inflate(double delta);
+
+  // Description:
   // Returns 1 if the bounds have been set and 0 if the box is in its
   // initialized state which is an inverted state
   int IsValid() const;

@@ -61,7 +61,6 @@ void vtkBoundingBox::AddBox(const vtkBoundingBox &bbox)
       }
     }
 }
-
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::AddBounds(double bounds[6])
 {
@@ -162,7 +161,16 @@ void vtkBoundingBox::SetMaxPoint(double x, double y, double z)
     this->MinPnt[2] = z;
     }
 }
-
+// ---------------------------------------------------------------------------
+void vtkBoundingBox::Inflate(double delta)
+{
+  this->MinPnt[0] -= delta;
+  this->MaxPnt[0] += delta;
+  this->MinPnt[1] -= delta;
+  this->MaxPnt[1] += delta;
+  this->MinPnt[2] -= delta;
+  this->MaxPnt[2] += delta;
+}
 // ---------------------------------------------------------------------------
 int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
 {
