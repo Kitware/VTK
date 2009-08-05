@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.7");
+vtkCxxRevisionMacro(vtkArrayData, "1.8");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -100,7 +100,9 @@ void vtkArrayData::AddArray(vtkArray* array)
 void vtkArrayData::ClearArrays()
 {
   for(unsigned int i = 0; i != this->Implementation->Arrays.size(); ++i)
+    {
     this->Implementation->Arrays[i]->Delete();
+    }
 
   this->Implementation->Arrays.clear();
 }
@@ -126,7 +128,12 @@ void vtkArrayData::ShallowCopy(vtkDataObject* other)
 {
   if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
     {
+    this->ClearArrays();
     this->Implementation->Arrays = array_data->Implementation->Arrays;
+    for(size_t i = 0;i != this->Implementation->Arrays.size();++i)
+      {
+      this->Implementation->Arrays[i]->Register(this);
+      }
     this->Modified();
     }
 
@@ -137,7 +144,7 @@ void vtkArrayData::DeepCopy(vtkDataObject* other)
 {
   if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
     {
-    this->Implementation->Arrays.clear();
+    this->ClearArrays();
     for(size_t i = 0;i != array_data->Implementation->Arrays.size();++i)
       {
       this->Implementation->Arrays.push_back(
