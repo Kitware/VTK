@@ -88,6 +88,10 @@ public:
   void HideColumn(int i);
 
   // Description:
+  // Hide all but the first column in the view
+  void HideAllButFirstColumn();
+
+  // Description:
   // Set whether to use a QColumnView (QTreeView is the default)
   void SetUseColumnView(int state);
 
