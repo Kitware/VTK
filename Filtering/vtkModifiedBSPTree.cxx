@@ -13,8 +13,8 @@
 
 =========================================================================*/
 //
-#include <stack>
-#include <vector>
+#include <vtksys/stl/stack>
+#include <vtksys/stl/vector>
 //
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
@@ -22,7 +22,7 @@
 #include "vtkGenericCell.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.2");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.3");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
@@ -387,8 +387,8 @@ class _box {
   _box(double *b) { for (int i=0; i<6; i++) { bounds[i] = b[i]; } };
 };
 
-typedef vector<_box> boxlist;
-typedef stack<BSPNode*, vector<BSPNode*> > nodestack;
+typedef vtksys_stl::vector<_box> boxlist;
+typedef vtksys_stl::stack<BSPNode*, vtksys_stl::vector<BSPNode*> > nodestack;
 
 void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData *vtkNotUsed(pd)) {
   //
