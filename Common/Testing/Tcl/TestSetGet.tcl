@@ -127,11 +127,11 @@ proc rtSetGetTest { fileid } {
    }
 }
 
-timer Delete
-
 # All tests should end with the following...
 
 puts "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)"
 rtSetGetTest stdout
+
+timer Delete
 
 exit
