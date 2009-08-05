@@ -204,7 +204,7 @@ public:
   // Compute an OBB from the list of points given. Return the corner point
   // and the three axes defining the orientation of the OBB. Also return
   // a sorted list of relative "sizes" of axes for comparison purposes.
-  void ComputeOBB(vtkPoints *pts, double corner[3], double max[3], 
+  static void ComputeOBB(vtkPoints *pts, double corner[3], double max[3], 
                   double mid[3], double min[3], double size[3]);
 
   // Description:
