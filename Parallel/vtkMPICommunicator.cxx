@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.52");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.53");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -318,12 +318,16 @@ int vtkMPICommunicatorAllReduceData(const void *sendBuffer, void *recvBuffer,
 //-----------------------------------------------------------------------------
 // Method for converting an MPI operation to a
 // vtkMultiProcessController::Operation.
-// MPIAPI is defined in the microsoft mpi.h which just defines
-// the __stdcall decoration. It should be empty on any other 
-// platform
+// MPIAPI is defined in the microsoft mpi.h which decorates
+// with the __stdcall decoration.
 static vtkCommunicator::Operation *CurrentOperation;
+#ifdef MPIAPI
+extern "C" void MPIAPI vtkMPICommunicatorUserFunction(void *invec, void *inoutvec,
+                                               int *len, MPI_Datatype *datatype)
+#else
 extern "C" void vtkMPICommunicatorUserFunction(void *invec, void *inoutvec,
                                                int *len, MPI_Datatype *datatype)
+#endif
 {
   int vtkType = vtkMPICommunicatorGetVTKType(*datatype);
   CurrentOperation->Function(invec, inoutvec, *len, vtkType);
