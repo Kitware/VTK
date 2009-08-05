@@ -70,7 +70,7 @@ public:
  
   // Description:
   // Set the parent of this node, NULL for the root node of an octree.
-  vtkSetObjectMacro( Parent, vtkIncrementalOctreeNode );
+  virtual void SetParent( vtkIncrementalOctreeNode * );
   
   // Description:
   // Get the list of point indices, NULL for a non-leaf node.
