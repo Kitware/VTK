@@ -193,7 +193,7 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
   // Description:
   // Test a point to find if it is inside a cell. Returns the cellId if inside
   // or -1 if not.
-  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell *GenCell, 
+  virtual vtkIdType FindCell(double x[3], double tol2, vtkGenericCell *GenCell, 
     double pcoords[3], double *weights);
   bool InsideCellBounds(double x[3], vtkIdType cell_ID);
 
