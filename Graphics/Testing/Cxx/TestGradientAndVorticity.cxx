@@ -55,9 +55,9 @@ void CreateCellData(vtkDataSet* Grid, int NumberOfComponents, int Offset,
     Cell->GetParametricCenter(ParametricCenter);
     int subId = 0;
     Cell->EvaluateLocation(subId, ParametricCenter, Point, weights);
-    for(unsigned int uj=0;uj<NumberOfComponents;uj++)
+    for(int j=0;j<NumberOfComponents;j++)
       {// +offset makes the curl/vorticity nonzero
-      TupleValues[uj] = Point[(uj+Offset)%3]; 
+      TupleValues[j] = Point[(j+Offset)%3]; 
       }
     Array->SetTupleValue(i, &TupleValues[0]);
     }
@@ -78,9 +78,9 @@ void CreatePointData(vtkDataSet* Grid, int NumberOfComponents, int Offset,
   for(vtkIdType i=0;i<NumberOfPoints;i++)
     {
     Grid->GetPoint(i, Point);
-    for(unsigned int uj=0;uj<NumberOfComponents;uj++)
+    for(int j=0;j<NumberOfComponents;j++)
       {// +offset makes the curl/vorticity nonzero
-      TupleValues[uj] = Point[(uj+Offset)%3]; 
+      TupleValues[j] = Point[(j+Offset)%3]; 
       }
     Array->SetTupleValue(i, &TupleValues[0]);
     }
@@ -289,9 +289,9 @@ int TestGradientAndVorticity(int argc, char *argv[])
   VTK_CREATE(vtkUnstructuredGrid, UG);
   UG->SetPoints(vtkStructuredGrid::SafeDownCast(Grid)->GetPoints());
   UG->Allocate(Grid->GetNumberOfCells());
-  for(vtkIdType i=0;i<Grid->GetNumberOfCells();i++)
+  for(vtkIdType id=0;id<Grid->GetNumberOfCells();id++)
     {
-    vtkCell* Cell = Grid->GetCell(i);
+    vtkCell* Cell = Grid->GetCell(id);
     UG->InsertNextCell(Cell->GetCellType(), Cell->GetPointIds());
     }
   
