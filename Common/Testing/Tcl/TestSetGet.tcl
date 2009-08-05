@@ -32,7 +32,6 @@ proc TestOne {cname} {
    $cname b 
    puts "Testing Class $cname"
    set methods [b ListMethods]
-   timer StartTimer
    # look for a Get Set pair
    set len [llength $methods]
    for {set i 0} {$i < $len} {incr i} {
@@ -80,15 +79,7 @@ proc TestOne {cname} {
     }
   }
   
-  timer StopTimer
-  set elapsedTime [timer GetElapsedTime]
   
-  if { $elapsedTime > 1.0 } {
-    puts "ElapsedTime: $elapsedTime and took longer than 1 second."
-  } else {
-    puts "ElapsedTime: $elapsedTime"
-  }
-
   # Test the PrintRevisions method.
   b PrintRevisions
   b Delete
@@ -116,13 +107,26 @@ set classExceptions {
 
 proc rtSetGetTest { fileid } { 
    global classExceptions
+   set totalTime 0.0
    # for every class
    set all [lsort [info command vtk*]]
    foreach a $all {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
-         #puts "Testing -- $a"
+         timer StartTimer
+         
          TestOne $a
+         
+         timer StopTimer
+	     set elapsedTime [timer GetElapsedTime]
+	     set totalTime [expr $totalTime + $elapsedTime]
+	   
+	     if { $elapsedTime > 1.0 } {
+	       puts "Elapsed Time: $elapsedTime and took longer than 1 second."
+	     } else {
+	       puts "Elapsed Time: $elapsedTime"
+	     }
+         puts "Total Elapsed Time: $totalTime"
       }
    }
 }
