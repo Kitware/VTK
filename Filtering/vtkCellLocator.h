@@ -187,6 +187,14 @@ public:
   virtual int GetNumberOfBuckets(void);
 
   // Description:
+  // Find the cell containing a given point. returns -1 if no cell found
+  // the cell parameters are copied into the supplied variables, a cell must
+  // be provided to store the information.
+  virtual vtkIdType FindCell(
+    double x[3], double tol2, vtkGenericCell *GenCell, 
+    double pcoords[3], double *weights);
+
+  // Description:
   // Return a list of unique cell ids inside of a given bounding box. The
   // user must provide the vtkIdList to populate. This method returns data
   // only after the locator has been built.
@@ -205,6 +213,9 @@ public:
   // Satisfy vtkLocator abstract interface.
   virtual void FreeSearchStructure();
   virtual void BuildLocator();
+  virtual void BuildLocatorIfNeeded();
+  virtual void ForceBuildLocator();
+  virtual void BuildLocatorInternal();
   virtual void GenerateRepresentation(int level, vtkPolyData *pd);
   
 protected:
