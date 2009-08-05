@@ -22,11 +22,10 @@
 #include "vtkGenericCell.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.3");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.4");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
-using namespace std;
 //
 enum { POS_X, NEG_X, POS_Y, NEG_Y, POS_Z, NEG_Z };
 //
