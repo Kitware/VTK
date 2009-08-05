@@ -31,7 +31,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro( vtkIncrementalOctreePointLocator, "1.2" );
+vtkCxxRevisionMacro( vtkIncrementalOctreePointLocator, "1.3" );
 vtkStandardNewMacro( vtkIncrementalOctreePointLocator );
 
 // ---------------------------------------------------------------------------
@@ -412,7 +412,6 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointInLeafNode
     }
         
   int         numPts = 0;
-  double      tmpVal = 0.0;
   double      tmpDst = 0.0;
   double      tmpPnt[3];
   vtkIdType   tmpIdx = -1;
@@ -426,14 +425,7 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointInLeafNode
     {
     tmpIdx  = idList->GetId( i );
     this->LocatorPoints->GetPoint( tmpIdx, tmpPnt );
-    tmpDst  = 0.0;
-    tmpVal  = tmpPnt[0] - point[0];
-    tmpDst += tmpVal * tmpVal;
-    tmpVal  = tmpPnt[1] - point[1];
-    tmpDst += tmpVal * tmpVal;
-    tmpVal  = tmpPnt[2] - point[2];
-    tmpDst += tmpVal * tmpVal;
-      
+    tmpDst  = vtkMath::Distance2BetweenPoints( tmpPnt, point );
     if (  tmpDst  <  ( *dist2 )  )
       {
       *dist2  = tmpDst;
@@ -794,14 +786,7 @@ void vtkIncrementalOctreePointLocator::FindPointsWithinSquaredRadius
       pointIndex = nodePntIds->GetId( localIndex );
       this->LocatorPoints->GetPoint( pointIndex, pointCoord );
       
-      pt2PtDist2 = 0.0;
-      tempValue0 = pointCoord[0] - point[0];
-      pt2PtDist2+= tempValue0 * tempValue0;
-      tempValue0 = pointCoord[1] - point[1];
-      pt2PtDist2+= tempValue0 * tempValue0;
-      tempValue0 = pointCoord[2] - point[2];
-      pt2PtDist2+= tempValue0 * tempValue0;
-      
+      pt2PtDist2 = vtkMath::Distance2BetweenPoints( pointCoord, point );
       if ( pt2PtDist2 <= radius2 )
         {
         idList->InsertNextId( pointIndex );
