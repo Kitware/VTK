@@ -69,6 +69,13 @@ public:
   vtkSetMacro(FasterApproximation, int);
   vtkBooleanMacro(FasterApproximation, int);
 
+  // Description:
+  // Set the resultant array to be vorticity/curl of the input
+  // array.  The input array must have 3 components.
+  vtkSetMacro(ComputeVorticity, int);
+  vtkGetMacro(ComputeVorticity, int);
+  vtkBooleanMacro(ComputeVorticity, int);
+
 protected:
   vtkGradientFilter();
   ~vtkGradientFilter();
@@ -107,6 +114,12 @@ protected:
   // This only applies if the input grid is a vtkUnstructuredGrid or a
   // vtkPolyData.
   int FasterApproximation;
+
+  // Description:
+  // Flag to indicate that vorticity/curl of the input vector is to 
+  // be computed.  The input array to be processed must have
+  // 3 components.  By default ComputeVorticity is off.
+  int ComputeVorticity;
 
 private:
   vtkGradientFilter(const vtkGradientFilter &); // Not implemented

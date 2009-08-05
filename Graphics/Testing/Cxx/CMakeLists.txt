@@ -34,6 +34,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       BoxClipTetrahedra.cxx
       BoxClipTriangulateAndInterpolate.cxx
       TestActor2DTextures.cxx
+      TestGradientAndVorticity.cxx
       TestHierarchicalBoxPipeline.cxx
       TestIconGlyphFilterGravity.cxx
       TestIncrementalOctreePointLocator.cxx
@@ -43,6 +44,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx
       UnstructuredGridFastGradients.cxx
+      UnstructuredGridVorticity.cxx
       )
     IF (VTK_USE_VERDICT)
       SET(MyTests ${MyTests}
