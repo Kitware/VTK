@@ -54,8 +54,7 @@ public:
 
   // Description:
   // Free any memory and reset to an empty state.
-  void Initialize() 
-    {this->Ia->Initialize();}
+  void Initialize(); 
 
   // Description:
   // Get the number of cells in the array.
