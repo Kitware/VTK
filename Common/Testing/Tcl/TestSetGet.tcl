@@ -5,6 +5,7 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
 }
 
 package require vtk
+vtkTimerLog timer
 vtkObject a
 a GlobalWarningDisplayOff
 a Delete
@@ -31,6 +32,7 @@ proc TestOne {cname} {
    $cname b 
    puts "Testing Class $cname"
    set methods [b ListMethods]
+   timer StartTimer
    # look for a Get Set pair
    set len [llength $methods]
    for {set i 0} {$i < $len} {incr i} {
@@ -77,6 +79,16 @@ proc TestOne {cname} {
       catch { b $SetMethod $tmp }
     }
   }
+  
+  timer StopTimer
+  set elapsedTime [timer GetElapsedTime]
+  
+  if { $elapsedTime > 1.0 } {
+    puts "ElapsedTime: $elapsedTime and took longer than 1 second."
+  } else {
+    puts "ElapsedTime: $elapsedTime"
+  }
+
   # Test the PrintRevisions method.
   b PrintRevisions
   b Delete
@@ -114,6 +126,8 @@ proc rtSetGetTest { fileid } {
       }
    }
 }
+
+timer Delete
 
 # All tests should end with the following...
 
