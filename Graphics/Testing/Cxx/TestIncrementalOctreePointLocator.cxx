@@ -428,7 +428,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
     for (  i = 0;  ( i < nLocPnts ) && ( retValue == 0 );  i ++  )
       {
-      //retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1; // xxx
+      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1; // xxx
       }
     // ---------------------------------------------------------------------//
     #endif 
@@ -520,7 +520,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
-      //retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1; // xxx
+      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1; // xxx
       } 
     #endif
     // ---------------------------------------------------------------------//
