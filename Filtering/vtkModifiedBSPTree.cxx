@@ -12,23 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-/*=========================================================================
-  This code is derived from an earlier work and is distributed
-  with permission from, and thanks to
-
-  ------------------------------------------
-  Copyright (C) 2000-2004 John Biddiscombe
-  Skipping Mouse Software Ltd,
-  Blewbury, England
-  ------------------------------------------
-  Copyright (C) 2005-2009 John Biddiscombe
-  CSCS - Swiss National Supercomputing Centre
-  Galleria 2 - Via Cantonale
-  CH-6928 Manno
-  Switzerland
-  ------------------------------------
-=========================================================================*/
 //
 #include <stack>
 #include <vector>
@@ -39,7 +22,7 @@
 #include "vtkGenericCell.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.1");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.2");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //

@@ -18,6 +18,10 @@
   with permission from, and thanks to
 
   ------------------------------------------
+  Copyright (C) 1997-1999 John Biddiscombe
+  Rutherford Appleton Laboratory,
+  Chilton, Oxon, England
+  ------------------------------------------
   Copyright (C) 2000-2004 John Biddiscombe
   Skipping Mouse Software Ltd,
   Blewbury, England
