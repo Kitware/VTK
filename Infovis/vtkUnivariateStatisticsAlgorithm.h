@@ -51,14 +51,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Add column name \p namCol to the list of columns of interest
+  // Convenience method to create a request with a single column name \p namCol in a single
+  // call; this is the preferred method to select columns, ensuring selection consistency
+  // (a single column per request).
   // Warning: no name checking is performed on \p namCol; it is the user's
   // responsibility to use valid column names.
   void AddColumn( const char* namCol );
-
-  // Description:
-  // Method for UI to call to add/remove columns to/from the list
-  void SetColumnStatus( const char* namCol, int status );
 
   // Description:
   // Execute the calculations required by the Assess option.

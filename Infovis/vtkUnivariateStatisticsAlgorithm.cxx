@@ -31,7 +31,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.27");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.28");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -54,14 +54,8 @@ void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::AddColumn( const char* namCol )
 {
-  this->SetColumnStatus( namCol, true );
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
-{
   this->Internals->ResetBuffer();
-  this->Internals->SetBufferColumnStatus( namCol, status );
+  this->SetColumnStatus( namCol, true );
   this->RequestSelectedColumns();
 }
 
