@@ -179,16 +179,42 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
   void GenerateRepresentationLeafs(vtkPolyData *pd);
 
   // Description:
+  // Return intersection point (if any) of finite line with cells contained
+  // in cell locator.
+  virtual int IntersectWithLine(
+    double p1[3], double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int &subId)
+    { return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId); }
+
+  // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. Uses fast tree-search BBox rejection tests.
-  virtual int IntersectWithLine(double p1[3], double p2[3], double tol,
-    double &t, double x[3], double pcoords[3], int &subId, vtkIdType &cID);
+  virtual int IntersectWithLine(
+    double p1[3], double p2[3], double tol, double &t, double x[3],
+    double pcoords[3], int &subId, vtkIdType &cellId);
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
-  virtual int IntersectWithLine(double p1[3], double p2[3], double tol,
-    double &t, double x[3], double pcoords[3], int &subId, vtkIdType &cID, vtkGenericCell *cell);
+  virtual int IntersectWithLine(
+    double p1[3], double p2[3], double tol, double &t, double x[3], 
+    double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell);
+
+  // Description:
+  // Take the passed line segment and intersect it with the data set.
+  // This method assumes that the data set is a vtkPolyData that describes
+  // a closed surface, and the intersection points that are returned in
+  // 'points' alternate between entrance points and exit points.
+  // The return value of the function is 0 if no intersections were found,
+  // -1 if point 'a0' lies inside the closed surface, or +1 if point 'a0'
+  // lies outside the closed surface.
+  // Either 'points' or 'cellIds' can be set to NULL if you don't want
+  // to receive that information. This method is currently only implemented
+  // in vtkOBBTree
+  virtual int IntersectWithLine(
+    const double p1[3], const double p2[3],
+    vtkPoints *points, vtkIdList *cellIds)
+    { return this->Superclass::IntersectWithLine(p1, p2, points, cellIds); }
 
   // Description:
   // Returns the Id of the cell containing the point, 

@@ -22,7 +22,7 @@
 #include "vtkGenericCell.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.7");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.8");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
@@ -467,17 +467,17 @@ int BSPNode::getDominantAxis(double dir[3]) {
 }
 //---------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol,
-  double &t, double x[3], double pcoords[3], int &subId, vtkIdType &cID, vtkGenericCell *cell)
+  double &t, double x[3], double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell)
 {
-  int hit = this->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cID);
+  int hit = this->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
   if (hit) {
-    this->DataSet->GetCell(cID, cell);
+    this->DataSet->GetCell(cellId, cell);
   }
   return hit;
 }
 //---------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol,
-  double &t, double x[3], double pcoords[3], int &subId, vtkIdType &cID)
+  double &t, double x[3], double pcoords[3], int &subId, vtkIdType &cellId)
 {
   //
   BSPNode  *node, *Near, *Mid, *Far;
@@ -561,7 +561,7 @@ int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol
             if (t_hit<closest_intersection) {
               HIT = true;
               closest_intersection = t_hit;
-              cID = cell_ID;
+              cellId = cell_ID;
               x[0] = ipt[0];
               x[1] = ipt[1];
               x[2] = ipt[2];

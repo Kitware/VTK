@@ -23,7 +23,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.8");
+vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.9");
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
@@ -67,28 +67,28 @@ void vtkAbstractCellLocator::FreeCellBounds()
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  double a0[3], double a1[3], double tol,
+  double p1[3], double p2[3], double tol,
   double& t, double x[3], double pcoords[3],
   int &subId)
 {
   vtkIdType cellId = -1;
-  return this->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId, cellId);
+  return this->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  double a0[3], double a1[3], double tol,
+  double p1[3], double p2[3], double tol,
   double& t, double x[3], double pcoords[3],
   int &subId, vtkIdType &cellId)
 {
   int returnVal;
   returnVal = 
-    this->IntersectWithLine(a0, a1, tol, t, x, pcoords, 
+    this->IntersectWithLine(p1, p2, tol, t, x, pcoords, 
                             subId, cellId, this->GenericCell);
   return returnVal;
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  double [3]vtkNotUsed(a0), double [3]vtkNotUsed(a1), double vtkNotUsed(tol),
+  double [3]vtkNotUsed(p1), double [3]vtkNotUsed(p2), double vtkNotUsed(tol),
   double& vtkNotUsed(t), double [3]vtkNotUsed(x), 
   double [3]vtkNotUsed(pcoords), int &vtkNotUsed(subId), 
   vtkIdType &vtkNotUsed(cellId),
@@ -100,7 +100,7 @@ int vtkAbstractCellLocator::IntersectWithLine(
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  const double [3]vtkNotUsed(a0), const double [3]vtkNotUsed(a1),
+  const double [3]vtkNotUsed(p1), const double [3]vtkNotUsed(p2),
   vtkPoints *vtkNotUsed(points), vtkIdList *vtkNotUsed(cellIds))
 {
   vtkErrorMacro(<<"The locator class - " << this->GetClassName() 
