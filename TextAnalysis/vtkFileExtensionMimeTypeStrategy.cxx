@@ -24,7 +24,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.6");
+vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.7");
 vtkStandardNewMacro(vtkFileExtensionMimeTypeStrategy);
 
 class vtkFileExtensionMimeTypeStrategy::implementation
@@ -91,6 +91,7 @@ vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri, c
   if(implementation::Lookup(uri, ".ppt", "application/vnd.ms-powerpoint", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".ps", "application/postscript", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".shtml", "text/html", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".svg", "image/svg+xml", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tcl", "application/x-tcl", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tex", "application/x-tex", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tif", "image/tiff", mime_type)) return mime_type;
