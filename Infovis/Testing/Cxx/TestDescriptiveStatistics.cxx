@@ -148,12 +148,10 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Select Columns of Interest
   ds1->AddColumn( "Metric 3" ); // Include invalid Metric 3
-  ds1->AddColumn( "Metric 4" ); // Include invalid Metric 4
   for ( int i = 0; i< nMetrics; ++ i )
     {  // Try to add all valid indices once more
     ds1->AddColumn( columns[i] );
     }
-  ds1->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
 
   // Run with Learn and Assess options
   ds1->SetLearnOption( true );
@@ -262,7 +260,6 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Used modified output 1 as input 1 to test 0-deviation
   cout << "## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
-  ds1->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
 
   vtkTable* paramsTable = vtkTable::New();
   paramsTable->ShallowCopy( outputMeta1 );

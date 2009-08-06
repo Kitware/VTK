@@ -130,12 +130,10 @@ int TestOrderStatistics( int, char *[] )
 
 // -- Select Columns of Interest -- 
   os->AddColumn( "Metric 3" ); // Include invalid Metric 3
-  os->AddColumn( "Metric 4" ); // Include invalid Metric 4
   for ( int i = 0; i< nMetrics; ++ i )
     {  // Try to add all valid indices once more
     os->AddColumn( columns[i] );
     }
-  os->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
   // -- Test Learn only (Derive does not do anything for order statistics)  -- 
   os->SetLearnOption( true );
@@ -174,8 +172,6 @@ int TestOrderStatistics( int, char *[] )
 
 // -- Test Learn and Assess options for quartiles with InverseCDF quantile definition -- 
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
-  os->RemoveColumn( "Metric 2" ); // Remove invalid Metric 2 (but which contains only value -1)
-  os->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
   os->SetAssessOption( true );
   os->Update();
 
@@ -242,7 +238,6 @@ int TestOrderStatistics( int, char *[] )
 // -- Test Learn option for deciles with InverseCDF quantile definition (as with Octave) -- 
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   os->SetNumberOfIntervals( 10 );
-  os->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
   os->SetAssessOption( false );
   os->Update();
 
@@ -321,7 +316,7 @@ int TestOrderStatistics( int, char *[] )
 
   os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
-  os->ResetColumns(); // Clear list of columns of interest
+  os->ResetRequests(); // Clear list of columns of interest
   os->AddColumn( "Text" ); // Add column of interest
 
   // -- Test Learn, Derive, and Assess with 4 intervals (use SetParameter method)  -- 

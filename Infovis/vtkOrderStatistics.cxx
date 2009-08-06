@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkToolkits.h"
 
 #include "vtkOrderStatistics.h"
-#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.51");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.52");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -134,7 +134,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  if ( ! this->Internals->Selection.size() )
+  if ( ! this->Internals->Requests.size() )
     {
     return;
     }
@@ -183,9 +183,12 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     variantCol->Delete();
     }
 
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
     vtkStdString col = *it;
     if ( ! inData->GetColumnByName( col ) )
       {

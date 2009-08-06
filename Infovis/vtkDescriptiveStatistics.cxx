@@ -21,7 +21,7 @@
 #include "vtkToolkits.h"
 
 #include "vtkDescriptiveStatistics.h"
-#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
@@ -37,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.84");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.85");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -257,7 +257,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  if ( ! this->Internals->Selection.size() )
+  if ( ! this->Internals->Requests.size() )
     {
     return;
     }
@@ -268,9 +268,12 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     return;
     }
   
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
     vtkStdString varName = *it;
     if ( ! inData->GetColumnByName( varName ) )
       {

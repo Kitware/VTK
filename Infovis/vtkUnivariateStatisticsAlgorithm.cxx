@@ -19,10 +19,10 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkUnivariateStatisticsAlgorithm.h"
-#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -31,19 +31,17 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.26");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.27");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
 {
   this->NumberOfVariables = 1;
-  this->Internals = new vtkUnivariateStatisticsAlgorithmPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 {
-  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
@@ -54,49 +52,24 @@ void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent 
 }
 
 // ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::ResetColumns()
-{
-  this->Internals->Selection.clear();
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::AddColumn( const char* namCol )
 {
-  this->Internals->Selection.insert( namCol );
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::RemoveColumn( const char* namCol )
-{
-  this->Internals->Selection.erase( namCol );
-
-  this->Modified();
+  this->SetColumnStatus( namCol, true );
 }
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
 {
-  if( status )
-    {
-    this->Internals->Selection.insert( namCol );
-    }
-  else
-    {
-    this->Internals->Selection.erase( namCol );
-    }
-
-  this->Modified();
+  this->Internals->ResetBuffer();
+  this->Internals->SetBufferColumnStatus( namCol, status );
+  this->RequestSelectedColumns();
 }
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
-                                                      vtkDataObject* inMetaDO,
-                                                      vtkTable* outData,
-                                                      vtkDataObject* vtkNotUsed( outMeta ) )
+                                               vtkDataObject* inMetaDO,
+                                               vtkTable* outData,
+                                               vtkDataObject* vtkNotUsed( outMeta ) )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 
@@ -135,10 +108,12 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     return;
     }
 
-  // Loop over columns of interest
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
     vtkStdString varName = *it;
     if ( ! inData->GetColumnByName( varName ) )
       {
