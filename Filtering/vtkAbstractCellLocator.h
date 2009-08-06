@@ -227,13 +227,13 @@ public:
   // Description:
   // Returns the Id of the cell containing the point, 
   // returns -1 if no cell found. This interface uses a tolerance of zero
-  vtkIdType FindCell(double x[3]);
+  virtual vtkIdType FindCell(double x[3]);
 
   // Description:
   // Find the cell containing a given point. returns -1 if no cell found
   // the cell parameters are copied into the supplied variables, a cell must
   // be provided to store the information.
-  vtkIdType FindCell(
+  virtual vtkIdType FindCell(
     double x[3], double tol2, vtkGenericCell *GenCell, 
     double pcoords[3], double *weights);
 
@@ -269,10 +269,6 @@ protected:
 private:
   vtkAbstractCellLocator(const vtkAbstractCellLocator&);  // Not implemented.
   void operator=(const vtkAbstractCellLocator&);  // Not implemented.
-
-  virtual vtkIdType FindCellInternal(double x[3]);
-  virtual vtkIdType FindCellInternal(double x[3], double tol2, 
-    vtkGenericCell *GenCell, double pcoords[3], double *weights);
 };
 
 #endif

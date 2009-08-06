@@ -22,7 +22,7 @@
 #include "vtkGenericCell.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.5");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.6");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
@@ -589,7 +589,7 @@ int vtkModifiedBSPTree::IntersectCellInternal(
 //---------------------------------------------------------------------------
 bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3]);
 //---------------------------------------------------------------------------
-vtkIdType vtkModifiedBSPTree::FindCellInternal(
+vtkIdType vtkModifiedBSPTree::FindCell(
   double x[3], double , vtkGenericCell *cell, 
   double pcoords[3], double *weights)
 {

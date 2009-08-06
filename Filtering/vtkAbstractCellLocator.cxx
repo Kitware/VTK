@@ -23,7 +23,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.7");
+vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.8");
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
@@ -176,28 +176,14 @@ void vtkAbstractCellLocator::FindCellsAlongLine(
     << " does not yet support FindCellsAlongLine");
 }
 //---------------------------------------------------------------------------
-
 vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
-{
-  return this->FindCellInternal(x);
-}
-
-vtkIdType vtkAbstractCellLocator::FindCellInternal(double x[3])
 {
   //
   double dist2=0, pcoords[3], weights[32];
   return this->FindCell(x, dist2, this->GenericCell, pcoords, weights);
 }
 //----------------------------------------------------------------------------
-
 vtkIdType vtkAbstractCellLocator::FindCell(
-  double x[3], double tol2, vtkGenericCell *GenCell, 
-  double pcoords[3], double *weights)
-{
-  return this->FindCellInternal(x, tol2, GenCell, pcoords, weights);
-}
-
-vtkIdType vtkAbstractCellLocator::FindCellInternal(
   double x[3], double tol2, vtkGenericCell *GenCell, 
   double pcoords[3], double *weights)
 {
