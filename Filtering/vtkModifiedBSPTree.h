@@ -214,11 +214,6 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
   virtual int IntersectCellInternal(vtkIdType cell_ID, double p1[3], double p2[3], 
     double tol, double &t, double ipt[3], double pcoords[3], int &subId);
 
-  // Description:
-  // Test a point to find if it is inside a cell. Returns the cellId if inside
-  // or -1 if not.
-  virtual vtkIdType FindCellInternal(double x[3], double tol2, 
-    vtkGenericCell *GenCell, double pcoords[3], double *weights);
 //ETX
   void BuildLocatorIfNeeded();
   void ForceBuildLocator();
@@ -227,6 +222,11 @@ private:
   vtkModifiedBSPTree(const vtkModifiedBSPTree&);  // Not implemented.
   void operator=(const vtkModifiedBSPTree&);      // Not implemented.
 
+  // Description:
+  // Test a point to find if it is inside a cell. Returns the cellId if inside
+  // or -1 if not.
+  virtual vtkIdType FindCellInternal(double x[3], double tol2, 
+    vtkGenericCell *GenCell, double pcoords[3], double *weights);
 
 };
 
