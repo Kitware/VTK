@@ -187,6 +187,12 @@ public:
   virtual int GetNumberOfBuckets(void);
 
   // Description:
+  // Returns the Id of the cell containing the point, 
+  // returns -1 if no cell found. This interface uses a tolerance of zero
+  virtual vtkIdType FindCell(double x[3])
+    { return this->Superclass::FindCell(x); }
+
+  // Description:
   // Find the cell containing a given point. returns -1 if no cell found
   // the cell parameters are copied into the supplied variables, a cell must
   // be provided to store the information.
