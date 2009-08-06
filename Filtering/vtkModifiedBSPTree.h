@@ -216,7 +216,7 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
 //BTX
   //
   // The main subdivision routine
-  void Subdivide(BSPNode *node, Sorted_cell_extents_Lists *lists, vtkDataSet *DataSet,
+  void Subdivide(BSPNode *node, Sorted_cell_extents_Lists *lists, vtkDataSet *dataSet,
     vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int &MaxDepth);
 
   // We provide a function which does the cell/ray test so that
