@@ -39,7 +39,7 @@
 #include "vtkgl.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.22")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.23")
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
 {
@@ -402,7 +402,13 @@ double* vtkPainterPolyDataMapper::GetBounds()
     vtkPainter *painter = this->GetPainter();
 
     if (painter)
-      {
+      {  
+      // Update Painter information if obsolete.
+      if (this->PainterUpdateTime < this->GetMTime())
+        {
+        this->UpdatePainterInformation();
+        this->PainterUpdateTime.Modified();
+        }
       painter->UpdateBounds(this->Bounds);
       }
 

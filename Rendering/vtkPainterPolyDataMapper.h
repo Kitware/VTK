@@ -103,7 +103,7 @@ protected:
 
   // Description:
   // Called when the PainterInformation becomes obsolete. 
-  // It is called before the Render is initiated on the Painter.
+  // It is called before UpdateBounds or Render is initiated on the Painter
   virtual void UpdatePainterInformation();
 
   // Description:
