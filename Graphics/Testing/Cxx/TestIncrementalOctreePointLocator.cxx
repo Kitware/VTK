@@ -25,7 +25,7 @@
 // NOTE: ALL THE FOLLOWING FLAGS SHOULD BE OFF
 
 
-#define  _BRUTE_FORCE_VERIFICATION_
+//#define  _BRUTE_FORCE_VERIFICATION_
 //#ifdef   _BRUTE_FORCE_VERIFICATION_
 //#define  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
 //#define  _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_ // do NOT turn this ON
@@ -234,9 +234,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         for (  i = j + 1;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
           {
           insrtPts->GetPoint( i, tempPnt1 );
-          if (  vtkMath::Distance2BetweenPoints( tempPnt0, tempPnt1 )  <=
-                tolerns2[t]
-             )  retValue = 1;
+          tmpDist2 = vtkMath::Distance2BetweenPoints( tempPnt0, tempPnt1 );
+          if ( tmpDist2 <= tolerns2[t]) retValue = 1;
           }
         }
       
@@ -249,9 +248,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         for ( i = 0; i < numInsrt; i ++ )
           {
           insrtPts->GetPoint( i, tempPnt1 );
-          if (  vtkMath::Distance2BetweenPoints
-                ( pDataPts + ( j << 1 ) + j, tempPnt1 )  <=  tolerns2[t]
-             )  bGreater = 0;                  // dot not add 'break' here !!!
+          tmpDist2 = vtkMath::Distance2BetweenPoints
+                              (  pDataPts + ( j << 1 ) + j,  tempPnt1  );
+          if ( tmpDist2 <= tolerns2[t] )  bGreater = 0; // No 'break' here !!!
           }
         retValue = bGreater;
         }
@@ -395,8 +394,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // find the closest point
     for ( i = 0; i < nLocPnts; i ++ )
       {
-      resltIds[i] = octLocat->FindClosestPoint(  pLocPnts + ( i << 1 ) + i,
-                                                 minDist2 + i  );
+      resltIds[i] = octLocat->FindClosestPoint(  pLocPnts + ( i << 1 ) + i  );
       }
       
     #ifdef _BRUTE_FORCE_VERIFICATION_
@@ -406,10 +404,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     for (  i = 0;  ( i < numbPnts ) && ( retValue == 0 );  i ++  )
       {
       if ( i == resltIds[j] ) continue;     // just the selected closest point
-      if (  vtkMath::Distance2BetweenPoints
-            (  pLocPnts + ( j << 1 ) + j,  pDataPts + ( i << 1 ) + i  )
-            <  minDist2[j]
-         )  retValue = 1;
+      tmpDist2 = vtkMath::Distance2BetweenPoints
+                 (  pLocPnts + ( j << 1 ) + j,  pDataPts + ( i << 1 ) + i  );
+      if ( tmpDist2 <  minDist2[j] ) retValue = 1;
       }
     // ---------------------------------------------------------------------//
     #else
@@ -441,116 +438,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       {
       fwrite( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
       fwrite(  resltIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
-      }
-    #endif
-    // ---------------------------------------------------------------------//
-    
-    
-    if ( retValue == 1 ) continue;
-    
-    
-    // -----------------------------------------------------------------------
-    // ------------------ location of the closest N points -------------------
-    // -----------------------------------------------------------------------
-    
-    // memory allocation
-    ptIdList->SetNumberOfIds( nClzNpts * 10 );  // to claim part of the memory
-    resltIds = ( vtkIdType * ) 
-               realloc( resltIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
-    #ifndef _BRUTE_FORCE_VERIFICATION_
-    truthIds = ( vtkIdType * ) 
-               realloc( truthIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
-    fread( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-    #ifdef VTK_WORDS_BIGENDIAN
-    SwapForBigEndian
-      (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
-    #endif
-      
-    fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
-    #ifdef VTK_WORDS_BIGENDIAN
-    SwapForBigEndian
-      (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
-    #endif
-    #endif
-    
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
-    // find the closest N points (with embedded brute-force verification)
-    for ( i = 0; i < nLocPnts; i ++ )
-      {
-      ptIdList->Reset();
-      octLocat->FindClosestNPoints
-                (  nClzNpts,  pLocPnts + ( i << 1 ) + i,  ptIdList  );
-      
-      // check the number of the closest points
-      retValue = ( ptIdList->GetNumberOfIds() == nClzNpts ) ? 0 : 1;
-      
-      // ---------------------------------------------------------------------
-      // verify the result in brute force mode
-      #ifdef _BRUTE_FORCE_VERIFICATION_
-      
-      // check the order of the closest points
-      for ( j = 0; j < nClzNpts; j ++ )
-        {
-        pointIdx    = ptIdList->GetId( j );
-        clzNdst2[j] = vtkMath::Distance2BetweenPoints
-                               (  pLocPnts + ( i        << 1 ) + i, 
-                                  pDataPts + ( pointIdx << 1 ) + pointIdx  );
-        }
-      for (  j = 0;      ( j < nClzNpts - 1 ) && ( retValue == 0 );  j ++  )
-      for (  k = j + 1;  ( k < nClzNpts     ) && ( retValue == 0 );  k ++  )
-        {
-        retValue = !(  int( clzNdst2[k] >= clzNdst2[j] )  );
-        }
-      
-      // write some data for locating the closest point
-      // within a radius and the points within a radius 
-      //#ifdef _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_
-      minDist2[i] = clzNdst2[0];
-      maxDist2[i] = clzNdst2[ nClzNpts - 1 ];
-      //#endif
-        
-      // check if there are any ignored but closer points
-      for (  j = 0;  ( j < numbPnts ) && ( retValue == 0 );  j ++  )
-        {
-         if (    vtkMath::Distance2BetweenPoints
-                 (  pLocPnts + ( i << 1 ) + i,  pDataPts + ( j << 1 ) + j  ) 
-                 <  clzNdst2[ nClzNpts - 1 ]  // do NOT use "<=" here as there
-              && ptIdList->IsId( j ) == -1    // may be other points that were
-            )    retValue = 1;        // rejected simply due to the limit of N
-        }
-        
-      if ( retValue == 1 ) break;
-   
-      #endif
-      // -------------------------------------------------------------------//
-      
-      // transfer the point indices for subsequent file writing purposes
-      memcpy(  resltIds + i * nClzNpts,  ptIdList->GetPointer( 0 ),
-               sizeof( vtkIdType ) * nClzNpts  );
-      }
-    // ---------------------------------------------------------------------//
-    // ---------------------------------------------------------------------//
-      
-    // -----------------------------------------------------------------------
-    // write the point indices as the ground truth
-    #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-    if ( retValue == 0 )
-      {
-      numInsrt = nClzNpts * nLocPnts;
-      fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-      fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
-      }
-    #endif
-    // ---------------------------------------------------------------------//
-    
-    // -----------------------------------------------------------------------
-    // rapid point index-based verification
-    #ifndef _BRUTE_FORCE_VERIFICATION_
-    numInsrt = nClzNpts * nLocPnts;     // data has been read at the beginning
-    for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
-      {
-      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
       }
     #endif
     // ---------------------------------------------------------------------//
@@ -738,19 +625,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           
           pointIdx = idxLists[m]->GetId( k );
           pointIdx = ( pointIdx << 1 ) + pointIdx;
-          
-          if (  vtkMath::Distance2BetweenPoints
-                ( pLocPnts + j, pDataPts + pointIdx ) > fTempRad
-             )  retValue = 1;
+          tmpDist2 = vtkMath::Distance2BetweenPoints
+                              ( pLocPnts + j, pDataPts + pointIdx );
+          if ( tmpDist2 > fTempRad ) retValue = 1;
           }
           
         // check if there is any missed insertion
         numInsrt = 0;
         for ( k = 0; k < numbPnts; k ++ )
-          {          
-          if (  vtkMath::Distance2BetweenPoints
-                (  pLocPnts + j,  pDataPts + ( k << 1 ) + k  )  <=  fTempRad
-             )  numInsrt ++;
+          {      
+          tmpDist2 = vtkMath::Distance2BetweenPoints
+                              (  pLocPnts + j,  pDataPts + ( k << 1 ) + k  );   
+          if ( tmpDist2 <= fTempRad )  numInsrt ++;
           }
         
         // get the actual size of the vtkIdList for comparison
@@ -799,6 +685,112 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       retValue = ( tmpPtIds[i] == truthIds[i] ) ? 0 : 1;
       } 
     tmpPtIds = NULL;
+    #endif
+    // ---------------------------------------------------------------------//
+    
+    
+    if ( retValue == 1 ) continue;
+    
+    
+    // -----------------------------------------------------------------------
+    // ------------------ location of the closest N points -------------------
+    // -----------------------------------------------------------------------
+    
+    // memory allocation
+    ptIdList->SetNumberOfIds( nClzNpts * 10 );  // to claim part of the memory
+    resltIds = ( vtkIdType * ) 
+               realloc( resltIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
+    #ifndef _BRUTE_FORCE_VERIFICATION_
+    truthIds = ( vtkIdType * ) 
+               realloc( truthIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
+    fread( &numInsrt,  sizeof( int       ),  1,         diskFile  );
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
+    #endif
+      
+    fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+    #ifdef VTK_WORDS_BIGENDIAN
+    SwapForBigEndian
+      (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
+    #endif
+    #endif
+    
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // find the closest N points (with embedded brute-force verification)
+    for ( i = 0; i < nLocPnts; i ++ )
+      {
+      ptIdList->Reset();
+      octLocat->FindClosestNPoints
+                (  nClzNpts,  pLocPnts + ( i << 1 ) + i,  ptIdList  );
+      
+      // ---------------------------------------------------------------------
+      // verify the result in brute force mode
+      #ifdef _BRUTE_FORCE_VERIFICATION_
+      
+      // check the order of the closest points
+      for ( j = 0; j < nClzNpts; j ++ )
+        {
+        pointIdx    = ptIdList->GetId( j );
+        clzNdst2[j] = vtkMath::Distance2BetweenPoints
+                               (  pLocPnts + ( i        << 1 ) + i, 
+                                  pDataPts + ( pointIdx << 1 ) + pointIdx  );
+        }
+      for (  j = 0;  ( j < nClzNpts - 1 ) && ( retValue == 0 );  j ++  )
+        {
+        retValue = ( clzNdst2[j + 1] >= clzNdst2[j] ) ? 0 : 1;
+        }
+      
+      // write some data for locating the closest point
+      // within a radius and the points within a radius 
+      //#ifdef _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_
+      minDist2[i] = clzNdst2[0];
+      maxDist2[i] = clzNdst2[ nClzNpts - 1 ];
+      //#endif
+        
+      // check if there are any ignored but closer points
+      for (  j = 0;  ( j < numbPnts ) && ( retValue == 0 );  j ++  )
+        {
+        tmpDist2 = vtkMath::Distance2BetweenPoints
+                   (  pLocPnts + ( i << 1 ) + i,  pDataPts + ( j << 1 ) + j  ); 
+         if (    tmpDist2 < clzNdst2[ nClzNpts - 1 ] // Not "<=" here as there
+              && ptIdList->IsId( j ) == -1    // may be other points that were
+            )    retValue = 1;        // rejected simply due to the limit of N
+        }
+        
+      if ( retValue == 1 ) break;
+   
+      #endif
+      // -------------------------------------------------------------------//
+      
+      // transfer the point indices for subsequent file writing purposes
+      memcpy(  resltIds + i * nClzNpts,  ptIdList->GetPointer( 0 ),
+               sizeof( vtkIdType ) * nClzNpts  );
+      }
+    // ---------------------------------------------------------------------//
+    // ---------------------------------------------------------------------//
+      
+    // -----------------------------------------------------------------------
+    // write the point indices as the ground truth
+    #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
+    if ( retValue == 0 )
+      {
+      numInsrt = nClzNpts * nLocPnts;
+      fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
+      fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+      }
+    #endif
+    // ---------------------------------------------------------------------//
+    
+    // -----------------------------------------------------------------------
+    // rapid point index-based verification
+    #ifndef _BRUTE_FORCE_VERIFICATION_
+    numInsrt = nClzNpts * nLocPnts;     // data has been read at the beginning
+    for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
+      {
+      retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
+      }
     #endif
     // ---------------------------------------------------------------------//
     
