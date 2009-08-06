@@ -137,17 +137,20 @@ int IsVorticityCorrect(vtkDoubleArray* Gradients, vtkDoubleArray* Vorticity)
     double* v = Vorticity->GetTuple(i);
     if(v[0] != g[7]-g[5])
       {
-      vtkGenericWarningMacro("Bad vorticity[0] value.");
+      vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " 
+                             << g[7]-g[5]);
       return 0;
       }
     else if(v[1] != g[2]-g[6])
       {
-      vtkGenericWarningMacro("Bad vorticity[1] value.");
+      vtkGenericWarningMacro("Bad vorticity[1] value " << v[0] << " " 
+                             << g[7]-g[5]);
       return 0;
       }
     else if(v[2] != g[3]-g[1])
       {
-      vtkGenericWarningMacro("Bad vorticity[2] value.");      
+      vtkGenericWarningMacro("Bad vorticity[2] value " << v[0] << " " 
+                             << g[7]-g[5]);      
       return 0;
       }
     }
