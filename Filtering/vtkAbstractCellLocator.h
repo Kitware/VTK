@@ -242,7 +242,7 @@ public:
   // Some locators cache cell bounds and this function can make use
   // of fast access to the data.
   virtual bool InsideCellBounds(double x[3], vtkIdType cell_ID);
-
+ 
 protected:
    vtkAbstractCellLocator();
   ~vtkAbstractCellLocator();
