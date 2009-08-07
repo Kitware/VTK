@@ -44,20 +44,20 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <QApplication>
 #include <QFont>
-#include <QFontMetrics>
+#include <QFontMetricsF>
 #include <QImage>
 #include <QPainter>
 #include <QTextDocument>
 #include <QTextStream>
 
-#include <QFile>
-#include <QIODevice>
+// #include <QFile>
+// #include <QIODevice>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.6");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.7");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -100,7 +100,7 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   this->QtImageSource = vtkQImageToImageSource::New();
   this->LabelTexture = vtkTexture::New();
   
-  this->QtImage = new QImage( 1, 1, QImage::Format_ARGB32 );
+  this->QtImage = new QImage( 1, 1, QImage::Format_ARGB32_Premultiplied );
 
 //FIXME: QImage is initialized to grey.  This will fix that, although it is a bit of a hack...
   QPainter painter( this->QtImage );
@@ -306,7 +306,6 @@ void vtkQtTreeRingLabelMapper::LabelTree(
   this->QtImage = new QImage( this->WindowSize[0], this->WindowSize[1], QImage::Format_ARGB32 );
   
   char string[1024];
-//  QString string;
   vtkIdType i, root = tree->GetRoot();
   if (root < 0)
     {
@@ -358,13 +357,13 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     //Qt's coordinate system starts at the top left corner of the layout...
     // vtk has been using the text baseline as the starting point, so
     // we need to add a correction factor to account for the difference
-    QFontMetrics fontMetric( fontSpec );
-    int baseline = fontMetric.ascent();
+    QFontMetricsF fontMetric( fontSpec );
+    double baseline = fontMetric.ascent();
     
     //set ellipsis bounds for this piece of text
     //Note, don't use ellipsis unless at least 5 characters (w's) can be displayed...
     QString minString( "wwwww" );
-    int allowedTextWidth = 0;
+    double allowedTextWidth = 0;
     if( sdimDC[0] > sdimDC[1] )
       {
       if( sdimDC[0] < fontMetric.width(minString) )
@@ -448,9 +447,17 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       this->LabelTextProperty->GetShadowOffset( shOff );
       
       painter.translate( x[0], h-x[1] );
+ 
+      // Make sure the shadow offset is an even number of pixels in x and y.
+      // This allows the shadow text to render the same way as the main text.
+      QTransform t;
+      t.rotate(rotation);
+      t.translate(shOff[0], -shOff[1]);
+      QPointF pt = t.map(QPoint(0, 0));
+      painter.translate(static_cast<int>(pt.x()+0.5), static_cast<int>(pt.y()+0.5));
+
       painter.rotate( rotation );
       painter.translate( delta_x, delta_y );
-      painter.translate( shOff[0], -shOff[1] );
       
       double shadowColor[3];
       this->LabelTextProperty->GetShadowColor( shadowColor );
@@ -462,12 +469,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       textDocument.setDefaultStyleSheet( shadowStyleSheet );
       textDocument.setHtml( textString );
       textDocument.drawContents( &painter );
-// //TESTING
-//       painter.setPen(QColor(shadowColor[0]*255, shadowColor[1]*255, shadowColor[2]*255 ) );
-//       painter.setFont( fontSpec );
-//       painter.drawText( 0, 0, testString );
-// //end TESTING
-      
+
       painter.restore();
       }
     
@@ -483,19 +485,14 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     textDocument.setDefaultStyleSheet( styleSheet );
     textDocument.setHtml( textString );
     textDocument.drawContents( &painter );
-// //TESTING
-//     painter.setPen( QColor( fc[0]*255, fc[1]*255, fc[2]*255 ) );
-//     painter.setFont( fontSpec );
-//     painter.drawText( 0, 0, testString );
-// //end TESTING
-    
+
     painter.restore();
     }
   
-  QFile file( "C:/src/qtfonts.png" );
-  file.open( QIODevice::WriteOnly);
-  this->QtImage->save(&file, "PNG");
-  file.close();
+//   QFile file( "C:/src/qtfonts.png" );
+//   file.open( QIODevice::WriteOnly);
+//   this->QtImage->save(&file, "PNG");
+//   file.close();
   
   this->BuildTime.Modified();
 }
