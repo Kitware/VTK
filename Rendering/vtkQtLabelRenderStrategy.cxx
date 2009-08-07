@@ -39,7 +39,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.4");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.5");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 class vtkQtLabelRenderStrategy::Internals
@@ -276,10 +276,18 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     tprop->GetShadowOffset(shOff);
     
     painter->translate(x[0], h-x[1]);
+
+    // Make sure the shadow offset is an even number of pixels in x and y.
+    // This allows the shadow text to render the same way as the main text.
+    QTransform t;
+    t.rotate(rotation);
+    t.translate(shOff[0], -shOff[1]);
+    QPointF pt = t.map(QPoint(0, 0));
+    painter->translate(static_cast<int>(pt.x()+0.5), static_cast<int>(pt.y()+0.5));
+
     painter->rotate(rotation);
     painter->translate(delta_x, delta_y);
     painter->translate(0., line_offset );
-    painter->translate(shOff[0], -shOff[1]);
     
     double shadowColor[3];
     tprop->GetShadowColor(shadowColor);

@@ -15,7 +15,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.11");
+vtkCxxRevisionMacro(vtkTextProperty, "1.12");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -71,6 +71,7 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
   this->SetLineOffset(tprop->GetLineOffset());
   this->SetLineSpacing(tprop->GetLineSpacing());
 
+  this->SetShadowOffset(tprop->GetShadowOffset());
 }
 
 //----------------------------------------------------------------------------
