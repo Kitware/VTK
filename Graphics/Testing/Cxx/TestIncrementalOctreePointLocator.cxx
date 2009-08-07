@@ -325,7 +325,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
   //           (number > the maximum number of points per leaf node)
   // =========================================================================
-  #if 0
+  #if 1
   if ( retValue == 0 )
     {
     int      nUniques = 4;
@@ -333,11 +333,13 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     int      numDupls = numbPnts + nUniques * nDuplics;
     int      arrayIdx = numbPnts * 3;
     double   pntCoord[3];
+    double * duplPnts = NULL;
     
     // allocate memory and inherit the points
-    double * duplPnts = ( double * )
-                          malloc(  sizeof( double ) * 3 * numDupls  );                                    
-    memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
+    duplPnts = ( double * )
+               realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );  
+    for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i];                                  
+    //memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
   
     // add a huge number of exactly duplicate points
     for ( j = 0; j < nUniques; j ++ )
