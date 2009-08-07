@@ -64,13 +64,14 @@ public:
   
   // Description:
   // Set/Get the maximum number of points that a leaf node may maintain.
-  vtkSetMacro( MaxPointsPerLeaf, int );
+  vtkSetClampMacro( MaxPointsPerLeaf, int, 16, 256 );
   vtkGetMacro( MaxPointsPerLeaf, int );
   
   // Description:
   // Set/Get whether the search octree is built as a cubic shape or not.
   vtkSetMacro( BuildCubicOctree, int );
   vtkGetMacro( BuildCubicOctree, int );
+  vtkBooleanMacro( BuildCubicOctree, int );
   
   // Description:
   // Get access to the vtkPoints object in which point coordinates are stored

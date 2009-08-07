@@ -28,7 +28,6 @@
 //  { (xBBoxMid, xBBoxMax] & (yBBoxMin, yBBoxMid] & (zBBoxMin, zBBoxMid] },
 //  { (xBBoxMin, xBBoxMid] & (yBBoxMid, yBBoxMax] & (zBBoxMin, zBBoxMid] }, 
 //  { (xBBoxMid, xBBoxMax] & (yBBoxMid, yBBoxMax] & (zBBoxMin, zBBoxMid] },
-//
 //  { (xBBoxMin, xBBoxMid] & (yBBoxMin, yBBoxMid] & (zBBoxMid, zBBoxMax] },
 //  { (xBBoxMid, xBBoxMax] & (yBBoxMin, yBBoxMid] & (zBBoxMid, zBBoxMax] },
 //  { (xBBoxMin, xBBoxMid] & (yBBoxMid, yBBoxMax] & (zBBoxMid, zBBoxMax] }, 
@@ -43,7 +42,7 @@
 //  points, if any. Given a maximum number of points per leaf node, an octree 
 //  is initialized with an empty leaf node that is then recursively sub-divided, 
 //  but only on demand as points are incrementally inserted, to construct a 
-//  populated tree. 
+//  populated tree.
 // 
 // .SECTION See Also
 //  vtkIncrementalOctreePointLocator
@@ -67,26 +66,13 @@ public:
   // Description:
   // Get the number of points inside or under this node.
   vtkGetMacro( NumberOfPoints, int );
- 
-  // Description:
-  // Set the parent of this node, NULL for the root node of an octree.
-  virtual void SetParent( vtkIncrementalOctreeNode * );
   
   // Description:
   // Get the list of point indices, NULL for a non-leaf node.
   vtkGetObjectMacro( PointIdSet, vtkIdList );
   
   // Description:
-  // Create a vtkIdList object for storing point indices. Two arguments
-  // specifies the initial and growing sizes, respectively, of the object.
-  void CreatePointIdSet( int initSize, int growSize );
-  
-  // Description:
-  // Delete the list of point indices.
-  void DeletePointIdSet();
-  
-  // Description:
-  // Delete the eight children.
+  // Delete the eight child nodes.
   void DeleteChildNodes();
   
   // Description:
@@ -119,21 +105,6 @@ public:
   // point insertion.
   double * GetMaxDataBounds()
   { return this->NumberOfPoints ? this->MaxDataBounds : this->MaxBounds; }
-  
-  // Description:
-  // This function is called after a successful point-insertion check and
-  // only applies to a leaf node. Prior to a call to this function, the
-  // octree should have been retrieved top-down to find the specific leaf
-  // node in which this new point (newPt) will be inserted. The actual index
-  // of the new point (to be inserted to points) is stored in pntId. Argument
-  // ptMode specifies whether the point is not inserted at all but instead only
-  // the point index is provided upon 0, the point is inserted via vtkPoints::
-  // InsertPoint() upon 1, or it is inserted via vtkPoints::InsertNextPoint()
-  // upon 2. For case 0, pntId needs to be specified. For cases 1 and 2, the
-  // actual point index is returned via pntId. Note that this function always
-  // returns 1 to indicate the success of point insertion.                              
-  int InsertPoint( vtkPoints * points, const double newPnt[3], 
-                   int maxPts, vtkIdType * pntId, int ptMode );
                     
   // Description:
   // Determine whether or not this node is a leaf.
@@ -159,6 +130,21 @@ public:
   // A point is in a node, in terms of data, if and only if MinDataBounds[i]
   // <= p[i] <= MaxDataBounds[i].
   int  ContainsPointByData( const double pnt[3] );
+  
+  // Description:
+  // This function is called after a successful point-insertion check and
+  // only applies to a leaf node. Prior to a call to this function, the
+  // octree should have been retrieved top-down to find the specific leaf
+  // node in which this new point (newPt) will be inserted. The actual index
+  // of the new point (to be inserted to points) is stored in pntId. Argument
+  // ptMode specifies whether the point is not inserted at all but instead only
+  // the point index is provided upon 0, the point is inserted via vtkPoints::
+  // InsertPoint() upon 1, or it is inserted via vtkPoints::InsertNextPoint()
+  // upon 2. For case 0, pntId needs to be specified. For cases 1 and 2, the
+  // actual point index is returned via pntId. Note that this function always
+  // returns 1 to indicate the success of point insertion.                
+  int InsertPoint( vtkPoints * points, const double newPnt[3], 
+                   int maxPts, vtkIdType * pntId, int ptMode );
  
   // Description:
   // Given a point inside this node, get the minimum squared distance to all 
@@ -239,28 +225,8 @@ private:
   vtkIncrementalOctreeNode ** Children;
   
   // Description:
-  // Given a point inserted to either this node (a leaf node) or a descendant
-  // leaf (of this node --- when this node is a non-leaf node), update the
-  // counter and the data bounding box for this node only. 
-  void UpdateCounterAndDataBounds( const double point[3] );
-  
-  // Description:
-  // Given a point inserted to either this node (a leaf node) or a descendant
-  // leaf (of this node --- when this node is a non-leaf node), update the
-  // counter and the data bounding box for this node only. The data bounding box
-  // is considered only if updateData is non-zero. The returned value indicates
-  // whether or not the data bounding box is actually updated.
-  int UpdateCounterAndDataBounds( const double point[3], int updateData );
-  
-  // Description:
-  // Given a point inserted to either this node (a leaf node) or a descendant
-  // leaf (of this node --- when this node is a non-leaf node), update the 
-  // counter and the data bounding box recursively bottom-up through the root 
-  // node. The data bounding box is considered only if updateData is non-zero. 
-  // The returned value indicates whether or not the data bounding box is 
-  // actually updated.
-  int UpdateCounterAndDataBoundsRecursively
-    ( const double point[3], int updateData );
+  // Set the parent of this node, NULL for the root node of an octree.
+  virtual void SetParent( vtkIncrementalOctreeNode * );
   
   // Description:
   // Divide this LEAF node into eight child nodes as the number of points
@@ -278,6 +244,67 @@ private:
   // vtkPoints::InsertNextPoint() upon 2.    
   void CreateChildNodes( vtkPoints * points, vtkIdList * pntIds, 
     const double newPnt[3], vtkIdType * pntIdx, int maxPts, int ptMode );
+    
+  // Description:
+  // Create a vtkIdList object for storing point indices. Two arguments
+  // specifies the initial and growing sizes, respectively, of the object.
+  void CreatePointIdSet( int initSize, int growSize );
+  
+  // Description:
+  // Delete the list of point indices.
+  void DeletePointIdSet();
+  
+  // Description:
+  // Given a point inserted to either this node (a leaf node) or a descendant
+  // leaf (of this node --- when this node is a non-leaf node), update the
+  // counter and the data bounding box for this node only.
+  void UpdateCounterAndDataBounds( const double point[3] );
+  
+  // Description:
+  // Given a point inserted to either this node (a leaf node) or a descendant
+  // leaf (of this node --- when this node is a non-leaf node), update the
+  // counter and the data bounding box for this node only. The data bounding box
+  // is considered only if updateData is non-zero. The returned value indicates
+  // whether (1) or not (0) the data bounding box is actually updated. Note that
+  // argument nHits must be 1 unless this node is updated with a number (nHits)
+  // of exactly duplicate points as a whole via a single call to this function.
+  int UpdateCounterAndDataBounds
+    ( const double point[3], int nHits, int updateData );
+
+  // Description:
+  // Given a point inserted to either this node (a leaf node) or a descendant
+  // leaf (of this node --- when this node is a non-leaf node), update the 
+  // counter and the data bounding box recursively bottom-up until a specified 
+  // node. The data bounding box is considered only if updateData is non-zero. 
+  // The returned value indicates whether (1) or not (0) the data bounding box
+  // is actually updated. Note that argument nHits must be 1 unless this node 
+  // is updated with a number (nHits) of exactly duplicate points as a whole 
+  // via a single call to this function.
+  int UpdateCounterAndDataBoundsRecursively( const double point[3], int nHits,
+    int updateData, vtkIncrementalOctreeNode * endNode );
+    
+  // Description:
+  // Given a point, determine whether (1) or not (0) it is an exact duplicate
+  // of all the points, if any, maintained in this node. In other words, to
+  // check if this given point and all existing points, if any, of this node
+  // are exactly duplicate with one another.
+  int  ContainsDuplicatePointsOnly( const double pnt[3] );
+  
+  // Description:
+  // Given a number (>= threshold) of all exactly duplicate points (accessable
+  // via points and pntIds, but with exactly the same 3D coordinate) maintained
+  // in this leaf node and a point (absolutely not a duplicate any more, with 
+  // pntIdx storing the index in points)) to be inserted to this node, separate
+  // all the duplicate points from this new point by means of usually recursive
+  // node sub-division such that the former points are inserted to a descendant
+  // leaf while the new point is inserted to a sibling of this descendant leaf.
+  // Argument ptMode specifies whether the point is not inserted at all but only 
+  // the point index is provided upon 0, the point is inserted via vtkPoints::
+  // InsertPoint() upon 1, or this point is instead inserted through vtkPoints::
+  // InsertNextPoint() upon 2.
+  void SeperateExactlyDuplicatePointsFromNewInsertion( vtkPoints * points, 
+    vtkIdList * pntIds, const double newPnt[3], 
+    vtkIdType * pntIdx, int maxPts, int ptMode );
                    
   // Description:
   // Given a point, obtain the minimum squared distance to the closest point
@@ -326,6 +353,19 @@ inline int vtkIncrementalOctreeNode::ContainsPointByData( const double pnt[3] )
 }
 
 // In-lined for performance
+inline int vtkIncrementalOctreeNode::ContainsDuplicatePointsOnly
+  ( const double pnt[3] )
+{
+  return
+  (
+     ( this->MinDataBounds[0] == pnt[0] && pnt[0] == this->MaxDataBounds[0] &&
+       this->MinDataBounds[1] == pnt[1] && pnt[1] == this->MaxDataBounds[1] &&
+       this->MinDataBounds[2] == pnt[2] && pnt[2] == this->MaxDataBounds[2]
+     ) ? 1 : 0
+  );  
+}
+
+// In-lined for performance
 inline void vtkIncrementalOctreeNode::UpdateCounterAndDataBounds
   ( const double point[3] )
 {
@@ -347,14 +387,16 @@ inline void vtkIncrementalOctreeNode::UpdateCounterAndDataBounds
 
 // In-lined for performance 
 inline int vtkIncrementalOctreeNode::UpdateCounterAndDataBoundsRecursively
-  ( const double point[3], int updateData )
+  ( const double point[3], int nHits, int updateData, 
+    vtkIncrementalOctreeNode * endNode )
 {
-  int  updated = this->UpdateCounterAndDataBounds( point, updateData );
+  int  updated = this->UpdateCounterAndDataBounds
+                       ( point, nHits, updateData );
   
-  return (    this->Parent  
-           ?  this->Parent->UpdateCounterAndDataBoundsRecursively
-                            ( point, updated )  
-           :  updated  
+  return (    ( this->Parent == endNode )
+           ?  updated 
+           :  this->Parent->UpdateCounterAndDataBoundsRecursively
+                            ( point, nHits, updated, endNode ) 
          );
 }
 #endif
