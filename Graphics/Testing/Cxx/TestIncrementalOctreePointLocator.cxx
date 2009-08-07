@@ -368,7 +368,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                   ( duplPnts + ( i << 1 ) + i, pointIdx, 1 );
         }
     
-      retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
+      //retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
       }
     
     if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
