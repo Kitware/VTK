@@ -119,6 +119,14 @@ ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 # Create the pvtk Tcl wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
+
+    IF (MPI_LIBRARY) 
+      SET(MPI_LIBRARIES ${MPI_LIBRARY})   
+    ENDIF (MPI_LIBRARY)   
+    IF (MPI_EXTRA_LIBRARY)   
+      SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")   
+    ENDIF (MPI_EXTRA_LIBRARY) 
+    
     ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
     IF(VTK_USE_CARBON)
       FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
@@ -139,6 +147,7 @@ IF (VTK_USE_PARALLEL)
       vtkImagingTCL
       vtkIOTCL
       vtkParallelTCL
+      ${MPI_LIBRARIES}
     )
 
     IF (VTK_USE_RENDERING)
