@@ -325,6 +325,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
   //           (number > the maximum number of points per leaf node)
   // =========================================================================
+  #if 0
   if ( retValue == 0 )
     {
     int      nUniques = 4;
@@ -373,6 +374,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
     if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
     }
+  #endif
   // =======================================================================//
   // =======================================================================// 
   
