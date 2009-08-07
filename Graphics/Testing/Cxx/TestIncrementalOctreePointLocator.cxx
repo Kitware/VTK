@@ -319,7 +319,63 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     retValue = ( insrtPts->GetNumberOfPoints() == numbPnts ) ? 0 : 1;
     
     } // end of three resolutions
+  
+  
+  // =========================================================================
+  // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
+  //           (number > the maximum number of points per leaf node)
+  // =========================================================================
+  if ( retValue == 0 )
+    {
+    int      nUniques = 4;
+    int      nDuplics = 300;
+    int      numDupls = numbPnts + nUniques * nDuplics;
+    int      arrayIdx = numbPnts * 3;
+    double   pntCoord[3];
     
+    // allocate memory and inherit the points
+    double * duplPnts = ( double * )
+                          malloc(  sizeof( double ) * 3 * numDupls  );                                    
+    memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
+  
+    // add a huge number of exactly duplicate points
+    for ( j = 0; j < nUniques; j ++ )
+      {
+      i = (  numbPnts / ( nUniques + 2 )  )  *  ( j + 1 );
+      i = ( i << 1 ) + i;
+      pntCoord[0] = pDataPts[ i     ];
+      pntCoord[1] = pDataPts[ i + 1 ];
+      pntCoord[2] = pDataPts[ i + 2 ];
+      for ( i = 0; i < nDuplics; i ++, arrayIdx += 3 )
+        {
+        duplPnts[ arrayIdx     ] = pntCoord[0];
+        duplPnts[ arrayIdx + 1 ] = pntCoord[1];
+        duplPnts[ arrayIdx + 2 ] = pntCoord[2];
+        }
+      }
+  
+    // perform direct / check-free point insertion          
+    for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++ ) // three resolutions
+      {
+      insrtPts->Reset();
+      octLocat->FreeSearchStructure();
+      octLocat->SetMaxPointsPerLeaf( octreRes[r] );
+      octLocat->InitPointInsertion
+                ( insrtPts, dataPnts->GetBounds(), numDupls );
+      for ( i = 0; i < numDupls; i ++ )
+        {
+        octLocat->InsertPointWithoutChecking
+                  ( duplPnts + ( i << 1 ) + i, pointIdx, 1 );
+        }
+    
+      retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
+      }
+    
+    if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
+    }
+  // =======================================================================//
+  // =======================================================================// 
+  
   
   // reclaim this vtkPoints as it will be never used again  
   if ( insrtPts ) insrtPts->Delete();  insrtPts = NULL;
