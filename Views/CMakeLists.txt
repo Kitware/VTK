@@ -29,6 +29,13 @@ vtkView.cxx
 vtkViewUpdater.cxx
 )
 
+IF(VTK_USE_BOOST)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkPipelineGraphSource.cxx
+  )
+ENDIF(VTK_USE_BOOST)
+
 #SET_SOURCE_FILES_PROPERTIES(
 #vtkView.cxx
 #ABSTRACT
