@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIncrementalOctreeNode.h"
 
-vtkCxxRevisionMacro( vtkIncrementalOctreeNode, "1.4" );
+vtkCxxRevisionMacro( vtkIncrementalOctreeNode, "1.5" );
 vtkStandardNewMacro( vtkIncrementalOctreeNode );
 
 vtkCxxSetObjectMacro( vtkIncrementalOctreeNode, Parent, vtkIncrementalOctreeNode );
@@ -240,7 +240,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   //           BUT the new point is  not a duplicate of them any more
   
   int         i;
-  int         numPts = 0;
+  int         numPts;
   double      dupPnt[3];
   double      octMin[3];
   double      midPnt[3];
@@ -298,7 +298,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   
   // Now the duplicate points have been separated from the new point //
   
-  // create a vtkIdList object for the duplicate points and fill it
+  // create a vtkIdList object for the duplicate points
   // update the counter and the data bounding box, but until 'this' node
   // (excluding 'this' node)
   numPts = pntIds->GetNumberOfIds();
@@ -306,11 +306,11 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   duplic->CreatePointIdSet( numPts, ( maxPts >> 1 ) );
   for ( i = 0; i < numPts; i ++ )
     {
-    duplic->GetPointIdSet()->SetId( i, ptIndx[i] );
+    duplic->GetPointIdSet()->InsertNextId( ptIndx[i] );
     }
   duplic->UpdateCounterAndDataBoundsRecursively( dupPnt, numPts, 1, this );
   
-  // create a vtkIdList object for the new point and fill it
+  // create a vtkIdList object for the new point
   // update the counter and the data bounding box until the root node
   // (including the root node)
   OCTREENODE_INSERTPOINT[ptMode] ( points, pntIdx, newPnt );
@@ -334,6 +334,7 @@ void vtkIncrementalOctreeNode::CreateChildNodes
   //
   // (1) the number of points already maintained in this leaf node
   //     == maxPts AND not all of them are exactly duplicate
+  //               AND the new point is  not a duplicate of them all
   // (2) the number of points already maintained in this leaf node
   //     >= maxPts AND all of them are exactly duplicate with one another
   //               BUT the new point is  not a duplicate of them any more
