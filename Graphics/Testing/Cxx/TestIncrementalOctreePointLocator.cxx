@@ -356,7 +356,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         duplPnts[ arrayIdx + 2 ] = pntCoord[2];
         }
       }
-  
+    #if 0
     // perform direct / check-free point insertion          
     for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++ ) // three resolutions
       {
@@ -373,6 +373,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
       retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
       }
+    #endif
     
     if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
     }
