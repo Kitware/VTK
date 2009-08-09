@@ -396,7 +396,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     #endif
     }
   //if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
-  if ( duplPnts ) delete [] duplPnts;  duplPnts = NULL;
+  //if ( duplPnts ) delete [] duplPnts; 
+  duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
