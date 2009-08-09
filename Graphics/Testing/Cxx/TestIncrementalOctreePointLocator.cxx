@@ -167,7 +167,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
   // allocate memory and inherit the points
   #if 1
-  duplPnts = new double[ numDupls * 3 ];  
+  //duplPnts = new double[ numDupls * 3 ];  
   //for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i]; 
   
   //duplPnts = ( double * )
