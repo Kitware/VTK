@@ -113,6 +113,14 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkUnstructuredGridReader *        ugReader = NULL;
   vtkIncrementalOctreePointLocator * octLocat = NULL;
   
+  // xxx
+  int         nUniques = 4;
+  int         nDuplics = 300;
+  int         numDupls = 0;
+  int         arrayIdx = 0;
+  double      pntCoord[3];
+  double *    duplPnts = NULL;
+  
   
   // load an unstructured grid dataset
   fileName = vtkTestUtilities::ExpandDataFileName
@@ -148,6 +156,39 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     {
     dataPnts->GetPoint(  i,  pDataPts + ( i << 1 ) + i  );
     }
+  
+  
+  // xxx  
+  #if 1 
+  arrayIdx    = numbPnts * 3;
+  numDupls    = numbPnts + nUniques * nDuplics;
+  pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
+  // allocate memory and inherit the points
+  duplPnts = ( double * )
+             realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );  
+  for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i];                                  
+  //memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
+  #endif
+  
+  
+  // xxx
+  #if 1
+  // add a huge number of exactly duplicate points
+  for ( j = 0; j < nUniques; j ++ )
+    {
+    i = (  numbPnts / ( nUniques + 2 )  )  *  ( j + 1 );
+    i = ( i << 1 ) + i;
+    pntCoord[0] = pDataPts[ i     ];
+    pntCoord[1] = pDataPts[ i + 1 ];
+    pntCoord[2] = pDataPts[ i + 2 ];
+    for ( i = 0; i < nDuplics; i ++, arrayIdx += 3 )
+      {
+      duplPnts[ arrayIdx     ] = pntCoord[0];
+      duplPnts[ arrayIdx + 1 ] = pntCoord[1];
+      duplPnts[ arrayIdx + 2 ] = pntCoord[2];
+      }
+    }
+  #endif
     
     
   // memory allocation
@@ -323,49 +364,11 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   // =========================================================================
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
-  //           (number > the maximum number of points per leaf node)
+  //           (number > the maximum number of points per leaf node) xxx
   // =========================================================================
   #if 1
   if ( retValue == 0 )
     {
-    int      nUniques = 4;
-    int      nDuplics = 300;
-    int      numDupls = 0;
-    int      arrayIdx = 0;
-    double   pntCoord[3];
-    double * duplPnts = NULL;
-    
-    arrayIdx    = numbPnts * 3;
-    numDupls    = numbPnts + nUniques * nDuplics;
-    pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
-    
-    #if 0 
-    // allocate memory and inherit the points
-    duplPnts = ( double * )
-               realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );  
-    for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i];                                  
-    //memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
-    #endif
-  
-    #if 0
-    // add a huge number of exactly duplicate points
-    for ( j = 0; j < nUniques; j ++ )
-      {
-      i = (  numbPnts / ( nUniques + 2 )  )  *  ( j + 1 );
-      i = ( i << 1 ) + i;
-      pntCoord[0] = pDataPts[ i     ];
-      pntCoord[1] = pDataPts[ i + 1 ];
-      pntCoord[2] = pDataPts[ i + 2 ];
-      for ( i = 0; i < nDuplics; i ++, arrayIdx += 3 )
-        {
-        duplPnts[ arrayIdx     ] = pntCoord[0];
-        duplPnts[ arrayIdx + 1 ] = pntCoord[1];
-        duplPnts[ arrayIdx + 2 ] = pntCoord[2];
-        }
-      }
-    #endif
-      
-    #if 0
     // perform direct / check-free point insertion          
     for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++ ) // three resolutions
       {
@@ -382,10 +385,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
       retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
       }
-    #endif
-    
-    if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
     }
+  if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
