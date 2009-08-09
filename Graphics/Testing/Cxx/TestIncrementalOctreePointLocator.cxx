@@ -172,7 +172,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   
   // xxx
-  #if 1
+  #if 0
   // add a huge number of exactly duplicate points
   for ( j = 0; j < nUniques; j ++ )
     {
@@ -369,6 +369,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   #if 1
   if ( retValue == 0 )
     {
+    #if 0
     // perform direct / check-free point insertion          
     for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++ ) // three resolutions
       {
@@ -385,6 +386,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
       retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
       }
+    #endif
     }
   if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
   #endif
