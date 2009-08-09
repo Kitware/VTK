@@ -115,10 +115,10 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   // xxx
   #if 1
-  int         nUniques = 4;
-  int         nDuplics = 300;
-  int         numDupls = 0;
-  int         arrayIdx = 0;
+  int         nUniques;
+  int         nDuplics;
+  int         numDupls;
+  int         arrayIdx;
   double      pntCoord[3];
   double *    duplPnts = NULL;
   #endif
@@ -161,10 +161,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   
   // xxx  
-  #if 1 
-  //arrayIdx    = numbPnts * 3;
-  //numDupls    = numbPnts + nUniques * nDuplics;
-  //pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
+  #if 1
+  nUniques    = 4;
+  nDuplics    = 300; 
+  arrayIdx    = numbPnts * 3;
+  numDupls    = numbPnts + nUniques * nDuplics;
+  pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
   // allocate memory and inherit the points
   #if 1
   //duplPnts = new double[ numDupls * 3 ];  
@@ -397,7 +399,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     }
   //if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
   //if ( duplPnts ) delete [] duplPnts; 
-  //duplPnts = NULL;
+  duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
