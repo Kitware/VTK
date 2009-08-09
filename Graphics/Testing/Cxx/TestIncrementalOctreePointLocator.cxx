@@ -114,12 +114,14 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkIncrementalOctreePointLocator * octLocat = NULL;
   
   // xxx
+  #if 0
   int         nUniques = 4;
   int         nDuplics = 300;
   int         numDupls = 0;
   int         arrayIdx = 0;
   double      pntCoord[3];
   double *    duplPnts = NULL;
+  #endif
   
   
   // load an unstructured grid dataset
@@ -159,7 +161,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   
   // xxx  
-  #if 1 
+  #if 0 
   arrayIdx    = numbPnts * 3;
   numDupls    = numbPnts + nUniques * nDuplics;
   pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
@@ -366,9 +368,10 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   // =========================================================================
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
-  //           (number > the maximum number of points per leaf node) xxx
+  //           (number > the maximum number of points per leaf node)
   // =========================================================================
-  #if 1
+  // xxx
+  #if 0
   if ( retValue == 0 )
     {
     #if 0
