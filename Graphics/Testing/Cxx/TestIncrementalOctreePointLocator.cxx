@@ -114,7 +114,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkIncrementalOctreePointLocator * octLocat = NULL;
   
   // xxx
-  #if 0
+  #if 1
   int         nUniques = 4;
   int         nDuplics = 300;
   int         numDupls = 0;
@@ -161,15 +161,17 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   
   // xxx  
-  #if 0 
+  #if 1 
   arrayIdx    = numbPnts * 3;
   numDupls    = numbPnts + nUniques * nDuplics;
   pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
   // allocate memory and inherit the points
-  #if 0
-  duplPnts = ( double * )
-             realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );  
-  for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i];                                  
+  #if 1
+  duplPnts = new double[ numDupls * 3 ];  
+  for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i]; 
+  
+  //duplPnts = ( double * )
+  //           realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );                                 
   //memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
   #endif
   #endif
@@ -371,7 +373,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   //           (number > the maximum number of points per leaf node)
   // =========================================================================
   // xxx
-  #if 0
+  #if 1
   if ( retValue == 0 )
     {
     #if 0
@@ -393,7 +395,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     #endif
     }
-  if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
+  //if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
+  if ( duplPnts ) delete [] duplPnts;  duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
