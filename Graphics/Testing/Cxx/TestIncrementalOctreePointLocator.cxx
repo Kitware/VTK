@@ -162,9 +162,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   // xxx  
   #if 1 
-  arrayIdx    = numbPnts * 3;
-  numDupls    = numbPnts + nUniques * nDuplics;
-  pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
+  //arrayIdx    = numbPnts * 3;
+  //numDupls    = numbPnts + nUniques * nDuplics;
+  //pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
   // allocate memory and inherit the points
   #if 1
   //duplPnts = new double[ numDupls * 3 ];  
@@ -397,7 +397,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     }
   //if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
   //if ( duplPnts ) delete [] duplPnts; 
-  duplPnts = NULL;
+  //duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
