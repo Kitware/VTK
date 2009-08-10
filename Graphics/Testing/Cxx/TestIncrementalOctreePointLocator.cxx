@@ -114,11 +114,11 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkIncrementalOctreePointLocator * octLocat = NULL;
   
   // xxx
-  #if 1
+  #if 0
   int         nUniques;
   int         nDuplics;
-  int         numDupls;
   int         arrayIdx;
+  int         numDupls;
   double      pntCoord[3];
   double *    duplPnts = NULL;
   #endif
@@ -161,7 +161,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   
   
   // xxx  
-  #if 1
+  #if 0
   nUniques    = 4;
   nDuplics    = 300; 
   arrayIdx    = numbPnts * 3;
@@ -399,7 +399,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     }
   //if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
   //if ( duplPnts ) delete [] duplPnts; 
-  duplPnts = NULL;
+  //duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
