@@ -44,7 +44,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.25");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.26");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -280,9 +280,7 @@ const char* vtkQtTreeView::GetColorArrayName()
 
 //----------------------------------------------------------------------------
 void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
-{  
-  this->Selecting = true;
-  
+{    
   // Convert from a QModelIndexList to an index based vtkSelection
   const QModelIndexList qmil = this->View->selectionModel()->selectedRows();
   vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(qmil);
@@ -297,25 +295,18 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   // Call select on the representation (all 'linked' views will receive this selection)
   rep->Select(this, converted);
   
-  this->Selecting = false;
-  
   // Delete the selection list
   VTKIndexSelectList->Delete();
   
   // Store the selection mtime
   this->CurrentSelectionMTime = rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
+
+  this->Selecting = true;
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTreeView::SetVTKSelection()
 {
-  // Make the selection current
-  if (this->Selecting)
-    {
-    // If we initiated the selection, do nothing.
-    return;
-    }
-
   // Check to see we actually have data
   vtkDataObject *d = this->TreeAdapter->GetVTKDataObject();
   if (!d) 
@@ -357,7 +348,14 @@ void vtkQtTreeView::SetVTKSelection()
 
 //----------------------------------------------------------------------------
 void vtkQtTreeView::Update()
-{
+{  
+  // If we initiated the selection, do nothing.
+  if(this->Selecting)
+    {
+    this->Selecting = false;
+    return;
+    }
+
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
     {
@@ -380,20 +378,21 @@ void vtkQtTreeView::Update()
     return;
     }
 
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
-  if ((tree->GetMTime() > this->LastInputMTime) ||
-      (atime > this->CurrentSelectionMTime))
+  vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
+  if(annConn)
     {
-    vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
-    if(annConn)
-      {
-      annConn->GetProducer()->Update();
-      }
+    annConn->GetProducer()->Update();
+    }
 
-    this->ApplyColors->Update();
+  this->ApplyColors->Update();
 
+  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  if((annConn && (atime > this->CurrentSelectionMTime)) || 
+    (tree->GetMTime() > this->LastInputMTime))
+    {
     this->TreeAdapter->SetVTKDataObject(0);
     this->TreeAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
+
     if(this->ApplyColors->GetUsePointLookupTable())
       {
       this->TreeAdapter->SetColorColumnName("vtkApplyColors color");
@@ -402,21 +401,17 @@ void vtkQtTreeView::Update()
       {
       this->TreeAdapter->SetColorColumnName("");
       }
-
-    // Refresh the view
-    this->View->update();  
-    this->TreeView->expandAll();
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
     this->SetShowRootNode(false);
 
-    if (atime > this->CurrentSelectionMTime)
-      {
-      this->SetVTKSelection();
-      }
-
-    this->CurrentSelectionMTime = atime;
     this->LastInputMTime = tree->GetMTime();
+    }
+
+  if (atime > this->CurrentSelectionMTime)
+    {
+    this->SetVTKSelection();
+    this->CurrentSelectionMTime = atime;
     }
 
   for(int j=0; j<this->TreeAdapter->columnCount(); ++j)
