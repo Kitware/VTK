@@ -156,10 +156,6 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->AddColumnPair( "Metric 0", "Metric 1" ); // A valid pair
   cs1->AddColumnPair( "Metric 1", "Metric 0" ); // The same valid pair, just reversed
   cs1->AddColumnPair( "Metric 2", "Metric 1" ); // Another valid pair
-  for ( int i = 0; i< nMetricPairs; ++ i )
-    {  // Try to add all valid pairs once more
-    cs1->AddColumnPair( columnPairs[2 * i], columnPairs[ 2 * i + 1] );
-    }
   cs1->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
 
   // Test Learn Mode 
