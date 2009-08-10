@@ -157,20 +157,20 @@ namespace
       double* v = Vorticity->GetTuple(i);
       if(!ArePointsWithinTolerance(v[0], g[7]-g[5]))
         {
-        vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " 
-                               << g[7]-g[5]);
+        vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " << 
+                               g[7]-g[5] << " difference is " << (v[0]-g[7]+g[5]));
         return 0;
         }
       else if(!ArePointsWithinTolerance(v[1], g[2]-g[6]))
         {
-        vtkGenericWarningMacro("Bad vorticity[1] value " << v[0] << " " 
-                               << g[7]-g[5]);
+        vtkGenericWarningMacro("Bad vorticity[1] value " << v[1] << " " << 
+                               g[2]-g[6] << " difference is " << (v[1]-g[2]+g[6]));
         return 0;
         }
       else if(!ArePointsWithinTolerance(v[2], g[3]-g[1]))
         {
-        vtkGenericWarningMacro("Bad vorticity[2] value " << v[0] << " " 
-                               << g[7]-g[5]);      
+        vtkGenericWarningMacro("Bad vorticity[2] value " << v[2] << " " << 
+                               g[3]-g[1] << " difference is " << (v[2]-g[3]+g[1]));
         return 0;
         }
       }
