@@ -98,6 +98,10 @@ public:
   // Description:
   // Returns a set of delimiter ranges that match Unicode whitespace codepoints.
   static const DelimiterRanges Whitespace();
+  // Description:
+  // Returns a set of delimiter ranges that match logosyllabic languages where characters represent
+  // words instead of sounds, such as Chinese, Japanese, and Korean.
+  static const DelimiterRanges Logosyllabic();
   
   // Description:
   // Adds the half-open range of Unicode characters [begin, end) to the set of "dropped" delimiters.
@@ -122,6 +126,7 @@ public:
   void DropWhitespace();
   void KeepPunctuation();
   void KeepWhitespace();
+  void KeepLogosyllabic();
 
   // Description:
   // Clears the set of "dropped" delimiters.

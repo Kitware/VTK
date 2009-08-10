@@ -63,7 +63,7 @@ public:
   DelimiterRanges KeptDelimiters;
 };
 
-vtkCxxRevisionMacro(vtkTokenizer, "1.3");
+vtkCxxRevisionMacro(vtkTokenizer, "1.4");
 vtkStandardNewMacro(vtkTokenizer);
 
 vtkTokenizer::vtkTokenizer() :
@@ -104,17 +104,15 @@ void vtkTokenizer::PrintSelf(ostream& os, vtkIndent indent)
 
 const vtkTokenizer::DelimiterRanges vtkTokenizer::Punctuation()
 {
-  vtkTokenizer::DelimiterRanges result;
-
   // Unicode punctuation based on the charts available at http://www.unicode.org/charts/symbols.html
+
+  vtkTokenizer::DelimiterRanges result;
 
   result.push_back(vtkstd::make_pair(0x0021, 0x0030)); // ASCII Punctuation and Symbols
   result.push_back(vtkstd::make_pair(0x003a, 0x0041)); // ASCII Punctuation and Symbols
   result.push_back(vtkstd::make_pair(0x005b, 0x0061)); // ASCII Punctuation and Symbols
   result.push_back(vtkstd::make_pair(0x007b, 0x007f)); // ASCII Punctuation and Symbols
-
   result.push_back(vtkstd::make_pair(0x200c, 0x206f)); // General Punctuation
-
   result.push_back(vtkstd::make_pair(0xfeff, 0xff00)); // Zero-width no-break space, which has become a de-facto byte-order mark
 
   return result;
@@ -122,14 +120,28 @@ const vtkTokenizer::DelimiterRanges vtkTokenizer::Punctuation()
 
 const vtkTokenizer::DelimiterRanges vtkTokenizer::Whitespace()
 {
-  vtkTokenizer::DelimiterRanges result;
-  
   // Unicode whitespace based on the charts available at http://www.unicode.org/charts/symbols.html
 
+  vtkTokenizer::DelimiterRanges result;
+  
   result.push_back(vtkstd::make_pair(0x0009, 0x000e)); // HT, LF, VT, FF, CR
   result.push_back(vtkstd::make_pair(0x0020, 0x0021)); // Space
-  
   result.push_back(vtkstd::make_pair(0x2000, 0x200c)); // General Punctuation
+
+  return result;
+}
+
+const vtkTokenizer::DelimiterRanges vtkTokenizer::Logosyllabic()
+{
+  // Unicode logosyllabic characters based on the charts available at http://www.unicode.org/charts
+
+  vtkTokenizer::DelimiterRanges result;
+
+  result.push_back(vtkstd::make_pair(0x4e00, 0x9fd0)); // CJK Unified Ideographs
+  result.push_back(vtkstd::make_pair(0x3400, 0x4e00)); // CJK Unified Ideographs Extension A
+  result.push_back(vtkstd::make_pair(0x20000, 0x2A6e0)); // CJK Unified Ideographs Extension B
+  result.push_back(vtkstd::make_pair(0xf900, 0xfb00)); // CJK Compatibility Ideographs
+  result.push_back(vtkstd::make_pair(0x2f800, 0x2fa20)); // CJK Compatibility Ideographs Supplement
 
   return result;
 }
@@ -176,6 +188,11 @@ void vtkTokenizer::KeepPunctuation()
 void vtkTokenizer::KeepWhitespace()
 {
   this->AddKeptDelimiters(this->Whitespace());
+}
+
+void vtkTokenizer::KeepLogosyllabic()
+{
+  this->AddKeptDelimiters(this->Logosyllabic());
 }
 
 void vtkTokenizer::ClearDroppedDelimiters()
