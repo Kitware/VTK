@@ -113,14 +113,14 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkUnstructuredGridReader *        ugReader = NULL;
   vtkIncrementalOctreePointLocator * octLocat = NULL;
   
-  // xxx
-  #if 0
-  int         nUniques;
-  int         nDuplics;
-  int         arrayIdx;
-  int         numDupls;
-  double      pntCoord[3];
+  
+  #if 1 // sub-test xxx
+  int         nUniques = 0;
+  int         nDuplics = 0;
+  int         arrayIdx = 0;
+  int         numDupls = 0;
   double *    duplPnts = NULL;
+  double      pntCoord[3] = { 0.0, 0.0, 0.0 };
   #endif
   
   
@@ -159,28 +159,20 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     dataPnts->GetPoint(  i,  pDataPts + ( i << 1 ) + i  );
     }
   
-  
-  // xxx  
-  #if 0
-  nUniques    = 4;
-  nDuplics    = 300; 
-  arrayIdx    = numbPnts * 3;
-  numDupls    = numbPnts + nUniques * nDuplics;
-  pntCoord[0] = pntCoord[1] = pntCoord[2] = 0.0;
+    
+  #if 1 // sub-test xxx
   // allocate memory and inherit the points
-  #if 1
-  //duplPnts = new double[ numDupls * 3 ];  
-  //for ( i = 0; i < numbPnts * 3; i ++ ) duplPnts[i] = pDataPts[i]; 
-  
-  //duplPnts = ( double * )
-  //           realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );                                 
-  //memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
+  nUniques = 4;
+  nDuplics = 300;
+  arrayIdx = numbPnts * 3;
+  numDupls = numbPnts + nUniques * nDuplics;
+  duplPnts = ( double * )
+             realloc(  duplPnts, sizeof( double ) * 3 * numDupls  );                                 
+  memcpy(  duplPnts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
   #endif
-  #endif
   
   
-  // xxx
-  #if 0
+  #if 1 // sub-test xxx
   // add a huge number of exactly duplicate points
   for ( j = 0; j < nUniques; j ++ )
     {
@@ -374,11 +366,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
   //           (number > the maximum number of points per leaf node)
   // =========================================================================
-  // xxx
-  #if 1
+  #if 1 // sub-test xxx
   if ( retValue == 0 )
     {
-    #if 0
     // perform direct / check-free point insertion          
     for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++ ) // three resolutions
       {
@@ -395,11 +385,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
       retValue = ( insrtPts->GetNumberOfPoints() == numDupls ) ? 0 : 1;
       }
-    #endif
     }
-  //if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
-  //if ( duplPnts ) delete [] duplPnts; 
-  //duplPnts = NULL;
+  if ( duplPnts ) free( duplPnts );  duplPnts = NULL;
   #endif
   // =======================================================================//
   // =======================================================================// 
