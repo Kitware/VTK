@@ -44,7 +44,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // vtkTextExtraction
 
-vtkCxxRevisionMacro(vtkTextExtraction, "1.8");
+vtkCxxRevisionMacro(vtkTextExtraction, "1.9");
 vtkStandardNewMacro(vtkTextExtraction);
 
 vtkTextExtraction::vtkTextExtraction() :
@@ -78,7 +78,7 @@ void vtkTextExtraction::PrintSelf(ostream& os, vtkIndent indent)
 
   for(unsigned int i = 0; i != this->Internal->Strategies.size(); ++i)
     {
-    os << indent << "Strategy: " << endl;
+    os << indent << "Strategy: " << this->Internal->Strategies[i]->GetClassName() << endl;
     this->Internal->Strategies[i]->PrintSelf(os, indent.GetNextIndent());
     }
 }
@@ -138,14 +138,13 @@ int vtkTextExtraction::RequestData(
     vtkTable* const input_table = vtkTable::GetData(inputVector[0]);
     if(!input_table)
       throw vtkstd::runtime_error("missing input table");
-    
+
     vtkIdTypeArray* const document_id_array = vtkIdTypeArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!document_id_array)
       throw vtkstd::runtime_error("Missing document id array.");
        
-    vtkStringArray* const uri_array = vtkStringArray::SafeDownCast(
-      this->GetInputAbstractArrayToProcess(1, 0, inputVector));
+    vtkAbstractArray* const uri_array = this->GetInputAbstractArrayToProcess(1, 0, inputVector);
     if(!uri_array)
       throw vtkstd::runtime_error("Missing uri array.");
 
@@ -177,7 +176,7 @@ int vtkTextExtraction::RequestData(
     for(vtkIdType i = 0; i != count; ++i)
       {
       const vtkIdType document = document_id_array->GetValue(i);
-      const vtkStdString& uri = uri_array->GetValue(i);
+      const vtkStdString& uri = uri_array->GetVariantValue(i).ToString();
       const vtkStdString& mime_type = mime_type_array->GetValue(i);
       const vtkStdString content = content_array->GetVariantValue(i).ToString();
 
