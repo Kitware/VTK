@@ -43,7 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
-class vtkBivariateStatisticsAlgorithmPrivate;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkBivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
@@ -57,18 +56,12 @@ public:
   void ResetColumnPairs();
 
   // Description:
-  // Add column name pair (\p namColX, \p namColY).
-  // Warning: no name checking is performed on \p namColX nor \p namColY; it is 
-  // the user's responsibility to use valid column names.
+  // Convenience method to create a request with a single column name pair 
+  //  (\p namColX, \p namColY) in a single call; this is the preferred method to select 
+  // columns pairs, ensuring selection consistency (a pair of columns per request).
+  // Warning: no name checking is performed on \p namCol; it is the user's
+  // responsibility to use valid column names.
   void AddColumnPair( const char* namColX, const char* namColY );
-
-  // Description:
-  // Remove, if it is present, column name pair (\p namColX, \p namColY).
- void RemoveColumnPair( const char* namColX, const char* namColY );
-
-  // Description:
-  // Method for UI to call to add/remove columns to/from the list
-  void SetColumnStatus( const char* namCol, int status );
 
   // Description:
   // Execute the calculations required by the Assess option.
@@ -82,7 +75,6 @@ protected:
   ~vtkBivariateStatisticsAlgorithm();
 
   vtkIdType NumberOfVariables;
-  vtkBivariateStatisticsAlgorithmPrivate* Internals;
 
 private:
   vtkBivariateStatisticsAlgorithm(const vtkBivariateStatisticsAlgorithm&); // Not implemented

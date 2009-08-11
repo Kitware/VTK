@@ -21,7 +21,7 @@
 #include "vtkToolkits.h"
 
 #include "vtkContingencyStatistics.h"
-#include "vtkBivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -42,7 +42,7 @@
 typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
 typedef vtkstd::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.64");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.65");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -185,27 +185,31 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 
   typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
 
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
-    vtkStdString colX = it->first;
+    // Each request contains only one pair of column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtkStdString colX = *it;
     if ( ! inData->GetColumnByName( colX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colX.c_str() 
-                       <<". Ignoring this pair." );
-      continue;
-      }
-
-    vtkStdString colY = it->second;
-    if ( ! inData->GetColumnByName( colY ) )
-      {
-      vtkWarningMacro( "InData table does not have a column " 
-                       << colY.c_str()
+                       << colX.c_str()
                        << ". Ignoring this pair." );
       continue;
       }
 
+    ++ it;
+    vtkStdString colY = *it;
+    if ( ! inData->GetColumnByName( colY ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << colY.c_str()
+                       << ". Ignoring this pair." );
+      continue;
+      }
+    
     // Create entry in summary for pair (colX,colY) and set its index to be the key
     // for (colX,colY) values in the contingency table
     row2->SetValue( 0, colX );
@@ -641,11 +645,13 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
 
-  // Loop over pairs of columns of interest
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
-    vtkStdString varNameX = it->first;
+    // Each request contains only one pair of column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtkStdString varNameX = *it;
     if ( ! inData->GetColumnByName( varNameX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
@@ -654,7 +660,8 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
       continue;
       }
 
-    vtkStdString varNameY = it->second;
+    ++ it;
+    vtkStdString varNameY = *it;
     if ( ! inData->GetColumnByName( varNameY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
@@ -662,7 +669,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
                        << ". Ignoring this pair." );
       continue;
       }
-
+    
     // Find the summary key to which the pair (colX,colY) corresponds
     vtkIdType pairKey = -1;
     for ( vtkIdType r = 0; r < nRowSumm && pairKey == -1; ++ r )

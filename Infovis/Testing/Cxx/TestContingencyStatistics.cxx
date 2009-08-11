@@ -82,7 +82,7 @@ int TestContingencyStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  int nMetricPairs = 3;
+  int nMetricPairs = 2;
 
   // Entropies in the summary table should normally be retrieved as follows:
   //   column 2: H(X,Y)
@@ -101,10 +101,14 @@ int TestContingencyStatistics( int, char *[] )
   datasetTable->Delete();
 
   // Select Column Pair of Interest ( Learn Mode )
-  cs->AddColumnPair( "Port", "Protocol" ); // A valid pair
-  cs->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
-  cs->AddColumnPair( "Source", "Port" ); // Another valid pair
-  cs->AddColumnPair( "Source", "Dummy" ); // An invalid pair
+  // 1.1: a valid pair
+  cs->AddColumnPair( "Port", "Protocol" );
+  // 1.2: the same valid pair, just reversed -- should thus be ignored
+  cs->AddColumnPair( "Protocol", "Port" );
+  // 2: another valid pair
+  cs->AddColumnPair( "Source", "Port" );
+  // 3: an invalid pair
+  cs->AddColumnPair( "Source", "Dummy" );
 
   // Test Learn, Derive, and Assess options
   cs->SetLearnOption( true );

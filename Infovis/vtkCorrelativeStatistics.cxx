@@ -21,7 +21,7 @@
 #include "vtkToolkits.h"
 
 #include "vtkCorrelativeStatistics.h"
-#include "vtkBivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
@@ -38,7 +38,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.60");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.61");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -242,10 +242,13 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
-    vtkStdString colX = it->first;
+    // Each request contains only one pair of column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtkStdString colX = *it;
     if ( ! inData->GetColumnByName( colX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
@@ -254,7 +257,8 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    vtkStdString colY = it->second;
+    ++ it;
+    vtkStdString colY = *it;
     if ( ! inData->GetColumnByName( colY ) )
       {
       vtkWarningMacro( "InData table does not have a column "

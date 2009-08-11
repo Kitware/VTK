@@ -119,28 +119,27 @@ int TestCorrelativeStatistics( int, char *[] )
   dataset3Arr->Delete();
 
   // Pairs of interest
-  int nMetricPairs = 3;
+  int nMetricPairs = 2;
   vtkStdString columnPairs[] = 
     { 
       "Metric 0", "Metric 1", // First pair
-      "Metric 1", "Metric 0", // Second pair
-      "Metric 2", "Metric 1"  // Third pair
+      "Metric 2", "Metric 1"  // Second pair
     };
 
   // Reference values
-  // Means and variances for metrics 0, 1, and 2, respectively
-  double meansX1[] = { 49.21875, 49.5, -1. };
-  double varsX1[] = { 5.9828629, 7.548397, 0. };
+  // Means and variances for metrics 0, and 1, respectively
+  double meansX1[] = { 49.21875, 49.5 };
+  double varsX1[] = { 5.9828629, 7.548397 };
 
-  // Means and variances for metrics 1, 0, and 1, respectively
-  double meansY1[] = { 49.5, 49.21875, 49.5 };
-  double varsY1[] = { 7.548397,5.9828629, 7.548397 };
+  // Means and variances for metrics 1 and 2, respectively
+  double meansY1[] = { 49.5, -1. };
+  double varsY1[] = { 7.548397, 0. };
 
   // Covariance matrix of (metric 0, metric 1) pair
   double covariance1[] = { 5.98286, 7.54839, 6.14516 }; 
 
   // Pearson r for each of the three pairs
-  double correlations1[] = { 0.914433, 0.914433, 0. }; 
+  double correlations1[] = { 0.914433, 0. }; 
 
   // Threshold for outlier detection
   double threshold = 4.;
@@ -153,10 +152,14 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetTable1->Delete();
 
   // Select Column Pairs of Interest ( Learn Mode ) 
-  cs1->AddColumnPair( "Metric 0", "Metric 1" ); // A valid pair
-  cs1->AddColumnPair( "Metric 1", "Metric 0" ); // The same valid pair, just reversed
-  cs1->AddColumnPair( "Metric 2", "Metric 1" ); // Another valid pair
-  cs1->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
+  // 1.1: a valid pair
+  cs1->AddColumnPair( "Metric 0", "Metric 1" ); 
+  // 1.2: the same valid pair, just reversed -- should thus be ignored
+  cs1->AddColumnPair( "Metric 1", "Metric 0" );
+  // 2: another valid pair
+  cs1->AddColumnPair( "Metric 2", "Metric 1" ); 
+  // 3: an invalid pair
+  cs1->AddColumnPair( "Metric 1", "Metric 3" ); 
 
   // Test Learn Mode 
   cs1->SetLearnOption( true );
@@ -250,7 +253,7 @@ int TestCorrelativeStatistics( int, char *[] )
     }
 
   // Select Column Pairs of Interest ( Assess Mode ) 
-  cs1->ResetColumnPairs(); // Clear existing pairs
+  cs1->ResetRequests(); // Clear existing pairs
   cs1->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
   // Test Assess Mode 
@@ -408,16 +411,16 @@ int TestCorrelativeStatistics( int, char *[] )
   cs2->Update();
 
   // Reference values
-  // Means and variances for metrics 0, 1, and 2, respectively
-  double meansX2[] = { 49.71875 , 49.5, 0. };
-  double varsX2[] = { 6.1418651 , 7.548397 * 62. / 63. , 64. / 63. };
+  // Means and variances for metrics 0 and 1, respectively
+  double meansX2[] = { 49.71875 , 49.5 };
+  double varsX2[] = { 6.1418651 , 7.548397 * 62. / 63. };
 
-  // Means and variances for metrics 1, 0, and 1, respectively
-  double meansY2[] = { 49.5, 49.71875 , 49.5 };
-  double varsY2[] = { 7.548397 * 62. / 63., 6.1418651 , 7.548397 * 62. / 63. };
+  // Means and variances for metrics 1 and 2, respectively
+  double meansY2[] = { 49.5, 0. };
+  double varsY2[] = { 7.548397 * 62. / 63., 64. / 63. };
 
   // Pearson r for each of the three pairs
-  double correlations2[] = { 0.895327, 0.895327, 0. };
+  double correlations2[] = { 0.895327, 0. };
 
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 

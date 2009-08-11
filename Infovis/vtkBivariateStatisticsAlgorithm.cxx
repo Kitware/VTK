@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkBivariateStatisticsAlgorithm.h"
-#include "vtkBivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
@@ -31,19 +31,17 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.15");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.16");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
 {
   this->NumberOfVariables = 2;
-  this->Internals = new vtkBivariateStatisticsAlgorithmPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::~vtkBivariateStatisticsAlgorithm()
 {
-  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
@@ -54,58 +52,13 @@ void vtkBivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkBivariateStatisticsAlgorithm::ResetColumnPairs()
-{
-  this->Internals->Selection.clear();
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
 void vtkBivariateStatisticsAlgorithm::AddColumnPair( const char* namColX, const char* namColY )
 {
-  vtkstd::pair<vtkStdString,vtkStdString> namPair( namColX, namColY );
-  this->Internals->Selection.insert( namPair );
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkBivariateStatisticsAlgorithm::RemoveColumnPair( const char* namColX, const char* namColY )
-{
-  vtkstd::pair<vtkStdString,vtkStdString> namPair( namColX, namColY );
-  this->Internals->Selection.erase( namPair );
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkBivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
-{
-  if( status )
-    {
-    this->Internals->BufferedColumns.insert( namCol );
-    }
-  else
-    {
-    this->Internals->BufferedColumns.erase( namCol );
-    }
+  this->Internals->ResetBuffer();
+  this->SetColumnStatus( namColX, true );
+  this->SetColumnStatus( namColY, true );
+  this->RequestSelectedColumns();
   
-  this->Internals->Selection.clear();
-
-  int i = 0;
-  for ( vtkstd::set<vtkStdString>::iterator ait = this->Internals->BufferedColumns.begin(); 
-        ait != this->Internals->BufferedColumns.end(); ++ ait, ++ i )
-    {
-    int j = 0;
-    for ( vtkstd::set<vtkStdString>::iterator bit = this->Internals->BufferedColumns.begin(); 
-          j < i ; ++ bit, ++ j )
-      {
-      vtkstd::pair<vtkStdString,vtkStdString> namPair( *bit, *ait );
-      this->Internals->Selection.insert( namPair );
-      }
-    }
-
   this->Modified();
 }
 
@@ -152,11 +105,13 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     return;
     }
 
-  // Loop over pairs of columns of interest
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
-    vtkStdString varNameX = it->first;
+    // Each request contains only one pair of column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtkStdString varNameX = *it;
     if ( ! inData->GetColumnByName( varNameX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
@@ -165,7 +120,8 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
       continue;
       }
 
-    vtkStdString varNameY = it->second;
+    ++ it;
+    vtkStdString varNameY = *it;
     if ( ! inData->GetColumnByName( varNameY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
