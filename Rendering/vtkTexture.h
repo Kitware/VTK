@@ -178,6 +178,7 @@ public:
 
   // Description:
   // Whether the texture colors are premultiplied by alpha.
+  // Initial value is false.
   vtkGetMacro(PremultipliedAlpha,bool);
   vtkSetMacro(PremultipliedAlpha,bool);
   vtkBooleanMacro(PremultipliedAlpha,bool);
