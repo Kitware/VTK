@@ -31,13 +31,13 @@
 
 #include <vtkstd/vector>
 
-#define VTK_CREATE(type, var) \
+#define VTK_CREATE(type, var)                                   \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 namespace
 {
   double Tolerance = 0.00001;
-
+  
   bool ArePointsWithinTolerance(double v1, double v2)
   {
     if(v1 == v2)
@@ -50,12 +50,16 @@ namespace
         {
         return true;
         }
+      cout << fabs(v2) << " (fabs(v2)) should be less than " 
+           << Tolerance << endl;
       return false;
       }
     if(fabs(v1/v2) < Tolerance)
-        {
+      {
         return true;
         }
+    cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than " 
+         << Tolerance << endl;
     return false;
   }
 
