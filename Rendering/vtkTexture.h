@@ -72,7 +72,7 @@ public:
   // Description:
   // Cleans up after the texture rendering to restore the state of the
   // graphics context.
-  virtual void PostRender(vtkRenderer *ren) { }
+  virtual void PostRender(vtkRenderer *) {};
 
   // Description:
   // Release any graphics resources that are being consumed by this texture.
