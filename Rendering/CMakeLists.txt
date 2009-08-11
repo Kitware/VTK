@@ -334,7 +334,19 @@ IF(VTK_USE_QT)
     vtkQtLabelSurface.cxx
     vtkQtTreeRingLabelMapper.cxx
     )
-  SET (KIT_LIBS ${KIT_LIBS} ${QT_LIBRARIES})
+  # On the Mac, make the QT_LIBRARIES KIT_INTERFACE_LIBRARIES. This is a
+  # workaround a problem with the Qt binaries from Trolltech. These libraries
+  # use install names that are relative. Then when the linker tries to pull them
+  # indirectly (through vtkRendering's list of libraries), it fails to find them.
+  # This does not happen when Qt is build from source because it uses absolute
+  # path in install names. This workaround fixes the problem by forcing all libraries
+  # and executables that depend on vtkRendering to also directly link to Qt libraries.
+  IF (APPLE)
+    LIST (APPEND KIT_INTERFACE_LIBRARIES ${QT_LIBRARIES})
+  ELSE (APPLE)
+    LIST (APPEND KIT_LIBS ${QT_LIBRARIES})
+  ENDIF (APPLE)
+
 ENDIF(VTK_USE_QT)
 
 # The set of source files to be encoded.
