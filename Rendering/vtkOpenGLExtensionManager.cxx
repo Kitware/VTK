@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.36");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.37");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -410,6 +410,16 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       // the graphics context instead of forcing a full render.
       this->RenderWindow->Render();
       }
+    if (!this->RenderWindow->IsCurrent())
+      {
+      // this case happens with a headless Mac: a mac with a graphics card
+      // with no monitor attached to it, connected to it with "Screen Sharing"
+      // (VNC-like feature added in Mac OS 10.5)
+      // see bug 8554.
+      this->ExtensionsString = new char[1];
+      this->ExtensionsString[0] = '\0';
+      return;
+      }
     }
 
   vtkstd::string extensions_string;
@@ -483,11 +493,9 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 
   const char *version =
     reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  int driverMajor = 0, driverMinor = 0;
-  if (version)
-    {
+  int driverMajor = 0;
+  int driverMinor = 0;
   sscanf(version, "%d.%d", &driverMajor, &driverMinor);
-    }
 
   version_extensions = vtkgl::GLVersionExtensionsString();
   endpos = 0;
