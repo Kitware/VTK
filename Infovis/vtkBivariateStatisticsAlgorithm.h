@@ -52,10 +52,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Reset list of column pairs of interest. 
-  void ResetColumnPairs();
-
-  // Description:
   // Convenience method to create a request with a single column name pair 
   //  (\p namColX, \p namColY) in a single call; this is the preferred method to select 
   // columns pairs, ensuring selection consistency (a pair of columns per request).
