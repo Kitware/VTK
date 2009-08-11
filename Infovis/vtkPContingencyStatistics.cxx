@@ -19,7 +19,6 @@
 #include "vtkToolkits.h"
 
 #include "vtkPContingencyStatistics.h"
-#include "vtkBivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkCommunicator.h"
 #include "vtkIdTypeArray.h"
@@ -44,7 +43,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.33");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.34");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
