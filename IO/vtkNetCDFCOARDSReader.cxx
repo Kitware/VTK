@@ -155,7 +155,7 @@ int vtkNetCDFCOARDSReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.3");
+vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.3.2.1");
 vtkStandardNewMacro(vtkNetCDFCOARDSReader);
 
 //-----------------------------------------------------------------------------
@@ -335,25 +335,34 @@ int vtkNetCDFCOARDSReader::RequestData(vtkInformation *request,
     rectOutput->GetExtent(extent);
 
     int numDim = this->LoadingDimensions->GetNumberOfTuples();
-    for (int i = 0; i < numDim; i++)
+    for (int i = 0; i < 3; i++)
       {
-      // Remember that netCDF dimension ordering is backward from VTK.
-      int dim = this->LoadingDimensions->GetValue(numDim-i-1);
-      vtkSmartPointer<vtkDoubleArray> coords
-        = this->DimensionInfo[dim].GetCoordinates();
-      int extLow = extent[2*i];
-      int extHi = extent[2*i+1];
-      if ((extLow != 0) || (extHi != coords->GetNumberOfTuples()-1))
+      vtkSmartPointer<vtkDoubleArray> coords;
+      if (i < numDim)
         {
-        // Getting a subset of this dimension.
-        VTK_CREATE(vtkDoubleArray, newcoords);
-        newcoords->SetNumberOfComponents(1);
-        newcoords->SetNumberOfTuples(extHi-extLow+1);
-        memcpy(newcoords->GetPointer(0), coords->GetPointer(extLow),
-               (extHi-extLow+1)*sizeof(double));
-        coords = newcoords;
+        // Remember that netCDF dimension ordering is backward from VTK.
+        int dim = this->LoadingDimensions->GetValue(numDim-i-1);
+        coords = this->DimensionInfo[dim].GetCoordinates();
+        int extLow = extent[2*i];
+        int extHi = extent[2*i+1];
+        if ((extLow != 0) || (extHi != coords->GetNumberOfTuples()-1))
+          {
+          // Getting a subset of this dimension.
+          VTK_CREATE(vtkDoubleArray, newcoords);
+          newcoords->SetNumberOfComponents(1);
+          newcoords->SetNumberOfTuples(extHi-extLow+1);
+          memcpy(newcoords->GetPointer(0), coords->GetPointer(extLow),
+                 (extHi-extLow+1)*sizeof(double));
+          coords = newcoords;
+          }
         }
-      switch (dim)
+      else
+        {
+        coords = vtkSmartPointer<vtkDoubleArray>::New();
+        coords->SetNumberOfTuples(1);
+        coords->SetComponent(0, 0, 0.0);
+        }
+      switch (i)
         {
         case 0: rectOutput->SetXCoordinates(coords);  break;
         case 1: rectOutput->SetYCoordinates(coords);  break;
