@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.79");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.80");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -542,7 +542,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
+void vtkOpenGLTexture::PostRender(vtkRenderer *vtkNotUsed(ren))
 {
   if (this->GetInput() && this->PremultipliedAlpha)
     {
