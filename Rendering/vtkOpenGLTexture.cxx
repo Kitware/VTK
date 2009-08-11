@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.78");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.79");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -484,6 +484,15 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
 
+  if (this->PremultipliedAlpha)
+    {
+    // save the blend function.
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+
+    // make the blend function correct for textures premultiplied by alpha.
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
   // now bind it
   glEnable(GL_TEXTURE_2D);
 
@@ -529,6 +538,16 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     uTexture=oRenderer->GetTextureUniformVariable();
     vtkgl::Uniform1i(uUseTexture,1);
     vtkgl::Uniform1i(uTexture,0); // active texture 0
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
+{
+  if (this->GetInput() && this->PremultipliedAlpha)
+    {
+    // restore the blend function
+    glPopAttrib();
     }
 }
 

@@ -39,7 +39,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.5");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.6");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 class vtkQtLabelRenderStrategy::Internals
@@ -79,6 +79,7 @@ vtkQtLabelRenderStrategy::vtkQtLabelRenderStrategy()
 
   this->Mapper->SetInputConnection(this->TextureMapToPlane->GetOutputPort());
   this->Texture->SetInputConnection(this->QImageToImage->GetOutputPort());
+  this->Texture->PremultipliedAlphaOn();
   this->Actor->SetTexture(this->Texture);
   this->Actor->SetMapper(this->Mapper);
 }

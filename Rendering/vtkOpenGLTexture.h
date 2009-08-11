@@ -41,6 +41,10 @@ public:
   // Implement base class method.
   void Load(vtkRenderer *ren);
   
+  // Descsription:
+  // Clean up after the rendering is complete.
+  virtual void PostRender(vtkRenderer *ren);
+
   // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic

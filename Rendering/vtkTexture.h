@@ -70,6 +70,11 @@ public:
   virtual void Render(vtkRenderer *ren);
 
   // Description:
+  // Cleans up after the texture rendering to restore the state of the
+  // graphics context.
+  virtual void PostRender(vtkRenderer *ren) { }
+
+  // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
   // resources to release.
@@ -172,6 +177,12 @@ public:
   vtkSetMacro(BlendingMode, int);
 
   // Description:
+  // Whether the texture colors are premultiplied by alpha.
+  vtkGetMacro(PremultipliedAlpha,bool);
+  vtkSetMacro(PremultipliedAlpha,bool);
+  vtkBooleanMacro(PremultipliedAlpha,bool);
+
+  // Description:
   // When the texture is forced to be a power of 2, the default behavior is
   // for the "new" image's dimensions  to be greater than or equal to with 
   // respects to the original.  Setting RestrictPowerOf2ImageSmaller to be
@@ -197,6 +208,7 @@ protected:
   int RestrictPowerOf2ImageSmaller;
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable
   int SelfAdjustingTableRange;
+  bool PremultipliedAlpha;
 private:
   vtkTexture(const vtkTexture&);  // Not implemented.
   void operator=(const vtkTexture&);  // Not implemented.
