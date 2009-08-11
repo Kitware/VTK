@@ -92,12 +92,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   int         inserted = 0;
   int         numInsrt = 0;
   int         nLocPnts = 0;
+  int         nUniques = 0;
+  int         nDuplics = 0;
+  int         arrayIdx = 0;
+  int         numExPts = 0;
   char *      fileName = NULL;
   FILE *      diskFile = NULL;
   FILE *      pntsFile = NULL;
+  double      pntCoord[3] = { 0.0, 0.0, 0.0 };
   double      tmpDist2 = 0.0;
   double      fTempRad = 0.0;
   double *    pDataPts = NULL;
+  double *    xtentPts = NULL;
   double *    pLocPnts = NULL;
   double *    minDist2 = NULL;
   double *    maxDist2 = NULL;
@@ -112,16 +118,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkUnstructuredGrid *              unstruct = NULL;
   vtkUnstructuredGridReader *        ugReader = NULL;
   vtkIncrementalOctreePointLocator * octLocat = NULL;
-  
-  
-  #if 1 // sub-test xxx
-  int         nUniques = 0;
-  int         nDuplics = 0;
-  int         arrayIdx = 0;
-  int         numExPts = 0;
-  double *    xtentPts = NULL;
-  double      pntCoord[3] = { 0.0, 0.0, 0.0 };
-  #endif
   
   
   // load an unstructured grid dataset
@@ -160,8 +156,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     }
   
     
-  #if 1 // sub-test xxx
-  // allocate memory and inherit the points
+  // allocate memory for exactly duplicate points and inherit some points
   nUniques = 4;
   nDuplics = 300;
   arrayIdx = numbPnts * 3;
@@ -169,11 +164,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   xtentPts = ( double * )
              realloc(  xtentPts, sizeof( double ) * 3 * numExPts  );                                 
   memcpy(  xtentPts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
-  #endif
   
-  
-  #if 1 // sub-test xxx
-  // add a huge number of exactly duplicate points
+  // add an additional number of exactly duplicate points
   for ( j = 0; j < nUniques; j ++ )
     {
     i = (  numbPnts / ( nUniques + 2 )  )  *  ( j + 1 );
@@ -188,7 +180,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       xtentPts[ arrayIdx + 2 ] = pntCoord[2];
       }
     }
-  #endif
     
     
   // memory allocation
@@ -366,7 +357,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
   //           (number > the maximum number of points per leaf node)
   // =========================================================================
-  #if 1 // sub-test xxx
   if ( retValue == 0 )
     {
     // perform direct / check-free point insertion          
@@ -387,7 +377,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     }
   if ( xtentPts ) free( xtentPts );  xtentPts = NULL;
-  #endif
   // =======================================================================//
   // =======================================================================// 
   
