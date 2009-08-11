@@ -111,6 +111,9 @@ public:
 
   // Description:
   // Return a pointer to a double point x[3] for a specific id.
+  // WARNING: Just don't use this error-prone method, the returned pointer
+  // and its values are only valid as long as another method invocation is not
+  // performed. Prefer GetPoint() with the return value in argument.
   double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id);};
 
   // Description:
