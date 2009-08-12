@@ -36,7 +36,7 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
   
   // Description:
-  // 
+  // Set an integer uniform variable.
   // \pre name_exists: name!=0
   // \pre value_exists: value!=0
   // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
@@ -45,6 +45,7 @@ public:
                    int *value);
 
   // Description:
+  // Set an float uniform variable.
   // \pre name_exists: name!=0
   // \pre value_exists: value!=0
   // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
@@ -53,6 +54,19 @@ public:
                    float *value);
 
   // Description:
+  // Set an array of integer uniform variables.
+  // The array `value' is of size `numberOfElements'*`numberOfComponents.'.
+  // \pre name_exists: name!=0
+  // \pre value_exists: value!=0
+  // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+  // \pre valid_numberOfElements: numberOfElements>=1
+  void SetUniformiv(const char *name,
+                    int numberOfComponents,
+                    int numberOfElements,
+                    int *value);
+  
+  // Description:
+  // Set an array of float uniform variables.
   // The array `value' is of size `numberOfElements'*`numberOfComponents.'.
   // \pre name_exists: name!=0
   // \pre value_exists: value!=0
@@ -64,7 +78,7 @@ public:
                     float *value);
 
   // Description:
-  //
+  // Set a matrix uniform variable.
   // \pre name_exists: name!=0
   // \pre value_exists: value!=0
   // \pre valid_rows:  rows>=2 && rows<=4
