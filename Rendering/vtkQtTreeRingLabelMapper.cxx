@@ -57,7 +57,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.7");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.8");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -111,8 +111,7 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
 
   this->QtImageSource->SetQImage( this->QtImage );
   this->LabelTexture->SetInput(this->QtImageSource->GetOutput());
-  this->LabelTexture->InterpolateOn();
-//   this->LabelTexture->SetBlendingMode(2);
+  this->LabelTexture->PremultipliedAlphaOn();
   
   this->TextureMapToPlane->SetSRange( 0., 1. );
   this->TextureMapToPlane->SetTRange( 0., 1. );
@@ -290,7 +289,8 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   VTK_CREATE( vtkQImageToImageSource, qis );
   qis->SetQImage( this->QtImage );
   this->LabelTexture->SetInput( qis->GetOutput() );
-  
+  this->LabelTexture->PremultipliedAlphaOn();
+
   this->PlaneSource->SetOrigin( 0, 0, 0 );
   this->PlaneSource->SetPoint1( this->WindowSize[0], 0, 0 );
   this->PlaneSource->SetPoint2( 0, this->WindowSize[1], 0 );
