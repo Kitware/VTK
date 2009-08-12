@@ -32,6 +32,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+
 int TestTextureRGBA(int argc, char *argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(
