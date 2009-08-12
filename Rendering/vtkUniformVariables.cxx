@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.7");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.8");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -302,7 +302,25 @@ public:
       this->ClassType=ClassTypeArrayInt;
       this->Size=size;
       this->ArraySize=arraySize;
-      this->Values=new int[size*arraySize];
+      this->Values=new GLint[size*arraySize];
+      int i=0;
+      while(i<this->Size*this->ArraySize)
+        {
+        this->Values[i]=values[i];
+        ++i;
+        }
+    }
+  
+  // this constructor is used inside Clone()
+  // It is required because GLint is long on Mac, not int.
+  vtkUniformArrayInt(int size,
+                     int arraySize,
+                     GLint *values)
+    {
+      this->ClassType=ClassTypeArrayInt;
+      this->Size=size;
+      this->ArraySize=arraySize;
+      this->Values=new GLint[size*arraySize];
       int i=0;
       while(i<this->Size*this->ArraySize)
         {
@@ -336,7 +354,7 @@ public:
         }
     }
   
-  const int *GetValues()
+  const GLint *GetValues()
     {
       return this->Values;
     }
@@ -394,7 +412,7 @@ public:
 protected:
   int Size;  // size of element (eq. to float, vec2, vec2, vec4)
   int ArraySize; // number of elements
-  int *Values;
+  GLint *Values; // GLint is long on Mac
 };
 
 class vtkUniformArrayFloat : public vtkUniform
