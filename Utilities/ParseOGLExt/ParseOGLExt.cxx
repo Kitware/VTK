@@ -672,6 +672,11 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "  typedef vtkTypeInt32 int32_t;" << endl;
   hfile << "  typedef vtkTypeInt64 int64_t;" << endl;
   hfile << "  typedef vtkTypeUInt64 uint64_t;" << endl;
+  // OpenGL 3.2 typedefs
+  hfile << "  typedef int64_t GLint64;" << endl;
+  hfile << "  typedef uint64_t GLuint64;" << endl;
+  hfile << "  typedef struct __GLsync *GLsync;" << endl;
+  
   ConstantsAlreadyWritten.clear();
   WriteClassDeclarationGuts(hfile, Extension::GL);
   hfile << endl << "  // Method to load functions for a particular extension.";
