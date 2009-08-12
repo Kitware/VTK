@@ -564,12 +564,23 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
                                                            iconst->GetValue()))
              == ConstantsAlreadyWritten.end())
           {
+          if(strcmp(iconst->GetName().c_str(),"TIMEOUT_IGNORED")==0)
+            {
+            // BCC cannot digest this C99 macro
+            hfile << "#ifndef __BORLANDC__" << endl;
+            }
+          
+          
           hfile << "  const GLenum " << iconst->GetName().c_str()
                 << " = static_cast<GLenum>(" << iconst->GetValue().c_str() << ");" << endl;
 
           ConstantsAlreadyWritten.insert(vtkstd::make_pair(iconst->GetName(), 
                                                            iconst->GetValue()));
-          
+          if(strcmp(iconst->GetName().c_str(),"TIMEOUT_IGNORED")==0)
+            {
+            // really special case for non C99 compilers like BCC
+            hfile << "#endif /* only for C99 compilers */" << endl;
+            }
           }
         else
           {
