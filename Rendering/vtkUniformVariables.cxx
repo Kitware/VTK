@@ -21,7 +21,7 @@
 #include <vtksys/stl/map>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUniformVariables, "1.8");
+vtkCxxRevisionMacro(vtkUniformVariables, "1.9");
 vtkStandardNewMacro(vtkUniformVariables);
 
 class ltstr
@@ -315,7 +315,7 @@ public:
   // It is required because GLint is long on Mac, not int.
   vtkUniformArrayInt(int size,
                      int arraySize,
-                     GLint *values)
+                     const GLint *values)
     {
       this->ClassType=ClassTypeArrayInt;
       this->Size=size;
