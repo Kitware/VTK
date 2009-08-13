@@ -51,7 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QHttpHeader>
 #include <QHttpRequestHeader>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.17");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.18");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ public:
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
 
   // Caches displayed content so we can navigate backwards to it
-  vtkStdString Content;
+  vtkUnicodeString Content;
 
   QPointer<QWidget> Widget;
   Ui::vtkQtRichTextView UI;
@@ -95,6 +95,9 @@ vtkQtRichTextView::vtkQtRichTextView()
   //QNetworkProxy::setApplicationProxy(proxy);
 
   QObject::connect(this->Internal->UI.BackButton, SIGNAL(clicked()), this, SLOT(onBack()));
+  QObject::connect(this->Internal->UI.ZoomIn, SIGNAL(clicked()), this, SLOT(onZoomIn()));
+  QObject::connect(this->Internal->UI.ZoomReset, SIGNAL(clicked()), this, SLOT(onZoomReset()));
+  QObject::connect(this->Internal->UI.ZoomOut, SIGNAL(clicked()), this, SLOT(onZoomOut()));
   QObject::connect(this->Internal->UI.WebView, SIGNAL(loadProgress(int)), this, SLOT(onLoadProgress(int)));
 }
 
@@ -200,18 +203,10 @@ void vtkQtRichTextView::Update()
 
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
 
-  this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToString();
+  this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToUnicodeString();
+  cerr << this->Internal->Content << endl;
 
-#if 0
-    QHttpRequestHeader header( this->Internal->Content.c_str());
-    QString key("style");
-    QString css("body: { font-weight: bold; }");
-    header.addValue(key, css);
-    cout << header.toString().toStdString() << endl;
-#endif
-
-  //cerr << this->Internal->Content << endl;
-  this->Internal->UI.WebView->setHtml(this->Internal->Content.c_str());
+  this->Internal->UI.WebView->setContent(this->Internal->Content.utf8_str());
 }
 
 void vtkQtRichTextView::onBack()
@@ -219,13 +214,28 @@ void vtkQtRichTextView::onBack()
   // This logic is a workaround for a quirk in QWebHistory
   if(this->Internal->UI.WebView->history()->currentItemIndex() <= 1)
     {
-    this->Internal->UI.WebView->setHtml(this->Internal->Content.c_str());
+    this->Internal->UI.WebView->setHtml(QString::fromUtf8(this->Internal->Content.utf8_str()));
     this->Internal->UI.WebView->history()->clear();
     }
   else
     {
     this->Internal->UI.WebView->back();
     }
+}
+
+void vtkQtRichTextView::onZoomIn()
+{
+  this->Internal->UI.WebView->setTextSizeMultiplier(this->Internal->UI.WebView->textSizeMultiplier() * 1.1);
+}
+
+void vtkQtRichTextView::onZoomReset()
+{
+  this->Internal->UI.WebView->setTextSizeMultiplier(1.0);
+}
+
+void vtkQtRichTextView::onZoomOut()
+{
+  this->Internal->UI.WebView->setTextSizeMultiplier(this->Internal->UI.WebView->textSizeMultiplier() * (1.0 / 1.1));
 }
 
 void vtkQtRichTextView::onLoadProgress(int progress)

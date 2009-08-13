@@ -92,6 +92,9 @@ public:
 
 protected slots:
   void onBack();
+  void onZoomIn();
+  void onZoomReset();
+  void onZoomOut();
   void onLoadProgress(int progress);
 
 protected:
