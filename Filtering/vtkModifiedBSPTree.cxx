@@ -22,14 +22,14 @@
 #include "vtkGenericCell.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.8");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.9");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
 //
 enum { POS_X, NEG_X, POS_Y, NEG_Y, POS_Z, NEG_Z };
 //
-#define Epsilon_  1E-8
+const double Epsilon_=1E-8;
 
 //////////////////////////////////////////////////////////////////////////////
 // Main management and support for tree
@@ -90,19 +90,34 @@ class Sorted_cell_extents_Lists {
   }
 };
 
-int __compareMin(const void *pA, const void *B )   {
+extern "C" int __compareMin(const void *pA, const void *B )
+{
   cell_extents *tA  = (cell_extents *) pA;
   cell_extents *tB  = (cell_extents *) B;
-  if ( tA->min == tB->min ) return( 0 ) ;
-  else return( tA->min < tB->min ? -1 : 1 ) ;
+  if ( tA->min == tB->min )
+    {
+    return 0;
+    }
+  else
+    {
+    return tA->min < tB->min ? -1 : 1 ;
+    }
 }
 
-int __compareMax(const void *pA, const void *B )   {
+extern "C" int __compareMax(const void *pA, const void *B )
+{
   cell_extents *tA  = (cell_extents *) pA;
   cell_extents *tB  = (cell_extents *) B;
-  if ( tA->max == tB->max ) return( 0 ) ;
-  else return( tA->max > tB->max ? -1 : 1 ) ;
+  if ( tA->max == tB->max )
+    {
+    return 0;
+    }
+  else
+    {
+    return tA->max > tB->max ? -1 : 1;
+    }
 }
+
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
