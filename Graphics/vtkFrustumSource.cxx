@@ -22,10 +22,11 @@
 #include "vtkInformationVector.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkFrustumSource, "1.1");
+vtkCxxRevisionMacro(vtkFrustumSource, "1.2");
 vtkStandardNewMacro(vtkFrustumSource);
 vtkCxxSetObjectMacro(vtkFrustumSource,Planes,vtkPlanes);
 
+// ----------------------------------------------------------------------------
 vtkFrustumSource::vtkFrustumSource()
 {
   this->Planes=0;
@@ -35,6 +36,8 @@ vtkFrustumSource::vtkFrustumSource()
   // a source has no input port.
   this->SetNumberOfInputPorts(0);
 }
+
+// ----------------------------------------------------------------------------
 vtkFrustumSource::~vtkFrustumSource()
 {
   if(this->Planes!=0)
@@ -43,6 +46,7 @@ vtkFrustumSource::~vtkFrustumSource()
     }
 }
 
+// ----------------------------------------------------------------------------
 int vtkFrustumSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -376,6 +380,25 @@ void vtkFrustumSource::ComputePoint(int planes[3],
     }
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Modified GetMTime because of Planes.
+unsigned long vtkFrustumSource::GetMTime()
+{
+  unsigned long mTime=this->Superclass::GetMTime();
+  if(this->Planes!=0)
+    {
+    unsigned long time;
+    time = this->Planes->GetMTime();
+    if(time>mTime)
+      {
+      mTime=time;
+      }
+    }
+  return mTime;
+}
+
+// ----------------------------------------------------------------------------
 void vtkFrustumSource::PrintSelf(ostream &os,
                                  vtkIndent indent)
 {

@@ -63,6 +63,10 @@ public:
   vtkGetMacro(LinesLength,double);
   vtkSetMacro(LinesLength,double);
   
+  // Description:
+  // Modified GetMTime because of Planes.
+  unsigned long GetMTime();
+  
 protected:
   // Description:
   // Default construtor. Planes=NULL. ShowLines=true. LinesLength=1.0.
