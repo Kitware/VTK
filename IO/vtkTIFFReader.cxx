@@ -1755,7 +1755,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
       break;
     case vtkTIFFReader::PALETTE_GRAYSCALE:
       this->GetColor(*source, &red, &green, &blue);
-      *image = static_cast<unsigned char>(red >> 8);
+      *image = static_cast<unsigned char>(red); // red >> 8
       increment = 1;
       break;
     case vtkTIFFReader::RGB:
