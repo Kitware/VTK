@@ -27,7 +27,9 @@
 // to generate texture coordinates for any texture map.  This source is 
 // imperfect near the poles as implmented.  It should really reduce the
 // longitude resolution as the triangles become slivers.
-
+//
+// \image html vtkGlobeSourceSphericalToCartesianFigure.png
+// \image latex vtkGlobeSourceSphericalToCartesianFigure.eps
 #ifndef __vtkGlobeSource_h
 #define __vtkGlobeSource_h
 
