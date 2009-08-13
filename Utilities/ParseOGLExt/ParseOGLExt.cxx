@@ -566,8 +566,8 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
           {
           if(strcmp(iconst->GetName().c_str(),"TIMEOUT_IGNORED")==0)
             {
-            // BCC cannot digest this C99 macro
-            hfile << "#ifndef __BORLANDC__" << endl;
+            // BCC/VS6/VS70 cannot digest this C99 macro
+            hfile << "#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)" << endl;
             }
           
           
