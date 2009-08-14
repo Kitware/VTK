@@ -49,9 +49,6 @@
 #if defined(QVTK_USE_CARBON)
 #  include "vtkCarbonRenderWindow.h"
 #endif
-#if defined(QVTK_USE_COCOA)
-#  include "vtkCocoaRenderWindow.h"
-#endif
 #include "vtkCommand.h"
 #include "vtkOStrStreamWrapper.h"
 #include "vtkObjectFactory.h"
@@ -233,11 +230,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     x11_setup_window();
     
     // give the qt window id to the vtk window
-#if defined(QVTK_USE_COCOA)
-    this->mRenWin->SetDisplayId( reinterpret_cast<void*>(this->winId()));
-#else
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
-#endif
 
     // mac compatibility issues
 #if defined(QVTK_USE_CARBON) && (QT_VERSION < 0x040000)
