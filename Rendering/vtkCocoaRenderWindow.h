@@ -25,8 +25,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Cocoa APIs. This class's default behaviour is to create an NSWindow and
 // a vtkCocoaGLView which are used together to draw all vtk stuff into.
 // If you already have an NSWindow and vtkCocoaGLView and you want this
-// class to use them you must call both SetWindowId() and SetDisplayId()
-// early on (before WindowInitialize() is executed).
+// class to use them you must call both SetRootWindow() and SetWindowId(),
+// respectively, early on (before WindowInitialize() is executed).
 //
 // .SECTION See Also
 // vtkOpenGLRenderWindow vtkCocoaGLView
@@ -121,6 +121,15 @@ public:
       return 0;
     }
   virtual void* GetGenericDrawable()
+    {
+      vtkWarningMacro("Method not implemented.");
+      return 0;
+    }
+  virtual void SetDisplayId(void*)
+    {
+      vtkWarningMacro("Method not implemented.");
+    }
+  virtual void *GetGenericDisplayId()
     {
       vtkWarningMacro("Method not implemented.");
       return 0;
@@ -232,33 +241,32 @@ public:
 
   // Description:
   // Sets the NSWindow* associated with this vtkRenderWindow. This class' default
-  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
+  // behaviour, that is, if you never call SetWindowId()/SetRootWindow() is
   // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
   // together to draw all vtk stuff into. If you already have an NSWindow and
-  // NSView and you want this class to use them you must call both SetWindowId()
-  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
-  // case of Java, you should call only SetDisplayId().
-  virtual void SetWindowId(void *);
+  // NSView and you want this class to use them you must call both SetRootWindow()
+  // and SetWindowId(), respectively, early on (before WindowInitialize() is
+  // executed). In the case of Java, you should call only SetWindowId().
+  virtual void SetRootWindow(void *);
   
   // Description:
   // Returns the NSWindow* associated with this vtkRenderWindow.
-  virtual void *GetWindowId();
-  virtual void *GetGenericWindowId()  {return this->GetWindowId();}
+  virtual void *GetRootWindow();
 
   // Description:
   // Sets the NSView* associated with this vtkRenderWindow. This class' default
-  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
+  // behaviour, that is, if you never call this SetWindowId()/SetRootWindow() is
   // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
   // together to draw all vtk stuff into. If you already have an NSWindow and
-  // NSView and you want this class to use them you must call both SetWindowId()
-  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
-  // case of Java, you should call only SetDisplayId().
-  virtual void SetDisplayId(void *);
+  // NSView and you want this class to use them you must call both SetRootWindow()
+  // and SetWindowId(), respectively, early on (before WindowInitialize() is
+  // executed). In the case of Java, you should call only SetWindowId().
+  virtual void SetWindowId(void *);
 
   // Description:
   // Returns the NSView* associated with this vtkRenderWindow.
-  virtual void *GetDisplayId();
-  virtual void *GetGenericDisplayId() {return this->GetDisplayId();}
+  virtual void *GetWindowId();
+  virtual void *GetGenericWindowId() {return this->GetWindowId();}
   
   // Description:
   // Returns the scaling factor for 'resolution independence', to convert

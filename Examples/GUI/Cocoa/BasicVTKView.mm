@@ -57,28 +57,32 @@
     vtkRenderWindow*            renWin = vtkRenderWindow::New();
     vtkRenderWindowInteractor*  renWinInt = vtkRenderWindowInteractor::New();
     
-    // This is special to our usage of vtk.  To prevent vtk
-    // from creating an NSWindow and NSView automatically (its
-    // default behaviour) we tell vtk that they exist already.
-    // The APIs names are a bit misleading, due to the cross
-    // platform nature of vtk, but this usage is correct.
-    renWin->SetWindowId([self window]);
-    renWin->SetDisplayId(self);
-    
-    // The usual vtk connections
-    renWin->AddRenderer(ren);
-    renWinInt->SetRenderWindow(renWin);
-
-    // This is special to our usage of vtk.  vtkCocoaGLView
-    // keeps track of the renderWindow, and has a get
-    // accessor if you ever need it.
     // The cast should never fail, but we do it anyway, as
     // it's more correct to do so.
     vtkCocoaRenderWindow*   cocoaRenWin = vtkCocoaRenderWindow::SafeDownCast(renWin);
-    [self setVTKRenderWindow:cocoaRenWin];
+
+	if (ren && cocoaRenWin && renWinInt)
+	{
+      // This is special to our usage of vtk.  To prevent vtk 
+      // from creating an NSWindow and NSView automatically (its
+      // default behaviour) we tell vtk that they exist already.
+      // The APIs names are a bit misleading, due to the cross
+      // platform nature of vtk, but this usage is correct.
+      cocoaRenWin->SetRootWindow([self window]);
+      cocoaRenWin->SetWindowId(self);
     
-    // Likewise, BasicVTKView keeps track of the renderer
-    [self setRenderer:ren];
+      // The usual vtk connections
+      cocoaRenWin->AddRenderer(ren);
+      renWinInt->SetRenderWindow(cocoaRenWin);
+
+      // This is special to our usage of vtk.  vtkCocoaGLView
+      // keeps track of the renderWindow, and has a get
+      // accessor if you ever need it.
+      [self setVTKRenderWindow:cocoaRenWin];
+    
+      // Likewise, BasicVTKView keeps track of the renderer
+      [self setRenderer:ren];
+    }
 }
 
 - (void)cleanUpVTKSupport

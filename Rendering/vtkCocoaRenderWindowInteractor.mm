@@ -21,7 +21,7 @@
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.27");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.28");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   NSWindow *win = nil;
   if (renWin != NULL)
     {
-    win = reinterpret_cast<NSWindow *>(renWin->GetWindowId());
+    win = reinterpret_cast<NSWindow *>(renWin->GetRootWindow());
   
     // We don't want to be informed of every window closing, so check for nil.
     if (win != nil)
@@ -232,7 +232,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   NSWindow  *win = nil;
   if (renWin != NULL)
     {
-    win = reinterpret_cast<NSWindow *>(renWin->GetWindowId());
+    win = reinterpret_cast<NSWindow *>(renWin->GetRootWindow());
     }
   
   // Close the window, removing it from the screen and releasing it
@@ -269,7 +269,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
       [NSApp postEvent:event atStart:YES];
       
       // The NSWindow is closing, so prevent anyone from accidently using it
-      renWin->SetWindowId(NULL);
+      renWin->SetRootWindow(NULL);
       }
     }
 } 
