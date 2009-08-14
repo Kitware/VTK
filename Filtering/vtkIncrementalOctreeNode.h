@@ -43,6 +43,12 @@
 //  is initialized with an empty leaf node that is then recursively sub-divided, 
 //  but only on demand as points are incrementally inserted, to construct a 
 //  populated tree.
+//
+//  Please note that this octree node class is able to handle a large number
+//  of EXACTLY duplicate points that is greater than the specified maximum
+//  number of points per leaf node. In other words, as an exception, a leaf
+//  node may maintain an arbitrary number of exactly duplicate points to deal
+//  with possible extreme cases.
 // 
 // .SECTION See Also
 //  vtkIncrementalOctreePointLocator
@@ -229,6 +235,10 @@ private:
   virtual void SetParent( vtkIncrementalOctreeNode * );
   
   // Description:
+  // Set the list of point indices, NULL for a non-leaf node.
+  virtual void SetPointIdSet( vtkIdList * );
+  
+  // Description:
   // Divide this LEAF node into eight child nodes as the number of points
   // maintained by this leaf node has reached the threshold maxPts while 
   // another point newPnt is just going to be inserted to it. The available
@@ -241,8 +251,10 @@ private:
   // be divided). Argument ptMode specifies whether the point is not inserted
   // at all but instead only the point index is provided upon 0, the point is
   // inserted via vtkPoints::InsertPoint() upon 1, or the point is inserted by
-  // vtkPoints::InsertNextPoint() upon 2.    
-  void CreateChildNodes( vtkPoints * points, vtkIdList * pntIds, 
+  // vtkPoints::InsertNextPoint() upon 2. The returned value of this function
+  // indicates whether pntIds needs to be destroyed (1) or just unregistered
+  // from this node as it has been attached to another node (0).
+  int CreateChildNodes( vtkPoints * points, vtkIdList * pntIds,
     const double newPnt[3], vtkIdType * pntIdx, int maxPts, int ptMode );
     
   // Description:

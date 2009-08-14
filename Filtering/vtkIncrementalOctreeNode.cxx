@@ -19,9 +19,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkIncrementalOctreeNode.h"
 
-vtkCxxRevisionMacro( vtkIncrementalOctreeNode, "1.6" );
+vtkCxxRevisionMacro( vtkIncrementalOctreeNode, "1.7" );
 vtkStandardNewMacro( vtkIncrementalOctreeNode );
 
+vtkCxxSetObjectMacro( vtkIncrementalOctreeNode, PointIdSet, vtkIdList );
 vtkCxxSetObjectMacro( vtkIncrementalOctreeNode, Parent, vtkIncrementalOctreeNode );
 
 // ---------------------------------------------------------------------------
@@ -240,13 +241,11 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   //           BUT the new point is  not a duplicate of them any more
   
   int         i;
-  int         numPts;
   double      dupPnt[3];
   double      octMin[3];
   double      octMid[3];
   double      octMax[3];
   double *    boxPtr[3] = { NULL, NULL, NULL };
-  vtkIdType * pArray    = NULL;
   vtkIncrementalOctreeNode * ocNode = NULL;
   vtkIncrementalOctreeNode * duplic = this;
   vtkIncrementalOctreeNode * single = this;
@@ -306,32 +305,22 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   single->GetPointIdSet()->InsertNextId( *pntIdx );
   single->UpdateCounterAndDataBoundsRecursively( newPnt, 1, 1, NULL );
   
-  // create a vtkIdList object for the duplicate points
+  // We just need to reference pntIds while un-registering it from 'this'.
+  // This avoids deep-copying point ids from pntIds to duplic's PointIdSet.
   // update the counter and the data bounding box, but until 'this' node
   // (excluding 'this' node)
-  // to do: in fact we just need to let duplic->PointIdSet point to
-  // this->PointIdSet while returning some flag indicating that this->
-  // PointIdSet is just not to be deleted in vtkIncrementalOctreeNode::
-  // InsertPoint( ... ) any more. This will avoid transferring point ids 
-  // between two vtkIdList objects.
-  numPts = pntIds->GetNumberOfIds();
-  pArray = pntIds->GetPointer( 0 );
-  duplic->CreatePointIdSet( numPts, ( maxPts >> 1 ) );
-  for ( i = 0; i < numPts; i ++ )
-    {
-    duplic->GetPointIdSet()->InsertNextId( pArray[i] );
-    }
-  duplic->UpdateCounterAndDataBoundsRecursively( dupPnt, numPts, 1, this );
+  duplic->SetPointIdSet( pntIds );
+  duplic->UpdateCounterAndDataBoundsRecursively
+          ( dupPnt, pntIds->GetNumberOfIds(), 1, this );
   
   // handle memory
-  pArray = NULL;
   ocNode = NULL;
   duplic = NULL;
   single = NULL;
 }
 
 //----------------------------------------------------------------------------
-void vtkIncrementalOctreeNode::CreateChildNodes
+int vtkIncrementalOctreeNode::CreateChildNodes
   ( vtkPoints * points, vtkIdList * pntIds, const double newPnt[3],
     vtkIdType * pntIdx, int maxPts, int ptMode )
 { 
@@ -351,7 +340,10 @@ void vtkIncrementalOctreeNode::CreateChildNodes
     {
     this->SeperateExactlyDuplicatePointsFromNewInsertion
           ( points, pntIds, newPnt, pntIdx, maxPts, ptMode );
-    return;
+    
+    // notify vtkIncrementalOctreeNode::InsertPoint() that pntIds just needs
+    // to be unregistered from 'this', but must NOT be destroyed at all.
+    return 0;
     }
     
   // then address case (1) below
@@ -463,6 +455,9 @@ void vtkIncrementalOctreeNode::CreateChildNodes
       this->Children[i]->DeletePointIdSet();
       }
     }
+  
+  // notify vtkIncrementalOctreeNode::InsertPoint() to destroy pntIds
+  return 1;
 }
 
 //---------------------------------------------------------------------------- 
@@ -488,9 +483,16 @@ int  vtkIncrementalOctreeNode::InsertPoint( vtkPoints * points,
       // overflow: divide this node and delete the list of point-indices.
       // Note that the number of exactly duplicate points might be greater
       // than or equal to maxPts.
-      this->CreateChildNodes( points, this->PointIdSet, 
-                              newPnt, pntId, maxPts, ptMode );
-      this->PointIdSet->Delete();
+      if ( this->CreateChildNodes( points, this->PointIdSet,
+                                   newPnt, pntId, maxPts, ptMode )
+         )
+        { 
+        this->PointIdSet->Delete();
+        }
+      else
+        {
+        this->PointIdSet->UnRegister( this );
+        }
       this->PointIdSet = NULL;
       }
     }
