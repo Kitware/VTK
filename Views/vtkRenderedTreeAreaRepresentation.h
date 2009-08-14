@@ -36,6 +36,7 @@ class vtkExtractSelectedPolyDataIds;
 class vtkLabeledDataMapper;
 class vtkPolyDataAlgorithm;
 class vtkPolyDataMapper;
+class vtkScalarBarWidget;
 class vtkTextProperty;
 class vtkTreeFieldAggregator;
 class vtkTreeLevelsFilter;
@@ -200,6 +201,11 @@ public:
   // Returns the hover text at an x,y location.
   virtual const char* GetHoverText(vtkView* view, int x, int y);
 
+  // Description: 
+  // Visibility of scalar bar actor for edges.
+  virtual void SetEdgeScalarBarVisibility(bool b);
+  virtual bool GetEdgeScalarBarVisibility();
+
 protected:
   vtkRenderedTreeAreaRepresentation();
   ~vtkRenderedTreeAreaRepresentation();
@@ -244,6 +250,7 @@ protected:
   vtkSmartPointer<vtkActor>                        HighlightActor;
   vtkPolyDataAlgorithm*                            AreaToPolyData;
   vtkLabeledDataMapper*                            AreaLabelMapper;
+  vtkSmartPointer<vtkScalarBarWidget>              EdgeScalarBar;
   //ETX
   
   vtkSetStringMacro(AreaSizeArrayNameInternal);

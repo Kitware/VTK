@@ -22,6 +22,7 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkAppendPolyData.h"
 #include "vtkApplyColors.h"
 #include "vtkAreaLayout.h"
@@ -43,6 +44,7 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProp.h"
 #include "vtkProperty.h"
@@ -50,6 +52,8 @@
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkScalarBarActor.h"
+#include "vtkScalarBarWidget.h"
 #include "vtkSectorSource.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
@@ -76,7 +80,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.12");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -89,6 +93,7 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   this->TreeAggregation        = vtkSmartPointer<vtkTreeFieldAggregator>::New();
   this->TreeLevels             = vtkSmartPointer<vtkTreeLevelsFilter>::New();
   this->Picker                 = vtkSmartPointer<vtkWorldPointPicker>::New();
+  this->EdgeScalarBar          = vtkSmartPointer<vtkScalarBarWidget>::New();
 
   // Area objects
   this->AreaLayout         = vtkSmartPointer<vtkAreaLayout>::New();
@@ -131,6 +136,8 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   // Set default parameters
   this->SetAreaLabelArrayName("id");
   this->AreaLabelVisibilityOff();
+  this->EdgeScalarBar->GetScalarBarActor()->VisibilityOff();
+  this->EdgeScalarBar->SetRepositionable(true);
 
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -257,6 +264,7 @@ void vtkRenderedTreeAreaRepresentation::SetGraphEdgeColorArrayName(const char* n
   if (this->ValidIndex(idx))
     {
     this->Implementation->Graphs[idx]->SetColorArrayName(name);
+    this->EdgeScalarBar->GetScalarBarActor()->SetTitle(name);
     }
 }
 
@@ -292,6 +300,16 @@ double vtkRenderedTreeAreaRepresentation::GetGraphBundlingStrength(int idx)
     return this->Implementation->Graphs[idx]->GetBundlingStrength();
     }
   return 0.0;
+}
+
+void vtkRenderedTreeAreaRepresentation::SetEdgeScalarBarVisibility(bool b)
+{
+  this->EdgeScalarBar->GetScalarBarActor()->SetVisibility(b);
+}
+
+bool vtkRenderedTreeAreaRepresentation::GetEdgeScalarBarVisibility()
+{
+  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetAreaLabelMapper(vtkLabeledDataMapper* mapper)
@@ -653,9 +671,11 @@ bool vtkRenderedTreeAreaRepresentation::AddToView(vtkView* view)
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
   if (rv)
     {
+    this->EdgeScalarBar->SetInteractor(rv->GetInteractor());
     rv->GetRenderer()->AddActor(this->AreaActor);
     rv->GetRenderer()->AddActor(this->AreaLabelActor);
     rv->GetRenderer()->AddActor(this->HighlightActor);
+    rv->GetRenderer()->AddActor(this->EdgeScalarBar->GetScalarBarActor());
 
 #if 0
     // Debug code: display underlying tree
@@ -684,6 +704,7 @@ bool vtkRenderedTreeAreaRepresentation::RemoveFromView(vtkView* view)
     rv->GetRenderer()->RemoveActor(this->AreaActor);
     rv->GetRenderer()->RemoveActor(this->AreaLabelActor);
     rv->GetRenderer()->RemoveActor(this->HighlightActor);
+    rv->GetRenderer()->RemoveActor(this->EdgeScalarBar->GetScalarBarActor());
     rv->UnRegisterProgress(this->TreeAggregation);
     rv->UnRegisterProgress(this->VertexDegree);
     rv->UnRegisterProgress(this->AreaLayout);
@@ -761,6 +782,44 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
         {
         vnode->SetFieldType(vtkSelectionNode::VERTEX);
         converted->AddNode(vnode);
+
+        // Find matching vertex pedigree ids in all input graphs
+        // and add outgoing edges to selection
+
+        vtkAbstractArray* arr = vnode->GetSelectionList();
+        size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
+        vtkSmartPointer<vtkOutEdgeIterator> iter = vtkSmartPointer<vtkOutEdgeIterator>::New();
+        for (size_t i = 0; i < numGraphs; ++i)
+          {
+          vtkSmartPointer<vtkSelection> edgeIndexSelection =
+            vtkSmartPointer<vtkSelection>::New();
+          vtkSmartPointer<vtkSelectionNode> edgeIndexNode =
+            vtkSmartPointer<vtkSelectionNode>::New();
+          edgeIndexNode->SetContentType(vtkSelectionNode::INDICES);
+          edgeIndexNode->SetFieldType(vtkSelectionNode::EDGE);
+          vtkSmartPointer<vtkIdTypeArray> edgeIds =
+            vtkSmartPointer<vtkIdTypeArray>::New();
+          edgeIndexNode->SetSelectionList(edgeIds);
+          edgeIndexSelection->AddNode(edgeIndexNode);
+
+          vtkGraph* g = vtkGraph::SafeDownCast(this->GetInternalOutputPort(1, static_cast<int>(i))->GetProducer()->GetOutputDataObject(0));
+          vtkAbstractArray* arr2 = g->GetVertexData()->GetPedigreeIds();
+          for(vtkIdType j=0; j<arr->GetNumberOfTuples(); ++j)
+            {
+            vtkIdType id = arr2->LookupValue(arr->GetVariantValue(j));
+            g->GetOutEdges(id, iter);
+            while(iter->HasNext())
+              {
+              edgeIds->InsertNextValue(iter->Next().Id);
+              }
+            }
+
+          vtkSmartPointer<vtkSelection> edgeSelection;
+          edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
+            edgeIndexSelection, g,
+            vtkSelectionNode::PEDIGREEIDS));
+          converted->AddNode(edgeSelection->GetNode(0));
+          }
         }
       }
     }
@@ -851,6 +910,7 @@ void vtkRenderedTreeAreaRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->Superclass::ApplyViewTheme(theme);
 
   this->ApplyColors->SetPointLookupTable(theme->GetPointLookupTable());
+  this->EdgeScalarBar->GetScalarBarActor()->SetLookupTable(theme->GetCellLookupTable());
 
   this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
   this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
