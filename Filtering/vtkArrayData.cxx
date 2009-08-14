@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.8");
+vtkCxxRevisionMacro(vtkArrayData, "1.9");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -86,8 +86,21 @@ void vtkArrayData::AddArray(vtkArray* array)
     vtkErrorMacro(<< "Cannot add NULL array.");
     return;
     }
-    
-  if(vtkstd::count(this->Implementation->Arrays.begin(), this->Implementation->Arrays.end(), array))
+
+  // See http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
+  // Language Feature: Partial Specializations 
+  // Workaround
+  
+  int n=0;
+#ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
+  vtkstd::count(this->Implementation->Arrays.begin(),
+                this->Implementation->Arrays.end(),array,n);
+#else
+  n=vtkstd::count(this->Implementation->Arrays.begin(),
+                  this->Implementation->Arrays.end(),array);
+#endif
+  
+  if(n!=0)
     {
     vtkErrorMacro(<< "Cannot add array twice.");
     return;
