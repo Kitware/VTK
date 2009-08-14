@@ -21,9 +21,38 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkIncrementalOctreePointLocator.h"
 
-         
-#define  INC_OCT_PNT_LOC_TESTS_ZERO  0.00000000000001
+
 #define  _BRUTE_FORCE_VERIFICATION_
+
+
+// The following epsilon value is needed to address numerical inaccuracy /
+// precision issues on some platforms: Fast-Release-g++, Win32-cygwin344,
+// Win32-minGW, Win32-FreeVC++, and Win32-VS71. In particular, two of the
+// references of this value below, as marked, handle Win32-cygwin344 and
+// Win32-minGW. The numerical inaccuracy problem has nothing to do with 
+// the incremental octree point locator or the associated incremental octree 
+// node itself. Instead it is just due to the multiple sub-tests themselves
+// (combined in this single file) in which the brute-force mode employs many
+// if-statements / comparisons that involve double values.
+//
+// For example, vtkMath::Distance2BetweenPoints( point1, point2 ) may not be 
+// directly used in if-statements (even for some platforms other than the above
+// mentioned 5), even though the incremental octree point locator always uses
+// double variables for computation and returning values. Another example is 
+// that the min SQUARED distance D between point A (a given point) and point B
+// (the closest point to A) may not be directly used to test the number of points
+// within the SQUARED radius D relative to point A herein, though it is supposed
+// to be ok (and the number is expected to be 1). The fact is that an epsilon 
+// needs to be added to D for such a test. Otherwise the numerical inaccuracy 
+// issue would just cause 0 to be returned --- no any point exists within the 
+// SQUARED radius D relative to A. Please note that this problem is not caused by
+// sqrt() at all because the incremental octree point locator offers an accurate
+// function variant FindPointsWithinSquaredRadius() to avoid the obvious numerical
+// inaccuracy related to sqrt().
+// 
+// Given the numerical inaccuracy issues on some platforms, the rapid verification
+// mode might not be used. Fortunately, this test is fast enough.
+#define  INC_OCT_PNT_LOC_TESTS_ZERO  0.00000000000001
 
 
 // NOTE: ALL THE FOLLOWING FLAGS SHOULD BE OFF
@@ -572,7 +601,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         {
         tmpDist2 = vtkMath::Distance2BetweenPoints
                    (  pLocPnts + ( i << 1 ) + i,  pDataPts + ( j << 1 ) + j  ); 
-         if (    tmpDist2 < clzNdst2[ nClzNpts - 1 ] // Not "<=" here as there
+         if (    tmpDist2 + INC_OCT_PNT_LOC_TESTS_ZERO // for cygwin and minGW
+                 < clzNdst2[ nClzNpts - 1 ]   // Not "<=" here as there
               && ptIdList->IsId( j ) == -1    // may be other points that were
             )    retValue = 1;        // rejected simply due to the limit of N
         }
@@ -711,6 +741,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       {
       // set the coordinate index of the point under check
       j = ( i << 1 ) + i;
+      minDist2[i] += INC_OCT_PNT_LOC_TESTS_ZERO; // for cygwin and minGW
       
       // obtain the points within three radii (use squared radii for test
       // as sqrt can incur inaccuracy that complicates the test)
