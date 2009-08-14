@@ -43,7 +43,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkTableToSparseArray, "1.4");
+vtkCxxRevisionMacro(vtkTableToSparseArray, "1.5");
 vtkStandardNewMacro(vtkTableToSparseArray);
 
 // ----------------------------------------------------------------------
@@ -137,8 +137,16 @@ int vtkTableToSparseArray::RequestData(
       vtkErrorMacro(<< "missing coordinate array: " << this->Implementation->Coordinates[i].c_str());
       }
     }
-
-  if(vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0)))
+// See http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
+// Language Feature: Partial Specializations
+// Workaround
+  int n=0;
+#ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
+  vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0),n);
+#else
+    n=vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0))
+#endif
+  if(n!=0)
     {
     return 0;
     }
