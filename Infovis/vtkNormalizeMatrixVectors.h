@@ -26,7 +26,7 @@
 
 // .NAME vtkNormalizeMatrixVectors - given a sparse input matrix, produces
 // a sparse output matrix with each vector normalized to unit length.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

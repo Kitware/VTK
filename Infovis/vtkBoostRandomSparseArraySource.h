@@ -26,7 +26,7 @@
 #include "vtkArrayExtents.h"
 
 // .NAME vtkBoostRandomSparseArraySource - generates a sparse N-way array containing random values.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

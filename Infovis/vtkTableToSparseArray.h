@@ -37,7 +37,7 @@
 //
 // The coordinate columns will also be used to populate dimension labels
 // in the output array.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

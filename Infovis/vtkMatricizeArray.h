@@ -26,12 +26,12 @@
 
 // .NAME vtkMatricizeArray - Convert an array of arbitrary dimensions to a
 // matrix.
-
+//
 // .SECTION Description
 // Given a sparse input array of arbitrary dimension, creates a sparse output
 // matrix (vtkSparseArray<double>) where each column is a slice along an
 // arbitrary dimension from the source.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

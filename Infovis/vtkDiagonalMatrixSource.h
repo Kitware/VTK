@@ -26,7 +26,7 @@
 
 // .NAME vtkDiagonalMatrixSource - generates a sparse or dense square matrix
 // with user-specified values for the diagonal, superdiagonal, and subdiagonal.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

@@ -26,7 +26,7 @@
 
 // .NAME vtkArrayToTable - Converts one- and two-dimensional vtkArrayData
 // objects to vtkTable
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

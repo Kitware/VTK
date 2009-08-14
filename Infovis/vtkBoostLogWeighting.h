@@ -29,7 +29,7 @@
 //
 // * The natural logarithm of 1 + x (the default)
 // * The base-2 logarithm of 1 + x
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

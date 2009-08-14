@@ -27,7 +27,7 @@
 // .NAME vtkExtractArray - Given a vtkArrayData object containing one-or-more
 // vtkArray instances, produces a vtkArrayData containing just one vtkArray,
 // indentified by index.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

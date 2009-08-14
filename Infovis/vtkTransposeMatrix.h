@@ -25,7 +25,7 @@
 #include "vtkArrayDataAlgorithm.h"
 
 // .NAME vtkTransposeMatrix - Computes the transpose of an input matrix.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 

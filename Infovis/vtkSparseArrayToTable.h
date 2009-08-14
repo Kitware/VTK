@@ -25,7 +25,7 @@
 #include "vtkTableAlgorithm.h"
 
 // .NAME vtkSparseArrayToTable - Converts a sparse array to a vtkTable.
-
+//
 // .SECTION Description
 // Converts any sparse array to a vtkTable containing one row for each value
 // stored in the array.  The table will contain one column of coordinates for each
@@ -36,7 +36,7 @@
 // The coordinate columns in the output table will be named using the dimension labels
 // from the source array,  The value column name can be explicitly set using
 // SetValueColumn().
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
