@@ -43,7 +43,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkTableToSparseArray, "1.5");
+vtkCxxRevisionMacro(vtkTableToSparseArray, "1.6");
 vtkStandardNewMacro(vtkTableToSparseArray);
 
 // ----------------------------------------------------------------------
@@ -144,7 +144,7 @@ int vtkTableToSparseArray::RequestData(
 #ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
   vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0),n);
 #else
-    n=vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0))
+  n=vtkstd::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0));
 #endif
   if(n!=0)
     {
