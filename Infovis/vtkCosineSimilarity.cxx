@@ -84,7 +84,7 @@ private:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCosineSimilarity, "1.3");
+vtkCxxRevisionMacro(vtkCosineSimilarity, "1.4");
 vtkStandardNewMacro(vtkCosineSimilarity);
 
 // ----------------------------------------------------------------------
@@ -200,8 +200,13 @@ int vtkCosineSimilarity::RequestData(
         coordinates2[component_dimension] = component;
         dot_product += input_array->GetValue(coordinates1) * input_array->GetValue(coordinates2);
         }
-
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+      // Deal with Sun Studio old libCstd.
+      // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+      similarities.insert(vtkstd::pair<const double,vtkIdType>(dot_product, vector2));
+#else
       similarities.insert(vtkstd::make_pair(dot_product, vector2));
+#endif
       }
       
     // Now that we have our sorted list of similarities, store the results ...

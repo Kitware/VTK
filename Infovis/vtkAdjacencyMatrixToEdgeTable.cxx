@@ -35,7 +35,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.3");
+vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.4");
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
 // ----------------------------------------------------------------------
@@ -136,7 +136,14 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
     for(vtkIdType j = 0; j != input_extents[target_dimension]; ++j)
       {
       coordinates[target_dimension] = j;
+
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+      // Deal with Sun Studio old libCstd.
+      // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+      sorted_values.insert(vtkstd::pair<const double,vtkIdType>(input_array->GetValue(coordinates),j));
+#else
       sorted_values.insert(vtkstd::make_pair(input_array->GetValue(coordinates), j));
+#endif
       }
 
     // Create edges for each value that meets our count / threshold criteria ...
