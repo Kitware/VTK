@@ -21,6 +21,8 @@
 
 #include "vtkArrayRange.h"
 
+#include <vtkstd/algorithm> // for vtkstd::max()
+
 vtkArrayRange::vtkArrayRange() :
   Begin(0),
   End(0)
