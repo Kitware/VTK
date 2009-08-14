@@ -80,7 +80,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.13");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -789,7 +789,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
         vtkAbstractArray* arr = vnode->GetSelectionList();
         size_t numGraphs = static_cast<size_t>(this->GetNumberOfInputConnections(1));
         vtkSmartPointer<vtkOutEdgeIterator> iter = vtkSmartPointer<vtkOutEdgeIterator>::New();
-        for (size_t i = 0; i < numGraphs; ++i)
+        for (size_t k = 0; k < numGraphs; ++k)
           {
           vtkSmartPointer<vtkSelection> edgeIndexSelection =
             vtkSmartPointer<vtkSelection>::New();
@@ -802,7 +802,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
           edgeIndexNode->SetSelectionList(edgeIds);
           edgeIndexSelection->AddNode(edgeIndexNode);
 
-          vtkGraph* g = vtkGraph::SafeDownCast(this->GetInternalOutputPort(1, static_cast<int>(i))->GetProducer()->GetOutputDataObject(0));
+          vtkGraph* g = vtkGraph::SafeDownCast(this->GetInternalOutputPort(1, static_cast<int>(k))->GetProducer()->GetOutputDataObject(0));
           vtkAbstractArray* arr2 = g->GetVertexData()->GetPedigreeIds();
           for(vtkIdType j=0; j<arr->GetNumberOfTuples(); ++j)
             {
