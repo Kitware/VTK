@@ -59,6 +59,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkStackedTreeLayoutStrategy.h"
+#include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkTexturedActor2D.h"
 #include "vtkTreeFieldAggregator.h"
@@ -80,7 +81,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.13");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.14");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -804,9 +805,26 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
 
           vtkGraph* g = vtkGraph::SafeDownCast(this->GetInternalOutputPort(1, static_cast<int>(k))->GetProducer()->GetOutputDataObject(0));
           vtkAbstractArray* arr2 = g->GetVertexData()->GetPedigreeIds();
+          vtkStringArray* domainArr = vtkStringArray::SafeDownCast(g->GetVertexData()->GetAbstractArray("domain"));
           for(vtkIdType j=0; j<arr->GetNumberOfTuples(); ++j)
             {
             vtkIdType id = arr2->LookupValue(arr->GetVariantValue(j));
+
+            // Before adding vertex's edges, make sure its in the same domain as selected vertex
+            vtkStdString domain;
+            if(domainArr)
+              {
+              domain = domainArr->GetValue(id);
+              }
+            else
+              {
+              domain = arr2->GetName();
+              }
+            if(domain != arr->GetName())
+              {
+              continue;
+              }
+
             g->GetOutEdges(id, iter);
             while(iter->HasNext())
               {
