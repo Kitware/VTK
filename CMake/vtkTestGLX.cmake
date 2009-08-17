@@ -48,7 +48,8 @@
 #    number of parameters, not (void), which means no parameter.
 #    SunOS follows the spec, Linux does not
 #    extern void (*glXGetProcAddress(const GLubyte *procname))();
-#
+# - Mac Tiger: GLX_ARB_get_proc_address macro is defined but it does not define
+#              __GLXextFuncPtr.
 #
 #
 #message("vtkTestGLX.cmake first line.")
