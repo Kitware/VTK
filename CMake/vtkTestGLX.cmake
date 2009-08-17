@@ -75,6 +75,9 @@ include(CheckCXXSourceCompiles)
 
 #unset(GLX_DEFINES_TYPE_GLXFBConfig CACHE)
 
+# for CHECK_C_SOURCE_COMPILES
+set(CMAKE_REQUIRED_INCLUDES ${OPENGL_INCLUDE_DIR})
+
 
 # -----------------------------------------------------------------------------
 # GLX_DEFINES_MACRO_GLX_VERSION_1_1
