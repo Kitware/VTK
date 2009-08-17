@@ -76,8 +76,11 @@ include(CheckCXXSourceCompiles)
 #unset(GLX_DEFINES_TYPE_GLXFBConfig CACHE)
 
 # for CHECK_C_SOURCE_COMPILES
-set(CMAKE_REQUIRED_INCLUDES ${OPENGL_INCLUDE_DIR})
+set(SAVE_CMAKE_REQUIRED_INCLUDES "${CMAKE_REQUIRED_INCLUDES}")
+set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
 
+set(CMAKE_REQUIRED_INCLUDES ${OPENGL_INCLUDE_DIR})
+set(CMAKE_REQUIRED_LIBRARIES ${OPENGL_gl_LIBRARY})
 
 # -----------------------------------------------------------------------------
 # GLX_DEFINES_MACRO_GLX_VERSION_1_1
@@ -236,9 +239,6 @@ GLX_DEFINES_TYPE_GLXextFuncPtr_AS_EMPTY)
 # -----------------------------------------------------------------------------
 # GLX_DECLARES_FUNCTION_glXGetProcAddressARB
 # -----------------------------------------------------------------------------
-set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
-set(CMAKE_REQUIRED_LIBRARIES "-lGL")
-
 CHECK_C_SOURCE_COMPILES(
 "
 #define GLX_GLXEXT_LEGACY
@@ -301,11 +301,9 @@ int main()
 "
 GLX_DECLARES_FUNCTION_glXGetProcAddress_AS_EMPTY)
 
-
 # -----------------------------------------------------------------------------
 # GLX_DEFINES_TYPE_GLXFBConfig
 # -----------------------------------------------------------------------------
-set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
 
 CHECK_C_SOURCE_COMPILES(
 "
@@ -318,6 +316,9 @@ int main()
 }
 "
 GLX_DEFINES_TYPE_GLXFBConfig)
+
+set(CMAKE_REQUIRED_INCLUDES "${SAVE_CMAKE_REQUIRED_INCLUDES}")
+set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
 
 
 # -----------------------------------------------------------------------------
