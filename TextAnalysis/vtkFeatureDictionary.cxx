@@ -27,6 +27,7 @@
 #include "vtkTable.h"
 #include "vtkFeatureDictionary.h"
 #include "vtkUnicodeStringArray.h"
+#include "vtkIdTypeArray.h"
 
 #include <vtkstd/set>
 #include <vtkstd/stdexcept>
@@ -34,7 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkFeatureDictionary
 
-vtkCxxRevisionMacro(vtkFeatureDictionary, "1.1");
+vtkCxxRevisionMacro(vtkFeatureDictionary, "1.2");
 vtkStandardNewMacro(vtkFeatureDictionary);
 
 vtkFeatureDictionary::vtkFeatureDictionary()
@@ -80,13 +81,17 @@ int vtkFeatureDictionary::RequestData(
     vtkUnicodeStringArray* const text_array = vtkUnicodeStringArray::New();
     text_array->SetName("text");
 
+    vtkIdTypeArray* const freq_array = vtkIdTypeArray::New();
+    freq_array->SetName("frequency");
+
     vtkTable* const output_table = vtkTable::GetData(outputVector);
     output_table->AddColumn(type_array);
     output_table->AddColumn(text_array);
+    output_table->AddColumn(freq_array);
 
     type_array->Delete();
     text_array->Delete();
-
+    freq_array->Delete();
     // Filter-out duplicate terms ...
     vtkstd::set<vtkUnicodeString> terms;
 
@@ -98,6 +103,13 @@ int vtkFeatureDictionary::RequestData(
         {
         type_array->InsertNextValue(input_type_array->GetValue(i));
         text_array->InsertNextValue(term);
+        freq_array->InsertNextValue(1);
+        }
+      else
+        {
+        vtkIdType loc = text_array->LookupValue(term);
+        vtkIdType count = freq_array->GetValue(loc);
+        freq_array->SetValue(loc, ++count);
         }
 
       if(i % 100 == 0)
