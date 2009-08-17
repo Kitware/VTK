@@ -385,6 +385,10 @@ ENDFOREACH(file)
 
 # OpenGL extensions stuff.
 
+IF(VTK_USE_X)
+ INCLUDE(${VTK_CMAKE_DIR}/vtkTestGLX.cmake)
+ENDIF(VTK_USE_X)
+
 # Parse the extensions into vtkgl.h/vtkgl.cxx.
 ADD_CUSTOM_COMMAND(
   OUTPUT ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
