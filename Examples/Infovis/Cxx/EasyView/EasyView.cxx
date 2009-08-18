@@ -46,7 +46,7 @@ EasyView::EasyView()
   this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
   this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
   this->ColumnView->SetUseColumnView(1);
-  
+ 
   // Tell the table view to sort selections that it receives (but does
   // not initiate) to the top
   this->TableView->SetSortSelectionToTop(true);
@@ -174,6 +174,11 @@ void EasyView::slotOpenXMLFile()
   this->TableView->Update();
   this->ColumnView->Update();
 
+  // Hide an unwanted column in the tree view.  Note that this code *only* workes here,
+  // after a call to this->TreeView->Update() ... that's because the Qt tree view widget
+  // has to have data before it can be hidden.
+  this->TreeView->HideColumn(2);
+  
   // Force a render on the graph view
   this->GraphView->Render();
 }
