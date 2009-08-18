@@ -64,6 +64,13 @@ public:
   
   // Description:
   // Set/Get the maximum number of points that a leaf node may maintain.
+  // Note that the actual number of points maintained by a leaf node might
+  // exceed this threshold if there is a large number (equal to or greater
+  // than the threshold) of exactly duplicate points (with zero distance)
+  // to be inserted (e.g., to construct an octree for subsequent point 
+  // location) in extreme cases. Respecting this threshold in such scenarios
+  // would cause endless node sub-division. Thus this threshold is broken, but
+  // only in case of such situations.
   vtkSetClampMacro( MaxPointsPerLeaf, int, 16, 256 );
   vtkGetMacro( MaxPointsPerLeaf, int );
   
