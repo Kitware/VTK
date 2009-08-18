@@ -681,7 +681,7 @@ vtkStdString vtkVariant::ToString() const
   if (this->IsUnsignedChar())
     {
     vtksys_ios::ostringstream ostr;
-    ostr << this->Data.UnsignedChar;
+    ostr << static_cast<unsigned int>(this->Data.UnsignedChar);
     return vtkStdString(ostr.str());
     }
   if (this->IsSignedChar())
