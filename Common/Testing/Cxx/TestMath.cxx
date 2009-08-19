@@ -228,12 +228,13 @@ static int TestColorConvert(const Triple &rgb, const Triple &hsv,
 
 static int TestSpecialDoubles(double value, bool inftest, bool nantest)
 {
-  if (vtkMath::IsInf(value) != inftest)
+  cout << "Testing comparison of " << value << " to non-finite values." << endl;
+  if (static_cast<bool>(vtkMath::IsInf(value)) != inftest)
     {
     vtkGenericWarningMacro(<< value << " failed the IsInf test.");
     return 0;
     }
-  if (vtkMath::IsNan(value) != nantest)
+  if (static_cast<bool>(vtkMath::IsNan(value)) != nantest)
     {
     vtkGenericWarningMacro(<< value << " failed the IsNan test.");
     return 0;
