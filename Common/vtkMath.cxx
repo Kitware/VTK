@@ -32,7 +32,7 @@
 
 #include "vtkMathConfigure.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.135");
+vtkCxxRevisionMacro(vtkMath, "1.136");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2875,14 +2875,15 @@ int vtkMath::IsInf(double x)
 #ifdef VTK_HAS_ISINF
   return isinf(x);
 #else
-  return (x != x) && !vtkMath::IsNan(x);
+  return (   !((x < vtkMath::Inf()) && (x > vtkMath::NegInf()))
+          && !vtkMath::IsNan(x) );
 #endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkMath::IsNan(double x)
 {
-#ifndef VTK_HAS_ISNAN
+#ifdef VTK_HAS_ISNAN
   return isnan(x);
 #else
   return !((x <= 0.0) || (x >= 0.0));
