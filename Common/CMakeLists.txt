@@ -274,6 +274,23 @@ FOREACH(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   ENDIF(VTK_TYPE_NATIVE)
 ENDFOREACH(t)
 
+# Figure out if isnan and isinf functions are present.
+INCLUDE(CheckFunctionExists)
+CHECK_FUNCTION_EXISTS(isnan VTK_HAS_ISNAN)
+IF (NOT VTK_HAS_ISNAN)
+  CHECK_FUNCTION_EXISTS(_isnan VTK_HAS__ISNAN)
+ENDIF (NOT VTK_HAS_ISNAN)
+CHECK_FUNCTION_EXISTS(isinf VTK_HAS_ISINF)
+IF (NOT VTK_HAS_ISINF)
+  CHECK_FUNCTION_EXISTS(_isinf VTK_HAS__ISINF)
+ENDIF (NOT VTK_HAS_ISINF)
+
+CONFIGURE_FILE(
+  ${CMAKE_CURRENT_SOURCE_DIR}/vtkMathConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  )
+  
+
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractArray

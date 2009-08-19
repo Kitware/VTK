@@ -771,6 +771,11 @@ public:
   static double NegInf();
   static double Nan();
 
+  // Description:
+  // Tests for special floating point values that are not real numbers.
+  static int IsInf(double x);
+  static int IsNan(double x);
+
 protected:
   vtkMath() {};
   ~vtkMath() {};

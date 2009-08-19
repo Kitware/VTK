@@ -756,6 +756,7 @@ FOREACH(header
   exception
   functional
   iterator
+  limits
   list
   map
   memory

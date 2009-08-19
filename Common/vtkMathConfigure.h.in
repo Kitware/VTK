@@ -1,0 +1,50 @@
+// -*- c++ -*-
+// -*- c++ -*-
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkMathConfigure.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
+
+#ifndef __vtkMathConfigure_h
+#define __vtkMathConfigure_h
+
+#include <math.h>
+#include <float.h>
+
+#cmakedefine VTK_HAS_ISNAN
+#cmakedefine VTK_HAS__ISNAN
+#cmakedefine VTK_HAS_ISINF
+#cmakedefine VTK_HAS__ISINF
+
+// Try to fake having isnan and isinf if _isnan or _isinf is available
+#if !defined(VTK_HAS_ISNAN) && (defined(VTK_HAS__ISNAN) || defined(_isnan))
+# define isnan(x) _isnan(x)
+#endif
+#if !defined(VTK_HAS_ISINF) && (defined(VTK_HAS__ISINF) || defined(_isinf))
+# define isinf(x) _isinf(x)
+#endif
+
+// VTK_HAS_ISNAN is only defined if an actual function exists.  Also set it if
+// isnan is a macro.
+#if !defined(VTK_HAS_ISNAN) && defined(isnan)
+# define VTK_HAS_ISNAN 1
+#endif
+#if !defined(VTK_HAS_ISINF) && defined(isinf)
+# define VTK_HAS_ISINF 1
+#endif
+
+#endif //__vtkMathConfigure_h

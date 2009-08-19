@@ -28,42 +28,14 @@
 #include "vtkPoints.h"
 #include <assert.h>
 
-#ifndef isnan
-// This is compiler specific not platform specific: MinGW doesn't need that.
-# if defined(_MSC_VER) || defined(__BORLANDC__)
-#  include <float.h>
-#  define isnan(x) _isnan(x)
-# endif
-#endif
+#include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkMath, "1.134");
+#include "vtkMathConfigure.h"
+
+vtkCxxRevisionMacro(vtkMath, "1.135");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
-
-// Avoid aliasing optimization problems by using a union:
-union vtkIEEE754Bits {
-  vtkTypeInt64 i64v;
-  double d;
-};
-
-// I've always relied on the kindness of IEEE-754.
-#if defined(WIN32) && defined(_MSC_VER)
-// MSVC70 is broken; it doesn't accept the "LL" suffix. MSVC6 and MSVC71 do.
-static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000i64 };
-static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000i64 };
-static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000i64 };
-#elif defined(WIN32) && defined(__BORLANDC__)
-// Borland C++ union initializers are broken.
-// Use an otherwise-discouraged aliasing trick:
-static vtkTypeInt64 vtkMathNanBits            = 0x7FF8000000000000i64;
-static vtkTypeInt64 vtkMathInfBits            = 0x7FF0000000000000i64;
-static vtkTypeInt64 vtkMathNegInfBits         = 0xFFF0000000000000i64;
-#else
-static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000LL };
-static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000LL };
-static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
-#endif
 
 //
 // some constants we need
@@ -2882,31 +2854,37 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 double vtkMath::Inf()
 {
-#if defined(WIN32) && defined(__BORLANDC__)
-  return *( (double*) vtkMathInfBits );
-#else
-  return vtkMathInfBits.d;
-#endif
+  return vtkstd::numeric_limits<double>::infinity();
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::NegInf()
 {
-#if defined(WIN32) && defined(__BORLANDC__)
-  return *( (double*) vtkMathNegInfBits );
-#else
-  return vtkMathNegInfBits.d;
-#endif
+  return -vtkstd::numeric_limits<double>::infinity();
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::Nan()
 {
-#if defined(WIN32) && defined(__BORLANDC__)
-  return *( (double*) vtkMathNanBits );
+  return vtkstd::numeric_limits<double>::quiet_NaN();
+}
+
+//-----------------------------------------------------------------------------
+int vtkMath::IsInf(double x)
+{
+#ifdef VTK_HAS_ISINF
+  return isinf(x);
 #else
-  return vtkMathNanBits.d;
+  return (x != x) && !vtkMath::IsNan(x);
 #endif
 }
 
-
+//-----------------------------------------------------------------------------
+int vtkMath::IsNan(double x)
+{
+#ifndef VTK_HAS_ISNAN
+  return isnan(x);
+#else
+  return !((x <= 0.0) || (x >= 0.0));
+#endif
+}

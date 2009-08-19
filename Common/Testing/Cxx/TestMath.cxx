@@ -56,6 +56,7 @@ static ostream &operator<<(ostream &os, const Triple t)
 // respective color space.
 static int TestColorConvert(const Triple &rgb, const Triple &hsv,
                             const Triple &xyz, const Triple &lab);
+static int TestSpecialDoubles(double value, bool inftest, bool nantest);
 
 int TestMath(int,char *[])
 {
@@ -109,7 +110,23 @@ int TestMath(int,char *[])
     {
     return 1;
     }
-                                              
+
+  if (!TestSpecialDoubles(vtkMath::Inf(), true, false)) return 1;
+  if (!TestSpecialDoubles(vtkMath::NegInf(), true, false)) return 1;
+  if (!TestSpecialDoubles(vtkMath::Nan(), false, true)) return 1;
+  if (!TestSpecialDoubles(0, false, false)) return 1;
+  if (!TestSpecialDoubles(5, false, false)) return 1;
+
+  if (!(0 < vtkMath::Inf()))
+    {
+    vtkGenericWarningMacro(<< "Odd comparison for infinity.");
+    return 1;
+    }
+  if (!(0 > vtkMath::NegInf()))
+    {
+    vtkGenericWarningMacro(<< "Odd comparison for negitive infinity.");
+    return 1;
+    }
 
   return 0;
 }
@@ -205,6 +222,22 @@ static int TestColorConvert(const Triple &rgb, const Triple &hsv,
   vtkMath::RGBToLab(rgb[0], rgb[1], rgb[2],
                     &result1[0], &result1[1], &result1[2]);
   COMPARE(RGBToLab, lab, result1);
+
+  return 1;
+}
+
+static int TestSpecialDoubles(double value, bool inftest, bool nantest)
+{
+  if (vtkMath::IsInf(value) != inftest)
+    {
+    vtkGenericWarningMacro(<< value << " failed the IsInf test.");
+    return 0;
+    }
+  if (vtkMath::IsNan(value) != nantest)
+    {
+    vtkGenericWarningMacro(<< value << " failed the IsNan test.");
+    return 0;
+    }
 
   return 1;
 }
