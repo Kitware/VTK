@@ -421,7 +421,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkSLACReader, "1.17");
+vtkCxxRevisionMacro(vtkSLACReader, "1.18");
 vtkStandardNewMacro(vtkSLACReader);
 
 vtkInformationKeyMacro(vtkSLACReader, IS_INTERNAL_VOLUME, Integer);
@@ -525,7 +525,6 @@ int vtkSLACReader::CanReadFile(const char *filename)
   if (nc_inq_varid(ncFD(), "coords", &dummy) != NC_NOERR) return 0;
   if (nc_inq_varid(ncFD(), "tetrahedron_interior",&dummy) != NC_NOERR) return 0;
   if (nc_inq_varid(ncFD(), "tetrahedron_exterior",&dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD(), "surface_midpoint", &dummy) != NC_NOERR) return 0;
 
   return 1;
 }
@@ -818,12 +817,23 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
     this->UpdateProgress(0.5);
 
+    // if surface_midpoint requested
     if (this->ReadMidpoints)
       {
-      if (!this->ReadMidpointData(meshFD(), compositeOutput,
-                                  this->Internal->MidpointIdCache))
+      // if midpoints present in file 
+      int dummy;
+      if (nc_inq_varid(meshFD(), "surface_midpoint", &dummy) == NC_NOERR) 
         {
-        return 0;
+        if (!this->ReadMidpointData(meshFD(), compositeOutput,
+                                    this->Internal->MidpointIdCache))
+          {
+          return 0;
+          }
+        }
+      else // midpoints requested, but not in file
+        {
+        //   spit out warning and ignore the midpoint read request.
+        vtkWarningMacro(<< "Midpoints requested, but not present in the mesh file.  Igoring the request.");
         }
       }
 
@@ -1250,7 +1260,7 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
               double imag = imagDataArray->GetComponent(i, j);
               double mag = sqrt(real*real + imag*imag);
               double startphase = atan2(imag, real);
-              dataArray->SetComponent(i, j, mag*cos(startphase*this->Phase));
+              dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
               }
             }
           }
