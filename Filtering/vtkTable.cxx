@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.29");
+vtkCxxRevisionMacro(vtkTable, "1.30");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -177,6 +177,15 @@ vtkIdType vtkTable::GetNumberOfRows()
     return this->GetColumn(0)->GetNumberOfTuples();
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkTable::SetNumberOfRows( vtkIdType n )
+{
+  if( this->RowData )
+    {
+      this->RowData->SetNumberOfTuples( n );
+    }
 }
 
 //----------------------------------------------------------------------------

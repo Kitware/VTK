@@ -91,6 +91,11 @@ public:
   vtkIdType GetNumberOfRows();
 
   // Description:
+  // Set the number of rows in the table. Note that memory allocation might be performed
+  // as a result of this, but no memory will be released. 
+  void SetNumberOfRows(const vtkIdType );
+
+  // Description:
   // Get a row of the table as a vtkVariantArray which has one entry for each column.
   // NOTE: This version of the method is NOT thread safe.
   vtkVariantArray* GetRow(vtkIdType row);
@@ -124,7 +129,6 @@ public:
   // Get the number of columns in the table.
   vtkIdType GetNumberOfColumns();
 
-  // Description:
   // Get the name of a column of the table.
   const char* GetColumnName(vtkIdType col);
 
