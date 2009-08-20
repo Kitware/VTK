@@ -56,7 +56,12 @@ static ostream &operator<<(ostream &os, const Triple t)
 // respective color space.
 static int TestColorConvert(const Triple &rgb, const Triple &hsv,
                             const Triple &xyz, const Triple &lab);
-static int TestSpecialDoubles(double value, bool inftest, bool nantest);
+
+// Function for comparing special doubles like Inf and NaN.
+#define TestSpecialDoubles(value, inftest, nantest) \
+  TestSpecialDoublesReal(value, #value, inftest, nantest)
+static int TestSpecialDoublesReal(double value, const char *name,
+                                  bool inftest, bool nantest);
 
 int TestMath(int,char *[])
 {
@@ -111,11 +116,11 @@ int TestMath(int,char *[])
     return 1;
     }
 
+  if (!TestSpecialDoubles(0, false, false)) return 1;
+  if (!TestSpecialDoubles(5, false, false)) return 1;
   if (!TestSpecialDoubles(vtkMath::Inf(), true, false)) return 1;
   if (!TestSpecialDoubles(vtkMath::NegInf(), true, false)) return 1;
   if (!TestSpecialDoubles(vtkMath::Nan(), false, true)) return 1;
-  if (!TestSpecialDoubles(0, false, false)) return 1;
-  if (!TestSpecialDoubles(5, false, false)) return 1;
 
   if (!(0 < vtkMath::Inf()))
     {
@@ -226,9 +231,10 @@ static int TestColorConvert(const Triple &rgb, const Triple &hsv,
   return 1;
 }
 
-static int TestSpecialDoubles(double value, bool inftest, bool nantest)
+static int TestSpecialDoublesReal(double value, const char *name,
+                                  bool inftest, bool nantest)
 {
-  cout << "Testing comparison of " << value << " to non-finite values." << endl;
+  cout << "Testing comparison of " << name << " to non-finite values." << endl;
   if (vtkMath::IsInf(value) != static_cast<int>(inftest))
     {
     vtkGenericWarningMacro(<< value << " failed the IsInf test.");
