@@ -41,7 +41,7 @@
 #include "vtkBezierContourLineInterpolator.h"
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.19");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.20");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -838,6 +838,16 @@ int vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeometry()
   return result;
 }
 
+//----------------------------------------------------------------------------
+void vtkOrientedGlyphContourRepresentation::SetLineColor(
+  double r, double g, double b)
+{
+  if(this->GetLinesProperty())
+    {
+    this->GetLinesProperty()->SetColor(r, g, b);
+    }
+}
+    
 //-----------------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::PrintSelf(ostream& os,
                                                       vtkIndent indent)

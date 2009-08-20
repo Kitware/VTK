@@ -105,6 +105,11 @@ public:
   vtkSetMacro( AlwaysOnTop, int );
   vtkGetMacro( AlwaysOnTop, int );
   vtkBooleanMacro( AlwaysOnTop, int );
+
+  // Description:
+  // Convenience method to set the line color.
+  // Ideally one should use GetLinesProperty()->SetColor().
+  void SetLineColor(double r, double g, double b);
   
 protected:
   vtkOrientedGlyphContourRepresentation();
