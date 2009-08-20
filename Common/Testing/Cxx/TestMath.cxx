@@ -235,16 +235,19 @@ static int TestSpecialDoublesReal(double value, const char *name,
                                   bool inftest, bool nantest)
 {
   cout << "Testing comparison of " << name << " to non-finite values." << endl;
-  if (vtkMath::IsInf(value) != static_cast<int>(inftest))
-    {
-    vtkGenericWarningMacro(<< value << " failed the IsInf test.");
-    return 0;
-    }
+  cout << "  * IsNan test." << endl;
   if (vtkMath::IsNan(value) != static_cast<int>(nantest))
     {
     vtkGenericWarningMacro(<< value << " failed the IsNan test.");
     return 0;
     }
+  cout << "  * IsInf test." << endl;
+  if (vtkMath::IsInf(value) != static_cast<int>(inftest))
+    {
+    vtkGenericWarningMacro(<< value << " failed the IsInf test.");
+    return 0;
+    }
+  cout << "  * Tests passed." << endl;
 
   return 1;
 }
