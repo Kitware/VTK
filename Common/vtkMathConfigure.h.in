@@ -47,4 +47,13 @@
 # define VTK_HAS_ISINF 1
 #endif
 
+// The compiler for the G5 Apple is not including the isnan and isinf prototypes
+// in its math headers even though the symbol exists in the libraries.  Just do
+// a brute force to not use those functions in this case to get around compiler
+// errors.
+#if defined(__APPLE__) && (__GNUC__ < 4)
+#undef VTK_HAS_ISNAN
+#undef VTK_HAS_ISINF
+#endif
+
 #endif //__vtkMathConfigure_h
