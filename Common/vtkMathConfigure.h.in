@@ -52,8 +52,14 @@
 // a brute force to not use those functions in this case to get around compiler
 // errors.
 #if defined(__APPLE__) && (__GNUC__ < 4)
-#undef VTK_HAS_ISNAN
-#undef VTK_HAS_ISINF
+# undef VTK_HAS_ISNAN
+# undef VTK_HAS_ISINF
+#endif
+
+// I don't know why, but the _isnan function appears to be failing with the
+// Borland compiler.
+#ifdef __BORLANDC__
+# undef VTK_HAS_ISNAN
 #endif
 
 #endif //__vtkMathConfigure_h
