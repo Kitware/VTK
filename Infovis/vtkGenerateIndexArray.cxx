@@ -27,7 +27,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkGenerateIndexArray, "1.2");
+vtkCxxRevisionMacro(vtkGenerateIndexArray, "1.3");
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
 vtkGenerateIndexArray::vtkGenerateIndexArray() :
@@ -193,7 +193,15 @@ int vtkGenerateIndexArray::RequestData(
     for(vtkIdType i = 0; i != output_count; ++i)
       {
       if(!index_map.count(reference_array->GetVariantValue(i)))
+        {
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+        // Deal with Sun Studio old libCstd.
+        // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+        index_map.insert(vtkstd::pair<const vtkVariant,vtkIdType>(reference_array->GetVariantValue(i), 0));
+#else
         index_map.insert(vtkstd::make_pair(reference_array->GetVariantValue(i), 0));
+#endif
+        }
       }
 
     vtkIdType index = 0;
