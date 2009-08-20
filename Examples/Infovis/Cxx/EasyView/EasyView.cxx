@@ -57,6 +57,7 @@ EasyView::EasyView()
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
  
   // Graph View needs to get my render window
+  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->GetInteractor());
   this->ui->vtkGraphViewWidget->SetRenderWindow(this->GraphView->GetRenderWindow());
   
   // Set up the theme on the graph view :)

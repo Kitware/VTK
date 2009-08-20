@@ -32,6 +32,7 @@
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
+#include <QList>
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
 #include "vtkSmartPointer.h"
@@ -88,6 +89,10 @@ public:
   void HideColumn(int i);
 
   // Description:
+  // Show the column of the given index in the view
+  void ShowColumn(int i);
+
+  // Description:
   // Hide all but the first column in the view
   void HideAllButFirstColumn();
 
@@ -138,6 +143,7 @@ private:
   QPointer<QColumnView> ColumnView;
   QPointer<QWidget> Widget;
   QPointer<QVBoxLayout> Layout;
+  QList<int> HiddenColumns;
   vtkQtTreeModelAdapter* TreeAdapter;
   QAbstractItemView* View;
   char* ColorArrayNameInternal;

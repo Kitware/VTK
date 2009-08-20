@@ -44,7 +44,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.27");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.28");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -211,14 +211,25 @@ void vtkQtTreeView::SetShowRootNode(bool state)
 void vtkQtTreeView::HideColumn(int i) 
 {
   this->TreeView->hideColumn(i);
+  this->HiddenColumns << i;
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::ShowColumn(int i)
+{
+  this->TreeView->showColumn(i);
+  this->HiddenColumns.removeAll(i);
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTreeView::HideAllButFirstColumn()
 {
+  this->HiddenColumns.clear();
+  this->TreeView->showColumn(0);
   for(int j=1; j<this->TreeAdapter->columnCount(); ++j)
     {
     this->TreeView->hideColumn(j);
+    this->HiddenColumns << j;
     }
 }
 
@@ -380,8 +391,16 @@ void vtkQtTreeView::Update()
   if((annConn && (atime > this->CurrentSelectionMTime)) || 
     (tree->GetMTime() > this->LastInputMTime))
     {
+    // Reset the model
     this->TreeAdapter->SetVTKDataObject(0);
     this->TreeAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
+
+    // Re-hide the hidden columns
+    int col;
+    foreach (col, this->HiddenColumns)
+      {
+      this->TreeView->hideColumn(col);
+      }
 
     if(this->ApplyColors->GetUsePointLookupTable())
       {
