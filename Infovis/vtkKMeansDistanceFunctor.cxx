@@ -72,14 +72,16 @@ void vtkKMeansDefaultDistanceFunctor::PairwiseUpdate( vtkTable* clusterCoords,
     return;
     }
 
-  for(vtkIdType i = 0; i < clusterCoords->GetNumberOfColumns(); i++ )
+  if( totalCardinality > 0 )
     {
-    double curCoord = clusterCoords->GetValue( rowIndex, i ).ToDouble();
-    clusterCoords->SetValue( rowIndex, i, curCoord + static_cast<double>(dataCoordCardinality)*
-                                          (dataCoord->GetValue( i ).ToDouble() - curCoord)/
-                                          static_cast<double>( totalCardinality ) );
+    for(vtkIdType i = 0; i < clusterCoords->GetNumberOfColumns(); i++ )
+      {
+      double curCoord = clusterCoords->GetValue( rowIndex, i ).ToDouble();
+      clusterCoords->SetValue( rowIndex, i, curCoord + static_cast<double>(dataCoordCardinality)*
+                                            (dataCoord->GetValue( i ).ToDouble() - curCoord)/
+                                            static_cast<double>( totalCardinality ) );
+      }
     }
-
 }
 
 
