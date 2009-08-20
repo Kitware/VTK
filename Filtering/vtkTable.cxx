@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.28");
+vtkCxxRevisionMacro(vtkTable, "1.29");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -102,7 +102,8 @@ void vtkTable::Dump( unsigned int colWidth )
   for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
     {
     cout << "| ";
-    vtkStdString str = this->GetColumnName( c );
+    const char* name = this->GetColumnName( c );
+    vtkStdString str = name ? name : "";
 
     if ( colWidth < str.length() )
       {
@@ -382,17 +383,9 @@ vtkAbstractArray* vtkTable::GetColumn(vtkIdType col)
 //----------------------------------------------------------------------------
 void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
 {
-  int column = static_cast<int>(col);
-  this->SetValueByName(row, this->GetColumnName(column), value);
-}
-
-//----------------------------------------------------------------------------
-void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
-{
-  vtkAbstractArray* arr = this->GetColumnByName(col);
+  vtkAbstractArray* arr = this->GetColumn(col);
   if (!arr)
     {
-    vtkErrorMacro(<< "Could not find column named " << col);
     return;
     }
   int comps = arr->GetNumberOfComponents();
@@ -486,10 +479,16 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
 }
 
 //----------------------------------------------------------------------------
-vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
+void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
 {
-  int column = static_cast<int>(col);
-  return this->GetValueByName(row, this->GetColumnName(column));
+  int colIndex = -1;
+  this->RowData->GetAbstractArray(col, colIndex);
+  if (colIndex < 0)
+    {
+    vtkErrorMacro(<< "Could not find column named " << col);
+    return;
+    }
+  this->SetValue(row, colIndex, value);
 }
 
 //----------------------------------------------------------------------------
@@ -500,9 +499,9 @@ vtkVariant vtkTableGetVariantValue(iterT* it, vtkIdType row)
 }
 
 //----------------------------------------------------------------------------
-vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
+vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
 {
-  vtkAbstractArray* arr = this->GetColumnByName(col);
+  vtkAbstractArray* arr = this->GetColumn(col);
   if (!arr)
     {
     return vtkVariant();
@@ -590,6 +589,18 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
       }
     }
   return vtkVariant();
+}
+
+//----------------------------------------------------------------------------
+vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
+{
+  int colIndex = -1;
+  this->RowData->GetAbstractArray(col, colIndex);
+  if (colIndex < 0)
+    {
+    return vtkVariant();
+    }
+  return this->GetValue(row, colIndex);
 }
 
 //----------------------------------------------------------------------------

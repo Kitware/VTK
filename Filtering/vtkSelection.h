@@ -94,6 +94,13 @@ public:
   unsigned long GetMTime();
 
   // Description:
+  // Dumps the contents of the selection, giving basic information only.
+  virtual void Dump();
+  //BTX
+  virtual void Dump(ostream& os);
+  //ETX
+
+  // Description:
   // Retrieve a vtkSelection stored inside an invormation object.
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
