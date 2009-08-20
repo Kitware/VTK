@@ -140,7 +140,6 @@ private:
   QPointer<QVBoxLayout> Layout;
   vtkQtTreeModelAdapter* TreeAdapter;
   QAbstractItemView* View;
-  bool Selecting;
   char* ColorArrayNameInternal;
   
 //BTX

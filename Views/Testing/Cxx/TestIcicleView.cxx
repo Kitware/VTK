@@ -27,6 +27,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
 
@@ -61,6 +62,7 @@ int TestIcicleView(int argc, char* argv[])
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
+  theme->GetPointTextProperty()->ShadowOn();
   view->ApplyViewTheme(theme);
   theme->Delete();
 

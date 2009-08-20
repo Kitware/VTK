@@ -22,11 +22,14 @@
 
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
+#include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.7");
+vtkCxxRevisionMacro(vtkViewTheme, "1.8");
 vtkStandardNewMacro(vtkViewTheme);
 vtkCxxSetObjectMacro(vtkViewTheme, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkViewTheme, CellLookupTable, vtkScalarsToColors);
+vtkCxxSetObjectMacro(vtkViewTheme, PointTextProperty, vtkTextProperty);
+vtkCxxSetObjectMacro(vtkViewTheme, CellTextProperty, vtkTextProperty);
 
 vtkViewTheme::vtkViewTheme()
 {
@@ -66,10 +69,22 @@ vtkViewTheme::vtkViewTheme()
     this->BackgroundColor[2] = 0.0;
   this->BackgroundColor2[0] = this->BackgroundColor2[1] =
     this->BackgroundColor2[2] = 0.3;
-  this->VertexLabelColor[0] = this->VertexLabelColor[1] =
-    this->VertexLabelColor[2] = 1;
-  this->EdgeLabelColor[0] = this->EdgeLabelColor[1] =
-    this->EdgeLabelColor[2] = 0.7;
+
+  this->ScalePointLookupTable = true;
+  this->ScaleCellLookupTable = true;
+
+  this->PointTextProperty = vtkTextProperty::New();
+  this->PointTextProperty->SetColor(1, 1, 1);
+  this->PointTextProperty->BoldOn();
+  this->PointTextProperty->SetJustificationToCentered();
+  this->PointTextProperty->SetVerticalJustificationToCentered();
+  this->PointTextProperty->SetFontSize(12);
+  this->CellTextProperty = vtkTextProperty::New();
+  this->CellTextProperty->SetColor(0.7, 0.7, 0.7);
+  this->CellTextProperty->BoldOn();
+  this->CellTextProperty->SetJustificationToCentered();
+  this->CellTextProperty->SetVerticalJustificationToCentered();
+  this->CellTextProperty->SetFontSize(10);
 }
 
 vtkViewTheme::~vtkViewTheme()
@@ -81,6 +96,14 @@ vtkViewTheme::~vtkViewTheme()
   if (this->PointLookupTable)
     {
     this->PointLookupTable->Delete();
+    }
+  if (this->CellTextProperty)
+    {
+    this->CellTextProperty->Delete();
+    }
+  if (this->PointTextProperty)
+    {
+    this->PointTextProperty->Delete();
     }
 }
 
@@ -436,6 +459,32 @@ void vtkViewTheme::GetCellAlphaRange(double rng[2])
     }
 }
 
+void vtkViewTheme::SetVertexLabelColor(double r, double g, double b)
+{
+  if (this->PointTextProperty)
+    {
+    this->PointTextProperty->SetColor(r, g, b);
+    }
+}
+
+double *vtkViewTheme::GetVertexLabelColor()
+{
+  return this->PointTextProperty ? this->PointTextProperty->GetColor() : 0;
+}
+
+void vtkViewTheme::SetEdgeLabelColor(double r, double g, double b)
+{
+  if (this->CellTextProperty)
+    {
+    this->CellTextProperty->SetColor(r, g, b);
+    }
+}
+
+double *vtkViewTheme::GetEdgeLabelColor()
+{
+  return this->CellTextProperty ? this->CellTextProperty->GetColor() : 0;
+}
+
 vtkViewTheme* vtkViewTheme::CreateOceanTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -445,8 +494,8 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
 
   theme->SetBackgroundColor(.8, .8, .8);
   theme->SetBackgroundColor2(1, 1, 1);
-  theme->SetVertexLabelColor(0, 0, 0);
-  theme->SetEdgeLabelColor(.2, .2, .2);
+  theme->GetPointTextProperty()->SetColor(0, 0, 0);
+  theme->GetCellTextProperty()->SetColor(.2, .2, .2);
 
   theme->SetPointColor(0.5, 0.5, 0.5);
   theme->SetPointHueRange(0.667, 0);
@@ -477,8 +526,8 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
 
   theme->SetBackgroundColor(.2,.2,.4);
   theme->SetBackgroundColor2(.1,.1,.2);
-  theme->SetVertexLabelColor(1, 1, 1);
-  theme->SetEdgeLabelColor(.7, .7, .7);
+  theme->GetPointTextProperty()->SetColor(1, 1, 1);
+  theme->GetCellTextProperty()->SetColor(.7, .7, .7);
 
   theme->SetPointColor(0.5, 0.5, 0.6);
   theme->SetPointHueRange(0.6, 0);
@@ -509,8 +558,8 @@ vtkViewTheme* vtkViewTheme::CreateMellowTheme()
   
   theme->SetBackgroundColor(0.3, 0.3, 0.25); // Darker Tan
   theme->SetBackgroundColor2(0.6, 0.6, 0.5); // Tan
-  theme->SetVertexLabelColor(1, 1, 1);
-  theme->SetEdgeLabelColor(.7, .7, 1);
+  theme->GetPointTextProperty()->SetColor(1, 1, 1);
+  theme->GetCellTextProperty()->SetColor(.7, .7, 1);
 
   theme->SetPointColor(0.0, 0.0, 1.0);
   theme->SetPointHueRange(0.667, 0);
@@ -619,14 +668,6 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackgroundColor2[0] << "," 
      << this->BackgroundColor2[1] << "," 
      << this->BackgroundColor2[2] << endl;
-  os << indent << "VertexLabelColor: " 
-     << this->VertexLabelColor[0] << "," 
-     << this->VertexLabelColor[1] << "," 
-     << this->VertexLabelColor[2] << endl;
-  os << indent << "EdgeLabelColor: " 
-     << this->EdgeLabelColor[0] << "," 
-     << this->EdgeLabelColor[1] << "," 
-     << this->EdgeLabelColor[2] << endl;
   os << indent << "PointLookupTable: " << (this->PointLookupTable ? "" : "(none)") << endl;
   if (this->PointLookupTable)
     {
@@ -637,5 +678,25 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->CellLookupTable->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "PointTextProperty: " << (this->PointTextProperty ? "" : "(none)") << endl;
+  if (this->PointTextProperty)
+    {
+    this->PointTextProperty->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "VertexLabelColor: "
+       << this->PointTextProperty->GetColor()[0] << ","
+       << this->PointTextProperty->GetColor()[1] << ","
+       << this->PointTextProperty->GetColor()[2] << endl;
+    }
+  os << indent << "CellTextProperty: " << (this->CellTextProperty ? "" : "(none)") << endl;
+  if (this->CellTextProperty)
+    {
+    this->CellTextProperty->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "EdgeLabelColor: "
+       << this->CellTextProperty->GetColor()[0] << ","
+       << this->CellTextProperty->GetColor()[1] << ","
+       << this->CellTextProperty->GetColor()[2] << endl;
+    }
+  os << indent << "ScalePointLookupTable: " << this->ScalePointLookupTable << endl;
+  os << indent << "ScaleCellLookupTable: " << this->ScaleCellLookupTable << endl;
 }
 

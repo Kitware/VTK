@@ -44,7 +44,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.26");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.27");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -74,7 +74,6 @@ vtkQtTreeView::vtkQtTreeView()
   this->SetUseColumnView(false);
   this->SetAlternatingRowColors(false);
   this->SetShowRootNode(false);
-  this->Selecting = false;
   this->CurrentSelectionMTime = 0;
   this->ColorArrayNameInternal = 0;
   double defCol[3] = {0.827,0.827,0.827};
@@ -300,8 +299,6 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   
   // Store the selection mtime
   this->CurrentSelectionMTime = rep->GetAnnotationLink()->GetCurrentSelection()->GetMTime();
-
-  this->Selecting = true;
 }
 
 //----------------------------------------------------------------------------
@@ -349,13 +346,6 @@ void vtkQtTreeView::SetVTKSelection()
 //----------------------------------------------------------------------------
 void vtkQtTreeView::Update()
 {  
-  // If we initiated the selection, do nothing.
-  if(this->Selecting)
-    {
-    this->Selecting = false;
-    return;
-    }
-
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
     {
@@ -438,6 +428,8 @@ void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
   this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
+  this->ApplyColors->SetScalePointLookupTable(theme->GetScalePointLookupTable());
+  this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
 }
 
 //----------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 #include "vtkTreeRingView.h"
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
@@ -81,6 +82,7 @@ int TestTreeRingView(int argc, char* argv[])
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
   theme->SetLineWidth(1);
+  theme->GetPointTextProperty()->ShadowOn();
   view->ApplyViewTheme(theme);
   theme->Delete();
 

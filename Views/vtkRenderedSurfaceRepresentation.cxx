@@ -43,7 +43,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.7");
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
@@ -211,6 +211,8 @@ void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   //this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
   this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
   //this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
+  this->ApplyColors->SetScalePointLookupTable(theme->GetScalePointLookupTable());
+  this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
 
   float baseSize = static_cast<float>(theme->GetPointSize());
   float lineWidth = static_cast<float>(theme->GetLineWidth());

@@ -81,7 +81,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.14");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.15");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -938,6 +938,10 @@ void vtkRenderedTreeAreaRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
   this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
+  this->ApplyColors->SetScalePointLookupTable(theme->GetScalePointLookupTable());
+  this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
+
+  this->GetAreaLabelTextProperty()->ShallowCopy(theme->GetPointTextProperty());
 
   // Make sure we have the right number of graphs
   if (this->GetNumberOfInputConnections(1) !=

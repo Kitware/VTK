@@ -95,7 +95,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.27");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.28");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -229,15 +229,6 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->EdgeMapper->SelectColorArray("vtkApplyColors color");
   this->EdgeMapper->SetScalarVisibility(true);
   this->EdgeActor->SetPosition(0, 0, -0.003);
-
-  this->GetVertexLabelTextProperty()->BoldOn();
-  this->GetVertexLabelTextProperty()->SetJustificationToCentered();
-  this->GetVertexLabelTextProperty()->SetVerticalJustificationToCentered();
-  this->GetVertexLabelTextProperty()->SetFontSize(12);
-  this->GetEdgeLabelTextProperty()->BoldOn();
-  this->GetEdgeLabelTextProperty()->SetJustificationToCentered();
-  this->GetEdgeLabelTextProperty()->SetVerticalJustificationToCentered();
-  this->GetEdgeLabelTextProperty()->SetFontSize(10);
 
   this->VertexScalarBar->GetScalarBarActor()->VisibilityOff();
   this->EdgeScalarBar->GetScalarBarActor()->VisibilityOff();
@@ -1243,6 +1234,8 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
   this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
+  this->ApplyColors->SetScalePointLookupTable(theme->GetScalePointLookupTable());
+  this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
 
   float baseSize = static_cast<float>(theme->GetPointSize());
   float lineWidth = static_cast<float>(theme->GetLineWidth());
@@ -1263,9 +1256,9 @@ void vtkRenderedGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
     this->OutlineActor->VisibilityOff();
     }
 
-  this->GetVertexLabelTextProperty()->SetColor(theme->GetVertexLabelColor());
+  this->GetVertexLabelTextProperty()->ShallowCopy(theme->GetPointTextProperty());
   this->GetVertexLabelTextProperty()->SetLineOffset(-2*baseSize);
-  this->GetEdgeLabelTextProperty()->SetColor(theme->GetEdgeLabelColor());
+  this->GetEdgeLabelTextProperty()->ShallowCopy(theme->GetCellTextProperty());
 
   // Moronic hack.. the circles seem to be really small so make them bigger
   if (this->VertexGlyph->GetGlyphType() == vtkGraphToGlyphs::CIRCLE)

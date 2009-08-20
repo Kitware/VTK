@@ -33,6 +33,7 @@
 #include "vtkObject.h"
 
 class vtkScalarsToColors;
+class vtkTextProperty;
 
 class VTK_RENDERING_EXPORT vtkViewTheme : public vtkObject
 {
@@ -88,9 +89,15 @@ public:
   virtual void GetPointAlphaRange(double rng[2]);
 
   // Description:
-  // Set/Get the cell lookup table.
-  vtkGetObjectMacro(CellLookupTable, vtkScalarsToColors);
-  virtual void SetCellLookupTable(vtkScalarsToColors* lut);
+  // Set/Get the point lookup table.
+  vtkGetObjectMacro(PointLookupTable, vtkScalarsToColors);
+  virtual void SetPointLookupTable(vtkScalarsToColors* lut);
+
+  // Description:
+  // Whether to scale the lookup table to fit the range of the data.
+  vtkSetMacro(ScalePointLookupTable, bool);
+  vtkGetMacro(ScalePointLookupTable, bool);
+  vtkBooleanMacro(ScalePointLookupTable, bool);
 
   // Description:
   // The color and opacity of cells or edges when not mapped through
@@ -129,9 +136,15 @@ public:
   virtual void GetCellAlphaRange(double rng[2]);
 
   // Description:
-  // Set/Get the point lookup table.
-  vtkGetObjectMacro(PointLookupTable, vtkScalarsToColors);
-  virtual void SetPointLookupTable(vtkScalarsToColors* lut);
+  // Set/Get the cell lookup table.
+  vtkGetObjectMacro(CellLookupTable, vtkScalarsToColors);
+  virtual void SetCellLookupTable(vtkScalarsToColors* lut);
+
+  // Description:
+  // Whether to scale the lookup table to fit the range of the data.
+  vtkSetMacro(ScaleCellLookupTable, bool);
+  vtkGetMacro(ScaleCellLookupTable, bool);
+  vtkBooleanMacro(ScaleCellLookupTable, bool);
 
   // Description:
   // The color of any outlines in the view.
@@ -163,14 +176,38 @@ public:
   vtkGetVector3Macro(BackgroundColor2, double);
   
   // Description:
+  // The text property to use for labelling points/vertices.
+  virtual void SetPointTextProperty(vtkTextProperty* tprop);
+  vtkGetObjectMacro(PointTextProperty, vtkTextProperty);
+
+  // Description:
+  // The text property to use for labelling edges/cells.
+  virtual void SetCellTextProperty(vtkTextProperty* tprop);
+  vtkGetObjectMacro(CellTextProperty, vtkTextProperty);
+
+  // Description:
   // The color to use for labelling graph vertices.
-  vtkSetVector3Macro(VertexLabelColor, double);
-  vtkGetVector3Macro(VertexLabelColor, double);
-  
+  // This is deprecated. Use GetPointTextProperty()->SetColor() instead.
+  virtual void SetVertexLabelColor(double r, double g, double b);
+  virtual void SetVertexLabelColor(double c[3])
+    { this->SetVertexLabelColor(c[0], c[1], c[2]); }
+  virtual double *GetVertexLabelColor();
+  virtual void GetVertexLabelColor(double &r, double &g, double &b)
+    { double* c = this->GetVertexLabelColor(); if (c) { r = c[0]; g = c[1]; b = c[2]; } }
+  virtual void GetVertexLabelColor(double c[3])
+    { this->GetVertexLabelColor(c[0], c[1], c[2]); }
+
   // Description:
   // The color to use for labelling graph edges.
-  vtkSetVector3Macro(EdgeLabelColor, double);
-  vtkGetVector3Macro(EdgeLabelColor, double);
+  // This is deprecated. Use GetCellTextProperty()->SetColor() instead.
+  virtual void SetEdgeLabelColor(double r, double g, double b);
+  virtual void SetEdgeLabelColor(double c[3])
+    { this->SetEdgeLabelColor(c[0], c[1], c[2]); }
+  virtual double *GetEdgeLabelColor();
+  virtual void GetEdgeLabelColor(double &r, double &g, double &b)
+    { double* c = this->GetEdgeLabelColor(); if (c) { r = c[0]; g = c[1]; b = c[2]; } }
+  virtual void GetEdgeLabelColor(double c[3])
+    { this->GetEdgeLabelColor(c[0], c[1], c[2]); }
 
   // Description:
   // Convenience methods for creating some default view themes.
@@ -208,11 +245,15 @@ protected:
 
   double BackgroundColor[3];
   double BackgroundColor2[3];
-  double VertexLabelColor[3];
-  double EdgeLabelColor[3];
 
   vtkScalarsToColors* PointLookupTable;
   vtkScalarsToColors* CellLookupTable;
+
+  bool ScalePointLookupTable;
+  bool ScaleCellLookupTable;
+
+  vtkTextProperty* PointTextProperty;
+  vtkTextProperty* CellTextProperty;
 
 private:
   vtkViewTheme(const vtkViewTheme&);  // Not implemented.

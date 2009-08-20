@@ -39,6 +39,9 @@
 
 #include <vtkstd/algorithm>
 #include <QIcon>
+#include <QPainter>
+#include <QBrush>
+#include <QPen>
 #include <QPixmap>
 #include <QMimeData>
 
@@ -334,7 +337,19 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
     if(role == Qt::DecorationRole)
       {
       QPixmap pixmap(12, 12);
-      pixmap.fill(QColor(rgb[0],rgb[1],rgb[2]));
+      pixmap.fill(QColor(0, 0, 0, 0));
+      QPainter painter(&pixmap);
+      painter.setRenderHint(QPainter::Antialiasing);
+      painter.setPen(Qt::NoPen);
+      painter.setBrush(QBrush(QColor(rgb[0],rgb[1],rgb[2])));
+      if (this->rowCount(idx) > 0)
+        {
+        painter.drawEllipse(0, 0, 11, 11);
+        }
+      else
+        {
+        painter.drawEllipse(2, 2, 7, 7);
+        }
       return QVariant(pixmap);
       }
     else if(role == Qt::TextColorRole)

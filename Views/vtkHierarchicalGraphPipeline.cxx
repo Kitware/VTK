@@ -42,7 +42,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.11");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.12");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -243,7 +243,7 @@ void vtkHierarchicalGraphPipeline::ApplyViewTheme(vtkViewTheme* theme)
 
   this->ApplyColors->SetCellLookupTable(theme->GetCellLookupTable());
 
-  this->TextProperty->SetColor(theme->GetEdgeLabelColor());
+  this->TextProperty->ShallowCopy(theme->GetCellTextProperty());
   this->Actor->GetProperty()->SetLineWidth(theme->GetLineWidth());
 }
 

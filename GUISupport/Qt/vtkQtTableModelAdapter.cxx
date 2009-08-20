@@ -34,6 +34,7 @@
 
 #include <QColor>
 #include <QIcon>
+#include <QPainter>
 #include <QPixmap>
 #include <QHash>
 #include <QMap>
@@ -554,7 +555,12 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
         rgb[2] = static_cast<int>(0x0ff & rgba[2]);
 
         QPixmap pixmap(16, 16);
-        pixmap.fill(QColor(rgb[0],rgb[1],rgb[2]));
+        pixmap.fill(QColor(0, 0, 0, 0));
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QBrush(QColor(rgb[0], rgb[1], rgb[2])));
+        painter.drawEllipse(4, 4, 7, 7);
         return QVariant(pixmap);
         }
       }

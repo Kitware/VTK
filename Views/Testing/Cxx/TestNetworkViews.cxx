@@ -25,6 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSQLDatabaseTableSource.h"
 #include "vtkTableToGraph.h"
+#include "vtkTextProperty.h"
 #include "vtkTreeRingView.h"
 #include "vtkVertexDegree.h"
 #include "vtkViewTheme.h"
@@ -84,6 +85,7 @@ int TestNetworkViews(int argc, char* argv[])
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
+  theme->GetPointTextProperty()->ShadowOn();
   view1->ApplyViewTheme(theme);
   theme->Delete();
 
