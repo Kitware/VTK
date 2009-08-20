@@ -32,7 +32,7 @@
 
 #include "vtkMathConfigure.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.136");
+vtkCxxRevisionMacro(vtkMath, "1.137");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2873,7 +2873,9 @@ double vtkMath::Nan()
 int vtkMath::IsInf(double x)
 {
 #ifdef VTK_HAS_ISINF
-  return isinf(x);
+  // The isinf function is supposed to catch both positive and negative
+  // infinity, but I often see it only picking up positive infinity.
+  return (isinf(x) || isinf(-x));
 #else
   return (   !((x < vtkMath::Inf()) && (x > vtkMath::NegInf()))
           && !vtkMath::IsNan(x) );
