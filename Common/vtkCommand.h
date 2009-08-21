@@ -185,6 +185,12 @@
 //  - A pointer to a double value between 0.0 and 1.0
 // - vtkCommand::VolumeMapperComputeGradientsProgressEvent
 //  - A pointer to a double value between 0.0 and 1.0
+// - vtkCommand::TDxMotionEvent (TDx=3DConnexion)
+//  - A vtkTDxMotionEventInfo*
+// - vtkCommand::TDxButtonPressEvent
+//  - A int* being the number of the button
+// - vtkCommand::TDxButtonReleaseEvent
+//  - A int* being the number of the button
 //
 // .SECTION See Also
 // vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
@@ -343,6 +349,9 @@ public:
     UpdateDataEvent,
     CurrentChangedEvent,
     ComputeVisiblePropBoundsEvent,
+    TDxMotionEvent, // 3D Connexion device event
+    TDxButtonPressEvent, // 3D Connexion device event
+    TDxButtonReleaseEvent, // 3D Connexion device event
     UserEvent = 1000
   };
 //ETX

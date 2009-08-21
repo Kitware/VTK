@@ -46,13 +46,14 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.104");
-vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
+#ifdef VTK_USE_TDX
+#include "vtkTDxWinDevice.h"
 #endif
 
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.105");
+vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
+#endif
 
 void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
 void *vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
@@ -66,6 +67,10 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   this->InstallMessageProc = 1;
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
+  
+#ifdef VTK_USE_TDX
+  this->Device=vtkTDxWinDevice::New();
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -95,6 +100,9 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
       }
     this->Enabled = 0;
     }
+#ifdef VTK_USE_TDX
+  this->Device->Delete();
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -181,6 +189,15 @@ void vtkWin32RenderWindowInteractor::Enable()
       {
       vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)vtkHandleMessage);
       }
+    
+#ifdef VTK_USE_TDX
+    if(this->UseTDx)
+      {
+      this->Device->SetInteractor(this);
+      this->Device->Initialize();
+      }
+#endif
+    
     // in case the size of the window has changed while we were away
     int *size;
     size = ren->GetSize();
@@ -221,6 +238,12 @@ void vtkWin32RenderWindowInteractor::Disable()
       {
       vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)this->OldProc);
       }
+#ifdef VTK_USE_TDX
+    if(this->Device->GetInitialized())
+      {
+      this->Device->Close();
+      }
+#endif
     }
   this->Enabled = 0;
   this->Modified();

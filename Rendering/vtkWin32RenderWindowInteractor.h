@@ -29,6 +29,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkWindows.h" // For windows API.
 
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+class vtkTDxWinDevice;
+#endif
 
 class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor 
 {
@@ -139,6 +143,10 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
 
+#ifdef VTK_USE_TDX
+  vtkTDxWinDevice *Device;
+#endif
+  
 private:
   vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkWin32RenderWindowInteractor&);  // Not implemented.

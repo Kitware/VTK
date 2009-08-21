@@ -47,6 +47,7 @@ IF(VTK_USE_DISPLAY)
     TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
+    TestTDx.cxx
     TestTilingCxx.cxx
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTDepthPeeling.cxx

@@ -34,7 +34,12 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.140");
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+#include "vtkTDxUnixDevice.h"
+#endif
+
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.141");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -47,6 +52,15 @@ public:
   vtkXRenderWindowInteractorInternals()
     {
     this->TimerIdCount = 1;
+#ifdef VTK_USE_TDX
+    this->Device=vtkTDxUnixDevice::New();
+#endif
+    }
+  ~vtkXRenderWindowInteractorInternals()
+    {
+#ifdef VTK_USE_TDX
+      this->Device->Delete();
+#endif
     }
 
   int CreateLocalId(XtIntervalId xid)
@@ -69,7 +83,15 @@ public:
     this->XToLocal.erase(xid);
     return xid;
     }
-
+#ifdef VTK_USE_TDX
+  vtkTDxUnixDevice *GetDevice()
+    {
+      return this->Device;
+    }
+protected:
+  vtkTDxUnixDevice *Device;
+#endif
+  
 private:
   int TimerIdCount;
   vtkstd::map<int, XtIntervalId> LocalToX;
@@ -397,6 +419,23 @@ void vtkXRenderWindowInteractor::Initialize()
     }
 
   this->WindowId = XtWindow(this->Top);
+  
+#ifdef VTK_USE_TDX
+  // 3DConnexion device
+  if(this->UseTDx)
+    {
+    vtkTDxUnixDevice *d=this->Internal->GetDevice();
+    d->SetDisplayId(this->DisplayId);
+    d->SetWindowId(this->WindowId);
+    d->SetInteractor(this);
+    d->Initialize();
+    if(!d->GetInitialized())
+      {
+      vtkWarningMacro(<< "failed to initialize a 3Dconnexion device.");
+      }
+    }
+#endif
+  
   ren->Start();
   this->Enable();
   this->Size[0] = size[0];
@@ -867,11 +906,21 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       //  << XGetAtomName(me->DisplayId,
       //       (reinterpret_cast<XClientMessageEvent *>(event))->message_type)
       //  << endl;
-
       if( static_cast<Atom>(event->xclient.data.l[0]) == me->KillAtom )
         {
         me->InvokeEvent(vtkCommand::ExitEvent, NULL);
         }
+#ifdef VTK_USE_TDX
+      else
+        {
+        vtkTDxUnixDevice *d=me->Internal->GetDevice();
+        bool caught=false;
+        if(d->GetInitialized())
+          {
+          caught=d->ProcessEvent(event);
+          }
+        }
+#endif
       }
       break;
     }

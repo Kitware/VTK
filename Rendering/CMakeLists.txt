@@ -322,6 +322,34 @@ IF(VTK_USE_X)
   SET( Kit_SRCS ${Kit_SRCS} vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
 
+# -----------------------------------------------------------------------------
+# 3DConnexion device (SpaceNavigator, etc... ) on Unix.
+IF(VTK_USE_X)
+  OPTION(VTK_USE_TDX "Use 3Dconnexion device" OFF)
+  MARK_AS_ADVANCED(VTK_USE_TDX)
+  IF(VTK_USE_TDX)
+   SET(VTK_TDX_INCLUDE_PATH CACHE PATH "Directory path to xdrvlib.h for 3DConnexion device")
+   SET(VTK_TDX_OBJECT_PATH CACHE FILEPATH "File path to xdrvlib.a for 3DConnexion device")
+   SET(Kit_SRCS ${Kit_SRCS} vtkTDxDevice.cxx vtkTDxUnixDevice.cxx)
+   INCLUDE_DIRECTORIES(${VTK_TDX_INCLUDE_PATH})
+   SET_SOURCE_FILES_PROPERTIES(vtkTDxDevice.cxx ABSTRACT)
+   LIST(APPEND KIT_INTERFACE_LIBRARIES ${VTK_TDX_OBJECT_PATH})
+  ENDIF()
+ENDIF()
+# -----------------------------------------------------------------------------
+# 3DConnexion device (SpaceNavigator, etc... ) on Windows.
+IF(WIN32)
+  OPTION(VTK_USE_3DX "Use 3Dconnextion device" OFF)
+  MARK_AS_ADVANCED(VTK_USE_TDX)
+  IF(VTK_USE_TDX)
+   SET(Kit_SRCS ${Kit_SRCS} vtkTDxDevice.cxx vtkTDxWinDevice.cxx)
+   SET_SOURCE_FILES_PROPERTIES(vtkTDxDevice.cxx ABSTRACT)
+  ENDIF()
+ENDIF()
+# -----------------------------------------------------------------------------
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/Rendering/vtkTDxConfigure.h.in
+               ${VTK_BINARY_DIR}/Rendering/vtkTDxConfigure.h @ONLY IMMEDIATE)
+
 IF(VTK_USE_QT)   
   SET(QT_DONT_USE_QTGUI)
   INCLUDE(${QT_USE_FILE})

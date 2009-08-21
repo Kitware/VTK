@@ -412,6 +412,14 @@ public:
   // the particular request (default versus non-default cursor shape).
   vtkObserverMediator *GetObserverMediator();
 
+  // Description:
+  // Use a 3DConnexion device. Initial value is false.
+  // If VTK is not build with the TDx option, this is no-op.
+  // If VTK is build with the TDx option, and a device is not connected,
+  // a warning is emitted.
+  vtkSetMacro(UseTDx,bool);
+  vtkGetMacro(UseTDx,bool);
+  
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
@@ -489,6 +497,8 @@ protected:
   // overrides. (Overrides are registered by observing StartEvent on the 
   // interactor.)
   int HandleEventLoop;
+  
+  bool UseTDx; // 3DConnexion device.
   
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
