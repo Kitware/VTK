@@ -13,20 +13,21 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/Rendering"
     VTK_RENDERING_EXPORT
-    vtkTkRenderWidget.h
-    vtkTkInternals.h
-    vtkTkImageViewerWidget.h
+    vtkCocoaMacOSXSDKCompatibility.h
     vtkCocoaGLView.h
     vtkFreeTypeUtilities.h
+    vtkgl.h
     vtkgluPickMatrix.h
     vtkLabelHierarchyPrivate.h
     vtkOpenGL.h
+    vtkOpenGLExtensionManagerConfigure.h
     vtkOpenGLState.h
     vtkOpenGLStateCache.h
-    vtkgl.h
-    vtkOpenGLExtensionManagerConfigure.h
-    vtkCocoaMacOSXSDKCompatibility.h
     vtkPythagoreanQuadruples.h
     vtkRenderState.h
+    vtkTDxMotionEventInfo.h
+    vtkTkImageViewerWidget.h
+    vtkTkInternals.h
+    vtkTkRenderWidget.h
     )
 ENDIF(PYTHON_EXECUTABLE)
