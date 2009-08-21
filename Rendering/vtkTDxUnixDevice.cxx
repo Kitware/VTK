@@ -28,7 +28,7 @@ extern "C" {
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.1");
+vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.2");
 vtkStandardNewMacro(vtkTDxUnixDevice);
 
 // ----------------------------------------------------------------------------
@@ -223,4 +223,7 @@ void vtkTDxUnixDevice::SetSensitivity(double sensitivity)
 void vtkTDxUnixDevice::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "RotationScale: " << this->RotationScale << endl;
+  os << indent << "TranslationScale: " << this->TranslationScale << endl;
 }
