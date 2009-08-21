@@ -339,7 +339,7 @@ ENDIF()
 # -----------------------------------------------------------------------------
 # 3DConnexion device (SpaceNavigator, etc... ) on Windows.
 IF(WIN32)
-  OPTION(VTK_USE_3DX "Use 3Dconnextion device" OFF)
+  OPTION(VTK_USE_TDX "Use 3Dconnextion device" OFF)
   MARK_AS_ADVANCED(VTK_USE_TDX)
   IF(VTK_USE_TDX)
    SET(Kit_SRCS ${Kit_SRCS} vtkTDxDevice.cxx vtkTDxWinDevice.cxx)
