@@ -417,6 +417,8 @@ public:
   // If VTK is not build with the TDx option, this is no-op.
   // If VTK is build with the TDx option, and a device is not connected,
   // a warning is emitted.
+  // It is must be called before the first Render to be effective, otherwise
+  // it is ignored.
   vtkSetMacro(UseTDx,bool);
   vtkGetMacro(UseTDx,bool);
   
