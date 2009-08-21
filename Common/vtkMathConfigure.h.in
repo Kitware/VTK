@@ -1,5 +1,4 @@
 // -*- c++ -*-
-// -*- c++ -*-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -54,6 +53,15 @@
 #if defined(__APPLE__) && (__GNUC__ < 4)
 # undef VTK_HAS_ISNAN
 # undef VTK_HAS_ISINF
+#endif
+
+// We pretty much assume that all compilers are going to provide
+// std::numeric_limits methods in the limits header.  On of the Borland
+// dashboard compilers failed to link in the methods, so we have a special
+// case here.  If we find more platforms that do not support it correctly,
+// then we should probably implement a TRY_COMPILE in the CMakeLists.txt.
+#ifndef __BORLANDC__
+# define VTK_HAS_STD_NUMERIC_LIMITS
 #endif
 
 #endif //__vtkMathConfigure_h
