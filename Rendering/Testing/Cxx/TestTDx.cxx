@@ -41,8 +41,8 @@ public:
     {
       this->Camera=0;
     }
-  void Execute(vtkObject *caller, unsigned long eventId, 
-               void *vtkNotUsed(callData))
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long eventId, 
+               void *callData)
     {
       cout << "myCommand::Execute()" << endl;
       if(eventId==vtkCommand::TDxMotionEvent)
