@@ -44,7 +44,7 @@ public:
   enum 
   {
     BASE_E = 0,
-    BASE_2 = 1,
+    BASE_2 = 1
   };
 //ETX
 
