@@ -322,7 +322,7 @@ struct vtkPSLACReaderIdTypeHash {
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPSLACReader, "1.11");
+vtkCxxRevisionMacro(vtkPSLACReader, "1.12");
 vtkStandardNewMacro(vtkPSLACReader);
 
 vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
@@ -1040,10 +1040,18 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     {
     midpointPointersType mp;
     mp.position = &(*posIter);  mp.topology = &(*topIter);
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+    // Deal with Sun Studio old libCstd.
+    // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
     MidpointsAvailable.insert(
-                    vtkstd::make_pair(EdgeEndpoints(topIter->minEdgePoint,
-                                                    topIter->maxEdgePoint),
-                                      mp));
+      vtkstd::pair<const EdgeEndpoints,midpointPointersType>(
+        EdgeEndpoints(topIter->minEdgePoint,topIter->maxEdgePoint),mp));
+#else
+    MidpointsAvailable.insert(
+      vtkstd::make_pair(EdgeEndpoints(topIter->minEdgePoint,
+                                      topIter->maxEdgePoint),
+                        mp));
+#endif
     }
 
   // For each process, find the midpoints we need to send there and then
