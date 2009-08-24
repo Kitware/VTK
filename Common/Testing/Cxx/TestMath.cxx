@@ -66,11 +66,6 @@ static int TestSpecialDoublesReal(double value, const char *name,
 
 int TestMath(int,char *[])
 {
-#if defined(__BORLANDC__)
-  _control87(MCW_EM, MCW_EM); /* defined in float.h */
-#endif
-
-
   int testIntValue;
   
   testIntValue = vtkMath::Factorial(5);

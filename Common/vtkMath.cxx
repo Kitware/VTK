@@ -30,7 +30,7 @@
 
 #include "vtkMathConfigure.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.141");
+vtkCxxRevisionMacro(vtkMath, "1.142");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -43,7 +43,7 @@ long vtkMath::Seed = 1177; // One authors home address
 
 // Avoid aliasing optimization problems by using a union:
 union vtkIEEE754Bits {
-  vtkTypeInt64 i64v;
+  vtkTypeUInt64 i64v;
   double d;
 };
 
@@ -55,9 +55,9 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000i64 };
 #elif defined(__BORLANDC__)
 // Borland C++ union initializers are broken.
 // Use an otherwise-discouraged aliasing trick:
-static vtkTypeUInt32 vtkMathNanBits[2]        = { 0, 0x7FF80000u };
-static vtkTypeUInt32 vtkMathInfBits[2]        = { 0, 0x7FF00000u };
-static vtkTypeUInt32 vtkMathNegInfBits[2]     = { 0, 0xFFF00000u };
+static vtkTypeUInt64 vtkMathNanBits    = 0x7FF8000000000000i64;
+static vtkTypeUInt64 vtkMathInfBits    = 0x7FF0000000000000i64;
+static vtkTypeUInt64 vtkMathNegInfBits = 0xFFF0000000000000i64;
 #else
 static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000LL };
 static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000LL };
@@ -65,6 +65,45 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
 #endif
 
 #endif //VTK_HAS_STD_NUMERIC_LIMITS
+
+#ifdef WIN32
+const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000i64;
+const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
+#else
+const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000LL;
+const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
+#endif
+
+// If we cannot do comparisons to non-finite numbers without causing floating
+// point exceptions, we better fall back to IEEE-754 bit comparisons.
+
+#if !defined(VTK_HAS_ISINF) && defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
+inline bool vtkMathIsInf(double x)
+{
+  // IEEE-754 infinites have all of their exponent set and none of their
+  // mantissa set.
+  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
+  cout << "IsInf of " << xbits << endl;
+  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
+          && ((xbits & vtkMathDoubleMantissa) == 0) );
+}
+#define isinf(x) vtkMathIsInf(x)
+#define VTK_HAS_ISINF
+#endif // !VTK_HAS_ISINF && VTK_NON_FINITE_CAUSES_EXCEPTIONS
+
+#if !defined(VTK_HAS_ISNAN) && defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
+inline bool vtkMathIsNan(double x)
+{
+  // IEEE-754 NaNs have all of their exponent set and at least one bit in
+  // their mantissa set.
+  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
+  cout << "IsNan of " << xbits << endl;
+  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
+          && ((xbits & vtkMathDoubleMantissa) != 0) );
+}
+#define isnan(x) vtkMathIsNan(x)
+#define VTK_HAS_ISNAN
+#endif // !VTK_HAS_ISNAN && VTK_NON_FINITE_CAUSES_EXCEPTIONS
 
 //
 // some constants we need
@@ -2886,7 +2925,7 @@ double vtkMath::Inf()
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return vtkstd::numeric_limits<double>::infinity();
 #elif defined(__BORLANDC__)
-  return *reinterpret_cast<double*>(vtkMathInfBits);
+  return *reinterpret_cast<double*>(&vtkMathInfBits);
 #else
   return vtkMathInfBits.d;
 #endif
@@ -2898,7 +2937,7 @@ double vtkMath::NegInf()
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return -vtkstd::numeric_limits<double>::infinity();
 #elif defined(__BORLANDC__)
-  return *reinterpret_cast<double*>(vtkMathNegInfBits);
+  return *reinterpret_cast<double*>(&vtkMathNegInfBits);
 #else
   return vtkMathNegInfBits.d;
 #endif
@@ -2910,7 +2949,7 @@ double vtkMath::Nan()
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return vtkstd::numeric_limits<double>::quiet_NaN();
 #elif defined(__BORLANDC__)
-  return *reinterpret_cast<double*>(vtkMathNanBits);
+  return *reinterpret_cast<double*>(&vtkMathNanBits);
 #else
   return vtkMathNanBits.d;
 #endif
