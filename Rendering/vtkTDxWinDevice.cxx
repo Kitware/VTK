@@ -24,11 +24,18 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkTDxWinDevice,"1.4");
+vtkCxxRevisionMacro(vtkTDxWinDevice,"1.5");
 vtkStandardNewMacro(vtkTDxWinDevice);
 
-#include "atlbase.h" // for CComPtr<> (a smart pointer)
-#include <Objbase.h> // for CoInitializeEx
+// On Visual Studio, older than VS9, CoInitializeEx() is not automatically
+// defined if the minimum compatibility OS is not specified.
+// The Spacenavigator is supported on Windows 2000, XP, Vista
+// Setting the minimum requirement to Windows 2000 (code 0x500) is
+// a reasonable value.
+#if defined(_MSC_VER) && (_MSC_VER<1500) // 1500=VS9(2008)
+# define _WIN32_WINNT 0x500 // aka Windows 2000, for CoInitializeEx()
+#endif
+#include <atlbase.h> // for CComPtr<> (a smart pointer)
 
 // for ISensor and IKeyboard
 #import "progid:TDxInput.Device.1" no_namespace
