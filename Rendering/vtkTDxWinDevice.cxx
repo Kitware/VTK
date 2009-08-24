@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkTDxWinDevice,"1.1");
+vtkCxxRevisionMacro(vtkTDxWinDevice,"1.2");
 vtkStandardNewMacro(vtkTDxWinDevice);
 
 #include "atlbase.h" // for CComPtr<> (a smart pointer)
@@ -61,6 +61,58 @@ public:
 
 vtkTDxWinDevicePrivate vtkTDxWinDevicePrivateObject;
 
+HRESULT HresultCodes[13]={S_OK,
+                          REGDB_E_CLASSNOTREG,
+                          CLASS_E_NOAGGREGATION,
+                          E_NOINTERFACE,
+                          E_POINTER,
+                          E_ABORT,
+                          E_ACCESSDENIED,
+                          E_FAIL,
+                          E_HANDLE,
+                          E_INVALIDARG,
+                          E_NOTIMPL,
+                          E_OUTOFMEMORY,
+                          E_UNEXPECTED};
+
+const char *HresultStrings[13]={"S_OK",
+                                "REGDB_E_CLASSNOTREG",
+                                "CLASS_E_NOAGGREGATION",
+                                "E_NOINTERFACE",
+                                "E_POINTER",
+                                "E_ABORT",
+                                "E_ACCESSDENIED",
+                                "E_FAIL",
+                                "E_HANDLE",
+                                "E_INVALIDARG",
+                                "E_NOTIMPL",
+                                "E_OUTOFMEMORY",
+                                "E_UNEXPECTED"};
+
+// ----------------------------------------------------------------------------
+// Description:
+// Return a human readable version of an HRESULT.
+const char *vtkTDxWinDevice::HresultCodeToString(HRESULT hr) const
+{
+  int i=0;
+  bool found=false;
+  while(!found && i<13)
+    {
+    found=HresultCodes[i]==hr;
+    ++i;
+    }
+  const char *result;
+  if(found)
+    {
+    result=HresultStrings[i-1];
+    }
+  else
+    {
+    result="unknown";
+    }
+  return result;
+}
+
 // ----------------------------------------------------------------------------
 // Description:
 // Default constructor.
@@ -94,8 +146,16 @@ void vtkTDxWinDevice::Initialize()
   
   bool status=false;
   
-  HRESULT hr;
+  HRESULT hr=0;
   CComPtr<IUnknown> device;
+
+   hr=::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED );
+   if (!SUCCEEDED(hr))
+   {
+   vtkWarningMacro( << "CoInitializeEx failed. hresult=0x" << hex << hr << dec << this->HresultCodeToString(hr));
+   this->Initialized=status;
+   return;
+   }
 
   // Create the device object
   hr=device.CoCreateInstance(__uuidof(Device));
@@ -123,12 +183,12 @@ void vtkTDxWinDevice::Initialize()
       }
     else
       {
-      vtkWarningMacro(<<"Could not get the device interface.");
+      vtkWarningMacro(<<"Could not get the device interface. hresult=0x" << hex << hr << dec << this->HresultCodeToString(hr));
       }
     }
   else
     {
-    vtkWarningMacro( << "CoCreateInstance failed");
+    vtkWarningMacro( << "CoCreateInstance failed. hresult=0x" << hex << hr << dec << this->HresultCodeToString(hr));
     }
   this->Initialized=status;
 }
