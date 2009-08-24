@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.53");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.54");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -50,7 +50,8 @@ MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
 // This MPI error handler basically does the same thing as the default error
 // handler, but also provides a convenient place to attache a debugger
 // breakpoint.
-void vtkMPICommunicatorMPIErrorHandler(MPI_Comm *comm, int *errorcode, ...)
+extern "C" void vtkMPICommunicatorMPIErrorHandler(MPI_Comm *comm,
+                                                  int *errorcode, ...)
 {
   char ErrorMessage[MPI_MAX_ERROR_STRING];
   int len;
