@@ -7,6 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 #include "vtkMath.h"
+#include "vtkMathConfigure.h"
 
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))
@@ -65,6 +66,8 @@ static int TestSpecialDoublesReal(double value, const char *name,
 
 int TestMath(int,char *[])
 {
+  _control87(MCW_EM, MCW_EM); /* defined in float.h */
+
   int testIntValue;
   
   testIntValue = vtkMath::Factorial(5);
@@ -238,13 +241,13 @@ static int TestSpecialDoublesReal(double value, const char *name,
   cout << "  * IsNan test." << endl;
   if (vtkMath::IsNan(value) != static_cast<int>(nantest))
     {
-    vtkGenericWarningMacro(<< value << " failed the IsNan test.");
+    cout << value << " failed the IsNan test." << endl;
     return 0;
     }
   cout << "  * IsInf test." << endl;
   if (vtkMath::IsInf(value) != static_cast<int>(inftest))
     {
-    vtkGenericWarningMacro(<< value << " failed the IsInf test.");
+    cout << value << " failed the IsInf test." << endl;
     return 0;
     }
   cout << "  * Tests passed." << endl;
