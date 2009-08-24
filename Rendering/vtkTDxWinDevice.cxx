@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkTDxWinDevice,"1.2");
+vtkCxxRevisionMacro(vtkTDxWinDevice,"1.3");
 vtkStandardNewMacro(vtkTDxWinDevice);
 
 #include "atlbase.h" // for CComPtr<> (a smart pointer)
@@ -92,7 +92,7 @@ const char *HresultStrings[13]={"S_OK",
 // ----------------------------------------------------------------------------
 // Description:
 // Return a human readable version of an HRESULT.
-const char *vtkTDxWinDevice::HresultCodeToString(HRESULT hr) const
+const char *HresultCodeToString(HRESULT hr)
 {
   int i=0;
   bool found=false;
@@ -152,7 +152,7 @@ void vtkTDxWinDevice::Initialize()
    hr=::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED );
    if (!SUCCEEDED(hr))
    {
-   vtkWarningMacro( << "CoInitializeEx failed. hresult=0x" << hex << hr << dec << this->HresultCodeToString(hr));
+   vtkWarningMacro( << "CoInitializeEx failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
    this->Initialized=status;
    return;
    }
@@ -183,12 +183,12 @@ void vtkTDxWinDevice::Initialize()
       }
     else
       {
-      vtkWarningMacro(<<"Could not get the device interface. hresult=0x" << hex << hr << dec << this->HresultCodeToString(hr));
+      vtkWarningMacro(<<"Could not get the device interface. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
       }
     }
   else
     {
-    vtkWarningMacro( << "CoCreateInstance failed. hresult=0x" << hex << hr << dec << this->HresultCodeToString(hr));
+    vtkWarningMacro( << "CoCreateInstance failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
     }
   this->Initialized=status;
 }

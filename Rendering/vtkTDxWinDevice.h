@@ -58,10 +58,6 @@ protected:
   // is initialized, close the device.
   virtual ~vtkTDxWinDevice();
   
-  // Description:
-  // Return a human readable version of an HRESULT.
-  const char *HresultCodeToString(HRESULT hr) const;
-  
   UINT_PTR TimerId;
   
 private:
