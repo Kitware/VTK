@@ -30,7 +30,7 @@
 
 #include "vtkMathConfigure.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.142");
+vtkCxxRevisionMacro(vtkMath, "1.143");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -66,7 +66,7 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
 
 #endif //VTK_HAS_STD_NUMERIC_LIMITS
 
-#ifdef WIN32
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000i64;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
 #else
