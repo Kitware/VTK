@@ -40,8 +40,8 @@
 // to zero.
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay, Korben Rusek, and Maurice Rojas for
-// implementing these solvers.
+// Thanks to Philippe Pebay, Korben Rusek, David Thompson, and Maurice Rojas
+// for implementing these solvers.
 
 #ifndef __vtkPolynomialSolversUnivariate_h
 #define __vtkPolynomialSolversUnivariate_h
