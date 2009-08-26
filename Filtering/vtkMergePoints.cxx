@@ -20,7 +20,7 @@
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkMergePoints, "1.41");
+vtkCxxRevisionMacro(vtkMergePoints, "1.42");
 vtkStandardNewMacro(vtkMergePoints);
 
 // Determine whether point given by x[3] has been inserted into points list.
@@ -28,21 +28,21 @@ vtkStandardNewMacro(vtkMergePoints);
 // -1.
 vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
 {
-  int i, ijk0, ijk1, ijk2;
+  vtkIdType i, ijk0, ijk1, ijk2;
   vtkIdType idx;
   vtkIdList *bucket;
   //
   //  Locate bucket that point is in.
   //
-  ijk0 = static_cast<int>(
+  ijk0 = static_cast<vtkIdType>(
     static_cast<double> ((x[0] - this->Bounds[0]) / 
                          (this->Bounds[1] - this->Bounds[0]))
     * (this->Divisions[0] - 1));
-  ijk1 = static_cast<int>(
+  ijk1 = static_cast<vtkIdType>(
     static_cast<double> ((x[1] - this->Bounds[2]) / 
                          (this->Bounds[3] - this->Bounds[2]))
     * (this->Divisions[1] - 1));
-  ijk2 = static_cast<int>(
+  ijk2 = static_cast<vtkIdType>(
     static_cast<double> ((x[2] - this->Bounds[4]) / 
                          (this->Bounds[5] - this->Bounds[4]))
     * (this->Divisions[2] - 1));
@@ -110,22 +110,22 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
 
 int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
 {
-  int i, ijk0, ijk1, ijk2;
+  vtkIdType i, ijk0, ijk1, ijk2;
   vtkIdType idx;
   vtkIdList *bucket;
 
   //
   //  Locate bucket that point is in.
   //
-  ijk0 = static_cast<int>(
+  ijk0 = static_cast<vtkIdType>(
     static_cast<double> ((x[0] - this->Bounds[0]) / 
                          (this->Bounds[1] - this->Bounds[0]))
     * (this->Divisions[0] - 1));
-  ijk1 = static_cast<int>(
+  ijk1 = static_cast<vtkIdType>(
     static_cast<double> ((x[1] - this->Bounds[2]) / 
                          (this->Bounds[3] - this->Bounds[2]))
     * (this->Divisions[1] - 1));
-  ijk2 = static_cast<int>(
+  ijk2 = static_cast<vtkIdType>(
     static_cast<double> ((x[2] - this->Bounds[4]) / 
                          (this->Bounds[5] - this->Bounds[4]))
     * (this->Divisions[2] - 1));
