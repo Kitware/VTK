@@ -1,0 +1,6 @@
+#ifndef __TextAnalysisTestConfig_h
+#define __TextAnalysisTestConfig_h
+
+#define VTK_DATA_ROOT "@VTK_DATA_ROOT@"
+
+#endif // __TextAnalysisTestConfig_h

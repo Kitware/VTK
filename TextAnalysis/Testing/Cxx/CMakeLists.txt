@@ -1,6 +1,7 @@
 # List tests that can be built and run automatically ...
 SET(AUTO_TESTS
   TestAssignMimeType
+  TestDocumentReader
   TestMimeTypes
   TestNGramExtraction
   TestTermDictionary
@@ -24,9 +25,10 @@ ENDFOREACH()
 CREATE_TEST_SOURCELIST(TEST_SOURCES ${KIT}CxxTests.cxx 
   ${TEST_SOURCES} 
   EXTRA_INCLUDE vtkTestDriver.h
-)
+  )
 
-#INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Common)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TextAnalysisTestConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/TextAnalysisTestConfig.h)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 ADD_EXECUTABLE(${KIT}CxxTests ${TEST_SOURCES})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests ${AUTO_TEST_LIBRARIES})
 
@@ -34,3 +36,4 @@ TARGET_LINK_LIBRARIES(${KIT}CxxTests ${AUTO_TEST_LIBRARIES})
 FOREACH(TEST ${AUTO_TESTS})
   ADD_TEST("Text-${TEST}" ${CXX_TEST_PATH}/${KIT}CxxTests ${TEST})
 ENDFOREACH()
+
