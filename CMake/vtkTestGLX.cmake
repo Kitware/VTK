@@ -82,9 +82,13 @@ set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
 
 set(CMAKE_REQUIRED_INCLUDES ${OPENGL_INCLUDE_DIR})
 
-# We cannot just use OPENGL_gl_LIBRARY: some platforms required to link
+# We cannot just use OPENGL_gl_LIBRARY: SunOS requires to link
 # with X11, which is available only in OPENGL_LIBRARIES.
-set(CMAKE_REQUIRED_LIBRARIES ${OPENGL_LIBRARIES} ${CMAKE_REQUIRED_LIBRARIES})
+# Also, SunOS requires to explicitly link -lm
+set(CMAKE_REQUIRED_LIBRARIES
+     ${OPENGL_LIBRARIES}
+     ${CMAKE_REQUIRED_LIBRARIES}
+     -lm)
 
 if(DEFINED GLX_DEFINES_MACRO_GLX_VERSION_1_1)
  set(REPORT_STATUS 0)
