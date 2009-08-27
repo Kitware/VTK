@@ -63,6 +63,34 @@ SET_SOURCE_FILES_PROPERTIES(
   WRAP_EXCLUDE
   )
 
+IF(VTK_USE_QT)
+  IF( (DESIRED_QT_VERSION MATCHES 4) AND (QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5 ) )
+
+  SET(QT_USE_QTXMLPATTERNS 1)
+
+  SET(QT_DONT_USE_QTGUI)
+  INCLUDE(${QT_USE_FILE})
+
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkQtXMLProcessor.cxx
+    )
+  
+  # On the Mac, make the QT_LIBRARIES KIT_INTERFACE_LIBRARIES. This is a
+  # workaround a problem with the Qt binaries from Trolltech. These libraries
+  # use install names that are relative. Then when the linker tries to pull them
+  # indirectly (through vtkRendering's list of libraries), it fails to find them.
+  # This does not happen when Qt is build from source because it uses absolute
+  # path in install names. This workaround fixes the problem by forcing all libraries
+  # and executables that depend on vtkRendering to also directly link to Qt libraries.
+  IF (APPLE)
+    LIST (APPEND KIT_INTERFACE_LIBRARIES ${QT_LIBRARIES})
+  ELSE (APPLE)
+    LIST (APPEND KIT_LIBS ${QT_LIBRARIES})
+  ENDIF (APPLE)
+  ENDIF( (DESIRED_QT_VERSION MATCHES 4) AND (QT_VERSION_MINOR GREATER 5 OR QT_VERSION_MINOR EQUAL 5 ) )
+ENDIF(VTK_USE_QT)
+
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS)
