@@ -57,7 +57,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.8");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.9");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -407,8 +407,10 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       case VTK_TEXT_LEFT: 
         break;
       case VTK_TEXT_CENTERED:
+        //We noticed that Qt seems to place a 4 pixel buffer layer around 
+        // the text.  Accounting for this makes the layout a little nicer...
 //FIXME - The width is not correct for html encodings...
-        delta_x = -fontMetric.width(testString)/ 2.;
+        delta_x = -(fontMetric.width(testString)+8)/ 2.;
         break;
       case VTK_TEXT_RIGHT:
 //FIXME - The width is not correct for html encodings...
@@ -421,7 +423,9 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       case VTK_TEXT_TOP: 
         break;
       case VTK_TEXT_CENTERED: 
-        delta_y = -fontMetric.height()/2.;
+        //We noticed that Qt seems to place a 4 pixel buffer layer around 
+        // the text.  Accounting for this makes the layout a little nicer...
+        delta_y = -(fontMetric.height()+8)/2.;
 //        delta_y = -fontMetric.ascent()/2.;
         break;
       case VTK_TEXT_BOTTOM: 
