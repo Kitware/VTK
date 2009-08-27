@@ -35,10 +35,11 @@ class vtkStdString;
 //   "Files": a collection of filesystem paths to be loaded.
 //
 // Outputs:
-//   Output port 0: A vtkTable containing "document", "uri", "mime_type",
-//     and "contents" columns.
+//   Output port 0: A vtkTable containing "document", "uri", and "content" columns.
 //
-// The output "document" column will contain a zero-based integer document index.
+// The output "document" column will contain a zero-based integer document index;
+// "uri" will contain the filepath to the document formatted as a file:// URI;
+// "contents" will contain the binary contents of the document.
 //
 // .SECTION Caveats
 // As a workaround, vtkDocumentReader stores the contents of each document
