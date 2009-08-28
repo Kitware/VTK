@@ -139,6 +139,17 @@ public:
   // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
+  
+  // Description:
+  // Convenient method to close the contour loop. 
+  void CloseLoop();
+
+  // Description:
+  // Set / Get the AllowNodePicking value. This ivar indicates whether the nodes
+  // and points between nodes can be picked/un-picked by Ctrl+Click on the node. 
+  void SetAllowNodePicking(int );
+  vtkGetMacro( AllowNodePicking, int );
+  vtkBooleanMacro( AllowNodePicking, int );
 
   // Description:
   // Initialize the contour widget from a user supplied set of points. The
@@ -147,8 +158,10 @@ public:
   // it. Note that if the polydata supplied is closed, the state will be
   // set to manipulate.
   //  State: Define = 0, Manipulate = 1.
-  virtual void Initialize( vtkPolyData *, int state = 1 );
-
+  virtual void Initialize( vtkPolyData * poly, int state = 1 );
+  virtual void Initialize()
+    {this->Initialize(NULL);}
+    
 protected:
   vtkContourWidget();
   ~vtkContourWidget();
@@ -160,6 +173,7 @@ protected:
   
   int WidgetState;
   int CurrentHandle;
+  int AllowNodePicking;
 
   // Callback interface to capture events when
   // placing the widget.

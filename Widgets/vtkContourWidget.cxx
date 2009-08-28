@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.28");
+vtkCxxRevisionMacro(vtkContourWidget, "1.29");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -37,6 +37,7 @@ vtkContourWidget::vtkContourWidget()
 
   this->WidgetState = vtkContourWidget::Start;
   this->CurrentHandle = 0;
+  this->AllowNodePicking = 0;
 
   // These are the event callbacks supported by this widget
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -103,6 +104,19 @@ void vtkContourWidget::CreateDefaultRepresentation()
       property->SetDiffuse(0.9);
       property->SetSpecular(0.0);
       }
+    }
+}
+
+//----------------------------------------------------------------------
+void vtkContourWidget::CloseLoop()
+{
+  vtkContourRepresentation *rep = 
+    reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
+  if(!rep->GetClosedLoop() && rep->GetNumberOfNodes()>1)
+    {
+    this->WidgetState = vtkContourWidget::Manipulate;
+    rep->ClosedLoopOn();
+    this->Render();
     }
 }
 
@@ -467,6 +481,13 @@ void vtkContourWidget::EndSelectAction(vtkAbstractWidget *w)
   self->Superclass::EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   
+  // Node picking
+  if(self->AllowNodePicking && self->Interactor->GetControlKey()
+    && self->WidgetState == vtkContourWidget::Manipulate)
+    {    
+    rep->ToggleActiveNodeSelected();
+    }
+  
   if ( self->WidgetRep->GetNeedToRender() )
     {
     self->Render();
@@ -509,9 +530,29 @@ void vtkContourWidget::Initialize( vtkPolyData * pd, int state )
 }
 
 //----------------------------------------------------------------------
+void vtkContourWidget::SetAllowNodePicking(int val)
+{
+  if(this->AllowNodePicking == val)
+    {
+    return;
+    }
+  this->AllowNodePicking = val;
+  if(this->AllowNodePicking)
+    {
+    vtkContourRepresentation *rep = 
+      reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
+    rep->SetShowSelectedNodes(this->AllowNodePicking);
+    }
+}
+
+//----------------------------------------------------------------------
 void vtkContourWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "WidgetState: " << this->WidgetState << endl;
+  os << indent << "CurrentHandle: " << this->CurrentHandle << endl;
+  os << indent << "AllowNodePicking: " << this->AllowNodePicking << endl;
   
 }

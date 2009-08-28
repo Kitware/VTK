@@ -75,6 +75,7 @@ public:
   double        WorldPosition[3];
   double        WorldOrientation[9];
   double        NormalizedDisplayPosition[2];
+  int           Selected;
   vtkstd::vector<vtkContourRepresentationPoint*> Points;
 };
 
@@ -112,6 +113,7 @@ public:
   // Description:
   // Add a node at a specific world position. Returns 0 if the
   // node could not be added, 1 otherwise.
+  virtual int AddNodeAtWorldPosition( double x, double y, double z);
   virtual int AddNodeAtWorldPosition( double worldPos[3] );
   virtual int AddNodeAtWorldPosition( double worldPos[3],
                                       double worldOrient[9] );
@@ -153,6 +155,13 @@ public:
   virtual int SetActiveNodeToDisplayPosition( int pos[2] );
   virtual int SetActiveNodeToDisplayPosition( int X, int Y );
   
+  // Description:
+  // Set/Get whether the active or nth node is selected. 
+  virtual int ToggleActiveNodeSelected();
+  virtual int GetActiveNodeSelected();
+  virtual int GetNthNodeSelected(int);
+  virtual int SetNthNodeSelected(int);
+
   // Description:
   // Get the world position of the active node. Will return
   // 0 if there is no active node, or 1 otherwise.
@@ -345,6 +354,13 @@ public:
   vtkBooleanMacro( ClosedLoop, int );
   
   // Description:
+  // A flag to indicate whether to show the Selected nodes
+  // Default is to set it to false.
+  virtual void SetShowSelectedNodes(int);
+  vtkGetMacro( ShowSelectedNodes, int );
+  vtkBooleanMacro( ShowSelectedNodes, int );
+
+  // Description:
   // Get the points in this contour as a vtkPolyData. 
   //BTX
   virtual vtkPolyData* GetContourRepresentationAsPolyData() = 0;
@@ -354,6 +370,7 @@ public:
   // Get the nodes and not the intermediate points in this 
   // contour as a vtkPolyData.
   void GetNodePolyData( vtkPolyData* poly );
+ 
 
 protected:
   vtkContourRepresentation();
@@ -370,6 +387,9 @@ protected:
   
   int CurrentOperation;
   int ClosedLoop;
+
+  // A flag to indicate whether to show the Selected nodes
+  int                   ShowSelectedNodes;
   
   vtkContourRepresentationInternals *Internal;
 

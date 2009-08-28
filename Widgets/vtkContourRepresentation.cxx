@@ -33,7 +33,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.26");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.27");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -49,6 +49,7 @@ vtkContourRepresentation::vtkContourRepresentation()
   this->ActiveNode               = -1;
   this->NeedToRender             = 0;
   this->ClosedLoop               = 0;
+  this->ShowSelectedNodes        = 0;
   this->CurrentOperation         = vtkContourRepresentation::Inactive;
 }
 
@@ -72,7 +73,6 @@ void vtkContourRepresentation::ClearAllNodes()
   this->Modified();
 }
 
-
 //----------------------------------------------------------------------
 void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
                                                           double worldOrient[9],
@@ -83,7 +83,8 @@ void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
   node->WorldPosition[0] = worldPos[0];
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
-
+  node->Selected = 0;
+  
   node->NormalizedDisplayPosition[0] = displayPos[0];
   node->NormalizedDisplayPosition[1] = displayPos[1];
   this->Renderer->DisplayToNormalizedDisplay( 
@@ -194,6 +195,14 @@ int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3],
   this->AddNodeAtPositionInternal( worldPos, worldOrient, displayPos );
 
   return 1;
+}
+
+//----------------------------------------------------------------------
+int vtkContourRepresentation::AddNodeAtWorldPosition(
+  double x, double y, double z)
+{
+  double worldPos[3] = {x, y, z};
+  return this->AddNodeAtWorldPosition(worldPos);
 }
 
 //----------------------------------------------------------------------
@@ -409,6 +418,61 @@ int vtkContourRepresentation::SetActiveNodeToDisplayPosition( int X, int Y )
   doubleDisplayPos[0] = X;
   doubleDisplayPos[1] = Y;
   return this->SetActiveNodeToDisplayPosition( doubleDisplayPos );
+}
+
+//----------------------------------------------------------------------
+int vtkContourRepresentation::ToggleActiveNodeSelected()
+{
+if ( this->ActiveNode < 0 ||
+    static_cast<unsigned int>(this->ActiveNode) >= this->Internal->Nodes.size() )
+  {
+  // Failed to toggle the value
+  return 0;
+  }
+  
+  this->Internal->Nodes[this->ActiveNode]->Selected = 
+    this->Internal->Nodes[this->ActiveNode]->Selected ? 0 : 1;
+  this->NeedToRender = 1;
+  this->Modified();
+  return 1;
+}
+
+//----------------------------------------------------------------------
+int vtkContourRepresentation::GetNthNodeSelected(int n)
+{
+  if ( n < 0 || 
+      static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
+    {
+    // This case is considered not Selected.
+    return 0;
+    }
+    
+  return this->Internal->Nodes[n]->Selected;
+}
+
+//----------------------------------------------------------------------
+int vtkContourRepresentation::SetNthNodeSelected(int n)
+{
+  if ( n < 0 || 
+    static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
+    {
+    // Failed.
+    return 0;
+    }
+  int val =  n > 0 ? 1 : 0;
+  if(this->Internal->Nodes[n]->Selected != val)
+    {
+    this->Internal->Nodes[n]->Selected = val;
+    this->NeedToRender = 1;
+    this->Modified();
+    }
+  return 1;
+}
+  
+//----------------------------------------------------------------------
+int vtkContourRepresentation::GetActiveNodeSelected()
+{
+  return this->GetNthNodeSelected(this->ActiveNode);
 }
 
 //----------------------------------------------------------------------
@@ -834,7 +898,7 @@ int vtkContourRepresentation::AddNodeOnContour( int X, int Y )
   node->WorldPosition[0] = worldPos[0];
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
-
+  node->Selected = 0;
   
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
           worldPos, worldOrient, node->NormalizedDisplayPosition );
@@ -1167,6 +1231,15 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
   this->VisibilityOn();
 }
 
+//----------------------------------------------------------------------
+void vtkContourRepresentation::SetShowSelectedNodes(int flag )
+{
+  if (this->ShowSelectedNodes != flag)
+    {
+    this->ShowSelectedNodes = flag;
+    this->Modified();
+    }
+}
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
@@ -1178,6 +1251,7 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "World Tolerance: " << this->WorldTolerance <<"\n";
 
   os << indent << "Closed Loop: " << (this->ClosedLoop ? "On\n" : "Off\n");
+  os << indent << "ShowSelectedNodes: " << this->ShowSelectedNodes <<endl;
   
   os << indent << "Current Operation: ";
   if ( this->CurrentOperation == vtkContourRepresentation::Inactive )
