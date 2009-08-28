@@ -27,8 +27,9 @@ extern "C" {
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.2");
+vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.3");
 vtkStandardNewMacro(vtkTDxUnixDevice);
 
 // ----------------------------------------------------------------------------
@@ -168,6 +169,7 @@ bool vtkTDxUnixDevice::ProcessEvent(const XEvent *e)
   
   vtkTDxMotionEventInfo motionInfo;
   int buttonInfo;
+  double axis[3];
   
   bool result;
   switch(deviceEvent)
@@ -178,9 +180,25 @@ bool vtkTDxUnixDevice::ProcessEvent(const XEvent *e)
       motionInfo.X=info.MagellanData[MagellanX];
       motionInfo.Y=info.MagellanData[MagellanY];
       motionInfo.Z=info.MagellanData[MagellanZ];
-      motionInfo.A=info.MagellanData[MagellanA];
-      motionInfo.B=info.MagellanData[MagellanB];
-      motionInfo.C=info.MagellanData[MagellanC];
+      
+      axis[0]=info.MagellanData[MagellanA];
+      axis[1]=info.MagellanData[MagellanB];
+      axis[2]=info.MagellanData[MagellanC];
+      
+      motionInfo.Angle=vtkMath::Norm(axis);
+      if(motionInfo.Angle==0.0)
+        {
+        motionInfo.AxisX=0.0;
+        motionInfo.AxisY=0.0;
+        motionInfo.AxisZ=1.0;
+        }
+      else
+        {
+        motionInfo.AxisX=axis[0]/motionInfo.Angle;
+        motionInfo.AxisY=axis[1]/motionInfo.Angle;
+        motionInfo.AxisZ=axis[2]/motionInfo.Angle;
+        }
+      
       this->Interactor->InvokeEvent(vtkCommand::TDxMotionEvent,&motionInfo);
       result=true;
       break;

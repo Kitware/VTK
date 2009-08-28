@@ -33,6 +33,7 @@
 #include "vtkProperty.h"
 #include "vtkTDxMotionEventInfo.h"
 #include "vtkCommand.h"
+#include "vtkTransform.h"
 
 class myCommand : public vtkCommand
 {
@@ -40,27 +41,58 @@ public:
   myCommand()
     {
       this->Camera=0;
+      this->T=vtkTransform::New();
+    }
+  ~myCommand()
+    {
+      this->T->Delete();
     }
   void Execute(vtkObject *vtkNotUsed(caller), unsigned long eventId, 
                void *callData)
     {
       cout << "myCommand::Execute()" << endl;
-      if(eventId==vtkCommand::TDxMotionEvent)
+      
+      const double angleSensitivity=0.02;
+      const double translationSensitivity=0.001;
+      int *button;
+      vtkTDxMotionEventInfo *i;
+      
+      double *p;
+      
+      switch(eventId)
         {
-        vtkTDxMotionEventInfo *i=
-          static_cast<vtkTDxMotionEventInfo *>(callData);
-        
-        cout << "x=" << i->X << " y=" << i->Y << " z=" << i->Z
-             << " a=" << i->A << " b=" << i->B << " c=" << i->C << endl;
-        
-        const double sensitivity=0.02;
-        
-        this->Camera->Roll(i->B*sensitivity);
-        this->RenderWindowInteractor->Render();
-        }
-      else
-        {
-        cout << "unexpected VTK event" << endl;
+        case vtkCommand::TDxMotionEvent:
+          i=static_cast<vtkTDxMotionEventInfo *>(callData);
+          
+          cout << "x=" << i->X << " y=" << i->Y << " z=" << i->Z
+               << " angle=" << i->Angle << " rx=" << i->AxisX << " ry="
+               << i->AxisY << " rz="<< i->AxisZ <<endl;
+          
+          this->T->Identity();
+          
+          p=this->Camera->GetFocalPoint();
+          this->T->Translate(p[0],p[1],p[2]);
+          this->T->RotateWXYZ(i->Angle*angleSensitivity,
+                              i->AxisX,i->AxisY,i->AxisZ);
+          this->T->Translate(-p[0],-p[1],-p[2]);
+          this->T->Translate(i->X*translationSensitivity,
+                             i->Y*translationSensitivity,
+                             i->Z*translationSensitivity);
+          
+          this->Camera->ApplyTransform(this->T);
+          this->RenderWindowInteractor->Render();
+          break;
+        case vtkCommand::TDxButtonPressEvent:
+          button=static_cast<int *>(callData);
+          cout << "button " << *button << " pressed"<< endl;
+          break;
+        case vtkCommand::TDxButtonReleaseEvent:
+          button=static_cast<int *>(callData);
+          cout << "button " << *button << " released"<< endl;
+          break;
+        default:
+          cout << "unexpected VTK event" << endl;
+          break;
         }
     }
   void SetCamera(vtkCamera *c)
@@ -76,7 +108,7 @@ public:
 protected:
   vtkCamera *Camera;
   vtkRenderWindowInteractor *RenderWindowInteractor;
-  
+  vtkTransform *T;
 };
 
 int TestTDx(int argc, char* argv[])
@@ -134,8 +166,8 @@ int TestTDx(int argc, char* argv[])
   renWin->Render();
   
   vtkCamera *camera=renderer->GetActiveCamera();
-  camera->Azimuth(-40.0);
-  camera->Elevation(20.0);
+//  camera->Azimuth(-40.0);
+//  camera->Elevation(20.0);
   renderer->ResetCamera();
   renWin->Render();
   
@@ -145,7 +177,8 @@ int TestTDx(int argc, char* argv[])
   c->SetRenderWindowInteractor(iren);
   
   iren->AddObserver(vtkCommand::TDxMotionEvent,c,0);
-  
+  iren->AddObserver(vtkCommand::TDxButtonPressEvent,c,0);
+  iren->AddObserver(vtkCommand::TDxButtonReleaseEvent,c,0);
   
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

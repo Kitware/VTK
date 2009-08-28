@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkTDxWinDevice,"1.5");
+vtkCxxRevisionMacro(vtkTDxWinDevice,"1.6");
 vtkStandardNewMacro(vtkTDxWinDevice);
 
 // On Visual Studio, older than VS9, CoInitializeEx() is not automatically
@@ -374,9 +374,10 @@ VOID CALLBACK vtkTDxWinDeviceTimerProc(HWND vtkNotUsed(hwnd),
         motionInfo.X=t->X;
         motionInfo.Y=t->Y;
         motionInfo.Z=t->Z;
-        motionInfo.A=r->Angle*r->X; // yes, this is wrong, TODO
-        motionInfo.B=100.0*r->Angle*r->Y;
-        motionInfo.C=r->Angle*r->Z;
+        motionInfo.Angle=r->Angle;
+        motionInfo.AxisX=r->X;
+        motionInfo.AxisY=r->Y;
+        motionInfo.AxisZ=r->Z;
         o->Interactor->InvokeEvent(vtkCommand::TDxMotionEvent,
                                    &motionInfo);
         }

@@ -29,16 +29,25 @@ class VTK_RENDERING_EXPORT vtkTDxMotionEventInfo
 {
 public:
   // Description:
-  // Translation coordinates (deltas)
+  // Translation coordinates
   double X;
   double Y;
   double Z;
   
   // Description:
-  // Rotation angles (deltas)
-  double A;
-  double B;
-  double C;
+  // Rotation angle.
+  // The angle is in arbitrary unit.
+  // It makes sense to have arbitrary unit
+  // because the data comes from a device
+  // where the information can be scaled by
+  // the end-user.
+  double Angle;
+  
+  // Description:
+  // Rotation axis expressed as a unit vector.
+  double AxisX;
+  double AxisY;
+  double AxisZ;
 };
 
 #endif
