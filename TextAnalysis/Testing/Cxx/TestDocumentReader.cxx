@@ -37,7 +37,7 @@
     } \
 }
 
-int TestDocumentReader(int argc, char* argv[])
+int TestDocumentReader(int, char*[])
 {
   try
     {
