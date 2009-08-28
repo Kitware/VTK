@@ -51,9 +51,13 @@ public:
                void *callData)
     {
       cout << "myCommand::Execute()" << endl;
-      
+#ifdef _WIN32
+      const double angleSensitivity=1.0;
+      const double translationSensitivity=1.0;
+#else
       const double angleSensitivity=0.02;
       const double translationSensitivity=0.001;
+#endif
       int *button;
       vtkTDxMotionEventInfo *i;
       
