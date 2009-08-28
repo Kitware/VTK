@@ -74,7 +74,7 @@ int TestQtXMLProcessor(int argc, char* vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkQtXMLProcessor> document_label = vtkSmartPointer<vtkQtXMLProcessor>::New();
     document_label->SetInputConnection(0, table->GetProducerPort());
-    document_label->SetFieldType(vtkQtXMLProcessor::ROW_DATA);
+    document_label->SetFieldType(vtkDataObject::ROW);
     document_label->MapArrayName("document_id", "document");
     document_label->SetInputDomain(vtkQtXMLProcessor::ROW_DOMAIN);
     document_label->SetQueryType(vtkQtXMLProcessor::XQUERY);
@@ -85,7 +85,7 @@ int TestQtXMLProcessor(int argc, char* vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkQtXMLProcessor> file_label = vtkSmartPointer<vtkQtXMLProcessor>::New();
     file_label->SetInputConnection(0, document_label->GetOutputPort());
-    file_label->SetFieldType(vtkQtXMLProcessor::ROW_DATA);
+    file_label->SetFieldType(vtkDataObject::ROW);
     file_label->MapArrayName("document_uri", "uri");
     file_label->SetInputDomain(vtkQtXMLProcessor::ROW_DOMAIN);
     file_label->SetQueryType(vtkQtXMLProcessor::XQUERY);
@@ -96,7 +96,7 @@ int TestQtXMLProcessor(int argc, char* vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkQtXMLProcessor> bibliography = vtkSmartPointer<vtkQtXMLProcessor>::New();
     bibliography->SetInputConnection(0, table->GetProducerPort());
-    bibliography->SetFieldType(vtkQtXMLProcessor::ROW_DATA);
+    bibliography->SetFieldType(vtkDataObject::ROW);
     bibliography->MapArrayName("document_uri", "file");
     bibliography->SetInputDomain(vtkQtXMLProcessor::DATA_OBJECT_DOMAIN);
     bibliography->SetQueryType(vtkQtXMLProcessor::XQUERY);
@@ -116,7 +116,7 @@ int TestQtXMLProcessor(int argc, char* vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkQtXMLProcessor> tree = vtkSmartPointer<vtkQtXMLProcessor>::New();
     tree->SetInputConnection(0, table->GetProducerPort());
-    tree->SetFieldType(vtkQtXMLProcessor::ROW_DATA);
+    tree->SetFieldType(vtkDataObject::ROW);
     tree->SetInputDomain(vtkQtXMLProcessor::DATA_OBJECT_DOMAIN);
     tree->SetQueryType(vtkQtXMLProcessor::XQUERY);
     tree->SetQuery(

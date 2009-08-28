@@ -19,18 +19,24 @@
 
 =========================================================================*/
 
-// .NAME vtkQtXMLProcessor - Processes field data as if it were XML.
+// .NAME vtkQtXMLProcessor - Processes data using XQuery or XSLT.
 //
-// .SECTION Description - Maps vtkFieldData to XML data, which is then
-// processed using either XQuery or XSLT.
+// .SECTION Description - Maps the data in a vtkDataObject to  XML,
+// which is then processed using either XQuery or XSLT.  vtkQtXMLProcessor
+// provides multiple "domains" which control how data is mapped to XML:
 //
-// Conceptually, vtkQtXMLProcessor treats an input vtkFieldData object
-// as a "table" made-up of columns, rows, and cells/fields.  This table
-// is mapped (using shallow-copy semantics) into an XML document that
-// can then be processed using XQuery or XSLT.
+// "ROW_DOMAIN" treats an input vtkFieldData object as a "table" made-up
+// of columns, rows, and cells/fields.  This table is mapped (using
+// shallow-copy semantics) into XML, and each "row" in the "table" is
+// passed to an XQuery or XSLT expression, producing one output result
+// for each "row".
+//
+// "DATA_OBJECT_DOMAIN" maps vtkFieldData to a "table" in the same way,
+// but passes the entire table to an XQuery or XSLT expression, producing
+// a single output result for the entire data obect.
 //
 // Following is an example of how a field data containing two arrays
-// named "foo" and "bar" might be mapped into XML:
+// named "foo" and "bar" are mapped into XML:
 //
 // <table>
 //   <rows>
@@ -52,12 +58,19 @@
 // element names.  Users may optionally supply their own mappings from
 // array names to element names.
 //
+// "VALUE_DOMAIN" is used when when a data object already contains
+// XML data that can be passed to an XQuery or XSLT expression directly,
+// producing one output result for each value in an attribute array.
+// Use SetInputArrayToProcess(0, ...) to specify the attribute array
+// that contains XML for processing.  
+//
 // Parameters:
 //   FieldType: Controls which field data should be extracted from
 //     the input for processing.
 //
 //   InputDomain: Controls whether XML processing will be applied to
-//     individual rows (the default) or the entire input field data.
+//     individual rows (the default), the entire input field data, or
+//     an attribute array containing XML.
 //
 //   QueryType: Controls whether to use XQuery or XSLT for processing.
 //
@@ -71,20 +84,20 @@
 //
 // Outputs:
 //   Output port 0: A shallow-copy of the input vtkDataObject.
-//     If InputDomain is set to "ROW_DOMAIN" (the default), the data
-//     object's field data will contain an additional string array
-//     containing the results of running XQuery / XSLT on each
-//     individual "row" in the field data.
+//     If InputDomain is set to "ROW_DOMAIN" (the default), or
+//     "VALUE_DOMAIN", the data object's field data will contain an
+//     additional string array containing the results of running
+//     XQuery / XSLT on each individual row / value in the input.
 //
 //     If InputDomain is set to "DATA_OBJECT_DOMAIN", the data object
 //     will be identical to the input.
 //
 //   Output port 1: A vtkTable.  If InputDomain is set to "ROW_DOMAIN"
-//     (the default), the table will be completely empty.
-//     If InputDomain is set to "DATA_OBJECT_DOMAIN", the table 
-//     will contain a single string array with a single value 
-//     containing the results of running XQuery / XSLT on the
-//     entire contents of the input field data.
+//     (the default) or "VALUE_DOMAIN", the table will be completely
+//     empty.  If InputDomain is set to "DATA_OBJECT_DOMAIN", the table 
+//     will contain a single string array with a single value
+//     containing the results of running XQuery / XSLT on the entire
+//     contents of the input field data.
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -107,16 +120,6 @@ public:
 //BTX
   enum
     {
-    FIELD_DATA = 0,
-    POINT_DATA = 1,
-    CELL_DATA = 2,
-    VERTEX_DATA = 3,
-    EDGE_DATA = 4,
-    ROW_DATA = 5
-    };
-
-  enum
-    {
     ROW_DOMAIN = 0,
     DATA_OBJECT_DOMAIN = 1,
     VALUE_DOMAIN = 2
@@ -129,22 +132,36 @@ public:
     };
 
 //ETX
-  
+
+  // Description:
+  // Specifies the field data to process when InputDomain is set to
+  // "ROW_DOMAIN" or "DATA_OBJECT_DOMAIN".  
   vtkGetMacro(FieldType, int);
   vtkSetMacro(FieldType, int);
 
+  // Description:
+  // Specifies how input data should be mapped to XML for processing.
   vtkGetMacro(InputDomain, int);
   vtkSetMacro(InputDomain, int);
 
+  // Description:
+  // Specifies Whether the query uses XQuery or XSLT syntax.
   vtkGetMacro(QueryType, int);
   vtkSetMacro(QueryType, int);
 
+  // Description:
+  // Specifies the XQuery or XSLT query to apply to input data.
   vtkSetStringMacro(Query);
   vtkGetStringMacro(Query);
 
+  // Description:
+  // Specifies the name of the array where output results will be stored.
   vtkSetStringMacro(OutputArray);
   vtkGetStringMacro(OutputArray);
 
+  // Description:
+  // Used to provide explicit mappings from VTK array names to XML element
+  // names.
   void MapArrayName(const vtkStdString& from, const vtkStdString& to);
   void ClearArrayNameMap();
 

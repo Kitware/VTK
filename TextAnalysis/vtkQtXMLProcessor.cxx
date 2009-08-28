@@ -299,12 +299,12 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////
 // vtkQtXMLProcessor
 
-vtkCxxRevisionMacro(vtkQtXMLProcessor, "1.1");
+vtkCxxRevisionMacro(vtkQtXMLProcessor, "1.2");
 vtkStandardNewMacro(vtkQtXMLProcessor);
 
 vtkQtXMLProcessor::vtkQtXMLProcessor() :
   Implementation(new Internals()),
-  FieldType(VERTEX_DATA),
+  FieldType(vtkDataObject::VERTEX),
   InputDomain(ROW_DOMAIN),
   QueryType(XQUERY),
   Query(0),
@@ -358,44 +358,6 @@ int vtkQtXMLProcessor::FillOutputPortInformation(int port, vtkInformation* info)
   return vtkPassInputTypeAlgorithm::FillOutputPortInformation(port, info);
 }
 
-static vtkFieldData* GetFieldData(const int field_type, vtkDataObject* data_object)
-{
-  switch(field_type)
-    {
-    case vtkQtXMLProcessor::FIELD_DATA:
-      return data_object->GetFieldData();
-    case vtkQtXMLProcessor::POINT_DATA:
-      if(vtkDataSet* const data_set = vtkDataSet::SafeDownCast(data_object))
-        {
-        return data_set->GetPointData();
-        }
-    case vtkQtXMLProcessor::CELL_DATA:
-      if(vtkDataSet* const data_set = vtkDataSet::SafeDownCast(data_object))
-        {
-        return data_set->GetCellData();
-        }
-    case vtkQtXMLProcessor::VERTEX_DATA:
-      if(vtkGraph* const graph = vtkGraph::SafeDownCast(data_object))
-        {
-        return graph->GetVertexData();
-        }
-    case vtkQtXMLProcessor::EDGE_DATA:
-      if(vtkGraph* const graph = vtkGraph::SafeDownCast(data_object))
-        {
-        return graph->GetEdgeData();
-        }
-    case vtkQtXMLProcessor::ROW_DATA:
-      if(vtkTable* const table = vtkTable::SafeDownCast(data_object))
-        {
-        return table->GetRowData();
-        }
-    default:
-      throw vtkstd::runtime_error("Unknown FieldType.");
-    }
-
-//  return 0;
-}
-
 int vtkQtXMLProcessor::RequestData(
   vtkInformation*, 
   vtkInformationVector** inputVector, 
@@ -440,7 +402,7 @@ int vtkQtXMLProcessor::RequestData(
     output_array->SetName(this->OutputArray);
     output_array->SetNumberOfComponents(1);
 
-    vtkFieldData* const field_data = GetFieldData(this->FieldType, output);
+    vtkFieldData* const field_data = output->GetAttributesAsFieldData(this->FieldType);
     if(!field_data)
       throw vtkstd::runtime_error("Missing field data.");
 
