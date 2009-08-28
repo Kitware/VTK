@@ -91,6 +91,7 @@ protected:
   void MakeRectilinearGrid1(vtkDataSet *ds);
   void MakeStructuredGrid1(vtkDataSet *ds);
   void MakePolyData1(vtkDataSet *ds);
+  void MakePolyData2(vtkDataSet *ds);
   void MakeUnstructuredGrid1(vtkDataSet *ds);
 
   //used to spatially separate sub data sets within composites

@@ -41,13 +41,13 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.13");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.14");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
 enum vtkDataObjectGeneratorTokenCodes
   {
-  ID1, UF1, RG1, SG1, PD1, UG1, GS, GE, HBS, HBE, MBS, MBE, NUMTOKENS
+    ID1, UF1, RG1, SG1, PD1, PD2, UG1, GS, GE, HBS, HBE, MBS, MBE, NUMTOKENS
   };
 
 const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
@@ -56,6 +56,7 @@ const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
   "RG1",
   "SG1",
   "PD1",
+  "PD2",
   "UG1",
   "(",
   ")",
@@ -70,6 +71,7 @@ const char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] =
   "vtkUniformGrid",
   "vtkRectilinearGrid",
   "vtkStructuredGrid",
+  "vtkPolyData",
   "vtkPolyData",
   "vtkUnstructuredGrid",
   "NA",
@@ -217,6 +219,9 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
       case PD1:
         sptr->add_dataset(PD1);
         break;
+      case PD2:
+        sptr->add_dataset(PD2);
+        break;
       case UG1:
         sptr->add_dataset(UG1);
         break;
@@ -335,6 +340,7 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     case RG1:
     case SG1:
     case PD1:
+    case PD2:
     case UG1:
     { 
     /*
@@ -595,6 +601,11 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     case PD1:
     { 
     this->MakePolyData1(vtkDataSet::SafeDownCast(outData));
+    return outData;
+    }
+    case PD2:
+    { 
+    this->MakePolyData2(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
     case UG1:
@@ -969,6 +980,36 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet *ids)
   ds->Allocate();
   vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
+
+  this->MakeValues(ds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObjectGenerator::MakePolyData2(vtkDataSet *ids)
+{
+  //PD2 = a PolyData of 1 triangle and 1 point
+  vtkPolyData *ds = vtkPolyData::SafeDownCast(ids);
+  if (!ds)
+    {
+    return;
+    }
+
+  ds->Initialize();
+  vtkPoints *pts = vtkPoints::New();
+  const double &XO = this->XOffset;
+  const double &YO = this->YOffset;
+  const double &ZO = this->ZOffset;
+  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+2.0, YO+0.5, ZO+0.5);
+  ds->SetPoints(pts);
+  pts->Delete();
+  ds->Allocate();
+  vtkIdType verts[3] = {0,1,2};
+  ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
+  vtkIdType points[1] = {3};
+  ds->InsertNextCell(VTK_VERTEX, 1, points);
 
   this->MakeValues(ds);
 }
