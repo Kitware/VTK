@@ -44,7 +44,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.28");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.29");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -387,9 +387,7 @@ void vtkQtTreeView::Update()
 
   this->ApplyColors->Update();
 
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
-  if((annConn && (atime > this->CurrentSelectionMTime)) || 
-    (tree->GetMTime() > this->LastInputMTime))
+  if (tree->GetMTime() > this->LastInputMTime)
     {
     // Reset the model
     this->TreeAdapter->SetVTKDataObject(0);
@@ -402,7 +400,7 @@ void vtkQtTreeView::Update()
       this->TreeView->hideColumn(col);
       }
 
-    if(this->ApplyColors->GetUsePointLookupTable())
+    if (this->GetColorByArray())
       {
       this->TreeAdapter->SetColorColumnName("vtkApplyColors color");
       }
@@ -410,6 +408,7 @@ void vtkQtTreeView::Update()
       {
       this->TreeAdapter->SetColorColumnName("");
       }
+
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
     this->SetShowRootNode(false);
@@ -417,13 +416,14 @@ void vtkQtTreeView::Update()
     this->LastInputMTime = tree->GetMTime();
     }
 
+  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
   if (atime > this->CurrentSelectionMTime)
     {
     this->SetVTKSelection();
     this->CurrentSelectionMTime = atime;
     }
 
-  for(int j=0; j<this->TreeAdapter->columnCount(); ++j)
+  for (int j=0; j<this->TreeAdapter->columnCount(); ++j)
     {
     QString colName = this->TreeAdapter->headerData(j, Qt::Horizontal).toString();
     if(colName == "vtkApplyColors color")
@@ -431,6 +431,10 @@ void vtkQtTreeView::Update()
       this->TreeView->hideColumn(j);
       }
     }
+
+  // Redraw the view
+  this->TreeView->update();
+  this->ColumnView->update();
 }
 
 void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)

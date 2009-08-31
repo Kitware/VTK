@@ -170,16 +170,18 @@ void EasyView::slotOpenXMLFile()
 
   this->SetupAnnotationLink();
 
+  // Hide an unwanted column in the tree view.
+  this->TreeView->HideColumn(2);
+
+  // Turn on some colors.
+  this->TreeView->SetColorArrayName("vertex id");
+  this->TreeView->ColorByArrayOn();
+
   // Update all the views
   this->TreeView->Update();
   this->TableView->Update();
   this->ColumnView->Update();
 
-  // Hide an unwanted column in the tree view.  Note that this code *only* workes here,
-  // after a call to this->TreeView->Update() ... that's because the Qt tree view widget
-  // has to have data before it can be hidden.
-  this->TreeView->HideColumn(2);
-  
   // Force a render on the graph view
   this->GraphView->Render();
 }
