@@ -356,10 +356,7 @@ IF(VTK_USE_QT)
 
   SET( Kit_SRCS ${Kit_SRCS}
     vtkQImageToImageSource.cxx
-    vtkQtLabelMapper.cxx
     vtkQtLabelRenderStrategy.cxx
-    vtkQtLabelSizeCalculator.cxx
-    vtkQtLabelSurface.cxx
     vtkQtTreeRingLabelMapper.cxx
     )
   # On the Mac, make the QT_LIBRARIES KIT_INTERFACE_LIBRARIES. This is a
