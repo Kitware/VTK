@@ -100,4 +100,3 @@ private:
 };
 
 #endif // __vtkAssignMimeType_h
-
