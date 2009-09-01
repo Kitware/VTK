@@ -242,8 +242,39 @@ ELSE(NOT QT4_FOUND)
     vtkQtStatisticalBoxChart.h
     vtkQtStatisticalBoxChartOptions.h
     )
+
   SET(vtkQtChart_HEADERS
+    vtkQtChartAxisCornerDomain.h
+    vtkQtChartAxisDomain.h
+    vtkQtChartAxisDomainPriority.h
+    vtkQtChartBar.h
+    vtkQtChartBarLocator.h
+    vtkQtChartColors.h
+    vtkQtChartContentsArea.h
     vtkQtChartGraphicsItemTypes.h
+    vtkQtChartHelpFormatter.h
+    vtkQtChartIndexRangeList.h
+    vtkQtChartInteractorSetup.h
+    vtkQtChartKeyboardHistory.h
+    vtkQtChartKeyboardPan.h
+    vtkQtChartKeyboardZoom.h
+    vtkQtChartLayerDomain.h
+    vtkQtChartMousePan.h
+    vtkQtChartMouseSelectionHandler.h
+    vtkQtChartMouseZoom.h
+    vtkQtChartQuad.h
+    vtkQtChartScene.h
+    vtkQtChartSeriesDomain.h
+    vtkQtChartSeriesDomainGroup.h
+    vtkQtChartSeriesHueRange.h
+    vtkQtChartSeriesSelection.h
+    vtkQtChartSeriesSelectionHandler.h
+    vtkQtChartShape.h
+    vtkQtChartShapeLocator.h
+    vtkQtChartStyleRegistry.h
+    vtkQtChartZoomHistory.h
+    vtkQtPointMarker.h
+    vtkQtPolylineItem.h
     )
 
 SET(MOC_INCLUDE_DIRS ${MOC_INCLUDE_DIRS} ${QT_INCLUDE_DIR})
@@ -297,4 +328,3 @@ SET_DIRECTORY_PROPERTIES(PROPERTIES INCLUDE_DIRECTORIES "${include_dirs_tmp}")
   ENDIF(NOT VTK_INSTALL_NO_LIBRARIES AND VTK_INSTALL_BIN_DIR_CM24 AND VTK_INSTALL_LIB_DIR_CM24)
 
 ENDIF(NOT QT4_FOUND)
-
