@@ -90,7 +90,11 @@ public:
   // then calls UpdateSelection with the converted selection.
   // Subclasses should not overrride this method, but should instead
   // override ConvertSelection.
-  void Select(vtkView* view, vtkSelection* selection);
+  // The optional third argument specifies whether the selection should be
+  // added to the previous selection on this representation.
+  void Select(vtkView* view, vtkSelection* selection)
+    { this->Select(view, selection, false); }
+  void Select(vtkView* view, vtkSelection* selection, bool extend);
 
   // Description:
   // Whether this representation is able to handle a selection.
@@ -103,7 +107,11 @@ public:
   // Updates the selection in the selection link and fires a selection
   // change event. Subclasses should not overrride this method,
   // but should instead override ConvertSelection.
-  void UpdateSelection(vtkSelection* selection);
+  // The optional second argument specifies whether the selection should be
+  // added to the previous selection on this representation.
+  void UpdateSelection(vtkSelection* selection)
+    { this->UpdateSelection(selection, false); }
+  void UpdateSelection(vtkSelection* selection, bool extend);
 
   // Description:
   // The output port that contains the annotations whose selections are

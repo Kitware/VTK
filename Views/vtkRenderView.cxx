@@ -56,7 +56,7 @@
 #include "vtkQtLabelRenderStrategy.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.25");
+vtkCxxRevisionMacro(vtkRenderView, "1.26");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -288,10 +288,15 @@ void vtkRenderView::ProcessEvents(
     vtkSmartPointer<vtkSelection> selection =
       vtkSmartPointer<vtkSelection>::New();
     this->GenerateSelection(callData, selection);
+
+    // This enum value is the same for 2D and 3D interactor styles
+    unsigned int* data = reinterpret_cast<unsigned int*>(callData);
+    bool extend = (data[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION);
+
     // Call select on the representation(s)
     for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
       {
-      this->GetRepresentation(i)->Select(this, selection);
+      this->GetRepresentation(i)->Select(this, selection, extend);
       }
     }
   this->Superclass::ProcessEvents(caller, eventId, callData);
