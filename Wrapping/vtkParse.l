@@ -7,10 +7,9 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex like this:
 
-  flex -olex.yy.c vtkParse.l
+  flex --nounput -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
-  - remove yyunput function
   - remove TABs
   - change yy_n_chars declarations from "int yy_n_chars;" to
     "size_t yy_n_chars;" in both the yy_buffer_state structure
