@@ -57,11 +57,12 @@ int main(int argc, char *argv[])
 {
   if(argc < 3)
     {
-    vtksys_ios::cerr << "Usage: vtkHashSource input.cxx name\n";
+    vtksys_ios::cerr << "Usage: vtkHashSource input.cxx name [output.h]\n";
     return 1;
     }
   const char* inFile = argv[1];
   const char* name = argv[2];
+  const char* outFile = argc > 3? argv[3] : 0;
 
   vtksys_ios::ifstream fin(inFile);
   if(!fin)
@@ -72,7 +73,19 @@ int main(int argc, char *argv[])
 
   vtksys_stl::string md5 = HashMD5(fin);
 
-  vtksys_ios::cout
+  vtksys_ios::ofstream fout;
+  if(outFile)
+    {
+    fout.open(outFile);
+    if(!fout)
+      {
+      vtksys_ios::cerr << "Unable to write \"" << outFile << "\"\n";
+      return 1;
+      }
+    }
+
+  vtksys_ios::ostream& out = fout.is_open()? fout : vtksys_ios::cout;
+  out
     << "#ifndef " << name << "\n"
     << "# define " << name << " \"" << md5 << "\"\n"
     << "#endif\n";
