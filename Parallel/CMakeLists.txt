@@ -227,7 +227,7 @@ ADD_CUSTOM_COMMAND(
   DEPENDS ${VTK_SOURCE_DIR}/Parallel/vtkSocketCommunicator.cxx
   COMMAND ${VTK_HASHSOURCE_EXE}
     ${VTK_SOURCE_DIR}/Parallel/vtkSocketCommunicator.cxx
-    vtkSocketCommunicatorHash > vtkSocketCommunicatorHash.h
+    vtkSocketCommunicatorHash vtkSocketCommunicatorHash.h
   )
 ADD_DEPENDENCIES(vtkParallel vtkHashSource)
 
