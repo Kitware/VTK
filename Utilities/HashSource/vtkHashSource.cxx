@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
 
   vtksys_stl::string md5 = HashMD5(fin);
 
+  vtksys_ios::ostream* out = &vtksys_ios::cout;
   vtksys_ios::ofstream fout;
   if(outFile)
     {
@@ -82,10 +83,10 @@ int main(int argc, char *argv[])
       vtksys_ios::cerr << "Unable to write \"" << outFile << "\"\n";
       return 1;
       }
+    out = &fout;
     }
 
-  vtksys_ios::ostream& out = fout.is_open()? fout : vtksys_ios::cout;
-  out
+  *out
     << "#ifndef " << name << "\n"
     << "# define " << name << " \"" << md5 << "\"\n"
     << "#endif\n";
