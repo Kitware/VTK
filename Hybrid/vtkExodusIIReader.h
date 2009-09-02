@@ -87,6 +87,14 @@ public:
   vtkGetMacro(TimeStep, int);
 
   // Description:
+  // Convenience method to set the mode-shape which is same as
+  // this->SetTimeStep(val-1);
+  void SetModeShape(int val)
+    {
+    this->SetTimeStep(val-1);
+    }
+
+  // Description:
   // Returns the available range of valid integer time steps.
   vtkGetVector2Macro(TimeStepRange,int);
   vtkSetVector2Macro(TimeStepRange,int);
