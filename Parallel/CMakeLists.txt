@@ -225,11 +225,11 @@ INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 ADD_CUSTOM_COMMAND(
   OUTPUT ${VTK_BINARY_DIR}/Parallel/vtkSocketCommunicatorHash.h
   DEPENDS ${VTK_SOURCE_DIR}/Parallel/vtkSocketCommunicator.cxx
-  COMMAND ${VTK_HASHSOURCE_EXE}
+          vtkHashSource
+  COMMAND vtkHashSource
     ${VTK_SOURCE_DIR}/Parallel/vtkSocketCommunicator.cxx
     vtkSocketCommunicatorHash vtkSocketCommunicatorHash.h
   )
-ADD_DEPENDENCIES(vtkParallel vtkHashSource)
 
 IF (VTK_USE_MPI)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
