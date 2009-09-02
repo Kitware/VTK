@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.12");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.13");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -56,6 +56,12 @@ vtkTreeLayoutStrategy::~vtkTreeLayoutStrategy()
 // Tree layout method
 void vtkTreeLayoutStrategy::Layout()
 {
+  // Do I have a graph to lay out?  Does it have any vertices?
+  if (this->Graph == NULL || this->Graph->GetNumberOfVertices() <= 0)
+  {
+    return;
+  }
+    
   vtkTree* tree = vtkTree::SafeDownCast(this->Graph);
   if (tree == NULL)
     {
