@@ -13,9 +13,22 @@
 
 =========================================================================*/
 
-
-#ifndef WINVER    // Allow use of features specific to Windows 95 and Windows NT 4 or later.
+// Allow use of features specific to Windows 95 and Windows NT 4 or later.
+#ifndef WINVER
 #define WINVER 0x0400
+#endif
+
+// Define _WIN32_WINNT and _WIN32_IE to avoid the following error with Visual
+// Studio 2008 SP1:
+// "C:\Program Files\Microsoft SDKs\Windows\v6.0A\include\sdkddkver.h(217) :
+// fatal error C1189: #error :  _WIN32_WINNT settings conflicts with _WIN32_IE
+// setting"
+
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0400 // =_WIN32_WINNT_NT4
+#endif
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0601 //=_WIN32_IE_IE60SP1
 #endif
 
 #include "vtkMFCWindow.h"
