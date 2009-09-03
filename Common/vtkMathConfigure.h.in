@@ -32,9 +32,11 @@
 // Try to fake having isnan and isinf if _isnan or _isinf is available
 #if !defined(VTK_HAS_ISNAN) && (defined(VTK_HAS__ISNAN) || defined(_isnan))
 # define isnan(x) _isnan(x)
+# define VTK_HAS_ISNAN 1
 #endif
 #if !defined(VTK_HAS_ISINF) && (defined(VTK_HAS__ISINF) || defined(_isinf))
 # define isinf(x) _isinf(x)
+# define VTK_HAS_ISINF 1
 #endif
 
 // VTK_HAS_ISNAN is only defined if an actual function exists.  Also set it if
