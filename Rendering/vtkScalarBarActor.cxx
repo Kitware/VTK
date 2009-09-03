@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.63");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.64");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -155,6 +155,9 @@ vtkScalarBarActor::vtkScalarBarActor()
   // Default text position : Above scalar bar if orientation is horizontal
   //                         Right of scalar bar if orientation is vertical
   this->TextPosition = SucceedScalarBar;
+
+  this->MaximumWidthInPixels = VTK_INT_MAX;
+  this->MaximumHeightInPixels = VTK_INT_MAX;
 }
 
 //----------------------------------------------------------------------------
@@ -290,6 +293,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[1] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
+
+    // Check if we have bounds on the maximum size 
+    size[0] = size[0] > this->MaximumWidthInPixels 
+            ? this->MaximumWidthInPixels : size[0];
+    size[1] = size[1] > this->MaximumHeightInPixels 
+            ? this->MaximumHeightInPixels : size[1];
+
     if (this->LastSize[0] != size[0] || 
         this->LastSize[1] != size[1] ||
         this->LastOrigin[0] != barOrigin[0] || 
@@ -357,6 +367,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[1] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
+
+    // Check if we have bounds on the maximum size 
+    size[0] = size[0] > this->MaximumWidthInPixels 
+            ? this->MaximumWidthInPixels : size[0];
+    size[1] = size[1] > this->MaximumHeightInPixels 
+            ? this->MaximumHeightInPixels : size[1];
+    
     this->LastOrigin[0] = barOrigin[0];
     this->LastOrigin[1] = barOrigin[1];
     this->LastSize[0] = size[0];
