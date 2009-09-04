@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.64");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.65");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -670,6 +670,11 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "TextPosition: SucceedScalarBar\n";
     }
+
+  os << indent << "MaximumWidthInPixels: " 
+     << this->MaximumWidthInPixels << endl;
+  os << indent << "MaximumHeightInPixels: " 
+     << this->MaximumHeightInPixels << endl;
 }
 
 //----------------------------------------------------------------------------
