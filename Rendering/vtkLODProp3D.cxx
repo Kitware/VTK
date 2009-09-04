@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.47");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.48");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -281,8 +281,7 @@ double vtkLODProp3D::GetLODEstimatedRenderTime( int id )
 
 double vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
 {
-  if ( this->SelectedLODIndex < 0 ||
-       this->SelectedLODIndex >= this->NumberOfEntries )
+  if ( index < 0 || index >= this->NumberOfEntries )
     {
     return 0;
     }  
