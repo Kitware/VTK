@@ -1195,7 +1195,7 @@
 #define VTKKWRCHelper_IncrementAndLoopEnd()                                             \
       imagePtr+=4;                                                                      \
       }                                                                                 \
-    if ( j%32 == 31 )                                                                   \
+    if ( (j/threadCount)%8 == 7 && threadID == 0)                                       \
       {                                                                                 \
       double fargs[1];                                                                  \
       fargs[0] = static_cast<double>(j)/static_cast<float>(imageInUseSize[1]-1);        \
