@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.48");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.49");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -169,8 +169,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   unsigned short      *dirPtr;
   unsigned char       *magPtr;
   
+  if ( thread_id == 0 )
+    {
+    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
+    }
 
-  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
 
   double avgSpacing = (spacing[0]+spacing[1]+spacing[2])/3.0;
   
@@ -350,7 +353,7 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
         }
       }
   
-    if ( z%8 == 7 && thread_id == 0)
+    if ( (z/thread_count)%8 == 7 && thread_id == 0)
       {
       double args[1];
       args[0] = 
@@ -364,7 +367,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   delete[] dyBuffer;
   delete[] dzBuffer;
   
-  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
+  if ( thread_id == 0 )
+    {
+    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
+    }
+   
 }
 
 VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
@@ -463,8 +470,13 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   unsigned short      *dirPtr, *cdirPtr;
   unsigned char       *magPtr, *cmagPtr;
   
+  int thread_id = 0;
+  int thread_count = 1;
 
-  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
+  if ( thread_id == 0 )
+    {
+    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
+    }
 
   double avgSpacing = (spacing[0]+spacing[1]+spacing[2])/3.0;
   
@@ -503,8 +515,6 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
         }
       }
     }
-  int thread_id = 0;
-  int thread_count = 1;
   
   x_start = 0;
   x_limit = dim[0];
@@ -658,7 +668,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
         magPtr  +=   increment;
         }
       }
-    if ( z%8 == 7 )
+    if ( (z/thread_count)%8 == 7 )
       {
       double args[1];
       args[0] = 
@@ -668,7 +678,10 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
       }
     }
   
-  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );  
+  if ( thread_id == 0 )
+    {
+    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );  
+    }
 }
 
 // Construct a new vtkFixedPointVolumeRayCastMapper with default values
