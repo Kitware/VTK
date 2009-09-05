@@ -324,6 +324,7 @@ void vtkSpanTreeLayoutStrategy::Layout()
   delete [] editlist;
   delete [] level;
   delete [] marks;
+  delete [] queue;
   
   this->Graph->SetPoints(points);
   vtkDebugMacro(<<"SpanTreeLayoutStrategy complete.");
