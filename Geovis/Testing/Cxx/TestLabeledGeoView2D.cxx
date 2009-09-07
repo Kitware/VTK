@@ -51,6 +51,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
 
   // Create the view
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
+  view->DisplayHoverTextOff();
 
   // Create the terrain
   vtkSmartPointer<vtkGeoTerrain2D> terrain =

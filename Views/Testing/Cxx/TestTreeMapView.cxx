@@ -59,6 +59,7 @@ int TestTreeMapView(int argc, char* argv[])
   reader2->Update();
 
   VTK_CREATE(vtkTreeMapView, view);
+  view->DisplayHoverTextOff();
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
 

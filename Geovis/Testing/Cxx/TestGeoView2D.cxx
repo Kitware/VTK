@@ -129,6 +129,7 @@ int TestGeoView2D(int argc, char* argv[])
 
   // Create the view
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
+  view->DisplayHoverTextOff();
   view->GetRenderer()->GradientBackgroundOff();
 
   // Create the terrain

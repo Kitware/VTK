@@ -80,6 +80,7 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
+  view->DisplayHoverTextOff();
   VTK_CREATE(vtkConeLayoutStrategy, strategy);
   strategy->SetSpacing(0.3);
   view->SetLayoutStrategy(strategy);

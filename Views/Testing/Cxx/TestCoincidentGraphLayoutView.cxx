@@ -130,6 +130,7 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
+  view->DisplayHoverTextOff();
   view->SetLayoutStrategyToPassThrough();
   view->SetVertexLabelArrayName("name");
   view->VertexLabelVisibilityOn();

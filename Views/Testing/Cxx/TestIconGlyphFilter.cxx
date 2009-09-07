@@ -99,6 +99,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   iconIndex->InsertNextTuple1(29);
 
   vtkGraphLayoutView *view = vtkGraphLayoutView::New();
+  view->DisplayHoverTextOff();
   view->SetRepresentationFromInput(graph);
   view->SetLayoutStrategyToSimple2D();
   view->ResetCamera();

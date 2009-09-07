@@ -1117,6 +1117,7 @@ int TestGraphLayoutView(int argc, char* argv[])
   
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
+  view->DisplayHoverTextOff();
   view->SetLayoutStrategyToCircular();
   view->SetVertexLabelArrayName("name");
   view->VertexLabelVisibilityOn();

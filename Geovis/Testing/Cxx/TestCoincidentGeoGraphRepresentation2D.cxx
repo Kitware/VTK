@@ -60,6 +60,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   // Create the view
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
+  view->DisplayHoverTextOff();
   view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
 
   // Create the terrain

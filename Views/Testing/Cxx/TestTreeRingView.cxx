@@ -61,6 +61,7 @@ int TestTreeRingView(int argc, char* argv[])
   reader2->Update();
 
   VTK_CREATE(vtkTreeRingView, view);
+  view->DisplayHoverTextOff();
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
   view->Update();

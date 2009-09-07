@@ -51,6 +51,7 @@ int TestIcicleView(int argc, char* argv[])
   numeric->SetInputConnection(reader->GetOutputPort());
 
   VTK_CREATE(vtkIcicleView, view);
+  view->DisplayHoverTextOff();
   view->SetTreeFromInputConnection(numeric->GetOutputPort());
 
   view->SetAreaColorArrayName("size");

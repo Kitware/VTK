@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.27");
+vtkCxxRevisionMacro(vtkRenderView, "1.28");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -338,7 +338,7 @@ void vtkRenderView::ProcessEvents(
     }
   if (caller == this->RenderWindow && eventId == vtkCommand::EndEvent)
     {
-    if (!this->Interacting && !this->InHoverTextRender)
+    if (!this->Interacting && !this->InHoverTextRender && this->DisplayHoverText)
       {
       unsigned int area[4] = {0, 0, 0, 0};
       area[2] = static_cast<unsigned int>(this->Renderer->GetSize()[0] - 1);
@@ -466,9 +466,27 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
   else
     {
     // Do a visible cell selection.
-    vtkSelection* vsel = this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
-    sel->ShallowCopy(vsel);
-    vsel->Delete();
+    if (this->DisplayHoverText)
+      {
+      // We already have a cached image of cell ids so use it
+      vtkSelection* vsel = this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
+      sel->ShallowCopy(vsel);
+      vsel->Delete();
+      }
+    else
+      {
+      // Perform the extra render to do hardware selection
+      unsigned int area[4] = { screenMinX, screenMinY,
+                               screenMaxX, screenMaxY };
+      this->RenderWindow->RemoveObserver(this->GetObserver());
+      this->LabelRenderer->DrawOff();
+      this->Selector->SetArea(area);
+      vtkSelection* vsel = this->Selector->Select();
+      this->LabelRenderer->DrawOn();
+      this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
+      sel->ShallowCopy(vsel);
+      vsel->Delete();
+      }
     }
 }
 

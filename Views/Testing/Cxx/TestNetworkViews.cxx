@@ -69,6 +69,7 @@ int TestNetworkViews(int argc, char* argv[])
   
   //Create a view on city/region/country
   VTK_CREATE( vtkTreeRingView, view1 );
+  view1->DisplayHoverTextOff();
   view1->SetTreeFromInputConnection(ip_tree->GetOutputPort());
   view1->SetGraphFromInputConnection(graph->GetOutputPort());
   view1->Update();

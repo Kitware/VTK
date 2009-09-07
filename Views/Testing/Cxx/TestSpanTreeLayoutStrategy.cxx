@@ -46,6 +46,7 @@ int TestSpanTreeLayoutStrategy(int argc, char* argv[])
 
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
+  view->DisplayHoverTextOff();
   view->SetLayoutStrategyToSpanTree();
   view->SetVertexLabelArrayName("vertex id");
   view->VertexLabelVisibilityOn();
