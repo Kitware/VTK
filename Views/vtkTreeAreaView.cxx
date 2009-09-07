@@ -36,13 +36,14 @@
 #include "vtkTree.h"
 #include "vtkAreaLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.8");
+vtkCxxRevisionMacro(vtkTreeAreaView, "1.9");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
 {
   this->SetInteractionModeTo2D();
   this->ReuseSingleRepresentationOn();
+  this->RenderOnMouseMoveOn();
 }
 
 //----------------------------------------------------------------------------

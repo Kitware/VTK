@@ -20,14 +20,19 @@
 
 #include "vtkRenderedRepresentation.h"
 
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkRenderedRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkRenderedRepresentation, "1.4");
 vtkStandardNewMacro(vtkRenderedRepresentation);
 
 class vtkRenderedRepresentation::Internals
@@ -76,6 +81,26 @@ void vtkRenderedRepresentation::PrepareForRendering(vtkRenderView* view)
     view->GetRenderer()->RemoveViewProp(this->Implementation->PropsToRemove[i]);
     }
   this->Implementation->PropsToRemove.clear();
+}
+
+vtkUnicodeString vtkRenderedRepresentation::GetHoverText(vtkView* view, vtkProp* prop, vtkIdType cell)
+{
+  vtkSmartPointer<vtkSelection> cellSelect = vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelectionNode> cellNode = vtkSmartPointer<vtkSelectionNode>::New();
+  cellNode->GetProperties()->Set(vtkSelectionNode::PROP(), prop);
+  cellNode->SetFieldType(vtkSelectionNode::CELL);
+  cellNode->SetContentType(vtkSelectionNode::INDICES);
+  vtkSmartPointer<vtkIdTypeArray> idArr = vtkSmartPointer<vtkIdTypeArray>::New();
+  idArr->InsertNextValue(cell);
+  cellNode->SetSelectionList(idArr);
+  cellSelect->AddNode(cellNode);
+  vtkSelection* converted = this->ConvertSelection(view, cellSelect);
+  vtkUnicodeString text = this->GetHoverTextInternal(converted);
+  if (converted != cellSelect.GetPointer())
+    {
+    converted->Delete();
+    }
+  return text;
 }
 
 void vtkRenderedRepresentation::PrintSelf(ostream& os, vtkIndent indent)

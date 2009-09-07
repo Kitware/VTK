@@ -48,7 +48,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
-vtkCxxRevisionMacro(vtkHardwareSelector, "1.7");
+vtkCxxRevisionMacro(vtkHardwareSelector, "1.8");
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
@@ -365,67 +365,122 @@ bool vtkHardwareSelector::IsPropHit(int id)
 //----------------------------------------------------------------------------
 bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   int& processid,
-  vtkIdType& attrId, vtkProp*& prop)
+  vtkIdType& attrId, vtkProp*& prop,
+  int maxDist)
 {
-  if (display_position[0] < this->Area[0] || display_position[0] > this->Area[2] ||
-    display_position[1] < this->Area[1] || display_position[1] > this->Area[3])
+  // Base case
+  if (maxDist == 0)
     {
-    vtkErrorMacro("Position out of selected region.");
-    processid=-1;
-    attrId=-1;
-    prop = 0;
-    return false;
+    if (display_position[0] < this->Area[0] || display_position[0] > this->Area[2] ||
+      display_position[1] < this->Area[1] || display_position[1] > this->Area[3])
+      {
+      processid=-1;
+      attrId=-1;
+      prop = 0;
+      return false;
+      }
+
+    int actorid = this->Convert(display_position[0], display_position[1], this->PixBuffer[ACTOR_PASS]);
+    if (actorid <= 0)
+      {
+      // the pixel did not hit any actor.
+      processid=-1;
+      attrId=-1;
+      prop = 0;
+      return false;
+      }
+    actorid--;
+    prop = this->Internals->Props[actorid];
+
+    int low24 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_LOW24]);
+    int mid24 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_MID24]);
+    int high16 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_HIGH16]);
+    // id 0 is reserved for nothing present.
+    attrId = this->GetID(low24, mid24, high16);
+    attrId = (attrId - ID_OFFSET);
+    if (attrId < 0)
+      {
+      // the pixel did not hit any cell.
+      processid=-1;
+      attrId=-1;
+      prop = 0;
+      return false;
+      }
+
+    processid = this->Convert(display_position[0], display_position[1], this->PixBuffer[PROCESS_PASS]);
+    processid--;
+    return true;
     }
 
-  int width = this->Area[2] - this->Area[0] + 1;
-  unsigned long offset =
-    ((display_position[1] - this->Area[1]) * width + display_position[0]-this->Area[0]);
-
-  processid = this->Convert(offset, this->PixBuffer[PROCESS_PASS]);
-  processid--;
-
-  int actorid = this->Convert(offset, this->PixBuffer[ACTOR_PASS]);
-  if (actorid <= 0)
+  // Iterate over successively growing boxes.
+  // They recursively call the base case to handle single pixels.
+  int disp_pos[2] = {display_position[0], display_position[1]};
+  unsigned int cur_pos[2] = {0, 0};
+  for (int dist = 0; dist < maxDist; ++dist)
     {
-    processid=-1;
-    attrId=-1;
-    prop = 0;
-    // nothing hit.
-    return false;
+    // Vertical sides of box.
+    for (int y = disp_pos[1] - dist; y <= disp_pos[1] + dist; ++y)
+      {
+      cur_pos[0] = static_cast<unsigned int>(disp_pos[0] - dist);
+      cur_pos[1] = static_cast<unsigned int>(y);
+      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+        {
+        return true;
+        }
+      cur_pos[0] = static_cast<unsigned int>(disp_pos[0] + dist);
+      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+        {
+        return true;
+        }
+      }
+    // Horizontal sides of box.
+    for (int x = disp_pos[0] - (dist-1); x <= disp_pos[0] + (dist-1); ++x)
+      {
+      cur_pos[0] = static_cast<unsigned int>(x);
+      cur_pos[1] = static_cast<unsigned int>(disp_pos[1] - dist);
+      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+        {
+        return true;
+        }
+      cur_pos[1] = static_cast<unsigned int>(disp_pos[1] + dist);
+      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+        {
+        return true;
+        }
+      }
     }
-  actorid--;
 
-  int low24 = this->Convert(offset, this->PixBuffer[ID_LOW24]); 
-  int mid24 = this->Convert(offset, this->PixBuffer[ID_MID24]);
-  int high16 = this->Convert(offset, this->PixBuffer[ID_HIGH16]);
-  // id 0 is reserved for nothing present.
-  attrId = this->GetID(low24, mid24, high16);
-  attrId -= ID_OFFSET;
-  if (attrId < 0)
-    {
-    processid=-1;
-    attrId=-1;
-    prop = 0;
-    // nothing hit.
-    return false;
-    }
-
-  prop = this->Internals->Props[actorid];
-  return true;
+  // nothing hit.
+  processid=-1;
+  attrId=-1;
+  prop = 0;
+  return false;
 }
 
 //----------------------------------------------------------------------------
-vtkSelection* vtkHardwareSelector::GenerateSelection()
+vtkSelection* vtkHardwareSelector::GenerateSelection(
+  unsigned int x1, unsigned int y1,
+  unsigned int x2, unsigned int y2)
 {
+  // Clamp to saved region
+  x1 = x1 < this->Area[0] ? this->Area[0] : x1;
+  x1 = x1 > this->Area[2] ? this->Area[2] : x1;
+  x2 = x2 < this->Area[0] ? this->Area[0] : x2;
+  x2 = x2 > this->Area[2] ? this->Area[2] : x2;
+  y1 = y1 < this->Area[1] ? this->Area[1] : y1;
+  y1 = y1 > this->Area[3] ? this->Area[3] : y1;
+  y2 = y2 < this->Area[1] ? this->Area[1] : y2;
+  y2 = y2 > this->Area[3] ? this->Area[3] : y2;
+
   typedef vtkstd::map<int, vtkstd::map<int, vtkstd::set<vtkIdType> > > MapType;
   MapType dataMap;
 
   typedef vtkstd::map<int, vtkstd::map<int, vtkIdType> > PixelCountType;
   PixelCountType pixelCounts;
 
-  for (int yy=0; yy <= static_cast<int>(this->Area[3]-this->Area[1]); yy++)
+  for (int yy = y1 - Area[1]; yy <= static_cast<int>(y2 - this->Area[1]); yy++)
     {
-    for (int xx=0; xx <= static_cast<int>(this->Area[2]-this->Area[0]); xx++)
+    for (int xx = x1 - Area[0]; xx <= static_cast<int>(x2 - this->Area[0]); xx++)
       {
       int processid = this->Convert(xx, yy, this->PixBuffer[PROCESS_PASS]);
       processid--;

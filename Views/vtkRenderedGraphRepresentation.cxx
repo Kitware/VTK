@@ -82,6 +82,7 @@
 #include "vtkViewTheme.h"
 
 #include <ctype.h> // So borland 5.6 can find tolower
+#include <vtksys/ios/sstream>
 
 /* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio 
    instead of the remove stl algorithm. */
@@ -95,7 +96,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.28");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.29");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -129,6 +130,8 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->VertexIconMapper    = vtkSmartPointer<vtkPolyDataMapper2D>::New();
   this->VertexIconActor     = vtkSmartPointer<vtkTexturedActor2D>::New();
 
+  this->VertexHoverArrayName = 0;
+  this->EdgeHoverArrayName = 0;
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
   this->ScalingArrayNameInternal = 0;
@@ -245,6 +248,8 @@ vtkRenderedGraphRepresentation::~vtkRenderedGraphRepresentation()
   this->SetEdgeColorArrayNameInternal(0);
   this->SetLayoutStrategyName(0);
   this->SetEdgeLayoutStrategyName(0);
+  this->SetVertexHoverArrayName(0);
+  this->SetEdgeHoverArrayName(0);
 }
 
 void vtkRenderedGraphRepresentation::SetVertexLabelArrayName(const char* name)
@@ -1086,6 +1091,7 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
     vtkSmartPointer<vtkSelection> vertexSel =
       vtkSmartPointer<vtkSelection>::New();
     vertexSel->AddNode(vertexNode);
+
     vtkPolyData* poly = vtkPolyData::SafeDownCast(
       this->VertexGlyph->GetOutput());
     vtkSmartPointer<vtkTable> temp =
@@ -1392,6 +1398,32 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
     }
 }
 
+vtkUnicodeString vtkRenderedGraphRepresentation::GetHoverTextInternal(vtkSelection* sel)
+{
+  vtkGraph* input = vtkGraph::SafeDownCast(this->GetInput());
+  vtkSmartPointer<vtkIdTypeArray> selectedItems = vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkConvertSelection::GetSelectedVertices(sel, input, selectedItems);
+  vtkDataSetAttributes* data = input->GetVertexData();
+  const char* hoverArrName = this->GetVertexHoverArrayName();
+  if (selectedItems->GetNumberOfTuples() == 0)
+    {
+    vtkConvertSelection::GetSelectedEdges(sel, input, selectedItems);
+    data = input->GetEdgeData();
+    hoverArrName = this->GetEdgeHoverArrayName();
+    }
+  if (selectedItems->GetNumberOfTuples() == 0 || !hoverArrName)
+    {
+    return vtkUnicodeString();
+    }
+  vtkAbstractArray* arr = data->GetAbstractArray(hoverArrName);
+  if (!arr)
+    {
+    return vtkUnicodeString();
+    }
+  vtkIdType item = selectedItems->GetValue(0);
+  return arr->GetVariantValue(item).ToUnicodeString();
+}
+
 void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1399,4 +1431,8 @@ void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << (this->LayoutStrategyName ? this->LayoutStrategyName : "(none)") << endl;
   os << indent << "EdgeLayoutStrategyName: "
      << (this->EdgeLayoutStrategyName ? this->EdgeLayoutStrategyName : "(none)") << endl;
+  os << indent << "VertexHoverArrayName: "
+     << (this->VertexHoverArrayName ? this->VertexHoverArrayName : "(none)") << endl;
+  os << indent << "EdgeHoverArrayName: "
+     << (this->EdgeHoverArrayName ? this->EdgeHoverArrayName : "(none)") << endl;
 }

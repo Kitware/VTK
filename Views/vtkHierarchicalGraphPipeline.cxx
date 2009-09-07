@@ -42,7 +42,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.12");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.13");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -60,6 +60,7 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
 
   this->ColorArrayNameInternal = 0;
   this->LabelArrayNameInternal = 0;
+  this->HoverArrayName = 0;
 
   /*
   <graphviz>
@@ -101,6 +102,7 @@ vtkHierarchicalGraphPipeline::~vtkHierarchicalGraphPipeline()
 {
   this->SetColorArrayNameInternal(0);
   this->SetLabelArrayNameInternal(0);
+  this->SetHoverArrayName(0);
   this->ApplyColors->Delete();
   this->Bundle->Delete();
   this->GraphToPoly->Delete();

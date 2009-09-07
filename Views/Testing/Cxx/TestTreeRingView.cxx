@@ -22,6 +22,7 @@
 #include "vtkDataRepresentation.h"
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
@@ -46,13 +47,13 @@ int TestTreeRingView(int argc, char* argv[])
   // We need to put the graph and tree edges in different domains.
   VTK_CREATE(vtkXMLTreeReader, reader1);
   reader1->SetFileName(treeFileName.c_str());
-  reader1->SetEdgePedigreeIdArrayName("tree edge");
+  reader1->SetEdgePedigreeIdArrayName("graph edge");
   reader1->GenerateVertexPedigreeIdsOff();
   reader1->SetVertexPedigreeIdArrayName("id");
 
   VTK_CREATE(vtkXMLTreeReader, reader2);
   reader2->SetFileName(graphFileName.c_str());
-  reader2->SetEdgePedigreeIdArrayName("graph edge");
+  reader2->SetEdgePedigreeIdArrayName("tree edge");
   reader2->GenerateVertexPedigreeIdsOff();
   reader2->SetVertexPedigreeIdArrayName("id");
 
@@ -78,6 +79,7 @@ int TestTreeRingView(int argc, char* argv[])
   view->SetAreaLabelVisibility(true);
   view->SetAreaHoverArrayName("id");
   view->SetAreaSizeArrayName("VertexDegree");
+  vtkRenderedTreeAreaRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphHoverArrayName("graph edge");
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();

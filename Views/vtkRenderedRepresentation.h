@@ -26,6 +26,7 @@
 
 #include "vtkDataRepresentation.h"
 #include "vtkSmartPointer.h" // for SP ivars
+#include "vtkUnicodeString.h" // for string
 
 class vtkApplyColors;
 class vtkProp;
@@ -61,9 +62,19 @@ protected:
   void AddPropOnNextRender(vtkProp* p);
   void RemovePropOnNextRender(vtkProp* p);
 
-  virtual const char* GetHoverText(
-    vtkView* vtkNotUsed(view), int vtkNotUsed(x), int vtkNotUsed(y))
-    { return 0; }
+  //BTX
+  // Description:
+  // Obtains the hover text for a particular prop and cell.
+  // If the prop is not applicable to the representation, return an empty string.
+  // Subclasses should override GetHoverTextInternal, in which the prop and cell
+  // are converted to an appropriate selection using ConvertSelection().
+  vtkUnicodeString GetHoverText(vtkView* view, vtkProp* prop, vtkIdType cell);
+
+  // Description:
+  // Subclasses may override this method to generate the hover text.
+  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection*)
+    { return vtkUnicodeString(); }
+  //ETX
 
   // Description:
   // The view will call this method before every render.

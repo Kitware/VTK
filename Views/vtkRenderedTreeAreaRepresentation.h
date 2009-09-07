@@ -94,7 +94,6 @@ public:
   // Description:
   // The name of the array whose value appears when the mouse hovers
   // over a rectangle in the treemap.
-  // This must be a string array.
   vtkSetStringMacro(AreaHoverArrayName);
   vtkGetStringMacro(AreaHoverArrayName);
 
@@ -156,6 +155,16 @@ public:
   vtkBooleanMacro(ColorGraphEdgesByArray, bool);
 
   // Description:
+  // The name of the array whose value appears when the mouse hovers
+  // over a graph edge.
+  virtual void SetGraphHoverArrayName(const char* name)
+    { this->SetGraphHoverArrayName(name, 0); }
+  virtual void SetGraphHoverArrayName(const char* name, int idx);
+  virtual const char* GetGraphHoverArrayName()
+    { return this->GetGraphHoverArrayName(0); }
+  virtual const char* GetGraphHoverArrayName(int idx);
+
+  // Description:
   // Set the region shrink percentage between 0.0 and 1.0.
   virtual void SetShrinkPercentage(double value);
   virtual double GetShrinkPercentage();
@@ -197,10 +206,6 @@ public:
   // Apply the theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description:
-  // Returns the hover text at an x,y location.
-  virtual const char* GetHoverText(vtkView* view, int x, int y);
-
   // Description: 
   // Visibility of scalar bar actor for edges.
   virtual void SetEdgeScalarBarVisibility(bool b);
@@ -229,6 +234,8 @@ protected:
   bool ValidIndex(int idx);
 
   void UpdateHoverHighlight(vtkView* view, int x, int y);
+
+  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection* sel);
 
   //BTX
   class Internals;

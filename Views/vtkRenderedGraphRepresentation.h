@@ -78,6 +78,8 @@ public:
   vtkBooleanMacro(VertexLabelVisibility, bool);
   virtual void SetVertexLabelTextProperty(vtkTextProperty* p);
   virtual vtkTextProperty* GetVertexLabelTextProperty();
+  vtkSetStringMacro(VertexHoverArrayName);
+  vtkGetStringMacro(VertexHoverArrayName);
 
   // ------------------------------------------------------------------------
   // Edge labels
@@ -91,6 +93,8 @@ public:
   vtkBooleanMacro(EdgeLabelVisibility, bool);
   virtual void SetEdgeLabelTextProperty(vtkTextProperty* p);
   virtual vtkTextProperty* GetEdgeLabelTextProperty();
+  vtkSetStringMacro(EdgeHoverArrayName);
+  vtkGetStringMacro(EdgeHoverArrayName);
 
   // ------------------------------------------------------------------------
   // Vertex icons
@@ -343,6 +347,10 @@ protected:
   
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
+  //BTX
+  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection* sel);
+  //ETX
+
   // Description:
   // Connect inputs to internal pipeline.
   virtual int RequestData(
@@ -382,6 +390,9 @@ protected:
   vtkSmartPointer<vtkPolyDataMapper2D>     VertexIconMapper;
   vtkSmartPointer<vtkTexturedActor2D>      VertexIconActor;
   //ETX
+
+  char* VertexHoverArrayName;
+  char* EdgeHoverArrayName;
 
   vtkSetStringMacro(VertexColorArrayNameInternal);
   vtkGetStringMacro(VertexColorArrayNameInternal);

@@ -31,6 +31,7 @@
 #include "vtkDynamic2DLabelMapper.h"
 #include "vtkFreeTypeLabelRenderStrategy.h"
 #include "vtkHardwareSelector.h"
+#include "vtkHoverWidget.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkInteractorStyleRubberBand3D.h"
@@ -50,30 +51,43 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkTransform.h"
 #include "vtkTransformCoordinateSystems.h"
+#include "vtkUnicodeString.h"
 #include "vtkViewTheme.h"
 
 #ifdef VTK_USE_QT
 #include "vtkQtLabelRenderStrategy.h"
 #endif
 
-vtkCxxRevisionMacro(vtkRenderView, "1.26");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkRenderView, "1.27");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
 
-vtkRenderView::vtkRenderView()
+vtkRenderView::vtkRenderView() :
+  Renderer(vtkRenderer::New()),
+  LabelRenderer(vtkRenderer::New()),
+  RenderWindow(vtkRenderWindow::New()),
+  Transform(vtkTransform::New()),
+  RenderOnMouseMove(false),
+  DisplayHoverText(true),
+  IconTexture(0),
+  Interacting(false),
+  InteractionMode(-1),
+  LabelRenderMode(FREETYPE),
+  SelectionMode(SURFACE),
+  Selector(vtkSmartPointer<vtkHardwareSelector>::New()),
+  Balloon(vtkSmartPointer<vtkBalloonRepresentation>::New()),
+  LabelPlacementMapper(vtkSmartPointer<vtkLabelPlacementMapper>::New()),
+  LabelActor(vtkSmartPointer<vtkTexturedActor2D>::New()),
+  HoverWidget(vtkSmartPointer<vtkHoverWidget>::New()),
+  InHoverTextRender(false)
 {
-  this->Renderer = vtkRenderer::New();
-  this->LabelRenderer = vtkRenderer::New();
-  this->RenderWindow = vtkRenderWindow::New();
-  vtkTransform* t = vtkTransform::New();
-  t->Identity();
-  this->Transform = t;
-  this->DisplayHoverText = true;
-
-  this->IconTexture = 0;
   this->IconSize[0] = 16;
   this->IconSize[1] = 16;
+
+  vtkTransform::SafeDownCast(this->Transform)->Identity();
 
   this->RenderWindow->AddRenderer(this->Renderer);
   this->LabelRenderer->EraseOff();
@@ -87,19 +101,22 @@ vtkRenderView::vtkRenderView()
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->EnableRenderOff();
   iren->AddObserver(vtkCommand::RenderEvent, this->GetObserver());
+  iren->AddObserver(vtkCommand::StartInteractionEvent, this->GetObserver());
+  iren->AddObserver(vtkCommand::EndInteractionEvent, this->GetObserver());
   this->RenderWindow->SetInteractor(iren);
-  //iren->Initialize();
 
-  // Set interaction mode to -1 before calling SetInteractionMode,
+  // Intialize the selector and listen to render events to help Selector know when to
+  // update the full-screen hardware pick.
+  this->Selector->SetRenderer(this->Renderer);
+  this->Selector->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
+  this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
+
+  // The interaction mode is -1 before calling SetInteractionMode,
   // this will force an initialization of the interaction mode/style.
-  this->InteractionMode = -1;
   this->SetInteractionModeTo3D();
-  this->LabelRenderMode = FREETYPE;
 
-  this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
-
-  this->LabelPlacementMapper = vtkSmartPointer<vtkLabelPlacementMapper>::New();
-  this->LabelActor = vtkSmartPointer<vtkTexturedActor2D>::New();
+  this->HoverWidget->SetInteractor(iren);
+  this->HoverWidget->AddObserver(vtkCommand::TimerEvent, this->GetObserver());
 
   this->LabelActor->SetMapper(this->LabelPlacementMapper);
   this->LabelActor->PickableOff();
@@ -109,9 +126,8 @@ vtkRenderView::vtkRenderView()
   this->Balloon->SetOffset(1, 1);
   this->LabelRenderer->AddViewProp(this->Balloon);
   this->Balloon->SetRenderer(this->LabelRenderer);
+  this->Balloon->PickableOff();
   this->Balloon->VisibilityOn();
-
-  this->SelectionMode = SURFACE;
 
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -172,7 +188,10 @@ void vtkRenderView::SetInteractor(vtkRenderWindowInteractor* interactor)
   // in the interactor and listening to the interactor's render event.
   interactor->EnableRenderOff();
   interactor->AddObserver(vtkCommand::RenderEvent, this->GetObserver());
+  interactor->AddObserver(vtkCommand::StartInteractionEvent, this->GetObserver());
+  interactor->AddObserver(vtkCommand::EndInteractionEvent, this->GetObserver());
   this->RenderWindow->SetInteractor(interactor);
+  this->HoverWidget->SetInteractor(interactor);
 
   interactor->SetInteractorStyle(oldStyle);
   oldStyle->UnRegister(this);
@@ -192,7 +211,7 @@ void vtkRenderView::SetInteractionMode(int mode)
         }
       vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
       this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
-      style->SetRenderOnMouseMove(this->GetDisplayHoverText());
+      style->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
       style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
       this->Renderer->GetActiveCamera()->ParallelProjectionOn();
       style->Delete();
@@ -205,7 +224,7 @@ void vtkRenderView::SetInteractionMode(int mode)
         }
       vtkInteractorStyleRubberBand3D* style = vtkInteractorStyleRubberBand3D::New();
       this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
-      style->SetRenderOnMouseMove(this->GetDisplayHoverText());
+      style->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
       style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
       this->Renderer->GetActiveCamera()->ParallelProjectionOff();
       style->Delete();
@@ -240,12 +259,12 @@ void vtkRenderView::SetInteractorStyle(vtkInteractorObserver* style)
       vtkInteractorStyleRubberBand3D::SafeDownCast(style);
     if (style2D)
       {
-      style2D->SetRenderOnMouseMove(this->GetDisplayHoverText());
+      style2D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
       this->InteractionMode = INTERACTION_MODE_2D;
       }
     else if (style3D)
       {
-      style3D->SetRenderOnMouseMove(this->GetDisplayHoverText());
+      style3D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
       this->InteractionMode = INTERACTION_MODE_3D;
       }
     else
@@ -253,6 +272,29 @@ void vtkRenderView::SetInteractorStyle(vtkInteractorObserver* style)
       this->InteractionMode = INTERACTION_MODE_UNKNOWN;
       }
     }
+}
+
+void vtkRenderView::SetRenderOnMouseMove(bool b)
+{
+  if (b == this->RenderOnMouseMove)
+    {
+    return;
+    }
+
+  vtkInteractorObserver* style = this->GetInteractorStyle();
+  vtkInteractorStyleRubberBand2D* style2D =
+    vtkInteractorStyleRubberBand2D::SafeDownCast(style);
+  if (style2D)
+    {
+    style2D->SetRenderOnMouseMove(b);
+    }
+  vtkInteractorStyleRubberBand3D* style3D =
+    vtkInteractorStyleRubberBand3D::SafeDownCast(style);
+  if (style3D)
+    {
+    style3D->SetRenderOnMouseMove(b);
+    }
+  this->RenderOnMouseMove = b;
 }
 
 vtkInteractorObserver* vtkRenderView::GetInteractorStyle()
@@ -276,6 +318,38 @@ void vtkRenderView::ProcessEvents(
   if (caller == this->GetInteractor() && eventId == vtkCommand::RenderEvent)
     {
     this->Render();
+    }
+  if (caller == this->HoverWidget.GetPointer() && eventId == vtkCommand::TimerEvent)
+    {
+    this->InHoverTextRender = true;
+    this->UpdateHoverText();
+    this->Render();
+    this->InHoverTextRender = false;
+    }
+  if (caller == this->GetInteractor() && eventId == vtkCommand::StartInteractionEvent)
+    {
+    this->Interacting = true;
+    this->UpdateHoverWidgetState();
+    }
+  if (caller == this->GetInteractor() && eventId == vtkCommand::EndInteractionEvent)
+    {
+    this->Interacting = false;
+    this->Render();
+    }
+  if (caller == this->RenderWindow && eventId == vtkCommand::EndEvent)
+    {
+    if (!this->Interacting && !this->InHoverTextRender)
+      {
+      unsigned int area[4] = {0, 0, 0, 0};
+      area[2] = static_cast<unsigned int>(this->Renderer->GetSize()[0] - 1);
+      area[3] = static_cast<unsigned int>(this->Renderer->GetSize()[1] - 1);
+      this->Selector->SetArea(area);
+      this->RenderWindow->RemoveObserver(this->GetObserver());
+      this->LabelRenderer->DrawOff();
+      this->Selector->CaptureBuffers();
+      this->LabelRenderer->DrawOn();
+      this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
+      }
     }
   if (vtkDataRepresentation::SafeDownCast(caller) &&
       eventId == vtkCommand::SelectionChangedEvent)
@@ -392,11 +466,7 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
   else
     {
     // Do a visible cell selection.
-    vtkSmartPointer<vtkHardwareSelector> vcs =
-      vtkSmartPointer<vtkHardwareSelector>::New();
-    vcs->SetRenderer(this->Renderer);
-    vcs->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
-    vtkSelection* vsel = vcs->Select();
+    vtkSelection* vsel = this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
     sel->ShallowCopy(vsel);
     vsel->Delete();
     }
@@ -427,29 +497,37 @@ void vtkRenderView::ResetCameraClippingRange()
 void vtkRenderView::SetDisplayHoverText(bool b)
 {
   this->Balloon->SetVisibility(b);
-  vtkInteractorStyleRubberBand2D* style2D =
-    vtkInteractorStyleRubberBand2D::SafeDownCast(this->GetInteractorStyle());
-  vtkInteractorStyleRubberBand3D* style3D =
-    vtkInteractorStyleRubberBand3D::SafeDownCast(this->GetInteractorStyle());
-  if (style2D)
-    {
-    style2D->SetRenderOnMouseMove(b);
-    }
-  if (style3D)
-    {
-    style3D->SetRenderOnMouseMove(b);
-    }
+  this->HoverWidget->SetEnabled(b);
   this->DisplayHoverText = b;
+}
+
+void vtkRenderView::UpdateHoverWidgetState()
+{
+  // Make sure we have a context, then ensure hover widget is
+  // enabled if we are displaying hover text.
+  this->RenderWindow->MakeCurrent();
+  if (this->RenderWindow->IsCurrent())
+    {
+    if (!this->Interacting && this->HoverWidget->GetEnabled() != this->DisplayHoverText)
+      {
+      this->HoverWidget->SetEnabled(this->DisplayHoverText);
+      }
+    // Disable hover text when interacting.
+    else if (this->Interacting && this->HoverWidget->GetEnabled())
+      {
+      this->HoverWidget->SetEnabled(false);
+      }
+    }
+  if (!this->HoverWidget->GetEnabled())
+    {
+    this->Balloon->SetBalloonText("");
+    }
 }
 
 void vtkRenderView::PrepareForRendering()
 {
   this->Update();
-
-  if (this->GetDisplayHoverText())
-    {
-    this->UpdateHoverText();
-    }
+  this->UpdateHoverWidgetState();
 
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
     {
@@ -464,42 +542,56 @@ void vtkRenderView::PrepareForRendering()
 
 void vtkRenderView::UpdateHoverText()
 {
-  bool foundHoverText = false;
   int pos[2] = {0, 0};
+  unsigned int upos[2] = {0, 0};
   double loc[2] = {0.0, 0.0};
   if (this->RenderWindow->GetInteractor())
     {
     this->RenderWindow->GetInteractor()->GetEventPosition(pos);
     loc[0] = pos[0];
     loc[1] = pos[1];
+    upos[0] = static_cast<unsigned int>(pos[0]);
+    upos[1] = static_cast<unsigned int>(pos[1]);
     }
   this->Balloon->EndWidgetInteraction(loc);
+
+  // The number of pixels away from the pointer to search for hovered objects.
+  int hoverTol = 3;
+
+  // Retrieve the hovered cell from the saved buffer.
+  int process;
+  vtkIdType cell;
+  vtkProp* prop;
+  this->Selector->GetPixelInformation(upos, process, cell, prop, hoverTol);
+  if (prop == 0 || cell == -1)
+    {
+    this->Balloon->SetBalloonText("");
+    return;
+    }
+
+  // For debugging
+  //vtksys_ios::ostringstream oss;
+  //oss << "prop: " << prop << " cell: " << cell;
+  //this->Balloon->SetBalloonText(oss.str().c_str());
+  //this->Balloon->StartWidgetInteraction(loc);
+
+  vtkUnicodeString hoverText;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
     {
     vtkRenderedRepresentation* rep = vtkRenderedRepresentation::SafeDownCast(
       this->GetRepresentation(i));
-    if (rep)
+    if (rep && this->RenderWindow->GetInteractor())
       {
-      if (!foundHoverText)
+      hoverText = rep->GetHoverText(this, prop, cell);
+      if (!hoverText.empty())
         {
-        if (this->RenderWindow->GetInteractor())
-          {
-          const char* hoverText = rep->GetHoverText(this, pos[0], pos[1]);
-          if (hoverText)
-            {
-            foundHoverText = true;
-            this->Balloon->SetBalloonText(hoverText);
-            this->Balloon->StartWidgetInteraction(loc);
-            }
-          }
+        break;
         }
-      rep->PrepareForRendering(this);
       }
     }
-  if (!foundHoverText)
-    {
-    this->Balloon->SetBalloonText("");
-    }
+  this->Balloon->SetBalloonText(hoverText.utf8_str());
+  this->Balloon->StartWidgetInteraction(loc);
+  this->InvokeEvent(vtkCommand::HoverEvent, &hoverText);
 }
 
 void vtkRenderView::ApplyViewTheme(vtkViewTheme* theme)

@@ -114,6 +114,11 @@ public:
   // Applies the view theme to this graph.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
+  // Description:
+  // The array to use while hovering over an edge.
+  vtkSetStringMacro(HoverArrayName);
+  vtkGetStringMacro(HoverArrayName);
+
 protected:
   vtkHierarchicalGraphPipeline();
   ~vtkHierarchicalGraphPipeline();
@@ -128,6 +133,8 @@ protected:
   vtkEdgeCenters*                  EdgeCenters;
   vtkDynamic2DLabelMapper*         LabelMapper;
   vtkActor2D*                      LabelActor;
+
+  char* HoverArrayName;
 
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);

@@ -100,6 +100,10 @@ static const char *vtkCommandEventStrings[] = {
   "UpdateDataEvent",
   "CurrentChangedEvent",
   "ComputeVisiblePropBoundsEvent",
+  "TDxMotionEvent", // 3D Connexion device event
+  "TDxButtonPressEvent", // 3D Connexion device event
+  "TDxButtonReleaseEvent", // 3D Connexion device event
+  "HoverEvent",
   NULL
 };
 

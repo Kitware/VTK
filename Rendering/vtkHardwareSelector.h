@@ -104,10 +104,16 @@ public:
   // CaptureBuffers() to render the selection buffers and then get information
   // about pixel locations suing GetPixelInformation(). Use ClearBuffers() to
   // clear buffers after one's done with the scene.
+  // The optional final parameter maxDist will look for a cell within the specified
+  // number of pixels from display_position.
   bool CaptureBuffers();
   bool GetPixelInformation(unsigned int display_position[2],
     int& processId,
-    vtkIdType& attrId, vtkProp*& prop);
+    vtkIdType& attrId, vtkProp*& prop)
+    { this->GetPixelInformation(display_position, processId, attrId, prop, 0); }
+  bool GetPixelInformation(unsigned int display_position[2],
+    int& processId,
+    vtkIdType& attrId, vtkProp*& prop, int maxDist);
   void ClearBuffers()
     { this->ReleasePixBuffers(); }
 
@@ -135,6 +141,21 @@ public:
   // Description:
   // Get the current pass number.
   vtkGetMacro(CurrentPass, int);
+
+  // Description:
+  // Generates the vtkSelection from pixel buffers.
+  // Requires that CaptureBuffers() has already been called.
+  // Optionally you may pass a screen region (xmin, ymin, xmax, ymax)
+  // to generate a selection from. The region must be a subregion
+  // of the region specified by SetArea(), otherwise it will be
+  // clipped to that region.
+  virtual vtkSelection* GenerateSelection()
+    { return GenerateSelection(this->Area); }
+  virtual vtkSelection* GenerateSelection(unsigned int r[4])
+    { return GenerateSelection(r[0], r[1], r[2], r[3]); }
+  virtual vtkSelection* GenerateSelection(
+    unsigned int x1, unsigned int y1,
+    unsigned int x2, unsigned int y2);
 
 //BTX
   enum PassTypes
@@ -185,7 +206,7 @@ protected:
       {
       return 0;
       }
-    int offset = (yy * static_cast<int>(this->Area[2]-this->Area[0]) + xx) * 3;
+    int offset = (yy * static_cast<int>(this->Area[2]-this->Area[0]+1) + xx) * 3;
     unsigned char rgb[3];
     rgb[0] = pb[offset];
     rgb[1] = pb[offset+1];
@@ -219,10 +240,6 @@ protected:
   // prop was hit in the ACTOR_PASS. This makes it possible to skip props that
   // are not involved in the selection after the first pass.
   bool IsPropHit(int propid);
-
-  // Description:
-  // Internal method that generates the vtkSelection from pixel buffers. 
-  virtual vtkSelection* GenerateSelection();
 
   // Description:
   // Return a unique ID for the prop.

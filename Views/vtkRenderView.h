@@ -40,6 +40,8 @@ class vtkAlgorithmOutput;
 class vtkArrayCalculator;
 class vtkBalloonRepresentation;
 class vtkDynamic2DLabelMapper;
+class vtkHardwareSelector;
+class vtkHoverWidget;
 class vtkInteractorObserver;
 class vtkLabelPlacementMapper;
 class vtkPolyDataMapper2D;
@@ -230,6 +232,17 @@ protected:
   // Called in PrepareForRendering to update the hover text.
   virtual void UpdateHoverText();
 
+  // Description:
+  // Enable or disable hovering based on DisplayHoverText ivar
+  // and interaction state.
+  virtual void UpdateHoverWidgetState();
+
+  // Description:
+  // Whether to render on every mouse move.
+  void SetRenderOnMouseMove(bool b);
+  vtkGetMacro(RenderOnMouseMove, bool);
+  vtkBooleanMacro(RenderOnMouseMove, bool);
+
   vtkRenderer* Renderer;
   vtkRenderer* LabelRenderer;
   vtkRenderWindow* RenderWindow;
@@ -237,6 +250,8 @@ protected:
   int InteractionMode;
   int LabelRenderMode;
   bool DisplayHoverText;
+  bool Interacting;
+  bool InHoverTextRender;
 
   vtkAbstractTransform* Transform;
   vtkTexture* IconTexture;
@@ -246,11 +261,15 @@ protected:
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
   vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
+  vtkSmartPointer<vtkHoverWidget>              HoverWidget;
+  vtkSmartPointer<vtkHardwareSelector>         Selector;
   //ETX
 
 private:
   vtkRenderView(const vtkRenderView&);  // Not implemented.
   void operator=(const vtkRenderView&);  // Not implemented.
+
+  bool RenderOnMouseMove;
 };
 
 #endif
