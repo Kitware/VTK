@@ -74,24 +74,39 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
   if(!array)
     return false;
 
-  const vtkArrayExtents extents = array->GetExtents();
+  vtkSparseArray<ValueT>* const sparse_array = vtkSparseArray<ValueT>::SafeDownCast(array);
 
-  for(vtkIdType j = 0; j != extents[1]; ++j)
+  const vtkIdType non_null_count = array->GetNonNullSize();
+  const vtkIdType column_count = array->GetExtents()[1];
+  const vtkIdType row_count = array->GetExtents()[0];
+
+  vtkstd::vector<ColumnT*> new_columns;
+  for(vtkIdType j = 0; j != column_count; ++j)
     {
     vtkstd::ostringstream column_name;
     column_name << j;
       
     ColumnT* const column = ColumnT::New();
-    column->SetNumberOfTuples(extents[0]);
+    column->SetNumberOfTuples(row_count);
     column->SetName(column_name.str().c_str());
 
-    for(vtkIdType i = 0; i != extents[0]; ++i)
+    if(sparse_array)
       {
-      column->SetValue(i, array->GetValue(i, j));
+      for(vtkIdType i = 0; i != row_count; ++i)
+        column->SetValue(i, sparse_array->GetNullValue());
       }
 
     Output->AddColumn(column);
     column->Delete();
+    new_columns.push_back(column);
+    }
+
+  for(vtkIdType n = 0; n != non_null_count; ++n)
+    {
+    vtkArrayCoordinates coordinates;
+    array->GetCoordinatesN(n, coordinates);
+
+    new_columns[coordinates[1]]->SetValue(coordinates[0], array->GetValueN(n));
     }
 
   return true;
@@ -99,7 +114,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkArrayToTable, "1.5");
+vtkCxxRevisionMacro(vtkArrayToTable, "1.6");
 vtkStandardNewMacro(vtkArrayToTable);
 
 // ----------------------------------------------------------------------
