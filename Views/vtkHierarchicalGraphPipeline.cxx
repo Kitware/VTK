@@ -42,7 +42,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.13");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.14");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -272,4 +272,5 @@ void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+  os << indent << "HoverArrayName: " << (this->HoverArrayName ? this->HoverArrayName : "(none)") << "\n";
 }
