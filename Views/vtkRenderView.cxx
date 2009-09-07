@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.28");
+vtkCxxRevisionMacro(vtkRenderView, "1.29");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -526,7 +526,7 @@ void vtkRenderView::UpdateHoverWidgetState()
   this->RenderWindow->MakeCurrent();
   if (this->RenderWindow->IsCurrent())
     {
-    if (!this->Interacting && this->HoverWidget->GetEnabled() != this->DisplayHoverText)
+    if (!this->Interacting && static_cast<bool>(this->HoverWidget->GetEnabled()) != this->DisplayHoverText)
       {
       this->HoverWidget->SetEnabled(this->DisplayHoverText);
       }

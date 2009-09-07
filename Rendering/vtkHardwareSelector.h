@@ -110,7 +110,7 @@ public:
   bool GetPixelInformation(unsigned int display_position[2],
     int& processId,
     vtkIdType& attrId, vtkProp*& prop)
-    { this->GetPixelInformation(display_position, processId, attrId, prop, 0); }
+    { return this->GetPixelInformation(display_position, processId, attrId, prop, 0); }
   bool GetPixelInformation(unsigned int display_position[2],
     int& processId,
     vtkIdType& attrId, vtkProp*& prop, int maxDist);
