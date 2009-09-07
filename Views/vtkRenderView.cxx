@@ -60,30 +60,30 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.30");
+vtkCxxRevisionMacro(vtkRenderView, "1.31");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
 
-vtkRenderView::vtkRenderView() :
-  Renderer(vtkRenderer::New()),
-  LabelRenderer(vtkRenderer::New()),
-  RenderWindow(vtkRenderWindow::New()),
-  Transform(vtkTransform::New()),
-  RenderOnMouseMove(false),
-  DisplayHoverText(true),
-  IconTexture(0),
-  Interacting(false),
-  InteractionMode(-1),
-  LabelRenderMode(FREETYPE),
-  SelectionMode(SURFACE),
-  Selector(vtkSmartPointer<vtkHardwareSelector>::New()),
-  Balloon(vtkSmartPointer<vtkBalloonRepresentation>::New()),
-  LabelPlacementMapper(vtkSmartPointer<vtkLabelPlacementMapper>::New()),
-  LabelActor(vtkSmartPointer<vtkTexturedActor2D>::New()),
-  HoverWidget(vtkSmartPointer<vtkHoverWidget>::New()),
-  InHoverTextRender(false)
+vtkRenderView::vtkRenderView()
 {
+  this->Renderer = vtkRenderer::New();
+  this->LabelRenderer = vtkRenderer::New();
+  this->RenderWindow = vtkRenderWindow::New();
+  this->Transform = vtkTransform::New();
+  this->RenderOnMouseMove = false;
+  this->DisplayHoverText = true;
+  this->IconTexture = 0;
+  this->Interacting = false;
+  this->InteractionMode = 1;
+  this->LabelRenderMode = FREETYPE;
+  this->SelectionMode = SURFACE;
+  this->Selector = vtkSmartPointer<vtkHardwareSelector>::New();
+  this->Balloon = vtkSmartPointer<vtkBalloonRepresentation>::New();
+  this->LabelPlacementMapper = vtkSmartPointer<vtkLabelPlacementMapper>::New();
+  this->LabelActor = vtkSmartPointer<vtkTexturedActor2D>::New();
+  this->HoverWidget = vtkSmartPointer<vtkHoverWidget>::New();
+  this->InHoverTextRender = false;
   this->IconSize[0] = 16;
   this->IconSize[1] = 16;
 
