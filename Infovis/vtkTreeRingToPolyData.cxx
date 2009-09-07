@@ -29,6 +29,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkTimerLog.h"
 #include "vtkTree.h"
 #include "vtkStripper.h"
 #include "vtkSectorSource.h"
@@ -38,7 +39,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.11");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.12");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -85,12 +86,20 @@ int vtkTreeRingToPolyData::RequestData(
     return 0;
     }
 
-  int i;
+  double pt1x[3] = {0.0, 0.0, 0.0};
+  double pt2x[3] = {0.0, 0.0, 0.0};
+  double ang = 0.0;
+  double cos_ang = 0.0;
+  double sin_ang = 0.0;
+  vtkIdType pt1 = 0;
+  vtkIdType pt2 = 0;
   vtkIdType rootId = inputTree->GetRoot();
+  VTK_CREATE(vtkCellArray, strips);
+  VTK_CREATE(vtkPoints, pts);
   double progress = 0.0;
-  VTK_CREATE(vtkAppendPolyData, append);
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-  for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
+
+  for( int i = 0; i < inputTree->GetNumberOfVertices(); i++ )
     {
     // Grab coords from the input
     double coords[4];
@@ -107,15 +116,13 @@ int vtkTreeRingToPolyData::RequestData(
       coordArray->GetTuple(i,coords);
       }
     
-    VTK_CREATE(vtkSectorSource, sector);
     double radial_length = coords[3] - coords[2];
     
-    //calculate the amount of change in the arcs based on the shrink 
+    // Calculate the amount of change in the arcs based on the shrink
     // percentage of the arc_length
     double conversion = vtkMath::Pi()/180.;
     double arc_length = (conversion*(coords[1] - coords[0])*coords[3]);
     double radial_shrink = radial_length*this->ShrinkPercentage;
-//    double arc_length_shrink = ((radial_length*this->ShrinkPercentage) < (arc_length*this->ShrinkPercentage)) ? (radial_length*this->ShrinkPercentage) : (arc_length*this->ShrinkPercentage);
     double arc_length_shrink;
     if( radial_shrink > 0.25*arc_length )
       {
@@ -130,57 +137,69 @@ int vtkTreeRingToPolyData::RequestData(
     double angle_change = ((arc_length_new/coords[3])/conversion);
     double delta_change_each = 0.5*((coords[1]-coords[0]) - angle_change);
     
-    sector->SetInnerRadius(coords[2] + (0.5*(radial_length*this->ShrinkPercentage)));
-    sector->SetOuterRadius(coords[3] - (0.5*(radial_length*this->ShrinkPercentage)));
-    
+    double inner_radius = coords[2] + (0.5*(radial_length*this->ShrinkPercentage));
+    double outer_radius = coords[3] - (0.5*(radial_length*this->ShrinkPercentage));
+    double start_angle;
+    double end_angle;
     if( coords[1] - coords[0] == 360. )
       {
-      sector->SetStartAngle( coords[0] );
-      sector->SetEndAngle( coords[1] );
+      start_angle = coords[0];
+      end_angle = coords[1];
       }
     else
       {
-      sector->SetStartAngle(coords[0] + delta_change_each);
-      sector->SetEndAngle(coords[1] - delta_change_each);
+      start_angle = coords[0] + delta_change_each;
+      end_angle = coords[1] - delta_change_each;
       }
     
-    int resolution = (int)((coords[1] - coords[0])/1);
-    if( resolution < 1 )
-      resolution = 1;
-    sector->SetCircumferentialResolution(resolution);
-    sector->Update();
-    
-    VTK_CREATE(vtkStripper, strip);
-    strip->SetInput(sector->GetOutput());
-    
-    append->AddInput(strip->GetOutput());
-    progress = static_cast<double>(i) / inputTree->GetNumberOfVertices() * 0.8;
-    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+    int num_angles = static_cast<int>(end_angle - start_angle);
+    if ( num_angles < 1 )
+      {
+      num_angles = 1;
+      }
+    int num_points = 2*num_angles + 2;
+    strips->InsertNextCell(num_points);
+    for ( int j = 0; j < num_angles; ++j )
+      {
+      ang = start_angle + j;
+      cos_ang = cos(vtkMath::RadiansFromDegrees(ang));
+      sin_ang = sin(vtkMath::RadiansFromDegrees(ang));
+      pt1x[0] = cos_ang*inner_radius;
+      pt1x[1] = sin_ang*inner_radius;
+      pt2x[0] = cos_ang*outer_radius;
+      pt2x[1] = sin_ang*outer_radius;
+      pt1 = pts->InsertNextPoint(pt1x);
+      pt2 = pts->InsertNextPoint(pt2x);
+      strips->InsertCellPoint(pt1);
+      strips->InsertCellPoint(pt2);
+      }
+    ang = end_angle;
+    cos_ang = cos(vtkMath::RadiansFromDegrees(ang));
+    sin_ang = sin(vtkMath::RadiansFromDegrees(ang));
+    pt1x[0] = cos_ang*inner_radius;
+    pt1x[1] = sin_ang*inner_radius;
+    pt2x[0] = cos_ang*outer_radius;
+    pt2x[1] = sin_ang*outer_radius;
+    pt1 = pts->InsertNextPoint(pt1x);
+    pt2 = pts->InsertNextPoint(pt2x);
+    strips->InsertCellPoint(pt1);
+    strips->InsertCellPoint(pt2);
+
+    if ( i%1000 == 0 )
+      {
+      progress = static_cast<double>(i) / inputTree->GetNumberOfVertices() * 0.8;
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+      }
     }
   
-  append->Update();
-  outputPoly->ShallowCopy(append->GetOutput());
+  outputPoly->SetPoints(pts);
+  outputPoly->SetStrips(strips);
   
   // Pass the input vertex data to the output cell data :)
   vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
   vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();
   output_cell_data->PassData(input_vertex_data);
-#if 0
-  int copy_counter = 0;
-  output_cell_data->CopyAllocate(input_vertex_data);
-  for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
-    {
-    if( i == rootId )
-      {
-      //No cell data for the root node, so don't copy it...
-      continue;
-      }
-    
-    //copy data from -> to
-    output_cell_data->CopyData(input_vertex_data, i, copy_counter++);
-    }
-#endif
-  
+
   return 1;
 }
 
