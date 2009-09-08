@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.32");
+vtkCxxRevisionMacro(vtkRenderView, "1.33");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -515,7 +515,6 @@ void vtkRenderView::ResetCameraClippingRange()
 void vtkRenderView::SetDisplayHoverText(bool b)
 {
   this->Balloon->SetVisibility(b);
-  this->HoverWidget->SetEnabled(b);
   this->DisplayHoverText = b;
 }
 
