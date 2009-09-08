@@ -28,6 +28,7 @@ vtkAreaLayout.cxx
 vtkAreaLayoutStrategy.cxx
 vtkAssignCoordinates.cxx
 vtkAssignCoordinatesLayoutStrategy.cxx
+vtkBivariateLinearTableThreshold.cxx
 vtkBivariateStatisticsAlgorithm.cxx
 vtkBoxLayoutStrategy.cxx
 vtkChacoGraphReader.cxx
@@ -35,6 +36,7 @@ vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
 vtkCollapseGraph.cxx
 vtkCommunity2DLayoutStrategy.cxx
+vtkComputeHistogram2DOutliers.cxx
 vtkConeLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
 vtkContingencyStatistics.cxx
@@ -47,6 +49,7 @@ vtkEdgeCenters.cxx
 vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkExpandSelectedGraph.cxx
+vtkExtractHistogram2D.cxx
 vtkExtractSelectedGraph.cxx
 vtkExtractSelectedRows.cxx
 vtkFast2DLayoutStrategy.cxx
@@ -69,6 +72,7 @@ vtkMultiCorrelativeStatistics.cxx
 vtkMutableGraphHelper.cxx
 vtkNetworkHierarchy.cxx
 vtkOrderStatistics.cxx
+vtkPairwiseExtractHistogram2D.cxx
 vtkPassArrays.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx
@@ -81,6 +85,7 @@ vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkRemoveIsolatedVertices.cxx
 vtkRemoveHiddenData.cxx
+vtkSCurveSpline.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSplineGraphEdges.cxx
@@ -197,11 +202,15 @@ ENDIF(VTK_USE_N_WAY_ARRAYS)
 # Add these classes only if PARALLEL is turned ON
 IF(VTK_USE_PARALLEL)
   SET(Kit_SRCS ${Kit_SRCS}
+    vtkPBivariateLinearTableThreshold.cxx
+    vtkPComputeHistogram2DOutliers.cxx
     vtkPCorrelativeStatistics.cxx
     vtkPContingencyStatistics.cxx
     vtkPDescriptiveStatistics.cxx
+    vtkPExtractHistogram2D.cxx
     vtkPKMeansStatistics.cxx
     vtkPMultiCorrelativeStatistics.cxx
+    vtkPPairwiseExtractHistogram2D.cxx
     vtkPPCAStatistics.cxx
     )
   SET(KIT_INTERFACE_LIBRARIES ${KIT_INTERFACE_LIBRARIES} vtkParallel)

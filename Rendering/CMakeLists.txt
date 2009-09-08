@@ -118,6 +118,7 @@ SET( Kit_SRCS
   vtkPainterDeviceAdapter.cxx
   vtkPainterPolyDataMapper.cxx
   vtkParallelCoordinatesActor.cxx
+  vtkParallelCoordinatesInteractorStyle.cxx
   vtkPicker.cxx
   vtkPixelBufferObject.cxx
   vtkPointPicker.cxx

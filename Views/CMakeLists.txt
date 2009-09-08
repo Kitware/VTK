@@ -15,6 +15,9 @@ vtkHierarchicalGraphView.cxx
 vtkIcicleView.cxx
 vtkInteractorStyleAreaSelectHover.cxx
 vtkInteractorStyleTreeMapHover.cxx
+vtkParallelCoordinatesHistogramRepresentation.cxx
+vtkParallelCoordinatesRepresentation.cxx
+vtkParallelCoordinatesView.cxx
 vtkRenderedSurfaceRepresentation.cxx
 vtkRenderedGraphRepresentation.cxx
 vtkRenderedRepresentation.cxx
