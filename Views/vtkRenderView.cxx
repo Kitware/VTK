@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.31");
+vtkCxxRevisionMacro(vtkRenderView, "1.32");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -75,7 +75,7 @@ vtkRenderView::vtkRenderView()
   this->DisplayHoverText = true;
   this->IconTexture = 0;
   this->Interacting = false;
-  this->InteractionMode = 1;
+  this->InteractionMode = -1;
   this->LabelRenderMode = FREETYPE;
   this->SelectionMode = SURFACE;
   this->Selector = vtkSmartPointer<vtkHardwareSelector>::New();
