@@ -15,9 +15,6 @@ vtkHierarchicalGraphView.cxx
 vtkIcicleView.cxx
 vtkInteractorStyleAreaSelectHover.cxx
 vtkInteractorStyleTreeMapHover.cxx
-vtkParallelCoordinatesHistogramRepresentation.cxx
-vtkParallelCoordinatesRepresentation.cxx
-vtkParallelCoordinatesView.cxx
 vtkRenderedSurfaceRepresentation.cxx
 vtkRenderedGraphRepresentation.cxx
 vtkRenderedRepresentation.cxx
@@ -32,11 +29,20 @@ vtkView.cxx
 vtkViewUpdater.cxx
 )
 
+IF(VTK_USE_N_WAY_ARRAYS)
+  SET(Kit_SRCS
+    ${Kit_SRCS}    
+    vtkParallelCoordinatesHistogramRepresentation.cxx
+    vtkParallelCoordinatesRepresentation.cxx
+    vtkParallelCoordinatesView.cxx
+    )
+ENDIF(VTK_USE_N_WAY_ARRAYS)
+
 IF(VTK_USE_BOOST)
   SET(Kit_SRCS
     ${Kit_SRCS}
     vtkPipelineGraphSource.cxx
-  )
+    )
 ENDIF(VTK_USE_BOOST)
 
 #SET_SOURCE_FILES_PROPERTIES(
