@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkBivariateLinearTableThreshold, "1.1");
+vtkCxxRevisionMacro(vtkBivariateLinearTableThreshold, "1.2");
 vtkStandardNewMacro(vtkBivariateLinearTableThreshold);
 
 class vtkBivariateLinearTableThreshold::Internals
@@ -71,7 +71,7 @@ void vtkBivariateLinearTableThreshold::Initialize()
   this->ColumnRanges[1] = 1.0;
   this->UseNormalizedDistance = 0;
   this->NumberOfLineEquations = 0;
-  this->LinearThresholdType = NEAR;
+  this->LinearThresholdType = BLT_NEAR;
 
   this->LineEquations = vtkSmartPointer<vtkDoubleArray>::New();
   this->LineEquations->SetNumberOfComponents(3);
@@ -223,16 +223,16 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
   int (vtkBivariateLinearTableThreshold::*thresholdFunc)(double,double) = NULL;
   switch (this->LinearThresholdType)
     {
-    case vtkBivariateLinearTableThreshold::ABOVE:
+    case vtkBivariateLinearTableThreshold::BLT_ABOVE:
       thresholdFunc = &vtkBivariateLinearTableThreshold::ThresholdAbove;
       break;
-    case vtkBivariateLinearTableThreshold::BELOW:
+    case vtkBivariateLinearTableThreshold::BLT_BELOW:
       thresholdFunc = &vtkBivariateLinearTableThreshold::ThresholdBelow;
       break;
-    case vtkBivariateLinearTableThreshold::NEAR:
+    case vtkBivariateLinearTableThreshold::BLT_NEAR:
       thresholdFunc = &vtkBivariateLinearTableThreshold::ThresholdNear;
       break;
-    case vtkBivariateLinearTableThreshold::BETWEEN:
+    case vtkBivariateLinearTableThreshold::BLT_BETWEEN:
       thresholdFunc = &vtkBivariateLinearTableThreshold::ThresholdBetween;
       break;
     default:

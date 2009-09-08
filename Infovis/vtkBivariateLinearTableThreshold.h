@@ -53,10 +53,10 @@ public:
   };
   enum LinearThresholdType
   {
-    ABOVE=0,
-    BELOW,
-    NEAR,
-    BETWEEN
+    BLT_ABOVE=0,
+    BLT_BELOW,
+    BLT_NEAR,
+    BLT_BETWEEN
   };
   //ETX
   
@@ -69,10 +69,10 @@ public:
 
   vtkGetMacro(LinearThresholdType,int);
   vtkSetMacro(LinearThresholdType,int);
-  void SetLinearThresholdTypeToAbove() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::ABOVE); }
-  void SetLinearThresholdTypeToBelow() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BELOW); }
-  void SetLinearThresholdTypeToNear() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::NEAR); }
-  void SetLinearThresholdTypeToBetween() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BETWEEN); }
+  void SetLinearThresholdTypeToAbove() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BLT_ABOVE); }
+  void SetLinearThresholdTypeToBelow() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BLT_BELOW); }
+  void SetLinearThresholdTypeToNear() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BLT_NEAR); }
+  void SetLinearThresholdTypeToBetween() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BLT_BETWEEN); }
 
   vtkSetVector2Macro(ColumnRanges,double);
   vtkGetVector2Macro(ColumnRanges,double);

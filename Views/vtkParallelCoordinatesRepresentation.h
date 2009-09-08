@@ -323,9 +323,9 @@ protected:
   double AxisColor[3];
   double AxisLabelColor[3];
 
-  vtkGetStringMacro(HoverTextInternal);
-  vtkSetStringMacro(HoverTextInternal);
-  char* HoverTextInternal;
+  vtkGetStringMacro(InternalHoverText);
+  vtkSetStringMacro(InternalHoverText);
+  char* InternalHoverText;
   
 private:
   vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&); // Not implemented

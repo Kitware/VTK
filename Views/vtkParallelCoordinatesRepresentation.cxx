@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.2");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->ApplyViewTheme(theme);
   theme->Delete();
 
-  this->HoverTextInternal = 0;
+  this->InternalHoverText = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
   if (this->Xs)
     delete [] this->Xs;
 
-  this->SetHoverTextInternal(0);
+  this->SetInternalHoverText(0);
 }
 
 //------------------------------------------------------------------------------
@@ -321,8 +321,8 @@ const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view,
       double v = pct * (r[1]-r[0]) + r[0];
       vtkVariant var(v);
 
-      this->SetHoverTextInternal(vtkVariant(v).ToString());
-      return this->GetHoverTextInternal();
+      this->SetInternalHoverText(vtkVariant(v).ToString());
+      return this->GetInternalHoverText();
       }
     else if (p[0] > this->Xs[0] &&
              p[1] < this->Xs[this->NumberOfAxes-1] &&
@@ -330,7 +330,7 @@ const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view,
              p[1] >= this->YMin)
       {
       this->UpdateHoverHighlight(view,x,y);
-      return this->GetHoverTextInternal();
+      return this->GetInternalHoverText();
       }
     }
   return 0;
@@ -406,7 +406,7 @@ void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
         }
       }
 
-    this->SetHoverTextInternal(str.str().c_str());
+    this->SetInternalHoverText(str.str().c_str());
     }
 }
 
