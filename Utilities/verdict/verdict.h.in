@@ -1235,85 +1235,85 @@ struct TriMetricVals
     C_FUNC_DEF double v_quad_distortion( int num_nodes, double coordinates[][3] ); 
 
 
-/* individual quality functions for tri elements */
+/* individual quality functions for triangle elements */
 
     //! Sets average size (area) of tri, needed for v_tri_relative_size(...) 
     C_FUNC_DEF void  v_set_tri_size( double size );
 
-    //! Sets function pointer to calculate tri normal wrt surface 
+    //! Sets function pointer to calculate triangle normal wrt surface 
     C_FUNC_DEF void v_set_tri_normal_func( ComputeNormal func );
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** edge ratio
         Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
         Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
     C_FUNC_DEF double v_tri_edge_ratio( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** aspect ratio
         Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
         Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
     C_FUNC_DEF double v_tri_aspect_ratio( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** radius ratio
         Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
         Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
     C_FUNC_DEF double v_tri_radius_ratio( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Frobenius aspect */
     C_FUNC_DEF double v_tri_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Maximum included angle in triangle */
     C_FUNC_DEF double v_tri_area( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Minimum included angle in triangle */
     C_FUNC_DEF double v_tri_minimum_angle( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Maximum included angle in triangle */
     C_FUNC_DEF double v_tri_maximum_angle( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Condition number of the Jacobian matrix.
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
     C_FUNC_DEF double v_tri_condition( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Minimum Jacobian divided by the lengths of 2 edge vectors. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
     C_FUNC_DEF double v_tri_scaled_jacobian( int num_nodes, double coordinates[][3] );
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /**  */
     C_FUNC_DEF double v_tri_shear( int num_nodes, double coordinates[][3] ); 
     
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** Min( J, 1/J ), where J is determinant of weighted Jacobian matrix. 
        Reference ---  P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
     C_FUNC_DEF double v_tri_relative_size_squared( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** 2/Condition number of weighted Jacobian matrix. 
        Reference ---  P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
     C_FUNC_DEF double v_tri_shape( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /**  Product of Shape and Relative Size. 
        Reference ---  P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
     C_FUNC_DEF double v_tri_shape_and_size( int num_nodes, double coordinates[][3] );
 
-    //! Calculates tri metric.
+    //! Calculates triangle metric.
     /** {min(|J|)/actual area}*parent area, parent area = 1/2 for triangular element. 
        Reference --- SDRC/IDEAS Simulation: Finite Element Modeling--User's Guide */
     C_FUNC_DEF double v_tri_distortion( int num_nodes, double coordinates[][3] );
