@@ -156,6 +156,9 @@ SET( Kit_SRCS
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
+  vtkTDxInteractorStyle.cxx
+  vtkTDxInteractorStyleCamera.cxx
+  vtkTDxInteractorStyleSettings.cxx
   vtkTesting.cxx
   # vtkTextActor2D.cxx
   vtkTextActor3D.cxx
@@ -280,6 +283,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader
   vtkShaderDeviceAdapter
   vtkShaderProgram
+  vtkTDxInteractorStyle
   vtkVisibilitySort.cxx
   ABSTRACT
   )

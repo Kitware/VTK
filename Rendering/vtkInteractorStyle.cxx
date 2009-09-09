@@ -32,9 +32,11 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 #include "vtkEventForwarderCommand.h"
+#include "vtkTDxInteractorStyleCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.103");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.104");
 vtkStandardNewMacro(vtkInteractorStyle);
+vtkCxxSetObjectMacro(vtkInteractorStyle,TDxStyle,vtkTDxInteractorStyle);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle::vtkInteractorStyle()
@@ -75,6 +77,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   
   this->TimerDuration = 10;
   this->EventForwarder = vtkEventForwarderCommand::New();
+  
+  this->TDxStyle=vtkTDxInteractorStyleCamera::New();
 }
 
 //----------------------------------------------------------------------------
@@ -103,6 +107,11 @@ vtkInteractorStyle::~vtkInteractorStyle()
 
   this->SetCurrentRenderer(NULL);
   this->EventForwarder->Delete();
+  
+  if(this->TDxStyle!=0)
+    {
+    this->TDxStyle->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -236,6 +245,17 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
                    this->Priority);
 
     i->AddObserver(vtkCommand::DeleteEvent, 
+                   this->EventCallbackCommand, 
+                   this->Priority);
+    i->AddObserver(vtkCommand::TDxMotionEvent, 
+                   this->EventCallbackCommand, 
+                   this->Priority);
+
+    i->AddObserver(vtkCommand::TDxButtonPressEvent, 
+                   this->EventCallbackCommand, 
+                   this->Priority);
+
+    i->AddObserver(vtkCommand::TDxButtonReleaseEvent, 
                    this->EventCallbackCommand, 
                    this->Priority);
     }
@@ -837,6 +857,16 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Timer Duration: " << this->TimerDuration << endl;
 }
 
+// ----------------------------------------------------------------------------
+void vtkInteractorStyle::DelegateTDxEvent(unsigned long event,
+                                          void *calldata)
+{
+  if(this->TDxStyle!=0)
+    {
+    this->TDxStyle->ProcessEvent(this->CurrentRenderer,event,calldata);
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object), 
                                        unsigned long event,
@@ -1061,6 +1091,12 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
 
     case vtkCommand::DeleteEvent:
       self->SetInteractor(0);
+      break;
+      
+    case vtkCommand::TDxMotionEvent:
+    case vtkCommand::TDxButtonPressEvent:
+    case vtkCommand::TDxButtonReleaseEvent:
+      self->DelegateTDxEvent(event,calldata);
       break;
     }
 }

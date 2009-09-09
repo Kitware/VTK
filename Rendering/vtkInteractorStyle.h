@@ -118,6 +118,7 @@ class vtkOutlineSource;
 class vtkPolyDataMapper;
 class vtkProp3D;
 class vtkProp;
+class vtkTDxInteractorStyle;
 
 class VTK_RENDERING_EXPORT vtkInteractorStyle : public vtkInteractorObserver
 {
@@ -276,6 +277,17 @@ public:
   vtkSetMacro(MouseWheelMotionFactor, double);
   vtkGetMacro(MouseWheelMotionFactor, double);
 
+  // Description:
+  // 3Dconnexion device interactor style. Initial value is a pointer to an
+  // object of class vtkTdxInteractorStyleCamera.
+  vtkGetObjectMacro(TDxStyle,vtkTDxInteractorStyle);
+  virtual void SetTDxStyle(vtkTDxInteractorStyle *tdxStyle);
+  
+  // Description:
+  // Called by the callback to process 3DConnexion device events.
+  void DelegateTDxEvent(unsigned long event,
+                        void *calldata);
+  
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
@@ -315,6 +327,8 @@ protected:
   // Forward evets to the RenderWindowInteractor
   vtkEventForwarderCommand * EventForwarder;
 
+  vtkTDxInteractorStyle *TDxStyle;
+  
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.
   void operator=(const vtkInteractorStyle&);  // Not implemented.

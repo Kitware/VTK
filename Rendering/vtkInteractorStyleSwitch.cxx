@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.25");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -204,6 +204,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
   if (this->CurrentStyle)
     {
     this->CurrentStyle->SetInteractor(this->Interactor);
+    this->CurrentStyle->SetTDxStyle(this->TDxStyle);
     }
 }
 
