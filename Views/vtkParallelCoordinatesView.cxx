@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesView, "1.2");
+vtkCxxRevisionMacro(vtkParallelCoordinatesView, "1.3");
 vtkStandardNewMacro(vtkParallelCoordinatesView);
 
 // ----------------------------------------------------------------------
@@ -147,6 +147,11 @@ void
 vtkParallelCoordinatesView::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << "MaximumNumberOfBrushPoints: " << this->MaximumNumberOfBrushPoints << endl;
+  os << "BrushOperator: " << this->BrushOperator << endl;
+  os << "BrushMode: " << this->BrushMode << endl;
+  os << "InspectMode: " << this->InspectMode << endl;
+  os << "CurrentBrushClass: " << this->CurrentBrushClass << endl;
 }
 
 // ----------------------------------------------------------------------
