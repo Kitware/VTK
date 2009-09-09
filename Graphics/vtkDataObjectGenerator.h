@@ -19,16 +19,17 @@
 // dataobject template names it sees in the string. For example, if the string
 // contains "ID1" the generator will create a vtkImageData. "UF1", "RG1", 
 // "SG1", "PD1", and "UG1" will produce vtkUniformGrid, vtkRectilinearGrid,
-// vtkStructuredGrid, vtkPolyData and vtkUnstructuredGrid respectively. You 
+// vtkStructuredGrid, vtkPolyData and vtkUnstructuredGrid respectively.
+// "PD2" will produce an alternate vtkPolyData. You 
 // can compose composite datasets from the atomic ones listed above
-// by putting them between "(" and ")" in the string to create groups, and 
-// then placing a collection of groups together inside one of the two 
-// composite dataset identifiers - "MB{}" or "HB[]".
+// by placing them within one of the two composite dataset identifiers
+// - "MB{}" or "HB[]". "MB{ ID1 PD1 MB{} }" for example will create a 
+// vtkMultiBlockDataSet consisting of three blocks: image data, poly data, 
+// multi-block (empty). Hierarchical Box data sets additionally require
+// the notion of groups, declared within "()" braces, to specify AMR depth.
 // "HB[ (UF1)(UF1)(UF1) ]" will create a vtkHierarchicalBoxDataSet representing
-// an octree, in which the firstmost cell is refined, and then the firstmost 
-// refined cell is refined itself.
-// "MB{ ID1 PD1 MB{} }" will create a vtkMultiBlockDataSet consisting
-// of three blocks: image data, poly data, multi-block (empty).
+// an octree that is three levels deep, in which the firstmost cell in each level
+// is refined.
 
 #ifndef __vtkDataObjectGenerator_h
 #define __vtkDataObjectGenerator_h
