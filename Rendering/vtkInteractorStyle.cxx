@@ -34,7 +34,7 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkTDxInteractorStyleCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.104");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.105");
 vtkStandardNewMacro(vtkInteractorStyle);
 vtkCxxSetObjectMacro(vtkInteractorStyle,TDxStyle,vtkTDxInteractorStyle);
 
@@ -855,6 +855,16 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MouseWheelMotionFactor: " << this->MouseWheelMotionFactor << endl;
 
   os << indent << "Timer Duration: " << this->TimerDuration << endl;
+  
+  os << indent << "TDxStyle: ";
+  if(this->TDxStyle==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    this->TDxStyle->PrintSelf(os,indent.GetNextIndent());
+    }
 }
 
 // ----------------------------------------------------------------------------
