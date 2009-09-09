@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkPBivariateLinearTableThreshold, "1.1");
+vtkCxxRevisionMacro(vtkPBivariateLinearTableThreshold, "1.2");
 vtkStandardNewMacro(vtkPBivariateLinearTableThreshold);
 vtkCxxSetObjectMacro(vtkPBivariateLinearTableThreshold, Controller, vtkMultiProcessController);
 
@@ -93,11 +93,11 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
     
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
-    for (int i=0; i<numProcesses; i++)
+    for (int j=0; j<numProcesses; j++)
       {
-      recvOffsets[i] = totalLength*typeSize;
-      totalLength += recvLengths[i];
-      recvLengths[i] *= typeSize;
+      recvOffsets[j] = totalLength*typeSize;
+      totalLength += recvLengths[j];
+      recvLengths[j] *= typeSize;
       }
     
     // communicating this as a byte array :/
