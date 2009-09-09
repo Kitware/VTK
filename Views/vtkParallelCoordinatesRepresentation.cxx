@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.3");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -885,6 +885,7 @@ int vtkParallelCoordinatesRepresentation::PlaceAxes()
 
   // Get the location of the corners of the box
   double p1[2],p2[2];
+  p1[0] = p1[1] = p2[0] = p2[1] = 0.;
   this->GetPositionAndSize(p1,p2);
 
   // Specify the positions for the axes
@@ -1516,6 +1517,7 @@ void vtkParallelCoordinatesRepresentation::LassoSelectInternal(vtkPoints* brushP
     return;
 
   double leftAxisRange[2],rightAxisRange[2];
+  leftAxisRange[0] = leftAxisRange[1] = rightAxisRange[0] = rightAxisRange[1] = 0;
   this->GetRangeAtPosition(position,leftAxisRange);
   this->GetRangeAtPosition(position+1,rightAxisRange);
 
@@ -1573,6 +1575,7 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
     {
     // convert the points into data values
     double leftAxisRange[2],rightAxisRange[2];
+    leftAxisRange[0] = leftAxisRange[1] = rightAxisRange[0] = rightAxisRange[1] = 0;
     this->GetRangeAtPosition(position,leftAxisRange);
     this->GetRangeAtPosition(position+1,rightAxisRange);
 
@@ -1635,6 +1638,7 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
     {
     // convert the points into data values
     double leftAxisRange[2],rightAxisRange[2];
+    leftAxisRange[0] = leftAxisRange[1] = rightAxisRange[0] = rightAxisRange[1] = 0;
     this->GetRangeAtPosition(position,leftAxisRange);
     this->GetRangeAtPosition(position+1,rightAxisRange);
 
@@ -1965,6 +1969,7 @@ int vtkParallelCoordinatesRepresentation::SetPositionAndSize(double* position,
 {
   // rescale the Xs so that they fit into the range prescribed by position and size
   double oldPos[2],oldSize[2];
+  oldPos[0] = oldPos[1] = oldSize[0] = oldSize[1] = 0.;
   this->GetPositionAndSize(oldPos,oldSize);
 
   for (int i=0; i<this->NumberOfAxes; i++)
