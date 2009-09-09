@@ -1908,19 +1908,21 @@ void vtkQtChartAxis::generateLabels(const QRectF &contents)
 
         // Fill in the data based on the interval.
         rangeMaximum += interval / 2; // Account for round-off error.
-        //if (!vtkMath::IsInf(minimum.toDouble()) &&
-        //  !vtkMath::IsInf(maximum.toDouble()))
+        if ( minimum.toDouble() != HUGE_VAL &&
+          minimum.toDouble() != -HUGE_VAL &&
+          maximum.toDouble() != HUGE_VAL &&
+          maximum.toDouble() != -HUGE_VAL)
           {
           for( ; value < rangeMaximum; value += interval)
             {
             this->Model->addLabel(QVariant(value));
             }
           }
-        //else
-        //  {
-        //  this->Model->addLabel(minimum);
-        //  this->Model->addLabel(maximum);
-        //  }
+        else
+          {
+          this->Model->addLabel(minimum);
+          this->Model->addLabel(maximum);
+          }
         }
       }
     else
