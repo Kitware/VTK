@@ -33,27 +33,32 @@
 // contains that attribute, and 0 otherwise. 
 //
 // For example, the XML file containing the text:
-// <node name="jeff" age="26">
+// <pre>
+// &lt;node name="jeff" age="26"&gt;
 //   this is text in jeff's node
-//   <node name="joe">
-//     <node name="al" initials="amb" other="something"/>
-//     <node name="dave" age="30"/>
-//   </node>
-//   <node name="lisa">this is text in lisa's node</node>
-//   <node name="darlene" age="29"/>
-// </node>
+//   &lt;node name="joe"&gt;
+//     &lt;node name="al" initials="amb" other="something"/&gt;
+//     &lt;node name="dave" age="30"/&gt;
+//   &lt;/node&gt;
+//   &lt;node name="lisa"&gt;this is text in lisa's node&lt;/node&gt;
+//   &lt;node name="darlene" age="29"/&gt;
+// &lt;/node&gt;
+// </pre>
 //
 // would be parsed into a tree with the following node IDs and structure:
 //
+// <pre>
 // 0 (jeff) - children: 1 (joe), 4 (lisa), 5 (darlene)
 // 1 (joe)  - children: 2 (al), 3 (dave)
 // 2 (al)
 // 3 (dave)
 // 4 (lisa)
 // 5 (darlene)
+// </pre>
 //
 // and the node data arrays would be as follows:
 //
+// <pre>
 // name      initials  other     age       .tagname  .chardata
 // ------------------------------------------------------------------------------------------------
 // jeff      (empty)   (empty)   26         node     "  this is text in jeff's node\n  \n  \n  \n"
@@ -62,9 +67,11 @@
 // dave      (empty)   (empty)   30         node     (empty)
 // lisa      (empty)   (empty)   (empty)    node     "this is text in lisa's node"
 // darlene   (empty)   (empty)   29         node     (empty)
+// </pre>
 //
 // There would also be the following bit arrays if MaskArrays is on:
 //
+// <pre>
 // .valid.name   .valid.initials   .valid.other   .valid.age
 // ---------------------------------------------------------
 // 1             0                 0              1
@@ -73,6 +80,7 @@
 // 1             0                 0              1
 // 1             0                 0              0
 // 1             0                 0              1
+// </pre>
 
 
 #ifndef __vtkXMLTreeReader_h
