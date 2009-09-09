@@ -17,8 +17,9 @@
 
 #include "vtkCommand.h"
 #include "vtkTDxInteractorStyleSettings.h"
+#include "vtkTDxMotionEventInfo.h" // Borland needs it.
 
-vtkCxxRevisionMacro(vtkTDxInteractorStyle, "1.1");
+vtkCxxRevisionMacro(vtkTDxInteractorStyle, "1.2");
 
 vtkCxxSetObjectMacro(vtkTDxInteractorStyle,Settings,
                      vtkTDxInteractorStyleSettings);
