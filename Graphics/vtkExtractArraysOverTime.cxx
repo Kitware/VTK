@@ -266,6 +266,10 @@ void vtkExtractArraysOverTime::vtkInternal::AddFastPathTimeline(
     // Mark all pts as valid.
     value->ValidMaskArray->FillComponent(0, 1);
     }
+
+  // Fast-path does not provide us with the point coordinate information, so
+  // we cannot provide that to the output.
+  value->PointCoordinatesArray = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -500,6 +504,9 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
         {
         coordsArray->SetName("Probe Coordinates");
         }
+      coordsArray->FillComponent(0, 0.0);
+      coordsArray->FillComponent(1, 0.0);
+      coordsArray->FillComponent(2, 0.0);
       value.PointCoordinatesArray.TakeReference(coordsArray);
       }
 
@@ -521,7 +528,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.26");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.27");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
