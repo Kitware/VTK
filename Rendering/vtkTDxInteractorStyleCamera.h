@@ -35,11 +35,13 @@ public:
   static vtkTDxInteractorStyleCamera *New();
   vtkTypeRevisionMacro(vtkTDxInteractorStyleCamera,vtkTDxInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  //BTX
   // Description:
   // Action on motion event.
   // \pre: motionInfo_exist: motionInfo!=0
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
+  //ETX
   
 protected:
   vtkTDxInteractorStyleCamera();

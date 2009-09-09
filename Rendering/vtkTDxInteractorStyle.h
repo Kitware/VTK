@@ -40,7 +40,8 @@ class VTK_RENDERING_EXPORT vtkTDxInteractorStyle : public vtkObject
 public:
   vtkTypeRevisionMacro(vtkTDxInteractorStyle,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  //BTX
   // Description:
   // Action on motion event. Default implementation is empty.
   // \pre: motionInfo_exist: motionInfo!=0
@@ -53,6 +54,7 @@ public:
   // Description:
   // Action on button released event. Default implementation is empty.
   virtual void OnButtonReleasedEvent(int button);
+  //ETX
   
   // Description:
   // Dispatch the events TDxMotionEvent, TDxButtonPressEvent and
