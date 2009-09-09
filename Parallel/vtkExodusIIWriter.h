@@ -67,9 +67,9 @@
 #include "vtkWriter.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <vtkstd/vector> // For vector
-#include <vtkstd/map> // For map
-#include <vtkstd/string> // For string
+#include <vtkstd/vector> // STL Header
+#include <vtkstd/map>    // STL Header
+#include <vtkstd/string> // STL Header
 
 class vtkModelMetadata;
 class vtkDoubleArray;
@@ -195,8 +195,18 @@ protected:
 
   struct Block
   {
-    Block () : ElementStartIndex (-1), OutputIndex(-1) { }
-    char *Name;
+    Block () 
+      {
+      this->Type = 0;
+      this->NumElements = 0;
+      this->ElementStartIndex = -1;
+      this->NodesPerElements = 0;
+      this->GridIndex = 0;
+      this->OutputIndex = -1;
+      this->NumAttributes = 0;
+      this->BlockAttributes = 0;
+      };
+    int Type;
     int NumElements;
     int ElementStartIndex;
     int NodesPerElements;
