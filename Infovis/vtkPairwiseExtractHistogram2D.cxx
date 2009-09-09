@@ -42,7 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtkstd/map>
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.2");
+vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.3");
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals
@@ -387,6 +387,9 @@ int vtkPairwiseExtractHistogram2D::GetMaximumBinCount(int idx)
 //------------------------------------------------------------------------------
 int vtkPairwiseExtractHistogram2D::GetMaximumBinCount()
 {
+  if( !this->GetInputDataObject(0,0) )
+    return -1;
+
   if (this->BuildTime < this->GetMTime() || 
       this->BuildTime < this->GetInputDataObject(0,0)->GetMTime())
     this->Update();
