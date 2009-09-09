@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkBivariateLinearTableThreshold, "1.2");
+vtkCxxRevisionMacro(vtkBivariateLinearTableThreshold, "1.3");
 vtkStandardNewMacro(vtkBivariateLinearTableThreshold);
 
 class vtkBivariateLinearTableThreshold::Internals
@@ -58,6 +58,11 @@ vtkBivariateLinearTableThreshold::~vtkBivariateLinearTableThreshold()
 void vtkBivariateLinearTableThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "ColumnRanges: " << this->ColumnRanges[0] << " " << this->ColumnRanges[1] << endl;
+  os << "UseNormalizedDistance: " << this->UseNormalizedDistance << endl;
+  os << "Inclusive: " << this->Inclusive << endl;
+  os << "DistanceThreshold: " << this->DistanceThreshold << endl;
+  os << "LinearThresholdType: " << this->LinearThresholdType << endl;
 }
 
 void vtkBivariateLinearTableThreshold::Initialize()

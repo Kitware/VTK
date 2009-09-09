@@ -42,7 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtkstd/map>
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.1");
+vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.2");
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals
@@ -77,6 +77,9 @@ vtkPairwiseExtractHistogram2D::~vtkPairwiseExtractHistogram2D()
 void vtkPairwiseExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "NumberOfBins: " << this->NumberOfBins[0] << ", " << this->NumberOfBins[1] << endl;
+  os << "CustomColumnRangeIndex: " << this->CustomColumnRangeIndex << endl;
+  os << "ScalarType: " << this->ScalarType << endl;
 }
 //------------------------------------------------------------------------------
 void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData, 

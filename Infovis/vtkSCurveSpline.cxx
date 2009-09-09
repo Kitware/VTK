@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <assert.h>
 #include <vtkstd/algorithm> // for vtkstd::min()/vtkstd::max()
 
-vtkCxxRevisionMacro(vtkSCurveSpline, "1.2");
+vtkCxxRevisionMacro(vtkSCurveSpline, "1.3");
 vtkStandardNewMacro(vtkSCurveSpline);
 
 //----------------------------------------------------------------------------
@@ -253,6 +253,7 @@ void vtkSCurveSpline::DeepCopy(vtkSpline *s)
 void vtkSCurveSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "NodeWeight: " << this->NodeWeight << endl;
 }
 
 

@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExtractHistogram2D, "1.1");
+vtkCxxRevisionMacro(vtkExtractHistogram2D, "1.2");
 vtkStandardNewMacro(vtkExtractHistogram2D);
 //------------------------------------------------------------------------------
 // Figure out which histogram bin a pair of values fit into
@@ -95,6 +95,13 @@ vtkExtractHistogram2D::~vtkExtractHistogram2D()
 void vtkExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "ScalarType: " << this->ScalarType << endl;
+  os << "ComponentsToProcess: " << this->ComponentsToProcess[0] << ", " << this->ComponentsToProcess[1] << endl;
+  os << "UseCustomHistogramExtents: " << this->UseCustomHistogramExtents << endl;
+  os << "MaximumBinCount: " << this->MaximumBinCount << endl;
+  os << "SwapColumns: " << this->SwapColumns << endl;
+  os << "NumberOfBins: " << this->NumberOfBins[0] << ", " << this->NumberOfBins[1] << endl;
+  os << "CustomHistogramExtents: " << this->CustomHistogramExtents[0] << ", " << this->CustomHistogramExtents[1] << ", " << this->CustomHistogramExtents[2] << ", " << this->CustomHistogramExtents[3] << endl;
 }
 //------------------------------------------------------------------------------
 void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData), 

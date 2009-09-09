@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkPPairwiseExtractHistogram2D, "1.1");
+vtkCxxRevisionMacro(vtkPPairwiseExtractHistogram2D, "1.2");
 vtkStandardNewMacro(vtkPPairwiseExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPPairwiseExtractHistogram2D, Controller, vtkMultiProcessController);
 
@@ -60,6 +60,7 @@ vtkPPairwiseExtractHistogram2D::~vtkPPairwiseExtractHistogram2D()
 void vtkPPairwiseExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Controller: " << this->Controller << endl;
 }
 
 vtkExtractHistogram2D* vtkPPairwiseExtractHistogram2D::NewHistogramFilter()

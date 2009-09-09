@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSortDataArray.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkComputeHistogram2DOutliers, "1.1");
+vtkCxxRevisionMacro(vtkComputeHistogram2DOutliers, "1.2");
 vtkStandardNewMacro(vtkComputeHistogram2DOutliers);
 //------------------------------------------------------------------------------
 vtkComputeHistogram2DOutliers::vtkComputeHistogram2DOutliers()
@@ -218,6 +218,7 @@ int vtkComputeHistogram2DOutliers::FillOutputPortInformation(int port,
 void vtkComputeHistogram2DOutliers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "PreferredNumberOfOutliers: " << this->PreferredNumberOfOutliers << endl;
 }
 //------------------------------------------------------------------------------
 // Tries to find the right number of outliers.  Not the smartest thing

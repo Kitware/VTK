@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPExtractHistogram2D, "1.1");
+vtkCxxRevisionMacro(vtkPExtractHistogram2D, "1.2");
 vtkStandardNewMacro(vtkPExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPExtractHistogram2D, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -46,6 +46,7 @@ vtkPExtractHistogram2D::~vtkPExtractHistogram2D()
 void vtkPExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Controller: " << this->Controller << endl;
 }
 //------------------------------------------------------------------------------
 void vtkPExtractHistogram2D::Learn(vtkTable *inData, 

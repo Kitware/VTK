@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkPBivariateLinearTableThreshold, "1.2");
+vtkCxxRevisionMacro(vtkPBivariateLinearTableThreshold, "1.3");
 vtkStandardNewMacro(vtkPBivariateLinearTableThreshold);
 vtkCxxSetObjectMacro(vtkPBivariateLinearTableThreshold, Controller, vtkMultiProcessController);
 
@@ -49,6 +49,7 @@ vtkPBivariateLinearTableThreshold::~vtkPBivariateLinearTableThreshold()
 void vtkPBivariateLinearTableThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Controller: " << this->Controller << endl;
 }
 
 int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
