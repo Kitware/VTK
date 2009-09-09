@@ -1176,6 +1176,11 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3],
   else
     metric_vals->shape = (double) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
 
+  if( metric_vals->radius_ratio > 0 )
+    metric_vals->radius_ratio = (double) VERDICT_MIN( metric_vals->radius_ratio, VERDICT_DBL_MAX );\
+  else
+    metric_vals->radius_ratio = (double) VERDICT_MAX( metric_vals->radius_ratio, -VERDICT_DBL_MAX );
+
   if( metric_vals->scaled_jacobian > 0 )
     metric_vals->scaled_jacobian = (double) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
   else
