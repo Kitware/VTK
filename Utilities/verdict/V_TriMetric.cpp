@@ -1017,6 +1017,18 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3],
       metric_vals->aspect_frobenius = (double)(srms / div);
   }
 
+  // calculate the radius ratio of the triangle
+  if( metrics_request_flag & V_TRI_RADIUS_RATIO )
+  {
+  double a1 = sqrt( sides_lengths_squared[0] );
+  double b1 = sqrt( sides_lengths_squared[1] );
+  double c1 = sqrt( sides_lengths_squared[2] );
+
+  VerdictVector ab = sides[0] * sides[1];
+
+  metric_vals->radius_ratio = (double) .25 * a1 * b1 * c1 * ( a1 + b1 + c1 ) / ab.length_squared();
+  }
+
   // calculate the scaled jacobian
   if(metrics_request_flag & V_TRI_SCALED_JACOBIAN)
   {
