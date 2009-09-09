@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.13");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.14");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -74,8 +74,14 @@ void vtkTreeLayoutStrategy::Layout()
     tree = vtkTree::New();
     tree->ShallowCopy(bfs->GetOutput());
     bfs->Delete();
+    if (tree->GetNumberOfVertices() != this->Graph->GetNumberOfVertices())
+      {
+      vtkErrorMacro("Tree layout only works on connected graphs");
+      return;
+      }
 #else
     vtkErrorMacro("Layout only works on vtkTree unless VTK_USE_BOOST is on.");
+    return;
 #endif
     }
 
