@@ -138,8 +138,8 @@ protected:
 
 
 private:
-  vtkParallelCoordinatesView(const vtkParallelCoordinatesView&);
-  void operator=(const vtkParallelCoordinatesView&);
+  vtkParallelCoordinatesView(const vtkParallelCoordinatesView&); // Not implemented
+  void operator=(const vtkParallelCoordinatesView&); // Not implemented
 
 };
 
