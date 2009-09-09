@@ -22,8 +22,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include <assert.h>
+#include <vtkstd/algorithm> // for vtkstd::min()/vtkstd::max()
 
-vtkCxxRevisionMacro(vtkSCurveSpline, "1.1");
+vtkCxxRevisionMacro(vtkSCurveSpline, "1.2");
 vtkStandardNewMacro(vtkSCurveSpline);
 
 //----------------------------------------------------------------------------
