@@ -33,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.14");
+vtkCxxRevisionMacro(vtkPolyData, "1.15");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -2160,4 +2160,274 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
   os << indent << "Piece: " << this->GetPiece() << endl;
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId, 
+                                              vtkDataArray *scalarField)
+{
+  /* 
+   * implements scalar field critical point classification for manifold 
+   * 2D meshes.
+   */
+
+  /* 
+   * returned value:
+   *   -4: no such field
+   *   -3: attribute check failed
+   *   -2: non 2-manifold star
+   *   -1: regular point
+   *   0: minimum 
+   *   1: saddle 
+   *   2: maximum
+   */
+
+  bool  is_min = true, is_max = true;
+  vtkIdList *starTriangleList = vtkIdList::New(),
+            *lowerLinkPointList = vtkIdList::New(),
+            *upperLinkPointList = vtkIdList::New(),
+            *pointList = NULL;
+  double pointFieldValue = scalarField->GetComponent(pointId, 0),
+         neighborFieldValue = 0;
+
+  if(this->GetNumberOfPoints() != scalarField->GetSize()) 
+    return vtkPolyData::ERR_INCORRECT_FIELD;
+
+  /* make sure the connectivity is built */
+  if(!this->Links) this->BuildLinks();
+
+  /* build the lower and upper links */
+  this->GetPointCells(pointId, starTriangleList);
+  int starNb = starTriangleList->GetNumberOfIds();
+  for(int i = 0; i < starNb; i++)
+    {
+    vtkCell *c = this->GetCell(starTriangleList->GetId(i));
+    pointList = c->GetPointIds();
+    int pointNb = pointList->GetNumberOfIds();
+    if(pointNb != 3)
+      {
+      starTriangleList->Delete();
+      lowerLinkPointList->Delete();
+      upperLinkPointList->Delete();
+      return vtkPolyData::ERR_NON_MANIFOLD_STAR;
+      }
+
+    for(int j = 0; j < pointNb; j++)
+      {
+      vtkIdType  currentPointId = pointList->GetId(j);
+
+      /* quick check for extrema */
+      neighborFieldValue = scalarField->GetComponent(currentPointId, 0);
+      if((currentPointId != pointId)&&(neighborFieldValue == pointFieldValue))
+        {
+        /* simulation of simplicity (Edelsbrunner et al. ACM ToG 1990) */
+        if(currentPointId > pointId)
+          {
+          is_max = false;
+          upperLinkPointList->InsertUniqueId(currentPointId);
+          }
+        if(currentPointId < pointId)
+          {
+          is_min = false;
+          lowerLinkPointList->InsertUniqueId(currentPointId);
+          }
+        }
+      else
+        {
+        if(neighborFieldValue > pointFieldValue)
+          {
+          is_max = false;
+          upperLinkPointList->InsertUniqueId(currentPointId);
+          }
+        if(neighborFieldValue < pointFieldValue)
+          {
+          is_min = false;
+          lowerLinkPointList->InsertUniqueId(currentPointId);
+          }
+        }
+      }
+    }
+
+  if((is_max)||(is_min))
+    {
+    starTriangleList->Delete();
+    lowerLinkPointList->Delete();
+    upperLinkPointList->Delete();
+    if(is_max) return vtkPolyData::MAXIMUM;
+    if(is_min) return vtkPolyData::MINIMUM;
+    }
+
+  /* 
+   * is the vertex really regular?
+   * (lower and upper links are BOTH simply connected)
+   */
+  int visitedPointNb = 0, stackBottom = 0,
+      lowerLinkPointNb = lowerLinkPointList->GetNumberOfIds(),
+      upperLinkPointNb = upperLinkPointList->GetNumberOfIds();
+
+  /* first, check lower link's simply connectedness */
+  vtkIdList *stack = vtkIdList::New();
+  stack->InsertUniqueId(lowerLinkPointList->GetId(0));
+  vtkIdType currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+  do
+    {
+    stackBottom++;
+    vtkIdList *triangleList = vtkIdList::New();
+    this->GetPointCells(currentPointId, triangleList);
+    int triangleNb = triangleList->GetNumberOfIds();
+
+    for(int i = 0; i < triangleNb; i++)
+      {
+      vtkCell *c = this->GetCell(triangleList->GetId(i));
+      pointList = c->GetPointIds();;
+      int pointNb = pointList->GetNumberOfIds();
+
+      if(pointList->IsId(pointId) >= 0)
+        {
+        // those two triangles are in the star of pointId 
+        int j = 0;
+        do
+          {
+          nextPointId = pointList->GetId(j);
+          j++;
+          }while(((nextPointId == pointId)
+          ||(nextPointId == currentPointId))&&(j < pointNb ));
+        }
+
+      if(lowerLinkPointList->IsId(nextPointId) >= 0)
+        {
+        stack->InsertUniqueId(nextPointId);
+        }
+
+      }
+
+    triangleList->Delete();
+    visitedPointNb++;
+
+    currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+
+  }while(stackBottom < stack->GetNumberOfIds());
+
+  if(visitedPointNb != lowerLinkPointNb)
+    {
+    // the lower link is not simply connected, then it's a saddle 
+    stack->Delete();
+    starTriangleList->Delete();
+    lowerLinkPointList->Delete();
+    upperLinkPointList->Delete();
+    return vtkPolyData::SADDLE;
+    }
+
+  /* 
+   * then, check upper link's simply connectedness.
+   * BOTH need to be checked if the 2-manifold has bondary components.
+   */
+  stackBottom = 0;
+  visitedPointNb = 0;
+  stack->Delete();
+  stack = vtkIdList::New();
+  stack->InsertUniqueId(upperLinkPointList->GetId(0));
+  currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+  do
+    {
+    stackBottom++;
+    vtkIdList *triangleList = vtkIdList::New();
+    this->GetPointCells(currentPointId, triangleList);
+    int triangleNb = triangleList->GetNumberOfIds();
+
+    for(int i = 0; i < triangleNb; i++)
+      {
+      vtkCell *c = this->GetCell(triangleList->GetId(i));
+      pointList = c->GetPointIds();
+      int pointNb = pointList->GetNumberOfIds();
+
+      if(pointList->IsId(pointId) >= 0)
+        {
+        // those two triangles are in the star of pointId 
+        int j = 0;
+        do
+          {
+          nextPointId = pointList->GetId(j);
+          j++;
+          }while(((nextPointId == pointId)
+          ||(nextPointId == currentPointId))&&(j < pointNb));
+        }
+
+      if(upperLinkPointList->IsId(nextPointId) >= 0)
+        {
+        stack->InsertUniqueId(nextPointId);
+        }
+      }
+
+    triangleList->Delete();
+    visitedPointNb++;
+
+    currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+    }while(stackBottom < stack->GetNumberOfIds());
+
+  if(visitedPointNb != upperLinkPointNb)
+    {
+    // the upper link is not simply connected, then it's a saddle
+    stack->Delete();
+    starTriangleList->Delete();
+    lowerLinkPointList->Delete();
+    upperLinkPointList->Delete();
+    return vtkPolyData::SADDLE;
+    }
+
+  /* else it's necessarily a regular point (only 4 cases in 2D)*/
+  stack->Delete();
+  starTriangleList->Delete();
+  lowerLinkPointList->Delete();
+  upperLinkPointList->Delete();
+  return vtkPolyData::REGULAR_POINT;
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId, 
+                                              const char* fieldName)
+{
+  /* 
+   * returned value:
+   *   -4: no such field
+   *   -3: attribute check failed
+   *   -2: non 2-manifold star
+   *   -1: regular point
+   *   0: minimum 
+   *   1: saddle 
+   *   2: maximum
+   */
+
+  int fieldId = 0;
+
+  vtkPointData *pointData = this->GetPointData();
+  vtkDataArray *scalarField = pointData->GetArray(fieldName, fieldId);
+
+  if(!scalarField) return vtkPolyData::ERR_NO_SUCH_FIELD;
+
+  return this->GetScalarFieldCriticalIndex(pointId, scalarField);
+
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId, int fieldId)
+{
+  /* 
+   * returned value:
+   *   -4: no such field
+   *   -3: attribute check failed
+   *   -2: non 2-manifold star
+   *   -1: regular point
+   *   0: minimum 
+   *   1: saddle 
+   *   2: maximum
+   */
+
+  vtkPointData *pointData = this->GetPointData();
+  vtkDataArray *scalarField = pointData->GetArray(fieldId);
+
+  if(!scalarField) return vtkPolyData::ERR_NO_SUCH_FIELD;
+
+  return this->GetScalarFieldCriticalIndex(pointId, scalarField);
 }
