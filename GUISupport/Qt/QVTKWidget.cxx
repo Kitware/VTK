@@ -872,7 +872,13 @@ void QVTKWidget::focusInEvent(QFocusEvent*)
   // color groups so we do nothing here.
   
   // For 3Dconnexion devices:
-  this->GetInteractor()->StartListening();
+  QVTKInteractor* iren = this->GetInteractor();
+  // Note that this class can have interactor of type
+  // other than QVTKInteractor
+  if (iren)
+    {
+    iren->StartListening();
+    }
 }
 
 void QVTKWidget::focusOutEvent(QFocusEvent*)
@@ -884,7 +890,13 @@ void QVTKWidget::focusOutEvent(QFocusEvent*)
   // color groups so we do nothing here.
   
   // For 3DConnexion devices:
-  this->GetInteractor()->StopListening();
+  QVTKInteractor* iren = this->GetInteractor();
+  // Note that this class can have interactor of type
+  // other than QVTKInteractor
+  if (iren)
+    {
+    iren->StopListening();
+    }
 }
 
 
