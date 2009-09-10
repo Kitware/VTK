@@ -26,7 +26,13 @@
 
 class vtkRenderWindowInteractor;
 
-#include <BaseTsd.h> // for UINT_PTR
+// including <WinDef.h> directly leads to the following error:
+// "C:\Program Files\Microsoft SDKs\Windows\v6.0A\include\winnt.h(81) :
+// fatal error C1189: #error :  "No Target Architecture" "
+// so we need to include <windows.h> instead.
+#include <windows.h> // we need HWND from <WinDef.h>
+
+class vtkTDxWinDevicePrivate;
 
 class VTK_RENDERING_EXPORT vtkTDxWinDevice : public vtkTDxDevice
 {
@@ -35,19 +41,50 @@ public:
   vtkTypeRevisionMacro(vtkTDxWinDevice,vtkTDxDevice);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+ // Description:
+  // Get the Handle of the Window. Initial value is 0.
+  HWND GetWindowHandle() const;
+  
+  // Description:
+  // Set the handle of the Window.
+  // \pre not_yet_initialized: !GetInitialized()
+  void SetWindowHandle(HWND hWnd);
+
   // Description:
   // Initialize the device with the current display and window ids.
   // It updates the value of GetInitialized().
   // Initialization can fail (if the device is not present or the driver is
   // not running). You must look for the value of
   // GetInitialized() before processing further.
+  // If the case initialization is successful, GetIsListening() is false. 
   // \pre not_yet_initialized: !GetInitialized()
   void Initialize();
   
   // Description:
   // See description in the superclass. Implementation for Windows.
   virtual void Close();
-  
+
+  // Description:
+  // Tells if we are listening events on the device.
+  bool GetIsListening() const;
+
+  // Description:
+  // Call it when the window has or get the focus
+  // \pre initialized: GetInitialized()
+  // \pre not_yet: !GetIsListening()
+  void StartListening();
+
+  // Description:
+  // Call it when the window lose the focus.
+  // \pre initialized: GetInitialized()
+  // \pre is_listening: GetIsListening()
+  void StopListening();
+
+  // Description:
+  // Process the 3DConnexion event.
+  // Called internally by the timer.
+  void ProcessEvent();
+
 protected:
   // Description:
   // Default constructor.
@@ -58,8 +95,11 @@ protected:
   // is initialized, close the device.
   virtual ~vtkTDxWinDevice();
   
-  UINT_PTR TimerId;
-  
+  HWND WindowHandle;
+
+  vtkTDxWinDevicePrivate *Private;
+  bool IsListening;  
+
 private:
   vtkTDxWinDevice(const vtkTDxWinDevice&);  // Not implemented.
   void operator=(const vtkTDxWinDevice&);  // Not implemented.

@@ -102,6 +102,8 @@ public:
   virtual void OnChar       (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
   virtual void OnMouseWheelForward (HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnMouseWheelBackward(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnFocus(HWND wnd, UINT nFlags);
+  virtual void OnKillFocus(HWND wnd, UINT nFlags);
   //ETX
 
   // Description:

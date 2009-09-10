@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    QVTKWidget.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 /*
  * Copyright 2004 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -12,16 +26,6 @@
  http://www.trolltech.com/products/3rdparty/vtksupport.html
 =========================================================================*/
 
-/*========================================================================
- !!! WARNING for those who want to contribute code to this file.
- !!! If you use a commercial edition of Qt, you can modify this code.
- !!! If you use an open source version of Qt, you are free to modify
- !!! and use this code within the guidelines of the GPL license.
- !!! Unfortunately, you cannot contribute the changes back into this
- !!! file.  Doing so creates a conflict between the GPL and BSD-like VTK
- !!! license.
-=========================================================================*/
-
 #ifdef _MSC_VER
 // Disable warnings that Qt headers give.
 #pragma warning(disable:4127)
@@ -29,6 +33,10 @@
 #endif
 
 #include "QVTKWidget.h"
+
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+#include "vtkTDxWinDevice.h"
+#endif
 
 #if QT_VERSION >= 0x040000
 # include "QVTKPaintEngine.h"
@@ -80,6 +88,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
       cachedImageCleanFlag(false),
       automaticImageCache(false), maxImageCacheRenderRate(1.0)
 {
+  this->UseTDx=false;
+
   // no background
   this->setBackgroundMode( Qt::NoBackground );
 
@@ -111,6 +121,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
     automaticImageCache(false), maxImageCacheRenderRate(1.0)
 
 {
+  this->UseTDx=false;
   // no background
   this->setAttribute(Qt::WA_NoBackground);
   // no double buffering
@@ -161,6 +172,21 @@ QVTKWidget::~QVTKWidget()
 #endif
 }
 
+// ----------------------------------------------------------------------------
+void QVTKWidget::SetUseTDx(bool useTDx)
+{
+  if(useTDx!=this->UseTDx)
+    {
+      this->UseTDx=useTDx;
+    }
+}
+
+// ----------------------------------------------------------------------------
+bool QVTKWidget::GetUseTDx() const
+{
+  return this->UseTDx;
+}
+
 /*! get the render window
  */
 vtkRenderWindow* QVTKWidget::GetRenderWindow()
@@ -175,8 +201,6 @@ vtkRenderWindow* QVTKWidget::GetRenderWindow()
 
   return this->mRenWin;
 }
-
-
 
 /*! set the render window
   this will bind a VTK window with the Qt window
@@ -258,6 +282,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       {
       // create a default interactor
       QVTKInteractor* iren = QVTKInteractor::New();
+      iren->SetUseTDx(this->UseTDx);
       this->mRenWin->SetInteractor(iren);
       iren->Initialize();
         
@@ -845,6 +870,9 @@ void QVTKWidget::focusInEvent(QFocusEvent*)
   // does an update because the color group's 
   // active status changes.  We don't even use
   // color groups so we do nothing here.
+
+  // For 3Dconnexion devices:
+  this->GetInteractor()->StartListening();
 }
 
 void QVTKWidget::focusOutEvent(QFocusEvent*)
@@ -854,6 +882,9 @@ void QVTKWidget::focusOutEvent(QFocusEvent*)
   // does an update because the color group's 
   // active status changes.  We don't even use
   // color groups so we do nothing here.
+
+  // For 3DConnexion devices:
+  this->GetInteractor()->StopListening();
 }
 
 
@@ -1045,10 +1076,27 @@ QVTKInteractor::QVTKInteractor()
 {
   this->Internal = new QVTKInteractorInternal(this);
   QObject::connect(this->Internal->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)) );
+
+#if defined(VTK_USE_TDX) && defined (Q_WS_WIN)
+  this->Device=vtkTDxWinDevice::New();
+#endif
 }
   
 void QVTKInteractor::Initialize()
 {
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+    if(this->UseTDx)
+      {
+        // this is QWidget::winId();
+        HWND hWnd=static_cast<HWND>(this->GetRenderWindow()->GetGenericWindowId());
+        if(!this->Device->GetInitialized())
+          {
+      this->Device->SetInteractor(this);
+      this->Device->SetWindowHandle(hWnd);
+      this->Device->Initialize();
+          }
+      }
+#endif
   this->Initialized = 1;
   this->Enable();
 }
@@ -1067,6 +1115,27 @@ void QVTKInteractor::TerminateApp()
 {
   // we are in a GUI so let's terminate the GUI the normal way
   //qApp->exit();
+}
+
+// ----------------------------------------------------------------------------
+void QVTKInteractor::StartListening()
+{
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+  if(this->Device->GetInitialized() && !this->Device->GetIsListening())
+    {
+      this->Device->StartListening();
+    }
+#endif
+}
+// ----------------------------------------------------------------------------
+void QVTKInteractor::StopListening()
+{
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+  if(this->Device->GetInitialized() && this->Device->GetIsListening())
+    {
+      this->Device->StopListening();
+    }
+#endif
 }
 
 
@@ -1090,6 +1159,9 @@ void QVTKInteractor::TimerEvent(int timerId)
  */
 QVTKInteractor::~QVTKInteractor()
 {
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+  this->Device->Delete();
+#endif
 }
 
 /*! create Qt timer with an interval of 10 msec.

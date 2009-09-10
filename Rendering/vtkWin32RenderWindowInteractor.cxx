@@ -51,7 +51,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.105");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.106");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -195,6 +195,7 @@ void vtkWin32RenderWindowInteractor::Enable()
       {
       this->Device->SetInteractor(this);
       this->Device->Initialize();
+      this->Device->StartListening();
       }
 #endif
     
@@ -656,6 +657,37 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
 }
 
 //----------------------------------------------------------------------------
+void vtkWin32RenderWindowInteractor::OnFocus(HWND,UINT)
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+
+#ifdef VTK_USE_TDX
+   if(this->Device->GetInitialized() && !this->Device->GetIsListening())
+    {
+      this->Device->StartListening();
+    }
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+#ifdef VTK_USE_TDX
+  if(this->Device->GetInitialized() && this->Device->GetIsListening())
+    {
+      this->Device->StopListening();
+    }
+#endif
+}
+
+//----------------------------------------------------------------------------
 // This is only called when InstallMessageProc is true
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, 
                                   LPARAM lParam) 
@@ -787,6 +819,28 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 
     case WM_TIMER:
       me->OnTimer(hWnd,wParam);    
+      break;
+
+    case WM_ACTIVATE:
+      if(wParam==WA_INACTIVE)
+        {
+         me->OnKillFocus(hWnd,wParam);
+        }
+      else
+        {
+         me->OnFocus(hWnd,wParam);
+        }
+      break;
+
+    case WM_SETFOCUS:
+      // occurs when SetFocus() is called on the current window
+      me->OnFocus(hWnd,wParam);
+      break;
+
+    case WM_KILLFOCUS:
+      // occurs when the focus was on the current window and SetFocus() is
+      // called on another window. 
+      me->OnKillFocus(hWnd,wParam);
       break;
 
     default:

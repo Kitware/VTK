@@ -1,5 +1,20 @@
 /*=========================================================================
 
+  Program:   Visualization Toolkit
+  Module:    QVTKWidget.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+/*=========================================================================
+
   Copyright 2004 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
@@ -12,16 +27,6 @@
 /*========================================================================
  For general information about using VTK and Qt, see:
  http://www.trolltech.com/products/3rdparty/vtksupport.html
-=========================================================================*/
-
-/*========================================================================
- !!! WARNING for those who want to contribute code to this file.
- !!! If you use a commercial edition of Qt, you can modify this code.
- !!! If you use an open source version of Qt, you are free to modify
- !!! and use this code within the guidelines of the GPL license.
- !!! Unfortunately, you cannot contribute the changes back into this
- !!! file.  Doing so creates a conflict between the GPL and BSD-like VTK
- !!! license.
 =========================================================================*/
 
 // .NAME QVTKWidget - Display a vtkRenderWindow in a Qt's QWidget.
@@ -61,6 +66,11 @@ class vtkImageData;
 #endif
 
 #include "QVTKWin32Header.h"
+
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+class vtkTDxWinDevice;
+#endif
 
 //! QVTKWidget displays a VTK window in a Qt window.
 class QVTK_EXPORT QVTKWidget : public QWidget
@@ -143,6 +153,17 @@ class QVTK_EXPORT QVTKWidget : public QWidget
 
   virtual QPaintEngine* paintEngine() const;
 
+ // Description:
+  // Use a 3DConnexion device. Initial value is false.
+  // If VTK is not build with the TDx option, this is no-op.
+  // If VTK is build with the TDx option, and a device is not connected,
+  // a warning is emitted.
+  // It is must be called before the first Render to be effective, otherwise
+  // it is ignored.
+  void SetUseTDx(bool useTDx);
+  bool GetUseTDx() const;
+  
+
   @Q_SIGNALS@:
   // Description:
   // This signal will be emitted whenever a mouse event occurs
@@ -157,7 +178,6 @@ class QVTK_EXPORT QVTKWidget : public QWidget
   // Description:
   // This signal will be emitted whenever the cached image is refreshed.
   void cachedImageClean();
-
 
 public @Q_SLOTS@:
   // Description:
@@ -216,9 +236,10 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent*);
   // overload drop event
   virtual void dropEvent(QDropEvent*);
-     
+
   // the vtk render window
   vtkRenderWindow* mRenWin;
+  bool UseTDx;
 
   // the paint engine
   QPaintEngine* mPaintEngine;
@@ -281,6 +302,14 @@ public:
   virtual void Start();
   virtual void Initialize();
  
+  // Description:
+  // Start listening events on 3DConnexion device.
+  virtual void StartListening();
+
+  // Description:
+  // Stop listening events on 3DConnexion device.
+  virtual void StopListening();
+
 public @Q_SLOTS@:
 // timer event slot
 virtual void TimerEvent(int timerId);
@@ -295,6 +324,9 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   // destroy a Qt Timer
   virtual int InternalDestroyTimer(int platformTimerId);
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+  vtkTDxWinDevice *Device;
+#endif
 
 private:
 

@@ -1,5 +1,20 @@
 /*=========================================================================
 
+  Program:   Visualization Toolkit
+  Module:    GUI4.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+/*=========================================================================
+
   Copyright 2004 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
@@ -14,16 +29,6 @@
  http://www.trolltech.com/products/3rdparty/vtksupport.html
 =========================================================================*/
 
-/*========================================================================
- !!! WARNING for those who want to contribute code to this file.
- !!! If you use a commercial edition of Qt, you can modify this code.
- !!! If you use an open source version of Qt, you are free to modify
- !!! and use this code within the guidelines of the GPL license.
- !!! Unfortunately, you cannot contribute the changes back into this
- !!! file.  Doing so creates a conflict between the GPL and BSD-like VTK
- !!! license.
-=========================================================================*/
-
 #include "GUI4.h"
 
 #include <QMenu>
@@ -36,6 +41,9 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkInteractorStyle.h"
+#include "vtkTDxInteractorStyleCamera.h"
+#include "vtkTDxInteractorStyleSettings.h"
 
 GUI4::GUI4()
 {
@@ -44,8 +52,26 @@ GUI4::GUI4()
   // create a window to make it stereo capable and give it to QVTKWidget
   vtkRenderWindow* renwin = vtkRenderWindow::New();
   renwin->StereoCapableWindowOn();
+
+  // Activate 3DConnexion device only on the left render window.
+  qVTK1->SetUseTDx(true);
+
   qVTK1->SetRenderWindow(renwin);
   renwin->Delete();
+
+  const double angleSensitivity=0.02;
+  const double translationSensitivity=0.001;
+
+  QVTKInteractor *iren=qVTK1->GetInteractor();
+  vtkInteractorStyle *s=
+    static_cast<vtkInteractorStyle *>(iren->GetInteractorStyle());
+  vtkTDxInteractorStyleCamera *t=
+    static_cast<vtkTDxInteractorStyleCamera *>(s->GetTDxStyle());
+  
+  t->GetSettings()->SetAngleSensitivity(angleSensitivity);
+  t->GetSettings()->SetTranslationXSensitivity(translationSensitivity);
+  t->GetSettings()->SetTranslationYSensitivity(translationSensitivity);
+  t->GetSettings()->SetTranslationZSensitivity(translationSensitivity);
 
   // add a renderer
   Ren1 = vtkRenderer::New();
@@ -139,7 +165,6 @@ GUI4::GUI4()
                        SLOT(updateCoords(vtkObject*)));
 
   Connections->PrintSelf(cout, vtkIndent());
-  
 }
 
 GUI4::~GUI4()

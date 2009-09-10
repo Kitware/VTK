@@ -37,13 +37,8 @@
 #include "vtkTDxInteractorStyleCamera.h"
 #include "vtkTDxInteractorStyleSettings.h"
 
-#ifdef _WIN32
-      const double angleSensitivity=1.0;
-      const double translationSensitivity=1.0;
-#else
-      const double angleSensitivity=0.02;
-      const double translationSensitivity=0.001;
-#endif
+const double angleSensitivity=0.02;
+const double translationSensitivity=0.001;
 
 class myCommand : public vtkCommand
 {
