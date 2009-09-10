@@ -33,7 +33,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoArcs, "1.4");
+vtkCxxRevisionMacro(vtkGeoArcs, "1.5");
 vtkStandardNewMacro(vtkGeoArcs);
 
 vtkGeoArcs::vtkGeoArcs()
@@ -178,4 +178,3 @@ void vtkGeoArcs::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ExplodeFactor: " << this->ExplodeFactor << endl;
   os << indent << "NumberOfSubdivisions: " << this->NumberOfSubdivisions << endl;
 }
-
