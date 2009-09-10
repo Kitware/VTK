@@ -238,6 +238,11 @@ protected:
   virtual void UpdateHoverWidgetState();
 
   // Description:
+  // Update the pick render for queries for drag selections
+  // or hover ballooons.
+  void UpdatePickRender();
+
+  // Description:
   // Whether to render on every mouse move.
   void SetRenderOnMouseMove(bool b);
   vtkGetMacro(RenderOnMouseMove, bool);
@@ -252,6 +257,8 @@ protected:
   bool DisplayHoverText;
   bool Interacting;
   bool InHoverTextRender;
+  bool InPickRender;
+  bool PickRenderNeedsUpdate;
 
   vtkAbstractTransform* Transform;
   vtkTexture* IconTexture;

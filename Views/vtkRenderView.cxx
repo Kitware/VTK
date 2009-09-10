@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.33");
+vtkCxxRevisionMacro(vtkRenderView, "1.34");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -72,7 +72,7 @@ vtkRenderView::vtkRenderView()
   this->RenderWindow = vtkRenderWindow::New();
   this->Transform = vtkTransform::New();
   this->RenderOnMouseMove = false;
-  this->DisplayHoverText = true;
+  this->DisplayHoverText = false;
   this->IconTexture = 0;
   this->Interacting = false;
   this->InteractionMode = -1;
@@ -86,6 +86,8 @@ vtkRenderView::vtkRenderView()
   this->InHoverTextRender = false;
   this->IconSize[0] = 16;
   this->IconSize[1] = 16;
+  this->PickRenderNeedsUpdate = true;
+  this->InPickRender = false;
 
   vtkTransform::SafeDownCast(this->Transform)->Identity();
 
@@ -317,12 +319,14 @@ void vtkRenderView::ProcessEvents(
 {
   if (caller == this->GetInteractor() && eventId == vtkCommand::RenderEvent)
     {
+    vtkDebugMacro(<< "interactor causing a render event.");
     this->Render();
     }
   if (caller == this->HoverWidget.GetPointer() && eventId == vtkCommand::TimerEvent)
     {
-    this->InHoverTextRender = true;
+    vtkDebugMacro(<< "hover widget timer causing a render event.");
     this->UpdateHoverText();
+    this->InHoverTextRender = true;
     this->Render();
     this->InHoverTextRender = false;
     }
@@ -334,31 +338,31 @@ void vtkRenderView::ProcessEvents(
   if (caller == this->GetInteractor() && eventId == vtkCommand::EndInteractionEvent)
     {
     this->Interacting = false;
-    this->Render();
+    this->UpdateHoverWidgetState();
+    this->PickRenderNeedsUpdate = true;
     }
   if (caller == this->RenderWindow && eventId == vtkCommand::EndEvent)
     {
-    if (!this->Interacting && !this->InHoverTextRender && this->DisplayHoverText)
+    vtkDebugMacro(<< "did a render, interacting: " << this->Interacting
+         << " in pick render: " << this->InPickRender
+         << " in hover text render: " << this->InHoverTextRender);
+    if (!this->Interacting && !this->InPickRender && !this->InHoverTextRender)
       {
-      unsigned int area[4] = {0, 0, 0, 0};
-      area[2] = static_cast<unsigned int>(this->Renderer->GetSize()[0] - 1);
-      area[3] = static_cast<unsigned int>(this->Renderer->GetSize()[1] - 1);
-      this->Selector->SetArea(area);
-      this->RenderWindow->RemoveObserver(this->GetObserver());
-      this->LabelRenderer->DrawOff();
-      this->Selector->CaptureBuffers();
-      this->LabelRenderer->DrawOn();
-      this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
+      // This will cause UpdatePickRender to create a new snapshot of the view
+      // for picking with the next drag selection or hover event.
+      this->PickRenderNeedsUpdate = true;
       }
     }
   if (vtkDataRepresentation::SafeDownCast(caller) &&
       eventId == vtkCommand::SelectionChangedEvent)
     {
+    vtkDebugMacro("selection changed causing a render event");
     this->Render();
     }
   else if (caller == this->GetInteractorStyle() &&
            eventId == vtkCommand::SelectionChangedEvent)
     {
+    vtkDebugMacro("interactor style made a selection changed event");
     vtkSmartPointer<vtkSelection> selection =
       vtkSmartPointer<vtkSelection>::New();
     this->GenerateSelection(callData, selection);
@@ -374,6 +378,23 @@ void vtkRenderView::ProcessEvents(
       }
     }
   this->Superclass::ProcessEvents(caller, eventId, callData);
+}
+
+void vtkRenderView::UpdatePickRender()
+{
+  if (this->PickRenderNeedsUpdate)
+    {
+    this->InPickRender = true;
+    unsigned int area[4] = {0, 0, 0, 0};
+    area[2] = static_cast<unsigned int>(this->Renderer->GetSize()[0] - 1);
+    area[3] = static_cast<unsigned int>(this->Renderer->GetSize()[1] - 1);
+    this->Selector->SetArea(area);
+    this->LabelRenderer->DrawOff();
+    this->Selector->CaptureBuffers();
+    this->LabelRenderer->DrawOn();
+    this->InPickRender = false;
+    this->PickRenderNeedsUpdate = false;
+    }
 }
 
 void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
@@ -465,28 +486,10 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
     }
   else
     {
-    // Do a visible cell selection.
-    if (this->DisplayHoverText)
-      {
-      // We already have a cached image of cell ids so use it
-      vtkSelection* vsel = this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
-      sel->ShallowCopy(vsel);
-      vsel->Delete();
-      }
-    else
-      {
-      // Perform the extra render to do hardware selection
-      unsigned int area[4] = { screenMinX, screenMinY,
-                               screenMaxX, screenMaxY };
-      this->RenderWindow->RemoveObserver(this->GetObserver());
-      this->LabelRenderer->DrawOff();
-      this->Selector->SetArea(area);
-      vtkSelection* vsel = this->Selector->Select();
-      this->LabelRenderer->DrawOn();
-      this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
-      sel->ShallowCopy(vsel);
-      vsel->Delete();
-      }
+    this->UpdatePickRender();
+    vtkSelection* vsel = this->Selector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
+    sel->ShallowCopy(vsel);
+    vsel->Delete();
     }
 }
 
@@ -527,11 +530,13 @@ void vtkRenderView::UpdateHoverWidgetState()
     {
     if (!this->Interacting && (this->HoverWidget->GetEnabled() ? true : false) != this->DisplayHoverText)
       {
+      vtkDebugMacro(<< "turning " << (this->DisplayHoverText ? "on" : "off") << " hover widget");
       this->HoverWidget->SetEnabled(this->DisplayHoverText);
       }
     // Disable hover text when interacting.
     else if (this->Interacting && this->HoverWidget->GetEnabled())
       {
+      vtkDebugMacro(<< "turning off hover widget");
       this->HoverWidget->SetEnabled(false);
       }
     }
@@ -559,6 +564,8 @@ void vtkRenderView::PrepareForRendering()
 
 void vtkRenderView::UpdateHoverText()
 {
+  this->UpdatePickRender();
+
   int pos[2] = {0, 0};
   unsigned int upos[2] = {0, 0};
   double loc[2] = {0.0, 0.0};
