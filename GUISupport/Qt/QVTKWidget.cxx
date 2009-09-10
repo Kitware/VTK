@@ -177,7 +177,7 @@ void QVTKWidget::SetUseTDx(bool useTDx)
 {
   if(useTDx!=this->UseTDx)
     {
-      this->UseTDx=useTDx;
+    this->UseTDx=useTDx;
     }
 }
 
@@ -285,7 +285,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       iren->SetUseTDx(this->UseTDx);
       this->mRenWin->SetInteractor(iren);
       iren->Initialize();
-        
+      
       // now set the default style
       vtkInteractorStyle* s = vtkInteractorStyleTrackballCamera::New();
       iren->SetInteractorStyle(s);
@@ -296,7 +296,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     
     // tell the interactor the size of this window
     this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
-
+    
     // Add an observer to monitor when the image changes.  Should work most
     // of the time.  The application will have to call
     // markCachedImageAsDirty for any other case.
@@ -870,7 +870,7 @@ void QVTKWidget::focusInEvent(QFocusEvent*)
   // does an update because the color group's 
   // active status changes.  We don't even use
   // color groups so we do nothing here.
-
+  
   // For 3Dconnexion devices:
   this->GetInteractor()->StartListening();
 }
@@ -882,7 +882,7 @@ void QVTKWidget::focusOutEvent(QFocusEvent*)
   // does an update because the color group's 
   // active status changes.  We don't even use
   // color groups so we do nothing here.
-
+  
   // For 3DConnexion devices:
   this->GetInteractor()->StopListening();
 }
@@ -1085,17 +1085,17 @@ QVTKInteractor::QVTKInteractor()
 void QVTKInteractor::Initialize()
 {
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-    if(this->UseTDx)
+  if(this->UseTDx)
+    {
+    // this is QWidget::winId();
+    HWND hWnd=static_cast<HWND>(this->GetRenderWindow()->GetGenericWindowId());
+    if(!this->Device->GetInitialized())
       {
-        // this is QWidget::winId();
-        HWND hWnd=static_cast<HWND>(this->GetRenderWindow()->GetGenericWindowId());
-        if(!this->Device->GetInitialized())
-          {
       this->Device->SetInteractor(this);
       this->Device->SetWindowHandle(hWnd);
       this->Device->Initialize();
-          }
       }
+    }
 #endif
   this->Initialized = 1;
   this->Enable();
@@ -1123,17 +1123,18 @@ void QVTKInteractor::StartListening()
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
   if(this->Device->GetInitialized() && !this->Device->GetIsListening())
     {
-      this->Device->StartListening();
+    this->Device->StartListening();
     }
 #endif
 }
+
 // ----------------------------------------------------------------------------
 void QVTKInteractor::StopListening()
 {
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
   if(this->Device->GetInitialized() && this->Device->GetIsListening())
     {
-      this->Device->StopListening();
+    this->Device->StopListening();
     }
 #endif
 }

@@ -55,13 +55,13 @@ GUI4::GUI4()
 
   // Activate 3DConnexion device only on the left render window.
   qVTK1->SetUseTDx(true);
-
+  
   qVTK1->SetRenderWindow(renwin);
   renwin->Delete();
-
+  
   const double angleSensitivity=0.02;
   const double translationSensitivity=0.001;
-
+  
   QVTKInteractor *iren=qVTK1->GetInteractor();
   vtkInteractorStyle *s=
     static_cast<vtkInteractorStyle *>(iren->GetInteractorStyle());

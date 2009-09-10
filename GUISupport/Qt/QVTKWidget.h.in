@@ -152,8 +152,8 @@ class QVTK_EXPORT QVTKWidget : public QWidget
   virtual void showEvent(QShowEvent*);
 
   virtual QPaintEngine* paintEngine() const;
-
- // Description:
+  
+  // Description:
   // Use a 3DConnexion device. Initial value is false.
   // If VTK is not build with the TDx option, this is no-op.
   // If VTK is build with the TDx option, and a device is not connected,
@@ -305,7 +305,7 @@ public:
   // Description:
   // Start listening events on 3DConnexion device.
   virtual void StartListening();
-
+  
   // Description:
   // Stop listening events on 3DConnexion device.
   virtual void StopListening();
@@ -338,8 +338,4 @@ private:
   void operator=(const QVTKInteractor&);
 
 };
-
-
 #endif
-
-

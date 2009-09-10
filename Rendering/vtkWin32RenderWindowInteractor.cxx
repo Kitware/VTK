@@ -51,7 +51,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.106");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.107");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -663,11 +663,11 @@ void vtkWin32RenderWindowInteractor::OnFocus(HWND,UINT)
     {
     return;
     }
-
+  
 #ifdef VTK_USE_TDX
-   if(this->Device->GetInitialized() && !this->Device->GetIsListening())
+  if(this->Device->GetInitialized() && !this->Device->GetIsListening())
     {
-      this->Device->StartListening();
+    this->Device->StartListening();
     }
 #endif
 }
@@ -682,7 +682,7 @@ void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized() && this->Device->GetIsListening())
     {
-      this->Device->StopListening();
+    this->Device->StopListening();
     }
 #endif
 }
@@ -824,35 +824,34 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_ACTIVATE:
       if(wParam==WA_INACTIVE)
         {
-         me->OnKillFocus(hWnd,wParam);
+        me->OnKillFocus(hWnd,wParam);
         }
       else
         {
-         me->OnFocus(hWnd,wParam);
+        me->OnFocus(hWnd,wParam);
         }
       break;
-
+      
     case WM_SETFOCUS:
       // occurs when SetFocus() is called on the current window
       me->OnFocus(hWnd,wParam);
       break;
-
+      
     case WM_KILLFOCUS:
       // occurs when the focus was on the current window and SetFocus() is
       // called on another window. 
       me->OnKillFocus(hWnd,wParam);
       break;
-
+      
     default:
       if (me) 
         {
         return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
         }
     };
-
+  
   return 0;
 }
-
 
 //----------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
@@ -876,7 +875,6 @@ vtkWin32RenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
     // no call to this->Modified() since this is a class member function
     }
 }
-
 
 //----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.

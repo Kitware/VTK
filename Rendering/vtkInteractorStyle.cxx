@@ -34,7 +34,7 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkTDxInteractorStyleCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.105");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.106");
 vtkStandardNewMacro(vtkInteractorStyle);
 vtkCxxSetObjectMacro(vtkInteractorStyle,TDxStyle,vtkTDxInteractorStyle);
 
@@ -250,11 +250,11 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
     i->AddObserver(vtkCommand::TDxMotionEvent, 
                    this->EventCallbackCommand, 
                    this->Priority);
-
+    
     i->AddObserver(vtkCommand::TDxButtonPressEvent, 
                    this->EventCallbackCommand, 
                    this->Priority);
-
+    
     i->AddObserver(vtkCommand::TDxButtonReleaseEvent, 
                    this->EventCallbackCommand, 
                    this->Priority);
@@ -1110,4 +1110,3 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       break;
     }
 }
-

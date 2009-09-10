@@ -41,7 +41,7 @@ public:
   vtkTypeRevisionMacro(vtkTDxWinDevice,vtkTDxDevice);
   void PrintSelf(ostream& os, vtkIndent indent);
   
- // Description:
+  // Description:
   // Get the Handle of the Window. Initial value is 0.
   HWND GetWindowHandle() const;
   
@@ -73,13 +73,13 @@ public:
   // \pre initialized: GetInitialized()
   // \pre not_yet: !GetIsListening()
   void StartListening();
-
+  
   // Description:
   // Call it when the window lose the focus.
   // \pre initialized: GetInitialized()
   // \pre is_listening: GetIsListening()
   void StopListening();
-
+  
   // Description:
   // Process the 3DConnexion event.
   // Called internally by the timer.
@@ -96,10 +96,10 @@ protected:
   virtual ~vtkTDxWinDevice();
   
   HWND WindowHandle;
-
+  
   vtkTDxWinDevicePrivate *Private;
   bool IsListening;  
-
+  
 private:
   vtkTDxWinDevice(const vtkTDxWinDevice&);  // Not implemented.
   void operator=(const vtkTDxWinDevice&);  // Not implemented.
