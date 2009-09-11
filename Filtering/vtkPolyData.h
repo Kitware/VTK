@@ -431,7 +431,7 @@ public:
     REGULAR_POINT = -1,
     MINIMUM = 0,
     SADDLE = 1,
-    MAXIMUM = 2,
+    MAXIMUM = 2
     };
   //ETX
   int GetScalarFieldCriticalIndex (vtkIdType pointId, 
