@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2009-08-12 18:15:17 $ */
+/* glext.h last updated $Date: 2009-09-11 19:02:58 $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 54
+#define GL_GLEXT_VERSION 55
 
 /* Function declaration macros - to move into glplatform.h */
 
@@ -4309,6 +4309,88 @@ extern "C" {
 #ifndef GL_APPLE_row_bytes
 #define GL_PACK_ROW_BYTES_APPLE           0x8A15
 #define GL_UNPACK_ROW_BYTES_APPLE         0x8A16
+#endif
+
+#ifndef GL_APPLE_rgb_422
+#define GL_RGB_422_APPLE                  0x8A1F
+/* reuse GL_UNSIGNED_SHORT_8_8_APPLE */
+/* reuse GL_UNSIGNED_SHORT_8_8_REV_APPLE */
+#endif
+
+#ifndef GL_NV_video_capture
+#define GL_VIDEO_BUFFER_NV                0x9020
+#define GL_VIDEO_BUFFER_BINDING_NV        0x9021
+#define GL_FIELD_UPPER_NV                 0x9022
+#define GL_FIELD_LOWER_NV                 0x9023
+#define GL_NUM_VIDEO_CAPTURE_STREAMS_NV   0x9024
+#define GL_NEXT_VIDEO_CAPTURE_BUFFER_STATUS_NV 0x9025
+#define GL_VIDEO_CAPTURE_TO_422_SUPPORTED_NV 0x9026
+#define GL_LAST_VIDEO_CAPTURE_STATUS_NV   0x9027
+#define GL_VIDEO_BUFFER_PITCH_NV          0x9028
+#define GL_VIDEO_COLOR_CONVERSION_MATRIX_NV 0x9029
+#define GL_VIDEO_COLOR_CONVERSION_MAX_NV  0x902A
+#define GL_VIDEO_COLOR_CONVERSION_MIN_NV  0x902B
+#define GL_VIDEO_COLOR_CONVERSION_OFFSET_NV 0x902C
+#define GL_VIDEO_BUFFER_INTERNAL_FORMAT_NV 0x902D
+#define GL_PARTIAL_SUCCESS_NV             0x902E
+#define GL_SUCCESS_NV                     0x902F
+#define GL_FAILURE_NV                     0x9030
+#define GL_YCBYCR8_422_NV                 0x9031
+#define GL_YCBAYCR8A_4224_NV              0x9032
+#define GL_Z6Y10Z6CB10Z6Y10Z6CR10_422_NV  0x9033
+#define GL_Z6Y10Z6CB10Z6A10Z6Y10Z6CR10Z6A10_4224_NV 0x9034
+#define GL_Z4Y12Z4CB12Z4Y12Z4CR12_422_NV  0x9035
+#define GL_Z4Y12Z4CB12Z4A12Z4Y12Z4CR12Z4A12_4224_NV 0x9036
+#define GL_Z4Y12Z4CB12Z4CR12_444_NV       0x9037
+#define GL_VIDEO_CAPTURE_FRAME_WIDTH_NV   0x9038
+#define GL_VIDEO_CAPTURE_FRAME_HEIGHT_NV  0x9039
+#define GL_VIDEO_CAPTURE_FIELD_UPPER_HEIGHT_NV 0x903A
+#define GL_VIDEO_CAPTURE_FIELD_LOWER_HEIGHT_NV 0x903B
+#define GL_VIDEO_CAPTURE_SURFACE_ORIGIN_NV 0x903C
+#endif
+
+#ifndef GL_NV_copy_image
+#endif
+
+#ifndef GL_EXT_separate_shader_objects
+#define GL_ACTIVE_PROGRAM_EXT             0x8B8D
+#endif
+
+#ifndef GL_NV_parameter_buffer_object2
+#endif
+
+#ifndef GL_NV_shader_buffer_load
+#define GL_BUFFER_GPU_ADDRESS_NV          0x8F1D
+#define GL_GPU_ADDRESS_NV                 0x8F34
+#define GL_MAX_SHADER_BUFFER_ADDRESS_NV   0x8F35
+#endif
+
+#ifndef GL_NV_vertex_buffer_unified_memory
+#define GL_VERTEX_ATTRIB_ARRAY_UNIFIED_NV 0x8F1E
+#define GL_ELEMENT_ARRAY_UNIFIED_NV       0x8F1F
+#define GL_VERTEX_ATTRIB_ARRAY_ADDRESS_NV 0x8F20
+#define GL_VERTEX_ARRAY_ADDRESS_NV        0x8F21
+#define GL_NORMAL_ARRAY_ADDRESS_NV        0x8F22
+#define GL_COLOR_ARRAY_ADDRESS_NV         0x8F23
+#define GL_INDEX_ARRAY_ADDRESS_NV         0x8F24
+#define GL_TEXTURE_COORD_ARRAY_ADDRESS_NV 0x8F25
+#define GL_EDGE_FLAG_ARRAY_ADDRESS_NV     0x8F26
+#define GL_SECONDARY_COLOR_ARRAY_ADDRESS_NV 0x8F27
+#define GL_FOG_COORD_ARRAY_ADDRESS_NV     0x8F28
+#define GL_ELEMENT_ARRAY_ADDRESS_NV       0x8F29
+#define GL_VERTEX_ATTRIB_ARRAY_LENGTH_NV  0x8F2A
+#define GL_VERTEX_ARRAY_LENGTH_NV         0x8F2B
+#define GL_NORMAL_ARRAY_LENGTH_NV         0x8F2C
+#define GL_COLOR_ARRAY_LENGTH_NV          0x8F2D
+#define GL_INDEX_ARRAY_LENGTH_NV          0x8F2E
+#define GL_TEXTURE_COORD_ARRAY_LENGTH_NV  0x8F2F
+#define GL_EDGE_FLAG_ARRAY_LENGTH_NV      0x8F30
+#define GL_SECONDARY_COLOR_ARRAY_LENGTH_NV 0x8F31
+#define GL_FOG_COORD_ARRAY_LENGTH_NV      0x8F32
+#define GL_ELEMENT_ARRAY_LENGTH_NV        0x8F33
+#endif
+
+#ifndef GL_NV_texture_barrier
 #endif
 
 
@@ -9243,6 +9325,136 @@ typedef void (APIENTRYP PFNGLGETOBJECTPARAMETERIVAPPLEPROC) (GLenum objectType, 
 
 #ifndef GL_APPLE_row_bytes
 #define GL_APPLE_row_bytes 1
+#endif
+
+#ifndef GL_APPLE_rgb_422
+#define GL_APPLE_rgb_422 1
+#endif
+
+#ifndef GL_NV_video_capture
+#define GL_NV_video_capture 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glBeginVideoCaptureNV (GLuint);
+GLAPI void APIENTRY glBindVideoCaptureStreamBufferNV (GLuint, GLuint, GLenum, GLintptrARB);
+GLAPI void APIENTRY glBindVideoCaptureStreamTextureNV (GLuint, GLuint, GLenum, GLenum, GLuint);
+GLAPI void APIENTRY glEndVideoCaptureNV (GLuint);
+GLAPI void APIENTRY glGetVideoCaptureivNV (GLuint, GLenum, GLint *);
+GLAPI void APIENTRY glGetVideoCaptureStreamivNV (GLuint, GLuint, GLenum, GLint *);
+GLAPI void APIENTRY glGetVideoCaptureStreamfvNV (GLuint, GLuint, GLenum, GLfloat *);
+GLAPI void APIENTRY glGetVideoCaptureStreamdvNV (GLuint, GLuint, GLenum, GLdouble *);
+GLAPI GLenum APIENTRY glVideoCaptureNV (GLuint, GLuint *, GLuint64EXT *);
+GLAPI void APIENTRY glVideoCaptureStreamParameterivNV (GLuint, GLuint, GLenum, const GLint *);
+GLAPI void APIENTRY glVideoCaptureStreamParameterfvNV (GLuint, GLuint, GLenum, const GLfloat *);
+GLAPI void APIENTRY glVideoCaptureStreamParameterdvNV (GLuint, GLuint, GLenum, const GLdouble *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLBEGINVIDEOCAPTURENVPROC) (GLuint video_capture_slot);
+typedef void (APIENTRYP PFNGLBINDVIDEOCAPTURESTREAMBUFFERNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum frame_region, GLintptrARB offset);
+typedef void (APIENTRYP PFNGLBINDVIDEOCAPTURESTREAMTEXTURENVPROC) (GLuint video_capture_slot, GLuint stream, GLenum frame_region, GLenum target, GLuint texture);
+typedef void (APIENTRYP PFNGLENDVIDEOCAPTURENVPROC) (GLuint video_capture_slot);
+typedef void (APIENTRYP PFNGLGETVIDEOCAPTUREIVNVPROC) (GLuint video_capture_slot, GLenum pname, GLint *params);
+typedef void (APIENTRYP PFNGLGETVIDEOCAPTURESTREAMIVNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum pname, GLint *params);
+typedef void (APIENTRYP PFNGLGETVIDEOCAPTURESTREAMFVNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum pname, GLfloat *params);
+typedef void (APIENTRYP PFNGLGETVIDEOCAPTURESTREAMDVNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum pname, GLdouble *params);
+typedef GLenum (APIENTRYP PFNGLVIDEOCAPTURENVPROC) (GLuint video_capture_slot, GLuint *sequence_num, GLuint64EXT *capture_time);
+typedef void (APIENTRYP PFNGLVIDEOCAPTURESTREAMPARAMETERIVNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum pname, const GLint *params);
+typedef void (APIENTRYP PFNGLVIDEOCAPTURESTREAMPARAMETERFVNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum pname, const GLfloat *params);
+typedef void (APIENTRYP PFNGLVIDEOCAPTURESTREAMPARAMETERDVNVPROC) (GLuint video_capture_slot, GLuint stream, GLenum pname, const GLdouble *params);
+#endif
+
+#ifndef GL_NV_copy_image
+#define GL_NV_copy_image 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glCopyImageSubDataNV (GLuint, GLenum, GLint, GLint, GLint, GLint, GLuint, GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLCOPYIMAGESUBDATANVPROC) (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
+#endif
+
+#ifndef GL_EXT_separate_shader_objects
+#define GL_EXT_separate_shader_objects 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glUseShaderProgramEXT (GLenum, GLuint);
+GLAPI void APIENTRY glActiveProgramEXT (GLuint);
+GLAPI GLuint APIENTRY glCreateShaderProgramEXT (GLenum, const GLchar *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLUSESHADERPROGRAMEXTPROC) (GLenum type, GLuint program);
+typedef void (APIENTRYP PFNGLACTIVEPROGRAMEXTPROC) (GLuint program);
+typedef GLuint (APIENTRYP PFNGLCREATESHADERPROGRAMEXTPROC) (GLenum type, const GLchar *string);
+#endif
+
+#ifndef GL_NV_parameter_buffer_object2
+#define GL_NV_parameter_buffer_object2 1
+#endif
+
+#ifndef GL_NV_shader_buffer_load
+#define GL_NV_shader_buffer_load 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glMakeBufferResidentNV (GLenum, GLenum);
+GLAPI void APIENTRY glMakeBufferNonResidentNV (GLenum);
+GLAPI GLboolean APIENTRY glIsBufferResidentNV (GLenum);
+GLAPI void APIENTRY glNamedMakeBufferResidentNV (GLuint, GLenum);
+GLAPI void APIENTRY glNamedMakeBufferNonResidentNV (GLuint);
+GLAPI GLboolean APIENTRY glIsNamedBufferResidentNV (GLuint);
+GLAPI void APIENTRY glGetBufferParameterui64vNV (GLenum, GLenum, GLuint64EXT *);
+GLAPI void APIENTRY glGetNamedBufferParameterui64vNV (GLuint, GLenum, GLuint64EXT *);
+GLAPI void APIENTRY glGetIntegerui64vNV (GLenum, GLuint64EXT *);
+GLAPI void APIENTRY glUniformui64NV (GLint, GLuint64EXT);
+GLAPI void APIENTRY glUniformui64vNV (GLint, GLsizei, const GLuint64EXT *);
+GLAPI void APIENTRY glGetUniformui64vNV (GLuint, GLint, GLuint64EXT *);
+GLAPI void APIENTRY glProgramUniformui64NV (GLuint, GLint, GLuint64EXT);
+GLAPI void APIENTRY glProgramUniformui64vNV (GLuint, GLint, GLsizei, const GLuint64EXT *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLMAKEBUFFERRESIDENTNVPROC) (GLenum target, GLenum access);
+typedef void (APIENTRYP PFNGLMAKEBUFFERNONRESIDENTNVPROC) (GLenum target);
+typedef GLboolean (APIENTRYP PFNGLISBUFFERRESIDENTNVPROC) (GLenum target);
+typedef void (APIENTRYP PFNGLNAMEDMAKEBUFFERRESIDENTNVPROC) (GLuint buffer, GLenum access);
+typedef void (APIENTRYP PFNGLNAMEDMAKEBUFFERNONRESIDENTNVPROC) (GLuint buffer);
+typedef GLboolean (APIENTRYP PFNGLISNAMEDBUFFERRESIDENTNVPROC) (GLuint buffer);
+typedef void (APIENTRYP PFNGLGETBUFFERPARAMETERUI64VNVPROC) (GLenum target, GLenum pname, GLuint64EXT *params);
+typedef void (APIENTRYP PFNGLGETNAMEDBUFFERPARAMETERUI64VNVPROC) (GLuint buffer, GLenum pname, GLuint64EXT *params);
+typedef void (APIENTRYP PFNGLGETINTEGERUI64VNVPROC) (GLenum value, GLuint64EXT *result);
+typedef void (APIENTRYP PFNGLUNIFORMUI64NVPROC) (GLint location, GLuint64EXT value);
+typedef void (APIENTRYP PFNGLUNIFORMUI64VNVPROC) (GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (APIENTRYP PFNGLGETUNIFORMUI64VNVPROC) (GLuint program, GLint location, GLuint64EXT *params);
+typedef void (APIENTRYP PFNGLPROGRAMUNIFORMUI64NVPROC) (GLuint program, GLint location, GLuint64EXT value);
+typedef void (APIENTRYP PFNGLPROGRAMUNIFORMUI64VNVPROC) (GLuint program, GLint location, GLsizei count, const GLuint64EXT *value);
+#endif
+
+#ifndef GL_NV_vertex_buffer_unified_memory
+#define GL_NV_vertex_buffer_unified_memory 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glBufferAddressRangeNV (GLenum, GLuint, GLuint64EXT, GLsizeiptr);
+GLAPI void APIENTRY glVertexFormatNV (GLint, GLenum, GLsizei);
+GLAPI void APIENTRY glNormalFormatNV (GLenum, GLsizei);
+GLAPI void APIENTRY glColorFormatNV (GLint, GLenum, GLsizei);
+GLAPI void APIENTRY glIndexFormatNV (GLenum, GLsizei);
+GLAPI void APIENTRY glTexCoordFormatNV (GLint, GLenum, GLsizei);
+GLAPI void APIENTRY glEdgeFlagFormatNV (GLsizei);
+GLAPI void APIENTRY glSecondaryColorFormatNV (GLint, GLenum, GLsizei);
+GLAPI void APIENTRY glFogCoordFormatNV (GLenum, GLsizei);
+GLAPI void APIENTRY glVertexAttribFormatNV (GLuint, GLint, GLenum, GLboolean, GLsizei);
+GLAPI void APIENTRY glVertexAttribIFormatNV (GLuint, GLint, GLenum, GLsizei);
+GLAPI void APIENTRY glGetIntegerui64i_vNV (GLenum, GLuint, GLuint64EXT *);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLBUFFERADDRESSRANGENVPROC) (GLenum pname, GLuint index, GLuint64EXT address, GLsizeiptr length);
+typedef void (APIENTRYP PFNGLVERTEXFORMATNVPROC) (GLint size, GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLNORMALFORMATNVPROC) (GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLCOLORFORMATNVPROC) (GLint size, GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLINDEXFORMATNVPROC) (GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLTEXCOORDFORMATNVPROC) (GLint size, GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLEDGEFLAGFORMATNVPROC) (GLsizei stride);
+typedef void (APIENTRYP PFNGLSECONDARYCOLORFORMATNVPROC) (GLint size, GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLFOGCOORDFORMATNVPROC) (GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLVERTEXATTRIBFORMATNVPROC) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride);
+typedef void (APIENTRYP PFNGLVERTEXATTRIBIFORMATNVPROC) (GLuint index, GLint size, GLenum type, GLsizei stride);
+typedef void (APIENTRYP PFNGLGETINTEGERUI64I_VNVPROC) (GLenum value, GLuint index, GLuint64EXT *result);
+#endif
+
+#ifndef GL_NV_texture_barrier
+#define GL_NV_texture_barrier 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glTextureBarrierNV (void);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLTEXTUREBARRIERNVPROC) (void);
 #endif
 
 
