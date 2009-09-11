@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.14");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.15");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -77,6 +77,7 @@ void vtkTreeLayoutStrategy::Layout()
     if (tree->GetNumberOfVertices() != this->Graph->GetNumberOfVertices())
       {
       vtkErrorMacro("Tree layout only works on connected graphs");
+      tree->Delete();
       return;
       }
 #else
