@@ -1283,8 +1283,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   SET(__inst_files
     ${VTK_BINARY_DIR}/vtkConfigure.h
-    ${VTK_BINARY_DIR}/vtkToolkits.h
-    ${VTK_BINARY_DIR}/vtkTDxConfigure.h)
+    ${VTK_BINARY_DIR}/vtkToolkits.h)
   INSTALL(FILES ${__inst_files}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development)
