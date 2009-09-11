@@ -1,4 +1,3 @@
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
 
 CMAKE_POLICY(SET CMP0011 NEW)
@@ -837,7 +836,7 @@ cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK checkout VTKLargeData"
 #-----------------------------------------------------------------------------
 # FFMPEG
 # If the ffmpeg library is available, use it.
-OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK use it for saving .avi animation files?" BOOL)
+OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK use it for saving .avi animation files?" FALSE)
 MARK_AS_ADVANCED(VTK_USE_FFMPEG_ENCODER)
 IF (VTK_USE_FFMPEG_ENCODER)
   INCLUDE(${VTK_CMAKE_DIR}/FindFFMPEG.cmake OPTIONAL)
