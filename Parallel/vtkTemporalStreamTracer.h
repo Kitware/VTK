@@ -28,8 +28,8 @@
 #include "vtkStreamTracer.h"
 
 //BTX
-#include <vtkstd/vector> // Because they are good
-#include <vtkstd/list>   // Because they are good
+#include <vtkstd/vector> // STL Header
+#include <vtkstd/list>   // STL Header
 //ETX
 
 class vtkMultiProcessController;
@@ -131,7 +131,7 @@ public:
   enum Units
   {
     TERMINATION_TIME_UNIT,
-    TERMINATION_STEP_UNIT,
+    TERMINATION_STEP_UNIT
   };
 //ETX
 
