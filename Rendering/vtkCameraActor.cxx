@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkCameraActor, "1.4");
+vtkCxxRevisionMacro(vtkCameraActor, "1.5");
 vtkStandardNewMacro(vtkCameraActor);
 vtkCxxSetObjectMacro(vtkCameraActor, Camera, vtkCamera);
 
@@ -125,6 +125,32 @@ unsigned long int vtkCameraActor::GetMTime()
       }
     }
   return mTime;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Get property of the internal actor.
+vtkProperty *vtkCameraActor::GetProperty()
+{
+  if(this->FrustumActor==0)
+    {
+    this->FrustumActor=vtkActor::New();
+    }
+  
+  return this->FrustumActor->GetProperty();
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Set property of the internal actor.
+void vtkCameraActor::SetProperty(vtkProperty *p)
+{
+  if(this->FrustumActor==0)
+    {
+    this->FrustumActor=vtkActor::New();
+    }
+  
+  this->FrustumActor->SetProperty(p);
 }
 
 // ----------------------------------------------------------------------------

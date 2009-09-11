@@ -29,6 +29,7 @@ class vtkCamera;
 class vtkFrustumSource;
 class vtkPolyDataMapper;
 class vtkActor;
+class vtkProperty;
 
 class VTK_RENDERING_EXPORT vtkCameraActor : public vtkProp3D
 {
@@ -69,6 +70,14 @@ public:
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
   unsigned long int GetMTime();
+  
+  // Description:
+  // Get property of the internal actor.
+  vtkProperty *GetProperty();
+
+  // Description:
+  // Set property of the internal actor.
+  void SetProperty(vtkProperty *p);
   
 protected:
   vtkCameraActor();
