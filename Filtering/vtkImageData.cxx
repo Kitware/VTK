@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.35");
+vtkCxxRevisionMacro(vtkImageData, "1.36");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1699,7 +1699,7 @@ void vtkImageData::Crop()
   int           maxX, maxY, maxZ;
   vtkIdType     outId, inId, inIdY, inIdZ, incZ, incY;
   vtkImageData  *newImage;
-  int numPts, numCells, tmp;
+  vtkIdType numPts, numCells, tmp;
   const int* extent = this->Extent;
 
   int updateExtent[6] = {0,-1,0,-1,0,-1};
