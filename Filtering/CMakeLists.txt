@@ -63,6 +63,7 @@ vtkDemandDrivenPipeline.cxx
 vtkDirectedAcyclicGraph.cxx
 vtkDirectedGraphAlgorithm.cxx
 vtkDirectedGraph.cxx
+vtkDiscretizableColorTransferFunction.cxx
 vtkDistributedGraphHelper.cxx
 vtkEdgeListIterator.cxx
 vtkEmptyCell.cxx
