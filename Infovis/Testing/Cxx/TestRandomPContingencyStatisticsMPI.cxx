@@ -174,6 +174,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << i
            << ", grand total = "
            << GT_g[i]
+           << ", contingency table size = "
+           << outputContingency->GetNumberOfRows()
            << "\n";
       
       if ( GT_g[i] != testIntValue )
@@ -437,7 +439,7 @@ int main( int argc, char** argv )
 
 #if CONTINGENCY_BIG_CASE
   args.nVals = 1000000;
-  args.span = 50.;
+  args.span = 200.;
 #else // CONTINGENCY_BIG_CASE
   args.nVals = 10;
   args.span = 3.;
