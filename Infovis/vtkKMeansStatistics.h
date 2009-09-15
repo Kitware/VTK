@@ -114,7 +114,7 @@ public:
   vtkSetMacro( MaxNumIterations, int );
 
   // Description:
-  // Set the Toleratnce.
+  // Set the Tolerance.
   vtkSetMacro( Tolerance, double );
 
 //BTX

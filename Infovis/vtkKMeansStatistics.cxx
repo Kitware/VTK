@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.10");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.11");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -642,7 +642,15 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
                     <<  i 
                     << ")";
 
-       vtkVariantArray* assessValues = vtkVariantArray::New();
+       vtkAbstractArray* assessValues;
+       if ( v )
+         { // The "closest id" column for each request will always be integer-valued
+         assessValues = vtkIntArray::New();
+         }
+       else
+         { // We'll assume for now that the "distance" column for each request will be a real number.
+         assessValues = vtkDoubleArray::New();
+         }
        names[i*nv+v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
        assessValues->SetName( names[i*nv+v] );
        assessValues->SetNumberOfTuples( nsamples );
