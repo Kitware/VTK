@@ -424,14 +424,6 @@ int main( int argc, char** argv )
          << " will be the I/O node.\n";
     }
       
-  // Check how many processes have been made available
-  int numProcs = controller->GetNumberOfProcesses();
-  if ( controller->GetLocalProcessId() == ioRank )
-    {
-    cout << "\n# Running test with "
-         << numProcs
-         << " processes...\n";
-    }
 
   // Parameters for regression test.
   int testValue = 0;
@@ -450,6 +442,17 @@ int main( int argc, char** argv )
   args.ioRank = ioRank;
   args.argc = argc;
   args.argv = argv;
+
+  // Check how many processes have been made available
+  int numProcs = controller->GetNumberOfProcesses();
+  if ( controller->GetLocalProcessId() == ioRank )
+    {
+    cout << "\n# Running test with "
+         << numProcs
+         << " processes and standard deviation = "
+         << args.span
+         << ".\n";
+    }
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomContingencyStatistics, &args );
