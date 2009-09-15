@@ -65,8 +65,9 @@
 #define __vtkAbstractInterpolatedVelocityField_h
 
 #include "vtkFunctionSet.h"
-
+//BTX
 #include <vtkstd/vector> // STL Header; Required for vector
+//ETX
 
 class vtkDataSet;
 class vtkDataArray;
@@ -225,11 +226,4 @@ class   vtkAbstractInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBas
 //ETX
 
 #endif
-
-
-
-
-
-
-
 
