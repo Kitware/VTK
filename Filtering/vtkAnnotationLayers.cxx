@@ -41,7 +41,7 @@
    affect other headers.  */
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkAnnotationLayers, "1.11");
+vtkCxxRevisionMacro(vtkAnnotationLayers, "1.12");
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 
@@ -83,6 +83,7 @@ void vtkAnnotationLayers::SetCurrentSelection(vtkSelection* sel)
   if (this->CurrentAnnotation)
     {
     this->CurrentAnnotation->SetSelection(sel);
+    this->Modified();
     }
 }
 
@@ -123,11 +124,13 @@ void vtkAnnotationLayers::RemoveAnnotation(vtkAnnotation* annotation)
       this->Implementation->Annotations.end(),
       annotation),
     this->Implementation->Annotations.end());
+  this->Modified();
 }
 
 void vtkAnnotationLayers::Initialize()
 {
   this->Implementation->Annotations.clear();
+  this->Modified();
 }
 
 void vtkAnnotationLayers::ShallowCopy(vtkDataObject* other)
