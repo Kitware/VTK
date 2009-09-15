@@ -44,15 +44,15 @@ public:
   ~vtkStatisticsAlgorithmPrivate()
     {
     }
-  void SetBufferColumnStatus( const char* colName, int status )
+  int SetBufferColumnStatus( const char* colName, int status )
     {
     if ( status )
       {
-      this->Buffer.insert( colName );
+      return this->Buffer.insert( colName ).second ? 1 : 0;
       }
     else
       {
-      this->Buffer.erase( colName );
+      return this->Buffer.erase( colName ) ? 1 : 0;
       }
     }
   int AddBufferToRequests()
@@ -105,9 +105,11 @@ public:
     {
     this->Requests.clear();
     }
-  void ResetBuffer()
+  int ResetBuffer()
     {
+    int rval = this->Buffer.empty() ? 0 : 1;
     this->Buffer.clear();
+    return rval;
     }
   /// Return the number of currently-defined requests
   vtkIdType GetNumberOfRequests()
