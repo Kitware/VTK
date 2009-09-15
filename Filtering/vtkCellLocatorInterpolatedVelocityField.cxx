@@ -16,6 +16,7 @@
 
 #include "vtkMath.h"
 #include "vtkDataSet.h"
+#include "vtkDataArray.h"
 #include "vtkPointData.h"
 #include "vtkGenericCell.h"
 #include "vtkCellLocator.h"
@@ -23,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
 
-vtkCxxRevisionMacro ( vtkCellLocatorInterpolatedVelocityField, "1.1" );
+vtkCxxRevisionMacro ( vtkCellLocatorInterpolatedVelocityField, "1.2" );
 vtkStandardNewMacro ( vtkCellLocatorInterpolatedVelocityField ); 
 vtkCxxSetObjectMacro( vtkCellLocatorInterpolatedVelocityField, CellLocatorPrototype, vtkAbstractCellLocator );
 
@@ -214,6 +215,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
   int    i;
   int    subIdx;
   int    numPts;
+  int    pntIdx;
   int    bFound = 0;
   double vector[3];
   double dstns2 = 0.0;
@@ -245,7 +247,8 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
     numPts = this->GenCell->GetNumberOfPoints();
     for ( i = 0; i < numPts; i ++ )
       {
-      vectors->GetTuple(  this->GenCell->PointIds->GetId( i ),  vector  );
+      pntIdx = this->GenCell->PointIds->GetId( i );
+      vectors->GetTuple( pntIdx, vector );
       f[0] += vector[0] * this->Weights[i];
       f[1] += vector[1] * this->Weights[i];
       f[2] += vector[2] * this->Weights[i];
