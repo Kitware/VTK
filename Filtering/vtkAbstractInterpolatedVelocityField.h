@@ -70,7 +70,9 @@
 //ETX
 
 class vtkDataSet;
+//BTX
 class vtkDataArray;
+//ETX
 class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractInterpolatedVelocityFieldDataSetsType;
