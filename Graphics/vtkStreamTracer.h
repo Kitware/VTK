@@ -70,7 +70,8 @@
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver 
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkTemporalStreamTracer
-// vtkInterpolatedVelocityField
+// vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
+// vtkCellLocatorInterpolatedVelocityField
 //  
 
 #ifndef __vtkStreamTracer_h
@@ -87,7 +88,7 @@ class vtkExecutive;
 class vtkGenericCell;
 class vtkIdList;
 class vtkIntArray;
-class vtkInterpolatedVelocityField;
+class vtkAbstractInterpolatedVelocityField;
 
 class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkPolyDataAlgorithm
 {
@@ -237,6 +238,12 @@ public:
     BACKWARD,
     BOTH
   };
+  
+  enum
+  {
+    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
+    INTERPOLATOR_WITH_CELL_LOCATOR
+  };
 //ETX
 
   // Description:
@@ -267,7 +274,17 @@ public:
   // Description:
   // The object used to interpolate the velocity field during
   // integration is of the same class as this prototype.
-  void SetInterpolatorPrototype(vtkInterpolatedVelocityField* ivf);
+  void SetInterpolatorPrototype( vtkAbstractInterpolatedVelocityField * ivf );
+  
+  // Description:
+  // Set the type of the velocity field interpolator to determine whether
+  // vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
+  // vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR)
+  // is employed for locating cells during streamline integration. The latter
+  // (adopting vtkAbstractCellLocator sub-classes such as vtkCellLocator and
+  // vtkModifiedBSPTree) is more robust then the former (through vtkDataSet /
+  // vtkPointSet::FindCell() coupled with vtkPointLocator).
+  void SetInterpolatorType( int interpType );
 
 protected:
 
@@ -292,7 +309,7 @@ protected:
                  vtkIdList* seedIds,
                  vtkIntArray* integrationDirections,
                  double lastPoint[3],
-                 vtkInterpolatedVelocityField* func,
+                 vtkAbstractInterpolatedVelocityField* func,
                  int maxCellSize,
                  const char *vecFieldName,
                  double& propagation,
@@ -300,8 +317,8 @@ protected:
   void SimpleIntegrate(double seed[3], 
                        double lastPoint[3], 
                        double stepSize,
-                       vtkInterpolatedVelocityField* func);
-  int CheckInputs(vtkInterpolatedVelocityField*& func,
+                       vtkAbstractInterpolatedVelocityField* func);
+  int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
                   int* maxCellSize);
   void GenerateNormals(vtkPolyData* output, double* firstNormal, const char *vecName);
 
@@ -353,7 +370,7 @@ protected:
   bool ComputeVorticity;
   double RotationScale;
 
-  vtkInterpolatedVelocityField* InterpolatorPrototype;
+  vtkAbstractInterpolatedVelocityField * InterpolatorPrototype;
 
   vtkCompositeDataSet* InputData;
 

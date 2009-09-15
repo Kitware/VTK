@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkInterpolatedVelocityField.h"
+#include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -31,7 +31,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.11");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.12");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -261,7 +261,7 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
   vtkPolyData* tmpOutput = vtkPolyData::New();
   this->TmpOutputs.push_back(tmpOutput);
 
-  vtkInterpolatedVelocityField* func;
+  vtkAbstractInterpolatedVelocityField* func;
   int maxCellSize = 0;
   this->CheckInputs(func, &maxCellSize);
 

@@ -26,10 +26,10 @@
 
 #include "vtkStreamTracer.h"
 
-#include "vtkSmartPointer.h" // This is a leaf node. No need to
-#include <vtkstd/vector>     // use PIMPL to avoid compile time penalty.
+#include "vtkSmartPointer.h" // This is a leaf node. No need to use PIMPL to avoid compile time penalty.
+#include <vtkstd/vector> // STL Header; Required for vector
 
-class vtkInterpolatedVelocityField;
+class vtkAbstractInterpolatedVelocityField;
 class vtkMultiProcessController;
 
 class VTK_PARALLEL_EXPORT vtkPStreamTracer : public vtkStreamTracer
@@ -57,8 +57,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  vtkInterpolatedVelocityField* Interpolator;
-  void SetInterpolator(vtkInterpolatedVelocityField*);
+  vtkAbstractInterpolatedVelocityField* Interpolator;
+  void SetInterpolator(vtkAbstractInterpolatedVelocityField*);
 
   // See the implementation for comments
   void SendCellPoint(vtkPolyData* data,

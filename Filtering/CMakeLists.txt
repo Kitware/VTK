@@ -7,6 +7,7 @@ SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 
 SET( Kit_SRCS
 vtkAbstractCellLocator.cxx
+vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
 vtkAbstractPointLocator.cxx
 vtkActor2DCollection.cxx
@@ -33,6 +34,7 @@ vtkCell.cxx
 vtkCellData.cxx
 vtkCellLinks.cxx
 vtkCellLocator.cxx
+vtkCellLocatorInterpolatedVelocityField.cxx
 vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
 vtkCompositeDataIterator.cxx
@@ -138,6 +140,7 @@ vtkMultiPieceDataSet.cxx
 vtkMutableDirectedGraph.cxx
 vtkMutableUndirectedGraph.cxx
 vtkNonLinearCell.cxx
+vtkNonMergingPointLocator.cxx
 vtkOrderedTriangulator.cxx
 vtkOutEdgeIterator.cxx
 vtkParametricSpline.cxx
@@ -236,6 +239,7 @@ vtkWedge.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractCellLocator
+vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
 vtkAbstractPointLocator
 vtkCell

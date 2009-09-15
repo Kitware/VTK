@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkInterpolatedVelocityField.h"
+#include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -29,12 +29,12 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.22");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.23");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
                      Interpolator,
-                     vtkInterpolatedVelocityField);
+                     vtkAbstractInterpolatedVelocityField);
 
 vtkPStreamTracer::vtkPStreamTracer()
 {
@@ -353,7 +353,7 @@ int vtkPStreamTracer::RequestData(
   vtkPolyData* output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkInterpolatedVelocityField* func;
+  vtkAbstractInterpolatedVelocityField* func;
   int maxCellSize = 0;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
     {

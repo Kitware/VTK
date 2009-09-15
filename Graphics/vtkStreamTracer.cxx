@@ -27,7 +27,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkCellLocator.h"
+#include "vtkModifiedBSPTree.h"
 #include "vtkInterpolatedVelocityField.h"
+#include "vtkAbstractInterpolatedVelocityField.h"
+#include "vtkCellLocatorInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -40,10 +44,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.49");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.50");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
-vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
+vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkAbstractInterpolatedVelocityField);
 
 const double vtkStreamTracer::EPSILON = 1.0E-12;
 
@@ -74,7 +78,7 @@ vtkStreamTracer::vtkStreamTracer()
   this->GenerateNormalsInIntegrate = true;
 
   this->InterpolatorPrototype = 0;
-
+  
   this->SetNumberOfInputPorts(2);
 
   // by default process active point vectors
@@ -83,7 +87,7 @@ vtkStreamTracer::vtkStreamTracer()
 }
 
 vtkStreamTracer::~vtkStreamTracer()
-{
+{ 
   this->SetIntegrator(0);
   this->SetInterpolatorPrototype(0);
 }
@@ -127,6 +131,30 @@ int vtkStreamTracer::GetIntegratorType()
     return RUNGE_KUTTA45;
     }
   return UNKNOWN;
+}
+
+void vtkStreamTracer::SetInterpolatorType( int interpType )
+{
+  if ( interpType == INTERPOLATOR_WITH_CELL_LOCATOR )
+    {
+    // create an interpolator equipped with a cell locator
+    vtkSmartPointer< vtkCellLocatorInterpolatedVelocityField > cellLoc =
+    vtkSmartPointer< vtkCellLocatorInterpolatedVelocityField >::New();
+    
+    // specify the type of the cell locator attached to the interpolator                     
+    vtkSmartPointer< vtkModifiedBSPTree > cellLocType = 
+    vtkSmartPointer< vtkModifiedBSPTree >::New();
+    cellLoc->SetCellLocatorPrototype( cellLocType.GetPointer() );
+    
+    this->SetInterpolatorPrototype( cellLoc.GetPointer() );
+    }
+  else
+    {
+    // create an interpolator equipped with a point locator (by default)
+    vtkSmartPointer< vtkInterpolatedVelocityField > pntLoc =
+    vtkSmartPointer< vtkInterpolatedVelocityField >::New();
+    this->SetInterpolatorPrototype( pntLoc.GetPointer() );
+    }
 }
 
 void vtkStreamTracer::SetIntegratorType(int type)
@@ -432,7 +460,7 @@ int vtkStreamTracer::RequestData(
   if (seeds)
     {
     double lastPoint[3];
-    vtkInterpolatedVelocityField* func;
+    vtkAbstractInterpolatedVelocityField * func;
     int maxCellSize = 0;
     if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
       {
@@ -479,7 +507,7 @@ int vtkStreamTracer::RequestData(
   return 1;
 }
 
-int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
+int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
                                    int* maxCellSize)
 {
   if (!this->InputData)
@@ -496,11 +524,20 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
     {
     return VTK_ERROR;
     }
-
+  
   // Set the function set to be integrated
-  if (!this->InterpolatorPrototype)
+  if ( !this->InterpolatorPrototype )
     {
     func = vtkInterpolatedVelocityField::New();
+    
+    // turn on the following segment, in place of the above line, if an 
+    // interpolator equipped with a cell locator is dedired as the default
+    //
+    // func = vtkCellLocatorInterpolatedVelocityField::New();
+    // vtkSmartPointer< vtkModifiedBSPTree > locator = 
+    // vtkSmartPointer< vtkModifiedBSPTree >::New();
+    // vtkCellLocatorInterpolatedVelocityField::SafeDownCast( func )
+    //   ->SetCellLocatorPrototype( locator.GetPointer() );
     }
   else
     {
@@ -557,7 +594,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
                                 vtkIdList* seedIds,
                                 vtkIntArray* integrationDirections,
                                 double lastPoint[3],
-                                vtkInterpolatedVelocityField* func,
+                                vtkAbstractInterpolatedVelocityField* func,
                                 int maxCellSize,
                                 const char *vecName,
                                 double& inPropagation,
@@ -705,7 +742,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     double cellLength;
     int retVal=OUT_OF_LENGTH, tmp; 
 
-    // Make sure we use the dataset found by the vtkInterpolatedVelocityField
+    // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
     input = func->GetLastDataSet();
     inputPD = input->GetPointData();
     inVectors = inputPD->GetVectors(vecName);
@@ -847,7 +884,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         memcpy(lastPoint, point2, 3*sizeof(double));
         break;
         }
-      // Make sure we use the dataset found by the vtkInterpolatedVelocityField
+      // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
       input = func->GetLastDataSet();
       inputPD = input->GetPointData();
       inVectors = inputPD->GetVectors(vecName);
@@ -1082,7 +1119,7 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
 void vtkStreamTracer::SimpleIntegrate(double seed[3], 
                                       double lastPoint[3], 
                                       double stepSize,
-                                      vtkInterpolatedVelocityField* func)
+                                      vtkAbstractInterpolatedVelocityField* func)
 {
   vtkIdType numSteps = 0;
   vtkIdType maxSteps = 20;
