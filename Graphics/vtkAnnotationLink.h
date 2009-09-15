@@ -43,6 +43,7 @@
 
 #include "vtkAnnotationLayersAlgorithm.h"
 
+class vtkCommand;
 class vtkDataObjectCollection;
 class vtkInformation;
 class vtkInformationVector;
@@ -83,6 +84,11 @@ protected:
   ~vtkAnnotationLink();
   
   // Description:
+  // Called to process modified events from its vtkAnnotationLayers.
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
+    void* callData);
+
+  // Description:
   // Set up input ports.
   virtual int FillInputPortInformation(int, vtkInformation*);
   
@@ -111,10 +117,17 @@ protected:
   // Description:
   // The mappings between domains.
   vtkDataObjectCollection* DomainMaps;
-  
+    
+
 private:
   vtkAnnotationLink(const vtkAnnotationLink&);  // Not implemented.
   void operator=(const vtkAnnotationLink&);  // Not implemented.  
+
+  //BTX
+  class Command;
+  friend class Command;
+  Command* Observer;
+  //ETX
 };
 
 #endif

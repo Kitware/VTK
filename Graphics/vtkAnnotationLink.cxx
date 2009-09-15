@@ -27,21 +27,54 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.8");
+vtkCxxRevisionMacro(vtkAnnotationLink, "1.9");
 vtkStandardNewMacro(vtkAnnotationLink);
-vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
+//vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
+
+
+//---------------------------------------------------------------------------
+// vtkAnnotationLink::Command
+//----------------------------------------------------------------------------
+
+class vtkAnnotationLink::Command : public vtkCommand
+{
+public:
+  static Command* New() {  return new Command(); }
+  virtual void Execute(vtkObject *caller, unsigned long eventId,
+                       void *callData)
+    {
+    if (this->Target)
+      {
+      this->Target->ProcessEvents(caller, eventId, callData);
+      }
+    }
+  void SetTarget(vtkAnnotationLink* t)
+    {
+    this->Target = t;
+    }
+private:
+  Command() { this->Target = 0; }
+  vtkAnnotationLink* Target;
+};
+
 //----------------------------------------------------------------------------
 vtkAnnotationLink::vtkAnnotationLink()
-{
+{  
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(3);
   this->AnnotationLayers = vtkAnnotationLayers::New();
   this->DomainMaps = vtkDataObjectCollection::New();  
+
+  this->Observer = Command::New();
+  this->Observer->SetTarget(this);
+  this->AnnotationLayers->AddObserver(vtkCommand::ModifiedEvent, this->Observer);
 }
 
 //----------------------------------------------------------------------------
 vtkAnnotationLink::~vtkAnnotationLink()
 {
+  this->Observer->Delete();
+
   if (this->AnnotationLayers)
     {
     this->AnnotationLayers->Delete();
@@ -49,6 +82,46 @@ vtkAnnotationLink::~vtkAnnotationLink()
   if (this->DomainMaps)
     {
     this->DomainMaps->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnnotationLink::ProcessEvents(vtkObject *caller, unsigned long eventId, void *vtkNotUsed(callData))
+{
+  if(this->AnnotationLayers)
+    {
+    vtkAnnotationLayers* caller_annotations = vtkAnnotationLayers::SafeDownCast( caller );
+    if (caller_annotations == this->AnnotationLayers && eventId == vtkCommand::ModifiedEvent)
+      {
+      this->InvokeEvent(vtkCommand::AnnotationChangedEvent);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
+{
+  // This method is a cut and paste of vtkCxxSetObjectMacro
+  // except that we listen for modified events from the annotations layers
+  if (layers != this->AnnotationLayers)
+    {
+    vtkAnnotationLayers *tmp = this->AnnotationLayers;
+    if (tmp)
+      {
+      tmp->RemoveObserver(this->Observer);
+      }
+    this->AnnotationLayers = layers;
+    if (this->AnnotationLayers != NULL)
+      {
+      this->AnnotationLayers->Register(this);
+      this->AnnotationLayers->AddObserver(vtkCommand::ModifiedEvent, 
+                                        this->Observer);
+      }
+    if (tmp != NULL)
+      {
+      tmp->UnRegister(this);
+      }
+    this->Modified();
     }
 }
 
@@ -94,7 +167,6 @@ void vtkAnnotationLink::SetCurrentSelection(vtkSelection* sel)
   if (this->AnnotationLayers)
     {
     this->AnnotationLayers->SetCurrentSelection(sel);
-    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, 0);
     }
 }
 
