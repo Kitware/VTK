@@ -103,6 +103,7 @@ void EasyView::SetupAnnotationLink()
   updater->AddView(this->TableView);
   updater->AddView(this->ColumnView);
   updater->AddView(this->GraphView);
+  updater->AddAnnotationLink(annLink);
 }
 
 EasyView::~EasyView()

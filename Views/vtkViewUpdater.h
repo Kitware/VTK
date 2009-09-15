@@ -20,16 +20,17 @@
 // .NAME vtkViewUpdater - Updates views automatically
 //
 // .SECTION Description
-// vtkViewUpdater registers with selection change events for a set of
-// views, and updates all views when a view fires a selection changed event.
-// This is often needed when multiple views share a selection with
-// vtkAnnotationLink.
+// vtkViewUpdater registers with annotation change events for a set of
+// annotation links, and updates all views when an annotation link fires an 
+// annotation changed event. This is often needed when multiple views share 
+// a selection with vtkAnnotationLink. 
 
 #ifndef __vtkViewUpdater_h
 #define __vtkViewUpdater_h
 
 #include "vtkObject.h"
 
+class vtkAnnotationLink;
 class vtkView;
 
 class VTK_VIEWS_EXPORT vtkViewUpdater : public vtkObject
@@ -40,6 +41,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddView(vtkView* view);
+
+  void AddAnnotationLink(vtkAnnotationLink* link);
 
 protected:
   vtkViewUpdater();

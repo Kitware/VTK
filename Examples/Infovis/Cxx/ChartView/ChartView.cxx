@@ -116,6 +116,7 @@ void ChartView::SetupSelectionLink()
   updater->AddView(this->LineChart);
   updater->AddView(this->StackedChart);
   updater->AddView(this->BoxChart);
+  updater->AddAnnotationLink(annLink);
 }
 
 ChartView::~ChartView()

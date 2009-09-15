@@ -20,6 +20,7 @@
 
 #include "vtkViewUpdater.h"
 
+#include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkView.h"
@@ -27,7 +28,7 @@
 
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkViewUpdater, "1.2");
+vtkCxxRevisionMacro(vtkViewUpdater, "1.3");
 vtkStandardNewMacro(vtkViewUpdater);
 
 class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand
@@ -66,7 +67,12 @@ vtkViewUpdater::~vtkViewUpdater()
 void vtkViewUpdater::AddView(vtkView* view)
 {
   this->Internals->Views.push_back(view);
-  view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
+  //view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
+}
+
+void vtkViewUpdater::AddAnnotationLink(vtkAnnotationLink* link)
+{
+  link->AddObserver(vtkCommand::AnnotationChangedEvent, this->Internals);
 }
 
 void vtkViewUpdater::PrintSelf(ostream& os, vtkIndent indent)
