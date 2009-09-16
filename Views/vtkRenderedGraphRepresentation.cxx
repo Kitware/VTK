@@ -27,7 +27,6 @@
 #include "vtkApplyColors.h"
 #include "vtkApplyIcons.h"
 #include "vtkArcParallelEdgeStrategy.h"
-#include "vtkArrayMap.h"
 #include "vtkAssignCoordinatesLayoutStrategy.h"
 #include "vtkCellData.h"
 #include "vtkCircularLayoutStrategy.h"
@@ -96,7 +95,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.29");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.30");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()

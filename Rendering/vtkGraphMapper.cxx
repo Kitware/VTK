@@ -21,7 +21,7 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
-#include "vtkArrayMap.h"
+#include "vtkMapArrayValues.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.3");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.4");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -63,7 +63,7 @@ vtkGraphMapper::vtkGraphMapper()
 {
   this->GraphToPoly       = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->VertexGlyph       = vtkSmartPointer<vtkVertexGlyphFilter>::New();
-  this->IconTypeToIndex   = vtkSmartPointer<vtkArrayMap>::New();
+  this->IconTypeToIndex   = vtkSmartPointer<vtkMapArrayValues>::New();
   this->CircleGlyph       = vtkSmartPointer<vtkGlyph3D>::New();
   this->CircleOutlineGlyph      = vtkSmartPointer<vtkGlyph3D>::New();
   this->IconGlyph         = vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -111,7 +111,7 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconTransform->SetInputConnection(this->VertexGlyph->GetOutputPort());
 
   this->IconTypeToIndex->SetInputConnection(this->IconTransform->GetOutputPort());
-  this->IconTypeToIndex->SetFieldType(vtkArrayMap::POINT_DATA);
+  this->IconTypeToIndex->SetFieldType(vtkMapArrayValues::POINT_DATA);
   this->IconTypeToIndex->SetOutputArrayType(VTK_INT);
   this->IconTypeToIndex->SetPassArray(0);
   this->IconTypeToIndex->SetFillValue(-1);

@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
 class vtkActor2D;
-class vtkArrayMap;
+class vtkMapArrayValues;
 class vtkCamera;
 class vtkFollower;
 class vtkGraph;
@@ -232,7 +232,7 @@ protected:
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
   vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
-  vtkSmartPointer<vtkArrayMap>                   IconTypeToIndex;
+  vtkSmartPointer<vtkMapArrayValues>                   IconTypeToIndex;
   vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
   
   vtkSmartPointer<vtkPolyDataMapper>    EdgeMapper;

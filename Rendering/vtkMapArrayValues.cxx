@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArrayMap.cxx
+  Module:    vtkMapArrayValues.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkArrayMap.h"
+#include "vtkMapArrayValues.h"
 
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
@@ -34,18 +34,18 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.3");
-vtkStandardNewMacro(vtkArrayMap);
+vtkCxxRevisionMacro(vtkMapArrayValues, "1.1");
+vtkStandardNewMacro(vtkMapArrayValues);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
 class vtkMapType : public MapBase {};
 
-vtkArrayMap::vtkArrayMap()
+vtkMapArrayValues::vtkMapArrayValues()
 {
   this->InputArrayName = 0;
   this->OutputArrayName = 0;
   this->SetOutputArrayName("ArrayMap");
-  this->FieldType = vtkArrayMap::POINT_DATA;
+  this->FieldType = vtkMapArrayValues::POINT_DATA;
   this->OutputArrayType = VTK_INT;
   this->PassArray = 0;
   this->FillValue = -1;
@@ -53,61 +53,61 @@ vtkArrayMap::vtkArrayMap()
   this->Map = new vtkMapType;
 }
 
-vtkArrayMap::~vtkArrayMap()
+vtkMapArrayValues::~vtkMapArrayValues()
 {
   this->SetInputArrayName(0);
   this->SetOutputArrayName(0);
   delete this->Map;
 }
 
-void vtkArrayMap::AddToMap(char *from, int to)
+void vtkMapArrayValues::AddToMap(char *from, int to)
 {
   this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
-void vtkArrayMap::AddToMap(int from, int to)
+void vtkMapArrayValues::AddToMap(int from, int to)
 {
   this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
-void vtkArrayMap::AddToMap(int from, char *to)
+void vtkMapArrayValues::AddToMap(int from, char *to)
 {
   this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
-void vtkArrayMap::AddToMap(char *from, char *to)
+void vtkMapArrayValues::AddToMap(char *from, char *to)
 {
   this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
-void vtkArrayMap::AddToMap(vtkVariant from, vtkVariant to)
+void vtkMapArrayValues::AddToMap(vtkVariant from, vtkVariant to)
 {
   this->Map->insert(vtkstd::make_pair< vtkVariant, vtkVariant >(from, to));
 
   this->Modified();
 }
 
-void vtkArrayMap::ClearMap()
+void vtkMapArrayValues::ClearMap()
 {
   this->Map->clear();
 
   this->Modified();
 }
 
-int vtkArrayMap::GetMapSize()
+int vtkMapArrayValues::GetMapSize()
 {
   return static_cast<int>(this->Map->size());
 }
 
-int vtkArrayMap::RequestData(
+int vtkMapArrayValues::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -143,10 +143,10 @@ int vtkArrayMap::RequestData(
     dsOutput->GetCellData()->PassData( dsInput->GetCellData() );
     switch (this->FieldType)
       {
-      case vtkArrayMap::POINT_DATA:
+      case vtkMapArrayValues::POINT_DATA:
         ods = dsOutput->GetPointData();
         break;
-      case vtkArrayMap::CELL_DATA:
+      case vtkMapArrayValues::CELL_DATA:
         ods = dsOutput->GetCellData();
         break;
       default:
@@ -161,10 +161,10 @@ int vtkArrayMap::RequestData(
     graphOutput->ShallowCopy( graphInput );
     switch (this->FieldType)
       {
-      case vtkArrayMap::VERTEX_DATA:
+      case vtkMapArrayValues::VERTEX_DATA:
         ods = graphOutput->GetVertexData();
         break;
-      case vtkArrayMap::EDGE_DATA:
+      case vtkMapArrayValues::EDGE_DATA:
         ods = graphOutput->GetEdgeData();
         break;
       default:
@@ -179,7 +179,7 @@ int vtkArrayMap::RequestData(
     tableOutput->ShallowCopy( tableInput );
     switch (this->FieldType)
       {
-      case vtkArrayMap::ROW_DATA:
+      case vtkMapArrayValues::ROW_DATA:
         ods = tableOutput->GetRowData();
         break;
       default:
@@ -266,7 +266,7 @@ int vtkArrayMap::RequestData(
   return 1;
 }
 
-int vtkArrayMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+int vtkMapArrayValues::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // This algorithm may accept a vtkPointSet or vtkGraph.
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -276,7 +276,7 @@ int vtkArrayMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* 
   return 1;  
 }
 
-void vtkArrayMap::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMapArrayValues::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Input array name: ";

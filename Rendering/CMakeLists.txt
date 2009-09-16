@@ -32,7 +32,7 @@ SET( Kit_SRCS
   vtkActorCollection.cxx
   vtkActor.cxx
   vtkAreaPicker.cxx
-  vtkArrayMap.cxx
+  vtkMapArrayValues.cxx
   vtkAssembly.cxx
   vtkAxisActor2D.cxx
   vtkCamera.cxx

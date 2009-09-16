@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArrayMap.h
+  Module:    vtkMapArrayValues.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArrayMap - Map values in an input array to different values in
+// .NAME vtkMapArrayValues - Map values in an input array to different values in
 //   an output array of (possibly) different type.
 
 // .SECTION Description
-// vtkArrayMap allows you to associate certain values of an attribute array
+// vtkMapArrayValues allows you to associate certain values of an attribute array
 // (on either a vertex, edge, point, or cell) with different values in a
 // newly created attribute array. 
 //
-// vtkArrayMap manages an internal STL map of vtkVariants that can be added to
+// vtkMapArrayValues manages an internal STL map of vtkVariants that can be added to
 // or cleared. When this filter executes, each "key" is searched for in the
 // input array and the indices of the output array at which there were matches
 // the set to the mapped "value".
@@ -30,24 +30,24 @@
 // the unmapped indices to (using FillValue). 
 //
 // One application of this filter is to help address the dirty data problem.
-// For example, using vtkArrayMap you could associate the vertex values 
+// For example, using vtkMapArrayValues you could associate the vertex values 
 // "Foo, John", "Foo, John.", and "John Foo" with a single entity.
 
-#ifndef __vtkArrayMap_h
-#define __vtkArrayMap_h
+#ifndef __vtkMapArrayValues_h
+#define __vtkMapArrayValues_h
 
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkMapType;
 class vtkVariant;
 
-class VTK_RENDERING_EXPORT vtkArrayMap : public vtkPassInputTypeAlgorithm
+class VTK_RENDERING_EXPORT vtkMapArrayValues : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkArrayMap,vtkPassInputTypeAlgorithm);
+  vtkTypeRevisionMacro(vtkMapArrayValues,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkArrayMap *New();
+  static vtkMapArrayValues *New();
 
   // Description: 
   // Set/Get where the data is located that is being mapped.
@@ -121,8 +121,8 @@ public:
 
 protected:
 
-  vtkArrayMap();
-  virtual ~vtkArrayMap();
+  vtkMapArrayValues();
+  virtual ~vtkMapArrayValues();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int, vtkInformation *);
@@ -139,8 +139,8 @@ protected:
   vtkMapType *Map;
 
 private:
-  vtkArrayMap(const vtkArrayMap&);  // Not implemented.
-  void operator=(const vtkArrayMap&);  // Not implemented.
+  vtkMapArrayValues(const vtkMapArrayValues&);  // Not implemented.
+  void operator=(const vtkMapArrayValues&);  // Not implemented.
 };
 
 #endif
