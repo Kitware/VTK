@@ -59,7 +59,7 @@ class VTK_FILTERING_EXPORT vtkInterpolatedVelocityField
 public:
   vtkTypeRevisionMacro( vtkInterpolatedVelocityField, 
                         vtkAbstractInterpolatedVelocityField );
-  virtual void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent );
 
   // Description:
   // Construct a vtkInterpolatedVelocityField without an initial dataset.
@@ -87,8 +87,8 @@ public:
     { this->Superclass::SetLastCellId( c ); }
 
 protected:
-  vtkInterpolatedVelocityField();
-  ~vtkInterpolatedVelocityField();
+  vtkInterpolatedVelocityField() { }
+  virtual ~vtkInterpolatedVelocityField() { }
 
   // Description:
   // Evaluate the velocity field f at point (x, y, z) in a specified dataset

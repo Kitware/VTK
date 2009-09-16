@@ -22,10 +22,66 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro( vtkAbstractInterpolatedVelocityField, "1.1" );
+vtkCxxRevisionMacro( vtkAbstractInterpolatedVelocityField, "1.2" );
 
 //----------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
+
+//---------------------------------------------------------------------------
+vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
+{
+  this->NumFuncs     = 3; // u, v, w
+  this->NumIndepVars = 4; // x, y, z, t
+  this->Weights      = 0;
+  this->WeightsSize  = 0;
+ 
+  this->Caching    = true; // Caching on by default
+  this->CacheHit   = 0;
+  this->CacheMiss  = 0;
+  
+  this->LastCellId = -1;
+  this->LastDataSet= 0;
+  this->LastDataSetIndex = 0;
+  this->LastPCoords[0] = 0.0;
+  this->LastPCoords[1] = 0.0;
+  this->LastPCoords[2] = 0.0;
+  
+  this->VectorsSelection = 0;
+  this->NormalizeVector  = false;
+
+  this->Cell     = vtkGenericCell::New();
+  this->GenCell  = vtkGenericCell::New();
+  this->DataSets = new vtkAbstractInterpolatedVelocityFieldDataSetsType;
+}
+
+//---------------------------------------------------------------------------
+vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
+{
+  this->NumFuncs     = 0;
+  this->NumIndepVars = 0;
+  delete[] this->Weights;
+  this->Weights      = 0;
+  this->LastDataSet  = 0;
+  
+  this->Cell->Delete();
+  this->Cell = NULL;
+  this->GenCell->Delete();
+  this->GenCell = NULL;
+  this->SetVectorsSelection( 0 );
+
+  // Ungister datasets from this velocity field interpolator
+  for ( DataSetsTypeBase::iterator dsIt  = this->DataSets->begin(); 
+        dsIt != this->DataSets->end(); dsIt ++ )
+    {
+    if ( *dsIt )
+      {
+      ( *dsIt )->UnRegister( this );
+      }
+    ( *dsIt ) = NULL;
+    }
+  delete this->DataSets;
+  this->DataSets = NULL;
+}
 
 //---------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::FunctionValues
@@ -211,21 +267,24 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf
   
   os << indent << "VectorsSelection: " 
      << ( this->VectorsSelection ? this->VectorsSelection : "(none)" ) << endl;
-  os << indent << "NormalizVector: "
+  os << indent << "NormalizeVector: "
      << ( this->NormalizeVector ? "on." : "off." ) << endl;
-  os << indent << "Caching Status: "   << ( this->Caching ? "on." : "off." )
+     
+  os << indent << "Caching Status: "     << ( this->Caching ? "on." : "off." )
      << endl;
-  os << indent << "Cache Hit: "        << this->CacheHit         << endl;
-  os << indent << "Cache Miss: "       << this->CacheMiss        << endl;
-  os << indent << "Weights Size: "     << this->WeightsSize      << endl;
+  os << indent << "Cache Hit: "          << this->CacheHit         << endl;
+  os << indent << "Cache Miss: "         << this->CacheMiss        << endl;
+  os << indent << "Weights Size: "       << this->WeightsSize      << endl;
   
-  os << indent << "LastDataSetIndex: " << this->LastDataSetIndex << endl;
-  os << indent << "LastDataSet: "      << this->LastDataSet      << endl;
+  os << indent << "DataSets: "           << this->DataSets         << endl;
+  os << indent << "Last Dataset Index: " << this->LastDataSetIndex << endl;
+  os << indent << "Last Dataset: "       << this->LastDataSet      << endl;
   
-  os << indent << "Last Cell Id: "     << this->LastCellId       << endl;
-  os << indent << "Last Cell: "        << this->GenCell          << endl;
-  os << indent << "Last P-Coords: "    << this->LastPCoords[0]
-               << ", "                 << this->LastPCoords[1]
-               << ", "                 << this->LastPCoords[2]   << endl;
-  os << indent << "Last Weights: "     << this->Weights          << endl;
+  os << indent << "Last Cell Id: "       << this->LastCellId       << endl;
+  os << indent << "Last Cell: "          << this->Cell             << endl;
+  os << indent << "Current Cell: "       << this->GenCell          << endl;
+  os << indent << "Last P-Coords: "      << this->LastPCoords[0]
+               << ", "                   << this->LastPCoords[1]
+               << ", "                   << this->LastPCoords[2]   << endl;
+  os << indent << "Last Weights: "       << this->Weights          << endl;
 }

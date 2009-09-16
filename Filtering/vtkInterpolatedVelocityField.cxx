@@ -19,58 +19,8 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro( vtkInterpolatedVelocityField, "1.9" );
+vtkCxxRevisionMacro( vtkInterpolatedVelocityField, "1.10" );
 vtkStandardNewMacro( vtkInterpolatedVelocityField ); 
-
-//----------------------------------------------------------------------------
-vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
-{
-  this->NumFuncs     = 3; // u, v, w
-  this->NumIndepVars = 4; // x, y, z, t
-  this->Weights      = 0;
-  this->WeightsSize  = 0;
- 
-  this->Caching    = true; // Caching on by default
-  this->CacheHit   = 0;
-  this->CacheMiss  = 0;
-  
-  this->LastCellId = -1;
-  this->LastDataSet= 0;
-  this->LastDataSetIndex = 0;
-  
-  this->VectorsSelection = 0;
-  this->NormalizeVector  = false;
-
-  this->Cell     = vtkGenericCell::New(); // referenced in the parent class!
-  this->GenCell  = vtkGenericCell::New();
-  this->DataSets = new vtkAbstractInterpolatedVelocityFieldDataSetsType;
-}
-//----------------------------------------------------------------------------
-vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
-{
-  this->NumFuncs     = 0;
-  this->NumIndepVars = 0;
-  delete[] this->Weights;
-  this->Weights      = 0;
-  this->LastDataSet  = 0;
-  
-  this->Cell->Delete();                   // referenced in the parent class!
-  this->GenCell->Delete();
-  this->SetVectorsSelection( 0 );
-
-  // Ungister datasets from this velocity field interpolator
-  for ( DataSetsTypeBase::iterator dsIt  = this->DataSets->begin(); 
-        dsIt != this->DataSets->end(); dsIt ++ )
-    {
-    if ( *dsIt )
-      {
-      ( *dsIt )->UnRegister( this );
-      }
-    ( *dsIt ) = NULL;
-    }
-  delete this->DataSets;
-  this->DataSets = NULL;
-}
 
 //----------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )

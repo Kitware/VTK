@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
 
-vtkCxxRevisionMacro ( vtkCellLocatorInterpolatedVelocityField, "1.2" );
+vtkCxxRevisionMacro ( vtkCellLocatorInterpolatedVelocityField, "1.3" );
 vtkStandardNewMacro ( vtkCellLocatorInterpolatedVelocityField ); 
 vtkCxxSetObjectMacro( vtkCellLocatorInterpolatedVelocityField, CellLocatorPrototype, vtkAbstractCellLocator );
 
@@ -34,64 +34,17 @@ class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType : public CellLocat
 
 //----------------------------------------------------------------------------
 vtkCellLocatorInterpolatedVelocityField::vtkCellLocatorInterpolatedVelocityField()
-{ 
-  this->NumFuncs     = 3; // u, v, w
-  this->NumIndepVars = 4; // x, y, z, t
-  this->Weights      = 0;
-  this->WeightsSize  = 0;
-  
-  this->VectorsSelection = 0;
-  this->NormalizeVector  = false;
-  
-  this->Cell    = vtkGenericCell::New(); // for non-vtkPointSet in the parent!
-  this->GenCell = vtkGenericCell::New();
-  
-  this->Caching   = true;
-  this->CacheHit  = 0;
-  this->CacheMiss = 0;
-  
-  this->LastCellId   = -1;
-  this->LastDataSet  = 0;
+{   
   this->LastCellLocator  = 0;
-  this->LastDataSetIndex = 0;
   this->CellLocatorPrototype = 0;
-  
-  this->DataSets     = new vtkAbstractInterpolatedVelocityFieldDataSetsType;
   this->CellLocators = new vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType;
 }
 
 //----------------------------------------------------------------------------
 vtkCellLocatorInterpolatedVelocityField::~vtkCellLocatorInterpolatedVelocityField()
-{ 
-  this->NumFuncs     = 0;
-  this->NumIndepVars = 0;
-  
-  delete[] this->Weights;   
-  this->Weights = NULL;
-  
-  this->Cell->Delete();
-  this->Cell = NULL;
-  this->GenCell->Delete();
-  this->GenCell = NULL;
-  this->LastDataSet     = 0;
+{   
   this->LastCellLocator = 0;
-
-  this->SetVectorsSelection( 0 );
   this->SetCellLocatorPrototype( 0 );
-  
-  // Ungister datasets from this velocity field interpolator.
-  for ( DataSetsTypeBase::iterator dsIt = this->DataSets->begin(); 
-        dsIt != this->DataSets->end(); dsIt ++ )
-    {
-    if ( *dsIt )
-      {
-      ( *dsIt )->UnRegister( this );
-      }
-    ( *dsIt ) = NULL;
-    }
-  
-  delete this->DataSets;
-  this->DataSets     = 0;
   delete this->CellLocators;  
   this->CellLocators = 0;
 }

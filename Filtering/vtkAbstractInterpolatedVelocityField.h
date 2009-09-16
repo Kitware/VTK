@@ -81,7 +81,7 @@ class VTK_FILTERING_EXPORT vtkAbstractInterpolatedVelocityField : public vtkFunc
 {
 public:
   vtkTypeRevisionMacro( vtkAbstractInterpolatedVelocityField, vtkFunctionSet );
-  virtual void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent );
   
   // Description:
   // Set/Get the caching flag. If this flag is turned ON, there are two levels
@@ -169,8 +169,8 @@ public:
   int GetLastLocalCoordinates( double pcoords[3] );
 
 protected:
-  vtkAbstractInterpolatedVelocityField() {}
-  ~vtkAbstractInterpolatedVelocityField() {}
+  vtkAbstractInterpolatedVelocityField();
+  virtual ~vtkAbstractInterpolatedVelocityField();
   
   static const double TOLERANCE_SCALE;
 
@@ -186,7 +186,7 @@ protected:
   vtkIdType LastCellId;
   vtkDataSet *     LastDataSet;
   vtkGenericCell * Cell;
-  vtkGenericCell * GenCell; // the last cell
+  vtkGenericCell * GenCell; // the current cell
   vtkAbstractInterpolatedVelocityFieldDataSetsType * DataSets;
   
   // Description:
@@ -228,4 +228,3 @@ class   vtkAbstractInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBas
 //ETX
 
 #endif
-
