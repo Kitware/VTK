@@ -30,7 +30,6 @@
 class vtkActor;
 class vtkApplyColors;
 class vtkApplyIcons;
-class vtkArrayMap;
 class vtkEdgeCenters;
 class vtkEdgeLayout;
 class vtkEdgeLayoutStrategy;
