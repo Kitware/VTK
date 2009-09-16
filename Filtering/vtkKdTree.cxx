@@ -51,7 +51,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.5");
+vtkCxxRevisionMacro(vtkKdTree, "1.6");
 
 // Timing data ---------------------------------------------
 
@@ -2307,7 +2307,13 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
 vtkIdType vtkKdTree::FindClosestPointWithinRadius(
   double radius, const double x[3], double& dist2)
 {
-  return this->FindClosestPointInSphere(x[0], x[1], x[2], radius, -1, dist2);
+  int localCloseId = 
+    this->FindClosestPointInSphere(x[0], x[1], x[2], radius, -1, dist2);
+  if(localCloseId >= 0)
+    {
+    return static_cast<vtkIdType>(this->LocatorIds[localCloseId]);
+    }
+  return -1;
 }
 
 
@@ -2385,6 +2391,7 @@ int vtkKdTree::_FindClosestPointInRegion(int regionId,
   return minId;
 }
 
+//----------------------------------------------------------------------------
 int vtkKdTree::FindClosestPointInSphere(double x, double y, double z, 
                                         double radius, int skipRegion,
                                         double &dist2)
@@ -2435,12 +2442,7 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
   delete [] regionIds;
 
   dist2 = minDistance2;
-  vtkIdType originalId = -1;
-  if(localCloseId >= 0)
-    {
-    originalId = static_cast<vtkIdType>(this->LocatorIds[localCloseId]);
-    }
-  return originalId;
+  return localCloseId;
 }
 
 //----------------------------------------------------------------------------
