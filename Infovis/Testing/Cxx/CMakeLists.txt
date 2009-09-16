@@ -182,8 +182,8 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayTests ArrayCxxTests.cxx
     ArrayAPIDenseCoordinates.cxx
-    ArrayCosineSimilarity.cxx
     ArrayDiagonalMatrixSource.cxx
+    ArrayDotProductSimilarity.cxx
     ArrayExtractFactoredArray.cxx
     ArrayMatricizeArray.cxx
     TestArrayNorm.cxx

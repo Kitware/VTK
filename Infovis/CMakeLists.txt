@@ -176,8 +176,8 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayNorm.cxx
     vtkArrayToTable.cxx
     vtkComputeHistogram2DOutliers.cxx
-    vtkCosineSimilarity.cxx
     vtkDiagonalMatrixSource.cxx
+    vtkDotProductSimilarity.cxx
     vtkExtractArray.cxx
     vtkExtractHistogram2D.cxx
     vtkMatricizeArray.cxx

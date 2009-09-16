@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ArrayCosineSimilarity.cxx
+  Module:    ArrayDotProductSimilarity.cxx
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -21,7 +21,7 @@
 
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
-#include <vtkCosineSimilarity.h>
+#include <vtkDotProductSimilarity.h>
 #include <vtkDenseArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
@@ -43,7 +43,7 @@ static bool close_enough(const double lhs, const double rhs)
 }
 #endif
 
-int ArrayCosineSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
   
@@ -66,7 +66,7 @@ int ArrayCosineSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkArrayData> source_data = vtkSmartPointer<vtkArrayData>::New();
     source_data->AddArray(source);
      
-    vtkSmartPointer<vtkCosineSimilarity> similarity = vtkSmartPointer<vtkCosineSimilarity>::New();
+    vtkSmartPointer<vtkDotProductSimilarity> similarity = vtkSmartPointer<vtkDotProductSimilarity>::New();
     similarity->AddInputConnection(source_data->GetProducerPort());
     similarity->SetVectorDimension(1);
     similarity->Update();

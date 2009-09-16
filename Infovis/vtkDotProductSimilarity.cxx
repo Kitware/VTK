@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCosineSimilarity.cxx
+  Module:    vtkDotProductSimilarity.cxx
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -21,7 +21,7 @@
 
 #include "vtkArrayData.h"
 #include "vtkCommand.h"
-#include "vtkCosineSimilarity.h"
+#include "vtkDotProductSimilarity.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -35,7 +35,7 @@
 #include <vtkstd/map>
 
 // threshold_multimap
-// This strange little fellow is used by the vtkCosineSimilarity
+// This strange little fellow is used by the vtkDotProductSimilarity
 // implementation.  It provides the interface
 // of a vtkstd::multimap, but it enforces several constraints on its contents:
 //
@@ -84,12 +84,12 @@ private:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCosineSimilarity, "1.4");
-vtkStandardNewMacro(vtkCosineSimilarity);
+vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.1");
+vtkStandardNewMacro(vtkDotProductSimilarity);
 
 // ----------------------------------------------------------------------
 
-vtkCosineSimilarity::vtkCosineSimilarity() :
+vtkDotProductSimilarity::vtkDotProductSimilarity() :
   VectorDimension(1),
   MinimumThreshold(1),
   MinimumCount(1),
@@ -101,13 +101,13 @@ vtkCosineSimilarity::vtkCosineSimilarity() :
 
 // ----------------------------------------------------------------------
 
-vtkCosineSimilarity::~vtkCosineSimilarity()
+vtkDotProductSimilarity::~vtkDotProductSimilarity()
 {
 }
 
 // ----------------------------------------------------------------------
 
-void vtkCosineSimilarity::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDotProductSimilarity::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "VectorDimension: " << this->VectorDimension << endl;
@@ -116,7 +116,7 @@ void vtkCosineSimilarity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumCount: " << this->MaximumCount << endl;
 }
 
-int vtkCosineSimilarity::FillInputPortInformation(int port, vtkInformation* info)
+int vtkDotProductSimilarity::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
     {
@@ -130,7 +130,7 @@ int vtkCosineSimilarity::FillInputPortInformation(int port, vtkInformation* info
 
 // ----------------------------------------------------------------------
 
-int vtkCosineSimilarity::RequestData(
+int vtkDotProductSimilarity::RequestData(
   vtkInformation*, 
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
@@ -139,19 +139,19 @@ int vtkCosineSimilarity::RequestData(
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
   if(input->GetNumberOfArrays() != 1)
     {
-    vtkErrorMacro(<< "vtkCosineSimilarity requires a vtkArrayData with exactly one array as input.");
+    vtkErrorMacro(<< "vtkDotProductSimilarity requires a vtkArrayData with exactly one array as input.");
     return 0;
     }
     
   vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(input->GetArray(0));
   if(!input_array)
     {
-    vtkErrorMacro(<< "vtkCosineSimilarity requires a vtkDenseArray<double> as input.");
+    vtkErrorMacro(<< "vtkDotProductSimilarity requires a vtkDenseArray<double> as input.");
     return 0;
     }
   if(input_array->GetExtents().GetDimensions() != 2)
     {
-    vtkErrorMacro(<< "vtkCosineSimilarity requires a matrix as input.");
+    vtkErrorMacro(<< "vtkDotProductSimilarity requires a matrix as input.");
     return 0;
     }
 

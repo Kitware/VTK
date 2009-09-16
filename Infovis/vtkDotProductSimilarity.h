@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCosineSimilarity.h
+  Module:    vtkDotProductSimilarity.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,12 +19,12 @@
 
 =========================================================================*/
 
-#ifndef __vtkCosineSimilarity_h
-#define __vtkCosineSimilarity_h
+#ifndef __vtkDotProductSimilarity_h
+#define __vtkDotProductSimilarity_h
 
 #include "vtkTableAlgorithm.h"
 
-// .NAME vtkCosineSimilarity - compute vector similarity metrics for a matrix.
+// .NAME vtkDotProductSimilarity - compute dot-product similarity metrics for a matrix.
 
 // .SECTION Description
 // Treats a matrix as a collection of vectors and computes the dot-product 
@@ -35,7 +35,7 @@
 //
 // Note: this filter *only* computes the dot-product between each pair of vectors -
 // you must normalize the inputs to this filter if you want the results to be equal
-// to the cosine of the angle between the vectors.
+// to the cosine of the angle between the vectors!
 //
 // .SECTION Caveats
 // Note that the complexity of this filter is quadratic!
@@ -43,11 +43,11 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class VTK_INFOVIS_EXPORT vtkCosineSimilarity : public vtkTableAlgorithm
+class VTK_INFOVIS_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 {
 public:
-  static vtkCosineSimilarity* New();
-  vtkTypeRevisionMacro(vtkCosineSimilarity, vtkTableAlgorithm);
+  static vtkDotProductSimilarity* New();
+  vtkTypeRevisionMacro(vtkDotProductSimilarity, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -73,8 +73,8 @@ public:
   vtkSetMacro(MaximumCount, int);
 
 protected:
-  vtkCosineSimilarity();
-  ~vtkCosineSimilarity();
+  vtkDotProductSimilarity();
+  ~vtkDotProductSimilarity();
 
   int FillInputPortInformation(int, vtkInformation*);
 
@@ -84,8 +84,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkCosineSimilarity(const vtkCosineSimilarity&); // Not implemented
-  void operator=(const vtkCosineSimilarity&);   // Not implemented
+  vtkDotProductSimilarity(const vtkDotProductSimilarity&); // Not implemented
+  void operator=(const vtkDotProductSimilarity&);   // Not implemented
 
   int VectorDimension;
   double MinimumThreshold;
