@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro( vtkAbstractInterpolatedVelocityField, "1.2" );
+vtkCxxRevisionMacro( vtkAbstractInterpolatedVelocityField, "1.3" );
 
 //----------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
@@ -260,8 +260,7 @@ bool vtkAbstractInterpolatedVelocityField::InterpolatePoint
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractInterpolatedVelocityField::PrintSelf
-  ( ostream & os, vtkIndent indent )
+void vtkAbstractInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   

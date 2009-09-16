@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
 
-vtkCxxRevisionMacro ( vtkCellLocatorInterpolatedVelocityField, "1.3" );
+vtkCxxRevisionMacro ( vtkCellLocatorInterpolatedVelocityField, "1.4" );
 vtkStandardNewMacro ( vtkCellLocatorInterpolatedVelocityField ); 
 vtkCxxSetObjectMacro( vtkCellLocatorInterpolatedVelocityField, CellLocatorPrototype, vtkAbstractCellLocator );
 
@@ -281,8 +281,7 @@ void vtkCellLocatorInterpolatedVelocityField::CopyParameters
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLocatorInterpolatedVelocityField::PrintSelf
-  ( ostream & os, vtkIndent indent )
+void vtkCellLocatorInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
  
