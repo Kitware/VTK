@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
   // do the xwindow ui stuff
   XtSetLanguageProc(NULL,NULL,NULL);
   toplevel = XtVaAppInitialize(&app,"Sample",NULL,0,
-                               &argc,argv,NULL,NULL);
+                               &argc,argv,NULL,static_cast<void *>(NULL));
 
   // get the display connection and give it to the renderer
   display = XtDisplay(toplevel);
@@ -87,29 +87,30 @@ int main (int argc, char *argv[])
   col = renWin->GetDesiredColormap();
   
   toplevel2 = XtVaCreateWidget("top2",
-    topLevelShellWidgetClass, toplevel,
-    XmNdepth, depth,
-    XmNvisual, vis,
-    XmNcolormap, col,
-    NULL);
+                               topLevelShellWidgetClass, toplevel,
+                               XmNdepth, depth,
+                               XmNvisual, vis,
+                               XmNcolormap, col,
+                               static_cast<void *>(NULL));
 
-  form = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2, NULL);
+  form = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2,
+                          static_cast<void *>(NULL));
   vtkpw = XtVaCreateManagedWidget("vtkpw",
-    xmPrimitiveWidgetClass, form, 
-    XmNwidth, 300, XmNheight, 300,
-    XmNleftAttachment, XmATTACH_FORM,
-    XmNrightAttachment, XmATTACH_FORM,
-    XmNtopAttachment, XmATTACH_FORM,
-    NULL);
+                                  xmPrimitiveWidgetClass, form, 
+                                  XmNwidth, 300, XmNheight, 300,
+                                  XmNleftAttachment, XmATTACH_FORM,
+                                  XmNrightAttachment, XmATTACH_FORM,
+                                  XmNtopAttachment, XmATTACH_FORM,
+                                  static_cast<void *>(NULL));
   button = XtVaCreateManagedWidget("Exit",
-    xmPushButtonWidgetClass, form,
-    XmNheight, 40,
-    XmNbottomAttachment, XmATTACH_FORM,
-    XmNtopAttachment, XmATTACH_WIDGET,
-    XmNtopWidget, vtkpw,
-    XmNleftAttachment, XmATTACH_FORM,
-    XmNrightAttachment, XmATTACH_FORM,
-    NULL);
+                                   xmPushButtonWidgetClass, form,
+                                   XmNheight, 40,
+                                   XmNbottomAttachment, XmATTACH_FORM,
+                                   XmNtopAttachment, XmATTACH_WIDGET,
+                                   XmNtopWidget, vtkpw,
+                                   XmNleftAttachment, XmATTACH_FORM,
+                                   XmNrightAttachment, XmATTACH_FORM,
+                                   static_cast<void *>(NULL));
 
   XtAddCallback(button,XmNactivateCallback,quit_cb,NULL);
   XtManageChild(form);
