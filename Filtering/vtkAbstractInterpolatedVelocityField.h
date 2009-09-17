@@ -170,7 +170,7 @@ public:
 
 protected:
   vtkAbstractInterpolatedVelocityField();
-  ~vtkAbstractInterpolatedVelocityField();
+  virtual ~vtkAbstractInterpolatedVelocityField();
   
   static const double TOLERANCE_SCALE;
 

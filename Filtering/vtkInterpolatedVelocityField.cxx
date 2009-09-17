@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro( vtkInterpolatedVelocityField, "1.11" );
+vtkCxxRevisionMacro( vtkInterpolatedVelocityField, "1.12" );
 vtkStandardNewMacro( vtkInterpolatedVelocityField ); 
 
 //----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
     }
 
   this->DataSets->push_back( dataset );
-  dataset->Register( this ); // register this dataset
+  //dataset->Register( this );
 
   int size = dataset->GetMaxCellSize();
   if ( size > this->WeightsSize )

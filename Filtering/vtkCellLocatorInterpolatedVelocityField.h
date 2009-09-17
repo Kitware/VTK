@@ -104,7 +104,7 @@ public:
     
 protected:
   vtkCellLocatorInterpolatedVelocityField();
-  ~vtkCellLocatorInterpolatedVelocityField();
+  virtual ~vtkCellLocatorInterpolatedVelocityField();
  
   // Description:
   // Evaluate the velocity field f at point (x, y, z) in a specified dataset 

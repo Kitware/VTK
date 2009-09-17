@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkInterpolatedVelocityField() { }
-  ~vtkInterpolatedVelocityField() { }
+  virtual ~vtkInterpolatedVelocityField() { }
 
   // Description:
   // Evaluate the velocity field f at point (x, y, z) in a specified dataset
