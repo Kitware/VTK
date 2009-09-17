@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro( vtkAbstractInterpolatedVelocityField, "1.3" );
+vtkCxxRevisionMacro( vtkAbstractInterpolatedVelocityField, "1.4" );
 
 //----------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
@@ -59,28 +59,43 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
 {
   this->NumFuncs     = 0;
   this->NumIndepVars = 0;
-  delete[] this->Weights;
-  this->Weights      = 0;
-  this->LastDataSet  = 0;
   
-  this->Cell->Delete();
-  this->Cell = NULL;
-  this->GenCell->Delete();
-  this->GenCell = NULL;
+  this->LastDataSet  = 0;
   this->SetVectorsSelection( 0 );
-
-  // Ungister datasets from this velocity field interpolator
-  for ( DataSetsTypeBase::iterator dsIt  = this->DataSets->begin(); 
-        dsIt != this->DataSets->end(); dsIt ++ )
+  
+  if ( this->Weights )
     {
-    if ( *dsIt )
-      {
-      ( *dsIt )->UnRegister( this );
-      }
-    ( *dsIt ) = NULL;
+    delete[] this->Weights;
+    this->Weights = 0;
     }
-  delete this->DataSets;
-  this->DataSets = NULL;
+  
+  if ( this->Cell )
+    {
+    this->Cell->Delete();
+    this->Cell = NULL;
+    }
+  
+  if ( this->GenCell )
+    {
+    this->GenCell->Delete();
+    this->GenCell = NULL;
+    }
+  
+  if ( this->DataSets )
+    {
+    // Ungister datasets from this velocity field interpolator
+    for ( DataSetsTypeBase::iterator dsIt  = this->DataSets->begin(); 
+          dsIt != this->DataSets->end(); dsIt ++ )
+      {
+      if ( *dsIt )
+        {
+        ( *dsIt )->UnRegister( this );
+        ( *dsIt ) = NULL;
+        }
+      }
+    delete this->DataSets;
+    this->DataSets = NULL;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -88,7 +103,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   ( vtkDataSet * dataset, double * x, double * f )
 {
   int i, j, subId , numPts, id;
-  vtkDataArray* vectors;
+  vtkDataArray * vectors = NULL;
   double vec[3];
   double dist2;
   int ret;
@@ -103,6 +118,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
      )
     {
     vtkErrorMacro( << "Can't evaluate dataset!" );
+    vectors = NULL;
     return 0;
     }
 
@@ -160,7 +176,8 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
       }
     else
       {
-      return 0;
+      vectors = NULL;
+      return  0;
       }
     }
                                 
@@ -188,10 +205,12 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   // if not, return false
   else
     {
-    return 0;
+    vectors = NULL;
+    return  0;
     }
 
-  return 1;
+  vectors = NULL;
+  return  1;
 }
 
 //----------------------------------------------------------------------------
