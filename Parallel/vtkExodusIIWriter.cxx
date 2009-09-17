@@ -49,7 +49,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.41");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.42");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -1757,12 +1757,13 @@ int vtkExodusIIWriter::WriteBlockInformation()
        blockIter != this->BlockInfoMap.end ();
        blockIter ++)
     {
+    char *name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
     rc = ex_put_elem_block(this->fid, blockIter->first, 
-                vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type), 
+                name,
                 blockIter->second.NumElements,
                 blockIter->second.NodesPerElements, 
                 blockIter->second.NumAttributes);
-
+    delete [] name;
     if (rc < 0)
       {
       vtkErrorMacro (<< "Problem adding block with id " << blockIter->first);
