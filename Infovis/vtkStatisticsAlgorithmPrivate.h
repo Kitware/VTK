@@ -101,6 +101,21 @@ public:
       }
     return count;
     }
+  /// This function doesn't use the buffer like other column selection methods.
+  int AddColumnPairToRequests( const char* cola, const char* colb )
+    {
+    if ( cola && colb && strlen( cola ) && strlen( colb ) )
+      {
+      vtkstd::set<vtkStdString> tmp;
+      tmp.insert( cola );
+      tmp.insert( colb );
+      if ( this->Requests.insert( tmp ).second )
+        {
+        return 1;
+        }
+      }
+    return 0;
+    }
   void ResetRequests()
     {
     this->Requests.clear();

@@ -55,9 +55,20 @@ public:
   // Convenience method to create a request with a single column name pair 
   //  (\p namColX, \p namColY) in a single call; this is the preferred method to select 
   // columns pairs, ensuring selection consistency (a pair of columns per request).
-  // Warning: no name checking is performed on \p namCol; it is the user's
-  // responsibility to use valid column names.
+  //
+  // Unlike SetColumnStatus(), you need not call RequestSelectedColumns() after AddColumnPair().
+  //
+  // Warning: \p namColX and \p namColY are only checked for their validity as strings;
+  // no check is made that either are valid column names.
   void AddColumnPair( const char* namColX, const char* namColY );
+
+  // Description:
+  // Use the current column status values to produce a new request for statistics
+  // to be produced when RequestData() is called.
+  // Unlike the superclass implementation, this version adds a new request for every
+  // possible pairing of the selected columns
+  // instead of a single request containing all the columns.
+  virtual int RequestSelectedColumns();
 
   // Description:
   // Execute the calculations required by the Assess option.
