@@ -85,7 +85,7 @@ private:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.2");
+vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.3");
 vtkStandardNewMacro(vtkDotProductSimilarity);
 
 // ----------------------------------------------------------------------
@@ -120,6 +120,11 @@ void vtkDotProductSimilarity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MinimumThreshold: " << this->MinimumThreshold << endl;
   os << indent << "MinimumCount: " << this->MinimumCount << endl;
   os << indent << "MaximumCount: " << this->MaximumCount << endl;
+  os << indent << "UpperDiagonal: " << this->UpperDiagonal << endl;
+  os << indent << "Diagonal: " << this->Diagonal << endl;
+  os << indent << "LowerDiagonal: " << this->LowerDiagonal << endl;
+  os << indent << "FirstSecond: " << this->FirstSecond << endl;
+  os << indent << "SecondFirst: " << this->SecondFirst << endl;
 }
 
 int vtkDotProductSimilarity::FillInputPortInformation(int port, vtkInformation* info)
