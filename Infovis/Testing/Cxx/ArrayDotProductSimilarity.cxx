@@ -49,42 +49,110 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   
   try
     {
-    vtkSmartPointer<vtkDenseArray<double> > source = vtkSmartPointer<vtkDenseArray<double> >::New();
-    source->Resize(vtkArrayExtents(2, 4));
-    source->SetValue(vtkArrayCoordinates(0, 0), 1);
-    source->SetValue(vtkArrayCoordinates(1, 0), 0);
-    source->SetValue(vtkArrayCoordinates(0, 1), 1);
-    source->SetValue(vtkArrayCoordinates(1, 1), 1);
-    source->SetValue(vtkArrayCoordinates(0, 2), 0);
-    source->SetValue(vtkArrayCoordinates(1, 2), 1);
-    source->SetValue(vtkArrayCoordinates(0, 3), -1);
-    source->SetValue(vtkArrayCoordinates(1, 3), 1);
+    // Run tests on one matrix ...
+    vtkSmartPointer<vtkDenseArray<double> > matrix_a = vtkSmartPointer<vtkDenseArray<double> >::New();
+    matrix_a->Resize(vtkArrayExtents(2, 2));
+    matrix_a->SetValue(vtkArrayCoordinates(0, 0), 1);
+    matrix_a->SetValue(vtkArrayCoordinates(1, 0), 2);
+    matrix_a->SetValue(vtkArrayCoordinates(0, 1), 3);
+    matrix_a->SetValue(vtkArrayCoordinates(1, 1), 4);
 
-    cout << "source matrix:\n";
-    vtkPrintMatrixFormat(cout, source.GetPointer());
-    
-    vtkSmartPointer<vtkArrayData> source_data = vtkSmartPointer<vtkArrayData>::New();
-    source_data->AddArray(source);
+    vtkSmartPointer<vtkArrayData> matrix_data_a = vtkSmartPointer<vtkArrayData>::New();
+    matrix_data_a->AddArray(matrix_a);
      
     vtkSmartPointer<vtkDotProductSimilarity> similarity = vtkSmartPointer<vtkDotProductSimilarity>::New();
-    similarity->AddInputConnection(source_data->GetProducerPort());
+    similarity->SetInputConnection(0, matrix_data_a->GetProducerPort());
     similarity->SetVectorDimension(1);
+    similarity->SetMinimumThreshold(0);
+    similarity->SetMinimumCount(0);
+
+    similarity->SetUpperDiagonal(true);
+    similarity->SetDiagonal(false);
+    similarity->SetLowerDiagonal(false);
     similarity->Update();
+    similarity->GetOutput()->Dump(10);
 
-    vtkTable* const table = similarity->GetOutput();
-    test_expression(table->GetNumberOfColumns() == 3);
+    test_expression(similarity->GetOutput()->GetNumberOfRows() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "source").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "target").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "similarity").ToInt() == 11);
+    
+    similarity->SetUpperDiagonal(false);
+    similarity->SetDiagonal(true);
+    similarity->SetLowerDiagonal(false);
+    similarity->Update();
+    similarity->GetOutput()->Dump(10);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "source").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "target").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "similarity").ToInt() == 5);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "source").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "target").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "similarity").ToInt() == 25);
+    
+    test_expression(similarity->GetOutput()->GetNumberOfRows() == 2);
+    
+    similarity->SetUpperDiagonal(false);
+    similarity->SetDiagonal(false);
+    similarity->SetLowerDiagonal(true);
+    similarity->Update();
+    similarity->GetOutput()->Dump(10);
+    
+    test_expression(similarity->GetOutput()->GetNumberOfRows() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "source").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "target").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "similarity").ToInt() == 11);
+    
+    // Run tests with two matrices ...
+    vtkSmartPointer<vtkDenseArray<double> > matrix_b = vtkSmartPointer<vtkDenseArray<double> >::New();
+    matrix_b->Resize(vtkArrayExtents(2, 2));
+    matrix_b->SetValue(vtkArrayCoordinates(0, 0), 5);
+    matrix_b->SetValue(vtkArrayCoordinates(1, 0), 6);
+    matrix_b->SetValue(vtkArrayCoordinates(0, 1), 7);
+    matrix_b->SetValue(vtkArrayCoordinates(1, 1), 8);
 
-    cout << "similarity table:\n";
-    for(vtkIdType row = 0; row < table->GetNumberOfRows(); ++row)
-      {
-      cout
-        << table->GetValue(row, 0).ToInt()
-        << " -> "
-        << table->GetValue(row, 1).ToInt()
-        << ": "
-        << table->GetValue(row, 2).ToDouble()
-        << "\n";
-      }
+    vtkSmartPointer<vtkArrayData> matrix_data_b = vtkSmartPointer<vtkArrayData>::New();
+    matrix_data_b->AddArray(matrix_b);
+
+    similarity->SetInputConnection(1, matrix_data_b->GetProducerPort());
+
+    similarity->SetFirstSecond(true);
+    similarity->SetSecondFirst(false);
+    similarity->Update();
+    similarity->GetOutput()->Dump(10);
+
+    test_expression(similarity->GetOutput()->GetNumberOfRows() == 4);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "source").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "target").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "similarity").ToInt() == 17);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "source").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "target").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "similarity").ToInt() == 23);
+    test_expression(similarity->GetOutput()->GetValueByName(2, "source").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(2, "target").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(2, "similarity").ToInt() == 39);
+    test_expression(similarity->GetOutput()->GetValueByName(3, "source").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(3, "target").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(3, "similarity").ToInt() == 53);
+ 
+    similarity->SetFirstSecond(false);
+    similarity->SetSecondFirst(true);
+    similarity->Update();
+    similarity->GetOutput()->Dump(10);
+ 
+    test_expression(similarity->GetOutput()->GetNumberOfRows() == 4);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "source").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "target").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(0, "similarity").ToInt() == 17);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "source").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "target").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(1, "similarity").ToInt() == 39);
+    test_expression(similarity->GetOutput()->GetValueByName(2, "source").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(2, "target").ToInt() == 0);
+    test_expression(similarity->GetOutput()->GetValueByName(2, "similarity").ToInt() == 23);
+    test_expression(similarity->GetOutput()->GetValueByName(3, "source").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(3, "target").ToInt() == 1);
+    test_expression(similarity->GetOutput()->GetValueByName(3, "similarity").ToInt() == 53);
+ 
     return 0;
     }
   catch(vtkstd::exception& e)
