@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.19");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.20");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -700,7 +700,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
         }
       assessColName << ")";
 
-      vtkVariantArray* assessValues = vtkVariantArray::New();
+      vtkDoubleArray* assessValues = vtkDoubleArray::New();
       names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
       assessValues->SetName( names[v] );
       assessValues->SetNumberOfTuples( nsamples );
