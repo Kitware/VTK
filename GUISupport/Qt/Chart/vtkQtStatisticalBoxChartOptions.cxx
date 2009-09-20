@@ -53,6 +53,12 @@ vtkQtStatisticalBoxChartOptions::vtkQtStatisticalBoxChartOptions(const vtkQtStat
   this->BoxFraction = other.BoxFraction;
 }
 
+vtkQtStatisticalBoxChartOptions::~vtkQtStatisticalBoxChartOptions()
+{
+  delete this->Help;
+  delete this->Outlier;
+}
+
 void vtkQtStatisticalBoxChartOptions::setAxesCorner(vtkQtChartLayer::AxesCorner axes)
 {
   if(this->AxesCorner != axes)

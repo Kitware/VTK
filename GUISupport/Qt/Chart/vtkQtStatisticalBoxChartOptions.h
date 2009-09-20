@@ -63,7 +63,7 @@ public:
   /// \param other The box chart options to copy.
   vtkQtStatisticalBoxChartOptions(
       const vtkQtStatisticalBoxChartOptions &other);
-  virtual ~vtkQtStatisticalBoxChartOptions() {}
+  virtual ~vtkQtStatisticalBoxChartOptions();
 
   /// \brief
   ///   Gets the pair of axes used by the box chart.
