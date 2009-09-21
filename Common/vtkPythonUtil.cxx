@@ -1964,6 +1964,7 @@ void vtkPythonVoidFuncArgDelete(void *arg)
 vtkPythonCommand::vtkPythonCommand()
 { 
   this->obj = NULL;
+  this->ThreadState = NULL;
 }
 
 vtkPythonCommand::~vtkPythonCommand()
@@ -1978,6 +1979,11 @@ vtkPythonCommand::~vtkPythonCommand()
 void vtkPythonCommand::SetObject(PyObject *o)
 { 
   this->obj = o; 
+}
+
+void vtkPythonCommand::SetThreadState(PyThreadState *ts)
+{ 
+  this->ThreadState = ts; 
 }
 
 void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
@@ -2001,6 +2007,15 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 #endif
 #endif
   
+  // If a threadstate has been set using vtkPythonCommand::SetThreadState,
+  // then swap it in here.  See the email to vtk-developers@vtk.org from
+  // June 18, 2009 with subject "Py_NewInterpreter and vtkPythonCallback issue"
+  PyThreadState* prevThreadState = NULL;
+  if (this->ThreadState)
+    {
+    prevThreadState = PyThreadState_Swap(this->ThreadState);
+    }
+
   if (ptr && ptr->GetReferenceCount() > 0)
     {
     obj2 = vtkPythonGetObjectFromPointer(ptr);
@@ -2093,6 +2108,12 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
       Py_Exit(1);
       }
     PyErr_Print();
+    }
+
+  // If we did the swap near the top of this function then swap back now.
+  if (this->ThreadState)
+    {
+    PyThreadState_Swap(prevThreadState);
     }
 
 #ifndef VTK_NO_PYTHON_THREADS

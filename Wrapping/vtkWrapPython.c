@@ -1415,6 +1415,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    Py_INCREF(temp1);\n");
     fprintf(fp,"    vtkPythonCommand *cbc = vtkPythonCommand::New();\n");
     fprintf(fp,"    cbc->SetObject(temp1);\n");
+    fprintf(fp,"    cbc->SetThreadState(PyThreadState_Get());\n");
     fprintf(fp,"    temp20 = op->AddObserver(temp0,cbc);\n");
     fprintf(fp,"    cbc->Delete();\n");
     fprintf(fp,"    return PyInt_FromLong((long)temp20);\n");
@@ -1431,6 +1432,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    Py_INCREF(temp1);\n");
     fprintf(fp,"    vtkPythonCommand *cbc = vtkPythonCommand::New();\n");
     fprintf(fp,"    cbc->SetObject(temp1);\n");
+    fprintf(fp,"    cbc->SetThreadState(PyThreadState_Get());\n");
     fprintf(fp,"    temp20 = op->AddObserver(temp0,cbc,temp2);\n");
     fprintf(fp,"    cbc->Delete();\n");
     fprintf(fp,"    return PyInt_FromLong((long)temp20);\n");
