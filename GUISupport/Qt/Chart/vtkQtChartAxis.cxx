@@ -867,8 +867,9 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
       this->Options->getAxisScale() == vtkQtChartAxisOptions::Logarithmic &&
       !this->Internal->Scale.LogAvailable)
     {
-    qWarning() << "Warning: Invalid range for a logarithmic scale."
-               << "Please select a range greater than zero.";
+    qWarning() << "Warning: Invalid range for a logarithmic scale. "
+               << "Please specify a range with minimum value greater than 0 "
+               << "for this axis.";
     }
 
   // Signal the chart layers if the pixel-value map changed.
