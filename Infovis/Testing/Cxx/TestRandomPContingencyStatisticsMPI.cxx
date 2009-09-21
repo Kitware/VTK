@@ -46,7 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 struct RandomContingencyStatisticsArgs
 {
   int nVals;
-  double span;
+  double stdev;
   double absTol;
   int* retVal;
   int ioRank;
@@ -87,7 +87,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->span ) ) );
+      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) ) );
       }
     
     inputData->AddColumn( intArray[c] );
@@ -335,7 +335,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
              << i
              << ", CDF = "
              << testDoubleValue
-             << "\n";
+             << " (within "
+             << args->absTol
+             << " relative tolerance)\n";
 
         // Verify that CDF = 1 (within absTol)
         if ( fabs ( 1. - testDoubleValue ) > args->absTol )
@@ -430,11 +432,11 @@ int main( int argc, char** argv )
   RandomContingencyStatisticsArgs args;
 
 #if CONTINGENCY_BIG_CASE
-  args.nVals = 1000000;
-  args.span = 200.;
+  args.nVals = 4000000;
+  args.stdev = 5.;
 #else // CONTINGENCY_BIG_CASE
   args.nVals = 10;
-  args.span = 3.;
+  args.stdev = 3.;
 #endif // CONTINGENCY_BIG_CASE
 
   args.absTol = 1.e-6;
@@ -450,7 +452,7 @@ int main( int argc, char** argv )
     cout << "\n# Running test with "
          << numProcs
          << " processes and standard deviation = "
-         << args.span
+         << args.stdev
          << ".\n";
     }
 
