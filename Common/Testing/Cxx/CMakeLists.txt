@@ -96,5 +96,11 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ADD_TEST(Array-${TName} ${CXX_TEST_PATH}/ArrayCxxTests ${TName})
   ENDFOREACH(test)
 
+#  IF(VTK_USE_BOOST)
+#    ADD_EXECUTABLE(ArrayCasting ArrayCasting.cxx)
+#    TARGET_LINK_LIBRARIES(ArrayCasting vtkCommon)
+#    ADD_TEST(Array-ArrayCasting ${CXX_TEST_PATH}/ArrayCasting)
+#  ENDIF()
+
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 
