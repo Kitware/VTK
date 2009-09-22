@@ -14,11 +14,11 @@
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <vtksys/stl/map>
+#include <vtksys/stl/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.11");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.12");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -103,7 +103,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
                                                          vtkIdTypeArray*  startRunID,
                                                          vtkIdTypeArray*  endRunID)
 {
-  vtkstd::set<vtkstd::set<vtkStdString> >::iterator reqIt;
+  vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
   if( this->Internals->Requests.size() > 1 ) 
     {
     static int num=0;
@@ -145,7 +145,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
       endRunID->InsertNextValue( curRow );
       }
     vtkTable* condensedTable = vtkTable::New();
-    vtkstd::set<vtkStdString>::iterator colItr;
+    vtksys_stl::set<vtkStdString>::const_iterator colItr;
     for ( colItr = reqIt->begin(); colItr != reqIt->end(); ++ colItr )
       {
       vtkAbstractArray* pArr = inParameters->GetColumnByName( colItr->c_str() );
@@ -518,8 +518,8 @@ void vtkKMeansStatistics::Derive( vtkDataObject* outMetaDO )
   globalRank->SetName( "Global Rank" );
   localRank->SetName( "Local Rank" );
 
-  vtkstd::multimap<double, vtkIdType> globalErrorMap;
-  vtkstd::map<vtkIdType, vtkstd::multimap<double, vtkIdType> > localErrorMap;
+  vtksys_stl::multimap<double, vtkIdType> globalErrorMap;
+  vtksys_stl::map<vtkIdType, vtksys_stl::multimap<double, vtkIdType> > localErrorMap;
 
   vtkIdType curRow = 0;
   while ( curRow < outTable->GetNumberOfRows() )
@@ -533,10 +533,10 @@ void vtkKMeansStatistics::Derive( vtkDataObject* outMetaDO )
       totalErr+= error->GetValue( i );
       }
     totalError->InsertNextValue( totalErr );
-    globalErrorMap.insert(vtkstd::multimap<double, vtkIdType>::value_type( totalErr, 
+    globalErrorMap.insert(vtksys_stl::multimap<double, vtkIdType>::value_type( totalErr, 
                                                                      clusterRunIDs->GetValue( curRow ) ) );
     localErrorMap[numberOfClusters->GetValue( curRow )].insert(
-                vtkstd::multimap<double, vtkIdType>::value_type( totalErr, clusterRunIDs->GetValue( curRow ) ) );
+                vtksys_stl::multimap<double, vtkIdType>::value_type( totalErr, clusterRunIDs->GetValue( curRow ) ) );
     curRow += numberOfClusters->GetValue( curRow );
     }
  
@@ -544,14 +544,14 @@ void vtkKMeansStatistics::Derive( vtkDataObject* outMetaDO )
   localRank->SetNumberOfValues( totalClusterRunIDs->GetNumberOfTuples() );
   int rankID=1;
 
-  for( vtkstd::multimap<double, vtkIdType>::iterator itr = globalErrorMap.begin(); itr != globalErrorMap.end(); itr++ )
+  for( vtksys_stl::multimap<double, vtkIdType>::iterator itr = globalErrorMap.begin(); itr != globalErrorMap.end(); itr++ )
     {
     globalRank->SetValue( itr->second, rankID++ ) ;
     }
-  for( vtkstd::map<vtkIdType, vtkstd::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin(); itr != localErrorMap.end(); itr++ )
+  for( vtksys_stl::map<vtkIdType, vtksys_stl::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin(); itr != localErrorMap.end(); itr++ )
     {
     rankID=1;
-    for( vtkstd::multimap<double, vtkIdType>::iterator rItr = itr->second.begin(); rItr != itr->second.end(); rItr++ )
+    for( vtksys_stl::multimap<double, vtkIdType>::iterator rItr = itr->second.begin(); rItr != itr->second.end(); rItr++ )
       {
       localRank->SetValue( rItr->second, rankID++ ) ;
       }

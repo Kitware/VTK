@@ -32,12 +32,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/map>
-#include <vtkstd/set>
+#include <vtksys/stl/vector>
+#include <vtksys/stl/map>
+#include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.52");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.53");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -184,11 +184,11 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     }
 
   // Loop over requests
-  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString col = *it;
     if ( ! inData->GetColumnByName( col ) )
       {
@@ -207,7 +207,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     row->SetValue( i ++, col );
     row->SetValue( i ++, n );
     
-    vtkstd::vector<double> quantileThresholds;
+    vtksys_stl::vector<double> quantileThresholds;
     double dh = n / static_cast<double>( this->NumberOfIntervals );
     for ( int j = 0; j < this->NumberOfIntervals; ++ j )
       {
@@ -221,15 +221,15 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       {
       vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
 
-      vtkstd::map<double,vtkIdType> distr;
+      vtksys_stl::map<double,vtkIdType> distr;
       for ( vtkIdType r = 0; r < n; ++ r )
         {
         ++ distr[darr->GetTuple1( r )];
         }
 
       vtkIdType sum = 0;
-      vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
-      for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
+      vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
+      for ( vtksys_stl::map<double,vtkIdType>::iterator mit = distr.begin();
             mit != distr.end(); ++ mit  )
         {
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
@@ -238,7 +238,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           if ( sum == *qit
                && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
             {
-            vtkstd::map<double,vtkIdType>::iterator nit = mit;
+            vtksys_stl::map<double,vtkIdType>::iterator nit = mit;
             row->SetValue( i ++, ( (++ nit)->first + mit->first ) * .5 );
             }
           else
@@ -254,15 +254,15 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     else if ( arr->IsA("vtkStringArray") ) 
       {
       vtkStringArray* sarr = vtkStringArray::SafeDownCast( arr ); 
-      vtkstd::map<vtkStdString,vtkIdType> distr;
+      vtksys_stl::map<vtkStdString,vtkIdType> distr;
       for ( vtkIdType r = 0; r < n; ++ r )
         {
         ++ distr[sarr->GetValue( r )];
         }
 
       vtkIdType sum = 0;
-      vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
-      for ( vtkstd::map<vtkStdString,vtkIdType>::iterator mit = distr.begin();
+      vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
+      for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = distr.begin();
             mit != distr.end(); ++ mit  )
         {
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )

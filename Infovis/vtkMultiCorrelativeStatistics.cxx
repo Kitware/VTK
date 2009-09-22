@@ -12,8 +12,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <vtksys/stl/map>
+#include <vtksys/stl/vector>
 #include <vtksys/ios/sstream>
 
 #define VTK_MULTICORRELATIVE_KEYCOLUMN1 "Column1"
@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.20");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.21");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ void vtkMultiCorrelativeStatistics::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeInvertCholesky( vtkstd::vector<double*>& chol, vtkstd::vector<double>& inv )
+void vtkMultiCorrelativeInvertCholesky( vtksys_stl::vector<double*>& chol, vtksys_stl::vector<double>& inv )
 {
   vtkIdType m = static_cast<vtkIdType>( chol.size() );
   inv.resize( m * ( m + 1 ) / 2 );
@@ -73,9 +73,9 @@ void vtkMultiCorrelativeInvertCholesky( vtkstd::vector<double*>& chol, vtkstd::v
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeTransposeTriangular( vtkstd::vector<double>& a, vtkIdType m )
+void vtkMultiCorrelativeTransposeTriangular( vtksys_stl::vector<double>& a, vtkIdType m )
 {
-  vtkstd::vector<double> b( a.begin(), a.end() );
+  vtksys_stl::vector<double> b( a.begin(), a.end() );
   double* bp = &b[0];
   vtkIdType i, j;
   a.clear();
@@ -336,13 +336,13 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  vtkstd::set<vtkstd::set<vtkStdString> >::iterator reqIt;
-  vtkstd::set<vtkStdString>::iterator colIt;
-  vtkstd::set<vtkstd::pair<vtkStdString,vtkDataArray*> > allColumns;
-  vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,vtkIdType> colPairs;
-  vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
-  vtkstd::map<vtkStdString,vtkIdType> colNameToIdx;
-  vtkstd::vector<vtkDataArray*> colPtrs;
+  vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
+  vtksys_stl::set<vtkStdString>::const_iterator colIt;
+  vtksys_stl::set<vtksys_stl::pair<vtkStdString,vtkDataArray*> > allColumns;
+  vtksys_stl::map<vtksys_stl::pair<vtkIdType,vtkIdType>,vtkIdType> colPairs;
+  vtksys_stl::map<vtksys_stl::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
+  vtksys_stl::map<vtkStdString,vtkIdType> colNameToIdx;
+  vtksys_stl::vector<vtkDataArray*> colPtrs;
 
   // Populate a vector with pointers to columns of interest (i.e., columns from the input dataset
   // which have some statistics requested) and create a map from column names into this vector.
@@ -355,14 +355,14 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
       vtkDataArray* arr = vtkDataArray::SafeDownCast( inData->GetColumnByName( colIt->c_str() ) );
       if ( arr )
         {
-        allColumns.insert( vtkstd::pair<vtkStdString,vtkDataArray*>( *colIt, arr ) );
+        allColumns.insert( vtksys_stl::pair<vtkStdString,vtkDataArray*>( *colIt, arr ) );
         }
       }
     }
   // Now make a map from input column name to output column index (colNameToIdx):
   vtkIdType i = 0;
   vtkIdType m = static_cast<vtkIdType>( allColumns.size() );
-  vtkstd::set<vtkstd::pair<vtkStdString,vtkDataArray*> >::iterator acIt;
+  vtksys_stl::set<vtksys_stl::pair<vtkStdString,vtkDataArray*> >::const_iterator acIt;
   vtkStdString empty;
   ocol1->InsertNextValue( "Cardinality" );
   ocol2->InsertNextValue( empty );
@@ -384,20 +384,20 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
     // For each column in the request:
     for ( colIt = reqIt->begin(); colIt != reqIt->end(); ++ colIt )
       {
-      vtkstd::map<vtkStdString,vtkIdType>::iterator idxIt = colNameToIdx.find( *colIt );
+      vtksys_stl::map<vtkStdString,vtkIdType>::iterator idxIt = colNameToIdx.find( *colIt );
       // Ignore invalid column names
       if ( idxIt != colNameToIdx.end() )
         {
         vtkIdType colA = idxIt->second;
         vtkStdString colAName = idxIt->first;
-        vtkstd::set<vtkStdString>::iterator colIt2;
+        vtksys_stl::set<vtkStdString>::const_iterator colIt2;
         for ( colIt2 = colIt; colIt2 != reqIt->end(); ++ colIt2 )
           {
           idxIt = colNameToIdx.find( *colIt2 );
           // Ignore invalid column names
           if ( idxIt != colNameToIdx.end() )
             { // Note that other requests may have inserted this entry.
-            vtkstd::pair<vtkIdType,vtkIdType> entry( colA, idxIt->second );
+            vtksys_stl::pair<vtkIdType,vtkIdType> entry( colA, idxIt->second );
             if ( colPairs.find( entry ) == colPairs.end() )
               { // point to the offset in mucov (below) for this column-pair sum:
               //cout << "Pair (" << colAName.c_str() << ", " << idxIt->first.c_str() << "): " << colPairs[entry] << "\n";
@@ -421,8 +421,8 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   // This uses the on-line algorithms for computing centered
   // moments and covariances from Philippe's SAND2008-6212 report.
   double* x;
-  vtkstd::vector<double> v( m, 0. ); // Values (v) for one observation
-  //vtkstd::vector<double> mucov( m + colPairs.size(), 0. ); // mean (mu) followed by covariance (cov) values
+  vtksys_stl::vector<double> v( m, 0. ); // Values (v) for one observation
+  //vtksys_stl::vector<double> mucov( m + colPairs.size(), 0. ); // mean (mu) followed by covariance (cov) values
   mucov->SetNumberOfTuples( 1 + m + colPairs.size() ); // sample size followed by mean (mu) followed by covariance (cov) values
   mucov->FillComponent( 0, 0. );
   double* rv = mucov->GetPointer( 0 );
@@ -463,7 +463,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeCholesky( vtkstd::vector<double*>& a, vtkIdType m )
+void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
 {
   // Some macros to make the Cholevsky decomposition algorithm legible:
 #ifdef A
@@ -516,13 +516,13 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
     return;
     }
 
-  vtkstd::set<vtkstd::set<vtkStdString> >::iterator reqIt;
-  vtkstd::set<vtkStdString>::iterator colIt;
-  vtkstd::set<vtkstd::pair<vtkStdString,vtkDataArray*> > allColumns;
-  vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,vtkIdType> colPairs;
-  vtkstd::map<vtkstd::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
-  vtkstd::map<vtkStdString,vtkIdType> colNameToIdx;
-  vtkstd::vector<vtkDataArray*> colPtrs;
+  vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
+  vtksys_stl::set<vtkStdString>::const_iterator colIt;
+  vtksys_stl::set<vtksys_stl::pair<vtkStdString,vtkDataArray*> > allColumns;
+  vtksys_stl::map<vtksys_stl::pair<vtkIdType,vtkIdType>,vtkIdType> colPairs;
+  vtksys_stl::map<vtksys_stl::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
+  vtksys_stl::map<vtkStdString,vtkIdType> colNameToIdx;
+  vtksys_stl::vector<vtkDataArray*> colPtrs;
   // Reconstruct information about the computed sums from the raw data.
   // The first entry is always the sample size
   double n = mucov->GetValue( 0 );
@@ -535,7 +535,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
     }
   for ( ; i < nmucov; ++ i )
     {
-    vtkstd::pair<vtkIdType,vtkIdType> idxs( colNameToIdx[ocol1->GetValue(i)], colNameToIdx[ocol2->GetValue(i)] );
+    vtksys_stl::pair<vtkIdType,vtkIdType> idxs( colNameToIdx[ocol1->GetValue(i)], colNameToIdx[ocol2->GetValue(i)] );
     colPairs[idxs] = i - 1;
     }
   double* rv = mucov->GetPointer( 0 ) + 1;
@@ -554,15 +554,15 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
     colNames->SetName( VTK_MULTICORRELATIVE_COLUMNAMES );
     vtkDoubleArray* colAvgs = vtkDoubleArray::New();
     colAvgs->SetName( VTK_MULTICORRELATIVE_AVERAGECOL );
-    vtkstd::vector<vtkDoubleArray*> covCols;
-    vtkstd::vector<double*> covPtrs;
-    vtkstd::vector<int> covIdxs;
+    vtksys_stl::vector<vtkDoubleArray*> covCols;
+    vtksys_stl::vector<double*> covPtrs;
+    vtksys_stl::vector<int> covIdxs;
     vtksys_ios::ostringstream reqNameStr;
     reqNameStr << "Cov(";
     // For each column in the request:
     for ( colIt = reqIt->begin(); colIt != reqIt->end(); ++ colIt )
       {
-      vtkstd::map<vtkStdString,vtkIdType>::iterator idxIt = colNameToIdx.find( *colIt );
+      vtksys_stl::map<vtkStdString,vtkIdType>::iterator idxIt = colNameToIdx.find( *colIt );
       // Ignore invalid column names
       if ( idxIt != colNameToIdx.end() )
         {
@@ -600,7 +600,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
     colAvgs->Delete();
 
     vtkIdType j = 0;
-    for ( vtkstd::vector<vtkDoubleArray*>::iterator arrIt = covCols.begin(); arrIt != covCols.end(); ++ arrIt, ++ j )
+    for ( vtksys_stl::vector<vtkDoubleArray*>::iterator arrIt = covCols.begin(); arrIt != covCols.end(); ++ arrIt, ++ j )
       {
       (*arrIt)->SetNumberOfTuples( reqCovSize );
       (*arrIt)->FillComponent( 0, 0. );
@@ -612,7 +612,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
         (*arrIt)->Delete();
         for ( vtkIdType k = 0; k <= j; ++ k, ++ x )
           {
-          *x = rv[colPairs[vtkstd::pair<vtkIdType,vtkIdType>( covIdxs[k], covIdxs[j] )]] * scale;
+          *x = rv[colPairs[vtksys_stl::pair<vtkIdType,vtkIdType>( covIdxs[k], covIdxs[j] )]] * scale;
           }
         }
       else
@@ -750,8 +750,8 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
     return false;
     }
 
-  vtkstd::vector<vtkDataArray*> cols; // input data columns
-  vtkstd::vector<double*> chol; // Cholesky matrix columns. Only the lower triangle is significant.
+  vtksys_stl::vector<vtkDataArray*> cols; // input data columns
+  vtksys_stl::vector<double*> chol; // Cholesky matrix columns. Only the lower triangle is significant.
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
   vtkIdType i;
   for ( i = 0; i < m ; ++ i )
@@ -777,7 +777,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
   this->Columns = cols;
   this->Center = avgs->GetPointer( 0 );
   this->Tuple.resize( m );
-  this->EmptyTuple = vtkstd::vector<double>( m, 0. );
+  this->EmptyTuple = vtksys_stl::vector<double>( m, 0. );
   if ( cholesky )
     {
     vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); // store the inverse of chol in this->Factor, F

@@ -34,10 +34,10 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/set>
+#include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.85");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.86");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -269,11 +269,11 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     }
   
   // Loop over requests
-  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if ( ! inData->GetColumnByName( varName ) )
       {

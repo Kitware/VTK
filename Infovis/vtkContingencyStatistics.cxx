@@ -34,15 +34,15 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <vtksys/stl/map>
+#include <vtksys/stl/vector>
 
 #include <vtksys/ios/sstream>
 
-typedef vtkstd::map<vtkStdString,vtkIdType> Counts;
-typedef vtkstd::map<vtkStdString,double> PDF;
+typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
+typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.65");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.66");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -183,14 +183,14 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   row4->SetValue( 3, -1 );
   contingencyTab->InsertNextRow( row4 );
 
-  typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
+  typedef vtksys_stl::map<vtkStdString,vtkIdType> Distribution;
 
   // Loop over requests
-  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one pair of column of interest (if there are others, they are ignored)
-    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString colX = *it;
     if ( ! inData->GetColumnByName( colX ) )
       {
@@ -222,7 +222,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );
 
-    vtkstd::map<vtkStdString,Distribution> contingencyTable;
+    vtksys_stl::map<vtkStdString,Distribution> contingencyTable;
     for ( vtkIdType r = 0; r < n; ++ r )
       {
       ++ contingencyTable
@@ -230,7 +230,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
         [valsY->GetVariantValue( r ).ToString()];
       }
 
-    for ( vtkstd::map<vtkStdString,Distribution>::iterator mit = contingencyTable.begin(); 
+    for ( vtksys_stl::map<vtkStdString,Distribution>::iterator mit = contingencyTable.begin(); 
           mit != contingencyTable.end(); ++ mit )
       {
       row4->SetValue( 1, mit->first );
@@ -354,11 +354,11 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
     }
 
   // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
-  vtkstd::map<vtkIdType,vtkIdType> cardinality;
+  vtksys_stl::map<vtkIdType,vtkIdType> cardinality;
 
   // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
-  vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > marginalToPair;
-  vtkstd::map<vtkStdString,Counts> marginalCounts;
+  vtksys_stl::map<vtkStdString,vtksys_stl::pair<vtkStdString,vtkStdString> > marginalToPair;
+  vtksys_stl::map<vtkStdString,Counts> marginalCounts;
   vtkStdString x, y, c1, c2;
   vtkIdType key, c;
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -410,7 +410,7 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
   // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
   // have the same cardinality.
   vtkIdType n = cardinality[0];
-  for ( vtkstd::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
         iit != cardinality.end(); ++ iit )
     {
     if ( iit->second != n )
@@ -448,8 +448,8 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
 
   // Add marginal PDF tables as new blocks to the meta output starting at block nBlock
   // NB: block nBlock is kept for information entropy
-  vtkstd::map<vtkStdString,PDF> marginalPDFs;
-  for ( vtkstd::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+  vtksys_stl::map<vtkStdString,PDF> marginalPDFs;
+  for ( vtksys_stl::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
         sit != marginalCounts.end(); ++ sit, ++ nBlocks )
       {
       vtkTable* marginalTab = vtkTable::New();
@@ -496,7 +496,7 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
   double* derivedVals = new double[nDerivedVals];
   
   // Container for information entropies
-  typedef vtkstd::map<vtkIdType,double> Entropies;
+  typedef vtksys_stl::map<vtkIdType,double> Entropies;
   Entropies *H = new Entropies[nEntropy];
 
   // Calculate joint and conditional PDFs, and information entropies
@@ -574,14 +574,14 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  vtkstd::map<vtkStdString,PDF> PdfX_Y;
-  vtkstd::map<vtkStdString,PDF> PdfYcX;
-  vtkstd::map<vtkStdString,PDF> PdfXcY;
-  vtkstd::map<vtkStdString,PDF> PmiX_Y;
+  vtksys_stl::map<vtkStdString,PDF> PdfX_Y;
+  vtksys_stl::map<vtkStdString,PDF> PdfYcX;
+  vtksys_stl::map<vtkStdString,PDF> PdfXcY;
+  vtksys_stl::map<vtkStdString,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               const vtkstd::map<vtkStdString,PDF> parameters[4] )
+                                               const vtksys_stl::map<vtkStdString,PDF> parameters[4] )
   {
     this->DataX = valsX;
     this->DataY = valsY;
@@ -646,11 +646,11 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
 
   // Loop over requests
-  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one pair of column of interest (if there are others, they are ignored)
-    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varNameX = *it;
     if ( ! inData->GetColumnByName( varNameX ) )
       {
@@ -805,7 +805,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
 
   int np = this->AssessParameters->GetNumberOfValues();
-  vtkstd::vector<vtkDoubleArray *> para;
+  vtksys_stl::vector<vtkDoubleArray *> para;
   for ( int p = 0; p < np; ++ p )
     {
     para.push_back(
@@ -822,7 +822,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   // 1: PDF(Y|X)
   // 2: PDF(X|Y)
   // 3: PMI(X,Y)
-  vtkstd::map<vtkStdString,PDF> paraMap[4];
+  vtksys_stl::map<vtkStdString,PDF> paraMap[4];
 
   // Sanity check: joint PDF
   double cdf = 0.;
