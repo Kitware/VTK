@@ -19,7 +19,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     SLACReaderQuadratic.cxx
     )
     
-IF(WIN32)
+IF(NOT WIN32)
   SET(ConditionalTests
     ${ConditionalTests}
     SLACParticleReader.cxx
