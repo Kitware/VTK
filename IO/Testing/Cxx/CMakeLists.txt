@@ -15,10 +15,17 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ${ConditionalTests} 
     TestHyperOctreeIO.cxx 
     TestPLYReader.cxx
-    SLACParticleReader.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
     )
+    
+IF(WIN32)
+  SET(ConditionalTests
+    ${ConditionalTests}
+    SLACParticleReader.cxx
+    )
+ENDIF(WIN32)
+
 ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 IF(VTK_USE_INFOVIS)
   SET(ConditionalTests ${ConditionalTests} TestDataObjectIO.cxx)
