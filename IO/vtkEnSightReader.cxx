@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.84");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.85");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -91,6 +91,10 @@ vtkEnSightReader::vtkEnSightReader()
   
   this->InitialRead = 1;
   this->NumberOfNewOutputs = 0;
+  
+  this->PreviousTimeStepInFile   = 1;
+  this->ForwardTimeStepShiftIS   = NULL;
+  this->ForwardTimeStepShiftMode = FORWARD_TIME_STEP_SHIFT_NON;
 }
 
 //----------------------------------------------------------------------------
@@ -166,6 +170,12 @@ vtkEnSightReader::~vtkEnSightReader()
   this->FileSets = NULL;
 
   this->ActualTimeValue = 0.0;
+  
+  if ( this->ForwardTimeStepShiftIS )
+    {
+    delete this->ForwardTimeStepShiftIS;
+    this->ForwardTimeStepShiftIS = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -208,13 +218,15 @@ int vtkEnSightReader::RequestData(
 
   cout << "Executing with: " << this->ActualTimeValue << endl;
 
-  int i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
-  vtkDataArray *times;
-  vtkIdList *numStepsList, *filenameNumbers;
-  float newTime;
-  int numSteps;
-  char* fileName;
-  int filenameNum;
+  int    i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
+  int    numSteps;
+  int    filenameNum;
+  float  newTime;
+  char * fileName      = NULL;
+  vtkDataArray * times = NULL;
+  vtkIdList *    numStepsList    = NULL;
+  vtkIdList *    filenameNumbers = NULL;
+  static char prevFileName[300]  = { "" }; // for forward time step shifting
   
   if ( ! this->CaseFileRead)
     {
@@ -233,14 +245,23 @@ int vtkEnSightReader::RequestData(
     
     if (this->UseTimeSets)
       {
+      // The TIME section may declare multiple time sets, each coupled with
+      // an index. We first need to obtain its corresponding index in a list.
       timeSet = this->TimeSetIds->IsId(this->GeometryTimeSet);
       if (timeSet >= 0)
         {
+        // Each time set declares some time values
         times = this->TimeSets->GetItem(timeSet);
+        
+        // access the beginning time step value
         this->GeometryTimeValue = times->GetComponent(0, 0);
+        
         for (i = 1; i < times->GetNumberOfTuples(); i++)
           {
           newTime = times->GetComponent(i, 0);
+          
+          // If the value of the current time-array item is no greater than
+          // the target time step, we need to update the time step.
           if (newTime <= this->ActualTimeValue && 
               newTime > this->GeometryTimeValue)
             {
@@ -249,10 +270,22 @@ int vtkEnSightReader::RequestData(
             timeStepInFile++;
             }
           }
+        
+        // obtain the target file name
         if (this->TimeSetFileNameNumbers->GetNumberOfItems() > 0)
           {
+          // The TIME section declares possibly multiple time sets and the
+          // files referenced by each time set are accessed via some filename
+          // numbers that constitute a list. Thus the entire TIME section may 
+          // include multiple such lists.
+          
+          // obtain the index of the list (of filename numbers) for the
+          // target time set
           int collectionNum = this->TimeSetsWithFilenameNumbers->
             IsId(this->GeometryTimeSet);
+            
+          // get the list (of filename numbers) for the target time set and 
+          // then obtain the filename number of the target file via (timeStep - 1)
           if (collectionNum > -1)
             {
             filenameNumbers =
@@ -261,16 +294,33 @@ int vtkEnSightReader::RequestData(
             this->ReplaceWildcards(fileName, filenameNum);
             }
           }
+          
+        // --------------------------------------------------------------------
+        // If FILE SETS are declared, we need to determine the target file name
+        // by means of the method below.
+        // --------------------------------------------------------------------
       
         // There can only be file sets if there are also time sets.
         if (this->UseFileSets)
           {
+          // The FILE section may declare multiple file sets, each coupled
+          // with an index.
           fileSet = this->FileSets->IsId(this->GeometryFileSet);
+          
+          // Each file set may include multiple filename indices, each coupled
+          // with the number of steps covered by the file. These numbers, of 
+          // the entire file set, are stored in a list.
           numStepsList = static_cast<vtkIdList*>(this->FileSetNumberOfSteps->
                                                  GetItemAsObject(fileSet));
-          
+                                                 
+          // number of all steps of this file set, index of the target file,
+          // and the index of the time step in the target file
           if (timeStep > numStepsList->GetId(0))
             {
+            // Given the file set (determined above) covering the target
+            // time step, its FIRST file just does not include the target
+            // time step. Thus we need to skip at least one file to locate 
+            // the target file.
             numSteps = numStepsList->GetId(0);
             timeStepInFile -= numSteps;
             for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
@@ -283,10 +333,23 @@ int vtkEnSightReader::RequestData(
                 }
               }
             }
+            
+          // the index of the target file has been determined, i.e., fileNum.
           if (this->FileSetFileNameNumbers->GetNumberOfItems() > 0)
             {
+            // The FILE section declares possibly multiple file sets and
+            // the files referenced by each file set are accessed via
+            // some filename numbers that constitute a list. The entire 
+            // FILE section may include mutiple such lists.
+            
+            // obtain the index of the list (of filename numbers) for the
+            // target file set
             int collectionNum = this->FileSetsWithFilenameNumbers->
               IsId(this->GeometryFileSet);
+              
+            // get the list (of filename numbers) for the target file set
+            // and then obtain the filename number of the target file
+            // via (fileNum - 1)
             if (collectionNum > -1)
               {
               filenameNumbers = this->FileSetFileNameNumbers->
@@ -299,14 +362,43 @@ int vtkEnSightReader::RequestData(
         }
       }
     
+    // set the forward time step shifting mode
+    // for accelerated data loading (bug #9289)
+    if (    (  strcmp( prevFileName, fileName ) == 0  )
+         && (  timeStepInFile >  PreviousTimeStepInFile )
+         && (  timeStepInFile <= numStepsList->GetId( fileNum - 1 )  )
+       )
+      {
+      this->ForwardTimeStepShiftMode = FORWARD_TIME_STEP_SHIFT_YES;
+      if (    numStepsList 
+           && numStepsList->GetId( fileNum - 1 ) == timeStepInFile
+         )
+        {
+        this->ForwardTimeStepShiftMode = FORWARD_TIME_STEP_SHIFT_END;
+        }
+      }
+    else
+      {
+      this->ForwardTimeStepShiftMode = FORWARD_TIME_STEP_SHIFT_NON;
+      }
+    
+    
     if (!this->ReadGeometryFile(fileName, timeStepInFile, output))
       {
       vtkErrorMacro("error reading geometry file");
       delete [] fileName;
+      fileName = NULL;
       return 0;
       }
+     
+    // update the geometry file name and the in-file time step in support
+    // of forward time step shifting for accelerated data loading (bug #9289) 
+    strcpy( prevFileName, fileName );
+    prevFileName[ strlen( fileName ) ] = '\0';
+    PreviousTimeStepInFile = timeStepInFile;
     
     delete [] fileName;
+    fileName = NULL;
     }
   if (this->MeasuredFileName)
     {

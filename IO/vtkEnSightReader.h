@@ -321,6 +321,21 @@ protected:
   int ParticleCoordinatesByIndex;
   
   double ActualTimeValue;
+  
+  //BTX
+  enum { FORWARD_TIME_STEP_SHIFT_NON = 0, 
+         FORWARD_TIME_STEP_SHIFT_YES = 1, 
+         FORWARD_TIME_STEP_SHIFT_END = 2 
+       };
+  //ETX
+  
+  // Whether (non-zero) or not (zero) the next time step is a successor 
+  // (unnecessarily immediate) of the previous one in the same geometry
+  // file. Specifically a value of 2 means that the file just ends with
+  // the the next time step.
+  int       PreviousTimeStepInFile;
+  int       ForwardTimeStepShiftMode;
+  istream * ForwardTimeStepShiftIS;
 
 private:
   vtkEnSightReader(const vtkEnSightReader&);  // Not implemented.
