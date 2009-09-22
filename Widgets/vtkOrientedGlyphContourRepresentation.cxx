@@ -42,7 +42,7 @@
 #include "vtkOpenGL.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.21");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.22");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -958,6 +958,13 @@ void vtkOrientedGlyphContourRepresentation::SetShowSelectedNodes(
         }
       }
     }  
+}
+
+//----------------------------------------------------------------------
+double* vtkOrientedGlyphContourRepresentation::GetBounds()
+{
+  return this->Lines->GetPoints() ? 
+         this->Lines->GetPoints()->GetBounds() : NULL;
 }
 
 //-----------------------------------------------------------------------------

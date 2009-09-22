@@ -116,6 +116,10 @@ public:
   // Default is to set it to false.
   virtual void SetShowSelectedNodes(int);
   
+  // Description:
+  // Return the bounds of the representation
+  virtual double *GetBounds();
+  
 protected:
   vtkOrientedGlyphContourRepresentation();
   ~vtkOrientedGlyphContourRepresentation();
