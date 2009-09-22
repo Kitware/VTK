@@ -19,6 +19,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestGroupLeafVertices
     TestKdTreeBoxSelection
     TestKMeansStatistics
+    TestMergeGraphs
     TestMultiCorrelativeStatistics
     TestOrderStatistics
     TestPassArrays

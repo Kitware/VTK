@@ -65,6 +65,7 @@ vtkISIReader.cxx
 vtkKMeansStatistics.cxx
 vtkKMeansDistanceFunctor.cxx
 vtkMergeColumns.cxx
+vtkMergeGraphs.cxx
 vtkMergeTables.cxx
 vtkMultiCorrelativeStatistics.cxx
 vtkMutableGraphHelper.cxx
