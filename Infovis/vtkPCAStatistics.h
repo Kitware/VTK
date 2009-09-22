@@ -166,23 +166,33 @@ public:
   vtkSetClampMacro(FixedBasisEnergy,double,0.,1.);
   vtkGetMacro(FixedBasisEnergy,double);
 
+//BTX
+  // Description:
+  // A convenience method (in particular for access from other applications) to 
+  // set parameter values.
+  // Return true if setting of requested parameter name was excuted, false otherwise.
+  virtual bool SetParameter( const char* parameter,
+                             int index,
+                             vtkVariant value );
+//ETX
+
 protected:
   vtkPCAStatistics();
   ~vtkPCAStatistics();
 
   // Description:
   // This algorithm accepts a vtkTable containing normalization values for
-  // its third input (port 2).
+  // its fourth input (port 3).
   // We override FillInputPortInformation to indicate this.
   virtual int FillInputPortInformation( int port, vtkInformation* info );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* inMeta );
+  virtual void Derive( vtkDataObject* inMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteAssess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
+  virtual void Assess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
 
   //BTX  
   // Description:

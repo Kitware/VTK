@@ -25,7 +25,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPDescriptiveStatistics);
-vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.7");
+vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.7.2.1");
 vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
@@ -48,8 +48,9 @@ void vtkPDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
-                                              vtkDataObject* outMetaDO )
+void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
+                                       vtkTable* inParameters,
+                                       vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
@@ -58,7 +59,7 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     } 
 
   // First calculate descriptive statistics on local data set
-  this->Superclass::ExecuteLearn( inData, outMeta );
+  this->Superclass::Learn( inData, inParameters, outMeta );
 
   vtkIdType nRow = outMeta->GetNumberOfRows();
   if ( ! nRow )
@@ -123,7 +124,7 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     for ( int i = 1; i < np; ++ i )
       {
       int ns_l = n_g[i];
-      ns += ns_l;
+      int N = ns + ns_l; 
 
       int o = 4 * i;
       double mean_part = M_g[o];
@@ -132,26 +133,28 @@ void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
       double mom4_part = M_g[o + 3];
       
       double delta = mean_part - mean;
-      double delta_sur_n = delta / static_cast<double>( ns );
-      double delta_sur_n2 = delta_sur_n * delta_sur_n;
+      double delta_sur_N = delta / static_cast<double>( N );
+      double delta2_sur_N2 = delta_sur_N * delta_sur_N;
 
       int ns2 = ns * ns;
       int ns_l2 = ns_l * ns_l;
       int prod_ns = ns * ns_l;
  
       mom4 += mom4_part 
-        + prod_ns * ( ns2 - prod_ns + ns_l2 ) * delta * delta_sur_n * delta_sur_n2
-        + 6. * ( ns2 * mom2_part + ns_l2 * mom2 ) * delta_sur_n2
-        + 4. * ( ns * mom3_part - ns_l * mom3 ) * delta_sur_n;
+        + prod_ns * ( ns2 - prod_ns + ns_l2 ) * delta * delta_sur_N * delta2_sur_N2
+        + 6. * ( ns2 * mom2_part + ns_l2 * mom2 ) * delta2_sur_N2
+        + 4. * ( ns * mom3_part - ns_l * mom3 ) * delta_sur_N;
 
       mom3 += mom3_part 
-        + prod_ns * ( ns - ns_l ) * delta * delta_sur_n2
-        + 3. * ( ns * mom2_part - ns_l * mom2 ) * delta_sur_n;
+        + prod_ns * ( ns - ns_l ) * delta * delta2_sur_N2
+        + 3. * ( ns * mom2_part - ns_l * mom2 ) * delta_sur_N;
 
       mom2 += mom2_part 
-        + prod_ns * delta * delta_sur_n;
+        + prod_ns * delta * delta_sur_N;
 
-      mean += ns_l * delta_sur_n;
+      mean += ns_l * delta_sur_N;
+
+      ns = N;
       }
 
     outMeta->SetValueByName( r, "Mean", mean );

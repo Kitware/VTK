@@ -21,8 +21,9 @@
 #include "vtkToolkits.h"
 
 #include "vtkCorrelativeStatistics.h"
-#include "vtkBivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
+#include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -37,7 +38,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.50");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.50.2.1");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -58,7 +59,6 @@ vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 {
-  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -68,25 +68,128 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkDataObject* outMetaDO )
+void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
+                                          vtkDataObject* outMetaDO )
+{
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
+
+  // Get hold of the first model (data object) in the collection
+  vtkCollectionSimpleIterator it;
+  inMetaColl->InitTraversal( it );
+  vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
+
+  // Verify that the model is indeed contained in a table
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
+  if ( ! inMeta ) 
+    { 
+    return; 
+    }
+
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    // No statistics were calculated.
+    return;
+    }
+
+  // use this first model to initialize the aggregated one
+  outMeta->DeepCopy( inMeta );
+
+  // Now, loop over all remaining models and update aggregated each time
+  while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
+    {
+    // Verify that the model is indeed contained in a table
+    inMeta = vtkTable::SafeDownCast( inMetaDO );
+    if ( ! inMeta ) 
+      { 
+      return; 
+      }
+    
+    if ( inMeta->GetNumberOfRows() != nRow )
+      {
+      // Models do not match
+      return;
+      }
+
+    // Iterate over all model rows
+    for ( int r = 0; r < nRow; ++ r )
+      {
+      // Verify that variable names match each other
+      if ( inMeta->GetValueByName( r, "Variable" ) != outMeta->GetValueByName( r, "Variable" ) )
+        {
+        // Models do not match
+        return;
+        }
+
+      // Get aggregated statistics
+      int n = outMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double meanX = outMeta->GetValueByName( r, "Mean X" ).ToDouble();
+      double meanY = outMeta->GetValueByName( r, "Mean Y" ).ToDouble();
+      double M2X = outMeta->GetValueByName( r, "M2 X" ).ToDouble();
+      double M2Y = outMeta->GetValueByName( r, "M2 Y" ).ToDouble();
+      double MXY = outMeta->GetValueByName( r, "M XY" ).ToDouble();
+      
+      // Get current model statistics
+      int n_c = inMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double meanX_c = inMeta->GetValueByName( r, "Mean X" ).ToDouble();
+      double meanY_c = inMeta->GetValueByName( r, "Mean Y" ).ToDouble();
+      double M2X_c = outMeta->GetValueByName( r, "M2 X" ).ToDouble();
+      double M2Y_c = outMeta->GetValueByName( r, "M2 Y" ).ToDouble();
+      double MXY_c = outMeta->GetValueByName( r, "M XY" ).ToDouble();
+      
+      // Update global statics
+      int N = n + n_c; 
+
+      double invN = 1. / static_cast<double>( N );
+
+      double deltaX = meanX_c - meanX;
+      double deltaX_sur_N = deltaX * invN;
+
+      double deltaY = meanY_c - meanY;
+      double deltaY_sur_N = deltaY * invN;
+
+      int prod_n = n * n_c;
+ 
+      M2X += M2X_c 
+        + prod_n * deltaX * deltaX_sur_N;
+
+      M2Y += M2Y_c 
+        + prod_n * deltaY * deltaY_sur_N;
+
+      MXY += MXY_c 
+        + prod_n * deltaX * deltaY_sur_N;
+
+      meanX += n_c * deltaX_sur_N;
+
+      meanY += n_c * deltaY_sur_N;
+
+      // Store updated model
+      outMeta->SetValueByName( r, "Cardinality", N );
+      outMeta->SetValueByName( r, "Mean X", meanX );
+      outMeta->SetValueByName( r, "Mean Y", meanY );
+      outMeta->SetValueByName( r, "M2 X", M2X );
+      outMeta->SetValueByName( r, "M2 Y", M2Y );
+      outMeta->SetValueByName( r, "M XY", MXY );
+      }
+    }
+
+  return;
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::Learn( vtkTable* inData,
+                                      vtkTable* vtkNotUsed( inParameters ),
+                                      vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
   if ( ! outMeta ) 
     { 
     return; 
     } 
-
-  vtkIdType nRow = inData->GetNumberOfRows();
-  if ( ! nRow )
-    {
-    return;
-    }
-
-  if ( ! inData->GetNumberOfColumns() )
-    {
-    return;
-    }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
@@ -128,10 +231,24 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! nRow )
     {
-    vtkStdString colX = it->first;
+    return;
+    }
+
+  if ( ! inData->GetNumberOfColumns() )
+    {
+    return;
+    }
+
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one pair of column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtkStdString colX = *it;
     if ( ! inData->GetColumnByName( colX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
@@ -140,7 +257,8 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       continue;
       }
 
-    vtkStdString colY = it->second;
+    ++ it;
+    vtkStdString colY = *it;
     if ( ! inData->GetColumnByName( colY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
@@ -196,7 +314,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
+void vtkCorrelativeStatistics::Derive( vtkDataObject* inMetaDO )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 

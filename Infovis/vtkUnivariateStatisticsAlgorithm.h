@@ -42,7 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
-class vtkUnivariateStatisticsAlgorithmPrivate;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
@@ -52,26 +51,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Reset list of columns of interest
-  void ResetColumns();
-
-  // Description:
-  // Add column name \p namCol to the list of columns of interest
+  // Convenience method to create a request with a single column name \p namCol in a single
+  // call; this is the preferred method to select columns, ensuring selection consistency
+  // (a single column per request).
   // Warning: no name checking is performed on \p namCol; it is the user's
   // responsibility to use valid column names.
   void AddColumn( const char* namCol );
 
   // Description:
-  // Remove (if it exists) column name \p namCol to the list of columns of interest
-  void RemoveColumn( const char* namCol );
-
-  // Description:
-  // Method for UI to call to add/remove columns to/from the list
-  void SetColumnStatus( const char* namCol, int status );
+  // Use the current column status values to produce a new request for statistics
+  // to be produced when RequestData() is called.
+  // Unlike the superclass implementation, this version adds a new request for each selected column
+  // instead of a single request containing all the columns.
+  virtual int RequestSelectedColumns();
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void ExecuteAssess( vtkTable* inData,
+  virtual void Assess( vtkTable* inData,
                               vtkDataObject* inMeta,
                               vtkTable* outData,
                               vtkDataObject* outMeta ); 
@@ -81,7 +77,6 @@ protected:
   ~vtkUnivariateStatisticsAlgorithm();
 
   vtkIdType NumberOfVariables;
-  vtkUnivariateStatisticsAlgorithmPrivate* Internals;
 
 private:
   vtkUnivariateStatisticsAlgorithm(const vtkUnivariateStatisticsAlgorithm&); // Not implemented

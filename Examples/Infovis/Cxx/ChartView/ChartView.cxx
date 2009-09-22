@@ -203,7 +203,7 @@ void ChartView::slotOpenDatabase()
   // Calculate correlative statistics
   CorrelativeStats->SetInputConnection( 0, this->QueryToTable->GetOutputPort() );
   CorrelativeStats->AddColumnPair( "Temp1", "Temp2" );
-  CorrelativeStats->SetAssess( true );
+  CorrelativeStats->SetAssessOption( true );
   CorrelativeStats->Update();
 
   // Now output the stats to the table views

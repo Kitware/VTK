@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkToolkits.h"
 
 #include "vtkOrderStatistics.h"
-#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.41");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.41.2.1");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -64,7 +64,52 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
+void vtkOrderStatistics::SetQuantileDefinition( int qd )
+{
+  switch ( qd )
+    {
+    case vtkOrderStatistics::InverseCDF:
+      break;
+    case vtkOrderStatistics::InverseCDFAveragedSteps:
+      break;
+    default:
+      vtkWarningMacro( "Incorrect type of quantile definition: "
+                       <<qd
+                       <<". Ignoring it." );
+      return;
+    }
+  
+  this->QuantileDefinition =  static_cast<vtkOrderStatistics::QuantileDefinitionType>( qd );
+  this->Modified();
+
+  return;
+}
+
+// ----------------------------------------------------------------------
+bool vtkOrderStatistics::SetParameter( const char* parameter,
+                                       int vtkNotUsed( index ),
+                                       vtkVariant value )
+{
+  if ( ! strcmp( parameter, "NumberOfIntervals" ) )
+    {
+    this->SetNumberOfIntervals( value.ToInt() );
+
+    return true;
+    }
+
+  if ( ! strcmp( parameter, "QuantileDefinition" ) )
+    {
+    this->SetQuantileDefinition( value.ToInt() );
+
+    return true;
+    }
+
+  return false;
+}
+
+// ----------------------------------------------------------------------
+void vtkOrderStatistics::Learn( vtkTable* inData,
+                                       vtkTable* vtkNotUsed( inParameters ),
                                        vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
@@ -72,22 +117,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     { 
     return; 
     } 
-
-  if ( ! this->Internals->Selection.size() )
-    {
-    return;
-    }
-
-  vtkIdType n = inData->GetNumberOfRows();
-  if ( n <= 0 )
-    {
-    return;
-    }
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -99,6 +128,22 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
+  vtkIdType n = inData->GetNumberOfRows();
+  if ( n <= 0 )
+    {
+    return;
+    }
+
+  if ( ! this->Internals->Requests.size() )
+    {
+    return;
+    }
+
+  if ( inData->GetNumberOfColumns() <= 0 )
+    {
+    return;
+    }
+  
   vtkVariantArray* variantCol;
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
@@ -138,9 +183,12 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     variantCol->Delete();
     }
 
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
     {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
     vtkStdString col = *it;
     if ( ! inData->GetColumnByName( col ) )
       {
@@ -240,30 +288,8 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::ExecuteDerive( vtkDataObject* vtkNotUsed( inMeta ) )
+void vtkOrderStatistics::Derive( vtkDataObject* vtkNotUsed( inMeta ) )
 {
-}
-
-// ----------------------------------------------------------------------
-void vtkOrderStatistics::SetQuantileDefinition( int qd )
-{
-  switch ( qd )
-    {
-    case vtkOrderStatistics::InverseCDF:
-      break;
-    case vtkOrderStatistics::InverseCDFAveragedSteps:
-      break;
-    default:
-      vtkWarningMacro( "Incorrect type of quantile definition: "
-                       <<qd
-                       <<". Ignoring it." );
-      return;
-    }
-  
-  this->QuantileDefinition =  static_cast<vtkOrderStatistics::QuantileDefinitionType>( qd );
-  this->Modified();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -301,7 +327,7 @@ public:
       }
 
     result->SetNumberOfValues( 1 );
-    result->SetValue( 0, q - 1 ); // -1 offset needed because value #0 in parameter row is the variable name
+    result->SetValue( 0, q - 1 ); 
   }
 };
 

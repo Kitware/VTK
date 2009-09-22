@@ -25,13 +25,13 @@ PURPOSE.  See the above copyright notice for more information.
 // execution mode it is executed in:
 // * Learn: calculate extremal values, arithmetic mean, unbiased variance 
 //   estimator, skewness estimator, and both sample and G2 estimation of the 
-//   kurtosis excess. More precisely, ExecuteLearn calculates the sums; if
+//   kurtosis excess. More precisely, Learn calculates the sums; if
 //   \p finalize is set to true (default), the final statistics are calculated
 //   with CalculateFromSums. Otherwise, only raw sums are output; this 
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkDescriptiveStatistics object.
-// * Assess: given an input data set in port 0, and a reference value x along
+// * Assess: given an input data set in port INPUT_DATA, and a reference value x along
 //   with an acceptable deviation d>0, assess all entries in the data set which
 //   are outside of [x-d,x+d].
 //
@@ -46,6 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkStringArray;
 class vtkTable;
+class vtkVariant;
 
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
 {
@@ -72,18 +73,25 @@ public:
   // column that contains the deviation for the Assess option.
   void SetDeviationParameter( const char* name );
 
+  // Description:
+  // Given a collection of models, calculate aggregate model
+  virtual void Aggregate( vtkDataObjectCollection*,
+                          vtkDataObject* );
+
 protected:
   vtkDescriptiveStatistics();
   ~vtkDescriptiveStatistics();
 
   // Description:
-  // Execute the calculations required by the Learn option.
-  virtual void ExecuteLearn( vtkTable* inData,
-                             vtkDataObject* outMeta );
+  // Execute the calculations required by the Learn option, given some input Data
+  // NB: input parameters are unused.
+  virtual void Learn( vtkTable* inData,
+                      vtkTable* inParameters,
+                      vtkDataObject* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkDataObject* );
+  virtual void Derive( vtkDataObject* );
 
   int SignedDeviations;
 
@@ -102,4 +110,3 @@ private:
 };
 
 #endif
-

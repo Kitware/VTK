@@ -330,6 +330,17 @@ public:
   static vtkDataSet* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+  // Description:
+  // Returns the attributes of the data object as a vtkFieldData.
+  // This returns non-null values in all the same cases as GetAttributes,
+  // in addition to the case of FIELD, which will return the field data
+  // for any vtkDataObject subclass.
+  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+
+  // Description:
+  // Get the number of elements for a specific attribute type (POINT, CELL, etc.).
+  virtual vtkIdType GetNumberOfElements(int type);
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();

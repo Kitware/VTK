@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.25");
+vtkCxxRevisionMacro(vtkTable, "1.25.2.1");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -102,7 +102,8 @@ void vtkTable::Dump( unsigned int colWidth )
   for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
     {
     cout << "| ";
-    vtkStdString str = this->GetColumnName( c );
+    const char* name = this->GetColumnName( c );
+    vtkStdString str = name ? name : "";
 
     if ( colWidth < str.length() )
       {
@@ -176,6 +177,15 @@ vtkIdType vtkTable::GetNumberOfRows()
     return this->GetColumn(0)->GetNumberOfTuples();
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkTable::SetNumberOfRows( vtkIdType n )
+{
+  if( this->RowData )
+    {
+      this->RowData->SetNumberOfTuples( n );
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -601,4 +611,28 @@ void vtkTable::DeepCopy(vtkDataObject* src)
     }
 
   Superclass::DeepCopy(src);
+}
+
+//----------------------------------------------------------------------------
+vtkFieldData* vtkTable::GetAttributesAsFieldData(int type)
+{
+  switch(type)
+    {
+    case ROW:
+      return this->GetRowData();
+      break;
+    }
+  return this->Superclass::GetAttributesAsFieldData(type);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkTable::GetNumberOfElements(int type)
+{
+  switch (type)
+    {
+    case ROW:
+      return this->GetNumberOfRows();
+      break;
+    }
+  return this->Superclass::GetNumberOfElements(type);;
 }

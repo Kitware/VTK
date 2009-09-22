@@ -19,10 +19,10 @@ edge_table.SetQuery(edge_query)
 cs = vtkContingencyStatistics()
 cs.AddInputConnection(edge_table.GetOutputPort())
 cs.AddColumnPair("dport","protocol")
-cs.SetAssess(1)
+cs.SetAssessOption( 1 )
 cs.Update()
-cStats = cs.GetOutput(0)
-cStats.Dump( 10 )
+cStats = cs.GetOutput( 0 )
+cStats.Dump( 12 )
 
 # Query database for vertices
 vertex_query = database.GetQueryInstance()

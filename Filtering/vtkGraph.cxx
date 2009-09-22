@@ -64,7 +64,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.37");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.37.2.1");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -73,7 +73,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.37");
+vtkCxxRevisionMacro(vtkGraph, "1.37.2.1");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1517,6 +1517,36 @@ void vtkGraph::ForceOwnership()
     this->EdgePoints = edgePoints;
     oldEdgePoints->Delete();
     }
+}
+
+//----------------------------------------------------------------------------
+vtkFieldData* vtkGraph::GetAttributesAsFieldData(int type)
+{
+  switch(type)
+    {
+    case VERTEX:
+      return this->GetVertexData();
+      break;
+    case EDGE:
+      return this->GetEdgeData();
+      break;
+    }
+  return this->Superclass::GetAttributesAsFieldData(type);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetNumberOfElements(int type)
+{
+  switch (type)
+    {
+    case VERTEX:
+      return this->GetNumberOfVertices();
+      break;
+    case EDGE:
+      return this->GetNumberOfEdges();
+      break;
+    }
+  return this->Superclass::GetNumberOfElements(type);;
 }
 
 //----------------------------------------------------------------------------

@@ -68,7 +68,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   int myRank = com->GetLocalProcessId();
 
   // Seed random number generator
-  vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) * ( myRank + 1 ) );
+  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
   // Generate an input table that contains samples of mutually independent discrete random variables
   int nVariables = 3;
@@ -87,7 +87,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
     for ( int r = 0; r < args->nVals; ++ r )
       {
-      intArray[c]->InsertNextValue( static_cast<int>( round( vtkMath::Gaussian() * args->span ) ) );
+      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->span ) ) );
       }
     
     inputData->AddColumn( intArray[c] );
@@ -112,8 +112,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Instantiate a parallel contingency statistics engine and set its ports
   vtkPContingencyStatistics* pcs = vtkPContingencyStatistics::New();
-  pcs->SetInput( 0, inputData );
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( 1 ) );
+  pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcs->AddColumnPair( columnNames[0], columnNames[1] );
@@ -123,9 +123,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 #endif // CONTINGENCY_BIG_CASE
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pcs->SetLearn( true );
-  pcs->SetDerive( true );
-  pcs->SetAssess( true );
+  pcs->SetLearnOption( true );
+  pcs->SetDeriveOption( true );
+  pcs->SetAssessOption( true );
   pcs->Update();
 
   // Synchronize and stop clock
@@ -174,6 +174,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << i
            << ", grand total = "
            << GT_g[i]
+           << ", contingency table size = "
+           << outputContingency->GetNumberOfRows()
            << "\n";
       
       if ( GT_g[i] != testIntValue )
@@ -422,14 +424,6 @@ int main( int argc, char** argv )
          << " will be the I/O node.\n";
     }
       
-  // Check how many processes have been made available
-  int numProcs = controller->GetNumberOfProcesses();
-  if ( controller->GetLocalProcessId() == ioRank )
-    {
-    cout << "\n# Running test with "
-         << numProcs
-         << " processes...\n";
-    }
 
   // Parameters for regression test.
   int testValue = 0;
@@ -437,7 +431,7 @@ int main( int argc, char** argv )
 
 #if CONTINGENCY_BIG_CASE
   args.nVals = 1000000;
-  args.span = 50.;
+  args.span = 200.;
 #else // CONTINGENCY_BIG_CASE
   args.nVals = 10;
   args.span = 3.;
@@ -448,6 +442,17 @@ int main( int argc, char** argv )
   args.ioRank = ioRank;
   args.argc = argc;
   args.argv = argv;
+
+  // Check how many processes have been made available
+  int numProcs = controller->GetNumberOfProcesses();
+  if ( controller->GetLocalProcessId() == ioRank )
+    {
+    cout << "\n# Running test with "
+         << numProcs
+         << " processes and standard deviation = "
+         << args.span
+         << ".\n";
+    }
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomContingencyStatistics, &args );

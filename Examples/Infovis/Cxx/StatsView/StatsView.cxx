@@ -141,7 +141,7 @@ void StatsView::slotOpenSQLiteDB()
   VTK_CREATE(vtkCorrelativeStatistics,correlative);
   correlative->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
   correlative->AddColumnPair( "Temp1", "Temp2" );
-  correlative->SetAssess( true );
+  correlative->SetAssessOption( true );
   correlative->Update();
 
   // Assign tables to table views

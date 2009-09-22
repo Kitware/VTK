@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.9");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.9.2.1");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -51,9 +51,9 @@ void vtkPMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-
-void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
-                                                   vtkDataObject* outMetaDO )
+void vtkPMultiCorrelativeStatistics::Learn( vtkTable* inData,
+                                            vtkTable* inParameters,
+                                            vtkDataObject* outMetaDO )
 {
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
@@ -62,7 +62,7 @@ void vtkPMultiCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   // First calculate correlative statistics on local data set
-  this->Superclass::ExecuteLearn( inData, outMeta );
+  this->Superclass::Learn( inData, inParameters, outMeta );
 
   // Get a hold of the (sparse) covariance matrix
   vtkTable* sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
@@ -154,12 +154,14 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   for ( int i = 1; i < np; ++ i )
     {
     int ns_l = n_g[i];
-    ns += ns_l;
+    int N = ns + ns_l; 
     int prod_ns = ns * ns_l;
     
+    double invN = 1. / static_cast<double>( N );
+
     double* M_part = new double[nM];
     double* delta  = new double[nMeans];
-    double* delta_sur_n  = new double[nMeans];
+    double* delta_sur_N  = new double[nMeans];
     int o = nM * i;
 
     // First, calculate deltas for all means
@@ -168,7 +170,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
       M_part[j] = M_g[o + j];
 
       delta[j] = M_part[j] - M_l[j];
-      delta_sur_n[j] = delta[j] / static_cast<double>( ns );
+      delta_sur_N[j] = delta[j] * invN;
       }
 
     // Then, update covariances
@@ -177,19 +179,22 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
       M_part[j] = M_g[o + j];
     
       M_l[j] += M_part[j]
-        + prod_ns * delta[covToMeans[j].first] * delta_sur_n[covToMeans[j].second];
+        + prod_ns * delta[covToMeans[j].first] * delta_sur_N[covToMeans[j].second];
       }
 
-    // Last, update means
+    // Then, update means
     for ( int j = 0; j < nMeans; ++ j )
       {
-      M_l[j] += ns_l * delta_sur_n[j];
+      M_l[j] += ns_l * delta_sur_N[j];
       }
+
+    // Last, update cardinality
+    ns = N;
 
     // Clean-up
     delete [] M_part;
     delete [] delta;
-    delete [] delta_sur_n;
+    delete [] delta_sur_N;
     }
 
   for ( int i = 0; i < nM; ++ i )

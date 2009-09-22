@@ -105,43 +105,35 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  /*
-  int nMetricPairs = 3;
-  vtkStdString columnPairs[] = { m0Name, m1Name, m1Name, m0Name, m2Name, m1Name };
-  double centers[] = { 49.2188, 49.5 };
-  double covariance[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = 4.;
-  */
-
-  vtkMultiCorrelativeStatistics* haruspex = vtkMultiCorrelativeStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
+  vtkMultiCorrelativeStatistics* mcs = vtkMultiCorrelativeStatistics::New();
+  mcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
 
   datasetTable->Delete();
 
-  // -- Select Column Pairs of Interest ( Learn Mode ) -- 
-  haruspex->SetColumnStatus( m0Name, 1 );
-  haruspex->SetColumnStatus( m1Name, 1 );
-  haruspex->RequestSelectedColumns();
-  haruspex->ResetAllColumnStates();
-  haruspex->SetColumnStatus( m0Name, 1 );
-  haruspex->SetColumnStatus( m1Name, 1 );
-  haruspex->SetColumnStatus( m2Name, 1 );
-  haruspex->SetColumnStatus( m2Name, 0 );
-  haruspex->SetColumnStatus( m2Name, 1 );
-  haruspex->RequestSelectedColumns();
-  haruspex->RequestSelectedColumns(); // Try a duplicate entry. This should have no effect.
-  haruspex->SetColumnStatus( m0Name, 0 );
-  haruspex->SetColumnStatus( m2Name, 0 );
-  haruspex->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
-  // haruspex->RequestSelectedColumns(); will get called in RequestData()
+  // Select Column Pairs of Interest ( Learn Mode )
+  mcs->SetColumnStatus( m0Name, 1 );
+  mcs->SetColumnStatus( m1Name, 1 );
+  mcs->RequestSelectedColumns();
+  mcs->ResetAllColumnStates();
+  mcs->SetColumnStatus( m0Name, 1 );
+  mcs->SetColumnStatus( m1Name, 1 );
+  mcs->SetColumnStatus( m2Name, 1 );
+  mcs->SetColumnStatus( m2Name, 0 );
+  mcs->SetColumnStatus( m2Name, 1 );
+  mcs->RequestSelectedColumns();
+  mcs->RequestSelectedColumns(); // Try a duplicate entry. This should have no effect.
+  mcs->SetColumnStatus( m0Name, 0 );
+  mcs->SetColumnStatus( m2Name, 0 );
+  mcs->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
+  // mcs->RequestSelectedColumns(); will get called in RequestData()
 
-  // -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetDerive( true );
-  haruspex->SetAssess( false );
+  // Test Learn Mode
+  mcs->SetLearnOption( true );
+  mcs->SetDeriveOption( true );
+  mcs->SetAssessOption( false );
 
-  haruspex->Update();
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( 1 ) );
+  mcs->Update();
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( mcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
@@ -157,28 +149,33 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     outputMeta->Dump();
     }
 
-#if 0
-  // -- Select Column Pairs of Interest ( Assess Mode ) -- 
-  haruspex->ResetColumnPairs(); // Clear existing pairs
-  haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
-#endif // 0
-
-  // -- Test Assess Mode -- 
+  // Test Assess Mode 
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
-  haruspex->SetInput( 1, paramsTables );
+  mcs->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
-  haruspex->SetLearn( false );
-  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
-  haruspex->SetAssess( true );
-  haruspex->Update();
 
-  vtkTable* outputData = haruspex->GetOutput();
+  // Test Assess only (Do not recalculate nor rederive a model)
+  mcs->SetLearnOption( false );
+  mcs->SetDeriveOption( false );
+  mcs->SetAssessOption( true );
+  mcs->Update();
+
+  vtkTable* outputData = mcs->GetOutput();
   outputData->Dump();
-#if 0
+
+  // Threshold for outlier detection
+  double threshold = 4.;
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
+
+  cout << "## Searching for outliers such that "
+       << outputData->GetColumnName( tableIdx[2] ) 
+       << " > "
+       << threshold
+       << "\n";
+
   cout << "   Found the following outliers:\n";
   for ( int i = 0; i < 3; ++ i )
     {
@@ -209,10 +206,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     testStatus = 1;
     }
 
-  paramsTable->Delete();
-#endif // 0
-
-  haruspex->Delete();
+  mcs->Delete();
 
   return testStatus;
 }

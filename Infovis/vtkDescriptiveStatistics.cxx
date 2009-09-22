@@ -21,8 +21,9 @@
 #include "vtkToolkits.h"
 
 #include "vtkDescriptiveStatistics.h"
-#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 
+#include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -36,7 +37,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.67");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.67.2.1");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -55,7 +56,6 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 {
-  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -68,18 +68,18 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::SetNominalParameter( const char* name ) 
 { 
-  this->SetAssessParameter( 0, name ); 
+  this->SetAssessOptionParameter( 0, name ); 
 }
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::SetDeviationParameter( const char* name ) 
 { 
-  this->SetAssessParameter( 1, name ); 
+  this->SetAssessOptionParameter( 1, name ); 
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkDataObject* outMetaDO )
+void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
+                                          vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
@@ -87,22 +87,129 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     return; 
     } 
 
-  vtkIdType nRow = inData->GetNumberOfRows();
+  // Get hold of the first model (data object) in the collection
+  vtkCollectionSimpleIterator it;
+  inMetaColl->InitTraversal( it );
+  vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
+
+  // Verify that the model is indeed contained in a table
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
+  if ( ! inMeta ) 
+    { 
+    return; 
+    }
+
+  vtkIdType nRow = inMeta->GetNumberOfRows();
   if ( ! nRow )
     {
+    // No statistics were calculated.
     return;
     }
 
-  if ( ! this->Internals->Selection.size() )
+  // Use this first model to initialize the aggregated one
+  outMeta->DeepCopy( inMeta );
+
+  // Now, loop over all remaining models and update aggregated each time
+  while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
     {
-    return;
+    // Verify that the model is indeed contained in a table
+    inMeta = vtkTable::SafeDownCast( inMetaDO );
+    if ( ! inMeta ) 
+      { 
+      return; 
+      }
+    
+    if ( inMeta->GetNumberOfRows() != nRow )
+      {
+      // Models do not match
+      return;
+      }
+
+    // Iterate over all model rows
+    for ( int r = 0; r < nRow; ++ r )
+      {
+      // Verify that variable names match each other
+      if ( inMeta->GetValueByName( r, "Variable" ) != outMeta->GetValueByName( r, "Variable" ) )
+        {
+        // Models do not match
+        return;
+        }
+
+      // Get aggregated statistics
+      int n = outMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double min = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
+      double max = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean = outMeta->GetValueByName( r, "Mean" ).ToDouble();
+      double M2 = outMeta->GetValueByName( r, "M2" ).ToDouble();
+      double M3 = outMeta->GetValueByName( r, "M3" ).ToDouble();
+      double M4 = outMeta->GetValueByName( r, "M4" ).ToDouble();
+      
+      // Get current model statistics
+      int n_c = inMeta->GetValueByName( r, "Cardinality" ).ToInt();
+      double min_c = inMeta->GetValueByName( r, "Minimum" ).ToDouble();
+      double max_c = inMeta->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean_c = inMeta->GetValueByName( r, "Mean" ).ToDouble();
+      double M2_c = inMeta->GetValueByName( r, "M2" ).ToDouble();
+      double M3_c = inMeta->GetValueByName( r, "M3" ).ToDouble();
+      double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
+      
+      // Update global statics
+      int N = n + n_c; 
+
+      if ( min_c < min )
+        {
+        outMeta->SetValueByName( r, "Minimum", min_c );
+        }
+
+      if ( max_c > max )
+        {
+        outMeta->SetValueByName( r, "Maximum", max_c );
+        }
+
+      double delta = mean_c - mean;
+      double delta_sur_N = delta / static_cast<double>( N );
+      double delta2_sur_N2 = delta_sur_N * delta_sur_N;
+
+      int n2 = n * n;
+      int n_c2 = n_c * n_c;
+      int prod_n = n * n_c;
+ 
+      M4 += M4_c 
+        + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_N * delta2_sur_N2
+        + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta2_sur_N2
+        + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_N;
+
+      M3 += M3_c 
+        + prod_n * ( n - n_c ) * delta * delta2_sur_N2
+        + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_N;
+
+      M2 += M2_c 
+        + prod_n * delta * delta_sur_N;
+
+      mean += n_c * delta_sur_N;
+
+      // Store updated model
+      outMeta->SetValueByName( r, "Cardinality", N );
+      outMeta->SetValueByName( r, "Mean", mean );
+      outMeta->SetValueByName( r, "M2", M2 );
+      outMeta->SetValueByName( r, "M3", M3 );
+      outMeta->SetValueByName( r, "M4", M4 );
+      }
     }
 
-  vtkIdType nCol = inData->GetNumberOfColumns();
-  if ( ! nCol )
-    {
-    return;
-    }
+  return;
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::Learn( vtkTable* inData,
+                                      vtkTable* vtkNotUsed( inParameters ),
+                                      vtkDataObject* outMetaDO )
+{
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -144,19 +251,39 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
-        it != this->Internals->Selection.end(); ++ it )
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! nRow )
     {
-    vtkStdString colName = *it;
-    if ( ! inData->GetColumnByName( colName ) )
+    return;
+    }
+
+  if ( ! this->Internals->Requests.size() )
+    {
+    return;
+    }
+
+  vtkIdType nCol = inData->GetNumberOfColumns();
+  if ( ! nCol )
+    {
+    return;
+    }
+  
+  // Loop over requests
+  for ( vtkstd::set<vtkstd::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtkstd::set<vtkStdString>::iterator it = rit->begin();
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colName.c_str()
+                       << varName.c_str()
                        << ". Ignoring it." );
       continue;
       }
 
-    double minVal = inData->GetValueByName( 0, colName ).ToDouble();
+    double minVal = inData->GetValueByName( 0, varName ).ToDouble();
     double maxVal = minVal;
     double mean = 0.;
     double mom2 = 0.;
@@ -169,7 +296,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
       n = r + 1.;
       inv_n = 1. / n;
 
-      val = inData->GetValueByName( r, colName ).ToDouble();
+      val = inData->GetValueByName( r, varName ).ToDouble();
       delta = val - mean;
 
       A = delta * inv_n; 
@@ -194,7 +321,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 
     row->SetNumberOfValues( 8 );
 
-    row->SetValue( 0, colName );
+    row->SetValue( 0, varName );
     row->SetValue( 1, nRow );
     row->SetValue( 2, minVal );
     row->SetValue( 3, maxVal );
@@ -212,7 +339,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
+void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 
@@ -259,7 +386,6 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 
   for ( int i = 0; i < nRow; ++ i )
     {
-    vtkStdString colName = inMeta->GetValueByName( i, "Variable" ).ToString();
     double mom2 = inMeta->GetValueByName( i, "M2" ).ToDouble();
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();

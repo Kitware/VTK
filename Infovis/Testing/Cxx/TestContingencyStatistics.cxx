@@ -82,7 +82,7 @@ int TestContingencyStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  int nMetricPairs = 3;
+  int nMetricPairs = 2;
 
   // Entropies in the summary table should normally be retrieved as follows:
   //   column 2: H(X,Y)
@@ -94,24 +94,29 @@ int TestContingencyStatistics( int, char *[] )
   int nEntropies = 3; // correct number of entropies reported in the summary table
   double* H = new double[nEntropies];
   
-  vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
-  vtkTable* outputData = haruspex->GetOutput( 0 );
+  vtkContingencyStatistics* cs = vtkContingencyStatistics::New();
+  cs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  vtkTable* outputData = cs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   datasetTable->Delete();
 
-// -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex->AddColumnPair( "Port", "Protocol" ); // A valid pair
-  haruspex->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
-  haruspex->AddColumnPair( "Source", "Port" ); // Another valid pair
-  haruspex->AddColumnPair( "Source", "Dummy" ); // An invalid pair
+  // Select Column Pair of Interest ( Learn Mode )
+  // 1.1: a valid pair
+  cs->AddColumnPair( "Port", "Protocol" );
+  // 1.2: the same valid pair, just reversed -- should thus be ignored
+  cs->AddColumnPair( "Protocol", "Port" );
+  // 2: another valid pair
+  cs->AddColumnPair( "Source", "Port" );
+  // 3: an invalid pair
+  cs->AddColumnPair( "Source", "Dummy" );
 
-// -- Test Learn Mode -- 
-  haruspex->SetLearn( true );
-  haruspex->SetAssess( true );
-  haruspex->Update();
+  // Test Learn, Derive, and Assess options
+  cs->SetLearnOption( true );
+  cs->SetDeriveOption( true );
+  cs->SetAssessOption( true );
+  cs->Update();
 
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( 1 ) );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
@@ -146,7 +151,6 @@ int TestContingencyStatistics( int, char *[] )
            << outputSummary->GetValue( r, 1 ).ToString()
            << "):";
       
-      
       // Information entropies
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
         {
@@ -173,6 +177,8 @@ int TestContingencyStatistics( int, char *[] )
         }
       }
     }
+
+  cout << "\n";
 
   cout << "## Calculated the following probabilities and mutual informations:\n";
   testIntValue = 0;
@@ -259,13 +265,13 @@ int TestContingencyStatistics( int, char *[] )
 
       ++ testIntValue;
 
-      cout << "   ("
+      cout << "   "
+           << outlierColumn[i]
+           << "("
            << outputData->GetValueByName( r, varX ).ToString()
            << ","
            << outputData->GetValueByName( r, varY ).ToString()
-           << "):  "
-           << outlierColumn[i]
-           << " = "
+           << ") = "
            << val
            << "\n";
       }
@@ -284,7 +290,7 @@ int TestContingencyStatistics( int, char *[] )
 
   // Clean up
   delete [] H;
-  haruspex->Delete();
+  cs->Delete();
 
   return testStatus;
 }
