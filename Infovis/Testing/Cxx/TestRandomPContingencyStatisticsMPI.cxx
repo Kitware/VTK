@@ -39,10 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
-// For debugging purposes, output contingency table, which may be huge: it has the size O(span^2).
-#define DEBUG_CONTINGENCY_TABLE 0
-#define CONTINGENCY_BIG_CASE 1
-
 struct RandomContingencyStatisticsArgs
 {
   int nVals;
@@ -71,11 +67,10 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
   // Generate an input table that contains samples of mutually independent discrete random variables
-  int nVariables = 3;
-  vtkIntArray* intArray[3];
+  int nVariables = 2;
+  vtkIntArray* intArray[2];
   vtkStdString columnNames[] = { "Rounded Normal 0", 
-                                 "Rounded Normal 1",
-                                 "Rounded Normal 2" };
+                                 "Rounded Normal 1" };
   
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
@@ -117,10 +112,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcs->AddColumnPair( columnNames[0], columnNames[1] );
-#if CONTINGENCY_BIG_CASE
-#else // CONTINGENCY_BIG_CASE
-  pcs->AddColumnPair( columnNames[0], columnNames[2] );
-#endif // CONTINGENCY_BIG_CASE
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pcs->SetLearnOption( true );
@@ -149,10 +140,10 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   double testDoubleValue;
   int numProcs = controller->GetNumberOfProcesses();
 
-  // Verify that all processes have the same grand total
+  // Verify that all processes have the same grand total and contingency tables size
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that all processes have the same grand total.\n";
+    cout << "\n## Verifying that all processes have the same grand total and contingency tables size.\n";
     }
 
   // Gather all grand totals
@@ -349,10 +340,6 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
       }
     }
   
-#if DEBUG_CONTINGENCY_TABLE
-  outputContingency->Dump();
-#endif // DEBUG_CONTINGENCY_TABLE
-
   // Clean up
   delete [] cdf_l;
   delete [] cdf_g;
@@ -431,14 +418,8 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomContingencyStatisticsArgs args;
 
-#if CONTINGENCY_BIG_CASE
-  args.nVals = 4000000;
-  args.stdev = 5.;
-#else // CONTINGENCY_BIG_CASE
-  args.nVals = 10;
-  args.stdev = 3.;
-#endif // CONTINGENCY_BIG_CASE
-
+  args.nVals = 1000000;
+  args.stdev = 200.;
   args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;
