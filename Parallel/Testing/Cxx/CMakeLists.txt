@@ -145,16 +145,16 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     IF (VTK_USE_PARALLEL_BGL)
       # Add tests using the Parallel BGL
       ADD_EXECUTABLE(PBGLRandomGraph PBGLRandomGraph.cxx)
-      TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel ${Boost_LIBRARIES})
+      TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
 
       ADD_EXECUTABLE(PBGLNamedVertexGraph PBGLNamedVertexGraph.cxx)
-      TARGET_LINK_LIBRARIES(PBGLNamedVertexGraph vtkParallel ${Boost_LIBRARIES})
+      TARGET_LINK_LIBRARIES(PBGLNamedVertexGraph vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
 
       ADD_EXECUTABLE(TestPBGLGraphSQLReader TestPBGLGraphSQLReader.cxx)
-      TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReader vtkParallel ${Boost_LIBRARIES})
+      TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReader vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
 
       ADD_EXECUTABLE(TestPBGLGraphSQLReaderFile TestPBGLGraphSQLReaderFile.cxx)
-      TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReaderFile vtkParallel ${Boost_LIBRARIES})
+      TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReaderFile vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
       
       ADD_TEST(PBGLRandomGraph
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
@@ -183,7 +183,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
       ADD_EXECUTABLE(TestPRandomGraphSource TestPRandomGraphSource.cxx)
       TARGET_LINK_LIBRARIES(TestPRandomGraphSource
-        vtkParallel ${Boost_LIBRARIES})
+        vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
 
       ADD_TEST(TestPRandomGraphSource
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -193,7 +193,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
       ADD_EXECUTABLE(TestPRMATGraphSource TestPRMATGraphSource.cxx)
       TARGET_LINK_LIBRARIES(TestPRMATGraphSource
-        vtkParallel ${Boost_LIBRARIES})
+        vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
      
       ADD_TEST(TestPRMATGraphSource
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -203,7 +203,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
       ADD_EXECUTABLE(TestPBGLCollapseGraph TestPBGLCollapseGraph.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLCollapseGraph
-        vtkParallel ${Boost_LIBRARIES})
+        vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
       
       ADD_TEST(TestPBGLCollapseGraph
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -213,7 +213,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
       ADD_EXECUTABLE(TestPBGLCollectGraph TestPBGLCollectGraph.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLCollectGraph
-        vtkParallel ${Boost_LIBRARIES})
+        vtkParallel ${Boost_LIBRARIES} ${MPI_LIBRARIES})
       
       ADD_TEST(TestPBGLCollectGraph
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -223,7 +223,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
       ADD_EXECUTABLE(TestPBGLPipeline TestPBGLPipeline.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLPipeline
-        vtkParallel vtkViews ${Boost_LIBRARIES})
+        vtkParallel vtkViews ${Boost_LIBRARIES} ${MPI_LIBRARIES})
       
       ADD_TEST(TestPBGLPipeline
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -233,7 +233,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         
       ADD_EXECUTABLE(TestPBGLPedigrees TestPBGLPedigrees.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLPedigrees
-        vtkParallel vtkViews ${Boost_LIBRARIES})
+        vtkParallel vtkViews ${Boost_LIBRARIES} ${MPI_LIBRARIES})
         
       ADD_TEST(TestPBGLPedigrees
         ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
@@ -243,7 +243,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         
       ADD_EXECUTABLE(TestPBGLEdgesPedigrees TestPBGLEdgesPedigrees.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLEdgesPedigrees
-        vtkParallel vtkViews ${Boost_LIBRARIES})
+        vtkParallel vtkViews ${Boost_LIBRARIES} ${MPI_LIBRARIES})
         
       ADD_TEST(TestPBGLEdgesPedigrees
         ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
