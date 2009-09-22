@@ -123,7 +123,7 @@ vtkstd::string expected_edge_data[][4] = {
   { "e5", "v3" , "v4" , "" }
 };
 
-int TestMergeGraphs(int argc, char* argv[])
+int TestMergeGraphs(int, char*[])
 {
   vtkSmartPointer<vtkTable> vert_table1 = vtkSmartPointer<vtkTable>::New();
   BuildTable(vert_table1, vert_data1, 3);
