@@ -24,7 +24,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.6");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.7");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------
@@ -200,98 +200,73 @@ void vtkConvexPointSet::Clip(double value,
 //----------------------------------------------------------------------------
 int vtkConvexPointSet::CellBoundary(int subId, double pcoords[3],
                                     vtkIdList *pts)
-{
-  int i, status, returnStatus=(-1);
-  double p[3], x[3], dist2, minDist2=VTK_DOUBLE_MAX, pMin[3];
-  double closest[3], pc[3];
-  double weights[4];
-
-  // Get the current global coordinate
-  this->EvaluateLocation(subId, pcoords, p, weights);
-
-  // Find the closest point
-  vtkIdType numPts = this->PointIds->GetNumberOfIds();
-  for (i=0; i < numPts; i++)
+{ 
+  // This function was re-written to fix bug #9550.
+  // Thanks go to Bart Janssens.
+  vtkIdType pntIndx;
+  for ( int i = 0; i < 4; i ++ )
     {
-    this->Points->GetPoint(i, x);
-    dist2 = vtkMath::Distance2BetweenPoints(x,p);
-    if ( dist2 < minDist2 )
-      {
-      pMin[0] = x[0];
-      pMin[1] = x[1];
-      pMin[2] = x[2];
-      minDist2 = dist2;
-      }
+    pntIndx = this->PointIds
+                  ->GetId(  this->TetraIds->GetId( (subId << 2) + i )  );
+    this->Tetra->PointIds->SetId( i, pntIndx );
+    this->Tetra->Points
+        ->SetPoint(  i,  this->TetraPoints->GetPoint( (subId << 2) + i )  );
     }
-
-  // Get the faces connected to the point, find the closest face
-  this->BoundaryTris->Reset();
-  this->Triangulator->AddTriangles(this->BoundaryTris);
-
-  vtkIdType npts, *tpts=0;
-  for ( minDist2=VTK_DOUBLE_MAX, this->BoundaryTris->InitTraversal();
-        this->BoundaryTris->GetNextCell(npts,tpts); )
-    {
-    this->Triangle->PointIds->SetId(0,tpts[0]);
-    this->Triangle->PointIds->SetId(1,tpts[1]);
-    this->Triangle->PointIds->SetId(2,tpts[2]);
-    this->Triangle->Points->SetPoint(0,this->Points->GetPoint(tpts[0]));
-    this->Triangle->Points->SetPoint(1,this->Points->GetPoint(tpts[1]));
-    this->Triangle->Points->SetPoint(2,this->Points->GetPoint(tpts[2]));
-    status = this->Triangle->
-      EvaluatePosition(pMin, closest, subId, pc, dist2, weights);
-
-    if ( status != -1 && dist2 < minDist2)
-      {
-      returnStatus = 1;
-      pts->SetNumberOfIds(3);
-      pts->SetId(0,this->PointIds->GetId(tpts[0]));
-      pts->SetId(1,this->PointIds->GetId(tpts[1]));
-      pts->SetId(2,this->PointIds->GetId(tpts[2]));
-      minDist2 = dist2;
-      }
-    }
-
-  return returnStatus;
+  
+  // find the parametrically nearest triangle.
+  return this->Tetra->CellBoundary( subId, pcoords, pts );
 }
 
 //----------------------------------------------------------------------------
-int vtkConvexPointSet::EvaluatePosition(double x[3],
-                                        double* vtkNotUsed(closestPoint),
-                                        int& subId, double pcoords[3],
-                                        double& minDist2, double *weights)
+int vtkConvexPointSet::EvaluatePosition( double x[3],
+                                         double * vtkNotUsed(closestPoint),
+                                         int & subId, double pcoords[3],
+                                         double & minDist2, double * weights )
 {
   double pc[3], dist2;
-  int ignoreId, i, j, returnStatus=0, status;
+  int ignoreId, i, j, k, returnStatus=0, status;
   double tempWeights[4];
   double closest[3];
   vtkIdType ptId;
-  int numTets = this->TetraIds->GetNumberOfIds() / 4;
+  int numPnts = this->GetNumberOfPoints();
+  int numTets = this->TetraIds->GetNumberOfIds() >> 2;
 
-
-  for (minDist2=VTK_DOUBLE_MAX, i=0; i<numTets; i++)
+  for ( minDist2 = VTK_DOUBLE_MAX, i = 0; i < numTets; i ++ )
     {
-    for (j=0; j<4; j++)
+    for ( j = 0; j < 4; j ++ )
       {
-      ptId = this->PointIds->GetId(this->TetraIds->GetId(4*i+j));
-      this->Tetra->PointIds->SetId(j,ptId);
-      this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*i+j));
+      ptId = this->PointIds->GetId(  this->TetraIds->GetId( (i << 2) + j )  );
+      this->Tetra->PointIds->SetId( j, ptId );
+      this->Tetra->Points->SetPoint
+            (  j,  this->TetraPoints->GetPoint( (i << 2) + j )  );
       }
 
-    status = this->Tetra->EvaluatePosition(x,closest,ignoreId,pc,dist2,
-                                           tempWeights);
+    status = this->Tetra->EvaluatePosition( x, closest, ignoreId, pc, dist2,
+                                            tempWeights );
     if ( status != -1 && dist2 < minDist2 )
       {
+      // init (clear) all the weights since only the vertices of the closest
+      // tetrahedron are assigned with valid weights while the rest vertices
+      // (of those farther tetrahedra) are simply inited with zero weights
+      // (to make no any contribution). This fixes bug #9453
+      for ( k = 0; k < numPnts; k ++ )
+        {
+        weights[k] = 0.0;
+        }
+        
       returnStatus = status;
       minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
       pcoords[2] = pc[2];
-      weights[0] = tempWeights[0];
-      weights[1] = tempWeights[1];
-      weights[2] = tempWeights[2];
-      weights[3] = tempWeights[3];
+      
+      // assign valid weights to the vertices of this closest tetrahedron only
+      // This fixes bug #9453.
+      weights[  this->TetraIds->GetId( (i << 2)     )  ] = tempWeights[0];
+      weights[  this->TetraIds->GetId( (i << 2) + 1 )  ] = tempWeights[1];
+      weights[  this->TetraIds->GetId( (i << 2) + 2 )  ] = tempWeights[2];
+      weights[  this->TetraIds->GetId( (i << 2) + 3 )  ] = tempWeights[3];
       }
     }
 
@@ -299,19 +274,38 @@ int vtkConvexPointSet::EvaluatePosition(double x[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkConvexPointSet::EvaluateLocation(int& subId, double pcoords[3], 
-                                         double x[3], double *weights)
+void vtkConvexPointSet::EvaluateLocation( int &  subId, double   pcoords[3], 
+                                          double x[3],  double * weights )
 {
-  vtkIdType ptId;
+  int       i;
+  int       numPnts;
+  double    tmpWgts[4];
+  vtkIdType pntIndx;
 
-  for (int j=0; j<4; j++)
+  for ( i = 0; i < 4; i ++ )
     {
-    ptId = this->PointIds->GetId(this->TetraIds->GetId(4*subId+j));
-    this->Tetra->PointIds->SetId(j,ptId);
-    this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*subId+j));
+    pntIndx = this->PointIds
+               ->GetId(  this->TetraIds->GetId( (subId << 2) + i )  );
+    this->Tetra->PointIds->SetId( i, pntIndx );
+    this->Tetra->Points
+        ->SetPoint(  i,  this->TetraPoints->GetPoint( (subId << 2) + i )  );
     }
-
-  this->Tetra->EvaluateLocation(subId, pcoords, x, weights);
+  
+  // use tmpWgts to collect the valid weights of the tetra's four vertices
+  this->Tetra->EvaluateLocation( subId, pcoords, x, tmpWgts );
+  
+  // init the actual array of weights (possibly greater than 4)
+  numPnts = this->GetNumberOfPoints();
+  for ( i = 0; i < numPnts; i ++ )
+    {
+    weights[i] = 0.0;
+    }
+  
+  // update the target weights only
+  weights[  this->TetraIds->GetId( (subId << 2)     )  ] = tmpWgts[0];
+  weights[  this->TetraIds->GetId( (subId << 2) + 1 )  ] = tmpWgts[1];
+  weights[  this->TetraIds->GetId( (subId << 2) + 2 )  ] = tmpWgts[2];
+  weights[  this->TetraIds->GetId( (subId << 2) + 3 )  ] = tmpWgts[3];
 }
 
 //----------------------------------------------------------------------------
