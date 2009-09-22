@@ -34,7 +34,7 @@
 template <typename T, size_t Cols>
 void BuildTable(vtkTable* table, T values[][Cols], int rows)
 {
-  for (int c = 0; c < Cols; ++c)
+  for (size_t c = 0; c < Cols; ++c)
     {
     vtkSmartPointer<vtkStringArray> arr = vtkSmartPointer<vtkStringArray>::New();
     arr->SetName(vtkVariant(values[0][c]).ToString());
