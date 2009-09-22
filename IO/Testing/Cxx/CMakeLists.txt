@@ -110,10 +110,12 @@ IF (VTK_LARGE_DATA_ROOT)
          SLACReaderQuadratic -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACReaderQuadratic.png)
-    ADD_TEST(SLACParticleReader ${CXX_TEST_PATH}/${KIT}CxxTests
-         SLACParticleReader -D ${VTK_LARGE_DATA_ROOT}
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACParticleReader.png)
+    IF(NOT WIN32)
+      ADD_TEST(SLACParticleReader ${CXX_TEST_PATH}/${KIT}CxxTests
+           SLACParticleReader -D ${VTK_LARGE_DATA_ROOT}
+           -T ${VTK_BINARY_DIR}/Testing/Temporary
+           -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACParticleReader.png)
+    ENDIF(NOT WIN32)
   ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_LARGE_DATA_ROOT)
 
