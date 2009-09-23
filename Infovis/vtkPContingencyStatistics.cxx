@@ -35,15 +35,15 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-// For debugging purposes, output message sizes
-#define DEBUG_PARALLEL_CONTINGENCY_STATISTICS 1
+// For debugging purposes, output message sizes and intermediate timings
+#define DEBUG_PARALLEL_CONTINGENCY_STATISTICS 0
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 #include "vtkTimerLog.h"
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.34");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.35");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
