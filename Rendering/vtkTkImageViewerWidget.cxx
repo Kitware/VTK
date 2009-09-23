@@ -819,7 +819,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
           }
         }
 
-      parentWin = GetWindowFromPort(TkMacOSXGetDrawablePort(
+      parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
                                     Tk_WindowId(winPtr->parentPtr)));
       // Carbon does not have 'sub-windows', so the ParentId is used more
       // as a flag to indicate that the renderwindow is being used as a sub-
