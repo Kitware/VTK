@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.86");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.87");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -215,8 +215,6 @@ int vtkEnSightReader::RequestData(
       }
     this->ActualTimeValue = steps[cnt];
     }
-
-  cout << "Executing with: " << this->ActualTimeValue << endl;
 
   int    i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
   int    numSteps;
