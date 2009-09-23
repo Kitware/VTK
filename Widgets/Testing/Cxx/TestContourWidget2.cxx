@@ -96,7 +96,7 @@ int TestContourWidget2( int argc, char *argv[] )
 
   contourWidget->Initialize(pd);
   contourWidget->Render();
- // ren1->ResetCamera();
+  ren1->ResetCamera();
   renWin->Render();
     
   iren->Initialize();
