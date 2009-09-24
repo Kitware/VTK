@@ -29,6 +29,15 @@
 #cmakedefine VTK_HAS_ISINF
 #cmakedefine VTK_HAS__ISINF
 
+// VTK_HAS_ISNAN is only defined if an actual function exists.  Also set it if
+// isnan is a macro.
+#if !defined(VTK_HAS_ISNAN) && defined(isnan)
+# define VTK_HAS_ISNAN 1
+#endif
+#if !defined(VTK_HAS_ISINF) && defined(isinf)
+# define VTK_HAS_ISINF 1
+#endif
+
 // Try to fake having isnan and isinf if _isnan or _isinf is available
 #if !defined(VTK_HAS_ISNAN) && (defined(VTK_HAS__ISNAN) || defined(_isnan))
 # define isnan(x) _isnan(x)
@@ -36,15 +45,6 @@
 #endif
 #if !defined(VTK_HAS_ISINF) && (defined(VTK_HAS__ISINF) || defined(_isinf))
 # define isinf(x) _isinf(x)
-# define VTK_HAS_ISINF 1
-#endif
-
-// VTK_HAS_ISNAN is only defined if an actual function exists.  Also set it if
-// isnan is a macro.
-#if !defined(VTK_HAS_ISNAN) && defined(isnan)
-# define VTK_HAS_ISNAN 1
-#endif
-#if !defined(VTK_HAS_ISINF) && defined(isinf)
 # define VTK_HAS_ISINF 1
 #endif
 
