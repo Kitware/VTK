@@ -137,7 +137,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   vtkIdType nRowSumm = outputSummary->GetNumberOfRows();
   int testIntValue;
-  double testDoubleValue;
+  double testDoubleValue1;
+  double testDoubleValue2;
   int numProcs = controller->GetNumberOfProcesses();
 
   // Verify that all processes have the same grand total and contingency tables size
@@ -238,14 +239,14 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
           cout << "\n";
           
           // Make sure that H(X,Y) >= H(Y|X)+ H(X|Y)
-          testDoubleValue = H_g[nEntropies * i + 1] + H_g[nEntropies * i + 2]; // H(Y|X)+ H(X|Y)
+          testDoubleValue1 = H_g[nEntropies * i + 1] + H_g[nEntropies * i + 2]; // H(Y|X)+ H(X|Y)
           
-          if ( testDoubleValue > H_g[nEntropies * i] )
+          if ( testDoubleValue1 > H_g[nEntropies * i] )
             {
             vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
                                    << H_g[nEntropies * i]
                                    << " < " 
-                                   << testDoubleValue 
+                                   << testDoubleValue1 
                                    << " = H(Y|X)+ H(X|Y).");
             *(args->retVal) = 1;
             }
@@ -258,10 +259,12 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
       }
     }
 
-  // Verify that the broadcasted reduced contingency tables all result in a CDF value of 1
+  // Verify that the local and global CDFs sum to 1 within presribed relative tolerance
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that broadcasted CDF sum to 1 on all processes.\n";
+    cout << "\n## Verifying that local and global CDFs sum to 1 (within "
+         << args->absTol
+         << " relative tolerance).\n";
     }
   
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
@@ -306,7 +309,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
                   cdf_g, 
                   nRowSumm );
 
-  // Print out all CDFs
+  // Print out all local and global CDFs
   if ( com->GetLocalProcessId() == args->ioRank )
     {
     for ( vtkIdType k = 0; k < nRowSumm; ++ k )
@@ -320,20 +323,28 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
         
       for ( int i = 0; i < numProcs; ++ i )
         {
-        testDoubleValue = cdf_g[i * nRowSumm + k];
+        testDoubleValue1 = cdf_l[k];
+        testDoubleValue2 = cdf_g[i * nRowSumm + k];
 
         cout << "     On process "
              << i
-             << ", CDF = "
-             << testDoubleValue
-             << " (within "
-             << args->absTol
-             << " relative tolerance)\n";
+             << ", local CDF = "
+             << testDoubleValue1
+             << ", global CDF = "
+             << testDoubleValue2
+             << "\n";
 
-        // Verify that CDF = 1 (within absTol)
-        if ( fabs ( 1. - testDoubleValue ) > args->absTol )
+        // Verify that local CDF = 1 (within absTol)
+        if ( fabs ( 1. - testDoubleValue1 ) > args->absTol )
           {
-          vtkGenericWarningMacro("Incorrect CDF.");
+          vtkGenericWarningMacro("Incorrect local CDF.");
+          *(args->retVal) = 1;
+          }
+
+        // Verify that global CDF = 1 (within absTol)
+        if ( fabs ( 1. - testDoubleValue2 ) > args->absTol )
+          {
+          vtkGenericWarningMacro("Incorrect global CDF.");
           *(args->retVal) = 1;
           }
         }
@@ -419,7 +430,7 @@ int main( int argc, char** argv )
   RandomContingencyStatisticsArgs args;
 
   args.nVals = 1000000;
-  args.stdev = 200.;
+  args.stdev = 5.;
   args.absTol = 1.e-6;
   args.retVal = &testValue;
   args.ioRank = ioRank;
