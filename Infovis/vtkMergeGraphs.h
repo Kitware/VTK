@@ -67,6 +67,8 @@ protected:
     vtkInformationVector**, 
     vtkInformationVector*);
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkMergeGraphs(const vtkMergeGraphs&); // Not implemented
   void operator=(const vtkMergeGraphs&);   // Not implemented

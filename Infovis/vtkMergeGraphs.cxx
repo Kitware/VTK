@@ -34,7 +34,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkMergeGraphs, "1.1");
+vtkCxxRevisionMacro(vtkMergeGraphs, "1.2");
 vtkStandardNewMacro(vtkMergeGraphs);
 //---------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()
@@ -46,6 +46,21 @@ vtkMergeGraphs::vtkMergeGraphs()
 //---------------------------------------------------------------------------
 vtkMergeGraphs::~vtkMergeGraphs()
 {
+}
+
+int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
+{
+  if(port == 0)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    }
+  else if(port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+
+  return 1;
 }
 
 //---------------------------------------------------------------------------
@@ -102,14 +117,21 @@ int vtkMergeGraphs::RequestData(
   vtkGraph* graph1 = vtkGraph::SafeDownCast(
     graph1_info->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkInformation* graph2_info = inputVector[1]->GetInformationObject(0);
-  vtkGraph* graph2 = vtkGraph::SafeDownCast(
-    graph2_info->Get(vtkDataObject::DATA_OBJECT()));
-  
   // Copy structure into output graph.
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
   vtkGraph* output = vtkGraph::SafeDownCast(
     outputInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkInformation* graph2_info = inputVector[1]->GetInformationObject(0);
+  if(!graph2_info)
+    {
+    // If no second graph provided, we're done
+    output->CheckedShallowCopy(graph1);
+    return 1;
+    }
+
+  vtkGraph* graph2 = vtkGraph::SafeDownCast(
+    graph2_info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Make a copy of the graph
   vtkSmartPointer<vtkMutableGraphHelper> builder = vtkSmartPointer<vtkMutableGraphHelper>::New();
