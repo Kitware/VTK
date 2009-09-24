@@ -766,62 +766,15 @@ public:
   static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
   
   // Description:
-  // Special numbers used to represent positive and negative infinity
-  // and Not-A-Number (Nan).
+  // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).
   static double Inf();
   static double NegInf();
   static double Nan();
 
   // Description:
-  // Special numbers, single-precision version.
-  static float FloatInf();
-  static float FloatNegInf();
-  static float FloatNan();
-
-  // Description:
   // Tests for special floating point values that are not real numbers.
   static int IsInf(double x);
-  static int IsInf(float x);
   static int IsNan(double x);
-  static int IsNan(float x);
-
-//BTX
-  // Description:
-  // Tests for special floating point values that are not real numbers on
-  // integer types (for completeness for templated functions).  All return
-  // false.
-  static int IsInf(unsigned char)      { return 0; }
-  static int IsInf(char)               { return 0; }
-  static int IsInf(unsigned short)     { return 0; }
-  static int IsInf(short)              { return 0; }
-  static int IsInf(unsigned int)       { return 0; }
-  static int IsInf(int)                { return 0; }
-  static int IsInf(unsigned long)      { return 0; }
-  static int IsInf(long)               { return 0; }
-#if defined(VTK_TYPE_USE_LONG_LONG)
-  static int IsInf(unsigned long long) { return 0; }
-  static int IsInf(long long)          { return 0; }
-#elif defined(VTK_TYPE_USE___INT64)
-  static int IsInf(unsigned __int64)   { return 0; }
-  static int IsInf(__int64)            { return 0; }
-#endif
-  static int IsNan(unsigned char)      { return 0; }
-  static int IsNan(char)               { return 0; }
-  static int IsNan(unsigned short)     { return 0; }
-  static int IsNan(short)              { return 0; }
-  static int IsNan(unsigned int)       { return 0; }
-  static int IsNan(int)                { return 0; }
-  static int IsNan(unsigned long)      { return 0; }
-  static int IsNan(long)               { return 0; }
-#if defined(VTK_TYPE_USE_LONG_LONG)
-  static int IsNan(unsigned long long) { return 0; }
-  static int IsNan(long long)          { return 0; }
-#elif defined(VTK_TYPE_USE___INT64)
-  static int IsNan(unsigned __int64)   { return 0; }
-  static int IsNan(__int64)            { return 0; }
-#endif
-//ETX
-  
 
 protected:
   vtkMath() {};
