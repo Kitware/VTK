@@ -951,9 +951,9 @@ void vtkQtBarChart::handleOutlineChange()
 }
 
 void vtkQtBarChart::handleOptionsChanged(vtkQtChartSeriesOptions* options,
-  int type, const QVariant& newvalue, const QVariant& oldvalue)
+  int ltype, const QVariant& newvalue, const QVariant& oldvalue)
 {
-  if (type == vtkQtChartSeriesOptions::VISIBLE)
+  if (ltype == vtkQtChartSeriesOptions::VISIBLE)
     {
     // visibility changed.
     bool visible = options->isVisible();
@@ -963,7 +963,7 @@ void vtkQtBarChart::handleOptionsChanged(vtkQtChartSeriesOptions* options,
     }
 
   this->vtkQtChartSeriesLayer::handleOptionsChanged(
-    options, type, newvalue, oldvalue);
+    options, ltype, newvalue, oldvalue);
 }
 
 void vtkQtBarChart::handleSeriesVisibilityChange(

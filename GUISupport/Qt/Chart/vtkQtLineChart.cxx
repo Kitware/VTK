@@ -1136,30 +1136,30 @@ void vtkQtLineChart::finishSeriesRemoval(int first, int last)
 }
 
 void vtkQtLineChart::handleOptionsChanged(vtkQtChartSeriesOptions* options,
-  int type, const QVariant& newvalue, const QVariant& oldvalue)
+  int ltype, const QVariant& newvalue, const QVariant& oldvalue)
 {
   // Get the series index from the options index.
-  if (type == vtkQtChartSeriesOptions::AXES_CORNER )
+  if (ltype == vtkQtChartSeriesOptions::AXES_CORNER )
     {
     // axes corner has changed.
     this->handleSeriesAxesCornerChange(
       options, newvalue.toInt(), oldvalue.toInt());
     }
 
-  if (type == vtkQtChartSeriesOptions::VISIBLE)
+  if (ltype == vtkQtChartSeriesOptions::VISIBLE)
     {
     bool visible = options->isVisible();
     // visibility has changed.
     this->handleSeriesVisibilityChange(options, visible);
     }
 
-  if (type == vtkQtChartSeriesOptions::MARKER_STYLE)
+  if (ltype == vtkQtChartSeriesOptions::MARKER_STYLE)
     {
     this->handleSeriesPointMarkerChange(options);
     }
   // TODO: Update the series rectangle.
 
-  this->vtkQtChartSeriesLayer::handleOptionsChanged(options, type, newvalue,
+  this->vtkQtChartSeriesLayer::handleOptionsChanged(options, ltype, newvalue,
     oldvalue);
 }
 
