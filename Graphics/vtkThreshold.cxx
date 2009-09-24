@@ -22,8 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.71");
+vtkCxxRevisionMacro(vtkThreshold, "1.72");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -42,6 +43,9 @@ vtkThreshold::vtkThreshold()
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
                                vtkDataSetAttributes::SCALARS);
+
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 vtkThreshold::~vtkThreshold()
@@ -322,4 +326,91 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
   os << indent << "DataType of the output points: " 
      << this->PointsDataType << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkThreshold::ProcessRequest(vtkInformation* request,
+                                     vtkInformationVector** inputVector,
+                                     vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT_INFORMATION()))
+    {
+    // compute the priority for this UE
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+    // get the range of the input if available
+    vtkInformation *fInfo = 
+      vtkDataObject::GetActiveFieldInformation
+      (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, 
+       vtkDataSetAttributes::SCALARS);
+    if (!fInfo)
+      {
+      return 1;
+      }
+ 
+    double *range = fInfo->Get(vtkDataObject::PIECE_FIELD_RANGE());
+    if (range)
+      {
+      // compute the priority
+      // get the incoming priority if any
+      double inPriority = 1;
+      if (inInfo->Has(vtkStreamingDemandDrivenPipeline::PRIORITY()))
+        {
+        inPriority = inInfo->Get(vtkStreamingDemandDrivenPipeline::PRIORITY());
+        }
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority);
+      if (!inPriority)
+        {
+        return 1;
+        }
+
+      // do any contours intersect the range?
+      if (this->ThresholdFunction == &vtkThreshold::Upper)
+        { 
+        if ((this->*(this->ThresholdFunction))(range[0]))
+          {
+          return 1;
+          }
+        }
+      if (this->ThresholdFunction == &vtkThreshold::Between)
+        {
+        if (
+            (this->*(this->ThresholdFunction))(range[0]) ||
+            (this->*(this->ThresholdFunction))(range[1]) ||
+            (range[0] < this->LowerThreshold 
+             && 
+             range[1] > this->UpperThreshold))
+          {
+          return 1;
+          };
+        }
+      if (this->ThresholdFunction == &vtkThreshold::Lower)
+        {
+        if ((this->*(this->ThresholdFunction))(range[1]))
+          {
+          return 1;
+          }
+        }
+
+      double inRes = 1.0;
+      if (inInfo->Has(
+                      vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
+        {
+        inRes = inInfo->Get(
+                            vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION());
+        }
+      if (inRes == 1.0)
+        {
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),0.0);
+        }
+      else
+        {
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority*0.1);
+        }
+      }
+    return 1;
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

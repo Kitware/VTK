@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.73");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.74");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
@@ -238,7 +238,8 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
     {
     vtkDebugMacro(<< "REQUEST_DATA_OBJECT()");
     // if we are up to date then short circuit
-    if (this->PipelineMTime < this->DataObjectTime.GetMTime())
+    if (this->PipelineMTime < this->DataObjectTime.GetMTime()
+        && ! request->Has(REQUEST_REGENERATE_INFORMATION()))
       {
       return 1;
       }
@@ -251,7 +252,8 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
     
     // Make sure our output data type is up-to-date.
     int result = 1;
-    if(this->PipelineMTime > this->DataObjectTime.GetMTime())
+    if(this->PipelineMTime > this->DataObjectTime.GetMTime()
+        || request->Has(REQUEST_REGENERATE_INFORMATION()))
       {
       // Request data type from the algorithm.
       result = this->ExecuteDataObject(request,inInfoVec,outInfoVec);

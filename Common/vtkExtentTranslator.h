@@ -80,7 +80,15 @@ public:
  void SetSplitModeToZSlab()
     {this->SplitMode = vtkExtentTranslator::Z_SLAB_MODE;}
   vtkGetMacro(SplitMode,int);
-  
+
+  //Description:
+  // By default the translator creates N structured subextents by repeatedly
+  // splitting the largest current dimension until there are N pieces.
+  // If you do not want it always split the largest dimension, for instance when the
+  // shortest dimension is the slowest changing and thus least coherent in memory,
+  // use this to tell the translator which dimensions to split.
+  void SetSplitPath(int len, int *splitpath);
+
 protected:
   vtkExtentTranslator();
   ~vtkExtentTranslator();
@@ -99,6 +107,9 @@ protected:
   int Extent[6];
   int WholeExtent[6];
   int SplitMode;
+
+  int* SplitPath;
+  int SplitLen;
 
 //BTX
   // Don't change the numbers here - they are used in the code

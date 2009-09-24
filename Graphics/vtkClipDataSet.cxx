@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.57");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.58");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -686,24 +686,24 @@ int vtkClipDataSet::ProcessRequest(vtkInformation* request,
     {
     // compute the priority for this UpdateExtent
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    if (!inInfo)
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+    double inPriority = 1;
+    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::PRIORITY()))
+      {
+      inPriority = inInfo->Get(vtkStreamingDemandDrivenPipeline::
+                            PRIORITY());
+      }
+    if (!inPriority)
       {
       return 1;
       }
-
-    double inPrior = 1;
-    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::PRIORITY()))
-      {
-      inPrior = inInfo->Get(vtkStreamingDemandDrivenPipeline::
-                            PRIORITY());
-      }
-
     // Get bounds and evaluate implicit function. If all bounds
     // evaluate to a value smaller than input value, this piece
     // has priority set to 0.
 
     static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-    double prior = 1;
+    double priority = 1;
 
     // determine geometric bounds of this piece
     double *wBBox = NULL;
@@ -744,8 +744,7 @@ int vtkClipDataSet::ProcessRequest(vtkInformation* request,
       else
         {
         //cerr << "Need geometric bounds meta information to evaluate priority" << endl;
-        outputVector->GetInformationObject(0)->
-          Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPrior);
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority);
         return 1;
         }
       }
@@ -754,8 +753,7 @@ int vtkClipDataSet::ProcessRequest(vtkInformation* request,
     if (!fPtr)
       {
       //cerr << "Can not evaluate priority for that clip type" << endl;
-      outputVector->GetInformationObject(0)->
-        Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPrior);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority);
       return 1;
       }
 
@@ -769,22 +767,17 @@ int vtkClipDataSet::ProcessRequest(vtkInformation* request,
     fVal[6] = fPtr->EvaluateFunction(bounds[1],bounds[3],bounds[4]);
     fVal[7] = fPtr->EvaluateFunction(bounds[1],bounds[3],bounds[5]);
 
-    prior = 0;
+    priority = 0;
     int i;
     for (i=0; i<8;i++)
       {
       if (fVal[i]>this->Value)
         {
-        prior = inPrior;
+        priority = inPriority;
         break;
         }
       }
-    if (prior != inPrior)
-      {
-      //cerr << "rejected something!" << endl;
-      }
-    outputVector->GetInformationObject(0)->
-      Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),prior);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),priority);
     return 1;
     }
 

@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.91");
+vtkCxxRevisionMacro(vtkCutter, "1.92");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator)
@@ -63,6 +63,9 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->SynchronizedTemplatesCutter3D = vtkSynchronizedTemplatesCutter3D::New();
   this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
+
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 //----------------------------------------------------------------------------

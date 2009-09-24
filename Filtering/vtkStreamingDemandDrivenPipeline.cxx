@@ -33,13 +33,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.63");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.64");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, EXACT_EXTENT, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT_INFORMATION, Request);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_RESOLUTION_PROPAGATE, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, MAXIMUM_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZED, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_PIECE_NUMBER, Integer);
@@ -59,6 +60,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVecto
 
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, PIECE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_RESOLUTION, Double);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REMOVE_ATTRIBUTE_INFORMATION, Integer);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_FOR_TEMPORAL_DATA, Integer);
@@ -134,7 +136,10 @@ int vtkStreamingDemandDrivenPipeline
     // If we need to execute, propagate the update extent.
     int result = 1;
     int N2E = this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec);
-    if (!N2E && outputPort>-1 && this->GetNumberOfInputPorts() && inInfoVec[0]->GetNumberOfInformationObjects () > 0)
+    if (!N2E && 
+        outputPort>-1 && 
+        this->GetNumberOfInputPorts() &&
+        inInfoVec[0]->GetNumberOfInformationObjects () > 0)
       {
       vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
       vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
@@ -154,8 +159,16 @@ int vtkStreamingDemandDrivenPipeline
             {
             N2E = 1;
             }
+          else
+            {
+            if (outInfo->Get(UPDATE_RESOLUTION()) !=
+                inInfo->Get(UPDATE_RESOLUTION()))
+              {
+              N2E = 1;
+              }
+            }
           }
-        }
+        }      
       }
     if(N2E)
       {
@@ -408,6 +421,7 @@ vtkStreamingDemandDrivenPipeline
     }
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
+    //Copy requested resolution back
     // Get the output port from which to copy the extent.
     int outputPort = -1;
     if(request->Has(FROM_OUTPUT_PORT()))
@@ -476,6 +490,8 @@ vtkStreamingDemandDrivenPipeline
             continue;
             }
 
+          //Copy requested resolution back
+          inInfo->CopyEntry(outInfo, UPDATE_RESOLUTION());
 
           // Consider all combinations of extent types.
           if(inData->GetExtentType() == VTK_PIECES_EXTENT)
@@ -630,6 +646,48 @@ vtkStreamingDemandDrivenPipeline
       }
     }
 
+  if(request->Has(REQUEST_RESOLUTION_PROPAGATE()))
+    {
+    // Get the output port from which to copy the extent.
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    // Setup default information for the inputs.
+    if(outInfoVec->GetNumberOfInformationObjects() > 0)
+      {
+      // Copy information from the output port that made the request.
+      // Since VerifyOutputInformation has already been called we know
+      // there is output information with a data object.
+      vtkInformation* outInfo =
+        outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
+
+      // Loop over all input ports.
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        // Loop over all connections on this input port.
+        int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          // Get the pipeline information for this input connection.
+          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
+
+          //Copy requested resolution back
+          inInfo->CopyEntry(outInfo, UPDATE_RESOLUTION());
+
+          vtkDataObject *inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+          if (inData)
+            {
+            vtkInformation* dataInfo = inData->GetInformation();
+            dataInfo->Set(vtkDataObject::DATA_RESOLUTION(), -1.0);
+            }
+          }
+        }
+      }
+    }
+
 }
 
 //----------------------------------------------------------------------------
@@ -645,6 +703,7 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(UPDATE_EXTENT_INITIALIZED());
   info->Remove(UPDATE_EXTENT());
   info->Remove(UPDATE_PIECE_NUMBER());
+  info->Remove(UPDATE_RESOLUTION());
   info->Remove(UPDATE_NUMBER_OF_PIECES());
   info->Remove(UPDATE_NUMBER_OF_GHOST_LEVELS());
   info->Remove(UPDATE_EXTENT_TRANSLATED());
@@ -804,18 +863,21 @@ int vtkStreamingDemandDrivenPipeline
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5]))
       {
-      // Update extent is outside the whole extent and is not empty.
-      vtkErrorMacro("The update extent specified in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ") is "
-                    << updateExtent[0] << " " << updateExtent[1] << " "
-                    << updateExtent[2] << " " << updateExtent[3] << " "
-                    << updateExtent[4] << " " << updateExtent[5]
-                    << ", which is outside the whole extent "
-                    << wholeExtent[0] << " " << wholeExtent[1] << " "
-                    << wholeExtent[2] << " " << wholeExtent[3] << " "
-                    << wholeExtent[4] << " " << wholeExtent[5] << ".");
+      if (!outInfo->Has(UPDATE_RESOLUTION()))
+        {
+        // Update extent is outside the whole extent and is not empty.
+        vtkErrorMacro("The update extent specified in the "
+                      "information for output port " << outputPort
+                      << " on algorithm " << this->Algorithm->GetClassName()
+                      << "(" << this->Algorithm << ") is "
+                      << updateExtent[0] << " " << updateExtent[1] << " "
+                      << updateExtent[2] << " " << updateExtent[3] << " "
+                      << updateExtent[4] << " " << updateExtent[5]
+                      << ", which is outside the whole extent "
+                      << wholeExtent[0] << " " << wholeExtent[1] << " "
+                      << wholeExtent[2] << " " << wholeExtent[3] << " "
+                      << wholeExtent[4] << " " << wholeExtent[5] << ".");
+        }
       return 0;
       }
     }
@@ -957,6 +1019,25 @@ vtkStreamingDemandDrivenPipeline
         dataInfo->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
         }
         
+      if (!dataInfo->Has(vtkDataObject::DATA_RESOLUTION()) &&
+          outInfo->Has(UPDATE_RESOLUTION()))
+        {
+        // It does not. 
+        // Does the input have it? If yes, copy it.
+        vtkDataObject* input = 0;
+        if (this->GetNumberOfInputPorts() > 0)
+          {
+          input = this->GetInputData(0, 0);
+          }
+        if (input && 
+            input->GetInformation()->Has(vtkDataObject::DATA_RESOLUTION()))
+          {
+          dataInfo->CopyEntry(input->GetInformation(),
+                              vtkDataObject::DATA_RESOLUTION(),
+                              1);
+          }
+        }
+
       // In this block, we make sure that DATA_TIME_STEPS() is set if:
       // * There was someone upstream that supports time (TIME_RANGE() key
       //   is present)
@@ -1073,6 +1154,13 @@ int vtkStreamingDemandDrivenPipeline
   vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkInformation* dataInfo = dataObject->GetInformation();
+  double updateResolution = outInfo->Get(UPDATE_RESOLUTION());
+  double dataResolution = dataInfo->Get(vtkDataObject::DATA_RESOLUTION());
+  if (dataResolution == -1.0 || updateResolution > dataResolution)
+    {
+    return 1;
+    }
+
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT
      || dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
     {
@@ -1551,6 +1639,31 @@ int vtkStreamingDemandDrivenPipeline
 }
 
 //----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
+::SetUpdateResolution(int port, double resolution)
+{
+  return this->SetUpdateResolution(GetOutputInformation(port), resolution);
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
+::SetUpdateResolution(vtkInformation *info, double resolution)
+{
+  if(!info)
+    {
+    vtkErrorMacro("SetUpdateResolution on invalid output");
+    return 0;
+    }
+  int modified = 0;
+  if(this->GetUpdateResolution(info) != resolution)
+    {
+    info->Set(UPDATE_RESOLUTION(), resolution);
+    modified = 1;
+    }
+  return modified;
+}
+
+//----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(int port, double time)
 {
   return this->SetUpdateTimeSteps(port, &time, 1);
@@ -1620,6 +1733,22 @@ int vtkStreamingDemandDrivenPipeline
     info->Set(UPDATE_PIECE_NUMBER(), 0);
     }
   return info->Get(UPDATE_PIECE_NUMBER());
+}
+
+//----------------------------------------------------------------------------
+double vtkStreamingDemandDrivenPipeline
+::GetUpdateResolution(vtkInformation *info)
+{
+  if(!info)
+    {
+    vtkErrorMacro("GetUpdateResolution on invalid output");
+    return 0;
+    }
+  if(!info->Has(UPDATE_RESOLUTION()))
+    {
+    info->Set(UPDATE_RESOLUTION(), 1.0);
+    }
+  return info->Get(UPDATE_RESOLUTION());
 }
 
 //----------------------------------------------------------------------------
@@ -1871,11 +2000,19 @@ double* vtkStreamingDemandDrivenPipeline::GetPieceBoundingBox(int port)
 double vtkStreamingDemandDrivenPipeline::ComputePriority(int port)
 {
   vtkInformation* rqst;
-
   vtkInformationVector **inVec = this->GetInputInformation();
   vtkInformationVector *outVec = this->GetOutputInformation();
 
-  //make sure global information is up to date
+  //tell pipeline what piece to ask about
+  rqst = vtkInformation::New();
+  rqst->Set(REQUEST_RESOLUTION_PROPAGATE());
+  rqst->Set(vtkExecutive::FORWARD_DIRECTION(),
+            vtkExecutive::RequestUpstream);
+  rqst->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
+  rqst->Set(vtkExecutive::FROM_OUTPUT_PORT(), port);
+  this->ProcessRequest(rqst, inVec, outVec);
+  rqst->Delete();
+
   //make sure global information is up to date
   rqst = vtkInformation::New();
   rqst->Set(REQUEST_DATA_OBJECT());
@@ -1924,7 +2061,6 @@ double vtkStreamingDemandDrivenPipeline::ComputePriority(int port)
     {
     priority = info->Get(PRIORITY());
     }
-
   return priority;
 }
 
@@ -1944,9 +2080,10 @@ void vtkStreamingDemandDrivenPipeline::ResetUpdateInformation(
       vtkInformation* inInfo = inInfoVec[cc]->GetInformationObject(kk);
       if (inInfo)
         {
-        inInfo->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID());
-        inInfo->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE());
-        inInfo->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE());
+        inInfo->Remove(FAST_PATH_OBJECT_ID());
+        inInfo->Remove(FAST_PATH_OBJECT_TYPE());
+        inInfo->Remove(FAST_PATH_ID_TYPE());
+        inInfo->Remove(UPDATE_RESOLUTION());
         }
       }
     }

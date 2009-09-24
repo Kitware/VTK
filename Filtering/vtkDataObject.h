@@ -507,6 +507,7 @@ public:
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
+  static vtkInformationDoubleKey* DATA_RESOLUTION();
   static vtkInformationDoubleVectorKey* DATA_TIME_STEPS();
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();

@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.46");
+vtkCxxRevisionMacro(vtkDataObject, "1.47");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -49,6 +49,7 @@ vtkInformationKeyMacro(vtkDataObject, DATA_EXTENT_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_GHOST_LEVELS, Integer);
+vtkInformationKeyMacro(vtkDataObject, DATA_RESOLUTION, Double);
 vtkInformationKeyMacro(vtkDataObject, DATA_TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkDataObject, POINT_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, CELL_DATA_VECTOR, InformationVector);
@@ -210,6 +211,12 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
       {
       os << indent << "Update Ghost Level: "
          << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())
+         << endl;
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
+      {
+      os << indent << "Update Resolution: "
+         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION())
          << endl;
       }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
@@ -378,6 +385,7 @@ void vtkDataObject::Initialize()
     this->Information->Remove(DATA_NUMBER_OF_PIECES());
     this->Information->Remove(DATA_NUMBER_OF_GHOST_LEVELS());
     this->Information->Remove(DATA_TIME_STEPS());
+    this->Information->Remove(DATA_RESOLUTION());
     }
 
   this->Modified();
@@ -432,6 +440,16 @@ void vtkDataObject::CopyInformationToPipeline(vtkInformation *request,
       if (input->Has(DATA_TIME_STEPS()))
         {
         output->CopyEntry(input, DATA_TIME_STEPS());
+        }
+      }
+    }
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    if (input)
+      {
+      if (input->Has(DATA_RESOLUTION()))
+        {
+        output->CopyEntry(input, DATA_RESOLUTION());
         }
       }
     }
@@ -975,6 +993,10 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
   if(src->Information->Has(DATA_TIME_STEPS()))
     {
     this->Information->CopyEntry(src->Information, DATA_TIME_STEPS(), 1);
+    }
+  if(src->Information->Has(DATA_RESOLUTION()))
+    {
+    this->Information->CopyEntry(src->Information, DATA_RESOLUTION(), 1);
     }
   
   vtkInformation* thatPInfo = src->GetPipelineInformation();

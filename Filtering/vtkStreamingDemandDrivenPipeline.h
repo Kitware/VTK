@@ -108,6 +108,9 @@ public:
   int GetUpdateNumberOfPieces(vtkInformation *);
   int SetUpdateGhostLevel(vtkInformation *, int n);
   int GetUpdateGhostLevel(vtkInformation *);
+  int SetUpdateResolution(int port, double r);
+  int SetUpdateResolution(vtkInformation *, double r);
+  double GetUpdateResolution(vtkInformation *);
 
   // Description:
   // Convenience method to set a particular minor update piece within
@@ -174,6 +177,10 @@ public:
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT_INFORMATION();
 
   // Description:
+  // Key defining to propagate resolution changes up the pipeline.
+  static vtkInformationRequestKey* REQUEST_RESOLUTION_PROPAGATE();
+
+  // Description:
   // Key for an algorithm to store in a request to tell this executive
   // to keep executing it.
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
@@ -231,11 +238,18 @@ public:
   static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
   // Description:
-  // Key to specify from 0 to 1 the priority of this update extent
+  // Key that specifies from 0.0 to 1.0 the pipeline computed priority 
+  // of this update extent. 0.0 means does not contribute and can 
+  // be skipped.
   static vtkInformationDoubleKey* PRIORITY();
 
   // Description:
-  // Used internally to help validate meta information as it flows through pipeline.
+  // Key that specifies a requested resolution level for this update
+  // extent. 0.0 is very low and 1.0 is full resolution.
+  static vtkInformationDoubleKey* UPDATE_RESOLUTION();
+
+  // Description:
+  // Used internally to validate meta information as it flows through pipeline
   static vtkInformationIntegerKey* REMOVE_ATTRIBUTE_INFORMATION();
 
   // Description:

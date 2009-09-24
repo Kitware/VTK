@@ -44,7 +44,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.132");
+vtkCxxRevisionMacro(vtkContourFilter, "1.133");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -299,8 +299,8 @@ int vtkContourFilter::RequestData(
       this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);      
       this->SynchronizedTemplates3D->
         SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-      return 
-        this->SynchronizedTemplates3D->ProcessRequest(request,inputVector,outputVector);
+
+      return this->SynchronizedTemplates3D->ProcessRequest(request,inputVector,outputVector);
       }
     } //if image data
   
@@ -626,10 +626,8 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
     {
     // compute the priority for this UE
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    if (!inInfo)
-      {
-      return 1;
-      }
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
     // get the range of the input if available
     vtkInformation *fInfo = 
       vtkDataObject::GetActiveFieldInformation
@@ -639,40 +637,50 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
       {
       return 1;
       }
-    double *range = fInfo->Get(vtkDataObject::PIECE_FIELD_RANGE());
-    if (range)
-      {
-      //cerr << "CF(" << this << ") Found " << range[0] << ".." << range[1] << endl;
-      }
-    else
-      {
-      //cerr << "CF(" << this << ") Missed " << endl;
-      }
 
+    double *range = fInfo->Get(vtkDataObject::PIECE_FIELD_RANGE());
     int numContours = this->ContourValues->GetNumberOfContours();
     if (range && numContours)
       {
       // compute the priority
       // get the incoming priority if any
-      double inPrior = 1;
+      double inPriority = 1;
       if (inInfo->Has(vtkStreamingDemandDrivenPipeline::PRIORITY()))
         {
-        inPrior = inInfo->Get(vtkStreamingDemandDrivenPipeline::PRIORITY());
+        inPriority = inInfo->Get(vtkStreamingDemandDrivenPipeline::PRIORITY());
         }
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority);
+      if (!inPriority)
+        {
+        return 1;
+        }
+
       // do any contours intersect the range?
       double *values=this->ContourValues->GetValues();
-      double prior = 0;
       int i;
       for (i=0; i < numContours; i++)
         {
         if (values[i] >= range[0] && values[i] <= range[1])
           {
-          prior = inPrior;
-          break;
+          return 1;
           }
         }
-      outputVector->GetInformationObject(0)->
-        Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),prior);
+
+      double inRes = 1.0;
+      if (inInfo->Has(
+                      vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
+        {
+        inRes = inInfo->Get(
+                            vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION());
+        }
+      if (inRes == 1.0)
+        {
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),0.0);
+        }
+      else
+        {
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority*0.1);
+        }
       }
     return 1;
     }

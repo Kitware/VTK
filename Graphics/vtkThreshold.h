@@ -139,6 +139,8 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
   int    AllScalars;
   double LowerThreshold;
   double UpperThreshold;
