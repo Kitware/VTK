@@ -1056,22 +1056,22 @@ void vtkQtStatisticalBoxChart::handleOutlineChange()
 
 void vtkQtStatisticalBoxChart::handleOptionsChanged(
   vtkQtChartSeriesOptions* options,
-  int type, const QVariant& newvalue, const QVariant& oldvalue)
+  int ltype, const QVariant& newvalue, const QVariant& oldvalue)
 {
-  if (type == vtkQtChartSeriesOptions::VISIBLE)
+  if (ltype == vtkQtChartSeriesOptions::VISIBLE)
     {
     bool visible = options->isVisible();
     // visibility has changed.
     this->handleSeriesVisibilityChange(options, visible);
     }
 
-  if (type == vtkQtChartSeriesOptions::MARKER_STYLE)
+  if (ltype == vtkQtChartSeriesOptions::MARKER_STYLE)
     {
     this->handleSeriesPointMarkerChanged(options);
     }
   // TODO: Update the series rectangle.
 
-  this->vtkQtChartSeriesLayer::handleOptionsChanged(options, type, newvalue,
+  this->vtkQtChartSeriesLayer::handleOptionsChanged(options, ltype, newvalue,
     oldvalue);
 }
 

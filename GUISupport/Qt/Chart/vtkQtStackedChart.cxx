@@ -1081,15 +1081,15 @@ void vtkQtStackedChart::handleGradientChange()
 }
 
 void vtkQtStackedChart::handleOptionsChanged(vtkQtChartSeriesOptions* options,
-  int type, const QVariant& newvalue, const QVariant& oldvalue)
+  int ltype, const QVariant& newvalue, const QVariant& oldvalue)
 {
-  if (type == vtkQtChartSeriesOptions::VISIBLE)
+  if (ltype == vtkQtChartSeriesOptions::VISIBLE)
     {
     this->handleSeriesVisibilityChange(options, newvalue.toBool());
     }
 
   this->vtkQtChartSeriesLayer::handleOptionsChanged(
-    options, type, newvalue, oldvalue);
+    options, ltype, newvalue, oldvalue);
 }
 
 void vtkQtStackedChart::handleSeriesVisibilityChange(
