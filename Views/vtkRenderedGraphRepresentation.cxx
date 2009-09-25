@@ -95,7 +95,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.30");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.31");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -540,7 +540,7 @@ bool vtkRenderedGraphRepresentation::GetColorEdgesByArray()
 
 void vtkRenderedGraphRepresentation::SetEdgeColorArrayName(const char* name)
 {
-  this->SetVertexColorArrayNameInternal(name);
+  this->SetEdgeColorArrayNameInternal(name);
   this->ApplyColors->SetInputArrayToProcess(1, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_EDGES, name);
 }
