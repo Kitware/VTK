@@ -83,6 +83,11 @@ public:
   virtual const char* GetOrientationArrayName();
 
   // Description:
+  // Set/get the maximum text width (in world coordinates) array name.
+  virtual void SetBoundedSizeArrayName(const char* name);
+  virtual const char* GetBoundedSizeArrayName();
+
+  // Description:
   // Set/get the text property assigned to the hierarchy.
   virtual void SetTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);

@@ -50,9 +50,10 @@ class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrat
   // Description:
   // Render a label at a location in world coordinates.
   // Must be performed between StartFrame() and EndFrame() calls.
-  virtual void RenderLabel(double x[3], vtkTextProperty* tprop, vtkStdString label)
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
     { this->Superclass::RenderLabel(x, tprop, label); }
-  virtual void RenderLabel(double x[3], vtkTextProperty* tprop, vtkUnicodeString label);
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label);
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth);
   //ETX
 
   // Description:

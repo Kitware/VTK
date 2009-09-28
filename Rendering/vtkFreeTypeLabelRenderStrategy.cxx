@@ -21,8 +21,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFreeTypeLabelRenderStrategy, "1.1");
+vtkCxxRevisionMacro(vtkFreeTypeLabelRenderStrategy, "1.2");
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 
 //----------------------------------------------------------------------------
@@ -42,10 +43,15 @@ vtkFreeTypeLabelRenderStrategy::~vtkFreeTypeLabelRenderStrategy()
   this->Actor->Delete();
 }
 
+//double compute_bounds_time1 = 0;
+//int compute_bounds_iter1 = 0;
 //----------------------------------------------------------------------------
 void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
   vtkTextProperty* tprop, vtkUnicodeString label, double bds[4])
 {
+  //vtkTimerLog* timer = vtkTimerLog::New();
+  //timer->StartTimer();
+
   // Check for empty string.
   vtkStdString str;
   label.utf8_str(str);
@@ -106,12 +112,24 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
       bds[3] -= sz[1];
       break;
   }
+  //timer->StopTimer();
+  //compute_bounds_time1 += timer->GetElapsedTime();
+  //compute_bounds_iter1++;
+  //if (compute_bounds_iter1 % 10000 == 0)
+  //  {
+  //  cerr << "ComputeLabelBounds time: " << (compute_bounds_time1 / compute_bounds_iter1) << endl;
+  //  }
 }
 
+//double render_label_time1 = 0;
+//int render_label_iter1 = 0;
 //----------------------------------------------------------------------------
 void vtkFreeTypeLabelRenderStrategy::RenderLabel(
-  double x[3], vtkTextProperty* tprop, vtkUnicodeString label)
+  int x[2], vtkTextProperty* tprop, vtkUnicodeString label)
 {
+  //vtkTimerLog* timer = vtkTimerLog::New();
+  //timer->StartTimer();
+
   if (!this->Renderer)
     {
     vtkErrorMacro("Renderer must be set before rendering labels.");
@@ -123,9 +141,16 @@ void vtkFreeTypeLabelRenderStrategy::RenderLabel(
     }
   this->Mapper->SetTextProperty(tprop);
   this->Mapper->SetInput(label.utf8_str());
-  this->Actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
-  this->Actor->GetPositionCoordinate()->SetValue(x);
+  this->Actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+  this->Actor->GetPositionCoordinate()->SetValue(x[0], x[1], 0.0);
   this->Mapper->RenderOverlay(this->Renderer, this->Actor);
+  //timer->StopTimer();
+  //render_label_time1 += timer->GetElapsedTime();
+  //render_label_iter1++;
+  //if (render_label_iter1 % 100 == 0)
+  //  {
+  //  cerr << "RenderLabel time: " << (render_label_time1 / render_label_iter1) << endl;
+  //  }
 }
 
 //----------------------------------------------------------------------------

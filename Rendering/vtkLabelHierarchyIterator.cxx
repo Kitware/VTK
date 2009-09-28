@@ -35,7 +35,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.10");
+vtkCxxRevisionMacro(vtkLabelHierarchyIterator, "1.11");
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,Hierarchy,vtkLabelHierarchy);
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,TraversedBounds,vtkPolyData);
 
@@ -158,6 +158,25 @@ double vtkLabelHierarchyIterator::GetOrientation()
     return 0.0;
     }
   return arr->GetTuple1(this->GetLabelId());
+}
+
+void vtkLabelHierarchyIterator::GetBoundedSize( double sz[2] )
+{
+  if ( ! this->GetHierarchy() )
+    {
+    sz[0] = sz[1] = 0.;
+    return;
+    }
+  vtkDataArray* boundedSizeArr = this->GetHierarchy()->GetBoundedSizes();
+  if ( ! boundedSizeArr )
+    {
+    sz[0] = sz[1] = 0.;
+    return;
+    }
+  vtkIdType lid = this->GetLabelId();
+  double* ls = boundedSizeArr->GetTuple( lid );
+  sz[0] = ls[0];
+  sz[1] = ls[1];
 }
 
 void vtkLabelHierarchyIterator::BoxNode()

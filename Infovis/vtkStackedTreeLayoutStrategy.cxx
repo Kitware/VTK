@@ -40,7 +40,7 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
@@ -84,17 +84,19 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
     return;
     }
 
+  vtkDataSetAttributes* data = inputTree->GetVertexData();
+
   VTK_CREATE(vtkDoubleArray, textRotationArray);
-//  VTK_CREATE(vtkDoubleArray, textRadiusArray);
   textRotationArray->SetName( "TextRotation" );
   textRotationArray->SetNumberOfComponents(1);
   textRotationArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
-//  textRadiusArray->SetName( "TextRadius" );
-//  textRadiusArray->SetNumberOfComponents(1);
-//  textRadiusArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
-  vtkDataSetAttributes* data = inputTree->GetVertexData();
   data->AddArray( textRotationArray );
-//  data->AddArray( textRadiusArray );
+
+  VTK_CREATE(vtkDoubleArray, textBoundedSizeArray);
+  textBoundedSizeArray->SetName( "TextBoundedSize" );
+  textBoundedSizeArray->SetNumberOfComponents(2);
+  textBoundedSizeArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
+  data->AddArray( textBoundedSizeArray );
 
   double outer_radius = 0.0;
   if (this->Reverse)
@@ -154,7 +156,8 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
       z = 0.;  
 
       textRotationArray->SetValue( i, 0 );
-//      textRadiusArray->SetValue( i, 0 );
+      textBoundedSizeArray->SetValue( 2*i, sector_coords[1] - sector_coords[0]);
+      textBoundedSizeArray->SetValue( 2*i + 1, sector_coords[3] - sector_coords[2] );
       }
     else
       {
@@ -163,7 +166,8 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
         x = y = z = 0.;
 
         textRotationArray->SetValue( i, 0 );
-//        textRadiusArray->SetValue( i, 0 );
+        textBoundedSizeArray->SetValue( 2*i, 0 );
+        textBoundedSizeArray->SetValue( 2*i + 1, 0 );
         }
       else
         {
@@ -188,7 +192,8 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
             {
             textRotationArray->SetValue( i, theta + 90. );
             }
-//          textRadiusArray->SetValue( i, r );
+          textBoundedSizeArray->SetValue( 2*i, sector_arc_length );
+          textBoundedSizeArray->SetValue( 2*i + 1, radial_arc_length );
           }
         else
           {
@@ -202,7 +207,8 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
             {
             textRotationArray->SetValue( i, theta );
             }
-//          textRadiusArray->SetValue( i, 0 );
+          textBoundedSizeArray->SetValue( 2*i, radial_arc_length );
+          textBoundedSizeArray->SetValue( 2*i + 1, sector_arc_length );
           }
         }
       }

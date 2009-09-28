@@ -441,7 +441,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.4");
+vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.5");
 vtkStandardNewMacro(vtkLabelPlacementMapper);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, AnchorTransform, vtkCoordinate);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, RenderStrategy, vtkLabelRenderStrategy);
@@ -519,6 +519,9 @@ int vtkLabelPlacementMapper::FillInputPortInformation(
 void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
                                             vtkActor2D *vtkNotUsed(actor))
 {
+  vtkSmartPointer<vtkTimerLog> log = vtkSmartPointer<vtkTimerLog>::New();
+  log->StartTimer();
+
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
   if ( ! ren )
     {
@@ -589,7 +592,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
   double ur[2];
   double x[3];
   double sz[4];
-  int* origin;
+  int origin[2];
   int dispx[2];
   double frustumPlanes[24];
   double aspect = ren->GetTiledAspectRatio();
@@ -691,7 +694,9 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
       }
 
     this->AnchorTransform->SetValue( x );
-    origin = this->AnchorTransform->GetComputedDisplayValue( ren );
+    int* originPtr = this->AnchorTransform->GetComputedDisplayValue( ren );
+    origin[0] = originPtr[0];
+    origin[1] = originPtr[1];
 
     // Determine the label bounds
     vtkTextProperty* tprop = inIter->GetHierarchy()->GetTextProperty();
@@ -736,6 +741,56 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     if ( ll[1] > kdbounds[3] || ur[1] < kdbounds[2] || ll[0] > kdbounds[1] || ll[1] < kdbounds[0] )
       {
       continue; // cull label not in frame
+      }
+
+    // Special case: if there are bounded sizes, try to render every one we encounter.
+    if ( this->RenderStrategy->SupportsBoundedSize() && inIter->GetHierarchy()->GetBoundedSizes() )
+      {
+      double p[3] = { origin[0], origin[1], 0.0 };
+      double boundedSize[2];
+      inIter->GetBoundedSize( boundedSize );
+
+      // Figure out if width is too small to fit
+      double xWidth[3] = {x[0] + boundedSize[0], x[1], x[2]};
+      this->AnchorTransform->SetValue( xWidth );
+      int* origin2 = this->AnchorTransform->GetComputedDisplayValue( ren );
+      double pWidth[3] = { origin2[0], origin2[1], 0.0 };
+      int width = static_cast<int>(sqrt(vtkMath::Distance2BetweenPoints(p, pWidth)));
+      if ( width < 20 )
+        {
+        continue;
+        }
+
+      // Figure out if height is too small to fit
+      double xHeight[3] = {x[0], x[1] + boundedSize[1], x[2]};
+      this->AnchorTransform->SetValue( xHeight );
+      origin2 = this->AnchorTransform->GetComputedDisplayValue( ren );
+      double pHeight[3] = { origin2[0], origin2[1], 0.0 };
+      int height = static_cast<int>(sqrt(vtkMath::Distance2BetweenPoints(p, pHeight)));
+      if ( height < bds[3] - bds[2] )
+        {
+        continue;
+        }
+
+      // Label is not text
+      if ( labelType != 0 )
+        {
+        continue;
+        }
+
+      // Render it
+      if( this->UseUnicodeStrings )
+        {
+        this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetUnicodeLabel(), width );
+        }
+      else
+        {
+        this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetLabel(), width );
+        }
+      int renderedHeight = bds[3] - bds[2];
+      int renderedWidth = (bds[1] - bds[0] < width) ? (bds[1] - bds[0]) : width;
+      renderedLabelArea += static_cast<unsigned long>( renderedWidth * renderedHeight );
+      continue;
       }
 
     if ( this->Debug )
@@ -785,11 +840,11 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
         // label is text
         if( this->UseUnicodeStrings )
           {
-          this->RenderStrategy->RenderLabel( x, tpropCopy, inIter->GetUnicodeLabel() );
+          this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetUnicodeLabel() );
           }
         else
           {
-          this->RenderStrategy->RenderLabel( x, tpropCopy, inIter->GetLabel() );
+          this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetLabel() );
           }
 
         // TODO: 1. Perturb coincident points.
@@ -837,6 +892,8 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
   timer->StopTimer();
   vtkDebugMacro("Iteration time: " << timer->GetElapsedTime());
+  log->StopTimer();
+  //cerr << log->GetElapsedTime() << endl;
 }
 
 //----------------------------------------------------------------------------

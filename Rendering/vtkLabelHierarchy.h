@@ -138,6 +138,11 @@ public:
   virtual void SetSizes(vtkDataArray* arr);
   vtkGetObjectMacro(Sizes,vtkDataArray);
 
+  // Description:
+  // Set/get the array specifying the maximum width and height in world coordinates of each label.
+  virtual void SetBoundedSizes(vtkDataArray* arr);
+  vtkGetObjectMacro(BoundedSizes,vtkDataArray);
+
   //BTX
   // Description:
   // Returns an iterator for this data object.
@@ -213,6 +218,7 @@ protected:
   vtkDataArray* Orientations;
   vtkIntArray* IconIndices;
   vtkDataArray* Sizes;
+  vtkDataArray* BoundedSizes;
   vtkCoincidentPoints* CoincidentPoints;
   vtkPoints* CenterPts;
   vtkTextProperty* TextProperty;

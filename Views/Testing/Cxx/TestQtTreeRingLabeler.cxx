@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 #include "vtkTreeRingView.h"
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
@@ -39,33 +40,21 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
-  string treeFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
-  string graphFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
+  string treeFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
 
-  // We need to put the graph and tree edges in different domains.
-  VTK_CREATE(vtkXMLTreeReader, reader1);
-  reader1->SetFileName(treeFileName.c_str());
-  reader1->SetEdgePedigreeIdArrayName("tree edge");
-  reader1->GenerateVertexPedigreeIdsOff();
-  reader1->SetVertexPedigreeIdArrayName("id");
+  VTK_CREATE(vtkXMLTreeReader, reader);
+  reader->SetFileName(treeFileName.c_str());
+  reader->SetEdgePedigreeIdArrayName("graph edge");
+  reader->GenerateVertexPedigreeIdsOff();
+  reader->SetVertexPedigreeIdArrayName("id");
 
-  VTK_CREATE(vtkXMLTreeReader, reader2);
-  reader2->SetFileName(graphFileName.c_str());
-  reader2->SetEdgePedigreeIdArrayName("graph edge");
-  reader2->GenerateVertexPedigreeIdsOff();
-  reader2->SetVertexPedigreeIdArrayName("id");
-
-  reader1->Update();
-  reader2->Update();
+  reader->Update();
 
   VTK_CREATE(vtkTreeRingView, view);
-  view->SetTreeFromInputConnection(reader2->GetOutputPort());
-  view->SetGraphFromInputConnection(reader1->GetOutputPort());
+  view->SetTreeFromInputConnection(reader->GetOutputPort());
   view->Update();
-  view->SetLabelPlacementModeToNoOverlap();
   view->SetLabelRenderModeToQt();
   view->SetAreaColorArrayName("VertexDegree");
-  //view->SetEdgeColorArrayName("tree edge");
   view->SetEdgeColorToSplineFraction();
   view->SetColorEdges(true);
   view->SetAreaLabelArrayName("id");
@@ -75,6 +64,7 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
+  theme->GetPointTextProperty()->SetColor(0, 0, 0);
   view->ApplyViewTheme(theme);
   theme->Delete();
 

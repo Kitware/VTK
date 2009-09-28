@@ -34,6 +34,8 @@ class vtkConvertSelection;
 class vtkEdgeCenters;
 class vtkExtractSelectedPolyDataIds;
 class vtkLabeledDataMapper;
+class vtkPointSetToLabelHierarchy;
+class vtkPolyData;
 class vtkPolyDataAlgorithm;
 class vtkPolyDataMapper;
 class vtkScalarBarWidget;
@@ -258,6 +260,8 @@ protected:
   vtkPolyDataAlgorithm*                            AreaToPolyData;
   vtkLabeledDataMapper*                            AreaLabelMapper;
   vtkSmartPointer<vtkScalarBarWidget>              EdgeScalarBar;
+  vtkSmartPointer<vtkPointSetToLabelHierarchy>     AreaLabelHierarchy;
+  vtkSmartPointer<vtkPolyData>                     EmptyPolyData;
   //ETX
   
   vtkSetStringMacro(AreaSizeArrayNameInternal);

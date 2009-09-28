@@ -41,7 +41,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy, "1.11");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy, "1.12");
 vtkCxxSetObjectMacro(vtkPointSetToLabelHierarchy, TextProperty, vtkTextProperty);
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
@@ -51,10 +51,11 @@ vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
   this->UseUnicodeStrings = false;
   this->TextProperty = vtkTextProperty::New();
   this->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::POINT, "Priority" );
-  this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::POINT, "LabelSize" );
+  this->SetInputArrayToProcess( 1, 0, 0, vtkDataObject::POINT, "LabelSize" );
   this->SetInputArrayToProcess( 2, 0, 0, vtkDataObject::POINT, "LabelText" );
   this->SetInputArrayToProcess( 3, 0, 0, vtkDataObject::POINT, "IconIndex" );
   this->SetInputArrayToProcess( 4, 0, 0, vtkDataObject::POINT, "Orientation" );
+  this->SetInputArrayToProcess( 5, 0, 0, vtkDataObject::POINT, "BoundedSize" );
 }
 
 vtkPointSetToLabelHierarchy::~vtkPointSetToLabelHierarchy()
@@ -122,6 +123,18 @@ const char* vtkPointSetToLabelHierarchy::GetOrientationArrayName()
 {
   vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
     GetInformationObject( 4 );
+  return info->Get( vtkDataObject::FIELD_NAME() );
+}
+
+void vtkPointSetToLabelHierarchy::SetBoundedSizeArrayName(const char* name)
+{
+  this->SetInputArrayToProcess( 5, 0, 0, vtkDataObject::POINT, name );
+}
+
+const char* vtkPointSetToLabelHierarchy::GetBoundedSizeArrayName()
+{
+  vtkInformation* info = this->GetInformation()->Get( vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS() )->
+    GetInformationObject( 5 );
   return info->Get( vtkDataObject::FIELD_NAME() );
 }
 
@@ -210,6 +223,8 @@ int vtkPointSetToLabelHierarchy::RequestData(
     this->GetInputAbstractArrayToProcess( 3, inputVector ) );
   vtkDataArray* orientations = vtkDataArray::SafeDownCast(
     this->GetInputAbstractArrayToProcess( 4, inputVector ) );
+  vtkDataArray* boundedSizes = vtkDataArray::SafeDownCast(
+    this->GetInputAbstractArrayToProcess( 5, inputVector ) );
 
   if ( ! ouData->GetPoints() )
     {
@@ -279,6 +294,7 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->SetIconIndices( iconIndices );
   ouData->SetOrientations( orientations );
   ouData->SetSizes( sizes );
+  ouData->SetBoundedSizes( boundedSizes );
   ouData->SetTextProperty( this->TextProperty );
   ouData->ComputeHierarchy();
 

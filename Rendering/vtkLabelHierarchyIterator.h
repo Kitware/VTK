@@ -63,6 +63,10 @@ public:
   virtual void GetSize( double sz[2] );
 
   // Description:
+  // Retrieves the current label maximum width in world coordinates.
+  virtual void GetBoundedSize( double sz[2] );
+
+  // Description:
   // Retrieves the current label type.
   virtual int GetType();
 

@@ -42,6 +42,15 @@ class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
     { return true; }
 
   // Description:
+  // Whether the text rendering strategy supports bounded size.
+  // The superclass returns true. Subclasses should override this to
+  // return the appropriate value. Subclasses that return true
+  // from this method should implement the version of RenderLabel()
+  // that takes a maximum size (see RenderLabel()).
+  virtual bool SupportsBoundedSize()
+    { return true; }
+
+  // Description:
   // Set the renderer associated with this strategy.
   virtual void SetRenderer(vtkRenderer* ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
@@ -60,12 +69,20 @@ class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]) = 0;
 
   // Description:
-  // Render a label at a location in world coordinates.
+  // Render a label at a location in display coordinates.
   // Must be performed between StartFrame() and EndFrame() calls.
   // Only the unicode string version must be implemented in subclasses.
-  virtual void RenderLabel(double x[3], vtkTextProperty* tprop, vtkStdString label)
+  // The optional final parameter maxWidth specifies a maximum width for the label.
+  // Longer labels can be shorted with an ellipsis (...). Only renderer strategies
+  // that return true from SupportsBoundedSize must implement this version of th
+  // method.
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
     { this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label)); }
-  virtual void RenderLabel(double x[3], vtkTextProperty* tprop, vtkUnicodeString label) = 0;
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
+    { this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label), maxWidth); }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) = 0;
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int vtkNotUsed(maxWidth))
+    { this->RenderLabel(x, tprop, label); }
   //ETX
 
   // Description:
