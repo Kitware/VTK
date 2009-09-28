@@ -48,20 +48,30 @@ vtkLight light
 # Create the Renderers.  Assign them the appropriate viewport coordinates,
 # active camera, and light.
 vtkRenderer ren1
-    ren1 SetViewport 0 0 0.5 1.0
+    ren1 SetViewport 0 0 0.5 0.5
     ren1 SetActiveCamera camera
     ren1 AddLight light
 vtkRenderer ren2
-    ren2 SetViewport 0.5 0 1.0 1.0
+    ren2 SetViewport 0.5 0 1.0 0.5
     ren2 SetActiveCamera camera
     ren2 AddLight light
+vtkRenderer ren3
+    ren3 SetViewport 0 0.5 0.5 1.0
+    ren3 SetActiveCamera camera
+    ren3 AddLight light
+vtkRenderer ren4
+    ren4 SetViewport 0.5 0.5 1.0 1.0
+    ren4 SetActiveCamera camera
+    ren4 AddLight light
 
 # Create the RenderWindow and RenderWindowInteractor.
 vtkRenderWindow renWin
     renWin AddRenderer ren1
     renWin AddRenderer ren2
+    renWin AddRenderer ren3
+    renWin AddRenderer ren4
     renWin SetWindowName "VTK - Cube Axes"
-    renWin SetSize 600 300
+    renWin SetSize 800 800
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
@@ -71,9 +81,15 @@ ren1 AddViewProp foheActor
 ren1 AddViewProp outlineActor
 ren2 AddViewProp foheActor
 ren2 AddViewProp outlineActor
+ren3 AddViewProp foheActor
+ren3 AddViewProp outlineActor
+ren4 AddViewProp foheActor
+ren4 AddViewProp outlineActor
 
 ren1 SetBackground 0.1 0.2 0.4
 ren2 SetBackground 0.1 0.2 0.4
+ren3 SetBackground 0.1 0.2 0.4
+ren4 SetBackground 0.1 0.2 0.4
 
 # Create a text property for both cube axes
 #
@@ -87,7 +103,7 @@ vtkCubeAxesActor2D axes
     axes SetInput [normals GetOutput]
     axes SetCamera [ren1 GetActiveCamera]
     axes SetLabelFormat "%6.4g"
-    axes SetFlyModeToOuterEdges
+    axes SetFlyModeToClosestTriad
     axes SetFontFactor 0.8
     axes SetAxisTitleTextProperty tprop
     axes SetAxisLabelTextProperty tprop
@@ -105,6 +121,33 @@ vtkCubeAxesActor2D axes2
     axes2 SetAxisTitleTextProperty tprop
     axes2 SetAxisLabelTextProperty tprop
 ren2 AddViewProp axes2 
+
+# No fly mode.
+vtkCubeAxesActor2D axes3
+    axes3 SetViewProp foheActor
+    axes3 SetCamera [ren3 GetActiveCamera]
+    axes3 SetLabelFormat "%6.4g"
+    axes3 SetFlyModeToNone
+    axes3 SetFontFactor 0.8
+    axes3 ScalingOff
+    axes3 SetAxisTitleTextProperty tprop
+    axes3 SetAxisLabelTextProperty tprop
+ren3 AddViewProp axes3 
+
+# No fly mode + set a custom z origin.
+vtkCubeAxesActor2D axes4
+    axes4 SetViewProp foheActor
+    axes4 SetCamera [ren4 GetActiveCamera]
+    axes4 SetLabelFormat "%6.4g"
+    axes4 SetFlyModeToNone
+    axes4 SetFontFactor 0.8
+    axes4 ScalingOff
+    axes4 SetAxisTitleTextProperty tprop
+    axes4 SetAxisLabelTextProperty tprop
+    axes4 SetZOrigin 0.0
+    axes4 ZAxisVisibilityOff
+ren4 AddViewProp axes4 
+
 
 # Render
 renWin Render

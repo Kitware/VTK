@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.55");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.56");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -94,6 +94,12 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   sprintf(this->YLabel,"%s","Y");
   this->ZLabel = new char[2];
   sprintf(this->ZLabel,"%s","Z");
+
+  // Allow the user to specify an origin for the axes. The axes will then run 
+  // from this origin to the bounds and will cross over at this origin.  
+  this->XOrigin = VTK_DOUBLE_MAX;  
+  this->YOrigin = VTK_DOUBLE_MAX;  
+  this->ZOrigin = VTK_DOUBLE_MAX;  
 }
 
 //----------------------------------------------------------------------------
@@ -223,6 +229,21 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   // determine the bounds to use
   this->GetBounds(bounds);
 
+  // Check for user specified origins. By default, these are placed at a corner of the
+  // bounding box of the dataset (corner is based on the fly mode)
+  if (this->XOrigin != VTK_DOUBLE_MAX)
+    {
+    bounds[0] = this->XOrigin;
+    }
+  if (this->YOrigin != VTK_DOUBLE_MAX)
+    {
+    bounds[2] = this->YOrigin;
+    }
+  if (this->ZOrigin != VTK_DOUBLE_MAX)
+    {
+    bounds[4] = this->ZOrigin;
+    }
+
   // Build the axes (almost always needed so we don't check mtime)
   // Transform all points into display coordinates
   this->TransformBounds(viewport, bounds, pts);
@@ -239,7 +260,18 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     // Okay, we have a bounding box, maybe clipped and scaled, that is visible.
     // We setup the axes depending on the fly mode.
-    if ( this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
+    if (this->FlyMode == VTK_FLY_NONE)
+      {
+      idx = 2; // Just use the default axis orientation.
+      xAxes = 0;
+      xIdx = Conn[idx][0];
+      yAxes = 1;
+      yIdx = Conn[idx][1];
+      zAxes = 2;
+      zIdx = idx;
+      zIdx2 = Conn[idx][2];
+      } 
+    else if ( this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
       {
       // Loop over points and find the closest point to the camera
       min = VTK_DOUBLE_MAX;
@@ -261,7 +293,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
       zIdx = idx;
       zIdx2 = Conn[idx][2];
       }
-    else
+    else if (this->FlyMode == VTK_FLY_OUTER_EDGES)
       {
       double e1[2], e2[2], e3[2];
 
@@ -766,11 +798,15 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Fly Mode: CLOSEST_TRIAD\n";
     }
-  else
+  else if (this->FlyMode == VTK_FLY_OUTER_EDGES)
     {
     os << indent << "Fly Mode: OUTER_EDGES\n";
     }
-
+  else if (this->FlyMode == VTK_FLY_NONE)
+    {
+    os << indent << "Fly Mode: Disabled\n";
+    }
+  
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
   os << indent << "UseRanges: " << (this->UseRanges ? "On\n" : "Off\n");
   os << indent << "Ranges: \n";
@@ -800,6 +836,18 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
      << this->Ranges[2] << ", " << this->Ranges[3] << ", "
      << this->Ranges[4] << ", " << this->Ranges[5] << "\n";
   os << indent << "Show Actual Bounds: " << (this->ShowActualBounds ? "On\n" : "Off\n");
+  if (this->XOrigin != VTK_DOUBLE_MAX)
+    {
+    os << indent << "User specified X Origin: " << this->XOrigin << endl;
+    }
+  if (this->YOrigin != VTK_DOUBLE_MAX)
+    {
+    os << indent << "User specified Y Origin: " << this->YOrigin << endl;
+    }
+  if (this->ZOrigin != VTK_DOUBLE_MAX)
+    {
+    os << indent << "User specified Z Origin: " << this->ZOrigin << endl;
+    }
 }
 
 //----------------------------------------------------------------------------

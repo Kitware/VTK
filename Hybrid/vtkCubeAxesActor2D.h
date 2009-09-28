@@ -47,6 +47,7 @@
 
 #define VTK_FLY_OUTER_EDGES 0
 #define VTK_FLY_CLOSEST_TRIAD 1
+#define VTK_FLY_NONE 2
 
 class vtkAxisActor2D;
 class vtkCamera;
@@ -111,6 +112,14 @@ public:
   void GetRanges(double ranges[6]);  
 
   // Description:
+  // Explicitly specify an origin for the axes. These usually intersect at one of the
+  // corners of the bounding box, however users have the option to override this if
+  // necessary
+  vtkSetMacro( XOrigin, double );
+  vtkSetMacro( YOrigin, double );
+  vtkSetMacro( ZOrigin, double );
+
+  // Description:
   // Set/Get a flag that controls whether the axes use the data ranges
   // or the ranges set by SetRanges. By default the axes use the data
   // ranges.
@@ -126,13 +135,16 @@ public:
 
   // Description:
   // Specify a mode to control how the axes are drawn: either outer edges
-  // or closest triad to the camera position.
-  vtkSetClampMacro(FlyMode, int, VTK_FLY_OUTER_EDGES, VTK_FLY_CLOSEST_TRIAD);
+  // or closest triad to the camera position, or you may also disable flying 
+  // of the axes.
+  vtkSetClampMacro(FlyMode, int, VTK_FLY_OUTER_EDGES, VTK_FLY_NONE);
   vtkGetMacro(FlyMode, int);
   void SetFlyModeToOuterEdges()
     {this->SetFlyMode(VTK_FLY_OUTER_EDGES);};
   void SetFlyModeToClosestTriad()
     {this->SetFlyMode(VTK_FLY_CLOSEST_TRIAD);};
+  void SetFlyModeToNone()
+    {this->SetFlyMode(VTK_FLY_NONE);};
 
   // Description:
   // Set/Get a flag that controls whether the axes are scaled to fit in
@@ -329,6 +341,10 @@ protected:
   
   // Always show the actual bounds of the object
   int ShowActualBounds;
+
+  double XOrigin;
+  double YOrigin;
+  double ZOrigin;
   
   // various helper methods
   void TransformBounds(vtkViewport *viewport, double bounds[6], 
