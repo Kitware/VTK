@@ -62,6 +62,14 @@
 
 #include <math.h>
 
+//copied from vtkQtChartSeriesModelRange.cxx
+#ifndef isnan
+// This is compiler specific not platform specific: MinGW doesn't need that.
+# if defined(_MSC_VER) || defined(__BORLANDC__)
+#  include <float.h>
+#  define isnan(x) _isnan(x)
+# endif
+#endif
 
 class vtkQtLineChartSeries
 {
@@ -74,6 +82,7 @@ public:
 
 public:
   QPolygonF Polyline;
+  QVector<QLineF> DrawableLines;
   vtkQtPointMarker *Marker;
   QList<vtkQtChartShape *> Points;
   QList<vtkQtChartShape *> Lines;
@@ -132,7 +141,7 @@ public:
 
 //-----------------------------------------------------------------------------
 vtkQtLineChartSeries::vtkQtLineChartSeries()
-  : Polyline(), Points(), Lines(), Highlights()
+  : Polyline(), Points(), Lines(), Highlights(), DrawableLines()
 {
   this->Marker = new vtkQtPointMarker(QSizeF(5.0, 5.0),
       vtkQtPointMarker::Circle);
@@ -566,6 +575,8 @@ void vtkQtLineChart::layoutChart(const QRectF &area)
           penWidth = 1.0;
           }
 
+        series->DrawableLines.clear();
+        series->DrawableLines.reserve(series->Polyline.size()-1);
         QPolygonF::Iterator point = series->Polyline.begin();
         for(int j = 0; point != series->Polyline.end(); ++point, ++j)
           {
@@ -590,6 +601,13 @@ void vtkQtLineChart::layoutChart(const QRectF &area)
             // Update the quad for the line segment.
             this->Internal->setLineSegment(series->Lines[j - 1], last, *point,
               penWidth + 1.0);
+
+            //update the Drawable Lines
+            if (!isnan(last.x()) && !isnan(last.y()) &&
+                !isnan((*point).x()) && !isnan((*point).y()))
+              {
+              series->DrawableLines.append(QLineF(last,*point));
+              }
             }
 
           last = *point;
@@ -829,11 +847,13 @@ void vtkQtLineChart::paint(QPainter *painter,
       {
       painter->save();
       painter->setClipRect(clipArea);
+
       if(series->Highlighted)
         {
         // If the series is highlighted, draw in a wider line behind it.
         painter->setPen(widePen);
-        painter->drawPolyline(series->Polyline);
+        //painter->drawPolyline(series->Polyline);
+        painter->drawLines(series->DrawableLines);
 
         painter->setPen(lightPen);
         }
@@ -843,7 +863,8 @@ void vtkQtLineChart::paint(QPainter *painter,
         }
 
       // Draw the polyline.
-      painter->drawPolyline(series->Polyline);
+      //painter->drawPolyline(series->Polyline);
+      painter->drawLines(series->DrawableLines);
       painter->restore();
       }
 
@@ -987,6 +1008,8 @@ void vtkQtLineChart::insertSeries(int first, int last)
       // Make space for the series points.
       int points = this->Model->getNumberOfSeriesValues(i);
       item->Polyline.resize(points);
+      //can't resize since there might not actually be points-1 lines if the series contains NaN's
+      item->DrawableLines.reserve(points-1);
 
       // Build the shape list for the series.
       item->buildLists(i, points, options->getMarkerStyle());
