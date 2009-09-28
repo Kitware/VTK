@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.65");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.65.6.1");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -93,40 +93,66 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
     sfilename = fileName;
     }
   
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
-  if (this->IS->fail())
+  // In-file forward time step shifting 
+  // for accelerated data loading (bug #9289)
+  if (    this->UseFileSets
+       && this->ForwardTimeStepShiftIS
+       && this->ForwardTimeStepShiftMode
+     )
     {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    delete this->IS;
-    this->IS = NULL;
-    return 0;
-    }
-  
-  this->ReadNextDataLine(line);
-  sscanf(line, " %*s %s", subLine);
-  if (strncmp(subLine, "Binary",6) == 0)
-    {
-    vtkErrorMacro("This is a binary data set. Try "
-                  <<"vtkEnSightGoldBinaryReader.");
-    return 0;
-    }
-  
-  if (this->UseFileSets)
-    {
-    for (i = 0; i < timeStep - 1; i++)
+    this->IS = this->ForwardTimeStepShiftIS;
+    for ( i = this->PreviousTimeStepInFile; i < timeStep - 1; i ++ )
       {
-      while (strncmp(line, "END TIME STEP", 13) != 0)
+      while (  strncmp( line, "END TIME STEP", 13 ) != 0  )
         {
-        this->ReadLine(line);
+        this->ReadLine( line );
         }
-      this->ReadLine(line);
+      this->ReadLine( line );
       }
-    
-    while(strncmp(line, "BEGIN TIME STEP", 15) != 0)
+        
+    while (  strncmp( line, "BEGIN TIME STEP", 15 ) != 0  )
       {
-      this->ReadNextDataLine(line);
+      this->ReadNextDataLine( line );
       }
-    this->ReadLine(line);
+    this->ReadLine( line );
+    }
+  else
+    {
+    this->IS = new ifstream( sfilename.c_str(), ios::in ); 
+    if ( this->IS->fail() )
+      {
+      vtkErrorMacro( "Unable to open file: " << sfilename.c_str() );
+      delete this->IS;
+      this->IS = NULL;
+      return 0;
+      }
+  
+    this->ReadNextDataLine( line );
+    sscanf( line, " %*s %s", subLine );
+    if (  strncmp( subLine, "Binary", 6 ) == 0  )
+      {
+      vtkErrorMacro( "This is a binary data set. Try "
+                     << "vtkEnSightGoldBinaryReader." );
+      return 0;
+      }
+  
+    if ( this->UseFileSets )
+      {
+      for ( i = 0; i < timeStep - 1; i ++ )
+        {
+        while (  strncmp( line, "END TIME STEP", 13 ) != 0  )
+          {
+          this->ReadLine( line );
+          }
+        this->ReadLine( line );
+        }
+    
+      while(  strncmp( line, "BEGIN TIME STEP", 15 ) != 0  )
+        {
+        this->ReadNextDataLine( line );
+        }
+      this->ReadLine( line );
+      }
     }
 
   // Skip description lines.  Using ReadLine instead of
@@ -226,6 +252,10 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
       if (lineRead < 0)
         {
         free(name);
+        if (  this->ForwardTimeStepShiftMode  )
+          {
+          this->ForwardTimeStepShiftIS = NULL;
+          }                                    
         delete this->IS;
         this->IS = NULL;
         return 0;
@@ -234,8 +264,23 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
     free(name);
     }
   
-  delete this->IS;
+  // In-file forward time step shifting 
+  // for accelerated data loading (bug #9289)
+  if ( !this->ForwardTimeStepShiftMode && this->ForwardTimeStepShiftIS )
+    {
+    delete this->ForwardTimeStepShiftIS;
+    this->ForwardTimeStepShiftIS = NULL;
+    }
+  this->ForwardTimeStepShiftIS = this->IS;
   this->IS = NULL;
+  if (    this->ForwardTimeStepShiftIS
+       && this->ForwardTimeStepShiftMode == FORWARD_TIME_STEP_SHIFT_END
+     )
+    {
+    delete this->ForwardTimeStepShiftIS;
+    this->ForwardTimeStepShiftIS = NULL;
+    }
+    
   return 1;
 }
 
