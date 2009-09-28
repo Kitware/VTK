@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.84.6.1");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.84.6.2");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -365,7 +365,7 @@ int vtkEnSightReader::RequestData(
     // set the forward time step shifting mode
     // for accelerated data loading (bug #9289)
     if (    (  strcmp( prevFileName, fileName ) == 0  )
-         && (  timeStepInFile >  PreviousTimeStepInFile )
+         && (  timeStepInFile >  this->PreviousTimeStepInFile )
          && (  timeStepInFile <= numStepsList->GetId( fileNum - 1 )  )
        )
       {
@@ -395,7 +395,7 @@ int vtkEnSightReader::RequestData(
     // of forward time step shifting for accelerated data loading (bug #9289) 
     strcpy( prevFileName, fileName );
     prevFileName[ strlen( fileName ) ] = '\0';
-    PreviousTimeStepInFile = timeStepInFile;
+    this->PreviousTimeStepInFile = timeStepInFile;
     
     delete [] fileName;
     fileName = NULL;
