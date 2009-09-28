@@ -1395,7 +1395,7 @@ private:
 };
 
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.57");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.58");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1577,7 +1577,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.57");
+vtkCxxRevisionMacro(vtkExodusReader, "1.58");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4000,6 +4000,13 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
 
     // Get the data into the temp int array
     ex_get_node_num_map(this->CurrentHandle, exo_array_data);
+cerr << "node num map : ";
+for (i = 0; i < this->NumberOfNodesInFile; i ++)
+{
+  cerr << exo_array_data[i] << " ";
+}
+cerr << endl;
+
 
     // Okay copy the points that are actually used into the vtk array
     int point_index;

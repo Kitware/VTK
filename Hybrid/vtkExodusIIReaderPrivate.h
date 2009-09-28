@@ -230,6 +230,14 @@ public:
   vtkGetMacro(GenerateGlobalNodeIdArray,int);
   static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }  
 
+  vtkSetMacro(GenerateImplicitElementIdArray,int);
+  vtkGetMacro(GenerateImplicitElementIdArray,int);
+  static const char* GetImplicitElementIdArrayName() { return "ImplicitElementId"; }  
+
+  vtkSetMacro(GenerateImplicitNodeIdArray,int);
+  vtkGetMacro(GenerateImplicitNodeIdArray,int);
+  static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }  
+
   /** Should we generate an array defined over all cells
     * (whether they are members of blocks or sets) indicating the source file?
     */
@@ -780,6 +788,8 @@ protected:
   int GenerateFileIdArray;
   int GenerateGlobalElementIdArray;
   int GenerateGlobalNodeIdArray;
+  int GenerateImplicitElementIdArray;
+  int GenerateImplicitNodeIdArray;
 
   /** Defaults to 0. Set by vtkPExodusIIReader on each entry of ReaderList.
     * Used to generate the file ID array over all output cells.

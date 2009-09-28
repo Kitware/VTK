@@ -122,6 +122,14 @@ public:
   int GetGenerateGlobalNodeIdArray();
   vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
 
+  virtual void SetGenerateImplicitElementIdArray( int g );
+  int GetGenerateImplicitElementIdArray();
+  vtkBooleanMacro(GenerateImplicitElementIdArray, int);
+
+  virtual void SetGenerateImplicitNodeIdArray( int g );
+  int GetGenerateImplicitNodeIdArray();
+  vtkBooleanMacro(GenerateImplicitNodeIdArray, int);
+
   virtual void SetGenerateFileIdArray( int f );
   int GetGenerateFileIdArray();
   vtkBooleanMacro(GenerateFileIdArray, int);
@@ -182,6 +190,8 @@ public:
     NODE_SET_CONN = 89,        //!< node set connectivity
     NODAL_COORDS = 88,         //!< raw nodal coordinates (not the "squeezed" version)
     OBJECT_ID = 87,            //!< object id (old BlockId) array
+    IMPLICIT_ELEMENT_ID = 108, //!< the implicit global index of each element given by exodus
+    IMPLICIT_NODE_ID = 107,    //!< the implicit global index of each node given by exodus
     GLOBAL_ELEMENT_ID = 86,    //!< element id array extracted for a particular block (yes, this is a bad name)
     GLOBAL_NODE_ID = 85,       //!< nodal id array extracted for a particular block (yes, this is a bad name)
     ELEMENT_ID = 84,           //!< element id map (old-style elem_num_map or first new-style elem map) array
@@ -205,18 +215,21 @@ public:
   static int GetGlobalElementID( vtkDataSet *data, int localID );
   static int GetGlobalElementID ( vtkDataSet *data, int localID, 
       int searchType );
+  static const char* GetImplicitElementIdArrayName() { return "ImplicitElementId"; }
 
   static const char* GetGlobalFaceIdArrayName() { return "GlobalFaceId"; }
   static const char* GetPedigreeFaceIdArrayName() { return "PedigreeFaceId"; }
   static int GetGlobalFaceID( vtkDataSet *data, int localID );
   static int GetGlobalFaceID ( vtkDataSet *data, int localID, 
       int searchType );
+  static const char* GetImplicitFaceIdArrayName() { return "ImplicitFaceId"; }
 
   static const char* GetGlobalEdgeIdArrayName() { return "GlobalEdgeId"; }
   static const char* GetPedigreeEdgeIdArrayName() { return "PedigreeEdgeId"; }
   static int GetGlobalEdgeID( vtkDataSet *data, int localID );
   static int GetGlobalEdgeID ( vtkDataSet *data, int localID, 
       int searchType );
+  static const char* GetImplicitEdgeIdArrayName() { return "ImplicitEdgeId"; }
 
   // Description:
   // Extra point data array that can be generated.  By default, this array
@@ -228,6 +241,7 @@ public:
   static int GetGlobalNodeID( vtkDataSet *data, int localID );
   static int GetGlobalNodeID( vtkDataSet *data, int localID, 
       int searchType );
+  static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }  
 
   // Description:
   // Geometric locations can include displacements.  By default, 
