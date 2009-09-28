@@ -28,6 +28,7 @@
 
 #include "vtkQtBarChart.h"
 
+#include "vtkMath.h"
 #include "vtkQtBarChartOptions.h"
 #include "vtkQtChartArea.h"
 #include "vtkQtChartAxisCornerDomain.h"
@@ -56,6 +57,16 @@
 #include <QList>
 #include <QPen>
 
+#include <math.h>
+
+//copied from vtkQtChartSeriesModelRange.cxx
+#ifndef isnan
+// This is compiler specific not platform specific: MinGW doesn't need that.
+# if defined(_MSC_VER) || defined(__BORLANDC__)
+#  include <float.h>
+#  define isnan(x) _isnan(x)
+# endif
+#endif
 
 class vtkQtBarChartSeries
 {
@@ -414,7 +425,11 @@ void vtkQtBarChart::layoutChart(const QRectF &area)
       float px = xAxis->getPixel(this->Model->getSeriesValue(*iter, j, 0));
       float py = yAxis->getPixel(this->Model->getSeriesValue(*iter, j, 1));
       bar = series->Bars[j];
-      if(py < base)
+      if (isnan(py))
+        {
+        bar->setRect(px + xOffset, base, barWidth, 0);
+        }
+      else if(py < base)
         {
         bar->setRect(px + xOffset, py, barWidth, base - py);
         }
