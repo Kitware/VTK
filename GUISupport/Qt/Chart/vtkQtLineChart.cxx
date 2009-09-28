@@ -141,7 +141,7 @@ public:
 
 //-----------------------------------------------------------------------------
 vtkQtLineChartSeries::vtkQtLineChartSeries()
-  : Polyline(), Points(), Lines(), Highlights(), DrawableLines()
+  : Polyline(), DrawableLines(), Points(), Lines(), Highlights()
 {
   this->Marker = new vtkQtPointMarker(QSizeF(5.0, 5.0),
       vtkQtPointMarker::Circle);
