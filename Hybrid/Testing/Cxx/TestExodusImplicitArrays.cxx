@@ -29,19 +29,19 @@ int TestExodusImplicitArrays(int argc, char *argv[])
 
   if (!mb)
     {
-    return vtkTesting::FAILED;
+    return 1;
     }
   vtkMultiBlockDataSet *elems = vtkMultiBlockDataSet::SafeDownCast (mb->GetBlock (0));
 
   if (!elems) 
     {
-    return vtkTesting::FAILED;
+    return 1;
     }
   vtkDataObject *obj = elems->GetBlock (0);
 
   if (!obj)
     {
-    return vtkTesting::FAILED;
+    return 1;
     }
   vtkIdTypeArray *ie = vtkIdTypeArray::SafeDownCast (
                   obj->GetAttributes (vtkDataSet::CELL)->GetAbstractArray ("ImplicitElementId"));
@@ -49,21 +49,21 @@ int TestExodusImplicitArrays(int argc, char *argv[])
                   obj->GetAttributes (vtkDataSet::POINT)->GetAbstractArray ("ImplicitNodeId"));
   if (!ie || !in)
     {
-    return vtkTesting::FAILED;
+    return 1;
     }
 
   for (int id = 0; id < ie->GetNumberOfTuples (); id ++)
     {
     if (ie->GetValue (id) != (id + 1))
       {
-      return vtkTesting::FAILED;
+      return 1;
       }
     }
 
   if (in->GetValue (0) != 143 || in->GetValue (1) != 706 || in->GetValue (2) != 3173)
     {
-    return vtkTesting::FAILED;
+    return 1;
     }
 
-  return vtkTesting::PASSED;
+  return 0;
 }
