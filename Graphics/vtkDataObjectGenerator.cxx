@@ -41,23 +41,35 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.14");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.15");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
 enum vtkDataObjectGeneratorTokenCodes
   {
-    ID1, UF1, RG1, SG1, PD1, PD2, UG1, GS, GE, HBS, HBE, MBS, MBE, NUMTOKENS
+    ID1, ID2, 
+    UF1, 
+    RG1, 
+    SG1, 
+    PD1, PD2, 
+    UG1, UG2, UG3, UG4,
+    GS, GE, 
+    HBS, HBE, 
+    MBS, MBE, NUMTOKENS
   };
 
 const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
 { "ID1",
+  "ID2",
   "UF1",
   "RG1",
   "SG1",
   "PD1",
   "PD2",
   "UG1",
+  "UG2",
+  "UG3",
+  "UG4",
   "(",
   ")",
   "HB[",
@@ -68,11 +80,15 @@ const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
 
 const char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] =
 { "vtkImageData",
+  "vtkImageData",
   "vtkUniformGrid",
   "vtkRectilinearGrid",
   "vtkStructuredGrid",
   "vtkPolyData",
   "vtkPolyData",
+  "vtkUnstructuredGrid",
+  "vtkUnstructuredGrid",
+  "vtkUnstructuredGrid",
   "vtkUnstructuredGrid",
   "NA",
   "NA",
@@ -207,6 +223,9 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
       case ID1:
         sptr->add_dataset(ID1);
         break;
+      case ID2:
+        sptr->add_dataset(ID2);
+        break;
       case UF1:
         sptr->add_dataset(UF1);
         break;
@@ -224,6 +243,15 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
         break;
       case UG1:
         sptr->add_dataset(UG1);
+        break;
+      case UG2:
+        sptr->add_dataset(UG2);
+        break;
+      case UG3:
+        sptr->add_dataset(UG3);
+        break;
+      case UG4:
+        sptr->add_dataset(UG4);
         break;
       case GS:
         {
@@ -336,12 +364,16 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     return this->CreateOutputDataObjects(structure->children.front());
     }
     case ID1:
+    case ID2:
     case UF1:
     case RG1:
     case SG1:
     case PD1:
     case PD2:
     case UG1:
+    case UG2:
+    case UG3:
+    case UG4:
     { 
     /*
     cerr 
@@ -416,6 +448,27 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     ext[3] = 1;
     ext[4] = 0;
     ext[5] = 1;
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
+    double spacing[3];
+    spacing[0] = 1.0;
+    spacing[1] = 1.0;
+    spacing[2] = 1.0;
+    outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+    double origin[3];
+    origin[0] = 0.0;
+    origin[1] = 0.0;
+    origin[2] = 0.0;
+    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
+    }
+  if (t == ID2)
+    {
+    int ext[6];
+    ext[0] = 0;
+    ext[1] = 2;
+    ext[2] = 0;
+    ext[3] = 3;
+    ext[4] = 0;
+    ext[5] = 4;
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
     double spacing[3];
     spacing[0] = 1.0;
@@ -583,6 +636,11 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     this->MakeImageData1(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
+    case ID2:
+    {
+    this->MakeImageData2(vtkDataSet::SafeDownCast(outData));
+    return outData;
+    }
     case UF1:
     {
     this->MakeUniformGrid1(vtkDataSet::SafeDownCast(outData));
@@ -611,6 +669,21 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     case UG1:
     {
     this->MakeUnstructuredGrid1(vtkDataSet::SafeDownCast(outData));
+    return outData;
+    }
+    case UG2:
+    {
+    this->MakeUnstructuredGrid2(vtkDataSet::SafeDownCast(outData));
+    return outData;
+    }
+    case UG3:
+    {
+    this->MakeUnstructuredGrid3(vtkDataSet::SafeDownCast(outData));
+    return outData;
+    }
+    case UG4:
+    {
+    this->MakeUnstructuredGrid4(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
     case HBS:
@@ -866,6 +939,24 @@ void vtkDataObjectGenerator::MakeImageData1(vtkDataSet *ids)
 }
 
 //----------------------------------------------------------------------------
+void vtkDataObjectGenerator::MakeImageData2(vtkDataSet *ids)
+{
+  //ID2 == an ImageData of 24 voxel2
+  vtkImageData *ds = vtkImageData::SafeDownCast(ids);
+  if (!ds)
+    {
+    return;
+    }
+
+  ds->Initialize();
+  ds->SetDimensions(3,4,5); //24 cells
+  ds->SetOrigin(this->XOffset,this->YOffset,this->ZOffset);
+  ds->SetSpacing(1.0,1.0,1.0);
+
+  this->MakeValues(ds);
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObjectGenerator::MakeUniformGrid1(vtkDataSet *ids)
 {
   //UF1 == an UniformGrid of 8 voxels
@@ -1036,6 +1127,95 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet *ids)
   ds->Allocate();
   vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
+
+  this->MakeValues(ds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObjectGenerator::MakeUnstructuredGrid2(vtkDataSet *ids)
+{
+  //UG2 = an UnstructuredGrid of 2 triangles
+  vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
+  if (!ds)
+    {
+    return;
+    }
+  ds->Initialize();
+  vtkPoints *pts = vtkPoints::New();
+  const double &XO = this->XOffset;
+  const double &YO = this->YOffset;
+  const double &ZO = this->ZOffset;
+  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+1.0, ZO+0.0);
+  ds->SetPoints(pts);
+  pts->Delete();
+  ds->Allocate();
+  vtkIdType verts[6] = {0,1,2,  2,1,3};
+  ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[0]);
+  ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[3]);
+
+  this->MakeValues(ds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObjectGenerator::MakeUnstructuredGrid3(vtkDataSet *ids)
+{
+  //UG3 = an UnstructuredGrid of 1 tet
+  vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
+  if (!ds)
+    {
+    return;
+    }
+  ds->Initialize();
+  vtkPoints *pts = vtkPoints::New();
+  const double &XO = this->XOffset;
+  const double &YO = this->YOffset;
+  const double &ZO = this->ZOffset;
+  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+0.5, YO+0.5, ZO+1.0);
+  ds->SetPoints(pts);
+  pts->Delete();
+  ds->Allocate();
+  vtkIdType verts[6] = {0,1,2,3};
+  ds->InsertNextCell(VTK_TETRA, 4, &verts[0]);
+
+  this->MakeValues(ds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObjectGenerator::MakeUnstructuredGrid4(vtkDataSet *ids)
+{
+  //UG4 = an UnstructuredGrid of 2 triangles and 1 tetraheda
+  vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
+  if (!ds)
+    {
+    return;
+    }
+  ds->Initialize();
+  vtkPoints *pts = vtkPoints::New();
+  const double &XO = this->XOffset;
+  const double &YO = this->YOffset;
+  const double &ZO = this->ZOffset;
+  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+1.0);
+  pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+1.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+1.0);
+  pts->InsertNextPoint(XO+0.5, YO+0.5, ZO+2.0);
+  ds->SetPoints(pts);
+  pts->Delete();
+  ds->Allocate();
+
+  vtkIdType verts[10] = {0,1,2,  2,1,3, 4,5,6,7};
+  ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[0]);
+  ds->InsertNextCell(VTK_TRIANGLE, 3, &verts[3]);
+  ds->InsertNextCell(VTK_TETRA, 4, &verts[6]);
 
   this->MakeValues(ds);
 }

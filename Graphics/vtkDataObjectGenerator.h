@@ -88,12 +88,16 @@ protected:
 
   //create the templated atomic data sets
   void MakeImageData1(vtkDataSet *ds);
+  void MakeImageData2(vtkDataSet *ds);
   void MakeUniformGrid1(vtkDataSet *ds);
   void MakeRectilinearGrid1(vtkDataSet *ds);
   void MakeStructuredGrid1(vtkDataSet *ds);
   void MakePolyData1(vtkDataSet *ds);
   void MakePolyData2(vtkDataSet *ds);
   void MakeUnstructuredGrid1(vtkDataSet *ds);
+  void MakeUnstructuredGrid2(vtkDataSet *ds);
+  void MakeUnstructuredGrid3(vtkDataSet *ds);
+  void MakeUnstructuredGrid4(vtkDataSet *ds);
 
   //used to spatially separate sub data sets within composites
   double XOffset; //increases for each dataset index
