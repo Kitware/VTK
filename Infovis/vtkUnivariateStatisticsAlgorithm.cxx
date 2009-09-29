@@ -31,12 +31,13 @@
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.30");
+#define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
+
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.31");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
 {
-  this->NumberOfVariables = 1;
 }
 
 // ----------------------------------------------------------------------
@@ -48,7 +49,6 @@ vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -93,10 +93,10 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
   if ( this->AssessParameters )
     {
     nColP = this->AssessParameters->GetNumberOfValues();
-    if ( inMeta->GetNumberOfColumns() - this->NumberOfVariables < nColP )
+    if ( inMeta->GetNumberOfColumns() - VTK_STATISTICS_NUMBER_OF_VARIABLES < nColP )
       {
       vtkWarningMacro( "Parameter table has " 
-                       << inMeta->GetNumberOfColumns() - this->NumberOfVariables
+                       << inMeta->GetNumberOfColumns() - VTK_STATISTICS_NUMBER_OF_VARIABLES
                        << " parameters < "
                        << nColP
                        << " columns. Doing nothing." );
@@ -125,7 +125,7 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
       }
 
     vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( this->NumberOfVariables );
+    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
     varNames->SetValue( 0, varName );
 
     // Store names to be able to use SetValueByName, and create the outData columns

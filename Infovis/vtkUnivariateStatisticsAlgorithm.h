@@ -76,8 +76,6 @@ protected:
   vtkUnivariateStatisticsAlgorithm();
   ~vtkUnivariateStatisticsAlgorithm();
 
-  vtkIdType NumberOfVariables;
-
 private:
   vtkUnivariateStatisticsAlgorithm(const vtkUnivariateStatisticsAlgorithm&); // Not implemented
   void operator=(const vtkUnivariateStatisticsAlgorithm&);   // Not implemented

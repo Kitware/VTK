@@ -39,10 +39,12 @@
 
 #include <vtksys/ios/sstream>
 
+#define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
+
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.66");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.67");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -690,7 +692,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
       }
 
     vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( this->NumberOfVariables );
+    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
     varNames->SetValue( 0, varNameX );
     varNames->SetValue( 1, varNameY );
 

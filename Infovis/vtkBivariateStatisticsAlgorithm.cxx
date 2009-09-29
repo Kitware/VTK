@@ -31,12 +31,13 @@
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.18");
+#define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
+
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.19");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
 {
-  this->NumberOfVariables = 2;
 }
 
 // ----------------------------------------------------------------------
@@ -48,7 +49,6 @@ vtkBivariateStatisticsAlgorithm::~vtkBivariateStatisticsAlgorithm()
 void vtkBivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "NumberOfVariables: " << this->NumberOfVariables << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -93,10 +93,10 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
   if ( this->AssessParameters )
     {
     nColP = this->AssessParameters->GetNumberOfValues();
-    if ( inMeta->GetNumberOfColumns() - this->NumberOfVariables < nColP )
+    if ( inMeta->GetNumberOfColumns() - VTK_STATISTICS_NUMBER_OF_VARIABLES < nColP )
       {
       vtkWarningMacro( "Parameter table has " 
-                       << inMeta->GetNumberOfColumns() - this->NumberOfVariables
+                       << inMeta->GetNumberOfColumns() - VTK_STATISTICS_NUMBER_OF_VARIABLES
                        << " parameters < "
                        << nColP
                        << " columns. Doing nothing." );
@@ -135,7 +135,7 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
       }
     
     vtkStringArray* varNames = vtkStringArray::New();
-    varNames->SetNumberOfValues( this->NumberOfVariables );
+    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
     varNames->SetValue( 0, varNameX );
     varNames->SetValue( 1, varNameY );
 
