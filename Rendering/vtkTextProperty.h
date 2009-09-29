@@ -49,15 +49,16 @@ public:
   vtkGetMacro(Opacity,double);
 
   // Description:
-  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
-  // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  vtkSetClampMacro(FontFamily,int,VTK_ARIAL,VTK_TIMES);
-  vtkGetMacro(FontFamily, int);
+  // Set/Get the font family. Supports legacy three font family system.
+  vtkGetStringMacro(FontFamilyAsString);
+  vtkSetStringMacro(FontFamilyAsString);
+  void SetFontFamily(int t);
+  int GetFontFamily(){ return GetFontFamilyFromString( this->FontFamilyAsString ); };
+  int GetFontFamilyMinValue() { return VTK_ARIAL; };
   void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
   void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
   static int GetFontFamilyFromString( const char *f ); 
-  const char *GetFontFamilyAsString();
   static const char *GetFontFamilyAsString( int f );
 
   // Description:
@@ -145,7 +146,7 @@ protected:
 
   double Color[3];
   double Opacity;
-  int   FontFamily;
+  char* FontFamilyAsString;
   int   FontSize;
   int   Bold;
   int   Italic;
@@ -161,6 +162,11 @@ private:
   vtkTextProperty(const vtkTextProperty&);  // Not implemented.
   void operator=(const vtkTextProperty&);  // Not implemented.
 };
+
+inline void vtkTextProperty::SetFontFamily( int t )
+{
+  this->SetFontFamilyAsString( this->GetFontFamilyAsString( t ) );
+}
 
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
 {
@@ -194,11 +200,6 @@ inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
     return VTK_TIMES; 
     }
   return VTK_UNKNOWN_FONT; 
-}
-
-inline const char *vtkTextProperty::GetFontFamilyAsString(void)
-{
-  return vtkTextProperty::GetFontFamilyAsString( this->GetFontFamily() );
 }
 
 inline const char *vtkTextProperty::GetJustificationAsString(void)
