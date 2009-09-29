@@ -45,7 +45,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.7");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.8");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 struct vtkQtLabelMapEntry
@@ -423,7 +423,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     QTransform trans;
     trans.rotate(rotation);
     QRectF rotBounds = trans.mapRect(bounds);
-    this->Implementation->Cache[key].Image = QImage(rotBounds.width(), rotBounds.height(), QImage::Format_ARGB32_Premultiplied);
+    this->Implementation->Cache[key].Image = QImage(static_cast<int>(rotBounds.width()), static_cast<int>(rotBounds.height()), QImage::Format_ARGB32_Premultiplied);
     img = &this->Implementation->Cache[key].Image;
     img->fill(qRgba(0,0,0,0));
     QPainter p(img);

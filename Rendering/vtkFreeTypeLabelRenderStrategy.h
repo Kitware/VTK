@@ -56,7 +56,11 @@ class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRende
   // Must be performed between StartFrame() and EndFrame() calls.
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
     { this->Superclass::RenderLabel(x, tprop, label); }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int width)
+    { this->Superclass::RenderLabel(x, tprop, label, width); }
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label);
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int width)
+    { this->Superclass::RenderLabel(x, tprop, label, width); }
   //ETX
 
 protected:

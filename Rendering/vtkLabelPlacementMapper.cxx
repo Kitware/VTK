@@ -441,7 +441,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.5");
+vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.6");
 vtkStandardNewMacro(vtkLabelPlacementMapper);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, AnchorTransform, vtkCoordinate);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, RenderStrategy, vtkLabelRenderStrategy);
@@ -787,8 +787,8 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
         {
         this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetLabel(), width );
         }
-      int renderedHeight = bds[3] - bds[2];
-      int renderedWidth = (bds[1] - bds[0] < width) ? (bds[1] - bds[0]) : width;
+      int renderedHeight = static_cast<int>( bds[3] - bds[2] );
+      int renderedWidth = static_cast<int>( (bds[1] - bds[0] < width) ? (bds[1] - bds[0]) : width );
       renderedLabelArea += static_cast<unsigned long>( renderedWidth * renderedHeight );
       continue;
       }
