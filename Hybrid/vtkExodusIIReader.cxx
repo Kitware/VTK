@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.83");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.84");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -2297,7 +2297,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
 #ifdef VTK_USE_64BIT_IDS
         vtkstd::vector<int> tmpMap( src->GetNumberOfTuples() );
-        if ( ex_get_id_map( exoid, reinterpret_cast<ex_entity_type>( vtkExodusIIReader::NODE_MAP ), &tmpMap[0] ) < 0 )
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::NODE_MAP ), &tmpMap[0] ) < 0 )
           {
           vtkErrorMacro( "Could not read node num map for global implicit id" );
           src->Delete();
@@ -5511,7 +5511,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.83");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.84");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
