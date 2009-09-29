@@ -8,6 +8,7 @@ IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
     TestBarChartActor.cxx
+    TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
     TestLegendScaleActor.cxx
     TestPieChartActor.cxx
