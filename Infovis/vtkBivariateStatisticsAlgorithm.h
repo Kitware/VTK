@@ -81,8 +81,6 @@ protected:
   vtkBivariateStatisticsAlgorithm();
   ~vtkBivariateStatisticsAlgorithm();
 
-  vtkIdType NumberOfVariables;
-
 private:
   vtkBivariateStatisticsAlgorithm(const vtkBivariateStatisticsAlgorithm&); // Not implemented
   void operator=(const vtkBivariateStatisticsAlgorithm&);   // Not implemented
