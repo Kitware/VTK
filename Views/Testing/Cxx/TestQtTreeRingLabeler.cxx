@@ -30,6 +30,9 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
 
+#include <QApplication>
+#include <QFontDatabase>
+
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -50,6 +53,16 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
 
   reader->Update();
 
+  if(!QApplication::instance())
+    {
+    int argc = 0;
+    new QApplication(argc, 0);
+    }
+
+  QString fontFileName = testHelper->GetDataRoot();
+  fontFileName.append("/Data/Infovis/martyb_-_Ridiculous.ttf");
+  QFontDatabase::addApplicationFont(fontFileName);
+
   VTK_CREATE(vtkTreeRingView, view);
   view->SetTreeFromInputConnection(reader->GetOutputPort());
   view->Update();
@@ -64,7 +77,11 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
-  theme->GetPointTextProperty()->SetColor(0, 0, 0);
+//  theme->GetPointTextProperty()->SetColor(0, 0, 0);
+  theme->GetPointTextProperty()->SetFontFamilyAsString("Ridiculous");
+  theme->GetPointTextProperty()->BoldOn();
+  theme->GetPointTextProperty()->SetFontSize(16);
+  theme->GetPointTextProperty()->ShadowOn();
   view->ApplyViewTheme(theme);
   theme->Delete();
 
@@ -76,7 +93,7 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   // using image-test threshold of 200 since this test tends to render slightly
   // differently on different platforms.
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 200);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+//  if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
