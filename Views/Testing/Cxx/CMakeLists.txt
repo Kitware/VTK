@@ -21,9 +21,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       )
 #    IF (VTK_USE_QT)
 #      # add tests that require Qt
+#      INCLUDE(${QT_USE_FILE})
+#
 #      SET(MyTests ${MyTests}
 #        TestQtTreeRingLabeler.cxx
 #        )
+#
 #    ENDIF(VTK_USE_QT)
     # Add these classes only if vtkTypeUInt64Array exists
     IF(VTK_HAS_UINT64_ARRAY)
@@ -36,6 +39,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkViews)
+
+#  IF(VTK_USE_QT)
+#    TARGET_LINK_LIBRARIES(${KIT}CxxTests ${QT_LIBRARIES})
+#  ENDIF(VTK_USE_QT)
+
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
