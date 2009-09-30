@@ -15,7 +15,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.13");
+vtkCxxRevisionMacro(vtkTextProperty, "1.14");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -44,6 +44,11 @@ vtkTextProperty::vtkTextProperty()
   this->LineSpacing = 1.1; // why not 1.0 ?
 
   this->Orientation = 0.0;
+}
+
+vtkTextProperty::~vtkTextProperty()
+{
+  this->SetFontFamilyAsString(NULL);
 }
 
 //----------------------------------------------------------------------------
