@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.34");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.35");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -907,7 +907,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // If we are here, then numberRegEx matched and we have found the part of
   // the filename that is the number.  Extract the filename parts.
   vtkstd::string prefix = numberRegEx.match(1);
-  scount = numberRegEx.match(2).size();
+  scount = static_cast<int>(numberRegEx.match(2).size());
   vtkstd::string extension = numberRegEx.match(3);
 
   // Determine the pattern
