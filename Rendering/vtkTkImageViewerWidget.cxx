@@ -30,6 +30,15 @@
  #endif
 #endif
 
+#ifdef VTK_USE_CARBON
+// tk8.4.17 and later use HIShape API for proper subwindows
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+#if (TCL_MINOR_VERSION > 4) || (TCL_RELEASE_SERIAL >= 17)  
+#define VTK_CARBON_TK_SUBWINDOWS
+#endif
+#endif
+#endif
+
 #include <stdlib.h>
 
 #define VTK_ALL_EVENTS_MASK \
@@ -369,7 +378,7 @@ extern "C"
           //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
           if (self->ImageViewer)
             {
-#ifdef VTK_USE_CARBON
+#if defined(VTK_USE_CARBON) && !defined (VTK_CARBON_TK_SUBWINDOwS)
             TkWindow *winPtr = (TkWindow *)self->TkWin;
             self->ImageViewer->SetPosition(winPtr->privatePtr->xOff,
                                            winPtr->privatePtr->yOff);
@@ -818,6 +827,12 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
           vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
           }
         }
+
+#ifdef VTK_CARBON_TK_SUBWINDOWS
+      WindowPtr win = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
+                                        Tk_WindowId(winPtr)));
+      imgWindow->SetWindowId(win);
+#endif /* VTK_CARBON_TK_SUBWINDOWS */
 
       parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
                                     Tk_WindowId(winPtr->parentPtr)));
