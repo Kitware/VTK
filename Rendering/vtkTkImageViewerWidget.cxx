@@ -30,15 +30,6 @@
  #endif
 #endif
 
-#ifdef VTK_USE_CARBON
-// tk8.4.17 and later use HIShape API for proper subwindows
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-#if (TCL_MINOR_VERSION > 4) || (TCL_RELEASE_SERIAL >= 17)  
-#define VTK_CARBON_TK_SUBWINDOWS
-#endif
-#endif
-#endif
-
 #include <stdlib.h>
 
 #define VTK_ALL_EVENTS_MASK \
@@ -378,13 +369,19 @@ extern "C"
           //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
           if (self->ImageViewer)
             {
-#if defined(VTK_USE_CARBON) && !defined (VTK_CARBON_TK_SUBWINDOwS)
-            TkWindow *winPtr = (TkWindow *)self->TkWin;
-            self->ImageViewer->SetPosition(winPtr->privatePtr->xOff,
-                                           winPtr->privatePtr->yOff);
-#else
-            self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
+            int x = Tk_X(self->TkWin);
+            int y = Tk_Y(self->TkWin);
+#ifdef VTK_USE_CARBON
+            // need to get position relative to top level window
+            for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+                 (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+                 curPtr = curPtr->parentPtr)
+              {
+              x += Tk_X(curPtr);
+              y += Tk_Y(curPtr);
+              }
 #endif
+            self->ImageViewer->SetPosition(x, y);
             self->ImageViewer->SetSize(self->Width, self->Height);
             }
           
@@ -827,12 +824,6 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
           vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
           }
         }
-
-#ifdef VTK_CARBON_TK_SUBWINDOWS
-      WindowPtr win = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
-                                        Tk_WindowId(winPtr)));
-      imgWindow->SetWindowId(win);
-#endif /* VTK_CARBON_TK_SUBWINDOWS */
 
       parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
                                     Tk_WindowId(winPtr->parentPtr)));
