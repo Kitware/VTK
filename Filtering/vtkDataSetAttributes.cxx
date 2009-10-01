@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.30");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.31");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1504,6 +1504,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(
         newDA->SetLookupTable(list.LUT[i]);
         }
 
+
       // If attribute data, do something extra
       if ( i < NUM_ATTRIBUTES )
         {
@@ -1551,7 +1552,7 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes::FieldList& list,
   int i;
   for (i=0; i < list.NumberOfFields; i++)
     {
-    if ( list.FieldIndices[i] >= 0 )
+    if ( list.FieldIndices[i] >= 0 && list.DSAIndices[idx][i] >= 0 )
       {
       toDA = this->GetAbstractArray(list.FieldIndices[i]);
       fromDA = fromDSA->GetAbstractArray(list.DSAIndices[idx][i]);
@@ -1575,7 +1576,7 @@ void vtkDataSetAttributes::InterpolatePoint(
 
   for (int i=0; i < list.NumberOfFields; i++)
     {
-    if ( list.FieldIndices[i] >= 0 )
+    if ( list.FieldIndices[i] >= 0 && list.DSAIndices[idx][i] >= 0 )
       {
       toArray = this->GetAbstractArray(list.FieldIndices[i]);
       fromArray = fromPd->GetAbstractArray(list.DSAIndices[idx][i]);
@@ -1646,7 +1647,7 @@ vtkDataSetAttributes::FieldList::~FieldList()
 void vtkDataSetAttributes::FieldList::InitializeFieldList(
   vtkDataSetAttributes* dsa)
 {
-  int i, idx;
+  int i;
   this->ClearFields();
   // Allocate space for the arrays plus five attributes
   this->NumberOfFields = dsa->GetNumberOfArrays() + NUM_ATTRIBUTES;
@@ -1671,10 +1672,11 @@ void vtkDataSetAttributes::FieldList::InitializeFieldList(
   //there may be no data hence dsa->Data
   for(i=0; dsa->Data && i < dsa->GetNumberOfArrays(); i++) 
     {
-    if ( (idx=dsa->IsArrayAnAttribute(i)) != -1 ) //it's an attribute
+    int attrType = dsa->IsArrayAnAttribute(i);
+    if ( attrType != -1 ) //it's an attribute
       {
-      this->FieldIndices[idx] = idx;
-      this->SetField(idx, dsa->Data[i]);
+      this->FieldIndices[attrType] = i;
+      this->SetField(attrType, dsa->Data[i]);
       }
     else
       {
@@ -1685,6 +1687,214 @@ void vtkDataSetAttributes::FieldList::InitializeFieldList(
 
   // The first dataset is added to the field list
   this->IntersectFieldList(dsa);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
+{
+  vtkAbstractArray* aa;
+  vtkDataArray* da;
+  // Keep a running total of the number of tuples...might be useful
+  // for later allocation.
+  if ( (aa=dsa->GetAbstractArray(0)) ) 
+    {
+    this->NumberOfTuples += aa->GetNumberOfTuples();
+    }
+
+  // unlike Intersection, with Union the the total number of fields may change,
+  // so we have to be careful with that.
+  vtkstd::vector<int> dsaIndices;
+  dsaIndices.resize(this->NumberOfFields, -1);
+
+  // Intersect the active attributes. (Even though we are taking a union, we
+  // intersect the active attributes).
+  int attributeIndices[NUM_ATTRIBUTES];
+  dsa->GetAttributeIndices(attributeIndices);
+  for (int i=0; i < NUM_ATTRIBUTES; i++)
+    {
+    if (this->FieldIndices[i] >= 0)
+      {
+      da = dsa->GetAttribute(i);
+      if ((da) && (da->GetDataType() == this->FieldTypes[i]) && 
+          (da->GetNumberOfComponents() == this->FieldComponents[i]))
+        {
+        dsaIndices[i] = attributeIndices[i];
+        }
+      else
+        {
+        // doh! A attribute is not available in this new dsa. But it was
+        // available until now.
+
+        // In InitializeFieldList(), if an array is an active attribute, its
+        // information is noted only in the first "set". Now since we are
+        // marking it as not-an-attribute, we still don't want to loose the
+        // array. So we enable it in the second "set". But all DSAIndices until
+        // the CurrentInput referred to this array in it's location in the
+        // first "set" so we have to move those as well. That's what's
+        // happening here.
+        int offset = this->FieldIndices[i];
+        this->FieldIndices[NUM_ATTRIBUTES + offset] = this->FieldIndices[i];
+        this->Fields[offset+NUM_ATTRIBUTES] = this->Fields[i];
+        this->FieldTypes[offset+NUM_ATTRIBUTES] = this->FieldTypes[i];
+        this->FieldComponents[offset+NUM_ATTRIBUTES] = this->FieldComponents[i];
+        this->LUT[offset+NUM_ATTRIBUTES] = this->LUT[i];
+        this->FieldInformation[offset+NUM_ATTRIBUTES] = this->FieldInformation[i];
+
+        this->FieldIndices[i] = -1; //Attribute not present
+        this->Fields[i] = NULL;
+        this->FieldTypes[i] = -1;
+        this->FieldComponents[i] = 0;
+        this->LUT[i] = NULL;
+        this->FieldInformation[i] = NULL;
+
+        for (int cc=0; cc < this->CurrentInput && cc < this->NumberOfDSAIndices;
+          cc++)
+          {
+          this->DSAIndices[cc][offset+NUM_ATTRIBUTES] = this->DSAIndices[cc][i];
+          this->DSAIndices[cc][i] = -1;
+          }
+        }
+      }
+    }
+
+  vtkstd::vector<bool> dsaMarkedArrays;
+  dsaMarkedArrays.resize(dsa->GetNumberOfArrays(), false);
+
+  // * Try to match the existing fields with those in dsa.
+  for (int i = NUM_ATTRIBUTES; i < this->NumberOfFields; i++)
+    {
+    // FieldIndices should really be a bool.
+    if (this->FieldIndices[i] < 0)
+      {
+      continue;
+      }
+    int index;
+    aa = dsa->GetAbstractArray(this->Fields[i], index);
+    if ((aa) && (aa->GetDataType() == this->FieldTypes[i]) &&
+      (aa->GetNumberOfComponents() == this->FieldComponents[i]))
+      {
+      dsaIndices[i] = index;
+      dsaMarkedArrays[index] = true;
+      }
+    }
+  
+  // * Now every array in dsaMarkedArrays that has a false, implies that it did not
+  // match with any of the existing fields. So those will be appended to the
+  // end of the field list.
+  vtkstd::vector<int> dsaPendingIndices;
+  for (size_t cc=0; cc < dsaMarkedArrays.size(); cc++)
+    {
+    if (dsaMarkedArrays[cc] == false)
+      {
+      dsaPendingIndices.push_back(static_cast<int>(cc));
+      }
+    }
+
+  if (dsaPendingIndices.size() != 0)
+    {
+    size_t old_size = dsaIndices.size();
+    size_t new_size = old_size + dsaPendingIndices.size();
+
+    // * If dsaPendingIndices != empty, then we need to grow the num of fields.
+    this->GrowBy(static_cast<unsigned int>(dsaPendingIndices.size()));
+    
+    dsaIndices.resize(new_size, -1);
+    for (size_t cc=0; cc < dsaPendingIndices.size(); cc++)
+      {
+      this->FieldIndices[old_size+cc] = (old_size+cc) - NUM_ATTRIBUTES;
+      this->SetField(old_size+cc, dsa->GetAbstractArray(dsaPendingIndices[cc]));
+      dsaIndices[old_size + cc] = dsaPendingIndices[cc];
+      }
+    }
+ 
+  this->DSAIndices[this->CurrentInput] = new int [this->NumberOfFields];
+  memcpy(this->DSAIndices[this->CurrentInput], &dsaIndices[0],
+    sizeof(int)*this->NumberOfFields);
+
+  this->CurrentInput++;
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::FieldList::GrowBy(unsigned int delta)
+{
+  if (delta == 0)
+    {
+    return;
+    }
+
+  int old_size = this->NumberOfFields;
+  int new_size = this->NumberOfFields + delta;
+
+  char** newFields = new char*[new_size];
+  int* newFieldTypes = new int[new_size];
+  int* newFieldComponents = new int [new_size];
+  int* newFieldIndices = new int [new_size];
+  vtkLookupTable** newLUT = new vtkLookupTable* [new_size];
+  vtkInformation** newFieldInformation = new vtkInformation* [new_size];
+
+  // copy the old fields.
+  for(int i=0; i < old_size; i++)
+    {
+    if (this->Fields[i])
+      {
+      newFields[i] = strdup(this->Fields[i]);
+      }
+    else
+      {
+      newFields[i] = NULL;
+      }
+    }
+  memcpy(newFieldTypes, this->FieldTypes, sizeof(int)*old_size);
+  memcpy(newFieldComponents, this->FieldComponents, sizeof(int)*old_size);
+  memcpy(newFieldIndices, this->FieldIndices, sizeof(int)*old_size);
+  memcpy(newLUT, this->LUT, sizeof(vtkLookupTable*)*old_size);
+  memcpy(newFieldInformation, this->FieldInformation,
+    sizeof(vtkInformation*)*old_size);
+
+  // initialize the rest.
+  for (int i=old_size; i < new_size; i++)
+    {
+    newFields[i] = NULL;
+    newFieldTypes[i] = -1;
+    newFieldComponents[i] = 0;
+    newFieldIndices[i] = -1;
+    newLUT[i] = NULL;
+    newFieldInformation[i] = NULL;
+    }
+
+  int **newDSAIndices = new int*[this->NumberOfDSAIndices];
+  for (int cc=0; cc < this->NumberOfDSAIndices; cc++)
+    {
+    if (this->DSAIndices[cc] != NULL)
+      {
+      newDSAIndices[cc] = new int[new_size];
+      memcpy(newDSAIndices[cc], this->DSAIndices[cc], sizeof(int)*old_size);
+      for (int kk=old_size; kk < new_size; kk++)
+        {
+        newDSAIndices[cc][kk] = -1;
+        }
+      }
+    else
+      {
+      newDSAIndices[cc] = NULL;
+      }
+    }
+
+  int currentInput = this->CurrentInput;
+  int numberOfDSAIndices = this->NumberOfDSAIndices;
+
+  this->ClearFields();
+
+  this->NumberOfFields = new_size;
+  this->NumberOfDSAIndices = numberOfDSAIndices;
+  this->CurrentInput = currentInput;
+  this->Fields = newFields;
+  this->FieldTypes = newFieldTypes;
+  this->FieldComponents = newFieldComponents;
+  this->FieldIndices = newFieldIndices;
+  this->LUT = newLUT;
+  this->FieldInformation = newFieldInformation;
+  this->DSAIndices = newDSAIndices;
 }
 
 //--------------------------------------------------------------------------
