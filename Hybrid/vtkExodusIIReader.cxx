@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.76.2.2");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.76.2.3");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -397,6 +397,8 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->GenerateObjectIdArray = 1;
   this->GenerateGlobalElementIdArray = 0;
   this->GenerateGlobalNodeIdArray = 0;
+  this->GenerateImplicitElementIdArray = 0;
+  this->GenerateImplicitNodeIdArray = 0;
   this->GenerateGlobalIdArray = 0;
   this->GenerateFileIdArray = 0;
   this->FileId = 0;
@@ -1085,6 +1087,34 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       ped->FastDelete();
 
       status -= 4;
+      }
+    }
+
+  if ( this->GenerateImplicitElementIdArray )
+    {
+    // This retrieves the old style map if it is a parallel data set.  The old 
+    // style map stores the global implicit id if parallel.  Otherwise it 
+    // generates the implicit id.
+    vtkExodusIICacheKey key( -1, vtkExodusIIReader::IMPLICIT_ELEMENT_ID, otyp, obj );
+    vtkDataArray* arr = this->GetCacheOrRead( key );
+    if ( arr )
+      {
+      cd->AddArray( arr );
+      }
+
+    }
+
+  if ( this->GenerateImplicitNodeIdArray )
+    {
+    // This retrieves the old style map if it is a parallel data set.  The old 
+    // style map stores the global implicit id if parallel.  Otherwise it 
+    // generates the implicit id.
+    vtkExodusIICacheKey key( -1, vtkExodusIIReader::IMPLICIT_NODE_ID, otyp, obj );
+    vtkDataArray* arr = this->GetCacheOrRead( key );
+    vtkPointData* pd = output->GetPointData();
+    if ( arr )
+      {
+      pd->AddArray( arr );
       }
     }
 
@@ -2143,6 +2173,83 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     memcpy( gloIds, srcIds, sizeof(vtkIdType) * bsinfop->Size );
     arr = iarr;
     }
+  else if ( key.ObjectType == vtkExodusIIReader::IMPLICIT_ELEMENT_ID )
+    {
+    // Yes, the next 2 statements are an intentional misuse of key
+    // fields reserved for the ObjectId and ArrayId (since ObjectType
+    // is used to signal that we want IDs instead of a field value).
+    int otypidx = this->GetObjectTypeIndexFromObjectType( key.ObjectId );
+    int obj = key.ArrayId;
+    BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
+
+    vtkExodusIICacheKey ckey( -1, -1, 0, 0 );
+    vtkIdType mapSize;
+    int nMaps;
+    switch ( key.ObjectId )
+      {
+    case vtkExodusIIReader::EDGE_BLOCK:
+      ckey.ObjectType = vtkExodusIIReader::EDGE_ID;
+      mapSize = this->ModelParameters.num_edge;
+      nMaps = this->ModelParameters.num_edge_maps;
+      break;
+    case vtkExodusIIReader::FACE_BLOCK:
+      ckey.ObjectType = vtkExodusIIReader::FACE_ID;
+      mapSize = this->ModelParameters.num_face;
+      nMaps = this->ModelParameters.num_face_maps;
+      break;
+    case vtkExodusIIReader::ELEM_BLOCK:
+    default:
+      ckey.ObjectType = vtkExodusIIReader::ELEMENT_ID;
+      mapSize = this->ModelParameters.num_elem;
+      nMaps = this->ModelParameters.num_elem_maps;
+      break;
+      }
+    vtkIdTypeArray* src = vtkIdTypeArray::New ();
+    src->SetNumberOfComponents( 1 );
+    src->SetNumberOfTuples( mapSize );
+    if (nMaps > 0) // FIXME correctly detect parallel
+      {
+#ifdef VTK_USE_64BIT_IDS
+        vtkstd::vector<int> tmpMap( src->GetNumberOfTuples() );
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( ckey.ObjectType ), &tmpMap[0] ) < 0 )
+          {
+          vtkErrorMacro( "Could not read elem num map for global implicit id" );
+          src->Delete();
+          return 0;
+          }
+        else
+          {
+          for ( vtkIdType i = 0; i < src->GetNumberOfTuples(); ++i )
+            {
+            src->SetValue( i, tmpMap[i] );
+            }
+          }
+#else
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( ckey.ObjectType ), (int*)src->GetPointer( 0 ) ) < 0 )
+          {
+          vtkErrorMacro( "Could not read elem num map for global implicit id" );
+          src->Delete();
+          return 0;
+          }
+#endif // VTK_USE_64BIT_IDS
+      }
+    else // single file, just make the implicit index explicit
+      {
+      for (vtkIdType i = 0; i < src->GetNumberOfTuples (); i ++)
+        {
+        src->SetValue (i, i + 1);
+        }
+      }
+    vtkIdTypeArray* iarr = vtkIdTypeArray::New();
+    iarr->SetName( vtkExodusIIReader::GetImplicitElementIdArrayName() );
+    iarr->SetNumberOfComponents( 1 );
+    iarr->SetNumberOfTuples( bsinfop->Size );
+    vtkIdType* gloIds = iarr->GetPointer( 0 );
+    vtkIdType* srcIds = src->GetPointer( bsinfop->FileOffset - 1 );
+    memcpy( gloIds, srcIds, sizeof(vtkIdType) * bsinfop->Size );
+    arr = iarr;
+    src->Delete ();
+    }
   else if ( key.ObjectType == vtkExodusIIReader::GLOBAL_NODE_ID )
     { // subset the NODE_ID array choosing only entries for nodes in output grid (using PointMap)
     // Yes, the next 2 statements are an intentional misuse of key
@@ -2172,6 +2279,71 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
       arr = src;
       }
+    }
+  else if ( key.ObjectType == vtkExodusIIReader::IMPLICIT_NODE_ID )
+    { // subset the NODE_ID array choosing only entries for nodes in output grid (using PointMap)
+    // Yes, the next 2 statements are an intentional misuse of key
+    // fields reserved for the ObjectId and ArrayId (since ObjectType
+    // is used to signal that we want IDs instead of a field value).
+    int otypidx = this->GetObjectTypeIndexFromObjectType( key.ObjectId );
+    int obj = key.ArrayId;
+    BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
+    vtkIdTypeArray* src = vtkIdTypeArray::New ();
+    src->SetNumberOfComponents( 1 );
+    src->SetNumberOfTuples( this->ModelParameters.num_nodes );
+    if (this->ModelParameters.num_node_maps > 0) // FIXME correctly detect parallel
+      {
+#ifdef VTK_USE_64BIT_IDS
+        vtkstd::vector<int> tmpMap( src->GetNumberOfTuples() );
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::NODE_MAP ), &tmpMap[0] ) < 0 )
+          {
+          vtkErrorMacro( "Could not read node num map for global implicit id" );
+          src->Delete();
+          return 0;
+          }
+        else
+          {
+          for ( vtkIdType i = 0; i < src->GetNumberOfTuples(); ++i )
+            {
+            src->SetValue( i, tmpMap[i] );
+            }
+          }
+#else
+        if ( ex_get_id_map( exoid, static_cast<ex_entity_type>( vtkExodusIIReader::NODE_MAP ), (int*)src->GetPointer( 0 ) ) < 0 )
+          {
+          vtkErrorMacro( "Could not node node num map for global implicit id" );
+          src->Delete();
+          return 0;
+          }
+#endif // VTK_USE_64BIT_IDS
+      }
+    else // single file, just make the implicit index explicit
+      {
+      for (vtkIdType i = 0; i < src->GetNumberOfTuples (); i ++)
+        {
+        src->SetValue (i, i + 1);
+        }
+      }
+    if ( this->SqueezePoints && src )
+      {
+      vtkIdTypeArray* iarr = vtkIdTypeArray::New();
+      iarr->SetName( vtkExodusIIReader::GetImplicitNodeIdArrayName() );
+      iarr->SetNumberOfComponents( 1 );
+      iarr->SetNumberOfTuples( bsinfop->NextSqueezePoint );
+      vtkIdType* gloIds = iarr->GetPointer( 0 );
+      vtkIdType* srcIds = src->GetPointer( 0 );
+      vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+      for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
+        {
+        gloIds[it->second] = srcIds[it->first];
+        }
+      arr = iarr;
+      }
+    else
+      {
+      arr = src;
+      }
+    src->Delete ();
     }
   else if (
     key.ObjectType == vtkExodusIIReader::ELEMENT_ID ||
@@ -3502,6 +3674,11 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
     return 0;
     }
 
+  int numNodesInFile;
+  char dummyChar;
+  float dummyFloat;
+  ex_inquire(this->Exoid, EX_INQ_NODES, &numNodesInFile, &dummyFloat, &dummyChar); 
+ 
   return 1;
 }
 
@@ -4814,6 +4991,8 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 {
   this->GenerateGlobalElementIdArray = 0;
   this->GenerateGlobalNodeIdArray = 0;
+  this->GenerateImplicitElementIdArray = 0;
+  this->GenerateImplicitNodeIdArray = 0;
   this->GenerateGlobalIdArray = 0;
   this->GenerateObjectIdArray = 1;
   this->GenerateFileIdArray = 0;
@@ -5329,7 +5508,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.76.2.2");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.76.2.3");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5658,6 +5837,7 @@ int vtkExodusIIReader::RequestData(
     delete [] oldFastPathIdType;
     }
 
+
   return 1;
 }
 
@@ -5669,6 +5849,12 @@ int vtkExodusIIReader::GetGenerateGlobalElementIdArray() { return this->Metadata
 
 void vtkExodusIIReader::SetGenerateGlobalNodeIdArray( int x ) { this->Metadata->SetGenerateGlobalNodeIdArray( x ); }
 int vtkExodusIIReader::GetGenerateGlobalNodeIdArray() { return this->Metadata->GetGenerateGlobalNodeIdArray(); }
+
+void vtkExodusIIReader::SetGenerateImplicitElementIdArray( int x ) { this->Metadata->SetGenerateImplicitElementIdArray( x ); }
+int vtkExodusIIReader::GetGenerateImplicitElementIdArray() { return this->Metadata->GetGenerateImplicitElementIdArray(); }
+
+void vtkExodusIIReader::SetGenerateImplicitNodeIdArray( int x ) { this->Metadata->SetGenerateImplicitNodeIdArray( x ); }
+int vtkExodusIIReader::GetGenerateImplicitNodeIdArray() { return this->Metadata->GetGenerateImplicitNodeIdArray(); }
 
 void vtkExodusIIReader::SetGenerateFileIdArray( int x ) { this->Metadata->SetGenerateFileIdArray( x ); }
 int vtkExodusIIReader::GetGenerateFileIdArray() { return this->Metadata->GetGenerateFileIdArray(); }
@@ -5818,6 +6004,8 @@ int vtkExodusIIReader::GetObjectTypeFromName( const char* name )
   else if ( tname == "node set cell" ) return NODE_SET_CONN; 
   else if ( tname == "nodal coordinates" ) return NODAL_COORDS; 
   else if ( tname == "object id" ) return OBJECT_ID; 
+  else if ( tname == "implicit element id" ) return IMPLICIT_ELEMENT_ID;
+  else if ( tname == "implicit node id" ) return IMPLICIT_NODE_ID;
   else if ( tname == "global element id" ) return GLOBAL_ELEMENT_ID; 
   else if ( tname == "global node id" ) return GLOBAL_NODE_ID; 
   else if ( tname == "element id" ) return ELEMENT_ID; 
@@ -5861,6 +6049,8 @@ const char* vtkExodusIIReader::GetObjectTypeName( int otyp )
   case NODE_SET_CONN: return "node set cell";
   case NODAL_COORDS: return "nodal coordinates";
   case OBJECT_ID: return "object id";
+  case IMPLICIT_ELEMENT_ID: return "implicit element id";
+  case IMPLICIT_NODE_ID: return "implicit node id";
   case GLOBAL_ELEMENT_ID: return "global element id";
   case GLOBAL_NODE_ID: return "global node id";
   case ELEMENT_ID: return "element id";
