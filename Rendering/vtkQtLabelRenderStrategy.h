@@ -52,6 +52,8 @@ class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrat
   // Must be performed between StartFrame() and EndFrame() calls.
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
     { this->Superclass::RenderLabel(x, tprop, label); }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
+    { this->Superclass::RenderLabel(x, tprop, label, maxWidth); }
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label);
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth);
   //ETX
