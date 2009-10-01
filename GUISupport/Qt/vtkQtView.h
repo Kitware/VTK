@@ -40,6 +40,23 @@ public:
   // to GetWidget(): something like this
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget()=0;
+
+  // Description:
+  // Calls QApplication::processEvents().  This is useful if you are using QWidgets
+  // but have not called QApplication::exec because you don't want to give control
+  // to the Qt event loop.  See also ProcessQtEventsNoUserEvents().
+  virtual void ProcessQtEvents();
+
+  // Description:
+  // Calls QApplication::processEvents(QEventLoop::ExcludeUserInputEvents).
+  // See also ProcessQtEvents().
+  virtual void ProcessQtEventsNoUserInput();
+
+  // Description:
+  // Save an image.  Uses QPixmap::grab and QPixmap::save.  The image format will
+  // be determined from the filename.  Qt's image format support may vary, usually
+  // bmp, jpg, ppm, or png is a safe choice.  Returns false if there was a failure.
+  virtual bool SaveImage(const char* fileName);
   
 protected:
   vtkQtView();
