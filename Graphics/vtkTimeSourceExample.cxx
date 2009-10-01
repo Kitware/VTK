@@ -21,14 +21,16 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkImageData.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkPoints.h"
 #include "vtkCellData.h"
+#include "vtkCellTypes.h"
 #include "vtkPointData.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTimeSourceExample, "1.6");
+vtkCxxRevisionMacro(vtkTimeSourceExample, "1.7");
 vtkStandardNewMacro(vtkTimeSourceExample);
 
 #ifndef M_PI
@@ -190,54 +192,6 @@ int vtkTimeSourceExample::RequestInformation(
       );
     }
 
-  double spacing[3] = {1,1,1};
-  info->Set(vtkDataObject::SPACING(),spacing,3);
-
-  //determine what time is being asked for
-  double reqTime = 0.0;
-  //int reqNTS = 0; since we are only answering the first request omit this
-  double *reqTS = NULL;
-  if (reqInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
-    {
-    //reqNTS = info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());    
-    reqTS = reqInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    }
-  if (reqTS != NULL)
-    {
-    //TODO: produce multiblock output when multiple time steps are asked for
-    //for now just answer the first one
-    reqTime = reqTS[0];
-    }
-
-  //because the output can move and grow over time
-  //provide information about the output shape 
-  double time = reqTime;
-  double value = 0.0;
-  this->LookupTimeAndValue(time, value);
-
-  double origin[3];
-  double x = this->XFunction(time);
-  double y = this->YFunction(time);
-  origin[0] = x;
-  origin[1] = y;
-  origin[2] = 0;
-  info->Set(vtkDataObject::ORIGIN(),origin,3);
-
-  int ext[6];
-  int numCells = this->NumCellsFunction(time);
-  ext[0] = 0;
-  ext[1] = 1;
-  ext[2] = 0;
-  ext[3] = numCells;
-  ext[4] = 0;
-  ext[5] = 1;
-  info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
-  
-  // This is a temporary hack to get around a pipeline problem.
-  // The executive (vtkStreamingDemandDrivenPipeline) expects 
-  // MAXIMUM_NUMBER_OF_PIECES() to be set when the output is a 
-  // vtkTemporalDataSet which happens if a consumer requests multiple
-  // time steps.
   info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   return 1;
@@ -251,7 +205,7 @@ int vtkTimeSourceExample::RequestData(
   )
 {  
   vtkInformation *outInfo = outVector->GetInformationObject(0);
-  vtkImageData *output= vtkImageData::SafeDownCast(
+  vtkUnstructuredGrid *output= vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
     {
@@ -282,20 +236,13 @@ int vtkTimeSourceExample::RequestData(
 
   output->Initialize(); 
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &time, 1);
-  output->SetSpacing(1,1,1);
 
   //figure out the world space position of the output
   double x = this->XFunction(time);
   double y = this->YFunction(time);
-  output->SetOrigin(x,y,0);
 
   //figure out the number of cells in the output
   int numCells = this->NumCellsFunction(time);
-  output->SetDimensions(2,numCells+1,2);
-
-  //allocate the rest of the output data structure
-  output->SetWholeExtent(0,1,0,numCells,0,1);
-  output->AllocateScalars();
 
   //compute values for each point and cell to test with
   vtkDoubleArray *pd = vtkDoubleArray::New();
@@ -320,6 +267,8 @@ int vtkTimeSourceExample::RequestData(
   zd->SetName("Point Z");
   output->GetPointData()->AddArray(zd);
 
+
+  vtkPoints *points = vtkPoints::New();
   vtkIdType pid = 0;
   for (int i = 0; i < 2; i++)
     {
@@ -333,9 +282,12 @@ int vtkTimeSourceExample::RequestData(
         xd->InsertNextValue(x+k);
         yd->InsertNextValue(y+j);
         zd->InsertNextValue(i);
+        points->InsertNextPoint(x+k,y+j,i);
         }
       }
     }
+  output->SetPoints(points);
+  points->Delete();
   id->Delete();
   xd->Delete();
   yd->Delete();
@@ -364,7 +316,9 @@ int vtkTimeSourceExample::RequestData(
   zd->SetNumberOfComponents(1);
   zd->SetName("Cell Z");
   output->GetCellData()->AddArray(zd);
+  output->Allocate();
 
+  vtkIdType ptcells[8];
   vtkIdType cid = 0;
   for (int i = 0; i < 1; i++)
     {
@@ -378,6 +332,16 @@ int vtkTimeSourceExample::RequestData(
         xd->InsertNextValue(x+k+0.5); //center of the cell
         yd->InsertNextValue(y+j+0.5);
         zd->InsertNextValue(i+0.5);
+
+        ptcells[0] = (i+0)*((numCells+1)*2) + (j+0)*2 + (k+0);
+        ptcells[1] = (i+0)*((numCells+1)*2) + (j+0)*2 + (k+1);
+        ptcells[2] = (i+0)*((numCells+1)*2) + (j+1)*2 + (k+0);
+        ptcells[3] = (i+0)*((numCells+1)*2) + (j+1)*2 + (k+1);
+        ptcells[4] = (i+1)*((numCells+1)*2) + (j+0)*2 + (k+0);
+        ptcells[5] = (i+1)*((numCells+1)*2) + (j+0)*2 + (k+1);
+        ptcells[6] = (i+1)*((numCells+1)*2) + (j+1)*2 + (k+0);
+        ptcells[7] = (i+1)*((numCells+1)*2) + (j+1)*2 + (k+1);
+        output->InsertNextCell(VTK_VOXEL, 8, ptcells);
         }
       }
     }
