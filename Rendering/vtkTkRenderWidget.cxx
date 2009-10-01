@@ -30,15 +30,6 @@
 #endif
 #endif
 
-#ifdef VTK_USE_CARBON
-// tk8.4.17 and later use HIShape API for proper subwindows
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-#if (TCL_MINOR_VERSION > 4) || (TCL_RELEASE_SERIAL >= 17)  
-#define VTK_CARBON_TK_SUBWINDOWS
-#endif
-#endif
-#endif
-
 #include <stdlib.h>
 
 // Silent warning like
@@ -673,14 +664,16 @@ extern "C"
 #ifdef VTK_USE_CARBON
         if (Tk_IsMapped(self->TkWin))
           {
-#ifdef VTK_CARBON_TK_SUBWINDOWS
-          self->RenderWindow->SetPosition(Tk_X(self->TkWin),
-                                          Tk_Y(self->TkWin));
-#else
-          TkWindow *winPtr = (TkWindow *)self->TkWin;
-          self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
-                                          winPtr->privatePtr->yOff);
-#endif /* VTK_CARBON_TK_SUBWINDOWS */
+          int x = Tk_X(self->TkWin);
+          int y = Tk_Y(self->TkWin);
+          for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+               (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+               curPtr = curPtr->parentPtr)
+            {
+            x += Tk_X(curPtr);
+            y += Tk_Y(curPtr);
+            }
+          self->RenderWindow->SetPosition(x, y);
           self->RenderWindow->SetSize(self->Width, self->Height);
           }
         else
@@ -700,14 +693,16 @@ extern "C"
 // VTK_USE_CARBON: we need to update the current AGL_BUFFER_RECT by
 // calling vtkCarbonRenderWindow::SetSize and vtkCarbonRenderWindow::SetPosition
 #ifdef VTK_USE_CARBON
-#ifdef VTK_CARBON_TK_SUBWINDOWS
-      self->RenderWindow->SetPosition(Tk_X(self->TkWin),
-                                      Tk_Y(self->TkWin));
-#else
-      TkWindow *winPtr = (TkWindow *)self->TkWin;
-      self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
-                                      winPtr->privatePtr->yOff);
-#endif /* VTK_CARBON_TK_SUBWINDOWS */
+      int x = Tk_X(self->TkWin);
+      int y = Tk_Y(self->TkWin);
+      for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+           (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+           curPtr = curPtr->parentPtr)
+        {
+        x += Tk_X(curPtr);
+        y += Tk_Y(curPtr);
+        }
+      self->RenderWindow->SetPosition(x, y);
       self->RenderWindow->SetSize(self->Width, self->Height);
 #endif
       break;
@@ -1168,12 +1163,6 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
         vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
         }
       }
-
-#ifdef VTK_CARBON_TK_SUBWINDOWS
-    WindowPtr win = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
-                                      Tk_WindowId(winPtr)));
-    renderWindow->SetWindowId(win);
-#endif /* VTK_CARBON_TK_SUBWINDOWS */
 
     parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
                                   Tk_WindowId(winPtr->parentPtr)));
