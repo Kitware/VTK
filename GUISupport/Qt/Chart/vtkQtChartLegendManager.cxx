@@ -464,8 +464,18 @@ void vtkQtChartLegendManager::insertLegendEntries(
   legend->startModifyingData();
   for(int i = first; i <= last; i++)
     {
+
+    // First try to get the series label from the chart series options.
+    // If the chart series options don't have a label set then we'll
+    // resort to using the series name.
+    QString seriesLabel = chart->getSeriesOptions(i)->getLabel();
+    if (seriesLabel.isNull())
+      {
+      seriesLabel = model->getSeriesName(i).toString();
+      }
+
     legend->insertEntry(index + i, chart->getSeriesIcon(i),
-        model->getSeriesName(i).toString(),
+        seriesLabel,
         chart->getSeriesOptions(i)->isVisible());
     }
   legend->finishModifyingData();
