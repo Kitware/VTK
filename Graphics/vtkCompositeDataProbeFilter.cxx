@@ -18,6 +18,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -27,7 +28,7 @@
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkCompositeDataProbeFilter);
-vtkCxxRevisionMacro(vtkCompositeDataProbeFilter, "1.3");
+vtkCxxRevisionMacro(vtkCompositeDataProbeFilter, "1.4");
 //----------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 {
