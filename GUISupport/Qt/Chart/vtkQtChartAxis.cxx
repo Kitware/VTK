@@ -1921,6 +1921,7 @@ void vtkQtChartAxis::generateLabels(const QRectF &contents)
           }
         else
           {
+          qWarning("Range has infinity. Axes may now show up correctly.");
           this->Model->addLabel(minimum);
           this->Model->addLabel(maximum);
           }
