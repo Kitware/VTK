@@ -110,7 +110,7 @@ protected:
 
   // Description:
   // Initializes output and various arrays which keep track for probing status.
-  void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
+  virtual void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
 
   // Description:
   // Probe only those points that are marked as not-probed by the MaskPoints
@@ -123,6 +123,12 @@ protected:
   vtkIdTypeArray *ValidPoints;
   vtkCharArray* MaskPoints;
   int NumberOfValidPoints;
+
+  // Agreed, this is sort of a hack to allow subclasses to override the default
+  // behavior of this filter to call NullPoint() for every point that is
+  // not-a-hit when probing. This makes it possible for subclasses to initialize
+  // the arrays with different defaults.
+  bool UseNullPoint;
 
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;

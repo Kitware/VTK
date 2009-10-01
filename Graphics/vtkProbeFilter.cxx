@@ -27,7 +27,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.96");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.96.6.1");
 vtkStandardNewMacro(vtkProbeFilter);
 
 class vtkProbeFilter::vtkVectorOfArrays : 
@@ -50,6 +50,8 @@ vtkProbeFilter::vtkProbeFilter()
 
   this->PointList = 0;
   this->CellList = 0;
+
+  this->UseNullPoint = true;
 }
 
 //----------------------------------------------------------------------------
@@ -181,6 +183,10 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   tempCellData->Delete();
 
   outPD->AddArray(this->MaskPoints);
+
+  // Since we haven't resize the point arrays, we need to fill them up with
+  // nulls whenever we have a miss when probing.
+  this->UseNullPoint = true;
 
   // BUG FIX: JB.
   // Output gets setup from input, but when output is imagedata, scalartype
@@ -316,7 +322,10 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
       }
     else
       {
-      outPD->NullPoint(ptId);
+      if (this->UseNullPoint)
+        {
+        outPD->NullPoint(ptId);
+        }
       }
     }
 

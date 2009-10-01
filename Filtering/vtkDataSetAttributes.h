@@ -608,6 +608,14 @@ public:
     void InitializeFieldList(vtkDataSetAttributes* dsa);
     void IntersectFieldList(vtkDataSetAttributes* dsa);
 
+    // Description:
+    // Similar to IntersectFieldList() except that it builds a union of the
+    // array list. To determine the active attributes, it still, however, takes
+    // an intersection.
+    // WARNING!!!-IntersectFieldList() and UnionFieldList() should not be
+    // intermixed. 
+    void UnionFieldList(vtkDataSetAttributes* dsa);
+
     //Determine whether data is available
     int IsAttributePresent(int attrType); //true/false attributes specified
     
@@ -630,6 +638,7 @@ public:
     void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);
     void ClearFields();
+    void GrowBy(unsigned int delta);
 
     int NumberOfFields; //the number of fields (including five named attributes)
     // These keep track of what is common across datasets. The first
