@@ -163,11 +163,6 @@ private:
   void operator=(const vtkTextProperty&);  // Not implemented.
 };
 
-inline void vtkTextProperty::SetFontFamily( int t )
-{
-  this->SetFontFamilyAsString( this->GetFontFamilyAsString( t ) );
-}
-
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
 {
   if ( f == VTK_ARIAL )
@@ -183,6 +178,11 @@ inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
     return "Times";
     }
   return "Unknown";
+}
+
+inline void vtkTextProperty::SetFontFamily( int t )
+{
+  this->SetFontFamilyAsString( this->GetFontFamilyAsString( t ) );
 }
 
 inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
