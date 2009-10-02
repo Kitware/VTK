@@ -53,11 +53,11 @@ public:
   vtkGetStringMacro(FontFamilyAsString);
   vtkSetStringMacro(FontFamilyAsString);
   void SetFontFamily(int t);
-  int GetFontFamily(){ return GetFontFamilyFromString( this->FontFamilyAsString ); };
+  int GetFontFamily();
   int GetFontFamilyMinValue() { return VTK_ARIAL; };
-  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
-  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+  void SetFontFamilyToArial();
+  void SetFontFamilyToCourier();
+  void SetFontFamilyToTimes();
   static int GetFontFamilyFromString( const char *f ); 
   static const char *GetFontFamilyAsString( int f );
 
@@ -185,6 +185,21 @@ inline void vtkTextProperty::SetFontFamily( int t )
   this->SetFontFamilyAsString( this->GetFontFamilyAsString( t ) );
 }
 
+inline void vtkTextProperty::SetFontFamilyToArial()
+{
+  this->SetFontFamily(VTK_ARIAL);
+}
+
+inline void vtkTextProperty::SetFontFamilyToCourier()
+{
+  this->SetFontFamily(VTK_COURIER);
+}
+
+inline void vtkTextProperty::SetFontFamilyToTimes()
+{
+  this->SetFontFamily(VTK_TIMES);
+}
+
 inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
 {
   if ( strcmp( f, GetFontFamilyAsString( VTK_ARIAL ) ) == 0 ) 
@@ -200,6 +215,11 @@ inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
     return VTK_TIMES; 
     }
   return VTK_UNKNOWN_FONT; 
+}
+
+inline int vtkTextProperty::GetFontFamily()
+{
+  return GetFontFamilyFromString( this->FontFamilyAsString );
 }
 
 inline const char *vtkTextProperty::GetJustificationAsString(void)
