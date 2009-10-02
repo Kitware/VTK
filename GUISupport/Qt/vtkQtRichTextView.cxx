@@ -51,7 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QHttpHeader>
 #include <QHttpRequestHeader>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.18");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.19");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ void vtkQtRichTextView::Update()
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
 
   this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToUnicodeString();
-  cerr << this->Internal->Content << endl;
+  //cerr << this->Internal->Content << endl;
 
   this->Internal->UI.WebView->setContent(this->Internal->Content.utf8_str());
 }
