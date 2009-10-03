@@ -665,8 +665,8 @@ IF (VTK_WRAP_TCL AND VTK_USE_TK)
   # Use special interactor for X and Tk.
   IF(VTK_USE_X)
     SET(KitTCL_SRCS ${KitTCL_SRCS} vtkXRenderWindowTclInteractor.cxx)
+    SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} ${X11_LIBRARIES})
   ENDIF(VTK_USE_X)
-  SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} ${X11_LIBRARIES})
   SET(Kit_TCL_EXTRA_CMDS 
     vtkTkRenderWidget 
     vtkTkImageViewerWidget)
