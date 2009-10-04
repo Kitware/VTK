@@ -33,7 +33,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.30.6.2");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.30.6.3");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1803,8 +1803,10 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
     dsaIndices.resize(new_size, -1);
     for (size_t cc=0; cc < dsaPendingIndices.size(); cc++)
       {
-      this->FieldIndices[old_size+cc] = (old_size+cc) - NUM_ATTRIBUTES;
-      this->SetField(old_size+cc, dsa->GetAbstractArray(dsaPendingIndices[cc]));
+      this->FieldIndices[old_size+cc] =
+        static_cast<int>((old_size+cc) - NUM_ATTRIBUTES);
+      this->SetField(static_cast<int>(old_size+cc),
+        dsa->GetAbstractArray(dsaPendingIndices[cc]));
       dsaIndices[old_size + cc] = dsaPendingIndices[cc];
       }
     }
