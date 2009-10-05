@@ -31,7 +31,7 @@ IF(VTK_USE_QVTK)
   SUBDIRS(StatsView)
 ENDIF(VTK_USE_QVTK)
 
-# Excluding from build for now because there is currently no way to check
-# if VTK_USE_PARALLEL_BGL is on.
-#ADD_EXECUTABLE(ParallelBFS ParallelBFS.cxx)
-#TARGET_LINK_LIBRARIES(ParallelBFS vtkParallel vtkViews)
+IF(VTK_USE_PARALLEL_BGL)
+  ADD_EXECUTABLE(ParallelBFS ParallelBFS.cxx)
+  TARGET_LINK_LIBRARIES(ParallelBFS vtkParallel vtkViews)
+ENDIF(VTK_USE_PARALLEL_BGL)
