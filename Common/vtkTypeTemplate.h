@@ -38,27 +38,11 @@ class vtkTypeTemplate :
 public:
   typedef BaseT Superclass;
 
-private:
-  virtual const char* GetClassNameInternal() const
+  ThisT* NewInstance() const
   {
-    return typeid(ThisT).name();
+    return ThisT::SafeDownCast(this->NewInstanceInternal());
   }
-  
-public:
-  static int IsTypeOf(const char* type)
-  {
-    if(!strcmp(typeid(ThisT).name(), type))
-      {
-      return 1;
-      }
-    return BaseT::IsTypeOf(type);
-  }
-  
-  virtual int IsA(const char *type)
-  {
-    return this->IsTypeOf(type);
-  }
-  
+
   static ThisT* SafeDownCast(vtkObjectBase* o)
   {
     if(o && o->IsA(typeid(ThisT).name()))
@@ -74,11 +58,31 @@ protected:
   {
     return ThisT::New();
   }
-  
-public:
-  ThisT* NewInstance() const
+
+  // We don't expose this publicly, because the typename we generate
+  // for our template instantiations isn't human-readable, unlike
+  // "normal" VTK classes.
+  static int IsTypeOf(const char* type)
   {
-    return ThisT::SafeDownCast(this->NewInstanceInternal());
+    if(!strcmp(typeid(ThisT).name(), type))
+      {
+      return 1;
+      }
+    return BaseT::IsTypeOf(type);
+  }
+  
+  // We don't expose this publicly, because the typename we generate
+  // for our template instantiations isn't human-readable, unlike
+  // "normal" VTK classes.
+  virtual int IsA(const char *type)
+  {
+    return this->IsTypeOf(type);
+  }
+
+private:
+  virtual const char* GetClassNameInternal() const
+  {
+    return typeid(ThisT).name();
   }
 };
 
