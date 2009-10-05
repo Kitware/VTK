@@ -1,9 +1,14 @@
 # List tests that can be built and run automatically ...
 SET(AUTO_TESTS
   TestAssignMimeType
+  TestConcatenateArray
   TestDocumentReader
+  TestExtractSelectedSlices
   TestMimeTypes
   TestNGramExtraction
+  TestPointwiseMutualInformation
+  TestScaleDimension
+  TestSelectArraySlices
   TestTermDictionary
   TestTextExtraction
   TestTokenLengthFilter
@@ -14,6 +19,7 @@ SET(AUTO_TESTS
 
 SET(AUTO_TEST_LIBRARIES
   vtkCommon
+  vtkInfovis
   vtkTextAnalysis
   )
 
