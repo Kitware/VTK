@@ -39,7 +39,7 @@
     } \
 }
 
-int TestConcatenateArray(int argc, char* argv[])
+int TestConcatenateArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
     {

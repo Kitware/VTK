@@ -39,7 +39,7 @@
     } \
 }
 
-int TestScaleDimension(int argc, char* argv[])
+int TestScaleDimension(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
     {

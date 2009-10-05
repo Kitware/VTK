@@ -59,7 +59,7 @@ void TestOutput(vtkSelectionAlgorithm* Algorithm, const vtkIdType* const ValueBe
     test_expression(selection_list->GetValue(value - ValueBegin) == (*value));
 }
 
-int TestSelectArraySlices(int argc, char* argv[])
+int TestSelectArraySlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
     {

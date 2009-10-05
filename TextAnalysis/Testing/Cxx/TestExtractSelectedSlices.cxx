@@ -44,7 +44,7 @@
     } \
 }
 
-int TestExtractSelectedSlices(int argc, char* argv[])
+int TestExtractSelectedSlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
     {

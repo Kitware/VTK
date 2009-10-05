@@ -46,7 +46,7 @@ static bool close_enough(const double& lhs, const double& rhs)
     return vtkstd::fabs(lhs - rhs) < 1.0e-10;
 }
 
-int TestPointwiseMutualInformation(int argc, char* argv[])
+int TestPointwiseMutualInformation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
     {
