@@ -12,16 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataSet - abstact superclass for composite 
+// .NAME vtkCompositeDataSet - abstract superclass for composite 
 // (multi-block or AMR) datasets
 // .SECTION Description
 // vtkCompositeDataSet is an abstract class that represents a collection
 // of datasets (including other composite datasets). It
 // provides an interface to access the datasets through iterators.
-// vtkCompositeDataSet provides methods are used by subclasses to store the datasets.
+// vtkCompositeDataSet provides methods that are used by subclasses to store the
+// datasets.
 // vtkCompositeDataSet provides the datastructure for a full tree 
 // representation. Subclasses provide the semantics for it and control how
-// this tree is buit.
+// this tree is built.
 
 // .SECTION See Also
 // vtkCompositeDataIterator
