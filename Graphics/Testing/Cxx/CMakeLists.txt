@@ -20,7 +20,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
     TestHyperOctreeDual.cxx
-#    TestHyperOctreeSurfaceFilter.cxx
+    TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
     TestPolyDataPointSampler.cxx
     TestSelectEnclosedPoints.cxx

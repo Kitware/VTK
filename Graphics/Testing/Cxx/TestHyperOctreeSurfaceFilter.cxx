@@ -41,9 +41,9 @@
 #include "vtkSphere.h"
 #include "vtkTimerLog.h"
 #include "vtkCamera.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkHierarchicalPolyDataMapper.h"
+#include "vtkCompositePolyDataMapper.h"
 
 int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
 {
@@ -56,9 +56,8 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   
   vtkTimerLog *timer=vtkTimerLog::New();
   
-  vtkHierarchicalDataSet *hds=vtkHierarchicalDataSet::New();
-  hds->SetNumberOfLevels(1);
-  hds->SetNumberOfDataSets(0,3);
+  vtkMultiBlockDataSet *hds=vtkMultiBlockDataSet::New();
+  hds->SetNumberOfBlocks(3);
   
   // 3D
   vtkHyperOctreeSampleFunction *source3d=vtkHyperOctreeSampleFunction::New();
@@ -84,7 +83,7 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   cout<<"source3d updated"<<endl;
   cout<<"source3d time="<<timer->GetElapsedTime()<<" s"<<endl;
   
-  hds->SetDataSet(0,0,source3d->GetOutput());
+  hds->SetBlock(0,source3d->GetOutput());
   source3d->Delete();
   
   // 2D
@@ -111,7 +110,7 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   cout<<"source2d updated"<<endl;
   cout<<"source2d time="<<timer->GetElapsedTime()<<" s"<<endl;
   
-  hds->SetDataSet(0,1,source2d->GetOutput());
+  hds->SetBlock(1,source2d->GetOutput());
   source2d->Delete();
   
   // 1D
@@ -138,8 +137,7 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   cout<<"source1d updated"<<endl;
   cout<<"source1d time="<<timer->GetElapsedTime()<<" s"<<endl;
   
-    
-  hds->SetDataSet(0,2,source1d->GetOutput());
+  hds->SetBlock(2,source1d->GetOutput());
   source1d->Delete();
   
   vtkHyperOctreeSurfaceFilter *surface=vtkHyperOctreeSurfaceFilter::New();
@@ -163,7 +161,7 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   vtkLookupTable *lut = vtkLookupTable::New(); 
   lut->SetHueRange (0.667, 0.0);
   
-  vtkHierarchicalPolyDataMapper *mapper=vtkHierarchicalPolyDataMapper::New();
+  vtkCompositePolyDataMapper *mapper=vtkCompositePolyDataMapper::New();
   mapper->SetInputConnection(0,surface->GetOutputPort(0));
   mapper->SetLookupTable(lut);
   
