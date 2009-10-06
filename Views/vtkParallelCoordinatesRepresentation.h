@@ -181,6 +181,7 @@ public:
   virtual void AngleSelect(int brushClass, int brushOperator, double *p1, double *p2);
   virtual void FunctionSelect(int brushClass, int brushOperator, double *p1, double *p2, double *q1, double *q2);
   virtual void RangeSelect(int brushClass, int brushOperator, double *p1, double *p2);
+  virtual void ReplaceSelection(vtkSelection* selection);
 
 //BTX
   enum InputPorts

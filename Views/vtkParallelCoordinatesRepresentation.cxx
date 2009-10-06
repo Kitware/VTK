@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.4");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -518,6 +518,8 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     {
     if (!this->PlaceSelection(this->I->SelectionData[i],this->InputArrayTable,this->Selection->GetNode(i)))
       return 0;
+    if (i > 0)
+      continue;
     }
 
   vtkDebugMacro(<<"begin update plot properties.\n");
@@ -1688,6 +1690,16 @@ void vtkParallelCoordinatesRepresentation::RangeSelect(int vtkNotUsed(brushClass
                                                        double* vtkNotUsed(p2))
 {
   // stubbed out for now
+}
+
+void vtkParallelCoordinatesRepresentation::ReplaceSelection(vtkSelection* selection)
+{
+  vtkIdTypeArray* list = vtkIdTypeArray::New();
+  list->DeepCopy(vtkIdTypeArray::SafeDownCast(selection->GetNode(0)->GetSelectionList()));
+  this->SelectRows(0,
+                   vtkParallelCoordinatesView::VTK_BRUSHOPERATOR_REPLACE,
+                   list);
+  list->Delete();
 }
 
 //------------------------------------------------------------------------------
