@@ -21,6 +21,8 @@
 //
 // .SECTION Description
 // vtkTulipReader reads in files in the Tulip format.
+// Definition of the Tulip file format can be found online at:
+// http://tulip.labri.fr/tlpformat.php
 // An example is the following
 // <code>
 // (nodes 0 1 2 3 4 5 6 7 8 9)
@@ -57,7 +59,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The Chaco file name.
+  // The Tulip file name.
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
 
