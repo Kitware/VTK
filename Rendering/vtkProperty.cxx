@@ -52,7 +52,7 @@ public:
   MapOfTextureNames TextureNames;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.77");
+vtkCxxRevisionMacro(vtkProperty, "1.78");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -178,6 +178,11 @@ static IVarEnum XMLMemberToIvar( const char* name )
 // and surface representation. Backface and frontface culling are off.
 vtkProperty::vtkProperty()
 {
+  // Really should initialize all colors including Color[3]
+  this->Color[0] = 1;
+  this->Color[1] = 1;
+  this->Color[2] = 1;
+
   this->AmbientColor[0] = 1;
   this->AmbientColor[1] = 1;
   this->AmbientColor[2] = 1;
@@ -282,6 +287,11 @@ vtkProperty *vtkProperty::New()
 //----------------------------------------------------------------------------
 void vtkProperty::SetColor(double R,double G,double B)
 {
+  // Really should set the placeholder Color[3] variable
+  this->Color[0] = R;
+  this->Color[1] = G;
+  this->Color[2] = B;
+
   // Use Set macros to insure proper modified time behavior
   this->SetAmbientColor(R,G,B);
   this->SetDiffuseColor(R,G,B);
