@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.5");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -1297,8 +1297,15 @@ int vtkParallelCoordinatesRepresentation::PlaceSelection(vtkPolyData* polyData,
 //------------------------------------------------------------------------------
 void vtkParallelCoordinatesRepresentation::SetPlotTitle(const char* title)
 {
-  if (title)
+  if (title && title[0] != '\0')
+    {
+    this->PlotTitleActor->SetVisibility(1);
     this->PlotTitleActor->SetInput(title);
+    }
+  else
+    {
+    this->PlotTitleActor->SetVisibility(0);
+    }
 }
 
 //------------------------------------------------------------------------------
