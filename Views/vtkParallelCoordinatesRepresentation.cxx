@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.6");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -232,6 +232,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->FunctionTextActor->GetTextProperty()->SetJustificationToLeft();
   this->FunctionTextActor->GetTextProperty()->SetVerticalJustificationToTop();
   this->FunctionTextActor->SetInput("No function selected.");
+  this->FunctionTextActor->VisibilityOff();
   this->FunctionTextActor->GetTextProperty()->SetFontSize(
     this->PlotTitleActor->GetTextProperty()->GetFontSize()/2);
 
@@ -1299,12 +1300,12 @@ void vtkParallelCoordinatesRepresentation::SetPlotTitle(const char* title)
 {
   if (title && title[0] != '\0')
     {
-    this->PlotTitleActor->SetVisibility(1);
+    this->PlotTitleActor->VisibilityOn();
     this->PlotTitleActor->SetInput(title);
     }
   else
     {
-    this->PlotTitleActor->SetVisibility(0);
+    this->PlotTitleActor->VisibilityOff();
     }
 }
 
@@ -1509,6 +1510,7 @@ void vtkParallelCoordinatesRepresentation::LassoSelect(int brushClass,
     }
 
   this->FunctionTextActor->SetInput("No function selected.");
+  this->FunctionTextActor->VisibilityOff();
   this->SelectRows(brushClass,brushOperator,allIds);
 }
 
@@ -1621,6 +1623,7 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
             fabs(b));
             
     this->FunctionTextActor->SetInput(buf);
+    this->FunctionTextActor->VisibilityOn();
 
     this->SelectRows(brushClass,brushOperator,this->LinearThreshold->GetSelectedRowIds());
     }
@@ -1684,6 +1687,7 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
             fabs(b));
             
     this->FunctionTextActor->SetInput(buf);
+    this->FunctionTextActor->VisibilityOn();
 
 
     this->SelectRows(brushClass,brushOperator,this->LinearThreshold->GetSelectedRowIds());
