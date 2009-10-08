@@ -36,13 +36,16 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 //------------------------------------------------------------------------------
 #include <vtkstd/set>
 #include <vtkstd/vector>
 #include <vtkstd/string>
 #include <vtkstd/map>
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.3");
+vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.4");
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals
@@ -115,6 +118,11 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
     this->Implementation->ColumnPairs.clear();
     this->Implementation->ColumnUsesCustomExtents.clear();
     this->Implementation->ColumnExtents.clear();
+
+    // Make a shallow copy of the input to be safely passed to internal
+    // histogram filters.
+    VTK_CREATE(vtkTable, inDataCopy);
+    inDataCopy->ShallowCopy(inData);
     
     // fill it up with new histogram filters
     for (int i=0; i<numHistograms; i++)
@@ -129,8 +137,9 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
         }
       
       // create a new histogram filter
-      vtkExtractHistogram2D* f = this->NewHistogramFilter();
-      f->SetInput(inData);
+      vtkSmartPointer<vtkExtractHistogram2D> f;
+      f.TakeReference(this->NewHistogramFilter());
+      f->SetInput(inDataCopy);
       f->SetNumberOfBins(this->NumberOfBins);
       vtkstd::pair<vtkStdString,vtkStdString> colpair(inData->GetColumn(i)->GetName(),inData->GetColumn(i+1)->GetName());
       f->AddColumnPair(colpair.first.c_str(),colpair.second.c_str());
