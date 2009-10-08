@@ -667,6 +667,9 @@ IF (VTK_WRAP_TCL AND VTK_USE_TK)
     SET(KitTCL_SRCS ${KitTCL_SRCS} vtkXRenderWindowTclInteractor.cxx)
     SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} ${X11_LIBRARIES})
   ENDIF(VTK_USE_X)
+  IF(VTK_USE_CARBON)
+    SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} "-framework Carbon")
+  ENDIF(VTK_USE_CARBON)
   SET(Kit_TCL_EXTRA_CMDS 
     vtkTkRenderWidget 
     vtkTkImageViewerWidget)
@@ -702,15 +705,17 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
     )
   ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
               ${RenderingPythonTkWidgets_SRCS})
+  SET(VTK_PYTHONTK_LIBRARIES ${VTK_TK_LIBRARIES})
+  IF(VTK_USE_X)
+    SET(VTK_PYTHONTK_LIBRARIES ${VTK_PYTHONTK_LIBRARIES} ${X11_LIBRARIES})
+  ENDIF(VTK_USE_X)
+  IF(VTK_USE_CARBON)
+    SET(VTK_PYTHONTK_LIBRARIES ${VTK_PYTHONTK_LIBRARIES} "-framework Carbon")
+  ENDIF(VTK_USE_CARBON)
+ 
   TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                         vtk${KIT}
-                        ${VTK_TK_LIBRARIES})
-  IF(VTK_USE_CARBON)
-    #  "_GetWindowFromPort", referenced from:
-    # vtkTkRenderWidget_MakeRenderWindow(vtkTkRenderWidget*)      in vtkTkRenderWidgetPython.cxx.o
-    # vtkTkImageViewerWidget_MakeImageViewer(vtkTkImageViewerWidget*)      in vtkTkImageViewerWidgetPython.cxx.o
-    TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets "-framework Carbon")
-  ENDIF(VTK_USE_CARBON)
+                        ${VTK_PYTHONTK_LIBRARIES})
 
   # Apply user-defined properties to the library target.
   IF(VTK_LIBRARY_PROPERTIES)
