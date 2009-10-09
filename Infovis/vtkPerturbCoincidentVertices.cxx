@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.16");
+vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.17");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
@@ -265,13 +265,20 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   // Compute the shortest intra-distance between coincident point foci
   double shortestDistance = VTK_DOUBLE_MAX;
   int numberOfFoci = static_cast<int>(coincidentFoci.size());
-  for (int i=0; i<numberOfFoci; ++i)
+  if (numberOfFoci > 1)
     {
-    for (int j=i+1; j<numberOfFoci; ++j)
+    for (int i=0; i<numberOfFoci; ++i)
       {
-      double distance = Coord::distance(coincidentFoci[i], coincidentFoci[j]);
-      shortestDistance = distance < shortestDistance ? distance : shortestDistance;
+      for (int j=i+1; j<numberOfFoci; ++j)
+        {
+        double distance = Coord::distance(coincidentFoci[i], coincidentFoci[j]);
+        shortestDistance = distance < shortestDistance ? distance : shortestDistance;
+        }
       }
+    }
+  else
+    {
+    shortestDistance = 0.;
     }
 
   // Set the offset distance to be the shortest distance /4 * user setting (perturbFactor)
