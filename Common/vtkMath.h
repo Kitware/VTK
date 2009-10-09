@@ -773,7 +773,7 @@ public:
   // circle. See: http://en.wikipedia.org/wiki/Circumcircle and more
   // specifically the section Barycentric coordinates from cross- and 
   // dot-products
-  static int Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);
+  static double Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);
 
   // Description:
   // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).

@@ -30,7 +30,7 @@
 
 #include "vtkMathConfigure.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.146");
+vtkCxxRevisionMacro(vtkMath, "1.147");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2911,7 +2911,7 @@ void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets)
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::Solve3PointCircle(const double p1[3], const double p2[3], 
+double vtkMath::Solve3PointCircle(const double p1[3], const double p2[3], 
                                const double p3[3], double center[3])
 {
   double v21[3], v32[3], v13[3];
