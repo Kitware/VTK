@@ -766,6 +766,16 @@ public:
   static void SpiralPoints(vtkIdType num, vtkPoints * offsets);
   
   // Description:
+  // In Euclidean space, there is a unique circle passing through any given 
+  // three non-collinear points P1, P2, and P3. Using Cartesian coordinates 
+  // to represent these points as spatial vectors, it is possible to use the 
+  // dot product and cross product to calculate the radius and center of the 
+  // circle. See: http://en.wikipedia.org/wiki/Circumcircle and more
+  // specifically the section Barycentric coordinates from cross- and 
+  // dot-products
+  static int Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);
+
+  // Description:
   // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).
   static double Inf();
   static double NegInf();

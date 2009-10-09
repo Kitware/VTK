@@ -30,7 +30,7 @@
 
 #include "vtkMathConfigure.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.145");
+vtkCxxRevisionMacro(vtkMath, "1.146");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2908,6 +2908,46 @@ void vtkMath::SpiralPoints(vtkIdType num, vtkPoints * offsets)
     double y = t*sin(2*pi*t);
     offsets->SetPoint(i, x, y, 0);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkMath::Solve3PointCircle(const double p1[3], const double p2[3], 
+                               const double p3[3], double center[3])
+{
+  double v21[3], v32[3], v13[3];
+  double v12[3], v23[3], v31[3];
+  for (int i = 0; i < 3; ++i)
+    {
+    v21[i] = p1[i] - p2[i];
+    v32[i] = p2[i] - p3[i];
+    v13[i] = p3[i] - p1[i];
+    v12[i] = -v21[i];
+    v23[i] = -v32[i];
+    v31[i] = -v13[i];
+    }
+
+  double norm12 = vtkMath::Norm(v12);
+  double norm23 = vtkMath::Norm(v23);
+  double norm13 = vtkMath::Norm(v13);
+
+  double crossv21v32[3];
+  vtkMath::Cross(v21, v32, crossv21v32);
+  double normCross = vtkMath::Norm(crossv21v32);
+
+  double radius = (norm12 * norm23 * norm13) / (2. * normCross);  
+
+  double alpha = ((norm23 * norm23) * vtkMath::Dot(v21, v31)) /
+    (2. * normCross * normCross);
+  double beta = ((norm13 * norm13) * vtkMath::Dot(v12, v32)) /
+    (2. * normCross * normCross);
+  double gamma = ((norm12 * norm12) * vtkMath::Dot(v13, v23)) /
+    (2. * normCross * normCross);
+  
+  for (int i = 0; i < 3; ++i)
+    {
+    center[i] = alpha * p1[i] + beta * p2[i] + gamma * p3[i];
+    }
+  return radius;
 }
 
 //----------------------------------------------------------------------------
