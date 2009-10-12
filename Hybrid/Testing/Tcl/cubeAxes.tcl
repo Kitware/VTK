@@ -39,6 +39,7 @@ vtkRenderer ren2
     ren2 SetActiveCamera camera
     ren2 AddLight light
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
     renWin AddRenderer ren2
     renWin SetWindowName "VTK - Cube Axes"
