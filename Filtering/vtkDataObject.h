@@ -128,7 +128,7 @@ public:
   static int GetGlobalReleaseDataFlag();
 
   // Description:
-  // Assign or retrieve field data to this data object.
+  // Assign or retrieve a general field data to this data object.
   virtual void SetFieldData(vtkFieldData*);
   vtkGetObjectMacro(FieldData,vtkFieldData);
   
