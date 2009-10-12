@@ -41,7 +41,7 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.6");
+vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.7");
 vtkStandardNewMacro(vtkConvertSelectionDomain);
 //----------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
@@ -64,6 +64,10 @@ void vtkConvertSelectionDomainFindDomains(
     {
     vtkStringArray* domainArr = vtkStringArray::SafeDownCast(
       dsa->GetAbstractArray("domain"));
+    if (!domainArr)
+      {
+      return; // Do nothing if the array isn't a string array
+      }
     vtkIdType numTuples = domainArr->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numTuples; ++i)
       {
