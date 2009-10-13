@@ -235,7 +235,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
                  << " = "
                  << H_g[nEntropies * i + c];
             }
-          
+
           cout << "\n";
           
           // Make sure that H(X,Y) >= H(Y|X)+ H(X|Y)
@@ -251,6 +251,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
             *(args->retVal) = 1;
             }
           }
+        cout << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log p(x|y).\n";
         }
 
       // Clean up
