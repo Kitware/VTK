@@ -145,11 +145,11 @@ int TestContingencyStatistics( int, char *[] )
     for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
       {
       // Variable names
-      cout << "   ("
+      cout << "   (X,Y) = ("
            << outputSummary->GetValue( r, 0 ).ToString()
            << ", "
            << outputSummary->GetValue( r, 1 ).ToString()
-           << "):";
+           << ")";
       
       // Information entropies
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
@@ -177,6 +177,7 @@ int TestContingencyStatistics( int, char *[] )
         }
       }
     }
+  cout << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log p(x|y).\n";
 
   cout << "\n";
 
