@@ -90,6 +90,15 @@ public:
   void SetInput(int idx, vtkDataObject* input);
 
   // Description:
+  // When on, the initial alignment is to the centroid 
+  // of the cohort curves.  When off, the alignment is to the 
+  // centroid of the first input.  Default is off for
+  // backward compatibility.
+  vtkSetMacro(StartFromCentroid, bool);
+  vtkGetMacro(StartFromCentroid, bool);
+  vtkBooleanMacro(StartFromCentroid, bool);
+
+  // Description:
   // Retrieve the input point set with index idx (usually only for pipeline
   // tracing).
   vtkPointSet* GetInput(int idx);
@@ -105,6 +114,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkLandmarkTransform *LandmarkTransform;
+
+  bool StartFromCentroid;
 
   vtkPoints *MeanPoints;
 
