@@ -29,11 +29,29 @@
 #include <assert.h>
 
 #include "vtkMathConfigure.h"
+#include "vtkBoxMuellerRandomSequence.h"
+#include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.147");
+vtkCxxRevisionMacro(vtkMath, "1.148");
 vtkStandardNewMacro(vtkMath);
 
-long vtkMath::Seed = 1177; // One authors home address
+vtkMathInternal::vtkMathInternal()
+{
+  this->Gaussian=vtkBoxMuellerRandomSequence::New();
+  
+  // This line assumes the current vtkBoxMuellerRandomSequence behavior:
+  // an initial vtkMinimalStandardRandomSequence is created.
+  this->Uniform=static_cast<vtkMinimalStandardRandomSequence *>(
+    this->Gaussian->GetUniformSequence());
+  this->Uniform->SetSeedOnly(1177); // One authors home address
+}
+
+vtkMathInternal::~vtkMathInternal()
+{
+  this->Gaussian->Delete();
+}
+
+vtkMathInternal vtkMath::Internal;
 
 #ifdef VTK_HAS_STD_NUMERIC_LIMITS
 
@@ -125,19 +143,8 @@ inline bool vtkMathIsNan(double x)
 // This is used to provide portability across different systems.
 double vtkMath::Random()
 {
-  long hi, lo;
-    
-  // Based on code in "Random Number Generators: Good Ones are Hard to Find,"
-  // by Stephen K. Park and Keith W. Miller in Communications of the ACM,
-  // 31, 10 (Oct. 1988) pp. 1192-1201.
-  // Borrowed from: Fuat C. Baran, Columbia University, 1988.
-  hi = vtkMath::Seed / VTK_K_Q;
-  lo = vtkMath::Seed % VTK_K_Q;
-  if ((vtkMath::Seed = VTK_K_A * lo - VTK_K_R * hi) <= 0)
-    {
-    Seed += VTK_K_M;
-    }
-  return static_cast<double>(vtkMath::Seed)/VTK_K_M;
+  vtkMath::Internal.Uniform->Next();
+  return vtkMath::Internal.Uniform->GetValue();
 }
 
 //----------------------------------------------------------------------------
@@ -147,21 +154,38 @@ double vtkMath::Random()
 // RandomSeed() a few times inside seed. This doesn't ruin the 
 // repeatability of Random().
 //
-void vtkMath::RandomSeed(long s)
+void vtkMath::RandomSeed(int s)
 {
-  vtkMath::Seed = s;
-
-  vtkMath::Random();
-  vtkMath::Random();
-  vtkMath::Random();
+  vtkMath::Internal.Uniform->SetSeed(s);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // Return the current seed used by the random number generator.
-long vtkMath::GetSeed()
+int vtkMath::GetSeed()
 {
-  return vtkMath::Seed;
+  return vtkMath::Internal.Uniform->GetSeed();
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::Random( double min, double max )
+{
+  vtkMath::Internal.Uniform->Next();
+  return vtkMath::Internal.Uniform->GetRangeValue(min,max);
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::Gaussian()
+{
+  vtkMath::Internal.Gaussian->Next();
+  return vtkMath::Internal.Gaussian->GetValue();
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::Gaussian( double mean, double std )
+{
+  vtkMath::Internal.Gaussian->Next();
+  return vtkMath::Internal.Gaussian->GetScaledValue(mean,std);
 }
 
 //----------------------------------------------------------------------------
@@ -2955,7 +2979,7 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "Seed: " << this->Seed << "\n";
+  os << indent << "Seed: " << vtkMath::Internal.Uniform->GetSeed() << "\n";
 }
 
 

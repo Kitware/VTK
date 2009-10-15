@@ -28,7 +28,9 @@
 // include providing constants such as Pi; conversion from degrees to 
 // radians; vector operations such as dot and cross products and vector 
 // norm; matrix determinant for 2x2 and 3x3 matrices; univariate polynomial
-// solvers; and random number generation.
+// solvers; and for random number generation (for backward compatibility only).
+// .SECTION See Also
+// vtkMinimalStandardRandomSequence, vtkBoxMuellerRandomSequence
 
 #ifndef __vtkMath_h
 #define __vtkMath_h
@@ -46,6 +48,9 @@
 
 class vtkDataArray;
 class vtkPoints;
+class vtkMathInternal;
+class vtkMinimalStandardRandomSequence;
+class vtkBoxMuellerRandomSequence;
 
 class VTK_COMMON_EXPORT vtkMath : public vtkObject
 {
@@ -135,31 +140,79 @@ public:
   // is proportional to the seed value! To help solve this, call 
   // RandomSeed() a few times inside seed. This doesn't ruin the 
   // repeatability of Random().
-  static void RandomSeed(long s);  
+  //
+  // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
+  // Instead, for a sequence of random numbers with a uniform distribution
+  // create a vtkMinimalStandardRandomSequence object.
+  // For a sequence of random numbers with a gaussian/normal distribution
+  // create a vtkBoxMuellerRandomSequence object.
+  static void RandomSeed(int s);  
 
   // Description:
   // Return the current seed used by the random number generator.
-  static long GetSeed();
+  //
+  // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
+  // Instead, for a sequence of random numbers with a uniform distribution
+  // create a vtkMinimalStandardRandomSequence object.
+  // For a sequence of random numbers with a gaussian/normal distribution
+  // create a vtkBoxMuellerRandomSequence object.
+  static int GetSeed();
   
   // Description:
   // Generate pseudo-random numbers distributed according to the uniform 
   // distribution between 0.0 and 1.0.
   // This is used to provide portability across different systems.
+  //
+  // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
+  // Instead, for a sequence of random numbers with a uniform distribution
+  // create a vtkMinimalStandardRandomSequence object.
+  // For a sequence of random numbers with a gaussian/normal distribution
+  // create a vtkBoxMuellerRandomSequence object.
   static double Random();  
 
   // Description:
   // Generate  pseudo-random numbers distributed according to the uniform 
   // distribution between \a min and \a max.
+  //
+  // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
+  // Instead, for a sequence of random numbers with a uniform distribution
+  // create a vtkMinimalStandardRandomSequence object.
+  // For a sequence of random numbers with a gaussian/normal distribution
+  // create a vtkBoxMuellerRandomSequence object.
   static double Random( double min, double max );
 
   // Description:
   // Generate pseudo-random numbers distributed according to the standard
   // normal distribution.
+  //
+  // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
+  // Instead, for a sequence of random numbers with a uniform distribution
+  // create a vtkMinimalStandardRandomSequence object.
+  // For a sequence of random numbers with a gaussian/normal distribution
+  // create a vtkBoxMuellerRandomSequence object.
   static double Gaussian();  
 
   // Description:
   // Generate  pseudo-random numbers distributed according to the Gaussian
   // distribution with mean \a mean and standard deviation \a std.
+  //
+  // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
+  // Instead, for a sequence of random numbers with a uniform distribution
+  // create a vtkMinimalStandardRandomSequence object.
+  // For a sequence of random numbers with a gaussian/normal distribution
+  // create a vtkBoxMuellerRandomSequence object.
   static double Gaussian( double mean, double std );
 
   // Description:
@@ -790,11 +843,22 @@ protected:
   vtkMath() {};
   ~vtkMath() {};
   
-  static long Seed;
+  static vtkMathInternal Internal;
 private:
   vtkMath(const vtkMath&);  // Not implemented.
   void operator=(const vtkMath&);  // Not implemented.
 };
+
+//BTX
+class vtkMathInternal
+{
+public:
+  vtkMathInternal();
+  ~vtkMathInternal();
+  vtkMinimalStandardRandomSequence *Uniform;
+  vtkBoxMuellerRandomSequence *Gaussian;
+};
+//ETX
 
 //----------------------------------------------------------------------------
 inline float vtkMath::RadiansFromDegrees( float x )
@@ -868,27 +932,6 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
     r *= N--;
     }
   return r;
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::Random( double min, double max )
-{
-  return ( min + vtkMath::Random() * ( max - min ) );
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::Gaussian()
-{
-  // Use the Box-Mueller transform
-  double x = vtkMath::Random();
-  double y = vtkMath::Random();
-  return sqrt( -2. * log( x ) ) * cos( vtkMath::DoubleTwoPi() * y );
-}
-
-//----------------------------------------------------------------------------
-inline double vtkMath::Gaussian( double mean, double std )
-{
-  return mean + std * vtkMath::Gaussian();
 }
 
 //----------------------------------------------------------------------------

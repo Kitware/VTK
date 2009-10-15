@@ -31,6 +31,7 @@ vtkBitArray.cxx
 vtkBitArrayIterator.cxx
 vtkBoundingBox.cxx
 vtkBox.cxx
+vtkBoxMuellerRandomSequence.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
 vtkCharArray.cxx
@@ -65,6 +66,7 @@ vtkFunctionParser.cxx
 vtkFunctionSet.cxx
 vtkGarbageCollector.cxx
 vtkGarbageCollectorManager.cxx
+vtkGaussianRandomSequence.cxx
 vtkGeneralTransform.cxx
 vtkHeap.cxx
 vtkHomogeneousTransform.cxx
@@ -110,6 +112,7 @@ vtkMath.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
+vtkMinimalStandardRandomSequence.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx
 vtkOStrStreamWrapper.cxx
@@ -150,6 +153,7 @@ vtkPropCollection.cxx
 vtkProperty2D.cxx
 vtkQuadratureSchemeDefinition.cxx
 vtkQuadric.cxx
+vtkRandomSequence.cxx
 vtkReferenceCount.cxx
 vtkRungeKutta2.cxx
 vtkRungeKutta4.cxx
@@ -312,6 +316,7 @@ vtkDataArray
 vtkEventForwarderCommand
 vtkFloatingPointExceptions
 vtkFunctionSet
+vtkGaussianRandomSequence
 vtkHomogeneousTransform
 vtkImplicitFunction
 vtkInformationDataObjectKey
@@ -341,6 +346,7 @@ vtkOverrideInformation
 vtkOverrideInformationCollection
 vtkParametricFunction
 vtkProp
+vtkRandomSequence
 vtkScalarsToColors
 vtkSocket
 vtkStructuredData
