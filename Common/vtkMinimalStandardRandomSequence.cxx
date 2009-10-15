@@ -16,11 +16,11 @@
 #include <cassert>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMinimalStandardRandomSequence, "1.1");
+vtkCxxRevisionMacro(vtkMinimalStandardRandomSequence, "1.2");
 vtkStandardNewMacro(vtkMinimalStandardRandomSequence);
 
 const int VTK_K_A=16807;
-const int VTK_K_M=2147483647;
+const int VTK_K_M=2147483647; // Mersenne prime 2^(31)-1
 const int VTK_K_Q=127773; // M/A
 const int VTK_K_R=2836; // M%A
 
