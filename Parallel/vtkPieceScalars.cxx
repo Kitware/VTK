@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPieceScalars, "1.15");
+vtkCxxRevisionMacro(vtkPieceScalars, "1.16");
 vtkStandardNewMacro(vtkPieceScalars);
 
 //----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
   float randomValue;
   
   vtkMath::RandomSeed(piece);
-  randomValue = vtkMath::Random();
+  randomValue = static_cast<float>(vtkMath::Random());
   
   pieceColors = vtkFloatArray::New();
   pieceColors->SetNumberOfTuples(num);
