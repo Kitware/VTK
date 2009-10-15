@@ -14,8 +14,8 @@
 // .NAME vtkBoxMuellerRandomSequence - Gaussian sequence of pseudo random numbers implemented with the Box-Mueller transform
 // .SECTION Description
 // vtkGaussianRandomSequence is a sequence of pseudo random numbers
-// distributed according to the Gaussian/normal distribution between -1.0
-// and 1.0.
+// distributed according to the Gaussian/normal distribution (mean=0 and
+// standard deviation=1).
 //
 // It based is calculation from a uniformly distributed pseudo random sequence.
 // The initial sequence is a vtkMinimalStandardRandomSequence.
@@ -34,8 +34,7 @@ public:
   static vtkBoxMuellerRandomSequence* New();
   
   // Description:
-  // Current value
-  // \post unit_range: result>=-1.0 && result<=1.0
+  // Current value.
   virtual double GetValue();
   
   // Description:

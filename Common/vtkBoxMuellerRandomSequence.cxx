@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxMuellerRandomSequence, "1.3");
+vtkCxxRevisionMacro(vtkBoxMuellerRandomSequence, "1.4");
 vtkStandardNewMacro(vtkBoxMuellerRandomSequence);
 
 
@@ -38,7 +38,6 @@ vtkBoxMuellerRandomSequence::~vtkBoxMuellerRandomSequence()
 // ----------------------------------------------------------------------------
 double vtkBoxMuellerRandomSequence::GetValue()
 {
-  assert("post: unit_range" && this->Value>=-1.0 && this->Value<=1.0);
   return this->Value;
 }
 
