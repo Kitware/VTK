@@ -24,11 +24,14 @@
 #include <QColumnView>
 #include <QHeaderView>
 #include <QItemSelection>
+#include <QItemSelectionModel>
 #include <QTreeView>
 #include <QVBoxLayout>
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkApplyColors.h"
 #include "vtkConvertSelection.h"
@@ -44,7 +47,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.29");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.30");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -58,6 +61,9 @@ vtkQtTreeView::vtkQtTreeView()
   this->TreeAdapter = new vtkQtTreeModelAdapter();
   this->TreeView->setModel(this->TreeAdapter);
   this->ColumnView->setModel(this->TreeAdapter);
+  this->SelectionModel = new QItemSelectionModel(this->TreeAdapter);
+  this->TreeView->setSelectionModel(this->SelectionModel);
+  this->ColumnView->setSelectionModel(this->SelectionModel);
   this->Layout = new QVBoxLayout(this->GetWidget());
   this->Layout->setContentsMargins(0,0,0,0);
 
@@ -78,6 +84,7 @@ vtkQtTreeView::vtkQtTreeView()
   this->ColorArrayNameInternal = 0;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
+  this->ApplyColors->SetUseCurrentAnnotationColor(true);
   this->LastInputMTime = 0;
 
 
@@ -101,7 +108,7 @@ vtkQtTreeView::vtkQtTreeView()
     SIGNAL(collapsed(const QModelIndex&)), 
     this, SIGNAL(collapsed(const QModelIndex&)));
 
-  QObject::connect(this->TreeView->selectionModel(), 
+  QObject::connect(this->SelectionModel, 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
       this, 
       SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
@@ -109,11 +116,6 @@ vtkQtTreeView::vtkQtTreeView()
   QObject::connect(this->ColumnView, 
     SIGNAL(updatePreviewWidget(const QModelIndex&)), 
     this, SIGNAL(updatePreviewWidget(const QModelIndex&)));
-
-  QObject::connect(this->ColumnView->selectionModel(), 
-      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this, 
-      SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
@@ -134,6 +136,10 @@ vtkQtTreeView::~vtkQtTreeView()
   if(this->Widget)
     {
     delete this->Widget;
+    }
+  if(this->SelectionModel)
+    {
+    delete this->SelectionModel;
     }
   delete this->TreeAdapter;
 }
@@ -293,6 +299,26 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
 {    
   // Convert from a QModelIndexList to an index based vtkSelection
   const QModelIndexList qmil = this->View->selectionModel()->selectedRows();
+
+  // If in column view mode, don't propagate a selection of a non-leaf node
+  // since such a selection is used to expand the next column.
+  if(this->ColumnView->isVisible())
+    {
+    bool leafNodeSelected = false;
+    for(int i=0; i<qmil.size(); ++i)
+      {
+      if(!this->TreeAdapter->hasChildren(qmil[i]))
+        {
+        leafNodeSelected = true;
+        break;
+        }
+      }
+    if(!leafNodeSelected)
+      {
+      return;
+      }
+    }
+
   vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(qmil);
   
   // Convert to the correct type of selection
@@ -324,7 +350,9 @@ void vtkQtTreeView::SetVTKSelection()
 
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
-  vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
+  vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
+  vtkAnnotationLayers* a = vtkAnnotationLayers::SafeDownCast(annConn->GetProducer()->GetOutputDataObject(0));
+  vtkSelection* s = a->GetCurrentAnnotation()->GetSelection();
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
@@ -393,13 +421,6 @@ void vtkQtTreeView::Update()
     this->TreeAdapter->SetVTKDataObject(0);
     this->TreeAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
 
-    // Re-hide the hidden columns
-    int col;
-    foreach (col, this->HiddenColumns)
-      {
-      this->TreeView->hideColumn(col);
-      }
-
     if (this->GetColorByArray())
       {
       this->TreeAdapter->SetColorColumnName("vtkApplyColors color");
@@ -413,6 +434,7 @@ void vtkQtTreeView::Update()
     this->TreeView->collapseAll();
     this->SetShowRootNode(false);
 
+
     this->LastInputMTime = tree->GetMTime();
     }
 
@@ -421,6 +443,13 @@ void vtkQtTreeView::Update()
     {
     this->SetVTKSelection();
     this->CurrentSelectionMTime = atime;
+    }
+
+  // Re-hide the hidden columns
+  int col;
+  foreach (col, this->HiddenColumns)
+    {
+    this->TreeView->hideColumn(col);
     }
 
   for (int j=0; j<this->TreeAdapter->columnCount(); ++j)
@@ -442,7 +471,6 @@ void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
   this->Superclass::ApplyViewTheme(theme);
 
   this->ApplyColors->SetPointLookupTable(theme->GetPointLookupTable());
-
   this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
   this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
   this->ApplyColors->SetDefaultCellColor(theme->GetCellColor());

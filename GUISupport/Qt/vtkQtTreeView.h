@@ -46,6 +46,7 @@ class QTreeView;
 class vtkApplyColors;
 class QVBoxLayout;
 class vtkQtTreeModelAdapter;
+class QItemSelectionModel;
 
 class QVTK_EXPORT vtkQtTreeView : public vtkQtView
 {
@@ -143,6 +144,7 @@ private:
   QPointer<QColumnView> ColumnView;
   QPointer<QWidget> Widget;
   QPointer<QVBoxLayout> Layout;
+  QPointer<QItemSelectionModel> SelectionModel;
   QList<int> HiddenColumns;
   vtkQtTreeModelAdapter* TreeAdapter;
   QAbstractItemView* View;
