@@ -84,6 +84,20 @@ public:
   // Move to the next number in the random sequence.
   virtual void Next();
   
+  // Description:
+  // Convenient method to return a value in a specific range from the
+  // range [0,1. There is an initial implementation that can be overridden
+  // by a subclass.
+  // There is no pre-condition on the range:
+  // - it can be in increasing order: rangeMin<rangeMax
+  // - it can be empty: rangeMin=rangeMax
+  // - it can be in decreasing order: rangeMin>rangeMax
+  // \post result_in_range:
+  // (rangeMin<=rangeMax && result>=rangeMin && result<=rangeMax)
+  // || (rangeMax<=rangeMin && result>=rangeMax && result<=rangeMin)
+  virtual double GetRangeValue(double rangeMin,
+                               double rangeMax);
+  
 protected:
   vtkMinimalStandardRandomSequence();
   virtual ~vtkMinimalStandardRandomSequence();

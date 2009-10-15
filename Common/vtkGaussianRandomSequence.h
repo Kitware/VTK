@@ -14,7 +14,7 @@
 // .NAME vtkGaussianRandomSequence - Gaussian sequence of pseudo random numbers
 // .SECTION Description
 // vtkGaussianRandomSequence is a sequence of pseudo random numbers
-// distributed according to the Gaussian/normal distribution between 0.0
+// distributed according to the Gaussian/normal distribution between -1.0
 // and 1.0.
 //
 // This is just an interface.
@@ -32,8 +32,8 @@ public:
   
   // Description:
   // Convenient method to return a value given the mean and standard deviation
-  // of the Gaussian distribution from the [0,1] range. There is an initial
-  // implementation that can be overridden by a subclass.
+  // of the Gaussian distribution from the [-1.0,1.0] range. There is an
+  // initial implementation that can be overridden by a subclass.
   virtual double GetScaledValue(double mean,
                                 double standardDeviation);
   

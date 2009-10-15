@@ -15,7 +15,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkRandomSequence, "1.1");
+vtkCxxRevisionMacro(vtkRandomSequence, "1.2");
 
 // ----------------------------------------------------------------------------
 vtkRandomSequence::vtkRandomSequence()
@@ -25,25 +25,6 @@ vtkRandomSequence::vtkRandomSequence()
 // ----------------------------------------------------------------------------
 vtkRandomSequence::~vtkRandomSequence()
 {
-}
-
-// ----------------------------------------------------------------------------
-double vtkRandomSequence::GetRangeValue(double rangeMin,
-                                        double rangeMax)
-{
-  double result;
-  if(rangeMin==rangeMax)
-    {
-    result=rangeMin;
-    }
-  else
-    {
-    result=rangeMin+this->GetValue()*(rangeMax-rangeMin);
-    }
-  assert("post: valid_result" &&
-         ((rangeMin<=rangeMax && result>=rangeMin && result<=rangeMax)
-          || (rangeMax<=rangeMin && result>=rangeMax && result<=rangeMin)));
-  return result;
 }
 
 // ----------------------------------------------------------------------------
