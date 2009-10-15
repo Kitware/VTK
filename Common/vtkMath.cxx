@@ -32,7 +32,7 @@
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.148");
+vtkCxxRevisionMacro(vtkMath, "1.149");
 vtkStandardNewMacro(vtkMath);
 
 vtkMathInternal::vtkMathInternal()
@@ -122,14 +122,6 @@ inline bool vtkMathIsNan(double x)
 #define isnan(x) vtkMathIsNan(x)
 #define VTK_HAS_ISNAN
 #endif // !VTK_HAS_ISNAN && VTK_NON_FINITE_CAUSES_EXCEPTIONS
-
-//
-// some constants we need
-//
-#define VTK_K_A 16807
-#define VTK_K_M 2147483647              /* Mersenne prime 2^31 -1 */
-#define VTK_K_Q 127773                  /* VTK_K_M div VTK_K_A */
-#define VTK_K_R 2836                    /* VTK_K_M mod VTK_K_A */
 
 //
 // Some useful macros and functions
