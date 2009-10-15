@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxMuellerRandomSequence, "1.1");
+vtkCxxRevisionMacro(vtkBoxMuellerRandomSequence, "1.2");
 vtkStandardNewMacro(vtkBoxMuellerRandomSequence);
 
 
@@ -47,8 +47,23 @@ void vtkBoxMuellerRandomSequence::Next()
 {
   this->UniformSequence->Next();
   double x=this->UniformSequence->GetValue();
+  // Make sure x is in (0,1]
+  while(x==0.0)
+    {
+    this->UniformSequence->Next();
+    x=this->UniformSequence->GetValue();
+    }
+  
   this->UniformSequence->Next();
   double y=this->UniformSequence->GetValue();
+  
+  // Make sure y is in (0,1]
+  while(y==0.0)
+    {
+    this->UniformSequence->Next();
+    y=this->UniformSequence->GetValue();
+    }
+  
   this->Value=sqrt(-2.0*log(x))*cos(vtkMath::DoubleTwoPi()*y);
 }
   
