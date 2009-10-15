@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.22");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.23");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -443,4 +443,6 @@ void vtkProcrustesAlignmentFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   this->LandmarkTransform->PrintSelf(os,indent.GetNextIndent());
   this->MeanPoints->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Start From Centroid: " 
+     << (this->StartFromCentroid ? "On\n" : "Off\n");
 }
