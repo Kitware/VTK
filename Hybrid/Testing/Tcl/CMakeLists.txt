@@ -36,6 +36,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestImageStencilWithPolydata
       TestPCA
       TestProcrustes
+      TestProcrustesRigidCentroid
       TestProjectedTerrainPath
       TestThinPlateWarp
       TestThinPlateWarp3D
