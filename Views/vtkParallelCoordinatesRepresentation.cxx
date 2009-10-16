@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAbstractArray.h"
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkAnnotationLink.h"
 #include "vtkArray.h"
 #include "vtkArrayData.h"
 #include "vtkArrayExtents.h"
@@ -80,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.7");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -208,7 +209,6 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->PlotMapper = vtkSmartPointer<vtkPolyDataMapper2D>::New();
   this->PlotMapper.TakeReference(InitializePlotMapper(this->PlotData,this->PlotActor,true));
 
-  this->Selection = vtkSmartPointer<vtkSelection>::New();
   this->InverseSelection = vtkSmartPointer<vtkSelection>::New();
 
   this->InputArrayTable = vtkSmartPointer<vtkTable>::New();
@@ -515,12 +515,19 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     }
 
   vtkDebugMacro(<<"begin selection line placement.\n");
-  for (unsigned int i=0; i<this->Selection->GetNumberOfNodes(); i++)
+  vtkSelection* selection = this->GetAnnotationLink()->GetCurrentSelection();
+  if (selection)
     {
-    if (!this->PlaceSelection(this->I->SelectionData[i],this->InputArrayTable,this->Selection->GetNode(i)))
-      return 0;
-    if (i > 0)
-      continue;
+
+    this->UpdateSelectionActors();
+
+    for (unsigned int i=0; i<selection->GetNumberOfNodes(); i++)
+      {
+      if (!this->PlaceSelection(this->I->SelectionData[i],this->InputArrayTable,selection->GetNode(i)))
+        return 0;
+      if (i > 0)
+        continue;
+      }
     }
 
   vtkDebugMacro(<<"begin update plot properties.\n");
@@ -1703,14 +1710,29 @@ void vtkParallelCoordinatesRepresentation::RangeSelect(int vtkNotUsed(brushClass
   // stubbed out for now
 }
 
-void vtkParallelCoordinatesRepresentation::ReplaceSelection(vtkSelection* selection)
+void vtkParallelCoordinatesRepresentation::UpdateSelectionActors()
 {
-  vtkIdTypeArray* list = vtkIdTypeArray::New();
-  list->DeepCopy(vtkIdTypeArray::SafeDownCast(selection->GetNode(0)->GetSelectionList()));
-  this->SelectRows(0,
-                   vtkParallelCoordinatesView::VTK_BRUSHOPERATOR_REPLACE,
-                   list);
-  list->Delete();
+  vtkSelection* selection = this->GetAnnotationLink()->GetCurrentSelection();
+  int numNodes = selection->GetNumberOfNodes();
+  for (int i=0; i<numNodes; i++)
+    {
+    while (i >= (int)this->I->SelectionData.size())
+      {
+      // initialize everything for drawing the selection
+      vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+      vtkSmartPointer<vtkActor2D> actor = vtkSmartPointer<vtkActor2D>::New();
+      vtkSmartPointer<vtkPolyDataMapper2D> mapper = vtkSmartPointer<vtkPolyDataMapper2D>::New();
+      mapper.TakeReference(this->InitializePlotMapper(polyData,actor));
+
+      this->I->SelectionData.push_back(polyData);
+      this->I->SelectionMappers.push_back(mapper);
+      this->I->SelectionActors.push_back(actor);
+
+      this->AddPropOnNextRender(actor);
+      }
+    }
+
+  this->BuildInverseSelection();
 }
 
 //------------------------------------------------------------------------------
@@ -1761,7 +1783,8 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
 {
   // keep making new selection nodes (and initializing them) until a node for
   // brushClass actually exists.
-  vtkSelectionNode* node = this->Selection->GetNode(brushClass);
+  vtkSelection* selection = this->GetAnnotationLink()->GetCurrentSelection();
+  vtkSelectionNode* node = selection->GetNode(brushClass);
   while (!node)
     {
     vtkSmartPointer<vtkSelectionNode> newnode = vtkSmartPointer<vtkSelectionNode>::New();
@@ -1769,7 +1792,7 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
       vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::PEDIGREEIDS);
     newnode->GetProperties()->Set(
       vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::ROW);
-    this->Selection->AddNode(newnode);
+    selection->AddNode(newnode);
 
     // initialize the selection data
     vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -1787,7 +1810,7 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
 
     this->AddPropOnNextRender(actor);
 
-    node = this->Selection->GetNode(brushClass);
+    node = selection->GetNode(brushClass);
     }
 
   vtkIdTypeArray* oldSelectedIds = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
@@ -1856,21 +1879,22 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
   vtkSortDataArray::Sort(outSelectedIds);
   node->SetSelectionList(outSelectedIds);
 
-  this->Selection->Modified();
-
   this->BuildInverseSelection();
 
   this->Modified();
-  this->UpdateSelection(this->Selection);
+  this->UpdateSelection(selection);
 }
 
 //------------------------------------------------------------------------------
 //
 void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
 {
+  vtkSelection* selection = this->GetAnnotationLink()->GetCurrentSelection();
+
   this->InverseSelection->RemoveAllNodes();
 
-  int numNodes = this->Selection->GetNumberOfNodes();
+
+  int numNodes = selection->GetNumberOfNodes();
   if (numNodes <= 0)
     {
     return;
@@ -1885,7 +1909,7 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
     for (int j=0; j<numNodes; j++)
       {
 
-      vtkIdTypeArray* a = vtkIdTypeArray::SafeDownCast(this->Selection->GetNode(j)->GetSelectionList());
+      vtkIdTypeArray* a = vtkIdTypeArray::SafeDownCast(selection->GetNode(j)->GetSelectionList());
       if (!a || idxs[j] >= a->GetNumberOfTuples())
         {
         continue;

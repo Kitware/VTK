@@ -181,7 +181,6 @@ public:
   virtual void AngleSelect(int brushClass, int brushOperator, double *p1, double *p2);
   virtual void FunctionSelect(int brushClass, int brushOperator, double *p1, double *p2, double *q1, double *q2);
   virtual void RangeSelect(int brushClass, int brushOperator, double *p1, double *p2);
-  virtual void ReplaceSelection(vtkSelection* selection);
 
 //BTX
   enum InputPorts
@@ -276,6 +275,11 @@ protected:
   // are all within two neighboring axes.
   virtual void LassoSelectInternal(vtkPoints* brushPoints, vtkIdTypeArray* outIds);
 
+  // Description:
+  // todo
+  virtual void UpdateSelectionActors();
+
+
   //BTX
   vtkSmartPointer<vtkPolyData>         PlotData;
   vtkSmartPointer<vtkPolyDataMapper2D> PlotMapper;
@@ -283,7 +287,6 @@ protected:
   vtkSmartPointer<vtkTextActor> PlotTitleActor;
   vtkSmartPointer<vtkTextActor> FunctionTextActor;
 
-  vtkSmartPointer<vtkSelection> Selection;
   vtkSmartPointer<vtkSelection> InverseSelection;
   vtkSmartPointer<vtkBivariateLinearTableThreshold> LinearThreshold;
 
