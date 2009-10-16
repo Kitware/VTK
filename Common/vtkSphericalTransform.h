@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkSphericalTransform will convert (r,phi,theta) coordinates to 
 // (x,y,z) coordinates and back again.  The angles are given in radians.
-// By default, it converts cylindrical coordinates to rectangular, but
+// By default, it converts spherical coordinates to rectangular, but
 // GetInverse() returns a transform that will do the opposite.  The equation
 // that is used is x = r*sin(phi)*cos(theta), y = r*sin(phi)*sin(theta),
 // z = r*cos(phi).
