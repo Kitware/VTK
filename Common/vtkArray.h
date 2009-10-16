@@ -81,7 +81,6 @@ public:
   // GetNonNullSize() will always return the same value.  If not, the array is "sparse".
   virtual bool IsDense() = 0;
 
-//BTX
   // Description:
   // Resizes the array to the given extents (number of dimensions and size of each dimension).
   // Note that concrete implementations of vtkArray may place constraints on the the extents
@@ -95,10 +94,17 @@ public:
   void Resize(vtkIdType i);
   void Resize(vtkIdType i, vtkIdType j);
   void Resize(vtkIdType i, vtkIdType j, vtkIdType k);
+//BTX
   void Resize(const vtkArrayExtents& extents);
+//ETX
+
+  // Description:
+  // Returns the extent (array size) along the given dimension.
+  vtkIdType GetExtent(vtkIdType dimension);
 
   // Description:
   // Returns the extents (the number of dimensions and size along each dimension) of the array.
+//BTX
   virtual vtkArrayExtents GetExtents() = 0;
 //ETX
 

@@ -30,7 +30,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArray, "1.4");
+vtkCxxRevisionMacro(vtkArray, "1.5");
 
 //----------------------------------------------------------------------------
 
@@ -165,6 +165,11 @@ void vtkArray::Resize(const vtkArrayExtents& extents)
     }
 
   this->InternalResize(extents);
+}
+
+vtkIdType vtkArray::GetExtent(vtkIdType dimension)
+{
+  return this->GetExtents()[dimension];
 }
 
 vtkIdType vtkArray::GetDimensions()
