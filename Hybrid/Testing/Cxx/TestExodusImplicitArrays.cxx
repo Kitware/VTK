@@ -25,6 +25,8 @@ int TestExodusImplicitArrays(int argc, char *argv[])
   reader->GenerateImplicitNodeIdArrayOn ();
   reader->Update ();
 
+  delete [] fname;
+
   vtkMultiBlockDataSet *mb = reader->GetOutput ();
 
   if (!mb)
