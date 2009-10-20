@@ -35,7 +35,6 @@ SET(KIT_LIBS
   )
 
 SET( Kit_SRCS
-vtkAssertPlainTextMimeTypeStrategy.cxx
 vtkAssignMimeType.cxx
 vtkConcatenateArray.cxx
 vtkDocumentReader.cxx
@@ -43,9 +42,10 @@ vtkExtractSelectedSlices.cxx
 vtkFeatureDictionary.cxx
 vtkFileExtensionMimeTypeStrategy.cxx
 vtkFoldCase.cxx
+vtkForceMimeTypeStrategy.cxx
 vtkFrequencyMatrixWeighting.cxx
-vtkMimeTypes.cxx
 vtkMimeTypeStrategy.cxx
+vtkMimeTypes.cxx
 vtkNGramExtraction.cxx
 vtkPlainTextExtractionStrategy.cxx
 vtkPointwiseMutualInformation.cxx
@@ -55,9 +55,9 @@ vtkSelectArraySlices.cxx
 vtkTextAnalysisUtility.cxx
 vtkTextExtraction.cxx
 vtkTextExtractionStrategy.cxx
-vtkTokenizer.cxx
 vtkTokenLengthFilter.cxx
 vtkTokenValueFilter.cxx
+vtkTokenizer.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(

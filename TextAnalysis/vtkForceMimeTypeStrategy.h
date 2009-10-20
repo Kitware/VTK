@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAssertPlainTextMimeTypeStrategy.h
+  Module:    vtkForceMimeTypeStrategy.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,12 +18,16 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef _vtkAssertPlainTextMimeTypeStrategy_h
-#define _vtkAssertPlainTextMimeTypeStrategy_h
+#ifndef _vtkForceMimeTypeStrategy_h
+#define _vtkForceMimeTypeStrategy_h
 
 #include <vtkMimeTypeStrategy.h>
 
-// .NAME vtkAssertPlainTextMimeTypeStrategy - Claim a text/plain mime type no matter what
+// .NAME vtkForceMimeTypeStrategy - Returns a specific mime type no matter what
+//
+// .SECTION Description
+// vtkForceMimeTypeStrategy returns the same mime type for all files.  The type
+// can be specified by the caller, and defaults to text/plain.
 //
 // .SECTION See Also
 // vtkMimeTypeStrategy, vtkMimeTypes.
@@ -31,25 +35,31 @@
 // .SECTION Thanks 
 // Developed by Andy Wilson (atwilso@sandia.gov) at Sandia National Laboratories.
 
-class VTK_TEXT_ANALYSIS_EXPORT vtkAssertPlainTextMimeTypeStrategy :
+class VTK_TEXT_ANALYSIS_EXPORT vtkForceMimeTypeStrategy :
   public vtkMimeTypeStrategy
 {
 public:
-  static vtkAssertPlainTextMimeTypeStrategy* New();
-  vtkTypeRevisionMacro(vtkAssertPlainTextMimeTypeStrategy, vtkMimeTypeStrategy);
+  static vtkForceMimeTypeStrategy* New();
+  vtkTypeRevisionMacro(vtkForceMimeTypeStrategy, vtkMimeTypeStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  vtkGetStringMacro(MimeType);
+  vtkSetStringMacro(MimeType);
 
   vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end);
 
+//BTX
 protected:
-  vtkAssertPlainTextMimeTypeStrategy();
-  virtual ~vtkAssertPlainTextMimeTypeStrategy();
-   
+  vtkForceMimeTypeStrategy();
+  virtual ~vtkForceMimeTypeStrategy();
+
+  char* MimeType;
+ 
 private:
-  vtkAssertPlainTextMimeTypeStrategy(const vtkAssertPlainTextMimeTypeStrategy&); //Not implemented.
-  void operator=(const vtkAssertPlainTextMimeTypeStrategy&); //Not implemented.
+  vtkForceMimeTypeStrategy(const vtkForceMimeTypeStrategy&); //Not implemented.
+  void operator=(const vtkForceMimeTypeStrategy&); //Not implemented.
+//ETX
 };
 
-#endif // !_vtkAssertPlainTextMimeTypeStrategy_h
+#endif // !_vtkForceMimeTypeStrategy_h
 

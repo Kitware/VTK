@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAssertPlainTextMimeTypeStrategy.cxx
+  Module:    vtkForceMimeTypeStrategy.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,32 +18,37 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include <vtkAssertPlainTextMimeTypeStrategy.h>
+#include <vtkForceMimeTypeStrategy.h>
 #include <vtkObjectFactory.h>
 #include <vtkStdString.h>
 
 #include <boost/algorithm/string.hpp>
 
-vtkCxxRevisionMacro(vtkAssertPlainTextMimeTypeStrategy, "1.1");
-vtkStandardNewMacro(vtkAssertPlainTextMimeTypeStrategy);
+vtkCxxRevisionMacro(vtkForceMimeTypeStrategy, "1.1");
+vtkStandardNewMacro(vtkForceMimeTypeStrategy);
 
-vtkAssertPlainTextMimeTypeStrategy::vtkAssertPlainTextMimeTypeStrategy()
+vtkForceMimeTypeStrategy::vtkForceMimeTypeStrategy() :
+  MimeType(0)
 {
+  this->SetMimeType("text/plain");
 }
 
-vtkAssertPlainTextMimeTypeStrategy::~vtkAssertPlainTextMimeTypeStrategy()
+vtkForceMimeTypeStrategy::~vtkForceMimeTypeStrategy()
 {
+  this->SetMimeType(0);
 }
 
-void vtkAssertPlainTextMimeTypeStrategy::PrintSelf(ostream& os, vtkIndent indent)
+void vtkForceMimeTypeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "MimeType: " << (this->MimeType ? this->MimeType : "(none)") << endl;
 }
 
-vtkStdString vtkAssertPlainTextMimeTypeStrategy::Lookup(
+vtkStdString vtkForceMimeTypeStrategy::Lookup(
   const vtkStdString& vtkNotUsed(uri), 
   const vtkTypeUInt8* vtkNotUsed(begin), 
   const vtkTypeUInt8* vtkNotUsed(end))
 {
-  return vtkStdString("text/plain");
+  return vtkStdString(this->MimeType ? this->MimeType : "");
 }
+
