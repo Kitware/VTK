@@ -142,6 +142,11 @@ public:
   virtual void Frame() = 0;
 
   // Description:
+  // Block the thread until the actual rendering is finished().
+  // Useful for measurement only.
+  virtual void WaitForCompletion()=0;
+  
+  // Description:
   // Performed at the end of the rendering process to generate image.
   // This is typically done right before swapping buffers.
   virtual void CopyResultFrame();

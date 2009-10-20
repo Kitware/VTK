@@ -32,7 +32,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.104");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.105");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -1955,4 +1955,13 @@ vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
     manager->Delete();
     }
   return this->TextureUnitManager;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Block the thread until the actual rendering is finished().
+// Useful for measurement only.
+void vtkOpenGLRenderWindow::WaitForCompletion()
+{
+  glFinish();
 }
