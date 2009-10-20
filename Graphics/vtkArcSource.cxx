@@ -26,7 +26,7 @@
 #include "vtkMath.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkArcSource, "1.3");
+vtkCxxRevisionMacro(vtkArcSource, "1.4");
 vtkStandardNewMacro(vtkArcSource);
 
 // --------------------------------------------------------------------------
@@ -45,6 +45,7 @@ vtkArcSource::vtkArcSource(int res)
   this->Center[2] =  0.0;
   
   this->Resolution = (res < 1 ? 1 : res);
+  this->Negative = false;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -99,6 +100,10 @@ int vtkArcSource::RequestData(
   double dotprod = 
     vtkMath::Dot( v1, v2 ) / (vtkMath::Norm(v1) * vtkMath::Norm(v2));
   double angle = acos( dotprod );
+  if (this->Negative)
+    {
+    angle -= vtkMath::DoubleTwoPi();
+    }
   double radius = vtkMath::Normalize( v1 );
   double angleInc = angle / this->Resolution;
   
