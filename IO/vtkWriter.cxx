@@ -23,7 +23,12 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkWriter, "1.45");
+vtkCxxRevisionMacro(vtkWriter, "1.46");
+
+namespace 
+{
+  const char hex_digits[] = "0123456789ABCDEF";
+};
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -182,7 +187,7 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
       {
-      sprintf(buffer, "%02X", name[cc]);
+      sprintf(buffer, "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
         {
         str << "%%";
@@ -219,7 +224,7 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
       {
-      sprintf(buffer, "%02X", name[cc]);
+      sprintf(buffer, "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
         {
         *out << "%%";
