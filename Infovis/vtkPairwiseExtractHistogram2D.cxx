@@ -45,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtkstd/map>
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.4");
+vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.5");
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals
@@ -298,8 +298,16 @@ void vtkPairwiseExtractHistogram2D::SetCustomColumnRange(int column, double rmin
     if (a)
       {
       this->Implementation->ColumnUsesCustomExtents[a->GetName()] = true;
-      this->Implementation->ColumnExtents[a->GetName()][0] = rmin;
-      this->Implementation->ColumnExtents[a->GetName()][1] = rmax;
+      if (this->Implementation->ColumnExtents[a->GetName()].size() == 0)
+        {
+        this->Implementation->ColumnExtents[a->GetName()].push_back(rmin);
+        this->Implementation->ColumnExtents[a->GetName()].push_back(rmax);
+        }
+      else
+        {
+        this->Implementation->ColumnExtents[a->GetName()][0] = rmin;
+        this->Implementation->ColumnExtents[a->GetName()][1] = rmax;
+        }
       this->Modified();
       }
     }
