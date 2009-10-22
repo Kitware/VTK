@@ -86,7 +86,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightWriter);
-vtkCxxRevisionMacro(vtkEnSightWriter, "1.5");
+vtkCxxRevisionMacro(vtkEnSightWriter, "1.6");
 
 vtkCxxSetObjectMacro(vtkEnSightWriter, ModelMetadata, vtkModelMetadata);
 
@@ -566,24 +566,30 @@ void vtkEnSightWriter::WriteData()
     elementTypes.push_back(VTK_QUAD);
     elementTypes.push_back(VTK_TETRA);
     elementTypes.push_back(VTK_HEXAHEDRON);
+    elementTypes.push_back(VTK_WEDGE);
     elementTypes.push_back(VTK_PYRAMID);
     elementTypes.push_back(VTK_QUADRATIC_EDGE);
     elementTypes.push_back(VTK_QUADRATIC_TRIANGLE);
     elementTypes.push_back(VTK_QUADRATIC_QUAD);
     elementTypes.push_back(VTK_QUADRATIC_TETRA);
     elementTypes.push_back(VTK_QUADRATIC_HEXAHEDRON);
+    elementTypes.push_back(VTK_QUADRATIC_WEDGE);
+    elementTypes.push_back(VTK_QUADRATIC_PYRAMID);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_VERTEX);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_LINE);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_TRIANGLE);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUAD);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_TETRA);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_HEXAHEDRON);
+    elementTypes.push_back(this->GhostLevelMultiplier+VTK_WEDGE);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_PYRAMID);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_EDGE);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_TRIANGLE);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_QUAD);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_TETRA);
     elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_HEXAHEDRON);
+    elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_WEDGE);
+    elementTypes.push_back(this->GhostLevelMultiplier+VTK_QUADRATIC_PYRAMID);
 
     //write out each type of element
     if (this->ShouldWriteGeometry())
@@ -643,9 +649,13 @@ void vtkEnSightWriter::WriteData()
             for (unsigned int m=0;m<CellsByElement[elementTypes[k]].size();m++)
               {
               this->WriteFloatToFile
-                ((float)(DataArray->GetTuple(CellsByElement[elementTypes[k]]
-                                             [m])[CurrentDimension]),
-                 cellArrayFiles[j]);
+                (  (float) 
+                   (   DataArray
+                       ->GetTuple(  CellsByElement[ elementTypes[k] ][m]  )
+                         [CurrentDimension]
+                   ),
+                   cellArrayFiles[j]
+                );
               }
             }
           }
@@ -1044,6 +1054,9 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
     case(VTK_HEXAHEDRON):
       this->WriteStringToFile("hexa8",fd);
       break;
+    case(VTK_WEDGE):
+      this->WriteStringToFile("penta6",fd);
+      break;
     case(VTK_PYRAMID):
       this->WriteStringToFile("pyramid5",fd);
       break;
@@ -1061,6 +1074,9 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
       break;
     case(VTK_QUADRATIC_HEXAHEDRON):
       this->WriteStringToFile("hexa20",fd);
+      break;
+    case(VTK_QUADRATIC_WEDGE):
+      this->WriteStringToFile("penta15",fd);
       break;
     case(VTK_QUADRATIC_PYRAMID):
       this->WriteStringToFile("pyramid13",fd);
@@ -1089,6 +1105,9 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
     case(VTK_HEXAHEDRON):
       this->WriteStringToFile("g_hexa8",fd);
       break;
+    case(VTK_WEDGE):
+      this->WriteStringToFile("g_penta6",fd);
+      break;
     case(VTK_PYRAMID):
       this->WriteStringToFile("g_pyramid5",fd);
       break;
@@ -1106,6 +1125,9 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
       break;
     case(VTK_QUADRATIC_HEXAHEDRON):
       this->WriteStringToFile("g_hexa20",fd);
+      break;
+    case(VTK_QUADRATIC_WEDGE):
+      this->WriteStringToFile("g_penta15",fd);
       break;
     case(VTK_QUADRATIC_PYRAMID):
       this->WriteStringToFile("g_pyramid13",fd);
