@@ -36,7 +36,7 @@
 #include "vtkCellPicker.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.22");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.23");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -899,6 +899,12 @@ void vtkLineRepresentation::SetDistanceAnnotationScale( double scale[3] )
 double * vtkLineRepresentation::GetDistanceAnnotationScale()
 {
   return this->TextActor->GetScale();
+}
+
+//----------------------------------------------------------------------------
+vtkProperty * vtkLineRepresentation::GetDistanceAnnotationProperty()
+{
+  return this->TextActor->GetProperty();
 }
 
 //----------------------------------------------------------------------------

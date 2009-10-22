@@ -208,6 +208,10 @@ public:
   // Ideally one should use GetLineProperty()->SetColor().
   void SetLineColor(double r, double g, double b);
 
+  // Description:
+  // Get the distance annotation property
+  virtual vtkProperty *GetDistanceAnnotationProperty();
+
 protected:
   vtkLineRepresentation();
   ~vtkLineRepresentation();
