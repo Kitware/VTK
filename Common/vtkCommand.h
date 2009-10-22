@@ -76,6 +76,9 @@
 //  - Views/vtkView returns NULL
 //  - Views/vtkDataRepresentation returns a pointer to a vtkSelection
 //  - Rendering/vtkInteractorStyleRubberBand2D returns an array of 5 unsigned
+// integers (p1x, p1y, p2x, p2y, mode), where mode is
+// vtkInteractorStyleRubberBand2D::SELECT_UNION or
+// vtkInteractorStyleRubberBand2D::SELECT_NORMAL
 // - vtkCommand::AnnotationChangedEvent
 //  - GUISupport/Qt/vtkQtAnnotationView returns a pointer to a 
 // vtkAnnotationLayers
