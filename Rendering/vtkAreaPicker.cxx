@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkExtractSelectedFrustum.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.15");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.16");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -115,8 +115,6 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   this->SelectionPoint[0] = (this->X0+this->X1)*0.5;
   this->SelectionPoint[1] = (this->Y0+this->Y1)*0.5;
   this->SelectionPoint[2] = 0.0;
-
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
   if ( this->Renderer == NULL )
     {
