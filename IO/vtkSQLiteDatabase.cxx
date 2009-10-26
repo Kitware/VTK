@@ -26,12 +26,13 @@
 #include "vtkStringArray.h"
 
 #include <vtksys/SystemTools.hxx>
+#include <vtksys/ios/fstream>
 #include <vtksys/ios/sstream>
 
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.19");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.20");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -240,6 +241,38 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
 }
 
 // ----------------------------------------------------------------------
+bool vtkSQLiteDatabase::OpenNew()
+{
+  if (this->IsOpen())
+    {
+    vtkWarningMacro("Open(): Database is already open.");
+    return true;
+    }
+
+  if (!this->DatabaseFileName)
+    {
+    vtkErrorMacro("Cannot open database because DatabaseFileName is not set.");
+    return false;
+    }
+
+  if (!strcmp(":memory:", this->DatabaseFileName))
+    {
+    return this->Open(0);
+    }
+
+  vtksys_ios::ofstream out;
+  out.open(this->DatabaseFileName);
+  if (!out.is_open())
+    {
+    vtkErrorMacro("Unable to create file " << this->DatabaseFileName << ".");
+    return false;
+    }
+  out.close();
+
+  return this->Open(0);
+}
+
+// ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::Open(const char* password)
 {
   if(password && strlen(password))
@@ -256,6 +289,13 @@ bool vtkSQLiteDatabase::Open(const char* password)
   if (!this->DatabaseFileName)
     {
     vtkErrorMacro("Cannot open database because DatabaseFileName is not set.");
+    return false;
+    }
+
+  if (strcmp(":memory:", this->DatabaseFileName) &&
+    !vtksys::SystemTools::FileExists(this->DatabaseFileName))
+    {
+    vtkErrorMacro("Database file does not exist. Use OpenNew() to create a new file.");
     return false;
     }
 

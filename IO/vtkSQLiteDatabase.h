@@ -65,7 +65,14 @@ public:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
   // database was opened successfully; false otherwise.
+  // The file must exist in order to open it. To create a new
+  // empty database use OpenNew.
   bool Open(const char* password);
+
+  // Description:
+  // Opens a new empty SQLite database file. If the file exists,
+  // the existing database will be deleted.
+  bool OpenNew();
 
   // Description:
   // Close the connection to the database.
