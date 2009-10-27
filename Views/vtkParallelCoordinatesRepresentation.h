@@ -72,7 +72,7 @@ class vtkPolyDataMapper2D;
 class vtkPropCollection;
 class vtkSelection;
 class vtkSelectionNode;
-class vtkTextActor;
+class vtkTextMapper;
 class vtkTimeStamp;
 class vtkUnsignedIntArray;
 class vtkViewport;
@@ -284,8 +284,10 @@ protected:
   vtkSmartPointer<vtkPolyData>         PlotData;
   vtkSmartPointer<vtkPolyDataMapper2D> PlotMapper;
   vtkSmartPointer<vtkActor2D>          PlotActor;
-  vtkSmartPointer<vtkTextActor> PlotTitleActor;
-  vtkSmartPointer<vtkTextActor> FunctionTextActor;
+  vtkSmartPointer<vtkTextMapper> PlotTitleMapper;
+  vtkSmartPointer<vtkActor2D> PlotTitleActor;
+  vtkSmartPointer<vtkTextMapper> FunctionTextMapper;
+  vtkSmartPointer<vtkActor2D> FunctionTextActor;
 
   vtkSmartPointer<vtkSelection> InverseSelection;
   vtkSmartPointer<vtkBivariateLinearTableThreshold> LinearThreshold;

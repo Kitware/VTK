@@ -71,7 +71,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkTextActor.h"
+#include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkThreshold.h"
 #include "vtkTimeStamp.h"
@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.8");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -218,23 +218,30 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->Axes = NULL;
   this->NumberOfAxisLabels = 2;
 
-  this->PlotTitleActor = vtkSmartPointer<vtkTextActor>::New();
-  this->PlotTitleActor->SetTextScaleModeToViewport();
-  this->PlotTitleActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
-  this->PlotTitleActor->SetPosition(.5,.95);
-  this->PlotTitleActor->GetTextProperty()->SetJustificationToCentered();
-  this->PlotTitleActor->SetInput("Parallel Coordinates Plot");
+  this->PlotTitleMapper = vtkSmartPointer<vtkTextMapper>::New();
+  this->PlotTitleMapper->SetInput("Parallel Coordinates Plot");
+  this->PlotTitleMapper->GetTextProperty()->SetJustificationToCentered();
 
-  this->FunctionTextActor = vtkSmartPointer<vtkTextActor>::New();
-  this->FunctionTextActor->SetTextScaleModeToViewport();
-  this->FunctionTextActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  this->PlotTitleActor = vtkSmartPointer<vtkActor2D>::New();
+  this->PlotTitleActor->SetMapper(this->PlotTitleMapper);
+//  this->PlotTitleActor->SetTextScaleModeToViewport();
+  this->PlotTitleActor->GetActualPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  this->PlotTitleActor->SetPosition(.5,.95);
+
+
+  this->FunctionTextMapper = vtkSmartPointer<vtkTextMapper>::New();
+  this->FunctionTextMapper->SetInput("No functino selected.");
+  this->FunctionTextMapper->GetTextProperty()->SetJustificationToLeft();
+  this->FunctionTextMapper->GetTextProperty()->SetVerticalJustificationToTop();
+//  this->FunctionTextActor->SetInput("No function selected.");
+  this->FunctionTextMapper->GetTextProperty()->SetFontSize(
+    this->PlotTitleMapper->GetTextProperty()->GetFontSize()/2);
+
+  this->FunctionTextActor = vtkSmartPointer<vtkActor2D>::New();
+//  this->FunctionTextActor->SetTextScaleModeToViewport();
+  this->FunctionTextActor->GetActualPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   this->FunctionTextActor->SetPosition(.01,.99);
-  this->FunctionTextActor->GetTextProperty()->SetJustificationToLeft();
-  this->FunctionTextActor->GetTextProperty()->SetVerticalJustificationToTop();
-  this->FunctionTextActor->SetInput("No function selected.");
   this->FunctionTextActor->VisibilityOff();
-  this->FunctionTextActor->GetTextProperty()->SetFontSize(
-    this->PlotTitleActor->GetTextProperty()->GetFontSize()/2);
 
   this->NumberOfAxes = 0;
   this->NumberOfSamples = 0;
@@ -1308,7 +1315,7 @@ void vtkParallelCoordinatesRepresentation::SetPlotTitle(const char* title)
   if (title && title[0] != '\0')
     {
     this->PlotTitleActor->VisibilityOn();
-    this->PlotTitleActor->SetInput(title);
+    this->PlotTitleMapper->SetInput(title);
     }
   else
     {
@@ -1516,7 +1523,7 @@ void vtkParallelCoordinatesRepresentation::LassoSelect(int brushClass,
     this->LassoSelectInternal(posPoints,allIds);
     }
 
-  this->FunctionTextActor->SetInput("No function selected.");
+  this->FunctionTextMapper->SetInput("No function selected.");
   this->FunctionTextActor->VisibilityOff();
   this->SelectRows(brushClass,brushOperator,allIds);
 }
@@ -1629,7 +1636,7 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
             (b < 0) ? "-" : "+",
             fabs(b));
             
-    this->FunctionTextActor->SetInput(buf);
+    this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();
 
     this->SelectRows(brushClass,brushOperator,this->LinearThreshold->GetSelectedRowIds());
@@ -1693,7 +1700,7 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
             (b < 0) ? "-" : "+",
             fabs(b));
             
-    this->FunctionTextActor->SetInput(buf);
+    this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();
 
 
@@ -1714,6 +1721,7 @@ void vtkParallelCoordinatesRepresentation::UpdateSelectionActors()
 {
   vtkSelection* selection = this->GetAnnotationLink()->GetCurrentSelection();
   int numNodes = selection->GetNumberOfNodes();
+
   for (int i=0; i<numNodes; i++)
     {
     while (i >= (int)this->I->SelectionData.size())
@@ -1730,6 +1738,14 @@ void vtkParallelCoordinatesRepresentation::UpdateSelectionActors()
 
       this->AddPropOnNextRender(actor);
       }
+    }
+
+  for (int i=numNodes; i<this->I->SelectionData.size(); i++)
+    {
+    this->RemovePropOnNextRender(this->I->SelectionActors[i]);
+    this->I->SelectionData.pop_back();
+    this->I->SelectionMappers.pop_back();
+    this->I->SelectionActors.pop_back();
     }
 
   this->BuildInverseSelection();

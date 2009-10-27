@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesView, "1.3");
+vtkCxxRevisionMacro(vtkParallelCoordinatesView, "1.4");
 vtkStandardNewMacro(vtkParallelCoordinatesView);
 
 // ----------------------------------------------------------------------
@@ -99,10 +99,10 @@ vtkParallelCoordinatesView::vtkParallelCoordinatesView()
   this->HighlightActor->GetProperty()->SetColor(.1,1.0,.1);
   this->HighlightActor->VisibilityOff();
 
-  vtkSmartPointer<vtkViewTheme> theme = vtkSmartPointer<vtkViewTheme>::New();
-  theme->SetBackgroundColor(0,0,0);
-  theme->SetBackgroundColor2(0,0,0);
-  this->ApplyViewTheme(theme);
+//  vtkSmartPointer<vtkViewTheme> theme = vtkSmartPointer<vtkViewTheme>::New();
+//  theme->SetBackgroundColor(0,0,0);
+//  theme->SetBackgroundColor2(0,0,0);
+//  this->ApplyViewTheme(theme);
 }
 
 // ----------------------------------------------------------------------
