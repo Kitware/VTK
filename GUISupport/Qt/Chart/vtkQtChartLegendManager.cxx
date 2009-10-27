@@ -69,6 +69,7 @@ vtkQtChartLegendManager::vtkQtChartLegendManager(QObject *parentObject)
 
 vtkQtChartLegendManager::~vtkQtChartLegendManager()
 {
+  delete this->Internal;
 }
 
 void vtkQtChartLegendManager::setChartArea(vtkQtChartArea *area)
