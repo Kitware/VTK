@@ -31,14 +31,14 @@
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
 
 #ifdef VTK_USE_GL2PS
-#include "gl2ps.h"
+#include "vtk_gl2ps.h"
 #include "vtkGL2PSExporter.h"
 #endif // VTK_USE_GL2PS
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.59");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.60");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 

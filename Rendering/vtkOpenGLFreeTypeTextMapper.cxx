@@ -30,7 +30,7 @@
 #include "FTFont.h"
 
 #ifdef VTK_USE_GL2PS
-#include "gl2ps.h"
+#include "vtk_gl2ps.h"
 #endif // VTK_USE_GL2PS
 
 
@@ -90,7 +90,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.47");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.48");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 

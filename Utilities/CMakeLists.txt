@@ -67,6 +67,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtk_jpeg.h
     vtk_png.h
     vtk_zlib.h
+    vtk_gl2ps.h
     vtk_tiff.h
     vtk_freetype.h
     vtk_libxml2.h
