@@ -48,9 +48,9 @@
 //
 
 template<template <typename> class TargetT, typename FunctorT>
-struct vtkTryDowncastingHelper
+struct vtkTryDowncastHelper
 {
-  vtkTryDowncastingHelper(vtkObject* source, FunctorT functor, bool& succeeded) :
+  vtkTryDowncastHelper(vtkObject* source, FunctorT functor, bool& succeeded) :
     Source(source),
     Functor(functor),
     Succeeded(succeeded)
@@ -76,9 +76,9 @@ struct vtkTryDowncastingHelper
 };
 
 template<template <typename> class TargetT, typename FunctorT, typename Arg1T>
-struct vtkTryDowncastingHelper1
+struct vtkTryDowncastHelper1
 {
-  vtkTryDowncastingHelper1(vtkObject* source, FunctorT functor, Arg1T arg1, bool& succeeded) :
+  vtkTryDowncastHelper1(vtkObject* source, FunctorT functor, Arg1T arg1, bool& succeeded) :
     Source(source),
     Functor(functor),
     Arg1(arg1),
@@ -106,19 +106,19 @@ struct vtkTryDowncastingHelper1
 };
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT>
-FunctorT vtkTryDowncasting(vtkObject* source, FunctorT functor)
+FunctorT vtkTryDowncast(vtkObject* source, FunctorT functor)
 {
   bool succeeded = false;
-  vtkTryDowncastingHelper<TargetT, FunctorT> helper(source, functor, succeeded);
+  vtkTryDowncastHelper<TargetT, FunctorT> helper(source, functor, succeeded);
   boost::mpl::for_each<TypesT>(helper);
   return functor;
 }
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT, typename Arg1T>
-FunctorT vtkTryDowncasting(vtkObject* source, FunctorT functor, Arg1T arg1)
+FunctorT vtkTryDowncast(vtkObject* source, FunctorT functor, Arg1T arg1)
 {
   bool succeeded = false;
-  vtkTryDowncastingHelper1<TargetT, FunctorT, Arg1T> helper(source, functor, arg1, succeeded);
+  vtkTryDowncastHelper1<TargetT, FunctorT, Arg1T> helper(source, functor, arg1, succeeded);
   boost::mpl::for_each<TypesT>(helper);
   return functor;
 }
@@ -223,24 +223,24 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     VTK_CREATE(vtkDenseArray<vtkStdString>, dense_string);
 
     // Calling a functor with extra arguments passed via the algorithm ...
-    vtkTryDowncasting<vtkTypedArray, vtkNumericTypes>(dense_int, IncrementValues(), 1);
-    vtkTryDowncasting<vtkTypedArray, vtkNumericTypes>(dense_double, IncrementValues(), 2);
-    vtkTryDowncasting<vtkTypedArray, vtkNumericTypes>(dense_string, IncrementValues(), 3);
+    vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_int, IncrementValues(), 1);
+    vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_double, IncrementValues(), 2);
+    vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_string, IncrementValues(), 3);
 
     // Alternative syntax: passing arguments via the functor ...
-    // vtkTryDowncasting<vtkTypedArray, vtkNumericTypes>(dense_int, IncrementValues(1));
-    // vtkTryDowncasting<vtkTypedArray, vtkNumericTypes>(dense_double, IncrementValues(2));
-    // vtkTryDowncasting<vtkTypedArray, vtkNumericTypes>(dense_string, IncrementValues(3));
+    // vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_int, IncrementValues(1));
+    // vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_double, IncrementValues(2));
+    // vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_string, IncrementValues(3));
 
-    vtkTryDowncasting<vtkTypedArray, vtkStringTypes>(dense_int, FoldCase());
-    vtkTryDowncasting<vtkTypedArray, vtkStringTypes>(dense_double, FoldCase());
-    vtkTryDowncasting<vtkTypedArray, vtkStringTypes>(dense_string, FoldCase());
+    vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_int, FoldCase());
+    vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_double, FoldCase());
+    vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_string, FoldCase());
 
-    vtkSmartPointer<vtkArray> transposed_matrix = vtkTryDowncasting<vtkDenseArray, vtkAllTypes>(dense_double, Transpose()).ResultMatrix;
+    vtkSmartPointer<vtkArray> transposed_matrix = vtkTryDowncast<vtkDenseArray, vtkAllTypes>(dense_double, Transpose()).ResultMatrix;
 
     // Alternative syntax: passing results via functor arguments ...
     // vtkSmartPointer<vtkArray> transposed_matrix;
-    // vtkTryDowncasting<vtkDenseArray, vtkAllTypes>(dense_double, Transpose(transposed_matrix));
+    // vtkTryDowncast<vtkDenseArray, vtkAllTypes>(dense_double, Transpose(transposed_matrix));
 
     return 0;
     }
