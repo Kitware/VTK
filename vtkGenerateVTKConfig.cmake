@@ -2,6 +2,19 @@
 # one for installation.  The file tells external projects how to use
 # VTK.
 
+# Construct version numbers for VTKConfigVersion.cmake.
+SET(_VTK_VERSION_MAJOR ${VTK_MAJOR_VERSION})
+SET(_VTK_VERSION_MINOR ${VTK_MINOR_VERSION})
+SET(_VTK_VERSION_PATCH ${VTK_BUILD_VERSION})
+# We use odd minor numbers for development versions.
+# Use a date for the development patch level.
+IF("${_VTK_VERSION_MINOR}" MATCHES "[13579]$")
+  INCLUDE(${VTK_SOURCE_DIR}/Utilities/kwsys/kwsysDateStamp.cmake)
+  SET(_VTK_VERSION_PATCH
+    "${KWSYS_DATE_STAMP_YEAR}${KWSYS_DATE_STAMP_MONTH}${KWSYS_DATE_STAMP_DAY}"
+    )
+ENDIF("${_VTK_VERSION_MINOR}" MATCHES "[13579]$")
+
 # Help store a literal dollar in a string.  CMake 2.2 allows escaped
 # dollars but we have to support CMake 2.0.
 SET(DOLLAR "$")
@@ -148,6 +161,8 @@ SET(VTK_CONFIG_BACKWARD_COMPATIBILITY_HACK
 # Configure VTKConfig.cmake for the build tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY IMMEDIATE)
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfigVersion.cmake.in
+               ${VTK_BINARY_DIR}/VTKConfigVersion.cmake @ONLY IMMEDIATE)
 
 #-----------------------------------------------------------------------------
 # Settings specific to the install tree.
@@ -353,3 +368,12 @@ ELSE(CMAKE_CONFIGURATION_TYPES)
       )
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(CMAKE_CONFIGURATION_TYPES)
+
+# Create and install the package version file.
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfigVersion.cmake.in
+               ${VTK_BINARY_DIR}/Utilities/VTKConfigVersion.cmake
+               @ONLY IMMEDIATE)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL(FILES ${VTK_BINARY_DIR}/Utilities/VTKConfigVersion.cmake
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24} COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
