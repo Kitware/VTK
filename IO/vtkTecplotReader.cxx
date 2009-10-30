@@ -47,7 +47,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.2" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.3" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -319,11 +319,12 @@ static vtkstd::string SimplifyWhitespace( const vtkstd::string & s )
 // ----------------------------------------------------------------------------
 vtkTecplotReader::vtkTecplotReader()
 { 
-  this->DataArraySelection = vtkDataArraySelection::New();
   this->SelectionObserver  = vtkCallbackCommand::New();
   this->SelectionObserver->SetClientData( this );
   this->SelectionObserver->SetCallback
         ( &vtkTecplotReader::SelectionModifiedCallback );
+        
+  this->DataArraySelection = vtkDataArraySelection::New();
   this->DataArraySelection->AddObserver( vtkCommand::ModifiedEvent,
                                          this->SelectionObserver );
                                             
@@ -351,6 +352,9 @@ vtkTecplotReader::~vtkTecplotReader()
   this->DataArraySelection->RemoveObserver( this->SelectionObserver );
   this->DataArraySelection->Delete();
   this->DataArraySelection = NULL;
+  
+  this->SelectionObserver->SetClientData( NULL );
+  this->SelectionObserver->SetCallback( NULL );
   this->SelectionObserver->Delete();
   this->SelectionObserver  = NULL;
 }
