@@ -155,6 +155,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # warnings from some python headers/libs, cannot fix:
   "warning: the use of .tmpnam_r. is dangerous, better use .mkstemp."
+  "warning: the use of .tempnam. is dangerous, better use .mkstemp."
+  "pyconfig.h.*warning: ._XOPEN_SOURCE.' redefined"
+  "features.h.*warning: this is the location of the previous definition"
 
   # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,vtklibproj4,
   # vtkzlib, DICOMParser
