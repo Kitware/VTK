@@ -47,7 +47,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.5" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.6" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -413,16 +413,17 @@ int vtkTecplotReader::FillOutputPortInformation
 }
 
 // ----------------------------------------------------------------------------
-int vtkTecplotReader::RequestInformation( vtkInformation        * request,
-                                          vtkInformationVector ** inputVector,
-                                          vtkInformationVector  * outputVector )
-{
+int vtkTecplotReader::RequestInformation( vtkInformation *,
+                                          vtkInformationVector **,
+                                          vtkInformationVector * )
+{ /*/
   if(  !this->Superclass::RequestInformation
         ( request, inputVector, outputVector )  
     )
     {
     return 0;
     }
+  //*/
 
   //vtkInformation * info = outputVector->GetInformationObject( 0 );
   //info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
