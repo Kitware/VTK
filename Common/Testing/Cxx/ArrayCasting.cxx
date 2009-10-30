@@ -22,14 +22,12 @@
 #include <vtkDenseArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
+#include <vtkTryDowncast.h>
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/stdexcept>
 
-#include <boost/mpl/for_each.hpp>
-#include <boost/mpl/joint_view.hpp>
-#include <boost/mpl/vector.hpp>
 #include <boost/algorithm/string.hpp>
 
 //
@@ -41,105 +39,6 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-//
-//
-// End-users can ignore this, it's the guts of the beast ...
-//
-//
-
-template<template <typename> class TargetT, typename FunctorT>
-struct vtkTryDowncastHelper
-{
-  vtkTryDowncastHelper(vtkObject* source, FunctorT functor, bool& succeeded) :
-    Source(source),
-    Functor(functor),
-    Succeeded(succeeded)
-  {
-  }
-
-  template<typename ValueT>
-  void operator()(ValueT) const
-  {
-    if(Succeeded)
-      return;
-
-    if(TargetT<ValueT>* const target = TargetT<ValueT>::SafeDownCast(Source))
-      {
-      Succeeded = true;
-      this->Functor(target);
-      }
-  }
-
-  vtkObject* Source;
-  FunctorT Functor;
-  bool& Succeeded;
-};
-
-template<template <typename> class TargetT, typename FunctorT, typename Arg1T>
-struct vtkTryDowncastHelper1
-{
-  vtkTryDowncastHelper1(vtkObject* source, FunctorT functor, Arg1T arg1, bool& succeeded) :
-    Source(source),
-    Functor(functor),
-    Arg1(arg1),
-    Succeeded(succeeded)
-  {
-  }
-
-  template<typename ValueT>
-  void operator()(ValueT) const
-  {
-    if(Succeeded)
-      return;
-
-    if(TargetT<ValueT>* const target = TargetT<ValueT>::SafeDownCast(Source))
-      {
-      Succeeded = true;
-      this->Functor(target, this->Arg1);
-      }
-  }
-
-  vtkObject* Source;
-  FunctorT Functor;
-  Arg1T Arg1;
-  bool& Succeeded;
-};
-
-template<template <typename> class TargetT, typename TypesT, typename FunctorT>
-FunctorT vtkTryDowncast(vtkObject* source, FunctorT functor)
-{
-  bool succeeded = false;
-  vtkTryDowncastHelper<TargetT, FunctorT> helper(source, functor, succeeded);
-  boost::mpl::for_each<TypesT>(helper);
-  return functor;
-}
-
-template<template <typename> class TargetT, typename TypesT, typename FunctorT, typename Arg1T>
-FunctorT vtkTryDowncast(vtkObject* source, FunctorT functor, Arg1T arg1)
-{
-  bool succeeded = false;
-  vtkTryDowncastHelper1<TargetT, FunctorT, Arg1T> helper(source, functor, arg1, succeeded);
-  boost::mpl::for_each<TypesT>(helper);
-  return functor;
-}
-
-//
-//
-// These are lists of standard VTK types.  End-users will have to choose these when they implement
-// their algorithms.
-//
-//
-
-// Lists all integer VTK types
-typedef boost::mpl::vector<vtkTypeUInt8, vtkTypeInt8, vtkTypeUInt16, vtkTypeInt16, vtkTypeUInt32, vtkTypeInt32, vtkTypeUInt64, vtkTypeInt64, vtkIdType> vtkIntegerTypes;
-// Lists all integer VTK types
-typedef boost::mpl::vector<vtkTypeFloat32, vtkTypeFloat64> vtkFloatingPointTypes;
-// Lists all string VTK types
-typedef boost::mpl::vector<vtkStdString, vtkUnicodeString> vtkStringTypes;
-// Lists all numeric VTK types
-typedef boost::mpl::joint_view<vtkIntegerTypes, vtkFloatingPointTypes> vtkNumericTypes;
-// Lists all VTK types
-typedef boost::mpl::joint_view<vtkNumericTypes, vtkStringTypes> vtkAllTypes;
 
 //
 //
@@ -186,6 +85,8 @@ struct FoldCase
 // with the same type as an input array.
 struct Transpose
 {
+  Transpose(vtkSmartPointer<vtkArray>& result_matrix) : ResultMatrix(result_matrix) {}
+
   template<typename ValueT>
   void operator()(vtkDenseArray<ValueT>* input) const
   {
@@ -205,7 +106,7 @@ struct Transpose
     this->ResultMatrix = output;
   }
 
-  mutable vtkSmartPointer<vtkArray> ResultMatrix;
+  vtkSmartPointer<vtkArray>& ResultMatrix;
 };
 
 //
@@ -236,11 +137,8 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_double, FoldCase());
     vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_string, FoldCase());
 
-    vtkSmartPointer<vtkArray> transposed_matrix = vtkTryDowncast<vtkDenseArray, vtkAllTypes>(dense_double, Transpose()).ResultMatrix;
-
-    // Alternative syntax: passing results via functor arguments ...
-    // vtkSmartPointer<vtkArray> transposed_matrix;
-    // vtkTryDowncast<vtkDenseArray, vtkAllTypes>(dense_double, Transpose(transposed_matrix));
+    vtkSmartPointer<vtkArray> transposed_matrix;
+    vtkTryDowncast<vtkDenseArray, vtkAllTypes>(dense_double, Transpose(transposed_matrix));
 
     return 0;
     }
