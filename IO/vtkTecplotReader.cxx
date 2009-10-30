@@ -47,7 +47,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.3" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.4" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -349,6 +349,7 @@ vtkTecplotReader::~vtkTecplotReader()
   delete this->Internal;
   this->Internal = NULL;
   
+  this->DataArraySelection->RemoveAllArrays();
   this->DataArraySelection->RemoveObserver( this->SelectionObserver );
   this->DataArraySelection->Delete();
   this->DataArraySelection = NULL;
@@ -423,8 +424,8 @@ int vtkTecplotReader::RequestInformation( vtkInformation        * request,
     return 0;
     }
 
-  vtkInformation * info = outputVector->GetInformationObject( 0 );
-  info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
+  //vtkInformation * info = outputVector->GetInformationObject( 0 );
+  //info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
 
   this->GetDataArraysList();
   
@@ -572,15 +573,15 @@ void vtkTecplotReader::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   
-  os << indent << "FileName: "           << this->FileName;
-  os << indent << "Internal: "           << this->Internal;
-  os << indent << "DataTitle: "          << this->DataTitle;
-  os << indent << "Size of CellBased: "  << this->CellBased.size();
-  os << indent << "Size of ZoneNames: "  << this->ZoneNames.size();
-  os << indent << "Size of Variables: "  << this->Variables.size();
-  os << indent << "NumberOfVariables: "  << this->NumberOfVariables;
-  os << indent << "SelectionObserver: "  << this->SelectionObserver;
-  os << indent << "DataArraySelection: " << this->DataArraySelection;
+  os << indent << "FileName: "           << this->FileName           << endl;
+  os << indent << "Internal: "           << this->Internal           << endl;
+  os << indent << "DataTitle: "          << this->DataTitle          << endl;
+  os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl;
+  os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl;
+  os << indent << "Size of Variables: "  << this->Variables.size()   << endl;
+  os << indent << "NumberOfVariables: "  << this->NumberOfVariables  << endl;
+  os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
+  os << indent << "DataArraySelection: " << this->DataArraySelection << endl;
 }
 
 // ----------------------------------------------------------------------------
