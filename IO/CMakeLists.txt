@@ -120,6 +120,7 @@ vtkStructuredPointsReader.cxx
 vtkStructuredPointsWriter.cxx
 vtkTableReader.cxx
 vtkTableWriter.cxx
+vtkTecplotReader.cxx
 vtkTIFFReader.cxx
 vtkTIFFWriter.cxx
 vtkTreeReader.cxx
