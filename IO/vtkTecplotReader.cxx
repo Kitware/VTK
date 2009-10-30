@@ -47,7 +47,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.1" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.2" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -568,16 +568,15 @@ void vtkTecplotReader::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   
-  os << indent << "FileName: "          << this->FileName;
-  os << indent << "Internal: "          << this->Internal;
-  os << indent << "DataTitle: "         << this->DataTitle.c_str();
-  os << indent << "Size of CellBased: " << this->CellBased.size();
-  os << indent << "Size of ZoneNames: " << this->ZoneNames.size();
-  os << indent << "Size of Variables: " << this->Variables.size();
-  os << indent << "NumberOfVariables: " << this->NumberOfVariables;
-  os << indent << "SelectionObserver: " << this->SelectionObserver;
-  os << indent << "number of data attribute arrays: "   
-     << this->DataArraySelection->GetNumberOfArrays();
+  os << indent << "FileName: "           << this->FileName;
+  os << indent << "Internal: "           << this->Internal;
+  os << indent << "DataTitle: "          << this->DataTitle;
+  os << indent << "Size of CellBased: "  << this->CellBased.size();
+  os << indent << "Size of ZoneNames: "  << this->ZoneNames.size();
+  os << indent << "Size of Variables: "  << this->Variables.size();
+  os << indent << "NumberOfVariables: "  << this->NumberOfVariables;
+  os << indent << "SelectionObserver: "  << this->SelectionObserver;
+  os << indent << "DataArraySelection: " << this->DataArraySelection;
 }
 
 // ----------------------------------------------------------------------------
