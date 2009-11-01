@@ -46,8 +46,9 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
+#include <ctype.h> // for isspace(), isalnum()
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.6" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.7" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
