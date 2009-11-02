@@ -46,9 +46,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
+
 #include <ctype.h> // for isspace(), isalnum()
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.10" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.11" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -574,15 +575,20 @@ void vtkTecplotReader::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   
-  //os << indent << "FileName: "           << this->FileName           << endl;
-  //os << indent << "Internal: "           << this->Internal           << endl;
-  //os << indent << "DataTitle: "          << this->DataTitle          << endl;
-  //os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl;
-  //os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl;
-  //os << indent << "Size of Variables: "  << this->Variables.size()   << endl;
   os << indent << "NumberOfVariables: "  << this->NumberOfVariables  << endl;
-  //os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
-  //os << indent << "DataArraySelection: " << this->DataArraySelection << endl;
+  
+  os << indent << "DataTitle: "          << this->DataTitle          << endl;
+  os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl;
+  os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl;
+  os << indent << "Size of Variables: "  << this->Variables.size()   << endl;
+  //*/
+  
+  /*//
+  os << indent << "Internal: "           << this->Internal           << endl;
+  os << indent << "FileName: "           << this->FileName           << endl;
+  os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
+  os << indent << "DataArraySelection: " << this->DataArraySelection << endl;
+  //*/
 }
 
 // ----------------------------------------------------------------------------
