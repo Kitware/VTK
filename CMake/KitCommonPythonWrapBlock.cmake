@@ -14,6 +14,8 @@ IF(NOT VTK_INSTALL_NO_LIBRARIES)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 SET(KIT_LIBRARY_TARGETS ${KIT_LIBRARY_TARGETS} vtk${KIT}PythonD)
 
+# Underlinking on purpose. The following library will not compile
+# with LDFLAGS=-Wl,--no-undefined by design:
 # On some UNIX platforms the python library is static and therefore
 # should not be linked into the shared library.  Instead the symbols
 # are exported from the python executable so that they can be used by
