@@ -46,17 +46,17 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
-#include <ctype.h> // for isspace(), isalnum()
+#include <ctype.h> // for isspace(), isalnum() zzz
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.8" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.9" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
 class vtkTecplotReaderInternal
 {
 public:
-  //vtkTecplotReaderInternal()  { this->Init(); }
-  //~vtkTecplotReaderInternal() { this->Init(); }
+  //vtkTecplotReaderInternal()  { this->Init(); } // zzz
+  //~vtkTecplotReaderInternal() { this->Init(); } // zzz
   
   int     XIdInList;
   int     YIdInList;
@@ -298,7 +298,7 @@ static int GuessCoord( const vtkstd::string & theToken )
 static vtkstd::string SimplifyWhitespace( const vtkstd::string & s )
 {
   int headIndx = 0;
-  int tailIndx = s.length() - 1;
+  int tailIndx = int( s.length() ) - 1;
   
   while (  headIndx < tailIndx && ( s[headIndx] == ' ' || s[headIndx] == '\t' )  )
     {
@@ -417,7 +417,7 @@ int vtkTecplotReader::FillOutputPortInformation
 int vtkTecplotReader::RequestInformation( vtkInformation *,
                                           vtkInformationVector **,
                                           vtkInformationVector * )
-{ /*/
+{ /*/ zzz
   if(  !this->Superclass::RequestInformation
         ( request, inputVector, outputVector )  
     )
@@ -426,8 +426,8 @@ int vtkTecplotReader::RequestInformation( vtkInformation *,
     }
   //*/
 
-  //vtkInformation * info = outputVector->GetInformationObject( 0 );
-  //info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
+  //vtkInformation * info = outputVector->GetInformationObject( 0 ); zzz
+  //info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 ); zzz
 
   this->GetDataArraysList();
   
@@ -575,15 +575,15 @@ void vtkTecplotReader::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   
-  os << indent << "FileName: "           << this->FileName           << endl;
-  //os << indent << "Internal: "           << this->Internal           << endl;
-  //os << indent << "DataTitle: "          << this->DataTitle          << endl;
-  //os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl;
-  //os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl;
-  //os << indent << "Size of Variables: "  << this->Variables.size()   << endl;
+  //os << indent << "FileName: "           << this->FileName           << endl;
+  //os << indent << "Internal: "           << this->Internal           << endl; // zzz
+  //os << indent << "DataTitle: "          << this->DataTitle          << endl; // zzz
+  //os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl; // zzz
+  //os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl; // zzz
+  //os << indent << "Size of Variables: "  << this->Variables.size()   << endl; // zzz
   os << indent << "NumberOfVariables: "  << this->NumberOfVariables  << endl;
-  os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
-  os << indent << "DataArraySelection: " << this->DataArraySelection << endl;
+  //os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
+  //os << indent << "DataArraySelection: " << this->DataArraySelection << endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -1186,7 +1186,7 @@ void vtkTecplotReader::GetDataArraysList()
       
       while ( this->Internal->TokenIsString )
         {
-        tpTokenLen = theTpToken.length();
+        tpTokenLen = int( theTpToken.length() );
         for ( i = 0; i < tpTokenLen; i ++ )
           {
           if ( theTpToken[i] == '(' )
@@ -1382,7 +1382,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       tok = this->Internal->GetNextToken();
       while ( this->Internal->TokenIsString )
         {
-        int tokLen = tok.length();
+        int tokLen = int( tok.length() );
         for ( int i = 0; i < tokLen; i ++ )
           {
           if ( tok[i] == '(' )
