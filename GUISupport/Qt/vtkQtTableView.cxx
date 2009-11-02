@@ -28,6 +28,8 @@
 #include "vtkAddMembershipArray.h"
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkApplyColors.h"
 #include "vtkConvertSelection.h"
@@ -37,6 +39,7 @@
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkQtTableModelAdapter.h"
@@ -44,8 +47,9 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
+#include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.19");
+vtkCxxRevisionMacro(vtkQtTableView, "1.20");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -83,8 +87,10 @@ vtkQtTableView::vtkQtTableView()
   this->ApplyRowColors = false;
   this->SortSelectionToTop = false;
 
+  this->ColorArrayNameInternal = 0;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
+  this->ApplyColors->SetUseCurrentAnnotationColor(true);
 
   QObject::connect(this->TableView->selectionModel(), 
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
@@ -134,6 +140,12 @@ void vtkQtTableView::SetShowHorizontalHeaders(bool state)
     {
     this->TableView->horizontalHeader()->hide();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableView::SetEnableDragDrop(bool state)
+{
+  this->TableView->setDragEnabled(state);
 }
 
 //----------------------------------------------------------------------------
@@ -276,8 +288,30 @@ void vtkQtTableView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->TableAdapter->SetVTKDataObject(0);
 }
 
+void vtkQtTableView::SetColorByArray(bool b)
+{
+  this->ApplyColors->SetUsePointLookupTable(b);
+}
+
+bool vtkQtTableView::GetColorByArray()
+{
+  return this->ApplyColors->GetUsePointLookupTable();
+}
+
+void vtkQtTableView::SetColorArrayName(const char* name)
+{
+  this->SetColorArrayNameInternal(name);
+  this->ApplyColors->SetInputArrayToProcess(0, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_ROWS, name);
+}
+
+const char* vtkQtTableView::GetColorArrayName()
+{
+  return this->GetColorArrayNameInternal();
+}
+
 //----------------------------------------------------------------------------
-void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& s1, 
+void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), 
   const QItemSelection& vtkNotUsed(s2))
 {   
   // Convert to the correct type of selection
@@ -287,10 +321,16 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& s1,
 
   this->InSelectionChanged = true;
 
-  // Convert from a QModelIndexList to an index based vtkSelection
-  QItemSelection sortedSel = this->TableSorter->mapSelectionToSource(s1);
+  // Map the selected rows through the sorter map before sending to model
+  const QModelIndexList selectedRows = this->TableView->selectionModel()->selectedRows();
+  QModelIndexList origRows;
+  for(int i=0; i<selectedRows.size(); ++i)
+    {
+    origRows.push_back(this->TableSorter->mapToSource(selectedRows[i]));
+    }
+
   vtkSelection *VTKIndexSelectList = 
-    this->TableAdapter->QModelIndexListToVTKIndexSelection(sortedSel.indexes());
+    this->TableAdapter->QModelIndexListToVTKIndexSelection(origRows);
 
   // Convert to the correct type of selection
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -321,7 +361,9 @@ void vtkQtTableView::SetVTKSelection()
 
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject *d = this->TableAdapter->GetVTKDataObject();
-  vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
+  vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
+  vtkAnnotationLayers* a = vtkAnnotationLayers::SafeDownCast(annConn->GetProducer()->GetOutputDataObject(0));
+  vtkSelection* s = a->GetCurrentAnnotation()->GetSelection();
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
@@ -419,11 +461,17 @@ void vtkQtTableView::Update()
       this->TableAdapter->SetColorColumnName("vtkApplyColors color");
       }
 
+    //if(this->TableAdapter->columnCount()>0 &&
+    //  d->GetMTime() > this->LastInputMTime)
+    //  {
+    //  this->TableView->sortByColumn(0, Qt::DescendingOrder);
+    //  }
+
     if (atime > this->LastSelectionMTime)
       {
       this->SetVTKSelection();
       }
-
+  
     this->LastSelectionMTime = atime;
     this->LastInputMTime = d->GetMTime();
     this->LastMTime = this->GetMTime();
@@ -464,6 +512,22 @@ void vtkQtTableView::Update()
       */
 
     }
+}
+
+void vtkQtTableView::ApplyViewTheme(vtkViewTheme* theme)
+{
+  this->Superclass::ApplyViewTheme(theme);
+
+  this->ApplyColors->SetPointLookupTable(theme->GetPointLookupTable());
+
+  this->ApplyColors->SetDefaultPointColor(theme->GetPointColor());
+  this->ApplyColors->SetDefaultPointOpacity(theme->GetPointOpacity());
+  this->ApplyColors->SetDefaultCellColor(theme->GetCellColor());
+  this->ApplyColors->SetDefaultCellOpacity(theme->GetCellOpacity());
+  this->ApplyColors->SetSelectedPointColor(theme->GetSelectedPointColor());
+  this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
+  this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
+  this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
 }
 
 //----------------------------------------------------------------------------

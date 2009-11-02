@@ -86,6 +86,10 @@ public:
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
 
+  // Description:
+  // Have the view alternate its row colors (default is OFF)
+  void SetEnableDragDrop(bool);
+
   // Description: 
   // Whether or not to display all columns from the input table or to use the 
   // ColumnName provided.
@@ -126,6 +130,19 @@ public:
   // Updates the view.
   virtual void Update();
 
+  // Description:
+  // The array to use for coloring items in view.  Default is "color".
+  void SetColorArrayName(const char* name);
+  const char* GetColorArrayName();
+  
+  // Description:
+  // Whether to color vertices.  Default is off.
+  void SetColorByArray(bool vis);
+  bool GetColorByArray();
+  vtkBooleanMacro(ColorByArray, bool);
+
+  virtual void ApplyViewTheme(vtkViewTheme* theme);
+
 protected:
   vtkQtTableView();
   ~vtkQtTableView();
@@ -142,6 +159,9 @@ private:
   unsigned long LastInputMTime;
   unsigned long LastMTime;
   
+  vtkSetStringMacro(ColorArrayNameInternal);
+  vtkGetStringMacro(ColorArrayNameInternal);
+
   QPointer<QTableView> TableView;
   vtkQtTableModelAdapter* TableAdapter;
   QSortFilterProxyModel* TableSorter;
@@ -151,6 +171,7 @@ private:
   bool InSelectionChanged;
   bool SortSelectionToTop;
   bool ApplyRowColors;
+  char* ColorArrayNameInternal;
 
 //BTX
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
