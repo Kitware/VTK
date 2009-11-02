@@ -89,6 +89,7 @@ IF(PYTHON_EXECUTABLE)
     vtkTemplateAliasMacro.h
     vtkTimeStamp.h
     vtkTransformCollection.h
+    vtkTryDowncast.h
     vtkType.h
     vtkTypeTemplate.h
     vtkTypeTraits.h
