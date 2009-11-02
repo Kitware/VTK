@@ -67,6 +67,13 @@ vtkArrayWeights::vtkArrayWeights(double i, double j, double k, double l)
   this->Storage->Storage[3] = l;
 }
 
+// ----------------------------------------------------------------------------
+ vtkArrayWeights::~vtkArrayWeights()
+{
+  delete this->Storage;
+}
+
+// ----------------------------------------------------------------------------
 vtkIdType vtkArrayWeights::GetCount() const
 {
   return static_cast<vtkIdType>(this->Storage->Storage.size());

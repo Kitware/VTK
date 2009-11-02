@@ -68,6 +68,10 @@ public:
   vtkArrayWeights(double i, double j, double k, double l);
 
   // Description:
+  // Destructor.
+  ~vtkArrayWeights();
+  
+  // Description:
   // Returns the number of weights stored in this container.
   vtkIdType GetCount() const;
   
