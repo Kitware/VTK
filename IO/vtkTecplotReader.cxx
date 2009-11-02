@@ -49,7 +49,7 @@
 
 #include <ctype.h> // for isspace(), isalnum()
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.11" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.12" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -576,14 +576,14 @@ void vtkTecplotReader::PrintSelf( ostream & os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   
   os << indent << "NumberOfVariables: "  << this->NumberOfVariables  << endl;
-  
+  /*//
   os << indent << "DataTitle: "          << this->DataTitle          << endl;
   os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl;
   os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl;
   os << indent << "Size of Variables: "  << this->Variables.size()   << endl;
   //*/
   
-  /*//
+  ///
   os << indent << "Internal: "           << this->Internal           << endl;
   os << indent << "FileName: "           << this->FileName           << endl;
   os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
