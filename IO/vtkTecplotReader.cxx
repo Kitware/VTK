@@ -46,17 +46,17 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
-#include <ctype.h> // for isspace(), isalnum() zzz
+#include <ctype.h> // for isspace(), isalnum()
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.9" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.10" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
 class vtkTecplotReaderInternal
 {
 public:
-  //vtkTecplotReaderInternal()  { this->Init(); } // zzz
-  //~vtkTecplotReaderInternal() { this->Init(); } // zzz
+  vtkTecplotReaderInternal()  { this->Init(); }
+  ~vtkTecplotReaderInternal() { this->Init(); }
   
   int     XIdInList;
   int     YIdInList;
@@ -414,20 +414,19 @@ int vtkTecplotReader::FillOutputPortInformation
 }
 
 // ----------------------------------------------------------------------------
-int vtkTecplotReader::RequestInformation( vtkInformation *,
-                                          vtkInformationVector **,
-                                          vtkInformationVector * )
-{ /*/ zzz
+int vtkTecplotReader::RequestInformation( vtkInformation * request,
+                                          vtkInformationVector ** inputVector,
+                                          vtkInformationVector  * outputVector )
+{ 
   if(  !this->Superclass::RequestInformation
         ( request, inputVector, outputVector )  
     )
     {
     return 0;
     }
-  //*/
 
-  //vtkInformation * info = outputVector->GetInformationObject( 0 ); zzz
-  //info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 ); zzz
+  vtkInformation * info = outputVector->GetInformationObject( 0 );
+  info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
 
   this->GetDataArraysList();
   
@@ -576,11 +575,11 @@ void vtkTecplotReader::PrintSelf( ostream & os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   
   //os << indent << "FileName: "           << this->FileName           << endl;
-  //os << indent << "Internal: "           << this->Internal           << endl; // zzz
-  //os << indent << "DataTitle: "          << this->DataTitle          << endl; // zzz
-  //os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl; // zzz
-  //os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl; // zzz
-  //os << indent << "Size of Variables: "  << this->Variables.size()   << endl; // zzz
+  //os << indent << "Internal: "           << this->Internal           << endl;
+  //os << indent << "DataTitle: "          << this->DataTitle          << endl;
+  //os << indent << "Size of CellBased: "  << this->CellBased.size()   << endl;
+  //os << indent << "Size of ZoneNames: "  << this->ZoneNames.size()   << endl;
+  //os << indent << "Size of Variables: "  << this->Variables.size()   << endl;
   os << indent << "NumberOfVariables: "  << this->NumberOfVariables  << endl;
   //os << indent << "SelectionObserver: "  << this->SelectionObserver  << endl;
   //os << indent << "DataArraySelection: " << this->DataArraySelection << endl;
@@ -1096,7 +1095,7 @@ void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
   vtkIdType *      cellLocatPtr = cellLocArray->GetPointer( 0 );
 
   // fill the three arrays
-  int offset = 0;
+  int locateOffset = 0;
   for ( int c = 0; c < numberCells; c ++ )
     {
     *cellTypesPtr ++ = theCellType;
@@ -1105,14 +1104,14 @@ void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
     // 1-origin connectivity array
     for ( int j = 0; j < numCellPnts; j ++ )
       {
-      *cellInforPtr ++ = (  theCellType == VTK_VERTEX 
-                          ? c 
-                          : atoi( this->Internal->GetNextToken().c_str() ) - 1 
+      *cellInforPtr ++ = (   theCellType == VTK_VERTEX 
+                           ? c 
+                           : atoi( this->Internal->GetNextToken().c_str() ) - 1 
                          );
       }
     
-    *cellLocatPtr ++ = offset;
-    offset += numCellPnts + 1;
+    *cellLocatPtr ++ = locateOffset;
+    locateOffset    += numCellPnts + 1;
     }
   cellInforPtr = NULL;
   cellTypesPtr = NULL;
