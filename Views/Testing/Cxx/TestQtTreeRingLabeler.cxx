@@ -55,8 +55,8 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
 
   if(!QApplication::instance())
     {
-    int argc = 0;
-    new QApplication(argc, 0);
+    int temp_argc = 0;
+    new QApplication(temp_argc, 0);
     }
 
   QString fontFileName = testHelper->GetDataRoot();
