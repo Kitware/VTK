@@ -49,7 +49,7 @@
 
 #include <ctype.h> // for isspace(), isalnum()
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.13" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.14" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -244,6 +244,11 @@ public:
    
     return retval;
   }
+  
+private:
+
+  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & );  // Not implemented.
+  void operator = ( const vtkTecplotReaderInternal & );          // Not implemented.
 };
 // ==========================================================================//
 
