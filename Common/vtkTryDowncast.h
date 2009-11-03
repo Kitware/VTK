@@ -50,10 +50,10 @@ typedef boost::mpl::joint_view<vtkNumericTypes, vtkStringTypes> vtkAllTypes;
 template<template <typename> class TargetT, typename FunctorT>
 struct vtkTryDowncastHelper
 {
-  vtkTryDowncastHelper(vtkObject* source, FunctorT functor) :
+  vtkTryDowncastHelper(vtkObject* source, FunctorT functor, bool& succeeded) :
     Source(source),
     Functor(functor),
-    Succeeded(false)
+    Succeeded(succeeded)
   {
   }
 
@@ -72,17 +72,17 @@ struct vtkTryDowncastHelper
 
   vtkObject* Source;
   FunctorT Functor;
-  mutable bool Succeeded;
+  bool& Succeeded;
 };
 
 template<template <typename> class TargetT, typename FunctorT, typename Arg1T>
 struct vtkTryDowncastHelper1
 {
-  vtkTryDowncastHelper1(vtkObject* source, FunctorT functor, Arg1T arg1) :
+  vtkTryDowncastHelper1(vtkObject* source, FunctorT functor, Arg1T arg1, bool& succeeded) :
     Source(source),
     Functor(functor),
     Arg1(arg1),
-    Succeeded(false)
+    Succeeded(succeeded)
   {
   }
 
@@ -102,22 +102,22 @@ struct vtkTryDowncastHelper1
   vtkObject* Source;
   FunctorT Functor;
   Arg1T Arg1;
-  mutable bool Succeeded;
+  bool& Succeeded;
 };
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT>
 bool vtkTryDowncast(vtkObject* source, FunctorT functor)
 {
-  vtkTryDowncastHelper<TargetT, FunctorT> helper(source, functor);
-  boost::mpl::for_each<TypesT>(helper);
-  return helper.Succeeded;
+  bool succeeded = false;
+  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper<TargetT, FunctorT>(source, functor, succeeded));
+  return succeeded;
 }
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT, typename Arg1T>
 bool vtkTryDowncast(vtkObject* source, FunctorT functor, Arg1T arg1)
 {
-  vtkTryDowncastHelper1<TargetT, FunctorT, Arg1T> helper(source, functor, arg1);
-  boost::mpl::for_each<TypesT>(helper);
-  return helper.Succeeded;
+  bool succeeded = false;
+  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper1<TargetT, FunctorT, Arg1T>(source, functor, arg1, succeeded));
+  return succeeded;
 }
 

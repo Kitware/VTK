@@ -30,22 +30,74 @@
 
 #include <boost/algorithm/string.hpp>
 
-//
-//
-// Ignore this stuff, it's just for testing ...
-//
-//
-
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+#define test_expression(expression) \
+{ \
+  if(!(expression)) \
+    { \
+    vtkstd::ostringstream buffer; \
+    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
+    throw vtkstd::runtime_error(buffer.str()); \
+    } \
+}
 
-//
-//
-// Here are some sample functors that end-users might write.
-//
-//
+struct DowncastTest
+{
+  DowncastTest(int& count) :
+    Count(count)
+  {
+  }
 
+  template<typename T>
+  void operator()(T* array) const
+  {
+    ++Count;
+  }
+
+  int& Count;
+};
+
+template<template <typename> class TargetT, typename TypesT>
+void SuccessTest(vtkObject* source, int line)
+{
+  int count = 0;
+  if(!vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
+    {
+    vtkstd::ostringstream buffer;
+    buffer << "Expression failed at line " << line;
+    throw vtkstd::runtime_error(buffer.str());
+    }
+
+  if(count != 1)
+    {
+    vtkstd::ostringstream buffer;
+    buffer << "Functor was called " << count << " times at line " << line;
+    throw vtkstd::runtime_error(buffer.str());
+    }
+}
+
+template<template <typename> class TargetT, typename TypesT>
+void FailTest(vtkObject* source, int line)
+{
+  int count = 0;
+  if(vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
+    {
+    vtkstd::ostringstream buffer;
+    buffer << "Expression failed at line " << line;
+    throw vtkstd::runtime_error(buffer.str());
+    }
+
+  if(count != 0)
+    {
+    vtkstd::ostringstream buffer;
+    buffer << "Functor was called " << count << " times at line " << line;
+    throw vtkstd::runtime_error(buffer.str());
+    }
+}
+
+/*
 // This functor increments array values in-place using a parameter passed via the algorithm (instead of a parameter
 // stored in the functor).  It can work with any numeric array type.
 struct IncrementValues
@@ -108,6 +160,7 @@ struct Transpose
 
   vtkSmartPointer<vtkArray>& ResultMatrix;
 };
+*/
 
 //
 //
@@ -122,23 +175,49 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     VTK_CREATE(vtkDenseArray<int>, dense_int);
     VTK_CREATE(vtkDenseArray<double>, dense_double);
     VTK_CREATE(vtkDenseArray<vtkStdString>, dense_string);
+    VTK_CREATE(vtkSparseArray<int>, sparse_int);
+    VTK_CREATE(vtkSparseArray<double>, sparse_double);
+    VTK_CREATE(vtkSparseArray<vtkStdString>, sparse_string);
 
-    // Calling a functor with extra arguments passed via the algorithm ...
-    vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_int, IncrementValues(), 1);
-    vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_double, IncrementValues(), 2);
-    vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_string, IncrementValues(), 3);
+    SuccessTest<vtkTypedArray, vtkIntegerTypes>(dense_int, __LINE__);    
+    FailTest<vtkTypedArray, vtkIntegerTypes>(dense_double, __LINE__);    
+    FailTest<vtkTypedArray, vtkIntegerTypes>(dense_string, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkIntegerTypes>(sparse_int, __LINE__);    
+    FailTest<vtkTypedArray, vtkIntegerTypes>(sparse_double, __LINE__);    
+    FailTest<vtkTypedArray, vtkIntegerTypes>(sparse_string, __LINE__);    
 
-    // Alternative syntax: passing arguments via the functor ...
-    // vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_int, IncrementValues(1));
-    // vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_double, IncrementValues(2));
-    // vtkTryDowncast<vtkTypedArray, vtkNumericTypes>(dense_string, IncrementValues(3));
+    FailTest<vtkTypedArray, vtkFloatingPointTypes>(dense_int, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkFloatingPointTypes>(dense_double, __LINE__);    
+    FailTest<vtkTypedArray, vtkFloatingPointTypes>(dense_string, __LINE__);    
+    FailTest<vtkTypedArray, vtkFloatingPointTypes>(sparse_int, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkFloatingPointTypes>(sparse_double, __LINE__);    
+    FailTest<vtkTypedArray, vtkFloatingPointTypes>(sparse_string, __LINE__);    
 
-    vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_int, FoldCase());
-    vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_double, FoldCase());
-    vtkTryDowncast<vtkTypedArray, vtkStringTypes>(dense_string, FoldCase());
+    SuccessTest<vtkTypedArray, vtkNumericTypes>(dense_int, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkNumericTypes>(dense_double, __LINE__);    
+    FailTest<vtkTypedArray, vtkNumericTypes>(dense_string, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkNumericTypes>(sparse_int, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkNumericTypes>(sparse_double, __LINE__);    
+    FailTest<vtkTypedArray, vtkNumericTypes>(sparse_string, __LINE__);    
 
-    vtkSmartPointer<vtkArray> transposed_matrix;
-    vtkTryDowncast<vtkDenseArray, vtkAllTypes>(dense_double, Transpose(transposed_matrix));
+    FailTest<vtkTypedArray, vtkStringTypes>(dense_int, __LINE__);    
+    FailTest<vtkTypedArray, vtkStringTypes>(dense_double, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkStringTypes>(dense_string, __LINE__);    
+    FailTest<vtkTypedArray, vtkStringTypes>(sparse_int, __LINE__);    
+    FailTest<vtkTypedArray, vtkStringTypes>(sparse_double, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkStringTypes>(sparse_string, __LINE__);    
+
+    SuccessTest<vtkTypedArray, vtkAllTypes>(dense_int, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkAllTypes>(dense_double, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkAllTypes>(dense_string, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkAllTypes>(sparse_int, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkAllTypes>(sparse_double, __LINE__);    
+    SuccessTest<vtkTypedArray, vtkAllTypes>(sparse_string, __LINE__);    
+
+    SuccessTest<vtkDenseArray, vtkAllTypes>(dense_int, __LINE__);    
+    FailTest<vtkDenseArray, vtkAllTypes>(sparse_int, __LINE__);    
+    FailTest<vtkSparseArray, vtkAllTypes>(dense_int, __LINE__);    
+    SuccessTest<vtkSparseArray, vtkAllTypes>(sparse_int, __LINE__); 
 
     return 0;
     }
