@@ -2003,7 +2003,6 @@ M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
   int elementSize;
   MET_SizeOfType(m_ElementType, &elementSize);    
   const int elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
-  const long elementsToWrite = _indexMax[0] - _indexMin[0] + 1;
   
   // Write the IO region line by line
   int * currentIndex = new int[m_NDims];
@@ -2011,6 +2010,23 @@ M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
     {
     currentIndex[i] = _indexMin[i];
     }
+
+  // Optimize the size of the buffer to written depending on the
+  // region shape
+  // This calculate the number of continuous bytes in the file
+  // which can be written
+  METAIO_STL::streamsize bytesToWrite = 1;
+  int movingDirection = 0;
+  do 
+    {
+    bytesToWrite *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;        
+    ++movingDirection;        
+    }
+  while(movingDirection < m_NDims 
+        && _indexMin[movingDirection-1] == 0
+        && _indexMax[movingDirection-1] == m_DimSize[movingDirection-1]-1);
+  
+  bytesToWrite *= elementNumberOfBytes;
 
   // write line by line
   bool done = false;
@@ -2025,20 +2041,19 @@ M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
     _fstream->seekp( seekpos, METAIO_STREAM::ios::beg );
     
     // Write the line
-    _fstream->write( data, elementsToWrite*elementNumberOfBytes );
-    data += elementsToWrite*elementNumberOfBytes;
+    _fstream->write( data, bytesToWrite );
+    data += bytesToWrite;
 
-    if(m_NDims>1)
+    // check if there is only one write needed
+    if( movingDirection >= m_NDims )
       {
-      currentIndex[1]++;
+      break;
       }
-    else
-      {
-      done = true;
-      }
+
+    ++currentIndex[movingDirection];
     
     // Check if we are still in the region
-    for( int j=1; j<m_NDims; j++ )
+    for( int j=movingDirection; j<m_NDims; j++ )
       {
       if( currentIndex[j] > _indexMax[j] )
         {
@@ -2054,7 +2069,7 @@ M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
           }
         }
       }
-    } // end writing line by line loop
+    } // end writing  loop
   
   delete [] currentIndex;     
 
@@ -3101,15 +3116,18 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
 
       // Optimize the size of the buffer to read depending on the
       // region shape
-      METAIO_STL::streamsize readLine = _indexMax[0] - _indexMin[0] + 1;
-      int movingDirection = 1;
-      while(movingDirection < m_NDims 
-            && _indexMin[movingDirection] == 0
-            && _indexMax[movingDirection] == m_DimSize[movingDirection]-1)
+      // This calculate the number of continuous bytes in the file
+      // which can be read
+      METAIO_STL::streamsize readLine = 1;
+      int movingDirection = 0;
+      do 
         {
-        readLine *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;
-        movingDirection++;
+        readLine *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;        
+        ++movingDirection;        
         }
+      while(movingDirection < m_NDims 
+            && _indexMin[movingDirection-1] == 0
+            && _indexMax[movingDirection-1] == m_DimSize[movingDirection-1]-1);
 
       readLine *= m_ElementNumberOfChannels*elementSize;
       long gc = 0;
@@ -3213,17 +3231,22 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
       }
 
     // Optimize the size of the buffer to read depending on the
-    // region shape
-    METAIO_STL::streamsize readLine = _indexMax[0] - _indexMin[0] + 1;
-    int movingDirection = 1;
-    while(movingDirection < m_NDims 
-          && subSamplingFactor == 1 && _indexMin[movingDirection] == 0
-          && _indexMax[movingDirection] == m_DimSize[movingDirection]-1)
+    // region shape    
+    // This calculate the number of continuous bytes in the file
+    // which can be read
+    METAIO_STL::streamsize readLine = 1;
+    int movingDirection = 0;
+    do 
       {
-      readLine *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;
-      movingDirection++;
+      readLine *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;        
+      ++movingDirection;        
       }
+    while(movingDirection < m_NDims 
+          && _indexMin[movingDirection-1] == 0
+          && _indexMax[movingDirection-1] == m_DimSize[movingDirection-1]-1);
 
+   
+      
     readLine *= m_ElementNumberOfChannels*elementSize;
     long gc = 0;
 
@@ -3298,37 +3321,31 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
         break;
         }
 
-      // Go forward
-      if(m_NDims == 1)
+      // check if there is only one read needed
+      if ( movingDirection >= m_NDims )
         {
         break;
         }
 
-      if( movingDirection < m_NDims )
+      // Go forward
+      currentIndex[movingDirection] += subSamplingFactor;
+      
+      // Check if we are still in the region
+      for(i=movingDirection;i<m_NDims;i++)
         {
-        currentIndex[movingDirection] += subSamplingFactor;
-
-        // Check if we are still in the region
-        for(i=1;i<m_NDims;i++)
+        if(currentIndex[i]>_indexMax[i])
           {
-          if(currentIndex[i]>_indexMax[i])
+          if(i==m_NDims-1)
             {
-            if(i==m_NDims-1)
-              {
-              done = true;
-              break;
-              }
-            else
-              {
-              currentIndex[i] = _indexMin[i];
-              currentIndex[i+1] += subSamplingFactor;
-              }
+            done = true;
+            break;
+            }
+          else
+            {
+            currentIndex[i] = _indexMin[i];
+            currentIndex[i+1] += subSamplingFactor;
             }
           }
-        }
-      else
-        {
-        done = true;
         }
       }
 
@@ -3351,4 +3368,3 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-
