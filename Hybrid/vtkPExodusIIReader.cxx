@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.35");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.36");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -873,7 +873,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // numbered sequences there either.
   vtksys::RegularExpression ex2RegEx("\\.ex2$");
   vtksys::RegularExpression ex2v2RegEx("\\.ex2v2$");
-  vtksys::RegularExpression restartRegEx("\\.e-s\\.[0-9]+(\\.ex2v[0-9]+)?$");
+  vtksys::RegularExpression restartRegEx("\\.e-s\\.?[0-9]+(\\.ex2v[0-9]+)?$");
 
   // This regular expression finds the number for a numbered sequence.  This
   // number appears at the end of file (or potentially right before an extension
