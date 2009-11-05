@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTDxInteractorStyleSettings.h"
 
-vtkCxxRevisionMacro(vtkTDxInteractorStyleCamera, "1.1");
+vtkCxxRevisionMacro(vtkTDxInteractorStyleCamera, "1.2");
 vtkStandardNewMacro(vtkTDxInteractorStyleCamera);
 
 // ----------------------------------------------------------------------------
@@ -109,20 +109,24 @@ void vtkTDxInteractorStyleCamera::OnMotionEvent(
   this->Transform->TransformVector(translationEye,translationWorld);
   
   
-  
-  // Build the displacement (aka affine rotation) with the axis
-  // passing through the focal point.
   this->Transform->Identity();
+  
+  // default multiplication is "pre" which means applied to the "right" of
+  // the current matrix, which follows the OpenGL multiplication convention.
+  
+  // 2. translate (affect position and focalPoint)
+  this->Transform->Translate(translationWorld);
+ 
+  // 1. build the displacement (aka affine rotation) with the axis
+  // passing through the focal point.
+  
   double *p=c->GetFocalPoint();
-  this->Transform->Translate(-p[0],-p[1],-p[2]);
+  this->Transform->Translate(p[0],p[1],p[2]);
   this->Transform->RotateWXYZ(motionInfo->Angle*
                               this->Settings->GetAngleSensitivity(),
                               axisWorld[0],axisWorld[1],axisWorld[2]);
-  this->Transform->Translate(p[0],p[1],p[2]);
-  
-  // And then, translate (affect position and focalPoint)
-  this->Transform->Translate(translationWorld);
-  
+  this->Transform->Translate(-p[0],-p[1],-p[2]);
+ 
   // Apply the transform to the camera position
   double *pos=c->GetPosition();
   double newPosition[3];
