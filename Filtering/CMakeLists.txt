@@ -322,6 +322,9 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageIterator.cxx
   vtkInformation.cxx
   vtkImageProgressIterator.cxx
+  vtkComputingResources.cxx
+  vtkExecutionScheduler.cxx
+  vtkThreadedStreamingPipeline.cxx
   WRAP_EXCLUDE
 )
 
