@@ -47,7 +47,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.30");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.31");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -466,6 +466,7 @@ void vtkQtTreeView::Update()
   this->ColumnView->update();
 }
 
+//----------------------------------------------------------------------------
 void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Superclass::ApplyViewTheme(theme);
@@ -481,6 +482,42 @@ void vtkQtTreeView::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
   this->ApplyColors->SetScalePointLookupTable(theme->GetScalePointLookupTable());
   this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::Collapse( const QModelIndex & index )
+{
+  this->TreeView->collapse(index);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::CollapseAll()
+{
+  this->TreeView->collapseAll();
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::Expand ( const QModelIndex & index )
+{
+  this->TreeView->expand(index);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::ExpandAll ()
+{
+  this->TreeView->expandAll();
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::ExpandToDepth ( int depth )
+{
+  this->TreeView->expandToDepth(depth);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::ResizeColumnToContents ( int column )
+{
+  this->TreeView->resizeColumnToContents(column);
 }
 
 //----------------------------------------------------------------------------

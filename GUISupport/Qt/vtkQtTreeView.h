@@ -98,6 +98,32 @@ public:
   void HideAllButFirstColumn();
 
   // Description:
+  // Collapses the model item specified by the index.
+  void Collapse( const QModelIndex & index );
+
+  // Description:
+  // Collapses all expanded items.
+  void CollapseAll();
+
+   // Description:
+   //Expands the model item specified by the index.
+   void Expand ( const QModelIndex & index );
+
+   // Description:
+   // Expands all expandable items.
+   // Warning: if the model contains a large number of items,
+   // this function will take some time to execute.
+   void ExpandAll ();
+
+   // Description:
+   // Expands all expandable items to the given depth.
+   void ExpandToDepth ( int depth );
+
+   // Description:
+   // Resizes the column given to the size of its contents.
+   void ResizeColumnToContents ( int column );
+
+  // Description:
   // Set whether to use a QColumnView (QTreeView is the default)
   void SetUseColumnView(int state);
 
