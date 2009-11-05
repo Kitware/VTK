@@ -43,7 +43,7 @@
 #include "vtkThreadMessager.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.1");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.2");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -89,7 +89,7 @@ void vtkExecutionScheduler::Schedule
 {
   if (this->ScheduleThreadId==-1)
     this->ScheduleThreadId = this->ScheduleThreader->
-      SpawnThread(vtkExecutionScheduler_ScheduleThread, this);
+      SpawnThread((vtkThreadFunctionType)(vtkExecutionScheduler_ScheduleThread), this);
   this->ScheduleLock->Lock();
   vtkThreadedStreamingPipeline::vtkExecutiveVector G;
   vtkThreadedStreamingPipeline::vtkExecutiveSet::const_iterator it;
@@ -484,7 +484,7 @@ void vtkExecutionScheduler::Execute(const Task &task)
 //   fprintf(stderr, ">>>>>>>>> EXECUTING %s\n", task.exec->GetAlgorithm()->GetClassName());
   eData->scheduler = this;
   eData->task = task;
-  this->ScheduleThreader->SpawnThread(vtkExecutionScheduler_ExecuteThread, eData);
+  this->ScheduleThreader->SpawnThread((vtkThreadFunctionType)(vtkExecutionScheduler_ExecuteThread), eData);
 }
 
 //----------------------------------------------------------------------------
@@ -565,4 +565,5 @@ void * vtkExecutionScheduler_ExecuteThread(void *data)
 //         }
 //     }
 //   }
+  return NULL;
 }
