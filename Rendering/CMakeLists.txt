@@ -780,7 +780,9 @@ ENDIF(VTK_USE_X)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(__inst_files
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkRegressionTestImage.h
-    ${VTK_BINARY_DIR}/Rendering/vtkTDxConfigure.h)
+    ${VTK_BINARY_DIR}/Rendering/vtkTDxConfigure.h
+    ${VTK_SOURCE_DIR}/${KIT}/vtkTDxMotionEventInfo.h
+    )
   INSTALL(FILES ${__inst_files}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development)
