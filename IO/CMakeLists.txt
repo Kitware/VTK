@@ -39,6 +39,7 @@ vtkDataReader.cxx
 vtkDataSetReader.cxx
 vtkDataSetWriter.cxx
 vtkDataWriter.cxx
+vtkDelimitedTextWriter.cxx
 vtkEnSight6BinaryReader.cxx
 vtkEnSight6Reader.cxx
 vtkEnSightGoldBinaryReader.cxx
