@@ -43,16 +43,21 @@
 #include "vtkThreadMessager.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.2");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.3");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
 
 //----------------------------------------------------------------------------
-static vtkExecutionScheduler *globalScheduler = vtkExecutionScheduler::New();
+static vtkExecutionScheduler *globalScheduler = NULL;
+
 //----------------------------------------------------------------------------
 vtkExecutionScheduler* vtkExecutionScheduler::GetGlobalScheduler()
 {
+  if (!globalScheduler)
+    {
+    globalScheduler = vtkExecutionScheduler::New();
+    }
   return globalScheduler;
 }
 
