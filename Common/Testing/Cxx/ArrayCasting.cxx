@@ -51,7 +51,7 @@ struct DowncastTest
   }
 
   template<typename T>
-  void operator()(T* array) const
+  void operator()(T* vtkNotUsed(array)) const
   {
     ++Count;
   }
