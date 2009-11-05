@@ -41,6 +41,7 @@ vtkCompositeDataIterator.cxx
 vtkCompositeDataPipeline.cxx
 vtkCompositeDataSetAlgorithm.cxx
 vtkCompositeDataSet.cxx
+vtkComputingResources.cxx
 vtkCone.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
@@ -69,6 +70,7 @@ vtkDiscretizableColorTransferFunction.cxx
 vtkDistributedGraphHelper.cxx
 vtkEdgeListIterator.cxx
 vtkEmptyCell.cxx
+vtkExecutionScheduler.cxx
 vtkExecutive.cxx
 vtkExplicitCell.cxx
 vtkFieldData.cxx
@@ -214,6 +216,7 @@ vtkTemporalDataSetAlgorithm.cxx
 vtkTemporalDataSet.cxx
 vtkTetra.cxx
 vtkThreadedImageAlgorithm.cxx
+vtkThreadedStreamingPipeline.cxx
 vtkTreeAlgorithm.cxx
 vtkTree.cxx
 vtkTreeDFSIterator.cxx
