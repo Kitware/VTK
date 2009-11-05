@@ -29,7 +29,7 @@ extern "C" {
 #include "vtkRenderWindowInteractor.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.3");
+vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.4");
 vtkStandardNewMacro(vtkTDxUnixDevice);
 
 // ----------------------------------------------------------------------------
@@ -179,11 +179,17 @@ bool vtkTDxUnixDevice::ProcessEvent(const XEvent *e)
       MagellanRemoveMotionEvents(this->DisplayId);
       motionInfo.X=info.MagellanData[MagellanX];
       motionInfo.Y=info.MagellanData[MagellanY];
-      motionInfo.Z=info.MagellanData[MagellanZ];
+      
+      // On Unix, the Z axis is reversed (wrong). We want to have a
+      // right-handed coordinate system, so positive Z has to come towards us,
+      // as on Windows.
+      motionInfo.Z=-info.MagellanData[MagellanZ];
       
       axis[0]=info.MagellanData[MagellanA];
       axis[1]=info.MagellanData[MagellanB];
-      axis[2]=info.MagellanData[MagellanC];
+      
+      // On Unix, the Z axis is reserved (wrong).
+      axis[2]=-info.MagellanData[MagellanC];
       
       motionInfo.Angle=vtkMath::Norm(axis);
       if(motionInfo.Angle==0.0)
