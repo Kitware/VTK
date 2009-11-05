@@ -35,7 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkPointwiseMutualInformation
 
-vtkCxxRevisionMacro(vtkPointwiseMutualInformation, "1.1");
+vtkCxxRevisionMacro(vtkPointwiseMutualInformation, "1.2");
 vtkStandardNewMacro(vtkPointwiseMutualInformation);
 
 vtkPointwiseMutualInformation::vtkPointwiseMutualInformation()
@@ -67,9 +67,22 @@ int vtkPointwiseMutualInformation::RequestData(
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
       throw vtkstd::runtime_error("Unsupported input array type.");
+    
+    // Create an output array ...
+    vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
+    vtkArrayData* const output = vtkArrayData::GetData(outputVector);
+    output->ClearArrays();
+    output->AddArray(output_array);
+    output_array->Delete();
 
     const vtkIdType dimension_count = input_array->GetDimensions();
     const vtkIdType value_count = input_array->GetNonNullSize();
+
+    if(value_count == 0)
+      {
+      // Allow for an empty input
+      return 1;
+      }
 
     // This is a portable way to compute log base-2 ...
     static const double ln2 = log(2.0);
@@ -102,13 +115,6 @@ int vtkPointwiseMutualInformation::RequestData(
       if(vtkstd::count(dimension_sums[i].begin(), dimension_sums[i].end(), 0))
         throw vtkstd::runtime_error("Cannot compute PMI with zero dimension sums.");
       }
-
-    // Create an output array ...
-    vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
-    vtkArrayData* const output = vtkArrayData::GetData(outputVector);
-    output->ClearArrays();
-    output->AddArray(output_array);
-    output_array->Delete();
 
     // Compute the PMI for each array value ...
     for(vtkIdType n = 0; n != value_count; ++n)
