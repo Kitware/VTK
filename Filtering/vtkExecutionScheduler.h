@@ -56,10 +56,6 @@ public:
   // Return the global instance of the scheduler 
   static vtkExecutionScheduler *GetGlobalScheduler();
 
-  // Description:
-  // Erase all cache information about the current execution network
-  static vtkExecutionScheduler ClearDependencyCache();
-  
  // Description:
   // Key to store the priority of a task
   static vtkInformationIntegerKey* TASK_PRIORITY();

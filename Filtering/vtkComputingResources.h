@@ -51,7 +51,9 @@ public:
   void Clear();
   void ObtainMinimumResources();
   void ObtainMaximumResources();
+  //BTX
   vtkProcessingUnitResource *GetResourceFor(int processingUnit);
+  //ETX
   void Deploy(vtkThreadedStreamingPipeline *exec, vtkInformation *info);
   
 
