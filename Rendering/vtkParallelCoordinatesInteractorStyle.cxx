@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 //#include <wx/wx.h>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesInteractorStyle, "1.2");
+vtkCxxRevisionMacro(vtkParallelCoordinatesInteractorStyle, "1.3");
 vtkStandardNewMacro(vtkParallelCoordinatesInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -51,7 +51,6 @@ vtkParallelCoordinatesInteractorStyle::vtkParallelCoordinatesInteractorStyle()
 vtkParallelCoordinatesInteractorStyle::~vtkParallelCoordinatesInteractorStyle() 
 {
 }
-
 //----------------------------------------------------------------------------
 void vtkParallelCoordinatesInteractorStyle::OnMouseMove() 
 {       
