@@ -48,7 +48,7 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.4");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.5");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -184,8 +184,7 @@ vtkExecutionScheduler* vtkExecutionScheduler::GetGlobalScheduler()
 //----------------------------------------------------------------------------
 void * vtkExecutionScheduler_ScheduleThread(void *data);
 //----------------------------------------------------------------------------
-vtkExecutionScheduler::vtkExecutionScheduler() :
-  Implementation(new implementation(this))
+vtkExecutionScheduler::vtkExecutionScheduler()
 {
   this->Implementation->CurrentPriority = 0;
   this->Resources = vtkComputingResources::New();
@@ -196,6 +195,7 @@ vtkExecutionScheduler::vtkExecutionScheduler() :
   this->ScheduleThreader = vtkMultiThreader::New();
   this->ScheduleThreader->SetNumberOfThreads(1);
   this->ScheduleThreadId = -1;
+  this->Implementation = new implementation(this);
 }
 
 //----------------------------------------------------------------------------
