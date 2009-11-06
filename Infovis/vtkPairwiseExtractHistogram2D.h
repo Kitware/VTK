@@ -89,11 +89,11 @@ public:
   
   // Description:
   // Get the maximum bin count for a single histogram
-  int GetMaximumBinCount(int idx);
+  double GetMaximumBinCount(int idx);
 
   // Description:
   // Get the maximum bin count over all histograms
-  int GetMaximumBinCount();
+  double GetMaximumBinCount();
 
   // Description:
   // Compute the range of the bin located at position (binX,binY) in

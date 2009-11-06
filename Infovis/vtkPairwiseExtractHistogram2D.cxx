@@ -45,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtkstd/map>
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.5");
+vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.6");
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals
@@ -392,7 +392,7 @@ vtkExtractHistogram2D* vtkPairwiseExtractHistogram2D::NewHistogramFilter()
   return vtkExtractHistogram2D::New();
 }
 //------------------------------------------------------------------------------
-int vtkPairwiseExtractHistogram2D::GetMaximumBinCount(int idx)
+double vtkPairwiseExtractHistogram2D::GetMaximumBinCount(int idx)
 {
   vtkExtractHistogram2D* f = this->GetHistogramFilter(idx);
   if (f)
@@ -402,7 +402,7 @@ int vtkPairwiseExtractHistogram2D::GetMaximumBinCount(int idx)
   return -1;
 }
 //------------------------------------------------------------------------------
-int vtkPairwiseExtractHistogram2D::GetMaximumBinCount()
+double vtkPairwiseExtractHistogram2D::GetMaximumBinCount()
 {
   if( !this->GetInputDataObject(0,0) )
     return -1;
@@ -411,13 +411,13 @@ int vtkPairwiseExtractHistogram2D::GetMaximumBinCount()
       this->BuildTime < this->GetInputDataObject(0,0)->GetMTime())
     this->Update();
   
-  int maxcount = -1;
+  double maxcount = -1;
   for (int i=0; i<this->HistogramFilters->GetNumberOfItems(); i++)
     {
     vtkExtractHistogram2D* f = this->GetHistogramFilter(i);
     if (f)
       {
-      maxcount = vtkstd::max((int)f->GetMaximumBinCount(),maxcount);
+      maxcount = vtkstd::max(f->GetMaximumBinCount(),maxcount);
       }
     }
   return maxcount;

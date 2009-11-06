@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.10");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -506,6 +506,9 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     return 0;
 
   vtkDebugMacro(<<"begin line placement.\n");
+
+  this->UpdateSelectionActors();
+
   vtkIdTypeArray* unselectedRows = NULL;
   if (this->InverseSelection->GetNode(0))
     unselectedRows = vtkIdTypeArray::SafeDownCast(this->InverseSelection->GetNode(0)->GetSelectionList());
@@ -525,8 +528,6 @@ int vtkParallelCoordinatesRepresentation::RequestData(
   vtkSelection* selection = this->GetAnnotationLink()->GetCurrentSelection();
   if (selection)
     {
-
-    this->UpdateSelectionActors();
 
     for (unsigned int i=0; i<selection->GetNumberOfNodes(); i++)
       {
@@ -1955,7 +1956,9 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
 
   vtkSmartPointer<vtkSelectionNode> totalSelection = vtkSmartPointer<vtkSelectionNode>::New();
   totalSelection->SetSelectionList(unselected);
-  this->InverseSelection->AddNode(totalSelection);
+
+  if (unselected->GetNumberOfTuples())
+    this->InverseSelection->AddNode(totalSelection);
 }
 
 //------------------------------------------------------------------------------
@@ -2063,4 +2066,20 @@ vtkPolyDataMapper2D* vtkParallelCoordinatesRepresentation::InitializePlotMapper(
   
   return mapper;
 }
-
+//------------------------------------------------------------------------------
+vtkPolyDataMapper2D* vtkParallelCoordinatesRepresentation::GetSelectionMapper(int idx)
+{
+  if (idx >= 0 && idx < (int)this->I->SelectionMappers.size())
+    {
+    return this->I->SelectionMappers[idx];
+    }
+  else
+    {
+    return NULL;
+    }
+}
+//------------------------------------------------------------------------------
+int vtkParallelCoordinatesRepresentation::GetNumberOfSelections()
+{
+  return (int)this->I->SelectionActors.size();
+}

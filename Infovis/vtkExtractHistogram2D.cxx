@@ -34,8 +34,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExtractHistogram2D, "1.2");
+vtkCxxRevisionMacro(vtkExtractHistogram2D, "1.3");
 vtkStandardNewMacro(vtkExtractHistogram2D);
+vtkCxxSetObjectMacro(vtkExtractHistogram2D,RowMask,vtkDataArray);
 //------------------------------------------------------------------------------
 // Figure out which histogram bin a pair of values fit into
 static inline int vtkExtractHistogram2DComputeBin(vtkIdType& bin1, 
@@ -86,10 +87,14 @@ vtkExtractHistogram2D::vtkExtractHistogram2D()
   this->ScalarType = VTK_UNSIGNED_INT;
   
   this->SwapColumns = 0;
+  
+  this->RowMask = 0;
 }
 //------------------------------------------------------------------------------
 vtkExtractHistogram2D::~vtkExtractHistogram2D()
 {
+  if (this->RowMask)
+    this->RowMask->Delete();
 }
 //------------------------------------------------------------------------------
 void vtkExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
@@ -174,6 +179,10 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
   vtkIdType bin1,bin2,idx;
   double v1,v2,ct;
   double bwi[2] = {1.0/binWidth[0],1.0/binWidth[1]};
+  bool masked = false;
+
+  bool useRowMask = this->RowMask && 
+    this->RowMask->GetNumberOfTuples() == col1->GetNumberOfTuples();
 
   // compute the histogram.  
   this->MaximumBinCount = 0;
@@ -181,6 +190,9 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
     {
     v1 = col1->GetComponent(i,this->ComponentsToProcess[0]);
     v2 = col2->GetComponent(i,this->ComponentsToProcess[1]);
+
+    if (useRowMask && !this->RowMask->GetComponent(i,0))
+      continue;
 
     if (!::vtkExtractHistogram2DComputeBin(bin1,bin2,v1,v2,this->GetHistogramExtents(),this->NumberOfBins,bwi))
       continue;

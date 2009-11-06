@@ -279,6 +279,9 @@ protected:
   // todo
   virtual void UpdateSelectionActors();
 
+  vtkPolyDataMapper2D* GetSelectionMapper(int idx);
+  int GetNumberOfSelections();
+
 
   //BTX
   vtkSmartPointer<vtkPolyData>         PlotData;

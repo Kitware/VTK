@@ -85,8 +85,8 @@ public:
 
   // Description:
   // Control over the range of the lookup table used to draw the histogram quads.
-  vtkSetVector2Macro(HistogramLookupTableRange,int);
-  vtkGetVector2Macro(HistogramLookupTableRange,int);
+  vtkSetVector2Macro(HistogramLookupTableRange,double);
+  vtkGetVector2Macro(HistogramLookupTableRange,double);
 
   //BTX
   // Description:
@@ -130,7 +130,7 @@ protected:
 
   // Description:
   // The range applied to the lookup table used to draw histogram quads
-  int HistogramLookupTableRange[2];
+  double HistogramLookupTableRange[2];
 
   // Description:
   // How many bins are used during the 2D histogram computation

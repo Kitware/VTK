@@ -100,12 +100,16 @@ public:
     {this->SetScalarType(VTK_UNSIGNED_SHORT);};
   void SetScalarTypeToUnsignedChar()
     {this->SetScalarType(VTK_UNSIGNED_CHAR);};
+  void SetScalarTypeToFloat()
+    {this->SetScalarType(VTK_FLOAT);};
+  void SetScalarTypeToDouble()
+    {this->SetScalarType(VTK_DOUBLE);};
   vtkGetMacro(ScalarType,int);
   
   // Description:
   // Access the count of the histogram bin containing the largest number
   // of input rows.
-  vtkGetMacro(MaximumBinCount,unsigned long);
+  vtkGetMacro(MaximumBinCount,double);
 
   // Description:
   // Compute the range of the bin located at position (binX,binY) in
@@ -135,6 +139,11 @@ public:
   vtkSetMacro(SwapColumns,int);
   vtkGetMacro(SwapColumns,int);
   vtkBooleanMacro(SwapColumns,int);
+
+  // Description:
+  // Get/Set an optional mask that can ignore rows of the table
+  virtual void SetRowMask(vtkDataArray*);
+  vtkGetObjectMacro(RowMask,vtkDataArray);
 protected:
   vtkExtractHistogram2D();
   ~vtkExtractHistogram2D();
@@ -145,8 +154,9 @@ protected:
   double CustomHistogramExtents[4];
   int UseCustomHistogramExtents;
   int ComponentsToProcess[2];
-  unsigned long MaximumBinCount;
+  double MaximumBinCount;
   int ScalarType;
+  vtkDataArray* RowMask;
 
   virtual int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2);
 
