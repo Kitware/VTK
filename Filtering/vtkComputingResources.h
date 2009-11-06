@@ -36,18 +36,18 @@
 #define __vtkComputingResources_h
 
 #include "vtkObject.h"
-#include "vtkThreadedStreamingTypes.i"
 
 class vtkInformation;
 class vtkProcessingUnitResource;
 class vtkThreadedStreamingPipeline;
 
-class vtkComputingResources : public vtkObject
+class VTK_FILTERING_EXPORT vtkComputingResources : public vtkObject
 {
 public:
   static vtkComputingResources* New();
   vtkTypeRevisionMacro(vtkComputingResources,vtkObject);
-  
+  void PrintSelf(ostream &os, vtkIndent indent);
+
   void Clear();
   void ObtainMinimumResources();
   void ObtainMaximumResources();
@@ -65,8 +65,8 @@ protected:
   ~vtkComputingResources();
 
 //BTX
-  typedef vtksys::hash_map<int, vtkProcessingUnitResource*> ProcessingUnitToResourceHashMap;
-  ProcessingUnitToResourceHashMap ResourceMap;
+  class implementation;
+  implementation* const Implementation;
 //ETX
 private:
   vtkComputingResources(const vtkComputingResources&);  // Not implemented.
@@ -76,7 +76,8 @@ private:
 //BTX
 class vtkProcessingUnitResource {
 public:
-  virtual  int ProcessingUnit() = 0;
+  virtual ~vtkProcessingUnitResource() {}
+  virtual int ProcessingUnit() = 0;
   virtual bool HasResource() = 0;
   virtual void Clear() = 0;
   virtual void ObtainMinimum() = 0;
@@ -88,14 +89,5 @@ public:
   virtual void Collect(vtkProcessingUnitResource *refResource) = 0;
 };
 //ETX
-
-inline vtkProcessingUnitResource *vtkComputingResources::
-GetResourceFor(int processingUnit)
-{
-  ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.find(processingUnit);
-  if (i!=this->ResourceMap.end())
-    return (*i).second;
-  return NULL;
-}
 
 #endif

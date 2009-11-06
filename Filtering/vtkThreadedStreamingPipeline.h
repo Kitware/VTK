@@ -36,23 +36,16 @@
 #define __vtkThreadedStreamingPipeline_h
 
 #include "vtkCompositeDataPipeline.h"
-#include "vtkSmartPointer.h"
-#include "vtkThreadedStreamingTypes.i"
 
-class vtkDoubleArray;
 class vtkComputingResources;
 class vtkExecutionScheduler;
-class vtkFloatArray;
-class vtkIntArray;
-class vtkMutexLock;
-class vtkMultiThreader;
-class vtkThreadMessager;
 
 class VTK_FILTERING_EXPORT vtkThreadedStreamingPipeline : public vtkCompositeDataPipeline
 {
 public:
   static vtkThreadedStreamingPipeline* New();
   vtkTypeRevisionMacro(vtkThreadedStreamingPipeline,vtkCompositeDataPipeline);
+  void PrintSelf(ostream &os, vtkIndent indent);
 
  // Description:
   // Key to store the priority of a task
@@ -79,27 +72,31 @@ public:
   // Enable/Disable automatic propagation of Push events
   static void SetAutoPropagatePush(bool enabled);
 
-  //BTX
-  // Convinient definitions of vector/set of vtkExecutive
-  class vtkExecutiveHasher {
-  public:
-    size_t operator()(const vtkExecutive* e) const {
-      return (size_t)e;
-    };
-  };
-  typedef vtksys::hash_set<vtkExecutive*, vtkExecutiveHasher> vtkExecutiveSet;
-  typedef vtkstd::vector<vtkExecutive*>                       vtkExecutiveVector;
-  
+  // Description:  
+  // The current executive set is the set of executive that MultiPush(), 
+  // and MultPull() will be working on. This is more like a workaround 
+  // for not taking STL containers as parameters for now, but currently 
+  // under consideration of using vtkArray or vtkTypedArray instead.
+  // ClearCurrentExecutiveSet() restarts the set
+  static void ClearCurrentExecutiveSet();
+
+  // Description:  
+  // The current executive set is the set of executive that MultiPush(), 
+  // and MultPull() will be working on. This is more like a workaround 
+  // for not taking STL containers as parameters for now, but currently 
+  // under consideration of using vtkArray or vtkTypedArray instead.
+  // InsertToCurrentExecutiveSet() inserts an executive to the current set.
+  static void InsertToCurrentExecutiveSet(vtkExecutive *exec);
+
   // Description:
   // Trigger the updates on certain execs and asking all of its
   // upstream modules to be updated as well (propagate up)
-  static void Pull(const vtkExecutiveVector &execs, vtkInformation *info=NULL);
+  static void MultiPull(vtkInformation *info=NULL);
   
   // Description:
   // Trigger the updates on certain execs and asking all of its
   // downstream modules to be updated as well (propagate down)  
-  static void Push(const vtkExecutiveVector &execs, vtkInformation *info=NULL);
-  //ETX
+  static void MultiPush(vtkInformation *info=NULL);
   
   // Description:
   // A simplified version of the above and also allow wrapping
@@ -146,6 +143,7 @@ protected:
   ~vtkThreadedStreamingPipeline();
 
   virtual int ForwardUpstream(vtkInformation* request);
+  virtual int ForwardUpstream(int i, int j, vtkInformation* request);
   
 private:
   vtkThreadedStreamingPipeline(const vtkThreadedStreamingPipeline&);  // Not implemented.

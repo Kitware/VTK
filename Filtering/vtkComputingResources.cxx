@@ -34,9 +34,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkThreadedStreamingPipeline.h"
+#include <vtksys/hash_map.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkComputingResources, "1.1");
+vtkCxxRevisionMacro(vtkComputingResources, "1.2");
 vtkStandardNewMacro(vtkComputingResources);
 
 //----------------------------------------------------------------------------
@@ -100,11 +101,13 @@ private:
 // This needs to reimplement
 class vtkGPUResource: public vtkProcessingUnitResource {
 public:
-  virtual int ProcessingUnit() {
+  virtual int ProcessingUnit() 
+  {
     return vtkThreadedStreamingPipeline::PROCESSING_UNIT_GPU;
   }
   
-  virtual bool HasResource() {
+  virtual bool HasResource() 
+  {
     return false;
   }
   
@@ -114,87 +117,129 @@ public:
   
   virtual void ObtainMaximum() {}
   
-  virtual void IncreaseByRatio(float ratio, vtkProcessingUnitResource *refResource) {}
+  virtual void IncreaseByRatio(float vtkNotUsed(ratio), 
+                               vtkProcessingUnitResource* vtkNotUsed(refResource)) 
+  {
+  }
   
-  virtual void AllocateFor(vtkThreadedStreamingPipeline *exec) {
+  virtual void AllocateFor(vtkThreadedStreamingPipeline* vtkNotUsed(exec)) 
+  {
     fprintf(stderr, "vtkGPUResource NEEDS TO BE IMPLEMENTED!!!!\n");
   }
-
-  bool CanAccommodate(vtkProcessingUnitResource *refResource) {
+  
+  bool CanAccommodate(vtkProcessingUnitResource* vtkNotUsed(refResource))
+  {
     return false;
   }
   
-  void Reserve(vtkProcessingUnitResource *refResource) {}
+  void Reserve(vtkProcessingUnitResource* vtkNotUsed(refResource)) {}
   
-  void Collect(vtkProcessingUnitResource *refResource) {}
+  void Collect(vtkProcessingUnitResource* vtkNotUsed(refResource)) {}
   
 private:
 };
 
 //----------------------------------------------------------------------------
-vtkComputingResources::vtkComputingResources() {
-  this->ResourceMap[vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU] = new vtkCPUResource();
-  this->ResourceMap[vtkThreadedStreamingPipeline::PROCESSING_UNIT_GPU] = new vtkGPUResource();
+class vtkComputingResources::implementation
+{
+public:
+  typedef vtksys::hash_map<int, vtkProcessingUnitResource*> ProcessingUnitToResourceHashMap;
+  ProcessingUnitToResourceHashMap ResourceMap;
+};
+
+//----------------------------------------------------------------------------
+vtkComputingResources::vtkComputingResources() :
+  Implementation(new implementation())
+{
+  this->Implementation->ResourceMap[vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU] = new vtkCPUResource();
+  this->Implementation->ResourceMap[vtkThreadedStreamingPipeline::PROCESSING_UNIT_GPU] = new vtkGPUResource();
   this->ObtainMinimumResources();
 }
 
 //----------------------------------------------------------------------------
 vtkComputingResources::~vtkComputingResources() {
-  for (ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.begin();
-       i!=this->ResourceMap.end(); i++) {
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.begin();
+  for (; i!=this->Implementation->ResourceMap.end(); i++) {
     delete (*i).second;
   }
-  this->ResourceMap.clear();
+  this->Implementation->ResourceMap.clear();
+  delete this->Implementation;
+}
+
+//----------------------------------------------------------------------------
+void vtkComputingResources::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+vtkProcessingUnitResource *vtkComputingResources::GetResourceFor(int processingUnit)
+{
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.find(processingUnit);
+  if (i!=this->Implementation->ResourceMap.end())
+    {
+    return (*i).second;
+    }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
 void vtkComputingResources::Clear() {
-  for (ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.begin();
-       i!=this->ResourceMap.end(); i++) {
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.begin();
+  for (; i!=this->Implementation->ResourceMap.end(); i++) {
     (*i).second->Clear();
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkComputingResources::ObtainMinimumResources() {
-  for (ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.begin();
-       i!=this->ResourceMap.end(); i++) {
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.begin();
+  for (; i!=this->Implementation->ResourceMap.end(); i++) {
     (*i).second->ObtainMinimum();
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkComputingResources::ObtainMaximumResources() {
-  for (ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.begin();
-       i!=this->ResourceMap.end(); i++) {
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.begin();
+  for (; i!=this->Implementation->ResourceMap.end(); i++) {
     (*i).second->ObtainMaximum();
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec, vtkInformation *info) {
-  for (ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.begin();
-       i!=this->ResourceMap.end(); i++) {
+void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec, 
+                                   vtkInformation* vtkNotUsed(info)) {
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.begin();
+  for (; i!=this->Implementation->ResourceMap.end(); i++) 
+    {
     int resource = vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU;
 //     if (exec->GetAlgorithm()->GetInformation()->
 //         Has(vtkThreadedStreamingPipeline::PROCESSING_UNIT()))
 //       resource = exec->GetAlgorithm()->GetInformation()->
 //         Get(vtkThreadedStreamingPipeline::PROCESSING_UNIT());
     if (((*i).first & resource) &&
-        (*i).second->HasResource()) {
+        (*i).second->HasResource()) 
+      {
       (*i).second->AllocateFor(exec);
       exec->Update();
 //       exec->ForceUpdateData((*i).first, info);
+      }
     }
-  }
 }
 
 //----------------------------------------------------------------------------
 bool vtkComputingResources::Reserve(vtkComputingResources *res) {
-  ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.
-    find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
-  ProcessingUnitToResourceHashMap::iterator j = res->ResourceMap.
-    find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
+  implementation::ProcessingUnitToResourceHashMap::iterator j = 
+    res->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
   bool ok = (*i).second->CanAccommodate((*j).second);
   if (ok)
     (*i).second->Reserve((*j).second);
@@ -203,9 +248,9 @@ bool vtkComputingResources::Reserve(vtkComputingResources *res) {
 
 //----------------------------------------------------------------------------
 void vtkComputingResources::Collect(vtkComputingResources *res) {
-  ProcessingUnitToResourceHashMap::iterator i = this->ResourceMap.
-    find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
-  ProcessingUnitToResourceHashMap::iterator j = res->ResourceMap.
-    find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
+  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+    this->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
+  implementation::ProcessingUnitToResourceHashMap::iterator j = 
+    res->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
   (*i).second->Collect((*j).second);
 }

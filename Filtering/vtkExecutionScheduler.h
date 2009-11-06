@@ -37,20 +37,21 @@
 #define __vtkExecutionScheduler_h
 
 #include "vtkObject.h"
-#include "vtkThreadedStreamingPipeline.h"
-#include "vtkThreadedStreamingTypes.i"
 
+class vtkExecutive;
 class vtkComputingResources;
 class vtkMultiThreader;
 class vtkMutexLock;
 class vtkThreadMessager;
 class vtkInformation;
+class vtkInformationIntegerKey;
 
 class VTK_FILTERING_EXPORT vtkExecutionScheduler : public vtkObject
 {
 public:
   static vtkExecutionScheduler* New();
   vtkTypeRevisionMacro(vtkExecutionScheduler,vtkObject);
+  void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
   // Return the global instance of the scheduler 
@@ -60,22 +61,37 @@ public:
   // Key to store the priority of a task
   static vtkInformationIntegerKey* TASK_PRIORITY();
 
-  //BTX
   // Description:  
-  // Put a set of executives (modules) to the be scheduled given its
+  // The current executive set is the set of executive that Schedule(), 
+  // WaitUntilDone() and WaitUntilReleased() will be working on. This 
+  // is more like a workaround for not taking STL containers as
+  // parameters for now, but currently under consideration of using
+  // vtkArray or vtkTypedArray instead.
+  // ClearCurrentExecutiveSet() restarts the set
+  void ClearCurrentExecutiveSet();
+
+  // Description:  
+  // The current executive set is the set of executive that Schedule(), 
+  // WaitUntilDone() and WaitUntilReleased() will be working on. This 
+  // is more like a workaround for not taking STL containers as
+  // parameters for now, but currently under consideration of using
+  // vtkArray or vtkTypedArray instead.
+  // InsertToCurrentExecutiveSet() inserts an executive to the current set.
+  void InsertToCurrentExecutiveSet(vtkExecutive *exec);
+
+  // Description:  
+  // Put the current set of executives (modules) to the be scheduled given its
   // dependency graph which will be used to compute the set
   // topological orders
-  void Schedule(const vtkThreadedStreamingPipeline::vtkExecutiveSet &eSet,
-                vtkInformation *info);
+  void Schedule(vtkInformation *info);
   
   // Description:
-  // Wait until a set of executives (modules) have finished executing
-  void WaitUntilDone(const vtkThreadedStreamingPipeline::vtkExecutiveSet &eSet);
+  // Wait until the current set of executives (modules) have finished executing
+  void WaitUntilDone();
   
   // Description:  
-  // Wait until a set of executives (modules) have their inputs released
-  void WaitUntilReleased(const vtkThreadedStreamingPipeline::vtkExecutiveSet &eSet);
-  //ETX
+  // Wait until the current set of executives (modules) have their inputs released
+  void WaitUntilReleased();
 
   // Description:
   // Wait for all tasks to be done
@@ -133,106 +149,13 @@ public:
   vtkMultiThreader            *ScheduleThreader;
   int                          ScheduleThreadId;
 
-  //BTX
-  class Task {
-  public:
-    Task(int _priority=-1, vtkExecutive *_exec=NULL, vtkInformation *_info=NULL) {
-      this->priority = _priority;
-      this->exec = _exec;
-      this->info = _info;
-    }
-    int             priority;
-    vtkExecutive   *exec;
-    vtkInformation *info;
-  };
-  
-  class TaskWeakOrdering {
-  public:
-    bool operator()(const Task& t1,
-                    const Task& t2) const {
-      return t1.priority < t2.priority;
-    }
-  };
-  //ETX
-  
 protected:
   vtkExecutionScheduler();
   ~vtkExecutionScheduler();
 
-  //BTX
-  // Some convenient type definitions for STL containers
-  typedef vtksys::hash_map<vtkExecutive*, int,
-    vtkThreadedStreamingPipeline::vtkExecutiveHasher>   ExecutiveIntHashMap;
-  typedef vtkstd::pair<int, int>                        Edge;
-  class                                                 EdgeHasher;
-  typedef vtksys::hash_set<Edge, EdgeHasher>            EdgeSet;
-  typedef vtkstd::multiset<Task, TaskWeakOrdering>      TaskPriorityQueue;
-  typedef vtkstd::vector<vtkMutexLock*>                 MutexLockVector;
-  typedef vtkstd::vector<vtkThreadMessager*>            MessagerVector;
-  class EdgeHasher {
-  public:
-    size_t operator()(const Edge &e) const {
-      return (size_t)((e.first << 16) +  e.second);
-    };
-  };
-
-  vtkThreadedStreamingPipeline::
-    vtkExecutiveSet         ExecutingTasks;
-  TaskPriorityQueue         PrioritizedTasks;
-  ExecutiveIntHashMap       DependencyNodes;
-  EdgeSet                   DependencyEdges;
-  MessagerVector            TaskDoneMessagers;
-  MutexLockVector           InputsReleasedLocks;
-  MessagerVector            InputsReleasedMessagers;
-  int                       CurrentPriority;
-  
-  // Description:
-  // Start from the exec and go all the way up to the sources (modules
-  // without any inputs), then call TraverseDownToSink to update edges
-  void FindAndTraverseFromSources(vtkExecutive *exec,
-                                  vtkThreadedStreamingPipeline::vtkExecutiveSet &visited);
-  
-  // Description:
-  // Actual traverse down the network, for each nodes, construct and
-  // add edges connecting all of its upstream modules to itself to the
-  // dependency graph
-  void TraverseDownToSink(vtkExecutive *exec,
-                          vtkThreadedStreamingPipeline::vtkExecutiveSet &upstream,
-                          vtkThreadedStreamingPipeline::vtkExecutiveSet &visited);
-  
-  // Description:
-  // A task can be executed if none of its predecessor tasks are still
-  // on the queue. This only makes sense for tasks that are currently
-  // on the queue, thus, an iterator is provided instead of the task
-  // itself.
-  bool CanExecuteTask(TaskPriorityQueue::const_iterator ti);
-  //ETX
-
-  // Description:
-  // Check if the given exec is a new module or not. If it is then
-  // traverse the network to update dependency edges for its connected
-  // subgraph
-  void UpdateDependencyGraph(vtkExecutive *exec);
-
-  // Description:
-  // Add the module exec to the set of dependency nodes if it is not
-  // already there and return its node id number
-  int AddToDependencyGraph(vtkExecutive *exec);
-
-  // Description:
-  // Add the given executive to the execution queue for later
-  // execution
-  void AddToQueue(vtkExecutive *exec, vtkInformation *info);
-
-  // Description:
-  // Obtain the priority from the information object if it is given,
-  // otherwise, use a priority assigned from the scheduler
-  int AcquirePriority(vtkInformation *info);
-  
-  // Description:
-  // Spawn a thread to execute a module
-  void Execute(const Task &task);
-  
+//BTX
+  class implementation;
+  implementation* const Implementation;
 
   // Description:  
   // The scheduling thread that is responsible for queueing up module
@@ -243,6 +166,8 @@ protected:
   // Execute thread function that is responsible for forking process
   // for each module
   friend void * vtkExecutionScheduler_ExecuteThread(void *data);
+
+//ETX
 
 private:
   vtkExecutionScheduler(const vtkExecutionScheduler&);  // Not implemented.
