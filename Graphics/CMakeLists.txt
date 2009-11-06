@@ -55,6 +55,8 @@ vtkDashedStreamLine.cxx
 vtkDataObjectGenerator.cxx
 vtkDataObjectToDataSetFilter.cxx
 vtkDataSetEdgeSubdivisionCriterion.cxx
+vtkDataSetGradient.cxx
+vtkDataSetGradientPrecompute.cxx
 vtkDataSetSurfaceFilter.cxx
 vtkDataSetToDataObjectFilter.cxx
 vtkDataSetTriangleFilter.cxx
@@ -264,6 +266,8 @@ vtkWarpScalar.cxx
 vtkWarpTo.cxx
 vtkWarpVector.cxx
 vtkWindowedSincPolyDataFilter.cxx
+vtkYoungsMaterialInterface.cxx
+vtkYoungsMaterialInterfaceCellCut.cxx  
 )
 SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
@@ -276,6 +280,11 @@ vtkGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
 ABSTRACT
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkYoungsMaterialInterfaceCellCut.cxx
+  WRAP_EXCLUDE
 )
 
 SET(Kit_EXTRA_SRCS)
