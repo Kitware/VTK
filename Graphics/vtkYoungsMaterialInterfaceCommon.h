@@ -178,7 +178,7 @@ FUNC_DECL
 REAL evalPolynomialFunc(const REAL4 F, const REAL x)
 {
    REAL y = ( ( F.x * x + F.y ) * x + F.z ) * x;
-   return y + F.w; // avec l'option -ffloat-store permet d'avoir des fonctions qui valent vraiment 0 quand il le faut
+   return y + F.w; // this increases numerical stability when compiled with -ffloat-store
 }
 
 
@@ -247,22 +247,22 @@ REAL3 quadraticInterpFunc( REAL x0, REAL y0, REAL x1, REAL y1, REAL x2, REAL y2 
 {
   // Formula from the book 'Maillages', page 409
 
-  // cas ou la fonction est reelement de degree 2
+  // non-degenerated case (really a quadratic function)
    if( x1>x0 && x2>x1 )
    {
-     // denominateurs
+     // denominators
       const REAL d0 = ( x0 - x1 ) * ( x0 - x2 );
       const REAL d1 = ( x1 - x0 ) * ( x1 - x2 );
       const REAL d2 = ( x2 - x0 ) * ( x2 - x1 );
 
-     // coefficients du polynome de degrée 2 interpolant les points p0, p1 et p2
+     // coefficients for the quadratic interpolation of (x0,y0) , (x1,y1) and p2(x2,y2)
       return make_REAL3(
    ( y0          / d0 ) + ( y1          / d1 ) + ( y2          / d2 ) ,  // x^2 term
    ( y0*(-x1-x2) / d0 ) + ( y1*(-x0-x2) / d1 ) + ( y2*(-x0-x1) / d2 ) ,  // x term
    ( y0*(x1*x2)  / d0 ) + ( y1*(x0*x2)  / d1 ) + ( y2*(x0*x1)  / d2 ) ); // constant term
    }
 
-  // cas lineaire : 2 des 3 points sont confondus
+  // linear case : 2 out of the 3 points are the same
    else if( x2 > x0 )
    {
       return make_REAL3(
@@ -271,7 +271,7 @@ REAL3 quadraticInterpFunc( REAL x0, REAL y0, REAL x1, REAL y1, REAL x2, REAL y2 
    y0                        ); // constant term
    }
 
-  // cas degenere
+  // degenerated case
    else
    {
       return make_REAL3(0,0,0);
