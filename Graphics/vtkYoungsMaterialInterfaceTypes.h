@@ -52,7 +52,7 @@
 #define REAL_CONST(x) ((float)(x)) //( x##f )
 
 
-// long double = precision la plus haute
+// long double = highest precision
 #elif ( REAL_PRECISION > 64 )
 
 #define REAL  long double
@@ -71,7 +71,7 @@
 #define REAL_CONST(x) ((long double)(x)) //( x##l )
 
 
-// double = precision par defaut
+// double = default precision
 #else
 
 #define REAL  double

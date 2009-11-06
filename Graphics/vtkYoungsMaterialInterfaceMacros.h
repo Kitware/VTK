@@ -67,7 +67,7 @@
 
 #endif /* __CUDACC__ */
 
-#include "vtkYoungsMaterialInterfaceTypes.h"      /* definit REAL en float, double ou long double */
+#include "vtkYoungsMaterialInterfaceTypes.h"      /* defines REAL to float, double or long double */
 #include "vtkYoungsMaterialInterfaceVecMath.h"
 
 

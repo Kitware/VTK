@@ -24,6 +24,9 @@
 //
 // </verbatim>
 
+// .SECTION Caveats
+// This file is for vtkYoungsMaterialInterface internal use only, it should never be included in other source files.
+
 /*
  Some of the vector functions where found in the file vector_operators.h from the NVIDIA's CUDA Toolkit.
  Please read the above notice.

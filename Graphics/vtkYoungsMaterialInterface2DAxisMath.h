@@ -94,7 +94,7 @@ REAL findTriangleSetCuttingCone(
    ALLOC_LOCAL_ARRAY( index, unsigned char, nv );
    ALLOC_LOCAL_ARRAY( rindex, unsigned char, nv );
 
-  // initialisation
+  // initialization
    for(int i=0;i<nv;i++)
    {
       index[i] = i;
@@ -105,27 +105,27 @@ REAL findTriangleSetCuttingCone(
       derivatives[i] = make_REAL3(0,0,0);
    }
 
-  // tri des sommets dans le sens de la normale
+  // sort vertices along normal vector 
    sortVertices( nv, vertices, normal, index );
 
-  // table d'indirection inverse
+  // reverse indirection table
    for(int i=0;i<nv;i++)
    {
       rindex[ index[i] ] = i;
    }
 
-  // construction de la fonction cubique par morceau du volume tronqué
+  // construction of the truncated volume piecewise cubic function
    for(int i=0;i<nt;i++)
    {
-     // calcul de la surface de l'intersection plan/tetra aux point P1 et P2
+     // area of the interface-tetra intersection at points P1 and P2
       uchar3 triangle = sortTriangle( tv[i] , rindex );
       DBG_MESG( "\ntriangle "<<i<<" : "<<tv[i].x<<','<<tv[i].y<<','<<tv[i].z<<" -> "<<triangle.x<<','<<triangle.y<<','<<triangle.z );
 
-     // calcul des sous fonctions cubiques du volume derriere le plan en fonction de la distance
+     // compute the volume function derivatives pieces 
       REAL3 coneVolDeriv[2];
       makeConeVolumeDerivatives( triangle, vertices, normal, coneVolDeriv );      
 
-     // surface function bounds
+     // area function bounds
       unsigned int i0 = rindex[ triangle.x ];
       unsigned int i1 = rindex[ triangle.y ];
       unsigned int i2 = rindex[ triangle.z ];
@@ -160,7 +160,7 @@ REAL findTriangleSetCuttingCone(
    REAL y = surface*fraction;
    DBG_MESG( "surface = "<<surface<<", surface*fraction = "<<y );
 
-  // integration des fonctions de surface en fonctions de volume
+  // integrate area function pieces to obtain volume function pieces
    REAL sum = 0;
    REAL4 volumeFunction = make_REAL4(0,0,0,0);
    xmax = dot( vertices[index[0]], normal ) ;
@@ -178,16 +178,12 @@ REAL findTriangleSetCuttingCone(
    }
    if( s<0) s=0;
 
-  // recherche de la portion de fonction qui contient la valeur
+  // look for the function piece that contain the target volume
    DBG_MESG( "step="<<s<<", x in ["<<xmin<<';'<<xmax<<']' );
-
-  /* chaque portion de fonction redemarre de 0,
-  on calcul donc le volume recherché dans cette portion de fonction
-  */
    DBG_MESG( "surface reminder = "<< y );
 
-  // recherche par newton
-  //REAL x = quadraticFunctionSolve( funcs[s], surface, xmin, xmax );
+  //REAL x = quadraticFunctionSolve( funcs[s], surface, xmin, xmax ); // analytical solution is highly unstable
+  // newton search method
    REAL x = newtonSearchPolynomialFunc( volumeFunction, derivatives[s], y, xmin, xmax );
 
    DBG_MESG( "final x = "<< x );

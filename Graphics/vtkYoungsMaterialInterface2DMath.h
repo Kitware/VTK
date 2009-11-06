@@ -107,7 +107,7 @@ REAL findTriangleSetCuttingPlane(
    ALLOC_LOCAL_ARRAY( index, unsigned char, nv );
    ALLOC_LOCAL_ARRAY( rindex, unsigned char, nv );
 
-  // initialisation
+  // initialization
    for(int i=0;i<nv;i++)
    {
       index[i] = i;
@@ -118,26 +118,26 @@ REAL findTriangleSetCuttingPlane(
       derivatives[i] = make_REAL2(0,0);
    }
 
-  // tri des sommets dans le sens de la normale
+  // sort vertices in the normal vector direction
    sortVertices( nv, vertices, normal, index );
 
-  // table d'indirection inverse
+  // reverse indirection table
    for(int i=0;i<nv;i++)
    {
       rindex[ index[i] ] = i;
    }
 
-  // surface totale
+  // total area
    REAL surface = 0;
 
-  // construction de la fonction cubique par morceau du volume tronqué
+  // construction of the truncated volume piecewise cubic function
    for(int i=0;i<nt;i++)
    {
-     // calcul de la surface de l'intersection plan/tetra aux point P1 et P2
+     // area of the interface-tetra intersection at points P1 and P2
       uchar3 triangle = sortTriangle( tv[i] , rindex );
       DBG_MESG( "\ntriangle "<<i<<" : "<<tv[i].x<<','<<tv[i].y<<','<<tv[i].z<<" -> "<<triangle.x<<','<<triangle.y<<','<<triangle.z );
 
-     // calcul des sous fonctions cubiques du volume derriere le plan en fonction de la distance
+     // compute the volume function derivative pieces 
       REAL2 triangleSurfFunc[2];
       surface += makeTriangleSurfaceFunctions( triangle, vertices, normal, triangleSurfFunc );      
 
@@ -168,11 +168,11 @@ REAL findTriangleSetCuttingPlane(
       }
    }
 
-  // calcul de la fraction de surface recherchee
+  // target volume fraction we're looking for
    REAL y = surface*fraction;
    DBG_MESG( "surface = "<<surface<<", surface*fraction = "<<y );
 
-  // integration des fonctions et recherche de la fonction utile
+  // integrate area function pieces to obtain volume function pieces
    REAL sum = 0;
    REAL3 surfaceFunction = make_REAL3(0,0,0);
    REAL xmin ;
@@ -191,18 +191,11 @@ REAL findTriangleSetCuttingPlane(
    }
    if( s<0) s=0;
 
-  // calcul du volume recherche
-
-  // recherche de la portion de fonction qui contient la valeur
    DBG_MESG( "step="<<s<<", x in ["<<xmin<<';'<<xmax<<']' );
-
-  /* chaque portion de fonction redemarre de 0,
-  on calcul donc le volume recherché dans cette portion de fonction
-  */
    DBG_MESG( "surface reminder = "<< y );
 
-  // recherche par newton
-  //REAL x = quadraticFunctionSolve( funcs[s], surface, xmin, xmax );
+  //REAL x = quadraticFunctionSolve( funcs[s], surface, xmin, xmax ); // analytic solution is highly unsteady
+  // newton search
    REAL x = newtonSearchPolynomialFunc( surfaceFunction, derivatives[s], y, xmin, xmax );
 
    DBG_MESG( "final x = "<< x );
