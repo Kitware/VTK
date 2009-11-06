@@ -73,6 +73,8 @@ GUI4::GUI4()
   t->GetSettings()->SetTranslationYSensitivity(translationSensitivity);
   t->GetSettings()->SetTranslationZSensitivity(translationSensitivity);
 
+ 
+
   // add a renderer
   Ren1 = vtkRenderer::New();
   qVTK1->GetRenderWindow()->AddRenderer(Ren1);
@@ -98,8 +100,16 @@ GUI4::GUI4()
   // create a window to make it stereo capable and give it to QVTKWidget
   renwin = vtkRenderWindow::New();
   renwin->StereoCapableWindowOn();
+
+  qVTK2->SetUseTDx(true);
   qVTK2->SetRenderWindow(renwin);
   renwin->Delete();
+
+  QVTKInteractor *iren2=qVTK2->GetInteractor();
+  vtkInteractorStyle *s2=
+    static_cast<vtkInteractorStyle *>(iren2->GetInteractorStyle());
+  vtkTDxInteractorStyle *t2=s2->GetTDxStyle();
+  t2->SetSettings(t->GetSettings());
 
   // add a renderer
   Ren2 = vtkRenderer::New();

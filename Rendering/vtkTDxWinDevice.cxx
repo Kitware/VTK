@@ -36,7 +36,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkTDxWinDevice,"1.9");
+vtkCxxRevisionMacro(vtkTDxWinDevice,"1.10");
 vtkStandardNewMacro(vtkTDxWinDevice);
 
 #include <atlbase.h> // for CComPtr<> (a smart pointer)
@@ -65,6 +65,8 @@ public:
 // but the SetTimer on windows is only initialized with a function pointer
 // without calldata.
 vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle> vtkWindowHandleToDeviceObject;
+
+vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle> vtkWindowHandleToDeviceObjectConnection;
 
 class vtkTDxWinDevicePrivate
 {
@@ -204,47 +206,68 @@ void vtkTDxWinDevice::Initialize()
   HRESULT hr=0;
   CComPtr<IUnknown> device;
   
-  hr=::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED );
-  if (!SUCCEEDED(hr))
-    {
-    vtkWarningMacro( << "CoInitializeEx failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
-    this->Initialized=status;
-    return;
-    }
+  bool alreadyConnected=vtkWindowHandleToDeviceObjectConnection.size()!=0;
   
-  // Create the device object
-  hr=device.CoCreateInstance(__uuidof(Device));
-  status=SUCCEEDED(hr);
-  if(status)
+  if(alreadyConnected)
     {
-    CComPtr<ISimpleDevice> d;
-    
-    hr=device.QueryInterface(&d);
-    status=SUCCEEDED(hr);
-    if(status)
-      {
-      vtkTDxWinDevicePrivate *o= this->Private;
-      
-      // Get the interfaces to the sensor and the keyboard;
-      o->Sensor=d->Sensor;
-      o->Keyboard=d->Keyboard;
+      // take the first one, to copy the device information.
+      vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObjectConnection.begin();
+      vtkTDxWinDevice *other=(*it).second;
+      vtkTDxWinDevicePrivate *o=this->Private;
+      vtkTDxWinDevicePrivate *otherO=other->Private;
+      o->Sensor=otherO->Sensor;
+      o->Keyboard=otherO->Keyboard;
       o->Interactor=this->Interactor;
       
-      // Connect to the driver
-      d->Connect();
-      
-      vtkDebugMacro(<< "Connected to COM-object for 3dConnexion device.");
-      }
-    else
-      {
-      vtkWarningMacro(<<"Could not get the device interface. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
-      }
+      vtkWindowHandleToDeviceObjectConnection.insert(vtkstd::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
+      this->Initialized=true;
     }
   else
     {
-    vtkWarningMacro( << "CoCreateInstance failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
+      hr=::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED );
+      if (!SUCCEEDED(hr))
+        {
+          vtkWarningMacro( << "CoInitializeEx failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
+          this->Initialized=status;
+          return;
+        }
+      // Create the device object
+      hr=device.CoCreateInstance(__uuidof(Device));
+      status=SUCCEEDED(hr);
+      if(status)
+        {
+          CComPtr<ISimpleDevice> d;
+          
+          hr=device.QueryInterface(&d);
+          
+          status=SUCCEEDED(hr);
+          if(status)
+            {
+              vtkTDxWinDevicePrivate *o= this->Private;
+              
+              // Get the interfaces to the sensor and the keyboard;
+              o->Sensor=d->Sensor;
+              o->Keyboard=d->Keyboard;
+              o->Interactor=this->Interactor;
+              
+              // Connect to the driver
+              d->Connect();
+              
+              vtkWindowHandleToDeviceObjectConnection.insert(vtkstd::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
+
+              vtkDebugMacro(<< "Connected to COM-object for 3dConnexion device.");
+            }
+          else
+            {
+              vtkWarningMacro(<<"Could not get the device interface. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
+            }
+        }
+      else
+        {
+          vtkWarningMacro( << "CoCreateInstance failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
+        }
+      this->Initialized=status;
     }
-  this->Initialized=status;
 }
 
 // ----------------------------------------------------------------------------
@@ -270,7 +293,7 @@ void vtkTDxWinDevice::StartListening()
   
   this->IsListening=true;
   
-  vtkDebugMacro(<< "Start listening");
+  vtkDebugMacro(<< "Start listening on window="  << this->WindowHandle);
 }
 
 // ----------------------------------------------------------------------------
@@ -296,7 +319,7 @@ void vtkTDxWinDevice::StopListening()
     {
     vtkWindowHandleToDeviceObject.erase(it);
     }
-  vtkDebugMacro(<< "Stop listening");
+  vtkDebugMacro(<< "Stop listening on  window=" << this->WindowHandle);
 }
 
 // ----------------------------------------------------------------------------
@@ -319,24 +342,38 @@ void vtkTDxWinDevice::Close()
     this->StopListening();
     }
   
-  // Release the sensor and keyboard interfaces
-  vtkTDxWinDevicePrivate *o=this->Private;
-  if(o->Sensor!=0)
-    {
-    o->Sensor->get_Device(reinterpret_cast<IDispatch**>(&d));
-    o->Sensor.Release();
-    }
+  vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObjectConnection.find(this->WindowHandle);
   
-  if(o->Keyboard!=0)
+  if(it==vtkWindowHandleToDeviceObjectConnection.end())
     {
-    o->Keyboard.Release();
+    vtkErrorMacro(<< "No matching vtkTDxWinDevice object for window hwnd=" << this->WindowHandle);
     }
-  
-  if(d!=0)
+  else
     {
-    // Disconnect it from the driver
-    d->Disconnect();
-    d.Release();
+    vtkWindowHandleToDeviceObjectConnection.erase(it);
+    }
+
+  if(vtkWindowHandleToDeviceObjectConnection.size()==0)
+    {
+      // Release the sensor and keyboard interfaces
+      vtkTDxWinDevicePrivate *o=this->Private;
+      if(o->Sensor!=0)
+        {
+          o->Sensor->get_Device(reinterpret_cast<IDispatch**>(&d));
+          o->Sensor.Release();
+        }
+      
+      if(o->Keyboard!=0)
+        {
+          o->Keyboard.Release();
+        }
+      
+      if(d!=0)
+        {
+          // Disconnect it from the driver
+          d->Disconnect();
+          d.Release();
+        }
     }
   
   this->Initialized=false;
@@ -469,6 +506,8 @@ VOID CALLBACK vtkTDxWinDeviceTimerProc(HWND hwnd,
 { 
   vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObject.find(hwnd);
   
+  //  cout << "proc for hwnd=" << hwnd << endl;
+
   if(it==vtkWindowHandleToDeviceObject.end())
     {
     vtkGenericWarningMacro(<< "No matching vtkTDxWinDevice object for window hwnd=" << hwnd);
