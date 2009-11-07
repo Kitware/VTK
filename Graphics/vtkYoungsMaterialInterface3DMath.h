@@ -32,18 +32,15 @@
 #define __vtkYoungsMaterialInterface3DMath_H
 
 #include "vtkYoungsMaterialInterfaceCommon.h"
+
+#ifdef DEBUG
 #include <assert.h>
+#endif
 
 /*
- calcul la surface de l'intersection entre un plan orthogonal à 'normal'
- passant par P1 et P2.
-La surface de l'intersection en P0 et P3 est réduite à
-un point, donc on sait que la surface est 0.
-
- les distances signées des points au plan orthogonal à 'normal' passant par l'origine
- sont calculées dans dist[]
-
- les points sont triés dans l'ordre croissant de leurs distances
+ Computes the area of the intersection between the plane, orthognal to the 'normal' vector,
+ that passes through P1 (resp. P2), and the given tetrahedron.
+ the resulting area function, is a function of the intersection area given the distance of the cutting plane to the origin.
  */
 FUNC_DECL
 REAL tetraPlaneSurfFunc(
