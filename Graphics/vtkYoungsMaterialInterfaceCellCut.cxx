@@ -12,21 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkYoungsMaterialInterfaceCellCut - computes material interface plane/line
-// .SECTION Description
-// vtkYoungsMaterialInterfaceCellCut Contains methods to compute the interface polygon
-// (for 3D cells) or line (for 2D cells) given a normal, a volume fraction and a set of simplices.
-
 // .SECTION Thanks
-// <verbatim>
-//
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
-// BP12, F-91297 Arpajon, France
-// 
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (CEA)
-//
-// </verbatim>
 
 #include "vtkYoungsMaterialInterfaceCellCut.h"
 

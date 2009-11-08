@@ -12,19 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataSetGradientPrecompute 
-
-
 // .SECTION Thanks
-// <verbatim>
-//
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
-// BP12, F-91297 Arpajon, France
-// 
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (CEA)
-//
-// </verbatim>
 
 #include "vtkDataSetGradientPrecompute.h"
 
@@ -38,7 +30,7 @@
 #include <vtkCell3D.h>
 #include <vtkFieldData.h>
 
-vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.1");
+vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.2");
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()

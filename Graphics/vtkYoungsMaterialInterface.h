@@ -13,24 +13,19 @@
 
 =========================================================================*/
 // .NAME vtkYoungsMaterialInterface - reconstructs material interfaces
-
+//
 // .SECTION Description
 // Reconstructs material interfaces from a mesh containing mixed cells (where several materials are mixed)
 // this implementation is based on the youngs algorithm, generalized to arbitrary cell types and works
 // on both 2D and 3D meshes. the main advantage of the youngs algorithm is it guarantees the material volume correctness.
 // for 2D meshes, the AxisSymetric flag allows to switch between a pure 2D (plannar) algorithm and an axis symetric 2D algorithm
 // handling volumes of revolution.
-
+//
 // .SECTION Thanks
-// <verbatim>
-//
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
-// BP12, F-91297 Arpajon, France
-// 
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (CEA)
-//
-// </verbatim>
 
 #ifndef __vtkYoungsMaterialInterface_h
 #define __vtkYoungsMaterialInterface_h
