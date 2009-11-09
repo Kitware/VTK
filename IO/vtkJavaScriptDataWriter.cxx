@@ -35,7 +35,7 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkJavaScriptDataWriter);
-vtkCxxRevisionMacro(vtkJavaScriptDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkJavaScriptDataWriter, "1.2");
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
 {
@@ -82,36 +82,6 @@ bool vtkJavaScriptDataWriter::OpenFile()
 
   this->Stream = fptr;
   return true;
-}
-
-//-----------------------------------------------------------------------------
-template <class iterT>
-void vtkJavaScriptDataWriterGetDataString(
-  iterT* iter, vtkIdType tupleIndex, ofstream* stream, vtkJavaScriptDataWriter* writer,
-  bool* first)
-{
-  int numComps = iter->GetNumberOfComponents();
-  vtkIdType index = tupleIndex* numComps;
-  for (int cc=0; cc < numComps; cc++)
-    {
-    if ((index+cc) < iter->GetNumberOfValues())
-      {
-      if (*first == false)
-        {
-        (*stream) << writer->GetFieldDelimiter();
-        }
-      *first = false;
-      (*stream) << iter->GetValue(index+cc);
-      }
-    else
-      {
-      if (*first == false)
-        {
-        (*stream) << writer->GetFieldDelimiter();
-        }
-      *first = false;
-      }
-    }
 }
 
 //-----------------------------------------------------------------------------
