@@ -48,8 +48,9 @@ typedef boost::mpl::joint_view<vtkNumericTypes, vtkStringTypes> vtkAllTypes;
 
 // End-users can ignore these, they're the guts of the beast ...
 template<template <typename> class TargetT, typename FunctorT>
-struct vtkTryDowncastHelper
+class vtkTryDowncastHelper
 {
+public:
   vtkTryDowncastHelper(vtkObject* source, FunctorT functor, bool& succeeded) :
     Source(source),
     Functor(functor),
@@ -73,11 +74,15 @@ struct vtkTryDowncastHelper
   vtkObject* Source;
   FunctorT Functor;
   bool& Succeeded;
+
+private:
+  vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
 };
 
 template<template <typename> class TargetT, typename FunctorT, typename Arg1T>
-struct vtkTryDowncastHelper1
+class vtkTryDowncastHelper1
 {
+public:
   vtkTryDowncastHelper1(vtkObject* source, FunctorT functor, Arg1T arg1, bool& succeeded) :
     Source(source),
     Functor(functor),
@@ -103,6 +108,9 @@ struct vtkTryDowncastHelper1
   FunctorT Functor;
   Arg1T Arg1;
   bool& Succeeded;
+
+private:
+  vtkTryDowncastHelper1& operator=(const vtkTryDowncastHelper1&);
 };
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT>

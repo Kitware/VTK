@@ -43,8 +43,9 @@
     } \
 }
 
-struct DowncastTest
+class DowncastTest
 {
+public:
   DowncastTest(int& count) :
     Count(count)
   {
@@ -57,6 +58,9 @@ struct DowncastTest
   }
 
   int& Count;
+
+private:
+  DowncastTest& operator=(const DowncastTest&);
 };
 
 template<template <typename> class TargetT, typename TypesT>
