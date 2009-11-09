@@ -32,7 +32,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.20");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.21");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -241,7 +241,13 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
 }
 
 // ----------------------------------------------------------------------
-bool vtkSQLiteDatabase::OpenNew()
+bool vtkSQLiteDatabase::Open(const char* password)
+{
+  return this->Open(password, USE_EXISTING);
+}
+
+// ----------------------------------------------------------------------
+bool vtkSQLiteDatabase::Open(const char* password, int mode)
 {
   if (this->IsOpen())
     {
@@ -249,65 +255,63 @@ bool vtkSQLiteDatabase::OpenNew()
     return true;
     }
 
-  if (!this->DatabaseFileName)
-    {
-    vtkErrorMacro("Cannot open database because DatabaseFileName is not set.");
-    return false;
-    }
-
-  if (!strcmp(":memory:", this->DatabaseFileName))
-    {
-    return this->Open(0);
-    }
-
-  vtksys_ios::ofstream out;
-  out.open(this->DatabaseFileName);
-  if (!out.is_open())
-    {
-    vtkErrorMacro("Unable to create file " << this->DatabaseFileName << ".");
-    return false;
-    }
-  out.close();
-
-  return this->Open(0);
-}
-
-// ----------------------------------------------------------------------
-bool vtkSQLiteDatabase::Open(const char* password)
-{
   if(password && strlen(password))
     {
     vtkGenericWarningMacro("Password will be ignored by vtkSQLiteDatabase::Open().");
     }
 
-  if ( this->IsOpen() )
-    {
-    vtkGenericWarningMacro( "Open(): Database is already open." );
-    return true;
-    }
-
   if (!this->DatabaseFileName)
     {
     vtkErrorMacro("Cannot open database because DatabaseFileName is not set.");
     return false;
     }
 
-  if (strcmp(":memory:", this->DatabaseFileName) &&
-    !vtksys::SystemTools::FileExists(this->DatabaseFileName))
+  if (this->IsOpen())
     {
-    vtkErrorMacro("Database file does not exist. Use OpenNew() to create a new file.");
-    return false;
+    vtkGenericWarningMacro( "Open(): Database is already open." );
+    return true;
     }
 
-  int result = vtk_sqlite3_open( this->DatabaseFileName, & (this->SQLiteInstance) );
+  // Only do checks if it is not an in-memory database
+  if (strcmp(":memory:", this->DatabaseFileName))
+    {
+    bool exists = vtksys::SystemTools::FileExists(this->DatabaseFileName);
+    if (mode == USE_EXISTING && !exists)
+      {
+      vtkErrorMacro("You specified using an existing database but the file does not exist.\n"
+                    "Use USE_EXISTING_OR_CREATE to allow database creation.");
+      return false;
+      }
+    if (mode == CREATE && exists)
+      {
+      vtkErrorMacro("You specified creating a database but the file exists.\n"
+                    "Use USE_EXISTING_OR_CREATE to allow using an existing database,\n"
+                    "or CREATE_OR_CLEAR to clear any existing file.");
+      return false;
+      }
+    if (mode == CREATE_OR_CLEAR && exists)
+      {
+      // Here we need to clear the file if it exists by opening it.
+      vtksys_ios::ofstream os;
+      os.open(this->DatabaseFileName);
+      if (!os.is_open())
+        {
+        vtkErrorMacro("Unable to create file " << this->DatabaseFileName << ".");
+        return false;
+        }
+      os.close();
+      }
+    }
 
-  if ( result != VTK_SQLITE_OK )
+  int result = vtk_sqlite3_open(this->DatabaseFileName, & (this->SQLiteInstance));
+
+  if (result != VTK_SQLITE_OK)
     {
     vtkDebugMacro(<<"SQLite open() failed.  Error code is " 
                   << result << " and message is " 
                   << vtk_sqlite3_errmsg(this->SQLiteInstance) );
 
-    vtk_sqlite3_close( this->SQLiteInstance );
+    vtk_sqlite3_close(this->SQLiteInstance);
     return false;
     }
   else

@@ -61,18 +61,25 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLiteDatabase *New();
 
+  //BTX
+  enum {
+    USE_EXISTING,
+    USE_EXISTING_OR_CREATE,
+    CREATE_OR_CLEAR,
+    CREATE
+  };
+  //ETX
+
   // Description:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
   // database was opened successfully; false otherwise.
-  // The file must exist in order to open it. To create a new
-  // empty database use OpenNew.
+  // - USE_EXISTING (default) - Fail if the file does not exist.
+  // - USE_EXISTING_OR_CREATE - Create a new file if necessary.
+  // - CREATE_OR_CLEAR - Create new or clear existing file.
+  // - CREATE - Create new, fail if file exists.
   bool Open(const char* password);
-
-  // Description:
-  // Opens a new empty SQLite database file. If the file exists,
-  // the existing database will be deleted.
-  bool OpenNew();
+  bool Open(const char* password, int mode);
 
   // Description:
   // Close the connection to the database.
