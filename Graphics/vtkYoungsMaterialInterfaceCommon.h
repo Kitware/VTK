@@ -359,7 +359,9 @@ REAL newtonSearchPolynomialFunc( REAL4 F,  REAL3 dF, const REAL value, const REA
    REAL y = evalPolynomialFunc(F,x);
 
   // cherche x tel que F(x) = 0
+#ifdef __CUDACC__
 #pragma unroll
+#endif
    for(int i=0;i<NEWTON_NITER;i++)
    {
       DBG_MESG("F("<<x<<")="<<y);

@@ -58,7 +58,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.2");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.3");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -251,10 +251,10 @@ vtkYoungsMaterialInterface_GetPointData(
    vtkDataArray** inPointArrays,
    vtkDataSet * input,
    vtkstd::vector< vtkstd::pair<int,vtkIdType> > & prevPointsMap,
-   int nmat,
+   int vtkNotUsed(nmat),
    vtkYoungsMaterialInterface_Mat * Mats ,
    int a, vtkIdType i, double* t)
-{
+{   
    if( (i) >= 0 )              
    {                  
       if(a<(nPointData-1))            
@@ -320,7 +320,7 @@ int vtkYoungsMaterialInterface::CellProduceInterface( int dim, int np, double fr
    
 }
 
-int vtkYoungsMaterialInterface::RequestData(vtkInformation *request,
+int vtkYoungsMaterialInterface::RequestData(vtkInformation *vtkNotUsed(request),
               vtkInformationVector **inputVector,
               vtkInformationVector *outputVector)
 {
@@ -907,7 +907,9 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation *request,
         // copy point values
          for(int e=0;e<nInterfaceEdges;e++)
          {
+#ifdef DEBUG
       vtkIdType nptId = Mats[m].pointCount + e;
+#endif
       for(int a=0;a<nPointData;a++) 
       {
          DBG_ASSERT( nptId == Mats[m].outPointArrays[a]->GetNumberOfTuples() );

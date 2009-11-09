@@ -30,7 +30,7 @@
 #include <vtkCell3D.h>
 #include <vtkFieldData.h>
 
-vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.2");
+vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.3");
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()
@@ -87,7 +87,7 @@ static inline void TRIANGLE_CQS_VECTOR( double v0[3], double v1[3], double p[3],
    SCALE_VEC( cqs , length / (n*2.0) );
 }
 
-int vtkDataSetGradientPrecompute::RequestData(vtkInformation *request,
+int vtkDataSetGradientPrecompute::RequestData(vtkInformation *vtkNotUsed(request),
       vtkInformationVector **inputVector,
       vtkInformationVector *outputVector)
 {
@@ -234,7 +234,6 @@ int vtkDataSetGradientPrecompute::RequestData(vtkInformation *request,
      {
         const int e0 = f;
         const int e1 = (f+1)%np;
-        double tmp[3];
         TRIANGLE_CQS_VECTOR( cellCenter , cellPoints[e0] , cellPoints[e1] , tmp );
         ADD_VEC( cellVectors[e1] , tmp );
         

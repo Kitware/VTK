@@ -141,7 +141,7 @@ REAL findTriangleSetCuttingCone(
    }
 
    REAL surface = 0;
-   REAL xmin ;
+   REAL xmin = 0;
    REAL xmax = dot( vertices[index[0]], normal ) ;
    for(int i=0;i<(nv-1);i++)
    {

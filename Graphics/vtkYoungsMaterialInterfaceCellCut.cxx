@@ -174,7 +174,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
    if(np>3)
    {
      // calcul du centre du polygone
-      for(int d=0;d<3;d++) center[d] /= np;
+      for(int comp=0;comp<3;comp++) { center[comp] /= np; }
 
      // calcul de la direction dominante, pour retomber sur un cas 2D
       int maxDim = 0;
@@ -193,10 +193,10 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
       for(int i=0;i<np;i++)
       {
    double vec[3];
-   for(int d=0;d<3;d++)
+   for(int comp=0;comp<3;comp++)
    {
-      pts[i].coord[d] = polygon[i][d];
-      vec[d] = polygon[i][d]-center[d];
+      pts[i].coord[comp] = polygon[i][comp];
+      vec[comp] = polygon[i][comp]-center[comp];
    }
    
    pts[i].weight = weights[i];

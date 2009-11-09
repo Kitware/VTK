@@ -30,7 +30,7 @@
 #include <assert.h>
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkDataSetGradient, "1.2");
+vtkCxxRevisionMacro(vtkDataSetGradient, "1.3");
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!
@@ -59,7 +59,7 @@ vtkDataSetGradient::~vtkDataSetGradient()
 // {
 // }
 
-int vtkDataSetGradient::RequestData(vtkInformation *request,
+int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
              vtkInformationVector **inputVector,
              vtkInformationVector *outputVector)
 {

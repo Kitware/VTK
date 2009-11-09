@@ -198,7 +198,7 @@ REAL findTetraSetCuttingPlane(
   // integration des fonctions de surface en fonctions de volume
    REAL sum = 0;
    REAL4 volumeFunction = make_REAL4(0,0,0,0);
-   REAL xmin ;
+   REAL xmin = 0;
    REAL xmax = dot( vertices[index[0]], normal ) ;
    int s = -1;
    while( sum<y && s<(nv-2) )
