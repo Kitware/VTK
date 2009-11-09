@@ -17,11 +17,11 @@
   Program:   VTK/ParaView Los Alamos National Laboratory Modules (PVLANL)
   Module:    vtkCosmoReader.cxx
 
-Copyright (c) 2007, Los Alamos National Security, LLC
+Copyright (c) 2007, 2009 Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007. Los Alamos National Security, LLC. 
+Copyright 2007, 2009. Los Alamos National Security, LLC. 
 This software was produced under U.S. Government contract DE-AC52-06NA25396 
 for Los Alamos National Laboratory (LANL), which is operated by 
 Los Alamos National Security, LLC for the U.S. Department of Energy. 
@@ -80,7 +80,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.10");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.11");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -98,7 +98,7 @@ namespace
   const int MASS       = 6; // Mass of record item
 
   const int NUMBER_OF_VAR = 3;
-  const int BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(float);
+  const int BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(float_t);
   
   const int USE_VELOCITY = 0;
   const int USE_MASS = 1;
@@ -177,6 +177,8 @@ void vtkCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
   os << indent << "BoxSize: " << this->BoxSize << endl;
   os << indent << "MakeCells: " << (this->MakeCells?"on":"off") << endl;
+  os << indent << "TagSize: " << (this->TagSize ? "64-bit" : "32-bit")
+     << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -409,7 +411,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 
   const unsigned int numFloats = 7;
   const unsigned int numInts = 1;
-  float block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
+  float_t block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
   char iBlock[sizeof(int64_t)];  // it's either going to be 4 or 8
   int j = 0;
   double min[DIMENSION], max[DIMENSION];
@@ -455,10 +457,10 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       }
 
     // Read the floating point part of the data
-    this->FileStream->read((char*)block, numFloats * sizeof(float));
+    this->FileStream->read((char*)block, numFloats * sizeof(float_t));
 
     vtkIdType returnValue = this->FileStream->gcount();
-    if (returnValue != numFloats * sizeof(float))
+    if (returnValue != numFloats * sizeof(float_t))
       {
       vtkErrorMacro(<< "Only read " 
                     << returnValue << " bytes when reading floats.");
@@ -481,13 +483,13 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 #ifdef VTK_WORDS_BIG_ENDIAN
     if(this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
-      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float));
+      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float_t));
       vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
       }
 #else
     if(this->ByteOrder == FILE_BIG_ENDIAN)
       {
-      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float));
+      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float_t));
       vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
       }
 #endif
