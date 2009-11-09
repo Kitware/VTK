@@ -77,18 +77,18 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongArray.h"
 #include "vtkDataArray.h"
 #include "vtkConfigure.h"
+#include "vtkLongLongArray.h"
 
 #include "vtkStdString.h"
 
 // since windows doesn't seem to have these
 #ifdef _WIN32
-#include "vtkLongLongArray.h"
-typedef __int32 int32_t
-typedef __int64 int64_t
-typedef float float_t
+typedef __int32 int32_t;
+typedef __int64 int64_t;
+typedef float float_t;
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.12");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.13");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -339,10 +339,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   vtkDataArray *tag;
   if(this->TagSize) 
     {
-#ifdef _WIN32
-      // long longs are 64-bit on MS
-      tag = vtkLongLongArray::New();
-#else
     if(sizeof(long) == sizeof(int64_t)) 
       {
       tag = vtkLongArray::New();
@@ -351,6 +347,10 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       {
       tag = vtkIntArray::New();
       }
+    else if(sizeof(long long) == sizeof(int64_t))
+      {
+      tag = vtkLongLongArray::New();
+      }
     else
       {
       vtkErrorMacro("Unable to match 64-bit int type to a compiler type. " <<
@@ -358,14 +358,9 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
                     "Might truncate data.");
       tag = vtkLongArray::New();
       }
-#endif
     }
   else 
     {
-#ifdef _WIN32
-      // ints and longs are 32-bit on MS
-      tag = vtkIntArray::New();
-#else
     if(sizeof(int) == sizeof(int32_t)) 
       {
       tag = vtkIntArray::New();
@@ -374,6 +369,10 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       {
       tag = vtkLongArray::New();
       }
+    else if(sizeof(long long) == sizeof(int32_t))
+      {
+      tag = vtkLongLongArray::New();
+      }
     else 
       {
       vtkErrorMacro("Unable to match 32-bit int type to a compiler type. " <<
@@ -381,7 +380,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
                     "Might truncate data.");
       tag = vtkIntArray::New();
       }
-#endif
     }
 
   // Allocate space in the unstructured grid for all nodes
