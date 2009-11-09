@@ -378,7 +378,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(
       if( (vmax.y-vmin.y) > scale ) scale = vmax.y-vmin.y;
       for(int i=0;i<vertexCount;i++) V[i] /= scale;
       double dist0 = vertices[0][0]*normal[0] + vertices[0][1]*normal[1] ;
-      d = dist0 + findTriangleSetCuttingCone(N, fraction, vertexCount, triangleCount, tri, V ) * scale;  
+      d = dist0 + vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingCone(N, fraction, vertexCount, triangleCount, tri, V ) * scale;  
    }
    else
    {
