@@ -88,7 +88,7 @@ typedef __int64 int64_t;
 typedef float float_t;
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.13");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.14");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -106,7 +106,7 @@ namespace
   const int MASS       = 6; // Mass of record item
 
   const int NUMBER_OF_VAR = 3;
-  const int BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(float_t);
+  const size_t BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(float_t);
   
   const int USE_VELOCITY = 0;
   const int USE_MASS = 1;
@@ -433,7 +433,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   double min[DIMENSION], max[DIMENSION];
   bool firstTime = true;
 
-  vtkIdType tagBytes;
+  size_t tagBytes;
   if(this->TagSize)
     {
     tagBytes = sizeof(int64_t);
@@ -467,7 +467,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     // If stride > 1 we use seek to position to read the data record
     if (this->Stride > 1)
       {
-      vtkIdType position = 
+      size_t position = 
         i * (BYTES_PER_DATA_MINUS_TAG + tagBytes);
       this->FileStream->seekg(position, ios::beg);
       }
@@ -475,7 +475,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     // Read the floating point part of the data
     this->FileStream->read((char*)block, numFloats * sizeof(float_t));
 
-    vtkIdType returnValue = this->FileStream->gcount();
+    size_t returnValue = this->FileStream->gcount();
     if (returnValue != numFloats * sizeof(float_t))
       {
       vtkErrorMacro(<< "Only read " 
@@ -624,9 +624,9 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 void vtkCosmoReader::ComputeDefaultRange()
 {
   this->FileStream->seekg(0L, ios::end);
-  vtkIdType fileLength = (vtkIdType) this->FileStream->tellg();
+  size_t fileLength = this->FileStream->tellg();
 
-  vtkIdType tagBytes;
+  size_t tagBytes;
   if(this->TagSize)
     {
     tagBytes = sizeof(int64_t);
