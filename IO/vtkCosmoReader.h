@@ -140,8 +140,8 @@ public:
 
   // Description:
   // Set/Get the range of indices of interest
-  vtkSetVector2Macro(PositionRange, int);
-  vtkGetVector2Macro(PositionRange, int);
+  vtkSetVector2Macro(PositionRange, vtkIdType);
+  vtkGetVector2Macro(PositionRange, vtkIdType);
 
   // Description:
   // Using the file size determine how many data records exist
@@ -164,6 +164,12 @@ public:
   vtkSetMacro(MakeCells, int);
   vtkGetMacro(MakeCells, int);
 
+  // Description:
+  // When false (default) 32-bit tags are read from the file.  When
+  // on, 64-bit tags are read from the file.
+  vtkSetMacro(TagSize, int);
+  vtkGetMacro(TagSize, int);
+
 protected:
   vtkCosmoReader();
   ~vtkCosmoReader();
@@ -184,7 +190,7 @@ protected:
 
   int ByteOrder; // Endian
   int Stride; // Read in every nth data particle
-  int PositionRange[2]; // Range of particle indices
+  vtkIdType PositionRange[2]; // Range of particle indices
   double BoxSize; // Maximum of x,y,z locations from simulation
 
   // Selected field of interest
@@ -194,6 +200,7 @@ protected:
   vtkIdType *ComponentNumber; // Components per variable
 
   int MakeCells;
+  int TagSize;
 
 private:
   vtkCosmoReader(const vtkCosmoReader&);  // Not implemented.

@@ -74,10 +74,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkDataArray.h"
+#include "vtkConfigure.h"
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.9");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.10");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -93,11 +96,9 @@ namespace
   const int Z          = 4; // Location Z coordinate
   const int Z_VELOCITY = 5; // Velocity in Z direction
   const int MASS       = 6; // Mass of record item
-//  const int TAG        = 7; // Id of record item
-  
-  const int NUMBER_OF_VAR = 3; // Velocity, mass, tag
-  const int NUMBER_OF_DATA = 8;
-  const int BYTES_PER_DATA = 4;
+
+  const int NUMBER_OF_VAR = 3;
+  const int BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(float);
   
   const int USE_VELOCITY = 0;
   const int USE_MASS = 1;
@@ -119,6 +120,7 @@ vtkCosmoReader::vtkCosmoReader()
   this->NumberOfVariables     = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->MakeCells = 0;
+  this->TagSize = 0;
   this->ComponentNumber = new vtkIdType[NUMBER_OF_VAR];
   this->VariableName = new vtkStdString[NUMBER_OF_VAR];
 
@@ -324,7 +326,43 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   vtkPoints *points       = vtkPoints::New();
   vtkFloatArray *velocity = vtkFloatArray::New();
   vtkFloatArray *mass     = vtkFloatArray::New();
-  vtkIntArray *tag        = vtkIntArray::New();
+  vtkDataArray *tag;
+  if(this->TagSize) 
+    {
+    if(sizeof(long) == sizeof(int64_t)) 
+      {
+      tag = vtkLongArray::New();
+      }
+    else if(sizeof(int) == sizeof(int64_t))
+      {
+      tag = vtkIntArray::New();
+      }
+    else
+      {
+      vtkErrorMacro("Unable to match 64-bit int type to a compiler type. " <<
+                    "Going to use long array to store tag data. " <<
+                    "Might truncate data.");
+      tag = vtkLongArray::New();
+      }
+    }
+  else 
+    {
+    if(sizeof(int) == sizeof(int32_t)) 
+      {
+      tag = vtkIntArray::New();
+      }
+    else if(sizeof(long) == sizeof(int32_t))
+      {
+      tag = vtkLongArray::New();
+      }
+    else 
+      {
+      vtkErrorMacro("Unable to match 32-bit int type to a compiler type. " <<
+                    "Going to use int array to store tag data. " <<
+                    "Might truncate data.");
+      tag = vtkIntArray::New();
+      }
+    }
 
   // Allocate space in the unstructured grid for all nodes
   output->Allocate(this->NumberOfNodes, this->NumberOfNodes);
@@ -369,19 +407,32 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       }
     }
 
-  const int numFloats = 7;
-  const int numInts = 1;
+  const unsigned int numFloats = 7;
+  const unsigned int numInts = 1;
   float block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
-  int iBlock[numInts]; // id
+  char iBlock[sizeof(int64_t)];  // it's either going to be 4 or 8
   int j = 0;
   double min[DIMENSION], max[DIMENSION];
   bool firstTime = true;
+
+  vtkIdType tagBytes;
+  if(this->TagSize)
+    {
+    tagBytes = sizeof(int64_t);
+    }
+  else
+    {
+    tagBytes = sizeof(int32_t);
+    }
 
   for (int i = 0; i < DIMENSION; i++)
     {
     min[i] = 0;
     max[i] = -1;
     }
+
+  // rewind the file
+  this->FileStream->seekg(0L, ios::beg);
 
   // Loop to read all particle data
   for (vtkIdType i = this->PositionRange[0]; 
@@ -398,34 +449,48 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     // If stride > 1 we use seek to position to read the data record
     if (this->Stride > 1)
       {
-      vtkIdType position = NUMBER_OF_DATA * i * BYTES_PER_DATA;
+      vtkIdType position = 
+        i * (BYTES_PER_DATA_MINUS_TAG + tagBytes);
       this->FileStream->seekg(position, ios::beg);
       }
 
     // Read the floating point part of the data
-    this->FileStream->read((char*) block, numFloats * sizeof(float));
+    this->FileStream->read((char*)block, numFloats * sizeof(float));
 
-    int returnValue = this->FileStream->gcount();
-    if (returnValue != numFloats * (int)sizeof(float))
+    vtkIdType returnValue = this->FileStream->gcount();
+    if (returnValue != numFloats * sizeof(float))
       {
-      cerr << "vtkCosmoReader Warning: read " << returnValue 
-           << " floats" << endl;
+      vtkErrorMacro(<< "Only read " 
+                    << returnValue << " bytes when reading floats.");
       this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
       continue;
       }
 
     // Read the integer part of the data
-    this->FileStream->read((char *)iBlock, numInts * sizeof(int));
+    this->FileStream->read(iBlock, numInts * tagBytes);
     returnValue = this->FileStream->gcount();
-    if (returnValue != numInts * (int)sizeof(int))
+    if (returnValue != numInts * tagBytes)
       {
-      cerr << "vtkCosmoReader Warning: read " << returnValue << " ints" << endl;
+      vtkErrorMacro(<< "Only read " 
+                    << returnValue << " bytes when reading ints.");
       this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
       continue;
       }
 
-    // These files are always little-endian
-    vtkByteSwap::Swap4LERange(block, numFloats);
+    // swap if necessary
+#ifdef VTK_WORDS_BIG_ENDIAN
+    if(this->ByteOrder == FILE_LITTLE_ENDIAN)
+      {
+      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float));
+      vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
+      }
+#else
+    if(this->ByteOrder == FILE_BIG_ENDIAN)
+      {
+      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float));
+      vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
+      }
+#endif
 
     // Negative value is an error so wraparound if it occurs
     if (block[X] < 0.0) 
@@ -502,7 +567,17 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     // Store tag data if requested
     if (this->PointDataArraySelection->GetArraySetting(USE_TAG))
       {
-      tag->SetComponent(vtkPointID, 0, iBlock[0]);
+      double value;
+      if(this->TagSize) 
+        {
+        value = *((int64_t*)iBlock);
+        }
+      else
+        {
+        value = *((int32_t*)iBlock);
+        }
+
+      tag->SetComponent(vtkPointID, 0, value);
       }
     } // end loop over PositionRange
 
@@ -533,11 +608,21 @@ void vtkCosmoReader::ComputeDefaultRange()
   this->FileStream->seekg(0L, ios::end);
   vtkIdType fileLength = (vtkIdType) this->FileStream->tellg();
 
+  vtkIdType tagBytes;
+  if(this->TagSize)
+    {
+    tagBytes = sizeof(int64_t);
+    }
+  else 
+    {
+    tagBytes = sizeof(int32_t);
+    }
+
   // Divide by number of components per record (x,xv,y,yv,z,zv,mass,tag)
   // Divide by 4 for single precision float
-  this->NumberOfNodes = fileLength / NUMBER_OF_DATA / BYTES_PER_DATA;
+  this->NumberOfNodes = fileLength / (BYTES_PER_DATA_MINUS_TAG + tagBytes);
   this->PositionRange[0] = 0;
-  this->PositionRange[1] = (int) this->NumberOfNodes - 1;
+  this->PositionRange[1] = this->NumberOfNodes - 1;
 }
 
 //----------------------------------------------------------------------------
