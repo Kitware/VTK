@@ -12,7 +12,6 @@ view.SetVertexColorArrayName("vertex id")
 view.SetColorVertices(True)
 view.SetLayoutStrategyToCone()
 view.SetInteractionModeTo3D() # Left mouse button causes 3D rotate instead of zoom
-#view.SetLabelPlacementModeToLabelPlacer()
 
 theme = vtkViewTheme.CreateMellowTheme()
 theme.SetCellColor(.2,.2,.6)

@@ -65,6 +65,7 @@ vtkImageReader2Collection.cxx
 vtkImageReader2Factory.cxx
 vtkImageWriter.cxx
 vtkInputStream.cxx
+vtkJavaScriptDataWriter.cxx
 vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
 vtkMFIXReader.cxx
