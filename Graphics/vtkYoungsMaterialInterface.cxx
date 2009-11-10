@@ -58,7 +58,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.3");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.4");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -343,7 +343,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation *vtkNotUsed(request),
 
   // variables visible by debugger
 
-   int nmat = this->Internals->Materials.size();
+   int nmat = (int) this->Internals->Materials.size();
    int nCellData = input->GetCellData()->GetNumberOfArrays();
    int nPointData = input->GetPointData()->GetNumberOfArrays();
    vtkIdType nCells = input->GetNumberOfCells();
