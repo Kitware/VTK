@@ -258,12 +258,12 @@ FUNC_DECL float3 cross( float3 A, float3 B)
 }
 
 
-
 #ifndef __CUDACC__
 
 /* -------------------------------------------------------- */
 /* ----------- DOUBLE ------------------------------------- */
 /* -------------------------------------------------------- */
+#if REAL_PRECISION >= 64
 
 struct double3 { double x,y,z; };
 struct double4 { double x,y,z,w; };
@@ -435,11 +435,14 @@ FUNC_DECL double3 cross( double3 A, double3 B)
       A.z * B.x - A.x * B.z ,
       A.x * B.y - A.y * B.x );
 }
+#endif /* REAL_PRECISION >= 64 */
+
 
 
 /* -------------------------------------------------------- */
 /* ----------- LONG DOUBLE -------------------------------- */
 /* -------------------------------------------------------- */
+#if REAL_PRECISION > 64
 
 struct ldouble2 { long double x,y; };
 struct ldouble3 { long double x,y,z; };
@@ -608,7 +611,7 @@ FUNC_DECL ldouble3 cross( ldouble3 A, ldouble3 B)
        A.z * B.x - A.x * B.z ,
        A.x * B.y - A.y * B.x );
 }
-
+#endif /* REAL_PRECISION > 64 */
 
 #endif /* __CUDACC__ */
 
