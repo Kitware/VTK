@@ -408,7 +408,7 @@ protected:
   int OutputPortIndexInRange(int index, const char* action);
 
   // Description:
-  // Get the actual data array for the input array sepcified by idx, this is
+  // Get the actual data array for the input array specified by idx, this is
   // only reasonable during the REQUEST_DATA pass
   vtkDataArray *GetInputArrayToProcess(int idx,vtkInformationVector **inputVector);
 
@@ -427,7 +427,7 @@ protected:
 
 
   // Description:
-  // Get the actual data array for the input array sepcified by idx, this is
+  // Get the actual data array for the input array specified by idx, this is
   // only reasonable during the REQUEST_DATA pass
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,vtkInformationVector **inputVector);
 

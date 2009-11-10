@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.58");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.59");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -156,7 +156,7 @@ int vtkClipDataSet::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *realInput = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   // We have to create a copy of the input because clip requires being

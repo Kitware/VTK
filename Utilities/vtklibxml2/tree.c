@@ -8875,7 +8875,7 @@ xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
                 }
                 memset(clone, 0, sizeof(xmlNode));              
                 /*
-                * Set hierachical links.
+                * Set hierarchical links.
                 */
                 if (resultClone != NULL) {          
                     clone->parent = parentClone;
@@ -8899,7 +8899,7 @@ xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
                 }
                 memset(clone, 0, sizeof(xmlAttr));              
                 /*
-                * Set hierachical links.
+                * Set hierarchical links.
                 * TODO: Change this to add to the end of attributes.
                 */
                 if (resultClone != NULL) {

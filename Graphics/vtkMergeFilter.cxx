@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMergeFilter, "1.69");
+vtkCxxRevisionMacro(vtkMergeFilter, "1.70");
 vtkStandardNewMacro(vtkMergeFilter);
 
 class vtkFieldNode
@@ -253,7 +253,7 @@ int vtkMergeFilter::RequestData(
   vtkInformation *tCoordsInfo = inputVector[4]->GetInformationObject(0);
   vtkInformation *tensorsInfo = inputVector[5]->GetInformationObject(0);
   
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(

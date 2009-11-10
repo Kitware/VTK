@@ -44,7 +44,7 @@
 #include <math.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkClipHyperOctree, "1.8");
+vtkCxxRevisionMacro(vtkClipHyperOctree, "1.9");
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 
@@ -163,7 +163,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   this->Input = vtkHyperOctree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   this->Output=vtkUnstructuredGrid::SafeDownCast(

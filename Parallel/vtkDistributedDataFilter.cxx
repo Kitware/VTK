@@ -60,7 +60,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.52")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.53")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -410,7 +410,7 @@ int vtkDistributedDataFilter::RequestData(
   this->GhostLevel = outInfo->Get(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *inputDS = vtkDataSet::GetData(inputVector[0], 0);
   vtkUnstructuredGrid *outputUG = vtkUnstructuredGrid::GetData(outInfo);
   if (inputDS && outputUG)

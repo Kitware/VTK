@@ -22,7 +22,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.29");
+vtkCxxRevisionMacro(vtkWarpLens, "1.30");
 vtkStandardNewMacro(vtkWarpLens);
 
 //
@@ -76,7 +76,7 @@ int vtkWarpLens::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointSet *output = vtkPointSet::SafeDownCast(

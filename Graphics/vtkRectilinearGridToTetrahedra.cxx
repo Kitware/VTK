@@ -28,7 +28,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.14");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.15");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -524,7 +524,7 @@ int vtkRectilinearGridToTetrahedra::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkRectilinearGrid *RectGrid = vtkRectilinearGrid::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(

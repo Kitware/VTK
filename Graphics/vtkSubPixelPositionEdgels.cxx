@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.48");
+vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.49");
 vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
@@ -50,7 +50,7 @@ int vtkSubPixelPositionEdgels::RequestData(
   vtkInformation *gradMapsInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkStructuredPoints *gradMaps = vtkStructuredPoints::SafeDownCast(

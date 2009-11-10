@@ -35,7 +35,7 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApplyColors, "1.8");
+vtkCxxRevisionMacro(vtkApplyColors, "1.9");
 vtkStandardNewMacro(vtkApplyColors);
 vtkCxxSetObjectMacro(vtkApplyColors, PointLookupTable, vtkScalarsToColors);
 vtkCxxSetObjectMacro(vtkApplyColors, CellLookupTable, vtkScalarsToColors);
@@ -119,7 +119,7 @@ int vtkApplyColors::RequestData(
     return 0;
     }
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkAnnotationLayers* layers = 0;
   if (layersInfo)

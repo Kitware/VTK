@@ -41,7 +41,7 @@
 #include "vtkSelectionNode.h"
 
 
-vtkCxxRevisionMacro(vtkRemoveHiddenData, "1.1");
+vtkCxxRevisionMacro(vtkRemoveHiddenData, "1.2");
 vtkStandardNewMacro(vtkRemoveHiddenData);
 
 vtkRemoveHiddenData::vtkRemoveHiddenData()
@@ -84,7 +84,7 @@ int vtkRemoveHiddenData::RequestData(
   vtkInformation* annotationsInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 

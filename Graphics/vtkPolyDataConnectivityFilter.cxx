@@ -27,7 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.42");
+vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.43");
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -71,7 +71,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

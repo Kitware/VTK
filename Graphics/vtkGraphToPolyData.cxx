@@ -41,7 +41,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.2");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.3");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -67,7 +67,7 @@ int vtkGraphToPolyData::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkInformation *arrowInfo = outputVector->GetInformationObject(1);
 
-  // get the input and ouptut
+  // get the input and output
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

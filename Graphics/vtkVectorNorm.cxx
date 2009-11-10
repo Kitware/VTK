@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVectorNorm, "1.44");
+vtkCxxRevisionMacro(vtkVectorNorm, "1.45");
 vtkStandardNewMacro(vtkVectorNorm);
 
 // Construct with normalize flag off.
@@ -43,7 +43,7 @@ int vtkVectorNorm::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(

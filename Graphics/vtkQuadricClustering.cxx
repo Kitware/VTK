@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include <vtksys/hash_set.hxx> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.89");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.90");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ int vtkQuadricClustering::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPolyData *input = 0;
   if (inInfo)
     {

@@ -27,7 +27,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.97");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.98");
 vtkStandardNewMacro(vtkProbeFilter);
 
 class vtkProbeFilter::vtkVectorOfArrays : 
@@ -102,7 +102,7 @@ int vtkProbeFilter::RequestData(
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *source = vtkDataSet::SafeDownCast(

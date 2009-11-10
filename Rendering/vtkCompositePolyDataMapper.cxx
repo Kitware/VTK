@@ -28,7 +28,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper, "1.2");
+vtkCxxRevisionMacro(vtkCompositePolyDataMapper, "1.3");
 vtkStandardNewMacro(vtkCompositePolyDataMapper);
 
 class vtkCompositePolyDataMapperInternals
@@ -135,7 +135,7 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
         {
         if ( !warnOnce )
           {
-          vtkErrorMacro("All data in the hierachical dataset must be polydata.");
+          vtkErrorMacro("All data in the hierarchical dataset must be polydata.");
           warnOnce = 1;
           }
         }

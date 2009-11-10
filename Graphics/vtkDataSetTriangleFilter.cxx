@@ -30,7 +30,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.29");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.30");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -56,7 +56,7 @@ int vtkDataSetTriangleFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(

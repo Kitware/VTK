@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.74");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.75");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -76,7 +76,7 @@ int vtkConnectivityFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(

@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGraphToPoints, "1.1");
+vtkCxxRevisionMacro(vtkGraphToPoints, "1.2");
 vtkStandardNewMacro(vtkGraphToPoints);
 
 vtkGraphToPoints::vtkGraphToPoints()
@@ -49,7 +49,7 @@ int vtkGraphToPoints::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

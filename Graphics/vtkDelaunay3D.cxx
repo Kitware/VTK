@@ -28,7 +28,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.75");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.76");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 // Structure used to represent sphere around tetrahedron
@@ -413,7 +413,7 @@ int vtkDelaunay3D::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(

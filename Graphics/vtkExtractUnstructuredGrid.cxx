@@ -25,7 +25,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.38");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.39");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -101,7 +101,7 @@ int vtkExtractUnstructuredGrid::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(

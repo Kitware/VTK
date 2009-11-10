@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformFilter, "1.46");
+vtkCxxRevisionMacro(vtkTransformFilter, "1.47");
 vtkStandardNewMacro(vtkTransformFilter);
 vtkCxxSetObjectMacro(vtkTransformFilter,Transform,vtkAbstractTransform);
 
@@ -46,7 +46,7 @@ int vtkTransformFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointSet *output = vtkPointSet::SafeDownCast(

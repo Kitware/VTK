@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeFields, "1.19");
+vtkCxxRevisionMacro(vtkMergeFields, "1.20");
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] 
@@ -140,7 +140,7 @@ int vtkMergeFields::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(

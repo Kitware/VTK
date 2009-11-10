@@ -30,7 +30,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.126");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.127");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ int vtkGlyph3D::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

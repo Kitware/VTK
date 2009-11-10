@@ -27,7 +27,7 @@
 #include "vtkPointSet.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.20");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.21");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -210,7 +210,7 @@ int vtkWeightedTransformFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointSet *output = vtkPointSet::SafeDownCast(

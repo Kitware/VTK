@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.76");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.77");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -65,7 +65,7 @@ int vtkFeatureEdges::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

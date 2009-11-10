@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.60");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.61");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -73,7 +73,7 @@ int vtkTensorGlyph::RequestData(
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *source = vtkPolyData::SafeDownCast(

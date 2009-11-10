@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.9");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.10");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -941,7 +941,7 @@ int vtkGridSynchronizedTemplates3D::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

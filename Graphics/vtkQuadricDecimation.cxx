@@ -55,7 +55,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.40");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.41");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -180,7 +180,7 @@ int vtkQuadricDecimation::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkCollectTable, "1.2");
+vtkCxxRevisionMacro(vtkCollectTable, "1.3");
 vtkStandardNewMacro(vtkCollectTable);
 
 vtkCxxSetObjectMacro(vtkCollectTable,Controller, vtkMultiProcessController);
@@ -95,7 +95,7 @@ int vtkCollectTable::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkTable *input = vtkTable::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkTable *output = vtkTable::SafeDownCast(

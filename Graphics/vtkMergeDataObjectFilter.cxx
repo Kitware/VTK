@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.23");
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.24");
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ int vtkMergeDataObjectFilter::RequestData(
     dataObjectInfo = inputVector[1]->GetInformationObject(0);
     }
   
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(

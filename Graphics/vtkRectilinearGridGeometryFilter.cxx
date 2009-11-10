@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.32");
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.33");
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -47,7 +47,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

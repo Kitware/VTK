@@ -58,7 +58,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
 }
 
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.12");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.13");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -93,7 +93,7 @@ int vtkGraphHierarchicalBundle::RequestData(
   vtkInformation *treeInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkGraph *graph = vtkGraph::SafeDownCast(
     graphInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkTree *tree = vtkTree::SafeDownCast(

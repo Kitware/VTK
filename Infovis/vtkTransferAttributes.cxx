@@ -61,7 +61,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
   return val;
 }
 
-vtkCxxRevisionMacro(vtkTransferAttributes, "1.7");
+vtkCxxRevisionMacro(vtkTransferAttributes, "1.8");
 vtkStandardNewMacro(vtkTransferAttributes);
 
 vtkTransferAttributes::vtkTransferAttributes()
@@ -112,7 +112,7 @@ int vtkTransferAttributes::RequestData(
   
   output->ShallowCopy(targetInput);
   
-  // get the input and ouptut
+  // get the input and output
   int item_count_source = 0;
   vtkDataSetAttributes* dsa_source = 0;
   if (vtkDataSet::SafeDownCast(sourceInput) && 

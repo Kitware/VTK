@@ -36,7 +36,7 @@
 #include "vtkWedge.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.109");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.110");
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator)
 
@@ -121,7 +121,7 @@ int vtkGeometryFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

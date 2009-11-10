@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.39");
+vtkCxxRevisionMacro(vtkVectorDot, "1.40");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).
@@ -44,7 +44,7 @@ int vtkVectorDot::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(

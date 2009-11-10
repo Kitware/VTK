@@ -41,7 +41,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.11");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.12");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -64,7 +64,7 @@ int vtkBoostBiconnectedComponents::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkUndirectedGraph *input = vtkUndirectedGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUndirectedGraph *output = vtkUndirectedGraph::SafeDownCast(

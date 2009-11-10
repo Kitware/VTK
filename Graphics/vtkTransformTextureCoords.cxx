@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.36");
+vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.37");
 vtkStandardNewMacro(vtkTransformTextureCoords);
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
@@ -65,7 +65,7 @@ int vtkTransformTextureCoords::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(

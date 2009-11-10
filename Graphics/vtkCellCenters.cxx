@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCellCenters, "1.29");
+vtkCxxRevisionMacro(vtkCellCenters, "1.30");
 vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -44,7 +44,7 @@ int vtkCellCenters::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(

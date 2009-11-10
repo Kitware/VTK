@@ -22,7 +22,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpTo, "1.42");
+vtkCxxRevisionMacro(vtkWarpTo, "1.43");
 vtkStandardNewMacro(vtkWarpTo);
 
 vtkWarpTo::vtkWarpTo() 
@@ -41,7 +41,7 @@ int vtkWarpTo::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointSet *output = vtkPointSet::SafeDownCast(

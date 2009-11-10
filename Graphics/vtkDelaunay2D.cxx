@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.73");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.74");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -285,7 +285,7 @@ int vtkDelaunay2D::RequestData(
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *source = 0;

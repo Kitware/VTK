@@ -26,7 +26,7 @@
 #include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h" // WHOLE_EXTENT() key
 
-vtkCxxRevisionMacro(vtkHyperOctreeToUniformGridFilter, "1.4");
+vtkCxxRevisionMacro(vtkHyperOctreeToUniformGridFilter, "1.5");
 vtkStandardNewMacro(vtkHyperOctreeToUniformGridFilter);
 
 // merging: locator
@@ -128,7 +128,7 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   // get the upper limit for the number of levels
   int levels=inInfo->Get(vtkHyperOctree::LEVELS());
   
-  // get the input and ouptut
+  // get the input and output
   vtkHyperOctree *input = vtkHyperOctree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *output = vtkImageData::SafeDownCast(
