@@ -96,9 +96,14 @@ public:
     };
   //ETX
 
+  // Description:
+  // The placement of the label relative to the anchor point.
   virtual void SetGravity( int gravity );
   vtkGetMacro(Gravity,int);
 
+  // Description:
+  // The maximum amount of screen space labels can take up before placement
+  // terminates.
   vtkSetClampMacro(MaximumLabelFraction,double,0.,1.);
   vtkGetMacro(MaximumLabelFraction,double);
 
