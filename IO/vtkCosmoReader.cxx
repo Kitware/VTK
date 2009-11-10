@@ -88,7 +88,7 @@ typedef __int64 int64_t;
 typedef float float_t;
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.14");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.15");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -499,13 +499,13 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 #ifdef VTK_WORDS_BIG_ENDIAN
     if(this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
-      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float_t));
+      vtkByteSwap::SwapVoidRange(block, numFloats, (int)sizeof(float_t));
       vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
       }
 #else
     if(this->ByteOrder == FILE_BIG_ENDIAN)
       {
-      vtkByteSwap::SwapVoidRange(block, numFloats, sizeof(float_t));
+      vtkByteSwap::SwapVoidRange(block, numFloats, (int)sizeof(float_t));
       vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
       }
 #endif
