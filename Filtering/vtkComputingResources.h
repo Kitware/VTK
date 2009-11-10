@@ -81,7 +81,7 @@ public:
   virtual bool HasResource() = 0;
   virtual void Clear() = 0;
   virtual void ObtainMinimum() = 0;
-  virtual void ObtainMaximum() = 0;;
+  virtual void ObtainMaximum() = 0;
   virtual void IncreaseByRatio(float ratio, vtkProcessingUnitResource *refResource) = 0;
   virtual void AllocateFor(vtkThreadedStreamingPipeline *exec) = 0;
   virtual bool CanAccommodate(vtkProcessingUnitResource *refResource) = 0;
