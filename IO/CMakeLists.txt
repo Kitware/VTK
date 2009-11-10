@@ -366,6 +366,18 @@ SET_SOURCE_FILES_PROPERTIES(
   WRAP_EXCLUDE
 )
 
+#-----------------------------------------------------------------------------
+# N-WAY ARRAYS READER AND WRITER
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkArrayReader.cxx
+    vtkArrayWriter.cxx
+    )
+
+ENDIF(VTK_USE_N_WAY_ARRAYS)
+#-----------------------------------------------------------------------------
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)

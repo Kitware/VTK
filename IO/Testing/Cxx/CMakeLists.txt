@@ -143,3 +143,24 @@ ENDIF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
 IF(VTK_USE_INFOVIS)
   ADD_TEST(TestDataObjectIO ${CXX_TEST_PATH}/${KIT}CxxTests TestDataObjectIO)
 ENDIF(VTK_USE_INFOVIS)
+
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  CREATE_TEST_SOURCELIST(ArrayIOTests ArrayIOCxxTests.cxx
+    TestArraySerialization.cxx
+    EXTRA_INCLUDE vtkTestDriver.h
+    )
+
+  ADD_EXECUTABLE(ArrayIOCxxTests ${ArrayIOTests})
+  TARGET_LINK_LIBRARIES(ArrayIOCxxTests vtkIO)
+
+  SET(ArrayTestsToRun ${ArrayIOTests})
+  REMOVE(ArrayTestsToRun ArrayIOCxxTests.cxx)
+
+  FOREACH(test ${ArrayTestsToRun})
+    GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+    ADD_TEST(Array-${TName} ${CXX_TEST_PATH}/ArrayIOCxxTests ${TName})
+  ENDFOREACH(test)
+
+
+ENDIF(VTK_USE_N_WAY_ARRAYS)
