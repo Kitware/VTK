@@ -35,19 +35,18 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkJavaScriptDataWriter);
-vtkCxxRevisionMacro(vtkJavaScriptDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkJavaScriptDataWriter, "1.3");
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
 {
-  this->Stream = 0;
   this->FileName = 0;
+  this->OutputStream = 0;
 }
 
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
   this->SetFileName(0);
-  delete this->Stream;
 }
 
 //-----------------------------------------------------------------------------
@@ -59,13 +58,25 @@ int vtkJavaScriptDataWriter::FillInputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkJavaScriptDataWriter::OpenFile()
+void vtkJavaScriptDataWriter::SetOutputStream(ostream *output_stream)
+{
+  this->OutputStream = output_stream;
+}
+
+//-----------------------------------------------------------------------------
+ostream* vtkJavaScriptDataWriter::GetOutputStream()
+{
+  return this->OutputStream;
+}
+
+//-----------------------------------------------------------------------------
+ofstream* vtkJavaScriptDataWriter::OpenFile()
 {
   if ( !this->FileName )
     {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return false;
+    return 0;
     }
 
   vtkDebugMacro(<<"Opening file for writing...");
@@ -77,72 +88,84 @@ bool vtkJavaScriptDataWriter::OpenFile()
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
-    return false;
+    return 0;
     }
 
-  this->Stream = fptr;
-  return true;
+  return fptr;
 }
 
 //-----------------------------------------------------------------------------
 void vtkJavaScriptDataWriter::WriteData()
 {
-  vtkTable* rg = vtkTable::SafeDownCast(this->GetInput());
-  if (rg)
-    {
-    this->WriteTable(rg);
-    }
-  else
+  vtkTable* input_table = vtkTable::SafeDownCast(this->GetInput());
+
+  // Check for valid input
+  if (!input_table) 
     {
     vtkErrorMacro(<< "vtkJavaScriptDataWriter can only write vtkTable.");
+    return;
+    }
+
+  // Check for filename
+  if (this->FileName)
+    {
+    ofstream *file_stream = this->OpenFile();
+    if (file_stream)
+      {
+      this->WriteTable(input_table,file_stream);
+      }
+    file_stream->close();
+    }
+
+  else if (this->OutputStream)
+    {
+    this->WriteTable(input_table,this->OutputStream);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkJavaScriptDataWriter::WriteTable(vtkTable* table)
+void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
 {
   vtkIdType numRows = table->GetNumberOfRows();
   vtkIdType numCols = table->GetNumberOfColumns();
   vtkDataSetAttributes* dsa = table->GetRowData();
-  if (!this->OpenFile())
+  if (this->FileName && !this->OpenFile())
     {
     return;
     }
 
   // Header stuff
-  (*this->Stream) << "var data = [\n";
+  (*stream_ptr) << "var data = [\n";
 
   // For each row
   for ( vtkIdType r = 0; r < numRows; ++ r )
     {
     // row header
-    (*this->Stream) << "{ ";
+    (*stream_ptr) << "{ ";
 
     // Now for each column put out in the form 
     // colname1: data1, colname2: data2, etc
     for ( int c = 0; c < numCols; ++ c )
       {
-      (*this->Stream) << dsa->GetAbstractArray(c)->GetName() << ":";
+      (*stream_ptr) << dsa->GetAbstractArray(c)->GetName() << ":";
 
       // If the array is a string array put "" around it
       if (vtkStringArray::SafeDownCast(dsa->GetAbstractArray(c)))
         {
-        (*this->Stream) << "\"" << table->GetValue( r, c ).ToString() << "\",";
+        (*stream_ptr) << "\"" << table->GetValue( r, c ).ToString() << "\",";
         }
       else
         {
-        (*this->Stream) << table->GetValue( r, c ).ToString() << ",";
+        (*stream_ptr) << table->GetValue( r, c ).ToString() << ",";
         }
       }
 
     // row footer
-    (*this->Stream) << " },\n";
+    (*stream_ptr) << " },\n";
     }
 
   // Footer
-  (*this->Stream) << "];\n";
-
-  this->Stream->close();
+  (*stream_ptr) << "];\n";
 }
 
 //-----------------------------------------------------------------------------

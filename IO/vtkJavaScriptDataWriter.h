@@ -40,21 +40,25 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Get/Set the OutputStream for writing output.
+  void SetOutputStream(ostream *my_stream);
+  ostream* GetOutputStream();
+
 protected:
   vtkJavaScriptDataWriter();
   ~vtkJavaScriptDataWriter();
 
-  bool OpenFile();
+  ofstream* OpenFile();
 
   virtual void WriteData();
-  virtual void WriteTable(vtkTable* table);
+  virtual void WriteTable(vtkTable* table, ostream *stream_ptr);
 
   // see algorithm for more info.
   // This writer takes in vtkTable.
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   char* FileName;
-  ofstream* Stream;
+  ostream* OutputStream;
 private:
   vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&); // Not implemented.
   void operator=(const vtkJavaScriptDataWriter&); // Not implemented.
