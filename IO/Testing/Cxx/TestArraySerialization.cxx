@@ -39,7 +39,7 @@
     } \
 }
 
-int TestArraySerialization(int argc, char* argv[])
+int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
     {
