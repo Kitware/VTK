@@ -34,6 +34,7 @@
 #include "vtkComputingResources.h"
 #include "vtkExecutionScheduler.h"
 #include "vtkExecutive.h"
+#include "vtkExecutiveCollection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkInformationExecutivePortKey.h"
@@ -46,13 +47,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkThreadMessager.h"
 #include "vtkTimerLog.h"
-#include <vtkstd/set>
-#include <vtksys/hash_map.hxx>
-#include <vtkstd/vector>
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkThreadedStreamingPipeline, "1.2");
+vtkCxxRevisionMacro(vtkThreadedStreamingPipeline, "1.3");
 vtkStandardNewMacro(vtkThreadedStreamingPipeline);
 
 vtkInformationKeyMacro(vtkThreadedStreamingPipeline, AUTO_PROPAGATE, Integer);
@@ -62,17 +60,15 @@ vtkInformationKeyRestrictedMacro(vtkThreadedStreamingPipeline,
 
 //----------------------------------------------------------------------------
 // Convinient definitions of vector/set of vtkExecutive
-class vtkExecutiveHasher {
+class vtkExecutiveHasher 
+{
 public:
-  size_t operator()(const vtkExecutive* e) const {
+  size_t operator()(const vtkExecutive* e) const 
+  {
     return (size_t)e;
-  };
+  }
 };
 typedef vtksys::hash_set<vtkExecutive*, vtkExecutiveHasher> vtkExecutiveSet;
-typedef vtkstd::vector<vtkExecutive*>                       vtkExecutiveVector;
-
-//----------------------------------------------------------------------------
-static vtkExecutiveVector *GlobalExecutiveVector = NULL;
 
 //----------------------------------------------------------------------------
 vtkThreadedStreamingPipeline::vtkThreadedStreamingPipeline()
@@ -88,11 +84,17 @@ vtkThreadedStreamingPipeline::vtkThreadedStreamingPipeline()
 vtkThreadedStreamingPipeline::~vtkThreadedStreamingPipeline()
 {
   if (this->ForceDataRequest)
+    {
     this->ForceDataRequest->Delete();
+    }
   if (this->Resources)
+    {
     this->Resources->Delete();
+    }
   if (this->Scheduler)
+    {
     this->Scheduler->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -101,155 +103,194 @@ void vtkThreadedStreamingPipeline::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-
-//----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::ClearCurrentExecutiveSet()
-{
-  if (GlobalExecutiveVector == NULL)
-    GlobalExecutiveVector = new vtkExecutiveVector;
-  GlobalExecutiveVector->clear();
-}
-
-//----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::InsertToCurrentExecutiveSet(vtkExecutive *exec)
-{
-  if (GlobalExecutiveVector == NULL)
-    ClearCurrentExecutiveSet();
-  GlobalExecutiveVector->push_back(exec);
-}
-
 //----------------------------------------------------------------------------
 static bool MultiThreadedEnabled = false;
+static bool AutoPropagatePush = false;
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::SetMultiThreadedEnabled(bool enabled) {
+void vtkThreadedStreamingPipeline::SetMultiThreadedEnabled(bool enabled) 
+{
   MultiThreadedEnabled = enabled;
 }
 
 //----------------------------------------------------------------------------
-static bool AutoPropagatePush = false;
-
-//----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::SetAutoPropagatePush(bool enabled) {
+void vtkThreadedStreamingPipeline::SetAutoPropagatePush(bool enabled) 
+{
   AutoPropagatePush = enabled;
 }
 
 //----------------------------------------------------------------------------
 static void
-CollectUpstreamModules(vtkExecutive *exec, vtkExecutiveSet &eSet) {
-  for(int i=0; i < exec->GetNumberOfInputPorts(); ++i) {
+CollectUpstreamModules(vtkExecutive *exec, vtkExecutiveSet &eSet) 
+{
+  for(int i = 0; i < exec->GetNumberOfInputPorts(); ++i) 
+    {
     int nic = exec->GetAlgorithm()->GetNumberOfInputConnections(i);
     vtkInformationVector* inVector = exec->GetInputInformation()[i];
-    for(int j=0; j < nic; ++j) {
+    for(int j = 0; j < nic; ++j) 
+      {
       vtkInformation* inInfo = inVector->GetInformationObject(j);
       vtkExecutive* e;
       int producerPort;
       vtkExecutive::PRODUCER()->Get(inInfo, e, producerPort);
       if (eSet.find(e)!=eSet.end())
+        {
         continue;
+        }
       eSet.insert(e);
       CollectUpstreamModules(e, eSet);
+      }
     }
-  }
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::Pull(vtkExecutive *exec, vtkInformation *info) {
-  vtkThreadedStreamingPipeline::ClearCurrentExecutiveSet();
-  vtkThreadedStreamingPipeline::InsertToCurrentExecutiveSet(exec);
-  vtkThreadedStreamingPipeline::MultiPull(info);
+void vtkThreadedStreamingPipeline::Pull(vtkExecutive *exec) 
+{
+  vtkThreadedStreamingPipeline::Pull(exec, static_cast<vtkInformation*>(NULL));
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::MultiPull(vtkInformation *info) {
+void vtkThreadedStreamingPipeline::Pull(vtkExecutive *exec, vtkInformation *info) 
+{
+  vtkExecutiveCollection *execs = vtkExecutiveCollection::New();
+  execs->AddItem(exec);
+  vtkThreadedStreamingPipeline::Pull(execs, info);
+  execs->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadedStreamingPipeline::Pull(vtkExecutiveCollection *execs) 
+{
+  vtkThreadedStreamingPipeline::Pull(execs, static_cast<vtkInformation*>(NULL));
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadedStreamingPipeline::Pull(vtkExecutiveCollection *execs, vtkInformation *info) 
+{
   vtkExecutiveSet eSet;
-  for (vtkExecutiveVector::const_iterator ei=GlobalExecutiveVector->begin(); 
-       ei!=GlobalExecutiveVector->end(); ei++) {
-    eSet.insert(*ei);
-    CollectUpstreamModules(*ei, eSet);
-  }
-  vtkExecutionScheduler::GetGlobalScheduler()->ClearCurrentExecutiveSet();
-  for (vtkExecutiveSet::iterator ti=eSet.begin(); ti!=eSet.end(); ti++)
+  execs->InitTraversal();
+  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem()) 
     {
-    vtkExecutionScheduler::GetGlobalScheduler()->InsertToCurrentExecutiveSet(*ti);
+    eSet.insert(e);
+    CollectUpstreamModules(e, eSet);
     }
-  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(info);
-  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilDone();
+  vtkExecutiveCollection *collectedExecs = vtkExecutiveCollection::New();
+  for (vtkExecutiveSet::iterator ti = eSet.begin(); ti != eSet.end(); ti++)
+    {
+    collectedExecs->AddItem(*ti);
+    }
+  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(collectedExecs, info);
+  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilDone(collectedExecs);
+  collectedExecs->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::Push(vtkExecutive *exec, vtkInformation *info) {
-  vtkThreadedStreamingPipeline::ClearCurrentExecutiveSet();
-  vtkThreadedStreamingPipeline::InsertToCurrentExecutiveSet(exec);
-  vtkThreadedStreamingPipeline::MultiPush(info);
+void vtkThreadedStreamingPipeline::Push(vtkExecutive *exec) 
+{
+  vtkThreadedStreamingPipeline::Push(exec, static_cast<vtkInformation*>(NULL));
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::MultiPush(vtkInformation *info) {
+void vtkThreadedStreamingPipeline::Push(vtkExecutive *exec, vtkInformation *info) 
+{
+  vtkExecutiveCollection *execs = vtkExecutiveCollection::New();
+  execs->AddItem(exec);
+  vtkThreadedStreamingPipeline::Push(execs, info);
+  execs->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadedStreamingPipeline::Push(vtkExecutiveCollection *execs) 
+{
+  vtkThreadedStreamingPipeline::Push(execs, static_cast<vtkInformation*>(NULL));
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadedStreamingPipeline::Push(vtkExecutiveCollection *execs, vtkInformation *info) 
+{
   vtkExecutiveSet eSet;
-  for (vtkExecutiveVector::const_iterator ei=GlobalExecutiveVector->begin(); 
-       ei!=GlobalExecutiveVector->end(); ei++) {
-    eSet.insert(*ei);
-    (*ei)->GetAlgorithm()->GetInformation()->Set(EXTRA_INFORMATION(), info);
-  }
-  if (AutoPropagatePush) {
+  execs->InitTraversal();
+  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem()) 
+    {
+    eSet.insert(e);
+    e->GetAlgorithm()->GetInformation()->Set(EXTRA_INFORMATION(), info);
+    }
+  if (AutoPropagatePush) 
+    {
     if (info==NULL)
+      {
       info = vtkInformation::New();
+      }
     info->Set(vtkThreadedStreamingPipeline::AUTO_PROPAGATE(), 1);
-  }
-  vtkExecutionScheduler::GetGlobalScheduler()->ClearCurrentExecutiveSet();
-  for (vtkExecutiveSet::iterator ti=eSet.begin(); ti!=eSet.end(); ti++)
-    {
-    vtkExecutionScheduler::GetGlobalScheduler()->InsertToCurrentExecutiveSet(*ti);
     }
-  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(info);
-  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilReleased();
+  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(execs, info);
+  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilReleased(execs);
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::Pull(vtkInformation *info) {
+void vtkThreadedStreamingPipeline::Pull() 
+{
+  this->Pull(static_cast<vtkInformation*>(NULL));
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadedStreamingPipeline::Pull(vtkInformation *info) 
+{
   vtkExecutiveSet eSet;
   CollectUpstreamModules(this, eSet);
-  vtkExecutionScheduler::GetGlobalScheduler()->ClearCurrentExecutiveSet();
-  for (vtkExecutiveSet::iterator ti=eSet.begin(); ti!=eSet.end(); ti++)
+  vtkExecutiveCollection *execs = vtkExecutiveCollection::New();
+  for (vtkExecutiveSet::iterator ti = eSet.begin(); ti != eSet.end(); ti++)
     {
-    vtkExecutionScheduler::GetGlobalScheduler()->InsertToCurrentExecutiveSet(*ti);
+    execs->AddItem(*ti);
     }
-  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(info);
+  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(execs, info);
   vtkExecutionScheduler::GetGlobalScheduler()->ReleaseResources(this);
-  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilDone();
+  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilDone(execs);
   vtkExecutionScheduler::GetGlobalScheduler()->ReacquireResources(this);
+  execs->Delete();
 }
   
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::Push(vtkInformation *info) {
-  vtkExecutiveSet eSet;
-  for(int i=0; i < this->GetNumberOfOutputPorts(); ++i) {
-    vtkInformation* outInfo = this->GetOutputInformation(i);
-    int consumerCount = vtkExecutive::CONSUMERS()->Length(outInfo);
-    vtkExecutive** e = vtkExecutive::CONSUMERS()->GetExecutives(outInfo);    
-    for (int j=0; j<consumerCount; j++) {
-      eSet.insert(e[j]);
-      e[j]->GetAlgorithm()->GetInformation()->Set(EXTRA_INFORMATION(), info);
-    }    
-  }
-  vtkExecutionScheduler::GetGlobalScheduler()->ClearCurrentExecutiveSet();
-  for (vtkExecutiveSet::iterator ti=eSet.begin(); ti!=eSet.end(); ti++)
-    {
-    vtkExecutionScheduler::GetGlobalScheduler()->InsertToCurrentExecutiveSet(*ti);
-    }
-  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(info);
-  vtkExecutionScheduler::GetGlobalScheduler()->ReleaseResources(this);
-  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilReleased();
-  vtkExecutionScheduler::GetGlobalScheduler()->ReacquireResources(this);
+void vtkThreadedStreamingPipeline::Push() 
+{
+  this->Push(static_cast<vtkInformation*>(NULL));
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedStreamingPipeline::ReleaseInputs() {
+void vtkThreadedStreamingPipeline::Push(vtkInformation *info) 
+{
+  vtkExecutiveSet eSet;
+  for(int i = 0; i < this->GetNumberOfOutputPorts(); ++i) {
+    vtkInformation* outInfo = this->GetOutputInformation(i);
+    int consumerCount = vtkExecutive::CONSUMERS()->Length(outInfo);
+    vtkExecutive** e = vtkExecutive::CONSUMERS()->GetExecutives(outInfo);    
+    for (int j=0; j<consumerCount; j++) 
+      {
+      eSet.insert(e[j]);
+      e[j]->GetAlgorithm()->GetInformation()->Set(EXTRA_INFORMATION(), info);
+      }    
+  }
+  vtkExecutiveCollection *execs = vtkExecutiveCollection::New();
+  for (vtkExecutiveSet::iterator ti=eSet.begin(); ti!=eSet.end(); ti++)
+    {
+    execs->AddItem(*ti);
+    }
+  vtkExecutionScheduler::GetGlobalScheduler()->Schedule(execs, info);
+  vtkExecutionScheduler::GetGlobalScheduler()->ReleaseResources(this);
+  vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilReleased(execs);
+  vtkExecutionScheduler::GetGlobalScheduler()->ReacquireResources(this);
+  execs->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadedStreamingPipeline::ReleaseInputs() 
+{
   vtkThreadMessager *messager = vtkExecutionScheduler::
     GetGlobalScheduler()->GetInputsReleasedMessager(this);
   if (messager)
+    {
     messager->SendWakeMessage();
+    }
 }  
 
 //----------------------------------------------------------------------------
@@ -259,26 +300,34 @@ int vtkThreadedStreamingPipeline
                  vtkInformationVector* outInfoVec)
 {
   int result = 0;
-  if (request->Has(REQUEST_DATA())) {
+  if (request->Has(REQUEST_DATA())) 
+    {
     double startTime = vtkTimerLog::GetUniversalTime();
     result = this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
     this->LastDataRequestTime = vtkTimerLog::GetUniversalTime() - startTime;
-  }
+    }
   else
+    {
     result = this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
+    }
   return result;
 }
 
 //----------------------------------------------------------------------------
 int vtkThreadedStreamingPipeline::ForceUpdateData(int vtkNotUsed(processingUnit), vtkInformation *info)
 {
-  if (this->ForceDataRequest==NULL) {
+  if (this->ForceDataRequest==NULL) 
+    {
     this->ForceDataRequest = vtkInformation::New();
-  }
-  if (info)
+    }
+  if (info) 
+    {
     this->ForceDataRequest->Copy(info);
+    }
   else
+    {
     this->ForceDataRequest->Clear();
+    }
   this->ForceDataRequest->Set(vtkDemandDrivenPipeline::REQUEST_DATA());
   this->ForceDataRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
   // Algorithms process this request after it is forwarded.
@@ -297,39 +346,45 @@ int vtkThreadedStreamingPipeline::ForceUpdateData(int vtkNotUsed(processingUnit)
 void vtkThreadedStreamingPipeline::UpdateRequestDataTimeFromSource()
 {
   float maxUpStreamTime = 0.0f;
-  for(int i=0; i < this->GetNumberOfInputPorts(); ++i) {
+  for(int i = 0; i < this->GetNumberOfInputPorts(); ++i) 
+    {
     int nic = this->GetAlgorithm()->GetNumberOfInputConnections(i);
     vtkInformationVector* inVector = this->GetInputInformation()[i];
-    for(int j=0; j < nic; ++j) {
+    for(int j=0; j < nic; ++j) 
+      {
       vtkInformation* inInfo = inVector->GetInformationObject(j);
       vtkExecutive* e;
       int producerPort;
       vtkExecutive::PRODUCER()->Get(inInfo, e, producerPort);
-      if (e) {
+      if (e) 
+        {
         vtkThreadedStreamingPipeline *te = vtkThreadedStreamingPipeline::
           SafeDownCast(e);
         if (te && maxUpStreamTime<te->LastDataRequestTimeFromSource)
           maxUpStreamTime = te->LastDataRequestTimeFromSource;
+        }
       }
     }
-  }
   this->LastDataRequestTimeFromSource = maxUpStreamTime + this->LastDataRequestTime;
 }
 
 //----------------------------------------------------------------------------
 vtkComputingResources *vtkThreadedStreamingPipeline::GetResources() {
   if (!this->Resources)
+    {
     this->Resources = vtkComputingResources::New();
+    }
   return this->Resources;
 }
 
 //----------------------------------------------------------------------------
 int vtkThreadedStreamingPipeline::ForwardUpstream(vtkInformation* request)
 {
-  if (MultiThreadedEnabled && request->Has(vtkDemandDrivenPipeline::REQUEST_DATA())) {
+  if (MultiThreadedEnabled && request->Has(vtkDemandDrivenPipeline::REQUEST_DATA())) 
+    {
     this->Pull();
     return 1;
-  }
+    }
   else
     {
     return this->Superclass::ForwardUpstream(request);

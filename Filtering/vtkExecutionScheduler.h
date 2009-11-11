@@ -33,6 +33,9 @@
 // This is a class for balancing the computing resources throughout
 // the network
 
+// .SECTION See Also
+// vtkComputingResources vtkThreadedStreamingPipeline
+
 #ifndef __vtkExecutionScheduler_h
 #define __vtkExecutionScheduler_h
 
@@ -45,6 +48,7 @@ class vtkMutexLock;
 class vtkThreadMessager;
 class vtkInformation;
 class vtkInformationIntegerKey;
+class vtkExecutiveCollection;
 
 class VTK_FILTERING_EXPORT vtkExecutionScheduler : public vtkObject
 {
@@ -62,36 +66,18 @@ public:
   static vtkInformationIntegerKey* TASK_PRIORITY();
 
   // Description:  
-  // The current executive set is the set of executive that Schedule(), 
-  // WaitUntilDone() and WaitUntilReleased() will be working on. This 
-  // is more like a workaround for not taking STL containers as
-  // parameters for now, but currently under consideration of using
-  // vtkArray or vtkTypedArray instead.
-  // ClearCurrentExecutiveSet() restarts the set
-  void ClearCurrentExecutiveSet();
-
-  // Description:  
-  // The current executive set is the set of executive that Schedule(), 
-  // WaitUntilDone() and WaitUntilReleased() will be working on. This 
-  // is more like a workaround for not taking STL containers as
-  // parameters for now, but currently under consideration of using
-  // vtkArray or vtkTypedArray instead.
-  // InsertToCurrentExecutiveSet() inserts an executive to the current set.
-  void InsertToCurrentExecutiveSet(vtkExecutive *exec);
-
-  // Description:  
   // Put the current set of executives (modules) to the be scheduled given its
   // dependency graph which will be used to compute the set
   // topological orders
-  void Schedule(vtkInformation *info);
+  void Schedule(vtkExecutiveCollection *execs, vtkInformation *info);
   
   // Description:
   // Wait until the current set of executives (modules) have finished executing
-  void WaitUntilDone();
+  void WaitUntilDone(vtkExecutiveCollection *execs);
   
   // Description:  
   // Wait until the current set of executives (modules) have their inputs released
-  void WaitUntilReleased();
+  void WaitUntilReleased(vtkExecutiveCollection *execs);
 
   // Description:
   // Wait for all tasks to be done
@@ -141,17 +127,17 @@ public:
   // Redistribute the thread resources from a sink given a certain
   // amount of resource
   void RescheduleFrom(vtkExecutive *sink, vtkComputingResources *resources);
-  
+
+protected:
+  vtkExecutionScheduler();
+  ~vtkExecutionScheduler();
+
   vtkComputingResources       *Resources;
   vtkThreadMessager           *ScheduleMessager;
   vtkThreadMessager           *ResourceMessager;
   vtkMutexLock                *ScheduleLock;
   vtkMultiThreader            *ScheduleThreader;
   int                          ScheduleThreadId;
-
-protected:
-  vtkExecutionScheduler();
-  ~vtkExecutionScheduler();
 
 //BTX
   class implementation;
@@ -172,6 +158,7 @@ protected:
 private:
   vtkExecutionScheduler(const vtkExecutionScheduler&);  // Not implemented.
   void operator=(const vtkExecutionScheduler&);  // Not implemented.
+  
 };
 
 #endif

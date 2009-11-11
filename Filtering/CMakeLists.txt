@@ -72,6 +72,7 @@ vtkEdgeListIterator.cxx
 vtkEmptyCell.cxx
 vtkExecutionScheduler.cxx
 vtkExecutive.cxx
+vtkExecutiveCollection.cxx
 vtkExplicitCell.cxx
 vtkFieldData.cxx
 vtkFilteringInformationKeyManager.cxx

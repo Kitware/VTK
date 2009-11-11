@@ -7,11 +7,11 @@
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+  =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
   
@@ -26,11 +26,15 @@
   "Multi-Threaded Streaming Pipeline For VTK" by Huy T. Vo and Claudio
   T. Silva, SCI Institute, University of Utah, Technical Report
   #UUSCI-2009-005, 2009.
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 // .NAME vtkThreadedStreamingPipeline - Executive supporting multi-threads
 // .SECTION Description
 // vtkThreadeStreamingDemandDrivenPipeline is an executive that supports
 // updating input ports based on the number of threads available.
+
+// .SECTION See Also
+// vtkExecutionScheduler
+
 
 #ifndef __vtkThreadedStreamingPipeline_h
 #define __vtkThreadedStreamingPipeline_h
@@ -39,6 +43,7 @@
 
 class vtkComputingResources;
 class vtkExecutionScheduler;
+class vtkExecutiveCollection;
 
 class VTK_FILTERING_EXPORT vtkThreadedStreamingPipeline : public vtkCompositeDataPipeline
 {
@@ -47,9 +52,12 @@ public:
   vtkTypeRevisionMacro(vtkThreadedStreamingPipeline,vtkCompositeDataPipeline);
   void PrintSelf(ostream &os, vtkIndent indent);
 
- // Description:
+  // Description:
   // Key to store the priority of a task
   static vtkInformationIntegerKey* AUTO_PROPAGATE();
+
+  // Description:
+  // Key to store the additional information for an update request
   static vtkInformationObjectBaseKey* EXTRA_INFORMATION();
 
   // Description:
@@ -72,42 +80,57 @@ public:
   // Enable/Disable automatic propagation of Push events
   static void SetAutoPropagatePush(bool enabled);
 
-  // Description:  
-  // The current executive set is the set of executive that MultiPush(), 
-  // and MultPull() will be working on. This is more like a workaround 
-  // for not taking STL containers as parameters for now, but currently 
-  // under consideration of using vtkArray or vtkTypedArray instead.
-  // ClearCurrentExecutiveSet() restarts the set
-  static void ClearCurrentExecutiveSet();
-
-  // Description:  
-  // The current executive set is the set of executive that MultiPush(), 
-  // and MultPull() will be working on. This is more like a workaround 
-  // for not taking STL containers as parameters for now, but currently 
-  // under consideration of using vtkArray or vtkTypedArray instead.
-  // InsertToCurrentExecutiveSet() inserts an executive to the current set.
-  static void InsertToCurrentExecutiveSet(vtkExecutive *exec);
+  // Description:
+  // Trigger the updates on certain execs and asking all of its
+  // upstream modules to be updated as well (propagate up)
+  static void Pull(vtkExecutiveCollection *execs);
 
   // Description:
   // Trigger the updates on certain execs and asking all of its
   // upstream modules to be updated as well (propagate up)
-  static void MultiPull(vtkInformation *info=NULL);
+  static void Pull(vtkExecutiveCollection *execs, vtkInformation *info);
   
   // Description:
   // Trigger the updates on certain execs and asking all of its
   // downstream modules to be updated as well (propagate down)  
-  static void MultiPush(vtkInformation *info=NULL);
+  static void Push(vtkExecutiveCollection *execs);
+
+  // Description:
+  // Trigger the updates on certain execs and asking all of its
+  // downstream modules to be updated as well (propagate down)  
+  static void Push(vtkExecutiveCollection *execs, vtkInformation *info);
   
   // Description:
-  // A simplified version of the above and also allow wrapping
-  static void Pull(vtkExecutive *exec, vtkInformation *info=NULL);
-  static void Push(vtkExecutive *exec, vtkInformation *info=NULL);
+  // A simplified version of Pull() which only acts upon a single executive
+  static void Pull(vtkExecutive *exec);
+
+  // Description:
+  // A simplified version of Pull() which only acts upon a single executive
+  static void Pull(vtkExecutive *exec, vtkInformation *info);
+
+  // Description:
+  // A simplified version of Push() which only acts upon a single executive
+  static void Push(vtkExecutive *exec);
+
+  // Description:
+  // A simplified version of Push() which only acts upon a single executive
+  static void Push(vtkExecutive *exec, vtkInformation *info);
 
   // Description:  
-  // Pull/Push on a module triggers upstream/downsteram modules to
-  // update but not includingitself  
-  void Pull(vtkInformation *info=NULL);
-  void Push(vtkInformation *info=NULL);
+  // Triggers upstream modules to update but not including itself
+  void Pull();
+
+  // Description:  
+  // Triggers upstream modules to update but not including itself
+  void Pull(vtkInformation *info);
+
+  // Description:  
+  // Triggers downstream modules to update but not including itself 
+  void Push();
+
+  // Description:  
+  // Triggers downstream modules to update but not including itself
+  void Push(vtkInformation *info);
   
   // Description:
   // Release all the locks for input ports living upstream 
