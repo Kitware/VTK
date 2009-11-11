@@ -35,18 +35,22 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkJavaScriptDataWriter);
-vtkCxxRevisionMacro(vtkJavaScriptDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkJavaScriptDataWriter, "1.4");
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
 {
+  this->VariableName = 0;
   this->FileName = 0;
+  this->IncludeFieldNames = true; // Default is to include field names
   this->OutputStream = 0;
+  this->SetVariableName( "data" ); // prepare the default.
 }
 
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName( 0 );
+  this->SetVariableName( 0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -134,20 +138,31 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
     return;
     }
 
+  vtkStdString rowHeader = "[";
+  vtkStdString rowFooter = "],";
+  if (this->IncludeFieldNames)
+    {
+    rowHeader = "{";
+    rowFooter = "},";
+    }
+
   // Header stuff
-  (*stream_ptr) << "var data = [\n";
+  (*stream_ptr) << "var " << this->VariableName << " = [\n";
 
   // For each row
   for ( vtkIdType r = 0; r < numRows; ++ r )
     {
     // row header
-    (*stream_ptr) << "{ ";
+    (*stream_ptr) << rowHeader;
 
     // Now for each column put out in the form 
     // colname1: data1, colname2: data2, etc
     for ( int c = 0; c < numCols; ++ c )
       {
-      (*stream_ptr) << dsa->GetAbstractArray(c)->GetName() << ":";
+      if (this->IncludeFieldNames)
+        {
+        (*stream_ptr) << dsa->GetAbstractArray(c)->GetName() << ":";
+        }
 
       // If the array is a string array put "" around it
       if (vtkStringArray::SafeDownCast(dsa->GetAbstractArray(c)))
@@ -161,7 +176,7 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
       }
 
     // row footer
-    (*stream_ptr) << " },\n";
+    (*stream_ptr) << rowFooter;
     }
 
   // Footer
@@ -172,6 +187,9 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
 void vtkJavaScriptDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "VariableName: " << this->VariableName << endl;
   os << indent << "FileName: " << (this->FileName? this->FileName : "none") 
     << endl;
+  os << indent << "IncludeFieldNames: " << 
+    (this->IncludeFieldNames ? "true" : "false") << endl;
 }
