@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExtractHistogram2D, "1.4");
+vtkCxxRevisionMacro(vtkExtractHistogram2D, "1.5");
 vtkStandardNewMacro(vtkExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkExtractHistogram2D,RowMask,vtkDataArray);
 //------------------------------------------------------------------------------
@@ -100,13 +100,13 @@ vtkExtractHistogram2D::~vtkExtractHistogram2D()
 void vtkExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << "ScalarType: " << this->ScalarType << endl;
-  os << "ComponentsToProcess: " << this->ComponentsToProcess[0] << ", " << this->ComponentsToProcess[1] << endl;
-  os << "UseCustomHistogramExtents: " << this->UseCustomHistogramExtents << endl;
-  os << "MaximumBinCount: " << this->MaximumBinCount << endl;
-  os << "SwapColumns: " << this->SwapColumns << endl;
-  os << "NumberOfBins: " << this->NumberOfBins[0] << ", " << this->NumberOfBins[1] << endl;
-  os << "CustomHistogramExtents: " << this->CustomHistogramExtents[0] << ", " << this->CustomHistogramExtents[1] << ", " << this->CustomHistogramExtents[2] << ", " << this->CustomHistogramExtents[3] << endl;
+  os << indent << "ScalarType: " << this->ScalarType << endl;
+  os << indent << "ComponentsToProcess: " << this->ComponentsToProcess[0] << ", " << this->ComponentsToProcess[1] << endl;
+  os << indent << "UseCustomHistogramExtents: " << this->UseCustomHistogramExtents << endl;
+  os << indent << "MaximumBinCount: " << this->MaximumBinCount << endl;
+  os << indent << "SwapColumns: " << this->SwapColumns << endl;
+  os << indent << "NumberOfBins: " << this->NumberOfBins[0] << ", " << this->NumberOfBins[1] << endl;
+  os << indent << "CustomHistogramExtents: " << this->CustomHistogramExtents[0] << ", " << this->CustomHistogramExtents[1] << ", " << this->CustomHistogramExtents[2] << ", " << this->CustomHistogramExtents[3] << endl;
 }
 //------------------------------------------------------------------------------
 void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData), 
