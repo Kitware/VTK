@@ -25,9 +25,12 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkDataSetGradient, "1.4");
+vtkCxxRevisionMacro(vtkDataSetGradient, "1.5");
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!

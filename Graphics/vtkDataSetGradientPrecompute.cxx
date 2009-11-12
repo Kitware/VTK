@@ -29,8 +29,9 @@
 #include "vtkCell.h"
 #include "vtkCell3D.h"
 #include "vtkFieldData.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.4");
+vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.5");
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()

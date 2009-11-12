@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkDataArray.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkIdTypeArray.h>
+#include <vtkObjectFactory.h>
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
 #include <vtkInformation.h>
@@ -122,7 +123,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.6");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.7");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG

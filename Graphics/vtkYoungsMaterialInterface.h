@@ -30,8 +30,6 @@
 #ifndef __vtkYoungsMaterialInterface_h
 #define __vtkYoungsMaterialInterface_h
 
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;

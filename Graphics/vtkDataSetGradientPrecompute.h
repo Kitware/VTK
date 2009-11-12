@@ -28,8 +28,6 @@
 #ifndef __vtkDataSetGradientPrecompute_h
 #define __vtkDataSetGradientPrecompute_h
 
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
 #include "vtkDataSetAlgorithm.h"
 
 class VTK_GRAPHICS_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetAlgorithm
