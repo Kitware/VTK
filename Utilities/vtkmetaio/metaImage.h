@@ -352,6 +352,10 @@ class METAIO_EXPORT MetaImage : public MetaObject
                             unsigned int subSamplingFactor=1,
                             METAIO_STL::streamsize _totalDataQuantity=0);
 
+    bool M_ReadElementData(METAIO_STREAM::ifstream * _fstream, 
+                           void * _data,
+                           METAIO_STL::streamsize _dataQuantity);
+
     bool  M_WriteElements(METAIO_STREAM::ofstream * _fstream,
                           const void * _data,
                           METAIO_STL::streamsize _dataQuantity);
