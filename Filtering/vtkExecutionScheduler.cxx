@@ -49,7 +49,7 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.8");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.9");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -247,8 +247,8 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
     }
 
   // Create a adjacency matrix
-  size_t i, j, k, p;
-  size_t N = G.size();
+  unsigned i, j, k, p;
+  unsigned N = (unsigned)G.size();
   int *A = (int*)malloc(N*N*sizeof(int));
   int *degree = (int*)malloc(N*sizeof(int));
   memset(A, 0, N*N*sizeof(int));
@@ -268,7 +268,7 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
       }
     }
   
-  int *S = (int*)malloc(N*sizeof(int));
+  unsigned *S = (unsigned*)malloc(N*sizeof(unsigned));
   k = 0;
   for (j = 0; j < N; j++)
     {
