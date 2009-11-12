@@ -142,6 +142,7 @@ protected:
 //BTX
   class implementation;
   implementation* const Implementation;
+  friend class implementation;
 
   // Description:  
   // The scheduling thread that is responsible for queueing up module
