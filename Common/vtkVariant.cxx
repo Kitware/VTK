@@ -47,8 +47,10 @@ really building the vtkVariant.o object.
 #include "vtkSetGet.h"
 #include "vtkObjectBase.h"
 #include "vtkStringArray.h"
+#include "vtkMath.h"
 
 #include "vtksys/ios/sstream"
+#include "vtksys/SystemTools.hxx"
 
 //----------------------------------------------------------------------------
 
@@ -807,6 +809,48 @@ vtkAbstractArray* vtkVariant::ToArray() const
   return 0;
 }
 
+// Used internally by vtkVariantStringToNumeric to find non-finite numbers.
+// Most numerics do not support non-finite numbers, hence the default simply
+// fails.  Overload for doubles and floats detect non-finite numbers they
+// support
+template <typename T>
+T vtkVariantStringToNonFiniteNumeric(vtkStdString vtkNotUsed(str), bool *valid)
+{
+  if (valid) *valid = 0;
+  return 0;
+}
+
+template<> double vtkVariantStringToNonFiniteNumeric<double>(vtkStdString str,
+                                                             bool *valid)
+{
+  if (vtksys::SystemTools::Strucmp(str.c_str(), "nan") == 0)
+    {
+    if (valid) *valid = true;
+    return vtkMath::Nan();
+    }
+  if (   (vtksys::SystemTools::Strucmp(str.c_str(), "infinity") == 0)
+      || (vtksys::SystemTools::Strucmp(str.c_str(), "inf") == 0) )
+    {
+    if (valid) *valid = true;
+    return vtkMath::Inf();
+    }
+  if (   (vtksys::SystemTools::Strucmp(str.c_str(), "-infinity") == 0)
+      || (vtksys::SystemTools::Strucmp(str.c_str(), "-inf") == 0) )
+    {
+    if (valid) *valid = true;
+    return vtkMath::NegInf();
+    }
+  if (valid) *valid = false;
+  return vtkMath::Nan();
+}
+
+template<> float vtkVariantStringToNonFiniteNumeric<float>(vtkStdString str,
+                                                           bool *valid)
+{
+  return static_cast<float>(
+                        vtkVariantStringToNonFiniteNumeric<double>(str, valid));
+}
+
 template <typename T>
 T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored) = 0)
 {
@@ -814,12 +858,14 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
   T data;
   vstr >> data;
   // Check for a valid result
-  if (valid)
+  bool v = (   ((vstr.rdstate() & ios::badbit) == 0)
+            && ((vstr.rdstate() & ios::failbit) == 0)
+            && vstr.eof() );
+  //v = (vstr.rdstate() == ios::goodbit);
+  if (valid) *valid = v;
+  if (!v)
     {
-    *valid =  ((vstr.rdstate() & ios::badbit) == 0
-      && (vstr.rdstate() & ios::failbit) == 0);
-    *valid = *valid && vstr.eof();
-    //*valid = (vstr.rdstate() == ios::goodbit);
+    data = vtkVariantStringToNonFiniteNumeric<T>(str, valid);
     }
   return data;
 }
