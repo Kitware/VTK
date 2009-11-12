@@ -87,7 +87,7 @@ typedef __int32 int32_t;
 typedef __int64 int64_t;
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.18");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.19");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -356,8 +356,8 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
                     "Might truncate data.");
       tag = vtkLongArray::New();
       }
-    }
 #endif
+    }
   else
     {
 #if defined(_WIN32) && !defined(__CYGWIN__)
