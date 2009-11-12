@@ -267,7 +267,6 @@ vtkWarpTo.cxx
 vtkWarpVector.cxx
 vtkWindowedSincPolyDataFilter.cxx
 vtkYoungsMaterialInterface.cxx
-vtkYoungsMaterialInterfaceCellCut.cxx  
 )
 SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
