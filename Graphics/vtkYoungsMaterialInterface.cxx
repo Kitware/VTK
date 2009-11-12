@@ -58,7 +58,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.4");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.5");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -95,6 +95,19 @@ vtkYoungsMaterialInterface::~vtkYoungsMaterialInterface()
     delete this->Internals;
 }
 
+void vtkYoungsMaterialInterface::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  os << indent << "FillMaterial: " << this->FillMaterial << "\n";
+  os << indent << "InverseNormal: " << this->InverseNormal << "\n";
+  os << indent << "AxisSymetric: " << this->AxisSymetric << "\n";
+  os << indent << "OnionPeel: " << this->OnionPeel << "\n";
+  os << indent << "ReverseMaterialOrder: " << this->ReverseMaterialOrder << "\n";
+  os << indent << "UseFractionAsDistance: " << this->UseFractionAsDistance << "\n";
+  os << indent << "VolumeFractionRange: [" << this->VolumeFractionRange[0] << ";" << this->VolumeFractionRange[1] <<"]\n";
+  os << indent << "TwoMaterialsOptimization: " << this->TwoMaterialsOptimization << "\n";
+}
+
 void vtkYoungsMaterialInterface::SetNumberOfMaterials(int n)
 {
   vtkDebugMacro(<<"Resize Materials to "<<n<<"\n");
@@ -103,7 +116,7 @@ void vtkYoungsMaterialInterface::SetNumberOfMaterials(int n)
 
 int vtkYoungsMaterialInterface::GetNumberOfMaterials()
 {
-  return this->Internals->Materials.size();
+  return static_cast<int>( this->Internals->Materials.size() );
 }
 
 void vtkYoungsMaterialInterface::SetMaterialVolumeFractionArray( int M,  const char* volume )
@@ -343,7 +356,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation *vtkNotUsed(request),
 
   // variables visible by debugger
 
-   int nmat = (int) this->Internals->Materials.size();
+   int nmat = static_cast<int>( this->Internals->Materials.size() );
    int nCellData = input->GetCellData()->GetNumberOfArrays();
    int nPointData = input->GetPointData()->GetNumberOfArrays();
    vtkIdType nCells = input->GetNumberOfCells();

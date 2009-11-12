@@ -20,27 +20,30 @@
 
 #include "vtkDataSetGradientPrecompute.h"
 
-#include <vtkMath.h>
-#include <vtkTriangle.h>
-#include <vtkInformationVector.h>
-#include <vtkInformation.h>
-#include <vtkDataSet.h>
-#include <vtkDoubleArray.h>
-#include <vtkCell.h>
-#include <vtkCell3D.h>
-#include <vtkFieldData.h>
+#include "vtkMath.h"
+#include "vtkTriangle.h"
+#include "vtkInformationVector.h"
+#include "vtkInformation.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkCell.h"
+#include "vtkCell3D.h"
+#include "vtkFieldData.h"
 
-vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.3");
+vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.4");
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()
 {
-   cerr<<"vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()"<<endl;
 }
 
 vtkDataSetGradientPrecompute::~vtkDataSetGradientPrecompute()
 {
-   cerr<<"vtkDataSetGradientPrecompute::~vtkDataSetGradientPrecompute()"<<endl;
+}
+
+void vtkDataSetGradientPrecompute::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
 
 #define ADD_VEC(a,b) a[0]+=b[0];a[1]+=b[1];a[2]+=b[2]
@@ -129,7 +132,7 @@ int vtkDataSetGradientPrecompute::RequestData(vtkInformation *vtkNotUsed(request
   _output->ShallowCopy(_input);
 
   vtkDoubleArray* cqs = vtkDoubleArray::New();
-  cqs->SetName("CQS");
+  cqs->SetName("GradientPrecomputation");
   cqs->SetNumberOfComponents(3);
   cqs->SetNumberOfTuples(nCellNodes);
   cqs->FillComponent(0, 0.0);

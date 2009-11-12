@@ -19,18 +19,15 @@
 // Implementation by Thierry Carrard (CEA)
 
 #include "vtkDataSetGradient.h"
-
-#include <vtkDataSet.h>
-#include <vtkDataArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkPointData.h>
-#include <vtkCellData.h>
-#include <vtkCell.h>
-
-#include <assert.h>
+#include "vtkDataSet.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
+#include "vtkCell.h"
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkDataSetGradient, "1.3");
+vtkCxxRevisionMacro(vtkDataSetGradient, "1.4");
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!
@@ -51,13 +48,11 @@ vtkDataSetGradient::~vtkDataSetGradient()
 {
 }
 
-// int vtkDataSetGradient::CentralDifferences()
-// {
-// }
-
-// int vtkDataSetGradient::GenericCQSBasedGradient()
-// {
-// }
+void vtkDataSetGradient::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  os << indent << "Result array name: " << this->ResultArrayName << "\n";
+}
 
 int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
              vtkInformationVector **inputVector,
@@ -113,11 +108,11 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
      return 0;     
   }
 
-  vtkDataArray* cqsArray = _input->GetFieldData()->GetArray("CQS");
+  vtkDataArray* cqsArray = _input->GetFieldData()->GetArray("GradientPrecomputation");
 
   if( cqsArray==0 )
   {
-     vtkErrorMacro(<<"no CQS array. Add a vtkDataSetGradientPrecompute filter to your pipeline.\n");
+     vtkErrorMacro(<<"Couldn't find field array 'GradientPrecomputation'. Add a vtkDataSetGradientPrecompute filter to your pipeline.\n");
      return 0;
   }
 

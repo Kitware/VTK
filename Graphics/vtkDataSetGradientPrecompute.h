@@ -14,6 +14,11 @@
 =========================================================================*/
 // .NAME vtkDataSetGradientPrecompute 
 //
+// .SECTION Description
+// Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
+// gradient computation. This vector field is added to FieldData since it has a different
+// value for each vertex of each cell (a vertex shared by two cell has two differents values).
+//
 // .SECTION Thanks
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
@@ -23,29 +28,27 @@
 #ifndef __vtkDataSetGradientPrecompute_h
 #define __vtkDataSetGradientPrecompute_h
 
-#include <vtkObjectFactory.h>
-#include <vtkSetGet.h>
-#include <vtkDataSetAlgorithm.h>
+#include "vtkObjectFactory.h"
+#include "vtkSetGet.h"
+#include "vtkDataSetAlgorithm.h"
 
 class VTK_GRAPHICS_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetAlgorithm
 {
-   public:
+public:
+  static vtkDataSetGradientPrecompute* New();
+  vtkTypeRevisionMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-      static vtkDataSetGradientPrecompute* New();
-      vtkTypeRevisionMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
-      ~vtkDataSetGradientPrecompute ();
+protected:
+  vtkDataSetGradientPrecompute ();
+  ~vtkDataSetGradientPrecompute ();
 
-   protected:
-      vtkDataSetGradientPrecompute ();
-      virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-   private:
-     //! Unimplemented copy constructor
-      vtkDataSetGradientPrecompute (const vtkDataSetGradientPrecompute &);
-
-     //! Unimplemented operator
-      vtkDataSetGradientPrecompute & operator= (const vtkDataSetGradientPrecompute &);
-} ;
+private:
+  vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&); // Not implemented
+  void operator=(const vtkDataSetGradientPrecompute&); // Not implemented
+};
 
 #endif /* VTK_DATA_SET_GRADIENT_PRECOMPUTE_H */
 

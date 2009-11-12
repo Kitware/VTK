@@ -28,39 +28,36 @@
 #ifndef __vtkDataSetGradient_h
 #define __vtkDataSetGradient_h
 
-#include <vtkObjectFactory.h>
-#include <vtkSetGet.h>
-#include <vtkDataSetAlgorithm.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
+#include "vtkObjectFactory.h"
+#include "vtkSetGet.h"
+#include "vtkDataSetAlgorithm.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
 class VTK_GRAPHICS_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
 {
-   public:
+public:
+  static vtkDataSetGradient* New();
+  vtkTypeRevisionMacro(vtkDataSetGradient,vtkDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-      static vtkDataSetGradient* New();
-      vtkTypeRevisionMacro(vtkDataSetGradient,vtkDataSetAlgorithm);
-      ~vtkDataSetGradient();
-      
-     // Description:
-     // Set/Get the name of computed vector array.
-      vtkSetStringMacro(ResultArrayName);
-      vtkGetStringMacro(ResultArrayName);
+  // Description:
+  // Set/Get the name of computed vector array.
+  vtkSetStringMacro(ResultArrayName);
+  vtkGetStringMacro(ResultArrayName);
 
-   protected:
-      vtkDataSetGradient ();
+protected:
+  vtkDataSetGradient ();
+  ~vtkDataSetGradient();
 
-      virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-      char* ResultArrayName;
+  char* ResultArrayName;
 
-   private:
-
-     //! Unimplemented copy constructor
-      vtkDataSetGradient (const vtkDataSetGradient &);
-
-     //! Unimplemented operator
-      vtkDataSetGradient & operator= (const vtkDataSetGradient &);
-} ;
+private:
+  vtkDataSetGradient(const vtkDataSetGradient&); // Not implemented
+  void operator=(const vtkDataSetGradient&); // Not implemented
+};
 
 #endif /* VTK_DATA_SET_GRADIENT_H */
+
