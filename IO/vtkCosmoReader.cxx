@@ -82,12 +82,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStdString.h"
 
 // since windows doesn't seem to have these
-#if defined(_WIN32) && !defined(__CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
 typedef __int32 int32_t;
 typedef __int64 int64_t;
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.16");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.17");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -203,7 +203,7 @@ int vtkCosmoReader::RequestInformation(
 
   this->GetOutput()->SetMaximumNumberOfPieces(this->TotalRank);
 
-#if defined(_WIN32) && !defined(__CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
     this->FileStream = new ifstream(this->FileName, ios::in | ios::binary);
 #else
     this->FileStream = new ifstream(this->FileName, ios::in);
@@ -277,7 +277,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-#if defined(_WIN32) && !defined(__CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
   this->FileStream = new ifstream(this->FileName, ios::in | ios::binary);
 #else
   this->FileStream = new ifstream(this->FileName, ios::in);
@@ -338,7 +338,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   vtkDataArray *tag;
   if(this->TagSize) 
     {
-#if defined(_WIN32) && !defined(__CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
     tag = vtkLongLongArray::New();
 #else
     if(sizeof(long) == sizeof(int64_t)) 
@@ -359,7 +359,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     }
 #endif
   else
-#if defined(_WIN32) && !defined(__CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
     tag = vtkIntArray::New();
 #else
     {
