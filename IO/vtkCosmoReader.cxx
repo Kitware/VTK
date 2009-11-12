@@ -77,17 +77,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongArray.h"
 #include "vtkDataArray.h"
 #include "vtkConfigure.h"
+
+#ifdef VTK_TYPE_USE_LONG_LONG
 #include "vtkLongLongArray.h"
+#endif
 
 #include "vtkStdString.h"
 
-// since windows doesn't seem to have these
-#if defined(_WIN32) && !defined(__CYGWIN__)
-typedef __int32 int32_t;
-typedef __int64 int64_t;
-#endif
-
-vtkCxxRevisionMacro(vtkCosmoReader, "1.19");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.20");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -105,7 +102,7 @@ namespace
   const int MASS       = 6; // Mass of record item
 
   const int NUMBER_OF_VAR = 3;
-  const size_t BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(float);
+  const size_t BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(vtkTypeFloat32);
   
   const int USE_VELOCITY = 0;
   const int USE_MASS = 1;
@@ -338,17 +335,20 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   vtkDataArray *tag;
   if(this->TagSize) 
     {
-#if defined(_WIN32) && !defined(__CYGWIN__)
-    tag = vtkLongLongArray::New();
-#else
-    if(sizeof(long) == sizeof(int64_t)) 
+    if(sizeof(long) == sizeof(vtkTypeInt64)) 
       {
       tag = vtkLongArray::New();
       }
-    else if(sizeof(int) == sizeof(int64_t))
+    else if(sizeof(int) == sizeof(vtkTypeInt64))
       {
       tag = vtkIntArray::New();
       }
+#ifdef VTK_TYPE_USE_LONG_LONG
+    else if(sizeof(long long) == sizeof(vtkTypeInt64))
+      {
+      tag = vtkLongLongArray::New();
+      }
+#endif
     else
       {
       vtkErrorMacro("Unable to match 64-bit int type to a compiler type. " <<
@@ -356,21 +356,23 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
                     "Might truncate data.");
       tag = vtkLongArray::New();
       }
-#endif
     }
   else
     {
-#if defined(_WIN32) && !defined(__CYGWIN__)
-    tag = vtkIntArray::New();
-#else
-    if(sizeof(int) == sizeof(int32_t)) 
+    if(sizeof(int) == sizeof(vtkTypeInt32)) 
       {
       tag = vtkIntArray::New();
       }
-    else if(sizeof(long) == sizeof(int32_t))
+    else if(sizeof(long) == sizeof(vtkTypeInt32))
       {
       tag = vtkLongArray::New();
       }
+#ifdef VTK_TYPE_USE_LONG_LONG
+    else if(sizeof(long long) == sizeof(vtkTypeInt32))
+      {
+      tag = vtkLongLongArray::New();
+      }
+#endif
     else 
       {
       vtkErrorMacro("Unable to match 32-bit int type to a compiler type. " <<
@@ -378,7 +380,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
                     "Might truncate data.");
       tag = vtkIntArray::New();
       }
-#endif
     }
 
   // Allocate space in the unstructured grid for all nodes
@@ -426,8 +427,8 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 
   const unsigned int numFloats = 7;
   const unsigned int numInts = 1;
-  float block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
-  char iBlock[sizeof(int64_t)];  // it's either going to be 4 or 8
+  vtkTypeFloat32 block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
+  char iBlock[sizeof(vtkTypeInt64)];  // it's either going to be 4 or 8
   int j = 0;
   double min[DIMENSION], max[DIMENSION];
   bool firstTime = true;
@@ -435,11 +436,11 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   size_t tagBytes;
   if(this->TagSize)
     {
-    tagBytes = sizeof(int64_t);
+    tagBytes = sizeof(vtkTypeInt64);
     }
   else
     {
-    tagBytes = sizeof(int32_t);
+    tagBytes = sizeof(vtkTypeInt32);
     }
 
   for (int i = 0; i < DIMENSION; i++)
@@ -472,10 +473,10 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       }
 
     // Read the floating point part of the data
-    this->FileStream->read((char*)block, numFloats * sizeof(float));
+    this->FileStream->read((char*)block, numFloats * sizeof(vtkTypeFloat32));
 
     size_t returnValue = this->FileStream->gcount();
-    if (returnValue != numFloats * sizeof(float))
+    if (returnValue != numFloats * sizeof(vtkTypeFloat32))
       {
       vtkErrorMacro(<< "Only read " 
                     << returnValue << " bytes when reading floats.");
@@ -498,13 +499,15 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 #ifdef VTK_WORDS_BIG_ENDIAN
     if(this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
-      vtkByteSwap::SwapVoidRange(block, numFloats, (int)sizeof(float));
+      vtkByteSwap::SwapVoidRange(block, numFloats, 
+                                 (int)sizeof(vtkTypeFloat32));
       vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
       }
 #else
     if(this->ByteOrder == FILE_BIG_ENDIAN)
       {
-      vtkByteSwap::SwapVoidRange(block, numFloats, (int)sizeof(float));
+      vtkByteSwap::SwapVoidRange(block, numFloats, 
+                                 (int)sizeof(vtkTypeFloat32));
       vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
       }
 #endif
@@ -587,11 +590,11 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       double value;
       if(this->TagSize) 
         {
-        value = *((int64_t*)iBlock);
+        value = *((vtkTypeInt64*)iBlock);
         }
       else
         {
-        value = *((int32_t*)iBlock);
+        value = *((vtkTypeInt32*)iBlock);
         }
 
       tag->SetComponent(vtkPointID, 0, value);
@@ -628,11 +631,11 @@ void vtkCosmoReader::ComputeDefaultRange()
   size_t tagBytes;
   if(this->TagSize)
     {
-    tagBytes = sizeof(int64_t);
+    tagBytes = sizeof(vtkTypeInt64);
     }
   else 
     {
-    tagBytes = sizeof(int32_t);
+    tagBytes = sizeof(vtkTypeInt32);
     }
 
   // Divide by number of components per record (x,xv,y,yv,z,zv,mass,tag)
