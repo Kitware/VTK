@@ -123,7 +123,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.8");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.9");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1439,6 +1439,8 @@ template<typename T> TEMPLATE_FUNC_DECL T max(T a, T b){ return (a>b)?a:b; }
 #define FUNC_DECL static inline
 #endif
 
+#if REAL_PRECISION <= 32
+
 FUNC_DECL  float3 operator *(float3 a, float3 b)
 {
     return make_float3(a.x*b.x, a.y*b.y, a.z*b.z);
@@ -1573,7 +1575,7 @@ FUNC_DECL float3 clamp(float3 v, float3 a, float3 b)
 {
     return make_float3(clamp(v.x, a.x, b.x), clamp(v.y, a.y, b.y), clamp(v.z, a.z, b.z));
 }
-
+#warning SINGLE PRECISION
 FUNC_DECL float2 normalize(float2 v)
 {
     float len = 1.0f / sqrtf(dot(v, v));
@@ -1592,6 +1594,7 @@ FUNC_DECL float3 cross( float3 A, float3 B)
           A.z * B.x - A.x * B.z ,
           A.x * B.y - A.y * B.x );
 }
+#endif /* REAL_PRECISION <= 32 */
 
 
 #ifndef __CUDACC__
