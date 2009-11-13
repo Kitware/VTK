@@ -123,7 +123,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.9");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.10");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1575,7 +1575,7 @@ FUNC_DECL float3 clamp(float3 v, float3 a, float3 b)
 {
     return make_float3(clamp(v.x, a.x, b.x), clamp(v.y, a.y, b.y), clamp(v.z, a.z, b.z));
 }
-#warning SINGLE PRECISION
+
 FUNC_DECL float2 normalize(float2 v)
 {
     float len = 1.0f / sqrtf(dot(v, v));
