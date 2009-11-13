@@ -71,9 +71,9 @@ public:
   // Returns the value stored in the array at the given coordinates.
   // Note that the number of dimensions in the supplied coordinates must
   // match the number of dimensions in the array.
-  inline const T& GetValue(vtkIdType i);
-  inline const T& GetValue(vtkIdType i, vtkIdType j);
-  inline const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k);
+  virtual const T& GetValue(vtkIdType i) = 0;
+  virtual const T& GetValue(vtkIdType i, vtkIdType j) = 0;
+  virtual const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k) = 0;
   virtual const T& GetValue(const vtkArrayCoordinates& coordinates) = 0;
   
   // Description:
@@ -88,9 +88,9 @@ public:
   // Overwrites the value stored in the array at the given coordinates.
   // Note that the number of dimensions in the supplied coordinates must
   // match the number of dimensions in the array.
-  inline void SetValue(vtkIdType i, const T& value);
-  inline void SetValue(vtkIdType i, vtkIdType j, const T& value);
-  inline void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
+  virtual void SetValue(vtkIdType i, const T& value) = 0;
+  virtual void SetValue(vtkIdType i, vtkIdType j, const T& value) = 0;
+  virtual void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value) = 0;
   virtual void SetValue(const vtkArrayCoordinates& coordinates, const T& value) = 0;
   
   // Description:

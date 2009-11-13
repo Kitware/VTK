@@ -43,24 +43,27 @@ int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     {
     // Confirm that we can work with dense arrays of bool values
     vtkSmartPointer<vtkDenseArray<char> > dense = vtkSmartPointer<vtkDenseArray<char> >::New();
+    vtkDenseArray<char>& dense_ref = *dense;
     dense->Resize(2, 2);
     dense->Fill(false);
 
-    test_expression(dense->GetValue(1, 1) == 0);
+    test_expression(dense->GetValue(1, 1) == false);
     dense->SetValue(1, 1, true);
-    test_expression(dense->GetValue(1, 1) == 1);
+    test_expression(dense->GetValue(1, 1) == true);
     
-    test_expression(dense->GetValue(0, 1) == 0);
-    (*dense)[vtkArrayCoordinates(0, 1)] = 1;
-    test_expression(dense->GetValue(0, 1) == 1);
+    test_expression(dense->GetValue(0, 1) == false);
+    test_expression(dense_ref[vtkArrayCoordinates(0, 1)] == false);
+    dense_ref[vtkArrayCoordinates(0, 1)] = true;
+    test_expression(dense_ref[vtkArrayCoordinates(0, 1)] == true);
+    test_expression(dense->GetValue(0, 1) == true);
 
     // Confirm that we can work with sparse arrays of bool values
     vtkSmartPointer<vtkSparseArray<char> > sparse = vtkSmartPointer<vtkSparseArray<char> >::New();
     sparse->Resize(2, 2);
 
-    test_expression(sparse->GetValue(1, 1) == 0);
+    test_expression(sparse->GetValue(1, 1) == false);
     sparse->SetValue(1, 1, true);
-    test_expression(sparse->GetValue(1, 1) == 1);
+    test_expression(sparse->GetValue(1, 1) == true);
     
     return 0;
     }

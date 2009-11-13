@@ -87,39 +87,3 @@ void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& so
   this->SetValueN(target_index, static_cast<vtkTypedArray<T>*>(source)->GetValue(source_coordinates));
 }
 
-template<typename T>
-const T& vtkTypedArray<T>::GetValue(vtkIdType i)
-{
-  return this->GetValue(vtkArrayCoordinates(i));
-}
-
-template<typename T>
-const T& vtkTypedArray<T>::GetValue(vtkIdType i, vtkIdType j)
-{
-  return this->GetValue(vtkArrayCoordinates(i, j));
-}
-
-template<typename T>
-const T& vtkTypedArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
-{
-  return this->GetValue(vtkArrayCoordinates(i, j, k));
-}
-
-template<typename T>
-void vtkTypedArray<T>::SetValue(vtkIdType i, const T& value)
-{
-  this->SetValue(vtkArrayCoordinates(i), value);
-}
-
-template<typename T>
-void vtkTypedArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
-{
-  this->SetValue(vtkArrayCoordinates(i, j), value);
-}
-
-template<typename T>
-void vtkTypedArray<T>::SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
-{
-  this->SetValue(vtkArrayCoordinates(i, j, k), value);
-}
-

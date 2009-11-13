@@ -88,8 +88,14 @@ public:
   vtkArray* DeepCopy();
     
   // vtkTypedArray API
+  const T& GetValue(vtkIdType i);
+  const T& GetValue(vtkIdType i, vtkIdType j);
+  const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k);
   const T& GetValue(const vtkArrayCoordinates& coordinates);
   const T& GetValueN(const vtkIdType n);
+  void SetValue(vtkIdType i, const T& value);
+  void SetValue(vtkIdType i, vtkIdType j, const T& value);
+  void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
   void SetValue(const vtkArrayCoordinates& coordinates, const T& value);
   void SetValueN(const vtkIdType n, const T& value);
 

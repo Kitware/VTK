@@ -67,8 +67,14 @@ public:
   vtkArray* DeepCopy();
 
   // vtkTypedArray API
+  const T& GetValue(vtkIdType i);
+  const T& GetValue(vtkIdType i, vtkIdType j);
+  const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k);
   const T& GetValue(const vtkArrayCoordinates& coordinates);
   const T& GetValueN(const vtkIdType n);
+  void SetValue(vtkIdType i, const T& value);
+  void SetValue(vtkIdType i, vtkIdType j, const T& value);
+  void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
   void SetValue(const vtkArrayCoordinates& coordinates, const T& value);
   void SetValueN(const vtkIdType n, const T& value);
 
@@ -162,7 +168,10 @@ private:
   void InternalResize(const vtkArrayExtents& extents);
   void InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label);
   vtkStdString InternalGetDimensionLabel(vtkIdType i);
-  vtkIdType MapCoordinates(const vtkArrayCoordinates& coordinates);
+  inline vtkIdType MapCoordinates(vtkIdType i);
+  inline vtkIdType MapCoordinates(vtkIdType i, vtkIdType j);
+  inline vtkIdType MapCoordinates(vtkIdType i, vtkIdType j, vtkIdType k);
+  inline vtkIdType MapCoordinates(const vtkArrayCoordinates& coordinates);
 
   void Reconfigure(const vtkArrayExtents& extents, MemoryBlock* storage);
 

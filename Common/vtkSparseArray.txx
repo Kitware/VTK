@@ -83,6 +83,78 @@ vtkArray* vtkSparseArray<T>::DeepCopy()
 }
 
 template<typename T>
+const T& vtkSparseArray<T>::GetValue(vtkIdType i)
+{
+  if(1 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return this->NullValue;
+    }
+
+  // Do a naive linear-search for the time-being ... 
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
+    {
+    if(i != this->Coordinates[0][row])
+      continue;
+
+    return this->Values[row];
+    }
+  
+  return this->NullValue;
+}
+
+template<typename T>
+const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j)
+{
+  if(2 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return this->NullValue;
+    }
+
+  // Do a naive linear-search for the time-being ... 
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
+    {
+    if(i != this->Coordinates[0][row])
+      continue;
+
+    if(j != this->Coordinates[1][row])
+      continue;
+
+    return this->Values[row];
+    }
+  
+  return this->NullValue;
+}
+
+template<typename T>
+const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
+{
+  if(3 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return this->NullValue;
+    }
+
+  // Do a naive linear-search for the time-being ... 
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
+    {
+    if(i != this->Coordinates[0][row])
+      continue;
+
+    if(j != this->Coordinates[1][row])
+      continue;
+
+    if(k != this->Coordinates[2][row])
+      continue;
+
+    return this->Values[row];
+    }
+  
+  return this->NullValue;
+}
+
+template<typename T>
 const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
@@ -111,6 +183,84 @@ template<typename T>
 const T& vtkSparseArray<T>::GetValueN(const vtkIdType n)
 {
   return this->Values[n];
+}
+
+template<typename T>
+void vtkSparseArray<T>::SetValue(vtkIdType i, const T& value)
+{
+  if(1 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return;
+    }
+
+  // Do a naive linear-search for the time-being ... 
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
+    {
+    if(i != this->Coordinates[0][row])
+      continue;
+
+    this->Values[row] = value;
+    return;
+    }
+
+  // Element doesn't already exist, so add it to the end of the list ...
+  this->AddValue(i, value);
+}
+
+template<typename T>
+void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
+{
+  if(2 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return;
+    }
+
+  // Do a naive linear-search for the time-being ... 
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
+    {
+    if(i != this->Coordinates[0][row])
+      continue;
+
+    if(j != this->Coordinates[1][row])
+      continue;
+
+    this->Values[row] = value;
+    return;
+    }
+
+  // Element doesn't already exist, so add it to the end of the list ...
+  this->AddValue(i, j, value);
+}
+
+template<typename T>
+void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
+{
+  if(3 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return;
+    }
+
+  // Do a naive linear-search for the time-being ... 
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
+    {
+    if(i != this->Coordinates[0][row])
+      continue;
+
+    if(j != this->Coordinates[1][row])
+      continue;
+
+    if(k != this->Coordinates[2][row])
+      continue;
+
+    this->Values[row] = value;
+    return;
+    }
+
+  // Element doesn't already exist, so add it to the end of the list ...
+  this->AddValue(i, j, k, value);
 }
 
 template<typename T>

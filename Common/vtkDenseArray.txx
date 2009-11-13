@@ -131,6 +131,45 @@ vtkArray* vtkDenseArray<T>::DeepCopy()
 }
 
 template<typename T>
+const T& vtkDenseArray<T>::GetValue(vtkIdType i)
+{
+  if(1 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    static T temp;
+    return temp;
+    }
+
+  return this->Begin[this->MapCoordinates(i)];
+}
+
+template<typename T>
+const T& vtkDenseArray<T>::GetValue(vtkIdType i, vtkIdType j)
+{
+  if(2 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    static T temp;
+    return temp;
+    }
+
+  return this->Begin[this->MapCoordinates(i, j)];
+}
+
+template<typename T>
+const T& vtkDenseArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
+{
+  if(3 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    static T temp;
+    return temp;
+    }
+
+  return this->Begin[this->MapCoordinates(i, j, k)];
+}
+
+template<typename T>
 const T& vtkDenseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
@@ -147,6 +186,42 @@ template<typename T>
 const T& vtkDenseArray<T>::GetValueN(const vtkIdType n)
 {
   return this->Begin[n];
+}
+
+template<typename T>
+void vtkDenseArray<T>::SetValue(vtkIdType i, const T& value)
+{
+  if(1 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return;
+    }
+ 
+  this->Begin[this->MapCoordinates(i)] = value;
+}
+
+template<typename T>
+void vtkDenseArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
+{
+  if(2 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return;
+    }
+ 
+  this->Begin[this->MapCoordinates(i, j)] = value;
+}
+
+template<typename T>
+void vtkDenseArray<T>::SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
+{
+  if(3 != this->GetDimensions())
+    {
+    vtkErrorMacro(<< "Index-array dimension mismatch.");
+    return;
+    }
+ 
+  this->Begin[this->MapCoordinates(i, j, k)] = value;
 }
 
 template<typename T>
@@ -241,11 +316,30 @@ vtkStdString vtkDenseArray<T>::InternalGetDimensionLabel(vtkIdType i)
 }
 
 template<typename T>
+vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i)
+{
+  return (i * this->Strides[0]);
+}
+
+template<typename T>
+vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i, vtkIdType j)
+{
+  return (i * this->Strides[0]) + (j * this->Strides[1]);
+}
+
+template<typename T>
+vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i, vtkIdType j, vtkIdType k)
+{
+  return (i * this->Strides[0]) + (j * this->Strides[1]) + (k * this->Strides[2]);
+}
+
+template<typename T>
 vtkIdType vtkDenseArray<T>::MapCoordinates(const vtkArrayCoordinates& coordinates)
 {
   vtkIdType index = 0;
   for(vtkIdType i = 0; i != static_cast<vtkIdType>(this->Strides.size()); ++i)
     index += (coordinates[i] * this->Strides[i]);
+
   return index;
 }
 
