@@ -111,14 +111,16 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkfreetype.*warning: conversion to .* from .* may alter its value"
   "vtkfreetype.*warning: conversion of unsigned constant value to negative integer"
   "vtkfreetype.*warning: suggest braces around empty body in 'do' statement"
-
+  "vtkfreetype.*warning: negative integer implicitly converted to unsigned type"
+  "vtkfreetype.*warning: dereferencing pointer .* does break strict-aliasing rules"
+  "vtkfreetype.*note: initialized from here"
   # vtknetcdf occasionally has warnings for things that are not a problem.
   "vtknetcdf.*warning: dereferencing type-punned pointer"
   "vtknetcdf.*warning: passing argument .* of .* as .*signed due to prototype"
   "vtknetcdf.*warning: conversion to .* from .* may change the sign of the result"
   "vtknetcdf.*warning: conversion to .* from .* may alter its value"
-
-
+  "vtknetcdf.*warning: dereferencing pointer .* does break strict-aliasing rules"
+  "vtknetcdf.*note: initialized from here"
   # Some VTK dashboards include building bits of Qt which produce lots of
   # the following warnings when built with the MS compilers. Qt guys should
   # fix their code. Until they do, keep the Qt chatter off the VTK dashboard
@@ -167,6 +169,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkexpat.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities.vtkexpat.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkexpat.*warning: passing argument .* of .* with different width due to prototype"
+  "Utilities.vtkexpat.*warning: negative integer implicitly converted to unsigned type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*passing argument .* of .* discards qualifiers from pointer target type"
@@ -184,6 +187,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: statement not reached"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: integer overflow detected: op .*"
   "Utilities.vtksqlite.vtk_sqlite3.c.*note: expected .* but argument is of type .*"
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: negative integer implicitly converted to unsigned type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
@@ -219,6 +223,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkpng.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities.vtkpng.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkpng.pngwutil.c.*warning: passing argument 2 of .vtk_png_write_chunk_start. discards qualifiers from pointer target type"
+  "Utilities.vtkpng.*warning: negative integer implicitly converted to unsigned type"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may alter its value"
   "Utilities/DICOMParser.*warning: conversion to .* from .* may alter its value"
@@ -240,6 +245,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # gcc -Wsign-conversion
   "Utilities/mrmpi/.*warning: conversion to .* from .* may change the sign of the result"
+  # gcc -Wunused-result
+  "Utilities/mrmpi/.*warning: ignoring return value of .size_t fread.void.. size_t. size_t. FILE.... declared with attribute warn_unused_result"
   )
 
 IF(APPLE)
