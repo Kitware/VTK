@@ -123,7 +123,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.7");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.8");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1299,6 +1299,10 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define FUNC_DECL static inline
 #endif
 
+#ifndef TEMPLATE_FUNC_DECL
+#define TEMPLATE_FUNC_DECL inline
+#endif
+
 #ifndef KERNEL_DECL
 #define KERNEL_DECL /* exported function */
 #endif
@@ -1316,6 +1320,11 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #ifndef FUNC_DECL
 #define FUNC_DECL __device__
 #endif
+
+#ifndef TEMPLATE_FUNC_DECL
+#define TEMPLATE_FUNC_DECL __device__
+#endif
+
 
 #ifndef KERNEL_DECL
 #define KERNEL_DECL __global__
@@ -1419,8 +1428,8 @@ FUNC_DECL float4 make_float4(float x,float y,float z,float w)
    float4 v = {x,y,z,w};
    return v;
 }
-template<typename T> static inline T min(T a, T b){ return (a<b)?a:b; }
-template<typename T> static inline T max(T a, T b){ return (a>b)?a:b; }
+template<typename T> TEMPLATE_FUNC_DECL T min(T a, T b){ return (a<b)?a:b; }
+template<typename T> TEMPLATE_FUNC_DECL T max(T a, T b){ return (a>b)?a:b; }
 #else
 #include <vector_types.h>
 #include <vector_functions.h>
@@ -2302,7 +2311,7 @@ REAL newtonSearchPolynomialFunc( REAL4 F,  REAL3 dF, const REAL value, const REA
  *** Sorting methods ***
  ***********************/
 template<typename IntType>
-FUNC_DECL
+TEMPLATE_FUNC_DECL
 void sortVertices( const int n, const REAL* dist, IntType* indices )
 {
 // insertion sort : slow but symetrical across all instances
@@ -2342,7 +2351,7 @@ uchar3 sortTriangle( uchar3 t , unsigned char* i )
 }
 
 template<typename IntType>
-FUNC_DECL
+TEMPLATE_FUNC_DECL
 void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntType* indices )
 {
 // insertion sort : slow but symetrical across all instances
@@ -2363,7 +2372,7 @@ void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntTy
 }
 
 template<typename IntType>
-FUNC_DECL
+TEMPLATE_FUNC_DECL
 void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntType* indices )
 {
 // insertion sort : slow but symetrical across all instances
@@ -2384,7 +2393,7 @@ void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntTy
 }
 
 template<typename IntType>
-FUNC_DECL
+TEMPLATE_FUNC_DECL
 uchar4 sortTetra( uchar4 t , IntType* i )
 {
 #define SWAP(a,b) { IntType tmp=a; a=b; b=tmp; }
