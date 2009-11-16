@@ -47,7 +47,7 @@ using vtksys_ios::ostringstream;
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkPipelineGraphSource, "1.1");
+vtkCxxRevisionMacro(vtkPipelineGraphSource, "1.2");
 vtkStandardNewMacro(vtkPipelineGraphSource);
 
 // ----------------------------------------------------------------------
@@ -219,15 +219,15 @@ int vtkPipelineGraphSource::RequestData(
 }
 
 
-void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output)
+void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output, const vtkStdString& graph_name)
 {
   vtkSmartPointer<vtkCollection> sinks = vtkSmartPointer<vtkCollection>::New();
   sinks->AddItem(sink);
 
-  PipelineToDot(sinks, output);
+  PipelineToDot(sinks, output, graph_name);
 }
 
-void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output)
+void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output, const vtkStdString& graph_name)
 {
   // Create a graph representation of the pipeline ...
   vtkSmartPointer<vtkPipelineGraphSource> pipeline = vtkSmartPointer<vtkPipelineGraphSource>::New();
@@ -241,7 +241,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
   vtkAbstractArray* const vertex_object_array = pipeline_graph->GetVertexData()->GetAbstractArray("object");
   vtkAbstractArray* const edge_object_array = pipeline_graph->GetEdgeData()->GetAbstractArray("object");
 
-  output << "digraph G\n";
+  output << "digraph \"" << graph_name << "\"\n";
   output << "{\n";
 
   // Do some standard formatting ...

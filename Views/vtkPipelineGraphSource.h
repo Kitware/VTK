@@ -22,6 +22,7 @@
 #include "vtkDirectedGraphAlgorithm.h"
 
 class vtkCollection;
+class vtkStdString;
 
 class VTK_VIEWS_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgorithm
 {
@@ -38,11 +39,11 @@ public:
   // Description:
   // Generates a GraphViz DOT file that describes the VTK pipeline
   // terminating at the given sink.
-  static void PipelineToDot(vtkAlgorithm* sink, ostream& output);
+  static void PipelineToDot(vtkAlgorithm* sink, ostream& output, const vtkStdString& graph_name = "");
   // Description:
   // Generates a GraphViz DOT file that describes the VTK pipeline
   // terminating at the given sinks.
-  static void PipelineToDot(vtkCollection* sinks, ostream& output);
+  static void PipelineToDot(vtkCollection* sinks, ostream& output, const vtkStdString& graph_name = "");
 
 protected:
   vtkPipelineGraphSource();
