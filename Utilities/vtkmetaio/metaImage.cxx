@@ -2522,7 +2522,8 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
     else
       {
 
-      M_ReadElementData( _fstream, _data, _dataQuantity );
+      if ( !M_ReadElementData( _fstream, _data, _dataQuantity ) )
+        return false;
      
       }
     }
@@ -3141,7 +3142,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
         elementsToRead *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;        
         ++movingDirection;        
         }
-      while(subSamplingFactor > 1
+      while(subSamplingFactor == 1
             && movingDirection < m_NDims 
             && _indexMin[movingDirection-1] == 0
             && _indexMax[movingDirection-1] == m_DimSize[movingDirection-1]-1);
@@ -3259,7 +3260,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
       elementsToRead *= _indexMax[movingDirection] - _indexMin[movingDirection] + 1;        
       ++movingDirection;        
       }
-    while(subSamplingFactor > 1
+    while(subSamplingFactor == 1
           && movingDirection < m_NDims 
           && _indexMin[movingDirection-1] == 0
           && _indexMax[movingDirection-1] == m_DimSize[movingDirection-1]-1);
@@ -3441,7 +3442,8 @@ M_ReadElementData(METAIO_STREAM::ifstream * _fstream,
         bytesRemaining -= chunkToRead;
         gc += _fstream->gcount();
         }
-
+      // convert to number of bytes so that it'll match gc's units
+      _dataQuantity *= elementNumberOfBytes;
       }
     }
   
