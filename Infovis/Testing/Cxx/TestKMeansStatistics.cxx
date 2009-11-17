@@ -124,21 +124,27 @@ int TestKMeansStatistics( int, char *[] )
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
       {
-      cout << "Computed clusters:" << "\n";
+      cout << "## Computed clusters:" 
+           << "\n";
       }
     else
       {
-      cout << "Ranked cluster: " << "\n";
+      cout << "## Ranked cluster: " 
+           << "\n";
       }
 
     outputMeta->Dump();
+    cout << "\n";
     }
 
 
   haruspex->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
-  cout << "testing default table:" << endl;
+  cout << "## Testing default table:"
+           << "\n";
+  
   paramData->Dump();
-    
+  cout << "\n";
+  
   // -- Test Learn Mode -- 
   haruspex->SetLearnOption( true );
   haruspex->SetDeriveOption( true );
@@ -152,14 +158,17 @@ int TestKMeansStatistics( int, char *[] )
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
       {
-      cout << "Computed clusters:" << "\n";
+      cout << "## Computed clusters:" 
+           << "\n";
       }
     else
       {
-      cout << "Ranked cluster: " << "\n";
+      cout << "## Ranked cluster: " 
+           << "\n";
       }
 
     outputMeta->Dump();
+    cout << "\n";
     }
 
   // -- Test Assess Mode -- 
