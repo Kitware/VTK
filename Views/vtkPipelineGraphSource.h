@@ -20,9 +20,9 @@
 #define __vtkPipelineGraphSource_h
 
 #include "vtkDirectedGraphAlgorithm.h"
+#include <vtkStdString.h>
 
 class vtkCollection;
-class vtkStdString;
 
 class VTK_VIEWS_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgorithm
 {
