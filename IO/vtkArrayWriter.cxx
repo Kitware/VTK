@@ -27,18 +27,20 @@
 #include <limits>
 #include <vtkstd/stdexcept>
 
+namespace {
+
 // For the purposes of this file only, we serializae Unicode strings using UTF-8 ...
-static ostream& operator<<(ostream& stream, const vtkUnicodeString& value)
+ostream& operator<<(ostream& stream, const vtkUnicodeString& value)
 {
   stream << value.utf8_str();
   return stream;
 }
 
-static void WriteHeader(const vtkStdString& array_type, 
-                        const vtkStdString& type_name, 
-                        vtkArray* array, 
-                        ostream& stream,
-                        bool WriteBinary)
+void WriteHeader(const vtkStdString& array_type, 
+                 const vtkStdString& type_name, 
+                 vtkArray* array, 
+                 ostream& stream,
+                 bool WriteBinary)
 {
   // Serialize the array type ...
   stream << array_type << " " << type_name << "\n";
@@ -62,7 +64,7 @@ static void WriteHeader(const vtkStdString& array_type,
     stream << array->GetDimensionLabel(i) << "\n";
 }
 
-static void WriteEndianOrderMark(ostream& stream)
+void WriteEndianOrderMark(ostream& stream)
 {
   // Serialize an endian-order mark ...
   const vtkTypeUInt32 endian_order = 0x12345678;
@@ -72,7 +74,7 @@ static void WriteEndianOrderMark(ostream& stream)
 }
 
 template<typename ValueT>
-static bool WriteSparseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+bool WriteSparseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkSparseArray<ValueT>* const concrete_array = vtkSparseArray<ValueT>::SafeDownCast(array);
   if(!concrete_array)
@@ -180,7 +182,7 @@ bool WriteSparseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtk
 }
 
 template<typename ValueT>
-static bool WriteDenseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+bool WriteDenseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkDenseArray<ValueT>* const concrete_array = vtkDenseArray<ValueT>::SafeDownCast(array);
   if(!concrete_array)
@@ -249,7 +251,7 @@ bool WriteDenseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtkA
 }
 
 template<typename ValueT>
-static bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkSparseArray<ValueT>* const concrete_array = vtkSparseArray<ValueT>::SafeDownCast(array);
   if(!concrete_array)
@@ -282,7 +284,7 @@ static bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array
 }
 
 template<typename ValueT>
-static bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkDenseArray<ValueT>* const concrete_array = vtkDenseArray<ValueT>::SafeDownCast(array);
   if(!concrete_array)
@@ -309,7 +311,9 @@ static bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array,
   return true;
 }
 
-vtkCxxRevisionMacro(vtkArrayWriter, "1.1");
+} // End anonymous namespace
+
+vtkCxxRevisionMacro(vtkArrayWriter, "1.2");
 vtkStandardNewMacro(vtkArrayWriter);
 
 vtkArrayWriter::vtkArrayWriter()

@@ -32,16 +32,18 @@
 #include <vtkstd/stdexcept>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkArrayReader, "1.1");
+vtkCxxRevisionMacro(vtkArrayReader, "1.2");
 vtkStandardNewMacro(vtkArrayReader);
 
+namespace {
+
 template<typename ValueT>
-static void ExtractValue(istream& stream, ValueT& value)
+void ExtractValue(istream& stream, ValueT& value)
 {
   stream >> value;
 }
 
-static void ExtractValue(istream& stream, vtkStdString& value)
+void ExtractValue(istream& stream, vtkStdString& value)
 {
   vtkstd::getline(stream, value);
   vtkStdString::size_type begin, end;
@@ -51,7 +53,7 @@ static void ExtractValue(istream& stream, vtkStdString& value)
   value = value.substr(begin, end);
 }
 
-static void ExtractValue(istream& stream, vtkUnicodeString& value)
+void ExtractValue(istream& stream, vtkUnicodeString& value)
 {
   vtkstd::string buffer;
   vtkstd::getline(stream, buffer);
@@ -63,7 +65,7 @@ static void ExtractValue(istream& stream, vtkUnicodeString& value)
   value = vtkUnicodeString::from_utf8(buffer);
 }
 
-static void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non_null_size, vtkArray* array)
+void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non_null_size, vtkArray* array)
 {
   if(!array)
     throw vtkstd::runtime_error("Missing array.");
@@ -103,7 +105,7 @@ static void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non
     }
 }
 
-static void ReadEndianOrderMark(istream& stream, bool& swap_endian)
+void ReadEndianOrderMark(istream& stream, bool& swap_endian)
 {
   // Load the endian-order mark ...
   vtkTypeUInt32 endian_order = 0;
@@ -115,7 +117,7 @@ static void ReadEndianOrderMark(istream& stream, bool& swap_endian)
 }
 
 template<typename ValueT>
-static vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
+vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
 {
   // Create the array ...
   vtkSmartPointer<vtkSparseArray<ValueT> > array = vtkSmartPointer<vtkSparseArray<ValueT> >::New();
@@ -270,7 +272,7 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
 }
 
 template<typename ValueT>
-static vtkDenseArray<ValueT>* ReadDenseArrayBinary(istream& stream)
+vtkDenseArray<ValueT>* ReadDenseArrayBinary(istream& stream)
 {
   // Create the array ...
   vtkSmartPointer<vtkDenseArray<ValueT> > array = vtkSmartPointer<vtkDenseArray<ValueT> >::New();
@@ -358,7 +360,7 @@ vtkDenseArray<vtkUnicodeString>* ReadDenseArrayBinary<vtkUnicodeString>(istream&
 }
 
 template<typename ValueT>
-static vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
+vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 {
   // Create the array ...
   vtkSmartPointer<vtkSparseArray<ValueT> > array = vtkSmartPointer<vtkSparseArray<ValueT> >::New();
@@ -424,7 +426,7 @@ static vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 }
 
 template<typename ValueT>
-static vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
+vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
 {
   // Create the array ...
   vtkSmartPointer<vtkDenseArray<ValueT> > array = vtkSmartPointer<vtkDenseArray<ValueT> >::New();
@@ -457,6 +459,8 @@ static vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
   array->Register(0); 
   return array;
 }
+
+} // End anonymous namespace
 
 vtkArrayReader::vtkArrayReader() :
   FileName(0)
