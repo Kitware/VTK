@@ -25,7 +25,7 @@
  !!! license.
 =========================================================================*/
 
-#include "qapplication.h"
+#include <QApplication>
 
 #include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
