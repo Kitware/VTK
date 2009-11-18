@@ -16,7 +16,8 @@
 // exactly 2^n children.
 // .SECTION Description
 // An hyperoctree is a dataset where each node has either exactly 2^n children
-// or no child at all if the node is a leaf.
+// or no child at all if the node is a leaf. `n' is the dimension of the
+// dataset (1 (binary tree), 2 (quadtree) or 3 (octree) ).
 // The class name comes from the following paper:
 //
 // \verbatim
@@ -60,27 +61,29 @@
 // - 1: -y +x sides
 // - 2: +y -x sides
 // - 3: +y +x sides
-//
+// \verbatim
 //              +y
 // +-+-+        ^
 // |2|3|        |
 // +-+-+  O +z  +-> +x
 // |0|1|
 // +-+-+
-
+// \endverbatim
+//
 // - then the +z side, in counter-clockwise
 // - 4: -y -x sides
 // - 5: -y +x sides
 // - 6: +y -x sides
 // - 7: +y +x sides
-//
+// \verbatim
 //              +y
 // +-+-+        ^
 // |6|7|        |
 // +-+-+  O +z  +-> +x
 // |4|5|
 // +-+-+
-// 
+// \endverbatim
+//
 // The cases with fewer dimensions are consistent with the octree case:
 //
 // * Quadtree:
@@ -89,19 +92,20 @@
 // - 1: -y +x edges
 // - 2: +y -x edges
 // - 3: +y +x edges
-//
+// \verbatim
 //         +y
 // +-+-+   ^
 // |2|3|   |
 // +-+-+  O+-> +x
 // |0|1|
 // +-+-+
-//
+// \endverbatim
 //
 // * Binary tree:
-//
+// \verbatim
 // +0+1+  O+-> +x
-
+// \endverbatim
+//
 // .SECTION Caveats
 // It is not a spatial search object! If you looking for this kind of
 // octree see vtkCellLocator instead.
@@ -158,13 +162,14 @@ public:
   // \pre node_exists: IsANode(path)
 //  vtkOctree *GetNode(vtkPath *path);
   
-  // Status
+  // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
   // 3D:octree (8 children))
   // \post valid_result: result>=1 && result<=3
   int GetDimension();
   
-   // Set the dimension of the tree with `dim'. See GetDimension() for details.
+  // Description:
+  // Set the dimension of the tree with `dim'. See GetDimension() for details.
   // \pre valid_dim: dim>=1 && dim<=3
   // \post dimension_is_set: GetDimension()==dim
   void SetDimension(int dim);
@@ -270,7 +275,7 @@ public:
   // THIS METHOD IS NOT THREAD SAFE.
   virtual double *GetPoint(vtkIdType ptId);
 
-// Description:
+  // Description:
   // Copy point coordinates into user provided array x[3] for specified
   // point id.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
