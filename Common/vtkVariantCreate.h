@@ -30,7 +30,7 @@
 // Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
 // callers with a "hook" for defining conversions from user-defined types to vtkVariant.
 template<typename T>
-vtkVariant vtkVariantCreate(const T& value)
+vtkVariant vtkVariantCreate(const T&)
 {
   vtkGenericWarningMacro(
     << "Cannot convert unsupported type [" << typeid(T).name() << "] to vtkVariant.  "
