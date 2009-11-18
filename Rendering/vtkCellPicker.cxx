@@ -19,8 +19,9 @@
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.38");
+vtkCxxRevisionMacro(vtkCellPicker, "1.39");
 vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()
@@ -44,12 +45,13 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
                                        vtkProp3D *prop3D, 
                                        vtkAbstractMapper3D *m)
 {
-  vtkIdType numCells, cellId, minCellId;
+  vtkIdType cellId, numCells, minCellId;
   int i, minSubId, subId;
   double x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
   vtkDataSet *input;
   vtkMapper *mapper;
   vtkAbstractVolumeMapper *volumeMapper;
+  vtkImageActor *imageActor = NULL;
 
   // Get the underlying dataset
   if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
@@ -60,12 +62,36 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     input = volumeMapper->GetDataSetInput();
     }
+  else if ( (imageActor=vtkImageActor::SafeDownCast(prop3D)) != NULL )
+    {
+    input = imageActor->GetInput();
+    }
   else
     {
     return VTK_DOUBLE_MAX;
     }
 
-  if ( (numCells = input->GetNumberOfCells()) < 1 )
+  cellId = 0;
+  numCells = input->GetNumberOfCells();
+
+  if ( imageActor != NULL )
+    {
+    // Restrict the search to the displayed slice
+    int extent[6], displayExtent[6], kMin, kMax;
+    vtkImageData *imageData = static_cast<vtkImageData *>(input);
+    imageData->GetExtent(extent);
+    imageActor->GetDisplayExtent(displayExtent);
+    kMin = ((displayExtent[4] > extent[4]) ? displayExtent[4] : extent[4]); 
+    kMax = ((displayExtent[5] < extent[5]) ? displayExtent[5] : extent[5]); 
+    cellId = kMin - extent[4];
+    cellId *= extent[3] - extent[2];
+    cellId *= extent[1] - extent[0];
+    numCells = kMax - extent[4] + 1;
+    numCells *= extent[3] - extent[2];
+    numCells *= extent[1] - extent[0];
+    }
+
+  if ( numCells <= cellId )
     {
     return 2.0;
     }
@@ -82,7 +108,7 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   minSubId = -1;
   pcoords[0] = pcoords[1] = pcoords[2] = 0;
   double pDistMin=VTK_DOUBLE_MAX, pDist;
-  for (tMin=VTK_DOUBLE_MAX,cellId=0; cellId<numCells; cellId++) 
+  for (tMin=VTK_DOUBLE_MAX; cellId<numCells; cellId++) 
     {
     input->GetCell(cellId, this->Cell);
 

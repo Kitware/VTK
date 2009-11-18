@@ -18,9 +18,10 @@
 #include "vtkMath.h"
 #include "vtkMapper.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkImageActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointPicker, "1.34");
+vtkCxxRevisionMacro(vtkPointPicker, "1.35");
 vtkStandardNewMacro(vtkPointPicker);
 
 vtkPointPicker::vtkPointPicker()
@@ -39,6 +40,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   vtkDataSet *input;
   vtkMapper *mapper;
   vtkAbstractVolumeMapper *volumeMapper;
+  vtkImageActor *imageActor = NULL;
 
   // Get the underlying dataset
   //
@@ -50,12 +52,36 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     input = volumeMapper->GetDataSetInput();
     }
+  else if ( (imageActor=vtkImageActor::SafeDownCast(p)) != NULL )
+    {
+    input = imageActor->GetInput();
+    }
   else
     {
     return 2.0;
     }
 
-  if ( (numPts = input->GetNumberOfPoints()) < 1 )
+  ptId = 0;
+  numPts = input->GetNumberOfPoints();
+
+  if ( imageActor != NULL )
+    {
+    // Restrict the search to the points in the displayed slice
+    int extent[6], displayExtent[6], kMin, kMax;
+    vtkImageData *imageData = static_cast<vtkImageData *>(input);
+    imageData->GetExtent(extent);
+    imageActor->GetDisplayExtent(displayExtent);
+    kMin = ((displayExtent[4] > extent[4]) ? displayExtent[4] : extent[4]); 
+    kMax = ((displayExtent[5] < extent[5]) ? displayExtent[5] : extent[5]); 
+    ptId = kMin - extent[4];
+    ptId *= extent[3] - extent[2] + 1;
+    ptId *= extent[1] - extent[0] + 1;
+    numPts = kMax - extent[4] + 1;
+    numPts *= extent[3] - extent[2] + 1;
+    numPts *= extent[1] - extent[0] + 1;
+    }
+
+  if ( numPts <= ptId )
     {
     return 2.0;
     }
@@ -76,7 +102,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   //  tolerance and closest to the eye (and within the clipping range).
   //
   double dist, maxDist, minPtDist=VTK_DOUBLE_MAX;
-  for (minPtId=(-1),tMin=VTK_DOUBLE_MAX,ptId=0; ptId<numPts; ptId++) 
+  for (minPtId=(-1),tMin=VTK_DOUBLE_MAX; ptId<numPts; ptId++) 
     {
     input->GetPoint(ptId,x);
 
