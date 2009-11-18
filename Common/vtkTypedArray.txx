@@ -20,6 +20,7 @@
 =========================================================================*/
 
 #include "vtkVariantCast.h"
+#include "vtkVariantCreate.h"
 
 template<typename T>
 void vtkTypedArray<T>::PrintSelf(ostream &os, vtkIndent indent)
@@ -30,13 +31,13 @@ void vtkTypedArray<T>::PrintSelf(ostream &os, vtkIndent indent)
 template<typename T>
 vtkVariant vtkTypedArray<T>::GetVariantValue(const vtkArrayCoordinates& coordinates)
 {
-  return this->GetValue(coordinates);
+  return vtkVariantCreate<T>(this->GetValue(coordinates));
 }
 
 template<typename T>
 vtkVariant vtkTypedArray<T>::GetVariantValueN(const vtkIdType n)
 {
-  return this->GetValueN(n);
+  return vtkVariantCreate<T>(this->GetValueN(n));
 }
 
 template<typename T>

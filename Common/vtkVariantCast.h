@@ -37,7 +37,11 @@
 template<typename T>
 T vtkVariantCast(const vtkVariant& value, bool* valid = 0)
 {
-  vtkGenericWarningMacro(<< "cannot cast vtkVariant containing " << value.GetTypeAsString() << " to unsupported type.");
+  vtkGenericWarningMacro(
+    << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "
+    << "to unsupported type [" << typeid(T).name() << "].  "
+    << "Create a vtkVariantCast<> specialization to eliminate this warning."
+    );
 
   if(valid)
     *valid = false;
