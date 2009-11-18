@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolygonalHandleRepresentation3D.h
+  Module:    vtkOrientedPolygonalHandleRepresentation3D.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,55 +12,51 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolygonalHandleRepresentation3D - represent a user defined handle geometry in 3D space
+// .NAME vtkOrientedPolygonalHandleRepresentation3D - represent a user defined handle geometry in 3D while maintaining a fixed orientation w.r.t the camera.
 // .SECTION Description
 // This class serves as the geometrical representation of a vtkHandleWidget. 
 // The handle can be represented by an arbitrary polygonal data (vtkPolyData),
 // set via SetHandle(vtkPolyData *). The actual position of the handle 
 // will be initially assumed to be (0,0,0). You can specify an offset from
-// this position if desired.
+// this position if desired. This class differs from 
+// vtkPolygonalHandleRepresentation3D in that the handle will always remain
+// front facing, ie it maintains a fixed orientation with respect to the 
+// camera. This is done by using vtkFollowers internally to render the actors.
 // .SECTION See Also
-// vtkPointHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
+// vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
 
 
-#ifndef __vtkPolygonalHandleRepresentation3D_h
-#define __vtkPolygonalHandleRepresentation3D_h
+#ifndef __vtkOrientedPolygonalHandleRepresentation3D_h
+#define __vtkOrientedPolygonalHandleRepresentation3D_h
 
 #include "vtkAbstractPolygonalHandleRepresentation3D.h"
 
-class VTK_WIDGETS_EXPORT vtkPolygonalHandleRepresentation3D 
+class VTK_WIDGETS_EXPORT vtkOrientedPolygonalHandleRepresentation3D 
                 : public vtkAbstractPolygonalHandleRepresentation3D
 {
 public:
   // Description:
   // Instantiate this class.
-  static vtkPolygonalHandleRepresentation3D *New();
+  static vtkOrientedPolygonalHandleRepresentation3D *New();
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkPolygonalHandleRepresentation3D,
+  vtkTypeRevisionMacro(vtkOrientedPolygonalHandleRepresentation3D,
                        vtkAbstractPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the position of the point in world and display coordinates.
-  virtual void SetWorldPosition(double p[3]);
-
-  // Description:
-  // Set/get the offset of the handle position with respect to the handle 
-  // center, assumed to be the origin.
-  vtkSetVector3Macro( Offset, double );
-  vtkGetVector3Macro( Offset, double );
-
 protected:
-  vtkPolygonalHandleRepresentation3D();
-  ~vtkPolygonalHandleRepresentation3D() {};
+  vtkOrientedPolygonalHandleRepresentation3D();
+  ~vtkOrientedPolygonalHandleRepresentation3D();
 
-  double Offset[3];
-
+  // Description:
+  // Override the superclass method.
+  virtual void UpdateHandle();
+      
 private:
-  vtkPolygonalHandleRepresentation3D(const vtkPolygonalHandleRepresentation3D&);  //Not implemented
-  void operator=(const vtkPolygonalHandleRepresentation3D&);  //Not implemented
+  vtkOrientedPolygonalHandleRepresentation3D(const vtkOrientedPolygonalHandleRepresentation3D&);  //Not implemented
+  void operator=(const vtkOrientedPolygonalHandleRepresentation3D&);  //Not implemented
 };
 
 #endif
+

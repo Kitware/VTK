@@ -80,7 +80,9 @@ vtkPointPlacer.cxx
 vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
 vtkPolyDataPointPlacer.cxx
+vtkAbstractPolygonalHandleRepresentation3D.cxx
 vtkPolygonalHandleRepresentation3D.cxx
+vtkOrientedPolygonalHandleRepresentation3D.cxx
 vtkPolygonalSurfacePointPlacer.cxx
 vtkPolyDataContourLineInterpolator.cxx
 vtkPolygonalSurfaceContourLineInterpolator.cxx
@@ -118,10 +120,11 @@ vtkXYPlotWidget.cxx
 SET_SOURCE_FILES_PROPERTIES(
 vtk3DWidget
 vtkAbstractWidget
+vtkAbstractPolygonalHandleRepresentation3D
 vtkAffineRepresentation
 vtkAngleRepresentation
-vtkContinuousValueWidget.cxx
-vtkContinuousValueWidgetRepresentation.cxx
+vtkContinuousValueWidget
+vtkContinuousValueWidgetRepresentation
 vtkContourLineInterpolator
 vtkContourRepresentation
 vtkFocalPlaneContourRepresentation
