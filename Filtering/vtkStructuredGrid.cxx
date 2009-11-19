@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkEmptyCell.h"
-#include "vtkExtentTranslator.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkInformation.h"
@@ -30,7 +29,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.9");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.10");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,

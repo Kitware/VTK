@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -32,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.37");
+vtkCxxRevisionMacro(vtkImageData, "1.38");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------

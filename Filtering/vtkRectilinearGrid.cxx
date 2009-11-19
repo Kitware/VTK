@@ -15,7 +15,6 @@
 #include "vtkRectilinearGrid.h"
 
 #include "vtkCellData.h"
-#include "vtkExtentTranslator.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -31,7 +30,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.11");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.12");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
