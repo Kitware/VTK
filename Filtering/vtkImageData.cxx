@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.36");
+vtkCxxRevisionMacro(vtkImageData, "1.37");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -993,6 +993,18 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
   dims[2] = extent[5] - extent[4] + 1;
 
   vtkIdType ijsize=dims[0]*dims[1];
+
+  // Adjust i,j,k to the start of the extent
+  i -= extent[0];
+  j -= extent[2];
+  k -= extent[4];
+
+  // Check for out-of-bounds
+  if (i < 0 || i >= dims[0] || j < 0 || j >= dims[1] || k < 0 || k >= dims[2])
+    {
+    g[0] = g[1] = g[2] = 0.0;
+    return;
+    }
 
   // x-direction
   if ( dims[0] == 1 )
