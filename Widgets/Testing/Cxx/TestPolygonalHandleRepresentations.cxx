@@ -205,8 +205,6 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
 
   vtkPolyDataNormals *normals = vtkPolyDataNormals::New();
 
-  double distanceOffset = 0.0;
-
   normals->SetInput(warp->GetPolyDataOutput());
   normals->SetFeatureAngle(60);
   normals->SplittingOff();
