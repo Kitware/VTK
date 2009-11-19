@@ -12,21 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkX3DExporterWriter - X3D Exporter Writer
+// .SECTION Description
+// vtkX3DExporterWriter is the definition for
+// classes that implement a encoding for the
+// X3D exporter
+
 #ifndef __vtkX3DExporterWriter_h
 #define __vtkX3DExporterWriter_h
 
 #include <vtkObject.h>
-#include <vtkstd/vector> // Needed as function parameter 
 
 // Forward declarations
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkCellArray;
 
-// Description:
-// vtkX3DExporterWriter is the definition for
-// classes that implement a encoding for the
-// X3D exporter
 class VTK_HYBRID_EXPORT vtkX3DExporterWriter : public vtkObject
 {
 public:
@@ -112,7 +113,6 @@ public:
   // of the active node to the given value.
   // The type of the field is specified with type
   // Supported types: MFCOLOR
-  //virtual void SetField(int attributeID, int type, const vtkstd::vector<double> &values) = 0;
   virtual void SetField(int attributeID, const double* values, size_t size) = 0;
 
     // Description:
@@ -122,7 +122,6 @@ public:
   // It is possible to specify that the field is an
   // image for optimized formating or compression
   // Supported types: MFINT32, SFIMAGE
-  //virtual void SetField(int attributeID, const vtkstd::vector<int> &values, bool image = false) = 0;
   virtual void SetField(int attributeID, const int* values, size_t size, bool image = false) = 0;
 
   // Description:

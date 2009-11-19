@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtX3DExporter - create an x3d file
+// .NAME vtkX3DExporter - create an x3d file
 // .SECTION Description
 // vtkX3DExporter is a render window exporter which writes out the renderered
 // scene into an X3D file. X3D is an XML-based format for representation 
@@ -20,6 +20,7 @@
 // details.
 // .SECTION Thanks
 // X3DExporter is contributed by Christophe Mouton at EDF.
+
 #ifndef __vtkX3DExporter_h
 #define __vtkX3DExporter_h
 

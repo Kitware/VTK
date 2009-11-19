@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtX3DExporter - create an x3d file
+// .NAME vtkX3DExporterJavaHelper - create an x3d file
 // .SECTION Description
 
 #ifndef __vtkX3DExporterJavaHelper_h
@@ -22,7 +22,7 @@
 
 class vtkX3DExporterJavaHelperInternal;
 
-class  VTK_HYBRID_EXPORT vtkX3DExporterJavaHelper : public vtkObject
+class VTK_HYBRID_EXPORT vtkX3DExporterJavaHelper : public vtkObject
 {
 public:
   static vtkX3DExporterJavaHelper *New();
