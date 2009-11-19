@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalBoxDataWriter  - writer for
+// .NAME vtkXMLHierarchicalBoxDataWriter - writer for
 // vtkHierarchicalBoxDataSet.
 // .SECTION Description
 // vtkXMLHierarchicalBoxDataWriter is a vtkXMLCompositeDataWriter subclass to
