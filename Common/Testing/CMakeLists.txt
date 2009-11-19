@@ -100,7 +100,6 @@ IF(PYTHON_EXECUTABLE)
     vtkVariant.h
     vtkVariantBoostSerialization.h
     vtkVariantCast.h
-    vtkVariantCreate.h
     vtkVariantExtract.h
     vtkVariantInlineOperators.h
     vtkVector.h
