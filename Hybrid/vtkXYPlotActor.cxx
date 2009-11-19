@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.69");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.70");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -2101,25 +2101,31 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
         }
       else
         {
+        newPts[0] = -1;
         if (x1[0] >= p1[0] && x1[0] <= p2[0] && x1[1] >= p1[1] && x1[1] <= p2[1] )
           {//first point in
           newPts[0] = pointMap[pts[i]];
           }
-        else
+        else if (x2[0] >= p1[0] && x2[0] <= p2[0] && x2[1] >= p1[1] && x2[1] <= p2[1] )
           {//second point in
           newPts[0] = pointMap[pts[i+1]];
           }
-        for (j=0; j<4; j++)
+
+        //only create cell if either x1 or x2 is inside the range
+        if (newPts[0] >= 0)
           {
-          this->ClipPlanes->GetPoints()->GetPoint(j, px);
-          this->ClipPlanes->GetNormals()->GetTuple(j, n);
-          if ( vtkPlane::IntersectWithLine(x1,x2,n,px,t,xint) && t >= 0 && t <= 1.0 )
+          for (j=0; j<4; j++)
             {
-            newPts[1] = newPoints->InsertNextPoint(xint);
-            break;
+            this->ClipPlanes->GetPoints()->GetPoint(j, px);
+            this->ClipPlanes->GetNormals()->GetTuple(j, n);
+            if ( vtkPlane::IntersectWithLine(x1,x2,n,px,t,xint) && t >= 0 && t <= 1.0 )
+              {
+              newPts[1] = newPoints->InsertNextPoint(xint);
+              break;
+              }
             }
+            newLines->InsertNextCell(2,newPts);
           }
-        newLines->InsertNextCell(2,newPts);
         }
       }
     }
