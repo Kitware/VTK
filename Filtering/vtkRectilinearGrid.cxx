@@ -30,7 +30,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.12");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.13");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -606,10 +606,9 @@ vtkIdType vtkRectilinearGrid::FindPoint(double x[3])
 //
 //  From this location get the point id
 //
-  return loc[2]*this->Dimensions[0]*this->Dimensions[1] +
-         loc[1]*this->Dimensions[0] + loc[0];
-  
+  return this->ComputePointId(loc);
 }
+
 vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell *vtkNotUsed(cell), 
                                        vtkGenericCell *vtkNotUsed(gencell),
                                        vtkIdType vtkNotUsed(cellId), 
@@ -641,8 +640,7 @@ vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
   //  From this location get the cell id
   //
   subId = 0;
-  return loc[2] * (this->Dimensions[0]-1)*(this->Dimensions[1]-1) +
-         loc[1] * (this->Dimensions[0]-1) + loc[0];
+  return this->ComputeCellId(loc);
 }
 
 //----------------------------------------------------------------------------
@@ -668,8 +666,7 @@ vtkCell *vtkRectilinearGrid::FindAndGetCell(double x[3],
   //
   // Get the cell
   //
-  cellId = loc[2] * (this->Dimensions[0]-1)*(this->Dimensions[1]-1) +
-           loc[1] * (this->Dimensions[0]-1) + loc[0];
+  cellId = this->ComputeCellId(loc);
 
   return vtkRectilinearGrid::GetCell(cellId);
 }
