@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.38");
+vtkCxxRevisionMacro(vtkImageData, "1.39");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -750,13 +750,6 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                  int& subId, double pcoords[3], double *weights)
 {
   int loc[3];
-  const int *extent = this->GetExtent();
-
-  // Use vtkIdType to avoid overflow on large images
-  vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -769,8 +762,7 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
   //  From this location get the cell id
   //
   subId = 0;
-  return loc[2] * (dims[0]-1)*(dims[1]-1) +
-         loc[1] * (dims[0]-1) + loc[0];
+  return this->ComputeCellId(loc);
 }
 
 //----------------------------------------------------------------------------
@@ -780,7 +772,7 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
                                       double vtkNotUsed(tol2), int& subId,
                                       double pcoords[3], double *weights)
 {
-  int i, j, k, loc[3];
+  int i, j, k, ijk[3], loc[3];
   vtkIdType npts, idx;
   double xOut[3];
   int iMax = 0;
@@ -871,20 +863,21 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
   npts = 0;
   for (k = loc[2]; k <= kMax; k++)
     {
+    ijk[2] = k;
     xOut[2] = origin[2] + k * spacing[2];
     for (j = loc[1]; j <= jMax; j++)
       {
+      ijk[1] = j;
       xOut[1] = origin[1] + j * spacing[1];
-      // make idx relative to the extent not the whole extent
-      idx = loc[0] + j*dims[0] + k*d01;
-//      idx = loc[0]-extent[0] + (j-extent[2])*dims[0]
-//        + (k-extent[4])*d01;
-      for (i = loc[0]; i <= iMax; i++, idx++)
+      for (i = loc[0]; i <= iMax; i++)
         {
+        ijk[0] = i;
         xOut[0] = origin[0] + i * spacing[0];
 
+        idx = this->ComputePointId(ijk);
         cell->PointIds->SetId(npts,idx);
         cell->Points->SetPoint(npts++,xOut);
+        idx++;
         }
       }
     }
