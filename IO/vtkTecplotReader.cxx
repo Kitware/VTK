@@ -49,7 +49,7 @@
 
 #include <ctype.h> // for isspace(), isalnum()
 
-vtkCxxRevisionMacro( vtkTecplotReader, "1.14" );
+vtkCxxRevisionMacro( vtkTecplotReader, "1.15" );
 vtkStandardNewMacro( vtkTecplotReader );
 
 // ============================================================================
@@ -1522,6 +1522,8 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
                   tok != "F"  &&
                   tok != "D"  &&
                   tok != "DT" &&
+                  tok != "STRANDID"     &&
+                  tok != "SOLUTIONTIME" &&
                   tok != "DATAPACKING"  &&
                   tok != "VARLOCATION"
                 )
@@ -1600,6 +1602,18 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
           {                    
           vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'D' is currently unsupported." );
+          }
+        else 
+        if ( tok == "STRANDID" )
+          {                    
+          vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
+                         << "'STRANDID' is currently unsupported." );
+          }
+        else 
+        if ( tok == "SOLUTIONTIME" )
+          {                    
+          vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
+                         << "'SOLUTIONTIME' is currently unsupported." );
           }
         tok = this->Internal->GetNextToken();
         }
