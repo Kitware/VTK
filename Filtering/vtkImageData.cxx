@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.39");
+vtkCxxRevisionMacro(vtkImageData, "1.40");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1086,7 +1086,6 @@ void vtkImageData::SetDimensions(const int dim[3])
 }
 
 
-// streaming change: ijk is in extent coordinate system.
 //----------------------------------------------------------------------------
 // Convenience function computes the structured coordinates for a point x[3].
 // The voxel is specified by the array ijk[3], and the parametric coordinates
@@ -1137,10 +1136,6 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
         pcoords[i] = 1.0;
         }
       }
-    // We now need to subtract the lower extent to shift to
-    // the correct location in the image (mapping {extent[0],
-    // extent[2], extent[4]) to (0, 0, 0)
-    ijk[i] -= extent[i*2];
     }
   return 1;
 }
