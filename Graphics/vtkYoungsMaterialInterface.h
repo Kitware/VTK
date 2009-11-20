@@ -25,7 +25,7 @@
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by <br>
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
+// Implementation by Thierry Carrard (thierry.carrard@cea.fr)
 
 #ifndef __vtkYoungsMaterialInterface_h
 #define __vtkYoungsMaterialInterface_h
