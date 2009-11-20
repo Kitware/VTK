@@ -19,32 +19,33 @@ PURPOSE.  See the above copyright notice for more information.
 // Implementation by Thierry Carrard (CEA)
 
 #include "vtkYoungsMaterialInterface.h"
+#include "vtkObjectFactory.h"
 
-#include <vtkCell.h>
-#include <vtkEmptyCell.h>
-#include <vtkPolygon.h>
-#include <vtkConvexPointSet.h>
-#include <vtkDataSet.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkDataArray.h>
-#include <vtkUnsignedCharArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkObjectFactory.h>
-#include <vtkPoints.h>
-#include <vtkCellArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkDoubleArray.h>
-#include <vtkMath.h>
-#include <vtkIdList.h>
+#include "vtkCell.h"
+#include "vtkEmptyCell.h"
+#include "vtkPolygon.h"
+#include "vtkConvexPointSet.h"
+#include "vtkDataSet.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
+#include "vtkDataArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkPoints.h"
+#include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkDoubleArray.h"
+#include "vtkMath.h"
+#include "vtkIdList.h"
 
 #include <vtkstd/vector>
 #include <vtkstd/string> 
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
+
 #include <math.h>
 #include <assert.h>
 
@@ -57,7 +58,8 @@ class vtkYoungsMaterialInterfaceCellCut
    MAX_CELL_TETRAS = 128
       };
 
-      static void cellInterface3D( 
+
+     static void cellInterface3D( 
    
   // Inputs
    int ncoords,
@@ -112,6 +114,9 @@ class vtkYoungsMaterialInterfaceCellCut
 
 } ;
 
+
+
+
 class vtkYoungsMaterialInterfaceInternals
 {
   public: 
@@ -123,7 +128,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.10");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.11");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1277,69 +1282,35 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation *vtkNotUsed(request),
 
 
 
+/* ------------------------------------------------------------------------------------------
+   --- Low level computations including interface placement and intersection line/polygon ---
+   ------------------------------------------------------------------------------------------ */
 
-
-
-// =====================================================================
-// === here after the low-level functions that compute placement     ===
-// === of the interface given a normal vector and a set of simplices ===
-// =====================================================================
-
-
-
-
+// here after the low-level functions that compute placement of the interface given a normal vector and a set of simplices
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
 #define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
 
-#ifndef __CUDACC__ /* compiling with host compiler (gcc, icc, etc.) */
+/*=========================================================================
 
-#ifndef FUNC_DECL
-#define FUNC_DECL static inline
-#endif
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
 
-#ifndef TEMPLATE_FUNC_DECL
-#define TEMPLATE_FUNC_DECL inline
-#endif
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-#ifndef KERNEL_DECL
-#define KERNEL_DECL /* exported function */
-#endif
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
-#ifndef CONSTANT_DECL
-#define CONSTANT_DECL static const
-#endif
-
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 64 /* defaults to 64 bits floating point */
-#endif
-
-#else /* compiling with cuda */
-
-#ifndef FUNC_DECL
-#define FUNC_DECL __device__
-#endif
-
-#ifndef TEMPLATE_FUNC_DECL
-#define TEMPLATE_FUNC_DECL __device__
-#endif
-
-
-#ifndef KERNEL_DECL
-#define KERNEL_DECL __global__
-#endif
-
-#ifndef CONSTANT_DECL
-#define CONSTANT_DECL __constant__
-#endif
-
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 32 /* defaults to 32 bits floating point */
-#endif
-
-#endif /* __CUDACC__ */
-
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
 
 // par defaut, on est en double
 #ifndef REAL_PRECISION
@@ -1347,7 +1318,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif
 
 // float = precision la plus basse
-#if ( REAL_PRECISION <= 32 )
+#if ( REAL_PRECISION == 32 )
 
 #define REAL  float
 #define REAL2 float2
@@ -1403,6 +1374,131 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 #endif
 
+
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
+
+#ifndef __CUDACC__ /* compiling with host compiler (gcc, icc, etc.) */
+
+#ifndef FUNC_DECL
+#define FUNC_DECL static inline
+#endif
+
+#ifndef TEMPLATE_FUNC_DECL
+#define TEMPLATE_FUNC_DECL inline
+#endif
+
+#ifndef KERNEL_DECL
+#define KERNEL_DECL /* exported function */
+#endif
+
+#ifndef CONSTANT_DECL
+#define CONSTANT_DECL static const
+#endif
+
+#ifndef REAL_PRECISION
+#define REAL_PRECISION 64 /* defaults to 64 bits floating point */
+#endif
+
+#else /* compiling with cuda */
+
+#ifndef FUNC_DECL
+#define FUNC_DECL __device__
+#endif
+
+#ifndef KERNEL_DECL
+#define KERNEL_DECL __global__
+#endif
+
+#ifndef CONSTANT_DECL
+#define CONSTANT_DECL __constant__
+#endif
+
+#ifndef REAL_PRECISION
+#define REAL_PRECISION 32 /* defaults to 32 bits floating point */
+#endif
+
+#endif /* __CUDACC__ */
+
+
+
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
+
+/*
+ Some of the vector functions where found in the file vector_operators.h from the NVIDIA's CUDA Toolkit.
+ Please read the above notice.
+*/
+
+/*
+ * Copyright 1993-2007 NVIDIA Corporation.  All rights reserved.
+ *
+ * NOTICE TO USER:   
+ *
+ * This source code is subject to NVIDIA ownership rights under U.S. and 
+ * international Copyright laws.  Users and possessors of this source code 
+ * are hereby granted a nonexclusive, royalty-free license to use this code 
+ * in individual and commercial software.
+ *
+ * NVIDIA MAKES NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOURCE 
+ * CODE FOR ANY PURPOSE.  IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR 
+ * IMPLIED WARRANTY OF ANY KIND.  NVIDIA DISCLAIMS ALL WARRANTIES WITH 
+ * REGARD TO THIS SOURCE CODE, INCLUDING ALL IMPLIED WARRANTIES OF 
+ * MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE.
+ * IN NO EVENT SHALL NVIDIA BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL, 
+ * OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS 
+ * OF USE, DATA OR PROFITS,  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE 
+ * OR OTHER TORTIOUS ACTION,  ARISING OUT OF OR IN CONNECTION WITH THE USE 
+ * OR PERFORMANCE OF THIS SOURCE CODE.  
+ *
+ * U.S. Government End Users.   This source code is a "commercial item" as 
+ * that term is defined at  48 C.F.R. 2.101 (OCT 1995), consisting  of 
+ * "commercial computer  software"  and "commercial computer software 
+ * documentation" as such terms are  used in 48 C.F.R. 12.212 (SEPT 1995) 
+ * and is provided to the U.S. Government only as a commercial end item.  
+ * Consistent with 48 C.F.R.12.212 and 48 C.F.R. 227.7202-1 through 
+ * 227.7202-4 (JUNE 1995), all U.S. Government End Users acquire the 
+ * source code with only those rights set forth herein. 
+ *
+ * Any use of this source code in individual and commercial software must 
+ * include, in the user documentation and internal comments to the code,
+ * the above Disclaimer and U.S. Government End Users Notice.
+ */
+
 // define base vector types and operators or use those provided by CUDA
 #ifndef __CUDACC__
 struct float2 { float x,y; };
@@ -1428,8 +1524,8 @@ FUNC_DECL float4 make_float4(float x,float y,float z,float w)
    float4 v = {x,y,z,w};
    return v;
 }
-template<typename T> TEMPLATE_FUNC_DECL T min(T a, T b){ return (a<b)?a:b; }
-template<typename T> TEMPLATE_FUNC_DECL T max(T a, T b){ return (a>b)?a:b; }
+template<typename T> static inline T min(T a, T b){ return (a<b)?a:b; }
+template<typename T> static inline T max(T a, T b){ return (a>b)?a:b; }
 #else
 #include <vector_types.h>
 #include <vector_functions.h>
@@ -1439,6 +1535,11 @@ template<typename T> TEMPLATE_FUNC_DECL T max(T a, T b){ return (a>b)?a:b; }
 #define FUNC_DECL static inline
 #endif
 
+
+
+/* -------------------------------------------------------- */
+/* -----------  FLOAT ------------------------------------- */
+/* -------------------------------------------------------- */
 #if REAL_PRECISION <= 32
 
 FUNC_DECL  float3 operator *(float3 a, float3 b)
@@ -1594,15 +1695,17 @@ FUNC_DECL float3 cross( float3 A, float3 B)
           A.z * B.x - A.x * B.z ,
           A.x * B.y - A.y * B.x );
 }
+
 #endif /* REAL_PRECISION <= 32 */
 
-
 #ifndef __CUDACC__
+
+
 
 /* -------------------------------------------------------- */
 /* ----------- DOUBLE ------------------------------------- */
 /* -------------------------------------------------------- */
-#if REAL_PRECISION >= 64
+#if REAL_PRECISION == 64
 
 struct double3 { double x,y,z; };
 struct double4 { double x,y,z,w; };
@@ -1774,7 +1877,7 @@ FUNC_DECL double3 cross( double3 A, double3 B)
       A.z * B.x - A.x * B.z ,
       A.x * B.y - A.y * B.x );
 }
-#endif /* REAL_PRECISION >= 64 */
+#endif /* REAL_PRECISION == 64 */
 
 
 
@@ -1955,9 +2058,30 @@ FUNC_DECL ldouble3 cross( ldouble3 A, ldouble3 B)
 #endif /* __CUDACC__ */
 
 
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
 /**************************************
 *** Precision dependant constants   ***
 ***************************************/
@@ -2411,10 +2535,25 @@ uchar4 sortTetra( uchar4 t , IntType* i )
 }
 
 
+/*=========================================================================
 
-#ifndef REAL_COORD
-#define REAL_COORD REAL3
-#endif
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
 
 FUNC_DECL
 REAL makeTriangleSurfaceFunctions(
@@ -2583,6 +2722,27 @@ REAL findTriangleSetCuttingPlane(
 }
 
 
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
+
+
 /*
  compute the derivatives of the piecewise cubic function of the volume behind the cutting cone ( axis symetric 2D plane)
 */
@@ -2747,6 +2907,26 @@ REAL findTriangleSetCuttingCone(
    return x ;
 }
 
+
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkYoungsMaterialInterface.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .SECTION Thanks
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+// BP12, F-91297 Arpajon, France. <br>
+// Implementation by Thierry Carrard (CEA)
 
 /*
  Computes the area of the intersection between the plane, orthognal to the 'normal' vector,
@@ -2948,6 +3128,8 @@ REAL findTetraSetCuttingPlane(
    return x ;
 }
 
+
+
 typedef REAL Real;
 typedef REAL2 Real2;
 typedef REAL3 Real3;
@@ -2973,6 +3155,7 @@ struct CWVertex
 };
 
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
+
 
 // usefull to avoid numerical errors
 #define Clamp(x,min,max) if(x<min) x=min; else if(x>max) x=max
@@ -3322,6 +3505,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(
 
    return - d;
 }
+
 
 
 

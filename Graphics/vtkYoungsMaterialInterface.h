@@ -22,7 +22,7 @@
 // handling volumes of revolution.
 //
 // .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by <br>
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (CEA)
