@@ -36,7 +36,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkTDxWinDevice,"1.10");
+vtkCxxRevisionMacro(vtkTDxWinDevice,"1.11");
 vtkStandardNewMacro(vtkTDxWinDevice);
 
 #include <atlbase.h> // for CComPtr<> (a smart pointer)
@@ -264,7 +264,9 @@ void vtkTDxWinDevice::Initialize()
         }
       else
         {
-          vtkWarningMacro( << "CoCreateInstance failed. hresult=0x" << hex << hr << dec << HresultCodeToString(hr));
+        // CoCreateInstance Failed.
+        // It means there is no driver installed.
+        // Just return silently: don't display warning message.
         }
       this->Initialized=status;
     }
