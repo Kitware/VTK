@@ -135,12 +135,12 @@ public:
   // Description:
   // Given a location in structured coordinates (i-j-k), return the point id.
   virtual vtkIdType ComputePointId(int ijk[3]) {
-    return vtkStructuredData::ComputePointId(this->GetDimensions(),ijk);};
+    return vtkStructuredData::ComputePointIdForExtent(this->Extent,ijk);};
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the cell id.
   virtual vtkIdType ComputeCellId(int ijk[3]) {
-    return vtkStructuredData::ComputeCellId(this->GetDimensions(),ijk);};
+    return vtkStructuredData::ComputeCellIdForExtent(this->Extent,ijk);};
 
   // Description:
   // Set / Get the extent on just one axis

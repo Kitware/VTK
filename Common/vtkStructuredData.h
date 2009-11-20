@@ -78,14 +78,34 @@ public:
                                vtkIdList *cellIds, int dim[3]);
 
   // Description:
-  // Given a location in structured coordinates (i-j-k), and the dimensions
+  // Given a location in structured coordinates (i-j-k), and the extent
   // of the structured dataset, return the point id.
+  static vtkIdType ComputePointIdForExtent(int extent[6], int ijk[3]) {
+    vtkIdType ydim = static_cast<vtkIdType>(extent[3] - extent[2] + 1);
+    vtkIdType xdim = static_cast<vtkIdType>(extent[1] - extent[0] + 1);
+    return ((ijk[2] - extent[4])*ydim + (ijk[1] - extent[2]))*xdim 
+            + (ijk[0] - extent[0]); }
+
+  // Description:
+  // Given a location in structured coordinates (i-j-k), and the extent
+  // of the structured dataset, return the point id.
+  static vtkIdType ComputeCellIdForExtent(int extent[6], int ijk[3]) {
+    vtkIdType ydim = static_cast<vtkIdType>(extent[3] - extent[2] + 1);
+    vtkIdType xdim = static_cast<vtkIdType>(extent[1] - extent[0] + 1);
+    return ((ijk[2] - extent[4])*(ydim - 1) + (ijk[1] - extent[2]))*(xdim - 1) 
+            + (ijk[0] - extent[0]); }
+
+ // Description:
+  // Given a location in structured coordinates (i-j-k), and the dimensions
+  // of the structured dataset, return the point id.  This method does not
+  // adjust for the beginning of the extent.
   static vtkIdType ComputePointId(int dim[3], int ijk[3]) {
     return (ijk[2]*static_cast<vtkIdType>(dim[1]) + ijk[1])*dim[0] + ijk[0];}
 
   // Description:
   // Given a location in structured coordinates (i-j-k), and the dimensions
-  // of the structured dataset, return the cell id.
+  // of the structured dataset, return the cell id.  This method does not
+  // adjust for the beginning of the extent.
   static vtkIdType ComputeCellId(int dim[3], int ijk[3]) {
     return (ijk[2]*static_cast<vtkIdType>(dim[1]-1) + ijk[1])*(dim[0]-1) + ijk[0];}
 

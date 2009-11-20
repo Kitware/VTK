@@ -245,13 +245,13 @@ inline int vtkRectilinearGrid::GetDataDimension()
 //----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::ComputePointId(int ijk[3])
 {
-  return vtkStructuredData::ComputePointId(this->Dimensions,ijk);
+  return vtkStructuredData::ComputePointIdForExtent(this->Extent,ijk);
 }
 
 //----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
 {
-  return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
+  return vtkStructuredData::ComputeCellIdForExtent(this->Extent,ijk);
 }
 
 //----------------------------------------------------------------------------
