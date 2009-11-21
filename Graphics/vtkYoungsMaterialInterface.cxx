@@ -128,7 +128,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.11");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.12");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1292,26 +1292,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
-
 // par defaut, on est en double
 #ifndef REAL_PRECISION
 #define REAL_PRECISION 64
@@ -1375,34 +1355,10 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif
 
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
-
 #ifndef __CUDACC__ /* compiling with host compiler (gcc, icc, etc.) */
 
 #ifndef FUNC_DECL
 #define FUNC_DECL static inline
-#endif
-
-#ifndef TEMPLATE_FUNC_DECL
-#define TEMPLATE_FUNC_DECL inline
 #endif
 
 #ifndef KERNEL_DECL
@@ -1438,26 +1394,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif /* __CUDACC__ */
 
 
-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
 
 /*
  Some of the vector functions where found in the file vector_operators.h from the NVIDIA's CUDA Toolkit.
@@ -2058,26 +1994,6 @@ FUNC_DECL ldouble3 cross( ldouble3 A, ldouble3 B)
 #endif /* __CUDACC__ */
 
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -2437,24 +2353,6 @@ REAL newtonSearchPolynomialFunc( REAL4 F,  REAL3 dF, const REAL value, const REA
 /***********************
  *** Sorting methods ***
  ***********************/
-template<typename IntType>
-TEMPLATE_FUNC_DECL
-void sortVertices( const int n, const REAL* dist, IntType* indices )
-{
-// insertion sort : slow but symetrical across all instances
-#define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
-   for(int i=0;i<n;i++)
-   {
-      int imin = i;
-      for(int j=i+1;j<n;j++)
-      {
-   imin = ( dist[indices[j]] < dist[indices[imin]] ) ? j : imin;
-      }
-      SWAP( i, imin );
-   }
-#undef SWAP
-}
-
 FUNC_DECL
 uint3 sortTriangle( uint3 t , unsigned int* i )
 {
@@ -2477,8 +2375,31 @@ uchar3 sortTriangle( uchar3 t , unsigned char* i )
    return t;
 }
 
-template<typename IntType>
-TEMPLATE_FUNC_DECL
+
+
+typedef unsigned char IntType;
+/***********************
+ *** Sorting methods ***
+ ***********************/
+FUNC_DECL
+void sortVertices( const int n, const REAL* dist, IntType* indices )
+{
+// insertion sort : slow but symetrical across all instances
+#define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
+   for(int i=0;i<n;i++)
+   {
+      int imin = i;
+      for(int j=i+1;j<n;j++)
+      {
+   imin = ( dist[indices[j]] < dist[indices[imin]] ) ? j : imin;
+      }
+      SWAP( i, imin );
+   }
+#undef SWAP
+}
+
+
+FUNC_DECL
 void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntType* indices )
 {
 // insertion sort : slow but symetrical across all instances
@@ -2498,8 +2419,7 @@ void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntTy
 #undef SWAP
 }
 
-template<typename IntType>
-TEMPLATE_FUNC_DECL
+FUNC_DECL
 void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntType* indices )
 {
 // insertion sort : slow but symetrical across all instances
@@ -2519,8 +2439,7 @@ void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntTy
 #undef SWAP
 }
 
-template<typename IntType>
-TEMPLATE_FUNC_DECL
+FUNC_DECL
 uchar4 sortTetra( uchar4 t , IntType* i )
 {
 #define SWAP(a,b) { IntType tmp=a; a=b; b=tmp; }
@@ -2535,25 +2454,6 @@ uchar4 sortTetra( uchar4 t , IntType* i )
 }
 
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
 
 FUNC_DECL
 REAL makeTriangleSurfaceFunctions(
@@ -2722,27 +2622,6 @@ REAL findTriangleSetCuttingPlane(
 }
 
 
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
-
-
 /*
  compute the derivatives of the piecewise cubic function of the volume behind the cutting cone ( axis symetric 2D plane)
 */
@@ -2907,26 +2786,6 @@ REAL findTriangleSetCuttingCone(
    return x ;
 }
 
-
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkYoungsMaterialInterface.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
 
 /*
  Computes the area of the intersection between the plane, orthognal to the 'normal' vector,
@@ -3127,6 +2986,8 @@ REAL findTetraSetCuttingPlane(
    DBG_MESG( "final x = "<< x );
    return x ;
 }
+
+
 
 
 
