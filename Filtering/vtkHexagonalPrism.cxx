@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// Thanks to Philippe Guerville who developed this class.
+// .SECTION Thanks
+// Thanks to Philippe Guerville who developed this class. <br>
 // Thanks to Charles Pignerol (CEA-DAM, France) who ported this class under
-// VTK 4.
+// VTK 4.<br>
 // Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
-// class in VTK.
+// class in VTK.<br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
 
 #include "vtkHexagonalPrism.h"
@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.6");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.7");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -554,15 +554,22 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
     this->Points->GetPoint(faces[faceNum][4], pt5);
     this->Points->GetPoint(faces[faceNum][5], pt6);
 
-    this->Polygon->Points->SetPoint(0,pt1);
-    this->Polygon->Points->SetPoint(1,pt2);
-    this->Polygon->Points->SetPoint(2,pt3);
-    this->Polygon->Points->SetPoint(3,pt4);
-    this->Polygon->Points->SetPoint(4,pt5);
-    this->Polygon->Points->SetPoint(5,pt6);
+    this->Quad->Points->SetPoint(0,pt1); 
+    this->Quad->Points->SetPoint(1,pt2); 
+    this->Quad->Points->SetPoint(2,pt3); 
+    this->Quad->Points->SetPoint(3,pt4); 
+    intersection = this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp,pc, subId);
 
-    if ( this->Polygon->IntersectWithLine(p1, p2, tol, tTemp, xTemp,
-                                          pc, subId) )
+    if ( !intersection )
+      {
+      this->Quad->Points->SetPoint(0,pt4); 
+      this->Quad->Points->SetPoint(1,pt5); 
+      this->Quad->Points->SetPoint(2,pt6); 
+      this->Quad->Points->SetPoint(3,pt1);
+      intersection = this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp,pc, subId);
+      }
+
+    if ( intersection )
       {
       intersection = 1;
       if ( tTemp < t )

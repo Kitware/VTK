@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// Thanks to Philippe Guerville who developed this class.
+//.SECTION Thanks
+// Thanks to Philippe Guerville who developed this class. <br>
 // Thanks to Charles Pignerol (CEA-DAM, France) who ported this class under
 // VTK 4.
 // Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
-// class in VTK.
+// class in VTK. <br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
 
 #include "vtkPentagonalPrism.h"
@@ -26,10 +26,11 @@
 #include "vtkLine.h"
 #include "vtkQuad.h"
 #include "vtkPolygon.h"
+#include "vtkTriangle.h"
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.11");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.12");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -50,6 +51,7 @@ vtkPentagonalPrism::vtkPentagonalPrism()
 
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
+  this->Triangle = vtkTriangle::New();
   this->Polygon = vtkPolygon::New();
   this->Polygon->PointIds->SetNumberOfIds(5);
   this->Polygon->Points->SetNumberOfPoints(5);
@@ -66,6 +68,7 @@ vtkPentagonalPrism::~vtkPentagonalPrism()
 {
   this->Line->Delete();
   this->Quad->Delete();
+  this->Triangle->Delete();
   this->Polygon->Delete();
 }
 
@@ -584,14 +587,17 @@ int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol
     this->Points->GetPoint(faces[faceNum][3], pt4);
     this->Points->GetPoint(faces[faceNum][4], pt5);
 
-    this->Polygon->Points->SetPoint(0,pt1);
-    this->Polygon->Points->SetPoint(1,pt2);
-    this->Polygon->Points->SetPoint(2,pt3);
-    this->Polygon->Points->SetPoint(3,pt4);
-    this->Polygon->Points->SetPoint(4,pt5);
+    this->Quad->Points->SetPoint(0,pt1);
+    this->Quad->Points->SetPoint(1,pt2);
+    this->Quad->Points->SetPoint(2,pt3);
+    this->Quad->Points->SetPoint(3,pt4);
 
-    if ( this->Polygon->IntersectWithLine(p1, p2, tol, tTemp, xTemp,
-                                          pc, subId) )
+    this->Triangle->Points->SetPoint(0,pt4);
+    this->Triangle->Points->SetPoint(1,pt5);
+    this->Triangle->Points->SetPoint(2,pt1);
+
+    if ( this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) ||
+         this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
@@ -612,8 +618,8 @@ int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol
       }
     }
 
-  //now intersect the quad faces
-  for (faceNum=2; faceNum<7; faceNum++)
+  //now intersect the _5_ quad faces
+  for (faceNum=2; faceNum<5; faceNum++)
     {
     this->Points->GetPoint(faces[faceNum][0], pt1);
     this->Points->GetPoint(faces[faceNum][1], pt2);

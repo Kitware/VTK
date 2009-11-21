@@ -24,9 +24,9 @@
 // .SECTION Thanks
 // Thanks to Philippe Guerville who developed this class.
 // Thanks to Charles Pignerol (CEA-DAM, France) who ported this class under
-// VTK 4.
+// VTK 4. <br>
 // Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
-// class in VTK.
+// class in VTK. <br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
 
 #ifndef __vtkPentagonalPrism_h
@@ -37,6 +37,7 @@
 class vtkLine;
 class vtkPolygon;
 class vtkQuad;
+class vtkTriangle;
 
 class VTK_FILTERING_EXPORT vtkPentagonalPrism : public vtkCell3D
 {
@@ -113,6 +114,7 @@ protected:
   vtkLine          *Line;
   vtkQuad          *Quad;
   vtkPolygon       *Polygon;
+  vtkTriangle      *Triangle;
 
 private:
   vtkPentagonalPrism(const vtkPentagonalPrism&);  // Not implemented.
