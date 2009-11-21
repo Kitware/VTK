@@ -172,6 +172,7 @@ vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataPointSampler.cxx
+vtkPolyDataSilhouette.cxx
 vtkPolyDataStreamer.cxx
 vtkProbeFilter.cxx
 vtkProbeSelectedLocations.cxx
