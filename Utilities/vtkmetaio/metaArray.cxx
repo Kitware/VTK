@@ -1156,7 +1156,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
       }
 
     unsigned char* compr = new unsigned char[m_CompressedElementDataSize];
-    _fstream->read((char *)compr, m_CompressedElementDataSize);
+    _fstream->read((char *)compr, (size_t)m_CompressedElementDataSize);
     
     MET_PerformUncompression(compr, m_CompressedElementDataSize,
                              (unsigned char *)_data, readSize);
@@ -1198,7 +1198,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
 //
 bool MetaArray::
 M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data,
-               int _dataQuantity)
+               METAIO_STL::streamoff _dataQuantity)
   {
   bool localData = false;
   METAIO_STREAM::ofstream* tmpWriteStream;
@@ -1256,7 +1256,7 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data,
     }
    else
     {
-    tmpWriteStream->write( (const char *)_data, _dataQuantity );  
+    tmpWriteStream->write( (const char *)_data, (size_t)_dataQuantity );  
     } 
 
   if(!localData)

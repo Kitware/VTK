@@ -68,10 +68,10 @@ public:
     m_Id = 0;
     m_X = new float[m_Dim];
     //Color is red by default
-    m_Color[0]=1.0;
-    m_Color[1]=0.0;
-    m_Color[2]=0.0;
-    m_Color[3]=1.0;
+    m_Color[0]=1.0f;
+    m_Color[1]=0.0f;
+    m_Color[2]=0.0f;
+    m_Color[3]=1.0f;
     }
 
   ~ContourInterpolatedPnt()

@@ -1044,10 +1044,10 @@ Clear(void)
   memset(m_Color, 0, 4*sizeof(float));
 
   m_ID = -1;
-  m_Color[0]=1.0;
-  m_Color[1]=1.0;
-  m_Color[2]=1.0;
-  m_Color[3]=1.0; // white by default
+  m_Color[0]=1.0f;
+  m_Color[1]=1.0f;
+  m_Color[2]=1.0f;
+  m_Color[3]=1.0f; // white by default
   m_ParentID = -1;
   strcpy(m_AcquisitionDate, "");
   m_BinaryData = false;

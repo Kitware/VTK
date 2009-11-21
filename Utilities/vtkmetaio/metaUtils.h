@@ -68,8 +68,8 @@ extern int META_DEBUG;
 // Types used for storing the compression table
 typedef struct MET_CompressionOffset
   {
-  METAIO_STL::streamsize uncompressedOffset;
-  METAIO_STL::streamsize compressedOffset;
+  METAIO_STL::streamoff uncompressedOffset;
+  METAIO_STL::streamoff compressedOffset;
   } MET_CompressionOffsetType;
 
 typedef METAIO_STL::vector<MET_CompressionOffsetType>
@@ -80,7 +80,7 @@ typedef struct MET_CompressionTable
   MET_CompressionOffsetListType offsetList;
   z_stream* compressedStream;
   char*     buffer;
-  METAIO_STL::streamsize bufferSize;
+  METAIO_STL::streamoff bufferSize;
   } MET_CompressionTableType;
 
 /////////////////////////////////////////////////////////
@@ -287,19 +287,19 @@ MET_ValueEnumType MET_GetValueEnumType(const METAIO_STL::type_info & ptype)
 METAIO_EXPORT 
 bool MET_ValueToDouble(MET_ValueEnumType _pType,
                               const void *_data,
-                              METAIO_STL::streamsize _index,
+                              METAIO_STL::streamoff _index,
                               double *_value);
 
 METAIO_EXPORT 
 bool MET_DoubleToValue(double _value, 
                               MET_ValueEnumType _type, 
                               void *_data, 
-                              METAIO_STL::streamsize _index);
+                              METAIO_STL::streamoff _index);
 
 METAIO_EXPORT 
 bool MET_ValueToValue(MET_ValueEnumType _fromType,
                              const void *_fromData,
-                             METAIO_STL::streamsize _index,
+                             METAIO_STL::streamoff _index,
                              MET_ValueEnumType _toType,
                              void  *_toData,
                              double _fromMin=0, double _fromMax=0,
@@ -307,22 +307,22 @@ bool MET_ValueToValue(MET_ValueEnumType _fromType,
 
 METAIO_EXPORT 
 unsigned char * MET_PerformCompression(const unsigned char * source,
-                                       METAIO_STL::streamsize sourceSize,
-                                       unsigned int * compressedDataSize);
+                                       METAIO_STL::streamoff sourceSize,
+                                       METAIO_STL::streamoff * compressedDataSize);
 
 METAIO_EXPORT 
 bool MET_PerformUncompression(const unsigned char * sourceCompressed,
-                              METAIO_STL::streamsize sourceCompressedSize,
+                              METAIO_STL::streamoff sourceCompressedSize,
                               unsigned char * uncompressedData,
-                              METAIO_STL::streamsize uncompressedDataSize);
+                              METAIO_STL::streamoff uncompressedDataSize);
 
 // Uncompress a stream given an uncompressedSeekPosition
 METAIO_EXPORT 
-long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
-                          METAIO_STL::streamsize uncompressedSeekPosition,
+METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
+                          METAIO_STL::streamoff uncompressedSeekPosition,
                           unsigned char * uncompressedData,
-                          METAIO_STL::streamsize uncompressedDataSize,
-                          METAIO_STL::streamsize compressedDataSize,
+                          METAIO_STL::streamoff uncompressedDataSize,
+                          METAIO_STL::streamoff compressedDataSize,
                           MET_CompressionTableType * compressionTable);
 
 

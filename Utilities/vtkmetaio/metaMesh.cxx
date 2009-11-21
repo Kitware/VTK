@@ -701,7 +701,7 @@ M_Read(void)
     }
     }
 
-  long int pos = m_ReadStream->tellg();
+  METAIO_STL::streampos pos = m_ReadStream->tellg();
 
   // Now reading the cell links
   MetaObject::ClearFields();

@@ -40,10 +40,10 @@ LandmarkPnt(int dim)
     }
     
   //Color is red by default
-  m_Color[0]=1.0;
-  m_Color[1]=0.0;
-  m_Color[2]=0.0;
-  m_Color[3]=1.0;
+  m_Color[0]=1.0f;
+  m_Color[1]=0.0f;
+  m_Color[2]=0.0f;
+  m_Color[3]=1.0f;
 }
 
 LandmarkPnt::
@@ -333,12 +333,12 @@ M_Read(void)
   {
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
-    int readSize = m_NPoints*(m_NDims+4)*elementSize;
+    METAIO_STL::streamsize readSize = m_NPoints*(m_NDims+4)*elementSize;
     
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    METAIO_STL::streamsize gc = m_ReadStream->gcount();
     if(gc != readSize)
     {
       METAIO_STREAM::cout << "MetaLandmark: m_Read: data not read completely" 

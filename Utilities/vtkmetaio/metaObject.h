@@ -82,7 +82,7 @@ class METAIO_EXPORT MetaObject
 
       bool  m_BinaryDataByteOrderMSB;
 
-      unsigned int m_CompressedDataSize;
+      METAIO_STL::streamoff m_CompressedDataSize;
       // Used internally to set if the dataSize should be written
       bool m_WriteCompressedDataSize; 
       bool m_CompressedData;

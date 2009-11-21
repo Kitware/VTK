@@ -187,7 +187,7 @@ class METAIO_EXPORT MetaArray : public MetaForm
 
     bool               m_AutoFreeElementData;
 
-    unsigned int       m_CompressedElementDataSize;
+    METAIO_STL::streamoff m_CompressedElementDataSize;
 
     char               m_ElementDataFileName[255];
 
@@ -207,7 +207,7 @@ class METAIO_EXPORT MetaArray : public MetaForm
 
     bool  M_WriteElements(METAIO_STREAM::ofstream * _fstream,
                           const void * _data,
-                          int _dataQuantity);
+                          METAIO_STL::streamoff _dataQuantity);
 
     };
 
