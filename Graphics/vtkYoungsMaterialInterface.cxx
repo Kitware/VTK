@@ -128,7 +128,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.12");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.13");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1460,8 +1460,10 @@ FUNC_DECL float4 make_float4(float x,float y,float z,float w)
    float4 v = {x,y,z,w};
    return v;
 }
-template<typename T> static inline T min(T a, T b){ return (a<b)?a:b; }
-template<typename T> static inline T max(T a, T b){ return (a>b)?a:b; }
+
+FUNC_DECL float min(float a, float b){ return (a<b)?a:b; }
+FUNC_DECL float max(float a, float b){ return (a>b)?a:b; }
+
 #else
 #include <vector_types.h>
 #include <vector_functions.h>
@@ -1646,6 +1648,9 @@ FUNC_DECL float3 cross( float3 A, float3 B)
 struct double3 { double x,y,z; };
 struct double4 { double x,y,z,w; };
 
+FUNC_DECL double min(double a, double b){ return (a<b)?a:b; }
+FUNC_DECL double max(double a, double b){ return (a>b)?a:b; }
+
 FUNC_DECL double2 make_double2(double x,double y)
 {
    double2 v = {x,y};
@@ -1825,6 +1830,9 @@ FUNC_DECL double3 cross( double3 A, double3 B)
 struct ldouble2 { long double x,y; };
 struct ldouble3 { long double x,y,z; };
 struct ldouble4 { long double x,y,z,w; };
+
+FUNC_DECL long double min(long double a, long double b){ return (a<b)?a:b; }
+FUNC_DECL long double max(long double a, long double b){ return (a>b)?a:b; }
 
 FUNC_DECL ldouble2 make_ldouble2(long double x,long double y)
 {
