@@ -28,80 +28,109 @@
 #include "vtkRenderer.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkTestUtilities.h"
+#include "vtkSmartPointer.h"
 
 #if defined( _MSC_VER )      /* Visual C++ (and Intel C++) */
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 #endif
 
-static vtkDataSet *ReadFinancialData(const char *fname, const char *x, const char *y, const char *z, const char *s);
+static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char *fname, const char *x, const char *y, const char *z, const char *s);
 static int ParseFile(FILE *file, const char *tag, float *data);
 
 int main( int argc, char *argv[] )
 {
   double bounds[6];
  
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/financial.txt");
-  // read data
-  vtkDataSet *dataSet = ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
-                              "LOAN_AMOUNT","TIME_LATE");
-  delete[] fname;
-  if ( ! dataSet ) exit(0);
+  if (argc < 2)
+    {
+    cout << "Usage: " << argv[0] << " financial_file" << endl;
+    return 1;
+    }
+  char* fname = argv[1];
 
+  // read data
+  vtkSmartPointer<vtkDataSet> dataSet = ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
+                                          "LOAN_AMOUNT","TIME_LATE");
   // construct pipeline for original population
-  vtkGaussianSplatter *popSplatter = vtkGaussianSplatter::New();
-    popSplatter->SetInput(dataSet);
-    popSplatter->SetSampleDimensions(50,50,50);
-    popSplatter->SetRadius(0.05);
-    popSplatter->ScalarWarpingOff();
-  vtkContourFilter *popSurface = vtkContourFilter::New();
-    popSurface->SetInputConnection(popSplatter->GetOutputPort());
-    popSurface->SetValue(0,0.01);
-  vtkPolyDataMapper *popMapper = vtkPolyDataMapper::New();
-    popMapper->SetInputConnection(popSurface->GetOutputPort());
-    popMapper->ScalarVisibilityOff();
-  vtkActor *popActor = vtkActor::New();
-    popActor->SetMapper(popMapper);
-    popActor->GetProperty()->SetOpacity(0.3);
-    popActor->GetProperty()->SetColor(.9,.9,.9);
+  vtkSmartPointer<vtkGaussianSplatter> popSplatter =
+    vtkSmartPointer<vtkGaussianSplatter>::New();
+  popSplatter->SetInput(dataSet);
+  popSplatter->SetSampleDimensions(50,50,50);
+  popSplatter->SetRadius(0.05);
+  popSplatter->ScalarWarpingOff();
+
+  vtkSmartPointer<vtkContourFilter> popSurface =
+    vtkSmartPointer<vtkContourFilter>::New();
+  popSurface->SetInputConnection(popSplatter->GetOutputPort());
+  popSurface->SetValue(0,0.01);
+
+  vtkSmartPointer<vtkPolyDataMapper> popMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  popMapper->SetInputConnection(popSurface->GetOutputPort());
+  popMapper->ScalarVisibilityOff();
+
+  vtkSmartPointer<vtkActor> popActor = vtkSmartPointer<vtkActor>::New();
+  popActor->SetMapper(popMapper);
+  popActor->GetProperty()->SetOpacity(0.3);
+  popActor->GetProperty()->SetColor(.9,.9,.9);
 
   // construct pipeline for delinquent population
-  vtkGaussianSplatter *lateSplatter = vtkGaussianSplatter::New();
-    lateSplatter->SetInput(dataSet);
-    lateSplatter->SetSampleDimensions(50,50,50);
-    lateSplatter->SetRadius(0.05);
-    lateSplatter->SetScaleFactor(0.005);
-  vtkContourFilter *lateSurface = vtkContourFilter::New();
-    lateSurface->SetInputConnection(lateSplatter->GetOutputPort());
-    lateSurface->SetValue(0,0.01);
-  vtkPolyDataMapper *lateMapper = vtkPolyDataMapper::New();
-    lateMapper->SetInputConnection(lateSurface->GetOutputPort());
-    lateMapper->ScalarVisibilityOff();
-  vtkActor *lateActor = vtkActor::New();
-    lateActor->SetMapper(lateMapper);
-    lateActor->GetProperty()->SetColor(1.0,0.0,0.0);
+  vtkSmartPointer<vtkGaussianSplatter> lateSplatter =
+    vtkSmartPointer<vtkGaussianSplatter>::New();
+  lateSplatter->SetInput(dataSet);
+  lateSplatter->SetSampleDimensions(50,50,50);
+  lateSplatter->SetRadius(0.05);
+  lateSplatter->SetScaleFactor(0.005);
+
+  vtkSmartPointer<vtkContourFilter> lateSurface =
+    vtkSmartPointer<vtkContourFilter>::New();
+  lateSurface->SetInputConnection(lateSplatter->GetOutputPort());
+  lateSurface->SetValue(0,0.01);
+
+  vtkSmartPointer<vtkPolyDataMapper> lateMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  lateMapper->SetInputConnection(lateSurface->GetOutputPort());
+  lateMapper->ScalarVisibilityOff();
+
+  vtkSmartPointer<vtkActor> lateActor =
+    vtkSmartPointer<vtkActor>::New();
+  lateActor->SetMapper(lateMapper);
+  lateActor->GetProperty()->SetColor(1.0,0.0,0.0);
 
   // create axes
   popSplatter->Update();
   popSplatter->GetOutput()->GetBounds(bounds);
-  vtkAxes *axes = vtkAxes::New();
-    axes->SetOrigin(bounds[0], bounds[2], bounds[4]);
-    axes->SetScaleFactor(popSplatter->GetOutput()->GetLength()/5);
-  vtkTubeFilter *axesTubes = vtkTubeFilter::New();
-    axesTubes->SetInputConnection(axes->GetOutputPort());
-    axesTubes->SetRadius(axes->GetScaleFactor()/25.0);
-    axesTubes->SetNumberOfSides(6);
-  vtkPolyDataMapper *axesMapper = vtkPolyDataMapper::New();
-    axesMapper->SetInputConnection(axesTubes->GetOutputPort());
-  vtkActor *axesActor = vtkActor::New();
-    axesActor->SetMapper(axesMapper);
+
+  vtkSmartPointer<vtkAxes> axes =
+    vtkSmartPointer<vtkAxes>::New();
+  axes->SetOrigin(bounds[0], bounds[2], bounds[4]);
+  axes->SetScaleFactor(popSplatter->GetOutput()->GetLength()/5);
+
+  vtkSmartPointer<vtkTubeFilter> axesTubes =
+    vtkSmartPointer<vtkTubeFilter>::New();
+  axesTubes->SetInputConnection(axes->GetOutputPort());
+  axesTubes->SetRadius(axes->GetScaleFactor()/25.0);
+  axesTubes->SetNumberOfSides(6);
+
+  vtkSmartPointer<vtkPolyDataMapper> axesMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  axesMapper->SetInputConnection(axesTubes->GetOutputPort());
+
+  vtkSmartPointer<vtkActor> axesActor =
+    vtkSmartPointer<vtkActor>::New();
+  axesActor->SetMapper(axesMapper);
 
   // graphics stuff
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->AddRenderer(renderer);
+
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->SetRenderWindow(renWin);
 
   // read data  //set up renderer
   renderer->AddActor(lateActor);
@@ -116,28 +145,10 @@ int main( int argc, char *argv[] )
   renWin->Render();
   iren->Start();
 
-  // Clean up
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  popSplatter->Delete();
-  popSurface->Delete();
-  popMapper->Delete();
-  popActor->Delete();
-  lateSplatter->Delete();
-  lateSurface->Delete();
-  lateMapper->Delete();
-  lateActor->Delete();
-  axes->Delete();
-  axesTubes->Delete();
-  axesMapper->Delete();
-  axesActor->Delete();
-  dataSet->Delete();
-
   return 0;
 }
 
-static vtkDataSet *ReadFinancialData(const char* filename, const char *x, const char *y, const char *z, const char *s)
+static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const char *x, const char *y, const char *z, const char *s)
 {
   float xyz[3];
   FILE *file;
@@ -152,26 +163,28 @@ static vtkDataSet *ReadFinancialData(const char* filename, const char *x, const 
   
   fscanf (file, "%s %d", tag, &npts); // read number of points
   
-  vtkUnstructuredGrid *dataSet = vtkUnstructuredGrid::New();
+  vtkSmartPointer<vtkUnstructuredGrid> dataSet =
+    vtkSmartPointer<vtkUnstructuredGrid>::New();
   float *xV = new float[npts];
   float *yV = new float[npts];
   float *zV = new float[npts];
   float *sV = new float[npts];
 
   if ( ! ParseFile(file, x, xV) || ! ParseFile(file, y, yV) ||
-  ! ParseFile(file, z, zV) || ! ParseFile(file, s, sV) )
+       ! ParseFile(file, z, zV) || ! ParseFile(file, s, sV) )
     {
     cerr << "Couldn't read data!\n";
     delete [] xV;
     delete [] yV;
     delete [] zV;
     delete [] sV;
-    dataSet->Delete();
     return NULL;
     }
 
-  vtkPoints *newPts = vtkPoints::New();
-  vtkFloatArray *newScalars = vtkFloatArray::New();
+  vtkSmartPointer<vtkPoints> newPts =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkFloatArray> newScalars =
+    vtkSmartPointer<vtkFloatArray>::New();
 
   for (i=0; i<npts; i++)
     {
@@ -182,9 +195,6 @@ static vtkDataSet *ReadFinancialData(const char* filename, const char *x, const 
 
   dataSet->SetPoints(newPts);
   dataSet->GetPointData()->SetScalars(newScalars);
-
-  newPts->Delete(); //reference counted - it's okay
-  newScalars->Delete();
 
   return dataSet;
 }
