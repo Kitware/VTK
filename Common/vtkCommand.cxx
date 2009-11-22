@@ -104,6 +104,8 @@ static const char *vtkCommandEventStrings[] = {
   "TDxButtonPressEvent", // 3D Connexion device event
   "TDxButtonReleaseEvent", // 3D Connexion device event
   "HoverEvent",
+  "LoadStateEvent",
+  "SaveStateEvent",
   NULL
 };
 

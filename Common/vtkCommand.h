@@ -356,6 +356,8 @@ public:
     TDxButtonPressEvent, // 3D Connexion device event
     TDxButtonReleaseEvent, // 3D Connexion device event
     HoverEvent,
+    LoadStateEvent,
+    SaveStateEvent,
     UserEvent = 1000
   };
 //ETX
