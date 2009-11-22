@@ -39,7 +39,12 @@ public:
   // Description:
   // Get the next plane in the list.
   vtkPlane *GetNextItem();
-  
+
+  // Description:
+  // Get the ith plane in the list.
+  vtkPlane *GetItem(int i) { 
+    return static_cast<vtkPlane *>(this->GetItemAsObject(i));}; 
+
   //BTX
   // Description: 
   // Reentrant safe way to get an object in a collection. Just pass the
