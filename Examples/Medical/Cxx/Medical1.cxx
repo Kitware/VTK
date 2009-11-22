@@ -17,17 +17,18 @@
 // represents the skin and displays it.
 //
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkVolume16Reader.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkOutlineFilter.h"
-#include "vtkCamera.h"
-#include "vtkProperty.h"
-#include "vtkPolyDataNormals.h"
-#include "vtkContourFilter.h"
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkVolume16Reader.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkOutlineFilter.h>
+#include <vtkCamera.h>
+#include <vtkProperty.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkContourFilter.h>
+#include <vtkSmartPointer.h>
 
 int main (int argc, char **argv)
 {
@@ -41,10 +42,13 @@ int main (int argc, char **argv)
   // draws into the render window, the interactor enables mouse- and 
   // keyboard-based interaction with the data within the render window.
   //
-  vtkRenderer *aRenderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> aRenderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
     renWin->AddRenderer(aRenderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
     iren->SetRenderWindow(renWin);
 
   // The following reader is used to read a series of 2D slices (images)
@@ -53,7 +57,8 @@ int main (int argc, char **argv)
   // usese the FilePrefix in combination with the slice number to construct
   // filenames using the format FilePrefix.%d. (In this case the FilePrefix
   // is the root name of the file: quarter.)
-  vtkVolume16Reader *v16 = vtkVolume16Reader::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 =
+    vtkSmartPointer<vtkVolume16Reader>::New();
     v16->SetDataDimensions (64,64);
     v16->SetImageRange (1,93);
     v16->SetDataByteOrderToLittleEndian();
@@ -63,25 +68,32 @@ int main (int argc, char **argv)
   // An isosurface, or contour value of 500 is known to correspond to the
   // skin of the patient. Once generated, a vtkPolyDataNormals filter is
   // is used to create normals for smooth surface shading during rendering.
-  vtkContourFilter *skinExtractor = vtkContourFilter::New();
+  vtkSmartPointer<vtkContourFilter> skinExtractor =
+    vtkSmartPointer<vtkContourFilter>::New();
     skinExtractor->SetInputConnection(v16->GetOutputPort());
     skinExtractor->SetValue(0, 500);
-  vtkPolyDataNormals *skinNormals = vtkPolyDataNormals::New();
+  vtkSmartPointer<vtkPolyDataNormals> skinNormals =
+    vtkSmartPointer<vtkPolyDataNormals>::New();
     skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
     skinNormals->SetFeatureAngle(60.0);
-  vtkPolyDataMapper *skinMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> skinMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
     skinMapper->SetInputConnection(skinNormals->GetOutputPort());
     skinMapper->ScalarVisibilityOff();
-  vtkActor *skin = vtkActor::New();
+  vtkSmartPointer<vtkActor> skin =
+    vtkSmartPointer<vtkActor>::New();
     skin->SetMapper(skinMapper);
 
   // An outline provides context around the data.
   //
-  vtkOutlineFilter *outlineData = vtkOutlineFilter::New();
+  vtkSmartPointer<vtkOutlineFilter> outlineData =
+    vtkSmartPointer<vtkOutlineFilter>::New();
     outlineData->SetInputConnection(v16->GetOutputPort());
-  vtkPolyDataMapper *mapOutline = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapOutline =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
     mapOutline->SetInputConnection(outlineData->GetOutputPort());
-  vtkActor *outline = vtkActor::New();
+  vtkSmartPointer<vtkActor> outline =
+    vtkSmartPointer<vtkActor>::New();
     outline->SetMapper(mapOutline);
     outline->GetProperty()->SetColor(0,0,0);
 
@@ -89,7 +101,8 @@ int main (int argc, char **argv)
   // and Position form a vector direction. Later on (ResetCamera() method)
   // this vector is used to position the camera to look at the data in
   // this direction.
-  vtkCamera *aCamera = vtkCamera::New();
+  vtkSmartPointer<vtkCamera> aCamera =
+    vtkSmartPointer<vtkCamera>::New();
     aCamera->SetViewUp (0, 0, -1);
     aCamera->SetPosition (0, 1, 0);
     aCamera->SetFocalPoint (0, 0, 0);
@@ -119,24 +132,7 @@ int main (int argc, char **argv)
 
   // Initialize the event loop and then start it.
   iren->Initialize();
-  iren->Start(); 
-
-  // It is important to delete all objects created previously to prevent
-  // memory leaks. In this case, since the program is on its way to
-  // exiting, it is not so important. But in applications it is
-  // essential.
-  v16->Delete();
-  skinExtractor->Delete();
-  skinNormals->Delete();
-  skinMapper->Delete();
-  skin->Delete();
-  outlineData->Delete();
-  mapOutline->Delete();
-  outline->Delete();
-  aCamera->Delete();
-  iren->Delete();
-  renWin->Delete();
-  aRenderer->Delete();
+  iren->Start();
 
   return 0;
 }

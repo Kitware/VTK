@@ -17,19 +17,20 @@
 // represent the skin and bone, and then displays them.
 //
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkVolume16Reader.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkProperty.h"
-#include "vtkOutlineFilter.h"
-#include "vtkCamera.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkStripper.h"
-#include "vtkPolyDataNormals.h"
-#include "vtkContourFilter.h"
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkVolume16Reader.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkProperty.h>
+#include <vtkOutlineFilter.h>
+#include <vtkCamera.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkStripper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkContourFilter.h>
+#include <vtkSmartPointer.h>
 
 int main (int argc, char **argv)
 {
@@ -43,10 +44,10 @@ int main (int argc, char **argv)
   // draws into the render window, the interactor enables mouse- and 
   // keyboard-based interaction with the data within the render window.
   //
-  vtkRenderer *aRenderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> aRenderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
     renWin->AddRenderer(aRenderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     iren->SetRenderWindow(renWin);
 
   // The following reader is used to read a series of 2D slices (images)
@@ -55,7 +56,7 @@ int main (int argc, char **argv)
   // usese the FilePrefix in combination with the slice number to construct
   // filenames using the format FilePrefix.%d. (In this case the FilePrefix
   // is the root name of the file: quarter.)
-  vtkVolume16Reader *v16 = vtkVolume16Reader::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 = vtkSmartPointer<vtkVolume16Reader>::New();
     v16->SetDataDimensions(64,64);
     v16->SetDataByteOrderToLittleEndian();
     v16->SetFilePrefix (argv[1]);
@@ -67,18 +68,18 @@ int main (int argc, char **argv)
   // is used to create normals for smooth surface shading during rendering.
   // The triangle stripper is used to create triangle strips from the
   // isosurface; these render much faster on may systems.
-  vtkContourFilter *skinExtractor = vtkContourFilter::New();
+  vtkSmartPointer<vtkContourFilter> skinExtractor = vtkSmartPointer<vtkContourFilter>::New();
     skinExtractor->SetInputConnection(v16->GetOutputPort());
     skinExtractor->SetValue(0, 500);
-  vtkPolyDataNormals *skinNormals = vtkPolyDataNormals::New();
+  vtkSmartPointer<vtkPolyDataNormals> skinNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
     skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
     skinNormals->SetFeatureAngle(60.0);
-  vtkStripper *skinStripper = vtkStripper::New();
+  vtkSmartPointer<vtkStripper> skinStripper = vtkSmartPointer<vtkStripper>::New();
     skinStripper->SetInputConnection(skinNormals->GetOutputPort());
-  vtkPolyDataMapper *skinMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> skinMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     skinMapper->SetInputConnection(skinStripper->GetOutputPort());
     skinMapper->ScalarVisibilityOff();
-  vtkActor *skin = vtkActor::New();
+  vtkSmartPointer<vtkActor> skin = vtkSmartPointer<vtkActor>::New();
     skin->SetMapper(skinMapper);
     skin->GetProperty()->SetDiffuseColor(1, .49, .25);
     skin->GetProperty()->SetSpecular(.3);
@@ -90,28 +91,28 @@ int main (int argc, char **argv)
   // is used to create normals for smooth surface shading during rendering.
   // The triangle stripper is used to create triangle strips from the
   // isosurface; these render much faster on may systems.
-  vtkContourFilter *boneExtractor = vtkContourFilter::New();
+  vtkSmartPointer<vtkContourFilter> boneExtractor = vtkSmartPointer<vtkContourFilter>::New();
     boneExtractor->SetInputConnection(v16->GetOutputPort());
     boneExtractor->SetValue(0, 1150);
-  vtkPolyDataNormals *boneNormals = vtkPolyDataNormals::New();
+  vtkSmartPointer<vtkPolyDataNormals> boneNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
     boneNormals->SetInputConnection(boneExtractor->GetOutputPort());
     boneNormals->SetFeatureAngle(60.0);
-  vtkStripper *boneStripper = vtkStripper::New();
+  vtkSmartPointer<vtkStripper> boneStripper = vtkSmartPointer<vtkStripper>::New();
     boneStripper->SetInputConnection(boneNormals->GetOutputPort());
-  vtkPolyDataMapper *boneMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> boneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     boneMapper->SetInputConnection(boneStripper->GetOutputPort());
     boneMapper->ScalarVisibilityOff();
-  vtkActor *bone = vtkActor::New();
+  vtkSmartPointer<vtkActor> bone = vtkSmartPointer<vtkActor>::New();
     bone->SetMapper(boneMapper);
     bone->GetProperty()->SetDiffuseColor(1, 1, .9412);
 
   // An outline provides context around the data.
   //
-  vtkOutlineFilter *outlineData = vtkOutlineFilter::New();
+  vtkSmartPointer<vtkOutlineFilter> outlineData = vtkSmartPointer<vtkOutlineFilter>::New();
     outlineData->SetInputConnection(v16->GetOutputPort());
-  vtkPolyDataMapper *mapOutline = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapOutline = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapOutline->SetInputConnection(outlineData->GetOutputPort());
-  vtkActor *outline = vtkActor::New();
+  vtkSmartPointer<vtkActor> outline = vtkSmartPointer<vtkActor>::New();
     outline->SetMapper(mapOutline);
     outline->GetProperty()->SetColor(0,0,0);
 
@@ -119,7 +120,7 @@ int main (int argc, char **argv)
   // and Position form a vector direction. Later on (ResetCamera() method)
   // this vector is used to position the camera to look at the data in
   // this direction.
-  vtkCamera *aCamera = vtkCamera::New();
+  vtkSmartPointer<vtkCamera> aCamera = vtkSmartPointer<vtkCamera>::New();
     aCamera->SetViewUp (0, 0, -1);
     aCamera->SetPosition (0, 1, 0);
     aCamera->SetFocalPoint (0, 0, 0);
@@ -152,29 +153,6 @@ int main (int argc, char **argv)
   // render window (expressed in pixels).
   iren->Initialize();
   iren->Start(); 
-
-  // It is important to delete all objects created previously to prevent
-  // memory leaks. In this case, since the program is on its way to
-  // exiting, it is not so important. But in applications it is
-  // essential.
-  v16->Delete();
-  skinExtractor->Delete();
-  skinNormals->Delete();
-  skinStripper->Delete();
-  skinMapper->Delete();
-  skin->Delete();
-  boneExtractor->Delete();
-  boneNormals->Delete();
-  boneStripper->Delete();
-  boneMapper->Delete();
-  bone->Delete();
-  outlineData->Delete();
-  mapOutline->Delete();
-  outline->Delete();
-  aCamera->Delete();
-  aRenderer->Delete();
-  renWin->Delete();
-  iren->Delete();
 
   return 0;
 }
