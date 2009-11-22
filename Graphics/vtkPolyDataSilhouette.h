@@ -94,16 +94,16 @@ public:
   // Specify a camera that is used to define the view direction.
   // This ivar only has effect if the direction is set
   // to VTK_DIRECTION_CAMERA_ORIGIN or VTK_DIRECTION_CAMERA_VECTOR, and a camera is specified.
-  virtual void SetCamera(vtkCamera*);
-  vtkGetObjectMacro(Camera,vtkCamera);
+  virtual void SetCamera(vtkCamera VTK_WRAP_EXTERN*);
+  vtkGetObjectMacro(Camera,vtkCamera VTK_WRAP_EXTERN);
 
   // Description:
   // Specify a transformation matrix (via the vtkProp3D::GetMatrix() method)
   // that is used to include the effects of transformation. This ivar only
   // has effect if the direction is set to VTK_DIRECTION_CAMERA_ORIGIN or VTK_DIRECTION_CAMERA_VECTOR,
   // and a camera is specified. Specifying the vtkProp3D is optional.
-  void SetProp3D(vtkProp3D *);
-  vtkProp3D *GetProp3D();
+  void SetProp3D(vtkProp3D VTK_WRAP_EXTERN*);
+  vtkProp3D VTK_WRAP_EXTERN*GetProp3D();
 
   // Description:
   // Set/Get the sort direction. This ivar only has effect if the sort
