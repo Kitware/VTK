@@ -34,7 +34,7 @@ int main (int argc, char **argv)
 {
   if (argc < 2)
     {
-      cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
+    cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
     return 1;
     }
 
@@ -46,10 +46,11 @@ int main (int argc, char **argv)
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
-    renWin->AddRenderer(aRenderer);
+  renWin->AddRenderer(aRenderer);
+
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    iren->SetRenderWindow(renWin);
+  iren->SetRenderWindow(renWin);
 
   // The following reader is used to read a series of 2D slices (images)
   // that compose the volume. The slice dimensions are set, and the
@@ -59,43 +60,48 @@ int main (int argc, char **argv)
   // is the root name of the file: quarter.)
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
-    v16->SetDataDimensions (64,64);
-    v16->SetImageRange (1,93);
-    v16->SetDataByteOrderToLittleEndian();
-    v16->SetFilePrefix (argv[1]);
-    v16->SetDataSpacing (3.2, 3.2, 1.5);
+  v16->SetDataDimensions (64,64);
+  v16->SetImageRange (1,93);
+  v16->SetDataByteOrderToLittleEndian();
+  v16->SetFilePrefix (argv[1]);
+  v16->SetDataSpacing (3.2, 3.2, 1.5);
 
   // An isosurface, or contour value of 500 is known to correspond to the
   // skin of the patient. Once generated, a vtkPolyDataNormals filter is
   // is used to create normals for smooth surface shading during rendering.
   vtkSmartPointer<vtkContourFilter> skinExtractor =
     vtkSmartPointer<vtkContourFilter>::New();
-    skinExtractor->SetInputConnection(v16->GetOutputPort());
-    skinExtractor->SetValue(0, 500);
+  skinExtractor->SetInputConnection(v16->GetOutputPort());
+  skinExtractor->SetValue(0, 500);
+
   vtkSmartPointer<vtkPolyDataNormals> skinNormals =
     vtkSmartPointer<vtkPolyDataNormals>::New();
-    skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
-    skinNormals->SetFeatureAngle(60.0);
+  skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
+  skinNormals->SetFeatureAngle(60.0);
+
   vtkSmartPointer<vtkPolyDataMapper> skinMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-    skinMapper->SetInputConnection(skinNormals->GetOutputPort());
-    skinMapper->ScalarVisibilityOff();
+  skinMapper->SetInputConnection(skinNormals->GetOutputPort());
+  skinMapper->ScalarVisibilityOff();
+
   vtkSmartPointer<vtkActor> skin =
     vtkSmartPointer<vtkActor>::New();
-    skin->SetMapper(skinMapper);
+  skin->SetMapper(skinMapper);
 
   // An outline provides context around the data.
   //
   vtkSmartPointer<vtkOutlineFilter> outlineData =
     vtkSmartPointer<vtkOutlineFilter>::New();
-    outlineData->SetInputConnection(v16->GetOutputPort());
+  outlineData->SetInputConnection(v16->GetOutputPort());
+
   vtkSmartPointer<vtkPolyDataMapper> mapOutline =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapOutline->SetInputConnection(outlineData->GetOutputPort());
+  mapOutline->SetInputConnection(outlineData->GetOutputPort());
+
   vtkSmartPointer<vtkActor> outline =
     vtkSmartPointer<vtkActor>::New();
-    outline->SetMapper(mapOutline);
-    outline->GetProperty()->SetColor(0,0,0);
+  outline->SetMapper(mapOutline);
+  outline->GetProperty()->SetColor(0,0,0);
 
   // It is convenient to create an initial view of the data. The FocalPoint
   // and Position form a vector direction. Later on (ResetCamera() method)
@@ -103,10 +109,10 @@ int main (int argc, char **argv)
   // this direction.
   vtkSmartPointer<vtkCamera> aCamera =
     vtkSmartPointer<vtkCamera>::New();
-    aCamera->SetViewUp (0, 0, -1);
-    aCamera->SetPosition (0, 1, 0);
-    aCamera->SetFocalPoint (0, 0, 0);
-    aCamera->ComputeViewPlaneNormal();
+  aCamera->SetViewUp (0, 0, -1);
+  aCamera->SetPosition (0, 1, 0);
+  aCamera->SetFocalPoint (0, 0, 0);
+  aCamera->ComputeViewPlaneNormal();
 
   // Actors are added to the renderer. An initial camera view is created.
   // The Dolly() method moves the camera towards the FocalPoint,
@@ -119,7 +125,7 @@ int main (int argc, char **argv)
 
   // Set a background color for the renderer and set the size of the
   // render window (expressed in pixels).
-  aRenderer->SetBackground(1,1,1);
+  aRenderer->SetBackground(.2, .3, .4);
   renWin->SetSize(640, 480);
 
   // Note that when camera movement occurs (as it does in the Dolly()
