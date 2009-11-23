@@ -18,7 +18,7 @@
 #include <vtksys/stl/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.12");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.13");
 vtkStandardNewMacro(vtkKMeansStatistics);
 
 // ----------------------------------------------------------------------
@@ -179,8 +179,8 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
       {
       if(reqIt->find( inData->GetColumnName( j ) ) != reqIt->end() ) 
         {
-        vtkVariantArray* curCoords = vtkVariantArray::New();
-        vtkVariantArray* newCoords = vtkVariantArray::New();
+        vtkAbstractArray* curCoords = this->DistanceFunctor->GetNewVTKArray();
+        vtkAbstractArray* newCoords = this->DistanceFunctor->GetNewVTKArray();
         curCoords->SetName( inData->GetColumnName( j ) );
         newCoords->SetName( inData->GetColumnName( j ) );
         curClusterElements->AddColumn( curCoords );
@@ -190,30 +190,59 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
         dataElements->AddColumn( inData->GetColumnByName( inData->GetColumnName( j ) ) );
         }
       }
-    for ( vtkIdType i = 0; i < numToAllocate; i++ )
-      {
-      numberOfClusters->InsertNextValue( numToAllocate );
-      vtkVariantArray *curRow = vtkVariantArray::New();
-      vtkVariantArray *newRow = vtkVariantArray::New();
-      for ( int j = 0; j < inData->GetNumberOfColumns(); j++ )
-        {
-        if(reqIt->find( inData->GetColumnName( j ) ) != reqIt->end()  )
-          {
-          curRow->InsertNextValue( inData->GetValue( i, j ) );
-          newRow->InsertNextValue( inData->GetValue( i, j ) );
-          }
-        }
-      curClusterElements->InsertNextRow( curRow );
-      newClusterElements->InsertNextRow( newRow );
-      curRow->Delete();
-      newRow->Delete();
-      }
+    CreateInitialClusterCenters(numToAllocate, numberOfClusters, inData, curClusterElements, newClusterElements);
     }
+
     if(curClusterElements->GetNumberOfColumns() == 0 )
       {
       return 0;
       }
     return numRuns;
+}
+
+// ----------------------------------------------------------------------
+void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate, 
+                                                      vtkIdTypeArray* numberOfClusters, 
+                                                      vtkTable* inData, 
+                                                      vtkTable* curClusterElements, 
+                                                      vtkTable* newClusterElements)
+{
+  vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
+  if( this->Internals->Requests.size() > 1 )
+    {
+    static int num=0;
+    num++;
+    if( num < 10 )
+      {
+      vtkWarningMacro( "Only the first request will be processed -- the rest will be ignored." );
+      }
+    }
+
+  if( this->Internals->Requests.size() == 0 )
+    {
+    vtkErrorMacro( "No requests were made." );
+    return;
+    }
+  reqIt = this->Internals->Requests.begin();
+
+  for ( vtkIdType i = 0; i < numToAllocate; i++ )
+    {
+    numberOfClusters->InsertNextValue( numToAllocate );
+    vtkVariantArray *curRow = vtkVariantArray::New();
+    vtkVariantArray *newRow = vtkVariantArray::New();
+    for ( int j = 0; j < inData->GetNumberOfColumns(); j++ )
+      {
+      if(reqIt->find( inData->GetColumnName( j ) ) != reqIt->end()  )
+        {
+        curRow->InsertNextValue( inData->GetValue( i, j ) );
+        newRow->InsertNextValue( inData->GetValue( i, j ) );
+        }
+      }
+    curClusterElements->InsertNextRow( curRow );
+    newClusterElements->InsertNextRow( newRow );
+    curRow->Delete();
+    newRow->Delete();
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -318,7 +347,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
   vtkIdTypeArray* clusterRunIDs = vtkIdTypeArray::New(); 
 
   numDataElementsInCluster->SetNumberOfValues( numToAllocate );
-  numDataElementsInCluster->SetName( "Num Elements" );
+  numDataElementsInCluster->SetName( "Cardinality" );
   clusterRunIDs->SetNumberOfValues( numToAllocate );
   clusterRunIDs->SetName( "Run ID" );
   error->SetNumberOfValues( numToAllocate );
@@ -442,7 +471,6 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
       }
     }
   while ( allConverged < numRuns && numIter  < this->MaxNumIterations );
-
 
   // add columns to output table
   vtkTable* outputTable = vtkTable::New(); 

@@ -3,6 +3,7 @@
 
 #include "vtkType.h"
 class vtkVariantArray;
+class vtkAbstractArray;
 class vtkTable;
 
 class vtkKMeansDistanceFunctor
@@ -17,8 +18,11 @@ public:
   virtual void PairwiseUpdate( vtkTable*, vtkIdType, vtkVariantArray *, vtkIdType, vtkIdType ) = 0;
   virtual void PerturbElement( vtkTable*, vtkTable*, vtkIdType, vtkIdType, vtkIdType, double ) = 0;
   virtual void* AllocateElementArray( vtkIdType size ) = 0;
+  virtual void DeallocateElementArray( void* ) = 0;
+  virtual vtkAbstractArray*  GetNewVTKArray() = 0;
   virtual void PackElements( vtkTable* curTable, void* vElements ) = 0;
   virtual void UnPackElements( vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np ) = 0;
+  virtual void UnPackElements( vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols ) = 0;
   virtual int GetDataType() = 0;
 };
 
@@ -31,8 +35,11 @@ public:
   virtual void PairwiseUpdate( vtkTable*, vtkIdType, vtkVariantArray*, vtkIdType, vtkIdType );
   virtual void PerturbElement( vtkTable*, vtkTable*, vtkIdType, vtkIdType, vtkIdType, double );
   virtual void* AllocateElementArray( vtkIdType size );
+  virtual void DeallocateElementArray( void* );
+  virtual vtkAbstractArray*  GetNewVTKArray();
   virtual void PackElements( vtkTable* curTable, void* vElements );
   virtual void UnPackElements( vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np );
+  virtual void UnPackElements( vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols );
   virtual int GetDataType();
 };
 

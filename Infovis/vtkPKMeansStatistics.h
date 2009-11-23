@@ -57,6 +57,14 @@ public:
   // Subroutine to get the total number of data objects.
   virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations );
 
+  // Description:
+  // Subroutine to initialize cluster centerss if not provided by the user.
+  virtual void CreateInitialClusterCenters(vtkIdType numToAllocate,
+                                           vtkIdTypeArray* numberOfClusters,     
+                                           vtkTable* inData,
+                                           vtkTable* curClusterElements,
+                                           vtkTable* newClusterElements);
+
 
 protected:
   vtkPKMeansStatistics();

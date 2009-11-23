@@ -75,7 +75,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   each run in the multiblock dataset provided on port INPUT_MODEL.
 //  
 // .SECTION Thanks
-// Thanks to Janine Bennett, David Thomposn, and Philippe Pebay of
+// Thanks to Janine Bennett, David Thompson, and Philippe Pebay of
 // Sandia National Laboratories for implementing this class.
 
 #ifndef __vtkKMeansStatistics_h
@@ -209,6 +209,17 @@ protected:
                                       vtkTable*  newClusterElements,
                                       vtkIdTypeArray*  startRunID,
                                       vtkIdTypeArray*  endRunID);
+
+  // Description:
+  // Subroutine to initialize cluster centerss if not provided by the user.
+  // Called from within Learn (and will be overridden by vtkPKMeansStatistics
+  // to handle distributed datasets).
+  virtual void CreateInitialClusterCenters(vtkIdType numToAllocate, 
+                                           vtkIdTypeArray* numberOfClusters, 
+                                           vtkTable* inData, 
+                                           vtkTable* curClusterElements, 
+                                           vtkTable* newClusterElements);
+
 
   // Description:
   // This is the default number of clusters used when the user does not provide initial cluster centers.

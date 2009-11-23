@@ -19,6 +19,7 @@
 #include "vtkKMeansDistanceFunctor.h"
 #include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkVariantArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkCommunicator.h"
 #include "vtkObjectFactory.h"
@@ -27,7 +28,7 @@
 
 
 vtkStandardNewMacro(vtkPKMeansStatistics);
-vtkCxxRevisionMacro(vtkPKMeansStatistics, "1.3");
+vtkCxxRevisionMacro(vtkPKMeansStatistics, "1.4");
 vtkCxxSetObjectMacro(vtkPKMeansStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPKMeansStatistics::vtkPKMeansStatistics()
@@ -109,17 +110,17 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
   memcpy( localIntElements, nmPtr, nm*sizeof( vtkIdType ) );
   memcpy( localIntElements + nm, ndPtr, nd*sizeof( vtkIdType ) );
   com->AllGather( localIntElements, globalIntElements, totalIntElements );
+
   for( vtkIdType runID = 0; runID < nm; runID++ )
     {
     if ( computeRun->GetValue( runID ) ) 
       {
-      double numChanges = 0.0;
+      vtkIdType numChanges = 0;
       for( int j = 0; j < np; j++ )
         {
-        numChanges = numChanges +
-          (static_cast<double>(globalIntElements[j*totalIntElements+runID])-numChanges)/static_cast<double>(j+1);
+        numChanges += globalIntElements[j*totalIntElements+runID];
         }
-        numMembershipChanges->SetValue( runID, static_cast<vtkIdType>( numChanges ) );
+        numMembershipChanges->SetValue( runID, numChanges );
       }
     }
 
@@ -144,14 +145,12 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
     }
   totalError->Delete();
 
-
   vtkTable* allNewClusterElements = vtkTable::New();
   void* localElements = this->DistanceFunctor->AllocateElementArray( numElements );
   void* globalElements = this->DistanceFunctor->AllocateElementArray( numElements*np );
   this->DistanceFunctor->PackElements( newClusterElements, localElements );
   com->AllGatherVoidArray( localElements, globalElements, numElements, this->DistanceFunctor->GetDataType() );
   this->DistanceFunctor->UnPackElements( newClusterElements, allNewClusterElements, localElements, globalElements, np );
-
 
   for( vtkIdType runID = 0; runID < startRunID->GetNumberOfTuples(); runID++ )
     {
@@ -188,4 +187,65 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
   delete [] localIntElements;
   delete [] globalIntElements;
   allNewClusterElements->Delete();
+}
+
+
+// ----------------------------------------------------------------------
+void vtkPKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
+                                                      vtkIdTypeArray* numberOfClusters,
+                                                      vtkTable* inData,
+                                                      vtkTable* curClusterElements,
+                                                      vtkTable* newClusterElements)
+{
+
+  int np = this->Controller->GetNumberOfProcesses();
+  if( np < 2 )
+    {
+    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters, 
+                                                   inData, curClusterElements, newClusterElements );
+    return;
+    }
+  // Now get ready for parallel calculations
+  vtkCommunicator* com = this->Controller->GetCommunicator();
+  if ( ! com )
+    {
+    vtkGenericWarningMacro("No parallel communicator.");
+    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters, 
+                                                   inData, curClusterElements, newClusterElements );
+    return;
+    }
+
+
+  vtkIdType  myRank = com->GetLocalProcessId();
+  // use node 0 to broadcast
+  vtkIdType broadcastNode = 0;
+
+  // generate data on one node only
+  if( myRank == broadcastNode )
+    {
+    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters, 
+                                                   inData, curClusterElements, newClusterElements );
+    }
+
+  int numElements = numToAllocate * curClusterElements->GetNumberOfColumns() ;
+  void* localElements = this->DistanceFunctor->AllocateElementArray( numElements );
+  this->DistanceFunctor->PackElements( curClusterElements, localElements );
+  if( !com->BroadcastVoidArray( localElements, numElements, this->DistanceFunctor->GetDataType(), broadcastNode ) )
+    {
+    vtkErrorMacro("Could not broadcast initial cluster coordinates");
+    return;
+    }
+
+  if( myRank != broadcastNode )
+    {
+    vtkIdType numCols = curClusterElements->GetNumberOfColumns() ;
+    this->DistanceFunctor->UnPackElements( curClusterElements, localElements, numToAllocate, numCols );
+    this->DistanceFunctor->UnPackElements( newClusterElements, localElements, numToAllocate, numCols );
+    for ( vtkIdType i = 0; i < numToAllocate; i++ )
+      {
+      numberOfClusters->InsertNextValue( numToAllocate );
+      }
+    }
+
+  this->DistanceFunctor->DeallocateElementArray( localElements ) ;
 }

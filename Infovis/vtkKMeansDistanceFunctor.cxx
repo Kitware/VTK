@@ -129,6 +129,18 @@ void* vtkKMeansDefaultDistanceFunctor::AllocateElementArray( vtkIdType size )
 }
 
 // ----------------------------------------------------------------------
+void vtkKMeansDefaultDistanceFunctor::DeallocateElementArray( void* array )
+{
+  delete [] static_cast< double* >( array );
+}
+
+// ----------------------------------------------------------------------
+vtkAbstractArray* vtkKMeansDefaultDistanceFunctor::GetNewVTKArray( )
+{
+  return vtkDoubleArray::New();
+}
+
+// ----------------------------------------------------------------------
 void vtkKMeansDefaultDistanceFunctor::PackElements( vtkTable* curTable, void* vElements )
 {
   vtkIdType numCols = curTable->GetNumberOfColumns();
@@ -142,6 +154,21 @@ void vtkKMeansDefaultDistanceFunctor::PackElements( vtkTable* curTable, void* vE
     }
 }
 
+// ----------------------------------------------------------------------
+void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols )
+{
+  double *localElements = static_cast< double* >( vLocalElements );
+  for ( vtkIdType i = 0; i < numRows; i++ )
+    {
+    vtkVariantArray *curRow = vtkVariantArray::New();
+    for ( int j = 0; j < numCols; j++ )
+      {
+      curRow->InsertNextValue( localElements[ j*numRows + i ] );
+      }
+    curTable->InsertNextRow( curRow );
+    curRow->Delete();
+    }
+}
 
 // ----------------------------------------------------------------------
 void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np )
