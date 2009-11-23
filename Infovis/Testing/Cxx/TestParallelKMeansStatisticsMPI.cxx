@@ -43,7 +43,8 @@
 
 struct RandomSampleStatisticsArgs
 {
-  int nVals;
+  int nVals; 
+  int nProcs;
   int* retVal;
   int ioRank;
   int argc;
@@ -137,7 +138,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // broadcast data to all nodes
   if( !com->Broadcast( clusterCoords, nClusterCoords, args->ioRank) )
     {
-    cout << "Process " <<  myRank << " could not broadcast Initial Cluster Coordinates." << endl;
+    vtkGenericWarningMacro("Could not broadcast initial cluster coordinates.");
+    *(args->retVal) = 1;
     return;
     }
 
@@ -198,7 +200,25 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
       if ( b == 0 )
         {
-        cout << "   Computed clusters:" << "\n";
+        vtkIdType testIntValue = 0;
+        for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ )
+          {
+          testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
+          }
+
+        cout << "## Computed clusters (cardinality: "
+             << testIntValue
+             << " / run):\n";
+
+        if ( testIntValue != args->nVals*args->nProcs )
+          {
+          vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
+                               << testIntValue
+                               << " != "
+                               << args->nVals * args->nProcs
+                               << ".");
+          *(args->retVal) = 1;
+          }
         }
       else
         {
@@ -293,6 +313,7 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomSampleStatisticsArgs args;
   args.nVals = 10000;
+  args.nProcs = numProcs;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.argc = argc;
