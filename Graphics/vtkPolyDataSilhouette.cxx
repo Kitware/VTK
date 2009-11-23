@@ -38,7 +38,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkPolyDataSilhouette, "1.1");
+vtkCxxRevisionMacro(vtkPolyDataSilhouette, "1.2");
 vtkStandardNewMacro(vtkPolyDataSilhouette);
 
 vtkCxxSetObjectMacro(vtkPolyDataSilhouette,Camera,vtkCamera);
@@ -72,14 +72,15 @@ struct vtkTwoNormals
       }
 };
 
-struct vtkPolyDataEdges
+class vtkPolyDataEdges
 {
-      vtkTimeStamp mtime;
-      double vec[3];
-      vtkstd::map<vtkOrderedEdge,vtkTwoNormals> edges;
-      bool * edgeFlag;
-      vtkCellArray* lines;
-      inline vtkPolyDataEdges() : edgeFlag(0), lines(0) { vec[0]=vec[1]=vec[2]=0.0; }
+  public:
+    vtkTimeStamp mtime;
+    double vec[3];
+    vtkstd::map<vtkOrderedEdge,vtkTwoNormals> edges;
+    bool * edgeFlag;
+    vtkCellArray* lines;
+    inline vtkPolyDataEdges() : edgeFlag(0), lines(0) { vec[0]=vec[1]=vec[2]=0.0; }
 };
 
 vtkPolyDataSilhouette::vtkPolyDataSilhouette()
@@ -149,7 +150,7 @@ int vtkPolyDataSilhouette::RequestData(
 
   vtkDebugMacro(<<"RequestData\n");
 
-  const double featureAngleCos = cos( this->FeatureAngle * vtkMath::DoubleDegreesToRadians() );
+  const double featureAngleCos = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle ) );
 
   bool vectorMode = true;
   double vector[3];
