@@ -216,11 +216,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
       if ( b == 0 )
         {
-        cout << "Computed clusters:" << "\n";
+        cout << "   Computed clusters:" << "\n";
         }
       else
         {
-        cout << "Ranked cluster: " << "\n";
+        cout << "   Ranked cluster: " << "\n";
         }
         outputMeta->Dump();
       }
