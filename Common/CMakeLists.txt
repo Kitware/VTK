@@ -109,6 +109,7 @@ vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkLookupTableWithEnabling.cxx
 vtkMath.cxx
+vtkMatrix3x3.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
@@ -146,6 +147,7 @@ vtkPlane.cxx
 vtkPlaneCollection.cxx
 vtkPlanes.cxx
 vtkPoints.cxx
+vtkPoints2D.cxx
 vtkPolynomialSolversUnivariate.cxx
 vtkPriorityQueue.cxx
 vtkProp.cxx
@@ -177,6 +179,7 @@ vtkThreadMessager.cxx
 vtkTimePointUtility.cxx
 vtkTimeStamp.cxx
 vtkTimerLog.cxx
+vtkTransform2D.cxx
 vtkTransform.cxx
 vtkTransformCollection.cxx
 vtkUnicodeString.cxx
