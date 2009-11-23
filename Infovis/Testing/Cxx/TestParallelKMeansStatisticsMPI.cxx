@@ -67,38 +67,37 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) * ( myRank + 1 ) );
 
   // Generate an input table that contains samples of mutually independent random variables over [0, 1]
-  int nUniform = 2;
-  int nNormal  = 2;
-  int nVariables = nUniform + nNormal;
+  int nVariables = 6;
 
   vtkTable* inputData = vtkTable::New();
   vtkDoubleArray* doubleArray;
-  vtkStdString columnNames[] = { "Standard Uniform 0", 
-                                 "Standard Uniform 1",
-                                 "Standard Normal 0",
-                                 "Standard Normal 1" };
-  
+  vtkStdString columnNames[] = { "Normal 0", 
+                                 "Normal 1",
+                                 "Normal 2", 
+                                 "Normal 3",
+                                 "Normal 4",
+                                 "Normal 5"};
+
+  int numClusters = 8;
+  int observationsPerCluster = args->nVals/numClusters;
+
   // Generate samples
-  for ( int c = 0; c < nVariables; ++ c )
+  for ( int v = 0; v < nVariables; ++ v )
     {
     doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfComponents( 1 );
-    doubleArray->SetName( columnNames[c] );
+    doubleArray->SetName( columnNames[v] );
 
-    double x;
-    for ( int r = 0; r < args->nVals; ++ r )
+    for ( int c = 0; c < numClusters; ++ c )
       {
-      if( c < nUniform ) 
+      double x;
+      for ( int r = 0; r < observationsPerCluster; ++ r )
         {
-        x = vtkMath::Random();
+        x = vtkMath::Gaussian(c*7.0, 1.0);
+        doubleArray->InsertNextValue( x );
         }
-      else 
-        {
-        x = vtkMath::Gaussian();
-        }
-      doubleArray->InsertNextValue( x );
       }
-    
+
     inputData->AddColumn( doubleArray );
     doubleArray->Delete();
     }
@@ -107,56 +106,35 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   vtkTable* paramData = vtkTable::New();
   vtkIdTypeArray* paramCluster;
   vtkDoubleArray* paramArray;
-  const int numRuns = 5;
-  const int numClustersInRun[] = { 5, 2, 3, 4, 5 };
   paramCluster = vtkIdTypeArray::New();
   paramCluster->SetName( "K" );
 
-  for( int curRun = 0; curRun < numRuns; curRun++ )
+  for( int nInRun = 0; nInRun < numClusters; nInRun++ )
     {
-    for( int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++ )
-      {
-      paramCluster->InsertNextValue( numClustersInRun[curRun] );
-      }
+    paramCluster->InsertNextValue( numClusters );
     }
+
   paramData->AddColumn( paramCluster );
   paramCluster->Delete();
 
-  int totalNumClusters = 0;
-  for( int i = 0; i < numRuns; i++ )
-    {
-    totalNumClusters += numClustersInRun[i];
-    }
-
-  int nClusterCoords = totalNumClusters*nVariables;
+  int nClusterCoords = (numClusters)*nVariables;
   double* clusterCoords = new double[nClusterCoords];
 
   // generate data on one node only
   if( myRank == args->ioRank )
     {
     int cIndex = 0;
-    for ( int c = 0; c < nVariables; ++ c )
+    for ( int v = 0; v < nVariables; ++ v )
       {
-      double x;
-      for( int curRun = 0; curRun < numRuns; curRun++ )
+      for ( int c = 0; c < (numClusters); ++ c )
         {
-        for( int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++ )
-          {
-          if( c < nUniform )
-            {
-            x = vtkMath::Random();
-            }
-          else 
-            {
-            x = vtkMath::Gaussian();
-            }
-          clusterCoords[cIndex++] = x;
-          }
+        double x = inputData->GetValue((c%numClusters)*observationsPerCluster, v).ToDouble();
+        clusterCoords[cIndex++] = x;
         }
       }
     }
 
-  // broadcast data to all nodes 
+  // broadcast data to all nodes
   if( !com->Broadcast( clusterCoords, nClusterCoords, args->ioRank) )
     {
     cout << "Process " <<  myRank << " could not broadcast Initial Cluster Coordinates." << endl;
@@ -166,9 +144,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   for ( int c = 0; c < nVariables; ++ c )
     {
     paramArray = vtkDoubleArray::New();
-    paramArray->SetName( columnNames[c] ); 
-    paramArray->SetNumberOfTuples( totalNumClusters ); 
-    memcpy( paramArray->GetPointer( 0 ), &(clusterCoords[c*totalNumClusters]), totalNumClusters*sizeof( double ) );
+    paramArray->SetName( columnNames[c] );
+    paramArray->SetNumberOfTuples( numClusters );
+    memcpy( paramArray->GetPointer( 0 ), &(clusterCoords[c*(numClusters)]), (numClusters)*sizeof( double ) );
     paramData->AddColumn( paramArray );
     paramArray->Delete();
     }
@@ -185,12 +163,16 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Instantiate a parallel KMeans statistics engine and set its ports
   vtkPKMeansStatistics* pks = vtkPKMeansStatistics::New();
   pks->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pks->SetMaxNumIterations( 10 );
   pks->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
 
   // Select columns for testing
   pks->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );
-  pks->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
   pks->SetColumnStatus( inputData->GetColumnName( 1 ) , 1 );
+  pks->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
+  pks->SetColumnStatus( inputData->GetColumnName( 3 ) , 1 );
+  pks->SetColumnStatus( inputData->GetColumnName( 4 ) , 1 );
+  pks->SetColumnStatus( inputData->GetColumnName( 5 ) , 1 );
   pks->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
@@ -199,7 +181,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pks->SetAssessOption( true );
   pks->Update();
 
-    // Synchronize and stop clock
+  // Synchronize and stop clock
   com->Barrier();
   timer->StopTimer();
 
@@ -228,8 +210,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   // Clean up
   pks->Delete();
   inputData->Delete();
-  paramData->Delete();
   timer->Delete();
+  paramData->Delete();
+
 }
 
 //----------------------------------------------------------------------------
@@ -309,7 +292,7 @@ int main( int argc, char** argv )
   // Parameters for regression test.
   int testValue = 0;
   RandomSampleStatisticsArgs args;
-  args.nVals = 100;
+  args.nVals = 10000;
   args.retVal = &testValue;
   args.ioRank = ioRank;
   args.argc = argc;
