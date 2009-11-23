@@ -48,7 +48,7 @@ namespace METAIO_NAMESPACE {
 #endif
 
 // 1 Gigabyte is the maximum chunk to read/write in on function call
-static const size_t MaxIOChunk = 1024*1024*1024;
+static const METAIO_STL::streamoff MaxIOChunk = 1024*1024*1024;
 
 //
 // MetaImage Constructors
