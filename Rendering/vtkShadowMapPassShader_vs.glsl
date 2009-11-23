@@ -15,10 +15,13 @@
 
 // Vertex shader used by the shadow mapping render pass.
 
+#version 110
+
 // NOTE: this shader is concatened on the fly by vtkShadowMapPass.cxx by adding
 // a line at the beginning like:
 // #define VTK_LIGHTING_NUMBER_OF_LIGHTS equal to the number of shadowing
 // lights.
+
 
 void propFuncVS();
 

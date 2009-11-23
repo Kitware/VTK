@@ -18,6 +18,8 @@
 // defined by the user on a property. For example, the depth peeling algorithm
 // defines its own main() function for the fragment shader.
 
+#version 110
+
 void propFuncFS();
 
 void main()

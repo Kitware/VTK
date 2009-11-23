@@ -15,6 +15,8 @@
 
 // Fragment shader used by the first pass of the Sobel filter render pass.
 
+#version 110
+
 uniform sampler2D source;
 uniform float step; // 1/W
 

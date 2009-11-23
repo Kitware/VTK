@@ -15,6 +15,8 @@
 
 // Fragment shader used by the gaussian blur filter render pass.
 
+#version 110
+
 uniform sampler2D source;
 uniform float coef[3];
 uniform float offsetx;

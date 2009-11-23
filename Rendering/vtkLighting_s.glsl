@@ -16,6 +16,7 @@
 // This file defines some lighting functions.
 // They can be used either in a vertex or fragment shader.
 
+#version 110
 
 // Example in vertex shader:
 // Reminder: two-sided/one-sided is controlled by GL_VERTEX_PROGRAM_TWO_SIDE

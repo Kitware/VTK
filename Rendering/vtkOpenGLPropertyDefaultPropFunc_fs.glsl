@@ -15,6 +15,8 @@
 
 // Default fragment shader used on property.
 
+#version 110
+
 uniform int useTexture;
 uniform sampler2D texture;
 

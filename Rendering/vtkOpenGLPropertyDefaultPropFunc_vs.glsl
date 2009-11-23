@@ -15,6 +15,8 @@
 
 // Default vertex shader used on property.
 
+#version 110
+
 void propFuncVS()
 {
   // default is empty. So far.

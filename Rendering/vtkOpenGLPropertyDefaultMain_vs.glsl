@@ -17,6 +17,8 @@
 // no main() is provided at the renderer level and some vertex shader is
 // defined by the user on a property.
 
+#version 110
+
 void propFuncVS();
 
 void main()
