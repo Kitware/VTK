@@ -103,14 +103,17 @@ int TestKMeansStatistics( int, char *[] )
 
 
   vtkKMeansStatistics* haruspex = vtkKMeansStatistics::New();
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   haruspex->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );
   haruspex->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
   haruspex->SetColumnStatus( "Testing", 1 );
   haruspex->RequestSelectedColumns();
 
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+
   haruspex->SetDefaultNumberOfClusters( 3 );
 
+  cout << "## Testing with no input data:"
+           << "\n";
   // -- Test Learn Mode -- 
   haruspex->SetLearnOption( true );
   haruspex->SetDeriveOption( true );
@@ -124,16 +127,16 @@ int TestKMeansStatistics( int, char *[] )
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
       {
-      vtkIdType testIntValue = 0;
 
-      for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+      vtkIdType testIntValue = 0;
+      for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ ) 
         {
         testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
         }
 
       cout << "## Computed clusters (cardinality: "
            << testIntValue
-           << "):\n";
+           << " / run):\n";
 
       if ( testIntValue != nVals )
         {
@@ -157,7 +160,7 @@ int TestKMeansStatistics( int, char *[] )
 
 
   haruspex->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
-  cout << "## Testing default table:"
+  cout << "## Testing with input table:"
            << "\n";
   
   paramData->Dump();
@@ -176,8 +179,41 @@ int TestKMeansStatistics( int, char *[] )
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
       {
-      cout << "## Computed clusters:" 
-           << "\n";
+      vtkIdType r = 0;
+      vtkIdType testIntValue = 0;
+      for( int curRun = 0; curRun < numRuns; curRun++ )
+        {
+        testIntValue = 0;
+        for( int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++ )
+          {
+          testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
+          r++;
+          }
+        }
+
+      if ( r != outputMeta->GetNumberOfRows() )
+        {
+        vtkGenericWarningMacro("Inconsistency in number of rows: "
+                               << r
+                               << " != "
+                               << outputMeta->GetNumberOfRows()
+                               << ".");
+        testStatus = 1;
+        } 
+
+      cout << "## Computed clusters (cardinality: "
+           << testIntValue
+           << " / run):\n";
+
+      if ( testIntValue != nVals )
+        {
+        vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
+                               << testIntValue
+                               << " != "
+                               << nVals
+                               << ".");
+        testStatus = 1;
+        }
       }
     else
       {
