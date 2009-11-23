@@ -124,9 +124,9 @@ int TestContingencyStatistics( int, char *[] )
   double testDoubleValue = 0;
 
   vtkIdType n = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
-  cout << "## Calculated the following information entropies( grand total: "
+  cout << "## Calculated the following information entropies (grand total: "
        << n
-       << " ):\n";
+       << "):\n";
 
   testIntValue = outputSummary->GetNumberOfColumns();
 
