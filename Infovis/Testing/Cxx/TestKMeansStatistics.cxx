@@ -124,8 +124,26 @@ int TestKMeansStatistics( int, char *[] )
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
       {
-      cout << "## Computed clusters:" 
-           << "\n";
+      vtkIdType testIntValue = 0;
+
+      for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+        {
+        testIntValue += outputMeta->GetValueByName( r, "Num Elements" ).ToInt();
+        }
+
+      cout << "## Computed clusters (cardinality: "
+           << testIntValue
+           << "):\n";
+
+      if ( testIntValue != nVals )
+        {
+        vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: " 
+                               << testIntValue 
+                               << " != " 
+                               << nVals
+                               << ".");
+        testStatus = 1;
+        }
       }
     else
       {
