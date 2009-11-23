@@ -128,7 +128,7 @@ int TestKMeansStatistics( int, char *[] )
 
       for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
         {
-        testIntValue += outputMeta->GetValueByName( r, "Num Elements" ).ToInt();
+        testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
         }
 
       cout << "## Computed clusters (cardinality: "
