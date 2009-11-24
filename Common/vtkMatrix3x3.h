@@ -117,7 +117,7 @@ public:
   // Description:
   // Multiplies matrices a and b and stores the result in c.
   static void Multiply3x3(vtkMatrix3x3 *a, vtkMatrix3x3 *b, vtkMatrix3x3 *c) {
-    vtkMatrix3x3::Multiply3x3(*a->Element,*b->Element,*c->Element); };
+    vtkMatrix3x3::Multiply3x3(*a->Element,*b->Element,*c->Element); }
 //BTX
   static void Multiply3x3(const double a[9], const double b[9],
                           double c[9]);
@@ -176,15 +176,17 @@ public:
   // Return a pointer to the first element of the matrix (double[9]).
   double * GetData() { return *this->Element; }
 
+//BTX
 protected:
-  vtkMatrix3x3() { vtkMatrix3x3::Identity(*this->Element); };
-  ~vtkMatrix3x3() {};
+  vtkMatrix3x3();
+  ~vtkMatrix3x3();
 
   double Element[3][3]; // The elements of the 3x3 matrix
 
 private:
   vtkMatrix3x3(const vtkMatrix3x3&);  // Not implemented
-  void operator= (const vtkMatrix3x3&);  // Not implemented
+  void operator=(const vtkMatrix3x3&);  // Not implemented
+//ETX
 };
 
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)

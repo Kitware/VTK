@@ -109,7 +109,7 @@ vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkLookupTableWithEnabling.cxx
 vtkMath.cxx
-#vtkMatrix3x3.cxx
+vtkMatrix3x3.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
@@ -179,7 +179,7 @@ vtkThreadMessager.cxx
 vtkTimePointUtility.cxx
 vtkTimeStamp.cxx
 vtkTimerLog.cxx
-#vtkTransform2D.cxx
+vtkTransform2D.cxx
 vtkTransform.cxx
 vtkTransformCollection.cxx
 vtkUnicodeString.cxx

@@ -19,20 +19,31 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMatrix3x3, "1.1");
+vtkCxxRevisionMacro(vtkMatrix3x3, "1.2");
 vtkStandardNewMacro(vtkMatrix3x3);
 
 // Useful for viewing a double[9] as a double[3][3]
 typedef double (*SqMatPtr)[3];
 
 //----------------------------------------------------------------------------
+vtkMatrix3x3::vtkMatrix3x3()
+{
+  vtkMatrix3x3::Identity(*this->Element);
+}
+
+//----------------------------------------------------------------------------
+vtkMatrix3x3::~vtkMatrix3x3()
+{
+}
+
+//----------------------------------------------------------------------------
 void vtkMatrix3x3::Zero(double Elements[9])
 {
   SqMatPtr elem  = (SqMatPtr)Elements;
   int i,j;
-  for (i = 0; i < 3; i++)
+  for (i = 0; i < 3; ++i)
     {
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < 3; ++j)
       {
       elem[i][j] = 0.0;
       }
@@ -49,7 +60,7 @@ void vtkMatrix3x3::Identity(double Elements[9])
 
 //----------------------------------------------------------------------------
 template<class T1, class T2, class T3>
-void vtkMatrixMultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
+static void vtkMatrix3x3MultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
 {
   T3 v1 = in[0];
   T3 v2 = in[1];
@@ -67,14 +78,14 @@ void vtkMatrixMultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
 void vtkMatrix3x3::MultiplyPoint(const double Elements[9],
                                  const float in[3], float result[3])
 {
-  vtkMatrixMultiplyPoint(Elements,in,result);
+  vtkMatrix3x3MultiplyPoint(Elements,in,result);
 }
 
 //----------------------------------------------------------------------------
 void vtkMatrix3x3::MultiplyPoint(const double Elements[9],
                                  const double in[3], double result[3])
 {
-  vtkMatrixMultiplyPoint(Elements,in,result);
+  vtkMatrix3x3MultiplyPoint(Elements,in,result);
 }
 
 //----------------------------------------------------------------------------
@@ -234,7 +245,7 @@ void vtkMatrix3x3::DeepCopy(double Elements[9], const double newElements[9])
 //----------------------------------------------------------------------------
 // Transpose the matrix and put it into out.
 void vtkMatrix3x3::Transpose(const double inElements[9],
-                              double outElements[9])
+                             double outElements[9])
 {
   SqMatPtr inElem = (SqMatPtr)inElements;
   SqMatPtr outElem = (SqMatPtr)outElements;
