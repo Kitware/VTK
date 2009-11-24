@@ -71,7 +71,7 @@ class VTK_COMMON_EXPORT vtkTransform2D : public vtkObject
   // Description:
   // Set the current matrix directly.
   void SetMatrix(vtkMatrix3x3 *matrix) {
-    this->SetMatrix(matrix); }
+    this->SetMatrix(matrix->GetData()); }
   void SetMatrix(const double elements[9]);
 
   // Description:
