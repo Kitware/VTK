@@ -53,7 +53,7 @@ PURPOSE.  See the above copyright notice for more information.
 // When the user does not supply an initial set of clusters, then the first 
 // DefaultNumberOfClusters input data observations are used as initial cluster 
 // centers and a single run is performed.
-/
+//
 //
 // This class provides the following functionalities, depending on the 
 // mode it is executed in:
