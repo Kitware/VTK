@@ -23,20 +23,20 @@ PURPOSE.  See the above copyright notice for more information.
 // This class takes as input an optional vtkTable on port LEARN_PARAMETERS 
 // specifying initial  set(s) of cluster values of the following form:  
 // <pre>
-//           K     | Col1               |  ...    | ColN    
-//      -----------+--------------------+---------+---------------
-//           M     |clustCoord(1, 1, 1) |  ...    | clustCoord(1, 1, N)
-//           M     |clustCoord(1, 2, 1) |  ...    | clustCoord(1, 2, N)
-//           .     |       .            |   .     |        .
-//           .     |       .            |   .     |        .
-//           .     |       .            |   .     |        .
-//           M     |clustCoord(1, M, 1) |  ...    | clustCoord(1, M, N)
-//           L     |clustCoord(1, 1, 1) |  ...    | clustCoord(0, 1, N)
-//           L     |clustCoord(1, 2, 1) |  ...    | clustCoord(0, 2, N)
-//           .     |       .            |   .     |        .
-//           .     |       .            |   .     |        .
-//           .     |       .            |   .     |        .
-//           L     |clustCoord(1, L, 1) |  ...    | clustCoord(1, L, N)
+//           K     | Col1            |  ...    | ColN    
+//      -----------+-----------------+---------+---------------
+//           M     |clustCoord(1, 1) |  ...    | clustCoord(1, N)
+//           M     |clustCoord(2, 1) |  ...    | clustCoord(2, N)
+//           .     |       .         |   .     |        .
+//           .     |       .         |   .     |        .
+//           .     |       .         |   .     |        .
+//           M     |clustCoord(M, 1) |  ...    | clustCoord(M, N)
+//           L     |clustCoord(1, 1) |  ...    | clustCoord(1, N)
+//           L     |clustCoord(2, 1) |  ...    | clustCoord(2, N)
+//           .     |       .         |   .     |        .
+//           .     |       .         |   .     |        .
+//           .     |       .         |   .     |        .
+//           L     |clustCoord(L, 1) |  ...    | clustCoord(L, N)
 // </pre>
 //
 // Because the desired value of K is often not known in advance and the 
