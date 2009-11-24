@@ -578,7 +578,8 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
     d_stream->avail_out = (uInt)( buffersize );
 
     // How many byte from compressed streamed should we read
-    METAIO_STL::streamoff inputBufferSize = buffersize/compressionRate;
+    METAIO_STL::streamoff inputBufferSize = (METAIO_STL::streamoff)(buffersize/compressionRate);
+
     if(inputBufferSize == 0)
       {
       inputBufferSize = 1;
