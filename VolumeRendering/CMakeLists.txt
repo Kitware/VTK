@@ -34,6 +34,7 @@ vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
 vtkSphericalDirectionEncoder.cxx
 vtkVolumeMapper.cxx
+vtkVolumePicker.cxx
 vtkVolumeProMapper.cxx
 vtkVolumeRayCastCompositeFunction.cxx
 vtkVolumeRayCastFunction.cxx
