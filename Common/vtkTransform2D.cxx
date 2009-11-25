@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform2D, "1.1");
+vtkCxxRevisionMacro(vtkTransform2D, "1.2");
 vtkStandardNewMacro(vtkTransform2D);
 
 //----------------------------------------------------------------------------
@@ -174,6 +174,8 @@ void vtkTransform2D::GetTranspose(vtkMatrix3x3 *transpose)
 }
 
 //----------------------------------------------------------------------------
+namespace { // Anonmymous namespace
+
 template <class T1, class T2, class T3>
 inline double vtkHomogeneousTransformPoint2D(T1 M[9],
                                              T2 in[2], T3 out[2])
@@ -188,6 +190,8 @@ inline double vtkHomogeneousTransformPoint2D(T1 M[9],
 
   return f;
 }
+
+} // End anonymous namespace
 
 //----------------------------------------------------------------------------
 void vtkTransform2D::TransformPoints(float *inPts, float *outPts, int n)
@@ -223,7 +227,7 @@ void vtkTransform2D::TransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts)
     {
     inPts->GetPoint(i,point);
     vtkHomogeneousTransformPoint2D(M,point,point);
-    outPts->InsertPoint(i, point);
+    outPts->SetPoint(i, point);
     }
 }
 
@@ -273,6 +277,6 @@ void vtkTransform2D::InverseTransformPoints(vtkPoints2D *inPts, vtkPoints2D *out
     {
     inPts->GetPoint(i,point);
     vtkHomogeneousTransformPoint2D(M,point,point);
-    outPts->InsertPoint(i, point);
+    outPts->SetPoint(i, point);
     }
 }

@@ -15,6 +15,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestDirectory.cxx
   TestFastNumericConversion.cxx
   TestMath.cxx
+  TestMatrix3x3.cxx
   TestMinimalStandardRandomSequence.cxx
   TestPolynomialSolversUnivariate.cxx
   TestSmartPointer.cxx

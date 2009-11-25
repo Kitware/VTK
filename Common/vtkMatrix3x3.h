@@ -152,6 +152,8 @@ public:
     {return &(this->Element[i][0]);}
   const double *operator[](unsigned int i) const
     { return &(this->Element[i][0]); }
+  bool operator==(const vtkMatrix3x3&);
+  bool operator!=(const vtkMatrix3x3&);
   void Adjoint(vtkMatrix3x3 &in,vtkMatrix3x3 &out)
     {this->Adjoint(&in,&out);}
   double Determinant(vtkMatrix3x3 &in)
@@ -211,6 +213,36 @@ inline bool vtkMatrix3x3::IsIdentity()
     {
     return false;
     }
+}
+
+inline bool vtkMatrix3x3::operator==(const vtkMatrix3x3 &other)
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    for (int j = 0; j < 3; ++j)
+      {
+      if (Element[i][j] != other.Element[i][j])
+        {
+        return false;
+        }
+      }
+    }
+  return true;
+}
+
+inline bool vtkMatrix3x3::operator!=(const vtkMatrix3x3 &other)
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    for (int j = 0; j < 3; ++j)
+      {
+      if (Element[i][j] != other.Element[i][j])
+        {
+        return true;
+        }
+      }
+    }
+  return false;
 }
 
 #endif
