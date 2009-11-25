@@ -50,7 +50,7 @@ print "# Finally, calculate correlation and linear regression:"
 cs = vtkCorrelativeStatistics()
 cs.AddInputConnection(databaseToTable.GetOutputPort())
 cs.AddColumnPair("Temp1","Temp2")
-cs.SetAssess(1)
+cs.SetAssessOption(1)
 cs.Update()
 
 cStats = cs.GetOutput(1)
