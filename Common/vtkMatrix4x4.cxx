@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMatrix4x4, "1.63");
+vtkCxxRevisionMacro(vtkMatrix4x4, "1.64");
 vtkStandardNewMacro(vtkMatrix4x4);
 
 // Useful for viewing a double[16] as a double[4][4]
@@ -49,8 +49,10 @@ void vtkMatrix4x4::Identity(double Elements[16])
 }
 
 //----------------------------------------------------------------------------
+namespace { // Enclose private helper function in anonymous namespace
+
 template<class T1, class T2, class T3>
-static void vtkMatrix4x4MultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
+void vtkMatrix4x4MultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
 {
   T3 v1 = in[0];
   T3 v2 = in[1];
@@ -62,6 +64,8 @@ static void vtkMatrix4x4MultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
   out[2] = v1*elem[8]  + v2*elem[9]  + v3*elem[10] + v4*elem[11];
   out[3] = v1*elem[12] + v2*elem[13] + v3*elem[14] + v4*elem[15];
 }
+
+} // End anonymous namespace
 
 //----------------------------------------------------------------------------
 // Multiply this matrix by a point (in homogeneous coordinates).

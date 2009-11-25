@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMatrix3x3, "1.2");
+vtkCxxRevisionMacro(vtkMatrix3x3, "1.3");
 vtkStandardNewMacro(vtkMatrix3x3);
 
 // Useful for viewing a double[9] as a double[3][3]
@@ -59,8 +59,10 @@ void vtkMatrix3x3::Identity(double Elements[9])
 }
 
 //----------------------------------------------------------------------------
+namespace { // Enclose private helper function in anonymous namespace
+
 template<class T1, class T2, class T3>
-static void vtkMatrix3x3MultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
+void vtkMatrix3x3MultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
 {
   T3 v1 = in[0];
   T3 v2 = in[1];
@@ -70,6 +72,8 @@ static void vtkMatrix3x3MultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
   out[1] = v1*elem[3]  + v2*elem[4]  + v3*elem[5];
   out[2] = v1*elem[6]  + v2*elem[7]  + v3*elem[8];
 }
+
+} // End anonymous namespace
 
 //----------------------------------------------------------------------------
 // Multiply this matrix by a point (in homogeneous coordinates).
