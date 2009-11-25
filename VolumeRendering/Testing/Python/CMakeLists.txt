@@ -20,11 +20,15 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         volRCRotateClip
         volTM2DCropRegions
         volTM2DRotateClip
+        #VolumePicker
         )
 
       CONVERT_TCL_TEST_TO_PY (
         tests
         VolumeRendering)
+
+     
+
     ENDIF (VTK_PYTHON_EXE)
   ENDIF (VTK_DATA_ROOT)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)

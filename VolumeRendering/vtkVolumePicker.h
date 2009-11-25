@@ -60,8 +60,8 @@ public:
 
   // Description:
   // Set the opacity isovalue to use for defining volume surfaces.  The
-  // will occur at the location along the pick ray where the product of
-  // the scalar opacity and gradient opacity is equal to this isovalue.
+  // pick will occur at the location along the pick ray where the product
+  // of the scalar opacity and gradient opacity is equal to this isovalue.
   vtkSetMacro(VolumeOpacityIsovalue, double);
   vtkGetMacro(VolumeOpacityIsovalue, double);
 
