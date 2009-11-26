@@ -36,7 +36,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkVolumePicker, "1.2");
+vtkCxxRevisionMacro(vtkVolumePicker, "1.3");
 vtkStandardNewMacro(vtkVolumePicker);
 
 //----------------------------------------------------------------------------
@@ -62,13 +62,13 @@ vtkVolumePicker::vtkVolumePicker()
   this->PCoords[1] = 0.0;
   this->PCoords[2] = 0.0;
 
-  this->CellIJK[0] = 0.0;
-  this->CellIJK[1] = 0.0;
-  this->CellIJK[2] = 0.0;
+  this->CellIJK[0] = 0;
+  this->CellIJK[1] = 0;
+  this->CellIJK[2] = 0;
 
-  this->PointIJK[0] = 0.0;
-  this->PointIJK[1] = 0.0;
-  this->PointIJK[2] = 0.0;
+  this->PointIJK[0] = 0;
+  this->PointIJK[1] = 0;
+  this->PointIJK[2] = 0;
 
   this->MapperNormal[0] = 0.0;
   this->MapperNormal[1] = 0.0;
@@ -132,13 +132,13 @@ void vtkVolumePicker::Initialize()
   this->PCoords[1] = 0.0;
   this->PCoords[2] = 0.0;
 
-  this->CellIJK[0] = 0.0;
-  this->CellIJK[1] = 0.0;
-  this->CellIJK[2] = 0.0;
+  this->CellIJK[0] = 0;
+  this->CellIJK[1] = 0;
+  this->CellIJK[2] = 0;
 
-  this->PointIJK[0] = 0.0;
-  this->PointIJK[1] = 0.0;
-  this->PointIJK[2] = 0.0;
+  this->PointIJK[0] = 0;
+  this->PointIJK[1] = 0;
+  this->PointIJK[2] = 0;
 
   this->MapperNormal[0] = 0.0;
   this->MapperNormal[1] = 0.0;
@@ -530,7 +530,7 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
         else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
 
         // Round in order to do nearest-neighbor interpolation
-        xi[j] = floor(x[j]); if (x[j] - xi[j] >= 0.5) { xi[j]++; }
+        xi[j] = int(floor(x[j])); if (x[j] - xi[j] >= 0.5) { xi[j]++; }
         }
 
       double opacity = this->ComputeVolumeOpacity(xi, data, scalars,
@@ -689,7 +689,7 @@ double vtkVolumePicker::IntersectImageActorWithLine(const double p1[3],
         xj = displayExtent[2*j + 1];
         }
       this->MapperPosition[j] = origin[j] + xj*spacing[j];
-      this->CellIJK[j] = floor(xj);
+      this->CellIJK[j] = int(floor(xj));
       this->PCoords[j] = xj - this->CellIJK[j];
       // Keep the cell in-bounds if it is on the edge
       if (this->CellIJK[j] == extent[2*j+1])
