@@ -55,7 +55,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.3");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -86,7 +86,6 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   int size[2];
   size[0] = viewport->GetSize()[0];
   size[1] = viewport->GetSize()[1];
-  double *vport = viewport->GetViewport();
 
   // push a 2D matrix on the stack
   glMatrixMode(GL_PROJECTION);
@@ -253,7 +252,7 @@ void vtkOpenGLContextDevice2D::DrawText(float *point, vtkTextProperty *prop,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawImage(float *p, int n, vtkImageData *image)
+void vtkOpenGLContextDevice2D::DrawImage(float *p, int, vtkImageData *image)
 {
   vtkTexture *tex =vtkTexture::New();
   tex->SetInput(image);
@@ -288,6 +287,7 @@ unsigned int vtkOpenGLContextDevice2D::AddPointSprite(vtkImageData *image)
 {
   this->Storage->texture = vtkTexture::New();
   this->Storage->texture->SetInput(image);
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -360,6 +360,11 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
   if(supportsGL15)
     {
     m->LoadExtension("GL_VERSION_1_5");
+    return true;
+    }
+  else
+    {
+    return false;
     }
 }
 

@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) location(s) (bottom corner).
-  virtual void DrawImage(float *p, int n, vtkImageData *) {;}
+  virtual void DrawImage(float *, int , vtkImageData *) {;}
 
   // Description:
   // Experimentation with point sprites

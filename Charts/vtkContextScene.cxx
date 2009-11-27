@@ -100,7 +100,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.2");
+vtkCxxRevisionMacro(vtkContextScene, "1.3");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -157,6 +157,10 @@ vtkContextItem * vtkContextScene::GetItem(int index)
   if (index < this->NumberOfItems())
     {
     return this->Storage->items[index];
+    }
+  else
+    {
+    return NULL;
     }
 }
 

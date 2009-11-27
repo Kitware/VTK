@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.2");
+vtkCxxRevisionMacro(vtkChartXY, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -85,7 +85,7 @@ vtkChartXY::vtkChartXY()
 //-----------------------------------------------------------------------------
 vtkChartXY::~vtkChartXY()
 {
-  for (int i = 0; i < this->ChartPrivate->plots.size(); ++i)
+  for (unsigned int i = 0; i < this->ChartPrivate->plots.size(); ++i)
     {
     this->ChartPrivate->plots[i]->Delete();
     }
@@ -364,7 +364,7 @@ void vtkChartXY::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << indent << "Number of plots: " << this->ChartPrivate->plots.size()
        << endl;
-    for (int i = 0; i < this->ChartPrivate->plots.size(); ++i)
+    for (unsigned int i = 0; i < this->ChartPrivate->plots.size(); ++i)
       {
       os << indent << "Plot " << i << ":" << endl;
       this->ChartPrivate->plots[i]->PrintSelf(os, indent.GetNextIndent());
