@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.1");
+vtkCxxRevisionMacro(vtkImageItem, "1.2");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -100,6 +100,8 @@ bool vtkImageItem::Paint(vtkContext2D *painter)
     // We have a function pointer - do something...
     ;
     }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
