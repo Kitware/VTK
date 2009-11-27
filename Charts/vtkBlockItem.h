@@ -93,7 +93,7 @@ protected:
 
   int Dimensions[4];
 
-  int LastPosition[2];
+  float LastPosition[2];
 
   char *Label;
 

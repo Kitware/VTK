@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.1");
+vtkCxxRevisionMacro(vtkContext2D, "1.2");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -42,6 +42,7 @@ bool vtkContext2D::Begin(vtkContextDevice2D *device)
 {
   this->Device = device;
   this->Modified();
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -50,6 +51,7 @@ bool vtkContext2D::End()
   this->Device->End();
   this->Device = NULL;
   this->Modified();
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -337,6 +339,7 @@ void vtkContext2D::DrawImage(float x, float y, vtkImageData *image)
 unsigned int vtkContext2D::AddPointSprite(vtkImageData *image)
 {
   this->Device->AddPointSprite(image);
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

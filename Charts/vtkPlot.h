@@ -84,7 +84,7 @@ protected:
   vtkPlot();
   ~vtkPlot();
 
-  unsigned char r, g, b, a;
+  unsigned char Color[4];
 
   float Width;
 

@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.1");
+vtkCxxRevisionMacro(vtkChartXY, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -106,8 +106,6 @@ void vtkChartXY::SetGeometry(int *p)
   vtkChart::SetGeometry(p);
 
   // This is where we set the axes up too
-  float p1[] = { p[2], p[3], p[0]-p[4], p[3] };
-  float p2[] = { p[2], p[3], p[2], p[1]-p[5] };
   this->XAxis->SetPoint1(p[2]     , p[3]     );
   this->XAxis->SetPoint2(p[0]-p[4], p[3]     );
   this->YAxis->SetPoint1(p[2]     , p[3]     );
@@ -168,8 +166,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   // Clip drawing while plotting
   int clip[4];
-  clip[0] = xOrigin;
-  clip[1] = yOrigin;
+  clip[0] = static_cast<int>(xOrigin);
+  clip[1] = static_cast<int>(yOrigin);
   clip[2] = this->Geometry[0] - this->Geometry[4] - this->Geometry[2];
   clip[3] = this->Geometry[1] - this->Geometry[5] - this->Geometry[3];
   painter->GetDevice()->SetClipping(&clip[0]);
@@ -191,6 +189,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
   this->XAxis->Paint(painter);
   this->YAxis->Paint(painter);
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -262,7 +262,10 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
       return points;
       break;
       }
+    default:
+      return NULL;
     }
+  return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -330,9 +333,6 @@ void vtkChartXY::ProcessSelectionEvent(vtkObject* caller, void* callData)
   this->XAxis->SetMaximum(tRect[2]);
   this->YAxis->SetMinimum(tRect[1]);
   this->YAxis->SetMaximum(tRect[3]);
-  // Now re-render the chart
-
-  vtkInteractorStyle *interactor = reinterpret_cast<vtkInteractorStyle *>(caller);
 }
 
 

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.1");
+vtkCxxRevisionMacro(vtkAxis, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -61,8 +61,8 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
     {
     // Draw the axis label
-    int x = this->Point1[0] - 45;
-    int y = (this->Point1[1] + this->Point2[1]) / 2;
+    int x = static_cast<int>(this->Point1[0] - 45);
+    int y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
     vtkTextProperty *prop = painter->GetTextProp();
     prop->SetFontSize(15);
     prop->SetFontFamilyAsString("Arial");
@@ -112,14 +112,15 @@ bool vtkAxis::Paint(vtkContext2D *painter)
                          float(this->NumberOfTicks -1);
     for (int i = 0; i < this->NumberOfTicks; ++i)
       {
-      int xTick = this->Point1[1] + float(i)*spacing;
+      int xTick = static_cast<int>(this->Point1[1] + float(i)*spacing);
       painter->DrawLine(xTick, this->Point1[1] - 5, xTick, this->Point1[1]);
 
       char string[20];
       sprintf(string, "%-#6.3g", this->Minimum + i*labelSpacing);
-      painter->DrawText(xTick, this->Point1[1] - 5, string);
+      painter->DrawText(xTick, int(this->Point1[1] - 5), string);
       }
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------

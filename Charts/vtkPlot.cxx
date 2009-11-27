@@ -23,16 +23,16 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.1");
+vtkCxxRevisionMacro(vtkPlot, "1.2");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
 vtkPlot::vtkPlot()
 {
-  this->r = 0;
-  this->g = 0;
-  this->b = 0;
-  this->a = 0;
+  this->Color[0] = 0;
+  this->Color[1] = 0;
+  this->Color[2] = 0;
+  this->Color[3] = 0;
   this->Width = 1.0;
   this->Data = vtkContextMapper2D::New();
   this->Selection = NULL;
@@ -52,10 +52,10 @@ vtkPlot::~vtkPlot()
 void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b,
                        unsigned char a)
 {
-  this->r = r;
-  this->g = g;
-  this->b = b;
-  this->a = a;
+  this->Color[0] = r;
+  this->Color[1] = g;
+  this->Color[2] = b;
+  this->Color[3] = a;
 }
 
 //-----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ void vtkPlot::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   // Print out our color and width
-  os << indent << "Color: " << this->r << ", " << this->g
-     << ", " << this->b << ", " << this->a << endl;
+  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1]
+     << ", " << this->Color[2] << ", " << this->Color[3] << endl;
   os << indent << "Width: " << this->Width << endl;
 }

@@ -50,7 +50,7 @@ public:
 
   // Description:
   // Draw a quad using the specified number of points.
-  virtual void DrawQuad(float *points, int n) { ; }
+  virtual void DrawQuad(float *, int) { ; }
 
 //BTX
   // Description:
@@ -61,11 +61,11 @@ public:
 
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) location(s) (bottom corner).
-  virtual void DrawImage(float *p, int n, vtkImageData *image) {;}
+  virtual void DrawImage(float *p, int n, vtkImageData *) {;}
 
   // Description:
   // Experimentation with point sprites
-  virtual unsigned int AddPointSprite(vtkImageData *image) {;}
+  virtual unsigned int AddPointSprite(vtkImageData *) { return 0; }
 
   // Description:
   // Set the color for the device using unsigned char of length 4, RGBA.
@@ -115,7 +115,7 @@ public:
 
   // Description:
   // Begin drawing, pass in the viewport to set up the view.
-  virtual void Begin(vtkViewport* viewport) { }
+  virtual void Begin(vtkViewport*) { }
 
   // Description:
   // End drawing, clean up the view.

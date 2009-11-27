@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextActor, "1.1");
+vtkCxxRevisionMacro(vtkContextActor, "1.2");
 vtkStandardNewMacro(vtkContextActor);
 
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
@@ -60,7 +60,7 @@ vtkContextActor::~vtkContextActor()
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::ReleaseGraphicsResources(vtkWindow *win)
+void vtkContextActor::ReleaseGraphicsResources(vtkWindow *)
 {
 }
 

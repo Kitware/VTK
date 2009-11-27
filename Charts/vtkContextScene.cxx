@@ -100,7 +100,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.1");
+vtkCxxRevisionMacro(vtkContextScene, "1.2");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -135,6 +135,7 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
     painter->SetTransform(this->Storage->items[i]->GetTransform());
     this->Storage->items[i]->Paint(painter);
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -169,7 +170,7 @@ void vtkContextScene::SetInteractorStyle(vtkInteractorStyle *interactor)
 
 //-----------------------------------------------------------------------------
 void vtkContextScene::ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData)
+                             void*)
 {
   vtkDebugMacro("ProcessEvents called! " << caller->GetClassName() << "\t"
       << vtkCommand::GetStringFromEventId(eventId)

@@ -30,7 +30,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.1");
+vtkCxxRevisionMacro(vtkPlotLine, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -93,7 +93,8 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   // Now to plot the points
   if (this->Points)
     {
-    painter->GetPen()->SetColor(this->r, this->g, this->b, this->a);
+    painter->GetPen()->SetColor(this->Color);
+    painter->GetPen()->SetOpacity(this->Color[3]);
     painter->GetPen()->SetWidth(this->Width);
     painter->DrawPoly(this->Points);
     }
@@ -183,23 +184,11 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
                   << endl << x->GetClassName()
                   << "\t" << y->GetClassName());
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
 void vtkPlotLine::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  // Print some details about this plot
-  os << indent << "Label: ";
-  if (this->Label)
-    {
-    os << "\"" << *this->Label << "\"" << endl;
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-  os << indent << "Line Width: " << this->Width << endl;
-  os << indent << "Color: " << this->r << ", " << this->g
-     << ", " << this->b << ", " << this->a << endl;
 }

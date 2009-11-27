@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.1");
+vtkCxxRevisionMacro(vtkContextItem, "1.2");
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D)
 
 //-----------------------------------------------------------------------------
@@ -46,37 +46,37 @@ vtkContextItem::~vtkContextItem()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::Hit(const vtkContextMouseEvent &mouse)
+bool vtkContextItem::Hit(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextItem::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextItem::MouseMoveEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   return false;
 }

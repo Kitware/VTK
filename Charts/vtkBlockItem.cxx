@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBlockItem, "1.1");
+vtkCxxRevisionMacro(vtkBlockItem, "1.2");
 vtkStandardNewMacro(vtkBlockItem);
 
 //-----------------------------------------------------------------------------
@@ -65,8 +65,8 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
   painter->DrawRect(this->Dimensions[0], this->Dimensions[1],
                     this->Dimensions[2], this->Dimensions[3]);
 
-  int x = this->Dimensions[0] + 0.5 * this->Dimensions[2];
-  int y = this->Dimensions[1] + 0.5 * this->Dimensions[3];
+  int x = static_cast<int>(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
+  int y = static_cast<int>(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
   painter->DrawText(x, y, this->Label);
 
   if (this->scalarFunction)
@@ -74,6 +74,7 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
     // We have a function pointer - do something...
     ;
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -94,7 +95,7 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   this->MouseOver = true;
   return true;
@@ -138,7 +139,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   this->MouseOver = false;
   return true;
@@ -154,15 +155,15 @@ bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   this->MouseButtonPressed = -1;
   return true;
 }
 
-void vtkBlockItem::SetScalarFunctor(double (*scalarFunction)(double, double))
+void vtkBlockItem::SetScalarFunctor(double (*ScalarFunction)(double, double))
 {
-  this->scalarFunction = scalarFunction;
+  this->scalarFunction = ScalarFunction;
 }
 
 //-----------------------------------------------------------------------------

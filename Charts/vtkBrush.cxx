@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBrush, "1.1");
+vtkCxxRevisionMacro(vtkBrush, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBrush);
@@ -40,32 +40,32 @@ vtkBrush::~vtkBrush()
 //-----------------------------------------------------------------------------
 void vtkBrush::SetColorF(double color[3])
 {
-  this->Color[0] = color[0] * 255.0;
-  this->Color[1] = color[1] * 255.0;
-  this->Color[2] = color[2] * 255.0;
+  this->Color[0] = static_cast<unsigned char>(color[0] * 255.0);
+  this->Color[1] = static_cast<unsigned char>(color[1] * 255.0);
+  this->Color[2] = static_cast<unsigned char>(color[2] * 255.0);
 }
 
 //-----------------------------------------------------------------------------
 void vtkBrush::SetColorF(double r, double g, double b)
 {
-  this->Color[0] = r * 255.0;
-  this->Color[1] = g * 255.0;
-  this->Color[2] = b * 255.0;
+  this->Color[0] = static_cast<unsigned char>(r * 255.0);
+  this->Color[1] = static_cast<unsigned char>(g * 255.0);
+  this->Color[2] = static_cast<unsigned char>(b * 255.0);
 }
 
 //-----------------------------------------------------------------------------
 void vtkBrush::SetColorF(double r, double g, double b, double a)
 {
-  this->Color[0] = r * 255.0;
-  this->Color[1] = g * 255.0;
-  this->Color[2] = b * 255.0;
-  this->Color[3] = a * 255.0;
+  this->Color[0] = static_cast<unsigned char>(r * 255.0);
+  this->Color[1] = static_cast<unsigned char>(g * 255.0);
+  this->Color[2] = static_cast<unsigned char>(b * 255.0);
+  this->Color[3] = static_cast<unsigned char>(a * 255.0);
 }
 
 //-----------------------------------------------------------------------------
 void vtkBrush::SetOpacityF(double a)
 {
-  this->Color[3] = a * 255.0;
+  this->Color[3] = static_cast<unsigned char>(a * 255.0);
 }
 
 //-----------------------------------------------------------------------------
