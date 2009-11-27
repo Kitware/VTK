@@ -55,7 +55,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.4");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -356,8 +356,7 @@ void vtkOpenGLContextDevice2D::DisableClipping()
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
-  bool supportsGL15=m->ExtensionSupported("GL_VERSION_1_5");
-  if(supportsGL15)
+  if(m->ExtensionSupported("GL_VERSION_1_5"))
     {
     m->LoadExtension("GL_VERSION_1_5");
     return true;

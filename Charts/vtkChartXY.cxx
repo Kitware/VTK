@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.3");
+vtkCxxRevisionMacro(vtkChartXY, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -265,7 +265,6 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
     default:
       return NULL;
     }
-  return NULL;
 }
 
 //-----------------------------------------------------------------------------
