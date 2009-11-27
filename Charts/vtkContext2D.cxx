@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.3");
+vtkCxxRevisionMacro(vtkContext2D, "1.4");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -108,7 +108,7 @@ void vtkContext2D::DrawPoly(float *x, float *y, int n)
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-  float p[2*n];
+  float *p = new float[2*n];
   for (int i = 0; i < n; ++i)
     {
     p[2*i]   = x[i];
@@ -116,7 +116,8 @@ void vtkContext2D::DrawPoly(float *x, float *y, int n)
     }
 
   this->ApplyPen();
-  this->Device->DrawPoly(&p[0], n);
+  this->Device->DrawPoly(p, n);
+  delete[] p;
 }
 
 //-----------------------------------------------------------------------------
@@ -147,9 +148,10 @@ void vtkContext2D::DrawPoly(float *points, int n)
 
   if (this->Transform)
     {
-    float p[2*n];
+    float *p = new float[2*n];
     this->Transform->TransformPoints(points, &p[0], n);
-    this->Device->DrawPoly(&p[0], n);
+    this->Device->DrawPoly(p, n);
+    delete[] p;
     }
   else
     {
@@ -168,13 +170,14 @@ void vtkContext2D::DrawPoint(float x, float y)
 void vtkContext2D::DrawPoints(float *x, float *y, int n)
 {
   // Copy the points into an array and draw it.
-  float p[2*n];
+  float *p = new float[2*n];
   for (int i = 0; i < n; ++i)
     {
     p[2*i]   = x[i];
     p[2*i+1] = y[i];
     }
   this->DrawPoints(&p[0], n);
+  delete[] p;
 }
 
 //-----------------------------------------------------------------------------
@@ -199,9 +202,10 @@ void vtkContext2D::DrawPoints(float *points, int n)
   this->ApplyPen();
   if (this->Transform)
     {
-    float p[2*n];
+    float *p = new float[2*n];
     this->Transform->TransformPoints(points, &p[0], n);
-    this->Device->DrawPoints(&p[0], n);
+    this->Device->DrawPoints(p, n);
+    delete[] p;
     }
   else
     {
@@ -275,15 +279,16 @@ void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
     }
   // Raterize an ellipse
   int iterations = 100;
-  float p[2*(iterations+1)];
-  float length = 2.0 * M_PI / iterations;
+  float *p = new float[2*(iterations+1)];
+  float length = 2.0 * 3.14159265 / iterations;
   for (int i = 0; i <= iterations; ++i)
     {
     p[2*i  ] = rx * cos(i * length) + x;
     p[2*i+1] = ry * sin(i * length) + y;
     }
   this->ApplyPen();
-  this->Device->DrawPoly(&p[0], iterations + 1);
+  this->Device->DrawPoly(p, iterations + 1);
+  delete[] p;
 }
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
