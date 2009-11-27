@@ -269,6 +269,9 @@ VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support f
 VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." ON
   "VTK_USE_RENDERING" OFF)
 
+VTK_DEPENDENT_OPTION(VTK_USE_CHARTS "Build VTK chart support (OpenGL based)" ON
+  "VTK_USE_RENDERING;VTK_USE_VIEWS" OFF)
+
 SET(VTK_DEFAULT_SHADERS_DIR
    "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
    CACHE INTERNAL 
@@ -366,6 +369,9 @@ IF(VTK_USE_MFC)
   SET(VTK_KITS ${VTK_KITS} MFC)
 ENDIF(VTK_USE_MFC)
 
+IF(VTK_USE_CHARTS)
+  SET(VTK_KITS ${VTK_KITS} CHARTS)
+ENDIF(VTK_USE_CHARTS)
 
 #-----------------------------------------------------------------------------
 # Determine GUI.
@@ -1150,6 +1156,9 @@ ENDIF(VTK_USE_VIEWS)
 IF(VTK_USE_GUISUPPORT)
   ADD_SUBDIRECTORY(GUISupport)
 ENDIF(VTK_USE_GUISUPPORT)
+IF(VTK_USE_CHARTS)
+  ADD_SUBDIRECTORY(Charts)
+ENDIF(VTK_USE_CHARTS)
 
 # Wrapping.
 IF(VTK_WRAP_TCL)

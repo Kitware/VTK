@@ -247,6 +247,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_VIEWS_EXPORT __declspec( dllimport ) 
  #endif
 
+ #if defined(vtkCharts_EXPORTS)
+   #define VTK_CHARTS_EXPORT __declspec( dllexport )
+ #else
+   #define VTK_CHARTS_EXPORT __declspec( dllimport )
+ #endif
+
 #else
  #define VTK_COMMON_EXPORT
  #define VTK_FILTERING_EXPORT
@@ -264,6 +270,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_WIDGETS_EXPORT
  #define VTK_PARALLEL_EXPORT
  #define VTK_VIEWS_EXPORT
+ #define VTK_CHARTS_EXPORT
  #define VTK_EXPORT
 #endif
 
