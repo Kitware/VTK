@@ -298,12 +298,14 @@ OPTION(VTK_USE_QT "Build Qt support" OFF)
 
 IF(VTK_USE_QT)
 # Now require Qt 4.5.0 or later
-  SET ( QT_MIN_VERSION "4.5.0" )
-  SET ( QT_USE_QTSQL 1 )
-  INCLUDE( ${CMAKE_ROOT}/Modules/FindQt4.cmake )
-  IF(NOT QT_FOUND)
-    MESSAGE("Qt was not found")
-  ENDIF(NOT QT_FOUND)
+  SET(QT_MIN_VERSION "4.5.0")
+  SET(QT_OFFICIAL_VERSION "4.5")
+  SET(QT_REQUIRED TRUE)
+  SET(QT_USE_QTSQL 1)
+  FIND_PACKAGE(Qt4)
+  IF(NOT QT4_FOUND)
+    MESSAGE(SEND_ERROR "Qt ${QT_MIN_VERSION} or greater not found.  Please check the QT_QMAKE_EXECUTABLE variable.")
+  ENDIF(NOT QT4_FOUND)
 ENDIF(VTK_USE_QT)
   
 # Determine GUI Support.
