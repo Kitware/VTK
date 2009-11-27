@@ -16,23 +16,14 @@
 #include "vtkOpenGLContextDevice2D.h"
 
 #include "vtkPoints2D.h"
-
 #include "vtkFloatArray.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkActor2D.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlane.h"
-#include "vtkPlaneCollection.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkProperty2D.h"
-#include "vtkScalarsToColors.h"
-#include "vtkUnsignedCharArray.h"
+
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkgluPickMatrix.h"
 
 #include "vtkTexture.h"
 #include "vtkImageData.h"
@@ -64,7 +55,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.2");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -232,9 +223,24 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     }
 }
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef DrawText
+// Define possible mangled names.
+void vtkOpenGLContextDevice2D::DrawTextA(float *point, vtkTextProperty *prop,
+                                         const vtkStdString &string)
+{
+  this->DrawText(point, prop, string);
+}
+void vtkOpenGLContextDevice2D::DrawTextW(float *point, vtkTextProperty *prop,
+                                         const vtkStdString &string)
+{
+  this->DrawText(point, prop, string);
+}
+#endif
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawText(float *point, vtkTextProperty *prop,
-                                  const vtkStdString &string)
+                                        const vtkStdString &string)
 {
   if (!this->IsTextDrawn)
     {

@@ -127,12 +127,33 @@ public:
   // Draw the supplied image at the given x, y location (bottom corner).
   void DrawImage(float x, float y, vtkImageData *image);
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define DrawTextA DrawText
+# define DrawTextW DrawText
+#endif
+
 //BTX
   // Description:
   // Draw some text to the screen.
   void DrawText(vtkPoints2D *point, const vtkStdString &string);
   void DrawText(int x, int y, const vtkStdString &string);
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef DrawTextA
+# undef DrawTextW
+  void DrawTextA(vtkPoints2D *point, const vtkStdString &string);
+  void DrawTextA(int x, int y, const vtkStdString &string);
+  void DrawTextW(vtkPoints2D *point, const vtkStdString &string);
+  void DrawTextW(int x, int y, const vtkStdString &string);
+  void DrawTextA(vtkPoints2D *point, const char *string);
+  void DrawTextA(int x, int y, const char *string);
+  void DrawTextW(vtkPoints2D *point, const char *string);
+  void DrawTextW(int x, int y, const char *string);
+#endif
+
 //ETX
+
   void DrawText(vtkPoints2D *point, const char *string);
   void DrawText(int x, int y, const char *string);
 
