@@ -156,6 +156,7 @@ SET( Kit_SRCS
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
+  vtkSurfacePicker.cxx
   vtkTDxInteractorStyle.cxx
   vtkTDxInteractorStyleCamera.cxx
   vtkTDxInteractorStyleSettings.cxx

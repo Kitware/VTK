@@ -12,22 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumePicker - ray-cast picker for all kinds of Prop3Ds
+// .NAME vtkVolumePicker - ray-cast picker enhanced for volumes
 // .SECTION Description
-// vtkVolumePicker is a subclass of vtkPicker that tries to be a little
-// bit smarter and less generic than vtkCellPicker and vtkPointPicker.
-// For vtkVolume objects, it shoots a ray into the volume and returns
-// the point where the ray intersects an isosurface of a chosen opacity.
-// For vtkImageActor objects, it intersects the ray with the displayed
-// slice. For vtkActor objects, it works like vtkCellPicker but also
-// returns the closest point within the picked cell.
-// If the object's mapper has ClippingPlanes, then it takes the clipping
-// into account, and will return the Id of the clipping plane that was
-// intersected.
-// For all prop types, it returns point and cell information, plus the
-// normal of the surface that was intersected at the pick position.  For
-// volumes and images, it also returns (i,j,k) coordinates for the point
-// and the cell that were picked.  
+// vtkVolumePicker is a subclass of vtkSurfacePicker.  It has one
+// advantage over vtkSurfacePicker for volumes: it will be able to
+// correctly perform picking when CroppingPlanes are present.  This
+// isn't possible for vtkSurfacePicker since it doesn't link to
+// the VolumeRendering classes and hence cannot access information
+// about the CroppingPlanes.
 //
 // .SECTION See Also
 // vtkPicker vtkPointPicker vtkCellPicker
@@ -38,97 +30,32 @@
 #ifndef __vtkVolumePicker_h
 #define __vtkVolumePicker_h
 
-#include "vtkPicker.h"
+#include "vtkSurfacePicker.h"
 
-class vtkMapper;
-class vtkAbstractVolumeMapper;
-class vtkImageActor;
-class vtkPlaneCollection;
-class vtkPiecewiseFunction;
-class vtkDataArray;
-class vtkDoubleArray;
-class vtkCell;
-class vtkGenericCell;
-class vtkImageData;
-
-class VTK_VOLUMERENDERING_EXPORT vtkVolumePicker : public vtkPicker
+class VTK_VOLUMERENDERING_EXPORT vtkVolumePicker : public vtkSurfacePicker
 {
 public:
   static vtkVolumePicker *New();
-  vtkTypeRevisionMacro(vtkVolumePicker, vtkPicker);
+  vtkTypeRevisionMacro(vtkVolumePicker, vtkSurfacePicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the opacity isovalue to use for defining volume surfaces.  The
-  // pick will occur at the location along the pick ray where the product
-  // of the scalar opacity and gradient opacity is equal to this isovalue.
-  vtkSetMacro(VolumeOpacityIsovalue, double);
-  vtkGetMacro(VolumeOpacityIsovalue, double);
-
-  // Description:
-  // Set whether to pick the clipping planes of props that have them.
-  // If this is set, then the pick will be done on the clipping planes
-  // rather than on the data. The GetClippingPlaneId() method will return
-  // the index of the clipping plane of the vtkProp3D that was picked.
-  // The picking of vtkImageActors is not influenced by this setting,
-  // since they have no clipping planes.
-  vtkSetMacro(PickClippingPlanes, int);
-  vtkBooleanMacro(PickClippingPlanes, int);
-  vtkGetMacro(PickClippingPlanes, int);
-
-  // Description:
-  // Get the index of the clipping plane that was intersected during
-  // the pick.  The result will be -1 unless the Prop3D that was picked
-  // has clipping planes.
-  vtkGetMacro(ClippingPlaneId, int);
+  // Set whether to pick the cropping planes of props that have them.
+  // If this is set, then the pick will be done on the cropping planes
+  // rather than on the data. The GetCroppingPlaneId() method will return
+  // the index of the cropping plane of the volume that was picked.  This
+  // setting is only relevant to the picking of volumes.
+  vtkSetMacro(PickCroppingPlanes, int);
+  vtkBooleanMacro(PickCroppingPlanes, int);
+  vtkGetMacro(PickCroppingPlanes, int);
 
   // Description:
   // Get the index of the cropping plane that the pick ray passed
-  // through on its way to the prop.  This is supported for volumes
-  // and images.  The crop planes are ordered as follows:
-  // xmin, xmax, ymin, ymax, zmin, zmax.
+  // through on its way to the prop. This will be set regardless
+  // of whether PickCroppingPlanes is on.  The crop planes are ordered
+  // as follows: xmin, xmax, ymin, ymax, zmin, zmax.  If the volume is
+  // not cropped, the value will bet set to -1.
   vtkGetMacro(CroppingPlaneId, int);
-
-  // Description:
-  // Return the normal of the picked surface at the PickPosition.  If no
-  // surface was picked, the camera's view plane normal is returned.
-  vtkGetVectorMacro(PickNormal, double, 3);
-
-  // Description:
-  // Return the normal of the surface at the PickPosition in mapper
-  // coordinates.  The result is undefined if no prop was picked.
-  vtkGetVector3Macro(MapperNormal, double);
-
-  // Description:
-  // Get the structured coordinates of the point at the PickPosition.
-  // Only valid for image actors and volumes with vtkImageData.
-  vtkGetVector3Macro(PointIJK, int);
-
-  // Description:
-  // Get the structured coordinates of the cell at the PickPosition.
-  // Only valid for image actors and volumes with vtkImageData.
-  // Combine this with the PCoords to get the position within the cell.
-  vtkGetVector3Macro(CellIJK, int);
-
-  // Description:
-  // Get the id of the picked point. If PointId = -1, nothing was picked.
-  // This point will be a member of any cell that is picked.
-  vtkGetMacro(PointId, vtkIdType);
-
-  // Description:
-  // Get the id of the picked cell. If CellId = -1, nothing was picked.
-  vtkGetMacro(CellId, vtkIdType);
-
-  // Description:
-  // Get the subId of the picked cell. This is useful, for example, if
-  // the data is made of triangle strips. If SubId = -1, nothing was picked.
-  vtkGetMacro(SubId, int);
-
-  // Description:
-  // Get the parametric coordinates of the picked cell. Only valid if
-  // a prop was picked.  The PCoords can be used to interpolate data
-  // values within the cell.
-  vtkGetVector3Macro(PCoords, double);
 
 protected:
   vtkVolumePicker();
@@ -136,68 +63,15 @@ protected:
 
   void Initialize();
 
-  virtual double IntersectWithLine(double p1[3], double p2[3], double tol, 
-                                  vtkAssemblyPath *path, vtkProp3D *p, 
-                                  vtkAbstractMapper3D *m);
-
-  virtual double IntersectActorWithLine(const double p1[3], const double p2[3],
-                                        double t1, double t2, double tol, 
-                                        vtkActor *actor, vtkMapper *mapper);
-
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,
-                                         int clippingPlaneId,
                                          vtkVolume *volume, 
                                          vtkAbstractVolumeMapper *mapper);
 
-  virtual double IntersectImageActorWithLine(const double p1[3],
-                                             const double p2[3],
-                                             double t1, double t2,
-                                             vtkImageActor *imageActor);
-
-  static int ClipLineWithPlanes(vtkPlaneCollection *planes,
-                                const double p1[3], const double p2[3],
-                                double &t1, double &t2, int& planeId);
-
-  static int ClipLineWithBounds(const double bounds[6],
-                                const double p1[3], const double p2[3],
-                                double &t1, double &t2, int &planeId);
-
-  static int ClipLineWithExtent(const int extent[6],
-                                const double x1[3], const double x2[3],
-                                double &t1, double &t2, int &planeId);
-
-  static int ComputeSurfaceNormal(vtkDataSet *data, vtkCell *cell,
-                                  const double *weights, double normal[3]);
-
-  static void TriangleFromStrip(vtkGenericCell *cell, int subId);
-
-  static double ComputeVolumeOpacity(const int xi[3], vtkImageData *data,
-                                     vtkDataArray *scalars,
-                                     vtkPiecewiseFunction *scalarOpacity,
-                                     vtkPiecewiseFunction *gradientOpacity);
-
-  double VolumeOpacityIsovalue;
-  int PickClippingPlanes;
-  int ClippingPlaneId;
+  int PickCroppingPlanes;
   int CroppingPlaneId;
 
-  vtkIdType PointId;
-  vtkIdType CellId;
-  int SubId;
-  double PCoords[3];
-
-  int PointIJK[3];
-  int CellIJK[3];
-
-  double PickNormal[3];
-  double MapperNormal[3];
-
-private:
-  vtkGenericCell *Cell; //used to accelerate picking
-  vtkDoubleArray *Gradients; //used in volume picking
-  
 private:
   vtkVolumePicker(const vtkVolumePicker&);  // Not implemented.
   void operator=(const vtkVolumePicker&);  // Not implemented.
