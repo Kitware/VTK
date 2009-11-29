@@ -362,14 +362,12 @@ public:
     return (c1[0] * c2[1] - c2[0] * c1[1] );};
 
   // Description:
-  // LU Factorization of a 3x3 matrix.  The diagonal elements are the
-  // multiplicative inverse of those in the standard LU factorization.
+  // LU Factorization of a 3x3 matrix.
   static void LUFactor3x3(float A[3][3], int index[3]);
   static void LUFactor3x3(double A[3][3], int index[3]);
 
   // Description:
-  // LU back substitution for a 3x3 matrix.  The diagonal elements are the
-  // multiplicative inverse of those in the standard LU factorization.
+  // LU back substitution for a 3x3 matrix.
   static void LUSolve3x3(const float A[3][3], const int index[3], 
                          float x[3]);
   static void LUSolve3x3(const double A[3][3], const int index[3], 

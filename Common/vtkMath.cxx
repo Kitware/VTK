@@ -32,7 +32,7 @@
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.149");
+vtkCxxRevisionMacro(vtkMath, "1.150");
 vtkStandardNewMacro(vtkMath);
 
 vtkMathInternal::vtkMathInternal()
@@ -1431,9 +1431,6 @@ inline void vtkSwapVectors3(T v1[3], T v2[3])
 
 //----------------------------------------------------------------------------
 // Unrolled LU factorization of a 3x3 matrix with pivoting.
-// This decomposition is non-standard in that the diagonal
-// elements are inverted, to convert a division to a multiplication
-// in the backsubstitution.
 template<class T>
 inline void vtkLUFactor3x3(T A[3][3], int index[3])
 {
@@ -1478,9 +1475,8 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
     }
   index[0] = maxI;
 
-  A[0][0] = T(1.0)/A[0][0];
-  A[1][0] *= A[0][0];
-  A[2][0] *= A[0][0];
+  A[1][0] /= A[0][0];
+  A[2][0] /= A[0][0];
     
   // second column
   A[1][1] -= A[1][0]*A[0][1];
@@ -1494,15 +1490,13 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
     scale[2] = scale[1];
     }
   index[1] = maxI;
-  A[1][1] = T(1.0)/A[1][1];
-  A[2][1] *= A[1][1];
+  A[2][1] /= A[1][1];
 
   // third column
   A[1][2] -= A[1][0]*A[0][2];
   A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
   largest = scale[2]*fabs(A[2][2]);
   index[2] = 2;
-  A[2][2] = T(1.0)/A[2][2];
 }
 
 //----------------------------------------------------------------------------
@@ -1518,8 +1512,7 @@ void vtkMath::LUFactor3x3(double A[3][3], int index[3])
 }
 
 //----------------------------------------------------------------------------
-// Backsubsitution with an LU-decomposed matrix.  This is the standard
-// LU decomposition, except that the diagonals elements have been inverted.
+// Backsubstitution with an LU-decomposed matrix.
 template<class T1, class T2>
 inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
 {
@@ -1541,9 +1534,9 @@ inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
 
   // back substitution
   
-  x[2] = x[2]*A[2][2];
-  x[1] = (x[1] - A[1][2]*x[2])*A[1][1];
-  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])*A[0][0];
+  x[2] = x[2]/A[2][2];
+  x[1] = (x[1] - A[1][2]*x[2])/A[1][1];
+  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])/A[0][0];
 }  
 
 //----------------------------------------------------------------------------
@@ -1565,18 +1558,35 @@ void vtkMath::LUSolve3x3(const double A[3][3],
 template<class T1, class T2, class T3>
 inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
 {
-  int index[3];
-  T3 B[3][3];
-  for (int i = 0; i < 3; i++)
-    {
-    B[i][0] = A[i][0];
-    B[i][1] = A[i][1];
-    B[i][2] = A[i][2];
-    y[i] = x[i];
-    }
+  double a1 = A[0][0]; double b1 = A[0][1]; double c1 = A[0][2];
+  double a2 = A[1][0]; double b2 = A[1][1]; double c2 = A[1][2];
+  double a3 = A[2][0]; double b3 = A[2][1]; double c3 = A[2][2];
 
-  vtkMath::LUFactor3x3(B,index);
-  vtkMath::LUSolve3x3(B,index,y);
+  // Compute the adjoint
+  double d1 =   vtkMath::Determinant2x2( b2, b3, c2, c3);
+  double d2 = - vtkMath::Determinant2x2( a2, a3, c2, c3);
+  double d3 =   vtkMath::Determinant2x2( a2, a3, b2, b3);
+
+  double e1 = - vtkMath::Determinant2x2( b1, b3, c1, c3);
+  double e2 =   vtkMath::Determinant2x2( a1, a3, c1, c3);
+  double e3 = - vtkMath::Determinant2x2( a1, a3, b1, b3);
+
+  double f1 =   vtkMath::Determinant2x2( b1, b2, c1, c2);
+  double f2 = - vtkMath::Determinant2x2( a1, a2, c1, c2);
+  double f3 =   vtkMath::Determinant2x2( a1, a2, b1, b2);
+
+  // Compute the determinant
+  double det = a1*d1 + b1*d2 + c1*d3;
+
+  // Multiply by the adjoint
+  T3 v1 = d1*x[0] + e1*x[1] + f1*x[2];
+  T3 v2 = d2*x[0] + e2*x[1] + f2*x[2];
+  T3 v3 = d3*x[0] + e3*x[1] + f3*x[2];
+
+  // Divide by the determinant
+  y[0] = v1/det;
+  y[1] = v2/det;
+  y[2] = v3/det;
 }
 
 //----------------------------------------------------------------------------
@@ -1720,32 +1730,38 @@ void vtkMath::Transpose3x3(const double A[3][3], double AT[3][3])
 //----------------------------------------------------------------------------
 template<class T1, class T2>
 inline void vtkInvert3x3(const T1 A[3][3], T2 AI[3][3])
-{
-  int index[3];
-  T2 tmp[3][3];
+{ 
+  double a1 = A[0][0]; double b1 = A[0][1]; double c1 = A[0][2];
+  double a2 = A[1][0]; double b2 = A[1][1]; double c2 = A[1][2];
+  double a3 = A[2][0]; double b3 = A[2][1]; double c3 = A[2][2];
 
-  for (int k = 0; k < 3; k++)
-    {
-    AI[k][0] = A[k][0];
-    AI[k][1] = A[k][1];
-    AI[k][2] = A[k][2];
-    }
-  // invert one column at a time
-  vtkMath::LUFactor3x3(AI,index);
-  for (int i = 0; i < 3; i++)
-    {
-    T2 *x = tmp[i];
-    x[0] = x[1] = x[2] = 0.0;
-    x[i] = 1.0;
-    vtkMath::LUSolve3x3(AI,index,x);
-    }
-  for (int j = 0; j < 3; j++)
-    {
-    T2 *x = tmp[j];
-    AI[0][j] = x[0];
-    AI[1][j] = x[1];
-    AI[2][j] = x[2];      
-    }
+  // Compute the adjoint
+  double d1 =   vtkMath::Determinant2x2( b2, b3, c2, c3);
+  double d2 = - vtkMath::Determinant2x2( a2, a3, c2, c3);
+  double d3 =   vtkMath::Determinant2x2( a2, a3, b2, b3);
+
+  double e1 = - vtkMath::Determinant2x2( b1, b3, c1, c3);
+  double e2 =   vtkMath::Determinant2x2( a1, a3, c1, c3);
+  double e3 = - vtkMath::Determinant2x2( a1, a3, b1, b3);
+
+  double f1 =   vtkMath::Determinant2x2( b1, b2, c1, c2);
+  double f2 = - vtkMath::Determinant2x2( a1, a2, c1, c2);
+  double f3 =   vtkMath::Determinant2x2( a1, a2, b1, b2);
+
+  // Divide by the determinant
+  double det = a1*d1 + b1*d2 + c1*d3;
+
+  AI[0][0]  = d1/det;
+  AI[1][0]  = d2/det;
+  AI[2][0]  = d3/det;
+
+  AI[0][1]  = e1/det;
+  AI[1][1]  = e2/det;
+  AI[2][1]  = e3/det;
+
+  AI[0][2]  = f1/det;
+  AI[1][2]  = f2/det;
+  AI[2][2]  = f3/det;
 }
 
 //----------------------------------------------------------------------------
