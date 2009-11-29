@@ -32,7 +32,7 @@
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.150");
+vtkCxxRevisionMacro(vtkMath, "1.151");
 vtkStandardNewMacro(vtkMath);
 
 vtkMathInternal::vtkMathInternal()
@@ -277,12 +277,14 @@ void vtkMath::FreeCombination( int* r )
 }
 
 //----------------------------------------------------------------------------
-// Find unit vectors which is perpendicular to this on and to
-// each other.
-void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
-                             double theta)
+// Given a unit vector 'x', find two other unit vectors 'y' and 'z' which
+// which form an orthonormal set.
+template<class T1, class T2, class T3>
+inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
+                                  double theta)
 {
   int dx,dy,dz;
+
   double x2 = x[0]*x[0];
   double y2 = x[1]*x[1];
   double z2 = x[2]*x[2];
@@ -290,17 +292,17 @@ void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
 
   // transpose the vector to avoid divide-by-zero error
   if (x2 > y2 && x2 > z2)
-  {
+    {
     dx = 0; dy = 1; dz = 2;
-  }
+    }
   else if (y2 > z2) 
-  {
+    {
     dx = 1; dy = 2; dz = 0;
-  }
+    }
   else 
-  {
+    {
     dx = 2; dy = 0; dz = 1;
-  }
+    }
 
   double a = x[dx]/r;
   double b = x[dy]/r;
@@ -314,11 +316,11 @@ void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
     double costheta = cos(theta);
 
     if (y)
-    {
+      {
       y[dx] = (c*costheta - a*b*sintheta)/tmp;
       y[dy] = sintheta*tmp;
       y[dz] = (-a*costheta - b*c*sintheta)/tmp;
-    }
+      }
 
     if (z)
       {
@@ -330,11 +332,11 @@ void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
   else
     {
     if (y)
-    {
+      {
       y[dx] = c/tmp;
       y[dy] = 0;
       y[dz] = -a/tmp;
-    }
+      }
 
     if (z)
       {
@@ -345,73 +347,16 @@ void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
     }      
 }
 
-//----------------------------------------------------------------------------
-// Find unit vectors which are perpendicular to this one and to
-// each other.
+void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
+                             double theta)
+{
+  vtkMathPerpendiculars(x, y, z, theta);
+}
+
 void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
                              double theta)
 {
-  int dx,dy,dz;
-  double x2 = x[0]*x[0];
-  double y2 = x[1]*x[1];
-  double z2 = x[2]*x[2];
-  double r = sqrt(x2 + y2 + z2);
-
-  // transpose the vector to avoid divide-by-zero error
-  if (x2 > y2 && x2 > z2)
-  {
-    dx = 0; dy = 1; dz = 2;
-  }
-  else if (y2 > z2) 
-  {
-    dx = 1; dy = 2; dz = 0;
-  }
-  else 
-  {
-    dx = 2; dy = 0; dz = 1;
-  }
-
-  double a = x[dx]/r;
-  double b = x[dy]/r;
-  double c = x[dz]/r;
-
-  double tmp = sqrt(a*a+c*c);
-
-  if (theta != 0)
-    {
-    double sintheta = sin(theta);
-    double costheta = cos(theta);
-
-    if (y)
-    {
-      y[dx] = (c*costheta - a*b*sintheta)/tmp;
-      y[dy] = sintheta*tmp;
-      y[dz] = (-a*costheta - b*c*sintheta)/tmp;
-    }
-
-    if (z)
-      {
-      z[dx] = (-c*sintheta - a*b*costheta)/tmp;
-      z[dy] = costheta*tmp;
-      z[dz] = (a*sintheta - b*c*costheta)/tmp;
-      }
-    }
-  else
-    {
-    if (y)
-    {
-      y[dx] = c/tmp;
-      y[dy] = 0;
-      y[dz] = -a/tmp;
-    }
-
-    if (z)
-      {
-      z[dx] = -a*b/tmp;
-      z[dy] = tmp;
-      z[dz] = -b*c/tmp;
-      }
-    }      
+  vtkMathPerpendiculars(x, y, z, theta);
 }
 
 #define VTK_SMALL_NUMBER 1.0e-12
@@ -1579,9 +1524,9 @@ inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
   double det = a1*d1 + b1*d2 + c1*d3;
 
   // Multiply by the adjoint
-  T3 v1 = d1*x[0] + e1*x[1] + f1*x[2];
-  T3 v2 = d2*x[0] + e2*x[1] + f2*x[2];
-  T3 v3 = d3*x[0] + e3*x[1] + f3*x[2];
+  double v1 = d1*x[0] + e1*x[1] + f1*x[2];
+  double v2 = d2*x[0] + e2*x[1] + f2*x[2];
+  double v3 = d3*x[0] + e3*x[1] + f3*x[2];
 
   // Divide by the determinant
   y[0] = v1/det;
