@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.2");
+vtkCxxRevisionMacro(vtkImageItem, "1.3");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ bool vtkImageItem::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkImageItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkImageItem::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   this->MouseOver = true;
   return true;
@@ -163,20 +163,20 @@ bool vtkImageItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkImageItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkImageItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   this->MouseOver = false;
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkImageItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+bool vtkImageItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkImageItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkImageItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   return true;
 }

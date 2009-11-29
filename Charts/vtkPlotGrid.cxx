@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPlotGrid, "1.1");
+vtkCxxRevisionMacro(vtkPlotGrid, "1.2");
 vtkCxxSetObjectMacro(vtkPlotGrid, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlotGrid, YAxis, vtkAxis);
 //-----------------------------------------------------------------------------
@@ -81,6 +81,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
     painter->DrawLine(this->Point1[0], int(this->Point1[1] + i*spacing),
                       this->Point2[0], int(this->Point1[1] + i*spacing));
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
