@@ -59,6 +59,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Perform pick operation with selection point provided. Normally the 
+  // first two values are the (x,y) pixel coordinates for the pick, and
+  // the third value is z=0. The return value will be non-zero if
+  // something was successfully picked.
+  virtual int Pick(double selectionX, double selectionY, double selectionZ, 
+                   vtkRenderer *renderer);  
+
+  // Description:
   // Set the opacity isovalue to use for defining volume surfaces.  The
   // pick will occur at the location along the pick ray where the product
   // of the scalar opacity and gradient opacity is equal to this isovalue.

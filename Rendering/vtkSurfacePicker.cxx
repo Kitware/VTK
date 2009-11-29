@@ -32,8 +32,10 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkVolumeProperty.h"
 #include "vtkImageActor.h"
+#include "vtkRenderer.h"
+#include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.1");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.2");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -143,6 +145,27 @@ void vtkSurfacePicker::Initialize()
 
   this->Superclass::Initialize();
 }
+
+//----------------------------------------------------------------------------
+int vtkSurfacePicker::Pick(double selectionX, double selectionY,
+                           double selectionZ, vtkRenderer *renderer)
+{
+  int pickResult = 0;
+
+  if ( (pickResult = this->Superclass::Pick(selectionX, selectionY, selectionZ,
+                                            renderer)) == 0)
+    {
+    // If no pick, set the PickNormal so that it points at the camera
+    double cameraPos[3];
+    renderer->GetActiveCamera()->GetPosition(cameraPos);
+    this->PickNormal[0] = cameraPos[0] - this->PickPosition[0];
+    this->PickNormal[1] = cameraPos[1] - this->PickPosition[1];
+    this->PickNormal[2] = cameraPos[2] - this->PickPosition[2];
+    vtkMath::Normalize(this->PickNormal);
+    }
+
+  return pickResult;
+}  
 
 //----------------------------------------------------------------------------
 double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
