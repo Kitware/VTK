@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.2");
+vtkCxxRevisionMacro(vtkAxis, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -82,7 +82,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
                          float(this->NumberOfTicks -1);
     for (int i = 0; i < this->NumberOfTicks; ++i)
       {
-      int yTick = this->Point1[1] + float(i)*spacing;
+      int yTick = static_cast<int>(this->Point1[1] + float(i)*spacing);
       painter->DrawLine(this->Point1[0] - 5, yTick, this->Point1[0], yTick);
 
       // Draw the tick label
@@ -93,8 +93,8 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
   else // Default to horizontal orientation
     {
-    int x = (this->Point1[0] + this->Point2[0]) / 2;
-    int y = this->Point1[1] - 30;
+    int x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
+    int y = static_cast<int>(this->Point1[1] - 30);
     vtkTextProperty *prop = painter->GetTextProp();
     prop->SetFontSize(15);
     prop->SetFontFamilyAsString("Arial");

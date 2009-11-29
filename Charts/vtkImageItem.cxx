@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.3");
+vtkCxxRevisionMacro(vtkImageItem, "1.4");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -107,10 +107,10 @@ bool vtkImageItem::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 bool vtkImageItem::Hit(const vtkContextMouseEvent &mouse)
 {
-    if (mouse.Pos[0] > this->Dimensions[0] &&
-        mouse.Pos[0] < this->Dimensions[0]+this->Dimensions[2] &&
-        mouse.Pos[1] > this->Dimensions[1] &&
-        mouse.Pos[1] < this->Dimensions[1]+this->Dimensions[3])
+  if (mouse.Pos[0] > this->Dimensions[0] &&
+      mouse.Pos[0] < this->Dimensions[0]+this->Dimensions[2] &&
+      mouse.Pos[1] > this->Dimensions[1] &&
+      mouse.Pos[1] < this->Dimensions[1]+this->Dimensions[3])
     {
     return true;
     }
@@ -118,7 +118,6 @@ bool vtkImageItem::Hit(const vtkContextMouseEvent &mouse)
     {
     return false;
     }
-  return false;
 }
 
 //-----------------------------------------------------------------------------
