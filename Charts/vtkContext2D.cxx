@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.4");
+vtkCxxRevisionMacro(vtkContext2D, "1.5");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -298,7 +298,7 @@ void vtkContext2D::DrawTextA(vtkPoints2D *point, const vtkStdString &string)
 {
   this->DrawText(point, string);
 }
-void vtkContext2D::DrawTextA(int x, int y, const vtkStdString &string)
+void vtkContext2D::DrawTextA(float x, float y, const vtkStdString &string)
 {
   this->DrawText(x, y, string);
 }
@@ -306,7 +306,7 @@ void vtkContext2D::DrawTextA(vtkPoints2D *point, const char *string)
 {
   this->DrawText(point, string);
 }
-void vtkContext2D::DrawTextA(int x, int y, const char *string)
+void vtkContext2D::DrawTextA(float x, float y, const char *string)
 {
   this->DrawText(x, y, string);
 }
@@ -315,7 +315,7 @@ void vtkContext2D::DrawTextW(vtkPoints2D *point, const vtkStdString &string)
 {
   this->DrawText(point, string);
 }
-void vtkContext2D::DrawTextW(int x, int y, const vtkStdString &string)
+void vtkContext2D::DrawTextW(float x, float y, const vtkStdString &string)
 {
   this->DrawText(x, y, string);
 }
@@ -323,7 +323,7 @@ void vtkContext2D::DrawTextW(vtkPoints2D *point, const char *string)
 {
   this->DrawText(point, string);
 }
-void vtkContext2D::DrawTextW(int x, int y, const char *string)
+void vtkContext2D::DrawTextW(float x, float y, const char *string)
 {
   this->DrawText(x, y, string);
 }
@@ -337,7 +337,7 @@ void vtkContext2D::DrawText(vtkPoints2D *point, const vtkStdString &string)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawText(int x, int y, const vtkStdString &string)
+void vtkContext2D::DrawText(float x, float y, const vtkStdString &string)
 {
   if (!this->Device)
     {
@@ -361,7 +361,7 @@ void vtkContext2D::DrawText(vtkPoints2D *point, const char *string)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawText(int x, int y, const char *string)
+void vtkContext2D::DrawText(float x, float y, const char *string)
 {
   vtkStdString str = string;
   this->DrawText(x, y, str);
