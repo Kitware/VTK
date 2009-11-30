@@ -18,9 +18,10 @@
 #include "vtkRenderWindowInteractor.h"
 
 #include <vtksys/ios/sstream>
+#include <locale>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.16");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.17");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0f;
@@ -142,6 +143,11 @@ void vtkInteractorEventRecorder::Record()
         delete this->OutputStream;
         return;
         }
+      
+      // Use C locale. We don't want the user-defined locale when we write
+      // float values.
+      (*this->OutputStream).imbue(vtkstd::locale::classic());
+      
       *this->OutputStream << "# StreamVersion " 
                           << vtkInteractorEventRecorder::StreamVersion << "\n";
       }
@@ -200,10 +206,15 @@ void vtkInteractorEventRecorder::Play()
     int pos[2], ctrlKey, shiftKey, keyCode, repeatCount;
     float stream_version = 0.0f, tempf;
     vtksys_stl::string line;
-
+    
     while ( vtksys::SystemTools::GetLineFromStream(*this->InputStream, line) )
       {
       vtksys_ios::istringstream iss(line);
+      
+      // Use classic locale, we don't want to parse float values with
+      // user-defined locale.
+      iss.imbue(vtkstd::locale::classic());
+      
       iss.width(256);
       iss >> event;
 
@@ -243,7 +254,7 @@ void vtkInteractorEventRecorder::Play()
           this->Interactor->SetEventPosition(pos);
           this->Interactor->SetControlKey(ctrlKey);
           this->Interactor->SetShiftKey(shiftKey);
-          this->Interactor->SetKeyCode(keyCode);
+          this->Interactor->SetKeyCode(static_cast<char>(keyCode));
           this->Interactor->SetRepeatCount(repeatCount);
           this->Interactor->SetKeySym(keySym);
 
