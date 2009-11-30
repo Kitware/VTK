@@ -29,6 +29,9 @@
 #include <ctype.h> // for isdigit
 #endif
 
+#include <locale> // C++ locale
+
+
 const int vtkTimePointUtility::MILLIS_PER_SECOND  =     1000;
 const int vtkTimePointUtility::MILLIS_PER_MINUTE  =    60000;
 const int vtkTimePointUtility::MILLIS_PER_HOUR    =  3600000;
@@ -40,7 +43,7 @@ const int vtkTimePointUtility::MINUTES_PER_HOUR   =       60;
 const int vtkTimePointUtility::MINUTES_PER_DAY    =     1440;
 const int vtkTimePointUtility::HOURS_PER_DAY      =       24;
 
-vtkCxxRevisionMacro(vtkTimePointUtility, "1.2");
+vtkCxxRevisionMacro(vtkTimePointUtility, "1.3");
 vtkStandardNewMacro(vtkTimePointUtility);
 
 void vtkTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
@@ -361,6 +364,7 @@ const char* vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int form
   GetDateTime(time, year, month, day, hour, minute, second, msec);
 
   vtksys_ios::ostringstream oss;
+  oss.imbue(vtkstd::locale::classic());
   oss.fill('0');
   if (format == ISO8601_DATETIME)
     {
