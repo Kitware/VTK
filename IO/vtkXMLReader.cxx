@@ -34,8 +34,9 @@
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
 #include <assert.h>
+#include <locale> // C++ locale
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.55");
+vtkCxxRevisionMacro(vtkXMLReader, "1.56");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -502,6 +503,8 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
   
   // Give the vtkXMLParser instance its file back so that data section
   // reads will work.
+  
+  (*this->Stream).imbue(vtkstd::locale::classic());
   this->XMLParser->SetStream(this->Stream);
   
   // We are just starting to read.  Do not call UpdateProgressDiscrete

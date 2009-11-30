@@ -24,8 +24,9 @@ using vtksys_ios::ostringstream;
 using vtksys_ios::istringstream;
 #include <vtkstd/string>
 using vtkstd::string;
+#include <locale> // C++ locale
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.4");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.5");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -388,6 +389,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 void vtkXMLDataElement::PrintXML(const char* fname)
 {
   ofstream of(fname);
+  of.imbue(vtkstd::locale::classic());
   this->PrintXML(of, vtkIndent());
 }
 
@@ -683,6 +685,7 @@ int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
   if(!str || !length || !data) { return 0; }
   vtksys_ios::stringstream vstr;
+  vstr.imbue(vtkstd::locale::classic());
   vstr << str;  
   int i;
   for(i=0;i < length;++i)
@@ -952,6 +955,7 @@ void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* na
     return; 
     }
   vtksys_ios::stringstream vstr;
+  vstr.imbue(vtkstd::locale::classic());
   vstr << data[0];
   for(int i = 1; i < length; ++i)
     {
