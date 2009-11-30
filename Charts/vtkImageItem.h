@@ -110,7 +110,7 @@ protected:
   int MouseButtonPressed;
 
   // Some function pointers to optionally do funky things...
-  double (*scalarFunction)(double, double);
+  double (*ScalarFunction)(double, double);
 
 private:
   vtkImageItem(const vtkImageItem &); // Not implemented.

@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.4");
+vtkCxxRevisionMacro(vtkImageItem, "1.5");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkImageItem::vtkImageItem()
   this->Image = NULL;
   this->MouseOver = false;
   this->MouseButtonPressed = -1;
-  this->scalarFunction = NULL;
+  this->ScalarFunction = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ bool vtkImageItem::Paint(vtkContext2D *painter)
                 100.0, 30.0 };
   painter->DrawPoly(p, 4);
 
-  if (this->scalarFunction)
+  if (this->ScalarFunction)
     {
     // We have a function pointer - do something...
     ;
@@ -182,7 +182,7 @@ bool vtkImageItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 
 void vtkImageItem::SetScalarFunctor(double (*scalarFunction)(double, double))
 {
-  this->scalarFunction = scalarFunction;
+  this->ScalarFunction = scalarFunction;
 }
 
 //-----------------------------------------------------------------------------
