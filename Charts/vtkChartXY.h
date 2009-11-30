@@ -57,13 +57,6 @@ public:
 //ETX
   virtual vtkIdType GetNumberPlots();
 
-  // Description:
-  // This function allows you to set the overall dimensions of the chart.
-  // An int pointer of length 6 is expected with the dimensions in the order of
-  // width, height, left border, bottom border, right border, top border in
-  // pixels of the device.
-  virtual void SetGeometry(int *p);
-
 //BTX
 protected:
   vtkChartXY();

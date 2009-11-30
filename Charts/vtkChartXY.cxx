@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.4");
+vtkCxxRevisionMacro(vtkChartXY, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -101,28 +101,29 @@ vtkChartXY::~vtkChartXY()
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartXY::SetGeometry(int *p)
-{
-  vtkChart::SetGeometry(p);
-
-  // This is where we set the axes up too
-  this->XAxis->SetPoint1(p[2]     , p[3]     );
-  this->XAxis->SetPoint2(p[0]-p[4], p[3]     );
-  this->YAxis->SetPoint1(p[2]     , p[3]     );
-  this->YAxis->SetPoint2(p[2]     , p[1]-p[5]);
-}
-
-//-----------------------------------------------------------------------------
 bool vtkChartXY::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
 
+  // Check whether the geometry has been modified after the axes - update if so
+  if (this->MTime > this->XAxis->GetMTime())
+    {
+    // This is where we set the axes up too
+    this->XAxis->SetPoint1(this->Geometry[2], this->Geometry[3]);
+    this->XAxis->SetPoint2(this->Geometry[0]-this->Geometry[4],
+                           this->Geometry[3]);
+    this->YAxis->SetPoint1(this->Geometry[2], this->Geometry[3]);
+    this->YAxis->SetPoint2(this->Geometry[2],
+                           this->Geometry[1]-this->Geometry[5]);
+    }
+
   vtkIdTypeArray *idArray = 0;
   if (this->AnnotationLink)
     {
     this->AnnotationLink->Update();
-    vtkSelection *selection = vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
+    vtkSelection *selection =
+        vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
     if (selection->GetNumberOfNodes())
       {
       vtkSelectionNode *node = selection->GetNode(0);
