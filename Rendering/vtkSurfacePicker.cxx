@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.2");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.3");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -461,8 +461,8 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
   // Get the theshold for the opacity
   double opacityThreshold = this->VolumeOpacityIsovalue;
 
-  // Compute the number of steps, using a step size of 1
-  int n = int(sqrt(vtkMath::Distance2BetweenPoints(x1, x2))*(t2 - t1) + 1);
+  // Compute the length of the line intersecting the volume
+  double rayLength = sqrt(vtkMath::Distance2BetweenPoints(x1, x2))*(t2 - t1); 
 
   // Find out whether there are multiple components in the volume
   int numComponents = data->GetNumberOfScalarComponents();
@@ -507,18 +507,18 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
                                               + scalarSize*oComponent),
                           scalarArraySize, 1);
 
-    // Do a ray cast with nearest-neighbor interpolation.  This code should
-    // be changed to use linear interpolation instead, and should visit all
-    // voxel faces along the ray in order to achieve maximum precision.
+    // Do a ray cast with linear interpolation.
+    double opacity = 0.0;
+    double lastOpacity = 0.0;
+    double lastT = t1;
     double x[3];
+    double pcoords[3];
     int xi[3];
-    int imax = (( n > 1 ) ? (n - 1) : 1);
-    for (int i = 0; i < n; i++)
-      {
-      // "f" is the current fractional distance between t1 and t2
-      double f = i*1.0/imax;
-      double t = t1*(1.0 - f) + t2*f;
 
+    // Ray cast loop
+    double t = t1;
+    while (t <= t2)
+      {
       for (int j = 0; j < 3; j++)
         {
         // "t" is the fractional distance between endpoints x1 and x2
@@ -528,91 +528,129 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
         if (x[j] < extent[2*j]) { x[j] = extent[2*j]; }
         else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
 
-        // Round in order to do nearest-neighbor interpolation
-        xi[j] = int(floor(x[j])); if (x[j] - xi[j] >= 0.5) { xi[j]++; }
+        xi[j] = int(floor(x[j]));
+        pcoords[j] = x[j] - xi[j];
         }
 
-      double opacity = this->ComputeVolumeOpacity(xi, data, scalars,
-                                                  scalarOpacity,
-                                                  gradientOpacity);
+      opacity = this->ComputeVolumeOpacity(xi, pcoords, data, scalars,
+                                           scalarOpacity, gradientOpacity);
 
+      // If the ray has crossed the isosurface, then terminate the loop
       if (opacity > opacityThreshold)
         {
-        if (t < tMin && t < this->GlobalTMin)
+        break;
+        }
+
+      lastT = t;
+      lastOpacity = opacity;
+
+      // Compute the next "t" value that crosses a voxel boundary
+      t = 1.0;
+      for (int k = 0; k < 3; k++)
+        {
+        if (fabs((x2[k] - x1[k])/rayLength) > 1e-6)
           {
-          tMin = t;
-
-          for (int j = 0; j < 3; j++)
+          // Set inc to +1 or -1
+          int inc = (1 - 2*(x2[k] < x1[k]));
+          double ttry = (xi[k] + inc - x1[k])/(x2[k] - x1[k]);
+          if (ttry < t)
             {
-            this->MapperPosition[j] = x[j]*spacing[j] + origin[j];
-            this->PointIJK[j] = xi[j];
-            if (x[j] >= xi[j] && xi[j] != extent[2*j+1])
-              {
-              this->CellIJK[j] = xi[j];
-              this->PCoords[j] = x[j] - xi[j];
-              }
-            else
-              {
-              this->CellIJK[j] = xi[j] - 1;
-              this->PCoords[j] = x[j] - xi[j] + 1.0;
-              }
-            }
-  
-          this->PointId = data->ComputePointId(this->PointIJK);
-          this->CellId = data->ComputeCellId(this->CellIJK);
-          this->SubId = 0;
-
-          // Default the normal to the view-plane normal.  This default
-          // will be used if the gradient cannot be computed any other way.
-          this->MapperNormal[0] = p1[0] - p2[0];
-          this->MapperNormal[1] = p1[1] - p2[1];
-          this->MapperNormal[2] = p1[2] - p2[2];
-          vtkMath::Normalize(this->MapperNormal);
-
-          // Check to see if this is the first step, which means that this
-          // is the boundary of the volume.  If this is the case, use the
-          // normal of the boundary.
-          if (i == 0 && planeId >= 0 && xi[planeId/2] == extent[planeId])
-            {
-            this->MapperNormal[0] = 0.0;
-            this->MapperNormal[1] = 0.0;
-            this->MapperNormal[2] = 0.0;
-            this->MapperNormal[planeId/2] = 2.0*(planeId%2) - 1.0;
-            if (spacing[planeId/2] < 0)
-              {
-              this->MapperNormal[planeId/2] = - this->MapperNormal[planeId/2];
-              }
-            }
-          else
-            {
-            // Set the normal from the direction of the gradient
-            int *ci = this->CellIJK;
-            double weights[8];
-            vtkVoxel::InterpolationFunctions(this->PCoords, weights);
-            data->GetVoxelGradient(ci[0], ci[1], ci[2], scalars,
-                                   this->Gradients);
-            double v[3]; v[0] = v[1] = v[2] = 0.0;
-            for (int k = 0; k < 8; k++)
-              {
-              double *pg = this->Gradients->GetTuple(k);
-              v[0] += pg[0]*weights[k]; 
-              v[1] += pg[1]*weights[k]; 
-              v[2] += pg[2]*weights[k]; 
-              }
-
-            double norm = vtkMath::Norm(v);
-            if (norm > 0)
-              {
-              this->MapperNormal[0] = v[0]/norm;
-              this->MapperNormal[1] = v[1]/norm;
-              this->MapperNormal[2] = v[2]/norm;
-              }
+            t = ttry;
             }
           }
-        break; // This break matches the opacity check
+        } 
+      } // End of "while (t <= t2)"
+
+    // If the ray hit the isosurface, compute the isosurface position
+    if (opacity > opacityThreshold)
+      {
+      // Backtrack to the actual surface position unless this was first step
+      if (t > t1)
+        {
+        double f = (opacityThreshold - lastOpacity)/(opacity - lastOpacity);
+        t = lastT*(1.0 - f) + t*f;
+        for (int j = 0; j < 3; j++)
+          {
+          x[j] = x1[j]*(1.0 - t) + x2[j]*t;
+          if (x[j] < extent[2*j]) { x[j] = extent[2*j]; }
+          else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
+          xi[j] = int(floor(x[j]));
+          pcoords[j] = x[j] - xi[j];
+          }
         }
-      }
-    }
+
+      // Check to see if this is the new global minimum
+      if (t < tMin && t < this->GlobalTMin)
+        {
+        tMin = t;
+
+        for (int j = 0; j < 3; j++)
+          {
+          this->MapperPosition[j] = x[j]*spacing[j] + origin[j];
+          this->CellIJK[j] = xi[j];
+          this->PCoords[j] = pcoords[j];
+          // Make sure cell is within bounds
+          if (xi[j] == extent[2*j + 1])
+            {
+            this->CellIJK[j] = xi[j] - 1;
+            this->PCoords[j] = 1.0;
+            }
+          this->PointIJK[j] = this->CellIJK[j] + (this->PCoords[j] >= 0.5);
+          } 
+
+        this->PointId = data->ComputePointId(this->PointIJK);
+        this->CellId = data->ComputeCellId(this->CellIJK);
+        this->SubId = 0;
+
+        // Default the normal to the view-plane normal.  This default
+        // will be used if the gradient cannot be computed any other way.
+        this->MapperNormal[0] = p1[0] - p2[0];
+        this->MapperNormal[1] = p1[1] - p2[1];
+        this->MapperNormal[2] = p1[2] - p2[2];
+        vtkMath::Normalize(this->MapperNormal);
+
+        // Check to see if this is the first step, which means that this
+        // is the boundary of the volume.  If this is the case, use the
+        // normal of the boundary.
+        if (t == t1 && planeId >= 0 && xi[planeId/2] == extent[planeId])
+          {
+          this->MapperNormal[0] = 0.0;
+          this->MapperNormal[1] = 0.0;
+          this->MapperNormal[2] = 0.0;
+          this->MapperNormal[planeId/2] = 2.0*(planeId%2) - 1.0;
+          if (spacing[planeId/2] < 0)
+            {
+            this->MapperNormal[planeId/2] = - this->MapperNormal[planeId/2];
+            }
+          }
+        else
+          {
+          // Set the normal from the direction of the gradient
+          int *ci = this->CellIJK;
+          double weights[8];
+          vtkVoxel::InterpolationFunctions(this->PCoords, weights);
+          data->GetVoxelGradient(ci[0], ci[1], ci[2], scalars,
+                                 this->Gradients);
+          double v[3]; v[0] = v[1] = v[2] = 0.0;
+          for (int k = 0; k < 8; k++)
+            {
+            double *pg = this->Gradients->GetTuple(k);
+            v[0] += pg[0]*weights[k]; 
+            v[1] += pg[1]*weights[k]; 
+            v[2] += pg[2]*weights[k]; 
+            }
+
+          double norm = vtkMath::Norm(v);
+          if (norm > 0)
+            {
+            this->MapperNormal[0] = v[0]/norm;
+            this->MapperNormal[1] = v[1]/norm;
+            this->MapperNormal[2] = v[2]/norm;
+            }
+          }
+        } // End of "if (opacity > opacityThreshold)"
+      } // End of "if (t < tMin && t < this->GlobalTMin)"
+    } // End of loop over volume components
 
   scalars->Delete();
 
@@ -920,15 +958,34 @@ void vtkSurfacePicker::TriangleFromStrip(vtkGenericCell *cell, int subId)
 // compute the local opacity of the volume.
 
 double vtkSurfacePicker::ComputeVolumeOpacity(
-  const int xi[3], vtkImageData *data, vtkDataArray *scalars,
+  const int xi[3], const double pcoords[3],
+  vtkImageData *data, vtkDataArray *scalars,
   vtkPiecewiseFunction *scalarOpacity, vtkPiecewiseFunction *gradientOpacity)
 {
   double opacity = 1.0;
 
-  // Sample the volume using the scalars
-  vtkIdType ptId = data->ComputePointId(const_cast<int *>(xi));
-  double val = scalars->GetComponent(ptId, 0);      
+  // Get interpolation weights from the pcoords
+  double weights[8];
+  vtkVoxel::InterpolationFunctions(const_cast<double *>(pcoords), weights);
+
+  // Get the volume extent to avoid out-of-bounds
+  int extent[6];
+  data->GetExtent(extent);
   int scalarType = data->GetScalarType();
+
+  // Compute the increments for the three directions, checking the bounds
+  vtkIdType xInc = (xi[0] < extent[1] ? 1 : 0);
+  vtkIdType yInc = (xi[1] < extent[3] ? (extent[1] - extent[0] + 1) : 0);
+  vtkIdType zInc = (xi[2] < extent[5] ? (extent[3] - extent[2] + 1) : 0);
+
+  // Use the increments and weights to interpolate the data
+  vtkIdType ptId = data->ComputePointId(const_cast<int *>(xi));
+  double val = 0.0;
+  for (int j = 0; j < 8; j++)
+    {
+    vtkIdType ptInc = (j & 1)*xInc + ((j>>1) & 1)*yInc + ((j>>2) & 1)*zInc;
+    val += weights[j]*scalars->GetComponent(ptId + ptInc, 0);
+    }
 
   // Compute the ScalarOpacity
   if (scalarOpacity)
@@ -948,11 +1005,18 @@ double vtkSurfacePicker::ComputeVolumeOpacity(
   // Compute gradient and GradientOpacity
   if (gradientOpacity)
     {
-    double g[3];
-    data->GetPointGradient(xi[0], xi[1], xi[2], scalars, g); 
-    double grad = sqrt(g[0]*g[0] + g[1]*g[1] + g[2]*g[2]);
+    data->GetVoxelGradient(xi[0], xi[1], xi[2], scalars, this->Gradients);
+    double v[3]; v[0] = v[1] = v[2] = 0.0;
+    for (int k = 0; k < 8; k++)
+      {
+      double *pg = this->Gradients->GetTuple(k);
+      v[0] += pg[0]*weights[k]; 
+      v[1] += pg[1]*weights[k]; 
+      v[2] += pg[2]*weights[k]; 
+      }
+    double grad = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     opacity *= gradientOpacity->GetValue(grad);
-    }
+    }  
 
   return opacity;
 }

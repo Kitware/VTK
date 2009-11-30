@@ -174,10 +174,10 @@ protected:
 
   static void TriangleFromStrip(vtkGenericCell *cell, int subId);
 
-  static double ComputeVolumeOpacity(const int xi[3], vtkImageData *data,
-                                     vtkDataArray *scalars,
-                                     vtkPiecewiseFunction *scalarOpacity,
-                                     vtkPiecewiseFunction *gradientOpacity);
+  double ComputeVolumeOpacity(const int xi[3], const double pcoords[3],
+                              vtkImageData *data, vtkDataArray *scalars,
+                              vtkPiecewiseFunction *scalarOpacity,
+                              vtkPiecewiseFunction *gradientOpacity);
 
   double VolumeOpacityIsovalue;
   int PickClippingPlanes;
