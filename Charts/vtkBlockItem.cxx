@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBlockItem, "1.2");
+vtkCxxRevisionMacro(vtkBlockItem, "1.3");
 vtkStandardNewMacro(vtkBlockItem);
 
 //-----------------------------------------------------------------------------
@@ -91,7 +91,6 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
     {
     return false;
     }
-  return false;
 }
 
 //-----------------------------------------------------------------------------
