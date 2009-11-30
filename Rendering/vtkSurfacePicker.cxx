@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.4");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.5");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -975,9 +975,12 @@ double vtkSurfacePicker::ComputeVolumeOpacity(
   int scalarType = data->GetScalarType();
 
   // Compute the increments for the three directions, checking the bounds
-  vtkIdType xInc = (xi[0] < extent[1] ? 1 : 0);
-  vtkIdType yInc = (xi[1] < extent[3] ? (extent[1] - extent[0] + 1) : 0);
-  vtkIdType zInc = (xi[2] < extent[5] ? (extent[3] - extent[2] + 1) : 0);
+  vtkIdType xInc = 1;
+  vtkIdType yInc = extent[1] - extent[0] + 1;
+  vtkIdType zInc = yInc*(extent[3] - extent[2] + 1);
+  if (xi[0] == extent[1]) { xInc = 0; }
+  if (xi[1] == extent[3]) { yInc = 0; }
+  if (xi[2] == extent[5]) { zInc = 0; }
 
   // Use the increments and weights to interpolate the data
   vtkIdType ptId = data->ComputePointId(const_cast<int *>(xi));
