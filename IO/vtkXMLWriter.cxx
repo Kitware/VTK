@@ -214,7 +214,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.76");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.77");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -689,6 +689,8 @@ int vtkXMLWriter::StartFile()
     os << "<?xml version=\"1.0\"?>\n";
     }
 
+  os.imbue(vtkstd::locale::classic());
+  
   // Open the document-level element.  This will contain the rest of
   // the elements.
   os << "<VTKFile";
