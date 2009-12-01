@@ -157,10 +157,9 @@ picker IgnoreGradientOpacityOff
 
 # A function to point an actor along a vector
 proc PointCone {actor nx ny nz} {
-  if [expr $ny*$ny + $nz*$nz < 1e-6] {
-    if [expr $nx < 0.0] {
-      $actor RotateWXYZ 180 0 1 0
-    }
+  if [expr $nx < 0.0] {
+    $actor RotateWXYZ 180 0 1 0
+    $actor RotateWXYZ 180 [expr ($nx - 1.0)*0.5] [expr $ny*0.5] [expr $nz*0.5]
   } else {
     $actor RotateWXYZ 180 [expr ($nx + 1.0)*0.5] [expr $ny*0.5] [expr $nz*0.5]
   }
