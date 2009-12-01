@@ -172,7 +172,6 @@ vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataPointSampler.cxx
-vtkPolyDataSilhouette.cxx
 vtkPolyDataStreamer.cxx
 vtkProbeFilter.cxx
 vtkProbeSelectedLocations.cxx
@@ -280,11 +279,6 @@ vtkGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
 ABSTRACT
-)
-
-SET_SOURCE_FILES_PROPERTIES(
-  vtkYoungsMaterialInterfaceCellCut.cxx
-  WRAP_EXCLUDE
 )
 
 SET(Kit_EXTRA_SRCS)
