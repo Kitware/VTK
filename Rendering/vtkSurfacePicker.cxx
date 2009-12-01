@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.6");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.7");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -553,10 +553,11 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
         {
         if (fabs((x2[k] - x1[k])/rayLength) > 1e-6)
           {
-          // Set inc to +1 or -1
-          int inc = (1 - 2*(x2[k] < x1[k]));
-          int lastIdx = int(floor(x1[k]*(1.0 - lastT) + x2[k]*lastT)); 
-          double ttry = (lastIdx + inc - x1[k])/(x2[k] - x1[k]);
+          double lastX = x1[k]*(1.0 - lastT) + x2[k]*lastT;
+          // Increment to next slice boundary along dimension "k"
+          double nextX = ((x2[k] > x1[k]) ? floor(lastX)+1 : ceil(lastX)-1);
+          // Compute the "t" value for this slice boundary
+          double ttry = lastT + (nextX - lastX)/(x2[k] - x1[k]);
           if (ttry > lastT && ttry < t)
             {
             t = ttry;
