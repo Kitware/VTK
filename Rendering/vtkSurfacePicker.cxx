@@ -36,7 +36,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.8");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.9");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -368,12 +368,38 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
 
   if (locator)
     {
-    if (!locator->IntersectWithLine(const_cast<double *>(p1),
-                                    const_cast<double *>(p2),
-                                    tol, tMin, minXYZ,
-                                    minPCoords, minSubId, minCellId))
+    // Make a new p1 and p2
+    double q1[3], q2[3];
+    for (int j = 0; j < 3; j++)
+      {
+      q1[j] = p1[j]*(1.0 - t1) + p2[j]*t1;
+      q2[j] = p1[j]*(1.0 - t2) + p2[j]*t2;
+      }
+
+    if (!locator->IntersectWithLine(q1, q2, tol, tMin, minXYZ,
+                                    minPCoords, minSubId, minCellId,
+                                    this->Cell))
       {
       return VTK_DOUBLE_MAX;
+      }
+
+    // Stretch tMin out to the original range
+    tMin = t1*(1.0 - tMin) + t2*tMin;
+
+    // Repeat with original line endpoints to improve the result
+    double t, x[3], pcoords[3];
+    int subId;
+    if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
+                                      const_cast<double *>(p2),
+                                      tol, t, x, pcoords, subId))
+      {
+      tMin = t;
+      minSubId = subId;
+      for (int k = 0; k < 3; k++)
+        {
+        minXYZ[k] = x[k];
+        minPCoords[k] = pcoords[k]; 
+        }
       }
     }
   else
@@ -401,12 +427,11 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
           // save all of these
           minCellId = cellId;
           minSubId = subId;
-          minXYZ[0] = x[0];
-          minXYZ[1] = x[1];
-          minXYZ[2] = x[2];
-          minPCoords[0] = pcoords[0];
-          minPCoords[1] = pcoords[1];
-          minPCoords[2] = pcoords[2];
+          for (int k = 0; k < 3; k++)
+            {
+            minXYZ[k] = x[k];
+            minPCoords[k] = pcoords[k];
+            }
           } // if minimum, maximum
         } // if a close cell
       } // for all cells
@@ -419,16 +444,18 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
     // that needs to be done at the very end.
     this->CellId = minCellId;
     this->SubId = minSubId;
-    this->PCoords[0] = minPCoords[0];
-    this->PCoords[1] = minPCoords[1];
-    this->PCoords[2] = minPCoords[2];
-    this->MapperPosition[0] = minXYZ[0];
-    this->MapperPosition[1] = minXYZ[1];
-    this->MapperPosition[2] = minXYZ[2];
+    for (int k = 0; k < 3; k++)
+      { 
+      this->PCoords[k] = minPCoords[k];
+      this->MapperPosition[k] = minXYZ[k];
+      }
 
     // Get the cell, convert to triangle if it is a strip
     vtkGenericCell *cell = this->Cell;
-    data->GetCell(minCellId, cell);
+    if (!locator)
+      { // If we used a locator, we already have the cell
+      data->GetCell(minCellId, cell);
+      }
     if (cell->GetCellType() == VTK_TRIANGLE_STRIP)
       {
       this->TriangleFromStrip(cell, minSubId);
