@@ -33,7 +33,7 @@ class vtkAbstractArray;
 class VTK_CHARTS_EXPORT vtkContextMapper2D : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkContextMapper2D, vtkObject);
+  vtkTypeRevisionMacro(vtkContextMapper2D, vtkAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkContextMapper2D *New();
 

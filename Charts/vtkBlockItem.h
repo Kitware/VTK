@@ -29,7 +29,7 @@ class vtkContext2D;
 class VTK_CHARTS_EXPORT vtkBlockItem : public vtkContextItem
 {
 public:
-  vtkTypeRevisionMacro(vtkBlockItem, vtkObject);
+  vtkTypeRevisionMacro(vtkBlockItem, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkBlockItem *New();

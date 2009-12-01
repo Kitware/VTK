@@ -35,7 +35,7 @@ class vtkOpenGLExtensionManager;
 class VTK_CHARTS_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLContextDevice2D, vtkObject);
+  vtkTypeRevisionMacro(vtkOpenGLContextDevice2D, vtkContextDevice2D);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
