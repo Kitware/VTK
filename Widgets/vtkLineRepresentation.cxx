@@ -36,7 +36,7 @@
 #include "vtkCellPicker.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.23");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.24");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -91,8 +91,8 @@ vtkLineRepresentation::vtkLineRepresentation()
   // Pass the initial properties to the actors.
   this->Handle[0]->SetProperty(this->EndPointProperty);
   this->Point1Representation->SetProperty(this->EndPointProperty);
-  this->Handle[1]->SetProperty(this->EndPointProperty);
-  this->Point2Representation->SetProperty(this->EndPointProperty);
+  this->Handle[1]->SetProperty(this->EndPoint2Property);
+  this->Point2Representation->SetProperty(this->EndPoint2Property);
   this->LineHandleRepresentation->SetProperty(this->EndPointProperty);
   this->LineActor->SetProperty(this->LineProperty);
 
@@ -178,6 +178,8 @@ vtkLineRepresentation::~vtkLineRepresentation()
 
   this->EndPointProperty->Delete();
   this->SelectedEndPointProperty->Delete();
+  this->EndPoint2Property->Delete();
+  this->SelectedEndPoint2Property->Delete();
   this->LineProperty->Delete();
   this->SelectedLineProperty->Delete();
 
@@ -634,6 +636,12 @@ void vtkLineRepresentation::CreateDefaultProperties()
   this->SelectedEndPointProperty = vtkProperty::New();
   this->SelectedEndPointProperty->SetColor(0,1,0);
 
+  this->EndPoint2Property = vtkProperty::New();
+  this->EndPoint2Property->SetColor(1,1,1);
+
+  this->SelectedEndPoint2Property = vtkProperty::New();
+  this->SelectedEndPoint2Property->SetColor(0,1,0);
+  
   // Line properties
   this->LineProperty = vtkProperty::New();
   this->LineProperty->SetAmbient(1.0);
@@ -734,13 +742,13 @@ void vtkLineRepresentation::HighlightPoint(int ptId, int highlight)
     {
     if ( highlight )
       {
-      this->Handle[1]->SetProperty(this->SelectedEndPointProperty);
-      this->Point2Representation->SetSelectedProperty(this->SelectedEndPointProperty);
+      this->Handle[1]->SetProperty(this->SelectedEndPoint2Property);
+      this->Point2Representation->SetSelectedProperty(this->SelectedEndPoint2Property);
       }
     else
       {
-      this->Handle[1]->SetProperty(this->EndPointProperty);
-      this->Point2Representation->SetProperty(this->EndPointProperty);
+      this->Handle[1]->SetProperty(this->EndPoint2Property);
+      this->Point2Representation->SetProperty(this->EndPoint2Property);
       }
     }
   else //if ( ptId == 2 )
@@ -946,6 +954,23 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Selected End Point Property: (none)\n";
     }
+
+  if ( this->EndPoint2Property )
+    {
+    os << indent << "End Point Property: " << this->EndPoint2Property << "\n";
+    }
+  else
+    {
+    os << indent << "End Point Property: (none)\n";
+    }
+  if ( this->SelectedEndPoint2Property )
+    {
+    os << indent << "Selected End Point Property: " << this->SelectedEndPoint2Property << "\n";
+    }
+  else
+    {
+    os << indent << "Selected End Point Property: (none)\n";
+    }  
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 
