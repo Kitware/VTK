@@ -44,7 +44,7 @@ class vtkProp3D;
 class vtkTransform;
 class vtkPolyDataEdges;
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataSilhouette : public vtkPolyDataAlgorithm 
+class VTK_HYBRID_EXPORT vtkPolyDataSilhouette : public vtkPolyDataAlgorithm 
 {
 public:
   // Description:
