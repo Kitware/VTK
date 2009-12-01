@@ -34,13 +34,16 @@
 #include "vtkImageActor.h"
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
+#include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.7");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.8");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
 vtkSurfacePicker::vtkSurfacePicker()
 {
+  this->Locators = vtkCollection::New();
+
   this->Cell = vtkGenericCell::New();
   this->Gradients = vtkDoubleArray::New();
   this->Gradients->SetNumberOfComponents(3);
@@ -83,6 +86,7 @@ vtkSurfacePicker::~vtkSurfacePicker()
 {
   this->Gradients->Delete();
   this->Cell->Delete();
+  this->Locators->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -147,6 +151,27 @@ void vtkSurfacePicker::Initialize()
   this->PickNormal[2] = 1.0;
 
   this->Superclass::Initialize();
+}
+
+//----------------------------------------------------------------------------
+void vtkSurfacePicker::AddLocator(vtkAbstractCellLocator *locator)
+{
+  if (!this->Locators->IsItemPresent(locator))
+    {
+    this->Locators->AddItem(locator);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSurfacePicker::RemoveLocator(vtkAbstractCellLocator *locator)
+{
+  this->Locators->RemoveItem(locator);
+}
+
+//----------------------------------------------------------------------------
+void vtkSurfacePicker::RemoveAllLocators()
+{
+  this->Locators->RemoveAllItems();
 }
 
 //----------------------------------------------------------------------------
@@ -329,38 +354,63 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
   double minXYZ[3];
   minXYZ[0] = minXYZ[1] = minXYZ[2] = 0.0;
 
-  vtkIdType numCells = data->GetNumberOfCells();
-  for (vtkIdType cellId = 0; cellId < numCells; cellId++) 
+  vtkCollectionSimpleIterator iter;
+  vtkAbstractCellLocator *locator = 0;
+  this->Locators->InitTraversal(iter);
+  while ( (locator = static_cast<vtkAbstractCellLocator *>(
+           this->Locators->GetNextItemAsObject(iter))) )
     {
-    double t;
-    double x[3];
-    double pcoords[3];
-    pcoords[0] = pcoords[1] = pcoords[2] = 0;
-    int subId = -1;
-
-    data->GetCell(cellId, this->Cell);
-    if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
-                                      const_cast<double *>(p2),
-                                      tol, t, x, pcoords, subId) 
-        && t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
+    if (locator->GetDataSet() == data)
       {
-      double pDist = this->Cell->GetParametricDistance(pcoords);
-      if (pDist < pDistMin || (pDist == pDistMin && t < tMin))
+      break;
+      }
+    }
+
+  if (locator)
+    {
+    if (!locator->IntersectWithLine(const_cast<double *>(p1),
+                                    const_cast<double *>(p2),
+                                    tol, tMin, minXYZ,
+                                    minPCoords, minSubId, minCellId))
+      {
+      return VTK_DOUBLE_MAX;
+      }
+    }
+  else
+    {
+    vtkIdType numCells = data->GetNumberOfCells();
+    for (vtkIdType cellId = 0; cellId < numCells; cellId++) 
+      {
+      double t;
+      double x[3];
+      double pcoords[3];
+      pcoords[0] = pcoords[1] = pcoords[2] = 0;
+      int subId = -1;
+
+      data->GetCell(cellId, this->Cell);
+      if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
+                                        const_cast<double *>(p2),
+                                        tol, t, x, pcoords, subId) 
+          && t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
         {
-        tMin = t;
-        pDistMin = pDist;
-        // save all of these
-        minCellId = cellId;
-        minSubId = subId;
-        minXYZ[0] = x[0];
-        minXYZ[1] = x[1];
-        minXYZ[2] = x[2];
-        minPCoords[0] = pcoords[0];
-        minPCoords[1] = pcoords[1];
-        minPCoords[2] = pcoords[2];
-        } // if minimum, maximum
-      } // if a close cell
-    } // for all cells
+        double pDist = this->Cell->GetParametricDistance(pcoords);
+        if (pDist < pDistMin || (pDist == pDistMin && t < tMin))
+          {
+          tMin = t;
+          pDistMin = pDist;
+          // save all of these
+          minCellId = cellId;
+          minSubId = subId;
+          minXYZ[0] = x[0];
+          minXYZ[1] = x[1];
+          minXYZ[2] = x[2];
+          minPCoords[0] = pcoords[0];
+          minPCoords[1] = pcoords[1];
+          minPCoords[2] = pcoords[2];
+          } // if minimum, maximum
+        } // if a close cell
+      } // for all cells
+    }
   
   // Do this if a cell was intersected
   if (minCellId >= 0 && tMin < this->GlobalTMin)
