@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBlockItem, "1.4");
+vtkCxxRevisionMacro(vtkBlockItem, "1.5");
 vtkStandardNewMacro(vtkBlockItem);
 
 //-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
 
   int x = static_cast<int>(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
   int y = static_cast<int>(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
-  painter->DrawText(x, y, this->Label);
+  painter->DrawString(x, y, this->Label);
 
   if (this->scalarFunction)
     {

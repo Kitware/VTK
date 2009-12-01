@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.5");
+vtkCxxRevisionMacro(vtkContext2D, "1.6");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -291,53 +291,15 @@ void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
   delete[] p;
 }
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef DrawText
-// Define possible mangled names.
-void vtkContext2D::DrawTextA(vtkPoints2D *point, const vtkStdString &string)
-{
-  this->DrawText(point, string);
-}
-void vtkContext2D::DrawTextA(float x, float y, const vtkStdString &string)
-{
-  this->DrawText(x, y, string);
-}
-void vtkContext2D::DrawTextA(vtkPoints2D *point, const char *string)
-{
-  this->DrawText(point, string);
-}
-void vtkContext2D::DrawTextA(float x, float y, const char *string)
-{
-  this->DrawText(x, y, string);
-}
-
-void vtkContext2D::DrawTextW(vtkPoints2D *point, const vtkStdString &string)
-{
-  this->DrawText(point, string);
-}
-void vtkContext2D::DrawTextW(float x, float y, const vtkStdString &string)
-{
-  this->DrawText(x, y, string);
-}
-void vtkContext2D::DrawTextW(vtkPoints2D *point, const char *string)
-{
-  this->DrawText(point, string);
-}
-void vtkContext2D::DrawTextW(float x, float y, const char *string)
-{
-  this->DrawText(x, y, string);
-}
-#endif
-
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawText(vtkPoints2D *point, const vtkStdString &string)
+void vtkContext2D::DrawString(vtkPoints2D *point, const vtkStdString &string)
 {
   float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
-  this->DrawText(f[0], f[1], string);
+  this->DrawString(f[0], f[1], string);
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawText(float x, float y, const vtkStdString &string)
+void vtkContext2D::DrawString(float x, float y, const vtkStdString &string)
 {
   if (!this->Device)
     {
@@ -349,22 +311,22 @@ void vtkContext2D::DrawText(float x, float y, const vtkStdString &string)
     {
     this->Transform->TransformPoints(&f[0], &f[0], 1);
     }
-  this->Device->DrawText(&f[0], this->TextProp, string);
+  this->Device->DrawString(&f[0], this->TextProp, string);
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawText(vtkPoints2D *point, const char *string)
+void vtkContext2D::DrawString(vtkPoints2D *point, const char *string)
 {
   float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
   vtkStdString str = string;
-  this->DrawText(f[0], f[1], str);
+  this->DrawString(f[0], f[1], str);
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawText(float x, float y, const char *string)
+void vtkContext2D::DrawString(float x, float y, const char *string)
 {
   vtkStdString str = string;
-  this->DrawText(x, y, str);
+  this->DrawString(x, y, str);
 }
 
 //-----------------------------------------------------------------------------

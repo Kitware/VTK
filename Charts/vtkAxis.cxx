@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.3");
+vtkCxxRevisionMacro(vtkAxis, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -70,7 +70,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     prop->SetOrientation(90.0);
     prop->SetJustificationToCentered();
     prop->SetVerticalJustificationToBottom();
-    painter->DrawText(x, y, this->Label);
+    painter->DrawString(x, y, this->Label);
 
     // Now draw the tick marks
     float spacing = (this->Point2[1] - this->Point1[1]) /
@@ -88,7 +88,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       // Draw the tick label
       char string[20];
       sprintf(string, "%-#6.3g", this->Minimum + i*labelSpacing);
-      painter->DrawText(this->Point1[0] - 5, yTick, string);
+      painter->DrawString(this->Point1[0] - 5, yTick, string);
       }
     }
   else // Default to horizontal orientation
@@ -101,7 +101,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     prop->SetColor(0.0, 0.0, 0.0);
     prop->SetJustificationToCentered();
     prop->SetVerticalJustificationToTop();
-    painter->DrawText(x, y, "X Axis");
+    painter->DrawString(x, y, "X Axis");
 
     // Now draw the tick marks
     float spacing = (this->Point2[0] - this->Point1[0]) /
@@ -117,7 +117,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 
       char string[20];
       sprintf(string, "%-#6.3g", this->Minimum + i*labelSpacing);
-      painter->DrawText(xTick, int(this->Point1[1] - 5), string);
+      painter->DrawString(xTick, int(this->Point1[1] - 5), string);
       }
     }
   return true;

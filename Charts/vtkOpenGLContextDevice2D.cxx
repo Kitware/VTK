@@ -55,7 +55,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.6");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -222,24 +222,9 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     }
 }
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef DrawText
-// Define possible mangled names.
-void vtkOpenGLContextDevice2D::DrawTextA(float *point, vtkTextProperty *prop,
-                                         const vtkStdString &string)
-{
-  this->DrawText(point, prop, string);
-}
-void vtkOpenGLContextDevice2D::DrawTextW(float *point, vtkTextProperty *prop,
-                                         const vtkStdString &string)
-{
-  this->DrawText(point, prop, string);
-}
-#endif
-
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawText(float *point, vtkTextProperty *prop,
-                                        const vtkStdString &string)
+void vtkOpenGLContextDevice2D::DrawString(float *point, vtkTextProperty *prop,
+                                          const vtkStdString &string)
 {
   if (!this->IsTextDrawn)
     {

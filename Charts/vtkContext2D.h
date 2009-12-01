@@ -136,26 +136,11 @@ public:
 //BTX
   // Description:
   // Draw some text to the screen.
-  void DrawText(vtkPoints2D *point, const vtkStdString &string);
-  void DrawText(float x, float y, const vtkStdString &string);
+  void DrawString(vtkPoints2D *point, const vtkStdString &string);
+  void DrawString(float x, float y, const vtkStdString &string);
 //ETX
-  void DrawText(vtkPoints2D *point, const char *string);
-  void DrawText(float x, float y, const char *string);
-
-//BTX
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef DrawTextA
-# undef DrawTextW
-  void DrawTextA(vtkPoints2D *point, const vtkStdString &string);
-  void DrawTextA(float x, float y, const vtkStdString &string);
-  void DrawTextW(vtkPoints2D *point, const vtkStdString &string);
-  void DrawTextW(float x, float y, const vtkStdString &string);
-  void DrawTextA(vtkPoints2D *point, const char *string);
-  void DrawTextA(float x, float y, const char *string);
-  void DrawTextW(vtkPoints2D *point, const char *string);
-  void DrawTextW(float x, float y, const char *string);
-#endif
-//ETX
+  void DrawString(vtkPoints2D *point, const char *string);
+  void DrawString(float x, float y, const char *string);
 
   // Description:
   // Get/Set the pen which controls the outlines of shapes as well as lines,

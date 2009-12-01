@@ -55,8 +55,8 @@ public:
 //BTX
   // Description:
   // Draw some text to the screen.
-  virtual void DrawText(float *point, vtkTextProperty *tprop,
-                        const vtkStdString &string) = 0;
+  virtual void DrawString(float *point, vtkTextProperty *tprop,
+                          const vtkStdString &string) = 0;
 //ETX
 
   // Description:

@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.6");
+vtkCxxRevisionMacro(vtkImageItem, "1.7");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -85,8 +85,8 @@ bool vtkImageItem::Paint(vtkContext2D *painter)
                       100, 20);
     painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
     painter->GetTextProp()->SetFontSize(12);
-    painter->DrawText(this->Dimensions[0]+60, this->Dimensions[1]+60,
-                      this->Label);
+    painter->DrawString(this->Dimensions[0]+60, this->Dimensions[1]+60,
+                        this->Label);
     }
 
   float p[] = { 0.0, 0.0,
