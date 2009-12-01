@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkDataSetGradient, "1.5");
+vtkCxxRevisionMacro(vtkDataSetGradient, "1.6");
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!
@@ -49,6 +49,7 @@ The destrcutor
 */
 vtkDataSetGradient::~vtkDataSetGradient()
 {
+   this->SetResultArrayName( 0 );
 }
 
 void vtkDataSetGradient::PrintSelf(ostream& os, vtkIndent indent)
