@@ -51,6 +51,7 @@ vtkLegendScaleActor.cxx
 vtkLSDynaReader.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPieChartActor.cxx
+vtkPolyDataSilhouette.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
 vtkProjectedTerrainPath.cxx
