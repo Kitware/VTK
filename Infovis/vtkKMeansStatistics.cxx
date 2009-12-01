@@ -19,7 +19,7 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.15");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.16");
 vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
 
 // ----------------------------------------------------------------------
@@ -177,8 +177,8 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
       {
       if(reqIt->find( inData->GetColumnName( j ) ) != reqIt->end() ) 
         {
-        vtkAbstractArray* curCoords = this->DistanceFunctor->GetNewVTKArray();
-        vtkAbstractArray* newCoords = this->DistanceFunctor->GetNewVTKArray();
+        vtkAbstractArray* curCoords = this->DistanceFunctor->CreateCoordinateArray();
+        vtkAbstractArray* newCoords = this->DistanceFunctor->CreateCoordinateArray();
         curCoords->SetName( inData->GetColumnName( j ) );
         newCoords->SetName( inData->GetColumnName( j ) );
         curClusterElements->AddColumn( curCoords );

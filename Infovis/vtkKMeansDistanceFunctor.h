@@ -63,7 +63,7 @@ public:
   // Description:
   // Return a vtkAbstractArray capable of holding cluster center coordinates.
   // This is used by vtkPKMeansStatistics to hold cluster center coordinates sent to (received from) other processes.
-  virtual vtkAbstractArray*  GetNewVTKArray();
+  virtual vtkAbstractArray*  CreateCoordinateArray();
 
   // Description:
   // Pack the cluster center coordinates in \a vElements into columns of \a curTable.
@@ -85,6 +85,7 @@ protected:
   virtual ~vtkKMeansDistanceFunctor();
 
   vtkVariantArray* EmptyTuple; // Used to quickly initialize Tuple for each datum
+  vtkTable* CenterUpdates; // Used to hold online computation of next iteration's cluster center coords.
 
 private:
   vtkKMeansDistanceFunctor( const vtkKMeansDistanceFunctor& ); // Not implemented.

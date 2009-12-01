@@ -8,7 +8,13 @@
 #include "vtkIdTypeArray.h"
 
 vtkStandardNewMacro(vtkKMeansDistanceFunctor);
-vtkCxxRevisionMacro(vtkKMeansDistanceFunctor,"1.7");
+vtkCxxRevisionMacro(vtkKMeansDistanceFunctor,"1.8");
+
+// ----------------------------------------------------------------------
+vtkKMeansDistanceFunctor::vtkKMeansDistanceFunctor()
+{
+  this->EmptyTuple = vtkVariantArray::New();
+}
 
 // ----------------------------------------------------------------------
 vtkKMeansDistanceFunctor::~vtkKMeansDistanceFunctor()
@@ -17,11 +23,6 @@ vtkKMeansDistanceFunctor::~vtkKMeansDistanceFunctor()
 }
 
 // ----------------------------------------------------------------------
-vtkKMeansDistanceFunctor::vtkKMeansDistanceFunctor()
-{
-  this->EmptyTuple = vtkVariantArray::New();
-}
-
 void vtkKMeansDistanceFunctor::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
@@ -133,7 +134,7 @@ void vtkKMeansDistanceFunctor::DeallocateElementArray( void* array )
 }
 
 // ----------------------------------------------------------------------
-vtkAbstractArray* vtkKMeansDistanceFunctor::GetNewVTKArray( )
+vtkAbstractArray* vtkKMeansDistanceFunctor::CreateCoordinateArray( )
 {
   return vtkDoubleArray::New();
 }
