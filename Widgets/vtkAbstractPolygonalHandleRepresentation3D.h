@@ -99,11 +99,16 @@ public:
   vtkGetMacro( LabelVisibility, int );
   vtkBooleanMacro( LabelVisibility, int );
   virtual void SetLabelText( const char * label );
+  virtual char * GetLabelText();
   
   // Description:
   // Scale text (font size along each dimension).
   virtual void SetLabelTextScale( double scale[3] );
   virtual double * GetLabelTextScale();
+
+  // Description:
+  // Get the label text actor
+  vtkGetObjectMacro( LabelTextActor, vtkFollower );
   
 protected:
   vtkAbstractPolygonalHandleRepresentation3D();

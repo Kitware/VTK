@@ -52,6 +52,10 @@ public:
   vtkSetVector3Macro( Offset, double );
   vtkGetVector3Macro( Offset, double );
 
+  // Description:
+  // Get the label text actor
+  vtkGetObjectMacro( LabelTextActor, vtkFollower );
+    
 protected:
   vtkPolygonalHandleRepresentation3D();
   ~vtkPolygonalHandleRepresentation3D() {};

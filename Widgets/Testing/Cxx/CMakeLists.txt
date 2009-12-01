@@ -29,13 +29,14 @@ SET(MyTests
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
 #  TestRectilinearWipeWidget.cxx
-#  TestSeedWidget.cxx
+  TestSeedWidget.cxx
   TestSliderWidget.cxx
   TestSliderWidget2D.cxx
 #  TestTextWidget.cxx
   TerrainPolylineEditor.cxx
   TestDijkstraGraphGeodesicPath.cxx
   TestParallelopipedWidget.cxx
+  TestSeedWidgetNonUniformRepresentations.cxx
   )
 
 IF (VTK_DATA_ROOT)

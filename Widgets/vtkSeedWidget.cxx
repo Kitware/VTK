@@ -30,7 +30,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.19");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.20");
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -63,6 +63,7 @@ vtkSeedWidget::vtkSeedWidget()
                                           vtkEvent::NoModifier, 127, 1, "Delete",
                                           vtkWidgetEvent::Delete,
                                           this, vtkSeedWidget::DeleteAction);
+  this->Defining = 1;
 }
 
 //----------------------------------------------------------------------
@@ -142,8 +143,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
   vtkSeedWidget *self = reinterpret_cast<vtkSeedWidget*>(w);
 
   // Need to distinguish between placing handles and manipulating handles
-  if ( self->WidgetState == vtkSeedWidget::MovingSeed ||
-       self->WidgetState == vtkSeedWidget::PlacedSeeds )
+  if ( self->WidgetState == vtkSeedWidget::MovingSeed )
     {
     return;
     }
@@ -157,14 +157,21 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
   if ( state == vtkSeedRepresentation::NearSeed )
     {
     self->WidgetState = vtkSeedWidget::MovingSeed;
+    
     // Invoke an event on ourself for the handles
     self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     self->Superclass::StartInteraction();
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+
+    self->EventCallbackCommand->SetAbortFlag(1);
+    self->Render();
     }
 
-  else //we are placing a new seed
+  else if ( self->WidgetState != vtkSeedWidget::PlacedSeeds) 
     {
+    // we are placing a new seed. Just make sure we aren't in a mode which
+    // dictates we've placed all seeds.
+
     self->WidgetState = vtkSeedWidget::PlacingSeeds;
     double e[3]; e[2]=0.0;
     e[0] = static_cast<double>(X);
@@ -185,10 +192,11 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     currentHandle->SetEnabled(1);
     self->InvokeEvent(vtkCommand::PlacePointEvent,&(currentHandleNumber));
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+
+    self->EventCallbackCommand->SetAbortFlag(1);
+    self->Render();
     }
 
-  self->EventCallbackCommand->SetAbortFlag(1);
-  self->Render();
 }
 
 //-------------------------------------------------------------------------
@@ -197,14 +205,10 @@ void vtkSeedWidget::CompletedAction(vtkAbstractWidget *w)
   vtkSeedWidget *self = reinterpret_cast<vtkSeedWidget*>(w);
 
   // Do something only if we are in the middle of placing the seeds
-  if ( self->WidgetState != vtkSeedWidget::PlacingSeeds )
+  if ( self->WidgetState == vtkSeedWidget::PlacingSeeds )
     {
-    return;
+    self->CompleteInteraction();
     }
-
-  // All we do is set the state to placed
-  self->WidgetState = vtkSeedWidget::PlacedSeeds;
-  self->EventCallbackCommand->SetAbortFlag(1);
 }
 
 //-------------------------------------------------------------------------
@@ -212,12 +216,14 @@ void vtkSeedWidget::CompleteInteraction()
 {
   this->WidgetState = vtkSeedWidget::PlacedSeeds;
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->Defining = 0;
 }
 
 //-------------------------------------------------------------------------
 void vtkSeedWidget::RestartInteraction()
 {
   this->WidgetState = vtkSeedWidget::Start;
+  this->Defining = 1;
 }
 
 //-------------------------------------------------------------------------
@@ -226,15 +232,22 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
   vtkSeedWidget *self = reinterpret_cast<vtkSeedWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState == vtkSeedWidget::Start ||
-       self->WidgetState == vtkSeedWidget::PlacedSeeds )
+  if ( self->WidgetState == vtkSeedWidget::Start )
     {
     return;
     }
 
   // else we are moving a seed
+  
   self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-  self->RequestCursorShape(VTK_CURSOR_HAND);
+
+  // set the cursor shape to a hand if we are near a seed.
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  int state = self->WidgetRep->ComputeInteractionState(X,Y);
+  self->RequestCursorShape( state == vtkSeedRepresentation::NearSeed ? 
+                                    VTK_CURSOR_HAND : VTK_CURSOR_DEFAULT );
+  
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
@@ -251,8 +264,11 @@ void vtkSeedWidget::EndSelectAction(vtkAbstractWidget *w)
     return;
     }
 
+  // Revert back to the mode we were in prior to selection.
+  self->WidgetState = self->Defining ? 
+    vtkSeedWidget::PlacingSeeds : vtkSeedWidget::PlacedSeeds;
+
   // Invoke event for seed handle
-  self->WidgetState = vtkSeedWidget::PlacingSeeds;
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -277,7 +293,7 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
   int removeId = rep->GetActiveHandle();
   if ( removeId != -1 )
     {
-       rep->RemoveActiveHandle();
+    rep->RemoveActiveHandle();
     }
   else
     {

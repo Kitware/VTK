@@ -121,9 +121,12 @@ public:
 
   // Description:
   // Method to be called when the seed widget should stop responding to
-  // the interaction. The seed widget, when defined allows you place seeds
-  // by clicking on the render window. Use this method to indicate that
-  // you would like to stop placing seeds interactively. 
+  // the place point interaction. The seed widget, when defined allows you 
+  // place seeds by clicking on the render window. Use this method to 
+  // indicate that you would like to stop placing seeds interactively. If
+  // you'd like the widget to stop responding to *any* user interaction
+  // simply disable event processing by the widget by calling
+  //   widget->ProcessEventsOff()
   virtual void CompleteInteraction();
 
   // Description:
@@ -155,10 +158,10 @@ protected:
 //BTX
   enum
     {
-    Start = 0,
-    PlacingSeeds,
-    PlacedSeeds,
-    MovingSeed
+    Start = 1,
+    PlacingSeeds = 2,
+    PlacedSeeds = 4,
+    MovingSeed = 8 
     };
 //ETX
   int WidgetState;
@@ -172,8 +175,11 @@ protected:
   static void DeleteAction( vtkAbstractWidget* );
   
   // The positioning handle widgets
-  vtkSeedList *Seeds;
+  vtkSeedList *Seeds; 
   
+  // Manipulating or defining ? 
+  int Defining;
+
 private:
   vtkSeedWidget(const vtkSeedWidget&);  //Not implemented
   void operator=(const vtkSeedWidget&);  //Not implemented
