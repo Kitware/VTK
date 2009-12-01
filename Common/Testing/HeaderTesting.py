@@ -400,7 +400,7 @@ class TestVTKFiles:
             self.Print( "File: %s has windows.h mangling violations:" % self.FileName )
             for a in lines:
                 self.Print(a)
-            self.Error("Windows Mangling Violation")
+            self.Error("Windows Mangling Violation - choose another name that does not conflict.")
         pass
 
 ##
