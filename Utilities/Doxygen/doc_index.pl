@@ -61,7 +61,8 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 my %default = 
   (
    limit => 10,
-   dirs => ["../../Common",
+   dirs => ["../../Charts",
+            "../../Common",
             "../../Filtering",
             "../../GenericFiltering",
             "../../GenericFiltering/Testing/Cxx",

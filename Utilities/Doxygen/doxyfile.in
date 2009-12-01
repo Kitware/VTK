@@ -41,6 +41,7 @@ IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Ut
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
 INPUT                = \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Charts" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering" \

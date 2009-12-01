@@ -109,7 +109,8 @@ $PROGNAME =~ s/^.*[\\\/]//;
 
 my %default = 
   (
-   dirs => ["../../Common",
+   dirs => ["../../Charts",
+            "../../Common",
             "../../Filtering",
             "../../GenericFiltering",
             "../../GenericFiltering/Testing/Cxx",

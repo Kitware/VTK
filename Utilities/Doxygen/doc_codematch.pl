@@ -32,7 +32,8 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 my %default = 
   (
    codematch => "\w(?:->|\.)InvokeEvent\s*\(\s*(vtkCommand::\w+)[\s,]",
-   dirs => ["../../Common",
+   dirs => ["../../Charts",
+            "../../Common",
             "../../Filtering",
             "../../GenericFiltering",
             "../../GenericFiltering/Testing/Cxx",
