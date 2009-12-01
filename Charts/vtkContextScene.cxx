@@ -100,7 +100,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.3");
+vtkCxxRevisionMacro(vtkContextScene, "1.4");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -129,8 +129,8 @@ vtkContextScene::~vtkContextScene()
 bool vtkContextScene::Paint(vtkContext2D *painter)
 {
   vtkDebugMacro("Paint event called.");
-  unsigned int size = this->Storage->items.size();
-  for (unsigned int i = 0; i < size; ++i)
+  size_t size = this->Storage->items.size();
+  for (size_t i = 0; i < size; ++i)
     {
     painter->SetTransform(this->Storage->items[i]->GetTransform());
     this->Storage->items[i]->Paint(painter);
@@ -148,7 +148,7 @@ void vtkContextScene::AddItem(vtkContextItem *item)
 //-----------------------------------------------------------------------------
 int vtkContextScene::NumberOfItems()
 {
-  return this->Storage->items.size();
+  return static_cast<int>(this->Storage->items.size());
 }
 
 //-----------------------------------------------------------------------------
@@ -197,7 +197,7 @@ void vtkContextScene::ProcessSelectionEvent(vtkObject* caller, void* callData)
 //-----------------------------------------------------------------------------
 void vtkContextScene::MouseMoveEvent(int x, int y)
 {
-  unsigned int size = this->Storage->items.size();
+  int size = static_cast<int>(this->Storage->items.size());
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos[0] = x;
   event.ScreenPos[1] = y;
@@ -253,7 +253,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
 //-----------------------------------------------------------------------------
 void vtkContextScene::ButtonPressEvent(int button, int x, int y)
 {
-  unsigned int size = this->Storage->items.size();
+  int size = static_cast<int>(this->Storage->items.size());
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos[0] = event.LastScreenPos[0] = x;
   event.ScreenPos[1] = event.LastScreenPos[1] = y;

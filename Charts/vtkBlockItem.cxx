@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBlockItem, "1.3");
+vtkCxxRevisionMacro(vtkBlockItem, "1.4");
 vtkStandardNewMacro(vtkBlockItem);
 
 //-----------------------------------------------------------------------------
@@ -103,8 +103,8 @@ bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  int deltaX = mouse.Pos[0] - this->LastPosition[0];
-  int deltaY = mouse.Pos[1] - this->LastPosition[1];
+  float deltaX = mouse.Pos[0] - this->LastPosition[0];
+  float deltaY = mouse.Pos[1] - this->LastPosition[1];
   this->LastPosition[0] = mouse.Pos[0];
   this->LastPosition[1] = mouse.Pos[1];
 
