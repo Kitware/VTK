@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.5");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.6");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,7 @@ vtkSurfacePicker::vtkSurfacePicker()
  
   this->Tolerance = 1e-6;
   this->VolumeOpacityIsovalue = 0.05;
+  this->IgnoreGradientOpacity = 1;
   this->PickClippingPlanes = 0;
 
   this->ClippingPlaneId = -1;
@@ -91,6 +92,8 @@ void vtkSurfacePicker::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "VolumeOpacityIsovalue: " << this->VolumeOpacityIsovalue
      << "\n";
+  os << indent << "IgnoreGradientOpacity: "
+     << (this->IgnoreGradientOpacity ? "On" : "Off") << "\n";
 
   os << indent << "MapperNormal: (" <<  this->MapperNormal[0] << ","
      << this->MapperNormal[1] << "," << this->MapperNormal[2] << ")\n";
@@ -490,7 +493,7 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
     int disableGradientOpacity = 
       property->GetDisableGradientOpacity(component);
     vtkPiecewiseFunction *gradientOpacity = 0;
-    if (!disableGradientOpacity)
+    if (!disableGradientOpacity && !this->IgnoreGradientOpacity)
       {
       gradientOpacity = property->GetGradientOpacity(component);
       }

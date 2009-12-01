@@ -152,6 +152,8 @@ coneSource SetDirection -1 0 0
 vtkVolumePicker picker
 picker SetTolerance 1e-6
 picker SetVolumeOpacityIsovalue 0.01
+# This should usually be left alone, but is used here to increase coverage
+picker IgnoreGradientOpacityOff
 
 # A function to point an actor along a vector
 proc PointCone {actor nx ny nz} {

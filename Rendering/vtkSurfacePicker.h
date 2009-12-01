@@ -74,6 +74,14 @@ public:
   vtkGetMacro(VolumeOpacityIsovalue, double);
 
   // Description:
+  // Ignore the gradient opacity function when computing the opacity
+  // isovalue.  This parameter is only relevant to volume picking and
+  // is on by default.
+  vtkSetMacro(IgnoreGradientOpacity, int);
+  vtkBooleanMacro(IgnoreGradientOpacity, int);
+  vtkGetMacro(IgnoreGradientOpacity, int);
+
+  // Description:
   // Set whether to pick the clipping planes of props that have them.
   // If this is set, then the pick will be done on the clipping planes
   // rather than on the data. The GetClippingPlaneId() method will return
@@ -180,6 +188,7 @@ protected:
                               vtkPiecewiseFunction *gradientOpacity);
 
   double VolumeOpacityIsovalue;
+  int IgnoreGradientOpacity;
   int PickClippingPlanes;
   int ClippingPlaneId;
 
