@@ -121,6 +121,7 @@
 #cmakedefine VTK_USE_SYSTEM_FREETYPE
 #cmakedefine VTK_USE_SYSTEM_LIBXML2
 #cmakedefine VTK_USE_SYSTEM_LIBPROJ4
+#cmakedefine VTK_USE_SYSTEM_OGGTHEORA
 
 /* Whether VTK is using vfw32 and if it supports video capture */
 #cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
@@ -134,6 +135,9 @@
 
 /* Whether the user has linked in the MPEG2 library or not  */
 #cmakedefine VTK_USE_MPEG2_ENCODER
+
+/* Whether the user wants to use the Ogg/Theora encoder or not */
+#cmakedefine VTK_USE_OGGTHEORA_ENCODER
 
 /* Whether the user has built the MetaIO library or not  */
 #cmakedefine VTK_USE_METAIO

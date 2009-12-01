@@ -398,6 +398,11 @@ IF(VTK_USE_CARBON AND VTK_USE_COCOA)
 ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
 
 #-----------------------------------------------------------------------------
+# Determine whether to use the experimental Ogg/Theora writer.
+OPTION(VTK_USE_OGGTHEORA_ENCODER "Build experimental Ogg/Theora support" OFF)
+MARK_AS_ADVANCED(VTK_USE_OGGTHEORA_ENCODER)
+
+#-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
 INCLUDE(${VTK_CMAKE_DIR}/vtkDetermineCompilerFlags.cmake)
 
@@ -680,6 +685,9 @@ VTK_THIRD_PARTY_OPTION(EXPAT expat)
 VTK_THIRD_PARTY_OPTION(FREETYPE freetype)
 VTK_THIRD_PARTY_OPTION(LIBXML2 libxml2)
 VTK_THIRD_PARTY_OPTION(LIBPROJ4 proj4)
+if(VTK_USE_OGGTHEORA_ENCODER)
+  VTK_THIRD_PARTY_OPTION(OGGTHEORA oggtheora)
+endif(VTK_USE_OGGTHEORA_ENCODER)
 
 #-----------------------------------------------------------------------------
 # Configure OpenGL support.

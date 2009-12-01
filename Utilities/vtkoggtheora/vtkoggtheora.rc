@@ -1,0 +1,32 @@
+#include <windows.h>
+
+#define IDR_VERSION1  1
+IDR_VERSION1	VERSIONINFO	MOVEABLE IMPURE LOADONCALL DISCARDABLE
+  FILEVERSION	 1,0,0,0
+  PRODUCTVERSION 1,0,0,0
+  FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
+  FILEFLAGS	0
+  FILEOS	VOS_DOS_WINDOWS32
+  FILETYPE	VFT_DLL
+  FILESUBTYPE	0	// not used
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    //language ID = U.S. English, char set = Windows, Multilingual
+
+    BEGIN
+      VALUE "FileDescription", "Ogg/Theora video container/codec library\0"
+      VALUE "FileVersion",	"1.0.0\0"
+      VALUE "InternalName",	"oggtheora\0"
+      VALUE "OriginalFilename",	"oggtheora.dll\0"
+      VALUE "ProductName",	"OggTheora.DLL\0"
+      VALUE "Comments","Custom build for VTK/ParaView\0"
+      VALUE "LegalCopyright", "(C) 2002-2008 Xiph.Org Foundation and contributors.\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 1252
+  END
+END
