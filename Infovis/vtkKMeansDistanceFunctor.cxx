@@ -7,11 +7,13 @@
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 
+vtkStandardNewMacro(vtkKMeansDistanceFunctor);
+vtkCxxRevisionMacro(vtkKMeansDistanceFunctor,"1.7");
 
 // ----------------------------------------------------------------------
 vtkKMeansDistanceFunctor::~vtkKMeansDistanceFunctor()
 {
-  if(EmptyTuple) EmptyTuple->Delete();
+  this->EmptyTuple->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -20,31 +22,30 @@ vtkKMeansDistanceFunctor::vtkKMeansDistanceFunctor()
   this->EmptyTuple = vtkVariantArray::New();
 }
 
-// ----------------------------------------------------------------------
-vtkVariantArray* vtkKMeansDefaultDistanceFunctor::GetEmptyTuple( vtkIdType dimension ) 
+void vtkKMeansDistanceFunctor::PrintSelf( ostream& os, vtkIndent indent )
 {
-  if(this->EmptyTuple->GetNumberOfValues() != dimension )
+  this->Superclass::PrintSelf( os, indent );
+  os << indent << "EmptyTuple: " << this->EmptyTuple << "\n";
+}
+
+// ----------------------------------------------------------------------
+vtkVariantArray* vtkKMeansDistanceFunctor::GetEmptyTuple( vtkIdType dimension )
+{
+  if ( this->EmptyTuple->GetNumberOfValues() != dimension )
     {
     this->EmptyTuple->SetNumberOfValues( dimension );
-    for( vtkIdType i = 0; i < dimension; i++ )
+    for( vtkIdType i = 0; i < dimension; ++ i )
       {
       this->EmptyTuple->SetValue( i, 0.0 );
       }
     }
-  return this->EmptyTuple; 
-} 
-
-// ----------------------------------------------------------------------
-vtkKMeansDefaultDistanceFunctor * vtkKMeansDefaultDistanceFunctor::New()
-{
-return new vtkKMeansDefaultDistanceFunctor;
+  return this->EmptyTuple;
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::operator() ( double &distance, vtkVariantArray *clusterCoord, 
-                                                                     vtkVariantArray *dataCoord)
+void vtkKMeansDistanceFunctor::operator() (
+  double& distance, vtkVariantArray* clusterCoord, vtkVariantArray* dataCoord )
 {
-
   distance = 0.0;
   if(clusterCoord->GetNumberOfValues() != dataCoord->GetNumberOfValues() )
     {
@@ -60,38 +61,35 @@ void vtkKMeansDefaultDistanceFunctor::operator() ( double &distance, vtkVariantA
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::PairwiseUpdate( vtkTable* clusterCoords,
-                                                      vtkIdType rowIndex,
-                                                      vtkVariantArray* dataCoord,
-                                                      vtkIdType dataCoordCardinality, 
-                                                      vtkIdType totalCardinality)
+void vtkKMeansDistanceFunctor::PairwiseUpdate(
+  vtkTable* clusterCoords, vtkIdType rowIndex, vtkVariantArray* dataCoord,
+  vtkIdType dataCoordCardinality, vtkIdType totalCardinality )
 {
-  if(clusterCoords->GetNumberOfColumns() != dataCoord->GetNumberOfValues() )
+  if ( clusterCoords->GetNumberOfColumns() != dataCoord->GetNumberOfValues() )
     {
     cout << "The dimensions of the cluster and/or data do not match." << endl;
     return;
     }
 
-  if( totalCardinality > 0 )
+  if ( totalCardinality > 0 )
     {
-    for(vtkIdType i = 0; i < clusterCoords->GetNumberOfColumns(); i++ )
+    for ( vtkIdType i = 0; i < clusterCoords->GetNumberOfColumns(); ++ i )
       {
       double curCoord = clusterCoords->GetValue( rowIndex, i ).ToDouble();
-      clusterCoords->SetValue( rowIndex, i, curCoord + static_cast<double>(dataCoordCardinality)*
-                                            (dataCoord->GetValue( i ).ToDouble() - curCoord)/
-                                            static_cast<double>( totalCardinality ) );
+      clusterCoords->SetValue( rowIndex, i,
+        curCoord + static_cast<double>(dataCoordCardinality)*
+        (dataCoord->GetValue( i ).ToDouble() - curCoord)/
+        static_cast<double>( totalCardinality ) );
       }
     }
 }
 
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::PerturbElement( vtkTable* newClusterElements, 
-                                                      vtkTable* curClusterElements, 
-                                                      vtkIdType changeID, 
-                                                      vtkIdType startRunID, 
-                                                      vtkIdType endRunID,
-                                                      double alpha ) 
+void vtkKMeansDistanceFunctor::PerturbElement(
+  vtkTable* newClusterElements, vtkTable* curClusterElements,
+  vtkIdType changeID, vtkIdType startRunID, vtkIdType endRunID,
+  double alpha )
 {
   double numInRange = static_cast<double>( endRunID-startRunID );
   vtkIdType dimension = newClusterElements->GetNumberOfColumns();
@@ -105,9 +103,9 @@ void vtkKMeansDefaultDistanceFunctor::PerturbElement( vtkTable* newClusterElemen
         {
         perturbedValues[j] = alpha*curClusterElements->GetValue( i, j ).ToDouble();
         }
-      else 
+      else
         {
-        if ( numInRange > 1.0) 
+        if ( numInRange > 1.0)
           {
           perturbedValues[j] = ( 1.0-alpha )/( numInRange-1.0 )*
                                curClusterElements->GetValue( i, j ).ToDouble();
@@ -119,34 +117,34 @@ void vtkKMeansDefaultDistanceFunctor::PerturbElement( vtkTable* newClusterElemen
           }
         }
       }
-    } 
+    }
 }
 
 // ----------------------------------------------------------------------
-void* vtkKMeansDefaultDistanceFunctor::AllocateElementArray( vtkIdType size )
+void* vtkKMeansDistanceFunctor::AllocateElementArray( vtkIdType size )
 {
   return new double[size];
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::DeallocateElementArray( void* array )
+void vtkKMeansDistanceFunctor::DeallocateElementArray( void* array )
 {
   delete [] static_cast< double* >( array );
 }
 
 // ----------------------------------------------------------------------
-vtkAbstractArray* vtkKMeansDefaultDistanceFunctor::GetNewVTKArray( )
+vtkAbstractArray* vtkKMeansDistanceFunctor::GetNewVTKArray( )
 {
   return vtkDoubleArray::New();
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::PackElements( vtkTable* curTable, void* vElements )
+void vtkKMeansDistanceFunctor::PackElements( vtkTable* curTable, void* vElements )
 {
   vtkIdType numCols = curTable->GetNumberOfColumns();
   vtkIdType numRows = curTable->GetNumberOfRows();
   double* localElements = static_cast< double* >( vElements );
- 
+
   for( vtkIdType col = 0; col < numCols; col++ )
     {
     vtkDoubleArray* doubleArr = vtkDoubleArray::SafeDownCast( curTable->GetColumn( col ) );
@@ -155,7 +153,7 @@ void vtkKMeansDefaultDistanceFunctor::PackElements( vtkTable* curTable, void* vE
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols )
+void vtkKMeansDistanceFunctor::UnPackElements( vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols )
 {
   double *localElements = static_cast< double* >( vLocalElements );
   for ( vtkIdType i = 0; i < numRows; i++ )
@@ -171,7 +169,7 @@ void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, void* 
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np )
+void vtkKMeansDistanceFunctor::UnPackElements( vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np )
 {
   double *globalElements = static_cast< double* >( vGlobalElements );
   double *localElements = static_cast< double* >( vLocalElements );
@@ -192,12 +190,12 @@ void vtkKMeansDefaultDistanceFunctor::UnPackElements( vtkTable* curTable, vtkTab
     newTable->AddColumn(doubleArr);
     doubleArr->Delete();
     }
-  delete [] localElements; 
-  delete [] globalElements; 
+  delete [] localElements;
+  delete [] globalElements;
 }
 
 // ----------------------------------------------------------------------
-int vtkKMeansDefaultDistanceFunctor::GetDataType() 
+int vtkKMeansDistanceFunctor::GetDataType()
 {
   return VTK_DOUBLE;
 }

@@ -16,7 +16,6 @@ IF(PYTHON_EXECUTABLE)
     vtkBivariateStatisticsAlgorithmPrivate.h 
     vtkMultiCorrelativeStatisticsAssessFunctor.h 
     vtkKMeansAssessFunctor.h 
-    vtkKMeansDistanceFunctor.h 
     vtkBoostGraphAdapter.h
     vtkBoostRandomSparseArraySource.h
     vtkSQLDatabaseGraphSource.h

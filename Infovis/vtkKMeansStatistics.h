@@ -103,48 +103,31 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkKMeansStatistics* New();
  
-//BTX 
   // Description:
   // Set the DistanceFunctor.
-  vtkSetMacro( DistanceFunctor, vtkKMeansDistanceFunctor* );
-//ETX 
+  virtual void SetDistanceFunctor( vtkKMeansDistanceFunctor* );
+  vtkGetObjectMacro(DistanceFunctor,vtkKMeansDistanceFunctor);
 
   // Description:
-  // Set the DefaultNumberOfClusters.
-  vtkSetMacro( DefaultNumberOfClusters, int );
+  // Set/get the \a DefaultNumberOfClusters, used when no initial cluster coordinates are specified.
+  vtkSetMacro(DefaultNumberOfClusters, int);
+  vtkGetMacro(DefaultNumberOfClusters, int);
 
   // Description:
-  // Set the KValuesArrayName.
+  // Set/get the KValuesArrayName.
   vtkSetStringMacro(KValuesArrayName);
-
-  // Description:
-  // Set the MaxNumIterations.
-  vtkSetMacro( MaxNumIterations, int );
-
-  // Description:
-  // Set the Tolerance.
-  vtkSetMacro( Tolerance, double );
-
-//BTX
-  // Description:
-  // Get the DistanceFunctor.
-  vtkGetMacro( DistanceFunctor, vtkKMeansDistanceFunctor* );
-//ETX
-
-  // Description:
-  // Get the DefaultNumberOfClusters.
-  vtkGetMacro( DefaultNumberOfClusters, int );
-
-  // Description:
-  // Get the KValuesArrayName.
   vtkGetStringMacro(KValuesArrayName);
 
   // Description:
-  // Get the MaxNumIterations.
+  // Set/get the MaxNumIterations used to terminate iterations on
+  // cluster center coordinates when the relative tolerance can not be met.
+  vtkSetMacro( MaxNumIterations, int );
   vtkGetMacro( MaxNumIterations, int );
 
   // Description:
-  // Get the Tolerance.
+  // Set/get the relative \a Tolerance used to terminate iterations on
+  // cluster center coordinates.
+  vtkSetMacro( Tolerance, double );
   vtkGetMacro( Tolerance, double );
 
   // Description:

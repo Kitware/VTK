@@ -240,18 +240,11 @@ vtkAreaLayoutStrategy.cxx
 vtkBivariateStatisticsAlgorithm.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
-vtkKMeansDistanceFunctor.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 ABSTRACT
 )
-
-SET_SOURCE_FILES_PROPERTIES(
-vtkKMeansDistanceFunctor.cxx
-WRAP_EXCLUDE
-)
-
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)

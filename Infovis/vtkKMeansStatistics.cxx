@@ -18,8 +18,9 @@
 #include <vtksys/stl/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.14");
 vtkStandardNewMacro(vtkKMeansStatistics);
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.15");
+vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
 
 // ----------------------------------------------------------------------
 vtkKMeansStatistics::vtkKMeansStatistics()
@@ -32,17 +33,14 @@ vtkKMeansStatistics::vtkKMeansStatistics()
   this->KValuesArrayName = 0;
   this->SetKValuesArrayName( "K" );
   this->MaxNumIterations = 50;
-  this->DistanceFunctor = 0;
+  this->DistanceFunctor = vtkKMeansDistanceFunctor::New();
 }
 
 // ----------------------------------------------------------------------
 vtkKMeansStatistics::~vtkKMeansStatistics()
 {
   this->SetKValuesArrayName( 0 );
-  if( this->DistanceFunctor ) 
-    {
-      delete this->DistanceFunctor;
-    }
+  this->SetDistanceFunctor( 0 );
 }
 
 // ----------------------------------------------------------------------
@@ -308,7 +306,8 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
 
   if ( !this->DistanceFunctor )
     {
-    this->DistanceFunctor = vtkKMeansDefaultDistanceFunctor::New();
+    vtkErrorMacro( "Distance functor is NULL" );
+    return;
     }
 
   // Data initialization
@@ -725,9 +724,10 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
   
   vtkKMeansAssessFunctor* kmfunc = vtkKMeansAssessFunctor::New();
 
-  if( !this->DistanceFunctor )
+  if ( ! this->DistanceFunctor )
     {
-      this->DistanceFunctor = vtkKMeansDefaultDistanceFunctor::New();
+    vtkErrorMacro( "Distance functor is NULL" );
+    return;
     }
 
   if ( ! kmfunc->Initialize( inData, reqModel, this->DistanceFunctor ) )
@@ -735,7 +735,6 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
     delete kmfunc;
     }
   dfunc = kmfunc;
-
 }
 
 // ----------------------------------------------------------------------
