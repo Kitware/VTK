@@ -22,21 +22,19 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextActor, "1.2");
+vtkCxxRevisionMacro(vtkContextActor, "1.3");
 vtkStandardNewMacro(vtkContextActor);
 
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
 vtkCxxSetObjectMacro(vtkContextActor, Scene, vtkContextScene);
 
 //----------------------------------------------------------------------------
-// Creates an actor2D with the following defaults:
-// position -1, -1 (view coordinates)
-// orientation 0, scale (1,1), layer 0, visibility on
 vtkContextActor::vtkContextActor()
 {
   this->Context = vtkContext2D::New();
   vtkOpenGLContextDevice2D *pd = vtkOpenGLContextDevice2D::New();
   this->Context->Begin(pd);
+  pd->Delete();
 
   this->Scene = vtkContextScene::New();
 }
@@ -47,7 +45,6 @@ vtkContextActor::~vtkContextActor()
 {
   if (this->Context)
     {
-    this->Context->GetDevice()->Delete();
     this->Context->Delete();
     this->Context = NULL;
     }
