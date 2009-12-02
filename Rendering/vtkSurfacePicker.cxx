@@ -36,7 +36,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.9");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.10");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -322,7 +322,7 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
       }
 
     this->ClippingPlaneId = clippingPlaneId;
-    this->MarkPicked(path, prop, m, t1, this->MapperPosition);
+    this->MarkPicked(path, prop, m, tMin, this->MapperPosition);
     }
 
   return tMin;
@@ -383,22 +383,25 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
       return VTK_DOUBLE_MAX;
       }
 
-    // Stretch tMin out to the original range
-    tMin = t1*(1.0 - tMin) + t2*tMin;
-
-    // Repeat with original line endpoints to improve the result
-    double t, x[3], pcoords[3];
-    int subId;
-    if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
-                                      const_cast<double *>(p2),
-                                      tol, t, x, pcoords, subId))
+    if (t1 != 0.0 || t2 != 1.0)
       {
-      tMin = t;
-      minSubId = subId;
-      for (int k = 0; k < 3; k++)
+      // Stretch tMin out to the original range
+      tMin = t1*(1.0 - tMin) + t2*tMin;
+
+      // Repeat with original line endpoints to improve the result
+      double t, x[3], pcoords[3];
+      int subId;
+      if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
+                                        const_cast<double *>(p2),
+                                        tol, t, x, pcoords, subId))
         {
-        minXYZ[k] = x[k];
-        minPCoords[k] = pcoords[k]; 
+        tMin = t;
+        minSubId = subId;
+        for (int k = 0; k < 3; k++)
+          {
+          minXYZ[k] = x[k];
+          minPCoords[k] = pcoords[k]; 
+          }
         }
       }
     }
