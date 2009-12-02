@@ -21,17 +21,17 @@
 // The following headers should not be included directly.
 #define __octree_interior
 
-#include "octree/octree_node.h"
-#include "octree/octree_path.h"
-#include "octree/octree_cursor.h"
-#include "octree/octree_iterator.h"
-#include "octree/octree.h"
+#include <octree/octree_node.h>
+#include <octree/octree_path.h>
+#include <octree/octree_cursor.h>
+#include <octree/octree_iterator.h>
+#include <octree/octree.h>
 
-#include "octree/octree_node.cxx"
-#include "octree/octree_path.cxx"
-#include "octree/octree_cursor.cxx"
-#include "octree/octree_iterator.cxx"
-#include "octree/octree.cxx"
+#include <octree/octree_node.cxx>
+#include <octree/octree_path.cxx>
+#include <octree/octree_cursor.cxx>
+#include <octree/octree_iterator.cxx>
+#include <octree/octree.cxx>
 
 #undef __octree_interior
 
