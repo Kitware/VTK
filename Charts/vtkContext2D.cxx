@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.7");
+vtkCxxRevisionMacro(vtkContext2D, "1.8");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -39,7 +39,12 @@ vtkStandardNewMacro(vtkContext2D);
 //-----------------------------------------------------------------------------
 bool vtkContext2D::Begin(vtkContextDevice2D *device)
 {
+  if (this->Device)
+    {
+    this->Device->Delete();
+    }
   this->Device = device;
+  this->Device->Register(this);
   this->Modified();
   return true;
 }
@@ -48,6 +53,7 @@ bool vtkContext2D::Begin(vtkContextDevice2D *device)
 bool vtkContext2D::End()
 {
   this->Device->End();
+  this->Device->Delete();
   this->Device = NULL;
   this->Modified();
   return true;
@@ -373,15 +379,20 @@ vtkContext2D::vtkContext2D()
 vtkContext2D::~vtkContext2D()
 {
   this->Pen->Delete();
-  this->Pen = 0;
+  this->Pen = NULL;
   this->Brush->Delete();
-  this->Brush = 0;
+  this->Brush = NULL;
   this->TextProp->Delete();
-  this->TextProp = 0;
+  this->TextProp = NULL;
   if (this->Device)
     {
     this->Device->Delete();
     this->Device = NULL;
+    }
+  if (this->Transform)
+    {
+    this->Transform->Delete();
+    this->Transform = NULL;
     }
 }
 
