@@ -36,6 +36,7 @@ class APIDiagram : public vtkContextItem
 {
 public:
   static APIDiagram *New();
+  vtkTypeRevisionMacro(APIDiagram, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
@@ -56,7 +57,7 @@ int TestDiagram( int argc, char * argv [] )
 
   VTK_CREATE(vtkRenderWindowInteractor, interactor);
   interactor->SetRenderWindow(renderWindow);
-  interactor->Initialize();
+  renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -69,6 +70,7 @@ int TestDiagram( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram);
+vtkCxxRevisionMacro(APIDiagram, "1.3");
 // This function draws our API diagram
 bool APIDiagram::Paint(vtkContext2D *painter)
 {
@@ -81,7 +83,7 @@ bool APIDiagram::Paint(vtkContext2D *painter)
 
   painter->GetBrush()->SetColor(100, 255, 100);
   painter->DrawRect(100, 50, 200, 100);
-//  painter->DrawString(200, 100, "OpenGL");
+  painter->DrawString(200, 100, "OpenGL");
 
   painter->GetBrush()->SetColor(255, 100, 0);
   painter->DrawRect(300, 50, 200, 100);
