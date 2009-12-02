@@ -9,9 +9,25 @@
 #include "vtkMath.h"
 #include "vtkMathConfigure.h"
 
+#include <vtkstd/limits>
+
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
+
+template<class A>
+bool fuzzyCompare(A a, A b)
+{
+  return ABS(a - b) < vtkstd::numeric_limits<A>::epsilon();
+}
+
+template<class A>
+bool fuzzyCompare(A a[3], A b[3])
+{
+  return fuzzyCompare(a[0], b[0]) &&
+         fuzzyCompare(a[1], b[1]) &&
+         fuzzyCompare(a[2], b[2]);
+}
 
 //=============================================================================
 // Helpful class for storing and using color triples.
@@ -86,6 +102,57 @@ int TestMath(int,char *[])
   if ( testIntValue != 10 )
     {
     vtkGenericWarningMacro("Binomial(5,3) = "<<testIntValue<<" != 10");
+    return 1;
+    }
+
+  // Test add, subtract, scalar multiplication.
+  double a[3] = {1.0, 2.0, 3.0};
+  double b[3] = {0.0, 1.0, 2.0};
+  double c[3];
+  double ans1[3] = {1.0, 3.0, 5.0};
+  double ans2[3] = {1.0, 1.0, 1.0};
+  double ans3[3] = {3.0, 6.0, 9.0};
+  float af[3] = {1.0f, 2.0f, 3.0f};
+  float bf[3] = {0.0f, 1.0f, 2.0f};
+  float cf[3];
+  float ans1f[3] = {1.0, 3.0, 5.0};
+  float ans2f[3] = {1.0, 1.0, 1.0};
+  float ans3f[3] = {3.0, 6.0, 9.0};
+
+  vtkMath::Add(a, b, c);
+  if (!fuzzyCompare(c, ans1))
+    {
+    vtkGenericWarningMacro("Double addition failed.");
+    return 1;
+    }
+  vtkMath::Subtract(a, b, c);
+  if (!fuzzyCompare(c, ans2))
+    {
+    vtkGenericWarningMacro("Double subtraction failed.");
+    return 1;
+    }
+  vtkMath::MultiplyScalar(a, 3.0);
+  if (!fuzzyCompare(a, ans3))
+    {
+    vtkGenericWarningMacro("Double scalar multiplication failed.");
+    return 1;
+    }
+  vtkMath::Add(af, bf, cf);
+  if (!fuzzyCompare(cf, ans1f))
+    {
+    vtkGenericWarningMacro("Float addition failed.");
+    return 1;
+    }
+  vtkMath::Subtract(af, bf, cf);
+  if (!fuzzyCompare(cf, ans2f))
+    {
+    vtkGenericWarningMacro("Float subtraction failed.");
+    return 1;
+    }
+  vtkMath::MultiplyScalar(af, 3.0f);
+  if (!fuzzyCompare(af, ans3f))
+    {
+    vtkGenericWarningMacro("Float scalar multiplication failed.");
     return 1;
     }
 
