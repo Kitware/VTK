@@ -25,6 +25,7 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
+#include "vtkOpenGLContextDevice2D.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -55,6 +56,10 @@ int TestDiagram( int argc, char * argv [] )
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
 
+  // Force the use of the freetype based rendering strategy
+  vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
+      ->SetStringRendererToFreeType();
+
   VTK_CREATE(vtkRenderWindowInteractor, interactor);
   interactor->SetRenderWindow(renderWindow);
   renderWindow->Render();
@@ -70,7 +75,7 @@ int TestDiagram( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram);
-vtkCxxRevisionMacro(APIDiagram, "1.3");
+vtkCxxRevisionMacro(APIDiagram, "1.4");
 // This function draws our API diagram
 bool APIDiagram::Paint(vtkContext2D *painter)
 {

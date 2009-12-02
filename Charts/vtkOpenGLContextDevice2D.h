@@ -117,6 +117,17 @@ public:
   // End drawing, clean up the view.
   virtual void End();
 
+  // Description:
+  // Force the use of the freetype based render strategy. If Qt is available
+  // then freetype will be used preferentially, otherwise this has no effect.
+  // Returns true on success.
+  bool SetStringRendererToFreeType();
+
+  // Description:
+  // Force the use of the Qt based string render strategy. If Qt is not available
+  // then freetype will be used and this will return false.
+  bool SetStringRendererToQt();
+
 //BTX
 protected:
   vtkOpenGLContextDevice2D();
