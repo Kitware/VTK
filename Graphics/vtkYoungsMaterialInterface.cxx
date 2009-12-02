@@ -128,7 +128,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.14");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.15");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1694,12 +1694,12 @@ FUNC_DECL double4 make_double4(double x,double y,double z,double w)
    return v;
 }
 
+/*
 FUNC_DECL  double3 operator *(double3 a, double3 b)
 {
     return make_double3(a.x*b.x, a.y*b.y, a.z*b.z);
 }
 
-/*
 FUNC_DECL double3 operator *(double3 v, double f)
 {
     return make_double3(v.x*f, v.y*f, v.z*f);
@@ -1789,18 +1789,17 @@ FUNC_DECL double dot(double2 a, double2 b)
 {
     return a.x * b.x + a.y * b.y ;
 }
+
 /*
 FUNC_DECL double dot(double4 a, double4 b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
-*/
 FUNC_DECL double clamp(double f, double a, double b)
 {
     return max(a, min(f, b));
 }
 
-/*
 FUNC_DECL double3 clamp(double3 v, double a, double b)
 {
     return make_double3(clamp(v.x, a, b), clamp(v.y, a, b), clamp(v.z, a, b));
