@@ -100,7 +100,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.4");
+vtkCxxRevisionMacro(vtkContextScene, "1.5");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -114,15 +114,22 @@ vtkContextScene::vtkContextScene()
   this->Storage->Event.Button = -1;
   this->AnnotationLink = NULL;
   this->Window = NULL;
+  this->Geometry[0] = 0;
+  this->Geometry[1] = 0;
 }
 
 //-----------------------------------------------------------------------------
 vtkContextScene::~vtkContextScene()
 {
-  delete this->Observer;
-  this->Observer = 0;
+  this->Observer->Delete();
+  this->Observer = NULL;
+  size_t size = this->Storage->items.size();
+  for (size_t i = 0; i < size; ++i)
+    {
+    this->Storage->items[i]->UnRegister(this);
+    }
   delete this->Storage;
-  this->Storage = 0;
+  this->Storage = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,6 +148,7 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkContextScene::AddItem(vtkContextItem *item)
 {
+  item->Register(this);
   this->Storage->items.push_back(item);
   this->Storage->itemState.push_back(false);
 }

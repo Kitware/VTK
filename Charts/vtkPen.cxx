@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPen, "1.2");
+vtkCxxRevisionMacro(vtkPen, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPen);
@@ -30,6 +30,7 @@ vtkPen::vtkPen()
   this->Color[1] = 0;
   this->Color[2] = 0;
   this->Color[3] = 255;
+  this->Width = 1.0;
 }
 
 //-----------------------------------------------------------------------------
