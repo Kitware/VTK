@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.7");
+vtkCxxRevisionMacro(vtkImageItem, "1.8");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -131,8 +131,8 @@ bool vtkImageItem::MouseEnterEvent(const vtkContextMouseEvent &)
 bool vtkImageItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   // Work out our deltas...
-  float deltaX = mouse.ScenePos[0] - mouse.LastScenePos[0];
-  float deltaY = mouse.ScenePos[1] - mouse.LastScenePos[1];
+  int deltaX = static_cast<int>(mouse.ScenePos[0] - mouse.LastScenePos[0]);
+  int deltaY = static_cast<int>(mouse.ScenePos[1] - mouse.LastScenePos[1]);
 
   if (mouse.Button == 0) // Left mouse button - translate
     {
