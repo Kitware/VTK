@@ -32,7 +32,7 @@
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.151");
+vtkCxxRevisionMacro(vtkMath, "1.152");
 vtkStandardNewMacro(vtkMath);
 
 vtkMathInternal::vtkMathInternal()
@@ -1867,36 +1867,35 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   // Pivot the matrix to improve accuracy
   T2 scale[3];
   int index[3];
-  T2 tmp, largest;
+  T2 largest;
 
   // Loop over rows to get implicit scaling information
   for (i = 0; i < 3; i++)
     {
-    largest = fabs(B[i][0]);
-    if ((tmp = fabs(B[i][1])) > largest)
-      {
-      largest = tmp;
-      }
-    if ((tmp = fabs(B[i][2])) > largest)
-      {
-      largest = tmp;
-      }
-    scale[i] = 1.0;
+    T2 x1 = fabs(B[i][0]);
+    T2 x2 = fabs(B[i][1]);
+    T2 x3 = fabs(B[i][2]);
+    largest = (x2 > x1 ? x2 : x1);
+    largest = (x3 > largest ? x3 : largest);
+    scale[i] = 1;
     if (largest != 0)
       {
-      scale[i] = T2(1.0)/largest;
+      scale[i] /= largest;
       }
     }
 
   // first column
+  T2 x1 = fabs(B[0][0]);
+  T2 x2 = fabs(B[1][0]);
+  T2 x3 = fabs(B[2][0]);
   index[0] = 0;
-  largest = scale[0]*fabs(B[0][0]);
-  if ((tmp = scale[1]*fabs(B[1][0])) >= largest) 
+  largest = x1;
+  if (x2 >= largest) 
     {
-    largest = tmp;
+    largest = x2;
     index[0] = 1;
     }
-  if ((tmp = scale[2]*fabs(B[2][0])) >= largest) 
+  if (x3 >= largest) 
     {
     index[0] = 2;
     }
@@ -1907,9 +1906,11 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
     }
 
   // second column
+  T2 y2 = fabs(B[1][1]);
+  T2 y3 = fabs(B[2][1]);
   index[1] = 1;
-  largest = scale[1]*fabs(B[1][1]);
-  if ((tmp = scale[2]*fabs(B[2][1])) >= largest) 
+  largest = y2;
+  if (y3 >= largest) 
     {
     index[1] = 2;
     vtkSwapVectors3(B[2],B[1]);
@@ -1918,12 +1919,13 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   // third column
   index[2] = 2;
 
-  // A quaternian can only describe a pure rotation, not
+  // A quaternion can only describe a pure rotation, not
   // a rotation with a flip, therefore the flip must be
   // removed before the matrix is converted to a quaternion.
-  T2 d = vtkDeterminant3x3(B);
-  if (d < 0)
+  int flip = 0;
+  if (vtkDeterminant3x3(B) < 0)
     {
+    flip = 1;
     for (i = 0; i < 3; i++)
       {
       B[0][i] = -B[0][i];
@@ -1941,7 +1943,7 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   vtkMath::QuaternionToMatrix3x3(quat,B);
 
   // Put the flip back into the orthogonalized matrix.
-  if (d < 0)
+  if (flip)
     {
     for (i = 0; i < 3; i++)
       {
