@@ -21,14 +21,13 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
-
 #include "vtkFloatArray.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.6");
+vtkCxxRevisionMacro(vtkContext2D, "1.7");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -224,21 +223,20 @@ void vtkContext2D::DrawRect(float x1, float y1, float x2, float y2)
   float p[] = { x1,    y1,
                 x1+x2, y1,
                 x1+x2, y1+y2,
-                x1,    y1+y2 };
+                x1,    y1+y2,
+                x1,    y1};
   if (this->Transform)
     {
-    this->Transform->TransformPoints(&p[0], &p[0], 4);
+    this->Transform->TransformPoints(&p[0], &p[0], 5);
     }
 
   // Draw the filled area of the rectangle.
   this->ApplyBrush();
   this->Device->DrawQuad(&p[0], 4);
 
-    // Draw the outline now.
+  // Draw the outline now.
   this->ApplyPen();
-  this->Device->DrawPoly(p, 4);
-  float closeLine[] = { p[0], p[1], p[6], p[7] };
-  this->Device->DrawPoly(&closeLine[0], 2);
+  this->Device->DrawPoly(&p[0], 5);
 }
 
 //-----------------------------------------------------------------------------
@@ -380,6 +378,11 @@ vtkContext2D::~vtkContext2D()
   this->Brush = 0;
   this->TextProp->Delete();
   this->TextProp = 0;
+  if (this->Device)
+    {
+    this->Device->Delete();
+    this->Device = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------

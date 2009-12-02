@@ -55,7 +55,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.6");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.7");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ void vtkOpenGLContextDevice2D::End()
     {
     this->TextRenderer->EndFrame();
     }
-// push a 2D matrix on the stack
+  // push a 2D matrix on the stack
   glMatrixMode( GL_PROJECTION);
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);
@@ -143,28 +143,10 @@ void vtkOpenGLContextDevice2D::End()
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n)
 {
-/*  if (f && n == 4)
-    {
-    float p[] = { f[0], f[1], 0.0,
-                  f[2], f[3], 0.0,
-                  f[4], f[5], 0.0,
-                  f[6], f[7], 0.0 };
-    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &p[0]);
-    glEnable(GL_MAP1_VERTEX_3);
-    glBegin(GL_LINE_STRIP);
-      for (int i = 0; i <= 30; ++i)
-        {
-        glEvalCoord1f(float(i / 30.0));
-        }
-    glEnd();
-    glDisable(GL_MAP1_VERTEX_3);
-    this->DrawPoints(f, 4);
-    }
-*/
   if(f && n > 0)
     {
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, &f[0]);
+    glVertexPointer(2, GL_FLOAT, 0, f);
     glDrawArrays(GL_LINE_STRIP, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
     }
@@ -188,7 +170,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
       }
 
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, &f[0]);
+    glVertexPointer(2, GL_FLOAT, 0, f);
     glDrawArrays(GL_POINTS, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
 

@@ -81,7 +81,7 @@ bool APIDiagram::Paint(vtkContext2D *painter)
 
   painter->GetBrush()->SetColor(100, 255, 100);
   painter->DrawRect(100, 50, 200, 100);
-  painter->DrawString(200, 100, "OpenGL");
+//  painter->DrawString(200, 100, "OpenGL");
 
   painter->GetBrush()->SetColor(255, 100, 0);
   painter->DrawRect(300, 50, 200, 100);
