@@ -14,6 +14,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       labeledMesh
       multiLineText
       pickCells
+      PickerWithLocator
       propAssembly
       rendererSource
       rotations
