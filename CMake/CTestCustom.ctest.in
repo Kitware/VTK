@@ -4,6 +4,7 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   Example-vtkMy
 
   # These tests do not actually run any VTK code
+  HeaderTesting-Charts
   HeaderTesting-Common
   HeaderTesting-Filtering
   HeaderTesting-GenericFiltering
@@ -20,6 +21,7 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   HeaderTesting-VolumeRendering
   HeaderTesting-Widgets
   
+  PrintSelf-Charts
   PrintSelf-Common
   PrintSelf-Filtering
   PrintSelf-GenericFiltering
@@ -36,6 +38,7 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   PrintSelf-VolumeRendering
   PrintSelf-Widgets
 
+  TestSetObjectMacro-Charts
   TestSetObjectMacro-Common
   TestSetObjectMacro-Filtering
   TestSetObjectMacro-GenericFiltering
