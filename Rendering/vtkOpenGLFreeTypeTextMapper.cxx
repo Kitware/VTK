@@ -90,7 +90,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.49");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.50");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -315,7 +315,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Store the state of the attributes we are about to change
   bool lightingEnabled = glIsEnabled(GL_LIGHTING);
-  int depthFunc;
+  GLint depthFunc;
   glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
   glDisable(GL_LIGHTING);
   glDepthFunc(GL_ALWAYS);
