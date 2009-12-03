@@ -32,7 +32,7 @@
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.152");
+vtkCxxRevisionMacro(vtkMath, "1.153");
 vtkStandardNewMacro(vtkMath);
 
 vtkMathInternal::vtkMathInternal()
@@ -1885,9 +1885,9 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
     }
 
   // first column
-  T2 x1 = fabs(B[0][0]);
-  T2 x2 = fabs(B[1][0]);
-  T2 x3 = fabs(B[2][0]);
+  T2 x1 = fabs(B[0][0])*scale[0];
+  T2 x2 = fabs(B[1][0])*scale[1];
+  T2 x3 = fabs(B[2][0])*scale[2];
   index[0] = 0;
   largest = x1;
   if (x2 >= largest) 
@@ -1906,8 +1906,8 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
     }
 
   // second column
-  T2 y2 = fabs(B[1][1]);
-  T2 y3 = fabs(B[2][1]);
+  T2 y2 = fabs(B[1][1])*scale[1];
+  T2 y3 = fabs(B[2][1])*scale[2];
   index[1] = 1;
   largest = y2;
   if (y3 >= largest) 
