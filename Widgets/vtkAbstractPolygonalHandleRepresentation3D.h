@@ -131,9 +131,9 @@ protected:
   void Highlight(int highlight);
 
   // Methods to manipulate the cursor
-  void Translate(double *p1, double *p2);
-  void Scale(double *p1, double *p2, double eventPos[2]);
-  void MoveFocus(double *p1, double *p2);
+  virtual void Translate(double *p1, double *p2);
+  virtual void Scale(double *p1, double *p2, double eventPos[2]);
+  virtual void MoveFocus(double *p1, double *p2);
   
   void CreateDefaultProperties();
 
@@ -143,7 +143,7 @@ protected:
   // new display position. It is up to the point placer to deduce the 
   // appropriate world co-ordinates that this display position will map into.
   // The placer may even disallow such a movement.
-  void MoveFocusRequest( 
+  virtual void MoveFocusRequest( 
       double *p1, double *p2, double requestedDisplayPos[3] );
 
   int DetermineConstraintAxis(int constraint, double *x, double *startPickPos);
