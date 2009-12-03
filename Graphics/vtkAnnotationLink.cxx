@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.10");
+vtkCxxRevisionMacro(vtkAnnotationLink, "1.11");
 vtkStandardNewMacro(vtkAnnotationLink);
 //vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 
@@ -93,7 +93,7 @@ void vtkAnnotationLink::ProcessEvents(vtkObject *caller, unsigned long eventId, 
     vtkAnnotationLayers* caller_annotations = vtkAnnotationLayers::SafeDownCast( caller );
     if (caller_annotations == this->AnnotationLayers && eventId == vtkCommand::ModifiedEvent)
       {
-      this->InvokeEvent(vtkCommand::AnnotationChangedEvent);
+      this->InvokeEvent(vtkCommand::AnnotationChangedEvent, this->AnnotationLayers);
       }
     }
 }
@@ -122,7 +122,7 @@ void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
       tmp->UnRegister(this);
       }
     this->Modified();
-    this->InvokeEvent(vtkCommand::AnnotationChangedEvent);
+    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, this->AnnotationLayers);
     }
 }
 
