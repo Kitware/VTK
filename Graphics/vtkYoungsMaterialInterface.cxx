@@ -128,7 +128,7 @@ class vtkYoungsMaterialInterfaceInternals
 };
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.15");
+vtkCxxRevisionMacro(vtkYoungsMaterialInterface, "1.16");
 vtkStandardNewMacro(vtkYoungsMaterialInterface);
 
 #ifdef DEBUG
@@ -1654,7 +1654,7 @@ struct double3 { double x,y,z; };
 struct double4 { double x,y,z,w; };
 
 FUNC_DECL double min(double a, double b){ return (a<b)?a:b; }
-FUNC_DECL double max(double a, double b){ return (a>b)?a:b; }
+/* FUNC_DECL double max(double a, double b){ return (a>b)?a:b; } */
 
 FUNC_DECL double dot(double3 a, double3 b)
 {
