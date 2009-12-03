@@ -15,9 +15,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   IF (VTK_USE_QT)
     #add tests that require Qt
     INCLUDE(${QT_USE_FILE})
-#    SET(MyTests ${MyTests}
-#      TestQtDiagram.cxx
-#      )
+    SET(MyTests ${MyTests}
+      TestQtDiagram.cxx
+      )
     ENDIF(VTK_USE_QT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
     EXTRA_INCLUDE vtkTestDriver.h)
