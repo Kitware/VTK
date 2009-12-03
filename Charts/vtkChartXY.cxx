@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.6");
+vtkCxxRevisionMacro(vtkChartXY, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -206,6 +206,11 @@ void vtkChartXY::RenderPlots(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
 {
+  // Use a variable to return the object created (or NULL), this is necessary
+  // as the HP compiler is broken (thinks this function does not return) and
+  // the MS compiler generates a warning about unreachable code if a redundant
+  // return is added at the end.
+  vtkPlot *plot = NULL;
   switch (type)
     {
     case LINE:
@@ -217,7 +222,6 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
       line->Translate(0.0, 0.0);
       line->GetTransform()->Translate(this->Geometry[2],
                                       this->Geometry[3]);
-      line->GetTransform()->Print(cout);
       // Get the scale for the plot area from the x and y axes
       float *min = this->XAxis->GetPoint1();
       float *max = this->XAxis->GetPoint2();
@@ -231,10 +235,7 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
       line->GetTransform()->Translate(- this->XAxis->GetMinimum(),
                                       - this->YAxis->GetMinimum());
 
-      line->GetTransform()->Print(cout);
-
-//      this->Scene->AddItem(line);
-      return line;
+      plot = line;
       break;
       }
     case POINTS:
@@ -259,13 +260,13 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
       points->GetTransform()->Translate(- this->XAxis->GetMinimum(),
                                         - this->YAxis->GetMinimum());
 
-//      this->Scene->AddItem(points);
-      return points;
+      plot = points;
       break;
       }
     default:
-      return NULL;
+      plot = NULL;
     }
+    return plot;
 }
 
 //-----------------------------------------------------------------------------
