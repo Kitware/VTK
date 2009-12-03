@@ -34,7 +34,7 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.2");
+vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.3");
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,Property,vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,SelectedProperty,vtkProperty);
 
@@ -727,6 +727,8 @@ void vtkAbstractPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkInden
   os << indent << "LabelVisibility: " << this->LabelVisibility << endl;
   os << indent << "Actor: " << this->Actor << "\n";
   this->Actor->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "LabelTextActor: " << this->LabelTextActor << endl;
+  this->LabelTextActor->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Mapper: " << this->Mapper << "\n";
   this->Mapper->PrintSelf(os,indent.GetNextIndent());
   os << indent << "HandleTransformFilter: " << this->HandleTransformFilter << "\n";
