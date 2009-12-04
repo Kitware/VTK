@@ -18,7 +18,7 @@
 #include "vtkBoundingBox.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBox, "1.8");
+vtkCxxRevisionMacro(vtkBox, "1.9");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -405,6 +405,103 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
 #undef VTK_LEFT
 #undef VTK_MIDDLE
 
+//----------------------------------------------------------------------------
+// Bounding box intersection code from David Gobbi.  Go through the
+// bounding planes one at a time and compute the parametric coordinate
+// of each intersection.
+int vtkBox::IntersectWithLine(const double bounds[6],
+                              const double p1[3], const double p2[3],
+                              double &t1, double &t2,
+                              double x1[3], double x2[3],
+                              int &plane1, int &plane2)
+{
+  plane1 = -1;
+  plane2 = -1;
+  t1 = 0.0;
+  t2 = 1.0;
+
+  for (int j = 0; j < 3; j++)
+    {
+    for (int k = 0; k < 2; k++)
+      {
+      // Compute distances of p1 and p2 from the plane along the plane normal
+      int i = 2*j + k;
+      double d1 = (bounds[i] - p1[j])*(1 - 2*k);
+      double d2 = (bounds[i] - p2[j])*(1 - 2*k);
+
+      // If both distances are positive, both points are outside
+      if (d1 > 0 && d2 > 0)
+        {
+        return 0;
+        }
+      // If one of the distances is positive, the line crosses the plane
+      else if (d1 > 0 || d2 > 0)
+        {
+        // Compute fractional distance "t" of the crossing between p1 & p2
+        double t = 0.0;
+        if (d1 != 0)
+          {
+          t = d1/(d1 - d2);
+          }
+
+        // If point p1 was clipped, adjust t1
+        if (d1 > 0)
+          {
+          if (t >= t1)
+            {
+            t1 = t;
+            plane1 = i;
+            }
+          }
+        // else point p2 was clipped, so adjust t2
+        else
+          {
+          if (t <= t2)
+            {
+            t2 = t;
+            plane2 = i;
+            } 
+          }
+
+        // If this happens, there's no line left
+        if (t1 > t2)
+          {
+          return 0;
+          }
+        }      
+      }
+    }
+
+  double *x = x1;
+  double t = t1;
+  int plane = plane1;
+
+  for (int count = 0; count < 2; count++)
+    {
+    if (x)
+      {
+      for (int i = 0; i < 3; i++)
+        {
+        if (plane == 2*i || plane == 2*i+1)
+          {
+          x[i] = bounds[plane];
+          }
+        else
+          { 
+          x[i] = p1[i]*(1.0 - t) + p2[i]*t;
+          if (x[i] < bounds[2*i]) { x[i] = bounds[2*i]; }
+          if (x[i] > bounds[2*i+1]) { x[i] = bounds[2*i+1]; }
+          }
+        }
+      }
+
+      x = x2;
+      t = t2;
+      plane = plane2;
+    }
+
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkBox::PrintSelf(ostream& os, vtkIndent indent)

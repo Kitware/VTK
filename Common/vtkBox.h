@@ -90,6 +90,23 @@ public:
   static char IntersectBox(double bounds[6], double origin[3], double dir[3], 
                            double coord[3], double& t);
 
+  // Description:
+  // Intersect a line with the box.  Give the endpoints of the line in
+  // p1 and p2.  The parameteric distances from p1 to the entry and exit
+  // points are returned in t1 and t2, where t1 and t2 are clamped to the
+  // range [0,1].  The entry and exit planes are returned in plane1 and
+  // plane2 where integers (0, 1, 2, 3, 4, 5) stand for the
+  // (xmin, xmax, ymin, ymax, zmin, zmax) planes respectively, and a value
+  // of -1 means that no intersection occurred.  The actual intersection
+  // coordinates are stored in x1 and x2, which can be set to NULL of you
+  // do not need them to be returned.  The function return value will be
+  // zero if the line is wholly outside of the box.
+  static int IntersectWithLine(const double bounds[6],
+                               const double p1[3], const double p2[3],
+                               double &t1, double &t2,
+                               double x1[3], double x2[3],
+                               int &plane1, int &plane2);
+
 protected:
   vtkBox();
   ~vtkBox();
