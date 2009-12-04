@@ -203,6 +203,8 @@ protected:
   // TetraTriangles. We also keep a duplicate list of points 
   // (transformed into view space) - these are the Points. 
   Triangle **TetraTriangles;
+  vtkIdType TetraTrianglesSize;
+  
   Triangle  *TriangleList;
 
   // Compute whether a boundary triangle is front facing by
