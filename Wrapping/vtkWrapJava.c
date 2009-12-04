@@ -259,7 +259,9 @@ void get_args(FILE *fp, int i)
     {
     fprintf(fp,"  env->GetJavaVM(&(temp%i->vm));\n",i);
     fprintf(fp,"  temp%i->uobj = env->NewGlobalRef(id0);\n",i);
-    fprintf(fp,"  temp%i->mid = env->GetMethodID(env->GetObjectClass(id0),vtkJavaUTFToChar(env,id1),\"()V\");\n",i);
+    fprintf(fp,"  char *temp%i_str;\n",i);
+    fprintf(fp,"  temp%i_str = vtkJavaUTFToChar(env,id1);\n",i);
+    fprintf(fp,"  temp%i->mid = env->GetMethodID(env->GetObjectClass(id0),temp%i_str,\"()V\");\n",i,i);
     return;
     }
 
@@ -320,6 +322,7 @@ void copy_and_release_args(FILE *fp, int i)
   /* handle VAR FUNCTIONS */
   if (currentFunction->ArgTypes[i] == 0x5000)
     {
+    fprintf(fp,"  if (temp%i_str) delete[] temp%i_str;\n",i,i);
     return;
     }
 
@@ -339,6 +342,9 @@ void copy_and_release_args(FILE *fp, int i)
         fprintf(fp,"  ((jdouble *)tempArray%i)[%i] = temp%i[%i];\n",i,j,i,j);
         }
       fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray%i,0);\n",i,i);      
+      break;
+    case 0x303:
+      fprintf(fp,"  if (temp%i) delete[] temp%i;\n",i,i);
       break;
     case 0x304:
     case 0x306:
@@ -1078,12 +1084,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  vtkJavaCommand *cbc = vtkJavaCommand::New();\n");
     fprintf(fp,"  cbc->AssignJavaVM(env);\n");
     fprintf(fp,"  cbc->SetGlobalRef(env->NewGlobalRef(id1));\n");
-    fprintf(fp,"  cbc->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),vtkJavaUTFToChar(env,id2),\"()V\"));\n");
+    fprintf(fp,"  char    *temp2;\n");
+    fprintf(fp,"  temp2 = vtkJavaUTFToChar(env,id2);\n");
+    fprintf(fp,"  cbc->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),temp2,\"()V\"));\n");
     fprintf(fp,"  char    *temp0;\n");
     fprintf(fp,"  temp0 = vtkJavaUTFToChar(env,id0);\n");
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj);\n");
     fprintf(fp,"  unsigned long     temp20;\n");
     fprintf(fp,"  temp20 = op->AddObserver(temp0,cbc);\n");
+    fprintf(fp,"  if (temp0) delete[] temp0;\n");
+    fprintf(fp,"  if (temp2) delete[] temp2;\n");
     fprintf(fp,"  cbc->Delete();\n");
     fprintf(fp,"  return temp20;\n}\n");
    }
