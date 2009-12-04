@@ -47,7 +47,7 @@ using vtksys_ios::ostringstream;
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkPipelineGraphSource, "1.2");
+vtkCxxRevisionMacro(vtkPipelineGraphSource, "1.3");
 vtkStandardNewMacro(vtkPipelineGraphSource);
 
 // ----------------------------------------------------------------------
@@ -105,6 +105,8 @@ static void InsertObject(
   vtkMutableDirectedGraph* builder,
   vtkStringArray* vertex_class_name_array,
   vtkVariantArray* vertex_object_array,
+  vtkStringArray* edge_output_port_array,
+  vtkStringArray* edge_input_port_array,
   vtkStringArray* edge_class_name_array,
   vtkVariantArray* edge_object_array)
 {
@@ -127,11 +129,13 @@ static void InsertObject(
       for(int j = 0; j != algorithm->GetNumberOfInputConnections(i); ++j)
         {
         vtkAlgorithm* const input_algorithm = algorithm->GetInputConnection(i, j)->GetProducer();
-        InsertObject(input_algorithm, object_map, builder, vertex_class_name_array, vertex_object_array, edge_class_name_array, edge_object_array);
+        InsertObject(input_algorithm, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
         
         builder->AddEdge(object_map[input_algorithm], object_map[algorithm]);
 
         vtkDataObject* input_data = input_algorithm->GetOutputDataObject(algorithm->GetInputConnection(i, j)->GetIndex());
+        edge_output_port_array->InsertNextValue(vtkVariant(algorithm->GetInputConnection(i, j)->GetIndex()).ToString());
+        edge_input_port_array->InsertNextValue(vtkVariant(i).ToString());
         edge_class_name_array->InsertNextValue(input_data ? input_data->GetClassName() : "");
         edge_object_array->InsertNextValue(input_data);
         }
@@ -142,10 +146,12 @@ static void InsertObject(
       {
       if(vtkAnnotationLink* const annotation_link = data_representation->GetAnnotationLink())
         {
-        InsertObject(annotation_link, object_map, builder, vertex_class_name_array, vertex_object_array, edge_class_name_array, edge_object_array);
+        InsertObject(annotation_link, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
         
         builder->AddEdge(object_map[annotation_link], object_map[algorithm]);
-        
+       
+        edge_output_port_array->InsertNextValue("");
+        edge_input_port_array->InsertNextValue(""); 
         edge_class_name_array->InsertNextValue("vtkAnnotationLayers");
         edge_object_array->InsertNextValue(annotation_link->GetOutput());
         }
@@ -162,10 +168,12 @@ static void InsertObject(
     for(int i = 0; i != view->GetNumberOfRepresentations(); ++i)
       {
       vtkDataRepresentation* const input_representation = view->GetRepresentation(i);
-      InsertObject(input_representation, object_map, builder, vertex_class_name_array, vertex_object_array, edge_class_name_array, edge_object_array);
+      InsertObject(input_representation, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
       
       builder->AddEdge(object_map[input_representation], object_map[view]);
 
+      edge_output_port_array->InsertNextValue("");
+      edge_input_port_array->InsertNextValue(vtkVariant(i).ToString());
       edge_class_name_array->InsertNextValue("");
       edge_object_array->InsertNextValue(0);
       }
@@ -190,6 +198,16 @@ int vtkPipelineGraphSource::RequestData(
   builder->GetVertexData()->AddArray(vertex_object_array);
   vertex_object_array->Delete();
 
+  vtkStringArray* edge_output_port_array = vtkStringArray::New();
+  edge_output_port_array->SetName("output_port");
+  builder->GetEdgeData()->AddArray(edge_output_port_array);
+  edge_output_port_array->Delete();
+
+  vtkStringArray* edge_input_port_array = vtkStringArray::New();
+  edge_input_port_array->SetName("input_port");
+  builder->GetEdgeData()->AddArray(edge_input_port_array);
+  edge_input_port_array->Delete();
+
   vtkStringArray* edge_class_name_array = vtkStringArray::New();
   edge_class_name_array->SetName("class_name");
   builder->GetEdgeData()->AddArray(edge_class_name_array);
@@ -204,7 +222,7 @@ int vtkPipelineGraphSource::RequestData(
   map<vtkObject*, vtkIdType> object_map;
   for(vtkIdType i = 0; i != this->Sinks->GetNumberOfItems(); ++i)
     {
-    InsertObject(this->Sinks->GetItemAsObject(i), object_map, builder, vertex_class_name_array, vertex_object_array, edge_class_name_array, edge_object_array);
+    InsertObject(this->Sinks->GetItemAsObject(i), object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
     }
 
   // Finish creating the output graph ...
@@ -239,6 +257,8 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
   vtkGraph* const pipeline_graph = pipeline->GetOutput();
 
   vtkAbstractArray* const vertex_object_array = pipeline_graph->GetVertexData()->GetAbstractArray("object");
+  vtkAbstractArray* const edge_output_port_array = pipeline_graph->GetEdgeData()->GetAbstractArray("output_port");
+  vtkAbstractArray* const edge_input_port_array = pipeline_graph->GetEdgeData()->GetAbstractArray("input_port");
   vtkAbstractArray* const edge_object_array = pipeline_graph->GetEdgeData()->GetAbstractArray("object");
 
   output << "digraph \"" << graph_name << "\"\n";
@@ -311,6 +331,8 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
     vtkEdgeType edge = edges->Next();
     vtkObjectBase* const source = vertex_object_array->GetVariantValue(edge.Source).ToVTKObject();
     vtkObjectBase* const target = vertex_object_array->GetVariantValue(edge.Target).ToVTKObject();
+    const vtkStdString output_port = edge_output_port_array->GetVariantValue(edge.Id).ToString();
+    const vtkStdString input_port = edge_input_port_array->GetVariantValue(edge.Id).ToString();
     vtkObjectBase* const object = edge_object_array->GetVariantValue(edge.Id).ToVTKObject();
 
     vtkstd::string color = "black";
@@ -344,7 +366,13 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
       color = "#cc6600";
       }
 
-    output << "  " << "node_" << source << " -> " << "node_" << target << " [ color=\"" << color << "\" fontcolor=\"" << color << "\" label=\"" << (object ? object->GetClassName() : "") << "\" ]\n";
+    output << "  " << "node_" << source << " -> " << "node_" << target;
+    output << " [";
+    output << " color=\"" << color << "\" fontcolor=\"" << color << "\"";
+    output << " label=\"" << (object ? object->GetClassName() : "") << "\"";
+    output << " headlabel=\"" << input_port << "\"";
+    output << " taillabel=\"" << output_port << "\"";
+    output << " ]\n";
     }
 
   output << "}\n";
