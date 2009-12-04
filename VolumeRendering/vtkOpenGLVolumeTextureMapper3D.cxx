@@ -41,7 +41,7 @@
 #include "vtkVolumeTextureMapper3D_FourDependentShadeFP.h"
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.21");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.22");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -156,6 +156,9 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMultMatrixd(matrix->Element[0]);
+
+  // If an actor turned on culling, it must be turned off here
+  glDisable (GL_CULL_FACE);
 
   glColor4f( 1.0, 1.0, 1.0, 1.0 );
 
