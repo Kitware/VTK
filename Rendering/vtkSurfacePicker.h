@@ -189,10 +189,6 @@ protected:
                                 const double p1[3], const double p2[3],
                                 double &t1, double &t2, int& planeId);
 
-  static int ClipLineWithBounds(const double bounds[6],
-                                const double p1[3], const double p2[3],
-                                double &t1, double &t2, int &planeId);
-
   static int ClipLineWithExtent(const int extent[6],
                                 const double x1[3], const double x2[3],
                                 double &t1, double &t2, int &planeId);

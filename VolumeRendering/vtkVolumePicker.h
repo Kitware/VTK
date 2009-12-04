@@ -69,6 +69,14 @@ protected:
                                          vtkVolume *volume, 
                                          vtkAbstractVolumeMapper *mapper);
 
+  static int ClipLineWithCroppingRegion(const double bounds[6],
+                                        const int extent[6], int flags,
+                                        const double x1[3], const double x2[3],
+                                        double t1, double t2,
+                                        int &extentPlaneId, int &numSegments,
+                                        double *t1List, double *t2List,
+                                        double *s1List, int *planeIdList);
+
   int PickCroppingPlanes;
   int CroppingPlaneId;
 

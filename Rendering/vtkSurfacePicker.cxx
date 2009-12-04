@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkMath.h"
+#include "vtkBox.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlaneCollection.h"
 #include "vtkTransform.h"
@@ -36,7 +37,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.10");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.11");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -900,79 +901,10 @@ int vtkSurfacePicker::ClipLineWithExtent(const int extent[6],
   bounds[0] = extent[0]; bounds[1] = extent[1]; bounds[2] = extent[2];
   bounds[3] = extent[3]; bounds[4] = extent[4]; bounds[5] = extent[5];
 
-  return vtkSurfacePicker::ClipLineWithBounds(bounds, x1, x2, t1, t2, planeId);
+  int p2;
+  return vtkBox::IntersectWithLine(bounds, x1, x2, t1, t2, 0, 0, planeId, p2);
 }
  
-//----------------------------------------------------------------------------
-// Clip a line defined by endpoints p1 and p2 by a bounding box aligned with
-// the x, y and z axes.  If the line does not intersect the bounds, the
-// return value will be zero.  The parametric positions of the new endpoints
-// are returned in t1 and t2, and the index of the plane corresponding to t1
-// is returned in tMin, and the index of the frontmost intersected plane
-// is returned in planeId.  The planes are ordered as follows:
-// xmin, xmax, ymin, ymax, zmin, zmax.
-
-int vtkSurfacePicker::ClipLineWithBounds(const double bounds[6],
-                                        const double p1[3], const double p2[3],
-                                        double &t1, double &t2, int &planeId)
-{
-  planeId = -1;
-  t1 = 0.0;
-  t2 = 1.0;
-
-  for (int j = 0; j < 3; j++)
-    {
-    for (int k = 0; k < 2; k++)
-      {
-      // Compute distances of p1 and p2 from the plane along the plane normal
-      double d1 = (bounds[2*j + k] - p1[j])*(1 - 2*k);
-      double d2 = (bounds[2*j + k] - p2[j])*(1 - 2*k);
-
-      // If both distances are positive, both points are outside
-      if (d1 > 0 && d2 > 0)
-        {
-        return 0;
-        }
-      // If one of the distances is positive, the line crosses the plane
-      else if (d1 > 0 || d2 > 0)
-        {
-        // Compute fractional distance "t" of the crossing between p1 & p2
-        double t = 0.0;
-        if (d1 != 0)
-          {
-          t = d1/(d1 - d2);
-          }
-
-        // If point p1 was clipped, adjust t1
-        if (d1 > 0)
-          {
-          if (t >= t1)
-            {
-            t1 = t;
-            planeId = 2*j + k;
-            }
-          }
-        // else point p2 was clipped, so adjust t2
-        else
-          {
-          if (t <= t2)
-            {
-            t2 = t;
-            } 
-          }
-
-        // If this happens, there's no line left
-        if (t1 > t2)
-          {
-          return 0;
-          }
-        }      
-      }
-    }
-
-  return 1;
-}
-
 //----------------------------------------------------------------------------
 // Compute the cell normal either by interpolating the point normals,
 // or by computing the plane normal for 2D cells.
