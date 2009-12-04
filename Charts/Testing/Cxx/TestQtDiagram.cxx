@@ -33,25 +33,21 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-namespace {
-
-class APIDiagram : public vtkContextItem
+class APIDiagram2 : public vtkContextItem
 {
 public:
-  static APIDiagram *New();
-  vtkTypeRevisionMacro(APIDiagram, vtkContextItem);
+  static APIDiagram2 *New();
+  vtkTypeRevisionMacro(APIDiagram2, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
-
-} // End of anonymous namespace
 
 //----------------------------------------------------------------------------
 int TestQtDiagram( int argc, char * argv [] )
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
   VTK_CREATE(vtkContextActor, actor);
-  VTK_CREATE(APIDiagram, diagram);
+  VTK_CREATE(APIDiagram2, diagram);
   actor->GetScene()->AddItem(diagram);
   VTK_CREATE(vtkRenderer, renderer);
   renderer->SetBackground(1.0, 1.0, 1.0);
@@ -60,9 +56,15 @@ int TestQtDiagram( int argc, char * argv [] )
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
 
-  // Force the use of the freetype based rendering strategy
-  vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
-      ->SetStringRendererToFreeType();
+  // Force the use of the Qt based rendering strategy - fail if not available
+  if(!vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
+      ->SetStringRendererToQt())
+    {
+    // This should never happen as this test is only compiled when VTK_USE_QT
+    // is defined.
+    cerr << "Qt label rendering not available." << endl;
+    return 1;
+    }
 
   VTK_CREATE(vtkRenderWindowInteractor, interactor);
   interactor->SetRenderWindow(renderWindow);
@@ -77,13 +79,11 @@ int TestQtDiagram( int argc, char * argv [] )
   return !retVal;
 }
 
-namespace {
-
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(APIDiagram);
-vtkCxxRevisionMacro(APIDiagram, "1.1");
+vtkStandardNewMacro(APIDiagram2);
+vtkCxxRevisionMacro(APIDiagram2, "1.2");
 // This function draws our API diagram
-bool APIDiagram::Paint(vtkContext2D *painter)
+bool APIDiagram2::Paint(vtkContext2D *painter)
 {
   // Drawing a hard wired diagram 800x600 as a demonstration of the 2D API
   painter->GetTextProp()->SetVerticalJustificationToCentered();
@@ -123,6 +123,3 @@ bool APIDiagram::Paint(vtkContext2D *painter)
 
   return true;
 }
-
-} // End of anonymous namespace
-
