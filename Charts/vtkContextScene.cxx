@@ -45,11 +45,19 @@ public:
     if (this->Target)
       {
       vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(caller);
-      vtkRenderWindowInteractor *interactor =
-          vtkRenderWindowInteractor::SafeDownCast(style->GetInteractor());
+      vtkRenderWindowInteractor *interactor;
+      if (style)
+        {
+        interactor = vtkRenderWindowInteractor::SafeDownCast(style->GetInteractor());
+        }
 
-      int x = interactor->GetEventPosition()[0];
-      int y = interactor->GetEventPosition()[1];
+      int x = -1;
+      int y = -1;
+      if (interactor)
+        {
+        x = interactor->GetEventPosition()[0];
+        y = interactor->GetEventPosition()[1];
+        }
 
       switch (eventId)
         {
@@ -100,7 +108,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.5");
+vtkCxxRevisionMacro(vtkContextScene, "1.6");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -123,6 +131,7 @@ vtkContextScene::~vtkContextScene()
 {
   this->Observer->Delete();
   this->Observer = NULL;
+  this->SetWindow(NULL);
   size_t size = this->Storage->items.size();
   for (size_t i = 0; i < size; ++i)
     {
@@ -175,7 +184,7 @@ vtkContextItem * vtkContextScene::GetItem(int index)
 //-----------------------------------------------------------------------------
 void vtkContextScene::SetInteractorStyle(vtkInteractorStyle *interactor)
 {
-  cout << "Interactor style " << interactor << " " << interactor->GetClassName() << endl;
+  //cout << "Interactor style " << interactor << " " << interactor->GetClassName() << endl;
   interactor->AddObserver(vtkCommand::SelectionChangedEvent, this->Observer);
   interactor->AddObserver(vtkCommand::AnyEvent, this->Observer);
 }

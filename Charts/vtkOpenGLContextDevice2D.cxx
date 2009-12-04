@@ -48,7 +48,7 @@ class vtkOpenGLContextDevice2D::Private
 public:
   Private()
   {
-    this->texture = 0;
+    this->texture = NULL;
     this->lightingEnabled = GL_TRUE;
     this->depthTestEnabled = GL_TRUE;
   }
@@ -57,6 +57,7 @@ public:
     if (this->texture)
       {
       this->texture->Delete();
+      this->texture = NULL;
       }
   }
 
@@ -67,7 +68,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.9");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.10");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -301,15 +302,6 @@ void vtkOpenGLContextDevice2D::SetPointSize(float size)
 void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 {
   glLineWidth(width);
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::SetViewExtents(float *x)
-{
-  glLoadIdentity();
-  glOrtho( x[0], x[2],
-           x[1], x[3],
-          -1, 0);
 }
 
 //-----------------------------------------------------------------------------

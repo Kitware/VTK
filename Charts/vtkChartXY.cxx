@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.8");
+vtkCxxRevisionMacro(vtkChartXY, "1.9");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -172,11 +172,9 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   transform->Scale(1.0 / xScale, 1.0 / yScale);
   transform->Translate(-this->XAxis->GetMinimum(), -this->YAxis->GetMinimum());
 
-  // Pop the matrix and use the transform we just calculated
+  // Push the matrix and use the transform we just calculated
   painter->GetDevice()->PushMatrix();
-  //painter->SetTransform(transform);
   painter->GetDevice()->SetMatrix(transform->GetMatrix());
-  transform->GetMatrix()->Print(cout);
 
   // Now iterate through the plots
   size_t n = this->ChartPrivate->plots.size();
@@ -196,16 +194,16 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   this->XAxis->Paint(painter);
   this->YAxis->Paint(painter);
 
+  transform->Delete();
+  transform = NULL;
+
   return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartXY::RenderPlots(vtkContext2D *painter)
+void vtkChartXY::RenderPlots(vtkContext2D *)
 {
-  // This function ensures that the correct view transforms are in place for
-  // the plot functions before calling paint on each one.
-  float x[] = { -0.1, -0.1, 10.0, 2.1 };
-  painter->GetDevice()->SetViewExtents(&x[0]);
+
 }
 
 //-----------------------------------------------------------------------------

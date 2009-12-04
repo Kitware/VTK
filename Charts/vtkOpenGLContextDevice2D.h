@@ -88,11 +88,6 @@ public:
   virtual void SetLineWidth(float width);
 
   // Description:
-  // Supply a float array of length 4 with x1, y1, x2, y2 specifying the extents
-  // of the display
-  virtual void SetViewExtents(float *x);
-
-  // Description:
   // Set the model view matrix for the display
   virtual void SetMatrix(vtkMatrix3x3 *m);
 

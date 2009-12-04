@@ -30,7 +30,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.2");
+vtkCxxRevisionMacro(vtkPlotLine, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -45,7 +45,12 @@ vtkPlotLine::vtkPlotLine()
 //-----------------------------------------------------------------------------
 vtkPlotLine::~vtkPlotLine()
 {
-  delete this->Label;
+  this->SetLabel(NULL);
+  if (this->Points)
+    {
+    this->Points->Delete();
+    this->Points = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------

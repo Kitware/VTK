@@ -27,7 +27,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextView, "1.1");
+vtkCxxRevisionMacro(vtkContextView, "1.2");
 vtkStandardNewMacro(vtkContextView);
 
 vtkCxxSetObjectMacro(vtkContextView, Context, vtkContext2D);
@@ -39,10 +39,13 @@ vtkContextView::vtkContextView()
   this->Context = vtkContext2D::New();
   vtkOpenGLContextDevice2D *pd = vtkOpenGLContextDevice2D::New();
   this->Context->Begin(pd);
+  pd->Delete();
 
   vtkContextActor *actor = vtkContextActor::New();
   this->Renderer->AddActor(actor);
-  this->Scene = actor->GetScene();
+  actor->Delete();
+  this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
+  this->Scene->Register(this);
   // Should not need to do this...
   this->Scene->SetWindow(this->RenderWindow);
 
@@ -61,13 +64,13 @@ vtkContextView::~vtkContextView()
 {
   if (this->Context)
     {
-    this->Context->GetDevice()->Delete();
     this->Context->Delete();
     this->Context = NULL;
     }
-
+  // The scene is owned by the context actor
   if (this->Scene)
     {
+    this->Scene->SetWindow(NULL);
     this->Scene->Delete();
     this->Scene = NULL;
     }
