@@ -127,12 +127,6 @@ public:
   // Draw the supplied image at the given x, y location (bottom corner).
   void DrawImage(float x, float y, vtkImageData *image);
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define DrawTextA DrawText
-# define DrawTextW DrawText
-#endif
-
 //BTX
   // Description:
   // Draw some text to the screen.

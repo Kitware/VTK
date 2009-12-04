@@ -31,6 +31,7 @@ class vtkStdString;
 class vtkTextProperty;
 class vtkPoints2D;
 class vtkImageData;
+class vtkMatrix3x3;
 
 class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
 {
@@ -95,6 +96,10 @@ public:
   // Supply a float array of length 4 with x1, y1, x2, y2 specifying the extents.
   // of the display
   virtual void SetViewExtents(float *x) = 0;
+
+  // Description:
+  // Set the model view matrix for the display
+  virtual void SetMatrix(vtkMatrix3x3 *m) = 0;
 
   // Description:
   // Push the current matrix onto the stack.

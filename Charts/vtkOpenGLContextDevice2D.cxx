@@ -16,6 +16,7 @@
 #include "vtkOpenGLContextDevice2D.h"
 
 #include "vtkPoints2D.h"
+#include "vtkMatrix3x3.h"
 #include "vtkFloatArray.h"
 #include "vtkSmartPointer.h"
 
@@ -66,7 +67,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.9");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -309,6 +310,38 @@ void vtkOpenGLContextDevice2D::SetViewExtents(float *x)
   glOrtho( x[0], x[2],
            x[1], x[3],
           -1, 0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::SetMatrix(vtkMatrix3x3 *m)
+{
+  // We must construct a 4x4 matrix from the 3x3 matrix for OpenGL
+  glLoadIdentity();
+  double *M = m->GetData();
+  double matrix[16];
+
+  // Convert from row major (C++ two dimensional arrays) to OpenGL
+  matrix[0] = M[0];
+  matrix[1] = M[3];
+  matrix[2] = 0.0;
+  matrix[3] = M[6];
+
+  matrix[4] = M[1];
+  matrix[5] = M[4];
+  matrix[6] = 0.0;
+  matrix[7] = M[7];
+
+  matrix[8] = 0.0;
+  matrix[9] = 0.0;
+  matrix[10] = 1.0;
+  matrix[11] = 0.0;
+
+  matrix[12] = M[2];
+  matrix[13] = M[5];
+  matrix[14] = 0.0;
+  matrix[15] = M[8];
+
+  glLoadMatrixd(matrix);
 }
 
 //-----------------------------------------------------------------------------
