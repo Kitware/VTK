@@ -266,7 +266,7 @@ int vtkOggTheoraWriterInternal::Write(vtkImageData *id)
   // encode the frame from the last call.
   // have to do leap-frogging, because otherwise we can't
   // write the EOS page with the last frame in End().
-  int ret;
+  int ret = 1;
   if (this->haveImageData)
     {
     ret = this->EncodeFrame(this->thImage,0);
@@ -475,7 +475,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOggTheoraWriter);
-vtkCxxRevisionMacro(vtkOggTheoraWriter, "1.1");
+vtkCxxRevisionMacro(vtkOggTheoraWriter, "1.2");
 
 //---------------------------------------------------------------------------
 vtkOggTheoraWriter::vtkOggTheoraWriter()
@@ -578,7 +578,7 @@ void vtkOggTheoraWriter::Write()
     {
     vtkErrorMacro("Error storing image.");
     this->Error = 1;
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    this->SetErrorCode(vtkErrorCode::UnknownError);
     }
 }
 
