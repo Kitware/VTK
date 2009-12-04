@@ -19,7 +19,7 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.16");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.17");
 vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
 
 // ----------------------------------------------------------------------
@@ -414,6 +414,8 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
           (*this->DistanceFunctor)( minDistance,
             curClusterElements->GetRow( j ),
             dataElements->GetRow( observation ) );
+          curDistance = minDistance;
+          ++ j;
           for( /* no init */; j < runEndIdx; j++ )
             {
             (*this->DistanceFunctor)( curDistance,

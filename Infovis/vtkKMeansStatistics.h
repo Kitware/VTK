@@ -79,7 +79,7 @@ PURPOSE.  See the above copyright notice for more information.
 //  
 // The code can handle a wide variety of data types as it operates on vtkAbstractArrays 
 // and is not limited to vtkDataArrays.  A default distance functor that
-// computes the sum of the squares of the euclidean distance between two objects is provided 
+// computes the sum of the squares of the Euclidean distance between two objects is provided 
 // (vtkKMeansDistanceFunctor). The default distance functor can be overridden to use alternative distance metrics.
 //
 // .SECTION Thanks
