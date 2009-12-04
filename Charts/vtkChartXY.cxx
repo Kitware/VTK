@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.7");
+vtkCxxRevisionMacro(vtkChartXY, "1.8");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -156,15 +156,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   float yScale = (this->YAxis->GetMaximum() - this->YAxis->GetMinimum()) /
                  (max[1] - min[1]);
 
-  // Set up the scaling for the plot area
-  float plot[4];
-  plot[0] = this->XAxis->GetMinimum() - xOrigin * xScale;
-  plot[2] = this->XAxis->GetMaximum() + this->Geometry[4] * xScale;
-  plot[1] = this->YAxis->GetMinimum() - yOrigin * yScale;
-  plot[3] = this->YAxis->GetMaximum() + this->Geometry[5] * yScale;
-  painter->GetDevice()->PushMatrix();
-  painter->GetDevice()->SetViewExtents(&plot[0]);
-
   // Clip drawing while plotting
   int clip[4];
   clip[0] = static_cast<int>(xOrigin);
@@ -172,6 +163,20 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   clip[2] = this->Geometry[0] - this->Geometry[4] - this->Geometry[2];
   clip[3] = this->Geometry[1] - this->Geometry[5] - this->Geometry[3];
   painter->GetDevice()->SetClipping(&clip[0]);
+
+  vtkTransform2D *transform = vtkTransform2D::New();
+  transform->Translate(this->Geometry[2], this->Geometry[3]);
+  // Get the scale for the plot area from the x and y axes
+  min = this->YAxis->GetPoint1();
+  max = this->YAxis->GetPoint2();
+  transform->Scale(1.0 / xScale, 1.0 / yScale);
+  transform->Translate(-this->XAxis->GetMinimum(), -this->YAxis->GetMinimum());
+
+  // Pop the matrix and use the transform we just calculated
+  painter->GetDevice()->PushMatrix();
+  //painter->SetTransform(transform);
+  painter->GetDevice()->SetMatrix(transform->GetMatrix());
+  transform->GetMatrix()->Print(cout);
 
   // Now iterate through the plots
   size_t n = this->ChartPrivate->plots.size();
@@ -181,7 +186,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->ChartPrivate->plots[i]->Paint(painter);
     }
 
-  // Stop clipping and reset back to screen coordinates
+  // Stop clipping of the plot area and reset back to screen coordinates
   painter->GetDevice()->DisableClipping();
   painter->GetDevice()->PopMatrix();
 
