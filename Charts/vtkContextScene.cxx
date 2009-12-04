@@ -45,7 +45,7 @@ public:
     if (this->Target)
       {
       vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(caller);
-      vtkRenderWindowInteractor *interactor;
+      vtkRenderWindowInteractor *interactor = NULL;
       if (style)
         {
         interactor = vtkRenderWindowInteractor::SafeDownCast(style->GetInteractor());
@@ -108,7 +108,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.6");
+vtkCxxRevisionMacro(vtkContextScene, "1.7");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
