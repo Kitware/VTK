@@ -62,6 +62,7 @@ int TestDiagram( int argc, char * argv [] )
 
   VTK_CREATE(vtkRenderWindowInteractor, interactor);
   interactor->SetRenderWindow(renderWindow);
+  renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);
@@ -75,7 +76,7 @@ int TestDiagram( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram);
-vtkCxxRevisionMacro(APIDiagram, "1.4");
+vtkCxxRevisionMacro(APIDiagram, "1.5");
 // This function draws our API diagram
 bool APIDiagram::Paint(vtkContext2D *painter)
 {

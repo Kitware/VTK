@@ -84,6 +84,7 @@ int TestLinePlot( int argc, char * argv [] )
 
   //Finally render the scene and compare the image to a reference image
   view->Render();
+  view->GetRenderWindow()->SetMultiSamples(0);
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   return !retVal;
 }
