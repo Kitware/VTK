@@ -15,7 +15,7 @@
 #include "vtkLinearContourLineInterpolator.h"
 #include <vtkObjectFactory.h>
 
-vtkCxxRevisionMacro(vtkLinearContourLineInterpolator, "1.1");
+vtkCxxRevisionMacro(vtkLinearContourLineInterpolator, "1.2");
 vtkStandardNewMacro(vtkLinearContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -34,5 +34,11 @@ int vtkLinearContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
                                                        int idx1, int idx2 )
 {
   return 1;
+}
+
+//----------------------------------------------------------------------
+void vtkLinearContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
 

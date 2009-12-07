@@ -60,6 +60,7 @@ vtkImageTracerWidget.cxx
 vtkImplicitPlaneRepresentation.cxx
 vtkImplicitPlaneWidget.cxx
 vtkImplicitPlaneWidget2.cxx
+vtkLinearContourLineInterpolator.cxx
 vtkLineRepresentation.cxx
 vtkLineWidget.cxx
 vtkLineWidget2.cxx
