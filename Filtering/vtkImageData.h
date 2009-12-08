@@ -87,11 +87,15 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Set dimensions of structured points dataset.
+  // Pass your way. This is for backward compatibility only.
+  // Use SetExtent() instead.
+  // Same as SetExtent(0, i-1, 0, j-1, 0, k-1)
   virtual void SetDimensions(int i, int j, int k);
 
   // Description:
-  // Set dimensions of structured points dataset.
+  // Pass your way. This is for backward compatibility only.
+  // Use SetExtent() instead.
+  // Same as SetExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1)
   virtual void SetDimensions(const int dims[3]);
 
   // Description:
