@@ -81,6 +81,7 @@ protected:
   vtkTexture* Texture;
   vtkPolyDataMapper2D* Mapper;
   vtkTexturedActor2D* Actor;
+  bool AntialiasText; // Should the text be antialiased, inherited from render window.
 
 private:
   vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&);  // Not implemented.

@@ -45,7 +45,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.8");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.9");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 struct vtkQtLabelMapEntry
@@ -135,7 +135,7 @@ vtkQtLabelRenderStrategy::vtkQtLabelRenderStrategy()
   this->QImageToImage->SetQImage(this->Implementation->Image);
 
   this->PlaneSource->SetOrigin(0, 0, 0);
-  
+
   this->TextureMapToPlane->SetInputConnection(this->PlaneSource->GetOutputPort());
   this->TextureMapToPlane->AutomaticPlaneGenerationOn();
   this->TextureMapToPlane->SetSRange(0., 1.);
@@ -185,16 +185,21 @@ void vtkQtLabelRenderStrategy::StartFrame()
   int *size = this->Renderer->GetRenderWindow()->GetSize();
   int width = size[0];
   int height = size[1];
+  // If the render window is not antialiased then the text should not be
+  this->AntialiasText = this->Renderer->GetRenderWindow()->GetMultiSamples() > 0;
 
   if (this->Implementation->Image->width() != width ||
       this->Implementation->Image->height() != height)
     {
     this->Implementation->Painter->end();
     delete this->Implementation->Image;
-    this->Implementation->Image = new QImage(width, height, QImage::Format_ARGB32_Premultiplied);
+    this->Implementation->Image = new QImage(width, height,
+                                             QImage::Format_ARGB32_Premultiplied);
     this->Implementation->Painter->begin(this->Implementation->Image);
-    this->Implementation->Painter->setRenderHint(QPainter::TextAntialiasing);
-    this->Implementation->Painter->setRenderHint(QPainter::Antialiasing);
+    this->Implementation->Painter->setRenderHint(QPainter::TextAntialiasing,
+                                                 this->AntialiasText);
+    this->Implementation->Painter->setRenderHint(QPainter::Antialiasing,
+                                                 this->AntialiasText);
     this->QImageToImage->SetQImage(this->Implementation->Image);
     this->PlaneSource->SetPoint1(width, 0, 0);
     this->PlaneSource->SetPoint2(0, height, 0);
@@ -227,8 +232,20 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
     }
 
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
+
+  // This is the recommended Qt way of controlling text antialiasing.
+  if (this->AntialiasText)
+    {
+    fontSpec.setStyleStrategy(QFont::PreferAntialias);
+    }
+  else
+    {
+    fontSpec.setStyleStrategy(QFont::NoAntialias);
+    }
+
   QString text = QString::fromUtf8(label.utf8_str());
-  QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
+  QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(),
+                                                               tprop->GetOpacity());
   vtkQtLabelMapEntry key;
   key.Font = fontSpec;
   key.Text = text;
@@ -305,6 +322,17 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   // Determine if we can render the label to fit the width
   QString origText = QString::fromUtf8(label.utf8_str());
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
+
+  // This is the recommended Qt way of controlling text antialiasing.
+  if (this->AntialiasText)
+    {
+    fontSpec.setStyleStrategy(QFont::PreferAntialias);
+    }
+  else
+    {
+    fontSpec.setStyleStrategy(QFont::NoAntialias);
+    }
+
   QFontMetrics fontMetric(fontSpec);
   QString text = fontMetric.elidedText(origText, Qt::ElideRight, maxWidth);
   if (origText.length() >= 8 && text.length() < 8)
@@ -333,29 +361,29 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 
   switch( tprop->GetJustification() )
     {
-    case VTK_TEXT_LEFT: 
+    case VTK_TEXT_LEFT:
       break;
     case VTK_TEXT_CENTERED:
       delta_x = -bounds.width()/2.0;
       break;
-    case VTK_TEXT_RIGHT: 
+    case VTK_TEXT_RIGHT:
       delta_x = -bounds.width();
       break;
     }
   switch (tprop->GetVerticalJustification())
     {
-    case VTK_TEXT_TOP: 
+    case VTK_TEXT_TOP:
       delta_y = bounds.height() - bounds.bottom();
       break;
     case VTK_TEXT_CENTERED:
       delta_y = bounds.height()/2.0 - bounds.bottom();
       break;
-    case VTK_TEXT_BOTTOM: 
+    case VTK_TEXT_BOTTOM:
       delta_y = -bounds.bottom();
       break;
     }
 
-  QPainter* painter = this->Implementation->Painter;  
+  QPainter* painter = this->Implementation->Painter;
   painter->save();
   painter->translate(x[0], h-x[1]);
   painter->rotate(rotation);
@@ -391,6 +419,17 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 
   QString text = QString::fromUtf8(label.utf8_str());
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
+
+  // This is the recommended Qt way of controlling text antialiasing.
+  if (this->AntialiasText)
+    {
+    fontSpec.setStyleStrategy(QFont::PreferAntialias);
+    }
+  else
+    {
+    fontSpec.setStyleStrategy(QFont::NoAntialias);
+    }
+
   double rotation = -tprop->GetOrientation();
   QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
 
@@ -429,8 +468,8 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     QPainter p(img);
     p.translate(-rotBounds.left(), -rotBounds.top());
     p.rotate(rotation);
-    p.setRenderHint(QPainter::TextAntialiasing);
-    p.setRenderHint(QPainter::Antialiasing);
+    p.setRenderHint(QPainter::TextAntialiasing, this->AntialiasText);
+    p.setRenderHint(QPainter::Antialiasing, this->AntialiasText);
 
     if (tprop->GetShadow())
       {
@@ -451,29 +490,29 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   double delta_x = 0.;
   switch( tprop->GetJustification() )
     {
-    case VTK_TEXT_LEFT: 
+    case VTK_TEXT_LEFT:
       delta_x = bounds.width()/2.0;
       break;
     case VTK_TEXT_CENTERED:
       break;
-    case VTK_TEXT_RIGHT: 
+    case VTK_TEXT_RIGHT:
       delta_x = -bounds.width()/2.0;
       break;
     }
-  
+
   double delta_y = pixelPadding / 2.0;
   switch (tprop->GetVerticalJustification())
     {
-    case VTK_TEXT_TOP: 
+    case VTK_TEXT_TOP:
       delta_y += bounds.height()/2.0;
       break;
     case VTK_TEXT_CENTERED:
       break;
-    case VTK_TEXT_BOTTOM: 
+    case VTK_TEXT_BOTTOM:
       delta_y += -bounds.height()/2.0;
       break;
     }
-  
+
   int *size = this->Renderer->GetRenderWindow()->GetSize();
   double h = size[1]-1;
   double line_offset = tprop->GetLineOffset();
