@@ -181,7 +181,7 @@ int TestContingencyStatistics( int, char *[] )
 
   cout << "\n";
 
-  cout << "## Calculated the following probabilities and mutual informations:\n";
+  cout << "## Calculated the following joint and conditional probabilities and mutual informations:\n";
   testIntValue = 0;
 
   // Skip first row which contains data set cardinality
@@ -223,6 +223,35 @@ int TestContingencyStatistics( int, char *[] )
     testStatus = 1;
     }
   cout << "\n";
+
+  cout << "## Calculated the following marginal probabilities:\n";
+  testIntValue = 0;
+
+  for ( vtkIdType b = 2; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+    {
+    outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+
+    for ( vtkIdType r = 0; r < outputContingency->GetNumberOfRows(); ++ r )
+      {
+      cout << "   "
+           << outputContingency->GetColumnName( 0 )
+           << " = "
+           << outputContingency->GetValue( r, 0 ).ToString()
+           << ", "
+           << outputContingency->GetColumnName( 1 )
+           << "="
+           << outputContingency->GetValue( r, 1 ).ToDouble()
+           << ", "
+           << outputContingency->GetColumnName( 2 )
+           << "="
+           << outputContingency->GetValue( r, 2 ).ToDouble()
+           << "\n";
+        }
+    cout << "\n";
+
+    // Update total cardinality
+    testIntValue += 0;//outputContingency->GetValueByName( r, "Cardinality" ).ToInt();
+    }
 
   // Now inspect results of the Assess mode by looking for outliers
   key = 0;
