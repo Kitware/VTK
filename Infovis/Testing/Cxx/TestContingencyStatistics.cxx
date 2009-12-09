@@ -227,7 +227,7 @@ int TestContingencyStatistics( int, char *[] )
   cout << "## Calculated the following marginal probabilities:\n";
   testIntValue = 0;
 
-  for ( vtkIdType b = 2; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+  for ( unsigned int b = 2; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
 
