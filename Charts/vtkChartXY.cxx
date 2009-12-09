@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.9");
+vtkCxxRevisionMacro(vtkChartXY, "1.10");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -220,24 +220,6 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
       {
       vtkPlotLine *line = vtkPlotLine::New();
       this->ChartPrivate->plots.push_back(line);
-
-      // Set up the scaling for the plot area
-      line->Translate(0.0, 0.0);
-      line->GetTransform()->Translate(this->Geometry[2],
-                                      this->Geometry[3]);
-      // Get the scale for the plot area from the x and y axes
-      float *min = this->XAxis->GetPoint1();
-      float *max = this->XAxis->GetPoint2();
-      float xScale = (this->XAxis->GetMaximum() - this->XAxis->GetMinimum()) /
-                     (max[0] - min[0]);
-      min = this->YAxis->GetPoint1();
-      max = this->YAxis->GetPoint2();
-      float yScale = (this->YAxis->GetMaximum() - this->YAxis->GetMinimum()) /
-                     (max[1] - min[1]);
-      line->GetTransform()->Scale(1.0 / xScale, 1.0 / yScale);
-      line->GetTransform()->Translate(- this->XAxis->GetMinimum(),
-                                      - this->YAxis->GetMinimum());
-
       plot = line;
       break;
       }
@@ -245,24 +227,6 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
       {
       vtkPlotPoints *points = vtkPlotPoints::New();
       this->ChartPrivate->plots.push_back(points);
-
-      // Set up the scaling for the plot area
-      points->Translate(0.0, 0.0);
-      points->GetTransform()->Translate(this->Geometry[2],
-                                        this->Geometry[3]);
-      // Get the scale for the plot area from the x and y axes
-      float *min = this->XAxis->GetPoint1();
-      float *max = this->XAxis->GetPoint2();
-      float xScale = (this->XAxis->GetMaximum() - this->XAxis->GetMinimum()) /
-                     (max[0] - min[0]);
-      min = this->YAxis->GetPoint1();
-      max = this->YAxis->GetPoint2();
-      float yScale = (this->YAxis->GetMaximum() - this->YAxis->GetMinimum()) /
-                     (max[1] - min[1]);
-      points->GetTransform()->Scale(1.0 / xScale, 1.0 / yScale);
-      points->GetTransform()->Translate(- this->XAxis->GetMinimum(),
-                                        - this->YAxis->GetMinimum());
-
       plot = points;
       break;
       }
