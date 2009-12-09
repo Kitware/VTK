@@ -176,7 +176,9 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       {
       this->mRenWin->Finalize();
       }
+#ifdef Q_WS_X11
     this->mRenWin->SetDisplayId(NULL);
+#endif
     this->mRenWin->SetWindowId(NULL);
     this->mRenWin->UnRegister(NULL);
     }
