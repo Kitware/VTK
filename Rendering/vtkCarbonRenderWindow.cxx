@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.78");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.79");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -1197,7 +1197,7 @@ void vtkCarbonRenderWindow::HideCursor()
     return;
     }
   this->CursorHidden = 1;
-  HideCursor();
+  CGDisplayHideCursor(CGMainDisplayID());
 }
 
 //----------------------------------------------------------------------------
@@ -1208,7 +1208,7 @@ void vtkCarbonRenderWindow::ShowCursor()
     return;
     }
   this->CursorHidden = 0;
-  ShowCursor();
+  CGDisplayShowCursor(CGMainDisplayID());
 }
 
 OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef, 
