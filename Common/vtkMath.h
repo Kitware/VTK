@@ -142,7 +142,7 @@ public:
   // repeatability of Random().
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
-  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIALLY FOR REGRESSION TESTS)
   // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
   // Instead, for a sequence of random numbers with a uniform distribution
   // create a vtkMinimalStandardRandomSequence object.
@@ -154,7 +154,7 @@ public:
   // Return the current seed used by the random number generator.
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
-  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIALLY FOR REGRESSION TESTS)
   // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
   // Instead, for a sequence of random numbers with a uniform distribution
   // create a vtkMinimalStandardRandomSequence object.
@@ -168,7 +168,7 @@ public:
   // This is used to provide portability across different systems.
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
-  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIALLY FOR REGRESSION TESTS)
   // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
   // Instead, for a sequence of random numbers with a uniform distribution
   // create a vtkMinimalStandardRandomSequence object.
@@ -181,7 +181,7 @@ public:
   // distribution between \a min and \a max.
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
-  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIALLY FOR REGRESSION TESTS)
   // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
   // Instead, for a sequence of random numbers with a uniform distribution
   // create a vtkMinimalStandardRandomSequence object.
@@ -194,7 +194,7 @@ public:
   // normal distribution.
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
-  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIALLY FOR REGRESSION TESTS)
   // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
   // Instead, for a sequence of random numbers with a uniform distribution
   // create a vtkMinimalStandardRandomSequence object.
@@ -207,7 +207,7 @@ public:
   // distribution with mean \a mean and standard deviation \a std.
   //
   // DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
-  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIAL FOR REGRESSION TESTS)
+  // THIS IS STATIC SO THIS IS PRONE TO ERRORS (SPECIALLY FOR REGRESSION TESTS)
   // THIS IS HERE FOR BACKWARD COMPATIBILITY ONLY.
   // Instead, for a sequence of random numbers with a uniform distribution
   // create a vtkMinimalStandardRandomSequence object.
