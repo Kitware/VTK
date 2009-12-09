@@ -71,7 +71,7 @@ public:
   // This function allows you to set the overall dimensions of the chart.
   // An int pointer of length 6 is expected with the dimensions in the order of
   // width, height, left border, bottom border, right border, top border in
-  // pixels of the device.
+  // pixels of the device. Initial value is (0,0,0,0,0,0).
   vtkSetVector6Macro(Geometry, int);
 
   // Description:
