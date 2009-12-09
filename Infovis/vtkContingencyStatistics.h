@@ -69,8 +69,9 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
-                             vtkTable* inParameters,
-                             vtkDataObject* outMeta );
+                      vtkTable* inParameters,
+                      vtkDataObject* outMeta );
+
   // Description:
   // Execute the calculations required by the Derive option.
   virtual void Derive( vtkDataObject* );
@@ -78,9 +79,15 @@ protected:
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
-                              vtkDataObject* inMeta,
-                              vtkTable* outData,
-                              vtkDataObject* outMeta ); 
+                       vtkDataObject* inMeta,
+                       vtkTable* outData,
+                       vtkDataObject* outMeta ); 
+  
+  // Description:
+  // Execute the calculations required by the Test option.
+  virtual void Test( vtkTable* inData,
+                     vtkDataObject* inMeta,
+                     vtkDataObject* outMeta ); 
 
 //BTX  
   // Description:
