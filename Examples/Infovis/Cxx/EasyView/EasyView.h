@@ -14,6 +14,21 @@
   statement of authorship are reproduced on all copies.
 
 =========================================================================*/
+
+// .NAME EasyView - Shows regular way of for linking multiple views.
+//
+// .SECTION Description
+// EasyView shows a way to link various views using vtkAnnotationLink
+// shared between views. Selection in a particular view will update the
+// selection in all other views associated.
+
+// Other way to get the same functionality is by using vtkEventQtSlotConnect
+// and providing corresponding QT slot.
+
+// .SECTION See Also
+// CustomLinkView.
+
+
 #ifndef EasyView_H
 #define EasyView_H
 
