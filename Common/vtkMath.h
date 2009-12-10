@@ -60,23 +60,28 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Useful constants.
+  // A mathematical constant. This version is 3.14159265358979f.
   static float Pi() { return 3.14159265358979f; };
 
   // Description:
-  // Useful constants. (double-precision version)
+  // A mathematical constant (double-precision version). This version 
+  // is 6.283185307179586.
   static double DoubleTwoPi() { return  6.283185307179586; };
+
+  // Description:
+  // A mathematical constant (double-precision version). This version
+  // is 3.1415926535897932384626.
   static double DoublePi() { return 3.1415926535897932384626; };
 
   // Description:
   // Convert degrees into radians
-  static float RadiansFromDegrees( float );
-  static double RadiansFromDegrees( double );
+  static float RadiansFromDegrees( float degrees);
+  static double RadiansFromDegrees( double degrees);
 
   // Description:
   // Convert radians into degrees
-  static float DegreesFromRadians( float );
-  static double DegreesFromRadians( double );
+  static float DegreesFromRadians( float radians);
+  static double DegreesFromRadians( double radians);
 
   // Description:
   // @deprecated Replaced by vtkMath::RadiansFromDegrees() as of VTK 5.4.
@@ -95,6 +100,8 @@ public:
   static int Round(double f) {
     return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
 
+  // Description:
+  // Rounds a double to the nearest integer less than itself.
   static int Floor(double x);
   
   // Description:
@@ -230,14 +237,14 @@ public:
   }
 
   // Description:
-  // Subtraction of two 3-vectors (float version). Result is stored in c.
+  // Subtraction of two 3-vectors (float version). Result is stored in c according to c = a - b.
   static void Subtract(const float a[3], const float b[3], float c[3]) {
     for (int i = 0; i < 3; ++i)
       c[i] = a[i] - b[i];
   }
 
   // Description:
-  // Subtraction of two 3-vectors (double version). Result is stored in c.
+  // Subtraction of two 3-vectors (double version). Result is stored in c according to c = a - b.
   static void Subtract(const double a[3], const double b[3], double c[3]) {
     for (int i = 0; i < 3; ++i)
       c[i] = a[i] - b[i];
@@ -285,16 +292,16 @@ public:
   }
 
   // Description:
-  // Cross product of two 3-vectors. Result vector in z[3].
+  // Cross product of two 3-vectors. Result (a x b) is stored in z.
   static void Cross(const float x[3], const float y[3], float z[3]);
 
   // Description:
-  // Cross product of two 3-vectors. Result vector in z[3]. (double-precision
+  // Cross product of two 3-vectors. Result (a x b) is stored in z. (double-precision
   // version)
   static void Cross(const double x[3], const double y[3], double z[3]);
 
   // Description:
-  // Compute the norm of n-vector.
+  // Compute the norm of n-vector. x is the vector, n is its length.
   static float Norm(const float* x, int n); 
   static double Norm(const double* x, int n); 
 
@@ -329,27 +336,26 @@ public:
                              double theta);
 
   // Description:
-  // Compute distance squared between two points.
+  // Compute distance squared between two points x and y.
   static float Distance2BetweenPoints(const float x[3], const float y[3]);
 
   // Description:
-  // Compute distance squared between two points (double precision version).
+  // Compute distance squared between two points x and y(double precision version).
   static double Distance2BetweenPoints(const double x[3], const double y[3]);
 
   // Description:
-  // Dot product of two 2-vectors. The third (z) component is ignored.
-  static float Dot2D(const float x[3], const float y[3]) {
+  // Dot product of two 2-vectors.
+  static float Dot2D(const float x[2], const float y[2]) {
     return ( x[0] * y[0] + x[1] * y[1] );};
   
   // Description:
-  // Dot product of two 2-vectors. The third (z) component is
-  // ignored (double-precision version).
-  static double Dot2D(const double x[3], const double y[3]) {
+  // Dot product of two 2-vectors. (double-precision version).
+  static double Dot2D(const double x[2], const double y[2]) {
     return ( x[0] * y[0] + x[1] * y[1] );};
 
   // Description:
-  // Outer product of two 2-vectors (float version). z-comp is ignored
-  static void Outer2D(const float x[3], const float y[3], float A[3][3]) 
+  // Outer product of two 2-vectors (float version).
+  static void Outer2D(const float x[2], const float y[2], float A[2][2]) 
     {
     for (int i=0; i < 2; i++)
       {
@@ -360,8 +366,8 @@ public:
       }
     }
   // Description:
-  // Outer product of two 2-vectors (float version). z-comp is ignored
-  static void Outer2D(const double x[3], const double y[3], double A[3][3]) 
+  // Outer product of two 2-vectors (float version).
+  static void Outer2D(const double x[2], const double y[2], double A[2][2]) 
     {
     for (int i=0; i < 2; i++)
       {
@@ -373,25 +379,24 @@ public:
     }
 
   // Description:
-  // Compute the norm of a 2-vector. Ignores z-component.
-  static float Norm2D(const float x[3]) {
+  // Compute the norm of a 2-vector.
+  static float Norm2D(const float x[2]) {
     return static_cast<float> (sqrt( x[0] * x[0] + x[1] * x[1] ) );};
 
   // Description:
-  // Compute the norm of a 2-vector. Ignores z-component
+  // Compute the norm of a 2-vector.
   // (double-precision version).
-  static double Norm2D(const double x[3]) {
+  static double Norm2D(const double x[2]) {
     return sqrt( x[0] * x[0] + x[1] * x[1] );};
 
   // Description:
-  // Normalize (in place) a 2-vector. Returns norm of vector. Ignores
-  // z-component.
-  static float Normalize2D(float x[3]);
+  // Normalize (in place) a 2-vector. Returns norm of vector.
+  static float Normalize2D(float x[2]);
 
   // Description:
-  // Normalize (in place) a 2-vector. Returns norm of vector. Ignores
-  // z-component (double-precision version).
-  static double Normalize2D(double x[3]);
+  // Normalize (in place) a 2-vector. Returns norm of vector.
+  // (double-precision version).
+  static double Normalize2D(double x[2]);
 
   // Description:
   // Compute determinant of 2x2 matrix. Two columns of matrix are input.
@@ -449,12 +454,14 @@ public:
                              double **C);
 
   // Description:
-  // Transpose a 3x3 matrix.
+  // Transpose a 3x3 matrix. The input matrix is A. The output
+  // is stored in AT.
   static void Transpose3x3(const float A[3][3], float AT[3][3]);
   static void Transpose3x3(const double A[3][3], double AT[3][3]);
 
   // Description:
-  // Invert a 3x3 matrix.
+  // Invert a 3x3 matrix. The input matrix is A. The output is
+  // stored in AI.
   static void Invert3x3(const float A[3][3], float AI[3][3]);
   static void Invert3x3(const double A[3][3], double AI[3][3]);
 
@@ -871,14 +878,22 @@ public:
   static double Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);
 
   // Description:
-  // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).
+  // Special IEEE-754 number used to represent positive infinity.
   static double Inf();
+
+  // Description:
+  // Special IEEE-754 number used to represent negative infinity.
   static double NegInf();
+
+  // Description:
+  // Special IEEE-754 number used to represent Not-A-Number (Nan).
   static double Nan();
 
   // Description:
-  // Tests for special floating point values that are not real numbers.
+  // Test if a number is equal to the special floating point value infinity.
   static int IsInf(double x);
+
+  // Test if a number is equal to the special floating point value Not-A-Number (Nan).
   static int IsNan(double x);
 
 protected:
@@ -1097,7 +1112,7 @@ inline double vtkMath::Distance2BetweenPoints(const double x[3],
 }
 
 //----------------------------------------------------------------------------
-// Cross product of two 3-vectors. Result vector in z[3].
+// Cross product of two 3-vectors. Result (a x b) is stored in z[3].
 inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
 {
   float Zx = x[1] * y[2] - x[2] * y[1]; 
@@ -1107,7 +1122,7 @@ inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
 }
 
 //----------------------------------------------------------------------------
-// Cross product of two 3-vectors. Result vector in z[3].
+// Cross product of two 3-vectors. Result (a x b) is stored in z[3].
 inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
 {
   double Zx = x[1] * y[2] - x[2] * y[1]; 
