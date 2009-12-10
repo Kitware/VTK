@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.41");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.42");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -174,7 +174,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
   vtkDataObject* outMeta1 = vtkDataObject::GetData( outputVector, 1 );
-  vtkDataObject* outMeta2 = 0; // Unused for now
+  vtkDataObject* outMeta2 = vtkDataObject::GetData( outputVector, 2 );
 
   outData->ShallowCopy( inData );
 
@@ -221,6 +221,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 
   if ( this->AssessOption )
     {
+    this->Test( inData, outMeta1, outMeta2 );
     this->Assess( inData, outMeta1, outData, outMeta2 );
     }
 

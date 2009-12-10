@@ -116,9 +116,11 @@ int TestContingencyStatistics( int, char *[] )
   cs->SetAssessOption( true );
   cs->Update();
 
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  vtkTable* outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputSummary = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
+  vtkTable* outputContingency = vtkTable::SafeDownCast( outputModelDS->GetBlock( 1 ) );
+
+  vtkTable* outputTest = vtkTable::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_TEST ) );
 
   int testIntValue = 0;
   double testDoubleValue = 0;
@@ -227,9 +229,9 @@ int TestContingencyStatistics( int, char *[] )
   cout << "## Calculated the following marginal probabilities:\n";
   testIntValue = 0;
 
-  for ( unsigned int b = 2; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
+  for ( unsigned int b = 2; b < outputModelDS->GetNumberOfBlocks(); ++ b )
     {
-    outputContingency = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+    outputContingency = vtkTable::SafeDownCast( outputModelDS->GetBlock( b ) );
 
     for ( vtkIdType r = 0; r < outputContingency->GetNumberOfRows(); ++ r )
       {
@@ -315,6 +317,26 @@ int TestContingencyStatistics( int, char *[] )
                              << ".");
       testStatus = 1;
       }
+    cout << "\n";
+    }
+
+  cout << "## Chi square statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ("
+         << outputSummary->GetValue( r, 0 ).ToString()
+         << ","
+         << outputSummary->GetValue( r, 1 ).ToString()
+         << ")";
+
+    for ( vtkIdType c = 0; c < outputTest->GetNumberOfColumns(); ++ c )
+      {
+      cout << ", "
+           << outputTest->GetColumnName( c )
+           << "="
+           << outputTest->GetValue( r, c ).ToDouble();
+      }
+    
     cout << "\n";
     }
 

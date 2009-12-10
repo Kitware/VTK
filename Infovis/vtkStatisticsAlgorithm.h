@@ -75,9 +75,9 @@ public:
   // enumeration values to specify output port types
   enum OutputIndices
     {
-    OUTPUT_DATA = 0,        //!< Output 0 mirrors the input data, plus optional assessment columns
+    OUTPUT_DATA  = 0,       //!< Output 0 mirrors the input data, plus optional assessment columns
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
-    ASSESSMENT = 2          //!< Output 2 
+    OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
     };
 //ETX
 
@@ -261,6 +261,12 @@ protected:
                        vtkDataObject*,
                        vtkTable*,
                        vtkDataObject* ) = 0; 
+
+  // Description:
+  // Execute the calculations required by the Test option.
+  virtual void Test( vtkTable*,
+                     vtkDataObject*,
+                     vtkDataObject* ) { return; };
 
   //BTX
   // Description:

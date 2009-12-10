@@ -44,12 +44,14 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.68");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.69");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
 {
+  this->SetNumberOfOutputPorts( 3 );
+
   this->AssessNames->SetNumberOfValues( 4 );
   this->AssessNames->SetValue( 0, "P" );
   this->AssessNames->SetValue( 1, "Py|x" );
@@ -101,6 +103,10 @@ int vtkContingencyStatistics::FillOutputPortInformation( int port, vtkInformatio
   if ( port == OUTPUT_MODEL )
     {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    }
+  else if ( port == OUTPUT_TEST )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     }
   
   return res;
@@ -427,10 +433,9 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
     }
   
   // We have a unique value for the cardinality and can henceforth proceed
-  double inv_n = 1. / n;
   contingencyTab->SetValueByName( 0, "Cardinality", n );
 
-  // Complete cardinality row (0) with invalid values for derived statistics
+  // Fill cardinality row (0) with invalid values for derived statistics
   for ( int i = 0; i < nDerivedVals; ++ i )
     {
     contingencyTab->SetValueByName( 0, derivedNames[i], -1. );
@@ -449,6 +454,7 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
 
   // Add marginal PDF tables as new blocks to the meta output starting at block nBlock
   // NB: block nBlock is kept for information entropy
+  double inv_n = 1. / n;
   vtksys_stl::map<vtkStdString,PDF> marginalPDFs;
   for ( vtksys_stl::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
         sit != marginalCounts.end(); ++ sit, ++ nBlocks )
@@ -489,9 +495,9 @@ void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
     inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), sit->first.c_str() );
     inMeta->SetBlock( nBlocks, marginalTab );
 
+    // Clean up
     marginalTab->Delete();
     }
-
 
   // Container for derived values
   double* derivedVals = new double[nDerivedVals];
@@ -752,17 +758,24 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
       assessResult->Delete();
       }
 
+    // Clean up
     delete dfunc;
     delete [] names;
     varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-    } // end of rit loop
+    } // rit
 }
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::Test( vtkTable* inData,
                                      vtkDataObject* inMetaDO,
-                                     vtkDataObject* vtkNotUsed( outMeta ) )
+                                     vtkDataObject* outMetaDO )
 {
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  if ( ! outMeta )
+    {
+    return;
+    }
+
   if ( ! inData || inData->GetNumberOfColumns() <= 0 )
     {
     return;
@@ -775,7 +788,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     }
 
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 4 ) // We need at least 2 marginal PDFs in addition to con
     {
     return;
     }
@@ -793,9 +806,51 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     return;
     }
 
+  vtkTable* contingencyTab;
+  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
+       || contingencyTab->GetNumberOfColumns() < 7 )
+    {
+    return;
+    }
+
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+  if ( nRowCont <= 0 )
+    {
+    return;
+    }
+
+  // The test table, indexed by the key of the summary
+  vtkTable* testTab = vtkTable::New();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "d" );
+  testTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Chi2" );
+  testTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Chi2 Yates" );
+  testTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
+
+  // Rows of the test table contain:
+  // 0: number of degrees of freedom
+  // 1: chi square test statistic
+  // 2: chi square test statistic with Yates correction
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 3 );
 
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
@@ -840,7 +895,149 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
       return;
       }
 
-    } // end of rit loop
+    // Start by fetching joint counts
+    
+    // Sanity check: make sure all counts sum to grand total
+    vtkIdType n = card->GetValue( 0 );
+    vtkIdType sumij = 0;
+
+    // Loop over parameters table until the requested variables are found 
+    vtksys_stl::map<vtkStdString,Counts> oij;
+    vtkStdString x, y;
+    vtkIdType key, c;
+    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+      {
+      // Find the pair of variables to which the key corresponds
+      key = keys->GetValue( r );
+      
+      // Only use entries in the contingency table that correspond to values we are interested in
+      if ( key != pairKey )
+        {
+        continue;
+        }
+      
+      // Fill PDF and update CDF
+      x = valx->GetValue( r );
+      y = valy->GetValue( r );
+      c = card->GetValue( r );
+      oij[x][y] = c;
+      sumij += c;
+      } // for ( int r = 1; r < nRowCont; ++ r )
+  
+    // Sanity check: verify that sum = grand total
+    if ( sumij != n )
+      {
+      vtkWarningMacro( "Inconsistent sum of counts and grand total for column pair "
+                       << varNameX.c_str()
+                       << ","
+                       << varNameY.c_str()
+                       << "): "
+                       << sumij
+                       << " <> "
+                       << n
+                       << ". Cannot test." );
+      
+      return;
+      }
+
+    // Now search for relevant marginal counts
+    Counts ek[2];
+    int foundIndex = -1;
+    int foundCount = 0;
+    for ( unsigned int b = 2; b < inMeta->GetNumberOfBlocks()  && foundCount < 2; ++ b )
+      {
+      const char* name = inMeta->GetMetaData( static_cast<unsigned>( b ) )->Get( vtkCompositeDataSet::NAME() );
+      if ( ! strcmp( name, varNameX ) )
+        {
+        // Found the marginal count of X
+        foundIndex = 0;
+        ++ foundCount;
+        }
+      else if ( ! strcmp( name, varNameY ) )
+        {
+        // Found the marginal count of Y
+        foundIndex = 1;
+        ++ foundCount;
+        }
+
+      if ( foundIndex > -1 )
+        {
+        // One relevant PDF was found
+        vtkTable* marginalTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
+ 
+        // Downcast columns to appropriate arrays for efficient data access
+        vtkStringArray* vals = vtkStringArray::SafeDownCast( marginalTab->GetColumnByName( name ) );
+        vtkIdTypeArray* marg = vtkIdTypeArray::SafeDownCast( marginalTab->GetColumnByName( "Cardinality" ) );
+
+        // Now iterate over all entries and fill count map
+        vtkIdType nRow = marginalTab->GetNumberOfRows();
+        for ( vtkIdType r = 0; r < nRow; ++ r )
+          {
+          ek[foundIndex][vals->GetValue( r )] = marg->GetValue( r );
+          }
+        }
+      }
+
+    // Eliminating the case where one or both marginal counts are not provided in the model
+    if ( ! ek[0].size() )
+      {
+      vtkErrorMacro( "Incomplete input: missing marginal count for "
+                     << varNameX.c_str()
+                     <<". Cannot test." );
+      return;
+      }
+
+    if ( ! ek[1].size() )
+      {
+      vtkErrorMacro( "Incomplete input: missing marginal count for "
+                     << varNameY.c_str()
+                     <<". Cannot test." );
+      return;
+      }
+
+    // Now that we have all we need, let us calculate the test statistic
+
+    // We must iterate over all possible independent instances, which might result in
+    // an impossibly too large double loop, even if the actual occurrence table is 
+    // sparse. C'est la vie.
+    double eij, delta;
+    double chi2  = 0; // chi square test statistic
+    double chi2y = 0; // chi square test statistic with Yates correction
+    for ( Counts::iterator xit = ek[0].begin(); xit != ek[0].end(); ++ xit )
+      {
+      for ( Counts::iterator yit = ek[1].begin(); yit != ek[1].end(); ++ yit )
+        {
+        // Expected count
+        eij = static_cast<double>( xit->second * yit->second ) / n;
+
+        // Discrepancy
+        delta = eij - oij[xit->first][yit->first];
+        
+        // Chi square contribution
+        chi2 += delta * delta / eij;
+
+        // Chi square contribution with Yates correction
+        delta = fabs( delta ) - .5;
+        chi2y += delta * delta / eij;
+        } // yit
+      } // xit
+    
+    // Degrees of freedom
+    unsigned int d = ( ek[0].size() - 1 ) * ( ek[1].size() - 1 );
+
+    // Insert test values
+    row->SetValue( 0, d );     // degrees of freedom
+    row->SetValue( 1, chi2 );  // chi square test statistics
+    row->SetValue( 2, chi2y ); // chi square test statistics with Yates correction
+    testTab->InsertNextRow( row );
+    } // rit
+
+  // Finally set output table to test table
+  outMeta->ShallowCopy( testTab );
+
+  // Clean up
+  testTab->Delete();
+  row->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -885,7 +1082,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
       
-  // Downcast columns to string arrays for efficient data access
+  // Downcast columns to appropriate arrays for efficient data access
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
   vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
@@ -894,8 +1091,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   vtksys_stl::vector<vtkDoubleArray *> para;
   for ( int p = 0; p < np; ++ p )
     {
-    para.push_back(
-                   vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( this->AssessParameters->GetValue( p ) ) ) );
+    para.push_back( vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( this->AssessParameters->GetValue( p ) ) ) );
     if ( ! para[p] )
       {
       dfunc = 0;
@@ -910,7 +1106,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   // 3: PMI(X,Y)
   vtksys_stl::map<vtkStdString,PDF> paraMap[4];
 
-  // Sanity check: joint PDF
+  // Sanity check: joint CDF
   double cdf = 0.;
 
   // Loop over parameters table until the requested variables are found 
