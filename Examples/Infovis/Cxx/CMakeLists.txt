@@ -28,6 +28,7 @@ TARGET_LINK_LIBRARIES(MultiView vtkViews vtkInfovis vtkRendering vtkImaging vtkI
 IF(VTK_USE_QVTK)
   SUBDIRS(ChartView)
   SUBDIRS(EasyView)
+  SUBDIRS(CustomLinkView)
   SUBDIRS(StatsView)
 ENDIF(VTK_USE_QVTK)
 
