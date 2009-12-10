@@ -100,7 +100,7 @@ int TestContingencyStatistics( int, char *[] )
 
   datasetTable->Delete();
 
-  // Select Column Pair of Interest ( Learn Mode )
+  // Select Column Pair of Interest ( Learn Option )
   // 1.1: a valid pair
   cs->AddColumnPair( "Port", "Protocol" );
   // 1.2: the same valid pair, just reversed -- should thus be ignored
@@ -255,7 +255,7 @@ int TestContingencyStatistics( int, char *[] )
     testIntValue += 0;//outputContingency->GetValueByName( r, "Cardinality" ).ToInt();
     }
 
-  // Now inspect results of the Assess mode by looking for outliers
+  // Now inspect results of the Assess option by looking for outliers
   key = 0;
   vtkStdString varX = outputSummary->GetValue( key, 0 ).ToString();
   vtkStdString varY = outputSummary->GetValue( key, 1 ).ToString();
@@ -320,6 +320,13 @@ int TestContingencyStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Last check some results of the Test option
+
+  // Corresponding known number of degrees of freedom
+  int nDOF[] = { 10, // (# ports - 1) x (# protocols - 1)
+                 10  // (# ports - 1) x (# sources - 1) 
+  };
+
   cout << "## Chi square statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
     {
@@ -337,6 +344,16 @@ int TestContingencyStatistics( int, char *[] )
            << outputTest->GetValue( r, c ).ToDouble();
       }
     
+    // Verify some of the calculated statistics
+    if ( outputTest->GetValueByName( r, "d" ).ToInt() != nDOF[r] )
+      {
+      vtkGenericWarningMacro("Reported an incorrect number of degrees of freedom:"
+                             << outputTest->GetValueByName( r, "d" ).ToInt()
+                             << " != "
+                             << nDOF[r]
+                             << ".");
+      testStatus = 1;
+      }
     cout << "\n";
     }
 
