@@ -43,6 +43,6 @@ if __name__ == "__main__":
         col3.InsertNextValue(val)
     T.AddColumn(col3)
     
-    T.Dump(15)
+    T.Dump(6)
     
     print "vtkTable Example 1: Finished."
