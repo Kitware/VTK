@@ -31,7 +31,7 @@ namespace {
 
 void signal_handler(int signal)
 {
-  cerr << "Error: Floating point error detected.\n";
+  cerr << "Error: Floating point error detected. Signal " << signal << endl;
   // This should possibly throw an exception rather than exit.
   exit(1);
 }
