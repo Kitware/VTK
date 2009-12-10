@@ -31,4 +31,7 @@ if __name__ == "__main__":
     # Print out the table data to the screen
     csv_source.GetOutput().Dump(6)
     
+    # Note: tables loaded from DelimitedTextReader have all
+    #       types defaulted to string data.
+    
     print "vtkTable Example 2: Finished."
