@@ -77,6 +77,7 @@ public:
     {
     OUTPUT_DATA  = 0,       //!< Output 0 mirrors the input data, plus optional assessment columns
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
+    ASSESSMENT   = 2,       //!< This is an old, deprecated name for OUTPUT_TEST.
     OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
     };
 //ETX
