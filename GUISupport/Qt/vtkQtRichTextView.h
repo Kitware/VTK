@@ -35,6 +35,7 @@
 #include "vtkQtView.h"
 
 class vtkStdString;
+class QUrl;
 
 class QVTK_EXPORT vtkQtRichTextView : public vtkQtView
 {
@@ -77,6 +78,18 @@ public:
   vtkGetStringMacro(ContentColumnName);
 
   // Description:
+  // If a vtkTable is provided as input to the view, this sets the column
+  // name to use for the preview when multiple items in selection.
+  vtkSetStringMacro(PreviewColumnName);
+  vtkGetStringMacro(PreviewColumnName);
+
+  // Description:
+  // If a vtkTable is provided as input to the view, this sets the column
+  // name to use for the title displayed in the title bar.
+  vtkSetStringMacro(TitleColumnName);
+  vtkGetStringMacro(TitleColumnName);
+
+  // Description:
   // This field sets a URL for a HTTP proxy server.
   vtkSetStringMacro(ProxyURL);
   vtkGetStringMacro(ProxyURL);
@@ -92,10 +105,12 @@ public:
 
 protected slots:
   void onBack();
+  void onForward();
   void onZoomIn();
   void onZoomReset();
   void onZoomOut();
   void onLoadProgress(int progress);
+  void onLinkClicked(const QUrl &url);
 
 protected:
   vtkQtRichTextView();
@@ -106,6 +121,8 @@ private:
   void operator=(const vtkQtRichTextView&);  // Not implemented.
 
   char* ContentColumnName;
+  char* PreviewColumnName;
+  char* TitleColumnName;
   char* ProxyURL;
   int   ProxyPort;
 

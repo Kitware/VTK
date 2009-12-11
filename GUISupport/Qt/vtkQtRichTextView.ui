@@ -23,18 +23,12 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
-      <number>-1</number>
+      <number>6</number>
      </property>
      <item>
-      <widget class="QToolButton" name="BackButton">
-       <property name="toolTip">
-        <string>Go back one page</string>
-       </property>
+      <widget class="QLabel" name="Title">
        <property name="text">
-        <string>Back</string>
-       </property>
-       <property name="arrowType">
-        <enum>Qt::LeftArrow</enum>
+        <string/>
        </property>
       </widget>
      </item>
@@ -50,6 +44,32 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="BackButton">
+       <property name="toolTip">
+        <string>Go back one page</string>
+       </property>
+       <property name="text">
+        <string>Back</string>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::LeftArrow</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="ForwardButton">
+       <property name="toolTip">
+        <string> Go forward one page</string>
+       </property>
+       <property name="text">
+        <string>Forward</string>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::RightArrow</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QToolButton" name="ZoomIn">

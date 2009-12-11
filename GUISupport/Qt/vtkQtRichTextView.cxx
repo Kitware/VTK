@@ -20,6 +20,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAnnotation.h"
+#include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
@@ -47,11 +49,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebHistory>
+#include <QWebPage>
 #include <QWebView>
 #include <QHttpHeader>
 #include <QHttpRequestHeader>
+#include <QUrl>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.19");
+vtkCxxRevisionMacro(vtkQtRichTextView, "1.20");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -81,9 +85,12 @@ public:
 vtkQtRichTextView::vtkQtRichTextView()
 {
   this->ContentColumnName=NULL;
+  this->PreviewColumnName=NULL;
+  this->TitleColumnName=NULL;
   this->ProxyPort = 0;
   this->ProxyURL = NULL;
   this->SetContentColumnName("html");
+  this->SetPreviewColumnName("preview");
   this->Internal = new Implementation();
   this->Internal->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->Internal->DataObjectToTable->SetFieldType(ROW_DATA);
@@ -91,14 +98,17 @@ vtkQtRichTextView::vtkQtRichTextView()
   this->Internal->Widget = new QWidget();
   this->Internal->UI.setupUi(this->Internal->Widget);
   this->Internal->UI.WebView->setHtml("");
+  this->Internal->UI.WebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
   //QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy,"wwwproxy.sandia.gov",80);
   //QNetworkProxy::setApplicationProxy(proxy);
 
   QObject::connect(this->Internal->UI.BackButton, SIGNAL(clicked()), this, SLOT(onBack()));
+  QObject::connect(this->Internal->UI.ForwardButton, SIGNAL(clicked()), this, SLOT(onForward()));
   QObject::connect(this->Internal->UI.ZoomIn, SIGNAL(clicked()), this, SLOT(onZoomIn()));
   QObject::connect(this->Internal->UI.ZoomReset, SIGNAL(clicked()), this, SLOT(onZoomReset()));
   QObject::connect(this->Internal->UI.ZoomOut, SIGNAL(clicked()), this, SLOT(onZoomOut()));
   QObject::connect(this->Internal->UI.WebView, SIGNAL(loadProgress(int)), this, SLOT(onLoadProgress(int)));
+  QObject::connect(this->Internal->UI.WebView, SIGNAL(linkClicked(const QUrl&)), this, SLOT(onLinkClicked(const QUrl&)));
 }
 
 vtkQtRichTextView::~vtkQtRichTextView()
@@ -112,6 +122,8 @@ void vtkQtRichTextView::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ProxyURL : " << (this->ProxyURL ? this->ProxyURL : "(none)") << endl;
   os << indent << "ProxyPort: " << this->ProxyPort << endl;
   os << indent << "ContentColumnName: " << this->ContentColumnName << endl;
+  os << indent << "PreviewColumnName: " << this->ContentColumnName << endl;
+  os << indent << "TitleColumnName: " << this->ContentColumnName << endl;
 }
 
 QWidget* vtkQtRichTextView::GetWidget()
@@ -132,6 +144,8 @@ int vtkQtRichTextView::GetFieldType()
 
 void vtkQtRichTextView::Update()
 {
+  this->Internal->UI.BackButton->setEnabled(false);
+  this->Internal->UI.ForwardButton->setEnabled(false);
 
   // Set the proxy (if needed)
   if(this->ProxyURL && this->ProxyPort >=0)
@@ -154,6 +168,7 @@ void vtkQtRichTextView::Update()
   if(!representation)
     {
     this->Internal->UI.WebView->setHtml("");
+    this->Internal->UI.Title->setText("");
     return;
     }
   representation->Update();
@@ -170,6 +185,7 @@ void vtkQtRichTextView::Update()
   if(!table)
     {
     this->Internal->UI.WebView->setHtml("");
+    this->Internal->UI.Title->setText("");
     return;
     }
 
@@ -177,10 +193,21 @@ void vtkQtRichTextView::Update()
   if(table->GetNumberOfRows() == 0)
     {
     this->Internal->UI.WebView->setHtml("");
+    this->Internal->UI.Title->setText("");
     return;
     }
 
-  vtkSelection* s = representation->GetAnnotationLink()->GetCurrentSelection();
+  vtkAlgorithmOutput *annConn = representation->GetInternalAnnotationOutputPort();
+  if(!annConn)
+    {
+    this->Internal->UI.WebView->setHtml("");
+    this->Internal->UI.Title->setText("");
+    return;
+    }
+
+  annConn->GetProducer()->Update();
+  vtkAnnotationLayers* a = vtkAnnotationLayers::SafeDownCast(annConn->GetProducer()->GetOutputDataObject(0));
+  vtkSelection* s = a->GetCurrentAnnotation()->GetSelection();
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
@@ -189,24 +216,45 @@ void vtkQtRichTextView::Update()
   if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
     {
     this->Internal->UI.WebView->setHtml("");
+    this->Internal->UI.Title->setText("");
     return;
     }
+
+  this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
 
   vtkIdTypeArray* selectedRows = vtkIdTypeArray::SafeDownCast(selection->GetNode(0)->GetSelectionList());
   if(selectedRows->GetNumberOfTuples() == 0)
     {
     this->Internal->UI.WebView->setHtml("");
-    return;
+    this->Internal->UI.Title->setText("");
     }
+  else// if(selectedRows->GetNumberOfTuples() == 1)
+    {
+    vtkIdType row = selectedRows->GetValue(0);
+    this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToUnicodeString();
 
-  vtkIdType row = selectedRows->GetValue(0);
+    this->Internal->UI.WebView->setHtml(QString::fromUtf8(this->Internal->Content.utf8_str()));
+    QString url = this->Internal->UI.WebView->url().toString();
 
-  this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
+    if(this->TitleColumnName)
+      {
+      this->Internal->UI.Title->setText(table->GetValueByName(row, this->TitleColumnName).ToString().c_str());
+      }
+    }
+  /*
+  else
+    {
+    this->Internal->Content = "<html><body>";
+    for(vtkIdType i=0; i<selectedRows->GetNumberOfTuples(); ++i)
+      {
+      vtkIdType row = selectedRows->GetValue(i);
+      this->Internal->Content += table->GetValueByName(row, this->PreviewColumnName).ToUnicodeString();
+      }
+    this->Internal->Content += "</body></html>";
 
-  this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToUnicodeString();
-  //cerr << this->Internal->Content << endl;
-
-  this->Internal->UI.WebView->setContent(this->Internal->Content.utf8_str());
+    this->Internal->UI.WebView->setContent(this->Internal->Content.utf8_str());
+    }
+  */
 }
 
 void vtkQtRichTextView::onBack()
@@ -214,13 +262,33 @@ void vtkQtRichTextView::onBack()
   // This logic is a workaround for a quirk in QWebHistory
   if(this->Internal->UI.WebView->history()->currentItemIndex() <= 1)
     {
+    this->Internal->UI.WebView->back();
     this->Internal->UI.WebView->setHtml(QString::fromUtf8(this->Internal->Content.utf8_str()));
-    this->Internal->UI.WebView->history()->clear();
+    //this->Internal->UI.WebView->history()->clear();
     }
   else
     {
     this->Internal->UI.WebView->back();
     }
+
+  if(!this->Internal->UI.WebView->history()->canGoBack())
+    {
+    this->Internal->UI.BackButton->setEnabled(false);
+    }
+
+  this->Internal->UI.ForwardButton->setEnabled(true);
+}
+
+void vtkQtRichTextView::onForward()
+{
+  this->Internal->UI.WebView->forward();
+
+  if(!this->Internal->UI.WebView->history()->canGoForward())
+    {
+    this->Internal->UI.ForwardButton->setEnabled(false);
+    }
+
+  this->Internal->UI.BackButton->setEnabled(true);
 }
 
 void vtkQtRichTextView::onZoomIn()
@@ -242,4 +310,13 @@ void vtkQtRichTextView::onLoadProgress(int progress)
 {
   ViewProgressEventCallData callData("Web Page Loading", progress/100.0);
   this->InvokeEvent(vtkCommand::ViewProgressEvent, &callData);
+}
+
+void vtkQtRichTextView::onLinkClicked(const QUrl &url)
+{
+  this->Internal->UI.WebView->setUrl(url);
+
+  this->Internal->UI.BackButton->setEnabled(true);
+  this->Internal->UI.ForwardButton->setEnabled(false);
+
 }
