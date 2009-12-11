@@ -72,7 +72,7 @@ int TestQtDiagram( int argc, char * argv [] )
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 15);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     interactor->Start();
@@ -83,7 +83,7 @@ int TestQtDiagram( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram2);
-vtkCxxRevisionMacro(APIDiagram2, "1.3");
+vtkCxxRevisionMacro(APIDiagram2, "1.4");
 // This function draws our API diagram
 bool APIDiagram2::Paint(vtkContext2D *painter)
 {
