@@ -24,7 +24,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.25");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.26");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -228,6 +228,10 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
             {
             keySym = "Alt_L";
             keyPress = oldAltDown = altDown;
+            }
+          else
+            {
+            break;
             }
 
           me->SetKeyEventInformation(oldControlDown, oldShiftDown,
