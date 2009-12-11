@@ -30,7 +30,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.20");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.21");
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -191,7 +191,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     rep->SetSeedDisplayPosition(currentHandleNumber,e);
     currentHandle->SetEnabled(1);
     self->InvokeEvent(vtkCommand::PlacePointEvent,&(currentHandleNumber));
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,&(currentHandleNumber));
 
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
@@ -245,11 +245,25 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
   int state = self->WidgetRep->ComputeInteractionState(X,Y);
-  self->RequestCursorShape( state == vtkSeedRepresentation::NearSeed ? 
-                                    VTK_CURSOR_HAND : VTK_CURSOR_DEFAULT );
-  
-  self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+
+  // Change the cursor shape to a hand and invoke an interaction event if we 
+  // are near the seed
+  if (state == vtkSeedRepresentation::NearSeed)
+    {
+    self->RequestCursorShape( VTK_CURSOR_HAND );
+
+    vtkSeedRepresentation *rep = static_cast< 
+      vtkSeedRepresentation * >(self->WidgetRep);
+    int seedIdx = rep->GetActiveHandle();
+    self->InvokeEvent( vtkCommand::InteractionEvent, &seedIdx );
+
+    self->EventCallbackCommand->SetAbortFlag(1);
+    }
+  else
+    {
+    self->RequestCursorShape( VTK_CURSOR_DEFAULT );
+    }  
+
   self->Render();
 }
 

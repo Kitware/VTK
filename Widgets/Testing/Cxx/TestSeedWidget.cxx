@@ -444,9 +444,21 @@ class vtkSeedCallback : public vtkCommand
 public:
   static vtkSeedCallback *New() 
     { return new vtkSeedCallback; }
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  virtual void Execute(vtkObject*, unsigned long event, void *calldata)
     {
-      cout << "Point placed, total of:" << this->SeedRepresentation->GetNumberOfSeeds() << "\n";
+    if (event == vtkCommand::PlacePointEvent)
+      {
+      cout << "Point placed, total of: " 
+           << this->SeedRepresentation->GetNumberOfSeeds() << endl;
+      }
+    if (event == vtkCommand::InteractionEvent)
+      {
+      if (calldata)
+        {
+        cout << "Interacting with seed : " 
+             << *(static_cast< int * >(calldata)) << endl;
+        }
+      }
     }
   vtkSeedCallback() : SeedRepresentation(0) {}
   vtkSeedRepresentation *SeedRepresentation;
@@ -486,6 +498,7 @@ int TestSeedWidget( int argc, char *argv[] )
   vtkSeedCallback *scbk = vtkSeedCallback::New();
   scbk->SeedRepresentation = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,scbk);
+  widget->AddObserver(vtkCommand::InteractionEvent,scbk);
 
   // Add the actors to the renderer, set the background and size
   //

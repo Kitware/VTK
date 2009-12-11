@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.13");
 
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer );
 
@@ -136,6 +136,19 @@ void vtkHandleRepresentation::SetRenderer(vtkRenderer *ren)
   this->DisplayPosition->SetViewport(ren);
   this->WorldPosition->SetViewport(ren);
   this->Superclass::SetRenderer(ren);
+}
+
+//----------------------------------------------------------------------
+void vtkHandleRepresentation::DeepCopy(vtkProp *prop)
+{
+  vtkHandleRepresentation *rep = vtkHandleRepresentation::SafeDownCast(prop);
+  if ( rep )
+    {
+    this->SetTolerance(rep->GetTolerance());
+    this->SetActiveRepresentation(rep->GetActiveRepresentation());
+    this->SetConstrained(rep->GetConstrained());
+    }
+  this->Superclass::ShallowCopy(prop);
 }
 
 //----------------------------------------------------------------------

@@ -27,7 +27,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkSeedRepresentation, "1.11");
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
@@ -79,7 +79,7 @@ vtkHandleRepresentation *vtkSeedRepresentation
   else //create one
     {
     vtkHandleRepresentation *rep = this->HandleRepresentation->NewInstance();
-    rep->ShallowCopy(this->HandleRepresentation);
+    rep->DeepCopy(this->HandleRepresentation);
     this->Handles->push_back( rep );
     return rep;
     }

@@ -34,7 +34,7 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.3");
+vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.4");
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,Property,vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,SelectedProperty,vtkProperty);
 
@@ -512,7 +512,7 @@ void vtkAbstractPolygonalHandleRepresentation3D
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D::Highlight(int highlight)
 {
- this->Actor->SetProperty(highlight ? this->SelectedProperty : this->Property);
+  this->Actor->SetProperty(highlight ? this->SelectedProperty : this->Property);
 }
 
 //----------------------------------------------------------------------
@@ -611,6 +611,29 @@ void vtkAbstractPolygonalHandleRepresentation3D::ShallowCopy(vtkProp *prop)
     this->SetLabelText( rep->GetLabelText() );
     }
   this->Superclass::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------
+void vtkAbstractPolygonalHandleRepresentation3D::DeepCopy(vtkProp *prop)
+{
+  vtkAbstractPolygonalHandleRepresentation3D *rep = 
+    vtkAbstractPolygonalHandleRepresentation3D::SafeDownCast(prop);
+  if ( rep )
+    {
+    this->Property->DeepCopy(rep->GetProperty());
+    this->SelectedProperty->DeepCopy(rep->GetSelectedProperty());
+    this->Actor->SetProperty(this->Property);
+
+    // copy the handle shape
+    vtkPolyData *pd = vtkPolyData::New();
+    pd->DeepCopy( rep->HandleTransformFilter->GetInput() );
+    this->HandleTransformFilter->SetInput(pd);
+    pd->Delete();
+
+    this->LabelVisibility = rep->LabelVisibility;
+    this->SetLabelText( rep->GetLabelText() );
+    }
+  this->Superclass::DeepCopy(prop);
 }
 
 //----------------------------------------------------------------------

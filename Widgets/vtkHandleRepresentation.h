@@ -123,6 +123,7 @@ public:
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
   virtual void ShallowCopy(vtkProp *prop);
+  virtual void DeepCopy(vtkProp *prop);
   virtual void SetRenderer(vtkRenderer *ren);
 
   // Description:

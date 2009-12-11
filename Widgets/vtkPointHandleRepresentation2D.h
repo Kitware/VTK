@@ -81,6 +81,7 @@ public:
   // Description:
   // Methods to make this class behave as a vtkProp.
   virtual void ShallowCopy(vtkProp *prop);
+  virtual void DeepCopy(vtkProp *prop);
   virtual void GetActors2D(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
   virtual int RenderOverlay(vtkViewport *viewport);

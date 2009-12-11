@@ -31,7 +31,7 @@
 #include "vtkCamera.h"
 #include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.8");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.9");
 vtkStandardNewMacro(vtkPointHandleRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,Property,vtkProperty2D);
@@ -345,6 +345,21 @@ void vtkPointHandleRepresentation2D::ShallowCopy(vtkProp *prop)
     this->Actor->SetProperty(this->Property);
     }
   this->Superclass::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------
+void vtkPointHandleRepresentation2D::DeepCopy(vtkProp *prop)
+{
+  vtkPointHandleRepresentation2D *rep = 
+    vtkPointHandleRepresentation2D::SafeDownCast(prop);
+  if ( rep )
+    {
+    this->SetCursorShape(rep->GetCursorShape());
+    this->Property->DeepCopy(rep->GetProperty());
+    this->SelectedProperty->DeepCopy(rep->GetSelectedProperty());
+    this->Actor->SetProperty(this->Property);
+    }
+  this->Superclass::DeepCopy(prop);
 }
 
 //----------------------------------------------------------------------
