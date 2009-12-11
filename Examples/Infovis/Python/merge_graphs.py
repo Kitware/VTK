@@ -5,6 +5,9 @@ Python interface to VTK.
 
 from vtk import *
 
+xdim = 600
+ydim = 600
+
 #------------------------------------------------------------------------------
 # Script Entry Point
 #------------------------------------------------------------------------------
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     view.SetLayoutStrategyToSimple2D()
     view.SetVertexLabelFontSize(20)
     view.ApplyViewTheme(theme)
-    view.GetRenderWindow().SetSize(600, 600)
+    view.GetRenderWindow().SetSize(xdim, ydim)
     view.ResetCamera()
     view.Render()
 
@@ -83,7 +86,7 @@ if __name__ == "__main__":
     view2.SetLayoutStrategyToSimple2D()
     view2.SetVertexLabelFontSize(20)
     view2.ApplyViewTheme(theme)
-    view2.GetRenderWindow().SetSize(600, 600)
+    view2.GetRenderWindow().SetSize(xdim, ydim)
     view2.ResetCamera()
     view2.Render()
 
@@ -95,7 +98,7 @@ if __name__ == "__main__":
     view3.SetLayoutStrategyToSimple2D()
     view3.SetVertexLabelFontSize(20)
     view3.ApplyViewTheme(theme)
-    view3.GetRenderWindow().SetSize(600, 600)
+    view3.GetRenderWindow().SetSize(xdim, ydim)
     view3.ResetCamera()
     view3.Render()
 
