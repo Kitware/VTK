@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.43");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.44");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -64,7 +64,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Learn: " << this->LearnOption << endl;
   os << indent << "Derive: " << this->DeriveOption << endl;
   os << indent << "Assess: " << this->AssessOption << endl;
-  os << indent << "Test: " << this->AssessOption << endl;
+  os << indent << "Test: " << this->TestOption << endl;
   if ( this->AssessParameters )
     {
     this->AssessParameters->PrintSelf( os, indent.GetNextIndent() );
