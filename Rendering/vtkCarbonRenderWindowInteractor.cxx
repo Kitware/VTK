@@ -24,7 +24,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.26");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.27");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -166,7 +166,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
         }
       if (keySym == NULL)
         {
-        keySym == "None";
+        keySym = "None";
         }
 
       switch (GetEventKind(event))
