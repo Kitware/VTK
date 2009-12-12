@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.11");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.12");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -618,9 +618,8 @@ void vtkPCAStatistics::Derive( vtkDataObject* inMetaDO )
 
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
-                                      vtkDataObject* inMetaDO, 
-                                      vtkTable* outData, 
-                                      vtkDataObject* vtkNotUsed(outMetaDO) )
+                               vtkDataObject* inMetaDO, 
+                               vtkTable* outData )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || ! outData )

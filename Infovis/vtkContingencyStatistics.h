@@ -80,8 +80,7 @@ protected:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkDataObject* inMeta,
-                       vtkTable* outData,
-                       vtkDataObject* outMeta ); 
+                       vtkTable* outData ); 
   
   // Description:
   // Execute the calculations required by the Test option.

@@ -33,7 +33,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.19");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.20");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -69,8 +69,7 @@ int vtkBivariateStatisticsAlgorithm::RequestSelectedColumns()
 // ----------------------------------------------------------------------
 void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
                                               vtkDataObject* inMetaDO,
-                                              vtkTable* outData,
-                                              vtkDataObject* vtkNotUsed( outMeta ) )
+                                              vtkTable* outData )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
   if ( ! inMeta )

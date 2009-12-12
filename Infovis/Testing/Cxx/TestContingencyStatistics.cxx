@@ -110,10 +110,11 @@ int TestContingencyStatistics( int, char *[] )
   // 3: an invalid pair
   cs->AddColumnPair( "Source", "Dummy" );
 
-  // Test Learn, Derive, and Assess options
+  // Test Learn, Derive, Assess, and Test options
   cs->SetLearnOption( true );
   cs->SetDeriveOption( true );
   cs->SetAssessOption( true );
+  cs->SetTestOption( true );
   cs->Update();
 
   vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
@@ -320,14 +321,15 @@ int TestContingencyStatistics( int, char *[] )
     cout << "\n";
     }
 
-  // Last check some results of the Test option
+  // Last, check some results of the Test option
+  cout << "## Chi square statistics:\n";
 
   // Corresponding known number of degrees of freedom
   int nDOF[] = { 10, // (# ports - 1) x (# protocols - 1)
                  10  // (# ports - 1) x (# sources - 1) 
   };
 
-  cout << "## Chi square statistics:\n";
+  // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
     {
     cout << "   ("

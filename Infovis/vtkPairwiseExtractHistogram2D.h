@@ -156,8 +156,10 @@ protected:
   virtual void Derive( vtkDataObject* ) {};
 
   // Description:
-  // Execute the assess stuff. Not used.
-  virtual void Assess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* ) {};
+  // Execute the assess option. Not implemented.
+  virtual void Assess( vtkTable*, 
+                       vtkDataObject*, 
+                       vtkTable* ) {};
 
   // Description:
   // Given a collection of models, calculate aggregate model.  Not used

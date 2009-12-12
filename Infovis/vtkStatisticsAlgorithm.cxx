@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.42");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.43");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -42,8 +42,8 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   // If not told otherwise, only run Learn option
   this->LearnOption = true;
   this->DeriveOption = true;
-  this->FullWasDerived = false;
   this->AssessOption = false;
+  this->TestOption = false;
   this->AssessParameters = 0;
   this->AssessNames = vtkStringArray::New();
   this->Internals = new vtkStatisticsAlgorithmPrivate;
@@ -63,8 +63,8 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Learn: " << this->LearnOption << endl;
   os << indent << "Derive: " << this->DeriveOption << endl;
-  os << indent << "FullWasDerived: " << this->FullWasDerived << endl;
   os << indent << "Assess: " << this->AssessOption << endl;
+  os << indent << "Test: " << this->AssessOption << endl;
   if ( this->AssessParameters )
     {
     this->AssessParameters->PrintSelf( os, indent.GetNextIndent() );
@@ -172,9 +172,9 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   vtkTable* inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
   //
   // Extract output tables
-  vtkTable* outData = vtkTable::GetData( outputVector, 0 );
-  vtkDataObject* outMeta1 = vtkDataObject::GetData( outputVector, 1 );
-  vtkDataObject* outMeta2 = vtkDataObject::GetData( outputVector, 2 );
+  vtkTable*      outData  = vtkTable::GetData(      outputVector, OUTPUT_DATA );
+  vtkDataObject* outModel = vtkDataObject::GetData( outputVector, OUTPUT_MODEL );
+  vtkDataObject* outTest  = vtkDataObject::GetData( outputVector, OUTPUT_TEST );
 
   outData->ShallowCopy( inData );
 
@@ -189,10 +189,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   vtkDataObject* inMeta;
   if ( this->LearnOption )
     {
-    this->Learn( inData, inParameters, outMeta1 );
-
-    // The full model (if available) is no longer in sync
-    this->FullWasDerived = false;
+    this->Learn( inData, inParameters, outModel );
     }
   else
     {
@@ -205,24 +202,22 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
       return 1;
       }
 
-    outMeta1->ShallowCopy( inMeta );
-
-    // A full model was not derived so far
-    this->FullWasDerived = false;
+    outModel->ShallowCopy( inMeta );
     }
 
   if ( this->DeriveOption )
     {
-    this->Derive( outMeta1 );
-
-    // A full model was derived from the minimal model
-    this->FullWasDerived = true;
+    this->Derive( outModel );
     }
 
   if ( this->AssessOption )
     {
-    this->Test( inData, outMeta1, outMeta2 );
-    this->Assess( inData, outMeta1, outData, outMeta2 );
+    this->Assess( inData, outModel, outData );
+    }
+
+  if ( this->TestOption )
+    {
+    this->Test( inData, outModel, outTest );
     }
 
   return 1;

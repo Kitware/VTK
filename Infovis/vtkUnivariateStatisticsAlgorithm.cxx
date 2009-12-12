@@ -33,7 +33,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.31");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.32");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -69,8 +69,7 @@ int vtkUnivariateStatisticsAlgorithm::RequestSelectedColumns()
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
                                                vtkDataObject* inMetaDO,
-                                               vtkTable* outData,
-                                               vtkDataObject* vtkNotUsed( outMeta ) )
+                                               vtkTable* outData )
 {
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 

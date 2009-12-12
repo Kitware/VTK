@@ -26,8 +26,14 @@ PURPOSE.  See the above copyright notice for more information.
 // * Derive: given an input minimal statistical model, derive the full model 
 //   (e.g., descriptive statistics, quantiles, correlations, conditional
 //    probabilities).
+//   NB: It may be, or not be, a problem that a full model was not derived. For
+//   instance, when doing parallel calculations, one only wants to derive the full
+//   model after all partial calculations have completed. On the other hand, one
+//   can also directly provide a full model, that was previously calculated or
+//   guessed, and not derive a new one.
 // * Assess: given an input data set, input statistics, and some form of 
-//   threshold, assess a subset of the data set. 
+//   threshold, assess a subset of the data set.
+// * Test: perform at least one statistical test.
 // Therefore, a vtkStatisticsAlgorithm has the following vtkTable ports
 // * 3 input ports:
 //   * Data (mandatory)
@@ -120,6 +126,11 @@ public:
   vtkGetMacro( AssessOption, bool );
 
   // Description:
+  // Set/Get the Test option.
+  vtkSetMacro( TestOption, bool );
+  vtkGetMacro( TestOption, bool );
+
+  // Description:
   // Set/get assessment parameters.
   virtual void SetAssessParameters( vtkStringArray* );
   vtkGetObjectMacro(AssessParameters,vtkStringArray);
@@ -128,18 +139,6 @@ public:
   // Set/get assessment names.
   virtual void SetAssessNames( vtkStringArray* );
   vtkGetObjectMacro(AssessNames,vtkStringArray);
-
-  // Description:
-  // Let the user know whether the full statistical model (when available) was
-  // indeed derived from the underlying minimal model.
-  // NB: It may be, or not be, a problem that a full model was not derived. For
-  // instance, when doing parallel calculations, one only wants to derive the full
-  // model after all partial calculations have completed. On the other hand, one
-  // can also directly provide a full model, that was previously calculated or
-  // guessed, and not derive a new one; in this case, IsFullModelDerived() will
-  // always return false, but this does not mean that the full model is invalid 
-  // (nor does it mean that it is valid).
-  virtual int IsFullModelDerived() {return this->FullWasDerived;}
 
 //BTX
   // Description:
@@ -260,8 +259,7 @@ protected:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*,
                        vtkDataObject*,
-                       vtkTable*,
-                       vtkDataObject* ) = 0; 
+                       vtkTable* ) = 0; 
 
   // Description:
   // Execute the calculations required by the Test option.
@@ -281,7 +279,7 @@ protected:
   bool LearnOption;
   bool DeriveOption;
   bool AssessOption;
-  bool FullWasDerived;
+  bool TestOption;
   vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;
   vtkStatisticsAlgorithmPrivate* Internals;

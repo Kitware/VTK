@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.21");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.22");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -630,9 +630,8 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
 
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData, 
-                                                   vtkDataObject* inMetaDO, 
-                                                   vtkTable* outData, 
-                                                   vtkDataObject* vtkNotUsed(outMetaDO) )
+                                            vtkDataObject* inMetaDO, 
+                                            vtkTable* outData )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || ! outData )

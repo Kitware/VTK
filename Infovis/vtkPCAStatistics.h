@@ -191,8 +191,10 @@ protected:
   virtual void Derive( vtkDataObject* inMeta );
 
   // Description:
-  // Execute the calculations required by the Derive option.
-  virtual void Assess( vtkTable*, vtkDataObject*, vtkTable*, vtkDataObject* );
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable*, 
+                       vtkDataObject*, 
+                       vtkTable* );
 
   //BTX  
   // Description:
