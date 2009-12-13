@@ -186,6 +186,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkNormalizeMatrixVectors.cxx
     vtkPairwiseExtractHistogram2D.cxx
     vtkSparseArrayToTable.cxx
+    vtkTableToArray.cxx
     vtkTableToSparseArray.cxx
     vtkTransposeMatrix.cxx
     )
