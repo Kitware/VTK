@@ -31,6 +31,7 @@ theme = vtkViewTheme.CreateMellowTheme()
 theme.SetLineWidth(5)
 theme.SetPointSize(10)
 theme.SetCellOpacity(1)
+theme.SetVertexLabelColor(0, 0, 0)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 

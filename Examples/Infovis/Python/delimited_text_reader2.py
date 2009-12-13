@@ -4,7 +4,7 @@ csv_source = vtkDelimitedTextReader()
 csv_source.SetFieldDelimiterCharacters(",")
 csv_source.SetHaveHeaders(True)
 csv_source.SetDetectNumericColumns(True)
-csv_source.SetFileName("C:/Work/vtk_stuff/VTKData/Data/Infovis/authors.csv")
+csv_source.SetFileName("authors.csv")
 
 graph = vtkTableToGraph()
 graph.AddInputConnection(csv_source.GetOutputPort())
@@ -33,4 +33,3 @@ view.ResetCamera()
 view.Render()
 view.GetInteractor().Start()
 
-print graph.GetOutput()

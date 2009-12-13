@@ -38,8 +38,6 @@ graph.AddLinkVertex("dst", "ip", False)
 graph.AddLinkEdge("src", "dst")
 graph.Update()
 
-print graph.GetOutput()
-
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(graph.GetOutputPort())
 view.SetVertexLabelArrayName("hostname")
