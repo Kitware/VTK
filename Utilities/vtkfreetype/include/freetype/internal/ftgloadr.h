@@ -122,14 +122,14 @@ FT_BEGIN_HEADER
 
 
 #define FT_GLYPHLOADER_CHECK_P( _loader, _count )                    \
-   ( (_count) == 0 || (int)((_loader)->base.outline.n_points    +    \
+   ( (_count) == 0 || ((_loader)->base.outline.n_points    +              \
                             (_loader)->current.outline.n_points +    \
-                            (_count)) <= (int)(_loader)->max_points )
+                       (unsigned long)(_count)) <= (_loader)->max_points )
 
 #define FT_GLYPHLOADER_CHECK_C( _loader, _count )                     \
-  ( (_count) == 0 || (int)((_loader)->base.outline.n_contours    +    \
+  ( (_count) == 0 || ((_loader)->base.outline.n_contours    +              \
                            (_loader)->current.outline.n_contours +    \
-                           (_count)) <= (int)(_loader)->max_contours )
+                      (unsigned long)(_count)) <= (_loader)->max_contours )
 
 #define FT_GLYPHLOADER_CHECK_POINTS( _loader, _points,_contours )      \
   ( ( FT_GLYPHLOADER_CHECK_P( _loader, _points )   &&                  \

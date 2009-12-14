@@ -84,7 +84,7 @@
       FT_Byte*   p           = bdf->table;
       FT_UInt    version     = FT_NEXT_USHORT( p );
       FT_UInt    num_strikes = FT_NEXT_USHORT( p );
-      FT_UInt32  strings     = FT_NEXT_ULONG ( p );
+      FT_ULong   strings     = FT_NEXT_ULONG ( p );
       FT_UInt    count;
       FT_Byte*   strike;
 
@@ -147,7 +147,7 @@
     FT_Byte*  p;
     FT_UInt   count;
     FT_Byte*  strike;
-    FT_UInt   property_len;
+    FT_Offset  property_len;
 
 
     aprop->type = BDF_PROPERTY_TYPE_NONE;

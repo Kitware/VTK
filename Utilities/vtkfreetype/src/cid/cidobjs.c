@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CID objects manager (body).                                          */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006 by                   */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2008 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -195,14 +195,15 @@
   {
     CID_Face   face = (CID_Face)cidface;
     FT_Memory  memory;
+    CID_FaceInfo  cid;
+    PS_FontInfo   info;
 
 
-    if ( face )
-    {
-      CID_FaceInfo  cid  = &face->cid;
-      PS_FontInfo   info = &cid->font_info;
+    if ( !face )
+      return;
 
-
+    cid    = &face->cid;
+    info   = &cid->font_info;
       memory = cidface->memory;
 
       /* release subrs */
@@ -248,7 +249,6 @@
       FT_FREE( face->binary_data );
       FT_FREE( face->cid_stream );
     }
-  }
 
 
   /*************************************************************************/
@@ -324,6 +324,7 @@
       goto Exit;
 
     /* check the face index */
+    /* XXX: handle CID fonts with more than a single face */
     if ( face_index != 0 )
     {
       FT_ERROR(( "cid_face_init: invalid face index\n" ));

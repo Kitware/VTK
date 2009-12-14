@@ -2,7 +2,7 @@
 
     FreeType font driver for pcf files
 
-    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008 by
+    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009 by
     Francesco Zappa Nardelli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -111,7 +111,7 @@ THE SOFTWARE.
 
     while ( min < max )
     {
-      FT_UInt32  code;
+      FT_ULong  code;
 
 
       mid  = ( min + max ) >> 1;
@@ -140,7 +140,7 @@ THE SOFTWARE.
     PCF_CMap      cmap      = (PCF_CMap)pcfcmap;
     PCF_Encoding  encodings = cmap->encodings;
     FT_UInt       min, max, mid;
-    FT_UInt32     charcode  = *acharcode + 1;
+    FT_ULong      charcode  = *acharcode + 1;
     FT_UInt       result    = 0;
 
 
@@ -149,7 +149,7 @@ THE SOFTWARE.
 
     while ( min < max )
     {
-      FT_UInt32  code;
+      FT_ULong  code;
 
 
       mid  = ( min + max ) >> 1;
@@ -175,7 +175,14 @@ THE SOFTWARE.
     }
 
   Exit:
-    *acharcode = charcode;
+    if ( charcode > 0xFFFFFFFFUL )
+    {
+      FT_TRACE1(( "pcf_cmap_char_next: charcode 0x%x > 32bit API" ));
+      *acharcode = 0;
+      /* XXX: result should be changed to indicate an overflow error */
+    }
+    else
+      *acharcode = (FT_UInt32)charcode;
     return result;
   }
 
@@ -197,8 +204,13 @@ THE SOFTWARE.
   PCF_Face_Done( FT_Face  pcfface )         /* PCF_Face */
   {
     PCF_Face   face   = (PCF_Face)pcfface;
-    FT_Memory  memory = FT_FACE_MEMORY( face );
+    FT_Memory  memory;
 
+
+    if ( !face )
+      return;
+
+    memory = FT_FACE_MEMORY( face );
 
     FT_FREE( face->encodings );
     FT_FREE( face->metrics );
@@ -261,10 +273,15 @@ THE SOFTWARE.
     error = pcf_load_font( stream, face );
     if ( error )
     {
+      PCF_Face_Done( pcfface );
+
+#if defined( FT_CONFIG_OPTION_USE_ZLIB ) || \
+    defined( FT_CONFIG_OPTION_USE_LZW )
+
+#ifdef FT_CONFIG_OPTION_USE_ZLIB
+      {
       FT_Error  error2;
 
-
-      PCF_Face_Done( pcfface );
 
       /* this didn't work, try gzip support! */
       error2 = FT_Stream_OpenGzip( &face->gzip_stream, stream );
@@ -272,8 +289,11 @@ THE SOFTWARE.
         goto Fail;
 
       error = error2;
-      if ( error )
+      }
+#endif /* FT_CONFIG_OPTION_USE_ZLIB */
+
 #ifdef FT_CONFIG_OPTION_USE_LZW
+      if ( error )
       {
         FT_Error  error3;
 
@@ -284,6 +304,9 @@ THE SOFTWARE.
           goto Fail;
 
         error = error3;
+      }
+#endif /* FT_CONFIG_OPTION_USE_LZW */
+
         if ( error )
           goto Fail;
 
@@ -295,21 +318,12 @@ THE SOFTWARE.
         error = pcf_load_font( stream, face );
         if ( error )
           goto Fail;
-      }
-#else
-        goto Fail;
+
+#else /* !(FT_CONFIG_OPTION_USE_ZLIB || FT_CONFIG_OPTION_USE_LZW) */
+
+          goto Fail;
+
 #endif
-      else
-      {
-        face->gzip_source = stream;
-        pcfface->stream   = &face->gzip_stream;
-
-        stream = pcfface->stream;
-
-        error = pcf_load_font( stream, face );
-        if ( error )
-          goto Fail;
-      }
     }
 
     /* set up charmap */
@@ -408,7 +422,7 @@ THE SOFTWARE.
     switch ( req->type )
     {
     case FT_SIZE_REQUEST_TYPE_NOMINAL:
-      if ( height == ( bsize->y_ppem + 32 ) >> 6 )
+      if ( height == ( ( bsize->y_ppem + 32 ) >> 6 ) )
         error = PCF_Err_Ok;
       break;
 
@@ -437,11 +451,11 @@ THE SOFTWARE.
                   FT_Int32      load_flags )
   {
     PCF_Face    face   = (PCF_Face)FT_SIZE_FACE( size );
-    FT_Stream   stream = face->root.stream;
+    FT_Stream   stream;
     FT_Error    error  = PCF_Err_Ok;
     FT_Bitmap*  bitmap = &slot->bitmap;
     PCF_Metric  metric;
-    int         bytes;
+    FT_Offset   bytes;
 
     FT_UNUSED( load_flags );
 
@@ -453,6 +467,8 @@ THE SOFTWARE.
       error = PCF_Err_Invalid_Argument;
       goto Exit;
     }
+
+    stream = face->root.stream;
 
     if ( glyph_index > 0 )
       glyph_index--;
@@ -569,12 +585,17 @@ THE SOFTWARE.
       }
       else
       {
+        if ( prop->value.l > 0x7FFFFFFFL || prop->value.l < ( -1 - 0x7FFFFFFFL ) )
+        {
+          FT_TRACE1(( "pcf_get_bdf_property: " ));
+          FT_TRACE1(( "too large integer 0x%x is truncated\n" ));
+        }
         /* Apparently, the PCF driver loads all properties as signed integers!
          * This really doesn't seem to be a problem, because this is
          * sufficient for any meaningful values.
          */
         aproperty->type      = BDF_PROPERTY_TYPE_INTEGER;
-        aproperty->u.integer = prop->value.integer;
+        aproperty->u.integer = (FT_Int32)prop->value.l;
       }
       return 0;
     }

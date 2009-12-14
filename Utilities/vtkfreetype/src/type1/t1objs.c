@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 1 objects manager (body).                                       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -17,6 +17,7 @@
 
 
 #include <ft2build.h>
+#include FT_INTERNAL_CALC_H
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_STREAM_H
 #include FT_TRUETYPE_IDS_H
@@ -191,11 +192,15 @@
   FT_LOCAL_DEF( void )
   T1_Face_Done( T1_Face  face )
   {
-    if ( face )
-    {
-      FT_Memory  memory = face->root.memory;
-      T1_Font    type1  = &face->type1;
+    FT_Memory  memory;
+    T1_Font    type1;
 
+
+    if ( !face )
+      return;
+
+    memory = face->root.memory;
+    type1  = &face->type1;
 
 #ifndef T1_CONFIG_OPTION_NO_MM_SUPPORT
       /* release multiple masters information */
@@ -257,7 +262,6 @@
       face->root.family_name = NULL;
       face->root.style_name  = NULL;
     }
-  }
 
 
   /*************************************************************************/
@@ -323,7 +327,7 @@
       goto Exit;
 
     /* check the face index */
-    if ( face_index != 0 )
+    if ( face_index > 0 )
     {
       FT_ERROR(( "T1_Face_Init: invalid face index\n" ));
       error = T1_Err_Invalid_Argument;
@@ -340,7 +344,7 @@
 
 
       root->num_glyphs = type1->num_glyphs;
-      root->face_index = face_index;
+      root->face_index = 0;
 
       root->face_flags = FT_FACE_FLAG_SCALABLE    |
                          FT_FACE_FLAG_HORIZONTAL  |
@@ -464,7 +468,7 @@
 
         /* in case of error, keep the standard width */
         if ( !error )
-          root->max_advance_width = (FT_Short)max_advance;
+          root->max_advance_width = (FT_Short)FIXED_TO_INT( max_advance );
         else
           error = T1_Err_Ok;   /* clear error */
       }
@@ -488,7 +492,7 @@
 
         charmap.face = root;
 
-        /* first of all, try to synthetize a Unicode charmap */
+        /* first of all, try to synthesize a Unicode charmap */
         charmap.platform_id = 3;
         charmap.encoding_id = 1;
         charmap.encoding    = FT_ENCODING_UNICODE;
