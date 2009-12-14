@@ -58,9 +58,6 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#ifdef VTK_USE_MPI
-#include "mpi.h"
-#endif
 
 #include "vtkCosmoReader.h"
 #include "vtkDataArraySelection.h"
@@ -77,37 +74,16 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongArray.h"
 #include "vtkDataArray.h"
 #include "vtkConfigure.h"
+#include "vtkStdString.h"
 
 #ifdef VTK_TYPE_USE_LONG_LONG
 #include "vtkLongLongArray.h"
 #endif
 
-#include "vtkStdString.h"
-
-vtkCxxRevisionMacro(vtkCosmoReader, "1.20");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.21");
 vtkStandardNewMacro(vtkCosmoReader);
 
-namespace
-{
-  const int FILE_BIG_ENDIAN = 0;
-  const int FILE_LITTLE_ENDIAN = 1;
-  const int DIMENSION = 3;
-  
-  const int X          = 0; // Location X coordinate
-  const int X_VELOCITY = 1; // Velocity in X direction
-  const int Y          = 2; // Location Y coordinate
-  const int Y_VELOCITY = 3; // Velocity in Y direction
-  const int Z          = 4; // Location Z coordinate
-  const int Z_VELOCITY = 5; // Velocity in Z direction
-  const int MASS       = 6; // Mass of record item
-
-  const int NUMBER_OF_VAR = 3;
-  const size_t BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(vtkTypeFloat32);
-  
-  const int USE_VELOCITY = 0;
-  const int USE_MASS = 1;
-  const int USE_TAG = 2;
-}
+using namespace cosmo;
 
 //----------------------------------------------------------------------------
 vtkCosmoReader::vtkCosmoReader()
@@ -127,14 +103,6 @@ vtkCosmoReader::vtkCosmoReader()
   this->TagSize = 0;
   this->ComponentNumber = new vtkIdType[NUMBER_OF_VAR];
   this->VariableName = new vtkStdString[NUMBER_OF_VAR];
-
-#ifdef VTK_USE_MPI
-  MPI_Comm_rank(MPI_COMM_WORLD, &Rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &TotalRank);
-#else
-  Rank = 0;
-  TotalRank = 1;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -176,8 +144,7 @@ void vtkCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Byte Order: " 
      << (this->ByteOrder ? "LITTLE ENDIAN" : "BIG ENDIAN") << endl;
-  os << indent << "Rank: " << this->Rank << endl;
-  os << indent << "Total Rank: " << this->TotalRank << endl;
+
   os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
   os << indent << "BoxSize: " << this->BoxSize << endl;
   os << indent << "MakeCells: " << (this->MakeCells?"on":"off") << endl;
@@ -198,8 +165,6 @@ int vtkCosmoReader::RequestInformation(
     return 0;
     }
 
-  this->GetOutput()->SetMaximumNumberOfPieces(this->TotalRank);
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
     this->FileStream = new ifstream(this->FileName, ios::in | ios::binary);
 #else
@@ -215,7 +180,7 @@ int vtkCosmoReader::RequestInformation(
     vtkErrorMacro("Specified filename not found");
     return 0;
     }
-                                                                                
+                                                   
   // Calculates the number of particles based on record size
   this->ComputeDefaultRange();
 
@@ -237,9 +202,11 @@ int vtkCosmoReader::RequestInformation(
 
   vtkDebugMacro( << "RequestInformation: NumberOfNodes = "
                  << this->NumberOfNodes  << endl);
-  delete this->FileStream;
-
   vtkDebugMacro( << "end of RequestInformation\n");
+
+  delete this->FileStream;
+  this->FileStream = 0;
+
   return 1;
 }
 
@@ -257,15 +224,10 @@ int vtkCosmoReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
                                                                                 
   vtkDebugMacro( << "Reading Cosmo file");
-                                                                                
-  // If RequestInformation() failed the FileStream will be NULL
-  if ( this->FileStream == NULL )
-    {
-    return 0;
-    }
-                                                                                
+                                                                           
   // Read the file into the output unstructured grid
   this->ReadFile(output);
+
   return 1;
 }
 
@@ -289,31 +251,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     vtkErrorMacro("Specified filename not found");
     return;
     }
-
-  // Parallel pieces of unstructured grid output
-  int numberOfPieces;
-  numberOfPieces = output->GetUpdateNumberOfPieces();
-  numberOfPieces = output->GetUpdatePiece();
-  if (this->Rank > numberOfPieces)
-    {
-    output->Initialize();
-    return;
-    }
   
-  // Make sure the set range of particles or halos is legal
-  if (this->PositionRange[1] < 0)
-    {
-    this->PositionRange[1] = this->NumberOfNodes - 1;
-    }
-  if (this->PositionRange[0] < 0)
-    {
-    this->PositionRange[0] = 0;
-    }
-  if (this->PositionRange[0] > this->PositionRange[1])
-    {
-    this->PositionRange[0] = 0;
-    }
-
   // Make sure the stride across the data is legal
   if (this->Stride <= 0)
     {
@@ -430,8 +368,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   vtkTypeFloat32 block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
   char iBlock[sizeof(vtkTypeInt64)];  // it's either going to be 4 or 8
   int j = 0;
-  double min[DIMENSION], max[DIMENSION];
-  bool firstTime = true;
+  //bool firstTime = true;
 
   size_t tagBytes;
   if(this->TagSize)
@@ -441,12 +378,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   else
     {
     tagBytes = sizeof(vtkTypeInt32);
-    }
-
-  for (int i = 0; i < DIMENSION; i++)
-    {
-    min[i] = 0;
-    max[i] = -1;
     }
 
   // rewind the file
@@ -464,13 +395,10 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       this->UpdateProgress(progress);
       }
 
-    // If stride > 1 we use seek to position to read the data record
-    if (this->Stride > 1)
-      {
-      size_t position = 
-        i * (BYTES_PER_DATA_MINUS_TAG + tagBytes);
-      this->FileStream->seekg(position, ios::beg);
-      }
+    // seek and read
+    size_t position = 
+      i * (BYTES_PER_DATA_MINUS_TAG + tagBytes);
+    this->FileStream->seekg(position, ios::beg);
 
     // Read the floating point part of the data
     this->FileStream->read((char*)block, numFloats * sizeof(vtkTypeFloat32));
@@ -534,42 +462,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       output->InsertNextCell(1, 1, &vtkPointID);
       }
 
-    // Collect extents of positions
-    if (firstTime == true)
-      {
-      min[0] = max[0] = block[X];
-      min[1] = max[1] = block[Y];
-      min[2] = max[2] = block[Z];
-      firstTime = false;
-      }
-    else
-      {
-      if (min[0] > block[X]) 
-        {
-        min[0] = block[X];
-        }
-      if (max[0] < block[X]) 
-        {
-        max[0] = block[X];
-        }
-      if (min[1] > block[Y]) 
-        {
-        min[1] = block[Y];
-        }
-      if (max[1] < block[Y]) 
-        {
-        max[1] = block[Y];
-        }
-      if (min[2] > block[Z]) 
-        {
-        min[2] = block[Z];
-        }
-      if (max[2] < block[Z]) 
-        {
-        max[2] = block[Z];
-        }
-      }
-
     // Store velocity data if requested
     if (this->PointDataArraySelection->GetArraySetting(USE_VELOCITY))
       {
@@ -600,14 +492,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       tag->SetComponent(vtkPointID, 0, value);
       }
     } // end loop over PositionRange
-
-  // Set the point extents on the output data
-  GetOutput(0)->SetWholeExtent((int)floor(min[0]), (int)ceil(max[0]),
-                               (int)floor(min[1]), (int)ceil(max[1]),
-                               (int)floor(min[2]), (int)ceil(max[2]));
-  GetOutput(0)->SetWholeBoundingBox(0.0, this->BoxSize,
-                                    0.0, this->BoxSize,
-                                    0.0, this->BoxSize);
 
   // Clean up internal storage
   velocity->Delete();
@@ -641,6 +525,7 @@ void vtkCosmoReader::ComputeDefaultRange()
   // Divide by number of components per record (x,xv,y,yv,z,zv,mass,tag)
   // Divide by 4 for single precision float
   this->NumberOfNodes = fileLength / (BYTES_PER_DATA_MINUS_TAG + tagBytes);
+
   this->PositionRange[0] = 0;
   this->PositionRange[1] = this->NumberOfNodes - 1;
 }

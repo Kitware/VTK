@@ -17,11 +17,11 @@
   Program:   VTK/ParaView Los Alamos National Laboratory Modules (PVLANL)
   Module:    vtkCosmoReader.h
 
-Copyright (c) 2007, Los Alamos National Security, LLC
+Copyright (c) 2007, 2009 Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007. Los Alamos National Security, LLC. 
+Copyright 2007, 2009. Los Alamos National Security, LLC. 
 This software was produced under U.S. Government contract DE-AC52-06NA25396 
 for Los Alamos National Laboratory (LANL), which is operated by 
 Los Alamos National Security, LLC for the U.S. Department of Energy. 
@@ -84,10 +84,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // thing to do for subsampling since particle points are generated in
 // stripes.  A better thing to do would be to take a random sampling.
 //
-// .SECTION Thanks
-// Patricia Fasel (pfk@lanl.gov), Lee Ankeny (laa@lanl.gov) and 
-// Jim Ahrens (ahrens@lanl.gov)
-// Los Alamos National Laboratory
 
 #ifndef __vtkCosmoReader_h
 #define __vtkCosmoReader_h
@@ -97,12 +93,34 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataArraySelection;
 class vtkStdString;
 
+namespace cosmo
+{
+  const int FILE_BIG_ENDIAN = 0;
+  const int FILE_LITTLE_ENDIAN = 1;
+  const int DIMENSION = 3;
+  
+  const int X          = 0; // Location X coordinate
+  const int X_VELOCITY = 1; // Velocity in X direction
+  const int Y          = 2; // Location Y coordinate
+  const int Y_VELOCITY = 3; // Velocity in Y direction
+  const int Z          = 4; // Location Z coordinate
+  const int Z_VELOCITY = 5; // Velocity in Z direction
+  const int MASS       = 6; // Mass of record item
+
+  const int NUMBER_OF_VAR = 3;
+  const size_t BYTES_PER_DATA_MINUS_TAG = 7 * sizeof(vtkTypeFloat32);
+  
+  const int USE_VELOCITY = 0;
+  const int USE_MASS = 1;
+  const int USE_TAG = 2;
+}
+
 class VTK_IO_EXPORT vtkCosmoReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkCosmoReader *New();
   vtkTypeRevisionMacro(vtkCosmoReader, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the name of the cosmology particle binary file to read
@@ -110,22 +128,11 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Get the number of particles
-  vtkGetMacro(NumberOfNodes, int);
-
-  // Description:
   // Get the number of data variables at the cell centers
   vtkGetMacro(NumberOfVariables, int);
 
   // Description:
-  // Get the reader's output
-  vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int index);
-
-  // Description:
   // Set/Get the endian-ness of the binary file
-  void SetByteOrderToBigEndian();
-  void SetByteOrderToLittleEndian();
   vtkSetMacro(ByteOrder, int);
   vtkGetMacro(ByteOrder, int);
 
@@ -140,23 +147,7 @@ public:
 
   // Description:
   // Set/Get the range of indices of interest
-  vtkSetVector2Macro(PositionRange, vtkIdType);
   vtkGetVector2Macro(PositionRange, vtkIdType);
-
-  // Description:
-  // Using the file size determine how many data records exist
-  void ComputeDefaultRange();
-
-  // Description:
-  // The following methods allow selective reading of solutions fields.
-  // By default, ALL data fields on the nodes are read, but this can
-  // be modified.
-  int GetNumberOfPointArrays();
-  const char* GetPointArrayName(int index);
-  int GetPointArrayStatus(const char* name);
-  void SetPointArrayStatus(const char* name, int status);
-  void DisableAllPointArrays();
-  void EnableAllPointArrays();
 
   // Description:
   // When off (the default) only points are produced. When on, a VTK_VERTEX 
@@ -170,20 +161,44 @@ public:
   vtkSetMacro(TagSize, int);
   vtkGetMacro(TagSize, int);
 
+  // Description:
+  // Get the reader's output
+  virtual vtkUnstructuredGrid *GetOutput();
+  virtual vtkUnstructuredGrid *GetOutput(int index);
+
+  // Description:
+  // Set/Get the endian-ness of the binary file
+  virtual void SetByteOrderToBigEndian();
+  virtual void SetByteOrderToLittleEndian();
+
+  // Description:
+  // Using the file size determine how many data records exist
+  virtual void ComputeDefaultRange();
+
+  // Description:
+  // The following methods allow selective reading of solutions fields.
+  // By default, ALL data fields on the nodes are read, but this can
+  // be modified.
+  virtual int GetNumberOfPointArrays();
+  virtual const char* GetPointArrayName(int index);
+  virtual int GetPointArrayStatus(const char* name);
+  virtual void SetPointArrayStatus(const char* name, int status);
+  virtual void DisableAllPointArrays();
+  virtual void EnableAllPointArrays();
+
 protected:
   vtkCosmoReader();
   ~vtkCosmoReader();
  
-  int RequestInformation(vtkInformation *, 
+  virtual int RequestInformation(vtkInformation *, 
     vtkInformationVector **, vtkInformationVector *);
-  int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *, 
     vtkInformationVector **, vtkInformationVector *);
+
+  virtual void ReadFile(vtkUnstructuredGrid *);
 
   char* FileName; // Name of binary particle file
   ifstream *FileStream; // Data stream
-
-  int TotalRank; // Number of processors reading data
-  int Rank; // Which processor is running
 
   vtkIdType NumberOfNodes; // Number of particles
   int NumberOfVariables; // Number of attached data variables
@@ -199,14 +214,12 @@ protected:
   vtkStdString *VariableName;
   vtkIdType *ComponentNumber; // Components per variable
 
-  int MakeCells;
-  int TagSize;
+  int MakeCells; // Make cells for particles, not just points
+  int TagSize; // Size of the tag, 0 = 32-bit or 1 = 64-bit
 
 private:
   vtkCosmoReader(const vtkCosmoReader&);  // Not implemented.
   void operator=(const vtkCosmoReader&);  // Not implemented.
-
-  void ReadFile(vtkUnstructuredGrid *output);
 };
 
 #endif
