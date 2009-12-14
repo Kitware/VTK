@@ -79,6 +79,7 @@ view3.GetRepresentation(0).SetAnnotationLink(annotationLink)
 annotationLink.SetCurrentSelection(sel.GetOutput())
 
 updater = vtkViewUpdater()
+updater.AddAnnotationLink(annotationLink)
 updater.AddView(view)
 updater.AddView(view2)
 updater.AddView(view3)

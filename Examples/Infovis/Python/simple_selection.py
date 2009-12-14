@@ -27,6 +27,7 @@ view1.GetRepresentation(0).SetAnnotationLink(annotationLink)
 view2.GetRepresentation(0).SetAnnotationLink(annotationLink)
 
 updater = vtkViewUpdater()
+updater.AddAnnotationLink(annotationLink)
 updater.AddView(view1)
 updater.AddView(view2)
 

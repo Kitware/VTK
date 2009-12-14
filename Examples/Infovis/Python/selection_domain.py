@@ -61,6 +61,7 @@ if __name__ == "__main__":
     "person", "document", [0.75, 0.25])
 
   updater = vtkViewUpdater()
+  updater.AddAnnotationLink(link)
   updater.AddView(tc_view)
   updater.AddView(pd_view)
 
