@@ -670,6 +670,11 @@ IF (VTK_WRAP_TCL AND VTK_USE_TK)
   SET(KitTCL_SRCS
     vtkTkRenderWidget.cxx
     vtkTkImageViewerWidget.cxx)
+  IF (VTK_USE_COCOA)
+    SET(KitTCL_SRCS ${KitTCL_SRCS}
+      vtkCocoaTkUtilities.mm)
+    SET_SOURCE_FILES_PROPERTIES(vtkCocoaTkUtilities WRAP_EXCLUDE)
+  ENDIF(VTK_USE_COCOA)
 
   # Use special interactor for X and Tk.
   IF(VTK_USE_X)
@@ -712,6 +717,11 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
     vtkTkRenderWidgetPython.cxx
     vtkTkImageViewerWidgetPython.cxx
     )
+  IF (VTK_USE_COCOA)
+    SET(RenderingPythonTkWidgets_SRCS ${RenderingPythonTkWidgets_SRCS}
+        vtkCocoaTkUtilities.mm)
+  ENDIF (VTK_USE_COCOA)
+
   ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
               ${RenderingPythonTkWidgets_SRCS})
   SET(VTK_PYTHONTK_LIBRARIES ${VTK_TK_LIBRARIES})

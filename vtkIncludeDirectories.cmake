@@ -60,19 +60,24 @@ IF(VTK_INCLUDE_NEED_TK)
   
   # Need Tk internal headers for Tk initialization.
   SET (try_file "tkInt.h")
+  SET (try_paths)
   IF (WIN32)
     SET (try_file "tkWinPort.h")
   ENDIF (WIN32)
   IF (APPLE)
     SET (try_file "tkMacOSXDefault.h")
+    GET_FILENAME_COMPONENT(TK_INCLUDE_PATH_PARENT "${TK_INCLUDE_PATH}" PATH)
+    SET (try_paths "${TK_INCLUDE_PATH_PARENT}/PrivateHeaders")
   ENDIF (APPLE)
   IF (try_file)
     VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
     SET (TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
+    SET (try_paths ${try_paths} 
+         "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSIOND}")
     FIND_PATH(
        TK_INTERNAL_PATH 
        ${try_file} 
-       "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSIOND}"
+       PATHS ${try_paths}
        DOC "The path to the Tk internal headers (${try_file}).")
     MARK_AS_ADVANCED(TK_INTERNAL_PATH)
   ENDIF (try_file)

@@ -111,15 +111,6 @@ public:
     {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
     }
-  virtual void SetParentId(void *) 
-    {
-      vtkWarningMacro("Method not implemented.");
-    }
-  virtual void* GetGenericParentId()
-    {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
-    }
   virtual void* GetGenericDrawable()
     {
       vtkWarningMacro("Method not implemented.");
@@ -141,10 +132,12 @@ public:
   // a pointer to the window.
   virtual void SetWindowInfo(char*);
 
-  virtual void SetParentInfo(char*)
-    {
-      vtkWarningMacro("Method not implemented.");
-    }
+  // Description:
+  // See the documenation for SetParentId().  This method allows the ParentId
+  // to be set as an ASCII string of a decimal number that is the memory
+  // address of the parent NSView.
+  virtual void SetParentInfo(char*);
+
   void SetNextWindowId(void*)
     {
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
@@ -240,13 +233,14 @@ public:
   virtual void *GetGenericContext()   {return this->GetContextId();}
 
   // Description:
-  // Sets the NSWindow* associated with this vtkRenderWindow. This class' default
-  // behaviour, that is, if you never call SetWindowId()/SetRootWindow() is
-  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
-  // together to draw all vtk stuff into. If you already have an NSWindow and
-  // NSView and you want this class to use them you must call both SetRootWindow()
-  // and SetWindowId(), respectively, early on (before WindowInitialize() is
-  // executed). In the case of Java, you should call only SetWindowId().
+  // Sets the NSWindow* associated with this vtkRenderWindow.
+  // This class' default behaviour, that is, if you never call
+  // SetWindowId()/SetRootWindow() is to create an NSWindow and a
+  // vtkCocoaGLView (NSView subclass) which are used together to draw
+  // all vtk stuff into. If you already have an NSWindow and NSView and
+  // you want this class to use them you must call both SetRootWindow()
+  // and SetWindowId(), respectively, early on (before WindowInitialize()
+  // is executed). In the case of Java, you should call only SetWindowId().
   virtual void SetRootWindow(void *);
   
   // Description:
@@ -254,13 +248,14 @@ public:
   virtual void *GetRootWindow();
 
   // Description:
-  // Sets the NSView* associated with this vtkRenderWindow. This class' default
-  // behaviour, that is, if you never call this SetWindowId()/SetRootWindow() is
-  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
-  // together to draw all vtk stuff into. If you already have an NSWindow and
-  // NSView and you want this class to use them you must call both SetRootWindow()
-  // and SetWindowId(), respectively, early on (before WindowInitialize() is
-  // executed). In the case of Java, you should call only SetWindowId().
+  // Sets the NSView* associated with this vtkRenderWindow.
+  // This class' default behaviour, that is, if you never call this
+  // SetWindowId()/SetRootWindow() is to create an NSWindow and a
+  // vtkCocoaGLView (NSView subclass) which are used together to draw all
+  // vtk stuff into. If you already have an NSWindow and NSView and you
+  // want this class to use them you must call both SetRootWindow()
+  // and SetWindowId(), respectively, early on (before WindowInitialize()
+  // is executed). In the case of Java, you should call only SetWindowId().
   virtual void SetWindowId(void *);
 
   // Description:
@@ -268,6 +263,20 @@ public:
   virtual void *GetWindowId();
   virtual void *GetGenericWindowId() {return this->GetWindowId();}
   
+  // Description:
+  // Set the NSView* for the vtkRenderWindow to be parented within.  The
+  // Position and Size of the RenderWindow will set the rectangle of the
+  // NSView that the vtkRenderWindow will create within this parent.
+  // If you set the WindowId, then this ParentId will be ignored.
+  virtual void SetParentId(void *nsview);
+
+  // Description:
+  // Get the parent NSView* for this vtkRenderWindow.  This method will
+  // return "NULL" if the parent was not set with SetParentId() or 
+  // SetParentInfo().
+  virtual void *GetParentId();
+  virtual void *GetGenericParentId() { return this->GetParentId(); }
+
   // Description:
   // Returns the scaling factor for 'resolution independence', to convert
   // between points and pixels.
