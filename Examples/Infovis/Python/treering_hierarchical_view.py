@@ -13,9 +13,6 @@ reader2.SetEdgePedigreeIdArrayName("graph edge")
 reader2.GenerateVertexPedigreeIdsOff();
 reader2.SetVertexPedigreeIdArrayName("id");
 
-reader1.Update()
-reader2.Update()
-
 view = vtkTreeRingView()
 view.SetTreeFromInputConnection(reader2.GetOutputPort())
 view.SetGraphFromInputConnection(reader1.GetOutputPort())

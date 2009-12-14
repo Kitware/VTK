@@ -7,8 +7,14 @@ if not os.path.exists(xmlRootDir):
 
 treeReader = vtkXMLTreeReader()
 treeReader.SetFileName(xmlRootDir+"vtklibrary.xml")
+treeReader.SetEdgePedigreeIdArrayName("tree edge")
+treeReader.GenerateVertexPedigreeIdsOff();
+treeReader.SetVertexPedigreeIdArrayName("id");
 graphReader = vtkXMLTreeReader()
 graphReader.SetFileName(xmlRootDir+"vtkclasses.xml")
+graphReader.SetEdgePedigreeIdArrayName("graph edge")
+graphReader.GenerateVertexPedigreeIdsOff();
+graphReader.SetVertexPedigreeIdArrayName("id");
 
 # Create a tree layout strategy
 treeStrat = vtkTreeLayoutStrategy();
@@ -16,15 +22,17 @@ treeStrat.RadialOn()
 treeStrat.SetAngle(360)
 treeStrat.SetLogSpacingValue(1)
 
-# Display the tree in the tree map viewer
-view0 = vtkTreeMapView()
-view0.AddRepresentationFromInputConnection(treeReader.GetOutputPort());
+view0 = vtkTreeRingView()
+view0.SetTreeFromInputConnection(treeReader.GetOutputPort())
+view0.SetGraphFromInputConnection(graphReader.GetOutputPort())
+view0.SetAreaColorArrayName("VertexDegree")
+view0.SetEdgeColorArrayName("tree edge")
+view0.SetAreaHoverArrayName("id")
+view0.SetColorEdges(True)
 view0.SetAreaLabelArrayName("id")
-#view0.SetLayoutStrategyToBox()
-#view0.SetLayoutStrategyToSliceAndDice()
-view0.SetLayoutStrategyToSquarify()
-view0.SetFontSizeRange(16,8,4)
-view0.SetShrinkPercentage(.02)
+view0.SetAreaLabelVisibility(True)
+view0.SetShrinkPercentage(0.02)
+view0.SetBundlingStrength(.5)
 
 # Create a graph layout view
 view1 = vtkGraphLayoutView()
@@ -35,8 +43,8 @@ view1.SetVertexColorArrayName("VertexDegree")
 view1.SetColorVertices(True)
 view1.SetEdgeColorArrayName("edge_id")
 view1.SetColorEdges(True)
-#view1.SetLayoutStrategyToSimple2D()
-view1.SetLayoutStrategy(treeStrat)
+view1.SetLayoutStrategyToTree()
+
 
 view2 = vtkHierarchicalGraphView()
 view2.SetHierarchyFromInputConnection(treeReader.GetOutputPort())
@@ -57,7 +65,6 @@ theme.SetPointSize(10)
 theme.SetSelectedCellColor(1,1,1)
 theme.SetSelectedPointColor(1,1,1)
 view0.ApplyViewTheme(theme)
-view0.SetFontSizeRange(20, 8, 4)
 view1.ApplyViewTheme(theme)
 view2.ApplyViewTheme(theme)
 theme.FastDelete()

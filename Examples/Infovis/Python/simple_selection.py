@@ -21,7 +21,7 @@ view2.SetEdgeColorArrayName("edge weight")
 view2.SetColorEdges(True)
 view2.SetLayoutStrategyToTree()
 
-# Create a annotation link and set both view to use it
+# Create a annotation link and set both views to use it
 annotationLink = vtkAnnotationLink()
 view1.GetRepresentation(0).SetAnnotationLink(annotationLink)
 view2.GetRepresentation(0).SetAnnotationLink(annotationLink)

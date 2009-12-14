@@ -1,7 +1,13 @@
 from vtk import *
+import os.path
+
+dataRootDir = "../../../../VTKData/Data/Infovis/XML/"
+if not os.path.exists(dataRootDir):
+  dataRootDir = "../../../../../VTKData/Data/Infovis/XML/"
+
 
 reader1 = vtkXMLTreeReader()
-reader1.SetFileName("treetest.xml")
+reader1.SetFileName(dataRootDir + "vtklibrary.xml")
 reader1.Update()
 
 numeric = vtkStringToNumeric()
