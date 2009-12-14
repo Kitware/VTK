@@ -31,7 +31,7 @@ int main (int argc, char *argv[])
 {
   if (argc < 4)
     {
-    std:;cout << "Usage: " << argv[0] << " InputVolume StartLabel EndLabel" << endl;
+    cout << "Usage: " << argv[0] << " InputVolume StartLabel EndLabel" << endl;
     return EXIT_FAILURE;
     }
  
