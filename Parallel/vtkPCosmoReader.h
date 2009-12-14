@@ -89,10 +89,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkPCosmoReader_h
 
 #include "vtkCosmoReader.h"
-#include "vtkMultiProcessController.h"
 
 class vtkDataArraySelection;
 class vtkStdString;
+class vtkMultiProcessController;
 
 class VTK_PARALLEL_EXPORT vtkPCosmoReader : public vtkCosmoReader
 {
@@ -108,7 +108,7 @@ public:
   // Description:
   // Set the communicator object for interprocess communication
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
 
 protected:
   vtkPCosmoReader();
