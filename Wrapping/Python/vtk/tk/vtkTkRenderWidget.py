@@ -212,7 +212,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def Expose(self):
         if (not self.__InExpose):
             self.__InExpose = 1
-            self.update()
+            if (not self._RenderWindow.IsA('vtkCocoaRenderWindow')):
+                self.update()
             self._RenderWindow.Render()
             self.__InExpose = 0
 

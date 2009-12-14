@@ -284,7 +284,9 @@ namespace eval ::vtk {
                 $renwin SetDesiredUpdateRate [$iren GetDesiredUpdateRate]
             }
         }
-        update
+        if { ! [$renwin IsA vtkCocoaRenderWindow] } {
+          update
+        }
         $renwin Render
     }
 

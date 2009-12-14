@@ -186,7 +186,9 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
     def ExposeTkImageViewer(self):
         if (self._InExpose == 0):
             self._InExpose = 1
-            self.update()
+            if (not self._ImageViewer.GetRenderWindow().
+                IsA('vtkCocoaRenderWindow')):
+                self.update()
             self._ImageViewer.Render()
             self._InExpose = 0
 
