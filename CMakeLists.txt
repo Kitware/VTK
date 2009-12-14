@@ -1116,6 +1116,34 @@ IF(VTK_USE_BOOST)
 ENDIF(VTK_USE_BOOST)
 
 #-----------------------------------------------------------------------------
+# Add the option to use Matlab Mex and Matlab Engine
+OPTION(VTK_USE_MATLAB_MEX "Use Matlab Engine and Matlab Mex files.  Requires valid Matlab installation." OFF)
+MARK_AS_ADVANCED(VTK_USE_MATLAB_MEX)
+IF(VTK_USE_MATLAB_MEX)
+  IF(NOT VTK_USE_N_WAY_ARRAYS)
+    MESSAGE(SEND_ERROR "VTK_USE_N_WAY_ARRAYS must be enabled to build Matlab Engine and Matlab Mex interface.")
+  ENDIF(NOT VTK_USE_N_WAY_ARRAYS)
+  IF(NOT VTK_USE_INFOVIS)
+    MESSAGE(SEND_ERROR "VTK_USE_INFOVIS must be enabled to build Matlab Engine and Matlab Mex interface.")
+  ENDIF(NOT VTK_USE_INFOVIS)
+  FIND_PACKAGE(MatlabMex)
+ENDIF(VTK_USE_MATLAB_MEX)
+
+#-----------------------------------------------------------------------------
+# Add the option to use Gnu R interface for VTK
+OPTION(VTK_USE_GNU_R "Use Gnu R interface for VTK.  Requires Gnu R installation." OFF)
+MARK_AS_ADVANCED(VTK_USE_GNU_R)
+IF(VTK_USE_GNU_R)
+  IF(NOT VTK_USE_N_WAY_ARRAYS)
+    MESSAGE(SEND_ERROR "VTK_USE_N_WAY_ARRAYS must be enabled to build Gnu R interface.")
+  ENDIF(NOT VTK_USE_N_WAY_ARRAYS)
+  IF(NOT VTK_USE_INFOVIS)
+    MESSAGE(SEND_ERROR "VTK_USE_INFOVIS must be enabled to build Gnu R interface.")
+  ENDIF(NOT VTK_USE_INFOVIS)
+  FIND_PACKAGE(R)
+ENDIF(VTK_USE_GNU_R)
+
+#-----------------------------------------------------------------------------
 # Some classes require vtkTypeUInt64Array to be defined.
 # Make a flag for it here.
 SET(VTK_HAS_UINT64_ARRAY 0)

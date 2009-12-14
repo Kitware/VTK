@@ -281,6 +281,39 @@ vtkStreamer
 ABSTRACT
 )
 
+# Add Matlab Engine and Matlab Mex related files.
+IF(VTK_USE_MATLAB_MEX)
+  INCLUDE(${MATLAB_MEX_USE_FILE})
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkMatlabMexAdapter.cxx
+    vtkMatlabEngineInterface.cxx
+    vtkMatlabEngineFilter.cxx
+  )
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkMatlabMexAdapter.cxx
+    WRAP_EXCLUDE
+  )
+  SET(KIT_LIBS ${KIT_LIBS} ${MEX_LIBRARIES} ${MATLAB_ENGINE_LIBRARIES})
+ENDIF(VTK_USE_MATLAB_MEX)
+
+# Add Gnu R interface related files.
+IF(VTK_USE_GNU_R)
+  INCLUDE(${R_USE_FILE})
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkRRandomTableSource.cxx
+    vtkRCalculatorFilter.cxx
+    vtkRInterface.cxx
+    vtkRAdapter.cxx
+  )
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkRAdapter.cxx
+    WRAP_EXCLUDE
+  )
+  SET(KIT_LIBS ${KIT_LIBS} ${R_LIBRARIES})
+ENDIF(VTK_USE_GNU_R)
+
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS)
