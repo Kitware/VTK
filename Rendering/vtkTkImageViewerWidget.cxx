@@ -840,7 +840,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   // set the ParentId to the NSView
   vtkCocoaRenderWindow *imgWindow =
     static_cast<vtkCocoaRenderWindow *>(imgViewer->GetRenderWindow());
-  imgWindow->SetParentId(vtkTkMacOSXDrawableView(self->TkWin));
+  imgWindow->SetParentId(vtkCocoaTkUtilities::GetDrawableView(self->TkWin));
   imgWindow->SetSize(self->Width, self->Height);
 
 #endif

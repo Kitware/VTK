@@ -1192,7 +1192,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #else /* now the VTK_USE_COCOA section */
   Tk_MakeWindowExist(self->TkWin);
   // set the ParentId to the NSView of the Tk toplevel
-  renderWindow->SetParentId(vtkTkMacOSXDrawableView(self->TkWin));
+  renderWindow->SetParentId(vtkCocoaTkUtilities::GetDrawableView(self->TkWin));
   renderWindow->SetSize(self->Width, self->Height);
 #endif
 

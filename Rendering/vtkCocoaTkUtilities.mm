@@ -17,14 +17,25 @@
 #define MAC_OSX_TK 1
 #endif
 
+#include "vtkTcl.h"
 #include "vtkCocoaMacOSXSDKCompatibility.h"
 #include "tkMacOSXInt.h"
-#include "vtkIOStream.h"
+
+#include "vtkCocoaTkUtilities.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkCocoaTkUtilities, "1.2");
+vtkStandardNewMacro(vtkCocoaTkUtilities);
+
+void vtkCocoaTkUtilities::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 // Getting an NSView from a Tk widget is strictly internal to Tk, so we
 // have to duplicate that functionality here.  Hopefully this will be
 // included in the distributed PrivateHeaders in later releases of Tk.
-void* vtkTkMacOSXDrawableView(Tk_Window window)
+void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
 {
   MacDrawable *macWin = reinterpret_cast<TkWindow *>(window)->privatePtr;
 
