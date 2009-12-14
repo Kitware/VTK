@@ -72,7 +72,7 @@ int main (int argc, char **argv)
   // skin of the patient. Once generated, a vtkPolyDataNormals filter is
   // is used to create normals for smooth surface shading during rendering.
   // The triangle stripper is used to create triangle strips from the
-  // isosurface; these render much faster on may systems.
+  // isosurface; these render much faster on many systems.
   vtkSmartPointer<vtkContourFilter> skinExtractor =
     vtkSmartPointer<vtkContourFilter>::New();
   skinExtractor->SetInputConnection(v16->GetOutputPort());
