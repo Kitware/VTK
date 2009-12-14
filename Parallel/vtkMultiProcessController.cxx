@@ -29,9 +29,21 @@
 #include "vtkMPIController.h"
 #endif
 
+#include <vtksys/hash_map.hxx>
+
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkMultiProcessController);
+
+//-----------------------------------------------------------------------------
+// Stores internal members that cannot or should not be exposed in the header
+// file (for example, because they use templated types).
+class vtkMultiProcessController::vtkInternal
+{
+public:
+  vtksys::hash_map<int, vtkProcessFunctionType> MultipleMethod;
+  vtksys::hash_map<int, void *> MultipleData;
+};
 
 //----------------------------------------------------------------------------
 // Helper class to contain the RMI information.  
@@ -54,10 +66,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.37");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.38");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.37");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.38");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -85,7 +97,7 @@ static void vtkMultiProcessControllerRun(vtkMultiProcessController *c,
 //----------------------------------------------------------------------------
 vtkMultiProcessController::vtkMultiProcessController()
 {
-  int i;
+  this->Internal = new vtkInternal;
 
   this->RMICount = 1;
   
@@ -96,12 +108,6 @@ vtkMultiProcessController::vtkMultiProcessController()
 
   this->Communicator = 0;
   this->RMICommunicator = 0;
-  
-  for ( i = 0; i < VTK_MAX_THREADS; i++ )
-    {
-    this->MultipleMethod[i] = NULL;
-    this->MultipleData[i] = NULL;
-    }
 
   this->BreakFlag = 0;
   this->ForceDeepCopy = 1;
@@ -130,6 +136,8 @@ vtkMultiProcessController::~vtkMultiProcessController()
 
   this->RMIs->Delete();
   this->RMIs = NULL;
+
+  delete this->Internal;
 }
 
  
@@ -255,8 +263,26 @@ void vtkMultiProcessController::SetMultipleMethod( int index,
     }
   else
     {
-    this->MultipleMethod[index] = f;
-    this->MultipleData[index]   = data;
+    this->Internal->MultipleMethod[index] = f;
+    this->Internal->MultipleData[index]   = data;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkMultiProcessController::GetMultipleMethod(int index,
+                                                  vtkProcessFunctionType &func,
+                                                  void *&data)
+{
+  if (   this->Internal->MultipleMethod.find(index)
+      != this->Internal->MultipleMethod.end() )
+    {
+    func = this->Internal->MultipleMethod[index];
+    data = this->Internal->MultipleData[index];
+    }
+  else
+    {
+    func = NULL;
+    data = NULL;
     }
 }
 

@@ -70,9 +70,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.27");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.28");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.27");
+vtkCxxRevisionMacro(vtkMPIController, "1.28");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -282,10 +282,13 @@ void vtkMPIController::MultipleMethodExecute()
   
   if (i < this->GetNumberOfProcesses())
     {
-    if (this->MultipleMethod[i])
+    vtkProcessFunctionType multipleMethod;
+    void *multipleData;
+    this->GetMultipleMethod(i, multipleMethod, multipleData);
+    if (multipleMethod)
       {
       vtkMultiProcessController::SetGlobalController(this);
-      (this->MultipleMethod[i])(this, this->MultipleData[i]);
+      (multipleMethod)(this, multipleData);
       }
     else
       {

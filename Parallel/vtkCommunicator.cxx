@@ -38,6 +38,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkTemporalDataSet.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
@@ -46,7 +47,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.59");
+vtkCxxRevisionMacro(vtkCommunicator, "1.60");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -108,7 +109,7 @@ vtkCommunicator::vtkCommunicator()
 {
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
-  this->MaximumNumberOfProcesses = vtkMultiProcessController::MAX_PROCESSES;
+  this->MaximumNumberOfProcesses = vtkTypeTraits<int>::Max();
   this->Count = 0;
 }
 

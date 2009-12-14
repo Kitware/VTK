@@ -272,7 +272,6 @@ public:
 
   enum Consts 
   {
-    MAX_PROCESSES  = 8192,
     ANY_SOURCE     = -1,
     INVALID_SOURCE = -2
   };
@@ -910,11 +909,11 @@ protected:
   // instead of Send.
   virtual void TriggerRMIInternal(int remoteProcessId, 
     void* arg, int argLength, int rmiTag, bool propagate);
-  
+
   vtkProcessFunctionType      SingleMethod;
   void                       *SingleData;
-  vtkProcessFunctionType      MultipleMethod[MAX_PROCESSES];
-  void                       *MultipleData[MAX_PROCESSES];  
+
+  void GetMultipleMethod(int index, vtkProcessFunctionType &func, void *&data);
   
   vtkCollection *RMIs;
   
@@ -953,6 +952,11 @@ private:
   void operator=(const vtkMultiProcessController&);  // Not implemented.
 
   unsigned long RMICount;
+
+//BTX
+  class vtkInternal;
+  vtkInternal *Internal;
+//ETX
 };
 
 

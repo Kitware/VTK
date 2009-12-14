@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.54");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.55");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -592,12 +592,6 @@ int vtkMPICommunicator::InitializeNumberOfProcesses()
     vtkErrorMacro("MPI error occured: " << msg);
     delete[] msg;
     return 0;
-    }
-
-  if (this->MaximumNumberOfProcesses > vtkMultiProcessController::MAX_PROCESSES)
-    {
-    vtkWarningMacro("Maximum of " << vtkMultiProcessController::MAX_PROCESSES);
-    this->MaximumNumberOfProcesses = vtkMultiProcessController::MAX_PROCESSES;
     }
   
   this->NumberOfProcesses = this->MaximumNumberOfProcesses;

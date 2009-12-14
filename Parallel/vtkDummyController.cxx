@@ -16,7 +16,7 @@
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDummyController, "1.6");
+vtkCxxRevisionMacro(vtkDummyController, "1.7");
 vtkStandardNewMacro(vtkDummyController);
 
 vtkCxxSetObjectMacro(vtkDummyController, Communicator, vtkCommunicator);
@@ -65,13 +65,16 @@ void vtkDummyController::MultipleMethodExecute()
 {
   int i = this->GetLocalProcessId();
 
-  if (this->MultipleMethod[i])
+  vtkProcessFunctionType multipleMethod;
+  void *multipleData;
+  this->GetMultipleMethod(i, multipleMethod, multipleData);
+  if (multipleMethod)
     {
     // Should we set the global controller here?  I'm going to say no since
     // we are not really a parallel job or at the very least not the global
     // controller.
 
-    (this->MultipleMethod[i])(this, this->MultipleData[i]);
+    (multipleMethod)(this, multipleData);
     }
   else
     {
