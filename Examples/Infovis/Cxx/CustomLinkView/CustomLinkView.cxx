@@ -26,7 +26,6 @@
 #include <vtkViewUpdater.h>
 #include <vtkXMLTreeReader.h>
 
-
 #include <QDir>
 #include <QFileDialog>
 #include <QTreeView>
@@ -58,8 +57,10 @@ CustomLinkView::CustomLinkView()
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
 
   // Graph View needs to get my render window
-  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->GetInteractor());
-  this->ui->vtkGraphViewWidget->SetRenderWindow(this->GraphView->GetRenderWindow());
+  this->GraphView->SetInteractor(
+    this->ui->vtkGraphViewWidget->GetInteractor());
+  this->ui->vtkGraphViewWidget->SetRenderWindow(
+    this->GraphView->GetRenderWindow());
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
@@ -67,12 +68,16 @@ CustomLinkView::CustomLinkView()
   theme->Delete();
 
   // Set up action signals and slots
-  connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this, SLOT(slotOpenXMLFile()));
-  connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
+  connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this,
+    SLOT(slotOpenXMLFile()));
+  connect(this->ui->actionExit, SIGNAL(triggered()), this,
+    SLOT(slotExit()));
 
   // Apply application stylesheet
-  QString css = "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
-  css += "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
+  QString css =
+    "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
+  css +=
+    "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
   //qApp->setStyleSheet(css); // Seems to cause a bug on some systems
                               // But at least it's here as an example
 
@@ -82,10 +87,14 @@ CustomLinkView::CustomLinkView()
 // Set up the annotation between the vtk and qt views
 void CustomLinkView::SetupCustomLink()
 {
-  this->TreeView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
-  this->TableView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
-  this->ColumnView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
-  this->GraphView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
+  this->TreeView->GetRepresentation()->SetSelectionType(
+    vtkSelectionNode::PEDIGREEIDS);
+  this->TableView->GetRepresentation()->SetSelectionType(
+    vtkSelectionNode::PEDIGREEIDS);
+  this->ColumnView->GetRepresentation()->SetSelectionType(
+    vtkSelectionNode::PEDIGREEIDS);
+  this->GraphView->GetRepresentation()->SetSelectionType(
+    vtkSelectionNode::PEDIGREEIDS);
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
@@ -97,20 +106,33 @@ void CustomLinkView::SetupCustomLink()
   Connections = vtkEventQtSlotConnect::New();
 
   // Make the connection here.
-  // Requires vtkObject which generates the event of type vtkCommand::SelectionChangedEvent,
-  // pointer to object which has the given slot. vtkEvent of type SelectionChangedEvent
+  // Requires vtkObject which generates the event of type
+  // vtkCommand::SelectionChangedEvent, pointer to object
+  // which has the given slot. vtkEvent of type SelectionChangedEvent
   // from reach representation should invoke selectionChanged.
-  Connections->Connect(this->GraphView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
-                        this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
+  Connections->Connect(
+    this->GraphView->GetRepresentation(),
+    vtkCommand::SelectionChangedEvent,
+    this,
+    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 
-  Connections->Connect(this->TreeView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
-                        this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
+  Connections->Connect(
+    this->TreeView->GetRepresentation(),
+    vtkCommand::SelectionChangedEvent,
+    this,
+    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 
-  Connections->Connect(this->TableView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
-                        this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
+  Connections->Connect(
+    this->TableView->GetRepresentation(),
+    vtkCommand::SelectionChangedEvent,
+    this,
+    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 
-  Connections->Connect(this->ColumnView->GetRepresentation(), vtkCommand::SelectionChangedEvent,
-                        this, SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
+  Connections->Connect(
+    this->ColumnView->GetRepresentation(),
+    vtkCommand::SelectionChangedEvent,
+    this,
+    SLOT(selectionChanged(vtkObject*, unsigned long, void*, void*)));
 
 }
 
@@ -160,7 +182,8 @@ void CustomLinkView::slotOpenXMLFile()
 
 
   // Set the input to the graph view
-  this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
+  this->GraphView->SetRepresentationFromInputConnection(
+    this->XMLReader->GetOutputPort());
 
   // Okay now do an explicit reset camera so that
   // the user doesn't have to move the mouse
@@ -168,14 +191,17 @@ void CustomLinkView::slotOpenXMLFile()
   this->GraphView->ResetCamera();
 
   // Now hand off tree to the tree view
-  this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-  this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
+  this->TreeView->SetRepresentationFromInputConnection(
+    this->XMLReader->GetOutputPort());
+  this->ColumnView->SetRepresentationFromInputConnection(
+    this->XMLReader->GetOutputPort());
 
   // Extract a table and give to table view
   VTK_CREATE(vtkDataObjectToTable, toTable);
   toTable->SetInputConnection(this->XMLReader->GetOutputPort());
   toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
-  this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
+  this->TableView->SetRepresentationFromInputConnection(
+    toTable->GetOutputPort());
 
   this->SetupCustomLink();
 
@@ -196,22 +222,31 @@ void CustomLinkView::slotOpenXMLFile()
   this->GraphView->Render();
 }
 
-void CustomLinkView::slotExit() {
+void CustomLinkView::slotExit()
+{
   qApp->exit();
 }
 
-// This defines the QT slot. They way it works is first get the vtkSelection, push it to the
-// default \c vtkAnnotationLink associated with each \c vtkDataRepresentation of each view type
-// and then call Update or Render (if it is a vtkRenderView) on each view.
-void CustomLinkView::selectionChanged(vtkObject*, unsigned long, void* clientData, void* call_data)
+// This defines the QT slot. They way it works is first get the vtkSelection,
+// push it to the default vtkAnnotationLink associated with each
+// vtkDataRepresentation of each view type and then call Update or
+// Render (if it is a vtkRenderView) on each view.
+void CustomLinkView::selectionChanged(vtkObject*,
+                                      unsigned long,
+                                      void* vtkNotUsed(clientData),
+                                      void* callData)
 {
-  vtkSelection* selection = reinterpret_cast<vtkSelection*>(call_data);
+  vtkSelection* selection = reinterpret_cast<vtkSelection*>(callData);
   if(selection)
   {
-    this->GraphView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
-    this->TreeView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
-    this->TableView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
-    this->ColumnView->GetRepresentation()->GetAnnotationLink()->SetCurrentSelection(selection);
+    this->GraphView->GetRepresentation()->GetAnnotationLink()->
+      SetCurrentSelection(selection);
+    this->TreeView->GetRepresentation()->GetAnnotationLink()->
+      SetCurrentSelection(selection);
+    this->TableView->GetRepresentation()->GetAnnotationLink()->
+      SetCurrentSelection(selection);
+    this->ColumnView->GetRepresentation()->GetAnnotationLink()->
+      SetCurrentSelection(selection);
 
     this->TreeView->Update();
     this->TableView->Update();

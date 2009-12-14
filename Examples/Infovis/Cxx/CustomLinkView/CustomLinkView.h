@@ -41,12 +41,11 @@ class Ui_CustomLinkView;
 // Forward VTK class declarations
 class vtkCommand;
 class vtkEventQtSlotConnect;
-class vtkXMLTreeReader;
 class vtkGraphLayoutView;
+class vtkObject;
 class vtkQtTableView;
 class vtkQtTreeView;
-class vtkObject;
-
+class vtkXMLTreeReader;
 
 class CustomLinkView : public QMainWindow
 {
@@ -68,10 +67,12 @@ protected:
 protected slots:
 
 public slots:
-  // Qt signal (produced by vtkEventQtSlotConnect) will be connected to this slot.
+  // Qt signal (produced by vtkEventQtSlotConnect) will be connected to
+  // this slot.
   // Full signature of the slot could be:
-  // - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data, vtkCommand*)
-  void selectionChanged(vtkObject*, unsigned long, void*, void* call_data);
+  // MySlot(vtkObject* caller, unsigned long vtk_event,
+ //         void* clientData, void* callData, vtkCommand*)
+  void selectionChanged(vtkObject*, unsigned long, void*, void* callData);
 
 private:
 
