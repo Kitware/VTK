@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.10");
+vtkCxxRevisionMacro(vtkChartXY, "1.11");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -105,6 +105,11 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
+
+  int geometry[] = { this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight(),
+                     this->Geometry[2], this->Geometry[3],
+                     this->Geometry[4], this->Geometry[5] };
+  this->SetGeometry(geometry);
 
   // Check whether the geometry has been modified after the axes - update if so
   if (this->MTime > this->XAxis->GetMTime())
