@@ -108,7 +108,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.7");
+vtkCxxRevisionMacro(vtkContextScene, "1.8");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -158,6 +158,7 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
 void vtkContextScene::AddItem(vtkContextItem *item)
 {
   item->Register(this);
+  item->SetScene(this);
   this->Storage->items.push_back(item);
   this->Storage->itemState.push_back(false);
 }
@@ -178,6 +179,32 @@ vtkContextItem * vtkContextScene::GetItem(int index)
   else
     {
     return NULL;
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkContextScene::GetViewWidth()
+{
+  if (this->Window)
+    {
+    return this->Window->GetSize()[0];
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkContextScene::GetViewHeight()
+{
+  if (this->Window)
+    {
+    return this->Window->GetSize()[1];
+    }
+  else
+    {
+    return 0;
     }
 }
 

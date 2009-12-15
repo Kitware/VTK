@@ -22,16 +22,19 @@
 #include "vtkInteractorStyle.h"
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkTransform2D.h"
+#include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.2");
+vtkCxxRevisionMacro(vtkContextItem, "1.3");
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D)
+vtkCxxSetObjectMacro(vtkContextItem, Scene, vtkContextScene)
 
 //-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
 {
   this->Transform = NULL;//vtkTransform2D::New();
+  this->Scene = NULL;
   this->Opacity = 1.0;
 }
 
@@ -43,6 +46,7 @@ vtkContextItem::~vtkContextItem()
     this->Transform->Delete();
     this->Transform = NULL;
     }
+  this->SetScene(NULL);
 }
 
 //-----------------------------------------------------------------------------

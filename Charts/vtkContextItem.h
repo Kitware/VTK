@@ -25,6 +25,7 @@
 #include "vtkObject.h"
 
 class vtkContext2D;
+class vtkContextScene;
 class vtkTransform2D;
 struct vtkContextMouseEvent;
 
@@ -84,12 +85,21 @@ public:
   // Translate the item by the given dx, dy.
   void Translate(float dx, float dy);
 
+  // Description:
+  // Set the vtkContextScene for the item, always set for an item in a scene.
+  virtual void SetScene(vtkContextScene *scene);
+
+  // Description:
+  // Get the vtkContextScene for the item, always set for an item in a scene.
+  vtkGetObjectMacro(Scene, vtkContextScene);
+
 //BTX
 protected:
   vtkContextItem();
   ~vtkContextItem();
 
   vtkTransform2D *Transform;
+  vtkContextScene *Scene;
 
   double Opacity;
 

@@ -73,6 +73,18 @@ public:
   vtkSetVector2Macro(Geometry, int);
 
   // Description:
+  // Get the width and height of the scene in pixels.
+  vtkGetVector2Macro(Geometry, int);
+
+  // Description:
+  // Get the width of the view
+  virtual int GetViewWidth();
+
+  // Description:
+  // Get the height of the view
+  virtual int GetViewHeight();
+
+  // Description:
   // Add the scene as an observer on the supplied interactor style.
   void SetInteractorStyle(vtkInteractorStyle *interactor);
 
