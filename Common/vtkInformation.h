@@ -455,9 +455,6 @@ protected:
   VTK_COMMON_EXPORT void SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* value);
   VTK_COMMON_EXPORT vtkObjectBase* GetAsObjectBase(vtkInformationKey* key);
 
-  // Expand the table to a larger size
-  VTK_COMMON_EXPORT void ExpandTable();
-
   // Internal implementation details.
   vtkInformationInternals* Internal;
 

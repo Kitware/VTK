@@ -41,7 +41,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.32");
+vtkCxxRevisionMacro(vtkInformation, "1.33");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -77,19 +77,17 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkInformation::PrintKeys(ostream& os, vtkIndent indent)
 {
-  // Give each key a chance to print its value.
-  unsigned short i;
-  for (i = 0; i < this->Internal->TableSize; ++i)
+  typedef vtkInformationInternals::MapType MapType;
+  for(MapType::const_iterator i = this->Internal->Map.begin();
+      i != this->Internal->Map.end(); ++i)
     {
-    if (this->Internal->Keys[i])
-      {
-      // Print the key name first.
-      vtkInformationKey* key = this->Internal->Keys[i];
-      os << indent << key->GetName() << ": ";
-      // Ask the key to print its value.
-      key->Print(os, this);
-      os << "\n";
-      }
+    // Print the key name first.
+    vtkInformationKey* key = i->first;
+    os << indent << key->GetName() << ": ";
+
+    // Ask the key to print its value.
+    key->Print(os, this);
+    os << "\n";
     }
 }
 
@@ -128,26 +126,6 @@ int vtkInformation::GetNumberOfKeys()
 }
 
 //----------------------------------------------------------------------------
-// grow the table by a factor of 2
-void vtkInformation::ExpandTable()
-{
-  vtkInformationInternals* oldInternal = this->Internal;
-  this->Internal = new vtkInformationInternals(
-    static_cast<int>(oldInternal->TableSize*2.2));
-  
-  unsigned short i;
-  for (i = 0; i < oldInternal->TableSize; ++i)
-    {
-    if (oldInternal->Keys[i])
-      {
-      this->SetAsObjectBase(oldInternal->Keys[i],oldInternal->Values[i]);
-      }
-    }
-  delete oldInternal;
-}
-
-
-//----------------------------------------------------------------------------
 void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
                                      vtkObjectBase* newvalue)
 {
@@ -155,90 +133,28 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
     {
     return;
     }
-  
-  // compute the hash
-  unsigned short ohash = this->Internal->Hash(reinterpret_cast<unsigned long>(key));
-  unsigned short hash = ohash;
-  
-  // Check for an existing entry.
-  vtkInformationKey *val = this->Internal->Keys[hash];
-  // is there something in this hash slot
-  if (val)
+  typedef vtkInformationInternals::MapType MapType;
+  MapType::iterator i = this->Internal->Map.find(key);
+  if(i != this->Internal->Map.end())
     {
-    while (val && val != key && hash < this->Internal->TableSize -1)
+    vtkObjectBase* oldvalue = i->second;
+    if(newvalue)
       {
-      hash++;
-      val = this->Internal->Keys[hash];
-      }
-    // if we have exceeded the table size or have two collisions
-    if ((hash == this->Internal->TableSize -1  && val != key) || hash - ohash > 1)
-      {
-      this->ExpandTable();
-      this->SetAsObjectBase(key,newvalue);
-      return;
-      }
-    // if there is an entry for this key
-    if(val)
-      {
-      // Update the value.
-      vtkObjectBase* oldvalue = this->Internal->Values[hash];
-      if(newvalue)
-        {
-        // There is a new value.  Replace the entry.
-        this->Internal->Values[hash] = newvalue;
-        newvalue->Register(0);
-        }
-      // remove the value
-      else
-        {
-        // There is no new value.  Erase the entry.  and shift down any
-        // followup entries that hash to the same value, requires that they
-        // be sorted
-        hash++;
-        while (hash < this->Internal->TableSize && 
-               this->Internal->Keys[hash] && 
-               this->Internal->Hash(reinterpret_cast<unsigned long>
-                                    (this->Internal->Keys[hash])) < hash)
-          {
-          this->Internal->Keys[hash-1] = this->Internal->Keys[hash];
-          this->Internal->Values[hash-1] = this->Internal->Values[hash];
-          hash++;
-          }
-        // clear the final entry 
-        this->Internal->Keys[hash-1] = 0;
-        }
-      oldvalue->UnRegister(0);
-      }
-    // add an entry but after the desired hash location
-    else if (newvalue)
-      {
-      // start at ohash + 1 and find where we should instert this key
-      unsigned short hash2 = hash;
-      hash = ohash + 1;
-      while (this->Internal->Hash(reinterpret_cast<unsigned long>
-                                  (this->Internal->Keys[hash])) == ohash)
-        {
-        hash++;
-        }
-      // insert and shift the rest, hash is the insertion point
-      for (;hash2 > hash; --hash2)
-        {
-        this->Internal->Keys[hash2] = this->Internal->Keys[hash2-1];
-        this->Internal->Values[hash2] = this->Internal->Values[hash2-1];
-        }
-      this->Internal->Keys[hash2] = key;
-      this->Internal->Values[hash2] = newvalue;      
+      i->second = newvalue;
       newvalue->Register(0);
       }
+    else
+      {
+      this->Internal->Map.erase(i);
+      }
+    oldvalue->UnRegister(0);
     }
-  else if (newvalue)
+  else if(newvalue)
     {
-    // There is no entry with this key.  Create one and store the value.
+    MapType::value_type entry(key, newvalue);
+    this->Internal->Map.insert(entry);
     newvalue->Register(0);
-    this->Internal->Keys[hash] = key;
-    this->Internal->Values[hash] = newvalue;
     }
-  
   this->Modified(key);
 }
 
@@ -247,20 +163,11 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
 {
   if(key)
     {
-    // compute the hash
-    unsigned short hash = 
-      this->Internal->Hash(reinterpret_cast<unsigned long>(key));
-    
-    // Check for an existing entry.
-    vtkInformationKey *val = this->Internal->Keys[hash];
-        while (hash < this->Internal->TableSize - 1 && val && val != key)
+    typedef vtkInformationInternals::MapType MapType;
+    MapType::const_iterator i = this->Internal->Map.find(key);
+    if(i != this->Internal->Map.end())
       {
-      hash++;
-      val = this->Internal->Keys[hash];
-      }
-    if (val == key)
-      {
-      return this->Internal->Values[hash];
+      return i->second;
       }
     }
   return 0;
@@ -276,21 +183,15 @@ void vtkInformation::Clear()
 void vtkInformation::Copy(vtkInformation* from, int deep)
 {
   vtkInformationInternals* oldInternal = this->Internal;
+  this->Internal = new vtkInformationInternals;
   if(from)
     {
-    this->Internal = new vtkInformationInternals(from->Internal->TableSize);
-    unsigned short i;
-    for (i = 0; i < from->Internal->TableSize; ++i)
+    typedef vtkInformationInternals::MapType MapType;
+    for(MapType::const_iterator i = from->Internal->Map.begin();
+        i != from->Internal->Map.end(); ++i)
       {
-      if (from->Internal->Keys[i])
-        {
-        this->CopyEntry(from, from->Internal->Keys[i], deep);
-        }
+      this->CopyEntry(from, i->first, deep);
       }
-    }
-  else
-    {
-    this->Internal = new vtkInformationInternals;
     }
   delete oldInternal;
 }
@@ -904,15 +805,12 @@ void vtkInformation::UnRegister(vtkObjectBase* o)
 void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-
   // Ask each key/value pair to report any references it holds.
-  unsigned short i;
-  for (i = 0; i < this->Internal->TableSize; ++i)
+  typedef vtkInformationInternals::MapType MapType;
+  for(MapType::const_iterator i = this->Internal->Map.begin();
+      i != this->Internal->Map.end(); ++i)
     {
-    if (this->Internal->Keys[i])
-      {
-      this->Internal->Keys[i]->Report(this,collector);
-      }
+    i->first->Report(this, collector);
     }
 }
 
@@ -922,19 +820,11 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
 {
   if(key)
     {
-    unsigned short ohash = 
-      this->Internal->Hash(reinterpret_cast<unsigned long>(key));
-    while (this->Internal->Keys[ohash] && 
-           this->Internal->Keys[ohash] != key && 
-           ohash < this->Internal->TableSize)
+    typedef vtkInformationInternals::MapType MapType;
+    MapType::iterator i = this->Internal->Map.find(key);
+    if(i != this->Internal->Map.end())
       {
-      ohash++;
-      }
-    if (this->Internal->Keys[ohash] && ohash < this->Internal->TableSize)
-      {
-      vtkGarbageCollectorReport(collector, this->Internal->Values[ohash], 
-                                key->GetName());
-      return;
+      vtkGarbageCollectorReport(collector, i->second, key->GetName());
       }
     }
 }

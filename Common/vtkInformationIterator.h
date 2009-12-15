@@ -28,6 +28,7 @@
 
 class vtkInformation;
 class vtkInformationKey;
+class vtkInformationIteratorInternals;
 
 class VTK_COMMON_EXPORT vtkInformationIterator : public vtkObject
 {
@@ -68,7 +69,7 @@ protected:
   ~vtkInformationIterator();
 
   vtkInformation* Information;
-  unsigned short Index;
+  vtkInformationIteratorInternals* Internal;
 
 private:
   vtkInformationIterator(const vtkInformationIterator&);  // Not implemented.
