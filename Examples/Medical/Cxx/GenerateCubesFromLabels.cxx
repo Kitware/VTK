@@ -112,9 +112,9 @@ int main (int argc, char *argv[])
   for (unsigned int i = startLabel; i <= endLabel; i++)
     {
     // see if the label exists, if not skip it
-    unsigned int frequency =
+    double frequency =
       histogram->GetOutput()->GetPointData()->GetScalars()->GetTuple1(i);
-    if (frequency == 0)
+    if (frequency == 0.0)
       {
       continue;
       }
