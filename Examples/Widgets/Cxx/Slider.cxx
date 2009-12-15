@@ -19,11 +19,10 @@
 #include <vtkSliderRepresentation3D.h>
 #include <vtkProperty.h>
  
-// This does the actual work.
-// The callback does the work. After constructing the callback, the
-// program The callback keeps a pointer to the
-// sphere whose resolution is controlled. After constructing the
-// callback, the program sets the SphereSource of the callback with
+// The callback does the work.
+// The callback keeps a pointer to the sphere whose resolution is
+// controlled. After constructing the callback, the program sets the
+// SphereSource of the callback to 
 // the object to be controlled.
 class vtkSliderCallback : public vtkCommand
 {
