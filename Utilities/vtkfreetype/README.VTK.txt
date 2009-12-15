@@ -57,6 +57,9 @@ include/freetype/config/ftoption.h:
   -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_USE_LZW
   
 src/pshinter/pshalgo.c:
-  -commented out piece of code to workaround a bug, see bug 7199.
+  -commented out piece of code to workaround a bug, see bug 10052.
+
+src/truetype/ttgxvar.c
+  -fixed warning by taking post-2.3.11 code from freetype git
 
 searching for "VTK_FREETYPE_CHANGE" is a good idea too.

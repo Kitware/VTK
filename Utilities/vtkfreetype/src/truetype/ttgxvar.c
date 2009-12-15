@@ -216,7 +216,7 @@
     FT_Short  *deltas;
     FT_Int     runcnt;
     FT_Offset  i;
-    FT_Offset  j;
+    FT_UInt    j;
     FT_Memory  memory = stream->memory;
     FT_Error   error = TT_Err_Ok;
 
