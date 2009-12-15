@@ -37,9 +37,9 @@ namespace
 { \
   if(!(expression)) \
     { \
-    ostringstream buffer; \
+    vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw runtime_error(buffer.str()); \
+    throw vtkstd::runtime_error(buffer.str()); \
     } \
 }
 
