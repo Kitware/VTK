@@ -162,6 +162,7 @@ ELSE(VTK_BINARY_DIR)
       Tutorial/Step4/Cxx
       Tutorial/Step5/Cxx
       Tutorial/Step6/Cxx
+      Widgets/Cxx
       )
 
     IF(VTK_USE_N_WAY_ARRAYS)
