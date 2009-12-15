@@ -197,7 +197,7 @@ public:
                                            double param1,
                                            double param2,
                                            double param3,
-                                           char* ColumnName,
+                                           const char* ColumnName,
                                            int column_index);
 //ETX
 
@@ -207,7 +207,7 @@ public:
                                            double param1,
                                            double param2,
                                            double param3,
-                                           char* ColumnName,
+                                           const char* ColumnName,
                                            int column_index);
 
 
