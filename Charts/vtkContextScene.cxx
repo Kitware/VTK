@@ -108,7 +108,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.8");
+vtkCxxRevisionMacro(vtkContextScene, "1.9");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -135,7 +135,7 @@ vtkContextScene::~vtkContextScene()
   size_t size = this->Storage->items.size();
   for (size_t i = 0; i < size; ++i)
     {
-    this->Storage->items[i]->UnRegister(this);
+    this->Storage->items[i]->Delete();
     }
   delete this->Storage;
   this->Storage = NULL;
