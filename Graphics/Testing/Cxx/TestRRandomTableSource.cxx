@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestRRandomTableSource.cxx
+Program:   Visualization Toolkit
+Module:    TestRRandomTableSource.cxx
   
 -------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
+Copyright 2008 Sandia Corporation.
+Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
@@ -33,19 +33,19 @@
 namespace
 {
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    { \
-    vtksys_ios::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
-    } \
-}
+#define test_expression(expression)                                     \
+  {                                                                     \
+    if(!(expression))                                                   \
+      {                                                                 \
+      vtksys_ios::ostringstream buffer;                                 \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
+      throw vtkstd::runtime_error(buffer.str());                        \
+      }                                                                 \
+  }
 
-bool doubleEquals(double left, double right, double epsilon) {
-  return (fabs(left - right) < epsilon);
-}
+  bool doubleEquals(double left, double right, double epsilon) {
+    return (fabs(left - right) < epsilon);
+  }
 
 }
 
@@ -123,9 +123,11 @@ int TestRRandomTableSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     rts->Delete();
     return 0;
     }
-  catch(exception& e)
+
+  catch( vtkstd::exception& e )
     {
-    cerr << e.what() << endl;
+    cerr << e.what() 
+         << "\n";
     return 1;
     }
 }
