@@ -19,7 +19,7 @@
 
 =========================================================================*/
 
-#include <vtkRcalculatorFilter.h>
+#include <vtkRCalculatorFilter.h>
 #include <vtkSmartPointer.h>
 #include <vtkRRandomTableSource.h>
 #include <vtkDescriptiveStatistics.h>
