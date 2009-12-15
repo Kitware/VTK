@@ -80,7 +80,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongLongArray.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.21");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.22");
 vtkStandardNewMacro(vtkCosmoReader);
 
 using namespace cosmo;
@@ -429,14 +429,14 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       {
       vtkByteSwap::SwapVoidRange(block, numFloats, 
                                  (int)sizeof(vtkTypeFloat32));
-      vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
+      vtkByteSwap::SwapVoidRange(iBlock, numInts, (int)tagBytes);
       }
 #else
     if(this->ByteOrder == FILE_BIG_ENDIAN)
       {
       vtkByteSwap::SwapVoidRange(block, numFloats, 
                                  (int)sizeof(vtkTypeFloat32));
-      vtkByteSwap::SwapVoidRange(iBlock, numInts, tagBytes);
+      vtkByteSwap::SwapVoidRange(iBlock, numInts, (int)tagBytes);
       }
 #endif
 
