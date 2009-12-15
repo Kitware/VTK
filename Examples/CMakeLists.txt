@@ -86,6 +86,9 @@ IF(VTK_BINARY_DIR)
          --build-makeprogram ${CMAKE_MAKE_PROGRAM}
          --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
                          -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                         -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+                         -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
+                         -DCMAKE_OSX_SYSROOT:STRING=${CMAKE_OSX_SYSROOT}
                          -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
                          -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
                          -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
