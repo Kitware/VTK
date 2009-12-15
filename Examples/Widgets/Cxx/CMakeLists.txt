@@ -11,3 +11,6 @@ TARGET_LINK_LIBRARIES(Slider vtkRendering vtkWidgets)
 
 ADD_EXECUTABLE(Slider2D Slider2D.cxx)
 TARGET_LINK_LIBRARIES(Slider2D vtkRendering vtkWidgets)
+
+ADD_EXECUTABLE(BalloonWidget BalloonWidget.cxx)
+TARGET_LINK_LIBRARIES(BalloonWidget vtkRendering vtkWidgets)
