@@ -7,5 +7,7 @@ ENDIF(NOT VTK_USE_RENDERING)
 INCLUDE(${VTK_USE_FILE})
 
 ADD_EXECUTABLE(Slider Slider.cxx)
-
 TARGET_LINK_LIBRARIES(Slider vtkRendering vtkWidgets)
+
+ADD_EXECUTABLE(Slider2D Slider2D.cxx)
+TARGET_LINK_LIBRARIES(Slider2D vtkRendering vtkWidgets)
