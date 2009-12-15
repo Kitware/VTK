@@ -40,9 +40,9 @@ namespace
 { \
   if(!(expression)) \
     { \
-    ostringstream buffer; \
+    vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw runtime_error(buffer.str()); \
+    throw vtkstd::runtime_error(buffer.str()); \
     } \
 }
 
@@ -137,9 +137,10 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     rint->Delete();
     return 0;
     }
-  catch(exception& e)
+  catch( vtkstd::exception& e )
     {
-    cerr << e.what() << endl;
+    cerr << e.what() 
+         << "\n";
     return 1;
     }
 }
