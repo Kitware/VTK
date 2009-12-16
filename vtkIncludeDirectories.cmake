@@ -94,6 +94,11 @@ IF(VTK_USE_BOOST)
   SET(VTK_INCLUDE_DIRS_SYSTEM ${VTK_INCLUDE_DIRS_SYSTEM} ${Boost_INCLUDE_DIR})
 ENDIF(VTK_USE_BOOST)
 
+IF(VTK_USE_GNU_R)
+  # Boost include directories.
+  SET(VTK_INCLUDE_DIRS_SYSTEM ${VTK_INCLUDE_DIRS_SYSTEM} ${R_INCLUDE_DIR})
+ENDIF(VTK_USE_GNU_R)
+
 #-----------------------------------------------------------------------------
 # Include directories from the build tree.
 # ${VTK_BINARY_DIR}/Utilities is needed to access vtksys, which is prefixed

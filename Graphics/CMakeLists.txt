@@ -299,7 +299,6 @@ ENDIF(VTK_USE_MATLAB_MEX)
 
 # Add Gnu R interface related files.
 IF(VTK_USE_GNU_R)
-  INCLUDE(${R_USE_FILE})
   SET(Kit_SRCS
     ${Kit_SRCS}
     vtkRRandomTableSource.cxx
