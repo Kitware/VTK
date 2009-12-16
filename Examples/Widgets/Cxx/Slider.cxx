@@ -35,14 +35,15 @@ public:
     {
     vtkSliderWidget *sliderWidget = 
       reinterpret_cast<vtkSliderWidget*>(caller);
-    this->SphereSource->SetPhiResolution(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue()/2);
-    this->SphereSource->SetThetaResolution(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
+    int value = static_cast<int>(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
+    this->SphereSource->SetPhiResolution(value/2);
+    this->SphereSource->SetThetaResolution(value);
     }
   vtkSliderCallback():SphereSource(0) {}
   vtkSphereSource *SphereSource;
 };
  
-int main ()
+int main (int, char *[])
 {
   // A sphere
   vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
