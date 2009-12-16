@@ -285,7 +285,8 @@ public:
   {
     vtkDebugMacro(<< this->GetClassName() << " (" << this 
                   << "): setting EventPosition to (" << x << "," << y << ")");
-    if (this->EventPosition[0] != x || this->EventPosition[1] != y)
+    if (this->EventPosition[0] != x || this->EventPosition[1] != y ||
+        this->LastEventPosition[0] != x || this->LastEventPosition[1] != y)
       {
       this->LastEventPosition[0] = this->EventPosition[0];
       this->LastEventPosition[1] = this->EventPosition[1];
