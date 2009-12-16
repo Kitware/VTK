@@ -52,12 +52,14 @@
 {
   @private
   vtkCocoaRenderWindowRef myVTKRenderWindow;
+  int rolloverTrackingRectTag;
 }
 
 - (vtkCocoaRenderWindowRef)getVTKRenderWindow;
 - (void)setVTKRenderWindow:(vtkCocoaRenderWindowRef)theVTKRenderWindow;
 
 - (vtkCocoaRenderWindowInteractorRef)getInteractor;
+- (void)clearTrackingRect;
 
 @end
 

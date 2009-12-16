@@ -74,7 +74,6 @@
     }
 }
 
-
 //----------------------------------------------------------------------------
 - (void)drawRect:(NSRect)theRect
 {
@@ -84,6 +83,37 @@
     {
     myVTKRenderWindow->Render();
     }
+}
+
+//----------------------------------------------------------------------------
+- (void)resetTrackingRect
+{
+  //clear out the old tracking rect
+  [self clearTrackingRect];
+
+  //create a new tracking rect
+  rolloverTrackingRectTag = [self addTrackingRect:[self visibleRect]
+                                            owner:self
+                                         userData:NULL
+                                     assumeInside:NO];
+}
+
+//----------------------------------------------------------------------------
+- (void)clearTrackingRect
+{
+  // remove any tracking rect we have
+  if (rolloverTrackingRectTag > 0)
+    {
+    [self removeTrackingRect:rolloverTrackingRectTag];
+    rolloverTrackingRectTag=0;
+    }
+}
+
+//----------------------------------------------------------------------------
+- (void)resetCursorRects
+{
+  [super resetCursorRects];
+  [self resetTrackingRect];
 }
 
 //----------------------------------------------------------------------------
@@ -394,6 +424,87 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
   interactor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+}
+
+//----------------------------------------------------------------------------
+// Note: the mouseEntered/mouseExited events depend on the maintenance of
+// the Tracking Rect, which is handled by the resetTrackingRect,
+// clearTrackingRect and resetCursorRects methods above.
+- (void)mouseEntered:(NSEvent *)theEvent
+{
+  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
+  if (!interactor)
+    {
+    return;
+    }
+
+  vtkCocoaRenderWindow* renWin =
+    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
+
+  if (!renWin)
+    {
+    return;
+    }
+
+  // Retrieve the scaling factor.
+  double factor = renWin->GetScaleFactor();
+
+  // Get the location of the mouse event relative to this NSView's bottom
+  // left corner. Since this is a mouseevent, we can use locationInWindow.
+  NSPoint mouseLoc =
+    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
+  int altDown = ([theEvent modifierFlags] &
+                 (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
+
+  // The mouse location is in points, we must convert to pixels using the
+  // scaling factor.
+  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
+                                  (int)round(mouseLoc.y * factor),
+                                  controlDown, shiftDown);
+  interactor->SetAltKey(altDown);
+  interactor->InvokeEvent(vtkCommand::EnterEvent, NULL);
+}
+
+//----------------------------------------------------------------------------
+-(void)mouseExited:(NSEvent *)theEvent
+{
+  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
+  if (!interactor)
+    {
+    return;
+    }
+
+  vtkCocoaRenderWindow* renWin =
+    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
+
+  if (!renWin)
+    {
+    return;
+    }
+
+  // Retrieve the scaling factor.
+  double factor = renWin->GetScaleFactor();
+
+  // Get the location of the mouse event relative to this NSView's bottom
+  // left corner. Since this is a mouseevent, we can use locationInWindow.
+  NSPoint mouseLoc =
+    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+
+  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
+  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
+  int altDown = ([theEvent modifierFlags] &
+                 (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
+
+  // The mouse location is in points, we must convert to pixels using the
+  // scaling factor.
+  interactor->SetEventInformation((int)round(mouseLoc.x * factor),
+                                  (int)round(mouseLoc.y * factor),
+                                  controlDown, shiftDown);
+  interactor->SetAltKey(altDown);
+  interactor->InvokeEvent(vtkCommand::LeaveEvent, NULL);
 }
 
 //----------------------------------------------------------------------------
