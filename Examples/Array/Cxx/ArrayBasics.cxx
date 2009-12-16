@@ -88,4 +88,3 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   
   return 0;
 }
-
