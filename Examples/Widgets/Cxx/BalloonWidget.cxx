@@ -73,12 +73,12 @@ int main ()
   renderer->AddActor(sphereActor);
   renderer->AddActor(regularPolygonActor);
 
-  // render an image (lights and cameras are created automatically)
+  // Render an image (lights and cameras are created automatically)
   renderWindow->Render();
   balloonWidget->EnabledOn();
  
-  // begin mouse interaction
+  // Begin mouse interaction
   renderWindowInteractor->Start();
  
-  return 0;
+  return EXIT_SUCCESS;
 }
