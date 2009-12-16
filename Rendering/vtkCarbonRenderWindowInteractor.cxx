@@ -24,7 +24,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.27");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.28");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -34,6 +34,7 @@ void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *)
   = (void (*)(void *))NULL;
 
 //--------------------------------------------------------------------------
+// Translate a char to the Tk equivalent keysym for compability
 static const char *vtkMacCharCodeToKeySymTable[128] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -55,6 +56,7 @@ static const char *vtkMacCharCodeToKeySymTable[128] = {
 };
 
 //--------------------------------------------------------------------------
+// Translate a virtual keycode to the Tk equivalent keysym for compability
 static const char *vtkMacKeyCodeToKeySymTable[128] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -109,6 +111,21 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
   UInt32 altKey = cmdKey | optionKey;
   int altDown = ((modifierKeys & altKey) != 0);
   
+  // Capture mouse position for non-mouse events.  Carbon itself does
+  // not provide mouse positions for these events, but VTK expects them.
+  int deltaX, deltaY;
+  CGGetLastMouseDelta(&deltaX, &deltaY);
+  if (eventClass != kEventClassMouse)
+    {
+    int mousePos[2], lastDelta[2];
+    me->GetEventPosition(mousePos);
+    me->GetLastMouseDelta(lastDelta);
+    mousePos[0] += lastDelta[0] + deltaX;
+    mousePos[1] += lastDelta[1] - deltaY;
+    me->SetEventPosition(mousePos);
+    }
+  me->SetLastMouseDelta(0, 0);
+
   switch (eventClass)
     {
     case kEventClassControl:
@@ -259,8 +276,10 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       HIViewRef view_for_mouse;
       HIViewRef root_window = HIViewGetRoot(ren->GetRootWindow());
       HIViewGetViewForMouseEvent(root_window, event, &view_for_mouse);
-      if(view_for_mouse != ren->GetWindowId())
+      if (view_for_mouse != ren->GetWindowId())
+        {
         return eventNotHandledErr;
+        }
 
       GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint,
                         NULL, sizeof(HIPoint), NULL, &mouseLoc);
@@ -274,6 +293,16 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       me->SetEventInformationFlipY(int(mouseLoc.x), int(mouseLoc.y),
                                    controlDown, shiftDown);
       me->SetAltKey(altDown);
+
+      // look for enter/leave
+      if (!me->GetMouseInsideWindow())
+        {
+        me->SetMouseInsideWindow(1);
+        // This will fix the LastEventPosition
+        me->SetEventPositionFlipY(int(mouseLoc.x), int(mouseLoc.y));
+        me->InvokeEvent(vtkCommand::EnterEvent,NULL);
+        }
+
       switch (GetEventKind(event))
         {
         case kEventMouseDown:
@@ -373,6 +402,10 @@ vtkCarbonRenderWindowInteractor::vtkCarbonRenderWindowInteractor()
   this->InstallMessageProc = 1;
   this->ViewProcUPP        = NULL;
   this->WindowProcUPP      = NULL;
+  this->MouseInsideWindow  = 0;
+  this->LeaveCheckId       = 0;
+  this->LastMouseDelta[0]  = 0;
+  this->LastMouseDelta[1]  = 0;
 }
 
 //--------------------------------------------------------------------------
@@ -429,6 +462,37 @@ void vtkCarbonRenderWindowInteractor::Initialize()
 }
 
 //--------------------------------------------------------------------------
+// A timer for checking when mouse leaves window
+pascal void vtkCarbonLeaveCheck(EventLoopTimerRef platformTimerId,
+                                void *userData)
+{
+  if (NULL != userData)
+    {
+    vtkCarbonRenderWindowInteractor *me =
+      static_cast<vtkCarbonRenderWindowInteractor *>(userData);
+    vtkRenderWindow *win = me->GetRenderWindow();
+    int deltaX, deltaY;
+    CGGetLastMouseDelta(&deltaX, &deltaY);
+    int delta[2];
+    me->GetLastMouseDelta(delta);
+    delta[0] += deltaX;
+    delta[1] -= deltaY;
+    int *size = win->GetSize();
+    int *pos = me->GetEventPosition();
+    int x = pos[0] + delta[0];
+    int y = pos[1] + delta[1];
+    if (me->GetMouseInsideWindow() && 
+        (x < 0 || x >= size[0] || y < 0 || y >= size[1]))
+      {
+      me->SetMouseInsideWindow(0);
+      me->SetEventPosition(x, y);
+      me->InvokeEvent(vtkCommand::LeaveEvent,NULL);
+      }
+    me->SetLastMouseDelta(delta[0], delta[1]);
+    }
+}
+
+//--------------------------------------------------------------------------
 void vtkCarbonRenderWindowInteractor::Enable()
 {
   if (this->Enabled)
@@ -436,7 +500,6 @@ void vtkCarbonRenderWindowInteractor::Enable()
     return;
     }
 
-  
   if (this->InstallMessageProc)
     {
     // set up the event handling
@@ -479,6 +542,19 @@ void vtkCarbonRenderWindowInteractor::Enable()
         renWin->GetRootWindow(), this->WindowProcUPP,
         GetEventTypeCount(windowEventList), windowEventList, renWin, NULL);
       }
+
+    // Create a timer for checking when mouse is outside window
+    this->LastMouseDelta[0] = 0;
+    this->LastMouseDelta[1] = 0;
+    this->MouseInsideWindow = 0;
+    EventLoopRef       mainLoop = GetMainEventLoop();
+    EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(vtkCarbonLeaveCheck);
+    InstallEventLoopTimer(mainLoop,
+                          100*kEventDurationMillisecond,
+                          100*kEventDurationMillisecond,
+                          timerUPP,
+                          this,
+                          (EventLoopTimerRef *)&this->LeaveCheckId);
     }
 
   this->Enabled = 1;
@@ -492,6 +568,11 @@ void vtkCarbonRenderWindowInteractor::Disable()
     {
     return;
     }
+  if (this->LeaveCheckId)
+    {
+    RemoveEventLoopTimer((EventLoopTimerRef)this->LeaveCheckId);
+    this->LeaveCheckId = 0;
+    }
   this->Enabled = 0;
   this->Modified();
 }
@@ -503,14 +584,15 @@ void vtkCarbonRenderWindowInteractor::TerminateApp(void)
 }
 
 //--------------------------------------------------------------------------
-pascal void TimerAction(EventLoopTimerRef platformTimerId, void* userData)
+pascal void vtkCarbonTimerAction(EventLoopTimerRef platformTimerId,
+                                 void* userData)
 {
   if (NULL != userData)
     {
     vtkCarbonRenderWindowInteractor *rwi =
       static_cast<vtkCarbonRenderWindowInteractor *>(userData);
-    int vtkTimerId = rwi->GetVTKTimerId((int) platformTimerId);
-    rwi->InvokeEvent(vtkCommand::TimerEvent, (void *) &vtkTimerId);
+    int timerId = rwi->GetVTKTimerId((int)platformTimerId);
+    rwi->InvokeEvent(vtkCommand::TimerEvent, (void *)&timerId);
     }
 }
 
@@ -520,7 +602,7 @@ int vtkCarbonRenderWindowInteractor::InternalCreateTimer(
 {
   EventLoopTimerRef  platformTimerId;
   EventLoopRef       mainLoop = GetMainEventLoop();
-  EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(TimerAction);
+  EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(vtkCarbonTimerAction);
   EventTimerInterval interval = 0;
 
   // Carbon's InstallEventLoopTimer can create either one-shot or repeating
