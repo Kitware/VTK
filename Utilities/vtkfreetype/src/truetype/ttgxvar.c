@@ -94,11 +94,8 @@
 #define ALL_POINTS  (FT_UShort*)( -1 )
 
 
-  enum
-  {
-    GX_PT_POINTS_ARE_WORDS     = 0x80,
-    GX_PT_POINT_RUN_COUNT_MASK = 0x7F
-  };
+#define GX_PT_POINTS_ARE_WORDS      0x80
+#define GX_PT_POINT_RUN_COUNT_MASK  0x7F
 
 
   /*************************************************************************/
