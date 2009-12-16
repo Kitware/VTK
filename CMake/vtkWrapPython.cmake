@@ -129,7 +129,7 @@ ENDMACRO(VTK_WRAP_PYTHON3)
 
 IF(VTK_WRAP_PYTHON_FIND_LIBS)
   GET_FILENAME_COMPONENT(_CURRENT_DIR  "${CMAKE_CURRENT_LIST_FILE}" PATH)
-  INCLUDE("${_CURRENT_DIR}/FindPythonLibs.cmake")
+  INCLUDE(FindPythonLibs)
 
   # Use separate debug/optimized libraries if they are different.
   IF(PYTHON_DEBUG_LIBRARY)
