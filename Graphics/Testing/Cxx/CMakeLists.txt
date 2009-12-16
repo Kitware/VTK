@@ -39,7 +39,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
   # Add Gnu R interface related files.
   IF(VTK_USE_GNU_R)
-    INCLUDE(${R_USE_FILE})
     SET(MyTests ${MyTests}
       TestRRandomTableSource.cxx
       TestRCalculatorFilter.cxx

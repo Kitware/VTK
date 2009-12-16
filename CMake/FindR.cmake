@@ -13,5 +13,7 @@ FIND_PATH(R_INCLUDE_DIR "R.h" DOC "Path to file R.h")
 
 FIND_LIBRARY(R_LIBRARY R DOC "R library (example libR.a, libR.dylib, etc.).")
 
+FIND_PATH(R_UTILITY_LIBRARY_PATH Rblas DOC "Directory containing Rblas and Rlapack libraries.")
+
 FIND_PROGRAM(R_COMMAND R DOC "R executable.")
 
