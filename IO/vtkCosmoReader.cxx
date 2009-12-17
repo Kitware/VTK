@@ -80,7 +80,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongLongArray.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.22");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.23");
 vtkStandardNewMacro(vtkCosmoReader);
 
 using namespace cosmo;
@@ -367,7 +367,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   const unsigned int numInts = 1;
   vtkTypeFloat32 block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
   char iBlock[sizeof(vtkTypeInt64)];  // it's either going to be 4 or 8
-  int j = 0;
   //bool firstTime = true;
 
   size_t tagBytes;
@@ -380,18 +379,19 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     tagBytes = sizeof(vtkTypeInt32);
     }
 
-  // rewind the file
-  this->FileStream->seekg(0L, ios::beg);
+  int chunksize = this->NumberOfNodes / 100;
 
   // Loop to read all particle data
   for (vtkIdType i = this->PositionRange[0]; 
        i <= this->PositionRange[1]; 
-       i += this->Stride)
+       i = i + this->Stride)
     {
-    j++;
-    double progress = double(j) / double(this->NumberOfNodes);
-    if (int(100 * progress) % 5 == 0)
+
+    if ((i - this->PositionRange[0]) % chunksize == 0) 
       {
+      double progress = (double)(i - this->PositionRange[0]) 
+        / (double)(this->NumberOfNodes); 
+
       this->UpdateProgress(progress);
       }
 
