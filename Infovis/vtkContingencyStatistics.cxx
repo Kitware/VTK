@@ -44,14 +44,12 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.72");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.73");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
 {
-  this->SetNumberOfOutputPorts( 3 );
-
   this->AssessNames->SetNumberOfValues( 4 );
   this->AssessNames->SetValue( 0, "P" );
   this->AssessNames->SetValue( 1, "Py|x" );

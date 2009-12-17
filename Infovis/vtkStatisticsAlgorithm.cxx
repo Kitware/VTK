@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.44");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.45");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -37,7 +37,7 @@ vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 {
   this->SetNumberOfInputPorts( 3 );
-  this->SetNumberOfOutputPorts( 2 );
+  this->SetNumberOfOutputPorts( 3 );
 
   // If not told otherwise, only run Learn option
   this->LearnOption = true;
