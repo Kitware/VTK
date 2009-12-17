@@ -168,16 +168,15 @@ ELSE(VTK_BINARY_DIR)
       Widgets/Cxx
       )
 
-    IF(VTK_USE_N_WAY_ARRAYS)
-      SUBDIRS(Array/Cxx)
-    ENDIF(VTK_USE_N_WAY_ARRAYS)
-
     IF(VTK_USE_PARALLEL)
       SUBDIRS(ParallelProcessing)
     ENDIF(VTK_USE_PARALLEL)
     
     IF(VTK_USE_INFOVIS)
       SUBDIRS(Infovis/Cxx)
+      IF(VTK_USE_N_WAY_ARRAYS)
+        SUBDIRS(Array/Cxx)
+      ENDIF(VTK_USE_N_WAY_ARRAYS)
     ENDIF(VTK_USE_INFOVIS)
 
     IF(VTK_USE_QVTK)
