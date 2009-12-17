@@ -37,7 +37,7 @@
 #include "R.h"
 #include "Rmath.h"
 
-vtkCxxRevisionMacro(vtkRRandomTableSource, "1.2");
+vtkCxxRevisionMacro(vtkRRandomTableSource, "1.3");
 vtkStandardNewMacro(vtkRRandomTableSource);
 
 class ColumnStatsInfo
@@ -284,6 +284,7 @@ vtkRRandomTableSource::~vtkRRandomTableSource()
 {
 
   this->impl->col_list.clear();
+  this->impl->ri->Delete();
   delete this->impl;
 
 }

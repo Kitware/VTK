@@ -26,7 +26,7 @@
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.1");
+vtkCxxRevisionMacro(vtkRInterface, "1.2");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"
@@ -36,6 +36,7 @@ vtkStandardNewMacro(vtkRInterface);
 #include "Rdefines.h"
 
 #ifndef WIN32
+#define CSTACK_DEFNS
 #define R_INTERFACE_PTRS
 #include "Rinterface.h"
 #endif
