@@ -13,7 +13,7 @@
 #include <vtkSphereSource.h>
 #include <vtkRegularPolygonSource.h>
  
-int main ()
+int main (int, char *[])
 {
   // Sphere
   vtkSmartPointer<vtkSphereSource> sphereSource =
