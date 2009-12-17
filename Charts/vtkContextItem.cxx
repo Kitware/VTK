@@ -26,9 +26,8 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.4");
+vtkCxxRevisionMacro(vtkContextItem, "1.5");
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D)
-//vtkCxxSetObjectMacro(vtkContextItem, Scene, vtkContextScene)
 
 //-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
@@ -56,6 +55,12 @@ void vtkContextItem::SetScene(vtkContextScene *scene)
   // reference loop, where the scene and the item never get to a reference
   // count of zero.
   this->Scene = scene;
+}
+
+vtkContextScene* vtkContextItem::GetScene()
+{
+  // Return the underlying pointer
+  return this->Scene.GetPointer();
 }
 
 //-----------------------------------------------------------------------------

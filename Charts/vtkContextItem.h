@@ -23,6 +23,7 @@
 #define __vtkContextItem_h
 
 #include "vtkObject.h"
+#include "vtkWeakPointer.h" // Needed for weak pointer references to the scene
 
 class vtkContext2D;
 class vtkContextScene;
@@ -91,7 +92,7 @@ public:
 
   // Description:
   // Get the vtkContextScene for the item, always set for an item in a scene.
-  vtkGetObjectMacro(Scene, vtkContextScene);
+  vtkContextScene* GetScene();
 
 //BTX
 protected:
@@ -99,7 +100,7 @@ protected:
   ~vtkContextItem();
 
   vtkTransform2D *Transform;
-  vtkContextScene *Scene;
+  vtkWeakPointer<vtkContextScene> Scene;
 
   double Opacity;
 
