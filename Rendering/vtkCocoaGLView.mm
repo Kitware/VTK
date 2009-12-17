@@ -419,7 +419,13 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
- 
+  
+  // Ignore motion outside the view in order to mimic other interactors
+  if (!NSPointInRect(mouseLoc, [self visibleRect]))
+    {
+    return;
+    }
+  
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
