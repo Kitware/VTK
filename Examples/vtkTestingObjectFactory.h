@@ -9,7 +9,7 @@
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+     PURPOSE.  See the above copyrgight notice for more information.
 
 =========================================================================*/
 #ifndef __vtkTestingObjectFactory_h
@@ -33,6 +33,7 @@
 #include "vtkVersion.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
+#include "vtkTestDriver.h"
 
 class VTK_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
