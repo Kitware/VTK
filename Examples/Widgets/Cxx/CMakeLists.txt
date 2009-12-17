@@ -35,7 +35,6 @@ ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
                ${MyTests}
                ${VTK_SOURCE_DIR}/Examples/vtkTestingObjectFactory.cxx)
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
-
-ADD_TEST(TestExampleSlider ${CXX_TEST_PATH}/${KIT}CxxTests TestSlider)
-ADD_TEST(TestExampleSlider2D ${CXX_TEST_PATH}/${KIT}CxxTests TestSlider2D)
-ADD_TEST(TestExampleBalloonWidget ${CXX_TEST_PATH}/${KIT}CxxTests TestBalloonWidget)
+ADD_TEST(Examples-Slider ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider)
+ADD_TEST(Examples-Slider2D ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider2D)
+ADD_TEST(Examples-BalloonWidget ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestBalloonWidget)
