@@ -24,7 +24,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.28");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.29");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -123,8 +123,10 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
     mousePos[0] += lastDelta[0] + deltaX;
     mousePos[1] += lastDelta[1] - deltaY;
     me->SetEventPosition(mousePos);
+    // This must be called after every SetEventPosition/SetEventInformation
+    // in order to reliably couple the Delta with the EventPosition.
+    me->SetLastMouseDelta(0, 0);
     }
-  me->SetLastMouseDelta(0, 0);
 
   switch (eventClass)
     {
@@ -276,10 +278,6 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       HIViewRef view_for_mouse;
       HIViewRef root_window = HIViewGetRoot(ren->GetRootWindow());
       HIViewGetViewForMouseEvent(root_window, event, &view_for_mouse);
-      if (view_for_mouse != ren->GetWindowId())
-        {
-        return eventNotHandledErr;
-        }
 
       GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint,
                         NULL, sizeof(HIPoint), NULL, &mouseLoc);
@@ -292,14 +290,25 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       
       me->SetEventInformationFlipY(int(mouseLoc.x), int(mouseLoc.y),
                                    controlDown, shiftDown);
+      me->SetLastMouseDelta(0, 0);
       me->SetAltKey(altDown);
 
       // look for enter/leave
-      if (!me->GetMouseInsideWindow())
+      if (view_for_mouse != ren->GetWindowId())
+        {
+        // never handle "mouse down" events outside the window rect
+        if (GetEventKind(event) == kEventMouseDown ||
+            !me->GetMouseButtonDown())
+          {
+          return eventNotHandledErr;
+          }
+        }
+      else if (!me->GetMouseInsideWindow())
         {
         me->SetMouseInsideWindow(1);
         // This will fix the LastEventPosition
         me->SetEventPositionFlipY(int(mouseLoc.x), int(mouseLoc.y));
+        me->SetLastMouseDelta(0, 0);
         me->InvokeEvent(vtkCommand::EnterEvent,NULL);
         }
 
@@ -307,6 +316,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
         {
         case kEventMouseDown:
           {
+          me->SetMouseButtonDown(1);
           switch (buttonNumber)
             {
             case 1:
@@ -330,6 +340,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
           }
         case kEventMouseUp:
           {
+          me->SetMouseButtonDown(0);
           switch (buttonNumber)
             {
             case 1:
@@ -403,6 +414,7 @@ vtkCarbonRenderWindowInteractor::vtkCarbonRenderWindowInteractor()
   this->ViewProcUPP        = NULL;
   this->WindowProcUPP      = NULL;
   this->MouseInsideWindow  = 0;
+  this->MouseButtonDown    = 0;
   this->LeaveCheckId       = 0;
   this->LastMouseDelta[0]  = 0;
   this->LastMouseDelta[1]  = 0;
@@ -481,14 +493,18 @@ pascal void vtkCarbonLeaveCheck(EventLoopTimerRef platformTimerId,
     int *pos = me->GetEventPosition();
     int x = pos[0] + delta[0];
     int y = pos[1] + delta[1];
-    if (me->GetMouseInsideWindow() && 
+    if (me->GetMouseInsideWindow() && !me->GetMouseButtonDown() && 
         (x < 0 || x >= size[0] || y < 0 || y >= size[1]))
       {
       me->SetMouseInsideWindow(0);
       me->SetEventPosition(x, y);
+      me->SetLastMouseDelta(0, 0);
       me->InvokeEvent(vtkCommand::LeaveEvent,NULL);
       }
-    me->SetLastMouseDelta(delta[0], delta[1]);
+    else
+      {
+      me->SetLastMouseDelta(delta[0], delta[1]);
+      }
     }
 }
 
@@ -547,6 +563,7 @@ void vtkCarbonRenderWindowInteractor::Enable()
     this->LastMouseDelta[0] = 0;
     this->LastMouseDelta[1] = 0;
     this->MouseInsideWindow = 0;
+    this->MouseButtonDown    = 0;
     EventLoopRef       mainLoop = GetMainEventLoop();
     EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(vtkCarbonLeaveCheck);
     InstallEventLoopTimer(mainLoop,
