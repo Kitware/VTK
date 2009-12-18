@@ -93,6 +93,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataArraySelection;
 class vtkStdString;
 class vtkMultiProcessController;
+class vtkDistributedDataFilter;
 
 class VTK_PARALLEL_EXPORT vtkPCosmoReader : public vtkCosmoReader
 {
@@ -110,6 +111,14 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController*);
 
+  // Description:
+  // If set, it will attempt to read in a paralle
+  // striped (strided) manner per
+  // processor, otherwise, it reads in a block wise manner.
+  // Default is blockwise.
+  vtkGetMacro(ReadStriped, int);
+  vtkSetMacro(ReadStriped, int);
+
 protected:
   vtkPCosmoReader();
   ~vtkPCosmoReader();
@@ -120,6 +129,8 @@ protected:
     (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController* Controller; // Interprocess communication
+
+  int ReadStriped;
 
 private:
   vtkPCosmoReader(const vtkPCosmoReader&);  // Not implemented.

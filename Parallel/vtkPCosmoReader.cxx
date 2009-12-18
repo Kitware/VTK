@@ -81,11 +81,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCommunicator.h"
 
-#ifdef VTK_TYPE_USE_LONG_LONG
-#include "vtkLongLongArray.h"
-#endif
-
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.2");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.3");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 using namespace cosmo;
@@ -99,6 +95,8 @@ vtkPCosmoReader::vtkPCosmoReader()
     {
       this->SetController(vtkSmartPointer<vtkDummyController>::New());
     }
+
+  this->ReadStriped = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -232,7 +230,7 @@ int vtkPCosmoReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
                                                                                 
   vtkDebugMacro( << "Reading Cosmo file");
-                                                                                
+                              
   // check that the piece number is correct
   int updatePiece = 0;
   int updateTotal = 1;
@@ -253,7 +251,7 @@ int vtkPCosmoReader::RequestData(
       vtkErrorMacro(<< "Piece number does not match process number.");
       return 0;
     }
-                                         
+
   // Read the file into the output unstructured grid
   this->ReadFile(output);
 
@@ -294,7 +292,23 @@ void vtkPCosmoReader::ComputeDefaultRange()
   // Divide by 4 for single precision float
   this->NumberOfNodes = fileLength / (BYTES_PER_DATA_MINUS_TAG + tagBytes);
 
-  // figure out the range on this processor
-  this->PositionRange[0] = this->NumberOfNodes * rank / size;
-  this->PositionRange[1] = this->NumberOfNodes * (rank + 1) / size - 1;
+  if(this->ReadStriped) 
+    {
+    // figure out the range on this processor (mostly start position)
+    this->PositionRange[0] = rank;
+    this->PositionRange[1] = this->NumberOfNodes - 1;
+
+    // stride through the file in parallel
+    this->parallelStride = size;
+    }
+  else 
+    {
+    // figure out the range on this processor
+    this->PositionRange[0] = rank * this->NumberOfNodes / size;
+    this->PositionRange[1] = (rank + 1) * this->NumberOfNodes / size - 1;
+
+    // don't stride through the file in parallel
+    this->parallelStride = 1;
+    }
 }
+
