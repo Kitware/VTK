@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.69");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.70");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -329,13 +329,12 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
     this->Modified();
     this->Size[0] = x;
     this->Size[1] = y;
-    if (this->GetParentId() && this->Mapped)
+    if (this->GetParentId() && this->GetWindowId() && this->Mapped)
       {
       // Set the NSView size, not the window size.
       if (!resizing)
         {
         resizing = 1;
-        NSRect parentRect = [(NSView*)this->GetParentId() frame];
         NSView *theView = (NSView*)this->GetWindowId();
         NSRect viewRect = [theView frame];
         CGFloat oldHeight = NSHeight(viewRect);
@@ -388,7 +387,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    if (this->GetParentId() && this->Mapped)
+    if (this->GetParentId() && this->GetWindowId() && this->Mapped)
       {
       // Set the NSView position relative to the parent
       if (!resizing)
@@ -592,7 +591,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
 #endif
 
-  // create a vtkCocoaGLView if one has not been specified
+  // create a view if one has not been specified
   if (!this->GetWindowId())
     {
     if (this->GetParentId())
@@ -616,10 +615,11 @@ void vtkCocoaRenderWindow::CreateAWindow()
       if (x + width > parentWidth) { width = parentWidth - x; }
       if (y + height > parentWidth) { height = parentHeight - y; }
 
-      // Don't use vtkCocoaGLView, let superview control events
+      // Don't use vtkCocoaGLView, because if we are in Tk (which is what
+      // SetParentId() was added for) then the Tk superview handles the events.
       NSRect glRect = NSMakeRect(x, y, width, height);
       NSView *glView = [[[NSView alloc] initWithFrame:glRect] autorelease];
-      [parent addSubview:glView]; 
+      [parent addSubview:glView];
       this->SetWindowId(glView);
       this->ViewCreated = 1;
       }
@@ -630,6 +630,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
                                  (CGFloat)this->Size[0] / this->ScaleFactor,
                                  (CGFloat)this->Size[1] / this->ScaleFactor);
 
+      // Create a vtkCocoaGLView.
       vtkCocoaGLView *glView =
         [[[vtkCocoaGLView alloc] initWithFrame:glRect] autorelease];
       [(NSWindow*)this->GetRootWindow() setContentView:glView];
@@ -838,13 +839,10 @@ int *vtkCocoaRenderWindow::GetPosition()
     return this->Position;
     }
 
-  NSWindow *window;
-  NSView *parent;
-
-  if ( (parent = (NSView*)this->GetParentId()) )
+  if (this->GetParentId() && this->GetWindowId())
     {
     // Get display position of the NSView within its parent
-    NSRect parentRect = [parent frame];
+    NSRect parentRect = [(NSView*)this->GetParentId() frame];
     NSRect viewFrameRect = [(NSView*)this->GetWindowId() frame];
     this->Position[0] = int(round(NSMinX(viewFrameRect) * this->ScaleFactor));
     this->Position[1] = int(round((NSHeight(parentRect)
@@ -852,15 +850,19 @@ int *vtkCocoaRenderWindow::GetPosition()
                                    - NSMinY(viewFrameRect))
                                   * this->ScaleFactor));
     }
-  else if ( (window = (NSWindow*)this->GetRootWindow()) )
+  else
     {
     // We want to return the position of 'the window'.  But the term 'window'
     // is overloaded. In this case, it's the position of the NSWindow itself
     // on the screen that we return. We don't much care where the NSView is
     // within the NSWindow.
-    NSRect winFrameRect = [window frame];
-    this->Position[0] = (int)NSMinX(winFrameRect);
-    this->Position[1] = (int)NSMinY(winFrameRect);
+    NSWindow *window = (NSWindow*)this->GetRootWindow();
+    if (window)
+      {
+      NSRect winFrameRect = [window frame];
+      this->Position[0] = (int)NSMinX(winFrameRect);
+      this->Position[1] = (int)NSMinY(winFrameRect);
+      }
     }
 
   return this->Position;
@@ -870,8 +872,6 @@ int *vtkCocoaRenderWindow::GetPosition()
 // Change the window to fill the entire screen.
 void vtkCocoaRenderWindow::SetFullScreen(int arg)
 {
-  int *pos;
-
   if (this->FullScreen == arg)
     {
     return;
@@ -898,7 +898,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
     // if window already up get its values
     if (this->GetRootWindow())
       {
-      pos = this->GetPosition();
+      int* pos = this->GetPosition();
       this->OldScreen[0] = pos[0];
       this->OldScreen[1] = pos[1];
 

@@ -28,6 +28,7 @@
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSView).
 // designated initializer
 - (id)initWithFrame:(NSRect)frameRect
 {
@@ -43,7 +44,8 @@
     if ([NSThread isMultiThreaded] == NO)
       {
       [NSThread detachNewThreadSelector:@selector(emptyMethod:)
-        toTarget:self withObject:nil];
+							   toTarget:self
+						     withObject:nil];
       }
     }
   return self;
@@ -75,6 +77,7 @@
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSView).
 - (void)drawRect:(NSRect)theRect
 {
   (void)theRect;
@@ -82,6 +85,17 @@
   if ( myVTKRenderWindow && myVTKRenderWindow->GetMapped() )
     {
     myVTKRenderWindow->Render();
+    }
+}
+
+//----------------------------------------------------------------------------
+- (void)clearTrackingRect
+{
+  // remove any tracking rect we have
+  if (rolloverTrackingRectTag > 0)
+    {
+    [self removeTrackingRect:rolloverTrackingRectTag];
+    rolloverTrackingRectTag=0;
     }
 }
 
@@ -99,17 +113,7 @@
 }
 
 //----------------------------------------------------------------------------
-- (void)clearTrackingRect
-{
-  // remove any tracking rect we have
-  if (rolloverTrackingRectTag > 0)
-    {
-    [self removeTrackingRect:rolloverTrackingRectTag];
-    rolloverTrackingRectTag=0;
-    }
-}
-
-//----------------------------------------------------------------------------
+// Overridden (from NSView).
 - (void)resetCursorRects
 {
   [super resetCursorRects];
@@ -117,6 +121,7 @@
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (BOOL)acceptsFirstResponder
 {
   return YES;
@@ -162,6 +167,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 };
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)keyDown:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
@@ -203,9 +209,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // This pointer is only valid for the duration of the current autorelease
   // context!
   const char* keyedChars = [[theEvent characters] UTF8String];
-  // Since vtk only supports ascii, we just blindly pass the first element
-  // of the above string, hoping it's ascii.
-  char charCode = keyedChars[0];
+  // Since vtk only supports ASCII, we just blindly use the first element
+  // of the above string, hoping it's ASCII.
+  unsigned char charCode = (unsigned char)keyedChars[0];
   // Get the virtual key code and convert it to a keysym as best we can.
   unsigned short macKeyCode = [theEvent keyCode];
   const char *keySym = 0;
@@ -213,9 +219,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
     }
-  if (keySym == 0 && (unsigned char)charCode < 128)
+  if (keySym == 0 && charCode < 128)
     {
-    keySym = vtkMacCharCodeToKeySymTable[(unsigned char)charCode];
+    keySym = vtkMacCharCodeToKeySymTable[charCode];
     }
   if (keySym == 0)
     {
@@ -238,6 +244,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)keyUp:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
@@ -279,9 +286,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // This pointer is only valid for the duration of the current autorelease
   // context!
   const char* keyedChars = [[theEvent characters] UTF8String];
-  // Since vtk only supports ascii, we just blindly pass the first element
-  // of the above string, hoping it's ascii.
-  char charCode = keyedChars[0];
+  // Since vtk only supports ASCII, we just blindly use the first element
+  // of the above string, hoping it's ASCII.
+  unsigned char charCode = (unsigned char)keyedChars[0];
   // Get the virtual key code and convert it to a keysym as best we can.
   unsigned short macKeyCode = [theEvent keyCode];
   const char *keySym = 0;
@@ -289,9 +296,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
     }
-  if (keySym == 0 && (unsigned char)charCode < 128)
+  if (keySym == 0 && charCode < 128)
     {
-    keySym = vtkMacCharCodeToKeySymTable[(unsigned char)charCode];
+    keySym = vtkMacCharCodeToKeySymTable[charCode];
     }
   if (keySym == 0)
     {
@@ -310,6 +317,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)flagsChanged:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
@@ -392,6 +400,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)mouseMoved:(NSEvent *)theEvent
 {
   // Note: this method will only be called if this view's NSWindow
@@ -441,11 +450,13 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
-// Note: the mouseEntered/mouseExited events depend on the maintenance of
-// the Tracking Rect, which is handled by the resetTrackingRect,
-// clearTrackingRect and resetCursorRects methods above.
+// Overridden (from NSResponder).
 - (void)mouseEntered:(NSEvent *)theEvent
 {
+  // Note: the mouseEntered/mouseExited events depend on the maintenance of
+  // the Tracking Rect, which is handled by the resetTrackingRect,
+  // clearTrackingRect and resetCursorRects methods above.
+  
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
     {
@@ -483,7 +494,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
--(void)mouseExited:(NSEvent *)theEvent
+// Overridden (from NSResponder).
+- (void)mouseExited:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
@@ -522,6 +534,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)scrollWheel:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
@@ -569,6 +582,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)mouseDown:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
@@ -649,6 +663,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)rightMouseDown:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
@@ -658,7 +673,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     }
 
   vtkCocoaRenderWindow* renWin =
-   vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
+    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
     {
@@ -729,6 +744,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 }
 
 //----------------------------------------------------------------------------
+// Overridden (from NSResponder).
 - (void)otherMouseDown:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
