@@ -217,9 +217,6 @@ protected:
   int MakeCells; // Make cells for particles, not just points
   int TagSize; // Size of the tag, 0 = 32-bit or 1 = 64-bit
 
-  // internal variable for parallel striped reads by vtkPCosmoReader
-  int parallelStride;
-
 private:
   vtkCosmoReader(const vtkCosmoReader&);  // Not implemented.
   void operator=(const vtkCosmoReader&);  // Not implemented.

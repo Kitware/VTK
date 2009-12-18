@@ -81,7 +81,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCommunicator.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.3");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.4");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 using namespace cosmo;
@@ -96,7 +96,7 @@ vtkPCosmoReader::vtkPCosmoReader()
       this->SetController(vtkSmartPointer<vtkDummyController>::New());
     }
 
-  this->ReadStriped = 0;
+  this->TakeTurns = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -222,6 +222,9 @@ int vtkPCosmoReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  int rank = this->Controller->GetLocalProcessId();
+  int size = this->Controller->GetNumberOfProcesses();
+
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
                                                                                 
@@ -253,7 +256,23 @@ int vtkPCosmoReader::RequestData(
     }
 
   // Read the file into the output unstructured grid
-  this->ReadFile(output);
+  if(this->TakeTurns)
+    {
+    for(int i = 0; i < size; i = i + 1) 
+      {
+      if(i == rank) 
+        {
+        this->ReadFile(output);
+        }
+
+      // wait for everyone to sync
+      this->Controller->Barrier();
+      }
+    }
+  else 
+    {
+    this->ReadFile(output);
+    }
 
   return 1;
 }
@@ -266,9 +285,11 @@ void vtkPCosmoReader::ComputeDefaultRange()
   int rank = this->Controller->GetLocalProcessId();
   int size = this->Controller->GetNumberOfProcesses();
 
-  size_t fileLength;
+  int readproc = this->ReadProcessors;
+  readproc = readproc < 1 ? size : (readproc > size ? size : readproc);
 
-  // just have rank 0 read it
+  // just have rank 0 read the length
+  size_t fileLength;
   if(rank == 0) 
     {
       this->FileStream->seekg(0L, ios::end);
@@ -292,23 +313,17 @@ void vtkPCosmoReader::ComputeDefaultRange()
   // Divide by 4 for single precision float
   this->NumberOfNodes = fileLength / (BYTES_PER_DATA_MINUS_TAG + tagBytes);
 
-  if(this->ReadStriped) 
+  // figure out the range on this processor
+  if(rank < readproc) 
     {
-    // figure out the range on this processor (mostly start position)
-    this->PositionRange[0] = rank;
-    this->PositionRange[1] = this->NumberOfNodes - 1;
-
-    // stride through the file in parallel
-    this->parallelStride = size;
+    this->PositionRange[0] = rank * this->NumberOfNodes / readproc;
+    this->PositionRange[1] = (rank + 1) * this->NumberOfNodes / readproc - 1;
     }
   else 
     {
-    // figure out the range on this processor
-    this->PositionRange[0] = rank * this->NumberOfNodes / size;
-    this->PositionRange[1] = (rank + 1) * this->NumberOfNodes / size - 1;
-
-    // don't stride through the file in parallel
-    this->parallelStride = 1;
+    // read nothing
+    this->PositionRange[0] = 1;
+    this->PositionRange[1] = 0;
     }
 }
 

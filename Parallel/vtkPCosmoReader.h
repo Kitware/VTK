@@ -112,12 +112,22 @@ public:
   virtual void SetController(vtkMultiProcessController*);
 
   // Description:
-  // If set, it will attempt to read in a paralle
-  // striped (strided) manner per
-  // processor, otherwise, it reads in a block wise manner.
-  // Default is blockwise.
-  vtkGetMacro(ReadStriped, int);
-  vtkSetMacro(ReadStriped, int);
+  // If set, it processors will take turns doing
+  // full reads, in processor order,
+  // otherwise they read simultaneously
+  // Default is on (take turns reading).
+  vtkGetMacro(TakeTurns, int);
+  vtkSetMacro(TakeTurns, int);
+
+  // Description:
+  // Sets the number of processors that will actually read the file.
+  // Use D3 to redistribute the points.  Values < 1 will use all
+  // processors.  Values > number of processors will be clamped
+  // to the number of processors.  Default is 0 (use all processors).
+  // Could run out of memory if the file is large
+  // and read processors is too small.
+  vtkGetMacro(ReadProcessors, int);
+  vtkSetMacro(ReadProcessors, int);
 
 protected:
   vtkPCosmoReader();
@@ -130,7 +140,8 @@ protected:
 
   vtkMultiProcessController* Controller; // Interprocess communication
 
-  int ReadStriped;
+  int TakeTurns;
+  int ReadProcessors;
 
 private:
   vtkPCosmoReader(const vtkPCosmoReader&);  // Not implemented.

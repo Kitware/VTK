@@ -80,7 +80,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongLongArray.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.24");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.25");
 vtkStandardNewMacro(vtkCosmoReader);
 
 using namespace cosmo;
@@ -103,11 +103,6 @@ vtkCosmoReader::vtkCosmoReader()
   this->TagSize = 0;
   this->ComponentNumber = new vtkIdType[NUMBER_OF_VAR];
   this->VariableName = new vtkStdString[NUMBER_OF_VAR];
-
-  // this is so the reader can work in parallel striped reads
-  // yeah, yeah... I'm pushing subclass features to the superclass
-  // so I don't have to duplicate ReadFile
-  this->parallelStride = 1; 
 }
 
 //----------------------------------------------------------------------------
@@ -311,15 +306,28 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       }
     }
 
+  // Make sure the stride across the data is legal
+  if (this->Stride <= 0)
+    {
+    vtkErrorMacro(<< "Stride is less than 1.  Defaulting to 1.")
+    this->Stride = 1;
+    }
+
+  // Given the requested stride set the number of nodes to be used
+  // FIXME: this subtraction will have to change if changing to
+  // size_t or some other large unsigned type
+  this->NumberOfNodes = (this->PositionRange[1] - this->PositionRange[0]) / 
+                         this->Stride + 1;
+
   // Allocate space in the unstructured grid for all nodes
   output->Allocate(this->NumberOfNodes, this->NumberOfNodes);
   output->SetPoints(points);
 
-  bool useVelocity = this->PointDataArraySelection->
+  int useVelocity = this->PointDataArraySelection->
     GetArraySetting(USE_VELOCITY);
-  bool useMass = this->PointDataArraySelection->
+  int useMass = this->PointDataArraySelection->
     GetArraySetting(USE_MASS);
-  bool useTag = this->PointDataArraySelection->
+  int useTag = this->PointDataArraySelection->
     GetArraySetting(USE_TAG);
 
   // Allocate velocity array if requested, add to point and cell data
@@ -335,19 +343,6 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       }
     }
   
-  // Allocate mass array if requested, add to point and cell data
-  if (useMass)
-    {
-    mass->SetName("mass");
-    mass->SetNumberOfComponents(1);
-    mass->SetNumberOfTuples(this->NumberOfNodes);
-    output->GetPointData()->AddArray(mass);
-    if (!output->GetPointData()->GetScalars())
-      {
-      output->GetPointData()->SetScalars(mass);
-      }
-    }
-
   // Allocate tag array if requested, add to point and cell data
   if (useTag)
     {
@@ -358,6 +353,19 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     if (!output->GetPointData()->GetScalars())
       {
       output->GetPointData()->SetScalars(tag);
+      }
+    }
+
+  // Allocate mass array if requested, add to point and cell data
+  if (useMass)
+    {
+    mass->SetName("mass");
+    mass->SetNumberOfComponents(1);
+    mass->SetNumberOfTuples(this->NumberOfNodes);
+    output->GetPointData()->AddArray(mass);
+    if (!output->GetPointData()->GetScalars())
+      {
+      output->GetPointData()->SetScalars(mass);
       }
     }
 
@@ -377,24 +385,11 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     tagBytes = sizeof(vtkTypeInt32);
     }
 
-  // Make sure the stride across the data is legal
-  if (this->Stride <= 0)
-    {
-    vtkErrorMacro(<< "Stride is less than 1.  Defaulting to 1.")
-    this->Stride = 1;
-    }
-
-  vtkIdType skip = this->Stride * this->parallelStride;
-
-  // Given the requested stride set the number of nodes to be used
-  this->NumberOfNodes = (this->PositionRange[1] - this->PositionRange[0]) / 
-                         skip + 1;
-
   int chunksize = this->NumberOfNodes / 100;
 
   // Loop to read all particle data
   for (vtkIdType i = this->PositionRange[0]; 
-       i <= this->PositionRange[1]; i = i + skip)
+       i <= this->PositionRange[1]; i = i + this->Stride)
     {
 
     if ((i - this->PositionRange[0]) % chunksize == 0) 
