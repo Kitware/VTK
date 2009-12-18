@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-
 #include "vtkAreaPicker.h"
 #include "vtkObjectFactory.h"
 #include "vtkMapper.h"
@@ -36,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkExtractSelectedFrustum.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.16");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.17");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
