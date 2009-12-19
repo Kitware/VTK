@@ -30,7 +30,7 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 #include <vtkPiecewiseFunction.h>
 #include <vtkCamera.h>
 
-int main (int argc, char **argv)
+int main (int argc, char *argv[])
 {
   if (argc < 2)
     {
@@ -140,7 +140,7 @@ int main (int argc, char **argv)
 
   // Set up an initial view of the volume.  The focal point will be the
   // center of the volume, and the camera position will be 400mm to the
-  // patient's left (whis is our right).
+  // patient's left (which is our right).
   vtkCamera *camera = ren->GetActiveCamera();
   double *c = volume->GetCenter();
   camera->SetFocalPoint(c[0], c[1], c[2]);
