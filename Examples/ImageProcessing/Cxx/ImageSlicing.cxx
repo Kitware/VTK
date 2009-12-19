@@ -22,6 +22,7 @@
 // Thanks to David Gobbi of Atamai Inc. for contributing this example.
 //
 
+#include "vtkSmartPointer.h"
 #include "vtkImageReader2.h"
 #include "vtkMatrix4x4.h"
 #include "vtkImageReslice.h"
@@ -127,7 +128,7 @@ private:
 };
 
 // The program entry point
-int main (int argc, char **argv)
+int main (int argc, char *argv[])
 {
   if (argc < 2)
     {
@@ -136,7 +137,8 @@ int main (int argc, char **argv)
     }
 
   // Start by loading some data.
-  vtkImageReader2 *reader = vtkImageReader2::New();
+  vtkSmartPointer<vtkImageReader2> reader =
+    vtkSmartPointer<vtkImageReader2>::New();
   reader->SetFilePrefix(argv[1]);
   reader->SetDataExtent(0, 63, 0, 63, 1, 93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
@@ -184,7 +186,8 @@ int main (int argc, char **argv)
   //         0, 0, 0, 1 };
 
   // Set the slice orientation
-  vtkMatrix4x4 *resliceAxes = vtkMatrix4x4::New();
+  vtkSmartPointer<vtkMatrix4x4> resliceAxes =
+    vtkSmartPointer<vtkMatrix4x4>::New();
   resliceAxes->DeepCopy(sagittalElements);
   // Set the point through which to slice
   resliceAxes->SetElement(0, 3, center[0]);
@@ -192,14 +195,16 @@ int main (int argc, char **argv)
   resliceAxes->SetElement(2, 3, center[2]);
 
   // Extract a slice in the desired orientation
-  vtkImageReslice *reslice = vtkImageReslice::New();
+  vtkSmartPointer<vtkImageReslice> reslice =
+    vtkSmartPointer<vtkImageReslice>::New();
   reslice->SetInputConnection(reader->GetOutputPort());
   reslice->SetOutputDimensionality(2);
   reslice->SetResliceAxes(resliceAxes);
   reslice->SetInterpolationModeToLinear();
 
   // Create a greyscale lookup table
-  vtkLookupTable *table = vtkLookupTable::New();
+  vtkSmartPointer<vtkLookupTable> table =
+    vtkSmartPointer<vtkLookupTable>::New();
   table->SetRange(0, 2000); // image intensity range
   table->SetValueRange(0.0, 1.0); // from black to white
   table->SetSaturationRange(0.0, 0.0); // no color saturation
@@ -207,28 +212,35 @@ int main (int argc, char **argv)
   table->Build();
 
   // Map the image through the lookup table
-  vtkImageMapToColors *color = vtkImageMapToColors::New();
+  vtkSmartPointer<vtkImageMapToColors> color =
+    vtkSmartPointer<vtkImageMapToColors>::New();
   color->SetLookupTable(table);
   color->SetInputConnection(reslice->GetOutputPort());
 
   // Display the image
-  vtkImageActor *actor = vtkImageActor::New();
+  vtkSmartPointer<vtkImageActor> actor =
+    vtkSmartPointer<vtkImageActor>::New();
   actor->SetInput(color->GetOutput());
 
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
   renderer->AddActor(actor);
 
-  vtkRenderWindow *window = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderWindow> window =
+    vtkSmartPointer<vtkRenderWindow>::New();
   window->AddRenderer(renderer);
 
   // Set up the interaction
-  vtkInteractorStyleImage *imageStyle = vtkInteractorStyleImage::New();
-  vtkRenderWindowInteractor *interactor = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkInteractorStyleImage> imageStyle =
+    vtkSmartPointer<vtkInteractorStyleImage>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   interactor->SetInteractorStyle(imageStyle);
   window->SetInteractor(interactor);
   window->Render();
 
-  vtkImageInteractionCallback *callback = vtkImageInteractionCallback::New();
+  vtkSmartPointer<vtkImageInteractionCallback> callback =
+    vtkSmartPointer<vtkImageInteractionCallback>::New();
   callback->SetImageReslice(reslice);
   callback->SetInteractor(interactor);
 
@@ -240,17 +252,6 @@ int main (int argc, char **argv)
   // The Start() method doesn't return until the window is closed by the user
   interactor->Start();
 
-  // Clean up
-  callback->Delete();
-  interactor->Delete();
-  imageStyle->Delete();
-  window->Delete();
-  renderer->Delete();
-  actor->Delete();
-  reslice->Delete();
-  resliceAxes->Delete();
-  color->Delete();
-  table->Delete();
-  reader->Delete();
+  return EXIT_SUCCESS;
 }
 
