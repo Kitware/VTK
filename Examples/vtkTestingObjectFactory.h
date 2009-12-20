@@ -34,6 +34,9 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkTestDriver.h"
+//BTX
+#include <vtkstd/string> // STL Header; Required for string
+//ETX
 
 class VTK_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
@@ -63,11 +66,12 @@ class vtkTestingInteractor : public vtkRenderWindowInteractor
 public:
   static vtkTestingInteractor* New() { return new vtkTestingInteractor; }
   vtkTypeRevisionMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
-  virtual void Start()
-    {
-    cout << "Start: This is the testing interactor. Start() does nothing"
-         << endl;
-    }
+  virtual void Start();
+
+  static int            TestReturnStatus;
+  static vtkstd::string TestName;
+  static vtkstd::string TempDirectory;
+  static vtkstd::string BaselineDirectory;
 
 protected:
   vtkTestingInteractor()
@@ -78,6 +82,8 @@ protected:
 private:
   vtkTestingInteractor(const vtkTestingInteractor&); // Not implemented
   void operator=(const vtkTestingInteractor&);       // Not implemented
+
+  int ReturnStatus;
 };
 
 #endif
