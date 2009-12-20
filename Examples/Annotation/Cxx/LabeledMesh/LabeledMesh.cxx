@@ -21,6 +21,7 @@
 // cell ids.
 
 // First we include the necessary header files. 
+#include "vtkSmartPointer.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
@@ -41,10 +42,10 @@
 
 int xLength;
 int yLength;
-vtkSelectVisiblePoints * visPts;
-vtkSelectVisiblePoints * visCells;
-vtkPoints * pts;
-vtkRenderWindow * renWin;
+vtkSmartPointer<vtkSelectVisiblePoints> visPts;
+vtkSmartPointer<vtkSelectVisiblePoints> visCells;
+vtkSmartPointer<vtkPoints> pts;
+vtkSmartPointer<vtkRenderWindow> renWin;
 
 // Create a procedure to draw the selection window at each location it
 // is moved to.
@@ -80,7 +81,7 @@ void MoveWindow()
   }
 }
 
-int main( int argc, char * argv[] )
+int main( int , char *[] )
 {
   // Create a selection window.  We will display the point and cell ids that
   // lie within this window.
@@ -91,13 +92,14 @@ int main( int argc, char * argv[] )
   yLength = 100;
   int ymax = ymin + yLength;
 
-  pts = vtkPoints::New();
+  pts = vtkSmartPointer<vtkPoints>::New();
   pts->InsertPoint( 0, xmin, ymin, 0 );
   pts->InsertPoint( 1, xmax, ymin, 0 );
   pts->InsertPoint( 2, xmax, ymax, 0 );
   pts->InsertPoint( 3, xmin, ymax, 0 );
 
-  vtkCellArray * rect = vtkCellArray::New();
+  vtkSmartPointer<vtkCellArray> rect =
+    vtkSmartPointer<vtkCellArray>::New();
   rect->InsertNextCell( 5 );
   rect->InsertCellPoint( 0 );
   rect->InsertCellPoint( 1 );
@@ -105,37 +107,45 @@ int main( int argc, char * argv[] )
   rect->InsertCellPoint( 3 );
   rect->InsertCellPoint( 0 );
 
-  vtkPolyData * selectRect = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData> selectRect =
+    vtkSmartPointer<vtkPolyData>::New();
   selectRect->SetPoints( pts );
   selectRect->SetLines( rect );
 
-  vtkPolyDataMapper2D * rectMapper = vtkPolyDataMapper2D::New();
+  vtkSmartPointer<vtkPolyDataMapper2D> rectMapper =
+    vtkSmartPointer<vtkPolyDataMapper2D>::New();
   rectMapper->SetInput( selectRect );
 
-  vtkActor2D * rectActor = vtkActor2D::New();
+  vtkSmartPointer<vtkActor2D> rectActor =
+    vtkSmartPointer<vtkActor2D>::New();
   rectActor->SetMapper( rectMapper );
 
   // Create a sphere and its associated mapper and actor.
-  vtkSphereSource * sphere = vtkSphereSource::New();
-  vtkPolyDataMapper * sphereMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkSphereSource> sphere =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
   sphereMapper->GlobalImmediateModeRenderingOn();
 
-  vtkActor *sphereActor = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphereActor =
+    vtkSmartPointer<vtkActor>::New();
   sphereActor->SetMapper( sphereMapper );
 
   // Generate data arrays containing point and cell ids
-  vtkIdFilter * ids = vtkIdFilter::New();
+  vtkSmartPointer<vtkIdFilter> ids =
+    vtkSmartPointer<vtkIdFilter>::New();
   ids->SetInputConnection( sphere->GetOutputPort() );
   ids->PointIdsOn();
   ids->CellIdsOn();
   ids->FieldDataOn();
 
   // Create the renderer here because vtkSelectVisiblePoints needs it.
-  vtkRenderer * ren1 = vtkRenderer::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
 
   // Create labels for points
-  visPts = vtkSelectVisiblePoints::New();
+  visPts = vtkSmartPointer<vtkSelectVisiblePoints>::New();
   visPts->SetInputConnection( ids->GetOutputPort() );
   visPts->SetRenderer( ren1 );
   visPts->SelectionWindowOn();
@@ -143,18 +153,21 @@ int main( int argc, char * argv[] )
 
   // Create the mapper to display the point ids.  Specify the
   // format to use for the labels.  Also create the associated actor.
-  vtkLabeledDataMapper * ldm = vtkLabeledDataMapper::New();
+  vtkSmartPointer<vtkLabeledDataMapper> ldm =
+    vtkSmartPointer<vtkLabeledDataMapper>::New();
   ldm->SetInputConnection( visPts->GetOutputPort() );
   ldm->SetLabelModeToLabelFieldData();
 
-  vtkActor2D * pointLabels = vtkActor2D::New();
+  vtkSmartPointer<vtkActor2D> pointLabels =
+    vtkSmartPointer<vtkActor2D>::New();
   pointLabels->SetMapper( ldm );
 
   // Create labels for cells
-  vtkCellCenters * cc = vtkCellCenters::New();
+  vtkSmartPointer<vtkCellCenters> cc =
+    vtkSmartPointer<vtkCellCenters>::New();
   cc->SetInputConnection( ids->GetOutputPort() );
 
-  visCells = vtkSelectVisiblePoints::New();
+  visCells = vtkSmartPointer<vtkSelectVisiblePoints>::New();
   visCells->SetInputConnection( cc->GetOutputPort() );
   visCells->SetRenderer( ren1 );
   visCells->SelectionWindowOn();
@@ -162,20 +175,22 @@ int main( int argc, char * argv[] )
 
   // Create the mapper to display the cell ids.  Specify the
   // format to use for the labels.  Also create the associated actor.
-  vtkLabeledDataMapper * cellMapper = vtkLabeledDataMapper::New();
+  vtkSmartPointer<vtkLabeledDataMapper> cellMapper =
+    vtkSmartPointer<vtkLabeledDataMapper>::New();
   cellMapper->SetInputConnection( visCells->GetOutputPort() );
   cellMapper->SetLabelModeToLabelFieldData();
   cellMapper->GetLabelTextProperty()->SetColor( 0, 1, 0 );
 
-  vtkActor2D * cellLabels = vtkActor2D::New();
+  vtkSmartPointer<vtkActor2D> cellLabels =
+    vtkSmartPointer<vtkActor2D>::New();
   cellLabels->SetMapper( cellMapper );
 
-
   // Create the RenderWindow and RenderWindowInteractor
-  renWin = vtkRenderWindow::New();
+  renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer( ren1 );
 
-  vtkRenderWindowInteractor * iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow( renWin );
 
   // Add the actors to the renderer; set the background and size; render
@@ -198,27 +213,6 @@ int main( int argc, char * argv[] )
 
   iren->Initialize();
   iren->Start();
-
-  // Delete allocated memory
-  pts->Delete();
-  rect->Delete();
-  selectRect->Delete();
-  rectMapper->Delete();
-  rectActor->Delete();
-  sphere->Delete();
-  sphereMapper->Delete();
-  sphereActor->Delete();
-  ids->Delete();
-  ren1->Delete();
-  visPts->Delete();
-  ldm->Delete();
-  pointLabels->Delete();
-  cc->Delete();
-  visCells->Delete();
-  cellMapper->Delete();
-  cellLabels->Delete();
-  renWin->Delete();
-  iren->Delete();
 
   return 0;
 }
