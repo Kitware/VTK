@@ -15,6 +15,7 @@
 //
 // This examples demonstrates the effect of diffuse lighting.
 //
+#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -29,7 +30,7 @@ int main()
 {
   // The following lines create a sphere represented by polygons.
   //
-  vtkSphereSource *sphere = vtkSphereSource::New();
+  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
   sphere->SetThetaResolution(100);
   sphere->SetPhiResolution(50);
 
@@ -37,7 +38,7 @@ int main()
   // library. It may also do color mapping, if scalars or other attributes
   // are defined.
   //
-  vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
   // The actor is a grouping mechanism: besides the geometry (mapper), it
@@ -46,7 +47,7 @@ int main()
   // spheres) and set the specular lighting coefficients. A little ambient
   // is turned on so the sphere is not completely black on the back side.
   //
-  vtkActor *sphere1 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere1 = vtkSmartPointer<vtkActor>::New();
   sphere1->SetMapper(sphereMapper);
   sphere1->GetProperty()->SetColor(1,0,0);
   sphere1->GetProperty()->SetAmbient(0.3);
@@ -54,7 +55,7 @@ int main()
   sphere1->GetProperty()->SetSpecular(0.0);
   sphere1->GetProperty()->SetSpecularPower(5.0);
 
-  vtkActor *sphere2 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere2 = vtkSmartPointer<vtkActor>::New();
   sphere2->SetMapper(sphereMapper);
   sphere2->GetProperty()->SetColor(1,0,0);
   sphere2->GetProperty()->SetAmbient(0.3);
@@ -63,7 +64,7 @@ int main()
   sphere2->GetProperty()->SetSpecularPower(10.0);
   sphere2->AddPosition(1.25,0,0);
 
-  vtkActor *sphere3 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere3 = vtkSmartPointer<vtkActor>::New();
   sphere3->SetMapper(sphereMapper);
   sphere3->GetProperty()->SetColor(1,0,0);
   sphere3->GetProperty()->SetAmbient(0.3);
@@ -71,7 +72,7 @@ int main()
   sphere3->GetProperty()->SetSpecular(0.0);
   sphere3->AddPosition(2.5,0,0);
 
-  vtkActor *sphere4 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere4 = vtkSmartPointer<vtkActor>::New();
   sphere4->SetMapper(sphereMapper);
   sphere4->GetProperty()->SetColor(1,0,0);
   sphere4->GetProperty()->SetAmbient(0.3);
@@ -79,7 +80,7 @@ int main()
   sphere4->GetProperty()->SetSpecular(0.0);
   sphere4->AddPosition(3.75,0,0);
 
-  vtkActor *sphere5 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere5 = vtkSmartPointer<vtkActor>::New();
   sphere5->SetMapper(sphereMapper);
   sphere5->GetProperty()->SetColor(1,0,0);
   sphere5->GetProperty()->SetAmbient(0.3);
@@ -87,7 +88,7 @@ int main()
   sphere5->GetProperty()->SetSpecular(0.0);
   sphere5->AddPosition(0.0,1.25,0);
 
-  vtkActor *sphere6 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere6 = vtkSmartPointer<vtkActor>::New();
   sphere6->SetMapper(sphereMapper);
   sphere6->GetProperty()->SetColor(1,0,0);
   sphere6->GetProperty()->SetAmbient(0.3);
@@ -95,7 +96,7 @@ int main()
   sphere6->GetProperty()->SetSpecular(0.0);
   sphere6->AddPosition(1.25,1.25,0);
 
-  vtkActor *sphere7 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere7 = vtkSmartPointer<vtkActor>::New();
   sphere7->SetMapper(sphereMapper);
   sphere7->GetProperty()->SetColor(1,0,0);
   sphere7->GetProperty()->SetAmbient(0.3);
@@ -103,7 +104,7 @@ int main()
   sphere7->GetProperty()->SetSpecular(0.0);
   sphere7->AddPosition(2.5,1.25,0);
 
-  vtkActor *sphere8 = vtkActor::New();
+  vtkSmartPointer<vtkActor> sphere8 = vtkSmartPointer<vtkActor>::New();
   sphere8->SetMapper(sphereMapper);
   sphere8->GetProperty()->SetColor(1,0,0);
   sphere8->GetProperty()->SetAmbient(0.3);
@@ -116,10 +117,10 @@ int main()
   // and will perform appropriate camera or actor manipulation
   // depending on the nature of the events.
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Add the actors to the renderer, set the background and size.
@@ -137,7 +138,7 @@ int main()
 
   // Set up the lighting.
   //
-  vtkLight *light = vtkLight::New();
+  vtkSmartPointer<vtkLight> light = vtkSmartPointer<vtkLight>::New();
   light->SetFocalPoint(1.875,0.6125,0);
   light->SetPosition(0.875,1.6125,1);
   ren1->AddLight(light);
@@ -158,25 +159,7 @@ int main()
   iren->Initialize();
   iren->Start();
 
-  // Exiting from here, we have to delete all the instances that
-  // have been created.
-  //
-  sphere->Delete();
-  sphereMapper->Delete();
-  sphere1->Delete();
-  sphere2->Delete();
-  sphere3->Delete();
-  sphere4->Delete();
-  sphere5->Delete();
-  sphere6->Delete();
-  sphere7->Delete();
-  sphere8->Delete();
-  ren1->Delete();
-  renWin->Delete();
-  iren->Delete();
-  light->Delete();
-
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 
