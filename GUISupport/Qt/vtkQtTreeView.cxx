@@ -47,7 +47,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTreeView, "1.31");
+vtkCxxRevisionMacro(vtkQtTreeView, "1.32");
 vtkStandardNewMacro(vtkQtTreeView);
 
 //----------------------------------------------------------------------------
@@ -59,8 +59,11 @@ vtkQtTreeView::vtkQtTreeView()
   this->TreeView = new QTreeView();
   this->ColumnView = new QColumnView();
   this->TreeAdapter = new vtkQtTreeModelAdapter();
-  this->TreeView->setModel(this->TreeAdapter);
-  this->ColumnView->setModel(this->TreeAdapter);
+  this->TreeFilter = new QFilterTreeProxyModel();
+  this->TreeFilter->setSourceModel(this->TreeAdapter);
+  this->TreeFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
+  this->TreeView->setModel(this->TreeFilter);
+  this->ColumnView->setModel(this->TreeFilter);
   this->SelectionModel = new QItemSelectionModel(this->TreeAdapter);
   this->TreeView->setSelectionModel(this->SelectionModel);
   this->ColumnView->setSelectionModel(this->SelectionModel);
@@ -142,6 +145,7 @@ vtkQtTreeView::~vtkQtTreeView()
     delete this->SelectionModel;
     }
   delete this->TreeAdapter;
+  delete this->TreeFilter;
 }
 
 //----------------------------------------------------------------------------
@@ -239,6 +243,24 @@ void vtkQtTreeView::HideAllButFirstColumn()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkQtTreeView::SetFilterColumn(int i) 
+{
+  this->TreeFilter->setFilterKeyColumn(i);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::SetFilterRegExp(const QRegExp& pattern) 
+{
+  this->TreeFilter->setFilterRegExp(pattern);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTreeView::SetFilterTreeLevel(int level) 
+{
+  this->TreeFilter->setFilterTreeLevel(level);
+}
+
 void vtkQtTreeView::AddRepresentationInternal(vtkDataRepresentation* rep)
 {    
   vtkAlgorithmOutput *annConn, *conn;
@@ -299,15 +321,20 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
 {    
   // Convert from a QModelIndexList to an index based vtkSelection
   const QModelIndexList qmil = this->View->selectionModel()->selectedRows();
+  QModelIndexList origRows;
+  for(int i=0; i<qmil.size(); ++i)
+    {
+    origRows.push_back(this->TreeFilter->mapToSource(qmil[i]));
+    }
 
   // If in column view mode, don't propagate a selection of a non-leaf node
   // since such a selection is used to expand the next column.
   if(this->ColumnView->isVisible())
     {
     bool leafNodeSelected = false;
-    for(int i=0; i<qmil.size(); ++i)
+    for(int i=0; i<origRows.size(); ++i)
       {
-      if(!this->TreeAdapter->hasChildren(qmil[i]))
+      if(!this->TreeAdapter->hasChildren(origRows[i]))
         {
         leafNodeSelected = true;
         break;
@@ -319,7 +346,7 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
       }
     }
 
-  vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(qmil);
+  vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(origRows);
   
   // Convert to the correct type of selection
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -357,9 +384,10 @@ void vtkQtTreeView::SetVTKSelection()
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
     s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::VERTEX));
-  
+
   QItemSelection qisList = this->TreeAdapter->
     VTKIndexSelectionToQItemSelection(selection);
+  QItemSelection filteredSel = this->TreeFilter->mapSelectionFromSource(qisList);
     
   // Here we want the qt model to have it's selection changed
   // but we don't want to emit the selection.
@@ -367,7 +395,7 @@ void vtkQtTreeView::SetVTKSelection()
     SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
     this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
     
-  this->View->selectionModel()->select(qisList, 
+  this->View->selectionModel()->select(filteredSel, 
     QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     
   QObject::connect(this->View->selectionModel(), 
@@ -376,9 +404,9 @@ void vtkQtTreeView::SetVTKSelection()
 
   // Make sure selected items are visible
   // FIXME: Should really recurse up all levels of the tree, this just does one.
-  for(int i=0; i<qisList.size(); ++i)
+  for(int i=0; i<filteredSel.size(); ++i)
     {
-    this->TreeView->setExpanded(qisList[i].parent(), true);
+    this->TreeView->setExpanded(filteredSel[i].parent(), true);
     }
 }
 

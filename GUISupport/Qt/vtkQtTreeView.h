@@ -36,7 +36,7 @@
 #include <QPointer>
 #include "vtkQtAbstractModelAdapter.h"
 #include "vtkSmartPointer.h"
-
+#include "QFilterTreeProxyModel.h"
 
 class QAbstractItemDelegate;
 class QAbstractItemView;
@@ -96,6 +96,18 @@ public:
   // Description:
   // Hide all but the first column in the view
   void HideAllButFirstColumn();
+
+  // Description:
+  // The column used to filter on
+  void SetFilterColumn(int i);
+
+  // Description:
+  // The column used to filter on
+  void SetFilterRegExp(const QRegExp& pattern);
+
+  // Description:
+  // The column used to filter on
+  void SetFilterTreeLevel(int level);
 
   // Description:
   // Collapses the model item specified by the index.
@@ -175,6 +187,7 @@ private:
   vtkQtTreeModelAdapter* TreeAdapter;
   QAbstractItemView* View;
   char* ColorArrayNameInternal;
+  QFilterTreeProxyModel* TreeFilter;
   
 //BTX
   vtkSmartPointer<vtkApplyColors> ApplyColors;
