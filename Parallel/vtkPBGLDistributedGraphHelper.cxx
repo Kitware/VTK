@@ -35,7 +35,6 @@
 #include <vtkstd/utility>
 
 
-
 //----------------------------------------------------------------------------
 // private class vtkPBGLDistributedGraphHelperMessageTypes
 //----------------------------------------------------------------------------
@@ -67,8 +66,6 @@ public:
     }
   };
 
-
-
   //----------------------------------------------------------------------------
   // Edge message bundle class for Id:Name edge types
   //----------------------------------------------------------------------------
@@ -94,8 +91,6 @@ public:
     }
   };
 
-
-
   //----------------------------------------------------------------------------
   // Edge message bundle class for Name:Id edge types
   //----------------------------------------------------------------------------
@@ -120,7 +115,6 @@ public:
       ar & uPedigreeId & vDistributedId & propertyArr;
     }
   };
-
 
   //----------------------------------------------------------------------------
   // Edge message bundle class for Name:Name edge types
@@ -151,8 +145,6 @@ typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeIIMessageBundle EdgeIIMes
 typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeINMessageBundle EdgeINMessageBundle;
 typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeNIMessageBundle EdgeNIMessageBundle;
 typedef vtkPBGLDistributedGraphHelperMessageTypes::EdgeNNMessageBundle EdgeNNMessageBundle;
-
-
 
 
 //----------------------------------------------------------------------------
@@ -241,21 +233,18 @@ private:
 };
 
 
-
 // Definition
 boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.14");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.15");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.14");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.15");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
-
-
 
 //----------------------------------------------------------------------------
 vtkPBGLDistributedGraphHelper::vtkPBGLDistributedGraphHelper()
@@ -264,15 +253,11 @@ vtkPBGLDistributedGraphHelper::vtkPBGLDistributedGraphHelper()
   this->Internals->Helper = this;
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkPBGLDistributedGraphHelper::~vtkPBGLDistributedGraphHelper()
 {
   this->Internals->Delete();
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
@@ -282,15 +267,11 @@ void vtkPBGLDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "vtkPBGLDistributedGraphHelper" << endl;
 }
 
-
-
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::Synchronize()
 {
   synchronize(this->Internals->process_group);
 }
-
-
 
 //----------------------------------------------------------------------------
 vtkDistributedGraphHelper *vtkPBGLDistributedGraphHelper::Clone()
@@ -298,15 +279,11 @@ vtkDistributedGraphHelper *vtkPBGLDistributedGraphHelper::Clone()
   return vtkPBGLDistributedGraphHelper::New();
 }
 
-
-
 //----------------------------------------------------------------------------
 boost::graph::distributed::mpi_process_group vtkPBGLDistributedGraphHelper::GetProcessGroup()
 {
   return this->Internals->process_group.base();
 }
-
-
 
 //----------------------------------------------------------------------------
 void
@@ -375,8 +352,6 @@ vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyArr,
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 void
 vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& pedigreeId,
@@ -436,8 +411,6 @@ vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& pedigreeId,
     send(this->Internals->process_group, owner, ADD_VERTEX_NO_REPLY_TAG, pedigreeId);
     }
 }
-
-
 
 //----------------------------------------------------------------------------
 void
@@ -593,8 +566,6 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 void
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
@@ -627,8 +598,6 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
     }
 
   // Edge is remote: request its addition.
-
-  //vtkIdType vDistribId = this->MakeDistributedId(rank,vDistributedId);
   if (edge)
     {
     #if defined(DEBUG)      // WCMCLEN
@@ -664,8 +633,6 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 void
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
@@ -694,7 +661,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
     // Resolve the pedigree ID for v immediately and add the edge.
     vtkIdType vDistributedId;
     this->AddVertexInternal(vPedigreeId, &vDistributedId);
-    vDistributedId=this->MakeDistributedId(rank,vDistributedId);
+    vDistributedId=this->MakeDistributedId(vOwner,vDistributedId);  // pass vOwner, NOT rank
     this->AddEdgeInternal(uDistributedId, vDistributedId, directed, propertyArr, edge);
     return;
     }
@@ -715,8 +682,6 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
        EdgeINMessageBundle(uDistributedId,vPedigreeId,propertyArr));
 }
 
-
-
 //----------------------------------------------------------------------------
 void
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
@@ -732,6 +697,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 #if defined(DEBUG)      // WCMCLEN
   cout << "[" << rank << "]\tAddEdgeInternal<uPed,vPed>("
        << "u="<< uPedigreeId.ToString() << ", "
+       << "uOwner="<< uOwner << ", "
        << "v="<< vPedigreeId.ToString() << ", "
        << "prop=" << propertyArr << ", "
        << "edge=" << edge
@@ -744,6 +710,11 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
     vtkIdType u;
     this->AddVertexInternal(uPedigreeId, &u);
     vtkIdType uDistributedId = this->MakeDistributedId(rank,u);
+#if defined(DEBUG)      // WCMCLEN
+  cout << "[" << rank << " uPed,vPed]("
+       << "u="<< u << ", "
+       << ")" << endl;
+#endif
     this->AddEdgeInternal(uDistributedId, vPedigreeId, directed, propertyArr, edge);
     return;
     }
@@ -754,7 +725,11 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
     // Resolve the pedigree ID for v immediately and add the edge.
     vtkIdType vLocalIndex;
     this->AddVertexInternal(vPedigreeId, &vLocalIndex);
-    vtkIdType vDistributedId = this->MakeDistributedId(rank,vLocalIndex);
+    vtkIdType vDistributedId = this->MakeDistributedId(vOwner,vLocalIndex); // pass vOwner, NOT rank
+#if defined(DEBUG)      // WCMCLEN
+  cout << "[" << rank << " uPed,vPed]("
+       << ")" << endl;
+#endif
     this->AddEdgeInternal(uPedigreeId, vDistributedId, directed, propertyArr, edge);
     return;
     }
@@ -778,8 +753,6 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkIdType
 vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId)
@@ -793,15 +766,12 @@ vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId)
     return this->Graph->FindVertex(pedigreeId);
     }
 
-  // The vertex is remote; Send a message looking for this
-  // vertex.
+  // The vertex is remote; send a message looking for it.
   vtkIdType result;
   send_oob_with_reply(this->Internals->process_group, owner,
                       FIND_VERTEX_TAG, pedigreeId, result);
   return result;
 }
-
-
 
 //----------------------------------------------------------------------------
 void
@@ -839,8 +809,6 @@ vtkPBGLDistributedGraphHelper::FindEdgeSourceAndTarget(vtkIdType id,
     *target = result.second;
     }
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
@@ -961,9 +929,8 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
   // vtkDistributedGraphHelper will set up the appropriate masks.
   this->Superclass::AttachToGraph(graph);
 }
-
-
-
+//----------------------------------------------------------------------------
+//-------------  vtkPBGLDistributedGraphHelperInternals methods --------------
 //----------------------------------------------------------------------------
 vtkIdType
 vtkPBGLDistributedGraphHelperInternals::
@@ -971,8 +938,6 @@ HandleFindVertex(const vtkVariant& pedigreeId)
 {
   return this->Helper->FindVertex(pedigreeId);
 }
-
-
 
 //----------------------------------------------------------------------------
 vtkstd::pair<vtkIdType, vtkIdType>
@@ -984,8 +949,6 @@ HandleFindEdgeSourceTarget(vtkIdType id)
   return result;
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkIdType
 vtkPBGLDistributedGraphHelperInternals::
@@ -996,8 +959,6 @@ HandleAddVertexProps(vtkVariantArray *propArr)
   return result;
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkIdType
 vtkPBGLDistributedGraphHelperInternals::
@@ -1007,8 +968,6 @@ HandleAddVertex(const vtkVariant& pedigreeId)
   this->Helper->AddVertexInternal(pedigreeId, &result);
   return result;
 }
-
-
 
 //----------------------------------------------------------------------------
 void
@@ -1038,8 +997,6 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddBackEdge
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkEdgeType
 vtkPBGLDistributedGraphHelperInternals::HandleAddEdge
@@ -1061,8 +1018,7 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdge
   return result;
 }
 
-
-
+//----------------------------------------------------------------------------
 vtkEdgeType
 vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNI
   (const EdgeNIMessageBundle& msg, bool directed)
@@ -1081,8 +1037,6 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNI
                                 msg.propertyArr, &result);
   return result;
 }
-
-
 
 //----------------------------------------------------------------------------
 vtkEdgeType
@@ -1103,8 +1057,6 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeIN
   return result;
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkEdgeType
 vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN
@@ -1114,7 +1066,8 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN
   cout << "["<< process_group.rank << "]\tHandleAddEdgeNN"
        << "("  << msg.uPedigreeId.ToString()
        << ", " << msg.vPedigreeId.ToString() << ")"
-       << endl; fflush(stdout); // WCMCLEN
+       << endl;
+  fflush(stdout);
 #endif
   vtkEdgeType result;
   this->Helper->AddEdgeInternal(msg.uPedigreeId, msg.vPedigreeId, directed,
@@ -1122,14 +1075,9 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN
   return result;
 }
 
-
-
 //----------------------------------------------------------------------------
 // Parallel BGL interface functions
 //----------------------------------------------------------------------------
-
-
-
 //----------------------------------------------------------------------------
 boost::graph::distributed::mpi_process_group
 process_group(vtkGraph *graph)
