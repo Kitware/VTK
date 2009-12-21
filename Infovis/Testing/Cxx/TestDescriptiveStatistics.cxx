@@ -194,8 +194,24 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Check some results of the Test option
+  cout << "\n## Jarque-Bera statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest1->GetColumnName( i )
+           << "="
+           << outputTest1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
   double maxdev = 1.5;
-  cout << "## Searching for outliers from mean with relative deviation > "
+  cout << "\n## Searching for outliers from mean with relative deviation > "
        << maxdev
        << " for metric 1:\n";
 
@@ -264,24 +280,8 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
-  // Check some results of the Test option
-  cout << "## Jarque-Bera statistics:\n";
-  for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputTest1->GetColumnName( i )
-           << "="
-           << outputTest1->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
-    cout << "\n";
-    }
-
   // Now, used modified output 1 as input 1 to test 0-deviation
-  cout << "## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
+  cout << "\n## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
 
   vtkTable* paramsTable = vtkTable::New();
   paramsTable->ShallowCopy( outputMeta1 );
@@ -530,14 +530,12 @@ int TestDescriptiveStatistics( int, char *[] )
     vtkGenericWarningMacro("Incorrect variance");
     testStatus = 1;
     }
-  cout << "\n";
   
   if ( fabs ( outputSimpleMeta->GetValueByName( 0, "g1 Skewness" ).ToDouble() - g1 ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect g1 skewness");
     testStatus = 1;
     }
-  cout << "\n";
   
   if ( fabs ( outputSimpleMeta->GetValueByName( 0, "g2 Kurtosis" ).ToDouble() - g2 ) > 1.e-6 )
     {
