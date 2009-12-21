@@ -20,6 +20,7 @@ INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 # add files that require Qt 4
 SET ( QVTKLibSrcs
     ${QVTKLibSrcs}
+    QFilterTreeProxyModel.cxx
     QVTKPaintEngine.cxx
     QVTKPaintEngine.h
     vtkQtAbstractModelAdapter.cxx
@@ -34,6 +35,7 @@ SET ( QVTKLibSrcs
     
 SET ( QVTKMocHeaders
     ${QVTKMocHeaders}
+    QFilterTreeProxyModel.h
     vtkQtAbstractModelAdapter.h
     vtkQtAnnotationLayersModelAdapter.h
     vtkQtTableModelAdapter.h
