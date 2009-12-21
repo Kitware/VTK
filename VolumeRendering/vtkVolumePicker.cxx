@@ -20,7 +20,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumePicker, "1.5");
+vtkCxxRevisionMacro(vtkVolumePicker, "1.6");
 vtkStandardNewMacro(vtkVolumePicker);
 
 //----------------------------------------------------------------------------
@@ -149,11 +149,11 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
       for (int j = 0; j < 3; j++)
         {
         double x = x1[j]*(1.0 - tMin) + x2[j]*tMin;
-        if (j == planeId/2)
+        if (planeId >= 0 && j == planeId/2)
           {
           x = bounds[planeId];
           }
-        else if (j == extentPlaneId/2)
+        else if (planeId < 0 && extentPlaneId >= 0 && j == extentPlaneId/2)
           {
           x = extent[extentPlaneId];
           }
