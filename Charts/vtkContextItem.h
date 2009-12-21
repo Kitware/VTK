@@ -64,6 +64,10 @@ public:
   // Description:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse wheel event, positive delta indicates forward movement of the wheel.
+  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
   // Description:

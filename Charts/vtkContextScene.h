@@ -120,6 +120,10 @@ protected:
   // Process a mouse button release event.
   virtual void ButtonReleaseEvent(int button, int x, int y);
 
+  // Description:
+  // Process a mouse wheel event where delta is the movement forward or back.
+  virtual void MouseWheelEvent(int delta, int x, int y);
+
   vtkAnnotationLink *AnnotationLink;
 
   // Store the chart dimensions - width, height of scene in pixels

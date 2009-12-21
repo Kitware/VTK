@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.5");
+vtkCxxRevisionMacro(vtkContextItem, "1.6");
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D)
 
 //-----------------------------------------------------------------------------
@@ -95,6 +95,12 @@ bool vtkContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 
 //-----------------------------------------------------------------------------
 bool vtkContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
 {
   return false;
 }

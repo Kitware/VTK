@@ -82,6 +82,14 @@ public:
         case vtkCommand::RightButtonReleaseEvent :
           this->Target->ButtonReleaseEvent(2, x, y);
           break;
+        case vtkCommand::MouseWheelForwardEvent :
+          // There is a forward and a backward event - not clear on deltas...
+          this->Target->MouseWheelEvent(1, x, y);
+          break;
+        case vtkCommand::MouseWheelBackwardEvent :
+          // There is a forward and a backward event - not clear on deltas...
+          this->Target->MouseWheelEvent(-1, x, y);
+          break;
         case vtkCommand::SelectionChangedEvent :
           this->Target->ProcessSelectionEvent(caller, callData);
           break;
@@ -108,7 +116,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.9");
+vtkCxxRevisionMacro(vtkContextScene, "1.10");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
@@ -336,6 +344,34 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
     this->Storage->items[this->Storage->itemMousePressCurrent]->MouseButtonReleaseEvent(event);
     this->Storage->itemMousePressCurrent = -1;
     event.Button = -1;
+    }
+}
+
+void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
+{
+  int size = static_cast<int>(this->Storage->items.size());
+  vtkContextMouseEvent &event = this->Storage->Event;
+  event.ScreenPos[0] = event.LastScreenPos[0] = x;
+  event.ScreenPos[1] = event.LastScreenPos[1] = y;
+  event.ScenePos[0] = event.LastScenePos[0] = x;
+  event.ScenePos[1] = event.LastScenePos[1] = y;
+  event.Button = 1;
+  for (int i = size-1; i >= 0; --i)
+    {
+    this->PerformTransform(this->Storage->items[i]->GetTransform(), event);
+    if (this->Storage->items[i]->Hit(event))
+      {
+      if (this->Storage->items[i]->MouseWheelEvent(event, delta))
+        {
+        // The event was accepted - stop propagating
+        break;
+        }
+      }
+    }
+
+  if (this->Window)
+    {
+    this->Window->Render();
     }
 }
 
