@@ -1,19 +1,26 @@
+//
+// Delaunay3D
+// Usage: Delaunay3D InputFile(.vtp) OutputFile(.vtu)
+//        where
+//        InputFile is an XML PolyData file with extension .vtp
+//        OutputFile is an XML Unstructured Grid file with extension .vtu
+//
 #include <vtkSmartPointer.h>
 #include <vtkCleanPolyData.h>
 #include <vtkDelaunay3D.h>
 #include <vtkXMLDataSetWriter.h>
 #include <vtkXMLPolyDataReader.h>
-
  
 int main ( int argc, char *argv[] )
 {
   if (argc != 3)
     {
-    cout << "Usage: " << argv[0] << " InputPolyDataFile OutputDataSetFile" << endl;
+    cout << "Usage: " << argv[0]
+         << " InputPolyDataFile OutputDataSetFile" << endl;
     return EXIT_FAILURE;
     }
 
-  //Read a file
+  //Read the file
   vtkSmartPointer<vtkXMLPolyDataReader> reader =
     vtkSmartPointer<vtkXMLPolyDataReader>::New();
   reader->SetFileName (argv[1]);
@@ -30,6 +37,7 @@ int main ( int argc, char *argv[] )
     vtkSmartPointer<vtkDelaunay3D>::New();
   delaunay3D->SetInputConnection (cleaner->GetOutputPort());
 
+  // Write the mesh as an unstructured grid
   vtkSmartPointer<vtkXMLDataSetWriter> writer =
     vtkSmartPointer<vtkXMLDataSetWriter>::New();
   writer->SetFileName ( argv[2] );
