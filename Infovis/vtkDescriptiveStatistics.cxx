@@ -37,7 +37,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.86");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.87");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -333,7 +333,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     outMeta->InsertNextRow( row );
 
     row->Delete();
-    }
+    } // rit
 
   return;
 }
@@ -447,6 +447,76 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
     }
 
   delete [] derivedVals;
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::Test( vtkTable* inData,
+                                     vtkDataObject* inMetaDO,
+                                     vtkDataObject* outMetaDO )
+{
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  if ( ! outMeta )
+    {
+    return;
+    }
+
+  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
+    {
+    return;
+    }
+
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  if ( nRowData <= 0 )
+    {
+    return;
+    }
+
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  outMeta->AddColumn( stringCol );
+  stringCol->Delete();
+
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Jarque-Bera" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  // Loop over requests
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      continue;
+      }
+
+    double jb = 0.;
+    // FIXME: implement Jarque-Bera test here
+    
+    vtkVariantArray* row = vtkVariantArray::New();
+
+    row->SetNumberOfValues( 2 );
+
+    row->SetValue( 0, varName );
+    row->SetValue( 1, jb );
+
+    outMeta->InsertNextRow( row );
+
+    row->Delete();
+    } // rit
+
 }
 
 // ----------------------------------------------------------------------

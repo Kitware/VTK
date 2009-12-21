@@ -143,6 +143,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   vtkTable* outputData1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkTable* outputMeta1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
+  vtkTable* outputTest1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   datasetTable1->Delete();
 
@@ -157,10 +158,11 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetNominalParameter( "Mean");
   ds1->SetDeviationParameter( "Standard Deviation");
 
-  // Run with Learn and Assess options
+  // Test Learn, Derive, Assess, and Test options
   ds1->SetLearnOption( true );
   ds1->SetDeriveOption( true );
   ds1->SetAssessOption( true );
+  ds1->SetTestOption( true );
   ds1->SignedDeviationsOff();
   ds1->Update();
 
@@ -262,7 +264,23 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
-  // Used modified output 1 as input 1 to test 0-deviation
+  // Check some results of the Test option
+  cout << "## Jarque-Bera statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest1->GetColumnName( i )
+           << "="
+           << outputTest1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
+  // Now, used modified output 1 as input 1 to test 0-deviation
   cout << "## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
 
   vtkTable* paramsTable = vtkTable::New();

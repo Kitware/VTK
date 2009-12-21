@@ -120,7 +120,6 @@ int TestContingencyStatistics( int, char *[] )
   vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
   vtkTable* outputContingency = vtkTable::SafeDownCast( outputModelDS->GetBlock( 1 ) );
-
   vtkTable* outputTest = vtkTable::SafeDownCast( cs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_TEST ) );
 
   int testIntValue = 0;

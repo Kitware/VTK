@@ -93,6 +93,12 @@ protected:
   // Execute the calculations required by the Derive option.
   virtual void Derive( vtkDataObject* );
 
+  // Description:
+  // Execute the calculations required by the Test option.
+  virtual void Test( vtkTable* inData,
+                     vtkDataObject* inMeta,
+                     vtkDataObject* outMeta ); 
+
   int SignedDeviations;
 
 //BTX  
