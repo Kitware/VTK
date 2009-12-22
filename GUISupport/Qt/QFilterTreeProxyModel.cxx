@@ -56,8 +56,8 @@ bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     return filterAcceptsRow(sourceRow, sourceParent.parent());
     }
 
- QModelIndex index = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
+ QModelIndex idx = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
 
- return (sourceModel()->data(index).toString().contains(filterRegExp()));
+ return (sourceModel()->data(idx).toString().contains(filterRegExp()));
 }
 
