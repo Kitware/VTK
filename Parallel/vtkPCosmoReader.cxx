@@ -81,7 +81,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCommunicator.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.4");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.5");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 using namespace cosmo;
@@ -143,6 +143,8 @@ void vtkPCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Controller: (null)\n";
     }
+  os << indent << "TakeTurns: " << this->TakeTurns << endl;
+  os << indent << "ReadProcessors: " << this->ReadProcessors << endl;
 }
 
 //----------------------------------------------------------------------------
