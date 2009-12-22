@@ -37,7 +37,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.87");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.88");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -96,7 +96,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
   if ( ! inMeta ) 
     { 
-    return; 
+    return;
     }
 
   vtkIdType nRow = inMeta->GetNumberOfRows();
@@ -116,7 +116,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     inMeta = vtkTable::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
       { 
-      return; 
+      return;
       }
     
     if ( inMeta->GetNumberOfRows() != nRow )
@@ -154,7 +154,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
       
       // Update global statics
-      int N = n + n_c; 
+      int N = n + n_c;
 
       if ( min_c < min )
         {
@@ -208,7 +208,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
     { 
-    return; 
+    return;
     } 
 
   vtkStringArray* stringCol = vtkStringArray::New();
@@ -269,7 +269,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     }
   
   // Loop over requests
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
@@ -299,7 +299,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
       val = inData->GetValueByName( r, varName ).ToDouble();
       delta = val - mean;
 
-      A = delta * inv_n; 
+      A = delta * inv_n;
       mean += A;
       mom4 += A * ( A * A * delta * r * ( n * ( n - 3. ) + 3. ) + 6. * A * mom2 - 4. * mom3  );
 
@@ -341,10 +341,10 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 {
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
   if ( ! inMeta ) 
     { 
-    return; 
+    return;
     } 
 
   vtkIdType nCol = inMeta->GetNumberOfColumns();
@@ -390,7 +390,7 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
 
-    int numSamples = inMeta->GetValueByName(i, "Cardinality" ).ToInt();
+    int numSamples = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
 
     if ( numSamples == 1 || mom2 < 1.e-150 )
       {
@@ -460,23 +460,24 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     return;
     }
 
-  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
-  vtkIdType nRowData = inData->GetNumberOfRows();
-  if ( nRowData <= 0 )
-    {
-    return;
-    }
-
   vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
   if ( ! inMeta ) 
     { 
     return; 
     } 
 
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( nRow <= 0 )
+    {
+    return;
+    }
+
+  if ( inMeta->GetNumberOfColumns() < 8 )
+    {
+    return;
+    }
+
+  // Prepare columns for the test
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
   outMeta->AddColumn( stringCol );
@@ -486,6 +487,15 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   doubleCol->SetName( "Jarque-Bera" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
+
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
+  
+  // Rows of the test table contain:
+  // 0: variable name
+  // 1: Jarque-Bera statistic
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 2 );
 
   // Loop over requests
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
@@ -502,21 +512,39 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
       continue;
       }
 
-    double jb = 0.;
-    // FIXME: implement Jarque-Bera test here
+    // Find the model row that corresponds to the variable of the request
+    vtkIdType r = 0;
+    while ( r < nRow && vars->GetValue( r ) != varName )
+      {
+      ++ r;
+      }
+    if ( r >= nRow )
+      {
+      vtkErrorMacro( "Incomplete input: model does not have a row "
+                     << varName.c_str()
+                     <<". Cannot test." );
+      return;
+      }
     
-    vtkVariantArray* row = vtkVariantArray::New();
+    // Retrieve model statistics necessary for Jarque-Bera testing
+    double n = inMeta->GetValueByName( r, "Cardinality" ).ToDouble();
+    double m2 = inMeta->GetValueByName( r, "M2" ).ToDouble();
+    double m3 = inMeta->GetValueByName( r, "M3" ).ToDouble();
+    double m4 = inMeta->GetValueByName( r, "M4" ).ToDouble();
 
-    row->SetNumberOfValues( 2 );
-
+    double m22 = m2 * m2;
+    double s = sqrt( n / ( m22 * m2 ) ) * m3;
+    double k = n * m4 / m22 - 3.;
+    double jb = n * ( s * s + .25 * k * k ) / 6.;
+    
     row->SetValue( 0, varName );
     row->SetValue( 1, jb );
 
     outMeta->InsertNextRow( row );
-
-    row->Delete();
     } // rit
 
+  // Clean up
+  row->Delete();
 }
 
 // ----------------------------------------------------------------------

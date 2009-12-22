@@ -12,8 +12,10 @@
 
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTimerLog.h"
 #include "vtkDescriptiveStatistics.h"
 
 //=============================================================================
@@ -143,7 +145,6 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   vtkTable* outputData1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkTable* outputMeta1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
-  vtkTable* outputTest1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   datasetTable1->Delete();
 
@@ -191,22 +192,6 @@ int TestDescriptiveStatistics( int, char *[] )
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
       }
-    cout << "\n";
-    }
-
-  // Check some results of the Test option
-  cout << "\n## Jarque-Bera statistics:\n";
-  for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputTest1->GetColumnName( i )
-           << "="
-           << outputTest1->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
     cout << "\n";
     }
 
@@ -494,20 +479,20 @@ int TestDescriptiveStatistics( int, char *[] )
   double g1 = 0.;
   double g2 = -1.56163636363636;
 
-  ds = vtkDescriptiveStatistics::New();
-  ds->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
-  vtkTable* outputSimpleMeta = ds->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
+  vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
+  ds3->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
+  vtkTable* outputSimpleMeta = ds3->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
   simpleTable->Delete();
 
   // Select Column of Interest
-  ds->AddColumn( "Digits" );
+  ds3->AddColumn( "Digits" );
 
   // Test Learn and Derive only
-  ds->SetLearnOption( true );
-  ds->SetDeriveOption( true );
-  ds->SetAssessOption( false );
-  ds->Update();
+  ds3->SetLearnOption( true );
+  ds3->SetDeriveOption( true );
+  ds3->SetAssessOption( false );
+  ds3->Update();
 
   cout << "\n## Calculated the following statistics for {0,...9} sequence:\n";
   
@@ -544,7 +529,70 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   cout << "\n";
 
-  ds->Delete();
+  ds3->Delete();
+
+  // ************** Pseudo-random sample to exercise Jarque-Bera test ********* 
+  int nGaussianVals = 1000;
+
+  vtkDoubleArray* datasetArrG = vtkDoubleArray::New();
+  datasetArrG->SetNumberOfComponents( 1 );
+  datasetArrG->SetName( "Standard Normal" );
+
+  vtkDoubleArray* datasetArrU = vtkDoubleArray::New();
+  datasetArrU->SetNumberOfComponents( 1 );
+  datasetArrU->SetName( "Standard Uniform" );
+
+  // Seed random number generator
+  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
+
+  for ( int i = 0; i < nGaussianVals; ++ i )
+    {
+    datasetArrG->InsertNextValue( vtkMath::Gaussian() );
+    datasetArrU->InsertNextValue( vtkMath::Random() );
+    }
+
+  vtkTable* gaussianTable = vtkTable::New();
+  gaussianTable->AddColumn( datasetArrG );
+  datasetArrG->Delete();
+  gaussianTable->AddColumn( datasetArrU );
+  datasetArrU->Delete();
+
+  vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
+  ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
+  vtkTable* outputTest4 = ds4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
+
+  gaussianTable->Delete();
+
+  // Select Column of Interest
+  ds4->AddColumn( "Standard Normal" );
+  ds4->AddColumn( "Standard Uniform" );
+
+  // Test Learn and Derive only
+  ds4->SetLearnOption( true );
+  ds4->SetDeriveOption( true );
+  ds4->SetTestOption( true );
+  ds4->SetAssessOption( false );
+  ds4->Update();
+
+  // Check some results of the Test option
+  cout << "\n## Jarque-Bera statistics for pseudo-random standard normal variable (n="
+       << nGaussianVals
+       << "):\n";
+  for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest4->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest4->GetColumnName( i )
+           << "="
+           << outputTest4->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+  
+  ds4->Delete();
 
   return testStatus;
 }
