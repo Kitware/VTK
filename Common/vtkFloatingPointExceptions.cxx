@@ -31,9 +31,10 @@ namespace {
 
 void signal_handler(int signal)
 {
-  cerr << "Error: Floating point error detected. Signal " << signal << endl;
-  // This should possibly throw an exception rather than exit.
-  exit(1);
+  cerr << "Error: Floating point exception detected. Signal " << signal << endl;
+  // This should possibly throw an exception rather than abort, abort should
+  // at least give access to the stack when it fails here.
+  abort();
 }
 
 } // End anonymous namespace
