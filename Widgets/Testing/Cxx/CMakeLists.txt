@@ -13,10 +13,10 @@ SET(MyTests
 #  TestAffineWidget.cxx
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
-#  TestBalloonWidget.cxx
+  TestBalloonWidget.cxx
 #  TestBorderWidget.cxx
 #  TestCameraWidget.cxx
-#  TestCaptionWidget.cxx
+  TestCaptionWidget.cxx
 #  TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
 #  TestDistanceWidget.cxx
@@ -32,7 +32,7 @@ SET(MyTests
   TestSeedWidget.cxx
   TestSliderWidget.cxx
   TestSliderWidget2D.cxx
-#  TestTextWidget.cxx
+  TestTextWidget.cxx
   TerrainPolylineEditor.cxx
   TestDijkstraGraphGeodesicPath.cxx
   TestParallelopipedWidget.cxx

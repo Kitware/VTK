@@ -79,7 +79,8 @@ int TestCaptionWidget( int argc, char *argv[] )
   //
   iren->Initialize();
   renWin->Render();
-//  widget->On();
+  widget->On();
+  renWin->Render();
 //  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"

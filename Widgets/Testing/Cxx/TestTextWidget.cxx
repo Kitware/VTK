@@ -22,6 +22,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkTextActor.h"
+#include "vtkTextProperty.h"
+#include "vtkTextRepresentation.h"
+#include "vtkCoordinate.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -52,8 +55,16 @@ int TestTextWidget( int argc, char *argv[] )
   // Create the widget
   vtkTextActor *ta = vtkTextActor::New();
   ta->SetInput("This is a test");
+  ta->GetTextProperty()->SetColor( 0.0, 1.0, 0.0 );
 
   vtkTextWidget *widget = vtkTextWidget::New();
+
+  vtkTextRepresentation *rep = vtkTextRepresentation::New();
+  rep->GetPositionCoordinate()->SetValue( .15, .15 );
+  rep->GetPosition2Coordinate()->SetValue( .7, .2 );
+  widget->SetRepresentation( rep );
+  rep->Delete();
+
   widget->SetInteractor(iren);
   widget->SetTextActor(ta);
   widget->SelectableOff();
@@ -77,6 +88,7 @@ int TestTextWidget( int argc, char *argv[] )
   iren->Initialize();
   renWin->Render();
   widget->On();
+  renWin->Render();
 //  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
