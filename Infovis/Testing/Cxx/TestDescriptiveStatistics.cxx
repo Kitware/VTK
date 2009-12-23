@@ -546,6 +546,10 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetArrL->SetNumberOfComponents( 1 );
   datasetArrL->SetName( "Standard Log-Normal" );
 
+  vtkDoubleArray* datasetArrE = vtkDoubleArray::New();
+  datasetArrE->SetNumberOfComponents( 1 );
+  datasetArrE->SetName( "Standard Exponential" );
+
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
@@ -554,6 +558,7 @@ int TestDescriptiveStatistics( int, char *[] )
     datasetArrG->InsertNextValue( vtkMath::Gaussian() );
     datasetArrU->InsertNextValue( vtkMath::Random() );
     datasetArrL->InsertNextValue( exp( vtkMath::Gaussian() ) );
+    datasetArrE->InsertNextValue( -log ( vtkMath::Random() ) );
     }
 
   vtkTable* gaussianTable = vtkTable::New();
@@ -563,6 +568,8 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetArrU->Delete();
   gaussianTable->AddColumn( datasetArrL );
   datasetArrL->Delete();
+  gaussianTable->AddColumn( datasetArrE );
+  datasetArrE->Delete();
 
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
   ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
@@ -575,6 +582,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds4->AddColumn( "Standard Normal" );
   ds4->AddColumn( "Standard Uniform" );
   ds4->AddColumn( "Standard Log-Normal" );
+  ds4->AddColumn( "Standard Exponential" );
 
   // Test Learn and Derive only
   ds4->SetLearnOption( true );
@@ -583,19 +591,26 @@ int TestDescriptiveStatistics( int, char *[] )
   ds4->SetAssessOption( false );
   ds4->Update();
 
-  // Print calculated statistics of the Learn and Derive options
-  cout << "\n## Calculated the following statistics for pseudo-random variables:\n";
+  // Print some calculated statistics of the Learn and Derive options
+  cout << "\n## Some calculated descriptive statistics for pseudo-random variables (n="
+       << nGaussianVals
+       << "):\n";
+
+  int soi[] = { 0, 2, 3, 4, 9, 10, 12 };
+  int nsoi = 7;
 
   for ( vtkIdType r = 0; r < outputMeta4->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputMeta4->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < nsoi; ++ i )
       {
-      cout << outputMeta4->GetColumnName( i )
+      cout << outputMeta4->GetColumnName( soi[i] )
            << "="
-           << outputMeta4->GetValue( r, i ).ToString()
+           << outputMeta4->GetValue( r, soi[i] ).ToString()
            << "  ";
       }
+
+    cout << "\n";
     }
 
   // Check some results of the Test option
