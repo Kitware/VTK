@@ -16,7 +16,7 @@ view.SetVertexLabelVisibility(True)
 view.SetVertexColorArrayName("BFS")
 view.SetColorVertices(True)
 view.SetEdgeColorArrayName("edge weight")
-view.SetColorEdges(False)
+view.SetColorEdges(True)
 view.SetLayoutStrategyToSimple2D()
 view.SetVertexLabelFontSize(20)
 
