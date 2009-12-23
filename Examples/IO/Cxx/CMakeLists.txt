@@ -9,12 +9,12 @@ ENDIF(NOT VTK_BINARY_DIR)
 ADD_EXECUTABLE(DumpXMLFile DumpXMLFile.cxx)
 TARGET_LINK_LIBRARIES(DumpXMLFile vtkIO)
 
-ADD_EXECUTABLE(ReadXYZAFile ReadXYZAFile.cxx)
-TARGET_LINK_LIBRARIES(ReadXYZAFile vtkHybrid)
+ADD_EXECUTABLE(ParticleReader ParticleReader.cxx)
+TARGET_LINK_LIBRARIES(ParticleReader vtkHybrid)
 
 ######## Regression Testing ########
 SET(KIT IOExamples)
-SET(MyTests TestDumpXMLFile.cxx TestReadXYZAFile.cxx)
+SET(MyTests TestDumpXMLFile.cxx TestParticleReader.cxx)
 
 INCLUDE(${VTK_SOURCE_DIR}/Examples/vtkTestingObjectFactory.cmake)
 
@@ -24,10 +24,10 @@ ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
 
 IF (VTK_DATA_ROOT)
-ADD_TEST(${KIT}-ReadXYZAFile ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
-         TestReadXYZAFile
+ADD_TEST(${KIT}-ParticleReader ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
+         TestParticleReader
            ${VTK_DATA_ROOT}/Data/golf.csv
-           ${VTK_BINARY_DIR}/Testing/Temporary/TestReadXYZAFile.vtp)
+           ${VTK_BINARY_DIR}/Testing/Temporary/TestParticleReader.vtp)
 ADD_TEST(${KIT}-DumpXMLFile ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
          TestDumpXMLFile
            ${VTK_DATA_ROOT}/Data/cow.vtp)
