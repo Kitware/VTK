@@ -57,6 +57,7 @@ public:
 //ETX
   virtual vtkIdType GetNumberPlots();
 
+//BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -84,6 +85,7 @@ public:
   // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+//ETX
 
 //BTX
 protected:

@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.13");
+vtkCxxRevisionMacro(vtkChartXY, "1.14");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -335,7 +335,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
 {
-  return true;
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -354,7 +354,7 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
-  return true;
+  return false;
 }
 
 //-----------------------------------------------------------------------------
