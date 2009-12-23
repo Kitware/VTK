@@ -71,7 +71,8 @@ public:
 
   virtual void SetSelection(vtkIdTypeArray *id);
 
-  virtual void GetBounds(double bounds[4]) { vtkNotUsed(bounds); }
+  virtual void GetBounds(double bounds[4])
+  { bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0; }
 
 //BTX
   // Description:

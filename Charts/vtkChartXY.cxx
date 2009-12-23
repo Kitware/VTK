@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.14");
+vtkCxxRevisionMacro(vtkChartXY, "1.15");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -304,7 +304,7 @@ bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   return true;
 }
@@ -321,11 +321,17 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   this->PlotTransform->InverseTransformPoints(last, last, 1);
   double delta[] = { last[0] - pos[0], last[1] - pos[1] };
 
+  cout << "Delta from transformed points: " << delta[0] << " " << delta[1] << endl;
+
   // Now move the axes and recalculate the transform
   this->XAxis->SetMinimum(this->XAxis->GetMinimum() + delta[0]);
   this->XAxis->SetMaximum(this->XAxis->GetMaximum() + delta[0]);
   this->YAxis->SetMinimum(this->YAxis->GetMinimum() + delta[1]);
   this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
+
+  delta[0] = mouse.LastPos[0] - mouse.Pos[0];
+  delta[0] = mouse.LastPos[1] - mouse.Pos[1];
+  cout << "Delta from transformed points: " << delta[0] << " " << delta[1] << endl;
 
   this->RecalculatePlotTransform();
 
@@ -333,7 +339,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
@@ -352,13 +358,13 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
+bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 {
   // Get the bounds of each plot.
   float xmin = this->XAxis->GetMinimum();
