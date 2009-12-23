@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.9");
+vtkCxxRevisionMacro(vtkTriangle, "1.10");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -47,6 +47,18 @@ vtkTriangle::vtkTriangle()
 vtkTriangle::~vtkTriangle()
 {
   this->Line->Delete();
+}
+
+//----------------------------------------------------------------------------
+double vtkTriangle::ComputeArea()
+{
+  double p0[3];
+  double p1[3];
+  double p2[3];
+  this->GetPoints()->GetPoint(0, p0);
+  this->GetPoints()->GetPoint(1, p1);
+  this->GetPoints()->GetPoint(2, p2);
+  return vtkTriangle::TriangleArea(p0, p1, p2);
 }
 
 

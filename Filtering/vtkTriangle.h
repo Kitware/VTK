@@ -63,6 +63,8 @@ public:
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
+  double ComputeArea();
+
   // Description:
   // Clip this triangle using scalar value provided. Like contouring, except
   // that it cuts the triangle to produce other triangles.

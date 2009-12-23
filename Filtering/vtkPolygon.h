@@ -70,6 +70,8 @@ public:
                    int dim, double *derivs);
   int IsPrimaryCell() {return 0;}
 
+  double ComputeArea();
+
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)

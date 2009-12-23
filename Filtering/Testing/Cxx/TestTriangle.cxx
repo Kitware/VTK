@@ -18,6 +18,14 @@
 // this program tests the Triangle
 
 #include "vtkTriangle.h"
+#include "vtkPoints.h"
+#include <vtkstd/limits>
+#include "vtkSmartPointer.h"
+
+template<class A>
+bool fuzzyCompare(A a, A b) {
+  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+}
 
 int TestTriangle(int,char *[])
 {
@@ -85,18 +93,30 @@ int TestTriangle(int,char *[])
       {
       cerr << "ERROR:  point #" << i << ", an outside-point, considered to be inside the triangle!!!" << endl;
       cerr << "Squared error tolerance: 0.00000001" << endl;
-      return 1;
+      return EXIT_FAILURE;
       }
     else
     if ( !inside && i > 16 )
       {
       cerr << "ERROR:  point #" << i << ", an inside-point, considered to be outside the triangle!!!" << endl;
       cerr << "Squared error tolerance: 0.00000001" << endl;
-      return 1;
+      return EXIT_FAILURE;
       }
     }
 
   cout << "Passed: 17 points outside and 14 points inside the triangle." << endl;
 
-  return 0;
+  vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+  triangle->GetPoints()->SetPoint(0, 0.0, 0.0, 0.0);
+  triangle->GetPoints()->SetPoint(1, 1.0, 0.0, 0.0);
+  triangle->GetPoints()->SetPoint(2, 0.0, 1.0, 0.0);
+
+  double area = triangle->ComputeArea();
+  if(!fuzzyCompare(area, 0.5))
+    {
+    cerr << "ERROR:  triangle area is " << area << ", should be 0.5" << endl;
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
 }

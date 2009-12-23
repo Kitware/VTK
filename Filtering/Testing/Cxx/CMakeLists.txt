@@ -22,6 +22,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestTriangle.cxx
+  TestPolygon.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
