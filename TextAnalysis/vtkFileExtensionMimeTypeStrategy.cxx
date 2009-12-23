@@ -24,7 +24,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.7");
+vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.8");
 vtkStandardNewMacro(vtkFileExtensionMimeTypeStrategy);
 
 class vtkFileExtensionMimeTypeStrategy::implementation
@@ -60,6 +60,7 @@ vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri, c
   vtkStdString mime_type;
 
   if(implementation::Lookup(uri, ".ai", "application/postscript", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".avi", "video/x-msvideo", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".bmp", "image/bmp", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".c", "text/plain", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".cpp", "text/plain", mime_type)) return mime_type;
@@ -72,6 +73,7 @@ vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri, c
   if(implementation::Lookup(uri, ".dvi", "application/x-dvi", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".eps", "application/postscript", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".exe", "application/octet-stream", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".flv", "video/x-flv", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".gz", "application/x-gzip", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".gif", "image/gif", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".h", "text/plain", mime_type)) return mime_type;
@@ -86,17 +88,28 @@ vtkStdString vtkFileExtensionMimeTypeStrategy::Lookup(const vtkStdString& uri, c
   if(implementation::Lookup(uri, ".js", "application/x-javascript", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".latex", "application/x-latex", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".lib", "application/octet-stream", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".mov", "video/quicktime", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".mpg", "video/mpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".mpeg", "video/mpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".mp2", "audio/mpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".mp3", "audio/mpeg", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".mp4", "video/mp4", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".pdf", "application/pdf", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".png", "image/png", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".ppt", "application/vnd.ms-powerpoint", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".ps", "application/postscript", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".qt", "video/quicktime", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".rtf", "application/rtf", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".shtml", "text/html", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".svg", "image/svg+xml", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".swf", "application/x-shockwave-flash", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tcl", "application/x-tcl", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tex", "application/x-tex", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tif", "image/tiff", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".tiff", "image/tiff", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".txt", "text/plain", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".wma", "audio/x-ms-wma", mime_type)) return mime_type;
+  if(implementation::Lookup(uri, ".wmv", "audio/x-ms-wmv", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".xls", "application/vnd.ms-excel", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".xml", "text/xml", mime_type)) return mime_type;
   if(implementation::Lookup(uri, ".zip", "application/zip", mime_type)) return mime_type;
