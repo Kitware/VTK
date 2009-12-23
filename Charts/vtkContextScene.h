@@ -24,6 +24,7 @@
 #define __vtkContextScene_h
 
 #include "vtkObject.h"
+#include "vtkWeakPointer.h" // Needed for weak pointer to the window.
 
 class vtkContext2D;
 class vtkContextItem;
@@ -140,7 +141,7 @@ protected:
   class Private;
   Private *Storage;
 
-  vtkRenderWindow *Window;
+  vtkWeakPointer<vtkRenderWindow> Window;
 
   // Description:
   // Perform translation and fill in the vtkContextMouseEvent struct.

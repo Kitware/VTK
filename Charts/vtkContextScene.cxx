@@ -58,6 +58,10 @@ public:
         x = interactor->GetEventPosition()[0];
         y = interactor->GetEventPosition()[1];
         }
+      else
+        {
+        return;
+        }
 
       switch (eventId)
         {
@@ -116,10 +120,9 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.10");
+vtkCxxRevisionMacro(vtkContextScene, "1.11");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
-vtkCxxSetObjectMacro(vtkContextScene, Window, vtkRenderWindow);
 
 //-----------------------------------------------------------------------------
 vtkContextScene::vtkContextScene()
@@ -139,14 +142,21 @@ vtkContextScene::~vtkContextScene()
 {
   this->Observer->Delete();
   this->Observer = NULL;
-  this->SetWindow(NULL);
+  this->Window = NULL;
   size_t size = this->Storage->items.size();
   for (size_t i = 0; i < size; ++i)
     {
     this->Storage->items[i]->Delete();
+    this->Storage->items[i] = NULL;
     }
   delete this->Storage;
   this->Storage = NULL;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextScene::SetWindow(vtkRenderWindow *window)
+{
+  this->Window = window;
 }
 
 //-----------------------------------------------------------------------------
