@@ -36,7 +36,7 @@
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraphItem, Graph, vtkGraph);
-vtkCxxRevisionMacro(vtkGraphItem, "1.1");
+vtkCxxRevisionMacro(vtkGraphItem, "1.2");
 vtkStandardNewMacro(vtkGraphItem);
 
 class vtkGraphItem::Implementation
@@ -49,7 +49,7 @@ public:
 
   void CheckPositionSize(vtkIdType i)
     {
-    while (i >= this->Position.size())
+    while (i >= static_cast<vtkIdType>(this->Position.size()))
       {
       int size[2] = {100, 100};
       if (this->Item->GetScene())
@@ -79,7 +79,7 @@ public:
 
   void CheckVelocitySize(vtkIdType i)
     {
-    while (i >= this->Velocity.size())
+    while (i >= static_cast<vtkIdType>(this->Velocity.size()))
       {
       this->Velocity.push_back(vtkstd::make_pair(0.0f, 0.0f));
       }
