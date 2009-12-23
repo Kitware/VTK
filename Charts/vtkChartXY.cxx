@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.11");
+vtkCxxRevisionMacro(vtkChartXY, "1.12");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -73,13 +73,16 @@ vtkChartXY::vtkChartXY()
 
   // Set up the x and y axes - should be congigured based on data
   this->XAxis->SetMinimum(0.0);
-  this->XAxis->SetMaximum(7.0);
+  this->XAxis->SetMaximum(40.0);
   this->XAxis->SetNumberOfTicks(8);
-  this->XAxis->SetLabel("X Axis");
-  this->YAxis->SetMinimum(1.0);
-  this->YAxis->SetMaximum(-1.0);
+  this->XAxis->SetTitle("X Axis");
+  this->YAxis->SetMinimum(0.0);
+  this->YAxis->SetMaximum(275.0);
   this->YAxis->SetNumberOfTicks(5);
-  this->YAxis->SetLabel("Y Axis");
+  this->YAxis->SetTitle("Y Axis");
+
+  this->PlotTransform = vtkTransform2D::New();
+  this->PlotTransformValid = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -98,6 +101,12 @@ vtkChartXY::~vtkChartXY()
   this->YAxis = 0;
   this->Grid->Delete();
   this->Grid = 0;
+
+  if (this->PlotTransform)
+    {
+    this->PlotTransform->Delete();
+    this->PlotTransform = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -106,23 +115,48 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
 
-  int geometry[] = { this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight(),
-                     this->Geometry[2], this->Geometry[3],
-                     this->Geometry[4], this->Geometry[5] };
+  int geometry[] = { this->GetScene()->GetViewWidth(),
+                     this->GetScene()->GetViewHeight() };
   this->SetGeometry(geometry);
+  this->SetBorders(60, 20, 20, 50);
 
   // Check whether the geometry has been modified after the axes - update if so
   if (this->MTime > this->XAxis->GetMTime())
     {
     // This is where we set the axes up too
-    this->XAxis->SetPoint1(this->Geometry[2], this->Geometry[3]);
-    this->XAxis->SetPoint2(this->Geometry[0]-this->Geometry[4],
-                           this->Geometry[3]);
-    this->YAxis->SetPoint1(this->Geometry[2], this->Geometry[3]);
-    this->YAxis->SetPoint2(this->Geometry[2],
-                           this->Geometry[1]-this->Geometry[5]);
+    this->XAxis->SetPoint1(this->Point1[0], this->Point1[1]);
+    this->XAxis->SetPoint2(this->Point2[0], this->Point1[1]);
+    this->YAxis->SetPoint1(this->Point1[0], this->Point1[1]);
+    this->YAxis->SetPoint2(this->Point1[0], this->Point2[1]);
     }
 
+  // Recalculate the plot transform, min and max values if necessary
+  if (!this->PlotTransformValid)
+    {
+    this->RecalculatePlotBounds();
+    this->RecalculatePlotTransform();
+    }
+
+  // Draw a hard wired grid right now - this should be configurable
+  painter->GetPen()->SetColorF(0.95, 0.95, 0.95);
+  painter->GetPen()->SetWidth(1.0);
+  this->Grid->Paint(painter);
+
+  // Plot the series of the chart
+  this->RenderPlots(painter);
+
+  // Set the color and width, draw the axes, color and width push to axis props
+  painter->GetPen()->SetColorF(0.0, 0.0, 0.0, 1.0);
+  painter->GetPen()->SetWidth(1.0);
+  this->XAxis->Paint(painter);
+  this->YAxis->Paint(painter);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::RenderPlots(vtkContext2D *painter)
+{
   vtkIdTypeArray *idArray = 0;
   if (this->AnnotationLink)
     {
@@ -140,46 +174,15 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     vtkDebugMacro("No annotation link set.");
     }
 
-  // This method could be optimized if only certain regions needed painting.
-
-  // Draw a hard wired grid right now - this should be configurable
-  painter->GetPen()->SetColorF(0.8, 0.8, 0.8);
-  painter->GetPen()->SetWidth(1.0);
-  this->Grid->Paint(painter);
-
-  // The origin of the plot area
-  float xOrigin = this->Geometry[2];
-  float yOrigin = this->Geometry[3];
-
-  // Get the scale for the plot area from the x and y axes
-  float *min = this->XAxis->GetPoint1();
-  float *max = this->XAxis->GetPoint2();
-  float xScale = (this->XAxis->GetMaximum() - this->XAxis->GetMinimum()) /
-                 (max[0] - min[0]);
-  min = this->YAxis->GetPoint1();
-  max = this->YAxis->GetPoint2();
-  float yScale = (this->YAxis->GetMaximum() - this->YAxis->GetMinimum()) /
-                 (max[1] - min[1]);
-
   // Clip drawing while plotting
-  int clip[4];
-  clip[0] = static_cast<int>(xOrigin);
-  clip[1] = static_cast<int>(yOrigin);
-  clip[2] = this->Geometry[0] - this->Geometry[4] - this->Geometry[2];
-  clip[3] = this->Geometry[1] - this->Geometry[5] - this->Geometry[3];
+  int clip[] = { this->Point1[0], this->Point1[1],
+                 this->Point2[0]-this->Point1[0],
+                 this->Point2[1]-this->Point1[1] };
   painter->GetDevice()->SetClipping(&clip[0]);
-
-  vtkTransform2D *transform = vtkTransform2D::New();
-  transform->Translate(this->Geometry[2], this->Geometry[3]);
-  // Get the scale for the plot area from the x and y axes
-  min = this->YAxis->GetPoint1();
-  max = this->YAxis->GetPoint2();
-  transform->Scale(1.0 / xScale, 1.0 / yScale);
-  transform->Translate(-this->XAxis->GetMinimum(), -this->YAxis->GetMinimum());
 
   // Push the matrix and use the transform we just calculated
   painter->GetDevice()->PushMatrix();
-  painter->GetDevice()->SetMatrix(transform->GetMatrix());
+  painter->GetDevice()->SetMatrix(this->PlotTransform->GetMatrix());
 
   // Now iterate through the plots
   size_t n = this->ChartPrivate->plots.size();
@@ -192,23 +195,58 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // Stop clipping of the plot area and reset back to screen coordinates
   painter->GetDevice()->DisableClipping();
   painter->GetDevice()->PopMatrix();
-
-  // Set the color and width, draw the axes, color and width push to axis props
-  painter->GetPen()->SetColorF(0.0, 0.0, 0.0, 1.0);
-  painter->GetPen()->SetWidth(1.0);
-  this->XAxis->Paint(painter);
-  this->YAxis->Paint(painter);
-
-  transform->Delete();
-  transform = NULL;
-
-  return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartXY::RenderPlots(vtkContext2D *)
+void vtkChartXY::RecalculatePlotTransform()
 {
+  // Get the scale for the plot area from the x and y axes
+  float *min = this->XAxis->GetPoint1();
+  float *max = this->XAxis->GetPoint2();
+  float xScale = (this->XAxis->GetMaximum() - this->XAxis->GetMinimum()) /
+                 (max[0] - min[0]);
+  min = this->YAxis->GetPoint1();
+  max = this->YAxis->GetPoint2();
+  float yScale = (this->YAxis->GetMaximum() - this->YAxis->GetMinimum()) /
+                 (max[1] - min[1]);
 
+  this->PlotTransform->Identity();
+  this->PlotTransform->Translate(this->Point1[0], this->Point1[1]);
+  // Get the scale for the plot area from the x and y axes
+  min = this->YAxis->GetPoint1();
+  max = this->YAxis->GetPoint2();
+  this->PlotTransform->Scale(1.0 / xScale, 1.0 / yScale);
+  this->PlotTransform->Translate(-this->XAxis->GetMinimum(),
+                                 -this->YAxis->GetMinimum());
+
+  this->PlotTransformValid = true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::RecalculatePlotBounds()
+{
+  // Get the bounds of each plot.
+  float xmin = 0.0;
+  float xmax = 1.0;
+  float ymin = 0.0;
+  float ymax = 1.0;
+
+  size_t n = this->ChartPrivate->plots.size();
+  for (size_t i = 0; i < n; ++i)
+    {
+    vtkPlot *plot = this->ChartPrivate->plots[i];
+    double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
+    plot->GetBounds(bounds);
+    if (xmin > bounds[0]) xmin = float(bounds[0]);
+    if (xmax < bounds[1]) xmax = float(bounds[1]);
+    if (ymin > bounds[2]) ymin = float(bounds[2]);
+    if (ymax < bounds[3]) ymax = float(bounds[3]);
+    }
+  // Now set the newly calculated bounds on the axes
+  this->XAxis->SetMinimum(xmin);
+  this->XAxis->SetMaximum(xmax);
+  this->YAxis->SetMinimum(ymin);
+  this->YAxis->SetMaximum(ymax);
 }
 
 //-----------------------------------------------------------------------------
@@ -238,6 +276,8 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
     default:
       plot = NULL;
     }
+    // Ensure that the bounds are recalculated
+    this->PlotTransformValid = false;
     return plot;
 }
 
@@ -245,6 +285,110 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
 vtkIdType vtkChartXY::GetNumberPlots()
 {
   return this->ChartPrivate->plots.size();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
+{
+  if (mouse.ScreenPos[0] > this->Point1[0] &&
+      mouse.ScreenPos[0] < this->Point2[0] &&
+      mouse.ScreenPos[1] > this->Point1[1] &&
+      mouse.ScreenPos[1] < this->Point2[1])
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved by in plot coordinates - pan
+  double pos[] = { mouse.ScreenPos[0], mouse.ScreenPos[1] };
+  double last[] = { mouse.LastScreenPos[0], mouse.LastScreenPos[1] };
+
+  // Go from screen to scene coordinates to work out the delta
+  this->PlotTransform->InverseTransformPoints(pos, pos, 1);
+  this->PlotTransform->InverseTransformPoints(last, last, 1);
+  double delta[] = { last[0] - pos[0], last[1] - pos[1] };
+
+  // Now move the axes and recalculate the transform
+  this->XAxis->SetMinimum(this->XAxis->GetMinimum() + delta[0]);
+  this->XAxis->SetMaximum(this->XAxis->GetMaximum() + delta[0]);
+  this->YAxis->SetMinimum(this->YAxis->GetMinimum() + delta[1]);
+  this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
+
+  this->RecalculatePlotTransform();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+{
+  if (mouse.Button == 0)
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
+{
+  // Get the bounds of each plot.
+  float xmin = this->XAxis->GetMinimum();
+  float xmax = this->XAxis->GetMaximum();
+  float deltax = xmax - xmin;
+  float ymin = this->YAxis->GetMinimum();
+  float ymax = this->YAxis->GetMaximum();
+  float deltay = ymax - ymin;
+
+  if (delta > 0)
+    {
+    xmin += 0.1 * deltax;
+    xmax -= 0.1 * deltax;
+    ymin += 0.1 * deltay;
+    ymax -= 0.1 * deltay;
+    }
+  else
+    {
+  xmin -= 0.1 * deltax;
+  xmax += 0.1 * deltax;
+  ymin -= 0.1 * deltay;
+  ymax += 0.1 * deltay;
+    }
+  // Now set the newly calculated bounds on the axes
+  this->XAxis->SetMinimum(xmin);
+  this->XAxis->SetMaximum(xmax);
+  this->YAxis->SetMinimum(ymin);
+  this->YAxis->SetMaximum(ymax);
+
+  this->RecalculatePlotTransform();
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------

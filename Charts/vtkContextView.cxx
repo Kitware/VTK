@@ -27,7 +27,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextView, "1.2");
+vtkCxxRevisionMacro(vtkContextView, "1.3");
 vtkStandardNewMacro(vtkContextView);
 
 vtkCxxSetObjectMacro(vtkContextView, Context, vtkContext2D);
@@ -70,7 +70,6 @@ vtkContextView::~vtkContextView()
   // The scene is owned by the context actor
   if (this->Scene)
     {
-    this->Scene->SetWindow(NULL);
     this->Scene->Delete();
     this->Scene = NULL;
     }

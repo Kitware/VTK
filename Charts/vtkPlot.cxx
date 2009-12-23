@@ -23,7 +23,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.3");
+vtkCxxRevisionMacro(vtkPlot, "1.4");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ vtkPlot::vtkPlot()
   this->Color[1] = 0;
   this->Color[2] = 0;
   this->Color[3] = 255;
-  this->Width = 1.0;
+  this->Width = 2.0;
   this->Data = vtkContextMapper2D::New();
   this->Selection = NULL;
 }

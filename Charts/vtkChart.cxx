@@ -54,18 +54,19 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.3");
+vtkCxxRevisionMacro(vtkChart, "1.4");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
 vtkChart::vtkChart()
 {
-  int i=0;
-  while(i<6)
-    {
-    this->Geometry[i]=0;
-    ++i;
-    }
+  this->Geometry[0] = 0;
+  this->Geometry[1] = 0;
+  this->Point1[0] = 0;
+  this->Point1[1] = 0;
+  this->Point2[0] = 0;
+  this->Point2[1] = 0;
+
   this->Observer = vtkChart::Command::New();
   this->Observer->SetTarget(this);
   this->AnnotationLink = NULL;
@@ -87,6 +88,43 @@ vtkPlot * vtkChart::AddPlot(Type)
 vtkIdType vtkChart::GetNumberPlots()
 {
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetBottomBorder(int border)
+{
+  this->Point1[1] = border >= 0 ? border : 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetTopBorder(int border)
+{
+ this->Point2[1] = border >=0 ?
+                   this->Geometry[1] - border :
+                   this->Geometry[1];
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetLeftBorder(int border)
+{
+  this->Point1[0] = border >= 0 ? border : 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetRightBorder(int border)
+{
+  this->Point2[0] = border >=0 ?
+                    this->Geometry[0] - border :
+                    this->Geometry[0];
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetBorders(int left, int right, int top, int bottom)
+{
+  this->SetLeftBorder(left);
+  this->SetRightBorder(right);
+  this->SetTopBorder(top);
+  this->SetBottomBorder(bottom);
 }
 
 //-----------------------------------------------------------------------------

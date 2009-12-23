@@ -57,18 +57,68 @@ public:
 //ETX
   virtual vtkIdType GetNumberPlots();
 
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse enter event.
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse leave event.
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse wheel event, positive delta indicates forward movement of the wheel.
+  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+
 //BTX
 protected:
   vtkChartXY();
   ~vtkChartXY();
 
   // Description:
+  // Recalculate the plot area transform to fit in all points that will be
+  // plotted.
+  void RecalculatePlotTransform();
+
+  // Description:
+  // Calculate the optimal zoom level such that all of the points to be plotted
+  // will fit into the plot area.
+  void RecalculatePlotBounds();
+
+  // Description:
   // Process a rubber band selection event.
   virtual void ProcessSelectionEvent(vtkObject* caller, void* callData);
 
+  // Description:
   // The X and Y axes for the chart
   vtkAxis *XAxis, *YAxis;
+
+  // Description:
+  // The grid for the chart.
   vtkPlotGrid *Grid;
+
+  // Description:
+  // The 2D transform for the series drawn in the plot area
+  vtkTransform2D *PlotTransform;
+
+  // Description:
+  // Does the plot area transform need to be recalculated?
+  bool PlotTransformValid;
 
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.

@@ -68,11 +68,30 @@ public:
   vtkGetObjectMacro(AnnotationLink, vtkAnnotationLink);
 
   // Description:
-  // This function allows you to set the overall dimensions of the chart.
-  // An int pointer of length 6 is expected with the dimensions in the order of
-  // width, height, left border, bottom border, right border, top border in
-  // pixels of the device. Initial value is (0,0,0,0,0,0).
-  vtkSetVector6Macro(Geometry, int);
+  // Set/get the width and the height of the chart.
+  vtkSetVector2Macro(Geometry, int);
+  vtkGetVector2Macro(Geometry, int);
+
+  // Description:
+  // Set/get the first point in the chart (the bottom left).
+  vtkSetVector2Macro(Point1, int);
+  vtkGetVector2Macro(Point1, int);
+
+  // Description:
+  // Set/get the second point in the chart (the top right).
+  vtkSetVector2Macro(Point2, int);
+  vtkGetVector2Macro(Point2, int);
+
+  // Description:
+  // Set/get the borders of the chart (space in pixels around the chart).
+  void SetBottomBorder(int border);
+  void SetTopBorder(int border);
+  void SetLeftBorder(int border);
+  void SetRightBorder(int border);
+
+  // Description:
+  // Set/get the borders of the chart (space in pixels around the chart).
+  void SetBorders(int left, int right, int top, int bottom);
 
   // Description:
   // Add the chart as an observer on the supplied interaction style.
@@ -96,11 +115,17 @@ protected:
   // Our annotation link, used for sharing selections etc.
   vtkAnnotationLink *AnnotationLink;
 
-  // Store the chart dimensions packed into a vtkPoints2D
-  // [0] = width, height of chart in screen coordinates
-  // [1] = left border, bottom border (roughly - origin of the chart
-  // [2] = right border, top border (offset from top right most point)
-  int Geometry[6];
+  // Description:
+  // The width and the height of the chart.
+  int Geometry[2];
+
+  // Description:
+  // The position of the lower left corner of the chart.
+  int Point1[2];
+
+  // Description:
+  // The position of the upper right corner of the chart.
+  int Point2[2];
 
   // Description:
   // The command object for the charts.

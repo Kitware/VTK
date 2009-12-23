@@ -71,6 +71,8 @@ public:
 
   virtual void SetSelection(vtkIdTypeArray *id);
 
+  virtual void GetBounds(double bounds[4]) { vtkNotUsed(bounds); }
+
 //BTX
   // Description:
   // A General setter/getter that should be overridden. It can silently drop

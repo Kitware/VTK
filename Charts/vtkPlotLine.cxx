@@ -30,7 +30,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.3");
+vtkCxxRevisionMacro(vtkPlotLine, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -186,8 +186,14 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
   else
     {
     vtkErrorMacro(<< "Error the x or y array was not a valid type."
-                  << endl << x->GetClassName()
-                  << "\t" << y->GetClassName());
+                  << endl
+                  << x->GetClassName() << "\tT=" << x->GetNumberOfTuples()
+                  << "\tC=" << x->GetNumberOfComponents()
+                  << endl
+                  << y->GetClassName() << "\tT=" << y->GetNumberOfTuples()
+                  << "\tC=" << y->GetNumberOfComponents());
+    // Give a little more information about them
+    vtkErrorMacro(<<"Table: " << table->GetNumberOfColumns())
     }
   return true;
 }
