@@ -542,6 +542,10 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetArrU->SetNumberOfComponents( 1 );
   datasetArrU->SetName( "Standard Uniform" );
 
+  vtkDoubleArray* datasetArrL = vtkDoubleArray::New();
+  datasetArrL->SetNumberOfComponents( 1 );
+  datasetArrL->SetName( "Standard Log-Normal" );
+
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
@@ -549,6 +553,7 @@ int TestDescriptiveStatistics( int, char *[] )
     {
     datasetArrG->InsertNextValue( vtkMath::Gaussian() );
     datasetArrU->InsertNextValue( vtkMath::Random() );
+    datasetArrL->InsertNextValue( exp( vtkMath::Gaussian() ) );
     }
 
   vtkTable* gaussianTable = vtkTable::New();
@@ -556,6 +561,8 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetArrG->Delete();
   gaussianTable->AddColumn( datasetArrU );
   datasetArrU->Delete();
+  gaussianTable->AddColumn( datasetArrL );
+  datasetArrL->Delete();
 
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
   ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
@@ -566,6 +573,7 @@ int TestDescriptiveStatistics( int, char *[] )
   // Select Column of Interest
   ds4->AddColumn( "Standard Normal" );
   ds4->AddColumn( "Standard Uniform" );
+  ds4->AddColumn( "Standard Log-Normal" );
 
   // Test Learn and Derive only
   ds4->SetLearnOption( true );
