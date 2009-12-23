@@ -532,7 +532,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds3->Delete();
 
   // ************** Pseudo-random sample to exercise Jarque-Bera test ********* 
-  int nGaussianVals = 1000;
+  int nGaussianVals = 10000;
 
   vtkDoubleArray* datasetArrG = vtkDoubleArray::New();
   datasetArrG->SetNumberOfComponents( 1 );
@@ -566,6 +566,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
   ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
+  vtkTable* outputMeta4 = ds4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
   vtkTable* outputTest4 = ds4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   gaussianTable->Delete();
@@ -582,8 +583,23 @@ int TestDescriptiveStatistics( int, char *[] )
   ds4->SetAssessOption( false );
   ds4->Update();
 
+  // Print calculated statistics of the Learn and Derive options
+  cout << "\n## Calculated the following statistics for pseudo-random variables:\n";
+
+  for ( vtkIdType r = 0; r < outputMeta4->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputMeta4->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputMeta4->GetColumnName( i )
+           << "="
+           << outputMeta4->GetValue( r, i ).ToString()
+           << "  ";
+      }
+    }
+
   // Check some results of the Test option
-  cout << "\n## Jarque-Bera statistics for pseudo-random standard normal variable (n="
+  cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
        << nGaussianVals
        << "):\n";
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
