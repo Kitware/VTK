@@ -24,7 +24,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.29");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.30");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -475,7 +475,7 @@ void vtkCarbonRenderWindowInteractor::Initialize()
 
 //--------------------------------------------------------------------------
 // A timer for checking when mouse leaves window
-pascal void vtkCarbonLeaveCheck(EventLoopTimerRef platformTimerId,
+pascal void vtkCarbonLeaveCheck(EventLoopTimerRef vtkNotUsed(platformTimerId),
                                 void *userData)
 {
   if (NULL != userData)
