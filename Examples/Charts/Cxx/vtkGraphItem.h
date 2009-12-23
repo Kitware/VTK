@@ -27,7 +27,7 @@
 class vtkContext2D;
 class vtkGraph;
 
-class VTK_CHARTS_EXPORT vtkGraphItem : public vtkContextItem
+class vtkGraphItem : public vtkContextItem
 {
 public:
   vtkTypeRevisionMacro(vtkGraphItem, vtkContextItem);
