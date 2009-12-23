@@ -145,6 +145,9 @@ IF(VTK_BINARY_DIR)
   IF(VTK_USE_MFC)
     ADD_DEPENDENCIES(VTKExamplesTarget vtkMFC)
   ENDIF(VTK_USE_MFC)
+  IF(VTK_USE_CHARTS)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkCharts)
+  ENDIF(VTK_USE_CHARTS)
 
 ELSE(VTK_BINARY_DIR)
   # We are building outside the VTK tree.  Build the examples directly.
@@ -192,6 +195,10 @@ ELSE(VTK_BINARY_DIR)
     IF(VTK_USE_QVTK)
       SUBDIRS(GUI/Qt)
     ENDIF(VTK_USE_QVTK)
+
+    IF(VTK_USE_CHARTS)
+      SUBDIRS(Charts/Cxx)
+    ENDIF(VTK_USE_CHARTS)
 
     IF(WIN32)
       SUBDIRS(GUI/Win32/SimpleCxx)
