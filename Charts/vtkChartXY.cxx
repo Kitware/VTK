@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.12");
+vtkCxxRevisionMacro(vtkChartXY, "1.13");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -306,7 +306,7 @@ bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &mouse)
 {
-
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -328,12 +328,14 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
 
   this->RecalculatePlotTransform();
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
 {
-
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -352,7 +354,7 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
-
+  return true;
 }
 
 //-----------------------------------------------------------------------------
