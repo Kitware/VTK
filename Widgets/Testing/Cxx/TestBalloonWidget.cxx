@@ -100,6 +100,7 @@ int TestBalloonWidget( int argc, char *argv[] )
   widget->AddBalloon(sph,"This is a sphere",NULL);
   widget->AddBalloon(cyl,"This is a\ncylinder",image1->GetOutput());
   widget->AddBalloon(cone,"This is a\ncone,\na really big cone,\nyou wouldn't believe how big",image1->GetOutput());
+  rep->Delete();
 
   vtkBalloonCallback *cbk = vtkBalloonCallback::New();
   widget->AddObserver(vtkCommand::WidgetActivateEvent,cbk);
