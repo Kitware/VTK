@@ -57,10 +57,8 @@ int TestBalloonWidget( int argc, char *argv[] )
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
 
-  vtkInteractorStyleTrackballCamera *style = vtkInteractorStyleTrackballCamera::New();
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-//  iren->SetInteractorStyle(style);
 
   // Create an image for the balloon widget
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
