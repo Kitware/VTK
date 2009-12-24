@@ -70,6 +70,11 @@ public:
                    int dim, double *derivs);
   int IsPrimaryCell() {return 0;}
 
+  // Description:
+  // Compute the area of a polygon. This is a convenience function
+  // which simply calls static double ComputeArea(vtkPoints *p, 
+  // vtkIdType numPts, vtkIdType *pts, double normal[3]);
+  // with the appropriate parameters from the instantiated vtkPolygon.
   double ComputeArea();
 
   // Description:
@@ -104,6 +109,8 @@ public:
   // Compute the area of a polygon in 3D. The area is returned, as well as
   // the normal (a side effect of using this method). If you desire to
   // compute the area of a triangle, use vtkTriangleArea which is faster.
+  // If you already have a vtkPolygon instantiated, a convenience function,
+  // ComputeArea() is provided.
   static double ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
                             double normal[3]);
 

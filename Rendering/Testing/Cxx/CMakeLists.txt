@@ -17,7 +17,6 @@ IF(VTK_USE_DISPLAY)
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
-    SurfacePlusEdges.cxx
     TestActorLightingFlag.cxx
     TestAnimationScene.cxx
     TestBlurAndSobelPasses.cxx
@@ -29,7 +28,6 @@ IF(VTK_USE_DISPLAY)
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx
     TestLabelPlacerCoincidentPoints.cxx
-    TestLabelPlacementMapper.cxx
     TestLabelPlacementMapper2D.cxx
     TestLabelPlacementMapperCoincidentPoints.cxx
     TestLightActor.cxx
@@ -59,7 +57,9 @@ IF(VTK_USE_DISPLAY)
   IF(VTK_DATA_ROOT)
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
+      SurfacePlusEdges.cxx
       TestAreaSelections.cxx
+      TestLabelPlacementMapper.cxx
       TestMultiTexturing.cxx
       TestMultiTexturingTransform.cxx
       TestScenePicker.cxx
