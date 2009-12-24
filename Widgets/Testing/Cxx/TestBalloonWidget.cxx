@@ -16,6 +16,7 @@
 // This example tests the vtkHoverWidget and vtkBalloonWidget.
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
 #include "vtkBalloonWidget.h"
 #include "vtkBalloonRepresentation.h"
 #include "vtkSphereSource.h"
@@ -53,54 +54,53 @@ int TestBalloonWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Create an image for the balloon widget
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
-  vtkTIFFReader *image1 = vtkTIFFReader::New();
+  vtkSmartPointer<vtkTIFFReader> image1 = vtkSmartPointer<vtkTIFFReader>::New();
   image1->SetFileName(fname);
   image1->SetOrientationType( 4 );
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *sph = vtkActor::New();
+  vtkSmartPointer<vtkActor> sph = vtkSmartPointer<vtkActor>::New();
   sph->SetMapper(mapper);
 
-  vtkCylinderSource *cs = vtkCylinderSource::New();
-  vtkPolyDataMapper *csMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkCylinderSource> cs = vtkSmartPointer<vtkCylinderSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> csMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   csMapper->SetInput(cs->GetOutput());
-  vtkActor *cyl = vtkActor::New();
+  vtkSmartPointer<vtkActor> cyl = vtkSmartPointer<vtkActor>::New();
   cyl->SetMapper(csMapper);
   cyl->AddPosition(5,0,0);
   
-  vtkConeSource *coneSource = vtkConeSource::New();
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInput(coneSource->GetOutput());
-  vtkActor *cone = vtkActor::New();
+  vtkSmartPointer<vtkActor> cone = vtkSmartPointer<vtkActor>::New();
   cone->SetMapper(coneMapper);
   cone->AddPosition(0,5,0);
 
   // Create the widget
-  vtkBalloonRepresentation *rep = vtkBalloonRepresentation::New();
+  vtkSmartPointer<vtkBalloonRepresentation> rep = vtkSmartPointer<vtkBalloonRepresentation>::New();
   rep->SetBalloonLayoutToImageRight();
 
-  vtkBalloonWidget *widget = vtkBalloonWidget::New();
+  vtkSmartPointer<vtkBalloonWidget> widget = vtkSmartPointer<vtkBalloonWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
   widget->AddBalloon(sph,"This is a sphere",NULL);
   widget->AddBalloon(cyl,"This is a\ncylinder",image1->GetOutput());
   widget->AddBalloon(cone,"This is a\ncone,\na really big cone,\nyou wouldn't believe how big",image1->GetOutput());
-  rep->Delete();
 
-  vtkBalloonCallback *cbk = vtkBalloonCallback::New();
+  vtkSmartPointer<vtkBalloonCallback> cbk = vtkSmartPointer<vtkBalloonCallback>::New();
   widget->AddObserver(vtkCommand::WidgetActivateEvent,cbk);
 
   // Add the actors to the renderer, set the background and size
@@ -112,7 +112,7 @@ int TestBalloonWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder = vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -136,18 +136,6 @@ int TestBalloonWidget( int argc, char *argv[] )
     iren->Start();
     }
 
-  ss->Delete();
-  mapper->Delete();
-  sph->Delete();
-//  ta->Delete();
-  widget->RemoveObserver(cbk);
-  cbk->Delete();
-  widget->Off();
-  widget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
   delete [] fname;
 
   return !retVal;
