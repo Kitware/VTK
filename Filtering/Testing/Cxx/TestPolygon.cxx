@@ -55,7 +55,7 @@ int TestPolygon(int,char *[])
   //////// Test Normal : void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3]) ///////////
   double normal[3];
   double points[12];
-  for(unsigned int i = 0; i < polygon->GetNumberOfPoints(); i++)
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
     {
     double p[3];
     polygon->GetPoints()->GetPoint(i,p);
@@ -74,7 +74,7 @@ int TestPolygon(int,char *[])
 
   ///////// Test Normal : void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3]) /////////
   vtkSmartPointer<vtkIdTypeArray> idArray = vtkSmartPointer<vtkIdTypeArray>::New();
-  for(unsigned int i = 0; i < polygon->GetNumberOfPoints(); i++)
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
     {
     idArray->InsertNextValue(i);
     }
@@ -103,7 +103,7 @@ int TestPolygon(int,char *[])
 
   double points1[12];
 
-  for(unsigned int i = 0; i < polygon1->GetNumberOfPoints(); i++)
+  for(int i = 0; i < polygon1->GetNumberOfPoints(); i++)
     {
     double p[3];
     polygon1->GetPoints()->GetPoint(i,p);
@@ -130,7 +130,7 @@ int TestPolygon(int,char *[])
   polygon2->GetPoints()->SetPoint(3, -1.0, -1.0, 0.0);
 
   double points2[12];
-  for(unsigned int i = 0; i < polygon2->GetNumberOfPoints(); i++)
+  for(int i = 0; i < polygon2->GetNumberOfPoints(); i++)
     {
     double p[3];
     polygon2->GetPoints()->GetPoint(i,p);
