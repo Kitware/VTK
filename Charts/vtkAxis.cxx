@@ -24,7 +24,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.6");
+vtkCxxRevisionMacro(vtkAxis, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -155,6 +155,9 @@ int vtkAxis::CalculateNiceMinMax(float &/*min*/, float &/*max*/)
     }
   int order = static_cast<int>(log10(range));
   cout << "Order of the range = " << order << endl;
+
+
+  return order;
 }
 
 //-----------------------------------------------------------------------------
