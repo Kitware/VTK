@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.15");
+vtkCxxRevisionMacro(vtkChartXY, "1.16");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -321,17 +321,11 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   this->PlotTransform->InverseTransformPoints(last, last, 1);
   double delta[] = { last[0] - pos[0], last[1] - pos[1] };
 
-  cout << "Delta from transformed points: " << delta[0] << " " << delta[1] << endl;
-
   // Now move the axes and recalculate the transform
   this->XAxis->SetMinimum(this->XAxis->GetMinimum() + delta[0]);
   this->XAxis->SetMaximum(this->XAxis->GetMaximum() + delta[0]);
   this->YAxis->SetMinimum(this->YAxis->GetMinimum() + delta[1]);
   this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
-
-  delta[0] = mouse.LastPos[0] - mouse.Pos[0];
-  delta[0] = mouse.LastPos[1] - mouse.Pos[1];
-  cout << "Delta from transformed points: " << delta[0] << " " << delta[1] << endl;
 
   this->RecalculatePlotTransform();
 
@@ -406,8 +400,8 @@ void vtkChartXY::ProcessSelectionEvent(vtkObject* caller, void* callData)
   unsigned int *rect = reinterpret_cast<unsigned int *>(callData);
 
   // The origin of the plot area
-  float xOrigin = this->Geometry[2];
-  float yOrigin = this->Geometry[3];
+  float xOrigin = this->Point1[0];
+  float yOrigin = this->Point1[1];
 
   // Get the scale for the plot area from the x and y axes
   float *min = this->XAxis->GetPoint1();
