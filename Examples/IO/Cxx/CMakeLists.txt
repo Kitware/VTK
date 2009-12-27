@@ -16,11 +16,10 @@ TARGET_LINK_LIBRARIES(ParticleReader vtkHybrid)
 SET(KIT IOExamples)
 SET(MyTests TestDumpXMLFile.cxx TestParticleReader.cxx)
 
-INCLUDE(${VTK_SOURCE_DIR}/Examples/vtkTestingObjectFactory.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests}
-               ${VTK_SOURCE_DIR}/Examples/vtkTestingObjectFactory.cxx)
+               ${MyTests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
 
 IF (VTK_DATA_ROOT)

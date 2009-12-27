@@ -1,11 +1,12 @@
 PROJECT (Widgets)
-ENABLE_TESTING()
 
+IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK REQUIRED)
 IF(NOT VTK_USE_RENDERING)
   MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_RENDERING.")
 ENDIF(NOT VTK_USE_RENDERING)
 INCLUDE(${VTK_USE_FILE})
+ENDIF(NOT VTK_BINARY_DIR)
 
 ADD_EXECUTABLE(Slider Slider.cxx)
 TARGET_LINK_LIBRARIES(Slider vtkRendering vtkWidgets)
@@ -20,21 +21,11 @@ TARGET_LINK_LIBRARIES(BalloonWidget vtkRendering vtkWidgets)
 SET(KIT WidgetsExamples)
 SET(MyTests TestSlider.cxx TestSlider2D.cxx TestBalloonWidget.cxx)
 
-SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN 
-"    vtkTestingObjectFactory* factory = vtkTestingObjectFactory::New();
-    vtkObjectFactory::RegisterFactory(factory);
-    factory->Delete();"
-)
-SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
-"    vtkObjectFactory::UnRegisterFactory(factory);"
-)
-CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                       EXTRA_INCLUDE ${VTK_SOURCE_DIR}/Examples/vtkTestingObjectFactory.h)
+INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
-               ${MyTests}
-               ${VTK_SOURCE_DIR}/Examples/vtkTestingObjectFactory.cxx)
+               ${MyTests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkWidgets)
-ADD_TEST(Examples-Slider ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider)
-ADD_TEST(Examples-Slider2D ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider2D)
-ADD_TEST(Examples-BalloonWidget ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestBalloonWidget)
+ADD_TEST(${KIT}-Slider ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider)
+ADD_TEST(${KIT}-Slider2D ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestSlider2D)
+ADD_TEST(${KIT}-BalloonWidget ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests TestBalloonWidget)

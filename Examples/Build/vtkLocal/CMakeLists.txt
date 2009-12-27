@@ -34,8 +34,11 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH
 MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
 
 # Find and load VTK settings.
+IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
+ENDIF(NOT VTK_BINARY_DIR)
+
 
 # Give user option of building shared or static libraries.  Default to
 # the choice made for VTK.
@@ -50,7 +53,7 @@ ELSE(BUILD_SHARED_LIBS)
   SET(VTKLOCAL_BUILD_SHARED_LIBS_CONFIG 0)
 ENDIF(BUILD_SHARED_LIBS)
 
-IF(VTK_FOUND)
+IF(VTK_BINARY_DIR)
   # If this is a build tree, provide an option for putting this
   # project's executables and libraries in with VTK's.
   IF (EXISTS ${VTK_DIR}/bin)
@@ -148,4 +151,4 @@ IF(VTK_FOUND)
   ENDIF(VTK_WRAP_JAVA)
 
   SUBDIRS(Testing)
-ENDIF(VTK_FOUND)
+ENDIF(VTK_BINARY_DIR)

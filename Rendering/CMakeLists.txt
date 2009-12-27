@@ -161,6 +161,8 @@ SET( Kit_SRCS
   vtkTDxInteractorStyleCamera.cxx
   vtkTDxInteractorStyleSettings.cxx
   vtkTesting.cxx
+  vtkTestingInteractor.cxx
+  vtkTestingObjectFactory.cxx
   # vtkTextActor2D.cxx
   vtkTextActor3D.cxx
   vtkTextActor.cxx
@@ -300,6 +302,8 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader2Collection
   vtkShaderProgram2
   vtkTextureUnitManager
+  vtkTestingInteractor
+  vtkTestingObjectFactory
   WRAP_EXCLUDE
   )
 
