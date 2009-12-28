@@ -13,11 +13,13 @@ IF (VTK_USE_X)
 
       LINK_LIBRARIES(${MOTIF_LIBRARIES})
  
-      FIND_PACKAGE(VTK)
-      IF(NOT VTK_DIR)
-        MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-      ENDIF(NOT VTK_DIR)
-      INCLUDE(${VTK_USE_FILE})
+      IF(NOT VTK_BINARY_DIR)
+        FIND_PACKAGE(VTK)
+        IF(NOT VTK_DIR)
+          MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
+        ENDIF(NOT VTK_DIR)
+        INCLUDE(${VTK_USE_FILE})
+      ENDIF(NOT VTK_BINARY_DIR)
 
       LINK_LIBRARIES( 
         vtkRendering
