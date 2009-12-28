@@ -20,7 +20,6 @@ IF(VTK_USE_RENDERING)
     Build/vtkMy
     AMR/Cxx
     Annotation/Cxx/LabeledMesh
-    Charts/Cxx
     MultiBlock/Cxx
     GUI/Motif
     DataManipulation/Cxx
@@ -42,6 +41,7 @@ IF(VTK_USE_RENDERING)
   ENDIF(VTK_USE_PARALLEL)
   
   IF(VTK_USE_INFOVIS)
+    SUBDIRS(Charts/Cxx)
     SUBDIRS(Infovis/Cxx)
     IF(VTK_USE_N_WAY_ARRAYS)
       SUBDIRS(Array/Cxx)
