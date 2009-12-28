@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.9");
+vtkCxxRevisionMacro(vtkContext2D, "1.10");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -224,18 +224,18 @@ void vtkContext2D::DrawPoints(float *points, int n)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawRect(float x1, float y1, float x2, float y2)
+void vtkContext2D::DrawRect(float x, float y, float width, float height)
 {
   if (!this->Device)
     {
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-  float p[] = { x1,    y1,
-                x1+x2, y1,
-                x1+x2, y1+y2,
-                x1,    y1+y2,
-                x1,    y1};
+  float p[] = { x,       y,
+                x+width, y,
+                x+width, y+height,
+                x,       y+height,
+                x,       y};
   if (this->Transform)
     {
     this->Transform->TransformPoints(&p[0], &p[0], 5);
