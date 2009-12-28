@@ -18,7 +18,7 @@ SET(MyTests TestImageSlicing.cxx)
 INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
                ${MyTests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
 
 ADD_TEST(${KIT}-ImageSlicing ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
   TestImageSlicing ${VTK_DATA_ROOT}/Data/headsq/quarter)
