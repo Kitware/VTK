@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.16");
+vtkCxxRevisionMacro(vtkChartXY, "1.17");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -83,6 +83,10 @@ vtkChartXY::vtkChartXY()
 
   this->PlotTransform = vtkTransform2D::New();
   this->PlotTransformValid = false;
+
+  this->BoxOrigin[0] = this->BoxOrigin[1] = 0.0f;
+  this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+  this->DrawBox = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -150,6 +154,16 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
   this->XAxis->Paint(painter);
   this->YAxis->Paint(painter);
+
+  // Draw the selection box if necessary
+  if (this->DrawBox)
+    {
+    painter->GetBrush()->SetColor(255, 255, 255, 0);
+    painter->GetPen()->SetColor(0, 0, 0, 255);
+    painter->GetPen()->SetWidth(1.0);
+    painter->DrawRect(this->BoxOrigin[0], this->BoxOrigin[1],
+                      this->BoxGeometry[0], this->BoxGeometry[1]);
+    }
 
   return true;
 }
@@ -312,22 +326,30 @@ bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  // Figure out how much the mouse has moved by in plot coordinates - pan
-  double pos[] = { mouse.ScreenPos[0], mouse.ScreenPos[1] };
-  double last[] = { mouse.LastScreenPos[0], mouse.LastScreenPos[1] };
+  if (mouse.Button == 0)
+    {
+    // Figure out how much the mouse has moved by in plot coordinates - pan
+    double pos[] = { mouse.ScreenPos[0], mouse.ScreenPos[1] };
+    double last[] = { mouse.LastScreenPos[0], mouse.LastScreenPos[1] };
 
-  // Go from screen to scene coordinates to work out the delta
-  this->PlotTransform->InverseTransformPoints(pos, pos, 1);
-  this->PlotTransform->InverseTransformPoints(last, last, 1);
-  double delta[] = { last[0] - pos[0], last[1] - pos[1] };
+    // Go from screen to scene coordinates to work out the delta
+    this->PlotTransform->InverseTransformPoints(pos, pos, 1);
+    this->PlotTransform->InverseTransformPoints(last, last, 1);
+    double delta[] = { last[0] - pos[0], last[1] - pos[1] };
 
-  // Now move the axes and recalculate the transform
-  this->XAxis->SetMinimum(this->XAxis->GetMinimum() + delta[0]);
-  this->XAxis->SetMaximum(this->XAxis->GetMaximum() + delta[0]);
-  this->YAxis->SetMinimum(this->YAxis->GetMinimum() + delta[1]);
-  this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
+    // Now move the axes and recalculate the transform
+    this->XAxis->SetMinimum(this->XAxis->GetMinimum() + delta[0]);
+    this->XAxis->SetMaximum(this->XAxis->GetMaximum() + delta[0]);
+    this->YAxis->SetMinimum(this->YAxis->GetMinimum() + delta[1]);
+    this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
 
-  this->RecalculatePlotTransform();
+    this->RecalculatePlotTransform();
+    }
+  else if (mouse.Button == 2)
+    {
+    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
+    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
+    }
 
   return true;
 }
@@ -343,6 +365,16 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.Button == 0)
     {
+    // The mouse panning action.
+    return true;
+    }
+  else if (mouse.Button == 2)
+    {
+    // Right mouse button - zoom box
+    this->BoxOrigin[0] = mouse.Pos[0];
+    this->BoxOrigin[1] = mouse.Pos[1];
+    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->DrawBox = true;
     return true;
     }
   else
@@ -352,8 +384,51 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
+  if (mouse.Button == 2)
+    {
+    // Zoom into the chart by the specified amount, and recalculate the bounds
+    this->PlotTransform->InverseTransformPoints(this->BoxOrigin,
+                                                this->BoxOrigin, 1);
+    float point2[] = { mouse.Pos[0], mouse.Pos[1] };
+    this->PlotTransform->InverseTransformPoints(point2, point2, 1);
+
+    // Ensure we preserve the directionality of the axes
+    if (this->XAxis->GetMaximum() > this->XAxis->GetMinimum())
+      {
+      this->XAxis->SetMaximum(this->BoxOrigin[0] > point2[0] ?
+                              this->BoxOrigin[0] : point2[0]);
+      this->XAxis->SetMinimum(this->BoxOrigin[0] < point2[0] ?
+                              this->BoxOrigin[0] : point2[0]);
+      }
+    else
+      {
+      this->XAxis->SetMaximum(this->BoxOrigin[0] < point2[0] ?
+                              this->BoxOrigin[0] : point2[0]);
+      this->XAxis->SetMinimum(this->BoxOrigin[0] > point2[0] ?
+                              this->BoxOrigin[0] : point2[0]);
+      }
+    if (this->YAxis->GetMaximum() > this->YAxis->GetMinimum())
+      {
+      this->YAxis->SetMaximum(this->BoxOrigin[1] > point2[1] ?
+                              this->BoxOrigin[1] : point2[1]);
+      this->YAxis->SetMinimum(this->BoxOrigin[1] < point2[1] ?
+                              this->BoxOrigin[1] : point2[1]);
+      }
+    else
+      {
+      this->YAxis->SetMaximum(this->BoxOrigin[1] < point2[1] ?
+                              this->BoxOrigin[1] : point2[1]);
+      this->YAxis->SetMinimum(this->BoxOrigin[1] > point2[1] ?
+                              this->BoxOrigin[1] : point2[1]);
+      }
+
+    this->RecalculatePlotTransform();
+    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->DrawBox = false;
+    return true;
+    }
   return false;
 }
 

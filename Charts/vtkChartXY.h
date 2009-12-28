@@ -122,6 +122,18 @@ protected:
   // Does the plot area transform need to be recalculated?
   bool PlotTransformValid;
 
+  // Description:
+  // The origin of the box when selecting a region of the chart.
+  float BoxOrigin[2];
+
+  // Description:
+  // The width and height of the selection box.
+  float BoxGeometry[2];
+
+  // Description:
+  // Should the box be drawn (could be selection, zoom etc.
+  bool DrawBox;
+
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.
   void operator=(const vtkChartXY &);   // Not implemented.
