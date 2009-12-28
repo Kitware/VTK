@@ -144,6 +144,7 @@ int main (int argc, char *argv[])
   reader->SetDataSpacing(3.2, 3.2, 1.5);
   reader->SetDataOrigin(0.0, 0.0, 0.0);
   reader->SetDataScalarTypeToUnsignedShort();
+  reader->SetDataByteOrderToLittleEndian();
   reader->UpdateWholeExtent();
 
   // Calculate the center of the volume
