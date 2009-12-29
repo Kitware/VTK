@@ -24,6 +24,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+#include "vtkSmartPointer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
@@ -55,35 +56,45 @@ bool MesaHasVTKBug8135();
 
 int TestGaussianBlurPass(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren=
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
-  renWin->Delete();
   
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
-  renderer->Delete();
 
-  vtkCameraPass *cameraP=vtkCameraPass::New();
+  vtkSmartPointer<vtkCameraPass> cameraP=
+    vtkSmartPointer<vtkCameraPass>::New();
   
-  vtkSequencePass *seq=vtkSequencePass::New();
-  vtkOpaquePass *opaque=vtkOpaquePass::New();
-  vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
+  vtkSmartPointer<vtkSequencePass> seq=
+    vtkSmartPointer<vtkSequencePass>::New();
+  vtkSmartPointer<vtkOpaquePass> opaque=
+    vtkSmartPointer<vtkOpaquePass>::New();
+  vtkSmartPointer<vtkDepthPeelingPass> peeling=
+    vtkSmartPointer<vtkDepthPeelingPass>::New();
   peeling->SetMaximumNumberOfPeels(200);
   peeling->SetOcclusionRatio(0.1);
   
-  vtkTranslucentPass *translucent=vtkTranslucentPass::New();
+  vtkSmartPointer<vtkTranslucentPass> translucent=
+    vtkSmartPointer<vtkTranslucentPass>::New();
   peeling->SetTranslucentPass(translucent);
   
-  vtkVolumetricPass *volume=vtkVolumetricPass::New();
-  vtkOverlayPass *overlay=vtkOverlayPass::New();
+  vtkSmartPointer<vtkVolumetricPass> volume=
+    vtkSmartPointer<vtkVolumetricPass>::New();
+  vtkSmartPointer<vtkOverlayPass> overlay=
+    vtkSmartPointer<vtkOverlayPass>::New();
   
-  vtkLightsPass *lights=vtkLightsPass::New();
+  vtkSmartPointer<vtkLightsPass> lights=
+    vtkSmartPointer<vtkLightsPass>::New();
   
-  vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
+  vtkSmartPointer<vtkRenderPassCollection> passes=
+    vtkSmartPointer<vtkRenderPassCollection>::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
   
@@ -95,25 +106,16 @@ int TestGaussianBlurPass(int argc, char* argv[])
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
   
-  vtkGaussianBlurPass *blurP=vtkGaussianBlurPass::New();
+  vtkSmartPointer<vtkGaussianBlurPass> blurP=
+    vtkSmartPointer<vtkGaussianBlurPass>::New();
   blurP->SetDelegatePass(cameraP);
   
   renderer->SetPass(blurP);
   
 //  renderer->SetPass(cameraP);
   
-  opaque->Delete();
-  peeling->Delete();
-  translucent->Delete();
-  volume->Delete();
-  overlay->Delete();
-  seq->Delete();
-  passes->Delete();
-  cameraP->Delete();
-  blurP->Delete();
-  lights->Delete();
-  
-  vtkImageSinusoidSource *imageSource=vtkImageSinusoidSource::New();
+  vtkSmartPointer<vtkImageSinusoidSource> imageSource=
+    vtkSmartPointer<vtkImageSinusoidSource>::New();
   imageSource->SetWholeExtent(0,9,0,9,0,9);
   imageSource->SetPeriod(5);
   imageSource->Update();
@@ -122,16 +124,17 @@ int TestGaussianBlurPass(int argc, char* argv[])
   double range[2];
   image->GetScalarRange(range);
   
-  vtkDataSetSurfaceFilter *surface=vtkDataSetSurfaceFilter::New();
+  vtkSmartPointer<vtkDataSetSurfaceFilter> surface=
+    vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
   
   surface->SetInputConnection(imageSource->GetOutputPort());
-  imageSource->Delete();
   
-  vtkPolyDataMapper *mapper=vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper=
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(surface->GetOutputPort());
-  surface->Delete();
   
-  vtkLookupTable *lut=vtkLookupTable::New();
+  vtkSmartPointer<vtkLookupTable> lut=
+    vtkSmartPointer<vtkLookupTable>::New();
   lut->SetTableRange(range);
   lut->SetAlphaRange(0.5,0.5);
   lut->SetHueRange(0.2,0.7);
@@ -140,26 +143,26 @@ int TestGaussianBlurPass(int argc, char* argv[])
   
   mapper->SetScalarVisibility(1);
   mapper->SetLookupTable(lut);
-  lut->Delete();
   
-  vtkActor *actor=vtkActor::New();
+  vtkSmartPointer<vtkActor> actor=
+    vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
-  actor->Delete();
   actor->SetMapper(mapper);
-  mapper->Delete();
   actor->SetVisibility(1);
   
-  vtkConeSource *cone=vtkConeSource::New();
-  vtkPolyDataMapper *coneMapper=vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkConeSource> cone=
+    vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> coneMapper=
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
   coneMapper->SetImmediateModeRendering(1);
-  cone->Delete();
-  vtkActor *coneActor=vtkActor::New();
+
+  vtkSmartPointer<vtkActor> coneActor=
+    vtkSmartPointer<vtkActor>::New();
   coneActor->SetMapper(coneMapper);
   coneActor->SetVisibility(1);
-  coneMapper->Delete();
+
   renderer->AddActor(coneActor);
-  coneActor->Delete();
   
   renderer->SetBackground(0.1,0.3,0.0);
   renWin->SetSize(400,400);
@@ -201,7 +204,5 @@ int TestGaussianBlurPass(int argc, char* argv[])
       iren->Start();
       }
     }
-  iren->Delete();
-  
   return !retVal;
 }
