@@ -72,6 +72,8 @@ int main (int argc, char *argv[])
   v16->SetFilePrefix (argv[1]);
   v16->SetImageRange(1, 93);
   v16->SetDataSpacing (3.2, 3.2, 1.5);
+  cout << "Updating v16\n";
+  v16->Update();
 
   // An isosurface, or contour value of 500 is known to correspond to
   // the skin of the patient. Once generated, a vtkPolyDataNormals
@@ -83,15 +85,21 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkContourFilter>::New();
   skinExtractor->SetInputConnection( v16->GetOutputPort());
   skinExtractor->SetValue(0, 500);
+  cout << "Updating skinExtractor\n";
+  skinExtractor->Update();
 
   vtkSmartPointer<vtkPolyDataNormals> skinNormals =
     vtkSmartPointer<vtkPolyDataNormals>::New();
   skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
   skinNormals->SetFeatureAngle(60.0);
+  cout << "Updating skinNormals\n";
+  skinNormals->Update();
 
   vtkSmartPointer<vtkStripper> skinStripper =
     vtkSmartPointer<vtkStripper>::New();
   skinStripper->SetInputConnection(skinNormals->GetOutputPort());
+  cout << "Updating skinStripper\n";
+  skinStripper->Update();
 
   vtkSmartPointer<vtkPolyDataMapper> skinMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -129,6 +137,7 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkPolyDataMapper>::New();
   boneMapper->SetInputConnection(boneStripper->GetOutputPort());
   boneMapper->ScalarVisibilityOff();
+
   vtkSmartPointer<vtkActor> bone =
     vtkSmartPointer<vtkActor>::New();
   bone->SetMapper(boneMapper);
@@ -139,6 +148,8 @@ int main (int argc, char *argv[])
   vtkSmartPointer<vtkOutlineFilter> outlineData =
     vtkSmartPointer<vtkOutlineFilter>::New();
   outlineData->SetInputConnection(v16->GetOutputPort());
+  cout << "Updating outlineData\n";
+  outlineData->Update();
 
   vtkSmartPointer<vtkPolyDataMapper> mapOutline =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -153,13 +164,14 @@ int main (int argc, char *argv[])
   // volume. Each plane uses a different texture map and therefore has
   // different coloration.
 
-  // Start by creatin a black/white lookup table.
+  // Start by creating a black/white lookup table.
   vtkSmartPointer<vtkLookupTable> bwLut =
     vtkSmartPointer<vtkLookupTable>::New();
   bwLut->SetTableRange (0, 2000);
   bwLut->SetSaturationRange (0, 0);
   bwLut->SetHueRange (0, 0);
   bwLut->SetValueRange (0, 1);
+  cout << "Building bwLut\n";
   bwLut->Build(); //effective built
 
   // Now create a lookup table that consists of the full hue circle
@@ -170,6 +182,7 @@ int main (int argc, char *argv[])
   hueLut->SetHueRange (0, 1);
   hueLut->SetSaturationRange (1, 1);
   hueLut->SetValueRange (1, 1);
+  cout << "Building hueLut\n";
   hueLut->Build(); //effective built
 
   // Finally, create a lookup table with a single hue but having a range
@@ -180,6 +193,7 @@ int main (int argc, char *argv[])
   satLut->SetHueRange (.6, .6);
   satLut->SetSaturationRange (0, 1);
   satLut->SetValueRange (1, 1);
+  cout << "Building satLut\n";
   satLut->Build(); //effective built
 
   // Create the first of the three planes. The filter vtkImageMapToColors
@@ -194,6 +208,8 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkImageMapToColors>::New();
   sagittalColors->SetInputConnection(v16->GetOutputPort());
   sagittalColors->SetLookupTable(bwLut);
+  cout << "Updating sagittalColors\n";
+  sagittalColors->Update();
 
   vtkSmartPointer<vtkImageActor> sagittal =
     vtkSmartPointer<vtkImageActor>::New();
@@ -206,6 +222,8 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkImageMapToColors>::New();
   axialColors->SetInputConnection(v16->GetOutputPort());
   axialColors->SetLookupTable(hueLut);
+  cout << "Updating axialColors\n";
+  axialColors->Update();
 
   vtkSmartPointer<vtkImageActor> axial =
     vtkSmartPointer<vtkImageActor>::New();
@@ -218,6 +236,8 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkImageMapToColors>::New();
   coronalColors->SetInputConnection(v16->GetOutputPort());
   coronalColors->SetLookupTable(satLut);
+  cout << "Updating coronalColors\n";
+  coronalColors->Update();
 
   vtkSmartPointer<vtkImageActor> coronal =
     vtkSmartPointer<vtkImageActor>::New();
@@ -254,7 +274,9 @@ int main (int argc, char *argv[])
   // An initial camera view is created.  The Dolly() method moves 
   // the camera towards the FocalPoint, thereby enlarging the image.
   aRenderer->SetActiveCamera(aCamera);
+  cout << "Render\n";
   aRenderer->Render();
+  cout << "ResetCamera\n";
   aRenderer->ResetCamera ();
   aCamera->Dolly(1.5);
 
@@ -269,11 +291,15 @@ int main (int argc, char *argv[])
   // near plane clips out objects in front of the plane; the far plane
   // clips out objects behind the plane. This way only what is drawn
   // between the planes is actually rendered.
+  cout << "ResetCameraClippingRange\n";
   aRenderer->ResetCameraClippingRange ();
 
   // interact with data
+  cout << "Initialize\n";
   iren->Initialize();
+  cout << "Start\n";
   iren->Start(); 
 
+  cout << "Done\n";
   return EXIT_SUCCESS;
 }
