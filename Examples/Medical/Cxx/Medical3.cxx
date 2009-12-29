@@ -42,7 +42,7 @@ int main (int argc, char *argv[])
   if (argc < 2)
     {
     cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
-    return 1;
+    return EXIT_FAILURE;
     }
 
   // Create the renderer, the render window, and the interactor. The
@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
   // The following reader is used to read a series of 2D slices (images)
   // that compose the volume. The slice dimensions are set, and the
   // pixel spacing. The data Endianness must also be specified. The
-  // reader usese the FilePrefix in combination with the slice number to
+  // reader uses the FilePrefix in combination with the slice number to
   // construct filenames using the format FilePrefix.%d. (In this case
   // the FilePrefix is the root name of the file: quarter.)
   vtkSmartPointer<vtkVolume16Reader> v16 =
@@ -242,8 +242,6 @@ int main (int argc, char *argv[])
   aRenderer->AddActor(sagittal);
   aRenderer->AddActor(axial);
   aRenderer->AddActor(coronal);
-  aRenderer->AddActor(axial);
-  aRenderer->AddActor(coronal);
   aRenderer->AddActor(skin);
   aRenderer->AddActor(bone);
 
@@ -277,5 +275,5 @@ int main (int argc, char *argv[])
   iren->Initialize();
   iren->Start(); 
 
-  return 0;
+  return EXIT_SUCCESS;
 }
