@@ -39,6 +39,7 @@
 
 int main (int argc, char *argv[])
 {
+  cout << "Starting...\n";
   if (argc < 2)
     {
     cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
@@ -65,12 +66,13 @@ int main (int argc, char *argv[])
   // reader uses the FilePrefix in combination with the slice number to
   // construct filenames using the format FilePrefix.%d. (In this case
   // the FilePrefix is the root name of the file: quarter.)
+  cout << "Begin v61\n";
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64,64);
+  v16->SetImageRange(1, 93);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetFilePrefix (argv[1]);
-  v16->SetImageRange(1, 93);
   v16->SetDataSpacing (3.2, 3.2, 1.5);
   cout << "Updating v16\n";
   v16->Update();
