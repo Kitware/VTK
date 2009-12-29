@@ -18,13 +18,14 @@
 #include "vtkContext2D.h"
 #include "vtkPen.h"
 #include "vtkTextProperty.h"
+#include "vtkFloatArray.h"
 
 #include "vtkObjectFactory.h"
 
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.7");
+vtkCxxRevisionMacro(vtkAxis, "1.8");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -32,22 +33,27 @@ vtkStandardNewMacro(vtkAxis);
 //-----------------------------------------------------------------------------
 vtkAxis::vtkAxis()
 {
-  this->Point1[0] = 10.0;
+  this->Horizontal = true;
+  this->Point1[0] = 0.0;
   this->Point1[1] = 10.0;
   this->Point2[0] = 10.0;
   this->Point2[1] = 10.0;
+  this->TickInterval = 1.0;
   this->NumberOfTicks = 6;
   this->TickLabelSize = 12;
   this->Minimum = 0.0;
   this->Maximum = 6.66;
   this->TitleSize = 15;
   this->Title = NULL;
+  this->TickPositions = vtkFloatArray::New();
 }
 
 //-----------------------------------------------------------------------------
 vtkAxis::~vtkAxis()
 {
   this->SetTitle(NULL);
+  this->TickPositions->Delete();
+  this->TickPositions = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -89,62 +95,75 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     painter->DrawString(x, y, this->Title);
     }
 
-  prop->SetFontSize(this->TickLabelSize);
   // Now draw the tick marks
+  prop->SetFontSize(this->TickLabelSize);
+  prop->SetOrientation(0.0);
+  this->TickPositions->SetNumberOfTuples(0);
+  // Calculate where the first tick mark should be drawn
+  float tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
   if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
     {
-    float spacing = (this->Point2[1] - this->Point1[1]) /
-                    float(this->NumberOfTicks - 1);
-    prop->SetOrientation(0.0);
+    float scaling = (this->Point2[1] - this->Point1[1]) /
+                    (this->Maximum - this->Minimum);
+
     prop->SetJustificationToRight();
     prop->SetVerticalJustificationToCentered();
-    float labelSpacing = (this->Maximum - this->Minimum) /
-                         float(this->NumberOfTicks - 1);
-    for (int i = 0; i < this->NumberOfTicks; ++i)
+
+    while (tick <= this->Maximum)
       {
-      int yTick = static_cast<int>(this->Point1[1] + float(i)*spacing);
+      int yTick = static_cast<int>(this->Point1[1] + (tick-this->Minimum)*scaling);
       painter->DrawLine(this->Point1[0] - 5, yTick, this->Point1[0], yTick);
 
       // Draw the tick label
       char string[20];
-      sprintf(string, "%-#6.3g", this->Minimum + i*labelSpacing);
+      sprintf(string, "%-#6.3g", tick);
       painter->DrawString(this->Point1[0] - 7, yTick, string);
+
+      this->TickPositions->InsertNextValue(yTick);
+      tick += this->TickInterval;
       }
     }
   else // Default to horizontal orientation
     {
-    float spacing = (this->Point2[0] - this->Point1[0]) /
-                    float(this->NumberOfTicks - 1);
+    // Calculate the transform from plot to pixel space
+    float scaling = (this->Point2[0] - this->Point1[0]) /
+                    (this->Maximum - this->Minimum);
+
     prop->SetJustificationToCentered();
     prop->SetVerticalJustificationToTop();
-    float labelSpacing = (this->Maximum - this->Minimum) /
-                         float(this->NumberOfTicks - 1);
-    for (int i = 0; i < this->NumberOfTicks; ++i)
+
+    while (tick <= this->Maximum)
       {
-      int xTick = static_cast<int>(this->Point1[0] + float(i)*spacing);
+      int xTick = static_cast<int>(this->Point1[0] + (tick-this->Minimum)*scaling);
       painter->DrawLine(xTick, this->Point1[1] - 5, xTick, this->Point1[1]);
 
       char string[20];
-      sprintf(string, "%-#6.3g", this->Minimum + i*labelSpacing);
+      sprintf(string, "%-#6.3g", tick);
       painter->DrawString(xTick, int(this->Point1[1] - 7), string);
+
+      this->TickPositions->InsertNextValue(xTick);
+      tick += this->TickInterval;
       }
     }
-/*
-  float min, max;
-  min = max = 0.0f;
-  this->CalculateNiceMinMax(min, max);
-*/
+
   return true;
 }
 
 //-----------------------------------------------------------------------------
-int vtkAxis::CalculateNiceMinMax(float &/*min*/, float &/*max*/)
+void vtkAxis::AutoScale()
+{
+  // Calculate the min and max, set the number of ticks and the tick spacing
+  this->TickInterval = this->CalculateNiceMinMax(this->Minimum, this->Maximum);
+}
+
+//-----------------------------------------------------------------------------
+float vtkAxis::CalculateNiceMinMax(float &min, float &max)
 {
   // First get the order of the range of the numbers
   if (this->Maximum == this->Minimum)
     {
     vtkWarningMacro(<< "Minimum and maximum values are equal - invalid.");
-    return 0;
+    return 0.0f;
     }
   float range = this->Maximum - this->Minimum;
   bool isNegative = false;
@@ -153,11 +172,70 @@ int vtkAxis::CalculateNiceMinMax(float &/*min*/, float &/*max*/)
     isNegative = true;
     range *= -1.0f;
     }
-  int order = static_cast<int>(log10(range));
-  cout << "Order of the range = " << order << endl;
 
+  // Calculate an upper limit on the number of tick marks - at least 30 pixels
+  // should be between each tick mark.
+  int pixelRange = this->Point1[0] == this->Point2[0] ?
+                   this->Point2[1] - this->Point1[1] :
+                   this->Point2[0] - this->Point1[0];
+  int maxTicks = pixelRange / 50;
+  float tickSpacing = range / maxTicks;
 
-  return order;
+  int order = static_cast<int>(floor(log10(tickSpacing)));
+  float normTickSpacing = tickSpacing * pow(10.0f, -order);
+  float niceTickSpacing = this->NiceNumber(normTickSpacing, true);
+  niceTickSpacing *= pow(10.0f, order);
+
+  min = floor(this->Minimum / niceTickSpacing) * niceTickSpacing;
+  max = ceil(this->Maximum / niceTickSpacing) * niceTickSpacing;
+  float newRange = max - min;
+
+  this->NumberOfTicks = static_cast<int>(floor(newRange / niceTickSpacing)) + 1;
+
+  return niceTickSpacing;
+}
+
+//-----------------------------------------------------------------------------
+float vtkAxis::NiceNumber(float n, bool roundUp)
+{
+  if (roundUp)
+    {
+    if (n <= 1.0f)
+      {
+      return 1.0f;
+      }
+    else if (n <= 2.0f)
+      {
+      return 2.0f;
+      }
+    else if (n <= 5.0f)
+      {
+      return 5.0f;
+      }
+    else
+      {
+      return 10.0f;
+      }
+    }
+  else
+    {
+    if (n < 1.5f)
+      {
+      return 1.0f;
+      }
+    else if (n <= 3.0f)
+      {
+      return 2.0f;
+      }
+    else if (n <= 7.0f)
+      {
+      return 5.0f;
+      }
+    else
+      {
+      return 10.0f;
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -19,11 +19,12 @@
 #include "vtkPoints2D.h"
 #include "vtkPen.h"
 #include "vtkAxis.h"
+#include "vtkFloatArray.h"
 
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPlotGrid, "1.2");
+vtkCxxRevisionMacro(vtkPlotGrid, "1.3");
 vtkCxxSetObjectMacro(vtkPlotGrid, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlotGrid, YAxis, vtkAxis);
 //-----------------------------------------------------------------------------
@@ -65,21 +66,22 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
 
   // in x
-  int xLines = this->XAxis->GetNumberOfTicks();
-  float spacing = (this->Point2[0] - this->Point1[0]) / float(xLines-1);
-  for (int i = 0; i < xLines; ++i)
+  vtkFloatArray *xLines = this->XAxis->GetTickPositions();
+  float *xPositions = xLines->GetPointer(0);
+
+  for (int i = 0; i < xLines->GetNumberOfTuples(); ++i)
     {
-    painter->DrawLine(int(this->Point1[0] + i*spacing), this->Point1[1],
-                      int(this->Point1[0] + i*spacing), this->Point2[1]);
+    painter->DrawLine(xPositions[i], this->Point1[1],
+                      xPositions[i], this->Point2[1]);
     }
 
   // in y
-  int yLines = this->YAxis->GetNumberOfTicks();
-  spacing = (this->Point2[1] - this->Point1[1]) / float(yLines-1);
-  for (int i = 0; i < yLines; ++i)
+  vtkFloatArray *yLines = this->YAxis->GetTickPositions();
+  float *yPositions = yLines->GetPointer(0);
+  for (int i = 0; i < yLines->GetNumberOfTuples(); ++i)
     {
-    painter->DrawLine(this->Point1[0], int(this->Point1[1] + i*spacing),
-                      this->Point2[0], int(this->Point1[1] + i*spacing));
+    painter->DrawLine(this->Point1[0], yPositions[i],
+                      this->Point2[0], yPositions[i]);
     }
   return true;
 }

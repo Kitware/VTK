@@ -134,6 +134,10 @@ protected:
   // Should the box be drawn (could be selection, zoom etc.
   bool DrawBox;
 
+  // Description:
+  // Should we draw the location of the nearest point on the plot?
+  bool DrawNearestPoint;
+
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.
   void operator=(const vtkChartXY &);   // Not implemented.

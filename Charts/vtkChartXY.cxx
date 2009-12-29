@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.17");
+vtkCxxRevisionMacro(vtkChartXY, "1.18");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -87,6 +87,7 @@ vtkChartXY::vtkChartXY()
   this->BoxOrigin[0] = this->BoxOrigin[1] = 0.0f;
   this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
   this->DrawBox = false;
+  this->DrawNearestPoint = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -246,21 +247,33 @@ void vtkChartXY::RecalculatePlotBounds()
   float ymax = 1.0;
 
   size_t n = this->ChartPrivate->plots.size();
+  double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
   for (size_t i = 0; i < n; ++i)
     {
-    vtkPlot *plot = this->ChartPrivate->plots[i];
-    double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
-    plot->GetBounds(bounds);
-    if (xmin > bounds[0]) xmin = float(bounds[0]);
-    if (xmax < bounds[1]) xmax = float(bounds[1]);
-    if (ymin > bounds[2]) ymin = float(bounds[2]);
-    if (ymax < bounds[3]) ymax = float(bounds[3]);
+    this->ChartPrivate->plots[i]->GetBounds(bounds);
+    if (i == 0)
+      {
+      // Initialize the bounds for the chart
+      xmin = float(bounds[0]);
+      xmax = float(bounds[1]);
+      ymin = float(bounds[2]);
+      ymax = float(bounds[3]);
+      }
+    else
+      {
+      if (xmin > bounds[0]) xmin = float(bounds[0]);
+      if (xmax < bounds[1]) xmax = float(bounds[1]);
+      if (ymin > bounds[2]) ymin = float(bounds[2]);
+      if (ymax < bounds[3]) ymax = float(bounds[3]);
+      }
     }
   // Now set the newly calculated bounds on the axes
   this->XAxis->SetMinimum(xmin);
   this->XAxis->SetMaximum(xmax);
   this->YAxis->SetMinimum(ymin);
   this->YAxis->SetMaximum(ymax);
+  this->XAxis->AutoScale();
+  this->YAxis->AutoScale();
 }
 
 //-----------------------------------------------------------------------------
@@ -318,8 +331,11 @@ bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &)
+bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &mouse)
 {
+  // Find the nearest point on the curves and snap to it
+  this->DrawNearestPoint = true;
+
   return true;
 }
 
@@ -357,7 +373,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
-  return false;
+  this->DrawNearestPoint = false;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
