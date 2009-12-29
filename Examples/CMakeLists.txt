@@ -1,5 +1,5 @@
 PROJECT(VTKExamples)
-INCLUDE_REGULAR_EXPRESSION(".*.cxx" ".*.h")
+INCLUDE_REGULAR_EXPRESSION("^.*$")
 
 # VTK examples now require CMake 2.4 or higher.
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
