@@ -178,6 +178,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
     delete [] yV;
     delete [] zV;
     delete [] sV;
+    fclose(file);
     return NULL;
     }
 
@@ -195,6 +196,13 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
 
   dataSet->SetPoints(newPts);
   dataSet->GetPointData()->SetScalars(newScalars);
+
+  // cleanup
+  delete [] xV;
+  delete [] yV;
+  delete [] zV;
+  delete [] sV;
+  fclose(file);
 
   return dataSet;
 }
