@@ -102,7 +102,7 @@ def create_vtk_array(vtk_arr_type):
     return tmp
 
 
-def numpy_to_vtk(num_array, deep=0):
+def numpy_to_vtk(num_array, deep=0, array_type=None):
     """Converts a contiguous real numpy Array to a VTK array object.
 
     This function only works for real arrays that are contiguous.
@@ -139,7 +139,10 @@ def numpy_to_vtk(num_array, deep=0):
            " passing it to vtk."
 
     # First create an array of the right type by using the typecode.
-    vtk_typecode = get_vtk_array_type(z.dtype)
+    if array_type:
+        vtk_typecode = array_type
+    else:
+        vtk_typecode = get_vtk_array_type(z.dtype)
     result_array = create_vtk_array(vtk_typecode)
 
     # Find the shape and set number of components.
@@ -169,6 +172,19 @@ def numpy_to_vtk(num_array, deep=0):
         result_array = copy
     return result_array
 
+def numpy_to_vtkIdTypeArray(num_array, deep=0):
+    isize = vtk.vtkIdTypeArray().GetDataTypeSize()
+    dtype = num_array.dtype
+    if isize == 4:
+        if dtype != numpy.int32:
+            raise ValueError, \
+             'Expecting a numpy.int32 array, got %s instead.' % (str(dtype))
+    else:
+        if dtype != numpy.int64:
+            raise ValueError, \
+             'Expecting a numpy.int64 array, got %s instead.' % (str(dtype))
+        
+    return numpy_to_vtk(num_array, deep, vtkConstants.VTK_ID_TYPE)
 
 def vtk_to_numpy(vtk_array):
     """Converts a VTK data array to a numpy array.
