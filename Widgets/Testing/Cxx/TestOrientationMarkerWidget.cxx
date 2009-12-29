@@ -291,7 +291,7 @@ char TestOMWidgetEventLog[] =
   "MouseMoveEvent 123 188 0 0 0 0 t\n"
   ;
 
-int TestOrientationMarkerWidget( int argc, char *argv[] )
+int TestOrientationMarkerWidget( int, char *[] )
 {
   // create an actor out of parts of vtkAxesActor and vtkAnnotatedCubeActor
   // to have the widget follow.
