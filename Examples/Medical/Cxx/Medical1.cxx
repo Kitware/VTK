@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
   // The following reader is used to read a series of 2D slices (images)
   // that compose the volume. The slice dimensions are set, and the
   // pixel spacing. The data Endianness must also be specified. The reader
-  // usese the FilePrefix in combination with the slice number to construct
+  // uses the FilePrefix in combination with the slice number to construct
   // filenames using the format FilePrefix.%d. (In this case the FilePrefix
   // is the root name of the file: quarter.)
   vtkSmartPointer<vtkVolume16Reader> v16 =

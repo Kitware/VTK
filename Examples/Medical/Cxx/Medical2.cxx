@@ -37,7 +37,7 @@ int main (int argc, char *argv[])
   if (argc < 2)
     {
     cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
-    return 1;
+    return EXIT_FAILURE;
     }
 
   // Create the renderer, the render window, and the interactor. The renderer
@@ -179,10 +179,9 @@ int main (int argc, char *argv[])
   // between the planes is actually rendered.
   aRenderer->ResetCameraClippingRange ();
 
-  // Set a background color for the renderer and set the size of the
-  // render window (expressed in pixels).
+  // Initialize the event loop and then start it.
   iren->Initialize();
   iren->Start(); 
 
-  return 0;
+  return EXIT_SUCCESS;
 }
