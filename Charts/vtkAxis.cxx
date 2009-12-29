@@ -25,7 +25,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.8");
+vtkCxxRevisionMacro(vtkAxis, "1.9");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -167,7 +167,7 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
     }
   float range = this->Maximum - this->Minimum;
   bool isNegative = false;
-  if (range < 0)
+  if (range < 0.0f)
     {
     isNegative = true;
     range *= -1.0f;
@@ -175,10 +175,10 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
 
   // Calculate an upper limit on the number of tick marks - at least 30 pixels
   // should be between each tick mark.
-  int pixelRange = this->Point1[0] == this->Point2[0] ?
-                   this->Point2[1] - this->Point1[1] :
-                   this->Point2[0] - this->Point1[0];
-  int maxTicks = pixelRange / 50;
+  float pixelRange = this->Point1[0] == this->Point2[0] ?
+                     this->Point2[1] - this->Point1[1] :
+                     this->Point2[0] - this->Point1[0];
+  int maxTicks = static_cast<int>(pixelRange / 50.0f);
   float tickSpacing = range / maxTicks;
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
@@ -186,10 +186,18 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
   float niceTickSpacing = this->NiceNumber(normTickSpacing, true);
   niceTickSpacing *= pow(10.0f, order);
 
-  min = floor(this->Minimum / niceTickSpacing) * niceTickSpacing;
-  max = ceil(this->Maximum / niceTickSpacing) * niceTickSpacing;
-  float newRange = max - min;
+  if (isNegative)
+    {
+    min = ceil(this->Minimum / niceTickSpacing) * niceTickSpacing;
+    max = floor(this->Maximum / niceTickSpacing) * niceTickSpacing;
+    }
+  else
+    {
+    min = floor(this->Minimum / niceTickSpacing) * niceTickSpacing;
+    max = ceil(this->Maximum / niceTickSpacing) * niceTickSpacing;
+    }
 
+  float newRange = max - min;
   this->NumberOfTicks = static_cast<int>(floor(newRange / niceTickSpacing)) + 1;
 
   return niceTickSpacing;
