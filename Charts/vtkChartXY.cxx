@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.18");
+vtkCxxRevisionMacro(vtkChartXY, "1.19");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -122,8 +122,11 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   int geometry[] = { this->GetScene()->GetViewWidth(),
                      this->GetScene()->GetViewHeight() };
-  this->SetGeometry(geometry);
-  this->SetBorders(60, 20, 20, 50);
+  if (geometry[0] != this->Geometry[0] || geometry[0] != this->Geometry[0])
+    {
+    this->SetGeometry(geometry);
+    this->SetBorders(60, 20, 20, 50);
+    }
 
   // Check whether the geometry has been modified after the axes - update if so
   if (this->MTime > this->XAxis->GetMTime())
@@ -133,6 +136,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->XAxis->SetPoint2(this->Point2[0], this->Point1[1]);
     this->YAxis->SetPoint1(this->Point1[0], this->Point1[1]);
     this->YAxis->SetPoint2(this->Point1[0], this->Point2[1]);
+    this->RecalculatePlotTransform();
     }
 
   // Recalculate the plot transform, min and max values if necessary
@@ -331,7 +335,7 @@ bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   // Find the nearest point on the curves and snap to it
   this->DrawNearestPoint = true;
@@ -469,10 +473,10 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
     }
   else
     {
-  xmin -= 0.1 * deltax;
-  xmax += 0.1 * deltax;
-  ymin -= 0.1 * deltay;
-  ymax += 0.1 * deltay;
+    xmin -= 0.1 * deltax;
+    xmax += 0.1 * deltax;
+    ymin -= 0.1 * deltay;
+    ymax += 0.1 * deltay;
     }
   // Now set the newly calculated bounds on the axes
   this->XAxis->SetMinimum(xmin);
