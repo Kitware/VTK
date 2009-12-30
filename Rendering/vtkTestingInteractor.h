@@ -45,7 +45,7 @@
 class VTK_RENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkTestingInteractor* New() { return new vtkTestingInteractor; }
+  static vtkTestingInteractor* New();
   vtkTypeRevisionMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
   virtual void Start();
 

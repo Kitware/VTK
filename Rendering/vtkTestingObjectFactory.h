@@ -40,7 +40,7 @@
 class VTK_RENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
 public:
-  static vtkTestingObjectFactory* New() { return new vtkTestingObjectFactory;}
+  static vtkTestingObjectFactory* New();
   vtkTypeRevisionMacro(vtkTestingObjectFactory,vtkObjectFactory);
   virtual const char* GetVTKSourceVersion();
   const char* GetDescription() { return "Factory for overrides during testing"; }
