@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.19");
+vtkCxxRevisionMacro(vtkChartXY, "1.20");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -120,29 +120,44 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
 
+  if (this->ChartPrivate->plots.size() == 0)
+    {
+    // Nothing to plot, so don't draw anything.
+    return false;
+    }
+
+  bool recalculateTransform = false;
+
   int geometry[] = { this->GetScene()->GetViewWidth(),
                      this->GetScene()->GetViewHeight() };
-  if (geometry[0] != this->Geometry[0] || geometry[0] != this->Geometry[0])
+  if (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1] ||
+      this->MTime > this->XAxis->GetMTime())
     {
     this->SetGeometry(geometry);
     this->SetBorders(60, 20, 20, 50);
-    }
-
-  // Check whether the geometry has been modified after the axes - update if so
-  if (this->MTime > this->XAxis->GetMTime())
-    {
     // This is where we set the axes up too
     this->XAxis->SetPoint1(this->Point1[0], this->Point1[1]);
     this->XAxis->SetPoint2(this->Point2[0], this->Point1[1]);
     this->YAxis->SetPoint1(this->Point1[0], this->Point1[1]);
     this->YAxis->SetPoint2(this->Point1[0], this->Point2[1]);
-    this->RecalculatePlotTransform();
+    // Cause the plot transform to be recalculated if necessary
+    recalculateTransform = true;
+    }
+
+  if (this->Geometry[0] == 0 || this->Geometry[1] == 0)
+    {
+    // The geometry of the chart must be valid before anything can be drawn
+    return false;
     }
 
   // Recalculate the plot transform, min and max values if necessary
   if (!this->PlotTransformValid)
     {
     this->RecalculatePlotBounds();
+    this->RecalculatePlotTransform();
+    }
+  else if (recalculateTransform)
+    {
     this->RecalculatePlotTransform();
     }
 
@@ -222,10 +237,20 @@ void vtkChartXY::RecalculatePlotTransform()
   // Get the scale for the plot area from the x and y axes
   float *min = this->XAxis->GetPoint1();
   float *max = this->XAxis->GetPoint2();
+  if (fabs(max[0] - min[0]) == 0.0f)
+    {
+    return;
+    }
   float xScale = (this->XAxis->GetMaximum() - this->XAxis->GetMinimum()) /
                  (max[0] - min[0]);
   min = this->YAxis->GetPoint1();
   max = this->YAxis->GetPoint2();
+
+  // Check for min and max being equal - bail if so.
+  if (fabs(max[1] - min[1]) == 0.0f)
+    {
+    return;
+    }
   float yScale = (this->YAxis->GetMaximum() - this->YAxis->GetMinimum()) /
                  (max[1] - min[1]);
 

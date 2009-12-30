@@ -25,7 +25,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.9");
+vtkCxxRevisionMacro(vtkAxis, "1.10");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -35,7 +35,7 @@ vtkAxis::vtkAxis()
 {
   this->Horizontal = true;
   this->Point1[0] = 0.0;
-  this->Point1[1] = 10.0;
+  this->Point1[1] = 0.0;
   this->Point2[0] = 10.0;
   this->Point2[1] = 10.0;
   this->TickInterval = 1.0;
@@ -179,6 +179,11 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
                      this->Point2[1] - this->Point1[1] :
                      this->Point2[0] - this->Point1[0];
   int maxTicks = static_cast<int>(pixelRange / 50.0f);
+  if (maxTicks == 0)
+    {
+    // The axes do not have a valid set of points - return
+    return 0.0f;
+    }
   float tickSpacing = range / maxTicks;
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
