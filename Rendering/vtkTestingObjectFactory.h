@@ -33,6 +33,7 @@
 #include "vtkTesting.h"            // Required for testing framework
 #include "vtkTestDriver.h"         // Required for testing framework
 #include "vtkTestingInteractor.h"  // Required for testing framework
+#include "vtkSmartPointer.h"       // Required for testing framework
 //BTX
 #include <vtkstd/string> // STL Header; Required for string
 //ETX
