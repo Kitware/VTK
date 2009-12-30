@@ -173,6 +173,12 @@ public:
   void SetIntegrator(vtkInitialValueProblemSolver *);
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
+  // Description:
+  // A positive value, as small as possible for numerical comparison.
+  // The initial value is 1E-12.
+  vtkSetMacro(Epsilon,double);
+  vtkGetMacro(Epsilon,double);
+  
 protected:
   // Description:
   // Construct object to start from position (0,0,0); integrate forward;
@@ -277,6 +283,10 @@ protected:
   // Prototype showing the integrator type to be set by the user.
   vtkInitialValueProblemSolver* Integrator;
 
+  // A positive value, as small as possible for numerical comparison.
+  // The initial value is 1E-12.
+  double Epsilon;
+  
   // Interval with which the stream points will be stored.
   // Useful in reducing the memory footprint. Since the initial
   // value is small, by default, it will store all/most points.
@@ -287,7 +297,7 @@ protected:
   // Description:
   // These methods were added to allow access to these variables from the
   // threads. 
-  vtkGetMacro( NumberOfStreamers, int );
+  vtkGetMacro( NumberOfStreamers, vtkIdType );
   StreamArray *GetStreamers() { return this->Streamers; };
 
   void InitializeThreadedIntegrate();

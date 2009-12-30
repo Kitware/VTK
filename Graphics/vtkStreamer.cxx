@@ -27,11 +27,13 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.93");
+vtkCxxRevisionMacro(vtkStreamer, "1.94");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
+
+static const double VTK_EPSILON=1E-12;
 
 struct vtkStreamerThreadStruct
 {
@@ -67,7 +69,8 @@ vtkStreamer::StreamPoint *vtkStreamer::StreamArray::Resize(vtkIdType sz)
   newArray = new vtkStreamer::StreamPoint[newSize];
 
   memcpy(newArray, this->Array,
-         (sz < this->Size ? sz : this->Size) * sizeof(vtkStreamer::StreamPoint));
+         static_cast<size_t>(sz < this->Size ? sz : this->Size)
+         * sizeof(vtkStreamer::StreamPoint));
 
   this->Size = newSize;
   delete [] this->Array;
@@ -96,6 +99,8 @@ vtkStreamer::vtkStreamer()
   this->SpeedScalars = 0;
   this->OrientationScalars = 0;
   this->NumberOfStreamers = 0;
+  this->Epsilon=VTK_EPSILON;
+  
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
   this->Integrator = vtkRungeKutta2::New();
@@ -211,8 +216,6 @@ double *vtkStreamer::GetStartPosition()
   return this->StartPosition;
 }
 
-static const double VTK_EPSILON=1E-12;
-
 VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 {
   vtkStreamer              *self;
@@ -241,9 +244,12 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   double err;
   int counter=0;
 
-  thread_id = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  thread_count = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  str = (vtkStreamerThreadStruct*)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  vtkMultiThreader::ThreadInfo *info=
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg);
+  
+  thread_id = info->ThreadID;
+  thread_count = info->NumberOfThreads;
+  str = static_cast<vtkStreamerThreadStruct *>(info->UserData);
   self = str->Filter;
 
   input     = str->Input;
@@ -317,8 +323,10 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           {
           if (!thread_id)
             {
-            self->UpdateProgress((double)ptId/self->GetNumberOfStreamers()
-                                 +pt1.t/maxtime/self->GetNumberOfStreamers());
+            self->UpdateProgress(
+              static_cast<double>(ptId)
+              /static_cast<double>(self->GetNumberOfStreamers())
+              +pt1.t/maxtime/static_cast<double>(self->GetNumberOfStreamers()));
             }
           if (self->GetAbortExecute())
             {
@@ -330,7 +338,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
         // time IntegrationStepLength
         input->GetCell(pt1.cellId, cell);
         step = dir*self->GetIntegrationStepLength() 
-          * sqrt((double)cell->GetLength2())/pt1.speed;
+          * sqrt(static_cast<double>(cell->GetLength2()))/pt1.speed;
 
         // Calculate the next step using the integrator provided
         if (integrator->ComputeNextStep(pt1.x, pt1.v, xNext, 0, step, 0, err)
@@ -377,10 +385,11 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
         pt2.speed = vtkMath::Norm(pt2.v);
 
-        d = sqrt((double)vtkMath::Distance2BetweenPoints(pt1.x,pt2.x));
+        d = sqrt(static_cast<double>(
+                   vtkMath::Distance2BetweenPoints(pt1.x,pt2.x)));
         pt2.d = pt1.d + d;
         // If at stagnation region, stop the integration
-        if ( d == 0 || (pt1.speed + pt2.speed) < VTK_EPSILON )
+        if ( d <= self->Epsilon || (pt1.speed + pt2.speed) <= self->Epsilon)
           {
           pt2.t = pt1.t;
           break;
@@ -422,8 +431,9 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           }
         if (tOffset < pt2.t)
           {
-          tOffset += ((int)(( pt2.t - tOffset) / savePointInterval) + 1)
-            * savePointInterval;
+          tOffset += (static_cast<int>(
+                        ( pt2.t - tOffset) / savePointInterval)
+                      + 1) * savePointInterval;
           }
         pt1 = pt2;
 
@@ -718,7 +728,8 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "Starting Source: " << (void *)this->GetSource() << "\n";
+    os << indent << "Starting Source: "
+       << static_cast<void *>(this->GetSource()) << "\n";
     }
 
   os << indent << "Maximum Propagation Time: " 
@@ -754,4 +765,5 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Streamers: " << this->NumberOfStreamers << "\n";
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
+  os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
