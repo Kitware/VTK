@@ -900,7 +900,7 @@ const char eventLog[] =
 "RenderEvent 65 138 0 0 0 0 0\n"
   ;
 
-int TestCaptionWidget( int argc, char *argv[] )
+int TestCaptionWidget( int , char *[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
