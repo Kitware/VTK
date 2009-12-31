@@ -13,7 +13,13 @@
 
 =========================================================================*/
 //
-// This example tests the vtkSliderWidget.
+// This example tests the vtkHandleWidget.
+//
+// The handle that you see is always constrained to lie on a plane (
+// defined by a vtkImplicitPlaneWidget2). It  goes to show that you can place 
+// constraints on the movement of the handle. You can move the plane around 
+// interactively. It exercises the class vtkBoundedPlanePointPlacer.
+
 
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
