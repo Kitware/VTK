@@ -53,7 +53,7 @@ int TestCaptionWidget( int argc, char *argv[] )
 
   // Create the widget
   vtkCaptionActor2D *rep = vtkCaptionActor2D::New();
-  rep->SetCaption("This is a test\nAnd it has two lines");
+  rep->SetCaption("XYZ");
   rep->GetTextActor()->GetTextProperty()->SetJustificationToCentered();
   rep->GetTextActor()->GetTextProperty()->SetVerticalJustificationToCentered();
 
