@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.8");
+vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.9");
 vtkStandardNewMacro(vtkSquarifyLayoutStrategy);
 
 vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy()
@@ -47,7 +47,7 @@ void vtkSquarifyLayoutStrategy::Layout(
     vtkDataArray* coordsArray,
     vtkDataArray* sizeArray)
 {
-  if (!inputTree)
+  if (!inputTree || inputTree->GetNumberOfVertices() == 0)
     {
     return;
     }
