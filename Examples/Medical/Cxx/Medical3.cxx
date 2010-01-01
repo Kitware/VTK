@@ -51,8 +51,7 @@ int main (int argc, char *argv[])
   // mouse- and keyboard-based interaction with the data within the
   // render window.
   //
-  vtkSmartPointer<vtkRenderer> aRenderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> aRenderer = vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(aRenderer);
@@ -60,6 +59,11 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
+  // Set a background color for the renderer and set the size of the
+  // render window (expressed in pixels).
+  aRenderer->SetBackground(.2, .3, .4);
+  renWin->SetSize(640, 480);
+  
   // The following reader is used to read a series of 2D slices (images)
   // that compose the volume. The slice dimensions are set, and the
   // pixel spacing. The data Endianness must also be specified. The
@@ -276,17 +280,14 @@ int main (int argc, char *argv[])
   // An initial camera view is created.  The Dolly() method moves 
   // the camera towards the FocalPoint, thereby enlarging the image.
   aRenderer->SetActiveCamera(aCamera);
-  cout << "Render\n";
-  aRenderer->Render();
-  cout << "ResetCamera\n";
+  
+  // Calling Render() directly on a vtkRenderer is strictly forbidden.
+  // Only calling Render() on the vtkRenderWindow is a valid call.
+  renWin->Render();
+  
   aRenderer->ResetCamera ();
   aCamera->Dolly(1.5);
-
-  // Set a background color for the renderer and set the size of the
-  // render window (expressed in pixels).
-  aRenderer->SetBackground(.2, .3, .4);
-  renWin->SetSize(640, 480);
-
+  
   // Note that when camera movement occurs (as it does in the Dolly()
   // method), the clipping planes often need adjusting. Clipping planes
   // consist of two planes: near and far along the view direction. The 

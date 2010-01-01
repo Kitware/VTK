@@ -222,8 +222,10 @@ public:
   virtual double GetTimeFactor();
 
   // Description:
+  // CALLED BY vtkRenderWindow ONLY. End-user pass your way and call
+  // vtkRenderWindow::Render().
   // Create an image. This is a superclass method which will in turn 
-  // call the DeviceRender method of Subclasses of vtkRenderer
+  // call the DeviceRender method of Subclasses of vtkRenderer.
   virtual void Render();
 
   // Description:
