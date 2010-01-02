@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkBoxRepresentation.h"
 #include "vtkActor.h"
 #include "vtkSphereSource.h"
@@ -37,7 +38,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.9");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------
