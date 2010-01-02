@@ -36,8 +36,9 @@
 
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
+#include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.88");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.89");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -533,8 +534,16 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     double m4 = inMeta->GetValueByName( r, "M4" ).ToDouble();
 
     double m22 = m2 * m2;
-    double s = sqrt( n / ( m22 * m2 ) ) * m3;
-    double k = n * m4 / m22 - 3.;
+    double s = 0.0;
+    double k = 0.0;
+
+    if(m2 != 0)
+      {
+      s = sqrt( n / ( m22 * m2 ) ) * m3;
+      k = n * m4 / m22 - 3.;
+      }
+ 
+   
     double jb = n * ( s * s + .25 * k * k ) / 6.;
     
     row->SetValue( 0, varName );
