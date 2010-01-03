@@ -37,7 +37,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.12");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.13");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -676,7 +676,7 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
           this->CellIJK[j] = xi[j];
           this->PCoords[j] = pcoords[j];
           // Make sure cell is within bounds
-          if (xi[j] == extent[2*j + 1] && xi[j] > 0)
+          if (xi[j] == extent[2*j + 1] && xi[j] > extent[2*j])
             {
             this->CellIJK[j] = xi[j] - 1;
             this->PCoords[j] = 1.0;
@@ -793,7 +793,7 @@ double vtkSurfacePicker::IntersectImageActorWithLine(const double p1[3],
       this->CellIJK[j] = int(floor(xj));
       this->PCoords[j] = xj - this->CellIJK[j];
       // Keep the cell in-bounds if it is on the edge
-      if (this->CellIJK[j] == extent[2*j+1] && this->CellIJK[j] > 0)
+      if (this->CellIJK[j] == extent[2*j+1] && this->CellIJK[j] > extent[2*j])
         {
         this->CellIJK[j] -= 1;
         this->PCoords[j] = 1.0;
