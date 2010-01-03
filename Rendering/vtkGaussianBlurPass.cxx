@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.8");
+vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.9");
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
 extern const char *vtkGaussianBlurPassShader_fs;
@@ -162,13 +162,14 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
         }
       
       this->Supported=supported;
-      if(!supported)
-        {
-        this->DelegatePass->Render(s);
-        this->NumberOfRenderedProps+=
-          this->DelegatePass->GetNumberOfRenderedProps();
-        return;
-        }
+      }
+    
+    if(!this->Supported)
+      {
+      this->DelegatePass->Render(s);
+      this->NumberOfRenderedProps+=
+        this->DelegatePass->GetNumberOfRenderedProps();
+      return;
       }
     
     GLint savedDrawBuffer;
