@@ -91,6 +91,9 @@ public:
   vtkTextureObject *Pass2; // render target for the horizontal pass
   vtkShaderProgram2 *BlurProgram; // blur shader
   
+  bool Supported;
+  bool SupportProbed;
+  
  private:
   vtkGaussianBlurPass(const vtkGaussianBlurPass&);  // Not implemented.
   void operator=(const vtkGaussianBlurPass&);  // Not implemented.

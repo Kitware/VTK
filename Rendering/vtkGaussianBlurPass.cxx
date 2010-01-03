@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.6");
+vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.7");
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
 extern const char *vtkGaussianBlurPassShader_fs;
@@ -53,6 +53,8 @@ vtkGaussianBlurPass::vtkGaussianBlurPass()
   this->Pass1=0;
   this->Pass2=0;
   this->BlurProgram=0;
+  this->Supported=false;
+  this->SupportProbed=false;
 }
 
 // ----------------------------------------------------------------------------
@@ -96,39 +98,70 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
   
   if(this->DelegatePass!=0)
     {
-    // Test for Hardware support. If not supported, just render the delegate.
-    bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
-    
-    if(!supported)
+    if(!this->SupportProbed)
       {
-      vtkErrorMacro("FBOs are not supported by the context. Cannot blur the image.");
-      }
-    if(supported)
-      {
-      supported=vtkTextureObject::IsSupported(r->GetRenderWindow());
+      this->SupportProbed=true;
+      // Test for Hardware support. If not supported, just render the delegate.
+      bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
+      
       if(!supported)
         {
-        vtkErrorMacro("Texture Objects are not supported by the context. Cannot blur the image.");
+        vtkErrorMacro("FBOs are not supported by the context. Cannot blur the image.");
         }
-      }
-    
-    if(supported)
-      {
-      supported=
-        vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
-                                         r->GetRenderWindow()));
+      if(supported)
+        {
+        supported=vtkTextureObject::IsSupported(r->GetRenderWindow());
+        if(!supported)
+          {
+          vtkErrorMacro("Texture Objects are not supported by the context. Cannot blur the image.");
+          }
+        }
+      
+      if(supported)
+        {
+        supported=
+          vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
+                                           r->GetRenderWindow()));
+        if(!supported)
+          {
+          vtkErrorMacro("GLSL is not supported by the context. Cannot blur the image.");
+          }
+        }
+      
+      if(supported)
+        {
+        // FBO extension is supported. Is the specific FBO format supported?
+        if(this->FrameBufferObject==0)
+          {
+          this->FrameBufferObject=vtkFrameBufferObject::New();
+          this->FrameBufferObject->SetContext(r->GetRenderWindow());
+          }
+        this->FrameBufferObject->SetNumberOfRenderTargets(1);
+        this->FrameBufferObject->SetActiveBuffer(0);
+        this->FrameBufferObject->SetDepthBufferNeeded(true);
+        
+        GLint savedCurrentDrawBuffer;
+        glGetIntegerv(GL_DRAW_BUFFER,&savedCurrentDrawBuffer);
+        supported=this->FrameBufferObject->StartNonOrtho(64,64,false);
+        if(!supported)
+          {
+          vtkErrorMacro("The requested FBO format is not supported by the context. Cannot blur the image.");
+          }
+        else
+          {
+          this->FrameBufferObject->UnBind();
+          glDrawBuffer(savedCurrentDrawBuffer);
+          }
+        }
+      
+      this->Supported=supported;
       if(!supported)
         {
-        vtkErrorMacro("GLSL is not supported by the context. Cannot blur the image.");
+        this->DelegatePass->Render(s);
+        this->NumberOfRenderedProps+=
+          this->DelegatePass->GetNumberOfRenderedProps();
+        return;
         }
-      }
-    
-    if(!supported)
-      {
-      this->DelegatePass->Render(s);
-      this->NumberOfRenderedProps+=
-        this->DelegatePass->GetNumberOfRenderedProps();
-      return;
       }
     
     GLint savedDrawBuffer;
