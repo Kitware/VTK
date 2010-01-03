@@ -24,6 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
@@ -34,6 +35,9 @@
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkAxisActor2D.h"
 #include "vtkProperty2D.h"
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 char TestDistanceWidgetEventLog[] = 
 "# StreamVersion 1\n"
@@ -892,37 +896,37 @@ int TestDistanceWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  VTK_CREATE(vtkRenderer, ren1);
+  VTK_CREATE(vtkRenderWindow, renWin);
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  VTK_CREATE(vtkRenderWindowInteractor, iren);;
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  VTK_CREATE(vtkSphereSource, ss);
+  VTK_CREATE(vtkPolyDataMapper, mapper);
   mapper->SetInput(ss->GetOutput());
-  vtkActor *actor = vtkActor::New();
+  VTK_CREATE(vtkActor, actor);
   actor->SetMapper(mapper);
 
   // Create the widget and its representation
-  vtkPointHandleRepresentation2D *handle = vtkPointHandleRepresentation2D::New();
+  VTK_CREATE(vtkPointHandleRepresentation2D, handle);
   handle->GetProperty()->SetColor(1,0,0);
-  vtkDistanceRepresentation2D *rep = vtkDistanceRepresentation2D::New();
+  VTK_CREATE(vtkDistanceRepresentation2D, rep);
   rep->SetHandleRepresentation(handle);
 
   rep->GetAxis()->SetNumberOfMinorTicks(4);
   rep->GetAxis()->SetTickLength(9);
   rep->GetAxis()->SetTitlePosition(0.2);
 
-  vtkDistanceWidget *widget = vtkDistanceWidget::New();
+  VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-  vtkDistanceCallback *mcbk = vtkDistanceCallback::New();
+  VTK_CREATE(vtkDistanceCallback, mcbk);
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
   mcbk->Distance = rep;
@@ -935,7 +939,7 @@ int TestDistanceWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  VTK_CREATE(vtkInteractorEventRecorder, recorder);
   recorder->SetInteractor(iren);
   recorder->On();
   //recorder->SetFileName("/tmp/record2.log");
@@ -960,19 +964,9 @@ int TestDistanceWidget( int argc, char *argv[] )
     iren->Start();
     }
 
-  ss->Delete();
-  mapper->Delete();
-  actor->Delete();
-  handle->Delete();
-  rep->Delete();
-  widget->RemoveObserver(mcbk);
-  mcbk->Delete();
+  recorder->Off();
   widget->Off();
-  widget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
+  widget->RemoveObserver(mcbk);
   
   return !retVal;
 }
