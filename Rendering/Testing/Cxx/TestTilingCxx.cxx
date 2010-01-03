@@ -114,13 +114,14 @@ int TestTilingCxx(int argc, char* argv[])
   ren2->SetBackground(0.3, 0.3, 0.3);
 
   // render the image
-  renWin->Render();
   scalarBar->SetNumberOfLabels(8);
   renWin->Render();
+  renWin->Render(); // perform an extra render before capturing window
 
   VTK_CREATE(vtkWindowToImageFilter, w2i);
   w2i->SetInput(renWin);
   w2i->SetMagnification(2);
+  w2i->ReadFrontBufferOff();
   w2i->Update();
 
   // copy the output
