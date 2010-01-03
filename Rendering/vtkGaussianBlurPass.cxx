@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.7");
+vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.8");
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
 extern const char *vtkGaussianBlurPassShader_fs;
@@ -136,6 +136,13 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
           this->FrameBufferObject=vtkFrameBufferObject::New();
           this->FrameBufferObject->SetContext(r->GetRenderWindow());
           }
+        if(this->Pass1==0)
+          {
+          this->Pass1=vtkTextureObject::New();
+          this->Pass1->SetContext(r->GetRenderWindow());
+          }
+        this->Pass1->Create2D(64,64,4,VTK_UNSIGNED_CHAR,false);
+        this->FrameBufferObject->SetColorBuffer(0,this->Pass1);
         this->FrameBufferObject->SetNumberOfRenderTargets(1);
         this->FrameBufferObject->SetActiveBuffer(0);
         this->FrameBufferObject->SetDepthBufferNeeded(true);
@@ -150,7 +157,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
         else
           {
           this->FrameBufferObject->UnBind();
-          glDrawBuffer(savedCurrentDrawBuffer);
+          glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
           }
         }
       
@@ -247,7 +254,9 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     if(this->Pass2->GetWidth()!=static_cast<unsigned int>(w) ||
        this->Pass2->GetHeight()!=static_cast<unsigned int>(h))
       {
-      this->Pass2->Create2D(w,h,4,VTK_UNSIGNED_CHAR,false);
+      this->Pass2->Create2D(static_cast<unsigned int>(w),
+                            static_cast<unsigned int>(h),4,
+                            VTK_UNSIGNED_CHAR,false);
       }
     
     this->FrameBufferObject->SetColorBuffer(0,this->Pass2);
@@ -292,7 +301,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
       
       // restore some state.
       this->FrameBufferObject->UnBind();
-      glDrawBuffer(savedDrawBuffer);
+      glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
       return;
       }
     
@@ -301,7 +310,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
       static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow())->GetTextureUnitManager();
     
     int sourceId=tu->Allocate();
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0+sourceId);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0+static_cast<GLenum>(sourceId));
     this->Pass1->Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -399,7 +408,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     
     this->FrameBufferObject->UnBind();
     
-    glDrawBuffer(savedDrawBuffer);
+    glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
     
     // to2 is the source
     
