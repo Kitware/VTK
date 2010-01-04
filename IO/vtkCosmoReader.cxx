@@ -80,7 +80,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongLongArray.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.25");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.26");
 vtkStandardNewMacro(vtkCosmoReader);
 
 using namespace cosmo;
@@ -254,6 +254,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     
   // Create the arrays to hold location and field data
   vtkPoints *points       = vtkPoints::New();
+  points->SetDataTypeToFloat();
   vtkFloatArray *velocity = vtkFloatArray::New();
   vtkFloatArray *mass     = vtkFloatArray::New();
   vtkDataArray *tag;
@@ -320,7 +321,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
                          this->Stride + 1;
 
   // Allocate space in the unstructured grid for all nodes
-  output->Allocate(this->NumberOfNodes, this->NumberOfNodes);
+  output->Allocate(this->NumberOfNodes);
   output->SetPoints(points);
 
   int useVelocity = this->PointDataArraySelection->
