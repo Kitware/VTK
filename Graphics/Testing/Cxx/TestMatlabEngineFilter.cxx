@@ -26,7 +26,7 @@
 #include <vtkPointData.h>
 #include <vtkDoubleArray.h>
 #include <vtkArrayExtents.h>
-#include <vtkRRandomTableSource.h>
+#include <vtkMath.h>
 #include <vtkTable.h>
 #include <vtkTableToSparseArray.h>
 #include <vtkDenseArray.h>
@@ -61,7 +61,6 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     int i;
     vtkCylinderSource* cs = vtkCylinderSource::New();
     vtkMatlabEngineFilter* mef = vtkMatlabEngineFilter::New();
-    vtkRRandomTableSource* rts = vtkRRandomTableSource::New();
     vtkMatlabEngineFilter* mef2 = vtkMatlabEngineFilter::New();
     vtkDataSet* ds;
     vtkPointData* pd;
@@ -104,12 +103,32 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       test_expression(doubleEquals(rtup[1],itup[1]+itup[1],0.0001));
       }
 
-    rts->SetNumberOfRows(20);
-    rts->SetStatisticalDistributionForColumn(vtkRRandomTableSource::NORMAL,0.0,1.0,0.0,"Variable One",0);
-    rts->SetStatisticalDistributionForColumn(vtkRRandomTableSource::NORMAL,0.0,1.0,0.0,"Variable Two",1);
-    rts->SetStatisticalDistributionForColumn(vtkRRandomTableSource::NORMAL,0.0,1.0,0.0,"Variable Three",2);
-    rts->SetStatisticalDistributionForColumn(vtkRRandomTableSource::NORMAL,0.0,1.0,0.0,"Variable Four",3);
-    mef2->SetInputConnection(rts->GetOutputPort());
+    vtkTable* input_table = vtkTable::New();
+    vtkDoubleArray* col1 = vtkDoubleArray::New();
+    vtkDoubleArray* col2 = vtkDoubleArray::New();
+    vtkDoubleArray* col3 = vtkDoubleArray::New();
+    vtkDoubleArray* col4 = vtkDoubleArray::New();
+    col1->SetName("Variable One");
+    col2->SetName("Variable Two");
+    col3->SetName("Variable Three");
+    col4->SetName("Variable Four");
+    for(i=0;i<20;i++)
+      {
+      col1->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
+      col2->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
+      col3->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
+      col4->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
+      }
+    input_table->AddColumn(col1);
+    input_table->AddColumn(col2);
+    input_table->AddColumn(col3);
+    input_table->AddColumn(col4);
+    col1->Delete();
+    col2->Delete();
+    col3->Delete();
+    col4->Delete();
+
+    mef2->SetInput(0,input_table);
     mef2->RemoveAllGetVariables();
     mef2->RemoveAllPutVariables();
     mef2->SetEngineVisible(0);
@@ -151,13 +170,12 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       int ind0 = table->GetValue(i,0).ToInt();
       int ind1 = table->GetValue(i,1).ToInt();
       int ind2 = table->GetValue(i,2).ToInt();
-      double table_val = rts->GetOutput()->GetValue(i,3).ToDouble();
+      double table_val = input_table->GetValue(i,3).ToDouble();
       double dense_val = dense_array->GetValue(vtkArrayCoordinates(ind0,ind1,ind2));
       test_expression(doubleEquals(sqrt(table_val + 5.0),dense_val,0.0001));
       }
 
     cs->Delete();
-    rts->Delete();
     mef->Delete();
     mef2->Delete();
 
