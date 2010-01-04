@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkExtractHistogram2D.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkImageGaussianSmooth.h"
@@ -54,7 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnsignedIntArray.h"
 #include "vtkViewTheme.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelCoordinatesHistogramRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkParallelCoordinatesHistogramRepresentation, "1.2");
 vtkStandardNewMacro(vtkParallelCoordinatesHistogramRepresentation);
 //------------------------------------------------------------------------------
 vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRepresentation()
@@ -311,7 +312,10 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
                          numberOfQuads,0);
 
   vtkPoints* points = polyData->GetPoints();
+  float* pointsp = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+
   vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  double* scalarsp = scalars->GetPointer(0);//vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
 
   // for each histogram, draw a quad for each bin.
   vtkIdType ptId=0;
@@ -346,14 +350,19 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
         // the number of rows that fit into this bin
         double v = image->GetScalarComponentAsDouble(x,y,0,0);
 
-        points->SetPoint(ptId++, x1[0], x1[1]+binWidth[0], 0.);
-        points->SetPoint(ptId++, x1[0], x1[1], 0.);
-        points->SetPoint(ptId++, x2[0], x2[1], 0.);
-        points->SetPoint(ptId++, x2[0], x2[1]+binWidth[1], 0.);
+        *(pointsp++) = x1[0]; *(pointsp++) = x1[1]+binWidth[0]; *(pointsp++) = 0.; ptId++;
+        *(pointsp++) = x1[0]; *(pointsp++) = x1[1]; *(pointsp++) = 0.; ptId++;
+        *(pointsp++) = x2[0]; *(pointsp++) = x2[1]; *(pointsp++) = 0.; ptId++;
+        *(pointsp++) = x2[0]; *(pointsp++) = x2[1]+binWidth[1]; *(pointsp++) = 0.; ptId++;
+        //      points->SetPoint(ptId++, x1[0], x1[1]+binWidth[0], 0.);
+//        points->SetPoint(ptId++, x1[0], x1[1], 0.);
+//        points->SetPoint(ptId++, x2[0], x2[1], 0.);
+//        points->SetPoint(ptId++, x2[0], x2[1]+binWidth[1], 0.);
 
         // scalars used for lookup table mapping.  More rows
         // in a bin means bright quad.
-        scalars->SetTuple1(quadId++,v);
+        //scalars->SetTuple1(quadId++,v);
+        *(scalarsp++) = v;//->SetTuple1(quadId++,v);
         }
       }
     }
@@ -382,7 +391,10 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
                          numberOfStrips,0);
 
   vtkPoints *points = polyData->GetPoints();
-  vtkDataArray* scalars = vtkDataArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  float* pointsp = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+
+  vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  double* scalarsp = scalars->GetPointer(0);
   
   // build the default spline
   vtkSmartPointer<vtkDoubleArray> defSplineValues = vtkSmartPointer<vtkDoubleArray>::New();
@@ -432,11 +444,13 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
           xc[1] = defSplineValues->GetValue(c)*dy + x1[1];//spline->Evaluate(x1[0]);//spline->Evaluate(x1[0]);
           w = defSplineValues->GetValue(c)*dw + binWidth[0];//bwspline->Evaluate(x1[0]);
 
-          points->SetPoint(ptId++,   xc[0], xc[1]+w, 0.);
-          points->SetPoint(ptId++, xc[0], xc[1], 0.);
+//          points->SetPoint(ptId++,   xc[0], xc[1]+w, 0.);
+//          points->SetPoint(ptId++, xc[0], xc[1], 0.);
+          *(pointsp++) = xc[0]; *(pointsp++) = xc[1]+w; *(pointsp++) = 0.0; ptId++;
+          *(pointsp++) = xc[0]; *(pointsp++) = xc[1]; *(pointsp++) = 0.0; ptId++;
           }
 
-        scalars->SetTuple1(stripId++,v);
+        *(scalarsp++) = v;//->SetTuple1(stripId++,v);
         }
       }
     }
