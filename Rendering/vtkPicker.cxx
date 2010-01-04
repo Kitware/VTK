@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.96");
+vtkCxxRevisionMacro(vtkPicker, "1.97");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -476,6 +476,7 @@ void vtkPicker::Initialize()
   this->MapperPosition[2] = 0.0;
 
   this->Mapper = NULL;
+  this->DataSet = NULL;
   this->GlobalTMin = VTK_DOUBLE_MAX;
 }
 
