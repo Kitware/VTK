@@ -121,7 +121,6 @@ int TestTilingCxx(int argc, char* argv[])
   VTK_CREATE(vtkWindowToImageFilter, w2i);
   w2i->SetInput(renWin);
   w2i->SetMagnification(2);
-  w2i->ReadFrontBufferOff();
   w2i->Update();
 
   // copy the output
