@@ -18,134 +18,468 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkDelimitedTextReader.h"
-
-#include "vtkCommand.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkIdTypeArray.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkSmartPointer.h"
-#include "vtkStdString.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStringArray.h"
-#include "vtkStringToNumeric.h"
-#include "vtkTable.h"
-#include "vtkVariantArray.h"
+#include <vtkCommand.h>
+#include <vtkDataSetAttributes.h>
+#include <vtkIdTypeArray.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
+#include <vtkObjectFactory.h>
+#include <vtkSmartPointer.h>
+#include <vtkStdString.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkTable.h>
+#include <vtkDelimitedTextReader.h>
+#include <vtkUnicodeString.h>
+#include <vtkUnicodeStringArray.h>
+#include <vtkStringArray.h>
+#include <vtkStringToNumeric.h>
 
 #include <vtkstd/algorithm>
+#include <vtkstd/iterator>
+#include <vtkstd/stdexcept>
+#include <vtksys/ios/sstream>
+#include <vtkstd/set>
 #include <vtkstd/vector>
-#include <vtkstd/string>
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.31");
-vtkStandardNewMacro(vtkDelimitedTextReader);
+#include <utf8.h>
 
-struct vtkDelimitedTextReaderInternals
+/////////////////////////////////////////////////////////////////////////////////////////
+// DelimitedTextIterator
+
+/// Output iterator object that parses a stream of Unicode characters into records and
+/// fields, inserting them into a vtkTable.
+
+namespace {
+
+class DelimitedTextIterator
 {
-  ifstream *File;
+public:
+  typedef vtkstd::forward_iterator_tag iterator_category;
+  typedef vtkUnicodeStringValueType value_type;
+  typedef vtkstd::string::difference_type difference_type;
+  typedef value_type* pointer;
+  typedef value_type& reference;
+
+  DelimitedTextIterator(
+    const vtkIdType max_records,
+    const vtkUnicodeString& record_delimiters,
+    const vtkUnicodeString& field_delimiters,
+    const vtkUnicodeString& string_delimiters,
+    const vtkUnicodeString& whitespace,
+    const vtkUnicodeString& escape,
+    bool have_headers,
+    bool unicode_array_output,
+    bool merg_cons_delimiters,
+    bool use_string_delimeter,
+    vtkTable* const output_table
+      ) :
+    MaxRecords(max_records),
+    MaxRecordIndex(have_headers ? max_records + 1 : max_records),
+    RecordDelimiters(record_delimiters.begin(), record_delimiters.end()),
+    FieldDelimiters(field_delimiters.begin(), field_delimiters.end()),
+    StringDelimiters(string_delimiters.begin(), string_delimiters.end()),
+    Whitespace(whitespace.begin(), whitespace.end()),
+    EscapeDelimiter(escape.begin(), escape.end()),
+    HaveHeaders(have_headers),
+    UnicodeArrayOutput(unicode_array_output),
+    OutputTable(output_table),
+    CurrentRecordIndex(0),
+    CurrentFieldIndex(0),
+    RecordAdjacent(true),
+    WithinString(0),
+    MergeConsDelims(merg_cons_delimiters),
+    WhiteSpaceOnlyString(true),
+    ProcessEscapeSequence(false),
+    UseStringDelimiter(use_string_delimeter)
+  {
+  }
+
+  ~DelimitedTextIterator()
+  {
+    // Ensure that all table columns have the same length ...
+    for(vtkIdType i = 0; i != this->OutputTable->GetNumberOfColumns(); ++i)
+      {
+      if(this->OutputTable->GetColumn(i)->GetNumberOfTuples() != this->OutputTable->GetColumn(0)->GetNumberOfTuples())
+        this->OutputTable->GetColumn(i)->Resize(this->OutputTable->GetColumn(0)->GetNumberOfTuples());
+      }
+  }
+
+  DelimitedTextIterator& operator++()
+  {
+    return *this;
+  }
+
+  DelimitedTextIterator& operator++(int)
+  {
+    return *this;
+  }
+
+  DelimitedTextIterator& operator*()
+  {
+    return *this;
+  }
+
+  // Handle windows files that do not have a carriage return line feed on the last line of the file ...
+  void ReachedEndOfInput()
+  {
+    if(this->CurrentField.empty())
+      {
+      return;
+      }
+    vtkUnicodeString::value_type value = this->CurrentField[this->CurrentField.character_count()-1];
+    if(!this->RecordDelimiters.count(value)&&!this->Whitespace.count(value))
+      {
+      this->InsertField();
+      }
+  }
+
+  DelimitedTextIterator& operator=(const DelimitedTextIterator& c)
+  {
+    if(this != &c)
+      {
+      this->CurrentField = c.CurrentField;
+      this->CurrentFieldIndex = c.CurrentFieldIndex;
+      this->CurrentRecordIndex = c.CurrentRecordIndex;
+      this->OutputTable = c.OutputTable;
+      }
+    return *this;
+  }
+
+  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value)
+  {
+    // If we've already read our maximum number of records, we're done ...
+    if(this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)
+      return *this;
+
+    // Strip adjacent record delimiters and whitespace...
+    if(this->RecordAdjacent && (this->RecordDelimiters.count(value) || this->Whitespace.count(value)))
+      {
+      return *this;
+      }
+    else
+      {
+      this->RecordAdjacent = false;
+      }
+
+    // Look for record delimiters ...
+    if(this->RecordDelimiters.count(value))
+      {
+      this->InsertField();
+      this->CurrentRecordIndex += 1;
+      this->CurrentFieldIndex = 0;
+      this->CurrentField.clear();
+      this->RecordAdjacent = true;
+      this->WithinString = 0;
+      this->WhiteSpaceOnlyString = true;
+      return *this;
+      }
+
+    // Look for field delimiters unless we're in a string ...
+    if(!this->WithinString && this->FieldDelimiters.count(value))
+      {
+       // Handle special case of merging consective delimiters ...
+      if( !(this->CurrentField.empty() && this->MergeConsDelims) )
+        {
+        this->InsertField();
+        this->CurrentFieldIndex += 1;
+        this->CurrentField.clear();
+        }
+      return *this;
+      }
+
+    // Check for start of escape sequence ...
+    if(!this->ProcessEscapeSequence && this->EscapeDelimiter.count(value))
+      {
+      this->ProcessEscapeSequence = true;
+      return *this;
+      }
+
+    // Process escape sequence ...
+    if(this->ProcessEscapeSequence)
+      {
+      vtkUnicodeString curr_char;
+      curr_char += value;
+      if(curr_char == vtkUnicodeString::from_utf8("0"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\0");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("a"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\a");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("b"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\b");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("t"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\t");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("n"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\n");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("v"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\v");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("f"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\f");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("r"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\r");
+        }
+      else if(curr_char == vtkUnicodeString::from_utf8("\\"))
+        {
+        this->CurrentField += vtkUnicodeString::from_utf8("\\");
+        }
+      else
+        {
+        this->CurrentField += value;
+        }
+      this->ProcessEscapeSequence = false;
+      return *this;
+      }
+
+    // Start a string ...
+    if(!this->WithinString && this->StringDelimiters.count(value) && this->UseStringDelimiter)
+      {
+      this->WithinString = value;
+      return *this;
+      }
+    
+    // End a string ...
+    if(this->WithinString && (this->WithinString == value) && this->UseStringDelimiter)
+      {
+      this->WithinString = 0;
+      return *this;
+      }
+
+    if(!this->Whitespace.count(value))
+     {
+     this->WhiteSpaceOnlyString = false;
+     }
+    // Keep growing the current field ...
+    this->CurrentField += value;
+    return *this;
+  }
+
+private:
+  void InsertField()
+  {
+    if(this->CurrentFieldIndex >= this->OutputTable->GetNumberOfColumns()&& 0 == this->CurrentRecordIndex)
+      {
+      vtkAbstractArray* array;
+      if(this->UnicodeArrayOutput)
+        {
+        array = vtkUnicodeStringArray::New();
+        }
+      else
+        {
+        array = vtkStringArray::New();
+        }
+
+      if(this->HaveHeaders)
+        {
+        array->SetName(this->CurrentField.utf8_str());
+        }
+      else
+        {
+        vtkstd::stringstream buffer;
+        buffer << "Field " << this->CurrentFieldIndex;
+        array->SetName(buffer.str().c_str());
+        if(this->UnicodeArrayOutput)
+          {
+          array->SetNumberOfTuples(this->CurrentRecordIndex + 1);
+          vtkUnicodeStringArray::SafeDownCast(array)->SetValue(this->CurrentRecordIndex, this->CurrentField);
+          }
+        else
+          {
+          vtkstd::string s;
+          this->CurrentField.utf8_str(s);
+          vtkStringArray::SafeDownCast(array)->InsertValue(this->CurrentRecordIndex, s);
+          }
+        }
+      this->OutputTable->AddColumn(array);
+      array->Delete();
+      }
+    else if(this->CurrentFieldIndex < this->OutputTable->GetNumberOfColumns())
+      {
+      // Handle case where input file has header information ...
+      vtkIdType rec_index;
+      if(this->HaveHeaders)
+        {
+        rec_index = this->CurrentRecordIndex - 1;
+        }
+      else
+        {
+        rec_index = this->CurrentRecordIndex;
+        }
+
+      if(this->UnicodeArrayOutput)
+        {
+        vtkUnicodeStringArray* uarray = vtkUnicodeStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
+        uarray->SetNumberOfTuples(rec_index + 1);
+        uarray->SetValue(rec_index, this->CurrentField);
+        }
+      else
+        {
+        vtkStringArray* sarray = vtkStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
+        vtkstd::string s;
+        this->CurrentField.utf8_str(s);
+        sarray->InsertValue(rec_index,s);
+        }
+      }
+  }
+
+  vtkIdType MaxRecords;
+  vtkIdType MaxRecordIndex;
+  vtkstd::set<vtkUnicodeString::value_type> RecordDelimiters;
+  vtkstd::set<vtkUnicodeString::value_type> FieldDelimiters;
+  vtkstd::set<vtkUnicodeString::value_type> StringDelimiters;
+  vtkstd::set<vtkUnicodeString::value_type> Whitespace;
+  vtkstd::set<vtkUnicodeString::value_type> EscapeDelimiter;
+  bool HaveHeaders;
+  bool UnicodeArrayOutput;
+  bool WhiteSpaceOnlyString;
+  vtkTable* OutputTable;
+  vtkIdType CurrentRecordIndex;
+  vtkIdType CurrentFieldIndex;
+  vtkUnicodeString CurrentField;
+  bool RecordAdjacent;
+  bool MergeConsDelims;
+  bool ProcessEscapeSequence;
+  bool UseStringDelimiter;
+  vtkUnicodeString::value_type WithinString;
 };
 
-// Forward function reference (definition at bottom :)
-static int splitString(const vtkStdString& input, 
-                       const char *fieldDelimiters,
-                       char stringDelimiter,
-                       bool useStringDelimiter,
-                       bool mergeConsecutiveDelimiters,
-                       vtkstd::vector<vtkStdString>& results, 
-                       bool includeEmpties=true);
+/////////////////////////////////////////////////////////////////////////////////////////
+// ascii_to_unicode
 
-
-// I need a safe way to read a line of arbitrary length.  It exists on
-// some platforms but not others so I'm afraid I have to write it
-// myself.
-static int my_getline(istream& stream, vtkStdString &output, int& line_count);
-
-// Standard isspace asserts by testing if the characters is < 256
-// This doesnt work so well with unicode.
-static int my_isspace(int space);
-
-// Returns true if the line is entirely whitespace, false otherwise.
-static bool isSpaceOnlyString(const vtkStdString& s)
+template<typename OctetIteratorT, typename OutputIteratorT>
+void ascii_to_unicode(OctetIteratorT begin, OctetIteratorT end, OutputIteratorT output)
 {
-  vtkStdString::size_type i;
-  const char* c = s.c_str();
-  for (i = 0; i < s.length(); ++i)
+  while(begin != end)
     {
-    if(!my_isspace(c[i]))
-      {
-      return false;
-      }
+    const vtkTypeUInt32 code_point = *begin++;
+    if(code_point > 0x7f)
+      throw vtkstd::runtime_error("Not an ASCII character");
+
+    *output++ = code_point;
     }
-  return true;
+
+   output.ReachedEndOfInput();
 }
 
-// ----------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////
+// utf16_to_unicode
 
-vtkDelimitedTextReader::vtkDelimitedTextReader()
+template<typename OctetIteratorT, typename OutputIteratorT>
+void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIteratorT end, OutputIteratorT output)
 {
-  this->Internals = new vtkDelimitedTextReaderInternals();
+  while(begin != end)
+    {
+    const vtkTypeUInt8 first_byte = *begin++;
+    if(begin == end)
+      throw vtkstd::runtime_error("Premature end-of-sequence extracting UTF-16 code unit.");
+    const vtkTypeUInt8 second_byte = *begin++;
 
-  this->Internals->File = 0;
-  this->FileName = 0;
+    const vtkTypeUInt32 first_code_unit = big_endian ? first_byte << 8 | second_byte : second_byte << 8 | first_byte;
+
+    if(first_code_unit >= 0xd800 && first_code_unit <= 0xdfff)
+      {
+      if(begin == end)
+        throw vtkstd::runtime_error("Premature end-of-sequence extracting UTF-16 trail surrogate first byte.");
+      const vtkTypeUInt8 third_byte = *begin++;
+      if(begin == end)
+        throw vtkstd::runtime_error("Premature end-of-sequence extracting UTF-16 trail surrogate second byte.");
+      const vtkTypeUInt8 fourth_byte = *begin++;
+
+      const vtkTypeUInt32 second_code_unit = big_endian ? third_byte << 8 | fourth_byte : fourth_byte << 8 | third_byte;
+      if(second_code_unit >= 0xdc00 && second_code_unit <= 0xdfff)
+        {
+        *output++ = (first_code_unit << 10) + second_code_unit + (0x10000 - (0xd800 << 10) - 0xdc00);
+        }
+      else
+        {
+        throw vtkstd::runtime_error("Invalid UTF-16 trail surrogate.");
+        }
+      }
+    else
+      {
+      *output++ = first_code_unit;
+      }
+    }
+    output.ReachedEndOfInput();
+}
+
+} // End anonymous namespace
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// vtkDelimitedTextReader
+
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.32");
+vtkStandardNewMacro(vtkDelimitedTextReader);
+
+vtkDelimitedTextReader::vtkDelimitedTextReader() :
+  FileName(0),
+  UnicodeCharacterSet(0),
+  MaxRecords(0),
+  UnicodeRecordDelimiters(vtkUnicodeString::from_utf8("\r\n")),
+  UnicodeFieldDelimiters(vtkUnicodeString::from_utf8(",")),
+  UnicodeStringDelimiters(vtkUnicodeString::from_utf8("\"")),
+  UnicodeWhitespace(vtkUnicodeString::from_utf8(" \t\r\n\v\f")),
+  UnicodeEscapeCharacter(vtkUnicodeString::from_utf8("\\")),
+  HaveHeaders(false)
+{
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->ReadBuffer = new char[2048];
-  this->HaveHeaders = false;
-  this->FieldDelimiterCharacters = NULL;
-  this->SetFieldDelimiterCharacters(",");
-  this->StringDelimiter = '"';
-  this->UseStringDelimiter = true;
-  this->MaxRecords = 0;
+
   this->MergeConsecutiveDelimiters = false;
-  this->DetectNumericColumns = false;
   this->PedigreeIdArrayName = NULL;
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = true;
   this->OutputPedigreeIds = false;
-
+  this->UnicodeOutputArrays = false;
+  this->FieldDelimiterCharacters = 0;
+  this->SetFieldDelimiterCharacters(",");
+  this->SetStringDelimiter('"');
+  this->UseStringDelimiter = true;
+  this->DetectNumericColumns = false;
 }
-
-// ----------------------------------------------------------------------
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
-  if (this->Internals->File)
-    {
-    delete this->Internals->File;
-    this->Internals->File = 0;
-    }
-
-  this->SetFileName(0);
-  this->SetFieldDelimiterCharacters(NULL);
   this->SetPedigreeIdArrayName(0);
-
-  delete [] this->ReadBuffer;
-  delete this->Internals;
+  this->SetUnicodeCharacterSet(0);
+  this->SetFileName(0);
 }
-
-// ----------------------------------------------------------------------
 
 void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " 
      << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "Field delimiters: '" << this->FieldDelimiterCharacters
+  os << indent << "UnicodeCharacterSet: " 
+     << (this->UnicodeCharacterSet ? this->UnicodeCharacterSet : "(none)") << endl;
+  os << indent << "MaxRecords: " << this->MaxRecords
+     << endl;
+  os << indent << "UnicodeRecordDelimiters: '" << this->UnicodeRecordDelimiters.utf8_str()
      << "'" << endl;
-  os << indent << "String delimiter: '" << this->StringDelimiter
+  os << indent << "UnicodeFieldDelimiters: '" << this->UnicodeFieldDelimiters.utf8_str()
      << "'" << endl;
-  os << indent << "UseStringDelimiter: " 
-     << (this->UseStringDelimiter ? "true" : "false") << endl;
+  os << indent << "UnicodeStringDelimiters: '" << this->UnicodeStringDelimiters.utf8_str()
+     << "'" << endl;
   os << indent << "HaveHeaders: " 
      << (this->HaveHeaders ? "true" : "false") << endl;
   os << indent << "MergeConsecutiveDelimiters: " 
      << (this->MergeConsecutiveDelimiters ? "true" : "false") << endl;
-  os << indent << "MaxRecords: " << this->MaxRecords
-     << endl;
+  os << indent << "UseStringDelimiter: " 
+     << (this->UseStringDelimiter ? "true" : "false") << endl;
   os << indent << "DetectNumericColumns: "
     << (this->DetectNumericColumns? "true" : "false") << endl;
   os << indent << "GeneratePedigreeIds: " 
@@ -156,403 +490,235 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
     << (this->OutputPedigreeIds? "true" : "false") << endl;
 }
 
-// ----------------------------------------------------------------------
-
-void vtkDelimitedTextReader::OpenFile()
+void vtkDelimitedTextReader::SetUnicodeRecordDelimiters(const vtkUnicodeString& delimiters)
 {
-  // If the file was open close it.
-  if (this->Internals->File)
-    {
-    this->Internals->File->close();
-    delete this->Internals->File;
-    this->Internals->File = NULL;
-    }
-  
-  // Open the new file.
-  vtkDebugMacro(<< "vtkDelimitedTextReader is opening file: " << this->FileName);
-  this->Internals->File = new ifstream(this->FileName, ios::in | ios::binary);
-
-  // Check to see if open was successful
-  if (! this->Internals->File || this->Internals->File->fail())
-    {
-    vtkErrorMacro(<< "vtkDelimitedTextReader could not open file " 
-                  << this->FileName);
-    return;
-    }
+  this->UnicodeRecordDelimiters = delimiters;
+  this->Modified();
 }
 
-// ----------------------------------------------------------------------
+vtkUnicodeString vtkDelimitedTextReader::GetUnicodeRecordDelimiters()
+{
+  return this->UnicodeRecordDelimiters;
+}
+
+void vtkDelimitedTextReader::SetUTF8RecordDelimiters(const char* delimiters)
+{
+  this->UnicodeRecordDelimiters = vtkUnicodeString::from_utf8(delimiters);
+  this->Modified();
+}
+
+const char* vtkDelimitedTextReader::GetUTF8RecordDelimiters()
+{
+  return this->UnicodeRecordDelimiters.utf8_str();
+}
+
+void vtkDelimitedTextReader::SetUnicodeFieldDelimiters(const vtkUnicodeString& delimiters)
+{
+  this->UnicodeFieldDelimiters = delimiters;
+  this->Modified();
+}
+
+vtkUnicodeString vtkDelimitedTextReader::GetUnicodeFieldDelimiters()
+{
+  return this->UnicodeFieldDelimiters;
+}
+
+void vtkDelimitedTextReader::SetUTF8FieldDelimiters(const char* delimiters)
+{
+  this->UnicodeFieldDelimiters = vtkUnicodeString::from_utf8(delimiters);
+  this->Modified();
+}
+
+const char* vtkDelimitedTextReader::GetUTF8FieldDelimiters()
+{
+  return this->UnicodeFieldDelimiters.utf8_str();
+}
+
+void vtkDelimitedTextReader::SetUnicodeStringDelimiters(const vtkUnicodeString& delimiters)
+{
+  this->UnicodeStringDelimiters = delimiters;
+  this->Modified();
+}
+
+vtkUnicodeString vtkDelimitedTextReader::GetUnicodeStringDelimiters()
+{
+  return this->UnicodeStringDelimiters;
+}
+
+void vtkDelimitedTextReader::SetUTF8StringDelimiters(const char* delimiters)
+{
+  this->UnicodeStringDelimiters = vtkUnicodeString::from_utf8(delimiters);
+  this->Modified();
+}
+
+const char* vtkDelimitedTextReader::GetUTF8StringDelimiters()
+{
+  return this->UnicodeStringDelimiters.utf8_str();
+}
 
 int vtkDelimitedTextReader::RequestData(
-                                        vtkInformation*, 
-                                        vtkInformationVector**, 
-                                        vtkInformationVector* outputVector)
+  vtkInformation*, 
+  vtkInformationVector**, 
+  vtkInformationVector* outputVector)
 {
-  // Check piece request. If requested anything but the 0-th piece, nothing to
-  // read.
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
+  vtkTable* const output_table = vtkTable::GetData(outputVector);
+
+  try
     {
-    return 1;
-    }
-
-  // If the filename hasn't been specified, we're done ...
-  if(!this->FileName)
-    {
-    return 1;
-    }
-    
-  if(!this->PedigreeIdArrayName)
-    {
-    vtkErrorMacro(<< "You must specify a pedigree id array name.");
-    return 0;
-    }
-
-
-  int line_count = 0;
-
-  // Open the file
-  this->OpenFile();
-  
-  // Get the total size of the file ...
-  this->Internals->File->seekg(0, ios::end);
-  const int total_bytes = this->Internals->File->tellg();
-  
-  // Go to the top of the file
-  this->Internals->File->seekg(0, ios::beg);
-
-  // Store the text data into a vtkTable
-  vtkTable* table = vtkTable::GetData(outputVector);
-  
-  // The first line of the file might contain the headers, so we want
-  // to be a little bit careful about it.  If we don't have headers
-  // we'll have to make something up.
-  vtkstd::vector<vtkStdString> headers;
-
-
-  // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so
-  // I have to do this the clunky way.
-
-  vtkstd::vector<vtkStdString> firstLineFields;
-  vtkStdString firstLine;
-
-  int status = 0;
-  do
-    {
-    status = my_getline(*(this->Internals->File), firstLine, line_count);
-    } while (isSpaceOnlyString(firstLine) && status);
-  // No data in the file, so we are done.
-  if (!status)
-    {
-    return 1;
-    }
-
-  vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
-   
-  if (this->HaveHeaders)
-    {
-    splitString(firstLine,
-                this->FieldDelimiterCharacters,
-                this->StringDelimiter,
-                this->UseStringDelimiter,
-                this->MergeConsecutiveDelimiters,
-                headers);
-    }
-  else
-    {
-    splitString(firstLine,
-                this->FieldDelimiterCharacters,
-                this->StringDelimiter,
-                this->UseStringDelimiter,
-                this->MergeConsecutiveDelimiters,
-                firstLineFields);
-
-    for (unsigned int i = 0; i < firstLineFields.size(); ++i)
+    // We only retrieve one piece ...
+    vtkInformation* const outInfo = outputVector->GetInformationObject(0);
+    if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
       {
-      // I know it's not a great idea to use sprintf.  It's safe right
-      // here because an unsigned int will never take up enough
-      // characters to fill up this buffer.
-      char fieldName[64];
-      sprintf(fieldName, "Field %d", i);
-      headers.push_back(fieldName);
-      }
-    }
-
-  // Now we can create the arrays that will hold the data for each
-  // field.
-  vtkstd::vector<vtkStdString>::const_iterator fieldIter;
-  for(fieldIter = headers.begin(); fieldIter != headers.end(); ++fieldIter)
-    { 
-    vtkStringArray* array = vtkStringArray::New();
-    array->SetName((*fieldIter).c_str());
-    table->AddColumn(array);
-    array->Delete();
-    }
-  
-  // If the first line did not contain headers then we need to add it
-  // to the table.
-  if (!this->HaveHeaders)
-    {
-    vtkVariantArray* dataArray = vtkVariantArray::New();
-    vtkstd::vector<vtkStdString>::const_iterator I;
-    for(I = firstLineFields.begin(); I != firstLineFields.end(); ++I)
-      {
-      dataArray->InsertNextValue(vtkVariant(*I));
-      }
-    
-    // Insert the data into the table
-    table->InsertNextRow(dataArray);
-    dataArray->Delete();
-    }
-
-  // Okay read the file and add the data to the table
-  vtkStdString nextLine;
-
-  while (my_getline(*(this->Internals->File), nextLine, line_count))
-    {
-    if(isSpaceOnlyString(nextLine))
-      {
-      continue;
+      return 1;
       }
 
-    if(this->MaxRecords && line_count > this->MaxRecords)
+    // If the filename hasn't been specified, we're done ...
+    if(!this->FileName)
       {
-      break;
-      }
-    
-    double progress = total_bytes
-      ? static_cast<double>(this->Internals->File->tellg()) / static_cast<double>(total_bytes)
-      : 0.5;
-      
-    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-
-    vtkDebugMacro(<<"Next line: " << nextLine.c_str());
-    vtkstd::vector<vtkStdString> dataVector;
-
-    // Split string on the delimiters
-    splitString(nextLine,
-                this->FieldDelimiterCharacters,
-                this->StringDelimiter,
-                this->UseStringDelimiter,
-                this->MergeConsecutiveDelimiters,
-                dataVector);
-    
-    vtkDebugMacro(<<"Split into " << dataVector.size() << " fields");
-    // Add data to the output arrays
-
-    // Convert from vector to variant array
-    vtkVariantArray* dataArray = vtkVariantArray::New();
-    vtkstd::vector<vtkStdString>::const_iterator I;
-    for(I = dataVector.begin(); I != dataVector.end(); ++I)
-      {
-      dataArray->InsertNextValue(vtkVariant(*I));
-      }
-    
-    // Pad out any missing columns
-    while (dataArray->GetNumberOfTuples() < table->GetNumberOfColumns())
-      {
-      dataArray->InsertNextValue(vtkVariant());
+      return 1;
       }
 
-    // Eliminate any extra columns
-    dataArray->SetNumberOfTuples(table->GetNumberOfColumns());
-
-    // Insert the data into the table
-    table->InsertNextRow(dataArray);
-    dataArray->Delete();
-    }
-
-  if(this->OutputPedigreeIds)
-    {
-    if (this->GeneratePedigreeIds)
+    if(this->UnicodeCharacterSet)
       {
-      vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
-        vtkSmartPointer<vtkIdTypeArray>::New();
-      vtkIdType numRows = table->GetNumberOfRows();
-      pedigreeIds->SetNumberOfTuples(numRows);
-      pedigreeIds->SetName(this->PedigreeIdArrayName);
-      for (vtkIdType i = 0; i < numRows; ++i)
-        {
-        pedigreeIds->InsertValue(i, i);
-        }
-      table->GetRowData()->SetPedigreeIds(pedigreeIds);
+      this->UnicodeOutputArrays = true;
       }
     else
       {
-      vtkAbstractArray* arr =
-        table->GetColumnByName(this->PedigreeIdArrayName);
-      if (arr)
+      char tstring[2];
+      tstring[1] = '\0';
+      tstring[0] = this->StringDelimiter;
+      this->SetUnicodeCharacterSet("US-ASCII");
+      this->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters));
+      this->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8(tstring));
+      this->UnicodeOutputArrays = false;
+      }
+
+    const vtkStdString character_set = this->UnicodeCharacterSet;
+
+    if (!this->PedigreeIdArrayName)
+      throw vtkstd::runtime_error("You must specify a pedigree id array name");
+
+    // Get the total size of the input file in bytes ... 
+    ifstream file_stream(this->FileName, ios::binary);
+    if(!file_stream.good())
+      {
+      vtkErrorMacro(<< "Unable to open input file named: " << this->FileName << endl);
+      throw vtkstd::runtime_error("Unable to open input file in vtkDelimitedTextReader");
+      }
+    file_stream.seekg(0, ios::end);
+    const vtkIdType total_bytes = file_stream.tellg();
+    file_stream.seekg(0, ios::beg);
+
+    // Read the file into a buffer ...
+    vtkstd::vector<unsigned char> content(total_bytes);
+    file_stream.read(reinterpret_cast<char*>(&content[0]), total_bytes);
+
+    DelimitedTextIterator iterator(
+      this->MaxRecords,
+      this->UnicodeRecordDelimiters,
+      this->UnicodeFieldDelimiters,
+      this->UnicodeStringDelimiters,
+      this->UnicodeWhitespace,
+      this->UnicodeEscapeCharacter,
+      this->HaveHeaders,
+      this->UnicodeOutputArrays,
+      this->MergeConsecutiveDelimiters,
+      this->UseStringDelimiter,
+      output_table);
+
+    if("US-ASCII" == character_set)
+      {
+      ascii_to_unicode(content.begin(), content.end(), iterator);
+      }
+    else if("UTF-8" == character_set)
+      {
+      iterator = vtk_utf8::utf8to32(content.begin(),  content.end(), iterator);
+      iterator.ReachedEndOfInput();
+      }
+    else if("UTF-16" == character_set)
+      {
+      if(content.size() > 1 && static_cast<unsigned char>(content[0]) == 0xfe && static_cast<unsigned char>(content[1]) == 0xff)
         {
-        table->GetRowData()->SetPedigreeIds(arr);
+        utf16_to_unicode(true, content.begin() + 2, content.end(), iterator);
+        }
+      else if(content.size() > 1 && static_cast<unsigned char>(content[0]) == 0xff && static_cast<unsigned char>(content[1]) == 0xfe)
+        {
+        utf16_to_unicode(false, content.begin() + 2, content.end(), iterator);
         }
       else
         {
-        vtkErrorMacro(<< "Could find pedigree id array: "
-          << this->PedigreeIdArrayName);
-        return 0;
+        throw vtkstd::runtime_error("Cannot detect the endianness of UTF-16 data.  Use 'UTF-16BE' or 'UTF-16LE' instead.");
         }
+      }
+    else if("UTF-16BE" == character_set)
+      {
+      utf16_to_unicode(true, content.begin(), content.end(), iterator);
+      }
+    else if("UTF-16LE" == character_set)
+      {
+      utf16_to_unicode(false, content.begin(), content.end(), iterator);
+      }
+    else
+      {
+      throw vtkstd::runtime_error("Unknown UnicodeCharacterSet: " + vtkStdString(this->UnicodeCharacterSet));
+      }
+
+    if(this->OutputPedigreeIds)
+      {
+      if (this->GeneratePedigreeIds)
+        {
+        vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
+          vtkSmartPointer<vtkIdTypeArray>::New();
+        vtkIdType numRows = output_table->GetNumberOfRows();
+        pedigreeIds->SetNumberOfTuples(numRows);
+        pedigreeIds->SetName(this->PedigreeIdArrayName);
+        for (vtkIdType i = 0; i < numRows; ++i)
+          {
+          pedigreeIds->InsertValue(i, i);
+          }
+        output_table->GetRowData()->SetPedigreeIds(pedigreeIds);
+        }
+      else
+        {
+        vtkAbstractArray* arr =
+          output_table->GetColumnByName(this->PedigreeIdArrayName);
+        if (arr)
+          {
+          output_table->GetRowData()->SetPedigreeIds(arr);
+          }
+        else
+          {
+          throw vtkstd::runtime_error("Could find pedigree id array: " + 
+             vtkStdString(this->PedigreeIdArrayName));
+          }
       }
     }
 
-  if (this->DetectNumericColumns)
+    if (this->DetectNumericColumns && !this->UnicodeOutputArrays)
+      {
+      vtkStringToNumeric* convertor = vtkStringToNumeric::New();
+      vtkTable* clone = output_table->NewInstance();
+      clone->ShallowCopy(output_table);
+      convertor->SetInput(clone);
+      convertor->Update();
+      clone->Delete();
+      output_table->ShallowCopy(convertor->GetOutputDataObject(0));
+      convertor->Delete();
+      }
+
+    } 
+  catch(vtkstd::exception& e)
     {
-    vtkStringToNumeric* convertor = vtkStringToNumeric::New();
-    vtkTable* clone = table->NewInstance();
-    clone->ShallowCopy(table);
-    convertor->SetInput(clone);
-    convertor->Update();
-    clone->Delete();
-    table->ShallowCopy(convertor->GetOutputDataObject(0));
-    convertor->Delete();
+    vtkErrorMacro(<< "caught exception: " << e.what() << endl);
+    output_table->Initialize();
     }
- 
+  catch(...)
+    {
+    vtkErrorMacro(<< "caught unknown exception." << endl);
+    output_table->Initialize();
+    }
+
   return 1;
 }
 
-// ----------------------------------------------------------------------
-
-static int 
-splitString(const vtkStdString& input, 
-            const char *fieldDelimiters,
-            char stringDelimiter,
-            bool useStringDelimiter,
-            bool mergeConsecutiveDelimiters,
-            vtkstd::vector<vtkStdString>& results, 
-            bool includeEmpties)
-{
-  if (input.size() == 0)
-    {
-    return 0;
-    }
-
-  bool inString = false;
-  char thisCharacter = 0;
-  char lastCharacter = 0;
-
-  vtkstd::string currentField;
-
-  for (unsigned int i = 0; i < input.size(); ++i)
-    {
-    thisCharacter = input[i];
-
-    // Zeroth: are we in an escape sequence? If so, interpret this
-    // character accordingly.
-    if (lastCharacter == '\\')
-      {
-      char characterToAppend;
-      switch (thisCharacter)
-        {
-        case '0': characterToAppend = '\0'; break;
-        case 'a': characterToAppend = '\a'; break;
-        case 'b': characterToAppend = '\b'; break;
-        case 't': characterToAppend = '\t'; break;
-        case 'n': characterToAppend = '\n'; break;
-        case 'v': characterToAppend = '\v'; break;
-        case 'f': characterToAppend = '\f'; break;
-        case 'r': characterToAppend = '\r'; break;
-        case '\\': characterToAppend = '\\'; break;
-        default:  characterToAppend = thisCharacter; break;
-        }
-
-      currentField += characterToAppend;
-      lastCharacter = thisCharacter;
-      if (lastCharacter == '\\') lastCharacter = 0;
-      }
-    else 
-      {
-      // We're not in an escape sequence.
-
-      // First, are we /starting/ an escape sequence?
-      if (thisCharacter == '\\')
-        {
-        lastCharacter = thisCharacter;
-        continue;
-        }
-      else if (useStringDelimiter && thisCharacter == stringDelimiter)
-        {
-        // this should just toggle inString
-        inString = (inString == false);
-        }
-      else if (!inString && (strchr(fieldDelimiters, thisCharacter) != NULL))
-        {
-        if (mergeConsecutiveDelimiters && 
-            (strchr(fieldDelimiters, lastCharacter) != NULL))
-          {
-          continue; // We're in the middle of a string of delimiters.
-          }
-
-        // A delimiter starts a new field unless we're in a string, in
-        // which case it's normal text and we won't even get here.
-        if (includeEmpties || currentField.size() > 0)
-          {
-          results.push_back(currentField);
-          }
-        currentField = vtkStdString();
-        }
-      else
-        {
-        // The character is just plain text.  Accumulate it and move on.
-        currentField += thisCharacter;
-        }
-      
-      lastCharacter = thisCharacter;
-      }
-    }
-
-  results.push_back(currentField);
-  return static_cast<int>(results.size());
-}
-
-// ----------------------------------------------------------------------
-
-static int
-my_getline(istream& in, vtkStdString &out, int& line_count)
-{
-  out = vtkStdString();
-  unsigned int numCharactersRead = 0;
-  int nextValue = 0;
-  ++line_count;
-  
-  while ((nextValue = in.get()) != EOF &&
-         numCharactersRead < out.max_size())
-    {
-    ++numCharactersRead;
-
-    char downcast = static_cast<char>(nextValue);
-    if (downcast != '\n' && downcast != '\r' && downcast != 0x0d)
-      {
-      out += downcast;
-      }
-    else
-      {
-      if (downcast == '\r' && in.peek() == '\n')
-        {
-        in.get();
-        }
-      return numCharactersRead;
-      }
-    }
-
-  return numCharactersRead;
-}
-
-static int
-my_isspace(int space)
-{
-  int count = 0;
-  switch(space)
-    {
-    case ' ':
-    case '\t':
-    case '\n':
-    case '\v':
-    case '\f':
-    case '\r':
-      count++;
-      break;
-    default:
-      break;
-    }
-  return count;
-}

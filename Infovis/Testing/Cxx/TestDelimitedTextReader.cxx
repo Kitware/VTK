@@ -21,145 +21,117 @@
 #include <vtkDelimitedTextReader.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
-#include <vtkVariant.h>
-#include <vtkVariantArray.h>
 #include <vtkTestUtilities.h>
 #include <vtkIOStream.h>
 
-int
-TestDelimitedTextReader(int argc, char *argv[])
+#define NUM_TEST_FILES 5
+
+int TestDelimitedTextReader(int argc, char *argv[])
 {
-  vtkIdType i, j;
-  char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                        "Data/delimited.txt");
 
-  cout << "Filename: " << filename << endl;
+  const char* testOneFNames[NUM_TEST_FILES] = {"Data/delimited.txt",
+                                               "Data/delimited.txt",
+                                               "Data/delimitedUTF16.txt",
+                                               "Data/delimitedUTF16LE.txt",
+                                               "Data/delimitedUTF16BE.txt"};
 
-  vtkDelimitedTextReader *reader = vtkDelimitedTextReader::New();
-  reader->SetFieldDelimiterCharacters(":");
-  reader->SetStringDelimiter('"');
-  reader->SetUseStringDelimiter(true);
-  reader->SetFileName(filename);
-  reader->SetHaveHeaders(false);
-  reader->Update();
+  const char* testTwoFNames[NUM_TEST_FILES] = {"Data/delimited2.txt",
+                                               "Data/delimited2.txt",
+                                               "Data/delimited2UTF16.txt",
+                                               "Data/delimited2UTF16LE.txt",
+                                               "Data/delimited2UTF16BE.txt"};
 
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
+  const char* UnicodeCharacterSet[NUM_TEST_FILES] = {"ASCII",
+                                                     "UTF-8",
+                                                     "UTF-16",
+                                                     "UTF-16LE",
+                                                     "UTF-16BE"};
 
-  vtkTable *table = reader->GetOutput();
- 
-  cout << "### Test 1: colon delimiter, no headers, do not merge consecutive delimiters" << endl;
-
-  if (table->GetNumberOfRows() != 6)
+  for(int index = 0;index<NUM_TEST_FILES;index++)
     {
-    cout << "ERROR: Wrong number of rows." << endl;
-    return 1;
-    }
-  if (table->GetNumberOfColumns() != 4)
-    {
-    cout << "ERROR: Wrong number of columns." << endl;
-    return 1;
-    }
+    char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
+                                                          testOneFNames[index]);
 
-  cout << "Delimited text file has " << table->GetNumberOfRows() 
-       << " rows" << endl;
-  cout << "Delimited text file has " << table->GetNumberOfColumns() 
-       << " columns" << endl;
-  cout << "Column names: " << endl;
-  for (i = 0; i < table->GetNumberOfColumns(); ++i)
-    {
-    cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
-    }
+    vtkDelimitedTextReader *reader = vtkDelimitedTextReader::New();
 
-  cout << "Table contents:" << endl;
-  
-  for (i = 0; i < table->GetNumberOfRows(); ++i)
-    {
-    vtkVariantArray *row = table->GetRow(i);
-
-    for (j = 0; j < row->GetNumberOfTuples(); ++j)
+    if(!strcmp(UnicodeCharacterSet[index],"ASCII"))
       {
-      cout << "Row " << i << " column " << j << ": ";
-
-      vtkVariant value = row->GetValue(j);
-      if (! value.IsValid())
-        {
-        cout << "invalid value" << endl;
-        }
-      else
-        {
-        cout << "type " << value.GetTypeAsString() << " value " 
-             << value.ToString() << endl;
-        }
+      reader->SetFieldDelimiterCharacters(":");
+      reader->SetStringDelimiter('"');
       }
-    }
-  
-  reader->Delete();
-  delete [] filename;
-
-  // Test 2: make sure the MergeConsecutiveDelimiters thing works
-  reader = vtkDelimitedTextReader::New();
-  filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                  "Data/delimited2.txt");
-
-  reader->SetFieldDelimiterCharacters(",");
-  reader->MergeConsecutiveDelimitersOn();
-  reader->SetHaveHeaders(true);
-  reader->SetFileName(filename);
-  reader->Update();
-  table = reader->GetOutput();
-
-  cout << endl << "### Test 2: comma delimiter, headers, merge consecutive delimiters" << endl;
-
-  cout << "Delimited text file has " << table->GetNumberOfRows() 
-       << " rows" << endl;
-  cout << "Delimited text file has " << table->GetNumberOfColumns() 
-       << " columns" << endl;
-  cout << "Column names: " << endl;
-  for (i = 0; i < table->GetNumberOfColumns(); ++i)
-    {
-    cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
-    }
-
-  if (table->GetNumberOfRows() != 1)
-    {
-    cout << "ERROR: Wrong number of rows." << endl;
-    return 1;
-    }
-  if (table->GetNumberOfColumns() != 9)
-    {
-    cout << "ERROR: Wrong number of columns." << endl;
-    return 1;
-    }
-
-  cout << "Table contents:" << endl;
-  
-  for (i = 0; i < table->GetNumberOfRows(); ++i)
-    {
-    vtkVariantArray *row = table->GetRow(i);
-
-    for (j = 0; j < row->GetNumberOfTuples(); ++j)
+    else
       {
-      cout << "Row " << i << " column " << j << ": ";
-
-      vtkVariant value = row->GetValue(j);
-      if (! value.IsValid())
-        {
-        cout << "invalid value" << endl;
-        }
-      else
-        {
-        cout << "type " << value.GetTypeAsString() << " value " 
-             << value.ToString() << endl;
-        }
+      reader->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(":"));
+      reader->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8("\""));
+      reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
       }
+
+    reader->SetUseStringDelimiter(true);
+    reader->SetFileName(filename);
+    reader->SetHaveHeaders(false);
+    reader->Update();
+
+    vtkTable *table = reader->GetOutput();
+    cout << "### Test 1: colon delimiter, no headers, do not merge consecutive delimiters" << endl;
+    cout << "Printing reader info..." << endl;
+    reader->Print(cout);
+    table->Dump();
+
+    if (table->GetNumberOfRows() != 6)
+      {
+      cout << "ERROR: Wrong number of rows." << endl;
+      return 1;
+      }
+    if (table->GetNumberOfColumns() != 4)
+      {
+      cout << "ERROR: Wrong number of columns." << endl;
+      return 1;
+      }
+
+    reader->Delete();
+    delete [] filename;
+
+    // Test 2: make sure the MergeConsecutiveDelimiters thing works
+    reader = vtkDelimitedTextReader::New();
+
+    if(!strcmp(UnicodeCharacterSet[index],"ASCII"))
+      {
+      reader->SetFieldDelimiterCharacters(",");
+      }
+    else
+      {
+      reader->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(","));
+      reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
+      }
+
+    filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
+                                                    testTwoFNames[index]);
+
+    reader->MergeConsecutiveDelimitersOn();
+    reader->SetHaveHeaders(true);
+    reader->SetFileName(filename);
+    reader->Update();
+    table = reader->GetOutput();
+    cout << endl << "### Test 2: comma delimiter, headers, merge consecutive delimiters" << endl;
+    cout << "Printing reader info..." << endl;
+    reader->Print(cout);
+    table->Dump();
+
+    if (table->GetNumberOfRows() != 1)
+      {
+      cout << "ERROR: Wrong number of rows." << endl;
+      return 1;
+      }
+    if (table->GetNumberOfColumns() != 9)
+      {
+      cout << "ERROR: Wrong number of columns." << endl;
+      return 1;
+      }
+
+    delete [] filename;
+    reader->Delete();
     }
-  
-  reader->Delete();
-  delete [] filename;
 
   return 0;
 }
-
-  
 

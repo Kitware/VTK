@@ -17,17 +17,34 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkDelimitedTextReader - reader for pulling in flat text files
+
+#ifndef __vtkDelimitedTextReader_h
+#define __vtkDelimitedTextReader_h
+
+#include "vtkTableAlgorithm.h"
+#include "vtkUnicodeString.h" // Needed for vtkUnicodeString
+
+// .NAME vtkDelimitedTextReader - reads in delimited ascii or unicode text files 
+// and outputs a vtkTable data structure.
 //
 // .SECTION Description
 // vtkDelimitedTextReader is an interface for pulling in data from a
-// flat, delimited text file (delimiter can be any character).
+// flat, delimited ascii or unicode text file (delimiter can be any character).
+//
+// The behavior of the reader with respect to ascii or unicode input is controlled
+// by the SetUnicodeCharacterSet() method.  By default (without calling SetUnicodeCharacterSet()),
+// the reader will expect to read ascii text and will output vtkStdString columns.  Use 
+// the Set and Get methods to set delimiters that do not contain UTF8 in the name when operating 
+// the reader in default ascii mode.  If the SetUnicodeCharacterSet() method is called, the reader 
+// will output vtkUnicodeString columns in the output table.  In addition, it is necessary to use 
+// the Set and Get methods that contain UTF8 in the name to specify delimiters when operating in 
+// unicode mode.
 //
 // This class emits ProgressEvent for every 100 lines it reads.
 //
 // .SECTION Thanks
-// Thanks to Andy Wilson and Brian Wylie from Sandia National Laboratories 
-// for implementing this class.
+// Thanks to Andy Wilson, Brian Wylie, Tim Shead, and Thomas Otahal
+// from Sandia National Laboratories for implementing this class.
 // 
 // .SECTION Caveats
 //
@@ -35,35 +52,58 @@
 // headers or the first document) contains at least as many fields as
 // any other line in the file.
 
-#ifndef __vtkDelimitedTextReader_h
-#define __vtkDelimitedTextReader_h
-
-#include "vtkTableAlgorithm.h"
-
-class vtkTable;
-
-//BTX
-struct vtkDelimitedTextReaderInternals;
-//ETX
-
 class VTK_INFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
 public:
   static vtkDelimitedTextReader* New();
-  vtkTypeRevisionMacro(vtkDelimitedTextReader,vtkTableAlgorithm);
+  vtkTypeRevisionMacro(vtkDelimitedTextReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Descriptin:
+  // Specifies the delimited text file to be loaded.
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
 
   // Description:
-  // Get/set the characters that will be used to separate fields.  For
+  // Specifies the character set used in the input file.  Valid character set
+  // names will be drawn from the list maintained by the Internet Assigned Name
+  // Authority at
+  //
+  //   http://www.iana.org/assignments/character-sets
+  //
+  // Where multiple aliases are provided for a character set, the preferred MIME name
+  // will be used.  vtkUnicodeDelimitedTextReader currently supports "US-ASCII", "UTF-8",
+  // "UTF-16", "UTF-16BE", and "UTF-16LE" character sets.
+  vtkGetStringMacro(UnicodeCharacterSet);
+  vtkSetStringMacro(UnicodeCharacterSet);
+
+  // Description:
+  // Specify the character(s) that will be used to separate records.
+  // The order of characters in the string does not matter.  Defaults
+  // to "\r\n".
+  void SetUTF8RecordDelimiters(const char* delimiters);
+  const char* GetUTF8RecordDelimiters();
+//BTX
+  void SetUnicodeRecordDelimiters(const vtkUnicodeString& delimiters);
+  vtkUnicodeString GetUnicodeRecordDelimiters();
+//ETX
+
+  // Description:
+  // Specify the character(s) that will be used to separate fields.  For
   // example, set this to "," for a comma-separated value file.  Set
   // it to ".:;" for a file where columns can be separated by a
   // period, colon or semicolon.  The order of the characters in the
   // string does not matter.  Defaults to a comma.
   vtkSetStringMacro(FieldDelimiterCharacters);
   vtkGetStringMacro(FieldDelimiterCharacters);
+
+  void SetUTF8FieldDelimiters(const char* delimiters);
+  const char* GetUTF8FieldDelimiters();
+//BTX
+  void SetUnicodeFieldDelimiters(const vtkUnicodeString& delimiters);
+  vtkUnicodeString GetUnicodeFieldDelimiters();
+//ETX
+ 
 
   // Description:
   // Get/set the character that will begin and end strings.  Microsoft
@@ -76,6 +116,13 @@ public:
   vtkGetMacro(StringDelimiter, char);
   vtkSetMacro(StringDelimiter, char);
 
+  void SetUTF8StringDelimiters(const char* delimiters);
+  const char* GetUTF8StringDelimiters();
+//BTX
+  void SetUnicodeStringDelimiters(const vtkUnicodeString& delimiters);
+  vtkUnicodeString GetUnicodeStringDelimiters();
+//ETX
+
   // Description:
   // Set/get whether to use the string delimiter.  Defaults to on.
   vtkSetMacro(UseStringDelimiter, bool);
@@ -84,8 +131,8 @@ public:
 
   // Description:
   // Set/get whether to treat the first line of the file as headers.
-  vtkGetMacro(HaveHeaders,bool);
-  vtkSetMacro(HaveHeaders,bool);
+  vtkGetMacro(HaveHeaders, bool);
+  vtkSetMacro(HaveHeaders, bool);
 
   // Description:
   // Set/get whether to merge successive delimiters.  Use this if (for
@@ -96,9 +143,10 @@ public:
   vtkBooleanMacro(MergeConsecutiveDelimiters, bool);
 
   // Description:
-  // Set/get the maximum number of records to read from the file (zero = unlimited)
-  vtkGetMacro(MaxRecords, int);
-  vtkSetMacro(MaxRecords, int);
+  // Specifies the maximum number of records to read from the file.  Limiting the
+  // number of records to read is useful for previewing the contents of a file.
+  vtkGetMacro(MaxRecords, vtkIdType);
+  vtkSetMacro(MaxRecords, vtkIdType);
 
   // Description:
   // When set to true, the reader will detect numeric columns and create
@@ -127,28 +175,31 @@ public:
   vtkGetMacro(OutputPedigreeIds, bool);
   vtkBooleanMacro(OutputPedigreeIds, bool);
 
- protected:
+//BTX
+protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader();
-
-  vtkDelimitedTextReaderInternals* Internals;
 
   int RequestData(
     vtkInformation*, 
     vtkInformationVector**, 
     vtkInformationVector*);
 
-  void OpenFile();
-
   char* FileName;
-  char *FieldDelimiterCharacters;
+  char* UnicodeCharacterSet;
+  vtkIdType MaxRecords;
+  vtkUnicodeString UnicodeRecordDelimiters;
+  vtkUnicodeString UnicodeFieldDelimiters;
+  vtkUnicodeString UnicodeStringDelimiters;
+  vtkUnicodeString UnicodeWhitespace;
+  vtkUnicodeString UnicodeEscapeCharacter;
+  bool DetectNumericColumns;
+  char* FieldDelimiterCharacters;
   char StringDelimiter;
   bool UseStringDelimiter;
   bool HaveHeaders;
+  bool UnicodeOutputArrays;
   bool MergeConsecutiveDelimiters;
-  char *ReadBuffer;
-  int MaxRecords;
-  bool DetectNumericColumns;
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;
   bool OutputPedigreeIds;
@@ -156,6 +207,7 @@ public:
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented
   void operator=(const vtkDelimitedTextReader&);   // Not implemented
+//ETX
 };
 
 #endif
