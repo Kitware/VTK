@@ -422,7 +422,7 @@ void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIterator
 /////////////////////////////////////////////////////////////////////////////////////////
 // vtkDelimitedTextReader
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.33");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.34");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 vtkDelimitedTextReader::vtkDelimitedTextReader() :
@@ -474,6 +474,10 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << "'" << endl;
   os << indent << "UnicodeStringDelimiters: '" << this->UnicodeStringDelimiters.utf8_str()
      << "'" << endl;
+  os << indent << "StringDelimiter: " 
+     << this->StringDelimiter << endl;
+  os << indent << "FieldDelimiterCharacters: "
+     << (this->FieldDelimiterCharacters ? this->FieldDelimiterCharacters : "(none)") << endl;
   os << indent << "HaveHeaders: " 
      << (this->HaveHeaders ? "true" : "false") << endl;
   os << indent << "MergeConsecutiveDelimiters: " 
