@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.98");
+vtkCxxRevisionMacro(vtkPicker, "1.99");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -106,11 +106,6 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
   // The point has to be transformed back into world coordinates.
   // Note: it is assumed that the transform is in the correct state.
   this->Transform->TransformPoint(mapperPos,this->PickPosition);
-  
-  // Invoke pick method if one defined - actor goes first
-  prop3D->Pick();
-  this->InvokeEvent(vtkCommand::PickEvent,NULL);
-
 }
 
 // Perform pick operation with selection point provided. Normally the 
@@ -124,7 +119,6 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   vtkCamera *camera;
   vtkAbstractMapper3D *mapper = NULL;
   double p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
-  int picked=0;
   int *winSize;
   double x, y, t;
   double *viewport;
@@ -385,8 +379,6 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
 
           if ( t < VTK_DOUBLE_MAX )
             {
-            picked = 1;
-
             double p[3];
             p[0] = (1.0 - t)*p1World[0] + t*p2World[0];
             p[1] = (1.0 - t)*p1World[1] + t*p2World[1];
@@ -423,6 +415,16 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         }//if visible and pickable and not transparent
       }//for all parts
     }//for all actors
+
+  int picked = 0;
+
+  if (this->Path)
+    {
+    // Invoke pick method if one defined - prop goes first
+    this->Path->GetFirstNode()->GetViewProp()->Pick();
+    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+    picked = 1;
+    }
 
   // Invoke end pick method if defined
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);

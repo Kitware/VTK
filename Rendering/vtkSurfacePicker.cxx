@@ -39,7 +39,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.14");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.15");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -343,13 +343,6 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
 
     // The position comes from the data, so put it into world coordinates
     this->Transform->TransformPoint(this->MapperPosition, this->PickPosition);
-
-    // Legacy from vtkPicker: call Pick() on every prop that gets to here,
-    // even though the pick isn't yet complete.
-    // Whether or not a prop that is under the cursor gets to this point
-    // in the code depends on the order of the props in the Renderer.
-    prop->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent, NULL);
     }
 
   return tMin;
