@@ -35,7 +35,7 @@
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.10");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.11");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -127,16 +127,9 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
         {
         propCandidate = path->GetLastNode()->GetViewProp();
         pickable = this->TypeDecipher(propCandidate, &imageActor, &mapper);
-        if ( pickable && !this->Prop3Ds->IsItemPresent(propCandidate) )
+        if ( pickable && !this->Prop3Ds->IsItemPresent(prop) )
           {
-          if (mapper)
-            {
-            this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
-            }
-          else if (imageActor)
-            {
-            this->Prop3Ds->AddItem(imageActor);
-            }
+          this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
           }
         }
       }
