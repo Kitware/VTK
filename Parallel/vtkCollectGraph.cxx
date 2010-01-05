@@ -45,7 +45,7 @@ using vtksys_stl::map;
 using vtksys_stl::pair;
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkCollectGraph, "1.6");
+vtkCxxRevisionMacro(vtkCollectGraph, "1.7");
 vtkStandardNewMacro(vtkCollectGraph);
 
 vtkCxxSetObjectMacro(vtkCollectGraph,Controller, vtkMultiProcessController);
@@ -136,8 +136,6 @@ int vtkCollectGraph::RequestDataObject(
   vtkInformation *info = outputVector->GetInformationObject(0);
   output->SetPipelineInformation(info);
   output->Delete();
-  this->GetOutputPortInformation(0)->Set(
-    vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
 
   return 1;
 }

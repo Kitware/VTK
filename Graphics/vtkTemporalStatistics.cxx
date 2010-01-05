@@ -44,7 +44,7 @@
 #include <vtkstd/algorithm>
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkTemporalStatistics, "1.5");
+vtkCxxRevisionMacro(vtkTemporalStatistics, "1.6");
 vtkStandardNewMacro(vtkTemporalStatistics);
 
 //=============================================================================
@@ -236,8 +236,6 @@ int vtkTemporalStatistics::RequestDataObject(
   if (newOutput)
     {
     newOutput->SetPipelineInformation(outInfo);
-    this->GetOutputPortInformation(0)->Set(vtkDataObject::DATA_EXTENT_TYPE(),
-                                           newOutput->GetExtentType());
     }
 
   return 1;

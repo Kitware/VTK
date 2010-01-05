@@ -36,7 +36,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.19");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.20");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -196,8 +196,6 @@ int vtkExtractSelectedFrustum::RequestDataObject(
       vtkUnstructuredGrid* newOutput = vtkUnstructuredGrid::New();
       newOutput->SetPipelineInformation(info);
       newOutput->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
       }
     }
 

@@ -60,7 +60,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.53")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.54")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -4708,8 +4708,6 @@ int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
         }
       newOutput->SetPipelineInformation(outInfo);
       newOutput->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
       }
     return 1;
     }

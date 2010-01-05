@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPieceRequestFilter, "1.2");
+vtkCxxRevisionMacro(vtkPieceRequestFilter, "1.3");
 vtkStandardNewMacro(vtkPieceRequestFilter);
 
 //----------------------------------------------------------------------------
@@ -116,8 +116,6 @@ int vtkPieceRequestFilter::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkPointSetAlgorithm, "1.4");
 vtkStandardNewMacro(vtkPointSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -193,8 +193,6 @@ int vtkPointSetAlgorithm::RequestDataObject(
         output = input->NewInstance();
         output->SetPipelineInformation(info);
         output->Delete();
-        this->GetOutputPortInformation(i)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
         }
       }
     return 1;

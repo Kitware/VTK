@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.27");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.28");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -210,8 +210,6 @@ int vtkExtractSelection::RequestDataObject(
       output = vtkMultiBlockDataSet::New();
       output->SetPipelineInformation(outInfo);
       output->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
       }
     return 1;
     }

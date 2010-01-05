@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.47");
+vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.48");
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
 //----------------------------------------------------------------------------
@@ -1518,8 +1518,6 @@ int vtkDataObjectToDataSetFilter::RequestDataObject(
       {
       output->SetPipelineInformation(outInfo);
       output->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
       }
     }
   return 1;

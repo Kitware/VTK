@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.19");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.20");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -388,8 +388,6 @@ int vtkReflectionFilter::RequestDataObject(
         }
       newOutput->SetPipelineInformation(outInfo);
       newOutput->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
       }
     return 1;
     }

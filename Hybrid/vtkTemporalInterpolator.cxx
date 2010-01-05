@@ -31,7 +31,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.12");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.13");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -90,8 +90,6 @@ int vtkTemporalInterpolator::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(outInfo);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

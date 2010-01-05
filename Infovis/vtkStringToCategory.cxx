@@ -36,7 +36,7 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkStringToCategory, "1.4");
+vtkCxxRevisionMacro(vtkStringToCategory, "1.5");
 vtkStandardNewMacro(vtkStringToCategory);
 
 vtkStringToCategory::vtkStringToCategory()
@@ -182,8 +182,6 @@ int vtkStringToCategory::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

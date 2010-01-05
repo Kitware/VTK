@@ -32,7 +32,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractPiece, "1.2");
+vtkCxxRevisionMacro(vtkExtractPiece, "1.3");
 vtkStandardNewMacro(vtkExtractPiece);
 
 //=============================================================================
@@ -74,7 +74,6 @@ int vtkExtractPiece::RequestDataObject(
       {
       vtkDataObject* outData = input->NewInstance();
       outData->SetPipelineInformation(outInfo);
-      outInfo->Set(vtkDataObject::DATA_EXTENT_TYPE(), outData->GetExtentType());
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
       outData->Delete();
       }

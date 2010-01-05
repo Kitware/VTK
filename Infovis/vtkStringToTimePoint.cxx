@@ -34,7 +34,7 @@
 #include "vtkTimePointUtility.h"
 #include "vtkTypeUInt64Array.h"
 
-vtkCxxRevisionMacro(vtkStringToTimePoint, "1.4");
+vtkCxxRevisionMacro(vtkStringToTimePoint, "1.5");
 vtkStandardNewMacro(vtkStringToTimePoint);
 
 vtkStringToTimePoint::vtkStringToTimePoint()
@@ -220,8 +220,6 @@ int vtkStringToTimePoint::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

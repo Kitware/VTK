@@ -36,7 +36,7 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkStringToNumeric, "1.7");
+vtkCxxRevisionMacro(vtkStringToNumeric, "1.8");
 vtkStandardNewMacro(vtkStringToNumeric);
 
 vtkStringToNumeric::vtkStringToNumeric()
@@ -246,8 +246,6 @@ int vtkStringToNumeric::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

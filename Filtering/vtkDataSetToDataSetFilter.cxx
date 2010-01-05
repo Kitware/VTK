@@ -23,7 +23,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.70");
+vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.71");
 
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
@@ -59,8 +59,6 @@ int vtkDataSetToDataSetFilter::RequestDataObject(vtkInformation*,
       output = input->NewInstance();
       output->SetPipelineInformation(info);
       output->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
       }
     return 1;
     }

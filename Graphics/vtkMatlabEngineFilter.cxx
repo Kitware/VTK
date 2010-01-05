@@ -46,7 +46,7 @@
 
 #define BUFFER_SIZE 32768 
 
-vtkCxxRevisionMacro(vtkMatlabEngineFilter, "1.1");
+vtkCxxRevisionMacro(vtkMatlabEngineFilter, "1.2");
 vtkStandardNewMacro(vtkMatlabEngineFilter);
 
 class ArrNames
@@ -273,8 +273,6 @@ int vtkMatlabEngineFilter::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

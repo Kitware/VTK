@@ -83,7 +83,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFReader, "1.3");
+vtkCxxRevisionMacro(vtkNetCDFReader, "1.4");
 vtkStandardNewMacro(vtkNetCDFReader);
 
 //-----------------------------------------------------------------------------
@@ -133,9 +133,6 @@ int vtkNetCDFReader::RequestDataObject(
     output->SetPipelineInformation(outInfo);
     output->Delete();   // Not really deleted.
     }
-
-  this->GetOutputPortInformation(0)->Set(vtkDataObject::DATA_EXTENT_TYPE(),
-                                         output->GetExtentType());
 
   return 1;
 }

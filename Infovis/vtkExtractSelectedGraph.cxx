@@ -50,7 +50,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.32");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.33");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -134,8 +134,6 @@ int vtkExtractSelectedGraph::RequestDataObject(
         }
       output->SetPipelineInformation(info);
       output->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
       }
     return 1;
     }

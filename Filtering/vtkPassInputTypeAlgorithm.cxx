@@ -29,7 +29,7 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPassInputTypeAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkPassInputTypeAlgorithm, "1.4");
 vtkStandardNewMacro(vtkPassInputTypeAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -218,8 +218,6 @@ int vtkPassInputTypeAlgorithm::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

@@ -47,7 +47,7 @@
 
 #define BUFFER_SIZE 32768 
 
-vtkCxxRevisionMacro(vtkRCalculatorFilter, "1.1");
+vtkCxxRevisionMacro(vtkRCalculatorFilter, "1.2");
 vtkStandardNewMacro(vtkRCalculatorFilter);
 
 class ArrNames
@@ -272,8 +272,6 @@ int vtkRCalculatorFilter::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

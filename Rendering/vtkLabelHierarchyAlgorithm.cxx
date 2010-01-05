@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkLabelHierarchyAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkLabelHierarchyAlgorithm, "1.2");
 vtkStandardNewMacro(vtkLabelHierarchyAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -145,8 +145,6 @@ int vtkLabelHierarchyAlgorithm::RequestDataObject(
       outInfo->Set( vtkDataObject::DATA_OBJECT(), output );
       output->FastDelete();
       output->SetPipelineInformation( outInfo );
-      this->GetOutputPortInformation( i )->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType() );
       }
     }
   return 1;

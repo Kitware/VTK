@@ -22,7 +22,7 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.4");
+vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.5");
 //----------------------------------------------------------------------------
 vtkExtractSelectionBase::vtkExtractSelectionBase()
 {
@@ -95,8 +95,6 @@ int vtkExtractSelectionBase::RequestDataObject(
         }
       newOutput->SetPipelineInformation(outInfo);
       newOutput->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
       }
     return 1;
     }

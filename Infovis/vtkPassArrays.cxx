@@ -32,7 +32,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkPassArrays, "1.3");
+vtkCxxRevisionMacro(vtkPassArrays, "1.4");
 vtkStandardNewMacro(vtkPassArrays);
 
 class vtkPassArrays::Internals
@@ -213,8 +213,6 @@ int vtkPassArrays::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;

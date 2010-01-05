@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.70");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.71");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -89,8 +89,6 @@ int vtkDataSetReader::RequestDataObject(
     
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
-    this->GetOutputPortInformation(0)->Set(
-      vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
     }
 
   return 1;

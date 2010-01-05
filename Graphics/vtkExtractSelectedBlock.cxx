@@ -25,7 +25,7 @@
 
 #include <vtkstd/set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
-vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.3");
+vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.4");
 //----------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock()
 {
@@ -79,8 +79,6 @@ int vtkExtractSelectedBlock::RequestDataObject(
       output = vtkMultiBlockDataSet::New();
       output->SetPipelineInformation(outInfo);
       output->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
       }
     return 1;
     }

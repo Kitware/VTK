@@ -27,7 +27,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkGenerateIndexArray, "1.3");
+vtkCxxRevisionMacro(vtkGenerateIndexArray, "1.4");
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
 vtkGenerateIndexArray::vtkGenerateIndexArray() :
@@ -91,8 +91,6 @@ int vtkGenerateIndexArray::RequestDataObject(
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
         newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
         }
       }
     return 1;
