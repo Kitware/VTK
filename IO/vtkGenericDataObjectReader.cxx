@@ -37,7 +37,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.4");
+vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.5");
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
 template<typename ReaderT, typename DataT>
@@ -153,10 +153,8 @@ int vtkGenericDataObjectReader::RequestDataObject(
         return 0;
       }
     
-    this->GetExecutive()->SetOutputData(0, output);
+    output->SetPipelineInformation(info);
     output->Delete();
-    this->GetOutputPortInformation(0)->Set(
-      vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
     }
 
   return 1;
