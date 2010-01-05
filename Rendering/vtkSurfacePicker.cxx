@@ -15,6 +15,7 @@
 #include "vtkSurfacePicker.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkBox.h"
 #include "vtkPiecewiseFunction.h"
@@ -29,6 +30,7 @@
 #include "vtkImageData.h"
 #include "vtkActor.h"
 #include "vtkMapper.h"
+#include "vtkTexture.h"
 #include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkVolumeProperty.h"
@@ -37,7 +39,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.13");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.14");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -54,32 +56,9 @@ vtkSurfacePicker::vtkSurfacePicker()
   this->VolumeOpacityIsovalue = 0.05;
   this->IgnoreGradientOpacity = 1;
   this->PickClippingPlanes = 0;
+  this->PickTextureData = 0;
 
-  this->ClippingPlaneId = -1;
-
-  this->PointId = -1;
-  this->CellId = -1;
-  this->SubId = -1;
-
-  this->PCoords[0] = 0.0;
-  this->PCoords[1] = 0.0;
-  this->PCoords[2] = 0.0;
-
-  this->CellIJK[0] = 0;
-  this->CellIJK[1] = 0;
-  this->CellIJK[2] = 0;
-
-  this->PointIJK[0] = 0;
-  this->PointIJK[1] = 0;
-  this->PointIJK[2] = 0;
-
-  this->MapperNormal[0] = 0.0;
-  this->MapperNormal[1] = 0.0;
-  this->MapperNormal[2] = 1.0;
-
-  this->PickNormal[0] = 0.0;
-  this->PickNormal[1] = 0.0;
-  this->PickNormal[2] = 1.0;
+  this->ResetSurfacePickerInfo();
 }
 
 //----------------------------------------------------------------------------
@@ -95,16 +74,23 @@ void vtkSurfacePicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "VolumeOpacityIsovalue: " << this->VolumeOpacityIsovalue
-     << "\n";
-  os << indent << "IgnoreGradientOpacity: "
-     << (this->IgnoreGradientOpacity ? "On" : "Off") << "\n";
-
   os << indent << "MapperNormal: (" <<  this->MapperNormal[0] << ","
      << this->MapperNormal[1] << "," << this->MapperNormal[2] << ")\n";
   
   os << indent << "PickNormal: (" <<  this->PickNormal[0] << ","
      << this->PickNormal[1] << "," << this->PickNormal[2] << ")\n";
+
+  if ( this->Texture )
+    {
+    os << indent << "Texture: " << this->Texture << "\n";
+    }
+  else
+    {
+    os << indent << "Texture: (none)";
+    }
+
+  os << indent << "PickTextureData: "
+     << (this->PickTextureData ? "On" : "Off") << "\n";
 
   os << indent << "PointId: " << this->PointId << "\n";
   os << indent << "CellId: " << this->CellId << "\n";
@@ -117,14 +103,41 @@ void vtkSurfacePicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellIJK: (" << this->CellIJK[0] << ", "
      << this->CellIJK[1] << ", " << this->CellIJK[2] << ")\n";
 
+  os << indent << "ClippingPlaneId: " << this->ClippingPlaneId << "\n";
+
   os << indent << "PickClippingPlanes: "
      << (this->PickClippingPlanes ? "On" : "Off") << "\n";
 
-  os << indent << "ClippingPlaneId: " << this->ClippingPlaneId << "\n";
+  os << indent << "VolumeOpacityIsovalue: " << this->VolumeOpacityIsovalue
+     << "\n";
+  os << indent << "IgnoreGradientOpacity: "
+     << (this->IgnoreGradientOpacity ? "On" : "Off") << "\n";
 }
+
 //----------------------------------------------------------------------------
 void vtkSurfacePicker::Initialize()
 {
+  this->ResetPickInfo();
+  this->Superclass::Initialize();
+}
+
+//----------------------------------------------------------------------------
+void vtkSurfacePicker::ResetPickInfo()
+{
+  // First, reset information from the superclass, since
+  // vtkPicker does not have a ResetPickInfo method
+  this->DataSet = 0;
+  this->Mapper = 0;
+
+  // Reset all the information specific to this class
+  this->ResetSurfacePickerInfo();
+}
+
+//----------------------------------------------------------------------------
+void vtkSurfacePicker::ResetSurfacePickerInfo()
+{
+  this->Texture = 0;
+
   this->ClippingPlaneId = -1;
 
   this->PointId = -1;
@@ -150,8 +163,6 @@ void vtkSurfacePicker::Initialize()
   this->PickNormal[0] = 0.0;
   this->PickNormal[1] = 0.0;
   this->PickNormal[2] = 1.0;
-
-  this->Superclass::Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -286,6 +297,11 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
 
   if (tMin < this->GlobalTMin)
     {
+    this->GlobalTMin = tMin;
+    this->SetPath(path);
+
+    this->ClippingPlaneId = clippingPlaneId;
+
     // If tMin == t1, the pick didn't go past the first clipping plane,
     // so the position and normal will be set from the clipping plane.
     if (tMin == t1 && clippingPlaneId >= 0)
@@ -293,6 +309,8 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
       this->MapperPosition[0] = p1[0]*(1.0-t1) + p2[0]*t1;
       this->MapperPosition[1] = p1[1]*(1.0-t1) + p2[1]*t1;
       this->MapperPosition[2] = p1[2]*(1.0-t1) + p2[2]*t1;
+
+      // Use the normal from the plane: it is in world coordinates
       planes->GetItem(clippingPlaneId)->GetNormal(this->PickNormal);
       // We want the "out" direction
       this->PickNormal[0] = -this->PickNormal[0];
@@ -318,12 +336,20 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
       }
     else
       {
-      // Use the normal generated from the mapper's input data
+      // The pick position isn't on a clipping plane, so
+      // use the normal generated from the mapper's input data.
       this->Transform->TransformNormal(this->MapperNormal, this->PickNormal);
       }
 
-    this->ClippingPlaneId = clippingPlaneId;
-    this->MarkPicked(path, prop, m, tMin, this->MapperPosition);
+    // The position comes from the data, so put it into world coordinates
+    this->Transform->TransformPoint(this->MapperPosition, this->PickPosition);
+
+    // Legacy from vtkPicker: call Pick() on every prop that gets to here,
+    // even though the pick isn't yet complete.
+    // Whether or not a prop that is under the cursor gets to this point
+    // in the code depends on the order of the props in the Renderer.
+    prop->Pick();
+    this->InvokeEvent(vtkCommand::PickEvent, NULL);
     }
 
   return tMin;
@@ -334,7 +360,7 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
                                                const double p2[3],
                                                double t1, double t2,
                                                double tol, 
-                                               vtkActor *vtkNotUsed(actor), 
+                                               vtkActor *actor, 
                                                vtkMapper *mapper)
 {
   // This code was taken from CellPicker with almost no modification.
@@ -444,15 +470,7 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
   // Do this if a cell was intersected
   if (minCellId >= 0 && tMin < this->GlobalTMin)
     {
-    // Don't call MarkPicked here like vtkCellPicker does,
-    // that needs to be done at the very end.
-    this->CellId = minCellId;
-    this->SubId = minSubId;
-    for (int k = 0; k < 3; k++)
-      { 
-      this->PCoords[k] = minPCoords[k];
-      this->MapperPosition[k] = minXYZ[k];
-      }
+    this->ResetPickInfo();
 
     // Get the cell, convert to triangle if it is a strip
     vtkGenericCell *cell = this->Cell;
@@ -465,20 +483,72 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
       this->TriangleFromStrip(cell, minSubId);
       }
 
-    // Use weights to find the closest point in the cell
+    // Get the cell weights
     vtkIdType numPoints = cell->GetNumberOfPoints();
     double *weights = new double[numPoints];
     double maxWeight = VTK_DOUBLE_MIN;
     vtkIdType iMaxWeight = 0;
     cell->InterpolateFunctions(minPCoords, weights);
-    for (vtkIdType i = 0; i < numPoints; i++)
+
+    this->Mapper = mapper;
+    this->Texture = actor->GetTexture();
+
+    if (this->PickTextureData && this->Texture)
       {
-      if (weights[i] > maxWeight)
+      // Return the texture's image data to the user
+      vtkImageData *image = this->Texture->GetInput();
+      this->DataSet = image;
+
+      // Get and check the image dimensions
+      int extent[6];
+      image->GetExtent(extent);
+      int dimensionsAreValid = 1;
+      int dimensions[3];
+      for (int i = 0; i < 3; i++)
         {
-        iMaxWeight = i;
+        dimensions[i] = extent[2*i + 1] - extent[2*i] + 1;
+        dimensionsAreValid = (dimensionsAreValid && dimensions[i] > 0);
+        }
+
+      // Use the texture coord to set the information
+      double tcoord[3];
+      if (dimensionsAreValid &&
+          this->ComputeSurfaceTCoord(data, cell, weights, tcoord))
+        {
+        // Take the border into account when computing coordinates
+        double x[3];
+        x[0] = extent[0] + tcoord[0]*dimensions[0] - 0.5;
+        x[1] = extent[2] + tcoord[1]*dimensions[1] - 0.5;
+        x[2] = extent[4] + tcoord[2]*dimensions[2] - 0.5;
+
+        this->SetImageDataPickInfo(x, extent);
         }
       }
-    this->PointId = cell->PointIds->GetId(iMaxWeight);
+    else
+      {
+      // Return the polydata to the user
+      this->DataSet = data;
+      this->CellId = minCellId;
+      this->SubId = minSubId;
+      this->PCoords[0] = minPCoords[0];
+      this->PCoords[1] = minPCoords[1];
+      this->PCoords[2] = minPCoords[2];
+
+      // Use weights to find the closest point in the cell
+      for (vtkIdType i = 0; i < numPoints; i++)
+        {
+        if (weights[i] > maxWeight)
+          {
+          iMaxWeight = i;
+          }
+        }
+      this->PointId = cell->PointIds->GetId(iMaxWeight);
+      }
+
+    // Set the mapper position
+    this->MapperPosition[0] = minXYZ[0];
+    this->MapperPosition[1] = minXYZ[1];
+    this->MapperPosition[2] = minXYZ[2];
 
     // Compute the normal
     if (!this->ComputeSurfaceNormal(data, cell, weights, this->MapperNormal))
@@ -668,25 +738,17 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
       // Check to see if this is the new global minimum
       if (t < tMin && t < this->GlobalTMin)
         {
+        this->ResetPickInfo();
         tMin = t;
 
-        for (int j = 0; j < 3; j++)
-          {
-          this->MapperPosition[j] = x[j]*spacing[j] + origin[j];
-          this->CellIJK[j] = xi[j];
-          this->PCoords[j] = pcoords[j];
-          // Make sure cell is within bounds
-          if (xi[j] == extent[2*j + 1] && xi[j] > extent[2*j])
-            {
-            this->CellIJK[j] = xi[j] - 1;
-            this->PCoords[j] = 1.0;
-            }
-          this->PointIJK[j] = this->CellIJK[j] + (this->PCoords[j] >= 0.5);
-          } 
+        this->Mapper = mapper;
+        this->DataSet = data;
 
-        this->PointId = data->ComputePointId(this->PointIJK);
-        this->CellId = data->ComputeCellId(this->CellIJK);
-        this->SubId = 0;
+        this->SetImageDataPickInfo(x, extent);
+
+        this->MapperPosition[0] = x[0]*spacing[0] + origin[0];
+        this->MapperPosition[1] = x[1]*spacing[1] + origin[1];
+        this->MapperPosition[2] = x[2]*spacing[2] + origin[2];
 
         // Default the normal to the view-plane normal.  This default
         // will be used if the gradient cannot be computed any other way.
@@ -776,34 +838,31 @@ double vtkSurfacePicker::IntersectImageActorWithLine(const double p1[3],
 
   if (tMin < this->GlobalTMin)
     {
+    this->ResetPickInfo();
+    this->Mapper = 0;
+    this->DataSet = data;
+
     // Compute all the pick values
+    double x[3];
     for (int j = 0; j < 3; j++)
       {
-      double xj = x1[j]*(1.0 - tMin) + x2[j]*tMin;
+      x[j] = x1[j]*(1.0 - tMin) + x2[j]*tMin;
       // Avoid out-of-bounds due to roundoff error
-      if (xj < displayExtent[2*j])
+      if (x[j] < displayExtent[2*j])
         {
-        xj = displayExtent[2*j];
+        x[j] = displayExtent[2*j];
         } 
-      else if (xj > displayExtent[2*j+1])
+      else if (x[j] > displayExtent[2*j+1])
         {
-        xj = displayExtent[2*j + 1];
+        x[j] = displayExtent[2*j + 1];
         }
-      this->MapperPosition[j] = origin[j] + xj*spacing[j];
-      this->CellIJK[j] = int(floor(xj));
-      this->PCoords[j] = xj - this->CellIJK[j];
-      // Keep the cell in-bounds if it is on the edge
-      if (this->CellIJK[j] == extent[2*j+1] && this->CellIJK[j] > extent[2*j])
-        {
-        this->CellIJK[j] -= 1;
-        this->PCoords[j] = 1.0;
-        }
-      this->PointIJK[j] = this->CellIJK[j] + (this->PCoords[j] >= 0.5);
       }
 
-    this->PointId = data->ComputePointId(this->PointIJK);
-    this->CellId = data->ComputeCellId(this->CellIJK);
-    this->SubId = 0;
+    this->SetImageDataPickInfo(x, extent);
+
+    this->MapperPosition[0] = origin[0] + x[0]*spacing[0];
+    this->MapperPosition[1] = origin[1] + x[1]*spacing[1];
+    this->MapperPosition[2] = origin[2] + x[2]*spacing[2];
 
     // Set the normal in mapper coordinates
     this->MapperNormal[0] = 0.0;
@@ -942,6 +1001,37 @@ int vtkSurfacePicker::ComputeSurfaceNormal(vtkDataSet *data, vtkCell *cell,
 }
 
 //----------------------------------------------------------------------------
+// Use weights to compute the texture coordinates of a point on the cell.
+
+int vtkSurfacePicker::ComputeSurfaceTCoord(vtkDataSet *data, vtkCell *cell,
+                                           const double *weights,
+                                           double tcoord[3])
+{
+  vtkDataArray *tcoords = data->GetPointData()->GetTCoords();
+
+  if (tcoords)
+    {
+    tcoord[0] = tcoord[1] = tcoord[2] = 0.0;
+    double pointTCoord[3];
+
+    int numComponents = tcoords->GetNumberOfComponents();
+    vtkIdType numPoints = cell->GetNumberOfPoints();
+    for (vtkIdType k = 0; k < numPoints; k++)
+      {
+      tcoords->GetTuple(cell->PointIds->GetId(k), pointTCoord);
+      for (int i = 0; i < numComponents; i++)
+        {
+        tcoord[i] += pointTCoord[i]*weights[k];
+        }
+      }
+
+    return 1;
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 // Do an in-place replacement of a triangle strip with a single triangle.
 
 void vtkSurfacePicker::TriangleFromStrip(vtkGenericCell *cell, int subId)
@@ -968,6 +1058,46 @@ void vtkSurfacePicker::TriangleFromStrip(vtkGenericCell *cell, int subId)
   cell->Points->SetPoint(0, points[0]);
   cell->Points->SetPoint(1, points[1]);
   cell->Points->SetPoint(2, points[2]);
+}
+
+//----------------------------------------------------------------------------
+// Set all Cell and Point information, given a structured coordinate
+// and the extent of the data.
+
+void vtkSurfacePicker::SetImageDataPickInfo(const double x[3],
+                                            const int extent[6])
+{
+  for (int j = 0; j < 3; j++)
+    {
+    double xj = x[j];
+    if (xj < extent[2*j]) { xj = extent[2*j]; }
+    if (xj > extent[2*j+1]) { xj = extent[2*j+1]; }
+
+    this->CellIJK[j] = int(floor(xj));
+    this->PCoords[j] = xj - this->CellIJK[j];
+    // Keep the cell in-bounds if it is on the edge
+    if (this->CellIJK[j] == extent[2*j+1] &&
+        this->CellIJK[j] > extent[2*j])
+      {
+      this->CellIJK[j] -= 1;
+      this->PCoords[j] = 1.0;
+      }
+    this->PointIJK[j] = this->CellIJK[j] + (this->PCoords[j] >= 0.5);
+    }
+
+  // Stupid const/non-const, and I hate const_cast
+  int ext[6];
+  ext[0] = extent[0]; ext[1] = extent[1];
+  ext[2] = extent[2]; ext[3] = extent[3];
+  ext[4] = extent[4]; ext[5] = extent[5];
+
+  this->PointId =
+    vtkStructuredData::ComputePointIdForExtent(ext, this->PointIJK);
+
+  this->CellId =
+    vtkStructuredData::ComputeCellIdForExtent(ext, this->CellIJK);
+
+  this->SubId = 0;
 }
 
 //----------------------------------------------------------------------------

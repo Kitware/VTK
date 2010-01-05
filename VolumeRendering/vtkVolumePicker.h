@@ -61,7 +61,7 @@ protected:
   vtkVolumePicker();
   ~vtkVolumePicker();
 
-  void Initialize();
+  virtual void ResetPickInfo();
 
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],

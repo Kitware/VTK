@@ -41,6 +41,7 @@
 #include "vtkPicker.h"
 
 class vtkMapper;
+class vtkTexture;
 class vtkAbstractVolumeMapper;
 class vtkImageActor;
 class vtkPlaneCollection;
@@ -160,11 +161,31 @@ public:
   // values within the cell.
   vtkGetVector3Macro(PCoords, double);
 
+  // Description:
+  // Get the texture that was picked.  This will be null unless the picked
+  // prop has a texture.
+  vtkTexture *GetTexture() { return this->Texture; };
+
+  // Description:
+  // If this is "On" and if the picked prop has a texture, then the data
+  // returned by GetDataSet() will be the texture's data instead of the
+  // mapper's data.  The GetPointId(), GetCellId(), GetPCoords() etc. will
+  // all return information for use with the texture's data.  If the picked
+  // prop does not have any texture, then GetDataSet() will return the
+  // mapper's data instead and GetPointId() etc. will return information
+  // related to the mapper's data.  The default value of PickTextureData
+  // is "Off".
+  vtkSetMacro(PickTextureData, int);
+  vtkBooleanMacro(PickTextureData, int);
+  vtkGetMacro(PickTextureData, int);
+
 protected:
   vtkSurfacePicker();
   ~vtkSurfacePicker();
 
   void Initialize();
+
+  virtual void ResetPickInfo();
 
   virtual double IntersectWithLine(double p1[3], double p2[3], double tol, 
                                   vtkAssemblyPath *path, vtkProp3D *p, 
@@ -196,7 +217,12 @@ protected:
   static int ComputeSurfaceNormal(vtkDataSet *data, vtkCell *cell,
                                   const double *weights, double normal[3]);
 
+  static int ComputeSurfaceTCoord(vtkDataSet *data, vtkCell *cell,
+                                  const double *weights, double tcoord[3]);
+
   static void TriangleFromStrip(vtkGenericCell *cell, int subId);
+
+  void SetImageDataPickInfo(const double x[3], const int extent[6]);
 
   double ComputeVolumeOpacity(const int xi[3], const double pcoords[3],
                               vtkImageData *data, vtkDataArray *scalars,
@@ -221,7 +247,12 @@ protected:
   double PickNormal[3];
   double MapperNormal[3];
 
+  vtkTexture *Texture;
+  int PickTextureData;
+
 private:
+  void ResetSurfacePickerInfo();
+
   vtkGenericCell *Cell; //used to accelerate picking
   vtkDoubleArray *Gradients; //used in volume picking
   
