@@ -76,12 +76,15 @@ public:
   // needing to read the whole file.
   virtual int ReadOutputType();
 
+  // Description:
+  // See vtkAlgorithm for information.
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *);
+
 protected:
   vtkGenericDataObjectReader();
   ~vtkGenericDataObjectReader();
 
-  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
