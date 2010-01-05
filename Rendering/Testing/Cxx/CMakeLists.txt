@@ -57,9 +57,7 @@ IF(VTK_USE_DISPLAY)
   IF(VTK_DATA_ROOT)
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
-      SurfacePlusEdges.cxx
       TestAreaSelections.cxx
-      TestLabelPlacementMapper.cxx
       TestMultiTexturing.cxx
       TestMultiTexturingTransform.cxx
       TestScenePicker.cxx
@@ -73,6 +71,11 @@ IF(VTK_USE_DISPLAY)
       TestTStripsTCoords.cxx
       )
   ENDIF(VTK_DATA_ROOT)
+
+  IF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
+      SurfacePlusEdges.cxx
+      TestLabelPlacementMapper.cxx
+  ENDIF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
 
   IF (VTK_USE_GLSL_SHADERS)
     # Tests testing GLSL Shaders.

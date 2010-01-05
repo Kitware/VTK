@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.10");
+vtkCxxRevisionMacro(vtkTriangle, "1.11");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -50,6 +50,9 @@ vtkTriangle::~vtkTriangle()
 }
 
 //----------------------------------------------------------------------------
+// This function simply calls the static function:
+// vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
+// with the appropriate parameters from the instantiated vtkTriangle.
 double vtkTriangle::ComputeArea()
 {
   double p0[3];
