@@ -2,8 +2,6 @@
 // Varying tube radius and independent RGB colors with an unsignedCharArray
 // Contributed by Marcus Thamson
 
-#include <math.h>
-
 #include <vtkPolyData.h>
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
