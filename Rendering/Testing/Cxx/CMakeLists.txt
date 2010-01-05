@@ -73,8 +73,11 @@ IF(VTK_USE_DISPLAY)
   ENDIF(VTK_DATA_ROOT)
 
   IF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
+  SET(RenderingTestsWithArguments
+      ${RenderingTestsWithArguments}
       SurfacePlusEdges.cxx
       TestLabelPlacementMapper.cxx
+      )
   ENDIF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
 
   IF (VTK_USE_GLSL_SHADERS)
