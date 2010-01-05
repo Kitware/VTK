@@ -20,17 +20,23 @@
 // and a point located from the camera's position.
 //
 // vtkPicker may return more than one vtkProp3D, since more than one bounding 
-// box may be intersected. vtkPicker returns the list of props that were hit, 
-// the pick coordinates in world and untransformed mapper space, and the 
-// prop (vtkProp3D) and mapper that are "closest" to the camera. The closest 
-// prop is the one whose center point (i.e., center of bounding box) 
-// projected on the ray is closest to the camera.
+// box may be intersected. vtkPicker returns an unsorted list of props that
+// were hit, and a list of the corresponding world points of the hits.
+// For the vtkProp3D that is closest to the camera, vtkPicker returns the
+// pick coordinates in world and untransformed mapper space, the prop itself,
+// the data set, and the mapper.  For vtkPicker the closest prop is the one
+// whose center point (i.e., center of bounding box) projected on the view
+// ray is closest to the camera.  Subclasses of vtkPicker use other methods
+// for computing the pick point.
 
 // .SECTION See Also
-// vtkPicker is used for quick geometric picking. If you desire to pick
-// points or cells, use the subclass vtkPointPicker or vtkCellPicker,
-// respectively.  Or you may use hardware picking to pick any type of vtkProp
-// - see vtkPropPicker or vtkWorldPointPicker.
+// vtkPicker is used for quick geometric picking. If you desire more precise
+// picking of points or cells, use the subclasses vtkPointPicker or
+// vtkCellPicker.  To do accurate geometric picking of any kind of Prop3D
+// (including volumes or images), or if you need both point and and cell
+// information together, or if you want to accelerate the pick with locators,
+// then use vtkSurfacePicker or vtkVolumePicker. For hardware-accelerated
+// picking of any type of vtkProp, use vtkPropPicker or vtkWorldPointPicker.
 
 #ifndef __vtkPicker_h
 #define __vtkPicker_h
@@ -84,9 +90,9 @@ public:
   vtkActorCollection *GetActors();
 
   // Description:
-  // Return a list of the points the the actors returned by GetActors
+  // Return a list of the points the the actors returned by GetProp3Ds
   // were intersected at. The order of this list will match the order of
-  // GetActors.
+  // GetProp3Ds.
   vtkPoints *GetPickedPositions() {return this->PickedPositions;};
   
   // Description:

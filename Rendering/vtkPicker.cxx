@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.97");
+vtkCxxRevisionMacro(vtkPicker, "1.98");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -376,28 +376,47 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         bounds[0] -= tol; bounds[1] += tol; 
         bounds[2] -= tol; bounds[3] += tol; 
         bounds[4] -= tol; bounds[5] += tol; 
-        if ( vtkBox::IntersectBox(bounds, p1Mapper, 
-                                  ray, hitPosition, t) )
+
+        if ( vtkBox::IntersectBox(bounds, p1Mapper, ray, hitPosition, t) )
           {
-          t = this->IntersectWithLine(p1Mapper, p2Mapper, 
-                                      tol*0.333*(scale[0]+scale[1]+scale[2]), path, 
-                                      static_cast<vtkProp3D *>(propCandidate), mapper);
+          t = this->IntersectWithLine(
+            p1Mapper, p2Mapper, tol*0.333*(scale[0]+scale[1]+scale[2]), 
+            path, static_cast<vtkProp3D *>(propCandidate), mapper);
+
           if ( t < VTK_DOUBLE_MAX )
             {
             picked = 1;
-            if ( ! this->Prop3Ds->IsItemPresent(prop) )
+
+            double p[3];
+            p[0] = (1.0 - t)*p1World[0] + t*p2World[0];
+            p[1] = (1.0 - t)*p1World[1] + t*p2World[1];
+            p[2] = (1.0 - t)*p1World[2] + t*p2World[2];
+
+            // The IsItemPresent method returns "index+1" 
+            int prevIndex = this->Prop3Ds->IsItemPresent(prop)-1;
+
+            if (prevIndex >= 0)
+              {
+              // If already in list, set point to the closest point
+              double oldp[3];
+              this->PickedPositions->GetPoint(prevIndex, oldp);
+              if (vtkMath::Distance2BetweenPoints(p1World, p) <
+                  vtkMath::Distance2BetweenPoints(p1World, oldp))
+                {
+                this->PickedPositions->SetPoint(prevIndex, p);
+                }
+              }
+            else
               {
               this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
-              }
-            this->PickedPositions->InsertNextPoint
-              ((1.0 - t)*p1World[0] + t*p2World[0],
-               (1.0 - t)*p1World[1] + t*p2World[1],
-               (1.0 - t)*p1World[2] + t*p2World[2]);
 
-            // backwards compatibility: also add to this->Actors
-            if (actor)
-              {
-              this->Actors->AddItem(actor);
+              this->PickedPositions->InsertNextPoint(p);
+
+              // backwards compatibility: also add to this->Actors
+              if (actor)
+                {
+                this->Actors->AddItem(actor);
+                }
               }
             }
           }
