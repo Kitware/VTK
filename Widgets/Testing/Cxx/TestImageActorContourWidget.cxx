@@ -70,10 +70,9 @@
 #include "vtkImageActorPointPlacer.h"
 #include "vtkOrientedGlyphContourRepresentation.h"
 #include "vtkCamera.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkRenderWindow.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkProperty.h"
 
 char TestImageActorContourWidgetLog[] =
@@ -815,10 +814,9 @@ protected:
 
 int TestImageActorContourWidget(int argc, char *argv[])
 {
-  bool disableReplay = false, followCursor = false;
+  bool followCursor = false;
   for (int i = 0; i < argc; i++)
     {
-    disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
     followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
     }  
 
@@ -914,35 +912,13 @@ int TestImageActorContourWidget(int argc, char *argv[])
 
   ImageViewer->GetRenderWindow()->SetSize(500, 500);
 
-  // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
-  recorder->SetInteractor(iren);
-  //recorder->SetFileName("/tmp/record.log");
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestImageActorContourWidgetLog);
-
   // render the image
   //
   iren->Initialize();
   ImageViewer->Render();
+  
+  vtkTesting::InteractorEventLoop( argc, argv, iren, TestImageActorContourWidgetLog );
 
-  if (!disableReplay)
-    {
-    recorder->EnabledOn();
-    recorder->Play();
-    }
-
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
-
-  int retVal = vtkRegressionTestImage( ImageViewer->GetRenderWindow() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  recorder->Delete();
   SliderRepres->Delete();
   SliderCb->Delete();
   ContourWidget->Delete();

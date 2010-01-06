@@ -24,6 +24,8 @@
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorEventRecorder.h"
 #include "vtkImageClip.h"
 #include "vtkToolkits.h"
 #include "vtkDataSet.h"
@@ -40,7 +42,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.36");
+vtkCxxRevisionMacro(vtkTesting, "1.37");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 using vtkstd::vector;
@@ -846,6 +848,56 @@ int vtkTesting::CompareAverageOfL2Norm(
   // All tests passed.
   return 1;
 }
+
+//-----------------------------------------------------------------------------
+int vtkTesting::InteractorEventLoop( int argc, 
+                                     char *argv[], 
+                                     vtkRenderWindowInteractor *iren, 
+                                     const char *playbackStream )
+{
+  bool disableReplay = false, record = false;
+  for (int i = 0; i < argc; i++)
+    {
+    disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
+    record        |= (strcmp("--Record", argv[i]) == 0);
+    }
+
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+      vtkSmartPointer<vtkInteractorEventRecorder>::New();
+  recorder->SetInteractor(iren);
+
+  if (!disableReplay)
+    {
+
+    if (record)
+      {
+      recorder->SetFileName("vtkInteractorEventRecorder.log");
+      recorder->On();
+      recorder->Record();
+      }
+    else
+      {
+      if (playbackStream)
+        {
+        recorder->ReadFromInputStringOn();
+        recorder->SetInputString(playbackStream);
+        recorder->Play();
+        
+        // Without this, the "-I" option if specified will fail
+        recorder->Off();
+        }
+      }
+    }
+
+  // iren will be either the object factory instantiation (vtkTestingInteractor)
+  // or vtkRenderWindowInteractor depending on whether or not "-I" is specified.
+  iren->Start();
+
+  recorder->Off();
+
+  return EXIT_SUCCESS;
+}
+
 //-----------------------------------------------------------------------------
 void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -23,12 +23,11 @@
 #include "vtkImageGradientMagnitude.h"
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkImageShiftScale.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkOrientedGlyphContourRepresentation.h"
 #include "vtkPNGReader.h"
 #include "vtkProperty.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkTesting.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -111,10 +110,9 @@ char TestDijkstraImageGeodesicPathLog[] =
 
 int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 {
-  bool disableReplay = false, followCursor = false;
+  bool followCursor = false;
   for (int i = 0; i < argc; i++)
     {
-    disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
     followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
     }  
 
@@ -219,26 +217,9 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   renderer->ResetCamera();
   iren->Initialize();
 
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
-  recorder->SetInteractor( iren );
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString( TestDijkstraImageGeodesicPathLog );
-
-  if (!disableReplay)
-    {
-    recorder->EnabledOn();
-    recorder->Play();
-    }
-
-  int retVal = vtkRegressionTestImageThreshold( renWin, 11 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
-    iren->Start();
-    }
-  recorder->Stop();
+  vtkTesting::InteractorEventLoop( argc, argv, iren, TestDijkstraImageGeodesicPathLog );
 
   // Cleanups
-  recorder->Delete();
   contourWidget->Delete();
   placer->Delete();
   reader->Delete();
@@ -253,6 +234,6 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   diffusion->Delete();
   colorMap->Delete();
   
-  return !retVal;
+  return EXIT_SUCCESS;
 }
 

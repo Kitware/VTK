@@ -31,7 +31,6 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkInteractorEventRecorder.h"
 
 
 const char TestTensorProbeWidgetEventLog[] =
@@ -647,19 +646,6 @@ int TestTensorProbeWidget( int argc, char *argv[] )
   iren->Initialize();
   w->EnabledOn();
 
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);
-
-#ifdef RECORD
-  recorder->SetFileName("record.log");
-  recorder->On();
-  recorder->Record();
-#else
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestTensorProbeWidgetEventLog);
-#endif
-  
   ren1->ResetCamera();
   ren1->ResetCameraClippingRange();
   ren1->GetActiveCamera()->SetPosition(4.50141, 2.82662, 0.42005);
@@ -667,12 +653,7 @@ int TestTensorProbeWidget( int argc, char *argv[] )
   ren1->GetActiveCamera()->SetFocalPoint(3.06943, 2.31262, 2.5207);
   renWin->Render();
 
-#ifndef RECORD
-  recorder->Play();
-  recorder->Off();
-#endif
 
-  iren->Start();
-  
-  return EXIT_SUCCESS;
+  return vtkTesting::InteractorEventLoop( 
+      argc, argv, iren, TestTensorProbeWidgetEventLog );
 }

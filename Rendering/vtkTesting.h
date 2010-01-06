@@ -60,13 +60,14 @@
 #define __vtkTesting_h
 
 #include "vtkObject.h"
-#include <vtkstd/vector> // used for argv
-#include <vtkstd/string> // used for argv
+#include <vtkstd/vector> // STL Header used for argv
+#include <vtkstd/string> // STL Header used for argv
 
 class vtkRenderWindow;
 class vtkImageData;
 class vtkDataArray;
 class vtkDataSet;
+class vtkRenderWindowInteractor;
 
 class VTK_RENDERING_EXPORT vtkTesting : public vtkObject
 {
@@ -84,6 +85,45 @@ public:
   };
 
   static int Test(int argc, char *argv[], vtkRenderWindow *rw, double thresh);
+
+  // Description:
+  // This method is intended to be a comprehensive, one line replacement for 
+  // vtkRegressionTest and for the replay based testing using 
+  // vtkInteractorEventRecorder greatly simplifying API and code bloat. It scans 
+  // the command line specified for the following :
+  // - If a "--DisableReplay" is specified, it disables the testing replay. This
+  //   is particularly useful in enabling the user to exercise the widgets. 
+  //   Typically the widgets are defined by the testing replay, so the user 
+  //   misses out on playing around with the widget definition behaviour.
+  // - If a "--Record" is specified in the command line, it records the 
+  //   interactions into a "vtkInteractorEventRecorder.log" file. This is useful
+  //   when creating the playback stream that is plugged into tests.
+  //
+  // Typical usage in a test for a VTK widget that needs playback 
+  // testing / recording is :
+  //
+  //   const char TestFooWidgetTestLog[] = {
+  //    ....
+  //    };
+  //
+  //   int TestFooWidget( int argc, char *argv[] )
+  //   {
+  //     ...
+  //     return vtkTesting::InteractorEventLoop( argc, argv, iren, TestFooWidgetTestLog );
+  //   }
+  //
+  //
+  // In tests where no playback is exercised, the API is simply
+  //
+  //   int TestFoo( int argc, char *argv[] )
+  //   {
+  //     ...
+  //     return vtkTesting::InteractorEventLoop( argc, argv, iren );
+  //   }
+  //
+  static int InteractorEventLoop( int argc, char *argv[], 
+      vtkRenderWindowInteractor *iren, const char *stream = NULL );
+  
 //ETX
   
   // Description:
@@ -180,7 +220,7 @@ public:
   // Description:
   // Get/Set verbosity level. A level of 0 is quiet.
   vtkSetMacro(Verbose, int);
-  vtkGetMacro(Verbose, int);
+  vtkGetMacro(Verbose, int);  
 
 protected:
   vtkTesting();
