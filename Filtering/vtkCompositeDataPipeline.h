@@ -80,6 +80,34 @@ public:
   // vtkCompositeDataPipeline specific keys
   static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();
 
+  // Description:
+  // COMPOSITE_DATA_META_DATA is a key placed in the output-port information by
+  // readers/sources producing composite datasets. This meta-data provides
+  // information about the structure of the composite dataset and things like
+  // data-bounds etc.
+  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+  static vtkInformationObjectBaseKey* COMPOSITE_DATA_META_DATA();
+
+  // Description:
+  // UPDATE_COMPOSITE_INDICES is a key placed in the request to request a set of
+  // composite indices from a reader/source producing composite dataset.
+  // Typically, the reader publishes its structure using
+  // COMPOSITE_DATA_META_DATA() and then the sink requests blocks of interest
+  // using UPDATE_COMPOSITE_INDICES().
+  // Note that UPDATE_COMPOSITE_INDICES has to be sorted vector with increasing
+  // indices.
+  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+  static vtkInformationIntegerVectorKey* UPDATE_COMPOSITE_INDICES();
+
+  // Description:
+  // COMPOSITE_INDICES() is put in the output information by the executive if
+  // the request has UPDATE_COMPOSITE_INDICES() using the generated composite
+  // dataset's structure.
+  // Note that COMPOSITE_INDICES has to be sorted vector with increasing
+  // indices.
+  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+  static vtkInformationIntegerVectorKey* COMPOSITE_INDICES();
+
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
@@ -177,6 +205,12 @@ protected:
   vtkCompositeDataSet* CreateOutputCompositeDataSet(
     vtkCompositeDataSet* input, int compositePort);
 
+  // Override this to handle UPDATE_COMPOSITE_INDICES().
+  virtual void MarkOutputsGenerated(vtkInformation* request,
+                                    vtkInformationVector** inInfoVec,
+                                    vtkInformationVector* outInfoVec);
+
+  int NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo);
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.

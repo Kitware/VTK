@@ -81,10 +81,13 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.74");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.75");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_DATA_META_DATA, ObjectBase);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, UPDATE_COMPOSITE_INDICES, IntegerVector);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_INDICES, IntegerVector);
 
 //----------------------------------------------------------------------------
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
@@ -1037,6 +1040,11 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
     return 1;
     }
 
+  if (this->NeedToExecuteBasedOnCompositeIndices(outInfo))
+    {
+    return 1;
+    }
+
   // We do not need to execute.
   return 0;
 }
@@ -1070,6 +1078,59 @@ int vtkCompositeDataPipeline::NeedToExecuteBasedOnTime(
       }
     }
 
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo)
+{
+  if (outInfo->Has(UPDATE_COMPOSITE_INDICES()))
+    {
+    if (!outInfo->Has(COMPOSITE_INDICES()))
+      {
+      return 1;
+      }
+    unsigned int* requested_ids = reinterpret_cast<unsigned int*>(
+      outInfo->Get(UPDATE_COMPOSITE_INDICES()));
+    unsigned int* existing_ids = reinterpret_cast<unsigned int*>(
+      outInfo->Get(COMPOSITE_INDICES()));
+    int length_req = outInfo->Length(UPDATE_COMPOSITE_INDICES());
+    int length_ex = outInfo->Length(COMPOSITE_INDICES());
+    if (length_req > length_ex)
+      {
+      // we are requesting more blocks than those generated.
+      return 1;
+      }
+    int ri=0, ei=0;
+    // NOTE: We are relying on the fact that both these id lists are sorted to
+    // do a more efficient comparison.
+    for (; ri < length_req; ri++)
+      {
+      while (ei < length_ex &&
+        existing_ids[ei] < requested_ids[ri])
+        {
+        ei++;
+        }
+      if (ei >= length_ex)
+        {
+        // we ran beyond the existing length.
+        return 1;
+        }
+      if (existing_ids[ei] != requested_ids[ri])
+        {
+        return 1;
+        }
+      }
+    }
+  else
+    {
+    if (outInfo->Has(COMPOSITE_INDICES()))
+      {
+      // earlier request asked for a some blocks, but the new request is asking
+      // for everything, so re-execute.
+      return 1;
+      }
+    }
   return 0;
 }
 
@@ -1120,6 +1181,22 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
   this->Superclass::CopyDefaultInformation(request, direction, 
                                            inInfoVec, outInfoVec);
 
+  if (request->Has(REQUEST_INFORMATION()))
+    {
+    if (this->GetNumberOfInputPorts() > 0)
+      {
+      if (vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0))
+        {
+        // Copy information from the first input to all outputs.
+        for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
+          {
+          vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
+          outInfo->CopyEntry(inInfo, COMPOSITE_DATA_META_DATA());
+          }
+        }
+      }
+    }
+
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
     // Find the port that has a data that we will iterator over.
@@ -1154,28 +1231,17 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           vtkInformation* inInfo = 
             inInfoVec[compositePort]->GetInformationObject(j);
             
-          if (outInfo->Has(UPDATE_TIME_STEPS()))
-            {
-            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
-            }
-          if (outInfo->Has(FAST_PATH_OBJECT_ID()))
-            {
-            inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
-            }
-          if (outInfo->Has(FAST_PATH_ID_TYPE()))
-            {
-            inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
-            }
-          if (outInfo->Has(FAST_PATH_OBJECT_TYPE()))
-            {
-            inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
-            }
+          inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
+          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
+          inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
+          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
           vtkDebugMacro(<< "CopyEntry UPDATE_PIECE_NUMBER() " << outInfo->Get(UPDATE_PIECE_NUMBER()) << " " << outInfo);
 
           inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
           inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
+          inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
           }
         }
       }
@@ -1193,6 +1259,8 @@ void vtkCompositeDataPipeline::ResetPipelineInformation(int port,
 
   this->Superclass::ResetPipelineInformation(port, info);
   info->Remove(REQUIRES_TIME_DOWNSTREAM());
+  info->Remove(COMPOSITE_DATA_META_DATA());
+  info->Remove(UPDATE_COMPOSITE_INDICES());
 }
 
 //----------------------------------------------------------------------------
@@ -1390,6 +1458,58 @@ vtkCompositeDataSet* vtkCompositeDataPipeline::CreateOutputCompositeDataSet(
     }
 
   return input->NewInstance();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataPipeline::MarkOutputsGenerated(
+  vtkInformation* request,
+  vtkInformationVector** inInfoVec,
+  vtkInformationVector* outInfoVec)
+{
+  this->Superclass::MarkOutputsGenerated(request,inInfoVec,outInfoVec);
+
+  // Save the information about COMPOSITE_INDICES() as needed in the data
+  // object.
+  int outputPort = 0;
+  if(request->Has(FROM_OUTPUT_PORT()))
+    {
+    outputPort = request->Get(FROM_OUTPUT_PORT());
+    outputPort = (outputPort >= 0 ? outputPort : 0);
+    }
+
+  for (int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
+    vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    if (data && !outInfo->Get(DATA_NOT_GENERATED()))
+      {
+      vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(data);
+      if (outInfo->Has(UPDATE_COMPOSITE_INDICES()) && cd)
+        {
+        vtkCompositeDataIterator* iter = cd->NewIterator();
+        size_t count = 0;
+        for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
+          {
+          count++;
+          }
+        int *indices = new int[count+1];
+        int index=0;
+        for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem(), index++)
+          {
+          indices[index] = static_cast<int>(iter->GetCurrentFlatIndex());
+          }
+        iter->Delete();
+        outInfo->Set(COMPOSITE_INDICES(), indices, count);
+        delete []indices;
+        }
+      else
+        {
+        outInfo->Remove(COMPOSITE_INDICES());
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
