@@ -79,6 +79,11 @@ public:
   virtual vtkTextProperty* GetVertexLabelTextProperty();
   vtkSetStringMacro(VertexHoverArrayName);
   vtkGetStringMacro(VertexHoverArrayName);
+  // Description:
+  // Whether to hide the display of vertex labels during mouse interaction.  Default is off.
+  vtkSetMacro(HideVertexLabelsOnInteraction, bool)
+  vtkGetMacro(HideVertexLabelsOnInteraction, bool)
+  vtkBooleanMacro(HideVertexLabelsOnInteraction, bool)
 
   // ------------------------------------------------------------------------
   // Edge labels
@@ -94,6 +99,11 @@ public:
   virtual vtkTextProperty* GetEdgeLabelTextProperty();
   vtkSetStringMacro(EdgeHoverArrayName);
   vtkGetStringMacro(EdgeHoverArrayName);
+  // Description:
+  // Whether to hide the display of edge labels during mouse interaction.  Default is off.
+  vtkSetMacro(HideEdgeLabelsOnInteraction, bool)
+  vtkGetMacro(HideEdgeLabelsOnInteraction, bool)
+  vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool)
 
   // ------------------------------------------------------------------------
   // Vertex icons
@@ -409,6 +419,8 @@ protected:
   char* LayoutStrategyName;
   vtkSetStringMacro(EdgeLayoutStrategyName);
   char* EdgeLayoutStrategyName;
+  bool HideVertexLabelsOnInteraction;
+  bool HideEdgeLabelsOnInteraction;
 
 private:
   vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&); // Not implemented

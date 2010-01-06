@@ -22,6 +22,7 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkDirectedGraph.h"
 #include "vtkFast2DLayoutStrategy.h"
 #include "vtkInteractorStyle.h"
@@ -34,7 +35,7 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.66");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.67");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -42,6 +43,9 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SetInteractionModeTo2D();
   this->SetSelectionModeToFrustum();
   this->ReuseSingleRepresentationOn();
+  this->VertexLabelsRequested = false;
+  this->EdgeLabelsRequested = false;
+  this->Interacting = false;
 }
 
 //----------------------------------------------------------------------------
@@ -81,6 +85,50 @@ vtkDataRepresentation* vtkGraphLayoutView::CreateDefaultRepresentation(
 }
 
 //----------------------------------------------------------------------------
+void vtkGraphLayoutView::ProcessEvents(
+  vtkObject* caller, unsigned long eventId, void* callData)
+{
+    if (eventId == vtkCommand::StartInteractionEvent)
+    {
+        if( GetHideVertexLabelsOnInteraction() && this->VertexLabelsRequested )
+        {
+            this->Interacting = true;
+            this->GetGraphRepresentation()->SetVertexLabelVisibility(false);  
+        }
+        if( GetHideEdgeLabelsOnInteraction() && this->EdgeLabelsRequested )
+        {
+            this->Interacting = true;
+            this->GetGraphRepresentation()->SetEdgeLabelVisibility(false);  
+        }
+    }
+    if (eventId == vtkCommand::EndInteractionEvent)
+    {
+        bool forceRender = false ;
+        if( GetHideVertexLabelsOnInteraction() && this->VertexLabelsRequested )
+        {
+            this->Interacting = false;
+            this->GetGraphRepresentation()->SetVertexLabelVisibility(true);  
+            // Force the labels to reappear
+            forceRender = true;
+        }
+        if( GetHideEdgeLabelsOnInteraction() && this->EdgeLabelsRequested )
+        {
+            this->Interacting = false;
+            this->GetGraphRepresentation()->SetEdgeLabelVisibility(true);  
+            // Force the labels to reappear
+            forceRender = true;
+        }
+        if(forceRender)
+            // Force the labels to reappear
+            this->Render();
+    }
+    if (eventId != vtkCommand::ComputeVisiblePropBoundsEvent)
+    {
+        this->Superclass::ProcessEvents(caller, eventId, callData);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexLabelArrayName(const char* name)
 {
   this->GetGraphRepresentation()->SetVertexLabelArrayName(name);
@@ -107,13 +155,29 @@ const char* vtkGraphLayoutView::GetEdgeLabelArrayName()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexLabelVisibility(bool vis)
 {
-  this->GetGraphRepresentation()->SetVertexLabelVisibility(vis);
+    this->VertexLabelsRequested = vis ;
+    // Don't update the visibility of the vertex label actor while an interaction
+    // is in progress
+    if(!this->Interacting)
+        this->GetGraphRepresentation()->SetVertexLabelVisibility(vis);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetVertexLabelVisibility()
 {
   return this->GetGraphRepresentation()->GetVertexLabelVisibility();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetHideVertexLabelsOnInteraction(bool vis)
+{
+    this->GetGraphRepresentation()->SetHideVertexLabelsOnInteraction(vis);  
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphLayoutView::GetHideVertexLabelsOnInteraction()
+{
+    return this->GetGraphRepresentation()->GetHideVertexLabelsOnInteraction();
 }
 
 //----------------------------------------------------------------------------
@@ -131,13 +195,29 @@ bool vtkGraphLayoutView::GetEdgeVisibility()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLabelVisibility(bool vis)
 {
-  this->GetGraphRepresentation()->SetEdgeLabelVisibility(vis);
+    this->EdgeLabelsRequested = vis ;
+    // Don't update the visibility of the edge label actor while an interaction
+    // is in progress
+    if(!this->Interacting) 
+        this->GetGraphRepresentation()->SetEdgeLabelVisibility(vis);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetEdgeLabelVisibility()
 {
   return this->GetGraphRepresentation()->GetEdgeLabelVisibility();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetHideEdgeLabelsOnInteraction(bool vis)
+{
+    this->GetGraphRepresentation()->SetHideEdgeLabelsOnInteraction(vis);  
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphLayoutView::GetHideEdgeLabelsOnInteraction()
+{
+    return this->GetGraphRepresentation()->GetHideEdgeLabelsOnInteraction();
 }
 
 //----------------------------------------------------------------------------

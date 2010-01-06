@@ -70,6 +70,12 @@ public:
   vtkBooleanMacro(VertexLabelVisibility, bool);
 
   // Description:
+  // Whether to hide vertex labels during mouse interactions.  Default is off.
+  void SetHideVertexLabelsOnInteraction(bool vis);
+  bool GetHideVertexLabelsOnInteraction();
+  vtkBooleanMacro(HideVertexLabelsOnInteraction, bool);
+
+  // Description:
   // Whether to show the edges at all. Default is on
   void SetEdgeVisibility(bool vis);
   bool GetEdgeVisibility();
@@ -81,6 +87,12 @@ public:
   bool GetEdgeLabelVisibility();
   vtkBooleanMacro(EdgeLabelVisibility, bool);
   
+  // Description:
+  // Whether to hide edge labels during mouse interactions.  Default is off.
+  void SetHideEdgeLabelsOnInteraction(bool vis);
+  bool GetHideEdgeLabelsOnInteraction();
+  vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool);
+
   // Description:
   // The array to use for coloring vertices.  Default is "color".
   void SetVertexColorArrayName(const char* name);
@@ -287,10 +299,15 @@ protected:
   // by default.
   virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
   virtual vtkRenderedGraphRepresentation* GetGraphRepresentation();
+  // Called to process events.  Overrides behavior in vtkRenderView.
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData);
 
 private:
   vtkGraphLayoutView(const vtkGraphLayoutView&);  // Not implemented.
   void operator=(const vtkGraphLayoutView&);  // Not implemented.
+  bool VertexLabelsRequested;
+  bool EdgeLabelsRequested;
+  bool Interacting;
 };
 
 #endif
