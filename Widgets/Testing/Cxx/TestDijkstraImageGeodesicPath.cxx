@@ -111,6 +111,13 @@ char TestDijkstraImageGeodesicPathLog[] =
 
 int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 {
+  bool disableReplay = false, followCursor = false;
+  for (int i = 0; i < argc; i++)
+    {
+    disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
+    followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
+    }  
+
   char* fname = 
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
   
@@ -176,6 +183,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 
   vtkOrientedGlyphContourRepresentation *rep = vtkOrientedGlyphContourRepresentation::New();
   contourWidget->SetRepresentation( rep );
+  contourWidget->SetFollowCursor( followCursor );
 
   rep->GetLinesProperty()->SetColor(1, 0.2, 0);
   rep->GetProperty()->SetColor(0, 0.2, 1);
@@ -215,9 +223,12 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   recorder->SetInteractor( iren );
   recorder->ReadFromInputStringOn();
   recorder->SetInputString( TestDijkstraImageGeodesicPathLog );
-  recorder->EnabledOn();
 
-  recorder->Play();
+  if (!disableReplay)
+    {
+    recorder->EnabledOn();
+    recorder->Play();
+    }
 
   int retVal = vtkRegressionTestImageThreshold( renWin, 11 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )

@@ -27,17 +27,17 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.29");
+vtkCxxRevisionMacro(vtkContourWidget, "1.30");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
 vtkContourWidget::vtkContourWidget()
 {
-  this->ManagesCursor = 0;
-
-  this->WidgetState = vtkContourWidget::Start;
-  this->CurrentHandle = 0;
+  this->ManagesCursor    = 0;
+  this->WidgetState      = vtkContourWidget::Start;
+  this->CurrentHandle    = 0;
   this->AllowNodePicking = 0;
+  this->FollowCursor     = 0;
 
   // These are the event callbacks supported by this widget
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -159,9 +159,20 @@ void vtkContourWidget::SelectAction(vtkAbstractWidget *w)
     {
     case vtkContourWidget::Start:
     case vtkContourWidget::Define:
+      {
+      // If we are following the cursor, let's add 2 nodes rightaway, on the 
+      // first click. The second node is the one that follows the cursor 
+      // around.
+      if (self->FollowCursor && rep->GetNumberOfNodes() == 0)
+        {
+        self->AddNode();
+        }
       self->AddNode();
       break;
+      }
+
     case vtkContourWidget::Manipulate:
+      {
       if ( rep->ActivateNode(X,Y) )
         {
         self->Superclass::StartInteraction();
@@ -181,6 +192,7 @@ void vtkContourWidget::SelectAction(vtkAbstractWidget *w)
         self->EventCallbackCommand->SetAbortFlag(1);        
         }
       break;
+      }
     }
   
   if ( rep->GetNeedToRender() )
@@ -200,7 +212,12 @@ void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget *w)
   if ( self->WidgetState !=  vtkContourWidget::Manipulate &&
        rep->GetNumberOfNodes() >= 1 )
     {
-    self->AddNode();
+    // In follow cursor mode, the "extra" node has already been added for us.
+    if (!self->FollowCursor)
+      {
+      self->AddNode();
+      }
+
     self->WidgetState = vtkContourWidget::Manipulate;
     self->EventCallbackCommand->SetAbortFlag(1);
     self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -430,8 +447,7 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget *w)
 {
   vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
 
-  if ( self->WidgetState == vtkContourWidget::Start ||
-       self->WidgetState == vtkContourWidget::Define )
+  if ( self->WidgetState == vtkContourWidget::Start )
     {
     return;
     }
@@ -440,6 +456,70 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
   vtkContourRepresentation *rep = 
     reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
+
+  if (self->WidgetState == vtkContourWidget::Define)
+    {
+    if (self->FollowCursor)
+      {
+      // Have the last node follow the mouse in this case...
+      const int numNodes = rep->GetNumberOfNodes();
+
+      // First check if the last node is near the first node, if so, we intend
+      // closing the loop.
+      if (numNodes)
+        {
+        
+        double displayPos[2];
+        const int pixelTolerance2 
+          = rep->GetPixelTolerance() * rep->GetPixelTolerance();
+
+        rep->GetNthNodeDisplayPosition( 0, displayPos );
+
+        const bool mustCloseLoop =
+            ( (X - displayPos[0]) * (X - displayPos[0]) +
+              (Y - displayPos[1]) * (Y - displayPos[1]) < pixelTolerance2 
+             && numNodes > 2 );
+
+        if (mustCloseLoop != rep->GetClosedLoop())
+          {
+          if (rep->GetClosedLoop())
+            {
+            // We need to open the closed loop. 
+            // We do this by adding a node at (X,Y). If by chance the point 
+            // placer says that (X,Y) is invalid, we'll add it at the location
+            // of the first control point (which we know is valid).
+           
+            if (!rep->AddNodeAtDisplayPosition( X, Y ))
+              {
+              double closedLoopPoint[3];
+              rep->GetNthNodeWorldPosition( 0, closedLoopPoint );
+              rep->AddNodeAtDisplayPosition( closedLoopPoint );
+              }
+            rep->ClosedLoopOff();
+           
+            }
+          else
+            {
+            // We need to close the open loop. Delete the node that's following 
+            // the mouse cursor and close the loop between the previous node and
+            // the first node.
+            rep->DeleteLastNode();
+            rep->ClosedLoopOn();
+            }
+          }
+        else if (rep->GetClosedLoop() == 0)
+          {
+          // If we aren't changing the loop topology, simply update the position
+          // of the latest node to follow the mouse cursor position (X,Y).
+          rep->SetNthNodeDisplayPosition( numNodes-1, X, Y );
+          }
+        }
+      }
+    else
+      {
+      return;
+      }
+    }
   
 
   if ( rep->GetCurrentOperation() == vtkContourRepresentation::Inactive )

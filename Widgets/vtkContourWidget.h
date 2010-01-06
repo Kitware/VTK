@@ -152,6 +152,16 @@ public:
   vtkBooleanMacro( AllowNodePicking, int );
 
   // Description:
+  // Follow the cursor ? If this is ON, during definition, the last node of the 
+  // contour will automatically follow the cursor, without waiting for the the
+  // point to be dropped. This may be useful for some interpolators, such as the
+  // live-wire interpolator to see the shape of the contour that will be placed
+  // as you move the mouse cursor.
+  vtkSetMacro( FollowCursor, int );
+  vtkGetMacro( FollowCursor, int );
+  vtkBooleanMacro( FollowCursor, int );
+
+  // Description:
   // Initialize the contour widget from a user supplied set of points. The
   // state of the widget decides if you are still defining the widget, or
   // if you've finished defining (added the last point) are manipulating
@@ -174,6 +184,7 @@ protected:
   int WidgetState;
   int CurrentHandle;
   int AllowNodePicking;
+  int FollowCursor;
 
   // Callback interface to capture events when
   // placing the widget.

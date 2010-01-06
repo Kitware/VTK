@@ -815,6 +815,13 @@ protected:
 
 int TestImageActorContourWidget(int argc, char *argv[])
 {
+  bool disableReplay = false, followCursor = false;
+  for (int i = 0; i < argc; i++)
+    {
+    disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
+    followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
+    }  
+
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   vtkVolume16Reader* v16 = vtkVolume16Reader::New();
@@ -901,6 +908,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   rep->Delete();
 
   ContourWidget->SetInteractor(iren);
+  ContourWidget->SetFollowCursor( followCursor );
   ContourWidget->SetEnabled(true);
   ContourWidget->ProcessEventsOn();
 
@@ -917,7 +925,12 @@ int TestImageActorContourWidget(int argc, char *argv[])
   //
   iren->Initialize();
   ImageViewer->Render();
-  recorder->Play();
+
+  if (!disableReplay)
+    {
+    recorder->EnabledOn();
+    recorder->Play();
+    }
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.

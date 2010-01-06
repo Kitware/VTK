@@ -33,7 +33,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.27");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.28");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -98,12 +98,12 @@ void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
   if ( this->LineInterpolator && this->GetNumberOfNodes() > 1 )
     {
     // Give the line interpolator a chance to update the node. 
-    this->LineInterpolator->UpdateNode( 
+    int didNodeChange = this->LineInterpolator->UpdateNode( 
         this->Renderer, this, node->WorldPosition, this->GetNumberOfNodes()-1 );
 
     // Give the point placer a chance to validate the updated node. If its not
     // valid, discard the LineInterpolator's change.
-    if ( !this->PointPlacer->ValidateWorldPosition( 
+    if ( didNodeChange && !this->PointPlacer->ValidateWorldPosition( 
                 node->WorldPosition, worldOrient ) )
       {
       node->WorldPosition[0] = worldPos[0];
@@ -965,6 +965,7 @@ void vtkContourRepresentation::SetClosedLoop( int val )
     {
     this->ClosedLoop = val;
     this->UpdateLines(this->GetNumberOfNodes()-1);
+    this->NeedToRender = 1;
     this->Modified();
     }
 }
@@ -1103,7 +1104,8 @@ void vtkContourRepresentation::UpdateLine( int idx1, int idx2 )
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modified))
+int vtkContourRepresentation::ComputeInteractionState(
+    int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modified))
 {
   return this->InteractionState;
 }
