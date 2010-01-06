@@ -19,14 +19,37 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkTransform.h"
+#include "vtkCallbackCommand.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.119");
+vtkCxxRevisionMacro(vtkCamera, "1.120");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCamera);
+
+//-----------------------------------------------------------------------------
+class vtkCameraCallbackCommand : public vtkCommand
+{
+public:
+  static vtkCameraCallbackCommand *New()
+    { return new vtkCameraCallbackCommand; };
+  vtkCamera *Self;
+  void Execute(vtkObject *, unsigned long, void *)
+    {
+      if (this->Self)
+        {
+        this->Self->Modified();
+        this->Self->ComputeViewTransform();
+        this->Self->ComputeDistance();
+        this->Self->ComputeCameraLightTransform();
+        }
+    }
+protected:
+  vtkCameraCallbackCommand() { this->Self = NULL; };
+  ~vtkCameraCallbackCommand() {};
+};
 
 //----------------------------------------------------------------------------
 // Construct camera instance with its focal point at the origin, 
@@ -78,6 +101,8 @@ vtkCamera::vtkCamera()
   this->ProjectionTransform = vtkPerspectiveTransform::New();
   this->CameraLightTransform = vtkTransform::New();
   this->UserTransform = NULL;
+  this->UserViewTransform = NULL;
+  this->UserViewTransformCallbackCommand = NULL;
 
   // initialize the ViewTransform
   this->ComputeViewTransform();
@@ -96,6 +121,17 @@ vtkCamera::~vtkCamera()
     {
     this->UserTransform->UnRegister(this);
     this->UserTransform = NULL;
+    }
+  if (this->UserViewTransform)
+    {
+    this->UserViewTransform->RemoveObserver(
+      this->UserViewTransformCallbackCommand);
+    this->UserViewTransform->UnRegister(this);
+    this->UserViewTransform = NULL;
+    }
+  if (this->UserViewTransformCallbackCommand)
+    {
+    this->UserViewTransformCallbackCommand->Delete();
     }
 }
 
@@ -142,6 +178,7 @@ void vtkCamera::SetPosition(double x, double y, double z)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkCamera::SetUserTransform(vtkHomogeneousTransform *transform)
 {
   if (transform == this->UserTransform) 
@@ -159,6 +196,39 @@ void vtkCamera::SetUserTransform(vtkHomogeneousTransform *transform)
     this->UserTransform->Register(this);
     }
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::SetUserViewTransform(vtkHomogeneousTransform *transform)
+{
+  if (transform == this->UserViewTransform) 
+    { 
+    return; 
+    }
+  if (this->UserViewTransform) 
+    {
+    this->UserViewTransform->RemoveObserver(
+      this->UserViewTransformCallbackCommand);
+    this->UserViewTransform->Delete();
+    this->UserViewTransform = NULL;
+    }
+  if (transform)
+    {
+    this->UserViewTransform = transform;
+    this->UserViewTransform->Register(this);
+    if (!this->UserViewTransformCallbackCommand)
+      {
+      this->UserViewTransformCallbackCommand = vtkCameraCallbackCommand::New();
+      this->UserViewTransformCallbackCommand->Self = this;
+      }
+    this->UserViewTransform->AddObserver(
+      vtkCommand::ModifiedEvent,
+      this->UserViewTransformCallbackCommand);
+    }
+  this->Modified();
+  this->ComputeViewTransform();
+  this->ComputeDistance();
+  this->ComputeCameraLightTransform();
 }
 
 //----------------------------------------------------------------------------
@@ -231,6 +301,10 @@ void vtkCamera::ComputeViewTransform()
 {
   // main view through the camera
   this->Transform->Identity();
+  if (this->UserViewTransform)
+    {
+    this->Transform->Concatenate(this->UserViewTransform);
+    }
   this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
   this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
 }
@@ -1025,6 +1099,15 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     {
     this->UserTransform->Register(this);
     }
+  if(this->UserViewTransform!=0)
+    {
+    this->UserViewTransform->Delete();
+    }
+  this->UserViewTransform=source->UserViewTransform;
+  if(this->UserViewTransform!=0)
+    {
+    this->UserViewTransform->Register(this);
+    }
   
   if(this->ViewTransform!=0)
     {
@@ -1098,6 +1181,25 @@ void vtkCamera::DeepCopy(vtkCamera *source)
           source->UserTransform->MakeTransform());
       }
      this->UserTransform->DeepCopy(source->UserTransform);
+    }
+
+  if(source->UserViewTransform==0)
+    {
+    if(this->UserViewTransform!=0)
+      {
+      this->UserViewTransform->UnRegister(this);
+      this->UserViewTransform=0;
+      }
+    }
+  else
+    {
+    if(this->UserViewTransform==0)
+      {
+      this->UserViewTransform=
+        static_cast<vtkHomogeneousTransform *>(
+          source->UserViewTransform->MakeTransform());
+      }
+     this->UserViewTransform->DeepCopy(source->UserViewTransform);
     }
   
   if(source->ViewTransform==0)
@@ -1256,6 +1358,14 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   if (this->UserTransform)
     {
     os << this->UserTransform << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  if (this->UserViewTransform)
+    {
+    os << this->UserViewTransform << "\n";
     }
   else
     {

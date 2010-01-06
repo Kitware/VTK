@@ -28,11 +28,13 @@
 
 #include "vtkObject.h"
 
+class vtkHomogeneousTransform;
 class vtkMatrix4x4;
 class vtkPerspectiveTransform;
 class vtkRenderer;
 class vtkTransform;
-class vtkHomogeneousTransform;
+class vtkCallbackCommand;
+class vtkCameraCallbackCommand;
 
 class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 {
@@ -337,7 +339,14 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // In addition to the instance variables such as position and orientation,
   // you can add an additional transformation for your own use.  This
-  // transformation is concatenated to the camera's PerspectiveTransform
+  // transformation is concatenated to the camera's ViewTransform
+  void SetUserViewTransform(vtkHomogeneousTransform *transform);
+  vtkGetObjectMacro(UserViewTransform,vtkHomogeneousTransform);
+
+  // Description:
+  // In addition to the instance variables such as position and orientation,
+  // you can add an additional transformation for your own use.  This
+  // transformation is concatenated to the camera's ProjectionTransform
   void SetUserTransform(vtkHomogeneousTransform *transform);
   vtkGetObjectMacro(UserTransform,vtkHomogeneousTransform);
 
@@ -476,6 +485,7 @@ protected:
   double ViewShear[3];
   int    UseHorizontalViewAngle;
   vtkHomogeneousTransform *UserTransform;
+  vtkHomogeneousTransform *UserViewTransform;
 
   vtkTransform *ViewTransform;
   vtkPerspectiveTransform *ProjectionTransform;
@@ -483,6 +493,10 @@ protected:
   vtkTransform *CameraLightTransform;
 
   double FocalDisk;
+  //BTX
+  vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
+  friend class vtkCameraCallbackCommand;
+  //ETX
 
   // ViewingRaysMtime keeps track of camera modifications which will 
   // change the calculation of viewing rays for the camera before it is 
