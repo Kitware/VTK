@@ -24,6 +24,8 @@
 
 #include "vtkImplicitFunction.h"
 
+class vtkDataSet;
+
 class VTK_COMMON_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
@@ -95,6 +97,14 @@ public:
                                double p0[3], double& t, double x[3]);
 
 
+  // Description:
+  // Given a set of points, compute the best fit plane through the points.
+  // This is done by first computing the scatter matrix of the points. The
+  // eigenvector corresponding to the smallest eigenvalue of the scatter 
+  // matrix is taken as the plane's normal. The plane's origin is set to
+  // center of mass of the points.
+  void BestFitFromPoints(vtkDataSet *points);
+
 protected:
   vtkPlane();
   ~vtkPlane() {};
@@ -120,6 +130,8 @@ inline double vtkPlane::DistanceToPlane(double x[3], double n[3], double p0[3])
   return (vtkPlaneAbs(n[0]*(x[0]-p0[0]) + n[1]*(x[1]-p0[1]) + 
                       n[2]*(x[2]-p0[2])));
 }
+
+void CenterOfMass(vtkDataSet* points, double* Center);
 
 #endif
 
