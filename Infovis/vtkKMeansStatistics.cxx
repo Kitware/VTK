@@ -19,7 +19,7 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.18");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.19");
 vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
 
 // ----------------------------------------------------------------------
@@ -121,49 +121,60 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
 
   vtkIdType numToAllocate;
   vtkIdType numRuns=0;
+  
+  int initialClusterCentersProvided = 0;  
+  
   // process parameter input table
   if ( inParameters && inParameters->GetNumberOfRows() > 0 && 
        inParameters->GetNumberOfColumns() > 1 )
     {
-    numToAllocate = inParameters->GetNumberOfRows();
-    numberOfClusters->SetNumberOfValues( numToAllocate );
-    numberOfClusters->SetName( inParameters->GetColumn( 0 )->GetName() );
     vtkIdTypeArray* counts = vtkIdTypeArray::SafeDownCast( inParameters->GetColumn( 0 ) );
+    if( !counts )
+      {
+      vtkWarningMacro( "The first column of the input parameter table should be of vtkIdType." << endl <<  
+        "The input table provided will be ignored and a single run will be performed using the first " << this->DefaultNumberOfClusters << " observations as the initial cluster centers." );
+      }
+    else 
+      {
+      initialClusterCentersProvided = 1;    
+      numToAllocate = inParameters->GetNumberOfRows();
+      numberOfClusters->SetNumberOfValues( numToAllocate );
+      numberOfClusters->SetName( inParameters->GetColumn( 0 )->GetName() );
 
-    for ( vtkIdType i=0; i < numToAllocate; i++ ) 
-      {
-      numberOfClusters->SetValue( i, counts->GetValue( i ) );
-      }
-    vtkIdType curRow = 0;
-    while ( curRow < inParameters->GetNumberOfRows() )
-      {
-      numRuns++;
-      startRunID->InsertNextValue( curRow );
-      curRow += inParameters->GetValue( curRow, 0 ).ToInt();
-      endRunID->InsertNextValue( curRow );
-      }
-    vtkTable* condensedTable = vtkTable::New();
-    vtksys_stl::set<vtkStdString>::const_iterator colItr;
-    for ( colItr = reqIt->begin(); colItr != reqIt->end(); ++ colItr )
-      {
-      vtkAbstractArray* pArr = inParameters->GetColumnByName( colItr->c_str() );
-      vtkAbstractArray* dArr = inData->GetColumnByName( colItr->c_str() );
-      if( pArr && dArr )
+      for ( vtkIdType i=0; i < numToAllocate; i++ ) 
         {
-        condensedTable->AddColumn( pArr );
-        dataElements->AddColumn( dArr );
-        } 
-      else 
-        {
-        vtkWarningMacro( "Skipping requested column \"" << colItr->c_str() << "\"." );
+        numberOfClusters->SetValue( i, counts->GetValue( i ) );
         }
+      vtkIdType curRow = 0;
+      while ( curRow < inParameters->GetNumberOfRows() )
+        {
+        numRuns++;
+        startRunID->InsertNextValue( curRow );
+        curRow += inParameters->GetValue( curRow, 0 ).ToInt();
+        endRunID->InsertNextValue( curRow );
+        }
+      vtkTable* condensedTable = vtkTable::New();
+      vtksys_stl::set<vtkStdString>::const_iterator colItr;
+      for ( colItr = reqIt->begin(); colItr != reqIt->end(); ++ colItr )
+        {
+        vtkAbstractArray* pArr = inParameters->GetColumnByName( colItr->c_str() );
+        vtkAbstractArray* dArr = inData->GetColumnByName( colItr->c_str() );
+        if( pArr && dArr )
+          {
+          condensedTable->AddColumn( pArr );
+          dataElements->AddColumn( dArr );
+          } 
+        else 
+          {
+          vtkWarningMacro( "Skipping requested column \"" << colItr->c_str() << "\"." );
+          }
+        }
+      newClusterElements->DeepCopy( condensedTable );
+      curClusterElements->DeepCopy( condensedTable );
+      condensedTable->Delete();
       }
-    newClusterElements->DeepCopy( condensedTable );
-    curClusterElements->DeepCopy( condensedTable );
-    condensedTable->Delete();
-
     }
-  else
+  if( !initialClusterCentersProvided ) 
     {
     // otherwise create an initial set of cluster coords
     numRuns = 1;

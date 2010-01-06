@@ -43,7 +43,8 @@ PURPOSE.  See the above copyright notice for more information.
 // results of the algorithm are dependent on the initial cluster centers, 
 // we provide a mechanism for the user to test multiple runs or sets of cluster centers
 // within a single call to the Learn phase.  The first column of the table identifies 
-// the number of clusters K in the particular run, while the remaining columns are a 
+// the number of clusters K in the particular run (the entries in this column should be 
+// of type vtkIdType), while the remaining columns are a 
 // subset of the columns contained in the table on port INPUT_DATA.  We require that 
 // all user specified clusters be of the same dimension N and consequently, that the 
 // LEARN_PARAMETERS table have N+1 columns. Due to this restriction, only one request
