@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.30");
+vtkCxxRevisionMacro(vtkContourWidget, "1.31");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -480,7 +480,7 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget *w)
               (Y - displayPos[1]) * (Y - displayPos[1]) < pixelTolerance2 
              && numNodes > 2 );
 
-        if (mustCloseLoop != rep->GetClosedLoop())
+        if (mustCloseLoop != static_cast< bool >(rep->GetClosedLoop()))
           {
           if (rep->GetClosedLoop())
             {
