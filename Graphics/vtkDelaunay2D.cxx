@@ -28,9 +28,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
-#include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.75");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.76");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -1358,16 +1357,69 @@ int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
 vtkAbstractTransform * vtkDelaunay2D::ComputeBestFittingPlane(
   vtkPointSet *input)
 {
-
-  vtkSmartPointer<vtkPlane> bestPlane = vtkSmartPointer<vtkPlane>::New();
-  bestPlane->BestFitFromPoints(input);
-  vtkTransform* transform = vtkTransform::New();
-
-  double origin[3];
-  bestPlane->GetOrigin(origin);
-
+  vtkIdType numPts=input->GetNumberOfPoints();
+  double m[9], v[3], x[3];
+  vtkIdType ptId;
+  int i;
+  double *c1, *c2, *c3, det;
   double normal[3];
-  bestPlane->GetNormal(normal);
+  double origin[3];
+
+  const double tolerance = 1.0e-03;
+    
+  //  This code was taken from the vtkTextureMapToPlane class
+  //  and slightly modified.
+  //  
+  for (i=0; i<3; i++)
+    {
+    normal[i] = 0.0;
+    }
+
+  //  Compute least squares approximation.  
+  //  Compute 3x3 least squares matrix
+  v[0] = v[1] = v[2] = 0.0;
+  for (i=0; i<9; i++)
+    {
+    m[i] = 0.0;
+    }
+
+  for (ptId=0; ptId < numPts; ptId++) 
+    {
+    input->GetPoint(ptId, x);
+
+    v[0] += x[0]*x[2];
+    v[1] += x[1]*x[2];
+    v[2] += x[2];
+
+    m[0] += x[0]*x[0];
+    m[1] += x[0]*x[1];
+    m[2] += x[0];
+
+    m[3] += x[0]*x[1];
+    m[4] += x[1]*x[1];
+    m[5] += x[1];
+
+    m[6] += x[0];
+    m[7] += x[1];
+    }
+  m[8] = numPts;
+
+  origin[0] = m[2] / numPts;
+  origin[1] = m[5] / numPts;
+  origin[2] = v[2] / numPts;
+
+  //  Solve linear system using Kramers rule
+  //
+  c1 = m; c2 = m+3; c3 = m+6;
+  if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) > tolerance )
+    {
+    normal[0] =  vtkMath::Determinant3x3 (v,c2,c3) / det;
+    normal[1] =  vtkMath::Determinant3x3 (c1,v,c3) / det;
+    normal[2] = -1.0; // because of the formulation
+    }
+
+  vtkTransform * transform = vtkTransform::New();
+
   // Set the new Z axis as the normal to the best fitting
   // plane.
   double zaxis[3];

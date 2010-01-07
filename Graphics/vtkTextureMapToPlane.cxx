@@ -22,11 +22,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
-#include "vtkPlane.h"
-#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.52");
+vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.53");
 vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -236,17 +233,85 @@ int vtkTextureMapToPlane::RequestData(
 
 #define VTK_TOLERANCE 1.0e-03
 
-void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *input)
+void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
 {
-  vtkSmartPointer<vtkPlane> bestPlane = vtkSmartPointer<vtkPlane>::New();
-  bestPlane->BestFitFromPoints(input);
+  vtkIdType numPts=output->GetNumberOfPoints();
+  double m[9], v[3], x[3];
+  vtkIdType ptId;
+  int dir = 0, i;
+  double length, w, *c1, *c2, *c3, det;
+  double *bounds;
 
-  double normal[3];
-  bestPlane->GetNormal(normal);
+  //  First thing to do is to get an initial normal and point to define
+  //  the plane.  Then, use this information to construct better
+  //  matrices.  If problem occurs, then the point and plane becomes the
+  //  fallback value.
+  //
+  //  Get minimum width of bounding box.
+  bounds = output->GetBounds();
+  length = output->GetLength();
 
-  this->Normal[0] = normal[0];
-  this->Normal[1] = normal[1];
-  this->Normal[2] = normal[2];
+  for (w=length, i=0; i<3; i++)
+    {
+    this->Normal[i] = 0.0;
+    if ( (bounds[2*i+1] - bounds[2*i]) < w ) 
+      {
+      dir = i;
+      w = bounds[2*i+1] - bounds[2*i];
+      }
+    }
+
+  //  If the bounds is perpendicular to one of the axes, then can
+  //  quickly compute normal.
+  //
+  this->Normal[dir] = 1.0;
+  if ( w <= (length*VTK_TOLERANCE) )
+    {
+    return;
+    }
+
+  //  Need to compute least squares approximation.  Depending on major
+  //  normal direction (dir), construct matrices appropriately.
+  //
+  //  Compute 3x3 least squares matrix
+  v[0] = v[1] = v[2] = 0.0;
+  for (i=0; i<9; i++)
+    {
+    m[i] = 0.0;
+    }
+
+  for (ptId=0; ptId < numPts; ptId++) 
+    {
+    output->GetPoint(ptId, x);
+
+    v[0] += x[0]*x[2];
+    v[1] += x[1]*x[2];
+    v[2] += x[2];
+
+    m[0] += x[0]*x[0];
+    m[1] += x[0]*x[1];
+    m[2] += x[0];
+
+    m[3] += x[0]*x[1];
+    m[4] += x[1]*x[1];
+    m[5] += x[1];
+
+    m[6] += x[0];
+    m[7] += x[1];
+    }
+  m[8] = numPts;
+
+  //  Solve linear system using Kramers rule
+  //
+  c1 = m; c2 = m+3; c3 = m+6;
+  if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) <= VTK_TOLERANCE )
+    {
+    return;
+    }
+
+  this->Normal[0] = vtkMath::Determinant3x3 (v,c2,c3) / det;
+  this->Normal[1] = vtkMath::Determinant3x3 (c1,v,c3) / det;
+  this->Normal[2] = -1.0; // because of the formulation
 
   return;
 }
