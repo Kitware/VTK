@@ -75,11 +75,7 @@ void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_dat
   if(e == vtkCommand::DeleteEvent)
     {
     this->Owner->Disconnect(this->VTKObject, this->VTKEvent, this->QtObject,
-#if QT_VERSION < 0x040000
-      this->QtSlot,
-#else
       this->QtSlot.toAscii().data(),
-#endif
       this->ClientData);
     }
 }
@@ -110,11 +106,7 @@ void vtkQtConnection::SetConnection(
   vtkObject* vtk_obj, unsigned long e,
   const QObject* qt_obj, const char* slot, 
   void* client_data, float priority
-#if QT_VERSION >= 0x040000
   , Qt::ConnectionType type)
-#else
-  )
-#endif
 {
   // keep track of what we connected
   this->VTKObject = vtk_obj;
@@ -135,11 +127,7 @@ void vtkQtConnection::SetConnection(
   qt_obj->connect(
     this, SIGNAL(EmitExecute(vtkObject*,unsigned long,void*,void*,vtkCommand*)),
     slot
-#if QT_VERSION >= 0x040000
     ,type);
-#else
-    );
-#endif
   QObject::connect(qt_obj, SIGNAL(destroyed(QObject*)), this,
     SLOT(deleteConnection()));
 }
@@ -157,11 +145,7 @@ void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
           this->VTKObject->GetClassName() << ":" <<
           vtkCommand::GetStringFromEventId(this->VTKEvent) << "  <---->  " <<
           this->QtObject->metaObject()->className() << "::" <<
-#if QT_VERSION < 0x040000
-          this->QtSlot << "\n";
-#else
           this->QtSlot.toAscii().data() << "\n";
-#endif
     }
 }
 

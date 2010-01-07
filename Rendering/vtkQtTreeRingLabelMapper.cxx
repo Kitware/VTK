@@ -57,7 +57,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.10");
+vtkCxxRevisionMacro(vtkQtTreeRingLabelMapper, "1.11");
 vtkStandardNewMacro(vtkQtTreeRingLabelMapper);
 
 vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty);
@@ -403,12 +403,6 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     
     double delta_x = 0., delta_y = 0.;
 
-#if QT_VERSION < 0x040500
-    //account for the QTextDocument margins in Qt versions less than 4.5...
-    delta_x += 4.;
-    delta_y += 4.;
-#endif
-
     switch( this->LabelTextProperty->GetJustification() )
       {
       case VTK_TEXT_LEFT: 
@@ -470,9 +464,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       this->LabelTextProperty->GetShadowColor( shadowColor );
       
       QTextDocument( textDocument );
-#if QT_VERSION >= 0x040500
       textDocument.setDocumentMargin(0);
-#endif
       textDocument.setDefaultFont( fontSpec );
       QString shadowStyleSheet;
       QTextStream(&shadowStyleSheet) << "* { color: rgb( " << shadowColor[0]*255 << ", " << shadowColor[1]*255 << ", " << shadowColor[2]*255 << " ) }";
@@ -489,9 +481,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     painter.translate( delta_x, delta_y );
     
     QTextDocument( textDocument );
-#if QT_VERSION >= 0x040500
     textDocument.setDocumentMargin(0);
-#endif
     textDocument.setDefaultFont( fontSpec );
     QString styleSheet;
     QTextStream(&styleSheet) << "* { color: rgb( " << fc[0]*255 << ", " << fc[1]*255 << ", " << fc[2]*255 << " ) }";

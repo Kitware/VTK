@@ -66,11 +66,7 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     virtual void Connect(vtkObject* vtk_obj, unsigned long event, 
                          const QObject* qt_obj, const char* slot, 
                          void* client_data=NULL, float priority=0.0
-#if QT_VERSION >= 0x040000
                          ,Qt::ConnectionType type = Qt::AutoConnection);
-#else
-                         );
-#endif
     
     // Description:
     // Disconnect a vtk object from a qt object.

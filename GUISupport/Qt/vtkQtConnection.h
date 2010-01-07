@@ -64,11 +64,7 @@ class vtkQtConnection : public QObject
     void SetConnection(vtkObject* vtk_obj, unsigned long event,
                        const QObject* qt_obj, const char* slot, 
                        void* client_data, float priority=0.0
-#if QT_VERSION >= 0x040000
                          ,Qt::ConnectionType type = Qt::AutoConnection);
-#else
-                         );
-#endif
     
     // check if a connection matches input parameters
     bool IsConnection(vtkObject* vtk_obj, unsigned long event,

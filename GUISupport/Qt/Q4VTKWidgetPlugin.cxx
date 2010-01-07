@@ -82,9 +82,7 @@ QWidget* QVTKWidgetPlugin::createWidget(QWidget* parent)
   QPalette p = widget->palette();
   p.setColor(QPalette::Background, QColor("black"));
   widget->setPalette(p);
-#if QT_VERSION >= 0x040100
   widget->setAutoFillBackground(true);
-#endif
 
   // return the widget
   return widget;
