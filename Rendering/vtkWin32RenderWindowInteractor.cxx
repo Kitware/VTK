@@ -48,7 +48,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.104");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.104.12.1");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -732,12 +732,18 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       break;
 
     case WM_MOUSEWHEEL:
+      {
+      POINT pt;
+      pt.x = MAKEPOINTS(lParam).x;
+      pt.y = MAKEPOINTS(lParam).y;
+      ::ScreenToClient(hWnd, &pt);
       if( GET_WHEEL_DELTA_WPARAM(wParam) > 0)
-        me->OnMouseWheelForward(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+        me->OnMouseWheelForward(hWnd,wParam,pt.x,pt.y);
       else
-        me->OnMouseWheelBackward(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+        me->OnMouseWheelBackward(hWnd,wParam,pt.x,pt.y);
+      }
       break;
-      
+
 #ifdef WM_MCVMOUSEMOVE
     case WM_NCMOUSEMOVE:
       me->OnNCMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
