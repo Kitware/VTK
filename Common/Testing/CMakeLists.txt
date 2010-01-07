@@ -13,6 +13,7 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/Common"
     VTK_COMMON_EXPORT
+    vtkABI.h
     vtkAbstractIterator.h
     vtkAbstractList.h
     vtkAbstractMap.h
