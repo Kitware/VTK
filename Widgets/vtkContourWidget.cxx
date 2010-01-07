@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.31");
+vtkCxxRevisionMacro(vtkContourWidget, "1.32");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -634,5 +634,5 @@ void vtkContourWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WidgetState: " << this->WidgetState << endl;
   os << indent << "CurrentHandle: " << this->CurrentHandle << endl;
   os << indent << "AllowNodePicking: " << this->AllowNodePicking << endl;
-  
+  os << indent << "FollowCursor: " << (this->FollowCursor ? "On" : "Off") << endl;
 }
