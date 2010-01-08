@@ -15,7 +15,7 @@
 // .NAME vtkWin32Header - manage Windows system differences
 // .SECTION Description
 // The vtkWin32Header captures some system differences between Unix and
-// Windows operating systems. 
+// Windows operating systems.
 
 #ifndef __vtkWIN32Header_h
 #define __vtkWIN32Header_h
@@ -25,6 +25,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #endif
 
 #include "vtkConfigure.h"
+#include "vtkABI.h"
 
 /*
  * This is a support for files on the disk that are larger than 2GB.
@@ -41,7 +42,6 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #    define _FILE_OFFSET_BITS 64
 #  endif
 #endif
-
 
 //
 // Windows specific stuff------------------------------------------
@@ -148,109 +148,111 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # endif
 #endif
 
-#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
- #define VTK_EXPORT __declspec( dllexport )
+// Now set up all of the export macros for the VTK kits
+#if defined(VTK_BUILD_SHARED_LIBS)
+
+ #define VTK_EXPORT VTK_ABI_EXPORT
 
  #if defined(vtkCommon_EXPORTS)
-  #define VTK_COMMON_EXPORT __declspec( dllexport ) 
+  #define VTK_COMMON_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_COMMON_EXPORT __declspec( dllimport ) 
+  #define VTK_COMMON_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkFiltering_EXPORTS)
-  #define VTK_FILTERING_EXPORT __declspec( dllexport ) 
+  #define VTK_FILTERING_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_FILTERING_EXPORT __declspec( dllimport ) 
+  #define VTK_FILTERING_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkImaging_EXPORTS)
-  #define VTK_IMAGING_EXPORT __declspec( dllexport ) 
+  #define VTK_IMAGING_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_IMAGING_EXPORT __declspec( dllimport ) 
+  #define VTK_IMAGING_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkGenericFiltering_EXPORTS)
-  #define VTK_GENERIC_FILTERING_EXPORT __declspec( dllexport ) 
+  #define VTK_GENERIC_FILTERING_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_GENERIC_FILTERING_EXPORT __declspec( dllimport ) 
+  #define VTK_GENERIC_FILTERING_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkGeovis_EXPORTS)
-  #define VTK_GEOVIS_EXPORT __declspec( dllexport ) 
+  #define VTK_GEOVIS_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_GEOVIS_EXPORT __declspec( dllimport ) 
+  #define VTK_GEOVIS_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkGraphics_EXPORTS)
-  #define VTK_GRAPHICS_EXPORT __declspec( dllexport ) 
+  #define VTK_GRAPHICS_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_GRAPHICS_EXPORT __declspec( dllimport ) 
+  #define VTK_GRAPHICS_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkGraphicsJava_EXPORTS)
-  #define VTK_GRAPHICS_JAVA_EXPORT __declspec( dllexport ) 
+  #define VTK_GRAPHICS_JAVA_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_GRAPHICS_JAVA_EXPORT __declspec( dllimport ) 
+  #define VTK_GRAPHICS_JAVA_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkInfovis_EXPORTS)
-  #define VTK_INFOVIS_EXPORT __declspec( dllexport ) 
+  #define VTK_INFOVIS_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_INFOVIS_EXPORT __declspec( dllimport ) 
+  #define VTK_INFOVIS_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkIO_EXPORTS)
-  #define VTK_IO_EXPORT __declspec( dllexport ) 
+  #define VTK_IO_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_IO_EXPORT __declspec( dllimport ) 
+  #define VTK_IO_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkRendering_EXPORTS)
-  #define VTK_RENDERING_EXPORT __declspec( dllexport ) 
+  #define VTK_RENDERING_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_RENDERING_EXPORT __declspec( dllimport ) 
+  #define VTK_RENDERING_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkTextAnalysis_EXPORTS)
-  #define VTK_TEXT_ANALYSIS_EXPORT __declspec( dllexport ) 
+  #define VTK_TEXT_ANALYSIS_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_TEXT_ANALYSIS_EXPORT __declspec( dllimport ) 
+  #define VTK_TEXT_ANALYSIS_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkVolumeRendering_EXPORTS)
-  #define VTK_VOLUMERENDERING_EXPORT __declspec( dllexport ) 
+  #define VTK_VOLUMERENDERING_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_VOLUMERENDERING_EXPORT __declspec( dllimport ) 
+  #define VTK_VOLUMERENDERING_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkHybrid_EXPORTS)
-  #define VTK_HYBRID_EXPORT __declspec( dllexport ) 
+  #define VTK_HYBRID_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_HYBRID_EXPORT __declspec( dllimport ) 
+  #define VTK_HYBRID_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkWidgets_EXPORTS)
-  #define VTK_WIDGETS_EXPORT __declspec( dllexport ) 
+  #define VTK_WIDGETS_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_WIDGETS_EXPORT __declspec( dllimport ) 
+  #define VTK_WIDGETS_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkParallel_EXPORTS)
-  #define VTK_PARALLEL_EXPORT __declspec( dllexport ) 
+  #define VTK_PARALLEL_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_PARALLEL_EXPORT __declspec( dllimport ) 
+  #define VTK_PARALLEL_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkViews_EXPORTS)
-  #define VTK_VIEWS_EXPORT __declspec( dllexport ) 
+  #define VTK_VIEWS_EXPORT VTK_ABI_EXPORT
  #else
-  #define VTK_VIEWS_EXPORT __declspec( dllimport ) 
+  #define VTK_VIEWS_EXPORT VTK_ABI_IMPORT
  #endif
 
  #if defined(vtkCharts_EXPORTS)
-   #define VTK_CHARTS_EXPORT __declspec( dllexport )
+  #define VTK_CHARTS_EXPORT VTK_ABI_EXPORT
  #else
-   #define VTK_CHARTS_EXPORT __declspec( dllimport )
+  #define VTK_CHARTS_EXPORT VTK_ABI_IMPORT
  #endif
 
 #else
@@ -275,10 +277,6 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #endif
 
 // this is exclusively for the tcl Init functions
-#if defined(WIN32)
- #define VTK_TK_EXPORT __declspec( dllexport )
-#else
- #define VTK_TK_EXPORT
-#endif
+#define VTK_TK_EXPORT VTK_ABI_EXPORT
 
 #endif
