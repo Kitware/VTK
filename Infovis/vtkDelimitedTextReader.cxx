@@ -106,11 +106,6 @@ public:
       }
   }
 
-  DelimitedTextIterator& operator++()
-  {
-    return *this;
-  }
-
   DelimitedTextIterator& operator++(int)
   {
     return *this;
@@ -402,7 +397,7 @@ void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIterator
       const vtkTypeUInt32 second_code_unit = big_endian ? third_byte << 8 | fourth_byte : fourth_byte << 8 | third_byte;
       if(second_code_unit >= 0xdc00 && second_code_unit <= 0xdfff)
         {
-        *output++ = (first_code_unit << 10) + second_code_unit + (0x10000 - (0xd800 << 10) - 0xdc00);
+        *output++ = vtkTypeUInt32 (vtkTypeInt32 (first_code_unit << 10) + vtkTypeInt32 (second_code_unit) + (0x10000 - (0xd800 << 10) - 0xdc00));
         }
       else
         {
@@ -422,7 +417,7 @@ void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIterator
 /////////////////////////////////////////////////////////////////////////////////////////
 // vtkDelimitedTextReader
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.35");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.36");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 vtkDelimitedTextReader::vtkDelimitedTextReader() :
