@@ -33,12 +33,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
 
-vtkCxxRevisionMacro(vtkArrayNorm, "1.2");
+vtkCxxRevisionMacro(vtkArrayNorm, "1.3");
 vtkStandardNewMacro(vtkArrayNorm);
 
 vtkArrayNorm::vtkArrayNorm() :
   Dimension(0),
-  L(2)
+  L(2),
+  Invert(false)
 {
 }
 
@@ -51,6 +52,7 @@ void vtkArrayNorm::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "L: " << this->L << endl;
+  os << indent << "Invert: " << this->Invert << endl;
 }
 
 void vtkArrayNorm::SetL(int value)
@@ -116,6 +118,16 @@ int vtkArrayNorm::RequestData(
     for(vtkIdType n = 0; n != dimension_extents; ++n)
       {
       output_array->SetValueN(n, pow(output_array->GetValueN(n), 1.0 / this->L));
+      }
+
+    // Optionally invert the output vector
+    if(this->Invert)
+      {
+      for(unsigned int n = 0; n != dimension_extents; ++n)
+        {
+        if(output_array->GetValueN(n))
+          output_array->SetValueN(n, 1.0 / output_array->GetValueN(n));
+        }
       }
     }
   catch(vtkstd::exception& e)

@@ -87,6 +87,20 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(l1_norm->GetValueN(1), 1.0));
     test_expression(close_enough(l1_norm->GetValueN(2), 1.5));
 
+    vector_norm->SetInvert(true);
+    vector_norm->Update();
+
+    vtkDenseArray<double>* const inverse_l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
+    
+    cout << "Inverse L1-norm:\n";
+    vtkPrintVectorFormat(cout, inverse_l1_norm);
+
+    test_expression(inverse_l1_norm);
+    test_expression(close_enough(inverse_l1_norm->GetValueN(0), 2.0));
+    test_expression(close_enough(inverse_l1_norm->GetValueN(1), 1.0));
+    test_expression(close_enough(inverse_l1_norm->GetValueN(2), 0.666666666666666));
+
+
     return 0;
     }
   catch(vtkstd::exception& e)

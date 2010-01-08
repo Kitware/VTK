@@ -52,6 +52,11 @@ public:
   vtkGetMacro(L, int);
   void SetL(int value);
 
+  // Description:
+  // Controls whether to invert output values.  Default: false
+  vtkSetMacro(Invert, int);
+  vtkGetMacro(Invert, int);
+
 protected:
   vtkArrayNorm();
   ~vtkArrayNorm();
@@ -67,6 +72,7 @@ private:
 
   int Dimension;
   int L;
+  int Invert;
 };
 
 #endif
