@@ -57,6 +57,11 @@ public:
 //ETX
   virtual vtkIdType GetNumberPlots();
 
+  // Description:
+  // Set/get the second point in the chart (the top right).
+  vtkSetMacro(DrawAxesAtOrigin, bool);
+  vtkGetMacro(DrawAxesAtOrigin, bool);
+
 //BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
@@ -137,6 +142,12 @@ protected:
   // Description:
   // Should we draw the location of the nearest point on the plot?
   bool DrawNearestPoint;
+
+  // Description:
+  // Keep the axes drawn at the origin? This will attempt to keep the axes drawn
+  // at the origin, i.e. 0.0, 0.0 for the chart. This is often the preferred
+  // way of drawing scientific/mathematical charts.
+  bool DrawAxesAtOrigin;
 
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.

@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.20");
+vtkCxxRevisionMacro(vtkChartXY, "1.21");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -88,6 +88,7 @@ vtkChartXY::vtkChartXY()
   this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
   this->DrawBox = false;
   this->DrawNearestPoint = false;
+  this->DrawAxesAtOrigin = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -262,6 +263,27 @@ void vtkChartXY::RecalculatePlotTransform()
   this->PlotTransform->Scale(1.0 / xScale, 1.0 / yScale);
   this->PlotTransform->Translate(-this->XAxis->GetMinimum(),
                                  -this->YAxis->GetMinimum());
+
+
+  // Move the axes if necessary and if the draw axes at origin ivar is true.
+  if (this->DrawAxesAtOrigin)
+    {
+    // Get the screen coordinates for the origin, and move the axes there.
+    float origin[2] = { 0.0, 0.0 };
+    this->PlotTransform->TransformPoints(origin, origin, 1);
+    // Need to clamp the axes in the plot area.
+    if (int(origin[0]) < this->Point1[0]) origin[0] = this->Point1[0];
+    if (int(origin[0]) > this->Point2[0]) origin[0] = this->Point2[0];
+    if (int(origin[1]) < this->Point1[1]) origin[1] = this->Point1[1];
+    if (int(origin[1]) > this->Point2[1]) origin[1] = this->Point2[1];
+
+    this->XAxis->SetPoint1(this->Point1[0], origin[1]);
+    this->XAxis->SetPoint2(this->Point2[0], origin[1]);
+    this->YAxis->SetPoint1(origin[0], this->Point1[1]);
+    this->YAxis->SetPoint2(origin[0], this->Point2[1]);
+
+    cout << "The origin is calculated to be at " << origin[0] << ", " << origin[1] << endl;
+    }
 
   this->PlotTransformValid = true;
 }
