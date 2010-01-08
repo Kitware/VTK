@@ -20,14 +20,15 @@
 //
 // \code
 // #include "vtkABI.h"
+//
 // #if defined(VTK_BUILD_SHARED_LIBS)
-//  #if defined(vtkCommon_EXPORTS)
-//   #define VTK_COMMON_EXPORT VTK_ABI_EXPORT
-//  #else
-//   #define VTK_COMMON_EXPORT VTK_ABI_IMPORT
-//  #endif
+// # if defined(vtkCommon_EXPORTS)
+// #  define VTK_COMMON_EXPORT VTK_ABI_EXPORT
+// # else
+// #  define VTK_COMMON_EXPORT VTK_ABI_IMPORT
+// # endif
 // #else
-//  #define VTK_COMMON_EXPORT
+// # define VTK_COMMON_EXPORT
 // #endif
 // \endcode
 //
@@ -42,17 +43,17 @@
 #define __vtkABI_h
 
 #if defined(_WIN32) || defined (__CYGWIN__)
- #define VTK_ABI_IMPORT __declspec(dllimport)
- #define VTK_ABI_EXPORT __declspec(dllexport)
- #define VTK_LIB_HIDDEN
+# define VTK_ABI_IMPORT __declspec(dllimport)
+# define VTK_ABI_EXPORT __declspec(dllexport)
+# define VTK_ABI_HIDDEN
 #elif __GNUC__ >= 4
- #define VTK_ABI_IMPORT __attribute__ ((visibility("default")))
- #define VTK_ABI_EXPORT __attribute__ ((visibility("default")))
- #define VTK_ABI_HIDDEN __attribute__ ((visibility("hidden")))
+# define VTK_ABI_IMPORT __attribute__ ((visibility("default")))
+# define VTK_ABI_EXPORT __attribute__ ((visibility("default")))
+# define VTK_ABI_HIDDEN __attribute__ ((visibility("hidden")))
 #else
- #define VTK_ABI_IMPORT
- #define VTK_ABI_EXPORT
- #define VTK_ABI_HIDDEN
+# define VTK_ABI_IMPORT
+# define VTK_ABI_EXPORT
+# define VTK_ABI_HIDDEN
 #endif
 
 #endif // __vtkABI_h
