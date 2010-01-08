@@ -899,7 +899,7 @@ void vtkQtStackedChart::insertSeries(int first, int last)
       this->Internal->Series.insert(i, new vtkQtStackedChartSeries(polygon));
       options = this->getSeriesOptions(i);
       this->setupOptions(options);
-      if(polygon && options->isVisible())
+      if(options && polygon && options->isVisible())
         {
         this->Internal->Series[i]->CurrentVisibility = 1.0;
         this->Internal->Series[i]->InitialVisibility = 1.0;
