@@ -48,11 +48,12 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.1");
 vtkStandardNewMacro(vtkExtractSelectedRows);
 //----------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()
 {
+  this->AddOriginalRowIdsArray = false;
   this->SetNumberOfInputPorts(3);
 }
 
@@ -162,6 +163,9 @@ int vtkExtractSelectedRows::RequestData(
     return 0;
     }
 
+  vtkIdTypeArray* originalRowIds = vtkIdTypeArray::New();
+  originalRowIds->SetName("vtkOriginalRowIds");
+
   output->GetRowData()->CopyStructure(input->GetRowData());
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
     {
@@ -176,11 +180,19 @@ int vtkExtractSelectedRows::RequestData(
           {
           vtkIdType val = list->GetValue(j);
           output->InsertNextRow(input->GetRow(val));
+          if (this->AddOriginalRowIdsArray)
+            {
+            originalRowIds->InsertNextValue(val);
+            }
           }
         }
       }
     }
-
+  if (this->AddOriginalRowIdsArray)
+    {
+    output->AddColumn(originalRowIds);
+    }
+  originalRowIds->Delete();
   return 1;
 }
 
@@ -188,4 +200,6 @@ int vtkExtractSelectedRows::RequestData(
 void vtkExtractSelectedRows::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "AddOriginalRowIdsArray: " << this->AddOriginalRowIdsArray <<
+    endl;
 }

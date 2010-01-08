@@ -84,13 +84,14 @@ vtkExtractGrid.cxx
 vtkExtractLevel.cxx
 vtkExtractPolyDataGeometry.cxx
 vtkExtractRectilinearGrid.cxx
-vtkExtractSelectionBase.cxx
 vtkExtractSelectedBlock.cxx
 vtkExtractSelectedFrustum.cxx
 vtkExtractSelectedIds.cxx
 vtkExtractSelectedLocations.cxx
 vtkExtractSelectedPolyDataIds.cxx
+vtkExtractSelectedRows.cxx
 vtkExtractSelectedThresholds.cxx
+vtkExtractSelectionBase.cxx
 vtkExtractSelection.cxx
 vtkExtractTemporalFieldData.cxx
 vtkExtractTensorComponents.cxx

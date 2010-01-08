@@ -44,6 +44,9 @@ protected:
   vtkExtractSelectedIds();
   ~vtkExtractSelectedIds();
 
+  // Overridden to indicate that the input must be a vtkDataSet.
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   // Usual data generation method
   virtual int RequestData(vtkInformation *, 
                           vtkInformationVector **, 

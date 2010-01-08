@@ -33,7 +33,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.29");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.30");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -45,6 +45,20 @@ vtkExtractSelectedIds::vtkExtractSelectedIds()
 //----------------------------------------------------------------------------
 vtkExtractSelectedIds::~vtkExtractSelectedIds()
 {
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractSelectedIds::FillInputPortInformation(
+  int port, vtkInformation* info)
+{
+  this->Superclass::FillInputPortInformation(port, info);
+  if (port==0)
+    {
+    // this filter can only work with datasets.
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()); 
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet"); 
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

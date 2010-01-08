@@ -49,7 +49,6 @@ vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkExpandSelectedGraph.cxx
 vtkExtractSelectedGraph.cxx
-vtkExtractSelectedRows.cxx
 vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx

@@ -34,6 +34,7 @@ class vtkExtractSelectedBlock;
 class vtkExtractSelectedFrustum;
 class vtkExtractSelectedIds;
 class vtkExtractSelectedLocations;
+class vtkExtractSelectedRows;
 class vtkExtractSelectedThresholds;
 class vtkProbeSelectedLocations;
 class vtkSelection;
@@ -80,7 +81,7 @@ protected:
   // used for composite, non-hierarhical input.
   vtkDataObject* RequestDataInternal(
     unsigned int composite_index,
-    vtkDataSet* input, vtkSelection* sel,
+    vtkDataObject* non_composite_input, vtkSelection* sel,
     vtkInformation* outInfo);
 
   // Used for hierarchical input.
@@ -88,7 +89,7 @@ protected:
     unsigned int composite_index,
     unsigned int level,
     unsigned int index,
-    vtkDataSet* input, vtkSelection* sel,
+    vtkDataObject* non_composite_input, vtkSelection* sel,
     vtkInformation* outInfo);
 
 
@@ -97,9 +98,10 @@ protected:
     vtkSelectionNode* sel, vtkInformation* outInfo);
 
   vtkExtractSelectedBlock* BlockFilter;
-  vtkExtractSelectedIds* IdsFilter;
   vtkExtractSelectedFrustum* FrustumFilter;
+  vtkExtractSelectedIds* IdsFilter;
   vtkExtractSelectedLocations* LocationsFilter;
+  vtkExtractSelectedRows* RowsFilter;
   vtkExtractSelectedThresholds* ThresholdsFilter;
   vtkProbeSelectedLocations* ProbeFilter;
 

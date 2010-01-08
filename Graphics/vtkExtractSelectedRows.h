@@ -32,7 +32,7 @@
 #include "vtkTableAlgorithm.h"
 
 
-class VTK_INFOVIS_EXPORT vtkExtractSelectedRows : public vtkTableAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedRows : public vtkTableAlgorithm
 {
 public:
   static vtkExtractSelectedRows* New();
@@ -51,6 +51,13 @@ public:
   // Specify the first vtkGraph input and the second vtkSelection input.
   int FillInputPortInformation(int port, vtkInformation* info);
 
+  // Description:
+  // When set, a column named vtkOriginalRowIds will be added to the output.
+  // False by default.
+  vtkSetMacro(AddOriginalRowIdsArray, bool);
+  vtkGetMacro(AddOriginalRowIdsArray, bool);
+  vtkBooleanMacro(AddOriginalRowIdsArray, bool);
+
 protected:
   vtkExtractSelectedRows();
   ~vtkExtractSelectedRows();
@@ -59,7 +66,8 @@ protected:
     vtkInformation*, 
     vtkInformationVector**, 
     vtkInformationVector*);
-    
+   
+  bool AddOriginalRowIdsArray;
 private:
   vtkExtractSelectedRows(const vtkExtractSelectedRows&); // Not implemented
   void operator=(const vtkExtractSelectedRows&);   // Not implemented
