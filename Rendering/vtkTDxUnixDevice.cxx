@@ -16,6 +16,11 @@
 
 #include <assert.h>
 
+#include <X11/Xlib.h> // Needed for X types used in the public interface
+// Display *DisplayId; // Actually a "Display *" but we cannot include Xlib.h
+//  Window WindowId; // Actually a "Window" but we cannot include Xlib.h
+  
+
 #define SGI // Used in xdrvlib.h to define ParameterCheck
 
 // xdrvlib.h does not have the usual __cplusplus extern "C" guard
@@ -29,7 +34,7 @@ extern "C" {
 #include "vtkRenderWindowInteractor.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.4");
+vtkCxxRevisionMacro(vtkTDxUnixDevice,"1.5");
 vtkStandardNewMacro(vtkTDxUnixDevice);
 
 // ----------------------------------------------------------------------------
@@ -62,7 +67,7 @@ vtkTDxUnixDevice::~vtkTDxUnixDevice()
 // ----------------------------------------------------------------------------
 // Description:
 // Get the ID of the X Display. Initial value is 0.
-Display *vtkTDxUnixDevice::GetDisplayId() const
+vtkTDxUnixDeviceDisplay *vtkTDxUnixDevice::GetDisplayId() const
 {
   return this->DisplayId;
 }
@@ -70,7 +75,7 @@ Display *vtkTDxUnixDevice::GetDisplayId() const
 // ----------------------------------------------------------------------------
 // Description:
 // Get the ID of the X Window. Initial value is 0.
-Window vtkTDxUnixDevice::GetWindowId() const
+vtkTDxUnixDeviceWindow vtkTDxUnixDevice::GetWindowId() const
 {
   return this->WindowId;
 }
@@ -79,7 +84,7 @@ Window vtkTDxUnixDevice::GetWindowId() const
 // Description:
 // Set the ID of the X Display.
 // \pre not_yet_initialized: !GetInitialized()
-void vtkTDxUnixDevice::SetDisplayId(Display *id)
+void vtkTDxUnixDevice::SetDisplayId(vtkTDxUnixDeviceDisplay *id)
 {
   assert("pre: not_yet_initialized" && !this->GetInitialized());
   if(this->DisplayId!=id)
@@ -93,7 +98,7 @@ void vtkTDxUnixDevice::SetDisplayId(Display *id)
 // Description:
 // Set the ID of the X Window.
 // \pre not_yet_initialized: !GetInitialized()
-void vtkTDxUnixDevice::SetWindowId(Window id)
+void vtkTDxUnixDevice::SetWindowId(vtkTDxUnixDeviceWindow id)
 {
   assert("pre: not_yet_initialized" && !this->GetInitialized());
   if(this->WindowId!=id)
@@ -120,7 +125,8 @@ void vtkTDxUnixDevice::Initialize()
   assert("pre: valid_window" && this->GetWindowId()!=0);
   assert("pre: valid_interactor" && this->GetInteractor()!=0);
   
-  int status=MagellanInit(this->DisplayId,this->WindowId);
+  int status=MagellanInit(static_cast<Display *>(this->DisplayId),
+                          static_cast<Window>(this->WindowId));
   this->Initialized=status==1;
 }
 
@@ -136,7 +142,7 @@ void vtkTDxUnixDevice::Close()
   assert("pre: initialized" && this->GetInitialized());
   
   vtkDebugMacro(<< "Close()" );
-  MagellanClose(this->DisplayId);
+  MagellanClose(static_cast<Display *>(this->DisplayId));
   this->Initialized=false;
   
   assert("post: restored" && !this->GetInitialized());
@@ -151,19 +157,23 @@ void vtkTDxUnixDevice::Close()
 // \pre initialized: GetInitialized()
 // \pre e_exists: e!=0
 // \pre e_is_client_message: e->type==ClientMessage
-bool vtkTDxUnixDevice::ProcessEvent(const XEvent *e)
+bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
 {
   assert("pre: initialized" && this->GetInitialized());
   assert("e_exists" && e!=0);
-  assert("e_is_client_message" && e->type==ClientMessage);
+  assert("e_is_client_message" &&
+         static_cast<const XEvent *>(e)->type==ClientMessage);
   
   MagellanFloatEvent info;
   
-  int deviceEvent=MagellanTranslateEvent(this->DisplayId,
-                                         const_cast<XEvent *>(e),
-                                         &info,
-                                         this->TranslationScale,
-                                         this->RotationScale);
+  const XEvent *event=static_cast<const XEvent *>(e);
+  
+  int deviceEvent=MagellanTranslateEvent(
+    static_cast<Display *>(this->DisplayId),
+    const_cast<XEvent *>(event),
+    &info,
+    this->TranslationScale,
+    this->RotationScale);
   
   vtkDebugMacro(<< "deviceEvent=" << deviceEvent);
   
@@ -176,7 +186,7 @@ bool vtkTDxUnixDevice::ProcessEvent(const XEvent *e)
     {
     case MagellanInputMotionEvent:
       vtkDebugMacro(<< "it is MagellanInputMotionEvent");
-      MagellanRemoveMotionEvents(this->DisplayId);
+      MagellanRemoveMotionEvents(static_cast<Display *>(this->DisplayId));
       motionInfo.X=info.MagellanData[MagellanX];
       motionInfo.Y=info.MagellanData[MagellanY];
       
@@ -240,7 +250,8 @@ void vtkTDxUnixDevice::SetSensitivity(double sensitivity)
 {
   assert("pre: initialized" && this->GetInitialized());
   
-  MagellanApplicationSensitivity(this->DisplayId,sensitivity);
+  MagellanApplicationSensitivity(static_cast<Display *>(this->DisplayId),
+                                 sensitivity);
 }
 
 // ----------------------------------------------------------------------------

@@ -39,7 +39,7 @@
 #include "vtkTDxUnixDevice.h"
 #endif
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.141");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.142");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -426,7 +426,7 @@ void vtkXRenderWindowInteractor::Initialize()
     {
     vtkTDxUnixDevice *d=this->Internal->GetDevice();
     d->SetDisplayId(this->DisplayId);
-    d->SetWindowId(this->WindowId);
+    d->SetWindowId(static_cast<vtkTDxUnixDeviceWindow>(this->WindowId));
     d->SetInteractor(this);
     d->Initialize();
     if(!d->GetInitialized())

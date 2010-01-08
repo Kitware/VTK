@@ -23,8 +23,16 @@
 #define __vtkTDxUnixDevice_h
 
 #include "vtkTDxDevice.h"
-#include <X11/Xlib.h> // Needed for X types used in the public interface
+//#include <X11/Xlib.h> // Needed for X types used in the public interface
 class vtkRenderWindowInteractor;
+
+// We cannot include <X11/Xlib.h> (which defines "Display *",
+// "Window" and "XEvent *") because it defines macro like None that would
+// conflict with qt4/Qt/qcoreevent.h which defines None as a QEvent::Type
+// value. 
+typedef void vtkTDxUnixDeviceDisplay;
+typedef unsigned int vtkTDxUnixDeviceWindow;
+typedef void vtkTDxUnixDeviceXEvent;
 
 class VTK_RENDERING_EXPORT vtkTDxUnixDevice : public vtkTDxDevice
 {
@@ -35,21 +43,24 @@ public:
 
   // Description:
   // Get the ID of the X Display. Initial value is 0.
-  Display *GetDisplayId() const;
+  // The return value type is actually a "Display *"
+  vtkTDxUnixDeviceDisplay *GetDisplayId() const;
   
   // Description:
   // Get the ID of the X Window. Initial value is 0.
-  Window GetWindowId() const;
+  // The return value type is actually a "Window"
+  vtkTDxUnixDeviceWindow GetWindowId() const;
   
   // Description:
   // Set the ID of the X Display.
+  // The argument type is actually a "Display *".
   // \pre not_yet_initialized: !GetInitialized()
-  void SetDisplayId(Display *id);
+  void SetDisplayId(vtkTDxUnixDeviceDisplay *id);
   
   // Description:
   // Set the ID of the X Window.
   // \pre not_yet_initialized: !GetInitialized()
-  void SetWindowId(Window id);
+  void SetWindowId(vtkTDxUnixDeviceWindow id);
   
   // Description:
   // Initialize the device with the current display and window ids.
@@ -75,7 +86,7 @@ public:
   // \pre initialized: GetInitialized()
   // \pre e_exists: e!=0
   // \pre e_is_client_message: e->type==ClientMessage
-  bool ProcessEvent(const XEvent *e);
+  bool ProcessEvent(const vtkTDxUnixDeviceXEvent *e);
   
   // Description:
   // PROBABLY TRANSFER IT TO THE SUPERCLASS
@@ -107,8 +118,8 @@ protected:
   // is initialized, close the device.
   virtual ~vtkTDxUnixDevice();
 
-  Display *DisplayId;
-  Window WindowId;
+  vtkTDxUnixDeviceDisplay *DisplayId;
+  vtkTDxUnixDeviceWindow WindowId;
   
   double TranslationScale;
   double RotationScale;
