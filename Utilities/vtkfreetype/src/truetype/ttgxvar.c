@@ -211,7 +211,7 @@
                            FT_Offset  delta_cnt )
   {
     FT_Short  *deltas;
-    FT_Int     runcnt;
+    FT_UInt    runcnt;
     FT_Offset  i;
     FT_UInt    j;
     FT_Memory  memory = stream->memory;
