@@ -32,7 +32,7 @@
 class vtkDataArraySelection;
 class vtkMultiProcessController;
 
-class VTK_HYBRID_EXPORT vtkPOpenFOAMReader : public vtkOpenFOAMReader
+class VTK_PARALLEL_EXPORT vtkPOpenFOAMReader : public vtkOpenFOAMReader
 {
 public:
   //BTX
