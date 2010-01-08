@@ -54,6 +54,7 @@ vtkPieceScalars.cxx
 vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPOPReader.cxx
+vtkPOpenFOAMReader.cxx
 vtkPOutlineCornerFilter.cxx
 vtkPOutlineFilter.cxx
 vtkPPolyDataNormals.cxx
