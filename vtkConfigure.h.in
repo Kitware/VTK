@@ -60,7 +60,7 @@
 # define VTK_SIZEOF_INT    4
 # if defined(__LP64__) && __LP64__
 #  define VTK_SIZEOF_LONG  8
-#  defube VTK_SIZEOF_VOID_P 8
+#  define VTK_SIZEOF_VOID_P 8
 # else
 #  define VTK_SIZEOF_LONG  4
 #  define VTK_SIZEOF_VOID_P 4
