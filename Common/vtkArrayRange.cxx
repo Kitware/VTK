@@ -56,6 +56,11 @@ vtkIdType vtkArrayRange::GetExtent() const
   return this->End - this->Begin;
 }
 
+bool vtkArrayRange::Contains(const vtkIdType coordinate) const
+{
+  return this->Begin <= coordinate && coordinate < this->End;
+}
+
 ostream& operator<<(ostream& stream, const vtkArrayRange& rhs)
 {
   stream << "[" << rhs.Begin << ", " << rhs.End << ")";

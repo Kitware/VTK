@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkArrayCoordinates.h"
 #include "vtkArraySlice.h"
 
 vtkArraySlice::vtkArraySlice()
@@ -72,6 +73,20 @@ void vtkArraySlice::GetCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinate
     coordinates[i] = ((n / divisor) % this->Storage[i].GetExtent()) + this->Storage[i].GetBegin();
     divisor *= this->Storage[i].GetExtent();
     }
+}
+
+bool vtkArraySlice::Contains(const vtkArrayCoordinates& coordinates) const
+{
+  if(coordinates.GetDimensions() != this->GetDimensions())
+    return false;
+
+  for(vtkIdType i = 0; i < this->GetDimensions(); ++i)
+    {
+    if(!this->Storage[i].Contains(coordinates[i]))
+      return false;
+    }
+
+  return true;
 }
 
 void vtkArraySlice::SetDimensions(vtkIdType dimensions)

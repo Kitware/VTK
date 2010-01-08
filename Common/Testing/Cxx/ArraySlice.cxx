@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include <vtkArrayCoordinates.h>
 #include <vtkArraySlice.h>
 
 #include <vtksys/ios/iostream>
@@ -66,6 +67,9 @@ int ArraySlice(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(coordinates == vtkArrayCoordinates(2, 8));
     slice.GetCoordinatesN(5, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(3, 8));
+
+    test_expression(slice.Contains(vtkArrayCoordinates(3, 7)));
+    test_expression(!slice.Contains(vtkArrayCoordinates(1, 7)));
 
     return 0;
     }

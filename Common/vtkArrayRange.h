@@ -65,6 +65,10 @@ public:
   vtkIdType GetExtent() const;
 
   // Description:
+  // Returns true iff the given coordinate falls within this range.
+  bool Contains(const vtkIdType coordinate) const;
+
+  // Description:
   // Serialization  
   friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
 
