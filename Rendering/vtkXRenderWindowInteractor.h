@@ -42,8 +42,8 @@ class vtkXRenderWindowInteractorInternals;
 
 //BTX
 // Forward declare internal friend functions.
-void vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
-void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+void VTK_RENDERING_EXPORT vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
+void VTK_RENDERING_EXPORT vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 //ETX
 
 class VTK_RENDERING_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
@@ -73,12 +73,12 @@ public:
   void BreakLoopFlagOff();
   void BreakLoopFlagOn();
 
-  // Description: 
+  // Description:
   // Initializes the event handlers using an XtAppContext that you have
   // provided.  This assumes that you want to own the event loop.
   virtual void Initialize(XtAppContext app);
   vtkGetMacro( App, XtAppContext );
-  
+
   // Description:
   // Enable/Disable interactions.  By default interactors are enabled when
   // initialized.  Initialize() must be called prior to enabling/disabling
@@ -104,21 +104,21 @@ public:
   // Description:
   // Specify the Xt widget to use for interaction. This method is
   // one of a couple steps that are required for setting up a
-  // vtkRenderWindowInteractor as a widget inside of another user 
+  // vtkRenderWindowInteractor as a widget inside of another user
   // interface. You do not need to use this method if the render window
   // will be a stand-alone window. This is only used when you want the
   // render window to be a subwindow within a larger user interface.
   // In that case, you must tell the render window what X display id
-  // to use, and then ask the render window what depth, visual and 
+  // to use, and then ask the render window what depth, visual and
   // colormap it wants. Then, you must create an Xt TopLevelShell with
   // those settings. Then you can create the rest of your user interface
-  // as a child of the TopLevelShell you created. Eventually, you will 
+  // as a child of the TopLevelShell you created. Eventually, you will
   // create a drawing area or some other widget to serve as the rendering
   // window. You must use the SetWidget method to tell this Interactor
   // about that widget. It's X and it's not terribly easy, but it looks cool.
   virtual void SetWidget(Widget);
   Widget GetWidget() {return this->Top;};
-  
+
   // Description
   // This method will store the top level shell widget for the interactor.
   // This method and the method invocation sequence applies for:
@@ -149,10 +149,10 @@ public:
   // not set TopLevelShell (each has its own top level shell already)
   virtual void SetTopLevelShell(Widget);
   Widget GetTopLevelShell() {return this->TopLevelShell;};
-  
+
   // Description:
   // Re-defines virtual function to get mouse position by querying X-server.
-  virtual void GetMousePosition(int *x, int *y); 
+  virtual void GetMousePosition(int *x, int *y);
 
   // Description:
   // Functions that are used internally.
@@ -179,7 +179,7 @@ protected:
   int TimerId;
   vtkXRenderWindowInteractorInternals* Internal;
 
-  // Description: 
+  // Description:
   // X-specific internal timer methods. See the superclass for detailed
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
@@ -187,9 +187,9 @@ protected:
 
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
                           XtTimerCallbackProc proc, XtPointer client_data) ;
-  void Timer(XtPointer client_data, XtIntervalId *id); 
+  void Timer(XtPointer client_data, XtIntervalId *id);
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
-  
+
   int BreakLoopFlag;
 
 private:
