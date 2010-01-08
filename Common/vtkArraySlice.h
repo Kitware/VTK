@@ -46,7 +46,7 @@
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayRange.h"
 
-#include <vtksys/stl/vector>
+#include <vtkstd/vector> // STL Header: duh
 
 class VTK_COMMON_EXPORT vtkArraySlice
 {
@@ -86,7 +86,7 @@ public:
   // Returns coordinates that reference the n-th value in the slice, where
   // n is in the range [0, GetExtents().GetSize()).  Note that the order
   // in which coordinates are visited is undefined.
-  const vtkArrayCoordinates GetCoordinatesN(vtkIdType n) const;
+  void GetCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const;
 
   // Description:
   // Sets the number of slice dimensions.  Use operator[] to set the range
