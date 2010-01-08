@@ -53,14 +53,17 @@
 # define VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
 # define VTK_SIZEOF_FLOAT  @VTK_SIZEOF_FLOAT@
 # define VTK_SIZEOF_DOUBLE @VTK_SIZEOF_DOUBLE@
+# define VTK_SIZEOF_VOID_P @VTK_SIZEOF_VOID_P@
 #else
 # define VTK_SIZEOF_CHAR   1
 # define VTK_SIZEOF_SHORT  2
 # define VTK_SIZEOF_INT    4
 # if defined(__LP64__) && __LP64__
 #  define VTK_SIZEOF_LONG  8
+#  defube VTK_SIZEOF_VOID_P 8
 # else
 #  define VTK_SIZEOF_LONG  4
+#  define VTK_SIZEOF_VOID_P 4
 # endif
 # define VTK_SIZEOF_FLOAT  4
 # define VTK_SIZEOF_DOUBLE 8
