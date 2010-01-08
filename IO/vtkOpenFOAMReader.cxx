@@ -108,7 +108,7 @@ uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
 { return 0; }
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.19");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.20");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 // forward declarations
@@ -153,7 +153,6 @@ class VTK_IO_EXPORT vtkOpenFOAMReaderPrivate : public vtkObject
 public:
   static vtkOpenFOAMReaderPrivate *New();
   vtkTypeRevisionMacro(vtkOpenFOAMReaderPrivate, vtkObject);
-  void PrintSelf(ostream &, vtkIndent);
 
   vtkDoubleArray *GetTimeValues()
     {return this->TimeValues;}
@@ -341,7 +340,7 @@ private:
       const vtkFoamIntVectorVector *, vtkPoints *);
 };
 
-vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.19");
+vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.20");
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 
 //-----------------------------------------------------------------------------
@@ -3566,27 +3565,6 @@ vtkOpenFOAMReaderPrivate::~vtkOpenFOAMReaderPrivate()
   this->LagrangianFieldFiles->Delete();
 
   this->ClearMeshes();
-}
-
-void vtkOpenFOAMReaderPrivate::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "Case Path: "
-      << (this->CasePath.length() ? this->CasePath.c_str() : "(none)") << endl;
-  os << indent << "Region Name: "
-      << (this->RegionName.length() ? this->RegionName.c_str() : "(none)")
-      << endl;
-  os << indent << "Processor Name: "
-      << (this->ProcessorName.length() ? this->ProcessorName.c_str() : "(none)")
-      << endl;
-  if (this->TimeValues)
-    {
-    os << indent << "Number of Time Steps: "
-        << this->TimeValues->GetNumberOfTuples() << endl;
-    }
-  os << indent << "Time Step: " << this->TimeStep << endl;
-  os << indent << "Number of Cells: " << this->NumCells << endl;
-  os << indent << "Number of Points: " << this->NumPoints << endl;
 }
 
 void vtkOpenFOAMReaderPrivate::ClearInternalMeshes()

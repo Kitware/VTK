@@ -35,7 +35,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkPOpenFOAMReader, "1.1");
+vtkCxxRevisionMacro(vtkPOpenFOAMReader, "1.2");
 vtkStandardNewMacro(vtkPOpenFOAMReader);
 vtkCxxSetObjectMacro(vtkPOpenFOAMReader, Controller, vtkMultiProcessController);
 
@@ -75,6 +75,7 @@ void vtkPOpenFOAMReader::PrintSelf(ostream &os, vtkIndent indent)
       << endl;
   os << indent << "Number of Processes: " << this->NumProcesses << endl;
   os << indent << "Process Id: " << this->ProcessId << endl;
+  os << indent << "Controller: " << this->Controller << endl;
 }
 
 //-----------------------------------------------------------------------------
