@@ -91,7 +91,7 @@
   /* indicates that there is a delta for every point without needing to    */
   /* enumerate all of them.                                                */
   /*                                                                       */
-#define ALL_POINTS  (FT_UShort*)( -1 )
+#define ALL_POINTS  (FT_UShort*)( (void*)-1 )
 
 
 #define GX_PT_POINTS_ARE_WORDS      0x80
