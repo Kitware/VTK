@@ -59,6 +59,7 @@
   @private
   vtkCocoaRenderWindowRef myVTKRenderWindow;
   NSTrackingRectTag rolloverTrackingRectTag;
+  BOOL rolloverTrackingRectSet;
 }
 
 - (vtkCocoaRenderWindowRef)getVTKRenderWindow;

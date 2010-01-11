@@ -35,6 +35,9 @@
   self = [super initWithFrame:frameRect];
   if (self)
     {
+    // The tracking rect is not set yet.
+    rolloverTrackingRectSet = NO;
+
     // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
     // Apple's docs say: "If you intend to use Cocoa calls, you must force
     // Cocoa into its multithreaded mode before detaching any POSIX threads.
@@ -92,10 +95,10 @@
 - (void)clearTrackingRect
 {
   // remove any tracking rect we have
-  if (rolloverTrackingRectTag > 0)
+  if (rolloverTrackingRectSet)
     {
     [self removeTrackingRect:rolloverTrackingRectTag];
-    rolloverTrackingRectTag=0;
+    rolloverTrackingRectSet = NO;
     }
 }
 
@@ -110,6 +113,7 @@
                                             owner:self
                                          userData:NULL
                                      assumeInside:NO];
+  rolloverTrackingRectSet = YES;
 }
 
 //----------------------------------------------------------------------------
