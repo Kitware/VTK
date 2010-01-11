@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.104");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.105");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -236,7 +236,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
       } // for a non NULL input
     } // for each input
 
-  if ( numPts < 1 || numCells < 1 )
+  if ( numPts == 0 )
     {
     vtkDebugMacro(<<"No data to append!");
     return 1;
