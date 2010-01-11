@@ -100,7 +100,19 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(inverse_l1_norm->GetValueN(1), 1.0));
     test_expression(close_enough(inverse_l1_norm->GetValueN(2), 0.666666666666666));
 
+    vector_norm->SetInvert(false);
+    vector_norm->SetWindow(vtkArrayRange(0, 2));
+    vector_norm->Update();
 
+    vtkDenseArray<double>* const window_l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
+    
+    cout << "Windowed L1-norm:\n";
+    vtkPrintVectorFormat(cout, window_l1_norm);
+
+    test_expression(window_l1_norm);
+    test_expression(close_enough(window_l1_norm->GetValueN(0), 0.5));
+    test_expression(close_enough(window_l1_norm->GetValueN(1), 1.5));
+    test_expression(close_enough(window_l1_norm->GetValueN(2), 0.5));
     return 0;
     }
   catch(vtkstd::exception& e)

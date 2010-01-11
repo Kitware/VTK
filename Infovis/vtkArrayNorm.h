@@ -22,9 +22,11 @@
 // .NAME vtkArrayNorm - Computes L-norms along one dimension of an array.
 //
 // .SECTION Description
-// Given an input array (vtkTypedArray<double>), computes the L-norm for each
-// slice along a user-specified dimension, storing the results in a dense output
-// vector (1D vtkDenseArray<double>).  Most useful for matrices.
+// Given an input matrix (vtkTypedArray<double>), computes the L-norm for each
+// vector along either dimension, storing the results in a dense output
+// vector (1D vtkDenseArray<double>).  The caller may optionally request the
+// inverse norm as output (useful for subsequent normalization), and may limit
+// the computation to a "window" of vector elements, to avoid data copying.
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -32,7 +34,8 @@
 #ifndef __vtkArrayNorm_h
 #define __vtkArrayNorm_h
 
-#include "vtkArrayDataAlgorithm.h"
+#include <vtkArrayDataAlgorithm.h>
+#include <vtkArrayRange.h>
 
 class VTK_INFOVIS_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
 {
@@ -57,6 +60,13 @@ public:
   vtkSetMacro(Invert, int);
   vtkGetMacro(Invert, int);
 
+//BTX
+  // Description:
+  // Defines an optional "window" used to compute the norm on a subset of the elements
+  // in a vector.
+  vtkSetMacro(Window, vtkArrayRange);
+  vtkGetMacro(Window, vtkArrayRange);
+
 protected:
   vtkArrayNorm();
   ~vtkArrayNorm();
@@ -73,6 +83,8 @@ private:
   int Dimension;
   int L;
   int Invert;
+  vtkArrayRange Window;
+//ETX
 };
 
 #endif

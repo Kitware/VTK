@@ -28,18 +28,20 @@
 #include "vtkArrayNorm.h"
 
 #include <vtksys/ios/sstream>
+#include <vtkstd/limits>
 #include <vtkstd/stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
 
-vtkCxxRevisionMacro(vtkArrayNorm, "1.3");
+vtkCxxRevisionMacro(vtkArrayNorm, "1.4");
 vtkStandardNewMacro(vtkArrayNorm);
 
 vtkArrayNorm::vtkArrayNorm() :
   Dimension(0),
   L(2),
-  Invert(false)
+  Invert(false),
+  Window(0, vtkstd::numeric_limits<vtkIdType>::max())
 {
 }
 
@@ -53,6 +55,7 @@ void vtkArrayNorm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "L: " << this->L << endl;
   os << indent << "Invert: " << this->Invert << endl;
+  os << indent << "Window: " << this->Window << endl;
 }
 
 void vtkArrayNorm::SetL(int value)
@@ -80,17 +83,21 @@ int vtkArrayNorm::RequestData(
     // Test our preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
-      throw vtkstd::runtime_error("Missing input vtkArrayData on port 0.");
+      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Input vtkArrayData must contain exactly one array.");
+      throw vtkstd::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("Input array must be a vtkTypedArray<double>.");
+      throw vtkstd::runtime_error("vtkArray on input port 0 must be a vtkTypedArray<double>.");
+    if(input_array->GetDimensions() != 2)
+      throw vtkstd::runtime_error("vtkArray on input port 0 must be a matrix.");
 
-    if(this->Dimension < 0 || this->Dimension >= input_array->GetDimensions())
-      throw vtkstd::runtime_error("Dimension out-of-bounds.");
+    const vtkIdType vector_dimension = this->Dimension;
+    if(vector_dimension < 0 || vector_dimension > 1)
+      throw vtkstd::runtime_error("Dimension must be zero or one.");
+    const vtkIdType element_dimension = 1 - vector_dimension;
 
-    const vtkIdType dimension_extents = input_array->GetExtents()[this->Dimension];
+    const vtkIdType vector_count = input_array->GetExtent(vector_dimension);
 
     // Setup our output ...
     vtkstd::ostringstream array_name;
@@ -98,7 +105,7 @@ int vtkArrayNorm::RequestData(
     
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
     output_array->SetName(array_name.str());
-    output_array->Resize(dimension_extents);
+    output_array->Resize(vector_count);
     output_array->Fill(0.0);
 
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
@@ -112,10 +119,12 @@ int vtkArrayNorm::RequestData(
     for(vtkIdType n = 0; n != non_null_count; ++n)
       {
       input_array->GetCoordinatesN(n, coordinates);
-      (*output_array)[vtkArrayCoordinates(coordinates[this->Dimension])] += pow(input_array->GetValueN(n), this->L);
+      if(!this->Window.Contains(coordinates[element_dimension]))
+        continue;
+      output_array->SetValue(coordinates[vector_dimension], output_array->GetValue(coordinates[vector_dimension]) + pow(input_array->GetValueN(n), this->L));
       }
 
-    for(vtkIdType n = 0; n != dimension_extents; ++n)
+    for(vtkIdType n = 0; n != vector_count; ++n)
       {
       output_array->SetValueN(n, pow(output_array->GetValueN(n), 1.0 / this->L));
       }
@@ -123,7 +132,7 @@ int vtkArrayNorm::RequestData(
     // Optionally invert the output vector
     if(this->Invert)
       {
-      for(unsigned int n = 0; n != dimension_extents; ++n)
+      for(vtkIdType n = 0; n != vector_count; ++n)
         {
         if(output_array->GetValueN(n))
           output_array->SetValueN(n, 1.0 / output_array->GetValueN(n));
