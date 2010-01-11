@@ -69,7 +69,12 @@ public:
   bool Contains(const vtkIdType coordinate) const;
 
   // Description:
-  // Serialization  
+  // Equality comparisons.
+  friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+  friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+
+  // Description:
+  // Serialization.
   friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
 
 private:
