@@ -108,7 +108,7 @@ uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
 { return 0; }
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.20");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.21");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 // forward declarations
@@ -340,7 +340,7 @@ private:
       const vtkFoamIntVectorVector *, vtkPoints *);
 };
 
-vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.20");
+vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.21");
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 
 //-----------------------------------------------------------------------------
@@ -550,6 +550,18 @@ public:
   VTK_TEMPLATE_SPECIALIZE float To<float>() const;
   VTK_TEMPLATE_SPECIALIZE double To<double>() const;
 #endif
+
+  // workaround for SunOS-CC5.6-dbg
+  int vtkFoamToken::ToInt() const
+  {
+    return this->Int;
+  }
+
+  // workaround for SunOS-CC5.6-dbg
+  float vtkFoamToken::ToFloat() const
+  {
+    return this->Type == LABEL ? this->Int : this->Double;
+  }
 
   const vtkStdString ToString() const
   {
@@ -3430,7 +3442,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
           if (lastValue.Dictionary().GetType() == vtkFoamToken::LABEL)
             {
             const int asize = secondLastValue.To<int>();
-            const int value = lastValue.Dictionary().GetToken().To<int>();
+            const int value = lastValue.Dictionary().GetToken().ToInt();
             // delete last two values
             delete this->Superclass::back();
             this->Superclass::pop_back();
@@ -3443,7 +3455,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
           else if (lastValue.Dictionary().GetType() == vtkFoamToken::SCALAR)
             {
             const int asize = secondLastValue.To<int>();
-            const float value = lastValue.Dictionary().GetToken().To<float>();
+            const float value = lastValue.Dictionary().GetToken().ToFloat();
             // delete last two values
             delete this->Superclass::back();
             this->Superclass::pop_back();
