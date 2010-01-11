@@ -64,8 +64,8 @@ public:
   // Description:
   // Defines an optional "window" used to compute the norm on a subset of the elements
   // in a vector.
-  vtkSetMacro(Window, vtkArrayRange);
-  vtkGetMacro(Window, vtkArrayRange);
+  void SetWindow(const vtkArrayRange& window);
+  vtkArrayRange GetWindow();
 
 protected:
   vtkArrayNorm();
