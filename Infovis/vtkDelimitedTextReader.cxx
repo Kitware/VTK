@@ -417,7 +417,7 @@ void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIterator
 /////////////////////////////////////////////////////////////////////////////////////////
 // vtkDelimitedTextReader
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.36");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.37");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 vtkDelimitedTextReader::vtkDelimitedTextReader() :
@@ -579,22 +579,22 @@ int vtkDelimitedTextReader::RequestData(
       return 1;
       }
 
+    vtkStdString character_set;
+
     if(this->UnicodeCharacterSet)
       {
       this->UnicodeOutputArrays = true;
+      character_set = this->UnicodeCharacterSet;
       }
     else
       {
       char tstring[2];
       tstring[1] = '\0';
       tstring[0] = this->StringDelimiter;
-      this->SetUnicodeCharacterSet("US-ASCII");
       this->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters));
       this->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8(tstring));
       this->UnicodeOutputArrays = false;
       }
-
-    const vtkStdString character_set = this->UnicodeCharacterSet;
 
     if (!this->PedigreeIdArrayName)
       throw vtkstd::runtime_error("You must specify a pedigree id array name");
@@ -627,7 +627,7 @@ int vtkDelimitedTextReader::RequestData(
       this->UseStringDelimiter,
       output_table);
 
-    if("US-ASCII" == character_set)
+    if("US-ASCII" == character_set || character_set.empty())
       {
       ascii_to_unicode(content.begin(), content.end(), iterator);
       }
