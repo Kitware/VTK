@@ -108,7 +108,7 @@ uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
 { return 0; }
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.21");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.22");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 // forward declarations
@@ -340,7 +340,7 @@ private:
       const vtkFoamIntVectorVector *, vtkPoints *);
 };
 
-vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.21");
+vtkCxxRevisionMacro(vtkOpenFOAMReaderPrivate, "1.22");
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 
 //-----------------------------------------------------------------------------
@@ -552,13 +552,13 @@ public:
 #endif
 
   // workaround for SunOS-CC5.6-dbg
-  int vtkFoamToken::ToInt() const
+  int ToInt() const
   {
     return this->Int;
   }
 
   // workaround for SunOS-CC5.6-dbg
-  float vtkFoamToken::ToFloat() const
+  float ToFloat() const
   {
     return this->Type == LABEL ? this->Int : this->Double;
   }
