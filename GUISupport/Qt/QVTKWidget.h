@@ -71,6 +71,9 @@ class vtkImageData;
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
 class vtkTDxWinDevice;
 #endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+class vtkTDxMacDevice;
+#endif
 
 //! QVTKWidget displays a VTK window in a Qt window.
 class QVTK_EXPORT QVTKWidget : public QWidget
@@ -307,7 +310,10 @@ protected:
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
   vtkTDxWinDevice *Device;
 #endif
-
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+  vtkTDxMacDevice *Device;
+#endif
+  
 private:
 
   QVTKInteractorInternal* Internal;

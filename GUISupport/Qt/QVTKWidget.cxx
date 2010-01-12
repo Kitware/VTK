@@ -35,7 +35,11 @@
 #include "QVTKWidget.h"
 
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-#include "vtkTDxWinDevice.h"
+# include "vtkTDxWinDevice.h"
+#endif
+
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+# include "vtkTDxMacDevice.h"
 #endif
 
 # include "QVTKPaintEngine.h"
@@ -919,8 +923,11 @@ QVTKInteractor::QVTKInteractor()
   this->Internal = new QVTKInteractorInternal(this);
   QObject::connect(this->Internal->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)) );
 
-#if defined(VTK_USE_TDX) && defined (Q_WS_WIN)
+#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
   this->Device=vtkTDxWinDevice::New();
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+  this->Device=vtkTDxMacDevice::New();
 #endif
 }
   
@@ -936,6 +943,16 @@ void QVTKInteractor::Initialize()
       this->Device->SetInteractor(this);
       this->Device->SetWindowHandle(hWnd);
       this->Device->Initialize();
+      }
+    }
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+  if(this->UseTDx)
+    {
+    if(!this->Device->GetInitialized())
+      {
+      this->Device->SetInteractor(this);
+      // Do not initialize the device here.
       }
     }
 #endif
@@ -968,6 +985,12 @@ void QVTKInteractor::StartListening()
     this->Device->StartListening();
     }
 #endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+  if(this->UseTDx && !this->Device->GetInitialized())
+    {
+    this->Device->Initialize();
+    }
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -977,6 +1000,12 @@ void QVTKInteractor::StopListening()
   if(this->Device->GetInitialized() && this->Device->GetIsListening())
     {
     this->Device->StopListening();
+    }
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
+  if(this->UseTDx && this->Device->GetInitialized())
+    {
+    this->Device->Close();
     }
 #endif
 }
@@ -1003,6 +1032,9 @@ void QVTKInteractor::TimerEvent(int timerId)
 QVTKInteractor::~QVTKInteractor()
 {
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
+  this->Device->Delete();
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
   this->Device->Delete();
 #endif
 }
