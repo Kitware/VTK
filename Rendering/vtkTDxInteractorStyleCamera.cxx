@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTDxInteractorStyleSettings.h"
 
-vtkCxxRevisionMacro(vtkTDxInteractorStyleCamera, "1.2");
+vtkCxxRevisionMacro(vtkTDxInteractorStyleCamera, "1.3");
 vtkStandardNewMacro(vtkTDxInteractorStyleCamera);
 
 // ----------------------------------------------------------------------------
@@ -47,8 +47,11 @@ void vtkTDxInteractorStyleCamera::OnMotionEvent(
 {
   assert("pre: motionInfo_exist" && motionInfo!=0);
   
+  vtkDebugMacro(<<"vtkTDxInteractorStyleCamera::OnMotionEvent()");
+  
   if(this->Renderer==0 || this->Settings==0)
     {
+    vtkDebugMacro(<<"vtkTDxInteractorStyleCamera::OnMotionEvent() no renderer or no settings");
     return;
     }
   
