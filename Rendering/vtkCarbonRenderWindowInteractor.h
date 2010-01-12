@@ -24,6 +24,11 @@
 
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+class vtkTDxMacDevice;
+#endif
+
 // The 10.3.9 SDK (and older probably) have a bug in fp.h (in the Carbon
 // umbrella framework) which this works around. Without this, there
 // would be a compile error from the Carbon header if Python wrappings
@@ -35,8 +40,8 @@
 
 #include <Carbon/Carbon.h> // Carbon and Mac specific
 
-
-class VTK_RENDERING_EXPORT vtkCarbonRenderWindowInteractor : public vtkRenderWindowInteractor {
+class VTK_RENDERING_EXPORT vtkCarbonRenderWindowInteractor : public vtkRenderWindowInteractor
+{
 public:
   // Description:
   // Construct object so that light follows camera motion.
@@ -150,6 +155,10 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
 
+#ifdef VTK_USE_TDX
+  vtkTDxMacDevice *Device;
+#endif
+  
 private:
   vtkCarbonRenderWindowInteractor(const vtkCarbonRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCarbonRenderWindowInteractor&);  // Not implemented.

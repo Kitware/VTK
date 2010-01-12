@@ -17,11 +17,15 @@
 #import "vtkCommand.h"
 #import "vtkObjectFactory.h"
 
+#ifdef VTK_USE_TDX
+#import "vtkTDxMacDevice.h"
+#endif
+
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.28");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.29");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -294,6 +298,10 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
   NSMutableDictionary* timerDictionary = [NSMutableDictionary dictionary];
   this->SetTimerDictionary(reinterpret_cast<void *>(timerDictionary));
   [timerDictionary self]; // prevent premature collection.
+  
+#ifdef VTK_USE_TDX
+  this->Device=vtkTDxMacDevice::New();
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -303,6 +311,9 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
   this->SetTimerDictionary(NULL);
   this->SetCocoaServer(NULL);
   this->SetCocoaManager(NULL);
+#ifdef VTK_USE_TDX
+  this->Device->Delete();
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -373,6 +384,14 @@ void vtkCocoaRenderWindowInteractor::Enable()
   // to handle events from the OS it will either handle them or ignore them
   this->GetRenderWindow()->SetInteractor(this);
 
+#ifdef VTK_USE_TDX
+  if(this->UseTDx)
+    {
+    this->Device->SetInteractor(this);
+    this->Device->Initialize();
+    }
+#endif
+  
   this->Enabled = 1;
   this->Modified();
 }
@@ -385,10 +404,17 @@ void vtkCocoaRenderWindowInteractor::Disable()
     return;
     }
 
+#ifdef VTK_USE_TDX
+  if(this->Device->GetInitialized())
+    {
+      this->Device->Close();
+    }
+#endif
+  
   // Set the RenderWindow's interactor so that when the vtkCocoaGLView tries
   // to handle events from the OS it will either handle them or ignore them
   this->GetRenderWindow()->SetInteractor(NULL);
-
+  
   this->Enabled = 0;
   this->Modified();
 }

@@ -27,7 +27,10 @@
 #define __vtkCocoaRenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
-
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+class vtkTDxMacDevice;
+#endif
 
 class VTK_RENDERING_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
 {
@@ -127,6 +130,10 @@ protected:
   void SetCocoaManager(void *manager);
   void *GetCocoaManager();
 
+#ifdef VTK_USE_TDX
+  vtkTDxMacDevice *Device;
+#endif
+  
 private:
   vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
