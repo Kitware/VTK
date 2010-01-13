@@ -155,7 +155,7 @@ int vtkNetCDFCOARDSReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.4");
+vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.5");
 vtkStandardNewMacro(vtkNetCDFCOARDSReader);
 
 //-----------------------------------------------------------------------------
@@ -244,6 +244,16 @@ int vtkNetCDFCOARDSReader::RequestDataObject(
         && (   this->DimensionInfo[currentDimensions->GetValue(1)].GetUnits()
             == vtkDimensionInfo::DEGREE_UNITS)
         && (   this->DimensionInfo[currentDimensions->GetValue(2)].GetUnits()
+            == vtkDimensionInfo::DEGREE_UNITS) )
+      {
+      dataType = VTK_STRUCTURED_GRID;
+      break;
+      }
+    if (   this->SphericalCoordinates
+        && (currentNumDims == 2)
+        && (   this->DimensionInfo[currentDimensions->GetValue(0)].GetUnits()
+            == vtkDimensionInfo::DEGREE_UNITS)
+        && (   this->DimensionInfo[currentDimensions->GetValue(1)].GetUnits()
             == vtkDimensionInfo::DEGREE_UNITS) )
       {
       dataType = VTK_STRUCTURED_GRID;
@@ -377,9 +387,28 @@ int vtkNetCDFCOARDSReader::RequestData(vtkInformation *request,
     int extent[6];
     structOutput->GetExtent(extent);
 
-    vtkDoubleArray *longCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(2)].GetCoordinates();
-    vtkDoubleArray *latCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(1)].GetCoordinates();
-    vtkDoubleArray *heightCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(0)].GetCoordinates();
+    vtkDoubleArray *longCoords;
+    vtkDoubleArray *latCoords;
+    vtkDoubleArray *heightCoords;
+
+    VTK_CREATE(vtkDoubleArray, tmpArray);
+
+    if (this->LoadingDimensions->GetNumberOfTuples() == 3)
+      {
+      // 3D grid.
+      longCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(2)].GetCoordinates();
+      latCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(1)].GetCoordinates();
+      heightCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(0)].GetCoordinates();
+      }
+    else
+      {
+      // 2D grid.
+      longCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(1)].GetCoordinates();
+      latCoords = this->DimensionInfo[this->LoadingDimensions->GetValue(0)].GetCoordinates();
+      tmpArray->SetNumberOfTuples(1);
+      tmpArray->SetValue(0, 1.0);
+      heightCoords = tmpArray;
+      }
 
     VTK_CREATE(vtkPoints, points);
     points->SetDataTypeToDouble();

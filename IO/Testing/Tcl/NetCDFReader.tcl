@@ -12,6 +12,7 @@ reader SetVariableArrayStatus "lon_bnds" 0
 reader SetVariableArrayStatus "lat_bnds" 0
 reader SetVariableArrayStatus "time_bnds" 0
 reader SetVariableArrayStatus "tos" 1
+reader SetSphericalCoordinates 0
 
 vtkAssignAttribute aa
 aa SetInputConnection [reader GetOutputPort]
