@@ -47,7 +47,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.60");
+vtkCxxRevisionMacro(vtkCommunicator, "1.61");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -265,7 +265,7 @@ int vtkCommunicator::SendTemporalDataSet(vtkTemporalDataSet* mbds,
     if (block)
       {
       // Now, send the actual block data.
-      remoteHandle = returnCode && this->Send(block, remoteHandle, tag);
+      returnCode = returnCode && this->Send(block, remoteHandle, tag);
       }
     }
 
