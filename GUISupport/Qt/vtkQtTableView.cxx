@@ -49,7 +49,7 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.20");
+vtkCxxRevisionMacro(vtkQtTableView, "1.21");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -146,6 +146,12 @@ void vtkQtTableView::SetShowHorizontalHeaders(bool state)
 void vtkQtTableView::SetEnableDragDrop(bool state)
 {
   this->TableView->setDragEnabled(state);
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableView::SetSortingEnabled(bool state)
+{
+  this->TableView->setSortingEnabled(state);
 }
 
 //----------------------------------------------------------------------------

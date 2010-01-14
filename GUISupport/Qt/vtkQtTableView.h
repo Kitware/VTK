@@ -87,8 +87,13 @@ public:
   void SetFieldType(int);
 
   // Description:
-  // Have the view alternate its row colors (default is OFF)
+  // Enable drag and drop on this widget
   void SetEnableDragDrop(bool);
+
+  // Description:
+  // Whether the table allows individual columns to be sorted upon
+  // Sorting is enabled by default (turn off for large tables);
+  void SetSortingEnabled(bool);
 
   // Description: 
   // Whether or not to display all columns from the input table or to use the 
