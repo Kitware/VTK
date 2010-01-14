@@ -84,7 +84,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFReader, "1.5");
+vtkCxxRevisionMacro(vtkNetCDFReader, "1.6");
 vtkStandardNewMacro(vtkNetCDFReader);
 
 //-----------------------------------------------------------------------------
@@ -122,6 +122,8 @@ void vtkNetCDFReader::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "VariableArraySelection:" << endl;
   this->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "VariableDimensions: " << this->VariableDimensions << endl;
+  os << indent << "AllDimensions: " << this->AllDimensions << endl;
 }
 
 //-----------------------------------------------------------------------------
