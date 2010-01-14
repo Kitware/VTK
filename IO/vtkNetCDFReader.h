@@ -42,6 +42,7 @@ class vtkDataSet;
 class vtkDoubleArray;
 class vtkIntArray;
 class vtkStdString;
+class vtkStringArray;
 
 class VTK_IO_EXPORT vtkNetCDFReader : public vtkDataObjectAlgorithm
 {
@@ -70,6 +71,29 @@ public:
   virtual int GetVariableArrayStatus(const char *name);
   virtual void SetVariableArrayStatus(const char *name, int status);
 
+  // Description:
+  // Returns an array with string encodings for the dimensions used in each of
+  // the variables.  The indices in the returned array correspond to those used
+  // in the GetVariableArrayName method.  Two arrays with the same dimensions
+  // will have the same encoded string returned by this method.
+  vtkGetObjectMacro(VariableDimensions, vtkStringArray);
+
+  // Description:
+  // Loads the grid with the given dimensions.  The dimensions are encoded in a
+  // string that conforms to the same format as returned by
+  // GetVariableDimensions and GetAllDimensions.  This method is really a
+  // convenience method for SetVariableArrayStatus.  It turns on all variables
+  // that have the given dimensions and turns off all other variables.
+  virtual void SetDimensions(const char *dimensions);
+
+  // Description:
+  // Returns an array with string encodings for the dimension combinations used
+  // in the variables.  The result is the same as GetVariableDimensions except
+  // that each entry in the array is unique (a set of dimensions is only given
+  // once even if it occurs for multiple variables) and the order is
+  // meaningless.
+  vtkGetObjectMacro(AllDimensions, vtkStringArray);
+
 protected:
   vtkNetCDFReader();
   ~vtkNetCDFReader();
@@ -84,6 +108,14 @@ protected:
   vtkSmartPointer<vtkIntArray> LoadingDimensions;
 
   vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
+
+  // Description:
+  // Placeholder for structure returned from GetVariableDimensions().
+  vtkStringArray *VariableDimensions;
+
+  // Description:
+  // Placeholder for structure returned from GetAllDimensions().
+  vtkStringArray *AllDimensions;
 //ETX
 
   virtual int RequestDataObject(vtkInformation *request,
@@ -111,6 +143,10 @@ protected:
   // Description:
   // Reads meta data and populates ivars.  Returns 1 on success, 0 on failure.
   virtual int ReadMetaData(int ncFD);
+
+  // Description:
+  // Fills the VariableDimensions array.
+  virtual int FillVariableDimensions(int ncFD);
 
   // Description:
   // Determines whether the given variable is a time dimension.  The default

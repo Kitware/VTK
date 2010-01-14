@@ -33,6 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
 
 #include "vtkSmartPointer.h"
@@ -83,7 +84,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFReader, "1.4");
+vtkCxxRevisionMacro(vtkNetCDFReader, "1.5");
 vtkStandardNewMacro(vtkNetCDFReader);
 
 //-----------------------------------------------------------------------------
@@ -100,11 +101,16 @@ vtkNetCDFReader::vtkNetCDFReader()
   cbc->SetCallback(&vtkNetCDFReader::SelectionModifiedCallback);
   cbc->SetClientData(this);
   this->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent, cbc);
+
+  this->VariableDimensions = vtkStringArray::New();
+  this->AllDimensions = vtkStringArray::New();
 }
 
 vtkNetCDFReader::~vtkNetCDFReader()
 {
   this->SetFileName(NULL);
+  this->VariableDimensions->Delete();
+  this->AllDimensions->Delete();
 }
 
 void vtkNetCDFReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -401,6 +407,21 @@ void vtkNetCDFReader::SetVariableArrayStatus(const char* name, int status)
 }
 
 //-----------------------------------------------------------------------------
+void vtkNetCDFReader::SetDimensions(const char *dimensions)
+{
+  this->VariableArraySelection->DisableAllArrays();
+
+  for (vtkIdType i = 0; i < this->VariableDimensions->GetNumberOfValues(); i++)
+    {
+    if (this->VariableDimensions->GetValue(i) == dimensions)
+      {
+      const char *variableName = this->VariableArraySelection->GetArrayName(i);
+      this->VariableArraySelection->EnableArray(variableName);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkNetCDFReader::UpdateMetaData()
 {
   if (this->MetaDataMTime < this->FileNameMTime)
@@ -415,6 +436,9 @@ int vtkNetCDFReader::UpdateMetaData()
     CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
 
     int retval = this->ReadMetaData(ncFD);
+
+    if (retval) retval = this->FillVariableDimensions(ncFD);
+
     if (retval) this->MetaDataMTime.Modified();
 
     CALL_NETCDF(nc_close(ncFD));
@@ -461,6 +485,49 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, i, name));
     this->VariableArraySelection->AddArray(name);
+    }
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkNetCDFReader::FillVariableDimensions(int ncFD)
+{
+  int numVar = this->GetNumberOfVariableArrays();
+  this->VariableDimensions->SetNumberOfValues(numVar);
+  this->AllDimensions->SetNumberOfValues(0);
+
+  for (int i = 0; i < numVar; i++)
+    {
+    // Get the dimensions of this variable and encode them in a string.
+    const char *varName = this->GetVariableArrayName(i);
+    int varId, numDim, dimIds[NC_MAX_VAR_DIMS];
+    CALL_NETCDF(nc_inq_varid(ncFD, varName, &varId));
+    CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDim));
+    CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
+    vtkStdString dimEncoding("(");
+    for (int j = 0; j < numDim; j++)
+      {
+      if ((j == 0) && (this->IsTimeDimension(ncFD, dimIds[j]))) continue;
+      char dimName[NC_MAX_NAME+1];
+      CALL_NETCDF(nc_inq_dimname(ncFD, dimIds[j], dimName));
+      if (dimEncoding.size() > 1) dimEncoding += ", ";
+      dimEncoding += dimName;
+      }
+    dimEncoding += ")";
+    // Store all dimensions in the VariableDimensions array.
+    this->VariableDimensions->SetValue(i, dimEncoding.c_str());
+    // Store unique dimensions in the AllDimensions array.
+    bool unique = true;
+    for (vtkIdType j = 0; j < this->AllDimensions->GetNumberOfValues(); j++)
+      {
+      if (this->AllDimensions->GetValue(j) == dimEncoding)
+        {
+        unique = false;
+        break;
+        }
+      }
+    if (unique) this->AllDimensions->InsertNextValue(dimEncoding);
     }
 
   return 1;
