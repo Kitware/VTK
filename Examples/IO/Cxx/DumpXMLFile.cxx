@@ -45,7 +45,7 @@ int main (int argc, char *argv[])
 {
   if (argc < 2)
     {
-    cerr << "Usage: " << argv[0] << " XMLFile1 XMLFile2 ..." << endl;
+    std::cerr << "Usage: " << argv[0] << " XMLFile1 XMLFile2 ..." << std::endl;
     }
 
   // Process each file on the command line
@@ -53,7 +53,7 @@ int main (int argc, char *argv[])
   while (f < argc)
     {
     vtkDataSet *dataSet;
-    vtkstd::string extension =
+    std::string extension =
       vtksys::SystemTools::GetFilenameLastExtension(argv[f]);
     // Dispatch based on the file extension
     if (extension == ".vtu")
@@ -86,7 +86,7 @@ int main (int argc, char *argv[])
       }
     else
       {
-      cerr << argv[0] << " Unknown extenstion: " << extension << endl;
+      std::cerr << argv[0] << " Unknown extenstion: " << extension << std::endl;
       return EXIT_FAILURE;
       }
 
@@ -94,12 +94,12 @@ int main (int argc, char *argv[])
     int numberOfPoints = dataSet->GetNumberOfPoints();
 
     // Generate a report
-    cout << "------------------------" << endl;
-    cout << argv[f] << endl 
-         << " contains a " << endl
+    std::cout << "------------------------" << std::endl;
+    std::cout << argv[f] << std::endl 
+         << " contains a " << std::endl
          << dataSet->GetClassName() 
          <<  " that has " << numberOfCells << " cells"
-         << " and " << numberOfPoints << " points." << endl;
+         << " and " << numberOfPoints << " points." << std::endl;
     typedef vtkstd::map<int,int> CellContainer;
     CellContainer cellMap;
     for (int i = 0; i < numberOfCells; i++)
@@ -110,9 +110,9 @@ int main (int argc, char *argv[])
     CellContainer::const_iterator it = cellMap.begin();
     while (it != cellMap.end())
       {
-      cout << "\tCell type " 
+      std::cout << "\tCell type " 
            << vtkCellTypes::GetClassNameFromTypeId(it->first)
-           << " occurs " << it->second << " times." << endl;
+           << " occurs " << it->second << " times." << std::endl;
       ++it;
       }
 
@@ -120,43 +120,43 @@ int main (int argc, char *argv[])
     vtkPointData *pd = dataSet->GetPointData();
     if (pd)
       {
-      cout << " contains point data with " 
+      std::cout << " contains point data with " 
            << pd->GetNumberOfArrays() 
-           << " arrays." << endl;
+           << " arrays." << std::endl;
       for (int i = 0; i < pd->GetNumberOfArrays(); i++)
         {
-        cout << "\tArray " << i 
+        std::cout << "\tArray " << i 
              << " is named "
              << (pd->GetArrayName(i) ? pd->GetArrayName(i) : "NULL")
-             << endl;
+             << std::endl;
         }
       }
     // Now check for cell data
     vtkCellData *cd = dataSet->GetCellData();
     if (cd)
       {
-      cout << " contains cell data with " 
+      std::cout << " contains cell data with " 
            << cd->GetNumberOfArrays() 
-           << " arrays." << endl;
+           << " arrays." << std::endl;
       for (int i = 0; i < cd->GetNumberOfArrays(); i++)
         {
-        cout << "\tArray " << i 
+        std::cout << "\tArray " << i 
              << " is named "
              << (cd->GetArrayName(i) ? cd->GetArrayName(i) : "NULL")
-             << endl;
+             << std::endl;
         }
       }
     // Now check for field data
     if (dataSet->GetFieldData())
       {
-      cout << " contains field data with " 
+      std::cout << " contains field data with " 
            << dataSet->GetFieldData()->GetNumberOfArrays() 
-           << " arrays." << endl;
+           << " arrays." << std::endl;
       for (int i = 0; i < dataSet->GetFieldData()->GetNumberOfArrays(); i++)
         {
-        cout << "\tArray " << i 
+        std::cout << "\tArray " << i 
              << " is named " << dataSet->GetFieldData()->GetArray(i)->GetName() 
-             << endl;
+             << std::endl;
         }
       }
     dataSet->Delete();
