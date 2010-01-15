@@ -24,6 +24,16 @@ IF(VTK_USE_METAIO)
   TARGET_LINK_LIBRARIES(GenerateCubesFromLabels vtkHybrid vtkIO)
 ENDIF(VTK_USE_METAIO)
 
+IF(VTK_USE_METAIO)
+  ADD_EXECUTABLE(GenerateModelsFromLabels GenerateModelsFromLabels.cxx)
+  ADD_EXECUTABLE(GenerateCubesFromLabels GenerateCubesFromLabels.cxx)
+  
+  TARGET_LINK_LIBRARIES(GenerateModelsFromLabels vtkHybrid vtkIO)
+  TARGET_LINK_LIBRARIES(GenerateCubesFromLabels vtkHybrid vtkIO)
+ENDIF(VTK_USE_METAIO)
+
+
+
 ######## Regression Testing ########
 SET(KIT MedicalExamples)
 SET(MyTests TestMedical1.cxx TestMedical2.cxx TestMedical3.cxx TestMedical4.cxx)
