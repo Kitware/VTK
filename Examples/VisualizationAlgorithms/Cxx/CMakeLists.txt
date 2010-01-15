@@ -9,12 +9,17 @@ INCLUDE(${VTK_USE_FILE})
 ENDIF(NOT VTK_BINARY_DIR)
 
 ADD_EXECUTABLE(TubesWithVaryingRadiusAndColors TubesWithVaryingRadiusAndColors.cxx)
+ADD_EXECUTABLE(FilledContours FilledContours.cxx)
 
 TARGET_LINK_LIBRARIES(TubesWithVaryingRadiusAndColors vtkHybrid)
+TARGET_LINK_LIBRARIES(FilledContours vtkHybrid)
 
 ######## Regression Testing ########
 SET(KIT VisualizationAlgorithmsExamples)
-SET(MyTests TestTubesWithVaryingRadiusAndColors.cxx)
+SET(MyTests
+     TestTubesWithVaryingRadiusAndColors.cxx
+     TestFilledContours.cxx
+)
 
 INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx
@@ -24,3 +29,7 @@ TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
 ADD_TEST(${KIT}-TubesWithVaryingRadiusAndColors
          ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
          TestTubesWithVaryingRadiusAndColors)
+ADD_TEST(${KIT}-FilledContours
+         ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
+         TestFilledContours
+         ${VTK_DATA_ROOT}/Data/filledContours.vtp 10)
