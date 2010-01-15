@@ -17,22 +17,13 @@ TARGET_LINK_LIBRARIES(Medical1 vtkRendering vtkIO)
 TARGET_LINK_LIBRARIES(Medical2 vtkRendering vtkIO)
 TARGET_LINK_LIBRARIES(Medical3 vtkRendering vtkIO)
 TARGET_LINK_LIBRARIES(Medical4 vtkVolumeRendering vtkIO)
+
 IF(VTK_USE_METAIO)
   ADD_EXECUTABLE(GenerateModelsFromLabels GenerateModelsFromLabels.cxx)
   ADD_EXECUTABLE(GenerateCubesFromLabels GenerateCubesFromLabels.cxx)
   TARGET_LINK_LIBRARIES(GenerateModelsFromLabels vtkHybrid vtkIO)
   TARGET_LINK_LIBRARIES(GenerateCubesFromLabels vtkHybrid vtkIO)
 ENDIF(VTK_USE_METAIO)
-
-IF(VTK_USE_METAIO)
-  ADD_EXECUTABLE(GenerateModelsFromLabels GenerateModelsFromLabels.cxx)
-  ADD_EXECUTABLE(GenerateCubesFromLabels GenerateCubesFromLabels.cxx)
-  
-  TARGET_LINK_LIBRARIES(GenerateModelsFromLabels vtkHybrid vtkIO)
-  TARGET_LINK_LIBRARIES(GenerateCubesFromLabels vtkHybrid vtkIO)
-ENDIF(VTK_USE_METAIO)
-
-
 
 ######## Regression Testing ########
 SET(KIT MedicalExamples)
