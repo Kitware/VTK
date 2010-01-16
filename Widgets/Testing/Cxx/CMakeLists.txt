@@ -17,7 +17,7 @@ SET(MyTests
 #  TestBorderWidget.cxx
 #  TestCameraWidget.cxx
   TestCaptionWidget.cxx
-#  TestCheckerboardWidget.cxx
+  TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
   TestHandleWidget.cxx
@@ -28,7 +28,7 @@ SET(MyTests
 #  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
-#  TestRectilinearWipeWidget.cxx
+  TestRectilinearWipeWidget.cxx
   TestSeedWidget.cxx
   TestSliderWidget.cxx
   TestSliderWidget2D.cxx
