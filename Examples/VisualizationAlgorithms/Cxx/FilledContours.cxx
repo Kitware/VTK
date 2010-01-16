@@ -142,6 +142,7 @@ int main (int argc, char *argv[])
   ren1->AddActor(contourLineActor);
 
   // Begin interaction
+  renWin->Render();
   iren->Start();
 
   return EXIT_SUCCESS;
