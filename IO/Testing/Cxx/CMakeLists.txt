@@ -87,8 +87,10 @@ ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 IF (VTK_DATA_ROOT)
   ADD_TEST(TestXML ${CXX_TEST_PATH}/${KIT}CxxTests TestXML
     ${VTK_DATA_ROOT}/Data/sample.xml)
-  ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
-    ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
+  IF(VTK_USE_METAIO)
+    ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
+      ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
+  ENDIF(VTK_USE_METAIO)
   ADD_TEST(TestCompress ${CXX_TEST_PATH}/${KIT}CxxTests TestCompress
     ${VTK_DATA_ROOT}/Data/sample.xml)
   IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
