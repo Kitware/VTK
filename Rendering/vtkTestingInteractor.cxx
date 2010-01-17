@@ -17,7 +17,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkTestingInteractor, "1.3");
+vtkCxxRevisionMacro(vtkTestingInteractor, "1.4");
 vtkStandardNewMacro(vtkTestingInteractor);
 
 int            vtkTestingInteractor::TestReturnStatus = -1;
@@ -52,5 +52,5 @@ void vtkTestingInteractor::Start()
   testing->AddArgument(valid.c_str());
 
   // Regression test the image
-  vtkTestingInteractor::TestReturnStatus = testing->RegressionTest(15);
+  vtkTestingInteractor::TestReturnStatus = testing->RegressionTest(40);
 }
