@@ -66,7 +66,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkShadowMapPass, "1.5");
+vtkCxxRevisionMacro(vtkShadowMapPass, "1.6");
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,OpaquePass,vtkRenderPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,CompositeZPass,vtkRenderPass);
@@ -90,6 +90,7 @@ public:
   vtksys_stl::vector<vtkSmartPointer<vtkCamera> > Vector;
 };
 
+
 // helper function to compute the nearest point in a given direction.
 // To be called several times, with initialized = false the first time.
 void  PointNearFar(double *v, double *pt, double* dir, double& near, double &far, bool initialized = true)
@@ -99,12 +100,15 @@ void  PointNearFar(double *v, double *pt, double* dir, double& near, double &far
   double dot = vtkMath::Dot(diff, dir);
   if(initialized)
     {
-    near = (dot < near ? dot : near);
-    far = (dot > far? dot:far);
+    if(dot < near)
+      near = dot;
+    if(dot > far)
+      far = dot;
     }
   else
     {
-    near = far = dot;
+    near = dot;
+    near = dot;
     }
 }
 
