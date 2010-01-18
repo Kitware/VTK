@@ -66,7 +66,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkShadowMapPass, "1.6");
+vtkCxxRevisionMacro(vtkShadowMapPass, "1.7");
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,OpaquePass,vtkRenderPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,CompositeZPass,vtkRenderPass);
@@ -91,54 +91,58 @@ public:
 };
 
 
-// helper function to compute the nearest point in a given direction.
+// helper function to compute the mNearest point in a given direction.
 // To be called several times, with initialized = false the first time.
-void  PointNearFar(double *v, double *pt, double* dir, double& near, double &far, bool initialized = true)
+void  PointNearFar(double *v, double *pt, double* dir, double& mNear, double &mFar, bool initialized)
 {
   double diff[3];
   diff[0] =  v[0] - pt[0]; diff[1] =  v[1] - pt[1]; diff[2] =  v[2] - pt[2];
   double dot = vtkMath::Dot(diff, dir);
   if(initialized)
     {
-    if(dot < near)
-      near = dot;
-    if(dot > far)
-      far = dot;
+    if(dot < mNear)
+      {
+      mNear = dot;
+      }
+    if(dot > mFar)
+      {
+      mFar = dot;
+      }
     }
   else
     {
-    near = dot;
-    near = dot;
+    mNear = dot;
+    mFar = dot;
     }
 }
 
 // compute the min/max of the projection of a box in a given direction.
-void BoxNearFar(double *bb, double *pt, double *dir, double& near, double &far)
+void BoxNearFar(double *bb, double *pt, double *dir, double& mNear, double &mFar)
 {
   double v[3];
   v[0] = bb[0]; v[1] = bb[2]; v[2] = bb[4];
-  PointNearFar(v, pt, dir, near, far, false);
+  PointNearFar(v, pt, dir, mNear, mFar, false);
 
   v[0] = bb[1]; v[1] = bb[2]; v[2] = bb[4];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 
   v[0] = bb[0]; v[1] = bb[3]; v[2] = bb[4];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 
   v[0] = bb[1]; v[1] = bb[3]; v[2] = bb[4];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 
   v[0] = bb[0]; v[1] = bb[2]; v[2] = bb[5];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 
   v[0] = bb[1]; v[1] = bb[2]; v[2] = bb[5];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 
   v[0] = bb[0]; v[1] = bb[3]; v[2] = bb[5];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 
   v[0] = bb[1]; v[1] = bb[3]; v[2] = bb[5];
-  PointNearFar(v, pt, dir, near, far, true);
+  PointNearFar(v, pt, dir, mNear, mFar, true);
 }
 
 // ----------------------------------------------------------------------------
@@ -1073,8 +1077,8 @@ void vtkShadowMapPass::BuildCameraLight(vtkLight *light,
   vtkMath::Normalize(dir);
   double vx[3], vup[3];
   vtkMath::Perpendiculars(dir, vx, vup, 0);
-  double near, far;
-  BoxNearFar(bb, lcamera->GetPosition(), dir, near, far);
+  double mNear, mFar;
+  BoxNearFar(bb, lcamera->GetPosition(), dir, mNear, mFar);
   lcamera->SetViewUp(vup);
 
   if(light->GetPositional())
@@ -1085,13 +1089,13 @@ void vtkShadowMapPass::BuildCameraLight(vtkLight *light,
     // view angle is an aperture, but cone (or light) angle is between
     // the axis of the cone and a ray along the edge  of the cone.
     lcamera->SetViewAngle(light->GetConeAngle()*2.0);
-    // initial clip=(0.1,1000). near>0, far>near);
-    double nearmin = (far - near) / 10000.0;
-    if(near < nearmin)
-      near = nearmin;
-    if(far < nearmin)
-      far = 2.0*nearmin;
-    lcamera->SetClippingRange(near,far);
+    // initial clip=(0.1,1000). mNear>0, mFar>mNear);
+    double mNearmin = (mFar - mNear) / 10000.0;
+    if(mNear < mNearmin)
+      mNear = mNearmin;
+    if(mFar < mNearmin)
+      mFar = 2.0*mNearmin;
+    lcamera->SetClippingRange(mNear,mFar);
     }
   else
     {
