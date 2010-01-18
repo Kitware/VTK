@@ -39,6 +39,8 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+#include <vtksys/SystemTools.hxx>
+
 #include <string.h>
 
 #include <netcdf.h>
@@ -125,6 +127,7 @@ int vtkNetCDFCOARDSReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       vtkStdString units;
       units.resize(unitsLength);        // Note: don't need terminating char.
       CALL_NETCDF_GW(nc_get_att_text(ncFD, varId, "units", &units.at(0)));
+      units = vtksys::SystemTools::LowerCase(units);
       // Time, latitude, and longitude dimensions are those with units that
       // correspond to strings formatted with the Unidata udunits package.  I'm
       // not sure if these checks are complete, but they matches all of the
@@ -155,7 +158,7 @@ int vtkNetCDFCOARDSReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.5");
+vtkCxxRevisionMacro(vtkNetCDFCOARDSReader, "1.6");
 vtkStandardNewMacro(vtkNetCDFCOARDSReader);
 
 //-----------------------------------------------------------------------------
