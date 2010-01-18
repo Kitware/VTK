@@ -231,6 +231,9 @@ OPTION(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 MARK_AS_ADVANCED(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
 #-----------------------------------------------------------------------------
+OPTION(VTK_USE_OPENFOAM "Build openfoam reader" ON)
+MARK_AS_ADVANCED(VTK_USE_OPENFOAM)
+
 OPTION(VTK_USE_METAIO "Build metaio" ON)
 MARK_AS_ADVANCED(VTK_USE_METAIO)
 
