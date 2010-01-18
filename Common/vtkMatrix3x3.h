@@ -115,7 +115,7 @@ public:
 //ETX
 
   // Description:
-  // Multiplies matrices a and b and stores the result in c.
+  // Multiplies matrices a and b and stores the result in c (c=a*b).
   static void Multiply3x3(vtkMatrix3x3 *a, vtkMatrix3x3 *b, vtkMatrix3x3 *c) {
     vtkMatrix3x3::Multiply3x3(*a->Element,*b->Element,*c->Element); }
 //BTX
