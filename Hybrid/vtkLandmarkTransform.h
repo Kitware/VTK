@@ -54,13 +54,19 @@ public:
 
   // Description:
   // Set the number of degrees of freedom to constrain the solution to.
-  // Rigidbody: rotation and translation only.  
-  // Similarity: rotation, translation and isotropic scaling.
+  // Rigidbody (VTK_LANDMARK_RIGIDBODY): rotation and translation only.  
+  // Similarity (VTK_LANDMARK_SIMILARITY): rotation, translation and 
+  //            isotropic scaling.
+  // Affine (VTK_LANDMARK_AFFINE): collinearity is preserved. 
+  //        Ratios of distances along a line are preserved.
   // The default is similarity.
   vtkSetMacro(Mode,int);
   void SetModeToRigidBody() { this->SetMode(VTK_LANDMARK_RIGIDBODY); };
   void SetModeToSimilarity() { this->SetMode(VTK_LANDMARK_SIMILARITY); };
   void SetModeToAffine() { this->SetMode(VTK_LANDMARK_AFFINE); };
+
+  // Description:
+  // Get the current transformation mode.
   vtkGetMacro(Mode,int);
   const char *GetModeAsString();
 
