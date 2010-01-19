@@ -160,7 +160,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetNominalParameter( "Mean");
   ds1->SetDeviationParameter( "Standard Deviation");
 
-  // Test Learn, Derive, Assess, and Test options
+  // Test Learn, Derive, Test, and Assess options
   ds1->SetLearnOption( true );
   ds1->SetDeriveOption( true );
   ds1->SetAssessOption( true );
