@@ -101,6 +101,16 @@ protected:
   bool ConvertPointData;
   bool ConvertCellData;
 
+  // Description:
+  // Count the total number of items (array components) that will need
+  // to be converted in the given vtkFieldData.  This lets us emit
+  // ProgressEvent.
+  int CountItemsToConvert(vtkFieldData *fieldData);
+
+  // These keep track of our progress 
+  int ItemsToConvert;
+  int ItemsConverted;
+
   int RequestData(
     vtkInformation*, 
     vtkInformationVector**, 

@@ -36,7 +36,7 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkStringToNumeric, "1.8");
+vtkCxxRevisionMacro(vtkStringToNumeric, "1.9");
 vtkStandardNewMacro(vtkStringToNumeric);
 
 vtkStringToNumeric::vtkStringToNumeric()
@@ -48,6 +48,28 @@ vtkStringToNumeric::vtkStringToNumeric()
 
 vtkStringToNumeric::~vtkStringToNumeric()
 {
+}
+
+int vtkStringToNumeric::CountItemsToConvert(vtkFieldData *fieldData)
+{
+  int count = 0;
+  for (int arr = 0; arr < fieldData->GetNumberOfArrays(); arr++)
+    {
+    vtkAbstractArray *array = fieldData->GetAbstractArray(arr);
+    vtkStringArray* stringArray = vtkStringArray::SafeDownCast(array);
+    vtkUnicodeStringArray* unicodeArray = 
+      vtkUnicodeStringArray::SafeDownCast(array);
+    if (!stringArray && !unicodeArray)
+      {
+      continue;
+      }
+    else
+      {
+      count += array->GetNumberOfTuples() * array->GetNumberOfComponents();
+      }
+    }
+
+  return count;
 }
 
 int vtkStringToNumeric::RequestData(
@@ -63,12 +85,45 @@ int vtkStringToNumeric::RequestData(
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   output->ShallowCopy(input);
-  
+
+  vtkDataSet* outputDataSet = vtkDataSet::SafeDownCast(output);
+  vtkGraph*   outputGraph = vtkGraph::SafeDownCast(output);
+  vtkTable*   outputTable = vtkTable::SafeDownCast(output);
+
+  // Figure out how many items we have to process
+  int itemCount = 0;
+  if (this->ConvertFieldData)
+    {
+    itemCount += this->CountItemsToConvert(output->GetFieldData());
+    }
+  if (outputDataSet && this->ConvertPointData)
+    {
+    itemCount += this->CountItemsToConvert(outputDataSet->GetPointData());
+    }
+  if (outputDataSet && this->ConvertCellData)
+    {
+    itemCount += this->CountItemsToConvert(outputDataSet->GetCellData());
+    }
+  if (outputGraph && this->ConvertPointData)
+    {
+    itemCount += this->CountItemsToConvert(outputGraph->GetVertexData());
+    }
+  if (outputGraph && this->ConvertCellData)
+    {
+    itemCount += this->CountItemsToConvert(outputGraph->GetEdgeData());
+    }
+  if (outputTable && this->ConvertPointData)
+    {
+    itemCount += this->CountItemsToConvert(outputTable->GetRowData());
+    }
+
+  this->ItemsToConvert = itemCount;
+  this->ItemsConverted = 0;
+
   if (this->ConvertFieldData)
     {
     this->ConvertArrays(output->GetFieldData());
     }
-  vtkDataSet* outputDataSet = vtkDataSet::SafeDownCast(output);
   if (outputDataSet && this->ConvertPointData)
     {
     this->ConvertArrays(outputDataSet->GetPointData());
@@ -77,7 +132,6 @@ int vtkStringToNumeric::RequestData(
     {
     this->ConvertArrays(outputDataSet->GetCellData());
     }
-  vtkGraph *outputGraph = vtkGraph::SafeDownCast(output);
   if (outputGraph && this->ConvertPointData)
     {
     this->ConvertArrays(outputGraph->GetVertexData());
@@ -86,7 +140,6 @@ int vtkStringToNumeric::RequestData(
     {
     this->ConvertArrays(outputGraph->GetEdgeData());
     }
-  vtkTable *outputTable = vtkTable::SafeDownCast(output);
   if (outputTable && this->ConvertPointData)
     {
     this->ConvertArrays(outputTable->GetRowData());
@@ -140,6 +193,13 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     bool allNumeric = true;
     for (vtkIdType i = 0; i < numTuples*numComps; i++)
       {
+      ++ this->ItemsConverted;
+      if (this->ItemsConverted % 100 == 0)
+        {
+        this->UpdateProgress(static_cast<double>(this->ItemsConverted) /
+                             static_cast<double>(this->ItemsToConvert));
+        }
+
       vtkStdString str;
       if (stringArray)
         {
