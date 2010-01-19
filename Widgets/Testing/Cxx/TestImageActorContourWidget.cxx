@@ -853,6 +853,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   imageViewer->SetupInteractor(iren);
   imageViewer->GetRenderWindow()->SetMultiSamples(0);
+  imageViewer->GetRenderWindow()->SetSize(500, 500);
 
   imageViewer->Render();
   imageViewer->GetRenderer()->ResetCamera();
@@ -911,7 +912,6 @@ int TestImageActorContourWidget(int argc, char *argv[])
   ContourWidget->SetEnabled(true);
   ContourWidget->ProcessEventsOn();
 
-  imageViewer->GetRenderWindow()->SetSize(500, 500);
 
   // render the image
   //
