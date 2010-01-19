@@ -28,6 +28,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
@@ -38,7 +39,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.89");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.90");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -533,18 +534,25 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     double m3 = inMeta->GetValueByName( r, "M3" ).ToDouble();
     double m4 = inMeta->GetValueByName( r, "M4" ).ToDouble();
 
-    double m22 = m2 * m2;
-    double s = 0.0;
-    double k = 0.0;
+    // Now calculate Jarque-Bera statistic
+    double jb;
 
-    if(m2 != 0)
+    // Eliminate extremely small variances
+    if ( m2 > 1.e-100 )
       {
+      double m22 = m2 * m2;
+      double s = 0.0;
+      double k = 0.0;
+      
       s = sqrt( n / ( m22 * m2 ) ) * m3;
       k = n * m4 / m22 - 3.;
+
+      jb = n * ( s * s + .25 * k * k ) / 6.;
       }
- 
-   
-    double jb = n * ( s * s + .25 * k * k ) / 6.;
+    else
+      {
+      jb = vtkMath::Nan();
+      }
     
     row->SetValue( 0, varName );
     row->SetValue( 1, jb );
