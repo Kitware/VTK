@@ -145,6 +145,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   vtkTable* outputData1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkTable* outputMeta1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
+  vtkTable* outputTest1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   datasetTable1->Delete();
 
@@ -195,6 +196,23 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Jarque-Bera statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest1->GetColumnName( i )
+           << "="
+           << outputTest1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
+  // Search for outliers to check results of Assess option
   double maxdev = 1.5;
   cout << "\n## Searching for outliers from mean with relative deviation > "
        << maxdev
@@ -277,6 +295,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
   ds1->SetLearnOption( false );
   ds1->SetDeriveOption( false ); 
+  ds1->SetTestOption( true );
   ds1->SetAssessOption( true );
   ds1->Update();
 
@@ -368,6 +387,7 @@ int TestDescriptiveStatistics( int, char *[] )
   // Update with Learn option only
   ds2->SetLearnOption( true );
   ds2->SetDeriveOption( false );
+  ds2->SetTestOption( false );
   ds2->SetAssessOption( false );
   ds2->Update();
 
@@ -400,6 +420,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
   ds2->SetLearnOption( false );
   ds2->SetDeriveOption( true ); 
+  ds2->SetTestOption( false );
   ds2->SetAssessOption( false );
   ds2->Update();
 
@@ -488,9 +509,10 @@ int TestDescriptiveStatistics( int, char *[] )
   // Select Column of Interest
   ds3->AddColumn( "Digits" );
 
-  // Test Learn and Derive only
+  // Test Learn and Derive options only
   ds3->SetLearnOption( true );
   ds3->SetDeriveOption( true );
+  ds3->SetTestOption( false );
   ds3->SetAssessOption( false );
   ds3->Update();
 
@@ -584,7 +606,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds4->AddColumn( "Standard Log-Normal" );
   ds4->AddColumn( "Standard Exponential" );
 
-  // Test Learn and Derive only
+  // Test Learn, Derive, and Test options only
   ds4->SetLearnOption( true );
   ds4->SetDeriveOption( true );
   ds4->SetTestOption( true );
