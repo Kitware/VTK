@@ -32,6 +32,8 @@
 #include "QVTKWin32Header.h"
 #include <vtkObject.h>
 
+class QApplication;
+
 class QVTK_EXPORT vtkQtInitialization : public vtkObject
 {
 public:
@@ -46,6 +48,7 @@ protected:
 private:
   vtkQtInitialization(const vtkQtInitialization &); // Not implemented.
   void operator=(const vtkQtInitialization &); // Not implemented.
+  QApplication *Application;
 };
 
 #endif // __vtkQtInitialization_h
