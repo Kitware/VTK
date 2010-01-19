@@ -17,14 +17,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkTestingInteractor, "1.4");
+vtkCxxRevisionMacro(vtkTestingInteractor, "1.5");
 vtkStandardNewMacro(vtkTestingInteractor);
 
-int            vtkTestingInteractor::TestReturnStatus = -1;
-vtkstd::string vtkTestingInteractor::TestName;
-vtkstd::string vtkTestingInteractor::TempDirectory;
-vtkstd::string vtkTestingInteractor::BaselineDirectory;
-vtkstd::string vtkTestingInteractor::DataDirectory;
+int         vtkTestingInteractor::TestReturnStatus = -1;
+std::string vtkTestingInteractor::ValidBaseline;
+std::string vtkTestingInteractor::TempDirectory;
+std::string vtkTestingInteractor::DataDirectory;
 
 // Start normally starts an event loop. This interator uses vtkTesting
 // to grab the render window and compare the results to a baseline image
@@ -42,13 +41,9 @@ void vtkTestingInteractor::Start()
   testing->AddArgument("-D");
   testing->AddArgument(vtkTestingInteractor::DataDirectory.c_str());
 
-  // Location of the Baseline directory
-  testing->AddArgument("-B");
-  testing->AddArgument(vtkTestingInteractor::BaselineDirectory.c_str());
-
   // The name of the valid baseline image
   testing->AddArgument("-V");
-  vtkstd::string valid = vtkTestingInteractor::TestName + vtkstd::string(".png");
+  std::string valid = vtkTestingInteractor::ValidBaseline;
   testing->AddArgument(valid.c_str());
 
   // Regression test the image

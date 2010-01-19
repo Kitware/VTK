@@ -33,7 +33,7 @@
 #include "vtkTesting.h" // Required for Test Driver
 
 //BTX
-#include <vtkstd/string> // STL Header; Required for string
+#include <string> // STL Header; Required for string
 //ETX
 
 // .NAME vtkTestingInteractor - A RenderWindowInteractor for testing
@@ -49,11 +49,10 @@ public:
   vtkTypeRevisionMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
   virtual void Start();
 
-  static int            TestReturnStatus;  // Return status of the test
-  static vtkstd::string TestName;          // Name of the test
-  static vtkstd::string TempDirectory;     // Location of Testing/Temporary
-  static vtkstd::string BaselineDirectory; // Location of VTKData/Baseline
-  static vtkstd::string DataDirectory;     // Location of VTKData
+  static int      TestReturnStatus;  // Return status of the test
+  static std::string ValidBaseline;     // Name of the Baseline image
+  static std::string TempDirectory;     // Location of Testing/Temporary
+  static std::string DataDirectory;     // Location of VTKData
 
 protected:
   vtkTestingInteractor() {}
