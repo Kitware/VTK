@@ -947,3 +947,10 @@
    fun:_save_Vertex3fv
    fun:glVertex3fv
 }
+{
+   Some zlib suppressions. See www.zlib.net/zlib_faq.html#faq36
+   Memcheck:Cond
+   fun:longest_match
+   fun:deflate_slow
+   fun:vtk_zlib_deflate
+}
