@@ -40,7 +40,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.18");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.19");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 // Forward function reference (definition at bottom :)
@@ -211,7 +211,7 @@ int vtkGroupLeafVertices::RequestData(
           }
         }
       }
-    else if(vtkStringArray::SafeDownCast(pedigreeIdArr))
+    else if(vtkStringArray::SafeDownCast(pedigreeIdArr)||vtkVariantArray::SafeDownCast(pedigreeIdArr))
       {
       for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
         {
