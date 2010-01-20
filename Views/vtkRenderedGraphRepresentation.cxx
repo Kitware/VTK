@@ -95,7 +95,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.32");
+vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.33");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
@@ -136,6 +136,9 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
   this->ScalingArrayNameInternal = 0;
   this->LayoutStrategyName = 0;
   this->EdgeLayoutStrategyName = 0;
+
+  this->HideVertexLabelsOnInteraction = false;
+  this->HideEdgeLabelsOnInteraction = false;
 
   /*
    <graphviz>
