@@ -15,6 +15,7 @@
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtksys/SystemTools.hxx"
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
@@ -118,6 +119,8 @@ int TestTilingCxx(int argc, char* argv[])
   renWin->Render();
   renWin->Render(); // perform an extra render before capturing window
 
+  vtksys::SystemTools::Delay(1000);
+
   VTK_CREATE(vtkWindowToImageFilter, w2i);
   w2i->SetInput(renWin);
   w2i->SetMagnification(2);
@@ -138,6 +141,8 @@ int TestTilingCxx(int argc, char* argv[])
   ia2->SetMapper(ia);
 
   renWin->SetSize(320, 320);
+  renWin->SetPosition(320,320);
+
   ren2->RemoveViewProp(scalarBar);
   ren1->RemoveViewProp(sphereActor);
   ren1->AddActor(ia2);
