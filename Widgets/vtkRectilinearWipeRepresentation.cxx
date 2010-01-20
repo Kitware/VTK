@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkRectilinearWipeRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkRectilinearWipeRepresentation, "1.5");
 vtkStandardNewMacro(vtkRectilinearWipeRepresentation);
 
 vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation,RectilinearWipe,vtkImageRectilinearWipe);
@@ -53,6 +53,7 @@ vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
   this->Points = vtkPoints::New();
   this->Points->SetDataTypeToDouble();
   this->Points->SetNumberOfPoints(9);
+  this->ActiveParts = -1;  // inidicates that the widget is uninitialized
 
   this->Lines = vtkCellArray::New();
   this->Lines->Allocate(this->Lines->EstimateSize(8,2));
@@ -97,56 +98,60 @@ vtkRectilinearWipeRepresentation::~vtkRectilinearWipeRepresentation()
 //-------------------------------------------------------------------------
 int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
-  // Start by grabbing the five points that define the horizontal and vertical
-  // panes, plus the center point
-  double *pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
-  double *p4 = pts + 3*4;
-  double *p5 = pts + 3*5;
-  double *p6 = pts + 3*6;
-  double *p7 = pts + 3*7;
-  double *p8 = pts + 3*8;
-  
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p4[0],p4[1],p4[2], this->DP4); 
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p5[0],p5[1],p5[2], this->DP5);
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p6[0],p6[1],p6[2], this->DP6);
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p7[0],p7[1],p7[2], this->DP7);
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p8[0],p8[1],p8[2], this->DP8);
-  
-  // Compare the distance between the current event position and the widget
-  double xyz[3], t, closest[3];
-  xyz[0] = X;
-  xyz[1] = Y;
-  xyz[2] = this->DP4[2] = this->DP5[2] = this->DP6[2] = this->DP7[2] = this->DP8[2] = 0.0;
+  this->InteractionState = vtkRectilinearWipeRepresentation::Outside;
 
-  double tol = this->Tolerance * this->Tolerance;
-  if ( (this->ActiveParts & 16) && 
-       vtkMath::Distance2BetweenPoints(xyz,this->DP8) <= tol )
-    {
-    this->InteractionState = vtkRectilinearWipeRepresentation::MovingCenter;
-    }
-  else if ( (this->ActiveParts & 1) &&
-            vtkLine::DistanceToLine(xyz,this->DP8,this->DP4,t,closest) <= tol )
-    {
-    this->InteractionState = vtkRectilinearWipeRepresentation::MovingVPane;
-    }
-  else if ( (this->ActiveParts & 2) &&
-    vtkLine::DistanceToLine(xyz,this->DP8,this->DP5,t,closest) <= tol )
-    {
-    this->InteractionState = vtkRectilinearWipeRepresentation::MovingHPane;
-    }
-  else if ( (this->ActiveParts & 4) &&
-            vtkLine::DistanceToLine(xyz,this->DP8,this->DP6,t,closest) <= tol )
-    {
-    this->InteractionState = vtkRectilinearWipeRepresentation::MovingVPane;
-    }
-  else if ( (this->ActiveParts & 8) &&
-    vtkLine::DistanceToLine(xyz,this->DP8,this->DP7,t,closest) <= tol )
-    {
-    this->InteractionState = vtkRectilinearWipeRepresentation::MovingHPane;
-    }
-  else
-    {
-    this->InteractionState = vtkRectilinearWipeRepresentation::Outside;
+  // Check if the widget is initialized, ie BuildRepresentation has been 
+  // invoked at least once
+  if (this->ActiveParts != -1) 
+    {  
+
+    // Start by grabbing the five points that define the horizontal and vertical
+    // panes, plus the center point
+    double *pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
+    double *p4 = pts + 3*4;
+    double *p5 = pts + 3*5;
+    double *p6 = pts + 3*6;
+    double *p7 = pts + 3*7;
+    double *p8 = pts + 3*8;
+
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p4[0],p4[1],p4[2], this->DP4); 
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p5[0],p5[1],p5[2], this->DP5);
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p6[0],p6[1],p6[2], this->DP6);
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p7[0],p7[1],p7[2], this->DP7);
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p8[0],p8[1],p8[2], this->DP8);
+    
+    // Compare the distance between the current event position and the widget
+    double xyz[3], t, closest[3];
+    xyz[0] = X;
+    xyz[1] = Y;
+    xyz[2] = this->DP4[2] = this->DP5[2] = this->DP6[2] = this->DP7[2] = this->DP8[2] = 0.0;
+
+    double tol = this->Tolerance * this->Tolerance;
+    if ( (this->ActiveParts & 16) && 
+         vtkMath::Distance2BetweenPoints(xyz,this->DP8) <= tol )
+      {
+      this->InteractionState = vtkRectilinearWipeRepresentation::MovingCenter;
+      }
+    else if ( (this->ActiveParts & 1) &&
+              vtkLine::DistanceToLine(xyz,this->DP8,this->DP4,t,closest) <= tol )
+      {
+      this->InteractionState = vtkRectilinearWipeRepresentation::MovingVPane;
+      }
+    else if ( (this->ActiveParts & 2) &&
+      vtkLine::DistanceToLine(xyz,this->DP8,this->DP5,t,closest) <= tol )
+      {
+      this->InteractionState = vtkRectilinearWipeRepresentation::MovingHPane;
+      }
+    else if ( (this->ActiveParts & 4) &&
+              vtkLine::DistanceToLine(xyz,this->DP8,this->DP6,t,closest) <= tol )
+      {
+      this->InteractionState = vtkRectilinearWipeRepresentation::MovingVPane;
+      }
+    else if ( (this->ActiveParts & 8) &&
+      vtkLine::DistanceToLine(xyz,this->DP8,this->DP7,t,closest) <= tol )
+      {
+      this->InteractionState = vtkRectilinearWipeRepresentation::MovingHPane;
+      }
     }
 
   return this->InteractionState;
