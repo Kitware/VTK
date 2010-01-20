@@ -29,9 +29,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkProperty2D.h"
+#include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 
 const char eventLog[] =
@@ -446,7 +446,7 @@ const char eventLog[] =
 
   ;
 
-int TestRectilinearWipeWidget( int, char *[] )
+int TestRectilinearWipeWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -520,35 +520,12 @@ int TestRectilinearWipeWidget( int, char *[] )
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
 
-  // record events
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);
-
-#ifdef RECORD
-  recorder->SetFileName("record.log");
-  recorder->On();
-  recorder->Record();
-#else
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(eventLog);
-#endif
-
   // render the image
   //
   iren->Initialize();
   renWin->Render();
   wipeWidget->On();
 
-#ifndef RECORD
-  recorder->Play();
-  recorder->Off();
-#endif
-
-  iren->Start();
-
-  return EXIT_SUCCESS;
-
+  return vtkTesting::InteractorEventLoop( argc, argv, iren, eventLog );  
 }
-
 
