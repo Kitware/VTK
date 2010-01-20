@@ -53,9 +53,6 @@ class vtkDenseArray :
   public vtkTypeTemplate<vtkDenseArray<T>, vtkTypedArray<T> >
 {
 public:
-  using vtkTypedArray<T>::GetValue;
-  using vtkTypedArray<T>::SetValue;
-
   static vtkDenseArray<T>* New();
   void PrintSelf(ostream &os, vtkIndent indent);
   

@@ -74,9 +74,6 @@ class vtkSparseArray :
   public vtkTypeTemplate<vtkSparseArray<T>, vtkTypedArray<T> >
 {
 public:
-  using vtkTypedArray<T>::GetValue;
-  using vtkTypedArray<T>::SetValue;
-
   static vtkSparseArray<T>* New();
   void PrintSelf(ostream &os, vtkIndent indent);
 
