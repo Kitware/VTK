@@ -52,7 +52,7 @@
 #include "R_ext/Parse.h"
 #include "R_ext/Rdynload.h"
 
-vtkCxxRevisionMacro(vtkRAdapter, "1.1");
+vtkCxxRevisionMacro(vtkRAdapter, "1.2");
 
 vtkStandardNewMacro(vtkRAdapter);
 
@@ -156,11 +156,23 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
   dims = getAttrib(variable, R_DimSymbol); 
   ndim = length(dims);
 
+  if (!isMatrix(variable)&&isVector(variable))
+    {
+    ndim = 1;
+    }
+
   extents.SetDimensions(ndim);
 
-  for(i=0;i< ndim;i++)
+  if (isMatrix(variable))
     {
-    extents[i] = INTEGER(dims)[i];
+    for(i=0;i< ndim;i++)
+      {
+      extents[i] = INTEGER(dims)[i];
+      }
+    }
+  else
+    {
+    extents[0] = length(variable);
     }
 
   da->Resize(extents);

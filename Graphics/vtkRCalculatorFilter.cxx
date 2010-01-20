@@ -47,7 +47,7 @@
 
 #define BUFFER_SIZE 32768 
 
-vtkCxxRevisionMacro(vtkRCalculatorFilter, "1.2");
+vtkCxxRevisionMacro(vtkRCalculatorFilter, "1.3");
 vtkStandardNewMacro(vtkRCalculatorFilter);
 
 class ArrNames
@@ -675,6 +675,8 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
         vtkErrorMacro(<<"Failed to get array from R");
         return(1);
         }
+
+      cArray->SetName(VectorIterator->VTKArrName.c_str());
 
       adout->AddArray(cArray);
       }
