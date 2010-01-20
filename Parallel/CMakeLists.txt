@@ -51,7 +51,6 @@ vtkParallelFactory.cxx
 vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
-vtkPCosmoReader.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
