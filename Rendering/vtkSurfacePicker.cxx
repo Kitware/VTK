@@ -39,25 +39,31 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.15");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.16");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
 vtkSurfacePicker::vtkSurfacePicker()
 {
+  // List of locators for accelerating polydata picking
   this->Locators = vtkCollection::New();
 
+  // For polydata picking
   this->Cell = vtkGenericCell::New();
+
+  // For interpolation of volume gradients
   this->Gradients = vtkDoubleArray::New();
   this->Gradients->SetNumberOfComponents(3);
   this->Gradients->SetNumberOfTuples(8);
  
+  // Miscellaneous ivars
   this->Tolerance = 1e-6;
   this->VolumeOpacityIsovalue = 0.05;
   this->IgnoreGradientOpacity = 1;
   this->PickClippingPlanes = 0;
   this->PickTextureData = 0;
 
+  // Clear all info returned by the pick
   this->ResetSurfacePickerInfo();
 }
 
@@ -196,11 +202,27 @@ int vtkSurfacePicker::Pick(double selectionX, double selectionY,
                                             renderer)) == 0)
     {
     // If no pick, set the PickNormal so that it points at the camera
+    vtkCamera *camera = renderer->GetActiveCamera();
     double cameraPos[3];
-    renderer->GetActiveCamera()->GetPosition(cameraPos);
-    this->PickNormal[0] = cameraPos[0] - this->PickPosition[0];
-    this->PickNormal[1] = cameraPos[1] - this->PickPosition[1];
-    this->PickNormal[2] = cameraPos[2] - this->PickPosition[2];
+    camera->GetPosition(cameraPos);
+
+    if (camera->GetParallelProjection())
+      {
+      // For parallel projection, use -ve direction of projection
+      double cameraFocus[3];
+      camera->GetFocalPoint(cameraFocus);
+      this->PickNormal[0] = cameraPos[0] - cameraFocus[0];
+      this->PickNormal[1] = cameraPos[1] - cameraFocus[1];
+      this->PickNormal[2] = cameraPos[2] - cameraFocus[2];
+      }
+    else
+      {   
+      // Get the vector from pick position to the camera
+      this->PickNormal[0] = cameraPos[0] - this->PickPosition[0];
+      this->PickNormal[1] = cameraPos[1] - this->PickPosition[1];
+      this->PickNormal[2] = cameraPos[2] - this->PickPosition[2];
+      }
+
     vtkMath::Normalize(this->PickNormal);
     }
 
@@ -228,6 +250,7 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
   double t2 = 1.0;
 
   // Clip the ray with the mapper's ClippingPlanes and adjust t1, t2.
+  // This limits the pick search to the inside of the clipped region.
   int clippingPlaneId = -1;
   if (m && (planes = m->GetClippingPlanes())
       && (planes->GetNumberOfItems() > 0))
@@ -243,7 +266,7 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
       }
     }
 
-  // Set the pick to the frontmost clipping plane
+  // Initialize the pick position to the frontmost clipping plane
   if (this->PickClippingPlanes && clippingPlaneId >= 0)
     {
     tMin = t1;
@@ -262,6 +285,11 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
     {
     tMin = this->IntersectVolumeWithLine(p1, p2, t1, t2,
                                          volume, volumeMapper);
+
+    // For volumes, the normal is usually computed from the gradient,
+    // but using the gradient for the normal is only valid if the picked
+    // point is at the chosen volume isosurface.  So, if the pick point
+    // is at a clipping plane, use the clipping plane normal.
 
     if (clippingPlaneId >= 0 && tMin == t1)
       {
@@ -356,7 +384,9 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
                                                vtkActor *actor, 
                                                vtkMapper *mapper)
 {
-  // This code was taken from CellPicker with almost no modification.
+  // This code was taken from the original CellPicker with almost no
+  // modification except for the locator and texture additions.
+
   // Intersect each cell with ray.  Keep track of one closest to
   // the eye (within the tolerance tol) and within the clipping range). 
   // Note that we fudge the "closest to" (tMin+this->Tolerance) a little and

@@ -12,15 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSurfacePicker - ray-cast picker for all kinds of Prop3Ds
+// .NAME vtkSurfacePicker - ray-cast cell picker for all kinds of Prop3Ds
 // .SECTION Description
-// vtkSurfacePicker is a subclass of vtkPicker that tries to be a little
-// bit smarter and less generic than vtkCellPicker and vtkPointPicker.
+// vtkSurfacePicker will shoot a ray into a 3D scene and return information
+// about the first object that the ray hits.  It works for all Prop3Ds.
 // For vtkVolume objects, it shoots a ray into the volume and returns
 // the point where the ray intersects an isosurface of a chosen opacity.
 // For vtkImageActor objects, it intersects the ray with the displayed
-// slice. For vtkActor objects, it works like vtkCellPicker but also
-// returns the closest point within the picked cell.
+// slice. For vtkActor objects, it intersects the actor's polygons.
 // If the object's mapper has ClippingPlanes, then it takes the clipping
 // into account, and will return the Id of the clipping plane that was
 // intersected.
@@ -30,7 +29,7 @@
 // and the cell that were picked.  
 //
 // .SECTION See Also
-// vtkPicker vtkPointPicker vtkCellPicker
+// vtkPicker vtkPointPicker vtkVolumePicker
 //
 // .SECTION Thanks
 // This class was contributed to VTK by David Gobbi on behalf of Atamai Inc.
@@ -122,7 +121,8 @@ public:
 
   // Description:
   // Return the normal of the picked surface at the PickPosition.  If no
-  // surface was picked, the camera's view plane normal is returned.
+  // surface was picked, then a vector pointing back at the camera is
+  // returned.
   vtkGetVectorMacro(PickNormal, double, 3);
 
   // Description:
