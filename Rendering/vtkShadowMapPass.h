@@ -147,9 +147,9 @@ public:
   // Description:
   // Build a camera from spot light parameters.
   // \pre light_exists: light!=0
-  // \pre light_is_spotlight: light->LightTypeIsSceneLight() && light->GetPositional() && light->GetConeAngle()<180.0
+  // \pre light_is_spotlight: light->GetConeAngle()<180.0
   // \pre camera_exists: camera!=0
-  void BuildCameraLight(vtkLight *light, const vtkRenderState* state, vtkCamera *lcamera);
+  void BuildCameraLight(vtkLight *light, double *boundingBox, vtkCamera *lcamera);
   //ETX
 
   // Description:

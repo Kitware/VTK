@@ -66,7 +66,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkShadowMapPass, "1.7");
+vtkCxxRevisionMacro(vtkShadowMapPass, "1.8");
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,OpaquePass,vtkRenderPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,CompositeZPass,vtkRenderPass);
@@ -512,6 +512,38 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
       r->SetAutomaticLightCreation(false);
 
+      r->UpdateLightsGeometryToFollowCamera();
+      double bb[6];
+      vtkMath::UninitializeBounds(bb);
+      vtkPropCollection* props = r->GetViewProps();
+      vtkCollectionSimpleIterator cookie;
+      props->InitTraversal(cookie);
+      vtkProp* prop;
+      bool first = true;
+      while((prop = props->GetNextProp(cookie)) != NULL)
+        {
+        double* bounds = prop->GetBounds();
+        if(first)
+          {
+          bb[0] = bounds[0];
+          bb[1] = bounds[1];
+          bb[2] = bounds[2];
+          bb[3] = bounds[3];
+          bb[4] = bounds[4];
+          bb[5] = bounds[5];
+          }
+        else
+          {
+          bb[0] = (bb[0] < bounds[0] ? bb[0] : bounds[0]);
+          bb[1] = (bb[1] > bounds[1] ? bb[1] : bounds[1]);
+          bb[2] = (bb[2] < bounds[2] ? bb[2] : bounds[2]);
+          bb[3] = (bb[3] > bounds[3] ? bb[3] : bounds[3]);
+          bb[4] = (bb[4] < bounds[4] ? bb[4] : bounds[4]);
+          bb[5] = (bb[5] > bounds[5] ? bb[5] : bounds[5]);
+          }
+        first = false;
+        }
+
       lights->InitTraversal();
       l=lights->GetNextItem();
       lightIndex=0;
@@ -556,7 +588,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
           // Build light camera
           r->SetActiveCamera(realCamera);
-          this->BuildCameraLight(l,s, lightCamera);
+
+
+          this->BuildCameraLight(l,bb, lightCamera);
           r->SetActiveCamera(lightCamera);
 
           glShadeModel(GL_FLAT);
@@ -573,6 +607,11 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
           this->NumberOfRenderedProps+=
             this->OpaquePass->GetNumberOfRenderedProps();
+
+          if(this->CompositeZPass!=0)
+            {
+            this->CompositeZPass->Render(&s2);
+            }
 
           r->SetActiveCamera(realCamera); //reset the camera
 
@@ -592,11 +631,6 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
           state->PrintSelf(outfile,indent);
           outfile.close();
 #endif
-
-          if(this->CompositeZPass!=0)
-            {
-            this->CompositeZPass->Render(&s2);
-            }
 
 #ifdef VTK_SHADOW_MAP_PASS_DEBUG
           state->Update();
@@ -719,7 +753,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     this->NumberOfRenderedProps+=
       this->OpaquePass->GetNumberOfRenderedProps();
 
-#ifdef VTK_SHADOW_MAP_PASS_DEBUG
+    #ifdef VTK_SHADOW_MAP_PASS_DEBUG
     cout << "finish after rendering geometry without shadowing lights" << endl;
     glFinish();
 #endif
@@ -1034,38 +1068,11 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 // \pre light_is_spotlight: light->LightTypeIsSceneLight() && light->GetPositional() && light->GetConeAngle()<180.0
 // \pre camera_exists: camera!=0
 void vtkShadowMapPass::BuildCameraLight(vtkLight *light,
-                                        const vtkRenderState* state,
+                                        double *bb,
                                         vtkCamera* lcamera)
 {
   assert("pre: light_exists" && light!=0);
   assert("pre: camera_exists" && lcamera!=0);
-
-  state->GetRenderer()->UpdateLightsGeometryToFollowCamera();
-  double bb[6];
-  vtkMath::UninitializeBounds(bb);
-  for(int i=0; i<state->GetPropArrayCount(); i++)
-    {
-    double* bounds = state->GetPropArray()[i]->GetBounds();
-    if(i==0)
-      {
-      bb[0] = bounds[0];
-      bb[1] = bounds[1];
-      bb[2] = bounds[2];
-      bb[3] = bounds[3];
-      bb[4] = bounds[4];
-      bb[5] = bounds[5];
-      }
-    else
-      {
-      bb[0] = (bb[0] < bounds[0] ? bb[0] : bounds[0]);
-      bb[1] = (bb[1] > bounds[1] ? bb[1] : bounds[1]);
-      bb[2] = (bb[2] < bounds[2] ? bb[2] : bounds[2]);
-      bb[3] = (bb[3] > bounds[3] ? bb[3] : bounds[3]);
-      bb[4] = (bb[4] < bounds[4] ? bb[4] : bounds[4]);
-      bb[5] = (bb[5] > bounds[5] ? bb[5] : bounds[5]);
-      }
-    }
-
 
   lcamera->SetPosition(light->GetTransformedPosition());
   lcamera->SetFocalPoint(light->GetTransformedFocalPoint());
@@ -1090,7 +1097,7 @@ void vtkShadowMapPass::BuildCameraLight(vtkLight *light,
     // the axis of the cone and a ray along the edge  of the cone.
     lcamera->SetViewAngle(light->GetConeAngle()*2.0);
     // initial clip=(0.1,1000). mNear>0, mFar>mNear);
-    double mNearmin = (mFar - mNear) / 10000.0;
+    double mNearmin = (mFar - mNear) / 100.0;
     if(mNear < mNearmin)
       mNear = mNearmin;
     if(mFar < mNearmin)
