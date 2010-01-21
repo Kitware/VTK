@@ -66,7 +66,7 @@ protected:
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,
-                                         vtkVolume *volume, 
+                                         vtkProp3D *prop, 
                                          vtkAbstractVolumeMapper *mapper);
 
   static int ClipLineWithCroppingRegion(const double bounds[6],

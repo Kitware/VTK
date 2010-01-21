@@ -20,7 +20,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumePicker, "1.7");
+vtkCxxRevisionMacro(vtkVolumePicker, "1.8");
 vtkStandardNewMacro(vtkVolumePicker);
 
 //----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void vtkVolumePicker::ResetPickInfo()
 double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
                                                 const double p2[3],
                                                 double t1, double t2,
-                                                vtkVolume *volume, 
+                                                vtkProp3D *prop, 
                                                 vtkAbstractVolumeMapper *mapper)
 {
   double tMin = VTK_DOUBLE_MAX;
@@ -177,7 +177,7 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
       t2 = t2List[segment];
 
       if ((tMin = this->Superclass::IntersectVolumeWithLine(
-           p1, p2, t1, t2, volume, mapper)) < VTK_DOUBLE_MAX)
+           p1, p2, t1, t2, prop, mapper)) < VTK_DOUBLE_MAX)
         {
         s1 = s1List[segment];
         // Keep the first planeId that was set at the first intersection

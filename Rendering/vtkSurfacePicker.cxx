@@ -34,12 +34,13 @@
 #include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkVolumeProperty.h"
+#include "vtkLODProp3D.h"
 #include "vtkImageActor.h"
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkSurfacePicker, "1.16");
+vtkCxxRevisionMacro(vtkSurfacePicker, "1.17");
 vtkStandardNewMacro(vtkSurfacePicker);
 
 //----------------------------------------------------------------------------
@@ -238,9 +239,7 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
 { 
   // This method will be called for vtkVolume and vtkActor but not
   // for vtkImageActor, since ImageActor has no mapper.
-  vtkActor *actor = 0;
   vtkMapper *mapper = 0;
-  vtkVolume *volume = 0;
   vtkAbstractVolumeMapper *volumeMapper = 0;
   vtkImageActor *imageActor = 0;
   vtkPlaneCollection *planes = 0;
@@ -273,18 +272,15 @@ double vtkSurfacePicker::IntersectWithLine(double p1[3], double p2[3],
     }
 
   // Actor
-  else if ( (mapper = vtkMapper::SafeDownCast(m)) &&
-       (actor = vtkActor::SafeDownCast(prop)) )
+  else if ( (mapper = vtkMapper::SafeDownCast(m)) )
     {
-    tMin = this->IntersectActorWithLine(p1, p2, t1, t2, tol, actor, mapper);
+    tMin = this->IntersectActorWithLine(p1, p2, t1, t2, tol, prop, mapper);
     }
 
   // Volume
-  else if ( (volumeMapper = vtkAbstractVolumeMapper::SafeDownCast(m)) &&
-            (volume = vtkVolume::SafeDownCast(prop)) )
+  else if ( (volumeMapper = vtkAbstractVolumeMapper::SafeDownCast(m)) )
     {
-    tMin = this->IntersectVolumeWithLine(p1, p2, t1, t2,
-                                         volume, volumeMapper);
+    tMin = this->IntersectVolumeWithLine(p1, p2, t1, t2, prop, volumeMapper);
 
     // For volumes, the normal is usually computed from the gradient,
     // but using the gradient for the normal is only valid if the picked
@@ -381,7 +377,7 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
                                                const double p2[3],
                                                double t1, double t2,
                                                double tol, 
-                                               vtkActor *actor, 
+                                               vtkProp3D *prop, 
                                                vtkMapper *mapper)
 {
   // This code was taken from the original CellPicker with almost no
@@ -514,7 +510,19 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
     cell->InterpolateFunctions(minPCoords, weights);
 
     this->Mapper = mapper;
-    this->Texture = actor->GetTexture();
+
+    // Get the texture from the actor or the LOD
+    vtkActor *actor = 0;
+    vtkLODProp3D *lodActor = 0;
+    if ( (actor = vtkActor::SafeDownCast(prop)) )
+      { 
+      this->Texture = actor->GetTexture();
+      }
+    else if ( (lodActor = vtkLODProp3D::SafeDownCast(prop)) )
+      {
+      int lodId = lodActor->GetPickLODID();
+      lodActor->GetLODTexture(lodId, &this->Texture);
+      }
 
     if (this->PickTextureData && this->Texture)
       {
@@ -594,7 +602,7 @@ double vtkSurfacePicker::IntersectActorWithLine(const double p1[3],
 double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
                                                 const double p2[3],
                                                 double t1, double t2,
-                                                vtkVolume *volume, 
+                                                vtkProp3D *prop,
                                                 vtkAbstractVolumeMapper *mapper)
 {
   vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
@@ -635,6 +643,20 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
     return VTK_DOUBLE_MAX;
     }
 
+  // Get the property from the volume or the LOD
+  vtkVolumeProperty *property = 0;
+  vtkVolume *volume = 0;
+  vtkLODProp3D *lodVolume = 0;
+  if ( (volume = vtkVolume::SafeDownCast(prop)) )
+    { 
+    property = volume->GetProperty();
+    }
+  else if ( (lodVolume = vtkLODProp3D::SafeDownCast(prop)) )
+    {
+    int lodId = lodVolume->GetPickLODID();
+    lodVolume->GetLODProperty(lodId, &property);
+    }
+
   // Get the theshold for the opacity
   double opacityThreshold = this->VolumeOpacityIsovalue;
 
@@ -643,7 +665,6 @@ double vtkSurfacePicker::IntersectVolumeWithLine(const double p1[3],
 
   // Find out whether there are multiple components in the volume
   int numComponents = data->GetNumberOfScalarComponents();
-  vtkVolumeProperty *property = volume->GetProperty();
   int independentComponents = property->GetIndependentComponents();
   int numIndependentComponents = 1;
   if (independentComponents)

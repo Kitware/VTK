@@ -193,12 +193,12 @@ protected:
 
   virtual double IntersectActorWithLine(const double p1[3], const double p2[3],
                                         double t1, double t2, double tol, 
-                                        vtkActor *actor, vtkMapper *mapper);
+                                        vtkProp3D *prop, vtkMapper *mapper);
 
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,
-                                         vtkVolume *volume, 
+                                         vtkProp3D *prop, 
                                          vtkAbstractVolumeMapper *mapper);
 
   virtual double IntersectImageActorWithLine(const double p1[3],
