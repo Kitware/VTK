@@ -114,7 +114,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkArrayToTable, "1.6");
+vtkCxxRevisionMacro(vtkArrayToTable, "1.7");
 vtkStandardNewMacro(vtkArrayToTable);
 
 // ----------------------------------------------------------------------
@@ -165,7 +165,7 @@ int vtkArrayToTable::RequestData(
     if(input_array_data->GetNumberOfArrays() != 1)
       throw vtkstd::runtime_error("vtkArrayToTable requires a vtkArrayData containing exactly one array.");
     
-    vtkArray* const input_array = input_array_data->GetArray(0);
+    vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
     if(input_array->GetDimensions() > 2)
       throw vtkstd::runtime_error("vtkArrayToTable input array must have 1 or 2 dimensions.");
     

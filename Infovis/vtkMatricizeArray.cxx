@@ -32,7 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkMatricizeArray
 
-vtkCxxRevisionMacro(vtkMatricizeArray, "1.2");
+vtkCxxRevisionMacro(vtkMatricizeArray, "1.3");
 vtkStandardNewMacro(vtkMatricizeArray);
 
 vtkMatricizeArray::vtkMatricizeArray() :
@@ -62,7 +62,8 @@ int vtkMatricizeArray::RequestData(
     return 0;
     }
     
-  vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(input->GetArray(0));
+  vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(
+    input->GetArray(static_cast<vtkIdType>(0)));
   if(!input_array)
     {
     vtkErrorMacro(<< "vtkMatricizeArray requires a vtkSparseArray<double> as input.");

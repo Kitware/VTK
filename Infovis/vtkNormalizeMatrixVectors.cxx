@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkNormalizeMatrixVectors
 
-vtkCxxRevisionMacro(vtkNormalizeMatrixVectors, "1.2");
+vtkCxxRevisionMacro(vtkNormalizeMatrixVectors, "1.3");
 vtkStandardNewMacro(vtkNormalizeMatrixVectors);
 
 vtkNormalizeMatrixVectors::vtkNormalizeMatrixVectors() :
@@ -63,7 +63,8 @@ int vtkNormalizeMatrixVectors::RequestData(
     return 0;
     }
 
-  vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input->GetArray(0));
+  vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(
+    input->GetArray(static_cast<vtkIdType>(0)));
   if(!input_array)
     {
     vtkErrorMacro(<< "vtkNormalizeMatrixVectors requires a vtkTypedArray<double> as input.");

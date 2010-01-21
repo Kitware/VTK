@@ -85,7 +85,7 @@ private:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.3");
+vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.4");
 vtkStandardNewMacro(vtkDotProductSimilarity);
 
 // ----------------------------------------------------------------------
@@ -176,7 +176,8 @@ int vtkDotProductSimilarity::RequestData(
       throw vtkstd::runtime_error("Missing array data input on input port 0.");
     if(input_a->GetNumberOfArrays() != 1)
       throw vtkstd::runtime_error("Array data on input port 0 must contain exactly one array.");
-    vtkDenseArray<double>* const input_array_a = vtkDenseArray<double>::SafeDownCast(input_a->GetArray(0));
+    vtkDenseArray<double>* const input_array_a = vtkDenseArray<double>::SafeDownCast(
+      input_a->GetArray(static_cast<vtkIdType>(0)));
     if(!input_array_a)
       throw vtkstd::runtime_error("Array on input port 0 must be a vtkDenseArray<double>.");
     if(input_array_a->GetDimensions() != 2)
@@ -188,7 +189,8 @@ int vtkDotProductSimilarity::RequestData(
       {
       if(input_b->GetNumberOfArrays() != 1)
         throw vtkstd::runtime_error("Array data on input port 1 must contain exactly one array.");
-      input_array_b = vtkDenseArray<double>::SafeDownCast(input_b->GetArray(0));
+      input_array_b = vtkDenseArray<double>::SafeDownCast(
+        input_b->GetArray(static_cast<vtkIdType>(0)));
       if(!input_array_b)
         throw vtkstd::runtime_error("Array on input port 1 must be a vtkDenseArray<double>.");
       if(input_array_b->GetDimensions() != 2)

@@ -73,7 +73,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkSparseArrayToTable, "1.1");
+vtkCxxRevisionMacro(vtkSparseArrayToTable, "1.2");
 vtkStandardNewMacro(vtkSparseArrayToTable);
 
 // ----------------------------------------------------------------------
@@ -127,7 +127,7 @@ int vtkSparseArrayToTable::RequestData(
     if(input_array_data->GetNumberOfArrays() != 1)
       throw vtkstd::runtime_error("vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
     
-    vtkArray* const input_array = input_array_data->GetArray(0);
+    vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
     
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 

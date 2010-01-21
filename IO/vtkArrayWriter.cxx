@@ -313,7 +313,7 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
 
 } // End anonymous namespace
 
-vtkCxxRevisionMacro(vtkArrayWriter, "1.2");
+vtkCxxRevisionMacro(vtkArrayWriter, "1.3");
 vtkStandardNewMacro(vtkArrayWriter);
 
 vtkArrayWriter::vtkArrayWriter()
@@ -355,7 +355,7 @@ bool vtkArrayWriter::Write(ostream& stream, bool WriteBinary)
     if(array_data->GetNumberOfArrays() != 1)
       throw vtkstd::runtime_error("vtkArrayData with exactly one array required.");
 
-    vtkArray* const array = array_data->GetArray(0);
+    vtkArray* const array = array_data->GetArray(static_cast<vtkIdType>(0));
     if(!array)
       throw vtkstd::runtime_error("Cannot serialize NULL vtkArray.");
 
