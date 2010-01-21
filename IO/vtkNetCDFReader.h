@@ -94,6 +94,18 @@ public:
   // meaningless.
   vtkGetObjectMacro(AllDimensions, vtkStringArray);
 
+  // Description:
+  // If on, any float or double variable read that has a _FillValue attribute
+  // will have that fill value replaced with a not-a-number (NaN) value.  The
+  // advantage of setting these to NaN values is that, if implemented properly
+  // by the system and careful math operations are used, they can implicitly be
+  // ignored by calculations like finding the range of the values.  That said,
+  // this option should be used with caution as VTK does not fully support NaN
+  // values and therefore odd calculations may occur.  By default this is off.
+  vtkGetMacro(ReplaceFillValueWithNan, int);
+  vtkSetMacro(ReplaceFillValueWithNan, int);
+  vtkBooleanMacro(ReplaceFillValueWithNan, int);
+
 protected:
   vtkNetCDFReader();
   ~vtkNetCDFReader();
@@ -117,6 +129,8 @@ protected:
   // Placeholder for structure returned from GetAllDimensions().
   vtkStringArray *AllDimensions;
 //ETX
+
+  int ReplaceFillValueWithNan;
 
   virtual int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
@@ -165,6 +179,16 @@ protected:
   // values.  This method returns 0 on error, 1 otherwise.
   virtual vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId);
 //ETX
+
+  // Description:
+  // Called internally to determine whether a variable with the given set of
+  // dimensions should be loaded as point data (return true) or cell data
+  // (return false).  The implementation in this class always returns true.
+  // Subclasses should override to load cell data for some or all variables.
+  virtual bool DimensionsAreForPointData(const int *vtkNotUsed(dimensions),
+                                         int vtkNotUsed(numDimensions)) {
+    return true;
+  }
 
   // Description:
   // Load the variable at the given time into the given data set.  Return 1

@@ -8,6 +8,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       SET(tests
          dem
          NetCDFReader
+         NetCDFCFSphericalCoords
          TestAVSucdReader
          TestGAMBITReader
          TestImageWriters

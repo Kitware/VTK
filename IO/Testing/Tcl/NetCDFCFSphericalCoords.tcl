@@ -1,4 +1,4 @@
-# This test checks netCDF reader.  It uses the COARDS convention.
+# This test checks netCDF reader.  It uses the CF convention.
 
 package require vtk
 
@@ -9,11 +9,11 @@ reader SetFileName "$VTK_DATA_ROOT/Data/tos_O1_2001-2002.nc"
 # Set the arrays we want to load.
 reader UpdateMetaData
 reader SetVariableArrayStatus "tos" 1
-reader SetSphericalCoordinates 0
+reader SetSphericalCoordinates 1
 
 vtkAssignAttribute aa
 aa SetInputConnection [reader GetOutputPort]
-aa Assign "tos" "SCALARS" "POINT_DATA"
+aa Assign "tos" "SCALARS" "CELL_DATA"
 
 vtkThreshold thresh
 thresh SetInputConnection [aa GetOutputPort]

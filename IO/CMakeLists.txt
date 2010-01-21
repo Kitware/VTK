@@ -91,7 +91,7 @@ vtkMINCImageReader.cxx
 vtkMINCImageWriter.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
-vtkNetCDFCOARDSReader.cxx
+vtkNetCDFCFReader.cxx
 vtkNetCDFReader.cxx
 vtkOBJReader.cxx
 ${_VTK_OGGTHEORA_SOURCES}
