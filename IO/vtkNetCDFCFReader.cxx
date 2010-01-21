@@ -285,8 +285,9 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 }
 
 //-----------------------------------------------------------------------------
-struct vtkNetCDFCFReader::vtkDimensionInfoVector
+class vtkNetCDFCFReader::vtkDimensionInfoVector
 {
+public:
   vtkstd::vector<vtkDimensionInfo> v;
 };
 
@@ -516,13 +517,14 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
 }
 
 //-----------------------------------------------------------------------------
-struct vtkNetCDFCFReader::vtkDependentDimensionInfoVector
+class vtkNetCDFCFReader::vtkDependentDimensionInfoVector
 {
+public:
   vtkstd::vector<vtkNetCDFCFReader::vtkDependentDimensionInfo> v;
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCFReader, "1.1");
+vtkCxxRevisionMacro(vtkNetCDFCFReader, "1.2");
 vtkStandardNewMacro(vtkNetCDFCFReader);
 
 //-----------------------------------------------------------------------------
