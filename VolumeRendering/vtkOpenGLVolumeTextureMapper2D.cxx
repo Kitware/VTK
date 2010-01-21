@@ -27,7 +27,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.2");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
 #endif
 
@@ -89,6 +89,9 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMultMatrixd(matrix->Element[0]);
+
+  // Make sure that culling is turned off
+  glDisable( GL_CULL_FACE );
 
   // Turn lighting off - the polygon textures already have illumination
   glDisable( GL_LIGHTING );
