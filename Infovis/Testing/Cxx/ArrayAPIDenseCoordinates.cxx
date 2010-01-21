@@ -47,7 +47,8 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->SetSubDiagonal(-0.5);
     source->Update();
 
-    vtkDenseArray<double>* const array = vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0));
+    vtkDenseArray<double>* const array = vtkDenseArray<double>::SafeDownCast(
+      source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
     cout << "dense diagonal matrix:\n";
     vtkPrintMatrixFormat(cout, array);

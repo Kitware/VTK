@@ -68,7 +68,8 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     matricize->SetSliceDimension(0);
     matricize->Update();
 
-    vtkSparseArray<double>* const matricized_array = vtkSparseArray<double>::SafeDownCast(matricize->GetOutput()->GetArray(0));
+    vtkSparseArray<double>* const matricized_array = vtkSparseArray<double>::SafeDownCast(
+      matricize->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     test_expression(matricized_array);
 
     cout << "matricize output:\n";

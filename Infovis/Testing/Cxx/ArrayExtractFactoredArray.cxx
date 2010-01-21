@@ -50,11 +50,11 @@ int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     extract->SetIndex(0);
     extract->Update();
-    test_expression(extract->GetOutput()->GetArray(0) == a.GetPointer());
+    test_expression(extract->GetOutput()->GetArray(static_cast<vtkIdType>(0)) == a.GetPointer());
 
     extract->SetIndex(1);
     extract->Update();
-    test_expression(extract->GetOutput()->GetArray(0) == b.GetPointer());
+    test_expression(extract->GetOutput()->GetArray(static_cast<vtkIdType>(0)) == b.GetPointer());
 
     return 0;
     }

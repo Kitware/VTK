@@ -56,7 +56,8 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     transpose->AddInputConnection(source_data->GetProducerPort());
     transpose->Update();
 
-    vtkSparseArray<double>* const output = vtkSparseArray<double>::SafeDownCast(transpose->GetOutput()->GetArray(0));
+    vtkSparseArray<double>* const output = vtkSparseArray<double>::SafeDownCast(
+      transpose->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     cout << "output matrix:\n";
     vtkPrintMatrixFormat(cout, output);
 

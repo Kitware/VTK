@@ -56,7 +56,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->Update();
 
     cout << "diagonal source:\n";
-    vtkPrintMatrixFormat(cout, vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
+    vtkPrintMatrixFormat(cout, vtkSparseArray<double>::SafeDownCast(
+        source->GetOutput()->GetArray(static_cast<vtkIdType>(0))));
 
     vtkSmartPointer<vtkArrayNorm> vector_norm = vtkSmartPointer<vtkArrayNorm>::New();
     vector_norm->AddInputConnection(source->GetOutputPort());
@@ -64,7 +65,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vector_norm->SetL(2);
     vector_norm->Update();
 
-    vtkDenseArray<double>* const l2_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
+    vtkDenseArray<double>* const l2_norm = vtkDenseArray<double>::SafeDownCast(
+      vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     
     cout << "L2-norm:\n";
     vtkPrintVectorFormat(cout, l2_norm);
@@ -77,7 +79,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vector_norm->SetL(1);
     vector_norm->Update();
 
-    vtkDenseArray<double>* const l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
+    vtkDenseArray<double>* const l1_norm = vtkDenseArray<double>::SafeDownCast(
+      vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     
     cout << "L1-norm:\n";
     vtkPrintVectorFormat(cout, l1_norm);
@@ -90,7 +93,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vector_norm->SetInvert(true);
     vector_norm->Update();
 
-    vtkDenseArray<double>* const inverse_l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
+    vtkDenseArray<double>* const inverse_l1_norm = vtkDenseArray<double>::SafeDownCast(
+      vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     
     cout << "Inverse L1-norm:\n";
     vtkPrintVectorFormat(cout, inverse_l1_norm);
@@ -104,7 +108,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vector_norm->SetWindow(vtkArrayRange(0, 2));
     vector_norm->Update();
 
-    vtkDenseArray<double>* const window_l1_norm = vtkDenseArray<double>::SafeDownCast(vector_norm->GetOutput()->GetArray(0));
+    vtkDenseArray<double>* const window_l1_norm = vtkDenseArray<double>::SafeDownCast(
+      vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
     
     cout << "Windowed L1-norm:\n";
     vtkPrintVectorFormat(cout, window_l1_norm);
