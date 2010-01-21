@@ -78,6 +78,7 @@ REMOVE( TestsToRun
    TestHandleWidget.cxx
    TerrainPolylineEditor.cxx
    TestDijkstraGraphGeodesicPath.cxx
+   TestRectilinearWipeWidget.cxx
    )
 
 # Add all the tests
@@ -115,6 +116,49 @@ IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestDijkstraGraphGeodesicPath.png)
+
+  ADD_TEST( TestRectilinearWipeWidget0 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         0
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget0.png)
+  ADD_TEST( TestRectilinearWipeWidget1 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         1
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget1.png)
+  ADD_TEST( TestRectilinearWipeWidget2 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         2
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget2.png)
+  ADD_TEST( TestRectilinearWipeWidget3 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         3
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget3.png)
+  ADD_TEST( TestRectilinearWipeWidget4 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         4
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget4.png)
+  ADD_TEST( TestRectilinearWipeWidget5 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         5
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget5.png)
+  ADD_TEST( TestRectilinearWipeWidget6 ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestRectilinearWipeWidget
+         6
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestRectilinearWipeWidget6.png)
 ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
 
 

@@ -448,6 +448,12 @@ const char eventLog[] =
 
 int TestRectilinearWipeWidget( int argc, char *argv[] )
 {
+  int wipeMode = 0;
+  if (argc > 1)
+    {
+    wipeMode = atoi(argv[1]);
+    }
+
   // Create the RenderWindow, Renderer and both Actors
   //
   vtkSmartPointer<vtkRenderer> ren1 =
@@ -492,7 +498,7 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
   wipe->SetInput(0,pad1->GetOutput());
   wipe->SetInput(1,pad2->GetOutput());
   wipe->SetPosition(100,256);
-  wipe->SetWipeToQuad();
+  wipe->SetWipe(wipeMode);
 
   vtkSmartPointer<vtkImageActor> wipeActor =
     vtkSmartPointer<vtkImageActor>::New();
