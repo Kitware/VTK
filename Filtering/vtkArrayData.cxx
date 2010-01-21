@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.12");
+vtkCxxRevisionMacro(vtkArrayData, "1.13");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -141,7 +141,7 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
   return this->Implementation->Arrays[static_cast<size_t>(index)];
 }
 
-vtkArray* vtkArrayData::GetArray(const char *name)
+vtkArray* vtkArrayData::GetArrayByName(const char *name)
 {
   if(!name || name[0]=='\0')
     {

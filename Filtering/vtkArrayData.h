@@ -70,7 +70,7 @@ public:
   
   // Description:
   // Returns the array having called name from the collection
-  vtkArray* GetArray(const char *name);
+  vtkArray* GetArrayByName(const char *name);
 
   // Description:
   // Return class name of data type (VTK_ARRAY_DATA).
