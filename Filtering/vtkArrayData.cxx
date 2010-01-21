@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.10");
+vtkCxxRevisionMacro(vtkArrayData, "1.11");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation
@@ -139,6 +139,27 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
     }
     
   return this->Implementation->Arrays[static_cast<size_t>(index)];
+}
+
+vtkArray* vtkArrayData::GetArray(const char *name)
+{
+  if(!name || name=="")
+    {
+    vtkErrorMacro(<< "No name passed into routine.");
+    return 0;
+    }
+    
+  vtkArray *temp = 0;
+  for (vtkIdType ctr=0; ctr<this->GetNumberOfArrays(); ctr++)
+    {
+    temp = this->GetArray(ctr);
+    if (temp && !strcmp(name, temp->GetName()))
+      {
+      break;
+      }
+    temp = 0;
+    }
+  return temp;
 }
 
 void vtkArrayData::ShallowCopy(vtkDataObject* other)
