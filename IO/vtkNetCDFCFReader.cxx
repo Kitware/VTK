@@ -524,7 +524,7 @@ public:
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCFReader, "1.2");
+vtkCxxRevisionMacro(vtkNetCDFCFReader, "1.3");
 vtkStandardNewMacro(vtkNetCDFCFReader);
 
 //-----------------------------------------------------------------------------
@@ -549,6 +549,8 @@ void vtkNetCDFCFReader::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "SphericalCoordinates: " << this->SphericalCoordinates <<endl;
+  os << indent << "VerticalScale: " << this->VerticalScale <<endl;
+  os << indent << "VerticalBias: " << this->VerticalBias <<endl;
 }
 
 //-----------------------------------------------------------------------------
