@@ -53,7 +53,7 @@
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.8");
 
 class vtkXMLCompositeDataWriterInternals
 {
@@ -267,6 +267,7 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
 
   vtkstd::string full = this->Internal->FilePath;
   full += fileName;
+
   writer->SetFileName(full.c_str());
 
   // Write the data.
@@ -595,8 +596,6 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
   fn_with_warning_C4701
     << this->Internal->FilePrefix.c_str() << "/"
     << this->Internal->FilePrefix.c_str();
-
-  fn_with_warning_C4701 << "_" << Piece;
 
   fn_with_warning_C4701 << "_" << Piece << "."
     << this->Internal->Writers[Piece]->GetDefaultFileExtension();
