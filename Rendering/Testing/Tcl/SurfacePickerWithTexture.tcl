@@ -39,9 +39,13 @@ sphereMapper ScalarVisibilityOff
 vtkTexture sphereTexture
 sphereTexture SetInputConnection [reader GetOutputPort]
 
+vtkProperty sphereProperty
+sphereProperty BackfaceCullingOn
+
 vtkActor sphere
 sphere SetMapper sphereMapper
 sphere SetTexture sphereTexture
+sphere SetProperty sphereProperty
 
 #---------------------------------------------------------
 ren AddViewProp sphere
@@ -110,6 +114,7 @@ vtkDataSetMapper coneMapper1
 coneMapper1 SetInputConnection [coneSource GetOutputPort]
 coneActor1 SetMapper coneMapper1
 [coneActor1 GetProperty] SetColor $r $g $b
+[coneActor1 GetProperty] BackfaceCullingOn
 coneActor1 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor1 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor1
