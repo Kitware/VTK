@@ -480,6 +480,7 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX AND MINGW)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(__inst_files
+    vtkABI.h
     vtkArrayIteratorTemplate.h
     vtkDataArrayTemplate.h
     vtkIOStream.h
