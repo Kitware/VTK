@@ -359,7 +359,7 @@
 # endif
 #else
 # define VTK_SQLITE_INT_TO_PTR(X)   ((void*)&((char*)0)[X])
-# define VTK_SQLITE_PTR_TO_INT(X)   ((ssize_t)(((char*)X)-(char*)0))
+# define VTK_SQLITE_PTR_TO_INT(X)   ((size_t)(((char*)X)-(char*)0))
 #endif
 
 
