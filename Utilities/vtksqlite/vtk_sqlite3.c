@@ -54311,7 +54311,7 @@ case OP_Column: {
     assert(u.am.aType);
     u.am.avail = 0;
     u.am.pC->aOffset = u.am.aOffset = &u.am.aType[u.am.nField];
-    u.am.dummyfunction->payloadSize = u.am.payloadSize;
+    u.am.pC->payloadSize = u.am.payloadSize;
     u.am.pC->cacheStatus = p->cacheCtr;
 
     /* Figure out how many bytes are in the header */
