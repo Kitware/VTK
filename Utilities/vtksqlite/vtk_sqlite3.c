@@ -354,7 +354,7 @@
 #   define VTK_SQLITE_INT_TO_PTR(X)  ((void*)(intptr_t)(X))
 #   define VTK_SQLITE_PTR_TO_INT(X)  ((ssize_t)(intptr_t)(X))
 # else
-#   define VTK_SQLITE_INT_TO_PTR(X)  ((void*)(X))
+#   define VTK_SQLITE_INT_TO_PTR(X)  ((void*)(ssize_t)(X))
 #   define VTK_SQLITE_PTR_TO_INT(X)  ((ssize_t)(X))
 # endif
 #else
