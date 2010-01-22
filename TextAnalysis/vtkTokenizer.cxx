@@ -63,7 +63,7 @@ public:
   DelimiterRanges KeptDelimiters;
 };
 
-vtkCxxRevisionMacro(vtkTokenizer, "1.4");
+vtkCxxRevisionMacro(vtkTokenizer, "1.5");
 vtkStandardNewMacro(vtkTokenizer);
 
 vtkTokenizer::vtkTokenizer() :
@@ -120,12 +120,12 @@ const vtkTokenizer::DelimiterRanges vtkTokenizer::Punctuation()
 
 const vtkTokenizer::DelimiterRanges vtkTokenizer::Whitespace()
 {
-  // Unicode whitespace based on the charts available at http://www.unicode.org/charts/symbols.html
+  // Unicode whitespace based on the charts available at http://www.unicode.org/charts, including
+  // http://unicode.org/charts/PDF/U0000.pdf
 
   vtkTokenizer::DelimiterRanges result;
-  
-  result.push_back(vtkstd::make_pair(0x0009, 0x000e)); // HT, LF, VT, FF, CR
-  result.push_back(vtkstd::make_pair(0x0020, 0x0021)); // Space
+ 
+  result.push_back(vtkstd::make_pair(0x0001, 0x0021)); // Includes, among other things: HT, LF, VT, FF, CR, ESC, Space
   result.push_back(vtkstd::make_pair(0x2000, 0x200c)); // General Punctuation
 
   return result;
