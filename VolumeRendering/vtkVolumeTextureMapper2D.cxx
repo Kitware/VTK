@@ -273,31 +273,31 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
         switch ( axis )
           {
           case 0:
-            clipLow  = static_cast<int>(croppingBounds[2]);
-            clipHigh = static_cast<int>(croppingBounds[3]);
+            clipLow  = static_cast<int>(ceil(croppingBounds[2]));
+            clipHigh = static_cast<int>(ceil(croppingBounds[3]));
             tmpFlag =    (*xAxis<croppingBounds[0])?(0):(1+(*xAxis>=croppingBounds[1]));
             tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
-            flag[0]  = croppingFlags&(1<<(tmpFlag));
-            flag[1]  = croppingFlags&(1<<(tmpFlag+3));
-            flag[2]  = croppingFlags&(1<<(tmpFlag+6));
+            flag[0]  = ((croppingFlags >> (tmpFlag)) & 0x1);
+            flag[1]  = ((croppingFlags >> (tmpFlag+3)) & 0x1);
+            flag[2]  = ((croppingFlags >> (tmpFlag+6)) & 0x1);
             break;
           case 1:
-            clipLow  = static_cast<int>(croppingBounds[0]);
-            clipHigh = static_cast<int>(croppingBounds[1]);
+            clipLow  = static_cast<int>(ceil(croppingBounds[0]));
+            clipHigh = static_cast<int>(ceil(croppingBounds[1]));
             tmpFlag = 3*((*yAxis<croppingBounds[2])?(0):(1+(*yAxis>=croppingBounds[3])));
             tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
-            flag[0]  = croppingFlags&(1<<(tmpFlag));
-            flag[1]  = croppingFlags&(1<<(tmpFlag+1));
-            flag[2]  = croppingFlags&(1<<(tmpFlag+2));
+            flag[0]  = ((croppingFlags >> (tmpFlag)) & 0x1);
+            flag[1]  = ((croppingFlags >> (tmpFlag+1)) & 0x1);
+            flag[2]  = ((croppingFlags >> (tmpFlag+2)) & 0x1);
             break;
           case 2:
-            clipLow  = static_cast<int>(croppingBounds[0]);
-            clipHigh = static_cast<int>(croppingBounds[1]);
+            clipLow  = static_cast<int>(ceil(croppingBounds[0]));
+            clipHigh = static_cast<int>(ceil(croppingBounds[1]));
             tmpFlag = 3*((*yAxis<croppingBounds[2])?(0):(1+(*yAxis>=croppingBounds[3])));
             tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
-            flag[0]  = croppingFlags&(1<<(tmpFlag));
-            flag[1]  = croppingFlags&(1<<(tmpFlag+1));
-            flag[2]  = croppingFlags&(1<<(tmpFlag+2));
+            flag[0]  = ((croppingFlags >> (tmpFlag)) & 0x1);
+            flag[1]  = ((croppingFlags >> (tmpFlag+1)) & 0x1);
+            flag[2]  = ((croppingFlags >> (tmpFlag+2)) & 0x1);
             break;
           }
         }
@@ -315,7 +315,9 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
           index = 0;
           index += ( i >= clipLow );
           index += ( i >= clipHigh );
-          if ( flag[index] )
+
+          // Add a 1 pixel border to avoid black on edges of visible texture
+          if (flag[index] || (i >= (clipLow-1) && i <= clipHigh))
             {
             tmpval = rgbaArray[(*dptr)*4];
             tmpval = tmpval * redDiffuseShadingTable[*nptr] +
@@ -350,8 +352,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
               tmpval *= gradientOpacityArray[*gptr];
               gptr += inc;
               }
-            *(tptr++) = static_cast<unsigned char>(tmpval);
-            
+            *(tptr++) = static_cast<unsigned char>(tmpval*flag[index]);
             }
           else
             {
@@ -380,24 +381,17 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
             index = 0;
             index += ( i >= clipLow );
             index += ( i >= clipHigh );
-            if ( flag[index] )
+
+            memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
+            // clear the alpha if flag shows that region is cropped
+            *(tptr+3) *= static_cast<unsigned char>(flag[index]);
+            if ( gradientMagnitudes )
               {
-              memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-              if ( gradientMagnitudes )
-                {
-                *(tptr+3) = static_cast<unsigned char>
-                  ((*(tptr+3)) * gradientOpacityArray[*gptr]);
-                gptr += inc;
-                }
+              *(tptr+3) = static_cast<unsigned char>
+                ((*(tptr+3)) * gradientOpacityArray[*gptr]);
+              gptr += inc;
               }
-            else
-              {
-              memcpy( tptr, zero, 4 );
-              if ( gradientMagnitudes )
-                {
-                gptr += inc;
-                }             
-              }
+
             tptr += 4;
             dptr += inc;
             }
@@ -467,7 +461,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.4");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.5");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
