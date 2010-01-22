@@ -352,10 +352,10 @@
 #if defined(__GNUC__)
 # if defined(HAVE_STDINT_H)
 #   define VTK_SQLITE_INT_TO_PTR(X)  ((void*)(intptr_t)(X))
-#   define VTK_SQLITE_PTR_TO_INT(X)  ((ssize_t)(intptr_t)(X))
+#   define VTK_SQLITE_PTR_TO_INT(X)  ((size_t)(intptr_t)(X))
 # else
-#   define VTK_SQLITE_INT_TO_PTR(X)  ((void*)(ssize_t)(X))
-#   define VTK_SQLITE_PTR_TO_INT(X)  ((ssize_t)(X))
+#   define VTK_SQLITE_INT_TO_PTR(X)  ((void*)(size_t)(X))
+#   define VTK_SQLITE_PTR_TO_INT(X)  ((size_t)(X))
 # endif
 #else
 # define VTK_SQLITE_INT_TO_PTR(X)   ((void*)&((char*)0)[X])
