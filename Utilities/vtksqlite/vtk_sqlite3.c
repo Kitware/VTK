@@ -26200,7 +26200,7 @@ static int proxyGetLockPath(const char *dbPath, char *lPath, size_t maxLen){
   
   /* transform the db path to a unique cache name */
   dbLen = (int)strlen(dbPath);
-  for( i=0; i<dbLen && (i+len+7)<maxLen; i++){
+  for( i=0; i<dbLen && (i+len+7)<(int)maxLen; i++){
     char c = dbPath[i];
     lPath[i+len] = (c=='/')?'_':c;
   }
