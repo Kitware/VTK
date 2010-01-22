@@ -26109,7 +26109,7 @@ static void proxyGetHostIDPath(char *path, size_t len){
 static int proxyGetHostID(char *pHostID, int *pError){
   int fd;
   char path[MAXPATHLEN]; 
-  size_t len;
+  int len;
   int rc=VTK_SQLITE_OK;
 
   proxyGetHostIDPath(path, MAXPATHLEN);
@@ -76565,7 +76565,15 @@ VTK_SQLITE_API int vtk_sqlite3_enable_load_extension(vtk_sqlite3 *db, int onoff)
 ** dummy pointer.
 */
 #ifdef VTK_SQLITE_OMIT_LOAD_EXTENSION
-static const vtk_sqlite3_api_routines vtk_sqlite3Apis = { 0 };
+static const vtk_sqlite3_api_routines vtk_sqlite3Apis = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 #endif
 
 
