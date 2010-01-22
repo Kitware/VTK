@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.8");
 
 vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter, 
                      Controller,
@@ -58,17 +58,17 @@ public:
       this->PieceProcessList = new int[numPieces*numProcs];
     }
 
-  void GetPieceProcessList(int Piece, int* ProcessList)
+  void GetPieceProcessList(int piece, int* processList)
     {
-      if(!this->PieceProcessList || Piece >= this->NumberOfPieces ||
-         Piece < 0)
+      if(!this->PieceProcessList || piece >= this->NumberOfPieces ||
+         piece < 0)
         {
         return;
         }
       for(int i=0;i<this->NumberOfProcesses;i++)
         {
-        ProcessList[i] = 
-          this->PieceProcessList[Piece+i*this->NumberOfPieces];
+        processList[i] = 
+          this->PieceProcessList[piece+i*this->NumberOfPieces];
         }
     }
   // For each piece it keeps the processes that have that piece. 
@@ -147,8 +147,8 @@ void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
 
 //----------------------------------------------------------------------------
 int vtkXMLPMultiBlockDataWriter::WriteComposite(
-  vtkCompositeDataSet* compositeData, vtkXMLDataElement* ParentXML, 
-  int &CurrentFileIndex)
+  vtkCompositeDataSet* compositeData, vtkXMLDataElement* parentXML, 
+  int &currentFileIndex)
 {
   if (! (compositeData->IsA("vtkMultiBlockDataSet")
         ||compositeData->IsA("vtkMultiPieceDataSet")) )
@@ -165,10 +165,10 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
   iter->TraverseSubTreeOff();
   iter->SkipEmptyNodesOff();
 
-  int RetVal = 0;
-  int IndexCounter = 0;
+  int retVal = 0;
+  int indexCounter = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
-       iter->GoToNextItem(), IndexCounter++)
+       iter->GoToNextItem(), indexCounter++)
     {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
     if (curDO && curDO->IsA("vtkCompositeDataSet"))
@@ -180,19 +180,19 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {
         tag->SetName("Piece");
-        tag->SetIntAttribute("index", IndexCounter);
+        tag->SetIntAttribute("index", indexCounter);
         }
       else if (curDO->IsA("vtkMultiBlockDataSet"))
         {
         tag->SetName("Block");
-        tag->SetIntAttribute("index", IndexCounter);
+        tag->SetIntAttribute("index", indexCounter);
         }
       vtkCompositeDataSet* curCD
         = vtkCompositeDataSet::SafeDownCast(curDO);
-      if (this->WriteComposite(curCD, tag, CurrentFileIndex))
+      if (this->WriteComposite(curCD, tag, currentFileIndex))
         {
-        ParentXML->AddNestedElement(tag);
-        RetVal = 1;
+        parentXML->AddNestedElement(tag);
+        retVal = 1;
         }
       tag->Delete();
       }
@@ -203,66 +203,66 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
       // datasetXML::Name may get overwritten in ParallelWriteNonCompositeData
       // if this piece is on different processes.
       datasetXML->SetName("DataSet");
-      datasetXML->SetIntAttribute("index", IndexCounter);
+      datasetXML->SetIntAttribute("index", indexCounter);
       if (this->ParallelWriteNonCompositeData( 
-            curDO, datasetXML, CurrentFileIndex) )
+            curDO, datasetXML, currentFileIndex) )
         {
-        RetVal = 1;
+        retVal = 1;
         }
-      ParentXML->AddNestedElement(datasetXML);
-      CurrentFileIndex++;
+      parentXML->AddNestedElement(datasetXML);
+      currentFileIndex++;
       datasetXML->Delete();
       }
     }
 
-  return RetVal;
+  return retVal;
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
-  vtkDataObject* dObj, vtkXMLDataElement* ParentXML, int CurrentFileIndex)
+  vtkDataObject* dObj, vtkXMLDataElement* parentXML, int currentFileIndex)
 {
-  int NumberOfProcesses = this->Controller->GetNumberOfProcesses();
-  vtkstd::vector<int> PieceProcessList(NumberOfProcesses);
-  this->Internal->GetPieceProcessList(CurrentFileIndex, &PieceProcessList[0]);
-  int MyProcId = this->Controller->GetLocalProcessId();
+  int numberOfProcesses = this->Controller->GetNumberOfProcesses();
+  vtkstd::vector<int> pieceProcessList(numberOfProcesses);
+  this->Internal->GetPieceProcessList(currentFileIndex, &pieceProcessList[0]);
+  int myProcId = this->Controller->GetLocalProcessId();
  
-  if(MyProcId == 0)
+  if(myProcId == 0)
     {
-    int NumPieces = 0;
-    for (int ProcId=0; ProcId < NumberOfProcesses; ProcId++)
+    int numPieces = 0;
+    for (int procId=0; procId < numberOfProcesses; procId++)
       {
-      if(PieceProcessList[ProcId] >= 0)
+      if(pieceProcessList[procId] >= 0)
         {
-        NumPieces++;
+        numPieces++;
         }
       }
-    if(NumPieces > 1)
+    if(numPieces > 1)
       {
-      // intentionally overwrite ParentXML::Name from "DataSet" to 
+      // intentionally overwrite parentXML::Name from "DataSet" to 
       //"Piece" as the calling function did not know this had multiple
       // pieces.  It will still have the index that was set before.
-      ParentXML->SetName("Piece");
+      parentXML->SetName("Piece");
       }
-    int IndexCounter = 0;
-    for (int ProcId=0; ProcId < NumberOfProcesses; ProcId++)
+    int indexCounter = 0;
+    for (int procId=0; procId < numberOfProcesses; procId++)
       {
-      if(PieceProcessList[ProcId] >= 0)
+      if(pieceProcessList[procId] >= 0)
         {
-        vtkXMLDataElement* datasetXML = ParentXML;
-        if(NumPieces > 1)
+        vtkXMLDataElement* datasetXML = parentXML;
+        if(numPieces > 1)
           {
           // a hacky way to make sure that the pieces are nested into
-          // ParentXML
+          // parentXML
           datasetXML = vtkXMLDataElement::New();
           datasetXML->SetName("DataSet");
-          datasetXML->SetIntAttribute("index", IndexCounter);
-          ParentXML->AddNestedElement(datasetXML);
+          datasetXML->SetIntAttribute("index", indexCounter);
+          parentXML->AddNestedElement(datasetXML);
           datasetXML->Delete();          
-          IndexCounter++;
+          indexCounter++;
           }
         vtkStdString fName = this->CreatePieceFileName(
-          CurrentFileIndex, ProcId, PieceProcessList[ProcId]);
+          currentFileIndex, procId, pieceProcessList[procId]);
         datasetXML->SetAttribute("file", fName.c_str());
         }
       }
@@ -270,21 +270,21 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   if(dObj)
     {
     vtkStdString fName = this->CreatePieceFileName(
-      CurrentFileIndex, MyProcId, PieceProcessList[MyProcId]);
+      currentFileIndex, myProcId, pieceProcessList[myProcId]);
     return this->Superclass::WriteNonCompositeData(
-      dObj, NULL, CurrentFileIndex, fName.c_str());
+      dObj, NULL, currentFileIndex, fName.c_str());
     }
   return 0;
 }
 
 //----------------------------------------------------------------------------
 vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
-  int CurrentFileIndex, int ProcId, int DataSetType)
+  int currentFileIndex, int procId, int dataSetType)
 {
   vtkstd::string fname;
   vtkstd::string extension;
   
-  switch (DataSetType)
+  switch (dataSetType)
     {
     case VTK_POLY_DATA:
     {
@@ -323,8 +323,8 @@ vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
   vtksys_ios::ostringstream fn_with_warning_C4701;
   fn_with_warning_C4701
     << this->GetFilePrefix() << "/"
-    << this->GetFilePrefix() << "_" << CurrentFileIndex
-    << "_" << ProcId << "." << extension;
+    << this->GetFilePrefix() << "_" << currentFileIndex
+    << "_" << procId << "." << extension;
   fname = fn_with_warning_C4701.str();
   return fname;
 }

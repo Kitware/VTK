@@ -75,7 +75,7 @@ protected:
   // no files were written from compositeData.  Process 0 creates 
   // the metadata for all of the processes/files.
   virtual int WriteComposite(vtkCompositeDataSet* compositeData, 
-                             vtkXMLDataElement* parent, int &CurrentFileIndex);
+                             vtkXMLDataElement* parent, int &currentFileIndex);
 
   // Description:
   // Internal method to write a non vtkCompositeDataSet subclass as
@@ -88,20 +88,20 @@ protected:
   // care of that in the metadata description. This function returns
   // 0 if no file was written.
   int ParallelWriteNonCompositeData(
-    vtkDataObject* dObj, vtkXMLDataElement* ParentXML, 
-    int CurrentFileIndex);
+    vtkDataObject* dObj, vtkXMLDataElement* parentXML, 
+    int currentFileIndex);
 
   // Description:
-  // Return the name of the file given the CurrentFileIndex (also the current 
-  // globally numbered piece index), the ProcId the file exists on, and
-  // the DataSetType.
+  // Return the name of the file given the currentFileIndex (also the current 
+  // globally numbered piece index), the procId the file exists on, and
+  // the dataSetType.
   virtual vtkStdString CreatePieceFileName(
-    int CurrentFileIndex, int ProcId, int DataSetType);
+    int currentFileIndex, int procId, int dataSetType);
 
   // Description:
   // Utility function to remove any already written files
   // in case writer failed.
-  virtual void RemoveWrittenFiles(const char* SubDirectory);
+  virtual void RemoveWrittenFiles(const char* subDirectory);
 
 private:
   vtkXMLPMultiBlockDataWriter(const vtkXMLPMultiBlockDataWriter&); // Not implemented.
