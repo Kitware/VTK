@@ -19,7 +19,7 @@
 #undef _POSIX_C_SOURCE
 #undef _POSIX_THREADS
 
-#include "vtkToolkits.h"
+#include "vtkConfigure.h"
 
 /* 
    Use the real python debugging library if it is provided.  
