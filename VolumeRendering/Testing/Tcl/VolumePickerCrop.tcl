@@ -101,9 +101,7 @@ coneSource SetDirection -1 0 0
 #---------------------------------------------------------
 vtkVolumePicker picker
 picker SetTolerance 1e-6
-picker SetVolumeOpacityIsovalue 0.1
-# This should usually be left alone, but is used here to increase coverage
-picker IgnoreGradientOpacityOff
+picker SetVolumeOpacityIsovalue 0.3
 
 # A function to point an actor along a vector
 proc PointCone {actor nx ny nz} {
@@ -127,11 +125,15 @@ vtkDataSetMapper coneMapper1
 coneMapper1 SetInputConnection [coneSource GetOutputPort]
 coneActor1 SetMapper coneMapper1
 [coneActor1 GetProperty] SetColor 1 0 0
+[coneActor1 GetProperty] BackfaceCullingOn
 coneActor1 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor1 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor1
 
 # Pick through a cropping plane to some bone
+
+# This should usually be left alone, but is used here to increase coverage
+picker IgnoreGradientOpacityOff
 picker Pick 90 180 0 ren
 set p [picker GetPickPosition]
 set n [picker GetPickNormal]
@@ -142,12 +144,16 @@ vtkDataSetMapper coneMapper2
 coneMapper2 SetInputConnection [coneSource GetOutputPort]
 coneActor2 SetMapper coneMapper2
 [coneActor2 GetProperty] SetColor 1 0 0
+[coneActor2 GetProperty] BackfaceCullingOn
 coneActor2 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor2 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor2
 
 # Pick through a cropping plane to some transparent tissue
-picker Pick 130 180 0 ren
+
+# Ignore gradient opacity, since it makes it harder to find isosurface
+picker IgnoreGradientOpacityOn
+picker Pick 125 195 0 ren
 set p [picker GetPickPosition]
 set n [picker GetPickNormal]
 
@@ -157,6 +163,7 @@ vtkDataSetMapper coneMapper3
 coneMapper3 SetInputConnection [coneSource GetOutputPort]
 coneActor3 SetMapper coneMapper3
 [coneActor3 GetProperty] SetColor 1 0 0
+[coneActor3 GetProperty] BackfaceCullingOn
 coneActor3 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor3 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor3
@@ -172,13 +179,14 @@ vtkDataSetMapper coneMapper4
 coneMapper4 SetInputConnection [coneSource GetOutputPort]
 coneActor4 SetMapper coneMapper4
 [coneActor4 GetProperty] SetColor 1 0 0
+[coneActor4 GetProperty] BackfaceCullingOn
 coneActor4 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor4 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor4
 
 # Pick through a cropping plane with PickCroppingPlanesOn
 picker PickCroppingPlanesOn
-picker Pick 130 180 0 ren
+picker Pick 125 195 0 ren
 set p [picker GetPickPosition]
 set n [picker GetPickNormal]
 
@@ -188,6 +196,7 @@ vtkDataSetMapper coneMapper5
 coneMapper5 SetInputConnection [coneSource GetOutputPort]
 coneActor5 SetMapper coneMapper5
 [coneActor5 GetProperty] SetColor 0 1 0
+[coneActor5 GetProperty] BackfaceCullingOn
 coneActor5 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor5 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor5
@@ -204,6 +213,7 @@ vtkDataSetMapper coneMapper6
 coneMapper6 SetInputConnection [coneSource GetOutputPort]
 coneActor6 SetMapper coneMapper6
 [coneActor6 GetProperty] SetColor 0 1 0
+[coneActor6 GetProperty] BackfaceCullingOn
 coneActor6 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor6 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor6
