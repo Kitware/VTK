@@ -105,7 +105,7 @@ coneSource SetCenter 6 0 0
 coneSource SetDirection -1 0 0
 
 #---------------------------------------------------------
-vtkSurfacePicker picker
+vtkCellPicker picker
 picker SetTolerance 1e-6
 picker AddLocator boneLocator
 
