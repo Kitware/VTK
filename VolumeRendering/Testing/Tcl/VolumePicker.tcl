@@ -136,6 +136,8 @@ $camera SetFocalPoint [lindex $c 0] [lindex $c 1] [lindex $c 2]
 $camera SetPosition [expr [lindex $c 0] + 500] [expr [lindex $c 1] - 100] [expr [lindex $c 2] - 100]
 $camera SetViewUp 0 0 -1
 
+ren ResetCameraClippingRange
+
 renWin Render
 
 #---------------------------------------------------------
@@ -226,6 +228,8 @@ coneActor4 SetMapper coneMapper4
 coneActor4 SetPosition [lindex $p 0] [lindex $p 1] [lindex $p 2]
 PointCone coneActor4 [lindex $n 0] [lindex $n 1] [lindex $n 2]
 ren AddViewProp coneActor4
+
+ren ResetCameraClippingRange
 
 renWin Render
 

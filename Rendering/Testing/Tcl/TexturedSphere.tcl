@@ -53,6 +53,8 @@ $camera SetFocalPoint 0 0 0
 $camera SetPosition 100 400 -100
 $camera SetViewUp 0 0 -1
 
+ren ResetCameraClippingRange
+
 renWin Render
 
 #---------------------------------------------------------
