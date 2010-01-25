@@ -31,11 +31,8 @@
 
 // .SECTION See Also
 // vtkPicker is used for quick geometric picking. If you desire more precise
-// picking of points or cells, use the subclasses vtkPointPicker or
-// vtkCellPicker.  To do accurate geometric picking of any kind of Prop3D
-// (including volumes or images), or if you need both point and and cell
-// information together, or if you want to accelerate the pick with locators,
-// then use vtkSurfacePicker or vtkVolumePicker. For hardware-accelerated
+// picking of points or cells based on the geometry of any vtkProp3D, use the
+// subclasses vtkPointPicker or vtkCellPicker.  For hardware-accelerated
 // picking of any type of vtkProp, use vtkPropPicker or vtkWorldPointPicker.
 
 #ifndef __vtkPicker_h
