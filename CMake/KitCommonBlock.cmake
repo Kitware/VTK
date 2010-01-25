@@ -6,6 +6,10 @@ VTK_MAKE_INSTANTIATOR3(vtk${KIT}Instantiator KitInstantiator_SRCS
 
 ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 SET(KIT_LIBRARY_TARGETS ${KIT_LIBRARY_TARGETS} vtk${KIT})
+# Add target specific compile flags for ABI setttings
+IF(VTK_ABI_CXX_FLAGS)
+  SET_PROPERTY(TARGET APPEND PROPERTY COMPILE_FLAGS "${VTK_ABI_CXX_FLAGS}")
+ENDIF(VTK_ABI_CXX_FLAGS)
 
 # Allow the user to customize their build with some local options
 #
