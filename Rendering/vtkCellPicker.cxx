@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.40");
+vtkCxxRevisionMacro(vtkCellPicker, "1.41");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ vtkCellPicker::vtkCellPicker()
   // Miscellaneous ivars
   this->Tolerance = 1e-6;
   this->VolumeOpacityIsovalue = 0.05;
-  this->IgnoreGradientOpacity = 1;
+  this->UseVolumeGradientOpacity = 0;
   this->PickClippingPlanes = 0;
   this->PickTextureData = 0;
 
@@ -117,8 +117,8 @@ void vtkCellPicker::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "VolumeOpacityIsovalue: " << this->VolumeOpacityIsovalue
      << "\n";
-  os << indent << "IgnoreGradientOpacity: "
-     << (this->IgnoreGradientOpacity ? "On" : "Off") << "\n";
+  os << indent << "UseVolumeGradientOpacity: "
+     << (this->UseVolumeGradientOpacity ? "On" : "Off") << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -688,7 +688,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
     int disableGradientOpacity = 
       property->GetDisableGradientOpacity(component);
     vtkPiecewiseFunction *gradientOpacity = 0;
-    if (!disableGradientOpacity && !this->IgnoreGradientOpacity)
+    if (!disableGradientOpacity && this->UseVolumeGradientOpacity)
       {
       gradientOpacity = property->GetGradientOpacity(component);
       }

@@ -135,7 +135,7 @@ ren AddViewProp coneActor1
 # Pick through a cropping plane to some bone
 
 # This should usually be left alone, but is used here to increase coverage
-picker IgnoreGradientOpacityOff
+picker UseVolumeGradientOpacityOn
 picker Pick 90 180 0 ren
 set p [picker GetPickPosition]
 set n [picker GetPickNormal]
@@ -154,7 +154,7 @@ ren AddViewProp coneActor2
 # Pick through a cropping plane to some transparent tissue
 
 # Ignore gradient opacity, since it makes it harder to find isosurface
-picker IgnoreGradientOpacityOn
+picker UseVolumeGradientOpacityOff
 picker Pick 125 195 0 ren
 set p [picker GetPickPosition]
 set n [picker GetPickNormal]

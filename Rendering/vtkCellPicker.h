@@ -89,18 +89,22 @@ public:
 
   // Description:
   // Set the opacity isovalue to use for defining volume surfaces.  The
-  // pick will occur at the location along the pick ray where the product
-  // of the scalar opacity and gradient opacity is equal to this isovalue.
+  // pick will occur at the location along the pick ray where the 
+  // opacity of the volume is equal to this isovalue.  If you want to do
+  // the pick based on an actual data isovalue rather than the opacity,
+  // then pass the data value through the scalar opacity function before
+  // using this method.
   vtkSetMacro(VolumeOpacityIsovalue, double);
   vtkGetMacro(VolumeOpacityIsovalue, double);
 
   // Description:
-  // Ignore the gradient opacity function when computing the opacity
-  // isovalue.  This parameter is only relevant to volume picking and
-  // is on by default.
-  vtkSetMacro(IgnoreGradientOpacity, int);
-  vtkBooleanMacro(IgnoreGradientOpacity, int);
-  vtkGetMacro(IgnoreGradientOpacity, int);
+  // Use the product of the scalar and gradient opacity functions when
+  // computing the opacity isovalue, instead of just using the scalar
+  // opacity. This parameter is only relevant to volume picking and
+  // is off by default.
+  vtkSetMacro(UseVolumeGradientOpacity, int);
+  vtkBooleanMacro(UseVolumeGradientOpacity, int);
+  vtkGetMacro(UseVolumeGradientOpacity, int);
 
   // Description:
   // Set whether to pick the clipping planes of props that have them.
@@ -233,7 +237,7 @@ protected:
   vtkCollection *Locators;
 
   double VolumeOpacityIsovalue;
-  int IgnoreGradientOpacity;
+  int UseVolumeGradientOpacity;
   int PickClippingPlanes;
   int ClippingPlaneId;
 
