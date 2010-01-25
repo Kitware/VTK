@@ -1551,6 +1551,12 @@ int vtkReebGraph::AddStreamedTetrahedron(vtkIdType vertex0Id, double f0,
 	int N3 = this->VertexMap[vertex3];
 
   // Consistency less check
+  if (f3 < f2 || (f3==f2 && vertex3 < vertex2))
+  {
+    vtkReebGraphSwapVars(int,vertex2,vertex3);
+    vtkReebGraphSwapVars(int,N2,N3);
+    vtkReebGraphSwapVars(double,f2,f3);
+  }
   if (f2 < f1 || (f2==f1 && vertex2 < vertex1))
 	{
     vtkReebGraphSwapVars(int,vertex1,vertex2);
@@ -1563,30 +1569,23 @@ int vtkReebGraph::AddStreamedTetrahedron(vtkIdType vertex0Id, double f0,
     vtkReebGraphSwapVars(int,N0,N1);
     vtkReebGraphSwapVars(double,f0,f1);
   }
+  if (f3 < f2 || (f3==f2 && vertex3 < vertex2))
+  {
+    vtkReebGraphSwapVars(int,vertex2,vertex3);
+    vtkReebGraphSwapVars(int,N2,N3);
+    vtkReebGraphSwapVars(double,f2,f3);
+  }
   if (f2 < f1 || (f2==f1 && vertex2 < vertex1))
   {
     vtkReebGraphSwapVars(int,vertex1,vertex2);
     vtkReebGraphSwapVars(int,N1,N2);
     vtkReebGraphSwapVars(double,f1,f2);
   }
-	// N0, N1, N2 are sorted, now put N3 in the right place
 	if (f3 < f2 || (f3==f2 && vertex3 < vertex2))
   {
     vtkReebGraphSwapVars(int,vertex2,vertex3);
     vtkReebGraphSwapVars(int,N2,N3);
     vtkReebGraphSwapVars(double,f2,f3);
-  }
-	if (f2 < f1 || (f2==f1 && vertex2 < vertex1))
-  {
-    vtkReebGraphSwapVars(int,vertex1,vertex2);
-    vtkReebGraphSwapVars(int,N1,N2);
-    vtkReebGraphSwapVars(double,f1,f2);
-  }
-	if (f1 < f0 || (f1==f0 && vertex1 < vertex0))
-  {
-    vtkReebGraphSwapVars(int,vertex0,vertex1);
-    vtkReebGraphSwapVars(int,N0,N1);
-    vtkReebGraphSwapVars(double,f0,f1);
   }
 
 	vtkIdType t0[]={vertex0, vertex1, vertex2},
@@ -1616,17 +1615,17 @@ int vtkReebGraph::AddStreamedTetrahedron(vtkIdType vertex0Id, double f0,
       ((vtkReebLabelTag) cellIds[i][0])
       | (((vtkReebLabelTag) cellIds[i][2])<<32);
 
-    if (!this->FindUpLabel(N0,Label01))
+    if (!this->FindUpLabel(n0,Label01))
     {
       vtkIdType N01[] = {n0, n1};
       this->AddPath(2, N01, Label01);
     }
-    if (!this->FindUpLabel(N1,Label12))
+    if (!this->FindUpLabel(n1,Label12))
     {
       vtkIdType N12[] = {n1,n2};
       this->AddPath(2, N12, Label12);
     }
-    if (!this->FindUpLabel(N0, Label02))
+    if (!this->FindUpLabel(n0, Label02))
     {
       vtkIdType N02[] = {n0,n2};
       this->AddPath(2, N02, Label02);
@@ -1948,6 +1947,7 @@ int vtkReebGraph::StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
 		this->VertexMap = (vtkIdType *) malloc(
 			sizeof(vtkIdType)*this->VertexMapAllocatedSize);
 		memset(this->VertexMap, 0, sizeof(vtkIdType)*this->VertexMapAllocatedSize);
+    this->VertexStream.clear();
 	}
 	else if(this->VertexMapSize >= this->VertexMapAllocatedSize - 4){
 		int oldSize = this->VertexMapAllocatedSize;
@@ -2186,8 +2186,9 @@ int vtkReebGraph::Build(vtkUnstructuredGrid *mesh, vtkDataArray *scalarField)
   this->TriangleVertexMap = new int [pointNumber];
   memset(this->TriangleVertexMap,0,sizeof(int)*pointNumber);
 
-  for(vtkIdType i = 0; i < pointNumber; i++)
+  for(vtkIdType i = 0; i < pointNumber; i++){
     this->VertexMap[i] = this->AddVertex(i);
+  }
 
   // make sure the connectivity is built
   this->TetMesh->BuildLinks();

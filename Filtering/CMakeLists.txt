@@ -191,6 +191,7 @@ vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGrid.cxx
 vtkRectilinearGridSource.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
+vtkReebGraph.cxx
 vtkScalarTree.cxx
 vtkSelectionAlgorithm.cxx
 vtkSelection.cxx

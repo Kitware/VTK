@@ -225,7 +225,6 @@ public:
 											   vtkIdType vertex2Id, double scalar2,
                          vtkIdType vertex3Id, double scalar3);
 
-
 	// Description:
 	// Close the streaming computation (no more triangle will be given).
 	// IMPORTANT: this method has to be called when the input stream is over so as
