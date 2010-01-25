@@ -41,6 +41,7 @@ vtkActor outlineActor
 # The usual rendering stuff.
 vtkRenderer ren1
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
     renWin SetSize 500 500
 vtkRenderWindowInteractor iren
