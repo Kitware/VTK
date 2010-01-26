@@ -27,7 +27,7 @@
 class vtkImageData;
 
 template<class DType>
-class VTK_FILTERING_EXPORT vtkImageIterator
+class vtkImageIterator
 {
 public:
   typedef DType *SpanIterator;

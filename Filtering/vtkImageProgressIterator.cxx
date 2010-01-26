@@ -19,7 +19,8 @@
 #pragma warning ( disable : 4275 )
 #endif
 
-#include "vtkImageIterator.txx"
+// Do not include vtkImageIterator.txx here - will cause implicit template
+// instantiation, breaking symbol visibility for the iterator.
 #include "vtkImageProgressIterator.txx"
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
