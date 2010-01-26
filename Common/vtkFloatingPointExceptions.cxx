@@ -60,3 +60,17 @@ void vtkFloatingPointExceptions::Enable()
 #endif  //__linux__
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Disable floating point exceptions.
+void vtkFloatingPointExceptions::Disable()
+{
+#ifdef _MSC_VER
+  // disable floating point exceptions on MSVC
+  _controlfp(_EM_INVALID | _EM_DENORMAL | _EM_ZERODIVIDE | _EM_OVERFLOW |
+             _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
+#endif  //_MSC_VER
+#if defined(__linux__)
+  fedisableexcept(FE_DIVBYZERO | FE_INVALID);
+#endif  //__linux__
+}

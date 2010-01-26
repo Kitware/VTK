@@ -32,6 +32,10 @@ public:
   // Enable floating point exceptions.
   static void Enable();
   
+  // Description:
+  // Disable floating point exceptions.
+  static void Disable();
+  
 private:
   vtkFloatingPointExceptions(); // Not implemented.
   vtkFloatingPointExceptions(const vtkFloatingPointExceptions&);  // Not implemented.
