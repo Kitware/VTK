@@ -29,6 +29,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#ifdef VTK_USE_GNU_R
+#include <vtkRInterface.h>
+#endif // VTK_USE_GNU_R
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -44,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.74");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.75");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -819,20 +822,22 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   // The test table, indexed by the key of the summary
   vtkTable* testTab = vtkTable::New();
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "d" );
-  testTab->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  // Prepare columns for the test:
+  // 0: dimension
+  // 1: Chi square statistic
+  // 2: Chi square statistic with Yates correction
+  // 3: Chi square p-value
+  // 4: Chi square with Yates correction p-value 
+  // NB: These are not added to the output table yet, for they will be filled individually first
+  //     in order that R be invoked only once.
+  vtkIdTypeArray* dimCol = vtkIdTypeArray::New();
+  dimCol->SetName( "d" );
 
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Chi2" );
-  testTab->AddColumn( doubleCol );
-  doubleCol->Delete();
+  vtkDoubleArray* chi2Col = vtkDoubleArray::New();
+  chi2Col->SetName( "Chi2" );
 
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Chi2 Yates" );
-  testTab->AddColumn( doubleCol );
-  doubleCol->Delete();
+  vtkDoubleArray* chi2yCol = vtkDoubleArray::New();
+  chi2yCol->SetName( "Chi2 Yates" );
 
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
@@ -842,13 +847,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
 
-  // Rows of the test table contain:
-  // 0: number of degrees of freedom
-  // 1: chi square test statistic
-  // 2: chi square test statistic with Yates correction
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 3 );
-
+  // Loop over requests
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -1022,19 +1021,26 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     // Degrees of freedom
     vtkIdType d = ( ek[0].size() - 1 ) * ( ek[1].size() - 1 );
 
-    // Insert test values
-    row->SetValue( 0, d );     // degrees of freedom
-    row->SetValue( 1, chi2 );  // chi square test statistics
-    row->SetValue( 2, chi2y ); // chi square test statistics with Yates correction
-    testTab->InsertNextRow( row );
+    // Insert variable name and calculated Jarque-Bera statistic 
+    // NB: R will be invoked only once at the end for efficiency
+    dimCol->InsertNextTuple1( d );
+    chi2Col->InsertNextTuple1( chi2 );
+    chi2yCol->InsertNextTuple1( chi2y );
     } // rit
+
+  // Now, add the already prepared columns to the output table
+  testTab->AddColumn( dimCol );
+  testTab->AddColumn( chi2Col );
+  testTab->AddColumn( chi2yCol );
 
   // Finally set output table to test table
   outMeta->ShallowCopy( testTab );
 
   // Clean up
+  dimCol->Delete();
+  chi2Col->Delete();
+  chi2yCol->Delete();
   testTab->Delete();
-  row->Delete();
 }
 
 // ----------------------------------------------------------------------
