@@ -26,13 +26,15 @@
 #ifndef __vtkQtChartExport_h
 #define __vtkQtChartExport_h
 
+#include "vtkABI.h"
+
 #cmakedefine VTKQTCHART_BUILD_SHARED_LIBS
 
-#if defined(WIN32) && defined(VTKQTCHART_BUILD_SHARED_LIBS)
+#if defined(VTKQTCHART_BUILD_SHARED_LIBS)
 # if defined(vtkQtChart_EXPORTS)
-#   define VTKQTCHART_EXPORT __declspec(dllexport)
+#   define VTKQTCHART_EXPORT VTK_ABI_EXPORT
 # else
-#   define VTKQTCHART_EXPORT __declspec(dllimport) 
+#   define VTKQTCHART_EXPORT VTK_ABI_IMPORT
 # endif
 #else
 # define VTKQTCHART_EXPORT
