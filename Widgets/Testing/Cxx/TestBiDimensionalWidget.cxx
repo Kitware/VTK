@@ -1090,7 +1090,7 @@ class vtkBiDimensionalCallback : public vtkCommand
 public:
   static vtkBiDimensionalCallback *New() 
   { return new vtkBiDimensionalCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  virtual void Execute(vtkObject *, unsigned long, void*)
   {
     std::cout << "End interaction event\n" << std::flush;
   }
