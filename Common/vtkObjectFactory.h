@@ -254,12 +254,7 @@ static vtkObject* vtkObjectFactoryCreate##classname() \
 
 #endif
 
-
-#ifdef _WIN32
-#define VTK_FACTORY_INTERFACE_EXPORT  __declspec( dllexport )
-#else
-#define VTK_FACTORY_INTERFACE_EXPORT 
-#endif
+#define VTK_FACTORY_INTERFACE_EXPORT VTK_ABI_EXPORT
 
 // Macro to create the interface "C" functions used in
 // a dll or shared library that contains a VTK object factory.
