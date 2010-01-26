@@ -60,7 +60,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.54")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.55")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -510,8 +510,8 @@ int vtkDistributedDataFilter::RequestData(
         continue;
         }
 
-      ds = vtkDataSet::SafeDownCast(
-        vtkDataObjectTypes::NewDataObject(leafTypes[cc]));
+      ds.TakeReference(vtkDataSet::SafeDownCast(
+        vtkDataObjectTypes::NewDataObject(leafTypes[cc])));
       }
     vtkSmartPointer<vtkUnstructuredGrid> ug =
       vtkSmartPointer<vtkUnstructuredGrid>::New();
