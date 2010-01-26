@@ -91,7 +91,7 @@ namespace vtk_utf8
         template <typename octet_iterator>
         uint32_t peek_next(octet_iterator it)
         {
-            return next(it);    
+        return vtk_utf8::unchecked::next(it);    
         }
 
         template <typename octet_iterator>
@@ -99,7 +99,7 @@ namespace vtk_utf8
         {
             while (internal::is_trail(*(--it))) ;
             octet_iterator temp = it;
-            return next(temp);
+            return vtk_utf8::unchecked::next(temp);
         }
 
         // Deprecated in versions that include prior, but only for the sake of consistency (see utf8::previous)
@@ -113,7 +113,7 @@ namespace vtk_utf8
         void advance (octet_iterator& it, distance_type n)
         {
             for (distance_type i = 0; i < n; ++i)
-                next(it);
+                vtk_utf8::unchecked::next(it);
         }
 
         template <typename octet_iterator>
@@ -122,7 +122,7 @@ namespace vtk_utf8
         {
             typename vtkstd::string::difference_type dist;
             for (dist = 0; first < last; ++dist) 
-                next(first);
+                vtk_utf8::unchecked::next(first);
             return dist;
         }
 
@@ -145,7 +145,7 @@ namespace vtk_utf8
         u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_iterator result)
         {
             while (start != end) {
-                uint32_t cp = next(start);
+                uint32_t cp = vtk_utf8::unchecked::next(start);
                 if (cp > 0xffff) { //make a surrogate pair
                     *result++ = static_cast<uint16_t>((cp >> 10)   + internal::LEAD_OFFSET);
                     *result++ = static_cast<uint16_t>((cp & 0x3ff) + internal::TRAIL_SURROGATE_MIN);
