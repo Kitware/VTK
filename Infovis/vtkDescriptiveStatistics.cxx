@@ -30,6 +30,9 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#ifdef VTK_USE_GNU_R
+#include <vtkRInterface.h>
+#endif // VTK_USE_GNU_R
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -39,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.90");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.91");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -479,26 +482,21 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     return;
     }
 
-  // Prepare columns for the test
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
-  outMeta->AddColumn( stringCol );
-  stringCol->Delete();
+  // Prepare columns for the test:
+  // 0: variable name
+  // 1: Jarque-Bera statistic
+  // 2: Jarque-Bera p-value (calculated only if R is available, filled with -1 otherwise)
+  // NB: These are not added to the output table yet, for they will be filled individually first
+  //     in order that R be invoked only once.
+  vtkStringArray* nameCol = vtkStringArray::New();
+  nameCol->SetName( "Variable" );
 
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Jarque-Bera" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
+  vtkDoubleArray* statCol = vtkDoubleArray::New();
+  statCol->SetName( "Jarque-Bera" );
 
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
   
-  // Rows of the test table contain:
-  // 0: variable name
-  // 1: Jarque-Bera statistic
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 2 );
-
   // Loop over requests
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
@@ -554,14 +552,72 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
       jb = vtkMath::Nan();
       }
     
-    row->SetValue( 0, varName );
-    row->SetValue( 1, jb );
-
-    outMeta->InsertNextRow( row );
+    // Insert variable name and calculated Jarque-Bera statistic 
+    // NB: R will be invoked only once at the end for efficiency
+    nameCol->InsertNextValue( varName );
+    statCol->InsertNextTuple1( jb );
     } // rit
 
+  // Now, add the already prepared columns to the output table
+  outMeta->AddColumn( nameCol );
+  outMeta->AddColumn( statCol );
+
+  // Last phase: compute the p-values or assign invalid value if they cannot be computed
+  vtkDoubleArray* testCol;
+  bool calculatedP = false;
+
+  // If available, use R to obtain the p-values for the Chi square distribution with 2 DOFs
+#ifdef VTK_USE_GNU_R
+  // Prepare VTK - R interface
+  vtkRInterface* ri = vtkRInterface::New();
+
+  // Use the calculated Jarque-Bera statistics as input to the Chi square function
+  ri->AssignVTKDataArrayToRVariable( statCol, "jb" );
+  ri->EvalRscript( "p=1-pchisq(jb,2)\n" );
+
+  // Retrieve the p-values
+  testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
+    {
+    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
+    }
+  else
+    {
+    // Test values have been calculated by R: the test column can be added to the output table
+    outMeta->AddColumn( testCol );
+    calculatedP = true;
+    }
+
   // Clean up
-  row->Delete();
+  ri->Delete();
+#endif // VTK_USE_GNU_R
+
+  // Use the invalid value of -1 for p-values if R is absent or there was an R error
+  if ( ! calculatedP )
+    {
+    // A column must be created first
+    testCol = vtkDoubleArray::New();
+
+    // Fill this column
+    vtkIdType n = statCol->GetNumberOfTuples();
+    testCol->SetNumberOfTuples( n );
+    for ( vtkIdType r = 0; r < n; ++ r )
+      {
+      testCol->SetTuple1( r, -1 );
+      }
+
+    // Now add the column of invalid values to the output table
+    outMeta->AddColumn( testCol );
+
+    // Clean up
+    testCol->Delete();
+    }
+  // The test column name can only be set after the column has been obtained from R
+  testCol->SetName( "P" );
+
+  // Clean up
+  nameCol->Delete();
+  statCol->Delete();
 }
 
 // ----------------------------------------------------------------------

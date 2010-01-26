@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.75");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.76");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -1032,6 +1032,40 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   testTab->AddColumn( dimCol );
   testTab->AddColumn( chi2Col );
   testTab->AddColumn( chi2yCol );
+
+  // Last phase: compute the p-values or assign invalid value if they cannot be computed
+  vtkDoubleArray* testChi2Col;
+  vtkDoubleArray* testChi2yCol;
+  bool calculatedP = false;
+
+  // Use the invalid value of -1 for p-values if R is absent or there was an R error
+  if ( ! calculatedP )
+    {
+    // Test columns must be created first
+    testChi2Col = vtkDoubleArray::New(); // Chi square p-value
+    testChi2yCol = vtkDoubleArray::New(); // Chi square with Yates correction p-value
+
+    // Fill this column
+    vtkIdType n = dimCol->GetNumberOfTuples();
+    testChi2Col->SetNumberOfTuples( n );
+    testChi2yCol->SetNumberOfTuples( n );
+    for ( vtkIdType r = 0; r < n; ++ r )
+      {
+      testChi2Col->SetTuple1( r, -1 );
+      testChi2yCol->SetTuple1( r, -1 );
+      }
+
+    // Now add the column of invalid values to the output table
+    testTab->AddColumn( testChi2Col );
+    testTab->AddColumn( testChi2yCol );
+
+    // Clean up
+    testChi2Col->Delete();
+    testChi2yCol->Delete();
+    }
+  // The test column name can only be set after the column has been obtained from R
+  testChi2Col->SetName( "P" );
+  testChi2yCol->SetName( "P Yates" );
 
   // Finally set output table to test table
   outMeta->ShallowCopy( testTab );
