@@ -892,33 +892,39 @@ void vtkReebGraph::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Node Data:" << endl;
   vtkIdType prevNodeId = -1;
+ 
+  // roll back to the beginning of the list
+	while(prevNodeId != nodeId){
+		prevNodeId = nodeId;
+		nodeId = this->GetPreviousNodeId();
+	}
+	prevNodeId = -1;
+
+
   while(prevNodeId != nodeId)
   {
     prevNodeId = nodeId;
+    vtkIdList *downArcIdList = vtkIdList::New();
+    vtkIdList *upArcIdList = vtkIdList::New();
+
+    this->GetNodeDownArcIds(nodeId, downArcIdList);
+    this->GetNodeUpArcIds(nodeId, upArcIdList);
+
+    cout << indent << indent << "Node " << nodeId << ":" << endl;
+    cout << indent << indent << indent;
+    cout << "Vert: " << this->GetNodeVertexId(nodeId);
+    cout << ", Val: " << this->GetNodeScalarValue(nodeId);
+    cout << ", DwA:";
+    for(vtkIdType i = 0; i < downArcIdList->GetNumberOfIds(); i++)
+      cout << " " << this->GetArcDownNodeId(downArcIdList->GetId(i));
+    cout << ", UpA:";
+    for(vtkIdType i = 0; i < upArcIdList->GetNumberOfIds(); i++)
+      cout << " " << this->GetArcUpNodeId(upArcIdList->GetId(i));
+    cout << endl;
+      
+    downArcIdList->Delete();
+    upArcIdList->Delete();
     nodeId = this->GetNextNodeId();
-    if(prevNodeId != nodeId)
-    {
-      vtkIdList *downArcIdList = vtkIdList::New();
-      vtkIdList *upArcIdList = vtkIdList::New();
-
-      this->GetNodeDownArcIds(nodeId, downArcIdList);
-      this->GetNodeUpArcIds(nodeId, upArcIdList);
-
-      cout << indent << indent << "Node " << nodeId << ":" << endl;
-      cout << indent << indent << indent;
-      cout << "Vert: " << this->GetNodeVertexId(nodeId);
-      cout << ", Val: " << this->GetNodeScalarValue(nodeId);
-      cout << ", DwA:";
-      for(vtkIdType i = 0; i < downArcIdList->GetNumberOfIds(); i++)
-        cout << " " << this->GetArcDownNodeId(downArcIdList->GetId(i));
-      cout << ", UpA:";
-      for(vtkIdType i = 0; i < upArcIdList->GetNumberOfIds(); i++)
-        cout << " " << this->GetArcUpNodeId(upArcIdList->GetId(i));
-      cout << endl;
-
-      downArcIdList->Delete();
-      upArcIdList->Delete();
-    }
   }
 
   os << indent << "Arc Data:" << endl;
@@ -930,34 +936,20 @@ void vtkReebGraph::PrintSelf(ostream& os, vtkIndent indent)
 		prevArcId = arcId;
 		arcId = this->GetPreviousArcId();
 	}
-
-	// first arc
-	cout << indent << indent << "Arc " << arcId << ":" << endl;
-  cout << indent << indent << indent;
-  cout << "Down: " << this->GetArcDownNodeId(arcId);
-  cout << ", Up: " << this->GetArcUpNodeId(arcId);
-  cout << ", Persistence: "
-     << this->GetNodeScalarValue(this->GetArcUpNodeId(arcId))
-     - this->GetNodeScalarValue(this->GetArcDownNodeId(arcId));
-  cout << endl;
-
-	prevArcId = -1, arcId = 0;
+	prevArcId = -1;
 
   while(prevArcId != arcId)
   {
     prevArcId = arcId;
+    cout << indent << indent << "Arc " << arcId << ":" << endl;
+    cout << indent << indent << indent;
+    cout << "Down: " << this->GetArcDownNodeId(arcId);
+    cout << ", Up: " << this->GetArcUpNodeId(arcId);
+    cout << ", Persistence: " 
+      << this->GetNodeScalarValue(this->GetArcUpNodeId(arcId))
+        - this->GetNodeScalarValue(this->GetArcDownNodeId(arcId));
+    cout << endl;
     arcId = this->GetNextArcId();
-    if(prevArcId != arcId)
-    {
-      cout << indent << indent << "Arc " << arcId << ":" << endl;
-      cout << indent << indent << indent;
-      cout << "Down: " << this->GetArcDownNodeId(arcId);
-      cout << ", Up: " << this->GetArcUpNodeId(arcId);
-      cout << ", Persistence: "
-        << this->GetNodeScalarValue(this->GetArcUpNodeId(arcId))
-          - this->GetNodeScalarValue(this->GetArcDownNodeId(arcId));
-      cout << endl;
-    }
   }
 }
 
@@ -1548,7 +1540,7 @@ int vtkReebGraph::AddStreamedTetrahedron(vtkIdType vertex0Id, double f0,
   int N0 = this->VertexMap[vertex0];
   int N1 = this->VertexMap[vertex1];
   int N2 = this->VertexMap[vertex2];
-	int N3 = this->VertexMap[vertex3];
+  int N3 = this->VertexMap[vertex3];
 
   // Consistency less check
   if (f3 < f2 || (f3==f2 && vertex3 < vertex2))
@@ -2260,6 +2252,10 @@ vtkIdType vtkReebGraph::GetNextNodeId()
 //----------------------------------------------------------------------------
 vtkIdType vtkReebGraph::GetPreviousNodeId()
 {
+  if(!this->currentNodeId)
+  {
+    return this->GetNextNodeId();
+  }
 
   for(vtkIdType nodeId = this->currentNodeId - 1; nodeId > 0; nodeId--)
   {
@@ -2397,3 +2393,66 @@ int vtkReebGraph::GetNumberOfLoops()
   if(!this->ArcLoopTable) this->FindLoops();
   return this->LoopNumber - this->RemovedLoopNumber;
 }
+
+//----------------------------------------------------------------------------
+vtkMutableDirectedGraph* vtkReebGraph::GetVtkGraph()
+{
+  vtkMutableDirectedGraph* g = vtkMutableDirectedGraph::New();
+
+  vtkVariantArray *vertexProp = vtkVariantArray::New();
+  // vertex Ids are for now the only sufficient information.
+  vertexProp->SetNumberOfValues(1);
+
+  vtkIdTypeArray *vertexIds = vtkIdTypeArray::New();
+  vertexIds->SetName("Vertex Ids");
+  g->GetVertexData()->AddArray(vertexIds);
+
+  vtkIdType prevNodeId = -1, nodeId = 0;
+
+  std::map<int, int> vMap;
+  int vIt = 0;
+
+  // roll back node list
+  while(prevNodeId != nodeId){
+    prevNodeId = nodeId;
+    nodeId = this->GetPreviousNodeId();
+  }
+  prevNodeId = -1;
+
+  // copy the nodes.
+  while(prevNodeId != nodeId){
+    vtkIdType nodeVertexId = this->GetNodeVertexId(nodeId);
+    vMap[nodeId] = vIt;
+    vertexProp->SetValue(0, nodeVertexId);
+    g->AddVertex(vertexProp);
+
+    prevNodeId = nodeId;
+    nodeId = this->GetNextNodeId();
+    vIt++;
+  }
+
+  // roll back arc list
+  int arcId = 0, prevArcId = -1;
+  while(arcId != prevArcId){
+    prevArcId = arcId;
+    arcId = this->GetPreviousArcId();
+  }
+  prevArcId = -1;
+
+  // now copy the arcs
+  while(prevArcId != arcId){
+    std::map<int, int>::iterator downIt, upIt;
+    downIt = vMap.find(this->GetArcDownNodeId(arcId));
+    upIt = vMap.find(this->GetArcUpNodeId(arcId));
+    if((downIt != vMap.end())&&(upIt != vMap.end())){
+      g->AddEdge(downIt->second, upIt->second);
+    }
+
+    prevArcId = arcId;
+    arcId = this->GetNextArcId();
+  }
+
+  return g;
+
+}
+

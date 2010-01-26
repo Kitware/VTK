@@ -69,10 +69,13 @@
 #include <queue>
 
 #include "vtkCell.h"
+#include "vtkIdTypeArray.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkVariantArray.h"
 
 class VTK_FILTERING_EXPORT vtkReebGraph : public vtkObject
 {
@@ -192,6 +195,14 @@ public:
   //
   int Build(vtkUnstructuredGrid *mesh, char* scalarFieldName);
 
+  // Description:
+  // Returns a vtkMutableDirectedGraph representation of the Reeb graph
+  // (convenient traversal features).
+  //
+  // The vertices of the output graph are associated with attributes 
+  // ("Vertex Ids" array) representing the mesh vertex Id of each node of the 
+  // Reeb graph.
+  vtkMutableDirectedGraph* GetVtkGraph();
 
 	// Description:
 	// Streaming Reeb graph computation.
