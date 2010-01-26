@@ -58,7 +58,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       ub[1] >= bounds[3])
     {
     nodeList->SendToFront(p);
-    vtksys_stl::pair<vtkGeoImageNode*, double> minDist(0, VTK_DOUBLE_MAX);
+    vtksys_stl::pair<vtkGeoImageNode*, double> minDist(static_cast<vtkGeoImageNode *>(NULL), VTK_DOUBLE_MAX);
 
     vtkGeoImageNode* child = p->GetChild(0);
     vtkCollection* coll = NULL;
@@ -130,7 +130,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
 }
 
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.13");
 vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
