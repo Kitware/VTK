@@ -43,6 +43,12 @@ ENDIF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH "${VTK_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
 
+# If we are building just VTK then add supplemental compiler warnings, GCC
+# visibility support and other optional extras.
+IF("${VTK_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+  INCLUDE(vtkCompilerExtras)
+ENDIF("${VTK_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
