@@ -53,6 +53,12 @@ public:
   vtkSetMacro(Base, int);
   vtkGetMacro(Base, int);
 
+  // Description:
+  // Specify whether this filter should emit progress events
+  vtkSetMacro(EmitProgress, bool);
+  vtkGetMacro(EmitProgress, bool);
+  vtkBooleanMacro(EmitProgress, bool);
+
 //BTX
 protected:
   vtkBoostLogWeighting();
@@ -68,6 +74,7 @@ private:
   void operator=(const vtkBoostLogWeighting&);   // Not implemented
 
   int Base;
+  bool EmitProgress;
 //ETX
 };
 

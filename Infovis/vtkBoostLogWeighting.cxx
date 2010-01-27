@@ -40,11 +40,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkBoostLogWeighting
 
-vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.5");
+vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.6");
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
 vtkBoostLogWeighting::vtkBoostLogWeighting() :
-  Base(BASE_E)
+  Base(BASE_E),
+  EmitProgress(true)
 {
 }
 
@@ -85,24 +86,44 @@ int vtkBoostLogWeighting::RequestData(
       {
       case BASE_E:
         {
-        for(vtkIdType i = 0; i != value_count; ++i)
+        if(this->EmitProgress)
           {
-          output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
+          for(vtkIdType i = 0; i != value_count; ++i)
+            {
+            output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
 
-          double progress = static_cast<double>(i) / static_cast<double>(value_count);
-          this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+            double progress = static_cast<double>(i) / static_cast<double>(value_count);
+            this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+            }
+          }
+        else
+          {
+          for(vtkIdType i = 0; i != value_count; ++i)
+            {
+            output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
+            }
           }
         break;
         }
       case BASE_2:
         {
         const double ln2 = log(2.0);
-        for(vtkIdType i = 0; i != value_count; ++i)
+        if(this->EmitProgress)
           {
-          output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
+          for(vtkIdType i = 0; i != value_count; ++i)
+            {
+            output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
 
-          double progress = static_cast<double>(i) / static_cast<double>(value_count);
-          this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+            double progress = static_cast<double>(i) / static_cast<double>(value_count);
+            this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+            }
+          }
+        else
+          {
+          for(vtkIdType i = 0; i != value_count; ++i)
+            {
+            output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
+            }
           }
         break;
         }
