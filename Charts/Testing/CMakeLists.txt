@@ -13,6 +13,6 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/Charts"
     VTK_CHARTS_EXPORT
-    vtkPipelineGraphSource.h
+    vtkVector.h
     )
 ENDIF(PYTHON_EXECUTABLE)

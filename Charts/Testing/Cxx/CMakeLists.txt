@@ -6,6 +6,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestDiagram.cxx
     TestLinePlot.cxx
     TestContext.cxx
+    TestVector.cxx
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data
