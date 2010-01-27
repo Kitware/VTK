@@ -87,7 +87,7 @@ public:
   vtkGetObjectMacro(OrientationMarker, vtkProp);
 
   // Description:
-  // Enable/disable the widget.
+  // Enable/disable the widget. Default is 0 (disabled).
   virtual void SetEnabled(int);
 
   // Description:
