@@ -4,7 +4,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 
   # Addtional warnings for GCC
   set(CMAKE_CXX_FLAGS_WARN "-Wnon-virtual-dtor -Wno-long-long -ansi -Wcast-align -Wchar-subscripts -Wall -Wextra -Wpointer-arith -Wformat-security -Woverloaded-virtual -Wshadow -Wunused-parameter -fno-check-new -fno-common")
-  set(CMAKE_CXX_FLAGS_ERROR "-Werror=return-type")
+
+  # This flag is useful as not returning from a non-void function is an error
+  # with MSVC, but it is not supported on all GCC compiler versions
+  check_cxx_compiler_flag(-Werror=return-type HAVE_GCC_ERROR_RETURN_TYPE)
+  if(HAVE_GCC_ERROR_RETURN_TYPE)
+    set(CMAKE_CXX_FLAGS_ERROR "-Werror=return-type")
+  endif()
 
   # If we are compiling on Linux then set some extra linker flags too
   if(CMAKE_SYSTEM_NAME MATCHES Linux)  
