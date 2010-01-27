@@ -113,7 +113,7 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  vtkIdType NumberOfIntervals;
+  int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 
 private:
