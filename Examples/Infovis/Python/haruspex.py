@@ -2,6 +2,29 @@ from vtk import *
 import sys
 import getopt
 
+# ReadInData function
+# Read input CSV data as input port
+def ReadInData( inDataName, verbosity ):
+    if verbosity > 0:
+        print "#  Reading input data:"
+
+    inData = vtkDelimitedTextReader()
+    inData.SetFieldDelimiterCharacters(",")
+    inData.SetHaveHeaders(True)
+    inData.SetDetectNumericColumns(True)
+    inData.SetFileName(inDataName)
+    inData.Update()
+
+    if verbosity > 0:
+        print "# Table loaded from CSV file:"
+        T = inData.GetOutput()
+        print "  Number of columns:", T.GetNumberOfColumns()
+        print "  Number of rows:", T.GetNumberOfRows()
+        print
+    
+    return inData
+# End ReadInData function
+
 # WriteOutData function
 # Write haruspex output data
 def WriteOutData( haruspex, outDataName, verbosity ):
@@ -104,23 +127,16 @@ print "  Input data file:", inDataName
 print "  Haruspex:", haruspexName, "( number of variables:", numVariables,")"
 print
 
-# Load data file
-inData = vtkDelimitedTextReader()
-inData.SetFieldDelimiterCharacters(",")
-inData.SetHaveHeaders(True)
-inData.SetDetectNumericColumns(True)
-inData.SetFileName(inDataName)
-inData.Update()
-
-print "# Table loaded from CSV file:"
+# Get input data port
+inData = ReadInData( inDataName, verbosity )
 T = inData.GetOutput()
-print "  Number of columns:", T.GetNumberOfColumns()
-print "  Number of rows:", T.GetNumberOfRows()
-print
+if verbosity > 1:
+    T.Dump( 10 )
 
 # Prepare haruspex
 print "# Calculating descriptive statistics:"
 haruspex.AddInputConnection(inData.GetOutputPort())
+
 
 # Generate list of columns of interest, depending on number of variables
 if numVariables == 1:
