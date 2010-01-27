@@ -97,6 +97,7 @@ public:
 
   // Description:
   // Set/get whether to allow this widget to be interactively moved/scaled.
+  // Default is On.
   void SetInteractive(int state);
   vtkGetMacro(Interactive, int);
   vtkBooleanMacro(Interactive, int);
@@ -104,11 +105,13 @@ public:
   // Description:
   // Set/get the color of the outline of this widget.  The outline is visible
   // when (in interactive mode) the cursor is over this widget.
+  // Default is white (1,1,1).
   void SetOutlineColor(double r, double g, double b);
   double *GetOutlineColor();
 
   // Description:
   // Set/get the viewport to position/size this widget.
+  // Default is bottom left corner (0,0,0.2,0.2).
   void SetViewport(double minX, double minY, double maxX, double maxY);
   double* GetViewport();
 
