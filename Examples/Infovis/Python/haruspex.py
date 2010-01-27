@@ -2,9 +2,50 @@ from vtk import *
 import sys
 import getopt
 
+# WriteOutData function
+# Write haruspex output data
+def WriteOutData( haruspex, outDataName, verbosity ):
+    if verbosity > 0:
+        print "#  Saving output (annotated) data:"
+
+    outData = vtkDelimitedTextWriter()
+    outData.SetFieldDelimiter(",")
+    outData.SetFileName( outDataName )
+    outData.SetInputConnection( haruspex.GetOutputPort(0) )
+    outData.Update()
+
+    if verbosity > 0:
+        print "   Wrote", outDataName
+        print
+# End WriteOutData function
+
+# WriteOutModel function
+# Write haruspex output model
+def WriteOutModel( haruspex, outModelName, verbosity ):
+    if verbosity > 0:
+        print "#  Saving output model (statistics):"
+        
+    outModel = vtkDelimitedTextWriter()
+    outModel.SetFieldDelimiter(",")
+    outModel.SetFileName(outModelName)
+
+    if outModelType == "vtkTable":
+        outModel.SetInputConnection(haruspex.GetOutputPort(1))
+    elif outModelType == "vtkMultiBlockDataSet":
+        print "ERROR: Unsupported case for now"
+        sys.exit(1)
+
+    outModel.Update()
+
+    if verbosity > 0:
+        print "   Wrote", outModelName
+        print
+# End WriteOutModel function
+
 # Parse command line
+verbosity = 1
 print "# Parsing command line:"
-opts,args = getopt.getopt(sys.argv[1:], 'vd:h:a:s:')
+opts,args = getopt.getopt(sys.argv[1:], 'vd:h:a:s:v:')
 inDataName = None
 haruspexName = None
 outDataName = "outputData.csv"
@@ -19,6 +60,8 @@ for o,a in opts:
         outDataName = a
     elif o == "-s":
         outModelName = a
+    elif o == "-v":
+        verbosity += 1
 
 if not inDataName:
     print "ERROR: a data file name required!"
@@ -116,25 +159,7 @@ print "  Completed calculations"
 print
 
 # Save output (annotated) data
-print "#  Saving output (annotated) data:"
-outData = vtkDelimitedTextWriter()
-outData.SetFieldDelimiter(",")
-outData.SetFileName(outDataName)
-outData.SetInputConnection(haruspex.GetOutputPort(0))
-outData.Update()
-print "   Wrote", outDataName
-print
+WriteOutData( haruspex, outDataName, verbosity )
 
 # Save output model (statistics)
-print "#  Saving output model (statistics):"
-outModel = vtkDelimitedTextWriter()
-outModel.SetFieldDelimiter(",")
-outModel.SetFileName(outModelName)
-if outModelType == "vtkTable":
-    outModel.SetInputConnection(haruspex.GetOutputPort(1))
-elif outModelType == "vtkMultiBlockDataSet":
-    print "ERROR: Unsupported case for now"
-    sys.exit(1)
-outModel.Update()
-print "   Wrote", outModelName
-print
+WriteOutModel( haruspex, outModelName, verbosity )
