@@ -133,6 +133,13 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
                                           vtkWidgetEvent::EndSelect,
                                           this, vtkBiDimensionalWidget::EndSelectAction);
+  this->Line1InnerSelected = 0;
+  this->Line1OuterSelected = 0;
+  this->Line2InnerSelected = 0;
+  this->Line2OuterSelected = 0;
+  this->HandleLine1Selected = 0;
+  this->HandleLine2Selected = 0;
+  this->CenterSelected = 0;
 }
 
 //----------------------------------------------------------------------
