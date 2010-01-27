@@ -20,7 +20,9 @@
 #endif
 
 // Do not include vtkImageIterator.txx here - will cause implicit template
-// instantiation, breaking symbol visibility for the iterator.
+// instantiation, breaking symbol visibility for the iterator with GCC.
+// Added back in due to issues encountered with MSVC - see VTK dashboards 01-27-10
+#include "vtkImageIterator.txx"
 #include "vtkImageProgressIterator.txx"
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION

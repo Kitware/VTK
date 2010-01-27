@@ -32,8 +32,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
       _gcc_version "${_gcc_version_info}")
   endif()
   
+  # GCC visibility support, off by default right now due to issues with
+  # vtkImageIterator, MSVC and Mac with vtkArrayIteratorTemplate. See VTK
+  # dashboards on 2010-01-27 for issues encountered.
   check_cxx_compiler_flag(-fvisibility=hidden HAVE_GCC_VISIBILITY)
-  option(VTK_USE_GCC_VISIBILITY "Use GCC visibility support if available." ON)
+  option(VTK_USE_GCC_VISIBILITY "Use GCC visibility support if available." OFF)
   mark_as_advanced(VTK_USE_GCC_VISIBILITY)
 
   if(${_gcc_version} VERSION_GREATER 4.2.0 AND HAVE_GCC_VISIBILITY
