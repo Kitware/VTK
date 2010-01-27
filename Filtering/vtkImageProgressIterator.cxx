@@ -21,8 +21,13 @@
 
 // Do not include vtkImageIterator.txx here - will cause implicit template
 // instantiation, breaking symbol visibility for the iterator with GCC.
-// Added back in due to issues encountered with MSVC - see VTK dashboards 01-27-10
-#include "vtkImageIterator.txx"
+// Silencing the MSVC warning after discussions about the fact that the explicit
+// instantiation of the this class tries to implicitly instantiate the member
+// class. This is not an error, and the symbols should be found at link time.
+#if defined(_MSC_VER)
+# pragma warning (disable:4661)
+#endif
+
 #include "vtkImageProgressIterator.txx"
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
