@@ -82,7 +82,7 @@ public:
   static vtkExodusIIWriter *New ();
   vtkTypeRevisionMacro (vtkExodusIIWriter, vtkWriter);
   void PrintSelf (ostream& os, vtkIndent indent);
- 
+
   // Description:
   // Specify the vtkModelMetadata object which contains the Exodus file
   // model information (metadata) absent in the vtkUnstructuredGrid.  If you 
@@ -103,7 +103,7 @@ public:
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  
+
   // Description:
   //   If StoreDoubles is ON, the floating point fields in the Exodus file
   //   will be double precision fields.  The default is determined by the
