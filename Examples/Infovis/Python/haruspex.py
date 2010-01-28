@@ -2,14 +2,27 @@ from vtk import *
 import sys
 import getopt
 
+
+############################################################
+# Global variables
+outModelName = "outputModel.csv"
+outDataName = "outputData.csv"
+############################################################
+
+############################################################
 # Usage function
 def Usage():
     print "Usage:"
-    print "   -d <input data file> | -h <haruspex> | [-s <output model file> ] | [-a <output data file> ] | [-v]"
+    print "\t -h               Help: print this message and exit"
+    print "\t -d <filename>    CSV input data file"
+    print "\t -e <haruspex>    Type of statistics engine"
+    print "\t [-s <filename> ] CSV output model (statistics) file. Default:",outModelName
+    print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
+    print "\t [-v]             Increase verbosity"
     sys.exit(1)
-# End Usage function
+############################################################
 
-# ReadInData function
+############################################################
 # Read input CSV data as input port
 def ReadInData( inDataName, verbosity ):
     if verbosity > 0:
@@ -30,9 +43,9 @@ def ReadInData( inDataName, verbosity ):
         print
     
     return inData
-# End ReadInData function
+############################################################
 
-# WriteOutData function
+############################################################
 # Write haruspex output data
 def WriteOutData( haruspex, outDataName, verbosity ):
     if verbosity > 0:
@@ -47,9 +60,9 @@ def WriteOutData( haruspex, outDataName, verbosity ):
     if verbosity > 0:
         print "   Wrote", outDataName
         print
-# End WriteOutData function
+############################################################
 
-# WriteOutModel function
+############################################################
 # Write haruspex output model
 def WriteOutModel( haruspex, outModelName, verbosity ):
     if verbosity > 0:
@@ -70,21 +83,18 @@ def WriteOutModel( haruspex, outModelName, verbosity ):
     if verbosity > 0:
         print "   Wrote", outModelName
         print
-# End WriteOutModel function
+############################################################
 
 # Parse command line
 verbosity = 1
-print "# Parsing command line:"
-opts,args = getopt.getopt(sys.argv[1:], 'vd:h:a:s:v:?')
+opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
 inDataName = None
 haruspexName = None
-outDataName = "outputData.csv"
-outModelName = "outputModel.csv"
 
 for o,a in opts:
     if o == "-d":
         inDataName = a
-    elif o == "-h":
+    elif o == "-e":
         haruspexName = a
     elif o == "-a":
         outDataName = a
