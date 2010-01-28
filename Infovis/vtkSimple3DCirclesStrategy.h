@@ -140,6 +140,7 @@ public:
   // Set graph (warning: HierarchicalOrder and HierarchicalLayers will set to zero. These reference counts will be decreased!)
   virtual void SetGraph( vtkGraph * graph );
 protected:
+//BTX
   vtkSimple3DCirclesStrategy( void );
   virtual ~vtkSimple3DCirclesStrategy( void );
 
@@ -158,6 +159,7 @@ protected:
 
   vtkIntArray * HierarchicalLayers;
   vtkIdTypeArray * HierarchicalOrder;
+//ETX
 private:
 //BTX
   // Description:
@@ -172,8 +174,8 @@ private:
   // Description:
   // Build hierarchical ordering of the graph points.
   virtual void BuildPointOrder( vtkDirectedGraph * input, vtkSimple3DCirclesStrategyInternal *source, vtkSimple3DCirclesStrategyInternal *StandAlones, vtkIntArray * layers, vtkIdTypeArray * order );
-//ETX
   double T[3][3];
+//ETX
 
   vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&);  // Not implemented.
   void operator=(const vtkSimple3DCirclesStrategy&);  // Not implemented.

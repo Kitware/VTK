@@ -75,7 +75,7 @@ private:
   };
 
 vtkStandardNewMacro(vtkSimple3DCirclesStrategy);
-vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.1" );
+vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.2" );
 
 void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   {
@@ -556,8 +556,6 @@ void vtkSimple3DCirclesStrategy::BuildPointOrder( vtkDirectedGraph * input, vtkS
   int step = 0;
   int layer = 0;
   vtkIdType ID = 0;
-
-  int max_id = order->GetMaxId();
 
   mark->SetNumberOfValues( input->GetNumberOfVertices() );
   for ( vtkIdType i = 0; i <= mark->GetMaxId(); ++i )
