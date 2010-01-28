@@ -85,6 +85,7 @@ vtkRemoveIsolatedVertices.cxx
 vtkRemoveHiddenData.cxx
 vtkSCurveSpline.cxx
 vtkSimple2DLayoutStrategy.cxx
+vtkSimple3DCirclesStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSplineGraphEdges.cxx
 vtkSquarifyLayoutStrategy.cxx
