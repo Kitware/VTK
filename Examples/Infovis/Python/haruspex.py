@@ -104,6 +104,7 @@ def ReadInData( inDataName, verbosity ):
     if verbosity > 0:
         print "# Reading input data:"
 
+    # Set CSV reader parameters
     inData = vtkDelimitedTextReader()
     inData.SetFieldDelimiterCharacters(",")
     inData.SetHaveHeaders(True)
@@ -130,6 +131,7 @@ def WriteOutData( haruspex, outDataName, verbosity ):
     if verbosity > 0:
         print "# Saving output (annotated) data:"
 
+    # Set CSV writer parameters
     outData = vtkDelimitedTextWriter()
     outData.SetFieldDelimiter(",")
     outData.SetFileName( outDataName )
@@ -147,11 +149,13 @@ def WriteOutModel( haruspex, outModelName, verbosity ):
     if verbosity > 0:
         print "# Saving output model (statistics):"
         
+    # Set CSV writer parameters
     outModel = vtkDelimitedTextWriter()
     outModel.SetFieldDelimiter(",")
     outModel.SetFileName(outModelName)
 
-    outModelType = haruspex.GetOutput(1).GetClassName()
+    # Get output model type to select appropriate write scheme
+    outModelType = haruspex.GetOutputDataObject(1).GetClassName()
     if verbosity > 0:
         print "  Output model is a", outModelType
 
