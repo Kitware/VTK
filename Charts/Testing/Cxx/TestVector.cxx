@@ -18,7 +18,7 @@
 #include "vtkSetGet.h"
 
 //----------------------------------------------------------------------------
-int TestVector(int, char**)
+int TestVector(int, char*[])
 {
   // Test out the general vector data types, give nice API and great memory use
   vtkVector2i vec2i;
