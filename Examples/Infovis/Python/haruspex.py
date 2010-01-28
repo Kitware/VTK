@@ -15,7 +15,14 @@ def Usage( outModelPrefix, outDataName ):
     print "Usage:"
     print "\t -h               Help: print this message and exit"
     print "\t -d <filename>    CSV input data file"
-    print "\t -e <haruspex>    Type of statistics engine"
+    print "\t -e <haruspex>    Type of statistics engine. Available engines are:"
+    print "\t                    descriptive"
+    print "\t                    order"
+    print "\t                    contingency"
+    print "\t                    correlative"
+    print "\t                    multicorrelative"
+    print "\t                    pca"
+    print "\t                    kmeans"
     print "\t [-s <filename> ] CSV output model (statistics) file prefix. Default:",outModelPrefix
     print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
     print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
@@ -89,11 +96,11 @@ def InstantiateStatistics( haruspexName ):
     elif haruspexName == "order":
         haruspex = vtkOrderStatistics()
 
-    elif haruspexName == "correlative":
-        haruspex = vtkCorrelativeStatistics()
-
     elif haruspexName == "contingency":
         haruspex = vtkContingencyStatistics()
+
+    elif haruspexName == "correlative":
+        haruspex = vtkCorrelativeStatistics()
 
     elif haruspexName == "multicorrelative":
         haruspex = vtkMultiCorrelativeStatistics()
