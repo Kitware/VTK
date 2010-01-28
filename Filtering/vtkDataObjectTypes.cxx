@@ -145,6 +145,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 {
+  
   if (!type)
     {
     vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 

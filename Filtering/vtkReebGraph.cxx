@@ -719,7 +719,7 @@ void vtkReebGraph::FlushLabels()
 //----------------------------------------------------------------------------
 vtkReebGraph* vtkReebGraph::Clone()
 {
-  vtkReebGraph* ret=new vtkReebGraph;
+  vtkReebGraph* ret=vtkReebGraph::New();
   memcpy(ret,this,sizeof(vtkReebGraph));
 
   if (this->MainArcTable.Buffer)
@@ -870,7 +870,9 @@ vtkReebGraph::~vtkReebGraph()
   if(this->ArcLoopTable) free(this->ArcLoopTable);
 
 	if(this->VertexMapAllocatedSize) free(this->VertexMap);
+
 	if(this->TriangleVertexMapAllocatedSize) free(this->TriangleVertexMap);
+
 }
 
 //----------------------------------------------------------------------------
@@ -2357,7 +2359,7 @@ int vtkReebGraph::Build(vtkUnstructuredGrid *mesh, vtkIdType scalarFieldId)
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::Build(vtkPolyData *mesh, char* scalarFieldName)
+int vtkReebGraph::Build(vtkPolyData *mesh, const char* scalarFieldName)
 {
 
   int scalarFieldId = 0;
@@ -2372,7 +2374,7 @@ int vtkReebGraph::Build(vtkPolyData *mesh, char* scalarFieldName)
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::Build(vtkUnstructuredGrid *mesh, char* scalarFieldName)
+int vtkReebGraph::Build(vtkUnstructuredGrid *mesh, const char* scalarFieldName)
 {
 
   int scalarFieldId = 0;
@@ -2453,6 +2455,5 @@ vtkMutableDirectedGraph* vtkReebGraph::GetVtkGraph()
   }
 
   return g;
-
 }
 

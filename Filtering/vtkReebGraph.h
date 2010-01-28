@@ -77,7 +77,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
-class VTK_FILTERING_EXPORT vtkReebGraph : public vtkObject
+class VTK_FILTERING_EXPORT vtkReebGraph : public vtkDataObject
 {
 
 public:
@@ -176,7 +176,7 @@ public:
   // vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the name
   // 'scalarFieldName' does not exist.
   //
-  int Build(vtkPolyData *mesh, char* scalarFieldName);
+  int Build(vtkPolyData *mesh, const char* scalarFieldName);
 
 	// Description:
   // Build the Reeb graph of the field given by the name 'scalarFieldName',
@@ -193,7 +193,7 @@ public:
   // vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the name
   // 'scalarFieldName' does not exist.
   //
-  int Build(vtkUnstructuredGrid *mesh, char* scalarFieldName);
+  int Build(vtkUnstructuredGrid *mesh, const char* scalarFieldName);
 
   // Description:
   // Returns a vtkMutableDirectedGraph representation of the Reeb graph
