@@ -84,7 +84,9 @@ def ParseCommandLine():
         print "# Parsed command line:"
         print "  Input data file:", inDataName
         if columnsListName != "":
-            print "  Columns of interest file:", columnsListName
+            print "  Columns of interest in file:", columnsListName
+        else:
+            print "  Columns of interest: all"
         print "  Statistics:", haruspexName
         print "  Output model file prefix:", outModelPrefix
         print "  Output data file:", outDataName
@@ -284,7 +286,12 @@ def CalculateStatistics( inData, columnsList, haruspex ):
 
     # Get the output table of the data reader
     table = inData.GetOutput()
+
+    # Figure number of columns of interest. If no list was provided, use them all
+    if columnsList == []:
+        columnsList = range( 0, table.GetNumberOfColumns() )
     n = len( columnsList )
+    
     # Generate list of columns of interest, depending on number of variables
     if haruspex.IsA( "vtkUnivariateStatisticsAlgorithm" ):
         # Univariate case: one request for each columns
