@@ -5,15 +5,33 @@ import getopt
 ############################################################
 
 ############################################################
+# Usage function
+def Usage( outModelPrefix, outDataName, verbosity ):
+    print "Usage:"
+    print "\t -h               Help: print this message and exit"
+    print "\t -d <filename>    CSV input data file"
+    print "\t -e <haruspex>    Type of statistics engine"
+    print "\t [-s <filename> ] CSV output model (statistics) file prefix. Default:",outModelPrefix
+    print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
+    print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
+    sys.exit( 1 )
+############################################################
+
+############################################################
 # Parse command line
 def ParseCommandLine():
-    opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
-
     # Default values
     verbosity = 0
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
     
+    # Try to hash command line with respect to allowable flags
+    try:
+        opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
+    except getopt.GetoptError:
+        Usage( outModelPrefix, outDataName, verbosity )
+        sys.exit( 1 )
+
     # First verify that the helper has not been requested (supersedes everything else)
     # NB: handled first and separately so default values cannot be altered in helper message
     for o,a in opts:
@@ -89,19 +107,6 @@ def InstantiateStatistics( haruspexName, verbosity ):
         print
 
     return [ haruspex, numVariables ]
-############################################################
-
-############################################################
-# Usage function
-def Usage( outModelPrefix, outDataName, verbosity ):
-    print "Usage:"
-    print "\t -h               Help: print this message and exit"
-    print "\t -d <filename>    CSV input data file"
-    print "\t -e <haruspex>    Type of statistics engine"
-    print "\t [-s <filename> ] CSV output model (statistics) file prefix. Default:",outModelPrefix
-    print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
-    print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
-    sys.exit( 1 )
 ############################################################
 
 ############################################################
