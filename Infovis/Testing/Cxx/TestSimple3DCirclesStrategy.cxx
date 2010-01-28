@@ -30,7 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkVertexGlyphFilter.h"
 
-int TestSimple3DCirclesStrategy(int argc, char **argv)
+int TestSimple3DCirclesStrategy(int argc, char *argv[])
   {
   // graph
   vtkSmartPointer<vtkMutableDirectedGraph> graph = vtkSmartPointer<vtkMutableDirectedGraph>::New();
