@@ -140,6 +140,10 @@ def WriteOutModel( haruspex, outModelName, verbosity ):
     outModel.SetFieldDelimiter(",")
     outModel.SetFileName(outModelName)
 
+    outModelType = haruspex.GetOutput(1).GetClassName()
+    if verbosity > 0:
+        print "  Output model is a", outModelType
+
     if outModelType == "vtkTable":
         outModel.SetInputConnection(haruspex.GetOutputPort(1))
     elif outModelType == "vtkMultiBlockDataSet":
@@ -155,9 +159,12 @@ def WriteOutModel( haruspex, outModelName, verbosity ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( haruspex ):
-    # Get the input connection
+def CalculateStatistics( inData, haruspex, numVariables, verbosity ):
+    # Output port of data reader becomes input connection of haruspex
     haruspex.AddInputConnection(inData.GetOutputPort())
+
+    # Get the output table of the data reader
+    T = inData.GetOutput()
 
     # Generate list of columns of interest, depending on number of variables
     if numVariables == 1:
@@ -198,42 +205,48 @@ def CalculateStatistics( haruspex ):
     haruspex.Update()
 ############################################################
 
-# Parse command line
-[ inDataName, haruspexName, outModelName, outDataName, verbosity ] = ParseCommandLine()
-if verbosity > 0:
-    print "# Parsed command line:"
-    print "  Input data file:", inDataName
-    print "  Statistics:", haruspexName
-    print "  Output model file:", outModelName
-    print "  Output data file:", outDataName
-    print
+############################################################
+# Main function
+def main():
+    # Parse command line
+    [ inDataName, haruspexName, outModelName, outDataName, verbosity ] = ParseCommandLine()
+    if verbosity > 0:
+        print "# Parsed command line:"
+        print "  Input data file:", inDataName
+        print "  Statistics:", haruspexName
+        print "  Output model file:", outModelName
+        print "  Output data file:", outDataName
+        print
 
-# Verify that haruspex name makes sense and if so instantiate accordingly
-[ haruspex, numVariables, outModelType ] = InstantiateStatistics( haruspexName )
-if verbosity > 0:
-    print "# Instantiated a", haruspex.GetClassName(), "object"
-    print "  Number of variables:", numVariables
-    print "  Type of output model file:", outModelType
-    print
+    # Verify that haruspex name makes sense and if so instantiate accordingly
+    [ haruspex, numVariables, outModelType ] = InstantiateStatistics( haruspexName )
+    if verbosity > 0:
+        print "# Instantiated a", haruspex.GetClassName(), "object"
+        print "  Number of variables:", numVariables
+        print "  Type of output model file:", outModelType
+        print
 
-# Get input data port
-inData = ReadInData( inDataName, verbosity )
-T = inData.GetOutput()
-if verbosity > 1:
-    print "# Input data:"
-    T.Dump( 10 )
-    print
+    # Get input data port
+    inData = ReadInData( inDataName, verbosity )
+    if verbosity > 1:
+        print "# Input data:"
+        inData.GetOutput().Dump( 10 )
+        print
 
-# Calculate statistics
-if verbosity > 0:
-    print "# Calculating statistics:"
-CalculateStatistics( haruspex )
-if verbosity > 0:
-    print "  Done"
-    print
+    # Calculate statistics
+    if verbosity > 0:
+        print "# Calculating statistics:"
+    CalculateStatistics( inData, haruspex, numVariables, verbosity )
+    if verbosity > 0:
+        print "  Done"
+        print
 
-# Save output (annotated) data
-WriteOutData( haruspex, outDataName, verbosity )
+    # Save output (annotated) data
+    WriteOutData( haruspex, outDataName, verbosity )
 
-# Save output model (statistics)
-WriteOutModel( haruspex, outModelName, verbosity )
+    # Save output model (statistics)
+    WriteOutModel( haruspex, outModelName, verbosity )
+############################################################
+
+if __name__ == "__main__":
+    main()
