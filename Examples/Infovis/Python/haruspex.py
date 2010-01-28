@@ -120,9 +120,9 @@ def ReadInData( inDataName, verbosity ):
     inData.Update()
 
     if verbosity > 0:
-        T = inData.GetOutput()
-        print "  Number of columns:", T.GetNumberOfColumns()
-        print "  Number of rows:", T.GetNumberOfRows()
+        table = inData.GetOutput()
+        print "  Number of columns:", table.GetNumberOfColumns()
+        print "  Number of rows:", table.GetNumberOfRows()
         print
         if verbosity > 1:
             print "# Input data:"
@@ -194,7 +194,8 @@ def WriteOutModel( haruspex, outModelPrefix, verbosity ):
                 if verbosity > 1:
                     table.Dump( 10 )
 
-    print
+    if verbosity > 0:
+        print
 ############################################################
 
 ############################################################
