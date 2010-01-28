@@ -1,24 +1,19 @@
+############################################################
 from vtk import *
 import sys
 import getopt
-
-
-############################################################
-# Global variables
-outModelName = "outputModel.csv"
-outDataName = "outputData.csv"
 ############################################################
 
 ############################################################
 # Usage function
-def Usage():
+def Usage( outModelName, outDataName, verbosity ):
     print "Usage:"
     print "\t -h               Help: print this message and exit"
     print "\t -d <filename>    CSV input data file"
     print "\t -e <haruspex>    Type of statistics engine"
     print "\t [-s <filename> ] CSV output model (statistics) file. Default:",outModelName
     print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
-    print "\t [-v]             Increase verbosity"
+    print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
     sys.exit(1)
 ############################################################
 
@@ -26,7 +21,7 @@ def Usage():
 # Read input CSV data as input port
 def ReadInData( inDataName, verbosity ):
     if verbosity > 0:
-        print "#  Reading input data:"
+        print "# Reading input data:"
 
     inData = vtkDelimitedTextReader()
     inData.SetFieldDelimiterCharacters(",")
@@ -36,7 +31,6 @@ def ReadInData( inDataName, verbosity ):
     inData.Update()
 
     if verbosity > 0:
-        print "# Table loaded from CSV file:"
         T = inData.GetOutput()
         print "  Number of columns:", T.GetNumberOfColumns()
         print "  Number of rows:", T.GetNumberOfRows()
@@ -49,7 +43,7 @@ def ReadInData( inDataName, verbosity ):
 # Write haruspex output data
 def WriteOutData( haruspex, outDataName, verbosity ):
     if verbosity > 0:
-        print "#  Saving output (annotated) data:"
+        print "# Saving output (annotated) data:"
 
     outData = vtkDelimitedTextWriter()
     outData.SetFieldDelimiter(",")
@@ -58,7 +52,7 @@ def WriteOutData( haruspex, outDataName, verbosity ):
     outData.Update()
 
     if verbosity > 0:
-        print "   Wrote", outDataName
+        print "  Wrote", outDataName
         print
 ############################################################
 
@@ -66,7 +60,7 @@ def WriteOutData( haruspex, outDataName, verbosity ):
 # Write haruspex output model
 def WriteOutModel( haruspex, outModelName, verbosity ):
     if verbosity > 0:
-        print "#  Saving output model (statistics):"
+        print "# Saving output model (statistics):"
         
     outModel = vtkDelimitedTextWriter()
     outModel.SetFieldDelimiter(",")
@@ -81,37 +75,52 @@ def WriteOutModel( haruspex, outModelName, verbosity ):
     outModel.Update()
 
     if verbosity > 0:
-        print "   Wrote", outModelName
+        print "  Wrote", outModelName
         print
 ############################################################
 
+############################################################
 # Parse command line
-verbosity = 1
-opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
-inDataName = None
-haruspexName = None
+def ParseCommandLine():
+    opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
 
-for o,a in opts:
-    if o == "-d":
-        inDataName = a
-    elif o == "-e":
-        haruspexName = a
-    elif o == "-a":
-        outDataName = a
-    elif o == "-s":
-        outModelName = a
-    elif o == "-v":
-        verbosity += 1
-    else:
-        Usage()
+    # Default values
+    verbosity = 0
+    outModelName = "outputModel.csv"
+    outDataName = "outputData.csv"
+    
+    # First verify that the helper has not been requested (supersedes everything else)
+    # NB: handled first and separately so default values cannot be altered in helper message
+    for o,a in opts:
+        if o == "-h":
+            Usage( outModelName, outDataName, verbosity )
 
-if not inDataName:
-    print "ERROR: a data file name required!"
-    sys.exit(1)
+    # Parse arguments and assign corresponding variables
+    for o,a in opts:
+        if o == "-d":
+            inDataName = a
+        elif o == "-e":
+            haruspexName = a
+        elif o == "-a":
+            outDataName = a
+        elif o == "-s":
+            outModelName = a
+        elif o == "-v":
+            verbosity += 1
 
-if not haruspexName:
-    print "ERROR: a haruspex name is required!"
-    sys.exit(1)
+    if not inDataName:
+        print "ERROR: a data file name required!"
+        sys.exit(1)
+        
+    if not haruspexName:
+        print "ERROR: a statistics engine name is required!"
+        sys.exit(1)
+
+    return [ inDataName, haruspexName, outModelName, outDataName, verbosity ]
+############################################################
+
+# Parse command line
+[ inDataName, haruspexName, outModelName, outDataName, verbosity ] = ParseCommandLine()
 
 # Verify that haruspex name makes sense and if so instantiate accordingly
 if haruspexName == "descriptive":
@@ -139,12 +148,16 @@ elif haruspexName == "PCA":
     numVariables = 3
     outModelType = "vtkMultiBlockDataSet"
 else:
-    print "ERROR: Invalid haruspex name:", haruspexName
+    print "ERROR: Invalid statistics engine:", haruspexName
     sys.exit(1)
 
-print "  Input data file:", inDataName
-print "  Haruspex:", haruspexName, "( number of variables:", numVariables,")"
-print
+if verbosity > 0:
+    print "# Parsing command line:"
+    print "  Input data file:", inDataName
+    print "  Statistics engine:", haruspexName, "( number of variables:", numVariables,")"
+    print "  Output model file:", outModelName
+    print "  Output data file:", outDataName
+    print
 
 # Get input data port
 inData = ReadInData( inDataName, verbosity )
@@ -153,16 +166,17 @@ if verbosity > 1:
     T.Dump( 10 )
 
 # Prepare haruspex
-print "# Calculating descriptive statistics:"
+if verbosity > 0:
+    print "# Calculating statistics:"
 haruspex.AddInputConnection(inData.GetOutputPort())
-
 
 # Generate list of columns of interest, depending on number of variables
 if numVariables == 1:
     # Univariate case: one request for each columns
     for i in range(0,T.GetNumberOfColumns()):
         colName = T.GetColumnName(i)
-        print "  Requesting column",colName
+        if verbosity > 0:
+            print "  Requesting column",colName
         haruspex.AddColumn(colName)
 elif numVariables == 2:
     # Bivariate case: generate all possible pairs
@@ -170,14 +184,16 @@ elif numVariables == 2:
         colNameX = T.GetColumnName(i)
         for j in range(i+1,T.GetNumberOfColumns()):
             colNameY = T.GetColumnName(j)
-            print "  Requesting column pair",colNameX,colNameY
+            if verbosity > 0:
+                print "  Requesting column pair",colNameX,colNameY
             haruspex.AddColumnPair(colNameX,colNameY)
 elif numVariables == 3:
     # Multivariate case: generate single request containing all columns
     for i in range(0,T.GetNumberOfColumns()):
         colName = T.GetColumnName(i)
         haruspex.SetColumnStatus( colName, 1 )
-        print "  Adding column", colName, "to the request"
+        if verbosity > 0:
+            print "  Adding column", colName, "to the request"
 else:
     print "ERROR: Unsupported case: number of variables = ",numVariables
     sys.exit(1)
@@ -190,8 +206,9 @@ haruspex.SetDeriveOption(True)
 haruspex.SetAssessOption(True)
 haruspex.SetTestOption(False)
 haruspex.Update()
-print "  Completed calculations"
-print
+if verbosity > 0:
+    print "  Completed calculations"
+    print
 
 # Save output (annotated) data
 WriteOutData( haruspex, outDataName, verbosity )
