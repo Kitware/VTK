@@ -15,7 +15,8 @@ def Usage( outModelPrefix, outDataName ):
     print "Usage:"
     print "\t -h               Help: print this message and exit"
     print "\t -d <filename>    CSV input data file"
-    print "\t -e <haruspex>    Type of statistics engine. Available engines are:"
+    print "\t [-m <filename> ] CSV input model file. Default: calculate model from scratch"
+    print "\t -e <engine>      Type of statistics engine. Available engines are:"
     print "\t                    descriptive"
     print "\t                    order"
     print "\t                    contingency"
@@ -25,6 +26,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    kmeans"
     print "\t [-s <filename> ] CSV output model (statistics) file prefix. Default:",outModelPrefix
     print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
+    print "\t [-c <filename> ] CSV columns of interest file. Default: all columns are of interest"
     print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
     sys.exit( 1 )
 ############################################################
@@ -38,10 +40,11 @@ def ParseCommandLine():
     # Default values
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
+    columnsListName =""
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:m:e:s:a:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -56,12 +59,16 @@ def ParseCommandLine():
     for o,a in opts:
         if o == "-d":
             inDataName = a
+        elif o == "-m":
+            inModelName = a
         elif o == "-e":
             haruspexName = a
-        elif o == "-a":
-            outDataName = a
         elif o == "-s":
             outModelPrefix = a
+        elif o == "-a":
+            outDataName = a
+        elif o == "-c":
+            columnsListName = a
         elif o == "-v":
             verbosity += 1
 
@@ -76,12 +83,14 @@ def ParseCommandLine():
     if verbosity > 0:
         print "# Parsed command line:"
         print "  Input data file:", inDataName
+        if columnsListName != "":
+            print "  Columns of interest file:", columnsListName
         print "  Statistics:", haruspexName
         print "  Output model file prefix:", outModelPrefix
         print "  Output data file:", outDataName
         print
 
-    return [ inDataName, haruspexName, outModelPrefix, outDataName ]
+    return [ inDataName, columnsListName, haruspexName, outModelPrefix, outDataName ]
 ############################################################
 
 ############################################################
@@ -132,24 +141,60 @@ def ReadInData( inDataName ):
         print "# Reading input data:"
 
     # Set CSV reader parameters
-    inData = vtkDelimitedTextReader()
-    inData.SetFieldDelimiterCharacters(",")
-    inData.SetHaveHeaders(True)
-    inData.SetDetectNumericColumns(True)
-    inData.SetFileName(inDataName)
-    inData.Update()
+    inDataReader = vtkDelimitedTextReader()
+    inDataReader.SetFieldDelimiterCharacters(",")
+    inDataReader.SetHaveHeaders( True )
+    inDataReader.SetDetectNumericColumns( True )
+    inDataReader.SetFileName( inDataName )
+    inDataReader.Update()
 
     if verbosity > 0:
-        table = inData.GetOutput()
+        table = inDataReader.GetOutput()
         print "  Number of columns:", table.GetNumberOfColumns()
         print "  Number of rows:", table.GetNumberOfRows()
         print
         if verbosity > 1:
             print "# Input data:"
-            inData.GetOutput().Dump( 10 )
+            inDataReader.GetOutput().Dump( 10 )
             print
     
-    return inData
+    return inDataReader
+############################################################
+
+############################################################
+# Read list of columns of interest
+def ReadColumnsList( columnsListName ):
+    # Declare use of global variable
+    global verbosity
+
+    if verbosity > 0:
+        print "# Reading list of columns of interest:"
+
+    # Set CSV reader parameters
+    columnsListReader = vtkDelimitedTextReader()
+    columnsListReader.SetFieldDelimiterCharacters(",")
+    columnsListReader.SetHaveHeaders( False )
+    columnsListReader.SetDetectNumericColumns( True )
+    columnsListReader.SetFileName( columnsListName )
+    columnsListReader.Update()
+
+    # Figure number of columns of interest
+    table = columnsListReader.GetOutput()
+    n = table.GetNumberOfColumns()
+    if verbosity > 0:
+        print "  Number of columns of interest:", n
+
+    # Now construct list of colums of interest
+    columnsList = []
+    for i in range( 0, n ):
+        columnsList.append( table.GetColumn( i ).GetValue( 0 ) )
+    if verbosity > 1:
+        print "  Columns of interest are:", columnsList
+
+    if verbosity > 0:
+        print
+
+    return columnsList
 ############################################################
 
 ############################################################
@@ -194,13 +239,13 @@ def WriteOutModel( haruspex, outModelPrefix ):
     # Select write scheme depending on output model type
     if outModelType == "vtkTable":
         # Straightforward CSV file dump of a vtkTable
-        outModelName = outModelPrefix + ".csv"
+        outModelName = outModelPrefix + "-0.csv"
         outModelWriter.SetFileName( outModelName )
         outModelWriter.SetInputConnection( haruspex.GetOutputPort( 1 ) )
         outModelWriter.Update()
 
         if verbosity > 0:
-            print "  Wrote", outModelPrefix
+            print "  Wrote", outModelName
             if verbosity > 1:
                 haruspex.GetOutput( 1 ).Dump( 10 )
 
@@ -227,7 +272,7 @@ def WriteOutModel( haruspex, outModelPrefix ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inData, haruspex ):
+def CalculateStatistics( inData, columnsList, haruspex ):
     # Declare use of global variable
     global verbosity
 
@@ -239,30 +284,30 @@ def CalculateStatistics( inData, haruspex ):
 
     # Get the output table of the data reader
     table = inData.GetOutput()
-
+    n = len( columnsList )
     # Generate list of columns of interest, depending on number of variables
     if haruspex.IsA( "vtkUnivariateStatisticsAlgorithm" ):
         # Univariate case: one request for each columns
-        for i in range( 0, table.GetNumberOfColumns() ):
-            colName = table.GetColumnName( i )
+        for i in range( 0, n ):
+            colName = table.GetColumnName( columnsList[i] )
             if verbosity > 0:
                 print "  Requesting column",colName
             haruspex.AddColumn(colName)
 
     elif haruspex.IsA( "vtkBivariateStatisticsAlgorithm" ):
         # Bivariate case: generate all possible pairs
-        for i in range( 0, table.GetNumberOfColumns() ):
-            colNameX = table.GetColumnName( i )
+        for i in range( 0, n ):
+            colNameX = table.GetColumnName( columnsList[i] )
             for j in range( i+1,table.GetNumberOfColumns() ):
-                colNameY = table.GetColumnName( j )
+                colNameY = table.GetColumnName( columnsList[j] )
                 if verbosity > 0:
                     print "  Requesting column pair",colNameX,colNameY
                 haruspex.AddColumnPair(colNameX,colNameY)
 
     else:
         # Multivariate case: generate single request containing all columns
-        for i in range( 0, table.GetNumberOfColumns() ):
-            colName = table.GetColumnName( i )
+        for i in range( 0, n ):
+            colName = table.GetColumnName( columnsList[i] )
             haruspex.SetColumnStatus( colName, 1 )
             if verbosity > 0:
                 print "  Adding column", colName, "to the request"
@@ -271,10 +316,10 @@ def CalculateStatistics( inData, haruspex ):
     haruspex.RequestSelectedColumns()
     
     # Calculate statistics with Learn, Derive, and Assess options turned on (Test is left out for now)
-    haruspex.SetLearnOption(True)
-    haruspex.SetDeriveOption(True)
-    haruspex.SetAssessOption(True)
-    haruspex.SetTestOption(False)
+    haruspex.SetLearnOption( True )
+    haruspex.SetDeriveOption( True )
+    haruspex.SetAssessOption( True )
+    haruspex.SetTestOption( False )
     haruspex.Update()
 
     if verbosity > 0:
@@ -286,16 +331,22 @@ def CalculateStatistics( inData, haruspex ):
 # Main function
 def main():
     # Parse command line
-    [ inDataName, haruspexName, outModelPrefix, outDataName ] = ParseCommandLine()
+    [ inDataName, columnsListName, haruspexName, outModelPrefix, outDataName ] = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
     haruspex = InstantiateStatistics( haruspexName )
 
     # Get input data port
-    inData = ReadInData( inDataName )
+    inDataReader = ReadInData( inDataName )
 
+    # Read list of columns of interest
+    if columnsListName:
+        columnsList = ReadColumnsList( columnsListName )
+    else:
+        columnsList = []
+        
     # Calculate statistics
-    CalculateStatistics( inData, haruspex )
+    CalculateStatistics( inDataReader, columnsList, haruspex )
 
     # Save output (annotated) data
     WriteOutData( haruspex, outDataName )
