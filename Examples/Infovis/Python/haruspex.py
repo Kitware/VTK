@@ -75,31 +75,24 @@ def ParseCommandLine():
 def InstantiateStatistics( haruspexName, verbosity ):
     if haruspexName == "descriptive":
         haruspex = vtkDescriptiveStatistics()
-        numVariables = 1
 
     elif haruspexName == "order":
         haruspex = vtkOrderStatistics()
-        numVariables = 1
 
     elif haruspexName == "correlative":
         haruspex = vtkCorrelativeStatistics()
-        numVariables = 2
 
     elif haruspexName == "contingency":
         haruspex = vtkContingencyStatistics()
-        numVariables = 2
 
     elif haruspexName == "multicorrelative":
         haruspex = vtkMultiCorrelativeStatistics()
-        numVariables = 3
 
     elif haruspexName == "pca":
         haruspex = vtkPCAStatistics()
-        numVariables = 3
 
     elif haruspexName == "kmeans":
         haruspex = vtkKMeansStatistics()
-        numVariables = 3
 
     else:
         print "ERROR: Invalid statistics engine:", haruspexName
@@ -107,10 +100,9 @@ def InstantiateStatistics( haruspexName, verbosity ):
 
     if verbosity > 0:
         print "# Instantiated a", haruspex.GetClassName(), "object"
-        print "  Number of variables:", numVariables
         print
 
-    return [ haruspex, numVariables ]
+    return haruspex
 ############################################################
 
 ############################################################
@@ -207,7 +199,7 @@ def WriteOutModel( haruspex, outModelPrefix, verbosity ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inData, haruspex, numVariables, verbosity ):
+def CalculateStatistics( inData, haruspex, verbosity ):
     if verbosity > 0:
         print "# Calculating statistics:"
 
@@ -218,7 +210,7 @@ def CalculateStatistics( inData, haruspex, numVariables, verbosity ):
     table = inData.GetOutput()
 
     # Generate list of columns of interest, depending on number of variables
-    if numVariables == 1:
+    if haruspex.IsA( "vtkUnivariateStatisticsAlgorithm" ):
         # Univariate case: one request for each columns
         for i in range( 0, table.GetNumberOfColumns() ):
             colName = table.GetColumnName( i )
@@ -226,7 +218,7 @@ def CalculateStatistics( inData, haruspex, numVariables, verbosity ):
                 print "  Requesting column",colName
             haruspex.AddColumn(colName)
 
-    elif numVariables == 2:
+    elif haruspex.IsA( "vtkBivariateStatisticsAlgorithm" ):
         # Bivariate case: generate all possible pairs
         for i in range( 0, table.GetNumberOfColumns() ):
             colNameX = table.GetColumnName( i )
@@ -236,17 +228,13 @@ def CalculateStatistics( inData, haruspex, numVariables, verbosity ):
                     print "  Requesting column pair",colNameX,colNameY
                 haruspex.AddColumnPair(colNameX,colNameY)
 
-    elif numVariables == 3:
+    else:
         # Multivariate case: generate single request containing all columns
         for i in range( 0, table.GetNumberOfColumns() ):
             colName = table.GetColumnName( i )
             haruspex.SetColumnStatus( colName, 1 )
             if verbosity > 0:
                 print "  Adding column", colName, "to the request"
-
-    else:
-        print "ERROR: Unsupported case: number of variables = ",numVariables
-        sys.exit( 1 )
 
     # Complete column selection request
     haruspex.RequestSelectedColumns()
@@ -258,8 +246,9 @@ def CalculateStatistics( inData, haruspex, numVariables, verbosity ):
     haruspex.SetTestOption(False)
     haruspex.Update()
 
-    print "  Done"
-    print
+    if verbosity > 0:
+        print "  Done"
+        print
 ############################################################
 
 ############################################################
@@ -269,13 +258,13 @@ def main():
     [ inDataName, haruspexName, outModelPrefix, outDataName, verbosity ] = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
-    [ haruspex, numVariables ] = InstantiateStatistics( haruspexName, verbosity )
+    haruspex = InstantiateStatistics( haruspexName, verbosity )
 
     # Get input data port
     inData = ReadInData( inDataName, verbosity )
 
     # Calculate statistics
-    CalculateStatistics( inData, haruspex, numVariables, verbosity )
+    CalculateStatistics( inData, haruspex, verbosity )
 
     # Save output (annotated) data
     WriteOutData( haruspex, outDataName, verbosity )
