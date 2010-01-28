@@ -21,7 +21,7 @@
 #include <locale>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.17");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.18");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0f;
@@ -60,6 +60,7 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 
   if ( this->InputStream )
     {
+    this->InputStream->clear();
     delete this->InputStream;
     this->InputStream = NULL;
     }
