@@ -58,27 +58,21 @@ def InstantiateStatistics( haruspexName, verbosity ):
     if haruspexName == "descriptive":
         haruspex = vtkDescriptiveStatistics()
         numVariables = 1
-        outModelType = "vtkTable"
     elif haruspexName == "order":
         haruspex = vtkOrderStatistics()
         numVariables = 1
-        outModelType = "vtkTable"
     elif haruspexName == "correlative":
         haruspex = vtkCorrelativeStatistics()
         numVariables = 2
-        outModelType = "vtkTable"
     elif haruspexName == "contingency":
         haruspex = vtkContingencyStatistics()
         numVariables = 2
-        outModelType = "vtkMultiBlockDataSet"
     elif haruspexName == "multicorrelative":
         haruspex = vtkMultiCorrelativeStatistics()
         numVariables = 3
-        outModelType = "vtkMultiBlockDataSet"
     elif haruspexName == "PCA":
         haruspex = vtkPCAStatistics()
         numVariables = 3
-        outModelType = "vtkMultiBlockDataSet"
     else:
         print "ERROR: Invalid statistics engine:", haruspexName
         sys.exit(1)
@@ -86,10 +80,9 @@ def InstantiateStatistics( haruspexName, verbosity ):
     if verbosity > 0:
         print "# Instantiated a", haruspex.GetClassName(), "object"
         print "  Number of variables:", numVariables
-        print "  Type of output model file:", outModelType
         print
 
-    return [ haruspex, numVariables, outModelType ]
+    return [ haruspex, numVariables ]
 ############################################################
 
 ############################################################
@@ -236,7 +229,7 @@ def main():
     [ inDataName, haruspexName, outModelName, outDataName, verbosity ] = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
-    [ haruspex, numVariables, outModelType ] = InstantiateStatistics( haruspexName, verbosity )
+    [ haruspex, numVariables ] = InstantiateStatistics( haruspexName, verbosity )
 
     # Get input data port
     inData = ReadInData( inDataName, verbosity )
