@@ -5,8 +5,13 @@ import getopt
 ############################################################
 
 ############################################################
+# Global variable for convenience
+verbosity = 0
+############################################################
+
+############################################################
 # Usage function
-def Usage( outModelPrefix, outDataName, verbosity ):
+def Usage( outModelPrefix, outDataName ):
     print "Usage:"
     print "\t -h               Help: print this message and exit"
     print "\t -d <filename>    CSV input data file"
@@ -20,8 +25,10 @@ def Usage( outModelPrefix, outDataName, verbosity ):
 ############################################################
 # Parse command line
 def ParseCommandLine():
+    # Declare use of global variable
+    global verbosity
+
     # Default values
-    verbosity = 0
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
     
@@ -29,14 +36,14 @@ def ParseCommandLine():
     try:
         opts,args = getopt.getopt(sys.argv[1:], 'vd:e:a:s:v:h')
     except getopt.GetoptError:
-        Usage( outModelPrefix, outDataName, verbosity )
+        Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
 
     # First verify that the helper has not been requested (supersedes everything else)
     # NB: handled first and separately so default values cannot be altered in helper message
     for o,a in opts:
         if o == "-h":
-            Usage( outModelPrefix, outDataName, verbosity )
+            Usage( outModelPrefix, outDataName )
 
     # Parse arguments and assign corresponding variables
     for o,a in opts:
@@ -67,12 +74,15 @@ def ParseCommandLine():
         print "  Output data file:", outDataName
         print
 
-    return [ inDataName, haruspexName, outModelPrefix, outDataName, verbosity ]
+    return [ inDataName, haruspexName, outModelPrefix, outDataName ]
 ############################################################
 
 ############################################################
 # Turn haruspex name into vtkStatistics object and ancillary parameters
-def InstantiateStatistics( haruspexName, verbosity ):
+def InstantiateStatistics( haruspexName ):
+    # Declare use of global variable
+    global verbosity
+
     if haruspexName == "descriptive":
         haruspex = vtkDescriptiveStatistics()
 
@@ -107,7 +117,10 @@ def InstantiateStatistics( haruspexName, verbosity ):
 
 ############################################################
 # Read input CSV data as input port
-def ReadInData( inDataName, verbosity ):
+def ReadInData( inDataName ):
+    # Declare use of global variable
+    global verbosity
+
     if verbosity > 0:
         print "# Reading input data:"
 
@@ -134,7 +147,10 @@ def ReadInData( inDataName, verbosity ):
 
 ############################################################
 # Write haruspex output data
-def WriteOutData( haruspex, outDataName, verbosity ):
+def WriteOutData( haruspex, outDataName ):
+    # Declare use of global variable
+    global verbosity
+
     if verbosity > 0:
         print "# Saving output (annotated) data:"
 
@@ -152,7 +168,10 @@ def WriteOutData( haruspex, outDataName, verbosity ):
 
 ############################################################
 # Write haruspex output model
-def WriteOutModel( haruspex, outModelPrefix, verbosity ):
+def WriteOutModel( haruspex, outModelPrefix ):
+    # Declare use of global variable
+    global verbosity
+
     if verbosity > 0:
         print "# Saving output model (statistics):"
         
@@ -183,6 +202,7 @@ def WriteOutModel( haruspex, outModelPrefix, verbosity ):
         outModel = haruspex.GetOutputDataObject( 1 )
         n = outModel.GetNumberOfBlocks()
         for i in range( 0, n ):
+            # Straightforward CSV file dump of a vtkTable
             outModelName = outModelPrefix + "-" + str( i )+ ".csv"
             outModelWriter.SetFileName( outModelName )
             table = outModel.GetBlock( i )
@@ -200,7 +220,10 @@ def WriteOutModel( haruspex, outModelPrefix, verbosity ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inData, haruspex, verbosity ):
+def CalculateStatistics( inData, haruspex ):
+    # Declare use of global variable
+    global verbosity
+
     if verbosity > 0:
         print "# Calculating statistics:"
 
@@ -256,22 +279,22 @@ def CalculateStatistics( inData, haruspex, verbosity ):
 # Main function
 def main():
     # Parse command line
-    [ inDataName, haruspexName, outModelPrefix, outDataName, verbosity ] = ParseCommandLine()
+    [ inDataName, haruspexName, outModelPrefix, outDataName ] = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
-    haruspex = InstantiateStatistics( haruspexName, verbosity )
+    haruspex = InstantiateStatistics( haruspexName )
 
     # Get input data port
-    inData = ReadInData( inDataName, verbosity )
+    inData = ReadInData( inDataName )
 
     # Calculate statistics
-    CalculateStatistics( inData, haruspex, verbosity )
+    CalculateStatistics( inData, haruspex )
 
     # Save output (annotated) data
-    WriteOutData( haruspex, outDataName, verbosity )
+    WriteOutData( haruspex, outDataName )
 
     # Save output model (statistics)
-    WriteOutModel( haruspex, outModelPrefix, verbosity )
+    WriteOutModel( haruspex, outModelPrefix )
 ############################################################
 
 ############################################################
