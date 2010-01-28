@@ -93,8 +93,12 @@ def InstantiateStatistics( haruspexName, verbosity ):
         haruspex = vtkMultiCorrelativeStatistics()
         numVariables = 3
 
-    elif haruspexName == "PCA":
+    elif haruspexName == "pca":
         haruspex = vtkPCAStatistics()
+        numVariables = 3
+
+    elif haruspexName == "kmeans":
+        haruspex = vtkKMeansStatistics()
         numVariables = 3
 
     else:
