@@ -15,7 +15,6 @@ def Usage( outModelPrefix, outDataName ):
     print "Usage:"
     print "\t -h               Help: print this message and exit"
     print "\t -d <filename>    CSV input data file"
-    print "\t [-m <filename> ] CSV input model file. Default: calculate model from scratch"
     print "\t -e <engine>      Type of statistics engine. Available engines are:"
     print "\t                    descriptive"
     print "\t                    order"
@@ -24,9 +23,10 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    multicorrelative"
     print "\t                    pca"
     print "\t                    kmeans"
-    print "\t [-s <filename> ] CSV output model (statistics) file prefix. Default:",outModelPrefix
-    print "\t [-a <filename> ] CSV output data (annotated) file. Default:",outDataName
-    print "\t [-c <filename> ] CSV columns of interest file. Default: all columns are of interest"
+    print "\t [-m <prefix>]    CSV input model file. Default: calculate model from scratch"
+    print "\t [-s <prefix>]    CSV output model (statistics) file prefix. Default:",outModelPrefix
+    print "\t [-a <filename>]  CSV output data (annotated) file. Default:",outDataName
+    print "\t [-c <filename>]  CSV columns of interest file. Default: all columns are of interest"
     print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
     sys.exit( 1 )
 ############################################################
@@ -38,13 +38,14 @@ def ParseCommandLine():
     global verbosity
 
     # Default values
+    inModelPrefix = ""
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
     columnsListName =""
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'hd:m:e:s:a:c:v')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:m:s:a:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -59,10 +60,10 @@ def ParseCommandLine():
     for o,a in opts:
         if o == "-d":
             inDataName = a
-        elif o == "-m":
-            inModelName = a
         elif o == "-e":
             haruspexName = a
+        elif o == "-m":
+            inModelPrefix = a
         elif o == "-s":
             outModelPrefix = a
         elif o == "-a":
@@ -83,16 +84,23 @@ def ParseCommandLine():
     if verbosity > 0:
         print "# Parsed command line:"
         print "  Input data file:", inDataName
+
         if columnsListName != "":
             print "  Columns of interest in file:", columnsListName
         else:
             print "  Columns of interest: all"
+
+        if inModelPrefix != "":
+            print "  Input model file prefix:", inModelPrefix
+        else:
+            print "  No input model"
+
         print "  Statistics:", haruspexName
         print "  Output model file prefix:", outModelPrefix
         print "  Output data file:", outDataName
         print
 
-    return [ inDataName, columnsListName, haruspexName, outModelPrefix, outDataName ]
+    return [ inModelPrefix, inDataName, columnsListName, haruspexName, outModelPrefix, outDataName ]
 ############################################################
 
 ############################################################
@@ -338,7 +346,7 @@ def CalculateStatistics( inData, columnsList, haruspex ):
 # Main function
 def main():
     # Parse command line
-    [ inDataName, columnsListName, haruspexName, outModelPrefix, outDataName ] = ParseCommandLine()
+    [ inModelPrefix, inDataName, columnsListName, haruspexName, outModelPrefix, outDataName ] = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
     haruspex = InstantiateStatistics( haruspexName )
