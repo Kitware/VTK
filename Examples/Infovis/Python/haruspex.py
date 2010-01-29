@@ -403,11 +403,6 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
         haruspex.SetAssessOption( True )
         haruspex.Update()
 
-        if verbosity > 1:
-            print "# Aggregated Model:"
-            aggregated.Dump( 10 )
-            print
-
 ############################################################
 
 ############################################################
