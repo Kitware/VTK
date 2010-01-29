@@ -32,17 +32,17 @@
 #ifndef __vtkSTLReader_h
 #define __vtkSTLReader_h
 
-#include "vtkAbstractPolyDataReader.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkFloatArray;
 class vtkIncrementalPointLocator;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkSTLReader : public vtkAbstractPolyDataReader 
+class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSTLReader,vtkAbstractPolyDataReader);
+  vtkTypeRevisionMacro(vtkSTLReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,8 +55,10 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Specify file name of stereo lithography file via base class. 
-
+  // Specify file name of stereo lithography file.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+      
   // Description:
   // Turn on/off merging of points/triangles.
   vtkSetMacro(Merging,int);
@@ -79,18 +81,15 @@ public:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
       
-  int CanReadFile(const char *filename); 
-
 protected:
   vtkSTLReader();
   ~vtkSTLReader();
 
-  //FileName now accessed via vtkAbstractPolyDataReader baseclass. 
+  char *FileName;
   int Merging;
   int ScalarTags;
   vtkIncrementalPointLocator *Locator;
 
-  //Overload RequestData of base class
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
   int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*, 

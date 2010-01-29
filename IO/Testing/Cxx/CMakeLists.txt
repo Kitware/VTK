@@ -15,9 +15,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ${ConditionalTests} 
     TestHyperOctreeIO.cxx 
     TestPLYReader.cxx
-    TestSTLReader.cxx
-    TestPolyDataReaderFactorySTL.cxx
-    TestPolyDataReaderFactoryVTK.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
     )
@@ -105,18 +102,6 @@ IF (VTK_DATA_ROOT)
          TestPLYReader -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
-    ADD_TEST(TestSTLReader ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestSTLReader -D ${VTK_DATA_ROOT}
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestSTLReader.png)
-    ADD_TEST(TestPolyDataReaderFactorySTL ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestPolyDataReaderFactorySTL -D ${VTK_DATA_ROOT}
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPolyDataReaderFactorySTL.png)
-    ADD_TEST(TestPolyDataReaderFactoryVTK ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestPolyDataReaderFactoryVTK -D ${VTK_DATA_ROOT}
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPolyDataReaderFactoryVTK.png)
   ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
 

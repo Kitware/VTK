@@ -31,7 +31,6 @@
 #include "vtkDataReader.h"
 
 class vtkPolyData;
-class vtkLegacyPolyDataReader;
 
 class VTK_IO_EXPORT vtkPolyDataReader : public vtkDataReader
 {
@@ -46,10 +45,6 @@ public:
   vtkPolyData *GetOutput(int idx);
   void SetOutput(vtkPolyData *output);
 
-  //BTX
-  friend class vtkLegacyPolyDataReader; 
-  //ETX
-      
 protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader();

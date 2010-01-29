@@ -109,9 +109,6 @@ vtkPNMReader.cxx
 vtkPNMWriter.cxx
 vtkParticleReader.cxx
 vtkPolyDataReader.cxx
-vtkAbstractPolyDataReader.cxx
-vtkPolyDataReaderCollection.cxx
-vtkPolyDataReaderFactory.cxx
 vtkPolyDataWriter.cxx
 vtkPostScriptWriter.cxx
 vtkRectilinearGridReader.cxx
