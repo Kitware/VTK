@@ -26,7 +26,7 @@
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.2");
+vtkCxxRevisionMacro(vtkRInterface, "1.3");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"
@@ -42,12 +42,6 @@ vtkStandardNewMacro(vtkRInterface);
 #endif
 
 #include "R_ext/Parse.h"
-
-namespace {
-vtkstd::string tmpFilePath;
-}
-
-class vtkImplementationRSingletonDestroyer;
 
 class vtkImplementationRSingleton
 {
@@ -68,7 +62,7 @@ public:
 #endif
 
 #ifdef CSTACK_DEFNS
-     R_CStackLimit = (uintptr_t)-1; 
+    R_CStackLimit = (uintptr_t)-1; 
 #endif
 
     char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
@@ -77,24 +71,43 @@ public:
     this->Rinitialized = 1;
     this->refcount++;
 
+    vtkstd::string  rcommand;
+    rcommand.append("f<-file(paste(tempdir(), \"/Routput.txt\", sep = \"\"), open=\"wt+\")\nsink(f)\n");
+    this->tmpFilePath.clear();
+    this->tmpFilePath.append(R_TempDir);
+#ifdef WIN32
+    this->tmpFilePath.append("\\Routput.txt");
+#else
+    this->tmpFilePath.append("/Routput.txt");
+#endif
+
+    ParseStatus status;
+    SEXP cmdSexp, cmdexpr = R_NilValue;
+    int error;
+  
+    PROTECT(cmdSexp = allocVector(STRSXP, 1));
+    SET_STRING_ELT(cmdSexp, 0, mkChar(rcommand.c_str()));
+  
+    cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
+    for(int i = 0; i < length(cmdexpr); i++)
+      {
+      R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&error);
+      }
+    UNPROTECT(2);
+
   };
+
+  const char* GetROutputFilePath()
+    {
+    return tmpFilePath.c_str();
+    };
 
   void CloseR()
-  {
-
-  this->refcount--;
-
-  if(this->refcount == 0)
     {
-    R_CleanTempDir();
-    Rf_endEmbeddedR(0);
-    }
-
-  };
+    this->refcount--;
+    };
 
 protected:
-
-  friend class vtkImplementationRSingletonDestroyer;
 
   ~vtkImplementationRSingleton();
 
@@ -106,41 +119,23 @@ protected:
 
 private:
 
+  vtkstd::string tmpFilePath;
   int refcount;
   int Rinitialized;
   static vtkImplementationRSingleton* ins;
-  static vtkImplementationRSingletonDestroyer destroyer;
+  static void shutdownR(void);
 
 };
-
-class vtkImplementationRSingletonDestroyer {
-public:
-  vtkImplementationRSingletonDestroyer();
-  ~vtkImplementationRSingletonDestroyer();
-
-  void SetSingleton(vtkImplementationRSingleton* s);
-private:
-  vtkImplementationRSingleton* _singleton;
-};
-
 
 vtkImplementationRSingleton* vtkImplementationRSingleton::ins = 0;
 
-vtkImplementationRSingletonDestroyer vtkImplementationRSingleton::destroyer;
-
-vtkImplementationRSingletonDestroyer::vtkImplementationRSingletonDestroyer () {
-  _singleton = 0;
+void vtkImplementationRSingleton::shutdownR(void)
+{
+   if(ins)
+     {
+     delete ins;
+     }
 }
-
-vtkImplementationRSingletonDestroyer::~vtkImplementationRSingletonDestroyer () {
-
-  delete _singleton;
-}
-
-void vtkImplementationRSingletonDestroyer::SetSingleton (vtkImplementationRSingleton* s) {
-  _singleton = s;
-}
-
 
 vtkImplementationRSingleton* vtkImplementationRSingleton::Instance()
 {
@@ -148,7 +143,9 @@ vtkImplementationRSingleton* vtkImplementationRSingleton::Instance()
   if(ins == 0)
     {
     ins = new vtkImplementationRSingleton;
-    destroyer.SetSingleton(ins);
+
+    // Setup atexit() function to shutdown R interpreter when application exits
+    atexit(shutdownR);
     }
 
   ins->InitializeR();
@@ -160,6 +157,8 @@ vtkImplementationRSingleton* vtkImplementationRSingleton::Instance()
 vtkImplementationRSingleton::~vtkImplementationRSingleton()
 {
 
+  R_CleanTempDir();
+  Rf_endEmbeddedR(0);
 
 }
 
@@ -175,18 +174,7 @@ vtkImplementationRSingleton::vtkImplementationRSingleton()
 vtkRInterface::vtkRInterface()
 {
 
-  vtkstd::string  rcommand;
   this->rs = vtkImplementationRSingleton::Instance();
-  rcommand.append("f<-file(paste(tempdir(), \"/Routput.txt\", sep = \"\"), open=\"wt+\")\n");
-  tmpFilePath.clear();
-  tmpFilePath.append(R_TempDir);
-#ifdef WIN32
-  tmpFilePath.append("\\Routput.txt");
-#else
-  tmpFilePath.append("/Routput.txt");
-#endif
-  this->EvalRscript(rcommand.c_str(), false);
-  this->EvalRscript("sink(f)\n", false);
   this->buffer = 0;
   this->buffer_size = 0;
 
@@ -363,11 +351,11 @@ int vtkRInterface::FillOutputBuffer()
 
   if(this->buffer && (this->buffer_size > 0) )
     {
-    fp = fopen(tmpFilePath.c_str(),"rb");
+    fp = fopen(this->rs->GetROutputFilePath(),"rb");
 
     if(!fp)
       {
-      vtkErrorMacro(<<"Can't open input file named " << tmpFilePath.c_str());
+      vtkErrorMacro(<<"Can't open input file named " << this->rs->GetROutputFilePath());
       return(0);
       }
 
