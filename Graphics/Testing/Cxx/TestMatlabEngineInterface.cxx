@@ -55,15 +55,15 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   try
     {
     int buf_size = 2000;
-    char* buffer = new char[buf_size];
-    buffer[0] = '\0';
+    char* out_buffer = new char[buf_size];
+    out_buffer[0] = '\0';
     vtkDoubleArray* da = vtkDoubleArray::New();
     vtkDenseArray<double>* dda = vtkDenseArray<double>::New();
     vtkMatlabEngineInterface* mei = vtkMatlabEngineInterface::New();
     mei->SetVisibleOff();
-    mei->OutputBuffer(buffer, buf_size);
+    mei->OutputBuffer(out_buffer, buf_size);
     mei->EvalString("1:10\n");
-    test_expression(strlen(buffer) > 10);
+    test_expression(strlen(out_buffer) > 10);
 
     da->SetNumberOfComponents(3);
     for( int cc = 0; cc < 10; cc ++ )
@@ -75,7 +75,7 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     mei->EvalString("d(:,1) = d(:,1) - 0.1;\n\
                      d(:,2) = d(:,2) - 0.2;\n\
                      d(:,3) = d(:,3) - 0.3;\n");
-    cout << buffer << endl;
+    cout << out_buffer << endl;
     vtkDoubleArray* rda = vtkDoubleArray::SafeDownCast(mei->GetVtkDataArray("d"));
     test_expression(rda);
     for(int i = 0;i<rda->GetNumberOfTuples();i++)
@@ -110,6 +110,7 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     dda->Delete();
     da->Delete();
     mei->Delete();
+    delete [] out_buffer;
     return 0;
     }
   catch(vtkstd::exception& e)
