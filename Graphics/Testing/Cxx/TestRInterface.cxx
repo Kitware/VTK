@@ -57,16 +57,16 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   try
     {
     int buf_size = 2000;
-    char* buffer = new char[buf_size];
-    buffer[0] = '\0';
+    char* out_buffer = new char[buf_size];
+    out_buffer[0] = '\0';
     vtkDoubleArray* da = vtkDoubleArray::New();
     vtkDenseArray<double>* dda = vtkDenseArray<double>::New();
     vtkRRandomTableSource* rts = vtkRRandomTableSource::New();
     vtkRInterface* rint = vtkRInterface::New();
 
-    rint->OutputBuffer(buffer, buf_size);
+    rint->OutputBuffer(out_buffer, buf_size);
     rint->EvalRscript("1:10\n");
-    test_expression(strlen(buffer) > 10);
+    test_expression(strlen(out_buffer) > 10);
 
     da->SetNumberOfComponents(3);
     for( int cc = 0; cc < 10; cc ++ )
@@ -130,7 +130,7 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       }
     table->Delete();
 
-    delete [] buffer;
+    delete [] out_buffer;
     rts->Delete();
     dda->Delete();
     da->Delete();
