@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkPolyDataReader.h"
 #include "vtkLegacyPolyDataReader.h"
 
 #include "vtkObjectFactory.h"
@@ -30,7 +31,7 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkLegacyPolyDataReader, "1.1");
+vtkCxxRevisionMacro(vtkLegacyPolyDataReader, "1.2");
 vtkStandardNewMacro(vtkLegacyPolyDataReader);
 
 // Construct object with merging set to true.

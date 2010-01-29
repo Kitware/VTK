@@ -24,8 +24,9 @@
 #define __vtkLegacyPolyDataReader_h
 
 #include "vtkAbstractPolyDataReader.h"
-#include "vtkPolyDataReader.h"
 #include "vtkSmartPointer.h"
+
+class vtkPolyDataReader;
 
 class VTK_IO_EXPORT vtkLegacyPolyDataReader : public vtkAbstractPolyDataReader 
 {
