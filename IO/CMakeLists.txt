@@ -79,6 +79,7 @@ vtkInputStream.cxx
 vtkJavaScriptDataWriter.cxx
 vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
+vtkLegacyPolyDataReader.cxx
 vtkMFIXReader.cxx
 vtkMaterialLibrary.cxx
 vtkMCubesReader.cxx
@@ -108,6 +109,9 @@ vtkPNMReader.cxx
 vtkPNMWriter.cxx
 vtkParticleReader.cxx
 vtkPolyDataReader.cxx
+vtkAbstractPolyDataReader.cxx
+vtkPolyDataReaderCollection.cxx
+vtkPolyDataReaderFactory.cxx
 vtkPolyDataWriter.cxx
 vtkPostScriptWriter.cxx
 vtkRectilinearGridReader.cxx

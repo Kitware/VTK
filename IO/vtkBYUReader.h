@@ -22,14 +22,14 @@
 #ifndef __vtkBYUReader_h
 #define __vtkBYUReader_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkAbstractPolyDataReader.h"
 
-class VTK_IO_EXPORT vtkBYUReader : public vtkPolyDataAlgorithm 
+class VTK_IO_EXPORT vtkBYUReader : public vtkAbstractPolyDataReader 
 {
 public:
   static vtkBYUReader *New();
 
-  vtkTypeRevisionMacro(vtkBYUReader,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkBYUReader,vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -39,6 +39,7 @@ public:
 
   // Description:
   // Specify name of geometry FileName (alias).
+  // Overload functions in baseclass: set/get not for baseclass FileName 
   virtual void SetFileName(const char* f) { this->SetGeometryFileName(f); }
   virtual char* GetFileName() { return this->GetGeometryFileName(); }
 
@@ -86,7 +87,7 @@ public:
   // Because BYU files do not have anything in the header specifying the file
   // type, the result is not definitive.  Invalid files may still return 1
   // although a valid file will never return 0.
-  static int CanReadFile(const char *filename);
+  virtual int CanReadFile(const char *filename);
 
 protected:
   vtkBYUReader();
