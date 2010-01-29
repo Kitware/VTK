@@ -46,8 +46,10 @@ public:
   vtkPolyData *GetOutput(int idx);
   void SetOutput(vtkPolyData *output);
 
+  //BTX
   friend class vtkLegacyPolyDataReader; 
-
+  //ETX
+      
 protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader();
