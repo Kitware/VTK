@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSmartPointer.h"
 #include "vtkPolyDataReader.h"
 #include "vtkLegacyPolyDataReader.h"
 
@@ -31,8 +32,16 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkLegacyPolyDataReader, "1.2");
+vtkCxxRevisionMacro(vtkLegacyPolyDataReader, "1.3");
 vtkStandardNewMacro(vtkLegacyPolyDataReader);
+
+#if 0
+class vtkLegacyPolyDataReader::vtkInternal
+{
+  public:
+  vtkSmartPointer<vtkPolyDataReader> PolyDataReaderPointer;
+};
+#endif
 
 // Construct object with merging set to true.
 vtkLegacyPolyDataReader::vtkLegacyPolyDataReader()

@@ -26,7 +26,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkAbstractPolyDataReader, "1.1");
+vtkCxxRevisionMacro(vtkAbstractPolyDataReader, "1.2");
 vtkStandardNewMacro(vtkAbstractPolyDataReader);
 
 #ifdef read
@@ -52,8 +52,6 @@ vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader()
 //----------------------------------------------------------------------------
 void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  
   this->Superclass::PrintSelf(os,indent);
 
   // this->File, this->Colors need not be printed  
@@ -61,11 +59,3 @@ void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
     (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
-#if 0
-//----------------------------------------------------------------------------
-template <class T>
-unsigned long vtkAbstractPolyDataReaderGetSize(T*)
-{
-  return sizeof(T);
-}
-#endif

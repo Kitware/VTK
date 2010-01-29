@@ -24,7 +24,7 @@
 #define __vtkLegacyPolyDataReader_h
 
 #include "vtkAbstractPolyDataReader.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // required for sp ivars 
 
 class vtkPolyDataReader;
 
@@ -61,8 +61,10 @@ protected:
 private:
   vtkLegacyPolyDataReader(const vtkLegacyPolyDataReader&);  // Not implemented.
   void operator=(const vtkLegacyPolyDataReader&);  // Not implemented.
-
-  vtkSmartPointer<vtkPolyDataReader> PolyDataReaderPointer;
+      
+ //BTX
+ vtkSmartPointer<vtkPolyDataReader> PolyDataReaderPointer;
+ //ETX      
 };
 
 #endif

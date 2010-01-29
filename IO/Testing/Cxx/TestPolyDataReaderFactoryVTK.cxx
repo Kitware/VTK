@@ -36,8 +36,7 @@ int TestPolyDataReaderFactoryVTK( int argc, char *argv[] )
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/polyEx.vtk");
 
   // Create the reader.
-  vtkPolyDataReaderFactory *readerFactory
-     = vtkPolyDataReaderFactory::New();
+  vtkPolyDataReaderFactory *readerFactory= vtkPolyDataReaderFactory::New();
   vtkAbstractPolyDataReader* reader; 
 
   reader = readerFactory->CreatePolyDataReader( fname );  
@@ -89,5 +88,5 @@ int TestPolyDataReaderFactoryVTK( int argc, char *argv[] )
   ren->Delete();
   iren->Delete();
 
-  return retVal;
+  return !retVal;
 }

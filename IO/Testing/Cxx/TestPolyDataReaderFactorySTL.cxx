@@ -37,8 +37,7 @@ int TestPolyDataReaderFactorySTL( int argc, char *argv[] )
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/42400-IDGH.stl");
 
   // Create the reader.
-  vtkPolyDataReaderFactory *readerFactory
-     = vtkPolyDataReaderFactory::New();
+  vtkPolyDataReaderFactory *readerFactory= vtkPolyDataReaderFactory::New();
   vtkAbstractPolyDataReader* reader; 
 
   reader = readerFactory->CreatePolyDataReader( fname );  
@@ -90,5 +89,5 @@ int TestPolyDataReaderFactorySTL( int argc, char *argv[] )
   ren->Delete();
   iren->Delete();
 
-  return retVal;
+  return !retVal;
 }
