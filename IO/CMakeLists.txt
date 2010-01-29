@@ -79,7 +79,6 @@ vtkInputStream.cxx
 vtkJavaScriptDataWriter.cxx
 vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
-vtkLegacyPolyDataReader.cxx
 vtkMFIXReader.cxx
 vtkMaterialLibrary.cxx
 vtkMCubesReader.cxx

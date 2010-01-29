@@ -30,7 +30,7 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.78");
+vtkCxxRevisionMacro(vtkSTLReader, "1.79");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -69,72 +69,6 @@ unsigned long vtkSTLReader::GetMTime()
     }
 
   return mTime1;
-}
-
-int vtkSTLReader::CanReadFile(const char *filename)
-{
-  FILE *fp = fopen(filename, "r");
-  if (fp == NULL) return 0;
-
-  if ( ( strstr( filename, ".stl" ) == NULL) &&
-       ( strstr( filename, ".STL" ) == NULL) )
-    {
-    return 0;
-    }
-
-  //Tighter check than GetSTLFileType...
-  //If not obviously binary or ascii, conclude: can't read!
-  vtksys::SystemTools::FileTypeEnum ft =
-    vtksys::SystemTools::DetectFileType(filename);
-
-  if ( ( ft!= VTK_BINARY ) && ( ft!= VTK_ASCII ) )
-    {
-    return 0;
-    }
-  
-  if ( ft == VTK_ASCII )
-    {
-    char line[256];
-    float x[3];
-    int result;
-
-    vtkDebugMacro(<< " Testing for read ASCII STL file");
-
-    //  Ingest header and junk to get to first vertex
-    //
-    fgets (line, 255, fp);
-    result = fscanf(fp,"%s %*s %f %f %f\n", line, x, x+1, x+2);
-    if ((result < 3))
-      {
-      fclose(fp);
-      return 0;
-      }
-    }
-  else
-    {
-    unsigned long   ulint;
-    char    header[81];
-
-    vtkDebugMacro(<< " Testing for read BINARY STL file");
-
-    //  File is read to obtain raw information as well as bounding box
-    //
-    fread (header, 1, 80, fp);
-    if (ferror (fp))
-      {
-      fclose(fp);
-      return 0;
-      }  
-    fread (&ulint, 1, 4, fp);
-    if (ferror (fp))
-      {
-      fclose(fp);
-      return 0;
-      }
-    }
-
-    fclose(fp);
-  return 1;
 }
 
 int vtkSTLReader::RequestData(
