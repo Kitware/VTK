@@ -84,6 +84,7 @@ vtkQtChartWidget::vtkQtChartWidget(QWidget *widgetParent)
 
 vtkQtChartWidget::~vtkQtChartWidget()
 {
+  delete this->Charts;
 }
 
 void vtkQtChartWidget::setTitle(vtkQtChartTitle *title)
