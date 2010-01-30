@@ -91,8 +91,11 @@
   /* indicates that there is a delta for every point without needing to    */
   /* enumerate all of them.                                                */
   /*                                                                       */
-#define ALL_POINTS  (FT_UShort*)((FT_Byte*)(NULL) - 1)
-
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define ALL_POINTS  (FT_UShort*)UINTPTR_MAX
+#else
+#define ALL_POINTS  (FT_UShort*)( -1 )
+#endif
 
 #define GX_PT_POINTS_ARE_WORDS      0x80
 #define GX_PT_POINT_RUN_COUNT_MASK  0x7F

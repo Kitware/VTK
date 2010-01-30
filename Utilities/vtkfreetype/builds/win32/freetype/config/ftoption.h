@@ -33,6 +33,7 @@
  
 #pragma warning( disable : 4244 ) // conversion [...] possible loss of data
 #pragma warning( disable : 4761 ) // integral size mismatch in argument; conversion supplied
+#pragma warning( disable : 4306 ) // conversion from t1 to t2 of greater size
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
 
