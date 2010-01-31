@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.41");
+vtkCxxRevisionMacro(vtkCellPicker, "1.42");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -429,6 +429,11 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
       return VTK_DOUBLE_MAX;
       }
 
+    if (this->Cell->GetCellType() == VTK_TRIANGLE_STRIP)
+      {
+      this->TriangleFromStrip(this->Cell, minSubId);
+      }
+
     if (t1 != 0.0 || t2 != 1.0)
       {
       // Stretch tMin out to the original range
@@ -442,7 +447,6 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
                                         tol, t, x, pcoords, subId))
         {
         tMin = t;
-        minSubId = subId;
         for (int k = 0; k < 3; k++)
           {
           minXYZ[k] = x[k];
@@ -496,10 +500,10 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     if (!locator)
       { // If we used a locator, we already have the cell
       data->GetCell(minCellId, cell);
-      }
-    if (cell->GetCellType() == VTK_TRIANGLE_STRIP)
-      {
-      this->TriangleFromStrip(cell, minSubId);
+      if (cell->GetCellType() == VTK_TRIANGLE_STRIP)
+        {
+        this->TriangleFromStrip(cell, minSubId);
+        }
       }
 
     // Get the cell weights
@@ -941,26 +945,29 @@ int vtkCellPicker::ClipLineWithPlanes(vtkPlaneCollection *planes,
     {
     // This uses EvaluateFunction instead of FunctionValue because,
     // like the mapper, we want to ignore any transform on the planes.
-    double d1 = -plane->EvaluateFunction(const_cast<double *>(p1));
-    double d2 = -plane->EvaluateFunction(const_cast<double *>(p2));
+    double d1 = plane->EvaluateFunction(const_cast<double *>(p1));
+    double d2 = plane->EvaluateFunction(const_cast<double *>(p2));
 
-    // If both distances are positive, both points are outside
-    if (d1 > 0 && d2 > 0)
+    // If both distances are negative, both points are outside
+    if (d1 < 0 && d2 < 0)
       {
       return 0;
       }
-    // If one of the distances is positive, the line crosses the plane
-    else if (d1 > 0 || d2 > 0)
+    // If only one of the distances is negative, the line crosses the plane
+    else if (d1 < 0 || d2 < 0)
       {
       // Compute fractional distance "t" of the crossing between p1 & p2
       double t = 0.0;
+
+      // The "if" here just avoids an expensive division when possible
       if (d1 != 0)
         {
+        // We will never have d1==d2 since they have different signs
         t = d1/(d1 - d2);
         }
 
       // If point p1 was clipped, adjust t1
-      if (d1 > 0)
+      if (d1 < 0)
         {
         if (t >= t1)
           {
