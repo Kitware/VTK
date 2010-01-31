@@ -257,6 +257,10 @@ def WriteOutData( haruspex, outDataName ):
     if verbosity > 0:
         print "  Wrote", outDataName
         print
+        if verbosity > 2:
+            print "# Output data:"
+            haruspex.GetOutput( 0 ).Dump( 10 )
+            print
 ############################################################
 
 ############################################################
