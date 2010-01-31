@@ -1,4 +1,12 @@
 ############################################################
+# Copyright 2010 Sandia Corporation.
+# Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+# the U.S. Government retains certain rights in this software.
+############################################################
+# Contact: Philippe Pebay, Sandia National Laboratories, pppebay@sandia.gov
+############################################################
+
+############################################################
 from vtk import *
 import sys
 import getopt
