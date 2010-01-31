@@ -194,7 +194,7 @@ def ReadInData( inDataName ):
         print "  Number of columns:", table.GetNumberOfColumns()
         print "  Number of rows:", table.GetNumberOfRows()
         print
-        if verbosity > 1:
+        if verbosity > 2:
             print "# Input data:"
             inDataReader.GetOutput().Dump( 10 )
             print
