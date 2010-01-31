@@ -71,10 +71,12 @@ public:
 
   // Description:
   // Add a locator for one of the data sets that will be included in the
-  // scene.  This can dramatically increase performance for complex
-  // objects.  If you try to add the same locator twice, the second addition
-  // will be ignored.  You must either build the locator before doing the
-  // pick, or turn on LazyEvaluation in the locator.
+  // scene.  You must set up the locator with exactly the same data set
+  // that was input to the mapper of one or more of the actors in the
+  // scene.  As well, you must either build the locator before doing the
+  // pick, or you must turn on LazyEvaluation in the locator to make it
+  // build itself on the first pick.  Note that if you try to add the
+  // same locator to the picker twice, the second addition will be ignored.
   void AddLocator(vtkAbstractCellLocator *locator);
 
   // Description:
@@ -107,12 +109,17 @@ public:
   vtkGetMacro(UseVolumeGradientOpacity, int);
 
   // Description:
-  // Set whether to pick the clipping planes of props that have them.
-  // If this is set, then the pick will be done on the clipping planes
-  // rather than on the data. The GetClippingPlaneId() method will return
-  // the index of the clipping plane of the vtkProp3D that was picked.
-  // The picking of vtkImageActors is not influenced by this setting,
-  // since they have no clipping planes.
+  // The PickClippingPlanes setting controls how clipping planes are
+  // handled by the pick.  If it is On, then the clipping planes become
+  // pickable objects, even though they are usually invisible.  This
+  // means that if the pick ray intersects a clipping plane before it
+  // hits anything else, the pick will stop at that clipping plane.
+  // The GetProp3D() and GetMapper() methods will return the Prop3D
+  // and Mapper that the clipping plane belongs to.  The
+  // GetClippingPlaneId() method will return the index of the clipping
+  // plane so that you can retrieve it from the mapper, or -1 if no
+  // clipping plane was picked. The picking of vtkImageActors is not
+  // influenced by this setting, since they have no clipping planes.
   vtkSetMacro(PickClippingPlanes, int);
   vtkBooleanMacro(PickClippingPlanes, int);
   vtkGetMacro(PickClippingPlanes, int);
@@ -120,8 +127,10 @@ public:
   // Description:
   // Get the index of the clipping plane that was intersected during
   // the pick.  This will be set regardless of whether PickClippingPlanes
-  // is on.  The result will be -1 if the Prop3D that was picked
-  // has no clipping planes, or if the ray didn't intersect the planes.
+  // is On, all that is required is that the pick intersected a clipping
+  // plane of the Prop3D that was picked.  The result will be -1 if the
+  // Prop3D that was picked has no clipping planes, or if the ray didn't
+  // intersect the planes.
   vtkGetMacro(ClippingPlaneId, int);
 
   // Description:
@@ -162,13 +171,13 @@ public:
 
   // Description:
   // Get the parametric coordinates of the picked cell. Only valid if
-  // a prop was picked.  The PCoords can be used to interpolate data
-  // values within the cell.
+  // a prop was picked.  The PCoords can be used to compute the weights
+  // that are needed to interpolate data values within the cell.
   vtkGetVector3Macro(PCoords, double);
 
   // Description:
-  // Get the texture that was picked.  This will be null unless the picked
-  // prop has a texture.
+  // Get the texture that was picked.  This will always be set if the
+  // picked prop has a texture, and will always be null otherwise.
   vtkTexture *GetTexture() { return this->Texture; };
 
   // Description:
