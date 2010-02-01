@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.76");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.77");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -1037,6 +1037,49 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   vtkDoubleArray* testChi2Col;
   vtkDoubleArray* testChi2yCol;
   bool calculatedP = false;
+
+  // If available, use R to obtain the p-values for the Chi square distribution with required DOFs
+#ifdef VTK_USE_GNU_R
+  // Prepare VTK - R interface
+  vtkRInterface* ri = vtkRInterface::New();
+
+  // Use the calculated DOFs and Chi square statistics as inputs to the Chi square function
+  ri->AssignVTKDataArrayToRVariable( dimCol, "d" );
+  ri->AssignVTKDataArrayToRVariable( chi2Col, "chi2" );
+  ri->AssignVTKDataArrayToRVariable( chi2yCol, "chi2y" );
+
+  // Now prepare R script and calculate the p-values (in a single R script evaluation for efficiency)
+  vtksys_ios::ostringstream rs;
+  rs << "p<-c();"
+     << "py<-c();"
+     << "for(i in 1:"
+     << dimCol->GetNumberOfTuples()
+     << "){"
+     << "p<-c(p,1-pchisq(chi2[i],d[i]));"
+     << "py<-c(py,1-pchisq(chi2y[i],d[i]))"
+     << "}";
+  ri->EvalRscript( rs.str().c_str() );
+
+  // Retrieve the p-values
+  testChi2Col = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  testChi2yCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "py" ) );
+  if ( ! testChi2Col || ! testChi2yCol 
+       || testChi2Col->GetNumberOfTuples() != dimCol->GetNumberOfTuples()
+       || testChi2yCol->GetNumberOfTuples() != dimCol->GetNumberOfTuples() )
+    {
+    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
+    }
+  else
+    {
+    // Test values have been calculated by R: the test column can be added to the output table
+    testTab->AddColumn( testChi2Col );
+    testTab->AddColumn( testChi2yCol );
+    calculatedP = true;
+    }
+
+  // Clean up
+  ri->Delete();
+#endif // VTK_USE_GNU_R
 
   // Use the invalid value of -1 for p-values if R is absent or there was an R error
   if ( ! calculatedP )
