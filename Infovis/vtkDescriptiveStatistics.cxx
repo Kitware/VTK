@@ -42,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.94");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.95");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -563,7 +563,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   outMeta->AddColumn( statCol );
 
   // Last phase: compute the p-values or assign invalid value if they cannot be computed
-  vtkDoubleArray* testCol;
+  vtkDoubleArray* testCol = 0;
   bool calculatedP = false;
 
   // If available, use R to obtain the p-values for the Chi square distribution with 2 DOFs
@@ -585,10 +585,6 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     }
   else
     {
-    // The test column name can only be set after the column has been obtained from R
-    // NB: replicated code to avoid idiotic VS warning
-    testCol->SetName( "P" );
-
     // Test values have been calculated by R: the test column can be added to the output table
     outMeta->AddColumn( testCol );
     calculatedP = true;
@@ -612,16 +608,14 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
       testCol->SetTuple1( r, -1 );
       }
 
-    // The test column name can only be set after the column has been obtained from R
-    // NB: replicated code to avoid idiotic VS warning
-    testCol->SetName( "P" );
-
     // Now add the column of invalid values to the output table
     outMeta->AddColumn( testCol );
 
     // Clean up
     testCol->Delete();
     }
+
+    testCol->SetName( "P" );
 
   // Clean up
   nameCol->Delete();
