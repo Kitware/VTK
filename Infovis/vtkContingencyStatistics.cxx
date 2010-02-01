@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.78");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.79");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -1034,8 +1034,8 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   testTab->AddColumn( chi2yCol );
 
   // Last phase: compute the p-values or assign invalid value if they cannot be computed
-  vtkDoubleArray* testChi2Col;
-  vtkDoubleArray* testChi2yCol;
+  vtkDoubleArray* testChi2Col = 0;
+  vtkDoubleArray* testChi2yCol = 0;
   bool calculatedP = false;
 
   // If available, use R to obtain the p-values for the Chi square distribution with required DOFs
@@ -1071,11 +1071,6 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     }
   else
     {
-    // The test column name can only be set after the column has been obtained from R
-    // NB: replicated code to avoid idiotic VS warning
-    testChi2Col->SetName( "P" );
-    testChi2yCol->SetName( "P Yates" );
-
     // Test values have been calculated by R: the test column can be added to the output table
     testTab->AddColumn( testChi2Col );
     testTab->AddColumn( testChi2yCol );
@@ -1103,11 +1098,6 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
       testChi2yCol->SetTuple1( r, -1 );
       }
 
-    // The test column name can only be set after the column has been obtained from R
-    // NB: replicated code to avoid idiotic VS warning
-    testChi2Col->SetName( "P" );
-    testChi2yCol->SetName( "P Yates" );
-
     // Now add the column of invalid values to the output table
     testTab->AddColumn( testChi2Col );
     testTab->AddColumn( testChi2yCol );
@@ -1116,6 +1106,10 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     testChi2Col->Delete();
     testChi2yCol->Delete();
     }
+
+  // The test column name can only be set after the column has been obtained from R
+  testChi2Col->SetName( "P" );
+  testChi2yCol->SetName( "P Yates" );
 
   // Finally set output table to test table
   outMeta->ShallowCopy( testTab );

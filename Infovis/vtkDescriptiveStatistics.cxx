@@ -42,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.95");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.96");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -615,7 +615,8 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     testCol->Delete();
     }
 
-    testCol->SetName( "P" );
+  // The test column name can only be set after the column has been obtained from R
+  testCol->SetName( "P" );
 
   // Clean up
   nameCol->Delete();
