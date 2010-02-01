@@ -42,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.92");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.93");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -568,6 +568,30 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
 
   // If available, use R to obtain the p-values for the Chi square distribution with 2 DOFs
 #ifdef VTK_USE_GNU_R
+  // Prepare VTK - R interface
+  vtkRInterface* ri = vtkRInterface::New();
+
+  // Use the calculated Jarque-Bera statistics as input to the Chi square function
+  ri->AssignVTKDataArrayToRVariable( statCol, "jb" );
+
+  // Calculate the p-values
+  ri->EvalRscript( "p=1-pchisq(jb,2)" );
+
+  // Retrieve the p-values
+  testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
+    {
+    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
+    }
+  else
+    {
+    // Test values have been calculated by R: the test column can be added to the output table
+    outMeta->AddColumn( testCol );
+    calculatedP = true;
+    }
+
+  // Clean up
+  ri->Delete();
 #endif // VTK_USE_GNU_R
 
   // Use the invalid value of -1 for p-values if R is absent or there was an R error
