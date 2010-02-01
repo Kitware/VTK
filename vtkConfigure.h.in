@@ -238,4 +238,7 @@ typedef int vtkstd_bool;
 # endif
 #endif
 
+/* Set the whether we have UINTPTR_T defined in support of the GNU R interface */
+#cmakedefine HAVE_UINTPTR_T
+
 #endif
