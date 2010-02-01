@@ -48,6 +48,7 @@ class vtkPlaneCollection;
 class vtkPiecewiseFunction;
 class vtkDataArray;
 class vtkDoubleArray;
+class vtkIdList;
 class vtkCell;
 class vtkGenericCell;
 class vtkImageData;
@@ -234,6 +235,9 @@ protected:
   static int ComputeSurfaceTCoord(vtkDataSet *data, vtkCell *cell,
                                   const double *weights, double tcoord[3]);
 
+  static void TriangleFromStrip(vtkGenericCell *cell, int subId,
+                                vtkIdList *pointIds, vtkDataSet *data);
+
   static void TriangleFromStrip(vtkGenericCell *cell, int subId);
 
   void SetImageDataPickInfo(const double x[3], const int extent[6]);
@@ -268,6 +272,7 @@ private:
   void ResetCellPickerInfo();
 
   vtkGenericCell *Cell; //used to accelerate picking
+  vtkIdList *PointIds; // used to accelerate picking
   vtkDoubleArray *Gradients; //used in volume picking
   
 private:
