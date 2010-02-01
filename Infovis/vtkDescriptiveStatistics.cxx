@@ -42,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.93");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.94");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -585,6 +585,10 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     }
   else
     {
+    // The test column name can only be set after the column has been obtained from R
+    // NB: replicated code to avoid idiotic VS warning
+    testCol->SetName( "P" );
+
     // Test values have been calculated by R: the test column can be added to the output table
     outMeta->AddColumn( testCol );
     calculatedP = true;
@@ -608,14 +612,16 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
       testCol->SetTuple1( r, -1 );
       }
 
+    // The test column name can only be set after the column has been obtained from R
+    // NB: replicated code to avoid idiotic VS warning
+    testCol->SetName( "P" );
+
     // Now add the column of invalid values to the output table
     outMeta->AddColumn( testCol );
 
     // Clean up
     testCol->Delete();
     }
-  // The test column name can only be set after the column has been obtained from R
-  testCol->SetName( "P" );
 
   // Clean up
   nameCol->Delete();
