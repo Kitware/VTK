@@ -645,9 +645,12 @@ int TestDescriptiveStatistics( int, char *[] )
        << nGaussianVals
        << "):\n";
   
+#ifdef VTK_USE_GNU_R
   int nNonGaussian = 3;
   int nRejected = 0;
   double alpha = .01;
+#endif // VTK_USE_GNU_R
+
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -659,9 +662,10 @@ int TestDescriptiveStatistics( int, char *[] )
            << "  ";
       }
 
+#ifdef VTK_USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest4->GetValueByName( r, "P" ).ToDouble();
-    // Must verify that p value is valid (it is set to -1 if R is not available or has failed)
+    // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
       {
       cout << "Null hypothesis (normality) rejected at "
@@ -670,10 +674,12 @@ int TestDescriptiveStatistics( int, char *[] )
 
       ++ nRejected;
       }
+#endif // VTK_USE_GNU_R
 
     cout << "\n";
     }
 
+#ifdef VTK_USE_GNU_R
   if ( nRejected < nNonGaussian )
     {
     vtkGenericWarningMacro("Rejected only "
@@ -683,6 +689,7 @@ int TestDescriptiveStatistics( int, char *[] )
                            << " variables are not Gaussian");
     testStatus = 1;
     }
+#endif // VTK_USE_GNU_R
   
   ds4->Delete();
 
