@@ -218,8 +218,6 @@ int TestDescriptiveStatistics( int, char *[] )
        << maxdev
        << " for metric 1:\n";
 
-  int m0outliers = 0;
-  int m1outliers = 0;
   vtkDoubleArray* vals0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 0" ) );
   vtkDoubleArray* vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
   vtkDoubleArray* devs0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 0)" ) );
@@ -234,6 +232,8 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   double dev;
+  int m0outliers = 0;
+  int m1outliers = 0;
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
     dev = devs0->GetValue( r );
@@ -274,9 +274,14 @@ int TestDescriptiveStatistics( int, char *[] )
            << ")\n";
       }
     }
-  cout
-    << "  Found " << m0outliers << " outliers for Metric 0"
-    << " and " << m1outliers << " outliers for Metric 1.\n";
+
+  cout << "  Found " 
+       << m0outliers 
+       << " outliers for Metric 0"
+       << " and " 
+       << m1outliers 
+       << " outliers for Metric 1.\n";
+
   if ( m0outliers != 4 || m1outliers != 6 )
     {
     vtkGenericWarningMacro("Expected 4 outliers for Metric 0 and 6 outliers for Metric 1.");
@@ -639,6 +644,10 @@ int TestDescriptiveStatistics( int, char *[] )
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
        << nGaussianVals
        << "):\n";
+  
+  int nNonGaussian = 3;
+  int nRejected = 0;
+  double alpha = .01;
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -650,7 +659,29 @@ int TestDescriptiveStatistics( int, char *[] )
            << "  ";
       }
 
+    // Check if null hypothesis is rejected at specified significance level
+    double p = outputTest4->GetValueByName( r, "P" ).ToDouble();
+    // Must verify that p value is valid (it is set to -1 if R is not available or has failed)
+    if ( p > -1 && p < alpha )
+      {
+      cout << "Null hypothesis (normality) rejected at "
+           << alpha
+           << " significance level";
+
+      ++ nRejected;
+      }
+
     cout << "\n";
+    }
+
+  if ( nRejected < nNonGaussian )
+    {
+    vtkGenericWarningMacro("Rejected only "
+                           << nRejected
+                           << " null hypotheses of normality whereas "
+                           << nNonGaussian
+                           << " variables are not Gaussian");
+    testStatus = 1;
     }
   
   ds4->Delete();
