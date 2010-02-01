@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.77");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.78");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -1071,6 +1071,11 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     }
   else
     {
+    // The test column name can only be set after the column has been obtained from R
+    // NB: replicated code to avoid idiotic VS warning
+    testChi2Col->SetName( "P" );
+    testChi2yCol->SetName( "P Yates" );
+
     // Test values have been calculated by R: the test column can be added to the output table
     testTab->AddColumn( testChi2Col );
     testTab->AddColumn( testChi2yCol );
@@ -1098,6 +1103,11 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
       testChi2yCol->SetTuple1( r, -1 );
       }
 
+    // The test column name can only be set after the column has been obtained from R
+    // NB: replicated code to avoid idiotic VS warning
+    testChi2Col->SetName( "P" );
+    testChi2yCol->SetName( "P Yates" );
+
     // Now add the column of invalid values to the output table
     testTab->AddColumn( testChi2Col );
     testTab->AddColumn( testChi2yCol );
@@ -1106,9 +1116,6 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     testChi2Col->Delete();
     testChi2yCol->Delete();
     }
-  // The test column name can only be set after the column has been obtained from R
-  testChi2Col->SetName( "P" );
-  testChi2yCol->SetName( "P Yates" );
 
   // Finally set output table to test table
   outMeta->ShallowCopy( testTab );
