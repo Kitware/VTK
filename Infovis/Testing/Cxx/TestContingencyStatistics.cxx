@@ -338,9 +338,13 @@ int TestContingencyStatistics( int, char *[] )
     .06690889, // p-valued of Chi square statistic
     .69886917  // p-value of Chi square statistic with Yates correction
   };
+  vtkIdType nv = 5;
 
 #ifdef VTK_USE_GNU_R
   double alpha = .05;
+  vtkIdType ncv = 5;
+#else // VTK_USE_GNU_R
+  vtkIdType ncv = 3;
 #endif // VTK_USE_GNU_R
 
   // Loop over Test table
@@ -352,8 +356,7 @@ int TestContingencyStatistics( int, char *[] )
          << outputSummary->GetValue( r, 1 ).ToString()
          << ")";
 
-    vtkIdType nc = outputTest->GetNumberOfColumns();
-    for ( vtkIdType c = 0; c < nc; ++ c )
+    for ( vtkIdType c = 0; c < ncv; ++ c )
       {
       double x =  outputTest->GetValue( r, c ).ToDouble();
       cout << ", "
@@ -362,14 +365,14 @@ int TestContingencyStatistics( int, char *[] )
            << x;
 
       // Verify calculated results
-      if ( fabs ( x - testValues[r * nc + c] ) > 1.e-4 * x )
+      if ( fabs ( x - testValues[r * nv + c] ) > 1.e-4 * x )
         {
         vtkGenericWarningMacro("Incorrect " 
                                << outputTest->GetColumnName( c )
                                << ": "
                                << x
                                << " != "
-                               << testValues[r * nc + c]);
+                               << testValues[r * nv + c]);
         testStatus = 1;
         }
       }
