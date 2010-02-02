@@ -329,22 +329,25 @@ int TestContingencyStatistics( int, char *[] )
     10.,       // number of degrees of freedom
     36.896,    // Chi square statistic
     22.35,     // Chi square statistic with Yates correction
+#ifdef VTK_USE_GNU_R
     .00005899, // p-valued of Chi square statistic
     .01341754, // p-value of Chi square statistic with Yates correction
+#endif // VTK_USE_GNU_R
     // (Port,Source) 
     10.,       // number of degrees of freedom
     17.353,    // Chi square statistic
     7.279,     // Chi square statistic with Yates correction
+#ifdef VTK_USE_GNU_R
     .06690889, // p-valued of Chi square statistic
     .69886917  // p-value of Chi square statistic with Yates correction
+#endif // VTK_USE_GNU_R
   };
-  vtkIdType nv = 5;
 
 #ifdef VTK_USE_GNU_R
   double alpha = .05;
-  vtkIdType ncv = 5;
+  vtkIdType nv = 5;
 #else // VTK_USE_GNU_R
-  vtkIdType ncv = 3;
+  vtkIdType nv = 3;
 #endif // VTK_USE_GNU_R
 
   // Loop over Test table
@@ -356,7 +359,7 @@ int TestContingencyStatistics( int, char *[] )
          << outputSummary->GetValue( r, 1 ).ToString()
          << ")";
 
-    for ( vtkIdType c = 0; c < ncv; ++ c )
+    for ( vtkIdType c = 0; c < nv; ++ c )
       {
       double x =  outputTest->GetValue( r, c ).ToDouble();
       cout << ", "
