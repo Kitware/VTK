@@ -160,8 +160,8 @@ public:
   // Description:
   // Get or set the prop of the selection.
   // This is the same as setting the PROP() key on the property.
-  virtual void SetProp(vtkProp* prop);
-  virtual vtkProp* GetProp();
+  virtual void SetSelectedProp(vtkProp* prop);
+  virtual vtkProp* GetSelectedProp();
   
   // Description:
   // For location selection of points, if distance is greater than this reject.

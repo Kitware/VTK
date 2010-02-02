@@ -26,7 +26,7 @@
 #include "vtkProp.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSelectionNode, "1.5");
+vtkCxxRevisionMacro(vtkSelectionNode, "1.6");
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
@@ -229,13 +229,13 @@ int vtkSelectionNode::GetFieldType()
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectionNode::SetProp(vtkProp* prop)
+void vtkSelectionNode::SetSelectedProp(vtkProp* prop)
 {
   this->GetProperties()->Set(vtkSelectionNode::PROP(), prop);
 }
 
 //----------------------------------------------------------------------------
-vtkProp* vtkSelectionNode::GetProp()
+vtkProp* vtkSelectionNode::GetSelectedProp()
 {
   if (this->GetProperties()->Has(vtkSelectionNode::PROP()))
     {
