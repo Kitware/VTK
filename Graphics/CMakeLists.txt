@@ -234,6 +234,7 @@ vtkSuperquadricSource.cxx
 vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 vtkSynchronizedTemplatesCutter3D.cxx
+vtkTableBasedClipDataSet.cxx
 vtkTableToPolyData.cxx
 vtkTableToStructuredGrid.cxx
 vtkTemporalPathLineFilter.cxx
