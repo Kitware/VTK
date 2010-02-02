@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.1" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.2" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -1513,7 +1513,7 @@ void vtkTableBasedClipperVolumeFromVolume::
 
   vtkIdTypeArray * cellLocations = vtkIdTypeArray::New();
   cellLocations->SetNumberOfValues( ncells );
-  int * cl = cellLocations->GetPointer( 0 );
+  vtkIdType * cl = cellLocations->GetPointer( 0 );
 
   vtkIdType ids[1024]; // 8 (for hex) should be max, but...
   int current_index = 0;
@@ -2110,9 +2110,9 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
   specials->GetPointData()->ShallowCopy( polyData->GetPointData() );
   specials->Allocate( numCells );
 
-  int   i, j;
-  int   numbPnts = 0;
-  int   numCants = 0;  // number of cells that cannot be clipped by this filter
+  vtkIdType   i, j;
+  vtkIdType   numbPnts = 0;
+  int         numCants = 0;  // number of cells not clipped by this filter
   
   for ( i = 0; i < numCells; i ++ )
     {
@@ -3061,10 +3061,10 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
 { 
   vtkUnstructuredGrid * unstruct = vtkUnstructuredGrid::SafeDownCast( inputGrd );
   
-  int   i, j;
-  int   numbPnts = 0;
-  int   numCants = 0; // number of cells that cannot be clipped by this filter
-  int   numCells = unstruct->GetNumberOfCells();
+  vtkIdType   i, j;
+  vtkIdType   numbPnts = 0;
+  int         numCants = 0; // number of cells not clipped by this filter
+  int         numCells = unstruct->GetNumberOfCells();
   
   // volume from volume
   vtkTableBasedClipperVolumeFromVolume  * visItVFV = new
