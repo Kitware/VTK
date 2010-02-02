@@ -323,10 +323,25 @@ int TestContingencyStatistics( int, char *[] )
   // Last, check some results of the Test option
   cout << "## Chi square statistics:\n";
 
-  // Corresponding known number of degrees of freedom
-  int nDOF[] = { 10, // (# ports - 1) x (# protocols - 1)
-                 10  // (# ports - 1) x (# sources - 1) 
+  // Reference values
+  double testValues[] = { 
+    // (Port,Protocol) 
+    10.,       // number of degrees of freedom
+    36.896,    // Chi square statistic
+    22.35,     // Chi square statistic with Yates correction
+    .00005899, // p-valued of Chi square statistic
+    .01341754, // p-value of Chi square statistic with Yates correction
+    // (Port,Source) 
+    10.,       // number of degrees of freedom
+    17.353,    // Chi square statistic
+    7.279,     // Chi square statistic with Yates correction
+    .06690889, // p-valued of Chi square statistic
+    .69886917  // p-value of Chi square statistic with Yates correction
   };
+
+#ifdef VTK_USE_GNU_R
+  double alpha = .05;
+#endif // VTK_USE_GNU_R
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
@@ -337,24 +352,40 @@ int TestContingencyStatistics( int, char *[] )
          << outputSummary->GetValue( r, 1 ).ToString()
          << ")";
 
-    for ( vtkIdType c = 0; c < outputTest->GetNumberOfColumns(); ++ c )
+    vtkIdType nc = outputTest->GetNumberOfColumns();
+    for ( vtkIdType c = 0; c < nc; ++ c )
       {
+      double x =  outputTest->GetValue( r, c ).ToDouble();
       cout << ", "
            << outputTest->GetColumnName( c )
            << "="
-           << outputTest->GetValue( r, c ).ToDouble();
+           << x;
+
+      // Verify calculated results
+      if ( fabs ( x - testValues[r * nc + c] ) > 1.e-4 * x )
+        {
+        vtkGenericWarningMacro("Incorrect " 
+                               << outputTest->GetColumnName( c )
+                               << ": "
+                               << x
+                               << " != "
+                               << testValues[r * nc + c]);
+        testStatus = 1;
+        }
       }
     
-    // Verify some of the calculated statistics
-    if ( outputTest->GetValueByName( r, "d" ).ToInt() != nDOF[r] )
+#ifdef VTK_USE_GNU_R
+    // Check if null hypothesis is rejected at specified significance level
+    double p = outputTest->GetValueByName( r, "P Yates" ).ToDouble();
+    // Must verify that p value is valid (it is set to -1 if R has failed)
+    if ( p > -1 && p < alpha )
       {
-      vtkGenericWarningMacro("Reported an incorrect number of degrees of freedom:"
-                             << outputTest->GetValueByName( r, "d" ).ToInt()
-                             << " != "
-                             << nDOF[r]
-                             << ".");
-      testStatus = 1;
+      cout << ", Null hypothesis (independence) rejected at "
+           << alpha
+           << " significance level";
       }
+#endif // VTK_USE_GNU_R
+
     cout << "\n";
     }
 

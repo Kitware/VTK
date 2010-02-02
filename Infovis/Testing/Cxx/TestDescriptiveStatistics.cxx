@@ -651,14 +651,15 @@ int TestDescriptiveStatistics( int, char *[] )
   double alpha = .01;
 #endif // VTK_USE_GNU_R
 
+  // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputTest4->GetNumberOfColumns(); ++ i )
+    for ( int c = 0; c < outputTest4->GetNumberOfColumns(); ++ c )
       {
-      cout << outputTest4->GetColumnName( i )
+      cout << outputTest4->GetColumnName( c )
            << "="
-           << outputTest4->GetValue( r, i ).ToString()
+           << outputTest4->GetValue( r, c ).ToString()
            << "  ";
       }
 
