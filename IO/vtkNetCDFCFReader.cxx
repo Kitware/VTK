@@ -453,8 +453,8 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadCoordinateVariable(
     CALL_NETCDF_GW(nc_inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
     }
 
-  coords->SetNumberOfComponents(dimSizes[1]);
-  coords->SetNumberOfTuples(dimSizes[0]);
+  coords->SetNumberOfComponents(static_cast<int>(dimSizes[1]));
+  coords->SetNumberOfTuples(static_cast<vtkIdType>(dimSizes[0]));
   CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, coords->GetPointer(0)));
 
   return 1;
@@ -490,28 +490,30 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
 
   // The coords array are the coords at the points.  There is one more point
   // than cell in each topological direction.
-  coords->SetNumberOfComponents(dimSizes[1]+1);
-  coords->SetNumberOfTuples(dimSizes[0]+1);
+  int numComponents = static_cast<int>(dimSizes[1]);
+  vtkIdType numTuples = static_cast<vtkIdType>(dimSizes[0]);
+  coords->SetNumberOfComponents(numComponents+1);
+  coords->SetNumberOfTuples(numTuples+1);
 
   // Copy from the bounds data to the coordinates data.  Most values will
   // be copied from the bound's 0'th tuple entry.  Values at the extremes
   // will be copied from other entries.
-  for (size_t j = 0; j < dimSizes[0]; j++)
+  for (vtkIdType j = 0; j < numTuples; j++)
     {
-    for (size_t i = 0; i < dimSizes[1]; i++)
+    for (int i = 0; i < numComponents; i++)
       {
-      coords->SetComponent(j, i, boundsData[(j*dimSizes[1] + i)*4 + 0]);
+      coords->SetComponent(j, i, boundsData[(j*numComponents + i)*4 + 0]);
       }
-    coords->SetComponent(j, dimSizes[1],
-                         boundsData[((j+1)*dimSizes[1]-1)*4 + 1]);
+    coords->SetComponent(j, numComponents,
+                         boundsData[((j+1)*numComponents-1)*4 + 1]);
     }
-  for (size_t i = 0; i < dimSizes[1]; i++)
+  for (int i = 0; i < numComponents; i++)
     {
-    coords->SetComponent(dimSizes[0], i,
-                         boundsData[((dimSizes[0]-1)*dimSizes[1])*4 + 2]);
+    coords->SetComponent(numTuples, i,
+                         boundsData[((numTuples-1)*numComponents)*4 + 2]);
     }
-  coords->SetComponent(dimSizes[0], dimSizes[1],
-                       boundsData[(dimSizes[0]*dimSizes[1]-1)*4 + 3]);
+  coords->SetComponent(numTuples, numComponents,
+                       boundsData[(numTuples*numComponents-1)*4 + 3]);
 
   return 1;
 }
@@ -524,7 +526,7 @@ public:
 };
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFCFReader, "1.3");
+vtkCxxRevisionMacro(vtkNetCDFCFReader, "1.4");
 vtkStandardNewMacro(vtkNetCDFCFReader);
 
 //-----------------------------------------------------------------------------
