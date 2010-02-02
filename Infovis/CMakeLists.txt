@@ -88,6 +88,7 @@ vtkSimple2DLayoutStrategy.cxx
 vtkSimple3DCirclesStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSplineGraphEdges.cxx
+vtkSplitColumnComponents.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkSpanTreeLayoutStrategy.cxx
 vtkStackedTreeLayoutStrategy.cxx
