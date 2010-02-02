@@ -24,5 +24,6 @@ IF(PYTHON_EXECUTABLE)
     vtkProgrammableSource.h
     vtkStructuredGridOutlineFilter.h
     vtkStructuredPointsGeometryFilter.h
+    vtkTableBasedClipCases.h
     )
 ENDIF(PYTHON_EXECUTABLE)
