@@ -65,7 +65,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.17");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.18");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -351,15 +351,26 @@ void vtkStandardPolyDataPainter::DrawCells(
   int start_attribute = (disable_scalar_color? 1 : 0);
 
   // get attribute mask
-  int attribute_mask = 0;
+  int cell_attribute_mask = 0;
   for(int attribii = start_attribute; attribii < vtkCellData::NUM_ATTRIBUTES;
       attribii++)
     {
       if(device->IsAttributesSupported(attribii))
         {
-          attribute_mask = attribute_mask | (1 << attribii);
+          cell_attribute_mask = cell_attribute_mask | (1 << attribii);
         }
     }
+
+  int point_attribute_mask = 0;
+  for(int attribii = start_attribute; attribii < vtkPointData::NUM_ATTRIBUTES;
+      attribii++)
+    {
+      if(device->IsAttributesSupported(attribii))
+        {
+          point_attribute_mask = point_attribute_mask | (1 << attribii);
+        }
+    }
+
 
   // Note that cell attributes are overridden by point attributes.
   for (connectivity->InitTraversal(); connectivity->GetNextCell(npts, pts); count++)
@@ -372,7 +383,7 @@ void vtkStandardPolyDataPainter::DrawCells(
     for (attribii = start_attribute; attribii < vtkCellData::NUM_ATTRIBUTES; 
          attribii++)
       {
-        if (!((attribute_mask >> attribii) & 1))
+        if (!((cell_attribute_mask >> attribii) & 1))
         {
         // skip non-renderable attributes.
         continue;
@@ -464,7 +475,7 @@ void vtkStandardPolyDataPainter::DrawCells(
       for (attribii = start_attribute; attribii < vtkPointData::NUM_ATTRIBUTES; 
            attribii++)
         {
-        if (!((attribute_mask >> attribii) & 1))
+        if (!((point_attribute_mask >> attribii) & 1))
           {
           // skip non-renderable attributes.
           continue;

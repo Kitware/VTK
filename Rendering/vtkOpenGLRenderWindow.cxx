@@ -32,7 +32,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.105");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.106");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -613,6 +613,9 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     ;
     }
 
+  GLint buffer;
+  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
+
   if (front)
     {
     glDrawBuffer(GL_FRONT);
@@ -723,6 +726,8 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   // This seems to be necessary for the image to show up
   glFlush();  
 #endif
+
+  glDrawBuffer(buffer);
   
   if (glGetError() != GL_NO_ERROR)
     {
@@ -953,6 +958,9 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     ;
     }  
 
+  GLint buffer;
+  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
+
   if (front)
     {
     glDrawBuffer(GL_FRONT);
@@ -1019,6 +1027,8 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   
   // This seems to be necessary for the image to show up
   glFlush();  
+
+  glDrawBuffer(buffer);
 
   if (glGetError() != GL_NO_ERROR)
     {
@@ -1257,6 +1267,9 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     ;
     }
 
+  GLint buffer;
+  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
+
   if (front)
     {
     glDrawBuffer(GL_FRONT);
@@ -1340,6 +1353,8 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 
   // This seems to be necessary for the image to show up
   glFlush();  
+
+  glDrawBuffer(buffer);
 
   if (glGetError() != GL_NO_ERROR)
     {
