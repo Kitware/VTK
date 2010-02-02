@@ -67,6 +67,7 @@ public:
   // have magnitude 1.
   static void ProjectPoint(double x[3], double origin[3], double normal[3], 
                            double xproj[3]);
+  void ProjectPoint(double x[3], double xproj[3]);
 
   // Description
   // Project a point x onto plane defined by origin and normal. The 
@@ -74,6 +75,8 @@ public:
   // have magnitude 1.
   static void GeneralizedProjectPoint(double x[3], double origin[3],
                                       double normal[3], double xproj[3]);
+  void GeneralizedProjectPoint(double x[3], double xproj[3]);
+
   
   // Description:
   // Quick evaluation of plane equation n(x-origin)=0.
@@ -83,6 +86,7 @@ public:
   // Return the distance of a point x to a plane defined by n(x-p0) = 0. The
   // normal n[3] must be magnitude=1.
   static double DistanceToPlane(double x[3], double n[3], double p0[3]);
+  double DistanceToPlane(double x[3]);
   
   // Description:
   // Given a line defined by the two points p1,p2; and a plane defined by the
@@ -93,7 +97,7 @@ public:
   // zero is returned and t is set to VTK_LARGE_DOUBLE.
   static int IntersectWithLine(double p1[3], double p2[3], double n[3], 
                                double p0[3], double& t, double x[3]);
-
+  int IntersectWithLine(double p1[3], double p2[3], double& t, double x[3]);
 
 protected:
   vtkPlane();
