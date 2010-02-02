@@ -8,7 +8,7 @@ SET(VTK_SIZEOF_VOID_P  ${CMAKE_SIZEOF_VOID_P})
 
 CHECK_TYPE_SIZE("long long" VTK_SIZEOF_LONG_LONG)
 CHECK_TYPE_SIZE("__int64"   VTK_SIZEOF___INT64)
-CHECK_TYPE_SIZE("uintptr_t"   UINTPTR_T)
+CHECK_TYPE_SIZE("uintptr_t"   VTK_UINTPTR_T)
 
 IF(VTK_SIZEOF___INT64)
   # In CMake 2.6 and above the type __int64 may have been found only

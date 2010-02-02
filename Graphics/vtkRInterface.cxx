@@ -20,13 +20,18 @@
 
 #include "vtkRInterface.h"
 
+#undef HAVE_UINTPTR_T
+#ifdef HAVE_VTK_UINTPTR_T
+#define HAVE_UINTPTR_T HAVE_VTK_UINTPTR_T
+#endif
+
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.3");
+vtkCxxRevisionMacro(vtkRInterface, "1.4");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"
