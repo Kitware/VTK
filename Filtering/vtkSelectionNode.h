@@ -52,6 +52,7 @@ class vtkInformation;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
+class vtkProp;
 class vtkTable;
 //ETX
 
@@ -155,6 +156,12 @@ public:
   // This is the same as setting the FIELD_TYPE() key on the property.
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
+
+  // Description:
+  // Get or set the prop of the selection.
+  // This is the same as setting the PROP() key on the property.
+  virtual void SetProp(vtkProp* prop);
+  virtual vtkProp* GetProp();
   
   // Description:
   // For location selection of points, if distance is greater than this reject.
