@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.20");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.21");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -678,14 +678,8 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
           magnitude, table_range, range);
         }
       output[i] = k * (magnitude - range[0]);
-      if (output[i] > 1.0)
-        {
-        output[i] = 1.0;
-        }
-      if (output[i] < 0.0)
-        {
-        output[i] = 0.0;
-        }
+      output[i] = output[i] > 1.0f ? 1.0f : 
+        (output[i] < 0.0f ? 0.0f : output[i]);
       }
     }  
   else
@@ -700,14 +694,8 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
           input_value, table_range, range);
         }
       output[i] = k * (input_value - range[0]);
-      if (output[i] > 1.0)
-        {
-        output[i] = 1.0;
-        }
-      if (output[i] < 0.0)
-        {
-        output[i] = 0.0;
-        }
+      output[i] = output[i] > 1.0f ? 1.0f : 
+        (output[i] < 0.0f ? 0.0f : output[i]);
       input = input + numComps;
       }      
     }
