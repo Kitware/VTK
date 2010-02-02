@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.3" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.4" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -333,7 +333,7 @@ vtkTableBasedClipperDataSetFromVolume::
 vtkTableBasedClipperDataSetFromVolume::
     EdgeHashEntryMemoryManager::~EdgeHashEntryMemoryManager()
 {
-  int npools = edgeHashEntrypool.size();
+  int npools = static_cast<int> ( edgeHashEntrypool.size() );
   for ( int i = 0; i < npools; i ++ )
     {
     EdgeHashEntry * pool = edgeHashEntrypool[i];
@@ -2530,11 +2530,11 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
 
     for ( j = 0; j < nOutputs; j++ )
       {
-      int      nCellPts = 0;
       int      intrpIdx = -1;
       int      theColor = -1;
       unsigned char theShape = *thisCase ++;
       
+      nCellPts = 0;
       switch ( theShape )
         {
         case ST_HEX:
