@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.2" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.3" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -192,7 +192,7 @@ protected:
 
 
   public:
-    vtkTableBasedClipperDataSetFromVolume( int ptSizeGuess);
+    vtkTableBasedClipperDataSetFromVolume( int ptSizeGuess );
     vtkTableBasedClipperDataSetFromVolume( int nPts, int ptSizeGuess );
     virtual ~vtkTableBasedClipperDataSetFromVolume() { }
     
@@ -441,13 +441,13 @@ int vtkTableBasedClipperDataSetFromVolume::EdgeHashTable::
 
 vtkTableBasedClipperDataSetFromVolume::
 vtkTableBasedClipperDataSetFromVolume( int ptSizeGuess )
-   : pt_list(), edges( ptSizeGuess, pt_list ), numPrevPts( 0 )
+   : numPrevPts( 0 ), pt_list(), edges( ptSizeGuess, pt_list )
 {
 }
       
 vtkTableBasedClipperDataSetFromVolume::
 vtkTableBasedClipperDataSetFromVolume( int nPts, int ptSizeGuess )
-   : pt_list(), edges( ptSizeGuess, pt_list ), numPrevPts( nPts )
+   : numPrevPts( nPts ), pt_list(), edges( ptSizeGuess, pt_list )
 {
 }
 // ============================================================================
@@ -1427,7 +1427,7 @@ void vtkTableBasedClipperVolumeFromVolume::
       double weights[8];
       double pt[3] = { 0.0, 0.0, 0.0 };
       double weight_factor = 1.0 / ce.nPts;
-      for ( int k = 0; k < ce.nPts; k ++ )
+      for ( k = 0; k < ce.nPts; k ++ )
         {
         weights[k] = 1.0 * weight_factor;
         int id = 0;
