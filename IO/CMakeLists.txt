@@ -256,12 +256,25 @@ ENDIF(WIN32)
 # FFMPEG
 # If the ffmpeg library is available, compile vtkFFMPEGWriter.
 IF (VTK_USE_FFMPEG_ENCODER)
+  INCLUDE(${VTK_CMAKE_DIR}/vtkTestFFMPEG.cmake)
+
+  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkFFMPEGConfig.h.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/vtkFFMPEGConfig.h @ONLY)
+  INCLUDE_DIRECTORIES(${VTK_BINARY_DIR}/IO)
+  INSTALL(FILES vtkFFMPEGConfig.h
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
+
   INCLUDE_DIRECTORIES(${FFMPEG_INCLUDE_DIR})
   SET(Kit_SRCS ${Kit_SRCS} vtkFFMPEGWriter.cxx)
   SET(KIT_LIBS ${KIT_LIBS}
     ${FFMPEG_avformat_LIBRARY}
     ${FFMPEG_avcodec_LIBRARY}
     ${FFMPEG_avutil_LIBRARY})
+  IF (NOT VTK_FFMPEG_HAS_IMG_CONVERT)
+    SET(KIT_LIBS ${KIT_LIBS}
+      ${FFMPEG_swscale_LIBRARY})
+  ENDIF (NOT VTK_FFMPEG_HAS_IMG_CONVERT)
 ENDIF (VTK_USE_FFMPEG_ENCODER)
 
 #-----------------------------------------------------------------------------

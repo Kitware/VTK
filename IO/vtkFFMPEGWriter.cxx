@@ -18,9 +18,18 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
+#include "vtkFFMPEGConfig.h"
 
 extern "C" {
-#include <ffmpeg/avformat.h>
+#ifdef VTK_FFMPEG_HAS_OLD_HEADER
+# include <ffmpeg/avformat.h>
+#else
+# include <libavformat/avformat.h>
+#endif
+
+#ifndef VTK_FFMPEG_HAS_IMG_CONVERT
+# include <libswscale/swscale.h>
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -98,7 +107,11 @@ int vtkFFMPEGWriterInternal::Start()
   av_register_all();
 
   //create the format context that wraps all of the media output structures
+#ifdef VTK_FFMPEG_NEW_ALLOC
+  this->avFormatContext = avformat_alloc_context();
+#else
   this->avFormatContext = av_alloc_format_context();
+#endif
   if (!this->avFormatContext) 
     {
     vtkGenericWarningMacro (<< "Coult not open the format context.");
@@ -256,10 +269,39 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     }
 
   //convert that to YUV for input to the codec
+#ifdef VTK_FFMPEG_HAS_IMG_CONVERT
   img_convert((AVPicture *)this->yuvOutput, cc->pix_fmt, 
               (AVPicture *)this->rgbInput, PIX_FMT_RGB24,
               cc->width, cc->height);
-  
+#else
+  //convert that to YUV for input to the codec
+  SwsContext* convert_ctx = sws_getContext(
+    cc->width, cc->height, PIX_FMT_RGB24,
+    cc->width, cc->height, cc->pix_fmt,
+    SWS_BICUBIC, NULL, NULL, NULL);
+
+  if(convert_ctx == NULL)
+    {
+    vtkGenericWarningMacro(<< "swscale context initialization failed");
+    return 0;
+    }
+
+  int result = sws_scale(convert_ctx,
+    this->rgbInput->data, this->rgbInput->linesize,
+    0, cc->height,
+    this->yuvOutput->data, this->yuvOutput->linesize
+    );
+
+  sws_freeContext(convert_ctx);
+
+  if(!result)
+    {
+    vtkGenericWarningMacro(<< "sws_scale() failed");
+    return 0;
+    }
+#endif
+
+
   //run the encoder
   int toAdd = avcodec_encode_video(cc, 
                                    this->codecBuf, 
@@ -332,7 +374,11 @@ void vtkFFMPEGWriterInternal::End()
     if (this->openedFile)
       {
       av_write_trailer(this->avFormatContext);
+#ifdef VTK_FFMPEG_OLD_URL_FCLOSE
       url_fclose(&this->avFormatContext->pb);
+#else
+      url_fclose(this->avFormatContext->pb);
+#endif
       this->openedFile = 0;
       }
     
@@ -354,7 +400,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.6");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.7");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()

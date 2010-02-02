@@ -887,6 +887,12 @@ OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK u
 MARK_AS_ADVANCED(VTK_USE_FFMPEG_ENCODER)
 IF (VTK_USE_FFMPEG_ENCODER)
   INCLUDE(${VTK_CMAKE_DIR}/FindFFMPEG.cmake OPTIONAL)
+  MARK_AS_ADVANCED(CLEAR
+    FFMPEG_INCLUDE_DIR
+    FFMPEG_avformat_LIBRARY
+    FFMPEG_avcodec_LIBRARY
+    FFMPEG_avutil_LIBRARY
+    )
 ENDIF (VTK_USE_FFMPEG_ENCODER)
 
 #-----------------------------------------------------------------------------

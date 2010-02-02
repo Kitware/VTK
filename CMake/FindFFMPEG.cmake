@@ -11,10 +11,44 @@
 # This is usefull to do it this way so that we can always add more libraries
 # if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
-FIND_PATH(FFMPEG_INCLUDE_DIR ffmpeg/avformat.h
-  /usr/local/include
-  /usr/include
+FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
+       PATHS
+       $ENV{FFMPEG_DIR}/include
+       $ENV{OSGDIR}/include
+       $ENV{OSG_ROOT}/include
+       ~/Library/Frameworks
+       /Library/Frameworks
+       /usr/local/include
+       /usr/include
+       /sw/include # Fink
+       /opt/local/include # DarwinPorts
+       /opt/csw/include # Blastwave
+       /opt/include
+       /usr/freeware/include
+       PATH_SUFFIXES ffmpeg
+       DOC "Location of FFMPEG Headers"
 )
+
+IF( NOT FFMPEG_INCLUDE_DIR )
+  FIND_PATH(FFMPEG_INCLUDE_DIR libavformat/avformat.h
+       PATHS
+       $ENV{FFMPEG_DIR}/include
+       $ENV{OSGDIR}/include
+       $ENV{OSG_ROOT}/include
+       ~/Library/Frameworks
+       /Library/Frameworks
+       /usr/local/include
+       /usr/include
+       /sw/include # Fink
+       /opt/local/include # DarwinPorts
+       /opt/csw/include # Blastwave
+       /opt/include
+       /usr/freeware/include
+       PATH_SUFFIXES ffmpeg
+       DOC "Location of FFMPEG Headers"
+)
+ENDIF( NOT FFMPEG_INCLUDE_DIR )
+
 
 FIND_LIBRARY(FFMPEG_avformat_LIBRARY avformat
   /usr/local/lib
@@ -61,6 +95,11 @@ FIND_LIBRARY(FFMPEG_gsm_LIBRARY gsm
   /usr/lib
 )
 
+FIND_LIBRARY(FFMPEG_swscale_LIBRARY swscale
+  /usr/local/lib
+  /usr/lib
+)
+
 FIND_LIBRARY(FFMPEG_z_LIBRARY z
   /usr/local/lib
   /usr/lib
@@ -85,6 +124,7 @@ IF(FFMPEG_INCLUDE_DIR)
           ${FFMPEG_theora_LIBRARY} 
           ${FFMPEG_dts_LIBRARY} 
           ${FFMPEG_gsm_LIBRARY} 
+          ${FFMPEG_swscale_LIBRARY} 
           ${FFMPEG_z_LIBRARY})
       ENDIF(FFMPEG_avutil_LIBRARY)
     ENDIF(FFMPEG_avcodec_LIBRARY)
@@ -102,5 +142,6 @@ MARK_AS_ADVANCED(
   FFMPEG_theora_LIBRARY
   FFMPEG_dts_LIBRARY
   FFMPEG_gsm_LIBRARY
+  FFMPEG_swscale_LIBRARY
   FFMPEG_z_LIBRARY
   )
