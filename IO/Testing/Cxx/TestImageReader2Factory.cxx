@@ -47,7 +47,7 @@ int TestImageReader2Factory(int argc, char *argv[])
 
   cout << "Filename = " << argv[1] << endl;
 
-  vtkSmartPointer * imageReader = 
+  vtkImageReader2 * imageReader = 
     imageFactory->CreateImageReader2( argv[1] );  
 
   imageReader->SetFileName( argv[1] );
