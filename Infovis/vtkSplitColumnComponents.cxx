@@ -18,15 +18,12 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
+#include "vtkAbstractArray.h"
 #include "vtkTable.h"
 
-#include "vtkStdString.h"
 #include "vtksys/ios/sstream"
 
-vtkCxxRevisionMacro(vtkSplitColumnComponents, "1.1");
+vtkCxxRevisionMacro(vtkSplitColumnComponents, "1.2");
 vtkStandardNewMacro(vtkSplitColumnComponents);
 //---------------------------------------------------------------------------
 vtkSplitColumnComponents::vtkSplitColumnComponents()
@@ -39,6 +36,23 @@ vtkSplitColumnComponents::vtkSplitColumnComponents()
 vtkSplitColumnComponents::~vtkSplitColumnComponents()
 {
 }
+
+//---------------------------------------------------------------------------
+// Templated function in an anonymous namespace to copy the data from the
+// specified component in one column to a single component column
+namespace {
+
+template<typename T>
+void CopyArrayData(T* source, T* destination, int components, int c,
+                   unsigned int length)
+{
+  for (unsigned int i = 0; i < length; ++i)
+    {
+    destination[i] = source[i*components + c];
+    }
+}
+
+} // End of anonymous namespace
 
 //---------------------------------------------------------------------------
 int vtkSplitColumnComponents::RequestData(
@@ -62,14 +76,9 @@ int vtkSplitColumnComponents::RequestData(
     vtkAbstractArray* col = table->GetColumn(i);
     char* name = col->GetName();
     int components = col->GetNumberOfComponents();
-
     if (components == 1)
       {
-      vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
-      newCol->DeepCopy(col);
-      newCol->SetName(name);
-      output->AddColumn(newCol);
-      newCol->Delete();
+      output->AddColumn(col);
       }
     else if (components > 1)
       {
@@ -84,10 +93,12 @@ int vtkSplitColumnComponents::RequestData(
         newCol->SetName(ostr.str().c_str());
         newCol->SetNumberOfTuples(colSize);
         // Now copy the components into their new columns
-        for (vtkIdType row = 0; row < colSize; ++row)
+        switch(col->GetDataType())
           {
-          newCol->InsertVariantValue(row,
-                                     col->GetVariantValue(components*row + j));
+          vtkTemplateMacro(
+              CopyArrayData(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
+                            static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
+                            components, j, colSize));
           }
 
         output->AddColumn(newCol);
@@ -95,20 +106,6 @@ int vtkSplitColumnComponents::RequestData(
         }
       }
     }
-
-  // Clean up pipeline information
-  int piece = -1;
-  int npieces = -1;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-    {
-    piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    npieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    }
-  output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), npieces);
-  output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
 
   return 1;
 }
