@@ -21,7 +21,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestTableSplitColumnComponents(int argc, char* argv[])
+int TestTableSplitColumnComponents(int, char*[])
 {
   // Create a single column array, and a three component array
   VTK_CREATE(vtkIntArray, single);
