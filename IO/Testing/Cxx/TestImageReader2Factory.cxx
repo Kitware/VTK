@@ -25,11 +25,15 @@
 #include "vtkImageData.h"
 #include "vtkImageMathematics.h"
 #include "vtkSmartPointer.h"
+#include "vtkDebugLeaks.h"
 
 
 int TestImageReader2Factory(int argc, char *argv[])
 {
   vtkOutputWindow::GetInstance()->PromptUserOn();
+
+  vtkDebugLeaks::SetExitError(true);
+
   if ( argc <= 1 )
     {
     cout << "Usage: " << argv[0] << " <meta image file>" << endl;
@@ -48,8 +52,6 @@ int TestImageReader2Factory(int argc, char *argv[])
   imageReader->Update();
 
   vtkSmartPointer< vtkImageData > image = imageReader->GetOutput();
-
-
 
   cout << "Success!  Error = " << error << endl;
 
