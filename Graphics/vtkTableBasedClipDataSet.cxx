@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.4" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.5" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -67,130 +67,129 @@ vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunctio
 // ============================================================================
 // ============== vtkTableBasedClipperDataSetFromVolume (begin) ===============
 // ============================================================================
+
+
+struct TableBasedClipperPointEntry
+{
+  int      ptIds[2];
+  double   percent;
+};
+
+
+// ---- vtkTableBasedClipperPointList (bein)
+class vtkTableBasedClipperPointList
+{
+public:
+  vtkTableBasedClipperPointList();
+  virtual ~vtkTableBasedClipperPointList();
+
+  int      AddPoint( int, int, double );
+  int      GetTotalNumberOfPoints() const;
+  int      GetNumberOfLists() const;
+  int      GetList( int, const TableBasedClipperPointEntry *& ) const;
+
+protected:
+  int      currentList;
+  int      currentPoint;
+  int      listSize;
+  int      pointsPerList;
+  TableBasedClipperPointEntry ** list;
+};
+// ---- vtkTableBasedClipperPointList (end)
+
+
+// ---- vtkTableBasedClipperEdgeHashEntry (begin)
+class vtkTableBasedClipperEdgeHashEntry
+{
+public:
+  vtkTableBasedClipperEdgeHashEntry();
+  virtual ~vtkTableBasedClipperEdgeHashEntry() { }
+
+  int      GetPointId(void) { return ptId; };
+  void     SetInfo( int, int, int );
+  void     SetNext( vtkTableBasedClipperEdgeHashEntry * n ) { next = n; };
+  bool     IsMatch( int i1, int i2 )
+           { return ( i1 == id1 && i2 == id2 ? true : false ); };
+  
+  vtkTableBasedClipperEdgeHashEntry * GetNext() { return next; }
+
+protected:
+  int             id1, id2;
+  int             ptId;
+  vtkTableBasedClipperEdgeHashEntry * next;
+
+};
+// ---- vtkTableBasedClipperEdgeHashEntry (end)
+
+
+// ---- vtkTableBasedClipperEdgeHashEntryMemoryManager (begin)
+#define FREE_ENTRY_LIST_SIZE 16384
+#define POOL_SIZE 256
+class   vtkTableBasedClipperEdgeHashEntryMemoryManager
+{
+public:
+  vtkTableBasedClipperEdgeHashEntryMemoryManager();
+  virtual ~vtkTableBasedClipperEdgeHashEntryMemoryManager();
+
+  inline vtkTableBasedClipperEdgeHashEntry * GetFreeEdgeHashEntry()
+  {
+    if ( freeEntryindex <= 0 )
+      {
+      AllocateEdgeHashEntryPool();
+      }
+    freeEntryindex --;
+    return freeEntrylist[ freeEntryindex ];
+  }
+
+  inline void ReRegisterEdgeHashEntry( vtkTableBasedClipperEdgeHashEntry * q )
+  {
+    if ( freeEntryindex >= FREE_ENTRY_LIST_SIZE - 1 )
+      {
+      // We've got plenty, so ignore this one.
+      return;
+      }
+    freeEntrylist[ freeEntryindex ] = q;
+    freeEntryindex ++;
+  }
+
+protected:
+  int             freeEntryindex;
+  vtkTableBasedClipperEdgeHashEntry * freeEntrylist[ FREE_ENTRY_LIST_SIZE ];
+  vtkstd::vector< vtkTableBasedClipperEdgeHashEntry * > edgeHashEntrypool;
+
+  void  AllocateEdgeHashEntryPool();
+};
+// ---- vtkTableBasedClipperEdgeHashEntryMemoryManager (end)
+
+
+// ---- vtkTableBasedClipperEdgeHashTable (begin)
+class vtkTableBasedClipperEdgeHashTable
+{
+public:
+  vtkTableBasedClipperEdgeHashTable( int, vtkTableBasedClipperPointList & );
+  virtual ~vtkTableBasedClipperEdgeHashTable();
+
+  int         AddPoint( int, int, double );
+  vtkTableBasedClipperPointList & GetPointList( );
+
+protected:
+  int         nHashes;
+  vtkTableBasedClipperPointList       & pointlist;
+  vtkTableBasedClipperEdgeHashEntry  ** hashes;
+  vtkTableBasedClipperEdgeHashEntryMemoryManager  emm;
+  
+  int GetKey( int, int );
+  
+  private:
+  vtkTableBasedClipperEdgeHashTable
+                  ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
+  void operator = ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
+};
+// ---- vtkTableBasedClipperEdgeHashTable (end)
+  
+  
 class  vtkTableBasedClipperDataSetFromVolume
 {
-protected:
-
-  struct PointEntry
-  {
-    int      ptIds[2];
-    double   percent;
-  };
-
-
-  // ---- vtkTableBasedClipperDataSetFromVolume::PointList (bein)
-  class PointList
-  {
-  public:
-    PointList();
-    virtual ~PointList();
- 
-    int      AddPoint( int, int, double );
-    int      GetTotalNumberOfPoints() const;
-    int      GetNumberOfLists() const;
-    int      GetList( int, const PointEntry *& ) const;
- 
-  protected:
-    int      currentList;
-    int      currentPoint;
-    int      listSize;
-    int      pointsPerList;
-    PointEntry ** list;
-  };
-  // ---- vtkTableBasedClipperDataSetFromVolume::PointList (end)
-
-
-  // ---- vtkTableBasedClipperDataSetFromVolume::EdgeHashEntry (begin)
-  class EdgeHashEntry
-  {
-  public:
-    EdgeHashEntry();
-    virtual ~EdgeHashEntry() { }
- 
-    int      GetPointId(void) { return ptId; };
-    void     SetInfo( int, int, int );
-    void     SetNext( EdgeHashEntry * n ) { next = n; };
-    bool     IsMatch( int i1, int i2 )
-             { return ( i1 == id1 && i2 == id2 ? true : false ); };
-    
-    EdgeHashEntry * GetNext() { return next; }
- 
-  protected:
-    int             id1, id2;
-    int             ptId;
-    EdgeHashEntry * next;
- 
-  };
-  // ---- vtkTableBasedClipperDataSetFromVolume::EdgeHashEntry (end)
-
-
-  // ---- vtkTableBasedClipperDataSetFromVolume
-  // ---- ::EdgeHashEntryMemoryManager (begin)
-  #define FREE_ENTRY_LIST_SIZE 16384
-  #define POOL_SIZE 256
-  class   EdgeHashEntryMemoryManager
-  {
-  public:
-    EdgeHashEntryMemoryManager();
-    virtual ~EdgeHashEntryMemoryManager();
- 
-    inline EdgeHashEntry * GetFreeEdgeHashEntry()
-    {
-      if ( freeEntryindex <= 0 )
-        {
-        AllocateEdgeHashEntryPool();
-        }
-      freeEntryindex --;
-      return freeEntrylist[ freeEntryindex ];
-    }
- 
-    inline void ReRegisterEdgeHashEntry( EdgeHashEntry * q )
-    {
-      if ( freeEntryindex >= FREE_ENTRY_LIST_SIZE - 1 )
-        {
-        // We've got plenty, so ignore this one.
-        return;
-        }
-      freeEntrylist[ freeEntryindex ] = q;
-      freeEntryindex ++;
-    }
- 
-  protected:
-    int             freeEntryindex;
-    EdgeHashEntry * freeEntrylist[ FREE_ENTRY_LIST_SIZE ];
-    vtkstd::vector< EdgeHashEntry * > edgeHashEntrypool;
- 
-    void  AllocateEdgeHashEntryPool();
-  };
-  // ---- vtkTableBasedClipperDataSetFromVolume
-  // ---- ::EdgeHashEntryMemoryManager (end)
-  
-
-  // ---- vtkTableBasedClipperDataSetFromVolume::EdgeHashTable (begin)
-  class EdgeHashTable
-  {
-  public:
-    EdgeHashTable( int, PointList & );
-    virtual ~EdgeHashTable();
- 
-    int         AddPoint( int, int, double );
-    PointList & GetPointList( );
- 
-  protected:
-    int               nHashes;
-    PointList       & pointlist;
-    EdgeHashEntry  ** hashes;
-    EdgeHashEntryMemoryManager  emm;
-    
-    int GetKey( int, int );
-    
-    private:
-    EdgeHashTable( const EdgeHashTable & );     // Not implemented.
-    void operator = ( const EdgeHashTable & );  // Not implemented.
-  };
-  // ---- vtkTableBasedClipperDataSetFromVolume::EdgeHashTable (end)
-
-
   public:
     vtkTableBasedClipperDataSetFromVolume( int ptSizeGuess );
     vtkTableBasedClipperDataSetFromVolume( int nPts, int ptSizeGuess );
@@ -200,9 +199,9 @@ protected:
          { return numPrevPts + edges.AddPoint( p1, p2, percent ); }
 
   protected:
-    int            numPrevPts;
-    PointList      pt_list;
-    EdgeHashTable  edges;
+    int           numPrevPts;
+    vtkTableBasedClipperPointList      pt_list;
+    vtkTableBasedClipperEdgeHashTable  edges;
     
   private:
   vtkTableBasedClipperDataSetFromVolume
@@ -211,13 +210,13 @@ protected:
     ( const vtkTableBasedClipperDataSetFromVolume & ); // Not implemented.
 };
 
-vtkTableBasedClipperDataSetFromVolume::PointList::PointList()
+vtkTableBasedClipperPointList::vtkTableBasedClipperPointList()
 {
   listSize      = 4096;
   pointsPerList = 1024;
  
-  list = new PointEntry * [ listSize ];
-  list[0] = new PointEntry[pointsPerList];
+  list = new TableBasedClipperPointEntry * [ listSize ];
+  list[0] = new TableBasedClipperPointEntry[pointsPerList];
   for ( int i = 1; i < listSize; i ++ )
     {
     list[i] = NULL;
@@ -227,7 +226,7 @@ vtkTableBasedClipperDataSetFromVolume::PointList::PointList()
   currentPoint = 0;
 }
  
-vtkTableBasedClipperDataSetFromVolume::PointList::~PointList()
+vtkTableBasedClipperPointList::~vtkTableBasedClipperPointList()
 {
   for ( int i = 0; i < listSize; i ++ )
     {
@@ -244,8 +243,8 @@ vtkTableBasedClipperDataSetFromVolume::PointList::~PointList()
   delete [] list;
 }
 
-int vtkTableBasedClipperDataSetFromVolume::PointList::
-    GetList( int listId, const PointEntry *& outlist) const
+int vtkTableBasedClipperPointList::GetList
+  ( int listId, const TableBasedClipperPointEntry *& outlist) const
 {
   if ( listId < 0 || listId > currentList )
     {
@@ -257,13 +256,12 @@ int vtkTableBasedClipperDataSetFromVolume::PointList::
   return ( listId == currentList ? currentPoint : pointsPerList );
 }
  
-int vtkTableBasedClipperDataSetFromVolume::PointList::GetNumberOfLists() const
+int vtkTableBasedClipperPointList::GetNumberOfLists() const
 {
   return currentList + 1;
 }
  
-int vtkTableBasedClipperDataSetFromVolume::
-    PointList::GetTotalNumberOfPoints() const
+int vtkTableBasedClipperPointList::GetTotalNumberOfPoints() const
 {
   int numFullLists = currentList;   // actually currentList-1+1
   int numExtra     = currentPoint;  // again, currentPoint-1+1
@@ -271,14 +269,14 @@ int vtkTableBasedClipperDataSetFromVolume::
   return numFullLists * pointsPerList + numExtra;
 }
 
-int vtkTableBasedClipperDataSetFromVolume::PointList::
-    AddPoint( int pt0, int pt1, double percent )
+int vtkTableBasedClipperPointList::AddPoint( int pt0, int pt1, double percent )
 {
   if ( currentPoint >= pointsPerList )
     {
     if (  ( currentList + 1 )  >=  listSize  )
       {
-      PointEntry ** tmpList = new PointEntry * [ 2 * listSize ];
+      TableBasedClipperPointEntry ** tmpList = new 
+      TableBasedClipperPointEntry  * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
         {
         tmpList[i] = list[i];
@@ -295,7 +293,7 @@ int vtkTableBasedClipperDataSetFromVolume::PointList::
       }
  
     currentList ++;
-    list[ currentList ] = new PointEntry[ pointsPerList ];
+    list[ currentList ] = new TableBasedClipperPointEntry[ pointsPerList ];
     currentPoint = 0;
     }
  
@@ -307,7 +305,7 @@ int vtkTableBasedClipperDataSetFromVolume::PointList::
   return ( GetTotalNumberOfPoints() - 1 );
 }
 
-vtkTableBasedClipperDataSetFromVolume::EdgeHashEntry::EdgeHashEntry()
+vtkTableBasedClipperEdgeHashEntry::vtkTableBasedClipperEdgeHashEntry()
 {
     id1  = -1;
     id2  = -1;
@@ -315,8 +313,7 @@ vtkTableBasedClipperDataSetFromVolume::EdgeHashEntry::EdgeHashEntry()
     next = NULL;
 }
   
-void vtkTableBasedClipperDataSetFromVolume::
-     EdgeHashEntry::SetInfo( int i1, int i2, int pId )
+void vtkTableBasedClipperEdgeHashEntry::SetInfo( int i1, int i2, int pId )
 {
     id1  = i1;
     id2  = i2;
@@ -324,29 +321,29 @@ void vtkTableBasedClipperDataSetFromVolume::
     next = NULL;
 }
 
-vtkTableBasedClipperDataSetFromVolume::
-    EdgeHashEntryMemoryManager::EdgeHashEntryMemoryManager()
+vtkTableBasedClipperEdgeHashEntryMemoryManager::
+vtkTableBasedClipperEdgeHashEntryMemoryManager()
 {
     freeEntryindex = 0;
 }
  
-vtkTableBasedClipperDataSetFromVolume::
-    EdgeHashEntryMemoryManager::~EdgeHashEntryMemoryManager()
+vtkTableBasedClipperEdgeHashEntryMemoryManager::~
+vtkTableBasedClipperEdgeHashEntryMemoryManager()
 {
   int npools = static_cast<int> ( edgeHashEntrypool.size() );
   for ( int i = 0; i < npools; i ++ )
     {
-    EdgeHashEntry * pool = edgeHashEntrypool[i];
+    vtkTableBasedClipperEdgeHashEntry * pool = edgeHashEntrypool[i];
     delete [] pool;
     }
 }
  
-void vtkTableBasedClipperDataSetFromVolume::
-     EdgeHashEntryMemoryManager::AllocateEdgeHashEntryPool()
+void vtkTableBasedClipperEdgeHashEntryMemoryManager::AllocateEdgeHashEntryPool()
 {
   if ( freeEntryindex == 0 )
     {
-    EdgeHashEntry * newlist = new EdgeHashEntry[ POOL_SIZE ];
+    vtkTableBasedClipperEdgeHashEntry * newlist = new 
+    vtkTableBasedClipperEdgeHashEntry[ POOL_SIZE ];
     edgeHashEntrypool.push_back( newlist );
     
     for ( int i = 0; i < POOL_SIZE; i ++ )
@@ -358,24 +355,24 @@ void vtkTableBasedClipperDataSetFromVolume::
     }
 }
 
-vtkTableBasedClipperDataSetFromVolume::EdgeHashTable::
-  EdgeHashTable( int nh, PointList & p ) : pointlist( p )
+vtkTableBasedClipperEdgeHashTable::
+vtkTableBasedClipperEdgeHashTable( int nh, vtkTableBasedClipperPointList & p ) 
+ : pointlist( p )
 {
   nHashes = nh;
-  hashes  = new EdgeHashEntry * [ nHashes ];
+  hashes  = new vtkTableBasedClipperEdgeHashEntry * [ nHashes ];
   for ( int i = 0; i < nHashes; i ++ )
     {
     hashes[i] = NULL;
     }
 }
  
-vtkTableBasedClipperDataSetFromVolume::EdgeHashTable::~EdgeHashTable()
+vtkTableBasedClipperEdgeHashTable::~vtkTableBasedClipperEdgeHashTable()
 {
     delete [] hashes;
 }
  
-int vtkTableBasedClipperDataSetFromVolume::
-    EdgeHashTable::GetKey( int p1, int p2 )
+int vtkTableBasedClipperEdgeHashTable::GetKey( int p1, int p2 )
 {
   int rv = (  ( p1 * 18457 + p2 * 234749 ) % nHashes  );
  
@@ -388,8 +385,8 @@ int vtkTableBasedClipperDataSetFromVolume::
   return rv;
 }
 
-int vtkTableBasedClipperDataSetFromVolume::EdgeHashTable::
-    AddPoint( int ap1, int ap2, double apercent )
+int vtkTableBasedClipperEdgeHashTable::AddPoint
+  ( int ap1, int ap2, double apercent )
 {
   int    p1, p2;
   double percent;
@@ -412,7 +409,7 @@ int vtkTableBasedClipperDataSetFromVolume::EdgeHashTable::
   //
   // See if we have any matches in the current hashes.
   //
-  EdgeHashEntry * cur = hashes[ key ];
+  vtkTableBasedClipperEdgeHashEntry * cur = hashes[ key ];
   while ( cur != NULL )
     {
     if (  cur->IsMatch( p1, p2 )  )
@@ -429,7 +426,7 @@ int vtkTableBasedClipperDataSetFromVolume::EdgeHashTable::
   //
   // There was no match.  We will have to add a new entry.
   //
-  EdgeHashEntry * new_one = emm.GetFreeEdgeHashEntry();
+  vtkTableBasedClipperEdgeHashEntry * new_one = emm.GetFreeEdgeHashEntry();
  
   int newPt = pointlist.AddPoint( p1, p2, percent );
   new_one->SetInfo( p1, p2, newPt );
@@ -458,9 +455,7 @@ vtkTableBasedClipperDataSetFromVolume( int nPts, int ptSizeGuess )
 // ============================================================================
 // =============== vtkTableBasedClipperVolumeFromVolume (begin) ===============
 // ============================================================================
-class  vtkTableBasedClipperVolumeFromVolume : 
-       public vtkTableBasedClipperDataSetFromVolume
-{
+
 
 class vtkTableBasedClipperShapeList
 {
@@ -481,6 +476,7 @@ class vtkTableBasedClipperShapeList
     int            shapeSize;
 };
 
+
 class vtkTableBasedClipperHexList : public vtkTableBasedClipperShapeList
 {
   public:
@@ -489,6 +485,7 @@ class vtkTableBasedClipperHexList : public vtkTableBasedClipperShapeList
     virtual int    GetVTKType() const { return VTK_HEXAHEDRON; }
     void           AddHex( int, int, int, int, int, int, int, int, int );
 };
+
 
 class vtkTableBasedClipperWedgeList : public vtkTableBasedClipperShapeList
 {
@@ -499,6 +496,7 @@ class vtkTableBasedClipperWedgeList : public vtkTableBasedClipperShapeList
     void           AddWedge( int, int, int, int, int, int, int );
 };
 
+
 class vtkTableBasedClipperPyramidList : public vtkTableBasedClipperShapeList
 {
   public:
@@ -507,6 +505,7 @@ class vtkTableBasedClipperPyramidList : public vtkTableBasedClipperShapeList
     virtual int    GetVTKType() const { return VTK_PYRAMID; }
     void           AddPyramid( int, int, int, int, int, int );
 };
+
 
 class vtkTableBasedClipperTetList : public vtkTableBasedClipperShapeList
 {
@@ -517,6 +516,7 @@ class vtkTableBasedClipperTetList : public vtkTableBasedClipperShapeList
     void           AddTet( int, int, int, int, int );
 };
 
+
 class vtkTableBasedClipperQuadList : public vtkTableBasedClipperShapeList
 {
   public:
@@ -525,6 +525,7 @@ class vtkTableBasedClipperQuadList : public vtkTableBasedClipperShapeList
     virtual int    GetVTKType() const { return VTK_QUAD; }
     void           AddQuad( int, int, int, int, int );
 };
+
 
 class vtkTableBasedClipperTriList : public vtkTableBasedClipperShapeList
 {
@@ -535,6 +536,7 @@ class vtkTableBasedClipperTriList : public vtkTableBasedClipperShapeList
     void           AddTri( int, int, int, int );
 };
 
+
 class vtkTableBasedClipperLineList : public vtkTableBasedClipperShapeList
 {
   public:
@@ -543,6 +545,7 @@ class vtkTableBasedClipperLineList : public vtkTableBasedClipperShapeList
     virtual int    GetVTKType() const { return VTK_LINE; }
     void           AddLine( int, int, int );
 };
+
 
 class vtkTableBasedClipperVertexList : public vtkTableBasedClipperShapeList
 {
@@ -553,10 +556,11 @@ class vtkTableBasedClipperVertexList : public vtkTableBasedClipperShapeList
     void           AddVertex( int, int );
 };
 
-struct vtkTableBasedClipperCentroidPointEntry
+
+struct TableBasedClipperCentroidPointEntry
 {
-  int       nPts;
-  int       ptIds[8];
+  int  nPts;
+  int  ptIds[8];
 };
 
 
@@ -571,17 +575,18 @@ class vtkTableBasedClipperCentroidPointList
     int            GetTotalNumberOfPoints() const;
     int            GetNumberOfLists() const;
     int            GetList( int, 
-                   const vtkTableBasedClipperCentroidPointEntry *& ) const;
+                   const TableBasedClipperCentroidPointEntry *& ) const;
  
   protected:
-    vtkTableBasedClipperCentroidPointEntry ** list;
+    TableBasedClipperCentroidPointEntry ** list;
     int            currentList;
     int            currentPoint;
     int            listSize;
     int            pointsPerList;
 };
 
-typedef struct
+
+struct TableBasedClipperCommonPointsStructure
 {
   bool        hasPtsList;
   double    * pts_ptr;
@@ -589,9 +594,12 @@ typedef struct
   double    * X;
   double    * Y;
   double    * Z;
-} vtkTableBasedClipperCommonPointsStructure;
+};
 
 
+class  vtkTableBasedClipperVolumeFromVolume : 
+       public vtkTableBasedClipperDataSetFromVolume
+{
   public:
               vtkTableBasedClipperVolumeFromVolume
               ( int nPts, int ptSizeGuess );
@@ -641,8 +649,9 @@ typedef struct
 
     void         ConstructDataSet
                  ( vtkPointData *, vtkCellData *, vtkUnstructuredGrid *, 
-                   vtkTableBasedClipperCommonPointsStructure & );
+                   TableBasedClipperCommonPointsStructure & );
 };
+
 
 vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperVolumeFromVolume( int nPts, int ptSizeGuess )
@@ -658,14 +667,13 @@ vtkTableBasedClipperVolumeFromVolume( int nPts, int ptSizeGuess )
   shapes[7] = &vertices;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperCentroidPointList::vtkTableBasedClipperCentroidPointList()
 {
   listSize      = 4096;
   pointsPerList = 1024;
  
-  list    = new vtkTableBasedClipperCentroidPointEntry * [ listSize ];
-  list[0] = new vtkTableBasedClipperCentroidPointEntry[ pointsPerList ];
+  list    = new TableBasedClipperCentroidPointEntry * [ listSize ];
+  list[0] = new TableBasedClipperCentroidPointEntry[ pointsPerList ];
   for (int i = 1; i < listSize; i ++ )
     {
     list[i] = NULL;
@@ -675,7 +683,6 @@ vtkTableBasedClipperCentroidPointList::vtkTableBasedClipperCentroidPointList()
   currentPoint = 0;
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperCentroidPointList::~vtkTableBasedClipperCentroidPointList()
 {
   for ( int i = 0; i < listSize; i ++ )
@@ -693,9 +700,8 @@ vtkTableBasedClipperCentroidPointList::~vtkTableBasedClipperCentroidPointList()
   delete [] list;
 }
 
-int  vtkTableBasedClipperVolumeFromVolume::
-vtkTableBasedClipperCentroidPointList::GetList
-  ( int listId, const vtkTableBasedClipperCentroidPointEntry *& outlist ) const
+int  vtkTableBasedClipperCentroidPointList::GetList
+   ( int listId, const TableBasedClipperCentroidPointEntry *& outlist ) const
 {
   if ( listId < 0 || listId > currentList )
     {
@@ -707,14 +713,12 @@ vtkTableBasedClipperCentroidPointList::GetList
   return ( listId == currentList ? currentPoint : pointsPerList );
 }
  
-int  vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperCentroidPointList::GetNumberOfLists() const
+int  vtkTableBasedClipperCentroidPointList::GetNumberOfLists() const
 {
     return currentList + 1;
 }
  
-int  vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperCentroidPointList::GetTotalNumberOfPoints() const
+int  vtkTableBasedClipperCentroidPointList::GetTotalNumberOfPoints() const
 {
   int numFullLists = currentList;  // actually currentList-1+1
   int numExtra     = currentPoint; // again, currentPoint-1+1
@@ -722,15 +726,14 @@ int  vtkTableBasedClipperVolumeFromVolume::
   return numFullLists * pointsPerList + numExtra;
 }
 
-int  vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperCentroidPointList::AddPoint( int npts, int * pts )
+int  vtkTableBasedClipperCentroidPointList::AddPoint( int npts, int * pts )
 {
   if ( currentPoint >= pointsPerList )
     {
     if (  ( currentList + 1 )  >=  listSize  )
       {
-      vtkTableBasedClipperCentroidPointEntry ** tmpList = new 
-      vtkTableBasedClipperCentroidPointEntry * [ 2 * listSize ];
+      TableBasedClipperCentroidPointEntry ** tmpList = new 
+      TableBasedClipperCentroidPointEntry * [ 2 * listSize ];
       
       for ( int i = 0; i < listSize; i ++ )
         {
@@ -748,7 +751,7 @@ int  vtkTableBasedClipperVolumeFromVolume::
       }
  
     currentList ++;
-    list[ currentList ] = new vtkTableBasedClipperCentroidPointEntry
+    list[ currentList ] = new TableBasedClipperCentroidPointEntry
                               [ pointsPerList ];
     currentPoint = 0;
     }
@@ -763,7 +766,6 @@ int  vtkTableBasedClipperVolumeFromVolume::
   return ( GetTotalNumberOfPoints() - 1 );
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperShapeList::vtkTableBasedClipperShapeList( int size )
 {
   shapeSize     = size;
@@ -782,7 +784,6 @@ vtkTableBasedClipperShapeList::vtkTableBasedClipperShapeList( int size )
   currentShape = 0;
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperShapeList::~vtkTableBasedClipperShapeList()
 {
   for (int i = 0; i < listSize; i ++ )
@@ -800,9 +801,8 @@ vtkTableBasedClipperShapeList::~vtkTableBasedClipperShapeList()
   delete [] list;
 }
  
-int  vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperShapeList::
-     GetList( int listId, const int *& outlist ) const
+int  vtkTableBasedClipperShapeList::GetList
+   ( int listId, const int *& outlist ) const
 {
   if ( listId < 0 || listId > currentList )
     {
@@ -814,14 +814,12 @@ int  vtkTableBasedClipperVolumeFromVolume::
   return ( listId == currentList ? currentShape : shapesPerList );
 }
  
-int  vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperShapeList::GetNumberOfLists() const
+int  vtkTableBasedClipperShapeList::GetNumberOfLists() const
 {
     return currentList + 1;
 }
 
-int  vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperShapeList::GetTotalNumberOfShapes() const
+int  vtkTableBasedClipperShapeList::GetTotalNumberOfShapes() const
 {
   int numFullLists = currentList;  // actually currentList-1+1
   int numExtra     = currentShape; // again, currentShape-1+1
@@ -829,19 +827,16 @@ int  vtkTableBasedClipperVolumeFromVolume::
   return numFullLists * shapesPerList + numExtra;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperHexList::vtkTableBasedClipperHexList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 8 )
+    : vtkTableBasedClipperShapeList( 8 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperHexList::~vtkTableBasedClipperHexList()
 {
 }
 
-void vtkTableBasedClipperVolumeFromVolume::
-     vtkTableBasedClipperHexList::AddHex( int cellId, 
+void vtkTableBasedClipperHexList::AddHex( int cellId, 
      int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8 )
 {
   if ( currentShape >= shapesPerList )
@@ -883,19 +878,17 @@ void vtkTableBasedClipperVolumeFromVolume::
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperWedgeList::vtkTableBasedClipperWedgeList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 6 )
+    : vtkTableBasedClipperShapeList( 6 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperWedgeList::~vtkTableBasedClipperWedgeList()
 {
 }
 
-void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperWedgeList::
-     AddWedge( int cellId, int v1, int v2, int v3, int v4, int v5, int v6 )
+void vtkTableBasedClipperWedgeList::AddWedge
+   ( int cellId, int v1, int v2, int v3, int v4, int v5, int v6 )
 {
   if (currentShape >= shapesPerList)
     {
@@ -933,19 +926,17 @@ void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperWedgeList::
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperPyramidList::vtkTableBasedClipperPyramidList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 5 )
+    : vtkTableBasedClipperShapeList( 5 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperPyramidList::~vtkTableBasedClipperPyramidList()
 {
 }
 
-void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperPyramidList::
-     AddPyramid( int cellId, int v1, int v2, int v3, int v4, int v5 )
+void vtkTableBasedClipperPyramidList::AddPyramid
+   ( int cellId, int v1, int v2, int v3, int v4, int v5 )
 {
   if (currentShape >= shapesPerList)
     {
@@ -983,19 +974,17 @@ void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperPyramidList::
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperTetList::vtkTableBasedClipperTetList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 4 )
+    : vtkTableBasedClipperShapeList( 4 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperTetList::~vtkTableBasedClipperTetList()
 {
 }
 
-void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperTetList::
-     AddTet( int cellId, int v1,int v2,int v3,int v4 )
+void vtkTableBasedClipperTetList::AddTet
+   ( int cellId, int v1,int v2,int v3,int v4 )
 {
   if ( currentShape >= shapesPerList )
     {
@@ -1032,19 +1021,17 @@ void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperTetList::
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperQuadList::vtkTableBasedClipperQuadList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 4 )
+    : vtkTableBasedClipperShapeList( 4 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperQuadList::~vtkTableBasedClipperQuadList()
 {
 }
 
-void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperQuadList::
-     AddQuad( int cellId, int v1,int v2,int v3,int v4 )
+void vtkTableBasedClipperQuadList::AddQuad
+   ( int cellId, int v1,int v2,int v3,int v4 )
 {
   if ( currentShape >= shapesPerList )
     {
@@ -1080,19 +1067,17 @@ void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperQuadList::
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperTriList::vtkTableBasedClipperTriList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 3 )
+    : vtkTableBasedClipperShapeList( 3 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperTriList::~vtkTableBasedClipperTriList()
 {
 }
 
-void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperTriList::
-     AddTri( int cellId, int v1,int v2,int v3 )
+void vtkTableBasedClipperTriList::AddTri
+   ( int cellId, int v1,int v2,int v3 )
 {
   if ( currentShape >= shapesPerList )
     {
@@ -1127,19 +1112,16 @@ void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperTriList::
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperLineList::vtkTableBasedClipperLineList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 2 )
+    : vtkTableBasedClipperShapeList( 2 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperLineList::~vtkTableBasedClipperLineList()
 {
 }
  
-void vtkTableBasedClipperVolumeFromVolume::
-vtkTableBasedClipperLineList::AddLine( int cellId, int v1,int v2 )
+void vtkTableBasedClipperLineList::AddLine( int cellId, int v1,int v2 )
 {
   if ( currentShape >= shapesPerList )
     {
@@ -1173,19 +1155,16 @@ vtkTableBasedClipperLineList::AddLine( int cellId, int v1,int v2 )
   currentShape ++;
 }
 
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperVertexList::vtkTableBasedClipperVertexList()
-    : vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperShapeList( 1 )
+    : vtkTableBasedClipperShapeList( 1 )
 {
 }
  
-vtkTableBasedClipperVolumeFromVolume::
 vtkTableBasedClipperVertexList::~vtkTableBasedClipperVertexList()
 {
 }
  
-void vtkTableBasedClipperVolumeFromVolume::vtkTableBasedClipperVertexList::
-     AddVertex( int cellId, int v1 )
+void vtkTableBasedClipperVertexList::AddVertex( int cellId, int v1 )
 {
   if ( currentShape >= shapesPerList )
     {
@@ -1222,7 +1201,7 @@ void vtkTableBasedClipperVolumeFromVolume::
      ConstructDataSet( vtkPointData * inPD, vtkCellData * inCD, 
                        vtkUnstructuredGrid * output, double * pts_ptr )
 {
-  vtkTableBasedClipperCommonPointsStructure cps;
+  TableBasedClipperCommonPointsStructure cps;
   cps.hasPtsList = true;
   cps.pts_ptr    = pts_ptr;
   ConstructDataSet( inPD, inCD, output, cps );
@@ -1233,7 +1212,7 @@ void vtkTableBasedClipperVolumeFromVolume::
                        vtkUnstructuredGrid * output,
                        int * dims, double * X, double * Y, double * Z )
 {
-  vtkTableBasedClipperCommonPointsStructure cps;
+  TableBasedClipperCommonPointsStructure cps;
   cps.hasPtsList = false;
   cps.dims       = dims;
   cps.X          = X;
@@ -1245,7 +1224,7 @@ void vtkTableBasedClipperVolumeFromVolume::
 void vtkTableBasedClipperVolumeFromVolume::
      ConstructDataSet( vtkPointData * inPD, vtkCellData * inCD, 
                        vtkUnstructuredGrid * output,
-                       vtkTableBasedClipperCommonPointsStructure & cps )
+                       TableBasedClipperCommonPointsStructure & cps )
 {
   int   i, j, k, l;
 
@@ -1354,11 +1333,11 @@ void vtkTableBasedClipperVolumeFromVolume::
   int nLists = pt_list.GetNumberOfLists();
   for ( i = 0; i < nLists; i ++ )
     {
-    const PointEntry * pe_list = NULL;
+    const TableBasedClipperPointEntry * pe_list = NULL;
     int nPts = pt_list.GetList( i, pe_list );
     for ( j = 0; j < nPts; j ++ )
       {
-      const PointEntry & pe = pe_list[j];
+      const TableBasedClipperPointEntry & pe = pe_list[j];
       double pt[3];
       int idx1 = pe.ptIds[0];
       int idx2 = pe.ptIds[1];
@@ -1417,11 +1396,11 @@ void vtkTableBasedClipperVolumeFromVolume::
   vtkIdList * idList = vtkIdList::New();
   for ( i = 0; i < nLists; i ++ )
     {
-    const vtkTableBasedClipperCentroidPointEntry * ce_list = NULL;
+    const TableBasedClipperCentroidPointEntry * ce_list = NULL;
     int nPts = centroid_list.GetList( i, ce_list );
     for ( j = 0; j < nPts; j ++ )
       {
-      const vtkTableBasedClipperCentroidPointEntry & ce = ce_list[j];
+      const TableBasedClipperCentroidPointEntry & ce = ce_list[j];
       idList->SetNumberOfIds( ce.nPts );
       double pts[8][3];
       double weights[8];
@@ -1590,7 +1569,7 @@ inline void GetPoint( double * pt, const double * X, const double * Y,
 // ============================================================================
 
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off.
 vtkTableBasedClipDataSet::vtkTableBasedClipDataSet( vtkImplicitFunction * cf )
@@ -1626,7 +1605,7 @@ vtkTableBasedClipDataSet::vtkTableBasedClipDataSet( vtkImplicitFunction * cf )
   this->GetInformation()->Set( vtkAlgorithm::PRESERVES_BOUNDS(), 1 );
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkTableBasedClipDataSet::~vtkTableBasedClipDataSet()
 {
   if ( this->Locator )
@@ -1639,7 +1618,7 @@ vtkTableBasedClipDataSet::~vtkTableBasedClipDataSet()
   this->InternalProgressObserver = NULL;
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::InternalProgressCallbackFunction
    ( vtkObject * arg, unsigned long, void * clientdata, void * )
 {
@@ -1647,7 +1626,7 @@ void vtkTableBasedClipDataSet::InternalProgressCallbackFunction
     ->InternalProgressCallback(  static_cast < vtkAlgorithm * > ( arg )  );
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::InternalProgressCallback
    ( vtkAlgorithm * algorithm )
 {
@@ -1660,7 +1639,7 @@ void vtkTableBasedClipDataSet::InternalProgressCallback
     }
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 unsigned long vtkTableBasedClipDataSet::GetMTime()
 {
   unsigned long time;
@@ -1692,7 +1671,7 @@ vtkUnstructuredGrid *vtkTableBasedClipDataSet::GetClippedOutput()
         (  this->GetExecutive()->GetOutputData( 1 )  );
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::SetLocator
    ( vtkIncrementalPointLocator * locator )
 {
@@ -1716,7 +1695,7 @@ void vtkTableBasedClipDataSet::SetLocator
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -1727,7 +1706,7 @@ void vtkTableBasedClipDataSet::CreateDefaultLocator()
     }
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 int vtkTableBasedClipDataSet::FillInputPortInformation
   ( int, vtkInformation * info )
 {
@@ -1735,7 +1714,7 @@ int vtkTableBasedClipDataSet::FillInputPortInformation
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkTableBasedClipDataSet::ProcessRequest( vtkInformation* request,
     vtkInformationVector ** inputVector, vtkInformationVector * outputVector )
 {
@@ -2101,9 +2080,9 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
   vtkPolyData * polyData = vtkPolyData::SafeDownCast( inputGrd );
   int           numCells = polyData->GetNumberOfCells();
 
-  vtkTableBasedClipperVolumeFromVolume  * visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(   polyData->GetNumberOfPoints(),
-                              int(  pow( numCells, 0.6667f )  ) * 5 + 100   );
+  vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
+  vtkTableBasedClipperVolumeFromVolume(    polyData->GetNumberOfPoints(),
+       int(   pow(  double( numCells ),  double( 0.6667f )  )   ) * 5 + 100    );
 
   vtkUnstructuredGrid * specials = vtkUnstructuredGrid::New();
   specials->SetPoints( polyData->GetPoints() );
@@ -3449,7 +3428,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
   unstruct = NULL;
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkTableBasedClipDataSet::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
