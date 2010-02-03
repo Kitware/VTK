@@ -30,7 +30,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendCompositeDataLeaves, "1.2");
+vtkCxxRevisionMacro(vtkAppendCompositeDataLeaves, "1.3");
 vtkStandardNewMacro(vtkAppendCompositeDataLeaves);
 
 //----------------------------------------------------------------------------
@@ -135,6 +135,13 @@ int vtkAppendCompositeDataLeaves::RequestData(
 
   vtkCompositeDataSet* anInput = vtkCompositeDataSet::SafeDownCast(
     this->GetInput( 0 ) );
+
+  if (numInputs == 1)
+    {
+    output->ShallowCopy(anInput);
+    return 1;
+    }
+
   output->CopyStructure( anInput );
 
   vtkDebugMacro(<<"Appending data together");
