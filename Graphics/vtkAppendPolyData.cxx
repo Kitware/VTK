@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.106");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.107");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkIdType numVerts = 0, numLines = 0, numStrips = 0;
 
-  int numInputs = this->GetNumberOfInputConnections(0);
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkInformation *inInfo;
 
   // These Field lists are very picky.  Count the number of non empty inputs
