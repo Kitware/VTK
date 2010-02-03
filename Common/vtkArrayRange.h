@@ -70,12 +70,12 @@ public:
 
   // Description:
   // Equality comparisons.
-  VTK_COMMON_EXPORT friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
-  VTK_COMMON_EXPORT friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+  friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+  friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
 
   // Description:
   // Serialization.
-  VTK_COMMON_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
+  friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
 
 private:
   // Description:
@@ -86,6 +86,10 @@ private:
   // Stores one-past-the-end of the range.
   vtkIdType End;
 };
+
+VTK_COMMON_EXPORT bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+VTK_COMMON_EXPORT bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+VTK_COMMON_EXPORT ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
 
 #endif
 
