@@ -114,7 +114,7 @@ public:
   void SetViewProp(vtkProp* prop);
 
   // Description:
-  // Force handles to be on a specific ortho plane.
+  // Force handles to be on a specific ortho plane. Default is Off.
   vtkSetMacro(ProjectToPlane,int);
   vtkGetMacro(ProjectToPlane,int);
   vtkBooleanMacro(ProjectToPlane,int);
@@ -143,7 +143,7 @@ public:
   vtkGetMacro(ProjectionPosition,double);
 
    // Description:
-  // Force snapping to image data while tracing.
+  // Force snapping to image data while tracing. Default is Off.
   void SetSnapToImage(int snap);
   vtkGetMacro(SnapToImage,int);
   vtkBooleanMacro(SnapToImage,int);
@@ -151,6 +151,7 @@ public:
   // Description:
   // In concert with a CaptureRadius value, automatically
   // form a closed path by connecting first to last path points.
+  // Default is Off.
   vtkSetMacro(AutoClose,int);
   vtkGetMacro(AutoClose,int);
   vtkBooleanMacro(AutoClose,int);
@@ -159,6 +160,7 @@ public:
   // Set/Get the capture radius for automatic path closing.  For image
   // data, capture radius should be half the distance between voxel/pixel
   // centers.
+  // Default is 1.0
   vtkSetMacro(CaptureRadius,double);
   vtkGetMacro(CaptureRadius,double);
 
