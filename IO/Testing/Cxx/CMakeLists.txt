@@ -68,6 +68,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
   TestSQLDatabaseSchema.cxx
+  TestImageReader2Factory.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
@@ -87,6 +88,8 @@ ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 IF (VTK_DATA_ROOT)
   ADD_TEST(TestXML ${CXX_TEST_PATH}/${KIT}CxxTests TestXML
     ${VTK_DATA_ROOT}/Data/sample.xml)
+  ADD_TEST(TestImageReader2Factory ${CXX_TEST_PATH}/${KIT}CxxTests TestImageReader2Factory
+    ${VTK_DATA_ROOT}/Baseline/${KIT}/TestHyperOctreeIO.png)
   IF(VTK_USE_METAIO)
     ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
       ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
