@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkProp3D, "1.40");
+vtkCxxRevisionMacro(vtkProp3D, "1.41");
 
 //----------------------------------------------------------------------------
 // Construct with the following defaults: origin(0,0,0)
@@ -106,13 +106,11 @@ unsigned long int vtkProp3D::GetUserTransformMatrixMTime()
   if ( this->UserMatrix != NULL )
     {
     mTime = this->UserMatrix->GetMTime();
-    cerr << "Got FROM USER MATRIX " << mTime << endl;
     }
 
   if ( this->UserTransform != NULL )
     {
     time = this->UserTransform->GetMTime();
-    cerr << "Got FROM USER TRANSFORM " << time << endl;
     mTime = ( time > mTime ? time : mTime );
     }
 
@@ -147,7 +145,6 @@ void vtkProp3D::AddPosition (double deltaPosition[3])
 // finally RotateY.
 void vtkProp3D::SetOrientation (double x,double y,double z)
 {
-  cerr << "SET ORIENTATION" << endl;
   // compute the orientation of the transformation matrix
   // as is done in GetOrientation to make sure we are consistent
   this->Transform->GetOrientation(this->Orientation);
@@ -296,7 +293,6 @@ void vtkProp3D::RotateWXYZ (double degree, double x, double y, double z)
 //----------------------------------------------------------------------------
 void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
 {
-  cerr << "SET USER TRANSFORM" << endl;
   this->IsIdentity = 0;
   if (transform == this->UserTransform)
     {
@@ -325,7 +321,6 @@ void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
 //----------------------------------------------------------------------------
 void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
 {
-  cerr << "SET USER MATRIX" << endl;
   this->IsIdentity = 0;
   if (matrix == this->UserMatrix)
     {
