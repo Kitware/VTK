@@ -80,6 +80,26 @@ public:
   vtkGetMacro(PassThroughPointIds,int);
   vtkBooleanMacro(PassThroughPointIds,int);
 
+
+  // Description:
+  // Direct access methods that can be used to use the this class as an
+  // algorithm without using it as a filter.
+  virtual int StructuredExecute(vtkDataSet *input,
+    vtkPolyData *output, vtkIdType *ext, vtkIdType *wholeExt);
+  virtual int StructuredExecute(vtkDataSet *input,
+    vtkPolyData *output, int *ext32, int *wholeExt32)
+    {
+    vtkIdType ext[6]; vtkIdType wholeExt[6];
+    for (int cc=0; cc < 6; cc++)
+      {
+      ext[cc] = ext32[cc];
+      wholeExt[cc] = wholeExt32[cc];
+      }
+    return this->StructuredExecute(input, output, ext, wholeExt);
+    }
+  virtual int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
+  virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
+
 protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter();
@@ -90,20 +110,17 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int StructuredExecute(vtkDataSet *input, vtkPolyData *output, vtkIdType *ext,
-                         vtkInformation *inInfo);
-  virtual int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
-  virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
+
 
   // Helper methods.
   void ExecuteFaceStrips(vtkDataSet *input, vtkPolyData *output,
                          int maxFlag, vtkIdType *ext,
                          int aAxis, int bAxis, int cAxis,
-                         vtkInformation *inInfo);
+                         vtkIdType *wholeExt);
   void ExecuteFaceQuads(vtkDataSet *input, vtkPolyData *output,
                         int maxFlag, vtkIdType *ext,
                         int aAxis, int bAxis, int cAxis,
-                        vtkInformation *inInfo);
+                        vtkIdType *wholeExt);
 
   void InitializeQuadHash(vtkIdType numPoints);
   void DeleteQuadHash();

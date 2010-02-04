@@ -90,6 +90,10 @@ public:
   vtkGetMacro(ParallelStreaming, int); 
   vtkBooleanMacro(ParallelStreaming, int); 
 
+//BTX
+  int ExecuteAppend(vtkPolyData* output,
+    vtkPolyData* inputs[], int numInputs);
+//ETX
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData();

@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.107");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.108");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -105,19 +105,9 @@ void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
 }
 
 //----------------------------------------------------------------------------
-// This method is much too long, and has to be broken up!
-// Append data sets into single polygonal data set.
-int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector)
+int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
+    vtkPolyData* inputs[], int numInputs)
 {
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // get the ouptut
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   int idx;
   vtkPolyData *ds;
   vtkPoints  *inPts;
@@ -155,15 +145,11 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkIdType numVerts = 0, numLines = 0, numStrips = 0;
 
-  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
-  vtkInformation *inInfo;
-
   // These Field lists are very picky.  Count the number of non empty inputs
   // so we can initialize them properly.
   for (idx = 0; idx < numInputs; ++idx)
     {
-    inInfo = inputVector[0]->GetInformationObject(idx);
-    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    ds = inputs[idx];
     if (ds != NULL)
       {
       if ( ds->GetNumberOfPoints() > 0)
@@ -184,8 +170,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
     {
-    inInfo = inputVector[0]->GetInformationObject(idx);
-    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    ds = inputs[idx]; 
     if (ds != NULL)
       {
       // Skip points and cells if there are no points.  Empty inputs may have no arrays.
@@ -252,8 +237,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   // Keep track of types for fast point append
   for (idx = 0; idx < numInputs; ++idx)
     {
-    inInfo = inputVector[0]->GetInformationObject(idx);
-    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    ds = inputs[idx];
     if (ds != NULL && ds->GetNumberOfPoints()>0)
       {
       if ( firstType )
@@ -377,8 +361,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   for (idx = 0; idx < numInputs; ++idx)
     {
     this->UpdateProgress(0.2 + 0.8*idx/numInputs);
-    inInfo = inputVector[0]->GetInformationObject(idx);
-    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    ds = inputs[idx];
     // this check is not necessary, but I'll put it in anyway
     if (ds != NULL)
       {
@@ -583,6 +566,34 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   output->Squeeze();
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+// This method is much too long, and has to be broken up!
+// Append data sets into single polygonal data set.
+int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
+                                   vtkInformationVector **inputVector,
+                                   vtkInformationVector *outputVector)
+{
+  // get the info object
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::GetData(outputVector, 0);
+
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
+  if (numInputs == 1)
+    {
+    output->ShallowCopy(vtkPolyData::GetData(inputVector[0], 0));
+    return 1;
+    }
+
+  vtkPolyData** inputs = new vtkPolyData*[numInputs];
+  for (int idx = 0; idx < numInputs; ++idx)
+    {
+    inputs[idx] = vtkPolyData::GetData(inputVector[0], idx);
+    }
+  int retVal = this->ExecuteAppend(output, inputs, numInputs);
+  delete [] inputs;
+  return retVal;
 }
 
 //----------------------------------------------------------------------------
