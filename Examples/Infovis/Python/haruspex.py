@@ -368,7 +368,7 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, opt
         # Bivariate case: generate all possible pairs
         for i in range( 0, n ):
             colNameX = inData.GetColumnName( columnsList[i] )
-            for j in range( i+1, inData.GetNumberOfColumns() ):
+            for j in range( i+1, n ):
                 colNameY = inData.GetColumnName( columnsList[j] )
                 if verbosity > 0:
                     print "  Requesting column pair",colNameX,colNameY
