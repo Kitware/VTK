@@ -31,6 +31,9 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    multicorrelative"
     print "\t                    pca"
     print "\t                    kmeans"
+    print "\t [-b <bitcode>]  Engine options bitcode. Default is 0. Available bits are:"
+    print "\t                    1st bit: assess"
+    print "\t                    2nd bit: test"
     print "\t [-m <prefix>]    CSV input model file. Default: calculate model from scratch"
     print "\t [-s <prefix>]    CSV output model (statistics) file prefix. Default:",outModelPrefix
     print "\t [-a <filename>]  CSV output data (annotated) file. Default:",outDataName
@@ -46,6 +49,7 @@ def ParseCommandLine():
     global verbosity
 
     # Default values
+    options = 0
     inModelPrefix = ""
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
@@ -53,7 +57,7 @@ def ParseCommandLine():
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:m:s:a:c:v')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:s:a:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -70,6 +74,8 @@ def ParseCommandLine():
             inDataName = a
         elif o == "-e":
             haruspexName = a
+        elif o == "-o":
+            options = a
         elif o == "-m":
             inModelPrefix = a
         elif o == "-s":
@@ -109,7 +115,7 @@ def ParseCommandLine():
 
         print
 
-    return [ inDataName, inModelPrefix, columnsListName, haruspexName, outDataName, outModelPrefix ]
+    return [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outModelPrefix ]
 ############################################################
 
 ############################################################
@@ -325,7 +331,7 @@ def WriteOutModel( haruspex, outModelPrefix ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
+def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, options ):
     # Declare use of global variable
     global verbosity
 
@@ -379,15 +385,31 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
     # Complete column selection request
     haruspex.RequestSelectedColumns()
     
-    # For now never use the Test option
-    haruspex.SetTestOption( False )
+    # Figure which options were requested
+    if int( options ) % 2:
+        assessOption = True
+        if verbosity > 0:
+            print "  Assess option is on"
+    else:
+        assessOption = False
+        if verbosity > 0:
+            print "  Assess option is off"
+    options = int( options ) >> 1
+    if int( options ) % 2:
+        haruspex.SetTestOption( True )
+        if verbosity > 0:
+            print "  Test option is on (make sure you exported the R_HOME environment variable)"
+    else:
+        haruspex.SetTestOption( False )
+        if verbosity > 0:
+            print "  Test option is off"
 
     # If an input model was provided, then update it first, otherwise run in a single pass
     if inModel == None:
-        # No initial model: then Learn, Derive, and Assess in a single pass
+        # No initial model: then Learn, Derive, and possibly Assess in a single pass
         haruspex.SetLearnOption( True )
         haruspex.SetDeriveOption( True )
-        haruspex.SetAssessOption( True )
+        haruspex.SetAssessOption( assessOption )
         haruspex.Update()
     else:
         # There is an initial model: decide if vtkTable of vtkMultiBlockDataSet is needed
@@ -422,11 +444,11 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
             aggregated = vtkMultiBlockDataSet()
         haruspex.Aggregate( collection, aggregated )
 
-        # Finally, derive and assess using the aggregated model (do not learn)
+        # Finally, derive and possibly assess using the aggregated model (do not learn)
         haruspex.SetInput( 2, aggregated )
         haruspex.SetLearnOption( False )
         haruspex.SetDeriveOption( True )
-        haruspex.SetAssessOption( True )
+        haruspex.SetAssessOption( assessOption )
         haruspex.Update()
 
     if verbosity > 0:
@@ -437,7 +459,8 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
 # Main function
 def main():
     # Parse command line
-    [ inDataName, inModelPrefix, columnsListName, haruspexName, outDataName, outModelPrefix ] = ParseCommandLine()
+    [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outModelPrefix ] \
+      = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
     haruspex = InstantiateStatistics( haruspexName )
@@ -458,7 +481,7 @@ def main():
         columnsList = []
         
     # Calculate statistics
-    CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex )
+    CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, options )
 
     # Save output (annotated) data
     WriteOutData( haruspex, outDataName )
