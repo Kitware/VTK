@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.22");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.23");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -227,64 +227,52 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
       }
 
     // Iterate over all model rows
+    int inN, outN;
+    double muFactor, covFactor;
+    vtkstd::vector<double> inMu, outMu;
+    int j = 0;
+    int k = 0;
     for ( int r = 0; r < nRow; ++ r )
       {
       // Verify that variable names match each other
-      if ( inCov->GetValueByName( r, "Variable" ) != outCov->GetValueByName( r, "Variable" ) )
+      if ( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN1 ) != outCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN1 )
+           || inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ) != outCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ) )
         {
         // Models do not match
         return;
         }
 
-      // Get aggregated statistics
-      int n = outCov->GetValueByName( r, "Cardinality" ).ToInt();
-      double meanX = outCov->GetValueByName( r, "Mean X" ).ToDouble();
-      double meanY = outCov->GetValueByName( r, "Mean Y" ).ToDouble();
-      double M2X = outCov->GetValueByName( r, "M2 X" ).ToDouble();
-      double M2Y = outCov->GetValueByName( r, "M2 Y" ).ToDouble();
-      double MXY = outCov->GetValueByName( r, "M XY" ).ToDouble();
-      
-      // Get current model statistics
-      int n_c = inCov->GetValueByName( r, "Cardinality" ).ToInt();
-      double meanX_c = inCov->GetValueByName( r, "Mean X" ).ToDouble();
-      double meanY_c = inCov->GetValueByName( r, "Mean Y" ).ToDouble();
-      double M2X_c = outCov->GetValueByName( r, "M2 X" ).ToDouble();
-      double M2Y_c = outCov->GetValueByName( r, "M2 Y" ).ToDouble();
-      double MXY_c = outCov->GetValueByName( r, "M XY" ).ToDouble();
-      
-      // Update global statics
-      int N = n + n_c; 
-
-      double invN = 1. / static_cast<double>( N );
-
-      double deltaX = meanX_c - meanX;
-      double deltaX_sur_N = deltaX * invN;
-
-      double deltaY = meanY_c - meanY;
-      double deltaY_sur_N = deltaY * invN;
-
-      int prod_n = n * n_c;
- 
-      M2X += M2X_c 
-        + prod_n * deltaX * deltaX_sur_N;
-
-      M2Y += M2Y_c 
-        + prod_n * deltaY * deltaY_sur_N;
-
-      MXY += MXY_c 
-        + prod_n * deltaX * deltaY_sur_N;
-
-      meanX += n_c * deltaX_sur_N;
-
-      meanY += n_c * deltaY_sur_N;
-
-      // Store updated model
-      outCov->SetValueByName( r, "Cardinality", N );
-      outCov->SetValueByName( r, "Mean X", meanX );
-      outCov->SetValueByName( r, "Mean Y", meanY );
-      outCov->SetValueByName( r, "M2 X", M2X );
-      outCov->SetValueByName( r, "M2 Y", M2Y );
-      outCov->SetValueByName( r, "M XY", MXY );
+      // Update each model parameter
+      if ( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN1 ).ToString() == "Cardinality" )
+        {
+        // Cardinality
+        inN = inCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToInt();
+        outN = outCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToInt();
+        int totN = inN + outN;
+        outCov->SetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL, totN );
+        muFactor = static_cast<double>( inN ) / totN;
+        covFactor = static_cast<double>( inN ) * outN / totN;
+        }
+      else if ( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ).ToString() == "" )
+        {
+        // Mean
+        inMu.push_back( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToDouble() );
+        outMu.push_back( outCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToDouble() );
+        outCov->SetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL, outMu.back() + ( inMu.back() - outMu.back() ) * muFactor );
+        }
+      else
+        {
+        // M XY
+        double inCovEntry = inCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToDouble();
+        double outCovEntry = outCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToDouble();
+        outCov->SetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL, inCovEntry + outCovEntry + ( inMu[j] - outMu[j] ) * ( inMu[k] - outMu[k] ) * covFactor );
+        ++ k;
+        if ( k > j )
+          {
+          ++ j;
+          k = 0;
+          }
+        }
       }
     }
   
