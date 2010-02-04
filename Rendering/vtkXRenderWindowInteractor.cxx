@@ -39,7 +39,7 @@
 #include "vtkTDxUnixDevice.h"
 #endif
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.142");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.143");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -908,7 +908,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       //  << endl;
       if( static_cast<Atom>(event->xclient.data.l[0]) == me->KillAtom )
         {
-        me->InvokeEvent(vtkCommand::ExitEvent, NULL);
+        me->ExitCallback();
         }
 #ifdef VTK_USE_TDX
       else
