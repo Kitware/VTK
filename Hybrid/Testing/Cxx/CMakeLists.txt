@@ -9,10 +9,14 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}
     TestBarChartActor.cxx
     TestExodusImplicitArrays.cxx
+    TestImageDataLIC2D.cxx
     #TestLabelPlacerExodus.cxx
     TestLegendScaleActor.cxx
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
+    TestStructuredGridLIC2DXSlice.cxx
+    TestStructuredGridLIC2DYSlice.cxx
+    TestStructuredGridLIC2DZSlice.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 
@@ -24,14 +28,14 @@ IF(NOT VTK_USE_DISPLAY)
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
     X3DTest.cxx     
-    )
+    ) 
 ENDIF(NOT VTK_USE_DISPLAY)
-
+ 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                        EXTRA_INCLUDE vtkTestDriver.h)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid vtkRendering vtkImaging vtkIO )
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx TestImageStencilData.cxx)
 

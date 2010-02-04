@@ -25,6 +25,9 @@ IF (WIN32)
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
 
+# for vtkImageDataLIC2D and vtkStructuredGridLIC2D
+SET( KIT_LIBS ${KIT_LIBS} vtkftgl )
+
 SET ( Kit_SRCS
 vtkExodusIIReaderParser.cxx
 vtk3DSImporter.cxx
@@ -42,6 +45,8 @@ vtkEarthSource.cxx
 vtkFacetReader.cxx
 vtkGreedyTerrainDecimation.cxx
 vtkGridTransform.cxx
+vtkImageDataLIC2D.cxx 
+vtkImageDataLIC2DExtentTranslator.cxx
 vtkImageToPolyDataFilter.cxx
 vtkImplicitModeller.cxx
 vtkIterativeClosestPointTransform.cxx
@@ -60,6 +65,8 @@ vtkRIBLight.cxx
 vtkRIBProperty.cxx
 vtkRenderLargeImage.cxx
 vtkSpiderPlotActor.cxx
+vtkStructuredExtent.cxx
+vtkStructuredGridLIC2D.cxx
 vtkTemporalDataSetCache.cxx
 vtkTemporalInterpolator.cxx
 vtkTemporalShiftScale.cxx
@@ -108,6 +115,7 @@ IF (WIN32)
 ENDIF (WIN32)
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkStructuredGridLIC2D
 vtkVRML
 vtkX3D
 vtkX3DExporterWriter
@@ -115,6 +123,11 @@ vtkX3DExporterFIWriter
 vtkX3DExporterXMLWriter
 vtkExodusIIReaderParser
 WRAP_EXCLUDE)
+
+# for vtkStructuredGridLIC2D
+SET( glsl_files
+     vtkStructuredGridLIC2D_fs
+   )
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
@@ -124,6 +137,22 @@ SET(Kit_JAVA_EXTRA_SRCS)
 SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
+
+# for vtkStructuredGridLIC2D
+SET( glsl_h_files )
+FOREACH( file ${glsl_files} )
+  SET( src ${VTK_SOURCE_DIR}/Hybrid/${file}.glsl )
+  SET( res ${VTK_BINARY_DIR}/Hybrid/${file}.cxx )
+  SET( resh ${VTK_BINARY_DIR}/Hybrid/${file}.h )
+  SET( glsl_h_files ${glsl_h_files} "${resh}" )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${res} ${resh}
+    DEPENDS ${src} vtkEncodeString
+    COMMAND ${VTK_ENCODESTRING_EXE}
+    ARGS ${res} ${src} ${file} --build-header VTK_HYBRID_EXPORT vtkSystemIncludes.h
+    )
+  SET( Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res} )
+ENDFOREACH( file )
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.

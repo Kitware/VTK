@@ -87,6 +87,7 @@ IF(VTK_USE_DISPLAY)
       TestGenericVertexAttributesGLSLCxx.cxx
       TestGenericVertexAttributesGLSLAlphaBlending.cxx
       TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
+      TestSurfaceLIC.cxx
       )
   ENDIF (VTK_USE_GLSL_SHADERS)
 

@@ -1,4 +1,4 @@
-PROJECT (Rendering)
+PROJECT (Hybrid)
 
 IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK REQUIRED)
@@ -9,25 +9,22 @@ INCLUDE(${VTK_USE_FILE})
 ENDIF(NOT VTK_BINARY_DIR)
 
 INCLUDE_DIRECTORIES(
-  # in support of SurfaceLICDemo that includes 
-  # TestSurfaceLIC.h from the dir below
-  ${VTK_SOURCE_DIR}/Rendering/Testing/Cxx
+  # ImageDataLIC2DDemo and StructuredGridLIC2DDemo include
+  # TestImageDataLIC2D.h  and TestStructuredGridLIC2DSlice
+  # from the dir below
+  ${VTK_SOURCE_DIR}/Hybrid/Testing/Cxx
 )
 
-SET(RENDERING_EXAMPLES_SRCS
-  Cylinder
-  SpecularSpheres
-  DiffuseSpheres
-  AmbientSpheres
-  MaterialObjects
-  SurfaceLICDemo
+SET(HYBRID_EXAMPLES_SRCS
+  ImageDataLIC2DDemo
+  StructuredGridLIC2DDemo
   )
 
 IF(APPLE)
   SET(EXECUTABLE_FLAG MACOSX_BUNDLE)
 ENDIF(APPLE)
 
-FOREACH(name ${RENDERING_EXAMPLES_SRCS})
+FOREACH(name ${HYBRID_EXAMPLES_SRCS})
   ADD_EXECUTABLE(${name} ${EXECUTABLE_FLAG} ${name}.cxx)
-  TARGET_LINK_LIBRARIES(${name} vtkRendering)
+  TARGET_LINK_LIBRARIES(${name} vtkHybrid )
 ENDFOREACH(name)

@@ -19,6 +19,7 @@ IF(VTK_USE_RENDERING)
     MultiBlock/Cxx
     GUI/Motif
     DataManipulation/Cxx
+    Hybrid/Cxx
     ImageProcessing/Cxx
     IO/Cxx
     Medical/Cxx

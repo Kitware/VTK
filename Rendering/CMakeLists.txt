@@ -43,12 +43,14 @@ SET( Kit_SRCS
   vtkChooserPainter.cxx
   vtkClipPlanesPainter.cxx
   vtkCoincidentTopologyResolutionPainter.cxx
+  vtkColorMaterialHelper.cxx
   vtkCompositePainter.cxx
   vtkCompositePolyDataMapper2.cxx
   vtkCompositePolyDataMapper.cxx
   vtkCullerCollection.cxx
   vtkCuller.cxx
   vtkDataSetMapper.cxx
+  vtkDataTransferHelper.cxx
   vtkDefaultPainter.cxx
   vtkDisplayListPainter.cxx
   vtkDistanceToCamera.cxx
@@ -104,8 +106,10 @@ SET( Kit_SRCS
   vtkLightActor.cxx
   vtkLightCollection.cxx
   vtkLight.cxx
+  vtkLightingHelper.cxx
   vtkLightingPainter.cxx
   vtkLightKit.cxx
+  vtkLineIntegralConvolution2D.cxx
   vtkLinesPainter.cxx
   vtkLODActor.cxx
   vtkLODProp3D.cxx
@@ -156,6 +160,8 @@ SET( Kit_SRCS
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
+  vtkSurfaceLICDefaultPainter.cxx
+  vtkSurfaceLICPainter.cxx
   vtkTDxInteractorStyle.cxx
   vtkTDxInteractorStyleCamera.cxx
   vtkTDxInteractorStyleSettings.cxx
@@ -295,6 +301,7 @@ SET_SOURCE_FILES_PROPERTIES(
   )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkLightingHelper
   vtkRenderState
   vtkOpenGLState
   vtkShader2
@@ -407,9 +414,14 @@ ENDIF(VTK_USE_QT)
 
 # The set of source files to be encoded.
 SET(glsl_files
+  vtkColorMaterialHelper_vs
   vtkDepthPeeling_fs
   vtkGaussianBlurPassShader_fs
   vtkLighting_s # s not vs or fs because it can be used in both.
+  vtkLightingHelper_s # s not vs or fs because it can be used in both.
+  vtkLineIntegralConvolution2D_fs
+  vtkLineIntegralConvolution2D_fs1
+  vtkLineIntegralConvolution2D_fs2
   vtkOpenGLRenderer_PeelingFS
   vtkOpenGLPropertyDefaultPropFunc_fs
   vtkOpenGLPropertyDefaultPropFunc_vs
@@ -419,6 +431,9 @@ SET(glsl_files
   vtkSobelGradientMagnitudePassShader2_fs
   vtkShadowMapPassShader_fs
   vtkShadowMapPassShader_vs
+  vtkSurfaceLICPainter_fs1
+  vtkSurfaceLICPainter_fs2
+  vtkSurfaceLICPainter_vs1
   )
 
 # Create custom commands to encode each assembly file into a C string
