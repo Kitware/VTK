@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "TestStructuredGridLIC2DSlice.h"
 
+extern int StructuredGridLIC2DSlice(int argc, char* argv[]);
+
 int main( int argc, char * argv[] )
 {
   RenderingMode = STRUCTURED_GRID_LIC2D_SLICE_DEMO;
