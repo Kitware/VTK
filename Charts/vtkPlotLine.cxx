@@ -21,8 +21,7 @@
 #include "vtkContextMapper2D.h"
 #include "vtkPoints2D.h"
 #include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
+#include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkExecutive.h"
 #include "vtkTimeStamp.h"
@@ -30,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.4");
+vtkCxxRevisionMacro(vtkPlotLine, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -125,6 +124,20 @@ void vtkPlotLine::GetBounds(double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
+namespace {
+
+// Copy the two arrays into the points array
+template<class A>
+void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
+{
+  switch(b->GetDataType())
+    {
+    vtkTemplateMacro(
+        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
+    }
+}
+
+// Copy the two arrays into the points array
 template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
 {
@@ -135,12 +148,14 @@ void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
     }
 }
 
+}
+
 //-----------------------------------------------------------------------------
 bool vtkPlotLine::UpdateTableCache(vtkTable *table)
 {
   // Get the x and y arrays (index 0 and 1 respectively)
-  vtkAbstractArray *x = this->Data->GetInputAbstractArrayToProcess(0, table);
-  vtkAbstractArray *y = this->Data->GetInputAbstractArrayToProcess(1, table);
+  vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
+  vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
   if (!x)
     {
     vtkErrorMacro(<< "No X column is set (index 0).");
@@ -162,38 +177,15 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
     this->Points = vtkPoints2D::New();
     }
 
-  // Figure out the type and copy to our points
-  if (x->IsA("vtkFloatArray") && y->IsA("vtkFloatArray"))
+  // Now copy the components into their new columns
+  switch(x->GetDataType())
     {
-    CopyToPoints(this->Points,
-                 vtkFloatArray::SafeDownCast(x)->GetPointer(0),
-                 vtkFloatArray::SafeDownCast(y)->GetPointer(0),
-                 x->GetSize());
-    this->BuildTime.Modified();
-    double bounds[4];
-    this->GetBounds(&bounds[0]);
-    }
-  else if (x->IsA("vtkDoubleArray") && y->IsA("vtkDoubleArray"))
-    {
-    CopyToPoints(this->Points,
-                 vtkDoubleArray::SafeDownCast(x)->GetPointer(0),
-                 vtkDoubleArray::SafeDownCast(y)->GetPointer(0),
-                 x->GetSize());
-    this->BuildTime.Modified();
-    double bounds[4];
-    this->GetBounds(&bounds[0]);
-    }
-  else
-    {
-    vtkErrorMacro(<< "Error the x or y array was not a valid type."
-                  << endl
-                  << x->GetClassName() << "\tT=" << x->GetNumberOfTuples()
-                  << "\tC=" << x->GetNumberOfComponents()
-                  << endl
-                  << y->GetClassName() << "\tT=" << y->GetNumberOfTuples()
-                  << "\tC=" << y->GetNumberOfComponents());
-    // Give a little more information about them
-    vtkErrorMacro(<<"Table: " << table->GetNumberOfColumns())
+      vtkTemplateMacro(
+          CopyToPointsSwitch(this->Points,
+                             static_cast<VTK_TT*>(x->GetVoidPointer(0)),
+                             y, x->GetSize()));
+      this->BuildTime.Modified();
+      break;
     }
   return true;
 }
