@@ -191,6 +191,11 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
 
   CREATE_NEW(filter, vtkStructuredGridLIC2D);
   filter->SetContext(renWin);
+  if ( filter->GetOpenGLExtensionsSupported() == 0 )
+    {
+    cout << "Required OpenGL extensions / GPU not supported." << endl;
+    return ( RenderingMode == STRUCTURED_GRID_LIC2D_SLICE_TEST ) ? 0 : 1;
+    }
   filter->SetInputConnection(extractVOI->GetOutputPort());
 
   if (noise_filename != "")

@@ -79,9 +79,9 @@ void Merge(vtkImageData* dest, vtkImageData* src)
     }
 }
 
-// * Example demonstrating use of vtkImageDataLIC2D filter.
-// * Typical usage:
-//    ./bin/ImageDataLIC2D --data=<vtk file> --output=<png file>
+// Example demonstrating use of vtkImageDataLIC2D filter.
+// Typical usage:
+// ./bin/ImageDataLIC2D --data=<vtk file> --output=<png file>
 int ImageDataLIC2D(int argc, char* argv[])
 {
   vtkstd::string filename;
@@ -201,8 +201,14 @@ int ImageDataLIC2D(int argc, char* argv[])
   output->SetNumberOfScalarComponents(3);
   output->AllocateScalars();
   
-  CREATE_NEW(filter, vtkImageDataLIC2D);
-  filter->SetContext(renWin);
+  CREATE_NEW( filter, vtkImageDataLIC2D );
+  filter->SetContext( renWin );
+  if ( filter->GetOpenGLExtensionsSupported() == 0 )
+    {
+    cout << "Required OpenGL extensions / GPU not supported." << endl;
+    return 0;
+    }
+    
   filter->SetInputConnection(0, probe->GetOutputPort(0));
 
   if (noise_filename != "")
