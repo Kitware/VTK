@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "TestImageDataLIC2D.h"
 
-int ImageDataLIC2D(int argc, char* argv[]);
+extern int ImageDataLIC2D(int argc, char* argv[]);
 
 int main( int argc, char * argv[] )
 {
