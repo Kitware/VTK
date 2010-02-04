@@ -32,7 +32,7 @@ static void vtkGetDimensions(int extents[6], int dims[3])
 }
 
 vtkStandardNewMacro(vtkDataTransferHelper);
-vtkCxxRevisionMacro(vtkDataTransferHelper, "1.1");
+vtkCxxRevisionMacro(vtkDataTransferHelper, "1.2");
 vtkCxxSetObjectMacro(vtkDataTransferHelper, Texture, vtkTextureObject);
 vtkCxxSetObjectMacro(vtkDataTransferHelper, Array, vtkDataArray);
 //----------------------------------------------------------------------------
@@ -573,7 +573,29 @@ vtkPixelBufferObject* vtkDataTransferHelper::GetPBO()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataTransferHelper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDataTransferHelper::PrintSelf( ostream & os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf( os, indent );
+  
+  os << indent << "Array: "               << this->Array   << endl;
+  os << indent << "Texture: "             << this->Texture << endl;
+  os << indent << "MinTextureDimension: " << this->Texture << endl;
+  os << indent << "CPUExtent: ("     << this->CPUExtent[0] << ", "
+                                     << this->CPUExtent[1] << ", "
+                                     << this->CPUExtent[2] << ", "
+                                     << this->CPUExtent[3] << ", "
+                                     << this->CPUExtent[4] << ", "
+                                     << this->CPUExtent[5] << ")"  << endl;
+  os << indent << "GPUExtent: ("     << this->GPUExtent[0] << ", "
+                                     << this->GPUExtent[1] << ", "
+                                     << this->GPUExtent[2] << ", "
+                                     << this->GPUExtent[3] << ", "
+                                     << this->GPUExtent[4] << ", "
+                                     << this->GPUExtent[5] << ")"  << endl;
+  os << indent << "TextureExtent: (" << this->TextureExtent[0] << ", "
+                                     << this->TextureExtent[1] << ", "
+                                     << this->TextureExtent[2] << ", "
+                                     << this->TextureExtent[3] << ", "
+                                     << this->TextureExtent[4] << ", "
+                                     << this->TextureExtent[5] << ")"  << endl;
 }

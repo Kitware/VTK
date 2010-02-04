@@ -51,7 +51,7 @@ static const char * vtkLineIntegralConvolution2DCode =
 #endif
 
 vtkStandardNewMacro( vtkLineIntegralConvolution2D );
-vtkCxxRevisionMacro( vtkLineIntegralConvolution2D, "1.1" );
+vtkCxxRevisionMacro( vtkLineIntegralConvolution2D, "1.2" );
 
 // Given the coordinate range of the vector texture, that of the resulting
 // LIC texture, and the size of the output image, this function invokes the
@@ -898,5 +898,6 @@ void vtkLineIntegralConvolution2D::PrintSelf( ostream & os, vtkIndent indent )
                                        << this->ComponentIds[1]  << "\n";
   os << indent << "GridSpacings: "     << this->GridSpacings[0]  << ", "
                                        << this->GridSpacings[1]  << "\n";
+  os << indent << "LICForSurface: "    << this->LICForSurface    << "\n";
   os << indent << "TransformVectors: " << this->TransformVectors << "\n";
 }

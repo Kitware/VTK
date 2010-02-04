@@ -130,7 +130,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkSurfaceLICPainter);
-vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.1");
+vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.2");
 //----------------------------------------------------------------------------
 vtkSurfaceLICPainter::vtkSurfaceLICPainter()
 {
@@ -794,9 +794,13 @@ bool vtkSurfaceLICPainter::PrepareOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkSurfaceLICPainter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSurfaceLICPainter::PrintSelf( ostream & os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "Enable: " << this->Enable << endl;
-  os << indent << "LICIntensity: " << this->LICIntensity << endl;
+  this->Superclass::PrintSelf( os, indent );
+  
+  os << indent << "Enable: "        << this->Enable        << endl;
+  os << indent << "StepSize: "      << this->StepSize      << endl;
+  os << indent << "EnhancedLIC: "   << this->EnhancedLIC   << endl;
+  os << indent << "LICIntensity: "  << this->LICIntensity  << endl;
+  os << indent << "NumberOfSteps: " << this->NumberOfSteps << endl;
 }
