@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "TestStructuredGridLIC2DSlice.h"
 
-extern int StructuredGridLIC2DSlice(int argc, char* argv[]);
+int StructuredGridLIC2DSlice(int argc, char* argv[]);
 
 int main( int argc, char * argv[] )
 {
