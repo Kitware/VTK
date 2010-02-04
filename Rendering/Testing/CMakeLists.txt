@@ -19,6 +19,7 @@ IF(PYTHON_EXECUTABLE)
     vtkgl.h
     vtkgluPickMatrix.h
     vtkLabelHierarchyPrivate.h
+    vtkNoise200x200.h
     vtkOpenGL.h
     vtkOpenGLExtensionManagerConfigure.h
     vtkOpenGLState.h
