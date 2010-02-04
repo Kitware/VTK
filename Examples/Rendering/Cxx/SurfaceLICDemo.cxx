@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "TestSurfaceLIC.h"
 
-int SurfaceLIC( int argc, char * argv[] );
+extern int SurfaceLIC( int argc, char * argv[] );
 
 int main( int argc, char * argv[] )
 {
