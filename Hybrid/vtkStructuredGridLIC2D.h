@@ -57,9 +57,9 @@ public:
   // This does not increase the reference count of the 
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
-  // required OpenGL extensions.
-  void SetContext(vtkRenderWindow* context);
-  vtkRenderWindow* GetContext();
+  // required OpenGL extensions. Return 0 upon failure and 1 upon success.
+  int SetContext( vtkRenderWindow * context );
+  vtkRenderWindow * GetContext();
 
   // Description:
   // Number of steps. Initial value is 1.
@@ -86,6 +86,10 @@ public:
   // The the magnification factor. Default is 1
   vtkSetClampMacro(Magnification, int, 1, VTK_INT_MAX);
   vtkGetMacro(Magnification, int);
+  
+  // Description:
+  // Check if the required OpenGL extensions / GPU are supported.
+  vtkGetMacro( OpenGLExtensionsSupported, int );
 
 //BTX
 protected:
@@ -132,9 +136,10 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  int Steps;
+  int    Steps;
   double StepSize;
-  int Magnification;
+  int    Magnification;
+  int    OpenGLExtensionsSupported;
   vtkWeakPointer<vtkRenderWindow> Context;
 
   vtkImageNoiseSource* NoiseSource;

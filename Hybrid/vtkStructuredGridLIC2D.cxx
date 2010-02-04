@@ -43,7 +43,7 @@ extern const char *vtkStructuredGridLIC2D_fs;
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkStructuredGridLIC2D);
-vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.1");
+vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.2");
 //----------------------------------------------------------------------------
 vtkStructuredGridLIC2D::vtkStructuredGridLIC2D()
 {
@@ -54,6 +54,7 @@ vtkStructuredGridLIC2D::vtkStructuredGridLIC2D()
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
   this->OwnWindow = false;
+  this->OpenGLExtensionsSupported = 0;
 
   this->NoiseSource = vtkImageNoiseSource::New();
   this->NoiseSource->SetWholeExtent(0, 127, 0, 127, 0, 0);
@@ -65,7 +66,7 @@ vtkStructuredGridLIC2D::vtkStructuredGridLIC2D()
 vtkStructuredGridLIC2D::~vtkStructuredGridLIC2D()
 {
   this->NoiseSource->Delete();
-  this->SetContext(0);
+  this->SetContext( NULL );
 }
 
 //----------------------------------------------------------------------------
@@ -75,42 +76,55 @@ vtkRenderWindow* vtkStructuredGridLIC2D::GetContext()
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGridLIC2D::SetContext(vtkRenderWindow *context)
+int vtkStructuredGridLIC2D::SetContext( vtkRenderWindow * context )
 {
-  if (this->Context == context)
+  if ( this->Context == context )
     {
-    return;
+    return 1;
     }
 
-  if (this->Context && this->OwnWindow)
+  if ( this->Context && this->OwnWindow )
     {
     this->Context->Delete();
+    this->Context = NULL;
     }
   this->OwnWindow = false;
 
 
-  vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(context);
+  vtkOpenGLRenderWindow * openGLRenWin = 
+  vtkOpenGLRenderWindow::SafeDownCast( context );
   this->Context = openGLRenWin;
 
-  if (openGLRenWin)
+  if ( openGLRenWin )
     {
-    vtkOpenGLExtensionManager* mgr = openGLRenWin->GetExtensionManager();
+    vtkOpenGLExtensionManager * mgr = openGLRenWin->GetExtensionManager();
     
     // optional for texture objects.
-    mgr->LoadSupportedExtension("GL_EXT_texture_integer");
+    mgr->LoadSupportedExtension( "GL_EXT_texture_integer" );
     
-    if (!mgr->LoadSupportedExtension("GL_VERSION_1_3") ||
-    !mgr->LoadSupportedExtension("GL_ARB_texture_non_power_of_two") ||
-    !mgr->LoadSupportedExtension("GL_VERSION_1_2") ||
-    !mgr->LoadSupportedExtension("GL_VERSION_2_0") ||
-    !mgr->LoadSupportedExtension("GL_ARB_texture_float") ||
-    !mgr->LoadSupportedExtension("GL_ARB_color_buffer_float"))
+    if (  !mgr->LoadSupportedExtension( "GL_VERSION_1_3" ) ||
+          !mgr->LoadSupportedExtension( "GL_VERSION_1_2" ) ||
+          !mgr->LoadSupportedExtension( "GL_VERSION_2_0" ) ||
+          !mgr->LoadSupportedExtension( "GL_ARB_texture_float" ) ||
+          !mgr->LoadSupportedExtension( "GL_ARB_color_buffer_float" ) ||
+          !mgr->LoadSupportedExtension( "GL_ARB_texture_non_power_of_two" )
+       )
       {
-      vtkErrorMacro("Required OpenGL extensions not supported.");
+      vtkErrorMacro( "Required OpenGL extensions not supported." );
+      mgr = NULL;
       this->Context = 0;
+      openGLRenWin  = NULL;
+      return 0;
       }
+      
+    mgr = NULL;
     }
+    
+  openGLRenWin = NULL;  
   this->Modified();
+  
+  this->OpenGLExtensionsSupported = 1;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -372,9 +386,9 @@ void vtkStructuredGridLIC2D::AllocateScalars(vtkStructuredGrid *sg)
 
 //----------------------------------------------------------------------------
 int vtkStructuredGridLIC2D::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation        * vtkNotUsed(request),
+  vtkInformationVector ** inputVector,
+  vtkInformationVector  * outputVector )
 {
   // 3 passes:
   // pass 1: render to compute the transformed vector field for the points.
@@ -383,19 +397,19 @@ int vtkStructuredGridLIC2D::RequestData(
   // pass 3: Render structured slice quads with correct texture correct
   // tcoords and apply the LIC texture to it.
   
-  vtkInformation *inInfo=inputVector[0]->GetInformationObject(0);
-  vtkStructuredGrid *input=vtkStructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation    * inInfo = inputVector[0]->GetInformationObject(0);
+  vtkStructuredGrid * input  = vtkStructuredGrid::SafeDownCast
+                   (  inInfo->Get( vtkDataObject::DATA_OBJECT() )  );
   
   int inputRequestedExtent[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              inputRequestedExtent);
+  inInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               inputRequestedExtent );
 
   // Check if the input image is a 2D image (not 0D, not 1D, not 3D)
   int dims[3];
   //  input->GetDimensions(dims);
 
-  vtkStructuredExtent::GetDimensions(inputRequestedExtent,dims);
+  vtkStructuredExtent::GetDimensions( inputRequestedExtent, dims );
 
   vtkDebugMacro( << "dims = " << dims[0] << " " 
                  << dims[1] << " " << dims[2] << endl );
@@ -405,28 +419,42 @@ int vtkStructuredGridLIC2D::RequestData(
                  << inputRequestedExtent[4] << " " 
                  << inputRequestedExtent[5] << endl );
 
-  if(!(dims[0]==1 && dims[1]>1 && dims[2]>1)
-     && !(dims[1]==1 && dims[0]>1 && dims[2]>1)
-     && !(dims[2]==1 && dims[0]>1 && dims[1]>1))
+  if(   !( dims[0]==1 && dims[1]>1 && dims[2]>1 )
+     && !( dims[1]==1 && dims[0]>1 && dims[2]>1 )
+     && !( dims[2]==1 && dims[0]>1 && dims[1]>1 )
+    )
     {
-    vtkErrorMacro(<<"input is not a 2D image.");
+    vtkErrorMacro( << "input is not a 2D image." << endl );
+    input  = NULL;
+    inInfo = NULL;
     return 0;
     }
-  if(input->GetPointData()==0)
+  if( input->GetPointData() == 0 )
     {
-    vtkErrorMacro(<<"input does not have point data.");
+    vtkErrorMacro( << "input does not have point data." );
+    input  = NULL;
+    inInfo = NULL;
     return 0;
     }
-  if(input->GetPointData()->GetVectors()==0)
+  if( input->GetPointData()->GetVectors() == 0 )
     {
-    vtkErrorMacro(<<"input does not vectors on point data.");
+    vtkErrorMacro( << "input does not vectors on point data." );
+    input  = NULL;
+    inInfo = NULL;
     return 0;
     }
   
-  if (!this->Context)
+  if ( !this->Context )
     {
-    vtkRenderWindow* renWin = vtkRenderWindow::New();
-    this->SetContext(renWin);
+    vtkRenderWindow * renWin = vtkRenderWindow::New();
+    if (  this->SetContext( renWin ) == 0  )
+      {
+      renWin->Delete();
+      renWin = NULL;
+      input  = NULL;
+      inInfo = NULL;
+      return 0;
+      }
     this->OwnWindow = true;
     }
   this->Context->SetReportGraphicErrors(1);
@@ -693,7 +721,10 @@ int vtkStructuredGridLIC2D::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGridLIC2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStructuredGridLIC2D::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf(os, indent);
+  
+  os << indent << "OpenGLExtensionsSupported: " 
+               << this->OpenGLExtensionsSupported << "\n";
 }

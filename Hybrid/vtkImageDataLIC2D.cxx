@@ -38,7 +38,7 @@
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkImageDataLIC2D);
-vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.1");
+vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.2");
 //----------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {
@@ -58,6 +58,7 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
     vtkDataSetAttributes::VECTORS);
 
   this->OwnWindow = false;
+  this->OpenGLExtensionsSupported    = 0;
   this->ARBColorBufferFloatSupported = false;
 }
 
@@ -65,49 +66,62 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
 vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
-  this->SetContext(0);
+  this->SetContext( NULL );
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDataLIC2D::SetContext(vtkRenderWindow *context)
+int vtkImageDataLIC2D::SetContext( vtkRenderWindow * context )
 {
-  if (this->Context == context)
+  if ( this->Context == context )
     {
-    return;
+    return 1;
     }
 
-  if (this->Context && this->OwnWindow)
+  if ( this->Context && this->OwnWindow )
     {
     this->Context->Delete();
+    this->Context = NULL;
     }
   this->OwnWindow = false;
 
-  vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(context);
+  vtkOpenGLRenderWindow * openGLRenWin = 
+  vtkOpenGLRenderWindow::SafeDownCast( context );
   this->Context = openGLRenWin;
 
-  if (openGLRenWin)
+  if ( openGLRenWin )
     {
     openGLRenWin->Render();
     openGLRenWin->MakeCurrent();
-    vtkOpenGLExtensionManager* mgr = openGLRenWin->GetExtensionManager();
+    vtkOpenGLExtensionManager * mgr = openGLRenWin->GetExtensionManager();
     
     // optional for texture objects.
-    mgr->LoadSupportedExtension("GL_EXT_texture_integer");
+    mgr->LoadSupportedExtension( "GL_EXT_texture_integer" );
    
     //this->ARBColorBufferFloatSupported = 
     //  mgr->LoadSupportedExtension("GL_ARB_color_buffer_float");
 
-    if (!mgr->LoadSupportedExtension("GL_VERSION_1_3") ||
-    !mgr->LoadSupportedExtension("GL_ARB_texture_non_power_of_two") ||
-    !mgr->LoadSupportedExtension("GL_VERSION_1_2") ||
-    !mgr->LoadSupportedExtension("GL_VERSION_2_0") ||
-    !mgr->LoadSupportedExtension("GL_ARB_texture_float"))
+    if (  !mgr->LoadSupportedExtension( "GL_VERSION_1_3" ) ||
+          !mgr->LoadSupportedExtension( "GL_VERSION_1_2" ) ||
+          !mgr->LoadSupportedExtension( "GL_VERSION_2_0" ) ||
+          !mgr->LoadSupportedExtension( "GL_ARB_texture_float" ) ||
+          !mgr->LoadSupportedExtension( "GL_ARB_texture_non_power_of_two" )
+       )
       {
-      vtkErrorMacro("Required OpenGL extensions not supported.");
+      vtkErrorMacro( "Required OpenGL extensions not supported." );
+      mgr = NULL;
       this->Context = 0;
+      openGLRenWin  = NULL;
+      return 0;
       }
+      
+    mgr = NULL;
     }
+    
+  openGLRenWin = NULL;
   this->Modified();
+  
+  this->OpenGLExtensionsSupported = 1;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -253,12 +267,12 @@ int vtkImageDataLIC2D::RequestUpdateExtent (
 
 //----------------------------------------------------------------------------
 int vtkImageDataLIC2D::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation        * vtkNotUsed(request),
+  vtkInformationVector ** inputVector,
+  vtkInformationVector  * outputVector )
 {
-  vtkInformation *inInfo=inputVector[0]->GetInformationObject(0);
-  vtkImageData *input=vtkImageData::SafeDownCast(
+  vtkInformation * inInfo= inputVector[0]->GetInformationObject(0);
+  vtkImageData   * input = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check if the input image is a 2D image (not 0D, not 1D, not 3D)
@@ -266,32 +280,46 @@ int vtkImageDataLIC2D::RequestData(
   input->GetDimensions(dims);
 
   int dataDescription = vtkStructuredData::GetDataDescription(dims);
-  if (vtkStructuredData::GetDataDimension(dataDescription) != 2)
+  if (  vtkStructuredData::GetDataDimension( dataDescription ) != 2  )
     {
-    vtkErrorMacro("Input is not a 2D image.");
+    vtkErrorMacro( "Input is not a 2D image." );
+    input  = NULL;
+    inInfo = NULL;
     return 0;
     }
 
   vtkIdType numPoints = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkDataArray> inVectors = this->GetInputArrayToProcess(0, inputVector);
+  vtkSmartPointer<vtkDataArray> inVectors = 
+    this->GetInputArrayToProcess( 0, inputVector );
 
-  if (inVectors.GetPointer() == 0)
+  if ( inVectors.GetPointer() == 0 )
     {
-    vtkErrorMacro("No input vectors selected. "
-      "Vectors are required for line integral convolution.");
+    vtkErrorMacro( "No input vectors selected. "
+                   "Vectors are required for line integral convolution." );
+    input  = NULL;
+    inInfo = NULL;
     return 0;
     }
 
-  if (inVectors->GetNumberOfTuples() != numPoints)
+  if ( inVectors->GetNumberOfTuples() != numPoints )
     {
-    vtkErrorMacro("Only point vectors are supported.");
+    vtkErrorMacro( "Only point vectors are supported." );
+    input  = NULL;
+    inInfo = NULL;
     return 0;
     }
   
-  if (!this->Context)
+  if ( !this->Context )
     {
-    vtkRenderWindow* renWin = vtkRenderWindow::New();
-    this->SetContext(renWin);
+    vtkRenderWindow * renWin = vtkRenderWindow::New();
+    if (  this->SetContext( renWin ) == 0  )
+      {
+      renWin->Delete();
+      renWin = NULL;
+      input  = NULL;
+      inInfo = NULL;
+      return 0;
+      }
     this->OwnWindow = true;
     }
 
@@ -517,7 +545,10 @@ int vtkImageDataLIC2D::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDataLIC2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageDataLIC2D::PrintSelf( ostream & os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf( os, indent );
+  
+  os << indent << "OpenGLExtensionsSupported: " 
+               << this->OpenGLExtensionsSupported << "\n";
 }
