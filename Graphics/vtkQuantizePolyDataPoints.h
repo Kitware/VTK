@@ -44,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify quantization grain size
+  // Specify quantization grain size. Default is 0.25
   vtkSetClampMacro(QFactor,double,1E-5,VTK_LARGE_FLOAT);
   vtkGetMacro(QFactor,double);
 
