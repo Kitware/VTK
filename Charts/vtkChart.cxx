@@ -54,7 +54,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.5");
+vtkCxxRevisionMacro(vtkChart, "1.6");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -80,6 +80,23 @@ vtkChart::~vtkChart()
 
 //-----------------------------------------------------------------------------
 vtkPlot * vtkChart::AddPlot(Type)
+{
+  return NULL;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChart::RemovePlot(vtkIdType)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::ClearPlots()
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkPlot* vtkChart::GetPlot(vtkIdType)
 {
   return NULL;
 }

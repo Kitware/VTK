@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.21");
+vtkCxxRevisionMacro(vtkChartXY, "1.22");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -357,6 +357,44 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
     // Ensure that the bounds are recalculated
     this->PlotTransformValid = false;
     return plot;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::RemovePlot(vtkIdType index)
+{
+  if (this->ChartPrivate->plots.size() > index)
+    {
+    this->ChartPrivate->plots[index]->Delete();
+    this->ChartPrivate->plots.erase(this->ChartPrivate->plots.begin()+index);
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::ClearPlots()
+{
+  for (unsigned int i = 0; i < this->ChartPrivate->plots.size(); ++i)
+    {
+    this->ChartPrivate->plots[i]->Delete();
+    }
+  this->ChartPrivate->plots.clear();
+}
+
+//-----------------------------------------------------------------------------
+vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
+{
+  if (this->ChartPrivate->plots.size() > index)
+    {
+    return this->ChartPrivate->plots[index];
+    }
+  else
+    {
+    return NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------

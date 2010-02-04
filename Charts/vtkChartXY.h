@@ -55,6 +55,22 @@ public:
 //BTX
   virtual vtkPlot * AddPlot(vtkChart::Type type);
 //ETX
+
+  // Description:
+  // Remove the plot at the specified index, returns true if successful,
+  // false if the index was invalid.
+  virtual bool RemovePlot(vtkIdType index);
+
+  // Description:
+  // Remove all plots from the chart.
+  virtual void ClearPlots();
+
+  // Description:
+  // Get the plot at the specified index, returns null if the index is invalid.
+  virtual vtkPlot* GetPlot(vtkIdType index);
+
+  // Description:
+  // Get the number of plots the chart contains.
   virtual vtkIdType GetNumberPlots();
 
   // Description:

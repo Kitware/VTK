@@ -51,9 +51,24 @@ public:
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter) = 0;
 
+//BTX
   // Description:
   // Add a plot to the chart, defaults to using the name of the y column
-  virtual vtkPlot * AddPlot(Type type);
+  virtual vtkPlot* AddPlot(Type type);
+//ETX
+
+  // Description:
+  // Remove the plot at the specified index, returns true if successful,
+  // false if the index was invalid.
+  virtual bool RemovePlot(vtkIdType index);
+
+  // Description:
+  // Remove all plots from the chart.
+  virtual void ClearPlots();
+
+  // Description:
+  // Get the plot at the specified index, returns null if the index is invalid.
+  virtual vtkPlot* GetPlot(vtkIdType index);
 
   // Description:
   // Get the number of plots the chart contains.
