@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.5" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.6" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -2082,7 +2082,7 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
 
   vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
   vtkTableBasedClipperVolumeFromVolume(    polyData->GetNumberOfPoints(),
-       int(   pow(  double( numCells ),  double( 0.6667f )  )   ) * 5 + 100    );
+     int(   pow(  double( numCells ),  double( 0.6667f )  )   ) * 5 + 100    );
 
   vtkUnstructuredGrid * specials = vtkUnstructuredGrid::New();
   specials->SetPoints( polyData->GetPoints() );
@@ -2455,9 +2455,9 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
   isTwoDim = int( rectDims[2] <= 1 );
   numCells = rectGrid->GetNumberOfCells();
 
-  vtkTableBasedClipperVolumeFromVolume  * visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(   rectGrid->GetNumberOfPoints(),
-                              int(  pow( numCells, 0.6667f )  ) * 5 + 100   );
+  vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
+  vtkTableBasedClipperVolumeFromVolume(    rectGrid->GetNumberOfPoints(),
+      int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
   int   shiftLUT[3][8] = { 
                            { 0, 1, 1, 0, 0, 1, 1, 0 },
@@ -2769,7 +2769,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
 
   vtkTableBasedClipperVolumeFromVolume  *  visItVFV = new
   vtkTableBasedClipperVolumeFromVolume(    strcGrid->GetNumberOfPoints(),
-                               int(  pow( numCells, 0.6667f )  ) * 5 + 100   );
+      int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
   
   int   shiftLUT[3][8] = { 
@@ -3046,9 +3046,9 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
   int         numCells = unstruct->GetNumberOfCells();
   
   // volume from volume
-  vtkTableBasedClipperVolumeFromVolume  * visItVFV = new
-  vtkTableBasedClipperVolumeFromVolume(   unstruct->GetNumberOfPoints(), 
-                              int(  pow( numCells, 0.6667f )  ) * 5 + 100   );
+  vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
+  vtkTableBasedClipperVolumeFromVolume(    unstruct->GetNumberOfPoints(), 
+      int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
   // the stuffs that can not be clipped by this filter
   vtkUnstructuredGrid * specials = vtkUnstructuredGrid::New();
