@@ -333,7 +333,7 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
         print "# Calculating statistics:"
 
     # Output port of data reader becomes input connection of haruspex
-    haruspex.AddInputConnection(inDataReader.GetOutputPort() )
+    haruspex.AddInputConnection( inDataReader.GetOutputPort() )
 
     # Get the output table of the data reader, which becomes the input data
     inData = inDataReader.GetOutput()
@@ -356,17 +356,17 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
             colName = inData.GetColumnName( columnsList[i] )
             if verbosity > 0:
                 print "  Requesting column",colName
-            haruspex.AddColumn(colName)
+            haruspex.AddColumn( colName )
 
     elif haruspex.IsA( "vtkBivariateStatisticsAlgorithm" ):
         # Bivariate case: generate all possible pairs
         for i in range( 0, n ):
             colNameX = inData.GetColumnName( columnsList[i] )
-            for j in range( i+1,inData.GetNumberOfColumns() ):
+            for j in range( i+1, inData.GetNumberOfColumns() ):
                 colNameY = inData.GetColumnName( columnsList[j] )
                 if verbosity > 0:
                     print "  Requesting column pair",colNameX,colNameY
-                haruspex.AddColumnPair(colNameX,colNameY)
+                haruspex.AddColumnPair( colNameX, colNameY )
 
     else:
         # Multivariate case: generate single request containing all columns
@@ -375,9 +375,6 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
             haruspex.SetColumnStatus( colName, 1 )
             if verbosity > 0:
                 print "  Adding column", colName, "to the request"
-
-    if verbosity > 0:
-        print
 
     # Complete column selection request
     haruspex.RequestSelectedColumns()
@@ -393,7 +390,21 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
         haruspex.SetAssessOption( True )
         haruspex.Update()
     else:
-        # There is an initial model: start by storing it for subsequent aggregation
+        # There is an initial model: decide if vtkTable of vtkMultiBlockDataSet is needed
+        inModelType = haruspex.GetOutputDataObject( 1 ).GetClassName()
+        if verbosity > 0:
+            print "  Input model must be a", inModelType
+        if inModelType == "vtkMultiBlockDataSet":
+            # The model table inModel must become the first block of a vtkMultiBlockDataSet
+            inModelMB = vtkMultiBlockDataSet()
+            inModelMB.SetNumberOfBlocks( 1 )
+            inModelMB.SetBlock( 0, inModel )
+            inModel = inModelMB
+        elif inModelType != "vtkTable":
+            print "ERROR: unsupported type of input model!"
+            sys.exit( 1 )
+
+        # Store model it for subsequent aggregation
         collection = vtkDataObjectCollection()
         collection.AddItem( inModel )
 
@@ -404,8 +415,11 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
         haruspex.Update()
 
         # Aggregate old and new models
-        collection.AddItem( haruspex.GetOutput( 1 ) )
-        aggregated = vtkTable()
+        collection.AddItem( haruspex.GetOutputDataObject( 1 ) )
+        if inModelType == "vtkTable":
+            aggregated = vtkTable()
+        elif inModelType == "vtkMultiBlockDataSet":
+            aggregated = vtkMultiBlockDataSet()
         haruspex.Aggregate( collection, aggregated )
 
         # Finally, derive and assess using the aggregated model (do not learn)
@@ -415,6 +429,8 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex ):
         haruspex.SetAssessOption( True )
         haruspex.Update()
 
+    if verbosity > 0:
+        print
 ############################################################
 
 ############################################################
