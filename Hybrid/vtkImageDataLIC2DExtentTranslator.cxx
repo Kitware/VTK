@@ -18,7 +18,7 @@
 #include "vtkImageDataLIC2D.h"
 
 vtkStandardNewMacro(vtkImageDataLIC2DExtentTranslator);
-vtkCxxRevisionMacro(vtkImageDataLIC2DExtentTranslator, "1.1");
+vtkCxxRevisionMacro(vtkImageDataLIC2DExtentTranslator, "1.2");
 vtkCxxSetObjectMacro(vtkImageDataLIC2DExtentTranslator, InputExtentTranslator, vtkExtentTranslator);
 //----------------------------------------------------------------------------
 vtkImageDataLIC2DExtentTranslator::vtkImageDataLIC2DExtentTranslator()
@@ -77,8 +77,18 @@ int vtkImageDataLIC2DExtentTranslator::PieceToExtentThreadSafe(int piece, int nu
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDataLIC2DExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageDataLIC2DExtentTranslator::PrintSelf( ostream & os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "Algorithm: " << this->Algorithm << endl;
+  this->Superclass::PrintSelf( os, indent );
+  
+  os << indent << "Algorithm: "               << this->Algorithm << endl;
+  os << indent << "InputWholeExtent: ("          
+               << this->InputWholeExtent[0]   << ", " 
+               << this->InputWholeExtent[1]   << ", "
+               << this->InputWholeExtent[2]   << ", "
+               << this->InputWholeExtent[3]   << ", "
+               << this->InputWholeExtent[4]   << ", "
+               << this->InputWholeExtent[5]   << ")" << endl;
+  os << indent << "InputExtentTranslator: " 
+               << this->InputExtentTranslator << endl;
 }

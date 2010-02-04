@@ -43,7 +43,7 @@ extern const char *vtkStructuredGridLIC2D_fs;
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkStructuredGridLIC2D);
-vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.2");
+vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.3");
 //----------------------------------------------------------------------------
 vtkStructuredGridLIC2D::vtkStructuredGridLIC2D()
 {
@@ -723,8 +723,11 @@ int vtkStructuredGridLIC2D::RequestData(
 //----------------------------------------------------------------------------
 void vtkStructuredGridLIC2D::PrintSelf( ostream & os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf( os, indent );
   
+  os << indent << "Steps: "         << this->Steps          << "\n";
+  os << indent << "StepSize: "      << this->StepSize       << "\n";
+  os << indent << "Magnification: " << this->Magnification  << "\n";
   os << indent << "OpenGLExtensionsSupported: " 
                << this->OpenGLExtensionsSupported << "\n";
 }
