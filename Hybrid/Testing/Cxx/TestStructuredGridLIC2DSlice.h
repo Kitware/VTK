@@ -263,7 +263,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom( ZoomFactor );
   
-  if ( RenderingMode = STRUCTURED_GRID_LIC2D_SLICE_TEST )
+  if ( RenderingMode == STRUCTURED_GRID_LIC2D_SLICE_TEST )
     {
     switch (dataDesc)
       {
