@@ -86,6 +86,7 @@ public:
   // algorithm without using it as a filter.
   virtual int StructuredExecute(vtkDataSet *input,
     vtkPolyData *output, vtkIdType *ext, vtkIdType *wholeExt);
+#ifdef VTK_USE_64BIT_IDS
   virtual int StructuredExecute(vtkDataSet *input,
     vtkPolyData *output, int *ext32, int *wholeExt32)
     {
@@ -97,6 +98,7 @@ public:
       }
     return this->StructuredExecute(input, output, ext, wholeExt);
     }
+#endif
   virtual int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
   virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
 
