@@ -50,7 +50,9 @@ def ParseCommandLine():
 
     # Default values
     options = 0
+    inDataName = ""
     inModelPrefix = ""
+    haruspexName = ""
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
     columnsListName =""
