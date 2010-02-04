@@ -29,5 +29,5 @@ ENDIF(APPLE)
 
 FOREACH(name ${RENDERING_EXAMPLES_SRCS})
   ADD_EXECUTABLE(${name} ${EXECUTABLE_FLAG} ${name}.cxx)
-  TARGET_LINK_LIBRARIES(${name} vtkRendering)
+  TARGET_LINK_LIBRARIES(${name} vtkRendering vtkIO )
 ENDFOREACH(name)
