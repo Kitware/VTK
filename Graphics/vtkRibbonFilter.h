@@ -60,36 +60,38 @@ public:
 
   // Description:
   // Set the "half" width of the ribbon. If the width is allowed to vary, 
-  // this is the minimum width.
+  // this is the minimum width. The default is 0.5
   vtkSetClampMacro(Width,double,0,VTK_DOUBLE_MAX);
   vtkGetMacro(Width,double);
 
   // Description:
   // Set the offset angle of the ribbon from the line normal. (The angle
-  // is expressed in degrees.)
+  // is expressed in degrees.) The default is 0.0
   vtkSetClampMacro(Angle,double,0,360);
   vtkGetMacro(Angle,double);
 
   // Description:
   // Turn on/off the variation of ribbon width with scalar value.
+  // The default is Off
   vtkSetMacro(VaryWidth,int);
   vtkGetMacro(VaryWidth,int);
   vtkBooleanMacro(VaryWidth,int);
 
   // Description:
   // Set the maximum ribbon width in terms of a multiple of the minimum width.
+  // The default is 2.0
   vtkSetMacro(WidthFactor,double);
   vtkGetMacro(WidthFactor,double);
 
   // Description:
-  // Set the default normal to use if no normals are supplied, and the
-  // DefaultNormalOn is set.
+  // Set the default normal to use if no normals are supplied, and
+  // DefaultNormalOn is set. The default is (0,0,1)
   vtkSetVector3Macro(DefaultNormal,double);
   vtkGetVectorMacro(DefaultNormal,double,3);
 
   // Description:
   // Set a boolean to control whether to use default normals.
-  // DefaultNormalOn is set.
+  // The default is Off
   vtkSetMacro(UseDefaultNormal,int);
   vtkGetMacro(UseDefaultNormal,int);
   vtkBooleanMacro(UseDefaultNormal,int);
@@ -114,7 +116,7 @@ public:
   // Control the conversion of units during the texture coordinates
   // calculation. The TextureLength indicates what length (whether 
   // calculated from scalars or length) is mapped to the [0,1)
-  // texture space.
+  // texture space. The default is 1.0
   vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
   vtkGetMacro(TextureLength,double);
 
