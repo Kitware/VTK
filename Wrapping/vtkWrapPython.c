@@ -382,8 +382,11 @@ void do_return(FILE *fp)
 #endif
     case 0x3:   
       {
-      fprintf(fp,"    return PyString_FromStringAndSize((char *)&temp%i,1);\n",
-              MAX_ARGS);
+      fprintf(fp,"    char temp%iString[2];\n"
+                 "    temp%iString[0] = temp%i;\n"
+                 "    temp%iString[1] = \'\\0\';\n"
+                 "    return PyString_FromStringAndSize(temp%iString,1);\n",
+              MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS);
       break;
       }
     }
