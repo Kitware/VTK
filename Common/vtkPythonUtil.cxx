@@ -1654,21 +1654,38 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
 {
   int i; 
   void *ptr;
-  char typeCheck[128];
-  if (*len < 128)
+  char typeCheck[256];
+  typeCheck[0] = '\0';
+
+  // Do some minimal checks that it might be a swig pointer.
+  if (*len < 256 && *len > 4 && ptrText[0] == '_')
     {
-    i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
-    if (strcmp(type,typeCheck) == 0)
-      { // sucessfully unmangle
-      *len = 0;
-      return ptr;
+    // Verify that this is a terminated string
+    for (i = *len-1; i >= 0; --i)
+      {
+      if (ptrText[i] == '\0')
+        {
+        break;
+        }
       }
-    else if (i == 2)
-      { // mangled pointer of wrong type
-      *len = -1;
-      return NULL;
+
+    // If the string is terminated, do a full check for a swig pointer
+    if (i >= 0)
+      {
+      i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
+      if (strcmp(type,typeCheck) == 0)
+        { // sucessfully unmangle
+        *len = 0;
+        return ptr;
+        }
+      else if (i == 2)
+        { // mangled pointer of wrong type
+        *len = -1;
+        return NULL;
+        }
       }
     }
+
   // couldn't unmangle: return string as void pointer if it didn't look
   // like a SWIG mangled pointer
   return (void *)ptrText;
