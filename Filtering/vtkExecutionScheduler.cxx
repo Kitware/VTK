@@ -52,7 +52,7 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.10");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.11");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -236,7 +236,7 @@ void vtkExecutionScheduler::PrintSelf(ostream &os, vtkIndent indent)
 class vtkViewCommand : public vtkCommand
 {
 public:
-  vtkObjectBase* Target;
+  vtkObject* Target;
 };
 
 void vtkExecutionScheduler::SchedulePropagate(vtkExecutiveCollection *execs, vtkInformation *info)
