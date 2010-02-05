@@ -53,11 +53,7 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
 
   reader->Update();
 
-  if(!QApplication::instance())
-    {
-    int temp_argc = 0;
-    new QApplication(temp_argc, 0);
-    }
+  QApplication app(argc, argv);
 
   QString fontFileName = testHelper->GetDataRoot();
   fontFileName.append("/Data/Infovis/martyb_-_Ridiculous.ttf");

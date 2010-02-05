@@ -43,16 +43,11 @@
     } \
 }
 
-int TestQtXMLProcessor(int argc, char* vtkNotUsed(argv)[])
+int TestQtXMLProcessor(int argc, char* argv[])
 {
   try
     {
-//    vtkSmartPointer<vtkQtInitialization> initialization = vtkSmartPointer<vtkQtInitialization>::New();
-    if(!QApplication::instance())
-    {
-//    int argc = 0;
-    new QApplication(argc, 0);
-    }
+    QApplication app(argc, argv);
 
     vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
 

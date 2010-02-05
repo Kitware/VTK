@@ -45,7 +45,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.9");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.10");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 struct vtkQtLabelMapEntry
@@ -116,11 +116,6 @@ public:
 //----------------------------------------------------------------------------
 vtkQtLabelRenderStrategy::vtkQtLabelRenderStrategy()
 {
-  if(!QApplication::instance())
-    {
-    int argc = 0;
-    new QApplication(argc, 0);
-    }
   this->Implementation = new Internals();
   this->Implementation->Image = new QImage(1, 1, QImage::Format_ARGB32_Premultiplied);
   this->Implementation->Painter = new QPainter(this->Implementation->Image);
