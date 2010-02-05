@@ -38,7 +38,7 @@
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkImageDataLIC2D);
-vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.3");
+vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.4");
 //----------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {
@@ -74,7 +74,7 @@ int vtkImageDataLIC2D::SetContext( vtkRenderWindow * context )
 {
   if ( this->Context == context )
     {
-    return 1;
+    return this->OpenGLExtensionsSupported;
     }
 
   if ( this->Context && this->OwnWindow )

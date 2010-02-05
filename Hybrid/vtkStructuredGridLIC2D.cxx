@@ -43,7 +43,7 @@ extern const char *vtkStructuredGridLIC2D_fs;
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkStructuredGridLIC2D);
-vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.3");
+vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.4");
 //----------------------------------------------------------------------------
 vtkStructuredGridLIC2D::vtkStructuredGridLIC2D()
 {
@@ -80,7 +80,7 @@ int vtkStructuredGridLIC2D::SetContext( vtkRenderWindow * context )
 {
   if ( this->Context == context )
     {
-    return 1;
+    return this->OpenGLExtensionsSupported;
     }
 
   if ( this->Context && this->OwnWindow )

@@ -202,8 +202,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   output->AllocateScalars();
   
   CREATE_NEW( filter, vtkImageDataLIC2D );
-  filter->SetContext( renWin );
-  if ( filter->GetOpenGLExtensionsSupported() == 0 )
+  if (  filter->SetContext( renWin ) == 0  )
     {
     cout << "Required OpenGL extensions / GPU not supported." << endl;
     return 0;
