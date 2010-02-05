@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.41");
+vtkCxxRevisionMacro(vtkImageData, "1.42");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -639,44 +639,40 @@ double *vtkImageData::GetPoint(vtkIdType ptId)
     return x;
     }
 
+  // "loc" holds the point x,y,z indices
+  loc[0] = loc[1] = loc[2] = 0;
+
   switch (this->DataDescription)
     {
     case VTK_EMPTY:
       return x;
 
     case VTK_SINGLE_POINT:
-      loc[0] = loc[1] = loc[2] = 0;
       break;
 
     case VTK_X_LINE:
-      loc[1] = loc[2] = 0;
       loc[0] = ptId;
       break;
 
     case VTK_Y_LINE:
-      loc[0] = loc[2] = 0;
       loc[1] = ptId;
       break;
 
     case VTK_Z_LINE:
-      loc[0] = loc[1] = 0;
       loc[2] = ptId;
       break;
 
     case VTK_XY_PLANE:
-      loc[2] = 0;
       loc[0] = ptId % dims[0];
       loc[1] = ptId / dims[0];
       break;
 
     case VTK_YZ_PLANE:
-      loc[0] = 0;
       loc[1] = ptId % dims[1];
       loc[2] = ptId / dims[1];
       break;
 
     case VTK_XZ_PLANE:
-      loc[1] = 0;
       loc[0] = ptId % dims[0];
       loc[2] = ptId / dims[0];
       break;
