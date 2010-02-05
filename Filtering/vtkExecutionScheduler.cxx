@@ -52,7 +52,7 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.11");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.12");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -239,7 +239,7 @@ public:
   vtkObject* Target;
 };
 
-void vtkExecutionScheduler::SchedulePropagate(vtkExecutiveCollection *execs, vtkInformation *info)
+void vtkExecutionScheduler::SchedulePropagate(vtkExecutiveCollection *execs, vtkInformation* vtkNotUsed(info))
 {
   execs->InitTraversal();
   vtkExecutiveSet    visited;
