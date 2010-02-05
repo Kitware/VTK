@@ -488,6 +488,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkSetGet.h
     vtkSmartPointer.h
     vtkSystemIncludes.h
+    vtkTemplateAliasMacro.h
     vtkType.h
     vtkTypeTraits.h
     vtkVariantInlineOperators.h
