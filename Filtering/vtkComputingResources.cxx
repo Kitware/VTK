@@ -37,7 +37,7 @@
 #include <vtksys/hash_map.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkComputingResources, "1.3");
+vtkCxxRevisionMacro(vtkComputingResources, "1.4");
 vtkStandardNewMacro(vtkComputingResources);
 
 //----------------------------------------------------------------------------
@@ -248,6 +248,7 @@ void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec,
         (*i).second->HasResource()) 
       {
       (*i).second->AllocateFor(exec);
+      fprintf(stderr, "UPDATE %s\n", exec->GetAlgorithm()->GetClassName());
       exec->Update();
 //       exec->ForceUpdateData((*i).first, info);
       }

@@ -72,6 +72,12 @@ public:
   void Schedule(vtkExecutiveCollection *execs, vtkInformation *info);
   
   // Description:
+  // Put the current set of executives (modules) to the be scheduled
+  // given its dependency graph which will be used to compute the set
+  // topological orders. Then wait for their execution to be complete
+  void SchedulePropagate(vtkExecutiveCollection *execs, vtkInformation *info);
+  
+  // Description:
   // Wait until the current set of executives (modules) have finished executing
   void WaitUntilDone(vtkExecutiveCollection *execs);
   
