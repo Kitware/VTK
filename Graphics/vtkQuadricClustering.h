@@ -118,6 +118,7 @@ public:
   // Description:
   // Enable automatic adjustment of number of divisions. If off, the number
   // of divisions specified by the user is always used (as long as it is valid).
+  // The default is On
   vtkSetMacro(AutoAdjustNumberOfDivisions,int);
   vtkGetMacro(AutoAdjustNumberOfDivisions,int);
   vtkBooleanMacro(AutoAdjustNumberOfDivisions,int);
