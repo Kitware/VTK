@@ -130,6 +130,7 @@ protected:
     int LoadMetaData(int ncFD);
   };
   class vtkDimensionInfoVector;
+  friend class vtkDimensionInfoVector;
   vtkDimensionInfoVector *DimensionInfo;
   vtkDimensionInfo *GetDimensionInfo(int dimension);
 
@@ -164,6 +165,7 @@ protected:
   };
   friend class vtkDependentDimensionInfo;
   class vtkDependentDimensionInfoVector;
+  friend class vtkDependentDimensionInfoVector;
   vtkDependentDimensionInfoVector *DependentDimensionInfo;
 
   // Finds the dependent dimension information for the given set of dimensions.
