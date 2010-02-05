@@ -32,7 +32,7 @@ static void vtkGetDimensions(int extents[6], int dims[3])
 }
 
 vtkStandardNewMacro(vtkDataTransferHelper);
-vtkCxxRevisionMacro(vtkDataTransferHelper, "1.2");
+vtkCxxRevisionMacro(vtkDataTransferHelper, "1.3");
 vtkCxxSetObjectMacro(vtkDataTransferHelper, Texture, vtkTextureObject);
 vtkCxxSetObjectMacro(vtkDataTransferHelper, Array, vtkDataArray);
 //----------------------------------------------------------------------------
@@ -577,9 +577,9 @@ void vtkDataTransferHelper::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   
-  os << indent << "Array: "               << this->Array   << endl;
-  os << indent << "Texture: "             << this->Texture << endl;
-  os << indent << "MinTextureDimension: " << this->Texture << endl;
+  os << indent << "Array: "               << this->Array               << endl;
+  os << indent << "Texture: "             << this->Texture             << endl;
+  os << indent << "MinTextureDimension: " << this->MinTextureDimension << endl;
   os << indent << "CPUExtent: ("     << this->CPUExtent[0] << ", "
                                      << this->CPUExtent[1] << ", "
                                      << this->CPUExtent[2] << ", "
