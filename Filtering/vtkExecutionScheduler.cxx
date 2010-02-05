@@ -30,7 +30,6 @@
 #include "vtkExecutionScheduler.h"
 
 #include "vtkAlgorithm.h"
-#include "vtkCommand.h"
 #include "vtkComputingResources.h"
 #include "vtkExecutiveCollection.h"
 #include "vtkInformation.h"
@@ -43,7 +42,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkThreadedStreamingPipeline.h"
 #include "vtkThreadMessager.h"
-#include "vtkView.h"
 
 #include <vtkstd/set>
 #include <vtksys/hash_map.hxx>
@@ -51,7 +49,7 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.14");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.15");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -143,13 +141,6 @@ public:
                           vtkExecutiveSet &visited);
   
   // Description:
-  // Actual traverse down the network, for each nodes, construct and
-  // add edges connecting all of its upstream modules to itself to the
-  // dependency graph
-  void CollectDownToSink(vtkExecutive *exec, vtkExecutiveSet &visited,
-                         vtkExecutiveVector &graph);
-  
-  // Description:
   // A task can be executed if none of its predecessor tasks are still
   // on the queue. This only makes sense for tasks that are currently
   // on the queue, thus, an iterator is provided instead of the task
@@ -232,45 +223,6 @@ void vtkExecutionScheduler::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-class vtkViewCommand : public vtkCommand
-{
-public:
-  vtkObject* Target;
-};
-
-void vtkExecutionScheduler::SchedulePropagate(vtkExecutiveCollection *execs, vtkInformation* vtkNotUsed(info))
-{
-  execs->InitTraversal();
-  vtkExecutiveSet    visited;
-  vtkExecutiveVector graph;
-  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem())
-    {
-    this->Implementation->CollectDownToSink(e, visited, graph);
-    }
-  
-  for (vtkExecutiveVector::iterator vi=graph.begin();
-       vi!=graph.end(); vi++)
-    {
-    (*vi)->Update();
-#if 1
-    vtkAlgorithm *rep =(*vi)->GetAlgorithm();
-    if (rep->IsA("vtkDataRepresentation"))
-      {
-      vtkViewCommand *cmd = (vtkViewCommand*)rep->GetCommand(2);
-      if (cmd)
-        {
-        vtkView *view = vtkView::SafeDownCast(cmd->Target);
-        if (view)
-          {
-          view->Update();
-          }
-        }    
-      }
-#endif
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformation *info)
 {
   if (this->ScheduleThreadId == -1)
@@ -294,7 +246,7 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
     G.push_back(e);
     }
 
-  // Create an adjacency matrix
+  // Create a adjacency matrix
   unsigned i, j, k, p;
   unsigned N = (unsigned)G.size();
   int *A = (int*)malloc(N*N*sizeof(int));
@@ -429,37 +381,6 @@ void vtkExecutionScheduler::implementation::TraverseDownToSink
   
   // Take it out of the upstream and prepare for back-tracking
   upstream.erase(exec);
-}
-
-//----------------------------------------------------------------------------
-void vtkExecutionScheduler::implementation::CollectDownToSink
-(vtkExecutive *exec, vtkExecutiveSet &visited, vtkExecutiveVector &graph)
-{
-  if (visited.find(exec)!=visited.end())
-    {
-    return;
-    }
-  
-  // Mark as visited
-  visited.insert(exec);
-
-  // Add it to the ordered graph
-  graph.push_back(exec);
-
-  // Then traverse down
-  for(int i = 0; i < exec->GetNumberOfOutputPorts(); ++i) 
-    {
-    vtkInformation* info = exec->GetOutputInformation(i);
-    int consumerCount = vtkExecutive::CONSUMERS()->Length(info);
-    vtkExecutive** e = vtkExecutive::CONSUMERS()->GetExecutives(info);
-    for (int j = 0; j < consumerCount; j++)
-      {
-      if (e[j]) 
-        {
-        this->CollectDownToSink(e[j], visited, graph);
-        }
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -840,7 +761,6 @@ void * vtkExecutionScheduler_ExecuteThread(void *data)
   self->ScheduleMessager->SendWakeMessage();
   if (task.info && task.info->Has(vtkThreadedStreamingPipeline::AUTO_PROPAGATE()))
     {
-      fprintf(stderr, "Push DOWN from %s\n", exec->GetAlgorithm()->GetClassName());
     exec->Push(task.info);
     }
   if (messager)
@@ -848,7 +768,6 @@ void * vtkExecutionScheduler_ExecuteThread(void *data)
     messager->SendWakeMessage();
     }
   delete eData;
-  fprintf(stderr, "Release now\n");
   lock->Unlock();
   return NULL;
 }
