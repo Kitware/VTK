@@ -50,7 +50,7 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.17");
+vtkCxxRevisionMacro(vtkExecutionScheduler, "1.18");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
@@ -251,21 +251,15 @@ void vtkExecutionScheduler::SchedulePropagate(vtkExecutiveCollection *execs, vtk
        vi!=graph.end(); vi++)
     {
     (*vi)->Update();
-#if 0
     vtkAlgorithm *rep =(*vi)->GetAlgorithm();
     if (rep->IsA("vtkDataRepresentation"))
       {
       vtkViewCommand *cmd = (vtkViewCommand*)rep->GetCommand(2);
       if (cmd)
         {
-        vtkView *view = vtkView::SafeDownCast(cmd->Target);
-        if (view)
-          {
-          view->Update();
-          }
+          cmd->Target->InvokeEvent(vtkCommand::UpdateEvent, NULL);
         }    
       }
-#endif
     }
 }
 
