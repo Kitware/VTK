@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.23");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.24");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -228,7 +228,8 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
 
     // Iterate over all model rows
     int inN, outN;
-    double muFactor, covFactor;
+    double muFactor = 0.;
+    double covFactor = 0.;
     vtkstd::vector<double> inMu, outMu;
     int j = 0;
     int k = 0;
