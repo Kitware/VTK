@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAppendPoints - appends points of one or more data sets
+// .NAME vtkAppendPoints - appends points of one or more vtkPolyData data sets
 //
 // .SECTION Description
 // vtkAppendPoints is a filter that appends the points and assoicated data
-// of one or more polygonal datasets. This filter can optionally add a new
-// array marking the input index that the point came from.
+// of one or more polygonal (vtkPolyData) datasets. This filter can optionally 
+// add a new array marking the input index that the point came from.
 
 // .SECTION See Also
 // vtkAppendFilter vtkAppendPolyData
