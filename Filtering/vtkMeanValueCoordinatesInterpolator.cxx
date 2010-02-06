@@ -26,7 +26,7 @@ vtkCxxRevisionMacro(vtkMeanValueCoordinatesInterpolator, "$Revision: 1.83 $");
 vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 
 // Special class that can iterate over different type of triangle representations
-class vtkTriIterator
+class vtkMVCTriIterator
 {
 public:
   vtkIdType *Tris;
@@ -35,24 +35,19 @@ public:
   vtkIdType NumberOfTriangles;
   vtkIdType Id;
 
-  vtkTriIterator(vtkIdType numIds,vtkIdType offset) :
-    Tris(NULL),Current(NULL),Offset(offset),NumberOfTriangles(0),Id(-1) 
+  vtkMVCTriIterator(vtkIdType numIds,vtkIdType offset,vtkIdType *t)
     {
+      this->Tris = t;
+      this->Current = t;
+      this->Offset = offset;
       this->NumberOfTriangles = numIds / offset;
+      this->Id = 0;
     }
   vtkIdType* operator++()
     {
       this->Current += this->Offset;
       this->Id++;
       return this->Current;
-    }
-  vtkIdType GetNumberOfTriangles()
-    {
-      return this->NumberOfTriangles;
-    }
-  vtkIdType GetId()
-    {
-      return this->Id;
     }
 };
   
@@ -76,7 +71,7 @@ vtkMeanValueCoordinatesInterpolator::
 // types really should be float or double.)
 template <class T>
 void vtkComputeMVCWeights(T x[3], T *pts, vtkIdType npts, 
-                          vtkIdType *tris, vtkTriIterator& iter,
+                          vtkIdType *tris, vtkMVCTriIterator& iter,
                           T *weights)
 {
   //Points are organized {(x,y,z), (x,y,z), ....}
@@ -90,18 +85,20 @@ void vtkComputeMVCWeights(T x[3], T *pts, vtkIdType npts,
     }
          
   // Now loop over all triangle to compute weights
-  vtkIdType tid=iter.GetId(), ntris = iter.GetNumberOfTriangles();
   vtkIdType *tri;
-  while ( tid < ntris)
+  while ( iter.Id < iter.NumberOfTriangles)
     {
-    tri = ++iter;
-    //algorithm goes here
-    tid = iter.GetId();
+    //algorithm follows
+    
+
+    //increment id and next triangle
+    tri = ++iter; 
     }
 }
 
 //----------------------------------------------------------------------------
-// Static function to compute weights
+// Static function to compute weights (with vtkIdList)
+// Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::
 ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris, vtkDataArray *weights)
 {
@@ -113,14 +110,15 @@ ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris, vtkDat
     }
   vtkIdType *t = tris->GetPointer(0);
   // Below the vtkCellArray has three entries per triangle {(i,j,k), (i,j,k), ....}
-  vtkTriIterator iter(tris->GetNumberOfIds(),3);
+  vtkMVCTriIterator iter(tris->GetNumberOfIds(),3,t);
 
   vtkMeanValueCoordinatesInterpolator::
     ComputeInterpolationWeights(x,pts,t,iter,weights);
 }
 
 //----------------------------------------------------------------------------
-// Static function to compute weights
+// Static function to compute weights (with vtkCellArray)
+// Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::
 ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, vtkDataArray *weights)
 {
@@ -132,7 +130,7 @@ ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, vtk
     }
   vtkIdType *t = tris->GetPointer();
   // Below the vtkCellArray has four entries per triangle {(3,i,j,k), (3,i,j,k), ....}
-  vtkTriIterator iter(tris->GetNumberOfConnectivityEntries(),4);
+  vtkMVCTriIterator iter(tris->GetNumberOfConnectivityEntries(),4,t);
 
   vtkMeanValueCoordinatesInterpolator::
     ComputeInterpolationWeights(x,pts,t,iter,weights);
@@ -142,7 +140,7 @@ ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, vtk
 // Static function to compute weights
 void vtkMeanValueCoordinatesInterpolator::
 ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdType *tris, 
-                            vtkTriIterator& iter, vtkDataArray *weights)
+                            vtkMVCTriIterator& iter, vtkDataArray *weights)
 {
   // Check the input
   if ( !pts || !weights)

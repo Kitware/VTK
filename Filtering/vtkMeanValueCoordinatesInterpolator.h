@@ -40,7 +40,7 @@ class vtkCellArray;
 class vtkDataArray;
 
 //Special internal class for iterating over data
-class vtkTriIterator;
+class vtkMVCTriIterator;
 
 
 class VTK_FILTERING_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
@@ -80,7 +80,7 @@ protected:
   // Description:
   // Internal method that sets up the processing of the data.
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdType *tris,
-                                          vtkTriIterator& iter, vtkDataArray *weights);
+                                          vtkMVCTriIterator& iter, vtkDataArray *weights);
   
 
 private:
