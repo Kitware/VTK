@@ -78,6 +78,9 @@ typedef enum {
   // Special class of cells formed by convex group of points
   VTK_CONVEX_POINT_SET = 41,
 
+  // Polyhedron cell (consisting of polygonal faces)
+  VTK_POLYHEDRON = 42,
+
   // Higher order cells in parametric form
   VTK_PARAMETRIC_CURVE        = 51,
   VTK_PARAMETRIC_SURFACE      = 52,
