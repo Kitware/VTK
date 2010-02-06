@@ -24,6 +24,7 @@
 
 vtkStandardNewMacro(vtkWarpVector);
 
+//----------------------------------------------------------------------------
 vtkWarpVector::vtkWarpVector()
 {
   this->ScaleFactor = 1.0;
@@ -33,10 +34,12 @@ vtkWarpVector::vtkWarpVector()
                                vtkDataSetAttributes::VECTORS);
 }
 
+//----------------------------------------------------------------------------
 vtkWarpVector::~vtkWarpVector()
 {
 }
 
+//----------------------------------------------------------------------------
 template <class T1, class T2>
 void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts, 
                            T1 *outPts, T2 *inVec, vtkIdType max)
@@ -65,6 +68,7 @@ void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
     }
 }
           
+//----------------------------------------------------------------------------
 template <class T>
 void vtkWarpVectorExecute(vtkWarpVector *self, 
                           T *inPts, 
@@ -152,6 +156,7 @@ int vtkWarpVector::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

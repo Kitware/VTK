@@ -12,25 +12,42 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProbePolyhedron - sample data values at specified point locations
+// .NAME vtkProbePolyhedron - probe/interpolate data values in the interior, 
+// exterior or of the surface of a closed, manifold polyhedron
 // .SECTION Description
-// vtkProbePolyhedron is a filter that computes point attributes (e.g., scalars,
-// vectors, etc.) at specified point positions. The filter has two inputs:
-// the Input and Source. The Input geometric structure is passed through the
-// filter. The point attributes are computed at the Input point positions
-// by interpolating into the source data. For example, we can compute data
-// values on a plane (plane specified as Input) from a volume (Source).
-// The cell data of the source data is copied to the output based on in
-// which source cell each input point is. If an array of the same name exists
-// both in source's point and cell data, only the one from the point data is
-// probed.
+// vtkProbePolyhedron is a filter that computes point attributes (e.g.,
+// scalars, vectors, etc.) at specified point positions. The filter has two
+// inputs: the Input and Source. The Input geometric structure is passed
+// through the filter. The point attributes are computed at the Input point
+// positions by interpolating into the source data. In this filter, the
+// Source is always a closed, non-self-intersecting, polyhedral mesh. For
+// example, we can compute data values on a plane (plane specified as Input)
+// from a triangle mesh (e.g., output of marching cubes).  
 //
-// This filter can be used to resample data, or convert one dataset form into
-// another. For example, an unstructured grid (vtkUnstructuredGrid) can be
-// probed with a volume (three-dimensional vtkImageData), and then volume
-// rendering techniques can be used to visualize the results. Another example:
-// a line or curve can be used to probe data to produce x-y plots along
-// that line or curve.
+// This filter can be used to resample data from a mesh onto a different
+// dataset type. For example, a polyhedral mesh (vtkPolyData) can be probed
+// with a volume (three-dimensional vtkImageData), and then volume rendering
+// techniques can be used to visualize the results. Another example: a line
+// or curve can be used to probe a mesh to produce x-y plots along that line or
+// curve.
+
+// .SECTION Caveats
+// Note that cell data is not interpolated from the source. If you need cell data,
+// you can always use vtkPointDataToCellData and/or vtkCellDataToPointData in
+// various combinations.
+//
+// Note that the filter interpolates from a mesh to points interior, exterior
+// or on the surface of the mesh. This process is necessarily an
+// approximation. Currently the approach of Mean Value Coordinates is used,
+// but this filter may be extended in the future to use other methods.
+//
+// If the source mesh is not triangular, it will first be tessellated prior to 
+// interpolation. If the mesh is non-manifold, not closed, or self-intersecting
+// you are asking for trouble. No checking is performed.
+
+// .SECTION See Also
+// vtkProbeFilter vtkMeanValueCoordinatesInterpolator vtkPolyhedron
+
 
 #ifndef __vtkProbePolyhedron_h
 #define __vtkProbePolyhedron_h
@@ -45,6 +62,8 @@ class vtkMaskPoints;
 class VTK_GRAPHICS_EXPORT vtkProbePolyhedron : public vtkDataSetAlgorithm
 {
 public:
+  // Description:
+  // Standard methods for instantiable (i.e., concrete) class.
   static vtkProbePolyhedron *New();
   vtkTypeRevisionMacro(vtkProbePolyhedron,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -52,45 +71,17 @@ public:
   // Description:
   // Specify the point locations used to probe input. Any geometry
   // can be used. Old style. Do not use unless for backwards compatibility.
-  void SetSource(vtkDataObject *source);
-  vtkDataObject *GetSource();
+  void SetSource(vtkPolyData *source);
+  vtkPolyData *GetSource();
 
   // Description:
   // Specify the point locations used to probe input. Any geometry
   // can be used. New style. Equivalent to SetInputConnection(1, algOutput).
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  // Description:
-  // This flag is used only when a piece is requested to update.  By default
-  // the flag is off.  Because no spatial correspondence between input pieces
-  // and source pieces is known, all of the source has to be requested no
-  // matter what piece of the output is requested.  When there is a spatial 
-  // correspondence, the user/application can set this flag.  This hint allows
-  // the breakup of the probe operation to be much more efficient.  When piece
-  // m of n is requested for update by the user, then only n of m needs to
-  // be requested of the source. 
-  vtkSetMacro(SpatialMatch, int);
-  vtkGetMacro(SpatialMatch, int);
-  vtkBooleanMacro(SpatialMatch, int);
-
-  // Description:
-  // Get the list of point ids in the output that contain attribute data
-  // interpolated from the source.
-  vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
- 
-  // Description:
-  // Returns the name of the char array added to the output with values 1 for
-  // valid points and 0 for invalid points.
-  // Set to "vtkValidPointMask" by default.
-  vtkSetStringMacro(ValidPointMaskArrayName)
-  vtkGetStringMacro(ValidPointMaskArrayName)
-
-//BTX 
 protected:
   vtkProbePolyhedron();
   ~vtkProbePolyhedron();
-
-  int SpatialMatch;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, 
     vtkInformationVector *);
@@ -99,46 +90,10 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, 
     vtkInformationVector *);
 
-  // Description:
-  // Equivalent to calling InitializeForProbing(); ProbeEmptyPoints().
-  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
-
-  // Description:
-  // Build the field lists. This is required before calling
-  // InitializeForProbing().
-  void BuildFieldList(vtkDataSet* source);
-
-  // Description:
-  // Initializes output and various arrays which keep track for probing status.
-  virtual void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
-
-  // Description:
-  // Probe only those points that are marked as not-probed by the MaskPoints
-  // array.
-  // srcIdx is the index in the PointList for the given source. 
-  void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source, 
-    vtkDataSet *output);
-
-  char* ValidPointMaskArrayName;
-  vtkIdTypeArray *ValidPoints;
-  vtkCharArray* MaskPoints;
-  int NumberOfValidPoints;
-
-  // Agreed, this is sort of a hack to allow subclasses to override the default
-  // behavior of this filter to call NullPoint() for every point that is
-  // not-a-hit when probing. This makes it possible for subclasses to initialize
-  // the arrays with different defaults.
-  bool UseNullPoint;
-
-  vtkDataSetAttributes::FieldList* CellList;
-  vtkDataSetAttributes::FieldList* PointList;
 private:
   vtkProbePolyhedron(const vtkProbePolyhedron&);  // Not implemented.
   void operator=(const vtkProbePolyhedron&);  // Not implemented.
 
-  class vtkVectorOfArrays;
-  vtkVectorOfArrays* CellArrays;
-//ETX
 };
 
 #endif
