@@ -201,6 +201,16 @@ public:
   static vtkStructuredGrid* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+  // Description:
+  // Get a point in the grid. If adjustForExtent is true, (i,j,k) is 
+  // interpreted as a position relative to the beginning of the extent.
+  // If adjustForExtent is false, (i,j,k) is interpreted literally
+  // and the (i,j,k) point of the grid is returned regardless of the 
+  // extent beginning.
+  // The point coordinate is returned in 'p'.
+  // The default adjustForExtent is true.
+  void GetPoint(int i, int j, int k, double p[3], bool adjustForExtent = true);
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
