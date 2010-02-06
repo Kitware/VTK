@@ -43,7 +43,7 @@ class vtkIdTypeArray;
 class vtkTriIterator;
 
 
-class VTK_COMMON_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
+class VTK_FILTERING_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
 {
 public:
   // Description
