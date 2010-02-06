@@ -34,7 +34,7 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.4");
+vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.5");
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,Property,vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,SelectedProperty,vtkProperty);
 
@@ -504,6 +504,13 @@ void vtkAbstractPolygonalHandleRepresentation3D
   double handleSize = this->HandleTransformMatrix->GetElement(0,0) * sf;
   handleSize = (handleSize < 0.001 ? 0.001 : handleSize);
 
+  this->SetUniformScale( handleSize );
+}
+
+//----------------------------------------------------------------------
+void vtkAbstractPolygonalHandleRepresentation3D
+::SetUniformScale(double handleSize)
+{
   this->HandleTransformMatrix->SetElement(0, 0, handleSize);
   this->HandleTransformMatrix->SetElement(1, 1, handleSize);
   this->HandleTransformMatrix->SetElement(2, 2, handleSize);

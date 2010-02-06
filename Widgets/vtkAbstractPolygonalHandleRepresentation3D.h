@@ -111,6 +111,12 @@ public:
   // Get the label text actor
   vtkGetObjectMacro( LabelTextActor, vtkFollower );
   
+  // Description:
+  // The handle may be scaled uniformly in all three dimensions using this 
+  // API. The handle can also be scaled interactively using the right 
+  // mouse button.
+  virtual void SetUniformScale( double scale );
+
 protected:
   vtkAbstractPolygonalHandleRepresentation3D();
   ~vtkAbstractPolygonalHandleRepresentation3D();
