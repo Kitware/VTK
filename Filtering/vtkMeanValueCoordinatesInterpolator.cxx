@@ -19,7 +19,7 @@
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
+#include "vtkCellArray.h"
 
 
 vtkCxxRevisionMacro(vtkMeanValueCoordinatesInterpolator, "$Revision: 1.83 $");
@@ -75,7 +75,7 @@ vtkMeanValueCoordinatesInterpolator::
 // are the same. This class actually implements the algorithm. (Note: the input
 // types really should be float or double.)
 template <class T>
-void vtkComputeMVCWeights(T *pts, vtkIdType npts, 
+void vtkComputeMVCWeights(T x[3], T *pts, vtkIdType npts, 
                           vtkIdType *tris, vtkTriIterator& iter,
                           T *weights)
 {
@@ -95,7 +95,7 @@ void vtkComputeMVCWeights(T *pts, vtkIdType npts,
   while ( tid < ntris)
     {
     tri = ++iter;
-	//algorithm goes here
+    //algorithm goes here
     tid = iter.GetId();
     }
 }
@@ -103,7 +103,7 @@ void vtkComputeMVCWeights(T *pts, vtkIdType npts,
 //----------------------------------------------------------------------------
 // Static function to compute weights
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeights(vtkPoints *pts, vtkIdList *tris, vtkDataArray *weights)
+ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris, vtkDataArray *weights)
 {
   // Check the input
   if ( !tris )
@@ -112,16 +112,17 @@ ComputeInterpolationWeights(vtkPoints *pts, vtkIdList *tris, vtkDataArray *weigh
     return;
     }
   vtkIdType *t = tris->GetPointer(0);
+  // Below the vtkCellArray has three entries per triangle {(i,j,k), (i,j,k), ....}
   vtkTriIterator iter(tris->GetNumberOfIds(),3);
 
   vtkMeanValueCoordinatesInterpolator::
-    ComputeInterpolationWeights(pts,t,iter,weights);
+    ComputeInterpolationWeights(x,pts,t,iter,weights);
 }
 
 //----------------------------------------------------------------------------
 // Static function to compute weights
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeights(vtkPoints *pts, vtkIdTypeArray *tris, vtkDataArray *weights)
+ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, vtkDataArray *weights)
 {
   // Check the input
   if ( !tris )
@@ -129,17 +130,18 @@ ComputeInterpolationWeights(vtkPoints *pts, vtkIdTypeArray *tris, vtkDataArray *
     vtkGenericWarningMacro("Did not provide triangles");
     return;
     }
-  vtkIdType *t = tris->GetPointer(0);
-  vtkTriIterator iter(tris->GetNumberOfTuples(),4);
+  vtkIdType *t = tris->GetPointer();
+  // Below the vtkCellArray has four entries per triangle {(3,i,j,k), (3,i,j,k), ....}
+  vtkTriIterator iter(tris->GetNumberOfConnectivityEntries(),4);
 
   vtkMeanValueCoordinatesInterpolator::
-    ComputeInterpolationWeights(pts,t,iter,weights);
+    ComputeInterpolationWeights(x,pts,t,iter,weights);
 }
 
 //----------------------------------------------------------------------------
 // Static function to compute weights
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeights(vtkPoints *pts, vtkIdType *tris, 
+ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdType *tris, 
                             vtkTriIterator& iter, vtkDataArray *weights)
 {
   // Check the input
@@ -170,11 +172,22 @@ ComputeInterpolationWeights(vtkPoints *pts, vtkIdType *tris,
   void *p = pts->GetVoidPointer(0);
   void *w = weights->GetVoidPointer(0);
   
-  // call templated function to compute the weights
+  // call templated function to compute the weights. Note that we do not
+  // use VTK's template macro because we are limiting usage to floats and doubles.
   switch (pts->GetDataType())
     {
-    vtkTemplateMacro(
-      vtkComputeMVCWeights( (VTK_TT *)(p), numPts, tris, iter, (VTK_TT *)(w)) );
+    case VTK_FLOAT:
+      float xf[3];
+      xf[0] = static_cast<float>(x[0]);
+      xf[1] = static_cast<float>(x[1]);
+      xf[2] = static_cast<float>(x[2]);
+      vtkComputeMVCWeights(xf, static_cast<float*>(p), numPts, tris, iter, static_cast<float*>(w));
+      break;
+
+    case VTK_DOUBLE:
+      vtkComputeMVCWeights(x, static_cast<double*>(p), numPts, tris, iter, static_cast<double*>(w));
+      break;
+
     default:
       break;
     }
