@@ -36,13 +36,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
+  // Determines how the input is interpreted (set of 2d slices ...).
+  // The default is 2.
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
   
   // Description:
-  // Set the two inputs to this filter
+  // Set the input image.
   virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+
+  // Description:
+  // Set the correlation kernel.
   virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
 
 protected:
