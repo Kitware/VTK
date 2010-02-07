@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.5");
+vtkCxxRevisionMacro(vtkPointLocator, "1.6");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
@@ -1369,7 +1369,7 @@ vtkIdType vtkPointLocator::InsertNextPoint(const double x[3])
 // Incrementally insert a point into search structure with a particular
 // index value. You should use the method IsInsertedPoint() to see whether 
 // this point has already been inserted (that is, if you desire to prevent
-// dulicate points). Before using this method you must make sure that 
+// duplicate points). Before using this method you must make sure that 
 // newPts have been supplied, the bounds has been set properly, and that 
 // divs are properly set. (See InitPointInsertion().)
 void vtkPointLocator::InsertPoint(vtkIdType ptId, const double x[3])
