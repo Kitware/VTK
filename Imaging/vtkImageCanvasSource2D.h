@@ -35,15 +35,27 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get DrawValue.  This is the value that is used when filling data
-  // or drawing lines.
+  // Set/Get DrawColor.  This is the value that is used when filling data
+  // or drawing lines. Default is (0,0,0,0)
   vtkSetVector4Macro(DrawColor, double);
   vtkGetVector4Macro(DrawColor, double);
+
+  // Description:
+  // Set DrawColor to (a, 0, 0, 0)
   void SetDrawColor(double a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
+
+  // Description:
+  // Set DrawColor to (a, b, 0, 0)
   void SetDrawColor(double a,double b) {this->SetDrawColor(a, b, 0.0, 0.0);}
+
+  // Description:
+  // Set DrawColor to (a, b, c, 0)
   void SetDrawColor(double a, double b, double c) {
     this->SetDrawColor(a, b, c, 0.0);}
 
+  // Description:
+  // Set the pixels inside the box (min0, max0, min1, max1) to the current
+  // DrawColor
   void FillBox(int min0, int max0, int min1, int max1);
   void FillTube(int x0, int y0, int x1, int y1, double radius);
   void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
@@ -81,13 +93,14 @@ public:
   // Description:
   // The drawing operations can only draw into one 2D XY plane at a time.
   // If the canvas is a 3D volume, then this z value is used
-  // as the default for 2D operations.
+  // as the default for 2D operations. The default is 0.
   vtkSetMacro(DefaultZ, int);
   vtkGetMacro(DefaultZ, int);
 
   // Description:
   // Set/Get Ratio. This is the value that is used to pre-multiply each
-  // (x, y, z) drawing coordinates (including DefaultZ).
+  // (x, y, z) drawing coordinates (including DefaultZ). The default
+  // is (1, 1, 1)
   vtkSetVector3Macro(Ratio, double);
   vtkGetVector3Macro(Ratio, double);
 
