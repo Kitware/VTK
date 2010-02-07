@@ -60,42 +60,123 @@ public:
   // Set/Get the Operation to perform.
   vtkSetMacro(Operation,int);
   vtkGetMacro(Operation,int);
+
+  // Description:
+  // Set each pixel in the output image to the sum of the corresponding pixels
+  // in Input1 and Input2.
   void SetOperationToAdd() {this->SetOperation(VTK_ADD);};
+
+  // Description:
+  // Set each pixel in the output image to the difference of the corresponding pixels
+  // in Input1 and Input2 (output = Input1 - Input2).
   void SetOperationToSubtract() {this->SetOperation(VTK_SUBTRACT);};
+
+  // Description:
+  // Set each pixel in the output image to the product of the corresponding pixels
+  // in Input1 and Input2.
   void SetOperationToMultiply() {this->SetOperation(VTK_MULTIPLY);};
+
+  // Description:
+  // Set each pixel in the output image to the quotient of the corresponding pixels
+  // in Input1 and Input2 (Output = Input1 / Input2).
   void SetOperationToDivide() {this->SetOperation(VTK_DIVIDE);};
+
   void SetOperationToConjugate() {this->SetOperation(VTK_CONJUGATE);};
+
   void SetOperationToComplexMultiply()
     {this->SetOperation(VTK_COMPLEX_MULTIPLY);};
 
+  // Description:
+  // Set each pixel in the output image to 1 over the corresponding pixel
+  // in Input1 and Input2 (output = 1 / Input1). Input2 is not used.
   void SetOperationToInvert() {this->SetOperation(VTK_INVERT);};
+
+  // Description:
+  // Set each pixel in the output image to the sine of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToSin() {this->SetOperation(VTK_SIN);};
+
+  // Description:
+  // Set each pixel in the output image to the cosine of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToCos() {this->SetOperation(VTK_COS);};
+
+  // Description:
+  // Set each pixel in the output image to the exponential of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToExp() {this->SetOperation(VTK_EXP);};
+
+  // Description:
+  // Set each pixel in the output image to the log of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToLog() {this->SetOperation(VTK_LOG);};
+
+  // Description:
+  // Set each pixel in the output image to the absolute value of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToAbsoluteValue() {this->SetOperation(VTK_ABS);};
+
+  // Description:
+  // Set each pixel in the output image to the square of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToSquare() {this->SetOperation(VTK_SQR);};
+
+  // Description:
+  // Set each pixel in the output image to the square root of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToSquareRoot() {this->SetOperation(VTK_SQRT);};
+
+  // Description:
+  // Set each pixel in the output image to the minimum of the corresponding pixels
+  // in Input1 and Input2. (Output = min(Input1, Input2))
   void SetOperationToMin() {this->SetOperation(VTK_MIN);};
+
+  // Description:
+  // Set each pixel in the output image to the maximum of the corresponding pixels
+  // in Input1 and Input2. (Output = max(Input1, Input2))
   void SetOperationToMax() {this->SetOperation(VTK_MAX);};
 
+  // Description:
+  // Set each pixel in the output image to the arctangent of the corresponding pixel
+  // in Input1. Input2 is not used.
   void SetOperationToATAN() {this->SetOperation(VTK_ATAN);};
+
   void SetOperationToATAN2() {this->SetOperation(VTK_ATAN2);};
+
+  // Description:
+  // Set each pixel in the output image to the product of ConstantK with the
+  // corresponding pixel in Input1. Input2 is not used.
   void SetOperationToMultiplyByK() {this->SetOperation(VTK_MULTIPLYBYK);};
+
+  // Description:
+  // Set each pixel in the output image to the product of ConstantC with the
+  // corresponding pixel in Input1. Input2 is not used.
   void SetOperationToAddConstant() {this->SetOperation(VTK_ADDC);};
+
+  // Description:
+  // Find every pixel in Input1 that equals ConstantC and set the corresponding pixels
+  // in the Output to ConstantK. Input2 is not used.
   void SetOperationToReplaceCByK() {this->SetOperation(VTK_REPLACECBYK);};
+
+  // Description:
+  // A constant used by some operations (typically multiplicative). Default is 1.
   vtkSetMacro(ConstantK,double);
   vtkGetMacro(ConstantK,double);
+
+  // Description:
+  // A constant used by some operations (typically additive). Default is 0.
   vtkSetMacro(ConstantC,double);
   vtkGetMacro(ConstantC,double);
 
-  // How to handle divide by zero
+  // Description:
+  // How to handle divide by zero. Default is 0.
   vtkSetMacro(DivideByZeroToC,int);
   vtkGetMacro(DivideByZeroToC,int);
   vtkBooleanMacro(DivideByZeroToC,int);
 
   // Description:
-  // Set the two inputs to this filter
+  // Set the two inputs to this filter. For some operations, the second input
+  // is not used.
   virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
   virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
 
@@ -127,16 +208,4 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
 
