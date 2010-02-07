@@ -91,7 +91,7 @@ public:
   //   Set/Get the number of spatial regions you want to get close
   //   to without going over.  (The number of spatial regions is normally
   //   a power of two.)  Call this before BuildLocator().  Default
-  //   is unset.
+  //   is unset (0).
 
   vtkGetMacro(NumberOfRegionsOrLess, int);
   vtkSetMacro(NumberOfRegionsOrLess, int);
@@ -100,7 +100,7 @@ public:
   //   Set/Get the number of spatial regions you want to get close
   //   to while having at least this many regions.  (The number of
   //   spatial regions is normally a power of two.)   Default
-  //   is unset.
+  //   is unset (0).
 
   vtkGetMacro(NumberOfRegionsOrMore, int);
   vtkSetMacro(NumberOfRegionsOrMore, int);
