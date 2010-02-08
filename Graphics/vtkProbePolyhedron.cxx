@@ -21,6 +21,10 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkMeanValueCoordinatesInterpolator.h"
 
 
 vtkCxxRevisionMacro(vtkProbePolyhedron, "$Revision$");
@@ -29,6 +33,9 @@ vtkStandardNewMacro(vtkProbePolyhedron);
 //----------------------------------------------------------------------------
 vtkProbePolyhedron::vtkProbePolyhedron()
 {
+  this->ProbePointData = 1;
+  this->ProbeCellData = 0;
+
   this->SetNumberOfInputPorts(2);
 }
 
@@ -85,7 +92,105 @@ int vtkProbePolyhedron::RequestData(
     return 0;
     }
 
-  // Algorithm goes here
+  // Make sure that the mesh consists of triangles. Bail out if not.
+  vtkIdType numPolys = source->GetNumberOfPolys();
+  vtkIdType numStrips = source->GetNumberOfStrips();
+  
+  vtkCellArray *srcPolys = source->GetPolys();
+  vtkIdType numTriangles = srcPolys->GetNumberOfConnectivityEntries() / 4;
+  
+  if ( numStrips > 0 || numTriangles != numPolys )
+    {
+    vtkErrorMacro("Probe polyhedron filter requires a triangle mesh");
+    return 0;
+    }
+
+  // Set up attribute interpolation. The input structure is passed to the
+  // output.
+  vtkIdType numInputPts = input->GetNumberOfPoints();
+  vtkIdType numSrcPts = source->GetNumberOfPoints();
+  vtkIdType numInputCells = input->GetNumberOfCells();
+  output->CopyStructure(input);
+  vtkPointData *outPD = output->GetPointData();
+  vtkCellData *outCD = output->GetCellData();
+  vtkPointData *srcPD = source->GetPointData();
+  outPD->InterpolateAllocate(srcPD,numInputPts,1);
+  outCD->InterpolateAllocate(srcPD,numInputCells,1);
+  
+  // Okay probe the polyhedral mesh. Have to loop over all points and compute
+  // each points interpolation weights. These weights are used to perform the
+  // interpolation.
+  vtkPoints *srcPts = source->GetPoints();
+  vtkDoubleArray *weights = vtkDoubleArray::New();
+  weights->SetNumberOfComponents(1);
+  weights->SetNumberOfTuples(numSrcPts);
+  double *wPtr = weights->GetPointer(0);
+
+  // InterpolatePoint requires knowing which points to interpolate from.
+  vtkIdType ptId, cellId;
+  vtkIdList *srcIds = vtkIdList::New();
+  srcIds->SetNumberOfIds(numSrcPts);
+  for (ptId=0; ptId < numSrcPts; ++ptId)
+    {
+    srcIds->SetId(ptId,ptId);
+    }
+        
+  // Interpolate the point data (if requested)
+  double x[3];
+  int abort=0;
+  vtkIdType idx=0, progressInterval=(numInputCells+numInputPts)/10 + 1;
+  if ( this->ProbePointData )
+    {
+    for (ptId=0; ptId < numInputPts && !abort; ++ptId, ++idx)
+      {
+      if ( ! (idx % progressInterval) ) 
+        {
+        vtkDebugMacro(<<"Processing #" << idx);
+        this->UpdateProgress (idx/(numInputCells+numInputPts));
+        abort = this->GetAbortExecute();
+        }
+
+      input->GetPoint(ptId, x);
+      vtkMeanValueCoordinatesInterpolator::
+        ComputeInterpolationWeights(x,srcPts,srcPolys,wPtr);
+
+      outPD->InterpolatePoint(srcPD, ptId, srcIds, wPtr);
+      }
+    }
+  
+  // Interpolate the cell data (if requested)
+  if ( this->ProbeCellData )
+    {
+    vtkCell *cell;
+    vtkIdType subId;
+    double pcoords[3];
+    x[0] = x[1] = x[2] = 0.0;
+
+    for (cellId=0; cellId < numInputCells && !abort; ++cellId,++idx)
+      {
+      if ( ! (idx % progressInterval) ) 
+        {
+        vtkDebugMacro(<<"Processing #" << idx);
+        this->UpdateProgress (idx/(numInputCells+numInputPts));
+        abort = this->GetAbortExecute();
+        }
+
+      cell = input->GetCell(cellId);
+      if (cell->GetCellType() != VTK_EMPTY_CELL)
+        {
+        subId = cell->GetParametricCenter(pcoords);
+        cell->EvaluateLocation(subId, pcoords, x, wPtr);
+        }
+      vtkMeanValueCoordinatesInterpolator::
+        ComputeInterpolationWeights(x,srcPts,srcPolys,wPtr);
+
+      outCD->InterpolatePoint(srcPD, cellId, srcIds, wPtr);
+      }
+    }
+
+  // clean up
+  srcIds->Delete();
+  weights->Delete();
 
   return 1;
 }
@@ -171,4 +276,11 @@ void vtkProbePolyhedron::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkDataObject *source = this->GetSource();
   os << indent << "Source: " << source << "\n";
+
+  os << indent << "Probe Point Data: " 
+     << (this->ProbePointData ? "true" : "false") << "\n";
+
+  os << indent << "Probe Cell Data: " 
+     << (this->ProbeCellData ? "true" : "false") << "\n";
+
 }

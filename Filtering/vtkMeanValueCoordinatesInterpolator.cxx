@@ -66,13 +66,13 @@ vtkMeanValueCoordinatesInterpolator::
 }
 
 //----------------------------------------------------------------------------
-// Templated function to generate weights. The weights and points data types
-// are the same. This class actually implements the algorithm. (Note: the input
-// types really should be float or double.)
+// Templated function to generate weights. This class actually implements the
+// algorithm. (Note: the input point type should be float or double, but this is
+// not enfored.)
 template <class T>
-void vtkComputeMVCWeights(T x[3], T *pts, vtkIdType npts, 
+void vtkComputeMVCWeights(double x[3], T *pts, vtkIdType npts, 
                           vtkIdType *tris, vtkMVCTriIterator& iter,
-                          T *weights)
+                          double *weights)
 {
   //Points are organized {(x,y,z), (x,y,z), ....}
   //Tris are organized {(i,j,k), (i,j,k), ....}
@@ -81,7 +81,7 @@ void vtkComputeMVCWeights(T x[3], T *pts, vtkIdType npts,
   // Begin by initializing weights. Too bad we can't use memset.
   for (vtkIdType pid=0; pid < npts; ++pid)
     {
-    weights[pid] = static_cast<T>(0.0);
+    weights[pid] = static_cast<double>(0.0);
     }
          
   // Now loop over all triangle to compute weights
@@ -100,7 +100,7 @@ void vtkComputeMVCWeights(T x[3], T *pts, vtkIdType npts,
 // Static function to compute weights (with vtkIdList)
 // Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris, vtkDataArray *weights)
+ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris, double *weights)
 {
   // Check the input
   if ( !tris )
@@ -120,7 +120,7 @@ ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris, vtkDat
 // Static function to compute weights (with vtkCellArray)
 // Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, vtkDataArray *weights)
+ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, double *weights)
 {
   // Check the input
   if ( !tris )
@@ -140,7 +140,7 @@ ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris, vtk
 // Static function to compute weights
 void vtkMeanValueCoordinatesInterpolator::
 ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdType *tris, 
-                            vtkMVCTriIterator& iter, vtkDataArray *weights)
+                            vtkMVCTriIterator& iter, double *weights)
 {
   // Check the input
   if ( !pts || !weights)
@@ -149,42 +149,21 @@ ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdType *tris,
     return;
     }
 
-  int pType = pts->GetDataType();
-  int wType = pts->GetDataType();
-  if ( pType != wType || pType != VTK_FLOAT || pType != VTK_DOUBLE )
-    {
-    vtkGenericWarningMacro("Points and weights should be same type (either float or double)");
-    return;
-    }
-  
   // Prepare the arrays
   vtkIdType numPts = pts->GetNumberOfPoints();
-  weights->SetNumberOfComponents(1);
-  weights->SetNumberOfTuples(numPts);
-
   if ( numPts <= 0 )
     {
     return;
     }
   
   void *p = pts->GetVoidPointer(0);
-  void *w = weights->GetVoidPointer(0);
   
   // call templated function to compute the weights. Note that we do not
   // use VTK's template macro because we are limiting usage to floats and doubles.
   switch (pts->GetDataType())
     {
-    case VTK_FLOAT:
-      float xf[3];
-      xf[0] = static_cast<float>(x[0]);
-      xf[1] = static_cast<float>(x[1]);
-      xf[2] = static_cast<float>(x[2]);
-      vtkComputeMVCWeights(xf, static_cast<float*>(p), numPts, tris, iter, static_cast<float*>(w));
-      break;
-
-    case VTK_DOUBLE:
-      vtkComputeMVCWeights(x, static_cast<double*>(p), numPts, tris, iter, static_cast<double*>(w));
-      break;
+    vtkTemplateMacro(
+      vtkComputeMVCWeights(x, (VTK_TT *)(p), numPts, tris, iter, weights));
 
     default:
       break;

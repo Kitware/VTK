@@ -56,21 +56,19 @@ public:
   // Method to generate interpolation weights for a point x[3] from a list of
   // triangles.  In this version of the method, the triangles are defined by
   // a vtkPoints array plus a vtkIdList, where the vtkIdList is organized
-  // such that three ids in order define a triangle.  Note that the data type
-  // (float,double) of the points will determine the type of the weights
-  // (this function only allows float and double point types).
+  // such that three ids in order define a triangle.  Note that number of weights
+  // must equal the number of points.
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdList *tris,
-                                          vtkDataArray *weights);
+                                          double *weights);
   
   // Description:
   // Method to generate interpolation weights for a point x[3] from a list of
   // triangles.  In this version of the method, the triangles are defined by
   // a vtkPoints array plus a vtkCellArray, where the vtkCellArray is
-  // assuumed to contain all triangles.  Note that the data type
-  // (float,double) of the points will determine the type of the weights
-  // (this function only allows float and double point types).
+  // assuumed to contain all triangles.  Note that the number of weights
+  // must equal the number of points.
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris,
-                                          vtkDataArray *weights);
+                                          double *weights);
   
 
 protected:
@@ -80,7 +78,7 @@ protected:
   // Description:
   // Internal method that sets up the processing of the data.
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkIdType *tris,
-                                          vtkMVCTriIterator& iter, vtkDataArray *weights);
+                                          vtkMVCTriIterator& iter, double *weights);
   
 
 private:

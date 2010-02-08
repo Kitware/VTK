@@ -41,9 +41,10 @@
 // approximation. Currently the approach of Mean Value Coordinates is used,
 // but this filter may be extended in the future to use other methods.
 //
-// If the source mesh is not triangular, it will first be tessellated prior to 
-// interpolation. If the mesh is non-manifold, not closed, or self-intersecting
-// you are asking for trouble. No checking is performed.
+// If the source mesh is not a triangle mesh, or has triangle strips, it will
+// first be tessellated prior to interpolation. If the mesh is non-manifold,
+// not closed, or self-intersecting you are asking for trouble; no checking
+// is performed.
 
 // .SECTION See Also
 // vtkProbeFilter vtkMeanValueCoordinatesInterpolator vtkPolyhedron
@@ -79,9 +80,30 @@ public:
   // can be used. New style. Equivalent to SetInputConnection(1, algOutput).
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
+  // Description:
+  // Specify whether to probe (and hence produce) point data. The
+  // interpolated point data of the source will produce the output
+  // point data (output points are passed from the input points).
+  vtkSetMacro(ProbePointData, int);
+  vtkGetMacro(ProbePointData, int);
+  vtkBooleanMacro(ProbePointData, int);
+
+  // Description:
+  // Specify whether to probe (and hence produce) cell data. The
+  // interpolated point data of the source will produce the output
+  // cell data (output cells are passed from the input cells). Note 
+  // that the probing of the input uses the centers of the cells as
+  // the probe position.
+  vtkSetMacro(ProbeCellData, int);
+  vtkGetMacro(ProbeCellData, int);
+  vtkBooleanMacro(ProbeCellData, int);
+
 protected:
   vtkProbePolyhedron();
   ~vtkProbePolyhedron();
+
+  int ProbePointData;
+  int ProbeCellData;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, 
     vtkInformationVector *);
