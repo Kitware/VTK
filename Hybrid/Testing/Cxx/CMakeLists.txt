@@ -9,15 +9,19 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}
     TestBarChartActor.cxx
     TestExodusImplicitArrays.cxx
-    TestImageDataLIC2D.cxx
     #TestLabelPlacerExodus.cxx
     TestLegendScaleActor.cxx
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
-    TestStructuredGridLIC2DXSlice.cxx
-    TestStructuredGridLIC2DYSlice.cxx
-    TestStructuredGridLIC2DZSlice.cxx
     )
+  IF (VTK_USE_GLSL_SHADERS)
+    SET(MyTests ${MyTests}
+      TestImageDataLIC2D.cxx
+      TestStructuredGridLIC2DXSlice.cxx
+      TestStructuredGridLIC2DYSlice.cxx
+      TestStructuredGridLIC2DZSlice.cxx
+      )
+  ENDIF (VTK_USE_GLSL_SHADERS)
 ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display
