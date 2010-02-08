@@ -51,7 +51,7 @@ static const char * vtkLineIntegralConvolution2DCode =
 #endif
 
 vtkStandardNewMacro( vtkLineIntegralConvolution2D );
-vtkCxxRevisionMacro( vtkLineIntegralConvolution2D, "1.3" );
+vtkCxxRevisionMacro( vtkLineIntegralConvolution2D, "1.4" );
 
 // Given the coordinate range of the vector texture, that of the resulting
 // LIC texture, and the size of the output image, this function invokes the
@@ -447,7 +447,6 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
   utilities->SetSourceCode( vtkLineIntegralConvolution2D_fs );
   shaderProg->GetShaders()->AddItem( utilities );
   utilities->Delete();
-  utilities = NULL;
   
   // load the supporting fragment shader program that tells which two
   // components are needed from each 3D vector
@@ -457,7 +456,6 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
   selectComps->SetSourceCode( additionalKernel.c_str() );
   shaderProg->GetShaders()->AddItem( selectComps );
   selectComps->Delete();
-  selectComps = NULL;
   
   // load the fragment shader program that implements the LIC process
   vtkShader2 * glslFS1 = vtkShader2::New();
@@ -617,6 +615,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
         
         glslFS1->ReleaseGraphicsResources();
         glslFS2->ReleaseGraphicsResources();
+        utilities->ReleaseGraphicsResources();
+        selectComps->ReleaseGraphicsResources();
         shaderProg->ReleaseGraphicsResources();
         glslFS1->Delete();
         glslFS2->Delete();
@@ -632,6 +632,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
         
         glslFS1    = NULL;
         glslFS2    = NULL;
+        utilities  = NULL;
+        selectComps= NULL;
         shaderProg = NULL;
         frameBufs  = NULL;
         tcords0    = NULL;
@@ -735,6 +737,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
         
       glslFS1->ReleaseGraphicsResources();
       glslFS2->ReleaseGraphicsResources();
+      utilities->ReleaseGraphicsResources();
+      selectComps->ReleaseGraphicsResources();
       shaderProg->ReleaseGraphicsResources();
       glslFS1->Delete();
       glslFS2->Delete();
@@ -750,6 +754,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
       
       glslFS1    = NULL;
       glslFS2    = NULL;
+      utilities  = NULL;
+      selectComps= NULL;
       shaderProg = NULL;
       frameBufs  = NULL;
       tcords0    = NULL;
@@ -890,6 +896,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
         
           glslFS1->ReleaseGraphicsResources();
           glslFS2->ReleaseGraphicsResources();
+          utilities->ReleaseGraphicsResources();
+          selectComps->ReleaseGraphicsResources();
           shaderProg->ReleaseGraphicsResources();
           glslFS1->Delete();
           glslFS2->Delete();
@@ -905,6 +913,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
       
           glslFS1    = NULL;
           glslFS2    = NULL;
+          utilities  = NULL;
+          selectComps= NULL;
           shaderProg = NULL;
           frameBufs  = NULL;
           tcords0    = NULL;
@@ -976,6 +986,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
   // LIC upon the destruction of this class)
   glslFS1->ReleaseGraphicsResources();
   glslFS2->ReleaseGraphicsResources();
+  utilities->ReleaseGraphicsResources();
+  selectComps->ReleaseGraphicsResources();
   shaderProg->ReleaseGraphicsResources();
   glslFS1->Delete();
   glslFS2->Delete();
@@ -986,6 +998,8 @@ int vtkLineIntegralConvolution2D::Execute( unsigned int extent[4] )
   lhpfTex->Delete();
   glslFS1    = NULL;
   glslFS2    = NULL;
+  utilities  = NULL;
+  selectComps= NULL;
   shaderProg = NULL;
   frameBufs  = NULL;
   tcords0    = NULL;
