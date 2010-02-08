@@ -179,7 +179,8 @@ int SurfaceLIC( int argc, char * argv[] )
     renderer->GetActiveCamera()->SetViewUp(0.41, 0.83, 0.35);
     renderer->ResetCamera();
     renWin->Render();
-    if ( painter->CanPassRenderingPreparation() == 0 )
+    if (  painter->GetLICSuccess() == 0 ||
+          painter->GetRenderingPreparationSuccess() == 0 )
       {
       return 0;
       }
@@ -201,7 +202,8 @@ int SurfaceLIC( int argc, char * argv[] )
     {
     renderer->ResetCamera();
     renWin->Render();
-    if ( painter->CanPassRenderingPreparation() == 0 )
+    if (  painter->GetLICSuccess() == 0 ||
+          painter->GetRenderingPreparationSuccess() == 0 )
       {
       return 0;
       }

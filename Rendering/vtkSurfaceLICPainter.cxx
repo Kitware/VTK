@@ -130,7 +130,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkSurfaceLICPainter);
-vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.3");
+vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.4");
 //----------------------------------------------------------------------------
 vtkSurfaceLICPainter::vtkSurfaceLICPainter()
 {
@@ -141,7 +141,8 @@ vtkSurfaceLICPainter::vtkSurfaceLICPainter()
   this->EnhancedLIC   = 1;
   this->LICIntensity  = 0.8;
   this->NumberOfSteps = 20;
-  this->PassPreparation = 1;
+  this->LICSuccess    = 0;
+  this->RenderingPreparationSuccess = 0;
 
   this->SetInputArrayToProcess(vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
     vtkDataSetAttributes::VECTORS);
@@ -247,7 +248,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
 {
   if ( !this->PrepareOutput() )
     {
-    this->PassPreparation = 0;
+    this->RenderingPreparationSuccess = 0;
     return;
     }
 
@@ -255,7 +256,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
     {
     this->ReleaseGraphicsResources( this->Internals->LastRenderWindow );
     this->Superclass::PrepareForRendering( renderer, actor );
-    this->PassPreparation = 0;
+    this->RenderingPreparationSuccess = 0;
     return;
     }
     
@@ -264,7 +265,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
     
   if (  !this->IsSupported( renWin )  )
     {
-    this->PassPreparation = 0;
+    this->RenderingPreparationSuccess = 0;
     renWin = NULL;
     return;
     }
@@ -521,6 +522,8 @@ void vtkSurfaceLICPainter::PrepareForRendering
                  << ", " << this->Internals->ViewportExtent[3] << endl );
                  
   this->Superclass::PrepareForRendering( renderer, actor );
+  
+  this->RenderingPreparationSuccess = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -528,14 +531,15 @@ void vtkSurfaceLICPainter::RenderInternal
    ( vtkRenderer * renderer,  vtkActor * actor,
      unsigned long typeflags, bool forceCompileOnly )
 {
-  if (  !this->PassPreparation  ||  !this->CanRenderLIC( renderer, actor )  )
+  if (  !this->RenderingPreparationSuccess  ||  
+        !this->CanRenderLIC( renderer, actor )  )
     {
     this->Superclass::RenderInternal
         ( renderer, actor, typeflags, forceCompileOnly );
     return;
     }
 
-  vtkTimerLog* timer = vtkTimerLog::New();
+  vtkTimerLog * timer = vtkTimerLog::New();
   timer->StartTimer();
 
   // Save context state to be able to restore.
@@ -566,8 +570,8 @@ void vtkSurfaceLICPainter::RenderInternal
   //   * Combine shaded geometry rendering with LIC image and put it back into
   //   the actual render window.
 
-  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(
-    renderer->GetRenderWindow());
+  vtkOpenGLRenderWindow * renWin = vtkOpenGLRenderWindow::SafeDownCast
+                                   ( renderer->GetRenderWindow() );
 
   // we get the view port size (not the renderwindow size).
   int viewsize[2], vieworigin[2];
@@ -620,17 +624,30 @@ void vtkSurfaceLICPainter::RenderInternal
   // vtkLineIntegralConvolution2D needs step size in normalized image space, so we
   // convert this->StepSize to normalized space.
   // (assuming 1 pixel is a unit square):
-  double stepsize = this->StepSize * sqrt(2.0) / sqrt(
-    static_cast<double>(licSize[0]*licSize[0] + licSize[1]*licSize[1]));
-  vtkLineIntegralConvolution2D* licer = vtkLineIntegralConvolution2D::New();
-  licer->SetNumberOfSteps(this->NumberOfSteps);
-  licer->SetLICStepSize(stepsize);
+  double stepsize = this->StepSize * sqrt(2.0) / 
+                    sqrt(  static_cast< double > ( licSize[0] * licSize[0] + 
+                                                   licSize[1] * licSize[1] 
+                                                 )
+                        );
+  vtkLineIntegralConvolution2D * licer = vtkLineIntegralConvolution2D::New();
+  licer->SetNumberOfSteps( this->NumberOfSteps );
+  licer->SetLICStepSize( stepsize );
   licer->SetEnhancedLIC( this->EnhancedLIC );
   licer->SetLICForSurface( 1 );
-  licer->SetNoise(this->Internals->NoiseImage);
-  licer->SetVectorField(this->Internals->VelocityImage);
-  licer->SetComponentIds(0, 1);
-  licer->Execute(this->Internals->ViewportExtent); 
+  licer->SetNoise( this->Internals->NoiseImage );
+  licer->SetVectorField( this->Internals->VelocityImage );
+  licer->SetComponentIds( 0, 1 );
+  if (  !licer->Execute( this->Internals->ViewportExtent )  )
+    {
+    licer->Delete();
+    timer->Delete();
+    licer  = NULL;
+    timer  = NULL;
+    renWin = NULL;
+    this->LICSuccess = 0;
+    return;
+    }
+  this->LICSuccess = 1;
 
   vtkSmartPointer<vtkTextureObject> lic = licer->GetLIC();
   licer->Delete();
@@ -843,10 +860,11 @@ void vtkSurfaceLICPainter::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   
-  os << indent << "Enable: "          << this->Enable          << endl;
-  os << indent << "StepSize: "        << this->StepSize        << endl;
-  os << indent << "EnhancedLIC: "     << this->EnhancedLIC     << endl;
-  os << indent << "LICIntensity: "    << this->LICIntensity    << endl;
-  os << indent << "NumberOfSteps: "   << this->NumberOfSteps   << endl;
-  os << indent << "PassPreparation: " << this->PassPreparation << endl;
+  os << indent << "Enable: "        << this->Enable        << endl;
+  os << indent << "StepSize: "      << this->StepSize      << endl;
+  os << indent << "EnhancedLIC: "   << this->EnhancedLIC   << endl;
+  os << indent << "LICIntensity: "  << this->LICIntensity  << endl;
+  os << indent << "NumberOfSteps: " << this->NumberOfSteps << endl;
+  os << indent << "RenderingPreparationSuccess: " 
+               << this->RenderingPreparationSuccess << endl;
 }

@@ -96,7 +96,12 @@ public:
   
   // Description:
   // Check if PrepareForRendering passes.
-  int CanPassRenderingPreparation() { return this->PassPreparation; }
+  int GetRenderingPreparationSuccess() 
+      { return this->RenderingPreparationSuccess; }
+  
+  // Description:
+  // Check if the LIC process runs properly.
+  int GetLICSuccess() { return this->LICSuccess; }
 
   // Description:
   // Returns true is the rendering context supports extensions needed by this
@@ -142,7 +147,8 @@ protected:
 
   int    Enable;
   int    EnhancedLIC;
-  int    PassPreparation;
+  int    RenderingPreparationSuccess;
+  int    LICSuccess;
   double LICIntensity;
   
 private:
