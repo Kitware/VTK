@@ -31,7 +31,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    multicorrelative"
     print "\t                    pca"
     print "\t                    kmeans"
-    print "\t [-b <bitcode>]  Engine options bitcode. Default is 0. Available bits are:"
+    print "\t [-o <bitcode>]  Engine options bitcode. Default is 0. Available bits are:"
     print "\t                    1st bit: assess"
     print "\t                    2nd bit: test"
     print "\t [-m <prefix>]    CSV input model file. Default: calculate model from scratch"
