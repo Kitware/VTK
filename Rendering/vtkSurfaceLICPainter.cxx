@@ -130,7 +130,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkSurfaceLICPainter);
-vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.4");
+vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.5");
 //----------------------------------------------------------------------------
 vtkSurfaceLICPainter::vtkSurfaceLICPainter()
 {
@@ -630,6 +630,17 @@ void vtkSurfaceLICPainter::RenderInternal
                                                  )
                         );
   vtkLineIntegralConvolution2D * licer = vtkLineIntegralConvolution2D::New();
+  if (  !licer->IsSupported( renWin )  )
+    {
+    licer->Delete();
+    timer->Delete();
+    licer  = NULL;
+    timer  = NULL;
+    renWin = NULL;
+    this->LICSuccess = 0;
+    return;
+    }
+    
   licer->SetNumberOfSteps( this->NumberOfSteps );
   licer->SetLICStepSize( stepsize );
   licer->SetEnhancedLIC( this->EnhancedLIC );
