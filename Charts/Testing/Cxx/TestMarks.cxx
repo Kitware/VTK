@@ -40,7 +40,8 @@ int TestMarks(int argc, char* argv[])
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 400);
-
+  view->GetRenderWindow()->SetMultiSamples(0);
+  
   vtkSmartPointer<vtkTable> t = vtkSmartPointer<vtkTable>::New();
   vtkSmartPointer<vtkDoubleArray> arr1 = vtkSmartPointer<vtkDoubleArray>::New();
   arr1->SetName("Array1");
