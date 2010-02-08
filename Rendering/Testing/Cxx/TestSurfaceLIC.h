@@ -179,6 +179,10 @@ int SurfaceLIC( int argc, char * argv[] )
     renderer->GetActiveCamera()->SetViewUp(0.41, 0.83, 0.35);
     renderer->ResetCamera();
     renWin->Render();
+    if ( painter->CanPassRenderingPreparation() == 0 )
+      {
+      return 0;
+      }
 
     int retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -197,6 +201,10 @@ int SurfaceLIC( int argc, char * argv[] )
     {
     renderer->ResetCamera();
     renWin->Render();
+    if ( painter->CanPassRenderingPreparation() == 0 )
+      {
+      return 0;
+      }
     iren->Start();
     }
   // failed.

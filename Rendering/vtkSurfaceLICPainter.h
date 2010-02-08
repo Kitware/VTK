@@ -93,6 +93,10 @@ public:
   // show LIC result alone.
   vtkSetClampMacro(LICIntensity, double, 0.0, 1.0);
   vtkGetMacro(LICIntensity, double);
+  
+  // Description:
+  // Check if PrepareForRendering passes.
+  int CanPassRenderingPreparation() { return this->PassPreparation; }
 
   // Description:
   // Returns true is the rendering context supports extensions needed by this
@@ -138,6 +142,7 @@ protected:
 
   int    Enable;
   int    EnhancedLIC;
+  int    PassPreparation;
   double LICIntensity;
   
 private:
