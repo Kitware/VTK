@@ -26,7 +26,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
-#include "vtkMeanValueCoordinatesInterpolator.h"
+#include "vtkProbePolyhedron.h"
 
 int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
 {
@@ -65,12 +65,12 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
     pSource->SetPoint2(0,-1.0, 1.0);
     pSource->SetXResolution(50);
     pSource->SetYResolution(50);
-  vtkMeanValueCoordinatesInterpolator *interp = 
-      vtkMeanValueCoordinatesInterpolator::New();
-//    interp->SetInputConnection(pSource->GetOutputPort());
-//    interp->SetSourceConnection(ele->GetOutputPort());
+  vtkProbePolyhedron *interp = 
+      vtkProbePolyhedron::New();
+    interp->SetInputConnection(pSource->GetOutputPort());
+    interp->SetSourceConnection(ele->GetOutputPort());
   vtkPolyDataMapper *interpMapper = vtkPolyDataMapper::New();
-    interpMapper->SetInputConnection(pSource->GetOutputPort());
+    interpMapper->SetInputConnection(interp->GetOutputPort());
   vtkActor *interpActor = vtkActor::New();
     interpActor->SetMapper(interpMapper);
 

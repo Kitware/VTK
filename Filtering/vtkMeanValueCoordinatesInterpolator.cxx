@@ -29,17 +29,17 @@ vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 class vtkMVCTriIterator
 {
 public:
+  vtkIdType Offset;
   vtkIdType *Tris;
   vtkIdType *Current;
-  vtkIdType Offset;
   vtkIdType NumberOfTriangles;
   vtkIdType Id;
 
   vtkMVCTriIterator(vtkIdType numIds,vtkIdType offset,vtkIdType *t)
     {
-      this->Tris = t;
-      this->Current = t;
       this->Offset = offset;
+      this->Tris = t;
+      this->Current = t+(this->Offset-3); //leave room for three indices
       this->NumberOfTriangles = numIds / offset;
       this->Id = 0;
     }
@@ -85,7 +85,7 @@ void vtkComputeMVCWeights(double x[3], T *pts, vtkIdType npts,
     }
          
   // Now loop over all triangle to compute weights
-  vtkIdType *tri;
+  vtkIdType *tri = iter.Current;
   while ( iter.Id < iter.NumberOfTriangles)
     {
     //algorithm follows
