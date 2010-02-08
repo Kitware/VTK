@@ -38,13 +38,15 @@
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkImageDataLIC2D);
-vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.4");
+vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.5");
 //----------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {
-  this->Context = 0;
-  this->Steps = 20;
-  this->StepSize = 1.0;
+  this->Context    = 0;
+  this->Steps      = 20;
+  this->StepSize   = 1.0;
+  this->FBOSuccess = 0;
+  this->LICSuccess = 0;
   this->Magnification = 1;
 
   this->NoiseSource = vtkImageNoiseSource::New();
@@ -320,6 +322,8 @@ int vtkImageDataLIC2D::RequestData(
       inInfo = NULL;
       return 0;
       }
+    
+    renWin = NULL; // will be released via this->Context
     this->OwnWindow = true;
     }
 
@@ -388,7 +392,20 @@ int vtkImageDataLIC2D::RequestData(
   double stepSize = this->StepSize * cellLength / normalizationFactor;
   vtkDebugMacro( << "** StepSize (Normalized Image Space): " << stepSize << endl );
 
-  vtkLineIntegralConvolution2D *internal=vtkLineIntegralConvolution2D::New();
+  vtkLineIntegralConvolution2D * internal=vtkLineIntegralConvolution2D::New();
+  if (  !internal->IsSupported( this->Context )  )
+    {
+    internal->Delete();
+    internal   = NULL;
+    input      = NULL;
+    noise      = NULL;
+    inInfo     = NULL;
+    spacing    = NULL;
+    noiseInfo  = NULL;
+    
+    this->LICSuccess = 0;
+    return 0;
+    }
   internal->SetNumberOfSteps(this->Steps);
   internal->SetLICStepSize(stepSize);
   internal->SetComponentIds(firstComponent,secondComponent);
@@ -421,8 +438,31 @@ int vtkImageDataLIC2D::RequestData(
   fbo->SetColorBuffer(0, tempBuffer);
   fbo->SetNumberOfRenderTargets(1);
   fbo->SetActiveBuffer(0);
-  fbo->Start(128, 128, false);
+  if (  !fbo->Start( 128, 128, false )  )
+    {
+    fbo->Delete();
+    internal->Delete();
+    noiseBus->Delete();
+    vectorBus->Delete();
+    tempBuffer->Delete();
+    fbo        = NULL;
+    internal   = NULL;
+    noiseBus   = NULL;
+    vectorBus  = NULL;
+    tempBuffer = NULL;
+    
+    input      = NULL;
+    noise      = NULL;
+    inInfo     = NULL;
+    spacing    = NULL;
+    noiseInfo  = NULL;
+    
+    this->FBOSuccess = 0;
+    return 0;
+    }
+  this->FBOSuccess = 1;
   tempBuffer->Delete();
+  tempBuffer = NULL;
 
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
   vectorBus->Upload(0,0);
@@ -455,6 +495,7 @@ int vtkImageDataLIC2D::RequestData(
                   GL_NEAREST); 
   internal->SetNoise(noiseBus->GetTexture());
   fbo->Delete();
+  fbo = NULL;
 
   int inputRequestedExtent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inputRequestedExtent);
@@ -486,7 +527,26 @@ int vtkImageDataLIC2D::RequestData(
     licextent[3] = inputRequestedExtent[5];
     break;
     }
-  internal->Execute(licextent);
+  
+  if (  internal->Execute(licextent) == 0  )
+    {
+    internal->Delete();
+    noiseBus->Delete();
+    vectorBus->Delete();
+    internal   = NULL;
+    noiseBus   = NULL;
+    vectorBus  = NULL;
+    
+    input      = NULL;
+    noise      = NULL;
+    inInfo     = NULL;
+    spacing    = NULL;
+    noiseInfo  = NULL;
+    
+    this->LICSuccess = 0;
+    return 0;
+    }
+  this->LICSuccess = 1;
   
   glFlush(); // breakpoint for debugging.
 
@@ -551,6 +611,8 @@ void vtkImageDataLIC2D::PrintSelf( ostream & os, vtkIndent indent )
   
   os << indent << "Steps: "         << this->Steps          << "\n";
   os << indent << "StepSize: "      << this->StepSize       << "\n";
+  os << indent << "FBOSuccess: "    << this->FBOSuccess     << "\n";
+  os << indent << "LICSuccess: "    << this->LICSuccess     << "\n";
   os << indent << "Magnification: " << this->Magnification  << "\n";
   os << indent << "OpenGLExtensionsSupported: " 
                << this->OpenGLExtensionsSupported << "\n";

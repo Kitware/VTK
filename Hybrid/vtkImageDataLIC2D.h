@@ -93,6 +93,14 @@ public:
   // Description:
   // Check if the required OpenGL extensions / GPU are supported.
   vtkGetMacro( OpenGLExtensionsSupported, int );
+  
+  // Description:
+  // Check if FBO is started properly.
+  int  GetFBOSuccess() { return this->FBOSuccess; }
+  
+  // Description:
+  // Check if LIC runs properly.
+  int  GetLICSuccess() { return this->LICSuccess; }
 
 
   void TranslateInputExtent(const int* inExt, 
@@ -134,6 +142,8 @@ protected:
 
   bool ARBColorBufferFloatSupported;
   bool OwnWindow;
+  int  FBOSuccess;
+  int  LICSuccess;
   
 private:
   vtkImageDataLIC2D(const vtkImageDataLIC2D&); // Not implemented.

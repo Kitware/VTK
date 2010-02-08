@@ -234,6 +234,14 @@ int ImageDataLIC2D(int argc, char* argv[])
     vtkTimerLog* timer = vtkTimerLog::New();
     timer->StartTimer();
     filter->Update();
+    if ( filter->GetFBOSuccess() == 0 ||
+         filter->GetLICSuccess() == 0 )
+      {
+      timer->Delete();
+      sddp   = NULL;
+      timer  = NULL;
+      return 0;
+      }
     timer->StopTimer();
 
     //cout << "Time: " << timer->GetElapsedTime() << endl;
