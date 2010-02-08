@@ -43,7 +43,7 @@ extern const char *vtkStructuredGridLIC2D_fs;
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkStructuredGridLIC2D);
-vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.6");
+vtkCxxRevisionMacro(vtkStructuredGridLIC2D, "1.7");
 //----------------------------------------------------------------------------
 vtkStructuredGridLIC2D::vtkStructuredGridLIC2D()
 {
@@ -692,7 +692,6 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkLineIntegralConvolution2D *internal=vtkLineIntegralConvolution2D::New();
   if (  !internal->IsSupported( this->Context )  )
     {
-    pgm->GetShaders()->RemoveAllItems();
     pgm->ReleaseGraphicsResources();
     
     pgm->Delete();
@@ -744,7 +743,6 @@ int vtkStructuredGridLIC2D::RequestData(
   
   if (  !internal->Execute()  )
     {
-    pgm->GetShaders()->RemoveAllItems();
     pgm->ReleaseGraphicsResources();
     
     pgm->Delete();
