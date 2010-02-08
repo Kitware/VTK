@@ -211,12 +211,18 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
   
   for (int kk=0; kk < num_partitions; kk++)
     {
-    vtkStreamingDemandDrivenPipeline* sddp = 
+    vtkStreamingDemandDrivenPipeline * sddp = 
       vtkStreamingDemandDrivenPipeline::SafeDownCast(filter->GetExecutive());
     sddp->SetUpdateExtent(0, kk, num_partitions, 0);
 
     cout << "*****************" << endl;
     filter->Update();
+    if (  filter->GetFBOSuccess() == 0 ||
+          filter->GetLICSuccess() == 0  )
+      {
+      sddp = NULL;
+      return 0;
+      }
 
     CREATE_NEW(clone, vtkImageData);
     clone->ShallowCopy(filter->GetOutputDataObject(1));

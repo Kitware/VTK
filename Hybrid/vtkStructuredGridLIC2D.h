@@ -90,6 +90,14 @@ public:
   // Description:
   // Check if the required OpenGL extensions / GPU are supported.
   vtkGetMacro( OpenGLExtensionsSupported, int );
+  
+  // Description:
+  // Check if FBO is started properly.
+  int   GetFBOSuccess() { return this->FBOSuccess; }
+  
+  // Description:
+  // Check if LIC runs properly.
+  int   GetLICSuccess() { return this->LICSuccess; }
 
 //BTX
 protected:
@@ -143,7 +151,9 @@ protected:
   vtkWeakPointer<vtkRenderWindow> Context;
 
   vtkImageNoiseSource* NoiseSource;
-  bool OwnWindow;
+  bool   OwnWindow;
+  int    FBOSuccess;
+  int    LICSuccess;
   
 private:
   vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&); // Not implemented.
