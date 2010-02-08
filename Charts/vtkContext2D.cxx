@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.11");
+vtkCxxRevisionMacro(vtkContext2D, "1.12");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -325,14 +325,18 @@ unsigned int vtkContext2D::AddPointSprite(vtkImageData *image)
 //-----------------------------------------------------------------------------
 void vtkContext2D::SetTransform(vtkTransform2D *transform)
 {
-  if (this->Transform)
+  if(transform != this->Transform && transform)
+    {
+    transform->Register(this);
+    }
+
+  if (this->Transform && (this->Transform != transform))
     {
     this->Transform->Delete();
     }
   this->Transform = transform;
   if (transform)
     {
-    transform->Register(this);
     this->Device->SetMatrix(transform->GetMatrix());
     }
 }
