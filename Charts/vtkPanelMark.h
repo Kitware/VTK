@@ -23,9 +23,8 @@
 #define __vtkPanelMark_h
 
 #include "vtkMark.h"
-#include "vtkSmartPointer.h"
 
-#include <vector>
+#include <vector> // STL required
 
 class vtkBrush;
 class vtkDataObject;

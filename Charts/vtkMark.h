@@ -23,11 +23,11 @@
 #define __vtkMark_h
 
 #include "vtkContextItem.h"
-#include "vtkDataElement.h"
-#include "vtkDataValue.h"
-#include "vtkSmartPointer.h"
-#include "vtkVariant.h"
-#include "vtkValueHolder.h"
+#include "vtkDataElement.h"  // Needed
+#include "vtkDataValue.h"    // Needed
+#include "vtkSmartPointer.h" // Needed to use smart pointers
+#include "vtkValueHolder.h"  // Needed
+#include "vtkVariant.h"      // Needed
 
 class vtkPanelMark;
 
