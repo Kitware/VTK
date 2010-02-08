@@ -453,6 +453,12 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, opt
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
 
+    if verbosity > 1:
+        if haruspex.GetTestOption():
+            print "# Statistical Test Results:"
+            haruspex.GetOutput( 2 ).Dump( 10 )
+            print
+
     if verbosity > 0:
         print
 ############################################################
