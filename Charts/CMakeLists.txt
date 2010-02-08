@@ -60,6 +60,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkLineMark
   vtkMark
   vtkMarkUtil
+  vtkPanelMark
   vtkValueHolder
   WRAP_EXCLUDE
 )
