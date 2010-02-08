@@ -27,12 +27,14 @@
 
 vtkStandardNewMacro(vtkCellCenters);
 
+//----------------------------------------------------------------------------
 // Construct object with vertex cell generation turned off.
 vtkCellCenters::vtkCellCenters()
 {
   this->VertexCells = 0;
 }
 
+//----------------------------------------------------------------------------
 // Generate points
 int vtkCellCenters::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -144,12 +146,14 @@ int vtkCellCenters::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkCellCenters::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
