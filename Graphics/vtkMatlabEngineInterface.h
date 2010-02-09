@@ -48,6 +48,7 @@
 class vtkArray;
 class vtkDataArray;
 class vtkMatlabEngineSingleton;
+class vtkMatlabMexAdapter;
 
 class VTK_GRAPHICS_EXPORT vtkMatlabEngineInterface : public vtkObject
 {
@@ -114,6 +115,7 @@ private:
   void operator=(const vtkMatlabEngineInterface&);  // Not implemented.
 
   vtkMatlabEngineSingleton* meng;
+  vtkMatlabMexAdapter* vmma;
 
 };
 

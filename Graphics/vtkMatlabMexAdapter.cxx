@@ -53,14 +53,64 @@
 #include "vtkDenseArray.h"
 #include "vtkArrayExtents.h"
 #include "vtkArrayCoordinates.h"
+#include "vtkDataArrayCollection.h"
+#include "vtkArrayData.h"
+#include "vtkDataObjectCollection.h"
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
 
-vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.1");
+vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.2");
 
 vtkStandardNewMacro(vtkMatlabMexAdapter);
+
+namespace
+{
+
+// Get (i,j) index value from an mxArray matrix
+
+double mxArrayGetValue(int i, int j, mxArray* mxa)
+{
+
+  mwIndex *ir;
+  mwIndex *jc;
+  double* pr;
+  int row_index;
+  int row_start_index;
+  int row_stop_index;
+
+  pr = mxGetPr(mxa);
+
+  if( mxIsSparse(mxa) )
+    {
+    ir = mxGetIr(mxa);
+    jc = mxGetJc(mxa);
+
+    row_start_index = jc[j];
+    row_stop_index = jc[j+1];
+
+    if(row_start_index == row_stop_index)
+      return(0.0);
+    else
+      {
+      for(row_index = row_start_index; row_index < row_stop_index ;row_index++)
+        {
+        if(i == (int) ir[row_index])
+          return(pr[row_index]);
+        }
+
+      return(0.0);
+      }
+
+    }
+  else
+    {
+    return(pr[j*mxGetM(mxa) + i]);
+    }
+
+}
+
 
 int FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& extents)
 {
@@ -116,7 +166,9 @@ template<typename T> mxArray* CopyVTKArrayTomxArray(vtkTypedArray<T>* da, mxClas
 
 };
 
-template<typename T> vtkArray* CopymxArrayToVTKArray(mxArray* mxa, int ValueType)
+} // End anonymous namespace
+
+template<typename T> vtkArray* vtkMatlabMexAdapter::CopymxArrayToVTKArray(mxArray* mxa, int ValueType)
 {
 
   vtkTypedArray<T>* da;
@@ -152,6 +204,7 @@ template<typename T> vtkArray* CopymxArrayToVTKArray(mxArray* mxa, int ValueType
     da->SetVariantValue(index,source[i]);
     }
 
+  this->vad->AddArray(da);
   return(da);
 
 };
@@ -263,49 +316,37 @@ vtkDataArray* vtkMatlabMexAdapter::GetVTKDataType(mxClassID cid)
 
 }
 
-// Get (i,j) index value from an mxArray matrix
 
-double mxArrayGetValue(int i, int j, mxArray* mxa)
+//----------------------------------------------------------------------------
+vtkMatlabMexAdapter::vtkMatlabMexAdapter()
 {
 
-  mwIndex *ir;
-  mwIndex *jc;
-  double* pr;
-  int row_index;
-  int row_start_index;
-  int row_stop_index;
-
-  pr = mxGetPr(mxa);
-
-  if( mxIsSparse(mxa) )
-    {
-    ir = mxGetIr(mxa);
-    jc = mxGetJc(mxa);
-
-    row_start_index = jc[j];
-    row_stop_index = jc[j+1];
-
-    if(row_start_index == row_stop_index)
-      return(0.0);
-    else
-      {
-      for(row_index = row_start_index; row_index < row_stop_index ;row_index++)
-        {
-        if(i == (int) ir[row_index])
-          return(pr[row_index]);
-        }
-
-      return(0.0);
-      }
-
-    }
-  else
-    {
-    return(pr[j*mxGetM(mxa) + i]);
-    }
+  this->vad =  vtkArrayData::New();
+  this->vdoc = vtkDataObjectCollection::New();
+  this->vdac = vtkDataArrayCollection::New();
 
 }
 
+//----------------------------------------------------------------------------
+vtkMatlabMexAdapter::~vtkMatlabMexAdapter()
+{
+
+  if(this->vad)
+    {
+    this->vad->Delete();
+    }
+
+  if(this->vdoc)
+    {
+    this->vdoc->Delete();
+    }
+
+  if(this->vdac)
+    {
+    this->vdac->Delete();
+    }
+
+}
 
 // Create a deep copy Matlab mxArray of the input vtkDataArray.
 
@@ -470,6 +511,7 @@ vtkDataArray* vtkMatlabMexAdapter::mxArrayTovtkDataArray(const mxArray* mxa, boo
     }
 
   mxFree(tuple);
+  this->vdac->AddItem(da);
   return(da);
 
 }
@@ -790,6 +832,7 @@ vtkGraph* vtkMatlabMexAdapter::mxArrayTovtkGraph(mxArray* mxa)
         }
       }
 
+    this->vdoc->AddItem(dg);
     return(dg);
     }
   else
@@ -811,6 +854,7 @@ vtkGraph* vtkMatlabMexAdapter::mxArrayTovtkGraph(mxArray* mxa)
           }
         }
       }
+    this->vdoc->AddItem(ug);
     return(ug);
     }
 }
@@ -819,5 +863,20 @@ void vtkMatlabMexAdapter::PrintSelf(ostream& os, vtkIndent indent)
 {
 
   this->Superclass::PrintSelf(os,indent);
+
+  if(this->vad)
+    {
+    this->vad->PrintSelf(os,indent);
+    }
+
+  if(this->vdoc)
+    {
+    this->vdoc->PrintSelf(os,indent);
+    }
+
+  if(this->vdac)
+    {
+    this->vdac->PrintSelf(os,indent);
+    }
 
 }

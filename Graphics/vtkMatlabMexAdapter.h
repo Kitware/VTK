@@ -32,6 +32,13 @@
 //  because VTK uses row major ordering and Matlab uses column major ordering 
 //  for data.
 //
+//  VTK data structures created by this class from Matlab types are stored in 
+//  array collections and freed when the class destructor is called.  Use the 
+//  Register() method on a returned object to increase its reference count by one,
+//  in order keep the object around after this classes destructor has been called.
+//  The code calling Register() must eventually call Delete() on the object to free
+//  memory.
+//
 // .SECTION See Also
 //  vtkMatlabEngineInterface vtkMatlabEngineFilter
 //
@@ -52,7 +59,9 @@ class vtkInformationVector;
 class vtkDataArray;
 class vtkArray;
 class vtkGraph;
-class vtkTable;
+class vtkDataArrayCollection;
+class vtkArrayData;
+class vtkDataObjectCollection;
 
 class VTK_GRAPHICS_EXPORT vtkMatlabMexAdapter : public vtkObject
 {
@@ -68,31 +77,31 @@ public:
 //BTX
   // Description:
   // Create a mxArray copy of a vtkDataArray (Allocates memory by default)
-  static mxArray* vtkDataArrayToMxArray(vtkDataArray* aa, bool ShallowCopy = false);
+  mxArray* vtkDataArrayToMxArray(vtkDataArray* aa, bool ShallowCopy = false);
 
   // Description:
   // Create a vtkDataArray copy of a Matlab mxArray (Allocates memory by default)
-  static vtkDataArray* mxArrayTovtkDataArray(const mxArray* mxa, bool ShallowCopy = false);
+  vtkDataArray* mxArrayTovtkDataArray(const mxArray* mxa, bool ShallowCopy = false);
 
   // Description:
   // Create a mxArray copy of a vtkArray (Allocates memory by default)
-  static mxArray* vtkArrayToMxArray(vtkArray* va);
+  mxArray* vtkArrayToMxArray(vtkArray* va);
 
   // Description:
   // Create a vtkArray copy of a mxArray (Allocates memory by default)
-  static vtkArray* mxArrayTovtkArray(mxArray* mxa);
+  vtkArray* mxArrayTovtkArray(mxArray* mxa);
 
   // Description:
   // Create a mxArray copy of a vtkGraph (Allocates memory by default)
   // The result is an n by n connectivity matrix, where n is the number
   // of nodes in the graph.
-  static mxArray* vtkGraphToMxArray(vtkGraph* ga);
+  mxArray* vtkGraphToMxArray(vtkGraph* ga);
 
   // Description:
   // Create a vtkGraph copy of a mxArray (Allocates memory by default)
   // Input mxArray should be a n by n connectivity matrix, where n is 
   // the number of nodes in the graph.
-  static vtkGraph* mxArrayTovtkGraph(mxArray* mxa);
+  vtkGraph* mxArrayTovtkGraph(mxArray* mxa);
 
   // Description:
   // Match Matlab and VTK data types for conversion.
@@ -101,17 +110,24 @@ public:
   // Description:
   // Match Matlab and VTK data types for conversion.
   static vtkDataArray* GetVTKDataType(mxClassID cid);
+
 //ETX
 
 protected:
 
-  vtkMatlabMexAdapter() {};
-  ~vtkMatlabMexAdapter() {};
+  vtkMatlabMexAdapter();
+  ~vtkMatlabMexAdapter();
 
 private:
 
   vtkMatlabMexAdapter(const vtkMatlabMexAdapter&); // Not implemented
   void operator=(const vtkMatlabMexAdapter&); // Not implemented
+
+  template<typename T> vtkArray* CopymxArrayToVTKArray(mxArray* mxa, int ValueType);
+
+  vtkDataArrayCollection* vdac;  // Collection of vtkDataArrays that have been converted from R.
+  vtkArrayData* vad;  // Collection of vtkArrays that have been converted from R.
+  vtkDataObjectCollection* vdoc; // Collection of vtkTables that have been converted from R.
 
 };
 

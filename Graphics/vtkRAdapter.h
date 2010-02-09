@@ -29,6 +29,12 @@
 //  by these functions can be freed by the R garbage collector by calling UNPROTECT(1).
 //  The conversions are performed for double and integer data types.
 //
+//  VTK data structures created by this class from R types are stored in array collections
+//  and freed when the class destructor is called.  Use the Register() method on a returned
+//  object to increase its reference count by one, in order keep the object around after this
+//  classes destructor has been called.  The code calling Register() must eventually call Delete() 
+//  on the object to free memory.
+//
 // .SECTION See Also
 //  vtkRinterface vtkRcalculatorFilter
 //
@@ -48,6 +54,9 @@ class vtkInformationVector;
 class vtkDataArray;
 class vtkArray;
 class vtkTable;
+class vtkDataArrayCollection;
+class vtkArrayData;
+class vtkDataObjectCollection;
 
 class VTK_GRAPHICS_EXPORT vtkRAdapter : public vtkObject
 {
@@ -64,40 +73,43 @@ public:
   // Description:
   // Create a vtkDataArray copy of GNU R input matrix vaiable (deep copy, allocates memory)
   // Input is a R matrix or vector of doubles or integers
-  static vtkDataArray* RToVTKDataArray(SEXP variable);
+  vtkDataArray* RToVTKDataArray(SEXP variable);
 
   // Description:
   // Create a vtkArray copy of the GNU R input variable multi-dimensional array (deep copy, allocates memory)
   // Input is a R multi-dimensional array of doubles or integers
-  static vtkArray* RToVTKArray(SEXP variable);
+  vtkArray* RToVTKArray(SEXP variable);
 
   // Description:
   // Create a GNU R matrix copy of the input vtkDataArray da (deep copy, allocates memory)
-  static SEXP VTKDataArrayToR(vtkDataArray* da);
+  SEXP VTKDataArrayToR(vtkDataArray* da);
 
   // Description:
   // Create a GNU R multi-dimensional array copy of the input vtkArray da (deep copy, allocates memory)
-  static SEXP VTKArrayToR(vtkArray* da);
+  SEXP VTKArrayToR(vtkArray* da);
 
   // Description:
   // Create a GNU R matrix copy of the input vtkTable table (deep copy, allocates memory)
-  static SEXP VTKTableToR(vtkTable* table);
+  SEXP VTKTableToR(vtkTable* table);
 
   // Description:
   // Create a vtkTable copy of the GNU R input matrix variable (deep copy, allocates memory)
   // Input is R list of equal length vectors or a matrix.
-  static vtkTable* RToVTKTable(SEXP variable);
+  vtkTable* RToVTKTable(SEXP variable);
 //ETX
 
 protected:
-
-  vtkRAdapter() {};
-  ~vtkRAdapter() {};
+  vtkRAdapter();
+  ~vtkRAdapter();
 
 private:
 
   vtkRAdapter(const vtkRAdapter&); // Not implemented
   void operator=(const vtkRAdapter&); // Not implemented
+
+  vtkDataArrayCollection* vdac;  // Collection of vtkDataArrays that have been converted from R.
+  vtkArrayData* vad;  // Collection of vtkArrays that have been converted from R.
+  vtkDataObjectCollection* vdoc; // Collection of vtkTables that have been converted from R.
 
 };
 

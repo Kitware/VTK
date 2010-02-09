@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkMatlabEngineInterface, "1.1");
+vtkCxxRevisionMacro(vtkMatlabEngineInterface, "1.2");
 vtkStandardNewMacro(vtkMatlabEngineInterface);
 
 class vtkMatlabEngineSingletonDestroyer;
@@ -138,7 +138,6 @@ private:
   vtkMatlabEngineSingleton* _singleton;
 };
 
-
 vtkMatlabEngineSingleton* vtkMatlabEngineSingleton::ins = 0;
 
 vtkMatlabEngineSingletonDestroyer vtkMatlabEngineSingleton::destroyer;
@@ -154,6 +153,7 @@ vtkMatlabEngineSingletonDestroyer::~vtkMatlabEngineSingletonDestroyer () {
 void vtkMatlabEngineSingletonDestroyer::SetSingleton (vtkMatlabEngineSingleton* s) {
   _singleton = s;
 }
+
 
 
 vtkMatlabEngineSingleton* vtkMatlabEngineSingleton::Instance()
@@ -185,11 +185,11 @@ vtkMatlabEngineSingleton::vtkMatlabEngineSingleton()
 
 }
 
-
 vtkMatlabEngineInterface::vtkMatlabEngineInterface()
 {
 
   this->meng = vtkMatlabEngineSingleton::Instance();
+  this->vmma = vtkMatlabMexAdapter::New();
 
 }
 
@@ -197,6 +197,7 @@ vtkMatlabEngineInterface::~vtkMatlabEngineInterface()
 {
 
   this->meng->CloseEngine();
+  this->vmma->Delete();
 
 }
 
@@ -204,6 +205,12 @@ void vtkMatlabEngineInterface::PrintSelf(ostream& os, vtkIndent indent)
 {
 
   this->Superclass::PrintSelf(os,indent);
+
+  if(this->vmma)
+    {
+    this->vmma->PrintSelf(os, indent);
+    }
+
 
 }
 
@@ -229,7 +236,7 @@ int vtkMatlabEngineInterface::PutVtkDataArray(const char* name, vtkDataArray* vd
     return(1);
     }
 
-  mxArray* mxa = vtkMatlabMexAdapter::vtkDataArrayToMxArray(vda);
+  mxArray* mxa = this->vmma->vtkDataArrayToMxArray(vda);
 
   int rc = this->meng->EngPutVariable(name, mxa);
 
@@ -250,7 +257,7 @@ vtkDataArray* vtkMatlabEngineInterface::GetVtkDataArray(const char* name)
 
   mxArray* mxa = meng->EngGetVariable(name);
 
-  vtkDataArray* vda = vtkMatlabMexAdapter::mxArrayTovtkDataArray(mxa);
+  vtkDataArray* vda = this->vmma->mxArrayTovtkDataArray(mxa);
 
   mxDestroyArray(mxa);
 
@@ -268,7 +275,7 @@ int vtkMatlabEngineInterface::PutVtkArray(const char* name, vtkArray* vda)
     return(1);
     }
 
-  mxArray* mxa = vtkMatlabMexAdapter::vtkArrayToMxArray(vda);
+  mxArray* mxa = this->vmma->vtkArrayToMxArray(vda);
 
   int rc = this->meng->EngPutVariable(name, mxa);
 
@@ -290,7 +297,7 @@ vtkArray* vtkMatlabEngineInterface::GetVtkArray(const char* name)
 
   mxArray* mxa = meng->EngGetVariable(name);
 
-  vtkArray* vda = vtkMatlabMexAdapter::mxArrayTovtkArray(mxa);
+  vtkArray* vda = this->vmma->mxArrayTovtkArray(mxa);
 
   mxDestroyArray(mxa);
 

@@ -45,6 +45,7 @@ class vtkDataArray;
 class vtkArray;
 class vtkTable;
 class vtkImplementationRSingleton;
+class vtkRAdapter;
 
 class VTK_GRAPHICS_EXPORT vtkRInterface : public vtkObject
 {
@@ -114,6 +115,7 @@ private:
 
   char* buffer;
   int buffer_size;
+  vtkRAdapter* vra;
 
 };
 

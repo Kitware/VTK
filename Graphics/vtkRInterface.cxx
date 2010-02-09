@@ -31,7 +31,7 @@
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.4");
+vtkCxxRevisionMacro(vtkRInterface, "1.5");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"
@@ -132,7 +132,7 @@ private:
 
 };
 
-vtkImplementationRSingleton* vtkImplementationRSingleton::ins = 0;
+
 
 void vtkImplementationRSingleton::shutdownR(void)
 {
@@ -175,6 +175,8 @@ vtkImplementationRSingleton::vtkImplementationRSingleton()
 
 }
 
+vtkImplementationRSingleton* vtkImplementationRSingleton::ins = 0;
+
 //----------------------------------------------------------------------------
 vtkRInterface::vtkRInterface()
 {
@@ -182,6 +184,7 @@ vtkRInterface::vtkRInterface()
   this->rs = vtkImplementationRSingleton::Instance();
   this->buffer = 0;
   this->buffer_size = 0;
+  this->vra = vtkRAdapter::New();
 
 }
 
@@ -190,6 +193,7 @@ vtkRInterface::~vtkRInterface()
 {
 
   this->rs->CloseR();
+  this->vra->Delete();
 
 }
 
@@ -270,7 +274,7 @@ void vtkRInterface::AssignVTKDataArrayToRVariable(vtkDataArray* da, const char* 
 {
 
   SEXP s;
-  s = vtkRAdapter::VTKDataArrayToR(da);
+  s = this->vra->VTKDataArrayToR(da);
   defineVar(install(RVariableName), s, R_GlobalEnv);
 
 }
@@ -279,7 +283,7 @@ void vtkRInterface::AssignVTKArrayToRVariable(vtkArray* da, const char* RVariabl
 {
 
   SEXP s;
-  s = vtkRAdapter::VTKArrayToR(da);
+  s = this->vra->VTKArrayToR(da);
   defineVar(install(RVariableName), s, R_GlobalEnv);
 
 }
@@ -292,7 +296,7 @@ vtkDataArray* vtkRInterface::AssignRVariableToVTKDataArray(const char* RVariable
   s = findVar(install(RVariableName), R_GlobalEnv);
 
   if(s != R_UnboundValue)
-    return(vtkRAdapter::RToVTKDataArray(s));
+    return(this->vra->RToVTKDataArray(s));
   else
     return(0);
 
@@ -306,7 +310,7 @@ vtkArray* vtkRInterface::AssignRVariableToVTKArray(const char* RVariableName)
   s = findVar(install(RVariableName), R_GlobalEnv);
 
   if(s != R_UnboundValue)
-    return(vtkRAdapter::RToVTKArray(s));
+    return(this->vra->RToVTKArray(s));
   else
     return(0);
 
@@ -320,7 +324,7 @@ vtkTable* vtkRInterface::AssignRVariableToVTKTable(const char* RVariableName)
   s = findVar(install(RVariableName), R_GlobalEnv);
 
   if(s != R_UnboundValue)
-    return(vtkRAdapter::RToVTKTable(s));
+    return(this->vra->RToVTKTable(s));
   else
     return(0);
 
@@ -330,7 +334,7 @@ void vtkRInterface::AssignVTKTableToRVariable(vtkTable* table, const char* RVari
 {
 
   SEXP s;
-  s = vtkRAdapter::VTKTableToR(table);
+  s = this->vra->VTKTableToR(table);
   defineVar(install(RVariableName), s, R_GlobalEnv);
 
 }
@@ -402,6 +406,14 @@ void vtkRInterface::PrintSelf(ostream& os, vtkIndent indent)
 {
 
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "buffer_size: " << this->buffer_size << endl;
+  os << indent << "buffer: " << (this->buffer ? this->buffer : "NULL") << endl;
+
+  if(this->vra)
+    {
+    this->vra->PrintSelf(os, indent);
+    }
 
 }
 

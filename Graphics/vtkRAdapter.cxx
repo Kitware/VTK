@@ -40,6 +40,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkStringArray.h"
+#include "vtkDataArrayCollection.h"
+#include "vtkArrayData.h"
+#include "vtkDataObjectCollection.h"
 
 #include <vtkstd/map>
 
@@ -52,9 +55,12 @@
 #include "R_ext/Parse.h"
 #include "R_ext/Rdynload.h"
 
-vtkCxxRevisionMacro(vtkRAdapter, "1.4");
+vtkCxxRevisionMacro(vtkRAdapter, "1.5");
 
 vtkStandardNewMacro(vtkRAdapter);
+
+namespace
+{
 
 int R_FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& extents)
 {
@@ -71,6 +77,39 @@ int R_FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& ex
     }
 
   return(ret);
+
+}
+
+} // End anonymous namespace
+
+//----------------------------------------------------------------------------
+vtkRAdapter::vtkRAdapter()
+{
+
+  this->vad =  vtkArrayData::New();
+  this->vdoc = vtkDataObjectCollection::New();
+  this->vdac = vtkDataArrayCollection::New();
+
+}
+
+//----------------------------------------------------------------------------
+vtkRAdapter::~vtkRAdapter()
+{
+
+  if(this->vad)
+    {
+    this->vad->Delete();
+    }
+
+  if(this->vdoc)
+    {
+    this->vdoc->Delete();
+    }
+
+  if(this->vdac)
+    {
+    this->vdac->Delete();
+    }
 
 }
 
@@ -106,6 +145,7 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
       }
 
     delete [] data;
+    this->vdac->AddItem(result);
     return(result);
     }
   else
@@ -114,6 +154,7 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
     }
 
 }
+
 
 SEXP vtkRAdapter::VTKDataArrayToR(vtkDataArray* da)
 {
@@ -187,6 +228,7 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
     da->SetVariantValue(index,REAL(variable)[i]);
     }
 
+  this->vad->AddArray(da);
   return(da);
 
 }
@@ -388,6 +430,7 @@ vtkTable* vtkRAdapter::RToVTKTable(SEXP variable)
     return(0);
     }
 
+  this->vdoc->AddItem(result);
   return(result);
 
 }
@@ -396,6 +439,22 @@ void vtkRAdapter::PrintSelf(ostream& os, vtkIndent indent)
 {
 
   this->Superclass::PrintSelf(os,indent);
+
+  if(this->vad)
+    {
+    this->vad->PrintSelf(os,indent);
+    }
+
+  if(this->vdoc)
+    {
+    this->vdoc->PrintSelf(os,indent);
+    }
+
+  if(this->vdac)
+    {
+    this->vdac->PrintSelf(os,indent);
+    }
+
 
 }
 
