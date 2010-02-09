@@ -144,6 +144,8 @@ vtkMutableDirectedGraph.cxx
 vtkMutableUndirectedGraph.cxx
 vtkNonLinearCell.cxx
 vtkNonMergingPointLocator.cxx
+vtkOctreePointLocator.cxx
+vtkOctreePointLocatorNode.cxx
 vtkOrderedTriangulator.cxx
 vtkOutEdgeIterator.cxx
 vtkParametricSpline.cxx

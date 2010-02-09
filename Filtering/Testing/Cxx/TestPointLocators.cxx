@@ -16,6 +16,7 @@
 #include "vtkKdTree.h"
 #include "vtkKdTreePointLocator.h"
 #include "vtkMath.h"
+#include "vtkOctreePointLocator.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkStructuredGrid.h"
@@ -91,7 +92,7 @@ bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList,
 
 // This test compares results for different point locators since they should 
 // all return the same results (within a tolerance)
-int ComparePointLocators()  
+int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLocator* locator2)  
 {
   int rval = 0;
   int i, j, k, kOffset, jOffset, offset;
@@ -126,10 +127,8 @@ int ComparePointLocators()
   sgrid->Update();
   points->Delete();
 
-  vtkPointLocator* uniformLocator = vtkPointLocator::New();
-  uniformLocator->SetDataSet(sgrid);
-  vtkKdTreePointLocator* kdtree = vtkKdTreePointLocator::New();
-  kdtree->SetDataSet(sgrid);
+  locator1->SetDataSet(sgrid);
+  locator2->SetDataSet(sgrid);
   
   double bounds[6];
   sgrid->GetBounds(bounds);
@@ -140,73 +139,73 @@ int ComparePointLocators()
     bounds[i*2+1] *= 1.2;
     }
   int numSearchPoints = 20;
-  vtkIdList* uniformList = vtkIdList::New();
-  vtkIdList* kdtreeList = vtkIdList::New();
+  vtkIdList* locator1List = vtkIdList::New();
+  vtkIdList* locator2List = vtkIdList::New();
   for(i=0;i<numSearchPoints;i++)
     {
     double point[3] = {(bounds[0]+(bounds[1]-bounds[0])*i/numSearchPoints),
                        (bounds[2]+(bounds[3]-bounds[2])*i/numSearchPoints),
                        (bounds[4]+(bounds[5]-bounds[4])*i/numSearchPoints)};
-    vtkIdType uniformPt = uniformLocator->FindClosestPoint(point);
-    vtkIdType kdtreePt = kdtree->FindClosestPoint(point);
-    if(!ArePointsEquidistant(point, uniformPt, kdtreePt, sgrid))
+    vtkIdType locator1Pt = locator1->FindClosestPoint(point);
+    vtkIdType locator2Pt = locator2->FindClosestPoint(point);
+    if(!ArePointsEquidistant(point, locator1Pt, locator2Pt, sgrid))
       {
       cerr << " from FindClosestPoint.\n";
       rval++;
       }
     int N = 1+i*250/numSearchPoints; // test different amounts of points to search for
-    uniformLocator->FindClosestNPoints(N, point, uniformList);  
-    kdtree->FindClosestNPoints(N, point, kdtreeList);
-    if(!ArePointsEquidistant(point, uniformPt, uniformList->GetId(0), sgrid))
+    locator1->FindClosestNPoints(N, point, locator1List);  
+    locator2->FindClosestNPoints(N, point, locator2List);
+    if(!ArePointsEquidistant(point, locator1Pt, locator1List->GetId(0), sgrid))
       {
-      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for uniform locator.\n";      
+      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator1.\n";      
       rval++;
       }
-    if(!ArePointsEquidistant(point, kdtreePt, kdtreeList->GetId(0), sgrid))
+    if(!ArePointsEquidistant(point, locator2Pt, locator2List->GetId(0), sgrid))
       {
-      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for kdtree locator.\n";
+      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator2.\n";
       rval++;
       }
     
     for(j=0;j<N;j++)
       {
-      if(!ArePointsEquidistant(point, kdtreeList->GetId(j), uniformList->GetId(j), sgrid))
+      if(!ArePointsEquidistant(point, locator2List->GetId(j), locator1List->GetId(j), sgrid))
         {
         cerr << "for point " << j << " for ClosestNPoints search.\n";
         rval++;
         }
       }
     double radius = 10;
-    uniformLocator->FindPointsWithinRadius(radius, point, uniformList);
-    kdtree->FindPointsWithinRadius(radius, point, kdtreeList);
-    if(!DoesListHaveProperPoints(point, uniformList, kdtreeList, sgrid) ||
-       !DoesListHaveProperPoints(point, kdtreeList, uniformList, sgrid))
+    locator1->FindPointsWithinRadius(radius, point, locator1List);
+    locator2->FindPointsWithinRadius(radius, point, locator2List);
+    if(!DoesListHaveProperPoints(point, locator1List, locator2List, sgrid) ||
+       !DoesListHaveProperPoints(point, locator2List, locator1List, sgrid))
       {
       cerr << "Problem with FindPointsWithinRadius\n";
       rval++;
       }
 
     double dist2;
-    uniformPt = uniformLocator->FindClosestPointWithinRadius(radius, point, dist2);
-    kdtreePt = kdtree->FindClosestPointWithinRadius(radius, point, dist2);
-    if(uniformPt < 0 || kdtreePt < 0)
+    locator1Pt = locator1->FindClosestPointWithinRadius(radius, point, dist2);
+    locator2Pt = locator2->FindClosestPointWithinRadius(radius, point, dist2);
+    if(locator1Pt < 0 || locator2Pt < 0)
       {
-      if(uniformPt >=0 || kdtreePt >= 0)
+      if(locator1Pt >=0 || locator2Pt >= 0)
         {
         cerr << "Inconsistent results for FindClosestPointWithinRadius\n";
         rval++;
         }
       }
-    else if(!ArePointsEquidistant(point, uniformPt, kdtreePt, sgrid))
+    else if(!ArePointsEquidistant(point, locator1Pt, locator2Pt, sgrid))
       {
       cerr << "Incorrect result for FindClosestPointWithinRadius.\n";
       rval++;
       }
-    if(uniformPt >= 0)
+    if(locator1Pt >= 0)
       {
-      uniformList->Reset();
-      uniformList->InsertNextId(uniformPt);
-      if(!DoesListHaveProperPoints(point, uniformList, kdtreeList, sgrid))
+      locator1List->Reset();
+      locator1List->InsertNextId(locator1Pt);
+      if(!DoesListHaveProperPoints(point, locator1List, locator2List, sgrid))
         {
         cerr << "Inconsistent results for FindClosestPointWithinRadius and FindPointsWithRadius\n";
         rval++;
@@ -214,11 +213,9 @@ int ComparePointLocators()
       }
     }
 
-  uniformList->Delete();
-  kdtreeList->Delete();
+  locator1List->Delete();
+  locator2List->Delete();
 
-  kdtree->Delete();
-  uniformLocator->Delete();
   sgrid->Delete();
 
   return rval; // returns 0 if all tests passes
@@ -300,7 +297,20 @@ int TestKdTreePointLocator()
 
 int TestPointLocators(int , char *[])
 {
-  int rval = ComparePointLocators();
+  vtkKdTreePointLocator* kdTreeLocator = vtkKdTreePointLocator::New();
+  vtkPointLocator* uniformLocator = vtkPointLocator::New();
+
+  cout << "Comparing vtkPointLocator to vtkKdTreePointLocator.\n";
+  int rval = ComparePointLocators(uniformLocator, kdTreeLocator);
+
+  vtkOctreePointLocator* octreeLocator = vtkOctreePointLocator::New();
+  
+  cout << "Comparing vtkOctreePointLocator to vtkKdTreePointLocator.\n";
+  rval += ComparePointLocators(octreeLocator, kdTreeLocator);
+
+  kdTreeLocator->Delete();
+  uniformLocator->Delete();
+
   rval += TestKdTreePointLocator();
 
   return rval;
