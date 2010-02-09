@@ -20,7 +20,7 @@
 #include "vtkTransform2D.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.1");
+vtkCxxRevisionMacro(vtkPanelMark, "1.2");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void vtkPanelMark::Update()
     {    
     numChildren = data.GetNumberOfChildren();
     }
-  for (size_t j = 0; j < numMarks; ++j)
+  for (vtkIdType j = 0; j < numMarks; ++j)
     {
     for (vtkIdType i = 0; i < numChildren; ++i)
       {

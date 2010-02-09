@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestMarksGanttChart.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "vtkBarMark.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -13,11 +28,6 @@
 
 namespace
 {
-  vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
-  {
-    return d;
-  }
-
   double LeftFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   {
     return d.GetValue(0).ToDouble() * 30.0;

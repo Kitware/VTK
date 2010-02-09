@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestMarks.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "vtkBarMark.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -13,11 +28,6 @@
 
 namespace
 {
-  double PanelLeftFunction(vtkMark* m, vtkDataElement& vtkNotUsed(d))
-  {
-    return 20 + m->GetIndex()*15;
-  }
-
   vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   {
     return d;
@@ -65,7 +75,6 @@ int TestMarks(int argc, char* argv[])
   vtkSmartPointer<vtkPanelMark> panel = vtkSmartPointer<vtkPanelMark>::New();
   view->GetScene()->AddItem(panel);
   panel->SetData(data);
-  //panel->SetLeft(PanelLeftFunction);
   panel->SetLeft(2);
   panel->SetBottom(2);
 
