@@ -130,7 +130,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkSurfaceLICPainter);
-vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.5");
+vtkCxxRevisionMacro(vtkSurfaceLICPainter, "1.6");
 //----------------------------------------------------------------------------
 vtkSurfaceLICPainter::vtkSurfaceLICPainter()
 {
@@ -588,7 +588,16 @@ void vtkSurfaceLICPainter::RenderInternal
     this->Internals->ViewportExtent[1]-this->Internals->ViewportExtent[0]+1,
     this->Internals->ViewportExtent[3]-this->Internals->ViewportExtent[2]+1);
 
-  this->Internals->FBO->StartNonOrtho(viewsize[0], viewsize[1], false);
+  if (  !this->Internals->FBO
+             ->StartNonOrtho( viewsize[0], viewsize[1], false )  )
+    {
+    timer->Delete();
+    timer  = NULL;
+    renWin = NULL;
+    this->LICSuccess = 0;
+    return;
+    }
+    
   glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
   this->Internals->ColorMaterialHelper->PrepareForRendering();
