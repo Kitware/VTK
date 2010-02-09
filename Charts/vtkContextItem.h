@@ -79,6 +79,14 @@ public:
   vtkGetObjectMacro(Transform, vtkTransform2D);
 
   // Description:
+  // Get the visibility of the item (should it be drawn).
+  vtkGetMacro(Visible, bool);
+
+  // Description:
+  // Set the visibility of the item (should it be drawn).
+  vtkSetMacro(Visible, bool);
+
+  // Description:
   // Get the opacity of the item.
   vtkGetMacro(Opacity, double);
 
@@ -105,6 +113,8 @@ protected:
 
   vtkTransform2D *Transform;
   vtkWeakPointer<vtkContextScene> Scene;
+
+  bool Visible;
 
   double Opacity;
 

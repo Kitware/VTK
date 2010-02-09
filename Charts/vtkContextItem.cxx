@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.6");
+vtkCxxRevisionMacro(vtkContextItem, "1.7");
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D)
 
 //-----------------------------------------------------------------------------
@@ -34,6 +34,7 @@ vtkContextItem::vtkContextItem()
 {
   this->Transform = NULL;//vtkTransform2D::New();
   this->Scene = NULL;
+  this->Visible = true;
   this->Opacity = 1.0;
 }
 
