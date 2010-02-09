@@ -178,6 +178,7 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cs->Delete();
     mef->Delete();
     mef2->Delete();
+    input_table->Delete();
 
     return 0;
     }

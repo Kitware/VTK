@@ -86,7 +86,6 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       test_expression(doubleEquals(iv[1] - 0.2,rv[1],0.001));
       test_expression(doubleEquals(iv[2] - 0.3,rv[2],0.001));
       }
-    rda->Delete();
 
     dda->Resize(vtkArrayExtents(3, 3, 5));
     dda->Fill(64.0);
@@ -106,7 +105,6 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
           }
         }
       }
-    rdda->Delete();
     dda->Delete();
     da->Delete();
     mei->Delete();

@@ -61,7 +61,7 @@
 
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
 
-vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.2");
+vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.3");
 
 vtkStandardNewMacro(vtkMatlabMexAdapter);
 
@@ -161,7 +161,7 @@ template<typename T> mxArray* CopyVTKArrayTomxArray(vtkTypedArray<T>* da, mxClas
     dest[FindArrayIndex(coords,da->GetExtents())] = da->GetValue(coords);
     }
 
-  delete dims;
+  delete [] dims;
   return(output);
 
 };
@@ -205,6 +205,7 @@ template<typename T> vtkArray* vtkMatlabMexAdapter::CopymxArrayToVTKArray(mxArra
     }
 
   this->vad->AddArray(da);
+  da->Delete();
   return(da);
 
 };
@@ -512,6 +513,7 @@ vtkDataArray* vtkMatlabMexAdapter::mxArrayTovtkDataArray(const mxArray* mxa, boo
 
   mxFree(tuple);
   this->vdac->AddItem(da);
+  da->Delete();
   return(da);
 
 }
@@ -833,6 +835,7 @@ vtkGraph* vtkMatlabMexAdapter::mxArrayTovtkGraph(mxArray* mxa)
       }
 
     this->vdoc->AddItem(dg);
+    dg->Delete();
     return(dg);
     }
   else
@@ -855,6 +858,7 @@ vtkGraph* vtkMatlabMexAdapter::mxArrayTovtkGraph(mxArray* mxa)
         }
       }
     this->vdoc->AddItem(ug);
+    ug->Delete();
     return(ug);
     }
 }

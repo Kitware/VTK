@@ -55,7 +55,7 @@
 #include "R_ext/Parse.h"
 #include "R_ext/Rdynload.h"
 
-vtkCxxRevisionMacro(vtkRAdapter, "1.5");
+vtkCxxRevisionMacro(vtkRAdapter, "1.6");
 
 vtkStandardNewMacro(vtkRAdapter);
 
@@ -146,6 +146,7 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
 
     delete [] data;
     this->vdac->AddItem(result);
+    result->Delete();
     return(result);
     }
   else
@@ -229,6 +230,7 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
     }
 
   this->vad->AddArray(da);
+  da->Delete();
   return(da);
 
 }
@@ -431,6 +433,7 @@ vtkTable* vtkRAdapter::RToVTKTable(SEXP variable)
     }
 
   this->vdoc->AddItem(result);
+  result->Delete();
   return(result);
 
 }
