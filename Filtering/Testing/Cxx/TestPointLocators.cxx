@@ -310,6 +310,7 @@ int TestPointLocators(int , char *[])
 
   kdTreeLocator->Delete();
   uniformLocator->Delete();
+  octreeLocator->Delete();
 
   rval += TestKdTreePointLocator();
 
