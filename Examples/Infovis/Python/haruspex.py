@@ -255,8 +255,8 @@ def ReadColumnsList( columnsListName ):
 ############################################################
 
 ############################################################
-# Write haruspex output data
-def WriteOutData( haruspex, outDataName ):
+# Write table from haruspex output port (i.e., for data or tests)
+def WriteOutTable( haruspex, outPort, outDataName ):
     # Declare use of global variable
     global verbosity
 
@@ -267,7 +267,7 @@ def WriteOutData( haruspex, outDataName ):
     outDataWriter = vtkDelimitedTextWriter()
     outDataWriter.SetFieldDelimiter(",")
     outDataWriter.SetFileName( outDataName )
-    outDataWriter.SetInputConnection( haruspex.GetOutputPort( 0 ) )
+    outDataWriter.SetInputConnection( haruspex.GetOutputPort( outPort ) )
     outDataWriter.Update()
 
     if verbosity > 0:
@@ -275,7 +275,7 @@ def WriteOutData( haruspex, outDataName ):
         print
         if verbosity > 2:
             print "# Output data:"
-            haruspex.GetOutput( 0 ).Dump( 10 )
+            haruspex.GetOutput( outPort ).Dump( 10 )
             print
 ############################################################
 
@@ -492,7 +492,7 @@ def main():
     CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, options )
 
     # Save output (annotated) data
-    WriteOutData( haruspex, outDataName )
+    WriteOutTable( haruspex, 0, outDataName )
 
     # Save output model (statistics)
     WriteOutModel( haruspex, outModelPrefix )
