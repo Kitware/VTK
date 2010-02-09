@@ -51,8 +51,9 @@ public:
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 
-  // Add a plot to the chart, defaults to using the name of the y column
 //BTX
+  // Description:
+  // Add a plot to the chart, defaults to using the name of the y column
   virtual vtkPlot * AddPlot(vtkChart::Type type);
 //ETX
 
@@ -74,7 +75,7 @@ public:
   virtual vtkIdType GetNumberPlots();
 
   // Description:
-  // Set/get the second point in the chart (the top right).
+  // If true then the axes will be drawn at the origin (scientific style).
   vtkSetMacro(DrawAxesAtOrigin, bool);
   vtkGetMacro(DrawAxesAtOrigin, bool);
 

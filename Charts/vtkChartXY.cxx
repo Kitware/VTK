@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.23");
+vtkCxxRevisionMacro(vtkChartXY, "1.24");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -354,9 +354,9 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
     default:
       plot = NULL;
     }
-    // Ensure that the bounds are recalculated
-    this->PlotTransformValid = false;
-    return plot;
+  // Ensure that the bounds are recalculated
+  this->PlotTransformValid = false;
+  return plot;
 }
 
 //-----------------------------------------------------------------------------
