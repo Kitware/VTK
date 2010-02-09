@@ -257,25 +257,23 @@ def ReadColumnsList( columnsListName ):
 
 ############################################################
 # Write table from haruspex output port (i.e., for data or tests)
-def WriteOutTable( haruspex, outPort, outDataName ):
+def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
     # Declare use of global variable
     global verbosity
 
     if verbosity > 0:
-        print "# Saving output (annotated) data:"
+        print "# Saving output table of port", outPort
 
     # Set CSV writer parameters
-    outDataWriter = vtkDelimitedTextWriter()
-    outDataWriter.SetFieldDelimiter(",")
-    outDataWriter.SetFileName( outDataName )
-    outDataWriter.SetInputConnection( haruspex.GetOutputPort( outPort ) )
-    outDataWriter.Update()
+    outTableWriter = vtkDelimitedTextWriter()
+    outTableWriter.SetFieldDelimiter(",")
+    outTableWriter.SetFileName( outFileName )
+    outTableWriter.SetInputConnection( haruspex.GetOutputPort( outPort ) )
+    outTableWriter.Update()
 
     if verbosity > 0:
-        print "  Wrote", outDataName
-        print
+        print "  Wrote", outPortName
         if verbosity > 2:
-            print "# Output data:"
             haruspex.GetOutput( outPort ).Dump( 10 )
             print
 ############################################################
@@ -454,12 +452,6 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, opt
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
 
-    if verbosity > 1:
-        if haruspex.GetTestOption():
-            print "# Statistical Test Results:"
-            haruspex.GetOutput( 2 ).Dump( 10 )
-            print
-
     if verbosity > 0:
         print
 ############################################################
@@ -493,10 +485,10 @@ def main():
     CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, options )
 
     # Save output (annotated) data
-    WriteOutTable( haruspex, 0, outDataName )
+    WriteOutTable( haruspex, 0, outDataName, "annotated data" )
 
     # Save output of statistical tests
-    WriteOutTable( haruspex, 2, outTestName )
+    WriteOutTable( haruspex, 2, outTestName, "statistical test results" )
 
     # Save output model (statistics)
     WriteOutModel( haruspex, outModelPrefix )
