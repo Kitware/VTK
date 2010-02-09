@@ -23,7 +23,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.5");
+vtkCxxRevisionMacro(vtkPlot, "1.6");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
@@ -59,6 +59,23 @@ void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b,
   this->Color[1] = g;
   this->Color[2] = b;
   this->Color[3] = a;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetColor(double r, double g, double b)
+{
+  this->Color[0] = static_cast<unsigned char>(r*255.0);
+  this->Color[1] = static_cast<unsigned char>(g*255.0);
+  this->Color[2] = static_cast<unsigned char>(b*255.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::GetColor(double rgb[3])
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    rgb[i] = double(this->Color[0]) / 255.0;
+    }
 }
 
 //-----------------------------------------------------------------------------

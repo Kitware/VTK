@@ -38,6 +38,8 @@ public:
   // Set the plot color
   virtual void SetColor(unsigned char r, unsigned char g, unsigned char b,
                         unsigned char a);
+  virtual void SetColor(double r,  double g, double b);
+  virtual void GetColor(double rgb[3]);
 
   // Description:
   // Set the width of the line.
