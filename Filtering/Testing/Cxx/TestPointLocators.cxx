@@ -21,8 +21,6 @@
 #include "vtkPoints.h"
 #include "vtkStructuredGrid.h"
 
-#include <vtkstd/vector>
-
 // returns true if 2 points are equidistant from x, within a tolerance
 bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2,
                           vtkPointSet* grid)

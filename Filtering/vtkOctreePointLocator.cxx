@@ -39,7 +39,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkOctreePointLocator, "1.2");
+vtkCxxRevisionMacro(vtkOctreePointLocator, "1.3");
 vtkStandardNewMacro(vtkOctreePointLocator);
 
 // helper class for ordering the points in 
@@ -295,8 +295,11 @@ void vtkOctreePointLocator::DivideRegion(
   for(i=0;i<7;i++)
     {
     counter += subOctantNumberOfPoints[i];
-    memcpy(ordering+counter, &(points[i][0]), 
-           subOctantNumberOfPoints[i+1]*sizeOfInt);
+    if(!points[i].empty())
+      {
+      memcpy(ordering+counter, &(points[i][0]), 
+             subOctantNumberOfPoints[i+1]*sizeOfInt);
+      }
     }
   counter = 0;
   for(i=0;i<8;i++)
