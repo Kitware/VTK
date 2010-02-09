@@ -29,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.6");
+vtkCxxRevisionMacro(vtkPlotLine, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -57,6 +57,11 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotLine.");
+
+  if (!this->Visible)
+    {
+    return false;
+    }
 
   // First check if we have an input
   vtkTable *table = this->Data->GetInput();
@@ -114,7 +119,13 @@ void vtkPlotLine::GetBounds(double bounds[4])
   vtkDataArray *x = this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray *y = this->Data->GetInputArrayToProcess(1, table);
 
-  if (x && y)
+  if (this->UseIndexForXSeries && y)
+    {
+    bounds[0] = 0;
+    bounds[1] = y->GetSize();
+    y->GetRange(&bounds[2]);
+    }
+  else if (x && y)
     {
     x->GetRange(&bounds[0]);
     y->GetRange(&bounds[2]);
@@ -148,6 +159,17 @@ void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
     }
 }
 
+// Copy one array into the points array, use the index of that array as x
+template<class A>
+void CopyToPoints(vtkPoints2D *points, A *a, int n)
+{
+  points->SetNumberOfPoints(n);
+  for (int i = 0; i < n; ++i)
+    {
+    points->SetPoint(i, i, a[i]);
+    }
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -156,7 +178,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
   // Get the x and y arrays (index 0 and 1 respectively)
   vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
-  if (!x)
+  if (!x && !this->UseIndexForXSeries)
     {
     vtkErrorMacro(<< "No X column is set (index 0).");
     return false;
@@ -166,7 +188,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
     vtkErrorMacro(<< "No Y column is set (index 1).");
     return false;
     }
-  else if (x->GetSize() != y->GetSize())
+  else if (x->GetSize() != y->GetSize() && !this->UseIndexForXSeries)
     {
     vtkErrorMacro("The x and y columns must have the same number of elements.");
     return false;
@@ -178,12 +200,25 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
     }
 
   // Now copy the components into their new columns
-  switch(x->GetDataType())
+  if (this->UseIndexForXSeries)
     {
+    switch(y->GetDataType())
+      {
+        vtkTemplateMacro(
+            CopyToPoints(this->Points,
+                         static_cast<VTK_TT*>(y->GetVoidPointer(0)),
+                         y->GetSize()));
+      }
+    }
+  else
+    {
+    switch(x->GetDataType())
+      {
       vtkTemplateMacro(
           CopyToPointsSwitch(this->Points,
                              static_cast<VTK_TT*>(x->GetVoidPointer(0)),
                              y, x->GetSize()));
+      }
     }
   this->BuildTime.Modified();
   return true;

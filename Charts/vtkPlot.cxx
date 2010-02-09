@@ -23,7 +23,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.4");
+vtkCxxRevisionMacro(vtkPlot, "1.5");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
@@ -34,6 +34,8 @@ vtkPlot::vtkPlot()
   this->Color[2] = 0;
   this->Color[3] = 255;
   this->Width = 2.0;
+  this->Label = NULL;
+  this->UseIndexForXSeries = false;
   this->Data = vtkContextMapper2D::New();
   this->Selection = NULL;
 }
@@ -46,6 +48,7 @@ vtkPlot::~vtkPlot()
     this->Data->Delete();
     this->Data = NULL;
     }
+  this->SetLabel(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -76,9 +79,11 @@ void vtkPlot::SetInput(vtkTable *table, const char *xColumn,
                 << "\", " << "Y column = \"" << vtkstd::string(yColumn) << "\"");
 
   this->Data->SetInput(table);
-  this->Data->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS,
+  this->Data->SetInputArrayToProcess(0, 0, 0,
+                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      xColumn);
-  this->Data->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS,
+  this->Data->SetInputArrayToProcess(1, 0, 0,
+                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      yColumn);
 }
 

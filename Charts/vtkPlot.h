@@ -56,6 +56,16 @@ public:
   vtkGetStringMacro(Label);
 
   // Description:
+  // Use the Y array index for the X value. If true any X column setting will be
+  // ignored, and the X values will simply be the index of the Y column.
+  vtkGetMacro(UseIndexForXSeries, bool);
+
+  // Description:
+  // Use the Y array index for the X value. If true any X column setting will be
+  // ignored, and the X values will simply be the index of the Y column.
+  vtkSetMacro(UseIndexForXSeries, bool);
+
+  // Description:
   // This is a convenience function to set the input table and the x, y column
   // for the plot.
   virtual void SetInput(vtkTable *table);
@@ -89,11 +99,18 @@ protected:
 
   unsigned char Color[4];
 
+  // Description:
+  // Width in pixels of the plotted line.
   float Width;
 
   // Description:
-  // Plot label, used by legend
+  // Plot label, used by legend.
   char *Label;
+
+  // Description:
+  // Use the Y array index for the X value. If true any X column setting will be
+  // ignored, and the X values will simply be the index of the Y column.
+  bool UseIndexForXSeries;
 
   // Description:
   // This data member contains the data that will be plotted, it inherits
