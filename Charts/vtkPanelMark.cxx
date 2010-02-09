@@ -20,7 +20,7 @@
 #include "vtkTransform2D.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.2");
+vtkCxxRevisionMacro(vtkPanelMark, "1.3");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void vtkPanelMark::Update()
   this->Right.Update(this);
   this->Top.Update(this);
   this->Bottom.Update(this);  
-  size_t numMarks = this->Marks.size();  
+  int numMarks = this->Marks.size();
   
   // Create only a single instance if no real data is set on panel. 
   vtkIdType numChildren = 1; 
