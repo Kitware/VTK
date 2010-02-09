@@ -55,6 +55,7 @@ def ParseCommandLine():
     haruspexName = ""
     outModelPrefix = "outputModel"
     outDataName = "outputData.csv"
+    outTestName = "outputTest.csv"
     columnsListName =""
     
     # Try to hash command line with respect to allowable flags
@@ -117,7 +118,7 @@ def ParseCommandLine():
 
         print
 
-    return [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outModelPrefix ]
+    return [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outTestName, outModelPrefix ]
 ############################################################
 
 ############################################################
@@ -467,7 +468,7 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, opt
 # Main function
 def main():
     # Parse command line
-    [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outModelPrefix ] \
+    [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outTestName, outModelPrefix ] \
       = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
@@ -493,6 +494,9 @@ def main():
 
     # Save output (annotated) data
     WriteOutTable( haruspex, 0, outDataName )
+
+    # Save output of statistical tests
+    WriteOutTable( haruspex, 2, outTestName )
 
     # Save output model (statistics)
     WriteOutModel( haruspex, outModelPrefix )
