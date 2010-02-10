@@ -64,6 +64,7 @@ vtkDataSetToDataObjectFilter.cxx
 vtkDataSetTriangleFilter.cxx
 vtkDecimatePolylineFilter.cxx
 vtkDecimatePro.cxx
+vtkDeformPointSet.cxx
 vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
 vtkDensifyPolyData.cxx
