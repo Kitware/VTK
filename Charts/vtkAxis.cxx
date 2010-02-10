@@ -25,7 +25,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.10");
+vtkCxxRevisionMacro(vtkAxis, "1.11");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -154,6 +154,15 @@ void vtkAxis::AutoScale()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing
   this->TickInterval = this->CalculateNiceMinMax(this->Minimum, this->Maximum);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::RecalculateTickSpacing()
+{
+  // Calculate the min and max, set the number of ticks and the tick spacing,
+  // discard the min and max in this case. TODO: Refactor the function called.
+  float min, max;
+  this->TickInterval = this->CalculateNiceMinMax(min, max);
 }
 
 //-----------------------------------------------------------------------------

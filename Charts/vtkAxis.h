@@ -108,6 +108,11 @@ public:
   virtual void AutoScale();
 
   // Description:
+  // Recalculate the spacing of the tick marks - typically useful to do after
+  // scaling the axis.
+  virtual void RecalculateTickSpacing();
+
+  // Description:
   // A float array with the positions of the tick marks along the axis line.
   // The positions are specified in the coordinate system the axis is drawn in
   // (normally screen coordinates).
