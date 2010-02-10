@@ -16,6 +16,7 @@
 
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
+#include "vtkHyperOctree.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -23,13 +24,14 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLHyperOctreeWriter.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLRectilinearGridWriter.h"
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.11");
+vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.12");
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -97,6 +99,12 @@ int vtkXMLDataSetWriter::WriteInternal()
       {
       vtkXMLPolyDataWriter* w = vtkXMLPolyDataWriter::New();
       w->SetInput(static_cast<vtkPolyData*>(input));
+      writer = w;
+      } break;
+    case VTK_HYPER_OCTREE:
+      {
+      vtkXMLHyperOctreeWriter* w = vtkXMLHyperOctreeWriter::New();
+      w->SetInput(static_cast<vtkHyperOctree*>(input));
       writer = w;
       } break;
     }
