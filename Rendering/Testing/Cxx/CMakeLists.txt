@@ -95,8 +95,8 @@ IF(VTK_USE_DISPLAY)
         ${RenderingTestsWithArguments}
         TestSurfaceLIC.cxx
         )
+      ENDIF (VTK_DATA_ROOT)
     ENDIF(WIN32)
-    ENDIF (VTK_DATA_ROOT)
   ENDIF (VTK_USE_GLSL_SHADERS)
 
 ENDIF(VTK_USE_DISPLAY)
