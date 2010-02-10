@@ -94,10 +94,21 @@ public:
   // rendering.
   virtual void SetWindow(vtkRenderWindow *window);
 
+  // Description:
+  // Inform the scene that something changed that requires a repaint of the
+  // scene. This should only be used by the vtkContextItem derived objects in
+  // a scene in their event handlers.
+  void SetDirty(bool isDirty);
+
 //BTX
 protected:
   vtkContextScene();
   ~vtkContextScene();
+
+  // Description:
+  // Protected function called after any event to check if a repaint of the
+  // scene is required. Called by the Command object after interaction events.
+  void CheckForRepaint();
 
   // Description:
   // Called to process events - figure out what child(ren) to propagate events

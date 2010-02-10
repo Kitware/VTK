@@ -100,6 +100,7 @@ public:
         default:
           this->Target->ProcessEvents(caller, eventId, callData);
         }
+      this->Target->CheckForRepaint();
       }
     }
 
@@ -113,14 +114,31 @@ public:
 class vtkContextScene::Private
 {
 public:
+  Private()
+    {
+    this->itemMousePressCurrent = -1;
+    this->Event.Button = -1;
+    this->IsDirty = true;
+    }
+  ~Private()
+    {
+    size_t size = this->items.size();
+    for (size_t i = 0; i < size; ++i)
+      {
+      this->items[i]->Delete();
+      this->items[i] = NULL;
+      }
+    }
+
   vtkstd::vector<vtkContextItem *> items;
   vtkstd::vector<bool> itemState;
   int itemMousePressCurrent; // Index of the item with a current mouse down
   vtkContextMouseEvent Event; // Mouse event structure
+  bool IsDirty;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.11");
+vtkCxxRevisionMacro(vtkContextScene, "1.12");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 
@@ -129,10 +147,7 @@ vtkContextScene::vtkContextScene()
 {
   this->Observer = new vtkContextScene::Command(this);
   this->Storage = new Private;
-  this->Storage->itemMousePressCurrent = -1;
-  this->Storage->Event.Button = -1;
   this->AnnotationLink = NULL;
-  this->Window = NULL;
   this->Geometry[0] = 0;
   this->Geometry[1] = 0;
 }
@@ -142,15 +157,9 @@ vtkContextScene::~vtkContextScene()
 {
   this->Observer->Delete();
   this->Observer = NULL;
-  this->Window = NULL;
-  size_t size = this->Storage->items.size();
-  for (size_t i = 0; i < size; ++i)
-    {
-    this->Storage->items[i]->Delete();
-    this->Storage->items[i] = NULL;
-    }
   delete this->Storage;
   this->Storage = NULL;
+  this->SetAnnotationLink(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -169,6 +178,7 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
     painter->SetTransform(this->Storage->items[i]->GetTransform());
     this->Storage->items[i]->Paint(painter);
     }
+  this->Storage->IsDirty = false;
   return true;
 }
 
@@ -244,6 +254,23 @@ void vtkContextScene::ProcessEvents(vtkObject* caller, unsigned long eventId,
 }
 
 //-----------------------------------------------------------------------------
+void vtkContextScene::SetDirty(bool isDirty)
+{
+  this->Storage->IsDirty = isDirty;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextScene::CheckForRepaint()
+{
+  // Called after interaction events - cause the scene to be repainted if any
+  // events marked the scene as dirty.
+  if (this->Window && this->Storage->IsDirty)
+    {
+    this->Window->Render();
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkContextScene::ProcessSelectionEvent(vtkObject* caller, void* callData)
 {
   cout << "ProcessSelectionEvent called! " << caller << "\t" << callData << endl;
@@ -305,11 +332,6 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
   event.LastScreenPos[1] = event.ScreenPos[1];
   event.LastScenePos[0] = event.ScenePos[0];
   event.LastScenePos[1] = event.ScenePos[1];
-
-  if (this->Window)
-    {
-    this->Window->Render();
-    }
 }
 
 //-----------------------------------------------------------------------------
