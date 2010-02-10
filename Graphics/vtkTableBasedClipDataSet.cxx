@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.7" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.8" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -2623,7 +2623,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
                      (  theCellK + shiftLUT[2][ pt2Index ]  ) * pzStride
                  );
 
-          // We may have physically (though not logically) degenerate cells
+          /*/ We may have physically (though not logically) degenerate cells
           // if p1Weight == 0 or p1Weight == 1. We could pretty easily and 
           // mostly safely clamp percent to the range [1e-4, 1 - 1e-4].
           if( p1Weight == 1.0) 
@@ -2636,9 +2636,19 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
             shapeIds[p] = pntIndx2;
             }
           else
+          
             {
             shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
             }
+          //*////
+          
+          // Turning on the above code segment, the alternative, would cause
+          // a bug with a synthetic Wavelet dataset (vtkImageData) when the
+          // the clipping plane (x/y/z axis) is positioned exactly at (0,0,0).
+          // The problem occurs in the form of an open 'box', as opposed to an
+          // expected closed one. This is due to the use of hash instead of a
+          // point-locator based detection of duplicate points.
+          shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
           }
         else 
         if ( pntIndex >= N0 && pntIndex <= N3 )
