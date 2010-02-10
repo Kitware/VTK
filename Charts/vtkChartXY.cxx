@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.24");
+vtkCxxRevisionMacro(vtkChartXY, "1.25");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -356,6 +356,8 @@ vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
     }
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
   return plot;
 }
 
@@ -366,6 +368,8 @@ bool vtkChartXY::RemovePlot(vtkIdType index)
     {
     this->ChartPrivate->plots[index]->Delete();
     this->ChartPrivate->plots.erase(this->ChartPrivate->plots.begin()+index);
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
     return true;
     }
   else
@@ -382,6 +386,8 @@ void vtkChartXY::ClearPlots()
     this->ChartPrivate->plots[i]->Delete();
     }
   this->ChartPrivate->plots.clear();
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -449,11 +455,15 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->YAxis->SetMaximum(this->YAxis->GetMaximum() + delta[1]);
 
     this->RecalculatePlotTransform();
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
     }
   else if (mouse.Button == 2)
     {
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
     this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
     }
 
   return true;
@@ -533,6 +543,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     this->RecalculatePlotTransform();
     this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
     this->DrawBox = false;
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
     return true;
     }
   return false;
@@ -570,6 +582,9 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
   this->YAxis->SetMaximum(ymax);
 
   this->RecalculatePlotTransform();
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
 
   return true;
 }
