@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.6" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.7" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -2022,9 +2022,9 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
 {
   int                  i, j;
   int                  dataDims[3];
-  double               originPt[3];
   double               spacings[3];
   double               tmpValue = 0.0;
+  double             * dataBBox = NULL;
   vtkImageData       * volImage = NULL;
   vtkDoubleArray     * pxCoords = NULL;
   vtkDoubleArray     * pyCoords = NULL;
@@ -2033,8 +2033,8 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
   
   volImage = vtkImageData::SafeDownCast( inputGrd );
   volImage->GetDimensions( dataDims );
-  volImage->GetOrigin( originPt );
   volImage->GetSpacing( spacings );
+  dataBBox = volImage->GetBounds();
   
   pxCoords = vtkDoubleArray::New();
   pyCoords = vtkDoubleArray::New();
@@ -2044,7 +2044,7 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
     {
     tmpArays[j]->SetNumberOfComponents( 1 );
     tmpArays[j]->SetNumberOfTuples( dataDims[j] );
-    for ( tmpValue  = originPt[j], i = 0; i < dataDims[j]; i ++, 
+    for ( tmpValue  = dataBBox[ j << 1 ], i = 0; i < dataDims[j]; i ++, 
           tmpValue += spacings[j] )
       {
       tmpArays[j]->SetComponent( i, 0, tmpValue );
@@ -2071,6 +2071,7 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
   pzCoords = NULL;
   rectGrid = NULL;
   volImage = NULL;
+  dataBBox = NULL;
 }
 
 //-----------------------------------------------------------------------------
