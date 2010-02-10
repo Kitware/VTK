@@ -128,19 +128,19 @@ int TestOrderStatistics( int, char *[] )
 
   datasetTable->Delete();
 
-// -- Select Columns of Interest -- 
+  // Select Columns of Interest
   os->AddColumn( "Metric 3" ); // Include invalid Metric 3
   for ( int i = 0; i< nMetrics; ++ i )
     {  // Try to add all valid indices once more
     os->AddColumn( columns[i] );
     }
 
-  // -- Test Learn only (Derive does not do anything for order statistics)  -- 
+  // Test Learn only (Derive does not do anything for order statistics)
   os->SetLearnOption( true );
   os->SetAssessOption( false );
   os->Update();
 
-  // offset between baseline values for each variable
+  // Offset between baseline values for each variable
   int valsOffset = 6;
 
   double valsTest1 [] = 
@@ -170,7 +170,7 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
-// -- Test Learn and Assess options for quartiles with InverseCDF quantile definition -- 
+  // Test Learn and Assess options for quartiles with InverseCDF quantile definition
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
   os->SetAssessOption( true );
   os->Update();
@@ -235,7 +235,7 @@ int TestOrderStatistics( int, char *[] )
       }
     }
 
-// -- Test Learn option for deciles with InverseCDF quantile definition (as with Octave) -- 
+  // Test Learn option for deciles with InverseCDF quantile definition (as with Octave)
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   os->SetNumberOfIntervals( 10 );
   os->SetAssessOption( false );
@@ -255,7 +255,7 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
-// -- Test Learn option for quartiles with non-numeric ordinal data --
+  // Test Learn option for quartiles with non-numeric ordinal data
   vtkStdString text[] = { 
     "an", 
     "ordinal", 
@@ -319,12 +319,11 @@ int TestOrderStatistics( int, char *[] )
   os->ResetRequests(); // Clear list of columns of interest
   os->AddColumn( "Text" ); // Add column of interest
 
-  // -- Test Learn, Derive, and Assess with 4 intervals (use SetParameter method)  -- 
+  // Test Learn and Assess with 4 intervals (use SetParameter method for Learn parameters)
   os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
   os->SetParameter( "NumberOfIntervals", 0, 4 );
-  os->SetParameter( "Learn", 0, true );
-  os->SetParameter( "Derive", 0, true );
-  os->SetParameter( "Assess", 0, true );
+  os->SetLearnOption( true );
+  os->SetAssessOption( true );
   os->Update();
 
   cout << "## Calculated the following 5-points statistics with non-numerical ordinal data (letters):\n";
