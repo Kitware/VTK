@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.54");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.55");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -109,8 +109,8 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::Learn( vtkTable* inData,
-                                       vtkTable* vtkNotUsed( inParameters ),
-                                       vtkDataObject* outMetaDO )
+                                vtkTable* vtkNotUsed( inParameters ),
+                                vtkDataObject* outMetaDO )
 {
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
   if ( ! outMeta ) 
