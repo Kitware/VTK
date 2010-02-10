@@ -117,9 +117,10 @@ public:
   vtkDataSet *GetInput();
 
   // Description:
-  // Specify which data to plot: scalars, vectors, normals, texture coords,
+  // Specify which data to plot: IDs, scalars, vectors, normals, texture coords,
   // tensors, or field data. If the data has more than one component, use
   // the method SetLabeledComponent to control which components to plot.
+  // The default is VTK_LABEL_IDS.
   vtkSetMacro(LabelMode, int);
   vtkGetMacro(LabelMode, int);
   void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);};
