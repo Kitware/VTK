@@ -275,7 +275,7 @@ def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
         print "  Wrote", outPortName
         if verbosity > 2:
             haruspex.GetOutput( outPort ).Dump( 10 )
-            print
+        print
 ############################################################
 
 ############################################################
