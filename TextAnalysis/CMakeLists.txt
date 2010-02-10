@@ -38,6 +38,7 @@ SET( Kit_SRCS
 vtkAssignMimeType.cxx
 vtkConcatenateArray.cxx
 vtkDocumentReader.cxx
+vtkEntropyMatrixWeighting.cxx
 vtkExtractSelectedSlices.cxx
 vtkFeatureDictionary.cxx
 vtkFileExtensionMimeTypeStrategy.cxx
@@ -58,6 +59,7 @@ vtkTextExtractionStrategy.cxx
 vtkTokenLengthFilter.cxx
 vtkTokenValueFilter.cxx
 vtkTokenizer.cxx
+vtkUnityMatrixWeighting.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(

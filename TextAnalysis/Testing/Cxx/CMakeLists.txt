@@ -15,6 +15,7 @@ SET(AUTO_TESTS
   TestTokenValueFilter
   TestTokenizer
   TestTokenizerRanges
+  TestMatrixWeighting
   )
 
 SET(AUTO_TEST_LIBRARIES
