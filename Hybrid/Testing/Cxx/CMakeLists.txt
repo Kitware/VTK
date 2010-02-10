@@ -14,14 +14,15 @@ IF (VTK_DATA_ROOT)
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
     )
-  IF (VTK_USE_GLSL_SHADERS)
+  # Temporarily disable LIC tests on non-windows platforms
+  IF (VTK_USE_GLSL_SHADERS AND WIN32)
     SET(MyTests ${MyTests}
       TestImageDataLIC2D.cxx
       TestStructuredGridLIC2DXSlice.cxx
       TestStructuredGridLIC2DYSlice.cxx
       TestStructuredGridLIC2DZSlice.cxx
       )
-  ENDIF (VTK_USE_GLSL_SHADERS)
+  ENDIF (VTK_USE_GLSL_SHADERS AND WIN32)
 ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display
