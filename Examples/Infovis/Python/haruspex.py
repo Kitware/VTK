@@ -35,8 +35,8 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    1st bit: assess"
     print "\t                    2nd bit: test"
     print "\t [-m <prefix>]    CSV input model file. Default: calculate model from scratch"
-    print "\t [-s <prefix>]    CSV output model (statistics) file prefix. Default:",outModelPrefix
-    print "\t [-a <filename>]  CSV output data (annotated) file. Default:",outDataName
+    print "\t [-s <prefix>]    CSV output model (statistics) file prefix"
+    print "\t [-a <filename>]  CSV output data (annotated) file"
     print "\t [-c <filename>]  CSV columns of interest file. Default: all columns are of interest"
     print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
     sys.exit( 1 )
@@ -53,9 +53,9 @@ def ParseCommandLine():
     inDataName = ""
     inModelPrefix = ""
     haruspexName = ""
-    outModelPrefix = "outputModel"
-    outDataName = "outputData.csv"
-    outTestName = "outputTest.csv"
+    outModelPrefix = ""
+    outDataName = ""
+    outTestName = ""
     columnsListName =""
     
     # Try to hash command line with respect to allowable flags
@@ -261,8 +261,14 @@ def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
     # Declare use of global variable
     global verbosity
 
+    if outFileName == "":
+        if verbosity > 0:
+            print "# No output table of", outPortName, "required"
+            print
+        return
+
     if verbosity > 0:
-        print "# Saving output table of port", outPort
+        print "# Saving output table of", outPortName
 
     # Set CSV writer parameters
     outTableWriter = vtkDelimitedTextWriter()
@@ -283,6 +289,12 @@ def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
 def WriteOutModel( haruspex, outModelPrefix ):
     # Declare use of global variable
     global verbosity
+
+    if outModelPrefix == "":
+        if verbosity > 0:
+            print "# No output model (statistics) required"
+            print
+        return
 
     if verbosity > 0:
         print "# Saving output model (statistics):"
