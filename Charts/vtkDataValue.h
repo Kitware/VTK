@@ -27,6 +27,9 @@
 // Forware declaration.
 class vtkMark;
 
+
+// Warning: we cannot initialize the Constant member in the constructor.
+// This is postpone to specialized classes.
 template <typename T>
 class vtkValue
 {
@@ -49,12 +52,47 @@ protected:
   FunctionType Function;
 };
 
+// Specialized template for double.
+template <>
+class vtkValue<double>
+{
+public:
+  typedef double (*FunctionType)(vtkMark*, vtkDataElement&);
+  vtkValue() : Constant(0.0), Function(NULL) { }
+  vtkValue(FunctionType f) : Constant(0.0), Function(f) { }
+  vtkValue(double v) : Constant(v), Function(NULL) { }
+  bool IsConstant()
+    { return this->Function == NULL; }
+  double GetConstant()
+    {
+      return this->Constant;
+    }
+  FunctionType GetFunction()
+    { return this->Function; }
+protected:
+  double Constant;
+  FunctionType Function;
+};
+
+
 class VTK_CHARTS_EXPORT vtkDataValue : public vtkValue<vtkDataElement>
 {
 public:
-  vtkDataValue() { this->Function = NULL; }
-  vtkDataValue(FunctionType f)  { this->Function = f; }
-  vtkDataValue(vtkDataElement v) { this->Constant = v; this->Function = NULL; }
+  vtkDataValue()
+    {
+      this->Constant=vtkDataElement();
+      this->Function = NULL;
+    }
+  vtkDataValue(FunctionType f)
+    {
+      this->Constant=vtkDataElement();
+      this->Function = f;
+    }
+  vtkDataValue(vtkDataElement v)
+    {
+      this->Constant = v;
+      this->Function = NULL;
+    }
   vtkDataElement GetData(vtkMark* m);
 };
 
