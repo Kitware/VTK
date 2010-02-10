@@ -88,12 +88,14 @@ IF(VTK_USE_DISPLAY)
       TestGenericVertexAttributesGLSLAlphaBlending.cxx
       TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
       )
-      
-    IF (VTK_DATA_ROOT)
-      SET( RenderingTestsWithArguments
-      ${RenderingTestsWithArguments}
-      TestSurfaceLIC.cxx
-      )
+    # Temporarily disable LIC tests on non-windows platforms
+    IF(WIN32) 
+      IF (VTK_DATA_ROOT)
+        SET( RenderingTestsWithArguments
+        ${RenderingTestsWithArguments}
+        TestSurfaceLIC.cxx
+        )
+    ENDIF(WIN32)
     ENDIF (VTK_DATA_ROOT)
   ENDIF (VTK_USE_GLSL_SHADERS)
 
