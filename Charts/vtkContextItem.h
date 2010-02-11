@@ -37,6 +37,12 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Perform any updates to the item that may be necessary before rendering.
+  // The scene should take care of calling this on all items before their
+  // Paint function is invoked.
+  virtual void Update();
+
+  // Description:
   // Paint event for the item, called whenever the item needs to be drawn,
   virtual bool Paint(vtkContext2D *painter) = 0;
 

@@ -26,8 +26,8 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.7");
-vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D)
+vtkCxxRevisionMacro(vtkContextItem, "1.8");
+vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D);
 
 //-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
@@ -47,6 +47,11 @@ vtkContextItem::~vtkContextItem()
     this->Transform = NULL;
     }
   this->SetScene(NULL);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextItem::Update()
+{
 }
 
 //-----------------------------------------------------------------------------
