@@ -93,7 +93,8 @@ public:
 
   // Description:
   // Set the representation of the sphere. Different representations are
-  // useful depending on the application.
+  // useful depending on the application. The default is 
+  // VTK_SPHERE_WIREFRAME.
   vtkSetClampMacro(Representation,int,VTK_SPHERE_OFF,VTK_SPHERE_SURFACE);
   vtkGetMacro(Representation,int);
   void SetRepresentationToOff()
@@ -105,6 +106,7 @@ public:
 
   // Description:
   // Set/Get the resolution of the sphere in the Theta direction.
+  // The default is 16.
   void SetThetaResolution(int r)
     { this->SphereSource->SetThetaResolution(r); }
   int GetThetaResolution()
@@ -112,6 +114,7 @@ public:
 
   // Description:
   // Set/Get the resolution of the sphere in the Phi direction.
+  // The default is 8.
   void SetPhiResolution(int r)
     { this->SphereSource->SetPhiResolution(r); }
   int GetPhiResolution()
