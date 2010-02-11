@@ -69,6 +69,11 @@ SET_SOURCE_FILES_PROPERTIES(
 IF(VTK_USE_QT)
   SET(QT_DONT_USE_QTGUI)
   INCLUDE(${QT_USE_FILE})
+  IF (APPLE)
+    LIST (APPEND KIT_INTERFACE_LIBRARIES ${QT_LIBRARIES})
+  ELSE (APPLE)
+    LIST (APPEND KIT_LIBS ${QT_LIBRARIES})
+  ENDIF (APPLE)
 ENDIF(VTK_USE_QT)
 
 #-----------------------------------------------------------------------------
