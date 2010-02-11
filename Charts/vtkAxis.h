@@ -27,6 +27,7 @@
 
 class vtkContext2D;
 class vtkFloatArray;
+class vtkStringArray;
 
 class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
 {
@@ -97,6 +98,11 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
+  // Update the geometry of the axis. Takes care of setting up the tick mark
+  // locations etc. Should be called by the scene before rendering.
+  virtual void Update();
+
+  // Description:
   // Paint event for the axis, called whenever the axis needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 
@@ -145,7 +151,8 @@ protected:
   int TitleSize;       // The point size of the axis label
   char *Title; // The text label drawn on the axis
 
-  vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates.
+  vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates
+  vtkStringArray* TickLabels; // The labels for the tick marks
 
 private:
   vtkAxis(const vtkAxis &); // Not implemented.

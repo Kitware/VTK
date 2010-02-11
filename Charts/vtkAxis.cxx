@@ -19,13 +19,15 @@
 #include "vtkPen.h"
 #include "vtkTextProperty.h"
 #include "vtkFloatArray.h"
+#include "vtkStringArray.h"
+#include "vtkStdString.h"
 
 #include "vtkObjectFactory.h"
 
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.11");
+vtkCxxRevisionMacro(vtkAxis, "1.12");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -46,6 +48,7 @@ vtkAxis::vtkAxis()
   this->TitleSize = 15;
   this->Title = NULL;
   this->TickPositions = vtkFloatArray::New();
+  this->TickLabels = vtkStringArray::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -54,6 +57,52 @@ vtkAxis::~vtkAxis()
   this->SetTitle(NULL);
   this->TickPositions->Delete();
   this->TickPositions = NULL;
+  this->TickLabels->Delete();
+  this->TickLabels = NULL;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::Update()
+{
+  this->TickPositions->SetNumberOfTuples(0);
+  this->TickLabels->SetNumberOfTuples(0);
+  // Calculate where the first tick mark should be drawn
+  float tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
+
+  // If this check is not used, and the first tick is at 0.0 then it has the
+  // negative sign bit set. This check gets rid of the negative bit but is quite
+  // possibly not the best way of doing it...
+  if (tick == 0.0f)
+    {
+    tick = 0.0f;
+    }
+
+  float scaling = 0.0;
+  float origin = 0.0;
+  if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
+    {
+    scaling = (this->Point2[1] - this->Point1[1]) /
+              (this->Maximum - this->Minimum);
+    origin = this->Point1[1];
+    }
+  else
+    {
+    scaling = (this->Point2[0] - this->Point1[0]) /
+              (this->Maximum - this->Minimum);
+    origin = this->Point1[0];
+    }
+  while (tick <= this->Maximum)
+    {
+    // Calculate the next tick mark position
+    int iTick = static_cast<int>(origin + (tick - this->Minimum) * scaling);
+    this->TickPositions->InsertNextValue(iTick);
+    // Make a tick mark label for the tick
+    char string[20];
+    sprintf(string, "%#6.3g", tick);
+    this->TickLabels->InsertNextValue(string);
+
+    tick += this->TickInterval;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -98,51 +147,35 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   // Now draw the tick marks
   prop->SetFontSize(this->TickLabelSize);
   prop->SetOrientation(0.0);
-  this->TickPositions->SetNumberOfTuples(0);
-  // Calculate where the first tick mark should be drawn
-  float tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
+
+  float *tickPos = this->TickPositions->GetPointer(0);
+  vtkStdString *tickLabel = this->TickLabels->GetPointer(0);
+  vtkIdType numMarks = this->TickPositions->GetNumberOfTuples();
+
   if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
     {
-    float scaling = (this->Point2[1] - this->Point1[1]) /
-                    (this->Maximum - this->Minimum);
-
     prop->SetJustificationToRight();
     prop->SetVerticalJustificationToCentered();
 
-    while (tick <= this->Maximum)
+    // Draw the tick marks and labels
+    for (vtkIdType i = 0; i < numMarks; ++i)
       {
-      int yTick = static_cast<int>(this->Point1[1] + (tick-this->Minimum)*scaling);
-      painter->DrawLine(this->Point1[0] - 5, yTick, this->Point1[0], yTick);
-
-      // Draw the tick label
-      char string[20];
-      sprintf(string, "%-#6.3g", tick);
-      painter->DrawString(this->Point1[0] - 7, yTick, string);
-
-      this->TickPositions->InsertNextValue(yTick);
-      tick += this->TickInterval;
+      painter->DrawLine(this->Point1[0] - 5, tickPos[i],
+                        this->Point1[0],     tickPos[i]);
+      painter->DrawString(this->Point1[0] - 7, tickPos[i], tickLabel[i]);
       }
     }
   else // Default to horizontal orientation
     {
-    // Calculate the transform from plot to pixel space
-    float scaling = (this->Point2[0] - this->Point1[0]) /
-                    (this->Maximum - this->Minimum);
-
     prop->SetJustificationToCentered();
     prop->SetVerticalJustificationToTop();
 
-    while (tick <= this->Maximum)
+    // Draw the tick marks and labels
+    for (vtkIdType i = 0; i < numMarks; ++i)
       {
-      int xTick = static_cast<int>(this->Point1[0] + (tick-this->Minimum)*scaling);
-      painter->DrawLine(xTick, this->Point1[1] - 5, xTick, this->Point1[1]);
-
-      char string[20];
-      sprintf(string, "%-#6.3g", tick);
-      painter->DrawString(xTick, int(this->Point1[1] - 7), string);
-
-      this->TickPositions->InsertNextValue(xTick);
-      tick += this->TickInterval;
+      painter->DrawLine(tickPos[i], this->Point1[1] - 5,
+                        tickPos[i], this->Point1[1]);
+      painter->DrawString(tickPos[i], int(this->Point1[1] - 7), tickLabel[i]);
       }
     }
 
