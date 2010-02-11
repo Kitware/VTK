@@ -187,7 +187,7 @@ public:
   vtkBooleanMacro(HandleObservers,int);
 
   // Description:                                                  
-  // Generic event bindings must be overridden in subclasses
+  // Generic event bindings can be overridden in subclasses
   virtual void OnMouseMove() {};
   virtual void OnLeftButtonDown() {};
   virtual void OnLeftButtonUp() {};
@@ -199,12 +199,28 @@ public:
   virtual void OnMouseWheelBackward() {};
 
   // Description:
-  // OnChar implements keyboard functions, but subclasses can override this 
-  // behavior
+  // OnChar is triggered when an ASCII key is pressed. Some basic key presses
+  // are handled here ('q' for Quit, 'p' for Pick, etc)
   virtual void OnChar();
+
+  // OnKeyDown is triggered by pressing any key (identical to OnKeyPress()).
+  // An empty implementation is provided. The behavior of this function should
+  // be specified in the subclass.
   virtual void OnKeyDown() {};
+
+  // OnKeyUp is triggered by releaseing any key (identical to OnKeyRelease()).
+  // An empty implementation is provided. The behavior of this function should
+  // be specified in the subclass.
   virtual void OnKeyUp() {};
+
+  // OnKeyPress is triggered by pressing any key (identical to OnKeyDown()).
+  // An empty implementation is provided. The behavior of this function should
+  // be specified in the subclass.
   virtual void OnKeyPress() {};
+
+  // OnKeyRelease is triggered by pressing any key (identical to OnKeyUp()).
+  // An empty implementation is provided. The behavior of this function should
+  // be specified in the subclass.
   virtual void OnKeyRelease() {};
 
   // Description:
