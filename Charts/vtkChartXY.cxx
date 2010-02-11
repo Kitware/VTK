@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.26");
+vtkCxxRevisionMacro(vtkChartXY, "1.27");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -161,6 +161,10 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     {
     this->RecalculatePlotTransform();
     }
+
+  // Update the axes in the chart
+  this->XAxis->Update();
+  this->YAxis->Update();
 
   // Draw a hard wired grid right now - this should be configurable
   painter->GetPen()->SetColorF(0.95, 0.95, 0.95);
@@ -281,8 +285,6 @@ void vtkChartXY::RecalculatePlotTransform()
     this->XAxis->SetPoint2(this->Point2[0], origin[1]);
     this->YAxis->SetPoint1(origin[0], this->Point1[1]);
     this->YAxis->SetPoint2(origin[0], this->Point2[1]);
-
-    cout << "The origin is calculated to be at " << origin[0] << ", " << origin[1] << endl;
     }
 
   this->PlotTransformValid = true;
@@ -368,6 +370,8 @@ bool vtkChartXY::RemovePlot(vtkIdType index)
     {
     this->ChartPrivate->plots[index]->Delete();
     this->ChartPrivate->plots.erase(this->ChartPrivate->plots.begin()+index);
+    // Ensure that the bounds are recalculated
+    this->PlotTransformValid = false;
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     return true;
@@ -386,6 +390,8 @@ void vtkChartXY::ClearPlots()
     this->ChartPrivate->plots[i]->Delete();
     }
   this->ChartPrivate->plots.clear();
+  // Ensure that the bounds are recalculated
+  this->PlotTransformValid = false;
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
 }
@@ -504,6 +510,17 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.Button == 2)
     {
+    // Check whether a valid zoom box was drawn
+    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
+    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
+    if (fabs(this->BoxGeometry[0]) < 0.5 || fabs(this->BoxGeometry[1]) < 0.5)
+      {
+      // Invalid box size - do nothing
+      this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+      this->DrawBox = false;
+      return true;
+      }
+
     // Zoom into the chart by the specified amount, and recalculate the bounds
     this->PlotTransform->InverseTransformPoints(this->BoxOrigin,
                                                 this->BoxOrigin, 1);
@@ -541,6 +558,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
       }
 
     this->RecalculatePlotTransform();
+    this->XAxis->RecalculateTickSpacing();
+    this->YAxis->RecalculateTickSpacing();
     this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
     this->DrawBox = false;
     // Mark the scene as dirty
