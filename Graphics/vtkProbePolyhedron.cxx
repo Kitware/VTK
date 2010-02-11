@@ -146,7 +146,7 @@ int vtkProbePolyhedron::RequestData(
       if ( ! (idx % progressInterval) ) 
         {
         vtkDebugMacro(<<"Processing #" << idx);
-        this->UpdateProgress (idx/(numInputCells+numInputPts));
+        this->UpdateProgress(static_cast<double>(idx)/(numInputCells+numInputPts));
         abort = this->GetAbortExecute();
         }
 
@@ -159,10 +159,11 @@ int vtkProbePolyhedron::RequestData(
     }
   
   // Interpolate the cell data (if requested)
+  // Compute point value at the cell's parametric center.
   if ( this->ProbeCellData )
     {
     vtkCell *cell;
-    vtkIdType subId;
+    int subId;
     double pcoords[3];
     x[0] = x[1] = x[2] = 0.0;
 
@@ -171,7 +172,7 @@ int vtkProbePolyhedron::RequestData(
       if ( ! (idx % progressInterval) ) 
         {
         vtkDebugMacro(<<"Processing #" << idx);
-        this->UpdateProgress (idx/(numInputCells+numInputPts));
+        this->UpdateProgress(static_cast<double>(idx)/(numInputCells+numInputPts));
         abort = this->GetAbortExecute();
         }
 

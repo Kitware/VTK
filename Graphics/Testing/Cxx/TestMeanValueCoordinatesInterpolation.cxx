@@ -27,6 +27,9 @@
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
 #include "vtkProbePolyhedron.h"
+#include "vtkLightCollection.h"
+#include "vtkLight.h"
+#include "vtkProperty.h"
 
 int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
 {
@@ -74,9 +77,15 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
   vtkActor *interpActor = vtkActor::New();
     interpActor->SetMapper(interpMapper);
 
+  vtkProperty* property = vtkProperty::New();
+  property->LightingOff();
+  sphereActor->SetProperty(property);
+  interpActor->SetProperty(property);  
+  
   renderer->AddActor(sphereActor);
   renderer->AddActor(interpActor);
-
+  renderer->ResetCamera();
+  
   renderer->SetBackground(1,1,1);
   renWin->SetSize(300,300);
 
@@ -104,6 +113,7 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
   interp->Delete();
   interpMapper->Delete();
   interpActor->Delete();
-
+  property->Delete();
+  
   return !retVal;
 }
