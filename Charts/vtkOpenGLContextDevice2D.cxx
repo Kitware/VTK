@@ -15,6 +15,12 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
+#ifdef VTK_USE_QT
+# include <QApplication>
+# include "vtkQtLabelRenderStrategy.h"
+#endif
+#include "vtkFreeTypeLabelRenderStrategy.h"
+
 #include "vtkPoints2D.h"
 #include "vtkMatrix3x3.h"
 #include "vtkFloatArray.h"
@@ -34,11 +40,6 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
-
-#ifdef VTK_USE_QT
-  #include "vtkQtLabelRenderStrategy.h"
-#endif
-#include "vtkFreeTypeLabelRenderStrategy.h"
 
 #include "vtkObjectFactory.h"
 
@@ -68,7 +69,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.10");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.11");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -77,7 +78,16 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->Renderer = 0;
   this->IsTextDrawn = false;
 #ifdef VTK_USE_QT
-  this->TextRenderer = vtkQtLabelRenderStrategy::New();
+  // Can only use the QtLabelRenderStrategy if there is a QApplication
+  // instance, otherwise fallback to the FreeTypeLabelRenderStrategy.
+  if(QApplication::instance())
+    {
+    this->TextRenderer = vtkQtLabelRenderStrategy::New();
+    }
+  else
+    {
+    this->TextRenderer = vtkFreeTypeLabelRenderStrategy::New();
+    }
 #else
   this->TextRenderer = vtkFreeTypeLabelRenderStrategy::New();
 #endif
@@ -141,6 +151,7 @@ void vtkOpenGLContextDevice2D::End()
   if (this->IsTextDrawn)
     {
     this->TextRenderer->EndFrame();
+    this->IsTextDrawn = false;
     }
   this->TextRenderer->SetRenderer(0);
   // push a 2D matrix on the stack

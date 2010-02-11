@@ -65,6 +65,12 @@ SET_SOURCE_FILES_PROPERTIES(
   WRAP_EXCLUDE
 )
 
+# Need to be able to include QApplication if Qt is used for runtime checks
+IF(VTK_USE_QT)
+  SET(QT_DONT_USE_QTGUI)
+  INCLUDE(${QT_USE_FILE})
+ENDIF(VTK_USE_QT)
+
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
