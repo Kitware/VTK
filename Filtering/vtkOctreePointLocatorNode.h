@@ -49,7 +49,10 @@ public:
 
   // Description:
   // Set/Get the number of points contained in this region.
-  vtkSetMacro(NumberOfPoints, int);
+  void SetNumberOfPoints(int numberOfPoints)
+  {
+    this->NumberOfPoints = numberOfPoints;
+  }
   vtkGetMacro(NumberOfPoints, int);
 
   // Description:
@@ -81,11 +84,21 @@ public:
 
   // Description:
   //   Set the xmin, ymin and zmin value of the bounds of this region
-  vtkSetVector3Macro(MinBounds, double);
+  void SetMinBounds(double minBounds[3])
+  {
+    this->MinBounds[0] = minBounds[0];
+    this->MinBounds[1] = minBounds[1];
+    this->MinBounds[2] = minBounds[2];
+  }
 
   // Description:
   //   Set the xmax, ymax and zmax value of the bounds of this region
-  vtkSetVector3Macro(MaxBounds, double);
+  void SetMaxBounds(double maxBounds[3])
+  {
+    this->MaxBounds[0] = maxBounds[0];
+    this->MaxBounds[1] = maxBounds[1];
+    this->MaxBounds[2] = maxBounds[2];
+  }
 
   // Description:
   //   Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
@@ -98,12 +111,22 @@ public:
   // Description:
   //   Set the xmin, ymin and zmin value of the bounds of this 
   //   data within this region.
-  vtkSetVector3Macro(MinDataBounds, double);
+  void SetMinDataBounds(double minDataBounds[3])
+  {
+    this->MinDataBounds[0] = minDataBounds[0];
+    this->MinDataBounds[1] = minDataBounds[1];
+    this->MinDataBounds[2] = minDataBounds[2];
+  }
 
   // Description:
   //   Set the xmax, ymax and zmax value of the bounds of this 
   //   data within this region.
-  vtkSetVector3Macro(MaxDataBounds, double);
+  void SetMaxDataBounds(double maxDataBounds[3])
+  {
+    this->MaxDataBounds[0] = maxDataBounds[0];
+    this->MaxDataBounds[1] = maxDataBounds[1];
+    this->MaxDataBounds[2] = maxDataBounds[2];
+  }
 
   // Description:
   //   Get the ID associated with the region described by this node.  If

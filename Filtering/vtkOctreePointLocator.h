@@ -35,7 +35,6 @@
 #define __vtkOctreePointLocator_h
 
 #include "vtkAbstractPointLocator.h"
-//#include "VTKEdgeConfigure.h" // include configuration header
 
 class vtkCellArray;
 class vtkIdTypeArray;
@@ -127,7 +126,7 @@ public:
   // Description:
   // Find the closest N points to a position. This returns the closest
   // N points to a position. A faster method could be created that returned
-  // N close points to a position, but necessarily the exact N closest.
+  // N close points to a position, but not necessarily the exact N closest.
   // The returned points are sorted from closest to farthest.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.

@@ -26,16 +26,13 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkOctreePointLocatorNode, "1.1");
+vtkCxxRevisionMacro(vtkOctreePointLocatorNode, "1.2");
 vtkStandardNewMacro(vtkOctreePointLocatorNode);
 
 //----------------------------------------------------------------------------
-vtkOctreePointLocatorNode::vtkOctreePointLocatorNode()
+vtkOctreePointLocatorNode::vtkOctreePointLocatorNode() : 
+  NumberOfPoints(0), Children(NULL), ID(-1), MinID(-1)
 {
-  this->Children = NULL;
-  this->ID = -1;
-  this->MinID = -1;
-  this->NumberOfPoints= 0;
   // set the min and max data value since we won't know it for a while
   for(int i=0;i<3;i++)
     {
