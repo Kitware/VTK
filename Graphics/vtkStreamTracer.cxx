@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.50");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.51");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkAbstractInterpolatedVelocityField);
@@ -131,6 +131,18 @@ int vtkStreamTracer::GetIntegratorType()
     return RUNGE_KUTTA45;
     }
   return UNKNOWN;
+}
+
+void vtkStreamTracer::SetInterpolatorTypeToDataSetPointLocator()
+{
+  this->SetInterpolatorType
+    (  static_cast<int> ( INTERPOLATOR_WITH_DATASET_POINT_LOCATOR )  );
+}
+  
+void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
+{
+  this->SetInterpolatorType
+    (  static_cast<int> ( INTERPOLATOR_WITH_CELL_LOCATOR )  );
 }
 
 void vtkStreamTracer::SetInterpolatorType( int interpType )
