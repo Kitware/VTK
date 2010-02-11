@@ -30,7 +30,9 @@
 #define __vtkQtTableModelAdapter_h
 
 #include "vtkQtAbstractModelAdapter.h"
+#include <QMimeData>
 
+class vtkSelection;
 class vtkTable;
 class vtkVariant;
 class QVTK_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
@@ -57,6 +59,19 @@ public:
   virtual void SetKeyColumnName(const char* name);
   virtual void SetColorColumnName(const char* name);
 
+//BTX
+  enum 
+  {
+    HEADER = 0,
+    ITEM = 1
+  };
+//ETX
+
+  // Description:
+  // Specify how to color rows if colors are provided by SetColorColumnName().
+  // Default is the vertical header. 
+  void SetRowColorStrategy(int s);
+
   bool GetSplitMultiComponentColumns() const;
   void SetSplitMultiComponentColumns(bool value);
 
@@ -75,15 +90,25 @@ public:
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
+  virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) ;
+  virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
+  virtual QStringList mimeTypes () const ;
+  Qt::DropActions supportedDropActions() const;
+
+signals:
+  void selectionDropped(vtkSelection*);
+
 private:
 
   void getValue(int row, int column, vtkVariant& retVal) const;
   bool noTableCheck() const;
   void updateModelColumnHashTables();
+  QVariant getColorIcon(int row) const;
 
   bool        SplitMultiComponentColumns;
   vtkTable*   Table;
   char*       ColorColumnName;
+  int         RowColorStrategy;
 
   class vtkInternal;
   vtkInternal* Internal;

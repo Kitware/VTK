@@ -19,6 +19,7 @@
 -------------------------------------------------------------------------*/
 #include "vtkQtTableModelAdapter.h"
 
+#include "vtkConvertSelection.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkTable.h"
@@ -38,10 +39,12 @@
 #include <QPixmap>
 #include <QHash>
 #include <QMap>
+#include <QMimeData>
 #include <QPair>
 #include <QPixmap>
 
 #include <vtkstd/set>
+#include <vtksys/ios/sstream>
 
 //----------------------------------------------------------------------------
 class vtkQtTableModelAdapter::vtkInternal {
@@ -68,6 +71,8 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   this->Internal = new vtkInternal;
   this->Table = NULL;
   this->SplitMultiComponentColumns = false;
+  this->RowColorStrategy = vtkQtTableModelAdapter::HEADER;
+  this->ColorColumn = -1;
 } 
 
 //----------------------------------------------------------------------------
@@ -76,6 +81,8 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
 {
   this->Internal = new vtkInternal;
   this->SplitMultiComponentColumns = false;
+  this->RowColorStrategy = vtkQtTableModelAdapter::HEADER;
+  this->ColorColumn = -1;
   if (this->Table != NULL)
     {
     this->Table->Register(0);
@@ -390,6 +397,15 @@ void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
 }
 
 //----------------------------------------------------------------------------
+void vtkQtTableModelAdapter::SetRowColorStrategy(int s)
+{
+  if (s != this->RowColorStrategy)
+    {
+    this->RowColorStrategy = s;
+    }
+}
+
+//----------------------------------------------------------------------------
 QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
 {
   if (this->noTableCheck())
@@ -399,11 +415,6 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   if (!idx.isValid())
     {
     return QVariant();
-    }
-
-  if (role == Qt::DecorationRole)
-    {
-    return this->Internal->IndexToDecoration[idx];
     }
 
   // Map the qt model column to a column in the vtk table and
@@ -429,10 +440,11 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Return a byte array if they ask for a decorate role 
   if (role == Qt::DecorationRole)
     {
-    // Create a QBtyeArray out of the variant
-    vtkStdString s = v.ToString();
-    QByteArray byteArray(s, static_cast<int>(s.length()));
-    return QVariant(byteArray);
+    if(this->RowColorStrategy == vtkQtTableModelAdapter::ITEM && this->ColorColumn >= 0)
+      {
+      return this->getColorIcon(idx.row());
+      }
+    return this->Internal->IndexToDecoration[idx];
     }
   
   // Return a raw value if they ask for a user role
@@ -468,10 +480,10 @@ Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex &idx) const
 {
   if (!idx.isValid())
     {
-    return Qt::ItemIsEnabled;
+    return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
     }
 
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
 }
 
 //----------------------------------------------------------------------------
@@ -527,42 +539,9 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
         return QVariant(v.ToString().c_str());
         }
       }
-    else if(role == Qt::DecorationRole && this->ColorColumn >= 0)
+    else if(role == Qt::DecorationRole && this->ColorColumn >= 0 && this->RowColorStrategy == vtkQtTableModelAdapter::HEADER)
       {
-      int column;
-      if (this->GetSplitMultiComponentColumns())
-        {
-        column = this->Internal->ModelColumnToTableColumn[this->ColorColumn].first;
-        }
-      else
-        {
-        column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
-        }
-      vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Table->GetColumn(column));
-      if (!colors)
-        {
-        return QVariant();
-        }
-
-      const int nComponents = colors->GetNumberOfComponents();
-      if(nComponents >= 3)
-        {
-        unsigned char rgba[4];
-        colors->GetTupleValue(section, rgba);
-        int rgb[3];
-        rgb[0] = static_cast<int>(0x0ff & rgba[0]);
-        rgb[1] = static_cast<int>(0x0ff & rgba[1]);
-        rgb[2] = static_cast<int>(0x0ff & rgba[2]);
-
-        QPixmap pixmap(16, 16);
-        pixmap.fill(QColor(0, 0, 0, 0));
-        QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QBrush(QColor(rgb[0], rgb[1], rgb[2])));
-        painter.drawEllipse(4, 4, 7, 7);
-        return QVariant(pixmap);
-        }
+      return this->getColorIcon(section);
       }
     }
 
@@ -687,4 +666,103 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
       vtkGenericWarningMacro("vtkQtTreeModelAdapter: Bad view type.");
     };
   return 0;
+}
+
+bool vtkQtTableModelAdapter::dropMimeData(const QMimeData *data,
+     Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+  if (action == Qt::IgnoreAction)
+    return true;
+
+  if (!data->hasFormat("vtk/selection"))
+    return false;
+
+  void* temp = 0;
+  vtkstd::istringstream buffer(data->data("vtk/selection").data());
+  buffer >> temp;
+  vtkSelection* s = reinterpret_cast<vtkSelection*>(temp);
+
+  emit this->selectionDropped(s);
+
+  return true;
+}
+
+QStringList vtkQtTableModelAdapter::mimeTypes() const
+{
+  QStringList types;
+  types << "vtk/selection";
+  return types;
+}
+
+Qt::DropActions vtkQtTableModelAdapter::supportedDropActions() const
+{
+   return Qt::CopyAction;
+}
+
+QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) const
+{
+  // Only supports dragging single item right now ...
+
+  if(indexes.size() == 0)
+    {
+    return 0;
+    }
+
+  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
+  indexSelection.TakeReference(QModelIndexListToVTKIndexSelection(indexes));
+
+  vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
+
+  if(pedigreeIdSelection->GetNode(0) == 0 || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
+    {
+    return 0;
+    }
+
+  vtksys_ios::ostringstream buffer;
+  buffer << pedigreeIdSelection;
+
+  QMimeData *mime_data = new QMimeData();
+  mime_data->setData("vtk/selection", buffer.str().c_str());
+
+  return mime_data;
+}
+
+QVariant vtkQtTableModelAdapter::getColorIcon(int row) const
+{
+  int column;
+  if (this->GetSplitMultiComponentColumns())
+    {
+    column = this->Internal->ModelColumnToTableColumn[this->ColorColumn].first;
+    }
+  else
+    {
+    column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
+    }
+  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Table->GetColumn(column));
+  if (!colors)
+    {
+    return QVariant();
+    }
+
+  const int nComponents = colors->GetNumberOfComponents();
+  if(nComponents >= 3)
+    {
+    unsigned char rgba[4];
+    colors->GetTupleValue(row, rgba);
+    int rgb[3];
+    rgb[0] = static_cast<int>(0x0ff & rgba[0]);
+    rgb[1] = static_cast<int>(0x0ff & rgba[1]);
+    rgb[2] = static_cast<int>(0x0ff & rgba[2]);
+
+    QPixmap pixmap(16, 16);
+    pixmap.fill(QColor(0, 0, 0, 0));
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QBrush(QColor(rgb[0], rgb[1], rgb[2])));
+    painter.drawEllipse(4, 4, 7, 7);
+    return QVariant(pixmap);
+    }
+
+  return QVariant();
 }
