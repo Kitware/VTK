@@ -668,17 +668,17 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
   return 0;
 }
 
-bool vtkQtTableModelAdapter::dropMimeData(const QMimeData *data,
-     Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool vtkQtTableModelAdapter::dropMimeData(const QMimeData *d,
+     Qt::DropAction action, int vtkNotUsed(row), int vtkNotUsed(column), const QModelIndex& vtkNotUsed(parent))
 {
   if (action == Qt::IgnoreAction)
     return true;
 
-  if (!data->hasFormat("vtk/selection"))
+  if (!d->hasFormat("vtk/selection"))
     return false;
 
   void* temp = 0;
-  vtkstd::istringstream buffer(data->data("vtk/selection").data());
+  vtkstd::istringstream buffer(d->data("vtk/selection").data());
   buffer >> temp;
   vtkSelection* s = reinterpret_cast<vtkSelection*>(temp);
 
@@ -711,7 +711,9 @@ QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) cons
   vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
   indexSelection.TakeReference(QModelIndexListToVTKIndexSelection(indexes));
 
-  vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
+  vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::New();
+  pedigreeIdSelection.TakeReference(vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS));
+  //vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
 
   if(pedigreeIdSelection->GetNode(0) == 0 || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
     {
