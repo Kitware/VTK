@@ -33,8 +33,12 @@
 #include "vtkQtView.h"
 
 #include <QPointer>
+#include <QSortFilterProxyModel>
 #include "vtkQtAbstractModelAdapter.h"
+#include "vtkSmartPointer.h"
 
+class vtkApplyColors;
+class vtkDataObjectToTable;
 class QItemSelection;
 class QListView;
 class vtkQtTableModelAdapter;
@@ -55,9 +59,58 @@ public:
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
 
+  //BTX
+  enum
+    {
+    FIELD_DATA = 0,
+    POINT_DATA = 1,
+    CELL_DATA = 2,
+    VERTEX_DATA = 3,
+    EDGE_DATA = 4,
+    ROW_DATA = 5,
+    };
+  //ETX
+  
+  // Description:
+  // The field type to copy into the output table.
+  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  vtkGetMacro(FieldType, int);
+  void SetFieldType(int);
+
+  // Description:
+  // Enable drag and drop on this widget
+  void SetEnableDragDrop(bool);
+
   // Description:
   // Have the view alternate its row colors
   void SetAlternatingRowColors(bool);
+
+  // Description:
+  // Whether or not to add an icon to the row header denoting the color
+  // of an annotated row.
+  void SetApplyRowColors(bool value);
+  vtkGetMacro(ApplyRowColors, bool);
+
+  // Description:
+  // The array to use for coloring items in view.  Default is "color".
+  void SetColorArrayName(const char* name);
+  const char* GetColorArrayName();
+  
+  // Description:
+  // Whether to color vertices.  Default is off.
+  void SetColorByArray(bool vis);
+  bool GetColorByArray();
+  vtkBooleanMacro(ColorByArray, bool);
+
+  // Description:
+  // The column to display
+  void SetVisibleColumn(int col);
+
+  // Description:
+  // The column used to filter on
+  void SetFilterRegExp(const QRegExp& pattern);
+
+  virtual void ApplyViewTheme(vtkViewTheme* theme);
 
   // Description:
   // Updates the view.
@@ -67,30 +120,37 @@ protected:
   vtkQtListView();
   ~vtkQtListView();
 
-  // Description:
-  // Connects the algorithm output to the internal pipeline.
-  // This view only supports a single representation.
-  virtual void AddInputConnection(
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
-  
-  // Description:
-  // Removes the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection(
-    vtkAlgorithmOutput* conn,
-    vtkAlgorithmOutput* selectionConn);
+  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
+  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
 
 private:
   void SetVTKSelection();
-  unsigned long CurrentSelectionMTime;
+
+  unsigned long LastSelectionMTime;
+  unsigned long LastInputMTime;
+  unsigned long LastMTime;
+
+  vtkSetStringMacro(ColorArrayNameInternal);
+  vtkGetStringMacro(ColorArrayNameInternal);
 
   QPointer<QListView> ListView;
-  vtkQtTableModelAdapter* ListAdapter;
-  bool Selecting;
+  vtkQtTableModelAdapter* TableAdapter;
+  QSortFilterProxyModel* TableSorter;
+  char* ColorArrayNameInternal;
+  char* VisibleColumnName;
+  bool SortSelectionToTop;
+  bool ApplyRowColors;
+  int FieldType;
+  int VisibleColumn;
   
+//BTX
+  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkApplyColors> ApplyColors;
+//ETX
+
   vtkQtListView(const vtkQtListView&);  // Not implemented.
   void operator=(const vtkQtListView&);  // Not implemented.
   
