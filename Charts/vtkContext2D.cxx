@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.12");
+vtkCxxRevisionMacro(vtkContext2D, "1.13");
 vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
@@ -56,10 +56,14 @@ bool vtkContext2D::Begin(vtkContextDevice2D *device)
 //-----------------------------------------------------------------------------
 bool vtkContext2D::End()
 {
-  this->Device->End();
-  this->Device->Delete();
-  this->Device = NULL;
-  this->Modified();
+  if (this->Device)
+    {
+    this->Device->End();
+    this->Device->Delete();
+    this->Device = NULL;
+    this->Modified();
+    return true;
+    }
   return true;
 }
 

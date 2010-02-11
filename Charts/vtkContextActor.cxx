@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextActor, "1.3");
+vtkCxxRevisionMacro(vtkContextActor, "1.4");
 vtkStandardNewMacro(vtkContextActor);
 
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
@@ -35,6 +35,7 @@ vtkContextActor::vtkContextActor()
   vtkOpenGLContextDevice2D *pd = vtkOpenGLContextDevice2D::New();
   this->Context->Begin(pd);
   pd->Delete();
+  pd = NULL;
 
   this->Scene = vtkContextScene::New();
 }
@@ -45,6 +46,7 @@ vtkContextActor::~vtkContextActor()
 {
   if (this->Context)
     {
+    this->Context->End();
     this->Context->Delete();
     this->Context = NULL;
     }
