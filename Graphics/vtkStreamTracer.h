@@ -156,6 +156,19 @@ public:
     OUT_OF_STEPS = 5,
     STAGNATION = 6
   };
+  
+  enum
+  {
+    FORWARD,
+    BACKWARD,
+    BOTH
+  };
+  
+  enum
+  {
+    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
+    INTERPOLATOR_WITH_CELL_LOCATOR
+  };
 //ETX
 
   // Description:
@@ -177,6 +190,18 @@ public:
     {this->SetIntegratorType(RUNGE_KUTTA4);};
   void SetIntegratorTypeToRungeKutta45()
     {this->SetIntegratorType(RUNGE_KUTTA45);};
+    
+  // Description:
+  // Set the velocity field interpolator type to the one involving
+  // a dataset point locator.
+  void SetInterpolatorTypeToDataSetPointLocator()
+    { this->SetInterpolatorType( INTERPOLATOR_WITH_DATASET_POINT_LOCATOR ); }
+  
+  // Description:
+  // Set the velocity field interpolator type to the one involving
+  // a cell locator.
+  void SetInterpolatorTypeToCellLocator()
+    { this->SetInterpolatorType( INTERPOLATOR_WITH_CELL_LOCATOR ); }
 
   // Description:
   // Specify the maximum length of a streamline expressed in LENGTH_UNIT.
@@ -230,21 +255,6 @@ public:
   // Specify the terminal speed value, below which integration is terminated.
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
-
-//BTX
-  enum
-  {
-    FORWARD,
-    BACKWARD,
-    BOTH
-  };
-  
-  enum
-  {
-    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
-    INTERPOLATOR_WITH_CELL_LOCATOR
-  };
-//ETX
 
   // Description:
   // Specify whether the streamline is integrated in the upstream or
