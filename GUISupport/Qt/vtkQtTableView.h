@@ -40,6 +40,7 @@
 class vtkAddMembershipArray;
 class vtkApplyColors;
 class vtkDataObjectToTable;
+class vtkIdTypeArray;
 class QItemSelection;
 class QTableView;
 class vtkQtTableModelAdapter;
@@ -146,7 +147,38 @@ public:
   bool GetColorByArray();
   vtkBooleanMacro(ColorByArray, bool);
 
+  // Description:
+  // Apply a view theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
+
+  //BTX
+  enum
+    {
+    SELECT_ITEMS = 0,
+    SELECT_ROWS,
+    SELECT_COLUMNS
+    };
+  //ETX
+
+  // Description:
+  // The selection mode for this view.
+  // SELECT_ITEMS (0) selects single items.
+  // SELECT_ROWS (1) selects rows.
+  // SELECT_COLUMNS (2) selects columns.
+  // Linked selection only works when in the default mode
+  // SELECT_ROWS. Selections from other modes may be retrieved
+  // using GetSelectedItems().
+  virtual void SetSelectionBehavior(int type);
+  virtual int GetSelectionBehavior();
+
+  // Description:
+  // Fills the array with the selected items of the view.
+  // If the selection behavior is SELECT_ITEMS,
+  // arr will be a 2-component array containing (row,column)
+  // for each selected item.
+  // If the selection behavior is SELECT_ROWS or SELECT_COLUMNS,
+  // arr will contain a list of row or column indices.
+  virtual void GetSelectedItems(vtkIdTypeArray* arr);
 
 protected:
   vtkQtTableView();

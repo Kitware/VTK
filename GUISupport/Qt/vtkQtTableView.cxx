@@ -49,7 +49,7 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.21");
+vtkCxxRevisionMacro(vtkQtTableView, "1.22");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------
@@ -519,6 +519,89 @@ void vtkQtTableView::Update()
 
     }
 }
+
+void vtkQtTableView::SetSelectionBehavior(int type)
+{
+  switch (type)
+    {
+    case SELECT_ITEMS:
+      this->TableView->setSelectionBehavior(QAbstractItemView::SelectItems);
+      break;
+    case SELECT_ROWS:
+      this->TableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+      break;
+    case SELECT_COLUMNS:
+      this->TableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
+      break;
+    }
+}
+
+int vtkQtTableView::GetSelectionBehavior()
+{
+  switch (this->TableView->selectionBehavior())
+    {
+    case QAbstractItemView::SelectItems:
+      return SELECT_ITEMS;
+    case QAbstractItemView::SelectRows:
+      return SELECT_ROWS;
+    case QAbstractItemView::SelectColumns:
+      return SELECT_COLUMNS;
+    }
+  return SELECT_ITEMS;
+}
+
+void vtkQtTableView::GetSelectedItems(vtkIdTypeArray* arr)
+{
+  if (!arr)
+    {
+    return;
+    }
+  arr->Initialize();
+  if (this->TableView->selectionBehavior() == QAbstractItemView::SelectItems)
+    {
+    arr->SetNumberOfComponents(2);
+    const QModelIndexList selectedItems = this->TableView->selectionModel()->selectedIndexes();
+    for (int i = 0; i < selectedItems.size(); i++)
+      {
+      QModelIndex orig = this->TableSorter->mapToSource(selectedItems.at(i));
+      arr->InsertNextValue(orig.row());
+      arr->InsertNextValue(orig.column());
+      }
+    }
+  else if (this->TableView->selectionBehavior() == QAbstractItemView::SelectRows)
+    {
+    arr->SetNumberOfComponents(1);
+    const QModelIndexList selectedRows = this->TableView->selectionModel()->selectedRows();
+    QSet<int> unique_ids;
+    for(int i = 0; i < selectedRows.size(); ++i)
+      {
+      QModelIndex orig = this->TableSorter->mapToSource(selectedRows[i]);
+      unique_ids.insert(orig.row());
+      }
+    QSet<int>::iterator iter;
+    for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
+      {
+      arr->InsertNextValue(*iter);
+      }
+    }
+  else
+    {
+    arr->SetNumberOfComponents(1);
+    const QModelIndexList selectedColumns = this->TableView->selectionModel()->selectedColumns();
+    QSet<int> unique_ids;
+    for (int i = 0; i < selectedColumns.size(); i++)
+      {
+      QModelIndex orig = this->TableSorter->mapToSource(selectedColumns[i]);
+      unique_ids.insert(orig.column());
+      }
+    QSet<int>::iterator iter;
+    for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
+      {
+      arr->InsertNextValue(*iter);
+      }
+    }
+}
+
 
 void vtkQtTableView::ApplyViewTheme(vtkViewTheme* theme)
 {
