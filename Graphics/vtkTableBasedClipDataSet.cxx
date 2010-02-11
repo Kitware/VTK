@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.8" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.9" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -2640,7 +2640,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
             {
             shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
             }
-          //*////
+          /*////
           
           // Turning on the above code segment, the alternative, would cause
           // a bug with a synthetic Wavelet dataset (vtkImageData) when the
