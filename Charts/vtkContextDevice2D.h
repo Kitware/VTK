@@ -91,8 +91,12 @@ public:
   virtual void SetPointSize(float size) = 0;
 
   // Description:
-  // Set the line width for glyphs/sprites.
+  // Set the line width.
   virtual void SetLineWidth(float width) = 0;
+
+  // Description:
+  // Set the line type type (using anonymous enum in vtkPen).
+  virtual void SetLineType(int type) = 0;
 
   // Description:
   // Get the width of the device in pixels.

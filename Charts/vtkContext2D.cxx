@@ -27,8 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.14");
-vtkCxxSetObjectMacro(vtkContext2D, Pen, vtkPen);
+vtkCxxRevisionMacro(vtkContext2D, "1.15");
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
 
@@ -355,6 +354,12 @@ unsigned int vtkContext2D::AddPointSprite(vtkImageData *image)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::ApplyPen(vtkPen *pen)
+{
+
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::SetTransform(vtkTransform2D *transform)
 {
   if(transform != this->Transform && transform)
@@ -379,6 +384,7 @@ inline void vtkContext2D::ApplyPen()
   this->Device->SetColor4(this->Pen->GetColor());
   this->Device->SetLineWidth(this->Pen->GetWidth());
   this->Device->SetPointSize(this->Pen->GetWidth());
+  this->Device->SetLineType(this->Pen->GetLineType());
 }
 
 //-----------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 #endif
 #include "vtkFreeTypeLabelRenderStrategy.h"
 
+#include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkMatrix3x3.h"
 #include "vtkFloatArray.h"
@@ -69,7 +70,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.13");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -329,6 +330,41 @@ void vtkOpenGLContextDevice2D::SetPointSize(float size)
 void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 {
   glLineWidth(width);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::SetLineType(int type)
+{
+  if (type == vtkPen::SOLID_LINE)
+    {
+    glDisable(GL_LINE_STIPPLE);
+    }
+  else
+    {
+    glEnable(GL_LINE_STIPPLE);
+    }
+  GLushort pattern = 0x0000;
+  switch (type)
+    {
+    case vtkPen::NO_PEN:
+      pattern = 0x0000;
+      break;
+    case vtkPen::DASH_LINE:
+      pattern = 0x00FF;
+      break;
+    case vtkPen::DOT_LINE:
+      pattern = 0x0101;
+      break;
+    case vtkPen::DASH_DOT_LINE:
+      pattern = 0x0C0F;
+      break;
+    case vtkPen::DASH_DOT_DOT_LINE:
+      pattern = 0x1C47;
+      break;
+    default:
+      pattern = 0x0000;
+    }
+  glLineStipple(1, pattern);
 }
 
 //-----------------------------------------------------------------------------

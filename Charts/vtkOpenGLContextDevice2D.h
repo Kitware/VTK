@@ -98,6 +98,10 @@ public:
   virtual void SetLineWidth(float width);
 
   // Description:
+  // Set the line type type (using anonymous enum in vtkPen).
+  virtual void SetLineType(int type);
+
+  // Description:
   // Set the model view matrix for the display
   virtual void SetMatrix(vtkMatrix3x3 *m);
 
