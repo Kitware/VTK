@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.15");
+vtkCxxRevisionMacro(vtkContext2D, "1.16");
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
 
@@ -356,7 +356,7 @@ unsigned int vtkContext2D::AddPointSprite(vtkImageData *image)
 //-----------------------------------------------------------------------------
 void vtkContext2D::ApplyPen(vtkPen *pen)
 {
-
+  this->Pen->DeepCopy(pen);
 }
 
 //-----------------------------------------------------------------------------

@@ -121,6 +121,10 @@ public:
   vtkSetMacro(Width, float);
   vtkGetMacro(Width, float);
 
+  // Description:
+  // Make a deep copy of the supplied pen.
+  void DeepCopy(vtkPen *pen);
+
 //BTX
 protected:
   vtkPen();

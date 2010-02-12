@@ -19,7 +19,7 @@
 #include "vtkVector.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPen, "1.4");
+vtkCxxRevisionMacro(vtkPen, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPen);
@@ -141,6 +141,14 @@ void vtkPen::GetColor(unsigned char color[3])
 unsigned char vtkPen::GetOpacity()
 {
   return this->Color[3];
+}
+
+//-----------------------------------------------------------------------------
+void vtkPen::DeepCopy(vtkPen *pen)
+{
+  *(this->PenColor) = *(pen->PenColor);
+  this->Width = pen->Width;
+  this->LineType = pen->LineType;
 }
 
 //-----------------------------------------------------------------------------
