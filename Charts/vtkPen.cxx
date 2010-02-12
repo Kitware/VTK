@@ -16,9 +16,10 @@
 #include "vtkPen.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkVector.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPen, "1.3");
+vtkCxxRevisionMacro(vtkPen, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPen);
@@ -26,16 +27,33 @@ vtkStandardNewMacro(vtkPen);
 //-----------------------------------------------------------------------------
 vtkPen::vtkPen()
 {
-  this->Color[0] = 0;
+  this->PenColor = new vtkColor4ub;
+  this->Color = this->PenColor->GetData();
+/*  this->Color[0] = 0;
   this->Color[1] = 0;
   this->Color[2] = 0;
-  this->Color[3] = 255;
+  this->Color[3] = 255; */
   this->Width = 1.0;
+  this->LineType = this->SOLID_LINE;
 }
 
 //-----------------------------------------------------------------------------
 vtkPen::~vtkPen()
 {
+  delete this->PenColor;
+  this->PenColor = 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPen::SetLineType(int type)
+{
+  this->LineType = type;
+}
+
+//-----------------------------------------------------------------------------
+int vtkPen::GetLineType()
+{
+  return this->LineType;
 }
 
 //-----------------------------------------------------------------------------
@@ -102,21 +120,27 @@ void vtkPen::SetOpacity(unsigned char a)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPen::GetColorF(double color[4])
+void vtkPen::GetColorF(double color[3])
 {
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < 3; ++i)
     {
     color[i] = this->Color[i] / 255.0;
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkPen::GetColor(unsigned char color[4])
+void vtkPen::GetColor(unsigned char color[3])
 {
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < 3; ++i)
     {
     color[i] = this->Color[i];
     }
+}
+
+//-----------------------------------------------------------------------------
+unsigned char vtkPen::GetOpacity()
+{
+  return this->Color[3];
 }
 
 //-----------------------------------------------------------------------------

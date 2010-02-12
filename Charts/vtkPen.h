@@ -28,6 +28,8 @@
 
 #include "vtkObject.h"
 
+class vtkColor4ub;
+
 class VTK_CHARTS_EXPORT vtkPen : public vtkObject
 {
 public:
@@ -35,6 +37,26 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkPen *New();
+
+//BTX
+  // Description:
+  // Enum of the available line types.
+  enum {
+    NO_PEN,
+    SOLID_LINE,
+    DASH_LINE,
+    DOT_LINE,
+    DASH_DOT_LINE,
+    DASH_DOT_DOT_LINE};
+//ETX
+
+  // Description:
+  // Set the type of line that the pen should draw. The default is solid (1).
+  void SetLineType(int type);
+
+  // Description:
+  // Get the type of line that the pen will draw.
+  int GetLineType();
 
   // Description:
   // Set the color of the brush with three component doubles (RGB), ranging from
@@ -78,16 +100,21 @@ public:
   void SetOpacity(unsigned char a);
 
   // Description:
-  // Get the color of the brush - expects a double of length 4 to copy into.
-  void GetColorF(double color[4]);
+  // Get the color of the brush - expects a double of length 3 to copy into.
+  void GetColorF(double color[3]);
 
   // Description:
-  // Get the color of the brush - expects an unsigned char of length 4.
-  void GetColor(unsigned char color[4]);
+  // Get the color of the brush - expects an unsigned char of length 3.
+  void GetColor(unsigned char color[3]);
+
+  // Description:
+  // Get the opacity (unsigned char), ranging from 0 (transparent) to 255
+  // (opaque).
+  unsigned char GetOpacity();
 
   // Description:
   // Get the color of the brush - gives a pointer to the underlying data.
-  unsigned char * GetColor() { return &this->Color[0]; }
+  unsigned char * GetColor() { return this->Color; }
 
   // Description:
   // Set/Get the width of the pen.
@@ -99,11 +126,18 @@ protected:
   vtkPen();
   ~vtkPen();
 
+  // Description:
   // Storage of the color in RGBA format (0-255 per channel).
-  unsigned char Color[4];
+  unsigned char* Color;
+  vtkColor4ub* PenColor;
 
-  // Store the width of the pen.
+  // Description:
+  // Store the width of the pen in pixels.
   float Width;
+
+  // Description:
+  // The type of line to be drawn with this pen.
+  int LineType;
 
 private:
   vtkPen(const vtkPen &); // Not implemented.
