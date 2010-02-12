@@ -44,7 +44,6 @@ vtkFeatureDictionary.cxx
 vtkFileExtensionMimeTypeStrategy.cxx
 vtkFoldCase.cxx
 vtkForceMimeTypeStrategy.cxx
-vtkFrequencyMatrixWeighting.cxx
 vtkMimeTypeStrategy.cxx
 vtkMimeTypes.cxx
 vtkNGramExtraction.cxx
