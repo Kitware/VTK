@@ -29,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.7");
+vtkCxxRevisionMacro(vtkPlotLine, "1.8");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -83,8 +83,8 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
     for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
-      painter->GetPen()->SetWidth(this->Width*15.0);
-      painter->GetPen()->SetColor(0, 0, 255, 255);
+      painter->GetPen()->SetWidth(this->Pen->GetWidth()*15.0);
+      painter->GetPen()->SetColor(this->Pen->GetColor());
       vtkIdType id = 0;
       this->Selection->GetTupleValue(i, &id);
       if (id < this->Points->GetNumberOfPoints())
@@ -102,10 +102,12 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   // Now to plot the points
   if (this->Points)
     {
-    painter->GetPen()->SetColor(this->Color);
-    painter->GetPen()->SetOpacity(this->Color[3]);
-    painter->GetPen()->SetWidth(this->Width);
+    painter->GetPen()->SetColor(this->Pen->GetColor());
+    painter->GetPen()->SetOpacity(this->Pen->GetOpacity());
+    painter->GetPen()->SetWidth(this->Pen->GetWidth());
+    painter->GetPen()->SetLineType(this->Pen->GetLineType());
     painter->DrawPoly(this->Points);
+    painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
     }
 
   return true;

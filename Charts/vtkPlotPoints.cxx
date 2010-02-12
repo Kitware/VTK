@@ -30,7 +30,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotPoints, "1.2");
+vtkCxxRevisionMacro(vtkPlotPoints, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotPoints);
@@ -74,7 +74,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
     for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
-      painter->GetPen()->SetWidth(this->Width*15.0);
+      painter->GetPen()->SetWidth(this->Pen->GetWidth()*15.0);
       painter->GetPen()->SetColor(0, 0, 255, 255);
       vtkIdType id = 0;
       this->Selection->GetTupleValue(i, &id);
@@ -93,9 +93,9 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
   // Now to plot the points
   if (this->Points)
     {
-    painter->GetPen()->SetColor(this->Color);
-    painter->GetPen()->SetOpacity(this->Color[3]);
-    painter->GetPen()->SetWidth(this->Width);
+    painter->GetPen()->SetColor(this->Pen->GetColor());
+    painter->GetPen()->SetOpacity(this->Pen->GetOpacity());
+    painter->GetPen()->SetWidth(this->Pen->GetWidth());
     painter->DrawPoints(this->Points);
     }
 

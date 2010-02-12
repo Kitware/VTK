@@ -15,6 +15,7 @@
 
 #include "vtkPlot.h"
 
+#include "vtkPen.h"
 #include "vtkTable.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
@@ -23,17 +24,14 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.6");
+vtkCxxRevisionMacro(vtkPlot, "1.7");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
 vtkPlot::vtkPlot()
 {
-  this->Color[0] = 0;
-  this->Color[1] = 0;
-  this->Color[2] = 0;
-  this->Color[3] = 255;
-  this->Width = 2.0;
+  this->Pen = vtkPen::New();
+  this->Pen->SetWidth(2.0);
   this->Label = NULL;
   this->UseIndexForXSeries = false;
   this->Data = vtkContextMapper2D::New();
@@ -43,6 +41,11 @@ vtkPlot::vtkPlot()
 //-----------------------------------------------------------------------------
 vtkPlot::~vtkPlot()
 {
+  if (this->Pen)
+    {
+    this->Pen->Delete();
+    this->Pen = NULL;
+    }
   if (this->Data)
     {
     this->Data->Delete();
@@ -55,27 +58,32 @@ vtkPlot::~vtkPlot()
 void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b,
                        unsigned char a)
 {
-  this->Color[0] = r;
-  this->Color[1] = g;
-  this->Color[2] = b;
-  this->Color[3] = a;
+  this->Pen->SetColor(r, g, b, a);
 }
 
 //-----------------------------------------------------------------------------
 void vtkPlot::SetColor(double r, double g, double b)
 {
-  this->Color[0] = static_cast<unsigned char>(r*255.0);
-  this->Color[1] = static_cast<unsigned char>(g*255.0);
-  this->Color[2] = static_cast<unsigned char>(b*255.0);
+  this->Pen->SetColorF(r, g, b);
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetWidth(float width)
+{
+  this->Pen->SetWidth(width);
+}
+
+//-----------------------------------------------------------------------------
+float vtkPlot::GetWidth()
+{
+  return this->Pen->GetWidth();
 }
 
 //-----------------------------------------------------------------------------
 void vtkPlot::GetColor(double rgb[3])
 {
-  for (int i = 0; i < 3; ++i)
-    {
-    rgb[i] = double(this->Color[0]) / 255.0;
-    }
+  this->Pen->GetColorF(rgb);
 }
 
 //-----------------------------------------------------------------------------
@@ -125,8 +133,4 @@ void vtkPlot::SetInputArray(int index, const char *name)
 void vtkPlot::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  // Print out our color and width
-  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1]
-     << ", " << this->Color[2] << ", " << this->Color[3] << endl;
-  os << indent << "Width: " << this->Width << endl;
 }
