@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.43");
+vtkCxxRevisionMacro(vtkCellPicker, "1.44");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -639,6 +639,11 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
 
 //----------------------------------------------------------------------------
 // Intersect a vtkVolume with a line by ray casting.
+
+// For algorithm stability: choose a tolerance that is larger than
+// the expected roundoff error in computing the voxel indices from "t"
+#define VTKCELLPICKER_VOXEL_TOL 1e-6
+
 double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
                                                 const double p2[3],
                                                 double t1, double t2,
@@ -702,6 +707,9 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
 
   // Compute the length of the line intersecting the volume
   double rayLength = sqrt(vtkMath::Distance2BetweenPoints(x1, x2))*(t2 - t1); 
+
+  // This is the minimum increment that will be allowed
+  double tTol = VTKCELLPICKER_VOXEL_TOL/rayLength*(t2 - t1);
 
   // Find out whether there are multiple components in the volume
   int numComponents = data->GetNumberOfScalarComponents();
@@ -786,14 +794,28 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
       t = 1.0;
       for (int k = 0; k < 3; k++)
         {
-        if (fabs((x2[k] - x1[k])/rayLength) > 1e-6)
+        // Skip dimension "k" if it is perpendicular to ray
+        if (fabs(x2[k] - x1[k]) > VTKCELLPICKER_VOXEL_TOL*rayLength)
           {
+          // Compute the previous coord along dimension "k"
           double lastX = x1[k]*(1.0 - lastT) + x2[k]*lastT;
-          // Increment to next slice boundary along dimension "k"
-          double nextX = ((x2[k] > x1[k]) ? floor(lastX)+1 : ceil(lastX)-1);
+
+          // Increment to next slice boundary along dimension "k",
+          // including a tolerance value for stabilityin cases
+          // where lastX is just less than an integer value.
+          double nextX = 0;
+          if (x2[k] > x1[k])
+            {
+            nextX = floor(lastX + VTKCELLPICKER_VOXEL_TOL) + 1;
+            }
+          else
+            {
+            nextX = ceil(lastX - VTKCELLPICKER_VOXEL_TOL) - 1;
+            }
+
           // Compute the "t" value for this slice boundary
           double ttry = lastT + (nextX - lastX)/(x2[k] - x1[k]);
-          if (ttry > lastT && ttry < t)
+          if (ttry > lastT + tTol && ttry < t)
             {
             t = ttry;
             }
