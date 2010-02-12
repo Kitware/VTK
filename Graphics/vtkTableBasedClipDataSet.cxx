@@ -59,7 +59,7 @@
 
 #include "vtkTableBasedClipCases.h"
 
-vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.9" );
+vtkCxxRevisionMacro( vtkTableBasedClipDataSet, "1.10" );
 vtkStandardNewMacro( vtkTableBasedClipDataSet );
 vtkCxxSetObjectMacro( vtkTableBasedClipDataSet, ClipFunction, vtkImplicitFunction );
 
@@ -2623,7 +2623,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
                      (  theCellK + shiftLUT[2][ pt2Index ]  ) * pzStride
                  );
 
-          /*/ We may have physically (though not logically) degenerate cells
+          /* We may have physically (though not logically) degenerate cells
           // if p1Weight == 0 or p1Weight == 1. We could pretty easily and 
           // mostly safely clamp percent to the range [1e-4, 1 - 1e-4].
           if( p1Weight == 1.0) 
@@ -2640,7 +2640,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
             {
             shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
             }
-          /*////
+          */
           
           // Turning on the above code segment, the alternative, would cause
           // a bug with a synthetic Wavelet dataset (vtkImageData) when the
