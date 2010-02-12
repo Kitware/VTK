@@ -18,7 +18,7 @@
 #include "vtkBoundingBox.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBox, "1.9");
+vtkCxxRevisionMacro(vtkBox, "1.10");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -466,7 +466,11 @@ int vtkBox::IntersectWithLine(const double bounds[6],
         // If this happens, there's no line left
         if (t1 > t2)
           {
-          return 0;
+          // Allow for planes that are coincident or slightly inverted
+          if (plane1 < 0 || plane2 < 0 || (plane1 >> 1) != (plane2 >> 1))
+            { 
+            return 0;
+            }
           }
         }      
       }
