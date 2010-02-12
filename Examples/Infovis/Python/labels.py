@@ -4,6 +4,8 @@ from vtk import *
 
 n = 10000
 
+qinit = vtkQtInitialization()
+
 pd = vtkPolyData()
 pts = vtkPoints()
 verts = vtkCellArray()

@@ -25,7 +25,6 @@ SET ( QVTKLibSrcs
     QVTKPaintEngine.h
     vtkQtAbstractModelAdapter.cxx
     vtkQtAnnotationLayersModelAdapter.cxx
-    vtkQtInitialization.cxx
     vtkQtSQLDatabase.cxx
     vtkQtSQLQuery.cxx
     vtkQtTableModelAdapter.cxx

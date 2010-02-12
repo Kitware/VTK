@@ -97,7 +97,9 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
     }
 
- return !retVal;
+  QFontDatabase::removeAllApplicationFonts();
+
+  return !retVal;
 }
 
 

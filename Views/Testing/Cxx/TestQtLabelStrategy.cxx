@@ -68,11 +68,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
   fontFileName.append("/Data/Infovis/martyb_-_Ridiculous.ttf");
 //  fontFileName.append("/Data/Infovis/DaveDS_-_Sketchy.ttf");
 
-  if(!QApplication::instance())
-    {
-    int argc = 0;
-    new QApplication(argc, 0);
-    }
+  QApplication app(argc, argv);
 
   QFontDatabase::addApplicationFont(fontFileName);
 

@@ -30,18 +30,12 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkQImageToImageSource, "1.4");
+vtkCxxRevisionMacro(vtkQImageToImageSource, "1.5");
 vtkStandardNewMacro(vtkQImageToImageSource);
 
 //----------------------------------------------------------------------------
 vtkQImageToImageSource::vtkQImageToImageSource()
 {
-  if(!QApplication::instance())
-    {
-    int argc = 0;
-    new QApplication(argc, 0);
-    }
-
   this->QtImage = 0;
   this->SetNumberOfInputPorts(0);
   this->DataExtent[0] = 0;
@@ -57,6 +51,12 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
                                          vtkInformationVector **vtkNotUsed(inputVector), 
                                          vtkInformationVector *outputVector)
 { 
+  if(!QApplication::instance())
+    {
+    vtkErrorMacro("You must initialize QApplication before using this filter.");
+    return 0;
+    }
+
   // get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(

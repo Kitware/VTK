@@ -394,6 +394,7 @@ IF(VTK_USE_QT)
 
   SET( Kit_SRCS ${Kit_SRCS}
     vtkQImageToImageSource.cxx
+    vtkQtInitialization.cxx
     vtkQtLabelRenderStrategy.cxx
     vtkQtTreeRingLabelMapper.cxx
     )

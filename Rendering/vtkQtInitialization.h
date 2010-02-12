@@ -29,12 +29,13 @@
 #ifndef __vtkQtInitialization_h
 #define __vtkQtInitialization_h
 
-#include "QVTKWin32Header.h"
-#include <vtkObject.h>
+#include "vtkObject.h"
 
+//BTX
 class QApplication;
+//ETX
 
-class QVTK_EXPORT vtkQtInitialization : public vtkObject
+class VTK_RENDERING_EXPORT vtkQtInitialization : public vtkObject
 {
 public:
   static vtkQtInitialization* New();
@@ -48,7 +49,9 @@ protected:
 private:
   vtkQtInitialization(const vtkQtInitialization &); // Not implemented.
   void operator=(const vtkQtInitialization &); // Not implemented.
+  //BTX
   QApplication *Application;
+  //ETX
 };
 
 #endif // __vtkQtInitialization_h

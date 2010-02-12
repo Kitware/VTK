@@ -45,7 +45,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.10");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.11");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 struct vtkQtLabelMapEntry
@@ -218,6 +218,12 @@ void vtkQtLabelRenderStrategy::StartFrame()
 void vtkQtLabelRenderStrategy::ComputeLabelBounds(
   vtkTextProperty* tprop, vtkUnicodeString label, double bds[4])
 {
+  if (!QApplication::instance())
+    {
+    vtkErrorMacro("You must initialize a QApplication before using this class.");
+    return;
+    }
+
   //vtkTimerLog* timer = vtkTimerLog::New();
   //timer->StartTimer();
 
@@ -311,6 +317,12 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
 void vtkQtLabelRenderStrategy::RenderLabel(
   int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth)
 {
+  if (!QApplication::instance())
+    {
+    vtkErrorMacro("You must initialize a QApplication before using this class.");
+    return;
+    }
+
   //vtkTimerLog* timer = vtkTimerLog::New();
   //timer->StartTimer();
 
@@ -409,6 +421,12 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 void vtkQtLabelRenderStrategy::RenderLabel(
   int x[2], vtkTextProperty* tprop, vtkUnicodeString label)
 {
+  if (!QApplication::instance())
+    {
+    vtkErrorMacro("You must initialize a QApplication before using this class.");
+    return;
+    }
+
   //vtkTimerLog* timer = vtkTimerLog::New();
   //timer->StartTimer();
 
