@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.44");
+vtkCxxRevisionMacro(vtkCellPicker, "1.45");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -299,10 +299,10 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
       hvec[1] = -hvec[1];
       hvec[2] = -hvec[2];
       hvec[3] = 0.0;
-      vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-      this->Transform->GetTranspose(matrix);
-      matrix->MultiplyPoint(hvec, hvec);
-      matrix->Delete();
+      double matrix[16];
+      vtkMatrix4x4::DeepCopy(matrix, this->Transform->GetMatrix());
+      vtkMatrix4x4::Transpose(matrix, matrix);
+      vtkMatrix4x4::MultiplyPoint(matrix, hvec, hvec);
       this->MapperNormal[0] = hvec[0];
       this->MapperNormal[1] = hvec[1];
       this->MapperNormal[2] = hvec[2];
@@ -345,20 +345,20 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
 
       // This code is a little crazy: transforming a normal involves
       // matrix inversion and transposal, but since the normal
-      // is to be transform from world -> mapper coords, only the
+      // is to be transformed from world -> mapper coords, only the
       // transpose is needed.
-      vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
       double hvec[4];
       hvec[0] = this->PickNormal[0];
       hvec[1] = this->PickNormal[1];
       hvec[2] = this->PickNormal[2];
       hvec[3] = 0.0;
-      this->Transform->GetTranspose(matrix);
-      matrix->MultiplyPoint(hvec, hvec);
+      double matrix[16];
+      vtkMatrix4x4::DeepCopy(matrix, this->Transform->GetMatrix());
+      vtkMatrix4x4::Transpose(matrix, matrix);
+      vtkMatrix4x4::MultiplyPoint(matrix, hvec, hvec);
       this->MapperNormal[0] = hvec[0];
       this->MapperNormal[1] = hvec[1];
       this->MapperNormal[2] = hvec[2];
-      matrix->Delete();
       }
     else
       {
