@@ -161,7 +161,7 @@ int vtkDeformPointSet::RequestData(
         }
 
       inPts->GetPoint(ptId, x);
-      weights = this->Weights->GetTuple(ptId);
+      weights = this->Weights->GetPointer(ptId*numberOfControlMeshPoints);
       vtkMeanValueCoordinatesInterpolator::
         ComputeInterpolationWeights(x,cmeshPts,cmeshPolys,weights);
       }
@@ -185,7 +185,7 @@ int vtkDeformPointSet::RequestData(
       abort = this->GetAbortExecute();
       }
 
-    weights = this->Weights->GetTuple(ptId);
+    weights = this->Weights->GetPointer(ptId*numberOfControlMeshPoints);
     
     x[0] = x[1] = x[2] = 0.0;
     for ( pid=0; pid < numberOfControlMeshPoints; ++pid )
