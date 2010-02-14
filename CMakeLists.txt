@@ -1003,7 +1003,7 @@ ENDIF(VTK_WRAP_JAVA)
 # inclusion and instead have inclusion per package (which will also avoid
 # rebuilding the whole build tree each time you switch a package ON or OFF).
 IF(VTK_USE_MPI)
-  INCLUDE(FindMPI)
+  FIND_PACKAGE(MPI)
 ENDIF(VTK_USE_MPI)
 
 #-----------------------------------------------------------------------------
