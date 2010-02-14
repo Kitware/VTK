@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.64");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.65");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
@@ -46,6 +46,12 @@ vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredPoints* vtkImageToStructuredPoints::GetStructuredPointsOutput()
+{
+  return vtkStructuredPoints::SafeDownCast(this->GetOutputDataObject(0));
 }
 
 //----------------------------------------------------------------------------

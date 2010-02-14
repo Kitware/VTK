@@ -41,6 +41,10 @@ public:
   void SetVectorInput(vtkImageData *input);
   vtkImageData *GetVectorInput();
 
+  // Description:
+  // Get the output of the filter.
+  vtkStructuredPoints* GetStructuredPointsOutput();
+
 protected:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
