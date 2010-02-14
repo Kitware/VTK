@@ -20,7 +20,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumePicker, "1.9");
+vtkCxxRevisionMacro(vtkVolumePicker, "1.10");
 vtkStandardNewMacro(vtkVolumePicker);
 
 //----------------------------------------------------------------------------
@@ -322,18 +322,39 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
       planeIdList[numSegments] = -1;
       if (plane1 >= 0)
         {
-        int k = plane1/2;
+        // Compute  plane1/2  and  plane1%2
+        int k = (plane1 >> 1);
+        int l = (plane1 & 1);
+
+        // Need to know if the ray is entering the volume, i.e. whether
+        // the adjacent block that the ray is coming from is "off", because
+        // we can't define a clip plane unless it is off.
+        static int blockInc[3] = {1, 3, 9}; 
+        int noPlane = 1;
+
         if (xi[k] == 1)
           {
-          planeIdList[numSegments] = plane1;
+          noPlane = (flags >> (blockId + blockInc[k]*(2*l - 1)) & 1); 
+          if (!noPlane)
+            {
+            planeIdList[numSegments] = plane1;
+            }
           }
-        else if (xi[k] == 0 && (plane1 - 2*k) == 1)
+        else if (xi[k] == 0)
           {
-          planeIdList[numSegments] = 2*k;
+          noPlane = (flags >> (blockId + blockInc[k]) & 1);
+          if (!noPlane && l == 1)
+            {
+            planeIdList[numSegments] = 2*k;
+            }
           }
-        else if (xi[k] == 2 && (plane1 - 2*k) == 0)
+        else if (xi[k] == 2)
           {
-          planeIdList[numSegments] = 2*k + 1;
+          noPlane = (flags >> (blockId - blockInc[k]) & 1);
+          if (!noPlane && l == 0)
+            {
+            planeIdList[numSegments] = 2*k + 1;
+            }
           }
         }
 
