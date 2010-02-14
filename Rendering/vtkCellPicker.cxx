@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.45");
+vtkCxxRevisionMacro(vtkCellPicker, "1.46");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -233,6 +233,9 @@ int vtkCellPicker::Pick(double selectionX, double selectionY,
 }  
 
 //----------------------------------------------------------------------------
+// Tolerance for parametric coordinate matching an intersection with a plane
+#define VTKCELLPICKER_PLANE_TOL 1e-14
+
 double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
                                           double tol, 
                                           vtkAssemblyPath *path, 
@@ -283,30 +286,6 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   else if ( (volumeMapper = vtkAbstractVolumeMapper::SafeDownCast(m)) )
     {
     tMin = this->IntersectVolumeWithLine(p1, p2, t1, t2, prop, volumeMapper);
-
-    // For volumes, the normal is usually computed from the gradient,
-    // but using the gradient for the normal is only valid if the picked
-    // point is at the chosen volume isosurface.  So, if the pick point
-    // is at a clipping plane, use the clipping plane normal.
-
-    if (clippingPlaneId >= 0 && tMin == t1)
-      {
-      vtkPlane *plane = planes->GetItem(clippingPlaneId);
-      // normal is in world coords, so transform to mapper coords
-      double hvec[4];
-      plane->GetNormal(hvec);
-      hvec[0] = -hvec[0];
-      hvec[1] = -hvec[1];
-      hvec[2] = -hvec[2];
-      hvec[3] = 0.0;
-      double matrix[16];
-      vtkMatrix4x4::DeepCopy(matrix, this->Transform->GetMatrix());
-      vtkMatrix4x4::Transpose(matrix, matrix);
-      vtkMatrix4x4::MultiplyPoint(matrix, hvec, hvec);
-      this->MapperNormal[0] = hvec[0];
-      this->MapperNormal[1] = hvec[1];
-      this->MapperNormal[2] = hvec[2];
-      }
     }
 
   // ImageActor
@@ -330,7 +309,7 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
 
     // If tMin == t1, the pick didn't go past the first clipping plane,
     // so the position and normal will be set from the clipping plane.
-    if (tMin == t1 && clippingPlaneId >= 0)
+    if (fabs(tMin - t1) < VTKCELLPICKER_PLANE_TOL && clippingPlaneId >= 0)
       {
       this->MapperPosition[0] = p1[0]*(1.0-t1) + p2[0]*t1;
       this->MapperPosition[1] = p1[1]*(1.0-t1) + p2[1]*t1;
