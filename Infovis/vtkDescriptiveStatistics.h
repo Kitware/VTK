@@ -56,6 +56,14 @@ public:
   static vtkDescriptiveStatistics* New();
 
   // Description:
+  // Set/get whether the unbiased estimator for the variance should be used, or if
+  // the population variance will be calculated.
+  // The default is that the unbiased estimator will be used.
+  vtkSetMacro(UnbiasedVariance,int);
+  vtkGetMacro(UnbiasedVariance,int);
+  vtkBooleanMacro(UnbiasedVariance,int);
+
+  // Description:
   // Set/get whether the deviations returned should be signed, or should
   // only have their magnitude reported.
   // The default is that signed deviations will be computed.
@@ -99,6 +107,7 @@ protected:
                      vtkDataObject* inMeta,
                      vtkDataObject* outMeta ); 
 
+  int UnbiasedVariance;
   int SignedDeviations;
 
 //BTX  

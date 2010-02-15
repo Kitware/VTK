@@ -316,7 +316,7 @@ int TestOrderStatistics( int, char *[] )
 
   os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
-  os->ResetRequests(); // Clear list of columns of interest
+  os->ResetAllColumnStates(); // Clear list of columns of interest
   os->AddColumn( "Text" ); // Add column of interest
 
   // Test Learn and Assess with 4 intervals (use SetParameter method for Learn parameters)
