@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.47");
+vtkCxxRevisionMacro(vtkCellPicker, "1.48");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -295,7 +295,7 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   // Unidentified Prop3D
   else
     {
-    return VTK_DOUBLE_MAX;
+    tMin = this->IntersectProp3DWithLine(p1, p2, t1, t2, tol, prop, m);
     }
 
   if (tMin < this->GlobalTMin)
@@ -971,6 +971,19 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
   return tMin;
 }
 
+//----------------------------------------------------------------------------
+// This is a catch-all for Prop3D types that vtkCellPicker does not
+// recognize.  It can be overridden in subclasses to provide support
+// for picking new Prop3D types.
+
+double vtkCellPicker::IntersectProp3DWithLine(const double *, const double *,
+                                              double, double, double,
+                                              vtkProp3D *prop, 
+                                              vtkAbstractMapper3D *)
+{
+  return VTK_DOUBLE_MAX;
+}
+ 
 //----------------------------------------------------------------------------
 // Clip a line with a collection of clipping planes, or return zero if
 // the line does not intersect the volume enclosed by the planes.

@@ -221,6 +221,12 @@ protected:
                                              double t1, double t2,
                                              vtkImageActor *imageActor);
 
+  virtual double IntersectProp3DWithLine(const double p1[3],
+                                         const double p2[3],
+                                         double t1, double t2, double tol, 
+                                         vtkProp3D *prop,
+                                         vtkAbstractMapper3D *mapper);
+
   static int ClipLineWithPlanes(vtkPlaneCollection *planes,
                                 const double p1[3], const double p2[3],
                                 double &t1, double &t2, int& planeId);
