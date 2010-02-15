@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.46");
+vtkCxxRevisionMacro(vtkCellPicker, "1.47");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -242,8 +242,6 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
                                           vtkProp3D *prop, 
                                           vtkAbstractMapper3D *m)
 { 
-  // This method will be called for vtkVolume and vtkActor but not
-  // for vtkImageActor, since ImageActor has no mapper.
   vtkMapper *mapper = 0;
   vtkAbstractVolumeMapper *volumeMapper = 0;
   vtkImageActor *imageActor = 0;
@@ -381,6 +379,9 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   double minXYZ[3];
   minXYZ[0] = minXYZ[1] = minXYZ[2] = 0.0;
 
+  // Polydata has no 3D cells
+  int isPolyData = data->IsA("vtkPolyData");
+
   vtkCollectionSimpleIterator iter;
   vtkAbstractCellLocator *locator = 0;
   this->Locators->InitTraversal(iter);
@@ -393,16 +394,22 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
       }
     }
 
-  if (locator)
+  // Make a new p1 and p2 using the clipped t1 and t2
+  double q1[3], q2[3];
+  q1[0] = p1[0]; q1[1] = p1[1]; q1[2] = p1[2];
+  q2[0] = p2[0]; q2[1] = p2[1]; q2[2] = p2[2];
+  if (t1 != 0.0 || t2 != 1.0)
     {
-    // Make a new p1 and p2
-    double q1[3], q2[3];
     for (int j = 0; j < 3; j++)
       {
       q1[j] = p1[j]*(1.0 - t1) + p2[j]*t1;
       q2[j] = p1[j]*(1.0 - t2) + p2[j]*t2;
       }
+    }
 
+  // Use the locator if one exists for this data
+  if (locator)
+    {
     if (!locator->IntersectWithLine(q1, q2, tol, tMin, minXYZ,
                                     minPCoords, minSubId, minCellId,
                                     this->Cell))
@@ -410,31 +417,16 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
       return VTK_DOUBLE_MAX;
       }
 
+    // Stretch tMin out to the original range
+    if (t1 != 0.0 || t2 != 1.0)
+      {
+      tMin = t1*(1.0 - tMin) + t2*tMin;
+      }
+
+    // Change strip to triangle for some of the later code
     if (this->Cell->GetCellType() == VTK_TRIANGLE_STRIP)
       {
       this->TriangleFromStrip(this->Cell, minSubId);
-      }
-
-    if (t1 != 0.0 || t2 != 1.0)
-      {
-      // Stretch tMin out to the original range
-      tMin = t1*(1.0 - tMin) + t2*tMin;
-
-      // Repeat with original line endpoints to improve the result
-      double t, x[3], pcoords[3];
-      int subId;
-      if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
-                                        const_cast<double *>(p2),
-                                        tol, t, x, pcoords, subId)
-          && t >= t1 && t <= t2)
-        {
-        tMin = t;
-        for (int k = 0; k < 3; k++)
-          {
-          minXYZ[k] = x[k];
-          minPCoords[k] = pcoords[k]; 
-          }
-        }
       }
     }
   else
@@ -471,10 +463,30 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
           data->GetCell(cellId, this->Cell);
           }
 
-        if (this->Cell->IntersectWithLine(const_cast<double *>(p1),
-                                          const_cast<double *>(p2),
-                                          tol, t, x, pcoords, newSubId) 
-            && t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
+        int cellPicked = 0;
+        if (isPolyData)
+          {
+          // Polydata can always be picked with original endpoints
+          cellPicked = this->Cell->IntersectWithLine(
+                         const_cast<double *>(p1), const_cast<double *>(p2),
+                         tol, t, x, pcoords, newSubId);
+          }
+        else
+          {
+          // Any 3D cells need to be intersected with a line segment that
+          // has been clipped with the clipping planes, in case one end is
+          // actually inside the cell.
+          cellPicked = this->Cell->IntersectWithLine(
+                         q1, q2, tol, t, x, pcoords, newSubId);
+
+          // Stretch t out to the original range
+          if (t1 != 0.0 || t2 != 1.0)
+            {
+            t = t1*(1.0 - t) + t2*t;
+            }
+          }
+
+        if (cellPicked && t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
           {
           double pDist = this->Cell->GetParametricDistance(pcoords);
           if (pDist < pDistMin || (pDist == pDistMin && t < tMin))
@@ -507,7 +519,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     // Get the cell, convert to triangle if it is a strip
     vtkGenericCell *cell = this->Cell;
 
-    // If we used a locator, we already have the cell
+    // If we used a locator, we already have the picked cell
     if (!locator)
       {
       if (data->GetCellType(minCellId) == VTK_TRIANGLE_STRIP)
