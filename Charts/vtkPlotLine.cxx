@@ -29,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.9");
+vtkCxxRevisionMacro(vtkPlotLine, "1.10");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -70,8 +70,9 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
     vtkDebugMacro(<< "Paint event called with no input table set.");
     return false;
     }
-  else if(this->GetMTime() > this->BuildTime ||
-          table->GetMTime() > this->BuildTime)
+  else if(this->Data->GetMTime() > this->BuildTime ||
+          table->GetMTime() > this->BuildTime ||
+          this->MTime > this->BuildTime)
     {
     vtkDebugMacro(<< "Paint event called with outdated table cache. Updating.");
     this->UpdateTableCache(table);
@@ -96,7 +97,7 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
     }
   else
     {
-    vtkDebugMacro("No selectionn set.");
+    vtkDebugMacro("No selection set.");
     }
 
   // Now to plot the points
