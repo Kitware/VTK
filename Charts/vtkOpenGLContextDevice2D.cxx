@@ -70,7 +70,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.13");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.14");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -78,6 +78,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 {
   this->Renderer = 0;
   this->IsTextDrawn = false;
+  this->InRender = false;
 #ifdef VTK_USE_QT
   // Can only use the QtLabelRenderStrategy if there is a QApplication
   // instance, otherwise fallback to the FreeTypeLabelRenderStrategy.
@@ -136,12 +137,15 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
     {
-    vtkOpenGLRenderWindow *glWin = vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
+    vtkOpenGLRenderWindow *glWin = vtkOpenGLRenderWindow::SafeDownCast(
+        gl->GetRenderWindow());
     if (glWin)
       {
       this->LoadExtensions(glWin->GetExtensionManager());
       }
     }
+
+  this->InRender = true;
 
   this->Modified();
 }
@@ -149,6 +153,11 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::End()
 {
+  if (!this->InRender)
+    {
+    return;
+    }
+
   if (this->IsTextDrawn)
     {
     this->TextRenderer->EndFrame();
@@ -170,6 +179,8 @@ void vtkOpenGLContextDevice2D::End()
     {
     glEnable(GL_DEPTH_TEST);
     }
+
+  this->InRender = false;
 
   this->Modified();
 }

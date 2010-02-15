@@ -163,6 +163,10 @@ protected:
   bool IsTextDrawn;
 
   // Description:
+  // Is the device currently rendering? Prevent multiple End() calls.
+  bool InRender;
+
+  // Description:
   // Private data pointer of the class
   class Private;
   Private *Storage;
