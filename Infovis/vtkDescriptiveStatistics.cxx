@@ -42,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.97");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.98");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -414,10 +414,21 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
       double inv_n = 1. / n;
       double nm1 = n - 1.;
 
-      derivedVals[1] = mom2 / nm1;
+      // Variance
+      if ( this->UnbiasedVariance )
+        {
+        derivedVals[1] = mom2 / nm1;
+        }
+      else // use population variance
+        {
+        derivedVals[1] = mom2 * inv_n;
+        }
+
+      // Standard deviation
       derivedVals[0] = sqrt( derivedVals[1] );
 
-      double var_inv = 1. / derivedVals[1];
+      // Skeweness and kurtosis
+      double var_inv = nm1 / mom2;
       double nvar_inv = var_inv * inv_n;
       derivedVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
       derivedVals[4] = nvar_inv * var_inv * mom4 - 3.;
