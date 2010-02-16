@@ -30,64 +30,171 @@
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkProperty.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkSmartPointer.h"
 
 int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
 {
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
+  vtkSmartPointer<vtkRenderer> renderer = 
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer1 = 
+    vtkSmartPointer<vtkRenderer>::New();
+  renderer->SetViewport(0, 0, 0.5, 1);
+  
+  vtkSmartPointer<vtkRenderWindow> renWin = 
+    vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->AddRenderer(renderer);
+  renWin->AddRenderer(renderer1);
+  renderer1->SetViewport(0.5, 0, 1, 1);
+  
+  vtkSmartPointer<vtkRenderWindowInteractor> iren = 
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->SetRenderWindow(renWin);
 
+  //
+  // Case 0: triangle meshes
+  //
   // Create a sphere
-  vtkSphereSource *sphere = vtkSphereSource::New();
-    sphere->SetThetaResolution(51); sphere->SetPhiResolution(17);
-
+  vtkSmartPointer<vtkSphereSource> sphere = 
+    vtkSmartPointer<vtkSphereSource>::New();
+  sphere->SetThetaResolution(51); 
+  sphere->SetPhiResolution(17);
+  
   // Generate some scalars on the sphere
-  vtkElevationFilter *ele = vtkElevationFilter::New();
-    ele->SetInputConnection(sphere->GetOutputPort());
-    ele->SetLowPoint(0,0,-0.5);
-    ele->SetHighPoint(0,0,0.5);
-
+  vtkSmartPointer<vtkElevationFilter> ele = 
+    vtkSmartPointer<vtkElevationFilter>::New();
+  ele->SetInputConnection(sphere->GetOutputPort());
+  ele->SetLowPoint(-0.5,0,0);
+  ele->SetHighPoint(0.5,0,0);
+  ele->Update();
+  
   // Now clip the sphere in half and display it
-  vtkPlane *plane = vtkPlane::New();
-    plane->SetOrigin(0,0,0);
-    plane->SetNormal(1,0,0);
-  vtkClipPolyData *clip = vtkClipPolyData::New();
-    clip->SetInputConnection(ele->GetOutputPort());
-    clip->SetClipFunction(plane);
-  vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-    sphereMapper->SetInputConnection(clip->GetOutputPort());
-  vtkActor *sphereActor = vtkActor::New();
-    sphereActor->SetMapper(sphereMapper);
+  vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+  plane->SetOrigin(0,0,0);
+  plane->SetNormal(0,0,1);
+  
+  vtkSmartPointer<vtkClipPolyData> clip = 
+    vtkSmartPointer<vtkClipPolyData>::New();
+  clip->SetInputConnection(ele->GetOutputPort());
+  clip->SetClipFunction(plane);
+  
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = 
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  sphereMapper->SetInputConnection(clip->GetOutputPort());
+  
+  vtkSmartPointer<vtkActor> sphereActor = vtkSmartPointer<vtkActor>::New();
+  sphereActor->SetMapper(sphereMapper);
 
   //Okay now sample the sphere mesh with a plane and see how it interpolates
-  vtkPlaneSource *pSource = vtkPlaneSource::New();
-    pSource->SetOrigin(0,-1.0,-1.0);
-    pSource->SetPoint1(0, 1.0,-1.0);
-    pSource->SetPoint2(0,-1.0, 1.0);
-    pSource->SetXResolution(50);
-    pSource->SetYResolution(50);
-  vtkProbePolyhedron *interp = 
-      vtkProbePolyhedron::New();
-    interp->SetInputConnection(pSource->GetOutputPort());
-    interp->SetSourceConnection(ele->GetOutputPort());
-  vtkPolyDataMapper *interpMapper = vtkPolyDataMapper::New();
-    interpMapper->SetInputConnection(interp->GetOutputPort());
-  vtkActor *interpActor = vtkActor::New();
-    interpActor->SetMapper(interpMapper);
+  vtkSmartPointer<vtkPlaneSource> pSource = 
+    vtkSmartPointer<vtkPlaneSource>::New();
+  pSource->SetOrigin(-1.0,-1.0,0);
+  pSource->SetPoint1(1.0,-1.0,0);
+  pSource->SetPoint2(-1.0, 1.0,0);
+  pSource->SetXResolution(50);
+  pSource->SetYResolution(50);
 
-  vtkProperty* property = vtkProperty::New();
-  property->LightingOff();
-  sphereActor->SetProperty(property);
-  interpActor->SetProperty(property);  
+  // interpolation 0
+  vtkSmartPointer<vtkProbePolyhedron> interp = 
+    vtkSmartPointer<vtkProbePolyhedron>::New();
+  interp->SetInputConnection(pSource->GetOutputPort());
+  interp->SetSourceConnection(ele->GetOutputPort());
+
+  vtkSmartPointer<vtkPolyDataMapper> interpMapper = 
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  interpMapper->SetInputConnection(interp->GetOutputPort());
+  
+  vtkSmartPointer<vtkActor> interpActor = vtkSmartPointer<vtkActor>::New();
+  interpActor->SetMapper(interpMapper);
+
+  //
+  // Case 1: general meshes
+  //
+  // Create a sphere
+  vtkSmartPointer<vtkSphereSource> sphere1 = 
+    vtkSmartPointer<vtkSphereSource>::New();
+  sphere1->SetThetaResolution(51); 
+  sphere1->SetPhiResolution(17);
+  
+  // Generate some scalars on the sphere
+  vtkSmartPointer<vtkElevationFilter> ele1 = 
+    vtkSmartPointer<vtkElevationFilter>::New();
+  ele1->SetInputConnection(sphere1->GetOutputPort());
+  ele1->SetLowPoint(-0.5,0,0);
+  ele1->SetHighPoint(0.5,0,0);
+  ele1->Update();
+  
+  // merge the first two triangle cells of the sphere
+  vtkPolyData* spherePoly = vtkPolyData::SafeDownCast(ele1->GetOutput());
+  vtkCellArray *polys = spherePoly->GetPolys();
+  
+  vtkIdType pids[4] = {1, 2, 3, 4};
+  vtkSmartPointer<vtkCellArray> newPolys = vtkSmartPointer<vtkCellArray>::New();
+  newPolys->DeepCopy(polys);
+  newPolys->InsertNextCell(4, pids);
+  spherePoly->SetPolys(newPolys);
+  
+  // Now clip the sphere in half and display it
+  vtkSmartPointer<vtkPlane> plane1 = vtkSmartPointer<vtkPlane>::New();
+  plane1->SetOrigin(0,0,0);
+  plane1->SetNormal(0,0,1);
+  
+  vtkSmartPointer<vtkClipPolyData> clip1 = 
+    vtkSmartPointer<vtkClipPolyData>::New();
+  clip1->SetInput(spherePoly);
+  clip1->SetClipFunction(plane1);
+  
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper1 = 
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  sphereMapper1->SetInputConnection(clip1->GetOutputPort());
+  
+  vtkSmartPointer<vtkActor> sphereActor1 = vtkSmartPointer<vtkActor>::New();
+  sphereActor1->SetMapper(sphereMapper1);
+
+  //Okay now sample the sphere mesh with a plane and see how it interpolates
+  vtkSmartPointer<vtkPlaneSource> pSource1 = 
+    vtkSmartPointer<vtkPlaneSource>::New();
+  pSource1->SetOrigin(-1.0,-1.0,0);
+  pSource1->SetPoint1(1.0,-1.0,0);
+  pSource1->SetPoint2(-1.0, 1.0,0);
+  pSource1->SetXResolution(50);
+  pSource1->SetYResolution(50);
+
+  // interpolation 0
+  vtkSmartPointer<vtkProbePolyhedron> interp1 = 
+    vtkSmartPointer<vtkProbePolyhedron>::New();
+  interp1->SetInputConnection(pSource1->GetOutputPort());
+  interp1->SetSourceConnection(ele1->GetOutputPort());
+
+  vtkSmartPointer<vtkPolyDataMapper> interpMapper1 = 
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  interpMapper1->SetInputConnection(interp1->GetOutputPort());
+  
+  vtkSmartPointer<vtkActor> interpActor1 = vtkSmartPointer<vtkActor>::New();
+  interpActor1->SetMapper(interpMapper1);
+
+  //
+  // add actors to renderer
+  //
+  vtkSmartPointer<vtkProperty> lightProperty = 
+    vtkSmartPointer<vtkProperty>::New();
+  lightProperty->LightingOff();
+  sphereActor->SetProperty(lightProperty);
+  interpActor->SetProperty(lightProperty); 
+  interpActor1->SetProperty(lightProperty); 
   
   renderer->AddActor(sphereActor);
   renderer->AddActor(interpActor);
   renderer->ResetCamera();
-  
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+
+  renderer1->AddActor(sphereActor);
+  renderer1->AddActor(interpActor1);
+  renderer1->ResetCamera();
+  renderer1->SetBackground(1,1,1);
+  
+  renWin->SetSize(600,300);
 
   // interact with data
   renWin->Render();
@@ -99,21 +206,5 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
     iren->Start();
     }
 
-  // Clean up
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  plane->Delete();
-  ele->Delete();
-  clip->Delete();
-  sphere->Delete();
-  sphereMapper->Delete();
-  sphereActor->Delete();
-  pSource->Delete();
-  interp->Delete();
-  interpMapper->Delete();
-  interpActor->Delete();
-  property->Delete();
-  
   return !retVal;
 }
