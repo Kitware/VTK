@@ -65,15 +65,15 @@ public:
   // instead of a single request containing all the columns.
   virtual int RequestSelectedColumns();
 
+protected:
+  vtkUnivariateStatisticsAlgorithm();
+  ~vtkUnivariateStatisticsAlgorithm();
+
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkDataObject* inMeta,
                        vtkTable* outData ); 
-
-protected:
-  vtkUnivariateStatisticsAlgorithm();
-  ~vtkUnivariateStatisticsAlgorithm();
 
 private:
   vtkUnivariateStatisticsAlgorithm(const vtkUnivariateStatisticsAlgorithm&); // Not implemented
