@@ -51,7 +51,7 @@ int TestTableSplitColumnComponents(int, char*[])
   split->Update();
 
   vtkTable* out = split->GetOutput(0);
-  if (out->GetNumberOfColumns() != 4)
+  if (out->GetNumberOfColumns() != 5)
     {
     vtkGenericWarningMacro(<< "Incorrect column count: "
                            << out->GetNumberOfColumns());
