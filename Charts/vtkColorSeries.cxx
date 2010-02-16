@@ -27,7 +27,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkColorSeries, "1.2");
+vtkCxxRevisionMacro(vtkColorSeries, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorSeries);
@@ -134,7 +134,7 @@ int vtkColorSeries::GetNumberOfColors()
 //-----------------------------------------------------------------------------
 vtkColor3ub vtkColorSeries::GetColor(int index) const
 {
-  if (index >=0 && index < this->Storage->Colors.size())
+  if (index >=0 && index < static_cast<int>(this->Storage->Colors.size()))
     {
     return this->Storage->Colors[index];
     }
@@ -153,7 +153,7 @@ vtkColor3ub vtkColorSeries::GetColorRepeating(int index) const
 //-----------------------------------------------------------------------------
 void vtkColorSeries::SetColor(int index, const vtkColor3ub &color)
 {
-  if (index >=0 && index < this->Storage->Colors.size())
+  if (index >=0 && index < static_cast<int>(this->Storage->Colors.size()))
     {
     this->ColorScheme = vtkColorSeries::CUSTOM;
     this->Storage->Colors[index] = color;
@@ -170,7 +170,7 @@ void vtkColorSeries::AddColor(const vtkColor3ub &color)
 //-----------------------------------------------------------------------------
 void vtkColorSeries::InsertColor(int index, const vtkColor3ub &color)
 {
-  if (index >=0 && index < this->Storage->Colors.size())
+  if (index >=0 && index < static_cast<int>(this->Storage->Colors.size()))
     {
     this->ColorScheme = vtkColorSeries::CUSTOM;
     this->Storage->Colors.insert(this->Storage->Colors.begin()+index, color);
@@ -180,7 +180,7 @@ void vtkColorSeries::InsertColor(int index, const vtkColor3ub &color)
 //-----------------------------------------------------------------------------
 void vtkColorSeries::RemoveColor(int index)
 {
-  if (index >=0 && index < this->Storage->Colors.size())
+  if (index >=0 && index < static_cast<int>(this->Storage->Colors.size()))
     {
     this->ColorScheme = vtkColorSeries::CUSTOM;
     this->Storage->Colors.erase(this->Storage->Colors.begin()+index);
