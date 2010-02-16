@@ -31,7 +31,7 @@
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.5");
+vtkCxxRevisionMacro(vtkRInterface, "1.6");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"
@@ -47,6 +47,8 @@ vtkStandardNewMacro(vtkRInterface);
 #endif
 
 #include "R_ext/Parse.h"
+
+#include "vtksys/SystemTools.hxx"
 
 class vtkImplementationRSingleton
 {
@@ -70,6 +72,14 @@ public:
     R_CStackLimit = (uintptr_t)-1; 
 #endif
 
+  const char* path = vtksys::SystemTools::GetEnv("R_HOME");
+  if (!path)
+    {
+    std::string newPath = "R_HOME=";
+    newPath=newPath+VTK_R_HOME;
+    vtksys::SystemTools::PutEnv(newPath.c_str());
+    }
+    const char* path2 = vtksys::SystemTools::GetEnv("R_HOME");
     char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
     Rf_initEmbeddedR(sizeof(R_argv)/sizeof(R_argv[0]), R_argv);
 
@@ -89,6 +99,7 @@ public:
     ParseStatus status;
     SEXP cmdSexp, cmdexpr = R_NilValue;
     int error;
+
   
     PROTECT(cmdSexp = allocVector(STRSXP, 1));
     SET_STRING_ELT(cmdSexp, 0, mkChar(rcommand.c_str()));
