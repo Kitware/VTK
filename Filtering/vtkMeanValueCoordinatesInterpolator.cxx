@@ -541,7 +541,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
     }
   else
     {
-    int npts;
+    vtkIdType npts;
     vtkIdType* pids;
     for (cells->InitTraversal(); cells->GetNextCell(npts,pids);)
       {
