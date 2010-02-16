@@ -108,23 +108,10 @@ public:
   // Set/get the borders of the chart (space in pixels around the chart).
   void SetBorders(int left, int right, int top, int bottom);
 
-  // Description:
-  // Add the chart as an observer on the supplied interaction style.
-  void AddInteractorStyle(vtkInteractorStyle *interactor);
-
 //BTX
 protected:
   vtkChart();
   ~vtkChart();
-
-  // Description:
-  // Called to process events.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData);
-
-  // Description:
-  // Process a rubber band selection event.
-  virtual void ProcessSelectionEvent(vtkObject* caller, void* callData);
 
   // Description:
   // Our annotation link, used for sharing selections etc.
@@ -141,12 +128,6 @@ protected:
   // Description:
   // The position of the upper right corner of the chart.
   int Point2[2];
-
-  // Description:
-  // The command object for the charts.
-  class Command;
-  friend class Command;
-  Command *Observer;
 
 private:
   vtkChart(const vtkChart &); // Not implemented.

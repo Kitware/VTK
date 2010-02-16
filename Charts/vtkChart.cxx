@@ -15,46 +15,12 @@
 
 #include "vtkChart.h"
 
-// Get my new commands
-#include "vtkCommand.h"
-
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
-#include "vtkInteractorStyle.h"
-#include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-// Minimal command class to handle callbacks.
-class vtkChart::Command : public vtkCommand
-{
-public:
-  static Command* New() { return new Command(); }
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData)
-    {
-    if (this->Target)
-      {
-      switch (eventId)
-        {
-        case vtkCommand::SelectionChangedEvent :
-          this->Target->ProcessSelectionEvent(caller, callData);
-          break;
-        default:
-          this->Target->ProcessEvents(caller, eventId, callData);
-        }
-      }
-    }
-
-  void SetTarget(vtkChart* t) { this->Target = t; }
-
-private:
-  Command() { this->Target = 0; }
-  vtkChart *Target;
-};
-
-//-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.6");
+vtkCxxRevisionMacro(vtkChart, "1.7");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -66,16 +32,12 @@ vtkChart::vtkChart()
   this->Point1[1] = 0;
   this->Point2[0] = 0;
   this->Point2[1] = 0;
-
-  this->Observer = vtkChart::Command::New();
-  this->Observer->SetTarget(this);
   this->AnnotationLink = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkChart::~vtkChart()
 {
-  this->Observer->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -142,35 +104,6 @@ void vtkChart::SetBorders(int left, int right, int top, int bottom)
   this->SetRightBorder(right);
   this->SetTopBorder(top);
   this->SetBottomBorder(bottom);
-}
-
-//-----------------------------------------------------------------------------
-void vtkChart::AddInteractorStyle(vtkInteractorStyle *interactor)
-{
-  interactor->AddObserver(vtkCommand::SelectionChangedEvent, this->Observer);
-}
-
-//-----------------------------------------------------------------------------
-void vtkChart::ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void*)
-{
-  cout << "ProcessEvents called! " << caller->GetClassName() << "\t"
-      << vtkCommand::GetStringFromEventId(eventId)
-      << "\n\t" << vtkInteractorStyleRubberBand2D::SafeDownCast(caller)->GetInteraction() << endl;
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void vtkChart::ProcessSelectionEvent(vtkObject* caller, void* callData)
-{
-  cout << "ProcessSelectionEvent called! " << caller << "\t" << callData << endl;
-  unsigned int *rect = reinterpret_cast<unsigned int *>(callData);
-  cout << "Rect:";
-  for (int i = 0; i < 5; ++i)
-    {
-    cout << "\t" << rect[i];
-    }
-  cout << endl;
 }
 
 //-----------------------------------------------------------------------------
