@@ -37,9 +37,18 @@ public:
   vtkTypeRevisionMacro(vtkSplitColumnComponents,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // If on this filter will calculate an additional magnitude column for all
+  // columns it splits with two or more components.
+  // Default is on.
+  vtkSetMacro(CalculateMagnitudes, bool);
+  vtkGetMacro(CalculateMagnitudes, bool);
+
 protected:
   vtkSplitColumnComponents();
   ~vtkSplitColumnComponents();
+
+  bool CalculateMagnitudes;
 
   int RequestData(
     vtkInformation*,

@@ -22,14 +22,16 @@
 #include "vtkTable.h"
 
 #include "vtksys/ios/sstream"
+#include "math.h"
 
-vtkCxxRevisionMacro(vtkSplitColumnComponents, "1.3");
+vtkCxxRevisionMacro(vtkSplitColumnComponents, "1.4");
 vtkStandardNewMacro(vtkSplitColumnComponents);
 //---------------------------------------------------------------------------
 vtkSplitColumnComponents::vtkSplitColumnComponents()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
+  this->CalculateMagnitudes = true;
 }
 
 //---------------------------------------------------------------------------
@@ -49,6 +51,21 @@ void CopyArrayData(T* source, T* destination, int components, int c,
   for (unsigned int i = 0; i < length; ++i)
     {
     destination[i] = source[i*components + c];
+    }
+}
+
+template<typename T>
+void CalculateMagnitude(T* source, T* destination, int components,
+                        unsigned int length)
+{
+  for (unsigned int i = 0; i < length; ++i)
+    {
+    T tmp = 0.0;
+    for (int j = 0; j < components; ++j)
+      {
+      tmp += source[i*components + j] * source[i*components + j];
+      }
+    destination[i] = sqrt(tmp);
     }
 }
 
@@ -89,7 +106,6 @@ int vtkSplitColumnComponents::RequestData(
         vtksys_ios::ostringstream ostr;
         ostr << name << " (" << j << ")";
         vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
-        newCol->SetNumberOfTuples(col->GetNumberOfTuples());
         newCol->SetName(ostr.str().c_str());
         newCol->SetNumberOfTuples(colSize);
         // Now copy the components into their new columns
@@ -99,6 +115,26 @@ int vtkSplitColumnComponents::RequestData(
               CopyArrayData(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
                             static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
                             components, j, colSize));
+          }
+
+        output->AddColumn(newCol);
+        newCol->Delete();
+        }
+      // Add a magnitude column and calculate values if requested
+      if (this->CalculateMagnitudes && col->IsA("vtkDataArray"))
+        {
+        vtksys_ios::ostringstream ostr;
+        ostr << name << " (Magnitude)";
+        vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
+        newCol->SetName(ostr.str().c_str());
+        newCol->SetNumberOfTuples(colSize);
+        // Now calculate the magnitude column
+        switch(col->GetDataType())
+          {
+          vtkTemplateMacro(
+              CalculateMagnitude(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
+                                 static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
+                                 components, colSize));
           }
 
         output->AddColumn(newCol);
@@ -114,4 +150,5 @@ int vtkSplitColumnComponents::RequestData(
 void vtkSplitColumnComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "CalculateMagnitudes: " << this->CalculateMagnitudes << endl;
 }
