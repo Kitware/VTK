@@ -26,6 +26,7 @@
 class vtkContext2D;
 class vtkContextScene;
 class vtkPlot;
+class vtkAxis;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
@@ -73,6 +74,11 @@ public:
   // Description:
   // Get the number of plots the chart contains.
   virtual vtkIdType GetNumberPlots();
+
+  // Description:
+  // Get the axis specified by axisIndex. 0 is x, 1 is y. This should probably
+  // be improved either using a string or enum to select the axis.
+  virtual vtkAxis* GetAxis(int axisIndex);
 
   // Description:
   // Request that the chart recalculates the range of its axes. Especially

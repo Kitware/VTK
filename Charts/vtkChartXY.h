@@ -75,6 +75,11 @@ public:
   virtual vtkIdType GetNumberPlots();
 
   // Description:
+  // Get the axis specified by axisIndex. 0 is x, 1 is y. This should probably
+  // be improved either using a string or enum to select the axis.
+  virtual vtkAxis* GetAxis(int axisIndex);
+
+  // Description:
   // Request that the chart recalculates the range of its axes. Especially
   // useful in applications after the parameters of plots have been modified.
   virtual void RecalculateBounds();

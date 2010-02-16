@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.28");
+vtkCxxRevisionMacro(vtkChartXY, "1.29");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -413,6 +413,23 @@ vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
 vtkIdType vtkChartXY::GetNumberPlots()
 {
   return this->ChartPrivate->plots.size();
+}
+
+//-----------------------------------------------------------------------------
+vtkAxis* vtkChartXY::GetAxis(int axisIndex)
+{
+  if (axisIndex == 0)
+    {
+    return this->XAxis;
+    }
+  else if (axisIndex == 1)
+    {
+    return this->YAxis;
+    }
+  else
+    {
+    return NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------
