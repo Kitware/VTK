@@ -27,7 +27,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkColorSeries, "1.1");
+vtkCxxRevisionMacro(vtkColorSeries, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorSeries);
@@ -69,6 +69,54 @@ void vtkColorSeries::SetColorScheme(int scheme)
       this->Storage->Colors.push_back(vtkColor3ub(152, 78, 163));
       this->Storage->Colors.push_back(vtkColor3ub(255, 127, 0));
       this->Storage->Colors.push_back(vtkColor3ub(166, 86, 40));
+      }
+    case vtkColorSeries::WARM:
+      {
+      this->Storage->Colors.push_back(vtkColor3ub(121, 23, 23));
+      this->Storage->Colors.push_back(vtkColor3ub(181, 1, 1));
+      this->Storage->Colors.push_back(vtkColor3ub(239, 71, 25));
+      this->Storage->Colors.push_back(vtkColor3ub(249, 131, 36));
+      this->Storage->Colors.push_back(vtkColor3ub(255, 180, 0));
+      this->Storage->Colors.push_back(vtkColor3ub(255, 229, 6));
+      }
+    case vtkColorSeries::COOL:
+      {
+      this->Storage->Colors.push_back(vtkColor3ub(117, 177, 1));
+      this->Storage->Colors.push_back(vtkColor3ub(88, 128, 41));
+      this->Storage->Colors.push_back(vtkColor3ub(80, 215, 191));
+      this->Storage->Colors.push_back(vtkColor3ub(28, 149, 205));
+      this->Storage->Colors.push_back(vtkColor3ub(59, 104, 171));
+      this->Storage->Colors.push_back(vtkColor3ub(154, 104, 255));
+      this->Storage->Colors.push_back(vtkColor3ub(95, 51, 128));
+      }
+    case vtkColorSeries::BLUES:
+      {
+      this->Storage->Colors.push_back(vtkColor3ub(59, 104, 171));
+      this->Storage->Colors.push_back(vtkColor3ub(28, 149, 205));
+      this->Storage->Colors.push_back(vtkColor3ub(78, 217, 234));
+      this->Storage->Colors.push_back(vtkColor3ub(115, 154, 213));
+      this->Storage->Colors.push_back(vtkColor3ub(66, 61, 169));
+      this->Storage->Colors.push_back(vtkColor3ub(80, 84, 135));
+      this->Storage->Colors.push_back(vtkColor3ub(16, 42, 82));
+      }
+    case vtkColorSeries::WILD_FLOWER:
+      {
+      this->Storage->Colors.push_back(vtkColor3ub(28, 149, 205));
+      this->Storage->Colors.push_back(vtkColor3ub(59, 104, 171));
+      this->Storage->Colors.push_back(vtkColor3ub(102, 62, 183));
+      this->Storage->Colors.push_back(vtkColor3ub(162, 84, 207));
+      this->Storage->Colors.push_back(vtkColor3ub(222, 97, 206));
+      this->Storage->Colors.push_back(vtkColor3ub(220, 97, 149));
+      this->Storage->Colors.push_back(vtkColor3ub(61, 16, 82));
+      }
+    case vtkColorSeries::CITRUS:
+      {
+      this->Storage->Colors.push_back(vtkColor3ub(101, 124, 55));
+      this->Storage->Colors.push_back(vtkColor3ub(117, 177, 1));
+      this->Storage->Colors.push_back(vtkColor3ub(178, 186, 48));
+      this->Storage->Colors.push_back(vtkColor3ub(255, 229, 6));
+      this->Storage->Colors.push_back(vtkColor3ub(255, 180, 0));
+      this->Storage->Colors.push_back(vtkColor3ub(249, 131, 36));
       }
     default: // Should never happen.
       {
