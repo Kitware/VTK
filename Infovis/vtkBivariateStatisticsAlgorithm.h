@@ -70,15 +70,15 @@ public:
   // instead of a single request containing all the columns.
   virtual int RequestSelectedColumns();
 
+protected:
+  vtkBivariateStatisticsAlgorithm();
+  ~vtkBivariateStatisticsAlgorithm();
+
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkDataObject* inMeta,
                        vtkTable* outData ); 
-
-protected:
-  vtkBivariateStatisticsAlgorithm();
-  ~vtkBivariateStatisticsAlgorithm();
 
 private:
   vtkBivariateStatisticsAlgorithm(const vtkBivariateStatisticsAlgorithm&); // Not implemented
