@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.7");
+vtkCxxRevisionMacro(vtkChart, "1.8");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -67,6 +67,12 @@ vtkPlot* vtkChart::GetPlot(vtkIdType)
 vtkIdType vtkChart::GetNumberPlots()
 {
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::RecalculateBounds()
+{
+  return;
 }
 
 //-----------------------------------------------------------------------------

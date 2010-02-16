@@ -56,7 +56,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.27");
+vtkCxxRevisionMacro(vtkChartXY, "1.28");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -413,6 +413,15 @@ vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
 vtkIdType vtkChartXY::GetNumberPlots()
 {
   return this->ChartPrivate->plots.size();
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::RecalculateBounds()
+{
+  // Ensure that the bounds are recalculated
+  this->PlotTransformValid = false;
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
 }
 
 //-----------------------------------------------------------------------------

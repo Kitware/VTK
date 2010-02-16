@@ -75,6 +75,11 @@ public:
   virtual vtkIdType GetNumberPlots();
 
   // Description:
+  // Request that the chart recalculates the range of its axes. Especially
+  // useful in applications after the parameters of plots have been modified.
+  virtual void RecalculateBounds();
+
+  // Description:
   // Set the vtkAnnotationLink for the chart.
   virtual void SetAnnotationLink(vtkAnnotationLink *link);
 
