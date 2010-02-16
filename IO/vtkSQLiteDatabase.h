@@ -151,6 +151,8 @@ private:
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);
+
+  vtkStringArray *Tables;
   
   char* DatabaseType;
   char* DatabaseFileName;

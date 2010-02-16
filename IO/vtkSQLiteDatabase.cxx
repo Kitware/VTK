@@ -32,12 +32,16 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.21");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.22");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
 {
   this->SQLiteInstance = NULL;
+
+  this->Tables = vtkStringArray::New();
+  this->Tables->Register(this);
+  this->Tables->Delete();
 
   // Initialize instance variables
   this->DatabaseType = 0;
@@ -60,6 +64,7 @@ vtkSQLiteDatabase::~vtkSQLiteDatabase()
     {
     this->SetDatabaseFileName(0);
     }
+  this->Tables->UnRegister(this);
 }
 
 // ----------------------------------------------------------------------
@@ -356,10 +361,11 @@ vtkSQLQuery * vtkSQLiteDatabase::GetQueryInstance()
 // ----------------------------------------------------------------------
 vtkStringArray * vtkSQLiteDatabase::GetTables()
 {
+  this->Tables->Resize(0);
   if (this->SQLiteInstance == NULL)
     {
     vtkErrorMacro(<<"GetTables(): Database is not open!");
-    return NULL;
+    return this->Tables;
     }
 
   vtkSQLQuery *query = this->GetQueryInstance();
@@ -371,18 +377,17 @@ vtkStringArray * vtkSQLiteDatabase::GetTables()
     vtkErrorMacro(<< "GetTables(): Database returned error: "
                   << vtk_sqlite3_errmsg(this->SQLiteInstance) );
     query->Delete();
-    return NULL;
+    return this->Tables;
     }
   else
     {
     vtkDebugMacro(<<"GetTables(): SQL query succeeded.");
-    vtkStringArray *results = vtkStringArray::New();
     while (query->NextRow() )
       {
-      results->InsertNextValue(query->DataValue(0).ToString() );
+      this->Tables->InsertNextValue(query->DataValue(0).ToString() );
       }
     query->Delete();
-    return results;
+    return this->Tables;
     }
 }
 
