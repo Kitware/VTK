@@ -15,22 +15,31 @@
 // .NAME vtkPolyhedron - a 3D cell defined by a set of polygonal faces
 // .SECTION Description
 // vtkPolyhedron is a concrete implementation that represents a 3D cell
-// defined by a set of polygonal faces. The polyhedron should be watertight
+// defined by a set of polygonal faces. The polyhedron should be watertight,
 // non-self-intersecting and manifold (each edge is used twice).
+//
+// Interpolation functions and weights are defined / computed using the
+// method of Mean Value Coordinates (MVC). See the VTK class
+// vtkMeanValueCoordinatesInterpolator for more information.
+//
+// The class assumes that the polyhedron is non-convex. However, the
+// polygonal faces should be planar. Non-planar polygonal faces will
+// definitely cause problems, especially in severely warped situations.
 
 // .SECTION See Also
-// vtkCell3D vtkConvecPointSet vtkHexahedron 
+// vtkCell3D vtkConvecPointSet vtkMeanValueCoordinatesInterpolator
 
 #ifndef __vtkPolyhedron_h
 #define __vtkPolyhedron_h
 
 #include "vtkCell3D.h"
 
-class vtkUnstructuredGrid;
 class vtkCellArray;
 class vtkTriangle;
 class vtkTetra;
-class vtkDoubleArray;
+class vtkPolygon;
+class vtkLine;
+
 
 class VTK_FILTERING_EXPORT vtkPolyhedron : public vtkCell3D
 {
@@ -42,10 +51,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // See vtkCell3D API for description of this method.
-  virtual int HasFixedTopology() {return 0;}
-
-  // Description:
   // See vtkCell3D API for description of these methods.
   virtual void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) {}
   virtual void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) {}
@@ -53,7 +58,7 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  virtual int GetCellType() {return VTK_CONVEX_POINT_SET;}
+  virtual int GetCellType() {return VTK_POLYHEDRON;}
 
   // Description:
   // This cell requires that it be initialized prior to access.
@@ -61,16 +66,10 @@ public:
   virtual void Initialize();
 
   // Description:
-  // A convex point set has no explicit cell edge or faces; however
-  // implicitly (after triangulation) it does. Currently the method
-  // GetNumberOfEdges() always returns 0 while the GetNumberOfFaces() returns
-  // the number of boundary triangles of the triangulation of the convex
-  // point set. The method GetNumberOfFaces() triggers a triangulation of the
-  // convex point set; repeated calls to GetFace() then return the boundary
-  // faces. (Note: GetNumberOfEdges() currently returns 0 because it is a
-  // rarely used method and hard to implement. It can be changed in the future.
-  virtual int GetNumberOfEdges() {return 0;}
-  virtual vtkCell *GetEdge(int) {return NULL;}
+  // A polyhedron is represented internally by a set of polygonal faces.
+  // These faces can be processed to explicitly determine edges. 
+  virtual int GetNumberOfEdges();
+  virtual vtkCell *GetEdge(int);
   virtual int GetNumberOfFaces();
   virtual vtkCell *GetFace(int faceId);
 
@@ -84,7 +83,7 @@ public:
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
 
   // Description:
-  // Satisfy the vtkCell API. This method contours by triangulating the
+  // Satisfy the vtkCell API. This method clips by triangulating the
   // cell and then adding clip-edge intersection points into the
   // triangulation; extracting the clipped region.
   virtual void Clip(double value, vtkDataArray *cellScalars,
@@ -94,26 +93,31 @@ public:
                     int insideOut);
 
   // Description:
-  // Satisfy the vtkCell API. This method determines the subId, pcoords,
-  // and weights by triangulating the convex point set, and then
-  // determining which tetrahedron the point lies in.
+  // Satisfy the vtkCell API. The subId is ignored and zero is always
+  // returned.  the parametric coordinates pcoords are normalized values in
+  // the bounding box of the polyhedron. The weights are determined by
+  // evaluating the MVC coordinates. The dist is always zero if the point x[3]
+  // is inside the polyhedron; otherwise it's the distance to the surface.
   virtual int EvaluatePosition(double x[3], double* closestPoint,
                                int& subId, double pcoords[3],
                                double& dist2, double *weights);
 
   // Description:
-  // The inverse of EvaluatePosition.
+  // The inverse of EvaluatePosition. Note the weights should be the MVC
+  // weights.
   virtual void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                                 double *weights);
 
   // Description:
-  // Triangulates the cells and then intersects them to determine the
-  // intersection point.
+  // Intersect the line (p1,p2) with a given tolerance tol to determine a
+  // point of intersection x[3] with parametric coordinate t along the
+  // line. The parametric coordinates are returned as well (subId can be
+  // ignored).
   virtual int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                                 double x[3], double pcoords[3], int& subId);
 
   // Description:
-  // Triangulate using methods of vtkOrderedTriangulator.
+  // Triangulate to produce tetrahedron. 
   virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
 
   // Description:
@@ -123,38 +127,47 @@ public:
                            int dim, double *derivs);
 
   // Description:
-  // Returns the set of points forming a face of the triangulation of these
-  // points that are on the boundary of the cell that are closest
-  // parametrically to the point specified.
+  // Find the boundary face closest to the point defined by the pcoords[3]
+  // and subId of the cell (subId can be ignored).
   virtual int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
 
   // Description:
-  // Return the center of the cell in parametric coordinates.
+  // Return the center of the cell in parametric coordinates. In this cell,
+  // the center of the bounding box is returned.
   virtual int GetParametricCenter(double pcoords[3]);
 
   // Description:
-  // A convex point set is triangulated prior to any operations on it so
-  // it is not a primary cell, it is a composite cell.
-  int IsPrimaryCell() {return 0;}
+  // A polyhedron is a full-fledged primary cell.
+  int IsPrimaryCell() {return 1;}
 
   // Description:
   // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  // (aka shape functions/derivatives). Here we use the MVC calculation
+  // process to compute the interpolation functions.
   virtual void InterpolateFunctions(double pcoords[3], double *sf);
   virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+
+  // Description:
+  // Methods supporting the definition of faces. Note that the GetFaces()
+  // returns a list of faces in vtkCellArray form; use the method
+  // GetNumberOfFaces() to determine the number of faces in the list.
+  // The SetFaces() method is also in vtkCellArray form, except that it
+  // begins with a leading count indicating the total number of faces in 
+  // the list.
+  virtual int RequiresExplicitFaceRepresentation() {return 1;}
+  virtual void SetFaces(vtkIdType *faces);
+  virtual vtkIdType *GetFaces();
 
 protected:
   vtkPolyhedron();
   ~vtkPolyhedron();
 
-  vtkTetra       *Tetra;
-  vtkIdList      *TetraIds;
-  vtkPoints      *TetraPoints;
-  vtkDoubleArray *TetraScalars;
-
-  vtkCellArray   *BoundaryTris;
-  vtkTriangle    *Triangle;
-  vtkDoubleArray *ParametricCoords;
+  // Internal classes for supporting operations on this cell
+  vtkLine      *Line;
+  vtkTriangle  *Triangle;
+  vtkPolygon   *Polygon;
+  vtkTetra     *Tetra;
+  vtkCellArray *Faces;
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
@@ -169,6 +182,8 @@ inline int vtkPolyhedron::GetParametricCenter(double pcoords[3])
 }
 
 #endif
+
+
 
 
 

@@ -41,6 +41,7 @@
 #include "vtkQuadraticWedge.h"
 #include "vtkQuadraticPyramid.h"
 #include "vtkConvexPointSet.h"
+#include "vtkPolyhedron.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkCubicLine.h"
 #include "vtkBiQuadraticQuad.h"
@@ -320,6 +321,9 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
     break;
   case VTK_CONVEX_POINT_SET:
     cell = vtkConvexPointSet::New();
+    break;
+  case VTK_POLYHEDRON:
+    cell = vtkPolyhedron::New();
     break;
     }
   return cell;

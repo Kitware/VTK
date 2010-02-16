@@ -62,6 +62,7 @@ class vtkBiQuadraticQuadraticWedge;
 class vtkBiQuadraticQuadraticHexahedron;
 class vtkBiQuadraticTriangle;
 class vtkCubicLine;
+class vtkPolyhedron;
 
 
 class VTK_FILTERING_EXPORT vtkUnstructuredGrid : public vtkPointSet 
@@ -79,10 +80,17 @@ public:
   
   // Description:
   // Insert/create cell in object by type and list of point ids defining
-  // cell topology.
+  // cell topology. Most cells require just a type which implicitly defines
+  // a set of points and their ordering. However, some cells like
+  // vtkPolyhedron require points plus a list of faces. Note when inserting
+  // faces, the standard vtkCellArray format is assumed (n,i,j,k,n,i,j,k,...).
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *pts);
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds, 
+                           vtkIdType nfaces, vtkIdType *faces);
   
+  // Description:
+  // Standard vtkDataSet methods; see vtkDataSet.h for documentation.
   void Reset();
   virtual void CopyStructure(vtkDataSet *ds);
   vtkIdType GetNumberOfCells();
@@ -219,6 +227,7 @@ protected:
   vtkBiQuadraticTriangle            *BiQuadraticTriangle;
   vtkCubicLine                      *CubicLine;
   vtkConvexPointSet                 *ConvexPointSet;
+  vtkPolyhedron                     *Polyhedron;
   vtkEmptyCell                      *EmptyCell;
   
   // points inherited
@@ -228,17 +237,25 @@ protected:
   vtkUnsignedCharArray *Types;
   vtkIdTypeArray *Locations;
 
- private:
-  void Cleanup();
-  
+  // Special support for polyhedra/cells with explicit face representations.
+  // The Faces class represents polygonal faces using a modified vtkCellArray
+  // structure. Each cell face list begins with the total number of faces in
+  // the cell, followed by a vtkCellArray data organization
+  // (n,i,j,k,n,i,j,k,...).
+  vtkIdTypeArray *Faces;
+  vtkIdTypeArray *FaceLocations;
+  vtkIdType      *GetFaces(vtkIdType cellId);
+
+private:
   // Hide these from the user and the compiler.
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
+  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
+
+  void Cleanup();
   
   // Description:
   // For legacy compatibility. Do not use.
   VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));
-
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
 };
 
 #endif
