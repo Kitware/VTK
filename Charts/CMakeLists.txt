@@ -21,6 +21,7 @@ SET(Kit_SRCS
   vtkBrush.cxx
   vtkChart.cxx
   vtkChartXY.cxx
+  vtkColorSeries.cxx
   vtkContext2D.cxx
   vtkContextActor.cxx
   vtkContextDevice2D.cxx
@@ -56,6 +57,7 @@ SET_SOURCE_FILES_PROPERTIES(
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkBarMark
+  vtkChartColors
   vtkDataElement
   vtkDataValue
   vtkLineMark
