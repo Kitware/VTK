@@ -25,15 +25,18 @@
 
 #include "vtkBarMark.h"
 #include "vtkLineMark.h"
+#include "vtkWedgeMark.h"
 #include "vtkValueHolder.txx"
+#include "vtkInformation.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMark, "1.1");
+vtkCxxRevisionMacro(vtkMark, "1.2");
 vtkStandardNewMacro(vtkMark);
 
 //-----------------------------------------------------------------------------
 vtkMark::vtkMark()
 {
+  this->Fields=vtkInformation::New();
   this->Parent = NULL;
   this->Index = 0;
   this->ParentMarkIndex = 0;
@@ -43,6 +46,7 @@ vtkMark::vtkMark()
 //-----------------------------------------------------------------------------
 vtkMark::~vtkMark()
 {
+  this->Fields->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -56,6 +60,9 @@ vtkMark* vtkMark::CreateMark(int type)
       break;
     case LINE:
       m = vtkLineMark::New();
+      break;
+    case WEDGE:
+      m=vtkWedgeMark::New();
       break;
     }
   return m;
@@ -75,6 +82,11 @@ void vtkMark::Extend(vtkMark* m)
   this->LineWidth.SetValue(m->GetLineWidth());
   this->Width.SetValue(m->GetWidth());
   this->Height.SetValue(m->GetHeight());
+  this->InnerRadius.SetValue(m->GetInnerRadius());
+  this->OuterRadius.SetValue(m->GetOuterRadius());
+  this->StartAngle.SetValue(m->GetStartAngle());
+  this->StopAngle.SetValue(m->GetStopAngle());
+  this->Angle.SetValue(m->GetAngle());
 }
 
 //-----------------------------------------------------------------------------
@@ -90,6 +102,11 @@ void vtkMark::Update()
   this->LineWidth.Update(this);
   this->Width.Update(this);
   this->Height.Update(this);
+  this->InnerRadius.Update(this);
+  this->OuterRadius.Update(this);
+  this->StartAngle.Update(this);
+  this->StopAngle.Update(this);
+  this->Angle.Update(this);
   }
 
 void vtkMark::SetData(vtkDataValue data)
@@ -126,10 +143,10 @@ void vtkMark::SetBottom(vtkValue<double> v)
 vtkValue<double>& vtkMark::GetBottom()
   { return this->Bottom.GetValue(); }
 
-void vtkMark::SetTitle(vtkValue<std::string> v)
+void vtkMark::SetTitle(vtkValue<vtkstd::string> v)
   { this->Title.SetValue(v); }
 
-vtkValue<std::string>& vtkMark::GetTitle()
+vtkValue<vtkstd::string>& vtkMark::GetTitle()
   { return this->Title.GetValue(); }
 
 void vtkMark::SetLineColor(vtkValue<vtkColor> v)
@@ -161,6 +178,58 @@ void vtkMark::SetHeight(vtkValue<double> v)
 vtkValue<double>& vtkMark::GetHeight()
   { return this->Height.GetValue(); }
 
+
+// For wedges.
+void vtkMark::SetOuterRadius(vtkValue<double> v)
+{
+  this->OuterRadius.SetValue(v);
+}
+
+vtkValue<double>& vtkMark::GetOuterRadius()
+{
+  return this->OuterRadius.GetValue();
+}
+  
+void vtkMark::SetInnerRadius(vtkValue<double> v)
+{
+  this->InnerRadius.SetValue(v);
+}
+
+vtkValue<double>& vtkMark::GetInnerRadius()
+{
+  return this->InnerRadius.GetValue();
+}
+  
+void vtkMark::SetStartAngle(vtkValue<double> v)
+{
+  this->StartAngle.SetValue(v);
+}
+
+vtkValue<double>& vtkMark::GetStartAngle()
+{
+  return this->StartAngle.GetValue();
+}
+  
+void vtkMark::SetStopAngle(vtkValue<double> v)
+{
+  this->StopAngle.SetValue(v);
+}
+
+vtkValue<double>& vtkMark::GetStopAngle()
+{
+  return this->StopAngle.GetValue();
+}
+  
+void vtkMark::SetAngle(vtkValue<double> v)
+{
+  this->Angle.SetValue(v);
+}
+
+vtkValue<double>& vtkMark::GetAngle()
+{
+  return this->Angle.GetValue();
+}
+
 void vtkMark::SetParent(vtkPanelMark* p)
   { this->Parent = p; }
 
@@ -185,6 +254,11 @@ void vtkMark::DataChanged()
   this->LineWidth.SetDirty(true);
   this->Width.SetDirty(true);
   this->Height.SetDirty(true);
+  this->InnerRadius.SetDirty(true);
+  this->OuterRadius.SetDirty(true);
+  this->StartAngle.SetDirty(true);
+  this->StopAngle.SetDirty(true);
+  this->Angle.SetDirty(true);
   }
 
 int vtkMark::GetType()

@@ -70,7 +70,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.15");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -247,6 +247,96 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
+                                                float outRy, float inRx,
+                                                float inRy, float startAngle,
+                                                float stopAngle)
+
+{
+  assert("pre: positive_outRx" && outRx>=0.0f);
+  assert("pre: positive_outRy" && outRy>=0.0f);
+  assert("pre: positive_inRx" && inRx>=0.0f);
+  assert("pre: positive_inRy" && inRy>=0.0f);
+  assert("pre: ordered_rx" && inRx<=outRx);
+  assert("pre: ordered_ry" && inRy<=outRy);
+  
+  if(outRy==0.0f && outRx==0.0f)
+    {
+    // we make sure maxRadius will never be null.
+    return;
+    }
+
+  // Number of iterations based on a maximum angle step
+  // so that the change is of at most `error' pixel.
+  
+  // 1.0: pixel precision. 0.5 (subpixel precision, useful with multisampling)
+  double error=4.0; // experience shows 4.0 is visually enough.
+  
+  // The tessellation is the most visible on the biggest radius.
+  double maxRadius;
+  if(outRx>=outRy)
+    {
+    maxRadius=outRx;
+    }
+  else
+    {
+    maxRadius=outRy;
+    }
+  
+  if(error>maxRadius)
+    {
+    error=0.5; // to make sure the argument of asin() is in a valid range.
+    }
+  
+  // Angle of a sector so that its chord is `error' pixels.
+  // This is will be our maximum angle step.
+  double maxStep=2.0*asin(error/(2.0*maxRadius));
+  
+  // ceil because we want to make sure we don't underestimate the number of
+  // iterations by 1.
+  int iterations=static_cast<int>(
+    ceil(vtkMath::RadiansFromDegrees(stopAngle-startAngle)/maxStep));
+
+  float *p=new float[4*(iterations+1)];
+  
+  // step in radians.
+  double step =
+    vtkMath::RadiansFromDegrees(stopAngle-startAngle)/(iterations);
+  
+//  assert("check: used_step_smaller_than_max_step" && step<=step1);
+  
+  double rstart=vtkMath::RadiansFromDegrees(startAngle);
+  
+  // the A vertices (0,2,4,..) are on the inner side
+  // the B vertices (1,3,5,..) are on the outer side
+  // (A and B vertices terms come from triangle strip definition in
+  // OpenGL spec)
+  // we are iterating counterclockwise
+  
+  int i=0;
+  while(i<=iterations)
+    {
+    // A vertex (inner side)
+    double a=rstart+i*step;
+    p[4*i  ] = inRx * cos(a) + x;
+    p[4*i+1] = inRy * sin(a) + y;
+    
+    // B vertex (outer side)
+    p[4*i+2] = outRx * cos(a) + x;
+    p[4*i+3] = outRy * sin(a) + y;
+    
+    ++i;
+    }
+  
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, p);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 2*(iterations+1));
+  glDisableClientState(GL_VERTEX_ARRAY);
+  
+  delete[] p;
 }
 
 //-----------------------------------------------------------------------------

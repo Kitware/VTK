@@ -30,6 +30,7 @@
 #include "vtkVariant.h"      // Needed
 
 class vtkPanelMark;
+class vtkInformation;
 
 class vtkColor
 {
@@ -55,7 +56,8 @@ public:
 
   enum {
     BAR,
-    LINE
+    LINE,
+    WEDGE
     };
 
   static vtkMark* CreateMark(int type);
@@ -81,8 +83,8 @@ public:
   void SetBottom(vtkValue<double> v);
   vtkValue<double>& GetBottom();
 
-  void SetTitle(vtkValue<std::string> v);
-  vtkValue<std::string>& GetTitle();
+  void SetTitle(vtkValue<vtkstd::string> v);
+  vtkValue<vtkstd::string>& GetTitle();
 
   void SetLineColor(vtkValue<vtkColor> v);
   vtkValue<vtkColor>& GetLineColor();
@@ -121,6 +123,22 @@ public:
   virtual void DataChanged();
   virtual int GetType();
 
+  // For wedges.
+  void SetOuterRadius(vtkValue<double> v);
+  vtkValue<double>& GetOuterRadius();
+  
+  void SetInnerRadius(vtkValue<double> v);
+  vtkValue<double>& GetInnerRadius();
+  
+  void SetStartAngle(vtkValue<double> v);
+  vtkValue<double>& GetStartAngle();
+  
+  void SetStopAngle(vtkValue<double> v);
+  vtkValue<double>& GetStopAngle();
+  
+  void SetAngle(vtkValue<double> v);
+  vtkValue<double>& GetAngle();
+  
 //BTX
 protected:
   vtkMark();
@@ -134,18 +152,26 @@ protected:
   vtkValueHolder<double> Right;
   vtkValueHolder<double> Top;
   vtkValueHolder<double> Bottom;
-  vtkValueHolder<std::string> Title;
+  vtkValueHolder<vtkstd::string> Title;
   vtkValueHolder<vtkColor> FillColor;
   vtkValueHolder<vtkColor> LineColor;
   vtkValueHolder<double> LineWidth;
   vtkValueHolder<double> Width;
   vtkValueHolder<double> Height;
-
+  
+  // For Wedge
+  vtkValueHolder<double> OuterRadius;
+  vtkValueHolder<double> InnerRadius;
+  vtkValueHolder<double> StartAngle;
+  vtkValueHolder<double> StopAngle;
+  vtkValueHolder<double> Angle;
+  
   vtkPanelMark* Parent;
   vtkIdType ParentMarkIndex;
   vtkIdType ParentDataIndex;
   vtkIdType Index;
-
+  
+  vtkInformation *Fields;
 private:
   vtkMark(const vtkMark &); // Not implemented.
   void operator=(const vtkMark &);   // Not implemented.

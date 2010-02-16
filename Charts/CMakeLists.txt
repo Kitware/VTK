@@ -41,6 +41,7 @@ SET(Kit_SRCS
   vtkPlotGrid.cxx
   vtkPlotLine.cxx
   vtkPlotPoints.cxx
+  vtkWedgeMark.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -62,6 +63,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkMarkUtil
   vtkPanelMark
   vtkValueHolder
+  vtkWedgeMark
   WRAP_EXCLUDE
 )
 

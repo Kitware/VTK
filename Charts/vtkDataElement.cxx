@@ -50,6 +50,7 @@ vtkDataElement::vtkDataElement(vtkTable* table) :
   AbstractArray(NULL),
   Index(-1)
 {
+  table->Register(0);
 }
 
 //------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ vtkDataElement::vtkDataElement(vtkTable* table, vtkIdType row) :
   AbstractArray(NULL),
   Index(row)
 {
+  table->Register(0);
 }
 
 //------------------------------------------------------------------------------
@@ -72,9 +74,10 @@ vtkDataElement::vtkDataElement(vtkAbstractArray* arr) :
   AbstractArray(arr),
   Index(-1)
 {
+  arr->Register(0);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkDataElement::vtkDataElement(vtkAbstractArray* arr, vtkIdType index,
                                int type) :
   Type(type),
@@ -84,6 +87,76 @@ vtkDataElement::vtkDataElement(vtkAbstractArray* arr, vtkIdType index,
   AbstractArray(arr),
   Index(index)
 {
+  arr->Register(0);
+}
+
+//-----------------------------------------------------------------------------
+vtkDataElement::vtkDataElement(const vtkDataElement &other)
+  : Type(other.Type),
+    Dimension(other.Dimension),
+    Valid(other.Valid),
+    Table(other.Table),
+    AbstractArray(other.AbstractArray),
+    Index(other.Index)
+{
+  if(this->Table!=0)
+    {
+    this->Table->Register(0);
+    }
+  if(AbstractArray!=0)
+    {
+    this->AbstractArray->Register(0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkDataElement &vtkDataElement::operator=(const vtkDataElement &other)
+{
+  if(this!=&other)
+    {
+    this->Type=other.Type;
+    this->Dimension=other.Dimension;
+    this->Valid=other.Valid;
+    if(this->Table!=other.Table)
+      {
+      if(this->Table!=0)
+        {
+        this->Table->Delete();
+        }
+      this->Table=other.Table;
+      if(this->Table!=0)
+        {
+        this->Table->Register(0);
+        }
+      }
+    if(this->AbstractArray!=other.AbstractArray)
+      {
+      if(this->AbstractArray!=0)
+        {
+        this->AbstractArray->Delete();
+        }
+      this->AbstractArray=other.AbstractArray;
+      if(this->AbstractArray!=0)
+        {
+        this->AbstractArray->Register(0);
+        }
+      }
+    this->Index=other.Index;
+    }
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
+vtkDataElement::~vtkDataElement()
+{
+  if(this->Table!=0)
+    {
+    this->Table->Delete();
+    }
+  if(this->AbstractArray!=0)
+    {
+    this->AbstractArray->Delete();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -118,6 +191,40 @@ vtkIdType vtkDataElement::GetNumberOfChildren()
     }
   return 0;
 }
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkDataElement::GetSize()
+{
+  switch (this->Type)
+    {
+    case TABLE:
+      if (this->Dimension == 0)
+        {
+        return this->Table->GetNumberOfColumns();
+        }
+      else
+        {
+        return this->Table->GetNumberOfRows();
+        }
+    case TABLE_ROW:
+      return this->Table->GetNumberOfRows();
+    case ABSTRACT_ARRAY:
+      if (this->Dimension == 0)
+        {
+        return this->AbstractArray->GetNumberOfComponents();
+        }
+      else
+        {
+        return this->AbstractArray->GetNumberOfTuples();
+        }
+    case ABSTRACT_ARRAY_TUPLE:
+      return this->AbstractArray->GetNumberOfTuples();
+    case ABSTRACT_ARRAY_COMPONENT:
+      return this->AbstractArray->GetNumberOfComponents();
+    }
+  return 1;
+}
+
 
 //-----------------------------------------------------------------------------
 vtkDataElement vtkDataElement::GetChild(vtkIdType i)
@@ -188,7 +295,7 @@ vtkVariant vtkDataElement::GetValue(vtkIdType i)
 }
 
 //-----------------------------------------------------------------------------
-vtkVariant vtkDataElement::GetValue(std::string str)
+vtkVariant vtkDataElement::GetValue(vtkstd::string str)
 {
   switch (this->Type)
     {

@@ -27,7 +27,9 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkContext2D, "1.16");
+#include <cassert>
+
+vtkCxxRevisionMacro(vtkContext2D, "1.17");
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
 
@@ -275,6 +277,48 @@ void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
   this->ApplyPen();
   this->Device->DrawPoly(p, iterations + 1);
   delete[] p;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawWedge(float x, float y, float outRadius,
+                             float inRadius,float startAngle,
+                             float stopAngle)
+
+{
+  assert("pre: positive_outRadius" && outRadius>=0.0f);
+  assert("pre: positive_inRadius" && inRadius>=0.0f);
+  assert("pre: ordered_radii" && inRadius<=outRadius);
+  
+  this->DrawEllipseWedge(x,y,outRadius,outRadius,inRadius,inRadius,startAngle,
+    stopAngle);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawEllipseWedge(float x, float y, float outRx, float outRy,
+                                    float inRx, float inRy, float startAngle,
+                                    float stopAngle)
+
+{
+  assert("pre: positive_outRx" && outRx>=0.0f);
+  assert("pre: positive_outRy" && outRy>=0.0f);
+  assert("pre: positive_inRx" && inRx>=0.0f);
+  assert("pre: positive_inRy" && inRy>=0.0f);
+  assert("pre: ordered_rx" && inRx<=outRx);
+  assert("pre: ordered_ry" && inRy<=outRy);
+  
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  // don't tessellate here. The device context knows what to do with an
+  // arc. An OpenGL device context will tessellate but and SVG context with
+  // just generate an arc.
+  
+  this->ApplyPen();
+  
+  this->Device->DrawEllipseWedge(x,y,outRx,outRy,inRx,inRy,startAngle,
+                                 stopAngle);
 }
 
 //-----------------------------------------------------------------------------

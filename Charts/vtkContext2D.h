@@ -124,6 +124,31 @@ public:
   void DrawEllipse(float x, float y, float rx, float ry);
 
   // Description:
+  // Draw a circular wedge with center at x, y, outer radius outRadius,
+  // inner radius inRadius between angles startAngle and stopAngle
+  // (expressed in degrees).
+  // \pre positive_outRadius: outRadius>=0
+  // \pre positive_inRadius: inRadius>=0
+  // \pre ordered_radii: inRadius<=outRadius
+  void DrawWedge(float x, float y, float outRadius,
+                 float inRadius,float startAngle,
+                 float stopAngle);
+  
+  // Description:
+  // Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,
+  // inner radii inRx, inRy between angles startAngle and stopAngle
+  // (expressed in degrees).
+  // \pre positive_outRx: outRx>=0
+  // \pre positive_outRy: outRy>=0
+  // \pre positive_inRx: inRx>=0
+  // \pre positive_inRy: inRy>=0
+  // \pre ordered_rx: inRx<=outRx
+  // \pre ordered_ry: inRy<=outRy
+  void DrawEllipseWedge(float x, float y, float outRx, float outRy,
+                        float inRx, float inRy, float startAngle,
+                        float stopAngle);
+  
+  // Description:
   // Draw the supplied image at the given x, y location (bottom corner).
   void DrawImage(float x, float y, vtkImageData *image);
 

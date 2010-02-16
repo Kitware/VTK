@@ -55,7 +55,21 @@ public:
   // Description:
   // Draws a rectangle
   virtual void DrawQuad(float *points, int n);
-
+  
+  // Description:
+  // Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,
+  // inner radii inRx, inRy between angles startAngle and stopAngle
+  // (expressed in degrees).
+  // \pre positive_outRx: outRx>=0
+  // \pre positive_outRy: outRy>=0
+  // \pre positive_inRx: inRx>=0
+  // \pre positive_inRy: inRy>=0
+  // \pre ordered_rx: inRx<=outRx
+  // \pre ordered_ry: inRy<=outRy
+  virtual void DrawEllipseWedge(float x, float y, float outRx, float outRy,
+                                float inRx, float inRy, float startAngle,
+                                float stopAngle);
+  
 //BTX
   // Description:
   // Draw some text to the screen!
