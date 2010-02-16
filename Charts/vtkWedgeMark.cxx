@@ -28,7 +28,7 @@ vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.1");
+vtkCxxRevisionMacro(vtkWedgeMark, "1.2");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------
@@ -74,10 +74,10 @@ double vtkWedgeMark::GetMidAngle()
 // ----------------------------------------------------------------------------
 double vtkWedgeMark::GetMidRadius()
 {
-  double innerRadius=0.0;
-  if(!this->Fields->Has(vtkWedgeMark::INNER_RADIUS()))
-    {
-    }
+//  double innerRadius=0.0;
+//  if(!this->Fields->Has(vtkWedgeMark::INNER_RADIUS()))
+//    {
+//    }
   return 0.0;
 }
   
@@ -86,16 +86,14 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
 {
   double* left = this->Left.GetArray(this);
   double* bottom = this->Bottom.GetArray(this);
-  double* width = this->Width.GetArray(this);
-  double* height = this->Height.GetArray(this);
   vtkColor* fillColor = this->FillColor.GetArray(this);
   vtkColor* lineColor = this->LineColor.GetArray(this);
   double* lineWidth = this->LineWidth.GetArray(this);
   
   double *outerRadius=this->OuterRadius.GetArray(this);
   double *innerRadius=this->InnerRadius.GetArray(this);
-  double *startAngle=this->StartAngle.GetArray(this);
-  double *stopAngle=this->StopAngle.GetArray(this);
+//  double *startAngle=this->StartAngle.GetArray(this);
+//  double *stopAngle=this->StopAngle.GetArray(this);
   double *angle=this->Angle.GetArray(this);
   
   vtkIdType numChildren = this->Data.GetData(this).GetNumberOfChildren();
