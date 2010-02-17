@@ -61,30 +61,6 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   {
     return d.GetValue().ToDouble()*360.0;
   }
-  
-  vtkColor ColorFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
-  {
-    unsigned char colors[10][3] = {{166, 206, 227},
-                                   {31, 120, 180},
-                                   {178, 223, 13},
-                                   {51, 160, 44},
-                                   {251, 154, 153},
-                                   {227, 26, 28},
-                                   {253, 191, 111},
-                                   {255, 127, 0},
-                                   {202, 178, 214},
-                                   {106, 61, 154}};
-    
-    if(index2>=d.GetSize())
-      {
-      index2=0;
-      }
-    int idx = index2 % 9;
-    ++index2;
-    vtkColor result(colors[idx][0]/255.0, colors[idx][1]/255.0,
-                    colors[idx][2]/255.0);
-    return result;
-  }
 }
 
 int TestMarksWedge(int argc, char* argv[])
@@ -96,7 +72,7 @@ int TestMarksWedge(int argc, char* argv[])
     vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(0.5, 0.0, 0.2);
   view->GetRenderWindow()->SetSize(400, 400);
-  view->GetRenderWindow()->SetMultiSamples(0);
+//  view->GetRenderWindow()->SetMultiSamples(0);
   vtkSmartPointer<vtkTable> t = vtkSmartPointer<vtkTable>::New();
   vtkSmartPointer<vtkDoubleArray> arr1 =
     vtkSmartPointer<vtkDoubleArray>::New();
@@ -130,8 +106,6 @@ int TestMarksWedge(int argc, char* argv[])
   wedge->SetOuterRadius(140.0);
   
   wedge->SetAngle(AngleFunction);
-  wedge->SetFillColor(ColorFunction);
-  wedge->SetLineColor(ColorFunction);
   
   view->GetInteractor()->Initialize();
 

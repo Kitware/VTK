@@ -22,13 +22,13 @@
 #include "vtkPen.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkLineMark, "1.1");
+vtkCxxRevisionMacro(vtkLineMark, "1.2");
 vtkStandardNewMacro(vtkLineMark);
 
 //-----------------------------------------------------------------------------
 vtkLineMark::vtkLineMark()
 {
-  this->SetLineColor(vtkMarkUtil::DefaultSeriesColor);
+  this->SetLineColor(vtkMarkUtil::DefaultSeriesColorFromParent);
   this->SetLineWidth(2);
 }
 

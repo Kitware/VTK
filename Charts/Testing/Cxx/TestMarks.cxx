@@ -87,7 +87,7 @@ int TestMarks(int argc, char* argv[])
   bar->SetHeight(HeightFunction);
 
   vtkMark* line = panel->Add(vtkMark::LINE);
-  line->SetLineColor(vtkMarkUtil::DefaultSeriesColor);
+  line->SetLineColor(vtkMarkUtil::DefaultSeriesColorFromParent);
   line->SetLineWidth(2);
   line->SetBottom(bar->GetHeight());
 
