@@ -40,11 +40,11 @@ public:
   vtkValue(T v) : Constant(v), Function(NULL) { }
   bool IsConstant()
     { return this->Function == NULL; }
-  virtual T GetConstant()
+  T GetConstant()
     {
     return this->Constant;
     }
-  virtual FunctionType GetFunction()
+  FunctionType GetFunction()
     { return this->Function; }
 
 protected:
