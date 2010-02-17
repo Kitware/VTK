@@ -796,7 +796,7 @@ IF(VTK_USE_MPI)
     SET(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
   ELSE(${MPIEXEC})
   # set to the default hardcoded values. This else can probably be deleted when VTK requires CMake 2.8+.
-    FIND_PROGRAM(VTK_MPIRUN_EXE NAMES mpirun lamexec PATHS "C:/Program Files/MPICH/mpd/bin")
+    FIND_PROGRAM(VTK_MPIRUN_EXE NAMES mpiexec mpirun lamexec PATHS "C:/Program Files/MPICH/mpd/bin")
     SET(VTK_MPI_PRENUMPROC_FLAGS "" CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     SET(VTK_MPI_PREFLAGS "" CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
