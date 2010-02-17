@@ -25,7 +25,7 @@
 #define __vtkColorSeries_h
 
 #include "vtkObject.h"
-#include "vtkVector.h" // Needed for vtkColor3ub
+#include "vtkColor.h" // Needed for vtkColor3ub
 
 class VTK_CHARTS_EXPORT vtkColorSeries : public vtkObject
 {

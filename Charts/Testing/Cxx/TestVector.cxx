@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkVector.h"
+#include "vtkColor.h"
 
 #include "vtkSetGet.h"
 

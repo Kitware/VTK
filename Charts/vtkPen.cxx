@@ -16,10 +16,10 @@
 #include "vtkPen.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkVector.h"
+#include "vtkColor.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPen, "1.5");
+vtkCxxRevisionMacro(vtkPen, "1.6");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPen);
