@@ -768,6 +768,11 @@ IF(VTK_USE_MATROX_IMAGING)
     )
 ENDIF(VTK_USE_MATROX_IMAGING)
 
+
+IF(VTK_USE_MPI)
+  FIND_PACKAGE(MPI)
+ENDIF(VTK_USE_MPI)
+
 #-----------------------------------------------------------------------------
 # Configure MPI testing support.
 # FLAGS used and set for MPI testing
@@ -780,12 +785,25 @@ ENDIF(VTK_USE_MATROX_IMAGING)
 # ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} executable ${VTK_MPI_POSTFLAGS}
 #
 IF(VTK_USE_MPI)
-  SET(VTK_MPIRUN_EXE ${MPIEXEC})
-  SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-  SET(VTK_MPI_NUMPROC_FLAG ${MPIEXEC_NUMPROC_FLAG} CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-  SET(VTK_MPI_PREFLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-  SET(VTK_MPI_POSTFLAGS ${MPIEXEC_POSTFLAGS} CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-  SET(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+
+  # Use MPI variables defined in the CMake (2.8) FindMPI module.
+  IF(${MPIEXEC)
+    SET(VTK_MPIRUN_EXE ${MPIEXEC})
+    SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_NUMPROC_FLAG ${MPIEXEC_NUMPROC_FLAG} CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_PREFLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_POSTFLAGS ${MPIEXEC_POSTFLAGS} CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+  ELSE(${MPIEXEC})
+  # set to the default hardcoded values. This else can probably be deleted when VTK requires CMake 2.8+.
+    FIND_PROGRAM(VTK_MPIRUN_EXE NAMES mpirun lamexec PATHS "C:/Program Files/MPICH/mpd/bin")
+    SET(VTK_MPI_PRENUMPROC_FLAGS "" CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_PREFLAGS "" CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_POSTFLAGS "" CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+    SET(VTK_MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
+  ENDIF(${MPIEXEC})
+  
   MARK_AS_ADVANCED(
     VTK_MPI_PRENUMPROC_FLAGS VTK_MPI_NUMPROC_FLAG VTK_MPIRUN_EXE VTK_MPI_PREFLAGS VTK_MPI_POSTFLAGS VTK_MPI_MAX_NUMPROCS)
   SEPARATE_ARGUMENTS(VTK_MPI_PRENUMPROC_FLAGS)
@@ -990,18 +1008,7 @@ IF(VTK_WRAP_JAVA)
   ENDIF(JAVA_AWT_LIBRARY)
 ENDIF(VTK_WRAP_JAVA)
 
-#------------------------------------------------------------------------------
-# Looking for MPI in the Parallel package happens too late. It has to happen
-# before we run vtkIncludeDirectories.cmake.
-#
-# This is a hack.
-#
-# The real fix is to rewrite vtkIncludeDirectories.cmake to not have global
-# inclusion and instead have inclusion per package (which will also avoid
-# rebuilding the whole build tree each time you switch a package ON or OFF).
-IF(VTK_USE_MPI)
-  FIND_PACKAGE(MPI)
-ENDIF(VTK_USE_MPI)
+
 
 #-----------------------------------------------------------------------------
 # The entire VTK tree should use the same include path.
