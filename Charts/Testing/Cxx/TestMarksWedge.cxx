@@ -28,8 +28,6 @@
 #include "vtkTable.h"
 #include <functional>
 
-int index2;
-
 namespace
 {
 
@@ -65,8 +63,6 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
 
 int TestMarksWedge(int argc, char* argv[])
 {
-  index2=0;
-  
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view =
     vtkSmartPointer<vtkContextView>::New();
