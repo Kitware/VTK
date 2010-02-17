@@ -55,7 +55,7 @@
 #include "R_ext/Parse.h"
 #include "R_ext/Rdynload.h"
 
-vtkCxxRevisionMacro(vtkRAdapter, "1.6");
+vtkCxxRevisionMacro(vtkRAdapter, "1.7");
 
 vtkStandardNewMacro(vtkRAdapter);
 
@@ -139,7 +139,18 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
       {
       for(j=0;j<nc;j++)
         {
-        data[j] = REAL(variable)[j*nr + i];
+        if ( isReal(variable) )
+          {
+          data[j] = REAL(variable)[j*nr + i];
+          }
+        else if ( isInteger(variable) )
+          {
+          data[j] = static_cast<double>(INTEGER(variable)[j*nr + i]);
+          }
+        else
+          {
+          vtkErrorMacro(<< "Bad return variable, tried REAL and INTEGER.");
+          }
         result->InsertTuple(i,data);
         }
       }
@@ -226,7 +237,18 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
   for(i=0;i<da->GetSize();i++)
     {
     da->GetCoordinatesN(i,index);
-    da->SetVariantValue(index,REAL(variable)[i]);
+    if ( isReal(variable) )
+      {
+      da->SetVariantValue(index,REAL(variable)[i]);
+      }
+    else if ( isInteger(variable) )
+      {
+      da->SetVariantValue(index,static_cast<double>(INTEGER(variable)[i]));
+      }
+    else
+      {
+      vtkErrorMacro(<< "Bad return variable, tried REAL and INTEGER.");
+      }
     }
 
   this->vad->AddArray(da);
