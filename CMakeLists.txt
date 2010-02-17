@@ -787,7 +787,7 @@ ENDIF(VTK_USE_MPI)
 IF(VTK_USE_MPI)
 
   # Use MPI variables defined in the CMake (2.8) FindMPI module.
-  IF(${MPIEXEC)
+  IF(${MPIEXEC})
     SET(VTK_MPIRUN_EXE ${MPIEXEC})
     SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     SET(VTK_MPI_NUMPROC_FLAG ${MPIEXEC_NUMPROC_FLAG} CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
