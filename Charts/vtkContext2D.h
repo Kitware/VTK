@@ -121,6 +121,8 @@ public:
 
   // Description:
   // Draw an ellipse with center at x, y and radii rx, ry.
+  // \pre positive_rx: rx>=0
+  // \pre positive_ry: ry>=0
   void DrawEllipse(float x, float y, float rx, float ry);
 
   // Description:
