@@ -25,7 +25,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositer, "1.9");
+vtkCxxRevisionMacro(vtkCompositer, "1.10");
 vtkStandardNewMacro(vtkCompositer);
 
 //-------------------------------------------------------------------------
@@ -77,7 +77,6 @@ void vtkCompositer::CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
 }
 
 //-------------------------------------------------------------------------
-
 void vtkCompositer::ResizeFloatArray(vtkFloatArray* fa, int numComp,
                                      vtkIdType size)
 {
