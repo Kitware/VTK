@@ -70,7 +70,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.15");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.16");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -269,36 +269,8 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
     return;
     }
 
-  // Number of iterations based on a maximum angle step
-  // so that the change is of at most `error' pixel.
-  
-  // 1.0: pixel precision. 0.5 (subpixel precision, useful with multisampling)
-  double error=4.0; // experience shows 4.0 is visually enough.
-  
-  // The tessellation is the most visible on the biggest radius.
-  double maxRadius;
-  if(outRx>=outRy)
-    {
-    maxRadius=outRx;
-    }
-  else
-    {
-    maxRadius=outRy;
-    }
-  
-  if(error>maxRadius)
-    {
-    error=0.5; // to make sure the argument of asin() is in a valid range.
-    }
-  
-  // Angle of a sector so that its chord is `error' pixels.
-  // This is will be our maximum angle step.
-  double maxStep=2.0*asin(error/(2.0*maxRadius));
-  
-  // ceil because we want to make sure we don't underestimate the number of
-  // iterations by 1.
-  int iterations=static_cast<int>(
-    ceil(vtkMath::RadiansFromDegrees(stopAngle-startAngle)/maxStep));
+  int iterations=this->GetNumberOfArcIterations(outRx,outRy,startAngle,
+                                                stopAngle);
 
   float *p=new float[4*(iterations+1)];
   
@@ -306,7 +278,8 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   double step =
     vtkMath::RadiansFromDegrees(stopAngle-startAngle)/(iterations);
   
-//  assert("check: used_step_smaller_than_max_step" && step<=step1);
+  // step have to be lesser or equal to maxStep computed inside
+  // GetNumberOfIterations()
   
   double rstart=vtkMath::RadiansFromDegrees(startAngle);
   
@@ -337,6 +310,89 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   glDisableClientState(GL_VERTEX_ARRAY);
   
   delete[] p;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
+                                               float rY, float startAngle,
+                                               float stopAngle)
+{
+  assert("pre: positive_rX" && rX>=0);
+  assert("pre: positive_rY" && rY>=0);
+  
+  if(rX==0.0f && rY==0.0f)
+    {
+    // we make sure maxRadius will never be null.
+    return;
+    }
+  int iterations=this->GetNumberOfArcIterations(rX,rY,startAngle,stopAngle);
+  
+  float *p=new float[2*(iterations+1)];
+  
+  // step in radians.
+  double step =
+    vtkMath::RadiansFromDegrees(stopAngle-startAngle)/(iterations);
+  
+  // step have to be lesser or equal to maxStep computed inside
+  // GetNumberOfIterations()
+  
+  double rstart=vtkMath::RadiansFromDegrees(startAngle);
+  
+  // we are iterating counterclockwise 
+  int i=0;
+  while(i<=iterations)
+    {
+    double a=rstart+i*step;
+    p[2*i  ] = rX * cos(a) + x;
+    p[2*i+1] = rY * sin(a) + y;
+    ++i;
+    }
+  
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, p);
+  glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  
+  delete[] p;
+}
+
+// ----------------------------------------------------------------------------
+int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
+                                                       float rY,
+                                                       float startAngle,
+                                                       float stopAngle)
+{
+  assert("pre: positive_rX" && rX>=0.0f);
+  assert("pre: positive_rY" && rY>=0.0f);
+  assert("pre: not_both_null" && (rX>0.0 || rY>0.0));
+  
+// 1.0: pixel precision. 0.5 (subpixel precision, useful with multisampling)
+  double error=4.0; // experience shows 4.0 is visually enough.
+  
+  // The tessellation is the most visible on the biggest radius.
+  double maxRadius;
+  if(rX>=rY)
+    {
+    maxRadius=rX;
+    }
+  else
+    {
+    maxRadius=rY;
+    }
+  
+  if(error>maxRadius)
+    {
+    error=0.5; // to make sure the argument of asin() is in a valid range.
+    }
+  
+  // Angle of a sector so that its chord is `error' pixels.
+  // This is will be our maximum angle step.
+  double maxStep=2.0*asin(error/(2.0*maxRadius));
+  
+  // ceil because we want to make sure we don't underestimate the number of
+  // iterations by 1.
+  return static_cast<int>(
+    ceil(vtkMath::RadiansFromDegrees(stopAngle-startAngle)/maxStep));
 }
 
 //-----------------------------------------------------------------------------

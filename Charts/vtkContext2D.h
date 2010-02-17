@@ -148,6 +148,23 @@ public:
                         float inRx, float inRy, float startAngle,
                         float stopAngle);
   
+  
+  // Description:
+  // Draw an circular arc with center at x,y with radius r between angles
+  // startAngle and stopAngle (expressed in degrees).
+  // \pre positive_radius: r>=0
+  void DrawArc(float x, float y, float r, float startAngle,
+               float stopAngle);
+  
+  // Description:
+  // Draw an elliptic arc with center at x,y with radii rX and rY between
+  // angles startAngle and stopAngle (expressed in degrees).
+  // \pre positive_rX: rX>=0
+  // \pre positive_rY: rY>=0
+  void DrawEllipticArc(float x, float y, float rX, float rY, float startAngle,
+                       float stopAngle);
+  
+  
   // Description:
   // Draw the supplied image at the given x, y location (bottom corner).
   void DrawImage(float x, float y, vtkImageData *image);

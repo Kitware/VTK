@@ -67,6 +67,14 @@ public:
                                 float inRx, float inRy, float startAngle,
                                 float stopAngle)=0;
   
+  // Description:
+  // Draw an elliptic arc with center at x,y with radii rX and rY between
+  // angles startAngle and stopAngle (expressed in degrees).
+  // \pre positive_rX: rX>=0
+  // \pre positive_rY: rY>=0
+  virtual void DrawEllipticArc(float x, float y, float rX, float rY,
+                               float startAngle, float stopAngle)=0;
+  
 //BTX
   // Description:
   // Draw some text to the screen.

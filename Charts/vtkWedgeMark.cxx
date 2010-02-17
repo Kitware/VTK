@@ -22,13 +22,14 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
 
 vtkInformationKeyMacro(vtkWedgeMark,ANGLE,Double);
 vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.3");
+vtkCxxRevisionMacro(vtkWedgeMark, "1.4");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------
@@ -112,20 +113,37 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
                                    fillColor[i].Green,
                                    fillColor[i].Blue,
                                    fillColor[i].Alpha);
-    painter->GetPen()->SetColorF(lineColor[i].Red,
-                                lineColor[i].Green,
-                                lineColor[i].Blue,
-                                lineColor[i].Alpha);
+    
+    painter->DrawWedge(left[i],bottom[i],outerRadius[i],innerRadius[i],
+                       a0,a1);
+    
     if (lineWidth[i] > 0.0)
       {
       painter->GetPen()->SetWidth(lineWidth[i]);
+      painter->GetPen()->SetColorF(lineColor[i].Red,
+                                lineColor[i].Green,
+                                lineColor[i].Blue,
+                                lineColor[i].Alpha);
+      
+      double a0r=vtkMath::RadiansFromDegrees(a0);
+      double a1r=vtkMath::RadiansFromDegrees(a1);
+      
+      // bottom line of the wedge
+      painter->DrawLine(left[i]+innerRadius[i]*cos(a0r),
+                        bottom[i]+innerRadius[i]*sin(a0r),
+                        left[i]+outerRadius[i]*cos(a0r),
+                        bottom[i]+outerRadius[i]*sin(a0r));
+      // upper line of the wedge
+      painter->DrawLine(left[i]+innerRadius[i]*cos(a1r),
+                        bottom[i]+innerRadius[i]*sin(a1r),
+                        left[i]+outerRadius[i]*cos(a1r),
+                        bottom[i]+outerRadius[i]*sin(a1r));
+      
+      // inside arc
+      painter->DrawArc(left[i],bottom[i],innerRadius[i],a0,a1);
+      // outside arc
+      painter->DrawArc(left[i],bottom[i],outerRadius[i],a0,a1);
       }
-    else
-      {
-      painter->GetPen()->SetOpacity(0);
-      }
-    painter->DrawWedge(left[i],bottom[i],outerRadius[i],innerRadius[i],
-                       a0,a1);
     }
   return true;
 }

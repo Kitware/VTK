@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.17");
+vtkCxxRevisionMacro(vtkContext2D, "1.18");
 vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
 vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
 
@@ -260,23 +260,10 @@ void vtkContext2D::DrawQuad(float *p)
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
 {
-  if (!this->Device)
-    {
-    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
-    return;
-    }
-  // Raterize an ellipse
-  int iterations = 100;
-  float *p = new float[2*(iterations+1)];
-  float length = 2.0 * 3.14159265 / iterations;
-  for (int i = 0; i <= iterations; ++i)
-    {
-    p[2*i  ] = rx * cos(i * length) + x;
-    p[2*i+1] = ry * sin(i * length) + y;
-    }
-  this->ApplyPen();
-  this->Device->DrawPoly(p, iterations + 1);
-  delete[] p;
+  assert("pre: positive_rx" && rx>=0);
+  assert("pre: positive_ry" && ry>=0);
+  
+  this->DrawEllipticArc(x,y,rx,ry,0.0,360.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -315,10 +302,39 @@ void vtkContext2D::DrawEllipseWedge(float x, float y, float outRx, float outRy,
   // arc. An OpenGL device context will tessellate but and SVG context with
   // just generate an arc.
   
-  this->ApplyPen();
+  this->ApplyBrush();
   
   this->Device->DrawEllipseWedge(x,y,outRx,outRy,inRx,inRy,startAngle,
                                  stopAngle);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawArc(float x, float y, float r, float startAngle,
+                           float stopAngle)
+{
+  assert("pre: positive_radius" && r>=0);
+  this->DrawEllipticArc(x,y,r,r,startAngle,stopAngle);
+}
+  
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawEllipticArc(float x, float y, float rX, float rY,
+                                   float startAngle, float stopAngle)
+{
+  assert("pre: positive_rX" && rX>=0);
+  assert("pre: positive_rY" && rY>=0);
+  
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  // don't tessellate here. The device context knows what to do with an
+  // arc. An OpenGL device context will tessellate but and SVG context with
+  // just generate an arc.
+  
+  this->ApplyPen();
+  
+  this->Device->DrawEllipticArc(x,y,rX,rY,startAngle,stopAngle);
 }
 
 //-----------------------------------------------------------------------------

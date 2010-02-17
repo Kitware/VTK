@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestMarksWedge.cxx
+  Module:    TestMarksWedgeLine.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -61,7 +61,7 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   }
 }
 
-int TestMarksWedge(int argc, char* argv[])
+int TestMarksWedgeLine(int argc, char* argv[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view =
@@ -97,7 +97,7 @@ int TestMarksWedge(int argc, char* argv[])
   wedge->SetData(DataFunction);
   wedge->SetLeft(175.0);
   wedge->SetBottom(175.0);
-  wedge->SetLineWidth(0.0);
+  wedge->SetLineWidth(4.0);
   wedge->SetInnerRadius(100.0);
   wedge->SetOuterRadius(140.0);
   

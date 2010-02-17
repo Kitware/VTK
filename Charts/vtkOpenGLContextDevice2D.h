@@ -70,6 +70,15 @@ public:
                                 float inRx, float inRy, float startAngle,
                                 float stopAngle);
   
+  // Description:
+  // Draw an elliptic arc with center at x,y with radii rX and rY between
+  // angles startAngle and stopAngle (expressed in degrees).
+  // \pre positive_rX: rX>=0
+  // \pre positive_rY: rY>=0
+  virtual void DrawEllipticArc(float x, float y, float rX, float rY,
+                               float startAngle, float stopAngle);
+  
+  
 //BTX
   // Description:
   // Draw some text to the screen!
@@ -160,6 +169,18 @@ protected:
   vtkOpenGLContextDevice2D();
   virtual ~vtkOpenGLContextDevice2D();
 
+ 
+  // Description:
+  // Factorized code called by DrawEllipseWedge() and DrawEllipticArc()
+  // to figure out the number of iterations required to make an arc smooth.
+  // \pre positive_rX: rX>=0.0f
+  // \pre positive_rY: rY>=0.0f
+  // \pre not_both_null: rX>0.0 || rY>0.0
+  int GetNumberOfArcIterations(float rX,
+                               float rY,
+                               float startAngle,
+                               float stopAngle);
+  
   // Description:
   // Store the width and height of the display devicen (in pixels).
   int Geometry[2];

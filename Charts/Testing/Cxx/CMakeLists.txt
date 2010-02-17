@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestMarks.cxx
     TestMarksGanttChart.cxx
     TestMarksWedge.cxx
+    TestMarksWedgeLine.cxx
     )
     
   IF (VTK_DATA_ROOT)
