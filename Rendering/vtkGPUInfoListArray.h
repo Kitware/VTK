@@ -21,7 +21,7 @@
 
 #include "vtkGPUInfo.h"
 
-class VTK_RENDERING_EXPORT vtkGPUInfoListArray
+class vtkGPUInfoListArray
 {
 public:
   vtkstd::vector<vtkGPUInfo *> v;
