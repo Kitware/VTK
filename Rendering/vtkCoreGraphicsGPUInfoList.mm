@@ -21,7 +21,7 @@
 //#import "CGDirectDisplay.h" // for CGGetActiveDisplayList()
 #import <ApplicationServices/ApplicationServices.h>
 
-vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.2");
+vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.3");
 vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 
 // ----------------------------------------------------------------------------
@@ -59,25 +59,40 @@ void vtkCoreGraphicsGPUInfoList::Probe()
         
         io_service_t dspPort=CGDisplayIOServicePort(displays[i]);
         
-        // Ask IOKit for the VRAM size property
-        CFTypeRef typeCode=
-          IORegistryEntryCreateCFProperty(dspPort,
-                                          CFSTR(kIOFBMemorySizeKey),
-                                          kCFAllocatorDefault,
-                                          kNilOptions);
+        // Note: the QA1168 Apple sample code is wrong as it uses
+        // kIOFBMemorySizeKey. Also it does not work in 64-bit because it
+        // used "long".
+        // Our method is to get the value of property "VRAM,totalsize"
+        // We cannot (yet) distinguish between dedicated video memory 
+        // (for example 512MB for a nVidia GeForce 9600M GT) and
+        // dedicated system memory (for example 256MB for a nVidia GeForce
+        // 9400M).
         
-        // Ensure we have valid data from IOKit
-        if(typeCode!=0 && CFGetTypeID(typeCode) == CFNumberGetTypeID())
+        // Property to look for
+        const char c_vram[]="VRAM,totalsize";
+        // expresse propery in unicode CFString
+        CFStringEncoding encoding=kCFStringEncodingMacRoman;
+        CFAllocatorRef alloc_default=kCFAllocatorDefault;
+        CFStringRef cf_vram=CFStringCreateWithCString(alloc_default,c_vram,
+                                                      encoding);
+        
+        // Look for property
+        CFTypeRef typeCode = IORegistryEntrySearchCFProperty(
+          dspPort,kIOServicePlane,cf_vram,kCFAllocatorDefault,
+          kIORegistryIterateRecursively | kIORegistryIterateParents);
+        
+        if(typeCode!=0)
           {
-          // If so, convert the CFNumber into a plain unsigned long
-          long ramSize;
-          CFNumberGetValue(static_cast<const __CFNumber *>(typeCode), kCFNumberSInt32Type,&ramSize);
-          info->SetDedicatedVideoMemory(ramSize);
-          }
-        if(typeCode)
-          {
+          if(CFGetTypeID(typeCode)==CFDataGetTypeID())
+            {
+            // Get the property and interpret it.
+            const UInt8 *v=CFDataGetBytePtr(static_cast<CFDataRef>(typeCode));
+            int ramSize=*(reinterpret_cast<const int *>(v));
+            info->SetDedicatedVideoMemory(ramSize);
+            }
           CFRelease(typeCode);
           }
+        CFRelease(cf_vram);
         ++i;
         }
       free(displays);
