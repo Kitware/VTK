@@ -328,18 +328,18 @@ SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
 # on Windows
 #message("DirectX_FOUND=${DirectX_FOUND}")
 if(DirectX_FOUND)
- set(KIT_SRCS ${KIT_SRCS} vtkDirectXGPUInfoList)
+ set(Kit_SRCS ${Kit_SRCS} vtkDirectXGPUInfoList.cxx)
 endif(DirectX_FOUND)
 
 # on Mac
 if(ApplicationServices_FOUND)
- set(KIT_SRCS ${KIT_SRCS} vtkCoreGraphicsGPUInfoList.mm)
-endif(ApplicationServices_FOUND)
+ set(Kit_SRCS ${Kit_SRCS} vtkCoreGraphicsGPUInfoList.mm)
+endif()
 
 # on Linux, for Nvidia
 if(VTK_USE_X)
- set(KIT_SRCS ${KIT_SRCS} vtkXGPUInfoList)
-endif(VTK_USE_X)
+ set(Kit_SRCS ${Kit_SRCS} vtkXGPUInfoList.cxx)
+endif()
 
 SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
 SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities WRAP_EXCLUDE)
