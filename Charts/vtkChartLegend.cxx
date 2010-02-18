@@ -47,7 +47,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartLegend, "1.1");
+vtkCxxRevisionMacro(vtkChartLegend, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartLegend);
@@ -106,7 +106,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
 
   // Calculate the widest legend label - needs the context to calculate font
   // metrics, but these could be cached.
-  for(int i = 0; i < this->Storage->ActivePlots.size(); ++i)
+  for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
     {
     if (this->Storage->ActivePlots[i]->GetLabel())
       {
@@ -139,7 +139,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
                    symbolWidth-3, ceil(height) };
 
   // Draw all of the legend labels and marks
-  for(int i = 0; i < this->Storage->ActivePlots.size(); ++i)
+  for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
     {
     if (this->Storage->ActivePlots[i]->GetLabel())
       {
