@@ -81,6 +81,18 @@ IF(VTK_USE_QT)
   ENDIF (APPLE)
 ENDIF(VTK_USE_QT)
 
+# Headers without a corresponding source file that should be installed.
+# Seems like we should improve the kit macro to cover this at some point.
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  SET(Kit_HDRS
+    vtkColor.h
+    vtkVector.h
+    )
+  INSTALL(FILES ${Kit_HDRS}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
