@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.21");
+vtkCxxRevisionMacro(vtkView, "1.22");
 vtkStandardNewMacro(vtkView);
 //----------------------------------------------------------------------------
 vtkView::vtkView()
@@ -188,6 +188,12 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
     if (rep->AddToView(this))
       {
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+
+      // UpdateEvent is called from push pipeline executions from
+      // vtkExecutionScheduler. We want to automatically render the view
+      // when one of our representations is updated.
+      rep->AddObserver(vtkCommand::UpdateEvent, this->GetObserver());
+
       if (rep->GetNumberOfInputPorts() > 0 &&
           rep->GetNumberOfInputConnections(0) > 0)
         {
@@ -292,6 +298,16 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
   if (this->IsRepresentationPresent(caller_rep) && eventId == vtkCommand::SelectionChangedEvent)
     {
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    return;
+    }
+
+  if (this->IsRepresentationPresent(caller_rep) && eventId == vtkCommand::UpdateEvent)
+    {
+    // UpdateEvent is called from push pipeline executions from
+    // vtkExecutionScheduler. We want to automatically render the view
+    // when one of our representations is updated.
+    this->Update();
+    return;
     }
 
   if (eventId == vtkCommand::ProgressEvent)
