@@ -57,7 +57,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.30");
+vtkCxxRevisionMacro(vtkChartXY, "1.31");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -171,7 +171,10 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // Update the axes in the chart
   this->XAxis->Update();
   this->YAxis->Update();
-  this->Legend->Update();
+  if (this->ShowLegend)
+    {
+    this->Legend->Update();
+    }
 
   // Draw a hard wired grid right now - this should be configurable
   painter->GetPen()->SetColorF(0.95, 0.95, 0.95);
@@ -186,7 +189,10 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
   this->XAxis->Paint(painter);
   this->YAxis->Paint(painter);
-  this->Legend->Paint(painter);
+  if (this->ShowLegend)
+    {
+    this->Legend->Paint(painter);
+    }
 
   // Draw the selection box if necessary
   if (this->DrawBox)

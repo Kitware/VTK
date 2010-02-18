@@ -109,6 +109,11 @@ public:
   vtkGetVector2Macro(Point2, int);
 
   // Description:
+  // Set/get whether the chart should draw a legend.
+  vtkSetMacro(ShowLegend, bool);
+  vtkGetMacro(ShowLegend, bool);
+
+  // Description:
   // Set/get the borders of the chart (space in pixels around the chart).
   void SetBottomBorder(int border);
   void SetTopBorder(int border);
@@ -139,6 +144,10 @@ protected:
   // Description:
   // The position of the upper right corner of the chart.
   int Point2[2];
+
+  // Description:
+  // Display the legend?
+  bool ShowLegend;
 
 private:
   vtkChart(const vtkChart &); // Not implemented.
