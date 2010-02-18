@@ -23,6 +23,7 @@ IF(VTK_USE_DISPLAY)
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
     TestGaussianBlurPass.cxx
+    TestGPUInfo.cxx
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
