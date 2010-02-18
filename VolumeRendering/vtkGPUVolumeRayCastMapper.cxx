@@ -33,7 +33,7 @@
 #include "vtkGPUInfoList.h"
 #include "vtkGPUInfo.h"
 
-vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.2");
+vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.3");
 vtkInstantiatorNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 
@@ -165,7 +165,8 @@ void vtkGPUVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 // Special version for rendering a canonical view - we don't do things like
 // invoke start or end events, and we don't capture the render time.
 // ----------------------------------------------------------------------------
-void vtkGPUVolumeRayCastMapper::CanonicalViewRender( vtkRenderer *ren, vtkVolume *vol )
+void vtkGPUVolumeRayCastMapper::CanonicalViewRender(vtkRenderer *ren,
+                                                    vtkVolume *vol )
 {
   // Make sure everything about this render is OK
   if ( this->ValidateRender(ren, vol ) )
@@ -184,8 +185,8 @@ void vtkGPUVolumeRayCastMapper::CanonicalViewRender( vtkRenderer *ren, vtkVolume
 // a volume or 0 or less) it will fail silently. If everything is OK, it will
 // return with a value of 1.
 // ----------------------------------------------------------------------------
-int vtkGPUVolumeRayCastMapper::ValidateRender( vtkRenderer *ren,
-                                                  vtkVolume *vol )
+int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
+                                              vtkVolume *vol)
 {
   // Check that we have everything we need to render.
   int goodSoFar = 1;
@@ -327,7 +328,8 @@ int vtkGPUVolumeRayCastMapper::ValidateRender( vtkRenderer *ren,
     {
     numberOfComponents=scalars->GetNumberOfComponents();
     if( !( numberOfComponents==1 || 
-           (numberOfComponents==4 && vol->GetProperty()->GetIndependentComponents()==0)))
+           (numberOfComponents==4 &&
+            vol->GetProperty()->GetIndependentComponents()==0)))
       {
       goodSoFar = 0;
       vtkErrorMacro(<< "Only one component scalars, or four "
@@ -512,9 +514,12 @@ void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "AutoAdjustSampleDistances: " << this->AutoAdjustSampleDistances << endl;
-  os << indent << "MinimumImageSampleDistance: " << this->MinimumImageSampleDistance << endl;
-  os << indent << "MaximumImageSampleDistance: " << this->MaximumImageSampleDistance << endl;
+  os << indent << "AutoAdjustSampleDistances: "
+     << this->AutoAdjustSampleDistances << endl;
+  os << indent << "MinimumImageSampleDistance: "
+     << this->MinimumImageSampleDistance << endl;
+  os << indent << "MaximumImageSampleDistance: "
+     << this->MaximumImageSampleDistance << endl;
   os << indent << "ImageSampleDistance: " << this->ImageSampleDistance << endl;
   os << indent << "SampleDistance: " << this->SampleDistance << endl;
   os << indent << "FinalColorWindow: " << this->FinalColorWindow << endl;
@@ -523,7 +528,7 @@ void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaskBlendFactor: " << this->MaskBlendFactor << endl;
   os << indent << "MaxMemoryInBytes: " << this->MaxMemoryInBytes << endl;
   os << indent << "MaxMemoryFraction: " << this->MaxMemoryFraction << endl;
-  
+  os << indent << "ReportProgress: " << this->ReportProgress << endl;
 }
 
 // ----------------------------------------------------------------------------
