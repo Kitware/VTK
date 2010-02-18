@@ -20,6 +20,7 @@
 #define __vtkGPUInfoListArray_h
 
 #include "vtkGPUInfo.h"
+#include <vtkstd/vector> // STL Header
 
 class vtkGPUInfoListArray
 {
