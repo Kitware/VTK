@@ -68,15 +68,9 @@ int TestGPURayCastCompositeMask(int argc, char *argv[])
     }
   distance=distance/2.0;
   
-  cout << "spacing[3]=" << spacing[0] << ", " << spacing[1] << "," << spacing[2] << endl;
-  
   // This does not take the screen size of a cell into account.
   // distance has to be smaller: min(nyquis,screensize)
   
-//  distance=distance/4.0; // hack
-//  distance=distance/4.0; // hack
-  
-  cout << "demo sample distance="<< distance<<endl;
   mapper->SetSampleDistance(static_cast<float>(distance));
   
   vtkColorTransferFunction *colorFun=vtkColorTransferFunction::New();
@@ -126,9 +120,6 @@ int TestGPURayCastCompositeMask(int argc, char *argv[])
   grid2->SetFillValue(0);
   grid2->SetGridSpacing(6,6,6);
   grid2->Update();
-//    mapper->SetMaskInput(grid2->GetOutput());
-//    grid2->Delete();
-  
   
   vtkImageCheckerboard *checkerboard=vtkImageCheckerboard::New();
   checkerboard->SetInputConnection(0,grid->GetOutputPort());
