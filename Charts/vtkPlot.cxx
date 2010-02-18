@@ -24,7 +24,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.8");
+vtkCxxRevisionMacro(vtkPlot, "1.9");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ vtkPlot::~vtkPlot()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlot::PaintLegend(vtkContext2D *painter, float rect[4])
+bool vtkPlot::PaintLegend(vtkContext2D*, float*)
 {
   return false;
 }
