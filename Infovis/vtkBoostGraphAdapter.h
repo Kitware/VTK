@@ -44,13 +44,6 @@
 #include "vtkUndirectedGraph.h"
 #include "vtkVariant.h"
 
-#include <boost/version.hpp>
-#if BOOST_VERSION > 104000
-#include <boost/property_map/vector_property_map.hpp>
-#else
-#include <boost/vector_property_map.hpp>
-#endif
-
 namespace boost {
   //===========================================================================
   // VTK arrays as property maps
@@ -918,6 +911,13 @@ namespace boost {
     : property_map<vtkUndirectedGraph*, edge_index_t> { };
 
 } // namespace boost
+
+#include <boost/version.hpp>
+#if BOOST_VERSION > 104000
+#include <boost/property_map/vector_property_map.hpp>
+#else
+#include <boost/vector_property_map.hpp>
+#endif
 
 
 #endif // __vtkBoostGraphAdapter_h
