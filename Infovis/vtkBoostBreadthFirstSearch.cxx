@@ -46,15 +46,13 @@
 
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/breadth_first_search.hpp>
-#include <boost/property_map.hpp>
-#include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
 #include <vtksys/stl/utility> // for pair
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.17");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.18");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we

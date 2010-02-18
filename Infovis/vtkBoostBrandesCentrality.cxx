@@ -36,11 +36,10 @@
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/betweenness_centrality.hpp>
-#include <boost/vector_property_map.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.6");
+vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.7");
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
 // Constructor/Destructor

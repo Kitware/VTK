@@ -39,12 +39,11 @@
 #include "vtkTree.h"
 
 #include <boost/graph/breadth_first_search.hpp>
-#include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.8");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.9");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 

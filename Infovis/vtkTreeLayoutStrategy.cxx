@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.15");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.16");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -389,7 +389,6 @@ void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/property_map.hpp>
-#include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
 using namespace boost;

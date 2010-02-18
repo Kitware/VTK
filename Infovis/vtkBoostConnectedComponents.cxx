@@ -33,11 +33,10 @@
 
 #include "vtkBoostGraphAdapter.h"
 #include <boost/graph/strong_components.hpp>
-#include <boost/vector_property_map.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.7");
+vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.8");
 vtkStandardNewMacro(vtkBoostConnectedComponents);
 
 vtkBoostConnectedComponents::vtkBoostConnectedComponents()

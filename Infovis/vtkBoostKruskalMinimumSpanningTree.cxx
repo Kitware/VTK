@@ -40,12 +40,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTree.h"
 
 #include <boost/graph/kruskal_min_spanning_tree.hpp>
-#include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostKruskalMinimumSpanningTree, "1.4");
+vtkCxxRevisionMacro(vtkBoostKruskalMinimumSpanningTree, "1.5");
 vtkStandardNewMacro(vtkBoostKruskalMinimumSpanningTree);
 
 // Constructor/Destructor

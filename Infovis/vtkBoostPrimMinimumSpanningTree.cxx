@@ -39,12 +39,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTree.h"
 
 #include <boost/graph/prim_minimum_spanning_tree.hpp>
-#include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.5");
+vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.6");
 vtkStandardNewMacro(vtkBoostPrimMinimumSpanningTree);
 
 // Constructor/Destructor
