@@ -20,32 +20,31 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkGeoCamera.h"
+#include "vtkGeoMath.h"
 #include "vtkGeoTerrainNode.h"
 #include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkTransform.h"
 #include <float.h>
 
-#define VTK_EARTH_RADIUS_METERS 6356750.0
-
-vtkCxxRevisionMacro(vtkGeoCamera, "1.11");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.12");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
 //----------------------------------------------------------------------------
-vtkGeoCamera::vtkGeoCamera() 
+vtkGeoCamera::vtkGeoCamera()
 {
   this->VTKCamera = vtkSmartPointer<vtkCamera>::New();
   this->Transform = vtkSmartPointer<vtkTransform>::New();
 
   this->OriginLongitude = 0.0;
   this->OriginLatitude = 0.0;
-  
+
   // Intial state will be looking at earth over the American continent.
   //this->Longitude = -90.0;
   this->Longitude = 0.0;
   this->Latitude = 0.0;
-  this->Distance = VTK_EARTH_RADIUS_METERS * 5.0;
+  this->Distance = vtkGeoMath::EarthRadiusMeters() * 5.0;
   this->Heading = 0.0;
   this->Tilt = 90.0;
   this->LockHeading = true;
@@ -60,8 +59,8 @@ vtkGeoCamera::vtkGeoCamera()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoCamera::~vtkGeoCamera() 
-{  
+vtkGeoCamera::~vtkGeoCamera()
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -115,12 +114,12 @@ void vtkGeoCamera::ComputeRectilinearOrigin()
 
   this->Origin[1] = tmp * cos(this->OriginLongitude * vtkMath::Pi() / 180.0);
   this->Origin[0] = -tmp * sin(this->OriginLongitude * vtkMath::Pi() / 180.0);
-  
+
   this->Origin[2] = sin(this->OriginLatitude * vtkMath::Pi() / 180.0);
-  
-  this->Origin[0] *= VTK_EARTH_RADIUS_METERS;
-  this->Origin[1] *= VTK_EARTH_RADIUS_METERS;
-  this->Origin[2] *= VTK_EARTH_RADIUS_METERS;
+
+  this->Origin[0] *= vtkGeoMath::EarthRadiusMeters();
+  this->Origin[1] *= vtkGeoMath::EarthRadiusMeters();
+  this->Origin[2] *= vtkGeoMath::EarthRadiusMeters();
 
   this->UpdateVTKCamera();
 }
@@ -237,18 +236,18 @@ void vtkGeoCamera::UpdateVTKCamera()
   // Heading
   this->Transform->RotateY(-this->Heading);
   // to surface of earth
-  this->Transform->Translate(0.0, VTK_EARTH_RADIUS_METERS, 0.0);
+  this->Transform->Translate(0.0, vtkGeoMath::EarthRadiusMeters(), 0.0);
   // Latitude
   this->Transform->RotateX(this->Latitude);
   // Longitude
   this->Transform->RotateZ(this->Longitude);
 
   // Consider origin.
-  this->Transform->Translate(-this->Origin[0], 
-                             -this->Origin[1], 
+  this->Transform->Translate(-this->Origin[0],
+                             -this->Origin[1],
                              -this->Origin[2]);
-  
-  
+
+
   double* pt;
   double tmp[3];
   // Find focal point of the camera.
@@ -281,29 +280,29 @@ void vtkGeoCamera::UpdateVTKCamera()
     this->VTKCamera->GetViewUp(up);
     // Project vector to north pole and view up to the following plane:
     // Normal = dir. out of center of earth from focal point, Point = origin.
-    
+
     // Compute the plane normal (center of earth at -origin).
     double dir[3];
     dir[0] = -tmp[0] - this->Origin[0];
     dir[1] = -tmp[1] - this->Origin[1];
     dir[2] = -tmp[2] - this->Origin[2];
     vtkMath::Normalize(dir);
-    
+
     // Compute direction to north pole (at -origin + (0,0,earth_radius))
     // from focal point.
     double north[3];
     north[0] = -this->Origin[0] - tmp[0];
     north[1] = -this->Origin[1] - tmp[1];
-    north[2] = VTK_EARTH_RADIUS_METERS - this->Origin[2] - tmp[2];
+    north[2] = vtkGeoMath::EarthRadiusMeters() - this->Origin[2] - tmp[2];
     double northDot = vtkMath::Dot(north, dir);
-    
+
     // Project direction to north pole to our plane.
     double northProj[3];
     northProj[0] = north[0] - northDot*dir[0];
     northProj[1] = north[1] - northDot*dir[1];
     northProj[2] = north[2] - northDot*dir[2];
     vtkMath::Normalize(northProj);
-    
+
     // Project view up vector to the same plane.
     double upDot = vtkMath::Dot(up, dir);
     double upProj[3];

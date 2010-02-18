@@ -33,10 +33,10 @@ public:
   static vtkGeoMath *New();
   vtkTypeRevisionMacro(vtkGeoMath, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Returns the average radius of the earth in meters.
-  static float EarthRadiusMeters() {return 6356750.0f;};
+  static double EarthRadiusMeters() {return 6356750.0;}
 
   // Description:
   // Returns the squared distance between two points.

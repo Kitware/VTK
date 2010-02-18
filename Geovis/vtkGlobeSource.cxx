@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGlobeSource, "1.8");
+vtkCxxRevisionMacro(vtkGlobeSource, "1.9");
 vtkStandardNewMacro(vtkGlobeSource);
 
   // 0=NE, 1=SE, 2=SW, 3=NW
@@ -46,9 +46,9 @@ vtkStandardNewMacro(vtkGlobeSource);
 vtkGlobeSource::vtkGlobeSource()
 {
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
-  this->Radius = 6356750.0; // Radius in meters.
+  this->Radius = vtkGeoMath::EarthRadiusMeters();
   this->CurtainHeight = 1000.0;
-  
+
   this->LongitudeResolution = 10;
   this->LatitudeResolution = 10;
   this->StartLongitude = 0.0;

@@ -22,6 +22,7 @@
 
 #include "vtkActor.h"
 #include "vtkAssembly.h"
+#include "vtkCullerCollection.h"
 #include "vtkGeoAlignedImageSource.h"
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoCamera.h"
@@ -41,7 +42,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView, "1.15");
+vtkCxxRevisionMacro(vtkGeoView, "1.16");
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
@@ -73,6 +74,9 @@ vtkGeoView::vtkGeoView()
   // The actor in vtkGeoBackgroundImageRepresentation is not rendered during
   // visible cell selection because it is a vtkAssembly.
   this->LowResEarthMapper       = vtkPolyDataMapper::New();
+//  this->LowResEarthMapper->SetResolveCoincidentTopologyToPolygonOffset();
+//  this->LowResEarthMapper->SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 1000.0);
+
   this->LowResEarthActor        = vtkActor::New();
   this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
   this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
@@ -84,7 +88,8 @@ vtkGeoView::vtkGeoView()
   this->Renderer->AddActor(this->Assembly);
 
   vtkGeoSphereTransform* t = vtkGeoSphereTransform::New();
-  t->SetBaseAltitude(vtkGeoMath::EarthRadiusMeters()*0.0001);
+//  t->SetBaseAltitude(vtkGeoMath::EarthRadiusMeters()*0.0001);
+  t->SetBaseAltitude(0.0);
   this->SetTransform(t);
   t->Delete();
 }
@@ -109,7 +114,7 @@ void vtkGeoView::BuildLowResEarth( double origin[3] )
   this->LowResEarthSource       = vtkGlobeSource::New();
   this->LowResEarthSource->SetOrigin( origin );
   // Make it slightly smaller than the earth so it is not visible
-  double radius = this->LowResEarthSource->GetRadius(); 
+  double radius = this->LowResEarthSource->GetRadius();
   this->LowResEarthSource->SetRadius(0.95*radius);
   this->LowResEarthSource->SetStartLatitude(-90.0);
   this->LowResEarthSource->SetEndLatitude(90.0);
@@ -168,13 +173,64 @@ void vtkGeoView::Render()
   // If this is the first time, render an extra time to get things
   // initialized for the first PrepareForRendering pass.
   this->RenderWindow->MakeCurrent();
-  if (!this->RenderWindow->IsCurrent())
+  if(!this->RenderWindow->IsCurrent())
     {
-    this->Update();
-    this->PrepareForRendering();
-    this->RenderWindow->Render();
+
+    // Note: For some reason this needs to be called even thoguh it does not
+    // make much difference logically.
+    this->Superclass::Render();
+    return;
     }
-  this->Superclass::Render();
+
+  this->Update();
+  this->PrepareForRendering();
+
+  // @Note: This is workaround for the Paraview3 as it adds global Zshift
+  // for any module that gets loaded as plugin.
+  // Save the current state.
+
+  double zShift = 0.0;
+  double factor = 0.0;
+  double units = 0.0;
+
+  // Save the depth offset state.
+  if(vtkMapper::GetResolveCoincidentTopology() ==
+     VTK_RESOLVE_POLYGON_OFFSET)
+    {
+    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
+        factor, units);
+    }
+  else if(vtkMapper::GetResolveCoincidentTopology() ==
+          VTK_RESOLVE_SHIFT_ZBUFFER)
+    {
+    zShift = vtkMapper::GetResolveCoincidentTopologyZShift();
+    }
+
+  vtkMapper::SetResolveCoincidentTopologyZShift(0.0);
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 10500.0);
+
+  this->Renderer->GetCullers()->RemoveAllItems();
+  this->RenderWindow->Render();
+
+  // Restore the depth offset state.
+  if(vtkMapper::GetResolveCoincidentTopology() ==
+     VTK_RESOLVE_POLYGON_OFFSET)
+    {
+    vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(
+        factor, units);
+    }
+  else if(vtkMapper::GetResolveCoincidentTopology() ==
+          VTK_RESOLVE_SHIFT_ZBUFFER)
+    {
+    vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
+    vtkMapper::SetResolveCoincidentTopologyZShift(zShift);
+    }
+  else
+    {
+    vtkMapper::SetResolveCoincidentTopologyToOff();
+    }
 }
 
 //----------------------------------------------------------------------------

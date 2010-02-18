@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.35");
+vtkCxxRevisionMacro(vtkRenderView, "1.36");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -134,7 +134,7 @@ vtkRenderView::vtkRenderView()
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
   this->ApplyViewTheme(theme);
-  theme->Delete();  
+  theme->Delete();
 }
 
 vtkRenderView::~vtkRenderView()
@@ -174,7 +174,7 @@ void vtkRenderView::SetInteractor(vtkRenderWindowInteractor* interactor)
                   << " That can't be right.");
     return;
     }
-  
+
   // get rid of the render observer on any current interactor
   if (this->RenderWindow->GetInteractor())
     {
@@ -694,7 +694,7 @@ void vtkRenderView::SetLabelRenderMode(int render_mode)
       }
     }
 }
-  
+
 void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

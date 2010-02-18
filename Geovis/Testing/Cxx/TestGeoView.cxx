@@ -205,7 +205,9 @@ int TestGeoView(int argc, char* argv[])
   view->ApplyViewTheme(theme);
   theme->Delete();
 
-  //int retVal = vtkRegressionTestImage(win);
+  view->Render();
+
+  // BUG: Need to call it twice in order to show the imagery on the globe.
   view->Render();
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 11);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
