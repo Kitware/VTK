@@ -1,45 +1,39 @@
-//=============================================================================
-//   This file is part of VTKEdge. See vtkedge.org for more information.
-//
-//   Copyright (c) 2008 Kitware, Inc.
-//
-//   VTKEdge may be used under the terms of the GNU General Public License 
-//   version 3 as published by the Free Software Foundation and appearing in 
-//   the file LICENSE.txt included in the top level directory of this source
-//   code distribution. Alternatively you may (at your option) use any later 
-//   version of the GNU General Public License if such license has been 
-//   publicly approved by Kitware, Inc. (or its successors, if any).
-//
-//   VTKEdge is distributed "AS IS" with NO WARRANTY OF ANY KIND, INCLUDING
-//   THE WARRANTIES OF DESIGN, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR
-//   PURPOSE. See LICENSE.txt for additional details.
-//
-//   VTKEdge is available under alternative license terms. Please visit
-//   vtkedge.org or contact us at kitware@kitware.com for further information.
-//
-//=============================================================================
-#import "vtkKWECoreGraphicsGPUInfoList.h"
+/*=========================================================================
 
-#include "vtkKWEGPUInfoListArray.h"
+  Program:   Visualization Toolkit
+  Module:    vtkCoreGraphicsGPUInfoList.mm
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#import "vtkCoreGraphicsGPUInfoList.h"
+
+#include "vtkGPUInfoListArray.h"
 #include "vtkObjectFactory.h"
 #include <assert.h>
 
 //#import "CGDirectDisplay.h" // for CGGetActiveDisplayList()
 #import <ApplicationServices/ApplicationServices.h>
 
-vtkCxxRevisionMacro(vtkKWECoreGraphicsGPUInfoList, "1.1");
-vtkStandardNewMacro(vtkKWECoreGraphicsGPUInfoList);
+vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.2");
+vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 
 // ----------------------------------------------------------------------------
 // Description:
-// Build the list of vtkKWEInfoGPU if not done yet.
+// Build the list of vtkInfoGPU if not done yet.
 // \post probed: IsProbed()
-void vtkKWECoreGraphicsGPUInfoList::Probe()
+void vtkCoreGraphicsGPUInfoList::Probe()
 {
   if(!this->Probed)
     {
     this->Probed=true;
-    this->Array=new vtkKWEGPUInfoListArray;
+    this->Array=new vtkGPUInfoListArray;
     
     CGError err=CGDisplayNoErr;
     CGDirectDisplayID *displays=NULL;
@@ -60,7 +54,7 @@ void vtkKWECoreGraphicsGPUInfoList::Probe()
       size_t i=0;
       while(i<c)
         {
-        vtkKWEGPUInfo *info=vtkKWEGPUInfo::New();
+        vtkGPUInfo *info=vtkGPUInfo::New();
         this->Array->v[i]=info;
         
         io_service_t dspPort=CGDisplayIOServicePort(displays[i]);
@@ -97,17 +91,17 @@ void vtkKWECoreGraphicsGPUInfoList::Probe()
 }
 
 // ----------------------------------------------------------------------------
-vtkKWECoreGraphicsGPUInfoList::vtkKWECoreGraphicsGPUInfoList()
+vtkCoreGraphicsGPUInfoList::vtkCoreGraphicsGPUInfoList()
 {
 }
 
 // ----------------------------------------------------------------------------
-vtkKWECoreGraphicsGPUInfoList::~vtkKWECoreGraphicsGPUInfoList()
+vtkCoreGraphicsGPUInfoList::~vtkCoreGraphicsGPUInfoList()
 {  
 }
 
 // ----------------------------------------------------------------------------
-void vtkKWECoreGraphicsGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCoreGraphicsGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
