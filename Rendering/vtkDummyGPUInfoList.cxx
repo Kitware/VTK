@@ -15,13 +15,12 @@
 
 #include "vtkDummyGPUInfoList.h"
 
-#include <vtkstd/vector>
 #include "vtkGPUInfoListArray.h"
 
 #include "vtkObjectFactory.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkDummyGPUInfoList, "1.1");
+vtkCxxRevisionMacro(vtkDummyGPUInfoList, "1.2");
 vtkStandardNewMacro(vtkDummyGPUInfoList);
 
 // ----------------------------------------------------------------------------

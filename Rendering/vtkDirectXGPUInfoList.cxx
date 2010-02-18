@@ -15,7 +15,6 @@
 
 #include "vtkDirectXGPUInfoList.h"
 
-#include <vtkstd/vector>
 #include "vtkGPUInfoListArray.h"
 
 #include "vtkObjectFactory.h"
@@ -29,7 +28,7 @@
 
 #include <ddraw.h> // for LPDIRECTDRAWENUMERATEEXA
 
-vtkCxxRevisionMacro(vtkDirectXGPUInfoList, "1.1");
+vtkCxxRevisionMacro(vtkDirectXGPUInfoList, "1.2");
 vtkStandardNewMacro(vtkDirectXGPUInfoList);
 
 // Used by ProbeInfoWithDXGI.
