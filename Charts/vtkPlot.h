@@ -36,6 +36,13 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Paint legend event for the XY plot, called whenever the legend needs the
+  // plot items symbol/mark/line drawn. A rect is supplied with the lower left
+  // corner of the rect (elements 0 and 1) and with width x height (elements 2
+  // and 3). The plot can choose how to fill the space supplied.
+  virtual bool PaintLegend(vtkContext2D *painter, float rect[4]);
+
+  // Description:
   // Set the plot color
   virtual void SetColor(unsigned char r, unsigned char g, unsigned char b,
                         unsigned char a);
@@ -61,7 +68,7 @@ public:
 
   // Description:
   // Get the plot label.
-  vtkGetStringMacro(Label);
+  const char* GetLabel();
 
   // Description:
   // Use the Y array index for the X value. If true any X column setting will be

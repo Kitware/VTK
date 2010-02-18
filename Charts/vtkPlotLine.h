@@ -44,6 +44,13 @@ public:
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
+  // Paint legend event for the XY plot, called whenever the legend needs the
+  // plot items symbol/mark/line drawn. A rect is supplied with the lower left
+  // corner of the rect (elements 0 and 1) and with width x height (elements 2
+  // and 3). The plot can choose how to fill the space supplied.
+  virtual bool PaintLegend(vtkContext2D *painter, float rect[4]);
+
+  // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   virtual void GetBounds(double bounds[4]);
 

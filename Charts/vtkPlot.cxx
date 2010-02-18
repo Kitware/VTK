@@ -24,7 +24,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.7");
+vtkCxxRevisionMacro(vtkPlot, "1.8");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
@@ -55,6 +55,12 @@ vtkPlot::~vtkPlot()
 }
 
 //-----------------------------------------------------------------------------
+bool vtkPlot::PaintLegend(vtkContext2D *painter, float rect[4])
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b,
                        unsigned char a)
 {
@@ -78,6 +84,25 @@ void vtkPlot::SetWidth(float width)
 float vtkPlot::GetWidth()
 {
   return this->Pen->GetWidth();
+}
+
+//-----------------------------------------------------------------------------
+const char* vtkPlot::GetLabel()
+{
+  // If the label string is empty, return the y column name
+  if (this->Label)
+    {
+    return this->Label;
+    }
+  else if (this->Data->GetInput() &&
+           this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
+    {
+    return this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName();
+    }
+  else
+    {
+    return NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------

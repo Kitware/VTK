@@ -29,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.10");
+vtkCxxRevisionMacro(vtkPlotLine, "1.11");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -108,6 +108,15 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
     painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
     }
 
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotLine::PaintLegend(vtkContext2D *painter, float rect[4])
+{
+  painter->ApplyPen(this->Pen);
+  painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
+                    rect[0]+rect[2], rect[1]+0.5*rect[3]);
   return true;
 }
 
