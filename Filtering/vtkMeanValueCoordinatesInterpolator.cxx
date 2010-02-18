@@ -155,29 +155,41 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
   while ( iter.Id < iter.NumberOfPolygons)
     {
     int nPolyPts = iter.CurrentPolygonSize;
-    
-    // unit vector v
-    // TODO: v is suppose to be a point inside the convex hull of the face 
-    // polygon. Need to confirm that the average of vertices satisfy the
-    // convex hull constraint.
-    double v[3];
-    v[0] = v[1] = v[2] = 0.0;
+
     for (int j = 0; j < nPolyPts; j++)
       {
-      vtkIdType pid = poly[j];
-      u[j] = uVec + 3*pid;
-      
-      v[0] += u[j][0];
-      v[1] += u[j][1];
-      v[2] += u[j][2];
+      u[j] = uVec + 3*poly[j];
       }
-    vtkMath::MultiplyScalar(v, 1.0/static_cast<double>(nPolyPts));
+    
+    // unit vector v.
+    double l, angle;
+    double v[3], temp[3];
+    v[0] = v[1] = v[2] = 0.0;
+    for (int j = 0; j < nPolyPts - 1; j++)
+      {
+      vtkMath::Cross(u[j], u[j+1], temp);
+      vtkMath::Normalize(temp);
+
+      l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j+1]));
+      angle = 2.0*asin(l/2.0);
+      
+      v[0] += 0.5 * angle * temp[0];
+      v[1] += 0.5 * angle * temp[1];
+      v[2] += 0.5 * angle * temp[2];
+      }
+    l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], u[0]));
+    angle = 2.0*asin(l/2.0);
+    vtkMath::Cross(u[nPolyPts-1], u[0], temp);
+    vtkMath::Normalize(temp);
+    v[0] += 0.5 * angle * temp[0];
+    v[1] += 0.5 * angle * temp[1];
+    v[2] += 0.5 * angle * temp[2];
+
+    double vNorm = vtkMath::Norm(v);
     vtkMath::Normalize(v);
     
     // angles between edges
-    double n0[3], n1[3], temp[3], fn[3];
-    double l, angle;
-    fn[0] = fn[1] = fn[2] = 0.0;
+    double n0[3], n1[3];
     for (int j = 0; j < nPolyPts-1; j++)
       {
       // alpha
@@ -185,6 +197,7 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
       vtkMath::Normalize(n0);
       vtkMath::Cross(u[j+1], v, n1);
       vtkMath::Normalize(n1);
+      
       //alpha[j] = acos(vtkMath::Dot(n0, n1));
       l = sqrt(vtkMath::Distance2BetweenPoints(n0, n1));
       alpha[j] = 2.0*asin(l/2.0);
@@ -198,18 +211,6 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
       //theta[j] = acos(vtkMath::Dot(u[j], v));
       l = sqrt(vtkMath::Distance2BetweenPoints(u[j], v));
       theta[j] = 2.0*asin(l/2.0);
-
-      // theta_j_j+1
-      l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j+1]));
-      angle = 2.0*asin(l/2.0);
-      
-      // face normal      
-      vtkMath::Cross(u[j], u[j+1], temp);
-      vtkMath::Normalize(temp);
-      
-      fn[0] += 0.5 * angle * temp[0];
-      fn[1] += 0.5 * angle * temp[1];
-      fn[2] += 0.5 * angle * temp[2];
       }
 
     vtkMath::Cross(u[nPolyPts-1], v, n0);
@@ -228,34 +229,21 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
     //theta[nPolyPts-1] = acos(vtkMath::Dot(u[nPolyPts-1], v));
     l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], v));
     theta[nPolyPts-1] = 2.0*asin(l/2.0);
-    
-    l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], u[0]));
-    angle = 2.0*asin(l/2.0);
-    
-    vtkMath::Cross(u[nPolyPts-1], u[0], temp);
-    vtkMath::Normalize(temp);
-    
-    fn[0] += 0.5 * angle * temp[0];
-    fn[1] += 0.5 * angle * temp[1];
-    fn[2] += 0.5 * angle * temp[2];
 
-    double fnn = vtkMath::Norm(fn);
-    
     bool outlierFlag = false;
     for (int j = 0; j < nPolyPts; j++)
       {
       if (fabs(theta[j]) < eps)
         {
         outlierFlag = true;
-        weights[poly[j]] += fnn / dist[poly[j]];
+        weights[poly[j]] += vNorm / dist[poly[j]];
         break;
         }
       }
     
     if (outlierFlag)
       {
-      numSpecialPoints++;
-      std::cout << numSpecialPoints << std::endl;
+      std::cout << numSpecialPoints++ << std::endl;
       poly = ++iter;
       continue;
       }
@@ -266,17 +254,51 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
       {
       sum += 1.0 / tan(theta[j]) * (tan(alpha[j]/2.0) + tan(alpha[j-1]/2.0));
       }
+    
+    // the special case when x lies on the polygon, handle it using 2D mvc.
+    // in 2D case, alpha = theta
+    if (fabs(sum) < eps)
+      {
+      double sumWeight = 0.0;
+      weights[poly[0]] = 1.0 / dist[poly[0]] *
+        (tan(theta[nPolyPts-1]/2.0) + tan(theta[0]/2.0));
+      for (int j = 1, sumWeight = weights[poly[0]]; j < nPolyPts; j++)
+        {
+        weights[poly[j]] = 1.0 / dist[poly[j]] *
+          (tan(theta[j-1]/2.0) + tan(theta[j]/2.0));
+        sumWeight += weights[poly[j]];
+        }
 
+      delete [] dist;
+      delete [] uVec;
+      delete [] u;
+      delete [] alpha;
+      delete [] theta;
+
+      if (sumWeight < eps)
+        {
+        std::cout << numSpecialPoints++ << std::endl;
+        return;
+        }
+      
+      for (int j = 0; j < nPolyPts; j++)
+        {
+        weights[poly[j]] /= sumWeight;
+        }
+
+      return;
+      }
+    
     // weight
-    weights[poly[0]] += fnn / sum / dist[poly[0]] / sin(theta[0])
+    weights[poly[0]] += vNorm / sum / dist[poly[0]] / sin(theta[0])
                      * (tan(alpha[0]/2.0) + tan(alpha[nPolyPts-1]/2.0));
     for (int j = 1; j < nPolyPts; j++)
       {
-      weights[poly[j]] += fnn / sum / dist[poly[j]] / sin(theta[j])
+      weights[poly[j]] += vNorm / sum / dist[poly[j]] / sin(theta[j])
                        * (tan(alpha[j]/2.0) + tan(alpha[j-1]/2.0));
 
       }
-      
+    
     // next iteration
     poly = ++iter;
     }

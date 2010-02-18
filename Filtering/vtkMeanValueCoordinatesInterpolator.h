@@ -70,8 +70,6 @@ public:
   // must equal the number of points.
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts, vtkCellArray *tris,
                                           double *weights);
-  
-
 protected:
   vtkMeanValueCoordinatesInterpolator();
   ~vtkMeanValueCoordinatesInterpolator();

@@ -125,14 +125,24 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
   ele1->SetHighPoint(0.5,0,0);
   ele1->Update();
   
-  // merge the first two triangle cells of the sphere
+  // create a cell with 4 points
   vtkPolyData* spherePoly = vtkPolyData::SafeDownCast(ele1->GetOutput());
   vtkCellArray *polys = spherePoly->GetPolys();
+
+  // merge the first two cell
+  vtkIdType * p = polys->GetPointer();
+  vtkIdType pids[4] = {p[1], p[2], p[6], p[3]};
   
-  vtkIdType pids[4] = {1, 2, 3, 4};
   vtkSmartPointer<vtkCellArray> newPolys = vtkSmartPointer<vtkCellArray>::New();
-  newPolys->DeepCopy(polys);
-  newPolys->InsertNextCell(4, pids);
+  newPolys->SetNumberOfCells(polys->GetNumberOfCells()-1);
+  newPolys->Initialize();
+  for (int i = 2; i < polys->GetNumberOfCells(); i++)
+    {
+    pids[0] = p[4*i+1];
+    pids[1] = p[4*i+2];
+    pids[2] = p[4*i+3];
+    newPolys->InsertNextCell(3,pids);
+    }
   spherePoly->SetPolys(newPolys);
   
   // Now clip the sphere in half and display it
