@@ -29,7 +29,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkClipConvexPolyData, "1.1");
+vtkCxxRevisionMacro(vtkClipConvexPolyData, "1.2");
 vtkStandardNewMacro(vtkClipConvexPolyData);
 
 vtkCxxSetObjectMacro(vtkClipConvexPolyData, Planes, vtkPlaneCollection);
@@ -522,4 +522,6 @@ int vtkClipConvexPolyData::HasDegeneracies( vtkPlane *plane )
 void vtkClipConvexPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Planes: " << this->Planes << endl;
 }

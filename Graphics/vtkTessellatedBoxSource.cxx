@@ -21,7 +21,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkTessellatedBoxSource, "1.1");
+vtkCxxRevisionMacro(vtkTessellatedBoxSource, "1.2");
 vtkStandardNewMacro(vtkTessellatedBoxSource);
 
 // ----------------------------------------------------------------------------
@@ -680,6 +680,16 @@ void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "DuplicateSharedPoints: ";
   if(this->DuplicateSharedPoints)
+    {
+    os << "true";
+    }
+  else
+    {
+    os << "false";
+    }
+  
+  os << indent << "Quads: ";
+  if(this->Quads)
     {
     os << "true";
     }
