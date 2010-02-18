@@ -660,6 +660,18 @@ if(DirectX_FOUND)
  include_directories(${DirectX_INCLUDE_DIR})
 endif(DirectX_FOUND)
 
+if(VTK_USE_CORE_GRAPHICS)
+ set(KIT_LIBS ${KIT_LIBS} ${ApplicationServices_LIBRARY} ${IOKit_LIBRARY})
+ include_directories(${ApplicationServices_INCLUDE_DIR} ${IOKit_INCLUDE_DIR})
+endif(VTK_USE_CORE_GRAPHICS)
+
+if(VTK_USE_NVCONTROL)
+ # NVCONTROL depends on X11. We solve that by making KIT_LIBS depending on
+ # vtkRendering, as vtkRendering depends on X11 on Unix.
+ set(KIT_LIBS ${KIT_LIBS} ${NVCtrlLib_LIBRARY} vtkRendering)
+ include_directories(${NVCtrlLib_INCLUDE_DIR})
+endif(VTK_USE_NVCONTROL)
+
 IF (VTK_USE_MANGLED_MESA)
   IF (MANGLED_MESA_LIBRARY)
     SET ( KitOpenGL_SRCS ${KitOpenGL_SRCS}
