@@ -124,10 +124,10 @@ int TestGPURayCastCompositeToMIP(int argc,
   volume=vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
+  ren1->AddViewProp(volume);
   
   int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
-  ren1->AddViewProp(volume);
-  valid = 1;
+
   int retVal;
   if(valid)
     {
