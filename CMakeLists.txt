@@ -719,6 +719,25 @@ IF(VTK_USE_RENDERING)
       PATHS ${OPENGL_gl_LIBRARY} /usr/lib /usr/local/lib /usr/X11R6/lib)
   ENDIF(APPLE AND VTK_USE_X)
   FIND_PACKAGE(OpenGL)
+
+  FIND_PACKAGE(DirectX QUIET)
+    if(DirectX_FOUND)
+      set(VTK_USE_DIRECTX 1)
+  endif(DirectX_FOUND)
+
+  find_package(ApplicationServices)
+  find_package(IOKit)
+  if(ApplicationServices_FOUND AND IOKit_FOUND)
+    set(VTK_USE_CORE_GRAPHICS 1)
+  endif(ApplicationServices_FOUND AND IOKit_FOUND)
+
+  if(VTK_USE_X)
+    option(VTK_USE_NVCONTROL "Use NVIDIAs X server extension NVCONTROL." OFF)
+     if(VTK_USE_NVCONTROL)
+       find_package(NVCtrlLib)
+     endif(VTK_USE_NVCONTROL)
+   endif(VTK_USE_X)
+
 ENDIF(VTK_USE_RENDERING)
 
 VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)

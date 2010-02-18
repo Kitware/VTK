@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestAppendSelection.cxx
 #    TestAppendPolyData.cxx #pending a bug fix
     TestAssignAttribute.cxx
+    TestDensifyPolyData.cxx
     TestClipHyperOctree.cxx
     TestConvertSelection.cxx
     TestDelaunay2D.cxx
@@ -25,6 +26,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeToUniformGrid.cxx
     TestPolyDataPointSampler.cxx
     TestSelectEnclosedPoints.cxx
+    TestTessellatedBoxSource.cxx
     TestTessellator.cxx
     TestUncertaintyTubeFilter.cxx
     )

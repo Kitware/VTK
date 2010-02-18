@@ -55,12 +55,15 @@ SET( Kit_SRCS
   vtkDisplayListPainter.cxx
   vtkDistanceToCamera.cxx
   vtkDynamic2DLabelMapper.cxx
+  vtkDummyGPUInfoList.cxx
   vtkExporter.cxx
   vtkFollower.cxx
   vtkFrameBufferObject.cxx
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
+  vtkGPUInfo.cxx
+  vtkGPUInfoList.cxx
   vtkGraphicsFactory.cxx
   vtkGraphMapper.cxx
   vtkGraphToGlyphs.cxx
@@ -279,6 +282,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractPropPicker
   vtkCuller
   vtkExporter
+  vtkGPUInfoList
   vtkImageProcessingPass
   vtkImporter
   vtkInteractorObserver
@@ -319,6 +323,23 @@ SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
   vtkFreeTypeLabelRenderStrategy.cxx
   vtkOpenGLFreeTypeTextMapper.cxx
   )
+
+# Get GPU VRAM info
+# on Windows
+#message("DirectX_FOUND=${DirectX_FOUND}")
+if(DirectX_FOUND)
+ set(KIT_SRCS ${KIT_SRCS} vtkDirectXGPUInfoList)
+endif(DirectX_FOUND)
+
+# on Mac
+if(ApplicationServices_FOUND)
+ set(KIT_SRCS ${KIT_SRCS} vtkCoreGraphicsGPUInfoList.mm)
+endif(ApplicationServices_FOUND)
+
+# on Linux, for Nvidia
+if(VTK_USE_X)
+ set(KIT_SRCS ${KIT_SRCS} vtkXGPUInfoList)
+endif(VTK_USE_X)
 
 SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
 SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities WRAP_EXCLUDE)
@@ -629,6 +650,15 @@ ENDIF (WIN32)
 IF(VTK_USE_CG_SHADERS)
   SET(KIT_LIBS ${KIT_LIBS} ${OPENGL_glu_LIBRARY})
 ENDIF(VTK_USE_CG_SHADERS)
+
+if(DirectX_FOUND)
+ # d3d9.lib for symbol Direct3DCreate9
+ # symbol CLSID_WbemLocator IID_IWbemLocator: wbemuuid.lib 
+ # wbemuuid.lib is *NOT A FILE* (you cannot find it), it is probably an
+ # embedded library added by the linker itself.
+ set(KIT_LIBS ${KIT_LIBS} ${DirectX_LIBRARY} wbemuuid)
+ include_directories(${DirectX_INCLUDE_DIR})
+endif(DirectX_FOUND)
 
 IF (VTK_USE_MANGLED_MESA)
   IF (MANGLED_MESA_LIBRARY)

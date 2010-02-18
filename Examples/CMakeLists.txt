@@ -32,6 +32,7 @@ IF(VTK_USE_RENDERING)
     Tutorial/Step5/Cxx
     Tutorial/Step6/Cxx
     VisualizationAlgorithms/Cxx
+    VolumeRendering/Cxx
     Widgets/Cxx
     )
    IF(VTK_USE_PARALLEL)

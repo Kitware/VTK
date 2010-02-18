@@ -22,6 +22,7 @@
 
 // if using some sort of opengl, then include these files
 #if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+#include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkOpenGLHAVSVolumeMapper.h"
 #include "vtkOpenGLProjectedTetrahedraMapper.h"
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
@@ -39,7 +40,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.13");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.14");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -63,6 +64,19 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
   if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
+    // GPU Ray Cast Mapper
+    if(strcmp(vtkclassname, "vtkGPUVolumeRayCastMapper") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if (vtkGraphicsFactory::GetUseMesaClasses())
+        {
+        vtkGenericWarningMacro("No support for mesa in vtkGPUVolumeRayCastMapper");
+        return 0;
+        }
+#endif
+      return vtkOpenGLGPUVolumeRayCastMapper::New();
+      }
+
     // Projected Tetrahedra Mapper
     if(strcmp(vtkclassname, "vtkProjectedTetrahedraMapper") == 0)
       {

@@ -36,6 +36,7 @@ vtkCleanPolyData.cxx
 vtkClipDataSet.cxx
 vtkClipHyperOctree.cxx
 vtkClipPolyData.cxx
+vtkClipConvexPolyData.cxx
 vtkClipVolume.cxx
 vtkCoincidentPoints.cxx
 vtkCompositeDataGeometryFilter.cxx
@@ -64,6 +65,7 @@ vtkDecimatePolylineFilter.cxx
 vtkDecimatePro.cxx
 vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
+vtkDensifyPolyData.cxx
 vtkDicer.cxx
 vtkDijkstraGraphGeodesicPath.cxx
 vtkDijkstraImageGeodesicPath.cxx
@@ -241,6 +243,7 @@ vtkTemporalPathLineFilter.cxx
 vtkTemporalStatistics.cxx
 vtkTensorGlyph.cxx
 vtkTessellatorFilter.cxx
+vtkTessellatedBoxSource.cxx
 vtkTextSource.cxx
 vtkTexturedSphereSource.cxx
 vtkTextureMapToCylinder.cxx
