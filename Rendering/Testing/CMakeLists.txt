@@ -18,6 +18,7 @@ IF(PYTHON_EXECUTABLE)
     vtkFreeTypeUtilities.h
     vtkgl.h
     vtkgluPickMatrix.h
+    vtkGPUInfoListArray.h
     vtkLabelHierarchyPrivate.h
     vtkNoise200x200.h
     vtkOpenGL.h
