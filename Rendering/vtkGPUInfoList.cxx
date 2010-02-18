@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include "vtkGPUInfoListArray.h"
 
-vtkCxxRevisionMacro(vtkGPUInfoList, "1.1");
+vtkCxxRevisionMacro(vtkGPUInfoList, "1.2");
 
 // ----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -49,7 +49,12 @@ bool vtkGPUInfoList::IsProbed()
 // \pre probed: IsProbed()
 int vtkGPUInfoList::GetNumberOfGPUs()
 {
-  assert("pre: probed" && this->IsProbed());
+  if ( !this->IsProbed() )
+    {
+    vtkErrorMacro("You must first call the Probe method");
+    return 0;
+    }
+  
   return static_cast<int>(this->Array->v.size());
 }
   
