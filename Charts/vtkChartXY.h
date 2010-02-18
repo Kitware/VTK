@@ -27,6 +27,7 @@ class vtkPlot;
 class vtkAxis;
 class vtkPlotGrid;
 class vtkTable;
+class vtkChartLegend;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
@@ -145,6 +146,10 @@ protected:
   // Description:
   // The grid for the chart.
   vtkPlotGrid *Grid;
+
+  // Description:
+  // The legend for the chart.
+  vtkChartLegend *Legend;
 
   // Description:
   // The 2D transform for the series drawn in the plot area

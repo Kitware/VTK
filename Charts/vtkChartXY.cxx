@@ -29,6 +29,7 @@
 
 #include "vtkAxis.h"
 #include "vtkPlotGrid.h"
+#include "vtkChartLegend.h"
 
 #include "vtkTable.h"
 #include "vtkAbstractArray.h"
@@ -56,7 +57,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.29");
+vtkCxxRevisionMacro(vtkChartXY, "1.30");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -69,6 +70,8 @@ vtkChartXY::vtkChartXY()
   this->Grid = vtkPlotGrid::New();
   this->Grid->SetXAxis(this->XAxis);
   this->Grid->SetYAxis(this->YAxis);
+  this->Legend = vtkChartLegend::New();
+  this->Legend->SetChart(this);
   this->ChartPrivate = new vtkChartXYPrivate;
 
   // Set up the x and y axes - should be congigured based on data
@@ -107,6 +110,8 @@ vtkChartXY::~vtkChartXY()
   this->YAxis = 0;
   this->Grid->Delete();
   this->Grid = 0;
+  this->Legend->Delete();
+  this->Legend = 0;
 
   if (this->PlotTransform)
     {
@@ -141,6 +146,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->XAxis->SetPoint2(this->Point2[0], this->Point1[1]);
     this->YAxis->SetPoint1(this->Point1[0], this->Point1[1]);
     this->YAxis->SetPoint2(this->Point1[0], this->Point2[1]);
+    this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
     }
@@ -165,6 +171,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // Update the axes in the chart
   this->XAxis->Update();
   this->YAxis->Update();
+  this->Legend->Update();
 
   // Draw a hard wired grid right now - this should be configurable
   painter->GetPen()->SetColorF(0.95, 0.95, 0.95);
@@ -179,6 +186,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(1.0);
   this->XAxis->Paint(painter);
   this->YAxis->Paint(painter);
+  this->Legend->Paint(painter);
 
   // Draw the selection box if necessary
   if (this->DrawBox)

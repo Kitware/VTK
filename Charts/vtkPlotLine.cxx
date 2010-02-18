@@ -29,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.11");
+vtkCxxRevisionMacro(vtkPlotLine, "1.12");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -229,6 +229,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
                              y, x->GetSize()));
       }
     }
+  this->SetLabel(y->GetName());
   this->BuildTime.Modified();
   return true;
 }

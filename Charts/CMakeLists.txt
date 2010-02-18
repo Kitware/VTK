@@ -20,6 +20,7 @@ SET(Kit_SRCS
   vtkBlockItem.cxx
   vtkBrush.cxx
   vtkChart.cxx
+  vtkChartLegend.cxx
   vtkChartXY.cxx
   vtkColorSeries.cxx
   vtkContext2D.cxx
