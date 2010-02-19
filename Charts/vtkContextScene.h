@@ -166,8 +166,9 @@ private:
 
 // Description:
 // Data structure to store context scene mouse events to be passed to items.
-struct vtkContextMouseEvent
+class vtkContextMouseEvent
 {
+public:
   float Pos[2]; // Item position
   float ScenePos[2]; // Position in scene coordinates
   int ScreenPos[2]; // Position in screen coordinates
