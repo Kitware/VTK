@@ -28,6 +28,7 @@ class vtkTable;
 class vtkIdTypeArray;
 class vtkContextMapper2D;
 class vtkPen;
+class vtkBrush;
 
 class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
 {
@@ -51,16 +52,21 @@ public:
 
   // Description:
   // Set the width of the line.
-  void SetWidth(float width);
+  virtual void SetWidth(float width);
 
   // Description:
   // Get the width of the line.
-  float GetWidth();
+  virtual float GetWidth();
 
   // Description:
   // Get a pointer to the vtkPen object that controls the was this plot draws
   // lines.
   vtkGetObjectMacro(Pen, vtkPen);
+
+  // Description:
+  // Get a pointer to the vtkBrush object that controls the was this plot fills
+  // shapes.
+  vtkGetObjectMacro(Brush, vtkBrush);
 
   // Description:
   // Set the plot label.
@@ -115,6 +121,10 @@ protected:
   // Description:
   // This object stores the vtkPen that controls how the plot is drawn.
   vtkPen* Pen;
+
+  // Description:
+  // This object stores the vtkBrush that controls how the plot is drawn.
+  vtkBrush* Brush;
 
   // Description:
   // Plot label, used by legend.

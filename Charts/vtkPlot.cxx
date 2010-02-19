@@ -16,6 +16,7 @@
 #include "vtkPlot.h"
 
 #include "vtkPen.h"
+#include "vtkBrush.h"
 #include "vtkTable.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
@@ -24,7 +25,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.9");
+vtkCxxRevisionMacro(vtkPlot, "1.10");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
@@ -32,6 +33,7 @@ vtkPlot::vtkPlot()
 {
   this->Pen = vtkPen::New();
   this->Pen->SetWidth(2.0);
+  this->Brush = vtkBrush::New();
   this->Label = NULL;
   this->UseIndexForXSeries = false;
   this->Data = vtkContextMapper2D::New();
@@ -45,6 +47,11 @@ vtkPlot::~vtkPlot()
     {
     this->Pen->Delete();
     this->Pen = NULL;
+    }
+  if (this->Brush)
+    {
+    this->Brush->Delete();
+    this->Brush = NULL;
     }
   if (this->Data)
     {
