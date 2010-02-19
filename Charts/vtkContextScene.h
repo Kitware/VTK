@@ -164,6 +164,8 @@ private:
 //ETX
 };
 
+
+//BTX
 // Description:
 // Data structure to store context scene mouse events to be passed to items.
 class vtkContextMouseEvent
@@ -177,5 +179,6 @@ public:
   int LastScreenPos[2]; // Position in screen coordinates
   int Button; // Mouse button that was pressed (0-left, 1-middle, 2-right)
 };
+//ETX
 
 #endif //__vtkContextScene_h
