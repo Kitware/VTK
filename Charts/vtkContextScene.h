@@ -29,7 +29,7 @@
 class vtkContext2D;
 class vtkContextItem;
 class vtkTransform2D;
-struct vtkContextMouseEvent;
+class vtkContextMouseEvent;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
