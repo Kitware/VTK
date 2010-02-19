@@ -31,7 +31,7 @@
 
 class vtkVolumeMapper;
 
-class VTK_EXPORT vtkVolumeOutlineSource : public vtkPolyDataAlgorithm
+class VTK_VOLUMERENDERING_EXPORT vtkVolumeOutlineSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkVolumeOutlineSource *New();
