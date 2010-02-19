@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.2");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -2077,6 +2077,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   const char *gl_vendor=reinterpret_cast<const char *>(glGetString(GL_VENDOR));
   if(strstr(gl_vendor,"ATI")!=0)
     {
+    this->LoadExtensionsSucceeded=0;
+    return;
+    }
+  const char *gl_version=reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  if(strstr(gl_version,"Mesa")!=0)
+    {
+    // - GL_VENDOR cannot be used because it can be "Brian Paul" or
+    // "Mesa project"
+    // - GL_RENDERER cannot be used because it can be "Software Rasterizer" or
+    // "Mesa X11"
+    // - GL_VERSION is more robust. It has things like "2.0 Mesa 7.0.4" or
+    // "2.1 Mesa 7.2" or "2.1 Mesa 7.3-devel"
+    // Mesa does not work with multiple draw buffers:
+    // "framebuffer has bad draw buffer"
+    // "render clipped 1 ERROR (x506) invalid framebuffer operation ext"
     this->LoadExtensionsSucceeded=0;
     return;
     }
