@@ -13,18 +13,19 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       PreIntegrationNonIncremental.cxx
       ProjectedTetrahedraZoomIn.cxx
       TestFinalColorWindowLevel.cxx
-      TestGPURayCastCompositeToMIP.cxx
-      TestGPURayCastCompositeMask.cxx
       TestGPURayCastCompositeMaskBlend.cxx
+      TestGPURayCastCompositeMask.cxx
       TestGPURayCastCompositeShadeMask.cxx
-      TestGPURayCastDataTypesMIP.cxx
+      TestGPURayCastCompositeToMIP.cxx
+      TestGPURayCastCropping.cxx
       TestGPURayCastDataTypesMinIP.cxx
-      TestGPURayCastFourComponentsMIP.cxx
-      TestGPURayCastFourComponentsMinIP.cxx
+      TestGPURayCastDataTypesMIP.cxx
       TestGPURayCastFourComponentsComposite.cxx
       TestGPURayCastFourComponentsCompositeStreaming.cxx
-      TestGPURayCastNearestDataTypesMIP.cxx
+      TestGPURayCastFourComponentsMinIP.cxx
+      TestGPURayCastFourComponentsMIP.cxx
       TestGPURayCastMIPToComposite.cxx
+      TestGPURayCastNearestDataTypesMIP.cxx
       TestHAVSVolumeMapper.cxx
       TestMinIntensityRendering.cxx
       TestProjectedTetrahedra.cxx
