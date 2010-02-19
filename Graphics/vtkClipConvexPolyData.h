@@ -12,7 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+// .NAME vtkClipConvexPolyData - clip any dataset with user-specified implicit function or input scalar data
+// .SECTION Description
+// vtkClipConvexPolyData is a filter that clips a convex polydata with a set
+// of planes. Its main usage is for clipping a bounding volume with frustum
+// planes (used later one in volume rendering).
 
 #ifndef __vtkClipConvexPolyData_h
 #define __vtkClipConvexPolyData_h
@@ -32,9 +36,9 @@ public:
 
   // Description:
   // Set all the planes at once using a vtkPlanes implicit function.
-  // This also sets the D value, so it can be used with GenerateClipConvexPolyData().
-  void SetPlanes( vtkPlaneCollection *planes );
-  vtkGetObjectMacro( Planes, vtkPlaneCollection );
+  // This also sets the D value.
+  void SetPlanes(vtkPlaneCollection *planes);
+  vtkGetObjectMacro(Planes,vtkPlaneCollection);
   
   // Description:
   // Redefines this method, as this filter depends on time of its components
@@ -44,21 +48,36 @@ public:
 protected:
   vtkClipConvexPolyData();
   ~vtkClipConvexPolyData();
-
-  vtkPlaneCollection *Planes;
-
-  vtkClipConvexPolyDataInternals *Internal;
-
-  void ClipWithPlane( vtkPlane *, double tolerance );
   
-  int HasDegeneracies( vtkPlane * );
-
   // The method that does it all...
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *request,
+                  vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector);
+  
+  // Description:
+  // Clip the input with a given plane `p'.
+  // tolerance ?
+  void ClipWithPlane(vtkPlane *p,
+                     double tolerance);
+  
+  // Description:
+  // Tells if clipping the input by plane `p' creates some degeneracies.
+  bool HasDegeneracies(vtkPlane *p);
 
+  // Description:
+  // Delete calculation data.
   void ClearInternals();
+  
+  // Description:
+  // ?
   void ClearNewVertices();
+  
+  // Description:
+  // ?
   void RemoveEmptyPolygons();
+  
+  vtkPlaneCollection *Planes;
+  vtkClipConvexPolyDataInternals *Internal;
   
 private:
   vtkClipConvexPolyData(const vtkClipConvexPolyData&);  // Not implemented.
