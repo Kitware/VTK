@@ -27,7 +27,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkVolumeOutlineSource, "1.1");
+vtkCxxRevisionMacro(vtkVolumeOutlineSource, "1.2");
 vtkStandardNewMacro(vtkVolumeOutlineSource);
 
 vtkCxxSetObjectMacro(vtkVolumeOutlineSource,VolumeMapper,vtkVolumeMapper);
@@ -95,6 +95,12 @@ void vtkVolumeOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 int vtkVolumeOutlineSource::ComputeCubePlanes(
   double planes[3][4], double croppingPlanes[6], double bounds[6])
 {
+  // Combine the CroppingRegionPlanes and the Bounds to create
+  // a single array.  For each dimension, store the planes in
+  // the following order: lo_bound, lo_crop_plane, hi_crop_plane, hi_bound.
+  // Also do range checking to ensure that the cropping planes
+  // are clamped to the bound limits.
+
   for (int i = 0; i < 3; i++)
     {
     int j0 = 2*i;
@@ -105,11 +111,13 @@ int vtkVolumeOutlineSource::ComputeCubePlanes(
     double c = croppingPlanes[j1];
     double d = bounds[j1];
 
+    // Sanity check
     if (a > d || b > c)
       {
       return 0;
       }
 
+    // Clamp cropping planes to bounds
     if (b < a) { b = a; };
     if (b > d) { b = d; };
     if (c < a) { c = a; };
@@ -190,7 +198,8 @@ int vtkVolumeOutlineSource::RequestInformation(
   // ComputePipelineMTime.
   // data->UpdateInformation();
 
-  // Don't call GetBounds because we need whole extent
+  // Don't call GetBounds because we need WholeExtent, while
+  // GetBounds only returns the bounds for Extent.
 
   double spacing[3];
   double origin[3];
@@ -241,6 +250,8 @@ int vtkVolumeOutlineSource::RequestData(
 
   vtkDebugMacro(<< "Creating cropping region outline");
 
+  // For each of the 3 dimensions, there are 4 planes: two bounding planes
+  // on the outside, and two cropping region planes inside.
   double planes[3][4];
 
   if (!this->VolumeMapper || !this->VolumeMapper->GetInput() ||
@@ -254,7 +265,7 @@ int vtkVolumeOutlineSource::RequestData(
     return 1;
     }
 
-  // Compute the tolerance for coincident points
+  // Compute the tolerance for considering points or planes to be coincident
   double tol = 0;
   for (int planeDim = 0; planeDim < 3; planeDim++)
     {
@@ -263,14 +274,15 @@ int vtkVolumeOutlineSource::RequestData(
     }
   tol = sqrt(tol)*1e-5;
 
-  // Nudge crop planes over to the bounds if they are within tolerance
+  // Create an array to nudge crop planes over to the bounds if they are
+  // within tolerance of the bounds
   int tolPtId[3][4];
   this->NudgeCropPlanesToBounds(tolPtId, planes, tol);
 
   // The all-important cropping flags
   int flags = this->CroppingRegionFlags;
 
-  // The active plane, which gets the second color
+  // The active plane, which gets a special color for its scalars
   int activePlane = this->ActivePlaneId;
   if (activePlane > 5) { activePlane = -1; };
 
@@ -334,7 +346,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
   int flags,
   int tolPtId[3][4])
 {
-  // Loop over the three dimensions and create the lines
+  // Loop over the three dimensions and create the face rectangles
   for (int dim0 = 0; dim0 < 3; dim0++)
     {
     // Compute the other two dimension indices
@@ -396,8 +408,8 @@ void vtkVolumeOutlineSource::GeneratePolys(
 
           // Loop through the two cubes adjacent to the rectangle,
           // in order to determine whether the rectangle is internal:
-          // only non-internal rects will be drawn.  The "bitCheck"
-          // holds a bit for each of these four cubes.
+          // only external faces will be drawn.  The "bitCheck"
+          // holds a bit for each of these two cubes.
           int bitCheck = 0;
           int cidx[3];
           cidx[dim0] = idx[dim0];
@@ -416,8 +428,8 @@ void vtkVolumeOutlineSource::GeneratePolys(
             bitCheck |= flagval;
             }
 
-          // Whether we need a rect depends on the the value of bitCheck.
-          // Values 00, 11 don't need lines. 
+          // Whether we need to create a face depends on bitCheck.
+          // Values 00, 11 don't need lines, while 01 and 10 do.
 
           // If our rect isn't an internal rect
           if (bitCheck != 0x0 && bitCheck != 0x3)
@@ -451,7 +463,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
               polys->InsertCellPoint(pointId[0]);
               }
 
-            // Color the line segment
+            // Color the face
             if (scalars)
               {
               scalars->InsertNextTupleValue(colors[active]);
@@ -617,30 +629,24 @@ void vtkVolumeOutlineSource::GeneratePoints(
   unsigned int pointBits1 = 0;
   unsigned int pointBits2 = 0;
 
-  vtkIdType npnts, *pnts;
-  if (lines)
+  vtkIdType npts, *pts;
+  vtkCellArray *cellArrays[2];
+  cellArrays[0] = lines;
+  cellArrays[1] = polys;
+  
+  for (int arrayId = 0; arrayId < 2; arrayId++)
     {
-    lines->InitTraversal();
-    while (lines->GetNextCell(npnts, pnts))
+    if (cellArrays[arrayId])
       {
-      for (int ii = 0; ii < npnts; ii++)
+      cellArrays[arrayId]->InitTraversal();
+      while (cellArrays[arrayId]->GetNextCell(npts, pts))
         {
-        int pointId = pnts[ii];
-        if (pointId < 32) { pointBits1 |= (1 << pointId); }
-        else { pointBits2 |= (1 << (pointId - 32)); }
-        }
-      }
-    }
-  if (polys)
-    {
-    polys->InitTraversal();
-    while (polys->GetNextCell(npnts, pnts))
-      {
-      for (int ii = 0; ii < npnts; ii++)
-        {
-        int pointId = pnts[ii];
-        if (pointId < 32) { pointBits1 |= (1 << pointId); }
-        else { pointBits2 |= (1 << (pointId - 32)); }
+        for (int ii = 0; ii < npts; ii++)
+          {
+          int pointId = pts[ii];
+          if (pointId < 32) { pointBits1 |= (1 << pointId); }
+          else { pointBits2 |= (1 << (pointId - 32)); }
+          }
         }
       }
     }
@@ -671,27 +677,18 @@ void vtkVolumeOutlineSource::GeneratePoints(
 
           points->InsertNextPoint(x, y, z);
 
-          // Go through the cells, substitute old Id for new Id
-          vtkIdType npts, *pts;
-          if (lines)
+          for (int arrayId = 0; arrayId < 2; arrayId++)
             {
-            lines->InitTraversal();
-            while (lines->GetNextCell(npts, pts))
+            // Go through the cells, substitute old Id for new Id
+            if (cellArrays[arrayId])
               {
-              for (int ii = 0; ii < npts; ii++)
+              cellArrays[arrayId]->InitTraversal();
+              while (cellArrays[arrayId]->GetNextCell(npts, pts))
                 {
-                if (pts[ii] == ptId) { pts[ii] = newPtId; } 
-                }
-              }
-            }
-          if (polys)
-            {
-            polys->InitTraversal();
-            while (polys->GetNextCell(npts, pts))
-              {
-              for (int ii = 0; ii < npts; ii++)
-                {
-                if (pts[ii] == ptId) { pts[ii] = newPtId; } 
+                for (int ii = 0; ii < npts; ii++)
+                  {
+                  if (pts[ii] == ptId) { pts[ii] = newPtId; } 
+                  }
                 }
               }
             }
