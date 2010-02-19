@@ -27,8 +27,7 @@
 #define __vtkPen_h
 
 #include "vtkObject.h"
-
-class vtkColor4ub;
+#include "vtkColor.h" // Needed for vtkColor4ub
 
 class VTK_CHARTS_EXPORT vtkPen : public vtkObject
 {
@@ -133,7 +132,7 @@ protected:
   // Description:
   // Storage of the color in RGBA format (0-255 per channel).
   unsigned char* Color;
-  vtkColor4ub* PenColor;
+  vtkColor4ub PenColor;
 
   // Description:
   // Store the width of the pen in pixels.

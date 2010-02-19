@@ -19,7 +19,7 @@
 #include "vtkColor.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPen, "1.6");
+vtkCxxRevisionMacro(vtkPen, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPen);
@@ -27,12 +27,7 @@ vtkStandardNewMacro(vtkPen);
 //-----------------------------------------------------------------------------
 vtkPen::vtkPen()
 {
-  this->PenColor = new vtkColor4ub;
-  this->Color = this->PenColor->GetData();
-/*  this->Color[0] = 0;
-  this->Color[1] = 0;
-  this->Color[2] = 0;
-  this->Color[3] = 255; */
+  this->Color = this->PenColor.GetData();
   this->Width = 1.0;
   this->LineType = this->SOLID_LINE;
 }
@@ -40,8 +35,6 @@ vtkPen::vtkPen()
 //-----------------------------------------------------------------------------
 vtkPen::~vtkPen()
 {
-  delete this->PenColor;
-  this->PenColor = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -146,7 +139,11 @@ unsigned char vtkPen::GetOpacity()
 //-----------------------------------------------------------------------------
 void vtkPen::DeepCopy(vtkPen *pen)
 {
-  *(this->PenColor) = *(pen->PenColor);
+  if (!pen)
+    {
+    return;
+    }
+  this->PenColor = pen->PenColor;
   this->Width = pen->Width;
   this->LineType = pen->LineType;
 }

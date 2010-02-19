@@ -26,6 +26,7 @@
 #define __vtkBrush_h
 
 #include "vtkObject.h"
+#include "vtkColor.h" // Needed for vtkColor4ub
 
 class VTK_CHARTS_EXPORT vtkBrush : public vtkObject
 {
@@ -88,13 +89,18 @@ public:
   // Get the color of the brush - gives a pointer to the underlying data.
   unsigned char * GetColor() { return &this->Color[0]; }
 
+  // Description:
+  // Make a deep copy of the supplied brush.
+  void DeepCopy(vtkBrush *brush);
+
 //BTX
 protected:
   vtkBrush();
   ~vtkBrush();
 
   // Storage of the color in RGBA format (0-255 per channel).
-  unsigned char Color[4];
+  unsigned char* Color;
+  vtkColor4ub BrushColor;
 
 private:
   vtkBrush(const vtkBrush &); // Not implemented.
