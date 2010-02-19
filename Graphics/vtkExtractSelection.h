@@ -15,8 +15,8 @@
 // .NAME vtkExtractSelection - extract a subset from a vtkDataSet.
 // .SECTION Description
 // vtkExtractSelection extracts some subset of cells and points from
-// its input dataset. The subset is described by the contents of the
-// vtkSelection on its first input port. The dataset is given on its 
+// its input dataset. The dataset is given on its first input port. 
+// The subset is described by the contents of the vtkSelection on its 
 // second input port. Depending on the content of the vtkSelection,
 // this will use either a vtkExtractSelectedIds, vtkExtractSelectedFrustum
 // vtkExtractSelectedLocations or a vtkExtractSelectedThreshold to perform
