@@ -708,12 +708,11 @@ QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) cons
     return 0;
     }
 
-  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
-  indexSelection.TakeReference(QModelIndexListToVTKIndexSelection(indexes));
+  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::Take(QModelIndexListToVTKIndexSelection(indexes));
+  //vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::Take(vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS));
 
-  vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::New();
-  pedigreeIdSelection.TakeReference(vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS));
-  //vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
+  // This is a memory-leak, we need to serialize its contents as a string, instead of serializing a pointer to the object
+  vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
 
   if(pedigreeIdSelection->GetNode(0) == 0 || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
     {
