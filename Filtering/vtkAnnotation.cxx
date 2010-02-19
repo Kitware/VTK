@@ -31,7 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkAnnotation, "1.7");
+vtkCxxRevisionMacro(vtkAnnotation, "1.8");
 vtkStandardNewMacro(vtkAnnotation);
 
 vtkCxxSetObjectMacro(vtkAnnotation, Selection, vtkSelection);
@@ -114,6 +114,10 @@ void vtkAnnotation::ShallowCopy(vtkDataObject* other)
     {
     info->CopyEntry(otherInfo,vtkAnnotation::DATA());
     }
+  if(otherInfo->Has(vtkAnnotation::ICON_INDEX()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::ICON_INDEX());
+    }
 }
 
 void vtkAnnotation::DeepCopy(vtkDataObject* other)
@@ -153,6 +157,10 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
   if(otherInfo->Has(vtkAnnotation::DATA()))
     {
     info->CopyEntry(otherInfo,vtkAnnotation::DATA());
+    }
+  if(otherInfo->Has(vtkAnnotation::ICON_INDEX()))
+    {
+    info->CopyEntry(otherInfo,vtkAnnotation::ICON_INDEX());
     }
 }
 
