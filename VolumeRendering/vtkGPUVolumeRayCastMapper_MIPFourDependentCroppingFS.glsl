@@ -18,6 +18,12 @@
 
 #version 110
 
+// GLSL Spec 1.10 rev 59 30-April-2004 defines gl_FragData[] but implementation
+// older than the spec only has it as an extension
+// (nVidia Linux driver 100.14.13, OpenGL version 2.1.1,
+// on Quadro FX 3500/PCI/SSE2)
+#extension GL_ARB_draw_buffers : enable
+
 // max scalar buffer as an input
 uniform sampler2D scalarBufferTexture;
 
