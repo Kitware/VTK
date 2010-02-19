@@ -135,7 +135,7 @@ public:
   void DrawWedge(float x, float y, float outRadius,
                  float inRadius,float startAngle,
                  float stopAngle);
-  
+
   // Description:
   // Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,
   // inner radii inRx, inRy between angles startAngle and stopAngle
@@ -149,15 +149,15 @@ public:
   void DrawEllipseWedge(float x, float y, float outRx, float outRy,
                         float inRx, float inRy, float startAngle,
                         float stopAngle);
-  
-  
+
+
   // Description:
   // Draw an circular arc with center at x,y with radius r between angles
   // startAngle and stopAngle (expressed in degrees).
   // \pre positive_radius: r>=0
   void DrawArc(float x, float y, float r, float startAngle,
                float stopAngle);
-  
+
   // Description:
   // Draw an elliptic arc with center at x,y with radii rX and rY between
   // angles startAngle and stopAngle (expressed in degrees).
@@ -165,8 +165,8 @@ public:
   // \pre positive_rY: rY>=0
   void DrawEllipticArc(float x, float y, float rX, float rY, float startAngle,
                        float stopAngle);
-  
-  
+
+
   // Description:
   // Draw the supplied image at the given x, y location (bottom corner).
   void DrawImage(float x, float y, vtkImageData *image);
@@ -195,7 +195,7 @@ public:
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkPen
-  // object in the vtkContext, it does not hold a pointer to the supplied object.
+  // object in the vtkContext2D, it does not hold a pointer to the supplied object.
   void ApplyPen(vtkPen *pen);
 
   // Description:
@@ -205,14 +205,24 @@ public:
   vtkGetObjectMacro(Pen, vtkPen);
 
   // Description:
-  // Get/Set the pen which controls the outlines of shapes as well as lines,
-  // points and related primitives.
-  void SetBrush(vtkBrush *brush);
+  // Apply the supplied brush which controls the outlines of shapes, as well as
+  // lines, points and related primitives. This makes a deep copy of the vtkBrush
+  // object in the vtkContext2D, it does not hold a pointer to the supplied object.
+  void ApplyBrush(vtkBrush *brush);
+
+  // Description:
+  // Get the pen which controls the outlines of shapes as well as lines, points
+  // and related primitives.
   vtkGetObjectMacro(Brush, vtkBrush);
 
   // Description:
-  // Get/set the text properties.
-  void SetTextProp(vtkTextProperty *prop);
+  // Apply the supplied text property which controls how text is rendered.
+  // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
+  // it does not hold a pointer to the supplied object.
+  void ApplyTextProp(vtkTextProperty *prop);
+
+  // Description:
+  // Get the text properties object for the vtkContext2D.
   vtkGetObjectMacro(TextProp, vtkTextProperty);
 
   // Description:

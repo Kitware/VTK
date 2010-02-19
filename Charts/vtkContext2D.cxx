@@ -29,9 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.18");
-vtkCxxSetObjectMacro(vtkContext2D, Brush, vtkBrush);
-vtkCxxSetObjectMacro(vtkContext2D, TextProp, vtkTextProperty);
+vtkCxxRevisionMacro(vtkContext2D, "1.19");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);
@@ -262,7 +260,7 @@ void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
 {
   assert("pre: positive_rx" && rx>=0);
   assert("pre: positive_ry" && ry>=0);
-  
+
   this->DrawEllipticArc(x,y,rx,ry,0.0,360.0);
 }
 
@@ -275,7 +273,7 @@ void vtkContext2D::DrawWedge(float x, float y, float outRadius,
   assert("pre: positive_outRadius" && outRadius>=0.0f);
   assert("pre: positive_inRadius" && inRadius>=0.0f);
   assert("pre: ordered_radii" && inRadius<=outRadius);
-  
+
   this->DrawEllipseWedge(x,y,outRadius,outRadius,inRadius,inRadius,startAngle,
     stopAngle);
 }
@@ -292,7 +290,7 @@ void vtkContext2D::DrawEllipseWedge(float x, float y, float outRx, float outRy,
   assert("pre: positive_inRy" && inRy>=0.0f);
   assert("pre: ordered_rx" && inRx<=outRx);
   assert("pre: ordered_ry" && inRy<=outRy);
-  
+
   if (!this->Device)
     {
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
@@ -301,9 +299,9 @@ void vtkContext2D::DrawEllipseWedge(float x, float y, float outRx, float outRy,
   // don't tessellate here. The device context knows what to do with an
   // arc. An OpenGL device context will tessellate but and SVG context with
   // just generate an arc.
-  
+
   this->ApplyBrush();
-  
+
   this->Device->DrawEllipseWedge(x,y,outRx,outRy,inRx,inRy,startAngle,
                                  stopAngle);
 }
@@ -315,14 +313,14 @@ void vtkContext2D::DrawArc(float x, float y, float r, float startAngle,
   assert("pre: positive_radius" && r>=0);
   this->DrawEllipticArc(x,y,r,r,startAngle,stopAngle);
 }
-  
+
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawEllipticArc(float x, float y, float rX, float rY,
                                    float startAngle, float stopAngle)
 {
   assert("pre: positive_rX" && rX>=0);
   assert("pre: positive_rY" && rY>=0);
-  
+
   if (!this->Device)
     {
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
@@ -331,9 +329,9 @@ void vtkContext2D::DrawEllipticArc(float x, float y, float rX, float rY,
   // don't tessellate here. The device context knows what to do with an
   // arc. An OpenGL device context will tessellate but and SVG context with
   // just generate an arc.
-  
+
   this->ApplyPen();
-  
+
   this->Device->DrawEllipticArc(x,y,rX,rY,startAngle,stopAngle);
 }
 
@@ -417,6 +415,19 @@ unsigned int vtkContext2D::AddPointSprite(vtkImageData *image)
 void vtkContext2D::ApplyPen(vtkPen *pen)
 {
   this->Pen->DeepCopy(pen);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::ApplyBrush(vtkBrush *brush)
+{
+  this->Brush->DeepCopy(brush);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::ApplyTextProp(vtkTextProperty *prop)
+{
+  // This is really a deep copy, but called shallow copy for some reason...
+  this->TextProp->ShallowCopy(prop);
 }
 
 //-----------------------------------------------------------------------------
