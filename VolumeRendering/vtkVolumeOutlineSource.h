@@ -47,7 +47,7 @@ public:
   vtkVolumeMapper *GetVolumeMapper() { return this->VolumeMapper; };
 
   // Description:
-  // Set whether to add color scalars to the output.  By default,
+  // Set whether to generate color scalars for the output.  By default,
   // the output has no scalars and the color must be set in the
   // property of the actor.
   vtkSetMacro(GenerateScalars, int);
@@ -56,7 +56,8 @@ public:
 
   // Description:
   // Set whether to generate polygonal faces for the output.  By default,
-  // only lines are generated.
+  // only lines are generated.  The faces will form a closed, watertight
+  // surface.
   vtkSetMacro(GenerateFaces, int);
   vtkBooleanMacro(GenerateFaces, int);
   vtkGetMacro(GenerateFaces, int);
@@ -76,7 +77,8 @@ public:
 
   // Description:
   // Set the color of the active cropping plane.  This has no effect unless
-  // ColorOutline is On and ActivePlaneId is non-negative.  Default is yellow. 
+  // GenerateScalars is On and ActivePlaneId is non-negative.  The default
+  // color is yellow. 
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
 
