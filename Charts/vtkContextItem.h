@@ -28,7 +28,7 @@
 class vtkContext2D;
 class vtkContextScene;
 class vtkTransform2D;
-struct vtkContextMouseEvent;
+class vtkContextMouseEvent;
 
 class VTK_CHARTS_EXPORT vtkContextItem : public vtkObject
 {
