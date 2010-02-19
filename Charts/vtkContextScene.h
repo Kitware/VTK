@@ -171,12 +171,12 @@ private:
 class vtkContextMouseEvent
 {
 public:
-  float Pos[2]; // Item position
-  float ScenePos[2]; // Position in scene coordinates
-  int ScreenPos[2]; // Position in screen coordinates
-  float LastPos[2]; // Item position
-  float LastScenePos[2]; // Position in scene coordinates
-  int LastScreenPos[2]; // Position in screen coordinates
+  float Pos[2]; // Position of the mouse in item coordinate system.
+  float ScenePos[2]; // Position of the mouse the scene coordinate system.
+  int ScreenPos[2]; // Position of the mouse in screen coordinates
+  float LastPos[2]; // `Pos' at the previous mouse event 
+  float LastScenePos[2]; // `ScenePos'at the previous mouse event
+  int LastScreenPos[2]; // `ScreenPos' at the previous mouse event.
   int Button; // Mouse button that was pressed (0-left, 1-middle, 2-right)
 };
 //ETX
