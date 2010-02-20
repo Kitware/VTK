@@ -20,6 +20,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDelaunay2D.cxx
     TestDeformPointSet.cxx
     TestExtraction.cxx
+    TestExtractPolyhedralMesh.cxx
     TestExtractSelection.cxx
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
