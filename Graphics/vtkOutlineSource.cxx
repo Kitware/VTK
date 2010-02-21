@@ -21,13 +21,16 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineSource, "1.35");
+vtkCxxRevisionMacro(vtkOutlineSource, "1.36");
 vtkStandardNewMacro(vtkOutlineSource);
 
 //----------------------------------------------------------------------------
 vtkOutlineSource::vtkOutlineSource()
 {
   this->BoxType = VTK_BOX_TYPE_AXIS_ALIGNED;
+
+  this->GenerateFaces = 0;
+
   for (int i=0; i<3; i++)
     {
     this->Bounds[2*i] = -1.0;
@@ -76,16 +79,29 @@ int vtkOutlineSource::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  double *bounds;
+  double bounds[6];
   double x[3];
-  vtkIdType pts[2];
+  vtkIdType pts[4];
   vtkPoints *newPts;
   vtkCellArray *newLines;
+  vtkCellArray *newPolys = 0;
   
   //
   // Initialize
   //
-  bounds = this->Bounds;
+  for (int i = 0; i < 6; i+=2)
+    {
+    int j = i+1;
+    bounds[i] = this->Bounds[i];
+    bounds[j] = this->Bounds[j];
+    if (bounds[i] > bounds[j])
+      {
+      double tmp = bounds[i];
+      bounds[i] = bounds[j];
+      bounds[j] = tmp;
+      }
+    }
+
   //
   // Allocate storage and create outline
   //
@@ -93,6 +109,12 @@ int vtkOutlineSource::RequestData(
   newPts->Allocate(8);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(12,2));
+
+  if (this->GenerateFaces)
+    {
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(newPolys->EstimateSize(6,4));
+    }
 
   if (this->BoxType==VTK_BOX_TYPE_AXIS_ALIGNED) 
     {
@@ -150,6 +172,22 @@ int vtkOutlineSource::RequestData(
   pts[0] = 3; pts[1] = 7;
   newLines->InsertNextCell(2,pts);
 
+  if (newPolys)
+    {
+    pts[0] = 1; pts[1] = 0; pts[2] = 2; pts[3] = 3;
+    newPolys->InsertNextCell(4,pts); 
+    pts[0] = 0; pts[1] = 1; pts[2] = 5; pts[3] = 4;
+    newPolys->InsertNextCell(4,pts); 
+    pts[0] = 2; pts[1] = 0; pts[2] = 4; pts[3] = 6;
+    newPolys->InsertNextCell(4,pts); 
+    pts[0] = 3; pts[1] = 2; pts[2] = 6; pts[3] = 7;
+    newPolys->InsertNextCell(4,pts); 
+    pts[0] = 1; pts[1] = 3; pts[2] = 7; pts[3] = 5;
+    newPolys->InsertNextCell(4,pts); 
+    pts[0] = 7; pts[1] = 6; pts[2] = 4; pts[3] = 5;
+    newPolys->InsertNextCell(4,pts); 
+    }
+
   // Update selves and release memory
   //
   output->SetPoints(newPts);
@@ -158,6 +196,12 @@ int vtkOutlineSource::RequestData(
   output->SetLines(newLines);
   newLines->Delete();
 
+  if (newPolys)
+    {
+    output->SetPolys(newPolys);
+    newPolys->Delete();
+    }
+
   return 1;
 }
 
@@ -165,6 +209,9 @@ int vtkOutlineSource::RequestData(
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Generate Faces: "
+     << (this->GenerateFaces ? "On\n" : "Off\n");
 
   os << indent << "Box Type: ";
   if ( this->BoxType == VTK_BOX_TYPE_AXIS_ALIGNED )

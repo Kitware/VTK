@@ -60,12 +60,19 @@ public:
   vtkSetVectorMacro(Corners,double,24);
   vtkGetVectorMacro(Corners,double,24);
 
+  // Description:
+  // Generate solid faces for the box. This is off by default.
+  vtkSetMacro(GenerateFaces, int);
+  vtkBooleanMacro(GenerateFaces, int);
+  vtkGetMacro(GenerateFaces, int);
+
 protected:
   vtkOutlineSource();
   ~vtkOutlineSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int   BoxType;
+  int   GenerateFaces;
   double Bounds[6];
   double Corners[24];
 

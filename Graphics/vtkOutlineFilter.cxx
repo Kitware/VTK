@@ -21,13 +21,15 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineFilter, "1.35");
+vtkCxxRevisionMacro(vtkOutlineFilter, "1.36");
 vtkStandardNewMacro(vtkOutlineFilter);
 
 //----------------------------------------------------------------------------
 vtkOutlineFilter::vtkOutlineFilter ()
 {
   this->OutlineSource = vtkOutlineSource::New();
+
+  this->GenerateFaces = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -63,6 +65,7 @@ int vtkOutlineFilter::RequestData(
   //
 
   this->OutlineSource->SetBounds(input->GetBounds());
+  this->OutlineSource->SetGenerateFaces(this->GenerateFaces);
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());
@@ -76,3 +79,13 @@ int vtkOutlineFilter::FillInputPortInformation(int, vtkInformation *info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+
+//----------------------------------------------------------------------------
+void vtkOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Generate Faces: "
+     << (this->GenerateFaces ? "On\n" : "Off\n");
+}
+

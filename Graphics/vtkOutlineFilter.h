@@ -30,11 +30,19 @@ class VTK_GRAPHICS_EXPORT vtkOutlineFilter : public vtkPolyDataAlgorithm
 public:
   static vtkOutlineFilter *New();
   vtkTypeRevisionMacro(vtkOutlineFilter,vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Generate solid faces for the box. This is off by default.
+  vtkSetMacro(GenerateFaces, int);
+  vtkBooleanMacro(GenerateFaces, int);
+  vtkGetMacro(GenerateFaces, int);
 
 protected:
   vtkOutlineFilter();
   ~vtkOutlineFilter();
 
+  int GenerateFaces;
   vtkOutlineSource *OutlineSource;
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
