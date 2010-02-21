@@ -14,10 +14,11 @@
 =========================================================================*/
 // .NAME vtkUnstructuredGrid - dataset represents arbitrary combinations of all possible cell types
 // .SECTION Description
-// vtkUnstructuredGrid is a data object that is a concrete implementation 
-// of vtkDataSet. vtkUnstructuredGrid represents any combinations of any cell
-// types. This includes 0D (e.g., points), 1D (e.g., lines, polylines), 2D 
-// (e.g., triangles, polygons), and 3D (e.g., hexahedron, tetrahedron).
+// vtkUnstructuredGrid is a data object that is a concrete implementation of
+// vtkDataSet. vtkUnstructuredGrid represents any combinations of any cell
+// types. This includes 0D (e.g., points), 1D (e.g., lines, polylines), 2D
+// (e.g., triangles, polygons), and 3D (e.g., hexahedron, tetrahedron,
+// polyhedron, etc.).
 
 #ifndef __vtkUnstructuredGrid_h
 #define __vtkUnstructuredGrid_h

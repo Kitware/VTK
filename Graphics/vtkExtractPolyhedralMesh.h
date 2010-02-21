@@ -12,72 +12,43 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractPolyhedralMesh - extract cells that lie either entirely inside or outside of a specified implicit function
-
+// .NAME vtkExtractPolyhedralMesh - extract 3D cells as polyhedron
 // .SECTION Description
-// vtkExtractPolyhedralMesh extracts from its input dataset all cells that are either
-// completely inside or outside of a specified implicit function. Any type of
-// dataset can be input to this filter. On output the filter generates an
-// unstructured grid.
-//
-// To use this filter you must specify an implicit function. You must also
-// specify whethter to extract cells lying inside or outside of the implicit 
-// function. (The inside of an implicit function is the negative values 
-// region.) An option exists to extract cells that are neither inside or
-// outside (i.e., boundary).
-//
-// A more efficient version of this filter is available for vtkPolyData input.
-// See vtkExtractPolyDataGeometry.
+// vtkExtractPolyhedralMesh extracts from its input dataset all 3D cells and
+// transforms them to a polyhedral cell type (VTK_POLYHEDRON). Cells of other
+// topological dimension are passed through (if desired). The output type of 
+// this filter is vtkUnstructuredGrid, with all 3D cells of polyhedral type.
 
 // .SECTION See Also
-// vtkExtractPolyDataGeometry vtkGeometryFilter vtkExtractVOI 
+// vtkPolyhedron vtkUnstructuredGrid
 
 #ifndef __vtkExtractPolyhedralMesh_h
 #define __vtkExtractPolyhedralMesh_h
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkImplicitFunction;
 
 class VTK_GRAPHICS_EXPORT vtkExtractPolyhedralMesh : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractPolyhedralMesh,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Description:
   // Construct object with ExtractInside turned on.
   static vtkExtractPolyhedralMesh *New();
 
   // Description:
-  // Return the MTime taking into account changes to the implicit function
-  unsigned long GetMTime();
+  // Standard instanitable class methods.
+  vtkTypeRevisionMacro(vtkExtractPolyhedralMesh,vtkUnstructuredGridAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the implicit function for inside/outside checks.
-  virtual void SetImplicitFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
-
-  // Description:
-  // Boolean controls whether to extract cells that are inside of implicit 
-  // function (ExtractInside == 1) or outside of implicit function 
-  // (ExtractInside == 0).
-  vtkSetMacro(ExtractInside,int);
-  vtkGetMacro(ExtractInside,int);
-  vtkBooleanMacro(ExtractInside,int);
-
-  // Description:
-  // Boolean controls whether to extract cells that are partially inside.
-  // By default, ExtractBoundaryCells is off.
-  vtkSetMacro(ExtractBoundaryCells,int);
-  vtkGetMacro(ExtractBoundaryCells,int);
-  vtkBooleanMacro(ExtractBoundaryCells,int);
-  vtkSetMacro(ExtractOnlyBoundaryCells,int);
-  vtkGetMacro(ExtractOnlyBoundaryCells,int);
-  vtkBooleanMacro(ExtractOnlyBoundaryCells,int);
+  // Boolean controls whether to pass cells of topological dimension two or
+  // less to the output. By default this variable is enabled.
+  vtkSetMacro(ExtractNon3DCells,int);
+  vtkGetMacro(ExtractNon3DCells,int);
+  vtkBooleanMacro(ExtractNon3DCells,int);
 
 protected:
-  vtkExtractPolyhedralMesh(vtkImplicitFunction *f=NULL);
+  vtkExtractPolyhedralMesh();
   ~vtkExtractPolyhedralMesh();
 
   // Usual data generation method
@@ -85,10 +56,7 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  vtkImplicitFunction *ImplicitFunction;
-  int ExtractInside;
-  int ExtractBoundaryCells;
-  int ExtractOnlyBoundaryCells;
+  int ExtractNon3DCells;
   
 private:
   vtkExtractPolyhedralMesh(const vtkExtractPolyhedralMesh&);  // Not implemented.
