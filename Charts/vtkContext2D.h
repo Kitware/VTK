@@ -234,6 +234,12 @@ public:
   void SetTransform(vtkTransform2D *transform);
   vtkGetObjectMacro(Transform, vtkTransform2D);
 
+  // Description:
+  // Push/pop the transformation matrix for the painter (sets the underlying
+  // matrix for the device when available).
+  void PushMatrix();
+  void PopMatrix();
+
 //BTX
 protected:
   vtkContext2D();

@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.19");
+vtkCxxRevisionMacro(vtkContext2D, "1.20");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);
@@ -447,6 +447,18 @@ void vtkContext2D::SetTransform(vtkTransform2D *transform)
     {
     this->Device->SetMatrix(transform->GetMatrix());
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::PushMatrix()
+{
+  this->Device->PushMatrix();
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::PopMatrix()
+{
+  this->Device->PopMatrix();
 }
 
 //-----------------------------------------------------------------------------
