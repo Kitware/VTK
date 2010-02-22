@@ -40,6 +40,7 @@ SET(Kit_SRCS
   vtkPanelMark.cxx
   vtkPen.cxx
   vtkPlot.cxx
+  vtkPlotBar.cxx
   vtkPlotGrid.cxx
   vtkPlotLine.cxx
   vtkPlotPoints.cxx
