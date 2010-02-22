@@ -54,22 +54,14 @@ StatsView::StatsView()
   this->TableView4 = vtkSmartPointer<vtkQtTableView>::New();
   
   // Set widgets for the tree and table views
-  
-  QVBoxLayout *layout1 = new QVBoxLayout;
-  layout1->addWidget(this->TableView1->GetWidget());
-  this->ui->tableFrame1->setLayout(layout1);
+  this->ui->tableFrame1->layout()->addWidget(this->TableView1->GetWidget());
+  this->ui->tableFrame2->layout()->addWidget(this->TableView2->GetWidget());
+  this->ui->tableFrame3->layout()->addWidget(this->TableView3->GetWidget());
+  this->ui->tableFrame4->layout()->addWidget(this->TableView4->GetWidget());
 
-  QVBoxLayout *layout2 = new QVBoxLayout;
-  layout2->addWidget(this->TableView2->GetWidget());
-  this->ui->tableFrame2->setLayout(layout2);
-
-  QVBoxLayout *layout3 = new QVBoxLayout;
-  layout3->addWidget(this->TableView3->GetWidget());
-  this->ui->tableFrame3->setLayout(layout3);
-
-  QVBoxLayout *layout4 = new QVBoxLayout;
-  layout4->addWidget(this->TableView4->GetWidget());
-  this->ui->tableFrame4->setLayout(layout4);
+  // Tweak the layout so we have a good out-of-box experience
+  const int window_width = this->width();
+  this->ui->splitter->setSizes(QList<int>() << window_width * 0.7 << window_width * 0.3 << 0);
 
   // Set up action signals and slots
   connect(this->ui->actionOpenSQLiteDB, SIGNAL(triggered()), this, SLOT(slotOpenSQLiteDB()));

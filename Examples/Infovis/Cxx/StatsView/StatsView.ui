@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>StatsView</class>
- <widget class="QMainWindow" name="StatsView" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="StatsView">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,165 +10,151 @@
     <height>666</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>StatsView</string>
   </property>
-  <property name="iconSize" >
+  <property name="iconSize">
    <size>
     <width>22</width>
     <height>22</height>
    </size>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <layout class="QVBoxLayout" >
-    <property name="spacing" >
-     <number>6</number>
-    </property>
-    <property name="leftMargin" >
-     <number>9</number>
-    </property>
-    <property name="topMargin" >
-     <number>9</number>
-    </property>
-    <property name="rightMargin" >
-     <number>9</number>
-    </property>
-    <property name="bottomMargin" >
-     <number>9</number>
-    </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <widget class="QSplitter" name="splitter_5" >
-      <property name="orientation" >
-       <enum>Qt::Vertical</enum>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QGroupBox" name="groupBoxGraph" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-         <horstretch>1</horstretch>
-         <verstretch>1</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title" >
-        <string>Views</string>
-       </property>
-       <layout class="QHBoxLayout" >
+      <widget class="QWidget" name="">
+       <layout class="QVBoxLayout" name="verticalLeftLayout" stretch="2,2,2">
         <item>
-         <widget class="QSplitter" name="splitter_3" >
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
+         <widget class="QFrame" name="tableFrame1">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <widget class="QSplitter" name="splitter_2" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="spacing">
+            <number>2</number>
            </property>
-           <property name="orientation" >
-            <enum>Qt::Vertical</enum>
+           <property name="margin">
+            <number>2</number>
            </property>
-           <widget class="QFrame" name="tableFrame1" >
-            <property name="frameShape" >
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow" >
-             <enum>QFrame::Raised</enum>
-            </property>
-           </widget>
-           <widget class="QFrame" name="tableFrame2" >
-            <property name="frameShape" >
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow" >
-             <enum>QFrame::Raised</enum>
-            </property>
-           </widget>
-           <widget class="QFrame" name="tableFrame3" >
-            <property name="frameShape" >
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow" >
-             <enum>QFrame::Raised</enum>
-            </property>
-           </widget>
-          </widget>
-          <widget class="QFrame" name="tableFrame4" >
-           <property name="frameShape" >
-            <enum>QFrame::StyledPanel</enum>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="tableFrame2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>2</number>
            </property>
-           <property name="frameShadow" >
-            <enum>QFrame::Raised</enum>
+           <property name="margin">
+            <number>2</number>
            </property>
-          </widget>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="tableFrame3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="margin">
+            <number>2</number>
+           </property>
+          </layout>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QSplitter" name="splitter" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-         <horstretch>0</horstretch>
-         <verstretch>2</verstretch>
+      <widget class="QFrame" name="tableFrame4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="margin">
+         <number>2</number>
+        </property>
+       </layout>
       </widget>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>1002</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile" >
-    <property name="title" >
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpenSQLiteDB" />
+    <addaction name="actionOpenSQLiteDB"/>
    </widget>
-   <addaction name="menuFile" />
+   <addaction name="menuFile"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
-  <widget class="QToolBar" name="toolBar" >
-   <property name="orientation" >
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
-   <property name="iconSize" >
+   <property name="iconSize">
     <size>
      <width>22</width>
      <height>22</height>
     </size>
    </property>
-   <attribute name="toolBarArea" >
+   <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak" >
+   <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpenSQLiteDB" />
+   <addaction name="actionOpenSQLiteDB"/>
   </widget>
-  <action name="actionOpenSQLiteDB" >
-   <property name="enabled" >
+  <action name="actionOpenSQLiteDB">
+   <property name="enabled">
     <bool>true</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="Icons/icons.qrc" >:/Icons/fileopen.png</iconset>
+   <property name="icon">
+    <iconset resource="Icons/icons.qrc">
+     <normaloff>:/Icons/fileopen.png</normaloff>:/Icons/fileopen.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Open SQLite DB...</string>
    </property>
   </action>
  </widget>
  <resources>
-  <include location="Icons/icons.qrc" />
+  <include location="Icons/icons.qrc"/>
  </resources>
  <connections/>
 </ui>
