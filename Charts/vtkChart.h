@@ -41,7 +41,7 @@ public:
 //BTX
   // Description:
   // Enum of the available chart types
-  enum Type {
+  enum {
     LINE,
     POINTS,
     BAR,
@@ -52,11 +52,9 @@ public:
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter) = 0;
 
-//BTX
   // Description:
   // Add a plot to the chart, defaults to using the name of the y column
-  virtual vtkPlot* AddPlot(Type type);
-//ETX
+  virtual vtkPlot* AddPlot(int type);
 
   // Description:
   // Remove the plot at the specified index, returns true if successful,

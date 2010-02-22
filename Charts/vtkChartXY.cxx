@@ -57,7 +57,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.31");
+vtkCxxRevisionMacro(vtkChartXY, "1.32");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -344,7 +344,7 @@ void vtkChartXY::RecalculatePlotBounds()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlot * vtkChartXY::AddPlot(vtkChart::Type type)
+vtkPlot * vtkChartXY::AddPlot(int type)
 {
   // Use a variable to return the object created (or NULL), this is necessary
   // as the HP compiler is broken (thinks this function does not return) and

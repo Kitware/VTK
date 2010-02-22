@@ -52,11 +52,9 @@ public:
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
   // Description:
   // Add a plot to the chart, defaults to using the name of the y column
-  virtual vtkPlot * AddPlot(vtkChart::Type type);
-//ETX
+  virtual vtkPlot * AddPlot(int type);
 
   // Description:
   // Remove the plot at the specified index, returns true if successful,

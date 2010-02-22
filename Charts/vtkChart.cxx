@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.10");
+vtkCxxRevisionMacro(vtkChart, "1.11");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkChart::~vtkChart()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlot * vtkChart::AddPlot(Type)
+vtkPlot * vtkChart::AddPlot(int)
 {
   return NULL;
 }
