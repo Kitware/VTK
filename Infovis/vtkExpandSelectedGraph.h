@@ -71,11 +71,13 @@ public:
   vtkBooleanMacro(IncludeShortestPaths, bool);
 
   // Description:
-  // The vertex domain to allow in the expansion. 
+  // Set/Get the vertex domain to use in the expansion.
   vtkSetStringMacro(Domain);
   vtkGetStringMacro(Domain);
   
   // Description:
+  // Whether or not to use the domain when deciding to add a vertex to the 
+  // expansion. Defaults to false. 
   vtkSetMacro(UseDomain, bool);
   vtkGetMacro(UseDomain, bool);
   vtkBooleanMacro(UseDomain, bool);
