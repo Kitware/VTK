@@ -61,7 +61,9 @@ StatsView::StatsView()
 
   // Tweak the layout so we have a good out-of-box experience
   const int window_width = this->width();
-  this->ui->splitter->setSizes(QList<int>() << window_width * 0.7 << window_width * 0.3 << 0);
+  int left_column = static_cast<int>(window_width * 0.7);
+  int right_column = static_cast<int>(window_width * 0.3);
+  this->ui->splitter->setSizes(QList<int>() << left_column << right_column << 0);
 
   // Set up action signals and slots
   connect(this->ui->actionOpenSQLiteDB, SIGNAL(triggered()), this, SLOT(slotOpenSQLiteDB()));
