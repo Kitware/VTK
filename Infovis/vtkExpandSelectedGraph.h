@@ -70,6 +70,15 @@ public:
   vtkGetMacro(IncludeShortestPaths, bool);
   vtkBooleanMacro(IncludeShortestPaths, bool);
 
+  // Description:
+  // The vertex domain to allow in the expansion. 
+  vtkSetStringMacro(Domain);
+  vtkGetStringMacro(Domain);
+  
+  // Description:
+  vtkSetMacro(UseDomain, bool);
+  vtkGetMacro(UseDomain, bool);
+  vtkBooleanMacro(UseDomain, bool);
 
 protected:
   vtkExpandSelectedGraph();
@@ -84,6 +93,8 @@ protected:
     
   int BFSDistance;
   bool IncludeShortestPaths;
+  char* Domain;
+  bool UseDomain;
 
 private:
   vtkExpandSelectedGraph(const vtkExpandSelectedGraph&); // Not implemented

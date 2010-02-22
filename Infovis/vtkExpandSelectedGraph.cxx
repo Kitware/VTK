@@ -44,7 +44,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.2");
+vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.3");
 vtkStandardNewMacro(vtkExpandSelectedGraph);
 
 vtkExpandSelectedGraph::vtkExpandSelectedGraph()
@@ -52,10 +52,13 @@ vtkExpandSelectedGraph::vtkExpandSelectedGraph()
   this->SetNumberOfInputPorts(2);
   this->BFSDistance = 1;
   this->IncludeShortestPaths = false;
+  this->UseDomain = false;
+  this->Domain = 0;
 }
 
 vtkExpandSelectedGraph::~vtkExpandSelectedGraph()
 {
+  this->SetDomain(0);
 }
 
 int vtkExpandSelectedGraph::FillInputPortInformation(int port, vtkInformation* info)
@@ -144,6 +147,7 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
   VTK_CREATE(vtkInEdgeIterator, inIt);
   VTK_CREATE(vtkOutEdgeIterator, outIt);
 
+  vtkAbstractArray* domainArr = graph->GetVertexData()->GetAbstractArray("domain");
   vtksys_stl::set<vtkIdType> indexSet;
   for (int i=0; i<indexArray->GetNumberOfTuples(); ++i)
   {  
@@ -154,12 +158,24 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
     graph->GetInEdges(indexArray->GetValue(i), inIt);
     while (inIt->HasNext())
       {
-      indexSet.insert(inIt->Next().Source);
+      vtkInEdgeType e = inIt->Next();
+      if(this->UseDomain && this->Domain && 
+        domainArr->GetVariantValue(e.Source).ToString() != this->Domain)
+        {
+        continue;
+        }
+      indexSet.insert(e.Source);
       }
     graph->GetOutEdges(indexArray->GetValue(i), outIt);
     while (outIt->HasNext())
       {
-      indexSet.insert(outIt->Next().Target);
+      vtkOutEdgeType e = outIt->Next();
+      if(this->UseDomain && this->Domain && domainArr &&
+        domainArr->GetVariantValue(e.Target).ToString() != this->Domain)
+        {
+        continue;
+        }
+      indexSet.insert(e.Target);
       }
   }
   
