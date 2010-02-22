@@ -19,7 +19,7 @@
 // vtkVolumeMapper as input.  The GenerateFaces option turns on the
 // solid faces of the outline, and the GenerateScalars option generates
 // color scalars.  When GenerateScalars is on, it is possible to set
-// an "ActivePlaneId" value between 0 and 6 to highlight one of the
+// an "ActivePlaneId" value in the range [0..6] to highlight one of the
 // six cropping planes.
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
