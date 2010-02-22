@@ -31,12 +31,13 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkAxesActor, "1.6");
+vtkCxxRevisionMacro(vtkAxesActor, "1.7");
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedTip, vtkPolyData );
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedShaft, vtkPolyData );
 
+//----------------------------------------------------------------------------
 vtkAxesActor::vtkAxesActor()
 {
   this->AxisLabels = 1;
@@ -44,11 +45,11 @@ vtkAxesActor::vtkAxesActor()
   this->XAxisLabelText = NULL;
   this->YAxisLabelText = NULL;
   this->ZAxisLabelText = NULL;
-    
+
   this->SetXAxisLabelText("X");
   this->SetYAxisLabelText("Y");
   this->SetZAxisLabelText("Z");
-  
+
   this->XAxisShaft = vtkActor::New();
   this->XAxisShaft->GetProperty()->SetColor(1, 0, 0);
   this->YAxisShaft = vtkActor::New();
@@ -65,7 +66,7 @@ vtkAxesActor::vtkAxesActor()
 
   this->CylinderSource = vtkCylinderSource::New();
   this->CylinderSource->SetHeight(1.0);
-  
+
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetPoint1( 0.0, 0.0, 0.0 );
   this->LineSource->SetPoint2( 0.0, 1.0, 0.0 );
@@ -73,15 +74,15 @@ vtkAxesActor::vtkAxesActor()
   this->ConeSource = vtkConeSource::New();
   this->ConeSource->SetDirection( 0, 1, 0 );
   this->ConeSource->SetHeight( 1.0 );
-   
+
   this->SphereSource = vtkSphereSource::New();
-  
+
   vtkPolyDataMapper *shaftMapper = vtkPolyDataMapper::New();
-  
+
   this->XAxisShaft->SetMapper( shaftMapper );
   this->YAxisShaft->SetMapper( shaftMapper );
   this->ZAxisShaft->SetMapper( shaftMapper );
-  
+
   shaftMapper->Delete();
 
   vtkPolyDataMapper *tipMapper = vtkPolyDataMapper::New();
@@ -89,7 +90,7 @@ vtkAxesActor::vtkAxesActor()
   this->XAxisTip->SetMapper( tipMapper );
   this->YAxisTip->SetMapper( tipMapper );
   this->ZAxisTip->SetMapper( tipMapper );
-  
+
   tipMapper->Delete();
 
   this->TotalLength[0] = 1.0;
@@ -144,6 +145,7 @@ vtkAxesActor::vtkAxesActor()
   this->UpdateProps();
 }
 
+//----------------------------------------------------------------------------
 vtkAxesActor::~vtkAxesActor()
 {
   this->CylinderSource->Delete();
@@ -171,6 +173,7 @@ vtkAxesActor::~vtkAxesActor()
   this->ZAxisLabel->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Shallow copy of an actor.
 void vtkAxesActor::ShallowCopy(vtkProp *prop)
 {
@@ -201,6 +204,7 @@ void vtkAxesActor::ShallowCopy(vtkProp *prop)
   this->vtkProp3D::ShallowCopy(prop);
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::GetActors(vtkPropCollection *ac)
 {
   ac->AddItem( this->XAxisShaft );
@@ -211,6 +215,7 @@ void vtkAxesActor::GetActors(vtkPropCollection *ac)
   ac->AddItem( this->ZAxisTip );
 }
 
+//----------------------------------------------------------------------------
 int vtkAxesActor::RenderOpaqueGeometry(vtkViewport *vp)
 {
   int renderedSomething = 0;
@@ -308,6 +313,7 @@ int vtkAxesActor::RenderOverlay(vtkViewport *vp)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->XAxisShaft->ReleaseGraphicsResources( win );
@@ -323,6 +329,7 @@ void vtkAxesActor::ReleaseGraphicsResources(vtkWindow *win)
   this->ZAxisLabel->ReleaseGraphicsResources( win );
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::GetBounds(double bounds[6])
 {
   double *bds = this->GetBounds();
@@ -334,6 +341,7 @@ void vtkAxesActor::GetBounds(double bounds[6])
   bounds[5] = bds[5];
 }
 
+//----------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkAxesActor::GetBounds()
 {
@@ -343,53 +351,53 @@ double *vtkAxesActor::GetBounds()
   this->XAxisShaft->GetBounds(this->Bounds);
 
   this->YAxisShaft->GetBounds(bounds);
-  for (i=0; i<3; i++)
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i+1] =
       (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->ZAxisShaft->GetBounds(bounds);
-  for (i=0; i<3; i++)
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i+1] = 
-      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);    
+      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->XAxisTip->GetBounds(bounds);
-  for (i=0; i<3; i++)
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i+1] = 
-      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);    
+      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->YAxisTip->GetBounds(bounds);
-  for (i=0; i<3; i++)
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i+1] = 
-      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);    
+      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->ZAxisTip->GetBounds(bounds);
-  for (i=0; i<3; i++)
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i+1] = 
-      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);    
+      (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   double dbounds[6];
   (vtkPolyDataMapper::SafeDownCast(this->YAxisShaft->GetMapper()))->
     GetInput()->GetBounds( dbounds );
-  
-  for (i=0; i<3; i++)
+
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i+1] = 
-      (dbounds[2*i+1]>this->Bounds[2*i+1])?(dbounds[2*i+1]):(this->Bounds[2*i+1]);    
+      (dbounds[2*i+1]>this->Bounds[2*i+1])?(dbounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   // We want this actor to rotate / re-center about the origin, so give it
   // the bounds it would have if the axes were symmetric.
-  for (i = 0; i < 3; i++)
+  for ( i = 0; i < 3; ++i )
     {
     this->Bounds[2*i] = -this->Bounds[2*i+1];
     }
@@ -397,18 +405,21 @@ double *vtkAxesActor::GetBounds()
   return this->Bounds;
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkAxesActor::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkAxesActor::GetRedrawMTime()
 {
   unsigned long mTime = this->GetMTime();
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::SetTotalLength( double x, double y, double z )
 {
   if ( this->TotalLength[0] != x ||
@@ -419,7 +430,7 @@ void vtkAxesActor::SetTotalLength( double x, double y, double z )
     this->TotalLength[1] = y;
     this->TotalLength[2] = z;
 
-    if ( x < 0.0 || y < 0.0 || z < 0.0)
+    if ( x < 0.0 || y < 0.0 || z < 0.0 )
       {
       vtkGenericWarningMacro("One or more axes lengths are < 0 \
                         and may produce unexpected results.");
@@ -431,6 +442,7 @@ void vtkAxesActor::SetTotalLength( double x, double y, double z )
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::SetNormalizedShaftLength( double x, double y, double z )
 {
   if ( this->NormalizedShaftLength[0] != x ||
@@ -453,6 +465,7 @@ void vtkAxesActor::SetNormalizedShaftLength( double x, double y, double z )
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::SetNormalizedTipLength( double x, double y, double z )
 {
   if ( this->NormalizedTipLength[0] != x ||
@@ -475,6 +488,7 @@ void vtkAxesActor::SetNormalizedTipLength( double x, double y, double z )
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::SetNormalizedLabelPosition( double x, double y, double z )
 {
   if ( this->NormalizedLabelPosition[0] != x ||
@@ -497,6 +511,7 @@ void vtkAxesActor::SetNormalizedLabelPosition( double x, double y, double z )
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::SetShaftType( int type )
 {
   if ( this->ShaftType != type )
@@ -523,6 +538,7 @@ void vtkAxesActor::SetShaftType( int type )
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::SetTipType( int type )
 {
   if ( this->TipType != type )
@@ -549,6 +565,7 @@ void vtkAxesActor::SetTipType( int type )
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::UpdateProps()
 {
   this->CylinderSource->SetRadius( this->CylinderRadius );
@@ -565,30 +582,30 @@ void vtkAxesActor::UpdateProps()
     {
     case vtkAxesActor::CYLINDER_SHAFT:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper()))->
-        SetInput( this->CylinderSource->GetOutput() );
+        SetInputConnection( this->CylinderSource->GetOutputPort() );
       break;
     case vtkAxesActor::LINE_SHAFT:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper()))->
-        SetInput( this->LineSource->GetOutput() );
+        SetInputConnection( this->LineSource->GetOutputPort() );
       break;
     case vtkAxesActor::USER_DEFINED_SHAFT:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper()))->
-        SetInput( this->UserDefinedShaft );
+        SetInputConnection( this->UserDefinedShaft->GetProducerPort() );
     }
 
   switch ( this->TipType )
     {
     case vtkAxesActor::CONE_TIP:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
-        SetInput( this->ConeSource->GetOutput() );
+        SetInputConnection( this->ConeSource->GetOutputPort() );
       break;
     case vtkAxesActor::SPHERE_TIP:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
-        SetInput( this->SphereSource->GetOutput() );
+        SetInputConnection( this->SphereSource->GetOutputPort() );
       break;
     case vtkAxesActor::USER_DEFINED_TIP:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
-        SetInput( this->UserDefinedTip );
+        SetInputConnection( this->UserDefinedTip->GetProducerPort() );
     }
 
   (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
@@ -617,7 +634,7 @@ void vtkAxesActor::UpdateProps()
   // constituent elements defined in their default positions.
 
   int i;
-  for ( i = 0; i < 3; i++ )
+  for ( i = 0; i < 3; ++i )
     {
     scale[i] =
       this->NormalizedShaftLength[i]*this->TotalLength[i] /
@@ -759,39 +776,45 @@ void vtkAxesActor::UpdateProps()
     transform->TransformPoint( pos, newpos );
     this->ZAxisLabel->SetAttachmentPoint( newpos );
     }
-    
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkAxesActor::GetXAxisTipProperty()
 {
   return this->XAxisTip->GetProperty();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkAxesActor::GetYAxisTipProperty()
 {
   return this->YAxisTip->GetProperty();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkAxesActor::GetZAxisTipProperty()
 {
   return this->ZAxisTip->GetProperty();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkAxesActor::GetXAxisShaftProperty()
 {
   return this->XAxisShaft->GetProperty();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkAxesActor::GetYAxisShaftProperty()
 {
   return this->YAxisShaft->GetProperty();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkAxesActor::GetZAxisShaftProperty()
 {
   return this->ZAxisShaft->GetProperty();
 }
 
+//----------------------------------------------------------------------------
 void vtkAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
