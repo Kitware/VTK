@@ -45,6 +45,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtksys/SystemTools.hxx"
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
 #include "vtkViewTheme.h"
@@ -209,6 +210,9 @@ int TestGeoView(int argc, char* argv[])
 
   // BUG: Need to call it twice in order to show the imagery on the globe.
   view->Render();
+
+  // Delay it for 2 secs.
+  vtksys::SystemTools::Delay(2000);
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 11);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
