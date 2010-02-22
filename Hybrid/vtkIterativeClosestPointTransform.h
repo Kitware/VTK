@@ -67,7 +67,7 @@ public:
   vtkGetObjectMacro(Locator,vtkCellLocator);
 
   // Description: 
-  // Set/Get the  maximum number of iterations
+  // Set/Get the  maximum number of iterations. Default is 50.
   vtkSetMacro(MaximumNumberOfIterations, int);
   vtkGetMacro(MaximumNumberOfIterations, int);
 
@@ -76,7 +76,8 @@ public:
   vtkGetMacro(NumberOfIterations, int);
 
   // Description: 
-  // Force the algorithm to check the mean distance between two iteration.
+  // Force the algorithm to check the mean distance between two iterations.
+  // Default is Off.
   vtkSetMacro(CheckMeanDistance, int);
   vtkGetMacro(CheckMeanDistance, int);
   vtkBooleanMacro(CheckMeanDistance, int);
@@ -86,7 +87,7 @@ public:
   // distance is computed. The RMS mode is the square root of the average
   // of the sum of squares of the closest point distances. The Absolute
   // Value mode is the mean of the sum of absolute values of the closest
-  // point distances.
+  // point distances. The default is VTK_ICP_MODE_RMS
   vtkSetClampMacro(MeanDistanceMode,int,
                    VTK_ICP_MODE_RMS,VTK_ICP_MODE_AV);
   vtkGetMacro(MeanDistanceMode,int);
@@ -98,7 +99,8 @@ public:
 
   // Description: 
   // Set/Get the maximum mean distance between two iteration. If the mean
-  // distance is lower than this, the convergence stops.
+  // distance is lower than this, the convergence stops. The default 
+  // is 0.01.
   vtkSetMacro(MaximumMeanDistance, double);
   vtkGetMacro(MaximumMeanDistance, double);
   
@@ -109,12 +111,13 @@ public:
   // Description: 
   // Set/Get the maximum number of landmarks sampled in your dataset.
   // If your dataset is dense, then you will typically not need all the 
-  // points to compute the ICP transform. 
+  // points to compute the ICP transform. The default is 200.
   vtkSetMacro(MaximumNumberOfLandmarks, int);
   vtkGetMacro(MaximumNumberOfLandmarks, int);
 
   // Description: 
   // Starts the process by translating source centroid to target centroid.
+  // The default is Off.
   vtkSetMacro(StartByMatchingCentroids, int);
   vtkGetMacro(StartByMatchingCentroids, int);
   vtkBooleanMacro(StartByMatchingCentroids, int);
