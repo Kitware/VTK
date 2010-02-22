@@ -40,6 +40,7 @@
 #include "vtkTIFFReader.h"
 
 #include <vtksys/ios/sstream>
+#include <vtksys/SystemTools.hxx>
 
 int TestGeoView2D(int argc, char* argv[])
 {
@@ -221,6 +222,7 @@ int TestGeoView2D(int argc, char* argv[])
   view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
 
   view->Render();
+  vtksys::SystemTools::Delay(2000);
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

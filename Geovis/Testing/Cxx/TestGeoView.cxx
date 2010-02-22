@@ -45,11 +45,12 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
 #include "vtkViewTheme.h"
 #include "vtkViewUpdater.h"
+
+#include <vtksys/SystemTools.hxx>
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
