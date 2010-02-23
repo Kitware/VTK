@@ -17,6 +17,9 @@
 
 #include "vtkContext2D.h"
 #include "vtkPen.h"
+#include "vtkFloatArray.h"
+#include "vtkVector.h"
+#include "vtkTransform2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkPoints2D.h"
@@ -29,7 +32,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.13");
+vtkCxxRevisionMacro(vtkPlotLine, "1.14");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -38,7 +41,7 @@ vtkStandardNewMacro(vtkPlotLine);
 vtkPlotLine::vtkPlotLine()
 {
   this->Points = 0;
-  this->Label = 0;
+  this->MarkerStyle = vtkPlotLine::NONE;
 }
 
 //-----------------------------------------------------------------------------
@@ -105,6 +108,77 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
     painter->ApplyPen(this->Pen);
     painter->DrawPoly(this->Points);
     painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
+    }
+  // If there is a marker style, then draw the marker for each point too
+  if (this->MarkerStyle)
+    {
+    painter->ApplyBrush(this->Brush);
+    painter->GetPen()->SetWidth(1.0);
+    float radiusX = (this->Pen->GetWidth() / 2.0f) + 4.0;
+    float radiusY = radiusX;
+    // Figure out what this is in pixel space
+    vtkTransform2D *transform = painter->GetTransform();
+    if (transform)
+      {
+      radiusX /= transform->GetMatrix()->GetElement(0, 0);
+      radiusY /= transform->GetMatrix()->GetElement(1, 1);
+      }
+    int n = this->Points->GetNumberOfPoints();
+    float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
+    vtkVector2f *pts = reinterpret_cast<vtkVector2f*>(f);
+    switch (this->MarkerStyle)
+      {
+      case vtkPlotLine::CROSS:
+        {
+        for (int i = 0; i < n; ++i)
+          {
+          painter->DrawLine(pts[i].X()+radiusX, pts[i].Y()+radiusY,
+                            pts[i].X()-radiusX, pts[i].Y()-radiusY);
+          painter->DrawLine(pts[i].X()+radiusX, pts[i].Y()-radiusY,
+                            pts[i].X()-radiusX, pts[i].Y()+radiusY);
+          }
+        break;
+        }
+      case vtkPlotLine::PLUS:
+        {
+        for (int i = 0; i < n; ++i)
+          {
+          painter->DrawLine(pts[i].X()-radiusX, pts[i].Y(),
+                            pts[i].X()+radiusX, pts[i].Y());
+          painter->DrawLine(pts[i].X(), pts[i].Y()+radiusY,
+                            pts[i].X(), pts[i].Y()-radiusY);
+          }
+        break;
+        }
+      case vtkPlotLine::SQUARE:
+        {
+        float widthX = 2.0*radiusX;
+        float widthY = 2.0*radiusY;
+        for (int i = 0; i < n; ++i)
+          {
+          painter->DrawRect(pts[i].X()-radiusX, pts[i].Y()-radiusY,
+                            widthX, widthY);
+          }
+        break;
+        }
+      case vtkPlotLine::CIRCLE:
+        {
+        painter->GetPen()->SetWidth(this->Pen->GetWidth()+5.0);
+        painter->DrawPoints(f, n);
+        break;
+        }
+      case vtkPlotLine::DIAMOND:
+        {
+        for (int i = 0; i < n; ++i)
+          {
+          painter->DrawQuad(pts[i].X()-radiusX, pts[i].Y(),
+                            pts[i].X(), pts[i].Y()+radiusY,
+                            pts[i].X()+radiusX, pts[i].Y(),
+                            pts[i].X(), pts[i].Y()-radiusY);
+          }
+        break;
+        }
+      }
     }
 
   return true;

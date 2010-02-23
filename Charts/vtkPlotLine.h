@@ -55,6 +55,25 @@ public:
   virtual void GetBounds(double bounds[4]);
 
 //BTX
+  // Description:
+  // Enum containing various marker styles that can be used in a plot.
+  enum {
+    NONE = 0,
+    CROSS,
+    PLUS,
+    SQUARE,
+    CIRCLE,
+    DIAMOND
+  };
+//ETX
+
+  // Description:
+  // Get/set the marker style that should be used. The default is none, the enum
+  // in this class is used as a parameter.
+  vtkGetMacro(MarkerStyle, int);
+  vtkSetMacro(MarkerStyle, int);
+
+//BTX
 protected:
   vtkPlotLine();
   ~vtkPlotLine();
@@ -70,6 +89,10 @@ protected:
   // Description:
   // The point cache is marked dirty until it has been initialized.
   vtkTimeStamp BuildTime;
+
+  // Description:
+  // The marker style that should be used
+  int MarkerStyle;
 
 private:
   vtkPlotLine(const vtkPlotLine &); // Not implemented.
