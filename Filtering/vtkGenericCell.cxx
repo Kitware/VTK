@@ -104,6 +104,26 @@ int vtkGenericCell::RequiresInitialization()
 }
 
 //----------------------------------------------------------------------------
+int vtkGenericCell::RequiresExplicitFaceRepresentation()
+{
+  return this->Cell->RequiresExplicitFaceRepresentation();
+}
+
+//----------------------------------------------------------------------------
+void vtkGenericCell::SetFaces(vtkIdType *faces)
+{
+  return this->Cell->SetFaces(faces);
+}
+
+
+//----------------------------------------------------------------------------
+vtkIdType *vtkGenericCell::GetFaces()
+{
+  return this->Cell->GetFaces();
+}
+
+
+//----------------------------------------------------------------------------
 void vtkGenericCell::Initialize()
 {
   this->Cell->Initialize();

@@ -48,6 +48,9 @@ public:
   int IsLinear();
   int RequiresInitialization();
   void Initialize();
+  int RequiresExplicitFaceRepresentation();
+  void SetFaces(vtkIdType *faces);
+  vtkIdType *GetFaces();
   int GetNumberOfEdges();
   int GetNumberOfFaces();
   vtkCell *GetEdge(int edgeId);

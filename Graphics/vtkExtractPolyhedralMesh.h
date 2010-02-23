@@ -27,6 +27,7 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
+class vtkIncrementalPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkExtractPolyhedralMesh : public vtkUnstructuredGridAlgorithm
 {
@@ -51,11 +52,11 @@ protected:
   vtkExtractPolyhedralMesh();
   ~vtkExtractPolyhedralMesh();
 
-  // Usual data generation method
+  // Usual data generation method and pipeline methods
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
+  // Instance variables
   int ExtractNon3DCells;
   
 private:

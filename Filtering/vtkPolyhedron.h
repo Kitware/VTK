@@ -34,11 +34,13 @@
 
 #include "vtkCell3D.h"
 
+class vtkIdTypeArray;
 class vtkCellArray;
 class vtkTriangle;
 class vtkTetra;
 class vtkPolygon;
 class vtkLine;
+struct vtkPointIdMap;
 
 
 class VTK_FILTERING_EXPORT vtkPolyhedron : public vtkCell3D
@@ -163,11 +165,13 @@ protected:
   ~vtkPolyhedron();
 
   // Internal classes for supporting operations on this cell
-  vtkLine      *Line;
-  vtkTriangle  *Triangle;
-  vtkPolygon   *Polygon;
-  vtkTetra     *Tetra;
-  vtkCellArray *Faces;
+  vtkLine        *Line;
+  vtkTriangle    *Triangle;
+  vtkPolygon     *Polygon;
+  vtkTetra       *Tetra;
+  vtkIdTypeArray *Faces;
+  vtkIdTypeArray *FaceLocations;
+  vtkPointIdMap  *PointIdMap;
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.

@@ -15,6 +15,7 @@
 #include "vtkPolyhedron.h"
 
 #include "vtkCellArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -26,9 +27,14 @@
 #include "vtkPolygon.h"
 #include "vtkLine.h"
 
+#include <vtkstd/map>
 
 vtkCxxRevisionMacro(vtkPolyhedron, "$Revision: 1.7 $");
 vtkStandardNewMacro(vtkPolyhedron);
+
+// Special typedef for point id map
+struct vtkPointIdMap : public vtkstd::map<vtkIdType,vtkIdType> {};
+typedef vtkstd::map<vtkIdType,vtkIdType*>::iterator PointIdMapIterator;
 
 //----------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
@@ -38,7 +44,9 @@ vtkPolyhedron::vtkPolyhedron()
   this->Triangle = vtkTriangle::New();
   this->Polygon = vtkPolygon::New();
   this->Tetra = vtkTetra::New();
-  this->Faces = vtkCellArray::New();
+  this->Faces = vtkIdTypeArray::New();
+  this->FaceLocations = vtkIdTypeArray::New();
+  this->PointIdMap = new vtkPointIdMap;
 }
 
 //----------------------------------------------------------------------------
@@ -49,12 +57,24 @@ vtkPolyhedron::~vtkPolyhedron()
   this->Polygon->Delete();
   this->Tetra->Delete();
   this->Faces->Delete();
+  this->FaceLocations->Delete();
+  delete this->PointIdMap;
 }
 
 //----------------------------------------------------------------------------
-// Should be called by GetCell() prior to any other method invocation
+// Should be called by GetCell() prior to any other method invocation. Here we
+// assume that the points and faces have already been loaded into the polyhedron.
 void vtkPolyhedron::Initialize()
 {
+  // We need to create a reverse map from the point ids to their canonical cell
+  // ids. This is a fancy way of saying that we have to be able to rapidly go
+  // from a PointId[i] to the location i in the cell.
+  vtkIdType i, id, numPointIds = this->PointIds->GetNumberOfIds();
+  for (i=0; i < numPointIds; ++i)
+    {
+    id = this->PointIds->GetId(i);
+    (*this->PointIdMap)[id] = i;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -72,12 +92,31 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 //----------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfFaces()
 {
-  return 0;
+  return this->Faces->GetValue(0);
 }
 
 //----------------------------------------------------------------------------
 vtkCell *vtkPolyhedron::GetFace(int faceId)
 {
+  if ( !this->Faces ||
+       faceId < 0 || faceId > this->Faces->GetValue(0) )
+    {
+    return NULL;
+    }
+  
+  // Okay load up the polygon
+  vtkIdType i, p, loc = this->FaceLocations->GetValue(faceId);
+  vtkIdType *face = this->Faces->GetPointer(loc);
+  
+  this->Polygon->PointIds->SetNumberOfIds(face[0]);
+  this->Polygon->Points->SetNumberOfPoints(face[0]);
+  for (i=0; i < face[0]; ++i)
+    {
+    this->Polygon->PointIds->SetId(i,face[i+1]);
+    p = (*this->PointIdMap)[face[i+1]];
+    this->Polygon->Points->SetPoint(i,this->Points->GetPoint(p));
+    }
+
   return this->Polygon;
 }
 
@@ -167,13 +206,39 @@ void vtkPolyhedron::InterpolateDerivs(double pcoords[3], double *derivs)
 // Specify the faces for this cell.
 void vtkPolyhedron::SetFaces(vtkIdType *faces)
 {
+  // Set up face structure
+  this->Faces->Reset();
+  this->FaceLocations->Reset();
+  this->PointIdMap->clear();
+  
+  vtkIdType nfaces = faces[0];
+  this->FaceLocations->SetNumberOfValues(nfaces);
+
+  this->Faces->InsertNextValue(nfaces);
+  vtkIdType *face = faces + 1;
+  vtkIdType faceLoc = 1;
+  vtkIdType i, fid, npts;
+
+  for (fid=0; fid < nfaces; ++fid)
+    {
+    npts = face[0];
+    this->Faces->InsertNextValue(npts);
+    for (i=1; i<=npts; ++i)
+      {
+      this->Faces->InsertNextValue(face[i]);
+      }
+    this->FaceLocations->SetValue(fid,faceLoc);
+
+    faceLoc += face[0] + 1;
+    face = faces + faceLoc;
+    } //for all faces
 }
 
 //----------------------------------------------------------------------------
 // Return the list of faces for this cell.
 vtkIdType *vtkPolyhedron::GetFaces()
 {
-  return NULL;
+  return this->Faces->GetPointer(0);
 }
 
 //----------------------------------------------------------------------------

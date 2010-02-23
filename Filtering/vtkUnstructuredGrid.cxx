@@ -99,7 +99,6 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Polyhedron = NULL;
   this->EmptyCell = NULL;
 
-
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
@@ -109,6 +108,10 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Links = NULL;
   this->Types = NULL;
   this->Locations = NULL;
+
+  this->Faces = NULL;
+  this->FaceLocations = NULL;
+  
   this->Allocate(1000,1000);
 }
 
@@ -401,6 +404,18 @@ void vtkUnstructuredGrid::Cleanup()
     {
     this->Locations->UnRegister(this);
     this->Locations = NULL;
+    }
+
+  if ( this->Faces )
+    {
+    this->Faces->UnRegister(this);
+    this->Faces = NULL;
+    }
+
+  if ( this->FaceLocations )
+    {
+    this->FaceLocations->UnRegister(this);
+    this->FaceLocations = NULL;
     }
 }
 
@@ -849,6 +864,14 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
   vtkDebugMacro(<< "insert location "
                 << this->Connectivity->GetInsertLocation(npts));
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
+
+  // If faces have been created, we need to pad them (we are not creating
+  // a polyhedral cell in this method)
+  if ( this->FaceLocations )
+    {
+    this->FaceLocations->InsertNextValue(-1); 
+    }
+
   return this->Types->InsertNextValue(static_cast<unsigned char>(type));
 
 }
@@ -866,6 +889,14 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
                 << this->Connectivity->GetInsertLocation(npts));
   this->Locations->InsertNextValue(
     this->Connectivity->GetInsertLocation(npts));
+
+  // If faces have been created, we need to pad them (we are not creating
+  // a polyhedral cell in this method)
+  if ( this->FaceLocations )
+    {
+    this->FaceLocations->InsertNextValue(-1); 
+    }
+
   return this->Types->InsertNextValue(static_cast<unsigned char>(type));
 
 }
@@ -878,13 +909,40 @@ vtkIdType vtkUnstructuredGrid::
 InsertNextCell(int type, vtkIdType npts, vtkIdType *pts, 
                vtkIdType nfaces, vtkIdType *faces)
 {
-  // insert connectivity
+  // Insert connectivity (points that make up polyhedron)
   this->Connectivity->InsertNextCell(npts,pts);
-  // insert type and storage information
-  vtkDebugMacro(<< "insert location "
-                << this->Connectivity->GetInsertLocation(npts));
+
+  // Insert location of cell in connectivity array
   this->Locations->InsertNextValue(
     this->Connectivity->GetInsertLocation(npts));
+
+  // Now insert faces; allocate storage if necessary.
+  // We defer allocation for the faces because they are not commonly used and
+  // we only want to allocate when necessary.
+  if ( ! this->Faces )
+    {
+    this->Faces = vtkIdTypeArray::New();
+    this->Faces->Allocate(this->Types->GetSize());
+    this->FaceLocations = vtkIdTypeArray::New();
+    this->FaceLocations->Allocate(this->Types->GetSize());
+    }
+
+  // Okay the faces go in
+  this->FaceLocations->InsertNextValue(
+    this->Faces->GetMaxId() + 1);
+  this->Faces->InsertNextValue(nfaces);
+  vtkIdType i, *face=faces;
+  for (int faceNum=0; faceNum < nfaces; ++faceNum)
+    {
+    npts = face[0];
+    this->Faces->InsertNextValue(npts);
+    for (i=1; i <= npts; ++i)
+      {
+      this->Faces->InsertNextValue(face[i]);
+      }
+    face += npts + 1;
+    } //for all faces
+  
   return this->Types->InsertNextValue(static_cast<unsigned char>(type));
 }
 
@@ -892,7 +950,16 @@ InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
 // Return faces for a polyhedral cell (or face-explicit cell).
 vtkIdType *vtkUnstructuredGrid::GetFaces(vtkIdType cellId)
 {
-  return NULL;
+  // Get the locations of the face
+  vtkIdType loc;
+  if ( !this->Faces || 
+       cellId < 0 || cellId > this->FaceLocations->GetMaxId() ||
+       (loc=this->FaceLocations->GetValue(cellId)) == -1 )
+    {
+    return NULL;
+    }
+  
+  return this->Faces->GetPointer(loc);
 }
 
 //----------------------------------------------------------------------------
@@ -1362,6 +1429,32 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
       this->Locations->DeepCopy(grid->Locations);
       this->Locations->Register(this);
       this->Locations->Delete();
+      }
+
+    if ( this->Faces )
+      {
+      this->Faces->UnRegister(this);
+      this->Faces = NULL;
+      }
+    if (grid->Faces)
+      {
+      this->Faces = vtkIdTypeArray::New();
+      this->Faces->DeepCopy(grid->Locations);
+      this->Faces->Register(this);
+      this->Faces->Delete();
+      }
+
+    if ( this->FaceLocations )
+      {
+      this->FaceLocations->UnRegister(this);
+      this->FaceLocations = NULL;
+      }
+    if (grid->FaceLocations)
+      {
+      this->FaceLocations = vtkIdTypeArray::New();
+      this->FaceLocations->DeepCopy(grid->Locations);
+      this->FaceLocations->Register(this);
+      this->FaceLocations->Delete();
       }
     }
 
