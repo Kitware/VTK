@@ -181,6 +181,14 @@ public:
   virtual double GetGraphBundlingStrength(int idx);
 
   // Description:
+  // Sets the spline type for the graph edges.
+  // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
+  // vtkSplineGraphEdges::BSPLINE uses a b-spline.
+  // The default is CUSTOM.
+  virtual void SetGraphSplineType(int type, int idx);
+  virtual int GetGraphSplineType(int idx);
+
+  // Description:
   // The layout strategy for producing spatial regions for the tree.
   virtual void SetAreaLayoutStrategy(vtkAreaLayoutStrategy* strategy);
   virtual vtkAreaLayoutStrategy* GetAreaLayoutStrategy();

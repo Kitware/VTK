@@ -121,6 +121,14 @@ public:
   vtkGetStringMacro(HoverArrayName);
 
   // Description:
+  // The spline mode to use in vtkSplineGraphEdges.
+  // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
+  // vtkSplineGraphEdges::BSPLINE uses a b-spline.
+  // The default is CUSTOM.
+  virtual void SetSplineType(int type);
+  virtual int GetSplineType();
+
+  // Description:
   // Register progress with a view.
   void RegisterProgress(vtkRenderView* view);
 

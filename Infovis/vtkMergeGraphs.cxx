@@ -35,7 +35,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkMergeGraphs, "1.3");
+vtkCxxRevisionMacro(vtkMergeGraphs, "1.4");
 vtkStandardNewMacro(vtkMergeGraphs);
 //---------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()
@@ -207,6 +207,12 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
   // For each edge in graph2, add it to the output
   vtkSmartPointer<vtkEdgeListIterator> it = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph2->GetEdges(it);
+  vtkIdType cur = 0;
+  while (cur < graph2->GetNumberOfEdges() - this->MaxEdges)
+    {
+    it->Next();
+    ++cur;
+    }
   while (it->HasNext())
     {
     vtkEdgeType e = it->Next();
@@ -238,4 +244,5 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
 void vtkMergeGraphs::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "MaxEdges: " << this->MaxEdges << endl;
 }

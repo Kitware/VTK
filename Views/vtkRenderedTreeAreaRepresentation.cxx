@@ -83,7 +83,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.18");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.19");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -309,6 +309,23 @@ double vtkRenderedTreeAreaRepresentation::GetGraphBundlingStrength(int idx)
     return this->Implementation->Graphs[idx]->GetBundlingStrength();
     }
   return 0.0;
+}
+
+void vtkRenderedTreeAreaRepresentation::SetGraphSplineType(int type, int idx)
+{
+  if (this->ValidIndex(idx))
+    {
+    this->Implementation->Graphs[idx]->SetSplineType(type);
+    }
+}
+
+int vtkRenderedTreeAreaRepresentation::GetGraphSplineType(int idx)
+{
+  if (this->ValidIndex(idx))
+    {
+    return this->Implementation->Graphs[idx]->GetSplineType();
+    }
+  return 0;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetEdgeScalarBarVisibility(bool b)

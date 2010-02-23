@@ -43,7 +43,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.15");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.16");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -197,6 +197,16 @@ void vtkHierarchicalGraphPipeline::SetVisibility(bool vis)
 bool vtkHierarchicalGraphPipeline::GetVisibility()
 {
   return this->Actor->GetVisibility() ? true : false;
+}
+
+void vtkHierarchicalGraphPipeline::SetSplineType(int type)
+{
+  this->Spline->SetSplineType(type);
+}
+
+int vtkHierarchicalGraphPipeline::GetSplineType()
+{
+  return this->Spline->GetSplineType();
 }
 
 void vtkHierarchicalGraphPipeline::PrepareInputConnections(

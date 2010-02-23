@@ -27,7 +27,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.4");
+vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.5");
 vtkStandardNewMacro(vtkSplineGraphEdges);
 vtkCxxSetObjectMacro(vtkSplineGraphEdges, Spline, vtkSpline);
 
@@ -189,7 +189,7 @@ vtkSplineGraphEdges::vtkSplineGraphEdges()
   this->YSpline = 0;
   this->ZSpline = 0;
   this->NumberOfSubdivisions = 20;
-  this->SplineType = BSPLINE;
+  this->SplineType = CUSTOM;
 }
 
 vtkSplineGraphEdges::~vtkSplineGraphEdges()

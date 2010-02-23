@@ -35,7 +35,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkStreamGraph, "1.1");
+vtkCxxRevisionMacro(vtkStreamGraph, "1.2");
 vtkStandardNewMacro(vtkStreamGraph);
 //---------------------------------------------------------------------------
 vtkStreamGraph::vtkStreamGraph()
@@ -124,4 +124,5 @@ int vtkStreamGraph::RequestData(
 void vtkStreamGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "MaxEdges: " << this->MaxEdges << endl;
 }
