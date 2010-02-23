@@ -103,6 +103,12 @@ public:
   // Access to the name of the selection's subset description array.
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
+
+  // Description:
+  // Access to the component number for the array specified by ArrayName.
+  // Default is component 0. Use -1 for magnitude.
+  vtkSetMacro(ArrayComponent, int);
+  vtkGetMacro(ArrayComponent, int);
   
   // Description:
   // If CompositeIndex < 0 then COMPOSITE_INDEX() is not added to the output.
@@ -139,6 +145,7 @@ protected:
   int HierarchicalLevel;
   int HierarchicalIndex;
   char *ArrayName;
+  int ArrayComponent;
 
 private:
   vtkSelectionSource(const vtkSelectionSource&);  // Not implemented.

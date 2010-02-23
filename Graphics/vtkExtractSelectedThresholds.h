@@ -34,7 +34,6 @@
 #include "vtkExtractSelectionBase.h"
 
 class vtkDataArray;
-class vtkDoubleArray;
 class vtkSelection;
 class vtkSelectionNode;
 
@@ -52,7 +51,20 @@ public:
   // Function for determining whether a value in a data array passes
   // the threshold test(s) provided in lims.  Returns 1 if the value
   // passes at least one of the threshold tests.
-  static int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims);
+  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  static int EvaluateValue(vtkDataArray *scalars,
+    vtkIdType id, vtkDataArray *lims)
+    {
+    return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0, id, lims);
+    }
+
+  // Description:
+  // Same as the other EvaluateValue except that the component to be compared
+  // can be picked using array_component_no (use -1 for magnitude).
+  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  static int EvaluateValue(vtkDataArray *array,
+    int array_component_no,
+    vtkIdType id, vtkDataArray *lims);
 
   // Description:
   // Function for determining whether a value in a data array passes
@@ -60,7 +72,22 @@ public:
   // passes at least one of the threshold tests.  Also returns in
   // AboveCount, BelowCount and InsideCount the number of tests where
   // the value was above, below or inside the interval.
-  static int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims, int *AboveCount, int *BelowCount, int *InsideCount);
+  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  static int EvaluateValue(vtkDataArray *scalars, vtkIdType id,
+    vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount)
+    {
+    return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0,
+      id, lims, AboveCount, BelowCount, InsideCount);
+    }
+
+  // Description:
+  // Same as the other EvaluateValue except that the component to be compared
+  // can be picked using array_component_no (use -1 for magnitude).
+  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  static int EvaluateValue(vtkDataArray *scalars,
+    int array_component_no,
+    vtkIdType id,
+    vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount);
 
 protected:
   vtkExtractSelectedThresholds();

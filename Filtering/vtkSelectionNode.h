@@ -173,6 +173,14 @@ public:
   static vtkInformationIntegerKey* CONTAINING_CELLS();
 
   // Description:
+  // When ContentType==THRESHOLDS  or ContentType==VALUES 
+  // i.e. threshold and value based selections, it is
+  // possible pick the component number using this key. If none is specified,
+  // the 0th component is used. If any number less than 0 is specified, then
+  // the magnitude is used.
+  static vtkInformationIntegerKey* COMPONENT_NUMBER();
+
+  // Description:
   // This flag tells the extraction filter to exclude the selection.
   static vtkInformationIntegerKey* INVERSE();
 

@@ -26,7 +26,7 @@
 #include "vtkProp.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSelectionNode, "1.6");
+vtkCxxRevisionMacro(vtkSelectionNode, "1.7");
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
@@ -45,6 +45,7 @@ vtkInformationKeyMacro(vtkSelectionNode,CONTAINING_CELLS,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,PIXEL_COUNT,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,INVERSE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,INDEXED_VERTICES,Integer);
+vtkInformationKeyMacro(vtkSelectionNode,COMPONENT_NUMBER,Integer);
 
 //----------------------------------------------------------------------------
 vtkSelectionNode::vtkSelectionNode()

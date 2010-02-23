@@ -25,7 +25,7 @@
 
 #include <vtkstd/set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
-vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.4");
+vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.5");
 //----------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock()
 {
@@ -125,33 +125,36 @@ int vtkExtractSelectedBlock::RequestData(
     node->GetProperties()->Get(vtkSelectionNode::INVERSE()) == 1);
 
   output->CopyStructure(cd);
-  vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::SafeDownCast(
+  vtkDataArray* selectionList = vtkDataArray::SafeDownCast(
     node->GetSelectionList());
+  vtkstd::set<unsigned int> blocks;
   if (selectionList)
     {
-    vtkstd::set<unsigned int> blocks;
     vtkIdType numValues = selectionList->GetNumberOfTuples();
-    for (vtkIdType cc=0; cc < numValues; cc++)
+    void * dataPtr = selectionList->GetVoidPointer(0);
+    switch (selectionList->GetDataType())
       {
-      blocks.insert(selectionList->GetValue(cc));
-      }
-
-    if (numValues > 0)
-      {
-      vtkCompositeDataIterator* citer = cd->NewIterator();
-      for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); 
-        citer->GoToNextItem())
-        {
-        vtkstd::set<unsigned int>::iterator fiter = 
-          blocks.find(citer->GetCurrentFlatIndex());
-        if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
+      vtkTemplateMacro(
+        for (vtkIdType cc=0; cc < numValues; cc++)
           {
-          output->SetDataSet(citer, citer->GetCurrentDataObject());
-          }
-        }
-      citer->Delete();
+          blocks.insert(
+            static_cast<unsigned int>(static_cast<VTK_TT*>(dataPtr)[cc]));
+          });
       }
     }
+
+  vtkCompositeDataIterator* citer = cd->NewIterator();
+  for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); 
+    citer->GoToNextItem())
+    {
+    vtkstd::set<unsigned int>::iterator fiter = 
+      blocks.find(citer->GetCurrentFlatIndex());
+    if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
+      {
+      output->SetDataSet(citer, citer->GetCurrentDataObject());
+      }
+    }
+  citer->Delete();
   return 1;
 }
 

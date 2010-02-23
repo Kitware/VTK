@@ -31,7 +31,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.16");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.17");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -131,7 +131,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
   int usePointScalars)
 {
   //find the values to threshold within
-  vtkDoubleArray *lims = vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
+  vtkDataArray *lims = vtkDataArray::SafeDownCast(sel->GetSelectionList());
   if (lims == NULL)
     {
     vtkErrorMacro(<<"No values to threshold with");
@@ -140,12 +140,24 @@ int vtkExtractSelectedThresholds::ExtractCells(
 
   //find out what array we are suppose to threshold in
   vtkDataArray *inScalars = NULL;
+  bool use_ids = false;
   if (usePointScalars)
     {
     if (sel->GetSelectionList()->GetName())
       {
-      inScalars = input->GetPointData()->GetArray(
-        sel->GetSelectionList()->GetName());
+      if (strcmp(sel->GetSelectionList()->GetName(), "vtkGlobalIds") == 0)
+        {
+        inScalars = input->GetPointData()->GetGlobalIds();
+        }
+      else if (strcmp(sel->GetSelectionList()->GetName(), "vtkIndices") == 0)
+        {
+        use_ids = true;
+        }
+      else
+        {
+        inScalars = input->GetPointData()->GetArray(
+          sel->GetSelectionList()->GetName());
+        }
       }
     else
       {
@@ -156,15 +168,26 @@ int vtkExtractSelectedThresholds::ExtractCells(
     {
     if (sel->GetSelectionList()->GetName())
       {
-      inScalars = input->GetCellData()->GetArray(
-        sel->GetSelectionList()->GetName());
+      if (strcmp(sel->GetSelectionList()->GetName(), "vtkGlobalIds") == 0)
+        {
+        inScalars = input->GetCellData()->GetGlobalIds();
+        }
+      else if (strcmp(sel->GetSelectionList()->GetName(), "vtkIndices") == 0)
+        {
+        use_ids = true;
+        }
+      else
+        {
+        inScalars = input->GetCellData()->GetArray(
+          sel->GetSelectionList()->GetName());
+        }
       }
     else
       {
       inScalars = input->GetCellData()->GetScalars();
       }
     }
-  if (inScalars == NULL)
+  if (inScalars == NULL && !use_ids)
     {
     vtkErrorMacro("Could not figure out what array to threshold in.");
     return 1;
@@ -180,6 +203,12 @@ int vtkExtractSelectedThresholds::ExtractCells(
   if (this->PreserveTopology)
     {
     passThrough = 1;
+    }
+
+  int comp_no = 0;
+  if (sel->GetProperties()->Has(vtkSelectionNode::COMPONENT_NUMBER()))
+    {
+    comp_no = sel->GetProperties()->Get(vtkSelectionNode::COMPONENT_NUMBER());
     }
 
   vtkIdType cellId, newCellId;
@@ -293,7 +322,8 @@ int vtkExtractSelectedThresholds::ExtractCells(
         int above = 0; 
         int below = 0;
         ptId = cellPts->GetId(i);
-        int inside = this->EvaluateValue( inScalars, ptId, lims, &above, &below, NULL );
+        int inside = this->EvaluateValue(
+          inScalars, comp_no, ptId, lims, &above, &below, NULL);
         totalAbove += above;
         totalBelow += below;
         // Have we detected a cell that straddles the threshold?
@@ -311,7 +341,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
       }
     else //use cell scalars
       {
-      keepCell = this->EvaluateValue( inScalars, cellId, lims );
+      keepCell = this->EvaluateValue(inScalars, comp_no, cellId, lims);
       if (passThrough && (keepCell ^ inverse))
         {
         cellInArray->SetValue(cellId, flag);
@@ -371,7 +401,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkDataSet *output)
 {
   //find the values to threshold within
-  vtkDoubleArray *lims = vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
+  vtkDataArray *lims = vtkDataArray::SafeDownCast(sel->GetSelectionList());
   if (lims == NULL)
     {
     vtkErrorMacro(<<"No values to threshold with");
@@ -380,16 +410,28 @@ int vtkExtractSelectedThresholds::ExtractPoints(
 
   //find out what array we are suppose to threshold in
   vtkDataArray *inScalars = NULL;
+  bool use_ids = false;
   if (sel->GetSelectionList()->GetName())
     {
-    inScalars = input->GetPointData()->GetArray(
-      sel->GetSelectionList()->GetName());
+    if (strcmp(sel->GetSelectionList()->GetName(), "vtkGlobalIds") == 0)
+      {
+      inScalars = input->GetPointData()->GetGlobalIds();
+      }
+    else if (strcmp(sel->GetSelectionList()->GetName(), "vtkIndices") == 0)
+      {
+      use_ids = true;
+      }
+    else
+      {
+      inScalars = input->GetPointData()->GetArray(
+        sel->GetSelectionList()->GetName());
+      }
     }
   else
     {
     inScalars = input->GetPointData()->GetScalars();
     }
-  if (inScalars == NULL)
+  if (inScalars == NULL && !use_ids)
     {
     vtkErrorMacro("Could not figure out what array to threshold in.");
     return 1;
@@ -405,6 +447,12 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   if (this->PreserveTopology)
     {
     passThrough = 1;
+    }
+
+  int comp_no = 0;
+  if (sel->GetProperties()->Has(vtkSelectionNode::COMPONENT_NUMBER()))
+    {
+    comp_no = sel->GetProperties()->Get(vtkSelectionNode::COMPONENT_NUMBER());
     }
 
   vtkIdType numPts = input->GetNumberOfPoints();
@@ -459,7 +507,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkIdType outPtCnt = 0;
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
     {
-    int keepPoint = this->EvaluateValue( inScalars, ptId, lims );
+    int keepPoint = this->EvaluateValue( inScalars, comp_no, ptId, lims );
     if (keepPoint ^ inverse)
       {
       if (passThrough)
@@ -495,20 +543,80 @@ void vtkExtractSelectedThresholds::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+namespace
+{
+  template <class daT>
+  bool TestItem(vtkIdType numLims, daT* limsPtr, double value)
+    {
+    for (int i = 0; i < numLims; i+=2)
+      {
+      if (value >= limsPtr[i] && value <= limsPtr[i+1])
+        {
+        return true;
+        }
+      }
+    return false;
+    }
+
+  template <class daT>
+  bool TestItem(vtkIdType numLims, daT* limsPtr, double value,
+    int &above, int &below, int& inside)
+    {
+    bool keepCell = false;
+    for (vtkIdType i = 0; i < numLims; i+=2)
+      {
+      daT low = limsPtr[i];
+      daT high = limsPtr[i+1];
+      if (value >= low && value <= high)
+        {
+        keepCell = true;
+        ++inside;
+        }
+      else if (value < low)
+        {
+        ++below;
+        }
+      else if (value > high)
+        {
+        ++above;
+        }
+      }
+    return keepCell;
+    }
+};
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::EvaluateValue(
-  vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims)
+  vtkDataArray *scalars, int comp_no, vtkIdType id, vtkDataArray *lims)
 {
   int keepCell = 0;
   //check the value in the array against all of the thresholds in lims
   //if it is inside any, return true
-  for (int i = 0; i < lims->GetNumberOfTuples(); i+=2)
+  double value = 0.0;
+  if (comp_no < 0 && scalars)
     {
-    double value = scalars->GetComponent(id, 0);
-    if (value >= lims->GetValue(i) && value <= lims->GetValue(i+1))
+    // use magnitude.
+    int numComps = scalars->GetNumberOfComponents();
+    const double *tuple = scalars->GetTuple(id);
+    for (int cc=0; cc < numComps; cc++)
       {
-      keepCell = 1;
+      value += tuple[cc]*tuple[cc];
       }
+    value = sqrt(value);
+    }
+  else
+    {
+    value = scalars? scalars->GetComponent(id, comp_no) :
+      static_cast<double>(id); /// <=== precision loss when using id.
+    }
+
+  void* rawLimsPtr = lims->GetVoidPointer(0);
+  vtkIdType numLims = lims->GetNumberOfComponents() * lims->GetNumberOfTuples();
+  switch (lims->GetDataType())
+    {
+    vtkTemplateMacro(
+      keepCell = TestItem<VTK_TT>(numLims,
+        static_cast<VTK_TT*>(rawLimsPtr),
+        value));
     }
   return keepCell;
 }
@@ -516,34 +624,45 @@ int vtkExtractSelectedThresholds::EvaluateValue(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::EvaluateValue(
-  vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims,
+  vtkDataArray *scalars, int comp_no, vtkIdType id, vtkDataArray *lims,
   int *AboveCount, int *BelowCount, int *InsideCount)
 {
+  double value = 0.0;
+  if (comp_no < 0 && scalars)
+    {
+    // use magnitude.
+    int numComps = scalars->GetNumberOfComponents();
+    const double *tuple = scalars->GetTuple(id);
+    for (int cc=0; cc < numComps; cc++)
+      {
+      value += tuple[cc]*tuple[cc];
+      }
+    value = sqrt(value);
+    }
+  else
+    {
+    value = scalars? scalars->GetComponent(id, comp_no) :
+      static_cast<double>(id); /// <=== precision loss when using id.
+    }
+
   int keepCell = 0;
   //check the value in the array against all of the thresholds in lims
   //if it is inside any, return true
   int above = 0;
   int below = 0;
   int inside = 0;
-  for (int i = 0; i < lims->GetNumberOfTuples(); i+=2)
+
+  void* rawLimsPtr = lims->GetVoidPointer(0);
+  vtkIdType numLims = lims->GetNumberOfComponents() * lims->GetNumberOfTuples();
+  switch (lims->GetDataType())
     {
-    double value = scalars->GetComponent(id, 0);
-    double low = lims->GetValue(i);
-    double high = lims->GetValue(i+1);
-    if (value >= low && value <= high)
-      {
-      keepCell = 1;
-      ++inside;
-      }
-    else if (value < low)
-      {
-      ++below;
-      }
-    else if (value > high)
-      {
-      ++above;
-      }
+    vtkTemplateMacro(
+      keepCell = TestItem<VTK_TT>(numLims,
+        static_cast<VTK_TT*>(rawLimsPtr),
+        value,
+        above, below, inside));
     }
+
   if (AboveCount) *AboveCount = above;
   if (BelowCount) *BelowCount = below;
   if (InsideCount) *InsideCount = inside;
