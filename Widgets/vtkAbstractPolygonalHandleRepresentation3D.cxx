@@ -34,7 +34,7 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.5");
+vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.6");
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,Property,vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,SelectedProperty,vtkProperty);
 
@@ -86,6 +86,7 @@ vtkAbstractPolygonalHandleRepresentation3D
   // Label stuff.
   this->LabelAnnotationTextScaleInitialized = false;
   this->LabelVisibility = 0;
+  this->HandleVisibility = 1;
   this->LabelTextInput = vtkVectorText::New();
   this->LabelTextInput->SetText( "0" );
   this->LabelTextMapper = vtkPolyDataMapper::New();
@@ -662,7 +663,10 @@ int vtkAbstractPolygonalHandleRepresentation3D::RenderOpaqueGeometry(vtkViewport
 {
   int count=0;
   this->BuildRepresentation();
-  count += this->Actor->RenderOpaqueGeometry(viewport);
+  if (this->HandleVisibility)
+    {
+    count += this->Actor->RenderOpaqueGeometry(viewport);
+    }
   if (this->LabelVisibility)
     {
     count += this->LabelTextActor->RenderOpaqueGeometry(viewport);
@@ -675,7 +679,10 @@ int vtkAbstractPolygonalHandleRepresentation3D::RenderTranslucentPolygonalGeomet
   vtkViewport *viewport)
 {
   int count=0;
-  count += this->Actor->RenderTranslucentPolygonalGeometry(viewport);
+  if (this->HandleVisibility)
+    {
+    count += this->Actor->RenderTranslucentPolygonalGeometry(viewport);
+    }
   if (this->LabelVisibility)
     {
     count += this->LabelTextActor->RenderTranslucentPolygonalGeometry(viewport);
@@ -688,7 +695,10 @@ int vtkAbstractPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry(
 {
   int result=0;
   this->BuildRepresentation();
-  result |= this->Actor->HasTranslucentPolygonalGeometry();
+  if (this->HandleVisibility)
+    {
+    result |= this->Actor->HasTranslucentPolygonalGeometry();
+    }
   if (this->LabelVisibility)
     {
     result |= this->LabelTextActor->HasTranslucentPolygonalGeometry();
@@ -755,6 +765,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkInden
     os << indent << "Selected Property: (none)\n";
     }
   os << indent << "LabelVisibility: " << this->LabelVisibility << endl;
+  os << indent << "HandleVisibility: " << this->HandleVisibility << endl;
   os << indent << "Actor: " << this->Actor << "\n";
   this->Actor->PrintSelf(os,indent.GetNextIndent());
   os << indent << "LabelTextActor: " << this->LabelTextActor << endl;

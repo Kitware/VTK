@@ -117,6 +117,12 @@ public:
   // mouse button.
   virtual void SetUniformScale( double scale );
 
+  // Description:
+  // Toogle the visibility of the handle on and off
+  vtkSetMacro( HandleVisibility, int );
+  vtkGetMacro( HandleVisibility, int );
+  vtkBooleanMacro( HandleVisibility, int );
+  
 protected:
   vtkAbstractPolygonalHandleRepresentation3D();
   ~vtkAbstractPolygonalHandleRepresentation3D();
@@ -134,6 +140,7 @@ protected:
   vtkProperty                * SelectedProperty;
   int                          WaitingForMotion;
   int                          WaitCount;
+  int                          HandleVisibility;
 
   void Highlight(int highlight);
 
