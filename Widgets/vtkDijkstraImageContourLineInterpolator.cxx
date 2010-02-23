@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageContourLineInterpolator,"1.4");
+vtkCxxRevisionMacro(vtkDijkstraImageContourLineInterpolator,"1.5");
 vtkStandardNewMacro(vtkDijkstraImageContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -66,17 +66,18 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   vtkRenderer* vtkNotUsed(ren), vtkContourRepresentation *rep,
   int idx1, int idx2 )
 {
-  vtkImageActorPointPlacer *placer =
-    vtkImageActorPointPlacer::SafeDownCast(rep->GetPointPlacer());
-
-  if ( !placer ) 
-    {
-    return 1;
-    }
-
   // if the user didn't set the image, try to get it from the actor
   if ( !this->CostImage )
     {
+
+    vtkImageActorPointPlacer *placer =
+      vtkImageActorPointPlacer::SafeDownCast(rep->GetPointPlacer());
+
+    if ( !placer ) 
+      {
+      return 1;
+      }
+      
     vtkImageActor* actor = placer->GetImageActor();
     if ( !actor || !(this->CostImage = actor->GetInput()) )
       {
