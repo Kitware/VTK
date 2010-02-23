@@ -17,14 +17,24 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkParallelCoordinatesView - Self-contained view for MPDE height-field data
+// .NAME vtkParallelCoordinatesView - view to be used with vtkParallelCoordinatesRepresentation
 //
 // .SECTION Description
 //
-// MPDE data gets represented as a vtkRectilinearGrid when it comes
-// out of the reader.  This class encapsulates the process of splitting
-// that out into selections, converting to poly data, and rendering it
-// with appropriate decorations.
+// This class manages interaction with the vtkParallelCoordinatesRepresentation.  There are 
+// two inspection modes: axis manipulation and line selection.  In axis manipulation mode,
+// PC axes can be dragged and reordered with the LMB, axis ranges can be increased/decreased
+// by dragging up/down with the LMB, and RMB controls zoom and pan.  
+// 
+// In line selection mode, there are three subclasses of selections: lasso, angle, and 
+// function selection.  Lasso selection lets the user brush a line and select all PC lines 
+// that pass nearby.  Angle selection lets the user draw a representative line between axes 
+// and select all lines that have similar orientation.  Function selection lets the user 
+// draw two  representative lines between a pair of axes and select all lines that match
+// the linear interpolation of those lines.  
+//
+// There are several self-explanatory operators for combining selections: ADD, SUBTRACT
+// REPLACE, and INTERSECT.  
 
 #ifndef __vtkParallelCoordinatesView_h
 #define __vtkParallelCoordinatesView_h

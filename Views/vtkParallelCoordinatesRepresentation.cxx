@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkParallelCoordinatesRepresentation, "1.11");
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
@@ -104,16 +104,16 @@ void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it,
   vtkIdType numComponents = it->GetNumberOfComponents();
   double arange = amax - amin;
   double yrange = ymax - ymin;
-  double x[3] = {xPosition,0.5*yrange,0.0};
+  double x[3] = {xPosition,ymin+0.5*yrange,0.0};
 
   // if there are no specific ids to plot, plot them all
   if (!idsToPlot)
     {
     if (arange == 0.0)
       {
-      for (vtkIdType i=0; i<numTuples; i++)
+      for (vtkIdType ptId=positionIdx,i=0; i<numTuples; i++,ptId+=numPositions)
         {
-        points->SetPoint(i*numPositions,x);
+        points->SetPoint(ptId,x);
         }
       }
     else
@@ -139,9 +139,9 @@ void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it,
 
     if (arange == 0.0)
       {
-      for (vtkIdType i=0; i<numIdsToPlot; i++)
+      for (vtkIdType ptId=positionIdx,i=0; i<numIdsToPlot; i++,ptId+=numPositions)
         {
-        points->SetPoint(i*numPositions,x);
+        points->SetPoint(ptId,x);
         }
       }
     else
