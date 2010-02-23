@@ -48,7 +48,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.3");
 vtkStandardNewMacro(vtkExtractSelectedRows);
 //----------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()
@@ -169,7 +169,7 @@ int vtkExtractSelectedRows::RequestData(
   output->GetRowData()->CopyStructure(input->GetRowData());
 
   //dodge segfault on empty tables
-  if(converted->GetNumberOfNodes() > input->GetNumberOfRows())
+  if((vtkIdType)converted->GetNumberOfNodes() > input->GetNumberOfRows())
     {
     vtkErrorMacro("Attempting to select more rows than the table contains.");
     return 0;
