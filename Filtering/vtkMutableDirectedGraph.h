@@ -281,6 +281,24 @@ public:
   vtkIdType AddChild(vtkIdType parent)
     { return this->AddChild(parent, 0); }
 
+  // Description:
+  // Removes the vertex from the graph along with any connected edges.
+  // Note: This invalidates the last vertex index, which is reassigned to v.
+  void RemoveVertex(vtkIdType v);
+
+  // Description:
+  // Removes the edge from the graph.
+  // Note: This invalidates the last edge index, which is reassigned to e.
+  void RemoveEdge(vtkIdType e);
+
+  // Description:
+  // Removes a collection of vertices from the graph along with any connected edges.
+  void RemoveVertices(vtkIdTypeArray* arr);
+
+  // Description:
+  // Removes a collection of edges from the graph.
+  void RemoveEdges(vtkIdTypeArray* arr);
+
 protected:
   vtkMutableDirectedGraph();
   ~vtkMutableDirectedGraph();

@@ -65,6 +65,22 @@ public:
   // Add a vertex to the underlying mutable graph.
   vtkIdType AddVertex();
 
+  // Description:
+  // Remove a vertex from the underlying mutable graph.
+  void RemoveVertex(vtkIdType v);
+
+  // Description:
+  // Remove a collection of vertices from the underlying mutable graph.
+  void RemoveVertices(vtkIdTypeArray* verts);
+
+  // Description:
+  // Remove an edge from the underlying mutable graph.
+  void RemoveEdge(vtkIdType e);
+
+  // Description:
+  // Remove a collection of edges from the underlying mutable graph.
+  void RemoveEdges(vtkIdTypeArray* edges);
+
 protected:
   vtkMutableGraphHelper();
   ~vtkMutableGraphHelper();

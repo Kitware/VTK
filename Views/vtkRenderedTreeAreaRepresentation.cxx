@@ -83,7 +83,7 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.17");
+vtkCxxRevisionMacro(vtkRenderedTreeAreaRepresentation, "1.18");
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);
 
 vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
@@ -954,6 +954,12 @@ void vtkRenderedTreeAreaRepresentation::PrepareForRendering(vtkRenderView* view)
   //view->GetRenderer()->AddActor(this->AreaLabelActor);
 #endif
 #endif
+
+  // Make sure all the graphs are registered.
+  for (size_t i = 0; i < this->Implementation->Graphs.size(); ++i)
+    {
+    this->Implementation->Graphs[i]->RegisterProgress(view);
+    }
 
   this->Superclass::PrepareForRendering(view);
 }

@@ -34,6 +34,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -42,7 +43,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.14");
+vtkCxxRevisionMacro(vtkHierarchicalGraphPipeline, "1.15");
 vtkStandardNewMacro(vtkHierarchicalGraphPipeline);
 
 vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
@@ -95,7 +96,7 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
   this->Actor->SetPosition(0.0, 0.0, 1.0);
 
   this->Bundle->SetBundlingStrength(0.5);
-  //this->Spline->GetSplineFilter()->SetMaximumNumberOfSubdivisions(16);
+  //this->Spline->SetNumberOfSubdivisions(4);
 }
 
 vtkHierarchicalGraphPipeline::~vtkHierarchicalGraphPipeline()
@@ -113,6 +114,16 @@ vtkHierarchicalGraphPipeline::~vtkHierarchicalGraphPipeline()
   this->EdgeCenters->Delete();
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
+}
+
+void vtkHierarchicalGraphPipeline::RegisterProgress(vtkRenderView* rv)
+{
+  rv->RegisterProgress(this->ApplyColors);
+  rv->RegisterProgress(this->Bundle);
+  rv->RegisterProgress(this->ApplyColors);
+  rv->RegisterProgress(this->GraphToPoly);
+  rv->RegisterProgress(this->Spline);
+  rv->RegisterProgress(this->Mapper);
 }
 
 void vtkHierarchicalGraphPipeline::SetBundlingStrength(double strength)

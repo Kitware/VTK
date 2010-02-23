@@ -20,16 +20,17 @@
 // .NAME vtkSplineGraphEdges - subsample graph edges to make smooth curves
 //
 // .SECTION Description
-// vtkSplineGraphEdges uses vtkSplineFilter to make edges into nicely sampled
-// splines.
+// vtkSplineGraphEdges uses a vtkSpline to make edges into nicely sampled
+// splines. By default, the filter will use an optimized b-spline.
+// Otherwise, it will use a custom vtkSpline instance set by the user.
 
 #ifndef __vtkSplineGraphEdges_h
 #define __vtkSplineGraphEdges_h
 
 #include "vtkGraphAlgorithm.h"
+#include "vtkSmartPointer.h" // For ivars
 
-class vtkGraphToPolyData;
-class vtkSplineFilter;
+class vtkSpline;
 
 class VTK_INFOVIS_EXPORT vtkSplineGraphEdges : public vtkGraphAlgorithm 
 {
@@ -39,11 +40,29 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The internal spline filter used to spline the edges. This should
-  // only be used to set parameters on the filter. This was done to
-  // avoid duplicating the spline filter API in this filter.
-  virtual vtkSplineFilter* GetSplineFilter()
-    { return this->Spline; }
+  // If SplineType is CUSTOM, uses this spline.
+  virtual void SetSpline(vtkSpline* s);
+  vtkGetObjectMacro(Spline, vtkSpline);
+
+  //BTX
+  enum
+    {
+    BSPLINE = 0,
+    CUSTOM
+    };
+  //ETX
+
+  // Description:
+  // Spline type used by the filter.
+  // BSPLINE (0) - Use optimized b-spline (default).
+  // CUSTOM (1) - Use spline set with SetSpline.
+  vtkSetMacro(SplineType, int);
+  vtkGetMacro(SplineType, int);
+
+  // Description:
+  // The number of subdivisions in the spline.
+  vtkSetMacro(NumberOfSubdivisions, vtkIdType);
+  vtkGetMacro(NumberOfSubdivisions, vtkIdType);
 
 protected:
   vtkSplineGraphEdges();
@@ -56,8 +75,20 @@ protected:
 
   virtual unsigned long GetMTime();
 
-  vtkGraphToPolyData* GraphToPoly;
-  vtkSplineFilter* Spline;
+  void GeneratePoints(vtkGraph* g, vtkIdType e);
+  void GenerateBSpline(vtkGraph* g, vtkIdType e);
+
+  vtkSpline* Spline;
+
+  int SplineType;
+
+  //BTX
+  vtkSmartPointer<vtkSpline> XSpline;
+  vtkSmartPointer<vtkSpline> YSpline;
+  vtkSmartPointer<vtkSpline> ZSpline;
+  //ETX
+
+  vtkIdType NumberOfSubdivisions;
 
 private:
   vtkSplineGraphEdges(const vtkSplineGraphEdges&);  // Not implemented.

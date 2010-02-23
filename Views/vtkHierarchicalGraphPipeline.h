@@ -37,6 +37,7 @@ class vtkEdgeCenters;
 class vtkGraphHierarchicalBundleEdges;
 class vtkGraphToPolyData;
 class vtkPolyDataMapper;
+class vtkRenderView;
 class vtkSplineGraphEdges;
 class vtkSelection;
 class vtkTextProperty;
@@ -118,6 +119,10 @@ public:
   // The array to use while hovering over an edge.
   vtkSetStringMacro(HoverArrayName);
   vtkGetStringMacro(HoverArrayName);
+
+  // Description:
+  // Register progress with a view.
+  void RegisterProgress(vtkRenderView* view);
 
 protected:
   vtkHierarchicalGraphPipeline();

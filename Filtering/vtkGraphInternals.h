@@ -26,12 +26,9 @@
 #define __vtkGraphInternals_h
 
 #include "vtkGraph.h"
-#include "vtkObject.h"
-#include "vtkVariant.h"
-#include "vtkVariantArray.h"
 
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
+#include <vtksys/stl/vector> // STL Header
+#include <vtksys/stl/map>    // STL Header
 
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList
@@ -68,6 +65,24 @@ public:
   // no-argument AddVertex() function in vtkMutableUndirectedGraph and
   // vtkMutableDirectedGraph.
   bool UsingPedigreeIds;
+
+  //BTX
+  // Description:
+  // Convenience method for removing an edge from an out edge list.
+  void RemoveEdgeFromOutList(vtkIdType e, vtksys_stl::vector<vtkOutEdgeType>& outEdges);
+
+  // Description:
+  // Convenience method for removing an edge from an in edge list.
+  void RemoveEdgeFromInList(vtkIdType e, vtksys_stl::vector<vtkInEdgeType>& inEdges);
+
+  // Description:
+  // Convenience method for renaming an edge in an out edge list.
+  void ReplaceEdgeFromOutList(vtkIdType from, vtkIdType to, vtksys_stl::vector<vtkOutEdgeType>& outEdges);
+
+  // Description:
+  // Convenience method for renaming an edge in an in edge list.
+  void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, vtksys_stl::vector<vtkInEdgeType>& inEdges);
+  //ETX
 
 protected:
   vtkGraphInternals();

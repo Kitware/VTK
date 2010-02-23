@@ -19,9 +19,12 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkAdjacentVertexIterator.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDirectedAcyclicGraph.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInEdgeIterator.h"
+#include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
@@ -198,6 +201,139 @@ void TestGraphIterators(vtkGraph *g, int & errors)
     }
 }
 
+void TestGraphDeletion(int & errors)
+{
+  //         <-------e0--------
+  // ( e4 ) v0 -e3-> v1 -e1-> v2 ( e2 )
+  //           <-e5-
+  VTK_CREATE(vtkMutableDirectedGraph, mdg);
+  mdg->AddVertex();
+  mdg->AddVertex();
+  mdg->AddVertex();
+  mdg->AddEdge(2, 0);
+  mdg->AddEdge(1, 2);
+  mdg->AddEdge(2, 2);
+  mdg->AddEdge(0, 1);
+  mdg->AddEdge(0, 0);
+  mdg->AddEdge(1, 0);
+  VTK_CREATE(vtkIntArray, varr);
+  varr->SetName("id");
+  varr->InsertNextValue(0);
+  varr->InsertNextValue(1);
+  varr->InsertNextValue(2);
+  VTK_CREATE(vtkIntArray, earr);
+  earr->SetName("id");
+  earr->InsertNextValue(0);
+  earr->InsertNextValue(1);
+  earr->InsertNextValue(2);
+  earr->InsertNextValue(3);
+  earr->InsertNextValue(4);
+  earr->InsertNextValue(5);
+  mdg->GetVertexData()->AddArray(varr);
+  mdg->GetEdgeData()->AddArray(earr);
+
+  // Cause edge list to be built.
+  mdg->GetSourceVertex(0);
+  mdg->Dump();
+
+  // ( e4 ) v0 -e3-> v1 -e1-> v2 ( e2 )
+  //           <-e0-
+  mdg->RemoveEdge(0);
+  mdg->Dump();
+  if (mdg->GetNumberOfEdges() != 5 || mdg->GetSourceVertex(0) != 1 || mdg->GetTargetVertex(0) != 0)
+    {
+    cerr << "ERROR: Did not remove edge correctly." << endl;
+    ++errors;
+    }
+  if (earr->GetNumberOfTuples() != 5 || earr->GetValue(0) != 5)
+    {
+    cerr << "ERROR: Did not remove edge property correctly." << endl;
+    ++errors;
+    }
+
+  // ( e0 ) v0 -e3-> v1 -e1-> v2 ( e2 )
+  mdg->RemoveEdge(0);
+  mdg->Dump();
+  if (mdg->GetNumberOfEdges() != 4 || mdg->GetSourceVertex(0) != 0 || mdg->GetTargetVertex(0) != 0)
+    {
+    cerr << "ERROR: Did not remove loop correctly." << endl;
+    ++errors;
+    }
+  if (earr->GetNumberOfTuples() != 4 || earr->GetValue(0) != 4)
+    {
+    cerr << "ERROR: Did not remove loop property correctly." << endl;
+    ++errors;
+    }
+
+  //                 v1 -e1-> v0 ( e0 )
+  mdg->RemoveVertex(0);
+  mdg->Dump();
+  if (mdg->GetNumberOfVertices() != 2 || mdg->GetNumberOfEdges() != 2 || mdg->GetSourceVertex(0) != 0 || mdg->GetTargetVertex(0) != 0)
+    {
+    cerr << "ERROR: Did not remove vertex correctly." << endl;
+    ++errors;
+    }
+  if (varr->GetNumberOfTuples() != 2 || varr->GetValue(0) != 2 || varr->GetValue(1) != 1)
+    {
+    cerr << "ERROR: Did not remove vertex property correctly." << endl;
+    ++errors;
+    }
+
+  // (empty graph)
+  VTK_CREATE(vtkIdTypeArray, removeVertices);
+  removeVertices->InsertNextValue(1);
+  removeVertices->InsertNextValue(0);
+  mdg->RemoveVertices(removeVertices);
+  mdg->Dump();
+  if (mdg->GetNumberOfVertices() != 0 || mdg->GetNumberOfEdges() != 0)
+    {
+    cerr << "ERROR: Remove vertices did not work properly." << endl;
+    ++errors;
+    }
+
+  VTK_CREATE(vtkMutableUndirectedGraph, mug);
+  mug->AddVertex();
+  mug->AddVertex();
+  mug->AddVertex();
+  mug->AddEdge(0, 1);
+  mug->AddEdge(0, 0);
+  mug->AddEdge(2, 0);
+  mug->AddEdge(2, 1);
+  mug->AddEdge(1, 2);
+  VTK_CREATE(vtkIntArray, varr2);
+  varr2->InsertNextValue(0);
+  varr2->InsertNextValue(1);
+  varr2->InsertNextValue(2);
+  VTK_CREATE(vtkIntArray, earr2);
+  earr2->InsertNextValue(0);
+  earr2->InsertNextValue(1);
+  mug->GetVertexData()->AddArray(varr2);
+  mug->GetEdgeData()->AddArray(earr2);
+
+  // Cause edge list to be built.
+  mug->GetSourceVertex(0);
+  mug->Dump();
+
+  VTK_CREATE(vtkIdTypeArray, removeEdges);
+  removeEdges->InsertNextValue(3);
+  removeEdges->InsertNextValue(2);
+  removeEdges->InsertNextValue(4);
+  removeEdges->InsertNextValue(1);
+  removeEdges->InsertNextValue(0);
+  mug->RemoveEdges(removeEdges);
+  mug->Dump();
+  if (mug->GetNumberOfVertices() != 3 || mug->GetNumberOfEdges() != 0)
+    {
+    cerr << "ERROR: Remove edges did not work properly." << endl;
+    ++errors;
+    }
+  if (earr2->GetNumberOfTuples() != 0)
+    {
+    cerr << "ERROR: Remove edges properties did not work properly." << endl;
+    ++errors;
+    }
+}
+
 int TestGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int errors = 0;
@@ -340,6 +476,10 @@ int TestGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     cerr << "ERROR: Tree changed when modifying directed graph." << endl;
     ++errors;
     }
+  cerr << "... done." << endl;
+
+  cerr << "Testing graph deletion ..." << endl;
+  TestGraphDeletion(errors);
   cerr << "... done." << endl;
 
   return errors;

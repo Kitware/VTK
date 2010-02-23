@@ -558,6 +558,10 @@ public:
   // Get the number of elements for a specific attribute type (VERTEX, EDGE, etc.).
   virtual vtkIdType GetNumberOfElements(int type);
 
+  // Description:
+  // Dump the contents of the graph to standard output.
+  void Dump();
+
 protected:
   //BTX
   vtkGraph();
@@ -593,6 +597,24 @@ protected:
   void AddEdgeInternal(const vtkVariant& uPedigree, const vtkVariant& vPedigree,
                        bool directed, vtkVariantArray *propertyArr,
                        vtkEdgeType *edge);
+
+  // Description:
+  // Removes a vertex from the graph, along with any adjacent edges.
+  // This invalidates the id of the last vertex, since it is reassigned to v.
+  void RemoveVertexInternal(vtkIdType v, bool directed);
+
+  // Description:
+  // Removes an edge from the graph.
+  // This invalidates the id of the last edge, since it is reassigned to e.
+  void RemoveEdgeInternal(vtkIdType e, bool directed);
+
+  // Description:
+  // Removes a collection of vertices from the graph, along with any adjacent edges.
+  void RemoveVerticesInternal(vtkIdTypeArray* arr, bool directed);
+
+  // Description:
+  // Removes a collection of edges from the graph.
+  void RemoveEdgesInternal(vtkIdTypeArray* arr, bool directed);
   //ETX
 
   // Description:

@@ -19,49 +19,194 @@
 -------------------------------------------------------------------------*/
 #include "vtkSplineGraphEdges.h"
 
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkFloatArray.h"
+#include "vtkCardinalSpline.h"
+#include "vtkCommand.h"
 #include "vtkGraph.h"
-#include "vtkGraphToPolyData.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkSmartPointer.h"
-#include "vtkSplineFilter.h"
-#include "vtkStdString.h"
-#include "vtkTree.h"
-#include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.3");
+vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.4");
 vtkStandardNewMacro(vtkSplineGraphEdges);
+vtkCxxSetObjectMacro(vtkSplineGraphEdges, Spline, vtkSpline);
+
+namespace {
+// N-function defined at:
+// http://mathworld.wolfram.com/B-Spline.html
+// optimized for j = 3.
+double CubicSpline(vtkIdType i, double* k, double t)
+{
+  if (t >= k[i] && t < k[i+1])
+    {
+    double denom = (k[i+3]-k[i])*(k[i+2]-k[i])*(k[i+1]-k[i]);
+    if (denom == 0.0) return 0.0;
+    double temp = t - k[i];
+    return temp*temp*temp/denom;
+    }
+  if (t >= k[i+1] && t < k[i+2])
+    {
+    double denom1 = (k[i+3]-k[i])*(k[i+2]-k[i])*(k[i+2]-k[i+1]);
+    double term1;
+    if (denom1 == 0.0)
+      {
+      term1 = 0.0;
+      }
+    else
+      {
+      term1 = (t-k[i])*(t-k[i])*(k[i+2]-t)/denom1;
+      }
+
+    double denom2 = (k[i+3]-k[i])*(k[i+3]-k[i+1])*(k[i+2]-k[i+1]);
+    double term2;
+    if (denom2 == 0.0)
+      {
+      term2 = 0.0;
+      }
+    else
+      {
+      term2 = (t-k[i])*(k[i+3]-t)*(t-k[i+1])/denom2;
+      }
+
+    double denom3 = (k[i+4]-k[i+1])*(k[i+3]-k[i+1])*(k[i+2]-k[i+1]);
+    double term3;
+    if (denom3 == 0.0)
+      {
+      term3 = 0.0;
+      }
+    else
+      {
+      term3 = (k[i+4]-t)*(t-k[i+1])*(t-k[i+1])/denom3;
+      }
+
+    return term1 + term2 + term3;
+    }
+  if (t >= k[i+2] && t < k[i+3])
+    {
+    double denom1 = (k[i+3]-k[i])*(k[i+3]-k[i+1])*(k[i+3]-k[i+2]);
+    double term1;
+    if (denom1 == 0.0)
+      {
+      term1 = 0.0;
+      }
+    else
+      {
+      term1 = (t-k[i])*(k[i+3]-t)*(k[i+3]-t)/denom1;
+      }
+
+    double denom2 = (k[i+4]-k[i+1])*(k[i+3]-k[i+1])*(k[i+3]-k[i+2]);
+    double term2;
+    if (denom2 == 0.0)
+      {
+      term2 = 0.0;
+      }
+    else
+      {
+      term2 = (k[i+4]-t)*(t-k[i+1])*(k[i+3]-t)/denom2;
+      }
+
+    double denom3 = (k[i+4]-k[i+1])*(k[i+4]-k[i+2])*(k[i+3]-k[i+2]);
+    double term3;
+    if (denom3 == 0.0)
+      {
+      term3 = 0.0;
+      }
+    else
+      {
+      term3 = (k[i+4]-t)*(k[i+4]-t)*(t-k[i+2])/denom3;
+      }
+
+    return term1 + term2 + term3;
+    }
+  if (t >= k[i+3] && t < k[i+4])
+    {
+    double denom = (k[i+4]-k[i+1])*(k[i+4]-k[i+2])*(k[i+4]-k[i+3]);
+    if (denom == 0.0) return 0.0;
+    double temp = k[i+4] - t;
+    return temp*temp*temp/denom;
+    }
+  return 0.0;
+}
+
+// Slow, recursive version of N-function defined:
+// http://mathworld.wolfram.com/B-Spline.html
+double N(vtkIdType i, vtkIdType j, double* k, double t)
+{
+  if (j < 0)
+    {
+    return 0.0;
+    }
+  if (j == 0)
+    {
+    if (t >= k[i] && t < k[i+1] && k[i] < k[i+1])
+      {
+      return 1.0;
+      }
+    return 0.0;
+    }
+  double term1 = 0.0;
+  if (k[i] < k[i+j])
+    {
+    term1 = (t-k[i])/(k[i+j]-k[i])*N(i, j-1, k, t);
+    }
+  double term2 = 0.0;
+  if (k[i+1] < k[i+j+1])
+    {
+    term2 = (k[i+j+1]-t)/(k[i+j+1]-k[i+1])*N(i+1, j-1, k, t);
+    }
+  return term1 + term2;
+}
+
+double BCubic(vtkIdType i, double* k, double t)
+{
+  if (t < k[i-2] || t >= k[i+2])
+    {
+    return 0.0;
+    }
+  double temp;
+  if (t >= k[i-2] && t < k[i-1])
+    {
+    temp = 2.0 + t;
+    return temp*temp*temp/6.0;
+    }
+  if (t >= k[i-1] && t < k[i])
+    {
+    return (4 - 6*t*t - 3*t*t*t)/6.0;
+    }
+  if (t >= k[i] && t < k[i+1])
+    {
+    return (4 - 6*t*t + 3*t*t*t)/6.0;
+    }
+  temp = 2.0 - t;
+  return temp*temp*temp;
+}
+}
 
 vtkSplineGraphEdges::vtkSplineGraphEdges()
 {
-  this->GraphToPoly = vtkGraphToPolyData::New();
-  this->Spline = vtkSplineFilter::New();
+  this->Spline = vtkCardinalSpline::New();
+  this->XSpline = 0;
+  this->YSpline = 0;
+  this->ZSpline = 0;
+  this->NumberOfSubdivisions = 20;
+  this->SplineType = BSPLINE;
 }
 
 vtkSplineGraphEdges::~vtkSplineGraphEdges()
 {
-  this->GraphToPoly->Delete();
-  this->Spline->Delete();
+  if (this->Spline)
+    {
+    this->Spline->Delete();
+    this->Spline = 0;
+    }
 }
 
 unsigned long vtkSplineGraphEdges::GetMTime()
 {
   unsigned long mtime = this->Superclass::GetMTime();
-  if (this->Spline->GetMTime() > mtime)
+  if (this->Spline && this->Spline->GetMTime() > mtime)
     {
     mtime = this->Spline->GetMTime();
-    }
-  if (this->GraphToPoly->GetMTime() > mtime)
-    {
-    mtime = this->GraphToPoly->GetMTime();
     }
   return mtime;
 }
@@ -71,6 +216,12 @@ int vtkSplineGraphEdges::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->Spline)
+    {
+    vtkErrorMacro("Must have a valid spline.");
+    return 0;
+    }
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -84,38 +235,188 @@ int vtkSplineGraphEdges::RequestData(
   output->ShallowCopy(input);
   output->DeepCopyEdgePoints(input);
 
-  vtkGraph* copy = vtkGraph::SafeDownCast(input->NewInstance());
-  copy->ShallowCopy(input);
-  this->GraphToPoly->SetInput(copy);
-  this->Spline->SetInputConnection(this->GraphToPoly->GetOutputPort());
-  this->Spline->Update();
-  vtkPolyData* splined = this->Spline->GetOutput();
-  vtkCellArray* lines = splined->GetLines();
-  vtkIdType numLines = lines->GetNumberOfCells();
-  vtkPoints* pts = splined->GetPoints();
-  double pt[3];
-  lines->InitTraversal();
-  vtkIdType numCellPts = 0;
-  vtkIdType* cellPts = 0;
-  for (vtkIdType i = 0; i < numLines; ++i)
+  if (this->SplineType == CUSTOM)
     {
-    lines->GetNextCell(numCellPts, cellPts);
-    // Add spline points for the edge.
-    // Don't include the start and end, since those are the
-    // vertex locations.
-    output->ClearEdgePoints(i);
-    for (vtkIdType j = 1; j < numCellPts-1; ++j)
+    this->XSpline.TakeReference(this->Spline->NewInstance());
+    this->XSpline->DeepCopy(this->Spline);
+    this->YSpline.TakeReference(this->Spline->NewInstance());
+    this->YSpline->DeepCopy(this->Spline);
+    this->ZSpline.TakeReference(this->Spline->NewInstance());
+    this->ZSpline->DeepCopy(this->Spline);
+    }
+
+  for (vtkIdType i = 0; i < output->GetNumberOfEdges(); ++i)
+    {
+    if (this->SplineType == BSPLINE)
       {
-      pts->GetPoint(cellPts[j], pt);
-      output->AddEdgePoint(i, pt);
+      this->GenerateBSpline(output, i);
+      }
+    else
+      {
+      this->GeneratePoints(output, i);
+      }
+    if (i % 1000 == 0)
+      {
+      double progress = static_cast<double>(i)/output->GetNumberOfEdges();
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
       }
     }
-  copy->Delete();
 
   return 1;
+}
+
+void vtkSplineGraphEdges::GeneratePoints(vtkGraph* g, vtkIdType e)
+{
+  // Initialize the splines
+  this->XSpline->RemoveAllPoints();
+  this->YSpline->RemoveAllPoints();
+  this->ZSpline->RemoveAllPoints();
+
+  vtkIdType numInternalPoints;
+  double* internalPoints;
+  g->GetEdgePoints(e, numInternalPoints, internalPoints);
+
+  vtkIdType numPoints = numInternalPoints + 2;
+  double* points = new double[3*numPoints];
+  memcpy(points + 3, internalPoints, sizeof(double)*3*numInternalPoints);
+  g->GetPoint(g->GetSourceVertex(e), points);
+  g->GetPoint(g->GetTargetVertex(e), points + 3*(numInternalPoints+1));
+
+  double* xPrev = points;
+  double* x = points+3;
+  double length = 0.0;
+  double* xEnd = points + 3*numPoints;
+  for (xPrev = points, x = points+3; x != xEnd; xPrev += 3, x += 3)
+    {
+    double len = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+    length += len;
+    }
+
+  if (length <= 0.0)
+    {
+    return;
+    }
+
+  // Now we insert points into the splines with the parametric coordinate
+  // based on length. We keep track of the parametric coordinates
+  // of the points for later point interpolation.
+  this->XSpline->AddPoint(0.0, points[0]);
+  this->YSpline->AddPoint(0.0, points[1]);
+  this->ZSpline->AddPoint(0.0, points[2]);
+  xPrev = points;
+  x = points+3;
+  double len = 0.0;
+  for (xPrev = points, x = points+3; x != xEnd; xPrev += 3, x += 3)
+    {
+    double dist = sqrt(vtkMath::Distance2BetweenPoints(x, xPrev));
+    if (dist == 0)
+      {
+      continue;
+      }
+    len += dist;
+    double t = len/length;
+
+    this->XSpline->AddPoint(t, x[0]);
+    this->YSpline->AddPoint(t, x[1]);
+    this->ZSpline->AddPoint(t, x[2]);
+    }
+
+  // Now compute the new points
+  vtkIdType numNewPoints = this->NumberOfSubdivisions - 1;
+  double* newPoints = new double[3*numNewPoints];
+  vtkIdType i;
+  for (i = 0, x = newPoints; i < numNewPoints; i++, x += 3)
+    {
+    double t = static_cast<double>(i+1) / this->NumberOfSubdivisions;
+    x[0] = this->XSpline->Evaluate(t);
+    x[1] = this->YSpline->Evaluate(t);
+    x[2] = this->ZSpline->Evaluate(t);
+    }
+  g->SetEdgePoints(e, numNewPoints, newPoints);
+
+  delete [] points;
+  delete [] newPoints;
+}
+
+void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
+{
+  vtkIdType numInternalPoints;
+  double* internalPoints;
+  g->GetEdgePoints(e, numInternalPoints, internalPoints);
+
+  vtkIdType numPoints = numInternalPoints + 2;
+  double* points = new double[3*numPoints];
+  memcpy(points + 3, internalPoints, sizeof(double)*3*numInternalPoints);
+  g->GetPoint(g->GetSourceVertex(e), points);
+  g->GetPoint(g->GetTargetVertex(e), points + 3*(numInternalPoints+1));
+
+  if (numPoints < 3)
+    {
+    return;
+    }
+
+  // Compute the knot vector
+  vtkIdType numKnots = numPoints + 4;
+  double* knots = new double[numKnots];
+  knots[0] = 0.0;
+  knots[1] = 0.0;
+  knots[2] = 0.0;
+  knots[3] = 0.0;
+  knots[numKnots-4] = 1.0;
+  knots[numKnots-3] = 1.0;
+  knots[numKnots-2] = 1.0;
+  knots[numKnots-1] = 1.0;
+  for (vtkIdType i = 4; i < numKnots-4; ++i)
+    {
+    knots[i] = static_cast<double>(i-3)/(numKnots-7);
+    }
+
+  // Special case of 3 points, make symmetric
+  if (numPoints == 3)
+    {
+    knots[3] = 0.5;
+    }
+
+  // Now compute the new points
+  vtkIdType numNewPoints = this->NumberOfSubdivisions - 1;
+  double* newPoints = new double[3*numNewPoints];
+  vtkIdType i;
+  double* xNew;
+  for (i = 0, xNew = newPoints; i < numNewPoints; i++, xNew += 3)
+    {
+    xNew[0] = 0.0;
+    xNew[1] = 0.0;
+    xNew[2] = 0.0;
+    double t = static_cast<double>(i+1) / this->NumberOfSubdivisions;
+    double* x = points;
+    //double bsum = 0.0;
+    for (vtkIdType j = 0; j < numPoints; ++j, x += 3)
+      {
+      //double b = BCubic(j+2, knots, t);
+      //double b = N(j, 3, knots, t);
+      double b = CubicSpline(j, knots, t);
+      //bsum += b;
+      xNew[0] += x[0]*b;
+      xNew[1] += x[1]*b;
+      xNew[2] += x[2]*b;
+      }
+    //cerr << "bsum: " << bsum << endl;
+    }
+  g->SetEdgePoints(e, numNewPoints, newPoints);
+
+  delete [] points;
+  delete [] knots;
+  delete [] newPoints;
 }
 
 void vtkSplineGraphEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "SplineType: " << this->SplineType << endl;
+  os << indent << "NumberOfSubdivisions: " << this->NumberOfSubdivisions << endl;
+  os << indent << "Spline: " << (this->Spline ? "" : "(none)") << endl;
+  if (this->Spline)
+    {
+    this->Spline->PrintSelf(os, indent.GetNextIndent());
+    }
 }

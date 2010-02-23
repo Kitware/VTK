@@ -28,6 +28,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPruneTreeFilter
     TestRandomGraphSource
     TestSimple3DCirclesStrategy
+    TestStreamGraph
     TestStringToCategory
     TestTable
     TestTableSplitColumnComponents.cxx

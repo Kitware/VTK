@@ -22,6 +22,7 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergeTables.h"
@@ -34,13 +35,14 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkMergeGraphs, "1.2");
+vtkCxxRevisionMacro(vtkMergeGraphs, "1.3");
 vtkStandardNewMacro(vtkMergeGraphs);
 //---------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
+  this->MaxEdges = -1;
 }
 
 //---------------------------------------------------------------------------
@@ -147,6 +149,23 @@ int vtkMergeGraphs::RequestData(
     }
   builder->GetGraph()->DeepCopy(graph1);
 
+  if (!this->ExtendGraph(builder, graph2))
+    {
+    return 0;
+    }
+
+  if (!output->CheckedShallowCopy(builder->GetGraph()))
+    {
+    vtkErrorMacro("Output graph format invalid.");
+    return 0;
+    }
+
+  return 1;
+}
+
+//---------------------------------------------------------------------------
+int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2)
+{
   vtkAbstractArray* ped_ids1 = builder->GetGraph()->GetVertexData()->GetPedigreeIds();
   if (!ped_ids1)
     {
@@ -200,10 +219,16 @@ int vtkMergeGraphs::RequestData(
       }
     }
 
-  if (!output->CheckedShallowCopy(builder->GetGraph()))
+  // Remove some edges if there are too many
+  if (this->MaxEdges >= 0 && builder->GetGraph()->GetNumberOfEdges() > this->MaxEdges)
     {
-    vtkErrorMacro("Output graph format invalid.");
-    return 0;
+    vtkSmartPointer<vtkIdTypeArray> edgesToRemove =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    for (vtkIdType i = 0; i < builder->GetGraph()->GetNumberOfEdges() - this->MaxEdges; ++i)
+      {
+      edgesToRemove->InsertNextValue(i);
+      }
+    builder->RemoveEdges(edgesToRemove);
     }
 
   return 1;

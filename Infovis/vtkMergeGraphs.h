@@ -47,7 +47,7 @@
 #include "vtkGraphAlgorithm.h"
 
 class vtkBitArray;
-class vtkMutableDirectedGraph;
+class vtkMutableGraphHelper;
 class vtkStringArray;
 class vtkTable;
 
@@ -57,7 +57,19 @@ public:
   static vtkMergeGraphs* New();
   vtkTypeRevisionMacro(vtkMergeGraphs,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  // Description:
+  // This is the core functionality of the algorithm. Adds edges
+  // and vertices from g2 into g1.
+  int ExtendGraph(vtkMutableGraphHelper* g1, vtkGraph* g2);
+
+  // Description:
+  // The maximum number of edges in the combined graph. Default is -1,
+  // which specifies that there should be no limit on the number
+  // of edges.
+  vtkSetMacro(MaxEdges, vtkIdType);
+  vtkGetMacro(MaxEdges, vtkIdType);
+
 protected:
   vtkMergeGraphs();
   ~vtkMergeGraphs();
@@ -68,6 +80,8 @@ protected:
     vtkInformationVector*);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+  vtkIdType MaxEdges;
 
 private:
   vtkMergeGraphs(const vtkMergeGraphs&); // Not implemented

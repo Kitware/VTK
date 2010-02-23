@@ -41,6 +41,8 @@
 #include "vtkStringArray.h"
 
 #include <assert.h>
+#include <vtksys/stl/algorithm>
+#include <vtksys/stl/set>
 #include <vtksys/stl/vector>
 
 double vtkGraph::DefaultPoint[3] = {0, 0, 0};
@@ -64,7 +66,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.38");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.39");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -73,7 +75,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.38");
+vtkCxxRevisionMacro(vtkGraph, "1.39");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1439,6 +1441,267 @@ void vtkGraph::AddEdgeInternal(const vtkVariant& uPedigreeId,
 }
 
 //----------------------------------------------------------------------------
+void vtkGraph::RemoveVertexInternal(vtkIdType v, bool directed)
+{
+  if (this->DistributedHelper)
+    {
+    vtkErrorMacro("Cannot remove vertices in a distributed graph.");
+    return;
+    }
+  if (v < 0 || v >= this->GetNumberOfVertices())
+    {
+    return;
+    }
+
+  this->ForceOwnership();
+  this->BuildEdgeList(); // This function assumes the edge list is created.
+
+  // Remove connected edges
+  vtksys_stl::set<vtkIdType> edges;
+  vtksys_stl::vector<vtkOutEdgeType>::iterator oi, oiEnd;
+  oiEnd = this->Internals->Adjacency[v].OutEdges.end();
+  for (oi = this->Internals->Adjacency[v].OutEdges.begin(); oi != oiEnd; ++oi)
+    {
+    edges.insert(oi->Id);
+    }
+  vtksys_stl::vector<vtkInEdgeType>::iterator ii, iiEnd;
+  iiEnd = this->Internals->Adjacency[v].InEdges.end();
+  for (ii = this->Internals->Adjacency[v].InEdges.begin(); ii != iiEnd; ++ii)
+    {
+    edges.insert(ii->Id);
+    }
+  vtksys_stl::set<vtkIdType>::reverse_iterator ei, eiEnd;
+  eiEnd = edges.rend();
+  for (ei = edges.rbegin(); ei != eiEnd; ++ei)
+    {
+    this->RemoveEdgeInternal(*ei, directed);
+    }
+
+  // Replace all occurences of last vertex id with v
+  vtkIdType lv = this->GetNumberOfVertices() - 1;
+  this->Internals->Adjacency[v] = this->Internals->Adjacency[lv];
+  oiEnd = this->Internals->Adjacency[v].OutEdges.end();
+  for (oi = this->Internals->Adjacency[v].OutEdges.begin(); oi != oiEnd; ++oi)
+    {
+    if (oi->Target == lv)
+      {
+      oi->Target = v;
+      this->EdgeList->SetValue(2*oi->Id + 1, v);
+      continue;
+      }
+    if (directed)
+      {
+      iiEnd = this->Internals->Adjacency[oi->Target].InEdges.end();
+      for (ii = this->Internals->Adjacency[oi->Target].InEdges.begin(); ii != iiEnd; ++ii)
+        {
+        if (ii->Source == lv)
+          {
+          ii->Source = v;
+          this->EdgeList->SetValue(2*ii->Id + 0, v);
+          }
+        }
+      }
+    else
+      {
+      vtksys_stl::vector<vtkOutEdgeType>::iterator oi2, oi2End;
+      oi2End = this->Internals->Adjacency[oi->Target].OutEdges.end();
+      for (oi2 = this->Internals->Adjacency[oi->Target].OutEdges.begin(); oi2 != oi2End; ++oi2)
+        {
+        if (oi2->Target == lv)
+          {
+          oi2->Target = v;
+          this->EdgeList->SetValue(2*oi2->Id + 1, v);
+          }
+        }
+      }
+    }
+
+  if (directed)
+    {
+    iiEnd = this->Internals->Adjacency[v].InEdges.end();
+    for (ii = this->Internals->Adjacency[v].InEdges.begin(); ii != iiEnd; ++ii)
+      {
+      if (ii->Source == lv)
+        {
+        ii->Source = v;
+        this->EdgeList->SetValue(2*ii->Id + 0, v);
+        continue;
+        }
+      oiEnd = this->Internals->Adjacency[ii->Source].OutEdges.end();
+      for (oi = this->Internals->Adjacency[ii->Source].OutEdges.begin(); oi != oiEnd; ++oi)
+        {
+        if (oi->Target == lv)
+          {
+          oi->Target = v;
+          this->EdgeList->SetValue(2*oi->Id + 1, v);
+          }
+        }
+      }
+    }
+
+  // Update properties
+  vtkDataSetAttributes* vd = this->GetVertexData();
+  for (int i = 0; i < vd->GetNumberOfArrays(); ++i)
+    {
+    vtkAbstractArray* arr = vd->GetAbstractArray(i);
+    arr->SetTuple(v, lv, arr);
+    arr->SetNumberOfTuples(lv);
+    }
+
+  // Update points
+  if (this->Points)
+    {
+    double x[3];
+    this->Points->GetPoint(lv);
+    this->Points->SetPoint(v, x);
+    this->Points->SetNumberOfPoints(lv);
+    }
+
+  this->Internals->Adjacency.pop_back();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::RemoveEdgeInternal(vtkIdType e, bool directed)
+{
+  if (this->DistributedHelper)
+    {
+    vtkErrorMacro("Cannot remove edges in a distributed graph.");
+    return;
+    }
+  if (e < 0 || e >= this->GetNumberOfEdges())
+    {
+    return;
+    }
+  this->ForceOwnership();
+  vtkIdType u = this->GetSourceVertex(e);
+  vtkIdType v = this->GetTargetVertex(e);
+
+  this->Internals->RemoveEdgeFromOutList(e, this->Internals->Adjacency[u].OutEdges);
+  if (directed)
+    {
+    this->Internals->RemoveEdgeFromInList(e, this->Internals->Adjacency[v].InEdges);
+    }
+  else if (u != v)
+    {
+    this->Internals->RemoveEdgeFromOutList(e, this->Internals->Adjacency[v].OutEdges);
+    }
+
+  // Replace last edge id with e
+  vtkIdType le = this->GetNumberOfEdges() - 1;
+  vtkIdType lu = this->GetSourceVertex(le);
+  vtkIdType lv = this->GetTargetVertex(le);
+  this->Internals->ReplaceEdgeFromOutList(le, e, this->Internals->Adjacency[lu].OutEdges);
+  if (directed)
+    {
+    this->Internals->ReplaceEdgeFromInList(le, e, this->Internals->Adjacency[lv].InEdges);
+    }
+  else if (u != v)
+    {
+    this->Internals->ReplaceEdgeFromOutList(le, e, this->Internals->Adjacency[lv].OutEdges);
+    }
+
+  // Update edge list
+  this->EdgeList->SetValue(2*e + 0, lu);
+  this->EdgeList->SetValue(2*e + 1, lv);
+  this->EdgeList->SetNumberOfTuples(le);
+
+  // Update properties
+  vtkDataSetAttributes* ed = this->GetEdgeData();
+  for (int i = 0; i < ed->GetNumberOfArrays(); ++i)
+    {
+    vtkAbstractArray* arr = ed->GetAbstractArray(i);
+    arr->SetTuple(e, le, arr);
+    arr->SetNumberOfTuples(le);
+    }
+
+  // Update edge points
+  if (this->EdgePoints)
+    {
+    this->EdgePoints->Storage[e] = this->EdgePoints->Storage[le];
+    this->EdgePoints->Storage.pop_back();
+    }
+
+  this->Internals->NumberOfEdges--;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::RemoveVerticesInternal(vtkIdTypeArray* arr, bool directed)
+{
+  if (this->DistributedHelper)
+    {
+    vtkErrorMacro("Cannot remove vertices in a distributed graph.");
+    return;
+    }
+  if (!arr)
+    {
+    return;
+    }
+
+  // Sort
+  vtkIdType* p = arr->GetPointer(0);
+  vtkIdType numVert = arr->GetNumberOfTuples();
+  vtksys_stl::sort(p, p + numVert);
+
+  // Collect all edges to be removed
+  vtksys_stl::set<vtkIdType> edges;
+  for (vtkIdType vind = 0; vind < numVert; ++vind)
+    {
+    vtkIdType v = p[vind];
+    vtksys_stl::vector<vtkOutEdgeType>::iterator oi, oiEnd;
+    oiEnd = this->Internals->Adjacency[v].OutEdges.end();
+    for (oi = this->Internals->Adjacency[v].OutEdges.begin(); oi != oiEnd; ++oi)
+      {
+      edges.insert(oi->Id);
+      }
+    vtksys_stl::vector<vtkInEdgeType>::iterator ii, iiEnd;
+    iiEnd = this->Internals->Adjacency[v].InEdges.end();
+    for (ii = this->Internals->Adjacency[v].InEdges.begin(); ii != iiEnd; ++ii)
+      {
+      edges.insert(ii->Id);
+      }
+    }
+
+  // Remove edges in reverse index order
+  vtksys_stl::set<vtkIdType>::reverse_iterator ei, eiEnd;
+  eiEnd = edges.rend();
+  for (ei = edges.rbegin(); ei != eiEnd; ++ei)
+    {
+    this->RemoveEdgeInternal(*ei, directed);
+    }
+
+  // Remove vertices in reverse index order
+  for (vtkIdType vind = numVert - 1; vind >= 0; --vind)
+    {
+    this->RemoveVertexInternal(p[vind], directed);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::RemoveEdgesInternal(vtkIdTypeArray* arr, bool directed)
+{
+  if (this->DistributedHelper)
+    {
+    vtkErrorMacro("Cannot remove edges in a distributed graph.");
+    return;
+    }
+  if (!arr)
+    {
+    return;
+    }
+
+  // Sort
+  vtkIdType* p = arr->GetPointer(0);
+  vtkIdType numEdges = arr->GetNumberOfTuples();
+  vtksys_stl::sort(p, p + numEdges);
+
+  // Edges vertices in reverse index order
+  for (vtkIdType eind = numEdges - 1; eind >= 0; --eind)
+    {
+    this->RemoveEdgeInternal(p[eind], directed);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
 {
   vtkIdType index = v;
@@ -1547,6 +1810,38 @@ vtkIdType vtkGraph::GetNumberOfElements(int type)
       break;
     }
   return this->Superclass::GetNumberOfElements(type);;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::Dump()
+{
+  cout << "vertex adjacency:" << endl;
+  for (size_t v = 0; v < this->Internals->Adjacency.size(); ++v)
+    {
+    cout << v << " (out): ";
+    for (size_t eind = 0; eind < this->Internals->Adjacency[v].OutEdges.size(); ++eind)
+      {
+      cout << "[" << this->Internals->Adjacency[v].OutEdges[eind].Id
+           << "," << this->Internals->Adjacency[v].OutEdges[eind].Target << "]";
+      }
+    cout << " (in): ";
+    for (size_t eind = 0; eind < this->Internals->Adjacency[v].InEdges.size(); ++eind)
+      {
+      cout << "[" << this->Internals->Adjacency[v].InEdges[eind].Id
+           << "," << this->Internals->Adjacency[v].InEdges[eind].Source << "]";
+      }
+    cout << endl;
+    }
+  if (this->EdgeList)
+    {
+    cout << "edge list:" << endl;
+    for (vtkIdType e = 0; e < this->EdgeList->GetNumberOfTuples(); ++e)
+      {
+      cout << e << ": (" << this->EdgeList->GetValue(2*e + 0) << ","
+           << this->EdgeList->GetValue(2*e + 1) << ")" << endl;
+      }
+    cout << endl;
+    }
 }
 
 //----------------------------------------------------------------------------

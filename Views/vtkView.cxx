@@ -76,7 +76,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.22");
+vtkCxxRevisionMacro(vtkView, "1.23");
 vtkStandardNewMacro(vtkView);
 //----------------------------------------------------------------------------
 vtkView::vtkView()
@@ -326,7 +326,7 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 //----------------------------------------------------------------------------
 void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=NULL*/)
 {
-  if (algorithm)
+  if (algorithm && this->Internal->RegisteredProgress.find(algorithm) != this->Internal->RegisteredProgress.end())
     {
     const char* used_message = message? message : algorithm->GetClassName();
     this->Internal->RegisteredProgress[algorithm] = used_message;
