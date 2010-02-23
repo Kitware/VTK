@@ -27,7 +27,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkSeedRepresentation, "1.12");
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
@@ -193,6 +193,28 @@ void vtkSeedRepresentation::RemoveLastHandle()
   // Delete last handle
   this->Handles->back()->Delete();
   this->Handles->pop_back();
+}
+
+//----------------------------------------------------------------------
+void vtkSeedRepresentation::RemoveHandle( int n )
+{
+  // Remove nth handle
+  
+  if (n == this->ActiveHandle)
+    {
+    this->RemoveActiveHandle();
+    return;
+    }
+
+  if ( this->Handles->size() <= n )
+    {
+    return;
+    }
+
+  vtkHandleListIterator iter = this->Handles->begin();
+  vtkstd::advance( iter, n );
+  this->Handles->erase( iter );
+  ( *iter )->Delete();
 }
 
 //----------------------------------------------------------------------

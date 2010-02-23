@@ -103,6 +103,10 @@ public:
   virtual void RemoveActiveHandle();
 
   // Description:
+  // Remove the nth handle.
+  virtual void RemoveHandle( int n );
+
+  // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void BuildRepresentation();
   virtual int ComputeInteractionState( int X, int Y, int modify = 0 );

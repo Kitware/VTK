@@ -528,6 +528,34 @@ int TestSeedWidget( int argc, char *argv[] )
     iren->Start();
     }
 
+
+  // test removing seeds
+  const int startNumSeeds = rep->GetNumberOfSeeds();
+  for (int s = 0; s < startNumSeeds; s++)
+    {
+    widget->DeleteSeed(0);
+    }
+
+  const int endNumSeeds = rep->GetNumberOfSeeds();
+  if (endNumSeeds != 0)
+    {
+    cerr << "After deleting " << startNumSeeds << ", now have " 
+         << endNumSeeds << endl;
+    retVal = 0;
+
+    if (widget->GetSeed(0) != NULL)
+      {
+      vtkSeedRepresentation *seedRep =  vtkSeedRepresentation::SafeDownCast(
+                                                  widget->GetRepresentation());
+      const int widgetStartNumSeeds = seedRep->GetNumberOfSeeds();
+      cerr << "Still have a seed 0 after deleting all seeds, "
+           << "widget thinks it's rep has " << widgetStartNumSeeds << endl;    
+      }
+    
+    }
+  
+  
+
   recorder->Delete();
   ss->Delete();
   mapper->Delete();
