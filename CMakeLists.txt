@@ -41,7 +41,7 @@ IF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 ENDIF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
 SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
-SET(CMAKE_MODULE_PATH "${VTK_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
+SET(CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 
 # If we are building just VTK then add supplemental compiler warnings, GCC
 # visibility support and other optional extras.
@@ -96,19 +96,19 @@ ENDIF(CMAKE_CONFIGURATION_TYPES)
 
 #-----------------------------------------------------------------------------
 # Load some macros.
-INCLUDE(${VTK_CMAKE_DIR}/vtkDependentOption.cmake)
-INCLUDE(${VTK_CMAKE_DIR}/vtkThirdParty.cmake)
-INCLUDE(${VTK_CMAKE_DIR}/vtkExportKit.cmake)
-INCLUDE(${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
+INCLUDE(vtkDependentOption)
+INCLUDE(vtkThirdParty)
+INCLUDE(vtkExportKit)
+INCLUDE(vtkMakeInstantiator)
+INCLUDE(CMakeExportBuildSettings)
 
 #-----------------------------------------------------------------------------
 # Choose static or shared libraries.
-INCLUDE(${VTK_CMAKE_DIR}/vtkSelectSharedLibraries.cmake)
+INCLUDE(vtkSelectSharedLibraries)
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
-INCLUDE(${VTK_CMAKE_DIR}/CheckCXXSourceRuns.cmake)
+INCLUDE(CheckCXXSourceRuns)
 FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
   VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
 CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
@@ -121,7 +121,7 @@ SET(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 # The result depends on the platform and on some platforms it depends on
 # the compiler options (32-bit vs. 64-bit).
 
-INCLUDE(${VTK_CMAKE_DIR}/SharedLibraryPathVarName.cmake)
+INCLUDE(SharedLibraryPathVarName)
 
 #-----------------------------------------------------------------------------
 # Output directories.
@@ -376,7 +376,7 @@ IF (NOT VTK_DONT_INCLUDE_USE_X)
   # projects including VTK can include this cmake script and use
   # the option themselves, in which case, they set the VTK_DONT_INCLUDE_USE_X
   # variable to ensure that VTK doesn't set up the option again.
-  INCLUDE(${VTK_CMAKE_DIR}/vtkUseX.cmake)
+  INCLUDE(vtkUseX)
 ENDIF (NOT VTK_DONT_INCLUDE_USE_X)
 
 VTK_DEPENDENT_OPTION(VTK_USE_CARBON "Build classes using Carbon API." OFF
@@ -397,33 +397,33 @@ MARK_AS_ADVANCED(VTK_USE_OGGTHEORA_ENCODER)
 
 #-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
-INCLUDE(${VTK_CMAKE_DIR}/vtkDetermineCompilerFlags.cmake)
+INCLUDE(vtkDetermineCompilerFlags)
 
 # Tell VTK source files they are being built inside VTK.
 ADD_DEFINITIONS(-DVTK_IN_VTK)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
-INCLUDE(${VTK_CMAKE_DIR}/CMakeBackwardCompatibilityC.cmake)
+INCLUDE(CMakeBackwardCompatibilityC)
 INCLUDE(TestForANSIStreamHeaders)
 INCLUDE(TestForSTDNamespace)
 INCLUDE(TestForANSIForScope)
 INCLUDE(CheckTypeSize)
 
 # Simulate old CMakeBackwardCompatibilityCXX test.
-INCLUDE(${CMAKE_ROOT}/Modules/TestForSSTREAM.cmake)
+INCLUDE(TestForSSTREAM)
 
 # Tests for various integer, bool and float types
-INCLUDE(${VTK_CMAKE_DIR}/vtkTestTypes.cmake)
+INCLUDE(vtkTestTypes)
 
 # Socket tests etc.
 INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
 # Check for full template specialization support by compiler.
-INCLUDE(${VTK_CMAKE_DIR}/vtkTestFullSpecialization.cmake)
+INCLUDE(vtkTestFullSpecialization)
 
 # Check for explicit template instantiation support by compiler.
-INCLUDE(${VTK_CMAKE_DIR}/vtkTestExplicitInstantiation.cmake)
+INCLUDE(vtkTestExplicitInstantiation)
 
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
@@ -545,15 +545,15 @@ SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
 #-----------------------------------------------------------------------------
 # Select a streams library.
 
-INCLUDE(${VTK_CMAKE_DIR}/vtkSelectStreamsLibrary.cmake)
+INCLUDE(vtkSelectStreamsLibrary)
 VTK_SELECT_STREAMS_LIBRARY(VTK_USE_ANSI_STDLIB ${VTK_SOURCE_DIR})
 # Check the severity of EOF bugs in the streams library.
 # this must be after the test for the long types
-INCLUDE(${VTK_CMAKE_DIR}/vtkTestStreamsLibrary.cmake)
+INCLUDE(vtkTestStreamsLibrary)
 
 IF(VTK_USE_RENDERING AND WIN32)
   # Check for vfw32 support
-  INCLUDE(${VTK_CMAKE_DIR}/vtkTestVideoForWindows.cmake)
+  INCLUDE(vtkTestVideoForWindows)
 ENDIF(VTK_USE_RENDERING AND WIN32)
 
 #-----------------------------------------------------------------------------
@@ -767,7 +767,7 @@ ENDIF(VTK_OPENGL_HAS_OSMESA)
 #-----------------------------------------------------------------------------
 # Configure CG-Shading support.
 IF(VTK_USE_CG_SHADERS)
-  INCLUDE(${VTK_CMAKE_DIR}/FindCg.cmake)
+  FIND_PACKAGE(Cg)
   MARK_AS_ADVANCED(CG_COMPILER CG_INCLUDE_PATH CG_LIBRARY CG_GL_LIBRARY)
 ENDIF(VTK_USE_CG_SHADERS)
 
@@ -927,7 +927,7 @@ cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK checkout VTKLargeData"
 OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK use it for saving .avi animation files?" FALSE)
 MARK_AS_ADVANCED(VTK_USE_FFMPEG_ENCODER)
 IF (VTK_USE_FFMPEG_ENCODER)
-  INCLUDE(${VTK_CMAKE_DIR}/FindFFMPEG.cmake OPTIONAL)
+  FIND_PACKAGE(FFMPEG)
   MARK_AS_ADVANCED(CLEAR
     FFMPEG_INCLUDE_DIR
     FFMPEG_avformat_LIBRARY
@@ -966,7 +966,7 @@ OPTION (VTK_USE_MPEG2_ENCODER
   OFF)
 MARK_AS_ADVANCED(VTK_USE_MPEG2_ENCODER)
 IF (VTK_USE_MPEG2_ENCODER)
-  INCLUDE(${VTK_CMAKE_DIR}/FindMPEG2.cmake OPTIONAL)
+  FIND_PACKAGE(MPEG2)
 ENDIF (VTK_USE_MPEG2_ENCODER)
 
 #-----------------------------------------------------------------------------
@@ -999,18 +999,18 @@ ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 IF(VTK_WRAP_PYTHON)
   # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
   SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
+  INCLUDE(vtkWrapPython)
 ENDIF(VTK_WRAP_PYTHON)
 
 IF(VTK_WRAP_TCL OR VTK_INCLUDE_NEED_TK)
   # Tell vtkWrapTcl.cmake to set VTK_TCL_LIBRARIES for us.
   SET(VTK_WRAP_TCL_FIND_LIBS 1)
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapTcl.cmake")
+  INCLUDE(vtkWrapTcl)
 ENDIF(VTK_WRAP_TCL OR VTK_INCLUDE_NEED_TK)
 
 IF(VTK_WRAP_JAVA)
   SET(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapJava.cmake")
+  INCLUDE(vtkWrapJava)
   FIND_PACKAGE(Java)
   FIND_PACKAGE(JNI)
   # Some platforms have libjvm in a subdirectory from
@@ -1169,7 +1169,7 @@ IF(VTK_USE_BOOST)
     FIND_PACKAGE(Boost REQUIRED)
   endif (VTK_USE_PARALLEL_BGL)
 
-  INCLUDE(${VTK_CMAKE_DIR}/ExtractBoostVersion.cmake)
+  INCLUDE(ExtractBoostVersion)
 
 # We need Boost 1.32 or later
   if (BOOST_VERSION LESS 103200)
