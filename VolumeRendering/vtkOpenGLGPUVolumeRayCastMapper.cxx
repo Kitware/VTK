@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.4");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -5199,8 +5199,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer *ren,
   // RenderBlock method.
   
   this->PreRender(ren,vol,bounds,range,numberOfScalarComponents,1);
-  this->RenderBlock(ren,vol,0);
-  this->PostRender(ren,numberOfScalarComponents);
+  if(this->LoadExtensionsSucceeded)
+    {
+    this->RenderBlock(ren,vol,0);
+    this->PostRender(ren,numberOfScalarComponents);
+    }
   
   // Let's just make sure no OpenGL errors occurred during this render
   this->PrintError("End GPU Render");
