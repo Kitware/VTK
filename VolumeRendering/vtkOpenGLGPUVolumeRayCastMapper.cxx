@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.3");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -316,7 +316,8 @@ public:
             {
             if(*ptr>0.0001f)
               {
-              *ptr=1.0f-powf(1.0f-(*ptr),static_cast<float>(factor));
+              *ptr=static_cast<float>(1.0-pow(1.0-static_cast<double>(*ptr),
+                                              factor));
               }
             ++ptr;
             ++i;
