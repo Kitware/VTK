@@ -39,7 +39,7 @@ public:
 
   //virtual void Add(vtkMark* m);
   virtual vtkMark* Add(int type);
-
+  
   virtual bool Paint(vtkContext2D*);
 
   virtual void Update();
@@ -51,14 +51,21 @@ public:
     return this->MarkInstances[markIndex*numChildren + dataIndex];
     }
 
+  
+//BTX
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+//ETX
+  
 //BTX
 protected:
   vtkPanelMark();
   ~vtkPanelMark();
 
-  std::vector<vtkSmartPointer<vtkMark> > Marks;
-  std::vector<vtkSmartPointer<vtkMark> > MarkInstances;
-
+  vtkstd::vector<vtkSmartPointer<vtkMark> > Marks;
+  vtkstd::vector<vtkSmartPointer<vtkMark> > MarkInstances;
+  
 private:
   vtkPanelMark(const vtkPanelMark &); // Not implemented.
   void operator=(const vtkPanelMark &);   // Not implemented.

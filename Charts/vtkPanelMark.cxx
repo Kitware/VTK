@@ -20,7 +20,7 @@
 #include "vtkTransform2D.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.4");
+vtkCxxRevisionMacro(vtkPanelMark, "1.5");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void vtkPanelMark::Update()
   this->Right.Update(this);
   this->Top.Update(this);
   this->Bottom.Update(this);  
-  int numMarks = static_cast<int>(this->Marks.size());
+  vtkIdType numMarks = static_cast<vtkIdType>(this->Marks.size());
   
   // Create only a single instance if no real data is set on panel. 
   vtkIdType numChildren = 1; 
@@ -80,6 +80,21 @@ void vtkPanelMark::Update()
       this->MarkInstances.push_back(m);
       }
     }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkPanelMark::Hit(const vtkContextMouseEvent &mouse)
+{ 
+  // propagate to all the contained marks
+  vtkIdType numMarks=static_cast<vtkIdType>(this->Marks.size());
+  vtkIdType j=0;
+  bool result=false;
+  while(!result && j<numMarks)
+    {
+    result=this->Marks[j]->Hit(mouse);
+    ++j;
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------
