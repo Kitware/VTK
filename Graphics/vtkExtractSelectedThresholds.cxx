@@ -31,7 +31,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.17");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.18");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -68,6 +68,12 @@ int vtkExtractSelectedThresholds::RequestData(
   if ( ! selInfo )
     {
     //When not given a selection, quietly select nothing.
+    return 1;
+    }
+
+  if (input->GetNumberOfCells() == 0 && input->GetNumberOfPoints() == 0)
+    {
+    // empty input, nothing to do..
     return 1;
     }
 
