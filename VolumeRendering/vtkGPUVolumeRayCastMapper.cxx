@@ -33,7 +33,7 @@
 #include "vtkGPUInfoList.h"
 #include "vtkGPUInfo.h"
 
-vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.4");
+vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.5");
 vtkInstantiatorNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
@@ -95,6 +95,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
 vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
 {
   this->SetMaskInput(NULL);
+  this->SetTransformedInput(NULL);
 }
 
 // ----------------------------------------------------------------------------
