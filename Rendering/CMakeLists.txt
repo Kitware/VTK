@@ -333,7 +333,7 @@ endif(DirectX_FOUND)
 
 # on Mac
 if(ApplicationServices_FOUND)
- set(Kit_SRCS ${Kit_SRCS} vtkCoreGraphicsGPUInfoList.mm)
+ set(Kit_SRCS ${Kit_SRCS} vtkCoreGraphicsGPUInfoList.cxx)
 endif()
 
 # on Linux, for Nvidia

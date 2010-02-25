@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCoreGraphicsGPUInfoList.mm
+  Module:    vtkCoreGraphicsGPUInfoList.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,16 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#import "vtkCoreGraphicsGPUInfoList.h"
+#include "vtkCoreGraphicsGPUInfoList.h"
 
 #include "vtkGPUInfoListArray.h"
 #include "vtkObjectFactory.h"
 #include <assert.h>
 
-//#import "CGDirectDisplay.h" // for CGGetActiveDisplayList()
-#import <ApplicationServices/ApplicationServices.h>
+#include <ApplicationServices/ApplicationServices.h>
 
-vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.3");
+vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.1");
 vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 
 // ----------------------------------------------------------------------------
