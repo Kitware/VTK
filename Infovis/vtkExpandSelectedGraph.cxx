@@ -44,7 +44,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.4");
+vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.5");
 vtkStandardNewMacro(vtkExpandSelectedGraph);
 
 vtkExpandSelectedGraph::vtkExpandSelectedGraph()
@@ -196,7 +196,8 @@ void vtkExpandSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BFSDistance: " << this->BFSDistance << endl;
   os << indent << "IncludeShortestPaths: " 
      << (this->IncludeShortestPaths ? "on" : "off") << endl;
-  os << indent << "Domain: " << this->Domain << endl;
+  os << indent << "Domain: " 
+     << (this->Domain ? this->Domain : "(null)") << endl;
   os << indent << "UseDomain: " 
      << (this->UseDomain ? "on" : "off") << endl;
 }
