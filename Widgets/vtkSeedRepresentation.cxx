@@ -27,7 +27,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkSeedRepresentation, "1.13");
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
@@ -206,7 +206,7 @@ void vtkSeedRepresentation::RemoveHandle( int n )
     return;
     }
 
-  if ( this->Handles->size() <= n )
+  if (static_cast<int>(this->Handles->size()) <= n )
     {
     return;
     }
