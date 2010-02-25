@@ -280,6 +280,7 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   ".*vtkOpenGLState.*" # debugging class
   ".*Testing.Cxx.*cxx"
   ".*Testing.Cxx.*h"
+  ".*moc_.*cxx"
   )
 
 # Temporarily: to show us *all* the remaining warnings on the
