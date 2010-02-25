@@ -67,7 +67,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.37");
+vtkCxxRevisionMacro(vtkChartXY, "1.38");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -298,7 +298,7 @@ void vtkChartXY::CalculateBarPlots()
       barWidth = 1.0f / bars.size() * this->BarWidthFraction;
       }
     // Now set the offsets and widths on each bar
-    for (int i = 0; i < bars.size(); ++i)
+    for (size_t i = 0; i < bars.size(); ++i)
       {
       bars[i]->SetWidth(barWidth);
       bars[i]->SetOffset(float(bars.size()-i-1)*barWidth);
