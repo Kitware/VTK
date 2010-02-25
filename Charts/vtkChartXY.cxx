@@ -18,6 +18,7 @@
 #include "vtkContext2D.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
+#include "vtkColorSeries.h"
 #include "vtkContextDevice2D.h"
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
@@ -42,6 +43,7 @@
 #include "vtkAnnotationLink.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 
 #include "vtkObjectFactory.h"
 
@@ -54,12 +56,18 @@
 //-----------------------------------------------------------------------------
 class vtkChartXYPrivate
 {
-  public:
-    vtkstd::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
+public:
+  vtkChartXYPrivate()
+    {
+    this->Colors = vtkSmartPointer<vtkColorSeries>::New();
+    }
+
+  vtkstd::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
+  vtkSmartPointer<vtkColorSeries> Colors; // Colors in the chart
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.35");
+vtkCxxRevisionMacro(vtkChartXY, "1.36");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -403,12 +411,15 @@ vtkPlot * vtkChartXY::AddPlot(int type)
   // the MS compiler generates a warning about unreachable code if a redundant
   // return is added at the end.
   vtkPlot *plot = NULL;
+  vtkColor3ub color = this->ChartPrivate->Colors->GetColorRepeating(
+      this->ChartPrivate->plots.size());
   switch (type)
     {
     case LINE:
       {
       vtkPlotLine *line = vtkPlotLine::New();
       this->ChartPrivate->plots.push_back(line);
+      line->GetPen()->SetColor(color.GetData());
       plot = line;
       break;
       }
@@ -416,6 +427,7 @@ vtkPlot * vtkChartXY::AddPlot(int type)
       {
       vtkPlotPoints *points = vtkPlotPoints::New();
       this->ChartPrivate->plots.push_back(points);
+      points->GetPen()->SetColor(color.GetData());
       plot = points;
       break;
       }
@@ -423,6 +435,7 @@ vtkPlot * vtkChartXY::AddPlot(int type)
       {
       vtkPlotBar *bar = vtkPlotBar::New();
       this->ChartPrivate->plots.push_back(bar);
+      bar->GetBrush()->SetColor(color.GetData());
       plot = bar;
       break;
       }
