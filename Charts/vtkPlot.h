@@ -77,6 +77,10 @@ public:
   const char* GetLabel();
 
   // Description:
+  // Get the data object that the plot will draw.
+  vtkGetObjectMacro(Data, vtkContextMapper2D);
+
+  // Description:
   // Use the Y array index for the X value. If true any X column setting will be
   // ignored, and the X values will simply be the index of the Y column.
   vtkGetMacro(UseIndexForXSeries, bool);

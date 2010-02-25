@@ -65,6 +65,9 @@ public:
   // Get the width of the line.
   virtual float GetWidth();
 
+  vtkSetMacro(Offset, float);
+  vtkGetMacro(Offset, float);
+
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   virtual void GetBounds(double bounds[4]);
@@ -83,6 +86,7 @@ protected:
   vtkPoints2D *Points;
 
   float Width;
+  float Offset;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.

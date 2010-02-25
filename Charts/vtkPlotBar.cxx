@@ -30,7 +30,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotBar, "1.1");
+vtkCxxRevisionMacro(vtkPlotBar, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBar);
@@ -42,6 +42,7 @@ vtkPlotBar::vtkPlotBar()
   this->Label = 0;
   this->Width = 1.0;
   this->Pen->SetWidth(1.0);
+  this->Offset = 1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,14 +96,12 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
     {
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
-    float halfWidth = this->Width / 2.0f;
     int n = this->Points->GetNumberOfPoints();
     float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
-    this->Width = f[2] - f[0];
-    halfWidth = this->Width / 2.0f;
+
     for (int i = 0; i < n; ++i)
       {
-      painter->DrawRect(f[2*i]-halfWidth, 0.0, this->Width, f[2*i+1]);
+      painter->DrawRect(f[2*i]-this->Offset, 0.0, this->Width, f[2*i+1]);
       }
     }
 
@@ -136,6 +135,15 @@ void vtkPlotBar::GetBounds(double bounds[4])
     {
     x->GetRange(&bounds[0]);
     y->GetRange(&bounds[2]);
+    }
+  // Bar plots always have one of the y bounds at the orgin
+  if (bounds[2] < bounds[3])
+    {
+    bounds[2] = 0.0;
+    }
+  else
+    {
+    bounds[3] = 0.0;
     }
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);

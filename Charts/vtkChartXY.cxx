@@ -27,6 +27,7 @@
 #include "vtkPlotBar.h"
 #include "vtkPlotLine.h"
 #include "vtkPlotPoints.h"
+#include "vtkContextMapper2D.h"
 
 #include "vtkAxis.h"
 #include "vtkPlotGrid.h"
@@ -58,7 +59,7 @@ class vtkChartXYPrivate
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.34");
+vtkCxxRevisionMacro(vtkChartXY, "1.35");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -93,6 +94,7 @@ vtkChartXY::vtkChartXY()
   this->DrawBox = false;
   this->DrawNearestPoint = false;
   this->DrawAxesAtOrigin = false;
+  this->BarWidthFraction = 0.8;
 }
 
 //-----------------------------------------------------------------------------
@@ -134,6 +136,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     }
 
   bool recalculateTransform = false;
+  this->CalculateBarPlots();
 
   int geometry[] = { this->GetScene()->GetViewWidth(),
                      this->GetScene()->GetViewHeight() };
@@ -252,6 +255,50 @@ void vtkChartXY::RenderPlots(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::CalculateBarPlots()
+{
+  // Calculate the width, spacing and offsets for the bar plot - they are grouped
+  size_t n = this->ChartPrivate->plots.size();
+  vtkstd::vector<vtkPlotBar *> bars;
+  for (size_t i = 0; i < n; ++i)
+    {
+    vtkPlotBar* bar = vtkPlotBar::SafeDownCast(this->ChartPrivate->plots[i]);
+    if (bar && bar->GetVisible())
+      {
+      bars.push_back(bar);
+      }
+    }
+  if (bars.size())
+    {
+    // We have some bar plots - work out offsets etc.
+    float barWidth = 0.0;
+    vtkPlotBar* bar = bars[0];
+    if (!bar->GetUseIndexForXSeries())
+      {
+      vtkTable *table = bar->GetData()->GetInput();
+      vtkDataArray* x = bar->GetData()->GetInputArrayToProcess(0, table);
+      if (x->GetSize() > 1)
+        {
+        double x0 = x->GetTuple1(0);
+        double x1 = x->GetTuple1(1);
+        float width = static_cast<float>((x1 - x0) * this->BarWidthFraction);
+        barWidth = width / bars.size();
+        }
+      }
+    else
+      {
+      barWidth = 1.0f / bars.size() * this->BarWidthFraction;
+      }
+    // Now set the offsets and widths on each bar
+    for (int i = 0; i < bars.size(); ++i)
+      {
+      bars[i]->SetWidth(barWidth);
+      bars[i]->SetOffset(float(bars.size()-i-1)*barWidth);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkChartXY::RecalculatePlotTransform()
 {
   // Get the scale for the plot area from the x and y axes
@@ -318,6 +365,10 @@ void vtkChartXY::RecalculatePlotBounds()
   double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
   for (size_t i = 0; i < n; ++i)
     {
+    if (this->ChartPrivate->plots[i]->GetVisible() == false)
+      {
+      continue;
+      }
     this->ChartPrivate->plots[i]->GetBounds(bounds);
     if (i == 0)
       {

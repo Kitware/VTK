@@ -88,6 +88,15 @@ public:
   vtkSetMacro(DrawAxesAtOrigin, bool);
   vtkGetMacro(DrawAxesAtOrigin, bool);
 
+  // Description:
+  // Set the width fraction for any bar charts drawn in this chart. It is
+  // assumed that all bar plots will use the same array for the X axis, and that
+  // this array is regularly spaced. The delta between the first two x values is
+  // used to calculated the width of the bars, and subdivided between each bar.
+  // The default value is 0.8, 1.0 would lead to bars that touch.
+  vtkSetMacro(BarWidthFraction, float);
+  vtkGetMacro(BarWidthFraction, float);
+
 //BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
@@ -166,7 +175,7 @@ protected:
   float BoxGeometry[2];
 
   // Description:
-  // Should the box be drawn (could be selection, zoom etc.
+  // Should the box be drawn (could be selection, zoom etc).
   bool DrawBox;
 
   // Description:
@@ -179,14 +188,24 @@ protected:
   // way of drawing scientific/mathematical charts.
   bool DrawAxesAtOrigin;
 
+  // Description:
+  // The fraction of the interval taken up along the x axis by any bars that are
+  // drawn on the chart.
+  float BarWidthFraction;
+
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.
   void operator=(const vtkChartXY &);   // Not implemented.
 
   vtkChartXYPrivate *ChartPrivate; // Private class where I hide my STL containers
 
+  // Description:
   // Private functions to render different parts of the chart
   void RenderPlots(vtkContext2D *painter);
+
+  // Description:
+  // Figure out the spacing between the bar chart plots, and their offsets.
+  void CalculateBarPlots();
 
 //ETX
 };
