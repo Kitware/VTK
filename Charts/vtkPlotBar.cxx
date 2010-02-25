@@ -30,7 +30,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotBar, "1.3");
+vtkCxxRevisionMacro(vtkPlotBar, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBar);
@@ -122,7 +122,8 @@ void vtkPlotBar::GetBounds(double bounds[4])
 {
   // Get the x and y arrays (index 0 and 1 respectively)
   vtkTable *table = this->Data->GetInput();
-  vtkDataArray *x = this->Data->GetInputArrayToProcess(0, table);
+  vtkDataArray* x = this->UseIndexForXSeries ?
+                    0 : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray *y = this->Data->GetInputArrayToProcess(1, table);
 
   if (this->UseIndexForXSeries && y)
@@ -222,7 +223,8 @@ void CopyToPoints(vtkPoints2D *points, A *a, int n)
 bool vtkPlotBar::UpdateTableCache(vtkTable *table)
 {
   // Get the x and y arrays (index 0 and 1 respectively)
-  vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
+  vtkDataArray* x = this->UseIndexForXSeries ?
+                    0 : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
   if (!x && !this->UseIndexForXSeries)
     {
