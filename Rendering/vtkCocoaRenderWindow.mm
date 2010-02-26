@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.70");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.71");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -138,6 +138,13 @@ void vtkCocoaRenderWindow::DestroyWindow()
     this->SetContextId(NULL);
     this->SetPixelFormat(NULL);
   }
+
+  if (this->WindowCreated)
+    {
+    NSWindow* win = (NSWindow*)this->GetRootWindow();
+    [win close];
+    this->WindowCreated = 0;
+    }
 
   this->SetWindowId(NULL);
   this->SetParentId(NULL);
