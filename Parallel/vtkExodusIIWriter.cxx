@@ -44,12 +44,11 @@
 #include "vtkMultiProcessController.h"
 #endif
 
-#include <netcdf.h>
-#include <exodusII.h>
+#include <vtkExodusII.h>
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.43");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.44");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
