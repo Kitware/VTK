@@ -29,7 +29,7 @@
 // the camera.
 //
 // Each terrain or image representation contains a vtkGeoSource subclass which
-// generates geometry or imagery at multiple resolutions. As the camera 
+// generates geometry or imagery at multiple resolutions. As the camera
 // position changes, the terrain and/or image representations may ask its
 // vtkGeoSource to refine the geometry. This refinement is performed on a
 // separate thread, and the data is added to the view when it becomes available.
@@ -58,20 +58,20 @@ public:
   static vtkGeoView *New();
   vtkTypeRevisionMacro(vtkGeoView, vtkRenderView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Adds an image representation with a simple terrain model using
   // the image in the specified file as the globe terrain.
   vtkGeoAlignedImageRepresentation* AddDefaultImageRepresentation(vtkImageData* image);
-  
+
   // Decsription:
   // Prepares the view for rendering.
   virtual void PrepareForRendering();
-  
+
   // Description:
   // Rebuild low-res earth source; call after (re)setting origin.
   void BuildLowResEarth( double origin[3] );
-  
+
   // Description:
   // Whether the view locks the heading when panning.
   // Default is off.
@@ -95,16 +95,20 @@ public:
   // Description:
   // Update and render the view.
   virtual void Render();
-  
+
 protected:
   vtkGeoView();
   ~vtkGeoView();
-  
+
+  bool HasMesa();
+
   vtkGlobeSource*    LowResEarthSource;
   vtkPolyDataMapper* LowResEarthMapper;
   vtkActor*          LowResEarthActor;
   vtkAssembly*       Assembly;
   vtkGeoTerrain*     Terrain;
+
+  int                UsingMesaDrivers;
 
 private:
   vtkGeoView(const vtkGeoView&);  // Not implemented.

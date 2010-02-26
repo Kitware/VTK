@@ -42,7 +42,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView, "1.16");
+#include "vtkgl.h"
+
+vtkCxxRevisionMacro(vtkGeoView, "1.17");
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
@@ -92,6 +94,8 @@ vtkGeoView::vtkGeoView()
   t->SetBaseAltitude(0.0);
   this->SetTransform(t);
   t->Delete();
+
+  this->UsingMesaDrivers = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -208,7 +212,18 @@ void vtkGeoView::Render()
 
   vtkMapper::SetResolveCoincidentTopologyZShift(0.0);
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 10500.0);
+
+  // @Note: This is the workaround for mesa drivers. On Mesa OpenGL
+  // polygon offset is not correctly applied. Its only affecting
+  // the depth values for the outer sphere.
+  if(this->HasMesa())
+    {
+    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 1.0);
+    }
+  else
+    {
+    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 10500.0);
+    }
 
   this->Renderer->GetCullers()->RemoveAllItems();
   this->RenderWindow->Render();
@@ -276,6 +291,28 @@ void vtkGeoView::SetGeoInteractorStyle(vtkGeoInteractorStyle* style)
     this->Renderer->SetActiveCamera(cam->GetVTKCamera());
     this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
     }
+}
+
+
+//----------------------------------------------------------------------------
+bool vtkGeoView::HasMesa()
+{
+  if(this->UsingMesaDrivers == -1)
+    {
+    const char *gl_version =
+        reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    const char *mesa_version = strstr(gl_version,"Mesa");
+    if(!mesa_version)
+      {
+      this->UsingMesaDrivers = 0;
+      }
+    else
+      {
+      this->UsingMesaDrivers = 1;
+      }
+    }
+
+  return this->UsingMesaDrivers;
 }
 
 //----------------------------------------------------------------------------
