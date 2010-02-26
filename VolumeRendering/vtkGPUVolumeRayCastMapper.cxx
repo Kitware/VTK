@@ -33,7 +33,7 @@
 #include "vtkGPUInfoList.h"
 #include "vtkGPUInfo.h"
 
-vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.6");
+vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.7");
 vtkInstantiatorNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
@@ -89,6 +89,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->ReportProgress=true;
 
   this->TransformedInput = NULL;
+  this->LastInput = NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -96,6 +97,7 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
 {
   this->SetMaskInput(NULL);
   this->SetTransformedInput(NULL);
+  this->LastInput = NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -243,38 +245,54 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
   // Check that we have input data
   vtkImageData *input=this->GetInput();
-  vtkImageData* clone = vtkImageData::New();
-  clone->ShallowCopy(input);
 
-  // FIXME: TEMPORARY HACK TO DEAL WITH INCORRECT EXTENTS ISSUE!!!!!
-  // @TODO: This is the workaround to deal with GPUVolumeRayCastMapper
-  // not able to handle extents starting from non zero values.
-  // There is not a easy fix in the GPU volume ray cast mapper hence
-  // this fix has been introduced.
-
-  // Get the current extents.
-  int extents[6], real_extents[6];
-  clone->GetExtent(extents);
-  clone->GetExtent(real_extents);
-
-  // Get the current origin and spacing.
-  double origin[3], spacing[3];
-  clone->GetOrigin(origin);
-  clone->GetSpacing(spacing);
-
-  for (int cc=0; cc < 3; cc++)
+  // If we have a timestamp change or data change then create a new clone.
+  if(input != this->LastInput ||
+     input->GetMTime() > this->TransformedInput->GetMTime())
     {
-    // Transform the origin and the extents.
-    origin[cc] = origin[cc] + extents[2*cc]*spacing[cc];
-    extents[2*cc+1] -= extents[2*cc];
-    extents[2*cc] -= extents[2*cc];
+    this->LastInput = input;
+
+    vtkImageData* clone;
+    if(!this->TransformedInput)
+      {
+      clone = vtkImageData::New();
+      this->SetTransformedInput(clone);
+      clone->Delete();
+      }
+    else
+      {
+      clone = this->TransformedInput;
+      }
+
+    clone->ShallowCopy(input);
+
+    // @TODO: This is the workaround to deal with GPUVolumeRayCastMapper
+    // not able to handle extents starting from non zero values.
+    // There is not a easy fix in the GPU volume ray cast mapper hence
+    // this fix has been introduced.
+
+    // Get the current extents.
+    int extents[6], real_extents[6];
+    clone->GetExtent(extents);
+    clone->GetExtent(real_extents);
+
+    // Get the current origin and spacing.
+    double origin[3], spacing[3];
+    clone->GetOrigin(origin);
+    clone->GetSpacing(spacing);
+
+    for (int cc=0; cc < 3; cc++)
+      {
+      // Transform the origin and the extents.
+      origin[cc] = origin[cc] + extents[2*cc]*spacing[cc];
+      extents[2*cc+1] -= extents[2*cc];
+      extents[2*cc] -= extents[2*cc];
+      }
+
+    clone->SetOrigin(origin);
+    clone->SetExtent(extents);
     }
 
-  clone->SetOrigin(origin);
-  clone->SetExtent(extents);
-
-  this->SetTransformedInput(clone);
-  clone->Delete();
 
   if ( goodSoFar && !this->TransformedInput )
     {
@@ -364,7 +382,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   if ( goodSoFar )
     {
     numberOfComponents=scalars->GetNumberOfComponents();
-    if( !( numberOfComponents==1 || 
+    if( !( numberOfComponents==1 ||
            (numberOfComponents==4 &&
             vol->GetProperty()->GetIndependentComponents()==0)))
       {
@@ -550,7 +568,7 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
 void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "AutoAdjustSampleDistances: "
      << this->AutoAdjustSampleDistances << endl;
   os << indent << "MinimumImageSampleDistance: "
@@ -625,31 +643,3 @@ void vtkGPUVolumeRayCastMapper::ClipCroppingRegionPlanes()
     ++i;
     }
 }
-
-//// ----------------------------------------------------------------------------
-//vtkImageData* vtkGPUVolumeRayCastMapper::GetTransformedInput()
-//{
-//  return this->Clone;
-//}
-//
-//// ----------------------------------------------------------------------------
-//void vtkGPUVolumeRayCastMapper::SetTransformedInput(vtkImageData* clone)
-//{
-//  if(clone == NULL)
-//    {
-//    return;
-//    }
-//
-//  if(clone != this->Clone && this->Clone != NULL)
-//    {
-//    this->Clone->UnRegister(this);
-//    this->Clone = clone;
-//    this->Clone->Register(this);
-//    return;
-//    }
-//  else if(clone != this->Clone)
-//    {
-//    this->Clone = clone;
-//    this->Clone->Register(this);
-//    }
-//}

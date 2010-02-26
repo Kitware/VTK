@@ -273,6 +273,11 @@ protected:
 
   vtkImageData* TransformedInput;
 
+  // Description:
+  // This is needed only to check if the input data has been changed since the last
+  // Render() call.
+  vtkImageData* LastInput;
+
 private:
   vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
   void operator=(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
