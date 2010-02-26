@@ -44,7 +44,7 @@
 
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkGeoView, "1.18");
+vtkCxxRevisionMacro(vtkGeoView, "1.19");
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
@@ -312,7 +312,7 @@ bool vtkGeoView::HasMesa()
       }
     }
 
-  return static_cast<bool>(this->UsingMesaDrivers);
+  return (this->UsingMesaDrivers == 1);
 }
 
 //----------------------------------------------------------------------------
