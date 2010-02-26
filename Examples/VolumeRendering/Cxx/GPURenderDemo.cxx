@@ -20,6 +20,7 @@
 #include "vtkDICOMImageReader.h"
 #include "vtkImageData.h"
 #include "vtkImageResample.h"
+#include "vtkMetaImageReader.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlanes.h"
 #include "vtkProperty.h"
@@ -30,6 +31,9 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+
+#define VTI_FILETYPE 1
+#define MHA_FILETYPE 2
 
 // FB: comment for testing svn
 
@@ -70,6 +74,7 @@ void PrintUsage()
   cout << endl;
   cout << "  -DICOM <directory>" << endl;
   cout << "  -VTI <filename>" << endl;
+  cout << "  -MHA <filename>" << endl;
   cout << "  -DependentComponents" << endl;
   cout << "  -Clip" << endl;
   cout << "  -MIP <window> <level>" << endl;
@@ -82,7 +87,7 @@ void PrintUsage()
   cout << "  -DataReduction <factor>" << endl;
   cout << endl;
   cout << "You must use either the -DICOM option to specify the directory where" << endl;
-  cout << "the data is located or the -VTI option to specify the path of a .vti file." << endl;
+  cout << "the data is located or the -VTI or -MHA option to specify the path of a .vti file." << endl;
   cout << endl;
   cout << "By default, the program assumes that the file has independent components," << endl;
   cout << "use -DependentComponents to specify that the file has dependent components." << endl;
@@ -119,6 +124,8 @@ int main(int argc, char *argv[])
   double reductionFactor = 1.0;
   double frameRate = 10.0;
   char *fileName=0;
+  int fileType=0;
+  
   bool independentComponents=true;
   
   while ( count < argc )
@@ -137,6 +144,14 @@ int main(int argc, char *argv[])
     else if ( !strcmp( argv[count], "-VTI" ) )
       {
       fileName = new char[strlen(argv[count+1])+1];
+      fileType = VTI_FILETYPE;
+      sprintf( fileName, "%s", argv[count+1] );
+      count += 2;
+      }
+    else if ( !strcmp( argv[count], "-MHA" ) )
+      {
+      fileName = new char[strlen(argv[count+1])+1];
+      fileType = MHA_FILETYPE;
       sprintf( fileName, "%s", argv[count+1] );
       count += 2;
       }
@@ -224,7 +239,7 @@ int main(int argc, char *argv[])
   
   if ( !dirname && !fileName)
     {
-    cout << "Error: you must specify a directory of DICOM data or a .vti file!" << endl;
+    cout << "Error: you must specify a directory of DICOM data or a .vti file or a .mha!" << endl;
     cout << endl;
     PrintUsage();
     exit(EXIT_FAILURE);    
@@ -257,13 +272,26 @@ int main(int argc, char *argv[])
     input=dicomReader->GetOutput();
     reader=dicomReader;
     }
-  else
+  else if ( fileType == VTI_FILETYPE )
     {
     vtkXMLImageDataReader *xmlReader = vtkXMLImageDataReader::New();
     xmlReader->SetFileName(fileName);
     xmlReader->Update();
     input=xmlReader->GetOutput();
     reader=xmlReader;
+    }
+  else if ( fileType == MHA_FILETYPE )
+    {
+    vtkMetaImageReader *metaReader = vtkMetaImageReader::New();
+    metaReader->SetFileName(fileName);
+    metaReader->Update();
+    input=metaReader->GetOutput();
+    reader=metaReader;
+    }
+  else
+    {
+    cout << "Error! Not VTI or MHA!" << endl;
+    exit(EXIT_FAILURE);
     }
   
   // Verify that we actually have a volume
@@ -494,14 +522,10 @@ int main(int argc, char *argv[])
   renWin->SetSize(600,600);
   renWin->Render();
 
-  cout << "About to test" << endl;
-  if ( mapper->IsRenderSupported(renWin, property) )
+  if ( !mapper->IsRenderSupported(renWin, property) )
     {
-      cout << "Supported" << endl;
-    }
-  else
-    {
-      cout << "Unsupported" << endl;
+      cout << "This mapper is unsupported on this platform" << endl;
+      exit(EXIT_FAILURE);
     }
   
 
