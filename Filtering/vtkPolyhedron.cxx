@@ -26,6 +26,7 @@
 #include "vtkTriangle.h"
 #include "vtkPolygon.h"
 #include "vtkLine.h"
+#include "vtkEdgeTable.h"
 
 #include <vtkstd/map>
 
@@ -47,6 +48,11 @@ vtkPolyhedron::vtkPolyhedron()
   this->Faces = vtkIdTypeArray::New();
   this->FaceLocations = vtkIdTypeArray::New();
   this->PointIdMap = new vtkPointIdMap;
+  
+  this->EdgesGenerated = false;
+  this->EdgeTable = vtkEdgeTable::New();
+  this->Edges = vtkIdTypeArray::New();
+  this->Edges->SetNumberOfComponents(2);
 }
 
 //----------------------------------------------------------------------------
@@ -59,6 +65,8 @@ vtkPolyhedron::~vtkPolyhedron()
   this->Faces->Delete();
   this->FaceLocations->Delete();
   delete this->PointIdMap;
+  this->EdgeTable->Delete();
+  this->Edges->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -75,18 +83,92 @@ void vtkPolyhedron::Initialize()
     id = this->PointIds->GetId(i);
     (*this->PointIdMap)[id] = i;
     }
+  
+  // Edges have to be reset
+  this->EdgesGenerated = 0;
+  this->EdgeTable->Reset();
+  this->Edges->Reset();
 }
 
 //----------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfEdges()
 {
-  return 0;
+  // Make sure edges have been generated.
+  if ( ! this->EdgesGenerated )
+    {
+    this->GenerateEdges();
+    }
+  
+  return this->Edges->GetNumberOfTuples();
 }
 
 //----------------------------------------------------------------------------
+// This method requires that GenerateEdges() is invoked beforehand.
 vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 {
+  // Make sure edges have been generated.
+  if ( ! this->EdgesGenerated )
+    {
+    this->GenerateEdges();
+    }
+  
+  // Make sure requested edge is within range
+  vtkIdType numEdges = this->Edges->GetNumberOfTuples();
+
+  if ( edgeId < 0 || edgeId >= numEdges )
+    {
+    return NULL;
+    }
+  
+  // Return the requested edge
+  vtkIdType p, edge[2];
+  this->Edges->GetTupleValue(edgeId,edge);
+
+  // Recall that edge tuples are stored in canonical numbering
+  for (int i=0; i<2; i++)
+    {
+    this->Line->PointIds->SetId(i,this->PointIds->GetId(edge[i]));
+    this->Line->Points->SetPoint(i,this->Points->GetPoint(edge[i]));
+    }
+
   return this->Line;
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyhedron::GenerateEdges()
+{
+  //check the number of faces and return if there aren't any
+  if ( this->Faces->GetValue(0) <= 0 ) 
+    {
+    return 0;
+    }
+  
+  // Loop over all faces, inserting edges into the table
+  vtkIdType *faces = this->Faces->GetPointer(0);
+  vtkIdType nfaces = faces[0];
+  vtkIdType *face = faces + 1;
+  vtkIdType fid, i, edge[2], npts;
+
+  this->EdgeTable->InitEdgeInsertion(this->Points->GetNumberOfPoints());
+  for (fid=0; fid < nfaces; ++fid)
+    {
+    npts = face[0];
+    for (i=1; i <= npts; ++i)
+      {
+      edge[0] = (*this->PointIdMap)[face[i]];
+      edge[1] = (*this->PointIdMap)[(i != npts ? face[i+1] : face[1])];
+      if ( this->EdgeTable->IsEdge(edge[0],edge[1]) == (-1) )
+        {
+        this->EdgeTable->InsertEdge(edge[0],edge[1]);
+        this->Edges->InsertNextTupleValue(edge);
+        }
+      }
+    face += face[0] + 1;
+    } //for all faces
+
+  // Okay all done
+  this->EdgesGenerated = 1;
+  return this->Edges->GetNumberOfTuples();
 }
 
 //----------------------------------------------------------------------------
@@ -98,8 +180,7 @@ int vtkPolyhedron::GetNumberOfFaces()
 //----------------------------------------------------------------------------
 vtkCell *vtkPolyhedron::GetFace(int faceId)
 {
-  if ( !this->Faces ||
-       faceId < 0 || faceId > this->Faces->GetValue(0) )
+  if ( faceId < 0 || faceId >= this->Faces->GetValue(0) )
     {
     return NULL;
     }
@@ -118,88 +199,6 @@ vtkCell *vtkPolyhedron::GetFace(int faceId)
     }
 
   return this->Polygon;
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
-                                   vtkPoints *pts)
-{
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::Contour(double value,
-                                vtkDataArray *cellScalars,
-                                vtkIncrementalPointLocator *locator,
-                                vtkCellArray *verts, vtkCellArray *lines,
-                                vtkCellArray *polys,
-                                vtkPointData *inPd, vtkPointData *outPd,
-                                vtkCellData *inCd, vtkIdType cellId,
-                                vtkCellData *outCd)
-{
-}
-
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::Clip(double value,
-                             vtkDataArray *cellScalars,
-                             vtkIncrementalPointLocator *locator, vtkCellArray *tets,
-                             vtkPointData *inPD, vtkPointData *outPD,
-                             vtkCellData *inCD, vtkIdType cellId,
-                             vtkCellData *outCD, int insideOut)
-{
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyhedron::CellBoundary(int subId, double pcoords[3],
-                                    vtkIdList *pts)
-{ 
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyhedron::EvaluatePosition( double x[3],
-                                         double * vtkNotUsed(closestPoint),
-                                         int & subId, double pcoords[3],
-                                         double & minDist2, double * weights )
-{
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::EvaluateLocation( int &  subId, double   pcoords[3], 
-                                          double x[3],  double * weights )
-{
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol, 
-                                         double& minT, double x[3], 
-                                         double pcoords[3], int& subId)
-{
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::Derivatives(int subId, double pcoords[3],
-                                    double *values, int dim, double *derivs)
-{
-}
-
-//----------------------------------------------------------------------------
-double *vtkPolyhedron::GetParametricCoords()
-{
-  return NULL;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::InterpolateFunctions(double pcoords[3], double *sf)
-{
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::InterpolateDerivs(double pcoords[3], double *derivs)
-{
 }
 
 //----------------------------------------------------------------------------
@@ -239,6 +238,88 @@ void vtkPolyhedron::SetFaces(vtkIdType *faces)
 vtkIdType *vtkPolyhedron::GetFaces()
 {
   return this->Faces->GetPointer(0);
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyhedron::CellBoundary(int subId, double pcoords[3],
+                                    vtkIdList *pts)
+{ 
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyhedron::EvaluatePosition( double x[3],
+                                     double * vtkNotUsed(closestPoint),
+                                     int & subId, double pcoords[3],
+                                     double & minDist2, double * weights )
+{
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::EvaluateLocation( int &  subId, double   pcoords[3], 
+                                      double x[3],  double * weights )
+{
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol, 
+                                     double& minT, double x[3], 
+                                     double pcoords[3], int& subId)
+{
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::Derivatives(int subId, double pcoords[3],
+                                double *values, int dim, double *derivs)
+{
+}
+
+//----------------------------------------------------------------------------
+double *vtkPolyhedron::GetParametricCoords()
+{
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::InterpolateFunctions(double pcoords[3], double *sf)
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::InterpolateDerivs(double pcoords[3], double *derivs)
+{
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
+                               vtkPoints *pts)
+{
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::Contour(double value,
+                            vtkDataArray *cellScalars,
+                            vtkIncrementalPointLocator *locator,
+                            vtkCellArray *verts, vtkCellArray *lines,
+                            vtkCellArray *polys,
+                            vtkPointData *inPd, vtkPointData *outPd,
+                            vtkCellData *inCd, vtkIdType cellId,
+                            vtkCellData *outCd)
+{
+}
+
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::Clip(double value,
+                         vtkDataArray *cellScalars,
+                         vtkIncrementalPointLocator *locator, vtkCellArray *tets,
+                         vtkPointData *inPD, vtkPointData *outPD,
+                         vtkCellData *inCD, vtkIdType cellId,
+                         vtkCellData *outCD, int insideOut)
+{
 }
 
 //----------------------------------------------------------------------------

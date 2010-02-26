@@ -41,6 +41,7 @@ class vtkTetra;
 class vtkPolygon;
 class vtkLine;
 struct vtkPointIdMap;
+class vtkEdgeTable;
 
 
 class VTK_FILTERING_EXPORT vtkPolyhedron : public vtkCell3D
@@ -173,6 +174,12 @@ protected:
   vtkIdTypeArray *FaceLocations;
   vtkPointIdMap  *PointIdMap;
 
+  // If edges are needed
+  int             EdgesGenerated; //true/false
+  vtkEdgeTable   *EdgeTable; //keep track of all edges
+  vtkIdTypeArray *Edges; //edge pairs kept in this list
+  int             GenerateEdges(); //method populates the edge table and edge array
+
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
   void operator=(const vtkPolyhedron&);  // Not implemented.
@@ -186,8 +193,3 @@ inline int vtkPolyhedron::GetParametricCenter(double pcoords[3])
 }
 
 #endif
-
-
-
-
-

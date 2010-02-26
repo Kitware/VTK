@@ -21,6 +21,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGridReader.h"
+#include "vtkExtractEdges.h"
+#include "vtkProperty.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -50,9 +52,25 @@ int TestExtractPolyhedralMesh( int argc, char* argv[] )
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
+  // Okay let's extract some edges
+  vtkSmartPointer<vtkExtractEdges> edges =
+    vtkSmartPointer<vtkExtractEdges>::New();
+  edges->SetInputConnection(extract->GetOutputPort());
+  
+  vtkSmartPointer<vtkDataSetMapper> eMapper = 
+    vtkSmartPointer<vtkDataSetMapper>::New();
+  eMapper->SetInputConnection(edges->GetOutputPort());
+
+  vtkSmartPointer<vtkActor> eActor = 
+    vtkSmartPointer<vtkActor>::New();
+  eActor->SetMapper(eMapper);
+  eActor->GetProperty()->SetColor(0,0,0);
+
+  // Create rendering infrastructure
   vtkSmartPointer<vtkRenderer> ren = 
     vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
+  ren->AddActor(eActor);
 
   vtkSmartPointer<vtkRenderWindow> renWin = 
     vtkSmartPointer<vtkRenderWindow>::New();
