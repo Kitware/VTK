@@ -1,6 +1,7 @@
 #include "vtkStdString.h"
 #include "vtkExodusIIReader.h"
 #include "vtkExodusIIWriter.h"
+#include "vtkFieldData.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkMultiBlockDataSet.h"
@@ -37,6 +38,38 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     return 1;
     }
   reader->SetFileName (InputFile);
+  reader->SetGlobalResultArrayStatus ("CALIBER", 1);
+  reader->SetGlobalResultArrayStatus ("GUNPOWDER", 1);
+  reader->Update ();
+
+  vtkMultiBlockDataSet* mbds = reader->GetOutput ();
+  if (!mbds) 
+    {
+    return 1;
+    }
+  vtkMultiBlockDataSet* elems = vtkMultiBlockDataSet::SafeDownCast (mbds->GetBlock (0));
+  if (!elems)
+    {
+    return 1;
+    }
+  if (elems->GetNumberOfBlocks () != 2) 
+    {
+    return 1;
+    }
+  
+  vtkFieldData *ifieldData = elems->GetBlock(0)->GetFieldData ();
+  int index;
+  if (ifieldData->GetArray ("CALIBER", index) == 0)
+    {
+    cerr << "Expected to find array CALIBER in original data set" << endl;
+    return 1;
+    }
+
+  if (ifieldData->GetArray ("GUNPOWDER", index) == 0)
+    {
+    cerr << "Expected to find array GUNPOWDER in original data set" << endl;
+    return 1;
+    }
 
   VTK_CREATE (vtkTesting, testing);
   for (int i = 0; i < argc; i ++)
@@ -63,15 +96,44 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     return 1;
     }
   outputReader->SetFileName (OutputFile);
+  outputReader->SetGlobalResultArrayStatus ("CALIBER", 1);
+  outputReader->SetGlobalResultArrayStatus ("GUNPOWDER", 1);
   outputReader->Update ();
 
-  vtkMultiBlockDataSet* mbds = outputReader->GetOutput ();
+  mbds = outputReader->GetOutput ();
+  if (!mbds) 
+    {
+    return 1;
+    }
+  elems = vtkMultiBlockDataSet::SafeDownCast (mbds->GetBlock (0));
+  if (!elems)
+    {
+    return 1;
+    }
+  if (elems->GetNumberOfBlocks () != 2) 
+    {
+    return 1;
+    }
+  
+  ifieldData = elems->GetBlock(0)->GetFieldData ();
+  if (ifieldData->GetArray ("CALIBER", index) == 0)
+    {
+    cerr << "Array CALIBER was not written to output" << endl;
+    return 1;
+    }
+
+  if (ifieldData->GetArray ("GUNPOWDER", index) == 0)
+    {
+    cerr << "Array GUNPOWDER was not written to output" << endl;
+    return 1;
+    }
+
   vtkCompositeDataIterator* iter = mbds->NewIterator ();
   iter->InitTraversal ();
   vtkDataSet* ds = vtkDataSet::SafeDownCast (iter->GetCurrentDataObject ());
+  iter->Delete ();
   if (!ds)
     {
-    iter->Delete ();
     return 1;
     }
 
@@ -118,8 +180,6 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   img->Write ();
   return 1;
 */
-
-  iter->Delete ();
 
   delete [] InputFile;
 

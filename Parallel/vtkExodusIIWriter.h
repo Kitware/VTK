@@ -233,8 +233,10 @@ protected:
     int ScalarOutOffset;
     vtkstd::vector<vtkstd::string> OutNames;
   };
+  vtkstd::map<vtkstd::string, VariableInfo> GlobalVariableMap;
   vtkstd::map<vtkstd::string, VariableInfo> BlockVariableMap;
   vtkstd::map<vtkstd::string, VariableInfo> NodeVariableMap;
+  int NumberOfScalarGlobalArrays;
   int NumberOfScalarElementArrays;
   int NumberOfScalarNodeArrays;
 //ETX
@@ -290,6 +292,7 @@ protected:
   int CreateBlockVariableMetadata (vtkModelMetadata* em);
   
 //BTX
+  void ConvertVariableNames (vtkstd::map<vtkstd::string, VariableInfo>& variableMap);
   char **FlattenOutVariableNames (
             int nScalarArrays, 
             const vtkstd::map<vtkstd::string, VariableInfo>& variableMap);
@@ -318,6 +321,8 @@ protected:
   int WriteNextTimeStep ();
 
 //BTX
+  double ExtractGlobalData (const char *name, int comp, int ts);
+  int WriteGlobalData (int timestep, vtkDataArray *buffer);
   void ExtractCellData (const char *name, int comp, vtkDataArray *buffer);
   int WriteCellData (int timestep, vtkDataArray *buffer);
   void ExtractPointData (const char *name, int comp, vtkDataArray *buffer);
