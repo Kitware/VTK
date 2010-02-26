@@ -207,6 +207,11 @@ protected:
                                vtkRenderWindow *renWin);
 
   // Description:
+  // Method used to copy the state of the color buffer (which is in
+  // a frame buffer object) to a texture.
+  void CopyFBOToTexture();
+
+  // Description:
   // Restore OpenGL state after rendering of the dataset.
   void CleanupRender();
 

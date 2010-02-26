@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.6");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -2831,15 +2831,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     while(i <this->NumberOfFrameBuffers && errorCode==GL_NO_ERROR)
       {
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]));
-      PrintError("AllocateFrameBuffers1");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-      PrintError("AllocateFrameBuffers2");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
-      PrintError("AllocateFrameBuffers3");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      PrintError("AllocateFrameBuffers4");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      PrintError("AllocateFrameBuffers5");
       // Here we are assuming that GL_ARB_texture_non_power_of_two is available
       if(this->Supports_GL_ARB_texture_float)
         {
@@ -2851,7 +2846,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                      0, GL_RGBA, GL_FLOAT, NULL );
         }
-      PrintError("AllocateFrameBuffers6");
       errorCode=glGetError();
       ++i;
       }
@@ -2859,40 +2853,27 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       {
       // grabbed depth buffer
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]));
-      this->PrintError("allocateDepthBuffer1");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-      this->PrintError("allocateDepthBuffer2");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
-      this->PrintError("allocateDepthBuffer3");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-      this->PrintError("allocateDepthBuffer4");
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-      this->PrintError("allocateDepthBuffer5");
       glTexParameteri(GL_TEXTURE_2D, vtkgl::DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-
-      this->PrintError("allocateDepthBuffer6");
       glTexImage2D(GL_TEXTURE_2D, 0, vtkgl::DEPTH_COMPONENT32, size[0],size[1],
                    0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
-      this->PrintError("allocateDepthBuffer7");
 
       // Set up the depth render buffer
 
       GLint savedFrameBuffer;
       glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer);
-      PrintError("AllocateFrameBuffers7a");
       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
                                 static_cast<GLuint>(this->FrameBufferObject));
-      PrintError("AllocateFrameBuffers7");
       vtkgl::BindRenderbufferEXT(
         vtkgl::RENDERBUFFER_EXT,
         static_cast<GLuint>(this->DepthRenderBufferObject));
-      PrintError("AllocateFrameBuffers8");
       vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
                                     vtkgl::DEPTH_COMPONENT24,size[0],size[1]);
-      PrintError("AllocateFrameBuffers9");
       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
                                 static_cast<GLuint>(savedFrameBuffer));
-      PrintError("AllocateFrameBuffers10");
       errorCode=glGetError();
       if(errorCode==GL_NO_ERROR)
         {
@@ -2976,15 +2957,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     // max scalar frame buffer
     GLuint maxValueFrameBuffer=static_cast<GLuint>(this->MaxValueFrameBuffer);
     glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer);
-    PrintError("AllocatemaxValueFrameBuffers1");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-    PrintError("AllocatemaxValueFrameBuffers2");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
-    PrintError("AllocatemaxValueFrameBuffers3");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    PrintError("AllocatemaxValueFrameBuffers4");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    PrintError("AllocatemaxValueFrameBuffers5");
     // Here we are assuming that GL_ARB_texture_non_power_of_two is available
     if(this->Supports_GL_ARB_texture_float)
       {
@@ -2996,20 +2972,14 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
       }
-    this->PrintError("AllocatemaxValueFrameBuffers6");
 
     // max scalar frame buffer 2
     GLuint maxValueFrameBuffer2=static_cast<GLuint>(this->MaxValueFrameBuffer2);
     glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer2);
-    PrintError("AllocatemaxValueFrameBuffers7");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-    PrintError("AllocatemaxValueFrameBuffers8");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
-    PrintError("AllocatemaxValueFrameBuffers6");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    PrintError("AllocatemaxValueFrameBuffers10");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    PrintError("AllocatemaxValueFrameBuffers11");
     // Here we are assuming that GL_ARB_texture_non_power_of_two is available
     if(this->Supports_GL_ARB_texture_float)
       {
@@ -3023,6 +2993,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       }
 
     }
+  PrintError("AllocateFrameBuffers");
   return result;
 }
 
@@ -3417,20 +3388,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
   this->ReducedSize[0]=usize;
   this->ReducedSize[1]=vsize;
 
-  this->PrintError("SetupRender1");
   // the FBO has the size of the renderer (not the renderwindow),
   // we always starts at 0,0.
   glViewport(0,0, usize, vsize);
-  this->PrintError("SetupRender2");
   glEnable( GL_SCISSOR_TEST ); // scissor on the FBO, on the reduced part.
-  this->PrintError("SetupRender3");
   glScissor(0,0, usize, vsize);
-  this->PrintError("SetupRender4");
   glClearColor(0.0, 0.0, 0.0, 0.0); // maxvalue is 1
-  this->PrintError("SetupRender5");
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  this->PrintError("SetupRender6");
   ren->ComputeAspect();
   ren->GetAspect(aspect);
   double aspect2[2];
@@ -3441,7 +3406,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
   vtkCamera *cam = ren->GetActiveCamera();
 
   glMatrixMode( GL_PROJECTION);
-  this->PrintError("SetupRender7");
   if(usize && vsize)
     {
     this->TempMatrix[0]->DeepCopy(cam->GetProjectionTransformMatrix(
@@ -3454,27 +3418,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
     glLoadIdentity();
 
     }
-  this->PrintError("SetupRender8");
+
   // push the model view matrix onto the stack, make sure we
   // adjust the mode first
   glMatrixMode(GL_MODELVIEW);
-
-  this->PrintError("SetupRender9");
   glPushMatrix();
-  this->PrintError("SetupRender10");
-
   this->TempMatrix[0]->DeepCopy(vol->GetMatrix());
-
   this->TempMatrix[0]->Transpose();
 
   // insert camera view transformation
   glMultMatrixd(this->TempMatrix[0]->Element[0]);
-  this->PrintError("SetupRender11");
   glShadeModel(GL_SMOOTH);
   glDisable( GL_LIGHTING);
   glEnable (GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_BLEND); // very important, otherwise the first image looks dark.
+  this->PrintError("SetupRender");
 }
 
 //-----------------------------------------------------------------------------
@@ -3787,6 +3746,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
         glVertex3dv(vert);
         }
       glEnd();
+
       }
     if(tcoordFlag)
       {
@@ -3810,7 +3770,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
       }
     ++polyId;
     }
+  return abort;
+}
 
+void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
+{  
   // in OpenGL copy texture to texture does not exist but
   // framebuffer to texture exists (and our FB is an FBO).
   // we have to copy and not just to switch color textures because the
@@ -3819,9 +3783,13 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
   // polygons that don't overlap
 
   vtkgl::ActiveTexture(vtkgl::TEXTURE4);
-  glBindTexture(GL_TEXTURE_2D,
-                this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+1]);
+  glBindTexture(
+    GL_TEXTURE_2D,
+    this->TextureObjects[
+      vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+1]);
+
   glReadBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+
   glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,this->ReducedSize[0],
                       this->ReducedSize[1]);
 
@@ -3835,7 +3803,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
                       this->ReducedSize[1]);
     }
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-  return abort;
 }
 
 //-----------------------------------------------------------------------------
@@ -4126,7 +4093,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   // make sure our window is the current OpenGL context.
   ren->GetRenderWindow()->MakeCurrent();
 
-
   // If we haven't already succeeded in loading the extensions,
   // try to load them
   if(!this->LoadExtensionsSucceeded)
@@ -4144,7 +4110,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       (this->UnsupportedRequiredExtensions->Stream.str()).c_str());
     return;
     }
-
 
   // Create the OpenGL object that we need
   this->CreateOpenGLObjects();
@@ -4186,7 +4151,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
    // Update the color transfer function
   this->UpdateColorTransferFunction(vol,numberOfScalarComponents);
 
-
   // Update the noise texture that will be used to jitter rays to
   // reduce alliasing artifacts
   this->UpdateNoiseTexture();
@@ -4209,16 +4173,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     this->ClipBoundingBox(ren,datasetBounds,vol);
     glEnable (GL_CULL_FACE);
+
     glCullFace (GL_FRONT);
     glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
     this->RenderClippedBoundingBox(0,0,1,ren->GetRenderWindow());
     glDisable (GL_CULL_FACE);
     glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
     }
-  this->PrintError("PreRender6");
+
   // Check if everything is OK
   this->CheckFrameBufferStatus();
-  this->PrintError("After configure and check");
 
   // Intermixed geometry: Grab the depth buffer into a texture
 
@@ -4227,7 +4191,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   ren->GetTiledSizeAndOrigin(size,size+1,lowerLeft,lowerLeft+1);
 
   vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
-  glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]));
+  glBindTexture(GL_TEXTURE_2D,
+                static_cast<GLuint>(
+                  this->TextureObjects[
+                    vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]));
   glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,lowerLeft[0],lowerLeft[1],size[0],
                       size[1]);
 
@@ -4322,11 +4289,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     NumberOfCroppingRegions=2; // >1, means use do compositing between blocks
     }
-  this->PrintError("before BuildProgram");
   this->BuildProgram(parallelProjection,rayCastMethod,shadeMethod,
                      componentMethod);
   this->CheckLinkage(this->ProgramShader);
-  this->PrintError("after BuildProgram");
 
   vtkgl::UseProgram(this->ProgramShader);
 
@@ -4352,7 +4317,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   uDataSetTexture=vtkgl::GetUniformLocation(
     static_cast<GLuint>(this->ProgramShader),"dataSetTexture");
 
-  this->PrintError("datatexture 1");
   if(uDataSetTexture!=-1)
     {
     vtkgl::Uniform1i(uDataSetTexture,0);
@@ -4361,7 +4325,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     vtkErrorMacro(<<"dataSetTexture is not a uniform variable.");
     }
-  this->PrintError("datatexture 2");
 
   if ( this->MaskInput)
     {
@@ -4371,7 +4334,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     uMaskTexture=vtkgl::GetUniformLocation(
       static_cast<GLuint>(this->ProgramShader),"maskTexture");
 
-    this->PrintError("masktexture 1");
     if(uMaskTexture!=-1)
       {
       vtkgl::Uniform1i(uMaskTexture,7);
@@ -4380,7 +4342,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       {
       vtkErrorMacro(<<"maskTexture is not a uniform variable.");
       }
-    this->PrintError("masktexture 2");
     }
 
   if(numberOfScalarComponents==1)
@@ -4389,7 +4350,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     uColorTexture=vtkgl::GetUniformLocation(
       static_cast<GLuint>(this->ProgramShader),"colorTexture");
 
-    this->PrintError("colortexture 1");
     if(uColorTexture!=-1)
       {
       vtkgl::Uniform1i(uColorTexture,1);
@@ -4398,7 +4358,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       {
       vtkErrorMacro(<<"colorTexture is not a uniform variable.");
       }
-    this->PrintError("colortexture 2");
 
     if(this->MaskInput!=0)
       {
@@ -4406,7 +4365,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       uMask1ColorTexture=vtkgl::GetUniformLocation(
         static_cast<GLuint>(this->ProgramShader),"mask1ColorTexture");
 
-      this->PrintError("mask1Colortexture 1");
       if(uMask1ColorTexture!=-1)
         {
         vtkgl::Uniform1i(uMask1ColorTexture,8);
@@ -4415,14 +4373,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
         {
         vtkErrorMacro(<<"mask1ColorTexture is not a uniform variable.");
         }
-      this->PrintError("mask1colortexture 2");
-
 
       GLint uMask2ColorTexture;
       uMask2ColorTexture=vtkgl::GetUniformLocation(
         static_cast<GLuint>(this->ProgramShader),"mask2ColorTexture");
 
-      this->PrintError("mask2Colortexture 1");
       if(uMask2ColorTexture!=-1)
         {
         vtkgl::Uniform1i(uMask2ColorTexture,9);
@@ -4431,12 +4386,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
         {
         vtkErrorMacro(<<"mask2ColorTexture is not a uniform variable.");
         }
-      this->PrintError("mask2colortexture 2");
 
       GLint uMaskBlendFactor;
       uMaskBlendFactor=vtkgl::GetUniformLocation(
         static_cast<GLuint>(this->ProgramShader),"maskBlendFactor");
-      this->PrintError("maskBlendFactor 1");
       if(uMaskBlendFactor!=-1)
         {
         vtkgl::Uniform1f(uMaskBlendFactor,this->MaskBlendFactor);
@@ -4445,7 +4398,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
         {
         vtkErrorMacro(<<"maskBlendFactor is not a uniform variable.");
         }
-      this->PrintError("maskBlendFactor 2");
       }
 
     }
@@ -4455,7 +4407,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   uOpacityTexture=vtkgl::GetUniformLocation(
     static_cast<GLuint>(this->ProgramShader),"opacityTexture");
 
-  this->PrintError("opacitytexture 1");
   if(uOpacityTexture!=-1)
     {
     vtkgl::Uniform1i(uOpacityTexture,2);
@@ -4464,7 +4415,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     vtkErrorMacro(<<"opacityTexture is not a uniform variable.");
     }
-  this->PrintError("opacitytexture 2");
 
   // depthtexture
   vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
@@ -4475,7 +4425,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   uDepthTexture=vtkgl::GetUniformLocation(
     static_cast<GLuint>(this->ProgramShader),"depthTexture");
 
-  this->PrintError("depthtexture 1");
   if(uDepthTexture!=-1)
     {
     vtkgl::Uniform1i(uDepthTexture,3);
@@ -4484,7 +4433,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     vtkErrorMacro(<<"depthTexture is not a uniform variable.");
     }
-  this->PrintError("depthtexture 2");
 
   // noise texture
   vtkgl::ActiveTexture( vtkgl::TEXTURE6 );
@@ -4496,7 +4444,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   uNoiseTexture=vtkgl::GetUniformLocation(
     static_cast<GLuint>(this->ProgramShader),"noiseTexture");
 
-  this->PrintError("noisetexture 1");
   if(uNoiseTexture!=-1)
     {
     vtkgl::Uniform1i(uNoiseTexture,6);
@@ -4505,8 +4452,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     vtkErrorMacro(<<"noiseTexture is not a uniform variable.");
     }
-  this->PrintError("noisetexture 2");
-
 
   this->CheckFrameBufferStatus();
 
@@ -6089,6 +6034,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
           this->LoadProjectionParameters(ren,volume);
           this->ClipBoundingBox(ren,blocks[k].Bounds,volume);
           abort=this->RenderClippedBoundingBox(1,i,count,ren->GetRenderWindow());
+          if (!abort)
+            {
+            this->CopyFBOToTexture();
+            }
           this->PrintError("render clipped block 1");
 
 
@@ -6185,6 +6134,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   this->LoadProjectionParameters(ren,volume);
   this->ClipBoundingBox(ren,bounds,volume);
   int abort=this->RenderClippedBoundingBox(1,0,1,ren->GetRenderWindow());
+  if (!abort)
+    {
+    this->CopyFBOToTexture();
+    }
   this->PrintError("render clipped 1");
   return abort;
 }
