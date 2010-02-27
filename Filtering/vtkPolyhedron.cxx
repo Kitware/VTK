@@ -49,10 +49,12 @@ vtkPolyhedron::vtkPolyhedron()
   this->FaceLocations = vtkIdTypeArray::New();
   this->PointIdMap = new vtkPointIdMap;
   
-  this->EdgesGenerated = false;
+  this->EdgesGenerated = 0;
   this->EdgeTable = vtkEdgeTable::New();
   this->Edges = vtkIdTypeArray::New();
   this->Edges->SetNumberOfComponents(2);
+
+  this->FacesRenumbered = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -70,10 +72,13 @@ vtkPolyhedron::~vtkPolyhedron()
 }
 
 //----------------------------------------------------------------------------
-// Should be called by GetCell() prior to any other method invocation. Here we
-// assume that the points and faces have already been loaded into the polyhedron.
+// Should be called by GetCell() prior to any other method invocation and after the
+// points, point ids, and faces have been loaded. 
 void vtkPolyhedron::Initialize()
 {
+  // Clear out any remaining memory.
+  this->PointIdMap->clear();
+
   // We need to create a reverse map from the point ids to their canonical cell
   // ids. This is a fancy way of saying that we have to be able to rapidly go
   // from a PointId[i] to the location i in the cell.
@@ -88,6 +93,10 @@ void vtkPolyhedron::Initialize()
   this->EdgesGenerated = 0;
   this->EdgeTable->Reset();
   this->Edges->Reset();
+  
+  // Faces may need renumbering later. This means converting the face ids from
+  // global ids to local, canonical ids.
+  this->FacesRenumbered = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -178,6 +187,37 @@ int vtkPolyhedron::GetNumberOfFaces()
 }
 
 //----------------------------------------------------------------------------
+void vtkPolyhedron::RenumberFaces()
+{
+  if ( this->FacesRenumbered )
+    {
+    return;
+    }
+
+  // Basically we just ron through the faces and change the global ids to the
+  // canonical ids using the PointIdMap.
+  vtkIdType *faces = this->Faces->GetPointer(0);
+  vtkIdType nfaces = faces[0];
+  vtkIdType *face = faces + 1;
+  vtkIdType fid, i, id, npts;
+
+  for (fid=0; fid < nfaces; ++fid)
+    {
+    npts = face[0];
+    for (i=1; i <= npts; ++i)
+      {
+      id = (*this->PointIdMap)[face[i]];
+      face[i] = id;
+      }
+    face += face[0] + 1;
+    } //for all faces
+
+
+  // Okay we've done the deed
+  this->FacesRenumbered = 1;
+}
+
+//----------------------------------------------------------------------------
 vtkCell *vtkPolyhedron::GetFace(int faceId)
 {
   if ( faceId < 0 || faceId >= this->Faces->GetValue(0) )
@@ -185,17 +225,34 @@ vtkCell *vtkPolyhedron::GetFace(int faceId)
     return NULL;
     }
   
+  this->RenumberFaces();
+
   // Okay load up the polygon
   vtkIdType i, p, loc = this->FaceLocations->GetValue(faceId);
   vtkIdType *face = this->Faces->GetPointer(loc);
   
   this->Polygon->PointIds->SetNumberOfIds(face[0]);
   this->Polygon->Points->SetNumberOfPoints(face[0]);
-  for (i=0; i < face[0]; ++i)
+    
+  // Depending on numbering, grab the data differently
+  if ( ! this->FacesRenumbered )
     {
-    this->Polygon->PointIds->SetId(i,face[i+1]);
-    p = (*this->PointIdMap)[face[i+1]];
-    this->Polygon->Points->SetPoint(i,this->Points->GetPoint(p));
+    // faces are still defined in global id space
+    for (i=0; i < face[0]; ++i)
+      {
+      this->Polygon->PointIds->SetId(i,face[i+1]);
+      p = (*this->PointIdMap)[face[i+1]];
+      this->Polygon->Points->SetPoint(i,this->Points->GetPoint(p));
+      }
+    }
+  else
+    {
+    // faces are defined in canonical id space
+    for (i=0; i < face[0]; ++i)
+      {
+      this->Polygon->PointIds->SetId(i,this->PointIds->GetId(face[i+1]));
+      this->Polygon->Points->SetPoint(i,this->Points->GetPoint(face[i+1]));
+      }
     }
 
   return this->Polygon;
@@ -208,7 +265,6 @@ void vtkPolyhedron::SetFaces(vtkIdType *faces)
   // Set up face structure
   this->Faces->Reset();
   this->FaceLocations->Reset();
-  this->PointIdMap->clear();
   
   vtkIdType nfaces = faces[0];
   this->FaceLocations->SetNumberOfValues(nfaces);

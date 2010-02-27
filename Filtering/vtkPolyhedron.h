@@ -172,13 +172,24 @@ protected:
   vtkTetra       *Tetra;
   vtkIdTypeArray *Faces;
   vtkIdTypeArray *FaceLocations;
+
+  // vtkCell has the data members Points (x,y,z coordinates) and PointIds
+  // (global cell ids corresponsing to cell canonical numbering (0,1,2,....).
+  // The PointIdMap maps global point id back to canonoical point id.
   vtkPointIdMap  *PointIdMap;
 
-  // If edges are needed
+  // If edges are needed. Note that the edge numbering is in
+  // canonical space.
   int             EdgesGenerated; //true/false
   vtkEdgeTable   *EdgeTable; //keep track of all edges
   vtkIdTypeArray *Edges; //edge pairs kept in this list
   int             GenerateEdges(); //method populates the edge table and edge array
+
+  // If faces need renumbering into canonical numbering space these members
+  // are used. When initiallly loaded, the face numbering uses global dataset
+  // ids. Once renumbered, they are converted to canonical space.
+  int  FacesRenumbered;
+  void RenumberFaces();
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
