@@ -54,7 +54,7 @@ vtkPolyhedron::vtkPolyhedron()
   this->Edges = vtkIdTypeArray::New();
   this->Edges->SetNumberOfComponents(2);
 
-  this->FacesRenumbered = 0;
+  this->FacesGenerated = 0;
   this->Faces = vtkIdTypeArray::New();
 }
 
@@ -99,7 +99,7 @@ void vtkPolyhedron::Initialize()
   
   // Faces may need renumbering later. This means converting the face ids from
   // global ids to local, canonical ids.
-  this->FacesRenumbered = 0;
+  this->FacesGenerated = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ int vtkPolyhedron::GetNumberOfFaces()
 //----------------------------------------------------------------------------
 void vtkPolyhedron::GenerateFaces()
 {
-  if ( this->FacesRenumbered )
+  if ( this->FacesGenerated )
     {
     return;
     }
@@ -221,7 +221,7 @@ void vtkPolyhedron::GenerateFaces()
 
 
   // Okay we've done the deed
-  this->FacesRenumbered = 1;
+  this->FacesGenerated = 1;
 }
 
 //----------------------------------------------------------------------------

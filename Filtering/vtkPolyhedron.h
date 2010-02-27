@@ -189,7 +189,7 @@ protected:
   // are used. When initiallly loaded, the face numbering uses global dataset
   // ids. Once renumbered, they are converted to canonical space.
   vtkIdTypeArray *Faces; //these are numbered in canonical id space
-  int             FacesRenumbered;
+  int             FacesGenerated;
   void            GenerateFaces();
 
 private:
