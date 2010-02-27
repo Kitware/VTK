@@ -170,7 +170,7 @@ protected:
   vtkTriangle    *Triangle;
   vtkPolygon     *Polygon;
   vtkTetra       *Tetra;
-  vtkIdTypeArray *Faces;
+  vtkIdTypeArray *GlobalFaces; //these are numbered in gloabl id space
   vtkIdTypeArray *FaceLocations;
 
   // vtkCell has the data members Points (x,y,z coordinates) and PointIds
@@ -182,14 +182,15 @@ protected:
   // canonical space.
   int             EdgesGenerated; //true/false
   vtkEdgeTable   *EdgeTable; //keep track of all edges
-  vtkIdTypeArray *Edges; //edge pairs kept in this list
+  vtkIdTypeArray *Edges; //edge pairs kept in this list, in canonical id space
   int             GenerateEdges(); //method populates the edge table and edge array
 
   // If faces need renumbering into canonical numbering space these members
   // are used. When initiallly loaded, the face numbering uses global dataset
   // ids. Once renumbered, they are converted to canonical space.
-  int  FacesRenumbered;
-  void RenumberFaces();
+  vtkIdTypeArray *Faces; //these are numbered in canonical id space
+  int             FacesRenumbered;
+  void            GenerateFaces();
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.

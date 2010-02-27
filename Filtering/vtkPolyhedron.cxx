@@ -45,7 +45,7 @@ vtkPolyhedron::vtkPolyhedron()
   this->Triangle = vtkTriangle::New();
   this->Polygon = vtkPolygon::New();
   this->Tetra = vtkTetra::New();
-  this->Faces = vtkIdTypeArray::New();
+  this->GlobalFaces = vtkIdTypeArray::New();
   this->FaceLocations = vtkIdTypeArray::New();
   this->PointIdMap = new vtkPointIdMap;
   
@@ -55,6 +55,7 @@ vtkPolyhedron::vtkPolyhedron()
   this->Edges->SetNumberOfComponents(2);
 
   this->FacesRenumbered = 0;
+  this->Faces = vtkIdTypeArray::New();
 }
 
 //----------------------------------------------------------------------------
@@ -64,11 +65,12 @@ vtkPolyhedron::~vtkPolyhedron()
   this->Triangle->Delete();
   this->Polygon->Delete();
   this->Tetra->Delete();
-  this->Faces->Delete();
+  this->GlobalFaces->Delete();
   this->FaceLocations->Delete();
   delete this->PointIdMap;
   this->EdgeTable->Delete();
   this->Edges->Delete();
+  this->Faces->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +95,7 @@ void vtkPolyhedron::Initialize()
   this->EdgesGenerated = 0;
   this->EdgeTable->Reset();
   this->Edges->Reset();
+  this->Faces->Reset();
   
   // Faces may need renumbering later. This means converting the face ids from
   // global ids to local, canonical ids.
@@ -147,13 +150,13 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 int vtkPolyhedron::GenerateEdges()
 {
   //check the number of faces and return if there aren't any
-  if ( this->Faces->GetValue(0) <= 0 ) 
+  if ( this->GlobalFaces->GetValue(0) <= 0 ) 
     {
     return 0;
     }
   
   // Loop over all faces, inserting edges into the table
-  vtkIdType *faces = this->Faces->GetPointer(0);
+  vtkIdType *faces = this->GlobalFaces->GetPointer(0);
   vtkIdType nfaces = faces[0];
   vtkIdType *face = faces + 1;
   vtkIdType fid, i, edge[2], npts;
@@ -183,11 +186,11 @@ int vtkPolyhedron::GenerateEdges()
 //----------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfFaces()
 {
-  return this->Faces->GetValue(0);
+  return this->GlobalFaces->GetValue(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::RenumberFaces()
+void vtkPolyhedron::GenerateFaces()
 {
   if ( this->FacesRenumbered )
     {
@@ -196,19 +199,23 @@ void vtkPolyhedron::RenumberFaces()
 
   // Basically we just ron through the faces and change the global ids to the
   // canonical ids using the PointIdMap.
+  this->Faces->SetNumberOfTuples(this->GlobalFaces->GetNumberOfTuples());
+  vtkIdType *gFaces = this->GlobalFaces->GetPointer(0);
   vtkIdType *faces = this->Faces->GetPointer(0);
   vtkIdType nfaces = faces[0];
+  vtkIdType *gFace = gFaces + 1;
   vtkIdType *face = faces + 1;
   vtkIdType fid, i, id, npts;
 
   for (fid=0; fid < nfaces; ++fid)
     {
-    npts = face[0];
+    npts = gFace[0];
     for (i=1; i <= npts; ++i)
       {
-      id = (*this->PointIdMap)[face[i]];
+      id = (*this->PointIdMap)[gFace[i]];
       face[i] = id;
       }
+    gFace += gFace[0] + 1;
     face += face[0] + 1;
     } //for all faces
 
@@ -220,39 +227,26 @@ void vtkPolyhedron::RenumberFaces()
 //----------------------------------------------------------------------------
 vtkCell *vtkPolyhedron::GetFace(int faceId)
 {
-  if ( faceId < 0 || faceId >= this->Faces->GetValue(0) )
+  if ( faceId < 0 || faceId >= this->GlobalFaces->GetValue(0) )
     {
     return NULL;
     }
   
-  this->RenumberFaces();
+  this->GenerateFaces();
 
   // Okay load up the polygon
   vtkIdType i, p, loc = this->FaceLocations->GetValue(faceId);
-  vtkIdType *face = this->Faces->GetPointer(loc);
+  vtkIdType *face = this->GlobalFaces->GetPointer(loc);
   
   this->Polygon->PointIds->SetNumberOfIds(face[0]);
   this->Polygon->Points->SetNumberOfPoints(face[0]);
     
-  // Depending on numbering, grab the data differently
-  if ( ! this->FacesRenumbered )
+  // grab faces in global id space
+  for (i=0; i < face[0]; ++i)
     {
-    // faces are still defined in global id space
-    for (i=0; i < face[0]; ++i)
-      {
-      this->Polygon->PointIds->SetId(i,face[i+1]);
-      p = (*this->PointIdMap)[face[i+1]];
-      this->Polygon->Points->SetPoint(i,this->Points->GetPoint(p));
-      }
-    }
-  else
-    {
-    // faces are defined in canonical id space
-    for (i=0; i < face[0]; ++i)
-      {
-      this->Polygon->PointIds->SetId(i,this->PointIds->GetId(face[i+1]));
-      this->Polygon->Points->SetPoint(i,this->Points->GetPoint(face[i+1]));
-      }
+    this->Polygon->PointIds->SetId(i,face[i+1]);
+    p = (*this->PointIdMap)[face[i+1]];
+    this->Polygon->Points->SetPoint(i,this->Points->GetPoint(p));
     }
 
   return this->Polygon;
@@ -263,13 +257,13 @@ vtkCell *vtkPolyhedron::GetFace(int faceId)
 void vtkPolyhedron::SetFaces(vtkIdType *faces)
 {
   // Set up face structure
-  this->Faces->Reset();
+  this->GlobalFaces->Reset();
   this->FaceLocations->Reset();
   
   vtkIdType nfaces = faces[0];
   this->FaceLocations->SetNumberOfValues(nfaces);
 
-  this->Faces->InsertNextValue(nfaces);
+  this->GlobalFaces->InsertNextValue(nfaces);
   vtkIdType *face = faces + 1;
   vtkIdType faceLoc = 1;
   vtkIdType i, fid, npts;
@@ -277,10 +271,10 @@ void vtkPolyhedron::SetFaces(vtkIdType *faces)
   for (fid=0; fid < nfaces; ++fid)
     {
     npts = face[0];
-    this->Faces->InsertNextValue(npts);
+    this->GlobalFaces->InsertNextValue(npts);
     for (i=1; i<=npts; ++i)
       {
-      this->Faces->InsertNextValue(face[i]);
+      this->GlobalFaces->InsertNextValue(face[i]);
       }
     this->FaceLocations->SetValue(fid,faceLoc);
 
@@ -293,7 +287,7 @@ void vtkPolyhedron::SetFaces(vtkIdType *faces)
 // Return the list of faces for this cell.
 vtkIdType *vtkPolyhedron::GetFaces()
 {
-  return this->Faces->GetPointer(0);
+  return this->GlobalFaces->GetPointer(0);
 }
 
 //----------------------------------------------------------------------------
@@ -393,6 +387,6 @@ void vtkPolyhedron::PrintSelf(ostream& os, vtkIndent indent)
   this->Tetra->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Faces:\n";
-  this->Faces->PrintSelf(os,indent.GetNextIndent());
+  this->GlobalFaces->PrintSelf(os,indent.GetNextIndent());
 
 }
