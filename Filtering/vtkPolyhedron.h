@@ -37,11 +37,15 @@
 class vtkIdTypeArray;
 class vtkCellArray;
 class vtkTriangle;
+class vtkQuad;
 class vtkTetra;
 class vtkPolygon;
 class vtkLine;
 struct vtkPointIdMap;
 class vtkEdgeTable;
+class vtkPolyData;
+class vtkCellLocator;
+class vtkGenericCell;
 
 
 class VTK_FILTERING_EXPORT vtkPolyhedron : public vtkCell3D
@@ -115,7 +119,7 @@ public:
   // Intersect the line (p1,p2) with a given tolerance tol to determine a
   // point of intersection x[3] with parametric coordinate t along the
   // line. The parametric coordinates are returned as well (subId can be
-  // ignored).
+  // ignored). Returns the number of intersection points.
   virtual int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                                 double x[3], double pcoords[3], int& subId);
 
@@ -161,6 +165,13 @@ public:
   virtual void SetFaces(vtkIdType *faces);
   virtual vtkIdType *GetFaces();
 
+  // Descriprion:
+  // A method particular to vtkPolyhedron. It determines whether a point x[3]
+  // is inside the polyhedron or not (returns 1 is the point is inside, 0
+  // otherwise). The tolerance is expressed in normalized space; i.e., a
+  // fraction of the size of the bounding box.
+  int IsInside(double x[3], double tolerance);
+
 protected:
   vtkPolyhedron();
   ~vtkPolyhedron();
@@ -168,14 +179,17 @@ protected:
   // Internal classes for supporting operations on this cell
   vtkLine        *Line;
   vtkTriangle    *Triangle;
+  vtkQuad        *Quad;
   vtkPolygon     *Polygon;
   vtkTetra       *Tetra;
   vtkIdTypeArray *GlobalFaces; //these are numbered in gloabl id space
   vtkIdTypeArray *FaceLocations;
 
   // vtkCell has the data members Points (x,y,z coordinates) and PointIds
-  // (global cell ids corresponsing to cell canonical numbering (0,1,2,....).
-  // The PointIdMap maps global point id back to canonoical point id.
+  // (global cell ids corresponsing to cell canonical numbering (0,1,2,....)).
+  // These data members are implicitly organized in canonical space, i.e., where
+  // the cell point ids are (0,1,...,npts-1). The PointIdMap maps global point id 
+  // back to these canonoical point ids.
   vtkPointIdMap  *PointIdMap;
 
   // If edges are needed. Note that the edge numbering is in
@@ -191,6 +205,24 @@ protected:
   vtkIdTypeArray *Faces; //these are numbered in canonical id space
   int             FacesGenerated;
   void            GenerateFaces();
+
+  // Bounds management
+  int    BoundsComputed;
+  double CachedBounds[6];
+  void   ComputeBounds();
+  void   ComputeParametricCoordinate(double x[3], double pc[3]);
+
+  // Members for supporting geometric operations
+  int             PolyDataConstructed;
+  vtkPolyData    *PolyData;
+  vtkCellArray   *Polys;
+  vtkIdTypeArray *PolyConnectivity;
+  void            ConstructPolyData();
+  int             LocatorConstructed;
+  vtkCellLocator *CellLocator;
+  void            ConstructLocator();
+  vtkIdList      *CellIds;
+  vtkGenericCell *Cell;
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
