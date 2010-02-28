@@ -23,6 +23,9 @@
 #include "vtkStructuredGridReader.h"
 #include "vtkExtractEdges.h"
 #include "vtkProperty.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkGenericCell.h"
+#include "vtkPolyhedron.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -65,6 +68,25 @@ int TestExtractPolyhedralMesh( int argc, char* argv[] )
     vtkSmartPointer<vtkActor>::New();
   eActor->SetMapper(eMapper);
   eActor->GetProperty()->SetColor(0,0,0);
+
+  // Now try picking the polyhedron
+  vtkSmartPointer<vtkGenericCell> pCell =
+    vtkSmartPointer<vtkGenericCell>::New();
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid =
+    extract->GetOutput();
+  ugrid->GetCell(100,pCell);
+  double p1[3] = {-1,.14,.14};
+  double p2[3] = { 1,.14,.14};
+  double tol = 0.001;
+  double t, x[3], pc[3];
+  int subId=0;
+  int numInts = pCell->IntersectWithLine(p1,p2,tol,t,x,pc,subId); //should be 2
+
+  // See if points are inside or outside
+  vtkPolyhedron *pCell2 = static_cast<vtkPolyhedron*>(ugrid->GetCell(100));
+  int inside = pCell2->IsInside(p1,tol); //should be out
+  p2[0] = 0.01; p2[1] = .14; p2[2] = .14;
+  inside = pCell2->IsInside(p2,tol); //should be in
 
   // Create rendering infrastructure
   vtkSmartPointer<vtkRenderer> ren = 

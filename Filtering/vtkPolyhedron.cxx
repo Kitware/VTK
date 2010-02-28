@@ -104,7 +104,7 @@ void vtkPolyhedron::ComputeBounds()
     return;
     }
 
-  this->Superclass::GetBounds(this->CachedBounds);
+  this->Superclass::GetBounds(); //stored in this->Bounds
   this->BoundsComputed = 1;
 }
 
@@ -118,7 +118,7 @@ void vtkPolyhedron::ConstructPolyData()
   this->GenerateFaces();
   
   this->PolyConnectivity->
-    SetArray(this->Faces->GetPointer(1), this->Faces->GetSize(),1);
+    SetArray(this->Faces->GetPointer(1), this->Faces->GetSize()-1, 1);
   this->Polys->
     SetCells(*(this->Faces->GetPointer(0)), this->PolyConnectivity);
 
@@ -147,7 +147,7 @@ void vtkPolyhedron::ConstructLocator()
 void vtkPolyhedron::ComputeParametricCoordinate(double x[3], double pc[3])
 {
   this->ComputeBounds();
-  double *bounds = this->CachedBounds;
+  double *bounds = this->Bounds;
   pc[0] = (x[0] - bounds[0]) / (bounds[1] - bounds[0]);
   pc[1] = (x[1] - bounds[2]) / (bounds[3] - bounds[2]);
   pc[2] = (x[2] - bounds[4]) / (bounds[5] - bounds[4]);
@@ -290,7 +290,7 @@ void vtkPolyhedron::GenerateFaces()
   this->Faces->SetNumberOfTuples(this->GlobalFaces->GetNumberOfTuples());
   vtkIdType *gFaces = this->GlobalFaces->GetPointer(0);
   vtkIdType *faces = this->Faces->GetPointer(0);
-  vtkIdType nfaces = faces[0];
+  vtkIdType nfaces = gFaces[0]; faces[0] = nfaces;
   vtkIdType *gFace = gFaces + 1;
   vtkIdType *face = faces + 1;
   vtkIdType fid, i, id, npts;
@@ -298,6 +298,7 @@ void vtkPolyhedron::GenerateFaces()
   for (fid=0; fid < nfaces; ++fid)
     {
     npts = gFace[0];
+    face[0] = npts;
     for (i=1; i <= npts; ++i)
       {
       id = (*this->PointIdMap)[gFace[i]];
@@ -456,7 +457,7 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
 {
   // do a quick bounds check
   this->ComputeBounds();
-  double *bounds = this->CachedBounds;
+  double *bounds = this->Bounds;
   if ( x[0] < bounds[0] || x[0] > bounds[1] ||
        x[1] < bounds[2] || x[1] > bounds[3] ||
        x[2] < bounds[4] || x[2] > bounds[5])
@@ -464,6 +465,9 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
     return 0;
     }
   
+  // It's easiest if these computations are done in canonical space
+  this->GenerateFaces();
+
   // This algorithm is adaptive; if there are enough faces in this
   // polyhedron, a cell locator is built to accelerate intersections.
   // Otherwise brute force looping over cells is used.
@@ -517,15 +521,15 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
       xray[i] = x[i] + (length/rayMag)*ray[i];
       }
 
-    // Retrieve the candidate cells from the locator
-    this->CellLocator->FindCellsAlongLine(x,xray,tol,this->CellIds);
-
     // Intersect the line with each of the candidate cells
     numInts = 0;
-    numCells = this->CellIds->GetNumberOfIds();
 
     if ( this->LocatorConstructed )
       {
+      // Retrieve the candidate cells from the locator
+      this->CellLocator->FindCellsAlongLine(x,xray,tol,this->CellIds);
+      numCells = this->CellIds->GetNumberOfIds();
+
       for ( idx=0; idx < numCells; idx++ )
         {
         this->PolyData->GetCell(this->CellIds->GetId(idx), this->Cell);
@@ -537,6 +541,9 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
       }
     else
       {
+      numCells = nfaces;
+      this->ConstructPolyData();
+
       for ( idx=0; idx < numCells; idx++ )
         {
         this->PolyData->GetCell(idx, this->Cell);

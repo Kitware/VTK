@@ -208,7 +208,6 @@ protected:
 
   // Bounds management
   int    BoundsComputed;
-  double CachedBounds[6];
   void   ComputeBounds();
   void   ComputeParametricCoordinate(double x[3], double pc[3]);
 
