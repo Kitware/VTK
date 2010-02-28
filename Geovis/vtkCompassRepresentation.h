@@ -19,13 +19,13 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkCompassWidgetRepresentation - provide a compass
+// .NAME vtkCompassRepresentation - provide a compass
 // .SECTION Description
 // This class is used to represent and render a compass.  
 
 
-#ifndef __vtkCompassWidgetRepresentation_h
-#define __vtkCompassWidgetRepresentation_h
+#ifndef __vtkCompassRepresentation_h
+#define __vtkCompassRepresentation_h
 
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
