@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.11");
+vtkCxxRevisionMacro(vtkChart, "1.12");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -33,12 +33,14 @@ vtkChart::vtkChart()
   this->Point2[0] = 0;
   this->Point2[1] = 0;
   this->ShowLegend = false;
+  this->Title = NULL;
   this->AnnotationLink = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkChart::~vtkChart()
 {
+  this->SetTitle(NULL);
 }
 
 //-----------------------------------------------------------------------------

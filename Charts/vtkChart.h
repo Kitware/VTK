@@ -112,6 +112,11 @@ public:
   vtkGetMacro(ShowLegend, bool);
 
   // Description:
+  // Get/set the title text of the chart.
+  vtkSetStringMacro(Title);
+  vtkGetStringMacro(Title);
+
+  // Description:
   // Set/get the borders of the chart (space in pixels around the chart).
   void SetBottomBorder(int border);
   void SetTopBorder(int border);
@@ -146,6 +151,10 @@ protected:
   // Description:
   // Display the legend?
   bool ShowLegend;
+
+  // Description:
+  // The title of the chart
+  char* Title;
 
 private:
   vtkChart(const vtkChart &); // Not implemented.
