@@ -130,8 +130,6 @@ int ex_cvt_nodes_to_sides(int exoid,
                           int *side_sets_node_list,
                           int *side_sets_side_list)
 {
-  (void)side_sets_elem_index;
-  (void)side_sets_node_index;
   size_t m;
   int i, j, k, n;
   int  num_side_sets, num_elem_blks;
@@ -196,6 +194,9 @@ int ex_cvt_nodes_to_sides(int exoid,
   };
 
   char errmsg[MAX_ERR_LENGTH];
+
+  (void)side_sets_elem_index;
+  (void)side_sets_node_index;
 
   exerrval = 0; /* clear error code */
 
