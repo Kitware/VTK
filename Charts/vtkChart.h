@@ -27,6 +27,7 @@ class vtkContext2D;
 class vtkContextScene;
 class vtkPlot;
 class vtkAxis;
+class vtkTextProperty;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
@@ -117,6 +118,10 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
+  // Get the vtkTextProperty that governs how the chart title is displayed.
+  vtkGetObjectMacro(TitleProperties, vtkTextProperty);
+
+  // Description:
   // Set/get the borders of the chart (space in pixels around the chart).
   void SetBottomBorder(int border);
   void SetTopBorder(int border);
@@ -155,6 +160,10 @@ protected:
   // Description:
   // The title of the chart
   char* Title;
+
+  // Description:
+  // The text properties associated with the chart
+  vtkTextProperty* TitleProperties;
 
 private:
   vtkChart(const vtkChart &); // Not implemented.

@@ -17,10 +17,11 @@
 
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
+#include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.12");
+vtkCxxRevisionMacro(vtkChart, "1.13");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -34,6 +35,11 @@ vtkChart::vtkChart()
   this->Point2[1] = 0;
   this->ShowLegend = false;
   this->Title = NULL;
+  this->TitleProperties = vtkTextProperty::New();
+  this->TitleProperties->SetJustificationToCentered();
+  this->TitleProperties->SetColor(0.0, 0.0, 0.0);
+  this->TitleProperties->SetFontSize(12);
+  this->TitleProperties->SetFontFamilyToArial();
   this->AnnotationLink = NULL;
 }
 
@@ -41,6 +47,7 @@ vtkChart::vtkChart()
 vtkChart::~vtkChart()
 {
   this->SetTitle(NULL);
+  this->TitleProperties->Delete();
 }
 
 //-----------------------------------------------------------------------------

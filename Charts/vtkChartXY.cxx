@@ -68,7 +68,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.39");
+vtkCxxRevisionMacro(vtkChartXY, "1.40");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -254,6 +254,16 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->GetPen()->SetWidth(1.0);
     painter->DrawRect(this->BoxOrigin[0], this->BoxOrigin[1],
                       this->BoxGeometry[0], this->BoxGeometry[1]);
+    }
+
+  if (this->Title)
+    {
+    vtkPoints2D *rect = vtkPoints2D::New();
+    rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
+    rect->InsertNextPoint(this->Point2[0]-this->Point1[0], 10);
+    painter->ApplyTextProp(this->TitleProperties);
+    painter->DrawStringRect(rect, this->Title);
+    rect->Delete();
     }
 
   return true;
