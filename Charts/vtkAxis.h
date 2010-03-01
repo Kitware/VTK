@@ -121,8 +121,8 @@ public:
 
   // Description:
   // Get/set whether the axis grid lines should be drawn, default is true.
-  vtkSetMacro(ShowGrid, bool);
-  vtkGetMacro(ShowGrid, bool);
+  vtkSetMacro(GridVisible, bool);
+  vtkGetMacro(GridVisible, bool);
 
   // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
@@ -178,7 +178,7 @@ protected:
   int TitleSize;       // The point size of the axis label
   char *Title;         // The text label drawn on the axis
   bool LogScale;       // Should the axis use a log scale
-  bool ShowGrid;       // Whether the grid for the axis should be drawn
+  bool GridVisible;    // Whether the grid for the axis should be drawn
 
   vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates
   vtkStringArray* TickLabels; // The labels for the tick marks

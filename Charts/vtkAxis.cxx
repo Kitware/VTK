@@ -27,7 +27,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.14");
+vtkCxxRevisionMacro(vtkAxis, "1.15");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -48,7 +48,7 @@ vtkAxis::vtkAxis()
   this->TitleSize = 15;
   this->Title = NULL;
   this->LogScale = false;
-  this->ShowGrid = true;
+  this->GridVisible = true;
   this->TickPositions = vtkFloatArray::New();
   this->TickLabels = vtkStringArray::New();
 }
