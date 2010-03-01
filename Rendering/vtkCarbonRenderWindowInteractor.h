@@ -16,7 +16,7 @@
 // required by vtkRenderWindowInteractor.
 //
 // .SECTION Description
-// The interactor interfaces with vtkCarbonWindow.mm and vtkCarbonGLView.mm
+// The interactor interfaces with vtkCarbonWindow
 // to trap messages from the Carbon window manager and send them to vtk.
 //
 #ifndef __vtkCarbonRenderWindowInteractor_h
