@@ -36,17 +36,15 @@ public:
   vtkTypeRevisionMacro(vtkChartXY, vtkChart);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
-  // Description:
-  // Enum of the available chart types
-  enum Type {
-    LINE,
-    STACKED};
-//ETX
-
   // Description:
   // Creates a 2D Chart object.
   static vtkChartXY *New();
+
+  // Description:
+  // Perform any updates to the item that may be necessary before rendering.
+  // The scene should take care of calling this on all items before their
+  // Paint function is invoked.
+  virtual void Update();
 
   // Description:
   // Paint event for the chart, called whenever the chart needs to be drawn
@@ -74,8 +72,9 @@ public:
   virtual vtkIdType GetNumberPlots();
 
   // Description:
-  // Get the axis specified by axisIndex. 0 is x, 1 is y. This should probably
+  // Get the axis specified by axisIndex. This should probably
   // be improved either using a string or enum to select the axis.
+  // (0 - left, 1 - bottom, 2 - right, 3 - top).
   virtual vtkAxis* GetAxis(int axisIndex);
 
   // Description:
@@ -145,10 +144,6 @@ protected:
   // Description:
   // Process a rubber band selection event.
   virtual void ProcessSelectionEvent(vtkObject* caller, void* callData);
-
-  // Description:
-  // The X and Y axes for the chart
-  vtkAxis *XAxis, *YAxis;
 
   // Description:
   // The grid for the chart.
